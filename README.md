@@ -6,7 +6,9 @@ A shrinking-wheel dungeon. Friends play the itch.io page. This repo is the sourc
 
 ## Play
 
-After the first HTML5 upload, the itch link goes here.
+Source: https://github.com/Nathan-Elequin/swipe
+
+The itch.io Play link goes here after you upload `build/swipe-web.zip` (HTML, played in the browser).
 
 ## Open in Godot (editing)
 
