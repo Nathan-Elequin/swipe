@@ -1,0 +1,356 @@
+﻿category,key,where,text
+Title,title.overlay,Title parchment headline,Swipe
+Title,title.sub,Title parchment subtitle,"You just couldn't keep your grubby hands off their loot, could ya?"
+Title,title.how_to_play,Title + pause button,How to Play
+Title,title.dive_in,Title + pause button,Quick Start
+Title,title.begin,Title + pause button,Play
+Title,title.adventure,Title + pause button,Adventure Mode
+Title,title.rest,Between-dungeon headline,On to the next haul.
+Title,title.rest_sub,Between-dungeon subtitle,So you've cleared {n} Dungeons. Better hold on to that loot - you'll need it in the next one.
+Title,title.continue,Between-dungeon Continue,Delve Deeper
+Title,title.leave,Between-dungeon Leave,Exit
+Title,title.adventure_win,Adventure victory headline,Victory
+Title,title.dungeons_cleared,Adventure tally, {n} Dungeons Cleared!
+Title,adventure.scarier,Opening-owner transform line,The dungeon gets more dangerous...
+Title,title.win,Victory headline,Successfully Swiped
+Title,title.win_sub,Victory subtitle,Now I just need a place to store this stuff
+Title,title.lose,Defeat headline,Defeated
+Title,title.lose_sub,Defeat subtitle,"Thievery never pays. Or rather, it pays in trouble."
+Title,title.again,Victory / defeat button,Again
+Pause,pause.settings,Escape menu title,Settings
+Pause,pause.hint,Escape menu,
+Pause,pause.resume,Escape menu button,Resume
+Pause,pause.quit,Escape menu button,Quit
+Pause,pause.start_over,Escape menu label,Start over
+Tutorial,tutorial.speaker,Talk box name,Nib
+Tutorial,tutorial.skip,How to Play skip button,Skip
+Tutorial,tutorial.nudge_wait,Wrong click during How to Play,Hey — finish this first.
+Tutorial,tutorial.nudge_item,Wrong item during How to Play,Wrong shiny.
+Tutorial,tutorial.beat.01.body,How to Play step 1 · continue / (none) · main line,I'm Nib. You're the reason eight angry owners know this address. Survive three scrapes and I'll call you a professional.
+Tutorial,tutorial.beat.01.go,How to Play step 1 · continue button,I'm in
+Tutorial,tutorial.beat.01.hint,How to Play step 1 · gold hint,
+Tutorial,tutorial.beat.02.body,How to Play step 2 · continue / wheel · main line,"Round room. Eight alcoves. The floor turns — whoever stops in front of you gets a swing. I parked a Golem, a Wizard, and a Berserker. Follow my finger."
+Tutorial,tutorial.beat.02.go,How to Play step 2 · continue button,Show me
+Tutorial,tutorial.beat.02.hint,How to Play step 2 · gold hint,
+Tutorial,tutorial.beat.03.body,How to Play step 3 · continue / hearts · main line,Those hearts are your pulse. Zero means they pry the loot off you. One heart left still counts. Pretty leftovers don't.
+Tutorial,tutorial.beat.03.go,How to Play step 3 · continue button,Got it
+Tutorial,tutorial.beat.03.hint,How to Play step 3 · gold hint,
+Tutorial,tutorial.beat.04.body,How to Play step 4 · hover_item / hotbar · main line,Stolen goods sit along the bottom. Hover a card. Hold Shift if you want the ugly math instead of the big number.
+Tutorial,tutorial.beat.04.go,How to Play step 4 · continue button,
+Tutorial,tutorial.beat.04.hint,How to Play step 4 · gold hint,(hover any item)
+Tutorial,tutorial.beat.05.body,How to Play step 5 · continue / item:helmet · main line,Helmet's number breathes with your health — ignore it for now. Shield is the soft landing. Flail gets hungrier if you bleed. Boot's the dirty trick. Don't ask how I got it.
+Tutorial,tutorial.beat.05.go,How to Play step 5 · continue button,Fine
+Tutorial,tutorial.beat.05.hint,How to Play step 5 · gold hint,
+Tutorial,tutorial.beat.06.body,How to Play step 6 · spin / spin · main line,Hit Spin. I'll cheat the Golem into place. Big. Slow. Hits for three.
+Tutorial,tutorial.beat.06.go,How to Play step 6 · continue button,
+Tutorial,tutorial.beat.06.hint,How to Play step 6 · gold hint,(click Spin)
+Tutorial,tutorial.beat.07.body,How to Play step 7 · item:shield / item:shield · main line,Three coming in. Shield gives four. Tap the Shield before you eat the knuckles.
+Tutorial,tutorial.beat.07.go,How to Play step 7 · continue button,
+Tutorial,tutorial.beat.07.hint,How to Play step 7 · gold hint,(click Shield)
+Tutorial,tutorial.beat.08.body,How to Play step 8 · continue / wheel · main line,"Gold in the middle is Block — a pillow for this scrap only. Fight ends, pillow vanishes. Hearts stick around. That's the deal."
+Tutorial,tutorial.beat.08.go,How to Play step 8 · continue button,OK
+Tutorial,tutorial.beat.08.hint,How to Play step 8 · gold hint,
+Tutorial,tutorial.beat.09.body,How to Play step 9 · done / done · main line,"Button says Safe because you covered it. Click it. If a heart had cracked, we'd still walk — breathing is the scoreboard."
+Tutorial,tutorial.beat.09.go,How to Play step 9 · continue button,
+Tutorial,tutorial.beat.09.hint,How to Play step 9 · gold hint,(click Safe)
+Tutorial,tutorial.beat.10.body,How to Play step 10 · continue / trophy · main line,Pillow's gone. You're not. That skull plaque is your tally — Flail's watching it too. Two owners left who want their stuff.
+Tutorial,tutorial.beat.10.go,How to Play step 10 · continue button,Spin when ready
+Tutorial,tutorial.beat.10.hint,How to Play step 10 · gold hint,
+Tutorial,tutorial.beat.11.body,How to Play step 11 · spin / spin · main line,Spin. Wizard this time. Don't open your mouth for whatever they're cooking.
+Tutorial,tutorial.beat.11.go,How to Play step 11 · continue button,
+Tutorial,tutorial.beat.11.hint,How to Play step 11 · gold hint,(click Spin)
+Tutorial,tutorial.beat.12.body,How to Play step 12 · item:da_boot / item:da_boot · main line,"Five attack, two health. You could pillow up and still get nicked — or end it. Click the Boot. Less health than you? Fight's over. They don't get a speech."
+Tutorial,tutorial.beat.12.go,How to Play step 12 · continue button,
+Tutorial,tutorial.beat.12.hint,How to Play step 12 · gold hint,(click the Boot)
+Tutorial,tutorial.beat.13.body,How to Play step 13 · continue / item:helmet · main line,"That's the other door out of a fight: finish the fragile ones. Flail only fattens when you bleed — you didn't, so it's still a 2. Helmet pillows the last brat."
+Tutorial,tutorial.beat.13.go,How to Play step 13 · continue button,Got it
+Tutorial,tutorial.beat.13.hint,How to Play step 13 · gold hint,
+Tutorial,tutorial.beat.14.body,How to Play step 14 · hover_slice:berserker / wheel · main line,Last alcove. Hover them. Owners brag if you listen. This one gets louder every time you win. Charming.
+Tutorial,tutorial.beat.14.go,How to Play step 14 · continue button,
+Tutorial,tutorial.beat.14.hint,How to Play step 14 · gold hint,(hover the Berserker)
+Tutorial,tutorial.beat.15.body,How to Play step 15 · spin / spin · main line,Spin. Berserker hits three. Helmet matches the smaller health bar — yours or theirs.
+Tutorial,tutorial.beat.15.go,How to Play step 15 · continue button,
+Tutorial,tutorial.beat.15.hint,How to Play step 15 · gold hint,(click Spin)
+Tutorial,tutorial.beat.16.body,How to Play step 16 · item:helmet / item:helmet · main line,Helmet. Now. Four block into three attack. Do the math with your fingers if you have to.
+Tutorial,tutorial.beat.16.go,How to Play step 16 · continue button,
+Tutorial,tutorial.beat.16.hint,How to Play step 16 · gold hint,(click Helmet)
+Tutorial,tutorial.beat.17.body,How to Play step 17 · done / done · main line,Safe. Pillow dumps. Hearts stay. That's how a thief keeps a pile.
+Tutorial,tutorial.beat.17.go,How to Play step 17 · continue button,
+Tutorial,tutorial.beat.17.hint,How to Play step 17 · gold hint,(click Safe)
+Tutorial,tutorial.beat.18.body,How to Play step 18 · continue / (none) · main line,"You're still breathing. I still want my cut. Dive In is the real room — I don't steer, and eight owners show up hungry. Try not to scream for me."
+Tutorial,tutorial.beat.18.go,How to Play step 18 · continue button,I'm good
+Tutorial,tutorial.beat.18.hint,How to Play step 18 · gold hint,
+Door,door.title,Gate chrome top,THE DOOR
+Door,door.shiny,Gate chrome over the item,THE BAIT
+Door,door.owner,Gate chrome over the silhouette,THE OWNER
+Door,door.help,Gate under the metal stamp,Hover the bait. Hold Shift for the math. Same metal means same trouble.
+Door,door.hook,Gate before Take. {item} = loot name,Take {item} and its owner kicks through that door.
+Door,door.take,Take button. {n} = pack tier,Take it — invite Tier {n}
+Door,door.pass,Pass button while passes remain. {n} = passes left,Pass
+Door,door.pass_none,Pass button at 0 remaining,Pass
+Door,door.seat,"After reveal, before you click a +",Park them.
+Cues,cue.starters,Begin: four starters land NESW,"Four freeloaders already claimed north, east, south, and west."
+Cues,cue.force,No passes left — auto fill,No passes. The rest come in.
+Cues,cue.ask,"Draft choice, passes remaining","Steal it, or pass."
+Cues,cue.steal,"Draft choice, no passes left",Steal it.
+Cues,cue.seat,"After steal, pick an alcove",Park them.
+Cues,cue.filling,Between door packs,More owners. Less floor.
+Cues,cue.ready,"Wheel full, combat",Spin — somebody wants their stuff.
+Cues,cue.fighting,During a fight,"Spend loot, or eat the hit."
+Cues,cue.mark,Poison / Crossbow neighbor pick,Pick a neighbor.
+Cues,cue.devtest,Developer Test (leave unless you want it player-facing),"Click a monster to seat it, an item to add it to your hand. Play when you have at least one owner."
+Combat,combat.spin,Spin button,Spin
+Combat,combat.safe,Done button when incoming hit is 0,Safe
+Combat,combat.take_hit,Done button when you will lose hearts. {n} = incoming,Take {n}
+Combat,combat.blocked,Flash on the slice when you pillow it,BLOCKED
+Combat,combat.slain,Flash on the slice when they leave,SLAIN
+Combat,combat.knife_throw,Throwing Knife choice A,"ATK 3, discard"
+Combat,combat.knife_nick,Throwing Knife choice B,"ATK 1, keep"
+Inspect,inspect.title,Idle inspect headline,Inspect
+Inspect,inspect.idle,Idle inspect body,"Hover an owner on the ring, or loot in your hand."
+Inspect,inspect.empty_title,Empty alcove headline,Empty
+Inspect,inspect.empty_place,Empty alcove while seating,Empty alcove
+Inspect,inspect.empty,Empty alcove otherwise,Nobody home. Yet.
+Inspect,inspect.shift,"Monster inspect, Shift hint",hold Shift to explain
+Inspect,inspect.placeholder,Editor inspect fallback,—
+Warns,warn.spent,Used item this fight,Already spent this scrap.
+Warns,warn.boot,the Boot cannot fire,"Can't — they're as healthy as you, or healthier."
+Warns,warn.neighbor,Bracers / Pocketwatch no neighbor,Can't — nobody next door.
+Warns,warn.sledge,Sledgehammer cannot fire,Can't — they don't hit hard enough.
+Warns,warn.poison,Poison Flask cannot fire,Can't — no neighbor to spike.
+Warns,warn.crossbow,Crossbow cannot fire,Can't — no soft neighbor who can take a bolt.
+Taunts,taunt.default.1,Door balloon fallback 1 of 5. {item} = loot name,Hey! That {item} was in MY bag!
+Taunts,taunt.default.2,Door balloon fallback 2 of 5. {item} = loot name,Put the {item} down before I make you.
+Taunts,taunt.default.3,Door balloon fallback 3 of 5. {item} = loot name,You nicked the {item}. I noticed. Bad day for you.
+Taunts,taunt.default.4,Door balloon fallback 4 of 5. {item} = loot name,Cute fingers. The {item} still has my name on it.
+Taunts,taunt.default.5,Door balloon fallback 5 of 5. {item} = loot name,Keep the {item} warm. I'm taking it off you warm.
+Taunts,taunt.throwing_knife.1,Door balloon after taking throwing_knife · line 1 of 5,My knife?! Spit it out!
+Taunts,taunt.throwing_knife.2,Door balloon after taking throwing_knife · line 2 of 5,You steal a blade and smile? I'm smiling next.
+Taunts,taunt.throwing_knife.3,Door balloon after taking throwing_knife · line 3 of 5,That knife leaves with me. Fingers optional.
+Taunts,taunt.throwing_knife.4,Door balloon after taking throwing_knife · line 4 of 5,"One knife. Two claimants. Do the math, pest."
+Taunts,taunt.throwing_knife.5,Door balloon after taking throwing_knife · line 5 of 5,Don't throw it. I want it back unbent.
+Taunts,taunt.shield.1,Door balloon after taking shield · line 1 of 5,"That's MY shield, you little raccoon!"
+Taunts,taunt.shield.2,Door balloon after taking shield · line 2 of 5,Hide behind it. I'll wait. I've waited worse.
+Taunts,taunt.shield.3,Door balloon after taking shield · line 3 of 5,Stolen wood won't save sticky fingers.
+Taunts,taunt.shield.4,Door balloon after taking shield · line 4 of 5,Nice grab. Terrible future.
+Taunts,taunt.shield.5,Door balloon after taking shield · line 5 of 5,Keep it up. Makes the pry job easier.
+Taunts,taunt.sai.1,Door balloon after taking sai · line 1 of 5,Those prongs are mine!
+Taunts,taunt.sai.2,Door balloon after taking sai · line 2 of 5,You grabbed my Sai. Now we dance ugly.
+Taunts,taunt.sai.3,Door balloon after taking sai · line 3 of 5,Pokey thief. Pokey ending.
+Taunts,taunt.sai.4,Door balloon after taking sai · line 4 of 5,Put them down. I asked nice once.
+Taunts,taunt.sai.5,Door balloon after taking sai · line 5 of 5,Fancy steal. Still mine.
+Taunts,taunt.medallion.1,Door balloon after taking medallion · line 1 of 5,My luck charm — on YOU?!
+Taunts,taunt.medallion.2,Door balloon after taking medallion · line 2 of 5,Shiny thief. Short career.
+Taunts,taunt.medallion.3,Door balloon after taking medallion · line 3 of 5,That medallion hums for me. You're noise.
+Taunts,taunt.medallion.4,Door balloon after taking medallion · line 4 of 5,Hand it over. I'll be almost polite.
+Taunts,taunt.medallion.5,Door balloon after taking medallion · line 5 of 5,Jewelry on a pest. Classic last mistake.
+Taunts,taunt.helmet.1,Door balloon after taking helmet · line 1 of 5,My helmet! Wrong head!
+Taunts,taunt.helmet.2,Door balloon after taking helmet · line 2 of 5,Cover up. I'll aim anyway.
+Taunts,taunt.helmet.3,Door balloon after taking helmet · line 3 of 5,You swiped my lid. Bold. Dumb.
+Taunts,taunt.helmet.4,Door balloon after taking helmet · line 4 of 5,That metal's mine. Your thoughts can stay.
+Taunts,taunt.helmet.5,Door balloon after taking helmet · line 5 of 5,Wear it. I'll take the rest separately.
+Taunts,taunt.da_boot.1,Door balloon after taking da_boot · line 1 of 5,MY BOOT — give it!
+Taunts,taunt.da_boot.2,Door balloon after taking da_boot · line 2 of 5,You stole a boot. I stole a seat. Guess who wins.
+Taunts,taunt.da_boot.3,Door balloon after taking da_boot · line 3 of 5,That's my size. Your foot's a suggestion.
+Taunts,taunt.da_boot.4,Door balloon after taking da_boot · line 4 of 5,Boot thief. I'm laughing. Then I'm not.
+Taunts,taunt.da_boot.5,Door balloon after taking da_boot · line 5 of 5,Keep it laced. I reclaim clean.
+Taunts,taunt.grimoire.1,Door balloon after taking grimoire · line 1 of 5,My book! Close it!
+Taunts,taunt.grimoire.2,Door balloon after taking grimoire · line 2 of 5,"Homework's over, thief. Fight's on."
+Taunts,taunt.grimoire.3,Door balloon after taking grimoire · line 3 of 5,Magic pages. Sticky paws. Bad combo — for you.
+Taunts,taunt.grimoire.4,Door balloon after taking grimoire · line 4 of 5,Don't crease it. I'll still fold you.
+Taunts,taunt.grimoire.5,Door balloon after taking grimoire · line 5 of 5,That grimoire called me. You just grabbed.
+Taunts,taunt.bloody_gauntlets.1,Door balloon after taking bloody_gauntlets · line 1 of 5,Those gloves were already my color!
+Taunts,taunt.bloody_gauntlets.2,Door balloon after taking bloody_gauntlets · line 2 of 5,You put them on. I put on teeth.
+Taunts,taunt.bloody_gauntlets.3,Door balloon after taking bloody_gauntlets · line 3 of 5,Red looks busy on you. It'll look better elsewhere.
+Taunts,taunt.bloody_gauntlets.4,Door balloon after taking bloody_gauntlets · line 4 of 5,Sticky red fingers. Adorable. Temporary.
+Taunts,taunt.bloody_gauntlets.5,Door balloon after taking bloody_gauntlets · line 5 of 5,Gauntlets: mine. Blood: negotiable.
+Taunts,taunt.breastplate.1,Door balloon after taking breastplate · line 1 of 5,My plate — on a pest?!
+Taunts,taunt.breastplate.2,Door balloon after taking breastplate · line 2 of 5,I'll dent it. Then I'll keep it.
+Taunts,taunt.breastplate.3,Door balloon after taking breastplate · line 3 of 5,Tin thief. Ribs can commute.
+Taunts,taunt.breastplate.4,Door balloon after taking breastplate · line 4 of 5,Armor stolen. Teeth not.
+Taunts,taunt.breastplate.5,Door balloon after taking breastplate · line 5 of 5,Polish it. I collect shiny trophies.
+Taunts,taunt.bracers.1,Door balloon after taking bracers · line 1 of 5,Wrist jewelry. Mine.
+Taunts,taunt.bracers.2,Door balloon after taking bracers · line 2 of 5,Snap them off after I win.
+Taunts,taunt.bracers.3,Door balloon after taking bracers · line 3 of 5,You grabbed bracers. I grabbed a chair.
+Taunts,taunt.bracers.4,Door balloon after taking bracers · line 4 of 5,Cute armor. Wrong owner now.
+Taunts,taunt.bracers.5,Door balloon after taking bracers · line 5 of 5,Leave them on. Better portrait when I reclaim.
+Taunts,taunt.smoke_bomb.1,Door balloon after taking smoke_bomb · line 1 of 5,My smoke?! Hiding already?
+Taunts,taunt.smoke_bomb.2,Door balloon after taking smoke_bomb · line 2 of 5,Puff. Me. You — briefly.
+Taunts,taunt.smoke_bomb.3,Door balloon after taking smoke_bomb · line 3 of 5,You stole my exit. Cute. Cancelled.
+Taunts,taunt.smoke_bomb.4,Door balloon after taking smoke_bomb · line 4 of 5,I live in the dark. Your trick's a candle.
+Taunts,taunt.smoke_bomb.5,Door balloon after taking smoke_bomb · line 5 of 5,Take the bomb. I'll find the smell.
+Taunts,taunt.knucklers.1,Door balloon after taking knucklers · line 1 of 5,My brass — on YOUR fists?!
+Taunts,taunt.knucklers.2,Door balloon after taking knucklers · line 2 of 5,You want to punch me with my knuckles. Precious.
+Taunts,taunt.knucklers.3,Door balloon after taking knucklers · line 3 of 5,Those are mine. Your plan is napkin math.
+Taunts,taunt.knucklers.4,Door balloon after taking knucklers · line 4 of 5,Packed for a brawl with stolen gear. Rude.
+Taunts,taunt.knucklers.5,Door balloon after taking knucklers · line 5 of 5,Keep them warm. Reclaiming a pair.
+Taunts,taunt.fangs.1,Door balloon after taking fangs · line 1 of 5,Fake teeth. Cute. I have the real set.
+Taunts,taunt.fangs.2,Door balloon after taking fangs · line 2 of 5,Teeth thief at a teeth fight. Brave. Stupid.
+Taunts,taunt.fangs.3,Door balloon after taking fangs · line 3 of 5,Those fangs are extras. I want them back.
+Taunts,taunt.fangs.4,Door balloon after taking fangs · line 4 of 5,Bite toys. Guess the target.
+Taunts,taunt.fangs.5,Door balloon after taking fangs · line 5 of 5,Hold them ready. Matching pair incoming.
+Taunts,taunt.poison_flask.1,Door balloon after taking poison_flask · line 1 of 5,My green vintage — spit it!
+Taunts,taunt.poison_flask.2,Door balloon after taking poison_flask · line 2 of 5,Poison thief. You first.
+Taunts,taunt.poison_flask.3,Door balloon after taking poison_flask · line 3 of 5,Don't spill. I want every drop home.
+Taunts,taunt.poison_flask.4,Door balloon after taking poison_flask · line 4 of 5,You packed my flask. I packed appetite.
+Taunts,taunt.poison_flask.5,Door balloon after taking poison_flask · line 5 of 5,Keep the symptoms. Return the bottle.
+Taunts,taunt.spiked_flail.1,Door balloon after taking spiked_flail · line 1 of 5,My flail! Spikes AND theft? Respect. Briefly.
+Taunts,taunt.spiked_flail.2,Door balloon after taking spiked_flail · line 2 of 5,That goes back on my wall. You go on the floor.
+Taunts,taunt.spiked_flail.3,Door balloon after taking spiked_flail · line 3 of 5,Finally a thief with taste. Still a thief.
+Taunts,taunt.spiked_flail.4,Door balloon after taking spiked_flail · line 4 of 5,You picked the mean one. I noticed.
+Taunts,taunt.spiked_flail.5,Door balloon after taking spiked_flail · line 5 of 5,Don't name it. I already did.
+Taunts,taunt.healing_potion.1,Door balloon after taking healing_potion · line 1 of 5,My juice? Planning to live with MY juice?
+Taunts,taunt.healing_potion.2,Door balloon after taking healing_potion · line 2 of 5,Second chance stolen. I'm reclaiming it full.
+Taunts,taunt.healing_potion.3,Door balloon after taking healing_potion · line 3 of 5,Red flask. Red ending. Brand consistent.
+Taunts,taunt.healing_potion.4,Door balloon after taking healing_potion · line 4 of 5,Don't sip. I want it sealed.
+Taunts,taunt.healing_potion.5,Door balloon after taking healing_potion · line 5 of 5,Sweet steal. I'll take it off the quiet body.
+Taunts,taunt.crossbow.1,Door balloon after taking crossbow · line 1 of 5,"My crossbow! Point it elsewhere, then give it!"
+Taunts,taunt.crossbow.2,Door balloon after taking crossbow · line 2 of 5,Bolt thief. Bow stays. Holes optional.
+Taunts,taunt.crossbow.3,Door balloon after taking crossbow · line 3 of 5,You aimed MY bow in MY room. Rude.
+Taunts,taunt.crossbow.4,Door balloon after taking crossbow · line 4 of 5,Don't scratch the stock. Reclaiming soon.
+Taunts,taunt.crossbow.5,Door balloon after taking crossbow · line 5 of 5,Range on a pest. I brought more range.
+Taunts,taunt.sledgehammer.1,Door balloon after taking sledgehammer · line 1 of 5,MY hammer! Overkill theft. I approve the overkill.
+Taunts,taunt.sledgehammer.2,Door balloon after taking sledgehammer · line 2 of 5,Big tool. Small thief. Short story.
+Taunts,taunt.sledgehammer.3,Door balloon after taking sledgehammer · line 3 of 5,You dragged my sledge into my nest. Fun. Fatal.
+Taunts,taunt.sledgehammer.4,Door balloon after taking sledgehammer · line 4 of 5,Wall can keep the hole. Hammer comes home.
+Taunts,taunt.sledgehammer.5,Door balloon after taking sledgehammer · line 5 of 5,I'll take it. Keep the headache.
+Taunts,taunt.pocketwatch.1,Door balloon after taking pocketwatch · line 1 of 5,My watch! Time's up — not poetry.
+Taunts,taunt.pocketwatch.2,Door balloon after taking pocketwatch · line 2 of 5,Tick. That's me walking. Tock. That's you not.
+Taunts,taunt.pocketwatch.3,Door balloon after taking pocketwatch · line 3 of 5,Nice steal. Time of death: pending.
+Taunts,taunt.pocketwatch.4,Door balloon after taking pocketwatch · line 4 of 5,You grabbed a clock. I grabbed a seat.
+Taunts,taunt.pocketwatch.5,Door balloon after taking pocketwatch · line 5 of 5,Stop winding. I'll stop you.
+Cards,card.item.throwing_knife.name,Roster · item name (live),Throwing Knife
+Cards,card.item.throwing_knife.ability,Roster · item player text (Throwing Knife),"Atk 3, or Atk 1 and Keep this item"
+Cards,card.item.throwing_knife.explainer,Roster · item Shift math (Throwing Knife),(3) or (1 and Keep)
+Cards,card.item.shield.name,Roster · item name (live),Shield
+Cards,card.item.shield.ability,Roster · item player text (Shield),Gain 4 Block.
+Cards,card.item.shield.explainer,Roster · item Shift math (Shield),(BLK 4)
+Cards,card.item.sai.name,Roster · item name (todo),Sai
+Cards,card.item.sai.ability,Roster · item player text (Sai),Starts at 2 each fight. Flips 2 ↔ 4 after any Item is used.
+Cards,card.item.sai.explainer,Roster · item Shift math (Sai),(2) or (4)
+Cards,card.item.medallion.name,Roster · item name (live),Medallion
+Cards,card.item.medallion.ability,Roster · item player text (Medallion),Block equal to the HP you are missing.
+Cards,card.item.medallion.explainer,Roster · item Shift math (Medallion),(6 − HP)
+Cards,card.item.helmet.name,Roster · item name (live),Helmet
+Cards,card.item.helmet.ability,Roster · item player text (Helmet),Block equal to whoever has less HP — you or the enemy.
+Cards,card.item.helmet.explainer,Roster · item Shift math (Helmet),(the lower of YOUR HP and ENEMY HP)
+Cards,card.item.da_boot.name,Roster · item name (live),The Boot
+Cards,card.item.da_boot.ability,Roster · item player text (The Boot),Defeat an enemy with less HP than you. Combat ends immediately.
+Cards,card.item.da_boot.explainer,Roster · item Shift math (The Boot),(ENEMY HP < YOUR HP)
+Cards,card.item.grimoire.name,Roster · item name (todo),Grimoire
+Cards,card.item.grimoire.ability,Roster · item player text (Grimoire),Attack equal to the Attack of the last monster you faced.
+Cards,card.item.grimoire.explainer,Roster · item Shift math (Grimoire),(LAST ENEMY ATK)
+Cards,card.item.bloody_gauntlets.name,Roster · item name (live),Bloody Gauntlets
+Cards,card.item.bloody_gauntlets.ability,Roster · item player text (Bloody Gauntlets),+1 ATK for each HP you are missing.
+Cards,card.item.bloody_gauntlets.explainer,Roster · item Shift math (Bloody Gauntlets),(7 − HP)
+Cards,card.item.breastplate.name,Roster · item name (todo),Breastplate
+Cards,card.item.breastplate.ability,Roster · item player text (Breastplate),"Gain 2 Block. If you lose HP this combat, Keep this Item."
+Cards,card.item.breastplate.explainer,Roster · item Shift math (Breastplate),(2) and Keep if you Bleed
+Cards,card.item.bracers.name,Roster · item name (live),Bracers
+Cards,card.item.bracers.ability,Roster · item player text (Bracers),Block equal to the weaker Neighboring enemy's Attack.
+Cards,card.item.bracers.explainer,Roster · item Shift math (Bracers),(Neighbor ATK)
+Cards,card.item.smoke_bomb.name,Roster · item name (todo),Smoke Bomb
+Cards,card.item.smoke_bomb.ability,Roster · item player text (Smoke Bomb),Spin again and gain a Random Item.
+Cards,card.item.smoke_bomb.explainer,Roster · item Shift math (Smoke Bomb),re-roll + 1 Random Item
+Cards,card.item.knucklers.name,Roster · item name (live),Knucklers
+Cards,card.item.knucklers.ability,Roster · item player text (Knucklers),Attack equal to 8 minus the Items still in your hand.
+Cards,card.item.knucklers.explainer,Roster · item Shift math (Knucklers),(8 − Items)
+Cards,card.item.fangs.name,Roster · item name (todo),Fangs
+Cards,card.item.fangs.ability,Roster · item player text (Fangs),"Take their hit (Block still works), Defeat them, then Heal equal to the HP they had."
+Cards,card.item.fangs.explainer,Roster · item Shift math (Fangs),(TAKE THEIR ATK) then Defeat then Heal THEIR HP
+Cards,card.item.poison_flask.name,Roster · item name (todo),Poison Flask
+Cards,card.item.poison_flask.ability,Roster · item player text (Poison Flask),"Mark a Neighbor. When you spin them, they lose 5 HP immediately."
+Cards,card.item.poison_flask.explainer,Roster · item Shift math (Poison Flask),mark Neighbor −5 HP on spin
+Cards,card.item.cursed_scroll.name,Roster · item name (todo),Cursed Scroll
+Cards,card.item.cursed_scroll.ability,Roster · item player text (Cursed Scroll),"At the start of each combat, lose 1 HP. On use, Heal your HP to up to full (6)."
+Cards,card.item.cursed_scroll.explainer,Roster · item Shift math (Cursed Scroll),
+Cards,card.item.spiked_flail.name,Roster · item name (todo),Spiked Flail
+Cards,card.item.spiked_flail.ability,Roster · item player text (Spiked Flail),Gets stronger. +2 Attack each time you lose any HP.
+Cards,card.item.spiked_flail.explainer,Roster · item Shift math (Spiked Flail),+2 ATK for each time you Bled
+Cards,card.item.healing_potion.name,Roster · item name (todo),Healing Potion
+Cards,card.item.healing_potion.ability,Roster · item player text (Healing Potion),"Unplayable. If you would die, discard this and Heal 3."
+Cards,card.item.healing_potion.explainer,Roster · item Shift math (Healing Potion),"on lethal: discard, Heal 3"
+Cards,card.item.crossbow.name,Roster · item name (live),Crossbow
+Cards,card.item.crossbow.ability,Roster · item player text (Crossbow),Deal 4 Attack to a Neighboring enemy with 4 HP or less. Goblin cannot take Attack damage.
+Cards,card.item.crossbow.explainer,Roster · item Shift math (Crossbow),(ATK 4) if (Neighbor HP ≤ 4)
+Cards,card.item.sledgehammer.name,Roster · item name (live),Sledgehammer
+Cards,card.item.sledgehammer.ability,Roster · item player text (Sledgehammer),Defeat an enemy with 5 or more Attack. Combat ends immediately.
+Cards,card.item.sledgehammer.explainer,Roster · item Shift math (Sledgehammer),(ENEMY ATK ≥ 5)
+Cards,card.item.pocketwatch.name,Roster · item name (todo),Pocketwatch
+Cards,card.item.pocketwatch.ability,Roster · item player text (Pocketwatch),Attack equal to the Attack of the strongest Neighboring enemy.
+Cards,card.item.pocketwatch.explainer,Roster · item Shift math (Pocketwatch),(Highest Neighbor ATK)
+Cards,card.item.double_axe.name,Roster · item name (live),Double Axe
+Cards,card.item.double_axe.ability,Roster · item player text (Double Axe),Deal 2 Attack to the Owner you are facing and each Neighboring Owner. The same Owner is only hit once.
+Cards,card.item.double_axe.explainer,Roster · item Shift math (Double Axe),(ATK 2) to facing and Neighbors
+Cards,card.item.victory_flask.name,Roster · item name (live),Victory Flask
+Cards,card.item.victory_flask.ability,Roster · item player text (Victory Flask),"Heal 1, plus 1 for each monster Defeated"
+Cards,card.item.victory_flask.explainer,Roster · item Shift math (Victory Flask),(Heal 1 + Defeats)
+Cards,card.item.grappling_hook.name,Roster · item name (live),Grappling Hook
+Cards,card.item.grappling_hook.ability,Roster · item player text (Grappling Hook),Swap a Neighboring Owner into this fight. Draw a Random Item.
+Cards,card.item.grappling_hook.explainer,Roster · item Shift math (Grappling Hook),"swap Neighbor, draw Item"
+Cards,card.item.spiked_shield.name,Roster · item name (live),Spiked Shield
+Cards,card.item.spiked_shield.ability,Roster · item player text (Spiked Shield),"Deal 2 Attack, or gain 2 Block."
+Cards,card.item.spiked_shield.explainer,Roster · item Shift math (Spiked Shield),(ATK 2) or (BLK 2)
+Cards,card.item.grief_jar.name,Roster · item name (live),Grief Jar
+Cards,card.item.grief_jar.ability,Roster · item player text (Grief Jar),Each fight start: lose 1 HP. This card gains 2 Block. Click it to spend that Block.
+Cards,card.item.grief_jar.explainer,Roster · item Shift math (Grief Jar),(BLK grows +2 per fight)
+Cards,card.item.longbow.name,Roster · item name (live),Longbow
+Cards,card.item.longbow.ability,Roster · item player text (Longbow),Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)
+Cards,card.item.longbow.explainer,Roster · item Shift math (Longbow),(ATK 4) to furthest enemy
+Cards,card.monster.wizard.name,Roster · monster name (live),Wizard
+Cards,card.monster.wizard.ability,Roster · monster player text (Wizard),My spellbook was in that pile.
+Cards,card.monster.wizard.explainer,Roster · monster Shift math (Wizard),
+Cards,card.monster.golem.name,Roster · monster name (live),Golem
+Cards,card.monster.golem.ability,Roster · monster player text (Golem),My stone fists want that back.
+Cards,card.monster.golem.explainer,Roster · monster Shift math (Golem),plain ATK/HP Owner
+Cards,card.monster.goblin.name,Roster · monster name (live),Goblin
+Cards,card.monster.goblin.ability,Roster · monster player text (Goblin),I cannot take Attack damage.
+Cards,card.monster.goblin.explainer,Roster · monster Shift math (Goblin),no Attack damage
+Cards,card.monster.skeleton.name,Roster · monster name (live),Skeleton
+Cards,card.monster.skeleton.ability,Roster · monster player text (Skeleton),I copy the HP of the last enemy you faced.
+Cards,card.monster.skeleton.explainer,Roster · monster Shift math (Skeleton),last enemy HP
+Cards,card.monster.hornet_swarm.name,Roster · monster name (todo),Hornet Swarm
+Cards,card.monster.hornet_swarm.ability,Roster · monster player text (Hornet Swarm),I Attack twice.
+Cards,card.monster.hornet_swarm.explainer,Roster · monster Shift math (Hornet Swarm),Attacks twice
+Cards,card.monster.lich.name,Roster · monster name (live),Lich
+Cards,card.monster.lich.ability,Roster · monster player text (Lich),I give my Neighbors +1 HP.
+Cards,card.monster.lich.explainer,Roster · monster Shift math (Lich),Neighbors +1 HP
+Cards,card.monster.ogre.name,Roster · monster name (live),Ogre
+Cards,card.monster.ogre.ability,Roster · monster player text (Ogre),My HP is your HP.
+Cards,card.monster.ogre.explainer,Roster · monster Shift math (Ogre),HP is yours
+Cards,card.monster.berserker.name,Roster · monster name (live),Berserker
+Cards,card.monster.berserker.ability,Roster · monster player text (Berserker),I gain one HP and Attack with each monster you Defeat.
+Cards,card.monster.berserker.explainer,Roster · monster Shift math (Berserker),Attack and HP plus Defeat
+Cards,card.monster.dire_wolf.name,Roster · monster name (live),Dire Wolf
+Cards,card.monster.dire_wolf.ability,Roster · monster player text (Dire Wolf),My Attack is your HP.
+Cards,card.monster.dire_wolf.explainer,Roster · monster Shift math (Dire Wolf),Attack is your HP
+Cards,card.monster.bandit.name,Roster · monster name (live),Bandit
+Cards,card.monster.bandit.ability,Roster · monster player text (Bandit),My Attack is how many Items you hold.
+Cards,card.monster.bandit.explainer,Roster · monster Shift math (Bandit),Attack is Items
+Cards,card.monster.leech_league.name,Roster · monster name (todo),Leech League
+Cards,card.monster.leech_league.ability,Roster · monster player text (Leech League),My HP equals the number of monsters in play
+Cards,card.monster.leech_league.explainer,Roster · monster Shift math (Leech League),HP from monsters left
+Cards,card.monster.wraith.name,Roster · monster name (todo),Wraith
+Cards,card.monster.wraith.ability,Roster · monster player text (Wraith),I copy the higher ATK of my Neighbors
+Cards,card.monster.wraith.explainer,Roster · monster Shift math (Wraith),copies Neighbor Attack
+Cards,card.monster.mimic.name,Roster · monster name (todo),Mimic
+Cards,card.monster.mimic.ability,Roster · monster player text (Mimic),"If I go down before I Attack, you gain an Item."
+Cards,card.monster.mimic.explainer,Roster · monster Shift math (Mimic),Item if I never swing
+Cards,card.monster.two_headed_serpent.name,Roster · monster name (live),Two-Headed Serpent
+Cards,card.monster.two_headed_serpent.ability,Roster · monster player text (Two-Headed Serpent),My Attack drops to 0 if you use two Items this fight.
+Cards,card.monster.two_headed_serpent.explainer,Roster · monster Shift math (Two-Headed Serpent),"two Items, no Attack"
+Cards,card.monster.slime_boss.name,Roster · monster name (live),Slime Boss
+Cards,card.monster.slime_boss.ability,Roster · monster player text (Slime Boss),My Attack always equals my HP.
+Cards,card.monster.slime_boss.explainer,Roster · monster Shift math (Slime Boss),Attack equals HP
+Cards,card.monster.spider_queen.name,Roster · monster name (todo),Spider Queen
+Cards,card.monster.spider_queen.ability,Roster · monster player text (Spider Queen),I Attack twice if a Neighbor has less HP than I do.
+Cards,card.monster.spider_queen.explainer,Roster · monster Shift math (Spider Queen),double hit if a Neighbor is weaker
+Cards,card.monster.commander.name,Roster · monster name (todo),Commander
+Cards,card.monster.commander.ability,Roster · monster player text (Commander),I give my Neighbors +2 Attack.
+Cards,card.monster.commander.explainer,Roster · monster Shift math (Commander),Neighbors +2 Attack
+Cards,card.monster.dragon.name,Roster · monster name (todo),Dragon
+Cards,card.monster.dragon.ability,Roster · monster player text (Dragon),My Attack ignores Block.
+Cards,card.monster.dragon.explainer,Roster · monster Shift math (Dragon),ignores Block
+Cards,card.monster.needleback.name,Roster · monster name (live),Needleback
+Cards,card.monster.needleback.ability,Roster · monster player text (Needleback),I Attack you for 1 each time I take ATK damage.
+Cards,card.monster.needleback.explainer,Roster · monster Shift math (Needleback),1 Thorns

@@ -1,0 +1,2611 @@
+{
+	"cards": {
+		"item:bandana": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Bandana"
+		},
+		"item:bloody_gauntlets": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Bloody Gauntlets"
+		},
+		"item:bracers": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Bracers"
+		},
+		"item:breastplate": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-08",
+			"name": "Breastplate"
+		},
+		"item:caltrops": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Caltrops"
+		},
+		"item:counting_beads": {
+			"fields": [
+				"ability",
+				"explainer",
+				"name",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-08",
+			"name": "Counting Beads"
+		},
+		"item:crossbow": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-08",
+			"name": "Crossbow"
+		},
+		"item:cursed_scroll": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Cursed Scroll"
+		},
+		"item:da_boot": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "The Boot"
+		},
+		"item:dagger": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Dagger"
+		},
+		"item:double_axe": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Double Axe"
+		},
+		"item:echo_bell": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Echo Bell"
+		},
+		"item:fangs": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Fangs"
+		},
+		"item:grappling_hook": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Grappling Hook"
+		},
+		"item:grief_jar": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-08",
+			"name": "Grief Jar"
+		},
+		"item:grimoire": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Grimoire"
+		},
+		"item:healing_potion": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Healing Potion"
+		},
+		"item:helmet": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Helmet"
+		},
+		"item:helmet_hidden": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Helmet"
+		},
+		"item:knucklers": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Knucklers"
+		},
+		"item:lantern": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Lantern"
+		},
+		"item:last_match": {
+			"fields": [
+				"name"
+			],
+			"locked_at": "2026-10-08",
+			"name": "Paci Fist"
+		},
+		"item:longbow": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Longbow"
+		},
+		"item:measuring_tape": {
+			"fields": [
+				"ability",
+				"name",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-08",
+			"name": "Scythe"
+		},
+		"item:medallion": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Medallion"
+		},
+		"item:mirror_shard": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Mirror Shard"
+		},
+		"item:net": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Net"
+		},
+		"item:pocketwatch": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Pocketwatch"
+		},
+		"item:poison_flask": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Poison Flask"
+		},
+		"item:quiet_bell": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Quiet Bell"
+		},
+		"item:sai": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Sai"
+		},
+		"item:shield": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Shield"
+		},
+		"item:sledgehammer": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Sledgehammer"
+		},
+		"item:smoke_bomb": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Smoke Bomb"
+		},
+		"item:spiked_flail": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Spiked Flail"
+		},
+		"item:spiked_shield": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Spiked Shield"
+		},
+		"item:throwing_knife": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Throwing Knife"
+		},
+		"item:victory_flask": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Victory Flask"
+		},
+		"monster:anvil": {
+			"fields": [
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Anvil"
+		},
+		"monster:bandit": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Bandit"
+		},
+		"monster:basilisk": {
+			"fields": [
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Basilisk"
+		},
+		"monster:beggar": {
+			"fields": [
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Beggar"
+		},
+		"monster:berserker": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Berserker"
+		},
+		"monster:clockwork_knight": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Clockwork Knight"
+		},
+		"monster:commander": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Commander"
+		},
+		"monster:dire_wolf": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Dire Wolf"
+		},
+		"monster:dragon": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Dragon"
+		},
+		"monster:gargoyle": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Gargoyle"
+		},
+		"monster:gelatinous_cube": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Gelatinous Cube"
+		},
+		"monster:goblin": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Goblin"
+		},
+		"monster:golem": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Golem"
+		},
+		"monster:harpy": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Harpy"
+		},
+		"monster:hollow": {
+			"fields": [
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Twins"
+		},
+		"monster:hornet_swarm": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Hornet Swarm"
+		},
+		"monster:kobold_trapper": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Kobold Trapper"
+		},
+		"monster:leech_league": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Leech League"
+		},
+		"monster:lich": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Lich"
+		},
+		"monster:mimic": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Mimic"
+		},
+		"monster:needleback": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Needleback"
+		},
+		"monster:ogre": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Ogre"
+		},
+		"monster:skeleton": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Skeleton"
+		},
+		"monster:slime_boss": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Slime Boss"
+		},
+		"monster:spider_queen": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-07",
+			"name": "Spider Queen"
+		},
+		"monster:two_headed_serpent": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Two-Headed Serpent"
+		},
+		"monster:wick": {
+			"fields": [
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Wick"
+		},
+		"monster:wizard": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Wizard"
+		},
+		"monster:wraith": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"locked_at": "2026-10-09",
+			"name": "Wraith"
+		}
+	},
+	"id": "boss-rush-author-locks",
+	"instructions": "Nathan locked these by clicking Save in Roster, the card editor, the Script editor, or the HTML board. Do not rewrite them. If chat clearly asks to change one, stop, name the locked keys, and wait for a yes.",
+	"script": {
+		"adventure.scarier": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "The dungeon gets more dangerous...",
+			"where": "Opening-owner transform line"
+		},
+		"combat.blocked": {
+			"cat": "Combat",
+			"locked_at": "2026-10-07",
+			"text": "BLOCKED",
+			"where": "Flash on the slice when you pillow it"
+		},
+		"combat.knife_nick": {
+			"cat": "Combat",
+			"locked_at": "2026-10-07",
+			"text": "ATK 1, keep",
+			"where": "Throwing Knife choice B"
+		},
+		"combat.knife_throw": {
+			"cat": "Combat",
+			"locked_at": "2026-10-07",
+			"text": "ATK 3, discard",
+			"where": "Throwing Knife choice A"
+		},
+		"combat.safe": {
+			"cat": "Combat",
+			"locked_at": "2026-10-07",
+			"text": "Safe",
+			"where": "Done button when incoming hit is 0"
+		},
+		"combat.slain": {
+			"cat": "Combat",
+			"locked_at": "2026-10-07",
+			"text": "SLAIN",
+			"where": "Flash on the slice when they leave"
+		},
+		"combat.spin": {
+			"cat": "Combat",
+			"locked_at": "2026-10-07",
+			"text": "Spin",
+			"where": "Spin button"
+		},
+		"combat.take_hit": {
+			"cat": "Combat",
+			"locked_at": "2026-10-07",
+			"text": "Take {n}",
+			"where": "Done button when you will lose hearts. {n} = incoming"
+		},
+		"cue.ask": {
+			"cat": "Cues",
+			"locked_at": "2026-10-07",
+			"text": "Take it or leave it?",
+			"where": "Draft choice, passes remaining"
+		},
+		"cue.devtest": {
+			"cat": "Cues",
+			"locked_at": "2026-10-07",
+			"text": "Click a monster to seat it, an item to add it to your hand. Play when you have at least one owner.",
+			"where": "Developer Test (leave unless you want it player-facing)"
+		},
+		"cue.fighting": {
+			"cat": "Cues",
+			"locked_at": "2026-10-07",
+			"text": "Spend loot, or eat the hit.",
+			"where": "During a fight"
+		},
+		"cue.filling": {
+			"cat": "Cues",
+			"locked_at": "2026-10-07",
+			"text": "More owners. Less floor.",
+			"where": "Between door packs"
+		},
+		"cue.force": {
+			"cat": "Cues",
+			"locked_at": "2026-10-07",
+			"text": "Out of time",
+			"where": "No passes left — auto fill"
+		},
+		"cue.mark": {
+			"cat": "Cues",
+			"locked_at": "2026-10-07",
+			"text": "Pick a neighbor.",
+			"where": "Poison / Crossbow neighbor pick"
+		},
+		"cue.ready": {
+			"cat": "Cues",
+			"locked_at": "2026-10-07",
+			"text": "Spin — somebody wants their stuff.",
+			"where": "Wheel full, combat"
+		},
+		"cue.seat": {
+			"cat": "Cues",
+			"locked_at": "2026-10-07",
+			"text": "A monster approaches. Select their location.",
+			"where": "After steal, pick an alcove"
+		},
+		"cue.starters": {
+			"cat": "Cues",
+			"locked_at": "2026-10-07",
+			"text": "Four freeloaders already claimed north, east, south, and west.",
+			"where": "Begin: four starters land NESW"
+		},
+		"cue.steal": {
+			"cat": "Cues",
+			"locked_at": "2026-10-07",
+			"text": "Out of time",
+			"where": "Draft choice, no passes left"
+		},
+		"door.help": {
+			"cat": "Door",
+			"locked_at": "2026-10-07",
+			"text": "The finer the loot, the fiercer its owner.",
+			"where": "Gate under the metal stamp"
+		},
+		"door.hook": {
+			"cat": "Door",
+			"locked_at": "2026-10-07",
+			"text": "Take {item} and its owner kicks through that door.",
+			"where": "Gate before Take. {item} = loot name"
+		},
+		"door.owner": {
+			"cat": "Door",
+			"locked_at": "2026-10-07",
+			"text": "THE OWNER",
+			"where": "Gate chrome over the silhouette"
+		},
+		"door.pass": {
+			"cat": "Door",
+			"locked_at": "2026-10-07",
+			"text": "Leave it",
+			"where": "Pass button while passes remain. {n} = passes left"
+		},
+		"door.pass_none": {
+			"cat": "Door",
+			"locked_at": "2026-10-07",
+			"text": "Out of time",
+			"where": "Pass button at 0 remaining"
+		},
+		"door.seat": {
+			"cat": "Door",
+			"locked_at": "2026-10-07",
+			"text": "A monster approaches. Select their location.",
+			"where": "After reveal, before you click a +"
+		},
+		"door.shiny": {
+			"cat": "Door",
+			"locked_at": "2026-10-07",
+			"text": "THE BAIT",
+			"where": "Gate chrome over the item"
+		},
+		"door.take": {
+			"cat": "Door",
+			"locked_at": "2026-10-07",
+			"text": "Take it",
+			"where": "Take button. {n} = pack tier"
+		},
+		"door.title": {
+			"cat": "Door",
+			"locked_at": "2026-10-07",
+			"text": "THE DOOR",
+			"where": "Gate chrome top"
+		},
+		"inspect.empty": {
+			"cat": "Inspect",
+			"locked_at": "2026-10-07",
+			"text": "Nobody home. Yet.",
+			"where": "Empty alcove otherwise"
+		},
+		"inspect.empty_place": {
+			"cat": "Inspect",
+			"locked_at": "2026-10-07",
+			"text": "Empty alcove",
+			"where": "Empty alcove while seating"
+		},
+		"inspect.empty_title": {
+			"cat": "Inspect",
+			"locked_at": "2026-10-07",
+			"text": "Empty",
+			"where": "Empty alcove headline"
+		},
+		"inspect.idle": {
+			"cat": "Inspect",
+			"locked_at": "2026-10-07",
+			"text": "Hover an owner on the ring, or loot in your hand.",
+			"where": "Idle inspect body"
+		},
+		"inspect.placeholder": {
+			"cat": "Inspect",
+			"locked_at": "2026-10-07",
+			"text": "—",
+			"where": "Editor inspect fallback"
+		},
+		"inspect.shift": {
+			"cat": "Inspect",
+			"locked_at": "2026-10-07",
+			"text": "hold Shift to explain",
+			"where": "Monster inspect, Shift hint"
+		},
+		"inspect.title": {
+			"cat": "Inspect",
+			"locked_at": "2026-10-07",
+			"text": "Inspect",
+			"where": "Idle inspect headline"
+		},
+		"pause.hint": {
+			"cat": "Pause",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "Escape menu"
+		},
+		"pause.quit": {
+			"cat": "Pause",
+			"locked_at": "2026-10-07",
+			"text": "Quit",
+			"where": "Escape menu button"
+		},
+		"pause.resume": {
+			"cat": "Pause",
+			"locked_at": "2026-10-07",
+			"text": "Resume",
+			"where": "Escape menu button"
+		},
+		"pause.settings": {
+			"cat": "Pause",
+			"locked_at": "2026-10-07",
+			"text": "Settings",
+			"where": "Escape menu title"
+		},
+		"pause.start_over": {
+			"cat": "Pause",
+			"locked_at": "2026-10-07",
+			"text": "Start over",
+			"where": "Escape menu label"
+		},
+		"taunt.bloody_gauntlets.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Those gloves were already my color!",
+			"where": "Door balloon after taking bloody_gauntlets · line 1 of 5"
+		},
+		"taunt.bloody_gauntlets.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You put them on. I put on teeth.",
+			"where": "Door balloon after taking bloody_gauntlets · line 2 of 5"
+		},
+		"taunt.bloody_gauntlets.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Red looks busy on you. It'll look better elsewhere.",
+			"where": "Door balloon after taking bloody_gauntlets · line 3 of 5"
+		},
+		"taunt.bloody_gauntlets.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Sticky red fingers. Adorable. Temporary.",
+			"where": "Door balloon after taking bloody_gauntlets · line 4 of 5"
+		},
+		"taunt.bloody_gauntlets.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Gauntlets: mine. Blood: negotiable.",
+			"where": "Door balloon after taking bloody_gauntlets · line 5 of 5"
+		},
+		"taunt.bracers.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Wrist jewelry. Mine.",
+			"where": "Door balloon after taking bracers · line 1 of 5"
+		},
+		"taunt.bracers.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Snap them off after I win.",
+			"where": "Door balloon after taking bracers · line 2 of 5"
+		},
+		"taunt.bracers.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You grabbed bracers. I grabbed a chair.",
+			"where": "Door balloon after taking bracers · line 3 of 5"
+		},
+		"taunt.bracers.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Cute armor. Wrong owner now.",
+			"where": "Door balloon after taking bracers · line 4 of 5"
+		},
+		"taunt.bracers.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Leave them on. Better portrait when I reclaim.",
+			"where": "Door balloon after taking bracers · line 5 of 5"
+		},
+		"taunt.breastplate.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My plate — on a pest?!",
+			"where": "Door balloon after taking breastplate · line 1 of 5"
+		},
+		"taunt.breastplate.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "I'll dent it. Then I'll keep it.",
+			"where": "Door balloon after taking breastplate · line 2 of 5"
+		},
+		"taunt.breastplate.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Tin thief. Ribs can commute.",
+			"where": "Door balloon after taking breastplate · line 3 of 5"
+		},
+		"taunt.breastplate.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Armor stolen. Teeth not.",
+			"where": "Door balloon after taking breastplate · line 4 of 5"
+		},
+		"taunt.breastplate.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Polish it. I collect shiny trophies.",
+			"where": "Door balloon after taking breastplate · line 5 of 5"
+		},
+		"taunt.crossbow.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My crossbow! Point it elsewhere, then give it!",
+			"where": "Door balloon after taking crossbow · line 1 of 5"
+		},
+		"taunt.crossbow.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Bolt thief. Bow stays. Holes optional.",
+			"where": "Door balloon after taking crossbow · line 2 of 5"
+		},
+		"taunt.crossbow.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You aimed MY bow in MY room. Rude.",
+			"where": "Door balloon after taking crossbow · line 3 of 5"
+		},
+		"taunt.crossbow.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Don't scratch the stock. Reclaiming soon.",
+			"where": "Door balloon after taking crossbow · line 4 of 5"
+		},
+		"taunt.crossbow.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Range on a pest. I brought more range.",
+			"where": "Door balloon after taking crossbow · line 5 of 5"
+		},
+		"taunt.da_boot.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "MY BOOT — give it!",
+			"where": "Door balloon after taking da_boot · line 1 of 5"
+		},
+		"taunt.da_boot.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You stole a boot. I stole a seat. Guess who wins.",
+			"where": "Door balloon after taking da_boot · line 2 of 5"
+		},
+		"taunt.da_boot.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "That's my size. Your foot's a suggestion.",
+			"where": "Door balloon after taking da_boot · line 3 of 5"
+		},
+		"taunt.da_boot.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Boot thief. I'm laughing. Then I'm not.",
+			"where": "Door balloon after taking da_boot · line 4 of 5"
+		},
+		"taunt.da_boot.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Keep it laced. I reclaim clean.",
+			"where": "Door balloon after taking da_boot · line 5 of 5"
+		},
+		"taunt.default.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Hey! That {item} was in MY bag!",
+			"where": "Door balloon fallback 1 of 5. {item} = loot name"
+		},
+		"taunt.default.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Put the {item} down before I make you.",
+			"where": "Door balloon fallback 2 of 5. {item} = loot name"
+		},
+		"taunt.default.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You nicked the {item}. I noticed. Bad day for you.",
+			"where": "Door balloon fallback 3 of 5. {item} = loot name"
+		},
+		"taunt.default.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Cute fingers. The {item} still has my name on it.",
+			"where": "Door balloon fallback 4 of 5. {item} = loot name"
+		},
+		"taunt.default.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Keep the {item} warm. I'm taking it off you warm.",
+			"where": "Door balloon fallback 5 of 5. {item} = loot name"
+		},
+		"taunt.fangs.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Fake teeth. Cute. I have the real set.",
+			"where": "Door balloon after taking fangs · line 1 of 5"
+		},
+		"taunt.fangs.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Teeth thief at a teeth fight. Brave. Stupid.",
+			"where": "Door balloon after taking fangs · line 2 of 5"
+		},
+		"taunt.fangs.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Those fangs are extras. I want them back.",
+			"where": "Door balloon after taking fangs · line 3 of 5"
+		},
+		"taunt.fangs.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Bite toys. Guess the target.",
+			"where": "Door balloon after taking fangs · line 4 of 5"
+		},
+		"taunt.fangs.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Hold them ready. Matching pair incoming.",
+			"where": "Door balloon after taking fangs · line 5 of 5"
+		},
+		"taunt.grimoire.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My book! Close it!",
+			"where": "Door balloon after taking grimoire · line 1 of 5"
+		},
+		"taunt.grimoire.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Homework's over, thief. Fight's on.",
+			"where": "Door balloon after taking grimoire · line 2 of 5"
+		},
+		"taunt.grimoire.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Magic pages. Sticky paws. Bad combo — for you.",
+			"where": "Door balloon after taking grimoire · line 3 of 5"
+		},
+		"taunt.grimoire.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Don't crease it. I'll still fold you.",
+			"where": "Door balloon after taking grimoire · line 4 of 5"
+		},
+		"taunt.grimoire.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "That grimoire called me. You just grabbed.",
+			"where": "Door balloon after taking grimoire · line 5 of 5"
+		},
+		"taunt.healing_potion.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My juice? Planning to live with MY juice?",
+			"where": "Door balloon after taking healing_potion · line 1 of 5"
+		},
+		"taunt.healing_potion.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Second chance stolen. I'm reclaiming it full.",
+			"where": "Door balloon after taking healing_potion · line 2 of 5"
+		},
+		"taunt.healing_potion.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Red flask. Red ending. Brand consistent.",
+			"where": "Door balloon after taking healing_potion · line 3 of 5"
+		},
+		"taunt.healing_potion.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Don't sip. I want it sealed.",
+			"where": "Door balloon after taking healing_potion · line 4 of 5"
+		},
+		"taunt.healing_potion.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Sweet steal. I'll take it off the quiet body.",
+			"where": "Door balloon after taking healing_potion · line 5 of 5"
+		},
+		"taunt.helmet.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My helmet! Wrong head!",
+			"where": "Door balloon after taking helmet · line 1 of 5"
+		},
+		"taunt.helmet.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Cover up. I'll aim anyway.",
+			"where": "Door balloon after taking helmet · line 2 of 5"
+		},
+		"taunt.helmet.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You swiped my lid. Bold. Dumb.",
+			"where": "Door balloon after taking helmet · line 3 of 5"
+		},
+		"taunt.helmet.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "That metal's mine. Your thoughts can stay.",
+			"where": "Door balloon after taking helmet · line 4 of 5"
+		},
+		"taunt.helmet.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Wear it. I'll take the rest separately.",
+			"where": "Door balloon after taking helmet · line 5 of 5"
+		},
+		"taunt.knucklers.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My brass — on YOUR fists?!",
+			"where": "Door balloon after taking knucklers · line 1 of 5"
+		},
+		"taunt.knucklers.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You want to punch me with my knuckles. Precious.",
+			"where": "Door balloon after taking knucklers · line 2 of 5"
+		},
+		"taunt.knucklers.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Those are mine. Your plan is napkin math.",
+			"where": "Door balloon after taking knucklers · line 3 of 5"
+		},
+		"taunt.knucklers.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Packed for a brawl with stolen gear. Rude.",
+			"where": "Door balloon after taking knucklers · line 4 of 5"
+		},
+		"taunt.knucklers.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Keep them warm. Reclaiming a pair.",
+			"where": "Door balloon after taking knucklers · line 5 of 5"
+		},
+		"taunt.medallion.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My luck charm — on YOU?!",
+			"where": "Door balloon after taking medallion · line 1 of 5"
+		},
+		"taunt.medallion.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Shiny thief. Short career.",
+			"where": "Door balloon after taking medallion · line 2 of 5"
+		},
+		"taunt.medallion.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "That medallion hums for me. You're noise.",
+			"where": "Door balloon after taking medallion · line 3 of 5"
+		},
+		"taunt.medallion.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Hand it over. I'll be almost polite.",
+			"where": "Door balloon after taking medallion · line 4 of 5"
+		},
+		"taunt.medallion.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Jewelry on a pest. Classic last mistake.",
+			"where": "Door balloon after taking medallion · line 5 of 5"
+		},
+		"taunt.pocketwatch.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My watch! Time's up — not poetry.",
+			"where": "Door balloon after taking pocketwatch · line 1 of 5"
+		},
+		"taunt.pocketwatch.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Tick. That's me walking. Tock. That's you not.",
+			"where": "Door balloon after taking pocketwatch · line 2 of 5"
+		},
+		"taunt.pocketwatch.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Nice steal. Time of death: pending.",
+			"where": "Door balloon after taking pocketwatch · line 3 of 5"
+		},
+		"taunt.pocketwatch.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You grabbed a clock. I grabbed a seat.",
+			"where": "Door balloon after taking pocketwatch · line 4 of 5"
+		},
+		"taunt.pocketwatch.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Stop winding. I'll stop you.",
+			"where": "Door balloon after taking pocketwatch · line 5 of 5"
+		},
+		"taunt.poison_flask.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My green vintage — spit it!",
+			"where": "Door balloon after taking poison_flask · line 1 of 5"
+		},
+		"taunt.poison_flask.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Poison thief. You first.",
+			"where": "Door balloon after taking poison_flask · line 2 of 5"
+		},
+		"taunt.poison_flask.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Don't spill. I want every drop home.",
+			"where": "Door balloon after taking poison_flask · line 3 of 5"
+		},
+		"taunt.poison_flask.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You packed my flask. I packed appetite.",
+			"where": "Door balloon after taking poison_flask · line 4 of 5"
+		},
+		"taunt.poison_flask.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Keep the symptoms. Return the bottle.",
+			"where": "Door balloon after taking poison_flask · line 5 of 5"
+		},
+		"taunt.sai.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Those prongs are mine!",
+			"where": "Door balloon after taking sai · line 1 of 5"
+		},
+		"taunt.sai.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You grabbed my Sai. Now we dance ugly.",
+			"where": "Door balloon after taking sai · line 2 of 5"
+		},
+		"taunt.sai.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Pokey thief. Pokey ending.",
+			"where": "Door balloon after taking sai · line 3 of 5"
+		},
+		"taunt.sai.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Put them down. I asked nice once.",
+			"where": "Door balloon after taking sai · line 4 of 5"
+		},
+		"taunt.sai.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Fancy steal. Still mine.",
+			"where": "Door balloon after taking sai · line 5 of 5"
+		},
+		"taunt.shield.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "That's MY shield, you little raccoon!",
+			"where": "Door balloon after taking shield · line 1 of 5"
+		},
+		"taunt.shield.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Hide behind it. I'll wait. I've waited worse.",
+			"where": "Door balloon after taking shield · line 2 of 5"
+		},
+		"taunt.shield.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Stolen wood won't save sticky fingers.",
+			"where": "Door balloon after taking shield · line 3 of 5"
+		},
+		"taunt.shield.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Nice grab. Terrible future.",
+			"where": "Door balloon after taking shield · line 4 of 5"
+		},
+		"taunt.shield.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Keep it up. Makes the pry job easier.",
+			"where": "Door balloon after taking shield · line 5 of 5"
+		},
+		"taunt.sledgehammer.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "MY hammer! Overkill theft. I approve the overkill.",
+			"where": "Door balloon after taking sledgehammer · line 1 of 5"
+		},
+		"taunt.sledgehammer.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Big tool. Small thief. Short story.",
+			"where": "Door balloon after taking sledgehammer · line 2 of 5"
+		},
+		"taunt.sledgehammer.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You dragged my sledge into my nest. Fun. Fatal.",
+			"where": "Door balloon after taking sledgehammer · line 3 of 5"
+		},
+		"taunt.sledgehammer.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Wall can keep the hole. Hammer comes home.",
+			"where": "Door balloon after taking sledgehammer · line 4 of 5"
+		},
+		"taunt.sledgehammer.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "I'll take it. Keep the headache.",
+			"where": "Door balloon after taking sledgehammer · line 5 of 5"
+		},
+		"taunt.smoke_bomb.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My smoke?! Hiding already?",
+			"where": "Door balloon after taking smoke_bomb · line 1 of 5"
+		},
+		"taunt.smoke_bomb.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Puff. Me. You — briefly.",
+			"where": "Door balloon after taking smoke_bomb · line 2 of 5"
+		},
+		"taunt.smoke_bomb.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You stole my exit. Cute. Cancelled.",
+			"where": "Door balloon after taking smoke_bomb · line 3 of 5"
+		},
+		"taunt.smoke_bomb.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "I live in the dark. Your trick's a candle.",
+			"where": "Door balloon after taking smoke_bomb · line 4 of 5"
+		},
+		"taunt.smoke_bomb.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Take the bomb. I'll find the smell.",
+			"where": "Door balloon after taking smoke_bomb · line 5 of 5"
+		},
+		"taunt.spiked_flail.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My flail! Spikes AND theft? Respect. Briefly.",
+			"where": "Door balloon after taking spiked_flail · line 1 of 5"
+		},
+		"taunt.spiked_flail.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "That goes back on my wall. You go on the floor.",
+			"where": "Door balloon after taking spiked_flail · line 2 of 5"
+		},
+		"taunt.spiked_flail.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Finally a thief with taste. Still a thief.",
+			"where": "Door balloon after taking spiked_flail · line 3 of 5"
+		},
+		"taunt.spiked_flail.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You picked the mean one. I noticed.",
+			"where": "Door balloon after taking spiked_flail · line 4 of 5"
+		},
+		"taunt.spiked_flail.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Don't name it. I already did.",
+			"where": "Door balloon after taking spiked_flail · line 5 of 5"
+		},
+		"taunt.throwing_knife.1": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "My knife?! Spit it out!",
+			"where": "Door balloon after taking throwing_knife · line 1 of 5"
+		},
+		"taunt.throwing_knife.2": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "You steal a blade and smile? I'm smiling next.",
+			"where": "Door balloon after taking throwing_knife · line 2 of 5"
+		},
+		"taunt.throwing_knife.3": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "That knife leaves with me. Fingers optional.",
+			"where": "Door balloon after taking throwing_knife · line 3 of 5"
+		},
+		"taunt.throwing_knife.4": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "One knife. Two claimants. Do the math, pest.",
+			"where": "Door balloon after taking throwing_knife · line 4 of 5"
+		},
+		"taunt.throwing_knife.5": {
+			"cat": "Taunts",
+			"locked_at": "2026-10-07",
+			"text": "Don't throw it. I want it back unbent.",
+			"where": "Door balloon after taking throwing_knife · line 5 of 5"
+		},
+		"title.adventure": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Adventure Mode",
+			"where": "Title + pause button"
+		},
+		"title.adventure_win": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Victory",
+			"where": "Adventure victory headline"
+		},
+		"title.again": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Again",
+			"where": "Victory / defeat button"
+		},
+		"title.begin": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Play",
+			"where": "Title + pause button"
+		},
+		"title.continue": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Delve Deeper",
+			"where": "Between-dungeon Continue"
+		},
+		"title.dive_in": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Quick Start",
+			"where": "Title + pause button"
+		},
+		"title.dungeons_cleared": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": " {n} Dungeons Cleared!",
+			"where": "Adventure tally"
+		},
+		"title.how_to_play": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "How to Play",
+			"where": "Title + pause button"
+		},
+		"title.leave": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Exit",
+			"where": "Between-dungeon Leave"
+		},
+		"title.lose": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Defeated",
+			"where": "Defeat headline"
+		},
+		"title.lose_sub": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Thievery never pays. Or rather, it pays in trouble.",
+			"where": "Defeat subtitle"
+		},
+		"title.overlay": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Swipe",
+			"where": "Title parchment headline"
+		},
+		"title.rest": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "On to the next haul.",
+			"where": "Between-dungeon headline"
+		},
+		"title.rest_sub": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "So you've cleared {n} Dungeons. Better hold on to that loot - you'll need it in the next one.",
+			"where": "Between-dungeon subtitle"
+		},
+		"title.sub": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "You just couldn't keep your grubby hands off their loot, could ya?",
+			"where": "Title parchment subtitle"
+		},
+		"title.win": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Successfully Swiped",
+			"where": "Victory headline"
+		},
+		"title.win_sub": {
+			"cat": "Title",
+			"locked_at": "2026-10-07",
+			"text": "Now I just need a place to store this stuff",
+			"where": "Victory subtitle"
+		},
+		"tutorial.beat.01.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "I'm Nib. You're the reason eight angry owners know this address. Survive three scrapes and I'll call you a professional.",
+			"where": "How to Play step 1 · continue / (none) · main line"
+		},
+		"tutorial.beat.01.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "I'm in",
+			"where": "How to Play step 1 · continue button"
+		},
+		"tutorial.beat.01.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 1 · gold hint"
+		},
+		"tutorial.beat.02.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Round room. Eight alcoves. The floor turns — whoever stops in front of you gets a swing. I parked a Golem, a Wizard, and a Berserker. Follow my finger.",
+			"where": "How to Play step 2 · continue / wheel · main line"
+		},
+		"tutorial.beat.02.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Show me",
+			"where": "How to Play step 2 · continue button"
+		},
+		"tutorial.beat.02.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 2 · gold hint"
+		},
+		"tutorial.beat.03.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Those hearts are your pulse. Zero means they pry the loot off you. One heart left still counts. Pretty leftovers don't.",
+			"where": "How to Play step 3 · continue / hearts · main line"
+		},
+		"tutorial.beat.03.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Got it",
+			"where": "How to Play step 3 · continue button"
+		},
+		"tutorial.beat.03.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 3 · gold hint"
+		},
+		"tutorial.beat.04.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Stolen goods sit along the bottom. Hover a card. Hold Shift if you want the ugly math instead of the big number.",
+			"where": "How to Play step 4 · hover_item / hotbar · main line"
+		},
+		"tutorial.beat.04.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 4 · continue button"
+		},
+		"tutorial.beat.04.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "(hover any item)",
+			"where": "How to Play step 4 · gold hint"
+		},
+		"tutorial.beat.05.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Helmet's number breathes with your health — ignore it for now. Shield is the soft landing. Flail gets hungrier if you bleed. Boot's the dirty trick. Don't ask how I got it.",
+			"where": "How to Play step 5 · continue / item:helmet · main line"
+		},
+		"tutorial.beat.05.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Fine",
+			"where": "How to Play step 5 · continue button"
+		},
+		"tutorial.beat.05.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 5 · gold hint"
+		},
+		"tutorial.beat.06.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Hit Spin. I'll cheat the Golem into place. Big. Slow. Hits for three.",
+			"where": "How to Play step 6 · spin / spin · main line"
+		},
+		"tutorial.beat.06.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 6 · continue button"
+		},
+		"tutorial.beat.06.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "(click Spin)",
+			"where": "How to Play step 6 · gold hint"
+		},
+		"tutorial.beat.07.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Three coming in. Shield gives four. Tap the Shield before you eat the knuckles.",
+			"where": "How to Play step 7 · item:shield / item:shield · main line"
+		},
+		"tutorial.beat.07.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 7 · continue button"
+		},
+		"tutorial.beat.07.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "(click Shield)",
+			"where": "How to Play step 7 · gold hint"
+		},
+		"tutorial.beat.08.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Gold in the middle is Block — a pillow for this scrap only. Fight ends, pillow vanishes. Hearts stick around. That's the deal.",
+			"where": "How to Play step 8 · continue / wheel · main line"
+		},
+		"tutorial.beat.08.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "OK",
+			"where": "How to Play step 8 · continue button"
+		},
+		"tutorial.beat.08.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 8 · gold hint"
+		},
+		"tutorial.beat.09.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Button says Safe because you covered it. Click it. If a heart had cracked, we'd still walk — breathing is the scoreboard.",
+			"where": "How to Play step 9 · done / done · main line"
+		},
+		"tutorial.beat.09.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 9 · continue button"
+		},
+		"tutorial.beat.09.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "(click Safe)",
+			"where": "How to Play step 9 · gold hint"
+		},
+		"tutorial.beat.10.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Pillow's gone. You're not. That skull plaque is your tally — Flail's watching it too. Two owners left who want their stuff.",
+			"where": "How to Play step 10 · continue / trophy · main line"
+		},
+		"tutorial.beat.10.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Spin when ready",
+			"where": "How to Play step 10 · continue button"
+		},
+		"tutorial.beat.10.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 10 · gold hint"
+		},
+		"tutorial.beat.11.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Spin. Wizard this time. Don't open your mouth for whatever they're cooking.",
+			"where": "How to Play step 11 · spin / spin · main line"
+		},
+		"tutorial.beat.11.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 11 · continue button"
+		},
+		"tutorial.beat.11.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "(click Spin)",
+			"where": "How to Play step 11 · gold hint"
+		},
+		"tutorial.beat.12.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Five attack, two health. You could pillow up and still get nicked — or end it. Click the Boot. Less health than you? Fight's over. They don't get a speech.",
+			"where": "How to Play step 12 · item:da_boot / item:da_boot · main line"
+		},
+		"tutorial.beat.12.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 12 · continue button"
+		},
+		"tutorial.beat.12.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "(click the Boot)",
+			"where": "How to Play step 12 · gold hint"
+		},
+		"tutorial.beat.13.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "That's the other door out of a fight: finish the fragile ones. Flail only fattens when you bleed — you didn't, so it's still a 2. Helmet pillows the last brat.",
+			"where": "How to Play step 13 · continue / item:helmet · main line"
+		},
+		"tutorial.beat.13.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Got it",
+			"where": "How to Play step 13 · continue button"
+		},
+		"tutorial.beat.13.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 13 · gold hint"
+		},
+		"tutorial.beat.14.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Last alcove. Hover them. Owners brag if you listen. This one gets louder every time you win. Charming.",
+			"where": "How to Play step 14 · hover_slice:berserker / wheel · main line"
+		},
+		"tutorial.beat.14.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 14 · continue button"
+		},
+		"tutorial.beat.14.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "(hover the Berserker)",
+			"where": "How to Play step 14 · gold hint"
+		},
+		"tutorial.beat.15.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Spin. Berserker hits three. Helmet matches the smaller health bar — yours or theirs.",
+			"where": "How to Play step 15 · spin / spin · main line"
+		},
+		"tutorial.beat.15.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 15 · continue button"
+		},
+		"tutorial.beat.15.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "(click Spin)",
+			"where": "How to Play step 15 · gold hint"
+		},
+		"tutorial.beat.16.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Helmet. Now. Four block into three attack. Do the math with your fingers if you have to.",
+			"where": "How to Play step 16 · item:helmet / item:helmet · main line"
+		},
+		"tutorial.beat.16.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 16 · continue button"
+		},
+		"tutorial.beat.16.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "(click Helmet)",
+			"where": "How to Play step 16 · gold hint"
+		},
+		"tutorial.beat.17.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Safe. Pillow dumps. Hearts stay. That's how a thief keeps a pile.",
+			"where": "How to Play step 17 · done / done · main line"
+		},
+		"tutorial.beat.17.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 17 · continue button"
+		},
+		"tutorial.beat.17.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "(click Safe)",
+			"where": "How to Play step 17 · gold hint"
+		},
+		"tutorial.beat.18.body": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "You're still breathing. I still want my cut. Dive In is the real room — I don't steer, and eight owners show up hungry. Try not to scream for me.",
+			"where": "How to Play step 18 · continue / (none) · main line"
+		},
+		"tutorial.beat.18.go": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "I'm good",
+			"where": "How to Play step 18 · continue button"
+		},
+		"tutorial.beat.18.hint": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "",
+			"where": "How to Play step 18 · gold hint"
+		},
+		"tutorial.nudge_item": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Wrong shiny.",
+			"where": "Wrong item during How to Play"
+		},
+		"tutorial.nudge_wait": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Hey — finish this first.",
+			"where": "Wrong click during How to Play"
+		},
+		"tutorial.skip": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Skip",
+			"where": "How to Play skip button"
+		},
+		"tutorial.speaker": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-07",
+			"text": "Nib",
+			"where": "Talk box name"
+		},
+		"warn.boot": {
+			"cat": "Warns",
+			"locked_at": "2026-10-07",
+			"text": "Can't — they're as healthy as you, or healthier.",
+			"where": "the Boot cannot fire"
+		},
+		"warn.crossbow": {
+			"cat": "Warns",
+			"locked_at": "2026-10-07",
+			"text": "Can't — no soft neighbor who can take a bolt.",
+			"where": "Crossbow cannot fire"
+		},
+		"warn.neighbor": {
+			"cat": "Warns",
+			"locked_at": "2026-10-07",
+			"text": "Can't — nobody next door.",
+			"where": "Bracers / Pocketwatch no neighbor"
+		},
+		"warn.poison": {
+			"cat": "Warns",
+			"locked_at": "2026-10-07",
+			"text": "Can't — no neighbor to spike.",
+			"where": "Poison Flask cannot fire"
+		},
+		"warn.sledge": {
+			"cat": "Warns",
+			"locked_at": "2026-10-07",
+			"text": "Can't — they don't hit hard enough.",
+			"where": "Sledgehammer cannot fire"
+		},
+		"warn.spent": {
+			"cat": "Warns",
+			"locked_at": "2026-10-07",
+			"text": "Already spent this scrap.",
+			"where": "Used item this fight"
+		}
+	},
+	"updated": "2026-10-09"
+}

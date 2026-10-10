@@ -1,0 +1,13 @@
+CC0 audio
+
+Kenney.nl — Interface Sounds (UI clicks, confirms, whooshes)
+Kenney.nl — RPG Audio (hits, metal, cloth, doors, books)
+yd — Dungeon Ambience (music.ogg), OpenGameArt, CC0
+Kenney.nl — RPG Audio extras: door_slam.ogg (doorClose_4), metal_latch.ogg
+
+bleed.wav — original short drip for Bleed (Grief Jar). Not an Attack tell.
+
+Combat bed: Ironchest Dungeon Loops (CC0) was not dropped in as music_combat.ogg
+(itch name-your-price download blocked). Spin/fight ducks the existing yd bed −2.5 dB.
+
+Credit is not required under CC0; names kept here so we remember the source.

@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://csv75q47lffe7"
+
+[deps]
+
+files=["res://data/player-copy.key.translation", "res://data/player-copy.where.translation", "res://data/player-copy.text.translation"]
+
+source_file="res://data/player-copy.csv"
+dest_files=["res://data/player-copy.key.translation", "res://data/player-copy.where.translation", "res://data/player-copy.text.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

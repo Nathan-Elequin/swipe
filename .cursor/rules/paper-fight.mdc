@@ -1,0 +1,21 @@
+---
+description: Paper Fight — ask about gameplay before coding
+alwaysApply: true
+---
+
+# Paper Fight
+
+Before implementing any **gameplay** addition or change (item, monster, special, formula, targeting, spend, phase, feature), do not write the feature as soon as you hear it.
+
+1. Read `design/paper-fight/RUBRIC.md`.
+2. Overwrite `design/paper-fight/CURRENT.md` from `TEMPLATE.md`. Fill every heading.
+3. Ask Nathan only the questions whose answers would change what you write (`AskQuestion`). Stop. Do not implement in that turn.
+4. After he answers, implement that reading. Move CURRENT into `design/paper-fight/done/`.
+
+Skip Paper Fight for: copy/art/audio only; an exact number he named on an existing rule; Ability+Flow+Notes already agree and say what happens when cards collide; he said **skip the Paper Fight** / **just ship it** / **F5 this**.
+
+If Ability, Flow, and Notes disagree, Paper Fight — do not invent how this meets Hornet, Queen, or block.
+
+For rules, this comes before same-turn guess-and-build. Feel and animation can still be built the same turn.
+
+Worked example: `design/paper-fight/_example-copy-the-owner.md`.

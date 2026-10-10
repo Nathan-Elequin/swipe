@@ -1,21 +1,29 @@
-# Boss Rush
+# Swipe
 
-Digital dungeon on a shrinking wheel. Spreadsheet from 2022 is the only source so far.
+Steal the shiny. Fight who owned it.
 
-## Recall names
+A shrinking-wheel dungeon. Friends play the itch.io page. This repo is the source.
 
-**Boss Rush** · this folder: `C:\Users\Natha\Documents\boss-rush`
+## Play
 
-## Layout
+After the first HTML5 upload, the itch link goes here.
+
+## Open in Godot (editing)
+
+1. Godot **4.7.2**
+2. Import this folder
+3. F5
+
+Roster, Script, and Developer Test only show in the editor. They are hidden in the web build friends play.
+
+## Export a web build
+
+In Godot: **Project → Export → Web → Export Project** to `build/web/index.html`.
+
+Or from a terminal (Godot 4.7.2 on PATH, export templates installed):
 
 ```
-source/     original content (Excel + a text dump of every sheet)
-design/     rules we write after Nathan fills the gaps
-docs/       notes, not the game
+Godot_v4.7.2-stable_win64.exe --headless --path . --export-release Web build/web/index.html
 ```
 
-## Open the content
-
-`source/01_Boss_Rush_Content.xlsx`
-
-What I think the game is: `design/01_what_i_understand.md`
+Zip the `build/web` folder. On itch.io: new project, **HTML**, upload that zip, tick **This file will be played in the browser**.

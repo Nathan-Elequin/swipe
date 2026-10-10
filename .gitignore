@@ -2,8 +2,18 @@
 .godot/
 .import/
 export.cfg
-export_presets.cfg
 *.translation
+
+_art_dl/
+assets/_inbox/
+tools/_art/
+build/
+*.pck
+
+.godot-check.txt
+data/*.backup*.json
+data/*.proposed*.json
+*.xlsx
 
 .DS_Store
 *~

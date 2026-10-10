@@ -1,0 +1,48 @@
+CC0 dungeon art (credit not required; kept so we remember the sources)
+
+0x72 / Robert — 16x16 DungeonTileset II v1.7
+  https://0x72.itch.io/dungeontileset-ii
+  Atlas, walls, floors, monsters, weapons. CC0.
+  Extra item PNGs sliced from this atlas (2× nearest): healing_potion (flask_big_red),
+  poison_flask (flask_green), smoke_bomb (bomb_f0), throwing_knife, spiked_flail, sledgehammer.
+
+Kenney.nl — Particle Pack
+  Impact sparks, smoke, magic glows. CC0.
+
+Kenney.nl — UI Pack (RPG Expansion)
+  Panels and long buttons. CC0.
+
+Kenney.nl — Tiny Dungeon
+  Spider Queen portrait (tile_0122). Beggar (tile_0085). Wraith / ghost (tile_0121).
+  Twins composite (tile_0085 + tile_0099). CC0.
+  https://opengameart.org/content/tiny-dungeon
+
+Hand-drawn 16×16 (nearest 4×) where packs had no matching object:
+  iron_chain, grappling_hook, net, counting_beads, measuring_tape (scythe),
+  last_match (palm), grief_jar, spiked_shield, sai, fangs, knucklers, crossbow,
+  mute_stone / Chaos Stone, victory_flask (gold goblet), cursed_scroll,
+  wick (candle), anvil, basilisk, two_headed_serpent, hornet_swarm, dire_wolf,
+  leech_league, needleback, petrify_stone overlay.
+
+Shade — 16x16 Assorted RPG Icons
+  Leather bracers crop. CC0.
+  https://opengameart.org/content/16x16-assorted-rpg-icons
+
+HomoHikka — Generic Fantasy RPG Items
+  Shield, helmet, breastplate, medallion, grimoire. CC0.
+  https://opengameart.org/content/generic-fantasy-rpg-items-pack
+
+Jetrel — 16x16 RPG items
+  Gauntlets, pocketwatch. CC0.
+  https://opengameart.org/content/16x16-rpg-items
+
+Flare / AntumDeluge — CC0 Footgear Icons
+  Da Boot (leather boots, 32x32). CC0.
+  https://opengameart.org/content/cc0-footgear-icons
+
+Layout / visual UX sources used for this pass:
+  UI Challenges — Game UI Design (information hierarchy, one focal plane)
+  Xbox Accessibility Guideline 103 / GameDesign.gg (never color-alone)
+  Sprite Kitchen / Sandro Maglione — layered pixel depth, desaturated far plane
+  GamineAI — Pixel UI contrast (UI value band, plates not glow)
+  Godot pixel HUD — Nearest filter, canvas_items

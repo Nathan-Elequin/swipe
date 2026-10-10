@@ -1,0 +1,29 @@
+---
+description: Never rewrite Nathan's locked editor Saves
+alwaysApply: true
+---
+
+# Author lock
+
+Nathan clicking **Save** / **Save all** / Ctrl+S in Roster, the card editor, the Script editor, or the HTML board stamps `author_lock` on that text. Ledger: `data/author-locks.json`. Flags also live on the card in `data/content-board.json` and on each row in `data/player-copy.json`.
+
+## Every message
+
+Read `data/author-locks.json` (and the flags on the board / script). Treat locked fields as finished writing.
+
+## Do not
+
+- Do not rewrite locked `name`, `ability`, `explainer`, `flow`, `notes`, `ops`, numbers, rarity, tier, count, priority, or locked script `text`.
+- Do not "clean up", Title Case, keyword-paint, shorten, or restyle locked copy in JSON or by changing the live fallback that players actually see.
+- Do not strip `author_lock`, `locked_fields`, or `locked_at`.
+
+## If chat asks to change locked text
+
+1. Stop. Do not edit it in that turn.
+2. Name the locked keys (card id + fields, or script key + current line).
+3. Ask whether this message is an override.
+4. Change them only after he clearly says yes to those named keys.
+
+His Save in the editor updates locked text. That is allowed. Chat is not, unless he overrides.
+
+`status` (`todo` / `live` / `hold`) is not locked. You may still implement Flow and set `live` after shipping behavior, without rewriting locked player sentences.

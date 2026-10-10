@@ -1,0 +1,3277 @@
+{
+	"authority": "Spreadsheet is source of truth until a chat overwrites a named rule. Chat overwrites are listed in rulings[].",
+	"combat_flow": [
+		"spin: pick a remaining monster at random (not empty slices)",
+		"resolve_spin_variables",
+		"if poisoned: skip to defeat",
+		"player uses zero or more items",
+		"player clicks Done",
+		"if enemy hp<=0 or defeated: skip enemy attack",
+		"else: hp = hp - max(0, enemy_atk - blk); Hornet would apply ATK twice (not in POC)",
+		"if hp==0: dying / healing potion check",
+		"defeat enemy, remove slice(s), neighbors close up",
+		"repeat until hp==0 or no monsters left"
+	],
+	"contradictions": [
+		{
+			"ability": "ATK damage ignores Block.",
+			"id": "dragon",
+			"special_function": "Double the first BLK you gain or ATK you deal, then remove the trigger."
+		},
+		{
+			"ability": "When you would die, discard this and Heal up to 3 HP.",
+			"defined": "If HP equals 0, discard and set HP to 4.",
+			"id": "healing_potion"
+		},
+		{
+			"ability": "Adds 2 to the ATK of Neighboring monsters.",
+			"function_flow": "Set each neighbor ATK to Base ATK + 1.",
+			"id": "commander"
+		},
+		{
+			"id": "wraith_captain",
+			"notes": "Wraith text says it then receives ATK increase from Captain. Roster name is Commander."
+		},
+		{
+			"ability": "ATK 7-X, X = Item count at start of combat.",
+			"defined": "Also describes HP Delta between player and enemy.",
+			"id": "knucklers"
+		},
+		{
+			"ability": "ATK 2+X, X = monsters Defeated.",
+			"defined": "Describes Highest HP between you and the enemy.",
+			"id": "spiked_flail"
+		},
+		{
+			"function_flow_atk_examples": "Lists Sword. No Sword row in All Content.",
+			"id": "sword_missing"
+		},
+		{
+			"function_flow": "(Is enemy HP less?) Set to 0 on spin - looks like a leftover, not a T/F check.",
+			"id": "da_boot_on_spin"
+		},
+		{
+			"function_flow": "Apply ATK examples include Bracers. Ability is BLK X from weakest neighbor.",
+			"id": "bracers_listed_as_atk"
+		}
+	],
+	"draft": {
+		"choice": [
+			"add_monster",
+			"bribe_monster"
+		],
+		"tier_odds": {
+			"1": 0.4,
+			"2": 0.35,
+			"3": 0.25
+		}
+	},
+	"id": "boss-rush-catalog",
+	"item_use_flow": [
+		"can_use? else show Cannot Be Used",
+		"click item, confirm Use",
+		"special function if any",
+		"if defeat-on-use: jump to defeat enemy",
+		"else apply ATK and/or BLK",
+		"increment items_used_this_combat; if >=2 set Two-Headed Serpent ATK to 0"
+	],
+	"items": [
+		{
+			"ability": "Atk 3, or Atk 1 and Keep this item",
+			"author_lock": true,
+			"count": 2.0,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "(3) or (1 and Keep)",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"id": "throwing_knife",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Throwing Knife",
+			"ops": {
+				"kind": "choose",
+				"options": [
+					{
+						"atk": 3.0,
+						"id": "throw",
+						"keep": false,
+						"label": "ATK 3, discard"
+					},
+					{
+						"atk": 1.0,
+						"id": "nick",
+						"keep": true,
+						"label": "ATK 1, keep"
+					}
+				]
+			},
+			"poc": true,
+			"priority": 1.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I",
+			"updated": "2022-04-20"
+		},
+		{
+			"ability": "Gain 4 Block.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "(BLK 4)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "shield",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Shield",
+			"ops": {
+				"kind": "blk",
+				"n": 4.0
+			},
+			"poc": true,
+			"priority": 1.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I"
+		},
+		{
+			"ability": "Starts at 2 each fight. Flips 2 ↔ 4 after any Item is used.",
+			"author_lock": true,
+			"count": 2.0,
+			"defined": "",
+			"exceptions": "This should NOT start at 2 each fight, it should carry over its value between combats (not between dungeons eg adventure mode)",
+			"explainer": "(2) or (4)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "sai",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Sai",
+			"ops": {
+				"kind": "atk_alt_24"
+			},
+			"poc": true,
+			"priority": 2.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I",
+			"when_updated": [
+				"On Item Use"
+			]
+		},
+		{
+			"ability": "Block equal to the HP you are missing.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "(6 − HP)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "medallion",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Medallion",
+			"ops": {
+				"kind": "blk_from_hp"
+			},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I",
+			"when_updated": [
+				"On Spin",
+				"On HP Change"
+			]
+		},
+		{
+			"ability": "Block equal to whoever has less HP — you or the enemy.",
+			"author_lock": true,
+			"count": 2.0,
+			"defined": "Lower HP wins; player value if tied. Recheck on HP change either side.",
+			"exceptions": "",
+			"explainer": "(the lower of YOUR HP and ENEMY HP)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "helmet",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Helmet",
+			"ops": {
+				"kind": "blk_min_hp"
+			},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I",
+			"updated": "2022-04-24"
+		},
+		{
+			"ability": "Defeat an enemy with less HP than you. Combat ends immediately.",
+			"author_lock": true,
+			"count": 2.0,
+			"defined": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
+			"exceptions": "",
+			"explainer": "(ENEMY HP < YOUR HP)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "da_boot",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "The Boot",
+			"ops": {
+				"kind": "defeat_hp"
+			},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I",
+			"usable_when": "enemy_hp < player_hp"
+		},
+		{
+			"ability": "Attack equal to the Attack of the last monster you faced.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "On Spin, store enemy ATK. Initial value is always 0.",
+			"exceptions": "",
+			"explainer": "(LAST ENEMY ATK)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "grimoire",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Grimoire",
+			"ops": {},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I"
+		},
+		{
+			"ability": "+1 ATK for each HP you are missing.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "(7 − HP)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "bloody_gauntlets",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Bloody Gauntlets",
+			"ops": {
+				"kind": "atk_7_hp"
+			},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I",
+			"when_updated": [
+				"On Spin",
+				"On HP Change"
+			]
+		},
+		{
+			"ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
+			"author_lock": true,
+			"count": 2.0,
+			"defined": "Tap on use. Discard on resolve unless HP dropped vs On Spin. Healing Potion this combat makes Did Lose HP always True.",
+			"exceptions": "",
+			"explainer": "(2) and Keep if you Bleed",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"id": "breastplate",
+			"locked_at": "2026-10-08",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Breastplate",
+			"ops": {},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 3.0,
+			"type": "I"
+		},
+		{
+			"ability": "Block equal to the weaker Neighboring enemy's Attack.",
+			"author_lock": true,
+			"contradiction_ids": [
+				"bracers_listed_as_atk"
+			],
+			"count": 2.0,
+			"defined": "",
+			"exceptions": "Final enemy: unusable.",
+			"explainer": "(Neighbor ATK)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "bracers",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Bracers",
+			"ops": {
+				"kind": "blk_neighbor"
+			},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "I",
+			"updated": "2022-04-24"
+		},
+		{
+			"ability": "Spin again and gain a Random Item.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "End combat without resolving. Spin again, not the same slice. Draw 1 unseen item, tier-agnostic.",
+			"exceptions": "",
+			"explainer": "re-roll + 1 Random Item",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"id": "smoke_bomb",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Smoke Bomb",
+			"ops": {},
+			"poc": false,
+			"priority": 4.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "I"
+		},
+		{
+			"ability": "Attack equal to 8 minus the Items still in your hand.",
+			"author_lock": true,
+			"contradiction_ids": [
+				"knucklers"
+			],
+			"count": 2.0,
+			"defined": "Also describes HP Delta (absolute difference of player vs enemy HP).",
+			"exceptions": "",
+			"explainer": "(8 − Items)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "knucklers",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Knucklers",
+			"ops": {
+				"kind": "atk_7_items"
+			},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "I",
+			"updated": "2022-05-02",
+			"when_updated": [
+				"On Item Use"
+			]
+		},
+		{
+			"ability": "Take their hit (Block still works), Defeat them, then Heal equal to the HP they had.",
+			"author_lock": true,
+			"count": 2.0,
+			"defined": "Store enemy HP on use. Fangs DMG can be blocked like Resolve Combat. Then heal stored HP. Player HP never exceeds 6. If this would kill you: Healing Potion, then Fangs Healing.",
+			"exceptions": "",
+			"explainer": "(TAKE THEIR ATK) then Defeat then Heal THEIR HP",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "fangs",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Fangs",
+			"ops": {},
+			"poc": false,
+			"priority": 4.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "I"
+		},
+		{
+			"ability": "Mark a Neighbor. When you spin them, they lose 5 HP immediately.",
+			"author_lock": true,
+			"count": 2.0,
+			"defined": "Lose HP is not ATK dmg (can kill Goblin). Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
+			"exceptions": "",
+			"explainer": "mark Neighbor −5 HP on spin",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"id": "poison_flask",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Poison Flask",
+			"ops": {},
+			"poc": false,
+			"priority": 4.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "I",
+			"updated": "2022-05-02"
+		},
+		{
+			"ability": "At the start of each combat, lose 1 HP. On use, Heal your HP to up to full (6).",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "While in inventory unused, Lose 1 HP On Spin after combat has begun. Counts as Did Lose HP for Breastplate.",
+			"exceptions": "",
+			"explainer": "",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "cursed_scroll",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Cursed Scroll",
+			"ops": {},
+			"poc": false,
+			"priority": 4.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "I"
+		},
+		{
+			"ability": "Gets stronger. +2 Attack each time you lose any HP.",
+			"author_lock": true,
+			"contradiction_ids": [
+				"spiked_flail"
+			],
+			"count": 1.0,
+			"defined": "",
+			"exceptions": "Change to Base 0 ATK",
+			"explainer": "+2 ATK each time you Bleed",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "spiked_flail",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Spiked Flail",
+			"ops": {
+				"kind": "atk_hp_loss"
+			},
+			"poc": false,
+			"priority": 4.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 3.0,
+			"type": "I",
+			"updated": "2022-04-24"
+		},
+		{
+			"ability": "Unplayable. If you would die, discard this and Heal 3.",
+			"author_lock": true,
+			"contradiction_ids": [
+				"healing_potion"
+			],
+			"count": 1.0,
+			"defined": "If player HP ever equals 0, immediately Discard this item and set the player's HP to 4.",
+			"exceptions": "",
+			"explainer": "on lethal: discard, Heal 3",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"id": "healing_potion",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Healing Potion",
+			"ops": {},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 3.0,
+			"type": "I"
+		},
+		{
+			"ability": "Deal 4 Attack to a Neighboring enemy with 4 HP or less.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "On use, choose a neighboring enemy with 4 or less HP. Deal 4 attack damage to them. If their HP reaches 0, they are defeated immediately. Goblin cannot receive ATK damage. Unusable with 0 eligible neighbors.",
+			"exceptions": "",
+			"explainer": "(ATK 4) if (Neighbor HP ≤ 4)",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"id": "crossbow",
+			"locked_at": "2026-10-08",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Crossbow",
+			"ops": {
+				"hp_max": 4.0,
+				"kind": "atk_neighbor",
+				"n": 4.0
+			},
+			"poc": false,
+			"priority": 4.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 3.0,
+			"type": "I"
+		},
+		{
+			"ability": "Defeat an enemy with 5 or more Attack. Combat ends immediately.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
+			"exceptions": "",
+			"explainer": "(ENEMY ATK ≥ 5)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "sledgehammer",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Sledgehammer",
+			"ops": {
+				"kind": "defeat_atk"
+			},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 3.0,
+			"type": "I",
+			"usable_when": "enemy_atk >= 5"
+		},
+		{
+			"ability": "Attack equal to the Attack of the strongest Neighboring enemy.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "",
+			"exceptions": "Final enemy: unusable.",
+			"explainer": "(Highest Neighbor ATK)",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"id": "pocketwatch",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Pocketwatch",
+			"ops": {},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 3.0,
+			"type": "I"
+		},
+		{
+			"ability": "Deal 2 Attack to the Owner you are facing and each Neighboring Owner. The same Owner is only hit once.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "On use, deal 2 ATK to the facing owner and each unique living neighbor. Two owners left: the other takes 2 once. Goblin ignores ATK. Used up.",
+			"exceptions": "",
+			"explainer": "(ATK 2) to facing and Neighbors",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "double_axe",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Double Axe",
+			"ops": {
+				"kind": "atk_cleave",
+				"n": 2.0
+			},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "I"
+		},
+		{
+			"ability": "Heal 1, plus 1 for each monster Defeated",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "On use in a fight, heal 1 + mobs_defeated, cap at 6 HP. Used up. Healing Potion still revives on death.",
+			"exceptions": "",
+			"explainer": "(Heal 1 + Defeats)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "victory_flask",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Victory Flask",
+			"ops": {
+				"kind": "heal_kills"
+			},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "I"
+		},
+		{
+			"ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "On use, pick a living neighbor. Swap that owner with the facing owner. Keep current block, items-used, and snapshots. Draw one item from the remaining pool if any. Used up.",
+			"exceptions": "",
+			"explainer": "swap Neighbor, draw Item",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "grappling_hook",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Grappling Hook",
+			"ops": {
+				"kind": "hook_swap"
+			},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I"
+		},
+		{
+			"ability": "Deal 2 Attack, or gain 2 Block.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "On use, choose ATK 2 or BLK 2. Used up either way.",
+			"exceptions": "Art is a stand-in until a spiked shield tile exists.",
+			"explainer": "(ATK 2) or (BLK 2)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "spiked_shield",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Spiked Shield",
+			"ops": {
+				"kind": "choose",
+				"options": [
+					{
+						"atk": 2.0,
+						"id": "spike",
+						"keep": false,
+						"label": "ATK 2, discard"
+					},
+					{
+						"blk": 2.0,
+						"id": "guard",
+						"keep": false,
+						"label": "BLK 2, discard"
+					}
+				]
+			},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I"
+		},
+		{
+			"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "While in hand and not spent: at combat start, player loses 1 HP (counts as a bleed for Spiked Flail) and this card's block number +2. On use, gain that much block, then used up. Starts at 0.",
+			"exceptions": "",
+			"explainer": "On Spin: Lose 1 HP, this Gains 2 Block",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "grief_jar",
+			"locked_at": "2026-10-08",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Grief Jar",
+			"ops": {
+				"kind": "blk_siphon"
+			},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "I"
+		},
+		{
+			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "Usable in a fight only when living slice count is even. Deal 4 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
+			"exceptions": "",
+			"explainer": "(ATK 4) to furthest enemy",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "longbow",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Longbow",
+			"ops": {
+				"kind": "atk_opposite",
+				"n": 4.0
+			},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "I"
+		},
+		{
+			"ability": "(ATK 2), then return to your hand.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "Do not discard on use; Tap. Untap always occurs On Resolve Combat.",
+			"exceptions": "",
+			"explainer": "(Neighbor ATK)",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": true
+			},
+			"id": "dagger",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Dagger",
+			"ops": {},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I"
+		},
+		{
+			"ability": "(BLK X), where X is the lowest HP between you and the enemy.",
+			"author_lock": true,
+			"count": 2.0,
+			"defined": "Older check: only enemy HP change, not player HP. Hidden/retired.",
+			"exceptions": "",
+			"explainer": "",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": true
+			},
+			"id": "helmet_hidden",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Helmet",
+			"ops": {},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I"
+		},
+		{
+			"ability": "At the start of each combat, lose 1 HP.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": true
+			},
+			"id": "bandana",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Bandana",
+			"ops": {},
+			"poc": false,
+			"priority": 4.0,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "I"
+		},
+		{
+			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "Click during a fight. Heal 2, cap 6. If HP is still below 6, keep the card. If you are already at 6, heal 0 and the card is used up. Counts as an item use.",
+			"exceptions": "Breastplate keeps if you bled. This keeps if you are still hurt after the heal.",
+			"explainer": "(HEAL 2) then KEEP if HP < 6",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "lantern",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Lantern",
+			"ops": {
+				"kind": "heal_keep",
+				"n": 2.0
+			},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "uncommon",
+			"review": "refined",
+			"review_note": "(Tier 3) - Heal 2, then Keep this if you are still missing HP.",
+			"status": "live",
+			"tier": 3.0,
+			"type": "I"
+		},
+		{
+			"ability": "Gain Block equal to the last Block you gained.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "Click during a fight. Gain Block equal to the last Block you gained this dungeon. If you have not gained Block yet this dungeon, the click does nothing and the card stays. Used up. Counts as an item use.",
+			"exceptions": "Last Block is the amount from the last time you gained Block, not your current Block total.",
+			"explainer": "(Last Block gained)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "mirror_shard",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Mirror Shard",
+			"ops": {
+				"kind": "blk_last"
+			},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "uncommon",
+			"review": "refined",
+			"review_note": "(Tier 2) Gains block equal to the last Block you've gained. Tier 2",
+			"status": "live",
+			"tier": 2.0,
+			"type": "I"
+		},
+		{
+			"ability": "The facing owner's Attack becomes 0 this fight.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "Click during a fight. Set facing Attack to 0 and lock it for the rest of this fight, including after Commander and Harpy formulas. They still leave after Done. Used up.",
+			"exceptions": "Dragon pierce of 0 is 0. Kobold still swings twice for 0.",
+			"explainer": "ATK 0",
+			"flags": {
+				"art": true,
+				"dev": false,
+				"hide": true
+			},
+			"id": "caltrops",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Caltrops",
+			"ops": {
+				"kind": "atk_zero"
+			},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "uncommon",
+			"review": "rough",
+			"review_note": "",
+			"status": "retired",
+			"tier": 1.0,
+			"type": "I"
+		},
+		{
+			"ability": "Becomes a copy of the last item you used.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "In hand this looks like the last item you used this dungeon (faint Echo icon). Click it to use that copy, then Echo is used up even if the original had Keep. If you have not used an item this dungeon, it is Unplayable.",
+			"exceptions": "Updates when you use an item. Cube feed is not an item use. First fight of a run: Unplayable.",
+			"explainer": "(Copy last item)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "echo_bell",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Echo Bell",
+			"ops": {
+				"kind": "echo"
+			},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "refined",
+			"review_note": "(Tier 3) Becomes a copy of the last item you used. (updates on item use, but keeps the echo bell icon faintly in the top right of the card).",
+			"status": "live",
+			"tier": 3.0,
+			"type": "I"
+		},
+		{
+			"ability": "Remove the facing owner's unique ability.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "Click during a fight. That owner id loses its unique ability and formulas for the rest of this dungeon. They show printed ATK/HP like Golem. If they have no unique ability, the click does nothing and the card stays. Used up otherwise.",
+			"exceptions": "Golem: cannot click. Bandit and other formulas fall back to the ATK/HP columns.",
+			"explainer": "(Printed ATK / HP)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "quiet_bell",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Quiet Bell",
+			"ops": {
+				"kind": "quiet"
+			},
+			"poc": false,
+			"priority": 4.0,
+			"rarity": "uncommon",
+			"review": "refined",
+			"review_note": "(Tier 2) Remove the unique ability of the enemy.\n\n(The enemy UI literally removes the text of their ability, and will pretend that it is an abiity-free unit (eg Golem) with the base stats of the unit. This means units with formula stats like Bandit simply turn into their base stats and are badly nerfed by this)",
+			"status": "live",
+			"tier": 2.0,
+			"type": "I"
+		},
+		{
+			"ability": "Reduce the facing owner's Attack by 1, 2, or 3.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "Click during a fight, then click 1, 2, or 3. Facing Attack drops by that much after every other formula including Commander, floors at 0, then locks for the rest of this fight. Used up.",
+			"exceptions": "Caltrops is retired. This is the milder version, last in calc.",
+			"explainer": "(−1) or (−2) or (−3)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "net",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Net",
+			"ops": {
+				"kind": "choose",
+				"options": [
+					{
+						"atk_drop": 1.0,
+						"id": "drop1",
+						"label": "−1 Attack"
+					},
+					{
+						"atk_drop": 2.0,
+						"id": "drop2",
+						"label": "−2 Attack"
+					},
+					{
+						"atk_drop": 3.0,
+						"id": "drop3",
+						"label": "−3 Attack"
+					}
+				]
+			},
+			"priority": 2.0,
+			"rarity": "uncommon",
+			"review": "refined",
+			"review_note": "(Tier 1) Reduce enemy Atk by 1, 2, or 3.",
+			"status": "live",
+			"tier": 1.0,
+			"type": "I"
+		},
+		{
+			"ability": "Deal Attack equal to Block you hold. Keep this item.",
+			"author_lock": false,
+			"count": 1.0,
+			"defined": "Click during a fight. Deal Attack equal to Block you hold. You keep that Block. This item Keeps. Unplayable at 0 Block. Counts as an item use. Goblin cannot take Attack damage.",
+			"exceptions": "Hornet and Queen still Attack after. You still hold the Block for those swings.",
+			"explainer": "(Attack = Block. Keep.)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "iron_chain",
+			"locked_at": "",
+			"locked_fields": [],
+			"name": "Chain",
+			"ops": {
+				"kind": "atk_spend_blk"
+			},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "rough",
+			"review_note": "Attack equal to your Block, then Keep this item.",
+			"status": "live",
+			"tier": 2.0,
+			"type": "I"
+		},
+		{
+			"ability": "(1), (2), (3), or (4) Atk",
+			"author_lock": true,
+			"count": 2.0,
+			"defined": "Click during a fight. Deal Attack equal to the dungeon cycle number (1, then 2, then 3, then 4, then 1). Every item use this dungeon advances that number, including this click. The cycle carries across fights and resets on the next dungeon. Two Beads share one number. Used up. Counts as an item use. Goblin cannot take Attack damage.",
+			"exceptions": "Cube feed is not an item use, so the cycle does not advance. Anvil takes 1 from this Attack.",
+			"explainer": "Alternates between 1, 2, 3, and 4 Atk",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "counting_beads",
+			"locked_at": "2026-10-08",
+			"locked_fields": [
+				"ability",
+				"explainer",
+				"name",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Counting Beads",
+			"ops": {
+				"kind": "atk_empty"
+			},
+			"poc": false,
+			"priority": 2.0,
+			"rarity": "uncommon",
+			"review": "rough",
+			"review_note": "Alternates from 1, 2, 3, and 4 Atk damage on Item use.",
+			"status": "live",
+			"tier": 1.0,
+			"type": "I"
+		},
+		{
+			"ability": "If you have zero items that deal Attack, Defeat them.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "Click during a fight. If you hold no items that deal Attack, Defeat them. This card is not an Attack item. Unplayable if any other card in hand deals Attack. Used up when it works. Counts as an item use. Gargoyle cannot be Defeated.",
+			"exceptions": "Holding only this works. Echo copying an Attack item counts as an Attack item. Shield alone is enough.",
+			"explainer": "(No Attack items: Defeat)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "last_match",
+			"locked_at": "2026-10-08",
+			"locked_fields": [
+				"name"
+			],
+			"name": "Paci Fist",
+			"ops": {
+				"kind": "defeat_only_item"
+			},
+			"poc": false,
+			"priority": 4.0,
+			"rarity": "uncommon",
+			"review": "rough",
+			"review_note": "(Change name to 'Paci-Fist', and icon to an open palm strike)\nIf you have zero items that deal Atk damage, Defeat the enemy.",
+			"status": "live",
+			"tier": 3.0,
+			"type": "I"
+		},
+		{
+			"ability": "Deal Attack equal to half your HP (rounded down) and Heal that much. If they survive, Keep this item.",
+			"author_lock": true,
+			"count": 1.0,
+			"defined": "Click during a fight. Deal Attack equal to half your current HP, rounded down. Heal that same number even if they die. If they still have HP after that Attack, including Goblin, Keep this item. If they die, this is used up. Counts as an item use.",
+			"exceptions": "Goblin takes 0 Attack and still has HP, so Keep. Heal still happens if they die. Anvil takes 1 from this Attack. Ogre HP is your HP, so half your HP cannot kill them by itself.",
+			"explainer": "(Attack = half HP. Heal that much. Survive: Keep.)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "measuring_tape",
+			"locked_at": "2026-10-08",
+			"locked_fields": [
+				"ability",
+				"name",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Scythe",
+			"ops": {
+				"kind": "atk_hp_gap"
+			},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "rough",
+			"review_note": "Attack equal to half your HP (rounded down) and Heal that much. If the enemy survives, Keep this item.",
+			"status": "live",
+			"tier": 3.0,
+			"type": "I"
+		},
+		{
+			"ability": "Choose other items in your hand. Each becomes a random item of that item's tier.",
+			"author_lock": false,
+			"count": 1.0,
+			"defined": "Click during a fight, then click other items in your hand. If you hold only one other item, reroll that one. If you hold two or more, pick two. Each becomes a random item of that item's tier, with the same motion as Adventure Mode starter upgrades. This card cannot target itself. Unplayable if this is the only item in your hand. Used up. Counts as an item use.",
+			"exceptions": "Does not deal Attack. Gargoyle petrify does not pick this. Cube feed is not this.",
+			"explainer": "(Reroll 1 or 2 other items.)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"id": "mute_stone",
+			"locked_at": "",
+			"locked_fields": [],
+			"name": "Chaos Stone",
+			"ops": {
+				"kind": "chaos_reroll"
+			},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"review": "rough",
+			"review_note": "(Change to 'Chaos Stone')\n\nChoose 2 Items and replace them with random Items of the same Tier.\n\n(This should have a similar transformation animation to how Adventure Mode dungeon starters are 'upgraded' in Tier.",
+			"status": "live",
+			"tier": 2.0,
+			"type": "I"
+		}
+	],
+	"keywords": {
+		"atk_dmg": "HP loss from ATK. Goblin ignores this.",
+		"defeat": "Remove the enemy without that ATK-to-0 path (Da Boot, Sledgehammer, Fangs, Poison Flask).",
+		"enemy_attacks": "Sheet: always, no exceptions among monsters. Items can prevent the attack by killing/defeating first (not by blocking).",
+		"kill": "Reduce HP to 0 with ATK damage."
+	},
+	"monsters": [
+		{
+			"ability": "My spellbook was in that pile.",
+			"atk": {
+				"base": 5
+			},
+			"author_lock": true,
+			"count": 2,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 2
+			},
+			"id": "wizard",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Wizard",
+			"poc": true,
+			"priority": 1,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "M"
+		},
+		{
+			"ability": "My stone fists want that back.",
+			"atk": {
+				"base": 3
+			},
+			"author_lock": true,
+			"count": 2,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "plain ATK/HP Owner",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 7
+			},
+			"id": "golem",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Golem",
+			"poc": true,
+			"priority": 1,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "M",
+			"updated": "2022-04-20"
+		},
+		{
+			"ability": "I cannot take Attack damage.",
+			"atk": {
+				"base": 3
+			},
+			"author_lock": true,
+			"count": 2,
+			"defined": "This unit's HP can never be reduced. Note that this unit can be defeated through all other means.",
+			"exceptions": "",
+			"explainer": "no Attack damage",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 1
+			},
+			"id": "goblin",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Goblin",
+			"poc": false,
+			"priority": 3,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"special_function": "(No ATK Dmg)",
+			"tier": 1.0,
+			"type": "M"
+		},
+		{
+			"ability": "I copy the HP of the last enemy you faced.",
+			"atk": {
+				"base": 3
+			},
+			"author_lock": true,
+			"count": 2,
+			"defined": "On Spin, immediately store the enemy's HP in this value. Overwrite each On Spin.",
+			"exceptions": "If this is the first unit faced, set HP to 3.",
+			"explainer": "last enemy HP",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 3,
+				"first_fight_fallback": 3.0,
+				"formula": "last_mob_hp",
+				"on": "on_spin"
+			},
+			"id": "skeleton",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Skeleton",
+			"poc": false,
+			"priority": 3,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "M"
+		},
+		{
+			"ability": "I Attack twice.",
+			"atk": {
+				"base": 2
+			},
+			"author_lock": true,
+			"count": 2,
+			"defined": "On Resolve Combat, takes its current ATK and deals dmg to the player two times. There should be no special or unique interaction with BLK, this should attack in a logically consistent way to if two enemies simply attacked the player, one after the other. For example, the player may actually BLEED twice if both attacks cause the player to lose health.",
+			"exceptions": "",
+			"explainer": "Attacks twice",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 3
+			},
+			"id": "hornet_swarm",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Hornet Swarm",
+			"poc": false,
+			"priority": 3,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "M"
+		},
+		{
+			"ability": "I give my Neighbors +1 HP.",
+			"atk": {
+				"base": 3
+			},
+			"author_lock": true,
+			"count": 2,
+			"defined": "Set each neighbor's HP to its (Max HP + 1).",
+			"exceptions": "",
+			"explainer": "Neighbors +1 HP",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"function_flow": "Set each neighbor's HP to its (Max HP + 1).",
+			"hp": {
+				"base": 1
+			},
+			"id": "lich",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Lich",
+			"poc": false,
+			"priority": 4,
+			"rarity": "starter",
+			"review": "polish",
+			"review_note": "",
+			"tier": 1.0,
+			"type": "M",
+			"updates": "Neighboring HP",
+			"when_updates": "On Remove Slice"
+		},
+		{
+			"ability": "My HP is your HP.",
+			"atk": {
+				"base": 4
+			},
+			"author_lock": true,
+			"count": 2,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "HP is yours",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 0,
+				"formula": "player_hp_on_spin"
+			},
+			"id": "ogre",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Ogre",
+			"poc": false,
+			"priority": 1,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "M",
+			"updated": "2022-04-24",
+			"when_updated": "On Spin"
+		},
+		{
+			"ability": "I gain one HP and Attack with each monster you Defeat.",
+			"atk": {
+				"formula": "1 + mobs_defeated",
+				"base": 1
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "Every time a slice is removed after the initial drafting phase, this increments.",
+			"exceptions": "",
+			"explainer": "Attack and HP plus Defeat",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"formula": "2 + mobs_defeated",
+				"base": 2
+			},
+			"id": "berserker",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Berserker",
+			"poc": false,
+			"priority": 2,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "M",
+			"updated": "2022-04-28"
+		},
+		{
+			"ability": "My Attack is your HP.",
+			"atk": {
+				"base": 0,
+				"formula": "player_hp_on_spin"
+			},
+			"author_lock": true,
+			"count": 2,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "Attack is your HP",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 4
+			},
+			"id": "dire_wolf",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Dire Wolf",
+			"poc": false,
+			"priority": 2,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "M",
+			"when_updated": "On Spin"
+		},
+		{
+			"ability": "+1 Atk for each Item you hold.",
+			"atk": {
+				"formula": "num_items_at_combat_start",
+				"base": 0
+			},
+			"author_lock": true,
+			"count": 2,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "Attack is Items",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 3
+			},
+			"id": "bandit",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Bandit",
+			"poc": false,
+			"priority": 2,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "M",
+			"when_updated": [
+				"On Draft",
+				"On Spin"
+			]
+		},
+		{
+			"ability": "My HP equals the number of monsters in play",
+			"atk": {
+				"base": 4
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "HP from monsters left",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"hp": {
+				"formula": "monsters_still_in_play"
+			},
+			"id": "leech_league",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Leech League",
+			"poc": false,
+			"priority": 2,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "(Rework) - On Spin, this unit gives +1 HP to another unit with the Lowest HP still  in the dungeon. Then it gives itself +1 HP)\n\n(Calculates HP after other On Spin effects. If multiple candidates, choose one at random . This needs an animation and sound effect highlighting the Leech League granting 1 HP to the selected monster. The 'other monster' cannot ever be itself, so if Leech League is alone it will only grant itself +1 HP)",
+			"tier": 2.0,
+			"type": "M",
+			"updated": "2022-04-20",
+			"when_updated": "On Remove Slice"
+		},
+		{
+			"ability": "I copy the higher ATK of my Neighbors",
+			"atk": {
+				"base": 3
+			},
+			"author_lock": true,
+			"contradiction_ids": [
+				"wraith_captain"
+			],
+			"count": 2,
+			"defined": "Resolve order: the only function whose order of operations matters. Match higher neighbor ATK (with their complete modifiers), then receive the ATK increase from Captain.",
+			"exceptions": "",
+			"explainer": "copies Neighbor Attack",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 3
+			},
+			"id": "wraith",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Wraith",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "M",
+			"updated": "2022-04-24"
+		},
+		{
+			"ability": "If I go down before I Attack, you gain an Item.",
+			"atk": {
+				"base": 4
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "Did It Attack? starts False. Set True if the enemy ever attacks. Prevent by killing or defeating with items (not blocking). Draw 1 unseen item, tier-agnostic. If pool empty, draw nothing.",
+			"exceptions": "",
+			"explainer": "Item if I never swing",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"hp": {
+				"base": 5
+			},
+			"id": "mimic",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Mimic",
+			"poc": false,
+			"priority": 4,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "M",
+			"updated": "2022-04-20"
+		},
+		{
+			"ability": "My Attack drops to 0 if you use two Items this fight.",
+			"atk": {
+				"base": 5
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "When player taps 2 items this combat, ATK immediately drops to 0.",
+			"exceptions": "If the second item is Smoke Bomb, nothing special. Smoke Bomb happens; when Serpent is spun again later it attacks again.",
+			"explainer": "two Items, no Attack",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"hp": {
+				"base": 5
+			},
+			"id": "two_headed_serpent",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Two-Headed Serpent",
+			"poc": false,
+			"priority": 4,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "M"
+		},
+		{
+			"ability": "My Attack always equals my HP.",
+			"atk": {
+				"formula": "own_hp"
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "",
+			"exceptions": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer.",
+			"explainer": "Attack equals HP",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"hp": {
+				"base": 9
+			},
+			"id": "slime_boss",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Slime Boss",
+			"poc": false,
+			"priority": 2,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 3.0,
+			"type": "M",
+			"when_updated": "On Enemy HP Change"
+		},
+		{
+			"ability": "I Attack twice if a Neighbor has less HP than I do.",
+			"atk": {
+				"base": 3
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "Each On Enemy HP Change, if any neighbor has less HP, set times_attack to 2.",
+			"exceptions": "",
+			"explainer": "double hit if a Neighbor is weaker",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"hp": {
+				"base": 7
+			},
+			"id": "spider_queen",
+			"locked_at": "2026-10-07",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Spider Queen",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 3.0,
+			"type": "M",
+			"updated": "2022-04-24"
+		},
+		{
+			"ability": "I give my Neighbors +2 Attack.",
+			"atk": {
+				"base": 3
+			},
+			"author_lock": true,
+			"contradiction_ids": [
+				"commander"
+			],
+			"count": 2,
+			"defined": "Set each neighbor ATK to Base ATK + 1.",
+			"exceptions": "",
+			"explainer": "Neighbors +2 Attack",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"function_flow": "Set each neighbor ATK to Base ATK + 1.",
+			"hp": {
+				"base": 3
+			},
+			"id": "commander",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Commander",
+			"poc": false,
+			"priority": 4,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 3.0,
+			"type": "M",
+			"updated": "2022-04-24"
+		},
+		{
+			"ability": "My Attack ignores Block.",
+			"atk": {
+				"base": 5
+			},
+			"author_lock": true,
+			"contradiction_ids": [
+				"dragon"
+			],
+			"count": 1,
+			"defined": "",
+			"exceptions": "",
+			"explainer": "ignores Block",
+			"flags": {
+				"art": false,
+				"dev": false,
+				"hide": false
+			},
+			"hp": {
+				"base": 6
+			},
+			"id": "dragon",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Dragon",
+			"poc": false,
+			"priority": 4,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"special_function": "On Spin, double the first BLK the player gains or ATK they deal, then remove trigger.",
+			"tier": 3,
+			"type": "M",
+			"updated": "2022-04-24"
+		},
+		{
+			"ability": "I Attack you for 1 dmg each time I take ATK damage.",
+			"atk": {
+				"base": 3
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "ATK 3, HP 5. Each time this owner receives ATK damage (including a killing blow), the player takes 1 ATK; block applies. Defeat and poison do not poke. Goblin-style immunity does not apply to this owner.",
+			"exceptions": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
+			"explainer": "1 Thorns",
+			"flags": {
+				"art": false,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 5
+			},
+			"id": "needleback",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Needleback",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "polish",
+			"review_note": "",
+			"tier": 2.0,
+			"type": "M"
+		},
+		{
+			"ability": "I make you feed me one of two items.",
+			"atk": {
+				"base": 3
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "On spin, if you have 0 items, nothing. If 1, you must feed that one. If 2 or more, two random items are offered and you must feed one. The discard is not an item use. ATK/HP unchanged.",
+			"exceptions": "Not an item use: no Kobold extra, no Echo update, no Harpy after the feed.",
+			"explainer": "Feed me one",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 4
+			},
+			"id": "gelatinous_cube",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Gelatinous Cube",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "refined",
+			"review_note": "At the start of combat, selects 2 random items and forces the user to 'feed' them one, discarding it with no effect. (Maybe with a fun dialogue pop-up as it mocks the player and thanks the player for feeding them)",
+			"status": "live",
+			"tier": 2.0,
+			"type": "M"
+		},
+		{
+			"ability": "I petrify your highest Attack item until you Spin again.",
+			"atk": {
+				"base": 4
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "After spin numbers, the highest Attack item in hand becomes Unplayable until the next Spin. Tie is random. No Attack items: nothing. Longbow and Spiked Shield count. Boot and Poison Flask do not. Smoke is a new Spin, so it clears. Attack still works. Cannot be Defeated unless Quiet Bell has silenced me.",
+			"exceptions": "Petrify tooltip: Unplayable until your next Spin.",
+			"explainer": "Petrify highest ATK",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 6
+			},
+			"id": "gargoyle",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Gargoyle",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "refined",
+			"review_note": "(Tier 2) At the start of combat, 'Petrifies' your Item with the highest ATK value\n\n(Waits until after on-spin calculations are finished, then creates a 'stone petrification' texture/overlay on the item with the highest current ATK, making it Unplayable until the fight is over. A tooltip popup should appear when the user holds shift and is reading this ability to define 'Petrify' and explain this mechanic with, \"Petrify - becomes Unplayable until your next Spin\".\n\nWhen calculating Atk to choose a target, formula count. If there's a tie, choose at random. If there are no items that deal atk damage, this ability does nothing. Any item that has Atk counts, including things like Longbow and Spiked SHield (but not things like Da Boot and Poison Flask)",
+			"status": "live",
+			"tier": 2.0,
+			"type": "M"
+		},
+		{
+			"ability": "I attack you when we meet, and after each item you use.",
+			"atk": {
+				"base": 2
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "On spin, one swing of my current Attack (Block works). After each item fully resolves, if I am still alive, one more swing. Ceases when you click Done or I am Defeated/Slain. Done still takes the normal hit. Not Attack = Block.",
+			"exceptions": "One swing, fight stays open. If an item already killed me, no extra swing.",
+			"explainer": "Interrupt 1 swing",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 6
+			},
+			"id": "harpy",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Harpy",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "refined",
+			"review_note": "At the start of combat, and after the player uses any item, if the Harpy is not already defeated, it will immediately resolve combat by attacking the player. Only after the player clicks 'Done (Take X)' or Defeats/Slays the Harpy will this ability cease",
+			"status": "live",
+			"tier": 2.0,
+			"type": "M"
+		},
+		{
+			"ability": "I attack an extra time for each item you use this fight.",
+			"atk": {
+				"base": 2
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "On Done, swing count is 1 plus items used this fight. Cube feed does not count. Block is spent per swing.",
+			"exceptions": "0 items = 1 swing. 2 items = 3 swings.",
+			"explainer": "(1 + items used)",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 6
+			},
+			"id": "kobold_trapper",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Kobold Trapper",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "refined",
+			"review_note": "(Tier 2) Attacks an additional time for each item you use during this fight.",
+			"status": "live",
+			"tier": 2.0,
+			"type": "M"
+		},
+		{
+			"ability": "If I live, I leave two Tier 2 owners in my place.",
+			"atk": {
+				"base": 4
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "If you do not Defeat or Slay me, I leave and two random Tier 2 owners sit immediately, even if that grows the wheel past 8. You are not in a new fight yet.",
+			"exceptions": "Quiet Bell strips this: I leave like anyone else, no heirs.",
+			"explainer": "Two Tier 2 if I live",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 7
+			},
+			"id": "clockwork_knight",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula"
+			],
+			"name": "Clockwork Knight",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "refined",
+			"review_note": "(If the player does not Defeat or Slay this monster, it will remove itself from the dungeon and replace itself with 2 Tier 2 Monsters chosen randomly)",
+			"status": "live",
+			"tier": 3.0,
+			"type": "M"
+		},
+		{
+			"ability": "I discard all items you use immediately while you face me.",
+			"atk": {
+				"base": 4
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "While you fight me, Keep does not work. Every item you use is discarded immediately. Knife nick, Lantern, and Breastplate leave your hand. Quiet Bell strips this.",
+			"exceptions": "Keep after the fight is already over does not apply — the toss happens when you click.",
+			"explainer": "Items discard on use",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 5
+			},
+			"id": "basilisk",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base"
+			],
+			"name": "Basilisk",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "rough",
+			"review_note": "Slight rewording, but same ability,\n\n\"While facing me, all Items are discarded upon use immediately.\"",
+			"status": "live",
+			"tier": 2.0,
+			"type": "M"
+		},
+		{
+			"ability": "Even Attack and even Block happen twice against me.",
+			"atk": {
+				"base": 6
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "While you fight me, an even Attack number hits me twice as two separate Attacks of that number. An even Block you gain while facing me is gained twice. Odd numbers happen once. Quiet Bell strips this.",
+			"exceptions": "Anvil would take 1 from each of those two Attacks. Poison Flask is not an Attack.",
+			"explainer": "Even Attack or Block: twice",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 6
+			},
+			"id": "hollow",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base"
+			],
+			"name": "Twins",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "rough",
+			"review_note": "Change to 'Twins' and replace art with two twin or dopples)\n\nAttack or Block values that are Even happen twice against me.\n\n(Eg if the player uses a weapon that has 2 Attack, it 'attacks twice' and deals 4 total damage against this unit. Similarly, if the player blocks for 4, it will add 4 Block twice for 8 total block.",
+			"status": "live",
+			"tier": 1.0,
+			"type": "M"
+		},
+		{
+			"ability": "My Attack copies the Attack number on your leftmost Attack item. If you have none, my Attack is 3.",
+			"atk": {
+				"base": 3,
+				"formula": "leftmost Attack item, else 3"
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "My Attack is the live Attack number on your leftmost item that has an Attack number, after the usual hand sort, skipping cards with no Attack number. It updates on Spin and when you use an item. If you have no such item, my Attack is 3. Quiet Bell: printed Attack.",
+			"exceptions": "Spent cards are skipped. Petrified cards have no Attack number for this.",
+			"explainer": "Leftmost Attack, or 3",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 4
+			},
+			"id": "beggar",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base"
+			],
+			"name": "Beggar",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "rough",
+			"review_note": "Replaces its Attack to always equal to the current Attack value of the player's leftmost item (that has an Attack value). Updates this value upon Spin and Item use. If the player has zero such items, then its Attack returns to its base value of 3.",
+			"status": "live",
+			"tier": 1.0,
+			"type": "M"
+		},
+		{
+			"ability": "I gain 1 Attack and lose 1 HP whenever you use an item.",
+			"atk": {
+				"base": 1,
+				"formula": "printed Attack, plus item uses on the wheel"
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "Whenever you use an item, every Wick on the wheel gains 1 Attack and loses 1 HP immediately, even if you are not facing them. A Wick at 0 HP is not removed until the fight you are in ends. If you are facing a Wick at 0 HP, they do not Attack; Done removes them as Slain. Cube feed is not an item use. Quiet Bell strips this.",
+			"exceptions": "Kobold adds extra swings. I add to the Attack number. Both can stack if they ever sat together; they will not in one fight.",
+			"explainer": "+1 Attack −1 HP per item use",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 6
+			},
+			"id": "wick",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base"
+			],
+			"name": "Wick",
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"review": "rough",
+			"review_note": "Gains +1 Atk and loses 1 HP each time the player uses an item.\n\nHealth up0dates immediately upon Item use (regardless of who the player is actively facing), but if the unit drops to 0 HP they will not be Slain until after the current combat is Done",
+			"status": "live",
+			"tier": 2.0,
+			"type": "M"
+		},
+		{
+			"ability": "I cannot lose more than 1 HP from one source.",
+			"atk": {
+				"base": 5
+			},
+			"author_lock": true,
+			"count": 1,
+			"defined": "I cannot lose more than 1 HP from one source. Attack, Poison Flask, and other HP loss each chip 1. Defeat still works. Two separate Attacks chip 1 twice. Quiet Bell strips this, so full Attack lands.",
+			"exceptions": "Needleback poke is not an Item hitting me. Poison Flask is not an Attack. Extra Attacks each chip 1.",
+			"explainer": "Max 1 HP per source",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 8
+			},
+			"id": "anvil",
+			"locked_at": "2026-10-09",
+			"locked_fields": [
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base"
+			],
+			"name": "Anvil",
+			"poc": false,
+			"priority": 4,
+			"rarity": "uncommon",
+			"review": "rough",
+			"review_note": "I cannot lose more than 1 HP at a time (from any source).\n\n(Can still be 'defeated', but effects like Poison Flask, Attack Damage, etc. can only reduce its HP by 1 at a time. Notably, things that trigger attacks multiple times would proc this ability twice, making the unit lose 2 total HP for example)",
+			"status": "live",
+			"tier": 3.0,
+			"type": "M"
+		}
+	],
+	"named_variables": [
+		{
+			"id": "hp",
+			"place_starters": "set 6",
+			"used_by": [
+				"Medallion",
+				"Bloody Gauntlets",
+				"Dire Wolf"
+			]
+		},
+		{
+			"id": "num_items",
+			"on_add_monster": "+1",
+			"place_starters": "set to starter_count",
+			"used_by": [
+				"Knucklers",
+				"Bandit"
+			]
+		},
+		{
+			"id": "num_mobs",
+			"on_add_monster": "+1",
+			"place_starters": "set to starter_count",
+			"used_by": [
+				"Bracers",
+				"Slime Boss",
+				"Berserker"
+			]
+		},
+		{
+			"id": "last_mob_hp",
+			"on_spin": "store enemy HP",
+			"place_starters": "set 3",
+			"used_by": [
+				"Skeleton"
+			]
+		},
+		{
+			"id": "last_mob_atk",
+			"on_spin": "store enemy ATK",
+			"place_starters": "set 0",
+			"used_by": [
+				"Grimoire"
+			]
+		},
+		{
+			"id": "items_used_this_combat",
+			"on_item_use": "+1",
+			"on_spin": "set 0",
+			"used_by": [
+				"Two-Headed Serpent"
+			]
+		},
+		{
+			"id": "blk",
+			"on_item_use": "add if BLK item",
+			"on_spin": "0"
+		},
+		{
+			"id": "mobs_defeated",
+			"on_remove_slice_after_draft": "+1",
+			"used_by": [
+				"Berserker",
+				"Spiked Flail"
+			]
+		}
+	],
+	"player": {
+		"hp_max": 6.0,
+		"hp_start": 6.0
+	},
+	"poc": {
+		"item_ids": [
+			"shield",
+			"throwing_knife",
+			"sai"
+		],
+		"monster_ids": [
+			"wizard",
+			"golem"
+		],
+		"notes": "Vanilla ATK/HP plus one BLK, one ATK-with-choice, one ATK-with-condition. No neighbors, no draft, no defeat-on-use."
+	},
+	"rulings": [
+		{
+			"chat": "2026-10-04",
+			"id": "blk_floor",
+			"rule": "When resolving enemy ATK vs BLK, leftover damage floors at 0. Sheet does not say. POC uses max(0, enemy_atk - blk)."
+		},
+		{
+			"chat": "2026-10-04",
+			"id": "one_encounter_then_gone",
+			"rule": "Function Flow Resolve Combat step 4: after you kill them with items OR survive their hit, the slice is removed. POC follows that: not a multi-round HP slog."
+		},
+		{
+			"chat": "2026-10-05",
+			"id": "starters_player_place",
+			"rule": "Place Starters: four starter-rarity monsters auto-seat at N, E, S, W. Four starter items (always including Smoke Bomb) drop into the hotbar. Player does not click starter seats."
+		},
+		{
+			"chat": "2026-10-05",
+			"id": "dungeon_draft_enabled",
+			"rule": "Mill gate: mystery silhouette, item shown, matching-tier threat. Take the relic to slam the door open, reveal the monster, then click an empty alcove. Three passes. After the last pass, remaining alcoves and relics auto-fill. Combat never starts with empty alcoves. Packs still roll 40/35/25; item matches monster tier."
+		},
+		{
+			"chat": "2026-10-05",
+			"id": "sai_alt_24",
+			"rule": "Sai alternates 2 and 4 each time any item is used. Starts at 2 each combat. Deals the current value, then the flip applies to later cards."
+		},
+		{
+			"chat": "2026-10-05",
+			"id": "knucklers_live_hand",
+			"rule": "Knucklers is 7 minus unspent items in hand, live on item use. Not locked at combat start."
+		},
+		{
+			"chat": "2026-10-05",
+			"id": "flail_on_hp_loss",
+			"rule": "Spiked Flail is ATK 2 + 1 per HP-loss event this dungeon (any amount in one hit counts as one). Not kills."
+		},
+		{
+			"chat": "2026-10-05",
+			"id": "starter_three_smoke",
+			"rule": "Four starter-rarity monsters. Four starter items: one is always Smoke Bomb, then three more starter-rarity items. Draft is mystery-gate packs until the wheel is full, with three passes then auto-fill."
+		},
+		{
+			"chat": "2026-10-05",
+			"id": "double_hit_spends_block",
+			"rule": "Hornet Swarm and Spider Queen resolve two separate swings. Block is spent on the first swing (ATK 2 vs BLK 2 blocks the first and leaves BLK 0; the second swing deals 2)."
+		}
+	],
+	"source_file": "source/01_Boss_Rush_Content.xlsx",
+	"source_written": "2022-05-03T11:54:22",
+	"tier_count_targets": {
+		"item_starter": {
+			"1": 10.0,
+			"2": 6.0,
+			"3": 1.0
+		},
+		"item_uncommon": {
+			"1": 2.0,
+			"2": 6.0,
+			"3": 4.0
+		},
+		"monster_starter": {
+			"1": 10.0,
+			"2": 6.0,
+			"3": 1.0
+		},
+		"monster_uncommon": {
+			"1": 2.0,
+			"2": 6.0,
+			"3": 4.0
+		}
+	},
+	"wheel": {
+		"draft_fills_until": "starter_count + 4",
+		"empty_between_starters": true,
+		"slots": 8.0,
+		"starter_count_default": 4.0,
+		"starter_count_hard": 5.0,
+		"starter_order": [
+			"N",
+			"E",
+			"S",
+			"W"
+		]
+	}
+}

@@ -1,0 +1,27 @@
+---
+description: Always ship in-game editor / content-board Saves
+alwaysApply: true
+---
+
+# Content board
+
+Nathan’s handoff is **Save in the F5 in-game editor, then close the game.** That writes `data/content-board.json` and `data/catalog.json`. Closing the game is enough. He does not need to say “check the board,” and it does not matter what the next message is about.
+
+The HTML board (`design/content-board.html`) is the same SoT if he used Zen instead.
+
+## Every message in this repo
+
+Read `data/content-board.json` (HTML only if the JSON is missing). Then:
+
+1. **Player-facing Save (ability, explainer, name, numbers, tier)** — already on disk. Use that text. Do not make him re-dictate it. If `author_lock` is set (see `author-lock.mdc` / `data/author-locks.json`), do not rewrite those fields at all unless this chat clearly overrides, and stop to ask first.
+2. **Behavior Save (Flow, Notes, Ops JSON, ATK/HP formulas)** — if it does not match live code in `scripts/main.gd` (and related scripts), that card is a ship queue. If Flow/Notes already settle the edges, implement. If the change is new or ambiguous, **Paper Fight first** (`design/paper-fight/RUBRIC.md`) — do not invent Hornet/Queen/block/targeting. In-game Save flips status to `todo` when those fields change.
+3. Skip `hold` and `retired` unless he named them.
+4. If Ability, Flow, and Notes disagree, Paper Fight — do not guess.
+5. After shipping code, set those cards to `live` on the board and in catalog/runtime.
+
+If nothing needs a code change, do not mention this check.
+
+## Do not
+
+- Do not treat leftover `todo` from the old HTML board as “finish the whole roster.” Cards already in the dungeon, and cards he previously told you not to build, stay as they are unless **this Save** (or a named request) changed them.
+- Do not wait for the phrases **check for item updates** / **check the board** — those still mean the same pass, but they are not required.

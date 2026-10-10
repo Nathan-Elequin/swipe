@@ -1,0 +1,18 @@
+---
+description: Every item and monster needs its own matching sprite
+alwaysApply: true
+---
+
+# Unique card art
+
+Every item and every monster must have its own sprite. Never reuse another card’s art.
+
+When you add a card, or when Nathan says the picture is wrong:
+
+1. Find or draw a sprite whose pack title or filename names the object (chain, flask, goblet, palm, anvil, candle, snake, ghost, net, hook). Close is allowed. A torch or spear for a chain is not.
+2. Two drink items must look like different vessels. Victory Flask is not a recolor of Healing Potion.
+3. Register the PNG in `scripts/dungeon_art.gd` `ITEM_PNG` / `MONSTER_PNG`. Extra files beat atlas stems.
+4. Confirm uniqueness (no two cards share the same pixels).
+5. Prefer CC0 16×16 (Kenney Tiny Dungeon, Jetrel, 0x72) scaled with nearest-neighbor. Hand-draw 16×16 if the pack has no matching object. Do not ship photoreal photographs.
+
+Matching the named object matters. Matching the rest of the pack’s style does not.
