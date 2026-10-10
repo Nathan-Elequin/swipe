@@ -6,9 +6,9 @@ A shrinking-wheel dungeon. Friends play the itch.io page. This repo is the sourc
 
 ## Play
 
-Source: https://github.com/Nathan-Elequin/swipe
+**Play:** https://nathan-elequin.itch.io/swipe
 
-The itch.io Play link goes here after you upload `build/swipe-web.zip` (HTML, played in the browser).
+Source: https://github.com/Nathan-Elequin/swipe
 
 ## Open in Godot (editing)
 
@@ -28,4 +28,4 @@ Or from a terminal (Godot 4.7.2 on PATH, export templates installed):
 Godot_v4.7.2-stable_win64.exe --headless --path . --export-release Web build/web/index.html
 ```
 
-Zip the `build/web` folder. On itch.io: new project, **HTML**, upload that zip, tick **This file will be played in the browser**.
+Zip the `build/web` folder and replace the HTML file on the itch project.
