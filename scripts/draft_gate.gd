@@ -5,6 +5,7 @@ signal send_pressed
 signal refuse_pressed
 
 const COPY := preload("res://scripts/player_copy.gd")
+const UI := preload("res://scripts/ui_palette.gd")
 
 const GOLD := Color("FFD84A")
 const TORCH := Color("F09A34")
@@ -153,10 +154,7 @@ func _build() -> void:
 	bcol.add_child(_item_icon)
 	_item_name = Label.new()
 	_item_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	if _font_px != null:
-		_item_name.add_theme_font_override("font", _font_px)
-	_item_name.add_theme_font_size_override("font_size", 32)
-	_item_name.add_theme_color_override("font_color", PARCHMENT)
+	UI.apply_name(_item_name, PARCHMENT, UI.SIZE_NAME)
 	bcol.add_child(_item_name)
 	_guard_row = HBoxContainer.new()
 	_guard_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -164,10 +162,7 @@ func _build() -> void:
 	_guard_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bcol.add_child(_guard_row)
 	_guard_a = Label.new()
-	if _font_vt != null:
-		_guard_a.add_theme_font_override("font", _font_vt)
-	_guard_a.add_theme_font_size_override("font_size", 26)
-	_guard_a.add_theme_color_override("font_color", DIM)
+	UI.apply_body(_guard_a, UI.DIM, UI.SIZE_BODY)
 	_guard_row.add_child(_guard_a)
 	_guard_pill = Label.new()
 	_guard_pill.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -178,10 +173,7 @@ func _build() -> void:
 	_guard_pill.add_theme_color_override("font_color", SOOT)
 	_guard_row.add_child(_guard_pill)
 	_guard_b = Label.new()
-	if _font_vt != null:
-		_guard_b.add_theme_font_override("font", _font_vt)
-	_guard_b.add_theme_font_size_override("font_size", 26)
-	_guard_b.add_theme_color_override("font_color", DIM)
+	UI.apply_body(_guard_b, UI.DIM, UI.SIZE_BODY)
 	_guard_row.add_child(_guard_b)
 
 	_relic_host = CenterContainer.new()

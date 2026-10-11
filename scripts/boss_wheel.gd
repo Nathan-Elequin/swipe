@@ -7,6 +7,7 @@ signal slice_right_clicked(index: int)
 
 const COPY := preload("res://scripts/player_copy.gd")
 const UX := preload("res://scripts/ux_style.gd")
+const UI := preload("res://scripts/ui_palette.gd")
 
 const SIX := PI / 2.0
 const OUTER_R := 300.0
@@ -31,7 +32,7 @@ const ATK_COL := Color("FFD84A")
 const ATK_FILL := Color("6a1c14")
 const ATK_EDGE := Color("e07040")
 const HP_COL := Color("f0e6d8")
-const HP_FILL := Color("D5443B")
+const HP_FILL := Color("C43B34")
 const DOWN_COL := Color("c45c5c")
 const UP_COL := Color("7dba7d")
 const SPIN_COL := Color("FFD84A")
@@ -118,6 +119,10 @@ var _seat_nudge: Vector2 = Vector2.ZERO
 var _refuse_nudge: Dictionary = {}
 var _font_px: Font
 var _font_sk: Font
+var _font_nu: Font
+var _font_nx: Font
+var _font_nb: Font
+var _font_ns: Font
 var _alcove_root: Node2D
 var _alcoves: Array[TextureRect] = []
 var _tex_alcove_empty: Texture2D
@@ -139,8 +144,12 @@ func _ready() -> void:
 	resized.connect(queue_redraw)
 	mouse_exited.connect(_on_mouse_out)
 	set_process(true)
-	_font_px = load("res://assets/ui/fonts/PixelifySans-Bold.ttf")
-	_font_sk = load("res://assets/ui/fonts/Silkscreen-Bold.ttf")
+	_font_px = UI.font_pixel()
+	_font_sk = UI.font_silk()
+	_font_nu = UI.font_regular()
+	_font_nx = UI.font_extrabold()
+	_font_nb = UI.font_bold()
+	_font_ns = UI.font_semibold()
 	_build_alcoves()
 
 
@@ -815,7 +824,7 @@ func _draw() -> void:
 		draw_arc(c, HUB_R, 0.0, TAU, 48, RING, 6.0, true)
 		_sync_alcoves()
 		return
-	var font: Font = _font_sk if _font_sk != null else get_theme_default_font()
+	var font: Font = _font_nx if _font_nx != null else get_theme_default_font()
 	if font == null:
 		font = ThemeDB.fallback_font
 	for i in n:
@@ -1347,7 +1356,7 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 			var font: Font = get_theme_default_font()
 			if font == null:
 				font = ThemeDB.fallback_font
-			_draw_outlined_string(font, midp + Vector2(0, 5), "=", 15, slime, Color("1c120c"))
+			_draw_outlined_string(font, midp + Vector2(0, 5), "=", UI.SIZE_MIN, slime, Color("1c120c"))
 
 
 func _draw_bold_name(font: Font, pos: Vector2, text: String, fs: int, col: Color, wrap: float = 108.0) -> void:
@@ -1361,11 +1370,13 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 		return
 	if call_s.to_lower() == name_s.to_lower() or name_s.to_lower().find(call_s.to_lower()) >= 0:
 		call_s = ""
-	var name_fs: int = 18 if is_face else (15 if is_hover else 13)
-	var call_fs: int = 12 if is_face else 11
+	var name_fs: int = 22 if is_face else 18
+	var call_fs: int = 18
 	if crowded:
-		name_fs = maxi(12, name_fs - 2)
-		call_fs = maxi(10, call_fs - 1)
+		name_fs = 18
+		call_fs = 18
+	if font != _font_ns and _font_ns != null:
+		font = _font_ns
 	var span: float = absf(float(sp.get("span", 0.6)))
 	var max_w: float = clampf(_radius() * maxf(span, 0.18) * 0.92, 88.0, 168.0)
 	var name_txt: String = _wrap_call_label(font, name_s, name_fs, max_w)
@@ -1532,16 +1543,16 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 			_draw_delta_badge(font, pos + Vector2(0.0, -rad * 1.35), atk_d)
 		else:
 			var dc: Color = UP_COL if atk_d > 0 else DOWN_COL
-			draw_string(font, pos + Vector2(rad * 0.55, -rad * 0.7), _delta_text(atk_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
+			draw_string(font, pos + Vector2(rad * 0.55, -rad * 0.7), _delta_text(atk_d), HORIZONTAL_ALIGNMENT_LEFT, -1, UI.SIZE_MIN, dc)
 	if str(s.get("card_id", "")) == "hornet_swarm" or _seat_tag(i, "atk") == "x2" or bool(s.get("preview_x2", false)):
 		var inward: Vector2 = (_center() - pos)
 		if inward.length() < 1.0:
 			inward = Vector2(0, 1)
 		var mark: Vector2 = pos + inward.normalized() * (rad + 10.0)
-		var badge := Rect2(mark - Vector2(16.0, 8.0), Vector2(32.0, 16.0))
+		var badge := Rect2(mark - Vector2(20.0, 12.0), Vector2(40.0, 24.0))
 		draw_rect(badge, Color("1c120ce8"), true)
 		draw_rect(badge, Color("e8c36a"), false, 1.5)
-		_draw_outlined_string(font, mark + Vector2(0.0, 4.0), "×2", 12, Color("e8c36a"), Color("1c120c"))
+		_draw_outlined_string(font, mark + Vector2(0.0, 6.0), "×2", UI.SIZE_MIN, Color("e8c36a"), Color("1c120c"))
 
 
 func _draw_sword_badge(pos: Vector2, rad: float, fill: Color, aim: Vector2) -> void:
@@ -1601,7 +1612,7 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 			_draw_delta_badge(font, pos + Vector2(0.0, -hs * 0.95), hp_d)
 		else:
 			var dc: Color = UP_COL if hp_d > 0 else DOWN_COL
-			draw_string(font, pos + Vector2(hs * 0.28, -hs * 0.38), _delta_text(hp_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
+			draw_string(font, pos + Vector2(hs * 0.28, -hs * 0.38), _delta_text(hp_d), HORIZONTAL_ALIGNMENT_LEFT, -1, UI.SIZE_MIN, dc)
 
 
 
@@ -1609,7 +1620,7 @@ func _draw_delta_badge(font: Font, pos: Vector2, d: int) -> void:
 	if d == 0:
 		return
 	var txt: String = _delta_text(d)
-	var fs := 20
+	var fs := UI.SIZE_MIN
 	var tsz: Vector2 = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
 	var w: float = tsz.x + 14.0
 	var h: float = 22.0
@@ -1647,11 +1658,11 @@ func _draw_floaters(font: Font) -> void:
 
 
 func _draw_hub_block(c: Vector2, _radius: float) -> void:
-	var num_font: Font = _font_px if _font_px != null else get_theme_default_font()
-	var tag_font: Font = _font_sk if _font_sk != null else num_font
+	var num_font: Font = _font_nx if _font_nx != null else get_theme_default_font()
+	var tag_font: Font = _font_nb if _font_nb != null else num_font
 	if num_font == null:
 		num_font = ThemeDB.fallback_font
-	var hp_col: Color = HP_FILL
+	var hp_col: Color = UI.HP_INK
 	if hub_hp_ghost >= 0 and hub_hp_ghost < hub_hp:
 		hp_col = hp_col.lerp(Color("f0e6d8"), 0.35 + 0.25 * absf(sin(float(Time.get_ticks_msec()) * 0.012)))
 	var scale: float = 1.0 + hub_hp_flash * 0.12
@@ -1668,25 +1679,35 @@ func _draw_hub_block(c: Vector2, _radius: float) -> void:
 
 
 func _draw_stat_chip(pos: Vector2, fill: Color, ink: Color, txt: String, fs: int) -> void:
-	var font: Font = _font_sk if _font_sk != null else ThemeDB.fallback_font
+	var font: Font = _font_nx if _font_nx != null else ThemeDB.fallback_font
+	fs = maxi(UI.SIZE_CHIP, fs)
 	var tsz: Vector2 = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	var w: float = maxf(28.0, tsz.x + 10.0)
-	var h := 28.0
+	var w: float = maxf(32.0, tsz.x + 12.0)
+	var h := 32.0
+	var plate := Color("140D0A")
 	var r := Rect2(pos - Vector2(w * 0.5, h * 0.5), Vector2(w, h))
-	draw_rect(r, fill, true)
+	draw_rect(r, plate, true)
 	draw_rect(r, Color("1A120E"), false, 2.0)
-	draw_string(font, Vector2(pos.x - tsz.x * 0.5, pos.y + fs * 0.35), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
+	var use_ink: Color = ink
+	if fill == HP_FILL:
+		use_ink = Color.WHITE
+		draw_rect(r, UI.HP_CHIP_FILL, true)
+		draw_rect(r, Color("1A120E"), false, 2.0)
+	elif fill == CHIP_ATK:
+		use_ink = Color("FFD84A")
+	draw_string(font, Vector2(pos.x - tsz.x * 0.5, pos.y + fs * 0.35), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, use_ink)
 
 
 func _draw_hub_stat(num_font: Font, tag_font: Font, pos: Vector2, num: String, tag: String, col: Color, scale: float) -> void:
-	var fs: int = int(round(44.0 * scale))
+	var fs: int = int(round(float(UI.SIZE_NUMBER) * scale))
+	var tag_fs: int = UI.SIZE_TAG
 	var nsz: Vector2 = num_font.get_string_size(num, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	var tsz: Vector2 = tag_font.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+	var tsz: Vector2 = tag_font.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_fs)
 	var gap := 8.0
 	var total: float = nsz.x + gap + tsz.x
 	var x0: float = pos.x - total * 0.5
 	draw_string(num_font, Vector2(x0, pos.y), num, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
-	draw_string(tag_font, Vector2(x0 + nsz.x + gap, pos.y - 2.0), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, DIM)
+	draw_string(tag_font, Vector2(x0 + nsz.x + gap, pos.y - 2.0), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_fs, UI.DIM)
 
 
 func _heart_pts(pos: Vector2, hs: float) -> PackedVector2Array:

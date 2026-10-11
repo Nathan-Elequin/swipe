@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/item_card.gd" id="1_card"]
 
 [node name="HandCard" type="PanelContainer"]
-custom_minimum_size = Vector2(140, 190)
+custom_minimum_size = Vector2(140, 210)
 texture_filter = 0
 mouse_default_cursor_shape = 2
 script = ExtResource("1_card")
