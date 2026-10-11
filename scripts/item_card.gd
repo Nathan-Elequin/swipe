@@ -8,22 +8,23 @@ signal edit_wanted
 signal passed_swipe
 
 const UX := preload("res://scripts/ux_style.gd")
+const UI := preload("res://scripts/ui_palette.gd")
 const HOVER_PANEL := preload("res://scripts/hover_panel.gd")
 const COPY := preload("res://scripts/player_copy.gd")
 
 const CARD_W := 140.0
-const CARD_H := 190.0
+const CARD_H := 210.0
 const COMPACT_W := 124.0
 const SHOW_W := 236.0
-const SHOW_H := 388.0
+const SHOW_H := 400.0
 const OAK := Color("3B2618")
 const WEAK_METAL := Color("B8733A")
 const TOUGH_METAL := Color("C9CED6")
 const DEADLY_METAL := Color("FFD84A")
-const ATK_RED := Color("D5443B")
+const ATK_RED := Color("E86A62")
 const BLK_BLUE := Color("4FA3D9")
 const HEAL_GREEN := Color("7BC950")
-const KO_PLUM := Color("A866C9")
+const KO_PLUM := Color("C080E0")
 const PARCHMENT := Color("E9D3A1")
 const SOOT := Color("1A120E")
 
@@ -121,10 +122,7 @@ func setup(
 	_rank.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_rank.max_lines_visible = 2
 	_rank.custom_minimum_size = Vector2(104, 0)
-	_rank.add_theme_font_size_override("font_size", 12)
-	_rank.add_theme_color_override("font_color", Color("c4a574"))
-	_rank.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_rank.add_theme_constant_override("outline_size", 3)
+	UI.apply_tag(_rank, Color("c4a574"), UI.SIZE_TAG)
 	_rank.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	_title = Label.new()
@@ -133,12 +131,8 @@ func setup(
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_title.max_lines_visible = 2
-	_title.custom_minimum_size = Vector2(104, 38)
-	_title.add_theme_font_override("font", load("res://assets/ui/fonts/Silkscreen-Bold.ttf"))
-	_title.add_theme_font_size_override("font_size", 12)
-	_title.add_theme_color_override("font_color", PARCHMENT)
-	_title.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_title.add_theme_constant_override("outline_size", 3)
+	_title.custom_minimum_size = Vector2(104, 56)
+	UI.apply_name(_title, PARCHMENT, UI.SIZE_NAME)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_title)
 	col.add_child(_rank)
@@ -148,10 +142,8 @@ func setup(
 	_ability.fit_content = true
 	_ability.scroll_active = false
 	_ability.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_ability.add_theme_font_size_override("normal_font_size", 12)
-	_ability.add_theme_font_size_override("bold_font_size", 12)
+	UI.apply_rich(_ability, "body", PARCHMENT)
 	_ability.add_theme_constant_override("line_separation", 3)
-	_ability.add_theme_color_override("default_color", Color("f0e6d8"))
 	_ability.custom_minimum_size = Vector2(104, 0)
 	_ability.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ability.visible = false
@@ -168,7 +160,7 @@ func setup(
 	col.add_child(_icon)
 
 	var num_host := Control.new()
-	num_host.custom_minimum_size = Vector2(104, 50)
+	num_host.custom_minimum_size = Vector2(104, 40)
 	num_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(num_host)
 	_num_host = num_host
@@ -185,10 +177,7 @@ func setup(
 	_ghost = Label.new()
 	_ghost.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_ghost.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-	_ghost.add_theme_font_size_override("font_size", 32)
-	_ghost.add_theme_color_override("font_color", _num_col)
-	_ghost.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_ghost.add_theme_constant_override("outline_size", 3)
+	UI.apply_number(_ghost, _num_col, UI.SIZE_NUMBER)
 	_ghost.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ghost.modulate.a = 0.0
@@ -205,20 +194,14 @@ func setup(
 	_num.text = number_text
 	_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_num.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-	_num.add_theme_font_override("font", load("res://assets/ui/fonts/PixelifySans-Bold.ttf"))
-	_num.add_theme_font_size_override("font_size", 46)
-	_num.add_theme_color_override("font_color", _num_col)
-	_num.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_num.add_theme_constant_override("outline_size", 3)
+	UI.apply_number(_num, _num_col, UI.SIZE_NUMBER)
 	_num.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	val_row.add_child(_num)
 
 	_tag = Label.new()
 	_tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_tag.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-	_tag.add_theme_font_override("font", load("res://assets/ui/fonts/Silkscreen-Bold.ttf"))
-	_tag.add_theme_font_size_override("font_size", 12)
-	_tag.add_theme_color_override("font_color", PARCHMENT)
+	UI.apply_tag(_tag, PARCHMENT, UI.SIZE_TAG)
 	_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	val_row.add_child(_tag)
 
@@ -227,9 +210,7 @@ func setup(
 	_eq.fit_content = true
 	_eq.scroll_active = false
 	_eq.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_eq.add_theme_font_size_override("normal_font_size", 13)
-	_eq.add_theme_font_size_override("bold_font_size", 13)
-	_eq.add_theme_color_override("default_color", Color("f0e6d8"))
+	UI.apply_rich(_eq, "body", PARCHMENT)
 	_eq.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_eq.visible = false
@@ -243,10 +224,7 @@ func setup(
 	_spent_lab.visible = false
 	_spent_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_spent_lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_spent_lab.add_theme_font_size_override("font_size", 16)
-	_spent_lab.add_theme_color_override("font_color", Color("f0e6d8"))
-	_spent_lab.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_spent_lab.add_theme_constant_override("outline_size", 4)
+	UI.apply_tag(_spent_lab, PARCHMENT, UI.SIZE_TAG)
 	_spent_lab.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_spent_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_spent_lab.rotation = -0.28
@@ -344,28 +322,26 @@ func set_showcase(on: bool) -> void:
 	if _col:
 		_col.add_theme_constant_override("separation", 6 if on else 1)
 	if _title:
-		_title.add_theme_font_size_override("font_size", 22 if on else 12)
-		_title.custom_minimum_size = Vector2(196 if on else 104, 48 if on else 38)
+		UI.apply_name(_title, PARCHMENT, UI.SIZE_NAME)
+		_title.custom_minimum_size = Vector2(196 if on else 104, 56)
 		_title.max_lines_visible = 2
 	if _rank:
 		_rank.visible = false
-		_rank.add_theme_font_size_override("font_size", 15 if on else 12)
+		UI.apply_tag(_rank, Color("c4a574"), UI.SIZE_TAG)
 		_rank.custom_minimum_size = Vector2(196 if on else 104, 0)
 	if _icon:
 		_icon.custom_minimum_size = Vector2(96, 96) if on else Vector2(64, 64)
 	if _num_host:
-		_num_host.custom_minimum_size = Vector2(196, 58) if on else Vector2(104, 44)
+		_num_host.custom_minimum_size = Vector2(196, 44) if on else Vector2(104, 40)
 	if _num:
-		_num.add_theme_font_size_override("font_size", 48 if on else 46)
+		UI.apply_number(_num, _num_col, UI.SIZE_NUMBER)
 	if _ghost:
-		_ghost.add_theme_font_size_override("font_size", 48 if on else 32)
+		UI.apply_number(_ghost, _num_col, UI.SIZE_NUMBER)
 	if _eq:
-		_eq.add_theme_font_size_override("normal_font_size", 16 if on else 13)
-		_eq.add_theme_font_size_override("bold_font_size", 16 if on else 13)
+		UI.apply_rich(_eq, "body", PARCHMENT)
 	if _ability:
 		_ability.custom_minimum_size = Vector2(196 if on else 104, 0)
-		_ability.add_theme_font_size_override("normal_font_size", 15 if on else 12)
-		_ability.add_theme_font_size_override("bold_font_size", 15 if on else 12)
+		UI.apply_rich(_ability, "body", PARCHMENT)
 	_layout_showcase()
 	_sync_inspect_face()
 	_apply_style(_hot)
@@ -390,9 +366,7 @@ func set_stat_look(look: Dictionary) -> void:
 		_stat_lab.fit_content = true
 		_stat_lab.scroll_active = false
 		_stat_lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		_stat_lab.add_theme_font_size_override("normal_font_size", 20)
-		_stat_lab.add_theme_font_size_override("bold_font_size", 22)
-		_stat_lab.add_theme_color_override("default_color", Color("f0e6d8"))
+		UI.apply_rich(_stat_lab, "number", PARCHMENT)
 		_stat_lab.text = "[center]%s[/center]" % bb
 		_stat_lab.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		_stat_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -447,18 +421,13 @@ func _apply_face(number_text: String) -> void:
 	if _num:
 		var ntxt: String = str(face.get("num", ""))
 		_num.text = ntxt
-		_num.add_theme_color_override("font_color", face.get("col", PARCHMENT))
-		var nsize: int = 46 if not _showcase else 48
-		if ntxt.begins_with("TODO"):
-			nsize = 10
-		_num.add_theme_font_size_override("font_size", nsize)
+		UI.apply_number(_num, face.get("col", PARCHMENT), UI.SIZE_NUMBER)
 		_num.visible = true
 	if _tag:
 		_tag.text = str(face.get("tag", ""))
-		_tag.add_theme_color_override("font_color", face.get("col", PARCHMENT))
+		UI.apply_tag(_tag, face.get("col", PARCHMENT), UI.SIZE_TAG)
 		_tag.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
 		_tag.max_lines_visible = 3
-		_tag.add_theme_font_size_override("font_size", 8 if str(face.get("tag", "")).begins_with("TODO") else 12)
 		_tag.custom_minimum_size = Vector2(70, 0)
 		_tag.visible = str(face.get("tag", "")).strip_edges() != ""
 	if _mark:

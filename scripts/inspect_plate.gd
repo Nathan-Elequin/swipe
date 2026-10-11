@@ -3,6 +3,7 @@ extends PanelContainer
 
 const COPY := preload("res://scripts/player_copy.gd")
 const UX := preload("res://scripts/ux_style.gd")
+const UI := preload("res://scripts/ui_palette.gd")
 
 signal edit_pressed(kind: String, card_id: String)
 
@@ -12,10 +13,10 @@ const EDGE := Color("7A4E2B")
 const PARCHMENT := Color("E9D3A1")
 const DIM := Color("A88C66")
 const SOOT := Color("1A120E")
-const ATK := Color("D5443B")
+const ATK := Color("E86A62")
 const BLK := Color("4FA3D9")
-const HEAL := Color("4CAF6A")
-const KO := Color("A866C9")
+const HEAL := Color("7BC950")
+const KO := Color("C080E0")
 const WEAK := Color("B8733A")
 const TOUGH := Color("C9CED6")
 const DEADLY := Color("FFD84A")
@@ -33,15 +34,11 @@ var _tag: Label
 var _ability: Label
 var _shift: Label
 var _item_box: VBoxContainer
-var _font_px: Font
 var _font_sk: Font
-var _font_vt: Font
 
 
 func _ready() -> void:
-	_font_px = load("res://assets/ui/fonts/PixelifySans-Bold.ttf")
-	_font_sk = load("res://assets/ui/fonts/Silkscreen-Bold.ttf")
-	_font_vt = load("res://assets/ui/fonts/VT323-Regular.ttf")
+	_font_sk = UI.font_silk()
 	theme = load("res://themes/swipe_theme.tres")
 	custom_minimum_size = Vector2(480, 0)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -89,10 +86,7 @@ func _build() -> void:
 	_name = Label.new()
 	_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	if _font_px != null:
-		_name.add_theme_font_override("font", _font_px)
-	_name.add_theme_font_size_override("font_size", 40)
-	_name.add_theme_color_override("font_color", PARCHMENT)
+	UI.apply_name(_name, PARCHMENT, UI.SIZE_NAME)
 	_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_item_box.add_child(_name)
 	_pill = Label.new()
@@ -109,35 +103,24 @@ func _build() -> void:
 	val_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_item_box.add_child(val_row)
 	_value = Label.new()
-	if _font_px != null:
-		_value.add_theme_font_override("font", _font_px)
-	_value.add_theme_font_size_override("font_size", 56)
+	UI.apply_number(_value, PARCHMENT, UI.SIZE_NUMBER)
 	_value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	val_row.add_child(_value)
 	_tag = Label.new()
-	if _font_sk != null:
-		_tag.add_theme_font_override("font", _font_sk)
-	_tag.add_theme_font_size_override("font_size", 18)
-	_tag.add_theme_color_override("font_color", DIM)
+	UI.apply_tag(_tag, UI.DIM, UI.SIZE_TAG)
 	_tag.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	val_row.add_child(_tag)
 	_ability = Label.new()
 	_ability.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_ability.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	if _font_vt != null:
-		_ability.add_theme_font_override("font", _font_vt)
-	_ability.add_theme_font_size_override("font_size", 30)
-	_ability.add_theme_color_override("font_color", PARCHMENT)
+	UI.apply_body(_ability, PARCHMENT, UI.SIZE_BODY)
 	_ability.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_item_box.add_child(_ability)
 	_shift = Label.new()
 	_shift.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_shift.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	if _font_vt != null:
-		_shift.add_theme_font_override("font", _font_vt)
-	_shift.add_theme_font_size_override("font_size", 22)
-	_shift.add_theme_color_override("font_color", DIM)
+	UI.apply_body(_shift, DIM, UI.SIZE_BODY)
 	_shift.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_item_box.add_child(_shift)
 	var plate_scn: PackedScene = load("res://scenes/ui/owner_plate.tscn")

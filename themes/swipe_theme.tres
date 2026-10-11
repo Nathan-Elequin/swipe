@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=16 format=3]
+[gd_resource type="Theme" load_steps=20 format=3]
 
 [ext_resource type="FontFile" path="res://assets/ui/fonts/PixelifySans-Bold.ttf" id="1_px"]
 [ext_resource type="FontFile" path="res://assets/ui/fonts/Silkscreen-Bold.ttf" id="2_sk"]
@@ -6,6 +6,10 @@
 [ext_resource type="Texture2D" path="res://assets/ui/panels/ui_panel_oak.png" id="4_oak"]
 [ext_resource type="Texture2D" path="res://assets/ui/panels/ui_plate_inset_edge.png" id="5_ins"]
 [ext_resource type="Texture2D" path="res://assets/ui/panels/ui_panel_oak_gold.png" id="6_oakg"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/Nunito-Regular.ttf" id="7_nu"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/Nunito-SemiBold.ttf" id="8_ns"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/Nunito-Bold.ttf" id="9_nb"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/Nunito-ExtraBold.ttf" id="10_nx"]
 
 [sub_resource type="StyleBoxTexture" id="oak_panel"]
 texture = ExtResource("4_oak")
@@ -156,3 +160,23 @@ TierPill/base_type = "Label"
 TierPill/colors/font_color = Color(0.102, 0.0706, 0.0549, 1)
 TierPill/fonts/font = ExtResource("2_sk")
 TierPill/font_sizes/font_size = 15
+UtilityName/base_type = "Label"
+UtilityName/colors/font_color = Color(0.913725, 0.827451, 0.631373, 1)
+UtilityName/fonts/font = ExtResource("8_ns")
+UtilityName/font_sizes/font_size = 24
+UtilityName/constants/outline_size = 0
+UtilityBody/base_type = "Label"
+UtilityBody/colors/font_color = Color(0.913725, 0.827451, 0.631373, 1)
+UtilityBody/fonts/font = ExtResource("7_nu")
+UtilityBody/font_sizes/font_size = 20
+UtilityBody/constants/outline_size = 0
+UtilityNumber/base_type = "Label"
+UtilityNumber/colors/font_color = Color(0.913725, 0.827451, 0.631373, 1)
+UtilityNumber/fonts/font = ExtResource("10_nx")
+UtilityNumber/font_sizes/font_size = 28
+UtilityNumber/constants/outline_size = 0
+UtilityTag/base_type = "Label"
+UtilityTag/colors/font_color = Color(0.913725, 0.827451, 0.631373, 1)
+UtilityTag/fonts/font = ExtResource("9_nb")
+UtilityTag/font_sizes/font_size = 18
+UtilityTag/constants/outline_size = 0

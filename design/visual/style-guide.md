@@ -7,7 +7,7 @@ Mockups: `design/visual/mockups/` and on the Doop canvas [Swipe Art Refresh — 
 ## 1. Canvas and pixel scale
 - Window 1680×1040. Art is drawn on a **virtual 420×260 grid at 4×**, so every art edge lands on a multiple of 4 px.
 - 16×16 sprites at 4× = 64×64 (wheel seats, hand cards). Hero sizes (loot, inspect, monster portrait) use 8× = 128×128. Nib's portrait is 32×32 at 4×.
-- Project settings: `rendering/textures/canvas_textures/default_texture_filter = Nearest`, `rendering/2d/snap/snap_2d_transforms_to_pixel = true`, `snap_2d_vertices_to_pixel = true`. FontFile: antialiasing None, hinting None, subpixel positioning off.
+- Project settings: `rendering/textures/canvas_textures/default_texture_filter = Nearest`, `rendering/2d/snap/snap_2d_transforms_to_pixel = true`, `snap_2d_vertices_to_pixel = true`. Pixel fonts (Pixelify, Silkscreen, VT323): FontFile antialiasing None, hinting None, subpixel positioning off. Nunito (utility): antialiasing grayscale, hinting light. The AA-off rule applies to pixel fonts only.
 - UI text and panel borders can sit on a 2 px grid. Sprites must sit on the 4 px grid.
 
 ## 2. Palette (only these)
@@ -35,13 +35,25 @@ Mockups: `design/visual/mockups/` and on the Doop canvas [Swipe Art Refresh — 
 Rule: gold means "you want this" and red means "this hurts". Never use gold for warnings.
 
 ## 3. Type (all SIL OFL, from Google Fonts, stored in `assets/ui/fonts/`)
-| Role | Font | Sizes (px) |
-|---|---|---|
-| Display: logo, cues, titles, big numbers, primary buttons | Pixelify Sans 700 | logo 170 · end titles 84/72 · modal title 54 · cues 40–42 · numbers 36–46 · buttons 40–56 |
-| Labels: chips, tier pills, card names, stat tags | Silkscreen 700 | 12–16, 2 px letter-spacing on labels |
-| Body: rules, Nib, ability text, secondary buttons, title-case small labels | VT323 400 | 26–38 |
 
-Silkscreen draws every letter as a capital. Any label that the copy file writes in title case ("The monster", "Master"…) uses **VT323**, so it shows exactly as written.
+### Typography: utility vs flavor
+Utility text is anything the player has to read to play: item names, monster names, the description under them, and stat numbers (ATK / BLK / HEAL / HP, pips, card values). Flavor text is the dungeon voice: titles, screen headers, cue lines (`Take it or leave it?`), Nib's talk, banners (`BLOCKED` / `SLAIN`), and buttons.
+
+| Role | Font | Sizes at 1680×1040 | Contrast |
+|---|---|---|---|
+| **Utility name** | Nunito SemiBold / Bold | ~24 px. Theme type `UtilityName`. | Parchment `#E9D3A1` on oak / soot. Aim for WCAG AA (4.5:1). |
+| **Utility body** | Nunito Regular | ~20 px. Theme type `UtilityBody`. | Same parchment (or dim `#B89A70` for secondary lines). |
+| **Utility number** | Nunito Bold / ExtraBold | ~28 px. Theme type `UtilityNumber`. Tags `UtilityTag` at 18 px Bold. | Stat ink: ATK `#E86A62`, BLK `#4FA3D9`, HEAL `#7BC950`, KO `#C080E0` (ATK / KO lightened from the palette red / plum so they pass on oak). If a number still fails, put it on a soot plate `#140D0A` — no outline or glow. |
+| **Smallest utility text anywhere** | Nunito | **18 px.** Wheel seat chips stay at 18 ExtraBold; they cannot take 28 without covering the portrait. | Seat chips use a soot plate; HP chips use fill `#C43B34` so white digits pass. |
+| Flavor display | Pixelify Sans 700 | logo 170 · end titles 84/72 · modal title 54 · cues 40–42 · buttons 40–56 | loot gold / parchment / ATK red on the existing panels |
+| Flavor chips / Weak–Tough–Deadly pills | Silkscreen 700 | 12–16 | soot on the pill colour |
+| Flavor body (Nib, cue help, pause labels) | VT323 400 | 26–38 | parchment / dim |
+
+Sizes and fonts live in `scripts/ui_palette.gd` (`UiPalette`) and `themes/swipe_theme.tres`. New screens should call `UiPalette.apply_name` / `apply_body` / `apply_number` / `apply_tag` (or set the theme type variation) instead of hard-coding a pixel font on utility labels.
+
+Silkscreen draws every letter as a capital. Any **flavor** label that the copy file writes in title case ("The monster", "Master"…) uses **VT323**, so it shows exactly as written. Utility names use Nunito, which already shows title case.
+
+Cards and plates may grow a little so 24 / 20 / 28 px text does not clip. Do not shrink utility text below 18 px to fit.
 
 ## 4. Theme types (in `swipe_theme.tres`)
 | Type variation | Base | StyleBox | Font / colour |
@@ -53,9 +65,13 @@ Silkscreen draws every letter as a capital. Any label that the copy file writes 
 | `ButtonDanger` | Button | transparent, 5 px ATK-red border | Pixelify Sans 700, ATK red |
 | `TierPill` | Label | bg tier colour, 3 px soot border, padding 4/12 | Silkscreen 700 15, soot |
 | `CueLabel` | Label | — | Pixelify Sans 700 40, parchment, centred, autowrap |
-| `LabelSmall` | Label | — | Silkscreen 14, dim, spacing 2 (only for all-caps text) |
-| `LabelSmallBody` | Label | — | VT323 26–28, dim (for title-case small labels) |
-| `BodyLabel` | Label | — | VT323 30, parchment |
+| `LabelSmall` | Label | — | Silkscreen 14, dim, spacing 2 (only for all-caps flavor text) |
+| `LabelSmallBody` | Label | — | VT323 26–28, dim (for title-case flavor labels) |
+| `BodyLabel` | Label | — | VT323 30, parchment (Nib / flavor body) |
+| `UtilityName` | Label | — | Nunito SemiBold 24, parchment |
+| `UtilityBody` | Label | — | Nunito Regular 20, parchment |
+| `UtilityNumber` | Label | — | Nunito ExtraBold 28, parchment (override colour per stat) |
+| `UtilityTag` | Label | — | Nunito Bold 18, parchment (ATK / BLK / HEAL / HP) |
 
 ## 5. Global layout (Layout 1 "Side Door", v2, locked)
 | Element | Rect / anchor | Notes |
@@ -65,15 +81,15 @@ Silkscreen draws every letter as a capital. Any label that the copy file writes 
 | Seats | 8 alcoves; seat centres at radius 200, angle −90° + 45°·i (0 = top, clockwise) | seat tile 76×76, hub fill, 4 px edge border, 64×64 sprite; ATK chip bottom-left (gold on `#2A1C14`), HP chip bottom-right (white on ATK red) |
 | Pointer | gold triangle, base y 690, tip y 664, 36 px wide, centred on x 548 | marks the facing alcove (bottom) |
 | Spin button | ButtonGold 260×68 at (418,700) | |
-| Hand row | HBox, top y 790, **centred on x 547**. Cards 140×190 with a 14 px gap; with **8 cards, 124×190 and a 10 px gap** | the hand cap is a game rule and isn't changed here. Shrink cards, never the gap to the column |
+| Hand row | HBox, top y 790, **centred on x 547**. Cards 140×210 with a 14 px gap; with **8 cards, 124×210 and a 10 px gap** | the hand cap is a game rule and isn't changed here. Shrink cards, never the gap to the column |
 | Right column ("plate slot") | PanelOak at (1086,28), 560×952, padding 26/30 | holds the cue at the top, then **exactly one plate**: gate / inspect / fight monster / Nib / victory / defeat |
 | Pause | centred 640×800 modal at (520,120) over a full-screen soot dim at 72 % | the only overlay that covers the wheel |
 
 The gutter between the wheel's right edge (x 854) and the column (x 1086) stays free for the door-to-seat torch line during placement.
 
 ## 6. Hand card (the same everywhere)
-- Card 140×190 (124×190 at 8 cards), 6 px border in the **tier colour** (Weak bronze / Tough silver / Deadly gold).
-- Top: name in Silkscreen 12, centred, max 2 lines. Middle: 64×64 sprite. Bottom: **exactly one big value and one type tag**: `3 ATK` (red), `4 BLK` (blue), `3 HEAL` (green), `KO` (plum, no tag), or `?` plus a tag when the value depends on the fight.
+- Card 140×210 (124×210 at 8 cards), 6 px border in the **tier colour** (Weak bronze / Tough silver / Deadly gold).
+- Name is Nunito SemiBold 24, centred, max 2 lines. Middle: 64×64 sprite. Bottom: **exactly one value and one type tag** in Nunito ExtraBold 28 + Bold 18: `3 ATK` (red), `4 BLK` (blue), `3 HEAL` (green), `KO` (plum, no tag), or `?` plus a tag when the value depends on the fight.
 - Never "—", "X", icon-only, or two numbers on one card. Extra detail belongs in Inspect.
 - States: hover = lift 18 px + 4 px gold ring · spent = 38 % alpha, stays in the row until the fight resolves · disabled = 60 % alpha, no lift · drag = lift 24 px.
 

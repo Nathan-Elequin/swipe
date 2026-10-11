@@ -53,6 +53,7 @@ Screens, HUD, menus, fonts, theme, and player-facing copy **lookups**. Jam still
 | `scripts/hover_panel.gd` | Floating inspect |
 | `scripts/speech_bubble.gd` | Owner speech bubble |
 | `scripts/ux_style.gd` | Shared colors / chips |
+| `scripts/ui_palette.gd` | Nunito utility type (names, body, numbers, tags) |
 | `scripts/player_copy.gd` | Lookup helpers only. Do not change JSON text from chat. |
 | `scripts/dungeon_art.gd` | Sprite registration |
 | `scripts/dungeon_bg.gd` | Soot ground |

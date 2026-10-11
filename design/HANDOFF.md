@@ -4,12 +4,30 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-11 — Merged Nunito onto the lane split
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: Merged `origin/main` (40c0668 Nunito) into `cursor/split-main-lanes-0824`. The ~9-line `main.gd` tray-chip font change now lives in `scripts/ui/hud_controller.gd` `_monster_chip` via `UiPalette.apply_name/number/body`. Both HANDOFF entries below are kept. Still a pure refactor besides that port.
+- Files: `scripts/ui/hud_controller.gd`, `scripts/main.gd`, `design/HANDOFF.md`, `design/LANES.md`
+
 ## 2026-10-11 — Split main.gd into lane files
 - From: Cursor
 - To: Jam / Pixel / Nathan
 - Status: DONE
 - What: Pure refactor. `scripts/main.gd` is now boot/frame/input only. Logic moved along the three lanes (UI / Core / Content) via a stacked `extends` chain so `hp`, `phase`, and `_use_item` still live on Main. `ITEM_OPS` and `MONSTER_SPECIAL` moved to `scripts/content/content_defs.gd` with the same values. No gameplay, visual, copy, or balance changes. Map: `design/LANES.md`. Rule pointer: `.cursor/rules/lanes.mdc`. Godot 4.7.2 headless `--import` and `--quit-after` had no script errors. Boot probe: title, HP 6, Shield BLK 4, Goblin `no_atk_dmg`.
 - Files: `scripts/main.gd`, `scripts/lanes/game_state.gd`, `scripts/content/content_defs.gd`, `scripts/content/catalog_io.gd`, `scripts/core/fight_flow.gd`, `scripts/core/draft_flow.gd`, `scripts/core/run_flow.gd`, `scripts/core/tutorial_flow.gd`, `scripts/ui/hud_controller.gd`, `scripts/ui/authoring_ui.gd`, `design/LANES.md`, `.cursor/rules/lanes.mdc`, `tools/qa/check_layers.gd`, `tools/qa/check_boot.gd`
+
+## 2026-10-11 — Readable utility text (Nunito)
+- From: Cursor cloud agent
+- To: Jam
+- Status: DONE
+- What: Utility text (item/monster names, descriptions, ATK/BLK/HEAL/HP numbers and tags) now uses Nunito Regular/SemiBold/Bold/ExtraBold with grayscale AA and light hinting. Flavor stays pixel: cues, titles, Nib, banners, buttons, Weak/Tough/Deadly pills. Theme types `UtilityName` (24), `UtilityBody` (20), `UtilityNumber` (28), `UtilityTag` (18). Sizes live in `scripts/ui_palette.gd`. ATK/KO number ink lightened (`#E86A62` / `#C080E0`) so they pass ~4.5:1 on oak; wheel HP chips use a darker red fill plus a soot plate. Hand cards grew 190→210 tall so 24 px names do not clip. Wheel stayed at (548,350). No `data/` edits.
+- Converted: hand cards, draft-gate item name + guard line, inspect name/value/tag/ability, owner plate (fight/placement/inspect), hover/fly tip, wheel hub HP/BLK, seat ATK/HP chips, leftover tray monster chips, trophy count.
+- Could not convert / left pixel on purpose: Nib How to Play talk (`talk_box.gd`, fallback `tutorial_guide._build_talk`), cues (`Take it or leave it?`), Inspect/Pause/Victory/Defeat titles, buttons, BLOCKED/SLAIN banners, Weak/Tough/Deadly pills, pause slider labels.
+- Compromise: wheel seat chips stay Nunito ExtraBold **18** (the floor). 28 px would cover the 64 px portrait.
+- Files: `assets/ui/fonts/Nunito-*.ttf` + `OFL.txt`, `themes/swipe_theme.tres`, `scripts/ui_palette.gd`, `scripts/item_card.gd`, `scripts/inspect_plate.gd`, `scripts/owner_plate.gd`, `scripts/hover_panel.gd`, `scripts/draft_gate.gd`, `scripts/boss_wheel.gd`, `scripts/wheel_hud.gd`, `scripts/trophy_mount.gd`, `scripts/main.gd`, `design/visual/style-guide.md`
+- QA: Godot 4.7.2 headless import + `--quit-after 2` (no script errors). Offscreen shots: `design/visual/qa/nunito_boot.png` (title; flavor stays pixel, hub HP/BLK already Nunito) · `design/visual/qa/nunito_hand.png` (hand names/values, hub, inspect idle). No godot-mcp in this environment, so no in-editor click-through.
 
 ## 2026-10-11 — Direction A polish
 - From: Cursor

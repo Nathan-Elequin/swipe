@@ -3,6 +3,7 @@ extends PanelContainer
 
 const COPY := preload("res://scripts/player_copy.gd")
 const UX := preload("res://scripts/ux_style.gd")
+const UI := preload("res://scripts/ui_palette.gd")
 
 const VOID := Color("0B0706")
 const INSET := Color("4A2F1F")
@@ -10,7 +11,7 @@ const EDGE := Color("7A4E2B")
 const PARCHMENT := Color("E9D3A1")
 const DIM := Color("A88C66")
 const ATK_GOLD := Color("FFD84A")
-const HP_RED := Color("D5443B")
+const HP_RED := Color("E86A62")
 const SOOT := Color("1A120E")
 const WEAK := Color("B8733A")
 const TOUGH := Color("C9CED6")
@@ -24,15 +25,11 @@ var _atk_tag: Label
 var _hp: Label
 var _hp_tag: Label
 var _ability: Label
-var _font_px: Font
 var _font_sk: Font
-var _font_vt: Font
 
 
 func _ready() -> void:
-	_font_px = load("res://assets/ui/fonts/PixelifySans-Bold.ttf")
-	_font_sk = load("res://assets/ui/fonts/Silkscreen-Bold.ttf")
-	_font_vt = load("res://assets/ui/fonts/VT323-Regular.ttf")
+	_font_sk = UI.font_silk()
 	theme = load("res://themes/swipe_theme.tres")
 	custom_minimum_size = Vector2(480, 0)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -79,10 +76,7 @@ func _build() -> void:
 
 	_name = Label.new()
 	_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	if _font_px != null:
-		_name.add_theme_font_override("font", _font_px)
-	_name.add_theme_font_size_override("font_size", 36)
-	_name.add_theme_color_override("font_color", PARCHMENT)
+	UI.apply_name(_name, PARCHMENT, UI.SIZE_NAME)
 	_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	meta.add_child(_name)
 
@@ -112,20 +106,14 @@ func _build() -> void:
 	_ability = Label.new()
 	_ability.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_ability.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	if _font_vt != null:
-		_ability.add_theme_font_override("font", _font_vt)
-	_ability.add_theme_font_size_override("font_size", 28)
-	_ability.add_theme_color_override("font_color", PARCHMENT)
+	UI.apply_body(_ability, PARCHMENT, UI.SIZE_BODY)
 	_ability.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_ability)
 
 
 func _stat_num(col: Color) -> Label:
 	var l := Label.new()
-	if _font_px != null:
-		l.add_theme_font_override("font", _font_px)
-	l.add_theme_font_size_override("font_size", 34)
-	l.add_theme_color_override("font_color", col)
+	UI.apply_number(l, col, UI.SIZE_NUMBER)
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return l
 
@@ -133,10 +121,7 @@ func _stat_num(col: Color) -> Label:
 func _stat_tag(text: String) -> Label:
 	var l := Label.new()
 	l.text = text
-	if _font_sk != null:
-		l.add_theme_font_override("font", _font_sk)
-	l.add_theme_font_size_override("font_size", 14)
-	l.add_theme_color_override("font_color", DIM)
+	UI.apply_tag(l, UI.DIM, UI.SIZE_TAG)
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	return l

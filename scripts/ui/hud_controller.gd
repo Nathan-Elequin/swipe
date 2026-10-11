@@ -2287,21 +2287,18 @@ func _monster_chip(s: Dictionary) -> PanelContainer:
 	row.add_child(col)
 	var n := Label.new()
 	n.text = _title_case(str(s.get("name", "?")))
-	n.add_theme_font_size_override("font_size", 18)
-	n.add_theme_color_override("font_color", Color("f0e6d8"))
+	UiPalette.apply_name(n, Color("f0e6d8"), UiPalette.SIZE_NAME)
 	col.add_child(n)
 	var stats := Label.new()
 	stats.text = "%s / %s" % [s.get("atk", 0), s.get("hp", 0)]
-	stats.add_theme_font_size_override("font_size", 22)
-	stats.add_theme_color_override("font_color", Color("ffffff"))
+	UiPalette.apply_number(stats, Color("ffffff"), UiPalette.SIZE_NUMBER)
 	col.add_child(stats)
 	var spec := Label.new()
 	var chip_rule: Dictionary = _monster_rule(s)
 	var st: String = str(chip_rule.get("reminder", ""))
 	spec.text = st if st != "" else "No special"
 	spec.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	spec.add_theme_font_size_override("font_size", 13)
-	spec.add_theme_color_override("font_color", Color("c9b9a8"))
+	UiPalette.apply_body(spec, Color("c9b9a8"), UiPalette.SIZE_BODY)
 	spec.custom_minimum_size = Vector2(160, 0)
 	col.add_child(spec)
 	p.gui_input.connect(func(event: InputEvent) -> void:
