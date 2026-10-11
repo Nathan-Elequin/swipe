@@ -2,7 +2,7 @@
 
 Build order: theme setup → hand-card → wheel → placement → fight → inspect → pause → how-to-play → title → victory → defeat → draft-gate v2. Max 2 tweak rounds per screen, then flag it.
 
-Copy keys Jam is adding for this pack: `pause.master`, `pause.music`, `pause.sound`, `door.seat_hint`. Jam is also changing the text of the existing keys `door.owner` and `door.shiny`. Cursor reads all of them through PLAYER_COPY and never hard-codes them.
+Copy keys Jam is adding for this pack: `pause.master`, `pause.music`, `pause.sound`, `door.seat_hint`. `door.owner` / `door.shiny` are locked as "THE MONSTER" / "THE LOOT". Cursor reads all of them through PLAYER_COPY and never hard-codes owner or bait.
 
 ## 0 · Theme setup (once)
 ```text

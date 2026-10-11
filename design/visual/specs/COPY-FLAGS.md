@@ -1,6 +1,16 @@
 # Copy flags for Jam (2026-10-11)
 
-Wording flagged only. Nothing was rewritten. Jam owns `data/player-copy.json`.
+Wording flagged only. Nothing was rewritten in `data/player-copy.json`. Jam owns that file.
+
+Player screens say **monster** / **loot**, never owner / bait, and never the word **Tier**. Asset file names (`owner_plate.tscn`, `ui_title_bait.png`) can stay.
+
+## Code pass 2026-10-11 (Cursor)
+
+Fixed in scripts, not in locked data:
+- `door.pass` fills `{n}`; `door.pass_one` at 1; `door.pass_none` at 0.
+- Clockwork Knight **script** fallback: "If I live, I leave two Tough monsters in my place." Locked board ability is already "If I live, I leave two Tough Monsters in my place." Locked **explainer** is still "Two Tier 2 if I live" (shows Tier if Shift inspect uses it).
+- Item inspect fallbacks and `cue.devtest` / `inspect.idle` now say monster/loot.
+- Locked catalog abilities that still say Owner (Double Axe, Grappling Hook, Net) and Chaos Stone's "that item's tier" still reach players from the board. Flag only.
 
 | # | Where | Current | Why flagged |
 |---|---|---|---|
