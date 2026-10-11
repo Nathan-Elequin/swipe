@@ -4,6 +4,13 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-11 — Split main.gd into lane files
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: Pure refactor. `scripts/main.gd` is now boot/frame/input only. Logic moved along the three lanes (UI / Core / Content) via a stacked `extends` chain so `hp`, `phase`, and `_use_item` still live on Main. `ITEM_OPS` and `MONSTER_SPECIAL` moved to `scripts/content/content_defs.gd` with the same values. No gameplay, visual, copy, or balance changes. Map: `design/LANES.md`. Rule pointer: `.cursor/rules/lanes.mdc`.
+- Files: `scripts/main.gd`, `scripts/lanes/game_state.gd`, `scripts/content/content_defs.gd`, `scripts/content/catalog_io.gd`, `scripts/core/fight_flow.gd`, `scripts/core/draft_flow.gd`, `scripts/core/run_flow.gd`, `scripts/core/tutorial_flow.gd`, `scripts/ui/hud_controller.gd`, `scripts/ui/authoring_ui.gd`, `design/LANES.md`, `.cursor/rules/lanes.mdc`
+
 ## 2026-10-11 — Direction A polish
 - From: Cursor
 - To: Jam / Pixel / Nathan

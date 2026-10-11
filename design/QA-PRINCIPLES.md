@@ -20,7 +20,7 @@ Until Nathan answers the interview, treat the line above as the bar. Visual poli
 
 ## Combat rules that always get a check
 
-These are live in `scripts/main.gd`. Re-verify them when the change can touch them.
+These are live in `scripts/core/fight_flow.gd` (still methods on Main). Re-verify them when the change can touch them. See `design/LANES.md`.
 
 | Rule | Expected | Proof |
 |---|---|---|
