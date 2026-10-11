@@ -1,0 +1,27 @@
+{
+  "feature": "ogre-listen, basilisk-gain-keep",
+  "date": "2026-10-10",
+  "ogre": {
+    "seated_hp": 10,
+    "player_hp_seated": 6,
+    "after_grief_bleed_1": {"player": 5, "ogre": 9},
+    "after_lantern_heal": {"player": 6, "ogre": 9},
+    "after_golem_done_take_3": {"player": 3, "ogre": 6},
+    "quiet_then_bleed": {"silenced": true, "ogre_stays": 5, "player": 1},
+    "pending_slay": {
+      "setup": "Ogre HP 1 locked, force Spin Golem, Done unblocked ATK 3",
+      "during_golem_slaying": {"ogre_hp": 0, "pending_slay": true, "still_on_wheel": true, "player": 3},
+      "after_fight": "wheel empty, phase victory"
+    }
+  },
+  "basilisk": {
+    "queen_egg_on_basilisk_spin": {
+      "during": "hotbar size 2 (Smoke + Egg on screen)",
+      "after": ["smoke_bomb"],
+      "keep_blocked": true
+    },
+    "smoke_before_spin": {
+      "after_use": {"phase": "ready", "facing": -1, "hand": ["shield"], "keep_blocked": false}
+    }
+  }
+}

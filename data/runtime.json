@@ -8,6 +8,7 @@
 		"da_boot",
 		"bloody_gauntlets",
 		"bracers",
+		"left_bracer",
 		"knucklers",
 		"spiked_flail",
 		"sledgehammer",
@@ -34,7 +35,9 @@
 		"counting_beads",
 		"last_match",
 		"measuring_tape",
-		"mute_stone"
+		"mute_stone",
+		"cursed_scroll",
+		"spider_egg"
 	],
 	"monsters": [
 		"wizard",

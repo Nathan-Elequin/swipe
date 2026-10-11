@@ -79,7 +79,7 @@ const LINES := {
 		"My Bracers! Wrist jewelry looks better on me.",
 		"Snap them off later. After I win.",
 		"You grabbed the Bracers. I grabbed a seat.",
-		"Cute armor. Bad owner now.",
+		"Cute armor. Wrong monster now.",
 		"Keep them on. Makes the trophy shot nicer.",
 	],
 	"smoke_bomb": [

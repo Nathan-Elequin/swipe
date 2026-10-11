@@ -1,0 +1,29 @@
+---
+description: Read design/HANDOFF.md every chat; do OPEN items for Cursor
+alwaysApply: true
+---
+
+# Visual refresh handoff
+
+## Every chat
+
+1. At the start, read `design/HANDOFF.md`.
+2. Do any **OPEN** items addressed **to Cursor**. Do not wait for Nathan to repeat them.
+3. At the end of the chat (or when you finish those items), add a newest-at-top log entry: date, from Cursor, to (Jam / Pixel / Nathan), status, what you did, files.
+
+Entry shape (copy this):
+
+```
+## YYYY-MM-DD — short title
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: OPEN | DONE | BLOCKED
+- What:
+- Files:
+```
+
+## Do not
+
+- Do not rewrite `data/player-copy.json` text (or author-locked board/catalog copy). Flag problems in HANDOFF instead.
+- Player screens never show the word **Tier**. They show Weak / Tough / Deadly.
+- Do not restyle or redesign the game until a `design/visual/specs/SCREEN-*.md` build spec (from Pixel) is OPEN to Cursor.

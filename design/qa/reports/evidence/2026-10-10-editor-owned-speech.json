@@ -1,0 +1,26 @@
+{
+  "feature": "editor-owned-speech",
+  "phase": "ready",
+  "wizard": {
+    "ability": "",
+    "speech": "",
+    "call": "",
+    "has_spellbook": false
+  },
+  "goblin": {
+    "ability": "I cannot take Attack damage.",
+    "speech": "I cannot take Attack damage. (painted)",
+    "call": "Evasive"
+  },
+  "save_stamp": {
+    "after_fill_speech": "TEST LINE FROM SAVE",
+    "after_clear_speech": "",
+    "after_clear_ability": ""
+  },
+  "inspect_on_wizard": {
+    "visible": true,
+    "text": "Wizard | ",
+    "has_spellbook": false
+  },
+  "screenshot": "godot_editor_read screenshot_game, Wizard inspect has title + HP/ATK only"
+}

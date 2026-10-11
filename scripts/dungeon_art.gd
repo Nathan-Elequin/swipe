@@ -1,8 +1,17 @@
 extends Node
-## 0x72 atlas slices + Kenney UI/VFX. Extra CC0 item PNGs only where the atlas is the wrong object.
+## Direction A sprites (assets/sprites/) first. 0x72 atlas + old ITEM_PNG/MONSTER_PNG only as fallback.
 
 const ATLAS_PATH := "res://assets/dungeon/atlas.png"
 const LIST_PATH := "res://assets/dungeon/tile_list.txt"
+const SPRITE_ITEM := "res://assets/sprites/items/item_%s.png"
+const SPRITE_MONSTER := "res://assets/sprites/monsters/%s/mon_%s_idle.png"
+const NIB_IDLE := "res://assets/sprites/nib/nib_idle.png"
+const NIB_TALK := "res://assets/sprites/nib/nib_talk.png"
+const NIB_SMUG := "res://assets/sprites/nib/nib_smug.png"
+const NIB_PORTRAIT := "res://assets/sprites/nib/nib_portrait_32.png"
+const BOARD_SCALE := 4
+const HERO_SCALE := 8
+const SRC_PX := 16
 
 const MONSTER_STEM := {
 	"wizard": "wizzard_m",
@@ -45,6 +54,7 @@ const ITEM_STEM := {
 	"da_boot": "weapon_spear",
 	"bloody_gauntlets": "flask_red",
 	"bracers": "weapon_baton_with_spikes",
+	"left_bracer": "weapon_baton_with_spikes",
 	"knucklers": "weapon_hammer",
 	"spiked_flail": "weapon_mace",
 	"sledgehammer": "weapon_big_hammer",
@@ -81,6 +91,7 @@ const ITEM_PNG := {
 	"da_boot": "res://assets/dungeon/items/boot.png",
 	"bloody_gauntlets": "res://assets/dungeon/items/gauntlets.png",
 	"bracers": "res://assets/dungeon/items/bracers.png",
+	"left_bracer": "res://assets/dungeon/items/left_bracer.png",
 	"grimoire": "res://assets/dungeon/items/grimoire.png",
 	"pocketwatch": "res://assets/dungeon/items/watch.png",
 	"healing_potion": "res://assets/dungeon/items/healing_potion.png",
@@ -111,6 +122,7 @@ const ITEM_PNG := {
 	"crossbow": "res://assets/dungeon/items/crossbow.png",
 	"spiked_shield": "res://assets/dungeon/items/spiked_shield.png",
 	"cursed_scroll": "res://assets/dungeon/items/cursed_scroll.png",
+	"spider_egg": "res://assets/dungeon/items/spider_egg.png",
 }
 
 const MONSTER_PNG := {
@@ -125,7 +137,7 @@ const MONSTER_PNG := {
 	"wick": "res://assets/dungeon/extra/wick.png",
 	"anvil": "res://assets/dungeon/extra/anvil.png",
 	"basilisk": "res://assets/dungeon/extra/basilisk.png",
-	"two_headed_serpent": "res://assets/dungeon/extra/two_headed_serpent.png",
+	"two_headed_serpent": "res://assets/dungeon/extra/damsel.png",
 	"wraith": "res://assets/dungeon/extra/wraith.png",
 	"hornet_swarm": "res://assets/dungeon/extra/hornet_swarm.png",
 	"dire_wolf": "res://assets/dungeon/extra/dire_wolf.png",
@@ -139,6 +151,7 @@ var vfx: Dictionary = {}
 var ui: Dictionary = {}
 var extra_items: Dictionary = {}
 var extra_monsters: Dictionary = {}
+var missing_sprites: Array = []
 var ready_ok: bool = false
 
 
@@ -146,7 +159,16 @@ func setup() -> void:
 	atlas = load(ATLAS_PATH) as Texture2D
 	_parse_list()
 	_load_extras()
+	_catalog_missing()
 	ready_ok = atlas != null and not rects.is_empty()
+
+
+func board_px() -> int:
+	return SRC_PX * BOARD_SCALE
+
+
+func hero_px() -> int:
+	return SRC_PX * HERO_SCALE
 
 
 func _parse_list() -> void:
@@ -256,12 +278,18 @@ func monster_stem(card_id: String) -> String:
 
 
 func monster_idle(card_id: String) -> Array:
+	var packed: Texture2D = _tex(SPRITE_MONSTER % [card_id, card_id])
+	if packed != null:
+		return [packed]
 	if extra_monsters.has(card_id) and extra_monsters[card_id] != null:
 		return [extra_monsters[card_id]]
 	return frames(monster_stem(card_id))
 
 
 func monster_run(card_id: String) -> Array:
+	var packed: Texture2D = _tex(SPRITE_MONSTER % [card_id, card_id])
+	if packed != null:
+		return [packed]
 	if extra_monsters.has(card_id) and extra_monsters[card_id] != null:
 		return [extra_monsters[card_id]]
 	return run_frames(monster_stem(card_id))
@@ -275,12 +303,65 @@ func monster_still(card_id: String) -> Texture2D:
 
 
 func item_tex(card_id: String) -> Texture2D:
+	var packed: Texture2D = _tex(SPRITE_ITEM % card_id)
+	if packed != null:
+		return packed
 	if extra_items.has(card_id) and extra_items[card_id] != null:
 		return extra_items[card_id]
 	var name: String = str(ITEM_STEM.get(card_id, ""))
 	if name == "":
 		return null
 	return slice(name)
+
+
+func nib_portrait() -> Texture2D:
+	return _tex(NIB_PORTRAIT)
+
+
+func nib_frames(which: String = "idle") -> Array:
+	match which:
+		"talk":
+			return _strip_frames(NIB_TALK, SRC_PX, SRC_PX)
+		"smug":
+			var one: Texture2D = _tex(NIB_SMUG)
+			return [one] if one != null else []
+		_:
+			return _strip_frames(NIB_IDLE, SRC_PX, SRC_PX)
+
+
+func _strip_frames(path: String, fw: int, fh: int) -> Array:
+	var tex: Texture2D = _tex(path)
+	if tex == null or fw <= 0:
+		return []
+	var cols: int = int(tex.get_width() / fw)
+	var rows: int = maxi(1, int(tex.get_height() / fh))
+	var out: Array = []
+	for y in rows:
+		for x in cols:
+			var at := AtlasTexture.new()
+			at.atlas = tex
+			at.region = Rect2(x * fw, y * fh, fw, fh)
+			at.filter_clip = true
+			out.append(at)
+	return out
+
+
+func _catalog_missing() -> void:
+	missing_sprites.clear()
+	var ids: Array = []
+	for k in ITEM_STEM.keys():
+		ids.append(str(k))
+	for k2 in ITEM_PNG.keys():
+		var s: String = str(k2)
+		if not ids.has(s):
+			ids.append(s)
+	for id in ids:
+		if _tex(SPRITE_ITEM % id) == null:
+			missing_sprites.append("item:%s" % id)
+	for mid in MONSTER_STEM.keys():
+		var m: String = str(mid)
+		if _tex(SPRITE_MONSTER % [m, m]) == null:
+			missing_sprites.append("monster:%s" % m)
 
 
 func portraits() -> Dictionary:

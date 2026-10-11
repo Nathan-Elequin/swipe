@@ -9,6 +9,8 @@ const CARD_FIELDS := [
 	"name",
 	"ability",
 	"explainer",
+	"call_name",
+	"reminder",
 	"flow",
 	"notes",
 	"ops",
@@ -20,6 +22,7 @@ const CARD_FIELDS := [
 	"hp_base",
 	"atk_formula",
 	"hp_formula",
+	"card_color",
 ]
 
 

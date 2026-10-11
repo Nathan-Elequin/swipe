@@ -2,6 +2,7 @@ extends PanelContainer
 ## Punchy inspect plate. Item equations and monster copy share this language.
 
 const COPY := preload("res://scripts/player_copy.gd")
+const UX := preload("res://scripts/ux_style.gd")
 
 signal edit_pressed(kind: String, card_id: String)
 
@@ -16,8 +17,9 @@ var accept_clicks: bool = false
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	custom_minimum_size = Vector2(252, 0)
-	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	custom_minimum_size = Vector2(268, 0)
+	size_flags_horizontal = Control.SIZE_FILL
+	size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	gui_input.connect(_on_gui)
 	if not _skinned:
 		_plain_skin()
@@ -45,26 +47,25 @@ func apply_skin(tex: Texture2D) -> void:
 
 
 func _plain_skin() -> void:
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("1a1410f5")
-	sb.border_color = Color("e8c36a")
-	sb.border_width_left = 4
-	sb.border_width_top = 2
-	sb.border_width_right = 2
-	sb.border_width_bottom = 2
-	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 14
-	sb.content_margin_right = 14
-	sb.content_margin_top = 10
-	sb.content_margin_bottom = 10
-	add_theme_stylebox_override("panel", sb)
+	_on_dark = true
+	add_theme_stylebox_override("panel", UX.plate())
 
 
 func show_placeholder() -> void:
+	var body: String = COPY.text("inspect.idle", "Hover a monster on the ring, or loot in your hand.")
 	if OS.has_feature("editor"):
-		show_text(COPY.text("inspect.title", "Inspect"), COPY.text("inspect.placeholder", "Hover an owner on the ring, or loot in your hand. Right-click to edit."))
-	else:
-		show_text(COPY.text("inspect.title", "Inspect"), COPY.text("inspect.idle", "Hover an owner on the ring, or loot in your hand."))
+		body = COPY.text("inspect.placeholder", "—")
+	show_rule(
+		COPY.text("inspect.title", "Inspect"),
+		"",
+		"",
+		body,
+		"",
+		null,
+		"",
+		"",
+		{"idle": true, "fill": Color("1a1410"), "metal": Color("c4a574"), "tier": 1}
+	)
 
 
 func show_text(title: String, body: String, extra: String = "") -> void:
@@ -91,38 +92,83 @@ func show_rule(
 	var ink_out: Color = Color("1c120c") if _on_dark else Color("f3e6d0")
 	var body_col: Color = Color("e8dcc8") if _on_dark else Color("2a1c14")
 	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 5)
+	col.add_theme_constant_override("separation", 7)
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(col)
 	if portrait != null:
+		var well := PanelContainer.new()
+		well.add_theme_stylebox_override("panel", UX.well())
+		well.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		well.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		var pic := TextureRect.new()
 		pic.texture = portrait
-		pic.custom_minimum_size = Vector2(56, 62)
+		pic.custom_minimum_size = Vector2(72, 80)
 		pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		pic.texture_filter = TEXTURE_FILTER_NEAREST
 		pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		col.add_child(pic)
+		well.add_child(pic)
+		col.add_child(well)
 	var t := Label.new()
 	t.text = title
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	t.add_theme_font_size_override("font_size", 22)
+	var title_sz: int = int(look.get("title_size", 22))
+	t.add_theme_font_size_override("font_size", title_sz)
 	t.add_theme_color_override("font_color", ink)
 	t.add_theme_color_override("font_outline_color", ink_out)
-	t.add_theme_constant_override("outline_size", 3 if _on_dark else 2)
+	var title_out: int = 6 if bool(look.get("title_bold", false)) else (4 if _on_dark else 2)
+	t.add_theme_constant_override("outline_size", title_out)
 	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(t)
-	if value_line != "":
+	var rule := ColorRect.new()
+	rule.custom_minimum_size = Vector2(0, 2)
+	rule.color = Color("e8c36a") if _on_dark else Color("c4a574")
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(rule)
+	if look.has("hp"):
+		var vitals := VitalsIcons.new(int(look.get("hp", 0)), int(look.get("atk", 0)))
+		col.add_child(vitals)
+	elif str(look.get("stat_kind", "")) != "" or str(look.get("stat_bb", "")) != "":
+		if str(look.get("stat_bb", "")) != "" and str(look.get("stat_kind", "")) == "":
+			var st := RichTextLabel.new()
+			st.bbcode_enabled = true
+			st.fit_content = true
+			st.scroll_active = false
+			st.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			st.add_theme_font_size_override("normal_font_size", 20)
+			st.add_theme_font_size_override("bold_font_size", 22)
+			st.add_theme_color_override("default_color", ink)
+			st.text = "[center]%s[/center]" % str(look.get("stat_bb", ""))
+			st.custom_minimum_size = Vector2(236, 0)
+			st.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			col.add_child(st)
+		else:
+			col.add_child(StatBadge.new(look))
+	if bool(look.get("idle", false)):
+		var legend := RichTextLabel.new()
+		legend.bbcode_enabled = true
+		legend.fit_content = true
+		legend.scroll_active = false
+		legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		legend.add_theme_font_size_override("normal_font_size", 13)
+		legend.add_theme_font_size_override("bold_font_size", 13)
+		legend.add_theme_color_override("default_color", ink)
+		legend.text = "[center]%s[/center]" % UX.legend_bb()
+		legend.custom_minimum_size = Vector2(236, 28)
+		legend.size_flags_horizontal = Control.SIZE_FILL
+		legend.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.add_child(legend)
+	if value_line != "" and not look.has("hp"):
 		var e := RichTextLabel.new()
 		e.bbcode_enabled = true
 		e.fit_content = true
 		e.scroll_active = false
 		e.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		e.add_theme_font_size_override("normal_font_size", 22)
-		e.add_theme_font_size_override("bold_font_size", 24)
+		e.add_theme_font_size_override("normal_font_size", 20)
+		e.add_theme_font_size_override("bold_font_size", 22)
 		e.add_theme_color_override("default_color", ink)
-		e.text = value_line
-		e.custom_minimum_size = Vector2(216, 0)
+		e.text = "[center]%s[/center]" % value_line
+		e.custom_minimum_size = Vector2(236, 0)
 		e.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(e)
 	if equation != "":
@@ -131,10 +177,20 @@ func show_rule(
 		eq.fit_content = true
 		eq.scroll_active = false
 		eq.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		eq.add_theme_font_size_override("normal_font_size", 18)
-		eq.add_theme_color_override("default_color", ink)
-		eq.text = equation
-		eq.custom_minimum_size = Vector2(216, 0)
+		var eq_fs: int = 15 if str(look.get("equation_kind", "")) == "call" else 16
+		eq.add_theme_font_size_override("normal_font_size", eq_fs)
+		eq.add_theme_font_size_override("bold_font_size", eq_fs)
+		eq.add_theme_constant_override("line_separation", 3)
+		eq.add_theme_constant_override("outline_size", 4)
+		eq.add_theme_color_override("font_outline_color", Color("1c120c"))
+		var eq_ink: Color = ink
+		if str(look.get("equation_kind", "")) == "call":
+			var hx: String = str(look.get("call_hex", "")).strip_edges()
+			if hx != "":
+				eq_ink = Color(hx)
+		eq.add_theme_color_override("default_color", eq_ink)
+		eq.text = "[center]%s[/center]" % equation
+		eq.custom_minimum_size = Vector2(236, 0)
 		eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(eq)
 	if body != "":
@@ -143,11 +199,13 @@ func show_rule(
 		b.fit_content = true
 		b.scroll_active = false
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		b.add_theme_font_size_override("normal_font_size", 15)
-		b.add_theme_font_size_override("bold_font_size", 15)
+		var body_fs: int = int(look.get("body_size", 15))
+		b.add_theme_font_size_override("normal_font_size", body_fs)
+		b.add_theme_font_size_override("bold_font_size", body_fs)
+		b.add_theme_constant_override("line_separation", 3)
 		b.add_theme_color_override("default_color", body_col)
 		b.text = body
-		b.custom_minimum_size = Vector2(216, 0)
+		b.custom_minimum_size = Vector2(236, 0)
 		b.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(b)
 	if warn != "":
@@ -156,7 +214,7 @@ func show_rule(
 		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		w.add_theme_font_size_override("font_size", 15)
 		w.add_theme_color_override("font_color", Color("f0a0a0") if _on_dark else Color("8b1e1e"))
-		w.custom_minimum_size = Vector2(216, 0)
+		w.custom_minimum_size = Vector2(236, 0)
 		w.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(w)
 	var hint: String = str(look.get("hint", ""))
@@ -170,11 +228,16 @@ func show_rule(
 		h.add_theme_font_size_override("italics_font_size", 12)
 		h.add_theme_color_override("default_color", Color("8a8278"))
 		h.text = "[i]%s[/i]" % hint
-		h.custom_minimum_size = Vector2(216, 0)
+		h.custom_minimum_size = Vector2(236, 0)
 		h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(h)
 	visible = true
+	modulate.a = 1.0
 	reset_size()
+
+
+static func stat_badge(look: Dictionary) -> Control:
+	return StatBadge.new(look)
 
 
 func hide_plate() -> void:
@@ -249,3 +312,167 @@ func _wipe() -> void:
 	for c in get_children():
 		remove_child(c)
 		c.queue_free()
+
+
+class VitalsIcons extends Control:
+	var hp: int = 0
+	var atk: int = 0
+
+	func _init(p_hp: int, p_atk: int) -> void:
+		hp = p_hp
+		atk = p_atk
+		custom_minimum_size = Vector2(236, 52)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var font: Font = get_theme_default_font()
+		if font == null:
+			font = ThemeDB.fallback_font
+		_draw_heart(Vector2(78.0, 28.0), font)
+		_draw_sword(Vector2(158.0, 28.0), font)
+
+	func _draw_heart(pos: Vector2, font: Font) -> void:
+		var hs := 36.0
+		var fill := Color("c4282a")
+		var ink := Color("1c120c")
+		draw_colored_polygon(_heart_pts(pos, hs * 1.14), ink)
+		draw_colored_polygon(_heart_pts(pos, hs), fill)
+		draw_circle(pos + Vector2(0.0, 4.0), hs * 0.28, Color("6a1818"))
+		_num(font, pos + Vector2(0.0, 2.0), str(hp))
+
+	func _draw_sword(pos: Vector2, font: Font) -> void:
+		var rad := 18.0
+		var fill := Color("6a1c14")
+		var edge := Color("e07040")
+		var ink := Color("100e0c")
+		var out := Vector2(0, 1)
+		var tan := Vector2(-1, 0)
+		var tip: Vector2 = pos + out * rad * 1.42
+		var left: Vector2 = pos - out * rad * 0.22 - tan * rad * 0.62
+		var right: Vector2 = pos - out * rad * 0.22 + tan * rad * 0.62
+		var haft: Vector2 = pos - out * rad * 1.05
+		draw_colored_polygon(PackedVector2Array([
+			tip + out * 2.0, right + tan * 2.2, haft - out * 2.0, left - tan * 2.2
+		]), ink)
+		draw_colored_polygon(PackedVector2Array([tip, right, haft, left]), fill)
+		draw_circle(pos, rad * 0.50, Color(fill.r, fill.g, fill.b, 0.96))
+		draw_arc(pos, rad * 0.50, 0.0, TAU, 22, edge, 2.2, true)
+		_num(font, pos + Vector2(0.0, 1.0), str(atk))
+
+	func _heart_pts(pos: Vector2, hs: float) -> PackedVector2Array:
+		var pts := PackedVector2Array()
+		for k in 28:
+			var th: float = TAU * float(k) / 28.0
+			var x: float = 16.0 * pow(sin(th), 3.0)
+			var y: float = -(13.0 * cos(th) - 5.0 * cos(2.0 * th) - 2.0 * cos(3.0 * th) - cos(4.0 * th))
+			pts.append(pos + Vector2(x, y) * (hs / 34.0))
+		return pts
+
+	func _num(font: Font, pos: Vector2, txt: String) -> void:
+		var fs := 18
+		var sz: Vector2 = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+		var p: Vector2 = pos - Vector2(sz.x * 0.5, sz.y * 0.35)
+		draw_string(font, p + Vector2(1, 1), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("1c120c"))
+		draw_string(font, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("f0e6d8"))
+
+
+class StatBadge extends Control:
+	var kind: String = "ATK"
+	var n: int = 0
+	var shown: String = ""
+	var atk_n: int = 0
+	var blk_n: int = 0
+
+	func _init(look: Dictionary) -> void:
+		kind = str(look.get("stat_kind", "ATK"))
+		n = int(look.get("stat_n", 0))
+		shown = str(look.get("stat_shown", ""))
+		atk_n = int(look.get("stat_atk", 0))
+		blk_n = int(look.get("stat_blk", 0))
+		custom_minimum_size = Vector2(236, 52)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _txt() -> String:
+		if shown != "":
+			return shown
+		return str(n)
+
+	func _draw() -> void:
+		var font: Font = get_theme_default_font()
+		if font == null:
+			font = ThemeDB.fallback_font
+		var w: float = size.x if size.x > 1.0 else custom_minimum_size.x
+		var h: float = size.y if size.y > 1.0 else custom_minimum_size.y
+		if kind == "BOTH":
+			_draw_shield(Vector2(w * 0.33, h * 0.5), font, str(blk_n))
+			_draw_sword(Vector2(w * 0.67, h * 0.5), font, str(atk_n))
+			return
+		var pos := Vector2(w * 0.5, h * 0.5)
+		if kind == "BLK":
+			_draw_shield(pos, font, _txt())
+		elif kind == "HEAL":
+			_draw_heart(pos, font, _txt())
+		else:
+			_draw_sword(pos, font, _txt())
+
+	func _draw_sword(pos: Vector2, font: Font, txt: String) -> void:
+		var rad := 18.0
+		var fill := Color("6a1c14")
+		var edge := Color("e07040")
+		var ink := Color("100e0c")
+		var out := Vector2(0, 1)
+		var tan := Vector2(-1, 0)
+		var tip: Vector2 = pos + out * rad * 1.42
+		var left: Vector2 = pos - out * rad * 0.22 - tan * rad * 0.62
+		var right: Vector2 = pos - out * rad * 0.22 + tan * rad * 0.62
+		var haft: Vector2 = pos - out * rad * 1.05
+		draw_colored_polygon(PackedVector2Array([
+			tip + out * 2.0, right + tan * 2.2, haft - out * 2.0, left - tan * 2.2
+		]), ink)
+		draw_colored_polygon(PackedVector2Array([tip, right, haft, left]), fill)
+		draw_circle(pos, rad * 0.50, Color(fill.r, fill.g, fill.b, 0.96))
+		draw_arc(pos, rad * 0.50, 0.0, TAU, 22, edge, 2.2, true)
+		_num(font, pos + Vector2(0.0, 1.0), txt)
+
+	func _draw_heart(pos: Vector2, font: Font, txt: String) -> void:
+		var hs := 36.0
+		var fill := Color("c4282a")
+		draw_colored_polygon(_heart_pts(pos, hs * 1.14), Color("1c120c"))
+		draw_colored_polygon(_heart_pts(pos, hs), fill)
+		draw_circle(pos + Vector2(0.0, 4.0), hs * 0.28, Color("6a1818"))
+		_num(font, pos + Vector2(0.0, 2.0), txt)
+
+	func _draw_shield(pos: Vector2, font: Font, txt: String) -> void:
+		var sw := 22.0
+		var fill := Color("2a6aa8")
+		var rim := Color("6bb3d9")
+		var shield := PackedVector2Array([
+			pos + Vector2(0.0, -sw * 0.78),
+			pos + Vector2(sw * 0.70, -sw * 0.28),
+			pos + Vector2(sw * 0.55, sw * 0.48),
+			pos + Vector2(0.0, sw * 0.88),
+			pos + Vector2(-sw * 0.55, sw * 0.48),
+			pos + Vector2(-sw * 0.70, -sw * 0.28),
+		])
+		draw_colored_polygon(shield, fill)
+		shield.append(shield[0])
+		draw_polyline(shield, rim, 2.6, true)
+		_num(font, pos + Vector2(0.0, 1.0), txt)
+
+	func _heart_pts(pos: Vector2, hs: float) -> PackedVector2Array:
+		var pts := PackedVector2Array()
+		for k in 28:
+			var th: float = TAU * float(k) / 28.0
+			var x: float = 16.0 * pow(sin(th), 3.0)
+			var y: float = -(13.0 * cos(th) - 5.0 * cos(2.0 * th) - 2.0 * cos(3.0 * th) - cos(4.0 * th))
+			pts.append(pos + Vector2(x, y) * (hs / 34.0))
+		return pts
+
+	func _num(font: Font, pos: Vector2, txt: String) -> void:
+		var fs := 18
+		var sz: Vector2 = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+		var p: Vector2 = pos - Vector2(sz.x * 0.5, sz.y * 0.35)
+		draw_string(font, p + Vector2(1, 1), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("1c120c"))
+		draw_string(font, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("f0e6d8"))
+
+

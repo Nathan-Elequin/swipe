@@ -120,7 +120,23 @@
     let dirty = false;
     let fileHandle = null;
     let snapshot = {};
-    const LOCK_FIELDS = ["name","ability","explainer","flow","notes","ops","rarity","tier","count","priority","atk_base","hp_base","atk_formula","hp_formula"];
+    const LOCK_FIELDS = ["name","ability","explainer","call_name","reminder","flow","notes","ops","rarity","tier","count","priority","atk_base","hp_base","atk_formula","hp_formula","card_color"];
+    const CARD_COLORS = [
+      { id: "", label: "Auto", hex: "#e4d4c0", ink: "#1c120c" },
+      { id: "atk", label: "Attack", hex: "#5c2626", ink: "#f4ede3" },
+      { id: "blk", label: "Block", hex: "#1c3d52", ink: "#f4ede3" },
+      { id: "heal", label: "Heal", hex: "#243a22", ink: "#f4ede3" },
+      { id: "defeat", label: "Defeat", hex: "#3a2450", ink: "#f4ede3" },
+      { id: "utility", label: "Utility", hex: "#4a3d14", ink: "#f4ede3" },
+      { id: "smoke", label: "Smoke", hex: "#3a2a38", ink: "#f4ede3" },
+      { id: "chaos", label: "Chaos", hex: "#3a1460", ink: "#f4ede3" },
+    ];
+
+    function paintColorSelect(el) {
+      const hit = CARD_COLORS.find((o) => o.id === el.value) || CARD_COLORS[0];
+      el.style.background = hit.hex;
+      el.style.color = hit.ink;
+    }
 
     function fp(v) {
       if (v == null) return "";
@@ -196,6 +212,10 @@
         return `<label>${label}</label><textarea class="flow" id="f_${key}" placeholder="On Use:&#10;  deal ATK 2&#10;  then flip…">${esc(v)}</textarea>`;
       }
       if (type === "select") {
+        if (key === "card_color") {
+          const cur = String(v || "");
+          return `<label>${label}</label><select id="f_${key}">${CARD_COLORS.map((o) => `<option value="${esc(o.id)}" ${o.id === cur ? "selected" : ""} style="background:${o.hex};color:${o.ink}">${esc(o.label)}</option>`).join("")}</select>`;
+        }
         const opts = key === "status"
           ? ["live", "todo", "hold", "retired"]
           : ["starter", "uncommon"];
@@ -227,8 +247,11 @@
         </div>
         ${isM ? `<div class="grid2">${field("HP base", "hp_base")}${field("ATK formula", "atk_formula")}</div>
           ${field("HP formula", "hp_formula")}` : ""}
-        ${field("Ability (player-facing)", "ability", "textarea")}
-        ${field("Callout explainer (the math line on hover)", "explainer", "textarea")}
+        ${isM ? "" : field("Card color", "card_color", "select")}
+        ${isM ? field("Call name (subtitle under the title)", "call_name") : ""}
+        ${isM ? field("Shift line (replaces the call name while you hold Shift)", "reminder", "textarea") : ""}
+        ${field(isM ? "Speech (first-person in the balloon)" : "Ability (player-facing)", "ability", "textarea")}
+        ${isM ? "" : field("Callout explainer (the math line on hover)", "explainer", "textarea")}
         ${field("Function flow / pseudocode", "flow", "flow")}
         ${field("Notes for the implementer", "notes", "textarea")}
         ${isM ? field("Ops JSON (optional)", "ops_text") : ""}
@@ -240,8 +263,10 @@
       if (opsEl) opsEl.value = selected.ops_text;
       m.querySelectorAll("input, select, textarea").forEach((el) => {
         el.addEventListener("input", () => bindField(el));
-        el.addEventListener("change", () => bindField(el));
+        el.addEventListener("change", () => { bindField(el); if (el.id === "f_card_color") paintColorSelect(el); });
       });
+      const colorEl = document.getElementById("f_card_color");
+      if (colorEl) paintColorSelect(colorEl);
       $("btnDel") && ($("btnDel").onclick = () => {
         const arr = list();
         const i = arr.findIndex((c) => c.id === selected.id);
@@ -287,6 +312,8 @@
         hp_formula: "",
         ability: "",
         explainer: "",
+        call_name: "",
+        reminder: "",
         flow: "",
         notes: "",
         ops: {},

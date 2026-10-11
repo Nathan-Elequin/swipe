@@ -8,6 +8,16 @@ const AUTHOR_LOCK := preload("res://scripts/author_lock.gd")
 
 static var pack: Dictionary = {}
 static var by_key: Dictionary = {}
+static var missing_keys: Array = []
+
+
+static func need(key: String) -> String:
+	var t: String = text(key, "")
+	if t.strip_edges() == "":
+		if not missing_keys.has(key):
+			missing_keys.append(key)
+		return "TODO(copy):%s" % key
+	return t
 
 
 static func reload() -> void:
@@ -123,6 +133,9 @@ static func card_snapshot() -> Array:
 			out.append({"cat": "Cards", "key": "card.%s.%s.name" % [kind, cid], "where": "Roster · %s name (%s)" % [kind, st], "text": name})
 			out.append({"cat": "Cards", "key": "card.%s.%s.ability" % [kind, cid], "where": "Roster · %s player text (%s)" % [kind, name], "text": str(card.get("ability", ""))})
 			out.append({"cat": "Cards", "key": "card.%s.%s.explainer" % [kind, cid], "where": "Roster · %s Shift math (%s)" % [kind, name], "text": str(card.get("explainer", ""))})
+			if kind == "monster":
+				out.append({"cat": "Cards", "key": "card.%s.%s.call_name" % [kind, cid], "where": "Roster · %s call name (%s)" % [kind, name], "text": str(card.get("call_name", ""))})
+				out.append({"cat": "Cards", "key": "card.%s.%s.reminder" % [kind, cid], "where": "Roster · %s Shift line (%s)" % [kind, name], "text": str(card.get("reminder", ""))})
 	return out
 
 

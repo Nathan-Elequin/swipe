@@ -6,7 +6,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.overlay",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Swipe",
 			"where": "Title parchment headline"
 		},
@@ -14,7 +14,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.sub",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You just couldn't keep your grubby hands off their loot, could ya?",
 			"where": "Title parchment subtitle"
 		},
@@ -22,7 +22,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.how_to_play",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "How to Play",
 			"where": "Title + pause button"
 		},
@@ -30,7 +30,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.dive_in",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Quick Start",
 			"where": "Title + pause button"
 		},
@@ -38,7 +38,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.begin",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Play",
 			"where": "Title + pause button"
 		},
@@ -46,7 +46,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.adventure",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Adventure Mode",
 			"where": "Title + pause button"
 		},
@@ -54,7 +54,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.rest",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "On to the next haul.",
 			"where": "Between-dungeon headline"
 		},
@@ -62,15 +62,15 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.rest_sub",
-			"locked_at": "2026-10-07",
-			"text": "So you've cleared {n} Dungeons. Better hold on to that loot - you'll need it in the next one.",
+			"locked_at": "2026-10-10",
+			"text": "So you've cleared {n} Dungeons. Better hold on to that loot — you'll need it in the next one.",
 			"where": "Between-dungeon subtitle"
 		},
 		{
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.continue",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Delve Deeper",
 			"where": "Between-dungeon Continue"
 		},
@@ -78,7 +78,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.leave",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Exit",
 			"where": "Between-dungeon Leave"
 		},
@@ -86,7 +86,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.adventure_win",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Victory",
 			"where": "Adventure victory headline"
 		},
@@ -94,15 +94,15 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.dungeons_cleared",
-			"locked_at": "2026-10-07",
-			"text": " {n} Dungeons Cleared!",
+			"locked_at": "2026-10-10",
+			"text": "{n} Dungeons Cleared!",
 			"where": "Adventure tally"
 		},
 		{
 			"author_lock": true,
 			"cat": "Title",
 			"key": "adventure.scarier",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "The dungeon gets more dangerous...",
 			"where": "Opening-owner transform line"
 		},
@@ -110,7 +110,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.win",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Successfully Swiped",
 			"where": "Victory headline"
 		},
@@ -118,15 +118,15 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.win_sub",
-			"locked_at": "2026-10-07",
-			"text": "Now I just need a place to store this stuff",
+			"locked_at": "2026-10-10",
+			"text": "Now I just need a place to store this stuff.",
 			"where": "Victory subtitle"
 		},
 		{
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.lose",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Defeated",
 			"where": "Defeat headline"
 		},
@@ -134,7 +134,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.lose_sub",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Thievery never pays. Or rather, it pays in trouble.",
 			"where": "Defeat subtitle"
 		},
@@ -142,7 +142,7 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.again",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Again",
 			"where": "Victory / defeat button"
 		},
@@ -150,7 +150,7 @@
 			"author_lock": true,
 			"cat": "Pause",
 			"key": "pause.settings",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Settings",
 			"where": "Escape menu title"
 		},
@@ -158,7 +158,7 @@
 			"author_lock": true,
 			"cat": "Pause",
 			"key": "pause.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "Escape menu"
 		},
@@ -166,7 +166,7 @@
 			"author_lock": true,
 			"cat": "Pause",
 			"key": "pause.resume",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Resume",
 			"where": "Escape menu button"
 		},
@@ -174,7 +174,7 @@
 			"author_lock": true,
 			"cat": "Pause",
 			"key": "pause.quit",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Quit",
 			"where": "Escape menu button"
 		},
@@ -182,15 +182,63 @@
 			"author_lock": true,
 			"cat": "Pause",
 			"key": "pause.start_over",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Start over",
 			"where": "Escape menu label"
+		},
+		{
+			"cat": "Hand",
+			"key": "hand.spent",
+			"text": "Used",
+			"where": "Label on a hand card already played this fight"
+		},
+		{
+			"cat": "Hand",
+			"key": "hand.tag.atk",
+			"text": "ATK",
+			"where": "Hand card type tag"
+		},
+		{
+			"cat": "Hand",
+			"key": "hand.tag.blk",
+			"text": "BLK",
+			"where": "Hand card type tag"
+		},
+		{
+			"cat": "Hand",
+			"key": "hand.tag.heal",
+			"text": "HEAL",
+			"where": "Hand card type tag"
+		},
+		{
+			"cat": "Hand",
+			"key": "hand.tag.ko",
+			"text": "KO",
+			"where": "Hand card type tag"
+		},
+		{
+			"cat": "Pause",
+			"key": "pause.master",
+			"text": "Master",
+			"where": "Escape menu volume label"
+		},
+		{
+			"cat": "Pause",
+			"key": "pause.music",
+			"text": "Music",
+			"where": "Escape menu volume label"
+		},
+		{
+			"cat": "Pause",
+			"key": "pause.sound",
+			"text": "Sound",
+			"where": "Escape menu volume label"
 		},
 		{
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.speaker",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Nib",
 			"where": "Talk box name"
 		},
@@ -198,7 +246,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.skip",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Skip",
 			"where": "How to Play skip button"
 		},
@@ -206,7 +254,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.nudge_wait",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Hey — finish this first.",
 			"where": "Wrong click during How to Play"
 		},
@@ -214,7 +262,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.nudge_item",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Wrong shiny.",
 			"where": "Wrong item during How to Play"
 		},
@@ -222,15 +270,15 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.01.body",
-			"locked_at": "2026-10-07",
-			"text": "I'm Nib. You're the reason eight angry owners know this address. Survive three scrapes and I'll call you a professional.",
+			"locked_at": "2026-10-10",
+			"text": "Hey there, greedy goblin. I'm Nib. I was just in the middle of enjoying my nap when you had to barge into this dungeon and start swiping loot left n' right!\n(Click 'next' to continue)\nWell, now you've gone and done it — the monsters are coming to claim their stuff, and you're going to have to defend yourself with that loot or else die in this strange catacomb.\n(Click 'next' to continue)\n(Highlights dungeon wheel)\nWelcome to the Merry Go' Round of doom — a series of circular catacombs that rotate around this particular spot. Don't ask me why, the architect of this dungeon doesn't like answering questions.\n(Click 'next' to continue)\n(Highlights single empty slice of dungeon wheel)\nThis is a Corridor — there are 8 in total. Monsters will pop into these slots as they line up to clean your clock and take your junk.\n(Click 'next' to continue)\n(Highlights player hotbar)\nThis is your loot. Looks like you started off with some basic loot for this tutorial, but you'll find lots of fancy weapons and armor out here.\n(Click 'next' to continue)\n(Sprite of Nib comes very close to the player, nearly covering 80% of the screen)\nYour mission...\n(Click to continue)\n(Comes closer)\n...is to get out of the dungeon with as much loot as possible.\n(Returns to his original position)\n...Got it?\n(Click 'Got It' to continue)\nOkay, let me show you how things work a'ROUND these parts.\n(Click 'next' to continue)\n(in very tiny text, in italics parentheses) — (y'know, cause of the round dungeon...)\n(Click to continue)\n(Highlight the healthbar)\nYou have 6 health (HP). You can never have more than 6. If it reaches 0 at any point, you're dead.\n(Click to continue)\nWhen you complete a Dungeon (clear out this wheel), you will heal back to full HP. Spend your HP wisely.\n(Click to continue)\nAlright, that's enough. Let's spin the wheel and learn the rest as we go. Click 'Spin' to randomly choose your first opponent.\n(Click 'Spin' — spins the wheel, forcing it to stop on Wizard)\nAhh, a crotchety ol' wizard, eh?\n(Click to continue)\n(Highlights Wizard's Attack icon)\nHe looks pretty scary — 5 Attack would nearly kill you in one strike.\n(Click to continue)\n(Highlights Wizard's HP icon)\n...but he's also super frail. Most weapons will kill him before he gets to strike.\n(Click to continue)\n(Highlights the Sai)\nUse the Sai. It will kill him and end the fight.\n(Click the Sai to use it, resolving combat as normal)\n1 down, nice. When an Enemy is Defeated, it will trigger the Dungeon to Spin again.\n(Click to continue)\n(Only NOW does the wheel Spin, and will now land on Golem)\nInteresting...this Golem is much harder to kill, so you'd usually want to block this.\n(Click to continue)\n(Highlights Block icon on the character)\nBlock is temporary for the current fight. It goes away whenever you Spin the Dungeon.\n(Click to continue)\nBut I've got good news — if you Block an enemy, they are also Defeated.\n(Click to continue)\n(Nib gets 50% closer to the viewer, 'leaning' in)\nI guess they just...run out of time to kill you, I guess? Not sure, this Dungeon is kinda weird.\n(Click to continue)\n(Nib returns to his position)\n(Highlights the Helmet item in the hotbar)\nAnyway, look at the Helmet, since this item has a unique ability.\n(Click to continue)\nYou can hold Shift to see any Item's details at a glance.\n(Click to continue)\n(Highlights the detail view panel to the right)\nLooks like the Helmet's Block is based on whichever HP is lower between you and your Enemy.\n(Click to continue)\n(Highlight both player HP and the Golem's HP)\nIn this case, that's you with 6 HP.\n(Click to continue)\nGlad you didn't lose 5 HP to the Wizard earlier, that would make this Helmet useless!\n(Click to continue)\nItems change all the time based on circumstances. Your job is to juggle your loot to maximize their effectiveness against the unique enemies in the dungeon.\n(Click to continue)\n(Highlights the Helmet again)\nOkay, let's use the Helmet and Block this incoming attack.\n(Click the Helmet)\n(Highlights the 'Safe' button)\nThis button will always show you how much HP you are going to lose if you end the fight now.\n(Click to continue)\nSince you are safe, you can click 'Safe' to end the fight.\n(Click 'Safe' and resolve the combat)\nGreat, so you've Defeated enemies in 2 different ways, by Attacking and Defending.\n(Click to continue)\nThere's one final type of item, so let's Spin again and try it out.\n(Click 'Spin' and land on Goblin)\nAww, look at this little guy! He is so cute...but he also has an ability.\n(Click to continue)\n(Highlight on the Monster card)\nHover over any Monster and hold Shift to learn the details of their ability, just like Items.\n(When the user hovers and holds Shift, highlight the details)\nAw, Goblins are 'Evasive', so they cannot take Attack damage! Looks like our Knucklers would be wasted here.\n(Click to continue)\n(Highlight 'Da Boot' in the hotbar)\nBut wait...this item is a Special Item. It doesn't Attack or Block. Take a look.\n(When the user hovers or holds Shift)\nThis item allows you to instantly Defeat an Enemy if you have more HP than them!\n(Click to continue)\nThat's a good item...\n(Click to continue)\n(Nib moves close to the viewer)\n...but are you sure you want to use it?\n(Click to continue)\n(Nib returns)\nSo far you've lost zero HP in this dungeon, but remember — each time you clear a Dungeon, you heal back to full.\n(Click to continue)\nAND you get to keep all of the Loot that you didn't use in this dungeon. Pretty sweet, huh?\n(Click to continue)\nSo I'll give you a choice. You can use Da Boot and get the sweet satisfaction of stomping this Goblin into the dirt...\n(Click to continue)\n...Orrrr you can let him slice you up, and keep it. The choice is yours.\n(The player will click on either Da Boot or 'Take 3'. Either will resolve the combat)\n\n---(If the player chose 'Da Boot', after combat resolves)---\nHonestly, I respect it. Those Goblins are super annoying, so here's a tip:\n(Click to continue)\nIf you see one in your upcoming Dungeon, you should always hold onto a Block or Defeat item to avoid that damage.\n(Click to continue)\nYou won't always have a Boot, after all.\n(Click to continue — joins back with standard dialogue)\n---(If the player chose to 'Take 3')---\nOuch — hurts, doesn't it?\n(Click to continue)\nWell the next time that Boot saves you from death in a future Dungeon, you'll be glad you let that little rascal nick you for 3.\n(Click to continue)\nI'm sure you can tell, but I'll give you a tip straight from the source:\n(Click to continue)\nSpend your HP like it was made of gold. Sometimes it will be correct to drop to 1 HP — you'll find Items that reward you for losing HP — we call that Bleeding.\n(Click to continue — joins back with standard dialogue)\n---JOINS TOGETHER\nAlright, so you survived all 3 Monsters and cleared the Dungeon! At this point you would venture deeper and the following would occur:\n(Click to continue)\nFirst, you'll build a new dungeon with starting Monsters\n(Click to continue)\n(Highlights 2 random slices)\nThen, 2 of those starting Monsters will be upgraded to more dangerous foes\n(Click to continue)\n(Highlights hotbar)\nAnd finally, you'll keep your remaining Items and draft new items to start the next Dungeon\n(Click to continue)\n(Nib moves to center screen)\nAnd that's it! Pay special attention each time you encounter a new Monster or Item, and learn their quirks.\n(Click to continue)\nSome items are very strong against certain monsters, and it's up to you to manage your resources and make it out with the best haul.\n(Click to continue)\nWith that, I'm off to finish my nap again. Good luck with your dungeon delve, you greedy grubber!\n(Click to continue)\n(Animates Nib 'walking off' to the right)\n(vignette background, only buttons below are 'Main Menu' and 'Play', which goes to adventure mode)",
 			"where": "How to Play step 1 · continue / (none) · main line"
 		},
 		{
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.01.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "I'm in",
 			"where": "How to Play step 1 · continue button"
 		},
@@ -238,7 +286,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.01.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 1 · gold hint"
 		},
@@ -246,7 +294,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.02.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Round room. Eight alcoves. The floor turns — whoever stops in front of you gets a swing. I parked a Golem, a Wizard, and a Berserker. Follow my finger.",
 			"where": "How to Play step 2 · continue / wheel · main line"
 		},
@@ -254,7 +302,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.02.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Show me",
 			"where": "How to Play step 2 · continue button"
 		},
@@ -262,7 +310,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.02.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 2 · gold hint"
 		},
@@ -270,7 +318,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.03.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Those hearts are your pulse. Zero means they pry the loot off you. One heart left still counts. Pretty leftovers don't.",
 			"where": "How to Play step 3 · continue / hearts · main line"
 		},
@@ -278,7 +326,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.03.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Got it",
 			"where": "How to Play step 3 · continue button"
 		},
@@ -286,7 +334,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.03.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 3 · gold hint"
 		},
@@ -294,7 +342,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.04.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Stolen goods sit along the bottom. Hover a card. Hold Shift if you want the ugly math instead of the big number.",
 			"where": "How to Play step 4 · hover_item / hotbar · main line"
 		},
@@ -302,7 +350,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.04.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 4 · continue button"
 		},
@@ -310,7 +358,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.04.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "(hover any item)",
 			"where": "How to Play step 4 · gold hint"
 		},
@@ -318,7 +366,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.05.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Helmet's number breathes with your health — ignore it for now. Shield is the soft landing. Flail gets hungrier if you bleed. Boot's the dirty trick. Don't ask how I got it.",
 			"where": "How to Play step 5 · continue / item:helmet · main line"
 		},
@@ -326,7 +374,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.05.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Fine",
 			"where": "How to Play step 5 · continue button"
 		},
@@ -334,7 +382,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.05.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 5 · gold hint"
 		},
@@ -342,7 +390,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.06.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Hit Spin. I'll cheat the Golem into place. Big. Slow. Hits for three.",
 			"where": "How to Play step 6 · spin / spin · main line"
 		},
@@ -350,7 +398,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.06.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 6 · continue button"
 		},
@@ -358,7 +406,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.06.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "(click Spin)",
 			"where": "How to Play step 6 · gold hint"
 		},
@@ -366,7 +414,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.07.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Three coming in. Shield gives four. Tap the Shield before you eat the knuckles.",
 			"where": "How to Play step 7 · item:shield / item:shield · main line"
 		},
@@ -374,7 +422,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.07.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 7 · continue button"
 		},
@@ -382,7 +430,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.07.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "(click Shield)",
 			"where": "How to Play step 7 · gold hint"
 		},
@@ -390,7 +438,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.08.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Gold in the middle is Block — a pillow for this scrap only. Fight ends, pillow vanishes. Hearts stick around. That's the deal.",
 			"where": "How to Play step 8 · continue / wheel · main line"
 		},
@@ -398,7 +446,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.08.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "OK",
 			"where": "How to Play step 8 · continue button"
 		},
@@ -406,7 +454,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.08.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 8 · gold hint"
 		},
@@ -414,7 +462,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.09.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Button says Safe because you covered it. Click it. If a heart had cracked, we'd still walk — breathing is the scoreboard.",
 			"where": "How to Play step 9 · done / done · main line"
 		},
@@ -422,7 +470,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.09.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 9 · continue button"
 		},
@@ -430,7 +478,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.09.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "(click Safe)",
 			"where": "How to Play step 9 · gold hint"
 		},
@@ -438,15 +486,15 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.10.body",
-			"locked_at": "2026-10-07",
-			"text": "Pillow's gone. You're not. That skull plaque is your tally — Flail's watching it too. Two owners left who want their stuff.",
+			"locked_at": "2026-10-10",
+			"text": "Pillow's gone. You're not. That skull plaque is your tally — Flail's watching it too. Two monsters left who want their stuff.",
 			"where": "How to Play step 10 · continue / trophy · main line"
 		},
 		{
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.10.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Spin when ready",
 			"where": "How to Play step 10 · continue button"
 		},
@@ -454,7 +502,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.10.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 10 · gold hint"
 		},
@@ -462,7 +510,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.11.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Spin. Wizard this time. Don't open your mouth for whatever they're cooking.",
 			"where": "How to Play step 11 · spin / spin · main line"
 		},
@@ -470,7 +518,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.11.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 11 · continue button"
 		},
@@ -478,7 +526,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.11.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "(click Spin)",
 			"where": "How to Play step 11 · gold hint"
 		},
@@ -486,7 +534,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.12.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Five attack, two health. You could pillow up and still get nicked — or end it. Click the Boot. Less health than you? Fight's over. They don't get a speech.",
 			"where": "How to Play step 12 · item:da_boot / item:da_boot · main line"
 		},
@@ -494,7 +542,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.12.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 12 · continue button"
 		},
@@ -502,7 +550,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.12.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "(click the Boot)",
 			"where": "How to Play step 12 · gold hint"
 		},
@@ -510,7 +558,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.13.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "That's the other door out of a fight: finish the fragile ones. Flail only fattens when you bleed — you didn't, so it's still a 2. Helmet pillows the last brat.",
 			"where": "How to Play step 13 · continue / item:helmet · main line"
 		},
@@ -518,7 +566,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.13.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Got it",
 			"where": "How to Play step 13 · continue button"
 		},
@@ -526,7 +574,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.13.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 13 · gold hint"
 		},
@@ -534,15 +582,15 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.14.body",
-			"locked_at": "2026-10-07",
-			"text": "Last alcove. Hover them. Owners brag if you listen. This one gets louder every time you win. Charming.",
+			"locked_at": "2026-10-10",
+			"text": "Last alcove. Hover them. Monsters brag if you listen. This one gets louder every time you win. Charming.",
 			"where": "How to Play step 14 · hover_slice:berserker / wheel · main line"
 		},
 		{
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.14.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 14 · continue button"
 		},
@@ -550,7 +598,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.14.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "(hover the Berserker)",
 			"where": "How to Play step 14 · gold hint"
 		},
@@ -558,7 +606,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.15.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Spin. Berserker hits three. Helmet matches the smaller health bar — yours or theirs.",
 			"where": "How to Play step 15 · spin / spin · main line"
 		},
@@ -566,7 +614,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.15.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 15 · continue button"
 		},
@@ -574,7 +622,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.15.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "(click Spin)",
 			"where": "How to Play step 15 · gold hint"
 		},
@@ -582,7 +630,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.16.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Helmet. Now. Four block into three attack. Do the math with your fingers if you have to.",
 			"where": "How to Play step 16 · item:helmet / item:helmet · main line"
 		},
@@ -590,7 +638,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.16.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 16 · continue button"
 		},
@@ -598,7 +646,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.16.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "(click Helmet)",
 			"where": "How to Play step 16 · gold hint"
 		},
@@ -606,7 +654,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.17.body",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Safe. Pillow dumps. Hearts stay. That's how a thief keeps a pile.",
 			"where": "How to Play step 17 · done / done · main line"
 		},
@@ -614,7 +662,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.17.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 17 · continue button"
 		},
@@ -622,7 +670,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.17.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "(click Safe)",
 			"where": "How to Play step 17 · gold hint"
 		},
@@ -630,15 +678,15 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.18.body",
-			"locked_at": "2026-10-07",
-			"text": "You're still breathing. I still want my cut. Dive In is the real room — I don't steer, and eight owners show up hungry. Try not to scream for me.",
+			"locked_at": "2026-10-10",
+			"text": "You're still breathing. I still want my cut. Quick Start is the real room — I don't steer, and eight monsters show up hungry. Try not to scream for me.",
 			"where": "How to Play step 18 · continue / (none) · main line"
 		},
 		{
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.18.go",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "I'm good",
 			"where": "How to Play step 18 · continue button"
 		},
@@ -646,7 +694,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.beat.18.hint",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "",
 			"where": "How to Play step 18 · gold hint"
 		},
@@ -654,7 +702,7 @@
 			"author_lock": true,
 			"cat": "Door",
 			"key": "door.title",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "THE DOOR",
 			"where": "Gate chrome top"
 		},
@@ -662,39 +710,39 @@
 			"author_lock": true,
 			"cat": "Door",
 			"key": "door.shiny",
-			"locked_at": "2026-10-07",
-			"text": "THE BAIT",
+			"locked_at": "2026-10-10",
+			"text": "THE LOOT",
 			"where": "Gate chrome over the item"
 		},
 		{
 			"author_lock": true,
 			"cat": "Door",
 			"key": "door.owner",
-			"locked_at": "2026-10-07",
-			"text": "THE OWNER",
+			"locked_at": "2026-10-10",
+			"text": "THE MONSTER",
 			"where": "Gate chrome over the silhouette"
 		},
 		{
 			"author_lock": true,
 			"cat": "Door",
 			"key": "door.help",
-			"locked_at": "2026-10-07",
-			"text": "The finer the loot, the fiercer its owner.",
+			"locked_at": "2026-10-10",
+			"text": "The finer the loot, the fiercer its monster.",
 			"where": "Gate under the metal stamp"
 		},
 		{
 			"author_lock": true,
 			"cat": "Door",
 			"key": "door.hook",
-			"locked_at": "2026-10-07",
-			"text": "Take {item} and its owner kicks through that door.",
+			"locked_at": "2026-10-10",
+			"text": "Take {item} and its monster kicks through that door.",
 			"where": "Gate before Take. {item} = loot name"
 		},
 		{
 			"author_lock": true,
 			"cat": "Door",
 			"key": "door.take",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Take it",
 			"where": "Take button. {n} = pack tier"
 		},
@@ -702,25 +750,37 @@
 			"author_lock": true,
 			"cat": "Door",
 			"key": "door.pass",
-			"locked_at": "2026-10-07",
-			"text": "Leave it",
+			"locked_at": "2026-10-10",
+			"text": "Leave it ({n} passes left)",
 			"where": "Pass button while passes remain. {n} = passes left"
+		},
+		{
+			"cat": "Door",
+			"key": "door.pass_one",
+			"text": "Leave it (1 pass left)",
+			"where": "Pass button when exactly 1 pass remains"
 		},
 		{
 			"author_lock": true,
 			"cat": "Door",
 			"key": "door.pass_none",
-			"locked_at": "2026-10-07",
-			"text": "Out of time",
+			"locked_at": "2026-10-10",
+			"text": "No passes left",
 			"where": "Pass button at 0 remaining"
 		},
 		{
 			"author_lock": true,
 			"cat": "Door",
 			"key": "door.seat",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "A monster approaches. Select their location.",
 			"where": "After reveal, before you click a +"
+		},
+		{
+			"cat": "Door",
+			"key": "door.seat_hint",
+			"text": "Pick an empty spot.",
+			"where": "Placement hint"
 		},
 		{
 			"cat": "Door",
@@ -750,7 +810,7 @@
 			"author_lock": true,
 			"cat": "Cues",
 			"key": "cue.starters",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Four freeloaders already claimed north, east, south, and west.",
 			"where": "Begin: four starters land NESW"
 		},
@@ -758,15 +818,15 @@
 			"author_lock": true,
 			"cat": "Cues",
 			"key": "cue.force",
-			"locked_at": "2026-10-07",
-			"text": "Out of time",
+			"locked_at": "2026-10-10",
+			"text": "No passes left",
 			"where": "No passes left — auto fill"
 		},
 		{
 			"author_lock": true,
 			"cat": "Cues",
 			"key": "cue.ask",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Take it or leave it?",
 			"where": "Draft choice, passes remaining"
 		},
@@ -774,15 +834,15 @@
 			"author_lock": true,
 			"cat": "Cues",
 			"key": "cue.steal",
-			"locked_at": "2026-10-07",
-			"text": "Out of time",
+			"locked_at": "2026-10-10",
+			"text": "No passes left",
 			"where": "Draft choice, no passes left"
 		},
 		{
 			"author_lock": true,
 			"cat": "Cues",
 			"key": "cue.seat",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "A monster approaches. Select their location.",
 			"where": "After steal, pick an alcove"
 		},
@@ -790,15 +850,15 @@
 			"author_lock": true,
 			"cat": "Cues",
 			"key": "cue.filling",
-			"locked_at": "2026-10-07",
-			"text": "More owners. Less floor.",
+			"locked_at": "2026-10-10",
+			"text": "More monsters. Less floor.",
 			"where": "Between door packs"
 		},
 		{
 			"author_lock": true,
 			"cat": "Cues",
 			"key": "cue.ready",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Spin — somebody wants their stuff.",
 			"where": "Wheel full, combat"
 		},
@@ -806,7 +866,7 @@
 			"author_lock": true,
 			"cat": "Cues",
 			"key": "cue.fighting",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Spend loot, or eat the hit.",
 			"where": "During a fight"
 		},
@@ -814,7 +874,7 @@
 			"author_lock": true,
 			"cat": "Cues",
 			"key": "cue.mark",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Pick a neighbor.",
 			"where": "Poison / Crossbow neighbor pick"
 		},
@@ -822,15 +882,15 @@
 			"author_lock": true,
 			"cat": "Cues",
 			"key": "cue.devtest",
-			"locked_at": "2026-10-07",
-			"text": "Click a monster to seat it, an item to add it to your hand. Play when you have at least one owner.",
+			"locked_at": "2026-10-10",
+			"text": "Click a monster to seat it, an item to add it to your hand. Play when you have at least one monster.",
 			"where": "Developer Test (leave unless you want it player-facing)"
 		},
 		{
 			"author_lock": true,
 			"cat": "Combat",
 			"key": "combat.spin",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Spin",
 			"where": "Spin button"
 		},
@@ -838,7 +898,7 @@
 			"author_lock": true,
 			"cat": "Combat",
 			"key": "combat.safe",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Safe",
 			"where": "Done button when incoming hit is 0"
 		},
@@ -846,7 +906,7 @@
 			"author_lock": true,
 			"cat": "Combat",
 			"key": "combat.take_hit",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Take {n}",
 			"where": "Done button when you will lose hearts. {n} = incoming"
 		},
@@ -854,7 +914,7 @@
 			"author_lock": true,
 			"cat": "Combat",
 			"key": "combat.blocked",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "BLOCKED",
 			"where": "Flash on the slice when you pillow it"
 		},
@@ -862,7 +922,7 @@
 			"author_lock": true,
 			"cat": "Combat",
 			"key": "combat.slain",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "SLAIN",
 			"where": "Flash on the slice when they leave"
 		},
@@ -870,7 +930,7 @@
 			"author_lock": true,
 			"cat": "Combat",
 			"key": "combat.knife_throw",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "ATK 3, discard",
 			"where": "Throwing Knife choice A"
 		},
@@ -878,7 +938,7 @@
 			"author_lock": true,
 			"cat": "Combat",
 			"key": "combat.knife_nick",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "ATK 1, keep",
 			"where": "Throwing Knife choice B"
 		},
@@ -886,7 +946,7 @@
 			"author_lock": true,
 			"cat": "Inspect",
 			"key": "inspect.title",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Inspect",
 			"where": "Idle inspect headline"
 		},
@@ -894,15 +954,15 @@
 			"author_lock": true,
 			"cat": "Inspect",
 			"key": "inspect.idle",
-			"locked_at": "2026-10-07",
-			"text": "Hover an owner on the ring, or loot in your hand.",
+			"locked_at": "2026-10-10",
+			"text": "Hover a monster on the ring, or loot in your hand.",
 			"where": "Idle inspect body"
 		},
 		{
 			"author_lock": true,
 			"cat": "Inspect",
 			"key": "inspect.empty_title",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Empty",
 			"where": "Empty alcove headline"
 		},
@@ -910,7 +970,7 @@
 			"author_lock": true,
 			"cat": "Inspect",
 			"key": "inspect.empty_place",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Empty alcove",
 			"where": "Empty alcove while seating"
 		},
@@ -918,7 +978,7 @@
 			"author_lock": true,
 			"cat": "Inspect",
 			"key": "inspect.empty",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Nobody home. Yet.",
 			"where": "Empty alcove otherwise"
 		},
@@ -926,7 +986,7 @@
 			"author_lock": true,
 			"cat": "Inspect",
 			"key": "inspect.shift",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "hold Shift to explain",
 			"where": "Monster inspect, Shift hint"
 		},
@@ -934,7 +994,7 @@
 			"author_lock": true,
 			"cat": "Inspect",
 			"key": "inspect.placeholder",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "—",
 			"where": "Editor inspect fallback"
 		},
@@ -942,7 +1002,7 @@
 			"author_lock": true,
 			"cat": "Warns",
 			"key": "warn.spent",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Already spent this scrap.",
 			"where": "Used item this fight"
 		},
@@ -950,7 +1010,7 @@
 			"author_lock": true,
 			"cat": "Warns",
 			"key": "warn.boot",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Can't — they're as healthy as you, or healthier.",
 			"where": "the Boot cannot fire"
 		},
@@ -958,7 +1018,7 @@
 			"author_lock": true,
 			"cat": "Warns",
 			"key": "warn.neighbor",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Can't — nobody next door.",
 			"where": "Bracers / Pocketwatch no neighbor"
 		},
@@ -966,7 +1026,7 @@
 			"author_lock": true,
 			"cat": "Warns",
 			"key": "warn.sledge",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Can't — they don't hit hard enough.",
 			"where": "Sledgehammer cannot fire"
 		},
@@ -974,7 +1034,7 @@
 			"author_lock": true,
 			"cat": "Warns",
 			"key": "warn.poison",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Can't — no neighbor to spike.",
 			"where": "Poison Flask cannot fire"
 		},
@@ -982,7 +1042,7 @@
 			"author_lock": true,
 			"cat": "Warns",
 			"key": "warn.crossbow",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Can't — no soft neighbor who can take a bolt.",
 			"where": "Crossbow cannot fire"
 		},
@@ -990,7 +1050,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.default.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Hey! That {item} was in MY bag!",
 			"where": "Door balloon fallback 1 of 5. {item} = loot name"
 		},
@@ -998,7 +1058,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.default.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Put the {item} down before I make you.",
 			"where": "Door balloon fallback 2 of 5. {item} = loot name"
 		},
@@ -1006,7 +1066,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.default.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You nicked the {item}. I noticed. Bad day for you.",
 			"where": "Door balloon fallback 3 of 5. {item} = loot name"
 		},
@@ -1014,7 +1074,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.default.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Cute fingers. The {item} still has my name on it.",
 			"where": "Door balloon fallback 4 of 5. {item} = loot name"
 		},
@@ -1022,7 +1082,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.default.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Keep the {item} warm. I'm taking it off you warm.",
 			"where": "Door balloon fallback 5 of 5. {item} = loot name"
 		},
@@ -1030,7 +1090,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.throwing_knife.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My knife?! Spit it out!",
 			"where": "Door balloon after taking throwing_knife · line 1 of 5"
 		},
@@ -1038,7 +1098,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.throwing_knife.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You steal a blade and smile? I'm smiling next.",
 			"where": "Door balloon after taking throwing_knife · line 2 of 5"
 		},
@@ -1046,7 +1106,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.throwing_knife.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "That knife leaves with me. Fingers optional.",
 			"where": "Door balloon after taking throwing_knife · line 3 of 5"
 		},
@@ -1054,7 +1114,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.throwing_knife.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "One knife. Two claimants. Do the math, pest.",
 			"where": "Door balloon after taking throwing_knife · line 4 of 5"
 		},
@@ -1062,7 +1122,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.throwing_knife.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Don't throw it. I want it back unbent.",
 			"where": "Door balloon after taking throwing_knife · line 5 of 5"
 		},
@@ -1070,7 +1130,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.shield.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "That's MY shield, you little raccoon!",
 			"where": "Door balloon after taking shield · line 1 of 5"
 		},
@@ -1078,7 +1138,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.shield.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Hide behind it. I'll wait. I've waited worse.",
 			"where": "Door balloon after taking shield · line 2 of 5"
 		},
@@ -1086,7 +1146,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.shield.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Stolen wood won't save sticky fingers.",
 			"where": "Door balloon after taking shield · line 3 of 5"
 		},
@@ -1094,7 +1154,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.shield.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Nice grab. Terrible future.",
 			"where": "Door balloon after taking shield · line 4 of 5"
 		},
@@ -1102,7 +1162,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.shield.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Keep it up. Makes the pry job easier.",
 			"where": "Door balloon after taking shield · line 5 of 5"
 		},
@@ -1110,7 +1170,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.sai.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Those prongs are mine!",
 			"where": "Door balloon after taking sai · line 1 of 5"
 		},
@@ -1118,7 +1178,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.sai.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You grabbed my Sai. Now we dance ugly.",
 			"where": "Door balloon after taking sai · line 2 of 5"
 		},
@@ -1126,7 +1186,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.sai.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Pokey thief. Pokey ending.",
 			"where": "Door balloon after taking sai · line 3 of 5"
 		},
@@ -1134,7 +1194,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.sai.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Put them down. I asked nice once.",
 			"where": "Door balloon after taking sai · line 4 of 5"
 		},
@@ -1142,7 +1202,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.sai.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Fancy steal. Still mine.",
 			"where": "Door balloon after taking sai · line 5 of 5"
 		},
@@ -1150,7 +1210,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.medallion.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My luck charm — on YOU?!",
 			"where": "Door balloon after taking medallion · line 1 of 5"
 		},
@@ -1158,7 +1218,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.medallion.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Shiny thief. Short career.",
 			"where": "Door balloon after taking medallion · line 2 of 5"
 		},
@@ -1166,7 +1226,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.medallion.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "That medallion hums for me. You're noise.",
 			"where": "Door balloon after taking medallion · line 3 of 5"
 		},
@@ -1174,7 +1234,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.medallion.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Hand it over. I'll be almost polite.",
 			"where": "Door balloon after taking medallion · line 4 of 5"
 		},
@@ -1182,7 +1242,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.medallion.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Jewelry on a pest. Classic last mistake.",
 			"where": "Door balloon after taking medallion · line 5 of 5"
 		},
@@ -1190,7 +1250,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.helmet.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My helmet! Wrong head!",
 			"where": "Door balloon after taking helmet · line 1 of 5"
 		},
@@ -1198,7 +1258,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.helmet.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Cover up. I'll aim anyway.",
 			"where": "Door balloon after taking helmet · line 2 of 5"
 		},
@@ -1206,7 +1266,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.helmet.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You swiped my lid. Bold. Dumb.",
 			"where": "Door balloon after taking helmet · line 3 of 5"
 		},
@@ -1214,7 +1274,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.helmet.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "That metal's mine. Your thoughts can stay.",
 			"where": "Door balloon after taking helmet · line 4 of 5"
 		},
@@ -1222,7 +1282,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.helmet.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Wear it. I'll take the rest separately.",
 			"where": "Door balloon after taking helmet · line 5 of 5"
 		},
@@ -1230,7 +1290,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.da_boot.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "MY BOOT — give it!",
 			"where": "Door balloon after taking da_boot · line 1 of 5"
 		},
@@ -1238,7 +1298,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.da_boot.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You stole a boot. I stole a seat. Guess who wins.",
 			"where": "Door balloon after taking da_boot · line 2 of 5"
 		},
@@ -1246,7 +1306,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.da_boot.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "That's my size. Your foot's a suggestion.",
 			"where": "Door balloon after taking da_boot · line 3 of 5"
 		},
@@ -1254,7 +1314,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.da_boot.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Boot thief. I'm laughing. Then I'm not.",
 			"where": "Door balloon after taking da_boot · line 4 of 5"
 		},
@@ -1262,7 +1322,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.da_boot.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Keep it laced. I reclaim clean.",
 			"where": "Door balloon after taking da_boot · line 5 of 5"
 		},
@@ -1270,7 +1330,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.grimoire.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My book! Close it!",
 			"where": "Door balloon after taking grimoire · line 1 of 5"
 		},
@@ -1278,7 +1338,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.grimoire.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Homework's over, thief. Fight's on.",
 			"where": "Door balloon after taking grimoire · line 2 of 5"
 		},
@@ -1286,7 +1346,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.grimoire.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Magic pages. Sticky paws. Bad combo — for you.",
 			"where": "Door balloon after taking grimoire · line 3 of 5"
 		},
@@ -1294,7 +1354,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.grimoire.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Don't crease it. I'll still fold you.",
 			"where": "Door balloon after taking grimoire · line 4 of 5"
 		},
@@ -1302,7 +1362,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.grimoire.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "That grimoire called me. You just grabbed.",
 			"where": "Door balloon after taking grimoire · line 5 of 5"
 		},
@@ -1310,7 +1370,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.bloody_gauntlets.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Those gloves were already my color!",
 			"where": "Door balloon after taking bloody_gauntlets · line 1 of 5"
 		},
@@ -1318,7 +1378,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.bloody_gauntlets.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You put them on. I put on teeth.",
 			"where": "Door balloon after taking bloody_gauntlets · line 2 of 5"
 		},
@@ -1326,7 +1386,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.bloody_gauntlets.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Red looks busy on you. It'll look better elsewhere.",
 			"where": "Door balloon after taking bloody_gauntlets · line 3 of 5"
 		},
@@ -1334,7 +1394,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.bloody_gauntlets.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Sticky red fingers. Adorable. Temporary.",
 			"where": "Door balloon after taking bloody_gauntlets · line 4 of 5"
 		},
@@ -1342,7 +1402,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.bloody_gauntlets.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Gauntlets: mine. Blood: negotiable.",
 			"where": "Door balloon after taking bloody_gauntlets · line 5 of 5"
 		},
@@ -1350,7 +1410,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.breastplate.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My plate — on a pest?!",
 			"where": "Door balloon after taking breastplate · line 1 of 5"
 		},
@@ -1358,7 +1418,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.breastplate.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "I'll dent it. Then I'll keep it.",
 			"where": "Door balloon after taking breastplate · line 2 of 5"
 		},
@@ -1366,7 +1426,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.breastplate.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Tin thief. Ribs can commute.",
 			"where": "Door balloon after taking breastplate · line 3 of 5"
 		},
@@ -1374,7 +1434,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.breastplate.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Armor stolen. Teeth not.",
 			"where": "Door balloon after taking breastplate · line 4 of 5"
 		},
@@ -1382,7 +1442,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.breastplate.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Polish it. I collect shiny trophies.",
 			"where": "Door balloon after taking breastplate · line 5 of 5"
 		},
@@ -1390,7 +1450,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.bracers.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Wrist jewelry. Mine.",
 			"where": "Door balloon after taking bracers · line 1 of 5"
 		},
@@ -1398,7 +1458,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.bracers.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Snap them off after I win.",
 			"where": "Door balloon after taking bracers · line 2 of 5"
 		},
@@ -1406,7 +1466,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.bracers.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You grabbed bracers. I grabbed a chair.",
 			"where": "Door balloon after taking bracers · line 3 of 5"
 		},
@@ -1414,15 +1474,15 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.bracers.4",
-			"locked_at": "2026-10-07",
-			"text": "Cute armor. Wrong owner now.",
+			"locked_at": "2026-10-10",
+			"text": "Cute armor. Wrong monster now.",
 			"where": "Door balloon after taking bracers · line 4 of 5"
 		},
 		{
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.bracers.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Leave them on. Better portrait when I reclaim.",
 			"where": "Door balloon after taking bracers · line 5 of 5"
 		},
@@ -1430,7 +1490,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.smoke_bomb.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My smoke?! Hiding already?",
 			"where": "Door balloon after taking smoke_bomb · line 1 of 5"
 		},
@@ -1438,7 +1498,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.smoke_bomb.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Puff. Me. You — briefly.",
 			"where": "Door balloon after taking smoke_bomb · line 2 of 5"
 		},
@@ -1446,7 +1506,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.smoke_bomb.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You stole my exit. Cute. Cancelled.",
 			"where": "Door balloon after taking smoke_bomb · line 3 of 5"
 		},
@@ -1454,7 +1514,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.smoke_bomb.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "I live in the dark. Your trick's a candle.",
 			"where": "Door balloon after taking smoke_bomb · line 4 of 5"
 		},
@@ -1462,7 +1522,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.smoke_bomb.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Take the bomb. I'll find the smell.",
 			"where": "Door balloon after taking smoke_bomb · line 5 of 5"
 		},
@@ -1470,7 +1530,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.knucklers.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My brass — on YOUR fists?!",
 			"where": "Door balloon after taking knucklers · line 1 of 5"
 		},
@@ -1478,7 +1538,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.knucklers.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You want to punch me with my knuckles. Precious.",
 			"where": "Door balloon after taking knucklers · line 2 of 5"
 		},
@@ -1486,7 +1546,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.knucklers.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Those are mine. Your plan is napkin math.",
 			"where": "Door balloon after taking knucklers · line 3 of 5"
 		},
@@ -1494,7 +1554,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.knucklers.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Packed for a brawl with stolen gear. Rude.",
 			"where": "Door balloon after taking knucklers · line 4 of 5"
 		},
@@ -1502,7 +1562,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.knucklers.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Keep them warm. Reclaiming a pair.",
 			"where": "Door balloon after taking knucklers · line 5 of 5"
 		},
@@ -1510,7 +1570,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.fangs.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Fake teeth. Cute. I have the real set.",
 			"where": "Door balloon after taking fangs · line 1 of 5"
 		},
@@ -1518,7 +1578,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.fangs.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Teeth thief at a teeth fight. Brave. Stupid.",
 			"where": "Door balloon after taking fangs · line 2 of 5"
 		},
@@ -1526,7 +1586,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.fangs.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Those fangs are extras. I want them back.",
 			"where": "Door balloon after taking fangs · line 3 of 5"
 		},
@@ -1534,7 +1594,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.fangs.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Bite toys. Guess the target.",
 			"where": "Door balloon after taking fangs · line 4 of 5"
 		},
@@ -1542,7 +1602,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.fangs.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Hold them ready. Matching pair incoming.",
 			"where": "Door balloon after taking fangs · line 5 of 5"
 		},
@@ -1550,7 +1610,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.poison_flask.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My green vintage — spit it!",
 			"where": "Door balloon after taking poison_flask · line 1 of 5"
 		},
@@ -1558,7 +1618,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.poison_flask.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Poison thief. You first.",
 			"where": "Door balloon after taking poison_flask · line 2 of 5"
 		},
@@ -1566,7 +1626,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.poison_flask.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Don't spill. I want every drop home.",
 			"where": "Door balloon after taking poison_flask · line 3 of 5"
 		},
@@ -1574,7 +1634,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.poison_flask.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You packed my flask. I packed appetite.",
 			"where": "Door balloon after taking poison_flask · line 4 of 5"
 		},
@@ -1582,7 +1642,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.poison_flask.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Keep the symptoms. Return the bottle.",
 			"where": "Door balloon after taking poison_flask · line 5 of 5"
 		},
@@ -1590,7 +1650,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.spiked_flail.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My flail! Spikes AND theft? Respect. Briefly.",
 			"where": "Door balloon after taking spiked_flail · line 1 of 5"
 		},
@@ -1598,7 +1658,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.spiked_flail.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "That goes back on my wall. You go on the floor.",
 			"where": "Door balloon after taking spiked_flail · line 2 of 5"
 		},
@@ -1606,7 +1666,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.spiked_flail.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Finally a thief with taste. Still a thief.",
 			"where": "Door balloon after taking spiked_flail · line 3 of 5"
 		},
@@ -1614,7 +1674,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.spiked_flail.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You picked the mean one. I noticed.",
 			"where": "Door balloon after taking spiked_flail · line 4 of 5"
 		},
@@ -1622,7 +1682,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.spiked_flail.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Don't name it. I already did.",
 			"where": "Door balloon after taking spiked_flail · line 5 of 5"
 		},
@@ -1630,7 +1690,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.healing_potion.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My juice? Planning to live with MY juice?",
 			"where": "Door balloon after taking healing_potion · line 1 of 5"
 		},
@@ -1638,7 +1698,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.healing_potion.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Second chance stolen. I'm reclaiming it full.",
 			"where": "Door balloon after taking healing_potion · line 2 of 5"
 		},
@@ -1646,7 +1706,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.healing_potion.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Red flask. Red ending. Brand consistent.",
 			"where": "Door balloon after taking healing_potion · line 3 of 5"
 		},
@@ -1654,7 +1714,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.healing_potion.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Don't sip. I want it sealed.",
 			"where": "Door balloon after taking healing_potion · line 4 of 5"
 		},
@@ -1662,7 +1722,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.healing_potion.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Sweet steal. I'll take it off the quiet body.",
 			"where": "Door balloon after taking healing_potion · line 5 of 5"
 		},
@@ -1670,7 +1730,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.crossbow.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My crossbow! Point it elsewhere, then give it!",
 			"where": "Door balloon after taking crossbow · line 1 of 5"
 		},
@@ -1678,7 +1738,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.crossbow.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Bolt thief. Bow stays. Holes optional.",
 			"where": "Door balloon after taking crossbow · line 2 of 5"
 		},
@@ -1686,7 +1746,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.crossbow.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You aimed MY bow in MY room. Rude.",
 			"where": "Door balloon after taking crossbow · line 3 of 5"
 		},
@@ -1694,7 +1754,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.crossbow.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Don't scratch the stock. Reclaiming soon.",
 			"where": "Door balloon after taking crossbow · line 4 of 5"
 		},
@@ -1702,7 +1762,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.crossbow.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Range on a pest. I brought more range.",
 			"where": "Door balloon after taking crossbow · line 5 of 5"
 		},
@@ -1710,7 +1770,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.sledgehammer.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "MY hammer! Overkill theft. I approve the overkill.",
 			"where": "Door balloon after taking sledgehammer · line 1 of 5"
 		},
@@ -1718,7 +1778,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.sledgehammer.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Big tool. Small thief. Short story.",
 			"where": "Door balloon after taking sledgehammer · line 2 of 5"
 		},
@@ -1726,7 +1786,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.sledgehammer.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You dragged my sledge into my nest. Fun. Fatal.",
 			"where": "Door balloon after taking sledgehammer · line 3 of 5"
 		},
@@ -1734,7 +1794,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.sledgehammer.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Wall can keep the hole. Hammer comes home.",
 			"where": "Door balloon after taking sledgehammer · line 4 of 5"
 		},
@@ -1742,7 +1802,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.sledgehammer.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "I'll take it. Keep the headache.",
 			"where": "Door balloon after taking sledgehammer · line 5 of 5"
 		},
@@ -1750,7 +1810,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.pocketwatch.1",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "My watch! Time's up — not poetry.",
 			"where": "Door balloon after taking pocketwatch · line 1 of 5"
 		},
@@ -1758,7 +1818,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.pocketwatch.2",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Tick. That's me walking. Tock. That's you not.",
 			"where": "Door balloon after taking pocketwatch · line 2 of 5"
 		},
@@ -1766,7 +1826,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.pocketwatch.3",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Nice steal. Time of death: pending.",
 			"where": "Door balloon after taking pocketwatch · line 3 of 5"
 		},
@@ -1774,7 +1834,7 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.pocketwatch.4",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "You grabbed a clock. I grabbed a seat.",
 			"where": "Door balloon after taking pocketwatch · line 4 of 5"
 		},
@@ -1782,10 +1842,10 @@
 			"author_lock": true,
 			"cat": "Taunts",
 			"key": "taunt.pocketwatch.5",
-			"locked_at": "2026-10-07",
+			"locked_at": "2026-10-10",
 			"text": "Stop winding. I'll stop you.",
 			"where": "Door balloon after taking pocketwatch · line 5 of 5"
 		}
 	],
-	"updated": "2026-10-07"
+	"updated": "2026-10-10"
 }

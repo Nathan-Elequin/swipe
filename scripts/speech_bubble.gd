@@ -1,6 +1,8 @@
 extends Control
 ## Comic balloon: sits up-right of the speaker, tail joins the oval and points at the sprite.
 
+const UX := preload("res://scripts/ux_style.gd")
+
 var _mouth: Vector2 = Vector2.ZERO
 var _text: String = ""
 var _rim: Color = Color("c4a574")
@@ -8,6 +10,7 @@ var _ink: Color = Color("1c120c")
 var _paper: Color = Color("f7ecda")
 var _font_sz := 21
 var _rad := 28.0
+var _body: RichTextLabel
 
 
 func setup() -> void:
@@ -16,6 +19,18 @@ func setup() -> void:
 	top_level = true
 	visible = false
 	texture_filter = TEXTURE_FILTER_NEAREST
+	_body = RichTextLabel.new()
+	_body.bbcode_enabled = true
+	_body.fit_content = true
+	_body.scroll_active = false
+	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_body.add_theme_font_size_override("normal_font_size", _font_sz)
+	_body.add_theme_font_size_override("bold_font_size", _font_sz)
+	_body.add_theme_constant_override("line_separation", 4)
+	_body.add_theme_color_override("default_color", _ink)
+	UX.ink_on_paper(_body, 1)
+	add_child(_body)
 
 
 func present(mouth_global: Vector2, text: String, look: Dictionary = {}, prefer_left: bool = false, keep_left_of: float = -1.0) -> void:
@@ -25,12 +40,15 @@ func present(mouth_global: Vector2, text: String, look: Dictionary = {}, prefer_
 		return
 	_mouth = mouth_global
 	_rim = look.get("metal", Color("c4a574"))
-	var font: Font = get_theme_default_font()
-	if font == null:
-		font = ThemeDB.fallback_font
+	if _body == null:
+		setup()
+	_body.text = _text
 	var wrap := 260.0
-	var tsz: Vector2 = font.get_multiline_string_size(_text, HORIZONTAL_ALIGNMENT_LEFT, wrap, _font_sz)
-	size = Vector2(maxf(tsz.x + 48.0, 200.0), maxf(tsz.y + 40.0, 72.0))
+	_body.size = Vector2(wrap, 8.0)
+	var h: float = maxf(float(_body.get_content_height()), 28.0)
+	size = Vector2(maxf(wrap + 48.0, 200.0), maxf(h + 40.0, 72.0))
+	_body.position = Vector2(22.0, 16.0)
+	_body.size = Vector2(size.x - 44.0, h)
 	global_position = _place_left() if prefer_left else _place_up_right()
 	if keep_left_of > 0.0:
 		global_position.x = minf(global_position.x, keep_left_of - size.x - 10.0)
@@ -42,6 +60,8 @@ func present(mouth_global: Vector2, text: String, look: Dictionary = {}, prefer_
 func hide_speech() -> void:
 	visible = false
 	_text = ""
+	if _body != null:
+		_body.text = ""
 
 
 func _place_left() -> Vector2:
@@ -67,9 +87,6 @@ func _place_up_right() -> Vector2:
 func _draw() -> void:
 	if _text == "" or not visible:
 		return
-	var font: Font = get_theme_default_font()
-	if font == null:
-		font = ThemeDB.fallback_font
 	var r := Rect2(Vector2.ZERO, size)
 	var local_mouth: Vector2 = _mouth - global_position
 	var shadow := Color(0.08, 0.05, 0.03, 0.32)
@@ -86,7 +103,6 @@ func _draw() -> void:
 	if tail.size() == 3:
 		draw_line(tail[0], tail[2], _rim, 2.6, true)
 		draw_line(tail[1], tail[2], _rim, 2.6, true)
-	draw_multiline_string(font, Vector2(24.0, 30.0), _text, HORIZONTAL_ALIGNMENT_LEFT, size.x - 44.0, _font_sz, -1, _ink)
 
 
 func _tail_pts(r: Rect2, rad: float, mouth: Vector2) -> PackedVector2Array:

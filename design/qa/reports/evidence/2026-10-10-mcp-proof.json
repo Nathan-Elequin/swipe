@@ -1,0 +1,105 @@
+{
+  "state": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"current_scene\":\"res://scenes/main.tscn\",\"godot_version\":\"4.7.2-stable (official)\",\"is_playing\":false,\"main_screen\":\"unknown\",\"open_scenes\":[\"res://scenes/main.tscn\"]}"
+        }
+      ],
+      "structuredContent": {
+        "current_scene": "res://scenes/main.tscn",
+        "godot_version": "4.7.2-stable (official)",
+        "is_playing": false,
+        "main_screen": "unknown",
+        "open_scenes": [
+          "res://scenes/main.tscn"
+        ]
+      }
+    },
+    "jsonrpc": "2.0",
+    "id": 2
+  },
+  "run": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Running project"
+        }
+      ]
+    },
+    "jsonrpc": "2.0",
+    "id": 3
+  },
+  "playing": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"current_scene\":\"res://scenes/main.tscn\",\"godot_version\":\"4.7.2-stable (official)\",\"is_playing\":true,\"main_screen\":\"unknown\",\"open_scenes\":[\"res://scenes/main.tscn\"]}"
+        }
+      ],
+      "structuredContent": {
+        "current_scene": "res://scenes/main.tscn",
+        "godot_version": "4.7.2-stable (official)",
+        "is_playing": true,
+        "main_screen": "unknown",
+        "open_scenes": [
+          "res://scenes/main.tscn"
+        ]
+      }
+    },
+    "jsonrpc": "2.0",
+    "id": 4
+  },
+  "screenshot": {
+    "paths": [
+      "C:\\Users\\Natha\\Documents\\boss-rush\\design\\qa\\reports\\evidence\\2026-10-10-mcp-proof.png"
+    ],
+    "text": "",
+    "isError": false
+  },
+  "key": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Input sequence completed: 1 input(s) executed [key:Space] over 100ms.\nContext: scene res://scenes/main.tscn, gameplay 117ms / wall 100ms."
+        }
+      ]
+    },
+    "jsonrpc": "2.0",
+    "id": 6
+  },
+  "exec": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"completed\":true,\"duration_ms\":2,\"holder_children\":0,\"result\":\"{\\\"adventure\\\":false,\\\"blk\\\":0,\\\"cue\\\":\\\"\\\",\\\"facing\\\":{},\\\"facing_index\\\":-1,\\\"hotbar\\\":[],\\\"hp\\\":6,\\\"in_tutorial\\\":false,\\\"phase\\\":\\\"title\\\",\\\"refusals_left\\\":3,\\\"wheel\\\":[{\\\"atk\\\":0,\\\"card_id\\\":\\\"\\\",\\\"hp\\\":0,\\\"kind\\\":\\\"empty\\\",\\\"name\\\":\\\"\\\",\\\"pack_tier\\\":0},{\\\"atk\\\":0,\\\"card_id\\\":\\\"\\\",\\\"hp\\\":0,\\\"kind\\\":\\\"empty\\\",\\\"name\\\":\\\"\\\",\\\"pack_tier\\\":0},{\\\"atk\\\":0,\\\"card_id\\\":\\\"\\\",\\\"hp\\\":0,\\\"kind\\\":\\\"empty\\\",\\\"name\\\":\\\"\\\",\\\"pack_tier\\\":0},{\\\"atk\\\":0,\\\"card_id\\\":\\\"\\\",\\\"hp\\\":0,\\\"kind\\\":\\\"empty\\\",\\\"name\\\":\\\"\\\",\\\"pack_tier\\\":0},{\\\"atk\\\":0,\\\"card_id\\\":\\\"\\\",\\\"hp\\\":0,\\\"kind\\\":\\\"empty\\\",\\\"name\\\":\\\"\\\",\\\"pack_tier\\\":0},{\\\"atk\\\":0,\\\"card_id\\\":\\\"\\\",\\\"hp\\\":0,\\\"kind\\\":\\\"empty\\\",\\\"name\\\":\\\"\\\",\\\"pack_tier\\\":0},{\\\"atk\\\":0,\\\"card_id\\\":\\\"\\\",\\\"hp\\\":0,\\\"kind\\\":\\\"empty\\\",\\\"name\\\":\\\"\\\",\\\"pack_tier\\\":0},{\\\"atk\\\":0,\\\"card_id\\\":\\\"\\\",\\\"hp\\\":0,\\\"kind\\\":\\\"empty\\\",\\\"name\\\":\\\"\\\",\\\"pack_tier\\\":0}]}\"}"
+        }
+      ],
+      "structuredContent": {
+        "completed": true,
+        "duration_ms": 2,
+        "holder_children": 0,
+        "result": "{\"adventure\":false,\"blk\":0,\"cue\":\"\",\"facing\":{},\"facing_index\":-1,\"hotbar\":[],\"hp\":6,\"in_tutorial\":false,\"phase\":\"title\",\"refusals_left\":3,\"wheel\":[{\"atk\":0,\"card_id\":\"\",\"hp\":0,\"kind\":\"empty\",\"name\":\"\",\"pack_tier\":0},{\"atk\":0,\"card_id\":\"\",\"hp\":0,\"kind\":\"empty\",\"name\":\"\",\"pack_tier\":0},{\"atk\":0,\"card_id\":\"\",\"hp\":0,\"kind\":\"empty\",\"name\":\"\",\"pack_tier\":0},{\"atk\":0,\"card_id\":\"\",\"hp\":0,\"kind\":\"empty\",\"name\":\"\",\"pack_tier\":0},{\"atk\":0,\"card_id\":\"\",\"hp\":0,\"kind\":\"empty\",\"name\":\"\",\"pack_tier\":0},{\"atk\":0,\"card_id\":\"\",\"hp\":0,\"kind\":\"empty\",\"name\":\"\",\"pack_tier\":0},{\"atk\":0,\"card_id\":\"\",\"hp\":0,\"kind\":\"empty\",\"name\":\"\",\"pack_tier\":0},{\"atk\":0,\"card_id\":\"\",\"hp\":0,\"kind\":\"empty\",\"name\":\"\",\"pack_tier\":0}]}"
+      }
+    },
+    "jsonrpc": "2.0",
+    "id": 7
+  },
+  "log": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "No error messages (cursor 0)."
+        }
+      ]
+    },
+    "jsonrpc": "2.0",
+    "id": 8
+  }
+}

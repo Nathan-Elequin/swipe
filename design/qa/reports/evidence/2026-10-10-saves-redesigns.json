@@ -1,0 +1,31 @@
+{
+  "feature": "saves-redesigns",
+  "date": "2026-10-10",
+  "damsel": {
+    "setup": "Wizard ATK 5, Damsel ATK 0 HP 9, Golem ATK 3, Shield 4, Done",
+    "incoming_unblocked": 8,
+    "incoming_with_block4": 4,
+    "after": {
+      "player_hp": 5,
+      "wheel": ["wizard", "golem"],
+      "log": "hit ATK 5 then ATK 3, heal 3, remove Damsel In Distress"
+    }
+  },
+  "berserker": {
+    "seated": {"atk": 3, "rage": 0},
+    "after_other_fight_spin": {"atk": 4, "rage": 1},
+    "cycle": {"8_fire": true, "then_3": true, "then_4": true}
+  },
+  "commander": {
+    "done_first": "hit ATK 3, Commander flees, still on wheel fled_once true, auto Spin"
+  },
+  "ogre": {
+    "hp_at_player_4": 4,
+    "hp_after_heal_to_6": 6,
+    "player_0": "ogre stripped, wizard remains"
+  },
+  "queen_egg": {
+    "spin_wizard_with_queen_alive": ["spider_egg"],
+    "spin_queen_with_egg": {"hand": [], "queen_atk": 5, "queen_hp": 5}
+  }
+}

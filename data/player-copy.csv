@@ -26,7 +26,153 @@ Tutorial,tutorial.speaker,Talk box name,Nib
 Tutorial,tutorial.skip,How to Play skip button,Skip
 Tutorial,tutorial.nudge_wait,Wrong click during How to Play,Hey — finish this first.
 Tutorial,tutorial.nudge_item,Wrong item during How to Play,Wrong shiny.
-Tutorial,tutorial.beat.01.body,How to Play step 1 · continue / (none) · main line,I'm Nib. You're the reason eight angry owners know this address. Survive three scrapes and I'll call you a professional.
+Tutorial,tutorial.beat.01.body,How to Play step 1 · continue / (none) · main line,"Hey there, greedy goblin. I'm Nib. I was just in the middle of enjoying my nap when you had to barge into this dungeon and start swiping loot left n' right!
+(Click 'next' to continue)
+Well, now you've gone and done it - the monsters are coming to claim their stuff, and you're going to have to defend yourself with that loot or else die in this strange catacomb.
+(Click 'next' to continue)
+(Highlights dungeon wheel)
+Welcome to the Merry Go' Round of doom - a series of circular catacombs that rotate around this particular spot. Don't ask me why, the architect of this dungeon doesn't like answering questions.
+(Click 'next' to continue)
+(Highlights single empty slice of dungeon wheel)
+This is a Corridor - there are 8 in total. Monsters will pop into these slots as they line up to clean your clock and take your junk.
+(Click 'next' to continue)
+(Highlights player hotbar)
+This is your loot. Looks like you started off with some basic loot for this tutorial, but you'll find lots of fancy weapons and armor out here.
+(Click 'next' to continue)
+(Sprite of Nib comes very close to the player, nearly covering 80% of the screen)
+Your mission...
+(Click to continue)
+(Comes closer)
+...is to get out of the dungeon with as much loot as possible.
+(Returns to his original position)
+...Got it?
+(Click 'Got It' to continue)
+Okay, let me show you how things work a'ROUND these parts
+(Click 'next' to continue)
+(in very tiny text, in italics parentheses) - (y'know, cause of the round dungeon...)
+(Click to continue)
+(Highlight the healthbar)
+You have 6 health (HP). You can never have more than 6. If it reaches 0 at any point, you're dead.
+(Click to continue)
+When you complete a Dungeon (clear out this wheel), you will heal back to full HP. Spend your HP wisely.
+(Click to continue)
+Alright, that's enough. Let's spin the wheel and learn the rest as we go. Click 'Spin' to randomly choose your first opponent.
+(Click 'Spin' - spins the wheel, forcing it to stop on Wizard)
+Ahh, a crotchety 'ol wizard, eh?
+(Click to continue)
+(Highlights Wizard's Attack icon)
+He looks pretty scary - 5 Attack would nearly kill you in one strike
+(Click to continue)
+(Highlights Wizard's HP icon)
+...but he's also super frail. Most weapons will kill him before he gets to strike.
+(Click to continue)
+(Highlights the Sai)
+Use the Sai. It will kill him and end the fight.
+(Click the Sai to use it, resolving combat as normal)
+1 down, nice. When an Enemy is Defeated, it will trigger the Dungeon to Spin again.
+(Click to continue)
+(Only NOW does the wheel Spin, and will now land on Golem)
+Interesting...this Golem is much harder to kill, so you'd usually want to block this. 
+(Click to continue)
+(Highlights Block icon on the character)
+Block is temporary for the current fight. It goes away whenever you Spin the Dungeon.
+(Click to continue)
+But I've got good news - if you Block an enemy, they are also Defeated.
+(Click to continue)
+(Nib gets 50% closer to the viewer, 'leaning' in)
+I guess they just...run out of time to kill you, I guess? Not sure, this Dungeon is kinda weird.
+(Click to continue)
+(Nib returns to his position)
+(Highlights the Helmet item in the hotbar)
+Anyway, look at the Helmet, since this item has a unique ability
+(Click to continue)
+You can hold Shift to see any Item's details at glance
+(Click to continue)
+(Highlights the detail view panel to the right)
+Looks like the Helmet's Block is based on whichever HP is lower between you and your Enemy.
+(Click to continue)
+(Highlight both player HP and the Golem's HP)
+In this case, that's you with 6 HP. 
+(Click to continue)
+Glad you didn't lose 5 HP to the Wizard earlier, that would make this Helmet useless!
+(Click to continue)
+Items change all the time based on circumstances. Your job is to juggle your loot to maximize their effectiveness against the unique enemies in the dungeon.
+(Click to continue)
+(Highlights the Helmet again)
+Okay, let's use the Helmet and Block this incoming attack.
+(Click the Helmet)
+(Highlights the 'Safe' button)
+This button will always show you how much HP you are going to lose if you end the fight now.
+(Click to continue)
+Since you are safe, you can click 'Safe' to end the fight.
+(Click 'Safe' and resolve the combat)
+Great, so you've Defeated enemies in 2 different ways, by Attacking and Defending.
+(Click to continue)
+There's one final type of item, so let's Spin again and try it out.
+(Click 'Spin' and land on Goblin)
+Aww, look at this little guy! He is so cute...but he also has an ability
+(Click to continue)
+(Highlight on the Monster card)
+Hover over any Monster and hold shift to learn the details of their ability, just like Items
+(When the user hovers and holds Shift, highlight the details)
+Aw, Goblins are 'Evasive', so they cannot take Attack damage! Looks like our Knucklers would be wasted here.
+(Click to continue)
+(Highlight 'Da Boot' in the hotbar)
+But wait...this item is a Special Item. It doesn't Attack or Block. Take a look
+(When the user hovers or holds shift)
+This item allows you to instantly Defeat an Enemy if you have more HP than them!
+(Click to continue)
+That's a good item...
+(Click to continue)
+(Nib moves close to the viewer)
+...but are you sure you want to use it?
+(Click to continue)
+(Nib returns)
+So far you've lost zero HP in this dungeon, but remember - each time you clear a Dungeon, you heal back to full.
+(Click to continue)
+AND you get to keep all of the Loot that you didn't use in this dungeon. Pretty sweet, huh?
+(Click to continue)
+So I'll give you a choice. You can use Da Boot and get the sweet satisfaction of stomping this Goblin into the dirt...
+(Click to continue)
+...Orrrr you can let him slice you up, and keep it. The choice is yours.
+(The player will click on either Da Boot or 'Take 3'. Either will resolve the combat)
+
+---(If the player chose 'Da Boot', after combat resolves)---
+Honestly, I respect it. those Goblins are super annoying, so here's a tip:
+(Click to continue)
+If you see one in your upcoming Dungeon, you should always hold onto a Block or Defeat item to avoid that damage.
+(Click to continue)
+You won't always have a Boot, after all.
+(Click to continue - joins back with standard dialogue)
+---(If the player chose to 'Take 3')---
+Ouch - hurts, doesn't it?
+(Click to continue)
+Well the next time that Boot saves you from death in a future Dungeon, you'll be glad you let that little rascal nick you for 3.
+(Click to continue)
+I'm sure you can tell, but I'll give you a tip straight from the source:
+(Click to continue)
+Spend your HP like it was made of gold. Sometimes it will be correct to drop to 1 HP - you'll find Items that reward you for losing HP - we call that Bleeding
+(Click to contine - joins back with standard dialogue)
+---JOINS TOGETHER
+Alright, so you survived all 3 Monsters and cleared the Dungeon! At this point you would venture deeper and the following would occur:
+(Click to continue)
+First, you'll build a new dungeon with starting Monsters
+(Click to continue)
+(Highlights 2 random slices)
+Then, 2 of those starting Monsters will be upgraded to a more dangerous foes
+(Click to continue)
+(Highglights hotbar)
+And finally, you'll keep your remaining Items and draft new items to start the next Dungeon
+(Click to continue)
+(Nib moves to center screen)
+And that's it! Pay special attention each time you encounter a new Monster or Item, and learn their quirks.
+(Click to continue)
+Some items are very strong against certain monsters, and it's up to you to manage your resources and make it out with the best haul.
+(Click to continue)
+With that, I'm off to finish my nap again. Good luck with your dungeon delve, you greedy grubber!
+(Click to continue)
+(Animates Nib 'walking off' to the right)
+(vignette background, only buttons below are 'Main Menu' and 'Play', which goes to adventure mode)"
 Tutorial,tutorial.beat.01.go,How to Play step 1 · continue button,I'm in
 Tutorial,tutorial.beat.01.hint,How to Play step 1 · gold hint,
 Tutorial,tutorial.beat.02.body,How to Play step 2 · continue / wheel · main line,"Round room. Eight alcoves. The floor turns — whoever stops in front of you gets a swing. I parked a Golem, a Wizard, and a Berserker. Follow my finger."
@@ -83,17 +229,21 @@ Tutorial,tutorial.beat.18.hint,How to Play step 18 · gold hint,
 Door,door.title,Gate chrome top,THE DOOR
 Door,door.shiny,Gate chrome over the item,THE BAIT
 Door,door.owner,Gate chrome over the silhouette,THE OWNER
-Door,door.help,Gate under the metal stamp,Hover the bait. Hold Shift for the math. Same metal means same trouble.
+Door,door.help,Gate under the metal stamp,"The finer the loot, the fiercer its owner."
 Door,door.hook,Gate before Take. {item} = loot name,Take {item} and its owner kicks through that door.
-Door,door.take,Take button. {n} = pack tier,Take it — invite Tier {n}
-Door,door.pass,Pass button while passes remain. {n} = passes left,Pass
-Door,door.pass_none,Pass button at 0 remaining,Pass
-Door,door.seat,"After reveal, before you click a +",Park them.
+Door,door.take,Take button. {n} = pack tier,Take it
+Door,door.pass,Pass button while passes remain. {n} = passes left,Leave it
+Door,door.pass_none,Pass button at 0 remaining,Out of time
+Door,door.seat,"After reveal, before you click a +",A monster approaches. Select their location.
+Door,door.guard,Item card subtitle (NOT WIRED YET). {tier} = tier name from tier.N.name,Guarded by a {tier} monster
+Door,tier.1.name,Player name for internal tier 1 (NOT WIRED YET). Never show the word Tier.,Weak
+Door,tier.2.name,Player name for internal tier 2 (NOT WIRED YET). Never show the word Tier.,Tough
+Door,tier.3.name,Player name for internal tier 3 (NOT WIRED YET). Never show the word Tier.,Deadly
 Cues,cue.starters,Begin: four starters land NESW,"Four freeloaders already claimed north, east, south, and west."
-Cues,cue.force,No passes left — auto fill,No passes. The rest come in.
-Cues,cue.ask,"Draft choice, passes remaining","Steal it, or pass."
-Cues,cue.steal,"Draft choice, no passes left",Steal it.
-Cues,cue.seat,"After steal, pick an alcove",Park them.
+Cues,cue.force,No passes left — auto fill,Out of time
+Cues,cue.ask,"Draft choice, passes remaining",Take it or leave it?
+Cues,cue.steal,"Draft choice, no passes left",Out of time
+Cues,cue.seat,"After steal, pick an alcove",A monster approaches. Select their location.
 Cues,cue.filling,Between door packs,More owners. Less floor.
 Cues,cue.ready,"Wheel full, combat",Spin — somebody wants their stuff.
 Cues,cue.fighting,During a fight,"Spend loot, or eat the hit."
@@ -237,45 +387,42 @@ Cards,card.item.helmet.explainer,Roster · item Shift math (Helmet),(the lower o
 Cards,card.item.da_boot.name,Roster · item name (live),The Boot
 Cards,card.item.da_boot.ability,Roster · item player text (The Boot),Defeat an enemy with less HP than you. Combat ends immediately.
 Cards,card.item.da_boot.explainer,Roster · item Shift math (The Boot),(ENEMY HP < YOUR HP)
-Cards,card.item.grimoire.name,Roster · item name (todo),Grimoire
-Cards,card.item.grimoire.ability,Roster · item player text (Grimoire),Attack equal to the Attack of the last monster you faced.
-Cards,card.item.grimoire.explainer,Roster · item Shift math (Grimoire),(LAST ENEMY ATK)
 Cards,card.item.bloody_gauntlets.name,Roster · item name (live),Bloody Gauntlets
 Cards,card.item.bloody_gauntlets.ability,Roster · item player text (Bloody Gauntlets),+1 ATK for each HP you are missing.
 Cards,card.item.bloody_gauntlets.explainer,Roster · item Shift math (Bloody Gauntlets),(7 − HP)
-Cards,card.item.breastplate.name,Roster · item name (todo),Breastplate
-Cards,card.item.breastplate.ability,Roster · item player text (Breastplate),"Gain 2 Block. If you lose HP this combat, Keep this Item."
-Cards,card.item.breastplate.explainer,Roster · item Shift math (Breastplate),(2) and Keep if you Bleed
 Cards,card.item.bracers.name,Roster · item name (live),Bracers
 Cards,card.item.bracers.ability,Roster · item player text (Bracers),Block equal to the weaker Neighboring enemy's Attack.
 Cards,card.item.bracers.explainer,Roster · item Shift math (Bracers),(Neighbor ATK)
-Cards,card.item.smoke_bomb.name,Roster · item name (todo),Smoke Bomb
-Cards,card.item.smoke_bomb.ability,Roster · item player text (Smoke Bomb),Spin again and gain a Random Item.
-Cards,card.item.smoke_bomb.explainer,Roster · item Shift math (Smoke Bomb),re-roll + 1 Random Item
 Cards,card.item.knucklers.name,Roster · item name (live),Knucklers
 Cards,card.item.knucklers.ability,Roster · item player text (Knucklers),Attack equal to 8 minus the Items still in your hand.
 Cards,card.item.knucklers.explainer,Roster · item Shift math (Knucklers),(8 − Items)
+Cards,card.item.spiked_flail.name,Roster · item name (todo),Spiked Flail
+Cards,card.item.spiked_flail.ability,Roster · item player text (Spiked Flail),Gets stronger. +2 Attack each time you lose any HP.
+Cards,card.item.spiked_flail.explainer,Roster · item Shift math (Spiked Flail),+2 ATK each time you Bleed
+Cards,card.item.sledgehammer.name,Roster · item name (live),Sledgehammer
+Cards,card.item.sledgehammer.ability,Roster · item player text (Sledgehammer),Defeat an enemy with 5 or more Attack. Combat ends immediately.
+Cards,card.item.sledgehammer.explainer,Roster · item Shift math (Sledgehammer),(ENEMY ATK ≥ 5)
+Cards,card.item.grimoire.name,Roster · item name (todo),Grimoire
+Cards,card.item.grimoire.ability,Roster · item player text (Grimoire),Attack equal to the Attack of the last monster you faced.
+Cards,card.item.grimoire.explainer,Roster · item Shift math (Grimoire),(LAST ENEMY ATK)
+Cards,card.item.breastplate.name,Roster · item name (todo),Breastplate
+Cards,card.item.breastplate.ability,Roster · item player text (Breastplate),"Gain 2 Block. If you lose HP this combat, Keep this Item."
+Cards,card.item.breastplate.explainer,Roster · item Shift math (Breastplate),(2) and Keep if you Bleed
+Cards,card.item.smoke_bomb.name,Roster · item name (todo),Smoke Bomb
+Cards,card.item.smoke_bomb.ability,Roster · item player text (Smoke Bomb),Spin again and gain a Random Item.
+Cards,card.item.smoke_bomb.explainer,Roster · item Shift math (Smoke Bomb),re-roll + 1 Random Item
 Cards,card.item.fangs.name,Roster · item name (todo),Fangs
 Cards,card.item.fangs.ability,Roster · item player text (Fangs),"Take their hit (Block still works), Defeat them, then Heal equal to the HP they had."
 Cards,card.item.fangs.explainer,Roster · item Shift math (Fangs),(TAKE THEIR ATK) then Defeat then Heal THEIR HP
 Cards,card.item.poison_flask.name,Roster · item name (todo),Poison Flask
 Cards,card.item.poison_flask.ability,Roster · item player text (Poison Flask),"Mark a Neighbor. When you spin them, they lose 5 HP immediately."
 Cards,card.item.poison_flask.explainer,Roster · item Shift math (Poison Flask),mark Neighbor −5 HP on spin
-Cards,card.item.cursed_scroll.name,Roster · item name (todo),Cursed Scroll
-Cards,card.item.cursed_scroll.ability,Roster · item player text (Cursed Scroll),"At the start of each combat, lose 1 HP. On use, Heal your HP to up to full (6)."
-Cards,card.item.cursed_scroll.explainer,Roster · item Shift math (Cursed Scroll),
-Cards,card.item.spiked_flail.name,Roster · item name (todo),Spiked Flail
-Cards,card.item.spiked_flail.ability,Roster · item player text (Spiked Flail),Gets stronger. +2 Attack each time you lose any HP.
-Cards,card.item.spiked_flail.explainer,Roster · item Shift math (Spiked Flail),+2 ATK for each time you Bled
 Cards,card.item.healing_potion.name,Roster · item name (todo),Healing Potion
 Cards,card.item.healing_potion.ability,Roster · item player text (Healing Potion),"Unplayable. If you would die, discard this and Heal 3."
 Cards,card.item.healing_potion.explainer,Roster · item Shift math (Healing Potion),"on lethal: discard, Heal 3"
 Cards,card.item.crossbow.name,Roster · item name (live),Crossbow
-Cards,card.item.crossbow.ability,Roster · item player text (Crossbow),Deal 4 Attack to a Neighboring enemy with 4 HP or less. Goblin cannot take Attack damage.
+Cards,card.item.crossbow.ability,Roster · item player text (Crossbow),Deal 4 Attack to a Neighboring enemy with 4 HP or less.
 Cards,card.item.crossbow.explainer,Roster · item Shift math (Crossbow),(ATK 4) if (Neighbor HP ≤ 4)
-Cards,card.item.sledgehammer.name,Roster · item name (live),Sledgehammer
-Cards,card.item.sledgehammer.ability,Roster · item player text (Sledgehammer),Defeat an enemy with 5 or more Attack. Combat ends immediately.
-Cards,card.item.sledgehammer.explainer,Roster · item Shift math (Sledgehammer),(ENEMY ATK ≥ 5)
 Cards,card.item.pocketwatch.name,Roster · item name (todo),Pocketwatch
 Cards,card.item.pocketwatch.ability,Roster · item player text (Pocketwatch),Attack equal to the Attack of the strongest Neighboring enemy.
 Cards,card.item.pocketwatch.explainer,Roster · item Shift math (Pocketwatch),(Highest Neighbor ATK)
@@ -292,11 +439,44 @@ Cards,card.item.spiked_shield.name,Roster · item name (live),Spiked Shield
 Cards,card.item.spiked_shield.ability,Roster · item player text (Spiked Shield),"Deal 2 Attack, or gain 2 Block."
 Cards,card.item.spiked_shield.explainer,Roster · item Shift math (Spiked Shield),(ATK 2) or (BLK 2)
 Cards,card.item.grief_jar.name,Roster · item name (live),Grief Jar
-Cards,card.item.grief_jar.ability,Roster · item player text (Grief Jar),Each fight start: lose 1 HP. This card gains 2 Block. Click it to spend that Block.
-Cards,card.item.grief_jar.explainer,Roster · item Shift math (Grief Jar),(BLK grows +2 per fight)
+Cards,card.item.grief_jar.ability,Roster · item player text (Grief Jar),"Each time you Spin, Lose 1 HP and this item gains +2 Block"
+Cards,card.item.grief_jar.explainer,Roster · item Shift math (Grief Jar),"On Spin: Lose 1 HP, this Gains 2 Block"
 Cards,card.item.longbow.name,Roster · item name (live),Longbow
 Cards,card.item.longbow.ability,Roster · item player text (Longbow),Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)
 Cards,card.item.longbow.explainer,Roster · item Shift math (Longbow),(ATK 4) to furthest enemy
+Cards,card.item.lantern.name,Roster · item name (live),Lantern
+Cards,card.item.lantern.ability,Roster · item player text (Lantern),Heal 2. Keep this if you are still missing HP.
+Cards,card.item.lantern.explainer,Roster · item Shift math (Lantern),(HEAL 2) then KEEP if HP < 6
+Cards,card.item.mirror_shard.name,Roster · item name (live),Mirror Shard
+Cards,card.item.mirror_shard.ability,Roster · item player text (Mirror Shard),Gain Block equal to the last Block you gained.
+Cards,card.item.mirror_shard.explainer,Roster · item Shift math (Mirror Shard),(Last Block gained)
+Cards,card.item.echo_bell.name,Roster · item name (live),Echo Bell
+Cards,card.item.echo_bell.ability,Roster · item player text (Echo Bell),Becomes a copy of the last item you used.
+Cards,card.item.echo_bell.explainer,Roster · item Shift math (Echo Bell),(Copy last item)
+Cards,card.item.quiet_bell.name,Roster · item name (live),Quiet Bell
+Cards,card.item.quiet_bell.ability,Roster · item player text (Quiet Bell),Remove the facing owner's unique ability.
+Cards,card.item.quiet_bell.explainer,Roster · item Shift math (Quiet Bell),(Printed ATK / HP)
+Cards,card.item.net.name,Roster · item name (live),Net
+Cards,card.item.net.ability,Roster · item player text (Net),"Reduce the facing owner's Attack by 1, 2, or 3."
+Cards,card.item.net.explainer,Roster · item Shift math (Net),(−1) or (−2) or (−3)
+Cards,card.item.iron_chain.name,Roster · item name (live),Chain
+Cards,card.item.iron_chain.ability,Roster · item player text (Chain),Deal Attack equal to Block you hold. Keep this item.
+Cards,card.item.iron_chain.explainer,Roster · item Shift math (Chain),(Attack = Block. Keep.)
+Cards,card.item.counting_beads.name,Roster · item name (live),Counting Beads
+Cards,card.item.counting_beads.ability,Roster · item player text (Counting Beads),"(1), (2), (3), or (4) Atk"
+Cards,card.item.counting_beads.explainer,Roster · item Shift math (Counting Beads),"Alternates between 1, 2, 3, and 4 Atk"
+Cards,card.item.last_match.name,Roster · item name (live),Paci Fist
+Cards,card.item.last_match.ability,Roster · item player text (Paci Fist),"If you have zero items that deal Attack, Defeat them."
+Cards,card.item.last_match.explainer,Roster · item Shift math (Paci Fist),(No Attack items: Defeat)
+Cards,card.item.measuring_tape.name,Roster · item name (live),Scythe
+Cards,card.item.measuring_tape.ability,Roster · item player text (Scythe),"Deal Attack equal to half your HP (rounded down) and Heal that much. If they survive, Keep this item."
+Cards,card.item.measuring_tape.explainer,Roster · item Shift math (Scythe),(Attack = half HP. Heal that much. Survive: Keep.)
+Cards,card.item.mute_stone.name,Roster · item name (live),Chaos Stone
+Cards,card.item.mute_stone.ability,Roster · item player text (Chaos Stone),Choose other items in your hand. Each becomes a random item of that item's tier.
+Cards,card.item.mute_stone.explainer,Roster · item Shift math (Chaos Stone),(Reroll 1 or 2 other items.)
+Cards,card.item.cursed_scroll.name,Roster · item name (todo),Cursed Scroll
+Cards,card.item.cursed_scroll.ability,Roster · item player text (Cursed Scroll),"At the start of each combat, lose 1 HP. On use, Heal your HP to up to full (6)."
+Cards,card.item.cursed_scroll.explainer,Roster · item Shift math (Cursed Scroll),
 Cards,card.monster.wizard.name,Roster · monster name (live),Wizard
 Cards,card.monster.wizard.ability,Roster · monster player text (Wizard),My spellbook was in that pile.
 Cards,card.monster.wizard.explainer,Roster · monster Shift math (Wizard),
@@ -325,8 +505,14 @@ Cards,card.monster.dire_wolf.name,Roster · monster name (live),Dire Wolf
 Cards,card.monster.dire_wolf.ability,Roster · monster player text (Dire Wolf),My Attack is your HP.
 Cards,card.monster.dire_wolf.explainer,Roster · monster Shift math (Dire Wolf),Attack is your HP
 Cards,card.monster.bandit.name,Roster · monster name (live),Bandit
-Cards,card.monster.bandit.ability,Roster · monster player text (Bandit),My Attack is how many Items you hold.
+Cards,card.monster.bandit.ability,Roster · monster player text (Bandit),+1 Atk for each Item you hold.
 Cards,card.monster.bandit.explainer,Roster · monster Shift math (Bandit),Attack is Items
+Cards,card.monster.two_headed_serpent.name,Roster · monster name (live),Two-Headed Serpent
+Cards,card.monster.two_headed_serpent.ability,Roster · monster player text (Two-Headed Serpent),My Attack drops to 0 if you use two Items this fight.
+Cards,card.monster.two_headed_serpent.explainer,Roster · monster Shift math (Two-Headed Serpent),"two Items, no Attack"
+Cards,card.monster.slime_boss.name,Roster · monster name (live),Slime Boss
+Cards,card.monster.slime_boss.ability,Roster · monster player text (Slime Boss),My Attack always equals my HP.
+Cards,card.monster.slime_boss.explainer,Roster · monster Shift math (Slime Boss),Attack equals HP
 Cards,card.monster.leech_league.name,Roster · monster name (todo),Leech League
 Cards,card.monster.leech_league.ability,Roster · monster player text (Leech League),My HP equals the number of monsters in play
 Cards,card.monster.leech_league.explainer,Roster · monster Shift math (Leech League),HP from monsters left
@@ -336,12 +522,6 @@ Cards,card.monster.wraith.explainer,Roster · monster Shift math (Wraith),copies
 Cards,card.monster.mimic.name,Roster · monster name (todo),Mimic
 Cards,card.monster.mimic.ability,Roster · monster player text (Mimic),"If I go down before I Attack, you gain an Item."
 Cards,card.monster.mimic.explainer,Roster · monster Shift math (Mimic),Item if I never swing
-Cards,card.monster.two_headed_serpent.name,Roster · monster name (live),Two-Headed Serpent
-Cards,card.monster.two_headed_serpent.ability,Roster · monster player text (Two-Headed Serpent),My Attack drops to 0 if you use two Items this fight.
-Cards,card.monster.two_headed_serpent.explainer,Roster · monster Shift math (Two-Headed Serpent),"two Items, no Attack"
-Cards,card.monster.slime_boss.name,Roster · monster name (live),Slime Boss
-Cards,card.monster.slime_boss.ability,Roster · monster player text (Slime Boss),My Attack always equals my HP.
-Cards,card.monster.slime_boss.explainer,Roster · monster Shift math (Slime Boss),Attack equals HP
 Cards,card.monster.spider_queen.name,Roster · monster name (todo),Spider Queen
 Cards,card.monster.spider_queen.ability,Roster · monster player text (Spider Queen),I Attack twice if a Neighbor has less HP than I do.
 Cards,card.monster.spider_queen.explainer,Roster · monster Shift math (Spider Queen),double hit if a Neighbor is weaker
@@ -352,5 +532,35 @@ Cards,card.monster.dragon.name,Roster · monster name (todo),Dragon
 Cards,card.monster.dragon.ability,Roster · monster player text (Dragon),My Attack ignores Block.
 Cards,card.monster.dragon.explainer,Roster · monster Shift math (Dragon),ignores Block
 Cards,card.monster.needleback.name,Roster · monster name (live),Needleback
-Cards,card.monster.needleback.ability,Roster · monster player text (Needleback),I Attack you for 1 each time I take ATK damage.
+Cards,card.monster.needleback.ability,Roster · monster player text (Needleback),I Attack you for 1 dmg each time I take ATK damage.
 Cards,card.monster.needleback.explainer,Roster · monster Shift math (Needleback),1 Thorns
+Cards,card.monster.gelatinous_cube.name,Roster · monster name (live),Gelatinous Cube
+Cards,card.monster.gelatinous_cube.ability,Roster · monster player text (Gelatinous Cube),I make you feed me one of two items.
+Cards,card.monster.gelatinous_cube.explainer,Roster · monster Shift math (Gelatinous Cube),Feed me one
+Cards,card.monster.gargoyle.name,Roster · monster name (live),Gargoyle
+Cards,card.monster.gargoyle.ability,Roster · monster player text (Gargoyle),I petrify your highest Attack item until you Spin again.
+Cards,card.monster.gargoyle.explainer,Roster · monster Shift math (Gargoyle),Petrify highest ATK
+Cards,card.monster.harpy.name,Roster · monster name (live),Harpy
+Cards,card.monster.harpy.ability,Roster · monster player text (Harpy),"I attack you when we meet, and after each item you use."
+Cards,card.monster.harpy.explainer,Roster · monster Shift math (Harpy),Interrupt 1 swing
+Cards,card.monster.kobold_trapper.name,Roster · monster name (live),Kobold Trapper
+Cards,card.monster.kobold_trapper.ability,Roster · monster player text (Kobold Trapper),I attack an extra time for each item you use this fight.
+Cards,card.monster.kobold_trapper.explainer,Roster · monster Shift math (Kobold Trapper),(1 + items used)
+Cards,card.monster.clockwork_knight.name,Roster · monster name (live),Clockwork Knight
+Cards,card.monster.clockwork_knight.ability,Roster · monster player text (Clockwork Knight),"If I live, I leave two Tier 2 owners in my place."
+Cards,card.monster.clockwork_knight.explainer,Roster · monster Shift math (Clockwork Knight),Two Tier 2 if I live
+Cards,card.monster.basilisk.name,Roster · monster name (live),Basilisk
+Cards,card.monster.basilisk.ability,Roster · monster player text (Basilisk),I discard all items you use immediately while you face me.
+Cards,card.monster.basilisk.explainer,Roster · monster Shift math (Basilisk),Items discard on use
+Cards,card.monster.hollow.name,Roster · monster name (live),Twins
+Cards,card.monster.hollow.ability,Roster · monster player text (Twins),Even Attack and even Block happen twice against me.
+Cards,card.monster.hollow.explainer,Roster · monster Shift math (Twins),Even Attack or Block: twice
+Cards,card.monster.beggar.name,Roster · monster name (live),Beggar
+Cards,card.monster.beggar.ability,Roster · monster player text (Beggar),"My Attack copies the Attack number on your leftmost Attack item. If you have none, my Attack is 3."
+Cards,card.monster.beggar.explainer,Roster · monster Shift math (Beggar),"Leftmost Attack, or 3"
+Cards,card.monster.wick.name,Roster · monster name (live),Wick
+Cards,card.monster.wick.ability,Roster · monster player text (Wick),I gain 1 Attack and lose 1 HP whenever you use an item.
+Cards,card.monster.wick.explainer,Roster · monster Shift math (Wick),+1 Attack −1 HP per item use
+Cards,card.monster.anvil.name,Roster · monster name (live),Anvil
+Cards,card.monster.anvil.ability,Roster · monster player text (Anvil),I cannot lose more than 1 HP from one source.
+Cards,card.monster.anvil.explainer,Roster · monster Shift math (Anvil),Max 1 HP per source

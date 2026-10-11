@@ -22,8 +22,8 @@ var busy: bool = false
 
 func setup(p_art) -> void:
 	art = p_art
-	custom_minimum_size = Vector2(168, 128)
-	size = Vector2(168, 128)
+	custom_minimum_size = Vector2(128, 128)
+	size = Vector2(128, 128)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	gui_input.connect(_on_gui)
 	texture_filter = TEXTURE_FILTER_NEAREST
@@ -45,7 +45,7 @@ func show_monster(id: String) -> void:
 	_lunge_x = 0.0
 	modulate = Color.WHITE
 	scale = Vector2(0.72, 0.72)
-	visible = true
+	visible = false
 	pivot_offset = size * 0.5
 	var tw := create_tween()
 	tw.set_trans(Tween.TRANS_BACK)
@@ -179,7 +179,12 @@ func _burst(kind: String, col: Color, sc: float) -> void:
 
 func _draw() -> void:
 	var r := Rect2(Vector2.ZERO, size)
-	draw_rect(r, Color("1a120e"), true)
+	draw_rect(r, Color("100c0a"), true)
+	draw_rect(Rect2(Vector2(8, 8), size - Vector2(16, 16)), Color("1c1410"), true)
+	draw_rect(Rect2(Vector2(0, 0), Vector2(size.x, 22)), Color("080604a8"), true)
+	draw_rect(Rect2(Vector2(0, size.y - 28), Vector2(size.x, 28)), Color("080604c8"), true)
+	draw_rect(Rect2(Vector2(0, 0), Vector2(18, size.y)), Color("08060488"), true)
+	draw_rect(Rect2(Vector2(size.x - 18, 0), Vector2(18, size.y)), Color("08060488"), true)
 	if art != null:
 		_frame()
 	var frames: Array = _run if _mode == "run" and not _run.is_empty() else _idle
@@ -187,7 +192,8 @@ func _draw() -> void:
 		var tex: Texture2D = frames[int(_fi) % frames.size()]
 		var bob: float = sin(_bob * 3.2) * 3.0
 		var dest := Rect2(Vector2(size.x * 0.5 - 56.0 + _lunge_x, 14.0 + bob), Vector2(112, 124))
-		var mod := Color.WHITE
+		draw_circle(dest.get_center() + Vector2(0, 18), 52.0, Color("e8c36a22"))
+		var mod := Color(1.08, 1.02, 0.94)
 		if _flash > 0.45:
 			mod = Color(1.6, 1.6, 1.8)
 		elif _flash > 0.0:
@@ -218,6 +224,7 @@ func _draw() -> void:
 
 func _frame() -> void:
 	var gold := Color("c4a574")
+	draw_rect(Rect2(Vector2(3, 3), size - Vector2(6, 6)), Color("2a2218"), false, 5.0)
 	draw_rect(Rect2(Vector2(4, 4), size - Vector2(8, 8)), gold, false, 3.0)
 	draw_rect(Rect2(Vector2(9, 9), size - Vector2(18, 18)), Color("e8c36a"), false, 1.0)
 	if art.tile("wall_mid") != null:
