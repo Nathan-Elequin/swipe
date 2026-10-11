@@ -129,7 +129,7 @@ Touch these **one lane at a time**, and change the smallest thing that works.
 | Path | Why it is shared | Who edits it, and how |
 |---|---|---|
 | `scripts/main.gd` | Boot, frame, input only | The lane whose hook it is. Add a one-line call, do not grow this file. |
-| `scripts/lanes/game_state.gd` | Every `var` the scene keeps (`hp`, `phase`, `wheel`, `hotbar`, …). Paths and preloads. Balance caps used to init state (`HP_MAX`, `STARTER_COUNT`, `REFUSALS_MAX`, `DRAFT_ROUNDS`, `HAND_MAX`). | Content if you are changing a cap or a preload for a card. Core if you add a new run flag. UI if you add a node reference. One field, one lane. |
+| `scripts/lanes/game_state.gd` | Every `var` the scene keeps (`hp`, `phase`, `wheel`, `hotbar`, …). Paths and preloads. Balance caps used to init state (`HP_MAX`, `STARTER_COUNT`, `REFUSALS_MAX`, `DRAFT_ROUNDS`, `HAND_MAX`). The long stub list at the bottom exists so Godot 4.7 can compile a parent that calls a method written in a child file. The stub is never the live code — Main uses the real function. | Content if you are changing a cap or a preload for a card. Core if you add a new run flag. UI if you add a node reference. If you add a **new** function that an ancestor will call, add a matching stub here too. One field, one lane. |
 | `scenes/main.tscn` | Still just Main + `main.gd` | Almost never. |
 | `project.godot` | Autoloads, window, theme defaults | The lane that needs the setting. |
 | `design/LANES.md` | This map | Update when you add a file a lane will own. |
