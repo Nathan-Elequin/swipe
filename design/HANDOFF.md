@@ -4,6 +4,17 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-11 — Readable utility text (Nunito)
+- From: Cursor cloud agent
+- To: Jam
+- Status: DONE
+- What: Utility text (item/monster names, descriptions, ATK/BLK/HEAL/HP numbers and tags) now uses Nunito Regular/SemiBold/Bold/ExtraBold with grayscale AA and light hinting. Flavor stays pixel: cues, titles, Nib, banners, buttons, Weak/Tough/Deadly pills. Theme types `UtilityName` (24), `UtilityBody` (20), `UtilityNumber` (28), `UtilityTag` (18). Sizes live in `scripts/ui_palette.gd`. ATK/KO number ink lightened (`#E86A62` / `#C080E0`) so they pass ~4.5:1 on oak; wheel HP chips use a darker red fill plus a soot plate. Hand cards grew 190→210 tall so 24 px names do not clip. Wheel stayed at (548,350). No `data/` edits.
+- Converted: hand cards, draft-gate item name + guard line, inspect name/value/tag/ability, owner plate (fight/placement/inspect), hover/fly tip, wheel hub HP/BLK, seat ATK/HP chips, leftover tray monster chips, trophy count.
+- Could not convert / left pixel on purpose: Nib How to Play talk (`talk_box.gd`, fallback `tutorial_guide._build_talk`), cues (`Take it or leave it?`), Inspect/Pause/Victory/Defeat titles, buttons, BLOCKED/SLAIN banners, Weak/Tough/Deadly pills, pause slider labels.
+- Compromise: wheel seat chips stay Nunito ExtraBold **18** (the floor). 28 px would cover the 64 px portrait.
+- Files: `assets/ui/fonts/Nunito-*.ttf` + `OFL.txt`, `themes/swipe_theme.tres`, `scripts/ui_palette.gd`, `scripts/item_card.gd`, `scripts/inspect_plate.gd`, `scripts/owner_plate.gd`, `scripts/hover_panel.gd`, `scripts/draft_gate.gd`, `scripts/boss_wheel.gd`, `scripts/wheel_hud.gd`, `scripts/trophy_mount.gd`, `scripts/main.gd`, `design/visual/style-guide.md`
+- QA: Godot 4.7.2 headless import + `--quit-after 2` (no script errors). Offscreen shots: `design/visual/qa/nunito_boot.png` (title; flavor stays pixel, hub HP/BLK already Nunito) · `design/visual/qa/nunito_hand.png` (hand names/values, hub, inspect idle). No godot-mcp in this environment, so no in-editor click-through.
+
 ## 2026-10-11 — Direction A polish
 - From: Cursor
 - To: Jam / Pixel / Nathan

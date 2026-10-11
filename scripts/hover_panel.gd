@@ -3,6 +3,7 @@ extends PanelContainer
 
 const COPY := preload("res://scripts/player_copy.gd")
 const UX := preload("res://scripts/ux_style.gd")
+const UI := preload("res://scripts/ui_palette.gd")
 
 signal edit_pressed(kind: String, card_id: String)
 
@@ -89,7 +90,6 @@ func show_rule(
 	_wipe()
 	mouse_filter = Control.MOUSE_FILTER_STOP if accept_clicks and p_id != "" else Control.MOUSE_FILTER_IGNORE
 	var ink: Color = Color("f0e6d8") if _on_dark else Color("1c120c")
-	var ink_out: Color = Color("1c120c") if _on_dark else Color("f3e6d0")
 	var body_col: Color = Color("e8dcc8") if _on_dark else Color("2a1c14")
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 7)
@@ -112,12 +112,8 @@ func show_rule(
 	var t := Label.new()
 	t.text = title
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var title_sz: int = int(look.get("title_size", 22))
-	t.add_theme_font_size_override("font_size", title_sz)
-	t.add_theme_color_override("font_color", ink)
-	t.add_theme_color_override("font_outline_color", ink_out)
-	var title_out: int = 6 if bool(look.get("title_bold", false)) else (4 if _on_dark else 2)
-	t.add_theme_constant_override("outline_size", title_out)
+	var title_sz: int = maxi(UI.SIZE_MIN, int(look.get("title_size", UI.SIZE_NAME)))
+	UI.apply_name(t, ink, title_sz)
 	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(t)
 	var rule := ColorRect.new()
@@ -135,9 +131,7 @@ func show_rule(
 			st.fit_content = true
 			st.scroll_active = false
 			st.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			st.add_theme_font_size_override("normal_font_size", 20)
-			st.add_theme_font_size_override("bold_font_size", 22)
-			st.add_theme_color_override("default_color", ink)
+			UI.apply_rich(st, "number", ink)
 			st.text = "[center]%s[/center]" % str(look.get("stat_bb", ""))
 			st.custom_minimum_size = Vector2(236, 0)
 			st.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -150,9 +144,7 @@ func show_rule(
 		legend.fit_content = true
 		legend.scroll_active = false
 		legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		legend.add_theme_font_size_override("normal_font_size", 13)
-		legend.add_theme_font_size_override("bold_font_size", 13)
-		legend.add_theme_color_override("default_color", ink)
+		UI.apply_rich(legend, "body", ink)
 		legend.text = "[center]%s[/center]" % UX.legend_bb()
 		legend.custom_minimum_size = Vector2(236, 28)
 		legend.size_flags_horizontal = Control.SIZE_FILL
@@ -164,9 +156,7 @@ func show_rule(
 		e.fit_content = true
 		e.scroll_active = false
 		e.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		e.add_theme_font_size_override("normal_font_size", 20)
-		e.add_theme_font_size_override("bold_font_size", 22)
-		e.add_theme_color_override("default_color", ink)
+		UI.apply_rich(e, "number", ink)
 		e.text = "[center]%s[/center]" % value_line
 		e.custom_minimum_size = Vector2(236, 0)
 		e.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -177,18 +167,13 @@ func show_rule(
 		eq.fit_content = true
 		eq.scroll_active = false
 		eq.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		var eq_fs: int = 15 if str(look.get("equation_kind", "")) == "call" else 16
-		eq.add_theme_font_size_override("normal_font_size", eq_fs)
-		eq.add_theme_font_size_override("bold_font_size", eq_fs)
 		eq.add_theme_constant_override("line_separation", 3)
-		eq.add_theme_constant_override("outline_size", 4)
-		eq.add_theme_color_override("font_outline_color", Color("1c120c"))
 		var eq_ink: Color = ink
 		if str(look.get("equation_kind", "")) == "call":
 			var hx: String = str(look.get("call_hex", "")).strip_edges()
 			if hx != "":
 				eq_ink = Color(hx)
-		eq.add_theme_color_override("default_color", eq_ink)
+		UI.apply_rich(eq, "body", eq_ink)
 		eq.text = "[center]%s[/center]" % equation
 		eq.custom_minimum_size = Vector2(236, 0)
 		eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -199,11 +184,8 @@ func show_rule(
 		b.fit_content = true
 		b.scroll_active = false
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		var body_fs: int = int(look.get("body_size", 15))
-		b.add_theme_font_size_override("normal_font_size", body_fs)
-		b.add_theme_font_size_override("bold_font_size", body_fs)
 		b.add_theme_constant_override("line_separation", 3)
-		b.add_theme_color_override("default_color", body_col)
+		UI.apply_rich(b, "body", body_col)
 		b.text = body
 		b.custom_minimum_size = Vector2(236, 0)
 		b.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -212,8 +194,7 @@ func show_rule(
 		var w := Label.new()
 		w.text = warn
 		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		w.add_theme_font_size_override("font_size", 15)
-		w.add_theme_color_override("font_color", Color("f0a0a0") if _on_dark else Color("8b1e1e"))
+		UI.apply_body(w, Color("f0a0a0") if _on_dark else Color("8b1e1e"), UI.SIZE_BODY)
 		w.custom_minimum_size = Vector2(236, 0)
 		w.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(w)
@@ -224,9 +205,7 @@ func show_rule(
 		h.fit_content = true
 		h.scroll_active = false
 		h.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		h.add_theme_font_size_override("normal_font_size", 12)
-		h.add_theme_font_size_override("italics_font_size", 12)
-		h.add_theme_color_override("default_color", Color("8a8278"))
+		UI.apply_rich(h, "body", Color("B89A70"))
 		h.text = "[i]%s[/i]" % hint
 		h.custom_minimum_size = Vector2(236, 0)
 		h.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -369,11 +348,13 @@ class VitalsIcons extends Control:
 		return pts
 
 	func _num(font: Font, pos: Vector2, txt: String) -> void:
-		var fs := 18
-		var sz: Vector2 = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+		var use: Font = UiPalette.font_extrabold()
+		if use == null:
+			use = font
+		var fs := UiPalette.SIZE_CHIP
+		var sz: Vector2 = use.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
 		var p: Vector2 = pos - Vector2(sz.x * 0.5, sz.y * 0.35)
-		draw_string(font, p + Vector2(1, 1), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("1c120c"))
-		draw_string(font, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("f0e6d8"))
+		draw_string(use, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("f0e6d8"))
 
 
 class StatBadge extends Control:
@@ -469,10 +450,12 @@ class StatBadge extends Control:
 		return pts
 
 	func _num(font: Font, pos: Vector2, txt: String) -> void:
-		var fs := 18
-		var sz: Vector2 = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+		var use: Font = UiPalette.font_extrabold()
+		if use == null:
+			use = font
+		var fs := UiPalette.SIZE_CHIP
+		var sz: Vector2 = use.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
 		var p: Vector2 = pos - Vector2(sz.x * 0.5, sz.y * 0.35)
-		draw_string(font, p + Vector2(1, 1), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("1c120c"))
-		draw_string(font, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("f0e6d8"))
+		draw_string(use, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("f0e6d8"))
 
 

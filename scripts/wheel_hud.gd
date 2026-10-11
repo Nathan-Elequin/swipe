@@ -3,6 +3,7 @@ extends Control
 
 const COPY := preload("res://scripts/player_copy.gd")
 const UX := preload("res://scripts/ux_style.gd")
+const UI := preload("res://scripts/ui_palette.gd")
 
 const GOLD := Color("FFD84A")
 const SOOT := Color("1A120E")
@@ -134,7 +135,7 @@ func _build() -> void:
 	hotbar_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	hotbar_box.add_theme_constant_override("separation", 14)
 	hotbar_box.position = Vector2(32, 790)
-	hotbar_box.size = Vector2(1030, 190)
+	hotbar_box.size = Vector2(1030, 210)
 	hotbar_box.z_index = 8
 	add_child(hotbar_box)
 
@@ -199,10 +200,7 @@ func _build() -> void:
 	idle_body.text = COPY.need("inspect.idle")
 	idle_body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	idle_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	if _font_vt != null:
-		idle_body.add_theme_font_override("font", _font_vt)
-	idle_body.add_theme_font_size_override("font_size", 30)
-	idle_body.add_theme_color_override("font_color", DIM)
+	UI.apply_body(idle_body, UI.DIM, UI.SIZE_BODY)
 	idle_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	idle_v.add_child(idle_body)
 
@@ -245,7 +243,7 @@ func _build() -> void:
 
 	ghost_hand = Control.new()
 	ghost_hand.position = Vector2(32, 790)
-	ghost_hand.size = Vector2(1030, 190)
+	ghost_hand.size = Vector2(1030, 210)
 	ghost_hand.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ghost_hand.z_index = 8
 	ghost_hand.visible = false
@@ -393,7 +391,7 @@ func layout_hand() -> void:
 		w = hotbar_box.size.x
 	w = minf(w, 1030.0)
 	hotbar_box.position = Vector2(floor(547.0 - w * 0.5), 790)
-	hotbar_box.size = Vector2(maxf(w, 8.0), 190)
+	hotbar_box.size = Vector2(maxf(w, 8.0), 210)
 
 
 func _layout() -> void:
@@ -491,7 +489,7 @@ func _draw_ghost_hand() -> void:
 		return
 	var n := 6
 	var cw := 140.0
-	var ch := 190.0
+	var ch := 210.0
 	var gap := 14.0
 	var total: float = float(n) * cw + float(n - 1) * gap
 	var x0: float = (ghost_hand.size.x - total) * 0.5
