@@ -27,6 +27,7 @@ func _process(_delta: float) -> void:
 	if sh != _shift_held:
 		_shift_held = sh
 		_sync_hotbar_formulas()
+		_sync_authoring_chrome()
 		_refresh_monster_plates()
 		_refresh_gate_owner()
 		if not _hover_item.is_empty():

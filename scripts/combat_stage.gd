@@ -45,7 +45,7 @@ func show_monster(id: String) -> void:
 	_lunge_x = 0.0
 	modulate = Color.WHITE
 	scale = Vector2(0.72, 0.72)
-	visible = false
+	visible = true
 	pivot_offset = size * 0.5
 	var tw := create_tween()
 	tw.set_trans(Tween.TRANS_BACK)
@@ -66,6 +66,10 @@ func _on_gui(event: InputEvent) -> void:
 func mouth_global() -> Vector2:
 	var r: Rect2 = get_global_rect()
 	return r.position + Vector2(r.size.x * 0.52, r.size.y * 0.50)
+
+
+func is_striking() -> bool:
+	return _mode == "run" or _flash > 0.08
 
 
 func hide_stage() -> void:

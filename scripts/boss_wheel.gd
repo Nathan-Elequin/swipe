@@ -13,8 +13,8 @@ const SIX := PI / 2.0
 const OUTER_R := 300.0
 const HUB_R := 96.0
 const SEAT_R := 200.0
-const SEAT := 76.0
-const SPRITE := 64.0
+const SEAT := 100.0
+const SPRITE := 84.0
 const EMPTY_FILL := Color("120C09")
 const STONE := Color("2a231e")
 const STONE_DEEP := Color("1c1814")
@@ -545,7 +545,15 @@ func _sync_alcoves() -> void:
 			a = 0.45
 		if highlight == "place" and i < slices.size() and str(slices[i].get("kind", "")) != "monster":
 			a *= pulse
-		tr.modulate = Color(1, 1, 1, a)
+		var tint := Color.WHITE
+		if i < slices.size() and str(slices[i].get("kind", "")) == "monster":
+			var metal: Color = UX.metal_wedge(_plate_tier(slices[i]))
+			tint = Color(lerpf(0.55, metal.r, 0.85), lerpf(0.50, metal.g, 0.85), lerpf(0.42, metal.b, 0.85), 1.0)
+			if (not spinning) and i == facing_index:
+				tint = tint.lightened(0.10)
+			tr.modulate = Color(tint.r, tint.g, tint.b, a)
+		else:
+			tr.modulate = Color(1, 1, 1, a)
 
 
 func _process(delta: float) -> void:
@@ -694,9 +702,9 @@ func _spoke(i: int) -> Dictionary:
 	var win: float = SPRITE
 	var plate_r: float = SPRITE * 0.5
 	var port: Vector2 = origin + dir * SEAT_R
-	var half: float = SEAT * 0.5
-	var hp: Vector2 = port + Vector2(half - 14.0, half - 12.0)
-	var atk: Vector2 = port + Vector2(-half + 14.0, half - 12.0)
+	var spread: float = plate_r + 22.0
+	var hp: Vector2 = _clamp_to_rim(port + tan * spread, 22.0)
+	var atk: Vector2 = _clamp_to_rim(port - tan * spread, 22.0)
 	var nam: Vector2 = origin + dir * r * 0.90
 	return {
 		"c": c,
@@ -828,7 +836,9 @@ func _draw() -> void:
 	if font == null:
 		font = ThemeDB.fallback_font
 	for i in n:
-		_draw_slice_contents(font, c, radius, starts[i], _span(i), i)
+		_draw_slice(c, radius, starts[i], starts[i] + _span(i), i)
+	for i2 in n:
+		_draw_slice_contents(font, c, radius, starts[i2], _span(i2), i2)
 	_draw_bonds(c, radius)
 	_draw_seat_fx(font)
 	_draw_hub_block(c, radius)
@@ -1009,7 +1019,12 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 		fill = fill.lerp(DOWN_COL, clampf(float(_flash[i]) * 1.4, 0.0, 0.55))
 	if i == slay_index and collapse > 0.0:
 		fill.a *= 1.0 - collapse * 0.85
-	_draw_wedge(origin, r, a0, a1, fill)
+	if _use_alcove_tex:
+		var wash: Color = fill
+		wash.a = 0.32
+		_draw_wedge(origin, r, a0, a1, wash)
+	else:
+		_draw_wedge(origin, r, a0, a1, fill)
 	var rim: Color = Color("2a241e")
 	var rw: float = 1.4
 	if highlight == "place" and str(s.get("kind", "")) == "empty":
@@ -1069,7 +1084,14 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	var plate_r: float = float(sp.get("plate_r", 36.0))
 	var sprite_r := Rect2(port_pos - Vector2(SPRITE, SPRITE) * 0.5, Vector2(SPRITE, SPRITE))
 	if tex_portraits.has(pid):
-		draw_texture_rect(tex_portraits[pid], sprite_r, false, Color(dim, dim, dim, dim))
+		var face_c: bool = port_pos.x >= _center().x
+		if face_c:
+			draw_set_transform(port_pos, 0.0, Vector2(-1, 1))
+			draw_texture_rect(tex_portraits[pid], Rect2(Vector2(-SPRITE, -SPRITE) * 0.5, Vector2(SPRITE, SPRITE)), false, Color(dim, dim, dim, dim))
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		else:
+			draw_texture_rect(tex_portraits[pid], sprite_r, false, Color(dim, dim, dim, dim))
+	_draw_slice_title(font, sp, s, is_face, crowded, dim, is_hover)
 	_draw_tier_num(font, port_pos - dir * (plate_r + 12.0), s, is_face, crowded)
 	var sid: String = str(s.get("special_id", ""))
 	if sid != "" and tex_special.has(sid) and not tex_portraits.has(pid):
@@ -1530,7 +1552,8 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 	if seat_atk != 0:
 		rad *= 1.16 + 0.20 * pulse
 		fill = fill.lerp(Color("ffb48a"), 0.30 + 0.22 * pulse)
-	_draw_stat_chip(pos, CHIP_ATK, ATK_COL, str(atk), 15)
+	_draw_sword_badge(pos, rad * 1.3, fill, _center() - pos)
+	_draw_bold_num(font, pos + Vector2(0.0, 1.0), str(atk), 21 if big else 18, Color("f0e6d8"))
 	if bool(s.get("cmd_buff", false)) or seat_atk != 0:
 		var ring_c := Color(1.0, 0.45, 0.22, 0.55 + 0.45 * pulse) if seat_atk != 0 else Color(0.95, 0.22, 0.16, 0.45 + 0.5 * pulse)
 		draw_arc(pos, rad + 3.0, 0.0, TAU, 24, ring_c, 2.6 if seat_atk == 0 else 5.0, true)
@@ -1600,7 +1623,9 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	if seat_hp != 0:
 		hs *= 1.18 + 0.22 * pulse
 		fill = fill.lerp(Color("fff4c8"), 0.28 + 0.22 * pulse)
-	_draw_stat_chip(pos, HP_FILL, Color.WHITE, str(hp), 15)
+	_draw_heart_shape(pos, hs * 1.3, fill, Color("1c120c"))
+	draw_circle(pos + Vector2(0.0, 4.0), hs * 0.36, Color("6a1818"))
+	_draw_bold_num(font, pos + Vector2(0.0, 2.0), str(hp), 21 if big else 18, Color("f0e6d8"))
 	if bool(s.get("lich_buff", false)) or seat_hp != 0:
 		var pulse2: float = 0.55 + 0.45 * sin(float(Time.get_ticks_msec()) * 0.007)
 		var ring: Color = Color(1.0, 0.94, 0.55, 0.55 + 0.45 * pulse2) if seat_hp != 0 else Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2)
@@ -1657,25 +1682,49 @@ func _draw_floaters(font: Font) -> void:
 		draw_string(font, pos2, str(g["text"]), HORIZONTAL_ALIGNMENT_LEFT, -1, int(g.get("fs", 18)), col2)
 
 
-func _draw_hub_block(c: Vector2, _radius: float) -> void:
-	var num_font: Font = _font_nx if _font_nx != null else get_theme_default_font()
-	var tag_font: Font = _font_nb if _font_nb != null else num_font
-	if num_font == null:
-		num_font = ThemeDB.fallback_font
-	var hp_col: Color = UI.HP_INK
-	if hub_hp_ghost >= 0 and hub_hp_ghost < hub_hp:
-		hp_col = hp_col.lerp(Color("f0e6d8"), 0.35 + 0.25 * absf(sin(float(Time.get_ticks_msec()) * 0.012)))
-	var scale: float = 1.0 + hub_hp_flash * 0.12
-	_draw_hub_stat(num_font, tag_font, c + Vector2(0.0, -28.0), str(maxi(hub_hp, 0)), "HP", hp_col, scale)
+func _draw_hub_block(c: Vector2, radius: float) -> void:
+	var font: Font = _font_nx if _font_nx != null else get_theme_default_font()
+	if font == null:
+		font = ThemeDB.fallback_font
+	var bob: float = sin(float(Time.get_ticks_msec()) * 0.004) * 2.0
+	var ppos: Vector2 = c + Vector2(0.0, 6.0 + bob)
+	if not tex_player.is_empty():
+		var fi: int = int(Time.get_ticks_msec() / 180) % tex_player.size()
+		var tex: Texture2D = tex_player[fi]
+		var psz := Vector2(56, 80)
+		draw_texture_rect(tex, Rect2(ppos - psz * 0.5, psz), false)
+	var pip_n: int = maxi(hub_hp_max, 1)
+	var arc_r: float = 44.0
+	for i in pip_n:
+		var t: float = lerpf(-2.35, -0.79, float(i) / float(maxi(pip_n - 1, 1)))
+		var live: bool = i < hub_hp
+		var soon: bool = hub_hp_ghost >= 0 and i >= hub_hp_ghost and i < hub_hp
+		_draw_hub_pip(c + Vector2(cos(t), sin(t)) * arc_r, Vector2(18, 16), live, soon)
 	var shown: int = hub_ghost if hub_ghost >= 0 else hub_blk
-	var blk_col: Color = BLK_BLUE
+	var fill := Color("2a6aa8")
+	var rim := Color("6bb3d9")
 	if shown <= 0:
-		blk_col = Color("4a6a80")
+		fill = Color("1a3348")
+		rim = Color("4a6a80")
 	if hub_ghost >= 0 and hub_ghost > hub_blk:
-		blk_col = Color("7dba7d")
-	var blk_scale: float = 1.0 + hub_flash * 0.12
+		fill = Color("2a7a58")
+		rim = Color("7dba7d")
+	var scale: float = 1.0 + hub_flash * 0.28
+	var shield_c: Vector2 = c + Vector2(0.0, 44.0)
+	var sw: float = 22.0 * scale
+	var shield := PackedVector2Array([
+		shield_c + Vector2(0.0, -sw * 0.78),
+		shield_c + Vector2(sw * 0.70, -sw * 0.28),
+		shield_c + Vector2(sw * 0.55, sw * 0.48),
+		shield_c + Vector2(0.0, sw * 0.88),
+		shield_c + Vector2(-sw * 0.55, sw * 0.48),
+		shield_c + Vector2(-sw * 0.70, -sw * 0.28),
+	])
+	draw_colored_polygon(shield, fill)
+	shield.append(shield[0])
+	draw_polyline(shield, rim, 3.0, true)
 	var txt: String = str(maxi(shown, 0))
-	_draw_hub_stat(num_font, tag_font, c + Vector2(0.0, 34.0), txt, "BLK", blk_col, blk_scale)
+	_draw_bold_num(font, shield_c + Vector2(0.0, 1.0), txt, 18, Color("f0e6d8"))
 
 
 func _draw_stat_chip(pos: Vector2, fill: Color, ink: Color, txt: String, fs: int) -> void:
