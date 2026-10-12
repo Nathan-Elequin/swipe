@@ -315,7 +315,8 @@ func _sync_authoring_chrome() -> void:
 	var dev: bool = _authoring() and phase == "devtest"
 	var mouse: Vector2 = get_viewport().get_mouse_position() if get_viewport() != null else Vector2.ZERO
 	var log_hover: bool = mouse.x > 1500.0 and mouse.y < 96.0
-	var play_log: bool = phase != "title" and (_shift_held or log_hover)
+	var callout_up: bool = fly_tip != null and fly_tip.visible
+	var play_log: bool = phase != "title" and (_shift_held or log_hover) and not callout_up
 	if log_btn:
 		log_btn.visible = dev
 		if not dev:
@@ -324,6 +325,12 @@ func _sync_authoring_chrome() -> void:
 		_log_open = false
 	if log_label:
 		log_label.visible = (dev and _log_open) or play_log
+		if log_label.visible:
+			var h: float = 220.0
+			if face_box != null and face_box.visible:
+				h = minf(h, maxf(72.0, face_box.global_position.y - 40.0))
+			log_label.position = Vector2(1180, 28)
+			log_label.size = Vector2(460, h)
 	if _copy_stamp:
 		_copy_stamp.visible = dev
 

@@ -953,6 +953,12 @@ func _item_inspect_body(it: Dictionary, _rule: Dictionary) -> String:
 func _item_inspect_look(it: Dictionary) -> Dictionary:
 	return {}
 
+func _item_display_kind(it: Dictionary) -> String:
+	return ""
+
+func _pin_top_right(panel: Control) -> void:
+	pass
+
 func _show_item_inspect(it: Dictionary) -> void:
 	pass
 

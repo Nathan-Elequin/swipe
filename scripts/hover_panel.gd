@@ -121,6 +121,9 @@ func show_rule(
 	rule.color = Color("e8c36a") if _on_dark else Color("c4a574")
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(rule)
+	var call_n: String = str(look.get("call", "")).strip_edges()
+	if call_n != "":
+		col.add_child(UX.call_capsule(call_n, str(look.get("call_hex", ""))))
 	if look.has("hp"):
 		var vitals := VitalsIcons.new(int(look.get("hp", 0)), int(look.get("atk", 0)))
 		col.add_child(vitals)
@@ -174,7 +177,7 @@ func show_rule(
 			if hx != "":
 				eq_ink = Color(hx)
 		UI.apply_rich(eq, "body", eq_ink)
-		eq.text = "[center]%s[/center]" % equation
+		eq.text = "[center]%s[/center]" % UX.pretty_formula(equation)
 		eq.custom_minimum_size = Vector2(236, 0)
 		eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(eq)

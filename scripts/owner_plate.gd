@@ -25,6 +25,7 @@ var _atk_tag: Label
 var _hp: Label
 var _hp_tag: Label
 var _ability: Label
+var _call_slot: VBoxContainer
 var _font_sk: Font
 
 
@@ -103,6 +104,10 @@ func _build() -> void:
 	stats.add_child(_hp)
 	stats.add_child(_hp_tag)
 
+	_call_slot = VBoxContainer.new()
+	_call_slot.alignment = BoxContainer.ALIGNMENT_CENTER
+	_call_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(_call_slot)
 	_ability = Label.new()
 	_ability.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_ability.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -151,10 +156,20 @@ func show_monster(m: Dictionary, tex: Texture2D = null) -> void:
 	_name.text = str(m.get("name", ""))
 	_atk.text = str(int(m.get("atk", 0)))
 	_hp.text = str(int(m.get("hp", 0)))
+	if _call_slot != null:
+		for c in _call_slot.get_children():
+			_call_slot.remove_child(c)
+			c.queue_free()
+		var call_n: String = str(m.get("call_name", m.get("call", ""))).strip_edges()
+		if call_n != "":
+			_call_slot.add_child(UX.call_capsule(call_n, str(m.get("call_hex", ""))))
 	var body: String = str(m.get("ability", "")).strip_edges()
+	if body == "":
+		body = str(m.get("explainer", "")).strip_edges()
 	if body == "":
 		body = str(m.get("special_text", "")).strip_edges()
 	_ability.text = body
+	_ability.visible = body != ""
 	_well.texture = tex
 	_well.modulate = Color.WHITE
 

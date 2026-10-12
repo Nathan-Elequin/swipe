@@ -26,6 +26,13 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 - What: Shrunk the right-column draft panel so it stays above a two-row hand (cards 210 + 14 + 210, floor y 1000). Ask mode is now item (~60%: sprite, name, value/effect; click the item to take it) and a Weak/Tough/Deadly threat block (~40%: wheel-tier fill/rim from `UxStyle.metal*`, Deadly gets a red pulse and skull). Cut the tagline, THE MONSTER / THE LOOT, guard line, silhouette arch, and the Take button. Leave uses `door.pass` / `door.pass_one` / `door.pass_none`. Header is `cue.ask` only. Hand wraps with `HFlowContainer` inside x 32–1062. No `data/` edits. No author-lock edits.
 - Files: `scripts/draft_gate.gd`, `scripts/wheel_hud.gd`, `scripts/core/draft_flow.gd`, `scripts/ui/hud_controller.gd`, `tools/qa/qa_probe.gd`, `tools/qa/check_hand_use.gd`
 - QA: Godot 4.7.2 `--import` then `--quit-after 2` (no game-script errors). `tools/qa/check_hand_use.gd` PASS: Shield BLK 0→4; leave 3→2 with `Leave it (3 passes left)`; take reached seat; column 560×526 bottom 554 vs two-row hand top 566, `overlap=false`. Headless dummy cannot screenshot. Report: `design/qa/reports/2026-10-12-draft-gate-compact.md`
+## 2026-10-12 — Hand cards + callouts (UI lane)
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: Five fight-screen rulings on the UI lane only. Shift never resizes a hand card; the formula uses 13px Nunito and breaks at `or`, with the number still visible. Card type / keyword color comes from JSON `card_color` (Grappling Hook and Poison Flask are utility, not ATK). Item hover is the compact top-right callout again, not the column plate. Facing and hovered monsters show ability name (capsule) plus explainer. Event log stays hidden unless Shift or a top-right hover, and it hides while a callout is up so they do not overlap. No `data/` edits. Did not touch `boss_wheel.gd` / `wheel_hud.gd` / `draft_gate.gd`.
+- Files: `scripts/item_card.gd`, `scripts/hover_panel.gd`, `scripts/owner_plate.gd`, `scripts/inspect_plate.gd`, `scripts/ux_style.gd`, `scripts/ui_palette.gd`, `scripts/ui/hud_controller.gd`, `scripts/ui/authoring_ui.gd`, `scripts/lanes/game_state.gd`, `tools/qa/check_item_types.gd`, `design/HANDOFF.md`, `design/qa/reports/2026-10-12-hand-callouts.md`
+- QA: Godot 4.7.2 headless. `check_item_types` ITEM_TYPE_OK (42 items; Hook/Flask UTILITY; Shift size 140×210 unchanged). `check_hand_use` HAND_USE_OK. `check_boot` BOOT_OK. `check_layers` OK. Dummy renderer, no godot-mcp. Report: `design/qa/reports/2026-10-12-hand-callouts.md`.
 
 ## 2026-10-11 — Hand clicks + fight UX restore
 - From: Cursor

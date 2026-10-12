@@ -631,6 +631,17 @@ func _item_inspect_body(it: Dictionary, _rule: Dictionary) -> String:
 	return ab
 
 
+func _item_display_kind(it: Dictionary) -> String:
+	var tint: String = str(it.get("card_color", "")).strip_edges()
+	if tint == "":
+		var cat: Dictionary = items_by_id.get(str(it.get("card_id", "")), {})
+		tint = str(cat.get("card_color", "")).strip_edges()
+	var shown: String = UX.display_kind(tint)
+	if shown != "":
+		return shown
+	return str(_item_view(it).get("kind", "ATK"))
+
+
 func _item_inspect_look(it: Dictionary) -> Dictionary:
 	var look: Dictionary = _item_look(it)
 	look["title_size"] = 26
@@ -638,7 +649,7 @@ func _item_inspect_look(it: Dictionary) -> Dictionary:
 	if _shift_held and str(_item_rule(it).get("equation", "")).strip_edges() != "":
 		return look
 	var view: Dictionary = _item_view(it)
-	var k: String = str(view.get("kind", "ATK"))
+	var k: String = _item_display_kind(it)
 	var shown: String = str(view.get("number", "")).strip_edges()
 	if k == "ATK" and str(it.get("card_id", "")) == "spiked_shield":
 		look["stat_kind"] = "BOTH"
@@ -661,13 +672,24 @@ func _item_inspect_look(it: Dictionary) -> Dictionary:
 		look["stat_bb"] = _value_bb("Defeat", "", "#C9A0FF")
 	elif shown != "" and shown != "—":
 		look["stat_bb"] = _paint_explainer(shown)
-	elif k != "":
-		look["stat_bb"] = _paint_explainer(k.substr(0, 1) + k.substr(1).to_lower())
 	return look
 
 
+func _pin_top_right(panel: Control) -> void:
+	if panel == null:
+		return
+	panel.top_level = true
+	panel.z_index = 25
+	panel.reset_size()
+	var sz: Vector2 = panel.get_combined_minimum_size()
+	sz.x = maxf(sz.x, 280.0)
+	panel.size = sz
+	var vp: Vector2 = get_viewport_rect().size
+	panel.global_position = Vector2(vp.x - sz.x - 24.0, 28.0)
+
+
 func _show_item_inspect(it: Dictionary) -> void:
-	if inspect == null or it.is_empty():
+	if it.is_empty() or fly_tip == null:
 		return
 	var rule: Dictionary = _item_rule(it)
 	var body: String = _item_inspect_body(it, rule)
@@ -675,15 +697,15 @@ func _show_item_inspect(it: Dictionary) -> void:
 	var port: Texture2D = null
 	if art != null:
 		port = art.item_tex(str(it.get("card_id", "")))
-	inspect.visible = true
+	if inspect != null:
+		inspect.hide_plate()
+		inspect.top_level = false
 	_set_inspect_idle(false)
 	if fight_ui:
 		fight_ui.visible = false
 	if placement_ui:
 		placement_ui.visible = false
-	inspect.top_level = true
-	inspect.z_index = 25
-	inspect.show_rule(
+	fly_tip.show_rule(
 		str(rule["title"]),
 		"",
 		eq,
@@ -694,12 +716,8 @@ func _show_item_inspect(it: Dictionary) -> void:
 		str(it.get("card_id", "")),
 		_item_inspect_look(it)
 	)
-	inspect.reset_size()
-	var sz: Vector2 = inspect.get_combined_minimum_size()
-	sz.x = maxf(sz.x, 280.0)
-	inspect.size = sz
-	var vp: Vector2 = get_viewport_rect().size
-	inspect.global_position = Vector2(vp.x - sz.x - 24.0, 28.0)
+	_pin_top_right(fly_tip)
+	_sync_authoring_chrome()
 
 
 func _monster_look(s: Dictionary) -> Dictionary:
@@ -761,11 +779,11 @@ func _on_slice_hovered(index: int) -> void:
 		return
 	if inspect == null:
 		return
-	if fly_tip != null and fly_tip.edit_kind == "monster":
-		fly_tip.hide_plate()
 	if index < 0 or index >= wheel.size():
 		_hover_slice = -1
 		_refresh_seat_preview(-1)
+		if fly_tip != null and fly_tip.edit_kind == "monster":
+			fly_tip.hide_plate()
 		_idle_inspect()
 		return
 	if index != _hover_slice and sfx and phase != "spinning":
@@ -1151,9 +1169,8 @@ func _paint_item_text(raw: String, it: Dictionary, formula: bool = false) -> Str
 		return raw
 	if str(it.get("card_id", "")) == "spiked_shield":
 		return UX.paint(t, true, "#E07A7A", "", false)
-	var view: Dictionary = _item_view(it)
-	var k: String = str(view.get("kind", "")).strip_edges()
-	if k == "" or k == "PASSIVE" or k == "BOTH":
+	var k: String = _item_display_kind(it)
+	if not UX.is_stat_kind(k) or k == "BOTH":
 		return UX.paint(t, true, "#E07A7A", "", formula)
 	return UX.paint(t, true, UX.kind_hex(k), k, formula)
 
@@ -1505,6 +1522,7 @@ func _monster_plate_look(s: Dictionary, rule: Dictionary, title_size: int = 22) 
 	look["atk"] = int(s.get("atk", 0))
 	look["title_size"] = title_size
 	look["title_bold"] = true
+	look["call"] = str(rule.get("call", ""))
 	look["call_hex"] = str(rule.get("call_hex", UX.call_hex(str(s.get("special_id", "")))))
 	look["equation_kind"] = str(rule.get("equation_kind", ""))
 	return look
@@ -1582,6 +1600,8 @@ func _idle_inspect() -> void:
 		talk_ui.visible = false
 	if phase == "title":
 		inspect.hide_plate()
+		if fly_tip != null:
+			fly_tip.hide_plate()
 		_set_inspect_idle(false)
 		return
 	if phase == "draft" and draft_action == "seat":
@@ -1602,7 +1622,10 @@ func _idle_inspect() -> void:
 		if str(wheel[_hover_slice].get("kind", "")) == "monster":
 			_fill_inspect_from_slice(_hover_slice)
 			return
+	if fly_tip != null and fly_tip.edit_kind == "monster":
+		fly_tip.hide_plate()
 	inspect.hide_plate()
+	inspect.top_level = false
 	_set_inspect_idle(false)
 	if fight_ui != null:
 		fight_ui.visible = false
@@ -1616,10 +1639,9 @@ func _set_inspect_idle(on: bool) -> void:
 
 
 func _fill_inspect_from_slice(index: int) -> void:
-	if inspect == null or index < 0 or index >= wheel.size():
+	if index < 0 or index >= wheel.size():
 		_idle_inspect()
 		return
-	inspect.visible = true
 	_set_inspect_idle(false)
 	if fight_ui:
 		fight_ui.visible = false
@@ -1627,17 +1649,27 @@ func _fill_inspect_from_slice(index: int) -> void:
 		placement_ui.visible = false
 	var s: Dictionary = wheel[index]
 	if str(s.get("kind", "")) != "monster":
-		inspect.show_text(
-			PLAYER_COPY.text("inspect.empty_title", "Empty"),
-			PLAYER_COPY.text("inspect.empty_place", "Click this alcove. That's where they'll wait.") if _can_place() else PLAYER_COPY.text("inspect.empty", "An empty alcove.")
-		)
+		if inspect != null:
+			inspect.hide_plate()
+		if fly_tip != null:
+			fly_tip.hide_plate()
 		return
 	var rule: Dictionary = _monster_rule(s, false)
 	var body: String = str(rule.get("speech", ""))
+	if body == "":
+		body = str(rule.get("reminder", ""))
 	var port: Texture2D = null
 	if art != null:
 		port = art.monster_still(str(s.get("card_id", "")))
-	inspect.show_rule(str(rule["title"]), "", str(rule["equation"]), body, str(rule.get("warn", "")), port, "monster", str(s.get("card_id", "")), _monster_plate_look(s, rule, 26))
+	var look: Dictionary = _monster_plate_look(s, rule, 26)
+	if inspect != null:
+		inspect.hide_plate()
+		inspect.top_level = false
+	if fly_tip == null:
+		return
+	fly_tip.show_rule(str(rule["title"]), "", "", body, str(rule.get("warn", "")), port, "monster", str(s.get("card_id", "")), look)
+	_pin_top_right(fly_tip)
+	_sync_authoring_chrome()
 
 
 func _refresh_monster_plates() -> void:
@@ -1647,6 +1679,10 @@ func _refresh_monster_plates() -> void:
 
 func _place_fly(near: Control = null) -> void:
 	if fly_tip == null or not fly_tip.visible:
+		return
+	var kind: String = str(fly_tip.edit_kind)
+	if kind == "item" or (kind == "monster" and _hover_slice >= 0):
+		_pin_top_right(fly_tip)
 		return
 	fly_tip.reset_size()
 	var sz: Vector2 = fly_tip.get_combined_minimum_size()
@@ -1993,12 +2029,15 @@ func _refresh_face() -> void:
 			combat_stage.show_monster(str(m.get("card_id", "")))
 		combat_stage.visible = true
 	if face_box:
-		var rule: Dictionary = _monster_rule(m)
+		var rule: Dictionary = _monster_rule(m, false)
+		var explainer: String = str(rule.get("speech", "")).strip_edges()
+		if explainer == "":
+			explainer = str(rule.get("reminder", "")).strip_edges()
 		face_box.show_rule(
 			str(rule.get("title", m.get("name", "?"))),
-			str(rule.get("value", "")),
 			"",
-			str(rule.get("body", "")),
+			"",
+			explainer,
 			str(rule.get("warn", "")),
 			tex,
 			"monster",
@@ -2379,6 +2418,8 @@ func _sync_hotbar() -> void:
 		var view: Dictionary = _item_view(it)
 		var dim: bool = phase == "fighting" and not bool(view["can_use"])
 		card.spent = bool(it.get("spent", false))
+		if card.has_method("set_kind"):
+			card.set_kind(_item_display_kind(it))
 		card.set_palette(view["fill"], view["rim"], _tier_of(it))
 		card.set_live(str(view["number"]), str(view["note"]), not dim)
 		if card.has_method("set_loss_icon"):
@@ -2413,7 +2454,7 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 		var pix: Texture2D = art.item_tex(show_id)
 		if pix != null:
 			icon = pix
-	var k: String = str(view.get("kind", "ATK"))
+	var k: String = _item_display_kind(it)
 	card.setup(
 		int(it.get("uid", 0)),
 		str(it.get("card_id", "")),
@@ -2471,10 +2512,8 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 	_hover_item = it
 	if sfx:
 		sfx.hover()
-	if inspect != null and phase != "title":
+	if phase != "title":
 		_show_item_inspect(it)
-	if fly_tip:
-		fly_tip.hide_plate()
 	_apply_preview(_preview_from_item(it))
 	_refresh_blk(false)
 	if in_tutorial and tut != null and tut.wait == "hover_item":
@@ -2490,6 +2529,7 @@ func _on_item_unhovered() -> void:
 	if fly_tip:
 		fly_tip.hide_plate()
 	_idle_inspect()
+	_sync_authoring_chrome()
 
 
 func _rebuild_choice() -> void:
