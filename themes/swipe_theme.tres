@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=20 format=3]
+[gd_resource type="Theme" load_steps=23 format=3]
 
 [ext_resource type="FontFile" path="res://assets/ui/fonts/PixelifySans-Bold.ttf" id="1_px"]
 [ext_resource type="FontFile" path="res://assets/ui/fonts/Silkscreen-Bold.ttf" id="2_sk"]
@@ -10,6 +10,9 @@
 [ext_resource type="FontFile" path="res://assets/ui/fonts/Nunito-SemiBold.ttf" id="8_ns"]
 [ext_resource type="FontFile" path="res://assets/ui/fonts/Nunito-Bold.ttf" id="9_nb"]
 [ext_resource type="FontFile" path="res://assets/ui/fonts/Nunito-ExtraBold.ttf" id="10_nx"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/BarlowSemiCondensed-Regular.ttf" id="11_br"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/BarlowSemiCondensed-SemiBold.ttf" id="12_bs"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/BarlowSemiCondensed-Bold.ttf" id="13_bb"]
 
 [sub_resource type="StyleBoxTexture" id="oak_panel"]
 texture = ExtResource("4_oak")
@@ -162,12 +165,12 @@ TierPill/fonts/font = ExtResource("2_sk")
 TierPill/font_sizes/font_size = 15
 UtilityName/base_type = "Label"
 UtilityName/colors/font_color = Color(0.913725, 0.827451, 0.631373, 1)
-UtilityName/fonts/font = ExtResource("8_ns")
+UtilityName/fonts/font = ExtResource("12_bs")
 UtilityName/font_sizes/font_size = 24
 UtilityName/constants/outline_size = 0
 UtilityBody/base_type = "Label"
 UtilityBody/colors/font_color = Color(0.913725, 0.827451, 0.631373, 1)
-UtilityBody/fonts/font = ExtResource("7_nu")
+UtilityBody/fonts/font = ExtResource("11_br")
 UtilityBody/font_sizes/font_size = 20
 UtilityBody/constants/outline_size = 0
 UtilityNumber/base_type = "Label"

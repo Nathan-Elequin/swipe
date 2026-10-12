@@ -2,6 +2,7 @@ extends Control
 ## Comic balloon: sits up-right of the speaker, tail joins the oval and points at the sprite.
 
 const UX := preload("res://scripts/ux_style.gd")
+const UI := preload("res://scripts/ui_palette.gd")
 
 var _mouth: Vector2 = Vector2.ZERO
 var _text: String = ""
@@ -25,6 +26,7 @@ func setup() -> void:
 	_body.scroll_active = false
 	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UI.apply_rich(_body, "body", _ink)
 	_body.add_theme_font_size_override("normal_font_size", _font_sz)
 	_body.add_theme_font_size_override("bold_font_size", _font_sz)
 	_body.add_theme_constant_override("line_separation", 4)
@@ -55,6 +57,15 @@ func present(mouth_global: Vector2, text: String, look: Dictionary = {}, prefer_
 		global_position.x = maxf(8.0, global_position.x)
 	visible = true
 	queue_redraw()
+
+
+func qa_font_path() -> String:
+	if _body == null:
+		setup()
+	var font: Font = _body.get_theme_font("normal_font")
+	if font == null:
+		return ""
+	return str(font.resource_path)
 
 
 func hide_speech() -> void:

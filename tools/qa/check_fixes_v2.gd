@@ -165,8 +165,58 @@ func _check_cards(main: Node) -> bool:
 		if absf(after.y - 210.0) > 0.5:
 			_fail("%s height is %s not 210" % [id, after.y])
 			return false
+		if card.has_method("qa_text_state"):
+			var st: Dictionary = card.call("qa_text_state")
+			print("CARD_TEXT id=", id, " ", st)
+			if bool(st.get("title_clip", true)):
+				_fail("%s title clips" % id)
+				return false
+			if int(st.get("title_wrap", 0)) == 0:
+				_fail("%s title wrap is off" % id)
+				return false
+			if bool(st.get("formula_box_visible", false)) or float(st.get("formula_box_h", 0.0)) > 0.5:
+				_fail("%s still has an extra formula box" % id)
+				return false
+			if bool(st.get("detail_visible", false)) and bool(st.get("num_visible", false)):
+				_fail("%s Shift did not replace standing text" % id)
+				return false
 		card.queue_free()
+	if not _check_speech_font():
+		return false
 	print("CARDS_OK")
+	return true
+
+
+func _check_speech_font() -> bool:
+	var bubble: Control
+	if ResourceLoader.exists("res://scenes/ui/speech_bubble.tscn"):
+		var packed: PackedScene = load("res://scenes/ui/speech_bubble.tscn") as PackedScene
+		bubble = packed.instantiate() as Control
+	else:
+		var scr: Script = load("res://scripts/speech_bubble.gd") as Script
+		if scr == null:
+			_fail("speech_bubble missing")
+			return false
+		bubble = scr.new() as Control
+	root.add_child(bubble)
+	if bubble.has_method("setup"):
+		bubble.call("setup")
+	if bubble.has_method("present"):
+		bubble.call("present", Vector2(200, 200), "I am the Golem.", {})
+	var path := ""
+	if bubble.has_method("qa_font_path"):
+		path = str(bubble.call("qa_font_path"))
+	print("SPEECH_FONT ", path)
+	var low: String = path.to_lower()
+	if low.contains("pixelify") or low.contains("vt323") or low.contains("silkscreen"):
+		_fail("speech bubble still uses a pixel font: %s" % path)
+		bubble.queue_free()
+		return false
+	if not (low.contains("barlow") or low.contains("nunito")):
+		_fail("speech bubble font is not Barlow or Nunito: %s" % path)
+		bubble.queue_free()
+		return false
+	bubble.queue_free()
 	return true
 
 
@@ -228,6 +278,14 @@ func _check_wheel(main: Node) -> bool:
 		if cap_w > 112.5:
 			_fail("seat %s capsule width %s > 112" % [i, cap_w])
 			return false
+		if wheel.has_method("qa_capsule"):
+			var cap_txt: Dictionary = wheel.call("qa_capsule", i)
+			var name_txt: String = str(cap_txt.get("name_txt", ""))
+			var call_txt: String = str(cap_txt.get("call_txt", ""))
+			print("CAPSULE ", i, " name=", name_txt, " call=", call_txt, " nfs=", cap_txt.get("name_fs"), " cfs=", cap_txt.get("call_fs"))
+			if name_txt.contains("\n") or call_txt.contains("\n"):
+				_fail("seat %s capsule wrapped to more than one line" % i)
+				return false
 		if sprite.intersects(heart) or sprite.intersects(sword) or sprite.intersects(cap):
 			_fail("seat %s self-overlap" % i)
 			return false
