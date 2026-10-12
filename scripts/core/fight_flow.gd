@@ -273,12 +273,21 @@ func _on_done() -> void:
 
 
 func _begin_slay(_killed: bool = true) -> void:
+	if _intent_simulating:
+		_intent_mark_kill(facing_index)
+		if facing_index >= 0 and facing_index < wheel.size():
+			wheel[facing_index]["hp"] = 0
+		return
 	if await _try_commander_flee(facing_index):
 		return
 	await _exit_ended(false)
 
 
 func _exit_ended(clockwork_split: bool = false) -> void:
+	if _intent_simulating:
+		_intent_mark_kill(facing_index)
+		blk = 0
+		return
 	if phase != "fighting" and phase != "slaying":
 		return
 	if facing_index < 0:
@@ -289,6 +298,10 @@ func _exit_ended(clockwork_split: bool = false) -> void:
 
 
 func _exit_leave(clockwork_split: bool = true) -> void:
+	if _intent_simulating:
+		_intent_mark_kill(facing_index)
+		blk = 0
+		return
 	if phase != "fighting" and phase != "slaying":
 		return
 	if facing_index < 0:
@@ -336,11 +349,15 @@ func _apply_resolve_hits() -> int:
 	for h in range(hits):
 		if hp <= 0:
 			break
-		var incoming: int = await _owner_attack(m, h + 1, hits)
+		var incoming: int = 0
+		if _intent_simulating:
+			incoming = _apply_owner_swing(m)
+		else:
+			incoming = await _owner_attack(m, h + 1, hits)
 		total += incoming
 		if hp <= 0:
 			break
-		if hits > 1 and h < hits - 1:
+		if hits > 1 and h < hits - 1 and not _intent_simulating:
 			await get_tree().create_timer(0.16).timeout
 	return total
 
@@ -349,6 +366,8 @@ func _apply_resolve_hits() -> int:
 ## Returns HP lost on this swing.
 func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1) -> int:
 	enemy_attacked = true
+	if _intent_simulating:
+		return _apply_owner_swing(m)
 	if combat_stage and str(m.get("card_id", "")) != "spider_egg":
 		await combat_stage.lunge()
 	var pierce: bool = str(m.get("card_id", "")) == "dragon" and not _is_silenced(m)
@@ -386,6 +405,8 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1) -> int:
 
 func _player_down() -> void:
 	hp = 0
+	if _intent_simulating:
+		return
 	var adventure_win: bool = adventure and dungeons_cleared >= 1
 	phase = "victory" if adventure_win else "defeat"
 	_log("end", "cleared" if adventure_win else "dead")
@@ -406,6 +427,10 @@ func _player_down() -> void:
 
 
 func _clear_after_fight(clockwork_split: bool = false) -> void:
+	if _intent_simulating:
+		_intent_mark_kill(facing_index)
+		blk = 0
+		return
 	if facing_index < 0 or facing_index >= wheel.size():
 		return
 	var m: Dictionary = wheel[facing_index]
@@ -443,6 +468,8 @@ func _clear_after_fight(clockwork_split: bool = false) -> void:
 
 
 func _maybe_auto_spin() -> void:
+	if _intent_simulating:
+		return
 	if in_tutorial:
 		return
 	if phase != "ready":
@@ -685,10 +712,11 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_discard_spent_items()
 			_sync_wheel_stats()
 			phase = "ready"
-			if combat_stage:
+			if combat_stage and not _intent_simulating:
 				combat_stage.hide_stage()
 			await _draw_unseen_item()
-			call_deferred("_maybe_auto_spin")
+			if not _intent_simulating:
+				call_deferred("_maybe_auto_spin")
 			return
 		"atk_zero":
 			m["atk"] = 0
@@ -894,6 +922,10 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 func _toss_item(uid: int, keep: bool) -> void:
 	if keep and _keep_blocked_now():
 		keep = false
+	if _intent_simulating:
+		if not keep:
+			_remove_item_now(uid)
+		return
 	for c in hotbar_box.get_children():
 		if not c.has_method("toss"):
 			continue
@@ -978,6 +1010,10 @@ func _collapse_dead_wicks() -> void:
 
 
 func _maybe_slay_down(index: int) -> void:
+	if _intent_simulating:
+		if index >= 0 and index < wheel.size() and int(wheel[index].get("hp", 0)) <= 0:
+			_intent_mark_kill(index)
+		return
 	if index < 0 or index >= wheel.size():
 		return
 	if int(wheel[index].get("hp", 0)) > 0:
@@ -1114,7 +1150,8 @@ func _keep_blocked_now() -> bool:
 
 func _gain_blk(n: int, skip_twins: bool = false) -> int:
 	if n <= 0:
-		_refresh_blk(false)
+		if not _intent_simulating:
+			_refresh_blk(false)
 		return 0
 	if not skip_twins and _twins_double_blk(n):
 		var a: int = _gain_blk(n, true)
@@ -1122,6 +1159,8 @@ func _gain_blk(n: int, skip_twins: bool = false) -> int:
 		return a + b
 	last_blk_gain = n
 	blk += n
+	if _intent_simulating:
+		return n
 	_refresh_blk(true)
 	_punch_blk()
 	if sfx:
@@ -1136,6 +1175,10 @@ func _heal(n: int) -> int:
 	hp = mini(HP_MAX, hp + maxi(0, n))
 	var gained: int = hp - before
 	_log("hp", "heal %s  →  %s" % [gained, hp])
+	if _intent_simulating:
+		if gained > 0:
+			_sync_wheel_stats()
+		return gained
 	_refresh_hearts()
 	if gained <= 0:
 		return 0
@@ -1157,15 +1200,16 @@ func _bleed(n: int) -> bool:
 		lost_hp_this_combat = true
 		_hurt_ogres(before - hp)
 	_log("hp", "bleed %s  →  %s" % [n, hp])
-	_flash_screen(Color("5c1a6a"), 0.38)
-	_refresh_hearts()
-	_tint_hearts_bleed()
-	if combat_stage:
-		combat_stage.play_bleed()
-	if sfx:
-		sfx.play("bleed", -4.0)
-		sfx.play("cloth", -14.0, 0.75)
-	if get_tree():
+	if not _intent_simulating:
+		_flash_screen(Color("5c1a6a"), 0.38)
+		_refresh_hearts()
+		_tint_hearts_bleed()
+		if combat_stage:
+			combat_stage.play_bleed()
+		if sfx:
+			sfx.play("bleed", -4.0)
+			sfx.play("cloth", -14.0, 0.75)
+	if not _intent_simulating and get_tree():
 		await get_tree().create_timer(0.38).timeout
 	_sync_wheel_stats()
 	if hp <= 0 and not _try_potion():
@@ -1205,7 +1249,10 @@ func _after_item_resolved(it: Dictionary) -> void:
 		return
 	var hid: String = str(wheel[facing_index].get("card_id", ""))
 	if hid == "harpy" and not _is_silenced(wheel[facing_index]):
-		await _harpy_poke()
+		if _intent_simulating:
+			_owner_attack(wheel[facing_index])
+		else:
+			await _harpy_poke()
 
 
 func _harpy_poke() -> void:
@@ -1363,12 +1410,13 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false) -> bool:
 			_log("var", "no ATK dmg")
 		else:
 			_log("atk", "0  →  enemy HP %s" % m.get("hp", 0))
-		if sfx:
-			sfx.play("glass", -8.0, 0.85)
-		if wheel_view:
-			wheel_view.hit_feedback(index, 0, 0)
-		if combat_stage and index == facing_index:
-			combat_stage.take_hit()
+		if not _intent_simulating:
+			if sfx:
+				sfx.play("glass", -8.0, 0.85)
+			if wheel_view:
+				wheel_view.hit_feedback(index, 0, 0)
+			if combat_stage and index == facing_index:
+				combat_stage.take_hit()
 		return false
 	var before_hp: int = int(m.get("hp", 0))
 	var before_atk: int = int(m.get("atk", 0))
@@ -1377,13 +1425,14 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false) -> bool:
 	if str(m.get("card_id", "")) == "slime_boss":
 		m["atk"] = int(m["hp"])
 	wheel[index] = m
-	if sfx:
-		sfx.play("hit", -7.0, 0.94 + rng.randf() * 0.14)
-		sfx.play("chop", -16.0)
-	if wheel_view:
-		wheel_view.hit_feedback(index, before_hp - int(m["hp"]), int(m["atk"]) - before_atk)
-	if combat_stage and index == facing_index:
-		combat_stage.take_hit()
+	if not _intent_simulating:
+		if sfx:
+			sfx.play("hit", -7.0, 0.94 + rng.randf() * 0.14)
+			sfx.play("chop", -16.0)
+		if wheel_view:
+			wheel_view.hit_feedback(index, before_hp - int(m["hp"]), int(m["atk"]) - before_atk)
+		if combat_stage and index == facing_index:
+			combat_stage.take_hit()
 	if str(m.get("card_id", "")) == "needleback" and not _is_silenced(m) and before_hp > 0:
 		if _player_take_atk(1):
 			return true
@@ -1404,16 +1453,18 @@ func _player_take_atk(n: int) -> bool:
 		_hurt_ogres(lost)
 	if incoming == 0:
 		_log("hp", "poke 0")
-		_refresh_blk(false)
-		if sfx:
-			sfx.play("glass", -10.0)
+		if not _intent_simulating:
+			_refresh_blk(false)
+			if sfx:
+				sfx.play("glass", -10.0)
 	else:
 		_log("hp", "poke %s  →  %s" % [incoming, hp])
-		_flash_screen(Color("e07a7a"), 0.22)
-		_refresh_hearts()
-		_refresh_blk(false)
-		if sfx:
-			sfx.play("chop", -8.0)
+		if not _intent_simulating:
+			_flash_screen(Color("e07a7a"), 0.22)
+			_refresh_hearts()
+			_refresh_blk(false)
+			if sfx:
+				sfx.play("chop", -8.0)
 	if hp <= 0 and not _try_potion():
 		_player_down()
 		return true
@@ -1486,7 +1537,10 @@ func _apply_cleave(n: int) -> bool:
 		if t < 0 or t >= wheel.size() or t == facing_index:
 			continue
 		if int(wheel[t].get("hp", 0)) <= 0:
-			await _maybe_slay_down(t)
+			if _intent_simulating:
+				_intent_mark_kill(t)
+			else:
+				await _maybe_slay_down(t)
 	return false
 
 
@@ -1805,6 +1859,8 @@ func _shuffle_dungeon() -> void:
 
 
 func _try_commander_flee(index: int) -> bool:
+	if _intent_simulating:
+		return false
 	if index < 0 or index >= wheel.size():
 		return false
 	var s: Dictionary = wheel[index]
@@ -1958,6 +2014,8 @@ func _remove_crossbowed() -> void:
 
 
 func _draw_unseen_item() -> void:
+	if _intent_simulating:
+		return
 	if item_pool.is_empty():
 		return
 	var id: String = _take_card(item_pool, items_by_id, "", 0)
@@ -2331,3 +2389,277 @@ func _sort_hotbar() -> void:
 
 func _incoming_hit() -> int:
 	return _incoming_total()
+
+
+func _intent_mark_kill(index: int) -> void:
+	if index < 0:
+		return
+	if not _intent_killed.has(index):
+		_intent_killed.append(index)
+
+
+func _intent_snapshot() -> Dictionary:
+	var w: Array = []
+	for s in wheel:
+		if typeof(s) == TYPE_DICTIONARY:
+			w.append((s as Dictionary).duplicate(true))
+		else:
+			w.append(s)
+	var h: Array = []
+	for it in hotbar:
+		if typeof(it) == TYPE_DICTIONARY:
+			h.append((it as Dictionary).duplicate(true))
+		else:
+			h.append(it)
+	return {
+		"hp": hp,
+		"blk": blk,
+		"wheel": w,
+		"hotbar": h,
+		"facing_index": facing_index,
+		"phase": phase,
+		"items_used_this_combat": items_used_this_combat,
+		"beads_step": beads_step,
+		"last_item_atk": last_item_atk,
+		"last_blk_gain": last_blk_gain,
+		"skip_swing_this_fight": skip_swing_this_fight,
+		"keep_blocked_this_fight": keep_blocked_this_fight,
+		"hp_loss_events": hp_loss_events,
+		"lost_hp_this_combat": lost_hp_this_combat,
+		"last_item_copy": last_item_copy.duplicate(true),
+		"pending_mark": pending_mark.duplicate(true),
+		"pending_choice": pending_choice.duplicate(true),
+		"pending_chaos": pending_chaos.duplicate(true),
+		"last_mob_atk": last_mob_atk,
+		"last_mob_hp": last_mob_hp,
+		"mobs_defeated": mobs_defeated,
+		"enemy_attacked": enemy_attacked,
+		"_reroll_skip": _reroll_skip,
+		"refusals_left": refusals_left,
+		"hotbar_sig": _hotbar_sig,
+	}
+
+
+func _intent_restore(s: Dictionary) -> void:
+	hp = int(s.get("hp", hp))
+	blk = int(s.get("blk", blk))
+	wheel.clear()
+	for row in s.get("wheel", []):
+		if typeof(row) == TYPE_DICTIONARY:
+			wheel.append((row as Dictionary).duplicate(true))
+	hotbar.clear()
+	for it in s.get("hotbar", []):
+		if typeof(it) == TYPE_DICTIONARY:
+			hotbar.append((it as Dictionary).duplicate(true))
+	facing_index = int(s.get("facing_index", facing_index))
+	phase = str(s.get("phase", phase))
+	items_used_this_combat = int(s.get("items_used_this_combat", items_used_this_combat))
+	beads_step = int(s.get("beads_step", beads_step))
+	last_item_atk = int(s.get("last_item_atk", last_item_atk))
+	last_blk_gain = int(s.get("last_blk_gain", last_blk_gain))
+	skip_swing_this_fight = bool(s.get("skip_swing_this_fight", skip_swing_this_fight))
+	keep_blocked_this_fight = bool(s.get("keep_blocked_this_fight", keep_blocked_this_fight))
+	hp_loss_events = int(s.get("hp_loss_events", hp_loss_events))
+	lost_hp_this_combat = bool(s.get("lost_hp_this_combat", lost_hp_this_combat))
+	last_item_copy = (s.get("last_item_copy", {}) as Dictionary).duplicate(true)
+	pending_mark = (s.get("pending_mark", {}) as Dictionary).duplicate(true)
+	pending_choice = (s.get("pending_choice", {}) as Dictionary).duplicate(true)
+	pending_chaos = (s.get("pending_chaos", {}) as Dictionary).duplicate(true)
+	last_mob_atk = int(s.get("last_mob_atk", last_mob_atk))
+	last_mob_hp = int(s.get("last_mob_hp", last_mob_hp))
+	mobs_defeated = int(s.get("mobs_defeated", mobs_defeated))
+	enemy_attacked = bool(s.get("enemy_attacked", enemy_attacked))
+	_reroll_skip = int(s.get("_reroll_skip", _reroll_skip))
+	refusals_left = int(s.get("refusals_left", refusals_left))
+	_hotbar_sig = str(s.get("hotbar_sig", _hotbar_sig))
+	_intent_killed.clear()
+
+
+func _intent_diff(before: Dictionary, after: Dictionary) -> Dictionary:
+	var wheel_p := {}
+	var before_w: Array = before.get("wheel", [])
+	var after_w: Array = after.get("wheel", [])
+	var n: int = mini(before_w.size(), after_w.size())
+	for i in n:
+		if typeof(before_w[i]) != TYPE_DICTIONARY or typeof(after_w[i]) != TYPE_DICTIONARY:
+			continue
+		var b: Dictionary = before_w[i]
+		var a: Dictionary = after_w[i]
+		if str(b.get("kind", "")) != "monster" and str(a.get("kind", "")) != "monster":
+			continue
+		var row := {}
+		var hp_d: int = int(a.get("hp", 0)) - int(b.get("hp", 0))
+		var atk_d: int = int(a.get("atk", 0)) - int(b.get("atk", 0))
+		if hp_d != 0:
+			row["hp"] = hp_d
+		if atk_d != 0:
+			row["atk"] = atk_d
+		if _intent_killed.has(i) or (int(a.get("hp", 1)) <= 0 and int(b.get("hp", 0)) > 0):
+			row["kill"] = true
+		if not row.is_empty():
+			wheel_p[i] = row
+	var items := {}
+	var after_h: Array = after.get("hotbar", [])
+	for it in after_h:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		var uid: int = int(it.get("uid", -1))
+		if uid < 0:
+			continue
+		var view: Dictionary = _item_view(it)
+		items[uid] = str(view.get("number", ""))
+	var out := {
+		"hp": int(after.get("hp", hp)),
+		"blk": int(after.get("blk", blk)),
+		"refusals": int(after.get("refusals_left", refusals_left)),
+		"wheel": wheel_p,
+		"items": items,
+	}
+	if int(after.get("hp", hp)) == int(before.get("hp", hp)):
+		out["hp"] = -1
+	if int(after.get("blk", blk)) == int(before.get("blk", blk)):
+		out["blk"] = -1
+	if int(after.get("refusals_left", refusals_left)) == int(before.get("refusals_left", refusals_left)):
+		out["refusals"] = -1
+	return out
+
+
+func _apply_owner_swing(m: Dictionary) -> int:
+	var swing: Dictionary = _swing(m, blk)
+	var incoming: int = int(swing["dmg"])
+	blk = int(swing["blk"])
+	var hp_before: int = hp
+	hp = maxi(0, hp - incoming)
+	var lost: int = hp_before - hp
+	if lost > 0:
+		hp_loss_events += 1
+		lost_hp_this_combat = true
+		_hurt_ogres(lost)
+	if hp <= 0:
+		_try_potion()
+	_sync_wheel_stats()
+	return incoming
+
+
+func _intent_mute() -> Variant:
+	var saved = sfx
+	sfx = null
+	return saved
+
+
+func _intent_unmute(saved) -> void:
+	sfx = saved
+
+
+func _simulate_item(it: Dictionary, extra: Dictionary = {}) -> Dictionary:
+	if _intent_simulating or it.is_empty():
+		return {}
+	if phase != "fighting" or facing_index < 0:
+		return {}
+	var before: Dictionary = _intent_snapshot()
+	var saved_sfx = _intent_mute()
+	_intent_simulating = true
+	_intent_killed.clear()
+	var work: Dictionary = _find_item(int(it.get("uid", -1)))
+	if work.is_empty():
+		work = it
+	var ops: Dictionary = _ops_of(work)
+	var kind: String = str(ops.get("kind", ""))
+	if kind == "choose" and extra.is_empty():
+		var opts: Variant = ops.get("options", [])
+		if typeof(opts) == TYPE_ARRAY and not (opts as Array).is_empty() and typeof(opts[0]) == TYPE_DICTIONARY:
+			extra = opts[0]
+	if kind == "choose":
+		if int(extra.get("atk_drop", 0)) > 0:
+			_apply_ops(work, {"kind": "atk_drop", "n": int(extra.get("atk_drop", 0))}, extra)
+		elif int(extra.get("blk", 0)) > 0:
+			_apply_ops(work, {"kind": "blk", "n": int(extra.get("blk", 0))}, extra)
+		else:
+			_apply_ops(work, {"kind": "atk", "n": int(extra.get("atk", 0))}, extra)
+	elif kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "chaos_reroll" or kind == "passive":
+		pass
+	else:
+		_apply_ops(work, ops, extra)
+	_after_item_resolved(work)
+	_sync_wheel_stats()
+	var after: Dictionary = _intent_snapshot()
+	var diff: Dictionary = _intent_diff(before, after)
+	_intent_restore(before)
+	_intent_unmute(saved_sfx)
+	_intent_simulating = false
+	_intent_last = diff
+	return diff
+
+
+func _simulate_done() -> Dictionary:
+	if _intent_simulating or phase != "fighting" or facing_index < 0:
+		return {}
+	var before: Dictionary = _intent_snapshot()
+	var saved_sfx = _intent_mute()
+	_intent_simulating = true
+	_intent_killed.clear()
+	if skip_swing_this_fight:
+		_intent_mark_kill(facing_index)
+		blk = 0
+	else:
+		_apply_resolve_hits()
+		_intent_mark_kill(facing_index)
+		blk = 0
+	_sync_wheel_stats()
+	var after: Dictionary = _intent_snapshot()
+	var diff: Dictionary = _intent_diff(before, after)
+	if facing_index >= 0:
+		var w: Dictionary = diff.get("wheel", {})
+		var row: Dictionary = w.get(facing_index, {})
+		row["kill"] = true
+		w[facing_index] = row
+		diff["wheel"] = w
+	_intent_restore(before)
+	_intent_unmute(saved_sfx)
+	_intent_simulating = false
+	_intent_last = diff
+	return diff
+
+
+func _simulate_leave() -> Dictionary:
+	if refusals_left <= 0:
+		return {}
+	return {"hp": -1, "blk": -1, "refusals": refusals_left - 1, "wheel": {}, "items": {}}
+
+
+func _simulate_take_draft() -> Dictionary:
+	if _intent_simulating or pending_item.is_empty():
+		return {}
+	var before: Dictionary = _intent_snapshot()
+	var saved_sfx = _intent_mute()
+	_intent_simulating = true
+	var add: Dictionary = pending_item.duplicate(true)
+	if not add.has("uid"):
+		add["uid"] = -999
+	hotbar.append(add)
+	_sync_wheel_stats()
+	var after: Dictionary = _intent_snapshot()
+	var diff: Dictionary = _intent_diff(before, after)
+	_intent_restore(before)
+	_intent_unmute(saved_sfx)
+	_intent_simulating = false
+	_intent_last = diff
+	return diff
+
+
+func _simulate_mark(index: int) -> Dictionary:
+	if _intent_simulating or pending_mark.is_empty():
+		return {}
+	var before: Dictionary = _intent_snapshot()
+	var saved_sfx = _intent_mute()
+	_intent_simulating = true
+	_intent_killed.clear()
+	_apply_mark(index)
+	_sync_wheel_stats()
+	var after: Dictionary = _intent_snapshot()
+	var diff: Dictionary = _intent_diff(before, after)
+	_intent_restore(before)
+	_intent_unmute(saved_sfx)
+	_intent_simulating = false
+	_intent_last = diff
+	return diff

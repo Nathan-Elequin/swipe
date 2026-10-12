@@ -63,6 +63,8 @@ var _font_vt: Font
 var _font_sk: Font
 var _item_tex: Texture2D
 var _actor: Control
+var _passes_shown: int = -1
+var _passes_preview: int = -1
 var _item_callout
 var _item_hot: bool = false
 var _nib_idle: Array = []
@@ -495,6 +497,8 @@ func _write_threat(tier: int) -> void:
 func set_passes(n: int) -> void:
 	if _refuse == null:
 		return
+	if _passes_shown >= 0 and n != _passes_shown and _passes_preview < 0:
+		_punch_passes()
 	if n <= 0:
 		_refuse.text = COPY.text("door.pass_none", "No passes left")
 	elif n == 1:
@@ -512,6 +516,54 @@ func set_passes(n: int) -> void:
 	for i in _pip_dots.size():
 		var d: ColorRect = _pip_dots[i]
 		d.color = TORCH if i < n else Color(UX.metal(1).r, UX.metal(1).g, UX.metal(1).b, 0.28)
+	_passes_shown = n
+	if _passes_preview >= 0:
+		_paint_pass_preview()
+
+
+func set_passes_preview(n: int) -> void:
+	_passes_preview = n
+	_paint_pass_preview()
+
+
+func _punch_passes() -> void:
+	if _pips == null:
+		return
+	_pips.pivot_offset = _pips.size * 0.5
+	var tw := create_tween()
+	tw.tween_property(_pips, "scale", Vector2(1.18, 1.18), 0.08)
+	tw.tween_property(_pips, "scale", Vector2.ONE, 0.14)
+	if _refuse:
+		_refuse.pivot_offset = _refuse.size * 0.5
+		var tw2 := create_tween()
+		tw2.tween_property(_refuse, "scale", Vector2(1.06, 1.06), 0.08)
+		tw2.tween_property(_refuse, "scale", Vector2.ONE, 0.14)
+
+
+func _paint_pass_preview() -> void:
+	if _refuse == null:
+		return
+	if _passes_preview < 0:
+		if _passes_shown >= 0:
+			set_passes(_passes_shown)
+		_refuse.modulate = Color.WHITE
+		return
+	var pulse: float = 0.60 + 0.40 * sin(float(Time.get_ticks_msec()) * 0.012)
+	_refuse.modulate = Color(1.0, 0.92, 0.55, 0.75 + 0.25 * pulse)
+	for i in _pip_dots.size():
+		var d: ColorRect = _pip_dots[i]
+		if i < _passes_preview:
+			d.color = TORCH
+		elif i < _passes_shown:
+			d.color = Color("e07a7a")
+		else:
+			d.color = Color(UX.metal(1).r, UX.metal(1).g, UX.metal(1).b, 0.28)
+	if _passes_preview <= 0:
+		_refuse.text = COPY.text("door.pass_none", "No passes left")
+	elif _passes_preview == 1:
+		_refuse.text = COPY.text("door.pass_one", "Leave it (1 pass left)")
+	else:
+		_refuse.text = COPY.fill("door.pass", {"n": _passes_preview}, "Leave it (%s passes left)" % _passes_preview)
 
 
 func reveal(monster: Dictionary, _value_bb: String = "", _speech: String = "", _reminder: String = "") -> void:
@@ -850,3 +902,5 @@ func _process(delta: float) -> void:
 	_place_nib()
 	if not _item_hot:
 		_sync_nib()
+	if _passes_preview >= 0:
+		_paint_pass_preview()

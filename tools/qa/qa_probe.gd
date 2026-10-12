@@ -54,6 +54,10 @@ static func dump(main: Node) -> Dictionary:
 		"cue": str(main.get("_cue_shown")),
 		"adventure": bool(main.get("adventure")),
 		"last_mob_hp": int(main.get("last_mob_hp")),
+		"intent": main.get("_intent_last") if typeof(main.get("_intent_last")) == TYPE_DICTIONARY else {},
+		"ghost_hp": int(main.get("_ghost_hp")),
+		"ghost_blk": int(main.get("_ghost_blk")),
+		"ghost_refusals": int(main.get("_ghost_refusals")),
 		"draft_gate": gate_info,
 		"layout": layout,
 		"buttons": {

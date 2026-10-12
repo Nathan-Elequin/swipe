@@ -4,6 +4,14 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-12 — Intent preview + loud value updates
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: Restored pre-Direction-A intent preview and loud value pops. Hovering a hand item, draft item, Leave, Spin, Take X, a placement seat, a mark seat, or a choice option previews every value that click would change (hub hearts, BLK `0→4` + pulse ring, wheel HP/ATK `cur→new` + pulse, facing/hover callout vitals, pass pips, scaling item numbers). Previews run the real `_apply_ops` / `_item_view` / `_swing` path with a snapshot+restore so they cannot disagree with the click. Actual changes punch (hub scale + sparks 0.22s, heart/BLK flash, wheel number ghosts, pass pip punch, item-card dissolve). No `data/` edits. Paper Fight skipped (feel/animation restore). Must-keep UX §10 kept (hub knight + hearts + shield, no HP numeral, no Tier, facing callout).
+- Files: `scripts/core/fight_flow.gd`, `scripts/ui/hud_controller.gd`, `scripts/lanes/game_state.gd`, `scripts/ui/authoring_ui.gd`, `scripts/boss_wheel.gd`, `scripts/item_card.gd`, `scripts/draft_gate.gd`, `scripts/hover_panel.gd`, `scripts/owner_plate.gd`, `tools/qa/check_intent_preview.gd`, `tools/qa/qa_probe.gd`, `design/qa/reports/2026-10-12-intent-preview.md`, `design/HANDOFF.md`
+- QA: Godot 4.7.2.stable headless dummy renderer, after `origin/main` `63feaec`. `check_layers` OK. `check_boot` BOOT_OK. `check_item_types` ITEM_TYPE_OK (42). `check_hand_use` HAND_USE_OK (Shield blk 0→4). `check_fixes_v2` FIXES_V2_OK. `check_face_text` FACE_TEXT_OK. `check_action_buttons` ACTION_BTN_OK (Leave, Spin, Take 3). `check_intent_preview` INTENT_PREVIEW_OK: Shield blk 4=4; Sai wizard 2→0; Lantern hp 3→5; Goblin no ATK dmg; Leave 3→2; Take X hp 6→3. No `data/` edits. No godot-mcp stills. Report: `design/qa/reports/2026-10-12-intent-preview.md`.
+
 ## 2026-10-12 — Screen layout split + Spin/resolve buttons
 - From: Cursor
 - To: Jam / Pixel / Nathan

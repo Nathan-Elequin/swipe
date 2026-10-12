@@ -332,6 +332,11 @@ func _build_ui() -> void:
 	draft_gate.setup(art)
 	draft_gate.send_pressed.connect(_on_gate_send)
 	draft_gate.refuse_pressed.connect(_on_gate_refuse)
+	if draft_gate.has_method("leave_btn"):
+		var leave_c: Control = draft_gate.leave_btn()
+		if leave_c != null:
+			leave_c.mouse_entered.connect(_on_leave_hover.bind(true))
+			leave_c.mouse_exited.connect(_on_leave_hover.bind(false))
 
 	_courier = TextureRect.new()
 	_courier.texture_filter = TEXTURE_FILTER_NEAREST
@@ -816,12 +821,17 @@ func _on_slice_hovered(index: int) -> void:
 		sfx.hover()
 	_hover_slice = index
 	_refresh_seat_preview(index)
+	if not pending_mark.is_empty() and phase == "fighting":
+		_apply_preview(_simulate_mark(index))
 	_idle_inspect()
 	_sync_torch()
 	_tutorial_on_slice_hover(index)
 
 
 func _play_ended_visuals() -> void:
+	if _intent_simulating:
+		_intent_mark_kill(facing_index)
+		return
 	phase = "slaying"
 	pending_choice.clear()
 	pending_feed = {}
@@ -842,6 +852,9 @@ func _play_ended_visuals() -> void:
 
 
 func _play_leave_visuals() -> void:
+	if _intent_simulating:
+		_intent_mark_kill(facing_index)
+		return
 	phase = "slaying"
 	pending_choice.clear()
 	pending_feed = {}
@@ -906,9 +919,81 @@ func _is_yellow_fill(fill: Color) -> bool:
 
 
 func _apply_preview(p: Dictionary) -> void:
+	var wheel_p: Dictionary = p
+	if p.has("wheel") and typeof(p.get("wheel")) == TYPE_DICTIONARY:
+		wheel_p = p.get("wheel")
+		_ghost_hp = int(p.get("hp", -1))
+		_ghost_blk = int(p.get("blk", -1))
+		_ghost_refusals = int(p.get("refusals", -1))
+		_apply_item_intent(p.get("items", {}))
+	elif p.is_empty():
+		_ghost_hp = -1
+		_ghost_blk = -1
+		_ghost_refusals = -1
+		_apply_item_intent({})
+		wheel_p = {}
 	if wheel_view:
-		wheel_view.set_preview(p)
+		wheel_view.set_preview(wheel_p)
 	_refresh_blk(false)
+	_refresh_hearts()
+	_apply_pass_intent()
+	_apply_callout_intent(wheel_p)
+	_intent_last = p
+
+
+func _apply_item_intent(after_nums: Dictionary) -> void:
+	if hotbar_box == null:
+		return
+	for c in hotbar_box.get_children():
+		if not c.has_method("set_intent_number"):
+			continue
+		var uid: int = int(c.get("uid"))
+		var it: Dictionary = _find_item(uid)
+		if it.is_empty() or not after_nums.has(uid):
+			c.set_intent_number("")
+			continue
+		var now: String = str(_item_view(it).get("number", ""))
+		var pred: String = str(after_nums.get(uid, ""))
+		c.set_intent_number("" if pred == now else pred)
+
+
+func _apply_pass_intent() -> void:
+	if draft_gate == null or not draft_gate.has_method("set_passes_preview"):
+		return
+	draft_gate.set_passes_preview(_ghost_refusals)
+
+
+func _apply_callout_intent(wheel_p: Dictionary) -> void:
+	if facing_index < 0:
+		return
+	var row: Dictionary = wheel_p.get(facing_index, wheel_p.get(str(facing_index), {}))
+	if typeof(row) != TYPE_DICTIONARY:
+		row = {}
+	if face_box != null and face_box.visible and face_box.has_method("set_intent_vitals"):
+		var m: Dictionary = wheel[facing_index] if facing_index < wheel.size() else {}
+		var hp_n: int = int(m.get("hp", 0)) + int(row.get("hp", 0))
+		var atk_n: int = int(m.get("atk", 0)) + int(row.get("atk", 0))
+		if row.is_empty():
+			face_box.set_intent_vitals(-1, -1)
+		else:
+			face_box.set_intent_vitals(atk_n, hp_n)
+	if fly_tip != null and fly_tip.visible and fly_tip.has_method("set_intent_vitals"):
+		if row.is_empty():
+			fly_tip.set_intent_vitals(-1, -1)
+		else:
+			var hm: Dictionary = wheel[facing_index] if facing_index < wheel.size() else {}
+			fly_tip.set_intent_vitals(int(hm.get("atk", 0)) + int(row.get("atk", 0)), int(hm.get("hp", 0)) + int(row.get("hp", 0)))
+
+
+func _on_leave_hover(on: bool) -> void:
+	if not on or draft_action != "ask" or refusals_left <= 0:
+		if not on:
+			_apply_preview({})
+		return
+	if sfx:
+		sfx.hover()
+	var p: Dictionary = _simulate_leave()
+	_apply_preview(p)
 
 
 func _on_spin_hover(on: bool) -> void:
@@ -922,7 +1007,7 @@ func _on_spin_hover(on: bool) -> void:
 			continue
 		if bool(s.get("atk_variable", false)) or bool(s.get("hp_variable", false)):
 			p[i] = {"mark": "spin"}
-	_apply_preview(p)
+	_apply_preview({"wheel": p, "hp": -1, "blk": -1, "refusals": -1, "items": {}})
 
 
 func _on_place_hover(on: bool) -> void:
@@ -934,7 +1019,7 @@ func _on_place_hover(on: bool) -> void:
 	for i in range(wheel.size()):
 		if str(wheel[i].get("card_id", "")) == "bandit":
 			p[i] = {"atk": 1}
-	_apply_preview(p)
+	_apply_preview({"wheel": p, "hp": -1, "blk": -1, "refusals": -1, "items": {}})
 
 
 func _refresh_seat_preview(index: int) -> void:
@@ -1021,7 +1106,7 @@ func _refresh_seat_preview(index: int) -> void:
 	for s2 in saved:
 		wheel.append(s2)
 	_sync_wheel_stats()
-	_apply_preview(preview)
+	_apply_preview({"wheel": preview, "hp": -1, "blk": -1, "refusals": -1, "items": {}})
 	wheel_view.set_seat_fx({"from": index, "links": links, "self": self_row})
 	if not links.is_empty() and sfx and prev_from != index:
 		sfx.play("whoosh", -16.0, 1.25)
@@ -1058,109 +1143,7 @@ func _preview_bribe(index: int) -> Dictionary:
 
 
 func _preview_from_item(it: Dictionary) -> Dictionary:
-	_ghost_blk = -1
-	var p: Dictionary = {}
-	if phase != "fighting" or facing_index < 0:
-		return p
-	var ops: Dictionary = _ops_of(it)
-	var kind: String = str(ops.get("kind", ""))
-	var view: Dictionary = _item_view(it)
-	var n: int = int(view.get("n", 0))
-	match kind:
-		"blk", "blk_from_hp", "blk_min_hp", "blk_neighbor", "blk_keep", "blk_siphon", "blk_from_atk":
-			if bool(view.get("can_use", false)):
-				var gain_n: int = maxi(0, n)
-				if _twins_double_blk(gain_n):
-					gain_n *= 2
-				_ghost_blk = blk + gain_n
-		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "choose", "atk_wheel", "atk_echo", "atk_spend_blk", "atk_empty", "atk_hp_gap":
-			var drop_prev := false
-			if kind == "choose":
-				var popts: Variant = _ops_of(it).get("options", [])
-				if typeof(popts) == TYPE_ARRAY:
-					for po in popts:
-						if typeof(po) == TYPE_DICTIONARY and (po as Dictionary).has("atk_drop"):
-							drop_prev = true
-							break
-			if drop_prev:
-				pass
-			elif bool(view.get("can_use", false)) and str(wheel[facing_index].get("card_id", "")) != "goblin":
-				var dmg: int = n if kind != "choose" else int(view.get("n", 3))
-				var procs: int = 2 if _twins_double_atk(facing_index, dmg) else 1
-				var total: int = 0
-				for _p in range(procs):
-					var hitn: int = dmg
-					if str(wheel[facing_index].get("card_id", "")) == "anvil" and not _is_silenced(wheel[facing_index]):
-						hitn = mini(hitn, 1)
-					total += hitn
-				p[facing_index] = {"hp": -total}
-				if int(wheel[facing_index].get("hp", 0)) - total <= 0:
-					if str(wheel[facing_index].get("card_id", "")) != "wick" or _is_silenced(wheel[facing_index]):
-						p[facing_index]["kill"] = true
-				if str(wheel[facing_index].get("card_id", "")) == "slime_boss":
-					p[facing_index]["atk"] = -total
-		"atk_cleave":
-			if bool(view.get("can_use", false)):
-				var cn: int = int(view.get("n", 2))
-				for ci in _cleave_targets():
-					if str(wheel[ci].get("card_id", "")) == "goblin":
-						continue
-					var procs_c: int = 2 if _twins_double_atk(ci, cn) else 1
-					var hitn: int = 0
-					for _pc in range(procs_c):
-						var one: int = cn
-						if str(wheel[ci].get("card_id", "")) == "anvil" and not _is_silenced(wheel[ci]):
-							one = mini(cn, 1)
-						hitn += one
-					var slot: Dictionary = p.get(ci, {})
-					slot["hp"] = int(slot.get("hp", 0)) - hitn
-					if int(wheel[ci].get("hp", 0)) + int(slot.get("hp", 0)) <= 0:
-						slot["kill"] = true
-					if str(wheel[ci].get("card_id", "")) == "slime_boss":
-						slot["atk"] = int(slot.get("atk", 0)) - cn
-					p[ci] = slot
-		"atk_opposite":
-			var oi: int = _opposite_index()
-			if bool(view.get("can_use", false)) and oi >= 0 and str(wheel[oi].get("card_id", "")) != "goblin":
-				var od: int = int(view.get("n", 4))
-				var procs_o: int = 2 if _twins_double_atk(oi, od) else 1
-				var od_total: int = 0
-				for _po in range(procs_o):
-					var one_o: int = od
-					if str(wheel[oi].get("card_id", "")) == "anvil" and not _is_silenced(wheel[oi]):
-						one_o = mini(od, 1)
-					od_total += one_o
-				od = od_total
-				p[oi] = {"hp": -od}
-				if int(wheel[oi].get("hp", 0)) - od <= 0:
-					p[oi]["kill"] = true
-				if str(wheel[oi].get("card_id", "")) == "slime_boss":
-					p[oi]["atk"] = -od
-		"defeat_hp", "defeat_atk", "fangs", "defeat_only_item":
-			if bool(view.get("can_use", false)):
-				p[facing_index] = {"hp": -int(wheel[facing_index].get("hp", 0)), "kill": true}
-		"atk_zero", "atk_drop":
-			if bool(view.get("can_use", false)):
-				var curz: Dictionary = p.get(facing_index, {})
-				var drop_n: int = int(wheel[facing_index].get("atk", 0)) if kind == "atk_zero" else mini(3, int(wheel[facing_index].get("atk", 0)))
-				curz["atk"] = -drop_n if kind == "atk_zero" else -mini(int(view.get("n", 3)), int(wheel[facing_index].get("atk", 0)))
-				p[facing_index] = curz
-		"skip_swing":
-			if bool(view.get("can_use", false)):
-				p[facing_index] = {"kill": true}
-	if items_used_this_combat + 1 >= 2:
-		for i in range(wheel.size()):
-			if str(wheel[i].get("card_id", "")) == "two_headed_serpent" and i == facing_index:
-				var cur2: Dictionary = p.get(i, {})
-				cur2["atk"] = -int(wheel[i].get("atk", 0))
-				p[i] = cur2
-	if not bool(it.get("keep_after", false)) and kind != "choose":
-		for i2 in range(wheel.size()):
-			if str(wheel[i2].get("card_id", "")) == "bandit" and not bool(wheel[i2].get("spin_locked", false)):
-				var cur3: Dictionary = p.get(i2, {})
-				cur3["atk"] = int(cur3.get("atk", 0)) - 1
-				p[i2] = cur3
-	return p
+	return _simulate_item(it)
 
 
 func _punch_blk() -> void:
@@ -1171,7 +1154,7 @@ func _punch_blk() -> void:
 func _refresh_blk(punch: bool) -> void:
 	if wheel_view:
 		wheel_view.set_vitals(hp, HP_MAX, _ghost_hp, blk, _ghost_blk)
-	if punch and _ghost_blk < 0 and blk > _blk_shown and _blk_shown >= 0:
+	if punch and _ghost_blk < 0 and blk != _blk_shown and _blk_shown >= 0:
 		_punch_blk()
 	if _ghost_blk < 0:
 		_blk_shown = blk
@@ -1861,13 +1844,11 @@ func _speech_gutter() -> Rect2:
 
 func _on_done_hover(on: bool) -> void:
 	if not on or phase != "fighting":
-		_ghost_hp = -1
-		_refresh_hearts()
+		_apply_preview({})
 		return
 	if sfx:
 		sfx.hover()
-	_ghost_hp = maxi(0, hp - _incoming_hit())
-	_refresh_hearts()
+	_apply_preview(_simulate_done())
 
 
 func _refresh_hearts() -> void:
@@ -1882,7 +1863,8 @@ func _refresh_hearts() -> void:
 		if tr == null:
 			continue
 		var live: bool = hi < hp
-		var lost_soon: bool = _ghost_hp >= 0 and hi >= _ghost_hp and hi < hp
+		var lost_soon: bool = _ghost_hp >= 0 and _ghost_hp < hp and hi >= _ghost_hp and hi < hp
+		var gain_soon: bool = _ghost_hp >= 0 and _ghost_hp > hp and hi >= hp and hi < _ghost_hp
 		if live:
 			if lost_soon:
 				tr.modulate = Color("e07a7a")
@@ -1890,6 +1872,8 @@ func _refresh_hearts() -> void:
 				tr.modulate = Color("f0b0a8")
 			else:
 				tr.modulate = Color.WHITE
+		elif gain_soon:
+			tr.modulate = Color("8fd18f")
 		else:
 			tr.modulate = Color(1, 1, 1, 0.18)
 		hi += 1
@@ -2098,6 +2082,8 @@ func _refresh_face() -> void:
 
 
 func _refresh() -> void:
+	if _intent_simulating:
+		return
 	_sync_wheel_stats()
 	_refresh_hearts()
 	_refresh_blk(true)
@@ -2594,7 +2580,10 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 		sfx.hover()
 	if phase != "title":
 		_show_item_inspect(it)
-	_apply_preview(_preview_from_item(it))
+	if phase == "fighting":
+		_apply_preview(_preview_from_item(it))
+	elif draft_action == "ask" and not pending_item.is_empty():
+		_apply_preview(_simulate_take_draft())
 	_refresh_blk(false)
 	if in_tutorial and tut != null and tut.wait == "hover_item":
 		_inspect_item(it, true)
@@ -2605,6 +2594,8 @@ func _on_item_unhovered() -> void:
 	_fly_card = null
 	_hover_item = {}
 	_ghost_blk = -1
+	_ghost_hp = -1
+	_ghost_refusals = -1
 	_apply_preview({})
 	if fly_tip:
 		fly_tip.hide_plate()
@@ -2633,4 +2624,11 @@ func _rebuild_choice() -> void:
 		elif oid == "nick":
 			lab = PLAYER_COPY.text("combat.knife_nick", lab)
 		var ob: Button = _pill(lab, Color("3a3220"), Color("e8c36a"), _choose_option.bind(opt))
+		var it_ch: Dictionary = _find_item(int(pending_choice.get("uid", -1)))
+		ob.mouse_entered.connect(func() -> void:
+			_apply_preview(_simulate_item(it_ch, opt))
+		)
+		ob.mouse_exited.connect(func() -> void:
+			_apply_preview({})
+		)
 		choice_box.add_child(ob)

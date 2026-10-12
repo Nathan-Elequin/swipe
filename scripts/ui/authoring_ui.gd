@@ -364,6 +364,8 @@ func _sync_authoring_chrome() -> void:
 
 
 func _log(kind: String, msg: String) -> void:
+	if _intent_simulating:
+		return
 	if log_label == null:
 		return
 	if kind == "on_place":

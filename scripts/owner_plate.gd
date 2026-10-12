@@ -179,6 +179,21 @@ func set_hp(n: int) -> void:
 		_hp.text = str(n)
 
 
+func set_intent_stats(atk_n: int, hp_n: int) -> void:
+	if _atk:
+		if atk_n < 0:
+			_atk.modulate = Color.WHITE
+		else:
+			_atk.text = "%s→%s" % [_atk.text.split("→")[0] if _atk.text.find("→") < 0 else _atk.text.get_slice("→", 0), atk_n]
+			_atk.modulate = Color("8fd18f")
+	if _hp:
+		if hp_n < 0:
+			_hp.modulate = Color.WHITE
+		else:
+			_hp.text = str(hp_n)
+			_hp.modulate = Color("e07a7a") if hp_n >= 0 else Color.WHITE
+
+
 func set_desaturated(on: bool) -> void:
 	if _well:
 		_well.modulate = Color(0.45, 0.42, 0.40) if on else Color.WHITE
