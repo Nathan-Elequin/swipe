@@ -10,7 +10,7 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 - Status: DONE
 - What: Content lane. Branched from `origin/main` 69d0478. Edit card (and Roster / HTML board) now has Face text: the no-Shift hand-card number plus ATK/BLK/HEAL/UTIL. Stored per item as `face_text`. Empty keeps the current auto face. `item_card.gd` only gained `set_face_text` plus a parse hook so the font/Shift pass can keep going. Save still stamps `author_lock`. Did not rewrite catalog/board rows. New always-on rule `.cursor/rules/data-source.mdc` plus the same sentence in `design/LANES.md`.
 - Files: `scripts/content_editor.gd`, `scripts/roster_editor.gd`, `scripts/content/catalog_io.gd`, `scripts/author_lock.gd`, `scripts/ux_style.gd`, `scripts/item_card.gd`, `scripts/ui/hud_controller.gd`, `scripts/core/draft_flow.gd`, `design/content-board.html`, `design/LANES.md`, `.cursor/rules/data-source.mdc`, `.cursor/rules/author-lock.mdc`, `tools/qa/check_face_text.gd`, `design/HANDOFF.md`
-- QA: pending headless run of all `tools/qa` checks plus `check_face_text.gd`.
+- QA: Godot 4.7.2 headless dummy renderer. `--quit-after 2` exit 0. `check_layers` OK. `check_boot` BOOT_OK. `check_item_types` ITEM_TYPE_OK (42). `check_hand_use` HAND_USE_OK (Shield blk 0→4). `check_fixes_v2` FIXES_V2_OK. `check_face_text` FACE_TEXT_OK: parse 3 ATK / 3 HEAL / UTIL / 4BLK; auto 3+ATK; override 9+UTIL; empty falls back; live hotbar 3 ATK; Edit card has `face_text`. No `data/` edits. No godot-mcp, so no in-editor still. Report: `design/qa/reports/2026-10-12-face-text.md`.
 
 ## 2026-10-12 — FIXES-v2 draft-gate polish (4 items)
 - From: Cursor
