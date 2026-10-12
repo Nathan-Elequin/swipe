@@ -4,6 +4,14 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-12 — Barlow card / capsule / speech text
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: UI lane, text only. Branched from `origin/main` `69d0478`. Added Barlow Semi Condensed Regular/SemiBold/Bold (OFL in `assets/ui/fonts/OFL-Barlow.txt`) and wired it through `UiPalette` + `UtilityName` / `UtilityBody`. Item titles, monster names, ability titles, and detailed descriptions use Barlow. Numbers stay Nunito. Pixel fonts stay on headers and flavor. Item card titles wrap and do not clip. Holding Shift replaces the standing number line with the detail in that same slot (no extra box, card stays 140×210). Wheel name and ability capsules each stay one line and shrink to fit. Shift monster speech uses Barlow, not pixel. `hover_panel.gd` was not rewritten — it already calls `apply_name` / `apply_rich`. Did not touch `wheel_hud.gd`, `hud_controller.gd`, `draft_gate.gd`, or `data/`.
+- Files: `assets/ui/fonts/BarlowSemiCondensed-*.ttf`, `assets/ui/fonts/OFL-Barlow.txt`, `scripts/ui_palette.gd`, `themes/swipe_theme.tres`, `scripts/item_card.gd`, `scripts/boss_wheel.gd`, `scripts/speech_bubble.gd`, `design/visual/style-guide.md`, `design/LANES.md`, `tools/qa/check_item_types.gd`, `tools/qa/check_fixes_v2.gd`, `design/HANDOFF.md`, `design/qa/reports/2026-10-12-barlow-card-text.md`
+- QA: Godot 4.7.2 headless dummy renderer. `check_layers` OK. `check_boot` BOOT_OK. `check_item_types` ITEM_TYPE_OK (42 items; Hook/Flask UTILITY; Shift 140×210; title_clip=false; detail replaces standing text; no formula box). `check_hand_use` HAND_USE_OK. `check_fixes_v2` FIXES_V2_OK: cards stay 210; speech font Barlow Regular; capsules one line (Hornet Swarm name 17 px); wheel stacks upright. `--quit-after 2` exit 0. No godot-mcp, so no in-editor stills. Report: `design/qa/reports/2026-10-12-barlow-card-text.md`
+
 ## 2026-10-12 — FIXES-v2 draft-gate polish (4 items)
 - From: Cursor
 - To: Jam / Pixel / Nathan

@@ -154,7 +154,9 @@ func _ready() -> void:
 	_font_nu = UI.font_regular()
 	_font_nx = UI.font_extrabold()
 	_font_nb = UI.font_bold()
-	_font_ns = UI.font_semibold()
+	_font_ns = UI.font_name()
+	if _font_ns == null:
+		_font_ns = UI.font_semibold()
 	_build_alcoves()
 
 
@@ -1494,17 +1496,19 @@ func _capsule_metrics(s: Dictionary, crowded: bool) -> Dictionary:
 	if call_s.to_lower() == name_s.to_lower() or (call_s != "" and name_s.to_lower().find(call_s.to_lower()) >= 0):
 		call_s = ""
 	var font: Font = _font_ns if _font_ns != null else (_font_nx if _font_nx != null else ThemeDB.fallback_font)
-	var name_fs: int = UI.SIZE_MIN
-	var call_fs: int = UI.SIZE_MIN
 	var max_w := 112.0
 	var pad_x := 7.0
 	var pad_y := 3.0
 	var gap := 1.0
 	var inner_max: float = max_w - pad_x * 2.0
-	var name_txt: String = _wrap_call_label(font, name_s, name_fs, inner_max) if font != null else name_s
-	var call_txt: String = _wrap_call_label(font, call_s, call_fs, inner_max) if call_s != "" and font != null else ""
-	var name_sz: Vector2 = font.get_multiline_string_size(name_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_max, name_fs) if font != null else Vector2(64, 18)
-	var call_sz: Vector2 = font.get_multiline_string_size(call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_max, call_fs) if call_txt != "" and font != null else Vector2.ZERO
+	var name_fit: Dictionary = UI.fit_one_line(font, name_s, inner_max, UI.SIZE_MIN, UI.SIZE_FIT_MIN)
+	var call_fit: Dictionary = UI.fit_one_line(font, call_s, inner_max, UI.SIZE_MIN, UI.SIZE_FIT_MIN) if call_s != "" else {}
+	var name_txt: String = str(name_fit.get("text", name_s))
+	var call_txt: String = str(call_fit.get("text", "")) if call_s != "" else ""
+	var name_fs: int = int(name_fit.get("size", UI.SIZE_MIN))
+	var call_fs: int = int(call_fit.get("size", UI.SIZE_MIN)) if call_txt != "" else UI.SIZE_MIN
+	var name_sz := Vector2(float(name_fit.get("width", 64.0)), float(name_fit.get("height", 18.0)))
+	var call_sz := Vector2(float(call_fit.get("width", 0.0)), float(call_fit.get("height", 0.0))) if call_txt != "" else Vector2.ZERO
 	var inner_w: float = minf(maxf(name_sz.x, call_sz.x), inner_max)
 	var content_h: float = name_sz.y
 	if call_txt != "":
@@ -1527,6 +1531,12 @@ func _capsule_metrics(s: Dictionary, crowded: bool) -> Dictionary:
 		"call_fs": call_fs,
 		"font": font,
 	}
+
+
+func qa_capsule(i: int) -> Dictionary:
+	if i < 0 or i >= slices.size():
+		return {}
+	return _capsule_metrics(slices[i], slices.size() >= 9)
 
 
 func _draw_chip_line(font: Font, origin: Vector2, text: String, fs: int, width: float, col: Color, ink: Color) -> void:

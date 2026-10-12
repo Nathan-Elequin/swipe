@@ -1,11 +1,15 @@
 extends RefCounted
 class_name UiPalette
 ## Utility type (names, descriptions, stats). Flavor type stays Pixelify / VT323 / Silkscreen.
+## Names and body copy use Barlow Semi Condensed. Numbers stay Nunito Bold / ExtraBold.
 
 const FONT_REGULAR := "res://assets/ui/fonts/Nunito-Regular.ttf"
 const FONT_SEMIBOLD := "res://assets/ui/fonts/Nunito-SemiBold.ttf"
 const FONT_BOLD := "res://assets/ui/fonts/Nunito-Bold.ttf"
 const FONT_EXTRABOLD := "res://assets/ui/fonts/Nunito-ExtraBold.ttf"
+const FONT_NAME := "res://assets/ui/fonts/BarlowSemiCondensed-SemiBold.ttf"
+const FONT_BODY := "res://assets/ui/fonts/BarlowSemiCondensed-Regular.ttf"
+const FONT_BODY_BOLD := "res://assets/ui/fonts/BarlowSemiCondensed-Bold.ttf"
 const FONT_PIXEL := "res://assets/ui/fonts/PixelifySans-Bold.ttf"
 const FONT_SILK := "res://assets/ui/fonts/Silkscreen-Bold.ttf"
 const FONT_VT := "res://assets/ui/fonts/VT323-Regular.ttf"
@@ -17,6 +21,7 @@ const SIZE_TAG := 18
 const SIZE_MIN := 18
 const SIZE_CHIP := 18
 const SIZE_FORMULA := 13
+const SIZE_FIT_MIN := 10
 
 const PARCHMENT := Color("E9D3A1")
 const DIM := Color("B89A70")
@@ -54,6 +59,18 @@ static func font_bold() -> Font:
 
 static func font_extrabold() -> Font:
 	return load(FONT_EXTRABOLD) as Font
+
+
+static func font_name() -> Font:
+	return load(FONT_NAME) as Font
+
+
+static func font_body() -> Font:
+	return load(FONT_BODY) as Font
+
+
+static func font_body_bold() -> Font:
+	return load(FONT_BODY_BOLD) as Font
 
 
 static func font_pixel() -> Font:
@@ -96,11 +113,11 @@ static func _set_label(node: Label, font: Font, size: int, color: Color, variati
 
 
 static func apply_name(node: Label, color: Color = PARCHMENT, size: int = SIZE_NAME) -> void:
-	_set_label(node, font_semibold(), size, color, "UtilityName")
+	_set_label(node, font_name(), size, color, "UtilityName")
 
 
 static func apply_body(node: Label, color: Color = PARCHMENT, size: int = SIZE_BODY) -> void:
-	_set_label(node, font_regular(), size, color, "UtilityBody")
+	_set_label(node, font_body(), size, color, "UtilityBody")
 
 
 static func apply_number(node: Label, color: Color = PARCHMENT, size: int = SIZE_NUMBER) -> void:
@@ -114,32 +131,34 @@ static func apply_tag(node: Label, color: Color = PARCHMENT, size: int = SIZE_TA
 static func apply_rich(node: RichTextLabel, role: String = "body", color: Color = PARCHMENT) -> void:
 	if node == null:
 		return
-	var regular: Font = font_regular()
-	var bold: Font = font_bold()
-	var semi: Font = font_semibold()
+	var regular: Font = font_body()
+	var bold: Font = font_body_bold()
 	var extra: Font = font_extrabold()
 	var size: int = SIZE_BODY
 	var variation := "UtilityBody"
 	if role == "name":
 		size = SIZE_NAME
 		variation = "UtilityName"
-		if semi != null:
-			regular = semi
-			bold = font_bold()
+		regular = font_name()
+		if font_body_bold() != null:
+			bold = font_body_bold()
 	elif role == "number":
 		size = SIZE_NUMBER
 		variation = "UtilityNumber"
+		regular = font_extrabold()
 		if extra != null:
-			regular = extra
 			bold = extra
 	elif role == "tag":
 		size = SIZE_TAG
 		variation = "UtilityTag"
-		if bold != null:
-			regular = bold
+		regular = font_bold()
+		if regular != null:
+			bold = regular
 	elif role == "formula":
 		size = SIZE_FORMULA
 		variation = "UtilityBody"
+		regular = font_body()
+		bold = font_body_bold()
 	node.theme_type_variation = variation
 	if regular != null:
 		node.add_theme_font_override("normal_font", regular)
@@ -153,6 +172,22 @@ static func apply_rich(node: RichTextLabel, role: String = "body", color: Color 
 	node.add_theme_font_size_override("bold_italics_font_size", size)
 	node.add_theme_color_override("default_color", color)
 	node.add_theme_constant_override("outline_size", 0)
+
+
+## Shrink `start_size` until `text` fits on one line in `max_w`. Never wraps.
+static func fit_one_line(font: Font, text: String, max_w: float, start_size: int = SIZE_MIN, min_size: int = SIZE_FIT_MIN) -> Dictionary:
+	var shown: String = text.strip_edges()
+	var fs: int = maxi(min_size, start_size)
+	var floor_fs: int = maxi(8, min_size)
+	if font == null or shown == "":
+		return {"text": shown, "size": fs, "width": 0.0, "height": float(fs)}
+	while fs > floor_fs:
+		var w: float = font.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+		if w <= max_w:
+			return {"text": shown, "size": fs, "width": w, "height": float(font.get_height(fs))}
+		fs -= 1
+	var final_w: float = font.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+	return {"text": shown, "size": fs, "width": final_w, "height": float(font.get_height(fs))}
 
 
 static func number_plate() -> StyleBoxFlat:
