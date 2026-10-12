@@ -1497,20 +1497,21 @@ func _capsule_metrics(s: Dictionary, crowded: bool) -> Dictionary:
 	var name_fs: int = UI.SIZE_MIN
 	var call_fs: int = UI.SIZE_MIN
 	var max_w := 112.0
-	var name_txt: String = _wrap_call_label(font, name_s, name_fs, max_w) if font != null else name_s
-	var call_txt: String = _wrap_call_label(font, call_s, call_fs, max_w) if call_s != "" and font != null else ""
-	var name_sz: Vector2 = font.get_multiline_string_size(name_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, name_fs) if font != null else Vector2(64, 18)
-	var call_sz: Vector2 = font.get_multiline_string_size(call_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, call_fs) if call_txt != "" and font != null else Vector2.ZERO
 	var pad_x := 7.0
 	var pad_y := 3.0
 	var gap := 1.0
-	var inner_w: float = maxf(name_sz.x, call_sz.x)
+	var inner_max: float = max_w - pad_x * 2.0
+	var name_txt: String = _wrap_call_label(font, name_s, name_fs, inner_max) if font != null else name_s
+	var call_txt: String = _wrap_call_label(font, call_s, call_fs, inner_max) if call_s != "" and font != null else ""
+	var name_sz: Vector2 = font.get_multiline_string_size(name_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_max, name_fs) if font != null else Vector2(64, 18)
+	var call_sz: Vector2 = font.get_multiline_string_size(call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_max, call_fs) if call_txt != "" and font != null else Vector2.ZERO
+	var inner_w: float = minf(maxf(name_sz.x, call_sz.x), inner_max)
 	var content_h: float = name_sz.y
 	if call_txt != "":
 		content_h += gap + call_sz.y
-	var w: float = inner_w + pad_x * 2.0
+	var w: float = minf(inner_w + pad_x * 2.0, max_w)
 	var h: float = content_h + pad_y * 2.0
-	w = maxf(w, h)
+	w = minf(maxf(w, h), max_w)
 	return {
 		"w": w,
 		"h": h,

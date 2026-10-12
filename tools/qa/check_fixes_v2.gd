@@ -227,6 +227,9 @@ func _check_wheel(main: Node) -> bool:
 		var cap_h: float = float(sp.get("cap_h", 22.0))
 		var cap := Rect2(nam - Vector2(cap_w, cap_h) * 0.5, Vector2(cap_w, cap_h))
 		print("SEAT ", i, " sprite=", sprite, " heart=", heart, " sword=", sword, " cap=", cap)
+		if cap_w > 112.5:
+			_fail("seat %s capsule width %s > 112" % [i, cap_w])
+			return false
 		if sprite.intersects(heart) or sprite.intersects(sword) or sprite.intersects(cap):
 			_fail("seat %s self-overlap" % i)
 			return false
