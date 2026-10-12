@@ -106,7 +106,7 @@ func _check_shift_size(main: Node, bad: PackedStringArray) -> bool:
 	if after.y > before.y + 0.5:
 		bad.append("shift grew card height %s -> %s" % [before.y, after.y])
 		return false
-	if str(card.get("kind", "")) == "ATK":
+	if str(card.get("kind")) == "ATK":
 		bad.append("grappling_hook card.kind is ATK")
 		return false
 	return true

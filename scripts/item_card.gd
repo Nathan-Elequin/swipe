@@ -520,6 +520,13 @@ func _lock_hand_size() -> void:
 	custom_minimum_size = Vector2(w, CARD_H)
 	size = Vector2(w, CARD_H)
 	clip_contents = true
+	update_minimum_size()
+
+
+func _get_minimum_size() -> Vector2:
+	if _showcase:
+		return Vector2(SHOW_W, SHOW_H)
+	return Vector2(COMPACT_W if _compact else CARD_W, CARD_H)
 
 
 func _layout_showcase() -> void:
@@ -546,14 +553,14 @@ func _sync_inspect_face() -> void:
 	if _icon != null:
 		_icon.visible = true
 	if _num_host != null and not _showcase:
-		_num_host.custom_minimum_size = Vector2(104, 72 if _formula_on else 40)
+		_num_host.custom_minimum_size = Vector2(104, 40)
 	if _val_row != null:
 		if _formula_on and not _showcase:
 			_val_row.set_anchors_preset(Control.PRESET_TOP_WIDE)
 			_val_row.offset_left = 0
 			_val_row.offset_top = 0
 			_val_row.offset_right = 0
-			_val_row.offset_bottom = 28
+			_val_row.offset_bottom = 22
 		else:
 			_val_row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if _eq != null:
