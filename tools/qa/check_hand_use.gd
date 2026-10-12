@@ -245,6 +245,11 @@ func _check_draft_gate(main: Node) -> bool:
 	if leave_copy.contains("{n}") or leave_copy == "":
 		_fail(FAIL_DRAFT, "leave copy is empty or still has {n}: %s" % leave_copy)
 		return false
+	var nib: Array = gate_info.get("nib", [])
+	var hand: Array = layout.get("hand", [])
+	if nib.size() >= 4 and hand.size() >= 2 and float(nib[1]) + float(nib[3]) > float(hand[1]) - 4.0:
+		_fail(FAIL_DRAFT, "Nib well overlaps the hand: nib=%s hand=%s" % [nib, hand])
+		return false
 	if bool(gate_info.get("take_present", false)):
 		_fail(FAIL_DRAFT, "Take button is still present")
 		return false

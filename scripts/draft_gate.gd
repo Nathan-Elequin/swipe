@@ -722,7 +722,7 @@ func qa_snapshot() -> Dictionary:
 		"callout": _item_callout.visible if _item_callout else false,
 		"rect": [r.position.x, r.position.y, r.size.x, r.size.y],
 		"nib": (
-			[_nib_well.position.x, _nib_well.position.y, _nib_well.size.x, _nib_well.size.y]
+			[_nib_well.global_position.x, _nib_well.global_position.y, _nib_well.size.x, _nib_well.size.y]
 			if _nib_well else [0, 0, 0, 0]
 		),
 		"nib_visible": _nib_well.visible if _nib_well else false,
@@ -814,9 +814,14 @@ func _place_nib() -> void:
 	if _nib_well == null:
 		return
 	_nib_well.size = Vector2(88, 88)
-	var gp: Vector2 = global_position
-	var gy: float = gp.y + maxf(size.y, 220.0) - 8.0 - 88.0
-	_nib_well.global_position = Vector2(gp.x + 8.0, gy)
+	var gr: Rect2 = get_global_rect()
+	var gy: float = gr.end.y + 8.0
+	var two_row_top: float = 1000.0 - 210.0 * 2.0 - 14.0
+	var floor_y: float = two_row_top - 12.0 - 88.0
+	if gy + 88.0 > two_row_top - 12.0:
+		gy = gr.end.y - 8.0 - 88.0
+	gy = clampf(gy, gr.position.y + 8.0, floor_y)
+	_nib_well.global_position = Vector2(gr.position.x + 8.0, gy)
 
 
 func _sync_nib() -> void:
