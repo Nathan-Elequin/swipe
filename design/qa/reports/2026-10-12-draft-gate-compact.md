@@ -42,6 +42,23 @@ None. `door.pass` / `door.pass_one` / `door.pass_none` / `cue.ask` / `tier.N.nam
 - Loop 2: RESULT PASS (BLK 0→4, leave 3→2, take to seat, no overlap).
 - Still left: in-editor / F5 screenshot of Weak vs Deadly chrome.
 
+## Merge re-verify (2026-10-12, onto 43b9d4f)
+
+Ported onto the lane split. `scripts/main.gd` is 82 lines (boot only). Combined `check_hand_use` now includes main’s FILTER/USE/CLICKS plus mill take/leave/clearance.
+
+| Check | Actual | Evidence | Pass/Fail |
+|---|---|---|---|
+| `--quit-after 2` | No game-script errors | Godot 4.7.2 log | Pass |
+| `check_layers` | All 10 lane scripts load | `LOAD … OK` | Pass |
+| `check_boot` | title, HP 6, Shield BLK 4, Goblin `no_atk_dmg` | `BOOT_OK` | Pass |
+| Spin filter | IGNORE while spinning, STOP while fighting | `FILTER_OK` | Pass |
+| Shield pick | blk 0 → 4 | `USE_OK` | Pass |
+| Door clicks | Take gone; Leave `Leave it (2 passes left)` STOP; item filter 0 | `CLICKS_OK` | Pass |
+| Mill layout | column `[1086,28,560,526]` bottom 554 / two-row top 566, `overlap=false` | `LAYOUT_OK` | Pass |
+| Leave / take | passes 3 → 2; take reached seat (`Lantern`) | `LEAVE_OK` `TAKE_OK` `HAND_USE_OK` | Pass |
+
+`design/LANES.md` and style-guide §10 Must-keep UX are now on main and were kept.
+
 ## Next agent: start here
 
 1. F5 Play → mill. Confirm the brown column stops above a two-row hand and Deadly reads as a big red-glow block.
