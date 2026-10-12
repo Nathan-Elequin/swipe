@@ -1,33 +1,16 @@
-extends VBoxContainer
-## Compact draft ask: item (click to take) + threat block + Leave (pass).
+extends Control
+## Mystery door: silhouette + shiny. Slam open to reveal who owned it.
 
 signal send_pressed
 signal refuse_pressed
-signal item_hovered
-signal item_unhovered
 
 const COPY := preload("res://scripts/player_copy.gd")
-const UI := preload("res://scripts/ui_palette.gd")
-const UX := preload("res://scripts/ux_style.gd")
 const HOVER_PANEL := preload("res://scripts/hover_panel.gd")
-
-const GOLD := Color("FFD84A")
-const TORCH := Color("F09A34")
-const SOOT := Color("1A120E")
-const PARCHMENT := Color("E9D3A1")
-const DIM := Color("A88C66")
-const ATK := Color("D5443B")
-const OAK := Color("3B2618")
-const NIB_VOID := Color("0B0706")
-const NIB_GREEN := Color("7BC950")
-const ITEM_WELL := Color("2C1D10")
-const GATE_CARD := Vector2(136, 192)
 
 var art
 var mode: String = "hidden"
 var card_id: String = ""
 var pack_tier: int = 1
-var lock_dock: bool = false
 var _idle: Array = []
 var _run: Array = []
 var _fi: float = 0.0
@@ -35,535 +18,301 @@ var _bob: float = 0.0
 var _shake: float = 0.0
 var _doors: float = 0.55
 var _mystery: bool = true
+var lock_dock: bool = false
+var _dim: ColorRect
+var _panel: PanelContainer
+var _glow: GlowFrame
+var _stamp: TierStamp
+var _actor: Control
+var _stage: Control
 var _cue: Label
-var _item_slot: Control
-var _item_well: Panel
-var _bait: PanelContainer
-var _item_icon: TextureRect
-var _item_name: Label
-var _item_num: Label
+var _tier_sub: Label
+var _relic_host: CenterContainer
 var _item_tag: Label
-var _value_row: HBoxContainer
-var _fallback: VBoxContainer
-var _threat_slot: Control
-var _threat: Control
-var _threat_name: Label
-var _threat_icon: TextureRect
+var _door_title: Label
+var _owner_tag: Label
+var _rules_box: PanelContainer
+var _rules: RichTextLabel
+var _hook: Label
 var _refuse: Button
+var _hint: Label
+var _btns: HBoxContainer
+var _owner_plate
 var _pips: HBoxContainer
 var _pip_dots: Array = []
-var _owner_plate
-var _relic_host: CenterContainer
-var _nib_well: Panel
-var _nib: TextureRect
-var _glow: TextureRect
-var _glow_t: float = 0.0
-var _font_px: Font
-var _font_vt: Font
-var _font_sk: Font
-var _item_tex: Texture2D
-var _actor: Control
-var _passes_shown: int = -1
-var _passes_preview: int = -1
-var _item_callout
-var _item_hot: bool = false
-var _nib_idle: Array = []
-var _nib_smug: Texture2D
-var _threat_pips: Array = []
+const GATE_W := 400.0
 
 
 func setup(p_art) -> void:
 	art = p_art
-	theme = load("res://themes/swipe_theme.tres")
-	_font_px = load("res://assets/ui/fonts/PixelifySans-Bold.ttf")
-	_font_vt = load("res://assets/ui/fonts/VT323-Regular.ttf")
-	_font_sk = load("res://assets/ui/fonts/Silkscreen-Bold.ttf")
-	add_theme_constant_override("separation", 8)
-	size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	size_flags_vertical = Control.SIZE_EXPAND_FILL
-	mouse_filter = Control.MOUSE_FILTER_STOP
-	texture_filter = TEXTURE_FILTER_NEAREST
+	set_anchors_preset(PRESET_FULL_RECT)
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	z_index = 40
 	visible = false
-	_build()
-	set_process(true)
-
-
-func _build() -> void:
+	texture_filter = TEXTURE_FILTER_NEAREST
+	_dim = ColorRect.new()
+	_dim.color = Color(0.04, 0.02, 0.01, 0.08)
+	_dim.set_anchors_preset(PRESET_FULL_RECT)
+	_dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(_dim)
+	_glow = GlowFrame.new()
+	_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_glow)
+	_panel = PanelContainer.new()
+	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_panel.custom_minimum_size = Vector2(GATE_W, 0)
+	_skin_panel(1)
+	add_child(_panel)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 10)
+	_panel.add_child(col)
 	_cue = Label.new()
 	_cue.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_cue.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_cue.max_lines_visible = 2
-	if _font_px != null:
-		_cue.add_theme_font_override("font", _font_px)
-	_cue.add_theme_font_size_override("font_size", 30)
-	_cue.add_theme_color_override("font_color", PARCHMENT)
-	_cue.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_cue.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	_cue.custom_minimum_size = Vector2(0, 36)
-	add_child(_cue)
-
-	_item_slot = Control.new()
-	_item_slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_item_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_item_slot.size_flags_stretch_ratio = 0.6
-	_item_slot.custom_minimum_size = Vector2(0, 180)
-	_item_slot.clip_contents = false
-	add_child(_item_slot)
-
-	_item_well = Panel.new()
-	_item_well.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_item_well.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_item_slot.add_child(_item_well)
-
-	_glow = TextureRect.new()
-	_glow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_glow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_glow.texture_filter = TEXTURE_FILTER_NEAREST
-	if ResourceLoader.exists("res://assets/vfx/vfx_glow_gold.png"):
-		_glow.texture = load("res://assets/vfx/vfx_glow_gold.png")
-	_item_slot.add_child(_glow)
-
-	_bait = PanelContainer.new()
-	_bait.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_bait.mouse_filter = Control.MOUSE_FILTER_STOP
-	_bait.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	_bait.gui_input.connect(_on_bait_input)
-	_bait.mouse_entered.connect(_on_item_in)
-	_bait.mouse_exited.connect(_on_item_out)
-	_style_bait()
-	_item_slot.add_child(_bait)
-
-	var bait_col := VBoxContainer.new()
-	bait_col.alignment = BoxContainer.ALIGNMENT_CENTER
-	bait_col.add_theme_constant_override("separation", 4)
-	bait_col.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_bait.add_child(bait_col)
-
+	_cue.add_theme_font_size_override("font_size", 24)
+	_cue.add_theme_color_override("font_color", Color("f0e6d8"))
+	_cue.add_theme_color_override("font_outline_color", Color("100e0c"))
+	_cue.add_theme_constant_override("outline_size", 6)
+	col.add_child(_cue)
+	_hint = Label.new()
+	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_hint.add_theme_font_size_override("font_size", 16)
+	_hint.add_theme_color_override("font_color", Color("c4a574"))
+	_hint.add_theme_color_override("font_outline_color", Color("100e0c"))
+	_hint.add_theme_constant_override("outline_size", 4)
+	col.add_child(_hint)
+	_stamp = TierStamp.new()
+	_stamp.custom_minimum_size = Vector2(0, 86)
+	_stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(_stamp)
+	_stage = Control.new()
+	_stage.custom_minimum_size = Vector2(248, 400)
+	_stage.clip_contents = false
+	_stage.mouse_filter = Control.MOUSE_FILTER_STOP
+	col.add_child(_stage)
 	_relic_host = CenterContainer.new()
-	_relic_host.visible = false
-	_relic_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_relic_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bait_col.add_child(_relic_host)
-
-	_fallback = VBoxContainer.new()
-	_fallback.alignment = BoxContainer.ALIGNMENT_CENTER
-	_fallback.add_theme_constant_override("separation", 4)
-	_fallback.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_fallback.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bait_col.add_child(_fallback)
-
-	_item_icon = TextureRect.new()
-	_item_icon.custom_minimum_size = Vector2(96, 96)
-	_item_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_item_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_item_icon.texture_filter = TEXTURE_FILTER_NEAREST
-	_item_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_item_icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_fallback.add_child(_item_icon)
-
-	_item_name = Label.new()
-	_item_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_item_name.autowrap_mode = TextServer.AUTOWRAP_WORD
-	_item_name.max_lines_visible = 2
-	UI.apply_name(_item_name, PARCHMENT, UI.SIZE_NAME)
-	_fallback.add_child(_item_name)
-
-	_value_row = HBoxContainer.new()
-	_value_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_value_row.add_theme_constant_override("separation", 6)
-	_value_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_fallback.add_child(_value_row)
-	_item_num = Label.new()
-	_item_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UI.apply_number(_item_num, PARCHMENT, UI.SIZE_NUMBER)
-	_value_row.add_child(_item_num)
-	_item_tag = Label.new()
-	_item_tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UI.apply_tag(_item_tag, PARCHMENT, UI.SIZE_TAG)
-	_value_row.add_child(_item_tag)
-
-	_item_callout = HOVER_PANEL.new()
-	_item_callout.visible = false
-	_item_callout.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_item_callout.accept_clicks = false
-	_item_callout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bait_col.add_child(_item_callout)
-
-	_threat_slot = Control.new()
-	_threat_slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_threat_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_threat_slot.size_flags_stretch_ratio = 0.4
-	_threat_slot.custom_minimum_size = Vector2(0, 88)
-	_threat_slot.clip_contents = false
-	add_child(_threat_slot)
-
-	_threat = Control.new()
-	_threat.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_threat.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_threat.draw.connect(_draw_threat)
-	_threat_slot.add_child(_threat)
-
-	var threat_col := VBoxContainer.new()
-	threat_col.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	threat_col.alignment = BoxContainer.ALIGNMENT_CENTER
-	threat_col.add_theme_constant_override("separation", 4)
-	threat_col.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_threat.add_child(threat_col)
-
-	_threat_icon = TextureRect.new()
-	_threat_icon.custom_minimum_size = Vector2(36, 36)
-	_threat_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_threat_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_threat_icon.texture_filter = TEXTURE_FILTER_NEAREST
-	_threat_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_threat_icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_threat_icon.visible = false
-	if ResourceLoader.exists("res://assets/icons/skull.svg"):
-		_threat_icon.texture = load("res://assets/icons/skull.svg")
-	threat_col.add_child(_threat_icon)
-
-	_threat_name = Label.new()
-	_threat_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_threat_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	if _font_px != null:
-		_threat_name.add_theme_font_override("font", _font_px)
-	_threat_name.add_theme_font_size_override("font_size", 52)
-	_threat_name.add_theme_color_override("font_color", SOOT)
-	_threat_name.add_theme_color_override("font_shadow_color", OAK)
-	_threat_name.add_theme_constant_override("shadow_offset_x", 0)
-	_threat_name.add_theme_constant_override("shadow_offset_y", 4)
-	threat_col.add_child(_threat_name)
-
-	var pip_row := HBoxContainer.new()
-	pip_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	pip_row.add_theme_constant_override("separation", 10)
-	pip_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	threat_col.add_child(pip_row)
-	for _n in range(3):
-		var pip := Panel.new()
-		pip.custom_minimum_size = Vector2(22, 10)
-		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		pip_row.add_child(pip)
-		_threat_pips.append(pip)
-
-	_actor = Control.new()
-	_actor.visible = false
-	_actor.custom_minimum_size = Vector2(0, 0)
+	_relic_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_relic_host.mouse_filter = Control.MOUSE_FILTER_STOP
+	_stage.add_child(_relic_host)
+	_actor = Actor.new()
+	_actor.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_actor.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_actor.draw.connect(_draw_arch)
-	add_child(_actor)
-
-	var plate_scn: PackedScene = load("res://scenes/ui/owner_plate.tscn")
-	if plate_scn != null:
-		_owner_plate = plate_scn.instantiate()
-		_owner_plate.visible = false
-		add_child(_owner_plate)
-
-	_refuse = Button.new()
-	_refuse.custom_minimum_size = Vector2(0, 50)
-	_refuse.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_refuse.size_flags_vertical = Control.SIZE_SHRINK_END
-	_refuse.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if _font_px != null:
-		_refuse.add_theme_font_override("font", _font_px)
-	_refuse.add_theme_font_size_override("font_size", 26)
-	_style_leave(true)
-	_refuse.pressed.connect(func() -> void: refuse_pressed.emit())
-	add_child(_refuse)
-
+	_actor.texture_filter = TEXTURE_FILTER_NEAREST
+	_actor.visible = false
+	_stage.add_child(_actor)
+	_door_title = Label.new()
+	_door_title.visible = false
+	_item_tag = Label.new()
+	_item_tag.visible = false
+	_owner_tag = Label.new()
+	_owner_tag.visible = false
+	_tier_sub = Label.new()
+	_tier_sub.visible = false
+	_hook = Label.new()
+	_hook.visible = false
+	_rules_box = PanelContainer.new()
+	_rules_box.visible = false
+	_rules = RichTextLabel.new()
+	_rules.visible = false
 	_pips = HBoxContainer.new()
 	_pips.alignment = BoxContainer.ALIGNMENT_CENTER
-	_pips.add_theme_constant_override("separation", 8)
-	add_child(_pips)
+	_pips.add_theme_constant_override("separation", 14)
+	col.add_child(_pips)
 	for _n in range(3):
 		var d := ColorRect.new()
-		d.custom_minimum_size = Vector2(22, 8)
-		d.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		d.custom_minimum_size = Vector2(18, 18)
+		d.color = Color("c08050")
+		d.mouse_filter = Control.MOUSE_FILTER_STOP
+		d.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		d.gui_input.connect(func(ev: InputEvent) -> void:
+			if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+				if _refuse != null and not _refuse.disabled:
+					refuse_pressed.emit()
+		)
 		_pips.add_child(d)
 		_pip_dots.append(d)
-
-	_nib_well = Panel.new()
-	_nib_well.top_level = true
-	_nib_well.position = Vector2(1086, 570)
-	_nib_well.size = Vector2(88, 88)
-	_nib_well.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_nib_well.z_index = 8
-	var nsb := StyleBoxFlat.new()
-	nsb.bg_color = NIB_VOID
-	nsb.border_color = NIB_GREEN
-	nsb.set_border_width_all(6)
-	_nib_well.add_theme_stylebox_override("panel", nsb)
-	add_child(_nib_well)
-
-	_nib = TextureRect.new()
-	_nib.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	_nib.offset_left = -32
-	_nib.offset_top = -32
-	_nib.offset_right = 32
-	_nib.offset_bottom = 32
-	_nib.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_nib.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_nib.texture_filter = TEXTURE_FILTER_NEAREST
-	_nib.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_nib_well.visible = false
-	_nib_well.add_child(_nib)
-	if art != null:
-		if art.has_method("nib_frames"):
-			_nib_idle = art.nib_frames("idle")
-			var smug_frames: Array = art.nib_frames("smug")
-			if not smug_frames.is_empty():
-				_nib_smug = smug_frames[0]
-		if _nib_smug == null and ResourceLoader.exists("res://assets/sprites/nib/nib_smug.png"):
-			_nib_smug = load("res://assets/sprites/nib/nib_smug.png")
-		if _nib_idle.is_empty() and art.has_method("nib_portrait"):
-			var port: Texture2D = art.nib_portrait()
-			if port != null:
-				_nib_idle = [port]
-	_sync_nib()
+	_owner_plate = HOVER_PANEL.new()
+	_owner_plate.visible = false
+	_owner_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_owner_plate.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.add_child(_owner_plate)
+	_btns = HBoxContainer.new()
+	_btns.alignment = BoxContainer.ALIGNMENT_CENTER
+	_btns.add_theme_constant_override("separation", 10)
+	col.add_child(_btns)
+	_refuse = _kenney(COPY.fill("door.pass", {"n": 3}, "Leave it"), "btn_brown", "btn_brown_down", Color("f0e6d8"))
+	_refuse.custom_minimum_size = Vector2(280, 48)
+	_refuse.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_btns.add_child(_refuse)
+	_refuse.pressed.connect(func() -> void: refuse_pressed.emit())
+	if art != null and _owner_plate != null and _owner_plate.has_method("apply_skin"):
+		_owner_plate.apply_skin(art.ui.get("panel_beige", null))
+	set_process(true)
 
 
-func _style_bait() -> void:
-	if _item_well:
-		var wsb := StyleBoxFlat.new()
-		wsb.bg_color = ITEM_WELL
-		wsb.border_color = GOLD
-		wsb.set_border_width_all(4)
-		_item_well.add_theme_stylebox_override("panel", wsb)
-	if _bait:
-		var bsb := StyleBoxFlat.new()
-		bsb.bg_color = Color(0, 0, 0, 0)
-		bsb.border_color = GOLD if _item_hot else Color(0, 0, 0, 0)
-		bsb.set_border_width_all(2 if _item_hot else 0)
-		bsb.content_margin_left = 6
-		bsb.content_margin_right = 6
-		bsb.content_margin_top = 6
-		bsb.content_margin_bottom = 6
-		_bait.add_theme_stylebox_override("panel", bsb)
-
-
-func _style_leave(on: bool) -> void:
-	if _refuse == null:
+func _skin_panel(tier: int) -> void:
+	if _panel == null:
 		return
-	var ink: Color = GOLD if on else Color("8A7550")
-	_refuse.add_theme_color_override("font_color", ink)
-	_refuse.add_theme_color_override("font_hover_color", PARCHMENT)
-	_refuse.add_theme_color_override("font_disabled_color", Color("8A7550"))
-	var leave_n := StyleBoxFlat.new()
-	leave_n.bg_color = Color(0, 0, 0, 0)
-	leave_n.border_color = ink
-	leave_n.set_border_width_all(4)
-	leave_n.content_margin_top = 10
-	leave_n.content_margin_bottom = 10
-	_refuse.add_theme_stylebox_override("normal", leave_n)
-	var leave_h := leave_n.duplicate()
-	leave_h.bg_color = Color(GOLD.r, GOLD.g, GOLD.b, 0.14)
-	_refuse.add_theme_stylebox_override("hover", leave_h)
-	_refuse.add_theme_stylebox_override("pressed", leave_h)
-	var leave_d := leave_n.duplicate()
-	leave_d.border_color = Color("8A7550")
-	_refuse.add_theme_stylebox_override("disabled", leave_d)
+	var metal: Color = _metal(tier)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("100c0af0")
+	sb.border_color = metal
+	sb.set_border_width_all(3)
+	sb.set_corner_radius_all(14)
+	sb.shadow_color = Color(metal.r, metal.g, metal.b, 0.42)
+	sb.shadow_size = 22
+	sb.content_margin_left = 22
+	sb.content_margin_right = 22
+	sb.content_margin_top = 16
+	sb.content_margin_bottom = 18
+	_panel.add_theme_stylebox_override("panel", sb)
 
 
-func present_mystery(item: Dictionary, tier: int, item_tex: Texture2D, passes_left: int, value_bb: String = "", _body: String = "") -> void:
+func _kenney(text: String, up_key: String, down_key: String, ink: Color) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	b.add_theme_color_override("font_color", ink)
+	b.add_theme_color_override("font_hover_color", ink.lightened(0.15))
+	b.add_theme_color_override("font_pressed_color", ink.darkened(0.1))
+	b.custom_minimum_size = Vector2(0, 46)
+	var up: Texture2D = art.ui.get(up_key, null) if art else null
+	var down: Texture2D = art.ui.get(down_key, null) if art else null
+	if up != null:
+		b.add_theme_stylebox_override("normal", _tex_sb(up))
+		b.add_theme_stylebox_override("hover", _tex_sb(up))
+		b.add_theme_stylebox_override("focus", _tex_sb(up))
+	if down != null:
+		b.add_theme_stylebox_override("pressed", _tex_sb(down))
+	return b
+
+
+func _tex_sb(tex: Texture2D) -> StyleBoxTexture:
+	var s := StyleBoxTexture.new()
+	s.texture = tex
+	s.texture_margin_left = 20
+	s.texture_margin_right = 20
+	s.texture_margin_top = 10
+	s.texture_margin_bottom = 12
+	s.content_margin_left = 10
+	s.content_margin_right = 10
+	s.content_margin_top = 10
+	s.content_margin_bottom = 12
+	return s
+
+
+func _metal(tier: int) -> Color:
+	if tier >= 3:
+		return Color("e8c36a")
+	if tier == 2:
+		return Color("8a96a8")
+	return Color("c08050")
+
+
+func _show_copy(value_bb: String, body: String) -> void:
+	var parts: PackedStringArray = []
+	if value_bb.strip_edges() != "":
+		parts.append("[center]%s[/center]" % value_bb)
+	if body.strip_edges() != "":
+		parts.append("[center][color=#3a2a1c]%s[/color][/center]" % body)
+	_rules.text = "\n".join(parts)
+	var on: bool = parts.size() > 0
+	_rules.visible = on
+	if _rules_box != null:
+		_rules_box.visible = on
+
+
+func clear_relic() -> void:
+	if _relic_host == null:
+		return
+	for c in _relic_host.get_children():
+		_relic_host.remove_child(c)
+		c.queue_free()
+
+
+func mount_relic(card: Control) -> void:
+	clear_relic()
+	if card == null or _relic_host == null:
+		return
+	if card.get_parent() != null:
+		card.get_parent().remove_child(card)
+	_relic_host.add_child(card)
+
+
+func present_mystery(_item: Dictionary, tier: int, _item_tex: Texture2D, passes_left: int, _value_bb: String = "", _body: String = "") -> void:
 	card_id = ""
 	pack_tier = maxi(1, tier)
 	_mystery = true
-	_doors = 0.0
+	_doors = 0.58
 	_idle.clear()
 	_run.clear()
 	_fi = 0.0
 	_shake = 0.0
-	_item_tex = item_tex
+	_stamp.tier = pack_tier
+	_stamp.queue_redraw()
+	_skin_panel(pack_tier)
+	if _rules_box != null:
+		_rules_box.visible = false
+	if _hook:
+		_hook.visible = false
+	if _hint:
+		_hint.visible = true
+		_hint.text = COPY.text("door.help", "The finer the loot, the fiercer its owner.")
+	hide_owner()
+	set_passes(passes_left)
+	_btns.visible = true
+	_pips.visible = true
+	if _relic_host:
+		_relic_host.visible = true
+	if _stage:
+		_stage.custom_minimum_size = Vector2(248, 400)
+	_actor.visible = false
+	_actor.modulate = Color.WHITE
+	_actor.scale = Vector2.ONE
+	_dim.color.a = 0.08
+	_dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	lock_dock = false
 	mode = "ask"
 	visible = true
-	_show_nib(true)
-	_cue.text = COPY.need("cue.ask")
-	_cue.visible = _cue.text.strip_edges() != ""
-	if _actor:
-		_actor.visible = false
-	_bait.visible = true
-	_item_slot.visible = true
-	_threat_slot.visible = true
-	_item_icon.texture = item_tex
-	_item_name.text = str(item.get("name", ""))
-	_apply_value(str(item.get("kind", "")), value_bb)
-	_fallback.visible = true
-	_write_threat(pack_tier)
-	_refuse.visible = true
-	_pips.visible = true
-	hide_owner()
-	set_passes(passes_left)
-	modulate.a = 1.0
-	pivot_offset = Vector2(size.x * 0.5, 24)
-	scale = Vector2(0.94, 0.94)
+	_write_cue(passes_left, false)
+	_panel.pivot_offset = Vector2(GATE_W * 0.5, 40)
+	_panel.scale = Vector2(0.88, 0.88)
+	_panel.modulate.a = 0.0
 	var tw := create_tween()
 	tw.set_trans(Tween.TRANS_BACK)
 	tw.set_ease(Tween.EASE_OUT)
-	tw.tween_property(self, "scale", Vector2.ONE, 0.22)
-	if _threat:
-		_threat.queue_redraw()
+	tw.tween_property(_panel, "scale", Vector2.ONE, 0.28)
+	tw.parallel().tween_property(_panel, "modulate:a", 1.0, 0.16)
+	_sync_actor()
 
 
-func set_item_value(number_text: String, tag: String, kind: String) -> void:
-	_apply_value(kind, number_text, tag)
-
-
-func show_item_callout(title: String, body: String, look: Dictionary, portrait: Texture2D) -> void:
-	if _item_callout == null:
+func _write_cue(passes_left: int, seating: bool) -> void:
+	if _cue == null:
 		return
-	if _fallback:
-		_fallback.visible = false
-	if _relic_host:
-		_relic_host.visible = false
-	_item_name.text = title
-	_item_callout.show_rule(title, "", "", body, "", portrait, "item", "", look)
-	_item_callout.visible = true
-	_item_callout.reset_size()
-
-
-func _apply_value(kind: String, number_text: String, tag: String = "") -> void:
-	var k: String = kind.to_upper()
-	var shown: String = number_text.strip_edges()
-	if shown.begins_with("[") and shown.contains("]"):
-		shown = _strip_bb(shown)
-	if shown == "—" or shown == "–" or shown == "-" or shown.to_upper() == "X":
-		shown = "?"
-	var t: String = tag
-	if t == "":
-		if k == "DEFEAT" or k == "FANGS" or k == "KO":
-			shown = COPY.need("hand.tag.ko")
-			t = ""
-		elif k == "ATK" or k.contains("ATK"):
-			t = COPY.need("hand.tag.atk")
-		elif k == "BLK" or k.contains("BLK"):
-			t = COPY.need("hand.tag.blk")
-		elif k == "HEAL" or k.contains("HEAL"):
-			t = COPY.need("hand.tag.heal")
-	var ink: Color = UI.kind_ink(k if k != "" else t)
-	if _item_num:
-		_item_num.text = shown
-		UI.apply_number(_item_num, ink, UI.SIZE_NUMBER)
-		_item_num.visible = shown != ""
-	if _item_tag:
-		_item_tag.text = t
-		UI.apply_tag(_item_tag, ink, UI.SIZE_TAG)
-		_item_tag.visible = t.strip_edges() != ""
-	if _value_row:
-		_value_row.visible = shown != "" or t.strip_edges() != ""
-
-
-func _strip_bb(s: String) -> String:
-	var out := ""
-	var i := 0
-	while i < s.length():
-		if s[i] == "[":
-			var close: int = s.find("]", i)
-			if close >= 0:
-				i = close + 1
-				continue
-		out += s[i]
-		i += 1
-	return out.strip_edges()
-
-
-func _write_threat(tier: int) -> void:
-	var t: int = clampi(tier, 1, 3)
-	if _threat_name:
-		_threat_name.text = COPY.tier_name(t)
-		_threat_name.add_theme_color_override("font_color", UX.metal_ink(t))
-		if _font_px != null:
-			_threat_name.add_theme_font_override("font", _font_px)
-		_threat_name.add_theme_font_size_override("font_size", 52)
-		_threat_name.add_theme_color_override("font_shadow_color", OAK)
-		_threat_name.add_theme_constant_override("shadow_offset_x", 0)
-		_threat_name.add_theme_constant_override("shadow_offset_y", 4)
-	if _threat_icon:
-		_threat_icon.visible = false
-	for i in _threat_pips.size():
-		var pip: Panel = _threat_pips[i]
-		var psb := StyleBoxFlat.new()
-		psb.bg_color = ATK if i < t else OAK
-		psb.border_color = SOOT
-		psb.set_border_width_all(2)
-		pip.add_theme_stylebox_override("panel", psb)
-		pip.custom_minimum_size = Vector2(22, 10)
-	if _threat:
-		_threat.queue_redraw()
+	_cue.visible = true
+	if seating:
+		_cue.text = COPY.text("cue.seat", "A monster approaches. Select their location.")
+	elif passes_left <= 0:
+		_cue.text = COPY.text("cue.steal", "Out of time")
+	else:
+		_cue.text = COPY.text("cue.ask", "Take it or leave it?")
 
 
 func set_passes(n: int) -> void:
-	if _refuse == null:
-		return
-	if _passes_shown >= 0 and n != _passes_shown and _passes_preview < 0:
-		_punch_passes()
 	if n <= 0:
-		_refuse.text = COPY.text("door.pass_none", "No passes left")
-	elif n == 1:
-		_refuse.text = COPY.text("door.pass_one", "Leave it (1 pass left)")
+		_refuse.text = COPY.text("door.pass_none", "Out of time")
+	elif n == 1 and COPY.text("door.pass_one", "").strip_edges() != "":
+		_refuse.text = COPY.fill("door.pass_one", {"n": n}, COPY.text("door.pass_one", ""))
 	else:
-		_refuse.text = COPY.fill("door.pass", {"n": n}, "Leave it (%s passes left)" % n)
+		_refuse.text = COPY.fill("door.pass", {"n": n}, "Leave it")
 	_refuse.disabled = n <= 0
-	_style_leave(n > 0)
-	_refuse.modulate.a = 1.0 if n > 0 else 0.55
-	if mode == "ask" and _cue:
-		if n <= 0:
-			_cue.text = COPY.text("cue.steal", COPY.need("door.pass_none"))
-		else:
-			_cue.text = COPY.need("cue.ask")
+	_refuse.modulate.a = 1.0 if n > 0 else 0.38
+	if mode == "ask":
+		_write_cue(n, false)
 	for i in _pip_dots.size():
 		var d: ColorRect = _pip_dots[i]
-		d.color = TORCH if i < n else Color(UX.metal(1).r, UX.metal(1).g, UX.metal(1).b, 0.28)
-	_passes_shown = n
-	if _passes_preview >= 0:
-		_paint_pass_preview()
-
-
-func set_passes_preview(n: int) -> void:
-	_passes_preview = n
-	_paint_pass_preview()
-
-
-func _punch_passes() -> void:
-	if _pips == null:
-		return
-	_pips.pivot_offset = _pips.size * 0.5
-	var tw := create_tween()
-	tw.tween_property(_pips, "scale", Vector2(1.18, 1.18), 0.08)
-	tw.tween_property(_pips, "scale", Vector2.ONE, 0.14)
-	if _refuse:
-		_refuse.pivot_offset = _refuse.size * 0.5
-		var tw2 := create_tween()
-		tw2.tween_property(_refuse, "scale", Vector2(1.06, 1.06), 0.08)
-		tw2.tween_property(_refuse, "scale", Vector2.ONE, 0.14)
-
-
-func _paint_pass_preview() -> void:
-	if _refuse == null:
-		return
-	if _passes_preview < 0:
-		if _passes_shown >= 0:
-			set_passes(_passes_shown)
-		_refuse.modulate = Color.WHITE
-		return
-	var pulse: float = 0.60 + 0.40 * sin(float(Time.get_ticks_msec()) * 0.012)
-	_refuse.modulate = Color(1.0, 0.92, 0.55, 0.75 + 0.25 * pulse)
-	for i in _pip_dots.size():
-		var d: ColorRect = _pip_dots[i]
-		if i < _passes_preview:
-			d.color = TORCH
-		elif i < _passes_shown:
-			d.color = Color("e07a7a")
-		else:
-			d.color = Color(UX.metal(1).r, UX.metal(1).g, UX.metal(1).b, 0.28)
-	if _passes_preview <= 0:
-		_refuse.text = COPY.text("door.pass_none", "No passes left")
-	elif _passes_preview == 1:
-		_refuse.text = COPY.text("door.pass_one", "Leave it (1 pass left)")
-	else:
-		_refuse.text = COPY.fill("door.pass", {"n": _passes_preview}, "Leave it (%s passes left)" % _passes_preview)
+		d.color = _metal(pack_tier) if i < n else Color(0.22, 0.18, 0.14, 0.55)
 
 
 func reveal(monster: Dictionary, _value_bb: String = "", _speech: String = "", _reminder: String = "") -> void:
@@ -573,40 +322,37 @@ func reveal(monster: Dictionary, _value_bb: String = "", _speech: String = "", _
 	_run = art.monster_run(card_id) if art else []
 	_fi = 0.0
 	_doors = 0.0
-	_cue.text = COPY.need("cue.seat")
-	_bait.visible = false
-	_item_slot.visible = false
-	_threat_slot.visible = false
-	_refuse.visible = false
-	_pips.visible = false
-	if _actor:
-		_actor.visible = true
-		_actor.custom_minimum_size = Vector2(220, 160)
-		_actor.queue_redraw()
+	if _relic_host:
+		_relic_host.visible = false
+	_actor.visible = true
+	if _stage:
+		_stage.custom_minimum_size = Vector2(248, 240)
+	if _rules_box != null:
+		_rules_box.visible = false
+	if _cue:
+		_cue.visible = true
+		_cue.text = COPY.text("cue.seat", "A monster approaches. Select their location.")
+	if _hint:
+		_hint.visible = false
+	_sync_actor()
+	_actor.pivot_offset = _actor.size * 0.5
+	var tw := create_tween()
+	tw.set_trans(Tween.TRANS_BACK)
+	tw.tween_property(_actor, "scale", Vector2(1.16, 1.16), 0.12)
+	tw.tween_property(_actor, "scale", Vector2.ONE, 0.16)
 
 
 func set_seat() -> void:
 	mode = "seat"
-	_refuse.visible = false
+	_btns.visible = false
 	_pips.visible = false
-	_bait.visible = false
-	_item_slot.visible = false
-	_threat_slot.visible = false
-	if _cue:
-		_cue.text = COPY.text("cue.seat", "A monster approaches. Select their location.")
-	_show_nib(true)
-
-
-func leave_btn() -> Control:
-	return _refuse
-
-
-func relic_host() -> Control:
-	if _item_callout != null and _item_callout.visible:
-		return _item_callout
-	if _relic_host != null:
-		return _relic_host
-	return _item_icon
+	if _hook:
+		_hook.visible = false
+	if _hint:
+		_hint.visible = false
+	_write_cue(0, true)
+	_dim.color.a = 0.0
+	_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func hide_gate() -> void:
@@ -618,64 +364,55 @@ func hide_gate() -> void:
 	_doors = 0.58
 	_idle.clear()
 	_run.clear()
+	_btns.visible = true
+	_pips.visible = true
+	if _hint:
+		_hint.visible = false
+	if _hook:
+		_hook.visible = false
 	hide_owner()
-	_show_nib(false)
-	if _item_callout != null and _item_callout.has_method("hide_plate"):
-		_item_callout.hide_plate()
+	_actor.visible = false
+	_actor.modulate = Color.WHITE
+	if _relic_host:
+		_relic_host.visible = true
+	if _stage:
+		_stage.custom_minimum_size = Vector2(248, 400)
+	_panel.scale = Vector2.ONE
+	_panel.modulate.a = 1.0
+	_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Input.set_custom_mouse_cursor(null)
 	clear_relic()
-	scale = Vector2.ONE
-	modulate.a = 1.0
 
 
 func show_owner(title: String, value_line: String, equation: String, body: String, warn: String, look: Dictionary) -> void:
 	if _owner_plate == null:
 		return
 	_owner_plate.visible = true
-	if _owner_plate.has_method("show_monster"):
-		var tex: Texture2D = still_tex()
-		var m := {
-			"name": title,
-			"ability": body,
-			"atk": int(look.get("atk", 0)),
-			"hp": int(look.get("hp", 0)),
-			"pack_tier": pack_tier,
-			"card_id": card_id,
-		}
-		_owner_plate.show_monster(m, tex)
-	elif _owner_plate.has_method("show_rule"):
-		_owner_plate.show_rule(title, value_line, equation, body, warn, null, "monster", card_id, look)
+	_owner_plate.show_rule(title, value_line, equation, body, warn, null, "monster", card_id, look)
 
 
 func hide_owner() -> void:
-	if _owner_plate:
-		_owner_plate.visible = false
-		if _owner_plate.has_method("hide_plate"):
-			_owner_plate.hide_plate()
+	if _owner_plate == null:
+		return
+	_owner_plate.hide_plate()
 
 
 func hide_actor() -> void:
-	if _actor:
-		_actor.visible = false
+	_actor.visible = false
 
 
 func mouth_global() -> Vector2:
-	if _threat != null and _threat.visible:
-		return _threat.global_position + Vector2(_threat.size.x * 0.5, _threat.size.y)
-	if _actor == null:
-		return Vector2(1236, 190)
-	return _actor.global_position + Vector2(_actor.size.x * 0.5, _actor.size.y - 8.0)
+	var r: Rect2 = _actor.get_global_rect()
+	return r.position + Vector2(r.size.x * 0.62, r.size.y * 0.38)
 
 
 func actor_global() -> Vector2:
-	if _threat != null and _threat.visible:
-		return _threat.global_position + _threat.size * 0.5
-	if _actor == null:
-		return Vector2.ZERO
-	return _actor.global_position + _actor.size * 0.5
+	var r: Rect2 = _actor.get_global_rect()
+	return r.position + r.size * 0.5
 
 
 func panel_left() -> float:
-	return global_position.x
+	return _panel.global_position.x
 
 
 func still_tex() -> Texture2D:
@@ -684,53 +421,41 @@ func still_tex() -> Texture2D:
 	return null
 
 
-func dock(_wheel: Control) -> void:
-	_place_nib()
-
-
-func clear_relic() -> void:
-	if _relic_host == null:
+func dock(wheel: Control) -> void:
+	if not visible or lock_dock or wheel == null:
 		return
-	for c in _relic_host.get_children():
-		_relic_host.remove_child(c)
-		c.queue_free()
-	_relic_host.visible = false
-	if _fallback:
-		_fallback.visible = true
-
-
-func mount_relic(card: Control) -> void:
-	clear_relic()
-	if card == null or _relic_host == null:
-		return
-	if card.get_parent() != null:
-		card.get_parent().remove_child(card)
-	if card.has_method("set_gate_fit"):
-		card.set_gate_fit(true)
-	elif card.has_method("set_compact"):
-		card.set_compact(true)
-	card.custom_minimum_size = GATE_CARD
-	card.size = GATE_CARD
-	_relic_host.add_child(card)
-	card.visible = true
-	_relic_host.visible = true
-	if _fallback:
-		_fallback.visible = false
+	var wr: Rect2 = wheel.get_global_rect()
+	var vp: Vector2 = get_viewport_rect().size
+	var available: float = maxf(280.0, vp.x - wr.end.x - 16.0)
+	var want_w: float = minf(GATE_W, available)
+	var want_h: float = maxf(_panel.get_combined_minimum_size().y, 500.0 if mode == "seat" else 520.0)
+	var want := Vector2(want_w, want_h)
+	var x: float = wr.end.x + 8.0
+	if x + want.x > vp.x - 8.0:
+		x = vp.x - want.x - 8.0
+	var y: float = wr.position.y + 12.0
+	x = clampf(x, 10.0, maxf(10.0, vp.x - want.x - 10.0))
+	y = clampf(y, 8.0, maxf(8.0, vp.y - want.y - 12.0))
+	_panel.global_position = Vector2(x, y)
+	_panel.size = want
+	_glow.global_position = Vector2(x - 22.0, y - 22.0)
+	_glow.size = want + Vector2(44.0, 44.0)
+	_glow.metal = _metal(pack_tier)
+	_glow.pulse = 0.40 + 0.60 * absf(sin(_bob * 2.6))
+	_glow.queue_redraw()
 
 
 func play_slam(fast: bool = false) -> void:
-	_refuse.visible = false
+	Input.set_custom_mouse_cursor(null)
+	_btns.visible = false
 	_pips.visible = false
+	_actor.visible = true
+	_actor.modulate = Color.WHITE
 	_doors = 1.0
-	if _actor:
-		_actor.queue_redraw()
+	_sync_actor()
 	var slam := create_tween()
 	slam.tween_property(self, "_doors", 1.0, 0.04 if fast else 0.06)
 	await slam.finished
-	var hit := create_tween()
-	hit.tween_property(self, "position:x", position.x + 6.0, 0.04)
-	hit.tween_property(self, "position:x", position.x - 6.0, 0.04)
-	hit.tween_property(self, "position:x", position.x, 0.04)
 	var open := create_tween()
 	open.set_trans(Tween.TRANS_BACK)
 	open.set_ease(Tween.EASE_OUT)
@@ -739,6 +464,7 @@ func play_slam(fast: bool = false) -> void:
 
 
 func play_pass() -> void:
+	Input.set_custom_mouse_cursor(null)
 	lock_dock = true
 	_shake = 1.0
 	var tw := create_tween()
@@ -747,160 +473,241 @@ func play_pass() -> void:
 	var out := create_tween()
 	out.set_trans(Tween.TRANS_QUAD)
 	out.set_ease(Tween.EASE_IN)
-	out.tween_property(self, "modulate:a", 0.0, 0.18)
+	out.tween_property(_panel, "modulate:a", 0.0, 0.18)
+	out.parallel().tween_property(_panel, "position:x", _panel.position.x - 120.0, 0.18)
 	await out.finished
 	lock_dock = false
 
 
-func _on_bait_input(ev: InputEvent) -> void:
-	if mode != "ask":
+func _sync_actor() -> void:
+	if _actor == null:
 		return
-	if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-		send_pressed.emit()
-
-
-func qa_snapshot() -> Dictionary:
-	var r: Rect2 = get_global_rect()
-	return {
-		"mode": mode,
-		"visible": visible,
-		"header": _cue.text if _cue else "",
-		"leave": _refuse.text if _refuse else "",
-		"leave_disabled": _refuse.disabled if _refuse else true,
-		"take_present": false,
-		"tier": pack_tier,
-		"threat": _threat_name.text if _threat_name else "",
-		"item_name": _item_name.text if _item_name else "",
-		"callout": _item_callout.visible if _item_callout else false,
-		"rect": [r.position.x, r.position.y, r.size.x, r.size.y],
-		"nib": (
-			[_nib_well.global_position.x, _nib_well.global_position.y, _nib_well.size.x, _nib_well.size.y]
-			if _nib_well else [0, 0, 0, 0]
-		),
-		"nib_visible": _nib_well.visible if _nib_well else false,
-	}
-
-
-func _draw_threat() -> void:
-	if _threat == null:
-		return
-	var sz: Vector2 = _threat.size
-	if sz.x < 8.0 or sz.y < 8.0:
-		return
-	var t: int = clampi(pack_tier, 1, 3)
-	var fill: Color = UX.metal_wedge(t)
-	var rim: Color = UX.metal(t)
-	var pad := 0.0
-	var box := Rect2(Vector2(pad, pad), sz - Vector2(pad * 2.0, pad * 2.0))
-	if t >= 3:
-		var pulse: float = 0.45 + 0.55 * absf(sin(_glow_t * TAU / 0.85))
-		var glow := Color(ATK.r, ATK.g, ATK.b, 0.18 + 0.42 * pulse)
-		_threat.draw_rect(box.grow(6.0 + 4.0 * pulse), glow, false, 8.0 + 6.0 * pulse)
-	_threat.draw_rect(box, fill, true)
-	_threat.draw_rect(box, rim, false, 6.0)
-	_threat.draw_rect(box.grow(-6.0), OAK, false, 3.0)
-
-
-func _draw_skull(c: Vector2, r: float, col: Color) -> void:
-	if _threat == null:
-		return
-	_threat.draw_circle(c, r, col)
-	_threat.draw_circle(c + Vector2(-r * 0.35, -r * 0.05), r * 0.22, SOOT)
-	_threat.draw_circle(c + Vector2(r * 0.35, -r * 0.05), r * 0.22, SOOT)
-	_threat.draw_rect(Rect2(c + Vector2(-r * 0.22, r * 0.28), Vector2(r * 0.44, r * 0.28)), SOOT)
-
-
-func _draw_arch() -> void:
-	if _actor == null or not _actor.visible:
-		return
-	var sz: Vector2 = _actor.size
-	if sz.x < 8.0 or sz.y < 8.0:
-		return
-	var jig: float = sin(_bob * 48.0) * _shake * 5.0
-	if not _idle.is_empty():
+	_actor.mystery = _mystery
+	_actor.tier = pack_tier
+	_actor.doors = _doors
+	_actor.bob = _bob
+	_actor.shake = _shake
+	if _mystery or _idle.is_empty():
+		_actor.tex = null
+	else:
 		var frames: Array = _run if mode == "seat" and not _run.is_empty() else _idle
-		var tex: Texture2D = frames[int(_fi) % frames.size()]
-		var side := 128.0
-		var dest := Rect2(Vector2((sz.x - side) * 0.5 + jig, 16.0), Vector2(side, side))
-		_actor.draw_texture_rect(tex, dest, false)
-	_draw_doors(sz)
-
-
-func _draw_doors(sz: Vector2) -> void:
-	var t: float = clampf(_doors, 0.0, 1.0)
-	if t <= 0.02:
-		return
-	var wood := Color("4a3018")
-	var hole := Rect2(Vector2(18, 22), Vector2(sz.x - 36, sz.y - 36))
-	var leaf_w: float = hole.size.x * 0.5 * t
-	_actor.draw_rect(Rect2(hole.position, Vector2(leaf_w, hole.size.y)), wood)
-	_actor.draw_rect(Rect2(Vector2(hole.end.x - leaf_w, hole.position.y), Vector2(leaf_w, hole.size.y)), wood)
-
-
-func _on_item_in() -> void:
-	_item_hot = true
-	_style_bait_hot(true)
-	_sync_nib()
-	item_hovered.emit()
-
-
-func _on_item_out() -> void:
-	_item_hot = false
-	_style_bait_hot(false)
-	_sync_nib()
-	item_unhovered.emit()
-
-
-func _style_bait_hot(_on: bool) -> void:
-	_style_bait()
-
-
-func _show_nib(on: bool) -> void:
-	if _nib_well:
-		_nib_well.visible = on
-	_place_nib()
-	_sync_nib()
-
-
-func _place_nib() -> void:
-	if _nib_well == null:
-		return
-	_nib_well.size = Vector2(88, 88)
-	var gr: Rect2 = get_global_rect()
-	var gy: float = gr.end.y + 8.0
-	var two_row_top: float = 1000.0 - 210.0 * 2.0 - 14.0
-	var floor_y: float = two_row_top - 12.0 - 88.0
-	if gy + 88.0 > two_row_top - 12.0:
-		gy = gr.end.y - 8.0 - 88.0
-	gy = clampf(gy, gr.position.y + 8.0, floor_y)
-	_nib_well.global_position = Vector2(gr.position.x + 8.0, gy)
-
-
-func _sync_nib() -> void:
-	if _nib == null:
-		return
-	if _item_hot and _nib_smug != null:
-		_nib.texture = _nib_smug
-		return
-	if not _nib_idle.is_empty():
-		_nib.texture = _nib_idle[int(_fi) % _nib_idle.size()]
+		if not frames.is_empty():
+			_actor.tex = frames[int(_fi) % frames.size()]
+	_actor.queue_redraw()
 
 
 func _process(delta: float) -> void:
-	if not visible and (_nib_well == null or not _nib_well.visible):
+	if not visible:
 		return
 	_fi += delta * 5.5
 	_bob += delta
-	_glow_t += delta
-	if _glow and _glow.visible:
-		var ga: float = 0.80 + 0.20 * absf(sin(_glow_t * TAU / 1.2))
-		_glow.modulate = Color(1, 1, 1, ga)
-	if _threat and _threat.visible:
-		_threat.queue_redraw()
-	if _actor and _actor.visible:
-		_actor.queue_redraw()
-	_place_nib()
-	if not _item_hot:
-		_sync_nib()
-	if _passes_preview >= 0:
-		_paint_pass_preview()
+	_stamp.bob = _bob
+	_stamp.queue_redraw()
+	_sync_actor()
+	if _glow != null:
+		_glow.metal = _metal(pack_tier)
+		_glow.pulse = 0.35 + 0.65 * absf(sin(_bob * 2.6))
+		_glow.queue_redraw()
+
+
+class GlowFrame extends Control:
+	var metal: Color = Color("c08050")
+	var pulse: float = 0.5
+
+	func _draw() -> void:
+		var r := Rect2(Vector2(6, 6), size - Vector2(12, 12))
+		var col := Color(metal.r, metal.g, metal.b, 0.10 + pulse * 0.22)
+		draw_rect(r.grow(8.0), Color(metal.r, metal.g, metal.b, 0.06 + pulse * 0.10), false, 10.0)
+		draw_rect(r, col, false, 4.0 + pulse * 3.0)
+
+
+class TierStamp extends Control:
+	var tier: int = 1
+	var bob: float = 0.0
+
+	func _metal() -> Color:
+		if tier >= 3:
+			return Color("e8c36a")
+		if tier == 2:
+			return Color("c5cdd8")
+		return Color("c08050")
+
+	func _plate_pts(center: Vector2, rad: float) -> PackedVector2Array:
+		var pts := PackedVector2Array()
+		if tier >= 3:
+			for k in 10:
+				var a: float = -PI * 0.5 + float(k) * TAU / 10.0
+				var rr: float = rad * (1.12 if k % 2 == 0 else 0.72)
+				pts.append(center + Vector2.from_angle(a) * rr)
+		elif tier == 2:
+			for k2 in 6:
+				var a2: float = -PI * 0.5 + float(k2) * TAU / 6.0
+				pts.append(center + Vector2.from_angle(a2) * rad)
+		else:
+			for k3 in 24:
+				var a3: float = -PI * 0.5 + float(k3) * TAU / 24.0
+				pts.append(center + Vector2.from_angle(a3) * rad)
+		return pts
+
+	func _draw() -> void:
+		var metal: Color = _metal()
+		var pulse: float = 0.55 + 0.45 * absf(sin(bob * 3.0))
+		var glow := Color(metal.r, metal.g, metal.b, 0.28 + pulse * 0.50)
+		var c := Vector2(size.x * 0.5, size.y * 0.5)
+		var plate_r := 28.0 + pulse * 3.2
+		draw_circle(c, plate_r + 14.0, glow)
+		var fill := Color("241610")
+		if tier == 2:
+			fill = Color("161018")
+		elif tier >= 3:
+			fill = Color("100308")
+		var pts: PackedVector2Array = _plate_pts(c, plate_r)
+		draw_colored_polygon(pts, fill)
+		var rim: Color = metal.lerp(metal.lightened(0.5), pulse * 0.6)
+		var w: float = 3.0 + pulse * 1.8
+		if tier >= 2:
+			var ring: PackedVector2Array = pts.duplicate()
+			ring.append(pts[0])
+			draw_polyline(ring, rim, w, true)
+		else:
+			draw_arc(c, plate_r, 0.0, TAU, 32, rim, w, true)
+		if tier >= 3:
+			for i in 5:
+				var ang: float = bob * 2.2 + float(i) * TAU / 5.0
+				var sp: Vector2 = c + Vector2.from_angle(ang) * (plate_r + 18.0 + sin(bob * 5.0 + float(i)) * 4.0)
+				draw_circle(sp, 2.4 + pulse * 1.6, Color(metal.r, metal.g, metal.b, 0.40 + pulse * 0.55))
+
+
+class Actor extends Control:
+	var tex: Texture2D
+	var mystery: bool = true
+	var tier: int = 1
+	var doors: float = 0.55
+	var bob: float = 0.0
+	var shake: float = 0.0
+
+	func _metal() -> Color:
+		if tier >= 3:
+			return Color("e8c36a")
+		if tier == 2:
+			return Color("c5cdd8")
+		return Color("c08050")
+
+	func _plate_pts(center: Vector2, rad: float) -> PackedVector2Array:
+		var pts := PackedVector2Array()
+		if tier >= 3:
+			for k in 10:
+				var a: float = -PI * 0.5 + float(k) * TAU / 10.0
+				var rr: float = rad * (1.12 if k % 2 == 0 else 0.72)
+				pts.append(center + Vector2.from_angle(a) * rr)
+		elif tier == 2:
+			for k2 in 6:
+				var a2: float = -PI * 0.5 + float(k2) * TAU / 6.0
+				pts.append(center + Vector2.from_angle(a2) * rad)
+		else:
+			for k3 in 24:
+				var a3: float = -PI * 0.5 + float(k3) * TAU / 24.0
+				pts.append(center + Vector2.from_angle(a3) * rad)
+		return pts
+
+	func _draw() -> void:
+		var sz: Vector2 = size
+		var jig: float = sin(bob * 48.0) * shake * 5.0
+		var bounce: float = sin(bob * 3.2) * 3.0
+		var c := Vector2(sz.x * 0.5 + jig, sz.y * 0.56 + bounce)
+		var plate_r: float = minf(sz.x, sz.y) * 0.30
+		_draw_arch(sz)
+		_draw_plate(Vector2(sz.x * 0.5 + jig, sz.y * 0.52 + bounce), plate_r)
+		if mystery:
+			_draw_silhouette(c, sz)
+		elif tex != null:
+			var side: float = minf(sz.x, sz.y) * 0.58
+			var dest := Rect2(Vector2((sz.x - side) * 0.5 + jig, (sz.y - side) * 0.28 + bounce), Vector2(side, side))
+			draw_texture_rect(tex, dest, false)
+		_draw_plate_rim(Vector2(sz.x * 0.5 + jig, sz.y * 0.52 + bounce), plate_r)
+		_draw_doors(sz)
+
+	func _draw_arch(sz: Vector2) -> void:
+		var stone := Color("2a231c")
+		draw_rect(Rect2(Vector2(8, 10), Vector2(sz.x - 16, sz.y - 16)), stone)
+		draw_rect(Rect2(Vector2(18, 22), Vector2(sz.x - 36, sz.y - 36)), Color("100e0c"))
+		draw_arc(Vector2(sz.x * 0.5, 48), sz.x * 0.36, PI, TAU, 18, Color("3a3228"), 6.0, true)
+
+	func _draw_plate(center: Vector2, rad: float) -> void:
+		var fill := Color("241610")
+		if tier == 2:
+			fill = Color("161018")
+		elif tier >= 3:
+			fill = Color("100308")
+		draw_colored_polygon(_plate_pts(center, rad), fill)
+
+	func _draw_plate_rim(center: Vector2, rad: float) -> void:
+		var metal: Color = _metal()
+		var pulse: float = 0.55 + 0.45 * absf(sin(bob * 3.0))
+		var col: Color = metal.lerp(metal.lightened(0.45), pulse * 0.7)
+		var w: float = 2.4 + pulse * 1.6
+		var pts: PackedVector2Array = _plate_pts(center, rad)
+		if tier >= 2:
+			pts.append(pts[0])
+			draw_polyline(pts, col, w, true)
+		else:
+			draw_arc(center, rad, 0.0, TAU, 28, col, w, true)
+		if tier >= 3:
+			for i in 4:
+				var ang: float = bob * 2.4 + float(i) * TAU / 4.0
+				draw_circle(center + Vector2.from_angle(ang) * (rad + 8.0), 2.0 + pulse, Color(metal.r, metal.g, metal.b, 0.45 + pulse * 0.4))
+
+	func _draw_silhouette(c: Vector2, sz: Vector2) -> void:
+		var ink := Color(0.04, 0.03, 0.03, 0.94)
+		var scale: float = 0.78 + float(mini(tier, 3)) * 0.08
+		var head_r: float = 16.0 * scale
+		var head := c + Vector2(0, -38.0 * scale)
+		draw_circle(head, head_r, ink)
+		var hood := PackedVector2Array([
+			head + Vector2(-head_r - 4, -2),
+			head + Vector2(0, -head_r - 10),
+			head + Vector2(head_r + 4, -2),
+			head + Vector2(head_r * 0.4, 8),
+			head + Vector2(-head_r * 0.4, 8),
+		])
+		draw_colored_polygon(hood, ink)
+		var body := PackedVector2Array([
+			c + Vector2(-28.0 * scale, -12.0 * scale),
+			c + Vector2(28.0 * scale, -12.0 * scale),
+			c + Vector2(36.0 * scale, 48.0 * scale),
+			c + Vector2(-36.0 * scale, 48.0 * scale),
+		])
+		draw_colored_polygon(body, ink)
+		if tier >= 3:
+			draw_colored_polygon(PackedVector2Array([
+				head + Vector2(-10, -head_r + 2),
+				head + Vector2(-18, -head_r - 14),
+				head + Vector2(-4, -head_r - 2),
+			]), ink)
+			draw_colored_polygon(PackedVector2Array([
+				head + Vector2(10, -head_r + 2),
+				head + Vector2(18, -head_r - 14),
+				head + Vector2(4, -head_r - 2),
+			]), ink)
+		var eye: Color = _metal()
+		var glow: float = 0.55 + 0.45 * absf(sin(bob * 2.4))
+		eye.a = glow
+		var er: float = 3.2 if tier >= 2 else 2.6
+		draw_circle(head + Vector2(-6, 1), er, eye)
+		draw_circle(head + Vector2(6, 1), er, eye)
+
+	func _draw_doors(sz: Vector2) -> void:
+		var t: float = clampf(doors, 0.0, 1.0)
+		if t <= 0.02:
+			return
+		var wood := Color("4a3018")
+		var band: Color = _metal()
+		var hole := Rect2(Vector2(18, 22), Vector2(sz.x - 36, sz.y - 36))
+		var leaf_w: float = hole.size.x * 0.5 * t
+		var left := Rect2(hole.position, Vector2(leaf_w, hole.size.y))
+		var right := Rect2(Vector2(hole.end.x - leaf_w, hole.position.y), Vector2(leaf_w, hole.size.y))
+		draw_rect(left, wood)
+		draw_rect(right, wood)
+		if leaf_w > 8.0:
+			draw_rect(Rect2(left.position + Vector2(leaf_w - 5, 8), Vector2(4, left.size.y - 16)), band)
+			draw_rect(Rect2(right.position + Vector2(1, 8), Vector2(4, right.size.y - 16)), band)

@@ -8,23 +8,10 @@ signal roster_pressed
 signal script_pressed
 
 const COPY := preload("res://scripts/player_copy.gd")
-const UX := preload("res://scripts/ux_style.gd")
-
-const SOOT := Color("1A120E")
-const OAK := Color("3B2618")
-const EDGE := Color("7A4E2B")
-const GOLD := Color("FFD84A")
-const PARCHMENT := Color("E9D3A1")
-const DIM := Color("A88C66")
-const VOID := Color("0B0706")
-const TORCH := Color("F09A34")
 
 var _master: HSlider
 var _music: HSlider
 var _sfx: HSlider
-var _lab_master: Label
-var _lab_music: Label
-var _lab_sfx: Label
 var _audio
 var _sfx_ready: bool = false
 var _title: Label
@@ -36,43 +23,46 @@ var _btn_how: Button
 var _btn_dive: Button
 var _btn_begin: Button
 var _btn_adventure: Button
-var _font_px: Font
-var _font_vt: Font
 
 
 func setup(audio) -> void:
 	_audio = audio
-	_font_px = load("res://assets/ui/fonts/PixelifySans-Bold.ttf")
-	_font_vt = load("res://assets/ui/fonts/VT323-Regular.ttf")
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	set_anchors_preset(PRESET_FULL_RECT)
-	color = Color(SOOT, 0.72)
+	color = Color("100e0ce8")
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	z_index = 120
 	gui_input.connect(_on_dim_input)
 
+	var center := CenterContainer.new()
+	center.set_anchors_preset(PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(center)
+
 	var panel := PanelContainer.new()
-	panel.position = Vector2(520, 120)
-	panel.custom_minimum_size = Vector2(640, 800)
-	var sb: StyleBoxTexture = UX.oak_panel(false, 34.0)
-	sb.content_margin_top = 44
-	sb.content_margin_bottom = 44
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("1c1814")
+	sb.border_color = Color("c4a574")
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(16)
+	sb.content_margin_left = 28
+	sb.content_margin_right = 28
+	sb.content_margin_top = 22
+	sb.content_margin_bottom = 22
 	panel.add_theme_stylebox_override("panel", sb)
-	add_child(panel)
+	center.add_child(panel)
 
 	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 18)
-	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	col.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	col.add_theme_constant_override("separation", 12)
+	col.custom_minimum_size = Vector2(460, 0)
 	panel.add_child(col)
 
 	_title = Label.new()
+	_title.text = "Settings"
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	if _font_px != null:
-		_title.add_theme_font_override("font", _font_px)
-	_title.add_theme_font_size_override("font_size", 54)
-	_title.add_theme_color_override("font_color", GOLD)
+	_title.add_theme_font_size_override("font_size", 32)
+	_title.add_theme_color_override("font_color", Color("c4a574"))
 	col.add_child(_title)
 
 	_master = _add_slider(col, "Master")
@@ -80,155 +70,114 @@ func setup(audio) -> void:
 	_sfx = _add_slider(col, "SFX")
 
 	_hint = Label.new()
-	_hint.visible = false
+	_hint.text = "Escape resumes. Start over without closing the game."
+	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_hint.add_theme_font_size_override("font_size", 14)
+	_hint.add_theme_color_override("font_color", Color("9a8b78"))
 	col.add_child(_hint)
 
 	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 16)
 	col.add_child(row)
-	_btn_resume = _gold_btn("", _on_resume)
-	_btn_resume.custom_minimum_size = Vector2(0, 72)
-	_btn_resume.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	if _font_px != null:
-		_btn_resume.add_theme_font_override("font", _font_px)
-	_btn_resume.add_theme_font_size_override("font_size", 38)
+	_btn_resume = _btn("Resume", Color("3a3220"), Color("e8c36a"), _on_resume, 140)
+	_btn_quit = _btn("Quit", Color("3a2020"), Color("e07a7a"), _on_quit, 140)
 	row.add_child(_btn_resume)
-	_btn_quit = _oak_btn("", _on_quit, Vector2(180, 72), 28)
 	if not OS.has_feature("web"):
 		row.add_child(_btn_quit)
 
 	_play = Label.new()
+	_play.text = "Start over"
 	_play.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	if _font_vt != null:
-		_play.add_theme_font_override("font", _font_vt)
-	_play.add_theme_font_size_override("font_size", 22)
-	_play.add_theme_color_override("font_color", DIM)
+	_play.add_theme_font_size_override("font_size", 16)
+	_play.add_theme_color_override("font_color", Color("c4a574"))
 	col.add_child(_play)
 
-	var grid := GridContainer.new()
-	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 12)
-	grid.add_theme_constant_override("v_separation", 12)
-	col.add_child(grid)
-	_btn_how = _oak_btn("", _pick.bind("tutorial"), Vector2(0, 56), 28)
-	_btn_dive = _oak_btn("", _pick.bind("dive"), Vector2(0, 56), 28)
-	_btn_begin = _oak_btn("", _pick.bind("begin"), Vector2(0, 56), 28)
-	_btn_adventure = _oak_btn("", _pick.bind("adventure"), Vector2(0, 56), 28)
-	for b in [_btn_how, _btn_dive, _btn_begin, _btn_adventure]:
-		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		grid.add_child(b)
+	var modes := HBoxContainer.new()
+	modes.alignment = BoxContainer.ALIGNMENT_CENTER
+	modes.add_theme_constant_override("separation", 10)
+	col.add_child(modes)
+	_btn_how = _btn("How to Play", Color("3a2820"), Color("e8c36a"), _pick.bind("tutorial"), 132)
+	_btn_dive = _btn("Dive In", Color("2a2622"), Color("c4a574"), _pick.bind("dive"), 110)
+	_btn_begin = _btn("Begin", Color("2a2622"), Color("6a5f52"), _pick.bind("begin"), 100)
+	modes.add_child(_btn_how)
+	modes.add_child(_btn_dive)
+	modes.add_child(_btn_begin)
+	var adv_row := HBoxContainer.new()
+	adv_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	col.add_child(adv_row)
+	_btn_adventure = _btn("Adventure Mode", Color("3a2820"), Color("e8c36a"), _pick.bind("adventure"), 200)
+	adv_row.add_child(_btn_adventure)
 
 	if OS.has_feature("editor"):
 		var dev_row := HBoxContainer.new()
 		dev_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		dev_row.add_theme_constant_override("separation", 10)
 		col.add_child(dev_row)
-		dev_row.add_child(_oak_btn("Developer Test", _pick.bind("dev"), Vector2(200, 44), 20))
-		dev_row.add_child(_oak_btn("Roster", _on_roster, Vector2(120, 44), 20))
-		dev_row.add_child(_oak_btn("Script", _on_script, Vector2(110, 44), 20))
+		dev_row.add_child(_btn("Developer Test", Color("1c1814"), Color("8a8178"), _pick.bind("dev"), 200))
+		dev_row.add_child(_btn("Roster", Color("3a2820"), Color("c4a574"), _on_roster, 120))
+		dev_row.add_child(_btn("Script", Color("3a2820"), Color("c4a574"), _on_script, 110))
 	apply_copy()
 
 
 func apply_copy() -> void:
 	if _title:
-		_title.text = COPY.need("pause.settings")
-	if _lab_master:
-		_lab_master.text = COPY.need("pause.master")
-	if _lab_music:
-		_lab_music.text = COPY.need("pause.music")
-	if _lab_sfx:
-		_lab_sfx.text = COPY.need("pause.sound")
+		_title.text = COPY.text("pause.settings", "Settings")
 	if _hint:
-		_hint.text = COPY.text("pause.hint", "")
+		_hint.text = COPY.text("pause.hint", "Escape resumes. Start over without closing the game.")
 	if _btn_resume:
-		_btn_resume.text = COPY.need("pause.resume")
+		_btn_resume.text = COPY.text("pause.resume", "Resume")
 	if _btn_quit:
-		_btn_quit.text = COPY.need("pause.quit")
+		_btn_quit.text = COPY.text("pause.quit", "Quit")
 	if _play:
-		_play.text = COPY.need("pause.start_over")
+		_play.text = COPY.text("pause.start_over", "Start over")
 	if _btn_how:
-		_btn_how.text = COPY.need("title.how_to_play")
+		_btn_how.text = COPY.text("title.how_to_play", "How to Play")
 	if _btn_dive:
-		_btn_dive.text = COPY.need("title.dive_in")
+		_btn_dive.text = COPY.text("title.dive_in", "Dive In")
 	if _btn_begin:
-		_btn_begin.text = COPY.need("title.begin")
+		_btn_begin.text = COPY.text("title.begin", "Begin")
 	if _btn_adventure:
-		_btn_adventure.text = COPY.need("title.adventure")
+		_btn_adventure.text = COPY.text("title.adventure", "Adventure Mode")
 
 
-func _add_slider(host: VBoxContainer, which: String) -> HSlider:
+func _add_slider(host: VBoxContainer, label: String) -> HSlider:
 	var wrap := VBoxContainer.new()
-	wrap.add_theme_constant_override("separation", 6)
+	wrap.add_theme_constant_override("separation", 4)
 	var lab := Label.new()
-	if _font_vt != null:
-		lab.add_theme_font_override("font", _font_vt)
-	lab.add_theme_font_size_override("font_size", 28)
-	lab.add_theme_color_override("font_color", DIM)
+	lab.text = label
+	lab.add_theme_font_size_override("font_size", 16)
+	lab.add_theme_color_override("font_color", Color("f0e6d8"))
 	wrap.add_child(lab)
-	match which:
-		"Master":
-			_lab_master = lab
-		"Music":
-			_lab_music = lab
-		"SFX":
-			_lab_sfx = lab
 	var sl := HSlider.new()
 	sl.min_value = 0
 	sl.max_value = 100
 	sl.step = 1
-	sl.custom_minimum_size = Vector2(0, 30)
-	var track := StyleBoxFlat.new()
-	track.bg_color = VOID
-	track.border_color = EDGE
-	track.set_border_width_all(3)
-	track.content_margin_top = 6
-	track.content_margin_bottom = 6
-	sl.add_theme_stylebox_override("slider", track)
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = TORCH
-	sl.add_theme_stylebox_override("grabber_area", fill)
-	sl.add_theme_stylebox_override("grabber_area_highlight", fill)
-	sl.value_changed.connect(_on_slider.bind(which))
+	sl.custom_minimum_size = Vector2(360, 28)
+	sl.value_changed.connect(_on_slider.bind(label))
 	wrap.add_child(sl)
 	host.add_child(wrap)
 	return sl
 
 
-func _gold_btn(text: String, cb: Callable) -> Button:
+func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float = 140) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.theme_type_variation = "ButtonGold"
+	b.custom_minimum_size = Vector2(width, 44)
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	b.add_theme_color_override("font_color", SOOT)
+	b.add_theme_color_override("font_color", Color("f0e6d8"))
 	var n := StyleBoxFlat.new()
-	n.bg_color = GOLD
-	n.border_color = SOOT
-	n.set_border_width_all(4)
+	n.bg_color = fill
+	n.border_color = rim
+	n.set_border_width_all(2)
+	n.set_corner_radius_all(999)
+	n.content_margin_left = 14
+	n.content_margin_right = 14
+	n.content_margin_top = 8
+	n.content_margin_bottom = 8
 	b.add_theme_stylebox_override("normal", n)
-	var h := n.duplicate() as StyleBoxFlat
-	h.bg_color = Color("FFE27A")
-	b.add_theme_stylebox_override("hover", h)
-	b.pressed.connect(cb)
-	return b
-
-
-func _oak_btn(text: String, cb: Callable, mins: Vector2, fs: int) -> Button:
-	var b := Button.new()
-	b.text = text
-	b.custom_minimum_size = mins
-	b.theme_type_variation = "ButtonOak"
-	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if _font_px != null:
-		b.add_theme_font_override("font", _font_px)
-	b.add_theme_font_size_override("font_size", fs)
-	b.add_theme_color_override("font_color", PARCHMENT)
-	var n := StyleBoxFlat.new()
-	n.bg_color = Color(0, 0, 0, 0)
-	n.border_color = EDGE
-	n.set_border_width_all(4)
-	b.add_theme_stylebox_override("normal", n)
-	var h := n.duplicate() as StyleBoxFlat
-	h.border_color = GOLD
+	var h := n.duplicate()
+	(h as StyleBoxFlat).bg_color = fill.lightened(0.16)
 	b.add_theme_stylebox_override("hover", h)
 	b.pressed.connect(cb)
 	return b
@@ -242,8 +191,6 @@ func open_menu() -> void:
 		_sfx.value = _audio.sfx_lin * 100.0
 		_sfx_ready = true
 	visible = true
-	if _btn_resume:
-		_btn_resume.grab_focus()
 	get_tree().paused = true
 
 
@@ -303,7 +250,7 @@ func _on_quit() -> void:
 
 func _on_dim_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.position.x < 520 or event.position.x > 1160 or event.position.y < 120 or event.position.y > 920:
+		if event.position.x < 0:
 			close_menu()
 
 

@@ -1,8 +1,0 @@
----
-description: Board and catalog JSON are Nathan's F5 Saves — read them first
-alwaysApply: true
----
-
-# Content data source
-
-Before implementing anything, read `data/content-board.json` and `data/catalog.json` on the current `origin/main`. These hold Nathan's saved edits from the in-game F5 editor and are the source of truth for content. Never overwrite or reformat his saved fields. Respect `author_lock`.

@@ -23,7 +23,6 @@ const CARD_FIELDS := [
 	"atk_formula",
 	"hp_formula",
 	"card_color",
-	"face_text",
 ]
 
 

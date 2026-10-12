@@ -10,8 +10,6 @@ const RUNTIME_PATH := "res://data/runtime.json"
 const CATALOG_PATH := "res://data/catalog.json"
 const AUTHOR_LOCK := preload("res://scripts/author_lock.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
-const LINES := preload("res://scripts/monster_lines.gd")
-const UX := preload("res://scripts/ux_style.gd")
 
 const LEGEND := "Attack and HP sit next to the name (orange / red). Copies and Priority are further right, grey, and are pool size / draw order — not combat stats. Headers stay lined up with the cells; scroll sideways if you need the later columns. Ctrl+F filter · Ctrl+S save · Ctrl+D duplicate · Esc discard."
 const COL_SEP := 4
@@ -40,12 +38,11 @@ const COL_ITEM := [
 	{"key": "name", "label": "Name", "sub": "on the card", "help": "The name printed on the card.", "w": 140.0, "kind": "line", "group": "identity"},
 	{"key": "ability", "label": "Player text", "sub": "sentence on the card", "help": "The sentence the player reads.", "w": 240.0, "kind": "area", "group": "copy"},
 	{"key": "explainer", "label": "Hover math", "sub": "Shift / inspect", "help": "The short equation on hover and Shift.", "w": 180.0, "kind": "area", "group": "copy"},
-	{"key": "face_text", "label": "Face text", "sub": "no-Shift number", "help": "What shows on the hand card when Shift is not held. A number plus ATK, BLK, HEAL, or UTIL. Leave blank to keep the auto number.", "w": 120.0, "kind": "line", "group": "copy"},
+	{"key": "card_color", "label": "Card color", "sub": "hand tint", "help": "atk / blk / heal / defeat / utility / chaos / smoke / egg, or blank for auto.", "w": 100.0, "kind": "line", "group": "copy"},
 	{"key": "review", "label": "Review", "sub": "rough → finished", "help": "rough = first pass. refined = mechanics changed after your notes. polish = art, copy, dialogue. finished = done.", "w": 108.0, "kind": "pick", "opts": ["rough", "refined", "polish", "finished"], "group": "review"},
 	{"key": "review_note", "label": "Your notes", "sub": "for Cursor", "help": "Type what to change. Save, then tell Cursor to read this box.", "w": 200.0, "kind": "area", "group": "review"},
 	{"key": "status", "label": "Status", "sub": "live / todo / hold", "help": "live = in the dungeon. todo = needs a code pass. hold = skip. retired = hidden.", "w": 92.0, "kind": "pick", "opts": ["live", "todo", "hold", "retired"], "group": "meta"},
 	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "starter = night-watch kit. uncommon = mill-gate packs.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
-	{"key": "card_color", "label": "Card color", "sub": "red / blue / green", "help": "Background of the item card. Auto follows the rule. Empty ops currently look like Attack red — pick Heal for Cursed Scroll.", "w": 148.0, "kind": "pick", "group": "meta"},
 	{"key": "id", "label": "Id", "sub": "internal code", "help": "Internal code id. Change this only when adding a brand-new card.", "w": 118.0, "kind": "line", "group": "meta"},
 	{"key": "tier", "label": "Tier", "sub": "1 bronze · 3 gold", "help": "1 bronze, 2 silver, 3 gold. A mill pack's relic and monster share this metal.", "w": 56.0, "kind": "line", "group": "pool"},
 	{"key": "count", "label": "Copies", "sub": "× in the pool", "help": "How many of this card exist in the dungeon pool. Not attack.", "w": 80.0, "kind": "line", "group": "pool"},
@@ -62,9 +59,10 @@ const COL_MONSTER := [
 	{"key": "hp_base", "label": "HP", "sub": "printed hits", "help": "The HP number in play, unless HP formula is filled.", "w": 78.0, "kind": "line", "group": "combat"},
 	{"key": "atk_formula", "label": "Attack formula", "sub": "leave empty if fixed", "help": "If this has text, play uses it instead of the Attack number.", "w": 150.0, "kind": "line", "group": "combat"},
 	{"key": "hp_formula", "label": "HP formula", "sub": "leave empty if fixed", "help": "If this has text, play uses it instead of the HP number.", "w": 150.0, "kind": "line", "group": "combat"},
-	{"key": "call_name", "label": "Call name", "sub": "subtitle on the plate", "help": "Short title under the monster name. Blank for Wizard and Golem.", "w": 140.0, "kind": "line", "group": "copy"},
-	{"key": "reminder", "label": "Shift line", "sub": "while holding Shift", "help": "Replaces the call name on the facing plate while you hold Shift.", "w": 180.0, "kind": "area", "group": "copy"},
-	{"key": "ability", "label": "Speech", "sub": "what they say", "help": "First-person line the monster says in the balloon.", "w": 220.0, "kind": "area", "group": "copy"},
+	{"key": "ability", "label": "Player text", "sub": "what they say", "help": "First-person line the monster says.", "w": 220.0, "kind": "area", "group": "copy"},
+	{"key": "explainer", "label": "Hover math", "sub": "inspect plate", "help": "The short reminder on the inspect plate.", "w": 160.0, "kind": "area", "group": "copy"},
+	{"key": "call_name", "label": "Call name", "sub": "under the title", "help": "Short name under the monster title.", "w": 140.0, "kind": "line", "group": "copy"},
+	{"key": "reminder", "label": "Shift line", "sub": "hold Shift", "help": "Replaces the call name while you hold Shift.", "w": 160.0, "kind": "area", "group": "copy"},
 	{"key": "review", "label": "Review", "sub": "rough → finished", "help": "rough = first pass. refined = mechanics changed after your notes. polish = art, copy, dialogue. finished = done.", "w": 108.0, "kind": "pick", "opts": ["rough", "refined", "polish", "finished"], "group": "review"},
 	{"key": "review_note", "label": "Your notes", "sub": "for Cursor", "help": "Type what to change. Save, then tell Cursor to read this box.", "w": 200.0, "kind": "area", "group": "review"},
 	{"key": "status", "label": "Status", "sub": "live / todo / hold", "help": "live = in the dungeon. todo = needs a code pass. hold = skip. retired = hidden.", "w": 92.0, "kind": "pick", "opts": ["live", "todo", "hold", "retired"], "group": "meta"},
@@ -675,15 +673,7 @@ func _make_row(card: Dictionary, cols: Array, zebra: int, grid_w: float) -> HBox
 			var pick_v: String = str(card.get(key, ""))
 			if key == "review":
 				pick_v = REVIEW_STAGE.of_card(card)
-			if key == "card_color":
-				pick_v = UX.card_color_id(pick_v)
-			var opts: Array = spec.get("opts", [])
-			if key == "card_color":
-				opts = UX.card_color_opts()
-			var pick := _pick_cell(pick_v, opts, w, help, row)
-			if key == "card_color":
-				UX.paint_color_pick(pick)
-				pick.item_selected.connect(func(_i: int) -> void: UX.paint_color_pick(pick))
+			var pick := _pick_cell(pick_v, spec.get("opts", []), w, help, row)
 			fields[key] = pick
 			_focusables.append(pick)
 			row.add_child(_lock_cell(pick, w, ROW_H, key))
@@ -723,10 +713,6 @@ func _field_value(card: Dictionary, key: String) -> String:
 		if ops_s == "null" or ops_s == "":
 			return "{}"
 		return ops_s
-	if key == "call_name" and not card.has("call_name"):
-		return LINES.call_of(str(card.get("id", "")), card)
-	if key == "reminder" and not card.has("reminder"):
-		return LINES.reminder_of(str(card.get("id", "")), card)
 	var v: Variant = card.get(key, "")
 	if v == null:
 		return ""
@@ -785,8 +771,6 @@ func _placeholder_for(key: String) -> String:
 			return ""
 		"explainer":
 			return ""
-		"face_text":
-			return "3 ATK"
 		"flow":
 			return ""
 		"notes":
@@ -855,18 +839,8 @@ func _pick_cell(value: String, opts: Array, w: float, help: String, row: HBoxCon
 	_skin_pick(e)
 	var sel := 0
 	for i in opts.size():
-		var o: Variant = opts[i]
-		var oid := ""
-		var olabel := ""
-		if typeof(o) == TYPE_DICTIONARY:
-			oid = str((o as Dictionary).get("id", ""))
-			olabel = str((o as Dictionary).get("label", oid))
-		else:
-			oid = str(o)
-			olabel = str(o)
-		e.add_item(olabel, i)
-		e.set_item_metadata(i, oid)
-		if oid == value or olabel == value:
+		e.add_item(str(opts[i]), i)
+		if str(opts[i]) == value:
 			sel = i
 	e.select(sel)
 	e.item_selected.connect(func(_i: int) -> void: _mark_dirty(row))
@@ -1112,9 +1086,6 @@ func _text_of(n: Variant) -> String:
 		var ob: OptionButton = n
 		if ob.selected < 0:
 			return ""
-		var md: Variant = ob.get_item_metadata(ob.selected)
-		if md != null and str(md) != "":
-			return str(md)
 		return ob.get_item_text(ob.selected)
 	else:
 		return ""
@@ -1173,15 +1144,16 @@ func _gather_row(row: HBoxContainer, strict: bool = true) -> Dictionary:
 		"count": _int_of(_text_of(fields["count"]), 1),
 		"priority": _int_of(_text_of(fields["priority"]), 3),
 		"ability": _text_of(fields["ability"]),
-		"explainer": _text_of(fields["explainer"]) if fields.has("explainer") else str(orig.get("explainer", "")),
+		"explainer": _text_of(fields["explainer"]),
+		"call_name": _text_of(fields["call_name"]) if fields.has("call_name") else str(orig.get("call_name", "")),
+		"reminder": _text_of(fields["reminder"]) if fields.has("reminder") else str(orig.get("reminder", "")),
+		"card_color": _text_of(fields["card_color"]) if fields.has("card_color") else str(orig.get("card_color", "")),
 		"flow": _text_of(fields["flow"]),
 		"notes": _text_of(fields["notes"]),
 		"review": _text_of(fields["review"]) if fields.has("review") else REVIEW_STAGE.of_card(orig),
 		"review_note": _text_of(fields["review_note"]) if fields.has("review_note") else str(orig.get("review_note", "")),
 		"ops": ops if kind == "item" else orig.get("ops", {}),
 		"contradiction_ids": orig.get("contradiction_ids", []),
-		"card_color": orig.get("card_color", ""),
-		"face_text": orig.get("face_text", ""),
 		"atk_base": orig.get("atk_base", null),
 		"hp_base": orig.get("hp_base", null),
 		"atk_formula": str(orig.get("atk_formula", "")),
@@ -1195,13 +1167,6 @@ func _gather_row(row: HBoxContainer, strict: bool = true) -> Dictionary:
 		card["atk_formula"] = _text_of(fields["atk_formula"])
 	if fields.has("hp_formula"):
 		card["hp_formula"] = _text_of(fields["hp_formula"])
-	if kind == "monster":
-		card["call_name"] = _text_of(fields["call_name"]) if fields.has("call_name") else str(orig.get("call_name", ""))
-		card["reminder"] = _text_of(fields["reminder"]) if fields.has("reminder") else str(orig.get("reminder", ""))
-	else:
-		var tint: String = _text_of(fields["card_color"]) if fields.has("card_color") else str(orig.get("card_color", ""))
-		card["card_color"] = "" if UX.card_color_id(tint) == "auto" else UX.card_color_id(tint)
-		card["face_text"] = _text_of(fields["face_text"]) if fields.has("face_text") else str(orig.get("face_text", ""))
 	var logic_changed: bool = str(card["flow"]) != str(orig.get("flow", "")) \
 		or str(card["notes"]) != str(orig.get("notes", "")) \
 		or str(card["atk_formula"]) != str(orig.get("atk_formula", "")) \
@@ -1289,15 +1254,14 @@ func _on_add() -> void:
 		"tier": 1,
 		"count": 1,
 		"priority": 3,
-		"ability": "",
+		"ability": "I wait here." if _kind == "monster" else "(ATK 1)",
 		"explainer": "",
 		"call_name": "",
 		"reminder": "",
+		"card_color": "",
 		"flow": "",
 		"notes": "New row from Roster.",
 		"ops": {"kind": "atk", "n": 1} if _kind == "item" else {},
-		"card_color": "",
-		"face_text": "",
 		"contradiction_ids": [],
 		"atk_base": 2 if _kind == "monster" else null,
 		"hp_base": 6 if _kind == "monster" else null,

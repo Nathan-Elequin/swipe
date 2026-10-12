@@ -69,11 +69,9 @@ func _draw() -> void:
 	draw_circle(Vector2(w * 0.22, 14.0), 3.2, gold_hot)
 	draw_circle(Vector2(w * 0.78, 14.0), 3.2, gold_hot)
 	draw_circle(Vector2(w * 0.50, h - 10.0), 2.6, gold)
-	var font: Font = UiPalette.font_extrabold()
-	if font == null:
-		font = ThemeDB.fallback_font
+	var font: Font = ThemeDB.fallback_font
 	var txt: String = str(count)
-	var fs: int = UiPalette.SIZE_NUMBER
+	var fs: int = 26
 	var tsz: Vector2 = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
 	var p: Vector2 = Vector2((w - tsz.x) * 0.5, h * 0.68 + fs * 0.35)
 	for ox in [-1, 0, 1]:

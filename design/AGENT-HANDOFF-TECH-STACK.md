@@ -33,8 +33,7 @@ A successor agent that does not use Cursor still has a complete loop if it can: 
 ┌────────────────────────────▼────────────────────────────────────┐
 │ RUNTIME PLANE (Godot process)                                   │
 │  F5 Play / exported binary                                      │
-│  scripts/main.gd  thin boot; logic in scripts/{content,core,ui} │
-│  Lane map: design/LANES.md                                      │
+│  scripts/main.gd  phase machine + ops/formula interpreter       │
 │  In-game editors: Roster, card sheet, Script editor             │
 │  Live RAM: wheel[], hotbar[], catalog{}, monsters_by_id{}       │
 └─────────────────────────────────────────────────────────────────┘
@@ -254,9 +253,9 @@ Worked example: `design/paper-fight/_example-copy-the-owner.md`.
 - Almost all UI is constructed in code (`_build_ui`), not in the scene tree.
 - Display: 1680×1040, `canvas_items` stretch, expand aspect, `gl_compatibility`.
 
-### 7.2 Phase machine
+### 7.2 Phase machine (`main.gd`)
 
-Typical loop: `title` → mill `draft` (ask/seat) → `ready` → `spinning` → `fighting` → owner removed → `ready` … → `victory` / `defeat` / `rest`. File map: `design/LANES.md`. `scripts/main.gd` only boots. Draft is `draft_flow.gd`, fight is `fight_flow.gd`, adventure is `run_flow.gd`.
+Typical loop: `title` → mill `draft` (ask/seat) → `ready` → `spinning` → `fighting` → owner removed → `ready` … → `victory` / `defeat` / `rest`.
 
 Developer Test (`devtest`) seats monsters/items by click without mill.
 
@@ -264,9 +263,9 @@ Paused overlays: title, rest, victory, defeat. Roster/Script/card editors pause 
 
 ### 7.3 Item execution
 
-Items do not have unique classes. `_ops_of(item)` returns the `ops` dict (board/catalog), with a hardcoded `ITEM_OPS` fallback in `scripts/content/content_defs.gd` if JSON is empty.
+Items do not have unique classes. `_ops_of(item)` returns the `ops` dict (board/catalog), with a hardcoded `ITEM_OPS` fallback in `main.gd` if JSON is empty.
 
-`_apply_ops` (`scripts/core/fight_flow.gd`) is a `match` on `ops.kind`: `atk`, `blk`, `choose`, `defeat_hp`, `defeat_atk`, `mark_poison`, `heal_keep`, `skip_swing`, etc. Adding a new item is: unique sprite, board row + ops, catalog merge, interpreter arm if `kind` is new, Paper Fight if the rule is new.
+`_apply_ops` is a `match` on `ops.kind`: `atk`, `blk`, `choose`, `defeat_hp`, `defeat_atk`, `mark_poison`, `heal_keep`, `skip_swing`, etc. Adding a new item is: unique sprite, board row + ops, catalog merge, interpreter arm if `kind` is new, Paper Fight if the rule is new.
 
 ### 7.4 Monster formulas
 

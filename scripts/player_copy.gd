@@ -8,16 +8,6 @@ const AUTHOR_LOCK := preload("res://scripts/author_lock.gd")
 
 static var pack: Dictionary = {}
 static var by_key: Dictionary = {}
-static var missing_keys: Array = []
-
-
-static func need(key: String) -> String:
-	var t: String = text(key, "")
-	if t.strip_edges() == "":
-		if not missing_keys.has(key):
-			missing_keys.append(key)
-		return "TODO(copy):%s" % key
-	return t
 
 
 static func reload() -> void:

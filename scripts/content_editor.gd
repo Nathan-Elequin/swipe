@@ -9,6 +9,41 @@ const AUTHOR_LOCK := preload("res://scripts/author_lock.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 const LINES := preload("res://scripts/monster_lines.gd")
 const UX := preload("res://scripts/ux_style.gd")
+const DEFAULT_EXPLAINER := {
+	"hornet_swarm": "(2) then (2) — block is spent per swing",
+	"goblin": "(NO ATK DAMAGE)",
+	"skeleton": "(LAST ENEMY HP)",
+	"lich": "(NEIGHBOR HP + 1)",
+	"ogre": "(YOUR HP)",
+	"berserker": "(1 + DEFEAT)    (2 + DEFEAT)",
+	"dire_wolf": "(YOUR HP)",
+	"bandit": "(ITEMS)",
+	"two_headed_serpent": "(ATK → 0 if 2 ITEMS)",
+	"slime_boss": "(ATTACK = HP)",
+	"leech_league": "(1 + MONSTERS LEFT)",
+	"wraith": "(HIGHER NEIGHBOR)",
+	"mimic": "(ITEM IF I NEVER SWING)",
+	"spider_queen": "(ATK) then (ATK) if a neighbor is weaker",
+	"commander": "(NEIGHBOR ATK + 2)",
+	"dragon": "(IGNORES BLOCK)",
+	"sai": "(2) then (4) then (2)…",
+	"throwing_knife": "(3) or (1 and KEEP)",
+	"pocketwatch": "(2) or (4 if EVEN ATK)",
+	"medallion": "(6 − HP)",
+	"helmet": "(the lower of YOUR HP and ENEMY HP)",
+	"da_boot": "(ENEMY HP < YOUR HP)",
+	"bloody_gauntlets": "(7 − HP)",
+	"bracers": "(NEIGHBOR ATK)",
+	"knucklers": "(8 − ITEMS)",
+	"spiked_flail": "(2 + TIMES YOU BLED)",
+	"sledgehammer": "(ENEMY ATK ≥ 5)",
+	"grimoire": "(LAST ENEMY ATK)",
+	"dagger": "(NEIGHBOR ATK)",
+	"breastplate": "(2) and KEEP if you bled",
+	"fangs": "(TAKE THEIR ATK) then DEFEAT then HEAL THEIR HP",
+	"crossbow": "(ATK 4) if (NEIGHBOR HP ≤ 4)",
+}
+
 var _kind: String = ""
 var _id: String = ""
 var _board: Dictionary = {}
@@ -64,7 +99,7 @@ func setup() -> void:
 	head.add_child(_btn("Save", Color("3a2820"), Color("c4a574"), _on_save, 110))
 
 	var hint := Label.new()
-	hint.text = "Enter saves and closes. Esc closes without saving. Shift+Enter makes a new line. Save writes the board and catalog, and locks this card. Chat will not rewrite locked fields unless you clearly override in chat, and even then it should stop and ask. Ctrl+S also saves."
+	hint.text = "Save writes the board and catalog, and locks this card. Chat will not rewrite locked fields unless you clearly override in chat, and even then it should stop and ask. Ctrl+S saves."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color("6b4a10"))
@@ -149,13 +184,12 @@ func _from_catalog(kind: String, card_id: String, cat: Dictionary) -> Dictionary
 		"hp_formula": str(hp_d.get("formula", "")),
 		"ability": str(cat.get("ability", "")),
 		"explainer": str(cat.get("explainer", "")),
-		"call_name": LINES.call_of(card_id, cat),
-		"reminder": LINES.reminder_of(card_id, cat),
+		"call_name": str(cat.get("call_name", "")),
+		"reminder": str(cat.get("reminder", "")),
+		"card_color": str(cat.get("card_color", "")),
 		"flow": str(cat.get("defined", "")),
 		"notes": str(cat.get("exceptions", cat.get("notes", ""))),
 		"ops": cat.get("ops", {}),
-		"card_color": str(cat.get("card_color", "")),
-		"face_text": str(cat.get("face_text", "")),
 		"contradiction_ids": [],
 		"review": REVIEW_STAGE.of_card(cat),
 		"review_note": str(cat.get("review_note", "")),
@@ -177,27 +211,13 @@ func _fill_bases_from_catalog(card: Dictionary, cat: Dictionary) -> void:
 		card["atk_formula"] = str(atk_d.get("formula", ""))
 	if str(card.get("hp_formula", "")).strip_edges() == "" and str(hp_d.get("formula", "")) != "":
 		card["hp_formula"] = str(hp_d.get("formula", ""))
-	if not card.has("call_name"):
-		card["call_name"] = LINES.call_of(str(card.get("id", "")), cat)
-	if not card.has("reminder"):
-		card["reminder"] = LINES.reminder_of(str(card.get("id", "")), cat)
-	if _kind != "monster" and not card.has("face_text"):
-		card["face_text"] = str(cat.get("face_text", ""))
 
 
 func _explainer_shown(card: Dictionary) -> String:
 	var ex: String = str(card.get("explainer", "")).strip_edges()
-	if ex == "---":
-		return ""
-	return ex
-
-
-func _call_shown(card: Dictionary) -> String:
-	return LINES.call_of(str(card.get("id", "")), card)
-
-
-func _reminder_shown(card: Dictionary) -> String:
-	return LINES.reminder_of(str(card.get("id", "")), card)
+	if ex != "" and ex != "---":
+		return ex
+	return str(DEFAULT_EXPLAINER.get(str(card.get("id", "")), ""))
 
 
 func _rebuild(card: Dictionary) -> void:
@@ -232,21 +252,6 @@ func _rebuild(card: Dictionary) -> void:
 	_add_line(row1, "Name", "name", str(card.get("name", "")))
 	_add_line(row1, "Id", "id", str(card.get("id", _id)), true)
 	_sheet.add_child(row1)
-	if is_m:
-		var copy_h := Label.new()
-		copy_h.text = "What the player sees"
-		copy_h.add_theme_font_size_override("font_size", 16)
-		copy_h.add_theme_color_override("font_color", Color("6b1008"))
-		_sheet.add_child(copy_h)
-		var copy_n := Label.new()
-		copy_n.text = "Save, then look at the fight HUD. Attack, Block, HP, and the other tagged words chip automatically — blocks, attacks, and hp all count."
-		copy_n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		copy_n.add_theme_font_size_override("font_size", 13)
-		copy_n.add_theme_color_override("font_color", Color("6b4a10"))
-		_sheet.add_child(copy_n)
-		_add_painted_line(_sheet, "Call name (subtitle under the title)", "call_name", _call_shown(card))
-		_add_painted_area(_sheet, "Shift line (replaces the call name while you hold Shift)", "reminder", _reminder_shown(card), 64)
-		_add_painted_area(_sheet, "Speech (first-person line in the balloon)", "ability", str(card.get("ability", "")), 90)
 	var row2 := _grid(3)
 	_add_pick(row2, "Status", "status", str(card.get("status", "live")), ["live", "todo", "hold", "retired"])
 	_add_pick(row2, "Rarity", "rarity", str(card.get("rarity", "starter")), ["starter", "uncommon"])
@@ -269,36 +274,19 @@ func _rebuild(card: Dictionary) -> void:
 		var stat_n := Label.new()
 		var af: String = str(card.get("atk_formula", "")).strip_edges()
 		if af != "":
-			stat_n.text = "ATK base is the printed number. This monster's live Attack uses the formula (%s), so changing ATK base will not change the number on the wheel." % af
+			stat_n.text = "ATK base is the printed number. This owner’s live Attack uses the formula (%s), so changing ATK base will not change the number on the wheel." % af
 		else:
 			stat_n.text = "ATK base and HP base are the printed numbers the fight uses, unless a formula is filled in."
 		stat_n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		stat_n.add_theme_font_size_override("font_size", 13)
 		stat_n.add_theme_color_override("font_color", Color("6b4a10"))
 		_sheet.add_child(stat_n)
-	if not is_m:
-		var color_row := _grid(2)
-		_add_color_pick(color_row, "Card color", "card_color", UX.card_color_id(str(card.get("card_color", ""))))
-		_add_line(color_row, "", "_pad_color", "")
-		_sheet.add_child(color_row)
-		var color_n := Label.new()
-		color_n.text = "This is the background of the item card in your hand and at the mill. Auto follows the rule (empty rules currently look Attack-red)."
-		color_n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		color_n.add_theme_font_size_override("font_size", 13)
-		color_n.add_theme_color_override("font_color", Color("6b4a10"))
-		_sheet.add_child(color_n)
-		var face_row := _grid(2)
-		_add_line(face_row, "Face text", "face_text", str(card.get("face_text", "")))
-		_add_line(face_row, "", "_pad", "")
-		_sheet.add_child(face_row)
-		var face_n := Label.new()
-		face_n.text = "What shows on the hand card when Shift is not held. A number plus ATK, BLK, HEAL, or UTIL (for example 3 ATK). Leave blank to keep the auto number."
-		face_n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		face_n.add_theme_font_size_override("font_size", 13)
-		face_n.add_theme_color_override("font_color", Color("6b4a10"))
-		_sheet.add_child(face_n)
-		_add_painted_area(_sheet, "Ability (player-facing, short)", "ability", str(card.get("ability", "")), 90)
-		_add_painted_area(_sheet, "Callout explainer (the math line on hover)", "explainer", _explainer_shown(card), 80)
+	_add_area(_sheet, "Ability (player-facing, short)", "ability", str(card.get("ability", "")), 90, false)
+	_add_area(_sheet, "Callout explainer (the math line on hover)", "explainer", _explainer_shown(card), 80, false)
+	if _kind == "monster":
+		_add_line(_sheet, "Call name (subtitle under the title)", "call_name", str(card.get("call_name", LINES.call_of(str(card.get("id", "")), card))))
+		_add_area(_sheet, "Shift line (replaces the call name while you hold Shift)", "reminder", str(card.get("reminder", LINES.reminder_of(str(card.get("id", "")), card))), 64, false)
+	_add_pick(_sheet, "Card color", "card_color", UX.card_color_id(str(card.get("card_color", ""))), ["auto", "atk", "blk", "heal", "defeat", "utility", "smoke", "chaos", "egg"])
 	_add_area(_sheet, "Function flow / pseudocode (long)", "flow", str(card.get("flow", "")), 160, true)
 	_add_area(_sheet, "Notes for the implementer", "notes", str(card.get("notes", "")), 110, false)
 	var ops_s: String = JSON.stringify(card.get("ops", {}), "\t")
@@ -424,10 +412,7 @@ func _add_line(host: Control, label: String, key: String, value: String, readonl
 	e.text = value
 	e.editable = not readonly
 	e.focus_mode = Control.FOCUS_ALL
-	if key == "atk_base" or key == "hp_base":
-		e.placeholder_text = "type a number"
-	elif key == "face_text":
-		e.placeholder_text = "3 ATK"
+	e.placeholder_text = "type a number" if key == "atk_base" or key == "hp_base" else ""
 	_skin_edit(e)
 	if not readonly:
 		e.focus_entered.connect(func() -> void: e.call_deferred("select_all"))
@@ -439,31 +424,12 @@ func _add_pick(host: Control, label: String, key: String, value: String, opts: A
 	var wrap := _cap(host, label)
 	var e := OptionButton.new()
 	e.add_theme_color_override("font_color", Color("1c120c"))
-	var sel := 0
 	for i in opts.size():
-		var o: Variant = opts[i]
-		var oid := ""
-		var olabel := ""
-		if typeof(o) == TYPE_DICTIONARY:
-			oid = str((o as Dictionary).get("id", ""))
-			olabel = str((o as Dictionary).get("label", oid))
-		else:
-			oid = str(o)
-			olabel = str(o)
-		e.add_item(olabel, i)
-		e.set_item_metadata(i, oid)
-		if oid == value or olabel == value:
-			sel = i
-	e.select(sel)
+		e.add_item(str(opts[i]), i)
+		if str(opts[i]) == value:
+			e.select(i)
 	wrap.add_child(e)
 	_fields[key] = e
-
-
-func _add_color_pick(host: Control, label: String, key: String, value: String) -> void:
-	_add_pick(host, label, key, value, UX.card_color_opts())
-	var e: OptionButton = _fields[key]
-	UX.paint_color_pick(e)
-	e.item_selected.connect(func(_i: int) -> void: UX.paint_color_pick(e))
 
 
 func _add_area(host: Control, label: String, key: String, value: String, h: float, mono: bool) -> void:
@@ -478,67 +444,6 @@ func _add_area(host: Control, label: String, key: String, value: String, h: floa
 	_skin_edit(e)
 	wrap.add_child(e)
 	_fields[key] = e
-
-
-func _add_painted_line(host: Control, label: String, key: String, value: String) -> void:
-	var wrap := _cap(host, label)
-	var e := LineEdit.new()
-	e.text = value
-	e.focus_mode = Control.FOCUS_ALL
-	_skin_edit(e)
-	wrap.add_child(e)
-	_fields[key] = e
-	var preview := _paint_preview(wrap)
-	e.text_changed.connect(func(t: String) -> void: _set_paint_preview(preview, t))
-	_set_paint_preview(preview, value)
-
-
-func _add_painted_area(host: Control, label: String, key: String, value: String, h: float) -> void:
-	var wrap := _cap(host, label)
-	var e := TextEdit.new()
-	e.text = value
-	e.custom_minimum_size = Vector2(0, h)
-	e.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
-	e.scroll_fit_content_height = false
-	_skin_edit(e)
-	wrap.add_child(e)
-	_fields[key] = e
-	var preview := _paint_preview(wrap)
-	e.text_changed.connect(func() -> void: _set_paint_preview(preview, e.text))
-	_set_paint_preview(preview, value)
-
-
-func _paint_preview(host: Control) -> RichTextLabel:
-	var p := RichTextLabel.new()
-	p.bbcode_enabled = true
-	p.fit_content = true
-	p.scroll_active = false
-	p.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	p.add_theme_font_size_override("normal_font_size", 14)
-	p.add_theme_font_size_override("bold_font_size", 14)
-	p.add_theme_constant_override("line_separation", 3)
-	p.add_theme_color_override("default_color", Color("f0e6d8"))
-	p.custom_minimum_size = Vector2(0, 28)
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("1a1410")
-	sb.border_color = Color("c4a574")
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 10
-	sb.content_margin_right = 10
-	sb.content_margin_top = 6
-	sb.content_margin_bottom = 6
-	p.add_theme_stylebox_override("normal", sb)
-	host.add_child(p)
-	return p
-
-
-func _set_paint_preview(p: RichTextLabel, raw: String) -> void:
-	var t: String = raw.strip_edges()
-	if t == "":
-		p.text = "[i]blank[/i]"
-		return
-	p.text = UX.paint(t, true)
 
 
 func _num_s(v: Variant) -> String:
@@ -556,13 +461,7 @@ func _text_of(key: String) -> String:
 	if n is TextEdit:
 		return (n as TextEdit).text
 	if n is OptionButton:
-		var ob: OptionButton = n
-		if ob.selected < 0:
-			return ""
-		var md: Variant = ob.get_item_metadata(ob.selected)
-		if md != null and str(md) != "":
-			return str(md)
-		return ob.get_item_text(ob.selected)
+		return (n as OptionButton).get_item_text((n as OptionButton).selected)
 	return ""
 
 
@@ -614,7 +513,10 @@ func _gather() -> Dictionary:
 		"atk_formula": _text_of("atk_formula") if _fields.has("atk_formula") else str(_original.get("atk_formula", "")),
 		"hp_formula": _text_of("hp_formula") if _fields.has("hp_formula") else str(_original.get("hp_formula", "")),
 		"ability": _text_of("ability"),
-		"explainer": _text_of("explainer") if _fields.has("explainer") else str(_original.get("explainer", "")),
+		"explainer": _text_of("explainer"),
+		"call_name": _text_of("call_name") if _fields.has("call_name") else str(_original.get("call_name", "")),
+		"reminder": _text_of("reminder") if _fields.has("reminder") else str(_original.get("reminder", "")),
+		"card_color": "" if UX.card_color_id(_text_of("card_color") if _fields.has("card_color") else str(_original.get("card_color", ""))) == "auto" else UX.card_color_id(_text_of("card_color") if _fields.has("card_color") else str(_original.get("card_color", ""))),
 		"flow": _text_of("flow"),
 		"notes": _text_of("notes"),
 		"review": _text_of("review") if _fields.has("review") else REVIEW_STAGE.of_card(_original),
@@ -622,13 +524,6 @@ func _gather() -> Dictionary:
 		"ops": ops,
 		"contradiction_ids": _original.get("contradiction_ids", []),
 	}
-	if _kind != "monster":
-		var tint: String = _text_of("card_color") if _fields.has("card_color") else str(_original.get("card_color", ""))
-		card["card_color"] = "" if UX.card_color_id(tint) == "auto" else UX.card_color_id(tint)
-		card["face_text"] = _text_of("face_text") if _fields.has("face_text") else str(_original.get("face_text", ""))
-	if _kind == "monster":
-		card["call_name"] = _text_of("call_name") if _fields.has("call_name") else str(_original.get("call_name", ""))
-		card["reminder"] = _text_of("reminder") if _fields.has("reminder") else str(_original.get("reminder", ""))
 	var logic_changed: bool = str(card["flow"]) != str(_original.get("flow", "")) \
 		or str(card["notes"]) != str(_original.get("notes", "")) \
 		or str(card["atk_formula"]) != str(_original.get("atk_formula", "")) \
@@ -688,22 +583,13 @@ func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float) -> 
 	return b
 
 
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
-	if not (event is InputEventKey) or not event.pressed or event.echo:
-		return
-	var k: InputEventKey = event
-	if k.keycode == KEY_ESCAPE:
+	if event.is_action_pressed("ui_cancel"):
 		close_editor()
 		get_viewport().set_input_as_handled()
 		return
-	if k.ctrl_pressed and k.keycode == KEY_S:
-		_on_save()
-		get_viewport().set_input_as_handled()
-		return
-	if k.shift_pressed or k.ctrl_pressed or k.alt_pressed or k.meta_pressed:
-		return
-	if k.keycode == KEY_ENTER or k.keycode == KEY_KP_ENTER:
+	if event is InputEventKey and event.pressed and not event.echo and event.ctrl_pressed and event.keycode == KEY_S:
 		_on_save()
 		get_viewport().set_input_as_handled()
