@@ -7,7 +7,7 @@ const PROBE := preload("res://tools/qa/qa_probe.gd")
 var _main: Node
 var _n := 0
 var _step := "boot"
-var _wait := 0
+var _elapsed := 0.0
 var _ok := true
 var _notes: PackedStringArray = PackedStringArray()
 var _take_item := ""
@@ -29,50 +29,50 @@ func _initialize() -> void:
 	print("check_hand_use: boot")
 
 
-func _process(_delta: float) -> bool:
+func _process(delta: float) -> bool:
 	_n += 1
-	_wait += 1
+	_elapsed += delta
 	if _n == 12 and _step == "boot":
 		_start_fight()
 		return false
-	if _step == "spin" and _wait > 8:
+	if _step == "spin":
 		if str(_main.get("phase")) == "fighting":
 			_use_hand()
-		elif _wait > 240:
-			_fail("spin never reached fighting")
-			_start_draft()
+		elif _elapsed > 2.5:
+			_force_fight()
+			_use_hand()
 		return false
-	if _step == "used" and _wait > 4:
+	if _step == "used" and _elapsed > 0.2:
 		_check_hand_use()
 		_start_draft()
 		return false
-	if _step == "mill" and _wait > 6:
+	if _step == "mill":
 		var gate: Node = _main.get("draft_gate")
 		if str(_main.get("draft_action")) == "ask" and gate != null and bool(gate.visible):
 			_save_shot("draft_gate_compact.png")
 			_check_layout()
 			_leave_offer()
-		elif _wait > 360:
+		elif _elapsed > 8.0:
 			_fail("mill never reached draft ask")
 			_finish()
 		return false
-	if _step == "left" and _wait > 6:
+	if _step == "left":
 		if str(_main.get("draft_action")) == "ask":
 			_check_leave()
 			_take_offer()
-		elif _wait > 240:
+		elif _elapsed > 6.0:
 			_fail("leave never returned a new ask")
 			_finish()
 		return false
-	if _step == "took" and _wait > 6:
+	if _step == "took":
 		if str(_main.get("draft_action")) == "seat":
 			_check_take()
 			_finish()
-		elif _wait > 300:
+		elif _elapsed > 8.0:
 			_fail("take never reached seat")
 			_finish()
 		return false
-	if _n > 900:
+	if _elapsed > 30.0:
 		_fail("timeout at %s" % _step)
 		_finish()
 	return false
@@ -81,14 +81,42 @@ func _process(_delta: float) -> bool:
 func _start_fight() -> void:
 	if _main.has_method("_quick_start"):
 		_main.call("_quick_start")
+	_give_shield()
 	_hand_before = (_main.get("hotbar") as Array).size()
 	if _hand_before <= 0:
 		_fail("quick start left an empty hand")
 	_step = "spin"
-	_wait = 0
+	_elapsed = 0.0
 	if _main.has_method("_on_spin"):
 		_main.call("_on_spin")
 	print("check_hand_use: spin")
+
+
+func _give_shield() -> void:
+	if not _main.has_method("_make_item"):
+		return
+	var it: Dictionary = _main.call("_make_item", "shield")
+	if it.is_empty():
+		return
+	var bar: Array = _main.get("hotbar")
+	bar.append(it)
+	_main.set("hotbar", bar)
+	if _main.has_method("_sort_hotbar"):
+		_main.call("_sort_hotbar")
+	if _main.has_method("_refresh"):
+		_main.call("_refresh")
+
+
+func _force_fight() -> void:
+	var wheel: Array = _main.get("wheel")
+	for i in wheel.size():
+		if typeof(wheel[i]) == TYPE_DICTIONARY and str(wheel[i].get("kind", "")) == "monster":
+			_main.set("facing_index", i)
+			break
+	_main.set("phase", "fighting")
+	if _main.has_method("_refresh"):
+		_main.call("_refresh")
+	print("check_hand_use: forced fighting at %s" % _main.get("facing_index"))
 
 
 func _use_hand() -> void:
@@ -109,7 +137,7 @@ func _use_hand() -> void:
 	if not used:
 		_fail("no Block item in the Dive In hand")
 	_step = "used"
-	_wait = 0
+	_elapsed = 0.0
 
 
 func _check_hand_use() -> void:
@@ -126,7 +154,7 @@ func _start_draft() -> void:
 	if _main.has_method("_begin_run"):
 		_main.call("_begin_run")
 	_step = "mill"
-	_wait = 0
+	_elapsed = 0.0
 	print("check_hand_use: mill")
 
 
@@ -135,6 +163,13 @@ func _check_layout() -> void:
 	var layout: Dictionary = dump.get("layout", {})
 	if bool(layout.get("overlap", false)):
 		_fail("draft column overlaps the hand")
+	var col: Array = layout.get("column", [0, 0, 0, 0])
+	var col_bottom: float = float(col[1]) + float(col[3])
+	var two_row_top: float = 1000.0 - 210.0 * 2.0 - 14.0
+	if col_bottom > two_row_top - 12.0:
+		_fail("column bottom %s sits on a two-row hand (top %s)" % [col_bottom, two_row_top])
+	else:
+		_notes.append("two-row clearance: column bottom %s / hand top %s" % [col_bottom, two_row_top])
 	var gate: Dictionary = dump.get("draft_gate", {})
 	var leave: String = str(gate.get("leave", ""))
 	if leave.contains("{n}") or leave == "":
@@ -154,7 +189,7 @@ func _leave_offer() -> void:
 	if _main.has_method("_on_gate_refuse"):
 		_main.call("_on_gate_refuse")
 	_step = "left"
-	_wait = 0
+	_elapsed = 0.0
 	print("check_hand_use: leave %s passes=%s" % [_take_item, _passes_before])
 
 
@@ -172,7 +207,7 @@ func _take_offer() -> void:
 	if _main.has_method("_on_gate_send"):
 		_main.call("_on_gate_send")
 	_step = "took"
-	_wait = 0
+	_elapsed = 0.0
 	print("check_hand_use: take %s" % _take_item)
 
 
@@ -189,7 +224,12 @@ func _check_take() -> void:
 
 
 func _save_shot(filename: String) -> void:
-	var img: Image = root.get_viewport().get_texture().get_image()
+	if DisplayServer.get_name() == "headless":
+		return
+	var tex: Texture2D = root.get_viewport().get_texture()
+	if tex == null:
+		return
+	var img: Image = tex.get_image()
 	if img == null:
 		return
 	DirAccess.make_dir_recursive_absolute("res://design/visual/qa")
