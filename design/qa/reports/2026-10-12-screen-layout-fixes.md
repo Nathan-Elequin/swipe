@@ -9,7 +9,7 @@
 
 PASS
 
-Godot 4.7.2.stable headless dummy renderer (`/tmp/godot/Godot_v4.7.2-stable_linux.x86_64`). No godot-mcp in this cloud run, so no in-editor stills. Evidence is `tools/qa` print lines below.
+Godot 4.7.2.stable headless dummy renderer, after merging `origin/main` `de8768e` (face-text editor). Kept `_refresh_gate_item` and `_apply_item_face_text`. No godot-mcp stills. Evidence is `tools/qa` print lines.
 
 ## Checklist
 
@@ -26,6 +26,7 @@ Godot 4.7.2.stable headless dummy renderer (`/tmp/godot/Godot_v4.7.2-stable_linu
 | Layers / boot / item types | Existing checks still pass | layers OK; `BOOT_OK`; `ITEM_TYPE_OK checked=42` | `check_layers`, `check_boot`, `check_item_types` | Pass |
 | Hand use / mill | Click item uses; Leave spends a pass; take seats | Shield blk 0→4; Leave 3→2; take → seat | `check_hand_use` `HAND_USE_OK` | Pass |
 | Nib vs hand | Nib stays above the hotbar | Nib y=466, hand y=778 | `check_hand_use` `DRAFT_GATE` nib `[75,466,88,88]` | Pass |
+| Face text hook | parse + live override + Edit card field | `FACE_TEXT_OK` live 3 ATK, editor has `face_text` | `check_face_text.gd` after `de8768e` merge | Pass |
 | Combat always-checks | Attack vs Bleed; Block; Dragon; Goblin; Defeat paths | not in this change | — | skip |
 | Errors | No red parse / runtime errors | only known headless RID leaks at exit | Godot stderr | Pass |
 
@@ -55,6 +56,7 @@ None. Did not edit `data/player-copy.json` or author-locked board fields. Threat
 
 - Loop 1/3: `_sync_buttons` now sets `btn_done.visible = enemy_up`. Layout split, hub grow, hover-panel reuse in the draft gate, event-log Developer toggle. All six `tools/qa` scripts returned OK.
 - Loop 2/3: `_place_nib` used unclipped height and sat on the hand. Clamped under the visible column (Nib y=466, hand y=778). `HAND_USE_OK` again.
+- Loop 3/3: merged `de8768e`. Kept both `_refresh_gate_item` and `_apply_item_face_text`. Re-ran all checks including `check_face_text` and `check_action_buttons`. All OK.
 - Still left: no godot-mcp stills.
 
 ## Next agent: start here
