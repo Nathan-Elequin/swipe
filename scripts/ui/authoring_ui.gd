@@ -311,6 +311,19 @@ func _toggle_log() -> void:
 		sfx.play("switch", -14.0)
 
 
+func _toggle_play_log() -> void:
+	if not _authoring():
+		return
+	_play_log_enabled = not _play_log_enabled
+	if title_ui != null and title_ui.has_method("set_log_on"):
+		title_ui.set_log_on(_play_log_enabled)
+	if overlay_log != null:
+		overlay_log.text = "Event log: on" if _play_log_enabled else "Event log: off"
+	_sync_authoring_chrome()
+	if sfx:
+		sfx.play("switch", -14.0)
+
+
 func _style_log_dock() -> void:
 	if log_label == null:
 		return
@@ -327,10 +340,7 @@ func _style_log_dock() -> void:
 
 func _sync_authoring_chrome() -> void:
 	var dev: bool = _authoring() and phase == "devtest"
-	var mouse: Vector2 = get_viewport().get_mouse_position() if get_viewport() != null else Vector2.ZERO
-	var log_hover: bool = mouse.x > 1500.0 and mouse.y < 96.0
-	var callout_up: bool = fly_tip != null and fly_tip.visible
-	var play_log: bool = phase != "title" and (_shift_held or log_hover) and not callout_up
+	var play_log: bool = _play_log_enabled and phase != "title"
 	if log_btn:
 		log_btn.visible = dev
 		if not dev:
@@ -341,15 +351,11 @@ func _sync_authoring_chrome() -> void:
 		log_label.visible = (dev and _log_open) or play_log
 		if log_label.visible:
 			_style_log_dock()
-			var dock := Rect2(1190, 570, 456, minf(240.0, 1012.0 - 570.0))
-			if face_box != null and face_box.visible:
-				var face: Rect2 = face_box.get_global_rect()
-				if face.intersects(dock):
-					var cut_h: float = face.position.y - 8.0 - dock.position.y
-					if cut_h < 72.0:
-						dock = Rect2(32, 640, 460, 220)
-					else:
-						dock.size.y = cut_h
+			var dock := Rect2(32, 640, 336, 200)
+			if hotbar_box != null and hotbar_box.visible:
+				var hand_top: float = hotbar_box.global_position.y
+				if dock.end.y > hand_top - 8.0:
+					dock.size.y = maxf(72.0, hand_top - 8.0 - dock.position.y)
 			log_label.custom_minimum_size = Vector2.ZERO
 			log_label.position = dock.position
 			log_label.size = dock.size

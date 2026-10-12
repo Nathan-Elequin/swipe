@@ -123,7 +123,7 @@ These are player-facing fight-screen rules. Direction A oak tokens stay. Do not 
 4. **Weak / Tough / Deadly** — shown as both alcove fill and alcove rim. Never the word Tier on the wheel.
 5. **Item card fill** — the whole card face uses JSON `card_color`. Not a thin strip on oak.
 6. **Hand** — shrink the cards first, then wrap to a second row. Cards must not overlap Spin or each other.
-7. **Event log** — not a permanent right column in a fight. Show on Shift or a hover in the top-right. Hide it again when the mouse leaves and Shift is up.
+7. **Event log** — off in normal play. No Shift or hover. Turn it on from the title Developer tools (Event log: on).
 8. **Hub knight** — the hub is the knight (run frames), a shield with the Block number, and an arc of six hearts. No HP numeral in the hub. Wheel monsters face the knight.
 9. **Card titles** — keep titles short (Nunito 18). Shift shows the formula/ability on the card with space between the number and the words. Stat icons stay the current size.
 10. **Action button** — Spin / Take-the-hit stays centred under the facing arrow. Do not put a prompt line above that button.

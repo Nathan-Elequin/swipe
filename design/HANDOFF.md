@@ -4,6 +4,14 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-12 — Screen layout split + Spin/resolve buttons
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: UI lane. Branched from `origin/main` 69d0478. Root cause of the missing combat buttons: `_sync_buttons` set `btn_done.visible = false` on every refresh, so Done / Safe / Take X never came back after a spin. It is `enemy_up` again. Top-left `hearts_box` stays hidden; hub hearts are the only HP. Draft column moved to the top left at ~336px (~1/5). Draft item slot reuses `hover_panel.gd` (`show_item_callout`) so Healing Potion shows name + heart 3 + description like the hotbar hover. Item fly-tip pins left; facing/hover monster pins right and mirrors it. Wheel centered (686 / OUTER_R 330) with the hotbar under it; hub hearts 13×11 → 20×17, HUB_R 58→72. Event log is off in normal play (no Shift/hover). Title Developer tools has Event log: off/on. No `data/` edits. Did not touch `item_card.gd` or theme fonts.
+- Files: `scripts/wheel_hud.gd`, `scripts/ui/hud_controller.gd`, `scripts/ui/authoring_ui.gd`, `scripts/draft_gate.gd`, `scripts/boss_wheel.gd`, `scripts/title_screen.gd`, `scripts/core/draft_flow.gd`, `scripts/lanes/game_state.gd`, `design/visual/style-guide.md`, `tools/qa/check_action_buttons.gd`, `tools/qa/check_hand_use.gd`, `tools/qa/check_fixes_v2.gd`, `tools/qa/qa_probe.gd`, `design/qa/reports/2026-10-12-screen-layout-fixes.md`, `design/HANDOFF.md`
+- QA: pending headless run of all `tools/qa` checks. Report: `design/qa/reports/2026-10-12-screen-layout-fixes.md`
+
 ## 2026-10-12 — FIXES-v2 draft-gate polish (4 items)
 - From: Cursor
 - To: Jam / Pixel / Nathan

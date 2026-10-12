@@ -377,6 +377,8 @@ func _build_ui() -> void:
 	title_ui.dev_pressed.connect(_open_dev_test)
 	title_ui.roster_pressed.connect(_open_roster)
 	title_ui.script_pressed.connect(_open_script)
+	if title_ui.has_signal("log_pressed"):
+		title_ui.log_pressed.connect(_toggle_play_log)
 	settings_ui.mode_picked.connect(_on_pause_mode)
 	settings_ui.quit_pressed.connect(_quit_game)
 	if _authoring():
@@ -464,6 +466,8 @@ func _build_overlay() -> void:
 		overlay_tools_row.add_child(overlay_roster)
 		overlay_script = _pill("Script", Color("3a2820"), Color("c4a574"), _open_script)
 		overlay_tools_row.add_child(overlay_script)
+		overlay_log = _pill("Event log: off", Color("1c1814"), Color("8a8178"), _toggle_play_log)
+		overlay_tools_row.add_child(overlay_log)
 	else:
 		overlay_tools_row.visible = false
 	overlay.z_index = 80
@@ -676,16 +680,38 @@ func _item_inspect_look(it: Dictionary) -> Dictionary:
 
 
 func _pin_top_right(panel: Control) -> void:
+	_pin_side_callout(panel, "right")
+
+
+func _pin_side_callout(panel: Control, side: String) -> void:
 	if panel == null:
 		return
 	panel.top_level = true
 	panel.z_index = 25
 	panel.reset_size()
 	var sz: Vector2 = panel.get_combined_minimum_size()
-	sz.x = maxf(sz.x, 280.0)
+	sz.x = clampf(sz.x, 260.0, 336.0)
 	panel.size = sz
 	var vp: Vector2 = get_viewport_rect().size
-	panel.global_position = Vector2(vp.x - sz.x - 24.0, 28.0)
+	var y := 28.0
+	var x: float
+	if side == "left":
+		x = 32.0
+	else:
+		x = vp.x - sz.x - 32.0
+	if wheel_view != null:
+		var wr: Rect2 = wheel_view.get_global_rect().grow(8.0)
+		var box := Rect2(Vector2(x, y), sz)
+		if box.intersects(wr):
+			if side == "left":
+				x = maxf(8.0, wr.position.x - sz.x - 12.0)
+			else:
+				x = minf(vp.x - sz.x - 8.0, wr.end.x + 12.0)
+	if hotbar_box != null and hotbar_box.visible:
+		var hand: Rect2 = hotbar_box.get_global_rect()
+		if y + sz.y > hand.position.y - 8.0:
+			y = maxf(8.0, hand.position.y - sz.y - 8.0)
+	panel.global_position = Vector2(x, y)
 
 
 func _show_item_inspect(it: Dictionary) -> void:
@@ -716,7 +742,7 @@ func _show_item_inspect(it: Dictionary) -> void:
 		str(it.get("card_id", "")),
 		_item_inspect_look(it)
 	)
-	_pin_top_right(fly_tip)
+	_pin_side_callout(fly_tip, "left")
 	_sync_authoring_chrome()
 
 
@@ -1668,7 +1694,7 @@ func _fill_inspect_from_slice(index: int) -> void:
 	if fly_tip == null:
 		return
 	fly_tip.show_rule(str(rule["title"]), "", "", body, str(rule.get("warn", "")), port, "monster", str(s.get("card_id", "")), look)
-	_pin_top_right(fly_tip)
+	_pin_side_callout(fly_tip, "right")
 	_sync_authoring_chrome()
 
 
@@ -1681,8 +1707,11 @@ func _place_fly(near: Control = null) -> void:
 	if fly_tip == null or not fly_tip.visible:
 		return
 	var kind: String = str(fly_tip.edit_kind)
-	if kind == "item" or (kind == "monster" and _hover_slice >= 0):
-		_pin_top_right(fly_tip)
+	if kind == "item":
+		_pin_side_callout(fly_tip, "left")
+		return
+	if kind == "monster":
+		_pin_side_callout(fly_tip, "right")
 		return
 	fly_tip.reset_size()
 	var sz: Vector2 = fly_tip.get_combined_minimum_size()
@@ -1770,8 +1799,9 @@ func _place_speech() -> void:
 func _place_fight_art() -> void:
 	if wheel_view == null:
 		return
-	var wr: Rect2 = wheel_view.get_global_rect()
-	var stack_w := 252.0
+	var wr: Rect2 = wheel_view.get_global_rect().grow(8.0)
+	var vp: Vector2 = get_viewport_rect().size
+	var stack_w := 336.0
 	var port_sz := Vector2(168, 128)
 	var gap := 8.0
 	var plaque_h := 0.0
@@ -1783,13 +1813,14 @@ func _place_fight_art() -> void:
 	if port_h > 0.0 and plaque_h > 0.0:
 		total += gap
 	total += plaque_h
-	var x: float = wr.end.x + 14.0
-	x = maxf(x, wr.end.x + 10.0)
-	var speech_room := 156.0
-	var y: float = wr.end.y - total - 18.0
-	y = maxf(y, wr.position.y + speech_room)
-	if y + total > wr.end.y + 8.0:
-		y = wr.position.y + maxf(8.0, wr.size.y - total)
+	var x: float = vp.x - stack_w - 32.0
+	if x < wr.end.x + 12.0:
+		x = wr.end.x + 12.0
+	var y := 28.0
+	if hotbar_box != null and hotbar_box.visible:
+		var hand_top: float = hotbar_box.global_position.y
+		if y + total > hand_top - 8.0:
+			y = maxf(8.0, hand_top - total - 8.0)
 	var bob: float = sin(float(Time.get_ticks_msec()) * 0.0032) * 3.0
 	var shake := Vector2.ZERO
 	if combat_stage != null and combat_stage.has_method("is_striking") and combat_stage.is_striking():
@@ -1844,7 +1875,7 @@ func _refresh_hearts() -> void:
 		wheel_view.set_vitals(hp, HP_MAX, _ghost_hp, blk, _ghost_blk)
 	if hearts_box == null:
 		return
-	hearts_box.visible = overlay == null or not overlay.visible
+	hearts_box.visible = false
 	var hi: int = 0
 	for child in hearts_box.get_children():
 		var tr := child as TextureRect
@@ -1994,10 +2025,18 @@ func _layout_play_field() -> void:
 		var tmin: Vector2 = tray.get_combined_minimum_size()
 		tray.position = Vector2(32.0, 68.0)
 		tray.size = tmin
-	wheel_view.position = Vector2(236, 38)
-	wheel_view.size = Vector2(624, 624)
-	if hud != null and hud.has_method("layout_hand"):
-		hud.layout_hand()
+	var vp: Vector2 = play_field.size if play_field.size.x > 8.0 else Vector2(1680, 1040)
+	var ws := 686.0
+	var cx: float = floor(vp.x * 0.5)
+	var cy := 350.0
+	wheel_view.custom_minimum_size = Vector2(ws, ws)
+	wheel_view.position = Vector2(cx - ws * 0.5, cy - ws * 0.5)
+	wheel_view.size = Vector2(ws, ws)
+	if hud != null:
+		if hud.has_method("layout_around_wheel"):
+			hud.layout_around_wheel()
+		if hud.has_method("layout_hand"):
+			hud.layout_hand()
 
 
 func _set_cue(t: String) -> void:
@@ -2091,9 +2130,19 @@ func _refresh() -> void:
 		wheel_view.draft_glow = phase == "draft"
 
 	_set_cue(_cue_text())
+	if hud != null and hud.has_method("set_column_kind"):
+		if phase == "victory":
+			hud.set_column_kind("victory")
+		elif phase == "defeat":
+			hud.set_column_kind("defeat")
+		elif phase == "devtest":
+			hud.set_column_kind("devtest")
+		else:
+			hud.set_column_kind("draft")
 	if hud != null and hud.has_method("set_side_column"):
 		var need_col: bool = phase == "draft" or phase == "victory" or phase == "defeat" or phase == "devtest" or in_tutorial
 		hud.set_side_column(need_col)
+	_refresh_gate_item()
 	_sync_placement()
 	if wheel_view != null:
 		wheel_view.seat_hover_on = phase == "ready" or (phase == "draft" and draft_action == "seat")
@@ -2164,7 +2213,7 @@ func _sync_buttons() -> void:
 	btn_place.visible = false
 	btn_bribe.visible = false
 	btn_spin.visible = phase == "ready" or phase == "spinning"
-	btn_done.visible = false
+	btn_done.visible = enemy_up
 	if phase == "devtest":
 		btn_spin.visible = false
 		btn_done.visible = false
@@ -2248,8 +2297,10 @@ func _sync_overlay() -> void:
 				hud.set_column_kind("victory")
 			elif on_lose:
 				hud.set_column_kind("defeat")
+			elif phase == "devtest":
+				hud.set_column_kind("devtest")
 			else:
-				hud.set_column_kind("")
+				hud.set_column_kind("draft")
 		if hud.has_method("set_pointer_dim"):
 			hud.set_pointer_dim("defeat" if on_lose else "")
 		if hud.has_method("set_ghost_hand"):
@@ -2498,8 +2549,30 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	return card
 
 
+func _refresh_gate_item() -> void:
+	if draft_gate == null or not draft_gate.visible:
+		return
+	if phase != "draft" or draft_action != "ask":
+		return
+	if pending_item.is_empty():
+		return
+	if not draft_gate.has_method("show_item_callout"):
+		return
+	var rule: Dictionary = _item_rule(pending_item)
+	var body: String = _item_inspect_body(pending_item, rule)
+	var look: Dictionary = _item_inspect_look(pending_item)
+	var port: Texture2D = null
+	if has_method("_offer_tex"):
+		port = _offer_tex()
+	elif art != null:
+		port = art.item_tex(str(pending_item.get("card_id", "")))
+	draft_gate.show_item_callout(str(rule.get("title", pending_item.get("name", ""))), body, look, port)
+
+
 func _on_gate_item_hovered() -> void:
 	if pending_item.is_empty():
+		return
+	if draft_gate != null and draft_gate.has_method("show_item_callout"):
 		return
 	var host: Control = null
 	if draft_gate != null and draft_gate.has_method("relic_host"):

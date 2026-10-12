@@ -10,10 +10,10 @@ const UX := preload("res://scripts/ux_style.gd")
 const UI := preload("res://scripts/ui_palette.gd")
 
 const SIX := PI / 2.0
-const OUTER_R := 300.0
-## Was 96. Nathan: about 40% too large.
-const HUB_R := 58.0
-const SEAT_R := 188.0
+const OUTER_R := 330.0
+## Was 58. Grew with the 10% wheel so the six hub hearts can read.
+const HUB_R := 72.0
+const SEAT_R := 207.0
 const SEAT := 64.0
 const SPRITE := 56.0
 const ICON_GAP := 28.0
@@ -505,10 +505,10 @@ func _build_alcoves() -> void:
 		tr.name = "Alcove%s" % i
 		tr.texture_filter = TEXTURE_FILTER_NEAREST
 		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		tr.position = Vector2(-116, -300)
-		tr.pivot_offset = Vector2(116, 300)
-		tr.size = Vector2(232, 248)
-		tr.custom_minimum_size = Vector2(232, 248)
+		tr.position = Vector2(-128, -330)
+		tr.pivot_offset = Vector2(128, 330)
+		tr.size = Vector2(255, 273)
+		tr.custom_minimum_size = Vector2(255, 273)
 		tr.rotation_degrees = 45.0 * float(i)
 		tr.show_behind_parent = true
 		tr.texture = _tex_alcove_empty
@@ -1774,7 +1774,7 @@ func _draw_hub_block(c: Vector2, radius: float) -> void:
 		var t: float = lerpf(-2.40, -0.74, float(i) / float(maxi(pip_n - 1, 1)))
 		var live: bool = i < hub_hp
 		var soon: bool = hub_hp_ghost >= 0 and i >= hub_hp_ghost and i < hub_hp
-		_draw_hub_pip(c + Vector2(cos(t), sin(t)) * arc_r, Vector2(13, 11), live, soon)
+		_draw_hub_pip(c + Vector2(cos(t), sin(t)) * arc_r, Vector2(20, 17), live, soon)
 	var shown: int = hub_ghost if hub_ghost >= 0 else hub_blk
 	var fill := Color("2a6aa8")
 	var rim := Color("6bb3d9")

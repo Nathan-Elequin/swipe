@@ -10,6 +10,12 @@ const SOOT := Color("1A120E")
 const DIM := Color("A88C66")
 const PARCHMENT := Color("E9D3A1")
 const EDGE := Color("7A4E2B")
+const SIDE_PAD := 32.0
+const SIDE_W := 336.0
+const WHEEL_SIZE := 686.0
+const WHEEL_CY := 350.0
+const ACTION_W := 260.0
+const ACTION_H := 68.0
 
 var hearts_box: HBoxContainer
 var btn_spin: Button
@@ -39,6 +45,7 @@ var _torch_on: bool = false
 var _torch_t: float = 0.0
 var _spin_live: bool = false
 var _cue_dim: bool = false
+var _column_kind: String = ""
 var _font_px: Font
 var _font_sk: Font
 var _font_vt: Font
@@ -63,6 +70,7 @@ func _build() -> void:
 	hearts_box.add_theme_constant_override("separation", 6)
 	hearts_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hearts_box.z_index = 6
+	hearts_box.visible = false
 	add_child(hearts_box)
 	for _i in 6:
 		var h := TextureRect.new()
@@ -142,8 +150,8 @@ func _build() -> void:
 	add_child(hotbar_box)
 
 	column = Control.new()
-	column.position = Vector2(1086, 28)
-	column.size = Vector2(560, 952)
+	column.position = Vector2(SIDE_PAD, 28)
+	column.size = Vector2(SIDE_W, 520)
 	column.clip_contents = true
 	column.z_index = 5
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -295,9 +303,11 @@ func set_chrome_visible(on: bool) -> void:
 
 
 func set_column_kind(kind: String) -> void:
+	_column_kind = kind
 	if column_panel == null:
 		return
 	column_panel.add_theme_stylebox_override("panel", UX.oak_panel(kind == "victory"))
+	_fit_column_above_hand()
 
 
 func set_pointer_dim(kind: String) -> void:
@@ -393,12 +403,51 @@ func set_side_column(on: bool) -> void:
 		column.visible = on
 
 
+func play_size() -> Vector2:
+	if size.x > 8.0 and size.y > 8.0:
+		return size
+	return Vector2(1680, 1040)
+
+
+func wheel_center() -> Vector2:
+	var vp: Vector2 = play_size()
+	return Vector2(floor(vp.x * 0.5), WHEEL_CY)
+
+
+func wheel_radius() -> float:
+	return WHEEL_SIZE * 0.5 - 13.0
+
+
+func action_top() -> float:
+	return wheel_center().y + wheel_radius() + 14.0
+
+
+func layout_around_wheel() -> void:
+	var c: Vector2 = wheel_center()
+	var r: float = wheel_radius()
+	var y: float = c.y + r + 14.0
+	var x: float = c.x - ACTION_W * 0.5
+	if pointer != null:
+		pointer.position = Vector2(c.x - 18.0, c.y + r + 2.0)
+		pointer.size = Vector2(36, 26)
+		pointer.queue_redraw()
+	if btn_spin != null:
+		btn_spin.position = Vector2(x, y)
+		btn_spin.size = Vector2(ACTION_W, ACTION_H)
+	if btn_done != null:
+		btn_done.position = Vector2(x, y)
+		btn_done.size = Vector2(maxf(btn_done.custom_minimum_size.x, ACTION_W), ACTION_H)
+	if _spin_ring != null:
+		_spin_ring.position = Vector2(x - 4.0, y - 4.0)
+		_spin_ring.size = Vector2(ACTION_W + 8.0, ACTION_H + 8.0)
+
+
 func layout_hand() -> void:
 	if hotbar_box == null:
 		return
 	var n: int = hotbar_box.get_child_count()
-	var vp_w: float = size.x if size.x > 8.0 else 1680.0
-	var avail: float = minf(1600.0, vp_w - 64.0)
+	var vp: Vector2 = play_size()
+	var avail: float = minf(vp.x - SIDE_PAD * 2.0, 1600.0)
 	var full_w := 140.0
 	var compact_w := 124.0
 	var gap1 := 14.0
@@ -409,82 +458,92 @@ func layout_hand() -> void:
 	var wrap: bool = n > 0 and need_compact > avail
 	hotbar_box.add_theme_constant_override("h_separation", gap2 if compact else gap1)
 	hotbar_box.add_theme_constant_override("v_separation", 10)
-	for c in hotbar_box.get_children():
-		if c.has_method("set_compact"):
-			c.set_compact(compact)
+	for child in hotbar_box.get_children():
+		if child.has_method("set_compact"):
+			child.set_compact(compact)
 	var row_h := 210.0
 	var box_w: float = avail if wrap else minf(need_full if not compact else need_compact, avail)
 	if box_w < 8.0:
 		box_w = avail
 	var rows: int = 2 if wrap else 1
 	var box_h: float = row_h * float(rows) + (10.0 if wrap else 0.0)
-	var x: float = floor((vp_w - box_w) * 0.5)
-	x = clampf(x, 32.0, 1062.0 - box_w)
-	var y := 790.0
+	var x: float = floor((vp.x - box_w) * 0.5)
+	var y: float = action_top() + ACTION_H + 16.0
+	var floor_y: float = vp.y - box_h - 12.0
 	if wrap:
-		y = 1040.0 - box_h - 12.0
-		if y < 772.0:
-			y = 772.0
+		y = minf(y, floor_y)
+		var wheel_bottom: float = wheel_center().y + wheel_radius() + ACTION_H + 20.0
+		if y < wheel_bottom:
+			y = wheel_bottom
+	if y + box_h > vp.y - 8.0:
+		y = maxf(action_top() + ACTION_H + 8.0, vp.y - box_h - 8.0)
 	hotbar_box.position = Vector2(x, y)
 	hotbar_box.size = Vector2(maxf(box_w, 8.0), box_h)
 	if ghost_hand != null:
-		ghost_hand.position = Vector2(32, y)
-		ghost_hand.size = Vector2(1030, box_h)
+		ghost_hand.position = Vector2(x, y)
+		ghost_hand.size = Vector2(maxf(box_w, 8.0), box_h)
 	_fit_column_above_hand()
 
 
 func _layout() -> void:
-	if pointer != null:
-		pointer.position = Vector2(530, 664)
-		pointer.size = Vector2(36, 26)
-		pointer.queue_redraw()
+	layout_around_wheel()
 	layout_hand()
 	_fit_column_above_hand()
-	if btn_spin != null:
-		btn_spin.position = Vector2(418, 700)
-		btn_spin.size = Vector2(260, 68)
-	if btn_done != null:
-		btn_done.position = Vector2(418, 700)
-		btn_done.size = Vector2(maxf(btn_done.custom_minimum_size.x, 260), 68)
-	if _spin_ring != null:
-		_spin_ring.position = Vector2(414, 696)
-		_spin_ring.size = Vector2(268, 76)
 	if hearts_box != null:
-		hearts_box.position = Vector2(32, 28)
+		hearts_box.visible = false
 	if idle_box != null:
 		idle_box.queue_redraw()
+
+
+func _column_width() -> float:
+	if _column_kind == "victory" or _column_kind == "defeat":
+		return 480.0
+	if _column_kind == "devtest":
+		return 400.0
+	return SIDE_W
 
 
 func _fit_column_above_hand() -> void:
 	if column == null:
 		return
+	var w: float = _column_width()
 	var bottom: float = 980.0
-	var max_h: float = 952.0
+	var max_h: float = 572.0
 	if hotbar_box != null and hotbar_box.visible:
 		bottom = minf(bottom, hotbar_box.position.y - 12.0)
-		# Two-row hand (210 + 14 + 210) floors at y 566. Never sit on it.
 		var two_row_top: float = 1000.0 - 210.0 * 2.0 - 14.0
 		bottom = minf(bottom, two_row_top - 12.0)
-		max_h = 572.0
 	if ghost_hand != null and ghost_hand.visible:
 		bottom = minf(bottom, ghost_hand.position.y - 12.0)
-	var h: float = clampf(bottom - 28.0, 280.0, max_h)
-	column.position = Vector2(1086, 28)
-	column.custom_minimum_size = Vector2(560, h)
-	column.size = Vector2(560, h)
-	var inner: float = maxf(180.0, h - 52.0)
+	var wheel_left: float = wheel_center().x - wheel_radius() - 12.0
+	if SIDE_PAD + w > wheel_left:
+		w = maxf(220.0, wheel_left - SIDE_PAD)
+	var h: float = clampf(bottom - 28.0, 220.0, max_h)
+	column.position = Vector2(SIDE_PAD, 28)
+	column.custom_minimum_size = Vector2(w, h)
+	column.size = Vector2(w, h)
+	var inner: float = maxf(160.0, h - 52.0)
 	if plate_slot != null:
-		plate_slot.custom_minimum_size = Vector2(0, maxf(160.0, inner - 40.0))
+		plate_slot.custom_minimum_size = Vector2(0, maxf(140.0, inner - 40.0))
 
 
 func qa_layout() -> Dictionary:
 	var col: Rect2 = column.get_global_rect() if column else Rect2()
 	var hand: Rect2 = hotbar_box.get_global_rect() if hotbar_box else Rect2()
+	var spin: Rect2 = btn_spin.get_global_rect() if btn_spin else Rect2()
+	var done: Rect2 = btn_done.get_global_rect() if btn_done else Rect2()
+	var hearts: bool = hearts_box != null and hearts_box.visible
 	return {
 		"column": [col.position.x, col.position.y, col.size.x, col.size.y],
 		"hand": [hand.position.x, hand.position.y, hand.size.x, hand.size.y],
+		"spin": [spin.position.x, spin.position.y, spin.size.x, spin.size.y],
+		"done": [done.position.x, done.position.y, done.size.x, done.size.y],
+		"spin_visible": btn_spin.visible if btn_spin else false,
+		"done_visible": btn_done.visible if btn_done else false,
+		"hearts_visible": hearts,
 		"overlap": col.intersects(hand),
 		"hand_children": hotbar_box.get_child_count() if hotbar_box else 0,
+		"wheel_center": [wheel_center().x, wheel_center().y],
 	}
 
 
