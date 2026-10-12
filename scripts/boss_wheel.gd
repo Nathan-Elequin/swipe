@@ -132,6 +132,9 @@ var _tex_alcove_full: Texture2D
 var _tex_alcove_facing: Texture2D
 var _tex_alcove_hover: Texture2D
 var _tex_alcove_valid: Texture2D
+var _tex_alcove_full_weak: Texture2D
+var _tex_alcove_full_tough: Texture2D
+var _tex_alcove_full_deadly: Texture2D
 var _use_alcove_tex: bool = true
 var dim_nonfacing: bool = false
 var tut_wedges: Array = []:
@@ -485,6 +488,9 @@ func _build_alcoves() -> void:
 	_tex_alcove_facing = load("res://assets/ui/wheel/ui_wheel_alcove_facing.png") as Texture2D
 	_tex_alcove_hover = load("res://assets/ui/wheel/ui_wheel_alcove_hover.png") as Texture2D
 	_tex_alcove_valid = load("res://assets/ui/wheel/ui_wheel_alcove_valid.png") as Texture2D
+	_tex_alcove_full_weak = load("res://assets/ui/wheel/ui_wheel_alcove_full_weak.png") as Texture2D
+	_tex_alcove_full_tough = load("res://assets/ui/wheel/ui_wheel_alcove_full_tough.png") as Texture2D
+	_tex_alcove_full_deadly = load("res://assets/ui/wheel/ui_wheel_alcove_full_deadly.png") as Texture2D
 	if _tex_alcove_empty == null or _tex_alcove_full == null:
 		_use_alcove_tex = false
 		return
@@ -501,16 +507,13 @@ func _build_alcoves() -> void:
 		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tr.position = Vector2(-116, -300)
 		tr.pivot_offset = Vector2(116, 300)
-		tr.size = Vector2(232, 216)
-		tr.custom_minimum_size = Vector2(232, 216)
+		tr.size = Vector2(232, 248)
+		tr.custom_minimum_size = Vector2(232, 248)
 		tr.rotation_degrees = 45.0 * float(i)
 		tr.show_behind_parent = true
 		tr.texture = _tex_alcove_empty
 		_alcove_root.add_child(tr)
 		_alcoves.append(tr)
-	## Baked alcoves assume hub r 96. Metal wedges + a 58 hub own the ring now.
-	_use_alcove_tex = false
-	_alcove_root.visible = false
 	_sync_alcoves()
 
 
@@ -525,10 +528,13 @@ func _alcove_tex_for(i: int) -> Texture2D:
 			return _tex_alcove_hover
 		return _tex_alcove_valid
 	if str(s.get("kind", "")) == "monster":
-		if is_face:
-			return _tex_alcove_facing
-		if is_hover:
-			return _tex_alcove_hover
+		var t: int = _plate_tier(s)
+		if t >= 3 and _tex_alcove_full_deadly != null:
+			return _tex_alcove_full_deadly
+		if t == 2 and _tex_alcove_full_tough != null:
+			return _tex_alcove_full_tough
+		if _tex_alcove_full_weak != null:
+			return _tex_alcove_full_weak
 		return _tex_alcove_full
 	if is_hover:
 		return _tex_alcove_hover
@@ -538,6 +544,8 @@ func _alcove_tex_for(i: int) -> Texture2D:
 func _sync_alcoves() -> void:
 	if _alcove_root == null:
 		return
+	_use_alcove_tex = _tex_alcove_empty != null and slices.size() == 8
+	_alcove_root.visible = _use_alcove_tex and not nest_empty
 	_alcove_root.position = _center()
 	_alcove_root.rotation = rot
 	var pulse: float = 0.72 + 0.28 * sin(_glow_t * TAU / 0.9)
@@ -552,13 +560,9 @@ func _sync_alcoves() -> void:
 			a *= pulse
 		var tint := Color.WHITE
 		if i < slices.size() and str(slices[i].get("kind", "")) == "monster":
-			var metal: Color = UX.metal_wedge(_plate_tier(slices[i]))
-			tint = Color(lerpf(0.55, metal.r, 0.85), lerpf(0.50, metal.g, 0.85), lerpf(0.42, metal.b, 0.85), 1.0)
 			if (not spinning) and i == facing_index:
 				tint = tint.lightened(0.10)
-			tr.modulate = Color(tint.r, tint.g, tint.b, a)
-		else:
-			tr.modulate = Color(1, 1, 1, a)
+		tr.modulate = Color(tint.r, tint.g, tint.b, a)
 
 
 func _process(delta: float) -> void:
@@ -706,12 +710,35 @@ func _spoke(i: int) -> Dictionary:
 	var crowded: bool = n >= 9
 	var win: float = SPRITE
 	var plate_r: float = SPRITE * 0.5
-	var port: Vector2 = origin + dir * SEAT_R
-	var pair_y: float = SPRITE * 0.18
-	var hp: Vector2 = _clamp_to_rim(port + Vector2(-ICON_GAP * 0.5, pair_y), 14.0)
-	var atk: Vector2 = _clamp_to_rim(port + Vector2(ICON_GAP * 0.5, pair_y), 14.0)
-	var nam_r: float = minf(SEAT_R + SPRITE * 0.52 + 14.0, r - 20.0)
-	var nam: Vector2 = origin + dir * nam_r
+	var seat: Vector2 = origin + dir * SEAT_R
+	var s: Dictionary = slices[i] if i >= 0 and i < slices.size() else {}
+	var cap: Dictionary = _capsule_metrics(s, crowded)
+	var cap_h: float = float(cap.get("h", 22.0))
+	var cap_w: float = float(cap.get("w", 64.0))
+	var occupied: bool = str(s.get("kind", "")) == "monster"
+	var stack_h: float = SPRITE if not occupied else (SPRITE + 6.0 + cap_h)
+	var sprite_top: float = seat.y - stack_h * 0.5
+	var heart_hw := 12.0
+	var sword_hw := 15.0
+	var sprite_left: float = seat.x - SPRITE * 0.5
+	var sprite_right: float = seat.x + SPRITE * 0.5
+	var hp: Vector2 = Vector2(sprite_left - 2.0 - heart_hw, sprite_top + 30.0)
+	var atk: Vector2 = Vector2(sprite_right + 2.0 + sword_hw, sprite_top + 30.0)
+	var port: Vector2 = Vector2(seat.x, sprite_top + SPRITE * 0.5)
+	var nam: Vector2 = Vector2(seat.x, sprite_top + SPRITE + 6.0 + cap_h * 0.5)
+	if occupied:
+		var left: float = minf(hp.x - heart_hw, minf(sprite_left, nam.x - cap_w * 0.5))
+		var right: float = maxf(atk.x + sword_hw, maxf(sprite_right, nam.x + cap_w * 0.5))
+		var top: float = sprite_top
+		var bot: float = sprite_top + stack_h
+		var mid := Vector2((left + right) * 0.5, (top + bot) * 0.5)
+		var fitted: Vector2 = _fit_stack_mid(mid, right - left, bot - top, dir)
+		var delta: Vector2 = fitted - mid
+		hp += delta
+		atk += delta
+		port += delta
+		nam += delta
+		seat += delta
 	return {
 		"c": c,
 		"dir": dir,
@@ -721,10 +748,14 @@ func _spoke(i: int) -> Dictionary:
 		"win": win,
 		"plate_r": plate_r,
 		"port": port,
+		"seat": seat,
 		"name": nam,
 		"atk": atk,
 		"hp": hp,
 		"span": _span(i),
+		"cap_w": cap_w,
+		"cap_h": cap_h,
+		"crowded": crowded,
 	}
 
 
@@ -1389,40 +1420,29 @@ func _draw_bold_name(font: Font, pos: Vector2, text: String, fs: int, col: Color
 
 
 func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, _crowded: bool, dim: float = 1.0, _is_hover: bool = false) -> void:
-	var name_s: String = str(s.get("name", "")).strip_edges()
-	var call_s: String = str(s.get("call_name", "")).strip_edges()
-	if name_s == "":
+	var crowded: bool = bool(sp.get("crowded", slices.size() >= 9))
+	var met: Dictionary = _capsule_metrics(s, crowded)
+	var name_txt: String = str(met.get("name_txt", ""))
+	if name_txt == "":
 		return
-	if call_s.to_lower() == name_s.to_lower() or name_s.to_lower().find(call_s.to_lower()) >= 0:
-		call_s = ""
-	var name_fs: int = UI.SIZE_MIN
-	var call_fs: int = UI.SIZE_MIN
-	if font != _font_ns and _font_ns != null:
-		font = _font_ns
-	var span: float = absf(float(sp.get("span", 0.6)))
-	var max_w: float = clampf(_radius() * maxf(span, 0.18) * 0.56, 70.0, 112.0)
-	var name_txt: String = _wrap_call_label(font, name_s, name_fs, max_w)
-	var call_txt: String = _wrap_call_label(font, call_s, call_fs, max_w) if call_s != "" else ""
-	# Measure the glyph box, not the wrap budget. Centering used to use max_w while
-	# the capsule used the tighter box, so "Twice" sat off to the side.
-	var name_sz: Vector2 = font.get_multiline_string_size(name_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, name_fs)
-	var call_sz: Vector2 = font.get_multiline_string_size(call_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, call_fs) if call_txt != "" else Vector2.ZERO
-	var pad_x := 7.0
-	var pad_y := 3.0
-	var gap := 1.0
-	var inner_w: float = maxf(name_sz.x, call_sz.x)
+	var call_txt: String = str(met.get("call_txt", ""))
+	var name_fs: int = int(met.get("name_fs", UI.SIZE_MIN))
+	var call_fs: int = int(met.get("call_fs", UI.SIZE_MIN))
+	if met.get("font") != null:
+		font = met["font"]
+	var name_sz: Vector2 = met.get("name_sz", Vector2.ZERO)
+	var call_sz: Vector2 = met.get("call_sz", Vector2.ZERO)
+	var pad_x: float = float(met.get("pad_x", 7.0))
+	var pad_y: float = float(met.get("pad_y", 3.0))
+	var gap: float = float(met.get("gap", 1.0))
+	var w: float = float(met.get("w", 64.0))
+	var h: float = float(met.get("h", 22.0))
+	var inner_w: float = float(met.get("inner_w", w - pad_x * 2.0))
 	var content_h: float = name_sz.y
 	if call_txt != "":
 		content_h += gap + call_sz.y
-	var w: float = inner_w + pad_x * 2.0
-	var h: float = content_h + pad_y * 2.0
-	# Stadium caps are radius = h/2. Width must be at least that or the pill collapses.
-	w = maxf(w, h)
-	inner_w = w - pad_x * 2.0
 	var pos: Vector2 = sp["name"]
-	var dir: Vector2 = sp["dir"]
 	var top_left := Vector2(pos.x - w * 0.5, pos.y - h * 0.5)
-	top_left = _fit_title_rect(top_left, w, h, dir)
 	var t: int = _plate_tier(s)
 	var fill: Color = UX.metal_chip(t)
 	fill.a = 0.92 * dim
@@ -1449,7 +1469,11 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 
 
 func _fit_title_rect(top_left: Vector2, w: float, h: float, dir: Vector2) -> Vector2:
-	var mid: Vector2 = top_left + Vector2(w, h) * 0.5
+	var mid: Vector2 = _fit_stack_mid(top_left + Vector2(w, h) * 0.5, w, h, dir)
+	return mid - Vector2(w, h) * 0.5
+
+
+func _fit_stack_mid(mid: Vector2, w: float, h: float, dir: Vector2) -> Vector2:
 	var c: Vector2 = _center()
 	var from_c: Vector2 = mid - c
 	var half: float = maxf(w, h) * 0.5
@@ -1459,7 +1483,49 @@ func _fit_title_rect(top_left: Vector2, w: float, h: float, dir: Vector2) -> Vec
 	var mind: float = HUB_R + half + 6.0
 	if (mid - c).length() < mind:
 		mid = c + dir * mind
-	return mid - Vector2(w, h) * 0.5
+	return mid
+
+
+func _capsule_metrics(s: Dictionary, crowded: bool) -> Dictionary:
+	var name_s: String = str(s.get("name", "")).strip_edges()
+	var call_s: String = str(s.get("call_name", "")).strip_edges()
+	if crowded:
+		call_s = ""
+	if call_s.to_lower() == name_s.to_lower() or (call_s != "" and name_s.to_lower().find(call_s.to_lower()) >= 0):
+		call_s = ""
+	var font: Font = _font_ns if _font_ns != null else (_font_nx if _font_nx != null else ThemeDB.fallback_font)
+	var name_fs: int = UI.SIZE_MIN
+	var call_fs: int = UI.SIZE_MIN
+	var max_w := 112.0
+	var name_txt: String = _wrap_call_label(font, name_s, name_fs, max_w) if font != null else name_s
+	var call_txt: String = _wrap_call_label(font, call_s, call_fs, max_w) if call_s != "" and font != null else ""
+	var name_sz: Vector2 = font.get_multiline_string_size(name_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, name_fs) if font != null else Vector2(64, 18)
+	var call_sz: Vector2 = font.get_multiline_string_size(call_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, call_fs) if call_txt != "" and font != null else Vector2.ZERO
+	var pad_x := 7.0
+	var pad_y := 3.0
+	var gap := 1.0
+	var inner_w: float = maxf(name_sz.x, call_sz.x)
+	var content_h: float = name_sz.y
+	if call_txt != "":
+		content_h += gap + call_sz.y
+	var w: float = inner_w + pad_x * 2.0
+	var h: float = content_h + pad_y * 2.0
+	w = maxf(w, h)
+	return {
+		"w": w,
+		"h": h,
+		"name_txt": name_txt,
+		"call_txt": call_txt,
+		"name_sz": name_sz,
+		"call_sz": call_sz,
+		"pad_x": pad_x,
+		"pad_y": pad_y,
+		"gap": gap,
+		"inner_w": w - pad_x * 2.0,
+		"name_fs": name_fs,
+		"call_fs": call_fs,
+		"font": font,
+	}
 
 
 func _draw_chip_line(font: Font, origin: Vector2, text: String, fs: int, width: float, col: Color, ink: Color) -> void:
@@ -1579,10 +1645,7 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 			var dc: Color = UP_COL if atk_d > 0 else DOWN_COL
 			draw_string(font, pos + Vector2(rad * 0.55, -rad * 0.7), _delta_text(atk_d), HORIZONTAL_ALIGNMENT_LEFT, -1, UI.SIZE_MIN, dc)
 	if str(s.get("card_id", "")) == "hornet_swarm" or _seat_tag(i, "atk") == "x2" or bool(s.get("preview_x2", false)):
-		var inward: Vector2 = (_center() - pos)
-		if inward.length() < 1.0:
-			inward = Vector2(0, 1)
-		var mark: Vector2 = pos + inward.normalized() * (rad + 10.0)
+		var mark: Vector2 = pos + Vector2(0.0, -(rad + 16.0))
 		var badge := Rect2(mark - Vector2(20.0, 12.0), Vector2(40.0, 24.0))
 		draw_rect(badge, Color("1c120ce8"), true)
 		draw_rect(badge, Color("e8c36a"), false, 1.5)
