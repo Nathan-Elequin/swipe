@@ -311,6 +311,20 @@ func _toggle_log() -> void:
 		sfx.play("switch", -14.0)
 
 
+func _style_log_dock() -> void:
+	if log_label == null:
+		return
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.078, 0.051, 0.039, 0.93)
+	sb.border_color = Color("7A4E2B")
+	sb.set_border_width_all(3)
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+	log_label.add_theme_stylebox_override("normal", sb)
+
+
 func _sync_authoring_chrome() -> void:
 	var dev: bool = _authoring() and phase == "devtest"
 	var mouse: Vector2 = get_viewport().get_mouse_position() if get_viewport() != null else Vector2.ZERO
@@ -326,11 +340,19 @@ func _sync_authoring_chrome() -> void:
 	if log_label:
 		log_label.visible = (dev and _log_open) or play_log
 		if log_label.visible:
-			var h: float = 220.0
+			_style_log_dock()
+			var dock := Rect2(1190, 570, 456, minf(240.0, 1012.0 - 570.0))
 			if face_box != null and face_box.visible:
-				h = minf(h, maxf(72.0, face_box.global_position.y - 40.0))
-			log_label.position = Vector2(1180, 28)
-			log_label.size = Vector2(460, h)
+				var face: Rect2 = face_box.get_global_rect()
+				if face.intersects(dock):
+					var cut_h: float = face.position.y - 8.0 - dock.position.y
+					if cut_h < 72.0:
+						dock = Rect2(32, 640, 460, 220)
+					else:
+						dock.size.y = cut_h
+			log_label.custom_minimum_size = Vector2.ZERO
+			log_label.position = dock.position
+			log_label.size = dock.size
 	if _copy_stamp:
 		_copy_stamp.visible = dev
 
