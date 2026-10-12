@@ -1046,7 +1046,7 @@ func _intent_mark_kill(_index: int) -> void:
 func _apply_owner_swing(_m: Dictionary) -> int:
 	return 0
 
-func _intent_mute():
+func _intent_mute() -> Variant:
 	return null
 
 func _intent_unmute(_saved) -> void:
