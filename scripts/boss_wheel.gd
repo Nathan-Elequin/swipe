@@ -1,5 +1,5 @@
 extends Control
-## Stone wheel. Seats show sprite plus ATK/HP chips. Names live in Inspect.
+## Stone wheel. Tight seats, inward name capsules, smaller hub the knight fills.
 
 signal slice_clicked(index: int)
 signal slice_hovered(index: int)
@@ -11,16 +11,18 @@ const UI := preload("res://scripts/ui_palette.gd")
 
 const SIX := PI / 2.0
 const OUTER_R := 300.0
-const HUB_R := 96.0
-const SEAT_R := 200.0
-const SEAT := 100.0
-const SPRITE := 84.0
+## Was 96. Nathan: about 40% too large.
+const HUB_R := 58.0
+const SEAT_R := 188.0
+const SEAT := 64.0
+const SPRITE := 56.0
+const ICON_GAP := 28.0
 const EMPTY_FILL := Color("120C09")
 const STONE := Color("2a231e")
 const STONE_DEEP := Color("1c1814")
 const RING := Color("7A4E2B")
 const HUB := Color("140D0A")
-const HUB_FRAC := 0.32
+const HUB_FRAC := HUB_R / OUTER_R
 const DISC := Color("3B2618")
 const SEAT_WOOD := Color("5A3A22")
 const HOVER_FILL := Color("4A3416")
@@ -506,6 +508,9 @@ func _build_alcoves() -> void:
 		tr.texture = _tex_alcove_empty
 		_alcove_root.add_child(tr)
 		_alcoves.append(tr)
+	## Baked alcoves assume hub r 96. Metal wedges + a 58 hub own the ring now.
+	_use_alcove_tex = false
+	_alcove_root.visible = false
 	_sync_alcoves()
 
 
@@ -702,10 +707,11 @@ func _spoke(i: int) -> Dictionary:
 	var win: float = SPRITE
 	var plate_r: float = SPRITE * 0.5
 	var port: Vector2 = origin + dir * SEAT_R
-	var spread: float = plate_r + 22.0
-	var hp: Vector2 = _clamp_to_rim(port + tan * spread, 22.0)
-	var atk: Vector2 = _clamp_to_rim(port - tan * spread, 22.0)
-	var nam: Vector2 = origin + dir * r * 0.90
+	var pair_y: float = SPRITE * 0.18
+	var hp: Vector2 = _clamp_to_rim(port + Vector2(-ICON_GAP * 0.5, pair_y), 14.0)
+	var atk: Vector2 = _clamp_to_rim(port + Vector2(ICON_GAP * 0.5, pair_y), 14.0)
+	var nam_r: float = minf(SEAT_R + SPRITE * 0.52 + 14.0, r - 20.0)
+	var nam: Vector2 = origin + dir * nam_r
 	return {
 		"c": c,
 		"dir": dir,
@@ -773,9 +779,9 @@ func hub_stat_proxy(kind: String) -> Control:
 		add_child(hole)
 	var proxy: Control = get_node(node_name) as Control
 	var c: Vector2 = _center()
-	var local: Vector2 = c + Vector2(0.0, -22.0)
+	var local: Vector2 = c + Vector2(0.0, -HUB_R * 0.72)
 	if kind == "blk":
-		local = c + Vector2(0.0, 28.0)
+		local = c + Vector2(0.0, HUB_R * 0.50)
 	var port: Vector2 = get_global_transform() * local
 	proxy.size = Vector2(56, 56)
 	proxy.global_position = port - proxy.size * 0.5
@@ -810,26 +816,21 @@ func _draw() -> void:
 	var radius: float = _radius()
 	if not _use_alcove_tex:
 		draw_circle(c, radius, DISC)
-		var n0: int = slices.size()
-		for i0 in n0:
-			_draw_alcove_poly(i0)
 	draw_arc(c, 306.0, 0.0, TAU, 80, RING, 8.0, true)
 	if slices.is_empty():
 		draw_circle(c, HUB_R, HUB)
-		draw_arc(c, HUB_R, 0.0, TAU, 48, RING, 6.0, true)
+		draw_arc(c, HUB_R, 0.0, TAU, 48, RING, 5.0, true)
 		_sync_alcoves()
 		return
 	var n: int = slices.size()
 	var starts: PackedFloat32Array = _starts()
-	draw_circle(c, HUB_R, HUB)
-	draw_arc(c, HUB_R, 0.0, TAU, 48, RING, 6.0, true)
 	if nest_empty:
 		draw_circle(c, radius, DISC)
 		for i in 8:
 			var ang: float = deg_to_rad(-90.0 + 45.0 * float(i))
 			draw_line(c + Vector2.from_angle(ang) * HUB_R, c + Vector2.from_angle(ang) * radius, RING, 4.0, true)
 		draw_circle(c, HUB_R, HUB)
-		draw_arc(c, HUB_R, 0.0, TAU, 48, RING, 6.0, true)
+		draw_arc(c, HUB_R, 0.0, TAU, 48, RING, 5.0, true)
 		_sync_alcoves()
 		return
 	var font: Font = _font_nx if _font_nx != null else get_theme_default_font()
@@ -837,6 +838,8 @@ func _draw() -> void:
 		font = ThemeDB.fallback_font
 	for i in n:
 		_draw_slice(c, radius, starts[i], starts[i] + _span(i), i)
+	draw_circle(c, HUB_R, HUB)
+	draw_arc(c, HUB_R, 0.0, TAU, 48, RING, 5.0, true)
 	for i2 in n:
 		_draw_slice_contents(font, c, radius, starts[i2], _span(i2), i2)
 	_draw_bonds(c, radius)
@@ -1385,31 +1388,28 @@ func _draw_bold_name(font: Font, pos: Vector2, text: String, fs: int, col: Color
 	_draw_outlined_string(font, pos, text, fs, col, Color("100e0c"))
 
 
-func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, crowded: bool, dim: float = 1.0, is_hover: bool = false) -> void:
+func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, _crowded: bool, dim: float = 1.0, _is_hover: bool = false) -> void:
 	var name_s: String = str(s.get("name", "")).strip_edges()
 	var call_s: String = str(s.get("call_name", "")).strip_edges()
 	if name_s == "":
 		return
 	if call_s.to_lower() == name_s.to_lower() or name_s.to_lower().find(call_s.to_lower()) >= 0:
 		call_s = ""
-	var name_fs: int = 22 if is_face else 18
-	var call_fs: int = 18
-	if crowded:
-		name_fs = 18
-		call_fs = 18
+	var name_fs: int = UI.SIZE_MIN
+	var call_fs: int = UI.SIZE_MIN
 	if font != _font_ns and _font_ns != null:
 		font = _font_ns
 	var span: float = absf(float(sp.get("span", 0.6)))
-	var max_w: float = clampf(_radius() * maxf(span, 0.18) * 0.92, 88.0, 168.0)
+	var max_w: float = clampf(_radius() * maxf(span, 0.18) * 0.56, 70.0, 112.0)
 	var name_txt: String = _wrap_call_label(font, name_s, name_fs, max_w)
 	var call_txt: String = _wrap_call_label(font, call_s, call_fs, max_w) if call_s != "" else ""
 	# Measure the glyph box, not the wrap budget. Centering used to use max_w while
 	# the capsule used the tighter box, so "Twice" sat off to the side.
 	var name_sz: Vector2 = font.get_multiline_string_size(name_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, name_fs)
 	var call_sz: Vector2 = font.get_multiline_string_size(call_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, call_fs) if call_txt != "" else Vector2.ZERO
-	var pad_x := 10.0
-	var pad_y := 5.0
-	var gap := 2.0
+	var pad_x := 7.0
+	var pad_y := 3.0
+	var gap := 1.0
 	var inner_w: float = maxf(name_sz.x, call_sz.x)
 	var content_h: float = name_sz.y
 	if call_txt != "":
@@ -1422,10 +1422,7 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 	var pos: Vector2 = sp["name"]
 	var dir: Vector2 = sp["dir"]
 	var top_left := Vector2(pos.x - w * 0.5, pos.y - h * 0.5)
-	var c: Vector2 = _center()
-	var inward: Vector2 = (c - Vector2(top_left.x + w * 0.5, top_left.y + h * 0.5))
-	if inward.length() > 1.0 and dir.dot(inward.normalized()) > 0.25:
-		top_left += dir * (h * 0.22)
+	top_left = _fit_title_rect(top_left, w, h, dir)
 	var t: int = _plate_tier(s)
 	var fill: Color = UX.metal_chip(t)
 	fill.a = 0.92 * dim
@@ -1449,6 +1446,20 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 		var col: Color = UX.metal_call(t)
 		col.a = dim
 		_draw_chip_line(font, Vector2(top_left.x + pad_x, y), call_txt, call_fs, inner_w, col, ink)
+
+
+func _fit_title_rect(top_left: Vector2, w: float, h: float, dir: Vector2) -> Vector2:
+	var mid: Vector2 = top_left + Vector2(w, h) * 0.5
+	var c: Vector2 = _center()
+	var from_c: Vector2 = mid - c
+	var half: float = maxf(w, h) * 0.5
+	var maxd: float = _radius() - half - 8.0
+	if from_c.length() > maxd and from_c.length() > 1.0:
+		mid = c + from_c.normalized() * maxd
+	var mind: float = HUB_R + half + 6.0
+	if (mid - c).length() < mind:
+		mid = c + dir * mind
+	return mid - Vector2(w, h) * 0.5
 
 
 func _draw_chip_line(font: Font, origin: Vector2, text: String, fs: int, width: float, col: Color, ink: Color) -> void:
@@ -1545,15 +1556,15 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 		fill = fill.lerp(DOWN_COL, 0.45)
 	elif atk_d > 0:
 		fill = fill.lerp(UP_COL, 0.35)
-	var rad: float = 21.0 if big else 18.0
+	var rad: float = 15.0 if big else 14.0
 	if slices.size() >= 9:
 		rad -= 1.0
 	var seat_atk: int = _seat_delta(i, "atk")
 	if seat_atk != 0:
 		rad *= 1.16 + 0.20 * pulse
 		fill = fill.lerp(Color("ffb48a"), 0.30 + 0.22 * pulse)
-	_draw_sword_badge(pos, rad * 1.3, fill, _center() - pos)
-	_draw_bold_num(font, pos + Vector2(0.0, 1.0), str(atk), 21 if big else 18, Color("f0e6d8"))
+	_draw_sword_badge(pos, rad, fill, _center() - pos)
+	_draw_bold_num(font, pos + Vector2(0.0, 1.0), str(atk), UI.SIZE_MIN, Color("f0e6d8"))
 	if bool(s.get("cmd_buff", false)) or seat_atk != 0:
 		var ring_c := Color(1.0, 0.45, 0.22, 0.55 + 0.45 * pulse) if seat_atk != 0 else Color(0.95, 0.22, 0.16, 0.45 + 0.5 * pulse)
 		draw_arc(pos, rad + 3.0, 0.0, TAU, 24, ring_c, 2.6 if seat_atk == 0 else 5.0, true)
@@ -1616,16 +1627,16 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		fill = fill.lerp(DOWN_COL, 0.45)
 	elif hp_d > 0:
 		fill = fill.lerp(UP_COL, 0.35)
-	var hs: float = 38.0 if big else 34.0
+	var hs: float = 26.0 if big else 24.0
 	if slices.size() >= 9:
 		hs -= 2.0
 	var seat_hp: int = _seat_delta(i, "hp")
 	if seat_hp != 0:
 		hs *= 1.18 + 0.22 * pulse
 		fill = fill.lerp(Color("fff4c8"), 0.28 + 0.22 * pulse)
-	_draw_heart_shape(pos, hs * 1.3, fill, Color("1c120c"))
-	draw_circle(pos + Vector2(0.0, 4.0), hs * 0.36, Color("6a1818"))
-	_draw_bold_num(font, pos + Vector2(0.0, 2.0), str(hp), 21 if big else 18, Color("f0e6d8"))
+	_draw_heart_shape(pos, hs, fill, Color("1c120c"))
+	draw_circle(pos + Vector2(0.0, 3.0), hs * 0.28, Color("6a1818"))
+	_draw_bold_num(font, pos + Vector2(0.0, 2.0), str(hp), UI.SIZE_MIN, Color("f0e6d8"))
 	if bool(s.get("lich_buff", false)) or seat_hp != 0:
 		var pulse2: float = 0.55 + 0.45 * sin(float(Time.get_ticks_msec()) * 0.007)
 		var ring: Color = Color(1.0, 0.94, 0.55, 0.55 + 0.45 * pulse2) if seat_hp != 0 else Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2)
@@ -1686,20 +1697,20 @@ func _draw_hub_block(c: Vector2, radius: float) -> void:
 	var font: Font = _font_nx if _font_nx != null else get_theme_default_font()
 	if font == null:
 		font = ThemeDB.fallback_font
-	var bob: float = sin(float(Time.get_ticks_msec()) * 0.004) * 2.0
-	var ppos: Vector2 = c + Vector2(0.0, 6.0 + bob)
+	var bob: float = sin(float(Time.get_ticks_msec()) * 0.004) * 1.4
+	var ppos: Vector2 = c + Vector2(0.0, 3.0 + bob)
 	if not tex_player.is_empty():
 		var fi: int = int(Time.get_ticks_msec() / 180) % tex_player.size()
 		var tex: Texture2D = tex_player[fi]
-		var psz := Vector2(56, 80)
+		var psz := Vector2(HUB_R * 1.38, HUB_R * 1.86)
 		draw_texture_rect(tex, Rect2(ppos - psz * 0.5, psz), false)
 	var pip_n: int = maxi(hub_hp_max, 1)
-	var arc_r: float = 44.0
+	var arc_r: float = HUB_R * 0.80
 	for i in pip_n:
-		var t: float = lerpf(-2.35, -0.79, float(i) / float(maxi(pip_n - 1, 1)))
+		var t: float = lerpf(-2.40, -0.74, float(i) / float(maxi(pip_n - 1, 1)))
 		var live: bool = i < hub_hp
 		var soon: bool = hub_hp_ghost >= 0 and i >= hub_hp_ghost and i < hub_hp
-		_draw_hub_pip(c + Vector2(cos(t), sin(t)) * arc_r, Vector2(18, 16), live, soon)
+		_draw_hub_pip(c + Vector2(cos(t), sin(t)) * arc_r, Vector2(13, 11), live, soon)
 	var shown: int = hub_ghost if hub_ghost >= 0 else hub_blk
 	var fill := Color("2a6aa8")
 	var rim := Color("6bb3d9")
@@ -1710,8 +1721,8 @@ func _draw_hub_block(c: Vector2, radius: float) -> void:
 		fill = Color("2a7a58")
 		rim = Color("7dba7d")
 	var scale: float = 1.0 + hub_flash * 0.28
-	var shield_c: Vector2 = c + Vector2(0.0, 44.0)
-	var sw: float = 22.0 * scale
+	var shield_c: Vector2 = c + Vector2(0.0, HUB_R * 0.50)
+	var sw: float = 16.0 * scale
 	var shield := PackedVector2Array([
 		shield_c + Vector2(0.0, -sw * 0.78),
 		shield_c + Vector2(sw * 0.70, -sw * 0.28),
