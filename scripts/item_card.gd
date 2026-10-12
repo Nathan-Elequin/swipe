@@ -360,7 +360,8 @@ func set_showcase(on: bool) -> void:
 	clip_contents = not on
 	custom_minimum_size = Vector2(SHOW_W, SHOW_H) if on else Vector2(COMPACT_W if _compact else CARD_W, CARD_H)
 	if _col:
-		_col.add_theme_constant_override("separation", 6 if on else 1)
+		_col.alignment = BoxContainer.ALIGNMENT_CENTER if on else BoxContainer.ALIGNMENT_BEGIN
+		_col.add_theme_constant_override("separation", 6 if on else 0)
 	if _title:
 		UI.apply_name(_title, PARCHMENT, UI.SIZE_MIN)
 		_title.custom_minimum_size = Vector2(196 if on else 104, 32 if on else TITLE_H)
@@ -725,16 +726,21 @@ func _fit_formula(rtl: RichTextLabel, bb: String, box: Vector2, sizes: Array, ma
 				shown = plain
 				break
 		chosen = use
-	if font != null:
-		var sz2: Vector2 = font.get_multiline_string_size(shown, HORIZONTAL_ALIGNMENT_CENTER, box.x, chosen)
-		var lines2: int = _wrap_line_count(font, shown, box.x, chosen)
-		while (sz2.y > box.y + 0.5 or lines2 > max_lines) and shown.length() > 1:
-			shown = shown.substr(0, shown.length() - 1).strip_edges()
-			if shown.ends_with("\n"):
-				shown = shown.substr(0, shown.length() - 1).strip_edges()
-			shown += "…"
-			sz2 = font.get_multiline_string_size(shown, HORIZONTAL_ALIGNMENT_CENTER, box.x, chosen)
-			lines2 = _wrap_line_count(font, shown, box.x, chosen)
+	if font != null and shown != "":
+		var core: String = shown
+		var candidate: String = core
+		var guard := 0
+		var sz2: Vector2 = font.get_multiline_string_size(candidate, HORIZONTAL_ALIGNMENT_CENTER, maxf(box.x, 1.0), chosen)
+		var lines2: int = _wrap_line_count(font, candidate, maxf(box.x, 1.0), chosen)
+		while (sz2.y > box.y + 0.5 or lines2 > max_lines) and core.length() > 0 and guard < 256:
+			core = core.substr(0, core.length() - 1).strip_edges()
+			if core.ends_with("\n"):
+				core = core.substr(0, core.length() - 1).strip_edges()
+			candidate = (core + "…") if core != "" else "…"
+			sz2 = font.get_multiline_string_size(candidate, HORIZONTAL_ALIGNMENT_CENTER, maxf(box.x, 1.0), chosen)
+			lines2 = _wrap_line_count(font, candidate, maxf(box.x, 1.0), chosen)
+			guard += 1
+		shown = candidate
 	rtl.text = "[center]%s[/center]" % shown
 	rtl.add_theme_font_override("normal_font", font)
 	rtl.add_theme_font_size_override("normal_font_size", chosen)

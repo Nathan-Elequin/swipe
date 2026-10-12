@@ -809,9 +809,6 @@ func _process(delta: float) -> void:
 	if _glow and _glow.visible:
 		var ga: float = 0.80 + 0.20 * absf(sin(_glow_t * TAU / 1.2))
 		_glow.modulate = Color(1, 1, 1, ga)
-	if _bait and _bait.visible:
-		var pulse: float = 0.80 + 0.20 * absf(sin(_glow_t * TAU / 1.2))
-		_bait.modulate = Color(1, 1, 1, pulse)
 	if _threat and _threat.visible:
 		_threat.queue_redraw()
 	if _actor and _actor.visible:

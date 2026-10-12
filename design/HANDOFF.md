@@ -4,6 +4,14 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-12 — FIXES-v2 draft-gate polish (4 items)
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: UI lane only. Applied Pixel's `design/visual/fixes/` pack (FIXES-v2.md + mockup + r58 alcove textures) on `origin/main` 69f4c0a. Four look-only items, Nathan's Must-keep UX kept: no Take button, no THE MONSTER / THE LOOT, knight + six-heart hub, capsules on the ring. (1) Event log still opens on Shift or top-right hover; it now draws at (1190,570) 456×240 under the gate, soot dock, clamp vs facing callout. (2) Gate column stays (1086,28,560×526) with 60/40 split, click-the-item-to-take, Leave + pips. Threat is a Weak/Tough/Deadly plate with 1–3 red pips; item cell has a clipped gold glow; Nib sits in an 88×88 well at (1086,570). (3) Hand cards stay 140×210 / 124×210; formula only on Shift in its own 54 px box (13→12→11, then ellipsis). Gate cards use 136×192. (4) Each wheel seat is an upright heart|sprite|sword stack with the capsule under the sprite; 232×248 alcove textures only on 8-seat wheels. No `data/` edits.
+- Files: `scripts/ui/authoring_ui.gd`, `scripts/draft_gate.gd`, `scripts/item_card.gd`, `scripts/boss_wheel.gd`, `assets/ui/wheel/ui_wheel_alcove_full_{weak,tough,deadly}.png`, `design/visual/fixes/`, `design/HANDOFF.md`, `design/qa/reports/2026-10-12-fixes-v2.md`, `tools/qa/check_fixes_v2.gd`
+- QA: Godot 4.7.2 headless dummy renderer. `check_layers` OK. `check_boot` BOOT_OK. `check_item_types` ITEM_TYPE_OK (Shift 140×210). `check_hand_use` HAND_USE_OK (column 560×526, nib [1086,570,88,88], take_present=false, overlap=false). Extra `check_fixes_v2.gd`: LOG_OK at (1190,570,456×240); GATE_OK Weak/Tough/Deadly; CARDS_OK sai/helmet/shield/smoke_bomb/net/medallion stay 210; WHEEL_OK upright stack. `--quit-after 2` exit 0. No godot-mcp, so no in-editor stills. Report: `design/qa/reports/2026-10-12-fixes-v2.md`
+
 ## 2026-10-12 — Wheel layout tightening
 - From: Cursor
 - To: Jam / Pixel / Nathan
