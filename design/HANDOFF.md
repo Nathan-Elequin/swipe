@@ -4,6 +4,14 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-12 — Static face text on the Edit card sheet
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: Content lane. Branched from `origin/main` 69d0478. Edit card (and Roster / HTML board) now has Face text: the no-Shift hand-card number plus ATK/BLK/HEAL/UTIL. Stored per item as `face_text`. Empty keeps the current auto face. `item_card.gd` only gained `set_face_text` plus a parse hook so the font/Shift pass can keep going. Save still stamps `author_lock`. Did not rewrite catalog/board rows. New always-on rule `.cursor/rules/data-source.mdc` plus the same sentence in `design/LANES.md`.
+- Files: `scripts/content_editor.gd`, `scripts/roster_editor.gd`, `scripts/content/catalog_io.gd`, `scripts/author_lock.gd`, `scripts/ux_style.gd`, `scripts/item_card.gd`, `scripts/ui/hud_controller.gd`, `scripts/core/draft_flow.gd`, `design/content-board.html`, `design/LANES.md`, `.cursor/rules/data-source.mdc`, `.cursor/rules/author-lock.mdc`, `tools/qa/check_face_text.gd`, `design/HANDOFF.md`
+- QA: pending headless run of all `tools/qa` checks plus `check_face_text.gd`.
+
 ## 2026-10-12 — FIXES-v2 draft-gate polish (4 items)
 - From: Cursor
 - To: Jam / Pixel / Nathan

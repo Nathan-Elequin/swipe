@@ -213,6 +213,7 @@ func _make_item(id: String) -> Dictionary:
 		"ability": str(card.get("ability", "")),
 		"explainer": str(card.get("explainer", "")),
 		"card_color": str(card.get("card_color", "")),
+		"face_text": str(card.get("face_text", "")),
 		"spent": false,
 		"keep_after": false,
 		"siphon_blk": 0,
@@ -343,6 +344,7 @@ func _merge_catalog_card(kind: String, board_card: Dictionary) -> void:
 	dst["explainer"] = str(board_card.get("explainer", ""))
 	if kind != "monster":
 		dst["card_color"] = str(board_card.get("card_color", ""))
+		dst["face_text"] = str(board_card.get("face_text", ""))
 	if kind == "monster":
 		dst["call_name"] = str(board_card.get("call_name", ""))
 		dst["reminder"] = str(board_card.get("reminder", ""))
@@ -418,6 +420,7 @@ func _new_catalog_stub(kind: String, id: String) -> Dictionary:
 		"exceptions": "",
 		"ops": {"kind": "atk", "n": 1},
 		"card_color": "",
+		"face_text": "",
 		"rarity": "uncommon",
 		"tier": 1,
 		"count": 1,
@@ -482,6 +485,7 @@ func _stamp_live_item(it: Dictionary, board_card: Dictionary, ops: Dictionary) -
 	it["ability"] = str(board_card.get("ability", ""))
 	it["explainer"] = str(board_card.get("explainer", ""))
 	it["card_color"] = str(board_card.get("card_color", ""))
+	it["face_text"] = str(board_card.get("face_text", ""))
 	it["pack_tier"] = int(board_card.get("tier", it.get("pack_tier", 1)))
 	it["pack_kind"] = "starter" if str(board_card.get("rarity", "")) == "starter" else "draft"
 	if not ops.is_empty():

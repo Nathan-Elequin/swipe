@@ -4,6 +4,8 @@ Swipe used to keep almost every rule in `scripts/main.gd`. That file is now a sh
 
 Read this before you pick a file. Existing rules still apply: author locks, content board, Paper Fight, unique art, QA, visual handoff.
 
+Before implementing anything, read `data/content-board.json` and `data/catalog.json` on the current `origin/main`. These hold Nathan's saved edits from the in-game F5 editor and are the source of truth for content. Never overwrite or reformat his saved fields. Respect `author_lock`.
+
 ## How the scripts fit together
 
 `scenes/main.tscn` still runs `scripts/main.gd`. That script **extends** a chain of other scripts. The running scene is one object. It has every variable and every function from every layer.
