@@ -17,7 +17,7 @@ var btn_done: Button
 var btn_start: Button
 var btn_place: Button
 var btn_bribe: Button
-var hotbar_box: HBoxContainer
+var hotbar_box: HFlowContainer
 var choice_box: HBoxContainer
 var cue_label: Label
 var column: Control
@@ -131,9 +131,10 @@ func _build() -> void:
 	choice_box.z_index = 8
 	add_child(choice_box)
 
-	hotbar_box = HBoxContainer.new()
-	hotbar_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	hotbar_box.add_theme_constant_override("separation", 14)
+	hotbar_box = HFlowContainer.new()
+	hotbar_box.alignment = FlowContainer.ALIGNMENT_CENTER
+	hotbar_box.add_theme_constant_override("h_separation", 14)
+	hotbar_box.add_theme_constant_override("v_separation", 14)
 	hotbar_box.position = Vector2(32, 790)
 	hotbar_box.size = Vector2(1030, 210)
 	hotbar_box.z_index = 8
@@ -384,14 +385,27 @@ func layout_hand() -> void:
 	if hotbar_box == null:
 		return
 	var n: int = hotbar_box.get_child_count()
-	hotbar_box.add_theme_constant_override("separation", 10 if n >= 8 else 14)
-	hotbar_box.reset_size()
-	var w: float = hotbar_box.get_combined_minimum_size().x
-	if w < 8.0:
-		w = hotbar_box.size.x
-	w = minf(w, 1030.0)
-	hotbar_box.position = Vector2(floor(547.0 - w * 0.5), 790)
-	hotbar_box.size = Vector2(maxf(w, 8.0), 210)
+	var compact: bool = n >= 8
+	var sep: int = 10 if compact else 14
+	var card_w: float = 124.0 if compact else 140.0
+	var card_h: float = 210.0
+	hotbar_box.add_theme_constant_override("h_separation", sep)
+	hotbar_box.add_theme_constant_override("v_separation", sep)
+	var max_w: float = 1030.0
+	var per_row: int = maxi(1, int(floor((max_w + float(sep)) / (card_w + float(sep)))))
+	var rows: int = 1 if n <= per_row else 2
+	var h: float = card_h if rows == 1 else card_h * 2.0 + float(sep)
+	var w: float = max_w
+	if rows == 1 and n > 0:
+		w = minf(max_w, float(n) * card_w + float(maxi(n - 1, 0)) * float(sep))
+	var y: float = 1000.0 - h
+	var x: float = floor(547.0 - w * 0.5)
+	x = clampf(x, 32.0, 1062.0 - w)
+	hotbar_box.position = Vector2(x, y)
+	hotbar_box.size = Vector2(maxf(w, 8.0), h)
+	if ghost_hand != null:
+		ghost_hand.position = Vector2(32, y)
+		ghost_hand.size = Vector2(1030, h)
 
 
 func _layout() -> void:
@@ -399,12 +413,8 @@ func _layout() -> void:
 		pointer.position = Vector2(530, 664)
 		pointer.size = Vector2(36, 26)
 		pointer.queue_redraw()
-	if column != null:
-		column.position = Vector2(1086, 28)
-		column.custom_minimum_size = Vector2(560, 952)
-		column.size = Vector2(560, 952)
-	if plate_slot != null:
-		plate_slot.custom_minimum_size = Vector2(508, 640)
+	layout_hand()
+	_fit_column_above_hand()
 	if btn_spin != null:
 		btn_spin.position = Vector2(418, 700)
 		btn_spin.size = Vector2(260, 68)
@@ -416,9 +426,41 @@ func _layout() -> void:
 		_spin_ring.size = Vector2(268, 76)
 	if hearts_box != null:
 		hearts_box.position = Vector2(32, 28)
-	layout_hand()
 	if idle_box != null:
 		idle_box.queue_redraw()
+
+
+func _fit_column_above_hand() -> void:
+	if column == null:
+		return
+	var bottom: float = 980.0
+	var max_h: float = 952.0
+	if hotbar_box != null and hotbar_box.visible:
+		bottom = minf(bottom, hotbar_box.position.y - 12.0)
+		# Two-row hand (210 + 14 + 210) floors at y 566. Never sit on it.
+		var two_row_top: float = 1000.0 - 210.0 * 2.0 - 14.0
+		bottom = minf(bottom, two_row_top - 12.0)
+		max_h = 572.0
+	if ghost_hand != null and ghost_hand.visible:
+		bottom = minf(bottom, ghost_hand.position.y - 12.0)
+	var h: float = clampf(bottom - 28.0, 280.0, max_h)
+	column.position = Vector2(1086, 28)
+	column.custom_minimum_size = Vector2(560, h)
+	column.size = Vector2(560, h)
+	var inner: float = maxf(180.0, h - 52.0)
+	if plate_slot != null:
+		plate_slot.custom_minimum_size = Vector2(0, maxf(160.0, inner - 40.0))
+
+
+func qa_layout() -> Dictionary:
+	var col: Rect2 = column.get_global_rect() if column else Rect2()
+	var hand: Rect2 = hotbar_box.get_global_rect() if hotbar_box else Rect2()
+	return {
+		"column": [col.position.x, col.position.y, col.size.x, col.size.y],
+		"hand": [hand.position.x, hand.position.y, hand.size.x, hand.size.y],
+		"overlap": col.intersects(hand),
+		"hand_children": hotbar_box.get_child_count() if hotbar_box else 0,
+	}
 
 
 func _draw_torch() -> void:

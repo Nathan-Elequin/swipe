@@ -4,6 +4,14 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-12 — Compact draft gate
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: Shrunk the right-column draft panel so it stays above a two-row hand (cards 210 + 14 + 210, floor y 1000). Ask mode is now item (~60%: sprite, name, value/effect; click the item to take it) and a Weak/Tough/Deadly threat block (~40%: wheel-tier fill/rim from `UxStyle.metal*`, Deadly gets a red pulse and skull). Cut the tagline, THE MONSTER / THE LOOT, guard line, silhouette arch, and the Take button. Leave uses `door.pass` / `door.pass_one` / `door.pass_none`. Header is `cue.ask` only. Hand wraps with `HFlowContainer` inside x 32–1062. No `data/` edits. No author-lock edits. `design/LANES.md` and a Must-keep UX section in the style guide were not in the repo.
+- Files: `scripts/draft_gate.gd`, `scripts/wheel_hud.gd`, `scripts/main.gd`, `tools/qa/qa_probe.gd`, `tools/qa/check_hand_use.gd`
+- QA: headless Godot 4.7.2 `--quit-after 2` plus `tools/qa/check_hand_use.gd` (hand Block use, leave spends a pass, take reaches seat, column vs hand overlap). Report: `design/qa/reports/2026-10-12-draft-gate-compact.md`
+
 ## 2026-10-11 — Readable utility text (Nunito)
 - From: Cursor cloud agent
 - To: Jam

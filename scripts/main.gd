@@ -215,7 +215,7 @@ var speech_box
 var log_label: RichTextLabel
 var log_btn: Button
 var _log_open: bool = false
-var hotbar_box: HBoxContainer
+var hotbar_box: Container
 var choice_box: HBoxContainer
 var hearts_box: HBoxContainer
 var blk_hud: PanelContainer
@@ -1765,7 +1765,14 @@ func _present_gate(passes: int) -> void:
 	if draft_gate == null:
 		return
 	_offer_card = null
-	draft_gate.present_mystery(pending_item, _pack_tier_now(), _offer_tex(), passes)
+	var view: Dictionary = _item_view(pending_item) if not pending_item.is_empty() else {}
+	draft_gate.present_mystery(pending_item, _pack_tier_now(), _offer_tex(), passes, str(view.get("number", "")))
+	if draft_gate.has_method("set_item_value"):
+		draft_gate.set_item_value(str(view.get("number", "")), "", str(view.get("kind", "")))
+	if not draft_gate.item_hovered.is_connected(_on_gate_item_hovered):
+		draft_gate.item_hovered.connect(_on_gate_item_hovered)
+	if not draft_gate.item_unhovered.is_connected(_on_item_unhovered):
+		draft_gate.item_unhovered.connect(_on_item_unhovered)
 	if not pending_item.is_empty():
 		var card: Control = _spawn_item_card(pending_item, false)
 		card.picked.connect(func() -> void:
@@ -2802,7 +2809,7 @@ func _refresh_offer_card() -> void:
 	if _offer_card.has_method("set_live"):
 		_offer_card.set_live(str(view["number"]), str(view.get("note", "")), true)
 	if _offer_card.has_method("set_showcase"):
-		_offer_card.set_showcase(true)
+		_offer_card.set_showcase(false)
 	if _offer_card.has_method("set_ability_bb"):
 		_offer_card.set_ability_bb(_item_inspect_body(pending_item, rule))
 	if _offer_card.has_method("set_stat_look"):
@@ -6956,7 +6963,9 @@ func _sync_hotbar() -> void:
 		for it in hotbar:
 			hotbar_box.add_child(_spawn_item_card(it, true))
 	var n: int = hotbar_box.get_child_count()
-	hotbar_box.add_theme_constant_override("separation", 10 if n >= 8 else 14)
+	var sep: int = 10 if n >= 8 else 14
+	hotbar_box.add_theme_constant_override("h_separation", sep)
+	hotbar_box.add_theme_constant_override("v_separation", sep)
 	for c in hotbar_box.get_children():
 		if c.has_method("set_compact"):
 			c.set_compact(n >= 8)
@@ -7039,6 +7048,15 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if usable:
 		card.picked.connect(_use_item.bind(int(it["uid"])))
 	return card
+
+
+func _on_gate_item_hovered() -> void:
+	if pending_item.is_empty():
+		return
+	var host: Control = null
+	if draft_gate != null and draft_gate.has_method("relic_host"):
+		host = draft_gate.relic_host()
+	_on_item_hovered(pending_item, host)
 
 
 func _on_item_hovered(it: Dictionary, card: Control = null) -> void:

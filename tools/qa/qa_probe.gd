@@ -21,8 +21,20 @@ static func dump(main: Node) -> Dictionary:
 	for it in main.get("hotbar"):
 		if typeof(it) == TYPE_DICTIONARY:
 			hand.append(_item(it))
+	var gate: Node = main.get("draft_gate")
+	var gate_info: Dictionary = {}
+	if gate != null and gate.has_method("qa_snapshot"):
+		gate_info = gate.qa_snapshot()
+	elif gate != null:
+		gate_info = {"visible": bool(gate.get("visible")), "mode": str(gate.get("mode"))}
+	var hud: Node = main.get("hud")
+	var layout: Dictionary = {}
+	if hud != null and hud.has_method("qa_layout"):
+		layout = hud.qa_layout()
+	var pending: Dictionary = main.get("pending_item") if typeof(main.get("pending_item")) == TYPE_DICTIONARY else {}
 	return {
 		"phase": str(main.get("phase")),
+		"draft_action": str(main.get("draft_action")),
 		"hp": int(main.get("hp")),
 		"blk": int(main.get("blk")),
 		"facing_index": fi,
@@ -30,10 +42,14 @@ static func dump(main: Node) -> Dictionary:
 		"wheel": owners,
 		"hotbar": hand,
 		"refusals_left": int(main.get("refusals_left")),
+		"pending_item": str(pending.get("name", "")),
+		"pending_item_id": str(pending.get("card_id", "")),
 		"in_tutorial": bool(main.get("in_tutorial")),
 		"cue": str(main.get("_cue_shown")),
 		"adventure": bool(main.get("adventure")),
 		"last_mob_hp": int(main.get("last_mob_hp")),
+		"draft_gate": gate_info,
+		"layout": layout,
 	}
 
 
