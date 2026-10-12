@@ -17,7 +17,7 @@ var btn_done: Button
 var btn_start: Button
 var btn_place: Button
 var btn_bribe: Button
-var hotbar_box: HFlowContainer
+var hotbar_box: Container
 var choice_box: HBoxContainer
 var cue_label: Label
 var column: Control
@@ -134,10 +134,11 @@ func _build() -> void:
 	hotbar_box = HFlowContainer.new()
 	hotbar_box.alignment = FlowContainer.ALIGNMENT_CENTER
 	hotbar_box.add_theme_constant_override("h_separation", 14)
-	hotbar_box.add_theme_constant_override("v_separation", 14)
+	hotbar_box.add_theme_constant_override("v_separation", 10)
 	hotbar_box.position = Vector2(32, 790)
-	hotbar_box.size = Vector2(1030, 210)
+	hotbar_box.size = Vector2(1600, 210)
 	hotbar_box.z_index = 8
+	hotbar_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(hotbar_box)
 
 	column = Control.new()
@@ -145,6 +146,7 @@ func _build() -> void:
 	column.size = Vector2(560, 952)
 	column.clip_contents = true
 	column.z_index = 5
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(column)
 	column_panel = Panel.new()
 	column_panel.set_anchors_preset(PRESET_FULL_RECT)
@@ -381,31 +383,54 @@ func set_torch(from_g: Vector2, to_g: Vector2, on: bool) -> void:
 		torch_line.queue_redraw()
 
 
+func set_side_column(on: bool) -> void:
+	if column_panel != null:
+		column_panel.visible = on
+	if idle_box != null and not on:
+		idle_box.visible = false
+	if column != null:
+		column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		column.visible = on
+
+
 func layout_hand() -> void:
 	if hotbar_box == null:
 		return
 	var n: int = hotbar_box.get_child_count()
-	var compact: bool = n >= 8
-	var sep: int = 10 if compact else 14
-	var card_w: float = 124.0 if compact else 140.0
-	var card_h: float = 210.0
-	hotbar_box.add_theme_constant_override("h_separation", sep)
-	hotbar_box.add_theme_constant_override("v_separation", sep)
-	var max_w: float = 1030.0
-	var per_row: int = maxi(1, int(floor((max_w + float(sep)) / (card_w + float(sep)))))
-	var rows: int = 1 if n <= per_row else 2
-	var h: float = card_h if rows == 1 else card_h * 2.0 + float(sep)
-	var w: float = max_w
-	if rows == 1 and n > 0:
-		w = minf(max_w, float(n) * card_w + float(maxi(n - 1, 0)) * float(sep))
-	var y: float = 1000.0 - h
-	var x: float = floor(547.0 - w * 0.5)
-	x = clampf(x, 32.0, 1062.0 - w)
+	var vp_w: float = size.x if size.x > 8.0 else 1680.0
+	var avail: float = minf(1600.0, vp_w - 64.0)
+	var full_w := 140.0
+	var compact_w := 124.0
+	var gap1 := 14.0
+	var gap2 := 10.0
+	var need_full: float = float(n) * full_w + float(maxi(n - 1, 0)) * gap1
+	var need_compact: float = float(n) * compact_w + float(maxi(n - 1, 0)) * gap2
+	var compact: bool = n > 0 and need_full > avail
+	var wrap: bool = n > 0 and need_compact > avail
+	hotbar_box.add_theme_constant_override("h_separation", gap2 if compact else gap1)
+	hotbar_box.add_theme_constant_override("v_separation", 10)
+	for c in hotbar_box.get_children():
+		if c.has_method("set_compact"):
+			c.set_compact(compact)
+	var row_h := 210.0
+	var box_w: float = avail if wrap else minf(need_full if not compact else need_compact, avail)
+	if box_w < 8.0:
+		box_w = avail
+	var rows: int = 2 if wrap else 1
+	var box_h: float = row_h * float(rows) + (10.0 if wrap else 0.0)
+	var x: float = floor((vp_w - box_w) * 0.5)
+	x = clampf(x, 32.0, 1062.0 - box_w)
+	var y := 790.0
+	if wrap:
+		y = 1040.0 - box_h - 12.0
+		if y < 772.0:
+			y = 772.0
 	hotbar_box.position = Vector2(x, y)
-	hotbar_box.size = Vector2(maxf(w, 8.0), h)
+	hotbar_box.size = Vector2(maxf(box_w, 8.0), box_h)
 	if ghost_hand != null:
 		ghost_hand.position = Vector2(32, y)
-		ghost_hand.size = Vector2(1030, h)
+		ghost_hand.size = Vector2(1030, box_h)
+	_fit_column_above_hand()
 
 
 func _layout() -> void:
