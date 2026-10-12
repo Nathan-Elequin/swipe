@@ -39,33 +39,27 @@ func _check_log(main: Node) -> bool:
 		_fail("log_label missing")
 		return false
 	main.set("_shift_held", true)
+	main.set("_play_log_enabled", false)
 	main.set("phase", "draft")
 	if main.has_method("_sync_authoring_chrome"):
 		main.call("_sync_authoring_chrome")
-	var r: Rect2 = log_label.get_global_rect()
-	var gate := Rect2(1086, 28, 560, 526)
-	print("LOG_DOCK ", r, " visible=", log_label.visible)
+	print("LOG_SHIFT visible=", log_label.visible)
+	if log_label.visible:
+		_fail("Shift showed the log in normal play")
+		return false
+	main.set("_play_log_enabled", true)
+	main.call("_sync_authoring_chrome")
 	if not log_label.visible:
-		_fail("Shift did not show the log")
+		_fail("Developer event-log toggle did not show the log")
 		return false
-	if absf(r.position.x - 1190.0) > 1.0 or absf(r.position.y - 570.0) > 1.0:
-		_fail("log not at (1190,570): %s" % r)
-		return false
-	if r.size.x < 455.0 or r.size.y < 239.0:
-		_fail("log size not 456x240: %s" % r.size)
-		return false
-	if r.intersects(gate):
-		_fail("log intersects the gate column")
-		return false
-	if r.position.x < 1190.0 - 0.5:
-		_fail("log overlaps a two-row hand (x < 1190)")
-		return false
+	print("LOG_TOGGLE visible=", log_label.visible, " rect=", log_label.get_global_rect())
+	main.set("_play_log_enabled", false)
 	main.set("_shift_held", false)
 	main.call("_sync_authoring_chrome")
 	if log_label.visible:
-		_fail("log stayed up after Shift released")
+		_fail("log stayed up after the toggle was turned off")
 		return false
-	print("LOG_OK")
+	print("LOG_OK off unless Developer toggle")
 	return true
 
 
@@ -93,11 +87,12 @@ func _check_gate(main: Node) -> bool:
 			_fail("Take button is present")
 			return false
 		var nib: Array = snap.get("nib", [])
-		if nib.size() < 4 or absf(float(nib[0]) - 1086.0) > 1.0 or absf(float(nib[1]) - 570.0) > 1.0:
-			_fail("Nib well not at (1086,570): %s" % [nib])
-			return false
+		print("NIB ", nib, " visible=", snap.get("nib_visible"))
 		if not bool(snap.get("nib_visible", false)):
 			_fail("Nib well hidden in ask mode")
+			return false
+		if nib.size() >= 1 and float(nib[0]) > 400.0:
+			_fail("Nib well is not on the left: %s" % [nib])
 			return false
 		names.append(threat)
 	var hud: Node = main.get("hud")
@@ -106,8 +101,11 @@ func _check_gate(main: Node) -> bool:
 		var col: Array = layout.get("column", [])
 		print("COLUMN ", col)
 		if col.size() >= 4:
-			if absf(float(col[0]) - 1086.0) > 1.0 or absf(float(col[2]) - 560.0) > 1.0:
-				_fail("column rect changed: %s" % [col])
+			if float(col[0]) > 48.0:
+				_fail("draft column is not on the left: %s" % [col])
+				return false
+			if float(col[2]) > 420.0:
+				_fail("draft column wider than a fifth-ish: %s" % [col])
 				return false
 	if gate.has_method("hide_gate"):
 		gate.call("hide_gate")

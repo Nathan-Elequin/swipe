@@ -4,6 +4,14 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-12 — Screen layout split + Spin/resolve buttons
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: UI lane. Branched from `origin/main` 69d0478, then merged `5bac022` (Barlow) and `de8768e` (face-text editor). Root cause of the missing combat buttons: `_sync_buttons` set `btn_done.visible = false` on every refresh, so Done / Safe / Take X never came back after a spin. It is `enemy_up` again. Top-left `hearts_box` stays hidden; hub hearts are the only HP. Draft column moved to the top left at ~336px (~1/5). Draft item slot reuses `hover_panel.gd` (`show_item_callout`) so Healing Potion shows name + heart 3 + description like the hotbar hover. Item fly-tip pins left; facing/hover monster pins right and mirrors it. Wheel centered (686 / OUTER_R 330) with the hotbar under it; hub hearts 13×11 → 20×17, HUB_R 58→72. Event log is off in normal play (no Shift/hover). Title Developer tools has Event log: off/on. Kept `_apply_item_face_text` from the face-text merge. No `data/` edits. Did not rewrite `item_card.gd` fonts.
+- Files: `scripts/wheel_hud.gd`, `scripts/ui/hud_controller.gd`, `scripts/ui/authoring_ui.gd`, `scripts/draft_gate.gd`, `scripts/boss_wheel.gd`, `scripts/title_screen.gd`, `scripts/core/draft_flow.gd`, `scripts/lanes/game_state.gd`, `design/visual/style-guide.md`, `tools/qa/check_action_buttons.gd`, `tools/qa/check_hand_use.gd`, `tools/qa/check_fixes_v2.gd`, `tools/qa/qa_probe.gd`, `design/qa/reports/2026-10-12-screen-layout-fixes.md`, `design/HANDOFF.md`
+- QA: After merging `de8768e`. Godot 4.7.2 headless. `check_layers` OK. `check_boot` BOOT_OK. `check_item_types` ITEM_TYPE_OK (42). `check_hand_use` HAND_USE_OK (column `[32,28,336,526]`, wheel 840, Nib y=466). `check_fixes_v2` FIXES_V2_OK. `check_face_text` FACE_TEXT_OK (parse + live 3 ATK + Edit card field). `check_action_buttons` ACTION_BTN_OK (Leave, Spin, Take 3). Report: `design/qa/reports/2026-10-12-screen-layout-fixes.md`
+
 ## 2026-10-12 — Static face text on the Edit card sheet
 - From: Cursor
 - To: Jam / Pixel / Nathan

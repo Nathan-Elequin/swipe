@@ -9,6 +9,7 @@ signal item_unhovered
 const COPY := preload("res://scripts/player_copy.gd")
 const UI := preload("res://scripts/ui_palette.gd")
 const UX := preload("res://scripts/ux_style.gd")
+const HOVER_PANEL := preload("res://scripts/hover_panel.gd")
 
 const GOLD := Color("FFD84A")
 const TORCH := Color("F09A34")
@@ -62,6 +63,7 @@ var _font_vt: Font
 var _font_sk: Font
 var _item_tex: Texture2D
 var _actor: Control
+var _item_callout
 var _item_hot: bool = false
 var _nib_idle: Array = []
 var _nib_smug: Texture2D
@@ -102,8 +104,8 @@ func _build() -> void:
 	_item_slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_item_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_item_slot.size_flags_stretch_ratio = 0.6
-	_item_slot.custom_minimum_size = Vector2(508, 212)
-	_item_slot.clip_contents = true
+	_item_slot.custom_minimum_size = Vector2(0, 180)
+	_item_slot.clip_contents = false
 	add_child(_item_slot)
 
 	_item_well = Panel.new()
@@ -180,11 +182,18 @@ func _build() -> void:
 	UI.apply_tag(_item_tag, PARCHMENT, UI.SIZE_TAG)
 	_value_row.add_child(_item_tag)
 
+	_item_callout = HOVER_PANEL.new()
+	_item_callout.visible = false
+	_item_callout.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_item_callout.accept_clicks = false
+	_item_callout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bait_col.add_child(_item_callout)
+
 	_threat_slot = Control.new()
 	_threat_slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_threat_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_threat_slot.size_flags_stretch_ratio = 0.4
-	_threat_slot.custom_minimum_size = Vector2(508, 140)
+	_threat_slot.custom_minimum_size = Vector2(0, 88)
 	_threat_slot.clip_contents = false
 	add_child(_threat_slot)
 
@@ -400,6 +409,19 @@ func set_item_value(number_text: String, tag: String, kind: String) -> void:
 	_apply_value(kind, number_text, tag)
 
 
+func show_item_callout(title: String, body: String, look: Dictionary, portrait: Texture2D) -> void:
+	if _item_callout == null:
+		return
+	if _fallback:
+		_fallback.visible = false
+	if _relic_host:
+		_relic_host.visible = false
+	_item_name.text = title
+	_item_callout.show_rule(title, "", "", body, "", portrait, "item", "", look)
+	_item_callout.visible = true
+	_item_callout.reset_size()
+
+
 func _apply_value(kind: String, number_text: String, tag: String = "") -> void:
 	var k: String = kind.to_upper()
 	var shown: String = number_text.strip_edges()
@@ -528,6 +550,8 @@ func leave_btn() -> Control:
 
 
 func relic_host() -> Control:
+	if _item_callout != null and _item_callout.visible:
+		return _item_callout
 	if _relic_host != null:
 		return _relic_host
 	return _item_icon
@@ -544,6 +568,8 @@ func hide_gate() -> void:
 	_run.clear()
 	hide_owner()
 	_show_nib(false)
+	if _item_callout != null and _item_callout.has_method("hide_plate"):
+		_item_callout.hide_plate()
 	clear_relic()
 	scale = Vector2.ONE
 	modulate.a = 1.0
@@ -693,9 +719,10 @@ func qa_snapshot() -> Dictionary:
 		"tier": pack_tier,
 		"threat": _threat_name.text if _threat_name else "",
 		"item_name": _item_name.text if _item_name else "",
+		"callout": _item_callout.visible if _item_callout else false,
 		"rect": [r.position.x, r.position.y, r.size.x, r.size.y],
 		"nib": (
-			[_nib_well.position.x, _nib_well.position.y, _nib_well.size.x, _nib_well.size.y]
+			[_nib_well.global_position.x, _nib_well.global_position.y, _nib_well.size.x, _nib_well.size.y]
 			if _nib_well else [0, 0, 0, 0]
 		),
 		"nib_visible": _nib_well.visible if _nib_well else false,
@@ -786,8 +813,15 @@ func _show_nib(on: bool) -> void:
 func _place_nib() -> void:
 	if _nib_well == null:
 		return
-	_nib_well.position = Vector2(1086, 570)
 	_nib_well.size = Vector2(88, 88)
+	var gr: Rect2 = get_global_rect()
+	var gy: float = gr.end.y + 8.0
+	var two_row_top: float = 1000.0 - 210.0 * 2.0 - 14.0
+	var floor_y: float = two_row_top - 12.0 - 88.0
+	if gy + 88.0 > two_row_top - 12.0:
+		gy = gr.end.y - 8.0 - 88.0
+	gy = clampf(gy, gr.position.y + 8.0, floor_y)
+	_nib_well.global_position = Vector2(gr.position.x + 8.0, gy)
 
 
 func _sync_nib() -> void:

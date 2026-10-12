@@ -118,6 +118,7 @@ var speech_box
 var log_label: RichTextLabel
 var log_btn: Button
 var _log_open: bool = false
+var _play_log_enabled: bool = false
 var hotbar_box: Container
 var choice_box: HBoxContainer
 var hearts_box: HBoxContainer
@@ -162,6 +163,7 @@ var content_ed
 var roster_ed
 var script_ed
 var overlay_script: Button
+var overlay_log: Button
 var _offer_card: Control
 var fx_flash: ColorRect
 var _cue_shown: String = ""
@@ -1197,6 +1199,18 @@ func _open_content_editor(kind: String, card_id: String) -> void:
 	pass
 
 func _toggle_log() -> void:
+	pass
+
+func _toggle_play_log() -> void:
+	pass
+
+func _refresh_gate_item() -> void:
+	pass
+
+func _apply_item_face_text(_card, _it: Dictionary) -> void:
+	pass
+
+func _pin_side_callout(panel: Control, side: String) -> void:
 	pass
 
 func _sync_authoring_chrome() -> void:

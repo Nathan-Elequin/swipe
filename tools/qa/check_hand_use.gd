@@ -234,6 +234,9 @@ func _check_draft_gate(main: Node) -> bool:
 	var col: Array = layout.get("column", [0, 0, 0, 0])
 	var col_bottom: float = float(col[1]) + float(col[3])
 	var two_row_top: float = 1000.0 - 210.0 * 2.0 - 14.0
+	if col.size() >= 4 and float(col[0]) > 48.0:
+		_fail(FAIL_DRAFT, "draft column is not on the left: %s" % [col])
+		return false
 	if col_bottom > two_row_top - 12.0:
 		_fail(FAIL_DRAFT, "column bottom %s sits on a two-row hand (top %s)" % [col_bottom, two_row_top])
 		return false
@@ -241,6 +244,11 @@ func _check_draft_gate(main: Node) -> bool:
 	var leave_copy: String = str(gate_info.get("leave", ""))
 	if leave_copy.contains("{n}") or leave_copy == "":
 		_fail(FAIL_DRAFT, "leave copy is empty or still has {n}: %s" % leave_copy)
+		return false
+	var nib: Array = gate_info.get("nib", [])
+	var hand: Array = layout.get("hand", [])
+	if nib.size() >= 4 and hand.size() >= 2 and float(nib[1]) + float(nib[3]) > float(hand[1]) - 4.0:
+		_fail(FAIL_DRAFT, "Nib well overlaps the hand: nib=%s hand=%s" % [nib, hand])
 		return false
 	if bool(gate_info.get("take_present", false)):
 		_fail(FAIL_DRAFT, "Take button is still present")

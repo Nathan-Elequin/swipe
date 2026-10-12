@@ -8,6 +8,7 @@ signal adventure_pressed
 signal dev_pressed
 signal roster_pressed
 signal script_pressed
+signal log_pressed
 
 const COPY := preload("res://scripts/player_copy.gd")
 const GOLD := Color("FFD84A")
@@ -18,6 +19,8 @@ const EDGE := Color("7A4E2B")
 const DIM := Color("A88C66")
 
 var btn_play: Button
+var btn_log: Button
+var _log_on: bool = false
 var _font_px: Font
 var _font_vt: Font
 var _art
@@ -118,6 +121,8 @@ func _build() -> void:
 		tools.add_child(_oak("Developer Test", dev_pressed, Vector2(200, 44), 20))
 		tools.add_child(_oak("Roster", roster_pressed, Vector2(120, 44), 20))
 		tools.add_child(_oak("Script", script_pressed, Vector2(110, 44), 20))
+		btn_log = _oak("Event log: off", log_pressed, Vector2(200, 44), 20)
+		tools.add_child(btn_log)
 
 	var nib := TextureRect.new()
 	nib.position = Vector2(1380, 820)
@@ -134,6 +139,12 @@ func _build() -> void:
 func grab_play() -> void:
 	if btn_play:
 		btn_play.grab_focus()
+
+
+func set_log_on(on: bool) -> void:
+	_log_on = on
+	if btn_log:
+		btn_log.text = "Event log: on" if on else "Event log: off"
 
 
 func _gold(text: String, sig: Signal, mins: Vector2, fs: int) -> Button:

@@ -32,6 +32,12 @@ static func dump(main: Node) -> Dictionary:
 	if hud != null and hud.has_method("qa_layout"):
 		layout = hud.qa_layout()
 	var pending: Dictionary = main.get("pending_item") if typeof(main.get("pending_item")) == TYPE_DICTIONARY else {}
+	var spin: Control = main.get("btn_spin") as Control
+	var done: Control = main.get("btn_done") as Control
+	var leave: Control = null
+	if gate != null and gate.has_method("leave_btn"):
+		leave = gate.call("leave_btn") as Control
+	var hearts: Control = main.get("hearts_box") as Control
 	return {
 		"phase": str(main.get("phase")),
 		"draft_action": str(main.get("draft_action")),
@@ -50,6 +56,20 @@ static func dump(main: Node) -> Dictionary:
 		"last_mob_hp": int(main.get("last_mob_hp")),
 		"draft_gate": gate_info,
 		"layout": layout,
+		"buttons": {
+			"spin_visible": spin.visible if spin else false,
+			"spin_disabled": spin.disabled if spin else true,
+			"spin_filter": spin.mouse_filter if spin else -1,
+			"done_visible": done.visible if done else false,
+			"done_disabled": done.disabled if done else true,
+			"done_filter": done.mouse_filter if done else -1,
+			"done_text": done.text if done else "",
+			"leave_visible": leave.visible if leave else false,
+			"leave_disabled": leave.disabled if leave else true,
+			"leave_filter": leave.mouse_filter if leave else -1,
+			"hearts_visible": hearts.visible if hearts else false,
+			"play_log": bool(main.get("_play_log_enabled")),
+		},
 	}
 
 
