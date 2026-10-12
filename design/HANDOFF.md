@@ -4,6 +4,14 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-12 — Wheel layout tightening
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: UI lane, wheel only. Merged `origin/main` 43b9d4f first (lane split + restored fight UX + `check_hand_use.gd`). Then: sprites 84→56 so alcoves read; heart left / sword right with `ICON_GAP` 28 (was opposite rim sides); name+ability capsules Nunito 18, inward, clamped inside the rim; hub 96→58 (~40% smaller) with knight + six-heart arc + shield filling that disc. Baked alcove PNGs hidden (they assume hub r 96); `_draw_slice` still paints Weak/Tough/Deadly fill+rim. Monsters still face the knight. Spin stays under the arrow. Did not grow the 300 outer radius, so no collision with the hand, facing callout, or draft column. No `data/` edits. Did not touch `draft_gate.gd`, `item_card.gd`, `hover_panel.gd`, or hand/callout parts of `hud_controller.gd`.
+- Files: `scripts/boss_wheel.gd`, `design/HANDOFF.md`, `design/qa/reports/2026-10-12-wheel-layout.md`
+- QA: Godot 4.7.2 headless. `check_layers` OK. `check_boot` BOOT_OK. `check_hand_use` HAND_USE_OK (spin IGNORE → fight STOP, Shield blk 0→4). `--quit-after 2` exit 0. Dummy renderer, no offscreen PNG. No godot-mcp.
+
 ## 2026-10-11 — Hand clicks + fight UX restore
 - From: Cursor
 - To: Jam / Pixel / Nathan
