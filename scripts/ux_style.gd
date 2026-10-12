@@ -315,6 +315,35 @@ static func card_color_family(id: String) -> String:
 			return ""
 
 
+## Static hand-card face. "3 ATK", "3 HEAL", "UTIL". Empty string means use the auto number.
+static func parse_face_text(raw: String) -> Dictionary:
+	var s: String = raw.strip_edges()
+	if s == "":
+		return {}
+	var n := ""
+	var tag := ""
+	var parts: PackedStringArray = s.split(" ", false)
+	for p in parts:
+		var u: String = p.strip_edges().to_upper()
+		if u == "UTILITY":
+			u = "UTIL"
+		if u == "ATK" or u == "BLK" or u == "HEAL" or u == "UTIL":
+			tag = u
+			continue
+		if n == "":
+			n = p.strip_edges()
+	if tag == "" and n != "":
+		var glued: String = n.to_upper()
+		for t in ["ATK", "BLK", "HEAL", "UTIL"]:
+			if glued.ends_with(t) and glued.length() > t.length():
+				tag = t
+				n = n.substr(0, n.length() - t.length())
+				break
+	if n == "" and tag == "":
+		return {}
+	return {"n": n, "tag": tag}
+
+
 ## Label on the card face. Do not map utility / smoke / chaos / egg to ATK.
 static func display_kind(id: String) -> String:
 	match card_color_id(id):

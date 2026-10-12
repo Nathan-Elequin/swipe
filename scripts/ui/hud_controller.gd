@@ -2420,6 +2420,7 @@ func _sync_hotbar() -> void:
 		card.spent = bool(it.get("spent", false))
 		if card.has_method("set_kind"):
 			card.set_kind(_item_display_kind(it))
+		_apply_item_face_text(card, it)
 		card.set_palette(view["fill"], view["rim"], _tier_of(it))
 		card.set_live(str(view["number"]), str(view["note"]), not dim)
 		if card.has_method("set_loss_icon"):
@@ -2475,6 +2476,7 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	var rule: Dictionary = _item_rule(it)
 	card.set_formula(str(rule.get("equation", "")))
 	var dim: bool = phase == "fighting" and not bool(view.get("can_use", true))
+	_apply_item_face_text(card, it)
 	card.set_live(str(view["number"]), str(view.get("note", "")), not dim)
 	if card.has_method("set_loss_icon"):
 		card.set_loss_icon(tex_heart if bool(view.get("loss_icon", false)) else null)
@@ -2496,6 +2498,11 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 			await _use_item(uid)
 		)
 	return card
+
+
+func _apply_item_face_text(card, it: Dictionary) -> void:
+	if card != null and card.has_method("set_face_text"):
+		card.set_face_text(str(it.get("face_text", "")))
 
 
 func _on_gate_item_hovered() -> void:

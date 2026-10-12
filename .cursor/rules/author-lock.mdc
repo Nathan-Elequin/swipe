@@ -13,7 +13,7 @@ Read `data/author-locks.json` (and the flags on the board / script). Treat locke
 
 ## Do not
 
-- Do not rewrite locked `name`, `ability`, `explainer`, `flow`, `notes`, `ops`, numbers, rarity, tier, count, priority, or locked script `text`.
+- Do not rewrite locked `name`, `ability`, `explainer`, `flow`, `notes`, `ops`, numbers, rarity, tier, count, priority, `face_text`, or locked script `text`.
 - Do not "clean up", Title Case, keyword-paint, shorten, or restyle locked copy in JSON or by changing the live fallback that players actually see.
 - Do not strip `author_lock`, `locked_fields`, or `locked_at`.
 
