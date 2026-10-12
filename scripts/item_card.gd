@@ -15,8 +15,16 @@ const COPY := preload("res://scripts/player_copy.gd")
 const CARD_W := 140.0
 const CARD_H := 210.0
 const COMPACT_W := 124.0
+const GATE_W := 136.0
+const GATE_H := 192.0
 const SHOW_W := 236.0
 const SHOW_H := 400.0
+const TITLE_H := 26.0
+const ICON_H := 64.0
+const NUM_H := 36.0
+const FORMULA_H := 54.0
+const WORD_H := 96.0
+const FORMULA_W := 116.0
 const OAK := Color("3B2618")
 const WEAK_METAL := Color("B8733A")
 const TOUGH_METAL := Color("C9CED6")
@@ -71,7 +79,12 @@ var _can_use: bool = true
 var _deny: Control
 var _tag: Label
 var _compact: bool = false
+var _gate_fit: bool = false
 var _rest_y: float = 0.0
+var _formula_box: Control
+var _gap_icon: Control
+var _gap_num: Control
+var _gap_formula: Control
 
 
 func setup(
@@ -106,14 +119,14 @@ func setup(
 	gui_input.connect(_on_gui)
 
 	var pad := MarginContainer.new()
-	pad.add_theme_constant_override("margin_left", 6)
-	pad.add_theme_constant_override("margin_right", 6)
-	pad.add_theme_constant_override("margin_top", 5)
-	pad.add_theme_constant_override("margin_bottom", 5)
+	pad.add_theme_constant_override("margin_left", 8)
+	pad.add_theme_constant_override("margin_right", 8)
+	pad.add_theme_constant_override("margin_top", 8)
+	pad.add_theme_constant_override("margin_bottom", 8)
 	add_child(pad)
 	var col := VBoxContainer.new()
-	col.alignment = BoxContainer.ALIGNMENT_CENTER
-	col.add_theme_constant_override("separation", 1)
+	col.alignment = BoxContainer.ALIGNMENT_BEGIN
+	col.add_theme_constant_override("separation", 0)
 	pad.add_child(col)
 	_col = col
 
@@ -130,9 +143,11 @@ func setup(
 	_title.text = title
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_title.autowrap_mode = TextServer.AUTOWRAP_WORD
-	_title.max_lines_visible = 2
-	_title.custom_minimum_size = Vector2(104, 32)
+	_title.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_title.max_lines_visible = 1
+	_title.clip_text = true
+	_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_title.custom_minimum_size = Vector2(104, TITLE_H)
 	UI.apply_name(_title, PARCHMENT, UI.SIZE_MIN)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_title)
@@ -151,17 +166,24 @@ func setup(
 	_ability.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	col.add_child(_ability)
 
+	_gap_icon = _spacer(4)
+	col.add_child(_gap_icon)
+
 	_icon = TextureRect.new()
 	_icon.texture = icon
-	_icon.custom_minimum_size = Vector2(64, 64)
+	_icon.custom_minimum_size = Vector2(64, ICON_H)
+	_icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_icon.texture_filter = TEXTURE_FILTER_NEAREST
 	_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_icon)
 
+	_gap_num = _spacer(4)
+	col.add_child(_gap_num)
+
 	var num_host := Control.new()
-	num_host.custom_minimum_size = Vector2(104, 40)
+	num_host.custom_minimum_size = Vector2(104, NUM_H)
 	num_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(num_host)
 	_num_host = num_host
@@ -211,24 +233,31 @@ func setup(
 	_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	val_row.add_child(_tag)
 
+	_gap_formula = _spacer(6)
+	col.add_child(_gap_formula)
+
+	_formula_box = Control.new()
+	_formula_box.custom_minimum_size = Vector2(FORMULA_W, FORMULA_H)
+	_formula_box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_formula_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_formula_box.clip_contents = true
+	col.add_child(_formula_box)
+
 	_eq = RichTextLabel.new()
 	_eq.bbcode_enabled = true
-	_eq.fit_content = true
+	_eq.fit_content = false
 	_eq.scroll_active = false
 	_eq.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UI.apply_rich(_eq, "formula", PARCHMENT)
 	_eq.add_theme_constant_override("line_separation", 0)
-	_eq.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	_eq.offset_left = 0
-	_eq.offset_top = -40
-	_eq.offset_right = 0
-	_eq.offset_bottom = 0
+	_eq.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_eq.visible = false
-	num_host.add_child(_eq)
+	_formula_box.add_child(_eq)
 	_shown = number_text
 	_rank.visible = false
 	_apply_face(number_text)
+	_layout_hand_budget()
 
 	_spent_lab = Label.new()
 	_spent_lab.text = COPY.need("hand.spent")
@@ -334,16 +363,18 @@ func set_showcase(on: bool) -> void:
 		_col.add_theme_constant_override("separation", 6 if on else 1)
 	if _title:
 		UI.apply_name(_title, PARCHMENT, UI.SIZE_MIN)
-		_title.custom_minimum_size = Vector2(196 if on else 104, 32)
-		_title.max_lines_visible = 2
+		_title.custom_minimum_size = Vector2(196 if on else 104, 32 if on else TITLE_H)
+		_title.max_lines_visible = 2 if on else 1
+		_title.autowrap_mode = TextServer.AUTOWRAP_WORD if on else TextServer.AUTOWRAP_OFF
+		_title.clip_text = not on
 	if _rank:
 		_rank.visible = false
 		UI.apply_tag(_rank, Color("c4a574"), UI.SIZE_TAG)
 		_rank.custom_minimum_size = Vector2(196 if on else 104, 0)
 	if _icon:
-		_icon.custom_minimum_size = Vector2(96, 96) if on else Vector2(64, 64)
+		_icon.custom_minimum_size = Vector2(96, 96) if on else Vector2(64, ICON_H)
 	if _num_host:
-		_num_host.custom_minimum_size = Vector2(196, 44) if on else Vector2(104, 40)
+		_num_host.custom_minimum_size = Vector2(196, 44) if on else Vector2(104, NUM_H)
 	if _num:
 		UI.apply_number(_num, _num_col, UI.SIZE_NUMBER)
 	if _ghost:
@@ -393,6 +424,8 @@ func set_stat_look(look: Dictionary) -> void:
 func set_kind(p_kind: String) -> void:
 	kind = p_kind
 	_apply_face(_shown)
+	_layout_hand_budget()
+	_sync_inspect_face()
 
 
 func set_compact(on: bool) -> void:
@@ -400,6 +433,23 @@ func set_compact(on: bool) -> void:
 	if _showcase:
 		return
 	_lock_hand_size()
+
+
+func set_gate_fit(on: bool) -> void:
+	_gate_fit = on
+	_compact = on or _compact
+	if _showcase:
+		return
+	_lock_hand_size()
+	_layout_hand_budget()
+
+
+func _spacer(h: float) -> Control:
+	var s := Control.new()
+	s.custom_minimum_size = Vector2(0, h)
+	s.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	s.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return s
 
 
 func _tier_metal_color() -> Color:
@@ -515,10 +565,16 @@ func show_formula(on: bool) -> void:
 	_sync_inspect_face()
 
 
+func _hand_size() -> Vector2:
+	if _gate_fit:
+		return Vector2(GATE_W, GATE_H)
+	return Vector2(COMPACT_W if _compact else CARD_W, CARD_H)
+
+
 func _lock_hand_size() -> void:
-	var w: float = COMPACT_W if _compact else CARD_W
-	custom_minimum_size = Vector2(w, CARD_H)
-	size = Vector2(w, CARD_H)
+	var sz: Vector2 = _hand_size()
+	custom_minimum_size = sz
+	size = sz
 	clip_contents = true
 	update_minimum_size()
 
@@ -526,7 +582,7 @@ func _lock_hand_size() -> void:
 func _get_minimum_size() -> Vector2:
 	if _showcase:
 		return Vector2(SHOW_W, SHOW_H)
-	return Vector2(COMPACT_W if _compact else CARD_W, CARD_H)
+	return _hand_size()
 
 
 func _layout_showcase() -> void:
@@ -536,14 +592,75 @@ func _layout_showcase() -> void:
 		_col.move_child(_icon, _title.get_index() + 1)
 		_col.move_child(_num_host, _icon.get_index() + 1)
 		_col.move_child(_ability, _num_host.get_index() + 1)
+		if _formula_box:
+			_formula_box.visible = false
+		if _gap_icon:
+			_gap_icon.visible = false
+		if _gap_num:
+			_gap_num.visible = false
+		if _gap_formula:
+			_gap_formula.visible = false
 	else:
 		if _rank != null:
 			_col.move_child(_rank, _title.get_index() + 1)
 			_col.move_child(_ability, _rank.get_index() + 1)
 		else:
 			_col.move_child(_ability, _title.get_index() + 1)
-		_col.move_child(_icon, _ability.get_index() + 1)
-		_col.move_child(_num_host, _icon.get_index() + 1)
+		if _gap_icon:
+			_col.move_child(_gap_icon, _ability.get_index() + 1)
+			_col.move_child(_icon, _gap_icon.get_index() + 1)
+		else:
+			_col.move_child(_icon, _ability.get_index() + 1)
+		if _gap_num:
+			_col.move_child(_gap_num, _icon.get_index() + 1)
+			_col.move_child(_num_host, _gap_num.get_index() + 1)
+		else:
+			_col.move_child(_num_host, _icon.get_index() + 1)
+		if _gap_formula and _formula_box:
+			_col.move_child(_gap_formula, _num_host.get_index() + 1)
+			_col.move_child(_formula_box, _gap_formula.get_index() + 1)
+		_layout_hand_budget()
+
+
+func _is_word_card() -> bool:
+	var k: String = kind.to_upper()
+	if k == "SMOKE" or k == "CHAOS" or k == "SKIP":
+		return true
+	if UX.is_stat_kind(k):
+		return false
+	var shown: String = _shown.strip_edges()
+	return shown == "" or shown == "?" or shown.to_upper() == "X"
+
+
+func _layout_hand_budget() -> void:
+	if _showcase:
+		return
+	var word: bool = _is_word_card()
+	var inner_w: float = _hand_size().x - 16.0
+	var title_h: float = 22.0 if _gate_fit else TITLE_H
+	var icon_h: float = 52.0 if _gate_fit else ICON_H
+	var num_h: float = 28.0 if _gate_fit else NUM_H
+	var formula_h: float = 40.0 if _gate_fit else FORMULA_H
+	var word_h: float = 72.0 if _gate_fit else WORD_H
+	if _title:
+		_title.custom_minimum_size = Vector2(inner_w, title_h)
+	if _icon:
+		_icon.custom_minimum_size = Vector2(icon_h, icon_h)
+	if _gap_icon:
+		_gap_icon.visible = true
+		_gap_icon.custom_minimum_size = Vector2(0, 2 if _gate_fit else 4)
+	if _gap_num:
+		_gap_num.visible = true
+		_gap_num.custom_minimum_size = Vector2(0, 2 if _gate_fit else 4)
+	if _num_host:
+		_num_host.visible = not word
+		_num_host.custom_minimum_size = Vector2(inner_w, 0.0 if word else num_h)
+	if _gap_formula:
+		_gap_formula.visible = not word
+		_gap_formula.custom_minimum_size = Vector2(0, 0.0 if word else (4.0 if _gate_fit else 6.0))
+	if _formula_box:
+		_formula_box.visible = true
+		_formula_box.custom_minimum_size = Vector2(minf(FORMULA_W, inner_w), word_h if word else formula_h)
 
 
 func _sync_inspect_face() -> void:
@@ -552,22 +669,27 @@ func _sync_inspect_face() -> void:
 		_ability.visible = _showcase and _ability_bb != ""
 	if _icon != null:
 		_icon.visible = true
-	if _num_host != null and not _showcase:
-		_num_host.custom_minimum_size = Vector2(104, 40)
+	if not _showcase:
+		_layout_hand_budget()
 	if _val_row != null:
-		if _formula_on and not _showcase:
-			_val_row.set_anchors_preset(Control.PRESET_TOP_WIDE)
-			_val_row.offset_left = 0
-			_val_row.offset_top = 0
-			_val_row.offset_right = 0
-			_val_row.offset_bottom = 22
-		else:
-			_val_row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_val_row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var word: bool = _is_word_card()
+	var formula_txt: String = _pretty_formula(_formula)
+	if word and formula_txt.strip_edges() == "" and _ability_bb.strip_edges() != "":
+		formula_txt = _ability_bb
 	if _eq != null:
-		_eq.text = "[center]%s[/center]" % _pretty_formula(_formula)
-		UI.apply_rich(_eq, "formula", PARCHMENT)
-		_eq.add_theme_constant_override("line_separation", 0)
-		_eq.visible = _formula_on
+		if _showcase:
+			_eq.visible = false
+		elif _formula_on:
+			var box_h: float = (72.0 if _gate_fit else WORD_H) if word else (40.0 if _gate_fit else FORMULA_H)
+			var box_w: float = minf(FORMULA_W, _hand_size().x - 16.0)
+			var sizes: Array = [15, 14, 13, 12, 11] if word else [13, 12, 11]
+			var max_lines: int = 4 if word else 3
+			_fit_formula(_eq, formula_txt, Vector2(box_w, box_h), sizes, max_lines)
+			_eq.visible = formula_txt.strip_edges() != ""
+		else:
+			_eq.text = ""
+			_eq.visible = false
 	var show_stat: bool = _showcase and not _formula_on
 	if _stat != null:
 		_stat.visible = show_stat
@@ -575,17 +697,76 @@ func _sync_inspect_face() -> void:
 		_stat_lab.visible = show_stat
 	var badge: bool = _showcase and (_stat != null or _stat_lab != null)
 	if _num != null:
-		_num.visible = not badge and _shown != ""
+		_num.visible = not badge and not word and _shown != ""
 	if _tag != null:
-		_tag.visible = (not _formula_on) and str(_tag.text).strip_edges() != ""
+		_tag.visible = not badge and not word and str(_tag.text).strip_edges() != ""
 	if _ghost != null:
-		_ghost.visible = not _formula_on and not badge
+		_ghost.visible = not _formula_on and not badge and not word
 	if _mark != null:
-		_mark.visible = (not _formula_on) and not badge and _mark.texture != null and _shown == ""
+		_mark.visible = (not _formula_on) and not badge and not word and _mark.texture != null and _shown == ""
 	if _loss != null:
-		_loss.visible = (not _formula_on) and not badge and _loss.texture != null
+		_loss.visible = (not _formula_on) and not badge and not word and _loss.texture != null
 	if not _showcase:
 		_lock_hand_size()
+
+
+func _fit_formula(rtl: RichTextLabel, bb: String, box: Vector2, sizes: Array, max_lines: int) -> void:
+	var font: Font = UI.font_regular()
+	var plain: String = _plain_formula(bb)
+	var chosen: int = int(sizes[sizes.size() - 1])
+	var shown: String = plain
+	for fs in sizes:
+		var use: int = int(fs)
+		if font != null:
+			var sz: Vector2 = font.get_multiline_string_size(plain, HORIZONTAL_ALIGNMENT_CENTER, box.x, use)
+			var lines: int = _wrap_line_count(font, plain, box.x, use)
+			if sz.y <= box.y + 0.5 and lines <= max_lines:
+				chosen = use
+				shown = plain
+				break
+		chosen = use
+	if font != null:
+		var sz2: Vector2 = font.get_multiline_string_size(shown, HORIZONTAL_ALIGNMENT_CENTER, box.x, chosen)
+		var lines2: int = _wrap_line_count(font, shown, box.x, chosen)
+		while (sz2.y > box.y + 0.5 or lines2 > max_lines) and shown.length() > 1:
+			shown = shown.substr(0, shown.length() - 1).strip_edges()
+			if shown.ends_with("\n"):
+				shown = shown.substr(0, shown.length() - 1).strip_edges()
+			shown += "…"
+			sz2 = font.get_multiline_string_size(shown, HORIZONTAL_ALIGNMENT_CENTER, box.x, chosen)
+			lines2 = _wrap_line_count(font, shown, box.x, chosen)
+	rtl.text = "[center]%s[/center]" % shown
+	rtl.add_theme_font_override("normal_font", font)
+	rtl.add_theme_font_size_override("normal_font_size", chosen)
+	rtl.add_theme_font_size_override("bold_font_size", chosen)
+	rtl.add_theme_color_override("default_color", PARCHMENT)
+	rtl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	rtl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+
+func _plain_formula(bb: String) -> String:
+	var t: String = _pretty_formula(bb)
+	var out := ""
+	var i := 0
+	while i < t.length():
+		if t[i] == "[":
+			var close: int = t.find("]", i)
+			if close >= 0:
+				i = close + 1
+				continue
+		out += t[i]
+		i += 1
+	return out.strip_edges()
+
+
+func _wrap_line_count(font: Font, text: String, width: float, fs: int) -> int:
+	if text == "":
+		return 0
+	var n := 0
+	for line in text.split("\n"):
+		var w: float = font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+		n += maxi(1, int(ceili(w / maxf(width, 1.0))))
+	return n
 
 
 func _dissolve(old_s: String, new_s: String) -> void:
@@ -648,10 +829,10 @@ func _apply_style(hot: bool) -> void:
 		var pulse := 0.50 + 0.50 * absf(sin(_glow_t * TAU / 0.9))
 		sb.border_color = Color(DEADLY_METAL.r, DEADLY_METAL.g, DEADLY_METAL.b, 0.4 + pulse * 0.6)
 	sb.set_corner_radius_all(0)
-	sb.content_margin_left = 10
-	sb.content_margin_right = 10
-	sb.content_margin_top = 10
-	sb.content_margin_bottom = 10
+	sb.content_margin_left = 0
+	sb.content_margin_right = 0
+	sb.content_margin_top = 0
+	sb.content_margin_bottom = 0
 	add_theme_stylebox_override("panel", sb)
 
 
