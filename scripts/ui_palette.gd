@@ -16,6 +16,7 @@ const SIZE_NUMBER := 28
 const SIZE_TAG := 18
 const SIZE_MIN := 18
 const SIZE_CHIP := 18
+const SIZE_FORMULA := 13
 
 const PARCHMENT := Color("E9D3A1")
 const DIM := Color("B89A70")
@@ -136,6 +137,9 @@ static func apply_rich(node: RichTextLabel, role: String = "body", color: Color 
 		variation = "UtilityTag"
 		if bold != null:
 			regular = bold
+	elif role == "formula":
+		size = SIZE_FORMULA
+		variation = "UtilityBody"
 	node.theme_type_variation = variation
 	if regular != null:
 		node.add_theme_font_override("normal_font", regular)

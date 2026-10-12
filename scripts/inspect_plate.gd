@@ -163,6 +163,9 @@ func show_rule(
 		var m := {
 			"name": title,
 			"ability": body,
+			"call_name": str(look.get("call", "")),
+			"call_hex": str(look.get("call_hex", "")),
+			"explainer": equation,
 			"atk": int(look.get("atk", 0)),
 			"hp": int(look.get("hp", 0)),
 			"pack_tier": t,

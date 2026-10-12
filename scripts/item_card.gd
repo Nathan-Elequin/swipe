@@ -66,6 +66,7 @@ var _spent_lab: Label
 var _ability_bb: String = ""
 var _stat: Control
 var _stat_lab: RichTextLabel
+var _val_row: Control
 var _can_use: bool = true
 var _deny: Control
 var _tag: Label
@@ -96,7 +97,7 @@ func setup(
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	custom_minimum_size = Vector2(CARD_W, CARD_H)
 	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	clip_contents = false
+	clip_contents = true
 	texture_filter = TEXTURE_FILTER_NEAREST
 	theme = load("res://themes/swipe_theme.tres")
 	_apply_style(false)
@@ -186,9 +187,14 @@ func setup(
 	var val_row := HBoxContainer.new()
 	val_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	val_row.add_theme_constant_override("separation", 6)
-	val_row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	val_row.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	val_row.offset_left = 0
+	val_row.offset_top = 0
+	val_row.offset_right = 0
+	val_row.offset_bottom = 36
 	val_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	num_host.add_child(val_row)
+	_val_row = val_row
 
 	_num = Label.new()
 	_num.text = number_text
@@ -210,9 +216,13 @@ func setup(
 	_eq.fit_content = true
 	_eq.scroll_active = false
 	_eq.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UI.apply_rich(_eq, "body", PARCHMENT)
-	_eq.add_theme_constant_override("line_separation", 6)
-	_eq.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	UI.apply_rich(_eq, "formula", PARCHMENT)
+	_eq.add_theme_constant_override("line_separation", 0)
+	_eq.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	_eq.offset_left = 0
+	_eq.offset_top = -40
+	_eq.offset_right = 0
+	_eq.offset_bottom = 0
 	_eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_eq.visible = false
 	num_host.add_child(_eq)
@@ -380,11 +390,16 @@ func set_stat_look(look: Dictionary) -> void:
 	_sync_inspect_face()
 
 
+func set_kind(p_kind: String) -> void:
+	kind = p_kind
+	_apply_face(_shown)
+
+
 func set_compact(on: bool) -> void:
 	_compact = on
 	if _showcase:
 		return
-	custom_minimum_size = Vector2(COMPACT_W if on else CARD_W, CARD_H)
+	_lock_hand_size()
 
 
 func _tier_metal_color() -> Color:
@@ -396,7 +411,7 @@ func _tier_metal_color() -> Color:
 
 
 func _face_of(number_text: String) -> Dictionary:
-	if kind == "DEFEAT" or kind == "FANGS":
+	if kind == "DEFEAT" or kind == "FANGS" or kind == "KO":
 		return {"num": COPY.need("hand.tag.ko"), "tag": "", "col": KO_PLUM}
 	var tag := ""
 	var col: Color = PARCHMENT
@@ -412,7 +427,9 @@ func _face_of(number_text: String) -> Dictionary:
 	var shown: String = number_text.strip_edges()
 	if shown == "—" or shown == "–" or shown == "-" or shown.to_upper() == "X":
 		shown = "?"
-	if shown == "":
+	if shown == "" and tag == "":
+		shown = ""
+	elif shown == "":
 		shown = "?"
 	return {"num": shown, "tag": tag, "col": col}
 
@@ -492,10 +509,17 @@ func set_formula(bb: String) -> void:
 
 
 func show_formula(on: bool) -> void:
-	if not _showcase:
-		custom_minimum_size = Vector2(COMPACT_W if _compact else CARD_W, CARD_H)
 	_formula_on = on and _formula != ""
+	if not _showcase:
+		_lock_hand_size()
 	_sync_inspect_face()
+
+
+func _lock_hand_size() -> void:
+	var w: float = COMPACT_W if _compact else CARD_W
+	custom_minimum_size = Vector2(w, CARD_H)
+	size = Vector2(w, CARD_H)
+	clip_contents = true
 
 
 func _layout_showcase() -> void:
@@ -517,19 +541,26 @@ func _layout_showcase() -> void:
 
 func _sync_inspect_face() -> void:
 	if _ability != null:
-		if _formula_on and not _showcase:
-			_ability.text = "[center]%s[/center]" % _pretty_formula(_formula)
-			_ability.visible = true
-			UI.apply_rich(_ability, "body", PARCHMENT)
-			_ability.add_theme_constant_override("line_separation", 6)
-		else:
-			_ability.text = _ability_bb
-			_ability.visible = _showcase and _ability_bb != ""
+		_ability.text = _ability_bb
+		_ability.visible = _showcase and _ability_bb != ""
 	if _icon != null:
 		_icon.visible = true
+	if _num_host != null and not _showcase:
+		_num_host.custom_minimum_size = Vector2(104, 72 if _formula_on else 40)
+	if _val_row != null:
+		if _formula_on and not _showcase:
+			_val_row.set_anchors_preset(Control.PRESET_TOP_WIDE)
+			_val_row.offset_left = 0
+			_val_row.offset_top = 0
+			_val_row.offset_right = 0
+			_val_row.offset_bottom = 28
+		else:
+			_val_row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if _eq != null:
 		_eq.text = "[center]%s[/center]" % _pretty_formula(_formula)
-		_eq.visible = _formula_on and _showcase
+		UI.apply_rich(_eq, "formula", PARCHMENT)
+		_eq.add_theme_constant_override("line_separation", 0)
+		_eq.visible = _formula_on
 	var show_stat: bool = _showcase and not _formula_on
 	if _stat != null:
 		_stat.visible = show_stat
@@ -537,13 +568,17 @@ func _sync_inspect_face() -> void:
 		_stat_lab.visible = show_stat
 	var badge: bool = _showcase and (_stat != null or _stat_lab != null)
 	if _num != null:
-		_num.visible = not _formula_on and not badge and _shown != ""
+		_num.visible = not badge and _shown != ""
+	if _tag != null:
+		_tag.visible = (not _formula_on) and str(_tag.text).strip_edges() != ""
 	if _ghost != null:
 		_ghost.visible = not _formula_on and not badge
 	if _mark != null:
 		_mark.visible = (not _formula_on) and not badge and _mark.texture != null and _shown == ""
 	if _loss != null:
 		_loss.visible = (not _formula_on) and not badge and _loss.texture != null
+	if not _showcase:
+		_lock_hand_size()
 
 
 func _dissolve(old_s: String, new_s: String) -> void:
@@ -586,17 +621,7 @@ func bounce() -> void:
 
 
 func _pretty_formula(bb: String) -> String:
-	var t: String = bb.strip_edges()
-	if t == "":
-		return t
-	var rx := RegEx.new()
-	if rx.compile("(\\[/color\\])(\\S)") == OK:
-		t = rx.sub(t, "$1 $2", true)
-	if rx.compile("(\\S)(\\[color)") == OK:
-		t = rx.sub(t, "$1 $2", true)
-	while t.contains("  "):
-		t = t.replace("  ", " ")
-	return t.strip_edges()
+	return UX.pretty_formula(bb)
 
 
 func _apply_style(hot: bool) -> void:

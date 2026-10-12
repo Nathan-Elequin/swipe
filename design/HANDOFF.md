@@ -4,6 +4,14 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 
 ---
 
+## 2026-10-12 — Hand cards + callouts (UI lane)
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: Five fight-screen rulings on the UI lane only. Shift never resizes a hand card; the formula uses 13px Nunito and breaks at `or`, with the number still visible. Card type / keyword color comes from JSON `card_color` (Grappling Hook and Poison Flask are utility, not ATK). Item hover is the compact top-right callout again, not the column plate. Facing and hovered monsters show ability name (capsule) plus explainer. Event log stays hidden unless Shift or a top-right hover, and it hides while a callout is up so they do not overlap. No `data/` edits. Did not touch `boss_wheel.gd` / `wheel_hud.gd` / `draft_gate.gd`.
+- Files: `scripts/item_card.gd`, `scripts/hover_panel.gd`, `scripts/owner_plate.gd`, `scripts/inspect_plate.gd`, `scripts/ux_style.gd`, `scripts/ui_palette.gd`, `scripts/ui/hud_controller.gd`, `scripts/ui/authoring_ui.gd`, `scripts/lanes/game_state.gd`, `tools/qa/check_item_types.gd`, `design/HANDOFF.md`, `design/qa/reports/2026-10-12-hand-callouts.md`
+- QA: headless `check_item_types.gd` + `check_hand_use.gd` (run after this entry). No godot-mcp in this environment.
+
 ## 2026-10-11 — Hand clicks + fight UX restore
 - From: Cursor
 - To: Jam / Pixel / Nathan

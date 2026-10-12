@@ -315,6 +315,84 @@ static func card_color_family(id: String) -> String:
 			return ""
 
 
+## Label on the card face. Do not map utility / smoke / chaos / egg to ATK.
+static func display_kind(id: String) -> String:
+	match card_color_id(id):
+		"atk":
+			return "ATK"
+		"blk":
+			return "BLK"
+		"heal":
+			return "HEAL"
+		"defeat":
+			return "DEFEAT"
+		"utility":
+			return "UTILITY"
+		"smoke":
+			return "SMOKE"
+		"chaos":
+			return "CHAOS"
+		"egg":
+			return "EGG"
+		_:
+			return ""
+
+
+static func is_stat_kind(kind: String) -> bool:
+	var k: String = kind.to_upper()
+	return k == "ATK" or k == "BLK" or k == "HEAL" or k == "DEFEAT" or k == "FANGS" or k == "KO" or k == "BOTH"
+
+
+static func pretty_formula(bb: String) -> String:
+	var t: String = bb.strip_edges()
+	if t == "":
+		return t
+	var rx := RegEx.new()
+	if rx.compile("(\\[/color\\])(\\S)") == OK:
+		t = rx.sub(t, "$1 $2", true)
+	if rx.compile("(\\S)(\\[color)") == OK:
+		t = rx.sub(t, "$1 $2", true)
+	t = t.replace(") or (", ")\nor\n(")
+	t = t.replace(") or ", ")\nor\n")
+	t = t.replace(" or (", "\nor\n(")
+	if t.find("\n") < 0 and t.find(" or ") >= 0:
+		t = t.replace(" or ", "\nor\n")
+	if t.begins_with("(") and t.ends_with(")") and t.find("\n") < 0 and t.find(" or ") < 0:
+		t = t.substr(1, t.length() - 2)
+	while t.contains("  "):
+		t = t.replace("  ", " ")
+	return t.strip_edges()
+
+
+static func call_capsule(text: String, ink_hex: String = "") -> PanelContainer:
+	var shown: String = text.strip_edges()
+	var host := PanelContainer.new()
+	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("1A120E")
+	var ink := Color("E8C36A")
+	var hx: String = ink_hex.strip_edges()
+	if hx != "":
+		ink = Color(hx)
+	sb.border_color = ink
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(12)
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	sb.content_margin_top = 3
+	sb.content_margin_bottom = 3
+	host.add_theme_stylebox_override("panel", sb)
+	var lab := Label.new()
+	lab.text = shown
+	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiPalette.apply_name(lab, ink, UiPalette.SIZE_MIN)
+	host.add_child(lab)
+	host.visible = shown != ""
+	return host
+
+
 static func plate() -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = PLATE
