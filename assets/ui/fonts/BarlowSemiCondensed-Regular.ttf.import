@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://bscnrglrregular"
-path="res://.godot/imported/BarlowSemiCondensed-Regular.ttf-bscnrglr.fontdata"
+uid="uid://iwufwr0r8p7j"
+path="res://.godot/imported/BarlowSemiCondensed-Regular.ttf-308344e80cb890c0301c011ba07e0165.fontdata"
 
 [deps]
 
 source_file="res://assets/ui/fonts/BarlowSemiCondensed-Regular.ttf"
-dest_files=["res://.godot/imported/BarlowSemiCondensed-Regular.ttf-bscnrglr.fontdata"]
+dest_files=["res://.godot/imported/BarlowSemiCondensed-Regular.ttf-308344e80cb890c0301c011ba07e0165.fontdata"]
 
 [params]
 

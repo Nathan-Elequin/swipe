@@ -190,9 +190,9 @@ func _check_cards(main: Node) -> bool:
 
 
 func _check_speech_font() -> bool:
-	var packed: PackedScene = load("res://scenes/ui/speech_bubble.tscn") as PackedScene
 	var bubble: Control
-	if packed != null:
+	if ResourceLoader.exists("res://scenes/ui/speech_bubble.tscn"):
+		var packed: PackedScene = load("res://scenes/ui/speech_bubble.tscn") as PackedScene
 		bubble = packed.instantiate() as Control
 	else:
 		var scr: Script = load("res://scripts/speech_bubble.gd") as Script
