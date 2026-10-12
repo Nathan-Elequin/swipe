@@ -1,11 +1,16 @@
 extends SceneTree
 ## Headless: after a spin, a hand card must take clicks and actually use.
-## Catches the spinning mouse_filter leak and a game_state _use_item stub no-op.
+## Then mill take (click item) and leave (pass) still work, and the column
+## stays above a two-row hand. Take button is gone — the item is the take.
+## Run: godot --path . --headless --script res://tools/qa/check_hand_use.gd
 
 const FAIL_BOOT := 2
 const FAIL_FILTER := 3
 const FAIL_USE := 4
 const FAIL_CLICKS := 5
+const FAIL_DRAFT := 6
+
+const PROBE := preload("res://tools/qa/qa_probe.gd")
 
 
 func _fail(code: int, msg: String) -> void:
@@ -15,6 +20,7 @@ func _fail(code: int, msg: String) -> void:
 
 
 func _init() -> void:
+	DisplayServer.window_set_size(Vector2i(1680, 1040))
 	var packed: PackedScene = load("res://scenes/main.tscn") as PackedScene
 	if packed == null:
 		_fail(FAIL_BOOT, "missing main.tscn")
@@ -33,6 +39,8 @@ func _init() -> void:
 	if not await _check_item_use(main):
 		return
 	if not _check_other_clicks(main):
+		return
+	if not await _check_draft_gate(main):
 		return
 	print("HAND_USE_OK")
 	quit(0)
@@ -178,16 +186,22 @@ func _check_other_clicks(main: Node) -> bool:
 		var bait: Dictionary = main.call("_make_item", "healing_potion")
 		gate.call("present_mystery", bait, 1, null, 2)
 	var take: Button = _find_button(gate, "Take")
-	var leave: Button = _find_button(gate, "Leave")
-	if take == null:
-		take = _first_button(gate)
-	if take == null or take.mouse_filter == Control.MOUSE_FILTER_IGNORE:
-		_fail(FAIL_CLICKS, "door Take missing or IGNORE")
+	if take != null:
+		_fail(FAIL_CLICKS, "door Take button is still present")
 		return false
-	if leave != null and leave.mouse_filter == Control.MOUSE_FILTER_IGNORE:
-		_fail(FAIL_CLICKS, "door Leave IGNORE")
+	var leave: Button = null
+	if gate.has_method("leave_btn"):
+		leave = gate.call("leave_btn") as Button
+	if leave == null:
+		leave = _find_button(gate, "Leave")
+	if leave == null or leave.mouse_filter == Control.MOUSE_FILTER_IGNORE:
+		_fail(FAIL_CLICKS, "door Leave missing or IGNORE")
 		return false
-	print("DOOR take=", take.text, " leave=", leave.text if leave else "(none)")
+	var item_slot: Control = _find_item_take(gate)
+	if item_slot == null or item_slot.mouse_filter == Control.MOUSE_FILTER_IGNORE:
+		_fail(FAIL_CLICKS, "door item slot missing or IGNORE (click item takes)")
+		return false
+	print("DOOR take_btn=gone leave=", leave.text, " item_filter=", item_slot.mouse_filter)
 	if gate.has_method("hide_gate"):
 		gate.call("hide_gate")
 
@@ -199,8 +213,98 @@ func _check_other_clicks(main: Node) -> bool:
 		else:
 			print("COLUMN filter=", col.mouse_filter if col else "missing", " visible=", col.visible if col else false)
 
-	print("CLICKS_OK spin/wheel/inspect/pause/door")
+	print("CLICKS_OK spin/wheel/inspect/pause/door Leave+item")
 	return true
+
+
+func _check_draft_gate(main: Node) -> bool:
+	if not main.has_method("_begin_run"):
+		_fail(FAIL_DRAFT, "missing _begin_run")
+		return false
+	main.call("_begin_run")
+	if not await _wait_ask(main, 8.0, "mill never reached draft ask"):
+		return false
+	var dump: Dictionary = PROBE.dump(main)
+	var layout: Dictionary = dump.get("layout", {})
+	print("DRAFT_LAYOUT ", JSON.stringify(layout))
+	print("DRAFT_GATE ", JSON.stringify(dump.get("draft_gate", {})))
+	if bool(layout.get("overlap", false)):
+		_fail(FAIL_DRAFT, "draft column overlaps the hand")
+		return false
+	var col: Array = layout.get("column", [0, 0, 0, 0])
+	var col_bottom: float = float(col[1]) + float(col[3])
+	var two_row_top: float = 1000.0 - 210.0 * 2.0 - 14.0
+	if col_bottom > two_row_top - 12.0:
+		_fail(FAIL_DRAFT, "column bottom %s sits on a two-row hand (top %s)" % [col_bottom, two_row_top])
+		return false
+	var gate_info: Dictionary = dump.get("draft_gate", {})
+	var leave_copy: String = str(gate_info.get("leave", ""))
+	if leave_copy.contains("{n}") or leave_copy == "":
+		_fail(FAIL_DRAFT, "leave copy is empty or still has {n}: %s" % leave_copy)
+		return false
+	if bool(gate_info.get("take_present", false)):
+		_fail(FAIL_DRAFT, "Take button is still present")
+		return false
+	if str(gate_info.get("threat", "")).to_lower().contains("tier"):
+		_fail(FAIL_DRAFT, "threat shows the word Tier")
+		return false
+	print("LAYOUT_OK column_bottom=", col_bottom, " two_row_top=", two_row_top, " leave=", leave_copy)
+
+	var passes_before: int = int(main.get("refusals_left"))
+	if not main.has_method("_on_gate_refuse"):
+		_fail(FAIL_DRAFT, "missing _on_gate_refuse")
+		return false
+	main.call("_on_gate_refuse")
+	if not await _wait_ask(main, 6.0, "leave never returned a new ask"):
+		return false
+	var passes_now: int = int(main.get("refusals_left"))
+	if passes_before > 0 and passes_now != passes_before - 1:
+		_fail(FAIL_DRAFT, "leave did not spend a pass (was %s now %s)" % [passes_before, passes_now])
+		return false
+	print("LEAVE_OK passes ", passes_before, " -> ", passes_now)
+
+	var take_item: String = str((main.get("pending_item") as Dictionary).get("name", ""))
+	if not main.has_method("_on_gate_send"):
+		_fail(FAIL_DRAFT, "missing _on_gate_send")
+		return false
+	main.call("_on_gate_send")
+	var waited := 0.0
+	while waited < 8.0:
+		await process_frame
+		waited += 0.016
+		if str(main.get("draft_action")) == "seat":
+			break
+	if str(main.get("draft_action")) != "seat":
+		_fail(FAIL_DRAFT, "take never reached seat (action=%s)" % main.get("draft_action"))
+		return false
+	var pending: Dictionary = main.get("pending_item") if typeof(main.get("pending_item")) == TYPE_DICTIONARY else {}
+	print("TAKE_OK action=seat item=", pending.get("name", take_item))
+	print("DRAFT_OK leave+take+clearance")
+	return true
+
+
+func _wait_ask(main: Node, seconds: float, fail_msg: String) -> bool:
+	var waited := 0.0
+	while waited < seconds:
+		await process_frame
+		waited += 0.016
+		var gate: Node = main.get("draft_gate")
+		if str(main.get("draft_action")) == "ask" and gate != null and bool(gate.visible):
+			return true
+	_fail(FAIL_DRAFT, fail_msg)
+	return false
+
+
+func _find_item_take(gate: Node) -> Control:
+	if gate == null:
+		return null
+	for c in gate.get_children():
+		if c is PanelContainer and int(c.mouse_filter) == Control.MOUSE_FILTER_STOP:
+			return c
+		var nested: Control = _find_item_take(c)
+		if nested != null:
+			return nested
+	return null
 
 
 func _find_button(n: Node, label: String) -> Button:
@@ -210,16 +314,6 @@ func _find_button(n: Node, label: String) -> Button:
 			return n
 	for c in n.get_children():
 		var hit: Button = _find_button(c, label)
-		if hit != null:
-			return hit
-	return null
-
-
-func _first_button(n: Node) -> Button:
-	if n is Button and (n as Button).visible:
-		return n
-	for c in n.get_children():
-		var hit: Button = _first_button(c)
 		if hit != null:
 			return hit
 	return null

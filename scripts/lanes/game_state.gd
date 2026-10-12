@@ -1130,6 +1130,9 @@ func _sync_hotbar() -> void:
 func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	return PanelContainer.new()
 
+func _on_gate_item_hovered() -> void:
+	pass
+
 func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 	pass
 

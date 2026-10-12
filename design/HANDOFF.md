@@ -11,6 +11,21 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 - What: UI lane, wheel only. Merged `origin/main` 43b9d4f first (lane split + restored fight UX + `check_hand_use.gd`). Then: sprites 84→56 so alcoves read; heart left / sword right with `ICON_GAP` 28 (was opposite rim sides); name+ability capsules Nunito 18, inward, clamped inside the rim; hub 96→58 (~40% smaller) with knight + six-heart arc + shield filling that disc. Baked alcove PNGs hidden (they assume hub r 96); `_draw_slice` still paints Weak/Tough/Deadly fill+rim. Monsters still face the knight. Spin stays under the arrow. Did not grow the 300 outer radius, so no collision with the hand, facing callout, or draft column. No `data/` edits. Did not touch `draft_gate.gd`, `item_card.gd`, `hover_panel.gd`, or hand/callout parts of `hud_controller.gd`.
 - Files: `scripts/boss_wheel.gd`, `design/HANDOFF.md`, `design/qa/reports/2026-10-12-wheel-layout.md`
 - QA: Godot 4.7.2 headless. `check_layers` OK. `check_boot` BOOT_OK. `check_hand_use` HAND_USE_OK (spin IGNORE → fight STOP, Shield blk 0→4). `--quit-after 2` exit 0. Dummy renderer, no offscreen PNG. No godot-mcp.
+## 2026-10-12 — Merged compact draft gate onto the lane split
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: Merged `origin/main` (43b9d4f) into `cursor/draft-gate-compact-f8a6`. `scripts/main.gd` stays boot-only. Ask-panel wiring (`set_showcase(false)`, `set_item_value`, item hover) lives in `scripts/core/draft_flow.gd`. Inspect-on-hover for the bait card lives in `scripts/ui/hud_controller.gd`. Column fit above a two-row hand stays in `scripts/wheel_hud.gd` on top of main’s shrink-then-wrap. Both `check_hand_use` checks are one file (spin IGNORE → fight STOP → Shield Block, plus mill click-item take / Leave pass / no overlap). Both HANDOFF entries below are kept. No `data/` edits.
+- Files: `scripts/main.gd`, `scripts/core/draft_flow.gd`, `scripts/ui/hud_controller.gd`, `scripts/lanes/game_state.gd`, `scripts/wheel_hud.gd`, `scripts/draft_gate.gd`, `tools/qa/check_hand_use.gd`, `tools/qa/qa_probe.gd`, `design/HANDOFF.md`
+- QA: After the merge, Godot 4.7.2 `--import` + `--quit-after 2` (no game-script errors). `check_layers` OK. `check_boot` BOOT_OK (title, HP 6, Goblin `no_atk_dmg`). Combined `check_hand_use` HAND_USE_OK: spinning IGNORE → fighting STOP, Shield `picked` blk 0→4, door Take gone / Leave+item STOP, mill leave 3→2, take reached seat (Lantern), column 560×526 bottom 554 vs two-row top 566, `overlap=false`. Dummy renderer, no PNG. No godot-mcp.
+
+## 2026-10-12 — Compact draft gate
+- From: Cursor
+- To: Jam / Pixel / Nathan
+- Status: DONE
+- What: Shrunk the right-column draft panel so it stays above a two-row hand (cards 210 + 14 + 210, floor y 1000). Ask mode is now item (~60%: sprite, name, value/effect; click the item to take it) and a Weak/Tough/Deadly threat block (~40%: wheel-tier fill/rim from `UxStyle.metal*`, Deadly gets a red pulse and skull). Cut the tagline, THE MONSTER / THE LOOT, guard line, silhouette arch, and the Take button. Leave uses `door.pass` / `door.pass_one` / `door.pass_none`. Header is `cue.ask` only. Hand wraps with `HFlowContainer` inside x 32–1062. No `data/` edits. No author-lock edits.
+- Files: `scripts/draft_gate.gd`, `scripts/wheel_hud.gd`, `scripts/core/draft_flow.gd`, `scripts/ui/hud_controller.gd`, `tools/qa/qa_probe.gd`, `tools/qa/check_hand_use.gd`
+- QA: Godot 4.7.2 `--import` then `--quit-after 2` (no game-script errors). `tools/qa/check_hand_use.gd` PASS: Shield BLK 0→4; leave 3→2 with `Leave it (3 passes left)`; take reached seat; column 560×526 bottom 554 vs two-row hand top 566, `overlap=false`. Headless dummy cannot screenshot. Report: `design/qa/reports/2026-10-12-draft-gate-compact.md`
 
 ## 2026-10-11 — Hand clicks + fight UX restore
 - From: Cursor

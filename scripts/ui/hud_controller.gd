@@ -2457,6 +2457,15 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	return card
 
 
+func _on_gate_item_hovered() -> void:
+	if pending_item.is_empty():
+		return
+	var host: Control = null
+	if draft_gate != null and draft_gate.has_method("relic_host"):
+		host = draft_gate.relic_host()
+	_on_item_hovered(pending_item, host)
+
+
 func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 	_fly_card = card
 	_hover_item = it

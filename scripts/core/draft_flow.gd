@@ -59,7 +59,14 @@ func _present_gate(passes: int) -> void:
 	if draft_gate == null:
 		return
 	_offer_card = null
-	draft_gate.present_mystery(pending_item, _pack_tier_now(), _offer_tex(), passes)
+	var view: Dictionary = _item_view(pending_item) if not pending_item.is_empty() else {}
+	draft_gate.present_mystery(pending_item, _pack_tier_now(), _offer_tex(), passes, str(view.get("number", "")))
+	if draft_gate.has_method("set_item_value"):
+		draft_gate.set_item_value(str(view.get("number", "")), "", str(view.get("kind", "")))
+	if not draft_gate.item_hovered.is_connected(_on_gate_item_hovered):
+		draft_gate.item_hovered.connect(_on_gate_item_hovered)
+	if not draft_gate.item_unhovered.is_connected(_on_item_unhovered):
+		draft_gate.item_unhovered.connect(_on_item_unhovered)
 	if not pending_item.is_empty():
 		var card: Control = _spawn_item_card(pending_item, false)
 		card.picked.connect(func() -> void:
@@ -448,7 +455,7 @@ func _refresh_offer_card() -> void:
 	if _offer_card.has_method("set_live"):
 		_offer_card.set_live(str(view["number"]), str(view.get("note", "")), true)
 	if _offer_card.has_method("set_showcase"):
-		_offer_card.set_showcase(true)
+		_offer_card.set_showcase(false)
 	if _offer_card.has_method("set_ability_bb"):
 		_offer_card.set_ability_bb(_item_inspect_body(pending_item, rule))
 	if _offer_card.has_method("set_stat_look"):

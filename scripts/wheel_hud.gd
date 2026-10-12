@@ -419,13 +419,18 @@ func layout_hand() -> void:
 	var rows: int = 2 if wrap else 1
 	var box_h: float = row_h * float(rows) + (10.0 if wrap else 0.0)
 	var x: float = floor((vp_w - box_w) * 0.5)
+	x = clampf(x, 32.0, 1062.0 - box_w)
 	var y := 790.0
 	if wrap:
 		y = 1040.0 - box_h - 12.0
 		if y < 772.0:
 			y = 772.0
-	hotbar_box.position = Vector2(maxf(32.0, x), y)
+	hotbar_box.position = Vector2(x, y)
 	hotbar_box.size = Vector2(maxf(box_w, 8.0), box_h)
+	if ghost_hand != null:
+		ghost_hand.position = Vector2(32, y)
+		ghost_hand.size = Vector2(1030, box_h)
+	_fit_column_above_hand()
 
 
 func _layout() -> void:
@@ -433,12 +438,8 @@ func _layout() -> void:
 		pointer.position = Vector2(530, 664)
 		pointer.size = Vector2(36, 26)
 		pointer.queue_redraw()
-	if column != null:
-		column.position = Vector2(1086, 28)
-		column.custom_minimum_size = Vector2(560, 952)
-		column.size = Vector2(560, 952)
-	if plate_slot != null:
-		plate_slot.custom_minimum_size = Vector2(508, 640)
+	layout_hand()
+	_fit_column_above_hand()
 	if btn_spin != null:
 		btn_spin.position = Vector2(418, 700)
 		btn_spin.size = Vector2(260, 68)
@@ -450,9 +451,41 @@ func _layout() -> void:
 		_spin_ring.size = Vector2(268, 76)
 	if hearts_box != null:
 		hearts_box.position = Vector2(32, 28)
-	layout_hand()
 	if idle_box != null:
 		idle_box.queue_redraw()
+
+
+func _fit_column_above_hand() -> void:
+	if column == null:
+		return
+	var bottom: float = 980.0
+	var max_h: float = 952.0
+	if hotbar_box != null and hotbar_box.visible:
+		bottom = minf(bottom, hotbar_box.position.y - 12.0)
+		# Two-row hand (210 + 14 + 210) floors at y 566. Never sit on it.
+		var two_row_top: float = 1000.0 - 210.0 * 2.0 - 14.0
+		bottom = minf(bottom, two_row_top - 12.0)
+		max_h = 572.0
+	if ghost_hand != null and ghost_hand.visible:
+		bottom = minf(bottom, ghost_hand.position.y - 12.0)
+	var h: float = clampf(bottom - 28.0, 280.0, max_h)
+	column.position = Vector2(1086, 28)
+	column.custom_minimum_size = Vector2(560, h)
+	column.size = Vector2(560, h)
+	var inner: float = maxf(180.0, h - 52.0)
+	if plate_slot != null:
+		plate_slot.custom_minimum_size = Vector2(0, maxf(160.0, inner - 40.0))
+
+
+func qa_layout() -> Dictionary:
+	var col: Rect2 = column.get_global_rect() if column else Rect2()
+	var hand: Rect2 = hotbar_box.get_global_rect() if hotbar_box else Rect2()
+	return {
+		"column": [col.position.x, col.position.y, col.size.x, col.size.y],
+		"hand": [hand.position.x, hand.position.y, hand.size.x, hand.size.y],
+		"overlap": col.intersects(hand),
+		"hand_children": hotbar_box.get_child_count() if hotbar_box else 0,
+	}
 
 
 func _draw_torch() -> void:
