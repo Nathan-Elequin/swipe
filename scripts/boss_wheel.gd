@@ -100,6 +100,7 @@ var _hub_hp_old_t: float = 0.0:
 		_hub_hp_old_t = v
 		queue_redraw()
 var _pt_ghosts: Array = []
+var _hub_sparks: Array = []
 var tex_player: Array = []
 var hub_hp: int = 6
 var hub_hp_max: int = 6
@@ -196,9 +197,10 @@ func set_vitals(hp_n: int, hp_max: int, hp_ghost: int, blk_n: int, blk_ghost: in
 		_hub_hp_old_t = 1.0
 		hub_hp_flash = 1.0
 		var htw := create_tween()
-		htw.tween_property(self, "_hub_hp_old_t", 0.0, 0.28)
+		htw.tween_property(self, "_hub_hp_old_t", 0.0, 0.22)
 		var htw2 := create_tween()
-		htw2.tween_property(self, "hub_hp_flash", 0.0, 0.34)
+		htw2.tween_property(self, "hub_hp_flash", 0.0, 0.22)
+		_burst_hub_sparks(Color("8fd18f") if hp_n > hub_hp else Color("e07a7a"))
 	hub_hp = hp_n
 	hub_hp_max = maxi(1, hp_max)
 	hub_hp_ghost = hp_ghost
@@ -266,7 +268,20 @@ func set_hub(blk_n: int, ghost: int, on: bool) -> void:
 func punch_hub() -> void:
 	hub_flash = 1.0
 	var tw := create_tween()
-	tw.tween_property(self, "hub_flash", 0.0, 0.28)
+	tw.tween_property(self, "hub_flash", 0.0, 0.22)
+	_burst_hub_sparks(Color("7dba7d"))
+
+
+func _burst_hub_sparks(col: Color) -> void:
+	var c: Vector2 = _center() + Vector2(0.0, HUB_R * 0.50)
+	for _i in 8:
+		var ang: float = randf() * TAU
+		_hub_sparks.append({
+			"pos": c,
+			"v": Vector2.from_angle(ang) * (80.0 + randf() * 70.0),
+			"t": 0.0,
+			"col": col,
+		})
 
 
 func play_slay(index: int) -> void:
@@ -601,6 +616,13 @@ func _process(delta: float) -> void:
 		if t > 0.0:
 			flash_keep[k] = t
 	_flash = flash_keep
+	var sparks: Array = []
+	for sp in _hub_sparks:
+		sp["t"] = float(sp.get("t", 0.0)) + delta
+		if float(sp["t"]) < 0.22:
+			sp["pos"] = Vector2(sp["pos"]) + Vector2(sp.get("v", Vector2.ZERO)) * delta
+			sparks.append(sp)
+	_hub_sparks = sparks
 	queue_redraw()
 
 
@@ -1641,7 +1663,10 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 		rad *= 1.16 + 0.20 * pulse
 		fill = fill.lerp(Color("ffb48a"), 0.30 + 0.22 * pulse)
 	_draw_sword_badge(pos, rad, fill, _center() - pos)
-	_draw_bold_num(font, pos + Vector2(0.0, 1.0), str(atk), UI.SIZE_MIN, Color("f0e6d8"))
+	var atk_shown: String = str(atk) if atk_d == 0 else "%s→%s" % [int(s.get("atk", 0)), atk]
+	_draw_bold_num(font, pos + Vector2(0.0, 1.0), atk_shown, UI.SIZE_MIN if atk_d == 0 else 11, Color("f0e6d8"))
+	if atk_d != 0:
+		draw_arc(pos, rad + 4.0 + 2.0 * pulse, 0.0, TAU, 22, Color(fill.r, fill.g, fill.b, 0.40 + 0.50 * pulse), 2.4, true)
 	if bool(s.get("cmd_buff", false)) or seat_atk != 0:
 		var ring_c := Color(1.0, 0.45, 0.22, 0.55 + 0.45 * pulse) if seat_atk != 0 else Color(0.95, 0.22, 0.16, 0.45 + 0.5 * pulse)
 		draw_arc(pos, rad + 3.0, 0.0, TAU, 24, ring_c, 2.6 if seat_atk == 0 else 5.0, true)
@@ -1710,7 +1735,10 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		fill = fill.lerp(Color("fff4c8"), 0.28 + 0.22 * pulse)
 	_draw_heart_shape(pos, hs, fill, Color("1c120c"))
 	draw_circle(pos + Vector2(0.0, 3.0), hs * 0.28, Color("6a1818"))
-	_draw_bold_num(font, pos + Vector2(0.0, 2.0), str(hp), UI.SIZE_MIN, Color("f0e6d8"))
+	var hp_shown: String = str(hp) if hp_d == 0 else "%s→%s" % [int(s.get("hp", 0)), hp]
+	_draw_bold_num(font, pos + Vector2(0.0, 2.0), hp_shown, UI.SIZE_MIN if hp_d == 0 else 11, Color("f0e6d8"))
+	if hp_d != 0:
+		draw_arc(pos, hs * 0.58 + 2.0 * pulse, 0.0, TAU, 20, Color(fill.r, fill.g, fill.b, 0.40 + 0.50 * pulse), 2.4, true)
 	if bool(s.get("lich_buff", false)) or seat_hp != 0:
 		var pulse2: float = 0.55 + 0.45 * sin(float(Time.get_ticks_msec()) * 0.007)
 		var ring: Color = Color(1.0, 0.94, 0.55, 0.55 + 0.45 * pulse2) if seat_hp != 0 else Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2)
@@ -1783,17 +1811,23 @@ func _draw_hub_block(c: Vector2, radius: float) -> void:
 	for i in pip_n:
 		var t: float = lerpf(-2.40, -0.74, float(i) / float(maxi(pip_n - 1, 1)))
 		var live: bool = i < hub_hp
-		var soon: bool = hub_hp_ghost >= 0 and i >= hub_hp_ghost and i < hub_hp
-		_draw_hub_pip(c + Vector2(cos(t), sin(t)) * arc_r, Vector2(20, 17), live, soon)
-	var shown: int = hub_ghost if hub_ghost >= 0 else hub_blk
+		var lose_soon: bool = hub_hp_ghost >= 0 and hub_hp_ghost < hub_hp and i >= hub_hp_ghost and i < hub_hp
+		var gain_soon: bool = hub_hp_ghost >= 0 and hub_hp_ghost > hub_hp and i >= hub_hp and i < hub_hp_ghost
+		_draw_hub_pip(c + Vector2(cos(t), sin(t)) * arc_r, Vector2(20, 17), live, lose_soon, gain_soon)
+	var shown: int = hub_blk
 	var fill := Color("2a6aa8")
 	var rim := Color("6bb3d9")
 	if shown <= 0:
 		fill = Color("1a3348")
 		rim = Color("4a6a80")
-	if hub_ghost >= 0 and hub_ghost > hub_blk:
-		fill = Color("2a7a58")
-		rim = Color("7dba7d")
+	var pulse: float = 0.55 + 0.45 * sin(float(Time.get_ticks_msec()) * 0.012)
+	if hub_ghost >= 0 and hub_ghost != hub_blk:
+		if hub_ghost > hub_blk:
+			fill = Color("2a7a58")
+			rim = Color("7dba7d")
+		else:
+			fill = fill.lerp(Color("c4282a"), 0.35)
+			rim = Color("e07a7a")
 	var scale: float = 1.0 + hub_flash * 0.28
 	var shield_c: Vector2 = c + Vector2(0.0, HUB_R * 0.50)
 	var sw: float = 16.0 * scale
@@ -1808,8 +1842,17 @@ func _draw_hub_block(c: Vector2, radius: float) -> void:
 	draw_colored_polygon(shield, fill)
 	shield.append(shield[0])
 	draw_polyline(shield, rim, 3.0, true)
-	var txt: String = str(maxi(shown, 0))
-	_draw_bold_num(font, shield_c + Vector2(0.0, 1.0), txt, 18, Color("f0e6d8"))
+	if hub_ghost >= 0 and hub_ghost != hub_blk:
+		draw_arc(shield_c, sw * 1.15 + 3.0 * pulse, 0.0, TAU, 22, Color(rim.r, rim.g, rim.b, 0.45 + 0.45 * pulse), 2.4, true)
+		var arrow: String = "%s→%s" % [maxi(hub_blk, 0), maxi(hub_ghost, 0)]
+		_draw_bold_num(font, shield_c + Vector2(0.0, 1.0), arrow, 14, Color("f0e6d8"))
+	else:
+		_draw_bold_num(font, shield_c + Vector2(0.0, 1.0), str(maxi(shown, 0)), 18, Color("f0e6d8"))
+	for spark in _hub_sparks:
+		var a: float = 1.0 - float(spark.get("t", 0.0)) / 0.22
+		var col: Color = spark.get("col", Color("7dba7d"))
+		col.a = a
+		draw_rect(Rect2(spark["pos"] - Vector2(2, 2), Vector2(4, 4)), col, true)
 
 
 func _draw_stat_chip(pos: Vector2, fill: Color, ink: Color, txt: String, fs: int) -> void:
@@ -1862,25 +1905,29 @@ func _draw_heart_shape(pos: Vector2, hs: float, fill: Color, outline: Color) -> 
 	draw_circle(pos + Vector2(-hs * 0.16, -hs * 0.10), hs * 0.11, fill.lightened(0.28))
 
 
-func _draw_hub_pip(pos: Vector2, sz: Vector2, live: bool, soon: bool) -> void:
+func _draw_hub_pip(pos: Vector2, sz: Vector2, live: bool, soon: bool, gain: bool = false) -> void:
 	var pulse: float = 0.55 + 0.45 * sin(float(Time.get_ticks_msec()) * 0.014)
 	var draw_sz: Vector2 = sz
-	if soon:
+	if soon or gain:
 		draw_sz *= 1.0 + 0.16 * pulse
-	var tex: Texture2D = tex_heart_full if live else tex_heart_empty
+	var tex: Texture2D = tex_heart_full if live or gain else tex_heart_empty
 	if soon and pulse > 0.55:
 		tex = tex_heart_empty
 	if tex != null:
 		var col := Color.WHITE
 		if soon:
-			col = Color.WHITE.lerp(Color("f0e6d8"), pulse)
+			col = Color.WHITE.lerp(Color("e07a7a"), pulse)
+		elif gain:
+			col = Color.WHITE.lerp(Color("8fd18f"), pulse)
 		elif not live:
 			col = Color(1, 1, 1, 0.92)
 		draw_texture_rect(tex, Rect2(pos - draw_sz * 0.5, draw_sz), false, col)
 		return
 	var hcol := HP_FILL if live else Color(0.28, 0.18, 0.16, 0.9)
 	if soon:
-		hcol = hcol.lerp(Color("f0e6d8"), 0.35 + 0.35 * pulse)
+		hcol = hcol.lerp(Color("e07a7a"), 0.35 + 0.35 * pulse)
+	elif gain:
+		hcol = Color("8fd18f").lerp(Color("f0e6d8"), 0.25 * pulse)
 	_draw_heart_shape(pos, draw_sz.x * 0.72, hcol, Color("1c120c"))
 
 

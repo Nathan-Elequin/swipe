@@ -52,6 +52,19 @@ func _plain_skin() -> void:
 	add_theme_stylebox_override("panel", UX.plate())
 
 
+func set_intent_vitals(atk_n: int, hp_n: int) -> void:
+	_walk_intent(self, atk_n, hp_n)
+
+
+func _walk_intent(n: Node, atk_n: int, hp_n: int) -> void:
+	if n is VitalsIcons:
+		n.atk_ghost = atk_n
+		n.hp_ghost = hp_n
+		n.queue_redraw()
+	for c in n.get_children():
+		_walk_intent(c, atk_n, hp_n)
+
+
 func show_placeholder() -> void:
 	var body: String = COPY.text("inspect.idle", "Hover a monster on the ring, or loot in your hand.")
 	if OS.has_feature("editor"):
@@ -300,6 +313,9 @@ class VitalsIcons extends Control:
 	var hp: int = 0
 	var atk: int = 0
 
+	var hp_ghost: int = -1
+	var atk_ghost: int = -1
+
 	func _init(p_hp: int, p_atk: int) -> void:
 		hp = p_hp
 		atk = p_atk
@@ -320,7 +336,8 @@ class VitalsIcons extends Control:
 		draw_colored_polygon(_heart_pts(pos, hs * 1.14), ink)
 		draw_colored_polygon(_heart_pts(pos, hs), fill)
 		draw_circle(pos + Vector2(0.0, 4.0), hs * 0.28, Color("6a1818"))
-		_num(font, pos + Vector2(0.0, 2.0), str(hp))
+		var shown: String = str(hp) if hp_ghost < 0 else "%s→%s" % [hp, hp_ghost]
+		_num(font, pos + Vector2(0.0, 2.0), shown)
 
 	func _draw_sword(pos: Vector2, font: Font) -> void:
 		var rad := 18.0
@@ -339,7 +356,8 @@ class VitalsIcons extends Control:
 		draw_colored_polygon(PackedVector2Array([tip, right, haft, left]), fill)
 		draw_circle(pos, rad * 0.50, Color(fill.r, fill.g, fill.b, 0.96))
 		draw_arc(pos, rad * 0.50, 0.0, TAU, 22, edge, 2.2, true)
-		_num(font, pos + Vector2(0.0, 1.0), str(atk))
+		var shown: String = str(atk) if atk_ghost < 0 else "%s→%s" % [atk, atk_ghost]
+		_num(font, pos + Vector2(0.0, 1.0), shown)
 
 	func _heart_pts(pos: Vector2, hs: float) -> PackedVector2Array:
 		var pts := PackedVector2Array()

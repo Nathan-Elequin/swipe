@@ -79,6 +79,7 @@ var _can_use: bool = true
 var _deny: Control
 var _tag: Label
 var _face_text: String = ""
+var _intent_n: String = ""
 var _compact: bool = false
 var _gate_fit: bool = false
 var _rest_y: float = 0.0
@@ -542,12 +543,29 @@ func _apply_face(number_text: String) -> void:
 		_mark.visible = false
 
 
+func set_intent_number(text: String) -> void:
+	_intent_n = text.strip_edges()
+	if _num == null:
+		return
+	if _intent_n == "":
+		_apply_face(_shown)
+		_num.modulate = Color.WHITE
+		return
+	_num.text = "%s→%s" % [_shown, _intent_n]
+	_num.modulate = Color("8fd18f")
+	set_process(true)
+
+
 func set_live(number_text: String, _note: String = "", can_use: bool = true) -> void:
 	if _num == null:
 		return
 	_can_use = can_use
 	_shown = number_text
-	_apply_face(number_text)
+	if _intent_n != "":
+		_num.text = "%s→%s" % [_shown, _intent_n]
+		_num.modulate = Color("8fd18f")
+	else:
+		_apply_face(number_text)
 	if _spent_lab:
 		_spent_lab.visible = spent
 	if _mark != null:
@@ -588,10 +606,14 @@ func set_playable(on: bool) -> void:
 
 
 func _process(delta: float) -> void:
-	if not _glow and not _playable:
+	if not _glow and not _playable and _intent_n == "":
 		return
 	_glow_t += delta
-	_apply_style(_hot)
+	if _glow or _playable:
+		_apply_style(_hot)
+	if _intent_n != "" and _num != null:
+		var pulse: float = 0.72 + 0.28 * sin(float(Time.get_ticks_msec()) * 0.014)
+		_num.modulate = Color("8fd18f") * pulse
 
 
 func qa_text_state() -> Dictionary:

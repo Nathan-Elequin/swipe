@@ -87,6 +87,10 @@ var rng := RandomNumberGenerator.new()
 var _hotbar_sig: String = ""
 var _blk_shown: int = -1
 var _ghost_blk: int = -1
+var _ghost_refusals: int = -1
+var _intent_simulating: bool = false
+var _intent_killed: Array = []
+var _intent_last: Dictionary = {}
 var _inspect_pinned: bool = false
 
 var tex_heart: Texture2D
@@ -1011,6 +1015,45 @@ func _preview_bribe(index: int) -> Dictionary:
 
 func _preview_from_item(it: Dictionary) -> Dictionary:
 	return {}
+
+func _simulate_item(it: Dictionary, extra: Dictionary = {}) -> Dictionary:
+	return {}
+
+func _simulate_done() -> Dictionary:
+	return {}
+
+func _simulate_leave() -> Dictionary:
+	return {}
+
+func _simulate_take_draft() -> Dictionary:
+	return {}
+
+func _simulate_mark(index: int) -> Dictionary:
+	return {}
+
+func _intent_snapshot() -> Dictionary:
+	return {}
+
+func _intent_restore(_s: Dictionary) -> void:
+	pass
+
+func _intent_diff(_before: Dictionary, _after: Dictionary) -> Dictionary:
+	return {}
+
+func _intent_mark_kill(_index: int) -> void:
+	pass
+
+func _apply_owner_swing(_m: Dictionary) -> int:
+	return 0
+
+func _intent_mute():
+	return null
+
+func _intent_unmute(_saved) -> void:
+	pass
+
+func _on_leave_hover(on: bool) -> void:
+	pass
 
 func _punch_blk() -> void:
 	pass
