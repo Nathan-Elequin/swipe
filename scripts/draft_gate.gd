@@ -16,6 +16,11 @@ const SOOT := Color("1A120E")
 const PARCHMENT := Color("E9D3A1")
 const DIM := Color("A88C66")
 const ATK := Color("D5443B")
+const OAK := Color("3B2618")
+const NIB_VOID := Color("0B0706")
+const NIB_GREEN := Color("7BC950")
+const ITEM_WELL := Color("2C1D10")
+const GATE_CARD := Vector2(136, 192)
 
 var art
 var mode: String = "hidden"
@@ -31,6 +36,7 @@ var _doors: float = 0.55
 var _mystery: bool = true
 var _cue: Label
 var _item_slot: Control
+var _item_well: Panel
 var _bait: PanelContainer
 var _item_icon: TextureRect
 var _item_name: Label
@@ -47,13 +53,19 @@ var _pips: HBoxContainer
 var _pip_dots: Array = []
 var _owner_plate
 var _relic_host: CenterContainer
+var _nib_well: Panel
 var _nib: TextureRect
+var _glow: TextureRect
 var _glow_t: float = 0.0
 var _font_px: Font
 var _font_vt: Font
 var _font_sk: Font
 var _item_tex: Texture2D
 var _actor: Control
+var _item_hot: bool = false
+var _nib_idle: Array = []
+var _nib_smug: Texture2D
+var _threat_pips: Array = []
 
 
 func setup(p_art) -> void:
@@ -79,25 +91,43 @@ func _build() -> void:
 	_cue.max_lines_visible = 2
 	if _font_px != null:
 		_cue.add_theme_font_override("font", _font_px)
-	_cue.add_theme_font_size_override("font_size", 28)
+	_cue.add_theme_font_size_override("font_size", 30)
 	_cue.add_theme_color_override("font_color", PARCHMENT)
 	_cue.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_cue.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_cue.custom_minimum_size = Vector2(0, 36)
 	add_child(_cue)
 
 	_item_slot = Control.new()
 	_item_slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_item_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_item_slot.size_flags_stretch_ratio = 0.6
-	_item_slot.custom_minimum_size = Vector2(0, 160)
+	_item_slot.custom_minimum_size = Vector2(508, 212)
+	_item_slot.clip_contents = true
 	add_child(_item_slot)
+
+	_item_well = Panel.new()
+	_item_well.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_item_well.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_item_slot.add_child(_item_well)
+
+	_glow = TextureRect.new()
+	_glow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_glow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_glow.texture_filter = TEXTURE_FILTER_NEAREST
+	if ResourceLoader.exists("res://assets/vfx/vfx_glow_gold.png"):
+		_glow.texture = load("res://assets/vfx/vfx_glow_gold.png")
+	_item_slot.add_child(_glow)
 
 	_bait = PanelContainer.new()
 	_bait.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_bait.mouse_filter = Control.MOUSE_FILTER_STOP
 	_bait.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_bait.gui_input.connect(_on_bait_input)
-	_bait.mouse_entered.connect(func() -> void: item_hovered.emit())
-	_bait.mouse_exited.connect(func() -> void: item_unhovered.emit())
+	_bait.mouse_entered.connect(_on_item_in)
+	_bait.mouse_exited.connect(_on_item_out)
 	_style_bait()
 	_item_slot.add_child(_bait)
 
@@ -154,7 +184,8 @@ func _build() -> void:
 	_threat_slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_threat_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_threat_slot.size_flags_stretch_ratio = 0.4
-	_threat_slot.custom_minimum_size = Vector2(0, 88)
+	_threat_slot.custom_minimum_size = Vector2(508, 140)
+	_threat_slot.clip_contents = false
 	add_child(_threat_slot)
 
 	_threat = Control.new()
@@ -185,11 +216,26 @@ func _build() -> void:
 	_threat_name = Label.new()
 	_threat_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_threat_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	if _font_sk != null:
-		_threat_name.add_theme_font_override("font", _font_sk)
-	_threat_name.add_theme_font_size_override("font_size", 28)
+	if _font_px != null:
+		_threat_name.add_theme_font_override("font", _font_px)
+	_threat_name.add_theme_font_size_override("font_size", 52)
 	_threat_name.add_theme_color_override("font_color", SOOT)
+	_threat_name.add_theme_color_override("font_shadow_color", OAK)
+	_threat_name.add_theme_constant_override("shadow_offset_x", 0)
+	_threat_name.add_theme_constant_override("shadow_offset_y", 4)
 	threat_col.add_child(_threat_name)
+
+	var pip_row := HBoxContainer.new()
+	pip_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	pip_row.add_theme_constant_override("separation", 10)
+	pip_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	threat_col.add_child(pip_row)
+	for _n in range(3):
+		var pip := Panel.new()
+		pip.custom_minimum_size = Vector2(22, 10)
+		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pip_row.add_child(pip)
+		_threat_pips.append(pip)
 
 	_actor = Control.new()
 	_actor.visible = false
@@ -205,8 +251,9 @@ func _build() -> void:
 		add_child(_owner_plate)
 
 	_refuse = Button.new()
-	_refuse.custom_minimum_size = Vector2(0, 56)
+	_refuse.custom_minimum_size = Vector2(0, 50)
 	_refuse.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_refuse.size_flags_vertical = Control.SIZE_SHRINK_END
 	_refuse.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	if _font_px != null:
 		_refuse.add_theme_font_override("font", _font_px)
@@ -226,30 +273,63 @@ func _build() -> void:
 		_pips.add_child(d)
 		_pip_dots.append(d)
 
+	_nib_well = Panel.new()
+	_nib_well.top_level = true
+	_nib_well.position = Vector2(1086, 570)
+	_nib_well.size = Vector2(88, 88)
+	_nib_well.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_nib_well.z_index = 8
+	var nsb := StyleBoxFlat.new()
+	nsb.bg_color = NIB_VOID
+	nsb.border_color = NIB_GREEN
+	nsb.set_border_width_all(6)
+	_nib_well.add_theme_stylebox_override("panel", nsb)
+	add_child(_nib_well)
+
 	_nib = TextureRect.new()
-	_nib.top_level = true
-	_nib.position = Vector2(24, 900)
-	_nib.size = Vector2(80, 80)
+	_nib.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_nib.offset_left = -32
+	_nib.offset_top = -32
+	_nib.offset_right = 32
+	_nib.offset_bottom = 32
 	_nib.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_nib.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_nib.texture_filter = TEXTURE_FILTER_NEAREST
 	_nib.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_nib.z_index = 8
-	if art != null and art.has_method("nib_portrait"):
-		_nib.texture = art.nib_portrait()
-	add_child(_nib)
+	_nib_well.visible = false
+	_nib_well.add_child(_nib)
+	if art != null:
+		if art.has_method("nib_frames"):
+			_nib_idle = art.nib_frames("idle")
+			var smug_frames: Array = art.nib_frames("smug")
+			if not smug_frames.is_empty():
+				_nib_smug = smug_frames[0]
+		if _nib_smug == null and ResourceLoader.exists("res://assets/sprites/nib/nib_smug.png"):
+			_nib_smug = load("res://assets/sprites/nib/nib_smug.png")
+		if _nib_idle.is_empty() and art.has_method("nib_portrait"):
+			var port: Texture2D = art.nib_portrait()
+			if port != null:
+				_nib_idle = [port]
+	_sync_nib()
 
 
 func _style_bait() -> void:
-	var bsb := StyleBoxFlat.new()
-	bsb.bg_color = Color("2A1C10")
-	bsb.border_color = GOLD
-	bsb.set_border_width_all(6)
-	bsb.content_margin_left = 10
-	bsb.content_margin_right = 10
-	bsb.content_margin_top = 8
-	bsb.content_margin_bottom = 8
-	_bait.add_theme_stylebox_override("panel", bsb)
+	if _item_well:
+		var wsb := StyleBoxFlat.new()
+		wsb.bg_color = ITEM_WELL
+		wsb.border_color = GOLD
+		wsb.set_border_width_all(4)
+		_item_well.add_theme_stylebox_override("panel", wsb)
+	if _bait:
+		var bsb := StyleBoxFlat.new()
+		bsb.bg_color = Color(0, 0, 0, 0)
+		bsb.border_color = GOLD if _item_hot else Color(0, 0, 0, 0)
+		bsb.set_border_width_all(2 if _item_hot else 0)
+		bsb.content_margin_left = 6
+		bsb.content_margin_right = 6
+		bsb.content_margin_top = 6
+		bsb.content_margin_bottom = 6
+		_bait.add_theme_stylebox_override("panel", bsb)
 
 
 func _style_leave(on: bool) -> void:
@@ -288,8 +368,7 @@ func present_mystery(item: Dictionary, tier: int, item_tex: Texture2D, passes_le
 	lock_dock = false
 	mode = "ask"
 	visible = true
-	if _nib:
-		_nib.visible = true
+	_show_nib(true)
 	_cue.text = COPY.need("cue.ask")
 	_cue.visible = _cue.text.strip_edges() != ""
 	if _actor:
@@ -367,16 +446,26 @@ func _strip_bb(s: String) -> String:
 
 
 func _write_threat(tier: int) -> void:
+	var t: int = clampi(tier, 1, 3)
 	if _threat_name:
-		_threat_name.text = COPY.tier_name(tier)
-		_threat_name.add_theme_color_override("font_color", UX.metal_ink(tier))
-		if _font_sk != null:
-			_threat_name.add_theme_font_override("font", _font_sk)
-		_threat_name.add_theme_font_size_override("font_size", 22 if tier <= 1 else (26 if tier == 2 else 32))
+		_threat_name.text = COPY.tier_name(t)
+		_threat_name.add_theme_color_override("font_color", UX.metal_ink(t))
+		if _font_px != null:
+			_threat_name.add_theme_font_override("font", _font_px)
+		_threat_name.add_theme_font_size_override("font_size", 52)
+		_threat_name.add_theme_color_override("font_shadow_color", OAK)
+		_threat_name.add_theme_constant_override("shadow_offset_x", 0)
+		_threat_name.add_theme_constant_override("shadow_offset_y", 4)
 	if _threat_icon:
-		_threat_icon.visible = tier >= 2
-		_threat_icon.modulate = UX.metal_ink(tier)
-		_threat_icon.custom_minimum_size = Vector2(28, 28) if tier == 2 else Vector2(40, 40)
+		_threat_icon.visible = false
+	for i in _threat_pips.size():
+		var pip: Panel = _threat_pips[i]
+		var psb := StyleBoxFlat.new()
+		psb.bg_color = ATK if i < t else OAK
+		psb.border_color = SOOT
+		psb.set_border_width_all(2)
+		pip.add_theme_stylebox_override("panel", psb)
+		pip.custom_minimum_size = Vector2(22, 10)
 	if _threat:
 		_threat.queue_redraw()
 
@@ -431,6 +520,7 @@ func set_seat() -> void:
 	_threat_slot.visible = false
 	if _cue:
 		_cue.text = COPY.text("cue.seat", "A monster approaches. Select their location.")
+	_show_nib(true)
 
 
 func leave_btn() -> Control:
@@ -453,8 +543,7 @@ func hide_gate() -> void:
 	_idle.clear()
 	_run.clear()
 	hide_owner()
-	if _nib:
-		_nib.visible = false
+	_show_nib(false)
 	clear_relic()
 	scale = Vector2.ONE
 	modulate.a = 1.0
@@ -518,8 +607,7 @@ func still_tex() -> Texture2D:
 
 
 func dock(_wheel: Control) -> void:
-	if _nib:
-		_nib.global_position = Vector2(24, 900)
+	_place_nib()
 
 
 func clear_relic() -> void:
@@ -539,6 +627,12 @@ func mount_relic(card: Control) -> void:
 		return
 	if card.get_parent() != null:
 		card.get_parent().remove_child(card)
+	if card.has_method("set_gate_fit"):
+		card.set_gate_fit(true)
+	elif card.has_method("set_compact"):
+		card.set_compact(true)
+	card.custom_minimum_size = GATE_CARD
+	card.size = GATE_CARD
 	_relic_host.add_child(card)
 	card.visible = true
 	_relic_host.visible = true
@@ -600,6 +694,11 @@ func qa_snapshot() -> Dictionary:
 		"threat": _threat_name.text if _threat_name else "",
 		"item_name": _item_name.text if _item_name else "",
 		"rect": [r.position.x, r.position.y, r.size.x, r.size.y],
+		"nib": (
+			[_nib_well.position.x, _nib_well.position.y, _nib_well.size.x, _nib_well.size.y]
+			if _nib_well else [0, 0, 0, 0]
+		),
+		"nib_visible": _nib_well.visible if _nib_well else false,
 	}
 
 
@@ -610,25 +709,17 @@ func _draw_threat() -> void:
 	if sz.x < 8.0 or sz.y < 8.0:
 		return
 	var t: int = clampi(pack_tier, 1, 3)
-	var well: Color = UX.metal_well(t)
+	var fill: Color = UX.metal_wedge(t)
 	var rim: Color = UX.metal(t)
-	var pulse: float = 0.0
-	if t >= 3:
-		pulse = 0.45 + 0.55 * absf(sin(_glow_t * TAU / 0.85))
-	elif t == 2:
-		pulse = 0.15
-	var pad := 2.0
+	var pad := 0.0
 	var box := Rect2(Vector2(pad, pad), sz - Vector2(pad * 2.0, pad * 2.0))
-	_threat.draw_rect(box, well, true)
 	if t >= 3:
+		var pulse: float = 0.45 + 0.55 * absf(sin(_glow_t * TAU / 0.85))
 		var glow := Color(ATK.r, ATK.g, ATK.b, 0.18 + 0.42 * pulse)
 		_threat.draw_rect(box.grow(6.0 + 4.0 * pulse), glow, false, 8.0 + 6.0 * pulse)
-	var bw: float = 3.0 if t <= 1 else (5.0 if t == 2 else 8.0)
-	_threat.draw_rect(box, rim, false, bw)
-	if t >= 3:
-		_threat.draw_rect(box.grow(-5.0), Color(ATK.r, ATK.g, ATK.b, 0.35 + 0.4 * pulse), false, 3.0)
-	if t >= 2 and (_threat_icon == null or _threat_icon.texture == null):
-		_draw_skull(sz * 0.5 + Vector2(0, -10), 14.0 if t == 2 else 18.0, UX.metal_ink(t))
+	_threat.draw_rect(box, fill, true)
+	_threat.draw_rect(box, rim, false, 6.0)
+	_threat.draw_rect(box.grow(-6.0), OAK, false, 3.0)
 
 
 func _draw_skull(c: Vector2, r: float, col: Color) -> void:
@@ -667,22 +758,61 @@ func _draw_doors(sz: Vector2) -> void:
 	_actor.draw_rect(Rect2(Vector2(hole.end.x - leaf_w, hole.position.y), Vector2(leaf_w, hole.size.y)), wood)
 
 
+func _on_item_in() -> void:
+	_item_hot = true
+	_style_bait_hot(true)
+	_sync_nib()
+	item_hovered.emit()
+
+
+func _on_item_out() -> void:
+	_item_hot = false
+	_style_bait_hot(false)
+	_sync_nib()
+	item_unhovered.emit()
+
+
+func _style_bait_hot(_on: bool) -> void:
+	_style_bait()
+
+
+func _show_nib(on: bool) -> void:
+	if _nib_well:
+		_nib_well.visible = on
+	_place_nib()
+	_sync_nib()
+
+
+func _place_nib() -> void:
+	if _nib_well == null:
+		return
+	_nib_well.position = Vector2(1086, 570)
+	_nib_well.size = Vector2(88, 88)
+
+
+func _sync_nib() -> void:
+	if _nib == null:
+		return
+	if _item_hot and _nib_smug != null:
+		_nib.texture = _nib_smug
+		return
+	if not _nib_idle.is_empty():
+		_nib.texture = _nib_idle[int(_fi) % _nib_idle.size()]
+
+
 func _process(delta: float) -> void:
-	if not visible:
+	if not visible and (_nib_well == null or not _nib_well.visible):
 		return
 	_fi += delta * 5.5
 	_bob += delta
 	_glow_t += delta
-	if _bait and _bait.visible:
-		var pulse: float = 0.70 + 0.30 * absf(sin(_glow_t * TAU / 1.2))
-		_bait.modulate = Color(1, 1, 1, 0.90 + 0.10 * pulse)
-		var sb: StyleBoxFlat = _bait.get_theme_stylebox("panel") as StyleBoxFlat
-		if sb:
-			sb.shadow_color = Color(GOLD.r, GOLD.g, GOLD.b, 0.20 + 0.25 * pulse)
-			sb.shadow_size = int(10 + 8 * pulse)
+	if _glow and _glow.visible:
+		var ga: float = 0.80 + 0.20 * absf(sin(_glow_t * TAU / 1.2))
+		_glow.modulate = Color(1, 1, 1, ga)
 	if _threat and _threat.visible:
 		_threat.queue_redraw()
 	if _actor and _actor.visible:
 		_actor.queue_redraw()
-	if _nib:
-		_nib.global_position = Vector2(24, 900)
+	_place_nib()
+	if not _item_hot:
+		_sync_nib()
