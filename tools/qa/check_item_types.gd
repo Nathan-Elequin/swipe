@@ -109,4 +109,16 @@ func _check_shift_size(main: Node, bad: PackedStringArray) -> bool:
 	if str(card.get("kind")) == "ATK":
 		bad.append("grappling_hook card.kind is ATK")
 		return false
+	if card.has_method("qa_text_state"):
+		var st: Dictionary = card.call("qa_text_state")
+		print("SHIFT_TEXT ", st)
+		if bool(st.get("title_clip", true)):
+			bad.append("grappling_hook title clips")
+			return false
+		if bool(st.get("num_visible", false)) and bool(st.get("detail_visible", false)):
+			bad.append("grappling_hook Shift did not replace standing text")
+			return false
+		if bool(st.get("formula_box_visible", false)):
+			bad.append("grappling_hook still has an extra formula box")
+			return false
 	return true

@@ -7,7 +7,7 @@ Mockups: `design/visual/mockups/` and on the Doop canvas [Swipe Art Refresh — 
 ## 1. Canvas and pixel scale
 - Window 1680×1040. Art is drawn on a **virtual 420×260 grid at 4×**, so every art edge lands on a multiple of 4 px.
 - 16×16 sprites at 4× = 64×64 (wheel seats, hand cards). Hero sizes (loot, inspect, monster portrait) use 8× = 128×128. Nib's portrait is 32×32 at 4×.
-- Project settings: `rendering/textures/canvas_textures/default_texture_filter = Nearest`, `rendering/2d/snap/snap_2d_transforms_to_pixel = true`, `snap_2d_vertices_to_pixel = true`. Pixel fonts (Pixelify, Silkscreen, VT323): FontFile antialiasing None, hinting None, subpixel positioning off. Nunito (utility): antialiasing grayscale, hinting light. The AA-off rule applies to pixel fonts only.
+- Project settings: `rendering/textures/canvas_textures/default_texture_filter = Nearest`, `rendering/2d/snap/snap_2d_transforms_to_pixel = true`, `snap_2d_vertices_to_pixel = true`. Pixel fonts (Pixelify, Silkscreen, VT323): FontFile antialiasing None, hinting None, subpixel positioning off. Barlow Semi Condensed and Nunito (utility): antialiasing grayscale, hinting light. The AA-off rule applies to pixel fonts only.
 - UI text and panel borders can sit on a 2 px grid. Sprites must sit on the 4 px grid.
 
 ## 2. Palette (only these)
@@ -37,23 +37,23 @@ Rule: gold means "you want this" and red means "this hurts". Never use gold for 
 ## 3. Type (all SIL OFL, from Google Fonts, stored in `assets/ui/fonts/`)
 
 ### Typography: utility vs flavor
-Utility text is anything the player has to read to play: item names, monster names, the description under them, and stat numbers (ATK / BLK / HEAL / HP, pips, card values). Flavor text is the dungeon voice: titles, screen headers, cue lines (`Take it or leave it?`), Nib's talk, banners (`BLOCKED` / `SLAIN`), and buttons.
+Utility text is anything the player has to read to play: item titles, monster names, ability titles, the detailed description under them, and stat numbers (ATK / BLK / HEAL / HP, pips, card values). Flavor text is the dungeon voice: screen headers, cue lines (`Take it or leave it?`), Nib's talk, banners (`BLOCKED` / `SLAIN`), and buttons.
 
 | Role | Font | Sizes at 1680×1040 | Contrast |
 |---|---|---|---|
-| **Utility name** | Nunito SemiBold / Bold | ~24 px. Theme type `UtilityName`. | Parchment `#E9D3A1` on oak / soot. Aim for WCAG AA (4.5:1). |
-| **Utility body** | Nunito Regular | ~20 px. Theme type `UtilityBody`. | Same parchment (or dim `#B89A70` for secondary lines). |
-| **Utility number** | Nunito Bold / ExtraBold | ~28 px. Theme type `UtilityNumber`. Tags `UtilityTag` at 18 px Bold. | Stat ink: ATK `#E86A62`, BLK `#4FA3D9`, HEAL `#7BC950`, KO `#C080E0` (ATK / KO lightened from the palette red / plum so they pass on oak). If a number still fails, put it on a soot plate `#140D0A` — no outline or glow. |
-| **Smallest utility text anywhere** | Nunito | **18 px.** Wheel seat chips stay at 18 ExtraBold; they cannot take 28 without covering the portrait. | Seat chips use a soot plate; HP chips use fill `#C43B34` so white digits pass. |
+| **Utility name** | Barlow Semi Condensed SemiBold | ~24 px. Theme type `UtilityName`. Item titles, monster names, ability titles. | Parchment `#E9D3A1` on oak / soot. Aim for WCAG AA (4.5:1). |
+| **Utility body** | Barlow Semi Condensed Regular / Bold | ~20 px. Theme type `UtilityBody`. Detailed descriptions, Shift detail on a card, monster speech on Shift. | Same parchment (or dim `#B89A70` for secondary lines). |
+| **Utility number** | Nunito Bold / ExtraBold | ~28 px. Theme type `UtilityNumber`. Tags `UtilityTag` at 18 px Bold. Keep Nunito on numbers if it reads better than Barlow. | Stat ink: ATK `#E86A62`, BLK `#4FA3D9`, HEAL `#7BC950`, KO `#C080E0` (ATK / KO lightened from the palette red / plum so they pass on oak). If a number still fails, put it on a soot plate `#140D0A` — no outline or glow. |
+| **Wheel capsules** | Barlow Semi Condensed SemiBold | Start at 18 px. Each of the monster name and the ability title stays **one line**. Shrink the size until that line fits (floor 10 px). | Same metal ink as now. |
 | Flavor display | Pixelify Sans 700 | logo 170 · end titles 84/72 · modal title 54 · cues 40–42 · buttons 40–56 | loot gold / parchment / ATK red on the existing panels |
 | Flavor chips / Weak–Tough–Deadly pills | Silkscreen 700 | 12–16 | soot on the pill colour |
 | Flavor body (Nib, cue help, pause labels) | VT323 400 | 26–38 | parchment / dim |
 
 Sizes and fonts live in `scripts/ui_palette.gd` (`UiPalette`) and `themes/swipe_theme.tres`. New screens should call `UiPalette.apply_name` / `apply_body` / `apply_number` / `apply_tag` (or set the theme type variation) instead of hard-coding a pixel font on utility labels.
 
-Silkscreen draws every letter as a capital. Any **flavor** label that the copy file writes in title case ("The monster", "Master"…) uses **VT323**, so it shows exactly as written. Utility names use Nunito, which already shows title case.
+Silkscreen draws every letter as a capital. Any **flavor** label that the copy file writes in title case ("The monster", "Master"…) uses **VT323**, so it shows exactly as written. Utility names use Barlow Semi Condensed, which already shows title case.
 
-Cards and plates may grow a little so 24 / 20 / 28 px text does not clip. Do not shrink utility text below 18 px to fit.
+Item card titles wrap onto as many lines as they need. Do not clip them. Holding Shift replaces the standing number line (for example `ATK 4`) with the detailed text in that same slot, same font family, inside the fixed card size. Do not add a second box for the detail. Wheel capsules may shrink below 18 px so each line still fits.
 
 ## 4. Theme types (in `swipe_theme.tres`)
 | Type variation | Base | StyleBox | Font / colour |
@@ -68,8 +68,8 @@ Cards and plates may grow a little so 24 / 20 / 28 px text does not clip. Do not
 | `LabelSmall` | Label | — | Silkscreen 14, dim, spacing 2 (only for all-caps flavor text) |
 | `LabelSmallBody` | Label | — | VT323 26–28, dim (for title-case flavor labels) |
 | `BodyLabel` | Label | — | VT323 30, parchment (Nib / flavor body) |
-| `UtilityName` | Label | — | Nunito SemiBold 24, parchment |
-| `UtilityBody` | Label | — | Nunito Regular 20, parchment |
+| `UtilityName` | Label | — | Barlow Semi Condensed SemiBold 24, parchment |
+| `UtilityBody` | Label | — | Barlow Semi Condensed Regular 20, parchment |
 | `UtilityNumber` | Label | — | Nunito ExtraBold 28, parchment (override colour per stat) |
 | `UtilityTag` | Label | — | Nunito Bold 18, parchment (ATK / BLK / HEAL / HP) |
 
@@ -89,7 +89,7 @@ The gutter between the wheel's right edge (x 854) and the column (x 1086) stays 
 
 ## 6. Hand card (the same everywhere)
 - Card 140×210 (124×210 at 8 cards), 6 px border in the **tier colour** (Weak bronze / Tough silver / Deadly gold).
-- Name is Nunito SemiBold 24, centred, max 2 lines. Middle: 64×64 sprite. Bottom: **exactly one value and one type tag** in Nunito ExtraBold 28 + Bold 18: `3 ATK` (red), `4 BLK` (blue), `3 HEAL` (green), `KO` (plum, no tag), or `?` plus a tag when the value depends on the fight.
+- Name is Barlow Semi Condensed SemiBold 18–24, centred, wrapping onto as many lines as needed. Never clip the title. Middle: 64×64 sprite. Bottom: **exactly one value and one type tag** in Nunito ExtraBold 28 + Bold 18: `3 ATK` (red), `4 BLK` (blue), `3 HEAL` (green), `KO` (plum, no tag), or `?` plus a tag when the value depends on the fight. Holding Shift replaces that standing line with the detailed text in the same slot (Barlow, no extra box).
 - Never "—", "X", icon-only, or two numbers on one card. Extra detail belongs in Inspect.
 - States: hover = lift 18 px + 4 px gold ring · spent = 38 % alpha, stays in the row until the fight resolves · disabled = 60 % alpha, no lift · drag = lift 24 px.
 
@@ -119,11 +119,11 @@ These are player-facing fight-screen rules. Direction A oak tokens stay. Do not 
 
 1. **Facing callout** — the owner you are fighting sits beside the wheel (portrait + name + ability), not only as a small seat chip. Idle bob. Shake/flash when they attack.
 2. **Seat stats** — heart (HP) on the left of the portrait, sword (ATK) on the right. Sprites and those icons stay about 30% larger than the pre-refresh 64 px seats.
-3. **Seat names** — name + ability sit in capsules under the wheel monster. Nunito for that utility text.
+3. **Seat names** — name + ability sit in capsules under the wheel monster. Barlow Semi Condensed for that utility text. Each of those two lines stays one line; shrink the text to fit.
 4. **Weak / Tough / Deadly** — shown as both alcove fill and alcove rim. Never the word Tier on the wheel.
 5. **Item card fill** — the whole card face uses JSON `card_color`. Not a thin strip on oak.
 6. **Hand** — shrink the cards first, then wrap to a second row. Cards must not overlap Spin or each other.
 7. **Event log** — not a permanent right column in a fight. Show on Shift or a hover in the top-right. Hide it again when the mouse leaves and Shift is up.
 8. **Hub knight** — the hub is the knight (run frames), a shield with the Block number, and an arc of six hearts. No HP numeral in the hub. Wheel monsters face the knight.
-9. **Card titles** — keep titles short (Nunito 18). Shift shows the formula/ability on the card with space between the number and the words. Stat icons stay the current size.
+9. **Card titles** — titles wrap onto as many lines as they need (Barlow Semi Condensed). Never clip them. Holding Shift replaces the standing number line with the detailed text in that same slot, same family, inside the fixed card size. No extra box. Stat icons stay the current size.
 10. **Action button** — Spin / Take-the-hit stays centred under the facing arrow. Do not put a prompt line above that button.

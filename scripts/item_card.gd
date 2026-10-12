@@ -1,5 +1,5 @@
 extends PanelContainer
-## Named card. Icon + live number. Shift shows the hover equation in the number slot.
+## Named card. Icon + live number. Shift replaces the standing number with the detail text.
 
 signal picked
 signal hovered
@@ -144,10 +144,10 @@ func setup(
 	_title.text = title
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_title.autowrap_mode = TextServer.AUTOWRAP_OFF
-	_title.max_lines_visible = 1
-	_title.clip_text = true
-	_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_title.max_lines_visible = 0
+	_title.clip_text = false
+	_title.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	_title.custom_minimum_size = Vector2(104, TITLE_H)
 	UI.apply_name(_title, PARCHMENT, UI.SIZE_MIN)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -234,15 +234,13 @@ func setup(
 	_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	val_row.add_child(_tag)
 
-	_gap_formula = _spacer(6)
-	col.add_child(_gap_formula)
+	_gap_formula = _spacer(0)
+	_gap_formula.visible = false
 
 	_formula_box = Control.new()
-	_formula_box.custom_minimum_size = Vector2(FORMULA_W, FORMULA_H)
-	_formula_box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_formula_box.visible = false
+	_formula_box.custom_minimum_size = Vector2(0, 0)
 	_formula_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_formula_box.clip_contents = true
-	col.add_child(_formula_box)
 
 	_eq = RichTextLabel.new()
 	_eq.bbcode_enabled = true
@@ -254,7 +252,7 @@ func setup(
 	_eq.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_eq.visible = false
-	_formula_box.add_child(_eq)
+	num_host.add_child(_eq)
 	_shown = number_text
 	_rank.visible = false
 	_apply_face(number_text)
@@ -337,6 +335,8 @@ func set_title(text: String) -> void:
 	if _title == null:
 		return
 	_title.text = text
+	if not _showcase:
+		_layout_hand_budget()
 
 
 func set_ability_bb(bb: String) -> void:
@@ -366,9 +366,10 @@ func set_showcase(on: bool) -> void:
 	if _title:
 		UI.apply_name(_title, PARCHMENT, UI.SIZE_MIN)
 		_title.custom_minimum_size = Vector2(196 if on else 104, 32 if on else TITLE_H)
-		_title.max_lines_visible = 2 if on else 1
-		_title.autowrap_mode = TextServer.AUTOWRAP_WORD if on else TextServer.AUTOWRAP_OFF
-		_title.clip_text = not on
+		_title.max_lines_visible = 0
+		_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_title.clip_text = false
+		_title.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	if _rank:
 		_rank.visible = false
 		UI.apply_tag(_rank, Color("c4a574"), UI.SIZE_TAG)
@@ -593,6 +594,28 @@ func _process(delta: float) -> void:
 	_apply_style(_hot)
 
 
+func qa_text_state() -> Dictionary:
+	var title_lines := 0
+	if _title != null:
+		title_lines = _title.get_line_count()
+	return {
+		"size": size,
+		"min_size": custom_minimum_size,
+		"title": _title.text if _title != null else "",
+		"title_wrap": int(_title.autowrap_mode) if _title != null else 0,
+		"title_clip": _title.clip_text if _title != null else true,
+		"title_overrun": int(_title.text_overrun_behavior) if _title != null else 0,
+		"title_lines": title_lines,
+		"standing_visible": _val_row != null and _val_row.visible and not _formula_on,
+		"num_visible": _num != null and _num.visible,
+		"detail_visible": _eq != null and _eq.visible,
+		"detail_text": _plain_formula(_eq.text) if _eq != null else "",
+		"formula_on": _formula_on,
+		"formula_box_visible": _formula_box != null and _formula_box.visible,
+		"formula_box_h": _formula_box.custom_minimum_size.y if _formula_box != null else 0.0,
+	}
+
+
 func set_formula(bb: String) -> void:
 	_formula = bb
 
@@ -655,9 +678,10 @@ func _layout_showcase() -> void:
 			_col.move_child(_num_host, _gap_num.get_index() + 1)
 		else:
 			_col.move_child(_num_host, _icon.get_index() + 1)
-		if _gap_formula and _formula_box:
-			_col.move_child(_gap_formula, _num_host.get_index() + 1)
-			_col.move_child(_formula_box, _gap_formula.get_index() + 1)
+		if _gap_formula:
+			_gap_formula.visible = false
+		if _formula_box:
+			_formula_box.visible = false
 		_layout_hand_budget()
 
 
@@ -671,35 +695,69 @@ func _is_word_card() -> bool:
 	return shown == "" or shown == "?" or shown.to_upper() == "X"
 
 
+func _title_needed_h(inner_w: float) -> float:
+	var floor_h: float = 20.0 if _gate_fit else TITLE_H
+	if _title == null:
+		return floor_h
+	var font: Font = _title.get_theme_font("font")
+	if font == null:
+		font = UI.font_name()
+	var fs: int = _title.get_theme_font_size("font_size")
+	if fs <= 0:
+		fs = UI.SIZE_MIN
+	if font == null:
+		return floor_h
+	var txt: String = _title.text
+	if txt.strip_edges() == "":
+		return floor_h
+	var sz: Vector2 = font.get_multiline_string_size(txt, HORIZONTAL_ALIGNMENT_CENTER, maxf(inner_w, 8.0), fs)
+	return maxf(floor_h, ceili(sz.y) + 2.0)
+
+
 func _layout_hand_budget() -> void:
 	if _showcase:
 		return
 	var word: bool = _is_word_card()
 	var inner_w: float = _hand_size().x - 16.0
-	var title_h: float = 22.0 if _gate_fit else TITLE_H
-	var icon_h: float = 52.0 if _gate_fit else ICON_H
-	var num_h: float = 28.0 if _gate_fit else NUM_H
-	var formula_h: float = 40.0 if _gate_fit else FORMULA_H
-	var word_h: float = 72.0 if _gate_fit else WORD_H
+	var inner_h: float = _hand_size().y - 16.0
+	var title_h: float = _title_needed_h(inner_w)
+	var gap_icon_h: float = 2.0 if _gate_fit else 4.0
+	var gap_num_h: float = 2.0 if _gate_fit else 4.0
+	var icon_pref: float = 52.0 if _gate_fit else ICON_H
+	var num_stand: float = 28.0 if _gate_fit else NUM_H
+	var detail_min: float = 40.0 if _gate_fit else FORMULA_H
+	var show_detail: bool = _formula_on
+	var num_h: float = 0.0
+	if show_detail:
+		num_h = detail_min
+	elif not word:
+		num_h = num_stand
+	var used: float = title_h + gap_icon_h + gap_num_h + num_h
+	var icon_h: float = clampf(inner_h - used, 32.0, icon_pref)
+	if show_detail:
+		num_h = maxf(detail_min, inner_h - title_h - gap_icon_h - gap_num_h - icon_h)
 	if _title:
 		_title.custom_minimum_size = Vector2(inner_w, title_h)
+		_title.clip_text = false
+		_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_title.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	if _icon:
 		_icon.custom_minimum_size = Vector2(icon_h, icon_h)
 	if _gap_icon:
 		_gap_icon.visible = true
-		_gap_icon.custom_minimum_size = Vector2(0, 2 if _gate_fit else 4)
+		_gap_icon.custom_minimum_size = Vector2(0, gap_icon_h)
 	if _gap_num:
-		_gap_num.visible = true
-		_gap_num.custom_minimum_size = Vector2(0, 2 if _gate_fit else 4)
+		_gap_num.visible = num_h > 0.0
+		_gap_num.custom_minimum_size = Vector2(0, gap_num_h if num_h > 0.0 else 0.0)
 	if _num_host:
-		_num_host.visible = not word
-		_num_host.custom_minimum_size = Vector2(inner_w, 0.0 if word else num_h)
+		_num_host.visible = num_h > 0.0
+		_num_host.custom_minimum_size = Vector2(inner_w, num_h)
 	if _gap_formula:
-		_gap_formula.visible = not word
-		_gap_formula.custom_minimum_size = Vector2(0, 0.0 if word else (4.0 if _gate_fit else 6.0))
+		_gap_formula.visible = false
+		_gap_formula.custom_minimum_size = Vector2(0, 0)
 	if _formula_box:
-		_formula_box.visible = true
-		_formula_box.custom_minimum_size = Vector2(minf(FORMULA_W, inner_w), word_h if word else formula_h)
+		_formula_box.visible = false
+		_formula_box.custom_minimum_size = Vector2(0, 0)
 
 
 func _sync_inspect_face() -> void:
@@ -716,19 +774,22 @@ func _sync_inspect_face() -> void:
 	var formula_txt: String = _pretty_formula(_formula)
 	if word and formula_txt.strip_edges() == "" and _ability_bb.strip_edges() != "":
 		formula_txt = _ability_bb
+	var replace_stand: bool = (not _showcase) and _formula_on
 	if _eq != null:
 		if _showcase:
 			_eq.visible = false
-		elif _formula_on:
-			var box_h: float = (72.0 if _gate_fit else WORD_H) if word else (40.0 if _gate_fit else FORMULA_H)
-			var box_w: float = minf(FORMULA_W, _hand_size().x - 16.0)
-			var sizes: Array = [15, 14, 13, 12, 11] if word else [13, 12, 11]
-			var max_lines: int = 4 if word else 3
-			_fit_formula(_eq, formula_txt, Vector2(box_w, box_h), sizes, max_lines)
+		elif replace_stand:
+			var box_h: float = _num_host.custom_minimum_size.y if _num_host != null else FORMULA_H
+			var box_w: float = _hand_size().x - 16.0
+			var sizes: Array = [18, 16, 15, 14, 13, 12, 11] if word else [16, 15, 14, 13, 12, 11]
+			var max_lines: int = 5 if word else 4
+			_fit_formula(_eq, formula_txt, Vector2(box_w, maxf(box_h, 28.0)), sizes, max_lines)
 			_eq.visible = formula_txt.strip_edges() != ""
 		else:
 			_eq.text = ""
 			_eq.visible = false
+	if _val_row != null:
+		_val_row.visible = not replace_stand
 	var show_stat: bool = _showcase and not _formula_on
 	if _stat != null:
 		_stat.visible = show_stat
@@ -736,9 +797,9 @@ func _sync_inspect_face() -> void:
 		_stat_lab.visible = show_stat
 	var badge: bool = _showcase and (_stat != null or _stat_lab != null)
 	if _num != null:
-		_num.visible = not badge and not word and _shown != ""
+		_num.visible = not badge and not word and not replace_stand and _shown != ""
 	if _tag != null:
-		_tag.visible = not badge and not word and str(_tag.text).strip_edges() != ""
+		_tag.visible = not badge and not word and not replace_stand and str(_tag.text).strip_edges() != ""
 	if _ghost != null:
 		_ghost.visible = not _formula_on and not badge and not word
 	if _mark != null:
@@ -750,7 +811,9 @@ func _sync_inspect_face() -> void:
 
 
 func _fit_formula(rtl: RichTextLabel, bb: String, box: Vector2, sizes: Array, max_lines: int) -> void:
-	var font: Font = UI.font_regular()
+	var font: Font = UI.font_body()
+	if font == null:
+		font = UI.font_regular()
 	var plain: String = _plain_formula(bb)
 	var chosen: int = int(sizes[sizes.size() - 1])
 	var shown: String = plain
