@@ -118,7 +118,7 @@ var speech_box
 var log_label: RichTextLabel
 var log_btn: Button
 var _log_open: bool = false
-var hotbar_box: HBoxContainer
+var hotbar_box: Container
 var choice_box: HBoxContainer
 var hearts_box: HBoxContainer
 var blk_hud: PanelContainer

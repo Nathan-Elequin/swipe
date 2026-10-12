@@ -266,14 +266,18 @@ func _build_ui() -> void:
 	log_btn.visible = false
 	hud.tools_slot.add_child(log_btn)
 	log_label = RichTextLabel.new()
-	log_label.size_flags_vertical = Control.SIZE_SHRINK_END
-	log_label.custom_minimum_size = Vector2(0, 110)
 	log_label.bbcode_enabled = true
 	log_label.scroll_following = true
 	log_label.add_theme_font_size_override("normal_font_size", 12)
 	log_label.visible = false
 	log_label.add_theme_color_override("default_color", Color("d8cbb8"))
-	hud.tools_slot.add_child(log_label)
+	log_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	log_label.z_index = 40
+	log_label.top_level = true
+	log_label.position = Vector2(1180, 28)
+	log_label.size = Vector2(460, 320)
+	log_label.custom_minimum_size = Vector2(460, 220)
+	add_child(log_label)
 
 	_build_overlay()
 	_build_copy_stamp()
@@ -677,6 +681,8 @@ func _show_item_inspect(it: Dictionary) -> void:
 		fight_ui.visible = false
 	if placement_ui:
 		placement_ui.visible = false
+	inspect.top_level = true
+	inspect.z_index = 25
 	inspect.show_rule(
 		str(rule["title"]),
 		"",
@@ -688,6 +694,12 @@ func _show_item_inspect(it: Dictionary) -> void:
 		str(it.get("card_id", "")),
 		_item_inspect_look(it)
 	)
+	inspect.reset_size()
+	var sz: Vector2 = inspect.get_combined_minimum_size()
+	sz.x = maxf(sz.x, 280.0)
+	inspect.size = sz
+	var vp: Vector2 = get_viewport_rect().size
+	inspect.global_position = Vector2(vp.x - sz.x - 24.0, 28.0)
 
 
 func _monster_look(s: Dictionary) -> Dictionary:
@@ -1591,9 +1603,9 @@ func _idle_inspect() -> void:
 			_fill_inspect_from_slice(_hover_slice)
 			return
 	inspect.hide_plate()
-	_set_inspect_idle(phase == "ready" or phase == "spinning")
-	if fight_ui != null and (phase == "fighting" or phase == "slaying"):
-		fight_ui.visible = true
+	_set_inspect_idle(false)
+	if fight_ui != null:
+		fight_ui.visible = false
 	if placement_ui != null and phase == "draft" and draft_action == "seat":
 		placement_ui.visible = true
 
@@ -1736,23 +1748,25 @@ func _place_fight_art() -> void:
 		total += gap
 	total += plaque_h
 	var x: float = wr.end.x + 14.0
-	if inspect != null:
-		x = minf(x, inspect.global_position.x - stack_w - 12.0)
 	x = maxf(x, wr.end.x + 10.0)
 	var speech_room := 156.0
 	var y: float = wr.end.y - total - 18.0
 	y = maxf(y, wr.position.y + speech_room)
 	if y + total > wr.end.y + 8.0:
 		y = wr.position.y + maxf(8.0, wr.size.y - total)
+	var bob: float = sin(float(Time.get_ticks_msec()) * 0.0032) * 3.0
+	var shake := Vector2.ZERO
+	if combat_stage != null and combat_stage.has_method("is_striking") and combat_stage.is_striking():
+		shake = Vector2(randf_range(-5.0, 5.0), randf_range(-3.0, 3.0))
 	if combat_stage != null and combat_stage.visible:
 		combat_stage.size = port_sz
-		combat_stage.global_position = Vector2(x + (stack_w - port_sz.x) * 0.5, y)
+		combat_stage.global_position = Vector2(x + (stack_w - port_sz.x) * 0.5, y + bob) + shake
 		y += port_sz.y + gap
 	if face_box != null and face_box.visible:
 		var psz: Vector2 = face_box.get_combined_minimum_size()
 		psz.x = stack_w
 		face_box.size = psz
-		face_box.global_position = Vector2(x, y)
+		face_box.global_position = Vector2(x, y + bob * 0.5) + shake
 
 
 func _speech_gutter() -> Rect2:
@@ -1961,29 +1975,45 @@ func _set_cue(t: String) -> void:
 
 
 func _refresh_face() -> void:
-	if face_box:
-		face_box.hide_plate()
-	if combat_stage:
-		combat_stage.visible = false
 	var show: bool = (phase == "fighting" or phase == "slaying") and facing_index >= 0 and facing_index < wheel.size()
 	if fight_ui:
-		fight_ui.visible = show
+		fight_ui.visible = false
 	if not show:
+		if face_box:
+			face_box.hide_plate()
+		if combat_stage:
+			combat_stage.visible = false
 		return
 	var m: Dictionary = wheel[facing_index]
 	var tex: Texture2D = null
 	if art != null:
 		tex = art.monster_still(str(m.get("card_id", "")))
-	if fight_ui != null and fight_ui.has_method("show_owner"):
-		fight_ui.show_owner(m, tex)
+	if combat_stage:
+		if str(combat_stage.card_id) != str(m.get("card_id", "")) or not combat_stage.visible:
+			combat_stage.show_monster(str(m.get("card_id", "")))
+		combat_stage.visible = true
+	if face_box:
+		var rule: Dictionary = _monster_rule(m)
+		face_box.show_rule(
+			str(rule.get("title", m.get("name", "?"))),
+			str(rule.get("value", "")),
+			"",
+			str(rule.get("body", "")),
+			str(rule.get("warn", "")),
+			tex,
+			"monster",
+			str(m.get("card_id", "")),
+			_monster_plate_look(m, rule)
+		)
+		face_box.visible = true
 	if placement_ui:
 		placement_ui.visible = false
 	var atk_s: String = str(m.get("atk", 0))
 	var hp_s: String = str(m.get("hp", 0))
-	if fight_ui != null and ((atk_s != _face_atk_shown and _face_atk_shown != "") or (hp_s != _face_hp_shown and _face_hp_shown != "")):
+	if face_box != null and ((atk_s != _face_atk_shown and _face_atk_shown != "") or (hp_s != _face_hp_shown and _face_hp_shown != "")):
 		var tw := create_tween()
-		tw.tween_property(fight_ui, "modulate", Color(1.15, 1.08, 0.95, 1), 0.08)
-		tw.tween_property(fight_ui, "modulate", Color.WHITE, 0.12)
+		tw.tween_property(face_box, "modulate", Color(1.15, 1.08, 0.95, 1), 0.08)
+		tw.tween_property(face_box, "modulate", Color.WHITE, 0.12)
 	_face_atk_shown = atk_s
 	_face_hp_shown = hp_s
 	_place_fight_art()
@@ -2022,6 +2052,9 @@ func _refresh() -> void:
 		wheel_view.draft_glow = phase == "draft"
 
 	_set_cue(_cue_text())
+	if hud != null and hud.has_method("set_side_column"):
+		var need_col: bool = phase == "draft" or phase == "victory" or phase == "defeat" or phase == "devtest" or in_tutorial
+		hud.set_side_column(need_col)
 	_sync_placement()
 	if wheel_view != null:
 		wheel_view.seat_hover_on = phase == "ready" or (phase == "draft" and draft_action == "seat")
@@ -2074,7 +2107,7 @@ func _cue_text() -> String:
 				return PLAYER_COPY.text("cue.mark", "Click a neighboring enemy")
 			if facing_index >= 0 and _wick_waiting(facing_index):
 				return "They are at 0 HP. Click Done."
-			return PLAYER_COPY.need("cue.fighting")
+			return ""
 		"slaying":
 			return ""
 		"spinning":
@@ -2333,7 +2366,6 @@ func _sync_hotbar() -> void:
 		for it in hotbar:
 			hotbar_box.add_child(_spawn_item_card(it, true))
 	var n: int = hotbar_box.get_child_count()
-	hotbar_box.add_theme_constant_override("separation", 10 if n >= 8 else 14)
 	for c in hotbar_box.get_children():
 		if c.has_method("set_compact"):
 			c.set_compact(n >= 8)
@@ -2359,6 +2391,8 @@ func _sync_hotbar() -> void:
 			card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			if card.has_method("set_playable"):
 				card.set_playable(false)
+		else:
+			card.mouse_filter = Control.MOUSE_FILTER_STOP
 	_sync_hotbar_formulas()
 	if hud != null and hud.has_method("layout_hand"):
 		hud.layout_hand()
@@ -2414,7 +2448,12 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if _authoring():
 		card.edit_wanted.connect(_open_content_editor.bind("item", str(it.get("card_id", ""))))
 	if usable:
-		card.picked.connect(_use_item.bind(int(it["uid"])))
+		var uid: int = int(it["uid"])
+		# Bind on the live Main instance so game_state.gd's compile stub
+		# cannot swallow the click. fight_flow._use_item is the real one.
+		card.picked.connect(func() -> void:
+			await _use_item(uid)
+		)
 	return card
 
 

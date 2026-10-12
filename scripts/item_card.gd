@@ -131,8 +131,8 @@ func setup(
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_title.max_lines_visible = 2
-	_title.custom_minimum_size = Vector2(104, 56)
-	UI.apply_name(_title, PARCHMENT, UI.SIZE_NAME)
+	_title.custom_minimum_size = Vector2(104, 32)
+	UI.apply_name(_title, PARCHMENT, UI.SIZE_MIN)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_title)
 	col.add_child(_rank)
@@ -211,6 +211,7 @@ func setup(
 	_eq.scroll_active = false
 	_eq.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UI.apply_rich(_eq, "body", PARCHMENT)
+	_eq.add_theme_constant_override("line_separation", 6)
 	_eq.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_eq.visible = false
@@ -322,8 +323,8 @@ func set_showcase(on: bool) -> void:
 	if _col:
 		_col.add_theme_constant_override("separation", 6 if on else 1)
 	if _title:
-		UI.apply_name(_title, PARCHMENT, UI.SIZE_NAME)
-		_title.custom_minimum_size = Vector2(196 if on else 104, 56)
+		UI.apply_name(_title, PARCHMENT, UI.SIZE_MIN)
+		_title.custom_minimum_size = Vector2(196 if on else 104, 32)
 		_title.max_lines_visible = 2
 	if _rank:
 		_rank.visible = false
@@ -516,13 +517,19 @@ func _layout_showcase() -> void:
 
 func _sync_inspect_face() -> void:
 	if _ability != null:
-		_ability.text = _ability_bb
-		_ability.visible = _showcase and _ability_bb != ""
+		if _formula_on and not _showcase:
+			_ability.text = "[center]%s[/center]" % _pretty_formula(_formula)
+			_ability.visible = true
+			UI.apply_rich(_ability, "body", PARCHMENT)
+			_ability.add_theme_constant_override("line_separation", 6)
+		else:
+			_ability.text = _ability_bb
+			_ability.visible = _showcase and _ability_bb != ""
 	if _icon != null:
 		_icon.visible = true
 	if _eq != null:
-		_eq.text = "[center]%s[/center]" % _formula
-		_eq.visible = _formula_on
+		_eq.text = "[center]%s[/center]" % _pretty_formula(_formula)
+		_eq.visible = _formula_on and _showcase
 	var show_stat: bool = _showcase and not _formula_on
 	if _stat != null:
 		_stat.visible = show_stat
@@ -578,9 +585,23 @@ func bounce() -> void:
 	tw.tween_property(self, "scale", Vector2.ONE, 0.12)
 
 
+func _pretty_formula(bb: String) -> String:
+	var t: String = bb.strip_edges()
+	if t == "":
+		return t
+	var rx := RegEx.new()
+	if rx.compile("(\\[/color\\])(\\S)") == OK:
+		t = rx.sub(t, "$1 $2", true)
+	if rx.compile("(\\S)(\\[color)") == OK:
+		t = rx.sub(t, "$1 $2", true)
+	while t.contains("  "):
+		t = t.replace("  ", " ")
+	return t.strip_edges()
+
+
 func _apply_style(hot: bool) -> void:
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = OAK
+	sb.bg_color = _fill if _fill.a > 0.08 else OAK
 	var metal: Color = _tier_metal_color()
 	if hot:
 		sb.border_color = DEADLY_METAL

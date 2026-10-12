@@ -312,17 +312,20 @@ func _toggle_log() -> void:
 
 
 func _sync_authoring_chrome() -> void:
-	var show: bool = _authoring() and phase == "devtest"
+	var dev: bool = _authoring() and phase == "devtest"
+	var mouse: Vector2 = get_viewport().get_mouse_position() if get_viewport() != null else Vector2.ZERO
+	var log_hover: bool = mouse.x > 1500.0 and mouse.y < 96.0
+	var play_log: bool = phase != "title" and (_shift_held or log_hover)
 	if log_btn:
-		log_btn.visible = show
-		if not show:
+		log_btn.visible = dev
+		if not dev:
 			log_btn.text = "Log"
-	if not show:
+	if not dev:
 		_log_open = false
 	if log_label:
-		log_label.visible = show and _log_open
+		log_label.visible = (dev and _log_open) or play_log
 	if _copy_stamp:
-		_copy_stamp.visible = show
+		_copy_stamp.visible = dev
 
 
 func _log(kind: String, msg: String) -> void:
