@@ -10,6 +10,7 @@ Newest entry at the top. Cursor reads this at the start of every chat and does O
 - Status: DONE
 - What: Merged `origin/main` (43b9d4f) into `cursor/draft-gate-compact-f8a6`. `scripts/main.gd` stays boot-only. Ask-panel wiring (`set_showcase(false)`, `set_item_value`, item hover) lives in `scripts/core/draft_flow.gd`. Inspect-on-hover for the bait card lives in `scripts/ui/hud_controller.gd`. Column fit above a two-row hand stays in `scripts/wheel_hud.gd` on top of main’s shrink-then-wrap. Both `check_hand_use` checks are one file (spin IGNORE → fight STOP → Shield Block, plus mill click-item take / Leave pass / no overlap). Both HANDOFF entries below are kept. No `data/` edits.
 - Files: `scripts/main.gd`, `scripts/core/draft_flow.gd`, `scripts/ui/hud_controller.gd`, `scripts/lanes/game_state.gd`, `scripts/wheel_hud.gd`, `scripts/draft_gate.gd`, `tools/qa/check_hand_use.gd`, `tools/qa/qa_probe.gd`, `design/HANDOFF.md`
+- QA: After the merge, Godot 4.7.2 `--import` + `--quit-after 2` (no game-script errors). `check_layers` OK. `check_boot` BOOT_OK (title, HP 6, Goblin `no_atk_dmg`). Combined `check_hand_use` HAND_USE_OK: spinning IGNORE → fighting STOP, Shield `picked` blk 0→4, door Take gone / Leave+item STOP, mill leave 3→2, take reached seat (Lantern), column 560×526 bottom 554 vs two-row top 566, `overlap=false`. Dummy renderer, no PNG. No godot-mcp.
 
 ## 2026-10-12 — Compact draft gate
 - From: Cursor
