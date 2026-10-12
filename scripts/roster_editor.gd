@@ -40,6 +40,7 @@ const COL_ITEM := [
 	{"key": "name", "label": "Name", "sub": "on the card", "help": "The name printed on the card.", "w": 140.0, "kind": "line", "group": "identity"},
 	{"key": "ability", "label": "Player text", "sub": "sentence on the card", "help": "The sentence the player reads.", "w": 240.0, "kind": "area", "group": "copy"},
 	{"key": "explainer", "label": "Hover math", "sub": "Shift / inspect", "help": "The short equation on hover and Shift.", "w": 180.0, "kind": "area", "group": "copy"},
+	{"key": "face_text", "label": "Face text", "sub": "no-Shift number", "help": "What shows on the hand card when Shift is not held. A number plus ATK, BLK, HEAL, or UTIL. Leave blank to keep the auto number.", "w": 120.0, "kind": "line", "group": "copy"},
 	{"key": "review", "label": "Review", "sub": "rough → finished", "help": "rough = first pass. refined = mechanics changed after your notes. polish = art, copy, dialogue. finished = done.", "w": 108.0, "kind": "pick", "opts": ["rough", "refined", "polish", "finished"], "group": "review"},
 	{"key": "review_note", "label": "Your notes", "sub": "for Cursor", "help": "Type what to change. Save, then tell Cursor to read this box.", "w": 200.0, "kind": "area", "group": "review"},
 	{"key": "status", "label": "Status", "sub": "live / todo / hold", "help": "live = in the dungeon. todo = needs a code pass. hold = skip. retired = hidden.", "w": 92.0, "kind": "pick", "opts": ["live", "todo", "hold", "retired"], "group": "meta"},
@@ -784,6 +785,8 @@ func _placeholder_for(key: String) -> String:
 			return ""
 		"explainer":
 			return ""
+		"face_text":
+			return "3 ATK"
 		"flow":
 			return ""
 		"notes":
@@ -1178,6 +1181,7 @@ func _gather_row(row: HBoxContainer, strict: bool = true) -> Dictionary:
 		"ops": ops if kind == "item" else orig.get("ops", {}),
 		"contradiction_ids": orig.get("contradiction_ids", []),
 		"card_color": orig.get("card_color", ""),
+		"face_text": orig.get("face_text", ""),
 		"atk_base": orig.get("atk_base", null),
 		"hp_base": orig.get("hp_base", null),
 		"atk_formula": str(orig.get("atk_formula", "")),
@@ -1197,6 +1201,7 @@ func _gather_row(row: HBoxContainer, strict: bool = true) -> Dictionary:
 	else:
 		var tint: String = _text_of(fields["card_color"]) if fields.has("card_color") else str(orig.get("card_color", ""))
 		card["card_color"] = "" if UX.card_color_id(tint) == "auto" else UX.card_color_id(tint)
+		card["face_text"] = _text_of(fields["face_text"]) if fields.has("face_text") else str(orig.get("face_text", ""))
 	var logic_changed: bool = str(card["flow"]) != str(orig.get("flow", "")) \
 		or str(card["notes"]) != str(orig.get("notes", "")) \
 		or str(card["atk_formula"]) != str(orig.get("atk_formula", "")) \
@@ -1292,6 +1297,7 @@ func _on_add() -> void:
 		"notes": "New row from Roster.",
 		"ops": {"kind": "atk", "n": 1} if _kind == "item" else {},
 		"card_color": "",
+		"face_text": "",
 		"contradiction_ids": [],
 		"atk_base": 2 if _kind == "monster" else null,
 		"hp_base": 6 if _kind == "monster" else null,

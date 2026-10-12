@@ -1207,6 +1207,9 @@ func _toggle_play_log() -> void:
 func _refresh_gate_item() -> void:
 	pass
 
+func _apply_item_face_text(_card, _it: Dictionary) -> void:
+	pass
+
 func _pin_side_callout(panel: Control, side: String) -> void:
 	pass
 

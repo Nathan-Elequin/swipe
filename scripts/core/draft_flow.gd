@@ -454,6 +454,8 @@ func _refresh_offer_card() -> void:
 		_offer_card.set_rank("")
 	if _offer_card.has_method("set_palette"):
 		_offer_card.set_palette(view["fill"], view["rim"], _tier_of(pending_item))
+	if _offer_card.has_method("set_face_text"):
+		_offer_card.set_face_text(str(pending_item.get("face_text", "")))
 	if _offer_card.has_method("set_live"):
 		_offer_card.set_live(str(view["number"]), str(view.get("note", "")), true)
 	if _offer_card.has_method("set_showcase"):

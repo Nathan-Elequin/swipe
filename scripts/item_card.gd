@@ -78,6 +78,7 @@ var _val_row: Control
 var _can_use: bool = true
 var _deny: Control
 var _tag: Label
+var _face_text: String = ""
 var _compact: bool = false
 var _gate_fit: bool = false
 var _rest_y: float = 0.0
@@ -430,6 +431,12 @@ func set_kind(p_kind: String) -> void:
 	_sync_inspect_face()
 
 
+func set_face_text(raw: String) -> void:
+	_face_text = str(raw).strip_edges()
+	_apply_face(_shown)
+	_sync_inspect_face()
+
+
 func set_compact(on: bool) -> void:
 	_compact = on
 	if _showcase:
@@ -463,6 +470,9 @@ func _tier_metal_color() -> Color:
 
 
 func _face_of(number_text: String) -> Dictionary:
+	var over: Dictionary = UX.parse_face_text(_face_text)
+	if not over.is_empty():
+		return _face_from_override(over, number_text)
 	if kind == "DEFEAT" or kind == "FANGS" or kind == "KO":
 		return {"num": COPY.need("hand.tag.ko"), "tag": "", "col": KO_PLUM}
 	var tag := ""
@@ -479,6 +489,34 @@ func _face_of(number_text: String) -> Dictionary:
 	var shown: String = number_text.strip_edges()
 	if shown == "—" or shown == "–" or shown == "-" or shown.to_upper() == "X":
 		shown = "?"
+	if shown == "" and tag == "":
+		shown = ""
+	elif shown == "":
+		shown = "?"
+	return {"num": shown, "tag": tag, "col": col}
+
+
+func _face_from_override(over: Dictionary, number_text: String) -> Dictionary:
+	var tag_k: String = str(over.get("tag", "")).to_upper()
+	var shown: String = str(over.get("n", "")).strip_edges()
+	if shown == "":
+		shown = number_text.strip_edges()
+	if shown == "—" or shown == "–" or shown == "-" or shown.to_upper() == "X":
+		shown = "?"
+	var tag := ""
+	var col: Color = PARCHMENT
+	if tag_k == "ATK" or (tag_k == "" and kind == "ATK"):
+		tag = COPY.need("hand.tag.atk")
+		col = ATK_RED
+	elif tag_k == "BLK" or (tag_k == "" and kind == "BLK"):
+		tag = COPY.need("hand.tag.blk")
+		col = BLK_BLUE
+	elif tag_k == "HEAL" or (tag_k == "" and kind == "HEAL"):
+		tag = COPY.need("hand.tag.heal")
+		col = HEAL_GREEN
+	elif tag_k == "UTIL":
+		tag = "UTIL"
+		col = PARCHMENT
 	if shown == "" and tag == "":
 		shown = ""
 	elif shown == "":

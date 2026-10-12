@@ -120,7 +120,7 @@
     let dirty = false;
     let fileHandle = null;
     let snapshot = {};
-    const LOCK_FIELDS = ["name","ability","explainer","call_name","reminder","flow","notes","ops","rarity","tier","count","priority","atk_base","hp_base","atk_formula","hp_formula","card_color"];
+    const LOCK_FIELDS = ["name","ability","explainer","call_name","reminder","flow","notes","ops","rarity","tier","count","priority","atk_base","hp_base","atk_formula","hp_formula","card_color","face_text"];
     const CARD_COLORS = [
       { id: "", label: "Auto", hex: "#e4d4c0", ink: "#1c120c" },
       { id: "atk", label: "Attack", hex: "#5c2626", ink: "#f4ede3" },
@@ -248,6 +248,7 @@
         ${isM ? `<div class="grid2">${field("HP base", "hp_base")}${field("ATK formula", "atk_formula")}</div>
           ${field("HP formula", "hp_formula")}` : ""}
         ${isM ? "" : field("Card color", "card_color", "select")}
+        ${isM ? "" : field("Face text (hand card, no Shift — e.g. 3 ATK)", "face_text")}
         ${isM ? field("Call name (subtitle under the title)", "call_name") : ""}
         ${isM ? field("Shift line (replaces the call name while you hold Shift)", "reminder", "textarea") : ""}
         ${field(isM ? "Speech (first-person in the balloon)" : "Ability (player-facing)", "ability", "textarea")}
@@ -317,6 +318,8 @@
         flow: "",
         notes: "",
         ops: {},
+        card_color: "",
+        face_text: "",
         contradiction_ids: []
       };
       (k === "monster" ? board.monsters : board.items).push(c);

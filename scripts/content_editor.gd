@@ -155,6 +155,7 @@ func _from_catalog(kind: String, card_id: String, cat: Dictionary) -> Dictionary
 		"notes": str(cat.get("exceptions", cat.get("notes", ""))),
 		"ops": cat.get("ops", {}),
 		"card_color": str(cat.get("card_color", "")),
+		"face_text": str(cat.get("face_text", "")),
 		"contradiction_ids": [],
 		"review": REVIEW_STAGE.of_card(cat),
 		"review_note": str(cat.get("review_note", "")),
@@ -180,6 +181,8 @@ func _fill_bases_from_catalog(card: Dictionary, cat: Dictionary) -> void:
 		card["call_name"] = LINES.call_of(str(card.get("id", "")), cat)
 	if not card.has("reminder"):
 		card["reminder"] = LINES.reminder_of(str(card.get("id", "")), cat)
+	if _kind != "monster" and not card.has("face_text"):
+		card["face_text"] = str(cat.get("face_text", ""))
 
 
 func _explainer_shown(card: Dictionary) -> String:
@@ -284,6 +287,16 @@ func _rebuild(card: Dictionary) -> void:
 		color_n.add_theme_font_size_override("font_size", 13)
 		color_n.add_theme_color_override("font_color", Color("6b4a10"))
 		_sheet.add_child(color_n)
+		var face_row := _grid(2)
+		_add_line(face_row, "Face text", "face_text", str(card.get("face_text", "")))
+		_add_line(face_row, "", "_pad", "")
+		_sheet.add_child(face_row)
+		var face_n := Label.new()
+		face_n.text = "What shows on the hand card when Shift is not held. A number plus ATK, BLK, HEAL, or UTIL (for example 3 ATK). Leave blank to keep the auto number."
+		face_n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		face_n.add_theme_font_size_override("font_size", 13)
+		face_n.add_theme_color_override("font_color", Color("6b4a10"))
+		_sheet.add_child(face_n)
 		_add_painted_area(_sheet, "Ability (player-facing, short)", "ability", str(card.get("ability", "")), 90)
 		_add_painted_area(_sheet, "Callout explainer (the math line on hover)", "explainer", _explainer_shown(card), 80)
 	_add_area(_sheet, "Function flow / pseudocode (long)", "flow", str(card.get("flow", "")), 160, true)
@@ -411,7 +424,10 @@ func _add_line(host: Control, label: String, key: String, value: String, readonl
 	e.text = value
 	e.editable = not readonly
 	e.focus_mode = Control.FOCUS_ALL
-	e.placeholder_text = "type a number" if key == "atk_base" or key == "hp_base" else ""
+	if key == "atk_base" or key == "hp_base":
+		e.placeholder_text = "type a number"
+	elif key == "face_text":
+		e.placeholder_text = "3 ATK"
 	_skin_edit(e)
 	if not readonly:
 		e.focus_entered.connect(func() -> void: e.call_deferred("select_all"))
@@ -609,6 +625,7 @@ func _gather() -> Dictionary:
 	if _kind != "monster":
 		var tint: String = _text_of("card_color") if _fields.has("card_color") else str(_original.get("card_color", ""))
 		card["card_color"] = "" if UX.card_color_id(tint) == "auto" else UX.card_color_id(tint)
+		card["face_text"] = _text_of("face_text") if _fields.has("face_text") else str(_original.get("face_text", ""))
 	if _kind == "monster":
 		card["call_name"] = _text_of("call_name") if _fields.has("call_name") else str(_original.get("call_name", ""))
 		card["reminder"] = _text_of("reminder") if _fields.has("reminder") else str(_original.get("reminder", ""))
