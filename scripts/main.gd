@@ -2481,6 +2481,8 @@ func _process(_delta: float) -> void:
 		_sync_hotbar_formulas()
 		_refresh_monster_plates()
 		_refresh_gate_owner()
+		if in_tutorial:
+			_tutorial_try_shift_inspect()
 	_place_speech()
 	if draft_gate != null and draft_gate.visible and wheel_view != null:
 		draft_gate.dock(wheel_view)
@@ -2959,7 +2961,7 @@ func _reseat_slots() -> void:
 func _on_spin() -> void:
 	if phase != "ready":
 		return
-	if in_tutorial and (tut == null or tut.wait != "spin"):
+	if in_tutorial and (tut == null or (tut.wait != "spin" and tut.wait != "auto_spin")):
 		return
 	if facing_index >= 0:
 		return
@@ -3067,7 +3069,7 @@ func _on_done() -> void:
 		return
 	if _wheel_busy():
 		return
-	if in_tutorial and (tut == null or tut.wait != "done"):
+	if in_tutorial and (tut == null or (tut.wait != "done" and tut.wait != "choice")):
 		if tut:
 			tut.nudge(PLAYER_COPY.text("tutorial.nudge_wait", "Not yet — finish what I said."))
 		if sfx:
@@ -6690,8 +6692,8 @@ func _sync_buttons() -> void:
 	btn_start.modulate = Color.WHITE
 	if in_tutorial:
 		btn_start.disabled = true
-		btn_spin.disabled = busy or phase != "ready" or tut == null or tut.wait != "spin"
-		btn_done.disabled = busy or not enemy_up or tut == null or tut.wait != "done"
+		btn_spin.disabled = busy or phase != "ready" or tut == null or (tut.wait != "spin" and tut.wait != "auto_spin")
+		btn_done.disabled = busy or not enemy_up or tut == null or (tut.wait != "done" and tut.wait != "choice")
 	if enemy_up:
 		var hit: int = _incoming_hit()
 		btn_done.text = PLAYER_COPY.fill("combat.take_hit", {"n": hit}, "Take %s" % hit) if hit > 0 else PLAYER_COPY.text("combat.safe", "Safe")
@@ -6965,7 +6967,7 @@ func _start_tutorial() -> void:
 	in_tutorial = true
 	_reset_run()
 	_tut_boot = false
-	var seats: Array[String] = ["golem", "wizard", "berserker"]
+	var seats: Array[String] = ["wizard", "golem", "goblin"]
 	var slots: Array[int] = [0, 2, 4]
 	for k in range(seats.size()):
 		var m: Dictionary = _make_monster(seats[k])
@@ -6974,7 +6976,7 @@ func _start_tutorial() -> void:
 		m["spin_locked"] = false
 		wheel[si] = m
 		_log("on_place", "%s → %s" % [m["name"], m["slot"]])
-	for iid in ["shield", "helmet", "da_boot", "spiked_flail"]:
+	for iid in ["sai", "helmet", "da_boot", "knucklers"]:
 		hotbar.append(_make_item(iid))
 		_log("on_place", "item  %s" % iid)
 	_sort_hotbar()
@@ -6999,8 +7001,7 @@ func _tut_on_continue() -> void:
 	if sfx:
 		sfx.play("click", -12.0)
 	tut.advance()
-	_tut_refresh_focus()
-	_sync_buttons()
+	_tut_after_advance()
 
 
 func _tut_skip() -> void:
@@ -7016,7 +7017,16 @@ func _tut_finished() -> void:
 	in_tutorial = false
 	if tut:
 		tut.close()
+	_reset_run()
+	phase = "title"
 	_refresh()
+
+
+func _tut_after_advance() -> void:
+	_tut_refresh_focus()
+	_sync_buttons()
+	if tut != null and tut.visible and tut.wait == "auto_spin":
+		call_deferred("_on_spin")
 
 
 func _tut_refresh_focus() -> void:
@@ -7030,10 +7040,10 @@ func _tut_focus() -> Control:
 		return null
 	var tag: String = tut.focus_tag
 	match tag:
-		"wheel":
+		"wheel", "empty", "atk", "hp", "block":
 			return wheel_view
 		"hearts":
-			return wheel_view
+			return face_box if face_box != null else wheel_view
 		"hotbar":
 			return hotbar_box
 		"spin":
@@ -7044,6 +7054,8 @@ func _tut_focus() -> Control:
 			return trophy
 		"face":
 			return face_box
+		"inspect":
+			return inspect
 		_:
 			if tag.begins_with("item:"):
 				return _hotbar_card(tag.substr(5))
@@ -7069,7 +7081,11 @@ func _index_of_monster(id: String) -> int:
 
 
 func _tutorial_spin_index() -> int:
-	for id in ["golem", "wizard", "berserker"]:
+	if tut != null and str(tut.force_id) != "":
+		var forced: int = _index_of_monster(str(tut.force_id))
+		if forced >= 0:
+			return forced
+	for id in ["wizard", "golem", "goblin", "berserker"]:
 		var i: int = _index_of_monster(id)
 		if i >= 0:
 			return i
@@ -7080,6 +7096,8 @@ func _tutorial_allows_item(id: String) -> bool:
 	if tut == null:
 		return false
 	var w: String = tut.wait
+	if w == "choice":
+		return id == "da_boot"
 	if not w.begins_with("item:"):
 		return false
 	return w == "item:%s" % id
@@ -7088,31 +7106,40 @@ func _tutorial_allows_item(id: String) -> bool:
 func _tutorial_item_used(id: String) -> void:
 	if tut == null or not in_tutorial:
 		return
+	if tut.wait == "choice" and id == "da_boot":
+		tut.choice = "boot"
+		return
 	if tut.wait != "item:%s" % id:
 		return
 	if id == "da_boot":
+		tut.choice = "boot"
 		return
 	tut.advance()
-	_tut_refresh_focus()
-	_sync_buttons()
+	_tut_after_advance()
 
 
 func _tutorial_combat_started() -> void:
 	if not in_tutorial or tut == null:
 		return
-	if tut.wait != "spin":
+	if tut.wait != "spin" and tut.wait != "auto_spin":
 		return
 	tut.advance()
-	_tut_refresh_focus()
-	_sync_buttons()
+	_tut_after_advance()
 
 
 func _tutorial_after_fight() -> void:
 	if not in_tutorial or tut == null:
 		return
-	tut.advance()
-	_tut_refresh_focus()
-	_sync_buttons()
+	var w: String = tut.wait
+	if w == "choice" or w == "item:da_boot":
+		if tut.choice == "":
+			tut.choice = "take"
+		tut.advance()
+		_tut_after_advance()
+		return
+	if w == "done":
+		tut.advance()
+		_tut_after_advance()
 
 
 func _tutorial_on_item_hover() -> void:
@@ -7121,12 +7148,14 @@ func _tutorial_on_item_hover() -> void:
 	if tut.wait != "hover_item":
 		return
 	tut.advance()
-	_tut_refresh_focus()
-	_sync_buttons()
+	_tut_after_advance()
 
 
 func _tutorial_on_slice_hover(index: int) -> void:
 	if not in_tutorial or tut == null or not tut.armed():
+		return
+	if tut.wait == "hover_shift":
+		_tutorial_try_shift_inspect()
 		return
 	if tut.wait != "hover_slice:berserker":
 		return
@@ -7135,5 +7164,22 @@ func _tutorial_on_slice_hover(index: int) -> void:
 	if str(wheel[index].get("card_id", "")) != "berserker":
 		return
 	tut.advance()
-	_tut_refresh_focus()
-	_sync_buttons()
+	_tut_after_advance()
+
+
+func _tutorial_try_shift_inspect() -> void:
+	if not in_tutorial or tut == null or not tut.armed():
+		return
+	if tut.wait != "hover_shift":
+		return
+	if not _shift_held:
+		return
+	if wheel_view == null:
+		return
+	var hi: int = int(wheel_view.hover_index)
+	if hi < 0 or hi >= wheel.size():
+		return
+	if str(wheel[hi].get("kind", "")) != "monster":
+		return
+	tut.advance()
+	_tut_after_advance()

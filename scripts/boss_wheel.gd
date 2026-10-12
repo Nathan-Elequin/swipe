@@ -527,7 +527,7 @@ func _spoke(i: int) -> Dictionary:
 		spread -= 2.0
 	var hp: Vector2 = _clamp_to_rim(port + tan * spread, 18.0)
 	var atk: Vector2 = _clamp_to_rim(port - tan * spread, 18.0)
-	var nam: Vector2 = origin + dir * r * 0.90
+	var nam: Vector2 = origin + dir * (r * 0.58 + plate_r + 22.0)
 	return {
 		"c": c,
 		"dir": dir,
@@ -633,19 +633,19 @@ func _fill_for(s: Dictionary, is_face: bool, is_hover: bool) -> Color:
 	if pt <= 0:
 		pt = int(s.get("tier", 0))
 	if pt == 3:
-		fill = Color("3a2410")
+		fill = Color(0.58, 0.16, 0.08)
 	elif pt == 2:
-		fill = Color("1c222c")
+		fill = Color(0.14, 0.30, 0.48)
 	elif pt == 1:
-		fill = Color("2e1c12")
+		fill = Color(0.52, 0.28, 0.10)
 	elif str(s.get("rarity", "")) == "uncommon":
 		fill = Color("24262a")
 	if is_face:
-		fill = fill.lightened(0.22)
+		fill = fill.lightened(0.16)
 	elif is_hover:
-		fill = fill.lightened(0.12)
+		fill = fill.lightened(0.10)
 	elif facing_index >= 0 and (not spinning) and str(s.get("kind", "")) == "monster":
-		fill = fill.darkened(0.28)
+		fill = fill.darkened(0.18)
 	if bool(s.get("poisoned", false)):
 		fill = fill.lerp(Color("2e4a32"), 0.55)
 	if bool(s.get("crossbowed", false)):
@@ -687,6 +687,13 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 	if i == slay_index and collapse > 0.0:
 		fill.a *= 1.0 - collapse * 0.85
 	_draw_wedge(origin, r, a0, a1, fill)
+	if str(s.get("kind", "")) == "monster":
+		var wash: Color = fill.lightened(0.22)
+		wash.a = 0.42
+		_draw_wedge(origin, r * 0.86, a0 + 0.03, a1 - 0.03, wash)
+		var glow: Color = fill.lightened(0.38)
+		glow.a = 0.22
+		_draw_wedge(origin, r * 0.70, a0 + 0.05, a1 - 0.05, glow)
 	var rim: Color = Color("2a241e")
 	var rw: float = 1.4
 	if is_face:
@@ -941,46 +948,47 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 	var call_txt: String = _wrap_call_label(font, call_s, call_fs, max_w) if call_s != "" else ""
 	var name_sz: Vector2 = font.get_multiline_string_size(name_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, name_fs)
 	var call_sz: Vector2 = font.get_multiline_string_size(call_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, call_fs) if call_txt != "" else Vector2.ZERO
-	var pad_x := 7.0
-	var pad_y := 3.0
-	var gap := 1.0
-	var w: float = minf(maxf(name_sz.x, call_sz.x) + pad_x * 2.0, max_w + pad_x * 2.0)
+	var pad_x := 8.0
+	var pad_y := 4.0
+	var gap := 2.0
+	var inner_w: float = minf(maxf(name_sz.x, call_sz.x), max_w)
+	var w: float = inner_w + pad_x * 2.0
 	var h: float = pad_y * 2.0 + name_sz.y
 	if call_txt != "":
 		h += gap + call_sz.y
-	var pos: Vector2 = sp["name"]
 	var dir: Vector2 = sp["dir"]
-	var top_left := Vector2(pos.x - w * 0.5, pos.y - h * 0.55)
-	var c: Vector2 = _center()
-	var inward: Vector2 = (c - Vector2(top_left.x + w * 0.5, top_left.y + h * 0.5))
-	if inward.length() > 1.0 and dir.dot(inward.normalized()) > 0.25:
-		top_left += dir * (h * 0.35)
-	var fill := Color(0.08, 0.06, 0.05, 0.88 * dim)
+	var port: Vector2 = sp["port"]
+	var plate_r: float = float(sp.get("plate_r", 36.0))
+	var rim: Vector2 = Vector2(sp["origin"]) + dir * float(sp["r"])
+	var band_a: Vector2 = port + dir * (plate_r + 10.0)
+	var band_b: Vector2 = rim - dir * (h * 0.5 + 6.0)
+	var pos: Vector2 = band_a.lerp(band_b, 0.42) if band_a.distance_to(band_b) > 4.0 else Vector2(sp["name"])
+	var top_left := Vector2(pos.x - w * 0.5, pos.y - h * 0.5)
+	var fill := Color(0.08, 0.06, 0.05, 0.90 * dim)
 	var edge: Color = Color("e8c36a") if is_face else Color("c4a574")
 	edge.a = dim
 	_draw_capsule(Rect2(top_left, Vector2(w, h)), fill, edge)
-	var y: float = top_left.y + pad_y
 	var ink := Color(0.06, 0.05, 0.04, dim)
 	var name_col: Color = Color("e8c36a") if is_face else Color("f0e6d8")
 	name_col.a = dim
+	var y: float = top_left.y + pad_y + font.get_ascent(name_fs)
 	var np := Vector2(top_left.x + pad_x, y)
 	for ox in [-1, 0, 1]:
 		for oy in [-1, 0, 1]:
 			if ox == 0 and oy == 0:
 				continue
-			draw_multiline_string(font, np + Vector2(ox, oy), name_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, name_fs, 2, ink)
-	draw_multiline_string(font, np, name_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, name_fs, 2, name_col)
-	y += name_sz.y + gap
+			draw_multiline_string(font, np + Vector2(ox, oy), name_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, name_fs, 2, ink)
+	draw_multiline_string(font, np, name_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, name_fs, 2, name_col)
 	if call_txt != "":
 		var col: Color = _ability_icon_color(str(s.get("special_id", "")))
 		col.a = dim
-		var cp := Vector2(top_left.x + pad_x, y)
+		var cp := Vector2(top_left.x + pad_x, y + name_sz.y + gap)
 		for ox2 in [-1, 0, 1]:
 			for oy2 in [-1, 0, 1]:
 				if ox2 == 0 and oy2 == 0:
 					continue
-				draw_multiline_string(font, cp + Vector2(ox2, oy2), call_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, call_fs, 2, ink)
-		draw_multiline_string(font, cp, call_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, call_fs, 2, col)
+				draw_multiline_string(font, cp + Vector2(ox2, oy2), call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, call_fs, 2, ink)
+		draw_multiline_string(font, cp, call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, call_fs, 2, col)
 
 
 func _ability_icon_color(sid: String) -> Color:

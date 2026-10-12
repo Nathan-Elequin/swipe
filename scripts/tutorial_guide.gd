@@ -13,6 +13,9 @@ const TALK_W := 340.0
 var step: int = -1
 var wait: String = ""
 var focus_tag: String = ""
+var force_id: String = ""
+var choice: String = ""
+var nib_close: float = 0.0
 var _arm: float = 0.0
 var _frames: Array = []
 var _fi: float = 0.0
@@ -26,6 +29,8 @@ var _hint: Label
 var _go: Button
 var _skip: Button
 var _target: Control
+var _beats: Array = []
+var _tiny: bool = false
 
 
 func setup(art) -> void:
@@ -155,6 +160,10 @@ func _style_btn(b: Button, fill: Color, rim: Color) -> void:
 
 func open() -> void:
 	step = -1
+	choice = ""
+	force_id = ""
+	nib_close = 0.0
+	_beats = _load_beats()
 	visible = true
 	advance()
 
@@ -163,26 +172,37 @@ func close() -> void:
 	visible = false
 	wait = ""
 	focus_tag = ""
+	force_id = ""
 	_target = null
 	step = -1
+	nib_close = 0.0
 
 
 func advance() -> void:
 	step += 1
-	if step >= BEATS.size():
+	while step < _beats.size():
+		var skip: Dictionary = _beats[step]
+		var br: String = str(skip.get("branch", ""))
+		if br == "" or br == "join" or br == choice:
+			break
+		step += 1
+	if step >= _beats.size():
 		wait = ""
 		finished.emit()
 		return
-	var b: Dictionary = BEATS[step]
+	var b: Dictionary = _beats[step]
 	wait = str(b.get("wait", "continue"))
 	focus_tag = str(b.get("focus", ""))
-	var n: String = "%02d" % (step + 1)
-	_body.text = COPY.text("tutorial.beat.%s.body" % n, str(b.get("text", "")))
-	_hint.text = COPY.text("tutorial.beat.%s.hint" % n, str(b.get("hint", "")))
-	_go.text = COPY.text("tutorial.beat.%s.go" % n, str(b.get("go", "Alright")))
+	force_id = str(b.get("force", ""))
+	nib_close = float(b.get("nib", 0.0))
+	_tiny = bool(b.get("tiny", false))
+	_body.text = str(b.get("text", ""))
+	_hint.text = str(b.get("hint", ""))
+	_go.text = str(b.get("go", "Next"))
 	_name.text = COPY.text("tutorial.speaker", "Nib")
 	_skip.text = COPY.text("tutorial.skip", "Skip")
 	_go.visible = wait == "continue"
+	_body.add_theme_font_size_override("font_size", 12 if _tiny else 15)
 	_arm = 0.35
 	_talk.reset_size()
 
@@ -228,9 +248,12 @@ func _layout() -> void:
 		_ring.global_position = hole.position
 		_ring.size = hole.size
 	_place_dims(hole, vp)
+	var face_w: float = 64.0 + 72.0 * nib_close
+	if _face != null:
+		_face.custom_minimum_size = Vector2(face_w, face_w * 1.75)
 	_talk.reset_size()
 	var ts: Vector2 = _talk.get_combined_minimum_size()
-	ts.x = maxf(ts.x, TALK_W)
+	ts.x = maxf(ts.x, TALK_W + 80.0 * nib_close)
 	_talk.size = ts
 	var pos := Vector2((vp.x - ts.x) * 0.5, vp.y - ts.y - 24.0)
 	if hole.size.x > 8.0:
@@ -263,6 +286,216 @@ func _place_dims(hole: Rect2, vp: Vector2) -> void:
 	_dim[2].size = Vector2(maxf(0.0, hole.position.x), hole.size.y)
 	_dim[3].position = Vector2(hole.end.x, hole.position.y)
 	_dim[3].size = Vector2(maxf(0.0, vp.x - hole.end.x), hole.size.y)
+
+
+func _load_beats() -> Array:
+	var raw: String = COPY.text("tutorial.beat.01.body", "")
+	if raw.find("(Click") >= 0 or raw.find("(Highlight") >= 0:
+		var scripted: Array = _parse_nib_script(raw)
+		if scripted.size() >= 8:
+			return scripted
+	return _legacy_beats()
+
+
+func _legacy_beats() -> Array:
+	var out: Array = []
+	for i in BEATS.size():
+		var b: Dictionary = BEATS[i].duplicate(true)
+		var n: String = "%02d" % (i + 1)
+		b["text"] = COPY.text("tutorial.beat.%s.body" % n, str(b.get("text", "")))
+		b["hint"] = COPY.text("tutorial.beat.%s.hint" % n, str(b.get("hint", "")))
+		b["go"] = COPY.text("tutorial.beat.%s.go" % n, str(b.get("go", "Alright")))
+		out.append(b)
+	return out
+
+
+func _fix_mojibake(s: String) -> String:
+	return s.replace("â€”", "—").replace("â€“", "–").replace("â€™", "'").replace("â€˜", "'").replace("â€œ", "\"").replace("â€\u009d", "\"").replace("Â·", "·")
+
+
+func _new_beat() -> Dictionary:
+	return {
+		"text": "",
+		"hint": "",
+		"focus": "",
+		"wait": "continue",
+		"go": "Next",
+		"force": "",
+		"branch": "",
+		"nib": 0.0,
+		"tiny": false,
+	}
+
+
+func _parse_nib_script(raw: String) -> Array:
+	var lines: PackedStringArray = _fix_mojibake(raw).split("\n")
+	var out: Array = []
+	var cur: Dictionary = _new_beat()
+	var branch := ""
+	var nib: float = 0.0
+	for line in lines:
+		var t: String = line.strip_edges()
+		if t == "":
+			continue
+		if t.begins_with("---"):
+			_flush_beat(out, cur)
+			cur = _new_beat()
+			var low: String = t.to_lower()
+			if low.find("da boot") >= 0:
+				branch = "boot"
+			elif low.find("take 3") >= 0:
+				branch = "take"
+			elif low.find("join") >= 0:
+				branch = "join"
+			continue
+		if t.begins_with("(") and _is_direction_line(t):
+			if t.to_lower().find("y'know") >= 0 or t.to_lower().find("tiny text") >= 0:
+				_flush_beat(out, cur)
+				cur = _new_beat()
+				cur["text"] = _tiny_aside(t)
+				cur["tiny"] = true
+				cur["nib"] = nib
+				cur["branch"] = branch
+				_apply_direction(cur, t)
+				continue
+			_apply_direction(cur, t)
+			nib = float(cur.get("nib", nib))
+			if _direction_ends_beat(t):
+				cur["nib"] = nib
+				cur["branch"] = branch
+				_flush_beat(out, cur)
+				cur = _new_beat()
+				cur["nib"] = nib
+				cur["branch"] = branch
+			continue
+		if str(cur.get("text", "")) != "" and str(cur.get("wait", "continue")) != "continue":
+			cur["nib"] = nib
+			cur["branch"] = branch
+			_flush_beat(out, cur)
+			cur = _new_beat()
+		if str(cur.get("text", "")) != "":
+			cur["text"] = str(cur["text"]) + "\n" + t
+		else:
+			cur["text"] = t
+		cur["nib"] = nib
+		cur["branch"] = branch
+	cur["nib"] = nib
+	cur["branch"] = branch
+	_flush_beat(out, cur)
+	return out
+
+
+func _is_direction_line(t: String) -> bool:
+	var low: String = t.to_lower()
+	if low.begins_with("(click") or low.begins_with("(highlight") or low.begins_with("(sprite") or low.begins_with("(comes") or low.begins_with("(returns") or low.begins_with("(nib") or low.begins_with("(only now") or low.begins_with("(when the") or low.begins_with("(the player") or low.begins_with("(animates") or low.begins_with("(vignette") or low.begins_with("(in very tiny"):
+		return true
+	return t.begins_with("(") and t.ends_with(")") and t.length() < 120 and low.find("highlight") >= 0
+
+
+func _direction_ends_beat(t: String) -> bool:
+	var low: String = t.to_lower()
+	if low.begins_with("(click") or low.begins_with("(the player") or low.begins_with("(when the user hovers and holds"):
+		return true
+	if low.begins_with("(only now") or low.begins_with("(vignette") or low.begins_with("(animates"):
+		return true
+	return false
+
+
+func _tiny_aside(t: String) -> String:
+	var inner: String = t
+	if inner.begins_with("(") and inner.ends_with(")"):
+		inner = inner.substr(1, inner.length() - 2)
+	var cut: int = inner.find("y'know")
+	if cut >= 0:
+		return "(" + inner.substr(cut).strip_edges().trim_suffix(")") + ")"
+	return "(y'know, cause of the round dungeon...)"
+
+
+func _apply_direction(cur: Dictionary, t: String) -> void:
+	var low: String = t.to_lower()
+	if low.find("closer") >= 0 or low.find("close to") >= 0 or low.find("leaning") >= 0 or low.find("80%") >= 0:
+		cur["nib"] = 0.85 if low.find("80%") >= 0 else 0.55
+	if low.find("returns") >= 0 or low.find("original position") >= 0 or low.find("returns to his") >= 0:
+		cur["nib"] = 0.0
+	if low.find("center screen") >= 0:
+		cur["nib"] = 0.4
+	if low.find("got it") >= 0:
+		cur["go"] = "Got It"
+		cur["wait"] = "continue"
+	elif low.find("click 'next'") >= 0 or low.find("click to continue") >= 0 or low.find("click 'got") >= 0:
+		cur["wait"] = "continue"
+		if str(cur.get("go", "")) == "":
+			cur["go"] = "Next"
+	if low.find("click 'spin'") >= 0 or low.find("click spin") >= 0:
+		cur["wait"] = "spin"
+		cur["focus"] = "spin"
+		cur["hint"] = "(click Spin)"
+		if low.find("wizard") >= 0:
+			cur["force"] = "wizard"
+		elif low.find("golem") >= 0:
+			cur["force"] = "golem"
+		elif low.find("goblin") >= 0:
+			cur["force"] = "goblin"
+	if low.find("only now") >= 0:
+		cur["wait"] = "auto_spin"
+		cur["focus"] = "spin"
+		cur["force"] = "golem"
+		cur["hint"] = ""
+	if low.find("sai") >= 0 and (low.find("click") >= 0 or low.find("highlight") >= 0 or low.find("use") >= 0):
+		cur["focus"] = "item:sai"
+		if low.find("click") >= 0 or low.find("use it") >= 0:
+			cur["wait"] = "item:sai"
+			cur["hint"] = "(click the Sai)"
+	if low.find("helmet") >= 0 and (low.find("click") >= 0 or low.find("highlight") >= 0):
+		cur["focus"] = "item:helmet"
+		if low.find("click the helmet") >= 0:
+			cur["wait"] = "item:helmet"
+			cur["hint"] = "(click Helmet)"
+	if low.find("da boot") >= 0 and low.find("take 3") >= 0:
+		cur["wait"] = "choice"
+		cur["focus"] = "item:da_boot"
+		cur["hint"] = "(click Da Boot, or Take 3)"
+	elif low.find("da boot") >= 0:
+		cur["focus"] = "item:da_boot"
+	if low.find("safe") >= 0 and (low.find("click") >= 0 or low.find("highlight") >= 0):
+		cur["focus"] = "done"
+		if low.find("click 'safe'") >= 0 or low.find("click safe") >= 0:
+			cur["wait"] = "done"
+			cur["hint"] = "(click Safe)"
+	if low.find("hovers and holds") >= 0:
+		cur["wait"] = "hover_shift"
+		cur["focus"] = "wheel"
+		cur["hint"] = "(hover a monster and hold Shift)"
+	if low.find("empty slice") >= 0 or low.find("corridor") >= 0:
+		cur["focus"] = "empty"
+	elif low.find("dungeon wheel") >= 0 or low.find("monster card") >= 0 or low.find("2 random") >= 0:
+		cur["focus"] = "wheel"
+	if (low.find("hotbar") >= 0 or low.find("your loot") >= 0) and not str(cur.get("focus", "")).begins_with("item:"):
+		cur["focus"] = "hotbar"
+	if low.find("healthbar") >= 0 or low.find("6 health") >= 0 or (low.find("player hp") >= 0 and low.find("golem") < 0):
+		cur["focus"] = "hearts"
+	if low.find("attack icon") >= 0:
+		cur["focus"] = "atk"
+	if low.find("hp icon") >= 0 or low.find("golem's hp") >= 0 or low.find("both player hp") >= 0:
+		cur["focus"] = "hp"
+	if low.find("block icon") >= 0:
+		cur["focus"] = "block"
+	if low.find("detail view") >= 0 or low.find("the details") >= 0:
+		cur["focus"] = "inspect"
+
+
+func _flush_beat(out: Array, cur: Dictionary) -> void:
+	var text: String = str(cur.get("text", "")).strip_edges()
+	var wait_s: String = str(cur.get("wait", "continue"))
+	if text == "" and wait_s == "continue":
+		return
+	if text == "" and wait_s == "auto_spin":
+		cur["text"] = ""
+	if str(cur.get("go", "")) == "":
+		cur["go"] = "Next"
+	if wait_s == "continue" and str(cur.get("hint", "")) == "":
+		cur["hint"] = ""
+	out.append(cur.duplicate(true))
 
 
 const BEATS := [
