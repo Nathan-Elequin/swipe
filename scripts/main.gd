@@ -24,6 +24,7 @@ const SPEECH_BUBBLE := preload("res://scripts/speech_bubble.gd")
 const DRAFT_GATE := preload("res://scripts/draft_gate.gd")
 const DRAFT_LINES := preload("res://scripts/draft_lines.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
+const RECENT_EDITS := preload("res://scripts/recent_edits.gd")
 const SLOT_ORDER := ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
 const CARDINAL_SLOTS := [0, 2, 4, 6]
 const HP_MAX := 6
@@ -34,6 +35,8 @@ const REFUSALS_MAX := 3
 const DRAFT_ROUNDS := 4
 const DEV_ITEM_MAX := 50
 const HAND_MAX := 50
+## 1.0 = original speed. 0.5 = half speed. Wheel spin ignores this.
+const ANIM_TIME_SCALE := 0.5
 
 const LOG_KIND := {
 	"on_click": {"hex": "#E8C36A", "tag": "On Click"},
@@ -73,7 +76,7 @@ const ITEM_OPS := {
 	"poison_flask": {"kind": "mark_poison"},
 	"healing_potion": {"kind": "passive"},
 	"crossbow": {"kind": "atk_neighbor", "n": 4},
-	"pocketwatch": {"kind": "atk_strong_neighbor"},
+	"pocketwatch": {"kind": "hypnotize"},
 	"double_axe": {"kind": "atk_cleave", "n": 2},
 	"victory_flask": {"kind": "heal_kills"},
 	"grappling_hook": {"kind": "hook_swap"},
@@ -100,6 +103,12 @@ const ITEM_OPS := {
 	"mute_stone": {"kind": "chaos_reroll"},
 	"cursed_scroll": {"kind": "heal_full"},
 	"spider_egg": {"kind": "egg_hurt", "n": 2},
+	"arrow_head": {"kind": "atk", "n": 3},
+	"danger_magnet": {"kind": "magnet", "options": [
+		{"id": "high", "label": "Highest Attack"},
+		{"id": "low", "label": "Lowest Attack"},
+		{"id": "off", "label": "Off"},
+	]},
 }
 
 const MONSTER_SPECIAL := {
@@ -134,6 +143,8 @@ const MONSTER_SPECIAL := {
 	"bodyguard": {"id": "take_instead", "text": "When my Neighbors would take Attack Damage, I take it instead."},
 	"cowardly_king": {"id": "pass_right", "text": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated."},
 	"merchant": {"id": "fair_trade", "text": "When you Spin me, choose an Item and I will upgrade it."},
+	"juggernaut": {"id": "gift_shield", "text": "When you face me, Gain a Shield."},
+	"cleric": {"id": "insure", "text": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item"},
 }
 
 const MONSTER_CALL := {
@@ -250,6 +261,8 @@ var pending_choice: Dictionary = {}
 var pending_monster: Dictionary = {}
 var pending_item: Dictionary = {}
 var uid_seq: int = 0
+var _magnet_seq: int = 0
+var _magnet_pending_consume: String = ""
 var starters_left: int = 0
 var starter_items_left: int = 0
 var smoke_given: bool = false
@@ -267,6 +280,8 @@ var keep_blocked_this_fight: bool = false
 var num_items_at_combat: int = 0
 var mobs_defeated: int = 0
 var hp_loss_events: int = 0
+var _bleed_hold: int = 0
+var _bleed_losses: int = 0
 var lost_hp_this_combat: bool = false
 var enemy_attacked: bool = false
 var last_atk_index: int = -1
@@ -299,6 +314,11 @@ var wheel_view
 var inspect
 var fly_tip
 var face_box
+var hypno_stage
+var hypno_box
+var _watch_thorns_seat: int = -1
+var _watch_skip_thorns: bool = false
+var _hypno_src: int = -1
 var speech_box
 var log_label: RichTextLabel
 var log_btn: Button
@@ -319,6 +339,7 @@ var overlay_btn: Button
 var overlay_dive: Button
 var overlay_tut: Button
 var overlay_dev: Button
+var overlay_latest: Button
 var overlay_adventure: Button
 var overlay_continue: Button
 var overlay_leave: Button
@@ -335,6 +356,7 @@ var dev_mon_grid: GridContainer
 var dev_item_grid: GridContainer
 var _dev_review: String = ""
 var _dev_sort_btns: Dictionary = {}
+var dev_latest_btn: Button
 var btn_start: Button
 var btn_spin: Button
 var btn_done: Button
@@ -373,6 +395,7 @@ var _upgraded_slices: Array = []
 var _tut_boot: bool = false
 var draft_gate
 var _courier: TextureRect
+var _walker_busy: bool = false
 var _gate_line: String = ""
 var _cube_line: String = ""
 var _mill_seq: int = 0
@@ -384,9 +407,11 @@ var dungeon_index: int = 1
 var dungeons_cleared: int = 0
 var adventure_seat_tiers: Array = [1, 1, 1, 1]
 var _adventure_busy: bool = false
+var _anim_t: float = 0.0
 
 
 func _ready() -> void:
+	Engine.time_scale = ANIM_TIME_SCALE
 	PLAYER_COPY.reload()
 	_load_textures()
 	_load_catalog()
@@ -467,6 +492,8 @@ func _load_textures() -> void:
 		"bodyguard": _tex("res://assets/icons/shield.svg"),
 		"cowardly_king": _tex("res://assets/icons/users.svg"),
 		"merchant": _tex("res://assets/icons/layers.svg"),
+		"juggernaut": _tex("res://assets/icons/shield.svg"),
+		"cleric": _tex("res://assets/icons/heart.svg"),
 	}
 	tex_by_item = {
 		"shield": tex_shield,
@@ -505,6 +532,8 @@ func _load_textures() -> void:
 		"last_match": _tex("res://assets/icons/palm.svg"),
 		"measuring_tape": tex_sword,
 		"mute_stone": _tex("res://assets/icons/rotate.svg"),
+		"arrow_head": _tex("res://assets/icons/swords.svg"),
+		"danger_magnet": _tex("res://assets/icons/rotate.svg"),
 	}
 	tex_special = {
 		"no_atk_dmg": _tex("res://assets/icons/ban.svg"),
@@ -540,6 +569,8 @@ func _load_textures() -> void:
 		"take_instead": _tex("res://assets/icons/shield.svg"),
 		"pass_right": _tex("res://assets/icons/link.svg"),
 		"fair_trade": _tex("res://assets/icons/layers.svg"),
+		"gift_shield": _tex("res://assets/icons/shield.svg"),
+		"insure": _tex("res://assets/icons/heart.svg"),
 		"no_defeat": _tex("res://assets/icons/ban.svg"),
 		"atk_eq_blk": _tex("res://assets/icons/link.svg"),
 		"item_double": _tex("res://assets/icons/swords.svg"),
@@ -783,6 +814,26 @@ func _build_ui() -> void:
 	if _authoring():
 		face_box.edit_pressed.connect(_open_content_editor)
 
+	hypno_stage = COMBAT_STAGE.new()
+	add_child(hypno_stage)
+	hypno_stage.setup(art)
+	hypno_stage.flip_h = true
+	hypno_stage.z_index = 13
+	if _authoring():
+		hypno_stage.edit_wanted.connect(func(id: String) -> void: _open_content_editor("monster", id))
+
+	hypno_box = HOVER_PANEL.new()
+	hypno_box.visible = false
+	hypno_box.z_index = 12
+	hypno_box.top_level = true
+	hypno_box.accept_clicks = true
+	hypno_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(hypno_box)
+	if art != null:
+		hypno_box.apply_skin(art.ui.get("panel_beige", null))
+	if _authoring():
+		hypno_box.edit_pressed.connect(_open_content_editor)
+
 	speech_box = SPEECH_BUBBLE.new()
 	add_child(speech_box)
 	speech_box.setup()
@@ -907,6 +958,8 @@ func _build_overlay() -> void:
 	overlay_tools_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	col.add_child(overlay_tools_row)
 	if _authoring():
+		overlay_latest = _pill("Play Latest", Color("3a3220"), Color("e8c36a"), _play_latest)
+		overlay_tools_row.add_child(overlay_latest)
 		overlay_dev = _pill("Developer Test", Color("1c1814"), Color("8a8178"), _open_dev_test)
 		overlay_tools_row.add_child(overlay_dev)
 		overlay_roster = _pill("Roster", Color("3a2820"), Color("c4a574"), _open_roster)
@@ -989,9 +1042,15 @@ func _sb(fill: Color, rim: Color, border: int) -> StyleBoxFlat:
 
 
 func _build_dev_panel() -> void:
+	var play_row := HBoxContainer.new()
+	play_row.add_theme_constant_override("separation", 8)
+	dev_panel.add_child(play_row)
+	var latest_play := _pill("Play Latest", Color("3a3220"), Color("e8c36a"), _play_latest)
+	latest_play.custom_minimum_size = Vector2(0, 48)
+	play_row.add_child(latest_play)
 	dev_enter = _pill("Play", Color("3a3220"), Color("e8c36a"), _dev_enter)
 	dev_enter.custom_minimum_size = Vector2(0, 48)
-	dev_panel.add_child(dev_enter)
+	play_row.add_child(dev_enter)
 	var sort_cap := Label.new()
 	sort_cap.text = "Sort by"
 	sort_cap.add_theme_font_size_override("font_size", 16)
@@ -1000,6 +1059,9 @@ func _build_dev_panel() -> void:
 	var sort_row := HBoxContainer.new()
 	sort_row.add_theme_constant_override("separation", 6)
 	dev_panel.add_child(sort_row)
+	dev_latest_btn = _pill("Latest", Color("3a1c14"), Color("e8c36a"), _dev_fill_latest.bind(true))
+	dev_latest_btn.custom_minimum_size = Vector2(0, 40)
+	sort_row.add_child(dev_latest_btn)
 	for stage in REVIEW_STAGE.STAGES:
 		var b := _pill(str(stage).capitalize(), Color("3a1c14") if str(stage) == "rough" else Color("241c18"), Color("e8c36a") if str(stage) == "rough" else Color("6a5f52"), _dev_sort_by.bind(str(stage)))
 		b.custom_minimum_size = Vector2(0, 40)
@@ -1052,6 +1114,61 @@ func _open_dev_test() -> void:
 	_refresh()
 
 
+func _play_latest() -> void:
+	if not _authoring():
+		return
+	_reset_run()
+	phase = "devtest"
+	draft_action = "place"
+	if dev_panel:
+		dev_panel.visible = false
+	if log_label:
+		log_label.visible = true
+	if not _dev_fill_latest(false):
+		phase = "title"
+		if sfx:
+			sfx.play("error", -12.0, 1.2)
+		_refresh()
+		return
+	_log("on_click", "Play Latest")
+	_dev_enter()
+
+
+func _dev_fill_latest(noisy: bool = true) -> bool:
+	if phase != "devtest":
+		_open_dev_test()
+	_dev_review = "latest"
+	_empty_wheel()
+	hotbar.clear()
+	_fill_dev_grids()
+	_sync_dev_sort_btns()
+	var mons: PackedStringArray = RECENT_EDITS.latest_ids("monster", monsters_by_id, items_by_id)
+	var items: PackedStringArray = RECENT_EDITS.latest_ids("item", monsters_by_id, items_by_id)
+	if mons.is_empty():
+		if noisy and sfx:
+			sfx.play("error", -12.0, 1.2)
+		_sync_wheel_stats()
+		_refresh()
+		return false
+	for id in mons:
+		_dev_add_monster(str(id), false)
+	for id2 in items:
+		_dev_add_item(str(id2), false)
+	var names: PackedStringArray = PackedStringArray()
+	for id3 in mons:
+		var mc: Dictionary = monsters_by_id.get(str(id3), {})
+		names.append(_title_case(str(mc.get("name", id3))))
+	for id4 in items:
+		var ic: Dictionary = items_by_id.get(str(id4), {})
+		names.append(_title_case(str(ic.get("name", id4))))
+	_log("on_draft", " ".join(names))
+	if noisy and sfx:
+		sfx.play("confirm", -8.0)
+	_sync_wheel_stats()
+	_refresh()
+	return true
+
+
 func _fill_dev_grids() -> void:
 	if dev_mon_grid == null:
 		return
@@ -1061,14 +1178,14 @@ func _fill_dev_grids() -> void:
 		var card: Dictionary = monsters_by_id.get(str(id), {})
 		if card.is_empty():
 			continue
-		if _dev_review != "" and REVIEW_STAGE.of_card(card) != _dev_review:
+		if _dev_review != "" and _dev_review != "latest" and REVIEW_STAGE.of_card(card) != _dev_review:
 			continue
 		dev_mon_grid.add_child(_dev_tile(str(id), _title_case(str(card.get("name", id))), str(card.get("rarity", "")), int(card.get("tier", 0)), true))
 	for id2 in runtime.get("items", []):
 		var card2: Dictionary = items_by_id.get(str(id2), {})
 		if card2.is_empty():
 			continue
-		if _dev_review != "" and REVIEW_STAGE.of_card(card2) != _dev_review:
+		if _dev_review != "" and _dev_review != "latest" and REVIEW_STAGE.of_card(card2) != _dev_review:
 			continue
 		dev_item_grid.add_child(_dev_tile(str(id2), _title_case(str(card2.get("name", id2))), str(card2.get("rarity", "")), int(card2.get("tier", 0)), false))
 
@@ -1179,6 +1296,8 @@ func _dev_ids_for(kind: String, stage: String) -> Array:
 
 
 func _sync_dev_sort_btns() -> void:
+	if dev_latest_btn:
+		dev_latest_btn.modulate = Color.WHITE if _dev_review == "latest" else Color(1, 1, 1, 0.55)
 	for k in _dev_sort_btns.keys():
 		var b: Button = _dev_sort_btns[k]
 		b.modulate = Color.WHITE if str(k) == _dev_review else Color(1, 1, 1, 0.55)
@@ -1267,6 +1386,7 @@ func _reset_run() -> void:
 		draft_gate.hide_gate()
 	if _courier:
 		_courier.visible = false
+	_walker_busy = false
 	if speech_box:
 		speech_box.hide_speech()
 	if not _tut_boot:
@@ -1274,6 +1394,7 @@ func _reset_run() -> void:
 		if tut:
 			tut.close()
 	if wheel_view != null:
+		wheel_view.portrait_away = -1
 		wheel_view.kill_spin()
 	if sfx:
 		sfx.play("confirm_big", -8.0)
@@ -1311,10 +1432,14 @@ func _reset_run() -> void:
 	num_items_at_combat = 0
 	mobs_defeated = 0
 	hp_loss_events = 0
+	_bleed_hold = 0
+	_bleed_losses = 0
 	lost_hp_this_combat = false
 	enemy_attacked = false
 	pending_mark.clear()
 	pending_chaos.clear()
+	_magnet_seq = 0
+	_magnet_pending_consume = ""
 	beads_step = 1
 	_reroll_skip = -1
 	draft_action = "place"
@@ -1326,6 +1451,7 @@ func _reset_run() -> void:
 		log_label.clear()
 	if combat_stage:
 		combat_stage.hide_stage()
+	_hide_hypno()
 	_fill_pools()
 	_empty_wheel()
 	if dev_panel:
@@ -1369,6 +1495,7 @@ func _enter_dungeon_clear() -> void:
 	_flash_screen(Color("e8c36a"), 0.28)
 	if combat_stage:
 		combat_stage.hide_stage()
+	_hide_hypno()
 	if in_tutorial or not adventure:
 		phase = "victory"
 		_log("end", "cleared")
@@ -1421,9 +1548,11 @@ func _prep_next_dungeon() -> void:
 		draft_gate.hide_gate()
 	if _courier:
 		_courier.visible = false
+	_walker_busy = false
 	if speech_box:
 		speech_box.hide_speech()
 	if wheel_view != null:
+		wheel_view.portrait_away = -1
 		wheel_view.kill_spin()
 	hp = HP_MAX
 	blk = 0
@@ -1453,10 +1582,14 @@ func _prep_next_dungeon() -> void:
 	num_items_at_combat = 0
 	mobs_defeated = 0
 	hp_loss_events = 0
+	_bleed_hold = 0
+	_bleed_losses = 0
 	lost_hp_this_combat = false
 	enemy_attacked = false
 	pending_mark.clear()
 	pending_chaos.clear()
+	_magnet_seq = 0
+	_magnet_pending_consume = ""
 	beads_step = 1
 	_reroll_skip = -1
 	draft_action = "busy"
@@ -1472,6 +1605,7 @@ func _prep_next_dungeon() -> void:
 		it["siphon_blk"] = 0
 	if combat_stage:
 		combat_stage.hide_stage()
+	_hide_hypno()
 	_fill_pools()
 	_empty_wheel()
 
@@ -2442,7 +2576,12 @@ func _make_monster(id: String) -> Dictionary:
 		"rage_step": 0,
 		"rage_fire": false,
 		"silenced": false,
+		"wick_bonus": 0,
+		"aura_hp": 0,
+		"aura_atk": 0,
 	}
+	uid_seq += 1
+	s["seat_uid"] = uid_seq
 	_apply_formulas_to(s)
 	return s
 
@@ -2471,6 +2610,8 @@ func _make_item(id: String) -> Dictionary:
 		"petrified": false,
 		"echo_copy": last_item_copy.duplicate(true) if id == "echo_bell" and not last_item_copy.is_empty() else {},
 		"alt_n": 2 if str(ops.get("kind", "")) == "atk_alt_24" else 0,
+		"magnet_mode": "off",
+		"magnet_seq": 0,
 	}
 
 
@@ -2533,7 +2674,20 @@ func _try_eval_stat_formula(formula: String, s: Dictionary) -> Variant:
 			return null
 
 
+func _peel_auras(s: Dictionary) -> void:
+	var ah: int = int(s.get("aura_hp", 0))
+	var aa: int = int(s.get("aura_atk", 0))
+	if ah != 0:
+		s["hp"] = maxi(0, int(s.get("hp", 0)) - ah)
+		s["hp_max"] = maxi(int(s.get("hp_max", int(s.get("hp", 0)))) - ah, int(s["hp"]))
+	if aa != 0:
+		s["atk"] = maxi(0, int(s.get("atk", 0)) - aa)
+	s["aura_hp"] = 0
+	s["aura_atk"] = 0
+
+
 func _apply_formulas_to(s: Dictionary) -> void:
+	_peel_auras(s)
 	var id: String = str(s.get("card_id", ""))
 	if _is_silenced(s):
 		# Quiet Bell freezes Vampire at the HP and Attack it already gained.
@@ -2578,10 +2732,12 @@ func _apply_formulas_to(s: Dictionary) -> void:
 		var missing: int = maxi(0, hold_max - hold_hp)
 		s["hp_max"] = int(s["hp_max"]) + bonus
 		s["hp"] = maxi(0, int(s["hp_max"]) - missing)
-	if atk_locked and id != "slime_boss":
+	if atk_locked and id != "slime_boss" and id != "wick":
 		s["atk"] = hold_atk
 	elif id == "vampire":
 		s["atk"] = _card_base_atk(id) + int(s.get("bloodlust", 0))
+	if id == "wick":
+		s["atk"] = _card_base_atk(id) + int(s.get("wick_bonus", 0))
 
 
 func _sync_wheel_stats() -> void:
@@ -2613,6 +2769,21 @@ func _sync_wheel_stats() -> void:
 			continue
 		wheel[i]["atk_before_late"] = int(wheel[i].get("atk", 0))
 		wheel[i]["hp_before_late"] = int(wheel[i].get("hp", 0))
+	_paint_late_auras()
+	for i in n:
+		if bool(wheel[i].get("atk_locked", false)):
+			continue
+		if _is_silenced(wheel[i]):
+			continue
+		if str(wheel[i].get("card_id", "")) == "slime_boss":
+			wheel[i]["atk"] = int(wheel[i]["hp"])
+		if str(wheel[i].get("card_id", "")) == "berserker" and not _is_silenced(wheel[i]):
+			wheel[i]["rage_fire"] = (int(wheel[i].get("rage_step", 0)) % 3) == 2
+	_mark_vars()
+
+
+func _paint_late_auras() -> void:
+	var n: int = wheel.size()
 	var hp_bonus: Array[int] = []
 	var atk_bonus: Array[int] = []
 	hp_bonus.resize(n)
@@ -2624,6 +2795,8 @@ func _sync_wheel_stats() -> void:
 		if id != "lich" and id != "commander":
 			continue
 		if _is_silenced(wheel[i]):
+			continue
+		if int(wheel[i].get("hp", 0)) <= 0:
 			continue
 		var left_i: int = (i - 1 + n) % n
 		var right_i: int = (i + 1) % n
@@ -2637,23 +2810,19 @@ func _sync_wheel_stats() -> void:
 	for i in n:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
-		if bool(wheel[i].get("spin_locked", false)):
-			continue
-		if hp_bonus[i] != 0 and not bool(wheel[i].get("hp_locked", false)):
-			wheel[i]["hp"] = int(wheel[i]["hp"]) + hp_bonus[i]
-			wheel[i]["hp_max"] = int(wheel[i]["hp_max"]) + hp_bonus[i]
-		if atk_bonus[i] != 0:
-			wheel[i]["atk"] = int(wheel[i]["atk"]) + atk_bonus[i]
-	for i in n:
-		if bool(wheel[i].get("atk_locked", false)):
-			continue
-		if _is_silenced(wheel[i]):
-			continue
-		if str(wheel[i].get("card_id", "")) == "slime_boss":
-			wheel[i]["atk"] = int(wheel[i]["hp"])
-		if str(wheel[i].get("card_id", "")) == "berserker" and not _is_silenced(wheel[i]):
-			wheel[i]["rage_fire"] = (int(wheel[i].get("rage_step", 0)) % 3) == 2
-	_mark_vars()
+		var old_h: int = int(wheel[i].get("aura_hp", 0))
+		var old_a: int = int(wheel[i].get("aura_atk", 0))
+		var new_h: int = hp_bonus[i]
+		var new_a: int = atk_bonus[i]
+		if old_h != new_h:
+			wheel[i]["hp"] = maxi(0, int(wheel[i].get("hp", 0)) - old_h + new_h)
+			wheel[i]["hp_max"] = maxi(int(wheel[i].get("hp_max", 0)) - old_h + new_h, int(wheel[i]["hp"]))
+			wheel[i]["aura_hp"] = new_h
+		if old_a != new_a:
+			wheel[i]["atk"] = maxi(0, int(wheel[i].get("atk", 0)) - old_a + new_a)
+			wheel[i]["aura_atk"] = new_a
+		if str(wheel[i].get("card_id", "")) == "slime_boss" and not _is_silenced(wheel[i]):
+			wheel[i]["atk"] = int(wheel[i].get("hp", 0))
 
 
 func _apply_wraith_pass() -> void:
@@ -2697,7 +2866,7 @@ func _mark_vars() -> void:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
 		var id: String = str(wheel[i].get("card_id", ""))
-		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "wraith" or cmd_touch.has(i)
+		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "wraith" or id == "wick" or cmd_touch.has(i)
 		wheel[i]["hp_variable"] = id == "ogre" or id == "skeleton" or id == "leech_league" or lich_touch.has(i)
 		wheel[i]["cmd_buff"] = cmd_touch.has(i)
 		wheel[i]["lich_buff"] = lich_touch.has(i)
@@ -2723,7 +2892,8 @@ func _on_bribe_mode() -> void:
 	_refresh()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_anim_t += delta
 	if _unlock_screen:
 		_hide_board_for_unlock()
 		return
@@ -2747,7 +2917,7 @@ func _process(_delta: float) -> void:
 	if in_tutorial:
 		_tut_refresh_focus()
 	if btn_spin != null and btn_spin.visible and not btn_spin.disabled:
-		var pulse: float = 0.88 + 0.12 * absf(sin(float(Time.get_ticks_msec()) * 0.005))
+		var pulse: float = 0.88 + 0.12 * absf(sin(_anim_t * 5.0))
 		btn_spin.modulate = Color(1.0, pulse, pulse * 0.85, 1.0)
 		btn_spin.pivot_offset = btn_spin.size * 0.5
 	elif btn_spin != null:
@@ -2773,6 +2943,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		if script_ed != null and script_ed.visible:
 			return
 		_open_script()
+		get_viewport().set_input_as_handled()
+		return
+	if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F4:
+		if roster_ed != null and roster_ed.visible:
+			return
+		if script_ed != null and script_ed.visible:
+			return
+		if content_ed != null and content_ed.visible:
+			return
+		_play_latest()
 		get_viewport().set_input_as_handled()
 		return
 	if not event.is_action_pressed("ui_cancel"):
@@ -2808,6 +2988,8 @@ func _on_pause_mode(mode: String) -> void:
 			_begin_adventure()
 		"dev":
 			_open_dev_test()
+		"latest":
+			_play_latest()
 		"roster":
 			_open_roster()
 
@@ -3106,7 +3288,7 @@ func _on_slice_clicked(index: int) -> void:
 	if _wheel_busy():
 		return
 	if not pending_mark.is_empty() and phase == "fighting":
-		_apply_mark(index)
+		await _apply_mark(index)
 		return
 	if phase == "devtest":
 		_dev_click_slice(index)
@@ -3134,11 +3316,14 @@ func _on_slice_hovered(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		_hover_slice = -1
 		_idle_inspect()
+		_apply_preview({})
 		return
 	if index != _hover_slice and sfx and phase != "spinning":
 		sfx.hover()
 	_hover_slice = index
 	_fill_inspect_from_slice(index)
+	if not pending_mark.is_empty() and phase == "fighting":
+		_apply_preview(_preview_bribe(index))
 	_tutorial_on_slice_hover(index)
 
 
@@ -3225,6 +3410,10 @@ func _on_spin() -> void:
 		return
 	if facing_index >= 0:
 		return
+	for i in range(wheel.size()):
+		if typeof(wheel[i]) == TYPE_DICTIONARY:
+			wheel[i]["spin_locked"] = false
+	_sync_wheel_stats()
 	var live: Array[int] = []
 	for i in range(wheel.size()):
 		if str(wheel[i].get("kind", "")) == "monster":
@@ -3233,19 +3422,26 @@ func _on_spin() -> void:
 		_enter_dungeon_clear()
 		_refresh()
 		return
-	var idx: int = live[rng.randi_range(0, live.size() - 1)]
-	if in_tutorial:
-		var forced: int = _tutorial_spin_index()
-		if forced >= 0:
-			idx = forced
-	if _reroll_skip >= 0 and live.size() > 1:
+	var pool: Array[int] = live.duplicate()
+	if _reroll_skip >= 0 and pool.size() > 1:
 		var filtered: Array[int] = []
-		for i in live:
+		for i in pool:
 			if i != _reroll_skip:
 				filtered.append(i)
 		if not filtered.is_empty():
-			idx = filtered[rng.randi_range(0, filtered.size() - 1)]
+			pool = filtered
 		_reroll_skip = -1
+	var idx: int = pool[rng.randi_range(0, pool.size() - 1)]
+	_magnet_pending_consume = ""
+	var tut_forced: int = -1
+	if in_tutorial:
+		tut_forced = _tutorial_spin_index()
+		if tut_forced >= 0:
+			idx = tut_forced
+	var mag_mode: String = _armed_magnet_mode()
+	if tut_forced < 0 and mag_mode != "":
+		idx = _magnet_pick(pool, mag_mode == "high")
+		_magnet_pending_consume = mag_mode
 	phase = "spinning"
 	pending_choice.clear()
 	_refresh()
@@ -3262,6 +3458,10 @@ func _on_spin() -> void:
 		sfx.play("land", -14.0)
 		sfx.play("bong", -16.0)
 	facing_index = idx
+	if _magnet_pending_consume != "":
+		_consume_armed_magnets(_magnet_pending_consume)
+		_magnet_pending_consume = ""
+	_discard_spent_items()
 	blk = 0
 	items_used_this_combat = 0
 	last_item_atk = 0
@@ -3289,15 +3489,15 @@ func _on_spin() -> void:
 	if combat_stage:
 		combat_stage.show_monster(str(m.get("card_id", "")))
 	_refresh()
+	_bleed_begin()
 	if await _apply_siphon_jars():
+		await _bleed_end()
 		_store_last_faced_hp()
 		return
 	if await _apply_cursed_scrolls():
+		await _bleed_end()
 		_store_last_faced_hp()
 		return
-	if str(m.get("card_id", "")) == "gelatinous_cube":
-		_cube_ask_feed()
-		m = wheel[facing_index]
 	if str(m.get("card_id", "")) == "gargoyle":
 		_petrify_best_atk()
 	if bool(m.get("poisoned", false)):
@@ -3313,12 +3513,23 @@ func _on_spin() -> void:
 	_step_berserkers()
 	_sync_wheel_stats()
 	await _apply_queen_eggs_on_spin()
-	if phase == "fighting" and str(wheel[facing_index].get("card_id", "")) == "merchant":
-		_merchant_ask()
+	if phase == "fighting":
+		await _apply_juggernaut_on_spin()
+	m = wheel[facing_index] if facing_index >= 0 and facing_index < wheel.size() else m
 	if str(m.get("card_id", "")) == "harpy" and not _is_silenced(m):
 		await _harpy_poke()
+	await _bleed_end()
 	if phase == "fighting":
 		await _apply_leech_on_spin()
+	if phase == "fighting":
+		await _cleric_after_spin()
+	if phase == "fighting" and facing_index >= 0 and facing_index < wheel.size():
+		var face_id: String = str(wheel[facing_index].get("card_id", ""))
+		if face_id == "gelatinous_cube":
+			_cube_ask_feed()
+			_refresh()
+		elif face_id == "merchant":
+			_merchant_ask()
 	_store_last_faced_hp()
 	if in_tutorial and phase == "fighting":
 		call_deferred("_tutorial_combat_started")
@@ -3432,7 +3643,9 @@ func _resolve_then_continue(skip_attack: bool) -> void:
 		return
 	phase = "slaying"
 	_refresh()
+	_bleed_begin()
 	var _taken: int = await _apply_resolve_hits()
+	await _bleed_end()
 	enemy_attacked = true
 	if hp <= 0:
 		_player_down()
@@ -3473,13 +3686,14 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1) -> int:
 	enemy_attacked = true
 	if combat_stage:
 		await combat_stage.lunge()
-	var pierce: bool = str(m.get("card_id", "")) == "dragon" and not _is_silenced("dragon")
 	var swing: Dictionary = _swing(m, blk)
+	var pierce: bool = bool(swing.get("pierce", false))
 	var incoming: int = int(swing["dmg"])
 	blk = int(swing["blk"])
 	hp = maxi(0, hp - incoming)
 	if incoming > 0:
 		hp_loss_events += 1
+		_bleed_losses += 1
 		lost_hp_this_combat = true
 		_hurt_ogres(incoming)
 		_grow_vampires()
@@ -3490,6 +3704,8 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1) -> int:
 		_log("var", "BLK %s" % blk)
 	if incoming > 0:
 		_log("hp", "take %s  →  %s" % [incoming, hp])
+		if pierce and _hand_pierce():
+			_pulse_arrow_heads()
 		await _play_attack_connect()
 	elif pierce:
 		_log("hp", "take 0")
@@ -3501,7 +3717,48 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1) -> int:
 		await _play_attack_blocked()
 	if hp <= 0:
 		_try_potion()
+	if incoming > 0:
+		await _cleric_maybe_flush()
 	return incoming
+
+
+## Spider Egg self-damage. Same ATK-vs-Block math as a swing, but no owner lunge,
+## no combat-stage burst, and no BLOCKED stamp on the faced slice.
+func _apply_egg_hurt(n: int) -> void:
+	var dummy := {"atk": n, "card_id": "spider_egg"}
+	var swing: Dictionary = _swing(dummy, blk)
+	var incoming: int = int(swing["dmg"])
+	blk = int(swing["blk"])
+	hp = maxi(0, hp - incoming)
+	if incoming > 0:
+		hp_loss_events += 1
+		_bleed_losses += 1
+		lost_hp_this_combat = true
+		_hurt_ogres(incoming)
+		_grow_vampires()
+		_log("hp", "take %s  →  %s" % [incoming, hp])
+		_flash_screen(Color("e07a7a"), 0.16)
+		_refresh_hearts()
+		_refresh_blk(false)
+		if sfx:
+			sfx.play("chop", -6.0)
+			sfx.play("error", -18.0, 0.8)
+		if wheel_view:
+			await wheel_view.play_hub_sting("hurt", incoming)
+	else:
+		_log("hp", "take 0")
+		_flash_screen(Color("5aa8e8"), 0.22)
+		_refresh_blk(false)
+		if sfx:
+			sfx.play("block_heavy", -5.0)
+			sfx.play("bong", -8.0, 1.12)
+			sfx.play("glass", -12.0, 1.3)
+		if wheel_view:
+			await wheel_view.play_hub_sting("block", 0)
+	if hp <= 0:
+		_try_potion()
+	if incoming > 0:
+		await _cleric_maybe_flush()
 
 
 func _play_attack_connect() -> void:
@@ -3544,6 +3801,7 @@ func _player_down() -> void:
 			sfx.duck_music(-16.0)
 	if combat_stage:
 		combat_stage.hide_stage()
+	_hide_hypno()
 	_discard_spent_items()
 	facing_index = -1
 	_refresh()
@@ -3621,11 +3879,17 @@ func _discard_spent_items() -> void:
 
 
 func _use_item(uid: int) -> void:
-	if phase != "fighting" or facing_index < 0:
+	var it_pre: Dictionary = _find_item(uid)
+	var magnet_ready: bool = phase == "ready" and _is_magnet(it_pre)
+	if not magnet_ready and (phase != "fighting" or facing_index < 0):
 		return
 	if not pending_feed.is_empty():
-		if sfx:
-			sfx.play("error", -12.0, 1.2)
+		var allowed: Array = pending_feed.get("uids", [])
+		if not allowed.has(uid):
+			if sfx:
+				sfx.play("error", -12.0, 1.2)
+			return
+		await _feed_cube(uid)
 		return
 	if _wheel_busy():
 		return
@@ -3659,27 +3923,34 @@ func _use_item(uid: int) -> void:
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
-	if kind == "choose":
+	if kind == "choose" or kind == "magnet":
 		var opts: Variant = ops.get("options", [])
 		if typeof(opts) != TYPE_ARRAY or (opts as Array).is_empty():
-			opts = [
-				{"id": "throw", "label": PLAYER_COPY.text("combat.knife_throw", "ATK 3, discard"), "atk": 3, "keep": false},
-				{"id": "nick", "label": PLAYER_COPY.text("combat.knife_nick", "ATK 1, keep"), "atk": 1, "keep": true},
-			]
+			if kind == "magnet":
+				opts = [
+					{"id": "high", "label": "Highest Attack"},
+					{"id": "low", "label": "Lowest Attack"},
+					{"id": "off", "label": "Off"},
+				]
+			else:
+				opts = [
+					{"id": "throw", "label": PLAYER_COPY.text("combat.knife_throw", "ATK 3, discard"), "atk": 3, "keep": false},
+					{"id": "nick", "label": PLAYER_COPY.text("combat.knife_nick", "ATK 1, keep"), "atk": 1, "keep": true},
+				]
 		pending_choice = {"uid": uid, "options": opts}
 		_log("on_item_use", "choose")
 		if sfx:
 			sfx.play("question", -10.0)
 		call_deferred("_refresh")
 		return
-	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap":
+	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize":
 		if _mark_targets(kind).is_empty():
 			_log("on_item_use", "cannot")
 			if sfx:
 				sfx.play("error", -10.0)
 			return
 		pending_mark = {"uid": uid, "kind": kind}
-		_log("on_item_use", "pick a neighbor")
+		_log("on_item_use", "pick a monster" if kind == "hypnotize" else "pick a neighbor")
 		if sfx:
 			sfx.play("question", -10.0)
 		call_deferred("_refresh")
@@ -3687,8 +3958,10 @@ func _use_item(uid: int) -> void:
 	if kind == "chaos_reroll":
 		await _begin_chaos(uid)
 		return
+	_bleed_begin()
 	await _apply_ops(it, ops, {})
 	await _after_item_resolved(it)
+	await _bleed_end()
 	if in_tutorial:
 		_tutorial_item_used(str(it.get("card_id", "")))
 	call_deferred("_refresh")
@@ -3700,6 +3973,14 @@ func _choose_option(opt: Dictionary) -> void:
 	if it.is_empty():
 		call_deferred("_refresh")
 		return
+	var oid: String = str(opt.get("id", ""))
+	if oid == "high" or oid == "low" or oid == "off" or str(_ops_of(it).get("kind", "")) == "magnet":
+		await _set_magnet_mode(it, oid)
+		if sfx:
+			sfx.play("click2", -8.0)
+		call_deferred("_refresh")
+		return
+	_bleed_begin()
 	if int(opt.get("atk_drop", 0)) > 0:
 		await _apply_ops(it, {"kind": "atk_drop", "n": int(opt.get("atk_drop", 0))}, opt)
 	elif int(opt.get("blk", 0)) > 0:
@@ -3707,6 +3988,7 @@ func _choose_option(opt: Dictionary) -> void:
 	else:
 		await _apply_ops(it, {"kind": "atk", "n": int(opt.get("atk", 0))}, opt)
 	await _after_item_resolved(it)
+	await _bleed_end()
 	if sfx:
 		sfx.play("click2", -8.0)
 	call_deferred("_refresh")
@@ -3806,10 +4088,9 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("on_item_use", str(it["name"]))
 			_heal(HP_MAX - hp)
 		"egg_hurt":
-			var egg_atk: int = int(ops.get("n", 2))
+			var egg_atk: int = _atk_with_head(int(ops.get("n", 2)))
 			_log("on_item_use", str(it["name"]))
-			var fake := {"card_id": "spider_egg", "atk": egg_atk, "name": str(it.get("name", "Spider Egg"))}
-			await _owner_attack(fake)
+			await _apply_egg_hurt(egg_atk)
 			it["spent"] = true
 			_count_item_use()
 			_toss_item(int(it["uid"]), false)
@@ -3841,6 +4122,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			phase = "ready"
 			if combat_stage:
 				combat_stage.hide_stage()
+			_hide_hypno()
 			call_deferred("_maybe_auto_spin")
 			return
 		"atk_zero":
@@ -4130,7 +4412,7 @@ func _leftmost_atk_n() -> int:
 			continue
 		if _item_atk_score(it) < 0:
 			continue
-		return int(_item_view(it).get("n", 0))
+		return _item_atk_score(it)
 	return 3
 
 
@@ -4303,6 +4585,19 @@ func _apply_cursed_scrolls() -> bool:
 	return false
 
 
+func _apply_siphon_jars() -> bool:
+	for it in hotbar:
+		if str(it.get("card_id", "")) != "grief_jar":
+			continue
+		if bool(it.get("spent", false)):
+			continue
+		it["siphon_blk"] = int(it.get("siphon_blk", 0)) + 2
+		_log("var", "Grief Jar BLK %s" % it["siphon_blk"])
+		if await _bleed(1):
+			return true
+	return false
+
+
 
 func _flip_alt_sais() -> void:
 	for it in hotbar:
@@ -4438,18 +4733,20 @@ func _flash_banner(msg: String) -> void:
 	lab.text = msg
 	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lab.add_theme_font_size_override("font_size", 28)
+	var long_line: bool = msg.length() > 28
+	lab.add_theme_font_size_override("font_size", 22 if long_line else 28)
 	lab.add_theme_color_override("font_color", Color("f0e6d8"))
 	lab.add_theme_color_override("font_outline_color", Color("100e0c"))
 	lab.add_theme_constant_override("outline_size", 6)
+	lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if long_line else TextServer.AUTOWRAP_OFF
 	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	lab.z_index = 40
 	play_field.add_child(lab)
 	lab.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	lab.offset_left = -220.0
-	lab.offset_right = 220.0
-	lab.offset_top = -24.0
-	lab.offset_bottom = 24.0
+	lab.offset_left = -340.0 if long_line else -220.0
+	lab.offset_right = 340.0 if long_line else 220.0
+	lab.offset_top = -56.0 if long_line else -24.0
+	lab.offset_bottom = 56.0 if long_line else 24.0
 	lab.modulate.a = 0.0
 	var tw := lab.create_tween()
 	tw.tween_property(lab, "modulate:a", 1.0, 0.12)
@@ -4516,6 +4813,7 @@ func _try_commander_flee(index: int) -> bool:
 	s["fled_once"] = true
 	s["hp"] = maxi(1, int(s.get("hp_max", _card_base_hp("commander"))))
 	s["hp_locked"] = false
+	s["spin_locked"] = false
 	wheel[index] = s
 	_log("on_resolve", "%s flees" % s.get("name", "Commander"))
 	if sfx:
@@ -4527,6 +4825,8 @@ func _try_commander_flee(index: int) -> bool:
 	pending_feed = {}
 	if combat_stage:
 		combat_stage.hide_stage()
+	_hide_hypno()
+	_discard_spent_items()
 	facing_index = -1
 	phase = "ready"
 	blk = 0
@@ -4568,6 +4868,7 @@ func _damsel_incoming() -> int:
 func _damsel_resolve() -> void:
 	phase = "slaying"
 	_refresh()
+	_bleed_begin()
 	for j in _damsel_neighbors(facing_index):
 		var nm: Dictionary = wheel[j]
 		if combat_stage:
@@ -4582,8 +4883,10 @@ func _damsel_resolve() -> void:
 			if hits > 1 and h < hits - 1:
 				await get_tree().create_timer(0.16).timeout
 		if hp <= 0:
+			await _bleed_end()
 			_player_down()
 			return
+	await _bleed_end()
 	if combat_stage:
 		combat_stage.show_monster("two_headed_serpent")
 	_heal(3)
@@ -4748,6 +5051,265 @@ func _lay_spider_egg(index: int) -> void:
 		laid.bounce()
 
 
+func _apply_juggernaut_on_spin() -> void:
+	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
+		return
+	var m: Dictionary = wheel[facing_index]
+	if str(m.get("card_id", "")) != "juggernaut":
+		return
+	if _is_silenced(m):
+		return
+	if hotbar.size() >= HAND_MAX:
+		return
+	await _juggernaut_hand_shield()
+
+
+func _hotbar_empty_slot_global() -> Vector2:
+	if hotbar_box == null:
+		return Vector2.ZERO
+	var kids: Array = hotbar_box.get_children()
+	if kids.is_empty():
+		return hotbar_box.global_position + hotbar_box.size * 0.5
+	var last: Control = kids[kids.size() - 1]
+	return last.global_position + Vector2(last.size.x + 8.0 + last.size.x * 0.5, last.size.y * 0.5)
+
+
+func _juggernaut_hand_shield() -> void:
+	var to: Vector2 = _hotbar_empty_slot_global()
+	var home: Vector2 = await _monster_walk_to(facing_index, "juggernaut", to)
+	if phase != "fighting":
+		_walker_restore(facing_index)
+		return
+	await _try_gain_item("shield")
+	var planted: Node = null
+	if hotbar_box:
+		for c in hotbar_box.get_children():
+			if str(c.get("card_id")) == "shield":
+				planted = c
+	if planted != null and planted.has_method("bounce"):
+		planted.bounce()
+	await _monster_walk_back(facing_index, "juggernaut", home)
+
+
+func _walker_origin(index: int) -> Vector2:
+	if index == facing_index and combat_stage != null and combat_stage.visible:
+		return combat_stage.global_position + combat_stage.size * 0.5
+	if wheel_view:
+		return wheel_view.slice_portrait_global(index)
+	return Vector2.ZERO
+
+
+func _walker_home(index: int) -> Vector2:
+	if index == facing_index and combat_stage != null:
+		return combat_stage.global_position + combat_stage.size * 0.5
+	if wheel_view:
+		return wheel_view.slice_portrait_global(index)
+	return Vector2.ZERO
+
+
+func _walker_depart(index: int) -> void:
+	_walker_busy = true
+	if wheel_view:
+		wheel_view.portrait_away = index
+	if index == facing_index and combat_stage:
+		combat_stage.visible = false
+
+
+func _walker_restore(index: int) -> void:
+	if _courier:
+		_courier.visible = false
+		_courier.flip_h = false
+		_courier.size = Vector2(96, 96)
+		_courier.scale = Vector2.ONE
+	if wheel_view:
+		wheel_view.portrait_away = -1
+	if combat_stage != null and phase == "fighting" and facing_index == index and facing_index >= 0:
+		combat_stage.visible = true
+	_walker_busy = false
+
+
+func _monster_run_frames(card_id: String) -> Array:
+	if art:
+		return art.monster_run(card_id)
+	return []
+
+
+func _monster_walk_to(index: int, card_id: String, dest: Vector2) -> Vector2:
+	var from: Vector2 = _walker_origin(index)
+	_walker_depart(index)
+	await _walk_courier(_monster_run_frames(card_id), from, dest, 0.55, false)
+	return from
+
+
+func _monster_walk_back(index: int, card_id: String, home: Vector2) -> void:
+	var here: Vector2 = home
+	if _courier != null and _courier.visible:
+		here = _courier.global_position + _courier.pivot_offset
+	var back: Vector2 = home
+	if back == Vector2.ZERO:
+		back = _walker_home(index)
+	await _walk_courier(_monster_run_frames(card_id), here, back, 0.48, true)
+	_walker_restore(index)
+
+
+func _walk_courier(frames: Array, from: Vector2, to: Vector2, dur: float, hide_at_end: bool = true) -> void:
+	if _courier == null or frames.is_empty() or from == Vector2.ZERO:
+		await get_tree().create_timer(0.08).timeout
+		return
+	_courier.texture = frames[0]
+	_courier.size = Vector2(168, 128)
+	_courier.pivot_offset = Vector2(84, 64)
+	_courier.scale = Vector2.ONE
+	_courier.modulate.a = 1.0
+	_courier.flip_h = to.x < from.x
+	_courier.global_position = from - _courier.pivot_offset
+	_courier.visible = true
+	if sfx:
+		sfx.play("cloth", -8.0)
+		sfx.play("whoosh", -12.0, 0.85)
+	var tw := create_tween()
+	tw.set_trans(Tween.TRANS_SINE)
+	tw.set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(_courier, "global_position", to - _courier.pivot_offset, dur)
+	var fi: int = 0
+	await get_tree().process_frame
+	while tw.is_running():
+		fi = (fi + 1) % frames.size()
+		_courier.texture = frames[fi]
+		await get_tree().create_timer(0.07).timeout
+	if hide_at_end:
+		_courier.visible = false
+		_courier.flip_h = false
+		_courier.size = Vector2(96, 96)
+		_courier.scale = Vector2.ONE
+
+
+func _bleed_begin() -> void:
+	_bleed_hold += 1
+
+
+func _bleed_end() -> void:
+	_bleed_hold = maxi(0, _bleed_hold - 1)
+
+
+func _cleric_maybe_flush() -> void:
+	pass
+
+
+func _missing_hp() -> int:
+	return maxi(0, HP_MAX - hp)
+
+
+func _living_clerics() -> Array[int]:
+	var out: Array[int] = []
+	for i in range(wheel.size()):
+		if str(wheel[i].get("card_id", "")) != "cleric":
+			continue
+		if _is_silenced(wheel[i]):
+			continue
+		if int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		out.append(i)
+	return out
+
+
+func _cleric_after_spin() -> void:
+	if hp <= 0 or phase != "fighting":
+		return
+	var seats: Array[int] = _living_clerics()
+	if seats.is_empty():
+		return
+	for i in seats:
+		if hp <= 0 or phase != "fighting":
+			return
+		if _missing_hp() < 3:
+			return
+		if i < 0 or i >= wheel.size():
+			continue
+		if str(wheel[i].get("card_id", "")) != "cleric":
+			continue
+		if _is_silenced(wheel[i]) or int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		await _cleric_play(i)
+
+
+func _cleric_play(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	_walker_busy = true
+	_sync_buttons()
+	var s: Dictionary = wheel[index]
+	var line: String = str(s.get("ability", "")).strip_edges()
+	if line == "":
+		line = str(s.get("call_name", "Health Insurance")).strip_edges()
+	_flash_banner(line)
+	if wheel_view:
+		wheel_view.aura_index = index
+	if sfx:
+		sfx.play("pluck", -8.0, 0.9)
+	if get_tree():
+		await get_tree().create_timer(0.7).timeout
+	if wheel_view:
+		wheel_view.aura_index = -1
+	var from: Vector2 = Vector2.ZERO
+	var hearts: Vector2 = Vector2.ZERO
+	if wheel_view:
+		from = wheel_view.slice_portrait_global(index)
+		hearts = wheel_view.hub_hearts_global()
+	var light: Texture2D = null
+	if art != null:
+		light = art.vfx.get("magic", art.vfx.get("star", null))
+	if light != null and from != Vector2.ZERO:
+		await _fly_courier(light, from, hearts, 0.34)
+	_heal(3)
+	_log("on_spin", "Health Insurance Heal 3  →  %s" % hp)
+	var uid: int = _worst_item_uid()
+	if uid < 0:
+		_walker_busy = false
+		_refresh()
+		return
+	var dest: Vector2 = _item_card_global(uid)
+	if dest == Vector2.ZERO:
+		dest = hearts
+	var home: Vector2 = await _monster_walk_to(index, "cleric", dest)
+	_toss_item(uid, false)
+	_log("on_spin", "Cleric took worst item")
+	_refresh()
+	await _monster_walk_back(index, "cleric", home)
+	_refresh()
+
+
+func _worst_item_uid() -> int:
+	var best: int = 999
+	var cands: Array[int] = []
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		var uid: int = int(it.get("uid", -1))
+		if uid < 0:
+			continue
+		var t: int = int(it.get("pack_tier", 1))
+		if str(it.get("card_id", "")) == "spider_egg":
+			t = 0
+		if t < best:
+			best = t
+			cands = [uid]
+		elif t == best:
+			cands.append(uid)
+	if cands.is_empty():
+		return -1
+	return cands[rng.randi() % cands.size()]
+
+
+func _item_card_global(uid: int) -> Vector2:
+	if hotbar_box == null:
+		return Vector2.ZERO
+	for c in hotbar_box.get_children():
+		if int(c.get("uid")) == uid:
+			return c.global_position + c.size * 0.5
+	return Vector2.ZERO
+
+
 func _keep_blocked_now() -> bool:
 	if keep_blocked_this_fight:
 		return true
@@ -4816,6 +5378,7 @@ func _bleed(n: int) -> bool:
 	hp = maxi(0, hp - n)
 	if hp < before:
 		hp_loss_events += 1
+		_bleed_losses += 1
 		lost_hp_this_combat = true
 		_hurt_ogres(before - hp)
 		_grow_vampires()
@@ -4833,6 +5396,8 @@ func _bleed(n: int) -> bool:
 	if hp <= 0 and not _try_potion():
 		_player_down()
 		return true
+	if _bleed_losses > 0:
+		await _cleric_maybe_flush()
 	return false
 
 
@@ -4934,8 +5499,10 @@ func _item_atk_score(it: Dictionary) -> int:
 					var a: int = int(o.get("atk", 0))
 					if a > best:
 						best = a
-			return best
-		return int(_item_view(it).get("n", 0))
+			if best < 0:
+				return -1
+			return _atk_with_head(best)
+		return _atk_with_head(int(_item_view(it).get("n", 0)))
 	return -1
 
 
@@ -5011,6 +5578,7 @@ func _merchant_ask() -> void:
 	if sfx:
 		sfx.play("question", -8.0)
 		sfx.play("pluck", -10.0)
+	_refresh()
 
 
 func _stored_item_tier(it: Dictionary) -> int:
@@ -5088,13 +5656,30 @@ func _feed_cube(uid: int) -> void:
 	if not allowed.has(uid):
 		return
 	pending_feed = {}
+	var dest: Vector2 = _item_card_global(uid)
+	if dest == Vector2.ZERO:
+		dest = _hotbar_empty_slot_global()
+	_cube_line = ""
+	if speech_box:
+		speech_box.hide_speech()
+	_walker_busy = true
+	_refresh()
+	var seat: int = facing_index
+	var home: Vector2 = Vector2.ZERO
+	if seat >= 0:
+		home = await _monster_walk_to(seat, "gelatinous_cube", dest)
 	var it: Dictionary = _find_item(uid)
-	_cube_line = ["Mmm. Thank you.", "Gone. Delicious.", "Thanks. I needed that."][rng.randi() % 3]
 	_log("on_spin", "cube ate %s" % str(it.get("name", "?")))
 	if sfx:
 		sfx.play("cloth", -6.0)
 		sfx.play("glass", -12.0, 0.8)
 	_toss_item(uid, false)
+	_cube_line = ["Mmm. Thank you.", "Gone. Delicious.", "Thanks. I needed that."][rng.randi() % 3]
+	_refresh()
+	if seat >= 0:
+		await _monster_walk_back(seat, "gelatinous_cube", home)
+	else:
+		_walker_busy = false
 	_refresh()
 
 
@@ -5138,14 +5723,152 @@ func _count_item_use() -> void:
 			continue
 		if _is_silenced("wick"):
 			continue
-		wheel[i]["atk"] = int(wheel[i].get("atk", 0)) + 1
-		wheel[i]["atk_locked"] = true
+		wheel[i]["wick_bonus"] = int(wheel[i].get("wick_bonus", 0)) + 1
+		if bool(wheel[i].get("spin_locked", false)):
+			wheel[i]["atk"] = int(wheel[i].get("atk", 0)) + 1
 		_chip_hp(i, 1)
 	_sync_wheel_stats()
 
 
 func _deal_atk(n: int) -> bool:
 	return await _deal_atk_at(facing_index, n)
+
+
+func _is_arrow_head(it: Dictionary) -> bool:
+	if it.is_empty() or bool(it.get("spent", false)):
+		return false
+	if str(it.get("card_id", "")) == "arrow_head":
+		return true
+	if str(it.get("card_id", "")) != "echo_bell":
+		return false
+	var copy: Variant = it.get("echo_copy", {})
+	return typeof(copy) == TYPE_DICTIONARY and str((copy as Dictionary).get("card_id", "")) == "arrow_head"
+
+
+func _arrow_head_bonus() -> int:
+	var n: int = 0
+	for it in hotbar:
+		if _is_arrow_head(it):
+			n += 1
+	return n
+
+
+func _hand_pierce() -> bool:
+	return _arrow_head_bonus() > 0
+
+
+func _kind_deals_atk(kind: String) -> bool:
+	if kind == "atk_zero" or kind == "atk_drop":
+		return false
+	return kind.begins_with("atk") or kind == "egg_hurt" or kind == "choose"
+
+
+func _atk_with_head(n: int) -> int:
+	return n + _arrow_head_bonus()
+
+
+func _is_magnet(it: Dictionary) -> bool:
+	if it.is_empty() or bool(it.get("spent", false)):
+		return false
+	if str(_ops_of(it).get("kind", "")) == "magnet":
+		return true
+	if str(it.get("card_id", "")) == "danger_magnet":
+		return true
+	if str(it.get("card_id", "")) != "echo_bell":
+		return false
+	var copy: Variant = it.get("echo_copy", {})
+	return typeof(copy) == TYPE_DICTIONARY and str((copy as Dictionary).get("card_id", "")) == "danger_magnet"
+
+
+func _magnet_mode_of(it: Dictionary) -> String:
+	var mode: String = str(it.get("magnet_mode", "off"))
+	if mode != "high" and mode != "low":
+		return "off"
+	return mode
+
+
+func _armed_magnet_mode() -> String:
+	var best_seq: int = -1
+	var mode: String = ""
+	for it in hotbar:
+		if not _is_magnet(it):
+			continue
+		var m: String = _magnet_mode_of(it)
+		if m == "off":
+			continue
+		var seq: int = int(it.get("magnet_seq", 0))
+		if seq >= best_seq:
+			best_seq = seq
+			mode = m
+	return mode
+
+
+func _magnet_pick(pool: Array[int], want_high: bool) -> int:
+	if pool.is_empty():
+		return 0
+	var best: int = int(wheel[pool[0]].get("atk", 0))
+	for i in pool:
+		var a: int = int(wheel[i].get("atk", 0))
+		if want_high:
+			if a > best:
+				best = a
+		elif a < best:
+			best = a
+	var tied: Array[int] = []
+	for j in pool:
+		if int(wheel[j].get("atk", 0)) == best:
+			tied.append(j)
+	if tied.is_empty():
+		return pool[0]
+	return tied[rng.randi_range(0, tied.size() - 1)]
+
+
+func _set_magnet_mode(it: Dictionary, oid: String) -> void:
+	if oid != "high" and oid != "low":
+		it["magnet_mode"] = "off"
+		_log("on_item_use", "magnet off")
+		return
+	_magnet_seq += 1
+	it["magnet_mode"] = oid
+	it["magnet_seq"] = _magnet_seq
+	_log("on_item_use", "magnet %s" % oid)
+	_remember_item_use(it)
+	if phase == "fighting":
+		_count_item_use()
+		await _harpy_poke()
+
+
+func _consume_armed_magnets(mode: String) -> void:
+	if mode != "high" and mode != "low":
+		return
+	var gone: Array = []
+	for it in hotbar:
+		if not _is_magnet(it):
+			continue
+		if _magnet_mode_of(it) != mode:
+			continue
+		gone.append(int(it.get("uid", -1)))
+	for uid in gone:
+		var it: Dictionary = _find_item(int(uid))
+		if it.is_empty():
+			continue
+		it["spent"] = true
+		it["keep_after"] = false
+		_toss_item(int(it["uid"]), false)
+		_log("discard", str(it.get("name", "Danger Magnet")))
+
+
+func _pulse_arrow_heads() -> void:
+	if hotbar_box == null:
+		return
+	for c in hotbar_box.get_children():
+		if not c.has_method("bounce"):
+			continue
+		var it: Dictionary = _find_item(int(c.uid))
+		if _is_arrow_head(it):
+			c.bounce()
+			if c.has_method("set_aura"):
+				c.set_aura(true)
 
 
 func _right_monster(index: int) -> int:
@@ -5239,7 +5962,10 @@ func _telegraph_pass(path: Array) -> void:
 			await get_tree().create_timer(0.14).timeout
 
 
-func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: bool = false) -> bool:
+func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: bool = false, head_done: bool = false) -> bool:
+	if not head_done:
+		n = _atk_with_head(n)
+		head_done = true
 	last_item_atk = n
 	if index < 0 or index >= wheel.size():
 		return false
@@ -5258,13 +5984,13 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 			var amount: int = int(plan.get("amount", n))
 			var already_doubled: bool = amount != n
 			var land_twins: bool = _twins_double_atk(landed, n) and not already_doubled
-			return await _deal_atk_at(landed, amount, not land_twins, true)
+			return await _deal_atk_at(landed, amount, not land_twins, true, true)
 	if not skip_twins and _twins_double_atk(index, n):
-		if await _deal_atk_at(index, n, true, true):
+		if await _deal_atk_at(index, n, true, true, true):
 			return true
 		if index < 0 or index >= wheel.size():
 			return false
-		return await _deal_atk_at(index, n, true, true)
+		return await _deal_atk_at(index, n, true, true, true)
 	var m: Dictionary = wheel[index]
 	var hit_n: int = n
 	if str(m.get("card_id", "")) == "anvil" and not _is_silenced("anvil") and hit_n > 0:
@@ -5302,7 +6028,16 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	if combat_stage and index == facing_index:
 		combat_stage.take_hit()
 	if str(m.get("card_id", "")) == "needleback" and not _is_silenced("needleback") and before_hp > 0:
-		if _player_take_atk(1):
+		if _watch_skip_thorns:
+			pass
+		elif _watch_thorns_seat >= 0:
+			var thorn_at: int = _watch_thorns_seat
+			_watch_skip_thorns = true
+			var poked: bool = await _deal_atk_at(thorn_at, 1, false, false, true)
+			_watch_skip_thorns = false
+			if poked:
+				return true
+		elif await _player_take_atk(1):
 			return true
 	return false
 
@@ -5321,6 +6056,7 @@ func _king_remain() -> void:
 	phase = "slaying"
 	pending_choice.clear()
 	pending_mark.clear()
+	pending_chaos.clear()
 	pending_feed = {}
 	_refresh()
 	if combat_stage:
@@ -5328,11 +6064,13 @@ func _king_remain() -> void:
 	var s: Dictionary = wheel[facing_index]
 	s["spin_locked"] = false
 	wheel[facing_index] = s
+	last_mob_atk = int(s.get("atk", 0))
 	_remove_crossbowed()
 	_discard_spent_items()
 	blk = 0
 	_log("on_resolve", "%s stays" % s.get("name", "King"))
 	_log("var", "BLK 0")
+	facing_index = -1
 	_sync_wheel_stats()
 	phase = "ready"
 	if _monsters_left() == 0:
@@ -5353,6 +6091,7 @@ func _player_take_atk(n: int) -> bool:
 	hp = maxi(0, hp - incoming)
 	if incoming > 0:
 		hp_loss_events += 1
+		_bleed_losses += 1
 		lost_hp_this_combat = true
 		_hurt_ogres(incoming)
 		_grow_vampires()
@@ -5371,19 +6110,8 @@ func _player_take_atk(n: int) -> bool:
 	if hp <= 0 and not _try_potion():
 		_player_down()
 		return true
-	return false
-
-
-func _apply_siphon_jars() -> bool:
-	for it in hotbar:
-		if str(it.get("card_id", "")) != "grief_jar":
-			continue
-		if bool(it.get("spent", false)):
-			continue
-		it["siphon_blk"] = int(it.get("siphon_blk", 0)) + 2
-		_log("var", "Grief Jar BLK %s" % it["siphon_blk"])
-		if await _bleed(1):
-			return true
+	if incoming > 0:
+		await _cleric_maybe_flush()
 	return false
 
 
@@ -5409,6 +6137,7 @@ func _cleave_targets() -> Array[int]:
 
 
 func _apply_cleave(n: int) -> bool:
+	n = _atk_with_head(n)
 	var targets: Array[int] = _cleave_targets()
 	var plans: Array = []
 	for t in targets:
@@ -5430,7 +6159,7 @@ func _apply_cleave(n: int) -> bool:
 		var amount: int = int(plan.get("amount", n))
 		var already_doubled: bool = amount != n
 		var land_twins: bool = _twins_double_atk(landed, n) and not already_doubled
-		if await _deal_atk_at(landed, amount, not land_twins, true):
+		if await _deal_atk_at(landed, amount, not land_twins, true, true):
 			return true
 		_log("atk", last_atk_line)
 		if landed >= 0:
@@ -5512,6 +6241,11 @@ func _neighbor_indices() -> Array[int]:
 
 func _mark_targets(kind: String) -> Array[int]:
 	var out: Array[int] = []
+	if kind == "hypnotize":
+		for i in range(wheel.size()):
+			if _can_mark(i, kind):
+				out.append(i)
+		return out
 	for i in _neighbor_indices():
 		if _can_mark(i, kind):
 			out.append(i)
@@ -5521,11 +6255,13 @@ func _mark_targets(kind: String) -> Array[int]:
 func _can_mark(index: int, kind: String) -> bool:
 	if index < 0 or index >= wheel.size():
 		return false
+	if str(wheel[index].get("kind", "")) != "monster":
+		return false
+	if kind == "hypnotize":
+		return int(wheel[index].get("hp", 0)) > 0
 	if index == facing_index:
 		return false
 	if not _neighbor_indices().has(index):
-		return false
-	if str(wheel[index].get("kind", "")) != "monster":
 		return false
 	if kind == "mark_poison":
 		return not bool(wheel[index].get("crossbowed", false))
@@ -5549,6 +6285,10 @@ func _apply_mark(index: int) -> void:
 	if it.is_empty() or bool(it.get("spent", false)):
 		call_deferred("_refresh")
 		return
+	if kind == "hypnotize":
+		await _apply_hypnotize(index, it)
+		return
+	_bleed_begin()
 	if kind == "hook_swap":
 		var a: Dictionary = wheel[facing_index].duplicate(true)
 		var b: Dictionary = wheel[index].duplicate(true)
@@ -5568,6 +6308,7 @@ func _apply_mark(index: int) -> void:
 			sfx.play("whoosh", -8.0)
 			sfx.play("click2", -8.0)
 		await _after_item_resolved(it)
+		await _bleed_end()
 		call_deferred("_refresh")
 		return
 	if kind == "mark_poison":
@@ -5580,6 +6321,7 @@ func _apply_mark(index: int) -> void:
 			sfx.play("click2", -8.0)
 		_sync_wheel_stats()
 		await _after_item_resolved(it)
+		await _bleed_end()
 		call_deferred("_refresh")
 		return
 	var n: int = 4
@@ -5591,6 +6333,7 @@ func _apply_mark(index: int) -> void:
 		_count_item_use()
 		_toss_item(int(it["uid"]), false)
 		await _after_item_resolved(it)
+		await _bleed_end()
 		return
 	_log("on_item_use", "crossbow %s" % wheel[index].get("name", "?"))
 	_log("atk", last_atk_line if last_atk_line != "" else "%s  →  %s HP %s" % [n, wheel[index].get("name", "?"), wheel[index].get("hp", 0)])
@@ -5599,14 +6342,155 @@ func _apply_mark(index: int) -> void:
 	_toss_item(int(it["uid"]), false)
 	_sync_wheel_stats()
 	await _after_item_resolved(it)
+	await _bleed_end()
 	_refresh()
 	var shot_at: int = last_atk_index if last_atk_index >= 0 else index
 	if shot_at >= 0 and shot_at < wheel.size() and int(wheel[shot_at].get("hp", 0)) <= 0:
 		await _maybe_slay_down(shot_at)
 
 
+func _hide_hypno() -> void:
+	_hypno_src = -1
+	_watch_thorns_seat = -1
+	_watch_skip_thorns = false
+	if hypno_stage:
+		hypno_stage.hide_stage()
+	if hypno_box:
+		hypno_box.hide_plate()
+
+
+func _refresh_hypno_box() -> void:
+	if hypno_box == null:
+		return
+	if _hypno_src < 0 or _hypno_src >= wheel.size():
+		hypno_box.hide_plate()
+		return
+	if str(wheel[_hypno_src].get("kind", "")) != "monster":
+		hypno_box.hide_plate()
+		return
+	var m: Dictionary = wheel[_hypno_src]
+	var rule: Dictionary = _monster_rule(m)
+	hypno_box.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), "", str(rule.get("warn", "")), null, "monster", str(m.get("card_id", "")), _monster_plate_look(m, rule))
+
+
+func _show_hypno(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	_hypno_src = index
+	if hypno_stage:
+		hypno_stage.show_monster(str(wheel[index].get("card_id", "")))
+	_refresh_hypno_box()
+	_place_fight_art()
+
+
+func _heal_monster(index: int, n: int) -> void:
+	if index < 0 or index >= wheel.size() or n <= 0:
+		return
+	var m: Dictionary = wheel[index]
+	if str(m.get("kind", "")) != "monster":
+		return
+	var cap: int = int(m.get("hp_max", m.get("hp", 0)))
+	var before: int = int(m.get("hp", 0))
+	m["hp"] = mini(cap, before + n)
+	if str(m.get("card_id", "")) == "slime_boss":
+		m["atk"] = int(m["hp"])
+	wheel[index] = m
+	if int(m["hp"]) > before and sfx:
+		sfx.play("pluck", -10.0)
+	if wheel_view:
+		wheel_view.hit_feedback(index, before - int(m["hp"]), 0)
+	_refresh_face()
+
+
+func _apply_hypnotize(src: int, it: Dictionary) -> void:
+	if src < 0 or src >= wheel.size() or facing_index < 0 or facing_index >= wheel.size():
+		call_deferred("_refresh")
+		return
+	var dest: int = facing_index
+	var snap: int = int(wheel[src].get("atk", 0))
+	var hits: int = _hit_count(src)
+	_log("on_item_use", "hypnotize %s" % wheel[src].get("name", "?"))
+	it["spent"] = true
+	_count_item_use()
+	_toss_item(int(it["uid"]), false)
+	_bleed_begin()
+	_watch_thorns_seat = src
+	_show_hypno(src)
+	var watch: Texture2D = tex_by_item.get("pocketwatch", null)
+	if art != null:
+		var pix: Texture2D = art.item_tex("pocketwatch")
+		if pix != null:
+			watch = pix
+	if hypno_stage:
+		await hypno_stage.play_hypnotize(watch)
+	await _watch_attack(src, dest, snap, hits, {})
+	_watch_thorns_seat = -1
+	_hide_hypno()
+	_sync_wheel_stats()
+	await _after_item_resolved(it)
+	await _bleed_end()
+	if hp <= 0:
+		return
+	await _slay_dead_after_watch()
+	call_deferred("_refresh")
+
+
+func _watch_attack(src: int, dest: int, snap: int, hits: int, used_damsels: Dictionary) -> void:
+	if src < 0 or src >= wheel.size() or dest < 0 or dest >= wheel.size():
+		return
+	if int(wheel[dest].get("hp", 0)) <= 0:
+		return
+	var m: Dictionary = wheel[src]
+	if str(m.get("card_id", "")) == "two_headed_serpent" and not _is_silenced(m):
+		if used_damsels.has(src):
+			return
+		used_damsels[src] = true
+		for j in _damsel_neighbors(src):
+			if dest < 0 or dest >= wheel.size() or int(wheel[dest].get("hp", 0)) <= 0:
+				break
+			var nb: Dictionary = wheel[j]
+			if str(nb.get("card_id", "")) == "two_headed_serpent" and not _is_silenced(nb):
+				await _watch_attack(j, dest, int(nb.get("atk", 0)), _hit_count(j), used_damsels)
+			else:
+				_show_hypno(j)
+				await _watch_hits(j, dest, int(nb.get("atk", 0)), _hit_count(j))
+		if dest >= 0 and dest < wheel.size() and int(wheel[dest].get("hp", 0)) > 0:
+			_heal_monster(dest, 3)
+		if src >= 0 and src < wheel.size():
+			_show_hypno(src)
+		return
+	_show_hypno(src)
+	await _watch_hits(src, dest, snap, hits)
+
+
+func _watch_hits(src: int, dest: int, atk: int, hits: int) -> void:
+	for h in range(maxi(1, hits)):
+		if dest < 0 or dest >= wheel.size():
+			return
+		if int(wheel[dest].get("hp", 0)) <= 0:
+			return
+		if hp <= 0:
+			return
+		if hypno_stage:
+			await hypno_stage.lunge()
+		if await _deal_atk_at(dest, atk, false, false, true):
+			return
+		if hits > 1 and h < hits - 1 and get_tree():
+			await get_tree().create_timer(0.16).timeout
+
+
+func _slay_dead_after_watch() -> void:
+	var i: int = wheel.size() - 1
+	while i >= 0:
+		if i != facing_index and str(wheel[i].get("kind", "")) == "monster" and int(wheel[i].get("hp", 0)) <= 0:
+			await _maybe_slay_down(i)
+		i -= 1
+	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
+		await _maybe_slay_down(facing_index)
+
+
 func _wheel_busy() -> bool:
-	return wheel_view != null and wheel_view.busy
+	return _walker_busy or (wheel_view != null and wheel_view.busy) or _hypno_src >= 0
 
 
 func _kill_neighbor(index: int) -> void:
@@ -5638,6 +6522,9 @@ func _kill_neighbor(index: int) -> void:
 		wheel_view.set_slices(wheel, facing_index, "none")
 		await wheel_view.recenter_on(facing_index)
 	_refresh()
+	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
+		if not _wick_waiting(facing_index):
+			await _maybe_slay_down(facing_index)
 
 
 func _remove_crossbowed() -> void:
@@ -5684,11 +6571,18 @@ func _try_potion() -> bool:
 
 func _swing(m: Dictionary, block_left: int) -> Dictionary:
 	var atk_n: int = int(m.get("atk", 0))
-	if str(m.get("card_id", "")) == "dragon" and not _is_silenced("dragon"):
-		return {"dmg": maxi(0, atk_n), "blk": block_left}
+	var cid: String = str(m.get("card_id", ""))
+	var pierce: bool = false
+	if cid == "dragon" and not _is_silenced("dragon"):
+		pierce = true
+	elif cid != "spider_egg" and _hand_pierce():
+		pierce = true
+	if pierce:
+		return {"dmg": maxi(0, atk_n), "blk": block_left, "pierce": true}
 	return {
 		"dmg": maxi(0, atk_n - block_left),
 		"blk": maxi(0, block_left - atk_n),
+		"pierce": false,
 	}
 
 
@@ -5759,6 +6653,11 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["n"] = int(ops.get("n", 0))
 			out["number"] = str(out["n"])
 			out["note"] = ""
+		"atk":
+			out["n"] = int(ops.get("n", 0))
+			out["number"] = str(out["n"])
+			out["note"] = ""
+			out["can_use"] = fighting
 		"choose":
 			out["kind"] = "ATK"
 			var drop_v := false
@@ -5967,6 +6866,22 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = str(out["n"])
 			out["note"] = ""
 			out["can_use"] = fighting
+		"magnet":
+			out["kind"] = "SKIP"
+			var mm: String = _magnet_mode_of(it)
+			if mm == "high":
+				out["number"] = "HIGH"
+			elif mm == "low":
+				out["number"] = "LOW"
+			else:
+				out["number"] = "Off"
+			out["note"] = ""
+			out["can_use"] = (fighting or phase == "ready") and not bool(it.get("spent", false))
+		"hypnotize":
+			out["kind"] = "MARK"
+			out["number"] = ""
+			out["note"] = ""
+			out["can_use"] = fighting and not _mark_targets("hypnotize").is_empty()
 		"hook_swap":
 			out["kind"] = "MARK"
 			out["number"] = ""
@@ -5985,6 +6900,10 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["can_use"] = false
 		_:
 			out["can_use"] = false
+	if _kind_deals_atk(kind):
+		var shown: String = str(out.get("number", ""))
+		if shown.is_valid_int() and int(out.get("n", 0)) >= 0:
+			out["number"] = str(int(out.get("n", 0)) + _arrow_head_bonus())
 	var authored: String = str(it.get("card_color", ""))
 	if UxStyle.card_color_id(authored) != "auto":
 		out["fill"] = UxStyle.card_color_fill(authored)
@@ -5996,7 +6915,8 @@ func _item_view(it: Dictionary) -> Dictionary:
 	if bool(it.get("petrified", false)):
 		out["can_use"] = false
 	if not pending_feed.is_empty():
-		out["can_use"] = false
+		var feed_uids: Array = pending_feed.get("uids", [])
+		out["can_use"] = feed_uids.has(int(it.get("uid", -1))) and not bool(it.get("spent", false))
 	if str(it.get("card_id", "")) == "echo_bell":
 		var face: Dictionary = _echo_face(it)
 		if face.is_empty():
@@ -6182,6 +7102,8 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				pass
 			elif bool(view.get("can_use", false)) and str(wheel[facing_index].get("card_id", "")) != "goblin":
 				var dmg: int = n if kind != "choose" else int(view.get("n", 3))
+				if _kind_deals_atk(kind):
+					dmg = _atk_with_head(dmg)
 				var procs: int = 2 if _twins_double_atk(facing_index, dmg) else 1
 				var total: int = 0
 				for _p in range(procs):
@@ -6197,7 +7119,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 					p[facing_index]["atk"] = -total
 		"atk_cleave":
 			if bool(view.get("can_use", false)):
-				var cn: int = int(view.get("n", 2))
+				var cn: int = _atk_with_head(int(view.get("n", 2)))
 				for ci in _cleave_targets():
 					if str(wheel[ci].get("card_id", "")) == "goblin":
 						continue
@@ -6218,7 +7140,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 		"atk_opposite":
 			var oi: int = _opposite_index()
 			if bool(view.get("can_use", false)) and oi >= 0 and str(wheel[oi].get("card_id", "")) != "goblin":
-				var od: int = int(view.get("n", 4))
+				var od: int = _atk_with_head(int(view.get("n", 4)))
 				var procs_o: int = 2 if _twins_double_atk(oi, od) else 1
 				var od_total: int = 0
 				for _po in range(procs_o):
@@ -6267,6 +7189,8 @@ func _punch_blk() -> void:
 func _refresh_blk(punch: bool) -> void:
 	if wheel_view:
 		wheel_view.set_vitals(hp, HP_MAX, _ghost_hp, blk, _ghost_blk)
+		if wheel_view.has_method("set_hub_pierce"):
+			wheel_view.set_hub_pierce(_hand_pierce() and phase == "fighting")
 	if punch and _ghost_blk < 0 and blk > _blk_shown and _blk_shown >= 0:
 		_punch_blk()
 	if _ghost_blk < 0:
@@ -6517,6 +7441,8 @@ func _item_rule(it: Dictionary) -> Dictionary:
 	var view: Dictionary = _item_view(it)
 	var kind: String = str(_ops_of(it).get("kind", ""))
 	var live: int = int(view.get("n", 0))
+	if _kind_deals_atk(kind) and live >= 0:
+		live = _atk_with_head(live)
 	var fighting: bool = phase == "fighting" and facing_index >= 0
 	var m: Dictionary = wheel[facing_index] if fighting else {}
 	var out := {
@@ -6565,13 +7491,22 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["value"] = _value_bb("Attack", "−1 / −2 / −3", atk_c)
 				out["body"] = "Click 1, 2, or 3. The facing owner's Attack drops by that much after every other formula, then stays there this fight."
 			elif spike_n or str(it.get("card_id", "")) == "spiked_shield":
-				out["value"] = "%s    %s" % [_value_bb("Attack", "2", atk_c), _value_bb("Block", "2", blk_c)]
-				out["equation"] = "(%s) or (%s)" % [_bb(atk_c, "2"), _bb(blk_c, "2")]
+				var spike_atk: int = _atk_with_head(2)
+				out["value"] = "%s    %s" % [_value_bb("Attack", str(spike_atk), atk_c), _value_bb("Block", "2", blk_c)]
+				out["equation"] = "(%s) or (%s)" % [_bb(atk_c, str(spike_atk)), _bb(blk_c, "2")]
 				out["body"] = "Deal 2 attack, or gain 2 block."
 			else:
-				out["value"] = _value_bb("Attack", "3", atk_c)
-				out["equation"] = "(%s) or (%s and %s)" % [_bb(atk_c, "3"), _bb(atk_c, "1"), _bb(gold, "Keep")]
+				out["value"] = _value_bb("Attack", str(live if live > 0 else 3), atk_c)
+				out["equation"] = "(%s) or (%s and %s)" % [_bb(atk_c, str(_atk_with_head(3))), _bb(atk_c, str(_atk_with_head(1))), _bb(gold, "Keep")]
 				out["body"] = "Throw for 3 and lose it, or nick for 1 and keep it."
+		"atk":
+			out["value"] = _value_bb("Attack", str(live), atk_c)
+			if _is_arrow_head(it) or str(it.get("card_id", "")) == "arrow_head":
+				var bonus: int = maxi(1, _arrow_head_bonus())
+				out["equation"] = "(%s) + (%s)    %s" % [_bb(atk_c, "3"), _bb(atk_c, "+%s" % bonus), _bb(gold, "ignores Block")]
+			else:
+				out["equation"] = "(%s)" % _bb(atk_c, str(live))
+			out["body"] = str(it.get("ability", "Deal Attack."))
 		"atk_if_enemy_atk_even":
 			out["value"] = _value_bb("Attack", str(live if fighting else 4), atk_c)
 			out["equation"] = "(%s) or (%s if %s)" % [_bb(cream, "2"), _bb(atk_c, "4"), _bb(gold, "Even ATK")]
@@ -6671,6 +7606,13 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["value"] = _value_bb("Heal", str(live), hp_c)
 			out["equation"] = "(%s + %s)" % [_bb(cream, "1"), _bb(var_c, "Defeat")]
 			out["body"] = "Heal 1, plus 1 for each owner you have already defeated."
+		"magnet":
+			out["value"] = _value_bb("Spin", str(view.get("number", "Off")), gold)
+			out["equation"] = "(%s) or (%s) or (%s)" % [_bb(atk_c, "Highest ATK"), _bb(atk_c, "Lowest ATK"), _bb(gold, "Off")]
+			out["body"] = str(it.get("ability", "The next Spin lands on the Highest or Lowest Attack monster, then this is discarded."))
+		"hypnotize":
+			out["value"] = _value_bb("Hypnotize", "", gold)
+			out["body"] = str(it.get("ability", "Select any Monster. That Monster Attacks your Enemy."))
 		"hook_swap":
 			out["value"] = _value_bb("Swap", "", gold)
 			out["body"] = "Swap a neighboring owner into this fight, then draw a random item."
@@ -7017,6 +7959,7 @@ func _place_fight_art() -> void:
 	y = maxf(y, wr.position.y + speech_room)
 	if y + total > wr.end.y + 8.0:
 		y = wr.position.y + maxf(8.0, wr.size.y - total)
+	var port_y: float = y
 	if combat_stage != null and combat_stage.visible:
 		combat_stage.size = port_sz
 		combat_stage.global_position = Vector2(x + (stack_w - port_sz.x) * 0.5, y)
@@ -7026,6 +7969,17 @@ func _place_fight_art() -> void:
 		psz.x = stack_w
 		face_box.size = psz
 		face_box.global_position = Vector2(x, y)
+	if hypno_stage != null and hypno_stage.visible:
+		var hx: float = wr.position.x - stack_w - 14.0
+		hx = maxf(8.0, hx)
+		hypno_stage.size = port_sz
+		hypno_stage.global_position = Vector2(hx + (stack_w - port_sz.x) * 0.5, port_y)
+		if hypno_box != null and hypno_box.visible:
+			hypno_box.reset_size()
+			var hsz: Vector2 = hypno_box.get_combined_minimum_size()
+			hsz.x = stack_w
+			hypno_box.size = hsz
+			hypno_box.global_position = Vector2(hx, port_y + port_sz.y + gap)
 
 
 func _speech_gutter() -> Rect2:
@@ -7069,6 +8023,8 @@ func _on_done_hover(on: bool) -> void:
 func _refresh_hearts() -> void:
 	if wheel_view:
 		wheel_view.set_vitals(hp, HP_MAX, _ghost_hp, blk, _ghost_blk)
+		if wheel_view.has_method("set_hub_pierce"):
+			wheel_view.set_hub_pierce(_hand_pierce() and phase == "fighting")
 	if hearts_box == null:
 		return
 	hearts_box.visible = overlay == null or not overlay.visible
@@ -7250,6 +8206,9 @@ func _refresh_face() -> void:
 		face_box.hide_plate()
 		if combat_stage and phase != "slaying" and phase != "fighting":
 			combat_stage.hide_stage()
+		if phase != "slaying" and phase != "fighting":
+			_hide_hypno()
+		_refresh_hypno_box()
 		return
 	var m: Dictionary = wheel[facing_index]
 	var rule: Dictionary = _monster_rule(m)
@@ -7263,6 +8222,7 @@ func _refresh_face() -> void:
 		tw.tween_property(face_box, "scale", Vector2.ONE, 0.12)
 	_face_atk_shown = atk_s
 	_face_hp_shown = hp_s
+	_refresh_hypno_box()
 	_place_fight_art()
 
 
@@ -7326,9 +8286,13 @@ func _cue_text() -> String:
 		"rest":
 			return PLAYER_COPY.fill("title.rest_sub", {"n": dungeons_cleared}, "Dungeon %s is behind you." % dungeons_cleared)
 		"ready":
+			if not pending_choice.is_empty():
+				return "Highest Attack, Lowest Attack, or Off."
 			return PLAYER_COPY.text("cue.ready", "Spin — the nest turns.")
 		"fighting":
 			if not pending_feed.is_empty():
+				if str(pending_feed.get("kind", "")) == "upgrade":
+					return "Pick an item. I will upgrade it."
 				return "Feed the cube one of those items."
 			if not pending_chaos.is_empty():
 				var need_n: int = int(pending_chaos.get("need", 1))
@@ -7336,6 +8300,8 @@ func _cue_text() -> String:
 					return "Click the other item to reroll it."
 				return "Click two other items to reroll them."
 			if not pending_mark.is_empty():
+				if str(pending_mark.get("kind", "")) == "hypnotize":
+					return "Click any monster."
 				return PLAYER_COPY.text("cue.mark", "Click a neighboring enemy")
 			if facing_index >= 0 and _wick_waiting(facing_index):
 				return "They are at 0 HP. Click Done."
@@ -7390,6 +8356,8 @@ func _sync_overlay() -> void:
 		overlay_adventure.visible = on_title
 	if overlay_dev:
 		overlay_dev.visible = on_title and _authoring()
+	if overlay_latest:
+		overlay_latest.visible = on_title and _authoring()
 	if overlay_tools_row:
 		overlay_tools_row.visible = on_title and _authoring()
 	if overlay_rest_row:
@@ -7529,9 +8497,21 @@ func _sync_hotbar() -> void:
 		card.set_palette(view["fill"], view["rim"], _tier_of(it))
 		card.set_live(str(view["number"]), str(view["note"]), not dim)
 		if card.has_method("set_playable"):
-			card.set_playable(phase == "fighting" and bool(view["can_use"]) and not bool(it.get("spent", false)) and not bool(it.get("petrified", false)))
+			var can_click: bool = bool(view["can_use"]) and not bool(it.get("spent", false)) and not bool(it.get("petrified", false))
+			var in_fight: bool = phase == "fighting"
+			var magnet_ready: bool = phase == "ready" and _is_magnet(it)
+			card.set_playable((in_fight or magnet_ready) and can_click)
 		if card.has_method("set_petrified"):
 			card.set_petrified(bool(it.get("petrified", false)))
+		var head_on: bool = _is_arrow_head(it)
+		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
+		if card.has_method("set_aura"):
+			card.set_aura((head_on and phase == "fighting") or (mag_on and (phase == "fighting" or phase == "ready")))
+		if card.has_method("set_passive_icons"):
+			if head_on:
+				card.set_passive_icons(tex_plus, tex_special.get("pierce", tex_by_item.get("quiet_bell", tex_plus)), true)
+			else:
+				card.set_passive_icons(null, null, false)
 	_sync_hotbar_formulas()
 
 
@@ -7567,6 +8547,13 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 		card.set_echo_mark(art.item_tex("echo_bell"))
 	if card.has_method("set_petrified"):
 		card.set_petrified(bool(it.get("petrified", false)))
+	if card.has_method("set_aura"):
+		card.set_aura(_is_arrow_head(it) and phase == "fighting")
+	if card.has_method("set_passive_icons"):
+		if _is_arrow_head(it):
+			card.set_passive_icons(tex_plus, tex_special.get("pierce", tex_plus), true)
+		else:
+			card.set_passive_icons(null, null, false)
 	card.set_palette(view["fill"], view["rim"], _tier_of(it))
 	var rule: Dictionary = _item_rule(it)
 	card.set_formula(str(rule.get("equation", "")))

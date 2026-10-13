@@ -111,6 +111,10 @@ func setup(audio) -> void:
 	adv_row.add_child(_btn_adventure)
 
 	if OS.has_feature("editor"):
+		var latest_row := HBoxContainer.new()
+		latest_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		col.add_child(latest_row)
+		latest_row.add_child(_btn("Play Latest", Color("3a3220"), Color("e8c36a"), _pick.bind("latest"), 200))
 		var dev_row := HBoxContainer.new()
 		dev_row.alignment = BoxContainer.ALIGNMENT_CENTER
 		col.add_child(dev_row)

@@ -6,6 +6,7 @@ signal closed
 
 const BOARD_PATH := "res://data/content-board.json"
 const AUTHOR_LOCK := preload("res://scripts/author_lock.gd")
+const RECENT_EDITS := preload("res://scripts/recent_edits.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 const LINES := preload("res://scripts/monster_lines.gd")
 const UX := preload("res://scripts/ux_style.gd")
@@ -40,6 +41,9 @@ const DEFAULT_EXPLAINER := {
 	"breastplate": "(2) and KEEP if you bled",
 	"fangs": "(TAKE THEIR ATK) then DEFEAT then HEAL THEIR HP",
 	"crossbow": "(ATK 4) if (NEIGHBOR HP ≤ 4)",
+	"arrow_head": "(ATK 3)  (+1)  (ignores Block)",
+	"danger_magnet": "(Highest ATK) or (Lowest ATK) or (Off)",
+	"cleric": "After Spin: if missing 3 HP, Heal 3 and take worst item",
 }
 
 var _kind: String = ""
@@ -596,6 +600,7 @@ func _on_save() -> void:
 		_status.add_theme_color_override("font_color", Color("8b1e1e"))
 		return
 	AUTHOR_LOCK.rebuild_ledger(_board, null)
+	RECENT_EDITS.touch(_kind, _id)
 	_status.text = "Saved and locked · %s" % path
 	_status.add_theme_color_override("font_color", Color("3d6b3d"))
 	saved.emit(_kind, _id, card)

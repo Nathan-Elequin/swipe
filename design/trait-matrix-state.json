@@ -2,6 +2,22 @@
   "about": "Drag order is the order of these lists. marks only includes traits that are tuned. Plus is +, minus is −.",
   "monsters": [
     {
+      "id": "new-monster-1791869625628",
+      "name": "New monster",
+      "kind": "monster",
+      "tier": 1,
+      "bucket": 0,
+      "status": "custom",
+      "ability": "",
+      "attack": null,
+      "hp": null,
+      "sprite": {
+        "mode": "none"
+      },
+      "marks": {},
+      "custom": true
+    },
+    {
       "id": "goblin",
       "name": "Goblin",
       "kind": "monster",
@@ -1149,9 +1165,7 @@
         "mode": "img",
         "src": "../assets/dungeon/items/lantern.png"
       },
-      "marks": {
-        "Heal": "−"
-      },
+      "marks": {},
       "custom": false
     },
     {

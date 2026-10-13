@@ -66,6 +66,14 @@ var collapse: float = 0.0:
 var busy: bool = false
 var hub_blk: int = -1
 var hub_ghost: int = -1
+var portrait_away: int = -1:
+	set(v):
+		portrait_away = v
+		queue_redraw()
+var aura_index: int = -1:
+	set(v):
+		aura_index = v
+		queue_redraw()
 var hub_on: bool = false
 var hub_flash: float = 0.0:
 	set(v):
@@ -74,6 +82,15 @@ var hub_flash: float = 0.0:
 var hub_hp_flash: float = 0.0:
 	set(v):
 		hub_hp_flash = v
+		queue_redraw()
+var hub_sting: float = 0.0:
+	set(v):
+		hub_sting = v
+		queue_redraw()
+var hub_sting_kind: String = "hurt"
+var hub_nudge: Vector2 = Vector2.ZERO:
+	set(v):
+		hub_nudge = v
 		queue_redraw()
 var _hub_old: String = ""
 var _hub_old_t: float = 0.0:
@@ -97,6 +114,14 @@ var threat_t: float = 0.0:
 var _threat_tween: Tween
 var draft_glow: bool = false
 var _glow_t: float = 0.0
+var hub_pierce: bool = false
+
+
+func set_hub_pierce(on: bool) -> void:
+	if hub_pierce == on:
+		return
+	hub_pierce = on
+	queue_redraw()
 
 
 func _ready() -> void:
@@ -205,6 +230,35 @@ func punch_hub() -> void:
 	tw.tween_property(self, "hub_flash", 0.0, 0.28)
 
 
+## Small player-hub hit / block tell. Not the faced-slice BLOCKED stamp.
+func play_hub_sting(kind: String, amount: int = 0) -> void:
+	hub_sting_kind = kind
+	hub_sting = 1.0
+	var c: Vector2 = _center()
+	var hub_r: float = _radius() * HUB_FRAC
+	if kind == "hurt" and amount > 0:
+		_floaters.append({
+			"pos": c + Vector2(-22.0, hub_r * 0.42),
+			"text": "-%s" % amount,
+			"col": DOWN_COL,
+			"t": 0.0,
+			"life": 0.7,
+		})
+		hub_hp_flash = 1.0
+		var htw := create_tween()
+		htw.tween_property(self, "hub_hp_flash", 0.0, 0.26)
+	elif kind == "block":
+		punch_hub()
+	var knock := Vector2(5.0, 3.0) if kind == "hurt" else Vector2(-2.5, 0.0)
+	var dur: float = 0.30 if kind == "hurt" else 0.34
+	var tw := create_tween()
+	tw.tween_property(self, "hub_nudge", knock, 0.05).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(self, "hub_nudge", Vector2.ZERO, dur - 0.05).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	var fade := create_tween()
+	fade.tween_property(self, "hub_sting", 0.0, dur)
+	await tw.finished
+
+
 func play_slay(index: int) -> void:
 	busy = true
 	slay_kind = "slay"
@@ -213,6 +267,7 @@ func play_slay(index: int) -> void:
 	var tw := create_tween()
 	tw.tween_property(self, "slay_t", 1.0, 0.55)
 	await tw.finished
+	busy = false
 
 
 func play_block(index: int) -> void:
@@ -223,6 +278,7 @@ func play_block(index: int) -> void:
 	var tw := create_tween()
 	tw.tween_property(self, "slay_t", 1.0, 0.5)
 	await tw.finished
+	busy = false
 
 
 func collapse_slice(index: int, pin: int = -1) -> void:
@@ -345,6 +401,7 @@ func spin_to(index: int) -> void:
 		delta += TAU
 	delta += TAU
 	_spin_tween = create_tween()
+	_spin_tween.set_ignore_time_scale(true)
 	_spin_tween.set_trans(Tween.TRANS_CUBIC)
 	_spin_tween.set_ease(Tween.EASE_IN_OUT)
 	_spin_tween.tween_property(self, "rot", rot + delta, 1.2)
@@ -555,6 +612,12 @@ func slice_portrait_global(i: int) -> Vector2:
 	return get_global_transform() * local
 
 
+func hub_hearts_global() -> Vector2:
+	var c: Vector2 = _center()
+	var hub_r: float = _radius() * HUB_FRAC
+	return get_global_transform() * (c + Vector2(-22.0, hub_r * 0.42))
+
+
 func _atk_pos(i: int) -> Vector2:
 	return _spoke(i)["atk"]
 
@@ -669,7 +732,7 @@ func _draw() -> void:
 
 
 func _draw_pointer(c: Vector2, radius: float) -> void:
-	var bob: float = 2.0 + absf(sin(float(Time.get_ticks_msec()) * 0.008)) * 4.0
+	var bob: float = 2.0 + absf(sin(_glow_t * 8.0)) * 4.0
 	var tip := Vector2(c.x, c.y + radius + 2.0)
 	var left := Vector2(c.x - 14.0, c.y + radius + 20.0 + bob)
 	var right := Vector2(c.x + 14.0, c.y + radius + 20.0 + bob)
@@ -811,7 +874,11 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	var port_pos: Vector2 = sp["port"]
 	var plate_r: float = float(sp.get("plate_r", 36.0))
 	_draw_tier_plate(port_pos, plate_r, s)
-	if tex_portraits.has(pid):
+	if i == aura_index:
+		var glow := Color("e8c36a")
+		glow.a = 0.42 + 0.18 * absf(sin(_glow_t * 8.0))
+		draw_circle(port_pos, plate_r + 14.0, glow)
+	if tex_portraits.has(pid) and i != portrait_away:
 		_draw_portrait_window(port_pos, plate_r, s, tex_portraits[pid], 0.0, dim)
 	_draw_tier_rim(port_pos, plate_r, s)
 	_draw_tier_num(font, port_pos - dir * (plate_r + 12.0), s, is_face, crowded)
@@ -827,7 +894,7 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_circle(sp["hp"] + Vector2(12, -10), 4.0, Color("7dba7d"))
 	var would_die: bool = int(s.get("hp", 0)) + int(pv.get("hp", 0)) <= 0 and int(pv.get("hp", 0)) < 0
 	if would_die or bool(pv.get("kill", false)):
-		var xa: float = 0.55 + 0.25 * sin(float(Time.get_ticks_msec()) * 0.012)
+		var xa: float = 0.55 + 0.25 * sin(_glow_t * 12.0)
 		var xc := Color(DOWN_COL.r, DOWN_COL.g, DOWN_COL.b, xa)
 		var arm: float = 22.0
 		draw_line(port_pos + Vector2(-arm, -arm), port_pos + Vector2(arm, arm), xc, 4.0, true)
@@ -942,7 +1009,7 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 	var n: int = slices.size()
 	if n == 0:
 		return
-	var pulse: float = 0.50 + 0.50 * sin(float(Time.get_ticks_msec()) * 0.006)
+	var pulse: float = 0.50 + 0.50 * sin(_glow_t * 6.0)
 	for i in n:
 		var s: Dictionary = slices[i]
 		if str(s.get("kind", "")) != "monster":
@@ -1050,7 +1117,7 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 
 func _ability_icon_color(sid: String) -> Color:
 	match sid:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "no_keep", "item_swings", "fair_trade":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure":
 			return Color("e8c36a")
 		"no_atk_dmg", "double_hit", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right":
 			return Color("e07040")
@@ -1141,7 +1208,7 @@ func _queen_double(index: int) -> bool:
 func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1) -> void:
 	var atk: int = int(s.get("atk", 0)) + int(pv.get("atk", 0))
 	var atk_d: int = int(pv.get("atk", 0))
-	var pulse: float = 0.55 + 0.45 * sin(float(Time.get_ticks_msec()) * 0.007)
+	var pulse: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 	var fill: Color = ATK_FILL
 	if bool(s.get("atk_variable", false)) or str(pv.get("mark", "")) == "spin":
 		fill = fill.lerp(SPIN_COL, 0.25 * pulse)
@@ -1202,7 +1269,7 @@ func _draw_sword_badge(pos: Vector2, rad: float, fill: Color, aim: Vector2) -> v
 func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool) -> void:
 	var hp: int = int(s.get("hp", 0)) + int(pv.get("hp", 0))
 	var hp_d: int = int(pv.get("hp", 0))
-	var pulse: float = 0.55 + 0.45 * sin(float(Time.get_ticks_msec()) * 0.007)
+	var pulse: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 	var fill: Color = HP_FILL
 	if bool(s.get("hp_variable", false)) or str(pv.get("mark", "")) == "spin":
 		fill = fill.lerp(SPIN_COL, 0.25 * pulse)
@@ -1216,7 +1283,7 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	_draw_heart_shape(pos, hs, fill, Color("1c120c"))
 	draw_circle(pos + Vector2(0.0, 4.0), hs * 0.28, Color("6a1818"))
 	if bool(s.get("lich_buff", false)):
-		var pulse2: float = 0.55 + 0.45 * sin(float(Time.get_ticks_msec()) * 0.007)
+		var pulse2: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 		draw_arc(pos, hs * 0.52, 0.0, TAU, 20, Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2), 2.6, true)
 	_draw_bold_num(font, pos + Vector2(0.0, 2.0), str(hp), 21 if big else 18, Color("f0e6d8"))
 	if hp_d != 0:
@@ -1253,15 +1320,21 @@ func _draw_floaters(font: Font) -> void:
 
 func _draw_hub_block(c: Vector2, radius: float) -> void:
 	var hub_r: float = radius * HUB_FRAC
-	var bob: float = sin(float(Time.get_ticks_msec()) * 0.004) * 2.0
-	var ppos: Vector2 = c + Vector2(0.0, -6.0 + bob)
+	var bob: float = sin(_glow_t * 4.0) * 2.0
+	var ppos: Vector2 = c + Vector2(0.0, -6.0 + bob) + hub_nudge
+	var sting_tint := Color.WHITE
+	if hub_sting > 0.02:
+		if hub_sting_kind == "hurt":
+			sting_tint = Color.WHITE.lerp(Color("e07a7a"), hub_sting * 0.85)
+		else:
+			sting_tint = Color.WHITE.lerp(Color("8ec8f0"), hub_sting * 0.7)
 	if not tex_player.is_empty():
-		var fi: int = int(Time.get_ticks_msec() / 180) % tex_player.size()
+		var fi: int = int(_glow_t / 0.18) % tex_player.size()
 		var tex: Texture2D = tex_player[fi]
 		var psz := Vector2(56, 80)
-		draw_texture_rect(tex, Rect2(ppos - psz * 0.5, psz), false)
+		draw_texture_rect(tex, Rect2(ppos - psz * 0.5, psz), false, sting_tint)
 	else:
-		draw_circle(ppos, 16.0, Color("c4a574"))
+		draw_circle(ppos, 16.0, Color("c4a574") * sting_tint)
 	var font: Font = get_theme_default_font()
 	if font == null:
 		font = ThemeDB.fallback_font
@@ -1269,7 +1342,7 @@ func _draw_hub_block(c: Vector2, radius: float) -> void:
 	var hs: float = 32.0 + hub_hp_flash * 6.0
 	var hp_fill: Color = HP_FILL
 	if hub_hp_ghost >= 0 and hub_hp_ghost < hub_hp:
-		hp_fill = hp_fill.lerp(Color("f0e6d8"), 0.35 + 0.25 * absf(sin(float(Time.get_ticks_msec()) * 0.012)))
+		hp_fill = hp_fill.lerp(Color("f0e6d8"), 0.35 + 0.25 * absf(sin(_glow_t * 12.0)))
 	_draw_heart_shape(hp_pos, hs, hp_fill, Color("1c120c"))
 	_draw_bold_num(font, hp_pos + Vector2(0.0, 2.0), str(maxi(hub_hp, 0)), 18, Color("f0e6d8"))
 	_draw_outlined_string(font, hp_pos + Vector2(0.0, 22.0), "HP", 11, Color("e8a0a0"), Color("100e0c"))
@@ -1299,10 +1372,29 @@ func _draw_hub_block(c: Vector2, radius: float) -> void:
 	var txt: String = str(maxi(shown, 0))
 	_draw_bold_num(font, shield_c + Vector2(0.0, 1.0), txt, 18, Color("f0e6d8"))
 	_draw_outlined_string(font, shield_c + Vector2(0.0, sw * 0.92 + 8.0), "BLK", 11, Color("8ec8e8"), Color("100e0c"))
+	if hub_pierce:
+		var slash_a: float = 0.55 + 0.35 * absf(sin(_glow_t * 6.0))
+		var slash := Color("e07a3d", slash_a)
+		var a := shield_c + Vector2(-sw * 0.62, -sw * 0.55)
+		var b := shield_c + Vector2(sw * 0.62, sw * 0.62)
+		draw_line(a, b, Color("100e0c", slash_a), 5.0, true)
+		draw_line(a, b, slash, 3.0, true)
+		_draw_outlined_string(font, shield_c + Vector2(0.0, sw * 0.92 + 22.0), "IGNORED", 10, Color("e8c36a"), Color("100e0c"))
 	if _hub_old_t > 0.0 and _hub_old != txt:
 		var oc := Color(0.94, 0.90, 0.85, _hub_old_t)
 		var osz: Vector2 = font.get_string_size(_hub_old, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
 		draw_string(font, shield_c + Vector2(-osz.x * 0.5, 8.0 - (1.0 - _hub_old_t) * 16.0), _hub_old, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, oc)
+	if hub_sting > 0.02:
+		var ink: Color = Color("e07a7a") if hub_sting_kind == "hurt" else Color("5aa8e8")
+		ink.a = hub_sting * 0.9
+		var origin: Vector2 = ppos if hub_sting_kind == "hurt" else shield_c
+		var burst: float = lerpf(22.0, 10.0, hub_sting)
+		draw_arc(origin, burst * 0.55, 0.0, TAU, 18, Color(ink.r, ink.g, ink.b, hub_sting * 0.45), 2.0, true)
+		for i in 6:
+			var ang: float = float(i) * TAU / 6.0
+			var inner: Vector2 = origin + Vector2.from_angle(ang) * burst * 0.22
+			var outer: Vector2 = origin + Vector2.from_angle(ang) * burst
+			draw_line(inner, outer, ink, 2.4, true)
 
 
 func _heart_pts(pos: Vector2, hs: float) -> PackedVector2Array:
@@ -1324,7 +1416,7 @@ func _draw_heart_shape(pos: Vector2, hs: float, fill: Color, outline: Color) -> 
 
 
 func _draw_hub_pip(pos: Vector2, sz: Vector2, live: bool, soon: bool) -> void:
-	var pulse: float = 0.55 + 0.45 * sin(float(Time.get_ticks_msec()) * 0.014)
+	var pulse: float = 0.55 + 0.45 * sin(_glow_t * 14.0)
 	var draw_sz: Vector2 = sz
 	if soon:
 		draw_sz *= 1.0 + 0.16 * pulse

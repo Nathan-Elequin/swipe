@@ -371,14 +371,7 @@ func _show_detail(entry: Dictionary) -> void:
 	if str(entry.get("hp", "")) != "":
 		bits.append("HP %s" % entry.get("hp", ""))
 	_stats.text = "   ·   ".join(bits)
-	var body: String = str(entry.get("ability", ""))
-	var extra: String = str(entry.get("explainer", ""))
-	if extra != "" and extra != body and extra != "---":
-		if body != "":
-			body += "\n\n" + extra
-		else:
-			body = extra
-	_body.text = body
+	_body.text = str(entry.get("ability", ""))
 
 
 func _clear_detail() -> void:

@@ -19,7 +19,7 @@ Read `data/content-board.json` (HTML only if the JSON is missing). Then:
 4. **Your notes for Cursor** (`review_note`) win. Read every non-empty one. If that note disagrees with ability, explainer, flow, notes, ops, or an older design doc, build the note. Do not Paper Fight to keep the older sentence. Do not ask him to retype it. If the note states new player-facing words, write those words — the saved note is the override. Leave locked fields the note does not mention alone.
    When the note obviously replaces a sentence, a number, or a formula, delete the old text everywhere he can still read it: the board, the catalog, the explainer, the call name, the shift line, flow, notes, ops, and any hardcoded fallback or editor default. Write the new text in that place. He should not see the previous version next to the new one. If you are not sure a field is the leftover, ask before deleting it.
 5. If Ability, Flow, and Notes disagree and **Your notes for Cursor** is empty, Paper Fight — do not guess.
-6. After shipping code, set those cards to `live` on the board and in catalog/runtime.
+6. After shipping code, set those cards to `live` on the board and in catalog/runtime. Stamp each shipped card in `data/recent-edits.json` (`recent_edits.gd` `touch`, or `{ "monster:id" / "item:id": unix }`) so **Play Latest** picks them up.
 
 If nothing needs a code change, do not mention this check.
 

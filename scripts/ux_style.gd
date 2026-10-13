@@ -130,7 +130,7 @@ const HEAL := "#8FD18F"
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
 static func call_color(special_id: String) -> Color:
 	match special_id:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "no_keep", "item_swings", "wickrise", "fair_trade":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure":
 			return GOLD
 		"no_atk_dmg", "double_hit", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right":
 			return CALL_ATK
