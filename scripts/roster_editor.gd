@@ -10,6 +10,7 @@ const BOARD_PATH := "res://data/content-board.json"
 const RUNTIME_PATH := "res://data/runtime.json"
 const CATALOG_PATH := "res://data/catalog.json"
 const AUTHOR_LOCK := preload("res://scripts/author_lock.gd")
+const RECENT_EDITS := preload("res://scripts/recent_edits.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 
 const LEGEND := "Attack and HP sit next to the name (orange / red). Copies and Priority are further right, grey, and are pool size / draw order — not combat stats. Headers stay lined up with the cells; scroll sideways if you need the later columns. Ctrl+F filter · Ctrl+S save · Ctrl+D duplicate · Esc discard."
@@ -1206,6 +1207,7 @@ func _gather_row(row: HBoxContainer, strict: bool = true) -> Dictionary:
 	card["locked_at"] = str(orig.get("locked_at", ""))
 	if bool(row.get_meta("row_dirty", false)) or bool(orig.get("_new", false)):
 		AUTHOR_LOCK.stamp_card(card, orig, not bool(orig.get("_new", false)))
+		RECENT_EDITS.touch(kind, id)
 	return card
 
 

@@ -34,6 +34,8 @@ const MONSTER_STEM := {
 	"beggar": "dwarf_f",
 	"wick": "wizzard_f",
 	"anvil": "knight_f",
+	"juggernaut": "knight_f",
+	"cleric": "wizzard_f",
 }
 
 const ITEM_STEM := {
@@ -72,6 +74,8 @@ const ITEM_STEM := {
 	"iron_chain": "weapon_spear",
 	"counting_beads": "flask_yellow",
 	"measuring_tape": "weapon_golden_sword",
+	"arrow_head": "weapon_arrow",
+	"danger_magnet": "weapon_arrow",
 }
 
 const ITEM_PNG := {
@@ -114,6 +118,8 @@ const ITEM_PNG := {
 	"crossbow": "res://assets/dungeon/items/crossbow.png",
 	"spiked_shield": "res://assets/dungeon/items/spiked_shield.png",
 	"cursed_scroll": "res://assets/dungeon/items/cursed_scroll.png",
+	"arrow_head": "res://assets/dungeon/items/arrow_head.png",
+	"danger_magnet": "res://assets/dungeon/items/danger_magnet.png",
 }
 
 const MONSTER_PNG := {

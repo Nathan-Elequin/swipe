@@ -3,15 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ccowardking16"
-path="res://.godot/imported/cowardly_king.png-c7d2e3f4a5b6677889900aabbccdde01.ctex"
-metadata={
-"vram_texture": false
-}
+valid=false
 
 [deps]
 
 source_file="res://assets/dungeon/extra/cowardly_king.png"
-dest_files=["res://.godot/imported/cowardly_king.png-c7d2e3f4a5b6677889900aabbccdde01.ctex"]
 
 [params]
 

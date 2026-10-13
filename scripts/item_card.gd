@@ -46,6 +46,9 @@ var _echo_mark: TextureRect
 var _stone: TextureRect
 var _playable: bool = false
 var _hatch: Control
+var _aura: bool = false
+var _plus: TextureRect
+var _ban: TextureRect
 
 
 func setup(
@@ -168,6 +171,32 @@ func setup(
 	_num.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_num.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	num_host.add_child(_num)
+
+	_plus = TextureRect.new()
+	_plus.visible = false
+	_plus.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_plus.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_plus.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_plus.texture_filter = TEXTURE_FILTER_NEAREST
+	_plus.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	_plus.offset_left = 4
+	_plus.offset_top = -22
+	_plus.offset_right = 24
+	_plus.offset_bottom = -2
+	num_host.add_child(_plus)
+
+	_ban = TextureRect.new()
+	_ban.visible = false
+	_ban.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_ban.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_ban.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ban.texture_filter = TEXTURE_FILTER_NEAREST
+	_ban.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_ban.offset_left = -24
+	_ban.offset_top = -22
+	_ban.offset_right = -4
+	_ban.offset_bottom = -2
+	num_host.add_child(_ban)
 
 	_eq = RichTextLabel.new()
 	_eq.bbcode_enabled = true
@@ -334,7 +363,7 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 	else:
 		_shown = number_text
 		_num.text = number_text
-	if _glow:
+	if _glow or _aura:
 		pass
 	elif spent:
 		modulate = Color(0.42, 0.40, 0.40, 0.55)
@@ -363,24 +392,45 @@ func set_palette(fill: Color, metal: Color, tier: int = 1) -> void:
 
 func set_draft_glow(on: bool) -> void:
 	_glow = on
-	set_process(on or _playable)
-	if not on and not _playable:
+	set_process(on or _playable or _aura)
+	if not on and not _playable and not _aura:
 		_glow_t = 0.0
 		if not spent:
 			modulate = Color.WHITE
 	_apply_style(_hot)
 
 
+func set_aura(on: bool) -> void:
+	_aura = on
+	set_process(_glow or _playable or _aura)
+	if not on and not _glow and not _playable:
+		_glow_t = 0.0
+		if not spent:
+			modulate = Color.WHITE
+	_apply_style(_hot)
+
+
+func set_passive_icons(plus_tex: Texture2D, ban_tex: Texture2D, on: bool) -> void:
+	if _plus != null:
+		_plus.texture = plus_tex
+		_plus.visible = on and plus_tex != null and not _formula_on
+		_plus.modulate = Color("e07a7a")
+	if _ban != null:
+		_ban.texture = ban_tex
+		_ban.visible = on and ban_tex != null and not _formula_on
+		_ban.modulate = Color("e8c36a")
+
+
 func set_playable(on: bool) -> void:
 	_playable = on
-	set_process(_glow or _playable)
-	if not on and not _glow and not spent:
+	set_process(_glow or _playable or _aura)
+	if not on and not _glow and not _aura and not spent:
 		modulate = Color.WHITE
 	_apply_style(_hot)
 
 
 func _process(delta: float) -> void:
-	if not _glow and not _playable:
+	if not _glow and not _playable and not _aura:
 		return
 	_glow_t += delta
 	_apply_style(_hot)
@@ -397,6 +447,10 @@ func show_formula(on: bool) -> void:
 	_eq.text = "[center]%s[/center]" % _formula
 	_eq.visible = _formula_on
 	_num.visible = not _formula_on and _shown != ""
+	if _plus != null:
+		_plus.visible = (not _formula_on) and _plus.texture != null
+	if _ban != null:
+		_ban.visible = (not _formula_on) and _ban.texture != null
 	_ghost.visible = not _formula_on
 	if _mark != null:
 		_mark.visible = (not _formula_on) and _mark.texture != null and _shown == ""
@@ -452,6 +506,16 @@ func _apply_style(hot: bool) -> void:
 		metal = metal.lerp(gold, 0.45 + pulse * 0.55)
 		sb.bg_color = sb.bg_color.lerp(gold.darkened(0.35), pulse * 0.22)
 		modulate = Color.WHITE.lerp(Color("ffe6a8"), pulse * 0.38)
+	elif _aura and not spent:
+		pulse = 0.45 + 0.55 * absf(sin(_glow_t * TAU / 0.9))
+		var ember := Color("e07a3d")
+		metal = metal.lerp(ember, 0.50 + pulse * 0.50)
+		sb.bg_color = sb.bg_color.lerp(ember.darkened(0.25), pulse * 0.28)
+		modulate = Color.WHITE.lerp(Color("ffc48a"), pulse * 0.32)
+		if _plus != null and _plus.visible:
+			_plus.modulate = Color("e07a7a").lerp(Color.WHITE, pulse * 0.55)
+		if _ban != null and _ban.visible:
+			_ban.modulate = Color("e8c36a").lerp(Color.WHITE, pulse * 0.55)
 	elif _playable and not spent:
 		pulse = 0.35 + 0.35 * absf(sin(_glow_t * TAU / 1.6))
 		metal = metal.lerp(Color("e8c36a"), pulse * 0.45)
@@ -464,7 +528,7 @@ func _apply_style(hot: bool) -> void:
 		bw = 5
 	if hot:
 		bw += 1
-	if _glow:
+	if _glow or _aura:
 		bw += int(pulse * 2.0)
 	sb.set_border_width_all(bw)
 	sb.set_corner_radius_all(8 if _showcase else 6)

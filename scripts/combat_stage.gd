@@ -17,6 +17,9 @@ var _lunge_x: float = 0.0:
 	set(v):
 		_lunge_x = v
 		queue_redraw()
+var flip_h: bool = false
+var _watch_tex: Texture2D
+var _watch_t: float = 0.0
 var busy: bool = false
 
 
@@ -43,6 +46,8 @@ func show_monster(id: String) -> void:
 	_blood.clear()
 	_bursts.clear()
 	_lunge_x = 0.0
+	_watch_tex = null
+	_watch_t = 0.0
 	modulate = Color.WHITE
 	scale = Vector2(0.72, 0.72)
 	visible = true
@@ -73,6 +78,8 @@ func hide_stage() -> void:
 	card_id = ""
 	_idle.clear()
 	_run.clear()
+	_watch_tex = null
+	_watch_t = 0.0
 
 
 func take_hit() -> void:
@@ -96,6 +103,21 @@ func lunge() -> void:
 	await tw.finished
 	_mode = "idle"
 	busy = false
+
+
+func play_hypnotize(watch: Texture2D) -> void:
+	_watch_tex = watch
+	_watch_t = 1.0
+	_burst("magic", Color("e8c36a"), 1.15)
+	_burst("twirl", Color("c4a574"), 1.0)
+	pivot_offset = size * 0.5
+	var tw := create_tween()
+	tw.tween_property(self, "rotation", 0.05, 0.08)
+	tw.tween_property(self, "rotation", -0.05, 0.1)
+	tw.tween_property(self, "rotation", 0.0, 0.1)
+	await tw.finished
+	if get_tree():
+		await get_tree().create_timer(0.18).timeout
 
 
 func play_block() -> void:
@@ -138,6 +160,8 @@ func _process(delta: float) -> void:
 	_bob += delta
 	if _flash > 0.0:
 		_flash = maxf(0.0, _flash - delta * 4.2)
+	if _watch_t > 0.0:
+		_watch_t = maxf(0.0, _watch_t - delta * 0.85)
 	var keep: Array = []
 	for b in _blood:
 		b["t"] = float(b["t"]) + delta
@@ -187,12 +211,21 @@ func _draw() -> void:
 		var tex: Texture2D = frames[int(_fi) % frames.size()]
 		var bob: float = sin(_bob * 3.2) * 3.0
 		var dest := Rect2(Vector2(size.x * 0.5 - 56.0 + _lunge_x, 14.0 + bob), Vector2(112, 124))
+		if flip_h:
+			dest = Rect2(Vector2(dest.position.x + dest.size.x, dest.position.y), Vector2(-dest.size.x, dest.size.y))
 		var mod := Color.WHITE
 		if _flash > 0.45:
 			mod = Color(1.6, 1.6, 1.8)
 		elif _flash > 0.0:
 			mod = Color(1.0, 0.55, 0.5).lerp(Color.WHITE, 1.0 - _flash)
 		draw_texture_rect(tex, dest, false, mod)
+		if _watch_tex != null and _watch_t > 0.0:
+			var pulse: float = 0.85 + sin(_bob * 10.0) * 0.08
+			var wz := Vector2(48, 48) * pulse
+			var wp := Vector2(size.x * 0.5 - wz.x * 0.5 + _lunge_x, 46.0 + bob)
+			var wc := Color.WHITE
+			wc.a = clampf(_watch_t, 0.35, 1.0)
+			draw_texture_rect(_watch_tex, Rect2(wp, wz), false, wc)
 	for b in _blood:
 		var a: float = 1.0 - float(b["t"]) / float(b["life"])
 		var c: Color = b["col"]

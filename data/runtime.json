@@ -37,6 +37,8 @@
 		"measuring_tape",
 		"mute_stone",
 		"cursed_scroll",
+		"arrow_head",
+		"danger_magnet",
 		"spider_egg"
 	],
 	"monsters": [
@@ -72,7 +74,9 @@
 		"anvil",
 		"bodyguard",
 		"cowardly_king",
-		"merchant"
+		"merchant",
+		"juggernaut",
+		"cleric"
 	],
 	"notes": "Full roster minus retired/hidden rows (Dagger, Bandana, old Helmet) and Cursed Scroll. Commander + Lich apply last."
 }

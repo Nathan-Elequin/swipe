@@ -971,6 +971,29 @@
 			"locked_at": "2026-10-10",
 			"name": "Berserker"
 		},
+		"monster:cleric": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
+			"locked_at": "2026-10-13",
+			"name": "Cleric"
+		},
 		"monster:clockwork_knight": {
 			"fields": [
 				"name",
@@ -1444,6 +1467,29 @@
 			],
 			"locked_at": "2026-10-10",
 			"name": "Damsel in Distress"
+		},
+		"monster:vampire": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
+			"locked_at": "2026-10-13",
+			"name": "Vampire"
 		},
 		"monster:wick": {
 			"fields": [
@@ -2839,5 +2885,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-10-12"
+	"updated": "2026-10-13"
 }
