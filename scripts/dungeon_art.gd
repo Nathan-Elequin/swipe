@@ -134,6 +134,10 @@ const MONSTER_PNG := {
 	"dire_wolf": "res://assets/dungeon/extra/dire_wolf.png",
 	"leech_league": "res://assets/dungeon/extra/leech_league.png",
 	"needleback": "res://assets/dungeon/extra/needleback.png",
+	"vampire": "res://assets/dungeon/extra/vampire.png",
+	"bodyguard": "res://assets/dungeon/extra/bodyguard.png",
+	"cowardly_king": "res://assets/dungeon/extra/cowardly_king.png",
+	"merchant": "res://assets/dungeon/extra/merchant.png",
 }
 
 var atlas: Texture2D
@@ -292,4 +296,8 @@ func portraits() -> Dictionary:
 		var t: Texture2D = monster_still(str(id))
 		if t != null:
 			d[str(id)] = t
+	for id2 in MONSTER_PNG.keys():
+		var t2: Texture2D = monster_still(str(id2))
+		if t2 != null:
+			d[str(id2)] = t2
 	return d

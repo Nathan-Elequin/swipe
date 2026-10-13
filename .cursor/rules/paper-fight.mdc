@@ -14,7 +14,9 @@ Before implementing any **gameplay** addition or change (item, monster, special,
 
 Skip Paper Fight for: copy/art/audio only; an exact number he named on an existing rule; Ability+Flow+Notes already agree and say what happens when cards collide; he said **skip the Paper Fight** / **just ship it** / **F5 this**.
 
-If Ability, Flow, and Notes disagree, Paper Fight — do not invent how this meets Hornet, Queen, or block.
+**Your notes for Cursor** (`review_note` on the board) is the spec. If that box is filled, it wins over Ability, Flow, and Notes. Do not Paper Fight to pick between them. Paper Fight only when the note itself has two readings that would change the code.
+
+If Ability, Flow, and Notes disagree and that box is empty, Paper Fight — do not invent how this meets Hornet, Queen, or block.
 
 For rules, this comes before same-turn guess-and-build. Feel and animation can still be built the same turn.
 

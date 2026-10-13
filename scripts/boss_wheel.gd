@@ -5,6 +5,8 @@ signal slice_clicked(index: int)
 signal slice_hovered(index: int)
 signal slice_right_clicked(index: int)
 
+var show_shift: bool = false
+
 const COPY := preload("res://scripts/player_copy.gd")
 
 const SIX := PI / 2.0
@@ -285,6 +287,8 @@ func hit_feedback(index: int, hp_lost: int, atk_delta: int = 0) -> void:
 	var pos: Vector2 = _hp_pos(index)
 	if hp_lost > 0:
 		_floaters.append({"pos": pos, "text": "-%s" % hp_lost, "col": DOWN_COL, "t": 0.0, "life": 0.9})
+	elif hp_lost < 0:
+		_floaters.append({"pos": pos, "text": "+%s" % -hp_lost, "col": UP_COL, "t": 0.0, "life": 0.9})
 	if atk_delta < 0:
 		_floaters.append({"pos": _atk_pos(index), "text": "%s" % atk_delta, "col": DOWN_COL, "t": 0.0, "life": 0.9})
 	elif atk_delta > 0:
@@ -557,6 +561,62 @@ func _atk_pos(i: int) -> Vector2:
 
 func _hp_pos(i: int) -> Vector2:
 	return _spoke(i)["hp"]
+
+
+func focus_rect(kind: String) -> Rect2:
+	var c: Vector2 = _center()
+	var hub_r: float = _radius() * HUB_FRAC
+	if kind == "hub_hp":
+		return _global_badge(c + Vector2(-22.0, hub_r * 0.42), 36.0)
+	if kind == "hub_blk":
+		return _global_badge(c + Vector2(24.0, hub_r * 0.42), 36.0)
+	if kind == "atk" and facing_index >= 0:
+		return _global_badge(_atk_pos(facing_index), 34.0)
+	if kind == "hp" and facing_index >= 0:
+		return _global_badge(_hp_pos(facing_index), 34.0)
+	if kind == "empty":
+		return _slice_global_rect(_first_empty_slice())
+	if kind == "face" and facing_index >= 0:
+		return _slice_global_rect(facing_index)
+	return Rect2()
+
+
+func _global_badge(local: Vector2, rad: float) -> Rect2:
+	var g: Vector2 = get_global_transform() * local
+	return Rect2(g - Vector2(rad, rad), Vector2(rad * 2.0, rad * 2.0))
+
+
+func _first_empty_slice() -> int:
+	for i in slices.size():
+		if str(slices[i].get("kind", "")) != "monster":
+			return i
+	return -1
+
+
+func slice_rect(i: int) -> Rect2:
+	return _slice_global_rect(i)
+
+
+func _slice_global_rect(i: int) -> Rect2:
+	if i < 0 or i >= slices.size():
+		return Rect2()
+	var starts: PackedFloat32Array = _starts()
+	var a0: float = starts[i]
+	var a1: float = a0 + _span(i)
+	var c: Vector2 = _center()
+	var radius: float = _radius()
+	var mn := Vector2(1.0e9, 1.0e9)
+	var mx := Vector2(-1.0e9, -1.0e9)
+	var pts: Array[Vector2] = [c]
+	for k in 9:
+		pts.append(c + Vector2.from_angle(lerpf(a0, a1, float(k) / 8.0)) * radius)
+	for p in pts:
+		var g: Vector2 = get_global_transform() * p
+		mn.x = minf(mn.x, g.x)
+		mn.y = minf(mn.y, g.y)
+		mx.x = maxf(mx.x, g.x)
+		mx.y = maxf(mx.y, g.y)
+	return Rect2(mn, mx - mn).grow(10.0)
 
 
 func _clamp_to_rim(pos: Vector2, icon_r: float) -> Vector2:
@@ -908,15 +968,6 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 			if src >= 0 and src < n and str(slices[src].get("kind", "")) == "monster":
 				var pur := Color(0.72, 0.42, 0.92, 0.55 + 0.35 * pulse)
 				_draw_edge_ticks(src, i, pur)
-		elif cid == "spider_queen":
-			var qhp: int = int(s.get("hp", 0))
-			var gold := Color(0.91, 0.76, 0.32, 0.58 + 0.35 * pulse)
-			for off3 in [n - 1, 1]:
-				var j3: int = (i + off3) % n
-				if str(slices[j3].get("kind", "")) != "monster":
-					continue
-				if int(slices[j3].get("hp", 0)) < qhp:
-					_draw_edge_ticks(i, j3, gold)
 		elif cid == "slime_boss":
 			var slime := Color(0.45, 0.82, 0.42, 0.85)
 			var midp: Vector2 = (sp["atk"] + sp["hp"]) * 0.5
@@ -933,6 +984,12 @@ func _draw_bold_name(font: Font, pos: Vector2, text: String, fs: int, col: Color
 func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, crowded: bool, dim: float = 1.0, is_hover: bool = false) -> void:
 	var name_s: String = str(s.get("name", "")).strip_edges()
 	var call_s: String = str(s.get("call_name", "")).strip_edges()
+	if show_shift:
+		var shift_s: String = str(s.get("reminder", "")).strip_edges()
+		if shift_s == "" or shift_s == "---":
+			shift_s = str(s.get("ability", "")).strip_edges()
+		if shift_s != "":
+			call_s = shift_s
 	if name_s == "":
 		return
 	if call_s.to_lower() == name_s.to_lower() or name_s.to_lower().find(call_s.to_lower()) >= 0:
@@ -993,11 +1050,11 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 
 func _ability_icon_color(sid: String) -> Color:
 	match sid:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "no_keep", "item_swings":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "no_keep", "item_swings", "fair_trade":
 			return Color("e8c36a")
-		"no_atk_dmg", "double_hit", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk":
+		"no_atk_dmg", "double_hit", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right":
 			return Color("e07040")
-		"last_hp", "buff_hp", "hp_spin", "pack_hp", "one_chip":
+		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead":
 			return Color("e8a0a0")
 		"kill_scale", "atk_eq_hp":
 			return Color("c9a0ff")

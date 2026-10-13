@@ -14,16 +14,20 @@ func _init() -> void:
 		if not waits.has(n):
 			missing.append(n)
 	var helmet_focus := false
+	var goblin_shift_on_wheel := false
 	for b in beats:
 		if str(b.get("wait", "")) == "item:helmet" and str(b.get("focus", "")) == "item:helmet":
 			helmet_focus = true
+		if str(b.get("wait", "")) == "hover_shift" and str(b.get("focus", "")) == "wheel" and str(b.get("then_focus", "")) == "inspect":
+			goblin_shift_on_wheel = true
 	print("TUT_BEATS %s" % beats.size())
 	print("TUT_WAITS %s" % waits)
 	print("TUT_MISSING %s" % ",".join(missing))
 	print("TUT_HELMET_FOCUS %s" % helmet_focus)
+	print("TUT_GOBLIN_SHIFT %s" % goblin_shift_on_wheel)
 	print("TUT_BOOT %s" % _has_branch(beats, "boot"))
 	print("TUT_TAKE %s" % _has_branch(beats, "take"))
-	if beats.size() < 20 or not missing.is_empty() or not helmet_focus:
+	if beats.size() < 20 or not missing.is_empty() or not helmet_focus or not goblin_shift_on_wheel:
 		push_error("tutorial beats failed")
 		quit(1)
 	else:

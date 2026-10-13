@@ -16,8 +16,10 @@ Read `data/content-board.json` (HTML only if the JSON is missing). Then:
 1. **Player-facing Save (ability, explainer, name, numbers, tier)** — already on disk. Use that text. Do not make him re-dictate it. If `author_lock` is set (see `author-lock.mdc` / `data/author-locks.json`), do not rewrite those fields at all unless this chat clearly overrides, and stop to ask first.
 2. **Behavior Save (Flow, Notes, Ops JSON, ATK/HP formulas)** — if it does not match live code in `scripts/main.gd` (and related scripts), that card is a ship queue. If Flow/Notes already settle the edges, implement. If the change is new or ambiguous, **Paper Fight first** (`design/paper-fight/RUBRIC.md`) — do not invent Hornet/Queen/block/targeting. In-game Save flips status to `todo` when those fields change.
 3. Skip `hold` and `retired` unless he named them.
-4. If Ability, Flow, and Notes disagree, Paper Fight — do not guess.
-5. After shipping code, set those cards to `live` on the board and in catalog/runtime.
+4. **Your notes for Cursor** (`review_note`) win. Read every non-empty one. If that note disagrees with ability, explainer, flow, notes, ops, or an older design doc, build the note. Do not Paper Fight to keep the older sentence. Do not ask him to retype it. If the note states new player-facing words, write those words — the saved note is the override. Leave locked fields the note does not mention alone.
+   When the note obviously replaces a sentence, a number, or a formula, delete the old text everywhere he can still read it: the board, the catalog, the explainer, the call name, the shift line, flow, notes, ops, and any hardcoded fallback or editor default. Write the new text in that place. He should not see the previous version next to the new one. If you are not sure a field is the leftover, ask before deleting it.
+5. If Ability, Flow, and Notes disagree and **Your notes for Cursor** is empty, Paper Fight — do not guess.
+6. After shipping code, set those cards to `live` on the board and in catalog/runtime.
 
 If nothing needs a code change, do not mention this check.
 

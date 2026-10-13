@@ -473,18 +473,18 @@ Cards,card.monster.dire_wolf.explainer,Roster · monster Shift math (Dire Wolf),
 Cards,card.monster.bandit.name,Roster · monster name (live),Bandit
 Cards,card.monster.bandit.ability,Roster · monster player text (Bandit),My Attack is how many Items you hold.
 Cards,card.monster.bandit.explainer,Roster · monster Shift math (Bandit),Attack is Items
-Cards,card.monster.leech_league.name,Roster · monster name (todo),Leech League
-Cards,card.monster.leech_league.ability,Roster · monster player text (Leech League),My HP equals the number of monsters in play
-Cards,card.monster.leech_league.explainer,Roster · monster Shift math (Leech League),HP from monsters left
+Cards,card.monster.leech_league.name,Roster · monster name (live),Leech League
+Cards,card.monster.leech_league.ability,Roster · monster player text (Leech League),"On Spin, I give +1 HP to another monster with the lowest HP still in the dungeon. Then I gain +1 HP."
+Cards,card.monster.leech_league.explainer,Roster · monster Shift math (Leech League),+1 HP to the lowest other HP, then +1 HP to me
 Cards,card.monster.wraith.name,Roster · monster name (todo),Wraith
 Cards,card.monster.wraith.ability,Roster · monster player text (Wraith),I copy the higher ATK of my Neighbors
 Cards,card.monster.wraith.explainer,Roster · monster Shift math (Wraith),copies Neighbor Attack
 Cards,card.monster.mimic.name,Roster · monster name (todo),Mimic
 Cards,card.monster.mimic.ability,Roster · monster player text (Mimic),"If I go down before I Attack, you gain an Item."
 Cards,card.monster.mimic.explainer,Roster · monster Shift math (Mimic),Item if I never swing
-Cards,card.monster.two_headed_serpent.name,Roster · monster name (live),Two-Headed Serpent
-Cards,card.monster.two_headed_serpent.ability,Roster · monster player text (Two-Headed Serpent),My Attack drops to 0 if you use two Items this fight.
-Cards,card.monster.two_headed_serpent.explainer,Roster · monster Shift math (Two-Headed Serpent),"two Items, no Attack"
+Cards,card.monster.two_headed_serpent.name,Roster · monster name (live),Damsel in Distress
+Cards,card.monster.two_headed_serpent.ability,Roster · monster player text (Damsel in Distress),"My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP."
+Cards,card.monster.two_headed_serpent.explainer,Roster · monster Shift math (Damsel in Distress),"Neighbors attack, then Heal 3"
 Cards,card.monster.slime_boss.name,Roster · monster name (live),Slime Boss
 Cards,card.monster.slime_boss.ability,Roster · monster player text (Slime Boss),My Attack always equals my HP.
 Cards,card.monster.slime_boss.explainer,Roster · monster Shift math (Slime Boss),Attack equals HP

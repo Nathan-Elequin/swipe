@@ -36,6 +36,7 @@ var _rules: RichTextLabel
 var _hook: Label
 var _refuse: Button
 var _hint: Label
+var _guard: Label
 var _btns: HBoxContainer
 var _owner_plate
 var _pips: HBoxContainer
@@ -82,12 +83,21 @@ func setup(p_art) -> void:
 	_hint.add_theme_color_override("font_outline_color", Color("100e0c"))
 	_hint.add_theme_constant_override("outline_size", 4)
 	col.add_child(_hint)
+	_guard = Label.new()
+	_guard.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_guard.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_guard.add_theme_font_size_override("font_size", 22)
+	_guard.add_theme_color_override("font_color", Color("e8c36a"))
+	_guard.add_theme_color_override("font_outline_color", Color("100e0c"))
+	_guard.add_theme_constant_override("outline_size", 6)
+	_guard.visible = false
+	col.add_child(_guard)
 	_stamp = TierStamp.new()
-	_stamp.custom_minimum_size = Vector2(0, 86)
+	_stamp.custom_minimum_size = Vector2(0, 128)
 	_stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_stamp)
 	_stage = Control.new()
-	_stage.custom_minimum_size = Vector2(248, 400)
+	_stage.custom_minimum_size = Vector2(248, 360)
 	_stage.clip_contents = false
 	_stage.mouse_filter = Control.MOUSE_FILTER_STOP
 	col.add_child(_stage)
@@ -151,17 +161,25 @@ func setup(p_art) -> void:
 	set_process(true)
 
 
+func _wash(tier: int) -> Color:
+	if tier >= 3:
+		return Color(0.42, 0.06, 0.05, 0.98)
+	if tier == 2:
+		return Color(0.12, 0.15, 0.22, 0.98)
+	return Color(0.32, 0.12, 0.05, 0.98)
+
+
 func _skin_panel(tier: int) -> void:
 	if _panel == null:
 		return
 	var metal: Color = _metal(tier)
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("100c0af0")
+	sb.bg_color = _wash(tier)
 	sb.border_color = metal
-	sb.set_border_width_all(3)
+	sb.set_border_width_all(4)
 	sb.set_corner_radius_all(14)
-	sb.shadow_color = Color(metal.r, metal.g, metal.b, 0.42)
-	sb.shadow_size = 22
+	sb.shadow_color = Color(metal.r, metal.g, metal.b, 0.72)
+	sb.shadow_size = 28
 	sb.content_margin_left = 22
 	sb.content_margin_right = 22
 	sb.content_margin_top = 16
@@ -250,8 +268,12 @@ func present_mystery(_item: Dictionary, tier: int, _item_tex: Texture2D, passes_
 	_fi = 0.0
 	_shake = 0.0
 	_stamp.tier = pack_tier
+	_stamp.loom = true
+	_stamp.visible = true
+	_stamp.custom_minimum_size = Vector2(0, 128)
 	_stamp.queue_redraw()
 	_skin_panel(pack_tier)
+	_show_guard(pack_tier)
 	if _rules_box != null:
 		_rules_box.visible = false
 	if _hook:
@@ -266,11 +288,12 @@ func present_mystery(_item: Dictionary, tier: int, _item_tex: Texture2D, passes_
 	if _relic_host:
 		_relic_host.visible = true
 	if _stage:
-		_stage.custom_minimum_size = Vector2(248, 400)
+		_stage.custom_minimum_size = Vector2(248, 360)
 	_actor.visible = false
 	_actor.modulate = Color.WHITE
 	_actor.scale = Vector2.ONE
-	_dim.color.a = 0.08
+	var wash: Color = _wash(pack_tier)
+	_dim.color = Color(wash.r, wash.g, wash.b, 0.34)
 	_dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	lock_dock = false
 	mode = "ask"
@@ -285,6 +308,15 @@ func present_mystery(_item: Dictionary, tier: int, _item_tex: Texture2D, passes_
 	tw.tween_property(_panel, "scale", Vector2.ONE, 0.28)
 	tw.parallel().tween_property(_panel, "modulate:a", 1.0, 0.16)
 	_sync_actor()
+
+
+func _show_guard(tier: int) -> void:
+	if _guard == null:
+		return
+	var name: String = COPY.tier_name(tier)
+	_guard.text = COPY.fill("door.guard", {"tier": name}, "Guarded by a %s monster" % name)
+	_guard.add_theme_color_override("font_color", _metal(tier).lightened(0.15))
+	_guard.visible = true
 
 
 func _write_cue(passes_left: int, seating: bool) -> void:
@@ -318,6 +350,11 @@ func set_passes(n: int) -> void:
 func reveal(monster: Dictionary, _value_bb: String = "", _speech: String = "", _reminder: String = "") -> void:
 	card_id = str(monster.get("card_id", ""))
 	_mystery = false
+	if _stamp:
+		_stamp.loom = false
+		_stamp.visible = false
+	if _guard:
+		_guard.visible = false
 	_idle = art.monster_idle(card_id) if art else []
 	_run = art.monster_run(card_id) if art else []
 	_fi = 0.0
@@ -368,6 +405,11 @@ func hide_gate() -> void:
 	_pips.visible = true
 	if _hint:
 		_hint.visible = false
+	if _guard:
+		_guard.visible = false
+	if _stamp:
+		_stamp.loom = false
+		_stamp.visible = false
 	if _hook:
 		_hook.visible = false
 	hide_owner()
@@ -376,7 +418,7 @@ func hide_gate() -> void:
 	if _relic_host:
 		_relic_host.visible = true
 	if _stage:
-		_stage.custom_minimum_size = Vector2(248, 400)
+		_stage.custom_minimum_size = Vector2(248, 360)
 	_panel.scale = Vector2.ONE
 	_panel.modulate.a = 1.0
 	_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -413,6 +455,12 @@ func actor_global() -> Vector2:
 
 func panel_left() -> float:
 	return _panel.global_position.x
+
+
+func gate_rect() -> Rect2:
+	if _panel == null or not _panel.is_visible_in_tree():
+		return Rect2()
+	return _panel.get_global_rect()
 
 
 func still_tex() -> Texture2D:
@@ -503,6 +551,10 @@ func _process(delta: float) -> void:
 	_bob += delta
 	_stamp.bob = _bob
 	_stamp.queue_redraw()
+	if _guard != null and _guard.visible:
+		var speed: float = 2.0 + float(pack_tier) * 0.9
+		var pulse: float = 0.78 + 0.22 * absf(sin(_bob * speed))
+		_guard.modulate = Color(1.0, pulse, pulse * (0.55 if pack_tier >= 3 else 0.92), 1.0)
 	_sync_actor()
 	if _glow != null:
 		_glow.metal = _metal(pack_tier)
@@ -524,6 +576,7 @@ class GlowFrame extends Control:
 class TierStamp extends Control:
 	var tier: int = 1
 	var bob: float = 0.0
+	var loom: bool = false
 
 	func _metal() -> Color:
 		if tier >= 3:
@@ -550,6 +603,9 @@ class TierStamp extends Control:
 		return pts
 
 	func _draw() -> void:
+		if loom:
+			_draw_loom()
+			return
 		var metal: Color = _metal()
 		var pulse: float = 0.55 + 0.45 * absf(sin(bob * 3.0))
 		var glow := Color(metal.r, metal.g, metal.b, 0.28 + pulse * 0.50)
@@ -576,6 +632,78 @@ class TierStamp extends Control:
 				var ang: float = bob * 2.2 + float(i) * TAU / 5.0
 				var sp: Vector2 = c + Vector2.from_angle(ang) * (plate_r + 18.0 + sin(bob * 5.0 + float(i)) * 4.0)
 				draw_circle(sp, 2.4 + pulse * 1.6, Color(metal.r, metal.g, metal.b, 0.40 + pulse * 0.55))
+
+	func _draw_loom() -> void:
+		var metal: Color = _metal()
+		var speed: float = 1.6 + float(tier) * 0.85
+		var pulse: float = 0.45 + 0.55 * absf(sin(bob * speed))
+		var sway: float = sin(bob * speed) * (5.0 + float(tier) * 4.0)
+		var breathe: float = 1.0 + sin(bob * speed * 0.65) * (0.03 + float(tier) * 0.025)
+		var sc: float = breathe * (0.92 + float(mini(tier, 3) - 1) * 0.16)
+		var c := Vector2(size.x * 0.5 + sway, size.y * 0.58)
+		var ink := Color(0.04, 0.015, 0.01, 0.98)
+		if tier == 2:
+			ink = Color(0.02, 0.03, 0.06, 0.98)
+		elif tier >= 3:
+			ink = Color(0.08, 0.01, 0.01, 0.98)
+		var glow := Color(metal.r, metal.g, metal.b, 0.16 + pulse * 0.28)
+		draw_circle(Vector2(c.x, c.y - 18.0 * sc), 54.0 * sc, glow)
+		var shoulder: float = 70.0 * sc
+		if tier == 2:
+			shoulder *= 1.15
+		elif tier >= 3:
+			shoulder *= 1.35
+		var body := PackedVector2Array([
+			c + Vector2(-shoulder, -8.0 * sc),
+			c + Vector2(shoulder, -8.0 * sc),
+			c + Vector2(shoulder * 0.72, 52.0 * sc),
+			c + Vector2(-shoulder * 0.72, 52.0 * sc),
+		])
+		draw_colored_polygon(body, ink)
+		var arm_drop: float = 28.0 + float(tier) * 16.0
+		draw_colored_polygon(PackedVector2Array([
+			c + Vector2(-shoulder, -4.0),
+			c + Vector2(-shoulder + 22.0, -4.0),
+			c + Vector2(-shoulder + 10.0, arm_drop),
+			c + Vector2(-shoulder - 8.0, arm_drop),
+		]), ink)
+		draw_colored_polygon(PackedVector2Array([
+			c + Vector2(shoulder, -4.0),
+			c + Vector2(shoulder - 22.0, -4.0),
+			c + Vector2(shoulder - 10.0, arm_drop),
+			c + Vector2(shoulder + 8.0, arm_drop),
+		]), ink)
+		var head := c + Vector2(0, -36.0 * sc)
+		var head_r: float = 18.0 * sc
+		draw_circle(head, head_r, ink)
+		draw_colored_polygon(PackedVector2Array([
+			head + Vector2(-head_r - 6.0, 0),
+			head + Vector2(0, -head_r - 16.0 * sc),
+			head + Vector2(head_r + 6.0, 0),
+			head + Vector2(head_r * 0.35, 10.0),
+			head + Vector2(-head_r * 0.35, 10.0),
+		]), ink)
+		if tier >= 3:
+			draw_colored_polygon(PackedVector2Array([
+				head + Vector2(-8, -head_r + 2),
+				head + Vector2(-22, -head_r - 22),
+				head + Vector2(-2, -head_r - 2),
+			]), ink)
+			draw_colored_polygon(PackedVector2Array([
+				head + Vector2(8, -head_r + 2),
+				head + Vector2(22, -head_r - 22),
+				head + Vector2(2, -head_r - 2),
+			]), ink)
+			for i in 5:
+				var ang: float = bob * 2.4 + float(i) * TAU / 5.0
+				var sp: Vector2 = c + Vector2.from_angle(ang) * (46.0 + sin(bob * 5.0 + float(i)) * 5.0)
+				draw_circle(sp, 2.2 + pulse * 1.8, Color(metal.r, metal.g, metal.b, 0.35 + pulse * 0.6))
+		var eye: Color = metal.lightened(0.25)
+		eye.a = 0.55 + pulse * 0.45
+		var er: float = 3.4 + float(tier) * 0.8
+		draw_circle(head + Vector2(-7.0 * sc, 1), er, eye)
+		draw_circle(head + Vector2(7.0 * sc, 1), er, eye)
+		draw_arc(Vector2(c.x, c.y + 8.0), 34.0 * sc, PI * 1.05, PI * 1.95, 18, Color(metal.r, metal.g, metal.b, 0.55 + pulse * 0.4), 3.0 + pulse * 2.0, true)
 
 
 class Actor extends Control:

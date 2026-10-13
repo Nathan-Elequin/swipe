@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Trait Matrix</title>
+<style>
+  body { margin: 0; background: #120e0c; color: #f0e6d8; font: 15px/1.45 "Iowan Old Style", Palatino, Georgia, serif; }
+  header { padding: 22px 28px 8px; max-width: 980px; }
+  h1 { font-size: 28px; margin: 0 0 8px; }
+  h2 { font-size: 22px; margin: 22px 28px 6px; display: flex; gap: 12px; align-items: center; }
+  p { margin: 0 0 8px; }
+  .lead { color: #d9cbb8; }
+  .save { font-size: 14px; color: #8dcb8d; }
+  .save.bad { color: #e07a7a; }
+  button, select, input, textarea { font: inherit; color: inherit; }
+  button.add { background: #2a3340; color: #f0e6d8; border: 2px solid #8eb4d4; border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+  .legend { display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+  .sw { width: 16px; height: 16px; border: 3px solid; display: inline-block; vertical-align: -3px; margin-right: 6px; }
+  .b1 { background: #24160e; border-color: #c08050; }
+  .b2 { background: #14161a; border-color: #c5cdd8; }
+  .b3 { background: #2a1c08; border-color: #e8c36a; }
+  .wrap { overflow: visible; margin: 8px 16px 36px; }
+  table { border-collapse: separate; border-spacing: 0; min-width: 2280px; }
+  th, td { padding: 6px 8px; text-align: center; white-space: nowrap; border-right: 1px dotted #6e5c4c; border-bottom: 1px dotted #6e5c4c; }
+  th { position: sticky; top: 0; background: #1c1612; z-index: 4; font-size: 12px; }
+  td.who, th:first-child { position: sticky; left: 0; z-index: 5; background: #120e0c; text-align: left; min-width: 340px; }
+  thead th:first-child, thead th:nth-child(2) { z-index: 6; background: #1c1612; }
+  td.ab { background: #120e0c; }
+  tr.over td { box-shadow: inset 0 3px 0 #e8c36a; }
+  td.ab { text-align: left; min-width: 220px; }
+  textarea.ability { width: 240px; min-height: 52px; background: transparent; border: 1px solid transparent; resize: vertical; color: #cbbba6; }
+  textarea.ability:focus { border-color: #6b5344; background: #1c1612; }
+  .card { display: flex; gap: 10px; align-items: center; border: 3px solid; padding: 6px 8px; }
+  .card.t1 { background: #24160e; border-color: #c08050; color: #f3d2b0; }
+  .card.t2 { background: #14161a; border-color: #c5cdd8; color: #eef2f8; }
+  .card.t3 { background: #2a1c08; border-color: #e8c36a; color: #ffe9a8; }
+  .sprite-wrap { position: relative; width: 52px; height: 52px; flex: 0 0 auto; cursor: grab; }
+  .sprite-wrap:active { cursor: grabbing; }
+  .px { image-rendering: pixelated; display: block; margin: auto; }
+  img.px { width: 48px; height: 48px; object-fit: contain; }
+  .atlas { background-repeat: no-repeat; }
+  .missing { width: 48px; height: 48px; background: #000; margin: 2px auto; }
+  .pips { display: none; position: absolute; inset: 0; pointer-events: none; }
+  body.shift .pips { display: block; }
+  .pip-tier { position: absolute; left: 0; bottom: 0; width: 10px; height: 10px; border: 2px solid; }
+  .pip-tier.t1 { background: #24160e; border-color: #c08050; }
+  .pip-tier.t2 { background: #14161a; border-color: #c5cdd8; }
+  .pip-tier.t3 { background: #2a1c08; border-color: #e8c36a; }
+  .pip-bucket { position: absolute; right: -2px; top: -2px; min-width: 14px; height: 14px; padding: 0 2px; font: 700 10px/14px ui-sans-serif, sans-serif; text-align: center; color: #fff; background: #2f6f9f; }
+  .fields { display: flex; flex-direction: column; gap: 4px; min-width: 210px; }
+  .nm { font-weight: 700; background: transparent; border: none; width: 100%; }
+  .row2 { display: flex; gap: 6px; align-items: center; font-size: 12px; }
+  select.mini, input.num { background: #1c1612; border: 1px solid #6b5344; color: inherit; padding: 1px 4px; }
+  input.num { width: 42px; }
+  button.link { background: none; border: none; color: #c4a574; cursor: pointer; padding: 0; font-size: 12px; }
+  td.mark { cursor: pointer; min-width: 52px; font-weight: 700; }
+  td.plus { color: #b7e0a8; background: #1a2a16; }
+  td.minus { color: #f0a0a0; background: #2a1614; }
+  td.blank { color: #3a322c; }
+  tr.sample td.who { box-shadow: inset 4px 0 0 #e8c36a; }
+  .roll-bar { display: flex; gap: 14px; align-items: center; margin-top: 16px; flex-wrap: wrap; }
+  button.roll { background: #2a3340; color: #f0e6d8; border: 2px solid #e8c36a; border-radius: 999px; padding: 6px 18px; cursor: pointer; }
+  button.roll:active { transform: translateY(1px); }
+  .roll-stage { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+  .roll-slot { box-sizing: border-box; min-height: 64px; padding: 6px 10px 8px; border: 3px solid #6b5344; background: #1c1612; display: flex; flex-direction: column; justify-content: center; gap: 1px; user-select: none; }
+  .roll-slot.kind { min-width: 118px; }
+  .roll-slot.tier { min-width: 78px; text-align: center; }
+  .roll-slot.bucket { min-width: 108px; text-align: center; }
+  .roll-slot.trait { min-width: 168px; }
+  .roll-slot.wait { opacity: 0.38; }
+  .roll-slot .k { font-size: 11px; color: #cbbba6; }
+  .roll-slot.solid .k { color: rgba(255, 255, 255, 0.86); }
+  .roll-slot .v { font-size: 22px; font-weight: 700; line-height: 1.15; white-space: nowrap; }
+  .roll-slot .sign { display: inline-block; min-width: 0.75em; }
+  .roll-slot.plus .sign { color: #b7e0a8; }
+  .roll-slot.minus .sign { color: #f0a0a0; }
+  .roll-slot .v.tick { animation: roll-in 0.07s linear; }
+  .roll-slot.land { animation: roll-land 0.22s ease-out; }
+  @keyframes roll-in { from { transform: translateY(55%); opacity: 0.15; } to { transform: none; opacity: 1; } }
+  @keyframes roll-land { 0% { transform: translateY(-7px) scale(1.04); } 100% { transform: none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Trait Matrix</h1>
+  <p class="lead">Drag a sprite to move that card. Click a trait cell to step through empty, plus, and minus. Add makes a new card with tier, bucket, attack, HP, and every trait cell already on it. Hold Shift to see tier and bucket on the sprite.</p>
+  <p class="save" id="save">Loading…</p>
+  <div class="legend">
+    <span><i class="sw b1"></i>Tier 1</span>
+    <span><i class="sw b2"></i>Tier 2</span>
+    <span><i class="sw b3"></i>Tier 3</span>
+    <span>+ high number</span>
+    <span>− weak number, or it helps the player</span>
+  </div>
+  <div class="roll-bar">
+    <button class="roll" id="roll" type="button">Roll</button>
+    <div class="roll-stage" id="roll-stage" hidden></div>
+  </div>
+</header>
+<h2>Monsters <button class="add" id="add-monster" type="button">Add monster</button></h2>
+<div class="wrap"><table id="monsters"></table></div>
+<h2>Items <button class="add" id="add-item" type="button">Add item</button></h2>
+<div class="wrap"><table id="items"></table></div>
+<script>
+const TRAITS = ["HP","Attack","Block","Spin","Items","Defeat","Neighbor","Count","Bleed","Heal","Keep","Discard","Position","Extra swing","Silence","Pierce","Poison","Petrify","Even","Gain","Unhittable","Cap","Flee"];
+const TRAIT_COLOR = {
+  HP: "#e07a7a", Attack: "#e08a4a", Block: "#6bb3d9", Spin: "#7ec8e8", Items: "#e8c36a",
+  Defeat: "#d19a66", Neighbor: "#c9a0ff", Count: "#a3d18d", Bleed: "#c45c7a", Heal: "#8fd18f",
+  Keep: "#9dcb8d", Discard: "#a89880", Position: "#7aa2d4", "Extra swing": "#e07040", Silence: "#b0a090",
+  Pierce: "#f0a070", Poison: "#8dcb6a", Petrify: "#b8c0cc", Even: "#d4b45a", Gain: "#6ec8a0",
+  Unhittable: "#e0d070", Cap: "#d08080", Flee: "#80b0c8",
+};
+function tint(hex, alpha) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}
+const BUCKET_COLORS = ["#5d8a45","#2f6f9f","#6d4c9a","#b8860b","#b85c2a","#8f3048","#1f6f6a","#4a5a8a","#7a5a2a","#3d5a32","#5a3d55","#2a4a62","#6a3a2a"];
+const CYCLE = {"+": "−", "−": "", "": "+"};
+let state = { about: "", monsters: [], items: [] };
+let dragId = "";
+let saveTimer = 0;
+
+function bucketLabel(n) {
+  return n < 0 ? "Token" : String(n);
+}
+function bucketColor(n) {
+  if (n < 0) return "#6e675c";
+  return BUCKET_COLORS[n % BUCKET_COLORS.length];
+}
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function spriteHtml(card) {
+  const sp = card.sprite || { mode: "none" };
+  let pic = '<span class="px missing"></span>';
+  if (sp.mode === "img") pic = `<img class="px" alt="" src="${esc(sp.src)}">`;
+  else if (sp.mode === "atlas") {
+    const scale = 2;
+    pic = `<span class="px atlas" style="width:${sp.w * scale}px;height:${sp.h * scale}px;background-image:url('../assets/dungeon/atlas.png');background-position:${-sp.x * scale}px ${-sp.y * scale}px;background-size:${512 * scale}px ${512 * scale}px"></span>`;
+  }
+  const tier = Math.min(3, Math.max(1, Number(card.tier) || 1));
+  return `<div class="sprite-wrap" draggable="true" data-id="${esc(card.id)}" title="Drag to move. Hold Shift for tier and bucket.">${pic}<span class="pips"><i class="pip-tier t${tier}"></i><b class="pip-bucket" style="background:${bucketColor(card.bucket)}">${esc(bucketLabel(card.bucket))}</b></span></div>`;
+}
+function options(values, selected) {
+  return values.map((v) => `<option value="${v}"${String(v) === String(selected) ? " selected" : ""}>${v < 0 ? "Token" : v}</option>`).join("");
+}
+function find(id) {
+  return state.monsters.find((c) => c.id === id) || state.items.find((c) => c.id === id);
+}
+function listFor(kind) {
+  return kind === "item" ? state.items : state.monsters;
+}
+const MINUS = "\u2212";
+const SIGNS = ["+", MINUS];
+const BUCKETS = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+const TIER_LOOK = {
+  1: { border: "#c08050", bg: "#24160e", color: "#f3d2b0" },
+  2: { border: "#c5cdd8", bg: "#14161a", color: "#eef2f8" },
+  3: { border: "#e8c36a", bg: "#2a1c08", color: "#ffe9a8" },
+};
+const KIND_LOOK = {
+  Monster: { border: "#c45c7a", bg: "#241018", color: "#f3d0d6" },
+  Item: { border: "#e8c36a", bg: "#2a1c08", color: "#ffe9a8" },
+};
+let rollToken = 0;
+function pick(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+function marked(card, trait) {
+  const v = card.marks && card.marks[trait];
+  return v === "+" || v === MINUS || v === "-";
+}
+function rollTraitPair(kind) {
+  const taken = new Set();
+  for (const card of listFor(kind)) {
+    const have = TRAITS.filter((trait) => marked(card, trait));
+    for (let i = 0; i < have.length; i++) {
+      for (let j = i + 1; j < have.length; j++) taken.add(have[i] + "\0" + have[j]);
+    }
+  }
+  const open = [];
+  for (let i = 0; i < TRAITS.length; i++) {
+    for (let j = i + 1; j < TRAITS.length; j++) {
+      if (!taken.has(TRAITS[i] + "\0" + TRAITS[j])) open.push([TRAITS[i], TRAITS[j]]);
+    }
+  }
+  let pair;
+  if (open.length) pair = pick(open).slice();
+  else {
+    const i = Math.floor(Math.random() * TRAITS.length);
+    let j = Math.floor(Math.random() * (TRAITS.length - 1));
+    if (j >= i) j += 1;
+    pair = [TRAITS[i], TRAITS[j]];
+  }
+  if (Math.random() < 0.5) pair.reverse();
+  return pair.map((trait) => ({ trait, sign: pick(SIGNS) }));
+}
+function rollDesign() {
+  const kind = Math.random() < 0.5 ? "monster" : "item";
+  return {
+    kind,
+    tier: 1 + Math.floor(Math.random() * 3),
+    bucket: pick(BUCKETS),
+    traits: rollTraitPair(kind),
+  };
+}
+function paintChip(el, border, bg, color) {
+  el.style.borderColor = border;
+  el.style.background = bg;
+  el.style.color = color;
+}
+function flashText(el, text) {
+  const v = el.querySelector(".v");
+  v.classList.remove("tick");
+  void v.offsetWidth;
+  v.textContent = text;
+  v.classList.add("tick");
+}
+function showKind(el, name) {
+  const look = KIND_LOOK[name];
+  el.classList.remove("plus", "minus", "solid");
+  paintChip(el, look.border, look.bg, look.color);
+  flashText(el, name);
+}
+function showTier(el, tier) {
+  const look = TIER_LOOK[tier];
+  el.classList.remove("plus", "minus", "solid");
+  paintChip(el, look.border, look.bg, look.color);
+  flashText(el, String(tier));
+}
+function showBucket(el, n) {
+  const bg = bucketColor(n);
+  el.classList.remove("plus", "minus");
+  el.classList.add("solid");
+  paintChip(el, bg, bg, "#fff");
+  flashText(el, bucketLabel(n));
+}
+function showTrait(el, trait, sign) {
+  const color = TRAIT_COLOR[trait];
+  el.classList.toggle("plus", sign === "+");
+  el.classList.toggle("minus", sign === MINUS);
+  el.classList.remove("solid");
+  paintChip(el, color, tint(color, 0.24), color);
+  const v = el.querySelector(".v");
+  v.classList.remove("tick");
+  void v.offsetWidth;
+  v.innerHTML = `<span class="sign">${sign}</span> ${esc(trait)}`;
+  v.classList.add("tick");
+}
+function rollSlot(className, label) {
+  const el = document.createElement("div");
+  el.className = `roll-slot wait ${className}`;
+  el.innerHTML = `<div class="k">${label}</div><div class="v">·</div>`;
+  return el;
+}
+function rollPause(ms, token) {
+  return new Promise((resolve) => setTimeout(() => resolve(token === rollToken), ms));
+}
+async function tickSlot(el, token, frames, draw) {
+  el.classList.remove("wait", "land");
+  let prev = "";
+  for (let i = 0; i < frames; i++) {
+    if (token !== rollToken) return false;
+    let value = draw();
+    for (let n = 0; n < 6 && value.key === prev; n++) value = draw();
+    prev = value.key;
+    value.paint();
+    if (!(await rollPause(28 + i * 10, token))) return false;
+  }
+  return true;
+}
+function stamp(el) {
+  el.classList.remove("land");
+  void el.offsetWidth;
+  el.classList.add("land");
+}
+async function playRoll() {
+  const token = ++rollToken;
+  const roll = rollDesign();
+  const stage = document.getElementById("roll-stage");
+  stage.hidden = false;
+  const kindEl = rollSlot("kind", "Kind");
+  const tierEl = rollSlot("tier", "Tier");
+  const bucketEl = rollSlot("bucket", "Bucket");
+  const traitEl = [rollSlot("trait", "Trait"), rollSlot("trait", "Trait")];
+  stage.replaceChildren(kindEl, tierEl, bucketEl, traitEl[0], traitEl[1]);
+  const kindLabel = roll.kind === "item" ? "Item" : "Monster";
+  const steps = [
+    { el: kindEl, frames: 4, draw: () => { const name = pick(["Monster", "Item"]); return { key: name, paint: () => showKind(kindEl, name) }; }, finish: () => showKind(kindEl, kindLabel) },
+    { el: tierEl, frames: 5, draw: () => { const tier = 1 + Math.floor(Math.random() * 3); return { key: String(tier), paint: () => showTier(tierEl, tier) }; }, finish: () => showTier(tierEl, roll.tier) },
+    { el: bucketEl, frames: 6, draw: () => { const bucket = pick(BUCKETS); return { key: String(bucket), paint: () => showBucket(bucketEl, bucket) }; }, finish: () => showBucket(bucketEl, roll.bucket) },
+  ];
+  roll.traits.forEach((picked, index) => {
+    const el = traitEl[index];
+    steps.push({
+      el,
+      frames: 7,
+      draw: () => {
+        const trait = pick(TRAITS);
+        const sign = pick(SIGNS);
+        return { key: sign + trait, paint: () => showTrait(el, trait, sign) };
+      },
+      finish: () => showTrait(el, picked.trait, picked.sign),
+    });
+  });
+  for (const step of steps) {
+    if (!(await tickSlot(step.el, token, step.frames, step.draw))) return;
+    if (token !== rollToken) return;
+    step.finish();
+    stamp(step.el);
+    if (!(await rollPause(60, token))) return;
+  }
+}
+function render() {
+  for (const kind of ["monsters", "items"]) {
+    const table = document.getElementById(kind);
+    const cards = state[kind];
+    const head = `<thead><tr><th>Card</th><th>Text</th>${TRAITS.map((t) => `<th style="color:${TRAIT_COLOR[t]}; border-bottom: 3px solid ${TRAIT_COLOR[t]}">${t}</th>`).join("")}</tr></thead>`;
+    const body = cards.map((card) => {
+      const tier = Math.min(3, Math.max(1, Number(card.tier) || 1));
+      const marks = TRAITS.map((trait) => {
+        const v = (card.marks && card.marks[trait]) || "";
+        const cls = v === "+" ? "plus" : v === "−" ? "minus" : "blank";
+        const wash = v ? "" : `background:${tint(TRAIT_COLOR[trait], 0.16)};`;
+        return `<td class="mark ${cls}" data-id="${esc(card.id)}" data-trait="${trait}" style="border-right-color:${TRAIT_COLOR[trait]}; ${wash}">${v}</td>`;
+      }).join("");
+      const copy = card.custom ? `<button class="link" data-remove="${esc(card.id)}" type="button">Remove</button>` : `<button class="link" data-copy="${esc(card.id)}" type="button">Copy</button>`;
+      return `<tr data-id="${esc(card.id)}" class="${card.id === "hollow" ? "sample" : ""}">
+        <td class="who"><div class="card t${tier}">
+          ${spriteHtml(card)}
+          <div class="fields">
+            <input class="nm" data-field="name" data-id="${esc(card.id)}" value="${esc(card.name)}">
+            <div class="row2">
+              <label>Tier <select class="mini" data-field="tier" data-id="${esc(card.id)}">${options([1, 2, 3], tier)}</select></label>
+              <label>Bucket <select class="mini" data-field="bucket" data-id="${esc(card.id)}">${options([-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], card.bucket)}</select></label>
+            </div>
+            <div class="row2">
+              <label>Attack <input class="num" data-field="attack" data-id="${esc(card.id)}" value="${card.attack ?? ""}"></label>
+              <label>HP <input class="num" data-field="hp" data-id="${esc(card.id)}" value="${card.hp ?? ""}"></label>
+              ${copy}
+            </div>
+          </div>
+        </div></td>
+        <td class="ab"><textarea class="ability" data-field="ability" data-id="${esc(card.id)}">${esc(card.ability || "")}</textarea></td>
+        ${marks}
+      </tr>`;
+    }).join("");
+    table.innerHTML = head + `<tbody>${body}</tbody>`;
+  }
+}
+function scheduleSave() {
+  const el = document.getElementById("save");
+  el.textContent = "Saving…";
+  el.classList.remove("bad");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 250);
+}
+async function save() {
+  const el = document.getElementById("save");
+  const body = JSON.stringify(state);
+  localStorage.setItem("trait-matrix-state", body);
+  try {
+    const res = await fetch("trait-matrix-state.json", { method: "POST", headers: { "Content-Type": "application/json" }, body });
+    if (!res.ok) throw new Error(String(res.status));
+    el.textContent = "Saved. I can read this order and these marks in design/trait-matrix-state.json.";
+    el.classList.remove("bad");
+  } catch (err) {
+    el.textContent = "This page is not on the local server, so the drag stayed in this browser only.";
+    el.classList.add("bad");
+  }
+}
+function blankCard(kind) {
+  return {
+    id: "new-" + kind + "-" + Date.now(),
+    name: kind === "item" ? "New item" : "New monster",
+    kind,
+    tier: 1,
+    bucket: 0,
+    status: "custom",
+    ability: "",
+    attack: null,
+    hp: null,
+    sprite: { mode: "none" },
+    marks: {},
+    custom: true,
+  };
+}
+function addCard(kind, source) {
+  const card = source ? JSON.parse(JSON.stringify(source)) : blankCard(kind);
+  if (source) {
+    card.id = "new-" + kind + "-" + Date.now();
+    card.name = "Copy of " + source.name;
+    card.custom = true;
+    card.status = "custom";
+  }
+  listFor(kind).unshift(card);
+  render();
+  scheduleSave();
+  const input = document.querySelector(`input[data-id="${CSS.escape(card.id)}"]`);
+  if (input) { input.focus(); input.select(); }
+}
+document.getElementById("add-monster").onclick = () => addCard("monster");
+document.getElementById("add-item").onclick = () => addCard("item");
+document.getElementById("roll").onclick = () => { playRoll(); };
+document.body.addEventListener("click", (event) => {
+  const mark = event.target.closest("td.mark");
+  if (mark) {
+    const card = find(mark.dataset.id);
+    if (!card.marks) card.marks = {};
+    const next = CYCLE[card.marks[mark.dataset.trait] || ""] || "";
+    if (next) card.marks[mark.dataset.trait] = next;
+    else delete card.marks[mark.dataset.trait];
+    render();
+    scheduleSave();
+    return;
+  }
+  const copy = event.target.closest("[data-copy]");
+  if (copy) {
+    const card = find(copy.dataset.copy);
+    if (card) addCard(card.kind, card);
+    return;
+  }
+  const remove = event.target.closest("[data-remove]");
+  if (remove) {
+    for (const key of ["monsters", "items"]) state[key] = state[key].filter((c) => c.id !== remove.dataset.remove);
+    render();
+    scheduleSave();
+  }
+});
+document.body.addEventListener("input", (event) => {
+  const field = event.target.dataset.field;
+  const card = field && find(event.target.dataset.id);
+  if (!card) return;
+  if (field === "tier" || field === "bucket") card[field] = Number(event.target.value);
+  else if (field === "attack" || field === "hp") card[field] = event.target.value === "" ? null : Number(event.target.value);
+  else card[field] = event.target.value;
+  if (field === "tier" || field === "bucket") render();
+  scheduleSave();
+});
+document.body.addEventListener("dragstart", (event) => {
+  const handle = event.target.closest(".sprite-wrap");
+  if (!handle) return;
+  dragId = handle.dataset.id;
+  event.dataTransfer.setData("text/plain", dragId);
+  event.dataTransfer.effectAllowed = "move";
+});
+document.body.addEventListener("dragover", (event) => {
+  const row = event.target.closest("tr[data-id]");
+  if (!row || !dragId) return;
+  event.preventDefault();
+  document.querySelectorAll("tr.over").forEach((el) => el.classList.remove("over"));
+  row.classList.add("over");
+});
+document.body.addEventListener("drop", (event) => {
+  const row = event.target.closest("tr[data-id]");
+  document.querySelectorAll("tr.over").forEach((el) => el.classList.remove("over"));
+  if (!row || !dragId || row.dataset.id === dragId) { dragId = ""; return; }
+  event.preventDefault();
+  const moving = find(dragId);
+  const target = find(row.dataset.id);
+  if (!moving || !target || moving.kind !== target.kind) { dragId = ""; return; }
+  const list = listFor(moving.kind);
+  const from = list.findIndex((c) => c.id === moving.id);
+  list.splice(from, 1);
+  const to = list.findIndex((c) => c.id === target.id);
+  const rect = row.getBoundingClientRect();
+  const after = event.clientY > rect.top + rect.height / 2;
+  list.splice(to + (after ? 1 : 0), 0, moving);
+  dragId = "";
+  render();
+  scheduleSave();
+});
+document.body.addEventListener("dragend", () => { dragId = ""; });
+window.addEventListener("keydown", (event) => { if (event.key === "Shift") document.body.classList.add("shift"); });
+window.addEventListener("keyup", (event) => { if (event.key === "Shift") document.body.classList.remove("shift"); });
+window.addEventListener("blur", () => document.body.classList.remove("shift"));
+fetch("trait-matrix-state.json").then((res) => res.json()).then((data) => {
+  state = data;
+  render();
+  document.getElementById("save").textContent = "Loaded. A drag or a click saves the file.";
+}).catch(() => {
+  document.getElementById("save").textContent = "Could not load the card list.";
+  document.getElementById("save").classList.add("bad");
+});
+</script>
+</body>
+</html>

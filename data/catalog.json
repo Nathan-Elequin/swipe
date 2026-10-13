@@ -79,6 +79,7 @@
 		{
 			"ability": "Atk 3, or Atk 1 and Keep this item",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "atk",
 			"count": 2.0,
 			"defined": "",
@@ -138,6 +139,7 @@
 		{
 			"ability": "Gain 4 Block.",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "blk",
 			"count": 1.0,
 			"defined": "",
@@ -183,6 +185,7 @@
 		{
 			"ability": "Starts at 2 each fight. Flips 2 ↔ 4 after any Item is used.",
 			"author_lock": true,
+			"bucket": 3.0,
 			"card_color": "atk",
 			"count": 2.0,
 			"defined": "",
@@ -230,6 +233,7 @@
 		{
 			"ability": "Block equal to the HP you are missing.",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "blk",
 			"count": 1.0,
 			"defined": "",
@@ -278,6 +282,7 @@
 		{
 			"ability": "Block equal to the lower HP between you and the Enemy.",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "blk",
 			"count": 2.0,
 			"defined": "Lower HP wins; player value if tied. Recheck on HP change either side.",
@@ -325,6 +330,7 @@
 		{
 			"ability": "Defeat an enemy with less HP than you. Combat ends immediately.",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "defeat",
 			"count": 2.0,
 			"defined": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
@@ -372,6 +378,7 @@
 		{
 			"ability": "Attack equal to the Attack of the last monster you faced.",
 			"author_lock": true,
+			"bucket": 9.0,
 			"card_color": "atk",
 			"count": 1.0,
 			"defined": "On Spin, store enemy ATK. Initial value is always 0.",
@@ -414,6 +421,7 @@
 		{
 			"ability": "+1 ATK for each HP you are missing.",
 			"author_lock": true,
+			"bucket": 1.0,
 			"card_color": "atk",
 			"count": 1.0,
 			"defined": "",
@@ -464,6 +472,7 @@
 		{
 			"ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
 			"author_lock": true,
+			"bucket": 3.0,
 			"card_color": "blk",
 			"count": 2.0,
 			"defined": "Tap on use. Discard on resolve unless HP dropped vs On Spin. Healing Potion this combat makes Did Lose HP always True.",
@@ -508,6 +517,7 @@
 		{
 			"ability": "Block equal to the Neighboring enemy's Attack on the Right.",
 			"author_lock": true,
+			"bucket": 2.0,
 			"card_color": "blk",
 			"contradiction_ids": [
 				"bracers_listed_as_atk"
@@ -555,6 +565,7 @@
 		{
 			"ability": "Spin again and gain a Random Item.",
 			"author_lock": true,
+			"bucket": 3.0,
 			"card_color": "smoke",
 			"count": 1.0,
 			"defined": "End combat without resolving. Spin again, not the same slice. Draw 1 unseen item, tier-agnostic.",
@@ -599,6 +610,7 @@
 		{
 			"ability": "Attack equal to 8 minus the Items still in your hand.",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "atk",
 			"contradiction_ids": [
 				"knucklers"
@@ -648,20 +660,21 @@
 			]
 		},
 		{
-			"ability": "Take their hit (Block still works), Defeat them, then Heal equal to the HP they had.",
+			"ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
 			"author_lock": true,
+			"bucket": 9.0,
 			"card_color": "defeat",
 			"count": 2.0,
 			"defined": "Store enemy HP on use. Fangs DMG can be blocked like Resolve Combat. Then heal stored HP. Player HP never exceeds 6. If this would kill you: Healing Potion, then Fangs Healing.",
 			"exceptions": "",
-			"explainer": "(TAKE THEIR ATK) then Defeat then Heal THEIR HP",
+			"explainer": "Enemy Attacks, then \nHeal THEIR HP",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
 			"id": "fangs",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -694,6 +707,7 @@
 		{
 			"ability": "Mark a Neighbor. When you spin them, they lose 5 HP immediately.",
 			"author_lock": true,
+			"bucket": 6.0,
 			"card_color": "utility",
 			"count": 2.0,
 			"defined": "Lose HP is not ATK dmg (can kill Goblin). Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
@@ -739,6 +753,7 @@
 		{
 			"ability": "Heal 6. On Spin, lose 1 HP.",
 			"author_lock": true,
+			"bucket": 5.0,
 			"card_color": "heal",
 			"count": 1.0,
 			"defined": "While in inventory unused, Lose 1 HP On Spin after combat has begun. Counts as Did Lose HP for Breastplate.",
@@ -783,6 +798,7 @@
 		{
 			"ability": "Take 2 Attack. If you still hold this when you Spin Spider Queen, discard it; she gains +2 HP and +2 Attack.",
 			"author_lock": false,
+			"bucket": -1.0,
 			"card_color": "egg",
 			"count": 0.0,
 			"defined": "Click during a fight. Take 2 Attack; Block works. Used up. If this is in hand when the wheel lands on Spider Queen, discard it and she gains +2 HP and +2 Attack. Queen does not create an Egg on the Spin that lands on her. Always created on other Spins while Queen is alive, up to 50 cards in hand.",
@@ -798,7 +814,7 @@
 			"locked_at": "",
 			"locked_fields": [],
 			"name": "Spider Egg",
-			"notes": "Not drafted. Queen creates it.",
+			"notes": "Not drafted. Queen creates it. Tier 0 so Merchant can turn it into a Tier 1 item.",
 			"ops": {
 				"kind": "egg_hurt",
 				"n": 2.0
@@ -809,12 +825,13 @@
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 0.0,
 			"type": "I"
 		},
 		{
 			"ability": "This gains +2 Attack each time you lose any HP.",
 			"author_lock": true,
+			"bucket": 8.0,
 			"card_color": "atk",
 			"contradiction_ids": [
 				"spiked_flail"
@@ -865,6 +882,7 @@
 		{
 			"ability": "Unplayable. If you would die, discard this and Heal 3.",
 			"author_lock": true,
+			"bucket": 10.0,
 			"card_color": "heal",
 			"contradiction_ids": [
 				"healing_potion"
@@ -910,6 +928,7 @@
 		{
 			"ability": "Deal 4 Attack to a Neighboring enemy.",
 			"author_lock": true,
+			"bucket": 2.0,
 			"card_color": "atk",
 			"count": 1.0,
 			"defined": "On use, choose a neighboring enemy. Deal 4 attack damage to them. If their HP reaches 0, they are defeated immediately. Unusable with 0 eligible neighbors.",
@@ -958,6 +977,7 @@
 		{
 			"ability": "Defeat an enemy with 5 or more Attack. Combat ends immediately.",
 			"author_lock": true,
+			"bucket": 9.0,
 			"card_color": "defeat",
 			"count": 1.0,
 			"defined": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
@@ -1005,6 +1025,7 @@
 		{
 			"ability": "Attack equal to the Attack of the strongest Neighboring enemy.",
 			"author_lock": true,
+			"bucket": 10.0,
 			"card_color": "atk",
 			"count": 1.0,
 			"defined": "",
@@ -1047,6 +1068,7 @@
 		{
 			"ability": "Deal 2 Attack to the Owner you are facing and each Neighboring Owner. The same Owner is only hit once.",
 			"author_lock": true,
+			"bucket": 5.0,
 			"card_color": "atk",
 			"count": 1.0,
 			"defined": "On use, deal 2 ATK to the facing owner and each unique living neighbor. Two owners left: the other takes 2 once. Goblin ignores ATK. Used up.",
@@ -1092,6 +1114,7 @@
 		{
 			"ability": "Heal 1, plus 1 for each monster Defeated",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "heal",
 			"count": 1.0,
 			"defined": "On use in a fight, heal 1 + mobs_defeated, cap at 6 HP. Used up. Healing Potion still revives on death.",
@@ -1136,6 +1159,7 @@
 		{
 			"ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
 			"author_lock": true,
+			"bucket": 2.0,
 			"card_color": "utility",
 			"count": 1.0,
 			"defined": "On use, pick a living neighbor. Swap that owner with the facing owner. Keep current block, items-used, and snapshots. Draw one item from the remaining pool if any. Used up.",
@@ -1182,6 +1206,7 @@
 		{
 			"ability": "Deal 2 Attack, or gain 2 Block.",
 			"author_lock": true,
+			"bucket": 4.0,
 			"card_color": "blk",
 			"count": 1.0,
 			"defined": "On use, choose ATK 2 or BLK 2. Used up either way.",
@@ -1242,6 +1267,7 @@
 		{
 			"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
 			"author_lock": true,
+			"bucket": 5.0,
 			"card_color": "blk",
 			"count": 1.0,
 			"defined": "While in hand and not spent: at combat start, player loses 1 HP (counts as a bleed for Spiked Flail) and this card's block number +2. On use, gain that much block, then used up. Starts at 0.",
@@ -1286,6 +1312,7 @@
 		{
 			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
 			"author_lock": true,
+			"bucket": 6.0,
 			"card_color": "atk",
 			"count": 1.0,
 			"defined": "Usable in a fight only when living slice count is even. Deal 4 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
@@ -1331,6 +1358,7 @@
 		{
 			"ability": "(ATK 2), then return to your hand.",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "",
 			"count": 1.0,
 			"defined": "Do not discard on use; Tap. Untap always occurs On Resolve Combat.",
@@ -1372,6 +1400,7 @@
 		{
 			"ability": "(BLK X), where X is the lowest HP between you and the enemy.",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "",
 			"count": 2.0,
 			"defined": "Older check: only enemy HP change, not player HP. Hidden/retired.",
@@ -1413,6 +1442,7 @@
 		{
 			"ability": "At the start of each combat, lose 1 HP.",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "",
 			"count": 1.0,
 			"defined": "",
@@ -1454,6 +1484,7 @@
 		{
 			"ability": "Heal 2. Keep this if you are still missing HP.",
 			"author_lock": true,
+			"bucket": 4.0,
 			"card_color": "heal",
 			"count": 1.0,
 			"defined": "Click during a fight. Heal 2, cap 6. If HP is still below 6, keep the card. If you are already at 6, heal 0 and the card is used up. Counts as an item use.",
@@ -1500,6 +1531,7 @@
 		{
 			"ability": "Gain Block equal to the last Block you gained.",
 			"author_lock": true,
+			"bucket": 4.0,
 			"card_color": "blk",
 			"count": 1.0,
 			"defined": "Click during a fight. Gain Block equal to the last Block you gained this dungeon. If you have not gained Block yet this dungeon, the click does nothing and the card stays. Used up. Counts as an item use.",
@@ -1545,6 +1577,7 @@
 		{
 			"ability": "The facing owner's Attack becomes 0 this fight.",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "",
 			"count": 1.0,
 			"defined": "Click during a fight. Set facing Attack to 0 and lock it for the rest of this fight, including after Commander and Harpy formulas. They still leave after Done. Used up.",
@@ -1589,6 +1622,7 @@
 		{
 			"ability": "Becomes a copy of the last item you used.",
 			"author_lock": true,
+			"bucket": 7.0,
 			"card_color": "chaos",
 			"count": 1.0,
 			"defined": "In hand this looks like the last item you used this dungeon (faint Echo icon). Click it to use that copy, then Echo is used up even if the original had Keep. If you have not used an item this dungeon, it is Unplayable.",
@@ -1634,6 +1668,7 @@
 		{
 			"ability": "Remove your Enemy's unique ability",
 			"author_lock": true,
+			"bucket": 1.0,
 			"card_color": "utility",
 			"count": 1.0,
 			"defined": "Click during a fight. That owner id loses its unique ability and formulas for the rest of this dungeon. They show printed ATK/HP like Golem. If they have no unique ability, the click does nothing and the card stays. Used up otherwise.",
@@ -1681,6 +1716,7 @@
 		{
 			"ability": "Reduce the facing owner's Attack by 1, 2, or 3.",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "utility",
 			"count": 1.0,
 			"defined": "Click during a fight, then click 1, 2, or 3. Facing Attack drops by that much after every other formula including Commander, floors at 0, then locks for the rest of this fight. Used up.",
@@ -1742,6 +1778,7 @@
 		{
 			"ability": "Deal Attack equal to Block you hold. Keep this item.",
 			"author_lock": true,
+			"bucket": 7.0,
 			"card_color": "atk",
 			"count": 1.0,
 			"defined": "Click during a fight. Deal Attack equal to Block you hold. You keep that Block. This item Keeps. Unplayable at 0 Block. Counts as an item use. Goblin cannot take Attack damage.",
@@ -1776,6 +1813,7 @@
 		{
 			"ability": "(1), (2), (3), or (4) Atk",
 			"author_lock": true,
+			"bucket": 0.0,
 			"card_color": "atk",
 			"count": 2.0,
 			"defined": "Click during a fight. Deal Attack equal to the dungeon cycle number (1, then 2, then 3, then 4, then 1). Every item use this dungeon advances that number, including this click. The cycle carries across fights and resets on the next dungeon. Two Beads share one number. Used up. Counts as an item use. Goblin cannot take Attack damage.",
@@ -1821,6 +1859,7 @@
 		{
 			"ability": "If you have zero items that deal Attack, Defeat them.",
 			"author_lock": true,
+			"bucket": 8.0,
 			"card_color": "defeat",
 			"count": 1.0,
 			"defined": "Click during a fight. If you hold no items that deal Attack, Defeat them. This card is not an Attack item. Unplayable if any other card in hand deals Attack. Used up when it works. Counts as an item use. Gargoyle cannot be Defeated.",
@@ -1856,6 +1895,7 @@
 		{
 			"ability": "Deal Attack equal to half your HP (rounded down) and Heal that much. If they survive, Keep this item.",
 			"author_lock": true,
+			"bucket": 8.0,
 			"card_color": "atk",
 			"count": 1.0,
 			"defined": "Click during a fight. Deal Attack equal to half your current HP, rounded down. Heal that same number even if they die. If they still have HP after that Attack, including Goblin, Keep this item. If they die, this is used up. Counts as an item use.",
@@ -1903,6 +1943,7 @@
 		{
 			"ability": "Choose other items in your hand. Each becomes a random item of that item's tier.",
 			"author_lock": true,
+			"bucket": 6.0,
 			"card_color": "chaos",
 			"count": 1.0,
 			"defined": "Click during a fight, then click other items in your hand. If you hold only one other item, reroll that one. If you hold two or more, pick two. Each becomes a random item of that item's tier, with the same motion as Adventure Mode starter upgrades. This card cannot target itself. Unplayable if this is the only item in your hand. Used up. Counts as an item use.",
@@ -1937,6 +1978,7 @@
 		{
 			"ability": "Block equal to the Neighboring enemy's Attack on the Left.",
 			"author_lock": true,
+			"bucket": 1.0,
 			"card_color": "blk",
 			"count": 1.0,
 			"defined": "On use, gain Block equal to the Attack of the neighboring enemy on your left. Unusable with no neighbor there.",
@@ -1995,6 +2037,7 @@
 				"base": 5.0
 			},
 			"author_lock": true,
+			"bucket": 0.0,
 			"call_name": "",
 			"count": 2.0,
 			"defined": "",
@@ -2045,6 +2088,7 @@
 				"base": 3.0
 			},
 			"author_lock": true,
+			"bucket": 0.0,
 			"call_name": "",
 			"count": 2.0,
 			"defined": "",
@@ -2093,6 +2137,7 @@
 				"base": 3.0
 			},
 			"author_lock": true,
+			"bucket": 0.0,
 			"call_name": "Evasive",
 			"count": 2.0,
 			"defined": "This unit's HP can never be reduced. Note that this unit can be defeated through all other means.",
@@ -2144,6 +2189,7 @@
 				"base": 3.0
 			},
 			"author_lock": true,
+			"bucket": 1.0,
 			"call_name": "HP Echo",
 			"count": 2.0,
 			"defined": "On Spin (and after On Spin effects, especially Spider Queen's Egg effect or Ogre's Empath updates), immediately store the enemy's HP in this value. Overwrite each On Spin.",
@@ -2197,6 +2243,7 @@
 				"base": 2.0
 			},
 			"author_lock": true,
+			"bucket": 3.0,
 			"call_name": "Double Strike",
 			"count": 2.0,
 			"defined": "On Resolve Combat, takes its current ATK and deals dmg to the player two times. There should be no special or unique interaction with BLK, this should attack in a logically consistent way to if two enemies simply attacked the player, one after the other. For example, the player may actually BLEED twice if both attacks cause the player to lose health.",
@@ -2247,6 +2294,7 @@
 				"base": 3.0
 			},
 			"author_lock": true,
+			"bucket": 2.0,
 			"call_name": "Siphon",
 			"count": 2.0,
 			"defined": "Set each neighbor's HP to its (Max HP + 1).",
@@ -2300,6 +2348,7 @@
 				"base": 4.0
 			},
 			"author_lock": true,
+			"bucket": 1.0,
 			"call_name": "Empath",
 			"count": 2.0,
 			"defined": "",
@@ -2347,12 +2396,49 @@
 			"when_updated": "On Spin"
 		},
 		{
+			"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+			"atk": {
+				"base": 4.0
+			},
+			"author_lock": false,
+			"bucket": 1.0,
+			"call_name": "Bloodlust",
+			"count": 1.0,
+			"defined": "Each time the player's HP number goes down, every living Vampire on the wheel gains +1 current HP, +1 max HP, and +1 Attack. A 4-heart hit is still +1/+1. A fully blocked hit does nothing. Healing does not remove the bonus. The bonus stays until that Vampire dies or leaves. Quiet Bell stops further gains and keeps the HP and Attack already gained. The new Attack is for the next swing.",
+			"exceptions": "Once per hit or bleed, not once per heart. Every copy on the wheel.",
+			"explainer": "+1 HP and +1 ATK each time you lose HP",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 4.0
+			},
+			"id": "vampire",
+			"locked_at": "",
+			"locked_fields": [],
+			"name": "Vampire",
+			"notes": "Once per hit or bleed, not once per heart. Every copy on the wheel.",
+			"ops": {},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"reminder": "+1/+1 each time you lose HP",
+			"review": "rough",
+			"review_note": "",
+			"status": "live",
+			"tier": 3.0,
+			"type": "M"
+		},
+		{
 			"ability": "I alternate between 3, 4, and 8 Atk every time you Spin.",
 			"atk": {
 				"base": 3.0,
 				"formula": "Alternates between 3, 4, and 8 Atk on Spin"
 			},
 			"author_lock": true,
+			"bucket": 0.0,
 			"call_name": "Outburst",
 			"count": 1.0,
 			"defined": "",
@@ -2405,6 +2491,7 @@
 				"formula": "player_hp_on_spin"
 			},
 			"author_lock": true,
+			"bucket": 0.0,
 			"call_name": "Kill Shot",
 			"count": 2.0,
 			"defined": "",
@@ -2419,7 +2506,7 @@
 				"base": 4.0
 			},
 			"id": "dire_wolf",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2445,7 +2532,7 @@
 			"rarity": "uncommon",
 			"reminder": "attack is your HP",
 			"review": "polish",
-			"review_note": "",
+			"review_note": "Redesign: Dire Wolf Atk should update ANY TIME Player HP updates, similarly to Ogre's 'Empath' trait. ",
 			"tier": 2.0,
 			"type": "M",
 			"when_updated": "On Spin"
@@ -2457,11 +2544,12 @@
 				"formula": "num_items_at_combat_start"
 			},
 			"author_lock": true,
+			"bucket": 0.0,
 			"call_name": "Hoarder",
 			"count": 2.0,
 			"defined": "",
 			"exceptions": "",
-			"explainer": "Attack is Items",
+			"explainer": "Attack = Your Items",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -2471,7 +2559,7 @@
 				"base": 3.0
 			},
 			"id": "bandit",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2506,26 +2594,27 @@
 			]
 		},
 		{
-			"ability": "My HP equals the number of monsters in play",
+			"ability": "On Spin, I give +1 HP to another monster with the lowest HP still in the dungeon. Then I gain +1 HP.",
 			"atk": {
-				"base": 4.0
+				"base": 6
 			},
 			"author_lock": true,
-			"call_name": "Healer",
-			"count": 1.0,
+			"bucket": 3,
+			"call_name": "Lowest HP",
+			"count": 1,
 			"defined": "",
 			"exceptions": "",
-			"explainer": "HP from monsters left",
+			"explainer": "+1 HP to the lowest other HP, then +1 HP to me",
 			"flags": {
 				"art": false,
 				"dev": false,
 				"hide": false
 			},
 			"hp": {
-				"formula": "monsters_still_in_play"
+				"base": 6
 			},
 			"id": "leech_league",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2541,19 +2630,21 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"call_name"
+				"call_name",
+				"reminder",
+				"card_color"
 			],
 			"name": "Leech League",
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
-			"reminder": "",
+			"reminder": "+1 HP to the lowest other HP, then +1 HP to me",
 			"review": "polish",
 			"review_note": "(Rework) - On Spin, this unit gives +1 HP to another unit with the Lowest HP still  in the dungeon. Then it gives itself +1 HP)\n\n(Calculates HP after other On Spin effects. If multiple candidates, choose one at random . This needs an animation and sound effect highlighting the Leech League granting 1 HP to the selected monster. The 'other monster' cannot ever be itself, so if Leech League is alone it will only grant itself +1 HP)",
-			"tier": 2.0,
+			"tier": 3,
 			"type": "M",
-			"updated": "2022-04-20",
-			"when_updated": "On Remove Slice"
+			"updated": "2026-10-12",
+			"when_updated": "On Spin"
 		},
 		{
 			"ability": "I copy the higher ATK of my Neighbors",
@@ -2561,6 +2652,7 @@
 				"base": 3.0
 			},
 			"author_lock": true,
+			"bucket": 5.0,
 			"call_name": "Neighbor's Wrath",
 			"contradiction_ids": [
 				"wraith_captain"
@@ -2615,6 +2707,7 @@
 				"base": 5.0
 			},
 			"author_lock": true,
+			"bucket": 4.0,
 			"call_name": "Treasure",
 			"count": 1.0,
 			"defined": "Did It Attack? starts False. Set True if the enemy ever attacks. Prevent by killing or defeating with items (not blocking). Draw 1 unseen item, tier-agnostic. If pool empty, draw nothing.",
@@ -2664,11 +2757,12 @@
 				"base": 0.0
 			},
 			"author_lock": true,
+			"bucket": 2.0,
 			"call_name": "Guarded by Monsters",
 			"count": 1.0,
 			"defined": "",
 			"exceptions": "",
-			"explainer": "two Items, no Attack",
+			"explainer": "Neighbors attack, then Heal 3",
 			"flags": {
 				"art": false,
 				"dev": false,
@@ -2714,6 +2808,7 @@
 				"formula": "own_hp"
 			},
 			"author_lock": true,
+			"bucket": 0.0,
 			"call_name": "Body Slam",
 			"count": 1.0,
 			"defined": "",
@@ -2765,11 +2860,12 @@
 				"base": 3.0
 			},
 			"author_lock": true,
+			"bucket": 3.0,
 			"call_name": "Egg Layer",
 			"count": 1.0,
 			"defined": "(Changed) Only attacks once, no more double attack.",
 			"exceptions": "",
-			"explainer": "double hit if a Neighbor is weaker",
+			"explainer": "Spider Egg: an Item that on use deals you 2 Atk, or is devoured by the Queen to give her +2 HP and +2 ATK",
 			"flags": {
 				"art": false,
 				"dev": false,
@@ -2779,7 +2875,7 @@
 				"base": 3.0
 			},
 			"id": "spider_queen",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2816,6 +2912,7 @@
 				"base": 3.0
 			},
 			"author_lock": true,
+			"bucket": 2.0,
 			"call_name": "War Cry",
 			"contradiction_ids": [
 				"commander"
@@ -2871,6 +2968,7 @@
 				"base": 6.0
 			},
 			"author_lock": true,
+			"bucket": 0.0,
 			"call_name": "Firebreather",
 			"contradiction_ids": [
 				"dragon"
@@ -2916,6 +3014,7 @@
 			"review": "polish",
 			"review_note": "",
 			"special_function": "On Spin, double the first BLK the player gains or ATK they deal, then remove trigger.",
+			"status": "live",
 			"tier": 3.0,
 			"type": "M",
 			"updated": "2022-04-24"
@@ -2926,6 +3025,7 @@
 				"base": 3.0
 			},
 			"author_lock": true,
+			"bucket": 4.0,
 			"call_name": "Spiky",
 			"count": 1.0,
 			"defined": "ATK 3, HP 5. Each time this owner receives ATK damage (including a killing blow), the player takes 1 ATK; block applies. Defeat and poison do not poke. Goblin-style immunity does not apply to this owner.",
@@ -2976,6 +3076,7 @@
 				"base": 3.0
 			},
 			"author_lock": true,
+			"bucket": 7.0,
 			"call_name": "Devour Item",
 			"count": 1.0,
 			"defined": "On spin, if you have 0 items, nothing. If 1, you must feed that one. If 2 or more, two random items are offered and you must feed one. The discard is not an item use. ATK/HP unchanged.",
@@ -3027,6 +3128,7 @@
 				"base": 4.0
 			},
 			"author_lock": true,
+			"bucket": 6.0,
 			"call_name": "Petrify",
 			"count": 1.0,
 			"defined": "After spin numbers, the highest Attack item in hand becomes Unplayable until the next Spin. Tie is random. No Attack items: nothing. Longbow and Spiked Shield count. Boot and Poison Flask do not. Smoke is a new Spin, so it clears. Attack still works. Cannot be Defeated unless Quiet Bell has silenced me.",
@@ -3078,6 +3180,7 @@
 				"base": 2.0
 			},
 			"author_lock": true,
+			"bucket": 6.0,
 			"call_name": "Impatient",
 			"count": 1.0,
 			"defined": "On spin, one swing of my current Attack (Block works). After each item fully resolves, if I am still alive, one more swing. Ceases when you click Done or I am Defeated/Slain. Done still takes the normal hit. Not Attack = Block.",
@@ -3127,6 +3230,7 @@
 				"base": 2.0
 			},
 			"author_lock": true,
+			"bucket": 6.0,
 			"call_name": "Trap Card",
 			"count": 1.0,
 			"defined": "On Done, swing count is 1 plus items used this fight. Cube feed does not count. Block is spent per swing.",
@@ -3173,11 +3277,12 @@
 		{
 			"ability": "If I live, I leave two Tough Monsters in my place.",
 			"atk": {
-				"base": 4
+				"base": 4.0
 			},
 			"author_lock": true,
+			"bucket": 4.0,
 			"call_name": "Disassemble",
-			"count": 1,
+			"count": 1.0,
 			"defined": "If you do not Defeat or Slay me, I leave and two random Tier 2 owners sit immediately, even if that grows the wheel past 8. You are not in a new fight yet.",
 			"exceptions": "Quiet Bell strips this: I leave like anyone else, no heirs.",
 			"explainer": "Two Tier 2 if I live",
@@ -3187,7 +3292,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 7
+				"base": 7.0
 			},
 			"id": "clockwork_knight",
 			"locked_at": "2026-10-11",
@@ -3212,13 +3317,13 @@
 			],
 			"name": "Clockwork Knight",
 			"poc": false,
-			"priority": 3,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "(If the player does not Defeat or Slay this monster, it will remove itself from the dungeon and replace itself with 2 Tier 2 Monsters chosen randomly)",
 			"status": "live",
-			"tier": 3,
+			"tier": 3.0,
 			"type": "M"
 		},
 		{
@@ -3227,6 +3332,7 @@
 				"base": 4.0
 			},
 			"author_lock": true,
+			"bucket": 7.0,
 			"call_name": "Famine",
 			"count": 1.0,
 			"defined": "While you fight me, Keep does not work. Every item you use is discarded immediately. Knife nick, Lantern, and Breastplate leave your hand. Quiet Bell strips this.",
@@ -3278,6 +3384,7 @@
 				"base": 6.0
 			},
 			"author_lock": true,
+			"bucket": 5.0,
 			"call_name": "Doubly Troubled",
 			"count": 1.0,
 			"defined": "While you fight me, an even Attack number hits me twice as two separate Attacks of that number. An even Block you gain while facing me is gained twice. Odd numbers happen once. Quiet Bell strips this.",
@@ -3330,6 +3437,7 @@
 				"formula": "Base Atk (0) + Leftmost Item with an Atk value"
 			},
 			"author_lock": true,
+			"bucket": 4.0,
 			"call_name": "Leftie",
 			"count": 1.0,
 			"defined": "My Attack is the live Attack number on your leftmost item that has an Attack number, after the usual hand sort, skipping cards with no Attack number. It updates on Spin and when you use an item. If you have no such item, my Attack is 3. Quiet Bell: printed Attack.",
@@ -3382,6 +3490,7 @@
 				"formula": "printed Attack, plus item uses on the wheel"
 			},
 			"author_lock": true,
+			"bucket": 2.0,
 			"call_name": "Short Fuse",
 			"count": 1.0,
 			"defined": "Whenever you use an item, every Wick on the wheel gains 1 Attack and loses 1 HP immediately, even if you are not facing them. A Wick at 0 HP is not removed until the fight you are in ends. If you are facing a Wick at 0 HP, they do not Attack; Done removes them as Slain. Cube feed is not an item use. Quiet Bell strips this.",
@@ -3433,6 +3542,7 @@
 				"base": 4.0
 			},
 			"author_lock": true,
+			"bucket": 5.0,
 			"call_name": "Tough Blood",
 			"count": 1.0,
 			"defined": "I cannot lose more than 1 HP from one source. Attack, Poison Flask, and other HP loss each chip 1. Defeat still works. Two separate Attacks chip 1 twice. Quiet Bell strips this, so full Attack lands.",
@@ -3476,6 +3586,114 @@
 			"review_note": "I cannot lose more than 1 HP at a time (from any source).\n\n(Can still be 'defeated', but effects like Poison Flask, Attack Damage, etc. can only reduce its HP by 1 at a time. Notably, things that trigger attacks multiple times would proc this ability twice, making the unit lose 2 total HP for example)",
 			"status": "live",
 			"tier": 2.0,
+			"type": "M"
+		},
+		{
+			"ability": "When my Neighbors would take Attack Damage, I take it instead",
+			"atk": {
+				"base": 3.0
+			},
+			"author_lock": false,
+			"bucket": 2.0,
+			"call_name": "Protector",
+			"count": 1.0,
+			"defined": "When a neighbor would take Attack damage, I take that hit instead. Each Bodyguard does this once per hit, so a line of them passes it to the last Bodyguard.",
+			"exceptions": "Double Axe adds every share onto the end of the pass. Twins double the number first. A hit aimed at Goblin still comes to me. Off-facing death leaves like Crossbow.",
+			"explainer": "Takes Neighbors' Attack damage",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 3.0
+			},
+			"id": "bodyguard",
+			"locked_at": "",
+			"locked_fields": [],
+			"name": "Bodyguard",
+			"notes": "Bucket 2.",
+			"ops": {},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"reminder": "",
+			"review": "rough",
+			"review_note": "",
+			"status": "live",
+			"tier": 1.0,
+			"type": "M"
+		},
+		{
+			"ability": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated.",
+			"atk": {
+				"base": 2.0
+			},
+			"author_lock": false,
+			"bucket": 5.0,
+			"call_name": "Guards!",
+			"count": 1.0,
+			"defined": "Attack damage aimed at me goes right, counterclockwise. Kings pass it once each. A loop deals nothing. Alone, I take it. After I attack from Take or Safe, I stay and the wheel spins.",
+			"exceptions": "Poison, defeat items, and Net still hit me. Double Axe's direct hit and the passed hit both land. Damsel's neighbors already stay.",
+			"explainer": "Right Neighbor takes the hit. I stay after I attack.",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 6.0
+			},
+			"id": "cowardly_king",
+			"locked_at": "",
+			"locked_fields": [],
+			"name": "Cowardly King",
+			"notes": "Bucket 5. One Poison Flask leaves him at 1 HP.",
+			"ops": {},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"reminder": "",
+			"review": "rough",
+			"review_note": "",
+			"status": "live",
+			"tier": 3.0,
+			"type": "M"
+		},
+		{
+			"ability": "When you Spin me, choose an Item and I will upgrade it",
+			"atk": {
+				"base": 4.0
+			},
+			"author_lock": false,
+			"bucket": 4.0,
+			"call_name": "Fair Trade",
+			"count": 1.0,
+			"defined": "After Spin, and after Spider Queen lays an egg, every item in hand gets a button. You must pick one before using items or Done. That item becomes a different item of the next tier, drawn from live items whose bucket is already open. Tier 3 stays Tier 3 but must be a different item. No items means nothing.",
+			"exceptions": "Quiet Bell turns this off. A Tier 3 with no other open Tier 3 stays as it is.",
+			"explainer": "Choose an item. I upgrade it.",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 4.0
+			},
+			"id": "merchant",
+			"locked_at": "",
+			"locked_fields": [],
+			"name": "Merchant",
+			"notes": "Bucket 4. Open buckets only. A new Spider Egg laid on this spin can be picked.",
+			"ops": {},
+			"poc": false,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"reminder": "Choose an item. I upgrade it.",
+			"review": "rough",
+			"review_note": "",
+			"status": "live",
+			"tier": 1.0,
 			"type": "M"
 		}
 	],

@@ -18,9 +18,7 @@ const DEFAULT_EXPLAINER := {
 	"berserker": "(1 + DEFEAT)    (2 + DEFEAT)",
 	"dire_wolf": "(YOUR HP)",
 	"bandit": "(ITEMS)",
-	"two_headed_serpent": "(ATK → 0 if 2 ITEMS)",
 	"slime_boss": "(ATTACK = HP)",
-	"leech_league": "(1 + MONSTERS LEFT)",
 	"wraith": "(HIGHER NEIGHBOR)",
 	"mimic": "(ITEM IF I NEVER SWING)",
 	"spider_queen": "(ATK) then (ATK) if a neighbor is weaker",
@@ -50,6 +48,7 @@ var _board: Dictionary = {}
 var _original: Dictionary = {}
 var _fields: Dictionary = {}
 var _status: Label
+var _bucket_warn: Label
 var _scroll: ScrollContainer
 var _sheet: VBoxContainer
 var _was_paused: bool = false
@@ -255,8 +254,27 @@ func _rebuild(card: Dictionary) -> void:
 	var row2 := _grid(3)
 	_add_pick(row2, "Status", "status", str(card.get("status", "live")), ["live", "todo", "hold", "retired"])
 	_add_pick(row2, "Rarity", "rarity", str(card.get("rarity", "starter")), ["starter", "uncommon"])
-	_add_line(row2, "Tier", "tier", _num_s(card.get("tier", 1)))
+	var bucket_opts: Array = []
+	for bucket_label in BucketRules.options():
+		bucket_opts.append(bucket_label)
+	_add_pick(row2, "Bucket", "bucket", BucketRules.label_of(card.get("bucket", 0)), bucket_opts)
 	_sheet.add_child(row2)
+	if _fields.has("bucket") and _fields["bucket"] is OptionButton:
+		var bucket_pick: OptionButton = _fields["bucket"]
+		BucketRules.paint(bucket_pick)
+		bucket_pick.item_selected.connect(func(_i: int) -> void:
+			BucketRules.paint(bucket_pick)
+			_refresh_bucket_warn()
+		)
+	_bucket_warn = Label.new()
+	_bucket_warn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_bucket_warn.add_theme_font_size_override("font_size", 15)
+	_bucket_warn.add_theme_color_override("font_color", Color("8b1e1e"))
+	_sheet.add_child(_bucket_warn)
+	_refresh_bucket_warn()
+	var row_tier := _grid(3)
+	_add_line(row_tier, "Tier", "tier", _num_s(card.get("tier", 1)))
+	_sheet.add_child(row_tier)
 	var row3 := _grid(3)
 	_add_line(row3, "Count", "count", _num_s(card.get("count", 1)))
 	_add_line(row3, "Priority", "priority", _num_s(card.get("priority", 3)))
@@ -505,6 +523,7 @@ func _gather() -> Dictionary:
 		"kind": _kind,
 		"status": _text_of("status"),
 		"rarity": _text_of("rarity"),
+		"bucket": BucketRules.parse(_text_of("bucket")),
 		"tier": _int_of("tier", 1),
 		"count": _int_of("count", 1),
 		"priority": _int_of("priority", 3),
@@ -532,6 +551,25 @@ func _gather() -> Dictionary:
 		card["status"] = "todo"
 	AUTHOR_LOCK.stamp_card(card, _original, false)
 	return card
+
+
+func _refresh_bucket_warn() -> void:
+	if _bucket_warn == null:
+		return
+	var items: Array = []
+	var monsters: Array = []
+	for card in _board.get("items", []):
+		items.append((card as Dictionary).duplicate(true))
+	for card2 in _board.get("monsters", []):
+		monsters.append((card2 as Dictionary).duplicate(true))
+	var live: Array = items if _kind == "item" else monsters
+	for card3 in live:
+		if str(card3.get("id", "")) == _id:
+			card3["bucket"] = BucketRules.parse(_text_of("bucket"))
+			break
+	var msg: String = BucketRules.counts_warning(items, monsters)
+	_bucket_warn.text = msg
+	_bucket_warn.visible = msg != ""
 
 
 func _on_save() -> void:

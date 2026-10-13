@@ -14,6 +14,7 @@ var step: int = -1
 var wait: String = ""
 var focus_tag: String = ""
 var force_id: String = ""
+var then_focus: String = ""
 var choice: String = ""
 var nib_close: float = 0.0
 var _arm: float = 0.0
@@ -31,6 +32,11 @@ var _skip: Button
 var _target: Control
 var _beats: Array = []
 var _tiny: bool = false
+var world_open: bool = false
+var _spots: Array = []
+var _arrows: Array = []
+var _dimmer: ColorRect
+var _ink
 
 
 func setup(art) -> void:
@@ -45,10 +51,53 @@ func setup(art) -> void:
 			_frames = art.frames("dwarf_f")
 	for _i in range(4):
 		var d := ColorRect.new()
-		d.color = Color(0.04, 0.03, 0.02, 0.78)
-		d.mouse_filter = Control.MOUSE_FILTER_STOP
+		d.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		d.visible = false
 		add_child(d)
 		_dim.append(d)
+	_dimmer = ColorRect.new()
+	_dimmer.set_anchors_preset(PRESET_FULL_RECT)
+	_dimmer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dimmer.color = Color(0, 0, 0, 0)
+	var sh := Shader.new()
+	sh.code = """shader_type canvas_item;
+uniform vec4 h0;
+uniform vec4 h1;
+uniform vec4 h2;
+uniform vec4 h3;
+uniform vec4 h4;
+uniform vec4 h5;
+uniform vec4 h6;
+uniform vec4 h7;
+uniform int hole_n = 0;
+uniform float dim_a = 0.78;
+uniform vec2 view_size = vec2(1280.0, 720.0);
+bool _in(vec2 p, vec4 h) {
+	return h.z > 4.0 && h.w > 4.0 && p.x >= h.x && p.y >= h.y && p.x <= h.x + h.z && p.y <= h.y + h.w;
+}
+void fragment() {
+	vec2 p = UV * view_size;
+	float a = dim_a;
+	if (hole_n > 0 && _in(p, h0)) a = 0.0;
+	if (hole_n > 1 && _in(p, h1)) a = 0.0;
+	if (hole_n > 2 && _in(p, h2)) a = 0.0;
+	if (hole_n > 3 && _in(p, h3)) a = 0.0;
+	if (hole_n > 4 && _in(p, h4)) a = 0.0;
+	if (hole_n > 5 && _in(p, h5)) a = 0.0;
+	if (hole_n > 6 && _in(p, h6)) a = 0.0;
+	if (hole_n > 7 && _in(p, h7)) a = 0.0;
+	COLOR = vec4(0.04, 0.03, 0.02, a);
+}
+"""
+	var mat := ShaderMaterial.new()
+	mat.shader = sh
+	_dimmer.material = mat
+	add_child(_dimmer)
+	_ink = SpotInk.new()
+	_ink.host = self
+	_ink.set_anchors_preset(PRESET_FULL_RECT)
+	_ink.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_ink)
 	_ring = Panel.new()
 	_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var rs := StyleBoxFlat.new()
@@ -128,14 +177,13 @@ func _build_talk(art) -> void:
 	btns.add_theme_constant_override("separation", 8)
 	col.add_child(btns)
 	_skip = Button.new()
-	_skip.text = COPY.text("tutorial.skip", "Skip")
-	_skip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	_style_btn(_skip, Color("2a2622"), Color("6a5f52"))
+	_skip.visible = false
 	_skip.pressed.connect(func() -> void: skipped.emit())
-	btns.add_child(_skip)
 	_go = Button.new()
-	_go.text = "Alright"
+	_go.text = "Next"
+	_go.custom_minimum_size = Vector2(210, 58)
 	_go.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_go.add_theme_font_size_override("font_size", 26)
 	_style_btn(_go, Color("3a2820"), Color("e8c36a"))
 	_go.pressed.connect(func() -> void: continued.emit())
 	btns.add_child(_go)
@@ -162,6 +210,10 @@ func open() -> void:
 	step = -1
 	choice = ""
 	force_id = ""
+	then_focus = ""
+	world_open = false
+	_spots = []
+	_arrows = []
 	nib_close = 0.0
 	_beats = _load_beats()
 	visible = true
@@ -173,6 +225,10 @@ func close() -> void:
 	wait = ""
 	focus_tag = ""
 	force_id = ""
+	then_focus = ""
+	world_open = false
+	_spots = []
+	_arrows = []
 	_target = null
 	step = -1
 	nib_close = 0.0
@@ -194,14 +250,19 @@ func advance() -> void:
 	wait = str(b.get("wait", "continue"))
 	focus_tag = str(b.get("focus", ""))
 	force_id = str(b.get("force", ""))
+	then_focus = str(b.get("then_focus", ""))
 	nib_close = float(b.get("nib", 0.0))
 	_tiny = bool(b.get("tiny", false))
 	_body.text = str(b.get("text", ""))
 	_hint.text = str(b.get("hint", ""))
 	_go.text = str(b.get("go", "Next"))
 	_name.text = COPY.text("tutorial.speaker", "Nib")
-	_skip.text = COPY.text("tutorial.skip", "Skip")
+	_skip.visible = false
 	_go.visible = wait == "continue"
+	_go.custom_minimum_size = Vector2(210, 58)
+	var said: String = str(b.get("text", "")).to_lower()
+	if said.find("survived all") >= 0 or said.find("venture deeper") >= 0:
+		world_open = true
 	_body.add_theme_font_size_override("font_size", 12 if _tiny else 15)
 	_arm = 0.35
 	_talk.reset_size()
@@ -215,8 +276,21 @@ func armed() -> bool:
 	return _arm <= 0.0
 
 
+func spoken() -> String:
+	if _body == null:
+		return ""
+	return _body.text
+
+
 func follow(target: Control) -> void:
 	_target = target
+
+
+func set_spots(spots: Array, arrows: Array) -> void:
+	_spots = spots
+	_arrows = arrows
+	if _ink:
+		_ink.queue_redraw()
 
 
 func _process(delta: float) -> void:
@@ -229,25 +303,21 @@ func _process(delta: float) -> void:
 		_face.texture = _frames[int(_fi) % n]
 		_face.position.y = sin(_fi * 1.4) * 2.0
 	_layout()
+	if _ink:
+		_ink.queue_redraw()
 
 
 func _layout() -> void:
 	var vp: Vector2 = get_viewport_rect().size
-	var hole := Rect2(vp * 0.5, Vector2.ZERO)
-	if _target != null and is_instance_valid(_target) and _target.is_visible_in_tree():
-		var r: Rect2 = _target.get_global_rect()
-		r = r.grow(PAD)
-		r.position.x = clampf(r.position.x, 0.0, vp.x)
-		r.position.y = clampf(r.position.y, 0.0, vp.y)
-		hole = r
-	if hole.size.x < 8.0 or hole.size.y < 8.0:
-		hole = Rect2(0, 0, 0, 0)
-		_ring.visible = false
-	else:
-		_ring.visible = true
-		_ring.global_position = hole.position
-		_ring.size = hole.size
-	_place_dims(hole, vp)
+	if _dimmer:
+		_dimmer.position = Vector2.ZERO
+		_dimmer.size = vp
+	if _ink:
+		_ink.position = Vector2.ZERO
+		_ink.size = vp
+	_push_dim(vp)
+	_ring.visible = false
+	_place_dims(Rect2(), vp)
 	var face_w: float = 64.0 + 72.0 * nib_close
 	if _face != null:
 		_face.custom_minimum_size = Vector2(face_w, face_w * 1.75)
@@ -255,19 +325,42 @@ func _layout() -> void:
 	var ts: Vector2 = _talk.get_combined_minimum_size()
 	ts.x = maxf(ts.x, TALK_W + 80.0 * nib_close)
 	_talk.size = ts
-	var pos := Vector2((vp.x - ts.x) * 0.5, vp.y - ts.y - 24.0)
-	if hole.size.x > 8.0:
-		pos = Vector2(hole.end.x + 16.0, hole.position.y)
-		if pos.x + ts.x > vp.x - 12.0:
-			pos.x = hole.position.x - ts.x - 16.0
-		if pos.x < 8.0:
-			pos.x = clampf(hole.position.x, 8.0, maxf(8.0, vp.x - ts.x - 8.0))
-			pos.y = hole.end.y + 12.0
-			if pos.y + ts.y > vp.y - 8.0:
-				pos.y = hole.position.y - ts.y - 12.0
-		pos.y = clampf(pos.y, 8.0, maxf(8.0, vp.y - ts.y - 8.0))
-		pos.x = clampf(pos.x, 8.0, maxf(8.0, vp.x - ts.x - 8.0))
+	var pos := Vector2(vp.x - ts.x - 16.0, 16.0) if world_open else Vector2((vp.x - ts.x) * 0.5, vp.y - ts.y - 28.0)
+	var box := Rect2(pos, ts)
+	if _hits_spot(box):
+		pos = Vector2(vp.x - ts.x - 16.0, 16.0)
+		box = Rect2(pos, ts)
+	if _hits_spot(box):
+		pos = Vector2(16.0, 16.0)
+	pos.x = clampf(pos.x, 12.0, maxf(12.0, vp.x - ts.x - 12.0))
+	pos.y = clampf(pos.y, 12.0, maxf(12.0, vp.y - ts.y - 12.0))
 	_talk.global_position = pos
+
+
+func _hits_spot(box: Rect2) -> bool:
+	for s in _spots:
+		if s is Rect2 and box.intersects(s):
+			return true
+	return false
+
+
+func _push_dim(_vp: Vector2) -> void:
+	if _dimmer == null or _dimmer.material == null:
+		return
+	var mat: ShaderMaterial = _dimmer.material as ShaderMaterial
+	var origin: Vector2 = _dimmer.global_position
+	var packed: Array[Vector4] = []
+	for i in 8:
+		if i < _spots.size() and _spots[i] is Rect2:
+			var r: Rect2 = _spots[i]
+			packed.append(Vector4(r.position.x - origin.x, r.position.y - origin.y, r.size.x, r.size.y))
+		else:
+			packed.append(Vector4.ZERO)
+	for i in 8:
+		mat.set_shader_parameter("h%d" % i, packed[i])
+	mat.set_shader_parameter("hole_n", mini(_spots.size(), 8))
+	mat.set_shader_parameter("view_size", _dimmer.size)
+	mat.set_shader_parameter("dim_a", 0.14 if world_open else 0.72)
 
 
 func _place_dims(hole: Rect2, vp: Vector2) -> void:
@@ -321,6 +414,7 @@ func _new_beat() -> Dictionary:
 		"wait": "continue",
 		"go": "Next",
 		"force": "",
+		"then_focus": "",
 		"branch": "",
 		"nib": 0.0,
 		"tiny": false,
@@ -478,10 +572,17 @@ func _apply_direction(cur: Dictionary, t: String) -> void:
 		cur["focus"] = "atk"
 	if low.find("hp icon") >= 0 or low.find("golem's hp") >= 0 or low.find("both player hp") >= 0:
 		cur["focus"] = "hp"
+	if low.find("both player hp") >= 0:
+		cur["focus"] = "hp_math"
 	if low.find("block icon") >= 0:
 		cur["focus"] = "block"
 	if low.find("detail view") >= 0 or low.find("the details") >= 0:
 		cur["focus"] = "inspect"
+	# Hover-and-hold has to land on the monster. "Highlight the details" is the panel they should see after that, not the hole that blocks the wheel.
+	if str(cur.get("wait", "")) == "hover_shift":
+		cur["focus"] = "wheel"
+		if low.find("the details") >= 0 or low.find("detail view") >= 0:
+			cur["then_focus"] = "inspect"
 
 
 func _flush_beat(out: Array, cur: Dictionary) -> void:
@@ -626,3 +727,35 @@ const BEATS := [
 		"go": "I'm good",
 	},
 ]
+
+
+class SpotInk extends Control:
+	var host
+
+	func _draw() -> void:
+		if host == null:
+			return
+		var origin: Vector2 = global_position
+		var gold := Color("e8c36a")
+		for s in host._spots:
+			if not (s is Rect2):
+				continue
+			var r: Rect2 = s
+			if r.size.x < 8.0 or r.size.y < 8.0:
+				continue
+			draw_rect(Rect2(r.position - origin, r.size).grow(4.0), gold, false, 4.0)
+		for pair in host._arrows:
+			if typeof(pair) != TYPE_ARRAY or pair.size() < 2:
+				continue
+			var a: Vector2 = pair[0] - origin
+			var b: Vector2 = pair[1] - origin
+			if a.distance_to(b) < 12.0:
+				continue
+			draw_line(a, b, gold, 5.0, true)
+			var dir: Vector2 = (b - a).normalized()
+			var side: Vector2 = Vector2(-dir.y, dir.x)
+			draw_colored_polygon(PackedVector2Array([
+				b,
+				b - dir * 18.0 + side * 9.0,
+				b - dir * 18.0 - side * 9.0,
+			]), gold)

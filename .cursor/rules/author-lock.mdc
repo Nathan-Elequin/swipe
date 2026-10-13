@@ -26,4 +26,6 @@ Read `data/author-locks.json` (and the flags on the board / script). Treat locke
 
 His Save in the editor updates locked text. That is allowed. Chat is not, unless he overrides.
 
+A filled **Your notes for Cursor** that states the replacement is an override for the fields that text replaces. Delete the old sentences and write the new ones in the board, the catalog, and any fallback the player or the editor can still show. Keep `author_lock`, `locked_fields`, and `locked_at`. If you are not sure a locked field is the leftover, ask before changing it.
+
 `status` (`todo` / `live` / `hold`) is not locked. You may still implement Flow and set `live` after shipping behavior, without rewriting locked player sentences.

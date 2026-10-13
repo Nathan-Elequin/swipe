@@ -726,7 +726,7 @@
 			"cat": "Door",
 			"key": "door.guard",
 			"text": "Guarded by a {tier} monster",
-			"where": "Item card subtitle (NOT WIRED YET). {tier} = tier name from tier.N.name"
+			"where": "Draft door, under the help line. {tier} = Weak / Tough / Deadly"
 		},
 		{
 			"cat": "Door",

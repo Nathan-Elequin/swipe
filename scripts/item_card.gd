@@ -10,7 +10,7 @@ signal passed_swipe
 const CARD_W := 118.0
 const CARD_H := 162.0
 const SHOW_W := 236.0
-const SHOW_H := 360.0
+const SHOW_H := 340.0
 
 var uid: int = 0
 var card_id: String = ""
@@ -45,6 +45,7 @@ var _holding: bool = false
 var _echo_mark: TextureRect
 var _stone: TextureRect
 var _playable: bool = false
+var _hatch: Control
 
 
 func setup(
@@ -116,20 +117,6 @@ func setup(
 	col.add_child(_title)
 	col.add_child(_rank)
 
-	_ability = RichTextLabel.new()
-	_ability.bbcode_enabled = true
-	_ability.fit_content = true
-	_ability.scroll_active = false
-	_ability.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_ability.add_theme_font_size_override("normal_font_size", 16)
-	_ability.add_theme_font_size_override("bold_font_size", 16)
-	_ability.add_theme_color_override("default_color", Color("f0e6d8"))
-	_ability.custom_minimum_size = Vector2(196, 0)
-	_ability.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ability.visible = false
-	_ability.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	col.add_child(_ability)
-
 	_icon = TextureRect.new()
 	_icon.texture = icon
 	_icon.custom_minimum_size = Vector2(52, 52)
@@ -194,7 +181,56 @@ func setup(
 	_eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_eq.visible = false
 	num_host.add_child(_eq)
+
+	_ability = RichTextLabel.new()
+	_ability.bbcode_enabled = true
+	_ability.fit_content = true
+	_ability.scroll_active = false
+	_ability.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_ability.add_theme_font_size_override("normal_font_size", 15)
+	_ability.add_theme_font_size_override("bold_font_size", 15)
+	_ability.add_theme_color_override("default_color", Color("f0e6d8"))
+	_ability.custom_minimum_size = Vector2(196, 0)
+	_ability.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ability.visible = false
+	_ability.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	col.add_child(_ability)
 	_shown = number_text
+	_sync_hatch()
+
+
+func _sync_hatch() -> void:
+	var on: bool = card_id == "spider_egg"
+	if not on:
+		if _hatch != null:
+			_hatch.visible = false
+		return
+	if _hatch == null:
+		_hatch = Control.new()
+		_hatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hatch.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_hatch.draw.connect(_draw_egg_hatch)
+		_hatch.resized.connect(_hatch.queue_redraw)
+		add_child(_hatch)
+		move_child(_hatch, 0)
+	_hatch.visible = true
+	_hatch.queue_redraw()
+
+
+func _draw_egg_hatch() -> void:
+	if _hatch == null:
+		return
+	var w: float = _hatch.size.x
+	var h: float = _hatch.size.y
+	if w < 2.0 or h < 2.0:
+		return
+	_hatch.draw_rect(Rect2(0, 0, w, h * 0.42), Color(1, 1, 1, 0.06))
+	_hatch.draw_rect(Rect2(0, h * 0.58, w, h * 0.42), Color(0, 0, 0, 0.28))
+	var ink := Color(0.92, 0.78, 0.72, 0.18)
+	var x: float = -h
+	while x < w + h:
+		_hatch.draw_line(Vector2(x, h), Vector2(x + h * 0.65, 0.0), ink, 1.0)
+		x += 6.0
 
 
 func set_echo_mark(tex: Texture2D) -> void:
@@ -240,8 +276,9 @@ func set_title(text: String) -> void:
 func set_ability_bb(bb: String) -> void:
 	if _ability == null:
 		return
-	_ability.text = "[center]%s[/center]" % bb
-	_ability.visible = false
+	var raw: String = bb.strip_edges()
+	_ability.text = "[center]%s[/center]" % raw
+	_ability.visible = _showcase and raw != ""
 
 
 func set_steal_cursor(tex: Texture2D) -> void:
@@ -265,7 +302,7 @@ func set_showcase(on: bool) -> void:
 		_rank.add_theme_font_size_override("font_size", 15 if on else 12)
 		_rank.custom_minimum_size = Vector2(196 if on else 104, 0)
 	if _icon:
-		_icon.custom_minimum_size = Vector2(148, 148) if on else Vector2(52, 52)
+		_icon.custom_minimum_size = Vector2(120, 120) if on else Vector2(52, 52)
 	if _num_host:
 		_num_host.custom_minimum_size = Vector2(196, 58) if on else Vector2(104, 44)
 	if _num:
@@ -276,7 +313,9 @@ func set_showcase(on: bool) -> void:
 		_eq.add_theme_font_size_override("normal_font_size", 16 if on else 13)
 		_eq.add_theme_font_size_override("bold_font_size", 16 if on else 13)
 	if _ability:
-		_ability.visible = false
+		_ability.add_theme_font_size_override("normal_font_size", 15 if on else 13)
+		_ability.add_theme_font_size_override("bold_font_size", 15 if on else 13)
+		_ability.visible = on and _ability.text.strip_edges() != "" and _ability.text != "[center][/center]"
 	_apply_style(_hot)
 
 

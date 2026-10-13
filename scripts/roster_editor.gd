@@ -4,6 +4,7 @@ extends ColorRect
 signal committed(items: Array, monsters: Array)
 signal closed
 signal open_card(kind: String, card_id: String)
+signal unlocks_reset
 
 const BOARD_PATH := "res://data/content-board.json"
 const RUNTIME_PATH := "res://data/runtime.json"
@@ -42,7 +43,8 @@ const COL_ITEM := [
 	{"key": "review", "label": "Review", "sub": "rough → finished", "help": "rough = first pass. refined = mechanics changed after your notes. polish = art, copy, dialogue. finished = done.", "w": 108.0, "kind": "pick", "opts": ["rough", "refined", "polish", "finished"], "group": "review"},
 	{"key": "review_note", "label": "Your notes", "sub": "for Cursor", "help": "Type what to change. Save, then tell Cursor to read this box.", "w": 200.0, "kind": "area", "group": "review"},
 	{"key": "status", "label": "Status", "sub": "live / todo / hold", "help": "live = in the dungeon. todo = needs a code pass. hold = skip. retired = hidden.", "w": 92.0, "kind": "pick", "opts": ["live", "todo", "hold", "retired"], "group": "meta"},
-	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "starter = night-watch kit. uncommon = mill-gate packs.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
+	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "Left over from the old night-watch flag. The bucket decides which dungeon can deal this card.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
+	{"key": "bucket", "label": "Bucket", "sub": "when it unlocks", "help": "0 is in the first dungeon. 1 opens after the first Adventure ending, 2 after the second, and so on. A clear or a death counts. Bucket 0 should be 9 items and 9 monsters. Each later bucket should be 3 and 3. Token is never drafted and never shown in an unlock.", "w": 108.0, "kind": "pick", "opts": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "Token"], "group": "meta"},
 	{"key": "id", "label": "Id", "sub": "internal code", "help": "Internal code id. Change this only when adding a brand-new card.", "w": 118.0, "kind": "line", "group": "meta"},
 	{"key": "tier", "label": "Tier", "sub": "1 bronze · 3 gold", "help": "1 bronze, 2 silver, 3 gold. A mill pack's relic and monster share this metal.", "w": 56.0, "kind": "line", "group": "pool"},
 	{"key": "count", "label": "Copies", "sub": "× in the pool", "help": "How many of this card exist in the dungeon pool. Not attack.", "w": 80.0, "kind": "line", "group": "pool"},
@@ -66,7 +68,8 @@ const COL_MONSTER := [
 	{"key": "review", "label": "Review", "sub": "rough → finished", "help": "rough = first pass. refined = mechanics changed after your notes. polish = art, copy, dialogue. finished = done.", "w": 108.0, "kind": "pick", "opts": ["rough", "refined", "polish", "finished"], "group": "review"},
 	{"key": "review_note", "label": "Your notes", "sub": "for Cursor", "help": "Type what to change. Save, then tell Cursor to read this box.", "w": 200.0, "kind": "area", "group": "review"},
 	{"key": "status", "label": "Status", "sub": "live / todo / hold", "help": "live = in the dungeon. todo = needs a code pass. hold = skip. retired = hidden.", "w": 92.0, "kind": "pick", "opts": ["live", "todo", "hold", "retired"], "group": "meta"},
-	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "starter = night watch (N/E/S/W). uncommon = mill-gate packs.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
+	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "Left over from the old night-watch flag. The bucket decides which dungeon can deal this card.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
+	{"key": "bucket", "label": "Bucket", "sub": "when it unlocks", "help": "0 is in the first dungeon. 1 opens after the first Adventure ending, 2 after the second, and so on. A clear or a death counts. Bucket 0 should be 9 items and 9 monsters. Each later bucket should be 3 and 3. Token is never drafted and never shown in an unlock.", "w": 108.0, "kind": "pick", "opts": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "Token"], "group": "meta"},
 	{"key": "id", "label": "Id", "sub": "internal code", "help": "Internal code id. Change this only when adding a brand-new card.", "w": 118.0, "kind": "line", "group": "meta"},
 	{"key": "tier", "label": "Tier", "sub": "1 bronze · 3 gold", "help": "1 bronze, 2 silver, 3 gold. Matches the relic in its mill pack.", "w": 56.0, "kind": "line", "group": "pool"},
 	{"key": "count", "label": "Copies", "sub": "× in the pool", "help": "How many of this monster exist in the pool. Not Attack.", "w": 80.0, "kind": "line", "group": "pool"},
@@ -90,6 +93,9 @@ var _review_filter: String = ""
 var _review_chips: Dictionary = {}
 var _was_paused: bool = false
 var _status: Label
+var _bucket_warn: Label
+var _bucket_panel: Control
+var _bucket_body: VBoxContainer
 var _search: LineEdit
 var _tab_items: Button
 var _tab_mons: Button
@@ -178,6 +184,8 @@ func setup(p_art, p_sfx) -> void:
 	head.add_child(_btn("Add row", Color("2a3a22"), Color("8dcb8d"), _on_add, 110))
 	_dup_btn = _btn("Duplicate", Color("3a3220"), Color("c4a574"), _on_duplicate, 120)
 	head.add_child(_dup_btn)
+	head.add_child(_btn("Reset unlocks", Color("3a2420"), Color("c47a5c"), _on_reset_unlocks, 140))
+	head.add_child(_btn("Buckets", Color("2a3340"), Color("8eb4d4"), _toggle_buckets, 110))
 	head.add_child(_btn("Save all", Color("3a2820"), Color("c4a574"), _on_save, 110))
 	head.add_child(_btn("Close", Color("3a3220"), Color("9a8b78"), close_editor, 90))
 	col.add_child(_build_review_bar())
@@ -194,6 +202,11 @@ func setup(p_art, p_sfx) -> void:
 	_status.add_theme_font_size_override("font_size", 14)
 	_status.add_theme_color_override("font_color", Color("3d6b3d"))
 	col.add_child(_status)
+	_bucket_warn = Label.new()
+	_bucket_warn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_bucket_warn.add_theme_font_size_override("font_size", 14)
+	_bucket_warn.add_theme_color_override("font_color", Color("8b1e1e"))
+	col.add_child(_bucket_warn)
 
 	_header_scroll = ScrollContainer.new()
 	_header_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -255,6 +268,8 @@ func open_roster() -> void:
 		_search.text = ""
 	_dirty = false
 	_esc_armed = false
+	if _bucket_panel:
+		_bucket_panel.visible = false
 	_rebuild()
 	_was_paused = get_tree().paused
 	visible = true
@@ -510,6 +525,7 @@ func _rebuild() -> void:
 	_tab_mons.modulate = Color.WHITE if _kind == "monster" else Color(1, 1, 1, 0.55)
 	_hide_btn.modulate = Color.WHITE if _hide_retired else Color(1, 1, 1, 0.45)
 	_sync_review_chips()
+	_refresh_bucket_warn()
 	if not _dirty:
 		_status.text = _chrome_text()
 		_status.add_theme_color_override("font_color", Color("3d6b3d"))
@@ -673,9 +689,19 @@ func _make_row(card: Dictionary, cols: Array, zebra: int, grid_w: float) -> HBox
 			var pick_v: String = str(card.get(key, ""))
 			if key == "review":
 				pick_v = REVIEW_STAGE.of_card(card)
+			if key == "bucket":
+				pick_v = BucketRules.label_of(card.get("bucket", 0))
 			var pick := _pick_cell(pick_v, spec.get("opts", []), w, help, row)
 			fields[key] = pick
 			_focusables.append(pick)
+			if key == "bucket":
+				if pick_v == "":
+					pick.select(0)
+				BucketRules.paint(pick)
+				pick.item_selected.connect(func(_i: int) -> void:
+					BucketRules.paint(pick)
+					_refresh_bucket_warn()
+				)
 			row.add_child(_lock_cell(pick, w, ROW_H, key))
 			continue
 		if kind == "area":
@@ -1140,6 +1166,7 @@ func _gather_row(row: HBoxContainer, strict: bool = true) -> Dictionary:
 		"kind": kind,
 		"status": _text_of(fields["status"]),
 		"rarity": _text_of(fields["rarity"]),
+		"bucket": BucketRules.parse(_text_of(fields["bucket"])) if fields.has("bucket") else BucketRules.parse(orig.get("bucket", 0)),
 		"tier": _int_of(_text_of(fields["tier"]), 1),
 		"count": _int_of(_text_of(fields["count"]), 1),
 		"priority": _int_of(_text_of(fields["priority"]), 3),
@@ -1251,6 +1278,7 @@ func _on_add() -> void:
 		"kind": _kind,
 		"status": "todo",
 		"rarity": "uncommon",
+		"bucket": 0,
 		"tier": 1,
 		"count": 1,
 		"priority": 3,
@@ -1283,6 +1311,163 @@ func _on_add() -> void:
 		var name_e: Variant = fields.get("name", null)
 		if name_e is Control:
 			(name_e as Control).grab_focus()
+
+
+func _on_reset_unlocks() -> void:
+	unlocks_reset.emit()
+	_status.text = "Dungeon unlocks reset. Bucket 0 is all they can meet until the next Adventure ending."
+	_status.add_theme_color_override("font_color", Color("6b4a10"))
+	if sfx:
+		sfx.play("confirm", -10.0)
+
+
+func _toggle_buckets() -> void:
+	if _bucket_panel == null:
+		_build_bucket_panel()
+	if _bucket_panel.visible:
+		_bucket_panel.visible = false
+		return
+	_fill_buckets()
+	_bucket_panel.visible = true
+
+
+func _build_bucket_panel() -> void:
+	_bucket_panel = ColorRect.new()
+	_bucket_panel.color = Color(0.06, 0.05, 0.04, 0.55)
+	_bucket_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_bucket_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_bucket_panel.visible = false
+	_bucket_panel.z_index = 4
+	add_child(_bucket_panel)
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 48)
+	margin.add_theme_constant_override("margin_right", 48)
+	margin.add_theme_constant_override("margin_top", 36)
+	margin.add_theme_constant_override("margin_bottom", 36)
+	_bucket_panel.add_child(margin)
+	var panel := PanelContainer.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("f3e6d0")
+	sb.border_color = Color("c4a574")
+	sb.set_border_width_all(3)
+	sb.set_corner_radius_all(12)
+	sb.content_margin_left = 16
+	sb.content_margin_right = 16
+	sb.content_margin_top = 12
+	sb.content_margin_bottom = 12
+	panel.add_theme_stylebox_override("panel", sb)
+	margin.add_child(panel)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 8)
+	panel.add_child(col)
+	var head := HBoxContainer.new()
+	col.add_child(head)
+	var title := Label.new()
+	title.text = "Buckets"
+	title.add_theme_font_size_override("font_size", 24)
+	title.add_theme_color_override("font_color", Color("1c120c"))
+	head.add_child(title)
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(spacer)
+	head.add_child(_btn("Close", Color("3a3220"), Color("9a8b78"), func() -> void: _bucket_panel.visible = false, 90))
+	var note := Label.new()
+	note.text = "0 is in the first dungeon. 1 opens after the first Adventure ending, 2 after the second, and so on. Token is never drafted."
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.add_theme_font_size_override("font_size", 14)
+	note.add_theme_color_override("font_color", Color("6b4a10"))
+	col.add_child(note)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	col.add_child(scroll)
+	_bucket_body = VBoxContainer.new()
+	_bucket_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_bucket_body.add_theme_constant_override("separation", 12)
+	scroll.add_child(_bucket_body)
+
+
+func _fill_buckets() -> void:
+	if _bucket_body == null:
+		return
+	for child in _bucket_body.get_children():
+		child.free()
+	var groups: Dictionary = {}
+	for kind in ["item", "monster"]:
+		var key_name: String = "items" if kind == "item" else "monsters"
+		var arr: Array = _board.get(key_name, [])
+		for card in arr:
+			if typeof(card) != TYPE_DICTIONARY:
+				continue
+			var st: String = str(card.get("status", ""))
+			if st == "retired" or st == "hold":
+				continue
+			var b: int = BucketRules.parse(card.get("bucket", 0))
+			var label: String = "Token" if b < 0 else str(b)
+			if not groups.has(label):
+				groups[label] = {"item": [], "monster": []}
+			(groups[label][kind] as Array).append(str(card.get("name", card.get("id", "?"))))
+	var order: Array[String] = []
+	for i in range(BucketRules.MAX_BUCKET + 1):
+		order.append(str(i))
+	order.append("Token")
+	for label in order:
+		if not groups.has(label):
+			continue
+		var block := VBoxContainer.new()
+		block.add_theme_constant_override("separation", 2)
+		_bucket_body.add_child(block)
+		var head := Label.new()
+		var items: Array = groups[label]["item"]
+		var mons: Array = groups[label]["monster"]
+		items.sort()
+		mons.sort()
+		head.text = "%s  ·  %s items, %s monsters" % [label, items.size(), mons.size()]
+		head.add_theme_font_size_override("font_size", 18)
+		var col: Color = BucketRules.TOKEN_COLOR if label == "Token" else BucketRules.color_of(int(label))
+		head.add_theme_color_override("font_color", col.darkened(0.35))
+		block.add_child(head)
+		var line := Label.new()
+		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		line.add_theme_font_size_override("font_size", 15)
+		line.add_theme_color_override("font_color", Color("1c120c"))
+		var bits: PackedStringArray = []
+		if not items.is_empty():
+			bits.append("Loot: " + ", ".join(items))
+		if not mons.is_empty():
+			bits.append("Foes: " + ", ".join(mons))
+		line.text = "\n".join(bits)
+		block.add_child(line)
+
+
+func _refresh_bucket_warn() -> void:
+	if _bucket_warn == null:
+		return
+	var items: Array = []
+	var monsters: Array = []
+	for card in _board.get("items", []):
+		items.append(card)
+	for card2 in _board.get("monsters", []):
+		monsters.append(card2)
+	var live: Array = items if _kind == "item" else monsters
+	var by_id := {}
+	for i in live.size():
+		by_id[str(live[i].get("id", ""))] = i
+	for row in _rows:
+		if row == null or not is_instance_valid(row):
+			continue
+		var orig: Dictionary = row.get_meta("orig")
+		var fields: Dictionary = row.get_meta("fields")
+		var id: String = str(orig.get("id", ""))
+		if not by_id.has(id) or not fields.has("bucket"):
+			continue
+		var copy: Dictionary = (live[by_id[id]] as Dictionary).duplicate(true)
+		copy["bucket"] = BucketRules.parse(_text_of(fields["bucket"]))
+		live[by_id[id]] = copy
+	var msg: String = BucketRules.counts_warning(items, monsters)
+	_bucket_warn.text = msg
+	_bucket_warn.visible = msg != ""
 
 
 func _on_save() -> void:
