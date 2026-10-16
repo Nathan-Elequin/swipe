@@ -1,5 +1,5 @@
 extends Node
-## 0x72 atlas slices + Kenney UI/VFX. Extra CC0 item PNGs only where the atlas is the wrong object.
+## Atlas slices plus Crypt Classic extras (items, monsters, UI, VFX). Extra PNGs beat atlas stems.
 
 const ATLAS_PATH := "res://assets/dungeon/atlas.png"
 const LIST_PATH := "res://assets/dungeon/tile_list.txt"
@@ -192,17 +192,17 @@ func _parse_list() -> void:
 
 
 func _load_extras() -> void:
-	vfx["star"] = _load_tex("res://assets/dungeon/vfx/star_08.png")
-	vfx["star2"] = _load_tex("res://assets/dungeon/vfx/star_04.png")
-	vfx["spark"] = _load_tex("res://assets/dungeon/vfx/spark_05.png")
-	vfx["spark2"] = _load_tex("res://assets/dungeon/vfx/spark_06.png")
-	vfx["circle"] = _load_tex("res://assets/dungeon/vfx/circle_05.png")
-	vfx["smoke"] = _load_tex("res://assets/dungeon/vfx/smoke_08.png")
-	vfx["magic"] = _load_tex("res://assets/dungeon/vfx/magic_05.png")
-	vfx["fire"] = _load_tex("res://assets/dungeon/vfx/fire_02.png")
-	vfx["flame"] = _load_tex("res://assets/dungeon/vfx/flame_02.png")
-	vfx["dirt"] = _load_tex("res://assets/dungeon/vfx/dirt_01.png")
-	vfx["twirl"] = _load_tex("res://assets/dungeon/vfx/twirl_03.png")
+	vfx["star"] = _load_tex("res://assets/dungeon/vfx/star.png")
+	vfx["star2"] = _load_tex("res://assets/dungeon/vfx/star2.png")
+	vfx["spark"] = _load_tex("res://assets/dungeon/vfx/spark.png")
+	vfx["spark2"] = _load_tex("res://assets/dungeon/vfx/spark2.png")
+	vfx["circle"] = _load_tex("res://assets/dungeon/vfx/circle.png")
+	vfx["smoke"] = _load_tex("res://assets/dungeon/vfx/smoke.png")
+	vfx["magic"] = _load_tex("res://assets/dungeon/vfx/magic.png")
+	vfx["fire"] = _load_tex("res://assets/dungeon/vfx/fire.png")
+	vfx["flame"] = _load_tex("res://assets/dungeon/vfx/flame.png")
+	vfx["dirt"] = _load_tex("res://assets/dungeon/vfx/dirt.png")
+	vfx["twirl"] = _load_tex("res://assets/dungeon/vfx/twirl.png")
 	ui["panel_brown"] = _load_tex("res://assets/dungeon/ui/panel_brown.png")
 	ui["panel_beige"] = _load_tex("res://assets/dungeon/ui/panel_beige.png")
 	ui["panel_inset"] = _load_tex("res://assets/dungeon/ui/panelInset_brown.png")
