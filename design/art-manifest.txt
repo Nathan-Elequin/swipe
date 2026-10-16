@@ -1,0 +1,226 @@
+# Swipe art manifest - batch 1 (art bible), 2 (item icons), 3 (monsters + Nib), 4 (hall tiles/props + hearts), 5 (UI chrome), 6 (VFX), 7 (HUD glyph SVGs + icon.svg), style 'Crypt Classic'
+# Original hand-authored pixel maps (Python/PIL char maps). No AI generation, no pack art (0x72/Kenney/Lucide/etc.).
+# Item PNGs: authored 16x16, shipped 4x nearest-neighbour, RGBA, transparent, 1px #100e0c outline, no text.
+# Monster PNGs: authored small 16x16 / standard 16x28 / large 32x36, shipped 4x (64x64 / 64x112 / 128x144), feet on the bottom row,
+#   coloured by family, plain (no tier trim, no glow - Weak/Tough/Deadly glow is a Godot shader). Static frame 0 only; idle ideas in design/idle-animation-notes.md.
+# Hall tiles: authored 16x16 (column 16x48, crate 16x24), shipped 4x as separate PNGs named after the atlas slice (tile_list.txt) for re-atlasing;
+#   hearts ship at their exact 13x12 slice size. Floors have mortar on the bottom row + right column so all 8 variants tile on a 16 grid.
+# UI chrome: authored AT ship size (exact Kenney-slot dimensions) on a 2px grain; 9-slice margins listed per file (L T R B, px); the stretch
+#   rows/columns are verified flat by build45.py (review/nine_slice_check.txt). Cursors authored half size, 2x nearest, hotspot top-left.
+# VFX: authored 64x64 (4 flat white/grey tones, stepped alpha, no outline, no dithering), shipped 4x = 256x256 under the brief's {key}.png names.
+# SVG glyphs: 12x12 pixel cells x 2 units on the 24x24 viewBox, one single-colour <path> each (brief colours), shape-rendering crispEdges.
+# Rebuild: python3 gen/build.py (generator kept outside the repo at /workspace/swipe-assets/gen).
+#
+filename  author_px  ship_px  id  notes
+design/art-bible.png  256x256  256x256  -  art bible master: wall, floor, gold rim, Shield, Goblin, button, palette, class ramps (look-lock; tiles/UI ship in batches 4-5)
+assets/dungeon/items/throwing_knife.png  16x16  64x64  throwing_knife  [attack] ring-pommel throwing knife, red cord grip, point down-right
+assets/dungeon/items/sai.png  16x16  64x64  sai  [attack] sai: long round centre tine, two prongs curving up from the guard, red-wrapped grip
+assets/dungeon/items/gauntlets.png  16x16  64x64  bloody_gauntlets  [attack] mapped filename (brief §4); display 'Bloody Wraps'; clenched fist in cloth knuckle wraps, blood on every knuckle and the wrist, loose wrap end (not plate)
+assets/dungeon/items/knucklers.png  16x16  64x64  knucklers  [attack] brass knuckles: four rings over a red leather palm grip
+assets/dungeon/items/spiked_flail.png  16x16  64x64  spiked_flail  [attack] red-iron spiked ball, short chain, short wrapped haft
+assets/dungeon/items/grimoire.png  16x16  64x64  grimoire  [attack] closed red-leather spellbook, gold corners, gold-rimmed eye on the cover, clasp on the right
+assets/dungeon/items/crossbow.png  16x16  64x64  crossbow  [attack] crossbow from above: curved steel prod, string cocked to the nut, bolt loaded, red-lacquered stock
+assets/dungeon/items/watch.png  16x16  64x64  pocketwatch  [attack] mapped filename (brief §4); display 'Pocketwatch'; open pocket watch: red enamel lid swung open on the left, gold case, hands at 10-to-12
+assets/dungeon/items/double_axe.png  16x16  64x64  double_axe  [attack] double-bitted axe, red-painted bits with steel edges
+assets/dungeon/items/longbow.png  16x16  64x64  longbow  [attack] tall strung longbow, red grip wrap
+assets/dungeon/items/iron_chain.png  16x16  64x64  iron_chain  [attack] display 'Chain'; three face-on iron links + two edge-on links, red rust on the shadow side
+assets/dungeon/items/counting_beads.png  16x16  64x64  counting_beads  [attack] loop of red prayer beads, gold spacer, red tassel
+assets/dungeon/items/arrow_head.png  16x16  64x64  arrow_head  [attack] barbed broadhead on a snapped shaft stub with red binding
+assets/dungeon/items/shield.png  16x16  64x64  shield  [block] heater shield, silver rim and boss (matches locked Crypt Classic reference)
+assets/dungeon/items/medallion.png  16x16  64x64  medallion  [block] worn round medallion, blue enamel, silver boss, short chain loop
+assets/dungeon/items/helmet.png  16x16  64x64  helmet  [block] closed blue helm, silver crest ridge and brow band, T visor
+assets/dungeon/items/bracers.png  16x16  64x64  bracers  [block] display 'Right Bracer'; right-arm bracer: lacing/opening on the LEFT, two bronze straps with buckles on the right
+assets/dungeon/items/left_bracer.png  16x16  64x64  left_bracer  [block] left-arm bracer: mirrored layout (lacing on the RIGHT) but one wide strap, gold buckle on the left and a silver chevron - not a flip
+assets/dungeon/items/breastplate.png  16x16  64x64  breastplate  [block] blued cuirass front, shoulder straps, centre ridge, belt and faulds
+assets/dungeon/items/spiked_shield.png  16x16  64x64  spiked_shield  [block] ROUND buckler (Shield is a heater) with centre spike and rim spikes
+assets/dungeon/items/grief_jar.png  16x16  64x64  grief_jar  [block] blue-glazed two-handled urn, wax-sealed lid, frowning face with a tear (the humour)
+assets/dungeon/items/mirror_shard.png  16x16  64x64  mirror_shard  [block] jagged leaning mirror fragment, blue-silver reflection, white glint streak
+assets/dungeon/items/healing_potion.png  16x16  64x64  healing_potion  [heal] classic round flask, red brew (per brief), green ribbon at the neck carries the heal colour
+assets/dungeon/items/victory_flask.png  16x16  64x64  victory_flask  [heal] gold goblet (not a bottle), green brew surface and green gems
+assets/dungeon/items/lantern.png  16x16  64x64  lantern  [heal] hooded lantern, green iron hood and frame, warm glass and flame
+assets/dungeon/items/cursed_scroll.png  16x16  64x64  cursed_scroll  [heal] open scroll, ink lines, green curse-blot seal dripping, green rod caps
+assets/dungeon/items/boot.png  16x16  64x64  da_boot  [defeat] mapped filename (brief §4); display 'The Boot'; one sturdy purple-dyed boot, turned-down leather cuff, buckle strap, wood sole
+assets/dungeon/items/sledgehammer.png  16x16  64x64  sledgehammer  [defeat] upright two-handed sledge: big purple-iron head, steel faces, long haft
+assets/dungeon/items/fangs.png  16x16  64x64  fangs  [defeat] fang charm: two big curved fangs hanging from a purple bead and loop, one blood-tipped
+assets/dungeon/items/last_match.png  16x16  64x64  last_match  [defeat] display 'Paci Fist'; open-palm charm carved in purple stone, gold wrist cap and bail (Paci Fist)
+assets/dungeon/items/measuring_tape.png  16x16  64x64  measuring_tape  [defeat] display 'Scythe'; scythe: purple-sheened blade sweeping left, steel edge, long snath with grip peg
+assets/dungeon/items/poison_flask.png  16x16  64x64  poison_flask  [utility] slim test-tube vial of green poison, brass cap and band, skull mark; tall vs the round healing flask
+assets/dungeon/items/grappling_hook.png  16x16  64x64  grappling_hook  [utility] three-tine grapnel with eye, rope coiled in a ring
+assets/dungeon/items/quiet_bell.png  16x16  64x64  quiet_bell  [utility] squat hanging bell with a cloth rag tied round it and a wrapped clapper (muted)
+assets/dungeon/items/net.png  16x16  64x64  net  [utility] weighted throwing net: gathered knot, see-through diamond mesh, lead weights on the hem
+assets/dungeon/items/danger_magnet.png  16x16  64x64  danger_magnet  [utility] ochre horseshoe magnet, steel poles, tiny skull on the bend (ominous)
+assets/dungeon/items/smoke_bomb.png  16x16  64x64  smoke_bomb  [smoke] round smoke-grey bomb, brass cap, lit fuse, curl of smoke
+assets/dungeon/items/echo_bell.png  16x16  64x64  echo_bell  [chaos] hand bell with wooden handle, violet body, gold lip, clapper showing
+assets/dungeon/items/mute_stone.png  16x16  64x64  mute_stone  [chaos] display 'Chaos Stone'; chunky asymmetric faceted violet gem, zig-zag crack, glints
+assets/dungeon/items/spider_egg.png  16x16  64x64  spider_egg  [egg] glossy near-black egg, red hourglass mark, a crack with a tiny leg poking out
+assets/dungeon/extra/goblin.png  16x16  64x64  goblin  [Greenskin, small] the locked Crypt Classic reference goblin, unchanged
+assets/dungeon/extra/kobold_trapper.png  16x16  64x64  kobold_trapper  [Scalekin, small] little rust-red lizard-man, toothy grin, dangling a rope snare loop
+assets/dungeon/extra/hornet_swarm.png  16x16  64x64  hornet_swarm  [Vermin, small] three hornets in a cluster (one big, two small), striped amber/black
+assets/dungeon/extra/leech_league.png  16x16  64x64  leech_league  [Vermin, small] a pack of three amber leeches with round toothy suckers; the little captain wears a gold league cap
+assets/dungeon/extra/wick.png  16x16  64x64  wick  [Living Object, small] living candle: wax body with a nervous smile, drips, flame hair, brass dish
+assets/dungeon/extra/mimic.png  16x16  64x64  mimic  [Living Object, small] treasure chest gaping open: eyes on the lid, teeth, lolling red tongue
+assets/dungeon/extra/needleback.png  16x16  64x64  needleback  [Beast, small] porcupine beast, bone-tipped quills raised, beady eye, stubby feet
+assets/dungeon/extra/gelatinous_cube.png  16x16  64x64  gelatinous_cube  [Ooze, small] three-quarter jelly cube, a swallowed skull and a bone floating inside
+assets/dungeon/extra/anvil.png  16x16  64x64  anvil  [Living Object, small] a real anvil (horn, face, waist) with a grumpy face, sat on a wooden stump
+assets/dungeon/extra/dire_wolf.png  16x16  64x64  dire_wolf  [Beast, small] side-on grey-brown wolf: long snout, pointed ears, four lean legs, bushy tail, jaws open
+assets/dungeon/extra/basilisk.png  16x16  64x64  basilisk  [Scalekin, small] low lizard-cockatrice with a red comb and a glaring stare, long curled tail
+assets/dungeon/extra/wizard.png  16x28  64x112  wizard  [Robed, standard] bearded mage, floppy starred pointy hat, indigo robe, orb staff
+assets/dungeon/extra/cleric.png  16x28  64x112  cleric  [Robed, standard] hooded holy healer: cream tabard with a gold sun, blessing hand raised, prayer book; no hat, no staff (vs Wizard)
+assets/dungeon/extra/skeleton.png  16x28  64x112  skeleton  [Undead, standard] rattly skeleton with a rusty sword; skull is a clean 7px crop for the trophy plaque later
+assets/dungeon/extra/lich.png  16x28  64x112  lich  [Undead, standard] crowned skull in tattered grave-lilac robes, both claws raised, floats on a ragged hem
+assets/dungeon/extra/vampire.png  16x28  64x112  vampire  [Undead, standard] pale count with widow’s peak and red eyes, high-collared cape held open on its blood-red lining
+assets/dungeon/extra/wraith.png  16x28  64x112  wraith  [Undead, standard] hooded ghost with an empty face and two teal eyes, reaching arms, body tapering into a wisp
+assets/dungeon/extra/berserker.png  16x28  64x112  berserker  [Warband, standard] bare-chested raging warrior: horned helm, wild orange beard, yelling, war paint, crimson kilt, axe raised
+assets/dungeon/extra/bandit.png  16x28  64x112  bandit  [Warband, standard] hooded thief with a black eye-mask and crimson scarf, lugging a lumpy loot sack
+assets/dungeon/extra/commander.png  16x28  64x112  commander  [Warband, standard] war leader: crested helm with crimson plume, gold-trimmed plate, crimson cape, sword raised
+assets/dungeon/extra/bodyguard.png  16x28  64x112  bodyguard  [Warband, standard] helmeted shield-bearer hiding behind a crimson TOWER shield (rectangular, steel boss) - unlike the heater Shield item
+assets/dungeon/extra/juggernaut.png  16x28  64x112  juggernaut  [Warband, standard] squat, massively wide black-iron bruiser: dome pauldrons, sunken helm with a red slit, huge fists, crimson tabard
+assets/dungeon/extra/damsel.png  16x28  64x112  two_headed_serpent  [Court, standard] mapped filename (brief §4); display 'Damsel in Distress'; distressed lady: hands to cheeks, mouth an O, long blonde hair, plum gown; a tiny two-headed snake at her hem is the culprit
+assets/dungeon/extra/beggar.png  16x28  64x112  beggar  [Court, standard] hunched, hooded, patched plum rags, grey stubble, holding out a wooden bowl, leaning on a stick
+assets/dungeon/extra/cowardly_king.png  16x28  64x112  cowardly_king  [Court, standard] crowned king in plum and ermine, knees knocked together, eyes wide, sweat drop flying, wringing his hands
+assets/dungeon/extra/merchant.png  16x28  64x112  merchant  [Court, standard] plump trader: flat plum cap, bushy moustache, plum waistcoat, satchel on the left, brass scales held up on the right
+assets/dungeon/extra/harpy.png  16x28  64x112  harpy  [Beast, standard] winged woman-bird: wild dark hair, screeching, brown feather wings spread, bird legs with yellow talons
+assets/dungeon/extra/gargoyle.png  16x28  64x112  gargoyle  [Construct, standard] squat horned stone grotesque, wings folded up, fanged grin, crouched on a stone plinth
+assets/dungeon/extra/clockwork_knight.png  16x28  64x112  clockwork_knight  [Construct, standard] steel knight with a brass gear for a chest, brass knee joints, teal lamp eyes, and a wind-up key in its back
+assets/dungeon/extra/nib.png  16x28  64x112  nib  [Guide, standard] display 'Nib (tutorial speaker)'; Nib: slate-blue imp fence with stubby horns, one brass monocle, shark grin, mustard coat lined with pocket loot, a tail
+assets/dungeon/extra/golem.png  32x36  128x144  golem  [Construct, large] hulking grey stone giant: tiny head with teal eye-sockets, boulder shoulders, mossy patches, cracked fists to the knee
+assets/dungeon/extra/ogre.png  32x36  128x144  ogre  [Greenskin, large] big pot-bellied green brute: little head, underbite tusks, leather loincloth, nail-studded club over the shoulder
+assets/dungeon/extra/dragon.png  32x36  128x144  dragon  [Scalekin, large] sitting rust-red dragon: horned head, jaws open, smoke puff at the nostril, bat wing raised, cream belly, claws, tail curled in front
+assets/dungeon/extra/slime_boss.png  32x36  128x144  slime_boss  [Ooze, large] huge aqua slime with a tiny tilted crown, big googly eyes, gormless grin; a swallowed sword floats in its belly
+assets/dungeon/extra/spider.png  32x36  128x144  spider_queen  [Vermin, large] mapped filename (brief §4); display 'Spider Queen'; great black spider queen: amber hourglass on the abdomen, six red eyes, fangs, tiny gold tiara, eight legs splayed to the floor
+assets/dungeon/extra/hollow.png  32x36  128x144  hollow  [Court, large] display 'Twins'; Twins: two pale children holding hands in matching plum smocks, hollow black eyes; one clutches a rag doll
+assets/dungeon/tiles/floor_1.png  16x16  64x64  floor_1  floor, tiles on a 16 grid (mortar on bottom row + right col); four staggered flags, two pebbles
+assets/dungeon/tiles/floor_2.png  16x16  64x64  floor_2  floor, tiles on a 16 grid (mortar on bottom row + right col); single big flag with a hairline crack
+assets/dungeon/tiles/floor_3.png  16x16  64x64  floor_3  floor, tiles on a 16 grid (mortar on bottom row + right col); three flags, moss in the mortar corner
+assets/dungeon/tiles/floor_4.png  16x16  64x64  floor_4  floor, tiles on a 16 grid (mortar on bottom row + right col); four flags, cracked
+assets/dungeon/tiles/floor_5.png  16x16  64x64  floor_5  floor, tiles on a 16 grid (mortar on bottom row + right col); big flag, moss creeping in top-left, a pebble
+assets/dungeon/tiles/floor_6.png  16x16  64x64  floor_6  floor, tiles on a 16 grid (mortar on bottom row + right col); three flags, a dried blood smear
+assets/dungeon/tiles/floor_7.png  16x16  64x64  floor_7  floor, tiles on a 16 grid (mortar on bottom row + right col); cobbles, a small dropped bone
+assets/dungeon/tiles/floor_8.png  16x16  64x64  floor_8  floor, tiles on a 16 grid (mortar on bottom row + right col); two flags, an iron drain grate and a crack
+assets/dungeon/tiles/wall_top_left.png  16x16  64x64  wall_top_left  wall cap, left end (outer side face on the left); row 0 of the hall
+assets/dungeon/tiles/wall_top_mid.png  16x16  64x64  wall_top_mid  wall cap seen from above, lit front lip on rows 12-14; tiles horizontally
+assets/dungeon/tiles/wall_mid.png  16x16  64x64  wall_mid  brick wall face (art-bible look-lock); tiles horizontally; combat_stage squashes it to 18px tall
+assets/dungeon/tiles/wall_banner_red.png  16x16  64x64  wall_banner_red  wall_mid + hanging banner on a bronze rod; crimson banner, crossed gold blades; drop-in over wall_mid
+assets/dungeon/tiles/wall_banner_yellow.png  16x16  64x64  wall_banner_yellow  wall_mid + hanging banner on a bronze rod; gold banner, a bronze crown; drop-in over wall_mid
+assets/dungeon/tiles/wall_banner_blue.png  16x16  64x64  wall_banner_blue  wall_mid + hanging banner on a bronze rod; blue banner, a bone skull (optional colour); drop-in over wall_mid
+assets/dungeon/tiles/wall_banner_green.png  16x16  64x64  wall_banner_green  wall_mid + hanging banner on a bronze rod; green banner, a pale leaf (optional colour); drop-in over wall_mid
+assets/dungeon/tiles/wall_fountain_mid_red_anim_f0.png  16x16  64x64  wall_fountain_mid_red_anim_f0  wall_mid + carved bone skull spout pouring blood, flicker frame 0/3 (stream + drips shift)
+assets/dungeon/tiles/wall_fountain_mid_red_anim_f1.png  16x16  64x64  wall_fountain_mid_red_anim_f1  wall_mid + carved bone skull spout pouring blood, flicker frame 1/3 (stream + drips shift)
+assets/dungeon/tiles/wall_fountain_mid_red_anim_f2.png  16x16  64x64  wall_fountain_mid_red_anim_f2  wall_mid + carved bone skull spout pouring blood, flicker frame 2/3 (stream + drips shift)
+assets/dungeon/tiles/column.png  16x48  64x192  column  freestanding stone column, capital + fluted shaft (crack, moss) + plinth; feet on bottom row
+assets/dungeon/tiles/crate.png  16x24  64x96  crate  wooden crate, top face + X-braced front, iron corner plates; feet on bottom row
+assets/dungeon/tiles/skull.png  16x16  64x64  skull  trophy skull: the Skeleton's skull (dome, square sockets with the Undead teal eye-light on the inner side, notched nose, alternating teeth) redrawn at prop size; also the HUD trophy
+assets/dungeon/tiles/chest_full_open_anim_f0.png  16x16  64x64  chest_full_open_anim_f0  treasure chest, gold bands + lock, frame 0: closed
+assets/dungeon/tiles/chest_full_open_anim_f1.png  16x16  64x64  chest_full_open_anim_f1  treasure chest, gold bands + lock, frame 1: lid lifting, a line of gold glinting in the gap
+assets/dungeon/tiles/chest_full_open_anim_f2.png  16x16  64x64  chest_full_open_anim_f2  treasure chest, gold bands + lock, frame 2: open, heaped with gold and a ruby
+assets/dungeon/tiles/chest_mimic_open_anim_f0.png  16x16  64x64  chest_mimic_open_anim_f0  mimic reveal strip frame 0: closed - passes for a chest (bronze bands, not gold) but a tongue-tip pokes out of the seam
+assets/dungeon/tiles/chest_mimic_open_anim_f1.png  16x16  64x64  chest_mimic_open_anim_f1  mimic reveal strip frame 1: lid cracks: yellow eyes on the lid, teeth in the gap, tongue
+assets/dungeon/tiles/chest_mimic_open_anim_f2.png  16x16  64x64  chest_mimic_open_anim_f2  mimic reveal strip frame 2: fully open = the Mimic portrait (extra/mimic.png pixels)
+assets/dungeon/tiles/ui_heart_full.png  13x12  13x12  ui_heart_full  hub heart, full; exact atlas slice size (no upscale)
+assets/dungeon/tiles/ui_heart_empty.png  13x12  13x12  ui_heart_empty  hub heart, empty; exact atlas slice size (no upscale)
+assets/dungeon/tiles/ui_heart_half.png  13x12  13x12  ui_heart_half  hub heart, half; exact atlas slice size (no upscale); optional per brief
+assets/icons/heart_full.png  13x12  13x12  heart_full  same pixels as tiles/ui_heart_full.png (brief §7)
+assets/icons/heart_empty.png  13x12  13x12  heart_empty  same pixels as tiles/ui_heart_empty.png (brief §7)
+assets/dungeon/ui/buttonLong_brown.png  190x49  190x49  buttonLong_brown  9-slice margins L20 T10 R20 B12; carved oak face, oak frame, gold-leaf inlay + corner studs, 4px lip; centre is a flat stretch
+assets/dungeon/ui/buttonLong_brown_pressed.png  190x45  190x45  buttonLong_brown_pressed  9-slice margins L20 T10 R20 B12; pressed: same art sunk 4px (lip gone, rim shadow on the face)
+assets/dungeon/ui/buttonLong_beige.png  190x49  190x49  buttonLong_beige  9-slice margins L20 T10 R20 B12; parchment face, oak frame, gold-leaf inlay + corner studs, 4px lip; centre is a flat stretch
+assets/dungeon/ui/buttonLong_beige_pressed.png  190x45  190x45  buttonLong_beige_pressed  9-slice margins L20 T10 R20 B12; pressed: same art sunk 4px (lip gone, rim shadow on the face)
+assets/dungeon/ui/buttonLong_blue.png  190x49  190x49  buttonLong_blue  9-slice margins L20 T10 R20 B12; blue enamel face, oak frame, gold-leaf inlay + corner studs, 4px lip; centre is a flat stretch
+assets/dungeon/ui/buttonLong_blue_pressed.png  190x45  190x45  buttonLong_blue_pressed  9-slice margins L20 T10 R20 B12; pressed: same art sunk 4px (lip gone, rim shadow on the face)
+assets/dungeon/ui/buttonLong_grey.png  190x49  190x49  buttonLong_grey  9-slice margins L20 T10 R20 B12; grey stone face, iron frame, oak frame, gold-leaf inlay + corner studs, 4px lip; centre is a flat stretch
+assets/dungeon/ui/buttonLong_grey_pressed.png  190x45  190x45  buttonLong_grey_pressed  9-slice margins L20 T10 R20 B12; pressed: same art sunk 4px (lip gone, rim shadow on the face)
+assets/dungeon/ui/buttonRound_beige.png  35x38  35x38  buttonRound_beige  round button, parchment face, gold ring, 3px lip (not 9-sliced)
+assets/dungeon/ui/buttonRound_blue.png  35x38  35x38  buttonRound_blue  round button, blue enamel face, gold ring, 3px lip (not 9-sliced)
+assets/dungeon/ui/buttonRound_brown.png  35x38  35x38  buttonRound_brown  round button, carved oak face, gold ring, 3px lip (not 9-sliced)
+assets/dungeon/ui/buttonRound_grey.png  35x38  35x38  buttonRound_grey  round button, grey stone face, iron frame, gold ring, 3px lip (not 9-sliced)
+assets/dungeon/ui/panel_brown.png  100x100  100x100  panel_brown  9-slice margins L14 T12 R14 B14; panel, carved oak face, carved oak frame, gold-leaf corner brackets (ornament within 12px); flat centre
+assets/dungeon/ui/panel_beige.png  100x100  100x100  panel_beige  9-slice margins L14 T12 R14 B14; panel, parchment face, carved oak frame, gold-leaf corner brackets (ornament within 12px); flat centre
+assets/dungeon/ui/panel_beigeLight.png  100x100  100x100  panel_beigeLight  9-slice margins L14 T12 R14 B14; panel, pale parchment face, carved oak frame, gold-leaf corner brackets (ornament within 12px); flat centre
+assets/dungeon/ui/panel_blue.png  100x100  100x100  panel_blue  9-slice margins L14 T12 R14 B14; panel, blue enamel face, carved oak frame, gold-leaf corner brackets (ornament within 12px); flat centre
+assets/dungeon/ui/panelInset_brown.png  93x94  93x94  panelInset_brown  9-slice margins L10 T10 R10 B10; recessed inset, carved oak face, shadow upper-left / lit lip lower-right, gold rivets
+assets/dungeon/ui/panelInset_beige.png  93x94  93x94  panelInset_beige  9-slice margins L10 T10 R10 B10; recessed inset, parchment face, shadow upper-left / lit lip lower-right, gold rivets
+assets/dungeon/ui/panelInset_beigeLight.png  93x94  93x94  panelInset_beigeLight  9-slice margins L10 T10 R10 B10; recessed inset, pale parchment face, shadow upper-left / lit lip lower-right, gold rivets
+assets/dungeon/ui/panelInset_blue.png  93x94  93x94  panelInset_blue  9-slice margins L10 T10 R10 B10; recessed inset, blue enamel face, shadow upper-left / lit lip lower-right, gold rivets
+assets/dungeon/ui/barBack_horizontalLeft.png  9x18  9x18  barBack_horizontalLeft  bar track (empty), horizontal left
+assets/dungeon/ui/barBack_horizontalMid.png  18x18  18x18  barBack_horizontalMid  bar track (empty), horizontal mid
+assets/dungeon/ui/barBack_horizontalRight.png  9x18  9x18  barBack_horizontalRight  bar track (empty), horizontal right
+assets/dungeon/ui/barBack_verticalTop.png  18x9  18x9  barBack_verticalTop  bar track (empty), vertical top
+assets/dungeon/ui/barBack_verticalMid.png  18x18  18x18  barBack_verticalMid  bar track (empty), vertical mid
+assets/dungeon/ui/barBack_verticalBottom.png  18x9  18x9  barBack_verticalBottom  bar track (empty), vertical bottom
+assets/dungeon/ui/barBlue_horizontalLeft.png  9x18  9x18  barBlue_horizontalLeft  blue bar fill, horizontal left
+assets/dungeon/ui/barBlue_horizontalBlue.png  18x18  18x18  barBlue_horizontalBlue  blue bar fill, horizontal mid (existing Kenney filename quirk kept: this is the horizontal MID)
+assets/dungeon/ui/barBlue_horizontalRight.png  9x18  9x18  barBlue_horizontalRight  blue bar fill, horizontal right
+assets/dungeon/ui/barBlue_verticalTop.png  18x9  18x9  barBlue_verticalTop  blue bar fill, vertical top
+assets/dungeon/ui/barBlue_verticalMid.png  18x18  18x18  barBlue_verticalMid  blue bar fill, vertical mid
+assets/dungeon/ui/barBlue_verticalBottom.png  18x9  18x9  barBlue_verticalBottom  blue bar fill, vertical bottom
+assets/dungeon/ui/barGreen_horizontalLeft.png  9x18  9x18  barGreen_horizontalLeft  green bar fill, horizontal left
+assets/dungeon/ui/barGreen_horizontalMid.png  18x18  18x18  barGreen_horizontalMid  green bar fill, horizontal mid
+assets/dungeon/ui/barGreen_horizontalRight.png  9x18  9x18  barGreen_horizontalRight  green bar fill, horizontal right
+assets/dungeon/ui/barGreen_verticalTop.png  18x9  18x9  barGreen_verticalTop  green bar fill, vertical top
+assets/dungeon/ui/barGreen_verticalMid.png  18x18  18x18  barGreen_verticalMid  green bar fill, vertical mid
+assets/dungeon/ui/barGreen_verticalBottom.png  18x9  18x9  barGreen_verticalBottom  green bar fill, vertical bottom
+assets/dungeon/ui/barRed_horizontalLeft.png  9x18  9x18  barRed_horizontalLeft  red bar fill, horizontal left
+assets/dungeon/ui/barRed_horizontalMid.png  18x18  18x18  barRed_horizontalMid  red bar fill, horizontal mid
+assets/dungeon/ui/barRed_horizontalRight.png  9x18  9x18  barRed_horizontalRight  red bar fill, horizontal right
+assets/dungeon/ui/barRed_verticalTop.png  18x9  18x9  barRed_verticalTop  red bar fill, vertical top
+assets/dungeon/ui/barRed_verticalMid.png  18x18  18x18  barRed_verticalMid  red bar fill, vertical mid
+assets/dungeon/ui/barRed_verticalBottom.png  18x9  18x9  barRed_verticalBottom  red bar fill, vertical bottom
+assets/dungeon/ui/barYellow_horizontalLeft.png  9x18  9x18  barYellow_horizontalLeft  yellow bar fill, horizontal left
+assets/dungeon/ui/barYellow_horizontalMid.png  18x18  18x18  barYellow_horizontalMid  yellow bar fill, horizontal mid
+assets/dungeon/ui/barYellow_horizontalRight.png  9x18  9x18  barYellow_horizontalRight  yellow bar fill, horizontal right
+assets/dungeon/ui/barYellow_verticalTop.png  18x9  18x9  barYellow_verticalTop  yellow bar fill, vertical top
+assets/dungeon/ui/barYellow_verticalMid.png  18x18  18x18  barYellow_verticalMid  yellow bar fill, vertical mid
+assets/dungeon/ui/barYellow_verticalBottom.png  18x9  18x9  barYellow_verticalBottom  yellow bar fill, vertical bottom
+assets/dungeon/ui/cursorHand_beige.png  14x14  27x28  cursorHand_beige  cursor, hotspot = top-left pixel (tip), authored half size, 2x nearest
+assets/dungeon/ui/cursorHand_blue.png  14x14  27x28  cursorHand_blue  cursor, hotspot = top-left pixel (tip), authored half size, 2x nearest
+assets/dungeon/ui/cursorHand_grey.png  14x14  27x28  cursorHand_grey  cursor, hotspot = top-left pixel (tip), authored half size, 2x nearest
+assets/dungeon/ui/cursorSword_gold.png  17x19  34x37  cursorSword_gold  cursor, hotspot = top-left pixel (tip), authored half size, 2x nearest
+assets/dungeon/ui/cursorSword_bronze.png  17x19  34x37  cursorSword_bronze  cursor, hotspot = top-left pixel (tip), authored half size, 2x nearest
+assets/dungeon/ui/cursorSword_silver.png  17x19  34x37  cursorSword_silver  cursor, hotspot = top-left pixel (tip), authored half size, 2x nearest
+assets/dungeon/ui/cursorGauntlet_blue.png  15x15  30x30  cursorGauntlet_blue  cursor, hotspot = top-left pixel (tip), authored half size, 2x nearest
+assets/dungeon/ui/cursorGauntlet_bronze.png  15x15  30x30  cursorGauntlet_bronze  cursor, hotspot = top-left pixel (tip), authored half size, 2x nearest
+assets/dungeon/ui/cursorGauntlet_grey.png  15x15  30x30  cursorGauntlet_grey  cursor, hotspot = top-left pixel (tip), authored half size, 2x nearest
+assets/dungeon/ui/petrify_stone.png  16x16  64x64  petrify_stone  cracked grey stone shell laid over an item icon; two chipped holes show the item; existing file is 56x64 - brief asks 64x64
+assets/dungeon/vfx/star.png  64x64  256x256  star  replaces star_08.png; impact star: 4 long cardinal rays + 4 short diagonals, hot core; white/light-grey 4-tone on transparent (11% of pixels used); tinted in code: #f0e6d8 hit (attack) - combat_stage.take_hit, #d8eefc block - play_block
+assets/dungeon/vfx/star2.png  64x64  256x256  star2  replaces star_04.png; smaller twinkle star, slightly turned; white/light-grey 4-tone on transparent (3% of pixels used); tinted in code: #e07a5e attack ramp (not referenced in code yet)
+assets/dungeon/vfx/spark.png  64x64  256x256  spark  replaces spark_05.png; ten straight sparks + 4 chips; white/light-grey 4-tone on transparent (9% of pixels used); tinted in code: #e07a7a hit (attack) - take_hit, #c77dff bleed (defeat/chaos) - play_bleed
+assets/dungeon/vfx/spark2.png  64x64  256x256  spark2  replaces spark_06.png; six bent comet streaks + flying chips; white/light-grey 4-tone on transparent (12% of pixels used); tinted in code: #c47cf4 chaos ramp (not referenced yet)
+assets/dungeon/vfx/circle.png  64x64  256x256  circle  replaces circle_05.png; soft ring: stepped falloff both sides; white/light-grey 4-tone on transparent (45% of pixels used); tinted in code: #5aa8e8 block burst (not referenced yet)
+assets/dungeon/vfx/smoke.png  64x64  256x256  smoke  replaces smoke_08.png; cloud puff lit from the upper left; white/light-grey 4-tone on transparent (28% of pixels used); tinted in code: #cdb0c6 smoke class (not referenced yet)
+assets/dungeon/vfx/magic.png  64x64  256x256  magic  replaces magic_05.png; magic flare: tall 4-point star, broken rune ring, 8 orbiting diamonds; white/light-grey 4-tone on transparent (11% of pixels used); tinted in code: #e8c36a hypnotize (utility) - play_hypnotize, #8ec8f0 block - play_block, #9b4dca bleed - play_bleed
+assets/dungeon/vfx/fire.png  64x64  256x256  fire  replaces fire_02.png; fire burst: 7 tongues + 7 short licks blasting from a hot core, embers; white/light-grey 4-tone on transparent (31% of pixels used); tinted in code: #e07a5e attack ramp (not referenced yet)
+assets/dungeon/vfx/flame.png  64x64  256x256  flame  replaces flame_02.png; torch flame teardrop, flicked tip; also the hall glow; white/light-grey 4-tone on transparent (12% of pixels used); tinted in code: #ff802e hall glow Color(1,0.5,0.18) - dungeon_bg._glow
+assets/dungeon/vfx/dirt.png  64x64  256x256  dirt  replaces dirt_01.png; dust: low cloud on a flat ground line + thrown pebbles; white/light-grey 4-tone on transparent (16% of pixels used); tinted in code: #c4a574 dust / move (not referenced yet)
+assets/dungeon/vfx/twirl.png  64x64  256x256  twirl  replaces twirl_03.png; swirl: 3 tapering spiral arms around a small eye; white/light-grey 4-tone on transparent (16% of pixels used); tinted in code: #c4a574 hypnotize - play_hypnotize, #5aa8e8 block - play_block, #4a1870 bleed - play_bleed
+assets/icons/heart.svg  12x12 cells  24x24 viewBox  heart  Player HP; one #c45c5c path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/sword.svg  12x12 cells  24x24 viewBox  sword  Attack; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/shield.svg  12x12 cells  24x24 viewBox  shield  Block; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/plus.svg  12x12 cells  24x24 viewBox  plus  Empty alcove / add; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/rotate.svg  12x12 cells  24x24 viewBox  rotate  Spin / cycle; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/ban.svg  12x12 cells  24x24 viewBox  ban  Forbidden / mute / pierce; one #f0e6d8 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/copy.svg  12x12 cells  24x24 viewBox  copy  Copy / echo; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/swords.svg  12x12 cells  24x24 viewBox  swords  Double hit; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/users.svg  12x12 cells  24x24 viewBox  users  Group / neighbors; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/link.svg  12x12 cells  24x24 viewBox  link  Bond / chain / thorns; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/sparkles.svg  12x12 cells  24x24 viewBox  sparkles  Magic / smoke / swarm; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/droplet.svg  12x12 cells  24x24 viewBox  droplet  Potion / siphon; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/hammer.svg  12x12 cells  24x24 viewBox  hammer  Heavy hit; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/mountain.svg  12x12 cells  24x24 viewBox  mountain  Heavy / stone; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/wand.svg  12x12 cells  24x24 viewBox  wand  Caster; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/skull.svg  12x12 cells  24x24 viewBox  skull  Death / trophy-ish; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/footprints.svg  12x12 cells  24x24 viewBox  footprints  Move / flee; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/trending.svg  12x12 cells  24x24 viewBox  trending  Rising stat; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/layers.svg  12x12 cells  24x24 viewBox  layers  Pack / items; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+assets/icons/palm.svg  12x12 cells  24x24 viewBox  palm  Palm / fist; one #c4a574 path on a 2-unit pixel grid (crispEdges), original geometry
+tools/rebuild_atlas.py  -  -  -  helper (not art): pastes assets/dungeon/tiles/<slice>.png into assets/dungeon/atlas.png at the tile_list.txt rects, keeps atlas_0x72_backup.png; run from the project root
+icon.svg  32x32 cells  128x128  icon  app icon: #1a1714 field, gold wheel ring with four cardinal pips (red N/S, green E/W), a steel sword swiping up-right across it; 4-unit cells so it is pixel-exact at 32 and 128
+#
+# Skipped / not in this batch:
+#  retired ids caltrops, dagger, helmet_hidden, bandana - skipped per brief §5.
+#  echo_bell 28x28 card overlay - no separate file; brief says it reuses items/echo_bell.png.
+#  monster idle/run frame strips (id_idle_0..3, id_run_0..3), Nib idle - not drawn yet; static frame 0 shipped as <file>.png.
+#  atlas slices not listed in brief §7 (not drawn): chest_empty_open_anim_f0-2, column_wall, floor spikes/ladder/stairs/edges, other wall pieces,
+#    other fountain colours/basins, and the ui_* atlas slices other than the hearts.
+#  ux_style.gd's res://assets/ui/panels/ui_panel_oak*.png - path does not exist in the repo and is not in the brief.
+#  VFX leftovers star_01, star_02, magic_01, smoke_06, trace_01 - omitted (brief §9 says replace or omit; none are loaded by code).
+#  Kenney-named VFX files (star_08.png etc.) are not written: brief §4 path is vfx/{key}.png - see README for the dungeon_art.gd path swap.
