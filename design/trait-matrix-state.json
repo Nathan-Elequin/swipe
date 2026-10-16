@@ -523,7 +523,7 @@
       "tier": 3,
       "bucket": 2,
       "status": "live",
-      "ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I flee and shuffle the Dungeon.",
+      "ability": "I give my Neighbors +2 Attack. The first time I would leave, I Flee.",
       "attack": 3,
       "hp": 3,
       "sprite": {
@@ -777,8 +777,8 @@
       "kind": "item",
       "tier": 1,
       "bucket": 3,
-      "status": "todo",
-      "ability": "Starts at 2 each fight. Flips 2 ↔ 4 after any Item is used.",
+      "status": "live",
+      "ability": "Flips 2 ↔ 4 after any Item is used. Carries over between combats in this dungeon.",
       "attack": null,
       "hp": null,
       "sprite": {

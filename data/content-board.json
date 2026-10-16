@@ -35,6 +35,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "3 damage, or nick 1",
 			"name": "Throwing Knife",
 			"notes": "",
 			"ops": {
@@ -94,6 +95,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Gain 4 Block",
 			"name": "Shield",
 			"notes": "",
 			"ops": {
@@ -108,11 +110,12 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "Starts at 2 each fight. Flips 2 ↔ 4 after any Item is used.",
+			"ability": "Flips 2 ↔ 4 after any Item is used.\n",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 3.0,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 2.0,
@@ -122,7 +125,7 @@
 			"hp_formula": "",
 			"id": "sai",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-14",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -138,8 +141,12 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
+			"log_hint": "Attack flips 2 or 4",
 			"name": "Sai",
 			"notes": "This should NOT start at 2 each fight, it should carry over its value between combats (not between dungeons eg adventure mode)",
 			"ops": {
@@ -147,9 +154,10 @@
 			},
 			"priority": 2.0,
 			"rarity": "starter",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
-			"status": "todo",
+			"status": "live",
 			"tier": 1.0
 		},
 		{
@@ -185,6 +193,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Block for missing HP",
 			"name": "Medallion",
 			"notes": "",
 			"ops": {
@@ -232,6 +241,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Block equal to lower HP",
 			"name": "Helmet",
 			"notes": "",
 			"ops": {
@@ -279,6 +289,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Kill if they have less HP",
 			"name": "The Boot",
 			"notes": "",
 			"ops": {
@@ -326,6 +337,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "+1 Attack per missing HP",
 			"name": "Bloody Wraps",
 			"notes": "",
 			"ops": {
@@ -372,6 +384,7 @@
 				"atk_formula",
 				"hp_formula"
 			],
+			"log_hint": "Block from right neighbor",
 			"name": "Right Bracer",
 			"notes": "Final enemy: unusable.",
 			"ops": {
@@ -419,6 +432,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Block from left neighbor",
 			"name": "Left Bracer",
 			"notes": "Final enemy: unusable.",
 			"ops": {
@@ -467,6 +481,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Attack 8 minus your items",
 			"name": "Knucklers",
 			"notes": "",
 			"ops": {
@@ -516,6 +531,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "+2 Attack when you bleed",
 			"name": "Spiked Flail",
 			"notes": "Change to Base 0 ATK",
 			"ops": {
@@ -563,6 +579,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Kill 5+ Attack enemies",
 			"name": "Sledgehammer",
 			"notes": "",
 			"ops": {
@@ -608,6 +625,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Copy last enemy Attack",
 			"name": "Grimoire",
 			"notes": "",
 			"ops": {},
@@ -653,6 +671,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "2 Block, keep if hurt",
 			"name": "Breastplate",
 			"notes": "",
 			"ops": {},
@@ -698,6 +717,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Spin again, random item",
 			"name": "Smoke Bomb",
 			"notes": "",
 			"ops": {},
@@ -744,6 +764,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Let them hit, then kill",
 			"name": "Fangs",
 			"notes": "",
 			"ops": {},
@@ -790,6 +811,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Mark a neighbor for 5",
 			"name": "Poison Flask",
 			"notes": "",
 			"ops": {},
@@ -835,6 +857,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Save you from death",
 			"name": "Healing Potion",
 			"notes": "",
 			"ops": {},
@@ -880,17 +903,17 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "4 damage to a neighbor",
 			"name": "Crossbow",
 			"notes": "",
 			"ops": {
-				"hp_max": 4.0,
 				"kind": "atk_neighbor",
 				"n": 4.0
 			},
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"review": "polish",
-			"review_note": "Remove the 4 HP requirement, this is now a standard attak item",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -927,6 +950,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "A monster hits for you",
 			"name": "Pocketwatch",
 			"notes": "Final enemy: unusable.",
 			"ops": {},
@@ -970,6 +994,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Hit them and both neighbors",
 			"name": "Double Axe",
 			"notes": "",
 			"ops": {
@@ -1016,6 +1041,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Heal 1 per kill",
 			"name": "Victory Flask",
 			"notes": "",
 			"ops": {
@@ -1063,6 +1089,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Swap in a neighbor",
 			"name": "Grappling Hook",
 			"notes": "",
 			"ops": {
@@ -1110,6 +1137,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "2 Attack or 2 Block",
 			"name": "Spiked Shield",
 			"notes": "Art is a stand-in until a spiked shield tile exists.",
 			"ops": {
@@ -1169,6 +1197,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Each Spin: lose HP, gain Block",
 			"name": "Grief Jar",
 			"notes": "",
 			"ops": {
@@ -1214,6 +1243,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "4 damage across the wheel",
 			"name": "Longbow",
 			"notes": "",
 			"ops": {
@@ -1260,6 +1290,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Heal 2, keep if still hurt",
 			"name": "Lantern",
 			"notes": "Breastplate keeps if you bled. This keeps if you are still hurt after the heal.",
 			"ops": {
@@ -1306,6 +1337,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Copy last Block gained",
 			"name": "Mirror Shard",
 			"notes": "Last Block is the amount from the last time you gained Block, not your current Block total.",
 			"ops": {
@@ -1351,6 +1383,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Copy the last item used",
 			"name": "Echo Bell",
 			"notes": "Updates when you use an item. Cube feed is not an item use. First fight of a run: Unplayable.",
 			"ops": {
@@ -1398,6 +1431,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Turns their ability off",
 			"name": "Quiet Bell",
 			"notes": "Golem: cannot click. Bandit and other formulas fall back to the ATK/HP columns.",
 			"ops": {
@@ -1443,6 +1477,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Cut their Attack by 1-3",
 			"name": "Net",
 			"notes": "Caltrops is retired. This is the milder version, last in calc.",
 			"ops": {
@@ -1494,6 +1529,7 @@
 				"priority",
 				"card_color"
 			],
+			"log_hint": "Attack equal to your Block",
 			"name": "Chain",
 			"notes": "Hornet and Queen still Attack after. You still hold the Block for those swings.",
 			"ops": {
@@ -1539,6 +1575,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Pick 1, 2, 3, or 4 Attack",
 			"name": "Counting Beads",
 			"notes": "Cube feed is not an item use, so the cycle does not advance. Anvil takes 1 from this Attack.",
 			"ops": {
@@ -1574,6 +1611,7 @@
 				"priority",
 				"card_color"
 			],
+			"log_hint": "Win if you have no Attack",
 			"name": "Paci Fist",
 			"notes": "Holding only this works. Echo copying an Attack item counts as an Attack item. Shield alone is enough.",
 			"ops": {
@@ -1587,21 +1625,22 @@
 			"tier": 3.0
 		},
 		{
-			"ability": "Deal Attack equal to half your HP (rounded down) and Heal that much. If they survive, Keep this item.",
+			"ability": "",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 8.0,
-			"card_color": "atk",
+			"bucket": 3,
+			"call_name": "",
+			"card_color": "defeat",
 			"contradiction_ids": [],
-			"count": 1.0,
-			"explainer": "(Attack = half HP. Heal that much. Survive: Keep.)",
-			"flow": "Click during a fight. Deal Attack equal to half your current HP, rounded down. Heal that same number even if they die. If they still have HP after that Attack, including Goblin, Keep this item. If they die, this is used up. Counts as an item use.",
+			"count": 1,
+			"explainer": "",
+			"flow": "",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "measuring_tape",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-15",
 			"locked_fields": [
 				"ability",
 				"name",
@@ -1619,19 +1658,22 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
+			"log_hint": "Kill at exactly double HP",
 			"name": "Scythe",
-			"notes": "Goblin takes 0 Attack and still has HP, so Keep. Heal still happens if they die. Anvil takes 1 from this Attack. Ogre HP is your HP, so half your HP cannot kill them by itself.",
+			"notes": "",
 			"ops": {
 				"kind": "atk_hp_gap"
 			},
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "rough",
-			"review_note": "Attack equal to half your HP (rounded down) and Heal that much. If the enemy survives, Keep this item.\n\nReplace this art with one of an actual Scythe.",
-			"status": "live",
-			"tier": 3.0
+			"review_note": "REWORK: \"Defeat any Monster with exactly double your HP\"\n\nHow it works:\nPlayer can select any Monster on the wheel (including their current opponent). Otherwise, this functions exactly like The Boot and Sledgehammer in terms of function and animation",
+			"status": "todo",
+			"tier": 3
 		},
 		{
 			"ability": "Choose other items in your hand. Each becomes a random item of that item's tier.",
@@ -1655,6 +1697,7 @@
 				"priority",
 				"card_color"
 			],
+			"log_hint": "Reroll chosen items",
 			"name": "Chaos Stone",
 			"notes": "Does not deal Attack. Gargoyle petrify does not pick this. Cube feed is not this.",
 			"ops": {
@@ -1702,13 +1745,16 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Heal 6, then bleed 1",
 			"name": "Cursed Scroll",
 			"notes": "",
-			"ops": {},
+			"ops": {
+				"kind": "heal_full"
+			},
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"review": "polish",
-			"review_note": "Changed the text and ability. On hotbar it should show a green 6 since it heals for 6.",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -1729,6 +1775,7 @@
 			"kind": "item",
 			"locked_at": "",
 			"locked_fields": [],
+			"log_hint": "Hurt you, or feed the Queen",
 			"name": "Spider Egg",
 			"notes": "Not drafted. Queen creates it. Tier 0 so Merchant can turn it into a Tier 1 item.",
 			"ops": {
@@ -1777,6 +1824,7 @@
 				"atk_formula",
 				"hp_formula"
 			],
+			"log_hint": "Their Attack becomes 0",
 			"name": "Caltrops",
 			"notes": "Dragon pierce of 0 is 0. Kobold still swings twice for 0.",
 			"ops": {
@@ -1820,6 +1868,7 @@
 				"atk_formula",
 				"hp_formula"
 			],
+			"log_hint": "2 Attack, then comes back",
 			"name": "Dagger",
 			"notes": "",
 			"ops": {},
@@ -1861,6 +1910,7 @@
 				"atk_formula",
 				"hp_formula"
 			],
+			"log_hint": "Block equal to lower HP",
 			"name": "Helmet",
 			"notes": "",
 			"ops": {},
@@ -1902,6 +1952,7 @@
 				"atk_formula",
 				"hp_formula"
 			],
+			"log_hint": "Lose 1 HP each fight",
 			"name": "Bandana",
 			"notes": "",
 			"ops": {},
@@ -1929,6 +1980,7 @@
 			"kind": "item",
 			"locked_at": "",
 			"locked_fields": [],
+			"log_hint": "3 Attack, and you pierce",
 			"name": "Arrow Head",
 			"notes": "Bucket 7. Two copies each add +1. Take X / Done uses the ignore-Block math. Echo Bell that is a copy of this also runs the aura.",
 			"ops": {
@@ -1959,6 +2011,7 @@
 			"kind": "item",
 			"locked_at": "",
 			"locked_fields": [],
+			"log_hint": "Steer the next Spin",
 			"name": "Danger Magnet",
 			"notes": "Bucket 4. Count 1. No Attack. Petrified still steers if already armed.",
 			"ops": {
@@ -2023,6 +2076,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "No special",
 			"name": "Wizard",
 			"notes": "",
 			"ops": {},
@@ -2067,6 +2121,7 @@
 				"atk_formula",
 				"hp_formula"
 			],
+			"log_hint": "No special",
 			"name": "Golem",
 			"notes": "",
 			"ops": {},
@@ -2114,6 +2169,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Cannot take Attack",
 			"name": "Goblin",
 			"notes": "",
 			"ops": {},
@@ -2161,6 +2217,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Copies last enemy HP",
 			"name": "Skeleton",
 			"notes": "If this is the first unit faced, set HP to 3.",
 			"ops": {},
@@ -2208,6 +2265,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Attacks you twice",
 			"name": "Hornet Swarm",
 			"notes": "",
 			"ops": {},
@@ -2255,6 +2313,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Neighbors gain 1 HP",
 			"name": "Lich",
 			"notes": "",
 			"ops": {},
@@ -2302,6 +2361,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Mirrors the HP you lose",
 			"name": "Ogre",
 			"notes": "",
 			"ops": {},
@@ -2315,17 +2375,17 @@
 		},
 		{
 			"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
-			"atk_base": 5,
+			"atk_base": 5.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 1,
+			"bucket": 1.0,
 			"call_name": "Bloodlust",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "+1 HP and +1 ATK each time you lose HP",
 			"flow": "Each time the player's HP number goes down, every living Vampire on the wheel gains +1 current HP, +1 max HP, and +1 Attack. A 4-heart hit is still +1/+1. A fully blocked hit does nothing. Healing does not remove the bonus. The bonus stays until that Vampire dies or leaves. Quiet Bell stops further gains and keeps the HP and Attack already gained. The new Attack is for the next swing.",
-			"hp_base": 5,
+			"hp_base": 5.0,
 			"hp_formula": "",
 			"id": "vampire",
 			"kind": "monster",
@@ -2349,16 +2409,17 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "You lost HP. Vampire grew.",
 			"name": "Vampire",
 			"notes": "Once per hit or bleed, not once per heart. Every copy on the wheel.",
 			"ops": {},
-			"priority": 3,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "+1/+1 each time you lose HP",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "I alternate between 3, 4, and 8 Atk every time you Spin.",
@@ -2396,6 +2457,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Attack cycles 3, 4, then 8",
 			"name": "Berserker",
 			"notes": "",
 			"ops": {},
@@ -2410,7 +2472,7 @@
 		{
 			"ability": "My Attack is your HP.",
 			"atk_base": 0.0,
-			"atk_formula": "player_hp_on_spin",
+			"atk_formula": "player_hp",
 			"author_lock": true,
 			"bucket": 0.0,
 			"call_name": "Kill Shot",
@@ -2443,6 +2505,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Attack equals your HP",
 			"name": "Dire Wolf",
 			"notes": "",
 			"ops": {},
@@ -2450,7 +2513,7 @@
 			"rarity": "uncommon",
 			"reminder": "attack is your HP",
 			"review": "polish",
-			"review_note": "Redesign: Dire Wolf Atk should update ANY TIME Player HP updates, similarly to Ogre's 'Empath' trait. ",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -2490,6 +2553,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "+1 Attack per item held",
 			"name": "Bandit",
 			"notes": "",
 			"ops": {},
@@ -2537,6 +2601,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Neighbors hit, then it heals",
 			"name": "Damsel in Distress",
 			"notes": "",
 			"ops": {},
@@ -2584,6 +2649,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Attack always equals HP",
 			"name": "Slime Boss",
 			"notes": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer.",
 			"ops": {},
@@ -2597,21 +2663,21 @@
 		},
 		{
 			"ability": "On Spin, I give +1 HP to another monster with the lowest HP still in the dungeon. Then I gain +1 HP.",
-			"atk_base": 6.0,
+			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 3.0,
-			"call_name": "Lowest HP",
+			"call_name": "Blood Rise",
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1.0,
 			"explainer": "+1 HP to the lowest other HP, then +1 HP to me",
 			"flow": "",
-			"hp_base": 6.0,
+			"hp_base": 1.0,
 			"hp_formula": "",
 			"id": "leech_league",
 			"kind": "monster",
-			"locked_at": "2026-10-12",
+			"locked_at": "2026-10-14",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2629,17 +2695,19 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
+			"log_hint": "Raises lowest HP Monster until it equals another Monster",
 			"name": "Leech League",
 			"notes": "",
 			"ops": {},
 			"priority": 2.0,
 			"rarity": "uncommon",
-			"reminder": "+1 HP to the lowest other HP, then +1 HP to me",
-			"review": "polish",
-			"review_note": "(Rework) - On Spin, this unit gives +1 HP to another unit with the Lowest HP still  in the dungeon. Then it gives itself +1 HP)\n\n(Calculates HP after other On Spin effects. If multiple candidates, choose one at random . This needs an animation and sound effect highlighting the Leech League granting 1 HP to the selected monster. The 'other monster' cannot ever be itself, so if Leech League is alone it will only grant itself +1 HP)",
-			"status": "live",
+			"reminder": "Lowest HP Monster = 2nd Lowest HP Monster",
+			"review": "refined",
+			"review_note": "(Rework) - On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.\n\n(Calculates HP after other On Spin effects. If multiple candidates, choose one at random . This needs an animation and sound effect highlighting the Leech League granting 1 HP to the selected monster.)\n\nHow it works: selects an Monster whose HP (after spin) is the lowest or tied for lowest (which can include itself). Then it grants that Monster +1. Then it checks if the Monster's new HP is equal to that of another Monster - if yes, this process ends. If no, it adds +1 and checks again. If there are no other monster (ie there's only 1 in the dungeon), this ability does not activate at all.\n",
+			"status": "todo",
 			"tier": 3.0
 		},
 		{
@@ -2680,6 +2748,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Copies higher neighbor Attack",
 			"name": "Wraith",
 			"notes": "",
 			"ops": {},
@@ -2725,6 +2794,7 @@
 				"hp_formula",
 				"call_name"
 			],
+			"log_hint": "Drops an item if you kill it",
 			"name": "Mimic",
 			"notes": "",
 			"ops": {},
@@ -2772,6 +2842,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Gives you an Egg each Spin",
 			"name": "Spider Queen",
 			"notes": "",
 			"ops": {},
@@ -2784,7 +2855,7 @@
 			"tier": 3.0
 		},
 		{
-			"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I flee and shuffle the Dungeon.",
+			"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee.",
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -2801,7 +2872,7 @@
 			"hp_formula": "",
 			"id": "commander",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-14",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2819,8 +2890,10 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
+			"log_hint": "Neighbors +2 Attack, then flees",
 			"name": "Commander",
 			"notes": "",
 			"ops": {},
@@ -2828,8 +2901,8 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
-			"review_note": "(TWEAK/REDESIGN) - As shown in Speech, this unit survives the first time it is defeated (whether Slain/blocked or anything), then shuffles the dungeon and spins it.\n---\nIf this happens while the player is fighting another enemy (eg with Crossbow/Longbow), it interrupts that fight and skips straight to Spin.\n---\nThis unit needs a clear indicator on its callout and sprite/icon to indicate whether it has already used this ability.",
-			"status": "live",
+			"review_note": "(TWEAK/REDESIGN) - As shown in Speech, this unit survives the first time it is defeated (whether Slain/blocked or anything), then shuffles the dungeon and spins it.\n\n'Flee' should be keyworded (formatted) and have a tooltip that appears, attached to the relevant monster callout (in this case Commander) and defines iit in a smaller hover box whenever players are looking at 'War Cry'\n---\nIf this happens while the player is fighting another enemy (eg with Crossbow/Longbow), it interrupts that fight and skips straight to Spin.\n---\nThis unit needs a clear indicator on its callout and sprite/icon to indicate whether it has already used this ability.",
+			"status": "todo",
 			"tier": 3.0
 		},
 		{
@@ -2870,6 +2943,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Attack ignores Block",
 			"name": "Dragon",
 			"notes": "",
 			"ops": {},
@@ -2917,6 +2991,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Hits you when it takes Attack",
 			"name": "Needleback",
 			"notes": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
 			"ops": {},
@@ -2964,6 +3039,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Makes you feed it an item",
 			"name": "Gelatinous Cube",
 			"notes": "Not an item use: no Kobold extra, no Echo update, no Harpy after the feed.",
 			"ops": {},
@@ -3011,6 +3087,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Petrifies your best Attack",
 			"name": "Gargoyle",
 			"notes": "Petrify tooltip: Unplayable until your next Spin.",
 			"ops": {},
@@ -3056,6 +3133,7 @@
 				"hp_formula",
 				"call_name"
 			],
+			"log_hint": "Hits on meet and after items",
 			"name": "Harpy",
 			"notes": "One swing, fight stays open. If an item already killed me, no extra swing.",
 			"ops": {},
@@ -3101,6 +3179,7 @@
 				"hp_formula",
 				"call_name"
 			],
+			"log_hint": "Extra hits per item used",
 			"name": "Kobold Trapper",
 			"notes": "0 items = 1 swing. 2 items = 3 swings.",
 			"ops": {},
@@ -3147,6 +3226,7 @@
 				"reminder",
 				"card_color"
 			],
+			"log_hint": "Splits into two monsters",
 			"name": "Clockwork Knight",
 			"notes": "Quiet Bell strips this: I leave like anyone else, no heirs.",
 			"ops": {},
@@ -3194,6 +3274,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "You cannot Gain or Keep",
 			"name": "Basilisk",
 			"notes": "Keep after the fight is already over does not apply — the toss happens when you click.",
 			"ops": {},
@@ -3241,6 +3322,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Even numbers hit us twice",
 			"name": "Twins",
 			"notes": "Anvil would take 1 from each of those two Attacks. Poison Flask is not an Attack.",
 			"ops": {},
@@ -3288,6 +3370,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Attack from your leftmost item",
 			"name": "Beggar",
 			"notes": "Spent cards are skipped. Petrified cards have no Attack number for this.",
 			"ops": {},
@@ -3335,6 +3418,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "+1 Attack, -1 HP per item",
 			"name": "Wick",
 			"notes": "Kobold adds extra swings. I add to the Attack number. Both can stack if they ever sat together; they will not in one fight.",
 			"ops": {},
@@ -3382,6 +3466,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Loses only 1 HP at a time",
 			"name": "Anvil",
 			"notes": "Needleback poke is not an Item hitting me. Poison Flask is not an Attack. Extra Attacks each chip 1.",
 			"ops": {},
@@ -3411,6 +3496,7 @@
 			"kind": "monster",
 			"locked_at": "",
 			"locked_fields": [],
+			"log_hint": "Takes hits for neighbors",
 			"name": "Bodyguard",
 			"notes": "Bucket 2. Right is counterclockwise when a King is also passing. Goblin still shows Immune to Attack Damage when the hit actually lands on Goblin.",
 			"ops": {},
@@ -3440,6 +3526,7 @@
 			"kind": "monster",
 			"locked_at": "",
 			"locked_fields": [],
+			"log_hint": "Hits you and flees if hurt",
 			"name": "Cowardly King",
 			"notes": "Bucket 9. One Poison Flask deals 5, so a fresh King is left at 1 HP. Flee here means he stays after his own attack. It is not Commander's shuffle.",
 			"ops": {},
@@ -3469,6 +3556,7 @@
 			"kind": "monster",
 			"locked_at": "",
 			"locked_fields": [],
+			"log_hint": "Upgrades a chosen item",
 			"name": "Merchant",
 			"notes": "Bucket 4. Open buckets only. A new Spider Egg laid on this spin can be picked.",
 			"ops": {},
@@ -3498,6 +3586,7 @@
 			"kind": "monster",
 			"locked_at": "",
 			"locked_fields": [],
+			"log_hint": "Gives you a Shield",
 			"name": "Juggernaut",
 			"notes": "Bucket 8. The Shield is the live Shield card. You can click it this fight.",
 			"ops": {},
@@ -3545,6 +3634,7 @@
 				"hp_formula",
 				"card_color"
 			],
+			"log_hint": "Heals 3, or takes an item",
 			"name": "Cleric",
 			"notes": "Bucket 6. Spider Egg is Tier 0. Missing 3 HP means 3 hearts or fewer. Two Clerics: the second only pays if you are still missing 3 after the first Heal 3.",
 			"ops": {},
@@ -3557,5 +3647,5 @@
 			"tier": 2.0
 		}
 	],
-	"updated": "2026-10-13"
+	"updated": "2026-10-15"
 }

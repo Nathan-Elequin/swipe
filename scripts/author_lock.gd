@@ -11,6 +11,7 @@ const CARD_FIELDS := [
 	"explainer",
 	"call_name",
 	"reminder",
+	"log_hint",
 	"flow",
 	"notes",
 	"ops",
@@ -118,7 +119,7 @@ static func rebuild_ledger(board: Variant = null, copy: Variant = null) -> void:
 	var ledger := {
 		"id": "boss-rush-author-locks",
 		"updated": Time.get_date_string_from_system(),
-		"instructions": "Nathan locked these by clicking Save in Roster, the card editor, the Script editor, or the HTML board. Do not rewrite them. If chat clearly asks to change one, stop, name the locked keys, and wait for a yes.",
+		"instructions": "Nathan locked these by clicking Save in Roster, the card editor, the Script editor, or the HTML board. Do not restyle them. A gold-box note that replaces a field is the overwrite. If chat asks to change a locked field with no gold-box note, stop, name the keys, and wait for a yes.",
 		"cards": cards,
 		"script": script,
 	}

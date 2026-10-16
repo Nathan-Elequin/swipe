@@ -8,6 +8,7 @@ signal slice_right_clicked(index: int)
 var show_shift: bool = false
 
 const COPY := preload("res://scripts/player_copy.gd")
+const FX_RAYS := preload("res://scripts/fx_rays.gd")
 
 const SIX := PI / 2.0
 const EMPTY_FILL := Color("14110e")
@@ -20,8 +21,8 @@ const FACE_RIM := Color("e8c36a")
 const PLACE_RIM := Color("8dcb8d")
 const BRIBE_RIM := Color("d19a66")
 const ATK_COL := Color("e8dcc8")
-const ATK_FILL := Color("6a1c14")
-const ATK_EDGE := Color("e07040")
+const ATK_FILL := Color("c45a14")
+const ATK_EDGE := Color("f0a040")
 const HP_COL := Color("f0e6d8")
 const HP_FILL := Color("c4282a")
 const DOWN_COL := Color("c45c5c")
@@ -34,6 +35,7 @@ var hover_index: int = -1
 var spinning: bool = false
 var highlight: String = "none"
 var preview: Dictionary = {}
+var log_focus: Dictionary = {}
 var rot: float = 0.0:
 	set(v):
 		rot = v
@@ -53,6 +55,10 @@ var _spin_tween: Tween
 var _lift: Dictionary = {}
 var _floaters: Array = []
 var _flash: Dictionary = {}
+var _hp_disp: Dictionary = {}
+var _hp_punch: Dictionary = {}
+var _atk_disp: Dictionary = {}
+var _atk_punch: Dictionary = {}
 var slay_index: int = -1
 var slay_kind: String = "slay"
 var slay_t: float = 0.0:
@@ -209,6 +215,11 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 
 func set_preview(next: Dictionary) -> void:
 	preview = next
+	queue_redraw()
+
+
+func set_log_focus(next: Dictionary) -> void:
+	log_focus = next
 	queue_redraw()
 
 
@@ -473,6 +484,18 @@ func _process(delta: float) -> void:
 		if t > 0.0:
 			flash_keep[k] = t
 	_flash = flash_keep
+	var punch_keep := {}
+	for pk in _hp_punch.keys():
+		var pv: float = float(_hp_punch[pk]) - delta * 3.4
+		if pv > 0.02:
+			punch_keep[pk] = pv
+	_hp_punch = punch_keep
+	var atk_punch_keep := {}
+	for ak in _atk_punch.keys():
+		var av: float = float(_atk_punch[ak]) - delta * 3.4
+		if av > 0.02:
+			atk_punch_keep[ak] = av
+	_atk_punch = atk_punch_keep
 	queue_redraw()
 
 
@@ -612,10 +635,80 @@ func slice_portrait_global(i: int) -> Vector2:
 	return get_global_transform() * local
 
 
+func hp_global(i: int) -> Vector2:
+	if i < 0 or i >= slices.size():
+		return global_position
+	return get_global_transform() * _hp_pos(i)
+
+
+func atk_global(i: int) -> Vector2:
+	if i < 0 or i >= slices.size():
+		return global_position
+	return get_global_transform() * _atk_pos(i)
+
+
 func hub_hearts_global() -> Vector2:
 	var c: Vector2 = _center()
 	var hub_r: float = _radius() * HUB_FRAC
 	return get_global_transform() * (c + Vector2(-22.0, hub_r * 0.42))
+
+
+func hub_blk_global() -> Vector2:
+	var c: Vector2 = _center()
+	var hub_r: float = _radius() * HUB_FRAC
+	return get_global_transform() * (c + Vector2(24.0, hub_r * 0.42))
+
+
+func punch_hp(index: int) -> void:
+	if index < 0 or index >= slices.size():
+		return
+	_hp_punch[index] = 1.0
+	_flash[index] = 0.55
+	queue_redraw()
+
+
+func punch_atk(index: int) -> void:
+	if index < 0 or index >= slices.size():
+		return
+	_atk_punch[index] = 1.0
+	_flash[index] = 0.55
+	queue_redraw()
+
+
+func play_atk_ticks(index: int, from_n: int, to_n: int) -> void:
+	if index < 0 or index >= slices.size() or from_n == to_n:
+		punch_atk(index)
+		return
+	var step: int = -1 if to_n < from_n else 1
+	var n: int = from_n
+	_atk_disp[index] = n
+	punch_atk(index)
+	while n != to_n:
+		n += step
+		_atk_disp[index] = n
+		punch_atk(index)
+		if get_tree():
+			await get_tree().create_timer(0.035).timeout
+	_atk_disp.erase(index)
+	queue_redraw()
+
+
+func play_hp_ticks(index: int, from_n: int, to_n: int) -> void:
+	if index < 0 or index >= slices.size() or from_n == to_n:
+		punch_hp(index)
+		return
+	var step: int = -1 if to_n < from_n else 1
+	var n: int = from_n
+	_hp_disp[index] = n
+	punch_hp(index)
+	while n != to_n:
+		n += step
+		_hp_disp[index] = n
+		punch_hp(index)
+		if get_tree():
+			await get_tree().create_timer(0.035).timeout
+	_hp_disp.erase(index)
+	queue_redraw()
 
 
 func _atk_pos(i: int) -> Vector2:
@@ -797,6 +890,8 @@ func _draw_wedge(origin: Vector2, r: float, a0: float, a1: float, fill: Color) -
 
 
 func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> void:
+	if i < 0 or i >= slices.size():
+		return
 	var s: Dictionary = slices[i]
 	var is_face: bool = (not spinning) and i == facing_index
 	var is_hover: bool = i == hover_index
@@ -847,10 +942,17 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 	elif is_hover:
 		rim = Color("f0e6d8")
 		rw = 2.4
+	if int(log_focus.get("wheel", -1)) == i:
+		rim = Color("fff0c0")
+		rw += 2.4
+		var pulse: float = 0.55 + 0.45 * sin(_glow_t * 8.0)
+		draw_arc(origin, r + 6.0, a0, a1, 26, Color(1.0, 0.94, 0.75, 0.35 + 0.4 * pulse), 4.0, true)
 	draw_arc(origin, r, a0, a1, 26, rim, rw, true)
 
 
 func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang: float, i: int) -> void:
+	if i < 0 or i >= slices.size():
+		return
 	var s: Dictionary = slices[i]
 	var sp: Dictionary = _spoke(i)
 	var dir: Vector2 = sp["dir"]
@@ -888,7 +990,7 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_texture_rect(st, Rect2(port_pos - Vector2(9, 9), Vector2(18, 18)), false, Color(dim, dim, dim, dim))
 	var big: bool = is_face or _lift_of(i) > 0.45 or is_hover
 	_draw_slice_title(font, sp, s, is_face, crowded, dim, is_hover)
-	_draw_heart_stat(font, sp["hp"], s, pv, big)
+	_draw_heart_stat(font, sp["hp"], s, pv, big, i)
 	_draw_atk_stat(font, sp["atk"], s, pv, big, i)
 	if bool(s.get("poisoned", false)):
 		draw_circle(sp["hp"] + Vector2(12, -10), 4.0, Color("7dba7d"))
@@ -933,7 +1035,19 @@ func _draw_tier_plate(center: Vector2, rad: float, s: Dictionary) -> void:
 		fill = Color("161018")
 	elif t >= 3:
 		fill = Color("100308")
-	draw_colored_polygon(_plate_pts(center, rad, t), fill)
+	_fill_poly(_plate_pts(center, rad, t), fill)
+
+
+func _fill_poly(pts: PackedVector2Array, col: Color) -> void:
+	var count: int = pts.size()
+	if count < 3:
+		return
+	var mid: Vector2 = Vector2.ZERO
+	for p in pts:
+		mid += p
+	mid /= float(count)
+	for i in count:
+		draw_colored_polygon(PackedVector2Array([mid, pts[i], pts[(i + 1) % count]]), col)
 
 
 func _draw_tier_num(_font: Font, _pos: Vector2, _s: Dictionary, _is_face: bool, _crowded: bool) -> void:
@@ -963,17 +1077,17 @@ func _draw_tier_rim(center: Vector2, rad: float, s: Dictionary) -> void:
 
 
 func _draw_portrait_window(center: Vector2, rad: float, s: Dictionary, tex: Texture2D, face_ang: float, dim: float = 1.0) -> void:
-	var pts: PackedVector2Array = _plate_pts(center, rad, _plate_tier(s))
-	if pts.size() < 3:
+	if tex == null:
 		return
-	var uvs := PackedVector2Array()
-	var cols := PackedColorArray()
-	var zoom: float = rad * 2.1
-	for p in pts:
-		var local: Vector2 = (p - center) / zoom
-		uvs.append(Vector2(0.5, 0.5) + local.rotated(-face_ang))
-		cols.append(Color(dim, dim, dim, 1.0))
-	draw_polygon(pts, cols, uvs, tex)
+	var side: float = rad * 1.55
+	var dest := Rect2(center - Vector2(side, side) * 0.5, Vector2(side, side))
+	var mod := Color(dim, dim, dim, 1.0)
+	if absf(face_ang) > 0.01:
+		draw_set_transform(center, face_ang, Vector2.ONE)
+		draw_texture_rect(tex, Rect2(Vector2(-side, -side) * 0.5, Vector2(side, side)), false, mod)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	else:
+		draw_texture_rect(tex, dest, false, mod)
 
 
 func _draw_outlined_string(font: Font, pos: Vector2, text: String, fs: int, col: Color, outline: Color) -> void:
@@ -1014,27 +1128,35 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 		var s: Dictionary = slices[i]
 		if str(s.get("kind", "")) != "monster":
 			continue
+		if int(s.get("hp", 0)) <= 0:
+			continue
 		var cid: String = str(s.get("card_id", ""))
 		var sp: Dictionary = _spoke(i)
-		if cid == "commander":
-			var rc := Color(0.92, 0.22, 0.16, 0.55 + 0.35 * pulse)
+		var hot: bool = i == hover_index
+		if cid == "commander" and str(s.get("special_id", "")) != "":
+			var a: float = (0.82 + 0.18 * pulse) if hot else (0.30 + 0.10 * pulse)
+			var rc := Color(0.92, 0.22, 0.16, a)
 			for off in [n - 1, 1]:
 				var j: int = (i + off) % n
-				if str(slices[j].get("kind", "")) != "monster":
+				if not _living_neighbor(j):
 					continue
-				_draw_edge_ticks(i, j, rc)
-		elif cid == "lich":
-			var cream := Color(0.95, 0.88, 0.72, 0.55 + 0.35 * pulse)
+				FX_RAYS.draw(self, sp["port"], _spoke(j)["port"], rc, _glow_t, hot)
+				FX_RAYS.draw(self, sp["port"], _spoke(j)["atk"], Color(rc.r, rc.g, rc.b, rc.a * 0.7), _glow_t, hot)
+		elif cid == "lich" and str(s.get("special_id", "")) != "":
+			var a2: float = (0.82 + 0.18 * pulse) if hot else (0.30 + 0.10 * pulse)
+			var cream := Color(0.95, 0.88, 0.72, a2)
 			for off2 in [n - 1, 1]:
 				var j2: int = (i + off2) % n
-				if str(slices[j2].get("kind", "")) != "monster":
+				if not _living_neighbor(j2):
 					continue
-				_draw_edge_ticks(i, j2, cream)
+				FX_RAYS.draw(self, sp["port"], _spoke(j2)["port"], cream, _glow_t, hot)
+				FX_RAYS.draw(self, sp["port"], _spoke(j2)["hp"], Color(cream.r, cream.g, cream.b, cream.a * 0.7), _glow_t, hot)
 		elif cid == "wraith":
 			var src: int = int(s.get("copy_from", -1))
-			if src >= 0 and src < n and str(slices[src].get("kind", "")) == "monster":
-				var pur := Color(0.72, 0.42, 0.92, 0.55 + 0.35 * pulse)
-				_draw_edge_ticks(src, i, pur)
+			if src >= 0 and src < n and _living_neighbor(src):
+				var a3: float = (0.82 + 0.18 * pulse) if hot else (0.30 + 0.10 * pulse)
+				var pur := Color(0.72, 0.42, 0.92, a3)
+				FX_RAYS.draw(self, _spoke(src)["atk"], sp["atk"], pur, _glow_t, hot)
 		elif cid == "slime_boss":
 			var slime := Color(0.45, 0.82, 0.42, 0.85)
 			var midp: Vector2 = (sp["atk"] + sp["hp"]) * 0.5
@@ -1042,6 +1164,14 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 			if font == null:
 				font = ThemeDB.fallback_font
 			_draw_outlined_string(font, midp + Vector2(0, 5), "=", 15, slime, Color("1c120c"))
+
+
+func _living_neighbor(j: int) -> bool:
+	if j < 0 or j >= slices.size():
+		return false
+	if str(slices[j].get("kind", "")) != "monster":
+		return false
+	return int(slices[j].get("hp", 0)) > 0
 
 
 func _draw_bold_name(font: Font, pos: Vector2, text: String, fs: int, col: Color, wrap: float = 108.0) -> void:
@@ -1119,7 +1249,7 @@ func _ability_icon_color(sid: String) -> Color:
 	match sid:
 		"item_atk", "two_items", "gift", "eat_item", "petrify", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure":
 			return Color("e8c36a")
-		"no_atk_dmg", "double_hit", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right":
+		"no_atk_dmg", "double_hit", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward":
 			return Color("e07040")
 		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead":
 			return Color("e8a0a0")
@@ -1184,8 +1314,7 @@ func _draw_bold_num(font: Font, pos: Vector2, txt: String, fs: int, col: Color) 
 func _star_pts(c: Vector2, outer: float, inner: float, n: int = 8) -> PackedVector2Array:
 	var pts := PackedVector2Array()
 	for i in n * 2:
-		var jagged: float = 0.72 if i % 4 == 1 else 1.0
-		var rad: float = (outer if i % 2 == 0 else inner * jagged)
+		var rad: float = outer if i % 2 == 0 else inner
 		var a: float = -PI * 0.5 + float(i) * PI / float(n)
 		pts.append(c + Vector2.from_angle(a) * rad)
 	return pts
@@ -1207,19 +1336,25 @@ func _queen_double(index: int) -> bool:
 
 func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1) -> void:
 	var atk: int = int(s.get("atk", 0)) + int(pv.get("atk", 0))
+	if i >= 0 and _atk_disp.has(i):
+		atk = int(_atk_disp[i])
 	var atk_d: int = int(pv.get("atk", 0))
 	var pulse: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 	var fill: Color = ATK_FILL
-	if bool(s.get("atk_variable", false)) or str(pv.get("mark", "")) == "spin":
+	if bool(s.get("atk_variable", false)) or str(pv.get("mark", "")) == "spin" or (int(log_focus.get("wheel", -1)) == i and bool(log_focus.get("atk", false))):
 		fill = fill.lerp(SPIN_COL, 0.25 * pulse)
 	if atk_d < 0:
 		fill = fill.lerp(DOWN_COL, 0.45)
 	elif atk_d > 0:
 		fill = fill.lerp(UP_COL, 0.35)
+	var punch: float = float(_atk_punch.get(i, 0.0)) if i >= 0 else 0.0
+	if punch > 0.02:
+		fill = fill.lerp(Color("ffd0a0"), punch * 0.55)
 	var rad: float = 21.0 if big else 18.0
 	if slices.size() >= 9:
 		rad -= 1.0
-	_draw_sword_badge(pos, rad, fill, _dir_of(i) if i >= 0 else Vector2.DOWN)
+	rad += punch * 4.0
+	_draw_atk_badge(pos, rad, fill)
 	if bool(s.get("cmd_buff", false)):
 		draw_arc(pos, rad + 3.0, 0.0, TAU, 24, Color(0.95, 0.22, 0.16, 0.45 + 0.5 * pulse), 2.6, true)
 	if int(s.get("copy_from", -1)) >= 0:
@@ -1239,49 +1374,52 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 		_draw_outlined_string(font, mark + Vector2(0.0, 4.0), "×2", 12, Color("e8c36a"), Color("1c120c"))
 
 
-func _draw_sword_badge(pos: Vector2, rad: float, fill: Color, aim: Vector2) -> void:
-	var out: Vector2 = aim.normalized() if aim.length() > 0.15 else Vector2.DOWN
-	var tan: Vector2 = Vector2(-out.y, out.x)
+func _draw_atk_badge(pos: Vector2, rad: float, fill: Color) -> void:
 	var ink := Color("100e0c")
 	var edge: Color = ATK_EDGE
-	var tip: Vector2 = pos + out * rad * 1.42
-	var left: Vector2 = pos - out * rad * 0.22 - tan * rad * 0.62
-	var right: Vector2 = pos - out * rad * 0.22 + tan * rad * 0.62
-	var haft: Vector2 = pos - out * rad * 1.05
-	draw_colored_polygon(PackedVector2Array([
-		tip + out * 2.0,
-		right + tan * 2.2,
-		haft - out * 2.0,
-		left - tan * 2.2,
-	]), ink)
-	draw_colored_polygon(PackedVector2Array([tip, right, haft, left]), fill)
-	draw_colored_polygon(PackedVector2Array([
-		pos - out * rad * 0.08 - tan * rad * 0.18,
-		pos - out * rad * 0.08 + tan * rad * 0.18,
-		pos + out * rad * 0.55 + tan * rad * 0.10,
-		pos + out * rad * 0.55 - tan * rad * 0.10,
-	]), edge)
-	draw_circle(pos, rad * 0.50, Color(fill.r, fill.g, fill.b, 0.96))
-	draw_arc(pos, rad * 0.50, 0.0, TAU, 22, edge, 2.2, true)
-	draw_arc(pos, rad * 0.50, 0.0, TAU, 22, ink, 1.1, true)
+	_fill_star(pos, rad * 1.22, rad * 0.46, ink)
+	_fill_star(pos, rad * 1.08, rad * 0.40, fill)
+	draw_arc(pos, rad * 0.52, 0.0, TAU, 22, edge, 2.2, true)
+	draw_circle(pos, rad * 0.46, Color(fill.r, fill.g, fill.b, 0.96))
+	draw_arc(pos, rad * 0.46, 0.0, TAU, 22, ink, 1.2, true)
 
 
-func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool) -> void:
+func _fill_star(c: Vector2, outer: float, inner: float, col: Color, n: int = 8) -> void:
+	var pts: PackedVector2Array = _star_pts(c, outer, inner, n)
+	var count: int = pts.size()
+	if count < 3:
+		return
+	for i in count:
+		draw_colored_polygon(PackedVector2Array([c, pts[i], pts[(i + 1) % count]]), col)
+
+
+func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1) -> void:
 	var hp: int = int(s.get("hp", 0)) + int(pv.get("hp", 0))
+	if i >= 0 and _hp_disp.has(i):
+		hp = int(_hp_disp[i])
 	var hp_d: int = int(pv.get("hp", 0))
 	var pulse: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 	var fill: Color = HP_FILL
-	if bool(s.get("hp_variable", false)) or str(pv.get("mark", "")) == "spin":
+	if bool(s.get("hp_variable", false)) or str(pv.get("mark", "")) == "spin" or (int(log_focus.get("wheel", -1)) == i and bool(log_focus.get("hp", false))):
 		fill = fill.lerp(SPIN_COL, 0.25 * pulse)
 	if hp_d < 0:
 		fill = fill.lerp(DOWN_COL, 0.45)
 	elif hp_d > 0:
 		fill = fill.lerp(UP_COL, 0.35)
+	var punch: float = float(_hp_punch.get(i, 0.0)) if i >= 0 else 0.0
+	if punch > 0.02:
+		fill = fill.lerp(Color("ffd0a0"), punch * 0.55)
 	var hs: float = 38.0 if big else 34.0
 	if slices.size() >= 9:
 		hs -= 2.0
+	hs += punch * 10.0
 	_draw_heart_shape(pos, hs, fill, Color("1c120c"))
 	draw_circle(pos + Vector2(0.0, 4.0), hs * 0.28, Color("6a1818"))
+	if punch > 0.35:
+		var slash := Color("f0e6d8", punch * 0.85)
+		var arm: float = hs * 0.42
+		draw_line(pos + Vector2(-arm, -arm * 0.2), pos + Vector2(arm, arm * 0.55), Color("1c120c", punch), 4.2, true)
+		draw_line(pos + Vector2(-arm, -arm * 0.2), pos + Vector2(arm, arm * 0.55), slash, 2.4, true)
 	if bool(s.get("lich_buff", false)):
 		var pulse2: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 		draw_arc(pos, hs * 0.52, 0.0, TAU, 20, Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2), 2.6, true)
@@ -1343,6 +1481,9 @@ func _draw_hub_block(c: Vector2, radius: float) -> void:
 	var hp_fill: Color = HP_FILL
 	if hub_hp_ghost >= 0 and hub_hp_ghost < hub_hp:
 		hp_fill = hp_fill.lerp(Color("f0e6d8"), 0.35 + 0.25 * absf(sin(_glow_t * 12.0)))
+	if bool(log_focus.get("hub_hp", false)):
+		hp_fill = hp_fill.lerp(Color("fff0c0"), 0.4 + 0.3 * absf(sin(_glow_t * 8.0)))
+		hs += 4.0
 	_draw_heart_shape(hp_pos, hs, hp_fill, Color("1c120c"))
 	_draw_bold_num(font, hp_pos + Vector2(0.0, 2.0), str(maxi(hub_hp, 0)), 18, Color("f0e6d8"))
 	_draw_outlined_string(font, hp_pos + Vector2(0.0, 22.0), "HP", 11, Color("e8a0a0"), Color("100e0c"))
@@ -1355,6 +1496,9 @@ func _draw_hub_block(c: Vector2, radius: float) -> void:
 	if hub_ghost >= 0 and hub_ghost > hub_blk:
 		fill = Color("2a7a58")
 		rim = Color("7dba7d")
+	if bool(log_focus.get("hub_blk", false)):
+		fill = fill.lerp(Color("fff0c0"), 0.35 + 0.25 * absf(sin(_glow_t * 8.0)))
+		rim = Color("fff0c0")
 	var scale: float = 1.0 + hub_flash * 0.28
 	var shield_c: Vector2 = c + Vector2(24.0, hub_r * 0.42)
 	var sw: float = 28.0 * scale

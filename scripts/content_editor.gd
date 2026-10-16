@@ -40,7 +40,7 @@ const DEFAULT_EXPLAINER := {
 	"dagger": "(NEIGHBOR ATK)",
 	"breastplate": "(2) and KEEP if you bled",
 	"fangs": "(TAKE THEIR ATK) then DEFEAT then HEAL THEIR HP",
-	"crossbow": "(ATK 4) if (NEIGHBOR HP ≤ 4)",
+	"crossbow": "ATK 4 to Neighbor",
 	"arrow_head": "(ATK 3)  (+1)  (ignores Block)",
 	"danger_magnet": "(Highest ATK) or (Lowest ATK) or (Off)",
 	"cleric": "After Spin: if missing 3 HP, Heal 3 and take worst item",
@@ -102,7 +102,7 @@ func setup() -> void:
 	head.add_child(_btn("Save", Color("3a2820"), Color("c4a574"), _on_save, 110))
 
 	var hint := Label.new()
-	hint.text = "Save writes the board and catalog, and locks this card. Chat will not rewrite locked fields unless you clearly override in chat, and even then it should stop and ask. Ctrl+S saves."
+	hint.text = "Save writes the board and catalog, and locks this card. Typed fields update inspect immediately. A gold-box note is also a real overwrite — Cursor writes it into Ability, numbers, and code on the next message. Ctrl+S saves."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color("6b4a10"))
@@ -188,6 +188,7 @@ func _from_catalog(kind: String, card_id: String, cat: Dictionary) -> Dictionary
 		"ability": str(cat.get("ability", "")),
 		"explainer": str(cat.get("explainer", "")),
 		"call_name": str(cat.get("call_name", "")),
+		"log_hint": str(cat.get("log_hint", "")),
 		"reminder": str(cat.get("reminder", "")),
 		"card_color": str(cat.get("card_color", "")),
 		"flow": str(cat.get("defined", "")),
@@ -232,7 +233,7 @@ func _rebuild(card: Dictionary) -> void:
 	_label_head("%s" % str(card.get("name", _id)))
 	if bool(card.get("author_lock", false)):
 		var lock_n := Label.new()
-		lock_n.text = "Locked by your last Save. Chat will not rewrite these fields unless you override in chat."
+		lock_n.text = "Locked by your last Save. Chat will not restyle these. A gold-box note that replaces a field is the overwrite."
 		lock_n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		lock_n.add_theme_font_size_override("font_size", 14)
 		lock_n.add_theme_color_override("font_color", Color("6b1008"))
@@ -240,7 +241,7 @@ func _rebuild(card: Dictionary) -> void:
 	var stage: String = REVIEW_STAGE.of_card(card)
 	if stage == "rough":
 		var banner := Label.new()
-		banner.text = "ROUGH — type what to change in the gold box. Save, then tell Cursor."
+		banner.text = "ROUGH — type what to change in the gold box. Save is a real overwrite. The next Cursor message writes this into Ability, numbers, and code."
 		banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		banner.add_theme_font_size_override("font_size", 18)
 		banner.add_theme_color_override("font_color", Color("8b1e1e"))
@@ -307,7 +308,10 @@ func _rebuild(card: Dictionary) -> void:
 	_add_area(_sheet, "Callout explainer (the math line on hover)", "explainer", _explainer_shown(card), 80, false)
 	if _kind == "monster":
 		_add_line(_sheet, "Call name (subtitle under the title)", "call_name", str(card.get("call_name", LINES.call_of(str(card.get("id", "")), card))))
+		_add_area(_sheet, "Log hover (under 6 words, on the Call name in the fight log)", "log_hint", str(card.get("log_hint", "")), 48, false)
 		_add_area(_sheet, "Shift line (replaces the call name while you hold Shift)", "reminder", str(card.get("reminder", LINES.reminder_of(str(card.get("id", "")), card))), 64, false)
+	else:
+		_add_area(_sheet, "Log hover (under 6 words, on this item in the fight log)", "log_hint", str(card.get("log_hint", "")), 48, false)
 	_add_pick(_sheet, "Card color", "card_color", UX.card_color_id(str(card.get("card_color", ""))), ["auto", "atk", "blk", "heal", "defeat", "utility", "smoke", "chaos", "egg"])
 	_add_area(_sheet, "Function flow / pseudocode (long)", "flow", str(card.get("flow", "")), 160, true)
 	_add_area(_sheet, "Notes for the implementer", "notes", str(card.get("notes", "")), 110, false)
@@ -387,7 +391,7 @@ func _add_review_note(host: Control, value: String, stage: String) -> void:
 	wrap.add_child(l)
 	var e := TextEdit.new()
 	e.text = value
-	e.placeholder_text = "Type what to change. Save, then tell Cursor."
+	e.placeholder_text = "Type what to change. Save. The next Cursor message writes this into Ability, numbers, and code."
 	e.custom_minimum_size = Vector2(0, 140 if stage == "rough" else 80)
 	e.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
 	e.scroll_fit_content_height = false
@@ -538,6 +542,7 @@ func _gather() -> Dictionary:
 		"ability": _text_of("ability"),
 		"explainer": _text_of("explainer"),
 		"call_name": _text_of("call_name") if _fields.has("call_name") else str(_original.get("call_name", "")),
+		"log_hint": _text_of("log_hint") if _fields.has("log_hint") else str(_original.get("log_hint", "")),
 		"reminder": _text_of("reminder") if _fields.has("reminder") else str(_original.get("reminder", "")),
 		"card_color": "" if UX.card_color_id(_text_of("card_color") if _fields.has("card_color") else str(_original.get("card_color", ""))) == "auto" else UX.card_color_id(_text_of("card_color") if _fields.has("card_color") else str(_original.get("card_color", ""))),
 		"flow": _text_of("flow"),
@@ -550,7 +555,8 @@ func _gather() -> Dictionary:
 	var logic_changed: bool = str(card["flow"]) != str(_original.get("flow", "")) \
 		or str(card["notes"]) != str(_original.get("notes", "")) \
 		or str(card["atk_formula"]) != str(_original.get("atk_formula", "")) \
-		or str(card["hp_formula"]) != str(_original.get("hp_formula", ""))
+		or str(card["hp_formula"]) != str(_original.get("hp_formula", "")) \
+		or str(card["review_note"]) != str(_original.get("review_note", ""))
 	if logic_changed and str(card["status"]) == "live":
 		card["status"] = "todo"
 	AUTHOR_LOCK.stamp_card(card, _original, false)

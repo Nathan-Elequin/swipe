@@ -18,6 +18,7 @@ var _lunge_x: float = 0.0:
 		_lunge_x = v
 		queue_redraw()
 var flip_h: bool = false
+var log_glow: bool = false
 var _watch_tex: Texture2D
 var _watch_t: float = 0.0
 var busy: bool = false
@@ -68,6 +69,11 @@ func _on_gui(event: InputEvent) -> void:
 		accept_event()
 
 
+func set_log_glow(on: bool) -> void:
+	log_glow = on
+	queue_redraw()
+
+
 func mouth_global() -> Vector2:
 	var r: Rect2 = get_global_rect()
 	return r.position + Vector2(r.size.x * 0.52, r.size.y * 0.50)
@@ -95,6 +101,8 @@ func take_hit() -> void:
 
 
 func lunge() -> void:
+	if OS.has_feature("editor"):
+		print("[resolve] stage.lunge id=", card_id, " frames=", _idle.size(), "/", _run.size())
 	busy = true
 	_mode = "run"
 	var tw := create_tween()
@@ -209,6 +217,9 @@ func _draw() -> void:
 	var frames: Array = _run if _mode == "run" and not _run.is_empty() else _idle
 	if not frames.is_empty():
 		var tex: Texture2D = frames[int(_fi) % frames.size()]
+		if tex == null or not is_instance_valid(tex):
+			print("[resolve] stage.draw skipped null tex id=", card_id)
+			return
 		var bob: float = sin(_bob * 3.2) * 3.0
 		var dest := Rect2(Vector2(size.x * 0.5 - 56.0 + _lunge_x, 14.0 + bob), Vector2(112, 124))
 		if flip_h:
@@ -251,8 +262,11 @@ func _draw() -> void:
 
 func _frame() -> void:
 	var gold := Color("c4a574")
+	if log_glow:
+		gold = Color("fff0c0")
+		draw_rect(Rect2(Vector2(0, 0), size), Color(1.0, 0.94, 0.75, 0.22 + 0.18 * absf(sin(_bob * 8.0))), false, 6.0)
 	draw_rect(Rect2(Vector2(4, 4), size - Vector2(8, 8)), gold, false, 3.0)
-	draw_rect(Rect2(Vector2(9, 9), size - Vector2(18, 18)), Color("e8c36a"), false, 1.0)
+	draw_rect(Rect2(Vector2(9, 9), size - Vector2(18, 18)), Color("e8c36a") if not log_glow else Color("fff8d8"), false, 1.0)
 	if art.tile("wall_mid") != null:
 		draw_texture_rect(art.tile("wall_mid"), Rect2(Vector2(0, 0), Vector2(size.x, 18)), false)
 	_corner(Vector2(2, 2), 1.0, 1.0)

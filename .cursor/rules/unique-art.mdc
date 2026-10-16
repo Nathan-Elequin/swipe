@@ -16,3 +16,5 @@ When you add a card, or when Nathan says the picture is wrong:
 5. Prefer CC0 16×16 (Kenney Tiny Dungeon, Jetrel, 0x72) scaled with nearest-neighbor. Hand-draw 16×16 if the pack has no matching object. Do not ship photoreal photographs.
 
 Matching the named object matters. Matching the rest of the pack’s style does not.
+
+If Godot marks a PNG corrupt (`ERR_FILE_CORRUPT`, `valid=false`, signal 11 on Spin), do not Read that file as an image. Replace it. See `corrupt-png.mdc`.

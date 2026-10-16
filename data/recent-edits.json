@@ -1,12 +1,26 @@
 {
 	"cards": {
-		"monster:cleric": 1791920000,
+		"item:arrow_head": 1791957886.0,
+		"item:crossbow": 1792035889.34183,
+		"item:cursed_scroll": 1792035889.34183,
+		"item:danger_magnet": 1791910000.0,
+		"item:grief_jar": 1792035889.34183,
+		"item:knucklers": 1791957461.0,
+		"item:measuring_tape": 1792085512,
+		"item:pocketwatch": 1791961944.0,
+		"item:sai": 1792036354.0,
+		"monster:bandit": 1791981000.0,
+		"monster:cleric": 1791944780.0,
+		"monster:dire_wolf": 1792100000,
+		"monster:clockwork_knight": 1791963573.0,
+		"monster:commander": 1792035351.0,
+		"monster:cowardly_king": 1791962968.0,
 		"monster:gelatinous_cube": 1791870521.0,
-		"monster:vampire": 1791871583,
-		"item:arrow_head": 1791872298,
-		"item:pocketwatch": 1791875000,
-		"item:danger_magnet": 1791910000
+		"monster:juggernaut": 1791962103.0,
+		"monster:leech_league": 1792035271.0,
+		"monster:skeleton": 1791957591.0,
+		"monster:vampire": 1791957982.0
 	},
 	"id": "boss-rush-recent-edits",
-	"updated": "2026-10-13T01:18:18"
+	"updated": "2026-10-15T17:31:52"
 }

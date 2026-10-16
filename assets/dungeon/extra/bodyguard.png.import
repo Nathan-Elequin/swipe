@@ -2,12 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dyf6fvnhrmbtx"
-valid=false
+uid="uid://c2qrfuaowox2m"
+path="res://.godot/imported/bodyguard.png-5c005a55b85c98aa7d8db60dedc4eed9.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/extra/bodyguard.png"
+dest_files=["res://.godot/imported/bodyguard.png-5c005a55b85c98aa7d8db60dedc4eed9.ctex"]
 
 [params]
 

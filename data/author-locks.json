@@ -535,9 +535,10 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-15",
 			"name": "Scythe"
 		},
 		"item:medallion": {
@@ -696,9 +697,12 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-14",
 			"name": "Sai"
 		},
 		"item:shield": {
@@ -1035,9 +1039,10 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-14",
 			"name": "Commander"
 		},
 		"monster:dire_wolf": {
@@ -1281,9 +1286,10 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
-			"locked_at": "2026-10-12",
+			"locked_at": "2026-10-14",
 			"name": "Leech League"
 		},
 		"monster:lich": {
@@ -1562,7 +1568,7 @@
 		}
 	},
 	"id": "boss-rush-author-locks",
-	"instructions": "Nathan locked these by clicking Save in Roster, the card editor, the Script editor, or the HTML board. Do not rewrite them. If chat clearly asks to change one, stop, name the locked keys, and wait for a yes.",
+	"instructions": "Nathan locked these by clicking Save in Roster, the card editor, the Script editor, or the HTML board. Do not restyle them. A gold-box note that replaces a field is the overwrite. If chat asks to change a locked field with no gold-box note, stop, name the keys, and wait for a yes.",
 	"script": {
 		"adventure.scarier": {
 			"cat": "Title",
@@ -2885,5 +2891,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-10-13"
+	"updated": "2026-10-15"
 }

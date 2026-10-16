@@ -9,17 +9,23 @@ Nathan’s handoff is **Save in the F5 in-game editor, then close the game.** Th
 
 The HTML board (`design/content-board.html`) is the same SoT if he used Zen instead.
 
+Save is always a real overwrite. If he typed it and clicked Save, treat it as the new truth. Only stop to Paper Fight when the Save is confusing or has two readings that would change the code.
+
+## What the player actually reads
+
+Inspect, the wheel, Shift, and the draft gate read **Ability**, **Call name**, **explainer**, **reminder**, **ATK**, and **HP** from the catalog. They never read **Your notes for Cursor**. If those official fields still have the old sentence, the card still shows the old sentence.
+
 ## Every message in this repo
 
 Read `data/content-board.json` (HTML only if the JSON is missing). Then:
 
-1. **Player-facing Save (ability, explainer, name, numbers, tier)** — already on disk. Use that text. Do not make him re-dictate it. If `author_lock` is set (see `author-lock.mdc` / `data/author-locks.json`), do not rewrite those fields at all unless this chat clearly overrides, and stop to ask first.
-2. **Behavior Save (Flow, Notes, Ops JSON, ATK/HP formulas)** — if it does not match live code in `scripts/main.gd` (and related scripts), that card is a ship queue. If Flow/Notes already settle the edges, implement. If the change is new or ambiguous, **Paper Fight first** (`design/paper-fight/RUBRIC.md`) — do not invent Hornet/Queen/block/targeting. In-game Save flips status to `todo` when those fields change.
-3. Skip `hold` and `retired` unless he named them.
-4. **Your notes for Cursor** (`review_note`) win. Read every non-empty one. If that note disagrees with ability, explainer, flow, notes, ops, or an older design doc, build the note. Do not Paper Fight to keep the older sentence. Do not ask him to retype it. If the note states new player-facing words, write those words — the saved note is the override. Leave locked fields the note does not mention alone.
-   When the note obviously replaces a sentence, a number, or a formula, delete the old text everywhere he can still read it: the board, the catalog, the explainer, the call name, the shift line, flow, notes, ops, and any hardcoded fallback or editor default. Write the new text in that place. He should not see the previous version next to the new one. If you are not sure a field is the leftover, ask before deleting it.
+1. **Typed official fields** (Ability, Call name, explainer, reminder, name, ATK, HP, tier, and so on) — already on disk. Use that text. Do not make him re-dictate it. Do not restyle locked copy. His Save in those boxes already updates inspect in that session.
+2. **Your notes for Cursor** (`review_note`) — if the note states a new Ability, Call name, number, or other official field, write those into the official fields in the board, the catalog, and any hardcoded fallback. Delete the old sentence everywhere he can still read it. The note is the override, including on locked fields it replaces. Leave locked fields the note does not mention alone. If you are not sure a field is leftover, ask before deleting it.
+3. **Behavior Save** (Flow, Notes, Ops JSON, ATK/HP formulas, or a gold-box note that changes a rule) — if it does not match live code in `scripts/main.gd` (and related scripts), that card is a ship queue. If Flow/Notes/the note already settle the edges, implement. If the change is confusing or has two readings, **Paper Fight first** (`design/paper-fight/RUBRIC.md`). Quoted player text and named numbers from the note still go onto the card in that same turn; wait only on the collision questions.
+4. Skip `hold` and `retired` unless he named them.
 5. If Ability, Flow, and Notes disagree and **Your notes for Cursor** is empty, Paper Fight — do not guess.
-6. After shipping code, set those cards to `live` on the board and in catalog/runtime. Stamp each shipped card in `data/recent-edits.json` (`recent_edits.gd` `touch`, or `{ "monster:id" / "item:id": unix }`) so **Play Latest** picks them up.
+6. After shipping code and copy: set the card `live`, stamp it in `data/recent-edits.json`, and **clear that card’s gold box** (`review_note` → `""`) so it cannot fire again. Keep `author_lock`, `locked_fields`, and `locked_at`.
+7. Only ship a leftover gold box when it still disagrees with live copy or code. Do not rebuild the whole roster from old notes.
 
 If nothing needs a code change, do not mention this check.
 
@@ -27,3 +33,4 @@ If nothing needs a code change, do not mention this check.
 
 - Do not treat leftover `todo` from the old HTML board as “finish the whole roster.” Cards already in the dungeon, and cards he previously told you not to build, stay as they are unless **this Save** (or a named request) changed them.
 - Do not wait for the phrases **check for item updates** / **check the board** — those still mean the same pass, but they are not required.
+- Do not “implement” a rewrite only in `MONSTER_SPECIAL` / hardcoded fallbacks while catalog Ability and Call name still show the old text. Inspect reads the catalog.

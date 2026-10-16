@@ -47,6 +47,7 @@ var _stone: TextureRect
 var _playable: bool = false
 var _hatch: Control
 var _aura: bool = false
+var _log_focus: bool = false
 var _plus: TextureRect
 var _ban: TextureRect
 
@@ -363,7 +364,7 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 	else:
 		_shown = number_text
 		_num.text = number_text
-	if _glow or _aura:
+	if _glow or _aura or _log_focus:
 		pass
 	elif spent:
 		modulate = Color(0.42, 0.40, 0.40, 0.55)
@@ -392,8 +393,18 @@ func set_palette(fill: Color, metal: Color, tier: int = 1) -> void:
 
 func set_draft_glow(on: bool) -> void:
 	_glow = on
-	set_process(on or _playable or _aura)
+	set_process(on or _playable or _aura or _log_focus)
 	if not on and not _playable and not _aura:
+		_glow_t = 0.0
+		if not spent:
+			modulate = Color.WHITE
+	_apply_style(_hot)
+
+
+func set_log_focus(on: bool) -> void:
+	_log_focus = on
+	set_process(_glow or _playable or _aura or _log_focus)
+	if not on and not _glow and not _playable and not _aura:
 		_glow_t = 0.0
 		if not spent:
 			modulate = Color.WHITE
@@ -402,8 +413,8 @@ func set_draft_glow(on: bool) -> void:
 
 func set_aura(on: bool) -> void:
 	_aura = on
-	set_process(_glow or _playable or _aura)
-	if not on and not _glow and not _playable:
+	set_process(_glow or _playable or _aura or _log_focus)
+	if not on and not _glow and not _playable and not _log_focus:
 		_glow_t = 0.0
 		if not spent:
 			modulate = Color.WHITE
@@ -423,14 +434,14 @@ func set_passive_icons(plus_tex: Texture2D, ban_tex: Texture2D, on: bool) -> voi
 
 func set_playable(on: bool) -> void:
 	_playable = on
-	set_process(_glow or _playable or _aura)
-	if not on and not _glow and not _aura and not spent:
+	set_process(_glow or _playable or _aura or _log_focus)
+	if not on and not _glow and not _aura and not _log_focus and not spent:
 		modulate = Color.WHITE
 	_apply_style(_hot)
 
 
 func _process(delta: float) -> void:
-	if not _glow and not _playable and not _aura:
+	if not _glow and not _playable and not _aura and not _log_focus:
 		return
 	_glow_t += delta
 	_apply_style(_hot)
@@ -479,14 +490,17 @@ func toss() -> void:
 	global_position = start
 	z_index = 80
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	set_meta("tossing", true)
 	var tw := create_tween()
 	tw.set_parallel(true)
 	var side: float = 1.0 if randf() > 0.5 else -1.0
 	tw.tween_property(self, "global_position", start + Vector2(side * 260.0, -210.0), 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tw.tween_property(self, "rotation", side * 1.35, 0.5)
 	tw.tween_property(self, "modulate:a", 0.0, 0.5)
+	tw.finished.connect(queue_free, CONNECT_ONE_SHOT)
 	await tw.finished
-	queue_free()
+	if is_instance_valid(self):
+		queue_free()
 
 
 func bounce() -> void:
@@ -516,6 +530,12 @@ func _apply_style(hot: bool) -> void:
 			_plus.modulate = Color("e07a7a").lerp(Color.WHITE, pulse * 0.55)
 		if _ban != null and _ban.visible:
 			_ban.modulate = Color("e8c36a").lerp(Color.WHITE, pulse * 0.55)
+	elif _log_focus:
+		pulse = 0.55 + 0.45 * absf(sin(_glow_t * TAU / 0.8))
+		var gold := Color("fff0c0")
+		metal = metal.lerp(gold, 0.55 + pulse * 0.45)
+		sb.bg_color = sb.bg_color.lerp(gold.darkened(0.45), pulse * 0.28)
+		modulate = Color.WHITE.lerp(Color("ffe6a8"), pulse * 0.42)
 	elif _playable and not spent:
 		pulse = 0.35 + 0.35 * absf(sin(_glow_t * TAU / 1.6))
 		metal = metal.lerp(Color("e8c36a"), pulse * 0.45)
@@ -528,7 +548,7 @@ func _apply_style(hot: bool) -> void:
 		bw = 5
 	if hot:
 		bw += 1
-	if _glow or _aura:
+	if _glow or _aura or _log_focus:
 		bw += int(pulse * 2.0)
 	sb.set_border_width_all(bw)
 	sb.set_corner_radius_all(8 if _showcase else 6)

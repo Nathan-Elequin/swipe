@@ -132,7 +132,7 @@ static func call_color(special_id: String) -> Color:
 	match special_id:
 		"item_atk", "two_items", "gift", "eat_item", "petrify", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure":
 			return GOLD
-		"no_atk_dmg", "double_hit", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right":
+		"no_atk_dmg", "double_hit", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward":
 			return CALL_ATK
 		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead":
 			return CALL_HP
@@ -398,6 +398,8 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"thorns", "thorn",
 		"keep",
 		"bled", "bleeds", "bleeding", "bleed",
+		"fleeing", "flees", "fled", "flee",
+		"spinning", "spins", "spin",
 		"losing", "loses", "lost", "lose",
 		"atk", "blk", "hp",
 	])
@@ -515,6 +517,10 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low.begins_with("thorn"):
 		return atk_c
 	if low == "keep":
+		return gold
+	if low.begins_with("flee"):
+		return gold
+	if low.begins_with("spin"):
 		return gold
 	return ""
 

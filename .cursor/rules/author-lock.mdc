@@ -1,5 +1,5 @@
 ---
-description: Never rewrite Nathan's locked editor Saves
+description: Never restyle Nathan's locked editor Saves
 alwaysApply: true
 ---
 
@@ -9,23 +9,26 @@ Nathan clicking **Save** / **Save all** / Ctrl+S in Roster, the card editor, the
 
 ## Every message
 
-Read `data/author-locks.json` (and the flags on the board / script). Treat locked fields as finished writing.
+Read `data/author-locks.json` (and the flags on the board / script). Treat locked fields as finished writing unless a Save this session overwrote them.
 
 ## Do not
 
-- Do not rewrite locked `name`, `ability`, `explainer`, `flow`, `notes`, `ops`, numbers, rarity, tier, count, priority, or locked script `text`.
-- Do not "clean up", Title Case, keyword-paint, shorten, or restyle locked copy in JSON or by changing the live fallback that players actually see.
+- Do not restyle, Title Case, keyword-paint, shorten, or “clean up” locked copy he did not ask to replace.
 - Do not strip `author_lock`, `locked_fields`, or `locked_at`.
 
-## If chat asks to change locked text
+## Save is the overwrite
+
+If he typed into an official field (Ability, Call name, numbers, Flow, and so on) and clicked Save, that text is the new locked text. Chat may not restyle it.
+
+If he typed into **Your notes for Cursor** and clicked Save, that note is also a real overwrite for the fields it replaces (Ability, Call name, ATK, HP, and so on). Write the new text into those official fields. Delete the old sentences. Keep the lock flags.
+
+Only stop to ask when the note is confusing, or you cannot tell which locked field it replaces.
+
+## If chat asks to change locked text (no gold-box note, no editor Save)
 
 1. Stop. Do not edit it in that turn.
 2. Name the locked keys (card id + fields, or script key + current line).
 3. Ask whether this message is an override.
 4. Change them only after he clearly says yes to those named keys.
 
-His Save in the editor updates locked text. That is allowed. Chat is not, unless he overrides.
-
-A filled **Your notes for Cursor** that states the replacement is an override for the fields that text replaces. Delete the old sentences and write the new ones in the board, the catalog, and any fallback the player or the editor can still show. Keep `author_lock`, `locked_fields`, and `locked_at`. If you are not sure a locked field is the leftover, ask before changing it.
-
-`status` (`todo` / `live` / `hold`) is not locked. You may still implement Flow and set `live` after shipping behavior, without rewriting locked player sentences.
+`status` (`todo` / `live` / `hold`) is not locked. You may still implement Flow and set `live` after shipping behavior. After a gold-box ship, clear `review_note`.

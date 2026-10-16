@@ -123,6 +123,7 @@ static func card_snapshot() -> Array:
 			out.append({"cat": "Cards", "key": "card.%s.%s.name" % [kind, cid], "where": "Roster · %s name (%s)" % [kind, st], "text": name})
 			out.append({"cat": "Cards", "key": "card.%s.%s.ability" % [kind, cid], "where": "Roster · %s player text (%s)" % [kind, name], "text": str(card.get("ability", ""))})
 			out.append({"cat": "Cards", "key": "card.%s.%s.explainer" % [kind, cid], "where": "Roster · %s Shift math (%s)" % [kind, name], "text": str(card.get("explainer", ""))})
+			out.append({"cat": "Cards", "key": "card.%s.%s.log_hint" % [kind, cid], "where": "Roster · %s log hover (%s)" % [kind, name], "text": str(card.get("log_hint", ""))})
 			if kind == "monster":
 				out.append({"cat": "Cards", "key": "card.%s.%s.call_name" % [kind, cid], "where": "Roster · %s call name (%s)" % [kind, name], "text": str(card.get("call_name", ""))})
 				out.append({"cat": "Cards", "key": "card.%s.%s.reminder" % [kind, cid], "where": "Roster · %s Shift line (%s)" % [kind, name], "text": str(card.get("reminder", ""))})

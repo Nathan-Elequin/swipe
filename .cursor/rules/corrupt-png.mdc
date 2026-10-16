@@ -1,0 +1,31 @@
+---
+description: Do not open Godot-corrupt PNGs as images; replace them
+alwaysApply: true
+---
+
+# Corrupt PNG files
+
+If Godot says a PNG is corrupt, **do not open that file with the Read tool**. Replace it. Reading a broken PNG attaches it as an image; the model provider then fails with `ERROR_OPENAI` / "Unable to reach the model provider" / `[unavailable]`. Retrying that same chat keeps failing because the bad image is already in the history.
+
+## This is the bug when
+
+- Editor log: `ERR_FILE_CORRUPT`, `Error loading image`, `ERR_FILE_UNRECOGNIZED`
+- `.import` has `valid=false` and no `dest_files` / no `.ctex` next to it
+- Signal 11 / access violation after Spin, `show_monster()`, or a wheel redraw
+- The PNG is tiny and the wrong shape (worked examples: `bodyguard.png` and `cowardly_king.png` were ~170 bytes at 64×16)
+
+## Do
+
+1. Confirm from **text and bytes only**: file size, PNG header, IHDR width/height, the `.import` file, Godot `get_log_messages`. PowerShell or `py -3` is fine.
+2. Replace the file the same way other extras are made: 16×16 in `tools/_install_unique_art.py` (`draw` + 4× nearest), unique vs every other item/extra PNG. Follow `unique-art.mdc`.
+3. Delete the failed `.import` and leftover `.md5`. Then `godot_editor_edit` **rescan** with those `res://` paths.
+4. Confirm import with `godot_resource` `get_info` (width/height, `CompressedTexture2D`) or a new `.import` that has `dest_files`. You may Read the **new** PNG after Godot accepts it.
+
+## Do not
+
+- Do not Read the named corrupt path as an image, including “just to see what is wrong.”
+- Do not paste those PNGs into chat or pass them to a subagent as attachments.
+- Do not keep retrying a chat that already opened them. Start a new thread if that happened.
+- Do not skip uniqueness. A valid PNG that is a copy of another card is still wrong.
+
+Healthy Kenney / hand-drawn PNGs (beggar, anvil, items, and so on) are fine to open. This rule is only for files Godot already rejected, or files that match the tiny/wrong-shape pattern above.

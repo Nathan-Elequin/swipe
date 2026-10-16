@@ -21,6 +21,8 @@ const HEAD_H := 44.0
 const JUNK_TEXT := [
 	"ATK", "HP", "blank = use ATK", "blank = use HP", "blank = us", "blank = use",
 	"Type what to change. Save, then tell Cursor.", "Type what to change. Save, then",
+	"Type what to change. Save. The next Cursor message writes this into Ability, numbers, and code.",
+	"Type what to change. Save is a real overwrite.",
 	"copies in pool", "lower = sooner", "sentence the player reads", "hover / Shift math",
 	"what the code should do", "chat only", "blank = use ATK", "1–3",
 ]
@@ -40,12 +42,13 @@ const COL_ITEM := [
 	{"key": "name", "label": "Name", "sub": "on the card", "help": "The name printed on the card.", "w": 140.0, "kind": "line", "group": "identity"},
 	{"key": "ability", "label": "Player text", "sub": "sentence on the card", "help": "The sentence the player reads.", "w": 240.0, "kind": "area", "group": "copy"},
 	{"key": "explainer", "label": "Hover math", "sub": "Shift / inspect", "help": "The short equation on hover and Shift.", "w": 180.0, "kind": "area", "group": "copy"},
+	{"key": "log_hint", "label": "Log hover", "sub": "on the name in the fight log", "help": "Under 6 words. Shown when the mouse is on this item's name in the fight log.", "w": 180.0, "kind": "area", "group": "copy"},
 	{"key": "card_color", "label": "Card color", "sub": "hand tint", "help": "atk / blk / heal / defeat / utility / chaos / smoke / egg, or blank for auto.", "w": 100.0, "kind": "line", "group": "copy"},
 	{"key": "review", "label": "Review", "sub": "rough → finished", "help": "rough = first pass. refined = mechanics changed after your notes. polish = art, copy, dialogue. finished = done.", "w": 108.0, "kind": "pick", "opts": ["rough", "refined", "polish", "finished"], "group": "review"},
-	{"key": "review_note", "label": "Your notes", "sub": "for Cursor", "help": "Type what to change. Save, then tell Cursor to read this box.", "w": 200.0, "kind": "area", "group": "review"},
+	{"key": "review_note", "label": "Your notes", "sub": "for Cursor", "help": "Type what to change. Save is a real overwrite. The next Cursor message writes this into Ability, numbers, and code.", "w": 200.0, "kind": "area", "group": "review"},
 	{"key": "status", "label": "Status", "sub": "live / todo / hold", "help": "live = in the dungeon. todo = needs a code pass. hold = skip. retired = hidden.", "w": 92.0, "kind": "pick", "opts": ["live", "todo", "hold", "retired"], "group": "meta"},
 	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "Left over from the old night-watch flag. The bucket decides which dungeon can deal this card.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
-	{"key": "bucket", "label": "Bucket", "sub": "when it unlocks", "help": "0 is in the first dungeon. 1 opens after the first Adventure ending, 2 after the second, and so on. A clear or a death counts. Bucket 0 should be 9 items and 9 monsters. Each later bucket should be 3 and 3. Token is never drafted and never shown in an unlock.", "w": 108.0, "kind": "pick", "opts": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "Token"], "group": "meta"},
+	{"key": "bucket", "label": "Bucket", "sub": "when it unlocks", "help": "0 is in the first dungeon. 1 opens after the first Adventure ending, 2 after the second, and so on. A clear or a death counts. Bucket 0 should be 9 items and 9 monsters. Each later bucket should be 4 and 4. Smoke Bomb is always one of the four opening items in every dungeon and does not count toward those numbers. Token is never drafted and never shown in an unlock.", "w": 108.0, "kind": "pick", "opts": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "Token"], "group": "meta"},
 	{"key": "id", "label": "Id", "sub": "internal code", "help": "Internal code id. Change this only when adding a brand-new card.", "w": 118.0, "kind": "line", "group": "meta"},
 	{"key": "tier", "label": "Tier", "sub": "1 bronze · 3 gold", "help": "1 bronze, 2 silver, 3 gold. A mill pack's relic and monster share this metal.", "w": 56.0, "kind": "line", "group": "pool"},
 	{"key": "count", "label": "Copies", "sub": "× in the pool", "help": "How many of this card exist in the dungeon pool. Not attack.", "w": 80.0, "kind": "line", "group": "pool"},
@@ -65,12 +68,13 @@ const COL_MONSTER := [
 	{"key": "ability", "label": "Player text", "sub": "what they say", "help": "First-person line the monster says.", "w": 220.0, "kind": "area", "group": "copy"},
 	{"key": "explainer", "label": "Hover math", "sub": "inspect plate", "help": "The short reminder on the inspect plate.", "w": 160.0, "kind": "area", "group": "copy"},
 	{"key": "call_name", "label": "Call name", "sub": "under the title", "help": "Short name under the monster title.", "w": 140.0, "kind": "line", "group": "copy"},
+	{"key": "log_hint", "label": "Log hover", "sub": "on the Call name in the fight log", "help": "Under 6 words. Shown when the mouse is on this Call name in the fight log.", "w": 180.0, "kind": "area", "group": "copy"},
 	{"key": "reminder", "label": "Shift line", "sub": "hold Shift", "help": "Replaces the call name while you hold Shift.", "w": 160.0, "kind": "area", "group": "copy"},
 	{"key": "review", "label": "Review", "sub": "rough → finished", "help": "rough = first pass. refined = mechanics changed after your notes. polish = art, copy, dialogue. finished = done.", "w": 108.0, "kind": "pick", "opts": ["rough", "refined", "polish", "finished"], "group": "review"},
-	{"key": "review_note", "label": "Your notes", "sub": "for Cursor", "help": "Type what to change. Save, then tell Cursor to read this box.", "w": 200.0, "kind": "area", "group": "review"},
+	{"key": "review_note", "label": "Your notes", "sub": "for Cursor", "help": "Type what to change. Save is a real overwrite. The next Cursor message writes this into Ability, numbers, and code.", "w": 200.0, "kind": "area", "group": "review"},
 	{"key": "status", "label": "Status", "sub": "live / todo / hold", "help": "live = in the dungeon. todo = needs a code pass. hold = skip. retired = hidden.", "w": 92.0, "kind": "pick", "opts": ["live", "todo", "hold", "retired"], "group": "meta"},
 	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "Left over from the old night-watch flag. The bucket decides which dungeon can deal this card.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
-	{"key": "bucket", "label": "Bucket", "sub": "when it unlocks", "help": "0 is in the first dungeon. 1 opens after the first Adventure ending, 2 after the second, and so on. A clear or a death counts. Bucket 0 should be 9 items and 9 monsters. Each later bucket should be 3 and 3. Token is never drafted and never shown in an unlock.", "w": 108.0, "kind": "pick", "opts": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "Token"], "group": "meta"},
+	{"key": "bucket", "label": "Bucket", "sub": "when it unlocks", "help": "0 is in the first dungeon. 1 opens after the first Adventure ending, 2 after the second, and so on. A clear or a death counts. Bucket 0 should be 9 items and 9 monsters. Each later bucket should be 4 and 4. Smoke Bomb is always one of the four opening items in every dungeon and does not count toward those numbers. Token is never drafted and never shown in an unlock.", "w": 108.0, "kind": "pick", "opts": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "Token"], "group": "meta"},
 	{"key": "id", "label": "Id", "sub": "internal code", "help": "Internal code id. Change this only when adding a brand-new card.", "w": 118.0, "kind": "line", "group": "meta"},
 	{"key": "tier", "label": "Tier", "sub": "1 bronze · 3 gold", "help": "1 bronze, 2 silver, 3 gold. Matches the relic in its mill pack.", "w": 56.0, "kind": "line", "group": "pool"},
 	{"key": "count", "label": "Copies", "sub": "× in the pool", "help": "How many of this monster exist in the pool. Not Attack.", "w": 80.0, "kind": "line", "group": "pool"},
@@ -92,11 +96,15 @@ var _hide_retired: bool = true
 var _filter: String = ""
 var _review_filter: String = ""
 var _review_chips: Dictionary = {}
+var _sort_mode: String = "review"
+var _order_chips: Dictionary = {}
 var _was_paused: bool = false
 var _status: Label
 var _bucket_warn: Label
 var _bucket_panel: Control
 var _bucket_body: VBoxContainer
+var _bucket_scroll: ScrollContainer
+var _bucket_alert: Label
 var _search: LineEdit
 var _tab_items: Button
 var _tab_mons: Button
@@ -436,6 +444,14 @@ func _cards() -> Array:
 
 
 func _sort_card(a: Dictionary, b: Dictionary) -> bool:
+	if _sort_mode == "bucket":
+		var sa: int = _sort_bucket_key(a)
+		var sb: int = _sort_bucket_key(b)
+		if sa != sb:
+			return sa < sb
+		return str(a.get("name", "")).to_lower() < str(b.get("name", "")).to_lower()
+	if _sort_mode == "name":
+		return str(a.get("name", "")).to_lower() < str(b.get("name", "")).to_lower()
 	var ra: int = REVIEW_STAGE.rank(REVIEW_STAGE.of_card(a))
 	var rb: int = REVIEW_STAGE.rank(REVIEW_STAGE.of_card(b))
 	if ra != rb:
@@ -451,6 +467,13 @@ func _sort_card(a: Dictionary, b: Dictionary) -> bool:
 		if ia != ib:
 			return ia < ib
 	return str(a.get("name", "")).to_lower() < str(b.get("name", "")).to_lower()
+
+
+func _sort_bucket_key(card: Dictionary) -> int:
+	var n: int = BucketRules.parse(card.get("bucket", 0))
+	if n < 0:
+		return 1000
+	return n
 
 
 func _live_cols() -> Array:
@@ -526,6 +549,7 @@ func _rebuild() -> void:
 	_tab_mons.modulate = Color.WHITE if _kind == "monster" else Color(1, 1, 1, 0.55)
 	_hide_btn.modulate = Color.WHITE if _hide_retired else Color(1, 1, 1, 0.45)
 	_sync_review_chips()
+	_sync_order_chips()
 	_refresh_bucket_warn()
 	if not _dirty:
 		_status.text = _chrome_text()
@@ -612,6 +636,15 @@ func _header_cell(spec: Dictionary) -> Control:
 			sb.bg_color = Color("e8e4dc")
 			sb.border_color = Color("a09888")
 			sb.set_border_width_all(1)
+		"bucket":
+			if _sort_mode == "bucket":
+				sb.bg_color = Color("dce8f4")
+				sb.border_color = Color("2f6f9f")
+				sb.set_border_width_all(2)
+			else:
+				sb.bg_color = Color("efe6d4")
+				sb.border_color = Color("c4a574")
+				sb.set_border_width_all(1)
 		_:
 			sb.bg_color = Color("efe6d4")
 			sb.border_color = Color("c4a574")
@@ -621,6 +654,13 @@ func _header_cell(spec: Dictionary) -> Control:
 	wrap.add_theme_constant_override("separation", 0)
 	wrap.mouse_filter = Control.MOUSE_FILTER_STOP
 	wrap.tooltip_text = str(spec.get("help", ""))
+	if key == "bucket":
+		wrap.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		wrap.tooltip_text = str(spec.get("help", "")) + " Click to sort the roster by bucket."
+		wrap.gui_input.connect(func(event: InputEvent) -> void:
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				_set_sort_mode("bucket")
+		)
 	var title := Label.new()
 	title.text = str(spec["label"])
 	title.add_theme_font_size_override("font_size", 13)
@@ -671,7 +711,7 @@ func _make_row(card: Dictionary, cols: Array, zebra: int, grid_w: float) -> HBox
 	lock_mark.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	if bool(card.get("author_lock", false)):
 		lock_mark.color = Color("6b1008")
-		lock_mark.tooltip_text = "Locked by your last Save. Chat will not rewrite this card unless you override."
+		lock_mark.tooltip_text = "Locked by your last Save. Chat will not restyle this card. A gold-box note that replaces a field is the overwrite."
 	else:
 		lock_mark.color = Color(0, 0, 0, 0)
 	row.add_child(lock_mark)
@@ -971,13 +1011,13 @@ func _skin_scroll(s: ScrollContainer) -> void:
 	track.bg_color = Color("d4c4a8")
 	track.set_corner_radius_all(5)
 	var bar: VScrollBar = s.get_v_scroll_bar()
-	bar.custom_minimum_size.x = 14
+	bar.custom_minimum_size.x = 18
 	bar.add_theme_stylebox_override("grabber", grab)
 	bar.add_theme_stylebox_override("grabber_highlight", hi)
 	bar.add_theme_stylebox_override("grabber_pressed", hi)
 	bar.add_theme_stylebox_override("scroll", track)
 	var hbar: HScrollBar = s.get_h_scroll_bar()
-	hbar.custom_minimum_size.y = 14
+	hbar.custom_minimum_size.y = 18
 	hbar.add_theme_stylebox_override("grabber", grab)
 	hbar.add_theme_stylebox_override("grabber_highlight", hi)
 	hbar.add_theme_stylebox_override("grabber_pressed", hi)
@@ -1174,6 +1214,7 @@ func _gather_row(row: HBoxContainer, strict: bool = true) -> Dictionary:
 		"ability": _text_of(fields["ability"]),
 		"explainer": _text_of(fields["explainer"]),
 		"call_name": _text_of(fields["call_name"]) if fields.has("call_name") else str(orig.get("call_name", "")),
+		"log_hint": _text_of(fields["log_hint"]) if fields.has("log_hint") else str(orig.get("log_hint", "")),
 		"reminder": _text_of(fields["reminder"]) if fields.has("reminder") else str(orig.get("reminder", "")),
 		"card_color": _text_of(fields["card_color"]) if fields.has("card_color") else str(orig.get("card_color", "")),
 		"flow": _text_of(fields["flow"]),
@@ -1198,7 +1239,8 @@ func _gather_row(row: HBoxContainer, strict: bool = true) -> Dictionary:
 	var logic_changed: bool = str(card["flow"]) != str(orig.get("flow", "")) \
 		or str(card["notes"]) != str(orig.get("notes", "")) \
 		or str(card["atk_formula"]) != str(orig.get("atk_formula", "")) \
-		or str(card["hp_formula"]) != str(orig.get("hp_formula", ""))
+		or str(card["hp_formula"]) != str(orig.get("hp_formula", "")) \
+		or str(card["review_note"]) != str(orig.get("review_note", ""))
 	if logic_changed and str(card["status"]) == "live":
 		card["status"] = "todo"
 	card["author_lock"] = bool(orig.get("author_lock", false))
@@ -1287,6 +1329,7 @@ func _on_add() -> void:
 		"ability": "I wait here." if _kind == "monster" else "(ATK 1)",
 		"explainer": "",
 		"call_name": "",
+		"log_hint": "",
 		"reminder": "",
 		"card_color": "",
 		"flow": "",
@@ -1328,9 +1371,18 @@ func _toggle_buckets() -> void:
 		_build_bucket_panel()
 	if _bucket_panel.visible:
 		_bucket_panel.visible = false
+		_rebuild()
+		return
+	if not _flush_visible(false):
 		return
 	_fill_buckets()
 	_bucket_panel.visible = true
+
+
+func _close_buckets() -> void:
+	if _bucket_panel:
+		_bucket_panel.visible = false
+	_rebuild()
 
 
 func _build_bucket_panel() -> void:
@@ -1340,15 +1392,18 @@ func _build_bucket_panel() -> void:
 	_bucket_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_bucket_panel.visible = false
 	_bucket_panel.z_index = 4
+	_bucket_panel.name = "bucket_panel"
 	add_child(_bucket_panel)
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 48)
-	margin.add_theme_constant_override("margin_right", 48)
-	margin.add_theme_constant_override("margin_top", 36)
-	margin.add_theme_constant_override("margin_bottom", 36)
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_bottom", 24)
 	_bucket_panel.add_child(margin)
 	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color("f3e6d0")
 	sb.border_color = Color("c4a574")
@@ -1361,6 +1416,8 @@ func _build_bucket_panel() -> void:
 	panel.add_theme_stylebox_override("panel", sb)
 	margin.add_child(panel)
 	var col := VBoxContainer.new()
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 8)
 	panel.add_child(col)
 	var head := HBoxContainer.new()
@@ -1373,28 +1430,44 @@ func _build_bucket_panel() -> void:
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(spacer)
-	head.add_child(_btn("Close", Color("3a3220"), Color("9a8b78"), func() -> void: _bucket_panel.visible = false, 90))
+	head.add_child(_btn("Close", Color("3a3220"), Color("9a8b78"), _close_buckets, 90))
 	var note := Label.new()
-	note.text = "0 is in the first dungeon. 1 opens after the first Adventure ending, 2 after the second, and so on. Token is never drafted."
+	note.text = "Wheel scrolls this board. Cards in a column sort by tier: bronze, then silver, then gold. Thick borders are the tier. Each bucket should have at least one of each tier on both sides. Bucket 0 should be 9 items and 9 monsters. Each later bucket should be 4 and 4. Smoke Bomb is always a starter and does not count toward those numbers. Token is never drafted."
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	note.add_theme_font_size_override("font_size", 14)
 	note.add_theme_color_override("font_color", Color("6b4a10"))
 	col.add_child(note)
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	col.add_child(scroll)
+	_bucket_alert = Label.new()
+	_bucket_alert.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_bucket_alert.add_theme_font_size_override("font_size", 15)
+	_bucket_alert.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.add_child(_bucket_alert)
+	_bucket_scroll = WheelBoard.new()
+	_bucket_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_bucket_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_bucket_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
+	_bucket_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
+	_skin_scroll(_bucket_scroll)
+	col.add_child(_bucket_scroll)
 	_bucket_body = VBoxContainer.new()
+	_bucket_body.name = "bucket_body"
 	_bucket_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_bucket_body.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	_bucket_body.add_theme_constant_override("separation", 12)
-	scroll.add_child(_bucket_body)
+	_bucket_scroll.add_child(_bucket_body)
 
 
 func _fill_buckets() -> void:
 	if _bucket_body == null:
 		return
+	var keep_h: int = 0
+	var keep_v: int = 0
+	if _bucket_scroll:
+		keep_h = _bucket_scroll.scroll_horizontal
+		keep_v = _bucket_scroll.scroll_vertical
 	for child in _bucket_body.get_children():
-		child.free()
+		_bucket_body.remove_child(child)
+		child.queue_free()
 	var groups: Dictionary = {}
 	for kind in ["item", "monster"]:
 		var key_name: String = "items" if kind == "item" else "monsters"
@@ -1402,45 +1475,416 @@ func _fill_buckets() -> void:
 		for card in arr:
 			if typeof(card) != TYPE_DICTIONARY:
 				continue
-			var st: String = str(card.get("status", ""))
+			var st: String = str(card.get("status", "live"))
 			if st == "retired" or st == "hold":
 				continue
 			var b: int = BucketRules.parse(card.get("bucket", 0))
 			var label: String = "Token" if b < 0 else str(b)
 			if not groups.has(label):
 				groups[label] = {"item": [], "monster": []}
-			(groups[label][kind] as Array).append(str(card.get("name", card.get("id", "?"))))
-	var order: Array[String] = []
-	for i in range(BucketRules.MAX_BUCKET + 1):
-		order.append(str(i))
-	order.append("Token")
-	for label in order:
-		if not groups.has(label):
+			(groups[label][kind] as Array).append(card)
+	_bucket_body.add_child(_bucket_row([
+		_make_kanban_column("0", _sorted_bucket(groups, "0", "item"), _sorted_bucket(groups, "0", "monster"), true),
+	]))
+	var later: Array[String] = []
+	for i in range(1, BucketRules.MAX_BUCKET + 1):
+		later.append(str(i))
+	var n: int = 0
+	while n < later.size():
+		var cols: Array = []
+		for k in range(BucketRules.LATER_PER_ROW):
+			if n + k >= later.size():
+				break
+			var label: String = later[n + k]
+			cols.append(_make_kanban_column(label, _sorted_bucket(groups, label, "item"), _sorted_bucket(groups, label, "monster"), false))
+		_bucket_body.add_child(_bucket_row(cols))
+		n += BucketRules.LATER_PER_ROW
+	_bucket_body.add_child(_bucket_row([
+		_make_kanban_column("Token", _sorted_bucket(groups, "Token", "item"), _sorted_bucket(groups, "Token", "monster"), false),
+	]))
+	_paint_bucket_alert()
+	if _bucket_scroll:
+		_bucket_scroll.scroll_horizontal = keep_h
+		_bucket_scroll.scroll_vertical = keep_v
+
+
+func _sorted_bucket(groups: Dictionary, label: String, kind: String) -> Array:
+	var cards: Array = groups[label][kind] if groups.has(label) else []
+	cards.sort_custom(func(a, b) -> bool:
+		var ta: int = BucketRules.tier_of(a)
+		var tb: int = BucketRules.tier_of(b)
+		if ta != tb:
+			return ta < tb
+		return str(a.get("name", "")).to_lower() < str(b.get("name", "")).to_lower()
+	)
+	return cards
+
+
+func _bucket_row(cols: Array) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 10)
+	for col in cols:
+		row.add_child(col)
+	return row
+
+
+func _make_kanban_column(label: String, items: Array, mons: Array, wide: bool) -> KanbanColumn:
+	var col := KanbanColumn.new()
+	col.bucket_label = label
+	col.drop_cb = _assign_kanban
+	col.custom_minimum_size = Vector2(520 if wide else 240, 180)
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var b: int = -1 if label == "Token" else int(label)
+	var ni: int = BucketRules.pool_count(items)
+	var nm: int = BucketRules.pool_count(mons)
+	var bad: bool = BucketRules.is_unbalanced(b, ni, nm)
+	var accent: Color = BucketRules.TOKEN_COLOR if label == "Token" else BucketRules.color_of(b)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("f8d0c8") if bad else Color("efe6d4")
+	sb.border_color = Color("8b1e1e") if bad else accent
+	sb.set_border_width_all(3 if bad else 2)
+	sb.set_corner_radius_all(10)
+	sb.content_margin_left = 8
+	sb.content_margin_right = 8
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+	col.add_theme_stylebox_override("panel", sb)
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 6)
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.add_child(stack)
+	var head := Label.new()
+	var want: int = BucketRules.want_items(b)
+	if label == "Token":
+		head.text = "Token  ·  %s items, %s monsters" % [items.size(), mons.size()]
+	elif want > 0:
+		head.text = "%s  ·  %s / %s items, %s / %s monsters" % [label, ni, want, nm, want]
+	else:
+		head.text = "%s  ·  %s items, %s monsters" % [label, ni, nm]
+	head.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	head.add_theme_font_size_override("font_size", 16)
+	head.add_theme_color_override("font_color", Color("8b1e1e") if bad else accent.darkened(0.35))
+	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(head)
+	if bad:
+		var hint := Label.new()
+		hint.text = "Should be %s and %s." % [want, want]
+		hint.add_theme_font_size_override("font_size", 12)
+		hint.add_theme_color_override("font_color", Color("8b1e1e"))
+		hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		stack.add_child(hint)
+	var miss_i: PackedInt32Array = BucketRules.missing_tiers(items)
+	var miss_m: PackedInt32Array = BucketRules.missing_tiers(mons)
+	if not miss_i.is_empty() or not miss_m.is_empty():
+		var bits: PackedStringArray = PackedStringArray()
+		if not miss_i.is_empty():
+			bits.append("items missing %s" % _tier_gap_text(miss_i))
+		if not miss_m.is_empty():
+			bits.append("monsters missing %s" % _tier_gap_text(miss_m))
+		var gap := Label.new()
+		gap.text = "Need at least one of each tier — %s." % " · ".join(bits)
+		gap.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		gap.add_theme_font_size_override("font_size", 12)
+		gap.add_theme_color_override("font_color", Color("8b1e1e"))
+		gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		stack.add_child(gap)
+	if label == "0":
+		var always := Label.new()
+		always.text = "Smoke Bomb is always a starter in every dungeon."
+		always.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		always.add_theme_font_size_override("font_size", 12)
+		always.add_theme_color_override("font_color", Color("6b4a10"))
+		always.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		stack.add_child(always)
+	var pane := KanbanPane.new()
+	pane.host = col
+	pane.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.add_child(pane)
+	if wide:
+		var split := HBoxContainer.new()
+		split.add_theme_constant_override("separation", 8)
+		split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		split.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pane.add_child(split)
+		split.add_child(_kanban_stack("Items", Color("6b4a10"), items, "item", label, col, "Drop items here."))
+		split.add_child(_kanban_stack("Monsters", Color("6a1c14"), mons, "monster", label, col, "Drop monsters here."))
+	else:
+		var body := VBoxContainer.new()
+		body.add_theme_constant_override("separation", 6)
+		body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		pane.add_child(body)
+		body.add_child(_kanban_stack("Items", Color("6b4a10"), items, "item", label, col, "Drop items here."))
+		body.add_child(_kanban_stack("Monsters", Color("6a1c14"), mons, "monster", label, col, "Drop monsters here."))
+	return col
+
+
+func _kanban_stack(title: String, ink: Color, cards: Array, kind: String, label: String, host: KanbanColumn, empty_text: String) -> VBoxContainer:
+	var body := VBoxContainer.new()
+	body.add_theme_constant_override("separation", 6)
+	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 8)
+	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(_kanban_section(title, ink))
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	head.add_child(spacer)
+	head.add_child(_tier_pips(cards))
+	body.add_child(head)
+	if cards.is_empty():
+		body.add_child(_kanban_empty(empty_text))
+	else:
+		for card in cards:
+			body.add_child(_make_kanban_tile(card, kind, label, host))
+	return body
+
+
+func _tier_pips(cards: Array) -> HBoxContainer:
+	var counts: Array[int] = [0, 0, 0, 0]
+	for card in cards:
+		if typeof(card) != TYPE_DICTIONARY:
 			continue
-		var block := VBoxContainer.new()
-		block.add_theme_constant_override("separation", 2)
-		_bucket_body.add_child(block)
-		var head := Label.new()
-		var items: Array = groups[label]["item"]
-		var mons: Array = groups[label]["monster"]
-		items.sort()
-		mons.sort()
-		head.text = "%s  ·  %s items, %s monsters" % [label, items.size(), mons.size()]
-		head.add_theme_font_size_override("font_size", 18)
-		var col: Color = BucketRules.TOKEN_COLOR if label == "Token" else BucketRules.color_of(int(label))
-		head.add_theme_color_override("font_color", col.darkened(0.35))
-		block.add_child(head)
-		var line := Label.new()
-		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		line.add_theme_font_size_override("font_size", 15)
-		line.add_theme_color_override("font_color", Color("1c120c"))
-		var bits: PackedStringArray = []
-		if not items.is_empty():
-			bits.append("Loot: " + ", ".join(items))
-		if not mons.is_empty():
-			bits.append("Foes: " + ", ".join(mons))
-		line.text = "\n".join(bits)
-		block.add_child(line)
+		counts[BucketRules.tier_of(card)] += 1
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var filled: int = cards.size()
+	for t in range(1, 4):
+		var n: int = counts[t]
+		var metal: Color = BucketRules.tier_color(t)
+		var chip := PanelContainer.new()
+		chip.mouse_filter = Control.MOUSE_FILTER_STOP
+		chip.tooltip_text = "Tier %s %s: %s" % [t, BucketRules.tier_label(t), n]
+		var sb := StyleBoxFlat.new()
+		var emptyish: bool = n == 0 and filled >= 3
+		sb.bg_color = metal if n > 0 else metal.lerp(Color("efe6d4"), 0.78)
+		sb.border_color = Color("8b1e1e") if emptyish else metal.darkened(0.28)
+		sb.set_border_width_all(3 if emptyish else 2)
+		sb.set_corner_radius_all(5)
+		sb.content_margin_left = 7
+		sb.content_margin_right = 7
+		sb.content_margin_top = 2
+		sb.content_margin_bottom = 2
+		chip.add_theme_stylebox_override("panel", sb)
+		var lab := Label.new()
+		lab.text = "%s %s" % [t, n]
+		lab.add_theme_font_size_override("font_size", 12)
+		lab.add_theme_color_override("font_color", Color("8b1e1e") if emptyish else BucketRules.ink_for(sb.bg_color))
+		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		chip.add_child(lab)
+		row.add_child(chip)
+	return row
+
+
+func _tier_gap_text(miss: PackedInt32Array) -> String:
+	var names: PackedStringArray = PackedStringArray()
+	for t in miss:
+		names.append(BucketRules.tier_label(int(t)).to_lower())
+	return " and ".join(names)
+
+
+func _kanban_section(text: String, ink: Color) -> Label:
+	var lab := Label.new()
+	lab.text = text
+	lab.add_theme_font_size_override("font_size", 12)
+	lab.add_theme_color_override("font_color", ink)
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return lab
+
+
+func _kanban_empty(text: String) -> Label:
+	var lab := Label.new()
+	lab.text = text
+	lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lab.add_theme_font_size_override("font_size", 12)
+	lab.add_theme_color_override("font_color", Color("8a6a3a"))
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return lab
+
+
+func _make_kanban_tile(card: Dictionary, kind: String, bucket_label: String, host: KanbanColumn) -> KanbanTile:
+	var tile := KanbanTile.new()
+	tile.host = host
+	var tier_n: int = BucketRules.tier_of(card)
+	var metal: Color = BucketRules.tier_color(tier_n)
+	tile.payload = {
+		"type": "bucket_card",
+		"kind": kind,
+		"id": str(card.get("id", "")),
+		"name": str(card.get("name", card.get("id", "?"))),
+		"bucket": bucket_label,
+		"tier": tier_n,
+	}
+	tile.custom_minimum_size = Vector2(228, 0)
+	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tile.mouse_default_cursor_shape = Control.CURSOR_MOVE
+	tile.tooltip_text = "Tier %s %s. Drag to another column to change the bucket. Double-click opens the card." % [tier_n, BucketRules.tier_label(tier_n)]
+	var tsb := StyleBoxFlat.new()
+	tsb.bg_color = BucketRules.tier_fill(tier_n)
+	tsb.border_color = metal
+	tsb.set_border_width_all(4)
+	tsb.set_corner_radius_all(8)
+	tsb.content_margin_left = 6
+	tsb.content_margin_right = 8
+	tsb.content_margin_top = 6
+	tsb.content_margin_bottom = 6
+	tile.add_theme_stylebox_override("panel", tsb)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tile.add_child(row)
+	var stripe := ColorRect.new()
+	stripe.custom_minimum_size = Vector2(10, 44)
+	stripe.color = metal
+	stripe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(stripe)
+	var pic := TextureRect.new()
+	pic.custom_minimum_size = Vector2(44, 44)
+	pic.texture_filter = TEXTURE_FILTER_NEAREST
+	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var cid: String = str(card.get("id", ""))
+	if art != null:
+		pic.texture = art.monster_still(cid) if kind == "monster" else art.item_tex(cid)
+	row.add_child(pic)
+	var text_col := VBoxContainer.new()
+	text_col.add_theme_constant_override("separation", 2)
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(text_col)
+	var name_l := Label.new()
+	name_l.text = str(card.get("name", cid))
+	name_l.add_theme_font_size_override("font_size", 14)
+	name_l.add_theme_color_override("font_color", Color("1c120c"))
+	name_l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	name_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var name_row := HBoxContainer.new()
+	name_row.add_theme_constant_override("separation", 6)
+	name_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	name_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_row.add_child(name_l)
+	var badge := PanelContainer.new()
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var bsb := StyleBoxFlat.new()
+	bsb.bg_color = metal
+	bsb.set_corner_radius_all(5)
+	bsb.content_margin_left = 7
+	bsb.content_margin_right = 7
+	bsb.content_margin_top = 1
+	bsb.content_margin_bottom = 1
+	badge.add_theme_stylebox_override("panel", bsb)
+	var blab := Label.new()
+	blab.text = "%s %s" % [tier_n, BucketRules.tier_label(tier_n)]
+	blab.add_theme_font_size_override("font_size", 11)
+	blab.add_theme_color_override("font_color", BucketRules.ink_for(metal))
+	blab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.add_child(blab)
+	name_row.add_child(badge)
+	text_col.add_child(name_row)
+	var ability := Label.new()
+	ability.text = str(card.get("ability", "")).strip_edges()
+	if ability.text == "":
+		ability.text = "(no player text)"
+		ability.add_theme_color_override("font_color", Color("8a6a3a"))
+	else:
+		ability.add_theme_color_override("font_color", Color("3a3220"))
+	ability.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ability.max_lines_visible = 3
+	ability.add_theme_font_size_override("font_size", 12)
+	ability.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	text_col.add_child(ability)
+	if BucketRules.is_always_starter_id(cid):
+		var tag := Label.new()
+		tag.text = "Always a starter"
+		tag.add_theme_font_size_override("font_size", 11)
+		tag.add_theme_color_override("font_color", Color("5d8a45"))
+		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		text_col.add_child(tag)
+		tile.tooltip_text = "Always a starter. Tier %s %s. Does not count toward the 9. Drag to another column to change the bucket. Double-click opens the card." % [tier_n, BucketRules.tier_label(tier_n)]
+	tile.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and event.double_click and event.button_index == MOUSE_BUTTON_LEFT:
+			if sfx:
+				sfx.play("book", -12.0)
+			open_card.emit(kind, cid)
+	)
+	return tile
+
+
+func _assign_kanban(data: Variant, label: String) -> void:
+	if typeof(data) != TYPE_DICTIONARY:
+		return
+	var kind: String = str(data.get("kind", ""))
+	var id: String = str(data.get("id", ""))
+	if kind == "" or id == "":
+		return
+	if str(data.get("bucket", "")) == label:
+		return
+	_assign_bucket(kind, id, label)
+
+
+func _assign_bucket(kind: String, card_id: String, label: String) -> void:
+	var parsed: int = BucketRules.parse(label)
+	var key: String = "items" if kind == "item" else "monsters"
+	var found := false
+	for card in _board.get(key, []):
+		if typeof(card) != TYPE_DICTIONARY:
+			continue
+		if str(card.get("id", "")) != card_id:
+			continue
+		card["bucket"] = parsed
+		found = true
+		break
+	if not found:
+		return
+	for row in _rows:
+		if row == null or not is_instance_valid(row):
+			continue
+		if str(row.get_meta("orig_id", "")) != card_id:
+			continue
+		if str(row.get_meta("kind", "")) != kind:
+			continue
+		var fields: Dictionary = row.get_meta("fields")
+		var pick: Variant = fields.get("bucket", null)
+		if pick is OptionButton:
+			var ob: OptionButton = pick
+			for i in ob.item_count:
+				if ob.get_item_text(i) == label:
+					ob.select(i)
+					BucketRules.paint(ob)
+					break
+		_mark_dirty(row)
+		var orig: Dictionary = row.get_meta("orig")
+		orig["bucket"] = parsed
+		row.set_meta("orig", orig)
+	if not _dirty:
+		_dirty = true
+	_status.text = "Moved to bucket %s. Save all to keep it." % label
+	_status.add_theme_color_override("font_color", Color("6b4a10"))
+	if sfx:
+		sfx.play("click2", -12.0)
+	call_deferred("_fill_buckets")
+	call_deferred("_refresh_bucket_warn")
+
+
+func _paint_bucket_alert() -> void:
+	if _bucket_alert == null:
+		return
+	var msg: String = BucketRules.counts_warning(_board.get("items", []), _board.get("monsters", []))
+	if msg == "":
+		_bucket_alert.text = "Counts match, and every filled bucket has bronze, silver, and gold on both sides."
+		_bucket_alert.add_theme_color_override("font_color", Color("3d6b3d"))
+	else:
+		_bucket_alert.text = msg
+		_bucket_alert.add_theme_color_override("font_color", Color("8b1e1e"))
 
 
 func _refresh_bucket_warn() -> void:
@@ -1531,11 +1975,13 @@ func _write_runtime_ids(merged: Array) -> void:
 		f.store_string(JSON.stringify(_runtime, "\t"))
 
 
-func _build_review_bar() -> HBoxContainer:
+func _build_review_bar() -> VBoxContainer:
+	var wrap := VBoxContainer.new()
+	wrap.add_theme_constant_override("separation", 6)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	var cap := Label.new()
-	cap.text = "Sort by"
+	cap.text = "Show"
 	cap.add_theme_font_size_override("font_size", 16)
 	cap.add_theme_color_override("font_color", Color("6b1008"))
 	row.add_child(cap)
@@ -1548,7 +1994,28 @@ func _build_review_bar() -> HBoxContainer:
 		b.pressed.connect(_set_review_filter.bind(str(stage)))
 		_review_chips[str(stage)] = b
 		row.add_child(b)
-	return row
+	wrap.add_child(row)
+	var sort_row := HBoxContainer.new()
+	sort_row.add_theme_constant_override("separation", 8)
+	var scap := Label.new()
+	scap.text = "Sort"
+	scap.add_theme_font_size_override("font_size", 16)
+	scap.add_theme_color_override("font_color", Color("6b1008"))
+	sort_row.add_child(scap)
+	var modes: Array = [
+		["review", "Review"],
+		["bucket", "Bucket"],
+		["name", "Name"],
+	]
+	for pair in modes:
+		var on: bool = str(pair[0]) == _sort_mode
+		var ob := _chip(str(pair[1]), on)
+		ob.tooltip_text = "Orders the list. Does not hide rows."
+		ob.pressed.connect(_set_sort_mode.bind(str(pair[0])))
+		_order_chips[str(pair[0])] = ob
+		sort_row.add_child(ob)
+	wrap.add_child(sort_row)
+	return wrap
 
 
 func _set_review_filter(stage: String) -> void:
@@ -1558,6 +2025,24 @@ func _set_review_filter(stage: String) -> void:
 		sfx.play("switch", -12.0)
 	_review_filter = stage
 	_rebuild()
+
+
+func _set_sort_mode(mode: String) -> void:
+	if _sort_mode == mode:
+		return
+	if not _flush_visible(false):
+		return
+	if sfx:
+		sfx.play("switch", -12.0)
+	_sort_mode = mode
+	_rebuild()
+
+
+func _sync_order_chips() -> void:
+	for k in _order_chips.keys():
+		var b: Button = _order_chips[k]
+		var on: bool = str(k) == _sort_mode
+		b.modulate = Color.WHITE if on else Color(1, 1, 1, 0.55)
 
 
 func _sync_review_chips() -> void:
@@ -1649,6 +2134,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
 	if event.is_action_pressed("ui_cancel"):
+		if _bucket_panel and _bucket_panel.visible:
+			_close_buckets()
+			get_viewport().set_input_as_handled()
+			return
 		close_editor()
 		get_viewport().set_input_as_handled()
 		return
@@ -1665,3 +2154,140 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_D:
 				_on_duplicate()
 				get_viewport().set_input_as_handled()
+
+
+class WheelBoard extends ScrollContainer:
+	const STEP := 80
+
+	func _ready() -> void:
+		set_process_input(true)
+
+	func _input(event: InputEvent) -> void:
+		if not is_visible_in_tree():
+			return
+		if not event is InputEventMouseButton:
+			return
+		var e: InputEventMouseButton = event
+		if not e.pressed:
+			return
+		var area: Control = self
+		var n: Node = self
+		while n:
+			if n.name == "bucket_panel" and n is Control:
+				area = n
+				break
+			n = n.get_parent()
+		if not area.get_global_rect().has_point(get_global_mouse_position()):
+			return
+		var dx: int = 0
+		var dy: int = 0
+		match e.button_index:
+			MOUSE_BUTTON_WHEEL_UP:
+				if e.shift_pressed:
+					dx = -STEP
+				else:
+					dy = -STEP
+			MOUSE_BUTTON_WHEEL_DOWN:
+				if e.shift_pressed:
+					dx = STEP
+				else:
+					dy = STEP
+			_:
+				return
+		if dy != 0:
+			scroll_vertical += dy
+		if dx != 0:
+			scroll_horizontal += dx
+		get_viewport().set_input_as_handled()
+
+
+class KanbanColumn extends PanelContainer:
+	var bucket_label: String = "0"
+	var drop_cb: Callable
+
+	func _can_drop_data(_at: Vector2, data: Variant) -> bool:
+		if not _is_card(data):
+			return false
+		_paint_drop_hot()
+		return true
+
+	func _drop_data(_at: Vector2, data: Variant) -> void:
+		_clear_kanban_hot()
+		if drop_cb.is_valid():
+			drop_cb.call(data, bucket_label)
+
+	func _paint_drop_hot() -> void:
+		_clear_kanban_hot()
+		modulate = Color(1.12, 1.08, 0.9)
+
+	func _clear_kanban_hot() -> void:
+		var n: Node = self
+		while n:
+			if n.name == "bucket_body":
+				for row in n.get_children():
+					for child in row.get_children():
+						if child is KanbanColumn:
+							child.modulate = Color.WHITE
+				return
+			n = n.get_parent()
+
+	static func _is_card(data: Variant) -> bool:
+		return typeof(data) == TYPE_DICTIONARY and str(data.get("type", "")) == "bucket_card"
+
+
+class KanbanPane extends PanelContainer:
+	var host: KanbanColumn
+
+	func _ready() -> void:
+		var sb := StyleBoxEmpty.new()
+		add_theme_stylebox_override("panel", sb)
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	func _can_drop_data(at: Vector2, data: Variant) -> bool:
+		return host != null and host._can_drop_data(at, data)
+
+	func _drop_data(at: Vector2, data: Variant) -> void:
+		if host:
+			host._drop_data(at, data)
+
+
+class KanbanTile extends PanelContainer:
+	var host: KanbanColumn
+	var payload: Dictionary = {}
+
+	func _get_drag_data(_at: Vector2) -> Variant:
+		var preview := PanelContainer.new()
+		var tier_n: int = int(payload.get("tier", 1))
+		var metal: Color = BucketRules.tier_color(tier_n)
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = BucketRules.tier_fill(tier_n)
+		sb.border_color = metal
+		sb.set_border_width_all(4)
+		sb.set_corner_radius_all(8)
+		sb.content_margin_left = 10
+		sb.content_margin_right = 10
+		sb.content_margin_top = 6
+		sb.content_margin_bottom = 6
+		preview.add_theme_stylebox_override("panel", sb)
+		var lab := Label.new()
+		lab.text = "%s  ·  %s %s" % [str(payload.get("name", "card")), tier_n, BucketRules.tier_label(tier_n)]
+		lab.add_theme_font_size_override("font_size", 15)
+		lab.add_theme_color_override("font_color", Color("1c120c"))
+		preview.add_child(lab)
+		set_drag_preview(preview)
+		modulate.a = 0.45
+		return payload
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_DRAG_END:
+			modulate.a = 1.0
+			if host:
+				host._clear_kanban_hot()
+
+	func _can_drop_data(at: Vector2, data: Variant) -> bool:
+		return host != null and host._can_drop_data(at, data)
+
+	func _drop_data(at: Vector2, data: Variant) -> void:
+		if host:
+			host._drop_data(at, data)

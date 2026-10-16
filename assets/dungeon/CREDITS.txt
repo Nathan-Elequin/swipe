@@ -22,7 +22,8 @@ Hand-drawn 16×16 (nearest 4×) where packs had no matching object:
   last_match (palm), grief_jar, spiked_shield, sai, fangs, knucklers, crossbow,
   mute_stone / Chaos Stone, victory_flask (gold goblet), cursed_scroll,
   wick (candle), anvil, basilisk, two_headed_serpent, hornet_swarm, dire_wolf,
-  leech_league, needleback, petrify_stone overlay.
+  leech_league, needleback, petrify_stone overlay, bodyguard (shield-bearer),
+  cowardly_king (crowned robe).
 
 Shade — 16x16 Assorted RPG Icons
   Leather bracers crop. CC0.

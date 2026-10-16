@@ -178,37 +178,38 @@ func _parse_list() -> void:
 
 
 func _load_extras() -> void:
-	vfx["star"] = _tex("res://assets/dungeon/vfx/star_08.png")
-	vfx["star2"] = _tex("res://assets/dungeon/vfx/star_04.png")
-	vfx["spark"] = _tex("res://assets/dungeon/vfx/spark_05.png")
-	vfx["spark2"] = _tex("res://assets/dungeon/vfx/spark_06.png")
-	vfx["circle"] = _tex("res://assets/dungeon/vfx/circle_05.png")
-	vfx["smoke"] = _tex("res://assets/dungeon/vfx/smoke_08.png")
-	vfx["magic"] = _tex("res://assets/dungeon/vfx/magic_05.png")
-	vfx["fire"] = _tex("res://assets/dungeon/vfx/fire_02.png")
-	vfx["flame"] = _tex("res://assets/dungeon/vfx/flame_02.png")
-	vfx["dirt"] = _tex("res://assets/dungeon/vfx/dirt_01.png")
-	vfx["twirl"] = _tex("res://assets/dungeon/vfx/twirl_03.png")
-	ui["panel_brown"] = _tex("res://assets/dungeon/ui/panel_brown.png")
-	ui["panel_beige"] = _tex("res://assets/dungeon/ui/panel_beige.png")
-	ui["panel_inset"] = _tex("res://assets/dungeon/ui/panelInset_brown.png")
-	ui["btn_brown"] = _tex("res://assets/dungeon/ui/buttonLong_brown.png")
-	ui["btn_brown_down"] = _tex("res://assets/dungeon/ui/buttonLong_brown_pressed.png")
-	ui["btn_beige"] = _tex("res://assets/dungeon/ui/buttonLong_beige.png")
-	ui["btn_beige_down"] = _tex("res://assets/dungeon/ui/buttonLong_beige_pressed.png")
-	ui["btn_blue"] = _tex("res://assets/dungeon/ui/buttonLong_blue.png")
-	ui["btn_blue_down"] = _tex("res://assets/dungeon/ui/buttonLong_blue_pressed.png")
-	ui["cursor_hand"] = _tex("res://assets/dungeon/ui/cursorHand_beige.png")
+	vfx["star"] = _load_tex("res://assets/dungeon/vfx/star_08.png")
+	vfx["star2"] = _load_tex("res://assets/dungeon/vfx/star_04.png")
+	vfx["spark"] = _load_tex("res://assets/dungeon/vfx/spark_05.png")
+	vfx["spark2"] = _load_tex("res://assets/dungeon/vfx/spark_06.png")
+	vfx["circle"] = _load_tex("res://assets/dungeon/vfx/circle_05.png")
+	vfx["smoke"] = _load_tex("res://assets/dungeon/vfx/smoke_08.png")
+	vfx["magic"] = _load_tex("res://assets/dungeon/vfx/magic_05.png")
+	vfx["fire"] = _load_tex("res://assets/dungeon/vfx/fire_02.png")
+	vfx["flame"] = _load_tex("res://assets/dungeon/vfx/flame_02.png")
+	vfx["dirt"] = _load_tex("res://assets/dungeon/vfx/dirt_01.png")
+	vfx["twirl"] = _load_tex("res://assets/dungeon/vfx/twirl_03.png")
+	ui["panel_brown"] = _load_tex("res://assets/dungeon/ui/panel_brown.png")
+	ui["panel_beige"] = _load_tex("res://assets/dungeon/ui/panel_beige.png")
+	ui["panel_inset"] = _load_tex("res://assets/dungeon/ui/panelInset_brown.png")
+	ui["btn_brown"] = _load_tex("res://assets/dungeon/ui/buttonLong_brown.png")
+	ui["btn_brown_down"] = _load_tex("res://assets/dungeon/ui/buttonLong_brown_pressed.png")
+	ui["btn_beige"] = _load_tex("res://assets/dungeon/ui/buttonLong_beige.png")
+	ui["btn_beige_down"] = _load_tex("res://assets/dungeon/ui/buttonLong_beige_pressed.png")
+	ui["btn_blue"] = _load_tex("res://assets/dungeon/ui/buttonLong_blue.png")
+	ui["btn_blue_down"] = _load_tex("res://assets/dungeon/ui/buttonLong_blue_pressed.png")
+	ui["cursor_hand"] = _load_tex("res://assets/dungeon/ui/cursorHand_beige.png")
 	for id in ITEM_PNG.keys():
-		extra_items[str(id)] = _tex(str(ITEM_PNG[id]))
+		extra_items[str(id)] = _load_tex(str(ITEM_PNG[id]))
 	for id2 in MONSTER_PNG.keys():
-		extra_monsters[str(id2)] = _tex(str(MONSTER_PNG[id2]))
+		extra_monsters[str(id2)] = _load_tex(str(MONSTER_PNG[id2]))
 
 
-func _tex(path: String) -> Texture2D:
-	if ResourceLoader.exists(path):
-		return load(path) as Texture2D
-	return null
+func _load_tex(path: String) -> Texture2D:
+	if not ResourceLoader.exists(path):
+		return null
+	var tex: Texture2D = load(path) as Texture2D
+	return tex
 
 
 func slice(name: String) -> AtlasTexture:
