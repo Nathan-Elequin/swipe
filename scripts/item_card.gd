@@ -123,7 +123,7 @@ func setup(
 
 	_icon = TextureRect.new()
 	_icon.texture = icon
-	_icon.custom_minimum_size = Vector2(52, 52)
+	_icon.custom_minimum_size = Vector2(64, 64)
 	_icon.texture_filter = TEXTURE_FILTER_NEAREST
 	_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -270,12 +270,12 @@ func set_echo_mark(tex: Texture2D) -> void:
 		_echo_mark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		_echo_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_echo_mark.texture_filter = TEXTURE_FILTER_NEAREST
-		_echo_mark.custom_minimum_size = Vector2(28, 28)
+		_echo_mark.custom_minimum_size = Vector2(32, 32)
 		_echo_mark.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-		_echo_mark.offset_left = -32
+		_echo_mark.offset_left = -36
 		_echo_mark.offset_top = 4
 		_echo_mark.offset_right = -4
-		_echo_mark.offset_bottom = 32
+		_echo_mark.offset_bottom = 36
 		add_child(_echo_mark)
 	_echo_mark.texture = tex
 	_echo_mark.visible = tex != null
@@ -332,7 +332,7 @@ func set_showcase(on: bool) -> void:
 		_rank.add_theme_font_size_override("font_size", 15 if on else 12)
 		_rank.custom_minimum_size = Vector2(196 if on else 104, 0)
 	if _icon:
-		_icon.custom_minimum_size = Vector2(120, 120) if on else Vector2(52, 52)
+		_icon.custom_minimum_size = Vector2(128, 128) if on else Vector2(64, 64)
 	if _num_host:
 		_num_host.custom_minimum_size = Vector2(196, 58) if on else Vector2(104, 44)
 	if _num:

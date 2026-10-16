@@ -38,7 +38,7 @@ const GROUP_LABEL := {
 }
 
 const COL_ITEM := [
-	{"key": "art", "label": "", "sub": "", "help": "Portrait. Click to select the row. Double-click opens the deep card sheet.", "w": 52.0, "kind": "art", "group": "identity"},
+	{"key": "art", "label": "", "sub": "", "help": "Portrait. Click to select the row. Double-click opens the deep card sheet.", "w": 48.0, "kind": "art", "group": "identity"},
 	{"key": "name", "label": "Name", "sub": "on the card", "help": "The name printed on the card.", "w": 140.0, "kind": "line", "group": "identity"},
 	{"key": "ability", "label": "Player text", "sub": "sentence on the card", "help": "The sentence the player reads.", "w": 240.0, "kind": "area", "group": "copy"},
 	{"key": "explainer", "label": "Hover math", "sub": "Shift / inspect", "help": "The short equation on hover and Shift.", "w": 180.0, "kind": "area", "group": "copy"},
@@ -59,7 +59,7 @@ const COL_ITEM := [
 ]
 
 const COL_MONSTER := [
-	{"key": "art", "label": "", "sub": "", "help": "Portrait. Click to select the row. Double-click opens the deep card sheet.", "w": 52.0, "kind": "art", "group": "identity"},
+	{"key": "art", "label": "", "sub": "", "help": "Portrait. Click to select the row. Double-click opens the deep card sheet.", "w": 48.0, "kind": "art", "group": "identity"},
 	{"key": "name", "label": "Name", "sub": "on the wheel", "help": "The name printed on the wheel.", "w": 140.0, "kind": "line", "group": "identity"},
 	{"key": "atk_base", "label": "Attack", "sub": "printed ATK", "help": "The Attack number in play, unless Attack formula is filled.", "w": 78.0, "kind": "line", "group": "combat"},
 	{"key": "hp_base", "label": "HP", "sub": "printed hits", "help": "The HP number in play, unless HP formula is filled.", "w": 78.0, "kind": "line", "group": "combat"},
@@ -1741,12 +1741,12 @@ func _make_kanban_tile(card: Dictionary, kind: String, bucket_label: String, hos
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tile.add_child(row)
 	var stripe := ColorRect.new()
-	stripe.custom_minimum_size = Vector2(10, 44)
+	stripe.custom_minimum_size = Vector2(10, 48)
 	stripe.color = metal
 	stripe.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(stripe)
 	var pic := TextureRect.new()
-	pic.custom_minimum_size = Vector2(44, 44)
+	pic.custom_minimum_size = Vector2(48, 48)
 	pic.texture_filter = TEXTURE_FILTER_NEAREST
 	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
