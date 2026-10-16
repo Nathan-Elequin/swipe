@@ -1058,13 +1058,21 @@ func _pill(text: String, fill: Color, rim: Color, cb: Callable) -> Button:
 	b.add_theme_color_override("font_hover_color", Color("ffffff"))
 	b.add_theme_color_override("font_pressed_color", Color("c4a574"))
 	b.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.35))
-	b.add_theme_stylebox_override("normal", _sb(fill, rim, 2))
-	b.add_theme_stylebox_override("hover", _sb(fill.lightened(0.16), rim.lightened(0.2), 3))
-	b.add_theme_stylebox_override("pressed", _sb(fill.darkened(0.12), rim, 2))
-	b.add_theme_stylebox_override("focus", _sb(fill, rim.lightened(0.35), 3))
-	var dim := fill
-	dim.a = 0.45
-	b.add_theme_stylebox_override("disabled", _sb(dim, Color(rim.r, rim.g, rim.b, 0.35), 1))
+	var kind := "brown"
+	if rim.is_equal_approx(Color("e8c36a")) or rim.is_equal_approx(Color("d19a66")):
+		kind = "beige"
+	elif rim.is_equal_approx(Color("6bb3d9")):
+		kind = "blue"
+	elif rim.is_equal_approx(Color("8dcb8d")):
+		kind = "grey"
+	var up := UxStyle.long_button(kind, false)
+	var down := UxStyle.long_button(kind, true)
+	b.add_theme_stylebox_override("normal", up)
+	b.add_theme_stylebox_override("hover", up)
+	b.add_theme_stylebox_override("focus", up)
+	b.add_theme_stylebox_override("pressed", down)
+	var dim := UxStyle.long_button("grey", false)
+	b.add_theme_stylebox_override("disabled", dim)
 	b.pressed.connect(cb)
 	return b
 

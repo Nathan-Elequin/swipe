@@ -288,7 +288,7 @@ func set_petrified(on: bool) -> void:
 		_stone.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_stone.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		_stone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		_stone.stretch_mode = TextureRect.STRETCH_SCALE
+		_stone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		_stone.texture_filter = TEXTURE_FILTER_NEAREST
 		_stone.texture = load("res://assets/dungeon/ui/petrify_stone.png") as Texture2D
 		_stone.modulate = Color(0.82, 0.78, 0.70, 0.78)

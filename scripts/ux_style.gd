@@ -28,19 +28,25 @@ static func nine_patch(path: String, ml: float, mt: float, mr: float, mb: float,
 
 
 static func oak_panel(gold: bool = false, content: float = 26.0) -> StyleBoxTexture:
-	var path := "res://assets/ui/panels/ui_panel_oak_gold.png" if gold else "res://assets/ui/panels/ui_panel_oak.png"
-	return nine_patch(path, 32, 32, 32, 32, content, content, content, content)
+	var path := "res://assets/dungeon/ui/panel_beigeLight.png" if gold else "res://assets/dungeon/ui/panel_brown.png"
+	return nine_patch(path, 14, 12, 14, 14, content, content, content, content)
 
 
 static func plate_inset(tier: int = 0) -> StyleBoxTexture:
-	var path := "res://assets/ui/panels/ui_plate_inset_edge.png"
+	var path := "res://assets/dungeon/ui/panelInset_brown.png"
 	if tier >= 3:
-		path = "res://assets/ui/panels/ui_plate_inset_deadly.png"
+		path = "res://assets/dungeon/ui/panelInset_blue.png"
 	elif tier == 2:
-		path = "res://assets/ui/panels/ui_plate_inset_tough.png"
-	elif tier == 1:
-		path = "res://assets/ui/panels/ui_plate_inset_weak.png"
-	return nine_patch(path, 6, 6, 6, 6, 20, 16, 20, 16)
+		path = "res://assets/dungeon/ui/panelInset_beige.png"
+	return nine_patch(path, 10, 10, 10, 10, 20, 16, 20, 16)
+
+
+static func long_button(kind: String = "brown", pressed: bool = false) -> StyleBoxTexture:
+	var name := "buttonLong_%s_pressed.png" % kind if pressed else "buttonLong_%s.png" % kind
+	var path := "res://assets/dungeon/ui/%s" % name
+	var top: float = 10.0
+	var bot: float = 12.0
+	return nine_patch(path, 20, top, 20, bot, 20, 10, 20, 10)
 
 
 ## Same metals the item rims use. 1 Weak / bronze, 2 Tough / silver, 3 Deadly / gold.
