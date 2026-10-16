@@ -46,7 +46,10 @@ func setup(art) -> void:
 	top_level = true
 	visible = false
 	if art != null:
-		_frames = art.frames("goblin")
+		if art.has_method("nib_frames"):
+			_frames = art.nib_frames()
+		if _frames.is_empty():
+			_frames = art.frames("goblin")
 		if _frames.is_empty():
 			_frames = art.frames("dwarf_f")
 	for _i in range(4):
@@ -318,9 +321,9 @@ func _layout() -> void:
 	_push_dim(vp)
 	_ring.visible = false
 	_place_dims(Rect2(), vp)
-	var face_w: float = 64.0 + 72.0 * nib_close
+	var face_s: float = 1.0 + 1.125 * nib_close
 	if _face != null:
-		_face.custom_minimum_size = Vector2(face_w, face_w * 1.75)
+		_face.custom_minimum_size = Vector2(64.0 * face_s, 112.0 * face_s)
 	_talk.reset_size()
 	var ts: Vector2 = _talk.get_combined_minimum_size()
 	ts.x = maxf(ts.x, TALK_W + 80.0 * nib_close)

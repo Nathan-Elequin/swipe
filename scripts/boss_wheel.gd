@@ -1080,14 +1080,41 @@ func _draw_portrait_window(center: Vector2, rad: float, s: Dictionary, tex: Text
 	if tex == null:
 		return
 	var side: float = rad * 1.55
-	var dest := Rect2(center - Vector2(side, side) * 0.5, Vector2(side, side))
+	var box := Rect2(center - Vector2(side, side) * 0.5, Vector2(side, side))
+	var dest := _native_feet_rect(tex, box)
 	var mod := Color(dim, dim, dim, 1.0)
+	var glow: Color = Color("c08050")
+	var t: int = _plate_tier(s)
+	if t == 2:
+		glow = Color("c5cdd8")
+	elif t >= 3:
+		glow = Color("e8c36a")
+	glow.a = dim
 	if absf(face_ang) > 0.01:
 		draw_set_transform(center, face_ang, Vector2.ONE)
-		draw_texture_rect(tex, Rect2(Vector2(-side, -side) * 0.5, Vector2(side, side)), false, mod)
+		var local := Rect2(dest.position - center, dest.size)
+		_draw_tex_outline(tex, local, glow)
+		draw_texture_rect(tex, local, false, mod)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	else:
+		_draw_tex_outline(tex, dest, glow)
 		draw_texture_rect(tex, dest, false, mod)
+
+
+func _native_feet_rect(tex: Texture2D, box: Rect2) -> Rect2:
+	var tw: float = maxf(1.0, float(tex.get_width()))
+	var th: float = maxf(1.0, float(tex.get_height()))
+	var k: float = minf(box.size.x / tw, box.size.y / th)
+	var sz := Vector2(tw * k, th * k)
+	return Rect2(Vector2(box.position.x + (box.size.x - sz.x) * 0.5, box.end.y - sz.y), sz)
+
+
+func _draw_tex_outline(tex: Texture2D, dest: Rect2, col: Color) -> void:
+	for ox in [-1, 0, 1]:
+		for oy in [-1, 0, 1]:
+			if ox == 0 and oy == 0:
+				continue
+			draw_texture_rect(tex, Rect2(dest.position + Vector2(ox, oy) * 1.5, dest.size), false, col)
 
 
 func _draw_outlined_string(font: Font, pos: Vector2, text: String, fs: int, col: Color, outline: Color) -> void:

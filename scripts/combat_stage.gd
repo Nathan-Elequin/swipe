@@ -3,6 +3,8 @@ extends Control
 
 signal edit_wanted(card_id: String)
 
+const OUTLINE_SHADER := preload("res://shaders/tier_outline.gdshader")
+
 var art
 var card_id: String = ""
 var _idle: Array = []
@@ -16,29 +18,51 @@ var _bob: float = 0.0
 var _lunge_x: float = 0.0:
 	set(v):
 		_lunge_x = v
+		_place_sprite()
 		queue_redraw()
 var flip_h: bool = false
 var log_glow: bool = false
 var _watch_tex: Texture2D
 var _watch_t: float = 0.0
 var busy: bool = false
+var _tier: int = 1
+var _sprite: TextureRect
+var _outline: ShaderMaterial
+var _fx: Control
 
 
 func setup(p_art) -> void:
 	art = p_art
-	custom_minimum_size = Vector2(168, 128)
-	size = Vector2(168, 128)
+	custom_minimum_size = Vector2(192, 160)
+	size = Vector2(192, 160)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	gui_input.connect(_on_gui)
 	texture_filter = TEXTURE_FILTER_NEAREST
+	clip_contents = false
 	z_index = 12
 	top_level = true
 	visible = false
+	_outline = ShaderMaterial.new()
+	_outline.shader = OUTLINE_SHADER
+	_sprite = TextureRect.new()
+	_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_sprite.texture_filter = TEXTURE_FILTER_NEAREST
+	_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_sprite.stretch_mode = TextureRect.STRETCH_KEEP
+	_sprite.material = _outline
+	add_child(_sprite)
+	var fx := FxLayer.new()
+	fx.host = self
+	fx.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	fx.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fx = fx
+	add_child(_fx)
 	set_process(true)
 
 
-func show_monster(id: String) -> void:
+func show_monster(id: String, p_tier: int = 1) -> void:
 	card_id = id
+	_tier = p_tier
 	_idle = art.monster_idle(id) if art else []
 	_run = art.monster_run(id) if art else []
 	_mode = "idle"
@@ -57,6 +81,7 @@ func show_monster(id: String) -> void:
 	tw.set_trans(Tween.TRANS_BACK)
 	tw.set_ease(Tween.EASE_OUT)
 	tw.tween_property(self, "scale", Vector2.ONE, 0.28)
+	_place_sprite()
 
 
 func _on_gui(event: InputEvent) -> void:
@@ -82,6 +107,8 @@ func mouth_global() -> Vector2:
 func hide_stage() -> void:
 	visible = false
 	card_id = ""
+	if _sprite:
+		_sprite.texture = null
 	_idle.clear()
 	_run.clear()
 	_watch_tex = null
@@ -182,7 +209,10 @@ func _process(delta: float) -> void:
 		if float(u["t"]) < float(u["life"]):
 			keep2.append(u)
 	_bursts = keep2
+	_place_sprite()
 	queue_redraw()
+	if _fx:
+		_fx.queue_redraw()
 
 
 func _splatter(col: Color) -> void:
@@ -209,42 +239,67 @@ func _burst(kind: String, col: Color, sc: float) -> void:
 	})
 
 
+func _tier_col() -> Color:
+	if _tier >= 3:
+		return Color("e8c36a")
+	if _tier == 2:
+		return Color("c5cdd8")
+	return Color("c08050")
+
+
+func _place_sprite() -> void:
+	if _sprite == null:
+		return
+	var frames: Array = _run if _mode == "run" and not _run.is_empty() else _idle
+	if frames.is_empty():
+		_sprite.texture = null
+		return
+	var tex: Texture2D = frames[int(_fi) % frames.size()]
+	if tex == null or not is_instance_valid(tex):
+		_sprite.texture = null
+		return
+	var tw: float = float(tex.get_width())
+	var th: float = float(tex.get_height())
+	var bob: float = sin(_bob * 3.2) * 3.0
+	_sprite.texture = tex
+	_sprite.size = Vector2(tw, th)
+	_sprite.pivot_offset = Vector2(tw * 0.5, th)
+	_sprite.position = Vector2(size.x * 0.5 - tw * 0.5 + _lunge_x, size.y - th - 8.0 + bob)
+	_sprite.flip_h = flip_h
+	var mod := Color.WHITE
+	if _flash > 0.45:
+		mod = Color(1.6, 1.6, 1.8)
+	elif _flash > 0.0:
+		mod = Color(1.0, 0.55, 0.5).lerp(Color.WHITE, 1.0 - _flash)
+	_sprite.modulate = mod
+	if _outline != null:
+		_outline.set_shader_parameter("outline_color", _tier_col())
+		_outline.set_shader_parameter("outline_size", 1.5)
+
+
 func _draw() -> void:
 	var r := Rect2(Vector2.ZERO, size)
 	draw_rect(r, Color("1a120e"), true)
 	if art != null:
 		_frame()
-	var frames: Array = _run if _mode == "run" and not _run.is_empty() else _idle
-	if not frames.is_empty():
-		var tex: Texture2D = frames[int(_fi) % frames.size()]
-		if tex == null or not is_instance_valid(tex):
-			print("[resolve] stage.draw skipped null tex id=", card_id)
-			return
-		var bob: float = sin(_bob * 3.2) * 3.0
-		var dest := Rect2(Vector2(size.x * 0.5 - 56.0 + _lunge_x, 14.0 + bob), Vector2(112, 124))
-		if flip_h:
-			dest = Rect2(Vector2(dest.position.x + dest.size.x, dest.position.y), Vector2(-dest.size.x, dest.size.y))
-		var mod := Color.WHITE
-		if _flash > 0.45:
-			mod = Color(1.6, 1.6, 1.8)
-		elif _flash > 0.0:
-			mod = Color(1.0, 0.55, 0.5).lerp(Color.WHITE, 1.0 - _flash)
-		draw_texture_rect(tex, dest, false, mod)
-		if _watch_tex != null and _watch_t > 0.0:
-			var pulse: float = 0.85 + sin(_bob * 10.0) * 0.08
-			var wz := Vector2(48, 48) * pulse
-			var wp := Vector2(size.x * 0.5 - wz.x * 0.5 + _lunge_x, 46.0 + bob)
-			var wc := Color.WHITE
-			wc.a = clampf(_watch_t, 0.35, 1.0)
-			draw_texture_rect(_watch_tex, Rect2(wp, wz), false, wc)
+
+
+func _paint_fx(ci: Control) -> void:
+	if _watch_tex != null and _watch_t > 0.0:
+		var pulse: float = 0.85 + sin(_bob * 10.0) * 0.08
+		var wz := Vector2(48, 48) * pulse
+		var wp := Vector2(size.x * 0.5 - wz.x * 0.5 + _lunge_x, size.y * 0.42)
+		var wc := Color.WHITE
+		wc.a = clampf(_watch_t, 0.35, 1.0)
+		ci.draw_texture_rect(_watch_tex, Rect2(wp, wz), false, wc)
 	for b in _blood:
 		var a: float = 1.0 - float(b["t"]) / float(b["life"])
 		var c: Color = b["col"]
 		c.a = a
-		draw_set_transform(b["p"], float(b["rot"]), b["s"])
-		draw_circle(Vector2.ZERO, float(b["r"]), c)
-		draw_circle(Vector2(float(b["r"]) * 0.55, -2.0), float(b["r"]) * 0.45, c)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		ci.draw_set_transform(b["p"], float(b["rot"]), b["s"])
+		ci.draw_circle(Vector2.ZERO, float(b["r"]), c)
+		ci.draw_circle(Vector2(float(b["r"]) * 0.55, -2.0), float(b["r"]) * 0.45, c)
+		ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	for u in _bursts:
 		if art == null:
 			continue
@@ -257,7 +312,15 @@ func _draw() -> void:
 		var c2: Color = u["col"]
 		c2.a = a2
 		var sz: Vector2 = Vector2(110, 110) * sc
-		draw_texture_rect(tex2, Rect2(u["p"] - sz * 0.5, sz), false, c2)
+		ci.draw_texture_rect(tex2, Rect2(u["p"] - sz * 0.5, sz), false, c2)
+
+
+class FxLayer extends Control:
+	var host
+
+	func _draw() -> void:
+		if host != null:
+			host._paint_fx(self)
 
 
 func _frame() -> void:

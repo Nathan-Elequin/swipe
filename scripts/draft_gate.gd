@@ -749,8 +749,15 @@ class Actor extends Control:
 		if mystery:
 			_draw_silhouette(c, sz)
 		elif tex != null:
-			var side: float = minf(sz.x, sz.y) * 0.58
-			var dest := Rect2(Vector2((sz.x - side) * 0.5 + jig, (sz.y - side) * 0.28 + bounce), Vector2(side, side))
+			var tw: float = float(tex.get_width())
+			var th: float = float(tex.get_height())
+			var dest := Rect2(Vector2((sz.x - tw) * 0.5 + jig, sz.y - th - 20.0 + bounce), Vector2(tw, th))
+			var glow: Color = _metal()
+			for ox in [-1, 0, 1]:
+				for oy in [-1, 0, 1]:
+					if ox == 0 and oy == 0:
+						continue
+					draw_texture_rect(tex, Rect2(dest.position + Vector2(ox, oy) * 1.5, dest.size), false, glow)
 			draw_texture_rect(tex, dest, false)
 		_draw_plate_rim(Vector2(sz.x * 0.5 + jig, sz.y * 0.52 + bounce), plate_r)
 		_draw_doors(sz)

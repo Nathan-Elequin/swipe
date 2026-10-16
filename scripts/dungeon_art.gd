@@ -123,27 +123,41 @@ const ITEM_PNG := {
 }
 
 const MONSTER_PNG := {
-	"spider_queen": "res://assets/dungeon/extra/spider.png",
-	"gelatinous_cube": "res://assets/dungeon/extra/gelatinous_cube.png",
-	"gargoyle": "res://assets/dungeon/extra/gargoyle.png",
-	"harpy": "res://assets/dungeon/extra/harpy.png",
+	"goblin": "res://assets/dungeon/extra/goblin.png",
 	"kobold_trapper": "res://assets/dungeon/extra/kobold_trapper.png",
-	"clockwork_knight": "res://assets/dungeon/extra/clockwork_knight.png",
-	"hollow": "res://assets/dungeon/extra/hollow.png",
-	"beggar": "res://assets/dungeon/extra/beggar.png",
-	"wick": "res://assets/dungeon/extra/wick.png",
-	"anvil": "res://assets/dungeon/extra/anvil.png",
-	"basilisk": "res://assets/dungeon/extra/basilisk.png",
-	"two_headed_serpent": "res://assets/dungeon/extra/damsel.png",
-	"wraith": "res://assets/dungeon/extra/wraith.png",
 	"hornet_swarm": "res://assets/dungeon/extra/hornet_swarm.png",
-	"dire_wolf": "res://assets/dungeon/extra/dire_wolf.png",
 	"leech_league": "res://assets/dungeon/extra/leech_league.png",
+	"wick": "res://assets/dungeon/extra/wick.png",
+	"mimic": "res://assets/dungeon/extra/mimic.png",
 	"needleback": "res://assets/dungeon/extra/needleback.png",
+	"gelatinous_cube": "res://assets/dungeon/extra/gelatinous_cube.png",
+	"anvil": "res://assets/dungeon/extra/anvil.png",
+	"dire_wolf": "res://assets/dungeon/extra/dire_wolf.png",
+	"basilisk": "res://assets/dungeon/extra/basilisk.png",
+	"wizard": "res://assets/dungeon/extra/wizard.png",
+	"cleric": "res://assets/dungeon/extra/cleric.png",
+	"skeleton": "res://assets/dungeon/extra/skeleton.png",
+	"lich": "res://assets/dungeon/extra/lich.png",
 	"vampire": "res://assets/dungeon/extra/vampire.png",
+	"wraith": "res://assets/dungeon/extra/wraith.png",
+	"berserker": "res://assets/dungeon/extra/berserker.png",
+	"bandit": "res://assets/dungeon/extra/bandit.png",
+	"commander": "res://assets/dungeon/extra/commander.png",
 	"bodyguard": "res://assets/dungeon/extra/bodyguard.png",
+	"juggernaut": "res://assets/dungeon/extra/juggernaut.png",
+	"two_headed_serpent": "res://assets/dungeon/extra/damsel.png",
+	"beggar": "res://assets/dungeon/extra/beggar.png",
 	"cowardly_king": "res://assets/dungeon/extra/cowardly_king.png",
 	"merchant": "res://assets/dungeon/extra/merchant.png",
+	"harpy": "res://assets/dungeon/extra/harpy.png",
+	"gargoyle": "res://assets/dungeon/extra/gargoyle.png",
+	"clockwork_knight": "res://assets/dungeon/extra/clockwork_knight.png",
+	"golem": "res://assets/dungeon/extra/golem.png",
+	"ogre": "res://assets/dungeon/extra/ogre.png",
+	"dragon": "res://assets/dungeon/extra/dragon.png",
+	"slime_boss": "res://assets/dungeon/extra/slime_boss.png",
+	"spider_queen": "res://assets/dungeon/extra/spider.png",
+	"hollow": "res://assets/dungeon/extra/hollow.png",
 }
 
 var atlas: Texture2D
@@ -286,6 +300,13 @@ func monster_still(card_id: String) -> Texture2D:
 	if idle.is_empty():
 		return null
 	return idle[0]
+
+
+func nib_frames() -> Array:
+	var t: Texture2D = _load_tex("res://assets/dungeon/extra/nib.png")
+	if t != null:
+		return [t]
+	return frames("goblin")
 
 
 func item_tex(card_id: String) -> Texture2D:

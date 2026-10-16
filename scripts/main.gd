@@ -3607,7 +3607,7 @@ func _on_spin() -> void:
 	_log("var", "BLK 0")
 	_log("var", "items this combat 0")
 	if combat_stage:
-		combat_stage.show_monster(str(m.get("card_id", "")))
+		combat_stage.show_monster(str(m.get("card_id", "")), int(m.get("tier", 1)))
 	_refresh()
 	_bleed_begin()
 	if await _apply_siphon_jars():
@@ -4324,7 +4324,7 @@ func _restore_run(snap: Dictionary) -> void:
 		_hide_hypno()
 	if combat_stage:
 		if (phase == "fighting" or phase == "slaying") and facing_index >= 0 and facing_index < wheel.size():
-			combat_stage.show_monster(str(wheel[facing_index].get("card_id", "")))
+			combat_stage.show_monster(str(wheel[facing_index].get("card_id", "")), int(wheel[facing_index].get("tier", 1)))
 		else:
 			combat_stage.hide_stage()
 	if sfx:
@@ -5578,7 +5578,7 @@ func _damsel_resolve() -> void:
 	for j in _damsel_neighbors(facing_index):
 		var nm: Dictionary = wheel[j]
 		if combat_stage:
-			combat_stage.show_monster(str(nm.get("card_id", "")))
+			combat_stage.show_monster(str(nm.get("card_id", "")), int(nm.get("tier", 1)))
 		var hits: int = _hit_count(j)
 		for h in range(hits):
 			if hp <= 0:
@@ -5594,7 +5594,7 @@ func _damsel_resolve() -> void:
 			return
 	await _bleed_end()
 	if combat_stage:
-		combat_stage.show_monster("two_headed_serpent")
+		combat_stage.show_monster("two_headed_serpent", int(wheel[facing_index].get("tier", 3)) if facing_index >= 0 and facing_index < wheel.size() else 3)
 	_heal(3)
 	await _begin_slay()
 
@@ -7155,7 +7155,7 @@ func _apply_mark(index: int) -> void:
 		_sync_wheel_stats()
 		_draw_unseen_item()
 		if combat_stage:
-			combat_stage.show_monster(str(wheel[facing_index].get("card_id", "")))
+			combat_stage.show_monster(str(wheel[facing_index].get("card_id", "")), int(wheel[facing_index].get("tier", 1)))
 		if sfx:
 			sfx.play("whoosh", -8.0)
 			sfx.play("click2", -8.0)
@@ -7244,7 +7244,7 @@ func _show_hypno(index: int) -> void:
 		return
 	_hypno_src = index
 	if hypno_stage:
-		hypno_stage.show_monster(str(wheel[index].get("card_id", "")))
+		hypno_stage.show_monster(str(wheel[index].get("card_id", "")), int(wheel[index].get("tier", 1)))
 	_refresh_hypno_box()
 	_place_fight_art()
 
@@ -8968,7 +8968,7 @@ func _place_fight_art() -> void:
 		return
 	var wr: Rect2 = wheel_view.get_global_rect()
 	var stack_w := 252.0
-	var port_sz := Vector2(168, 128)
+	var port_sz := Vector2(192, 160)
 	var gap := 8.0
 	var plaque_h := 0.0
 	if face_box != null and face_box.visible:
