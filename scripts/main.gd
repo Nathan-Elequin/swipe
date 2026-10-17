@@ -4718,9 +4718,9 @@ func _play_ended_visuals() -> void:
 	_refresh()
 	_flash_screen(Color("e8c36a"), 0.32)
 	if sfx:
-		sfx.play("bong", -6.0)
-		sfx.play("whoosh", -10.0, 1.15)
-		sfx.play("scratch", -10.0, 0.85)
+		var dead: Dictionary = wheel[facing_index] if facing_index >= 0 and facing_index < wheel.size() else {}
+		var dctx := {"tier": _tier_of(dead) if not dead.is_empty() else 1, "monster_id": str(dead.get("card_id", ""))}
+		sfx.play_event(sfx.resolve(&"death", dctx), dctx)
 	if combat_stage:
 		combat_stage.take_hit()
 	if wheel_view and facing_index >= 0:
@@ -4797,6 +4797,8 @@ func _apply_resolve_hits() -> int:
 		if hp <= 0:
 			break
 		if hits > 1 and h < hits - 1:
+			if sfx:
+				sfx.play_event(&"mon.hornet_buzz")
 			await get_tree().create_timer(0.16).timeout
 	return total
 
@@ -4807,6 +4809,8 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1) -> int:
 	enemy_attacked = true
 	_trace_resolve("swing %s n=%s" % [str(m.get("card_id", "")), hit_n])
 	if combat_stage:
+		if sfx:
+			sfx.play_event(&"mon.lunge", {"monster_id": str(m.get("card_id", "")), "tier": _tier_of(m)})
 		await combat_stage.lunge()
 		_trace_resolve("lunge done")
 	var swing: Dictionary = _swing(m, blk)
@@ -4866,8 +4870,7 @@ func _apply_egg_hurt(n: int) -> void:
 		_refresh_hearts()
 		_refresh_blk(false)
 		if sfx:
-			sfx.play("chop", -6.0)
-			sfx.play("error", -18.0, 0.8)
+			sfx.play_event(&"egg.hurt")
 		if wheel_view:
 			await wheel_view.play_hub_sting("hurt", incoming)
 		await _hurt_ogres(incoming)
@@ -4895,8 +4898,7 @@ func _play_attack_connect() -> void:
 	_refresh_hearts()
 	_refresh_blk(false)
 	if sfx:
-		sfx.play("chop", -6.0)
-		sfx.play("error", -18.0, 0.8)
+		sfx.play_event(&"player.hurt")
 
 
 func _play_attack_blocked() -> void:
@@ -4906,6 +4908,7 @@ func _play_attack_blocked() -> void:
 		sfx.play("block_heavy", -5.0)
 		sfx.play("bong", -8.0, 1.12)
 		sfx.play("glass", -12.0, 1.3)
+		sfx.play_event(&"player.blocked")
 	if combat_stage:
 		combat_stage.play_block()
 	if facing_index >= 0 and wheel_view:
@@ -5534,6 +5537,11 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 	var kind: String = str(ops.get("kind", ""))
 	var view: Dictionary = _item_view(it)
 	await _announce_item_use(it, _item_fx_dest(kind))
+	if str(it.get("card_id", "")) == "echo_bell":
+		if sfx:
+			sfx.play_event(&"chaos.echo_bell")
+		if get_tree():
+			await get_tree().create_timer(0.09).timeout
 	match kind:
 		"blk", "blk_from_hp", "blk_min_hp", "blk_neighbor", "blk_keep", "blk_from_atk":
 			var n: int = int(view.get("n", ops.get("n", 0)))
@@ -5625,6 +5633,8 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("on_item_use", str(it["name"]))
 			_log("blk", "+%s  →  %s" % [n, blk])
 		"smoke":
+			if sfx:
+				sfx.play_event(&"smoke.use")
 			it["spent"] = true
 			await _count_item_use()
 			_draw_unseen_item()
@@ -5704,6 +5714,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			if sfx:
 				sfx.play("cloth", -8.0)
 				sfx.play("pluck", -10.0, 0.85)
+				sfx.play_event(&"util.quiet")
 		"atk_spend_blk":
 			var copy_blk: int = blk
 			if copy_blk <= 0:
@@ -5747,7 +5758,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("on_item_use", str(it["name"]))
 			_log("on_resolve", "defeat")
 			if sfx:
-				sfx.play("draw", -8.0)
+				sfx.play_event(&"defeat.use")
 			_toss_item(int(it["uid"]), false)
 			await _begin_slay()
 			return
@@ -5799,7 +5810,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("on_item_use", str(it["name"]))
 			_log("on_resolve", "defeat")
 			if sfx:
-				sfx.play("draw", -8.0)
+				sfx.play_event(&"defeat.use")
 			_toss_item(int(it["uid"]), false)
 			await _begin_slay()
 			return
@@ -5820,7 +5831,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("on_item_use", str(it["name"]))
 			_log("on_resolve", "defeat")
 			if sfx:
-				sfx.play("draw", -8.0)
+				sfx.play_event(&"defeat.use")
 			_toss_item(int(it["uid"]), false)
 			await _begin_slay()
 			return
@@ -6583,7 +6594,7 @@ func _try_commander_flee(index: int) -> bool:
 	wheel[index] = s
 	_log("on_resolve", "%s flees" % s.get("name", "Commander"))
 	if sfx:
-		sfx.play("whoosh", -8.0, 1.2)
+		sfx.play_event(&"mon.commander_flee")
 		sfx.play("door_open", -12.0)
 	if index == facing_index:
 		await _flee_spin()
@@ -6710,8 +6721,7 @@ func _leech_pulse(index: int) -> void:
 			from = wheel_view.slice_portrait_global(index)
 			to = wheel_view.slice_portrait_global(target)
 		if sfx:
-			sfx.play("pluck", -8.0, 1.15 + steps * 0.04)
-			sfx.play("bong", -16.0, 1.1)
+			sfx.play_event(&"mon.leech_pulse", {"pitch_mul": 1.0 + steps * 0.04})
 		if tex_heart != null and from != Vector2.ZERO:
 			await _fly_courier(tex_heart, from, to if to != Vector2.ZERO else _slice_hp_pos(target), 0.22)
 		_grant_leech_hp(target)
@@ -6800,8 +6810,7 @@ func _apply_queen_eggs_on_spin() -> void:
 			q = wheel[facing_index]
 			_log("var", "Queen +%s HP +%s ATK" % [2 * bonus, 2 * bonus])
 			if sfx:
-				sfx.play("bleed", -8.0, 0.55)
-				sfx.play("cloth", -6.0, 0.5)
+				sfx.play_event(&"egg.queen_eat")
 		_refresh()
 	for i in range(wheel.size()):
 		if i == facing_index:
@@ -6833,9 +6842,7 @@ func _lay_spider_egg(index: int) -> void:
 	if hotbar_box:
 		to = hotbar_box.global_position + hotbar_box.size * 0.5
 	if sfx:
-		sfx.play("bleed", -2.0, 0.32)
-		sfx.play("scratch", -8.0, 0.55)
-		sfx.play("cloth", -10.0, 0.4)
+		sfx.play_event(&"egg.lay")
 	await _announce_slice(index, to if to != Vector2.ZERO else _hub_hp_pos())
 	if tex != null and from != Vector2.ZERO:
 		await _fly_courier(tex, from, to, 0.42)
@@ -7041,7 +7048,7 @@ func _cleric_play(index: int) -> void:
 	if wheel_view:
 		wheel_view.aura_index = index
 	if sfx:
-		sfx.play("pluck", -8.0, 0.9)
+		sfx.play_event(&"mon.cleric_tax")
 	if get_tree():
 		await get_tree().create_timer(0.7).timeout
 	if wheel_view:
@@ -7240,9 +7247,10 @@ func _gain_blk(n: int, skip_twins: bool = false) -> int:
 	_refresh_blk(true)
 	_punch_blk()
 	if sfx:
-		sfx.play("block", -8.0)
 		if n >= 4:
-			sfx.play("block_heavy", -14.0)
+			sfx.play_event(&"blk.gain_big", {"n": n})
+		else:
+			sfx.play_event(&"blk.gain", {"n": n})
 	return n
 
 
@@ -7256,7 +7264,7 @@ func _heal(n: int) -> int:
 		return 0
 	_flash_screen(Color("8fd18f"), 0.28)
 	if sfx:
-		sfx.play("pluck", -8.0)
+		sfx.play_event(&"heal.gain", {"n": gained})
 	_glow_hearts_heal()
 	_sync_dire_wolves()
 	return gained
@@ -7434,8 +7442,7 @@ func _petrify_best_atk() -> void:
 	if facing_index >= 0:
 		await _announce_slice(facing_index, _item_card_global(int(pick.get("uid", -1))))
 	if sfx:
-		sfx.play("metal_latch", -8.0)
-		sfx.play("cloth", -12.0)
+		sfx.play_event(&"status.petrify")
 
 
 func _cube_ask_feed() -> void:
@@ -7485,6 +7492,7 @@ func _merchant_ask() -> void:
 	if sfx:
 		sfx.play("question", -8.0)
 		sfx.play("pluck", -10.0)
+		sfx.play_event(&"mon.merchant_ask")
 	_refresh()
 
 
@@ -7578,8 +7586,7 @@ func _feed_cube(uid: int) -> void:
 	var it: Dictionary = _find_item(uid)
 	_log("on_spin", "cube ate %s" % str(it.get("name", "?")))
 	if sfx:
-		sfx.play("cloth", -6.0)
-		sfx.play("glass", -12.0, 0.8)
+		sfx.play_event(&"mon.cube_feed")
 	_toss_item(uid, false)
 	_cube_line = ["Mmm. Thank you.", "Gone. Delicious.", "Thanks. I needed that."][rng.randi() % 3]
 	_refresh()
@@ -7617,8 +7624,7 @@ func _spawn_clockwork_heirs() -> void:
 		_log("on_place", "Clockwork left %s" % heir.get("name", pick))
 	_reseat_slots()
 	if sfx:
-		sfx.play("drop", -8.0)
-		sfx.play("metal_latch", -14.0)
+		sfx.play_event(&"mon.clockwork_spawn")
 
 
 func _count_item_use() -> void:
@@ -7732,6 +7738,8 @@ func _set_magnet_mode(it: Dictionary, oid: String) -> void:
 	it["magnet_seq"] = _magnet_seq
 	await _announce_item_use(it, _hub_hp_pos())
 	_log("on_item_use", "magnet %s" % oid)
+	if sfx:
+		sfx.play_event(&"util.magnet")
 	_remember_item_use(it)
 	if phase == "fighting":
 		await _count_item_use()
@@ -7917,8 +7925,9 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	wheel[index] = m
 	last_atk_line = "%s  →  %s HP %s" % [hit_n, m.get("name", "?"), m.get("hp", 0)]
 	if sfx:
-		sfx.play("hit", -7.0, 0.94 + rng.randf() * 0.14)
-		sfx.play("chop", -16.0)
+		var hit_ctx := {"card_id": str(m.get("card_id", "")), "dmg": hit_n, "tier": _tier_of(m), "monster_id": str(m.get("card_id", ""))}
+		sfx.play_event(sfx.resolve(&"hit", hit_ctx), hit_ctx)
+		sfx.play_event(sfx.resolve(&"hurt", hit_ctx), hit_ctx)
 	if wheel_view:
 		if cut_chip:
 			await wheel_view.play_hp_ticks(index, before_hp, int(m["hp"]))
@@ -8035,7 +8044,7 @@ func _player_take_atk(n: int) -> bool:
 		_refresh_hearts()
 		_refresh_blk(false)
 		if sfx:
-			sfx.play("chop", -8.0)
+			sfx.play_event(&"player.poke")
 		await _hurt_ogres(incoming)
 		await _grow_vampires()
 		if hp > 0:
@@ -8253,8 +8262,7 @@ func _apply_mark(index: int) -> void:
 			combat_stage.show_monster(str(wheel[facing_index].get("card_id", "")), int(wheel[facing_index].get("tier", 1)))
 			_tune_combat_stage()
 		if sfx:
-			sfx.play("whoosh", -8.0)
-			sfx.play("click2", -8.0)
+			sfx.play_event(&"util.hook")
 		await _after_item_resolved(it)
 		await _bleed_end()
 		if _undo_stale(token):
@@ -8269,7 +8277,7 @@ func _apply_mark(index: int) -> void:
 		await _count_item_use()
 		_toss_item(int(it["uid"]), false)
 		if sfx:
-			sfx.play("click2", -8.0)
+			sfx.play_event(&"status.poison")
 		_sync_wheel_stats()
 		await _after_item_resolved(it)
 		await _bleed_end()
@@ -8408,6 +8416,8 @@ func _apply_hypnotize(src: int, it: Dictionary) -> void:
 	var snap: int = int(wheel[src].get("atk", 0))
 	var hits: int = _hit_count(src)
 	_log("on_item_use", "hypnotize %s" % wheel[src].get("name", "?"))
+	if sfx:
+		sfx.play_event(&"status.hypnotize")
 	it["spent"] = true
 	await _count_item_use()
 	_toss_item(int(it["uid"]), false)
@@ -8510,9 +8520,8 @@ func _kill_neighbor(index: int) -> void:
 		_log("on_remove_slice", "Mimic gift")
 	_flash_screen(Color("e8c36a"), 0.32)
 	if sfx:
-		sfx.play("bong", -6.0)
-		sfx.play("whoosh", -10.0, 1.15)
-		sfx.play("scratch", -10.0, 0.85)
+		var nctx := {"tier": _tier_of(m), "monster_id": str(m.get("card_id", ""))}
+		sfx.play_event(sfx.resolve(&"death", nctx), nctx)
 	if wheel_view:
 		await wheel_view.play_slay(index)
 	if adventure:
