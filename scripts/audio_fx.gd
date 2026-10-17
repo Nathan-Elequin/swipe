@@ -388,7 +388,7 @@ func _play_cue_voice(id: String, cue: Dictionary, ctx: Dictionary, files: Array)
 	var stream: AudioStream = _pick_stream(id, files)
 	if stream == null:
 		return
-	var bus: String = str(cue.get("bus", _defaults.get("bus", "SFX")))
+	var bus: String = str(ctx.get("bus", cue.get("bus", _defaults.get("bus", "SFX"))))
 	var db: float = float(cue.get("db", _defaults.get("db", -8))) + float(ctx.get("db_offset", 0.0))
 	var pitch: float = _cue_pitch(cue) * float(ctx.get("pitch_mul", 1.0))
 	pitch = clampf(pitch, 0.5, 2.0)

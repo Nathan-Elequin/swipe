@@ -11,7 +11,11 @@ const COPY := preload("res://scripts/player_copy.gd")
 
 var _master: HSlider
 var _music: HSlider
+var _ambience: HSlider
 var _sfx: HSlider
+var _ui_vol: HSlider
+var _lab_ambience: Label
+var _lab_ui: Label
 var _audio
 var _sfx_ready: bool = false
 var _title: Label
@@ -66,9 +70,13 @@ func setup(audio) -> void:
 	_title.add_theme_color_override("font_color", Color("c4a574"))
 	col.add_child(_title)
 
-	_master = _add_slider(col, "Master")
-	_music = _add_slider(col, "Music")
-	_sfx = _add_slider(col, "SFX")
+	_master = _add_slider(col, "Master", "Master")
+	_music = _add_slider(col, "Music", "Music")
+	_ambience = _add_slider(col, "Ambience", COPY.text("pause.ambience", "Ambience"))
+	_sfx = _add_slider(col, "SFX", "SFX")
+	_ui_vol = _add_slider(col, "UI", COPY.text("pause.ui", "UI"))
+	_lab_ambience = _slider_label(_ambience)
+	_lab_ui = _slider_label(_ui_vol)
 
 	_hint = Label.new()
 	_hint.text = "Escape resumes. Start over without closing the game."
@@ -149,9 +157,13 @@ func apply_copy() -> void:
 		_btn_adventure.text = COPY.text("title.adventure", "Challenge Mode")
 	if _btn_home:
 		_btn_home.text = COPY.text("title.home", "Home")
+	if _lab_ambience:
+		_lab_ambience.text = COPY.text("pause.ambience", "Ambience")
+	if _lab_ui:
+		_lab_ui.text = COPY.text("pause.ui", "UI")
 
 
-func _add_slider(host: VBoxContainer, label: String) -> HSlider:
+func _add_slider(host: VBoxContainer, which: String, label: String) -> HSlider:
 	var wrap := VBoxContainer.new()
 	wrap.add_theme_constant_override("separation", 4)
 	var lab := Label.new()
@@ -164,10 +176,19 @@ func _add_slider(host: VBoxContainer, label: String) -> HSlider:
 	sl.max_value = 100
 	sl.step = 1
 	sl.custom_minimum_size = Vector2(360, 28)
-	sl.value_changed.connect(_on_slider.bind(label))
+	sl.value_changed.connect(_on_slider.bind(which))
 	wrap.add_child(sl)
 	host.add_child(wrap)
 	return sl
+
+
+func _slider_label(sl: HSlider) -> Label:
+	if sl == null or sl.get_parent() == null:
+		return null
+	for c in sl.get_parent().get_children():
+		if c is Label:
+			return c
+	return null
 
 
 func _title_btn(text: String, cb: Callable, width: float = 140) -> Button:
@@ -176,6 +197,7 @@ func _title_btn(text: String, cb: Callable, width: float = 140) -> Button:
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	UxStyle.dress_title_button(b, width)
 	b.pressed.connect(cb)
+	_hook_hover(b)
 	return b
 
 
@@ -199,7 +221,15 @@ func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float = 14
 	(h as StyleBoxFlat).bg_color = fill.lightened(0.16)
 	b.add_theme_stylebox_override("hover", h)
 	b.pressed.connect(cb)
+	_hook_hover(b)
 	return b
+
+
+func _hook_hover(b: Button) -> void:
+	b.mouse_entered.connect(func() -> void:
+		if _audio and _audio.has_method("play_event"):
+			_audio.play_event(&"ui.hover_menu")
+	)
 
 
 func open_menu() -> void:
@@ -207,13 +237,23 @@ func open_menu() -> void:
 		_sfx_ready = false
 		_master.value = _audio.master_lin * 100.0
 		_music.value = _audio.music_lin * 100.0
+		if _ambience:
+			_ambience.value = _audio.ambience_lin * 100.0
 		_sfx.value = _audio.sfx_lin * 100.0
+		if _ui_vol:
+			_ui_vol.value = _audio.ui_lin * 100.0
 		_sfx_ready = true
+		if _audio.has_method("on_pause"):
+			_audio.on_pause(true)
 	visible = true
 	get_tree().paused = true
 
 
 func close_menu() -> void:
+	if _audio and _audio.has_method("play_event"):
+		_audio.play_event(&"ui.back")
+	if _audio and _audio.has_method("on_pause"):
+		_audio.on_pause(false)
 	visible = false
 	get_tree().paused = false
 	closed.emit()
@@ -228,10 +268,18 @@ func _on_slider(value: float, which: String) -> void:
 			_audio.set_master(lin)
 		"Music":
 			_audio.set_music(lin)
+		"Ambience":
+			_audio.set_ambience(lin)
+			if _sfx_ready and _audio.has_method("play_event"):
+				_audio.play_event(&"ui.slider_tick", {"bus": "Ambience"})
 		"SFX":
 			_audio.set_sfx(lin)
-			if _sfx_ready:
-				_audio.play("click", -10.0)
+			if _sfx_ready and _audio.has_method("play_event"):
+				_audio.play_event(&"ui.slider_tick", {"bus": "SFX"})
+		"UI":
+			_audio.set_ui(lin)
+			if _sfx_ready and _audio.has_method("play_event"):
+				_audio.play_event(&"ui.slider_tick", {"bus": "UI"})
 
 
 func _on_resume() -> void:

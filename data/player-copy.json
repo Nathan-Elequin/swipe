@@ -250,6 +250,20 @@
 			"where": "Escape menu label"
 		},
 		{
+			"author_lock": false,
+			"cat": "Pause",
+			"key": "pause.ambience",
+			"text": "Ambience",
+			"where": "Escape menu volume slider"
+		},
+		{
+			"author_lock": false,
+			"cat": "Pause",
+			"key": "pause.ui",
+			"text": "UI",
+			"where": "Escape menu volume slider"
+		},
+		{
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.speaker",
