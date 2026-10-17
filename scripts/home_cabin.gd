@@ -787,17 +787,20 @@ func _play_burst(wrap: Control) -> void:
 	var mat := CanvasItemMaterial.new()
 	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	burst.material = mat
-	burst.sprite_frames = _frames("burst", [
+	var sf := SpriteFrames.new()
+	sf.add_animation("burst")
+	sf.set_animation_speed("burst", 1.0)
+	sf.set_animation_loop("burst", false)
+	var stems := [
 		"trophy_place_burst_f0", "trophy_place_burst_f1", "trophy_place_burst_f2",
 		"trophy_place_burst_f3", "trophy_place_burst_f4",
-	], 12.0, false)
-	if burst.sprite_frames:
-		burst.sprite_frames.set_animation_loop("burst", false)
-		burst.sprite_frames.set_animation_speed("burst", 1.0)
-		var durs := [0.06, 0.07, 0.08, 0.09, 0.10]
-		for i in durs.size():
-			if i < burst.sprite_frames.get_frame_count("burst"):
-				burst.sprite_frames.set_frame_duration("burst", i, durs[i])
+	]
+	var durs := [0.06, 0.07, 0.08, 0.09, 0.10]
+	for i in stems.size():
+		var tex: Texture2D = _home(stems[i])
+		if tex:
+			sf.add_frame("burst", tex, durs[i])
+	burst.sprite_frames = sf
 	wrap.add_child(burst)
 	burst.play("burst")
 	burst.animation_finished.connect(func() -> void:
