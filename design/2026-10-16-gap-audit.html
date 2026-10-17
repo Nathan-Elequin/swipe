@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gap audit — ten cards, five modes</title>
+<style>
+  :root {
+    --bg: #120e0c;
+    --ink: #f0e6d8;
+    --muted: #cbbba6;
+    --dim: #8a7b6c;
+    --line: #6e5c4c;
+    --well: #1c1612;
+    --plate: #241c16;
+    --gold: #e8c36a;
+    --copper: #c08050;
+    --steel: #c5cdd8;
+    --atk: #e08a4a;
+    --hp: #e07a7a;
+    --blk: #6bb3d9;
+    --ok: #8fd18f;
+    --bad: #e07a7a;
+    --gap: #b8860b;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.5 "Iowan Old Style", Palatino, Georgia, serif;
+  }
+  a { color: var(--gold); }
+  nav {
+    position: sticky; top: 0; z-index: 8;
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    padding: 10px 22px;
+    background: #120e0cee;
+    border-bottom: 1px solid #3a2e26;
+    backdrop-filter: blur(8px);
+  }
+  nav a {
+    color: var(--muted); text-decoration: none;
+    border: 1px solid #4a3c32; border-radius: 999px;
+    padding: 4px 12px; font-size: 13px;
+  }
+  nav a:hover { color: var(--ink); border-color: var(--gold); }
+  header.hero, section { padding: 28px 28px 8px; max-width: 1180px; }
+  h1 { font-size: 34px; margin: 0 0 8px; letter-spacing: -0.02em; }
+  h2 { font-size: 24px; margin: 28px 0 10px; color: var(--gold); }
+  h3 { font-size: 18px; margin: 0 0 6px; }
+  p { margin: 0 0 10px; color: var(--ink); }
+  .lead { color: var(--muted); font-size: 18px; max-width: 72ch; }
+  .kicker { color: var(--dim); text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; margin-bottom: 6px; }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 14px 0 22px; }
+  .card, .mode, .axis, .sheet {
+    background: var(--well);
+    border: 1px solid #3a2e26;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .axis h3 { color: var(--steel); }
+  .pill {
+    display: inline-block; font: 700 11px/1 ui-sans-serif, sans-serif;
+    padding: 3px 8px; border-radius: 999px; margin: 0 4px 6px 0;
+    border: 2px solid;
+  }
+  .t1 { background: #24160e; border-color: var(--copper); color: #f3d2b0; }
+  .t2 { background: #14161a; border-color: var(--steel); color: #eef2f8; }
+  .t3 { background: #2a1c08; border-color: var(--gold); color: #ffe9a8; }
+  .bkt { background: #1a2a38; border-color: #2f6f9f; color: #d6e8f8; }
+  .kind-m { background: #2a1614; border-color: var(--atk); color: #f3c4a0; }
+  .kind-i { background: #142028; border-color: var(--blk); color: #cfe4f4; }
+  table.heat { border-collapse: collapse; width: 100%; font: 13px/1.35 ui-sans-serif, sans-serif; margin: 8px 0 18px; }
+  table.heat th, table.heat td { border: 1px solid #3a2e26; padding: 7px 8px; text-align: center; }
+  table.heat th { background: #1c1612; color: var(--muted); font-weight: 600; }
+  table.heat td.who { text-align: left; font-weight: 700; }
+  .full { background: #1a2a16; color: var(--ok); }
+  .short { background: #2a2410; color: var(--gold); }
+  .empty { background: #2a1614; color: var(--bad); }
+  .okish { background: #241c10; color: #e8d090; }
+  .bars { display: grid; grid-template-columns: 140px 1fr 40px; gap: 4px 10px; align-items: center; font: 13px/1 ui-sans-serif, sans-serif; margin: 8px 0 16px; }
+  .bar { height: 10px; background: #2a221c; border-radius: 6px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: var(--gold); }
+  .sheet { border-width: 3px; }
+  .sheet.m { border-color: var(--copper); }
+  .sheet.i { border-color: var(--blk); }
+  .sheet header { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+  .sheet .ability { font-size: 18px; color: #ffe9c8; margin: 8px 0 12px; }
+  .sheet dl { display: grid; grid-template-columns: 120px 1fr; gap: 6px 12px; margin: 0; font-size: 14px; }
+  .sheet dt { color: var(--dim); }
+  .sheet dd { margin: 0; }
+  .mode { border-left: 4px solid var(--gold); }
+  .mode .meta { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
+  ol.beats { margin: 6px 0 10px; padding-left: 20px; }
+  ol.beats li { margin: 0 0 6px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 800px) { .two { grid-template-columns: 1fr; } }
+  footer { padding: 20px 28px 48px; color: var(--dim); max-width: 1180px; }
+  .callout { background: #1c1810; border: 1px solid var(--gold); border-radius: 10px; padding: 12px 16px; margin: 12px 0 20px; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="#core">Core loop</a>
+  <a href="#audit">Audit</a>
+  <a href="#axes">Holes</a>
+  <a href="#monsters">Five monsters</a>
+  <a href="#items">Five items</a>
+  <a href="#modes">Five modes</a>
+</nav>
+
+<header class="hero">
+  <div class="kicker">16 Oct 2026 · pitch, not in the catalog</div>
+  <h1>The shrinking wheel stopped being a lesson</h1>
+  <p class="lead">The live roster is good at neighbors, extra swings, and “this number you can already see.” It is thin on empty seats, on paying for a clean Defeat, and on making turtling a trap again. Clockwork Knight used to be Attack equal to owners left. That verb was removed. Nothing replaced it.</p>
+  <div class="callout">These ten cards and five modes are pitches. Nothing is in the catalog. If you want any of them in the game, we do a Paper Fight on that card or mode before code. I picked one reading for each pitch so you have something to accept or reject, not a menu of nicknames.</div>
+</header>
+
+<section id="core">
+  <h2>What the core mode is for</h2>
+  <p>One player. A door offers a shiny item. Take it and the owner sits in an alcove. Pass three times, then the rest are forced in. Eight seats. A hand of stolen tools. Spin picks a remaining owner at random. Spend items, then click Done. Leftover Attack hits six hearts. Block dumps when the fight ends. A dead slice vanishes and its neighbors close the gap. Alive is the only score.</p>
+  <p>The draw is not “pick a boss and steal the weapon.” The draw is: you built a circle that can collapse in an order you do not fully control, with a small hand, and neighbors change the numbers as seats empty. Adventure then repeats that dungeon, keeps leftovers, and unlocks later buckets.</p>
+  <div class="row">
+    <div class="card"><h3>What you are choosing</h3><p>Take versus Pass at the door. Which empty seat gets this owner. Spend now versus click Done and bleed. Keep a scary seat for last, or eat it early with Defeat.</p></div>
+    <div class="card"><h3>What the physics actually is</h3><p>Random remaining spin. Neighbors. Opposite on an even wheel. Live Attack / HP / Block / items in hand. Defeat versus Attack-to-zero versus Smoke abort. Extra swings spend Block per swing.</p></div>
+    <div class="card"><h3>What the current roster trains</h3><p>Soak with Block. Defeat the fat number (Boot, Sledge, Paci-Fist, Scythe, Fangs). Do not over-spend into Hornet / Harpy / Kobold / Wick. Quiet Bell turns a unique off. Goblin needs a non-Attack answer.</p></div>
+  </div>
+</section>
+
+<section id="audit">
+  <h2>Distribution on the live board</h2>
+  <p>Counts below are from <code>data/content-board.json</code>, skipping retired cards. Bucket 0 wants 9 and 9. Later buckets want 4 and 4. The trait matrix is missing Bodyguard, Cleric, Cowardly King, Juggernaut, Merchant, Arrow Head, and Danger Magnet, and it still has Hornet in bucket 3. Do not design from the matrix until it is rebuilt from the board.</p>
+
+  <h3>Monsters per bucket</h3>
+  <table class="heat">
+    <tr><th>Bucket</th><th>T1</th><th>T2</th><th>T3</th><th>Total</th><th>Want</th><th>Who is there</th></tr>
+    <tr><td>0</td><td>4</td><td>3</td><td>2</td><td class="full">9</td><td>9</td><td class="who">Goblin, Golem, Hornet, Wizard, Bandit, Berserker, Wolf, Dragon, Slime</td></tr>
+    <tr><td>1</td><td>1</td><td>1</td><td>1</td><td class="short">3</td><td>4</td><td class="who">Skeleton, Ogre, Vampire</td></tr>
+    <tr><td>2</td><td>2</td><td class="empty">0</td><td>1</td><td class="short">3</td><td>4</td><td class="who">Bodyguard, Lich, Damsel — no Tough</td></tr>
+    <tr><td>3</td><td class="empty">0</td><td class="empty">0</td><td>2</td><td class="empty">2</td><td>4</td><td class="who">Leech, Queen — only Deadly, two short</td></tr>
+    <tr><td>4</td><td>1</td><td>2</td><td class="empty">0</td><td class="short">3</td><td>4</td><td class="who">Merchant, Mimic, Needleback — no Deadly</td></tr>
+    <tr><td>5</td><td>1</td><td>2</td><td class="empty">0</td><td class="short">3</td><td>4</td><td class="who">Twins, Anvil, Wraith — no Deadly</td></tr>
+    <tr><td>6</td><td class="empty">0</td><td>3</td><td class="empty">0</td><td class="short">3</td><td>4</td><td class="who">Cleric, Gargoyle, Harpy — all Tough</td></tr>
+    <tr><td>7</td><td class="empty">0</td><td>3</td><td class="empty">0</td><td class="short">3</td><td>4</td><td class="who">Basilisk, Cube, Kobold — all Tough</td></tr>
+    <tr><td>8</td><td class="empty">0</td><td>1</td><td>2</td><td class="short">3</td><td>4</td><td class="who">Juggernaut, Clockwork, Commander — no Weak</td></tr>
+    <tr><td>9</td><td>1</td><td>1</td><td>1</td><td class="short">3</td><td>4</td><td class="who">Beggar, Wick, Cowardly King</td></tr>
+    <tr><td>10</td><td class="empty">0</td><td class="empty">0</td><td class="empty">0</td><td class="empty">0</td><td>4</td><td class="who">Empty. No monsters at all.</td></tr>
+  </table>
+
+  <h3>Items per bucket</h3>
+  <table class="heat">
+    <tr><th>Bucket</th><th>T1</th><th>T2</th><th>T3</th><th>Total</th><th>Want</th><th>Note</th></tr>
+    <tr><td>0</td><td>7</td><td>2</td><td class="empty">0</td><td class="full">9</td><td>9</td><td class="who">No gold starter item. Fine for teaching.</td></tr>
+    <tr><td>1</td><td>1</td><td>2</td><td class="empty">0</td><td class="short">3</td><td>4</td><td class="who">Wraps, both Bracers</td></tr>
+    <tr><td>2</td><td>1</td><td>2</td><td class="empty">0</td><td class="short">3</td><td>4</td><td class="who">Hook, Crossbow, Quiet Bell</td></tr>
+    <tr><td>3</td><td>1</td><td>1</td><td>2</td><td class="full">4</td><td>4</td><td class="who">Sai, Smoke, Breastplate, Scythe</td></tr>
+    <tr><td>4</td><td>1</td><td>1</td><td>1</td><td class="short">3</td><td>4</td><td class="who">Spiked Shield, Danger Magnet, Lantern</td></tr>
+    <tr><td>5</td><td class="empty">0</td><td>3</td><td class="empty">0</td><td class="short">3</td><td>4</td><td class="who">Scroll, Axe, Grief Jar — no Weak</td></tr>
+    <tr><td>6</td><td class="empty">0</td><td>3</td><td class="empty">0</td><td class="short">3</td><td>4</td><td class="who">Chaos, Longbow, Poison</td></tr>
+    <tr><td>7</td><td class="empty">0</td><td>2</td><td>1</td><td class="short">3</td><td>4</td><td class="who">Arrow Head, Chain, Echo</td></tr>
+    <tr><td>8</td><td class="empty">0</td><td class="empty">0</td><td>2</td><td class="empty">2</td><td>4</td><td class="who">Paci-Fist, Flail — two short, only gold</td></tr>
+    <tr><td>9</td><td>1</td><td>1</td><td>1</td><td class="short">3</td><td>4</td><td class="who">Grimoire, Fangs, Sledge</td></tr>
+    <tr><td>10</td><td class="empty">0</td><td>1</td><td>2</td><td class="short">3</td><td>4</td><td class="who">Mirror, Potion, Pocketwatch</td></tr>
+  </table>
+  <p>Pattern: early buckets are full. From bucket 1 on, almost every bucket is one card short. Bucket 3 monsters and bucket 8 items are the ugly holes. Bucket 10 has items and zero monsters, so the last unlock is a loot dump with no new owner to teach it.</p>
+</section>
+
+<section id="axes">
+  <h2>Axes the roster already owns, and axes it dropped</h2>
+  <p>The 2026-10-07 idea bank said every new toy should copy, invert, or tax a number the player can already see. That law still holds. The gaps are not “we need another sword.” They are verbs we designed, then reworked away, or never put on a live card.</p>
+  <div class="row">
+    <div class="axis"><h3>Owned</h3><p>Neighbors (Lich, Bodyguard, Damsel, Bracers, King). Extra swings (Hornet, Harpy, Kobold). Hand size (Bandit, Knucklers, Beggar, Cube, Cleric). HP compare (Boot, Ogre, Wolf, Vampire, Scythe). Unhittable versus un-Defeat (Goblin, Gargoyle). Copy (Skeleton, Wraith, Grimoire, Echo, Mirror). Keep (Knife, Breastplate, Lantern, Chain). Pierce (Dragon, Arrow Head). Cap (Anvil). Flee (Commander, King).</p></div>
+    <div class="axis"><h3>Dropped or missing</h3><p><b>Empty seats as Attack</b> — Clockwork used to be this; now it splits into two Toughs. <b>Block as their weapon</b> — old Harpy; now she interrupts. <b>Click Done at 0 Block on purpose</b> — old Hollow; now Twins. <b>Defeat costs something</b> — Gargoyle says no; nobody says yes-but-bleed. <b>You throw the hand away</b> — nobody. <b>The door cares what you already hold</b> — nobody. <b>They are alone</b> — not a Defeat key.</p></div>
+  </div>
+  <p>Trait-matrix cells for Spin, Defeat, Neighbor, Count, Keep, Discard, Position, Extra swing, Silence, Pierce, Poison, Petrify, Cap, and Flee are almost empty because the matrix was never retagged, not because those verbs are unused. Do not add cards just to paint those cells. Add cards that teach a missing decision.</p>
+  <p>The ten pitches below fill real bucket holes and those dropped decisions. After this pack you still need more count-fillers (especially a Weak monster in bucket 3, a Tough in bucket 2, and three more bucket-10 monsters). This is the interesting third, not a complete rebalance.</p>
+</section>
+
+<section id="monsters">
+  <h2>Five monsters</h2>
+  <p>Simple to nasty, Weak to Deadly, early bucket to last unlock. Printed numbers are a starting brief, not locked.</p>
+  <div class="two">
+
+    <article class="sheet m">
+      <header>
+        <div>
+          <div class="kicker">Monster 1 · teach the empty seat</div>
+          <h3>Warden</h3>
+        </div>
+        <div>
+          <span class="pill kind-m">Monster</span>
+          <span class="pill bkt">Bucket 1</span>
+          <span class="pill t1">Tier 1 · Weak</span>
+        </div>
+      </header>
+      <p class="ability">“+2 Attack for each empty seat beside me.”</p>
+      <dl>
+        <dt>Printed</dt><dd>Attack 1, HP 4. On a full wheel this is a 1. Last owner: both sides empty, Attack 5.</dd>
+        <dt>What you do</dt><dd>Nothing extra. The number updates when neighbors leave. Click items or Done as usual.</dd>
+        <dt>Why</dt><dd>The shrinking ring currently gets easier as you clear it, except for leftover Deadly. Warden makes “save them for last” the trap. Clockwork used to teach owners-left; this teaches empty neighbors, which is the same idea with seating still in the picture.</dd>
+        <dt>Collides</dt><dd>Hook can create an empty seat beside them mid-fight. Last owner: I am reading two empty sides, so +4. Quiet Bell: printed 1. Commander/Lich still buff. Goblin is unrelated. Longbow is even-count, not empty-neighbor — different number.</dd>
+        <dt>Not</dt><dd>Not Attack equal to all empty alcoves (that is the old Clockwork, and it spikes to 7). Two sides only, so the lesson stays local.</dd>
+      </dl>
+    </article>
+
+    <article class="sheet m">
+      <header>
+        <div>
+          <div class="kicker">Monster 2 · Goblin with a key</div>
+          <h3>Statue</h3>
+        </div>
+        <div>
+          <span class="pill kind-m">Monster</span>
+          <span class="pill bkt">Bucket 3</span>
+          <span class="pill t2">Tier 2 · Tough</span>
+        </div>
+      </header>
+      <p class="ability">“I cannot take Attack until you use an item this fight.”</p>
+      <dl>
+        <dt>Printed</dt><dd>Attack 4, HP 6. Bucket 3 is two Deadly and nothing else. This is the missing Tough, and a second Weak still wanted later.</dd>
+        <dt>What you do</dt><dd>If you want to chip them, you must spend first, then Attack. Defeat still works immediately. Done with no spend: they hit you, they take no chip.</dd>
+        <dt>Why</dt><dd>Goblin is always unhittable. Statue is unhittable until you pay a card. That is a new decision on a number you already see (items used this fight = 0 or not).</dd>
+        <dt>Collides</dt><dd>Cube feed is not an item use — Statue stays stone. Smoke aborts; next time you still have not used an item yet. Needleback does not poke until they can take Attack. Anvil still caps the chip after the spend. Quiet Bell: they take Attack like Golem. Harpy already hits you when you spend — Statue plus Harpy in one dungeon is the tax.</dd>
+        <dt>Not</dt><dd>Not “unhittable until you spend an Attack item.” Any item use cracks them, including Shield, so turtling still opens the stone.</dd>
+      </dl>
+    </article>
+
+    <article class="sheet m">
+      <header>
+        <div>
+          <div class="kicker">Monster 3 · inverse Dire Wolf</div>
+          <h3>Other Half</h3>
+        </div>
+        <div>
+          <span class="pill kind-m">Monster</span>
+          <span class="pill bkt">Bucket 5</span>
+          <span class="pill t3">Tier 3 · Deadly</span>
+        </div>
+      </header>
+      <p class="ability">“My HP is 7 minus yours, at least 1.”</p>
+      <dl>
+        <dt>Printed</dt><dd>Attack 5. HP is a formula, not a base. You at 6 hearts → they have 1 HP. You at 1 heart → they have 6 HP. Updates when you bleed or Heal. Bucket 5 has no Deadly.</dd>
+        <dt>What you do</dt><dd>Fight them healthy: Boot and any 1-chip kill them. Fight them wounded: they are a sponge and still hit 5.</dd>
+        <dt>Why</dt><dd>Wolf is Attack = your HP (healthy is scary). Other Half is HP = the hearts you are not holding (wounded is scary). Same number (your HP), inverted job. Vampire and Ogre already ride bleed; they do not invert the HP bar.</dd>
+        <dt>Collides</dt><dd>Lantern / Potion / Flask / Damsel Heal makes them thinner. Grief Jar / Scroll / Flail / Wraps want you hurt, which fattens them. Scythe (exactly double your HP) is live at 3 hearts (they have 4) or 2 hearts (they have 5) — not a free pair. Goblin-style ignore does not apply; they take Attack. Quiet Bell: fall back to a printed HP 3 if we put 3 in the column.</dd>
+        <dt>Not</dt><dd>Not Attack = 7 minus your HP. That would double Wolf. The scary part is the body, not the swing.</dd>
+      </dl>
+    </article>
+
+    <article class="sheet m">
+      <header>
+        <div>
+          <div class="kicker">Monster 4 · hostage, not petrify</div>
+          <h3>Magpie</h3>
+        </div>
+        <div>
+          <span class="pill kind-m">Monster</span>
+          <span class="pill bkt">Bucket 8</span>
+          <span class="pill t1">Tier 1 · Weak</span>
+        </div>
+      </header>
+      <p class="ability">“On Spin I take your highest-tier item and hold it. If I leave before I Attack, you get it back. If I Attack, it is gone.”</p>
+      <dl>
+        <dt>Printed</dt><dd>Attack 3, HP 3. Late bucket, Weak numbers. The complexity is the hostage, not the tank. Bucket 8 has no Weak owner.</dd>
+        <dt>What you do</dt><dd>The stolen card leaves the hotbar and sits on their portrait. Defeat, chip-to-zero, or Quiet-and-kill before Done: it returns. Click Done and take the hit (or they connect): the item is discarded and does not come back. Smoke: fight never swung, item returns.</dd>
+        <dt>Why</dt><dd>Gargoyle petrifies the highest Attack item in place. Cleric takes your worst item as payment for a Heal. Cube makes you feed. Magpie holds your best-tier card hostage and asks whether this fight is worth that card. That is a new click-or-bleed on items you can see.</dd>
+        <dt>Collides</dt><dd>Tie for highest tier: random among those, shown on the portrait. Echo copying a gold card can be the one stolen. Spider Egg is Token tier — ignored if anything else exists. Empty hand: nothing happens. Bandit/Knucklers update when the card leaves the hand. Wick/Kobold/Harpy: the steal is not an item use. Basilisk: steal is not Gain.</dd>
+        <dt>Not</dt><dd>Not “highest Attack item” (that is Gargoyle). Tier is the door’s metal, which the player already uses to judge loot.</dd>
+      </dl>
+    </article>
+
+    <article class="sheet m">
+      <header>
+        <div>
+          <div class="kicker">Monster 5 · Done is locked</div>
+          <h3>Tripwire</h3>
+        </div>
+        <div>
+          <span class="pill kind-m">Monster</span>
+          <span class="pill bkt">Bucket 10</span>
+          <span class="pill t3">Tier 3 · Deadly</span>
+        </div>
+      </header>
+      <p class="ability">“You cannot click Done while you still have a playable item.”</p>
+      <dl>
+        <dt>Printed</dt><dd>Attack 5, HP 8. First monster in empty bucket 10. This is the last-unlock tax on a fat hand.</dd>
+        <dt>What you do</dt><dd>You must spend until every remaining card is unplayable, or the hand is empty, then Done. Healing Potion stays unplayable, so it does not block Done. Petrified cards do not block Done. Empty hand: Done is legal immediately.</dd>
+        <dt>Why</dt><dd>Every other owner lets you turtle and click Done. Tripwire makes the hand a lock. Combined with Harpy, Kobold, Wick, Basilisk, that is why it is last.</dd>
+        <dt>Collides</dt><dd>Harpy hits after each spend you are forced to make. Kobold adds a swing per spend. Wick grows. Basilisk discards Keeps. Paci-Fist can Defeat and skip Done. Fangs: you still have to be allowed to Done after the take-hit, or Fangs ends combat itself — I am reading Fangs still ends combat, so Tripwire never reaches Done. Smoke is legal (it is not Done). Quiet Bell does not remove this if we treat it as the unique — Quiet should turn this into a Golem, so Done works again. That is the out.</dd>
+        <dt>Not</dt><dd>Not “you must spend exactly one.” Not a second extra-swing. The lock is the verb.</dd>
+      </dl>
+    </article>
+  </div>
+</section>
+
+<section id="items">
+  <h2>Five items</h2>
+  <p>Same spread: a cheap teaching click, a position Defeat, a hand-size Block, a throw-the-hand panic, a pay-HP Defeat. Each one in a bucket that is actually short.</p>
+  <div class="two">
+
+    <article class="sheet i">
+      <header>
+        <div>
+          <div class="kicker">Item 1 · turtling is the small number</div>
+          <h3>Kindling</h3>
+        </div>
+        <div>
+          <span class="pill kind-i">Item</span>
+          <span class="pill bkt">Bucket 1</span>
+          <span class="pill t1">Tier 1 · Weak</span>
+        </div>
+      </header>
+      <p class="ability">“Deal 5 Attack if you hold 0 Block. Deal 1 Attack if you hold any Block.”</p>
+      <dl>
+        <dt>Click</dt><dd>In a fight, once. Used up. Live number on the card: 5 or 1, updates when Block changes.</dd>
+        <dt>Why</dt><dd>Shield / Helmet / Bracers / Mirror teach soak first, then chip. Kindling pays you for having not soaked yet. Old Harpy punished Block; this rewards the empty pillow instead of growing the enemy.</dd>
+        <dt>Collides</dt><dd>Dragon: 5 still lands (pierce does not care). Goblin: 5 does nothing; spend it elsewhere. Anvil: 5 becomes 1 HP lost. Twins: 5 is odd, once; if you somehow hold even Block the card is already on the 1. Hornet: you dump 5, then extra swing still needs Block you do not have. Chain wants Block; Kindling wants none — they fight in the same hand.</dd>
+        <dt>Not</dt><dd>Not “if you have 0 Block, Defeat.” Five chip is the Weak version of that fantasy.</dd>
+      </dl>
+    </article>
+
+    <article class="sheet i">
+      <header>
+        <div>
+          <div class="kicker">Item 2 · last seat is a Defeat key</div>
+          <h3>Chisel</h3>
+        </div>
+        <div>
+          <span class="pill kind-i">Item</span>
+          <span class="pill bkt">Bucket 2</span>
+          <span class="pill t3">Tier 3 · Deadly</span>
+        </div>
+      </header>
+      <p class="ability">“Defeat them if they have no Neighbor.”</p>
+      <dl>
+        <dt>Click</dt><dd>In a fight, once, only if the facing owner has no Neighbor (last owner, or a 1-owner wheel). Used up when it works. Unplayable while anyone sits beside them. Bucket 2 items have no gold.</dd>
+        <dt>Why</dt><dd>Boot is HP. Sledge is Attack 5+. Paci-Fist is an empty Attack hand. Scythe is exactly double HP. Fangs is take the hit. Nobody is “they are alone.” That is the shrinking-wheel payoff in an item. You keep Chisel in the bag and spend it on the last seat — or Hook them into isolation.</dd>
+        <dt>Collides</dt><dd>Gargoyle: cannot be Defeated, Chisel fails, card stays. Commander first Defeat: they Flee instead of dying, so isolation might not be true yet. Hook can isolate mid-fight, then Chisel. Quiet Bell does not give them a Neighbor. Clockwork leaving two Toughs can refill seats after a fight, not during. Last owner of a full clear is always legal.</dd>
+        <dt>Not</dt><dd>Not “Defeat if they are the highest HP.” Isolation only.</dd>
+      </dl>
+    </article>
+
+    <article class="sheet i">
+      <header>
+        <div>
+          <div class="kicker">Item 3 · Knucklers flipped</div>
+          <h3>Satchel Lid</h3>
+        </div>
+        <div>
+          <span class="pill kind-i">Item</span>
+          <span class="pill bkt">Bucket 5</span>
+          <span class="pill t1">Tier 1 · Weak</span>
+        </div>
+      </header>
+      <p class="ability">“Gain Block equal to the items in your hand, including this.”</p>
+      <dl>
+        <dt>Click</dt><dd>In a fight, once. Used up. Six cards in hand → Block 6. This card alone → Block 1. Bucket 5 has no Weak item.</dd>
+        <dt>Why</dt><dd>Knucklers is Attack = 8 minus items (skinny hand hits hard). Satchel Lid is Block = items (fat hand soaks). Same live number, opposite job. Bandit already taxes a fat hand from the owner side.</dd>
+        <dt>Collides</dt><dd>Hornet spends that Block on swing one. Dragon ignores it. Mirror copies the amount you just gained. Chain can convert it. Cube/Cleric/Magpie shrinking the hand before you click this shrinks the Block. Twins: even Block doubles. Harpy old-style is gone, so a 6-Block pillow is usually correct — Kindling is the card that fights this one.</dd>
+        <dt>Not</dt><dd>Not Keep. Not “per Attack item only.” Whole hand, including Lid.</dd>
+      </dl>
+    </article>
+
+    <article class="sheet i">
+      <header>
+        <div>
+          <div class="kicker">Item 4 · throw the bag</div>
+          <h3>White Flag</h3>
+        </div>
+        <div>
+          <span class="pill kind-i">Item</span>
+          <span class="pill bkt">Bucket 8</span>
+          <span class="pill t2">Tier 2 · Tough</span>
+        </div>
+      </header>
+      <p class="ability">“Discard your other items. Their Attack becomes 0 this fight.”</p>
+      <dl>
+        <dt>Click</dt><dd>In a fight, once. Other cards leave the hotbar with no effect (not item uses). White Flag is used up. Facing Attack writes to 0 after formulas, like Net, and stays 0. Bucket 8 items are two golds and nothing else.</dd>
+        <dt>Why</dt><dd>Net trims 1–3. Caltrops used to write 0 and was retired. This writes 0 and costs the rest of the bag. That is the missing player-chosen discard. Dragon 0 still 0. You empty the hand to survive one Deadly and walk into the next fight poor.</dd>
+        <dt>Collides</dt><dd>Cube feed is not this. Bandit drops to 0 items after, Attack 0 if you still have to Done — but their Attack is already 0, so Done is Safe. Wick/Kobold/Harpy: discarding the rest is not item uses. Echo cannot copy White Flag after it is gone unless Echo was sitting as a copy already. Paci-Fist in the same hand gets discarded before you could click it. Healing Potion discarded: you lose the save. Quiet Bell is another way to soften a unique without dumping the bag — this is the panic version.</dd>
+        <dt>Not</dt><dd>Not “Attack 0 and keep the hand.” The dump is the cost. Not Keep.</dd>
+      </dl>
+    </article>
+
+    <article class="sheet i">
+      <header>
+        <div>
+          <div class="kicker">Item 5 · pay a heart for a small body</div>
+          <h3>Blood Tithe</h3>
+        </div>
+        <div>
+          <span class="pill kind-i">Item</span>
+          <span class="pill bkt">Bucket 10</span>
+          <span class="pill t2">Tier 2 · Tough</span>
+        </div>
+      </header>
+      <p class="ability">“Lose 1 HP. Defeat them if their HP is 3 or less.”</p>
+      <dl>
+        <dt>Click</dt><dd>In a fight. You bleed 1 first (Block does not stop this; it is you paying, not them hitting). If their current HP is 1, 2, or 3, they are Defeated and combat ends. If not, the card is still used up and they are still there. Unplayable at 1 HP of yours (the pay would drop you to 0).</dd>
+        <dt>Why</dt><dd>Defeat currently never costs a heart. Boot compares, Sledge checks Attack, Paci checks the hand, Scythe checks double, Fangs makes you take their swing. Tithe is “I chip them down, then I pay 1 to finish a small body.” Other Half at full player HP is HP 1 — this is a combo on purpose.</dd>
+        <dt>Collides</dt><dd>Gargoyle: you still pay 1, Defeat fails, card gone. Ogre: your 1 lost HP also chips Ogre 1. Vampire: your pay pumps them, maybe off the ≤3 line if you click this first — so click after a chip, not into a 3-HP Vampire. Anvil: the pay is HP loss, not Attack, so Anvil does not cap it. Potion can save you if a later swing would kill, not this pay. Tripwire: this is a spend, so it helps unlock Done.</dd>
+        <dt>Not</dt><dd>Not “Defeat if they have less HP than you” (Boot). Ceiling is 3, flat.</dd>
+      </dl>
+    </article>
+  </div>
+
+  <div class="callout">
+    After this pack, still short: a Weak monster in bucket 3, a Tough monster in bucket 2, count fillers in 4, 6, 7, 9, three more bucket-10 monsters, and one more item in buckets 4, 6, 7, 8, 9. I would not invent those as filler twins of Shield. Next interesting axes if you want a second wave: a door card that cares what you already hold; a monster whose Attack equals Block you hold; Defeat that does not end the fight (they still swing once).
+  </div>
+</section>
+
+<section id="modes">
+  <h2>Five modes on the same physics</h2>
+  <p>Same owners, same items, same Attack / HP / Block / neighbors / Done. Each mode changes one job: who packs the wheel, who picks the next fight, whether the ring stays full, how long a session is, and whether the other human is an enemy or a partner.</p>
+
+  <article class="mode" id="mode-packed">
+    <div class="kicker">Mode 1 · party, adversarial, ~12–18 min</div>
+    <h3>The Packed Door</h3>
+    <p class="meta">Audience: two people on a couch who like building a nasty dungeon for someone else. Session: one dungeon, then swap roles.</p>
+    <p>This is the core loop split across two bodies. Player Packer sits at the door. Player Thief will have to live through it. Packer sees every item and every owner and uses Take / Pass. Three passes, then forced fills, same as now. Packer also clicks which empty alcove each owner sits in. Thief does not look during packing (or looks — your table, your cruelty). Then the mouse moves. Thief gets the packed wheel and the packed hand, six hearts, and must Spin and spend until the ring is empty or they die. Packer wins if the Thief dies. Thief wins if they live. Score the leftover hearts so a close pack beats a slaughter. Swap. Best of three if you want a night.</p>
+    <ol class="beats">
+      <li>Title: Packed Door. Prompt: who packs first.</li>
+      <li>Packer plays the full gate. Same 3-pass rule. Same 8 seats. Smoke Bomb still in the opening gifts unless you strip it for this mode — I would keep it. The Thief needs one abort.</li>
+      <li>Handoff screen: “Survive this.” Thief cannot reseat.</li>
+      <li>Combat is core combat. Adventure leftovers and buckets stay off. One dungeon, one roster (bucket 0 plus whatever you have unlocked, or a fixed “party pack” of buckets 0–2 so the packer is not hiding Queen eggs on a first-time friend).</li>
+      <li>End: leftover hearts or Caught. Swap.</li>
+    </ol>
+    <p><b>Why it is a different game:</b> the seating puzzle and the Take/Pass greed become weapons aimed at a person. Neighbor buffs, Damsel, Bodyguard, Warden, Longbow even-count, last-seat Chisel — the packer is composing those. The thief is still playing the combat you already made.</p>
+    <p><b>Variant:</b> async daily. You pack, the file is a seed, a friend downloads the wheel tomorrow. Same rules, no couch required.</p>
+  </article>
+
+  <article class="mode" id="mode-call">
+    <div class="kicker">Mode 2 · solo puzzle, ~8–12 min, retry-friendly</div>
+    <h3>Call the Seat</h3>
+    <p class="meta">Audience: people who like the items and hate that Spin picked Hornet while they were holding Kindling. Session: one dungeon, undo-to-door or full retry.</p>
+    <p>Build the dungeon exactly like Begin (or a daily fixed seed). Then throw Spin away. After the wheel is seated, you click a remaining owner to fight them. Every time. Neighbors still close when someone leaves. You still spend items and click Done. The shrinking ring is now a route you choose, not a bag you draw from.</p>
+    <ol class="beats">
+      <li>Title: Call the Seat. Optional daily seed (same 8 owners + 8 items for everyone that calendar day).</li>
+      <li>Door and seating as core. Daily skips the door and deals the seeded 8+items already seated.</li>
+      <li>Instead of Spin: remaining slices are clickable. The one you click slides to 6 o’clock. Combat is core combat.</li>
+      <li>Smoke Bomb: abort this fight, they stay, you click a different remaining owner. You do not draw an extra item on abort in this mode (Smoke’s loot makes dailies noisy). Or keep the loot — I would strip it here so the daily is a clean puzzle.</li>
+      <li>Win/lose as core. Daily score: hearts left, then items left, then fights taken (always 8 if you win). Leaderboard optional.</li>
+    </ol>
+    <p><b>Why it is a different game:</b> Warden, Chisel, Damsel, Bodyguard, Longbow, King-pass-right, last-seat isolation — those become a pathing puzzle. You can eat Goblin first or last on purpose. Danger Magnet has no job; hide it in this mode’s pool.</p>
+    <p><b>What must stay:</b> you still do not get to reorder items’ Keep math or skip Done. You only pick the facing owner. Random is gone; the hand and the seating are the puzzle.</p>
+  </article>
+
+  <article class="mode" id="mode-stack">
+    <div class="kicker">Mode 3 · solo survival, ~30–50 min</div>
+    <h3>The Endless Stack</h3>
+    <p class="meta">Audience: “one more fight” people who already like Adventure but wish a run was one ring, not a hall wipe. Session: long, death is the end, leftover hearts are the boast.</p>
+    <p>Seat eight as usual. Under the table sits a facedown stack of twelve more owners (four Weak, four Tough, four Deadly, shuffled). Combat is core combat. When an owner leaves the wheel, immediately draw the top of the stack into that empty seat. The ring tries to stay at eight. You never get a breather of a 2-owner wheel until the stack is empty. Then the wheel shrinks as in core, and you win when the last seat is empty. Hearts do not refill. Leftover items stay. After every four kills, the next draw from the stack is forced one tier higher if it can (Weak becomes a random Tough, Tough a random Deadly; Deadly stays). Door happens only once, at the start, for the first eight plus your opening hand. Further owners come from the stack, not from Take/Pass. Each time a stacked owner sits, mill one item of their tier into the hotbar if there is room (max hand 8; if full, skip the loot).</p>
+    <ol class="beats">
+      <li>Title: Endless Stack. One door. Seat eight. Build a 12-owner stack from the unlocked buckets.</li>
+      <li>Spin and fight as core.</li>
+      <li>On leave: if stack not empty, the new owner sits in that alcove before the next Spin. They are not fought this click. Trophy counts a kill. Hand may gain one matching-tier item.</li>
+      <li>Stack empty: wheel starts shrinking. Last seat is the boss of the run, often a leftover Deadly plus Warden math if Warden is in.</li>
+      <li>Death: show kills and hearts at death. Quit between fights is allowed and counts as a leave with that kill count.</li>
+    </ol>
+    <p><b>Why it is a different game:</b> Adventure resets the hall and heals you. This never heals and never empties the ring on purpose. Clockwork’s “leave two Toughs” is a cousin; this mode is that pressure as the default. Magpie hostages and Tripwire locks get room to show up because the hand stays fat and the ring stays crowded.</p>
+    <p><b>Watch:</b> Commander Flee and Clockwork split can overflow past eight. Rule: overflow sits in a 9th/10th slice, same as Clockwork already does, and Spin can land on them. Do not special-case it.</p>
+  </article>
+
+  <article class="mode" id="mode-sudden">
+    <div class="kicker">Mode 4 · arcade blitz, ~3–6 min</div>
+    <h3>Sudden Hands</h3>
+    <p class="meta">Audience: lunch break, streamer “can I clear this,” people who skip the door in Dive In already. Session: one tight combat gauntlet. Score is time and leftover hearts.</p>
+    <p>No door. No seating clicks. Deal eight random owners from buckets 0–2 (or from a daily seed) already on the wheel. Deal four random items. Hearts start at 3, not 6. Combat is core combat. When you remove an owner, gain one random unseen item of that owner’s tier, then Spin again. No Pass, no Take, no Adventure leftovers. Smoke still aborts and still draws. Hand cap 8; extra loot is skipped.</p>
+    <ol class="beats">
+      <li>Title: Sudden Hands. One button. Wheel and hand appear. Spin is live.</li>
+      <li>Fight. On kill or Defeat, a same-tier item pops into the hotbar with the same motion Queen eggs already use.</li>
+      <li>Hearts at 3 means Kindling/Block/Done math is sharp. Potion (Heal 3 from death) is a real save here; in core it is a 6-heart card. Keep Potion in this pool on purpose.</li>
+      <li>Clear in under two minutes with hearts left is the boast. Death is instant retry, same seed or new seed.</li>
+    </ol>
+    <p><b>Why it is a different game:</b> Core fantasy is steal-then-survive. This is survive-then-get-paid. You start poor and the corpses print loot, so spending early is greed, not just safety. Dive In already skips the door; this adds a smaller heart tank and a corpse shop, which Dive In does not.</p>
+  </article>
+
+  <article class="mode" id="mode-watch">
+    <div class="kicker">Mode 5 · co-op, shared hearts, ~15–25 min</div>
+    <h3>Night Watch</h3>
+    <p class="meta">Audience: two people who want to talk, not pack a murder-wheel. Session: one dungeon, maybe Adventure-length later. Shared death.</p>
+    <p>One wheel. Six shared hearts. Two hotbars, four slots each (eight items in the game, split). Gate is six Takes instead of four, still three Passes, still eight owners. After each Take, the item goes to the player who currently holds fewer items (Packer’s click — or alternate: odd Takes to A, even to B). Combat: Spin as core. Only the <b>active</b> player may click their own items. They may click Done, or they may click <b>Pass the fight</b> (once per fight) so the partner becomes active and may spend from the other hotbar, then Done. Leftover Attack hits the shared hearts. Block is personal and dumps at the end of the fight as usual — if A gained 4 Block and passed, B still holds that Block for the rest of this fight. Items never move between hotbars except Magpie-style steals from the active player’s hand.</p>
+    <ol class="beats">
+      <li>Title: Night Watch. Two names on the pause plate so you remember whose hotbar is whose.</li>
+      <li>Door: six packs. Seating is either player. Talk is allowed and is the point.</li>
+      <li>Spin. Active player starts as whoever clicked Spin. They spend from their four. Pass-the-fight once, or Done.</li>
+      <li>If the partner is passed to, they spend from theirs, then must Done or Smoke (Smoke still in player A’s opening gifts, so who holds Smoke matters).</li>
+      <li>Death is shared. Win is shared. No hidden info.</li>
+    </ol>
+    <p><b>Why it is a different game:</b> Packed Door is I built this to kill you. Night Watch is we share six hearts and the good cards are on the other mouse. Quiet Bell on A, Fangs on B, Tripwire in the dungeon — you have to pass the fight or die holding the wrong four cards. Cube and Magpie attack the active hand, so who is active is a real choice.</p>
+    <p><b>What not to do:</b> do not let both hotbars click at once. Simultaneous spend turns into slap-fights on Harpy. One active player, one optional pass, then Done.</p>
+  </article>
+</section>
+
+<footer>
+  Pitches only. Core Begin / Dive In / Adventure / How to Play stay as they are until you name one of these to Paper Fight. Spider Queen’s leftover ×2 on the Attack badge is already gone in this same pass.
+</footer>
+</body>
+</html>

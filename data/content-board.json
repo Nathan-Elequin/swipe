@@ -346,7 +346,7 @@
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"review": "polish",
-			"review_note": "Replace name and art, function stays the same. Find art of hand wraps in martial arts",
+			"review_note": "",
 			"status": "live",
 			"tier": 1.0
 		},
@@ -442,7 +442,7 @@
 			"priority": 3.0,
 			"rarity": "starter",
 			"review": "polish",
-			"review_note": "Replace this art. Find arm bracer and make it angle towards the left. (do the inverse for the Right Bracer item)",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -500,6 +500,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 8.0,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [
 				"spiked_flail"
@@ -511,7 +512,7 @@
 			"hp_formula": "",
 			"id": "spiked_flail",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-16",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -529,7 +530,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "+2 Attack when you bleed",
 			"name": "Spiked Flail",
@@ -539,6 +541,7 @@
 			},
 			"priority": 4.0,
 			"rarity": "starter",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -598,6 +601,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 9.0,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -607,7 +611,7 @@
 			"hp_formula": "",
 			"id": "grimoire",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-16",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -623,7 +627,10 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
 			"log_hint": "Copy last enemy Attack",
 			"name": "Grimoire",
@@ -631,9 +638,10 @@
 			"ops": {},
 			"priority": 3.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
-			"status": "todo",
+			"status": "live",
 			"tier": 1.0
 		},
 		{
@@ -642,16 +650,17 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 3.0,
+			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
-			"count": 2.0,
+			"count": 1.0,
 			"explainer": "Block 2 and Keep if you Bleed",
 			"flow": "Tap on use. Discard on resolve unless HP dropped vs On Spin. Healing Potion this combat makes Did Lose HP always True.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "breastplate",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-16",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -669,7 +678,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "2 Block, keep if hurt",
 			"name": "Breastplate",
@@ -677,9 +687,10 @@
 			"ops": {},
 			"priority": 2.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
-			"status": "todo",
+			"status": "live",
 			"tier": 3.0
 		},
 		{
@@ -772,8 +783,8 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
-			"review_note": "Replace this with art of fangs (or vampire bite/teeth)",
-			"status": "todo",
+			"review_note": "",
+			"status": "live",
 			"tier": 2.0
 		},
 		{
@@ -918,21 +929,22 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "Attack equal to the Attack of the strongest Neighboring enemy.",
+			"ability": "Select an enemy. They Attack the enemy you are facing.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 10.0,
+			"bucket": 10,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
-			"count": 1.0,
-			"explainer": "(Highest Neighbor ATK)",
+			"count": 1,
+			"explainer": "(pick an enemy → they hit yours)",
 			"flow": "",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "pocketwatch",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-16",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -948,21 +960,25 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
 			"log_hint": "A monster hits for you",
 			"name": "Pocketwatch",
 			"notes": "Final enemy: unusable.",
 			"ops": {},
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0
+			"tier": 3
 		},
 		{
-			"ability": "Deal 2 Attack to the Owner you are facing and each Neighboring Owner. The same Owner is only hit once.",
+			"ability": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -1300,7 +1316,7 @@
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"review": "refined",
-			"review_note": "(Tier 3) - Heal 2, then Keep this if you are still missing HP.",
+			"review_note": "",
 			"status": "live",
 			"tier": 3.0
 		},
@@ -1346,7 +1362,7 @@
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"review": "refined",
-			"review_note": "(Tier 2) Gains block equal to the last Block you've gained. Tier 2",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -1392,7 +1408,7 @@
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"review": "refined",
-			"review_note": "(Tier 3) Becomes a copy of the last item you used. (updates on item use, but keeps the echo bell icon faintly in the top right of the card).",
+			"review_note": "",
 			"status": "live",
 			"tier": 3.0
 		},
@@ -1440,7 +1456,7 @@
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"review": "refined",
-			"review_note": "(Tier 2) Remove the unique ability of the enemy.\n\n(The enemy UI literally removes the text of their ability, and will pretend that it is an abiity-free unit (eg Golem) with the base stats of the unit. This means units with formula stats like Bandit simply turn into their base stats and are badly nerfed by this)",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -1503,7 +1519,7 @@
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"review": "refined",
-			"review_note": "(Tier 1) Reduce enemy Atk by 1, 2, or 3.",
+			"review_note": "",
 			"status": "live",
 			"tier": 1.0
 		},
@@ -1538,7 +1554,7 @@
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"review": "rough",
-			"review_note": "Attack equal to your Block, then Keep this item.",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -1584,12 +1600,12 @@
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"review": "rough",
-			"review_note": "Alternates from 1, 2, 3, and 4 Atk damage on Item use.",
+			"review_note": "",
 			"status": "live",
 			"tier": 1.0
 		},
 		{
-			"ability": "If you have zero items that deal Attack, Defeat them.",
+			"ability": "If you have zero items that deal Atk damage, Defeat the enemy.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -1612,7 +1628,7 @@
 				"card_color"
 			],
 			"log_hint": "Win if you have no Attack",
-			"name": "Paci Fist",
+			"name": "Paci-Fist",
 			"notes": "Holding only this works. Echo copying an Attack item counts as an Attack item. Shield alone is enough.",
 			"ops": {
 				"kind": "defeat_only_item"
@@ -1620,22 +1636,22 @@
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"review": "rough",
-			"review_note": "(Change name to 'Paci-Fist', and icon to an open palm strike)\nIf you have zero items that deal Atk damage, Defeat the enemy.",
+			"review_note": "",
 			"status": "live",
 			"tier": 3.0
 		},
 		{
-			"ability": "",
+			"ability": "Defeat any Monster with exactly double your HP",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3,
+			"bucket": 3.0,
 			"call_name": "",
 			"card_color": "defeat",
 			"contradiction_ids": [],
-			"count": 1,
-			"explainer": "",
-			"flow": "",
+			"count": 1.0,
+			"explainer": "(ENEMY HP = YOUR HP × 2)",
+			"flow": "Click during a fight, then click any monster on the wheel (including the one you are facing). If that monster's HP is exactly twice yours, Defeat them. If they are not the one you are fighting, they leave and this fight keeps going. Grey if nobody matches. Same animation as The Boot and Sledgehammer. Used up.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "measuring_tape",
@@ -1665,18 +1681,18 @@
 			"name": "Scythe",
 			"notes": "",
 			"ops": {
-				"kind": "atk_hp_gap"
+				"kind": "defeat_double_hp"
 			},
-			"priority": 3,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "REWORK: \"Defeat any Monster with exactly double your HP\"\n\nHow it works:\nPlayer can select any Monster on the wheel (including their current opponent). Otherwise, this functions exactly like The Boot and Sledgehammer in terms of function and animation",
-			"status": "todo",
-			"tier": 3
+			"review_note": "",
+			"status": "live",
+			"tier": 3.0
 		},
 		{
-			"ability": "Choose other items in your hand. Each becomes a random item of that item's tier.",
+			"ability": "Choose 2 Items and replace them with random Items of the same Tier.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -1706,7 +1722,7 @@
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"review": "rough",
-			"review_note": "(Change to 'Chaos Stone')\n\nChoose 2 Items and replace them with random Items of the same Tier.\n\n(This should have a similar transformation animation to how Adventure Mode dungeon starters are 'upgraded' in Tier.",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -2369,7 +2385,7 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
-			"review_note": "(Redesign) - this unit no longer looks at the current value of Player HP. Instead, it 'listens' for any time the player loses HP (from any source, at any time) and then this unit loses that much HP.\n\nIn the event that this would Slay the Ogre during the resolution of another combat (eg taking damage), compeltely resolve that combat first, then show the animation of slaying the Ogre and display the ability title fading over the Ogre as it dies, to remind the player of what killed it.\n\nIf it is killed outside of resolving combat, then simply Slay and remove the Ogre immediately (similarly to if something like Crossbow was used).",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -2465,7 +2481,7 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
-			"review_note": "REDESIGN\nAlternates between 3, 4, and 8 Attack on Spin.\nCreate a unique sound effect and 'fiery'/rage animation when this unit's Attack becomes 8, and a 'cool-down' effect/animation/sound effect when it leaves 8 Atk and returns to 3.",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -2609,7 +2625,7 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
-			"review_note": "(REDESIGN/CHANGE) - rename to 'Damsel in Distress', and refer to other info on this card to update throughout. Find new artwork/sprite/animation/sound effects for this special Tier 3 monster.\n\n9 HP\n0 ATK\nWhen this unit would Attack, instead its Neighbors Attack the player, starting with the Neighbor on the left (clockwise). Eahc monster attacks individully and is treated as though they were in combat against the player. Mechanically this is IDENTICAL to pressing 'Done' and having both enemies attack the player in sequence, without the abliity for the player to interact with anything. Since Block updates on Spin, block carries over between these two fights. Those Monsters are NOT defeated after they attack as in standard combats. After all of this resolves, Damsel will Heal the Player for 3 and be Defeated.",
+			"review_note": "",
 			"status": "live",
 			"tier": 3.0
 		},
@@ -2662,7 +2678,7 @@
 			"tier": 3.0
 		},
 		{
-			"ability": "On Spin, I give +1 HP to another monster with the lowest HP still in the dungeon. Then I gain +1 HP.",
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -2671,7 +2687,7 @@
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "+1 HP to the lowest other HP, then +1 HP to me",
+			"explainer": "Lowest HP Monster +1 until tied with another",
 			"flow": "",
 			"hp_base": 1.0,
 			"hp_formula": "",
@@ -2706,8 +2722,8 @@
 			"rarity": "uncommon",
 			"reminder": "Lowest HP Monster = 2nd Lowest HP Monster",
 			"review": "refined",
-			"review_note": "(Rework) - On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.\n\n(Calculates HP after other On Spin effects. If multiple candidates, choose one at random . This needs an animation and sound effect highlighting the Leech League granting 1 HP to the selected monster.)\n\nHow it works: selects an Monster whose HP (after spin) is the lowest or tied for lowest (which can include itself). Then it grants that Monster +1. Then it checks if the Monster's new HP is equal to that of another Monster - if yes, this process ends. If no, it adds +1 and checks again. If there are no other monster (ie there's only 1 in the dungeon), this ability does not activate at all.\n",
-			"status": "todo",
+			"review_note": "",
+			"status": "live",
 			"tier": 3.0
 		},
 		{
@@ -2807,7 +2823,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "Each time you Spin, Gain 1 Spider Egg",
+			"ability": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -2822,7 +2838,7 @@
 			"hp_formula": "",
 			"id": "spider_queen",
 			"kind": "monster",
-			"locked_at": "2026-10-12",
+			"locked_at": "2026-10-16",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2840,7 +2856,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Gives you an Egg each Spin",
 			"name": "Spider Queen",
@@ -2850,7 +2867,7 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
-			"review_note": "(REWORK) - on Spin while this unit is still alive in the Dungeon, creates a new Item directly into the player inventory, hotbar (create a custom 'gross' sound effect and highlight the item's creation as coming directly from the Spider Queen's position). The Item is a new Black-colored (with hatching gradient) Item that reads:\n\"Spider Egg\" (art depicts a spider egg or egg sac):\nOn Use:\nTake 2 Atk Damage\nIf in hand when you Spin Spider Queen: discard and grant Spider Queen +2 HP and +2 Atk.\n(An egg is not generated upon Spinning Spider Queen)\n--- ask me questions about this implementation",
+			"review_note": "",
 			"status": "live",
 			"tier": 3.0
 		},
@@ -2901,8 +2918,8 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
-			"review_note": "(TWEAK/REDESIGN) - As shown in Speech, this unit survives the first time it is defeated (whether Slain/blocked or anything), then shuffles the dungeon and spins it.\n\n'Flee' should be keyworded (formatted) and have a tooltip that appears, attached to the relevant monster callout (in this case Commander) and defines iit in a smaller hover box whenever players are looking at 'War Cry'\n---\nIf this happens while the player is fighting another enemy (eg with Crossbow/Longbow), it interrupts that fight and skips straight to Spin.\n---\nThis unit needs a clear indicator on its callout and sprite/icon to indicate whether it has already used this ability.",
-			"status": "todo",
+			"review_note": "",
+			"status": "live",
 			"tier": 3.0
 		},
 		{
@@ -3047,7 +3064,7 @@
 			"rarity": "uncommon",
 			"reminder": "feed me one of two items",
 			"review": "refined",
-			"review_note": "At the start of combat, selects 2 random items and forces the user to 'feed' them one, discarding it with no effect. (Maybe with a fun dialogue pop-up as it mocks the player and thanks the player for feeding them)",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -3095,7 +3112,7 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
-			"review_note": "(Tier 2) At the start of combat, 'Petrifies' your Item with the highest ATK value\n\n(Waits until after on-spin calculations are finished, then creates a 'stone petrification' texture/overlay on the item with the highest current ATK, making it Unplayable until the fight is over. A tooltip popup should appear when the user holds shift and is reading this ability to define 'Petrify' and explain this mechanic with, \"Petrify - becomes Unplayable until your next Spin\".\n\nWhen calculating Atk to choose a target, formula count. If there's a tie, choose at random. If there are no items that deal atk damage, this ability does nothing. Any item that has Atk counts, including things like Longbow and Spiked SHield (but not things like Da Boot and Poison Flask)",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -3111,11 +3128,11 @@
 			"count": 1.0,
 			"explainer": "Interrupt 1 swing",
 			"flow": "On spin, one swing of my current Attack (Block works). After each item fully resolves, if I am still alive, one more swing. Ceases when you click Done or I am Defeated/Slain. Done still takes the normal hit. Not Attack = Block.",
-			"hp_base": 6.0,
+			"hp_base": 5.0,
 			"hp_formula": "",
 			"id": "harpy",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-16",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3131,7 +3148,10 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"call_name"
+				"call_name",
+				"reminder",
+				"log_hint",
+				"card_color"
 			],
 			"log_hint": "Hits on meet and after items",
 			"name": "Harpy",
@@ -3141,7 +3161,7 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
-			"review_note": "At the start of combat, and after the player uses any item, if the Harpy is not already defeated, it will immediately resolve combat by attacking the player. Only after the player clicks 'Done (Take X)' or Defeats/Slays the Harpy will this ability cease",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -3187,7 +3207,7 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
-			"review_note": "(Tier 2) Attacks an additional time for each item you use during this fight.",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -3234,7 +3254,7 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
-			"review_note": "(If the player does not Defeat or Slay this monster, it will remove itself from the dungeon and replace itself with 2 Tier 2 Monsters chosen randomly)",
+			"review_note": "",
 			"status": "live",
 			"tier": 3.0
 		},
@@ -3282,12 +3302,12 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "Slight rework:\n\"While facing me, you cannot Gain or Keep any Items.\"\nLike it sounds, whenever an ability or Monster effect would cause the player to gain or keep anything (Throwing Dagger, Breastplate, Spider Egg, Smoke Bomb), it performs the remainder of its effect (eg 1 Dmg, 2 Block) but is Discarded immediately.",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
 		{
-			"ability": "Even-numbered Attack or Block values  are twice as powerful against us.",
+			"ability": "Attack or Block values that are Even happen twice against me.",
 			"atk_base": 6.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -3330,13 +3350,13 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "Change to 'Twins' and replace art with two twin or dopples)\n\nAttack or Block values that are Even happen twice against me.\n\n(Eg if the player uses a weapon that has 2 Attack, it 'attacks twice' and deals 4 total damage against this unit. Similarly, if the player blocks for 4, it will add 4 Block twice for 8 total block.",
+			"review_note": "",
 			"status": "live",
 			"tier": 1.0
 		},
 		{
 			"ability": "I gain Atk equal to your leftmost Atk Item",
-			"atk_base": 0.0,
+			"atk_base": 1.0,
 			"atk_formula": "Base Atk (0) + Leftmost Item with an Atk value",
 			"author_lock": true,
 			"bucket": 9.0,
@@ -3350,7 +3370,7 @@
 			"hp_formula": "",
 			"id": "beggar",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-16",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -3368,7 +3388,8 @@
 				"rarity",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Attack from your leftmost item",
 			"name": "Beggar",
@@ -3378,7 +3399,7 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "Gains Atk equal to your leftmost Atk item. Updates this value upon Spin and Item use. If the player has zero such items, then its Attack returns to its base value of 3.",
+			"review_note": "",
 			"status": "live",
 			"tier": 1.0
 		},
@@ -3426,7 +3447,7 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "Gains +1 Atk and loses 1 HP each time the player uses an item.\n\nHealth up0dates immediately upon Item use (regardless of who the player is actively facing), but if the unit drops to 0 HP they will not be Slain until after the current combat is Done",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -3474,7 +3495,7 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "I cannot lose more than 1 HP at a time (from any source).\n\n(Can still be 'defeated', but effects like Poison Flask, Attack Damage, etc. can only reduce its HP by 1 at a time. Notably, things that trigger attacks multiple times would proc this ability twice, making the unit lose 2 total HP for example)",
+			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
@@ -3647,5 +3668,5 @@
 			"tier": 2.0
 		}
 	],
-	"updated": "2026-10-15"
+	"updated": "2026-10-16"
 }

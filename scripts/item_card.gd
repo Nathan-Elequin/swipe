@@ -36,6 +36,7 @@ var _glow: bool = false
 var _glow_t: float = 0.0
 var _hot: bool = false
 var _showcase: bool = false
+var _pass_swipe: bool = false
 var _ability: RichTextLabel
 var _col: VBoxContainer
 var _num_host: Control
@@ -50,6 +51,7 @@ var _aura: bool = false
 var _log_focus: bool = false
 var _plus: TextureRect
 var _ban: TextureRect
+var _used: Label
 
 
 func setup(
@@ -225,6 +227,18 @@ func setup(
 	_ability.visible = false
 	_ability.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(_ability)
+	_used = Label.new()
+	_used.text = "USED"
+	_used.visible = false
+	_used.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_used.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_used.add_theme_font_size_override("font_size", 18)
+	_used.add_theme_color_override("font_color", Color("f0e6d8"))
+	_used.add_theme_color_override("font_outline_color", Color("100e0c"))
+	_used.add_theme_constant_override("outline_size", 6)
+	_used.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_used.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_used)
 	_shown = number_text
 	_sync_hatch()
 
@@ -279,7 +293,7 @@ func set_echo_mark(tex: Texture2D) -> void:
 		add_child(_echo_mark)
 	_echo_mark.texture = tex
 	_echo_mark.visible = tex != null
-	_echo_mark.modulate = Color(1, 1, 1, 0.82)
+	_echo_mark.modulate = Color(1, 1, 1, 0.42)
 
 
 func set_petrified(on: bool) -> void:
@@ -320,15 +334,20 @@ func drop_steal_cursor() -> void:
 		Input.set_custom_mouse_cursor(null)
 
 
+func set_pass_swipe(on: bool) -> void:
+	_pass_swipe = on
+
+
 func set_showcase(on: bool) -> void:
 	_showcase = on
+	_pass_swipe = on
 	custom_minimum_size = Vector2(SHOW_W, SHOW_H) if on else Vector2(CARD_W, CARD_H)
 	if _title:
 		_title.add_theme_font_size_override("font_size", 22 if on else 14)
 		_title.custom_minimum_size = Vector2(196 if on else 104, 48 if on else 38)
 		_title.max_lines_visible = 2
 	if _rank:
-		_rank.visible = false
+		_rank.visible = _rank.text.strip_edges() != ""
 		_rank.add_theme_font_size_override("font_size", 15 if on else 12)
 		_rank.custom_minimum_size = Vector2(196 if on else 104, 0)
 	if _icon:
@@ -353,7 +372,10 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 	if _num == null:
 		return
 	var wordy: bool = number_text.length() > 2 and not number_text.is_valid_int()
-	_num.add_theme_font_size_override("font_size", 18 if wordy else 32)
+	var face: int = 48 if _showcase else 32
+	_num.add_theme_font_size_override("font_size", 18 if wordy else face)
+	if _ghost:
+		_ghost.add_theme_font_size_override("font_size", 18 if wordy else face)
 	if not _formula_on:
 		_num.visible = number_text != ""
 		if number_text != "" and number_text != _shown and _shown != "":
@@ -367,11 +389,13 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 	if _glow or _aura or _log_focus:
 		pass
 	elif spent:
-		modulate = Color(0.42, 0.40, 0.40, 0.55)
+		modulate = Color(0.38, 0.36, 0.34, 0.72)
 	elif not can_use:
-		modulate = Color(0.72, 0.70, 0.68, 0.62)
+		modulate = Color(0.62, 0.60, 0.58, 0.70)
 	else:
 		modulate = Color.WHITE
+	if _used != null:
+		_used.visible = spent
 	if _mark != null and not _formula_on:
 		_mark.visible = _mark.texture != null and number_text == ""
 		_mark.modulate.a = 0.95
@@ -483,7 +507,7 @@ func _dissolve(old_s: String, new_s: String) -> void:
 	tw.tween_property(_num, "modulate:a", 1.0, 0.18).set_delay(0.05)
 
 
-func toss() -> void:
+func toss(slow: bool = false) -> void:
 	var start: Vector2 = global_position
 	var host: Node = get_tree().root
 	reparent(host, true)
@@ -491,12 +515,13 @@ func toss() -> void:
 	z_index = 80
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_meta("tossing", true)
+	var dur: float = 1.15 if slow else 0.5
 	var tw := create_tween()
 	tw.set_parallel(true)
 	var side: float = 1.0 if randf() > 0.5 else -1.0
-	tw.tween_property(self, "global_position", start + Vector2(side * 260.0, -210.0), 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tw.tween_property(self, "rotation", side * 1.35, 0.5)
-	tw.tween_property(self, "modulate:a", 0.0, 0.5)
+	tw.tween_property(self, "global_position", start + Vector2(side * 260.0, -210.0), dur).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_property(self, "rotation", side * 1.35, dur)
+	tw.tween_property(self, "modulate:a", 0.0, dur)
 	tw.finished.connect(queue_free, CONNECT_ONE_SHOT)
 	await tw.finished
 	if is_instance_valid(self):
@@ -507,6 +532,17 @@ func bounce() -> void:
 	var tw := create_tween()
 	tw.tween_property(self, "scale", Vector2(1.12, 1.12), 0.08)
 	tw.tween_property(self, "scale", Vector2.ONE, 0.12)
+
+
+func play_transform() -> void:
+	pivot_offset = size * 0.5
+	var tw := create_tween()
+	tw.tween_property(self, "scale", Vector2(0.12, 1.22), 0.10)
+	tw.parallel().tween_property(self, "modulate", Color(0.72, 0.28, 1.0), 0.10)
+	tw.tween_property(self, "scale", Vector2(1.18, 1.18), 0.12)
+	tw.parallel().tween_property(self, "modulate", Color(1.0, 0.92, 0.55), 0.12)
+	tw.tween_property(self, "scale", Vector2.ONE, 0.10)
+	tw.parallel().tween_property(self, "modulate", Color.WHITE, 0.10)
 
 
 func _apply_style(hot: bool) -> void:
@@ -611,7 +647,7 @@ func _on_gui(event: InputEvent) -> void:
 			return
 		_holding = false
 		var delta: Vector2 = event.global_position - _press_from
-		if _showcase and delta.x < -78.0 and absf(delta.y) < 140.0:
+		if _pass_swipe and delta.x < -78.0 and absf(delta.y) < 140.0:
 			passed_swipe.emit()
 		else:
 			picked.emit()

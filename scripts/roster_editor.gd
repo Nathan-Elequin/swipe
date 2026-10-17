@@ -38,7 +38,7 @@ const GROUP_LABEL := {
 }
 
 const COL_ITEM := [
-	{"key": "art", "label": "", "sub": "", "help": "Portrait. Click to select the row. Double-click opens the deep card sheet.", "w": 48.0, "kind": "art", "group": "identity"},
+	{"key": "art", "label": "", "sub": "", "help": "Portrait. Click to select the row. Right-click opens the deep card sheet.", "w": 48.0, "kind": "art", "group": "identity"},
 	{"key": "name", "label": "Name", "sub": "on the card", "help": "The name printed on the card.", "w": 140.0, "kind": "line", "group": "identity"},
 	{"key": "ability", "label": "Player text", "sub": "sentence on the card", "help": "The sentence the player reads.", "w": 240.0, "kind": "area", "group": "copy"},
 	{"key": "explainer", "label": "Hover math", "sub": "Shift / inspect", "help": "The short equation on hover and Shift.", "w": 180.0, "kind": "area", "group": "copy"},
@@ -59,7 +59,7 @@ const COL_ITEM := [
 ]
 
 const COL_MONSTER := [
-	{"key": "art", "label": "", "sub": "", "help": "Portrait. Click to select the row. Double-click opens the deep card sheet.", "w": 48.0, "kind": "art", "group": "identity"},
+	{"key": "art", "label": "", "sub": "", "help": "Portrait. Click to select the row. Right-click opens the deep card sheet.", "w": 48.0, "kind": "art", "group": "identity"},
 	{"key": "name", "label": "Name", "sub": "on the wheel", "help": "The name printed on the wheel.", "w": 140.0, "kind": "line", "group": "identity"},
 	{"key": "atk_base", "label": "Attack", "sub": "printed ATK", "help": "The Attack number in play, unless Attack formula is filled.", "w": 78.0, "kind": "line", "group": "combat"},
 	{"key": "hp_base", "label": "HP", "sub": "printed hits", "help": "The HP number in play, unless HP formula is filled.", "w": 78.0, "kind": "line", "group": "combat"},
@@ -100,11 +100,11 @@ var _sort_mode: String = "review"
 var _order_chips: Dictionary = {}
 var _was_paused: bool = false
 var _status: Label
-var _bucket_warn: Label
+var _bucket_warn: BucketAlertBar
 var _bucket_panel: Control
 var _bucket_body: VBoxContainer
 var _bucket_scroll: ScrollContainer
-var _bucket_alert: Label
+var _bucket_alert: BucketAlertBar
 var _search: LineEdit
 var _tab_items: Button
 var _tab_mons: Button
@@ -211,10 +211,7 @@ func setup(p_art, p_sfx) -> void:
 	_status.add_theme_font_size_override("font_size", 14)
 	_status.add_theme_color_override("font_color", Color("3d6b3d"))
 	col.add_child(_status)
-	_bucket_warn = Label.new()
-	_bucket_warn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_bucket_warn.add_theme_font_size_override("font_size", 14)
-	_bucket_warn.add_theme_color_override("font_color", Color("8b1e1e"))
+	_bucket_warn = BucketAlertBar.new()
 	col.add_child(_bucket_warn)
 
 	_header_scroll = ScrollContainer.new()
@@ -803,13 +800,12 @@ func _art_cell(card: Dictionary, w: float, row: HBoxContainer, help: String) -> 
 		else:
 			pic.texture = art.item_tex(id)
 	pic.gui_input.connect(func(event: InputEvent) -> void:
-		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			_focus_row(row)
-			_set_field_hint(help)
-			if event.double_click:
-				if sfx:
-					sfx.play("book", -12.0)
-				open_card.emit(_kind, id)
+		if event is InputEventMouseButton and event.pressed:
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				_focus_row(row)
+				_set_field_hint(help)
+			elif event.button_index == MOUSE_BUTTON_RIGHT:
+				_open_deep_card(_kind, id)
 	)
 	return pic
 
@@ -1370,19 +1366,53 @@ func _toggle_buckets() -> void:
 	if _bucket_panel == null:
 		_build_bucket_panel()
 	if _bucket_panel.visible:
-		_bucket_panel.visible = false
-		_rebuild()
+		_close_buckets()
 		return
 	if not _flush_visible(false):
 		return
 	_fill_buckets()
 	_bucket_panel.visible = true
+	_focus_buckets()
 
 
 func _close_buckets() -> void:
+	_cancel_gui_grab()
 	if _bucket_panel:
 		_bucket_panel.visible = false
 	_rebuild()
+
+
+func _open_deep_card(kind: String, card_id: String) -> void:
+	_cancel_gui_grab()
+	if sfx:
+		sfx.play("book", -12.0)
+	open_card.emit(kind, card_id)
+
+
+func _focus_buckets() -> void:
+	_cancel_gui_grab()
+	if _bucket_panel:
+		_bucket_panel.grab_focus()
+
+
+func _cancel_gui_grab() -> void:
+	var vp := get_viewport()
+	if vp == null:
+		return
+	vp.gui_cancel_drag()
+	vp.gui_release_focus()
+
+
+func _higher_overlay_open() -> bool:
+	var p := get_parent()
+	if p == null:
+		return false
+	for child in p.get_children():
+		if child == self or not (child is CanvasItem):
+			continue
+		if child.visible and int(child.z_index) > z_index:
+			return true
+	return false
 
 
 func _build_bucket_panel() -> void:
@@ -1390,6 +1420,7 @@ func _build_bucket_panel() -> void:
 	_bucket_panel.color = Color(0.06, 0.05, 0.04, 0.55)
 	_bucket_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_bucket_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_bucket_panel.focus_mode = Control.FOCUS_ALL
 	_bucket_panel.visible = false
 	_bucket_panel.z_index = 4
 	_bucket_panel.name = "bucket_panel"
@@ -1437,10 +1468,7 @@ func _build_bucket_panel() -> void:
 	note.add_theme_font_size_override("font_size", 14)
 	note.add_theme_color_override("font_color", Color("6b4a10"))
 	col.add_child(note)
-	_bucket_alert = Label.new()
-	_bucket_alert.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_bucket_alert.add_theme_font_size_override("font_size", 15)
-	_bucket_alert.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_bucket_alert = BucketAlertBar.new()
 	col.add_child(_bucket_alert)
 	_bucket_scroll = WheelBoard.new()
 	_bucket_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -1725,7 +1753,7 @@ func _make_kanban_tile(card: Dictionary, kind: String, bucket_label: String, hos
 	tile.custom_minimum_size = Vector2(228, 0)
 	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tile.mouse_default_cursor_shape = Control.CURSOR_MOVE
-	tile.tooltip_text = "Tier %s %s. Drag to another column to change the bucket. Double-click opens the card." % [tier_n, BucketRules.tier_label(tier_n)]
+	tile.tooltip_text = "Tier %s %s. Drag to another column to change the bucket. Right-click opens the card." % [tier_n, BucketRules.tier_label(tier_n)]
 	var tsb := StyleBoxFlat.new()
 	tsb.bg_color = BucketRules.tier_fill(tier_n)
 	tsb.border_color = metal
@@ -1809,12 +1837,11 @@ func _make_kanban_tile(card: Dictionary, kind: String, bucket_label: String, hos
 		tag.add_theme_color_override("font_color", Color("5d8a45"))
 		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		text_col.add_child(tag)
-		tile.tooltip_text = "Always a starter. Tier %s %s. Does not count toward the 9. Drag to another column to change the bucket. Double-click opens the card." % [tier_n, BucketRules.tier_label(tier_n)]
+		tile.tooltip_text = "Always a starter. Tier %s %s. Does not count toward the 9. Drag to another column to change the bucket. Right-click opens the card." % [tier_n, BucketRules.tier_label(tier_n)]
 	tile.gui_input.connect(func(event: InputEvent) -> void:
-		if event is InputEventMouseButton and event.pressed and event.double_click and event.button_index == MOUSE_BUTTON_LEFT:
-			if sfx:
-				sfx.play("book", -12.0)
-			open_card.emit(kind, cid)
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+			_open_deep_card(kind, cid)
+			tile.accept_event()
 	)
 	return tile
 
@@ -1879,12 +1906,7 @@ func _paint_bucket_alert() -> void:
 	if _bucket_alert == null:
 		return
 	var msg: String = BucketRules.counts_warning(_board.get("items", []), _board.get("monsters", []))
-	if msg == "":
-		_bucket_alert.text = "Counts match, and every filled bucket has bronze, silver, and gold on both sides."
-		_bucket_alert.add_theme_color_override("font_color", Color("3d6b3d"))
-	else:
-		_bucket_alert.text = msg
-		_bucket_alert.add_theme_color_override("font_color", Color("8b1e1e"))
+	_bucket_alert.set_message(msg, "Counts match, and every filled bucket has bronze, silver, and gold on both sides.")
 
 
 func _refresh_bucket_warn() -> void:
@@ -1912,8 +1934,7 @@ func _refresh_bucket_warn() -> void:
 		copy["bucket"] = BucketRules.parse(_text_of(fields["bucket"]))
 		live[by_id[id]] = copy
 	var msg: String = BucketRules.counts_warning(items, monsters)
-	_bucket_warn.text = msg
-	_bucket_warn.visible = msg != ""
+	_bucket_warn.set_message(msg)
 
 
 func _on_save() -> void:
@@ -2130,8 +2151,8 @@ func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float) -> 
 	return b
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if not visible:
+func _input(event: InputEvent) -> void:
+	if not visible or _higher_overlay_open():
 		return
 	if event.is_action_pressed("ui_cancel"):
 		if _bucket_panel and _bucket_panel.visible:
@@ -2140,6 +2161,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		close_editor()
 		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("ui_accept"):
+		if _bucket_panel and _bucket_panel.visible:
+			_close_buckets()
+			get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.ctrl_pressed:
 		match event.keycode:
@@ -2177,6 +2203,9 @@ class WheelBoard extends ScrollContainer:
 				area = n
 				break
 			n = n.get_parent()
+		var hovered: Control = get_viewport().gui_get_hovered_control() if get_viewport() else null
+		if hovered != null and hovered != area and not area.is_ancestor_of(hovered):
+			return
 		if not area.get_global_rect().has_point(get_global_mouse_position()):
 			return
 		var dx: int = 0

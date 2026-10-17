@@ -24,6 +24,9 @@ var flip_h: bool = false
 var log_glow: bool = false
 var _watch_tex: Texture2D
 var _watch_t: float = 0.0
+var _rage: bool = false
+var _rage_cd: float = 0.0
+var _fled: bool = false
 var busy: bool = false
 var _tier: int = 1
 var _sprite: TextureRect
@@ -73,6 +76,9 @@ func show_monster(id: String, p_tier: int = 1) -> void:
 	_lunge_x = 0.0
 	_watch_tex = null
 	_watch_t = 0.0
+	_rage = false
+	_rage_cd = 0.0
+	_fled = false
 	modulate = Color.WHITE
 	scale = Vector2(0.72, 0.72)
 	visible = true
@@ -155,6 +161,35 @@ func play_hypnotize(watch: Texture2D) -> void:
 		await get_tree().create_timer(0.18).timeout
 
 
+func set_rage_fire(on: bool) -> void:
+	_rage = on
+	if on:
+		modulate = Color(1.15, 0.85, 0.7)
+	elif not _fled:
+		modulate = Color.WHITE
+
+
+func set_fled_mark(on: bool) -> void:
+	_fled = on
+	if on:
+		modulate = Color(0.72, 0.70, 0.66)
+	elif not _rage:
+		modulate = Color.WHITE
+
+
+func play_rage_up() -> void:
+	_burst("flame", Color("ff7a28"), 1.35)
+	_burst("fire", Color("ffc04a"), 1.1)
+	_burst("spark", Color("ffe08a"), 0.95)
+	_flash = 0.9
+
+
+func play_rage_down() -> void:
+	_burst("smoke", Color("9aa0a8"), 1.2)
+	_burst("twirl", Color("6a7280"), 0.9)
+	_flash = 0.35
+
+
 func play_block() -> void:
 	_flash = 0.85
 	_burst("twirl", Color("5aa8e8"), 1.15)
@@ -209,6 +244,12 @@ func _process(delta: float) -> void:
 		if float(u["t"]) < float(u["life"]):
 			keep2.append(u)
 	_bursts = keep2
+	if _rage:
+		_rage_cd -= delta
+		if _rage_cd <= 0.0:
+			_rage_cd = 0.18
+			_burst("flame", Color("ff6a20"), 0.85)
+			_burst("spark", Color("ffd070"), 0.55)
 	_place_sprite()
 	queue_redraw()
 	if _fx:
@@ -253,10 +294,12 @@ func _place_sprite() -> void:
 	var frames: Array = _run if _mode == "run" and not _run.is_empty() else _idle
 	if frames.is_empty():
 		_sprite.texture = null
+		_sprite.material = null
 		return
 	var tex: Texture2D = frames[int(_fi) % frames.size()]
 	if tex == null or not is_instance_valid(tex):
 		_sprite.texture = null
+		_sprite.material = null
 		return
 	var tw: float = float(tex.get_width())
 	var th: float = float(tex.get_height())
@@ -273,6 +316,7 @@ func _place_sprite() -> void:
 		mod = Color(1.0, 0.55, 0.5).lerp(Color.WHITE, 1.0 - _flash)
 	_sprite.modulate = mod
 	if _outline != null:
+		_sprite.material = _outline
 		_outline.set_shader_parameter("outline_color", _tier_col())
 		_outline.set_shader_parameter("outline_size", 1.5)
 

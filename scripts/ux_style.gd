@@ -172,6 +172,55 @@ static func chip(text: String, ink_hex: String) -> String:
 	return "[color=%s][b]%s[/b][/color]" % [hex, shown]
 
 
+static func def_id_of(piece: String) -> String:
+	var low: String = piece.strip_edges().to_lower()
+	if low.begins_with("flee"):
+		return "flee"
+	if low.begins_with("spin"):
+		return "spin"
+	return ""
+
+
+static func def_of(id: String) -> String:
+	match id:
+		"flee":
+			return "If you are facing them, Spin the wheel at random."
+		"spin":
+			return "The wheel lands on a random living monster."
+		_:
+			return ""
+
+
+static func with_def_link(shown: String, piece: String) -> String:
+	var id: String = def_id_of(piece)
+	if id == "" or shown.find("[url=") >= 0:
+		return shown
+	return "[url=kw:%s]%s[/url]" % [id, shown]
+
+
+static func wire_def_hover(rtl: RichTextLabel, tip: Node) -> void:
+	if rtl == null or tip == null:
+		return
+	rtl.bbcode_enabled = true
+	rtl.meta_underlined = false
+	if not rtl.meta_hover_started.is_connected(_on_def_hover.bind(tip)):
+		rtl.meta_hover_started.connect(_on_def_hover.bind(tip))
+	if not rtl.meta_hover_ended.is_connected(_on_def_unhover.bind(tip)):
+		rtl.meta_hover_ended.connect(_on_def_unhover.bind(tip))
+
+
+static func _on_def_hover(meta: Variant, tip: Node) -> void:
+	if tip == null or not tip.has_method("show_def"):
+		return
+	var id: String = str(meta).trim_prefix("kw:")
+	tip.show_def(def_of(id))
+
+
+static func _on_def_unhover(_meta: Variant, tip: Node) -> void:
+	if tip != null and tip.has_method("hide_def"):
+		tip.hide_def()
+
+
 ## Hairline outline + tiny drop shadow on cream talk paper. Keep this thin — 15px blobs at 3+.
 static func ink_on_paper(node: Control, outline: int = 1) -> void:
 	if node == null:
@@ -447,6 +496,7 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		if colored:
 			var hex: String = _paint_hex(piece, t, a2, b2, num_hex, gold, hp_c, atk_c, var_c, blk_c, phrases, out_k)
 			shown = chip(shown, hex)
+		shown = with_def_link(shown, piece)
 		out = out.substr(0, a2) + shown + out.substr(b2)
 	return out
 

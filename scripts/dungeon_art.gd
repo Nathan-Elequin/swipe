@@ -84,7 +84,7 @@ const ITEM_PNG := {
 	"breastplate": "res://assets/dungeon/items/breastplate.png",
 	"medallion": "res://assets/dungeon/items/medallion.png",
 	"da_boot": "res://assets/dungeon/items/boot.png",
-	"bloody_gauntlets": "res://assets/dungeon/items/gauntlets.png",
+	"bloody_gauntlets": "res://assets/dungeon/items/bloody_gauntlets.png",
 	"bracers": "res://assets/dungeon/items/bracers.png",
 	"left_bracer": "res://assets/dungeon/items/left_bracer.png",
 	"spider_egg": "res://assets/dungeon/items/spider_egg.png",

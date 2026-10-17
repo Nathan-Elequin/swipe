@@ -107,7 +107,7 @@ func setup(audio) -> void:
 	var adv_row := HBoxContainer.new()
 	adv_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	col.add_child(adv_row)
-	_btn_adventure = _btn("Adventure Mode", Color("3a2820"), Color("e8c36a"), _pick.bind("adventure"), 200)
+	_btn_adventure = _btn("Challenge Mode", Color("3a2820"), Color("e8c36a"), _pick.bind("adventure"), 220)
 	adv_row.add_child(_btn_adventure)
 
 	if OS.has_feature("editor"):
@@ -142,7 +142,7 @@ func apply_copy() -> void:
 	if _btn_begin:
 		_btn_begin.text = COPY.text("title.begin", "Begin")
 	if _btn_adventure:
-		_btn_adventure.text = COPY.text("title.adventure", "Adventure Mode")
+		_btn_adventure.text = COPY.text("title.adventure", "Challenge Mode")
 
 
 func _add_slider(host: VBoxContainer, label: String) -> HSlider:

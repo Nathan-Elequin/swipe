@@ -22,7 +22,7 @@ const DEFAULT_EXPLAINER := {
 	"slime_boss": "(ATTACK = HP)",
 	"wraith": "(HIGHER NEIGHBOR)",
 	"mimic": "(ITEM IF I NEVER SWING)",
-	"spider_queen": "(ATK) then (ATK) if a neighbor is weaker",
+	"spider_queen": "Egg on Spin. Facing me eats eggs for +2 HP +2 Attack each.",
 	"commander": "(NEIGHBOR ATK + 2)",
 	"dragon": "(IGNORES BLOCK)",
 	"sai": "(2) then (4) then (2)…",
@@ -31,10 +31,11 @@ const DEFAULT_EXPLAINER := {
 	"medallion": "(6 − HP)",
 	"helmet": "(the lower of YOUR HP and ENEMY HP)",
 	"da_boot": "(ENEMY HP < YOUR HP)",
+	"measuring_tape": "(ENEMY HP = YOUR HP × 2)",
 	"bloody_gauntlets": "(7 − HP)",
 	"bracers": "(NEIGHBOR ATK)",
 	"knucklers": "(8 − ITEMS)",
-	"spiked_flail": "(2 + TIMES YOU BLED)",
+	"spiked_flail": "(2 × TIMES YOU BLED)",
 	"sledgehammer": "(ENEMY ATK ≥ 5)",
 	"grimoire": "(LAST ENEMY ATK)",
 	"dagger": "(NEIGHBOR ATK)",
@@ -52,7 +53,7 @@ var _board: Dictionary = {}
 var _original: Dictionary = {}
 var _fields: Dictionary = {}
 var _status: Label
-var _bucket_warn: Label
+var _bucket_warn: BucketAlertBar
 var _scroll: ScrollContainer
 var _sheet: VBoxContainer
 var _was_paused: bool = false
@@ -64,6 +65,7 @@ func setup() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
 	color = Color("100e0ce8")
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	focus_mode = Control.FOCUS_ALL
 	z_index = 130
 
 	var center := CenterContainer.new()
@@ -113,6 +115,9 @@ func setup() -> void:
 	_status.add_theme_color_override("font_color", Color("3d6b3d"))
 	root.add_child(_status)
 
+	_bucket_warn = BucketAlertBar.new()
+	root.add_child(_bucket_warn)
+
 	_scroll = ScrollContainer.new()
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_scroll.custom_minimum_size = Vector2(0, 560)
@@ -139,6 +144,11 @@ func open_card(kind: String, card_id: String, catalog_card: Dictionary = {}) -> 
 	_was_paused = get_tree().paused
 	visible = true
 	get_tree().paused = true
+	var vp := get_viewport()
+	if vp:
+		vp.gui_cancel_drag()
+		vp.gui_release_focus()
+	grab_focus()
 
 
 func close_editor() -> void:
@@ -271,11 +281,6 @@ func _rebuild(card: Dictionary) -> void:
 			BucketRules.paint(bucket_pick)
 			_refresh_bucket_warn()
 		)
-	_bucket_warn = Label.new()
-	_bucket_warn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_bucket_warn.add_theme_font_size_override("font_size", 15)
-	_bucket_warn.add_theme_color_override("font_color", Color("8b1e1e"))
-	_sheet.add_child(_bucket_warn)
 	_refresh_bucket_warn()
 	var row_tier := _grid(3)
 	_add_line(row_tier, "Tier", "tier", _num_s(card.get("tier", 1)))
@@ -578,8 +583,7 @@ func _refresh_bucket_warn() -> void:
 			card3["bucket"] = BucketRules.parse(_text_of("bucket"))
 			break
 	var msg: String = BucketRules.counts_warning(items, monsters)
-	_bucket_warn.text = msg
-	_bucket_warn.visible = msg != ""
+	_bucket_warn.set_message(msg)
 
 
 func _on_save() -> void:
@@ -632,11 +636,18 @@ func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float) -> 
 	return b
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if not visible:
 		return
 	if event.is_action_pressed("ui_cancel"):
 		close_editor()
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("ui_accept"):
+		var focus := get_viewport().gui_get_focus_owner() if get_viewport() else null
+		if focus is TextEdit:
+			return
+		_on_save()
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.ctrl_pressed and event.keycode == KEY_S:

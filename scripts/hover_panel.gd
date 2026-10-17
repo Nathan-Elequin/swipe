@@ -2,6 +2,7 @@ extends PanelContainer
 ## Punchy inspect plate. Item equations and monster copy share this language.
 
 const COPY := preload("res://scripts/player_copy.gd")
+const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
 
 signal edit_pressed(kind: String, card_id: String)
 
@@ -12,6 +13,7 @@ var edit_kind: String = ""
 var edit_id: String = ""
 ## Face plaque accepts right-click. Fly tips stay click-through so hover does not trap the mouse.
 var accept_clicks: bool = false
+var _kw_tip: PanelContainer
 
 
 func _ready() -> void:
@@ -21,6 +23,9 @@ func _ready() -> void:
 	gui_input.connect(_on_gui)
 	if not _skinned:
 		_plain_skin()
+	_kw_tip = KEYWORD_TIP.new()
+	add_child(_kw_tip)
+	_kw_tip.setup()
 
 
 func apply_skin(tex: Texture2D) -> void:
@@ -137,25 +142,43 @@ func show_rule(
 		eq.custom_minimum_size = Vector2(216, 0)
 		eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(eq)
+	var rank: String = str(look.get("rank", "")).strip_edges()
+	if rank != "":
+		var rk := Label.new()
+		rk.text = rank
+		rk.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		rk.add_theme_font_size_override("font_size", 12)
+		rk.add_theme_color_override("font_color", Color("c4a574") if _on_dark else Color("6a5a48"))
+		rk.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.add_child(rk)
 	if body != "":
 		var b := RichTextLabel.new()
 		b.bbcode_enabled = true
 		b.fit_content = true
 		b.scroll_active = false
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		b.meta_underlined = false
 		b.add_theme_font_size_override("normal_font_size", 15)
 		b.add_theme_font_size_override("bold_font_size", 15)
 		b.add_theme_color_override("default_color", body_col)
 		b.text = body
 		b.custom_minimum_size = Vector2(216, 0)
-		b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if body.find("[url=") >= 0 and accept_clicks:
+			b.mouse_filter = Control.MOUSE_FILTER_STOP
+			UxStyle.wire_def_hover(b, _kw_tip)
+		else:
+			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(b)
 	if warn != "":
 		var w := Label.new()
 		w.text = warn
 		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		w.add_theme_font_size_override("font_size", 15)
-		w.add_theme_color_override("font_color", Color("f0a0a0") if _on_dark else Color("8b1e1e"))
+		var flee_def: bool = warn.strip_edges().to_lower().begins_with("flee")
+		if flee_def:
+			w.add_theme_color_override("font_color", Color("e8c36a"))
+		else:
+			w.add_theme_color_override("font_color", Color("f0a0a0") if _on_dark else Color("8b1e1e"))
 		w.custom_minimum_size = Vector2(216, 0)
 		w.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(w)
@@ -182,6 +205,8 @@ func hide_plate() -> void:
 	edit_kind = ""
 	edit_id = ""
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _kw_tip != null and _kw_tip.has_method("hide_def"):
+		_kw_tip.hide_def()
 	_apply_look({})
 
 
@@ -247,5 +272,7 @@ func _apply_look(look: Dictionary) -> void:
 
 func _wipe() -> void:
 	for c in get_children():
+		if c == _kw_tip:
+			continue
 		remove_child(c)
 		c.queue_free()

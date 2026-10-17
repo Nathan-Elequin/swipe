@@ -23,7 +23,9 @@ Hand-drawn 16×16 (nearest 4×) where packs had no matching object:
   mute_stone / Chaos Stone, victory_flask (gold goblet), cursed_scroll,
   wick (candle), anvil, basilisk, two_headed_serpent, hornet_swarm, dire_wolf,
   leech_league, needleback, petrify_stone overlay, bodyguard (shield-bearer),
-  cowardly_king (crowned robe).
+  cowardly_king (crowned robe), vampire, merchant, damsel, spider_egg,
+  danger_magnet, gelatinous_cube, gargoyle, harpy, kobold_trapper,
+  clockwork_knight, lantern, mirror_shard, caltrops, echo_bell, quiet_bell.
 
 Shade — 16x16 Assorted RPG Icons
   Leather bracers crop. CC0.

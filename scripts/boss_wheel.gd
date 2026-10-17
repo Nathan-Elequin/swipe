@@ -31,6 +31,7 @@ const SPIN_COL := Color("e8c36a")
 
 var slices: Array = []
 var facing_index: int = -1
+var selected_index: int = -1
 var hover_index: int = -1
 var spinning: bool = false
 var highlight: String = "none"
@@ -191,13 +192,32 @@ func set_vitals(hp_n: int, hp_max: int, hp_ghost: int, blk_n: int, blk_ghost: in
 	queue_redraw()
 
 
+func clear_slay() -> void:
+	slay_index = -1
+	slay_t = 0.0
+	slay_kind = "slay"
+	queue_redraw()
+
+
 func set_slices(next: Array, face: int, mode: String = "none") -> void:
+	var slay_key := ""
+	if slay_index >= 0 and slay_index < slices.size():
+		var held: Dictionary = slices[slay_index]
+		slay_key = "%s:%s" % [held.get("kind", ""), held.get("card_id", "")]
 	var prev := {}
 	for s in slices:
 		prev[str(s.get("slot", ""))] = s
 	slices = next
 	facing_index = face
 	highlight = mode
+	if slay_index >= 0:
+		if slay_index >= slices.size():
+			clear_slay()
+		else:
+			var now: Dictionary = slices[slay_index]
+			var now_key := "%s:%s" % [now.get("kind", ""), now.get("card_id", "")]
+			if now_key != slay_key:
+				clear_slay()
 	for i in slices.size():
 		var s: Dictionary = slices[i]
 		var old: Dictionary = prev.get(str(s.get("slot", "")), {})
@@ -368,6 +388,29 @@ func rotation_for_index(index: int) -> float:
 	var ang: float = TAU / float(n)
 	var center_at_zero: float = float(index) * ang + ang * 0.5
 	return SIX - center_at_zero
+
+
+func rotation_for_top(index: int) -> float:
+	return rotation_for_index(index) + PI
+
+
+func rotate_index_to_top(index: int, dur: float = 0.42) -> void:
+	if index < 0 or index >= slices.size():
+		return
+	var target: float = rotation_for_top(index)
+	var delta: float = fposmod(target - rot + PI, TAU) - PI
+	if absf(delta) < 0.01:
+		rot = fposmod(target, TAU)
+		return
+	busy = true
+	var tw := create_tween()
+	tw.set_trans(Tween.TRANS_CUBIC)
+	tw.set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(self, "rot", rot + delta, dur)
+	await tw.finished
+	rot = fposmod(rot, TAU)
+	busy = false
+	queue_redraw()
 
 
 func rot_to_center(index: int) -> float:
@@ -895,11 +938,12 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 	var s: Dictionary = slices[i]
 	var is_face: bool = (not spinning) and i == facing_index
 	var is_hover: bool = i == hover_index
+	var is_sel: bool = (not spinning) and i == selected_index and facing_index < 0
 	var lift: float = _lift_of(i)
 	var dir: Vector2 = Vector2.from_angle((a0 + a1) * 0.5)
 	var origin: Vector2 = c + dir * (lift * 8.0) + _slay_push(i)
 	var r: float = radius + lift * 12.0
-	var fill: Color = _fill_for(s, is_face, is_hover)
+	var fill: Color = _fill_for(s, is_face or is_sel, is_hover)
 	if _flash.has(i):
 		fill = fill.lerp(DOWN_COL, clampf(float(_flash[i]) * 1.4, 0.0, 0.55))
 	if i == slay_index and collapse > 0.0:
@@ -917,6 +961,9 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 	if is_face:
 		rim = FACE_RIM
 		rw = 5.2
+	elif is_sel:
+		rim = FACE_RIM
+		rw = 3.4
 	elif highlight == "place" and str(s.get("kind", "")) == "empty":
 		rim = PLACE_RIM
 		rw = 2.5
@@ -982,6 +1029,14 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_circle(port_pos, plate_r + 14.0, glow)
 	if tex_portraits.has(pid) and i != portrait_away:
 		_draw_portrait_window(port_pos, plate_r, s, tex_portraits[pid], 0.0, dim)
+	if bool(s.get("rage_fire", false)):
+		var flicker: float = 0.45 + 0.35 * absf(sin(_glow_t * 11.0))
+		draw_circle(port_pos, plate_r + 10.0, Color(1.0, 0.35, 0.08, flicker * 0.55))
+		draw_circle(port_pos + Vector2(0, -plate_r * 0.35), plate_r * 0.55, Color(1.0, 0.78, 0.18, flicker * 0.4))
+	if bool(s.get("fled_once", false)):
+		var dust := Color(0.62, 0.58, 0.52, 0.55 * dim)
+		draw_circle(port_pos + Vector2(plate_r * 0.55, -plate_r * 0.55), 7.0, dust)
+		draw_arc(port_pos, plate_r + 4.0, 0.2, 1.4, 8, Color(0.78, 0.74, 0.68, 0.7 * dim), 2.0, true)
 	_draw_tier_rim(port_pos, plate_r, s)
 	_draw_tier_num(font, port_pos - dir * (plate_r + 12.0), s, is_face, crowded)
 	var sid: String = str(s.get("special_id", ""))
@@ -1208,12 +1263,16 @@ func _draw_bold_name(font: Font, pos: Vector2, text: String, fs: int, col: Color
 func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, crowded: bool, dim: float = 1.0, is_hover: bool = false) -> void:
 	var name_s: String = str(s.get("name", "")).strip_edges()
 	var call_s: String = str(s.get("call_name", "")).strip_edges()
-	if show_shift:
+	if bool(s.get("silenced", false)):
+		call_s = ""
+	elif show_shift:
 		var shift_s: String = str(s.get("reminder", "")).strip_edges()
 		if shift_s == "" or shift_s == "---":
 			shift_s = str(s.get("ability", "")).strip_edges()
 		if shift_s != "":
 			call_s = shift_s
+	if bool(s.get("fled_once", false)) and str(s.get("card_id", "")) == "commander" and call_s != "":
+		call_s = "%s · used" % call_s
 	if name_s == "":
 		return
 	if call_s.to_lower() == name_s.to_lower() or name_s.to_lower().find(call_s.to_lower()) >= 0:
@@ -1227,16 +1286,22 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 	var max_w: float = clampf(_radius() * maxf(span, 0.18) * 0.92, 88.0, 168.0)
 	var name_txt: String = _wrap_call_label(font, name_s, name_fs, max_w)
 	var call_txt: String = _wrap_call_label(font, call_s, call_fs, max_w) if call_s != "" else ""
+	var tier_fs: int = 10 if is_face else 9
+	if crowded:
+		tier_fs = maxi(8, tier_fs - 1)
+	var tier_txt: String = "Tier %s" % _plate_tier(s)
 	var name_sz: Vector2 = font.get_multiline_string_size(name_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, name_fs)
 	var call_sz: Vector2 = font.get_multiline_string_size(call_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, call_fs) if call_txt != "" else Vector2.ZERO
+	var tier_sz: Vector2 = font.get_string_size(tier_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, tier_fs)
 	var pad_x := 8.0
 	var pad_y := 4.0
 	var gap := 2.0
-	var inner_w: float = minf(maxf(name_sz.x, call_sz.x), max_w)
+	var inner_w: float = minf(maxf(maxf(name_sz.x, call_sz.x), tier_sz.x), max_w)
 	var w: float = inner_w + pad_x * 2.0
 	var h: float = pad_y * 2.0 + name_sz.y
 	if call_txt != "":
 		h += gap + call_sz.y
+	h += gap + tier_sz.y
 	var dir: Vector2 = sp["dir"]
 	var port: Vector2 = sp["port"]
 	var plate_r: float = float(sp.get("plate_r", 36.0))
@@ -1270,6 +1335,19 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 					continue
 				draw_multiline_string(font, cp + Vector2(ox2, oy2), call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, call_fs, 2, ink)
 		draw_multiline_string(font, cp, call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, call_fs, 2, col)
+	var tier_y: float = y + name_sz.y
+	if call_txt != "":
+		tier_y += gap + call_sz.y
+	tier_y += gap
+	var tc := Color("c4a574")
+	tc.a = dim
+	var tp := Vector2(top_left.x + pad_x, tier_y)
+	for ox3 in [-1, 0, 1]:
+		for oy3 in [-1, 0, 1]:
+			if ox3 == 0 and oy3 == 0:
+				continue
+			draw_string(font, tp + Vector2(ox3, oy3), tier_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, tier_fs, ink)
+	draw_string(font, tp, tier_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, tier_fs, tc)
 
 
 func _ability_icon_color(sid: String) -> Color:
@@ -1347,25 +1425,12 @@ func _star_pts(c: Vector2, outer: float, inner: float, n: int = 8) -> PackedVect
 	return pts
 
 
-func _queen_double(index: int) -> bool:
-	if index < 0 or index >= slices.size():
-		return false
-	if str(slices[index].get("card_id", "")) != "spider_queen":
-		return false
-	var n: int = slices.size()
-	var qhp: int = int(slices[index].get("hp", 0))
-	for off in [n - 1, 1]:
-		var j: int = (index + off) % n
-		if str(slices[j].get("kind", "")) == "monster" and int(slices[j].get("hp", 0)) < qhp:
-			return true
-	return false
-
-
 func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1) -> void:
-	var atk: int = int(s.get("atk", 0)) + int(pv.get("atk", 0))
+	var atk: int = int(s.get("atk", 0))
 	if i >= 0 and _atk_disp.has(i):
 		atk = int(_atk_disp[i])
 	var atk_d: int = int(pv.get("atk", 0))
+	var atk_next: int = atk + atk_d
 	var pulse: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 	var fill: Color = ATK_FILL
 	if bool(s.get("atk_variable", false)) or str(pv.get("mark", "")) == "spin" or (int(log_focus.get("wheel", -1)) == i and bool(log_focus.get("atk", false))):
@@ -1388,9 +1453,12 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 		draw_arc(pos, rad + 2.5, 0.0, TAU, 24, Color(0.72, 0.42, 0.92, 0.4 + 0.45 * pulse), 2.4, true)
 	_draw_bold_num(font, pos + Vector2(0.0, 1.0), str(atk), 21 if big else 18, Color("f0e6d8"))
 	if atk_d != 0:
+		var blink: float = 0.40 + 0.60 * absf(sin(_glow_t * 10.0))
 		var dc: Color = UP_COL if atk_d > 0 else DOWN_COL
+		dc.a = blink
+		_draw_bold_num(font, pos + Vector2(0.0, -rad * 1.15), str(atk_next), 18 if big else 15, dc)
 		draw_string(font, pos + Vector2(rad * 0.55, -rad * 0.7), _delta_text(atk_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
-	if str(s.get("card_id", "")) == "hornet_swarm" or _queen_double(i):
+	if str(s.get("card_id", "")) == "hornet_swarm":
 		var inward: Vector2 = (_center() - pos)
 		if inward.length() < 1.0:
 			inward = Vector2(0, 1)
@@ -1421,10 +1489,11 @@ func _fill_star(c: Vector2, outer: float, inner: float, col: Color, n: int = 8) 
 
 
 func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1) -> void:
-	var hp: int = int(s.get("hp", 0)) + int(pv.get("hp", 0))
+	var hp: int = int(s.get("hp", 0))
 	if i >= 0 and _hp_disp.has(i):
 		hp = int(_hp_disp[i])
 	var hp_d: int = int(pv.get("hp", 0))
+	var hp_next: int = hp + hp_d
 	var pulse: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 	var fill: Color = HP_FILL
 	if bool(s.get("hp_variable", false)) or str(pv.get("mark", "")) == "spin" or (int(log_focus.get("wheel", -1)) == i and bool(log_focus.get("hp", false))):
@@ -1452,7 +1521,10 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		draw_arc(pos, hs * 0.52, 0.0, TAU, 20, Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2), 2.6, true)
 	_draw_bold_num(font, pos + Vector2(0.0, 2.0), str(hp), 21 if big else 18, Color("f0e6d8"))
 	if hp_d != 0:
+		var blink: float = 0.40 + 0.60 * absf(sin(_glow_t * 10.0))
 		var dc: Color = UP_COL if hp_d > 0 else DOWN_COL
+		dc.a = blink
+		_draw_bold_num(font, pos + Vector2(0.0, -hs * 0.62), str(hp_next), 18 if big else 15, dc)
 		draw_string(font, pos + Vector2(hs * 0.28, -hs * 0.38), _delta_text(hp_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
 
 

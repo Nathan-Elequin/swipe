@@ -14,7 +14,7 @@ Before implementing any **gameplay** addition or change (item, monster, special,
 
 Skip Paper Fight for: copy/art/audio only; an exact number he named on an existing rule; Ability+Flow+Notes already agree and say what happens when cards collide; he said **skip the Paper Fight** / **just ship it** / **F5 this**.
 
-**Your notes for Cursor** (`review_note` on the board) is the spec. If that box is filled, it wins over Ability, Flow, and Notes. Do not Paper Fight to pick between them. Paper Fight only when the note itself has two readings that would change the code.
+**Your notes for Cursor** (`review_note` on the board) is the spec. If that box is filled, it wins over Ability, Flow, and Notes. Do not Paper Fight to pick between them. Paper Fight only when the note itself has two readings that would change the code. Pull every gold box on every message (`content-board.mdc`). Waiting on one card’s collision questions does not pause the other gold boxes.
 
 Quoted Ability / Call name / numbers in the note still go onto the official fields in the same turn. Wait only on the collision questions. Do not leave the old Ability on inspect while the gold box already named the replacement.
 

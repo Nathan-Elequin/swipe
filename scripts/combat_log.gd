@@ -27,12 +27,14 @@ var _col: VBoxContainer
 var _stack: Array = []
 var _hint_tip: PanelContainer
 var _hint_lab: Label
+var _fitting: bool = false
 
 
 func setup() -> void:
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
 	follow_focus = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_exited.connect(_on_leave)
@@ -53,7 +55,7 @@ func setup() -> void:
 	_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_col.add_theme_constant_override("separation", 6)
 	add_child(_col)
-	resized.connect(_fit_width)
+	resized.connect(_fit_width, CONNECT_DEFERRED)
 	_hint_tip = PanelContainer.new()
 	_hint_tip.visible = false
 	_hint_tip.z_index = 130
@@ -245,9 +247,24 @@ func _leaf_row(kind: String, msg: String, highlight: Dictionary) -> HBoxContaine
 	body.add_theme_font_size_override("bold_font_size", 13)
 	body.add_theme_color_override("default_color", Color("d8cbb8"))
 	body.text = _paint(msg)
-	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.meta_underlined = false
+	if str(body.text).find("[url=") >= 0:
+		body.mouse_filter = Control.MOUSE_FILTER_STOP
+		body.meta_hover_started.connect(_on_kw_meta.bind(body))
+		body.meta_hover_ended.connect(_on_kw_meta_out)
+	else:
+		body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(body)
 	return row
+
+
+func _on_kw_meta(meta: Variant, body: RichTextLabel) -> void:
+	var id: String = str(meta).trim_prefix("kw:")
+	_on_hint(body, UX.def_of(id), {})
+
+
+func _on_kw_meta_out(_meta: Variant) -> void:
+	_hide_hint()
 
 
 func _paint(raw: String) -> String:
@@ -276,6 +293,23 @@ func _paint(raw: String) -> String:
 				continue
 		out += ch
 		i += 1
+	return _link_kws(out)
+
+
+func _link_kws(t: String) -> String:
+	var rx := RegEx.new()
+	if rx.compile("(?i)\\b(fleeing|flees|fled|flee|spinning|spins|spin)\\b") != OK:
+		return t
+	var hits: Array = rx.search_all(t)
+	var out := t
+	for i in range(hits.size() - 1, -1, -1):
+		var m: RegExMatch = hits[i]
+		var piece: String = m.get_string()
+		var id: String = UX.def_id_of(piece)
+		if id == "":
+			continue
+		var shown: String = "[url=kw:%s][color=#E8C36A][b]%s[/b][/color][/url]" % [id, piece]
+		out = out.substr(0, m.get_start()) + shown + out.substr(m.get_end())
 	return out
 
 
@@ -336,7 +370,18 @@ func _follow_hint() -> void:
 
 
 func _fit_width() -> void:
-	_col.custom_minimum_size.x = maxf(size.x - 20.0, 200.0)
+	if _fitting or _col == null or not is_instance_valid(_col):
+		return
+	var bar: VScrollBar = get_v_scroll_bar()
+	var gutter: float = 24.0
+	if bar != null:
+		gutter = maxf(bar.size.x + 8.0, 24.0)
+	var w: float = maxf(size.x - gutter, 200.0)
+	if absf(_col.custom_minimum_size.x - w) < 2.0:
+		return
+	_fitting = true
+	_col.custom_minimum_size.x = w
+	_fitting = false
 
 
 func _on_leave() -> void:

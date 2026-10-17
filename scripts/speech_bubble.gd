@@ -1,6 +1,8 @@
 extends Control
 ## Comic balloon: sits up-right of the speaker, tail joins the oval and points at the sprite.
 
+const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
+
 var _mouth: Vector2 = Vector2.ZERO
 var _text: String = ""
 var _rim: Color = Color("c4a574")
@@ -8,6 +10,8 @@ var _ink: Color = Color("1c120c")
 var _paper: Color = Color("f7ecda")
 var _font_sz := 21
 var _rad := 28.0
+var _body: RichTextLabel
+var _kw_tip: PanelContainer
 
 
 func setup() -> void:
@@ -16,6 +20,21 @@ func setup() -> void:
 	top_level = true
 	visible = false
 	texture_filter = TEXTURE_FILTER_NEAREST
+	_body = RichTextLabel.new()
+	_body.bbcode_enabled = true
+	_body.fit_content = true
+	_body.scroll_active = false
+	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_body.meta_underlined = false
+	_body.add_theme_font_size_override("normal_font_size", _font_sz)
+	_body.add_theme_font_size_override("bold_font_size", _font_sz)
+	_body.add_theme_color_override("default_color", _ink)
+	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_body)
+	_kw_tip = KEYWORD_TIP.new()
+	add_child(_kw_tip)
+	_kw_tip.setup()
+	UxStyle.wire_def_hover(_body, _kw_tip)
 
 
 func present(mouth_global: Vector2, text: String, look: Dictionary = {}, prefer_left: bool = false, keep_left_of: float = -1.0) -> void:
@@ -29,12 +48,20 @@ func present(mouth_global: Vector2, text: String, look: Dictionary = {}, prefer_
 	if font == null:
 		font = ThemeDB.fallback_font
 	var wrap := 260.0
-	var tsz: Vector2 = font.get_multiline_string_size(_text, HORIZONTAL_ALIGNMENT_LEFT, wrap, _font_sz)
+	var plain: String = _plain_bb(_text)
+	var tsz: Vector2 = font.get_multiline_string_size(plain, HORIZONTAL_ALIGNMENT_LEFT, wrap, _font_sz)
 	size = Vector2(maxf(tsz.x + 48.0, 200.0), maxf(tsz.y + 40.0, 72.0))
 	global_position = _place_left() if prefer_left else _place_up_right()
 	if keep_left_of > 0.0:
 		global_position.x = minf(global_position.x, keep_left_of - size.x - 10.0)
 		global_position.x = maxf(8.0, global_position.x)
+	if _body:
+		_body.text = _text
+		_body.position = Vector2(22.0, 16.0)
+		_body.size = Vector2(size.x - 44.0, size.y - 28.0)
+		var has_kw: bool = _text.find("[url=") >= 0
+		_body.mouse_filter = Control.MOUSE_FILTER_STOP if has_kw else Control.MOUSE_FILTER_IGNORE
+		mouse_filter = Control.MOUSE_FILTER_STOP if has_kw else Control.MOUSE_FILTER_IGNORE
 	visible = true
 	queue_redraw()
 
@@ -42,6 +69,16 @@ func present(mouth_global: Vector2, text: String, look: Dictionary = {}, prefer_
 func hide_speech() -> void:
 	visible = false
 	_text = ""
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _kw_tip != null and _kw_tip.has_method("hide_def"):
+		_kw_tip.hide_def()
+
+
+func _plain_bb(raw: String) -> String:
+	var rx := RegEx.new()
+	if rx.compile("\\[[^\\]]+\\]") != OK:
+		return raw
+	return rx.sub(raw, "", true)
 
 
 func _place_left() -> Vector2:
@@ -67,9 +104,6 @@ func _place_up_right() -> Vector2:
 func _draw() -> void:
 	if _text == "" or not visible:
 		return
-	var font: Font = get_theme_default_font()
-	if font == null:
-		font = ThemeDB.fallback_font
 	var r := Rect2(Vector2.ZERO, size)
 	var local_mouth: Vector2 = _mouth - global_position
 	var shadow := Color(0.08, 0.05, 0.03, 0.32)
@@ -86,7 +120,6 @@ func _draw() -> void:
 	if tail.size() == 3:
 		draw_line(tail[0], tail[2], _rim, 2.6, true)
 		draw_line(tail[1], tail[2], _rim, 2.6, true)
-	draw_multiline_string(font, Vector2(24.0, 30.0), _text, HORIZONTAL_ALIGNMENT_LEFT, size.x - 44.0, _font_sz, -1, _ink)
 
 
 func _tail_pts(r: Rect2, rad: float, mouth: Vector2) -> PackedVector2Array:
