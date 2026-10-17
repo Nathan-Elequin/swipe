@@ -309,6 +309,10 @@ func nib_frames() -> Array:
 	return frames("goblin")
 
 
+func home_tex(stem: String) -> Texture2D:
+	return _load_tex("res://assets/dungeon/home/%s.png" % stem)
+
+
 func item_tex(card_id: String) -> Texture2D:
 	if extra_items.has(card_id) and extra_items[card_id] != null:
 		return extra_items[card_id]

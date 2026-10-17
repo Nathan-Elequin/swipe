@@ -38,8 +38,8 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.begin",
-			"locked_at": "2026-10-07",
-			"text": "Play",
+			"locked_at": "2026-10-16",
+			"text": "Adventure Mode",
 			"where": "Title + pause button"
 		},
 		{
@@ -48,6 +48,13 @@
 			"key": "title.adventure",
 			"locked_at": "2026-10-16",
 			"text": "Challenge Mode",
+			"where": "Title + pause button"
+		},
+		{
+			"author_lock": false,
+			"cat": "Title",
+			"key": "title.home",
+			"text": "Home",
 			"where": "Title + pause button"
 		},
 		{

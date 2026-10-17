@@ -23,6 +23,7 @@ var _btn_how: Button
 var _btn_dive: Button
 var _btn_begin: Button
 var _btn_adventure: Button
+var _btn_home: Button
 
 
 func setup(audio) -> void:
@@ -100,15 +101,18 @@ func setup(audio) -> void:
 	col.add_child(modes)
 	_btn_how = _title_btn("How to Play", _pick.bind("tutorial"), 168)
 	_btn_dive = _title_btn("Dive In", _pick.bind("dive"), 168)
-	_btn_begin = _title_btn("Begin", _pick.bind("begin"), 120)
 	modes.add_child(_btn_how)
 	modes.add_child(_btn_dive)
-	modes.add_child(_btn_begin)
 	var adv_row := HBoxContainer.new()
 	adv_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	adv_row.add_theme_constant_override("separation", 10)
 	col.add_child(adv_row)
+	_btn_begin = _title_btn("Adventure Mode", _pick.bind("begin"), 240)
 	_btn_adventure = _title_btn("Challenge Mode", _pick.bind("adventure"), 240)
+	_btn_home = _title_btn("Home", _pick.bind("home"), 240)
+	adv_row.add_child(_btn_begin)
 	adv_row.add_child(_btn_adventure)
+	adv_row.add_child(_btn_home)
 
 	if OS.has_feature("editor"):
 		var latest_row := HBoxContainer.new()
@@ -140,9 +144,11 @@ func apply_copy() -> void:
 	if _btn_dive:
 		_btn_dive.text = COPY.text("title.dive_in", "Dive In")
 	if _btn_begin:
-		_btn_begin.text = COPY.text("title.begin", "Begin")
+		_btn_begin.text = COPY.text("title.begin", "Adventure Mode")
 	if _btn_adventure:
 		_btn_adventure.text = COPY.text("title.adventure", "Challenge Mode")
+	if _btn_home:
+		_btn_home.text = COPY.text("title.home", "Home")
 
 
 func _add_slider(host: VBoxContainer, label: String) -> HSlider:

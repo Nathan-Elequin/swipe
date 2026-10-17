@@ -26,6 +26,7 @@ const DRAFT_GATE := preload("res://scripts/draft_gate.gd")
 const DRAFT_LINES := preload("res://scripts/draft_lines.gd")
 const DUNGEON_DECK := preload("res://scripts/dungeon_deck.gd")
 const CHALLENGE_DRAFT := preload("res://scripts/challenge_draft.gd")
+const HOME_CABIN := preload("res://scripts/home_cabin.gd")
 const HOT_EMPTY := preload("res://scripts/hot_empty_slot.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 const RECENT_EDITS := preload("res://scripts/recent_edits.gd")
@@ -42,8 +43,6 @@ const HAND_MAX := 50
 const CHALLENGE_SEATS := 6
 const CHALLENGE_DECK_N := 6
 const CHALLENGE_HAND := 10
-const CHALLENGE_BAN_MONSTERS := ["clockwork_knight"]
-const CHALLENGE_BAN_ITEMS := ["smoke_bomb", "danger_magnet"]
 ## 1.0 = original speed. Wheel spin ignores this.
 ## 0.675 = 35% faster than the previous 0.5 setting.
 const ANIM_TIME_SCALE := 0.675
@@ -131,7 +130,7 @@ const MONSTER_SPECIAL := {
 	"lich": {"id": "buff_hp", "text": "+1 HP to neighbors after other modifiers."},
 	"ogre": {"id": "hp_spin", "text": "When you lose HP, I lose equal HP."},
 	"berserker": {"id": "kill_scale", "text": "I alternate between 3, 4, and 8 Attack every time you Spin."},
-	"dire_wolf": {"id": "atk_spin", "text": "ATK = your HP. Updates whenever your HP changes."},
+	"dire_wolf": {"id": "atk_spin", "text": "ATK always equals your HP. Updates whenever your HP changes."},
 	"bandit": {"id": "item_atk", "text": "I Gain +1 Atk for each Item you hold."},
 	"two_headed_serpent": {"id": "two_items", "text": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP."},
 	"slime_boss": {"id": "atk_eq_hp", "text": "ATK always equals current HP."},
@@ -169,7 +168,7 @@ const MONSTER_CALL := {
 	"lich": "Soul Tithe",
 	"ogre": "Your Measure",
 	"berserker": "Warpath",
-	"dire_wolf": "Hunger",
+	"dire_wolf": "Kill Shot",
 	"bandit": "Cutpurse",
 	"two_headed_serpent": "Guarded by Monsters",
 	"slime_boss": "One Flesh",
@@ -202,7 +201,7 @@ const MONSTER_REMINDER := {
 	"lich": "neighbors +1 HP",
 	"ogre": "HP is yours",
 	"berserker": "attack and HP plus defeat",
-	"dire_wolf": "attack is your HP",
+	"dire_wolf": "Attack always equals your HP",
 	"bandit": "attack is items",
 	"two_headed_serpent": "Neighbors attack, then Heal 3",
 	"slime_boss": "attack equals HP",
@@ -235,7 +234,7 @@ const MONSTER_SPEECH := {
 	"lich": "I give my neighbors +1 HP.",
 	"ogre": "My HP is your HP.",
 	"berserker": "I gain one HP and attack with each monster you defeat.",
-	"dire_wolf": "My attack is your HP.",
+	"dire_wolf": "My Attack always equals your HP.",
 	"bandit": "I Gain +1 Atk for each Item you hold.",
 	"two_headed_serpent": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.",
 	"slime_boss": "My attack always equals my HP.",
@@ -362,6 +361,9 @@ var overlay_tut: Button
 var overlay_dev: Button
 var overlay_latest: Button
 var overlay_adventure: Button
+var overlay_home: Button
+var home_cabin
+var _cabin_from_leave: bool = false
 var overlay_continue: Button
 var overlay_leave: Button
 var overlay_score: Label
@@ -493,6 +495,10 @@ func _authoring() -> bool:
 func _prefer_pixel_art() -> void:
 	if art == null:
 		return
+	for png_id in DUNGEON_ART.ITEM_PNG.keys():
+		var extra: Texture2D = art.item_tex(str(png_id))
+		if extra != null:
+			tex_by_item[png_id] = extra
 	for id in tex_by_item.keys():
 		var pix: Texture2D = art.item_tex(str(id))
 		if pix != null:
@@ -555,6 +561,7 @@ func _load_textures() -> void:
 		"da_boot": _tex("res://assets/icons/footprints.svg"),
 		"bloody_gauntlets": _tex("res://assets/icons/droplet.svg"),
 		"bracers": _tex("res://assets/icons/link.svg"),
+		"left_bracer": _tex("res://assets/icons/link.svg"),
 		"knucklers": _tex("res://assets/icons/hammer.svg"),
 		"spiked_flail": _tex("res://assets/icons/trending.svg"),
 		"sledgehammer": _tex("res://assets/icons/mountain.svg"),
@@ -809,6 +816,12 @@ func _build_ui() -> void:
 	btn_done.mouse_entered.connect(_on_done_hover.bind(true))
 	btn_done.mouse_exited.connect(_on_done_hover.bind(false))
 
+	choice_box = HBoxContainer.new()
+	choice_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	choice_box.add_theme_constant_override("separation", 10)
+	choice_box.z_index = 16
+	left.add_child(choice_box)
+
 	hotbar_wrap = MarginContainer.new()
 	hotbar_wrap.add_theme_constant_override("margin_top", 6)
 	hotbar_wrap.add_theme_constant_override("margin_bottom", 2)
@@ -842,12 +855,6 @@ func _build_ui() -> void:
 	hotbar_box.add_theme_constant_override("h_separation", 8)
 	hotbar_box.add_theme_constant_override("v_separation", 8)
 	hotbar_panel.add_child(hotbar_box)
-
-	choice_box = HBoxContainer.new()
-	choice_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	choice_box.add_theme_constant_override("separation", 10)
-	choice_box.z_index = 16
-	left.add_child(choice_box)
 
 	var right := VBoxContainer.new()
 	right.custom_minimum_size = Vector2(0, 0)
@@ -995,6 +1002,11 @@ func _build_ui() -> void:
 	settings_ui.setup(sfx)
 	settings_ui.mode_picked.connect(_on_pause_mode)
 	settings_ui.quit_pressed.connect(_quit_game)
+	home_cabin = HOME_CABIN.new()
+	add_child(home_cabin)
+	home_cabin.setup(art, sfx)
+	home_cabin.closed.connect(_on_home_cabin_closed)
+	home_cabin.inspect_wanted.connect(_on_cabin_inspect)
 	_bucket_reveal = BUCKET_REVEAL.new()
 	_bucket_reveal.sfx = sfx
 	add_child(_bucket_reveal)
@@ -1055,14 +1067,23 @@ func _build_overlay() -> void:
 	col.add_child(row)
 	overlay_tut = _title_pill(PLAYER_COPY.text("title.how_to_play", "How to Play"), _start_tutorial)
 	overlay_dive = _title_pill(PLAYER_COPY.text("title.dive_in", "Dive In"), _quick_start)
-	overlay_btn = _title_pill(PLAYER_COPY.text("title.begin", "Begin"), _on_overlay_primary)
+	overlay_btn = _title_pill(PLAYER_COPY.text("title.begin", "Adventure Mode"), _on_overlay_primary)
 	overlay_undo = _pill("Undo", Color("1c2428"), Color("6bb3d9"), _on_undo)
 	overlay_adventure = _title_pill(PLAYER_COPY.text("title.adventure", "Challenge Mode"), _begin_adventure)
+	overlay_home = _title_pill(PLAYER_COPY.text("title.home", "Home"), _open_home_from_title)
+	UxStyle.dress_title_button(overlay_btn, 240)
+	UxStyle.dress_title_button(overlay_adventure, 240)
+	UxStyle.dress_title_button(overlay_home, 240)
 	row.add_child(overlay_tut)
 	row.add_child(overlay_dive)
-	row.add_child(overlay_btn)
-	row.add_child(overlay_undo)
-	row.add_child(overlay_adventure)
+	var modes := HBoxContainer.new()
+	modes.alignment = BoxContainer.ALIGNMENT_CENTER
+	modes.add_theme_constant_override("separation", 14)
+	col.add_child(modes)
+	modes.add_child(overlay_btn)
+	modes.add_child(overlay_adventure)
+	modes.add_child(overlay_home)
+	modes.add_child(overlay_undo)
 	overlay_rest_row = HBoxContainer.new()
 	overlay_rest_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	overlay_rest_row.add_theme_constant_override("separation", 14)
@@ -1673,11 +1694,80 @@ func _enter_dungeon_clear() -> void:
 
 
 func _adventure_leave() -> void:
-	if not adventure or phase != "rest":
+	if not adventure or phase != "rest" or _adventure_busy:
 		return
-	phase = "victory"
+	_adventure_busy = true
+	var ids: Array = []
+	for it in hotbar:
+		var cid: String = str(it.get("card_id", ""))
+		if cid != "":
+			ids.append(cid)
+	if home_cabin:
+		home_cabin.swipe_ids(ids)
+	if overlay:
+		overlay.visible = false
 	_log("end", "leave")
+	if sfx:
+		sfx.play("whoosh", -10.0, 0.9)
+	await get_tree().create_timer(0.45).timeout
+	_cabin_from_leave = true
+	_open_home_cabin(true)
+	_adventure_busy = false
+
+
+func _open_home_from_title() -> void:
+	_cabin_from_leave = false
+	_open_home_cabin(false)
+
+
+func _open_home_cabin(walk_in: bool) -> void:
+	if home_cabin == null:
+		return
+	if fly_tip:
+		fly_tip.hide_plate()
+	home_cabin.open_cabin(items_by_id, tex_by_item, _buckets_revealed, walk_in)
+	if overlay:
+		overlay.visible = false
+	get_tree().paused = true
+
+
+func _on_home_cabin_closed() -> void:
+	get_tree().paused = false
+	if fly_tip:
+		fly_tip.hide_plate()
+	if _cabin_from_leave:
+		_cabin_from_leave = false
+		_reset_run()
+		phase = "title"
+		if sfx:
+			sfx.start_music()
 	_refresh()
+
+
+func _on_cabin_inspect(card_id: String) -> void:
+	var card: Dictionary = items_by_id.get(card_id, {})
+	if card.is_empty() or fly_tip == null:
+		return
+	var ops: Dictionary = {}
+	if card.has("ops") and typeof(card["ops"]) == TYPE_DICTIONARY:
+		ops = (card["ops"] as Dictionary).duplicate(true)
+	elif ITEM_OPS.has(card_id):
+		ops = (ITEM_OPS[card_id] as Dictionary).duplicate(true)
+	var it := {
+		"card_id": card_id,
+		"name": _title_case(str(card.get("name", card_id))),
+		"ops": ops,
+		"ability": str(card.get("ability", "")),
+		"explainer": str(card.get("explainer", "")),
+		"log_hint": str(card.get("log_hint", "")),
+		"card_color": str(card.get("card_color", "")),
+		"pack_tier": int(card.get("tier", 0)),
+		"pack_kind": "draft",
+	}
+	_inspect_pinned = false
+	_inspect_item(it, true)
+	var vp: Vector2 = get_viewport_rect().size
+	fly_tip.global_position = Vector2(maxi(12, int(vp.x) - 280), 72)
 
 
 func _adventure_continue() -> void:
@@ -1958,7 +2048,10 @@ func _bucket_entries(bucket_n: int) -> Array:
 			continue
 		if BucketRules.is_always_starter(card):
 			continue
-		out.append(_bucket_entry(card, "Loot", tex_by_item.get(id, null)))
+		var loot_tex: Texture2D = tex_by_item.get(id, null)
+		if loot_tex == null and art != null:
+			loot_tex = art.item_tex(id)
+		out.append(_bucket_entry(card, "Loot", loot_tex))
 	for id2 in monsters_by_id.keys():
 		var card2: Dictionary = monsters_by_id[id2]
 		if int(card2.get("bucket", 0)) != bucket_n:
@@ -2114,11 +2207,15 @@ func _fill_pools() -> void:
 		var card: Dictionary = monsters_by_id.get(str(id), {})
 		if card.is_empty() or not _bucket_open(card):
 			continue
+		if not ModePool.allows(card, ModePool.ADVENTURE):
+			continue
 		for _c in range(maxi(0, int(card.get("count", 1)))):
 			monster_pool.append(str(id))
 	for id in runtime.get("items", []):
 		var card2: Dictionary = items_by_id.get(str(id), {})
 		if card2.is_empty() or not _bucket_open(card2):
+			continue
+		if not ModePool.allows(card2, ModePool.ADVENTURE):
 			continue
 		if BucketRules.is_always_starter_id(str(id)):
 			continue
@@ -2150,11 +2247,11 @@ func _hand_full() -> bool:
 
 
 func _challenge_item_banned(id: String) -> bool:
-	return CHALLENGE_BAN_ITEMS.has(id)
+	return not ModePool.allows(items_by_id.get(id, {}), ModePool.CHALLENGE)
 
 
 func _challenge_monster_banned(id: String) -> bool:
-	return CHALLENGE_BAN_MONSTERS.has(id)
+	return not ModePool.allows(monsters_by_id.get(id, {}), ModePool.CHALLENGE)
 
 
 func _fill_challenge_pools() -> void:
@@ -2305,16 +2402,17 @@ func _challenge_draw_pair(tier: int) -> Array:
 		b = _challenge_take_item(tier, a)
 	if a == "" and b == "":
 		_challenge_reshuffle_items()
+		_log("on_draft", "no tier %s items in the unlocked pool, offering any tier" % tier)
 		a = _challenge_take_item(0, "")
 		b = _challenge_take_item(0, a)
 	var out: Array = []
 	if a != "":
 		var ia: Dictionary = _make_item(a)
-		_stamp_pack(ia, _pack_tier_for(a, items_by_id, tier), "draft")
+		_stamp_pack(ia, _pack_tier_for(a, items_by_id, 1), "draft")
 		out.append(ia)
 	if b != "":
 		var ib: Dictionary = _make_item(b)
-		_stamp_pack(ib, _pack_tier_for(b, items_by_id, tier), "draft")
+		_stamp_pack(ib, _pack_tier_for(b, items_by_id, 1), "draft")
 		out.append(ib)
 	return out
 
@@ -2492,21 +2590,27 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 		sfx.play("book", -10.0)
 		sfx.play("open", -14.0)
 	var uid: int = await challenge_draft_ui.chosen
+	var pair_snap: Array = _challenge_pair.duplicate()
+	_challenge_pair.clear()
+	challenge_draft_ui.hide_draft()
+	_layout_play_field()
 	var picked: Dictionary = {}
-	for it in _challenge_pair:
+	for it in pair_snap:
 		if int(it.get("uid", 0)) == uid:
 			picked = it
 			break
-	if picked.is_empty() and not _challenge_pair.is_empty():
-		picked = _challenge_pair[0]
-	challenge_draft_ui.hide_draft()
-	_layout_play_field()
+	if picked.is_empty() and not pair_snap.is_empty():
+		picked = pair_snap[0]
 	await _challenge_commit_item(picked, replace_if_full)
 
 
 func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
 	if it.is_empty():
 		return
+	var uid: int = int(it.get("uid", 0))
+	for held in hotbar:
+		if int(held.get("uid", 0)) == uid:
+			return
 	if hotbar.size() < CHALLENGE_HAND:
 		hotbar.append(it.duplicate(true))
 		_sort_hotbar()
@@ -3046,6 +3150,8 @@ func _take_monster_of_tier(tier: int) -> String:
 
 
 func _upgrade_two_openers() -> void:
+	if overlay:
+		overlay.visible = false
 	var seq: int = _mill_seq
 	var can: Array = []
 	for i in range(wheel.size()):
@@ -3368,8 +3474,12 @@ func _make_monster(id: String) -> Dictionary:
 		"rage_fire": false,
 		"silenced": false,
 		"wick_bonus": 0,
+		"egg_atk": 0,
 		"aura_hp": 0,
 		"aura_atk": 0,
+		"atk_mod": 0,
+		"atk_zeroed": false,
+		"atk_innate": 0,
 	}
 	uid_seq += 1
 	s["seat_uid"] = uid_seq
@@ -3385,6 +3495,8 @@ func _make_item(id: String) -> Dictionary:
 		ops = (card["ops"] as Dictionary).duplicate(true)
 	elif ITEM_OPS.has(id):
 		ops = (ITEM_OPS[id] as Dictionary).duplicate(true)
+	if home_cabin:
+		home_cabin.note_seen(id)
 	return {
 		"uid": uid_seq,
 		"card_id": id,
@@ -3485,9 +3597,10 @@ func _apply_formulas_to(s: Dictionary) -> void:
 	var id: String = str(s.get("card_id", ""))
 	if _is_silenced(s):
 		# Quiet Bell freezes Vampire at the HP and Attack it already gained.
+		# Queen eggs already eaten stay on the number.
 		if id != "vampire":
 			if not bool(s.get("atk_locked", false)):
-				s["atk"] = _card_base_atk(id)
+				s["atk"] = _card_base_atk(id) + int(s.get("egg_atk", 0))
 			if not bool(s.get("hp_locked", false)):
 				s["hp"] = _card_base_hp(id)
 				s["hp_max"] = int(s["hp"])
@@ -3513,6 +3626,7 @@ func _apply_formulas_to(s: Dictionary) -> void:
 	var atk_f: Variant = _try_eval_stat_formula(_monster_stat_formula(id, "atk"), s)
 	if atk_f != null:
 		s["atk"] = int(atk_f)
+	s["atk"] = int(s.get("atk", 0)) + int(s.get("egg_atk", 0))
 	var card: Dictionary = monsters_by_id.get(id, {})
 	s["call_name"] = MONSTER_LINES.call_of(id, card)
 	s["reminder"] = MONSTER_LINES.reminder_of(id, card)
@@ -3528,10 +3642,76 @@ func _apply_formulas_to(s: Dictionary) -> void:
 		var missing: int = maxi(0, hold_max - hold_hp)
 		s["hp_max"] = int(s["hp_max"]) + bonus
 		s["hp"] = maxi(0, int(s["hp_max"]) - missing)
-	if atk_locked and id != "slime_boss":
-		s["atk"] = hold_atk
-	elif id == "vampire":
+	if id == "vampire":
 		s["atk"] = _card_base_atk(id) + int(s.get("bloodlust", 0))
+	elif atk_locked and id != "slime_boss":
+		s["atk"] = hold_atk
+
+
+func _atk_is_always(who) -> bool:
+	if typeof(who) == TYPE_DICTIONARY:
+		var s: Dictionary = who
+		if _is_silenced(s):
+			return false
+		var sid: String = str(s.get("card_id", ""))
+		return sid == "slime_boss" or sid == "dire_wolf"
+	if _is_silenced(who):
+		return false
+	var id: String = str(who)
+	return id == "slime_boss" or id == "dire_wolf"
+
+
+func _refresh_live_atk(s: Dictionary) -> void:
+	var id: String = str(s.get("card_id", ""))
+	match id:
+		"beggar":
+			s["atk"] = _leftmost_atk_n()
+		"bandit":
+			s["atk"] = _live_item_count()
+		"vampire":
+			s["atk"] = _card_base_atk(id) + int(s.get("bloodlust", 0))
+		"spider_queen":
+			s["atk"] = _card_base_atk(id) + int(s.get("egg_atk", 0))
+		"dire_wolf":
+			s["atk"] = hp
+		"slime_boss":
+			s["atk"] = int(s.get("hp", 0))
+		_:
+			pass
+
+
+func _apply_always_atk() -> void:
+	for i in range(wheel.size()):
+		if str(wheel[i].get("kind", "")) != "monster":
+			continue
+		if _is_silenced(wheel[i]):
+			wheel[i]["atk_innate"] = int(wheel[i].get("atk", 0))
+			continue
+		var id: String = str(wheel[i].get("card_id", ""))
+		if id == "slime_boss":
+			wheel[i]["atk"] = int(wheel[i].get("hp", 0))
+		elif id == "dire_wolf":
+			wheel[i]["atk"] = hp
+		wheel[i]["atk_innate"] = int(wheel[i].get("atk", 0))
+
+
+func _apply_atk_mods() -> void:
+	for i in range(wheel.size()):
+		var s: Dictionary = wheel[i]
+		if str(s.get("kind", "")) != "monster":
+			continue
+		if _atk_is_always(s):
+			continue
+		if not bool(s.get("spin_locked", false)):
+			continue
+		if bool(s.get("atk_zeroed", false)):
+			s["atk"] = 0
+			wheel[i] = s
+			continue
+		var mod: int = int(s.get("atk_mod", 0))
+		if mod != 0:
+			s["atk"] = maxi(0, int(s.get("atk", 0)) + mod)
+			wheel[i] = s
 
 
 func _sync_wheel_stats() -> void:
@@ -3540,21 +3720,18 @@ func _sync_wheel_stats() -> void:
 		var s: Dictionary = wheel[i]
 		if str(s.get("kind", "")) != "monster":
 			continue
+		if not bool(s.get("spin_locked", false)):
+			s["atk_mod"] = 0
+			s["atk_zeroed"] = false
 		if bool(s.get("spin_locked", false)):
-			var lid: String = str(s.get("card_id", ""))
 			if _is_silenced(s):
 				_apply_formulas_to(s)
 				wheel[i] = s
-			elif lid == "beggar" and not _is_silenced(s):
-				s["atk"] = _leftmost_atk_n()
-				wheel[i] = s
-			elif lid == "bandit" and not _is_silenced(s) and not bool(s.get("atk_locked", false)):
-				s["atk"] = _bandit_atk_now(s)
-				wheel[i] = s
-			elif lid == "dire_wolf" and not _is_silenced(s) and not bool(s.get("atk_locked", false)):
-				s["atk"] = _wolf_atk_now(s)
-				wheel[i] = s
-			elif lid == "ogre":
+			else:
+				if s.has("atk_innate"):
+					s["atk"] = int(s.get("atk_innate", s.get("atk", 0)))
+				_peel_auras(s)
+				_refresh_live_atk(s)
 				wheel[i] = s
 			continue
 		_apply_formulas_to(s)
@@ -3568,15 +3745,8 @@ func _sync_wheel_stats() -> void:
 		wheel[i]["atk_before_late"] = int(wheel[i].get("atk", 0))
 		wheel[i]["hp_before_late"] = int(wheel[i].get("hp", 0))
 	_paint_late_auras()
-	for i in n:
-		if bool(wheel[i].get("atk_locked", false)):
-			continue
-		if _is_silenced(wheel[i]):
-			continue
-		if str(wheel[i].get("card_id", "")) == "slime_boss":
-			wheel[i]["atk"] = int(wheel[i]["hp"])
-		if str(wheel[i].get("card_id", "")) == "berserker" and not _is_silenced(wheel[i]):
-			wheel[i]["rage_fire"] = (int(wheel[i].get("rage_step", 0)) % 3) == 2
+	_apply_always_atk()
+	_apply_atk_mods()
 	for i in n:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
@@ -3623,10 +3793,14 @@ func _paint_late_auras() -> void:
 			wheel[i]["hp_max"] = maxi(int(wheel[i].get("hp_max", 0)) - old_h + new_h, int(wheel[i]["hp"]))
 			wheel[i]["aura_hp"] = new_h
 		if old_a != new_a:
-			wheel[i]["atk"] = maxi(0, int(wheel[i].get("atk", 0)) - old_a + new_a)
-			wheel[i]["aura_atk"] = new_a
-		if str(wheel[i].get("card_id", "")) == "slime_boss" and not _is_silenced(wheel[i]):
-			wheel[i]["atk"] = int(wheel[i].get("hp", 0))
+			if _atk_is_always(wheel[i]):
+				wheel[i]["aura_atk"] = 0
+			else:
+				wheel[i]["atk"] = maxi(0, int(wheel[i].get("atk", 0)) - old_a + new_a)
+				wheel[i]["aura_atk"] = new_a
+		elif _atk_is_always(wheel[i]) and old_a != 0:
+			wheel[i]["atk"] = maxi(0, int(wheel[i].get("atk", 0)) - old_a)
+			wheel[i]["aura_atk"] = 0
 
 
 func _apply_wraith_pass() -> void:
@@ -3670,7 +3844,7 @@ func _mark_vars() -> void:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
 		var id: String = str(wheel[i].get("card_id", ""))
-		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "wraith" or cmd_touch.has(i)
+		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "wraith" or id == "beggar" or id == "vampire" or cmd_touch.has(i)
 		wheel[i]["hp_variable"] = id == "ogre" or id == "skeleton" or id == "leech_league" or id == "wick" or lich_touch.has(i)
 		wheel[i]["cmd_buff"] = cmd_touch.has(i)
 		wheel[i]["lich_buff"] = lich_touch.has(i)
@@ -3790,6 +3964,8 @@ func _on_pause_mode(mode: String) -> void:
 			_begin_run()
 		"adventure":
 			_begin_adventure()
+		"home":
+			_open_home_from_title()
 		"dev":
 			_open_dev_test()
 		"latest":
@@ -3836,6 +4012,8 @@ func _apply_overlay_copy() -> void:
 		overlay_dive.text = PLAYER_COPY.text("title.dive_in", "Dive In")
 	if overlay_adventure:
 		overlay_adventure.text = PLAYER_COPY.text("title.adventure", "Challenge Mode")
+	if overlay_home:
+		overlay_home.text = PLAYER_COPY.text("title.home", "Home")
 	if overlay_continue:
 		overlay_continue.text = PLAYER_COPY.text("title.continue", "Continue")
 	if overlay_leave:
@@ -3884,6 +4062,7 @@ func _merge_catalog_card(kind: String, board_card: Dictionary) -> void:
 	dst["name"] = _title_case(str(board_card.get("name", id)))
 	dst["rarity"] = str(board_card.get("rarity", "starter"))
 	dst["bucket"] = _as_int(board_card.get("bucket", 0), 0)
+	dst["mode_pool"] = ModePool.parse(board_card.get("mode_pool", "all"))
 	dst["tier"] = _as_int(board_card.get("tier", 1), 1)
 	dst["count"] = _as_int(board_card.get("count", 1), 1)
 	dst["priority"] = _as_int(board_card.get("priority", 3), 3)
@@ -3953,6 +4132,7 @@ func _new_catalog_stub(kind: String, id: String) -> Dictionary:
 			"poc": false,
 			"review": "rough",
 			"review_note": "",
+			"mode_pool": "all",
 		}
 	return {
 		"id": id,
@@ -3972,6 +4152,7 @@ func _new_catalog_stub(kind: String, id: String) -> Dictionary:
 		"poc": false,
 		"review": "rough",
 		"review_note": "",
+		"mode_pool": "all",
 	}
 
 
@@ -5423,22 +5604,32 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			call_deferred("_maybe_auto_spin")
 			return
 		"atk_zero":
-			m["atk"] = 0
-			m["atk_locked"] = true
-			wheel[facing_index] = m
-			_log("on_item_use", str(it["name"]))
-			_log("atk", "facing ATK 0")
+			if _atk_is_always(m):
+				_log("on_item_use", str(it["name"]))
+				_log("atk", "%s always — Attack stays %s" % [m.get("name", "?"), m.get("atk", 0)])
+			else:
+				m["atk_zeroed"] = true
+				wheel[facing_index] = m
+				_sync_wheel_stats()
+				m = wheel[facing_index]
+				_log("on_item_use", str(it["name"]))
+				_log("atk", "facing ATK 0")
 			if sfx:
 				sfx.play("metal_latch", -8.0)
 				sfx.play("scratch", -12.0, 1.1)
 		"atk_drop":
 			var drop: int = int(ops.get("n", 1))
-			var now: int = int(m.get("atk", 0))
-			m["atk"] = maxi(0, now - drop)
-			m["atk_locked"] = true
-			wheel[facing_index] = m
-			_log("on_item_use", str(it["name"]))
-			_log("atk", "facing ATK −%s  →  %s" % [drop, m["atk"]])
+			var before_n: int = int(m.get("atk", 0))
+			if _atk_is_always(m):
+				_log("on_item_use", str(it["name"]))
+				_log("atk", "%s always — Attack stays %s" % [m.get("name", "?"), before_n])
+			else:
+				m["atk_mod"] = int(m.get("atk_mod", 0)) - drop
+				wheel[facing_index] = m
+				_sync_wheel_stats()
+				m = wheel[facing_index]
+				_log("on_item_use", str(it["name"]))
+				_log("atk", "facing ATK −%s  →  %s" % [drop, m["atk"]])
 			if sfx:
 				sfx.play("metal_latch", -8.0)
 				sfx.play("scratch", -12.0, 1.1)
@@ -5717,12 +5908,12 @@ func _chip_hp(index: int, n: int) -> bool:
 	return false
 
 
-func _bandit_atk_now(s: Dictionary) -> int:
-	return maxi(0, _live_item_count() + int(s.get("aura_atk", 0)))
+func _bandit_atk_now(_s: Dictionary) -> int:
+	return maxi(0, _live_item_count())
 
 
-func _wolf_atk_now(s: Dictionary) -> int:
-	return maxi(0, hp + int(s.get("aura_atk", 0)))
+func _wolf_atk_now(_s: Dictionary) -> int:
+	return maxi(0, hp)
 
 
 func _leftmost_atk_n() -> int:
@@ -5965,7 +6156,7 @@ func _directed_neighbor_atk(ccw: bool) -> int:
 
 
 
-## Dire Wolf Attack is your HP. Quiet Bell freezes it. Measuring Tape lock stays.
+## Dire Wolf Attack always equals your HP. Quiet Bell freezes it. Net and Commander do not change it.
 func _sync_dire_wolves() -> void:
 	var changed: Array[int] = []
 	var from_n: Dictionary = {}
@@ -5978,8 +6169,6 @@ func _sync_dire_wolves() -> void:
 		if _is_silenced(s):
 			continue
 		if int(s.get("hp", 0)) <= 0:
-			continue
-		if bool(s.get("atk_locked", false)):
 			continue
 		var want: int = _wolf_atk_now(s)
 		var before: int = int(s.get("atk", 0))
@@ -6563,10 +6752,11 @@ func _apply_queen_eggs_on_spin() -> void:
 			var q: Dictionary = wheel[facing_index]
 			q["hp"] = int(q.get("hp", 0)) + 2 * bonus
 			q["hp_max"] = int(q.get("hp_max", q["hp"])) + 2 * bonus
-			q["atk"] = int(q.get("atk", 0)) + 2 * bonus
+			q["egg_atk"] = int(q.get("egg_atk", 0)) + 2 * bonus
 			q["hp_locked"] = true
-			q["atk_locked"] = true
 			wheel[facing_index] = q
+			_sync_wheel_stats()
+			q = wheel[facing_index]
 			_log("var", "Queen +%s HP +%s ATK" % [2 * bonus, 2 * bonus])
 			if sfx:
 				sfx.play("bleed", -8.0, 0.55)
@@ -7778,7 +7968,7 @@ func _flee_spin(_shuffle: bool = false) -> void:
 		call_deferred("_tutorial_after_fight")
 		return
 	if adventure:
-		_challenge_force_spin = true
+		return
 	_flee_random_spin = true
 	call_deferred("_maybe_auto_spin")
 
@@ -9087,7 +9277,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				for si in _mark_targets("defeat_double_hp"):
 					p[si] = {"hp": -int(wheel[si].get("hp", 0)), "kill": true}
 		"atk_zero", "atk_drop":
-			if bool(view.get("can_use", false)):
+			if bool(view.get("can_use", false)) and not _atk_is_always(wheel[facing_index]):
 				var curz: Dictionary = p.get(facing_index, {})
 				var drop_n: int = int(wheel[facing_index].get("atk", 0)) if kind == "atk_zero" else mini(3, int(wheel[facing_index].get("atk", 0)))
 				curz["atk"] = -drop_n if kind == "atk_zero" else -mini(int(view.get("n", 3)), int(wheel[facing_index].get("atk", 0)))
@@ -9105,7 +9295,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 		for i2 in range(wheel.size()):
 			if str(wheel[i2].get("card_id", "")) != "bandit":
 				continue
-			if _is_silenced(wheel[i2]) or bool(wheel[i2].get("atk_locked", false)):
+			if _is_silenced(wheel[i2]):
 				continue
 			var cur3: Dictionary = p.get(i2, {})
 			cur3["atk"] = int(cur3.get("atk", 0)) - 1
@@ -9196,6 +9386,7 @@ func _rewrite_keywords(raw: String, colored: bool, num_hex: String) -> String:
 		"petrifies", "petrified", "petrify",
 		"spinning", "spins", "spin",
 		"random",
+		"always",
 		"atk", "blk", "hp",
 	])
 	var nums := "one|two|three|four|five|six|seven|eight|nine|ten|twice|thrice"
@@ -9246,6 +9437,8 @@ func _format_keyword_token(tok: String) -> String:
 	var low: String = core.to_lower()
 	if low == "atk" or low == "blk" or low == "hp":
 		return prefix + low.to_upper() + suffix
+	if low == "always":
+		return prefix + "always" + suffix
 	if _is_word_num(low) or _token_has_digit(core):
 		return tok
 	if _is_keyword_stem(low):
@@ -9277,6 +9470,8 @@ func _is_keyword_stem(low: String) -> bool:
 
 
 func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, var_c: String, blk_c: String) -> String:
+	if low == "always":
+		return UxStyle.ALWAYS
 	if low.begins_with("defeat"):
 		return var_c
 	if low.begins_with("attack") or low == "atk":
@@ -9430,7 +9625,9 @@ func _item_rule(it: Dictionary) -> Dictionary:
 						spike_n = true
 			if drop_n:
 				out["value"] = _value_bb("Attack", "−1 / −2 / −3", atk_c)
-				out["body"] = "Click 1, 2, or 3. The facing owner's Attack drops by that much after every other formula, then stays there this fight."
+				out["body"] = "Click 1, 2, or 3. The facing owner's Attack drops by that much after their own ability and Commander, then stays there this fight. Owners whose Attack always equals a number ignore this."
+				if fighting and _atk_is_always(m):
+					out["warn"] = "Can't cut — their Attack always equals that number."
 			elif spike_n or str(it.get("card_id", "")) == "spiked_shield":
 				var spike_atk: int = _atk_with_head(2)
 				out["value"] = "%s    %s" % [_value_bb("Attack", str(spike_atk), atk_c), _value_bb("Block", "2", blk_c)]
@@ -9584,7 +9781,9 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = "The facing owner's attack becomes 0 this fight."
 		"atk_drop":
 			out["value"] = _value_bb("Attack", "−1 / −2 / −3", atk_c)
-			out["body"] = "Click 1, 2, or 3. The facing owner's Attack drops by that much after every other formula, then stays there this fight."
+			out["body"] = "Click 1, 2, or 3. The facing owner's Attack drops by that much after their own ability and Commander, then stays there this fight. Owners whose Attack always equals a number ignore this."
+			if fighting and _atk_is_always(m):
+				out["warn"] = "Can't cut — their Attack always equals that number."
 		"heal_keep":
 			out["value"] = _value_bb("Heal", "2", hp_c)
 			out["equation"] = "(%s) then Keep if still missing HP" % _bb(hp_c, "2")
@@ -10502,6 +10701,9 @@ func _sync_buttons() -> void:
 
 
 func _sync_overlay() -> void:
+	if home_cabin != null and home_cabin.visible:
+		overlay.visible = false
+		return
 	if _unlock_screen:
 		_hide_board_for_unlock()
 		return
@@ -10517,6 +10719,8 @@ func _sync_overlay() -> void:
 		overlay_tut.visible = on_title
 	if overlay_adventure:
 		overlay_adventure.visible = on_title
+	if overlay_home:
+		overlay_home.visible = on_title
 	if overlay_dev:
 		overlay_dev.visible = on_title and _authoring()
 	if overlay_latest:
@@ -10536,7 +10740,7 @@ func _sync_overlay() -> void:
 	if phase == "title":
 		overlay_title.text = PLAYER_COPY.text("title.overlay", "Swipe")
 		overlay_sub.text = PLAYER_COPY.text("title.sub", "Steal the shiny. Fight who owned it. Begin is the door. Dive In skips it.")
-		overlay_btn.text = PLAYER_COPY.text("title.begin", "Begin")
+		overlay_btn.text = PLAYER_COPY.text("title.begin", "Adventure Mode")
 	elif phase == "rest":
 		overlay_title.text = PLAYER_COPY.text("title.rest", "Another hall")
 		overlay_sub.text = PLAYER_COPY.fill("title.rest_sub", {"n": dungeons_cleared}, "Dungeon %s is behind you. Leftover cards stay. Heal to full." % dungeons_cleared)
