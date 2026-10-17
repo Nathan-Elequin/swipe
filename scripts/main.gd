@@ -364,6 +364,7 @@ var overlay_adventure: Button
 var overlay_home: Button
 var home_cabin
 var _cabin_from_leave: bool = false
+var _spoken_key: String = ""
 var overlay_continue: Button
 var overlay_leave: Button
 var overlay_score: Label
@@ -964,7 +965,7 @@ func _build_ui() -> void:
 
 	draft_gate = DRAFT_GATE.new()
 	add_child(draft_gate)
-	draft_gate.setup(art)
+	draft_gate.setup(art, sfx)
 	draft_gate.send_pressed.connect(_on_gate_send)
 	draft_gate.refuse_pressed.connect(_on_gate_refuse)
 
@@ -2491,7 +2492,7 @@ func _challenge_seat_dungeon(upgrade: bool) -> void:
 			wheel_view.set_slices(wheel, -1, "none")
 			wheel_view.pulse_arrive(i)
 		if sfx:
-			sfx.play("drop", -10.0, 0.92 + float(i) * 0.03)
+			sfx.play_event(&"chal.seat_dungeon", {"pitch_mul": 1.0 + float(i) * 0.03})
 		await get_tree().create_timer(0.12).timeout
 	for _d in CHALLENGE_DECK_N:
 		if seq != _mill_seq:
@@ -2642,6 +2643,7 @@ func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
 		if sfx:
 			sfx.play("confirm", -12.0)
 			sfx.play("cloth", -14.0)
+			sfx.play_event(&"chal.commit")
 		_refresh()
 		return
 	if not replace_if_full:
@@ -2668,7 +2670,7 @@ func _challenge_discard_one(uid: int) -> void:
 	_challenge_pending_gain = {}
 	_challenge_loot_wait = false
 	if sfx:
-		sfx.play("confirm", -12.0)
+		sfx.play_event(&"chal.discard")
 	_refresh()
 
 
@@ -3146,7 +3148,7 @@ func _seat_night_watch(upgrade: bool = true) -> void:
 			wheel_view.set_slices(wheel, -1, "none")
 			wheel_view.pulse_arrive(si)
 		if sfx:
-			sfx.play("drop", -10.0, 0.92 + float(si) * 0.02)
+			sfx.play_event(&"draft.seat_starter", {"pitch_mul": 1.0 + float(si) * 0.02})
 		await get_tree().create_timer(0.22).timeout
 	starters_left = 0
 	if upgrade and adventure and dungeon_index > 1 and seq == _mill_seq:
@@ -3298,6 +3300,7 @@ func _finish_mill() -> void:
 	if sfx:
 		sfx.play("door_close", -10.0)
 		sfx.play("confirm_big", -12.0)
+		sfx.play_event(&"draft.take")
 	_undo_arm()
 	_refresh()
 	_idle_inspect()
@@ -10069,12 +10072,15 @@ func _place_speech() -> void:
 		if not pending_monster.is_empty():
 			look = _monster_look(pending_monster)
 		speech_box.present(draft_gate.mouth_global(), _gate_line, look, true, draft_gate.panel_left())
+		_maybe_speak_monster(_gate_line, pending_monster)
 		return
 	if _cube_line != "" and not _shift_held and combat_stage != null and combat_stage.visible:
 		var cube_look := {}
 		if facing_index >= 0 and facing_index < wheel.size():
 			cube_look = _monster_look(wheel[facing_index])
 		speech_box.present(combat_stage.mouth_global(), _cube_line, cube_look, true)
+		var cube_mon: Dictionary = wheel[facing_index] if facing_index >= 0 and facing_index < wheel.size() else {}
+		_maybe_speak_monster(_cube_line, cube_mon)
 		return
 	if _cleric_line != "":
 		var cleric_talk := {}
@@ -10088,6 +10094,7 @@ func _place_speech() -> void:
 				cleric_mouth = combat_stage.mouth_global()
 		if cleric_mouth != Vector2.ZERO:
 			speech_box.present(cleric_mouth, _cleric_line, _monster_look(cleric_talk))
+			_maybe_speak_monster(_cleric_line, cleric_talk)
 			return
 		speech_box.hide_speech()
 		return
@@ -10096,6 +10103,7 @@ func _place_speech() -> void:
 		var line: String = str(seat_rule.get("speech", ""))
 		if line != "":
 			speech_box.present(draft_gate.mouth_global(), line, _monster_look(pending_monster), true, draft_gate.panel_left())
+			_maybe_speak_monster(line, pending_monster)
 			return
 	if not _shift_held:
 		speech_box.hide_speech()
@@ -10134,6 +10142,17 @@ func _place_speech() -> void:
 		speech_box.hide_speech()
 		return
 	speech_box.present(mouth, line, _monster_look(s))
+	_maybe_speak_monster(line, s)
+
+
+func _maybe_speak_monster(text: String, mon: Dictionary) -> void:
+	if sfx == null or text.strip_edges() == "":
+		return
+	var key: String = "%s|%s" % [str(mon.get("card_id", "")), text]
+	if key == _spoken_key:
+		return
+	_spoken_key = key
+	sfx.speak(&"monster", text, {"tier": _tier_of(mon) if not mon.is_empty() else 1, "monster_id": str(mon.get("card_id", ""))})
 
 
 func _place_fight_art() -> void:

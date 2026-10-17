@@ -8,6 +8,7 @@ const COPY := preload("res://scripts/player_copy.gd")
 const HOVER_PANEL := preload("res://scripts/hover_panel.gd")
 
 var art
+var sfx
 var mode: String = "hidden"
 var card_id: String = ""
 var pack_tier: int = 1
@@ -44,8 +45,9 @@ var _pip_dots: Array = []
 const GATE_W := 400.0
 
 
-func setup(p_art) -> void:
+func setup(p_art, p_sfx = null) -> void:
 	art = p_art
+	sfx = p_sfx
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	z_index = 40
@@ -263,6 +265,8 @@ func present_mystery(_item: Dictionary, tier: int, _item_tex: Texture2D, passes_
 	pack_tier = maxi(1, tier)
 	_mystery = true
 	_doors = 0.58
+	if sfx:
+		sfx.play_event(&"draft.mystery")
 	_idle.clear()
 	_run.clear()
 	_fi = 0.0
