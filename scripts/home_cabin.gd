@@ -461,8 +461,8 @@ func _mount_slot(card: Dictionary, pos: Vector2) -> Control:
 		lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		lab.position = Vector2(_px(1), _px(32))
 		lab.size = Vector2(_px(30), _px(8))
-		lab.add_theme_font_size_override("font_size", 9)
-		lab.add_theme_color_override("font_color", Color("e8c36a") if is_swiped else Color("9a8b78"))
+		lab.add_theme_font_size_override("font_size", 8)
+		lab.add_theme_color_override("font_color", Color("24150e") if is_swiped else Color("3a3228"))
 		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		lab.clip_text = true
 		wrap.add_child(lab)
