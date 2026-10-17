@@ -4,6 +4,7 @@ extends Control
 signal finished(skipped: bool)
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
+const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
 const PX := 4.0
 const CPS := 40.0
 const FADE_S := 0.35
@@ -175,6 +176,7 @@ func _build() -> void:
 	_bar = Control.new()
 	_bar.name = "DialogBar"
 	_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_bar.clip_contents = true
 	_bar.z_index = 5
 	add_child(_bar)
 	_bar_bg = Panel.new()
@@ -182,7 +184,7 @@ func _build() -> void:
 	_bar_bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_bar_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var bar_sb := StyleBoxFlat.new()
-	bar_sb.bg_color = Color("16110df2")
+	bar_sb.bg_color = Color("16110d")
 	bar_sb.border_color = Color("3a3228")
 	bar_sb.set_border_width_all(2)
 	bar_sb.set_corner_radius_all(4)
@@ -242,7 +244,10 @@ func _layout_dialog() -> void:
 	var prompt_h := 32.0
 	var gap := 12.0
 	var bar_h := pad + bust_sz.y + gap + prompt_h + pad
-	var bar := Rect2(safe, view.y - safe - bar_h, view.x - safe * 2.0, bar_h)
+	var max_h: float = maxf(bar_h, view.y - safe * 2.0)
+	bar_h = minf(bar_h, max_h)
+	var bar_y: float = clampf(view.y - safe - bar_h, safe, maxf(safe, view.y - safe - bar_h))
+	var bar := Rect2(safe, bar_y, maxf(8.0, view.x - safe * 2.0), bar_h)
 	_bar.position = bar.position
 	_bar.size = bar.size
 	var inner := Rect2(Vector2(pad, pad), bar.size - Vector2(pad * 2.0, pad * 2.0))
@@ -262,8 +267,13 @@ func _layout_dialog() -> void:
 	_caption.max_lines = 3
 	_caption.fit()
 	var next_w := minf(420.0, text_w)
+	_next.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_caption.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_next.position = Vector2(inner.end.x - next_w, inner.end.y - prompt_h)
 	_next.size = Vector2(next_w, prompt_h)
+	_next.fit()
+	TEXT_RESERVE.settle(_bar)
+	_caption.fit()
 	_next.fit()
 
 

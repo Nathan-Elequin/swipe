@@ -495,6 +495,15 @@ func _ready() -> void:
 	_refresh()
 	if sfx and (home_cabin == null or not home_cabin.visible):
 		sfx.start_music()
+	if OS.get_cmdline_user_args().has("--text-targets") and shot_harness:
+		call_deferred("_kick_text_targets")
+
+
+func _kick_text_targets() -> void:
+	if shot_harness == null:
+		return
+	shot_harness.out_dir = "res://design/cli-runs/01-font-revert"
+	shot_harness.begin_text_targets()
 
 
 func _tex(path: String) -> Texture2D:
@@ -504,7 +513,7 @@ func _tex(path: String) -> Texture2D:
 
 
 func _authoring() -> bool:
-	return DevFlag.on()
+	return DevFlag.on() or OS.get_cmdline_user_args().has("--text-targets")
 
 
 func _prefer_pixel_art() -> void:

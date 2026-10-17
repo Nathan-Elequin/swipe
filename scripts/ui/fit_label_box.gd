@@ -6,7 +6,8 @@ class_name FitLabelBox
 
 const COPY := preload("res://scripts/player_copy.gd")
 const SCENE_PATH := "res://scenes/ui/FitLabelBox.tscn"
-const WORD_BREAK := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
+## Word boundaries only. No adaptive/grapheme breaks, so a word is never split to fake a fit.
+const WORD_BREAK := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
 
 static var _scene: PackedScene
 
@@ -117,28 +118,42 @@ static func line_count(font: Font, src: String, font_px: int, wrap_w: float) -> 
 	return maxi(1, int(ceili(sz.y / h)))
 
 
-## Shrink at max size down to min (word wrap only). If it still cannot fit, ellipsis.
+## One line from the original size down to min, then word wrap, then ellipsis. Never split a word.
 static func plan(font: Font, src: String, box: Vector2, max_px: int, min_px: int, lines: int = 2) -> Dictionary:
 	var out := {"size": min_px, "wrap": true, "ellipsis": false, "fits": false}
 	if font == null:
 		return out
 	var lo: int = maxi(1, min_px)
 	var hi: int = maxi(lo, max_px)
-	if hi % 2 != lo % 2:
-		hi -= 1
-	var step := 2
 	var wrap_w: float = maxf(1.0, box.x)
+	# 1. Shrink from the original size down to min, still on one line.
 	var s: int = hi
 	while s >= lo:
 		var one: Vector2 = measure(font, src, s, -1.0, false)
 		if one.x <= box.x + 0.5 and one.y <= box.y + 0.5:
 			return {"size": s, "wrap": false, "ellipsis": false, "fits": true}
+		s -= 1
+	# 2. Same shrink, wrapping only on word boundaries, up to max lines.
+	s = hi
+	while s >= lo:
 		var wrapped: Vector2 = measure(font, src, s, wrap_w, true)
 		var n: int = line_count(font, src, s, wrap_w)
-		if n <= lines and wrapped.x <= box.x + 0.5 and wrapped.y <= box.y + 0.5:
+		if n <= lines and wrapped.x <= box.x + 0.5 and wrapped.y <= box.y + 0.5 and not _word_wider_than(font, src, s, wrap_w):
 			return {"size": s, "wrap": true, "ellipsis": false, "fits": true}
-		s -= step
+		s -= 1
+	# 3. Min size, word wrap, then ellipsis. Do not split a word to make it fit.
 	return {"size": lo, "wrap": true, "ellipsis": true, "fits": false}
+
+
+static func _word_wider_than(font: Font, src: String, font_px: int, wrap_w: float) -> bool:
+	var bits: PackedStringArray = src.split(" ", false)
+	for w in bits:
+		if w == "":
+			continue
+		var sz: Vector2 = font.get_string_size(w, HORIZONTAL_ALIGNMENT_LEFT, -1, font_px)
+		if sz.x > wrap_w + 0.5:
+			return true
+	return false
 
 
 static func apply_plan(lab: Label, box: Vector2, max_px: int, min_px: int, lines: int = 2) -> Dictionary:
@@ -238,7 +253,7 @@ func _ensure() -> void:
 func _sync_frame() -> void:
 	if _frame == null:
 		return
-	_frame.visible = show_frame and frame_texture != null
+	_frame.visible = show_frame and frame_texture != null and _plain.strip_edges() != ""
 	_frame.texture = frame_texture
 	_frame.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_frame.patch_margin_left = patch_margin_left

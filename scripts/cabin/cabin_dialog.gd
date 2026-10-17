@@ -4,6 +4,7 @@ extends Control
 signal finished(choice: int)
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
+const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
 const PX := 4.0
 
 var cabin
@@ -214,6 +215,9 @@ func _layout_talk(with_choices: bool) -> void:
 	_next.position = Vector2(inner.end.x - 18.0 * PX, inner.end.y - 16.0 * PX)
 	_choices.position = Vector2(text_x, inner.end.y - prompt_h)
 	_choices.size = Vector2(text_w, prompt_h)
+	_text.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	TEXT_RESERVE.settle(_box)
+	_text.fit()
 
 
 func _show_line(_vars: Dictionary) -> void:

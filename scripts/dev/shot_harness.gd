@@ -2,6 +2,8 @@ extends Node
 ## Editor-only audit captures. Main loads this only when `_authoring()`.
 
 const OUT_DIR := "res://design/audit-shots/cursor"
+const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
+const TEXT_OUT_DIR := "res://design/cli-runs/01-font-revert"
 const SAVE_PATH := "user://home_cabin.json"
 const SACK_OWNED := ["throwing_knife", "shield"]
 const SACK_NEW := ["net", "lantern", "caltrops", "dagger", "longbow"]
@@ -17,6 +19,7 @@ var audit_fails: Array = []
 
 var _save_text: String = ""
 var _stamp_was: bool = false
+var out_dir: String = OUT_DIR
 
 
 func setup(p_main) -> void:
@@ -50,6 +53,7 @@ func begin_text_targets() -> String:
 	notes.clear()
 	audit_fails.clear()
 	status = "text-targets"
+	out_dir = TEXT_OUT_DIR
 	var kick := get_tree().create_timer(0.0, true, false, true)
 	kick.timeout.connect(_run_text_targets, CONNECT_ONE_SHOT)
 	return "started"
@@ -515,7 +519,8 @@ func _shot_intro() -> void:
 
 
 func _run_text_targets() -> void:
-	var abs_dir: String = ProjectSettings.globalize_path(OUT_DIR)
+	out_dir = TEXT_OUT_DIR
+	var abs_dir: String = ProjectSettings.globalize_path(out_dir)
 	DirAccess.make_dir_recursive_absolute(abs_dir)
 	_log_progress("text-targets start")
 	get_tree().paused = false
@@ -541,12 +546,14 @@ func _run_text_targets() -> void:
 		var f := FileAccess.open("user://text_audit.json", FileAccess.WRITE)
 		if f:
 			f.store_string(raw)
-		var g := FileAccess.open(OUT_DIR.path_join("text_audit.json"), FileAccess.WRITE)
+		var g := FileAccess.open(out_dir.path_join("text_audit.json"), FileAccess.WRITE)
 		if g:
 			g.store_string(raw)
 	running = false
 	finished = true
 	status = "done"
+	if OS.get_cmdline_user_args().has("--text-targets"):
+		get_tree().quit()
 
 
 func _finish_cut_line(cut) -> void:
@@ -787,6 +794,9 @@ func _restore_all() -> void:
 
 
 func _capture(filename: String, how: String) -> void:
+	TEXT_RESERVE.settle(main)
+	if main.text_audit:
+		main.text_audit.visible = false
 	await RenderingServer.frame_post_draw
 	await RenderingServer.frame_post_draw
 	var tex: ViewportTexture = main.get_viewport().get_texture()
@@ -799,7 +809,7 @@ func _capture(filename: String, how: String) -> void:
 		return
 	if img.get_width() != W or img.get_height() != H:
 		img.resize(W, H, Image.INTERPOLATE_NEAREST)
-	var abs_path: String = ProjectSettings.globalize_path(OUT_DIR).path_join(filename)
+	var abs_path: String = ProjectSettings.globalize_path(out_dir).path_join(filename)
 	var err: Error = img.save_png(abs_path)
 	if err != OK:
 		_skip(filename, "save_png failed (%s)" % err)
@@ -814,7 +824,7 @@ func _skip(filename: String, why: String) -> void:
 
 
 func _log_progress(line: String) -> void:
-	var path: String = ProjectSettings.globalize_path(OUT_DIR).path_join("_harness.log")
+	var path: String = ProjectSettings.globalize_path(out_dir).path_join("_harness.log")
 	var prev := ""
 	if FileAccess.file_exists(path):
 		prev = FileAccess.get_file_as_string(path)
@@ -827,7 +837,7 @@ func _log_progress(line: String) -> void:
 func _audit_shot(filename: String) -> void:
 	if main == null or main.text_audit == null:
 		return
-	var shot: String = OUT_DIR.path_join(filename)
+	var shot: String = out_dir.path_join(filename)
 	var fails: Array = main.text_audit.scan(filename.get_basename(), shot)
 	for row in fails:
 		audit_fails.append(row)

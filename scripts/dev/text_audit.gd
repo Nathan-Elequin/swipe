@@ -115,11 +115,20 @@ func _sprite_hits() -> Array:
 			var an: AnimatedSprite2D = n
 			rect = _canvas_rect(an)
 			kind = "AnimatedSprite2D"
+		elif n is ColorRect:
+			var cr: ColorRect = n
+			if cr.color.a < 0.35:
+				continue
+			rect = cr.get_global_rect()
+			kind = "ColorRect"
+		elif n is Panel:
+			rect = (n as Panel).get_global_rect()
+			kind = "Panel"
 		else:
 			continue
 		if rect.size.x < 8.0 or rect.size.y < 8.0:
 			continue
-		if rect.size.x >= view.size.x * 0.5 or rect.size.y >= view.size.y * 0.5:
+		if rect.size.x >= view.size.x * 0.85 and rect.size.y >= view.size.y * 0.85:
 			continue
 		var vis: Rect2 = rect.intersection(view)
 		if vis.size.x < 4.0 or vis.size.y < 4.0:
@@ -352,7 +361,8 @@ func _flag(hits: Array, screen: String, shot: String) -> Array:
 					continue
 				if rect.intersects(sp["rect"]):
 					var hit: Rect2 = rect.intersection(sp["rect"])
-					if hit.size.x >= 2.0 and hit.size.y >= 2.0:
+					var backdrop: bool = (sp is ColorRect or sp is Panel or sp is NinePatchRect) and sp["rect"].encloses(rect)
+					if hit.size.x >= 2.0 and hit.size.y >= 2.0 and not backdrop and not _on_own_panel(node, spr):
 						reasons.append("overlap:%s" % spr.get_path())
 						break
 		if reasons.is_empty():
@@ -366,6 +376,20 @@ func _flag(hits: Array, screen: String, shot: String) -> Array:
 			"text": _text_of(node).substr(0, 80),
 		})
 	return fails
+
+
+func _on_own_panel(text: Control, sprite: Node) -> bool:
+	var p: Node = text.get_parent()
+	while p:
+		if (p is Panel or p is NinePatchRect or p is ColorRect) and p is Control:
+			var host: Control = p
+			if host.is_visible_in_tree() and not host.is_ancestor_of(sprite) and sprite != host:
+				var pr: Rect2 = host.get_global_rect()
+				var tr: Rect2 = text.get_global_rect()
+				if pr.encloses(tr) and _drawn_in_front(host, sprite):
+					return true
+		p = p.get_parent()
+	return false
 
 
 func _related_node(a: Node, b: Node) -> bool:

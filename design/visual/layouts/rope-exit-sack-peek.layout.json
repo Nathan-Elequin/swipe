@@ -17,8 +17,7 @@
  ],
  "purpose": "Modal overlay over the rope exit. 75% #100e0c scrim hides and blocks the rope UI beneath; rope buttons/labels set visible=false while open.",
  "component": "FitLabelBox: NinePatchRect frame (optional) + Label child. Label rect = text_rect. Fit order: size font_max -> shrink by 2 px to font_min -> autowrap (word) up to max_lines -> ellipsis + full text in HoverTag. Text only via KIT.copy_text(key)/fill_text(key,args).",
- "font": "res://assets/ui/fonts/Jersey10-Regular.ttf",
- "font_import": "antialiasing 0, hinting 0, subpixel 0 (see fonts/Jersey10-Regular.ttf.import.example)",
+ "font": "project default (ThemeDB fallback). Same face, sizes, and colours as ac767cd. Do not load assets/ui/fonts.",
  "z_layers": "0 art | 2 hotspots | 3 sprites | 5 panels | 10 labels | 20 buttons | 50 overlay scrim | 55 overlay sheet | 58 markers | 60 overlay panels/tags | 65 overlay labels | 70 overlay buttons | 80 hover tags | 90 dev tags (dev builds only)",
  "elements": [
   {
