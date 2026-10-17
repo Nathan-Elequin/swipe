@@ -922,7 +922,7 @@ func _build_ui() -> void:
 
 	tut = TUTORIAL_GUIDE.new()
 	add_child(tut)
-	tut.setup(art)
+	tut.setup(art, sfx)
 	tut.continued.connect(_tut_on_continue)
 	tut.skipped.connect(_tut_skip)
 	tut.finished.connect(_tut_finished)
@@ -11156,6 +11156,8 @@ func _tut_on_continue() -> void:
 
 
 func _tut_skip() -> void:
+	if sfx:
+		sfx.play_event(&"tut.skip")
 	in_tutorial = false
 	if tut:
 		tut.close()

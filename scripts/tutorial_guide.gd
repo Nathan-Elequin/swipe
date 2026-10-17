@@ -37,9 +37,13 @@ var _spots: Array = []
 var _arrows: Array = []
 var _dimmer: ColorRect
 var _ink
+var _pin_key: String = ""
+var _pin_pos: Vector2 = Vector2.ZERO
+var sfx
 
 
-func setup(art) -> void:
+func setup(art, p_sfx = null) -> void:
+	sfx = p_sfx
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	z_index = 70
@@ -257,6 +261,8 @@ func advance() -> void:
 	nib_close = float(b.get("nib", 0.0))
 	_tiny = bool(b.get("tiny", false))
 	_body.text = str(b.get("text", ""))
+	if sfx and sfx.has_method("speak"):
+		sfx.speak(&"nib", str(b.get("text", "")))
 	_hint.text = str(b.get("hint", ""))
 	_go.text = str(b.get("go", "Next"))
 	_name.text = COPY.text("tutorial.speaker", "Nib")
@@ -328,6 +334,12 @@ func _layout() -> void:
 	var ts: Vector2 = _talk.get_combined_minimum_size()
 	ts.x = maxf(ts.x, TALK_W + 80.0 * nib_close)
 	_talk.size = ts
+	if ts.y < 8.0:
+		return
+	var key: String = "%s|%s|%s" % [step, wait, focus_tag]
+	if key == _pin_key and _pin_pos != Vector2.ZERO:
+		_talk.global_position = _pin_pos
+		return
 	var pos := Vector2(vp.x - ts.x - 16.0, 16.0) if world_open else Vector2((vp.x - ts.x) * 0.5, vp.y - ts.y - 28.0)
 	var box := Rect2(pos, ts)
 	if _hits_spot(box):
@@ -337,6 +349,8 @@ func _layout() -> void:
 		pos = Vector2(16.0, 16.0)
 	pos.x = clampf(pos.x, 12.0, maxf(12.0, vp.x - ts.x - 12.0))
 	pos.y = clampf(pos.y, 12.0, maxf(12.0, vp.y - ts.y - 12.0))
+	_pin_key = key
+	_pin_pos = pos
 	_talk.global_position = pos
 
 
