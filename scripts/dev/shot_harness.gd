@@ -3,7 +3,7 @@ extends Node
 
 const OUT_DIR := "res://design/audit-shots/cursor"
 const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
-const TEXT_OUT_DIR := "res://design/cli-runs/02-fx-tooltips"
+const TEXT_OUT_DIR := "res://design/cli-runs/03-itch-combat"
 const SAVE_PATH := "user://home_cabin.json"
 const SACK_OWNED := ["throwing_knife", "shield"]
 const SACK_NEW := ["net", "lantern", "caltrops", "dagger", "longbow"]
@@ -545,6 +545,9 @@ func _run_text_targets() -> void:
 	await _shot_intro()
 	await _shot_combat_tooltips()
 	await _shot_item_hand()
+	await _shot_itch_midfight()
+	await _shot_itch_draft_gate()
+	await _shot_itch_boss()
 	_restore_all()
 	if main._copy_stamp:
 		main._copy_stamp.visible = _stamp_was
@@ -624,6 +627,112 @@ func _shot_combat_tooltips() -> void:
 	await _wait(0.2)
 	await _capture("text_combat_tips.png", "fighting goblin, face plaque + item tooltip open")
 	main._hide_fight_hover()
+
+
+func _prep_play(phase_name: String) -> void:
+	_reset_between()
+	_stow_cabin()
+	_hide_chrome(false)
+	if main.overlay:
+		main.overlay.visible = false
+	if main.tut:
+		main.tut.visible = false
+	if main.play_field:
+		main.play_field.visible = true
+	main.adventure = false
+	main.in_tutorial = false
+	main.phase = phase_name
+	main.facing_index = -1
+	main.wheel = []
+	main.hotbar.clear()
+	main._hotbar_sig = ""
+	if main.wheel_view and main.art and main.wheel_view.has_method("setup_run_hero"):
+		main.wheel_view.setup_run_hero(main.art)
+	if main.fly_tip:
+		main.fly_tip.hide_plate()
+	if main.has_method("_hide_fight_hover"):
+		main._hide_fight_hover()
+
+
+func _seat_ids(ids: Array) -> void:
+	main.wheel = []
+	for id in ids:
+		var mid := str(id)
+		if main.monsters_by_id.has(mid):
+			main.wheel.append(main._make_monster(mid))
+	if main.wheel.is_empty():
+		for id2 in main.monsters_by_id.keys():
+			main.wheel.append(main._make_monster(str(id2)))
+			if main.wheel.size() >= 8:
+				break
+
+
+func _hand_ids(ids: Array) -> void:
+	main.hotbar.clear()
+	for id in ids:
+		var iid := str(id)
+		if main.items_by_id.has(iid):
+			main.hotbar.append(main._make_item(iid))
+	main._hotbar_sig = ""
+
+
+func _shot_itch_midfight() -> void:
+	status = "40_itch_midfight.png"
+	_prep_play("fighting")
+	_seat_ids(["goblin", "skeleton", "bandit", "hornet_swarm", "wizard", "ogre", "mimic", "harpy"])
+	_hand_ids(["throwing_knife", "shield", "net", "lantern"])
+	main.facing_index = 0
+	main.hp = 5
+	main.blk = 2
+	main._refresh()
+	main._layout_play_field()
+	if main.fly_tip:
+		main.fly_tip.hide_plate()
+	await _wait(0.3)
+	await _capture("40_itch_midfight.png", "mid-fight, eight different monsters, hero HP/BLK, four cards, no tooltip")
+
+
+func _shot_itch_draft_gate() -> void:
+	status = "41_itch_draft_gate.png"
+	_prep_play("draft")
+	_seat_ids(["goblin", "skeleton", "wizard", "bandit", "ogre", "hornet_swarm"])
+	main.draft_action = "ask"
+	var lure := "bandit"
+	if not main.monsters_by_id.has(lure):
+		lure = str(main.wheel[0].get("card_id", "goblin")) if main.wheel.size() > 0 else "goblin"
+	main.pending_monster = main._make_monster(lure)
+	var relic := "breastplate"
+	if not main.items_by_id.has(relic):
+		relic = "shield" if main.items_by_id.has("shield") else "throwing_knife"
+	main.pending_item = main._make_item(relic)
+	main._refresh()
+	main._layout_play_field()
+	main._present_gate(2)
+	await _wait(0.45)
+	if main.fly_tip:
+		main.fly_tip.hide_plate()
+	if main.draft_gate and main.wheel_view:
+		main.draft_gate.dock(main.wheel_view)
+	await _wait(0.1)
+	await _capture("41_itch_draft_gate.png", "draft gate over a seated dungeon, loot card up, no tooltip")
+	if main.draft_gate:
+		main.draft_gate.hide_gate()
+
+
+func _shot_itch_boss() -> void:
+	status = "42_itch_boss.png"
+	_prep_play("fighting")
+	_seat_ids(["dragon", "lich", "vampire", "commander", "wraith", "slime_boss", "cowardly_king", "spider_queen"])
+	_hand_ids(["throwing_knife", "shield", "longbow"])
+	main.facing_index = 0
+	main.hp = 4
+	main.blk = 1
+	main._refresh()
+	main._layout_play_field()
+	if main.fly_tip:
+		main.fly_tip.hide_plate()
+	await _wait(0.3)
+	await _capture("42_itch_boss.png", "Deadly dragon fight, other monsters on the wheel, hero HP/BLK, cards in hand")
 
 
 func _shot_item_hand() -> void:
