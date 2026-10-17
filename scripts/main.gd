@@ -1696,7 +1696,8 @@ func _enter_dungeon_clear() -> void:
 	if sfx:
 		sfx.set_combat_music(false)
 		sfx.play("confirm_big", -6.0)
-		sfx.duck_music(-2.0)
+		sfx.play_event(&"sting.clear")
+		sfx.music_title()
 	_flash_screen(Color("e8c36a"), 0.28)
 	if combat_stage:
 		combat_stage.hide_stage()
@@ -1932,6 +1933,7 @@ func _play_hall_wipe() -> void:
 	if sfx:
 		sfx.play("door_open", -8.0)
 		sfx.play("whoosh", -10.0, 0.9)
+		sfx.play_event(&"run.knight_off")
 	if _hall_wipe:
 		var tw2 := create_tween()
 		tw2.tween_property(_hall_wipe, "modulate:a", 0.0, 0.34)
@@ -1960,6 +1962,7 @@ func _walk_knight_off() -> void:
 	_courier.visible = true
 	if sfx:
 		sfx.play("cloth", -10.0)
+		sfx.play_event(&"run.knight_off")
 	var dest := Vector2(size.x + 70.0, start.y) - _courier.pivot_offset
 	var tw := create_tween()
 	tw.tween_property(_courier, "global_position", dest, 0.62)
@@ -4927,10 +4930,12 @@ func _player_down() -> void:
 		sfx.set_combat_music(false)
 		if adventure_win:
 			sfx.play("confirm_big", -6.0)
-			sfx.duck_music(-2.0)
+			sfx.play_event(&"sting.victory")
+			sfx.music_victory()
 		else:
 			sfx.play("error_big", -6.0)
-			sfx.duck_music(-16.0)
+			sfx.play_event(&"sting.defeat")
+			sfx.music_defeat()
 	if combat_stage:
 		combat_stage.hide_stage()
 	_hide_hypno()
