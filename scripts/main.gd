@@ -5383,8 +5383,7 @@ func _use_item(uid: int) -> void:
 	if bool(it.get("petrified", false)):
 		_log("on_item_use", "petrified")
 		if sfx:
-			sfx.play("error", -10.0)
-			sfx.play("metal_latch", -14.0)
+			sfx.play_event(&"hand.petrified")
 		return
 	if in_tutorial and not _tutorial_allows_item(str(it.get("card_id", ""))):
 		if tut:
@@ -5844,8 +5843,7 @@ func _toss_item(uid: int, keep: bool, slow: bool = false) -> void:
 		else:
 			c.toss(slow)
 			if sfx:
-				sfx.play("cloth", -8.0)
-				sfx.play("whoosh", -16.0, 1.2)
+				sfx.play_event(&"hand.toss")
 		break
 	if not keep:
 		_remove_item_now(uid)
@@ -6059,6 +6057,7 @@ func _finish_chaos() -> void:
 	if sfx:
 		sfx.play("whoosh", -8.0, 0.86)
 		sfx.play("bong", -12.0, 0.7)
+		sfx.play_event(&"chaos.transform")
 	if get_tree():
 		await get_tree().create_timer(0.28).timeout
 	for uid_v in picks:
@@ -6521,7 +6520,7 @@ func _try_gain_item(id: String) -> void:
 	_refresh()
 	if not _gain_blocked_now():
 		if sfx:
-			sfx.play("open", -10.0)
+			sfx.play_event(&"hand.gain", {"card_id": id})
 		return
 	_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
 	_log("discard", str(it.get("name", id)))
