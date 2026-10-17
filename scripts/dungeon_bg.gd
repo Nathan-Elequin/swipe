@@ -16,7 +16,7 @@ var pan: float:
 func setup(p_art) -> void:
 	art = p_art
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	z_index = -8
 	texture_filter = TEXTURE_FILTER_NEAREST
 	set_process(true)

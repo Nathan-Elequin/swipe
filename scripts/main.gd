@@ -656,14 +656,14 @@ func _load_runtime() -> void:
 
 
 func _build_ui() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	dungeon_bg = DUNGEON_BG.new()
 	add_child(dungeon_bg)
 	dungeon_bg.setup(art)
 
 	var root := MarginContainer.new()
 	_ui_root = root
-	root.set_anchors_preset(PRESET_FULL_RECT)
+	root.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	root.add_theme_constant_override("margin_left", 20)
 	root.add_theme_constant_override("margin_right", 20)
 	root.add_theme_constant_override("margin_top", 8)
@@ -1020,11 +1020,11 @@ func _build_ui() -> void:
 func _build_overlay() -> void:
 	overlay = ColorRect.new()
 	overlay.color = Color("100e0cf2")
-	overlay.set_anchors_preset(PRESET_FULL_RECT)
+	overlay.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(overlay)
 	var wrap := CenterContainer.new()
-	wrap.set_anchors_preset(PRESET_FULL_RECT)
+	wrap.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	overlay.add_child(wrap)
 	var col := VBoxContainer.new()
 	col.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -10177,8 +10177,11 @@ func _layout_play_field() -> void:
 	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - 48.0))
 	side = minf(640.0, side)
 	var x: float = (sz.x - side - extra) * 0.5
+	var y: float = maxf(8.0, (sz.y - side) * 0.5)
+	if tray != null and tray.visible:
+		y = maxf(y, tray.position.y + tray.size.y + 8.0)
 	wheel_view.custom_minimum_size = Vector2(side, side)
-	wheel_view.position = Vector2(x, 8.0)
+	wheel_view.position = Vector2(x, y)
 	wheel_view.size = Vector2(side, side)
 	var gutter_px: int = int(round(extra if adventure else 0.0))
 	if hotbar_wrap:
@@ -10189,7 +10192,7 @@ func _layout_play_field() -> void:
 		var show_deck: bool = adventure and phase != "title" and phase != "victory" and phase != "defeat" and phase != "rest"
 		dungeon_deck_ui.visible = show_deck
 		dungeon_deck_ui.size = Vector2(110, 156)
-		dungeon_deck_ui.position = Vector2(x + side + 8.0, 4.0)
+		dungeon_deck_ui.position = Vector2(x + side + 8.0, y)
 		if not dungeon_deck_ui.is_busy():
 			dungeon_deck_ui.set_count(challenge_deck.size())
 		_sync_challenge_peek()
