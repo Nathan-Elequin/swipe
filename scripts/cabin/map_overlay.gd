@@ -6,7 +6,7 @@ signal go(route: String)
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const COPY := preload("res://scripts/player_copy.gd")
-const DEV_FLAGS := preload("res://scripts/dev/dev_flags.gd")
+const DEV_FLAGS := preload("res://scripts/dev_flags.gd")
 const LAYOUT_PATH := "res://design/visual/layouts/map-routes.layout.json"
 const ROUTES: Array[String] = ["gatehouse", "long_drop"]
 const SEAL := 48.0
