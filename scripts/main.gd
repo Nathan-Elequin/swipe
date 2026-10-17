@@ -900,6 +900,7 @@ func _build_ui() -> void:
 	fly_tip.visible = false
 	fly_tip.z_index = 110
 	fly_tip.top_level = true
+	fly_tip.process_mode = Node.PROCESS_MODE_ALWAYS
 	fly_tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	fly_tip.accept_clicks = false
 	add_child(fly_tip)
@@ -1007,6 +1008,8 @@ func _build_ui() -> void:
 	home_cabin.setup(art, sfx)
 	home_cabin.closed.connect(_on_home_cabin_closed)
 	home_cabin.inspect_wanted.connect(_on_cabin_inspect)
+	home_cabin.item_hovered.connect(_on_cabin_item_hovered)
+	home_cabin.item_unhovered.connect(_on_cabin_item_unhovered)
 	_bucket_reveal = BUCKET_REVEAL.new()
 	_bucket_reveal.sfx = sfx
 	add_child(_bucket_reveal)
@@ -1155,6 +1158,10 @@ func _title_pill(text: String, cb: Callable) -> Button:
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	UxStyle.dress_title_button(b)
 	b.pressed.connect(cb)
+	b.mouse_entered.connect(func() -> void:
+		if sfx:
+			sfx.play_event(&"ui.hover_title")
+	)
 	return b
 
 
@@ -1745,17 +1752,21 @@ func _on_home_cabin_closed() -> void:
 
 
 func _on_cabin_inspect(card_id: String) -> void:
+	_on_cabin_item_hovered(card_id, null)
+
+
+func _cabin_item_from_id(card_id: String) -> Dictionary:
 	var card: Dictionary = items_by_id.get(card_id, {})
-	if card.is_empty() or fly_tip == null:
-		return
+	if card.is_empty():
+		return {}
 	var ops: Dictionary = {}
 	if card.has("ops") and typeof(card["ops"]) == TYPE_DICTIONARY:
 		ops = (card["ops"] as Dictionary).duplicate(true)
 	elif ITEM_OPS.has(card_id):
 		ops = (ITEM_OPS[card_id] as Dictionary).duplicate(true)
-	var it := {
+	return {
 		"card_id": card_id,
-		"name": _title_case(str(card.get("name", card_id))),
+		"name": str(card.get("name", card_id)),
 		"ops": ops,
 		"ability": str(card.get("ability", "")),
 		"explainer": str(card.get("explainer", "")),
@@ -1764,10 +1775,23 @@ func _on_cabin_inspect(card_id: String) -> void:
 		"pack_tier": int(card.get("tier", 0)),
 		"pack_kind": "draft",
 	}
+
+
+func _on_cabin_item_hovered(card_id: String, slot: Control = null) -> void:
+	var it: Dictionary = _cabin_item_from_id(card_id)
+	if it.is_empty() or fly_tip == null:
+		return
 	_inspect_pinned = false
-	_inspect_item(it, true)
-	var vp: Vector2 = get_viewport_rect().size
-	fly_tip.global_position = Vector2(maxi(12, int(vp.x) - 280), 72)
+	_fly_card = slot
+	var rule: Dictionary = _item_rule(it)
+	fly_tip.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule["body"]), str(rule["warn"]), null, "item", card_id, _item_look(it))
+	_place_fly(slot)
+
+
+func _on_cabin_item_unhovered() -> void:
+	_fly_card = null
+	if fly_tip:
+		fly_tip.hide_plate()
 
 
 func _adventure_continue() -> void:
@@ -3479,7 +3503,6 @@ func _make_monster(id: String) -> Dictionary:
 		"aura_atk": 0,
 		"atk_mod": 0,
 		"atk_zeroed": false,
-		"atk_innate": 0,
 	}
 	uid_seq += 1
 	s["seat_uid"] = uid_seq
@@ -9627,7 +9650,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["value"] = _value_bb("Attack", "−1 / −2 / −3", atk_c)
 				out["body"] = "Click 1, 2, or 3. The facing owner's Attack drops by that much after their own ability and Commander, then stays there this fight. Owners whose Attack always equals a number ignore this."
 				if fighting and _atk_is_always(m):
-					out["warn"] = "Can't cut — their Attack always equals that number."
+					out["warn"] = "Their Attack always equals that number. This will not change the plate."
 			elif spike_n or str(it.get("card_id", "")) == "spiked_shield":
 				var spike_atk: int = _atk_with_head(2)
 				out["value"] = "%s    %s" % [_value_bb("Attack", str(spike_atk), atk_c), _value_bb("Block", "2", blk_c)]
@@ -9783,7 +9806,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["value"] = _value_bb("Attack", "−1 / −2 / −3", atk_c)
 			out["body"] = "Click 1, 2, or 3. The facing owner's Attack drops by that much after their own ability and Commander, then stays there this fight. Owners whose Attack always equals a number ignore this."
 			if fighting and _atk_is_always(m):
-				out["warn"] = "Can't cut — their Attack always equals that number."
+				out["warn"] = "Their Attack always equals that number. This will not change the plate."
 		"heal_keep":
 			out["value"] = _value_bb("Heal", "2", hp_c)
 			out["equation"] = "(%s) then Keep if still missing HP" % _bb(hp_c, "2")
@@ -9994,6 +10017,8 @@ func _fly_goes_left(near: Control) -> bool:
 	if dungeon_deck_ui != null and near == dungeon_deck_ui:
 		return true
 	if challenge_draft_ui != null and challenge_draft_ui.visible and challenge_draft_ui.is_ancestor_of(near):
+		return true
+	if home_cabin != null and home_cabin.visible and home_cabin.is_ancestor_of(near):
 		return true
 	return false
 
