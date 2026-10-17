@@ -10177,11 +10177,11 @@ func _layout_play_field() -> void:
 	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - 48.0))
 	side = minf(640.0, side)
 	var x: float = (sz.x - side - extra) * 0.5
-	var y: float = maxf(8.0, (sz.y - side) * 0.5)
+	var wheel_y: float = maxf(8.0, (sz.y - side) * 0.5)
 	if tray != null and tray.visible:
-		y = maxf(y, tray.position.y + tray.size.y + 8.0)
+		wheel_y = maxf(wheel_y, tray.position.y + tray.size.y + 8.0)
 	wheel_view.custom_minimum_size = Vector2(side, side)
-	wheel_view.position = Vector2(x, y)
+	wheel_view.position = Vector2(x, wheel_y)
 	wheel_view.size = Vector2(side, side)
 	var gutter_px: int = int(round(extra if adventure else 0.0))
 	if hotbar_wrap:
@@ -10192,7 +10192,7 @@ func _layout_play_field() -> void:
 		var show_deck: bool = adventure and phase != "title" and phase != "victory" and phase != "defeat" and phase != "rest"
 		dungeon_deck_ui.visible = show_deck
 		dungeon_deck_ui.size = Vector2(110, 156)
-		dungeon_deck_ui.position = Vector2(x + side + 8.0, y)
+		dungeon_deck_ui.position = Vector2(x + side + 8.0, wheel_y)
 		if not dungeon_deck_ui.is_busy():
 			dungeon_deck_ui.set_count(challenge_deck.size())
 		_sync_challenge_peek()
@@ -10208,10 +10208,10 @@ func _layout_play_field() -> void:
 		var deck_bottom: float = 140.0
 		if dungeon_deck_ui != null and dungeon_deck_ui.visible:
 			deck_bottom = dungeon_deck_ui.position.y + dungeon_deck_ui.size.y + 8.0
-		var y: float = deck_bottom
-		if y + h > sz.y - 8.0:
-			y = maxf(8.0, sz.y - h - 8.0)
-		challenge_draft_ui.position = Vector2(x + side + 8.0, y)
+		var draft_y: float = deck_bottom
+		if draft_y + h > sz.y - 8.0:
+			draft_y = maxf(8.0, sz.y - h - 8.0)
+		challenge_draft_ui.position = Vector2(x + side + 8.0, draft_y)
 	if cue_label:
 		cue_label.position = Vector2(12.0, maxf(side + 4.0, sz.y - 40.0))
 		cue_label.size = Vector2(maxf(sz.x - 24.0, 180.0), 36.0)
