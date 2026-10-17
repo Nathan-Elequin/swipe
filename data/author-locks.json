@@ -1389,9 +1389,10 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-16",
 			"name": "Ogre"
 		},
 		"monster:skeleton": {
@@ -1528,9 +1529,10 @@
 				"rarity",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-16",
 			"name": "Wick"
 		},
 		"monster:wizard": {

@@ -98,16 +98,16 @@ func setup(audio) -> void:
 	modes.alignment = BoxContainer.ALIGNMENT_CENTER
 	modes.add_theme_constant_override("separation", 10)
 	col.add_child(modes)
-	_btn_how = _btn("How to Play", Color("3a2820"), Color("e8c36a"), _pick.bind("tutorial"), 132)
-	_btn_dive = _btn("Dive In", Color("2a2622"), Color("c4a574"), _pick.bind("dive"), 110)
-	_btn_begin = _btn("Begin", Color("2a2622"), Color("6a5f52"), _pick.bind("begin"), 100)
+	_btn_how = _title_btn("How to Play", _pick.bind("tutorial"), 168)
+	_btn_dive = _title_btn("Dive In", _pick.bind("dive"), 168)
+	_btn_begin = _title_btn("Begin", _pick.bind("begin"), 120)
 	modes.add_child(_btn_how)
 	modes.add_child(_btn_dive)
 	modes.add_child(_btn_begin)
 	var adv_row := HBoxContainer.new()
 	adv_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	col.add_child(adv_row)
-	_btn_adventure = _btn("Challenge Mode", Color("3a2820"), Color("e8c36a"), _pick.bind("adventure"), 220)
+	_btn_adventure = _title_btn("Challenge Mode", _pick.bind("adventure"), 240)
 	adv_row.add_child(_btn_adventure)
 
 	if OS.has_feature("editor"):
@@ -162,6 +162,15 @@ func _add_slider(host: VBoxContainer, label: String) -> HSlider:
 	wrap.add_child(sl)
 	host.add_child(wrap)
 	return sl
+
+
+func _title_btn(text: String, cb: Callable, width: float = 140) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	UxStyle.dress_title_button(b, width)
+	b.pressed.connect(cb)
+	return b
 
 
 func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float = 140) -> Button:

@@ -5,9 +5,9 @@
 		"item:breastplate": 1792189453.0,
 		"item:counting_beads": 1792136735.68746,
 		"item:crossbow": 1792035889.34183,
-		"item:double_axe": 1792197000.0,
 		"item:cursed_scroll": 1792035889.34183,
 		"item:danger_magnet": 1791910000.0,
+		"item:double_axe": 1792197000.0,
 		"item:echo_bell": 1792136735.68746,
 		"item:fangs": 1792136735.68746,
 		"item:grief_jar": 1792035889.34183,
@@ -21,7 +21,7 @@
 		"item:mirror_shard": 1792136735.68746,
 		"item:mute_stone": 1792136735.68746,
 		"item:net": 1792136735.68746,
-		"item:pocketwatch": 1792193151,
+		"item:pocketwatch": 1792193151.0,
 		"item:quiet_bell": 1792136735.68746,
 		"item:sai": 1792036354.0,
 		"item:spiked_flail": 1792194900.0,
@@ -37,18 +37,18 @@
 		"monster:dire_wolf": 1792100000.0,
 		"monster:gargoyle": 1792136735.68746,
 		"monster:gelatinous_cube": 1792136735.68746,
-		"monster:harpy": 1792136735.68746,
+		"monster:harpy": 1792207013.0,
 		"monster:hollow": 1792136735.68746,
 		"monster:juggernaut": 1791962103.0,
 		"monster:kobold_trapper": 1792136735.68746,
 		"monster:leech_league": 1792136735.68746,
-		"monster:ogre": 1792136735.68746,
+		"monster:ogre": 1792207050.0,
 		"monster:skeleton": 1791957591.0,
 		"monster:spider_queen": 1792143600.0,
 		"monster:two_headed_serpent": 1792136735.68746,
 		"monster:vampire": 1791957982.0,
-		"monster:wick": 1792136735.68746
+		"monster:wick": 1792207340
 	},
 	"id": "boss-rush-recent-edits",
-	"updated": "2026-10-16T23:40:00"
+	"updated": "2026-10-17T03:22:20"
 }

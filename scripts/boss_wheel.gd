@@ -1284,8 +1284,14 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 		call_fs = maxi(10, call_fs - 1)
 	var span: float = absf(float(sp.get("span", 0.6)))
 	var max_w: float = clampf(_radius() * maxf(span, 0.18) * 0.92, 88.0, 168.0)
-	var name_txt: String = _wrap_call_label(font, name_s, name_fs, max_w)
-	var call_txt: String = _wrap_call_label(font, call_s, call_fs, max_w) if call_s != "" else ""
+	var name_fit: Dictionary = _fit_plate_label(font, name_s, name_fs, 10 if crowded else 11, max_w)
+	name_fs = int(name_fit.get("fs", name_fs))
+	var name_txt: String = str(name_fit.get("text", name_s))
+	var call_txt := ""
+	if call_s != "":
+		var call_fit: Dictionary = _fit_plate_label(font, call_s, call_fs, 8 if crowded else 9, max_w)
+		call_fs = int(call_fit.get("fs", call_fs))
+		call_txt = str(call_fit.get("text", call_s))
 	var tier_fs: int = 10 if is_face else 9
 	if crowded:
 		tier_fs = maxi(8, tier_fs - 1)
@@ -1368,25 +1374,41 @@ func _ability_icon_color(sid: String) -> Color:
 			return Color("f0e6d8")
 
 
-func _wrap_call_label(font: Font, label: String, fs: int, max_w: float) -> String:
-	var one: Vector2 = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	if one.x <= max_w or label == "":
-		return label
-	var best := 0
+func _fit_plate_label(font: Font, label: String, start_fs: int, min_fs: int, max_w: float) -> Dictionary:
+	if label == "":
+		return {"text": "", "fs": start_fs}
+	var fs: int = start_fs
+	while fs >= min_fs:
+		if font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x <= max_w:
+			return {"text": label, "fs": fs}
+		var wrapped: String = _wrap_at_break_only(font, label, fs, max_w)
+		if wrapped != "":
+			return {"text": wrapped, "fs": fs}
+		fs -= 1
+	var last: String = _wrap_at_break_only(font, label, min_fs, max_w)
+	if last != "":
+		return {"text": last, "fs": min_fs}
+	return {"text": label, "fs": min_fs}
+
+
+func _wrap_at_break_only(font: Font, label: String, fs: int, max_w: float) -> String:
+	var best := -1
 	for i in label.length():
 		var ch: String = label.substr(i, 1)
-		if ch == " " or ch == "-":
-			var left: String = label.substr(0, i + (1 if ch == "-" else 0))
-			if font.get_string_size(left, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x <= max_w:
-				best = i
-	if best <= 0:
-		var mid: int = maxi(1, int(label.length() / 2.0))
-		return label.substr(0, mid) + "\n" + label.substr(mid)
+		if ch != " " and ch != "-":
+			continue
+		var left: String = label.substr(0, i + (1 if ch == "-" else 0))
+		if font.get_string_size(left, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x <= max_w:
+			best = i
+	if best < 0:
+		return ""
 	var cut: int = best + (1 if label.substr(best, 1) == "-" else 0)
 	var a: String = label.substr(0, cut).strip_edges()
 	var b: String = label.substr(cut).strip_edges()
 	if b.begins_with("-"):
 		b = b.substr(1).strip_edges()
+	if a == "" or b == "":
+		return ""
 	return a + "\n" + b
 
 
