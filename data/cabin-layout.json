@@ -1,0 +1,1556 @@
+{
+ "rooms": {
+  "main": [
+   {
+    "node": "room_main_fire_glow",
+    "file": "rooms/room_main_fire_glow.png",
+    "origin": [
+     0,
+     136
+    ],
+    "size": [
+     185,
+     101
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 1,
+    "note": "light overlay"
+   },
+   {
+    "node": "RunDoor",
+    "file": "doors/run_door_closed.png",
+    "origin": [
+     250,
+     130
+    ],
+    "size": [
+     44,
+     66
+    ],
+    "hotspot": [
+     246,
+     122,
+     52,
+     74
+    ],
+    "hover": "doors/run_door_hover.png",
+    "z": 2,
+    "note": ""
+   },
+   {
+    "node": "SideDoor",
+    "file": "doors/side_door_locked.png",
+    "origin": [
+     370,
+     132
+    ],
+    "size": [
+     32,
+     63
+    ],
+    "hotspot": [
+     366,
+     124,
+     40,
+     71
+    ],
+    "hover": "doors/side_door_hover.png",
+    "z": 2,
+    "note": "to Trophy Hall"
+   },
+   {
+    "node": "SignHall",
+    "file": "doors/door_sign_hall.png",
+    "origin": [
+     377,
+     110
+    ],
+    "size": [
+     18,
+     14
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 2,
+    "note": ""
+   },
+   {
+    "node": "Map",
+    "file": "props/map_wall.png",
+    "origin": [
+     148,
+     30
+    ],
+    "size": [
+     68,
+     52
+    ],
+    "hotspot": [
+     148,
+     30,
+     68,
+     52
+    ],
+    "hover": "props/map_wall_hover.png",
+    "z": 3,
+    "note": "Grandpa's map: pick mode/route (opens overlays/map_close)"
+   },
+   {
+    "node": "Radio",
+    "file": "props/radio.png",
+    "origin": [
+     150,
+     124
+    ],
+    "size": [
+     44,
+     72
+    ],
+    "hotspot": [
+     150,
+     124,
+     44,
+     72
+    ],
+    "hover": "props/radio_hover.png",
+    "z": 3,
+    "note": "the Snatchwick Melodeon = Settings (opens overlays/radio_close)"
+   },
+   {
+    "node": "RadioFirefly",
+    "file": "props/radio_firefly_f0.png",
+    "origin": [
+     166,
+     126
+    ],
+    "size": [
+     12,
+     16
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 4,
+    "note": ""
+   },
+   {
+    "node": "GearRack",
+    "file": "props/gear_rack.png",
+    "origin": [
+     300,
+     92
+    ],
+    "size": [
+     64,
+     18
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 3,
+    "note": ""
+   },
+   {
+    "node": "Gear_helm",
+    "file": "props/gear_helm.png",
+    "origin": [
+     301,
+     100
+    ],
+    "size": [
+     18,
+     18
+    ],
+    "hotspot": [
+     301,
+     100,
+     18,
+     18
+    ],
+    "hover": "props/gear_helm_hover.png",
+    "z": 4,
+    "note": "take/hang helm; slot head"
+   },
+   {
+    "node": "Gear_cap",
+    "file": "props/gear_cap.png",
+    "origin": [
+     315,
+     100
+    ],
+    "size": [
+     18,
+     18
+    ],
+    "hotspot": [
+     315,
+     100,
+     18,
+     18
+    ],
+    "hover": "props/gear_cap_hover.png",
+    "z": 4,
+    "note": "take/hang cap; slot head"
+   },
+   {
+    "node": "Gear_goggles",
+    "file": "props/gear_goggles.png",
+    "origin": [
+     329,
+     100
+    ],
+    "size": [
+     18,
+     18
+    ],
+    "hotspot": [
+     329,
+     100,
+     18,
+     18
+    ],
+    "hover": "props/gear_goggles_hover.png",
+    "z": 4,
+    "note": "take/hang goggles; slot eyes"
+   },
+   {
+    "node": "Gear_rope",
+    "file": "props/gear_rope.png",
+    "origin": [
+     343,
+     100
+    ],
+    "size": [
+     18,
+     18
+    ],
+    "hotspot": [
+     343,
+     100,
+     18,
+     18
+    ],
+    "hover": "props/gear_rope_hover.png",
+    "z": 4,
+    "note": "take/hang rope; slot belt"
+   },
+   {
+    "node": "LuckyGeode",
+    "file": "props/lucky_geode.png",
+    "origin": [
+     68,
+     105
+    ],
+    "size": [
+     16,
+     13
+    ],
+    "hotspot": [
+     66,
+     102,
+     20,
+     17
+    ],
+    "hover": "props/lucky_geode_hover.png",
+    "z": 4,
+    "note": "lucky geode on the mantel: hidden until geode_on_mantel; click = flavour line (no mechanic)",
+    "visible_when": "geode_on_mantel"
+   },
+   {
+    "node": "PortraitSmall",
+    "file": "props/portrait_small.png",
+    "origin": [
+     80,
+     40
+    ],
+    "size": [
+     30,
+     36
+    ],
+    "hotspot": [
+     80,
+     40,
+     30,
+     36
+    ],
+    "hover": "props/portrait_small_hover.png",
+    "z": 3,
+    "note": "small portrait of Grandpa on the chimney breast: Nib quips"
+   },
+   {
+    "node": "Nib",
+    "file": "nib/nib_idle_f0.png",
+    "origin": [
+     216,
+     172
+    ],
+    "size": [
+     24,
+     32
+    ],
+    "hotspot": [
+     216,
+     172,
+     24,
+     32
+    ],
+    "hover": "nib/nib_idle_hover.png",
+    "z": 5,
+    "note": "Nib by the door (tutorial prompt / chat)"
+   },
+   {
+    "node": "Fire",
+    "file": "fire_f0.png",
+    "origin": [
+     76,
+     164
+    ],
+    "size": [
+     32,
+     32
+    ],
+    "hotspot": [
+     72,
+     150,
+     40,
+     46
+    ],
+    "hover": null,
+    "z": 4,
+    "note": "existing fire_f0..2 (clicking the fire = Nib/hero flavour line)"
+   },
+   {
+    "node": "Hero",
+    "file": "hero_rock_f0.png",
+    "origin": [
+     10,
+     205
+    ],
+    "size": [
+     32,
+     32
+    ],
+    "hotspot": [
+     10,
+     205,
+     32,
+     32
+    ],
+    "hover": null,
+    "z": 5,
+    "note": "hero in the chair (existing sprites); click = coin flip flavour"
+   }
+  ],
+  "hall": [
+   {
+    "node": "room_hall_glow",
+    "file": "rooms/room_hall_glow.png",
+    "origin": [
+     20,
+     40
+    ],
+    "size": [
+     91,
+     175
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 1,
+    "note": "light overlay"
+   },
+   {
+    "node": "BackDoor",
+    "file": null,
+    "origin": [
+     6,
+     132
+    ],
+    "size": [
+     32,
+     63
+    ],
+    "hotspot": [
+     2,
+     126,
+     40,
+     69
+    ],
+    "hover": "doors/doorway_hover.png",
+    "z": 2,
+    "note": "back (always open)"
+   },
+   {
+    "node": "SideDoor",
+    "file": "doors/side_door_locked.png",
+    "origin": [
+     378,
+     132
+    ],
+    "size": [
+     32,
+     63
+    ],
+    "hotspot": [
+     374,
+     124,
+     40,
+     71
+    ],
+    "hover": "doors/side_door_hover.png",
+    "z": 2,
+    "note": "to study"
+   },
+   {
+    "node": "SignStudy",
+    "file": "doors/door_sign_study.png",
+    "origin": [
+     385,
+     110
+    ],
+    "size": [
+     18,
+     14
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 2,
+    "note": ""
+   },
+   {
+    "node": "Flame0",
+    "file": "props/candle_flame_f0.png",
+    "origin": [
+     61,
+     62
+    ],
+    "size": [
+     6,
+     9
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 4,
+    "note": ""
+   },
+   {
+    "node": "Gauge",
+    "file": "ui/gauge_under.png",
+    "origin": [
+     148,
+     188
+    ],
+    "size": [
+     164,
+     5
+    ],
+    "hotspot": [
+     148,
+     186,
+     164,
+     9
+    ],
+    "hover": null,
+    "z": 3,
+    "note": "cabinet completion (TextureProgressBar); hover = \"x of y\" tooltip"
+   },
+   {
+    "node": "ShelfPrev",
+    "file": "ui/shelf_arrow_left.png",
+    "origin": [
+     124,
+     185
+    ],
+    "size": [
+     16,
+     12
+    ],
+    "hotspot": [
+     122,
+     183,
+     20,
+     16
+    ],
+    "hover": "ui/shelf_arrow_left_hover.png",
+    "z": 4,
+    "note": "shelf page prev"
+   },
+   {
+    "node": "ShelfNext",
+    "file": "ui/shelf_arrow_right.png",
+    "origin": [
+     320,
+     185
+    ],
+    "size": [
+     16,
+     12
+    ],
+    "hotspot": [
+     318,
+     183,
+     20,
+     16
+    ],
+    "hover": "ui/shelf_arrow_right_hover.png",
+    "z": 4,
+    "note": "shelf page next"
+   },
+   {
+    "node": "Shelf",
+    "file": null,
+    "origin": [
+     100,
+     24
+    ],
+    "size": [
+     260,
+     160
+    ],
+    "hotspot": [
+     100,
+     24,
+     260,
+     160
+    ],
+    "hover": null,
+    "z": 3,
+    "note": "existing _shelf_host goes here (hole moved from (140,20) to (100,24), same 260x160)"
+   }
+  ],
+  "study": [
+   {
+    "node": "room_study_glow",
+    "file": "rooms/room_study_glow.png",
+    "origin": [
+     180,
+     110
+    ],
+    "size": [
+     170,
+     66
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 1,
+    "note": "light overlay"
+   },
+   {
+    "node": "BackDoor",
+    "file": null,
+    "origin": [
+     6,
+     132
+    ],
+    "size": [
+     32,
+     63
+    ],
+    "hotspot": [
+     2,
+     126,
+     40,
+     69
+    ],
+    "hover": "doors/doorway_hover.png",
+    "z": 2,
+    "note": "back (always open)"
+   },
+   {
+    "node": "SideDoor",
+    "file": "doors/side_door_locked.png",
+    "origin": [
+     378,
+     132
+    ],
+    "size": [
+     32,
+     63
+    ],
+    "hotspot": [
+     374,
+     124,
+     40,
+     71
+    ],
+    "hover": "doors/side_door_hover.png",
+    "z": 2,
+    "note": "to workshop"
+   },
+   {
+    "node": "SignWorkshop",
+    "file": "doors/door_sign_workshop.png",
+    "origin": [
+     385,
+     110
+    ],
+    "size": [
+     18,
+     14
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 2,
+    "note": ""
+   },
+   {
+    "node": "PortraitBig",
+    "file": "props/portrait_big.png",
+    "origin": [
+     176,
+     22
+    ],
+    "size": [
+     56,
+     68
+    ],
+    "hotspot": [
+     176,
+     22,
+     56,
+     68
+    ],
+    "hover": "props/portrait_big_hover.png",
+    "z": 3,
+    "note": "big portrait over the desk: opens the will"
+   },
+   {
+    "node": "Journal",
+    "file": "props/journal.png",
+    "origin": [
+     104,
+     130
+    ],
+    "size": [
+     44,
+     24
+    ],
+    "hotspot": [
+     104,
+     130,
+     44,
+     24
+    ],
+    "hover": "props/journal_hover.png",
+    "z": 3,
+    "note": "Grandpa's journal on the lectern: opens the bestiary/compendium"
+   },
+   {
+    "node": "Will",
+    "file": "props/will.png",
+    "origin": [
+     226,
+     146
+    ],
+    "size": [
+     36,
+     14
+    ],
+    "hotspot": [
+     226,
+     146,
+     36,
+     14
+    ],
+    "hover": "props/will_hover.png",
+    "z": 3,
+    "note": "the will on the desk: opens overlays/will_close"
+   },
+   {
+    "node": "MountainModel",
+    "file": "props/mountain_model.png",
+    "origin": [
+     336,
+     28
+    ],
+    "size": [
+     30,
+     32
+    ],
+    "hotspot": [
+     336,
+     28,
+     30,
+     32
+    ],
+    "hover": "props/mountain_model_hover.png",
+    "z": 3,
+    "note": "bell-jar model of Grumblegut: shows deepest belly reached (tooltip)"
+   },
+   {
+    "node": "Drawer",
+    "file": "props/desk_drawer.png",
+    "origin": [
+     202,
+     166
+    ],
+    "size": [
+     32,
+     9
+    ],
+    "hotspot": [
+     200,
+     164,
+     36,
+     13
+    ],
+    "hover": "props/desk_drawer_hover.png",
+    "z": 3,
+    "note": "left-hand drawer: stuck (rattle) before ending_seen; ajar + glint after; opens overlays/drawer_close"
+   },
+   {
+    "node": "DrawerGlint",
+    "file": "fx/drawer_glint_f0.png",
+    "origin": [
+     211,
+     163
+    ],
+    "size": [
+     12,
+     12
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 4,
+    "note": "hint: only while ending_seen and not drawer_opened",
+    "visible_when": "ending_seen and not drawer_opened"
+   },
+   {
+    "node": "Flame0",
+    "file": "props/candle_flame_f0.png",
+    "origin": [
+     298,
+     133
+    ],
+    "size": [
+     6,
+     9
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 4,
+    "note": ""
+   }
+  ],
+  "workshop": [
+   {
+    "node": "room_workshop_glow",
+    "file": "rooms/room_workshop_glow.png",
+    "origin": [
+     40,
+     20
+    ],
+    "size": [
+     130,
+     201
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 1,
+    "note": "light overlay"
+   },
+   {
+    "node": "BackDoor",
+    "file": null,
+    "origin": [
+     6,
+     132
+    ],
+    "size": [
+     32,
+     63
+    ],
+    "hotspot": [
+     2,
+     126,
+     40,
+     69
+    ],
+    "hover": "doors/doorway_hover.png",
+    "z": 2,
+    "note": "back"
+   },
+   {
+    "node": "Ladder",
+    "file": "doors/ladder_locked.png",
+    "origin": [
+     370,
+     0
+    ],
+    "size": [
+     30,
+     197
+    ],
+    "hotspot": [
+     369,
+     0,
+     32,
+     197
+    ],
+    "hover": "doors/ladder_hover.png",
+    "z": 2,
+    "note": "to loft"
+   },
+   {
+    "node": "SignLoft",
+    "file": "doors/door_sign_loft.png",
+    "origin": [
+     348,
+     120
+    ],
+    "size": [
+     18,
+     14
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 2,
+    "note": ""
+   },
+   {
+    "node": "Dummy",
+    "file": "props/dummy.png",
+    "origin": [
+     48,
+     150
+    ],
+    "size": [
+     32,
+     50
+    ],
+    "hotspot": [
+     48,
+     150,
+     32,
+     50
+    ],
+    "hover": "props/dummy_hover.png",
+    "z": 3,
+    "note": "training dummy: replay the How-to-Play tutorial"
+   },
+   {
+    "node": "BragOMeter",
+    "file": "props/bragometer.png",
+    "origin": [
+     186,
+     112
+    ],
+    "size": [
+     48,
+     46
+    ],
+    "hotspot": [
+     186,
+     112,
+     48,
+     46
+    ],
+    "hover": "props/bragometer_hover.png",
+    "z": 3,
+    "note": "Brag-o-Meter: run stats (opens a parchment card)"
+   },
+   {
+    "node": "BragGear",
+    "file": "props/brag_gear_f0.png",
+    "origin": [
+     220,
+     116
+    ],
+    "size": [
+     12,
+     12
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 4,
+    "note": ""
+   },
+   {
+    "node": "Patents",
+    "file": "props/patents.png",
+    "origin": [
+     290,
+     36
+    ],
+    "size": [
+     54,
+     42
+    ],
+    "hotspot": [
+     290,
+     36,
+     54,
+     42
+    ],
+    "hover": "props/patents_hover.png",
+    "z": 3,
+    "note": "framed patents: credits"
+   }
+  ],
+  "loft": [
+   {
+    "node": "room_loft_moon",
+    "file": "rooms/room_loft_moon.png",
+    "origin": [
+     152,
+     40
+    ],
+    "size": [
+     129,
+     191
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 1,
+    "note": "light overlay"
+   },
+   {
+    "node": "room_loft_candle_glow",
+    "file": "rooms/room_loft_candle_glow.png",
+    "origin": [
+     340,
+     120
+    ],
+    "size": [
+     80,
+     91
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 1,
+    "note": "light overlay"
+   },
+   {
+    "node": "Hatch",
+    "file": null,
+    "origin": [
+     14,
+     200
+    ],
+    "size": [
+     48,
+     16
+    ],
+    "hotspot": [
+     13,
+     199,
+     50,
+     18
+    ],
+    "hover": "doors/hatch_hover.png",
+    "z": 2,
+    "note": "back down"
+   },
+   {
+    "node": "Bed",
+    "file": "props/bed.png",
+    "origin": [
+     290,
+     166
+    ],
+    "size": [
+     96,
+     40
+    ],
+    "hotspot": [
+     290,
+     166,
+     96,
+     40
+    ],
+    "hover": "props/bed_hover.png",
+    "z": 3,
+    "note": "Grandpa's bed: Quit (desktop) / flavour line (web)"
+   },
+   {
+    "node": "Telescope",
+    "file": "props/telescope.png",
+    "origin": [
+     226,
+     104
+    ],
+    "size": [
+     36,
+     94
+    ],
+    "hotspot": [
+     226,
+     104,
+     36,
+     94
+    ],
+    "hover": "props/telescope_hover.png",
+    "z": 3,
+    "note": "telescope at the round window: peek at Grumblegut (flavour + deepest belly)"
+   },
+   {
+    "node": "Trunk",
+    "file": "props/trunk.png",
+    "origin": [
+     96,
+     184
+    ],
+    "size": [
+     42,
+     28
+    ],
+    "hotspot": [
+     96,
+     184,
+     42,
+     28
+    ],
+    "hover": "props/trunk_hover.png",
+    "z": 3,
+    "note": "trunk of letters: read unlocked letters (milestones)"
+   },
+   {
+    "node": "Cat",
+    "file": "props/cat_sleep_f0.png",
+    "origin": [
+     176,
+     196
+    ],
+    "size": [
+     20,
+     12
+    ],
+    "hotspot": [
+     176,
+     196,
+     20,
+     12
+    ],
+    "hover": null,
+    "z": 3,
+    "note": "click = purr + Zz (no hover art: cursor change only)"
+   },
+   {
+    "node": "Flame0",
+    "file": "props/candle_flame_f0.png",
+    "origin": [
+     400,
+     152
+    ],
+    "size": [
+     6,
+     9
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 4,
+    "note": ""
+   }
+  ],
+  "rope": [
+   {
+    "node": "RopeLadder",
+    "file": "overlays/rope_ladder_f0.png",
+    "origin": [
+     96,
+     0
+    ],
+    "size": [
+     40,
+     226
+    ],
+    "hotspot": [
+     92,
+     0,
+     48,
+     226
+    ],
+    "hover": "overlays/rope_ladder_hover.png",
+    "z": 3,
+    "note": "climb = _adventure_leave()"
+   },
+   {
+    "node": "DeeperHole",
+    "file": "overlays/deeper_hole_idle.png",
+    "origin": [
+     250,
+     214
+    ],
+    "size": [
+     96,
+     40
+    ],
+    "hotspot": [
+     250,
+     214,
+     96,
+     40
+    ],
+    "hover": "overlays/deeper_hole_hover.png",
+    "z": 3,
+    "note": "jump = _adventure_continue()"
+   },
+   {
+    "node": "Hero",
+    "file": "hero/hero_idle_loot_f0.png",
+    "origin": [
+     170,
+     200
+    ],
+    "size": [
+     32,
+     32
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 4,
+    "note": ""
+   },
+   {
+    "node": "Sign",
+    "file": null,
+    "origin": [
+     20,
+     120
+    ],
+    "size": [
+     57,
+     31
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 0,
+    "note": "Label rope.sign drawn on the blank sign"
+   }
+  ]
+ },
+ "extra": {
+  "room_order": [
+   "main",
+   "hall",
+   "study",
+   "workshop",
+   "loft"
+  ],
+  "room_px": 1680,
+  "map_pins": {
+   "gatehouse": [
+    92,
+    168
+   ],
+   "long_drop": [
+    184,
+    92
+   ],
+   "shortcut": [
+    268,
+    150
+   ]
+  },
+  "map_deep_flags": [
+   [
+    184,
+    104
+   ],
+   [
+    184,
+    124
+   ],
+   [
+    186,
+    146
+   ],
+   [
+    182,
+    168
+   ],
+   [
+    186,
+    190
+   ]
+  ],
+  "map_legend": [
+   16,
+   188,
+   120,
+   32
+  ],
+  "map_origin": [
+   30,
+   14
+  ],
+  "radio_knobs": [
+   [
+    48,
+    150
+   ],
+   [
+    96,
+    150
+   ],
+   [
+    144,
+    150
+   ],
+   [
+    192,
+    150
+   ],
+   [
+    240,
+    150
+   ]
+  ],
+  "station_dial": [
+   66,
+   70,
+   168,
+   26
+  ],
+  "station_knob": [
+   262,
+   84
+  ],
+  "radio_tube": [
+   138,
+   14,
+   24,
+   34
+  ],
+  "journal_pages": {
+   "left": [
+    22,
+    18,
+    166,
+    204
+   ],
+   "right": [
+    196,
+    18,
+    166,
+    204
+   ]
+  },
+  "journal_portrait": [
+   62,
+   34,
+   64,
+   64
+  ],
+  "journal_tabs": {
+   "bestiary": [
+    366,
+    30
+   ],
+   "items": [
+    366,
+    66
+   ],
+   "will": [
+    366,
+    102
+   ]
+  },
+  "will_text": [
+   40,
+   34,
+   180,
+   150
+  ],
+  "will_seal": [
+   112,
+   186
+  ],
+  "sack_slots": [
+   [
+    78,
+    70
+   ],
+   [
+    122,
+    70
+   ],
+   [
+    166,
+    70
+   ],
+   [
+    210,
+    70
+   ],
+   [
+    254,
+    70
+   ],
+   [
+    78,
+    118
+   ],
+   [
+    122,
+    118
+   ],
+   [
+    166,
+    118
+   ],
+   [
+    210,
+    118
+   ],
+   [
+    254,
+    118
+   ]
+  ],
+  "pause_buttons": [
+   [
+    36,
+    46
+   ],
+   [
+    36,
+    72
+   ],
+   [
+    36,
+    98
+   ],
+   [
+    36,
+    124
+   ]
+  ],
+  "pause_sliders": [
+   24,
+   150,
+   152
+  ],
+  "overlay_origins": {
+   "overlays/map_close.png": [
+    30,
+    14
+   ],
+   "overlays/radio_close.png": [
+    60,
+    30
+   ],
+   "overlays/journal_spread.png": [
+    20,
+    10
+   ],
+   "overlays/will_close.png": [
+    80,
+    20
+   ],
+   "overlays/drawer_close.png": [
+    90,
+    50
+   ],
+   "overlays/sack_peek_bg.png": [
+    30,
+    25
+   ],
+   "overlays/pause_board.png": [
+    110,
+    40
+   ]
+  },
+  "dump_mouth": [
+   40,
+   34
+  ],
+  "wide_offset": [
+   -8,
+   -8
+  ],
+  "keyring_tags": [
+   [
+    114,
+    126
+   ],
+   [
+    142,
+    134
+   ],
+   [
+    170,
+    134
+   ],
+   [
+    198,
+    126
+   ]
+  ],
+  "p1_window": [
+   210,
+   30,
+   64,
+   52
+  ],
+  "p1_drip": [
+   186,
+   22,
+   186,
+   110
+  ],
+  "gear_slots": {
+   "helm": "head",
+   "cap": "head",
+   "goggles": "eyes",
+   "rope": "belt"
+  },
+  "rack_pegs": [
+   [
+    10,
+    9
+   ],
+   [
+    24,
+    9
+   ],
+   [
+    38,
+    9
+   ],
+   [
+    52,
+    9
+   ]
+  ],
+  "anchors": {
+   "main": {
+    "run_door": [
+     250,
+     130,
+     44,
+     66
+    ],
+    "side_door": [
+     370,
+     132,
+     32,
+     63
+    ],
+    "chair": [
+     10,
+     205
+    ],
+    "fire": [
+     76,
+     164
+    ],
+    "sack": [
+     70,
+     205
+    ]
+   },
+   "hall": {
+    "hole": [
+     100,
+     24,
+     260,
+     160
+    ],
+    "back_door": [
+     6,
+     132,
+     32,
+     63
+    ],
+    "side_door": [
+     378,
+     132,
+     32,
+     63
+    ],
+    "gauge": [
+     148,
+     188,
+     164,
+     5
+    ],
+    "flame": [
+     [
+      61,
+      62
+     ]
+    ]
+   },
+   "study": {
+    "back_door": [
+     6,
+     132,
+     32,
+     63
+    ],
+    "side_door": [
+     378,
+     132,
+     32,
+     63
+    ],
+    "flame": [
+     [
+      298,
+      133
+     ]
+    ]
+   },
+   "workshop": {
+    "back_door": [
+     6,
+     132,
+     32,
+     63
+    ],
+    "ladder": [
+     370,
+     0,
+     30,
+     197
+    ]
+   },
+   "loft": {
+    "hatch": [
+     14,
+     200,
+     48,
+     16
+    ],
+    "window": [
+     210,
+     74,
+     26
+    ],
+    "flame": [
+     [
+      400,
+      152
+     ]
+    ],
+    "cat": [
+     176,
+     196
+    ]
+   }
+  },
+  "drawer_note": [
+   156,
+   26
+  ],
+  "drawer_geode": [
+   52,
+   60
+  ],
+  "drawer_geode_glow": [
+   47,
+   56
+  ],
+  "drawer_latch": [
+   108,
+   134
+  ],
+  "drawer_knob": [
+   217,
+   169
+  ],
+  "lucky_geode_mantel": [
+   68,
+   105
+  ]
+ }
+}

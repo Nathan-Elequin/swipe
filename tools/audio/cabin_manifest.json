@@ -1,0 +1,1276 @@
+[
+ {
+  "file": "cab_hover_a.ogg",
+  "kind": "ui",
+  "seconds": 0.089,
+  "bytes": 4223,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_hover_wood_a.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_hover_b.ogg",
+  "kind": "ui",
+  "seconds": 0.089,
+  "bytes": 4221,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_hover_wood_b.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_click.ogg",
+  "kind": "ui",
+  "seconds": 0.158,
+  "bytes": 4350,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactWood_light_000.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 Interface Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/interface-sounds",
+    "file": "Audio/click_002.ogg",
+    "gain_db": -8,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_locked.ogg",
+  "kind": "sfx",
+  "seconds": 0.251,
+  "bytes": 6372,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/metalLatch.ogg",
+    "gain_db": 0,
+    "pitch": 1.1
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactMetal_light_001.ogg",
+    "gain_db": -6,
+    "pitch": 1.2
+   }
+  ]
+ },
+ {
+  "file": "cab_unlock.ogg",
+  "kind": "sfx",
+  "seconds": 0.717,
+  "bytes": 9233,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/metalLatch.ogg",
+    "gain_db": 0,
+    "pitch": 0.9
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactMetal_light_003.ogg",
+    "gain_db": -4,
+    "pitch": 1.3
+   },
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_unlock_glint.wav",
+    "gain_db": -6,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_chain_drop.ogg",
+  "kind": "sfx",
+  "seconds": 0.348,
+  "bytes": 6737,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactMetal_medium_002.ogg",
+    "gain_db": 0,
+    "pitch": 1.1
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactMetal_light_004.ogg",
+    "gain_db": -3,
+    "pitch": 0.9
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactMetal_light_002.ogg",
+    "gain_db": -6,
+    "pitch": 1.2
+   }
+  ]
+ },
+ {
+  "file": "cab_door_creak.ogg",
+  "kind": "sfx",
+  "seconds": 1.413,
+  "bytes": 16117,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/creak2.ogg",
+    "gain_db": 0,
+    "pitch": 0.85
+   },
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/doorOpen_2.ogg",
+    "gain_db": -4,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_key_jingle.ogg",
+  "kind": "sfx",
+  "seconds": 0.68,
+  "bytes": 10075,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_key_jingle.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/metalClick.ogg",
+    "gain_db": -6,
+    "pitch": 1.2
+   }
+  ]
+ },
+ {
+  "file": "sting_unlock.ogg",
+  "kind": "sting",
+  "seconds": 1.387,
+  "bytes": 14924,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Music Jingles",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/music-jingles",
+    "file": "Audio/Steel jingles/jingles_STEEL02.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_radio_on.ogg",
+  "kind": "sfx",
+  "seconds": 0.939,
+  "bytes": 12048,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/metalClick.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_radio_on.wav",
+    "gain_db": -2,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_radio_knob.ogg",
+  "kind": "ui",
+  "seconds": 0.063,
+  "bytes": 4552,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Interface Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/interface-sounds",
+    "file": "Audio/tick_004.ogg",
+    "gain_db": 0,
+    "pitch": 0.8
+   }
+  ]
+ },
+ {
+  "file": "cab_radio_tune.ogg",
+  "kind": "sfx",
+  "seconds": 0.658,
+  "bytes": 9766,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_radio_tune.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_radio_static_loop.ogg",
+  "kind": "amb",
+  "seconds": 2.4,
+  "bytes": 25582,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_radio_static_loop.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_page_flip_1.ogg",
+  "kind": "sfx",
+  "seconds": 0.671,
+  "bytes": 10286,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/bookFlip1.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_page_flip_2.ogg",
+  "kind": "sfx",
+  "seconds": 0.386,
+  "bytes": 7463,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/bookFlip2.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_page_flip_3.ogg",
+  "kind": "sfx",
+  "seconds": 0.228,
+  "bytes": 6128,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/bookFlip3.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_book_open.ogg",
+  "kind": "sfx",
+  "seconds": 0.142,
+  "bytes": 5438,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/bookOpen.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_book_close.ogg",
+  "kind": "sfx",
+  "seconds": 0.231,
+  "bytes": 6002,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/bookClose.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_scroll.ogg",
+  "kind": "sfx",
+  "seconds": 0.482,
+  "bytes": 8505,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/bookFlip2.ogg",
+    "gain_db": 0,
+    "pitch": 0.8
+   },
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/cloth3.ogg",
+    "gain_db": -6,
+    "pitch": 1.1
+   }
+  ]
+ },
+ {
+  "file": "cab_map_pin.ogg",
+  "kind": "ui",
+  "seconds": 0.221,
+  "bytes": 5761,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactTin_medium_000.ogg",
+    "gain_db": 0,
+    "pitch": 1.5
+   },
+   {
+    "pack": "Kenney \u2014 Interface Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/interface-sounds",
+    "file": "Audio/select_003.ogg",
+    "gain_db": -8,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_seal_stamp.ogg",
+  "kind": "sfx",
+  "seconds": 0.506,
+  "bytes": 6879,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactPlank_medium_003.ogg",
+    "gain_db": 0,
+    "pitch": 0.8
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactSoft_medium_002.ogg",
+    "gain_db": -2,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_sack_shake.ogg",
+  "kind": "sfx",
+  "seconds": 0.73,
+  "bytes": 10384,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/handleSmallLeather.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/cloth1.ogg",
+    "gain_db": -3,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/handleSmallLeather2.ogg",
+    "gain_db": -2,
+    "pitch": 1.05
+   }
+  ]
+ },
+ {
+  "file": "cab_sack_empty.ogg",
+  "kind": "sfx",
+  "seconds": 0.654,
+  "bytes": 5067,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactSoft_heavy_001.ogg",
+    "gain_db": 0,
+    "pitch": 0.8
+   }
+  ]
+ },
+ {
+  "file": "sting_empty.ogg",
+  "kind": "sting",
+  "seconds": 1.082,
+  "bytes": 13381,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Music Jingles",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/music-jingles",
+    "file": "Audio/Sax jingles/jingles_SAX03.ogg",
+    "gain_db": 0,
+    "pitch": 0.9
+   }
+  ]
+ },
+ {
+  "file": "cab_moth.ogg",
+  "kind": "sfx",
+  "seconds": 0.597,
+  "bytes": 9837,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_moth.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_item_pop_a.ogg",
+  "kind": "sfx",
+  "seconds": 0.688,
+  "bytes": 9201,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_item_pop_a.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 Casino Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/casino-audio",
+    "file": "Audio/card-place-1.ogg",
+    "gain_db": -8,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_item_pop_b.ogg",
+  "kind": "sfx",
+  "seconds": 0.454,
+  "bytes": 7815,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_item_pop_b.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 Casino Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/casino-audio",
+    "file": "Audio/card-place-2.ogg",
+    "gain_db": -8,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_item_burst.ogg",
+  "kind": "sfx",
+  "seconds": 0.635,
+  "bytes": 8996,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_item_burst.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactGlass_light_000.ogg",
+    "gain_db": -8,
+    "pitch": 1.2
+   }
+  ]
+ },
+ {
+  "file": "cab_item_whoosh.ogg",
+  "kind": "sfx",
+  "seconds": 0.43,
+  "bytes": 8077,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_item_whoosh.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_shelf_chime.ogg",
+  "kind": "sfx",
+  "seconds": 0.533,
+  "bytes": 6758,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_shelf_chime.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_hero_yip.ogg",
+  "kind": "sfx",
+  "seconds": 0.22,
+  "bytes": 5625,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_hero_yip.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_hero_sigh.ogg",
+  "kind": "sfx",
+  "seconds": 0.899,
+  "bytes": 11535,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_hero_sigh.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_rope_climb_1.ogg",
+  "kind": "sfx",
+  "seconds": 0.45,
+  "bytes": 8210,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/cloth2.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/creak1.ogg",
+    "gain_db": -6,
+    "pitch": 1.3
+   }
+  ]
+ },
+ {
+  "file": "cab_rope_climb_2.ogg",
+  "kind": "sfx",
+  "seconds": 0.379,
+  "bytes": 7268,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/cloth4.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/creak3.ogg",
+    "gain_db": -6,
+    "pitch": 1.35
+   }
+  ]
+ },
+ {
+  "file": "cab_rope_creak.ogg",
+  "kind": "amb",
+  "seconds": 0.779,
+  "bytes": 8405,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/creak1.ogg",
+    "gain_db": 0,
+    "pitch": 0.75
+   }
+  ]
+ },
+ {
+  "file": "cab_hole_rumble.ogg",
+  "kind": "sfx",
+  "seconds": 1.4,
+  "bytes": 12929,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_hole_rumble.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_gear_take.ogg",
+  "kind": "sfx",
+  "seconds": 0.712,
+  "bytes": 12352,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/clothBelt.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/metalClick.ogg",
+    "gain_db": -8,
+    "pitch": 1.3
+   }
+  ]
+ },
+ {
+  "file": "cab_gear_hang.ogg",
+  "kind": "sfx",
+  "seconds": 0.256,
+  "bytes": 6611,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/beltHandle1.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_dummy.ogg",
+  "kind": "sfx",
+  "seconds": 0.299,
+  "bytes": 5998,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactSoft_medium_000.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/creak3.ogg",
+    "gain_db": -5,
+    "pitch": 1.2
+   }
+  ]
+ },
+ {
+  "file": "cab_bed.ogg",
+  "kind": "sfx",
+  "seconds": 0.552,
+  "bytes": 4879,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactSoft_heavy_003.ogg",
+    "gain_db": 0,
+    "pitch": 0.9
+   }
+  ]
+ },
+ {
+  "file": "cab_telescope.ogg",
+  "kind": "sfx",
+  "seconds": 0.415,
+  "bytes": 8406,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/metalClick.ogg",
+    "gain_db": 0,
+    "pitch": 0.9
+   },
+   {
+    "pack": "Kenney \u2014 Interface Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/interface-sounds",
+    "file": "Audio/maximize_003.ogg",
+    "gain_db": -6,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_trunk.ogg",
+  "kind": "sfx",
+  "seconds": 0.626,
+  "bytes": 9707,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/bookOpen.ogg",
+    "gain_db": 0,
+    "pitch": 0.7
+   },
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/creak1.ogg",
+    "gain_db": -4,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_brag_cog.ogg",
+  "kind": "ui",
+  "seconds": 0.129,
+  "bytes": 4602,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_cog_tick.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_room_sign.ogg",
+  "kind": "ui",
+  "seconds": 0.201,
+  "bytes": 4426,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactWood_light_002.ogg",
+    "gain_db": 0,
+    "pitch": 1.2
+   }
+  ]
+ },
+ {
+  "file": "cab_panel_whoosh.ogg",
+  "kind": "ui",
+  "seconds": 0.334,
+  "bytes": 6806,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_panel_whoosh.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "nib_psst.ogg",
+  "kind": "ui",
+  "seconds": 0.529,
+  "bytes": 8578,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_nib_psst.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "nib_gasp.ogg",
+  "kind": "ui",
+  "seconds": 0.18,
+  "bytes": 5567,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_nib_gasp.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "nib_chuckle.ogg",
+  "kind": "ui",
+  "seconds": 0.325,
+  "bytes": 6647,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_nib_chuckle.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "sting_intro.ogg",
+  "kind": "sting",
+  "seconds": 1.68,
+  "bytes": 16034,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Music Jingles",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/music-jingles",
+    "file": "Audio/Steel jingles/jingles_STEEL07.ogg",
+    "gain_db": 0,
+    "pitch": 0.85
+   }
+  ]
+ },
+ {
+  "file": "sting_ending.ogg",
+  "kind": "sting",
+  "seconds": 1.387,
+  "bytes": 13890,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Music Jingles",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/music-jingles",
+    "file": "Audio/Steel jingles/jingles_STEEL03.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 Music Jingles",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/music-jingles",
+    "file": "Audio/Pizzicato jingles/jingles_PIZZI10.ogg",
+    "gain_db": -6,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "music_intro.ogg",
+  "kind": "music",
+  "seconds": 156.0,
+  "bytes": 1341643,
+  "sources": [
+   {
+    "pack": "4 Music Box Tracks",
+    "author": "Mjorlaja & Aureolus_Omicron",
+    "licence": "CC0 1.0",
+    "url": "https://opengameart.org/content/4-music-box-tracks",
+    "file": "musicbox/musicbox3_sad_tune.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "music_ending.ogg",
+  "kind": "music",
+  "seconds": 171.429,
+  "bytes": 1496731,
+  "sources": [
+   {
+    "pack": "4 Music Box Tracks",
+    "author": "Mjorlaja & Aureolus_Omicron",
+    "licence": "CC0 1.0",
+    "url": "https://opengameart.org/content/4-music-box-tracks",
+    "file": "musicbox/musicbox4_happy_polka.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "music_station_waltz.ogg",
+  "kind": "music",
+  "seconds": 106.667,
+  "bytes": 927615,
+  "sources": [
+   {
+    "pack": "4 Music Box Tracks",
+    "author": "Mjorlaja & Aureolus_Omicron",
+    "licence": "CC0 1.0",
+    "url": "https://opengameart.org/content/4-music-box-tracks",
+    "file": "musicbox/musicbox1_spooky_waltz.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "music_station_tune.ogg",
+  "kind": "music",
+  "seconds": 137.143,
+  "bytes": 1173464,
+  "sources": [
+   {
+    "pack": "4 Music Box Tracks",
+    "author": "Mjorlaja & Aureolus_Omicron",
+    "licence": "CC0 1.0",
+    "url": "https://opengameart.org/content/4-music-box-tracks",
+    "file": "musicbox/musicbox2_cute_tune.ogg",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_drawer_stuck.ogg",
+  "kind": "sfx",
+  "seconds": 0.612,
+  "bytes": 7151,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactWood_medium_001.ogg",
+    "gain_db": 0,
+    "pitch": 1.1
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactWood_light_003.ogg",
+    "gain_db": -3,
+    "pitch": 1.2
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactWood_light_001.ogg",
+    "gain_db": -5,
+    "pitch": 1.25
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactMining_000.ogg",
+    "gain_db": -12,
+    "pitch": 1.3
+   }
+  ]
+ },
+ {
+  "file": "cab_drawer_unlatch.ogg",
+  "kind": "sfx",
+  "seconds": 0.757,
+  "bytes": 10046,
+  "sources": [
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/metalLatch.ogg",
+    "gain_db": 0,
+    "pitch": 1.3
+   },
+   {
+    "pack": "Kenney \u2014 RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "file": "Audio/metalClick.ogg",
+    "gain_db": -4,
+    "pitch": 0.9
+   },
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_unlock_glint.wav",
+    "gain_db": -12,
+    "pitch": 1.0
+   }
+  ]
+ },
+ {
+  "file": "cab_drawer_open.ogg",
+  "kind": "sfx",
+  "seconds": 0.97,
+  "bytes": 11610,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_drawer_slide.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactMining_002.ogg",
+    "gain_db": -4,
+    "pitch": 1.1
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactMining_004.ogg",
+    "gain_db": -7,
+    "pitch": 1.25
+   }
+  ]
+ },
+ {
+  "file": "cab_geode_chime.ogg",
+  "kind": "sfx",
+  "seconds": 0.59,
+  "bytes": 8344,
+  "sources": [
+   {
+    "pack": "Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py)",
+    "author": "Swipe / generated",
+    "licence": "CC0 1.0 (original)",
+    "url": "tools/audio/cabin_sfxgen.py",
+    "file": "cab_geode_chime.wav",
+    "gain_db": 0.0,
+    "pitch": 1.0
+   },
+   {
+    "pack": "Kenney \u2014 Impact Sounds",
+    "author": "Kenney (kenney.nl)",
+    "licence": "CC0 1.0",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "file": "Audio/impactGlass_light_002.ogg",
+    "gain_db": -8,
+    "pitch": 0.9
+   }
+  ]
+ }
+]

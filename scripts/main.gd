@@ -10,6 +10,7 @@ const AUDIO_FX := preload("res://scripts/audio_fx.gd")
 const SETTINGS_MENU := preload("res://scripts/settings_menu.gd")
 const CONTENT_EDITOR := preload("res://scripts/content_editor.gd")
 const ROSTER_EDITOR := preload("res://scripts/roster_editor.gd")
+const BUCKET_OVERLAY := preload("res://scripts/dev_bucket_overlay.gd")
 const SCRIPT_EDITOR := preload("res://scripts/script_editor.gd")
 const PLAYER_COPY := preload("res://scripts/player_copy.gd")
 const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
@@ -348,13 +349,13 @@ var choice_box: HBoxContainer
 var hearts_box: HBoxContainer
 var blk_hud: PanelContainer
 var blk_value: Label
-var cue_label: Label
+var cue_label
 var tray: HBoxContainer
 var overlay: ColorRect
 var _ui_root: Control
 var _unlock_screen: bool = false
-var overlay_title: Label
-var overlay_sub: Label
+var overlay_title
+var overlay_sub
 var overlay_btn: Button
 var overlay_dive: Button
 var overlay_tut: Button
@@ -363,11 +364,20 @@ var overlay_latest: Button
 var overlay_adventure: Button
 var overlay_home: Button
 var home_cabin
+var lore: Dictionary = {}
+var cabin_layout: Dictionary = {}
+var rope_exit
+var sack_peek
+var shot_harness
+var text_audit
 var _cabin_from_leave: bool = false
+var _homecoming_kind: String = "win"
+var _homecoming_new: Array = []
+var _homecoming_held: Array = []
 var _spoken_key: String = ""
 var overlay_continue: Button
 var overlay_leave: Button
-var overlay_score: Label
+var overlay_score
 var overlay_roster: Button
 var overlay_rest_row: HBoxContainer
 var overlay_tools_row: HBoxContainer
@@ -393,6 +403,7 @@ var sfx
 var settings_ui
 var content_ed
 var roster_ed
+var bucket_ed
 var script_ed
 var overlay_script: Button
 var _offer_card: Control
@@ -421,7 +432,9 @@ var _upgraded_slices: Array = []
 var _tut_boot: bool = false
 var draft_gate
 var _courier: TextureRect
+var _courier_gear: Dictionary = {}
 var _walker_busy: bool = false
+var _hero_swipe_armed: bool = false
 var _flee_random_spin: bool = false
 var _gate_line: String = ""
 var _cube_line: String = ""
@@ -430,7 +443,7 @@ var _cleric_talk_index: int = -1
 var _mill_seq: int = 0
 var _mill_beat: String = ""
 var refusals_left: int = REFUSALS_MAX
-var _copy_stamp: Label
+var _copy_stamp
 var adventure: bool = false
 var dungeon_index: int = 1
 var dungeons_cleared: int = 0
@@ -469,6 +482,7 @@ func _ready() -> void:
 	PLAYER_COPY.reload()
 	_load_textures()
 	_load_catalog()
+	_load_lore()
 	_load_runtime()
 	_load_bucket_progress()
 	art = DUNGEON_ART.new()
@@ -479,7 +493,7 @@ func _ready() -> void:
 	_empty_wheel()
 	phase = "title"
 	_refresh()
-	if sfx:
+	if sfx and (home_cabin == null or not home_cabin.visible):
 		sfx.start_music()
 
 
@@ -490,7 +504,7 @@ func _tex(path: String) -> Texture2D:
 
 
 func _authoring() -> bool:
-	return OS.has_feature("editor")
+	return DevFlag.on()
 
 
 func _prefer_pixel_art() -> void:
@@ -654,6 +668,21 @@ func _load_catalog() -> void:
 		items_by_id[str(it["id"])] = it
 
 
+func _load_json(path: String) -> Dictionary:
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return {}
+	var parsed: Variant = JSON.parse_string(f.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return {}
+	return parsed
+
+
+func _load_lore() -> void:
+	lore = _load_json("res://data/lore.json")
+	cabin_layout = _load_json("res://data/cabin-layout.json")
+
+
 func _load_runtime() -> void:
 	var f := FileAccess.open(RUNTIME_PATH, FileAccess.READ)
 	if f == null:
@@ -721,13 +750,14 @@ func _build_ui() -> void:
 	trophy.setup(skull_tex)
 	play_field.add_child(trophy)
 
-	cue_label = Label.new()
-	cue_label.add_theme_font_size_override("font_size", 22)
-	cue_label.add_theme_color_override("font_color", Color("f0e6d8"))
-	cue_label.add_theme_color_override("font_outline_color", Color("100e0c"))
-	cue_label.add_theme_constant_override("outline_size", 4)
+	cue_label = FitLabelBox.make()
+	cue_label.show_frame = false
+	cue_label.padding = 0
+	cue_label.max_font_size = 22
+	cue_label.min_font_size = 16
+	cue_label.font_color = Color("f0e6d8")
+	cue_label.set_outline(Color("100e0c"), 4)
 	cue_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	cue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	cue_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	play_field.add_child(cue_label)
 
@@ -744,7 +774,12 @@ func _build_ui() -> void:
 	var heart_empty: Texture2D = _tex("res://assets/icons/heart_empty.png")
 	if art != null:
 		wheel_view.set_portraits(art.portraits())
-		wheel_view.set_player(art.frames("knight_m"))
+		if wheel_view.has_method("setup_run_hero"):
+			wheel_view.setup_run_hero(art)
+		else:
+			wheel_view.set_player(art.frames("knight_m"))
+		if wheel_view.has_signal("death_floor"):
+			wheel_view.death_floor.connect(_on_hero_death_floor)
 		if art.tile("ui_heart_full") != null:
 			heart_full = art.tile("ui_heart_full")
 		if art.tile("ui_heart_empty") != null:
@@ -892,7 +927,8 @@ func _build_ui() -> void:
 	dev_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	dev_panel.add_theme_constant_override("separation", 8)
 	right.add_child(dev_panel)
-	_build_dev_panel()
+	if _authoring():
+		_build_dev_panel()
 
 	log_btn = _pill("Log", Color("2a2622"), Color("6a5f52"), _toggle_log)
 	log_btn.custom_minimum_size = Vector2(88, 34)
@@ -991,6 +1027,7 @@ func _build_ui() -> void:
 	_courier.visible = false
 	_courier.size = Vector2(96, 96)
 	add_child(_courier)
+	_ensure_courier_gear()
 
 	fx_flash = ColorRect.new()
 	fx_flash.color = Color(1, 1, 1, 1)
@@ -1018,11 +1055,32 @@ func _build_ui() -> void:
 	settings_ui.quit_pressed.connect(_quit_game)
 	home_cabin = HOME_CABIN.new()
 	add_child(home_cabin)
-	home_cabin.setup(art, sfx)
+	home_cabin.setup(art, sfx, lore, cabin_layout, catalog)
+	home_cabin.settings_ui = settings_ui
 	home_cabin.closed.connect(_on_home_cabin_closed)
 	home_cabin.inspect_wanted.connect(_on_cabin_inspect)
 	home_cabin.item_hovered.connect(_on_cabin_item_hovered)
 	home_cabin.item_unhovered.connect(_on_cabin_item_unhovered)
+	home_cabin.route_chosen.connect(_start_route)
+	home_cabin.tutorial_wanted.connect(_start_tutorial)
+	home_cabin.quit_wanted.connect(_quit_game)
+	home_cabin.attach_editor(self)
+	settings_ui.peek_pressed.connect(_open_sack_peek)
+	settings_ui.give_up_confirmed.connect(_give_up)
+	settings_ui.closed.connect(_on_settings_closed)
+	if DevFlag.on():
+		settings_ui.fresh_save_pressed.connect(_dev_fresh_save)
+		settings_ui.complete_save_pressed.connect(_dev_complete_save)
+		settings_ui.bucket_progress_pressed.connect(_dev_open_buckets)
+	rope_exit = preload("res://scripts/cabin/rope_exit.gd").new()
+	add_child(rope_exit)
+	rope_exit.setup(home_cabin, cabin_layout.get("extra", {}))
+	rope_exit.climb.connect(_adventure_leave)
+	rope_exit.deeper.connect(_rope_deeper)
+	rope_exit.peek.connect(_open_sack_peek)
+	sack_peek = preload("res://scripts/cabin/sack_peek.gd").new()
+	add_child(sack_peek)
+	sack_peek.setup(home_cabin, cabin_layout.get("extra", {}), art, self)
 	_bucket_reveal = BUCKET_REVEAL.new()
 	_bucket_reveal.sfx = sfx
 	add_child(_bucket_reveal)
@@ -1039,10 +1097,30 @@ func _build_ui() -> void:
 		roster_ed.committed.connect(_on_roster_committed)
 		roster_ed.open_card.connect(_open_content_editor)
 		roster_ed.unlocks_reset.connect(reset_bucket_progress)
+		roster_ed.open_buckets.connect(_dev_open_buckets_from_roster)
+		bucket_ed = BUCKET_OVERLAY.new()
+		add_child(bucket_ed)
+		bucket_ed.setup(sfx)
+		bucket_ed.revealed_changed.connect(_dev_set_buckets)
+		bucket_ed.card_hovered.connect(_dev_bucket_hovered)
+		bucket_ed.card_unhovered.connect(_dev_bucket_unhovered)
+		bucket_ed.card_edit.connect(_open_content_editor)
+		bucket_ed.assignments_saved.connect(_on_bucket_assignments_saved)
+		bucket_ed.closed.connect(_on_bucket_ed_closed)
 		script_ed = SCRIPT_EDITOR.new()
 		add_child(script_ed)
 		script_ed.setup(sfx)
 		script_ed.saved.connect(_on_script_saved)
+		var shot_scr: Script = load("res://scripts/dev/shot_harness.gd") as Script
+		if shot_scr != null:
+			shot_harness = shot_scr.new()
+			add_child(shot_harness)
+			shot_harness.setup(self)
+		var audit_scr: Script = load("res://scripts/dev/text_audit.gd") as Script
+		if audit_scr != null:
+			text_audit = audit_scr.new()
+			add_child(text_audit)
+			text_audit.setup(self)
 	call_deferred("_layout_play_field")
 
 
@@ -1059,22 +1137,32 @@ func _build_overlay() -> void:
 	col.alignment = BoxContainer.ALIGNMENT_CENTER
 	col.add_theme_constant_override("separation", 16)
 	wrap.add_child(col)
-	overlay_title = Label.new()
+	overlay_title = FitLabelBox.make()
+	overlay_title.show_frame = false
+	overlay_title.padding = 0
+	overlay_title.max_font_size = 56
+	overlay_title.min_font_size = 16
 	overlay_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	overlay_title.add_theme_font_size_override("font_size", 56)
-	overlay_title.add_theme_color_override("font_color", Color("c4a574"))
+	overlay_title.custom_minimum_size = Vector2(720, 64)
+	overlay_title.font_color = Color("c4a574")
 	col.add_child(overlay_title)
-	overlay_sub = Label.new()
+	overlay_sub = FitLabelBox.make()
+	overlay_sub.show_frame = false
+	overlay_sub.padding = 0
+	overlay_sub.max_font_size = 20
+	overlay_sub.min_font_size = 16
 	overlay_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	overlay_sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	overlay_sub.custom_minimum_size = Vector2(720, 0)
-	overlay_sub.add_theme_font_size_override("font_size", 20)
-	overlay_sub.add_theme_color_override("font_color", Color("d8cbb8"))
+	overlay_sub.custom_minimum_size = Vector2(720, 48)
+	overlay_sub.font_color = Color("d8cbb8")
 	col.add_child(overlay_sub)
-	overlay_score = Label.new()
+	overlay_score = FitLabelBox.make()
+	overlay_score.show_frame = false
+	overlay_score.padding = 0
+	overlay_score.max_font_size = 32
+	overlay_score.min_font_size = 16
 	overlay_score.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	overlay_score.add_theme_font_size_override("font_size", 32)
-	overlay_score.add_theme_color_override("font_color", Color("e8c36a"))
+	overlay_score.custom_minimum_size = Vector2(720, 40)
+	overlay_score.font_color = Color("e8c36a")
 	overlay_score.visible = false
 	col.add_child(overlay_score)
 	var row := HBoxContainer.new()
@@ -1127,11 +1215,16 @@ func _build_overlay() -> void:
 
 
 func _build_copy_stamp() -> void:
-	_copy_stamp = Label.new()
-	_copy_stamp.text = PLAYER_COPY.stamp()
+	if not _authoring():
+		return
+	_copy_stamp = FitLabelBox.make()
+	_copy_stamp.show_frame = false
+	_copy_stamp.padding = 0
+	_copy_stamp.max_font_size = 12
+	_copy_stamp.min_font_size = 12
+	_copy_stamp.set_plain(PLAYER_COPY.stamp())
 	_copy_stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_copy_stamp.add_theme_font_size_override("font_size", 12)
-	_copy_stamp.add_theme_color_override("font_color", Color("8a8178"))
+	_copy_stamp.font_color = Color("8a8178")
 	_copy_stamp.z_index = 80
 	_copy_stamp.set_anchors_preset(PRESET_BOTTOM_RIGHT)
 	_copy_stamp.grow_horizontal = Control.GROW_DIRECTION_BEGIN
@@ -1142,7 +1235,7 @@ func _build_copy_stamp() -> void:
 	_copy_stamp.offset_bottom = -8
 	_copy_stamp.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_copy_stamp.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-	_copy_stamp.visible = _authoring()
+	_copy_stamp.visible = true
 	add_child(_copy_stamp)
 
 
@@ -1275,6 +1368,7 @@ func _build_dev_panel() -> void:
 func _open_dev_test() -> void:
 	if not _authoring():
 		return
+	_hide_cabin_for_run()
 	_dev_review = ""
 	_reset_run()
 	phase = "devtest"
@@ -1297,6 +1391,7 @@ func _open_dev_test() -> void:
 func _play_latest() -> void:
 	if not _authoring():
 		return
+	_hide_cabin_for_run()
 	_reset_run()
 	phase = "devtest"
 	draft_action = "place"
@@ -1542,6 +1637,9 @@ func _on_new() -> void:
 
 
 func _on_overlay_primary() -> void:
+	if phase == "defeat":
+		_go_home_loss()
+		return
 	if phase == "title":
 		_begin_run()
 	elif adventure:
@@ -1588,6 +1686,7 @@ func _reset_run() -> void:
 		draft_gate.hide_gate()
 	if _courier:
 		_courier.visible = false
+		_clear_courier_gear()
 	_walker_busy = false
 	if speech_box:
 		speech_box.hide_speech()
@@ -1598,6 +1697,8 @@ func _reset_run() -> void:
 	if wheel_view != null:
 		wheel_view.portrait_away = -1
 		wheel_view.kill_spin()
+		if wheel_view.has_method("reset_hero"):
+			wheel_view.reset_hero()
 	if sfx:
 		sfx.play("confirm_big", -8.0)
 		sfx.start_music()
@@ -1664,6 +1765,7 @@ func _reset_run() -> void:
 
 
 func _begin_run() -> void:
+	_hide_cabin_for_run()
 	_reset_run()
 	phase = "draft"
 	draft_action = "busy"
@@ -1675,6 +1777,7 @@ func _begin_run() -> void:
 
 
 func _begin_adventure() -> void:
+	_hide_cabin_for_run()
 	_reset_run()
 	adventure = true
 	dungeon_index = 1
@@ -1693,6 +1796,8 @@ func _begin_adventure() -> void:
 
 
 func _enter_dungeon_clear() -> void:
+	if wheel_view and wheel_view.has_method("play_hero"):
+		wheel_view.play_hero("victory", 2)
 	if sfx:
 		sfx.set_combat_music(false)
 		sfx.play("confirm_big", -6.0)
@@ -1703,9 +1808,13 @@ func _enter_dungeon_clear() -> void:
 		combat_stage.hide_stage()
 	_hide_hypno()
 	_undo_wall()
-	if in_tutorial or not adventure:
+	if in_tutorial:
 		phase = "victory"
 		_log("end", "cleared")
+		return
+	if not adventure:
+		_log("end", "cleared")
+		_classic_swipe_home()
 		return
 	dungeons_cleared += 1
 	_advance_bucket_counter()
@@ -1723,17 +1832,91 @@ func _adventure_leave() -> void:
 		var cid: String = str(it.get("card_id", ""))
 		if cid != "":
 			ids.append(cid)
+	var news: Array = []
 	if home_cabin:
-		home_cabin.swipe_ids(ids)
+		news = home_cabin.swipe_ids(ids)
 	if overlay:
 		overlay.visible = false
+	if rope_exit:
+		rope_exit.hide_exit()
 	_log("end", "leave")
 	if sfx:
 		sfx.play("whoosh", -10.0, 0.9)
 	await get_tree().create_timer(0.45).timeout
 	_cabin_from_leave = true
-	_open_home_cabin(true)
+	_reset_run()
+	phase = "title"
+	_open_home_cabin(true, "win", news, ids)
 	_adventure_busy = false
+
+
+func _classic_swipe_home() -> void:
+	var ids: Array = []
+	for it in hotbar:
+		var cid: String = str(it.get("card_id", ""))
+		if cid != "":
+			ids.append(cid)
+	var news: Array = []
+	if home_cabin:
+		news = home_cabin.swipe_ids(ids)
+	_reset_run()
+	phase = "title"
+	_open_home_cabin(true, "win", news, ids)
+
+
+func _hide_cabin_for_run() -> void:
+	if home_cabin:
+		home_cabin.hide_for_run()
+	if rope_exit:
+		rope_exit.hide_exit()
+	if sack_peek and sack_peek.visible:
+		sack_peek.close()
+	if overlay:
+		overlay.visible = false
+	get_tree().paused = false
+	_sync_run_hero_gear()
+
+
+func _start_route(route: String) -> void:
+	_hide_cabin_for_run()
+	if home_cabin:
+		home_cabin.note_belly(1)
+	match route:
+		"gatehouse":
+			_begin_run()
+		"long_drop":
+			_begin_adventure()
+		"shortcut":
+			_quick_start()
+		_:
+			_begin_run()
+
+
+func _go_home_loss() -> void:
+	_reset_run()
+	phase = "title"
+	_open_home_cabin(true, "loss", [], [])
+
+
+func _give_up() -> void:
+	_reset_run()
+	phase = "title"
+	_open_home_cabin(true, "loss", [], [])
+
+
+func _rope_deeper() -> void:
+	_adventure_continue()
+	if home_cabin:
+		home_cabin.note_belly(dungeon_index + 1)
+
+
+func _open_sack_peek() -> void:
+	if sack_peek:
+		if settings_ui and settings_ui.visible:
+			sack_peek.z_index = 121
+		else:
+			sack_peek.z_index = 81
+		sack_peek.open_peek()
 
 
 func _open_home_from_title() -> void:
@@ -1741,15 +1924,31 @@ func _open_home_from_title() -> void:
 	_open_home_cabin(false)
 
 
-func _open_home_cabin(walk_in: bool) -> void:
-	if home_cabin == null:
-		return
+func _cabin_up() -> bool:
+	return home_cabin != null and home_cabin.visible
+
+
+func _hide_fight_hover() -> void:
+	_fly_card = null
 	if fly_tip:
 		fly_tip.hide_plate()
-	home_cabin.open_cabin(items_by_id, tex_by_item, _buckets_revealed, walk_in)
+	if inspect:
+		inspect.visible = false
+	if speech_box and speech_box.has_method("hide_speech"):
+		speech_box.hide_speech()
+
+
+func _open_home_cabin(walk_in: bool, kind: String = "win", new_ids: Array = [], held_ids: Array = []) -> void:
+	if home_cabin == null:
+		return
+	_hide_fight_hover()
+	home_cabin.open_cabin(items_by_id, tex_by_item, _buckets_revealed, walk_in, kind, new_ids, held_ids)
 	if overlay:
 		overlay.visible = false
+	if rope_exit:
+		rope_exit.hide_exit()
 	get_tree().paused = true
+	_hide_fight_hover()
 
 
 func _on_home_cabin_closed() -> void:
@@ -1779,6 +1978,7 @@ func _cabin_item_from_id(card_id: String) -> Dictionary:
 	elif ITEM_OPS.has(card_id):
 		ops = (ITEM_OPS[card_id] as Dictionary).duplicate(true)
 	return {
+		"uid": 0,
 		"card_id": card_id,
 		"name": str(card.get("name", card_id)),
 		"ops": ops,
@@ -1798,7 +1998,19 @@ func _on_cabin_item_hovered(card_id: String, slot: Control = null) -> void:
 	_inspect_pinned = false
 	_fly_card = slot
 	var rule: Dictionary = _item_rule(it)
-	fly_tip.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule["body"]), str(rule["warn"]), null, "item", card_id, _item_look(it))
+	var journal: Dictionary = {}
+	if lore.has("items"):
+		var entry: Dictionary = lore.get("items", {}).get(card_id, {})
+		if typeof(entry) == TYPE_DICTIONARY and str(entry.get("journal", "")) != "":
+			journal = {
+				"body": str(entry.get("journal", "")),
+				"footnotes": entry.get("footnotes", []),
+				"is_new": home_cabin != null and bool(home_cabin.new_unseen.get(card_id, false)),
+			}
+	if home_cabin and home_cabin.visible and home_cabin.new_unseen.has(card_id):
+		home_cabin.new_unseen.erase(card_id)
+		home_cabin._save()
+	fly_tip.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule["body"]), str(rule["warn"]), null, "item", card_id, _item_look(it), journal)
 	_place_fly(slot)
 
 
@@ -1847,12 +2059,15 @@ func _prep_next_dungeon() -> void:
 		draft_gate.hide_gate()
 	if _courier:
 		_courier.visible = false
+		_clear_courier_gear()
 	_walker_busy = false
 	if speech_box:
 		speech_box.hide_speech()
 	if wheel_view != null:
 		wheel_view.portrait_away = -1
 		wheel_view.kill_spin()
+		if wheel_view.has_method("reset_hero"):
+			wheel_view.reset_hero()
 	hp = HP_MAX
 	blk = 0
 	facing_index = -1
@@ -1942,23 +2157,131 @@ func _play_hall_wipe() -> void:
 		_hall_wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
-func _walk_knight_off() -> void:
-	var frames: Array = []
-	if art:
-		frames = art.run_frames("knight_m")
-		if frames.is_empty():
-			frames = art.frames("knight_m")
+func _ensure_courier_gear() -> void:
+	if _courier == null:
+		return
+	if _courier_gear.size() == 4:
+		return
+	for piece in ["rope", "goggles", "cap", "helm"]:
+		var tr := TextureRect.new()
+		tr.name = "Gear_%s" % piece
+		tr.texture_filter = TEXTURE_FILTER_NEAREST
+		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tr.stretch_mode = TextureRect.STRETCH_KEEP
+		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tr.position = Vector2.ZERO
+		tr.size = Vector2(96, 96)
+		tr.visible = false
+		_courier.add_child(tr)
+		_courier_gear[piece] = tr
+
+
+func _clear_courier_gear() -> void:
+	for piece in _courier_gear.keys():
+		var tr: TextureRect = _courier_gear[piece]
+		if tr:
+			tr.texture = null
+			tr.visible = false
+
+
+func _hub_gear_worn() -> Dictionary:
+	if home_cabin:
+		return home_cabin.gear_worn
+	return {"head": "", "eyes": "", "belt": ""}
+
+
+func _sync_run_hero_gear() -> void:
+	if wheel_view and wheel_view.has_method("set_hub_gear"):
+		wheel_view.set_hub_gear(_hub_gear_worn())
+
+
+func _set_courier_hero_frame(frames: Array, fi: int) -> void:
+	_ensure_courier_gear()
 	if frames.is_empty() or _courier == null:
 		return
-	_courier.texture = frames[0]
+	var i: int = fi % frames.size()
+	_courier.texture = frames[i]
+	var worn: Dictionary = _hub_gear_worn()
+	var head: String = str(worn.get("head", ""))
+	for piece in ["rope", "goggles", "cap", "helm"]:
+		var tr: TextureRect = _courier_gear.get(piece)
+		if tr == null:
+			continue
+		var on: bool = false
+		if piece == "rope":
+			on = str(worn.get("belt", "")) == "rope"
+		elif piece == "goggles":
+			on = str(worn.get("eyes", "")) == "goggles"
+		elif piece == "cap" or piece == "helm":
+			on = head == piece
+		if not on or art == null or not art.has_method("hero_run_gear"):
+			tr.texture = null
+			tr.visible = false
+			continue
+		var gframes: Array = art.hero_run_gear(piece, "walkoff")
+		if gframes.is_empty():
+			tr.texture = null
+			tr.visible = false
+			continue
+		tr.size = Vector2(96, 96)
+		tr.position = Vector2.ZERO
+		tr.texture = gframes[i % gframes.size()]
+		tr.visible = true
+
+
+func _hero_walkoff_frames() -> Array:
+	if art and art.has_method("hero_run_anim"):
+		var frames: Array = art.hero_run_anim("walkoff")
+		if not frames.is_empty():
+			return frames
+	if art:
+		var fb: Array = art.run_frames("knight_m")
+		if fb.is_empty():
+			fb = art.frames("knight_m")
+		return fb
+	return []
+
+
+func debug_pose_courier() -> void:
+	var frames: Array = _hero_walkoff_frames()
+	if frames.is_empty() or _courier == null:
+		return
 	_courier.size = Vector2(96, 96)
 	_courier.pivot_offset = Vector2(48, 48)
-	_courier.scale = Vector2(1.35, 1.35)
+	_courier.scale = Vector2(1, 1)
 	_courier.modulate.a = 1.0
 	var start: Vector2 = Vector2(size.x * 0.46, size.y * 0.58)
 	if wheel_view:
 		start = wheel_view.global_position + wheel_view.size * Vector2(0.5, 0.62)
 	_courier.global_position = start - _courier.pivot_offset
+	_set_courier_hero_frame(frames, 1)
+	_courier.visible = true
+
+
+func _on_hero_death_floor() -> void:
+	offset_top = 4.0
+	offset_bottom = 4.0
+	var tw := create_tween()
+	tw.tween_interval(0.07)
+	tw.tween_callback(func() -> void:
+		offset_top = 0.0
+		offset_bottom = 0.0
+	)
+
+
+func _walk_knight_off() -> void:
+	var frames: Array = _hero_walkoff_frames()
+	if frames.is_empty() or _courier == null:
+		return
+	_courier.size = Vector2(96, 96)
+	_courier.pivot_offset = Vector2(48, 48)
+	_courier.scale = Vector2(1, 1)
+	_courier.modulate.a = 1.0
+	var start: Vector2 = Vector2(size.x * 0.46, size.y * 0.58)
+	if wheel_view:
+		start = wheel_view.global_position + wheel_view.size * Vector2(0.5, 0.62)
+	_courier.global_position = start - _courier.pivot_offset
+	_set_courier_hero_frame(frames, 0)
 	_courier.visible = true
 	if sfx:
 		sfx.play("cloth", -10.0)
@@ -1970,13 +2293,15 @@ func _walk_knight_off() -> void:
 	await get_tree().process_frame
 	while tw.is_running():
 		fi = (fi + 1) % frames.size()
-		_courier.texture = frames[fi]
+		_set_courier_hero_frame(frames, fi)
 		await get_tree().create_timer(0.07).timeout
 	_courier.visible = false
+	_clear_courier_gear()
 	_courier.scale = Vector2.ONE
 
 
 func _quick_start() -> void:
+	_hide_cabin_for_run()
 	_reset_run()
 	adventure = true
 	dungeon_index = 1
@@ -2034,12 +2359,173 @@ func _save_bucket_progress() -> void:
 
 
 func reset_bucket_progress() -> void:
-	_dungeons_ended = 0
-	_buckets_revealed = 0
+	_dev_set_buckets(0)
 	_guarantee_bucket = 0
+	_log("var", "buckets reset")
+
+
+func _dev_set_buckets(n: int) -> void:
+	_buckets_revealed = clampi(n, 0, BucketRules.MAX_BUCKET)
+	_dungeons_ended = _buckets_revealed
 	_save_bucket_progress()
 	_fill_pools()
-	_log("var", "buckets reset")
+	if home_cabin:
+		home_cabin.buckets_open = _buckets_revealed
+
+
+func _on_settings_closed() -> void:
+	if fly_tip:
+		fly_tip.z_index = 110
+		fly_tip.hide_plate()
+	if home_cabin:
+		home_cabin.on_pause_closed()
+
+
+func _dev_fresh_save() -> void:
+	if home_cabin:
+		home_cabin.stop_story()
+	if settings_ui:
+		settings_ui.close_menu()
+	_reset_run()
+	reset_bucket_progress()
+	phase = "title"
+	if overlay:
+		overlay.visible = false
+	if home_cabin:
+		home_cabin.items_by_id = items_by_id
+		home_cabin.tex_by_item = tex_by_item
+		home_cabin.buckets_open = _buckets_revealed
+		home_cabin.clear_to_fresh_save()
+	_refresh()
+	_log("on_click", "Fresh Save")
+
+
+func _dev_complete_save() -> void:
+	if home_cabin:
+		home_cabin.stop_story()
+	if settings_ui:
+		settings_ui.close_menu()
+	_reset_run()
+	_dev_set_buckets(BucketRules.MAX_BUCKET)
+	phase = "title"
+	if overlay:
+		overlay.visible = false
+	if home_cabin:
+		home_cabin.items_by_id = items_by_id
+		home_cabin.tex_by_item = tex_by_item
+		home_cabin.buckets_open = _buckets_revealed
+		home_cabin.fill_complete_save()
+		_open_home_cabin(false)
+		home_cabin.play_ending()
+	_log("on_click", "One Hundred Percent Complete")
+
+
+func _dev_open_buckets() -> void:
+	_show_bucket_editor()
+
+
+func _dev_open_buckets_from_roster() -> void:
+	_show_bucket_editor()
+
+
+func _show_bucket_editor() -> void:
+	if bucket_ed == null:
+		return
+	if settings_ui and settings_ui.visible:
+		settings_ui.close_menu()
+	var board: Dictionary = {}
+	if roster_ed and roster_ed.visible:
+		if roster_ed.has_method("flush_for_buckets") and not roster_ed.flush_for_buckets():
+			return
+		if roster_ed.has_method("live_board"):
+			board = roster_ed.live_board()
+	get_tree().paused = true
+	bucket_ed.open_overlay(art, items_by_id, monsters_by_id, _buckets_revealed, board)
+
+
+func _on_bucket_assignments_saved(items: Array, monsters: Array) -> void:
+	_on_roster_committed(items, monsters)
+	if roster_ed and roster_ed.visible and roster_ed.has_method("reload_from_disk"):
+		roster_ed.reload_from_disk()
+
+
+func _on_bucket_ed_closed() -> void:
+	if fly_tip:
+		fly_tip.z_index = 110
+		fly_tip.hide_plate()
+	if roster_ed and roster_ed.visible:
+		return
+	if content_ed and content_ed.visible:
+		return
+	get_tree().paused = false
+
+
+func _dev_bucket_hovered(kind: String, card_id: String, slot: Control) -> void:
+	if fly_tip == null:
+		return
+	fly_tip.z_index = 129
+	_inspect_pinned = false
+	_fly_card = slot
+	if kind == "monster":
+		var s: Dictionary = _preview_monster(card_id)
+		if s.is_empty():
+			return
+		var rule: Dictionary = _monster_rule(s)
+		var tex: Texture2D = tex_by_monster.get(card_id, null)
+		if art and art.has_method("monster_still"):
+			tex = art.monster_still(card_id)
+		fly_tip.show_rule(
+			str(rule.get("title", "")),
+			str(rule.get("value", "")),
+			str(rule.get("equation", "")),
+			str(rule.get("body", "")),
+			str(rule.get("warn", "")),
+			tex,
+			"monster",
+			card_id,
+			_monster_look(s)
+		)
+	else:
+		var it: Dictionary = _cabin_item_from_id(card_id)
+		if it.is_empty():
+			return
+		var irule: Dictionary = _item_rule(it)
+		fly_tip.show_rule(
+			str(irule.get("title", "")),
+			str(irule.get("value", "")),
+			str(irule.get("equation", "")),
+			str(irule.get("body", "")),
+			str(irule.get("warn", "")),
+			null,
+			"item",
+			card_id,
+			_item_look(it)
+		)
+	_place_fly(slot)
+
+
+func _dev_bucket_unhovered() -> void:
+	_fly_card = null
+	if fly_tip:
+		fly_tip.hide_plate()
+
+
+func _preview_monster(id: String) -> Dictionary:
+	var card: Dictionary = monsters_by_id.get(id, {})
+	if card.is_empty():
+		return {}
+	return {
+		"kind": "monster",
+		"card_id": id,
+		"name": str(card.get("name", id)),
+		"ability": str(card.get("ability", "")),
+		"explainer": str(card.get("explainer", "")),
+		"call_name": MONSTER_LINES.call_of(id, card),
+		"reminder": MONSTER_LINES.reminder_of(id, card),
+		"atk": _card_base_atk(id),
+		"hp": _card_base_hp(id),
+		"pack_tier": int(card.get("tier", 1)),
+	}
 
 
 func _advance_bucket_counter() -> void:
@@ -3327,6 +3813,8 @@ func _on_gate_send() -> void:
 	var seq: int = _mill_seq
 	draft_action = "busy"
 	_refresh()
+	if wheel_view and wheel_view.has_method("play_hero"):
+		wheel_view.play_hero("grab")
 	if sfx:
 		sfx.play("metal_latch", -6.0)
 		sfx.play("door_slam", -4.0, 0.92)
@@ -3434,6 +3922,7 @@ func _fly_courier(tex: Texture2D, from: Vector2, to: Vector2, dur: float = 0.4) 
 	if _courier == null or tex == null:
 		await get_tree().create_timer(0.08).timeout
 		return
+	_clear_courier_gear()
 	_courier.texture = tex
 	_courier.size = Vector2(96, 96)
 	_courier.pivot_offset = Vector2(48, 48)
@@ -3525,6 +4014,8 @@ func _make_monster(id: String) -> Dictionary:
 	uid_seq += 1
 	s["seat_uid"] = uid_seq
 	_apply_formulas_to(s)
+	if home_cabin and not in_tutorial:
+		home_cabin.note_met(id)
 	return s
 
 
@@ -3916,8 +4407,13 @@ func _process(delta: float) -> void:
 	if _unlock_screen:
 		_hide_board_for_unlock()
 		return
-	if fly_tip != null and fly_tip.visible:
-		_place_fly(_fly_card)
+	if _cabin_up():
+		if fly_tip != null and fly_tip.visible:
+			if _fly_card != null and is_instance_valid(_fly_card) and home_cabin.is_ancestor_of(_fly_card):
+				_place_fly(_fly_card)
+			else:
+				_hide_fight_hover()
+		return
 	_place_fight_art()
 	var sh: bool = Input.is_key_pressed(KEY_SHIFT)
 	if sh != _shift_held:
@@ -3964,6 +4460,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		_open_script()
 		get_viewport().set_input_as_handled()
 		return
+	if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F9:
+		if text_audit:
+			text_audit.toggle()
+		get_viewport().set_input_as_handled()
+		return
 	if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F4:
 		if roster_ed != null and roster_ed.visible:
 			return
@@ -3976,7 +4477,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if not event.is_action_pressed("ui_cancel"):
 		return
+	if sack_peek != null and sack_peek.visible:
+		sack_peek.close()
+		get_viewport().set_input_as_handled()
+		return
 	if settings_ui == null or settings_ui.visible:
+		return
+	if _cabin_up():
 		return
 	if content_ed != null and content_ed.visible:
 		return
@@ -3984,7 +4491,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if script_ed != null and script_ed.visible:
 		return
-	settings_ui.open_menu()
+	var in_run: bool = phase != "title"
+	settings_ui.open_menu(in_run)
 	if sfx:
 		sfx.play("open", -12.0)
 	get_viewport().set_input_as_handled()
@@ -4005,14 +4513,14 @@ func _on_pause_mode(mode: String) -> void:
 			_begin_run()
 		"adventure":
 			_begin_adventure()
-		"home":
-			_open_home_from_title()
 		"dev":
 			_open_dev_test()
 		"latest":
 			_play_latest()
 		"roster":
 			_open_roster()
+		"script":
+			_open_script()
 
 
 func _open_roster() -> void:
@@ -4035,13 +4543,17 @@ func _open_script() -> void:
 	script_ed.open_script()
 
 
-func _on_script_saved() -> void:
+func _on_script_saved(items: Array, monsters: Array) -> void:
 	PLAYER_COPY.reload()
 	if _copy_stamp:
-		_copy_stamp.text = PLAYER_COPY.stamp()
+		_copy_stamp.set_plain(PLAYER_COPY.stamp())
 	if settings_ui:
 		settings_ui.apply_copy()
 	_apply_overlay_copy()
+	if not items.is_empty() or not monsters.is_empty():
+		_on_roster_committed(items, monsters)
+		_log("on_click", "Script saved")
+		return
 	_refresh()
 	_log("on_click", "Script saved")
 
@@ -4075,6 +4587,7 @@ func _open_content_editor(kind: String, card_id: String) -> void:
 	else:
 		cat = items_by_id.get(card_id, {})
 	content_ed.open_card(kind, card_id, cat)
+	content_ed.move_to_front()
 	if sfx:
 		sfx.play("book", -10.0)
 
@@ -4086,6 +4599,8 @@ func _on_content_saved(kind: String, card_id: String, board_card: Dictionary) ->
 	_log("on_click", "Saved %s" % board_card.get("name", card_id))
 	_refresh()
 	_refresh_offer_card()
+	if bucket_ed and bucket_ed.visible:
+		bucket_ed.reload_board_keep_pending()
 
 
 func _merge_catalog_card(kind: String, board_card: Dictionary) -> void:
@@ -4364,6 +4879,8 @@ func _on_slice_right_clicked(index: int) -> void:
 
 
 func _on_slice_hovered(index: int) -> void:
+	if _cabin_up():
+		return
 	if _fly_card != null:
 		return
 	if _deck_hovering:
@@ -4920,22 +5437,18 @@ func _play_attack_blocked() -> void:
 
 func _player_down() -> void:
 	hp = 0
+	if wheel_view and wheel_view.has_method("play_hero"):
+		wheel_view.play_hero("death")
 	if adventure and not in_tutorial:
 		_advance_bucket_counter()
-	var adventure_win: bool = adventure and dungeons_cleared >= 1
-	phase = "victory" if adventure_win else "defeat"
-	_log("end", "cleared" if adventure_win else "dead")
-	_flash_screen(Color("e8c36a") if adventure_win else Color("c45c5c"), 0.28)
+	phase = "defeat"
+	_log("end", "dead")
+	_flash_screen(Color("c45c5c"), 0.28)
 	if sfx:
 		sfx.set_combat_music(false)
-		if adventure_win:
-			sfx.play("confirm_big", -6.0)
-			sfx.play_event(&"sting.victory")
-			sfx.music_victory()
-		else:
-			sfx.play("error_big", -6.0)
-			sfx.play_event(&"sting.defeat")
-			sfx.music_defeat()
+		sfx.play("error_big", -6.0)
+		sfx.play_event(&"sting.defeat")
+		sfx.music_defeat()
 	if combat_stage:
 		combat_stage.hide_stage()
 	_hide_hypno()
@@ -5212,6 +5725,7 @@ func _undo_kill_motion() -> void:
 		combat_stage.busy = false
 	if _courier:
 		_courier.visible = false
+		_clear_courier_gear()
 	if get_tree() != null:
 		for tw in get_tree().get_processed_tweens():
 			if tw != null and tw.is_valid():
@@ -5541,6 +6055,8 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 	var m: Dictionary = wheel[facing_index]
 	var kind: String = str(ops.get("kind", ""))
 	var view: Dictionary = _item_view(it)
+	if kind.begins_with("atk") and kind != "atk_zero" and kind != "atk_drop":
+		_hero_swipe_armed = true
 	await _announce_item_use(it, _item_fx_dest(kind))
 	if str(it.get("card_id", "")) == "echo_bell":
 		if sfx:
@@ -5615,10 +6131,10 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 		"heal_kills":
 			var flask_n: int = 1 + mobs_defeated
 			_log("on_item_use", str(it["name"]))
-			_heal(flask_n)
+			await _heal(flask_n)
 		"heal_full":
 			_log("on_item_use", str(it["name"]))
-			_heal(6)
+			await _heal(6)
 		"egg_hurt":
 			var egg_atk: int = _atk_with_head(int(ops.get("n", 2)))
 			_log("on_item_use", str(it["name"]))
@@ -5692,7 +6208,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 		"heal_keep":
 			var lantern_n: int = int(ops.get("n", 2))
 			_log("on_item_use", str(it["name"]))
-			_heal(lantern_n)
+			await _heal(lantern_n)
 			it["keep_after"] = hp < HP_MAX
 		"blk_last":
 			if last_blk_gain <= 0:
@@ -5794,7 +6310,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			await _count_item_use()
 			_toss_item(int(it["uid"]), false)
 			await _play_ended_visuals()
-			_heal(stored)
+			await _heal(stored)
 			await _clear_after_fight(false)
 			_maybe_auto_spin()
 			return
@@ -6366,16 +6882,17 @@ func _slay_ogre_at(index: int) -> void:
 func _flash_banner(msg: String) -> void:
 	if play_field == null or msg.strip_edges() == "":
 		return
-	var lab := Label.new()
-	lab.text = msg
+	var lab: FitLabelBox = FitLabelBox.make()
+	lab.show_frame = false
+	lab.padding = 0
+	var long_line: bool = msg.length() > 28
+	lab.max_font_size = 22 if long_line else 28
+	lab.min_font_size = 16
+	lab.set_plain(msg)
 	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	var long_line: bool = msg.length() > 28
-	lab.add_theme_font_size_override("font_size", 22 if long_line else 28)
-	lab.add_theme_color_override("font_color", Color("f0e6d8"))
-	lab.add_theme_color_override("font_outline_color", Color("100e0c"))
-	lab.add_theme_constant_override("outline_size", 6)
-	lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if long_line else TextServer.AUTOWRAP_OFF
+	lab.font_color = Color("f0e6d8")
+	lab.set_outline(Color("100e0c"), 6)
 	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	lab.z_index = 40
 	play_field.add_child(lab)
@@ -6395,14 +6912,16 @@ func _flash_banner(msg: String) -> void:
 func _flash_banner_at(msg: String, at: Vector2) -> void:
 	if play_field == null or msg.strip_edges() == "":
 		return
-	var lab := Label.new()
-	lab.text = msg
+	var lab: FitLabelBox = FitLabelBox.make()
+	lab.show_frame = false
+	lab.padding = 0
+	lab.max_font_size = 20
+	lab.min_font_size = 16
+	lab.set_plain(msg)
 	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lab.add_theme_font_size_override("font_size", 20)
-	lab.add_theme_color_override("font_color", Color("f0e6d8"))
-	lab.add_theme_color_override("font_outline_color", Color("100e0c"))
-	lab.add_theme_constant_override("outline_size", 6)
+	lab.font_color = Color("f0e6d8")
+	lab.set_outline(Color("100e0c"), 6)
 	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	lab.z_index = 45
 	play_field.add_child(lab)
@@ -6604,6 +7123,8 @@ func _try_commander_flee(index: int) -> bool:
 	if index == facing_index:
 		await _flee_spin()
 	else:
+		if wheel_view and wheel_view.slay_index == index:
+			wheel_view.clear_slay()
 		_refresh()
 	return true
 
@@ -6929,6 +7450,7 @@ func _walker_depart(index: int) -> void:
 func _walker_restore(index: int) -> void:
 	if _courier:
 		_courier.visible = false
+		_clear_courier_gear()
 		_courier.flip_h = false
 		_courier.size = Vector2(96, 96)
 		_courier.scale = Vector2.ONE
@@ -7264,9 +7786,13 @@ func _heal(n: int) -> int:
 	hp = mini(HP_MAX, hp + maxi(0, n))
 	var gained: int = hp - before
 	_log("hp", "heal %s  →  %s" % [gained, hp])
-	_refresh_hearts()
 	if gained <= 0:
 		return 0
+	if wheel_view and wheel_view.has_method("play_hero"):
+		wheel_view.play_hero("heal")
+		if wheel_view.has_method("wait_hero_frame"):
+			await wheel_view.wait_hero_frame("heal", 2)
+	_refresh_hearts()
 	_flash_screen(Color("8fd18f"), 0.28)
 	if sfx:
 		sfx.play_event(&"heal.gain", {"n": gained})
@@ -7483,13 +8009,9 @@ func _merchant_ask() -> void:
 	if hotbar.is_empty():
 		_log("on_spin", "merchant no items")
 		return
-	var ids: Array = []
-	for it in hotbar:
-		if bool(it.get("spent", false)):
-			continue
-		ids.append(int(it.get("uid", -1)))
+	var ids: Array = _merchant_legal_uids()
 	if ids.is_empty():
-		_log("on_spin", "merchant no items")
+		_log("on_spin", "merchant no upgrade")
 		return
 	pending_feed = {"uids": ids, "kind": "upgrade"}
 	_cube_line = "Pick an item. I will upgrade it."
@@ -7508,25 +8030,44 @@ func _stored_item_tier(it: Dictionary) -> int:
 	return int(it.get("pack_tier", 1))
 
 
-func _upgrade_pool(from_id: String, dest_tier: int, same_tier: bool) -> Array:
+func _upgrade_dest_tier(stored: int) -> int:
+	return stored + 1 if stored < 3 else 3
+
+
+func _upgrade_pool(dest_tier: int) -> Array:
+	var held: Dictionary = _challenge_held_counts()
 	var out: Array = []
-	for id in items_by_id.keys():
+	for id in item_pool:
 		var sid: String = str(id)
-		if same_tier and sid == from_id:
+		var card: Dictionary = items_by_id.get(sid, {})
+		if card.is_empty():
 			continue
-		var card: Dictionary = items_by_id[id]
 		if int(card.get("tier", 1)) != dest_tier:
 			continue
 		var status: String = str(card.get("status", "live"))
 		if status == "retired" or status == "hold":
 			continue
-		var flags: Variant = card.get("flags", {})
-		if typeof(flags) == TYPE_DICTIONARY and bool((flags as Dictionary).get("hide", false)):
-			continue
-		if not _bucket_open(card):
+		var cap: int = maxi(0, int(card.get("count", 1)))
+		if int(held.get(sid, 0)) >= cap:
 			continue
 		out.append(sid)
 	return out
+
+
+func _merchant_legal_uids() -> Array:
+	var ids: Array = []
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if bool(it.get("spent", false)):
+			continue
+		var uid: int = int(it.get("uid", -1))
+		if uid < 0:
+			continue
+		if _upgrade_pool(_upgrade_dest_tier(_stored_item_tier(it))).is_empty():
+			continue
+		ids.append(uid)
+	return ids
 
 
 func _upgrade_item(uid: int) -> void:
@@ -7541,19 +8082,24 @@ func _upgrade_item(uid: int) -> void:
 		_cube_line = ""
 		_refresh()
 		return
-	var stored: int = _stored_item_tier(it)
-	var dest: int = stored + 1 if stored < 3 else 3
-	var from_id: String = str(it.get("card_id", ""))
-	var pool: Array = _upgrade_pool(from_id, dest, dest == stored)
-	pending_feed = {}
-	_cube_line = ""
+	var dest: int = _upgrade_dest_tier(_stored_item_tier(it))
+	var pool: Array = _upgrade_pool(dest)
 	if pool.is_empty():
 		_log("on_spin", "no upgrade for %s" % str(it.get("name", "?")))
 		if sfx:
 			sfx.play("error", -10.0)
+		var rest: Array = _merchant_legal_uids()
+		if rest.is_empty():
+			pending_feed = {}
+			_cube_line = ""
+		else:
+			pending_feed = {"uids": rest, "kind": "upgrade"}
 		_refresh()
 		return
 	var new_id: String = str(pool[rng.randi() % pool.size()])
+	item_pool.erase(new_id)
+	pending_feed = {}
+	_cube_line = ""
 	var fresh: Dictionary = _make_item(new_id)
 	for i in hotbar.size():
 		if int(hotbar[i].get("uid", -1)) == uid:
@@ -7670,7 +8216,7 @@ func _hand_pierce() -> bool:
 func _kind_deals_atk(kind: String) -> bool:
 	if kind == "atk_zero" or kind == "atk_drop":
 		return false
-	return kind.begins_with("atk") or kind == "egg_hurt" or kind == "choose"
+	return kind.begins_with("atk") or kind == "egg_hurt"
 
 
 func _atk_with_head(n: int) -> int:
@@ -7867,6 +8413,12 @@ func _telegraph_pass(path: Array) -> void:
 
 
 func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: bool = false, head_done: bool = false) -> bool:
+	if _hero_swipe_armed:
+		_hero_swipe_armed = false
+		if wheel_view and wheel_view.has_method("play_hero"):
+			wheel_view.play_hero("swipe")
+			if wheel_view.has_method("wait_hero_frame"):
+				await wheel_view.wait_hero_frame("swipe", 2)
 	if not head_done:
 		n = _atk_with_head(n)
 		head_done = true
@@ -7993,6 +8545,8 @@ func _flee_spin(_shuffle: bool = false) -> void:
 	pending_chaos.clear()
 	pending_feed = {}
 	_hide_hypno()
+	if wheel_view:
+		wheel_view.clear_slay()
 	_refresh()
 	if combat_stage:
 		await combat_stage.vanish()
@@ -8968,7 +9522,9 @@ func _live_item_count() -> int:
 
 func _find_item(uid: int) -> Dictionary:
 	for it in hotbar:
-		if int(it["uid"]) == uid:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if int(it.get("uid", -1)) == uid:
 			return it
 	return {}
 
@@ -9004,7 +9560,7 @@ func _toggle_log() -> void:
 	if log_label:
 		log_label.visible = _log_open
 	if log_btn:
-		log_btn.text = "Hide log" if _log_open else "Log"
+		log_btn.text = PLAYER_COPY.text("combat.log_hide", "Hide log") if _log_open else PLAYER_COPY.text("combat.log", "Log")
 	_place_log_overlay()
 	if sfx:
 		sfx.play("switch", -14.0)
@@ -9031,7 +9587,7 @@ func _sync_log_panel() -> void:
 		_log_open = false
 	log_label.visible = _log_open
 	if log_btn:
-		log_btn.text = "Hide log" if _log_open else "Log"
+		log_btn.text = PLAYER_COPY.text("combat.log_hide", "Hide log") if _log_open else PLAYER_COPY.text("combat.log", "Log")
 	_place_log_overlay()
 
 
@@ -9370,6 +9926,7 @@ func _refresh_blk(punch: bool) -> void:
 		wheel_view.set_vitals(hp, HP_MAX, _ghost_hp, blk, _ghost_blk)
 		if wheel_view.has_method("set_hub_pierce"):
 			wheel_view.set_hub_pierce(_hand_pierce() and phase == "fighting")
+		_sync_run_hero_gear()
 	if punch and _ghost_blk < 0 and blk > _blk_shown and _blk_shown >= 0:
 		_punch_blk()
 	if _ghost_blk < 0:
@@ -9495,7 +10052,7 @@ func _format_keyword_token(tok: String) -> String:
 	if low == "atk" or low == "blk" or low == "hp":
 		return prefix + low.to_upper() + suffix
 	if low == "always":
-		return prefix + "always" + suffix
+		return prefix + "Always" + suffix
 	if _is_word_num(low) or _token_has_digit(core):
 		return tok
 	if _is_keyword_stem(low):
@@ -9684,7 +10241,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["value"] = _value_bb("Attack", "−1 / −2 / −3", atk_c)
 				out["body"] = "Click 1, 2, or 3. The facing owner's Attack drops by that much after their own ability and Commander, then stays there this fight. Owners whose Attack always equals a number ignore this."
 				if fighting and _atk_is_always(m):
-					out["warn"] = "Their Attack always equals that number. This will not change the plate."
+					out["warn"] = "Their Attack Always equals that number. This will not change the plate."
 			elif spike_n or str(it.get("card_id", "")) == "spiked_shield":
 				var spike_atk: int = _atk_with_head(2)
 				out["value"] = "%s    %s" % [_value_bb("Attack", str(spike_atk), atk_c), _value_bb("Block", "2", blk_c)]
@@ -9840,7 +10397,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["value"] = _value_bb("Attack", "−1 / −2 / −3", atk_c)
 			out["body"] = "Click 1, 2, or 3. The facing owner's Attack drops by that much after their own ability and Commander, then stays there this fight. Owners whose Attack always equals a number ignore this."
 			if fighting and _atk_is_always(m):
-				out["warn"] = "Their Attack always equals that number. This will not change the plate."
+				out["warn"] = "Their Attack Always equals that number. This will not change the plate."
 		"heal_keep":
 			out["value"] = _value_bb("Heal", "2", hp_c)
 			out["equation"] = "(%s) then Keep if still missing HP" % _bb(hp_c, "2")
@@ -10013,6 +10570,9 @@ func _idle_inspect() -> void:
 
 
 func _fill_inspect_from_slice(index: int) -> void:
+	if _cabin_up():
+		_hide_fight_hover()
+		return
 	if index < 0 or index >= wheel.size():
 		_idle_inspect()
 		return
@@ -10038,6 +10598,8 @@ func _fill_inspect_from_slice(index: int) -> void:
 
 
 func _refresh_monster_plates() -> void:
+	if _cabin_up():
+		return
 	if _deck_hovering:
 		_fill_inspect_from_deck()
 	elif _hover_slice >= 0:
@@ -10074,14 +10636,38 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 	else:
 		pos = get_global_mouse_position() + Vector2(20.0, 16.0)
 	var vp: Vector2 = get_viewport_rect().size
-	pos.x = clampf(pos.x, 8.0, maxf(8.0, vp.x - sz.x - 8.0))
+	var room: float = 250.0 if bool(fly_tip.get("_pin_always")) else 8.0
+	pos.x = clampf(pos.x, 8.0, maxf(8.0, vp.x - sz.x - room))
 	pos.y = clampf(pos.y, 8.0, maxf(8.0, vp.y - sz.y - 8.0))
+	var tip_r := Rect2(pos, sz)
+	for other in [face_box, inspect, speech_box]:
+		if other == null or other == fly_tip or not (other is Control):
+			continue
+		var oc: Control = other
+		if not oc.visible or not oc.is_visible_in_tree():
+			continue
+		var orr: Rect2 = oc.get_global_rect()
+		if not tip_r.intersects(orr):
+			continue
+		var left_x: float = orr.position.x - sz.x - 12.0
+		if left_x >= 8.0:
+			pos.x = left_x
+		else:
+			pos.x = orr.end.x + 12.0
+		pos.x = clampf(pos.x, 8.0, maxf(8.0, vp.x - sz.x - 8.0))
+		pos.y = clampf(pos.y, 8.0, maxf(8.0, vp.y - sz.y - 8.0))
+		tip_r = Rect2(pos, sz)
 	fly_tip.global_position = pos
 	fly_tip.size = sz
+	if fly_tip.has_method("pin_always_def"):
+		fly_tip.pin_always_def()
 
 
 func _place_speech() -> void:
 	if speech_box == null:
+		return
+	if _cabin_up():
+		speech_box.hide_speech()
 		return
 	if overlay != null and overlay.visible:
 		speech_box.hide_speech()
@@ -10531,8 +11117,8 @@ func _set_cue(_t: String) -> void:
 func _refresh_face() -> void:
 	if face_box == null:
 		return
-	var show: bool = (phase == "fighting" or phase == "slaying") and facing_index >= 0 and facing_index < wheel.size()
-	if not show:
+	var show_plate: bool = (phase == "fighting" or phase == "slaying") and facing_index >= 0 and facing_index < wheel.size()
+	if not show_plate:
 		face_box.hide_plate()
 		if combat_stage and phase != "slaying" and phase != "fighting":
 			combat_stage.hide_stage()
@@ -10542,7 +11128,7 @@ func _refresh_face() -> void:
 		return
 	var m: Dictionary = wheel[facing_index]
 	var rule: Dictionary = _monster_rule(m)
-	face_box.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), "", str(rule.get("warn", "")), null, "monster", str(m.get("card_id", "")), _monster_plate_look(m, rule))
+	face_box.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule.get("speech", "")), str(rule.get("warn", "")), null, "monster", str(m.get("card_id", "")), _monster_plate_look(m, rule))
 	var atk_s: String = str(m.get("atk", 0))
 	var hp_s: String = str(m.get("hp", 0))
 	if (atk_s != _face_atk_shown and _face_atk_shown != "") or (hp_s != _face_hp_shown and _face_hp_shown != ""):
@@ -10587,6 +11173,8 @@ func _sync_challenge_peek() -> void:
 
 
 func _on_deck_hovered() -> void:
+	if _cabin_up():
+		return
 	if _fly_card != null:
 		return
 	if challenge_deck.is_empty() or _peek_slice.is_empty():
@@ -10601,6 +11189,8 @@ func _on_deck_hovered() -> void:
 
 func _on_deck_unhovered() -> void:
 	_deck_hovering = false
+	if _cabin_up():
+		return
 	if _fly_card != null:
 		return
 	if wheel_view != null and int(wheel_view.hover_index) >= 0:
@@ -10616,6 +11206,9 @@ func _on_deck_edit() -> void:
 
 
 func _fill_inspect_from_deck() -> void:
+	if _cabin_up():
+		_hide_fight_hover()
+		return
 	if inspect:
 		inspect.visible = false
 	if fly_tip == null:
@@ -10764,7 +11357,7 @@ func _sync_buttons() -> void:
 			btn_undo.visible = false
 		if btn_redo:
 			btn_redo.visible = false
-	btn_start.visible = phase == "title" or (overlay != null and overlay.visible)
+	btn_start.visible = _authoring() and (phase == "title" or (overlay != null and overlay.visible))
 	btn_start.modulate = Color.WHITE
 	if in_tutorial:
 		btn_start.disabled = true
@@ -10778,6 +11371,8 @@ func _sync_buttons() -> void:
 func _sync_overlay() -> void:
 	if home_cabin != null and home_cabin.visible:
 		overlay.visible = false
+		if rope_exit:
+			rope_exit.visible = false
 		return
 	if _unlock_screen:
 		_hide_board_for_unlock()
@@ -10785,55 +11380,59 @@ func _sync_overlay() -> void:
 	if in_tutorial and tut != null and tut.visible:
 		overlay.visible = false
 		return
-	var show: bool = phase == "title" or phase == "victory" or phase == "defeat" or phase == "rest"
-	overlay.visible = show
-	var on_title: bool = phase == "title"
+	if phase == "title":
+		overlay.visible = false
+		if rope_exit:
+			rope_exit.visible = false
+		if home_cabin:
+			home_cabin.items_by_id = items_by_id
+			home_cabin.tex_by_item = tex_by_item
+			home_cabin.buckets_open = _buckets_revealed
+			if home_cabin.intro_pending():
+				home_cabin.play_intro()
+			elif not home_cabin.visible:
+				home_cabin.show_menu()
+			get_tree().paused = true
+		return
+	if phase == "rest":
+		overlay.visible = false
+		if rope_exit:
+			rope_exit.open_exit(dungeons_cleared)
+		return
+	if phase == "victory":
+		overlay.visible = false
+		return
+	var show_defeat: bool = phase == "defeat"
+	overlay.visible = show_defeat
 	if overlay_dive:
-		overlay_dive.visible = on_title
+		overlay_dive.visible = false
 	if overlay_tut:
-		overlay_tut.visible = on_title
+		overlay_tut.visible = false
 	if overlay_adventure:
-		overlay_adventure.visible = on_title
+		overlay_adventure.visible = false
 	if overlay_home:
-		overlay_home.visible = on_title
+		overlay_home.visible = false
 	if overlay_dev:
-		overlay_dev.visible = on_title and _authoring()
+		overlay_dev.visible = false
 	if overlay_latest:
-		overlay_latest.visible = on_title and _authoring()
+		overlay_latest.visible = false
 	if overlay_tools_row:
-		overlay_tools_row.visible = on_title and _authoring()
+		overlay_tools_row.visible = false
 	if overlay_rest_row:
-		overlay_rest_row.visible = phase == "rest"
+		overlay_rest_row.visible = false
+	if overlay_sub:
+		overlay_sub.visible = false
 	if overlay_btn:
-		overlay_btn.visible = phase != "rest"
+		overlay_btn.visible = true
 	if overlay_undo:
-		overlay_undo.visible = _undo_can_undo() and (phase == "defeat" or phase == "victory")
+		overlay_undo.visible = _undo_can_undo() and phase == "defeat"
 	if overlay_score:
-		overlay_score.visible = adventure and (phase == "victory" or phase == "defeat")
+		overlay_score.visible = adventure and phase == "defeat"
 		if overlay_score.visible:
 			overlay_score.text = PLAYER_COPY.fill("title.dungeons_cleared", {"n": dungeons_cleared}, "Dungeons cleared: %s" % dungeons_cleared)
-	if phase == "title":
-		overlay_title.text = PLAYER_COPY.text("title.overlay", "Swipe")
-		overlay_sub.text = PLAYER_COPY.text("title.sub", "Steal the shiny. Fight who owned it. Begin is the door. Dive In skips it.")
-		overlay_btn.text = PLAYER_COPY.text("title.begin", "Adventure Mode")
-	elif phase == "rest":
-		overlay_title.text = PLAYER_COPY.text("title.rest", "Another hall")
-		overlay_sub.text = PLAYER_COPY.fill("title.rest_sub", {"n": dungeons_cleared}, "Dungeon %s is behind you. Leftover cards stay. Heal to full." % dungeons_cleared)
-	elif phase == "victory":
-		if adventure:
-			overlay_title.text = PLAYER_COPY.text("title.adventure_win", "Victory")
-			overlay_sub.text = ""
-		else:
-			overlay_title.text = PLAYER_COPY.text("title.win", "Kept it")
-			overlay_sub.text = PLAYER_COPY.text("title.win_sub", "The pile is yours.")
-		overlay_btn.text = PLAYER_COPY.text("title.again", "Again")
-	elif phase == "defeat":
+	if phase == "defeat":
 		overlay_title.text = PLAYER_COPY.text("title.lose", "Caught")
-		if adventure:
-			overlay_sub.text = ""
-		else:
-			overlay_sub.text = PLAYER_COPY.text("title.lose_sub", "They took it all back.")
-		overlay_btn.text = PLAYER_COPY.text("title.again", "Again")
+		overlay_btn.text = PLAYER_COPY.text("defeat.home", "")
 
 
 func _rebuild_tray() -> void:
@@ -10950,7 +11549,11 @@ func _sync_hotbar() -> void:
 			hotbar_box.remove_child(c)
 			c.queue_free()
 		for it in hotbar:
-			hotbar_box.add_child(_spawn_item_card(it, true))
+			if typeof(it) != TYPE_DICTIONARY:
+				continue
+			var spawned: Control = _spawn_item_card(it, true)
+			if spawned:
+				hotbar_box.add_child(spawned)
 		if adventure:
 			for _e in range(maxi(0, empties)):
 				hotbar_box.add_child(_make_hot_empty())
@@ -11049,11 +11652,50 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if _authoring():
 		card.edit_wanted.connect(_open_content_editor.bind("item", str(it.get("card_id", ""))))
 	if usable:
-		card.picked.connect(_use_item.bind(int(it["uid"])))
+		card.picked.connect(_use_item.bind(int(it.get("uid", 0))))
+		_attach_hand_glint(card, str(it.get("card_id", "")))
 	return card
 
 
+func _attach_hand_glint(card: Control, card_id: String) -> void:
+	if home_cabin == null or card_id == "" or home_cabin.is_swiped(card_id):
+		return
+	if BucketRules.is_token(items_by_id.get(card_id, {}).get("bucket", 0)):
+		return
+	var glint := AnimatedSprite2D.new()
+	glint.centered = true
+	glint.position = card.size * 0.5
+	glint.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var mat := CanvasItemMaterial.new()
+	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	glint.material = mat
+	var sf := SpriteFrames.new()
+	sf.add_animation("g")
+	sf.set_animation_speed("g", 12.0)
+	sf.set_animation_loop("g", false)
+	for i in 5:
+		var tex: Texture2D = load("res://assets/dungeon/home/fx/hand_glint_f%d.png" % i) if ResourceLoader.exists("res://assets/dungeon/home/fx/hand_glint_f%d.png" % i) else null
+		if tex:
+			sf.add_frame("g", tex)
+	glint.sprite_frames = sf
+	card.add_child(glint)
+	var timer := Timer.new()
+	timer.wait_time = randf_range(4.0, 7.0)
+	timer.one_shot = true
+	timer.autostart = true
+	timer.timeout.connect(func() -> void:
+		if is_instance_valid(glint) and glint.sprite_frames:
+			glint.play("g")
+		if is_instance_valid(timer) and timer.is_inside_tree():
+			timer.wait_time = randf_range(4.0, 7.0)
+			timer.start()
+	)
+	card.add_child(timer)
+
+
 func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
+	if _cabin_up():
+		return
 	_fly_card = card
 	if sfx:
 		sfx.hover()
@@ -11072,6 +11714,8 @@ func _on_item_unhovered() -> void:
 	_apply_preview({})
 	if fly_tip:
 		fly_tip.hide_plate()
+	if _cabin_up():
+		return
 	if _deck_hovering:
 		_fill_inspect_from_deck()
 	elif wheel_view != null and int(wheel_view.hover_index) >= 0:
@@ -11112,6 +11756,7 @@ func _rebuild_choice() -> void:
 
 
 func _start_tutorial() -> void:
+	_hide_cabin_for_run()
 	_tut_boot = true
 	_tut_next_dungeon = false
 	_tut_intro_step = {}
@@ -11166,6 +11811,9 @@ func _tut_skip() -> void:
 	in_tutorial = false
 	if tut:
 		tut.close()
+	if home_cabin:
+		home_cabin.tutorial_declined = true
+		home_cabin._save()
 	_reset_run()
 	phase = "title"
 	_refresh()
@@ -11175,6 +11823,9 @@ func _tut_finished() -> void:
 	in_tutorial = false
 	if tut:
 		tut.close()
+	if home_cabin:
+		home_cabin.tutorial_done = true
+		home_cabin._save()
 	_reset_run()
 	phase = "title"
 	_refresh()

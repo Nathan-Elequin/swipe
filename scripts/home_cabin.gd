@@ -1,17 +1,67 @@
 extends ColorRect
-## Walk home, click the door, look at shelves. Collection only — no spend.
+## Cabin is the main menu. Collection only — no spend. Gear is cosmetic.
 
 signal closed
 signal inspect_wanted(card_id: String)
 signal item_hovered(card_id: String, slot: Control)
 signal item_unhovered
+signal route_chosen(route: String)
+signal tutorial_wanted
+signal quit_wanted
 
 const SAVE_PATH := "user://home_cabin.json"
 const COPY := preload("res://scripts/player_copy.gd")
+const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const PX := 4.0
+const ARRIVE_WALK_SPEED := 32.0
+const ARRIVE_INT_SPEED := 51.2
+const ROOM_W := 1680.0
+const ROOM_ORDER: Array[String] = ["main", "hall", "study", "workshop", "loft"]
+const STATION_BEDS := ["cabin", "station_inn", "station_rag", "station_harp"]
 
 var seen: Dictionary = {}
 var swiped: Dictionary = {}
+var new_unseen: Dictionary = {}
+var intro_seen: bool = false
+var nib_first_done: bool = false
+var tutorial_done: bool = false
+var tutorial_declined: bool = false
+var rooms_unlocked: Array = ["main"]
+var key_ring_seen: bool = false
+var ending_seen: bool = false
+var deepest_belly: int = 0
+var met_monsters: Dictionary = {}
+var last_route: String = ""
+var radio_station: int = 0
+var gear_worn: Dictionary = {"head": "", "eyes": "", "belt": ""}
+var letters_read: Array = []
+var bestiary_read: Array = []
+var will_read: bool = false
+var drawer_hint_said: bool = false
+var drawer_opened: bool = false
+var geode_on_mantel: bool = false
+var drawer_stuck_index: int = 0
+var milestones_said: Array = []
+var nib_idle_index: int = 0
+var counters: Dictionary = {"delves": 0, "homecomings": 0, "hauls": 0, "losses": 0}
+var _raw_save: Dictionary = {}
+var lore: Dictionary = {}
+var layout: Dictionary = {}
+var extra: Dictionary = {}
+var catalog: Dictionary = {}
+var return_room: String = "main"
+var trunk_open: bool = false
+var _current_room: String = "main"
+var _overlay_name: String = ""
+var _pan_busy: bool = false
+var _menu_on: bool = false
+var _homecoming_kind: String = ""
+var _held_ids: Array = []
+var _new_ids: Array = []
+var _gear_last: String = ""
+var _geode_line: int = 0
+var settings_ui
+
 var art
 var sfx
 var items_by_id: Dictionary = {}
@@ -20,6 +70,28 @@ var buckets_open: int = 0
 
 var _ext_root: Control
 var _int_root: Control
+var _rooms_clip: Control
+var _rooms_host: Control
+var _rooms: Dictionary = {}
+var _toast: TextureRect
+var _toast_lab
+var _hover_tag
+var _overlays: Control
+var _dialog
+var _cutscene
+var _story_seq: int = 0
+var _map
+var _radio
+var _journal
+var _will
+var _drawer
+var _card
+var _editor_strip: VBoxContainer
+var _gauge: TextureProgressBar
+var _hero_layers: Dictionary = {}
+var _rocking: bool = false
+var _rock_i: int = 1
+var _limp: Sprite2D
 var _ext_bg: TextureRect
 var _int_bg: TextureRect
 var _door: TextureRect
@@ -31,6 +103,10 @@ var _hero: Sprite2D
 var _sack: Sprite2D
 var _fire: AnimatedSprite2D
 var _rock: AnimatedSprite2D
+var _chair_empty: Sprite2D
+var _chair_hit: Control
+var _arrive_pending_name: String = ""
+var _arrive_pending_room: String = ""
 var _step_fi: int = -1
 var _cat_sfx_t: float = 8.0
 var _fade: ColorRect
@@ -57,6 +133,9 @@ var _lantern_glow: TextureRect
 var _fire_glow: TextureRect
 var _hover_id: String = ""
 var _arriving: bool = false
+var _arrive_skip: int = 0
+var _arrive_gen: int = 0
+var _arrive_motion: Tween
 var _door_busy: bool = false
 var _glints: Array = []
 var _just_mounted: Array = []
@@ -69,11 +148,16 @@ var _beat: String = ""
 var _rng := RandomNumberGenerator.new()
 
 
-func setup(p_art = null, p_sfx = null) -> void:
+func setup(p_art = null, p_sfx = null, p_lore: Dictionary = {}, p_layout: Dictionary = {}, p_catalog: Dictionary = {}) -> void:
 	art = p_art
 	sfx = p_sfx
+	lore = p_lore
+	layout = p_layout
+	extra = layout.get("extra", {}) if typeof(layout.get("extra", {})) == TYPE_DICTIONARY else {}
+	catalog = p_catalog
+	name = "CabinRoot"
 	visible = false
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	color = Color(0, 0, 0, 1)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	z_index = 95
@@ -94,66 +178,376 @@ func note_seen(id: String) -> void:
 	_save()
 
 
-func swipe_ids(ids: Array) -> void:
+func swipe_ids(ids: Array) -> Array:
 	var changed := false
 	_just_mounted.clear()
+	var news: Array = []
 	for raw in ids:
 		var sid: String = str(raw)
 		if sid == "" or sid == "spider_egg":
+			continue
+		if BucketRules.is_token(items_by_id.get(sid, {}).get("bucket", 0)):
 			continue
 		seen[sid] = true
 		if not bool(swiped.get(sid, false)):
 			swiped[sid] = true
 			_just_mounted.append(sid)
+			new_unseen[sid] = true
+			news.append(sid)
 			changed = true
 	if changed:
 		_save()
+	return news
 
 
-func open_cabin(p_items: Dictionary, p_tex: Dictionary, p_buckets: int, walk_in: bool) -> void:
+func note_met(monster_id: String) -> void:
+	var sid: String = str(monster_id)
+	if sid == "" or bool(met_monsters.get(sid, false)):
+		return
+	met_monsters[sid] = true
+	_save()
+
+
+func note_belly(n: int) -> void:
+	if n > deepest_belly:
+		deepest_belly = n
+		_save()
+
+
+func is_swiped(id: String) -> bool:
+	return bool(swiped.get(str(id), false))
+
+
+func cabinet_progress() -> Vector2i:
+	var total := 0
+	var home_n := 0
+	for id in items_by_id.keys():
+		var card: Dictionary = items_by_id[id]
+		if str(card.get("status", "live")) in ["retired", "hold"]:
+			continue
+		if BucketRules.is_token(card.get("bucket", 0)):
+			continue
+		total += 1
+		if bool(swiped.get(str(id), false)):
+			home_n += 1
+	return Vector2i(home_n, total)
+
+
+func is_room_unlocked(id: String) -> bool:
+	return rooms_unlocked.has(id)
+
+
+func shelf_page() -> int:
+	return _room
+
+
+func shelf_page_max() -> int:
+	return _max_room
+
+
+func journal_has_unread() -> bool:
+	for id in met_monsters.keys():
+		if not bestiary_read.has(str(id)):
+			return true
+	return false
+
+
+func mark_bestiary_read(id: String) -> void:
+	if id == "" or bestiary_read.has(id):
+		return
+	if bool(met_monsters.get(id, false)):
+		bestiary_read.append(id)
+		_save()
+
+
+func trunk_has_unread() -> bool:
+	for letter in lore.get("letters", []):
+		if typeof(letter) != TYPE_DICTIONARY:
+			continue
+		var need: int = int(letter.get("unlock_pct", 100))
+		var p: Vector2i = cabinet_progress()
+		var pct: int = 0 if p.y <= 0 else int(round(100.0 * float(p.x) / float(p.y)))
+		if pct >= need and not letters_read.has(str(letter.get("id", ""))):
+			return true
+	return false
+
+
+func intro_pending() -> bool:
+	return not intro_seen and _beat != "intro" and not (_cutscene and _cutscene.is_playing())
+
+
+func open_cabin(p_items: Dictionary, p_tex: Dictionary, p_buckets: int, walk_in: bool, kind: String = "win", new_ids: Array = [], held_ids: Array = []) -> void:
 	items_by_id = p_items
 	tex_by_item = p_tex
 	buckets_open = p_buckets
+	_homecoming_kind = kind
+	_new_ids = new_ids.duplicate()
+	_held_ids = held_ids.duplicate()
 	visible = true
 	_arriving = walk_in
 	_door_busy = false
 	_room_busy = false
 	_door_glow_open = false
+	_menu_on = true
 	if not walk_in:
 		_just_mounted.clear()
 	_room = _start_room()
-	_show_exterior()
-	_rebuild_shelves()
 	if walk_in:
+		_arrive_gen += 1
+		_arrive_skip = 0
+		_arrive_pending_name = ""
+		_arrive_pending_room = ""
+		_set_idle_hero_visible(false)
+		if _rock:
+			_rock.visible = false
+		_show_exterior()
+		_rebuild_shelves()
 		_beat = "pan"
 		var t := get_tree().create_timer(0.02, true, true, true)
 		t.timeout.connect(_play_arrive, CONNECT_ONE_SHOT)
 	else:
-		_beat = "rest"
-	if sfx:
-		sfx.play("cloth", -12.0)
-		if sfx.has_method("play_event"):
-			sfx.play_event(&"cabin.open")
-		if sfx.has_method("music_cabin"):
-			sfx.music_cabin()
+		show_menu("main")
+
+
+func show_menu(room: String = "main") -> void:
+	items_by_id = items_by_id
+	visible = true
+	_menu_on = true
+	_arriving = false
+	_ext_root.visible = false
+	_int_root.visible = true
+	_current_room = room if is_room_unlocked(room) else "main"
+	_snap_to(_current_room)
+	_start_interior_loops()
+	_rebuild_shelves()
+	_refresh_rooms()
+	_beat = "idle"
+	_play_station()
+	_stop_rock()
+	_hero.visible = false
+	_show_empty_chair(true)
+	_set_idle_hero_visible(false)
+	_hide_limp_sack()
+	if not nib_first_done and _dialog:
+		nib_first_done = true
+		_save()
+		_dialog.say(["nib.first.1", "nib.first.2", "nib.first.3"])
+		await _dialog.finished
+	_apply_gate()
+
+
+func hide_for_run() -> void:
+	item_unhovered.emit()
+	_silence_cabin()
+	_stop_rock()
+	visible = false
+	_menu_on = false
+	_beat = ""
+
+
+func play_homecoming(kind: String, new_ids: Array, held_ids: Array) -> void:
+	_homecoming_kind = kind
+	_new_ids = new_ids.duplicate()
+	_held_ids = held_ids.duplicate()
+	open_cabin(items_by_id, tex_by_item, buckets_open, true, kind, new_ids, held_ids)
+
+
+func play_intro(is_replay: bool = false) -> void:
+	visible = true
+	_menu_on = true
+	_arriving = false
+	_ext_root.visible = false
+	_int_root.visible = true
+	_beat = "intro"
+	_story_seq += 1
+	var seq: int = _story_seq
+	if is_replay:
+		if not is_room_unlocked("study"):
+			_grant_all_rooms()
+		_snap_to("study")
+	else:
+		_snap_to("main")
+	_start_interior_loops()
+	if _cutscene:
+		_cutscene.play("intro", {"replay": is_replay})
+		await _cutscene.finished
+	if seq != _story_seq or not visible:
+		return
+	if is_replay:
+		_beat = "idle"
+		_play_station()
+		_snap_to("study")
+		_refresh_rooms()
+		return
+	intro_seen = true
+	_save()
+	show_menu("main")
+
+
+func play_key_ring() -> void:
+	if key_ring_seen:
+		return
+	visible = true
+	_menu_on = true
+	_ext_root.visible = false
+	_int_root.visible = true
+	_beat = "keyring"
+	_room_busy = true
+	_snap_to("main")
+	_start_interior_loops()
+	var main_room = _rooms.get("main")
+	var nib = main_room.nib if main_room else null
+	if nib and nib.sprite_frames:
+		nib.play("gasp")
+	KIT.cue(sfx, &"speech.nib_gasp")
+	await _wait(0.5)
+	if not visible:
+		return
+	if nib and nib.sprite_frames:
+		nib.play("walk")
+	await _move_nib_x(120.0, 0.6)
+	await _move_nib_x(216.0, 0.6)
+	if nib and nib.sprite_frames:
+		nib.play("idle")
+	if _cutscene:
+		_cutscene.play("keyring")
+		await _cutscene.finished
+	if not visible:
+		return
+	var ring: AnimatedSprite2D = KIT.anim_sprite(
+		["props/key_ring_f0.png", "props/key_ring_f1.png", "props/key_ring_f2.png"],
+		"k", 1000.0 / 120.0, true, Vector2(14, 8)
+	)
+	ring.z_index = 6
+	if nib:
+		nib.add_child(ring)
+		if ring.sprite_frames:
+			ring.play("k")
+	KIT.cue(sfx, &"cabin.key_jingle")
+	if nib and nib.sprite_frames:
+		nib.play("walk")
+	await _move_nib_x(352.0, 1.0)
+	if nib and nib.sprite_frames:
+		nib.play("idle")
+	await _unlock_spot("main", "SideDoor", "hall", "", false)
+	await _pan_unlocked("hall")
+	await _say_key("keyring.door.hall")
+	await _unlock_spot("hall", "SideDoor", "study", "", false)
+	await _pan_unlocked("study")
+	await _say_key("keyring.door.study")
+	await _unlock_spot("study", "SideDoor", "workshop", "", false)
+	await _pan_unlocked("workshop")
+	await _say_key("keyring.door.workshop")
+	await _unlock_spot("workshop", "Ladder", "loft", "", true)
+	await _pan_unlocked("loft")
+	await _say_key("keyring.door.loft")
+	await _pan_unlocked("main")
+	await _move_nib_x(216.0, 0.6)
+	if is_instance_valid(ring):
+		ring.queue_free()
+	if nib and nib.sprite_frames:
+		nib.play("idle")
+	if _dialog:
+		_dialog.say(["keyring.done"])
+		await _dialog.finished
+	key_ring_seen = true
+	_room_busy = false
+	_beat = "idle"
+	_save()
+	for r in _rooms.values():
+		if r.has_method("request_bg"):
+			r.request_bg()
+			r.ensure_bg()
+	_refresh_rooms()
+	_apply_gate()
+
+
+func play_ending() -> void:
+	if ending_seen:
+		return
+	visible = true
+	_menu_on = true
+	_ext_root.visible = false
+	_int_root.visible = true
+	_beat = "ending"
+	_story_seq += 1
+	var seq: int = _story_seq
+	_snap_to("main")
+	_start_interior_loops()
+	if _cutscene:
+		_cutscene.play("ending")
+		await _cutscene.finished
+	if seq != _story_seq or not visible:
+		return
+	ending_seen = true
+	_save()
+	show_menu("main")
+	await _play_cheer()
+	if seq != _story_seq:
+		return
+	if _dialog:
+		_dialog.say([], ["ending.continue"])
+		await _dialog.finished
+	if seq != _story_seq:
+		return
+	_play_station()
+	_beat = "idle"
+	await _wait(0.6)
+	if seq != _story_seq:
+		return
+	if not drawer_hint_said:
+		KIT.cue(sfx, &"cabin.drawer_unlatch")
+		if _dialog:
+			_dialog.say(["drawer.hint"])
+			await _dialog.finished
+		drawer_hint_said = true
+		_save()
+		_refresh_rooms()
+	_apply_gate()
+
+
+func _grant_all_rooms() -> void:
+	for id in ROOM_ORDER:
+		if not rooms_unlocked.has(id):
+			rooms_unlocked.append(id)
+	key_ring_seen = true
+	_save()
+	_refresh_rooms()
+	for r in _rooms.values():
+		if r.has_method("request_bg"):
+			r.request_bg()
+			r.ensure_bg()
 
 
 func close_cabin() -> void:
 	item_unhovered.emit()
-	if sfx and sfx.has_method("loop_stop_all"):
-		sfx.loop_stop_all(0.8)
+	_silence_cabin()
 	if sfx and sfx.has_method("play_event"):
 		sfx.play_event(&"cabin.close")
 	visible = false
 	closed.emit()
 
 
+func _silence_cabin() -> void:
+	if _radio and _radio.has_method("stop_static"):
+		_radio.stop_static()
+	if _radio:
+		_radio.visible = false
+	_overlay_name = ""
+	if _rock:
+		_rock.stop()
+	if sfx and sfx.has_method("stop_cue_voices"):
+		sfx.stop_cue_voices(&"cabin.rock")
+	if sfx and sfx.has_method("loop_stop_all"):
+		sfx.loop_stop_all(0.8)
+
+
 func _home(name: String) -> Texture2D:
-	if art == null:
-		return null
-	if art.has_method("home_tex"):
-		return art.home_tex(name)
-	return null
+	if art and art.has_method("home_tex"):
+		var t: Texture2D = art.home_tex(name)
+		if t:
+			return t
+	return KIT.load_tex(name)
 
 
 func _px(n: float) -> float:
@@ -164,13 +558,51 @@ func _pt(x: float, y: float) -> Vector2:
 	return Vector2(x, y) * PX
 
 
-func _wait(sec: float) -> void:
-	await get_tree().create_timer(sec, true, true, true).timeout
+func _wait(sec: float, ignore_skip: bool = false) -> void:
+	if sec <= 0.0:
+		return
+	var left: float = sec
+	while left > 0.0:
+		if not ignore_skip and _arriving and _arrive_skip != 0:
+			return
+		var step: float = minf(left, 0.04)
+		await get_tree().create_timer(step, true, true, true).timeout
+		left -= step
+
+
+func _make_arrive_tween() -> Tween:
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.pause()
+	_arrive_motion = tw
+	return tw
+
+
+func _await_arrive_tween(tw: Tween) -> void:
+	if tw == null or not is_instance_valid(tw):
+		return
+	if _arrive_skip != 0:
+		tw.kill()
+		if _arrive_motion == tw:
+			_arrive_motion = null
+		return
+	var done: Array = [false]
+	tw.finished.connect(func() -> void:
+		done[0] = true
+	, CONNECT_ONE_SHOT)
+	tw.play()
+	while is_instance_valid(tw) and not bool(done[0]):
+		if _arrive_skip != 0:
+			tw.kill()
+			break
+		await get_tree().create_timer(0.02, true, true, true).timeout
+	if _arrive_motion == tw:
+		_arrive_motion = null
 
 
 func _build() -> void:
 	_ext_root = Control.new()
-	_ext_root.set_anchors_preset(PRESET_FULL_RECT)
+	_ext_root.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_ext_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_ext_root)
 	_ext_bg = _full_bg(_ext_root)
@@ -223,86 +655,34 @@ func _build() -> void:
 	_door_hit.position = _pt(232, 126)
 	_door_hit.size = _pt(60, 74)
 	_door_hit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_door_hit.z_index = 8
 	_door_hit.pressed.connect(_on_door)
 	_ext_root.add_child(_door_hit)
 	_clear_button(_door_hit)
 
-	_int_root = Control.new()
-	_int_root.set_anchors_preset(PRESET_FULL_RECT)
-	_int_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_int_root.visible = false
-	add_child(_int_root)
-	_int_bg = _full_bg(_int_root)
-	_fire_glow = _overlay(_int_root, "fire_glow", 0, 136)
-	_glows.append(_glow_d(_fire_glow, 0.75, 1.0, 0.6, 1.2, 0.06, 0.06, 0.10))
-	_fire = AnimatedSprite2D.new()
-	_fire.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_fire.centered = false
-	_fire.position = _pt(76, 164)
-	_int_root.add_child(_fire)
-	_sack = Sprite2D.new()
-	_sack.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_sack.centered = false
-	_sack.visible = false
-	_sack.position = _pt(70, 205)
-	_sack.flip_h = true
-	_int_root.add_child(_sack)
-	_rock = AnimatedSprite2D.new()
-	_rock.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_rock.centered = false
-	_rock.position = _pt(10, 205)
-	_rock.visible = false
-	_int_root.add_child(_rock)
-	_hole = Control.new()
-	_hole.position = _pt(140, 20)
-	_hole.size = _pt(260, 160)
-	_hole.clip_contents = true
-	_hole.mouse_filter = Control.MOUSE_FILTER_STOP
-	_int_root.add_child(_hole)
-	_shelf_host = Control.new()
-	_shelf_host.position = Vector2.ZERO
-	_shelf_host.size = _hole.size
-	_shelf_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hole.add_child(_shelf_host)
-	_cordon = TextureRect.new()
-	_cordon.set_anchors_preset(PRESET_FULL_RECT)
-	_cordon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_cordon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_cordon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_cordon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_cordon.visible = false
-	_hole.add_child(_cordon)
-	_shelf_fade = ColorRect.new()
-	_shelf_fade.set_anchors_preset(PRESET_FULL_RECT)
-	_shelf_fade.color = Color(0.07, 0.05, 0.04, 0)
-	_shelf_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_shelf_fade.visible = false
-	_hole.add_child(_shelf_fade)
-	_prev_btn = _make_gallery_door(true)
-	_next_btn = _make_gallery_door(false)
-	_int_root.add_child(_prev_btn)
-	_int_root.add_child(_next_btn)
-	_pips = HBoxContainer.new()
-	_pips.alignment = BoxContainer.ALIGNMENT_CENTER
-	_pips.add_theme_constant_override("separation", 8)
-	_pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_pips.z_index = 5
-	_int_root.add_child(_pips)
-	_back = Button.new()
-	_back.text = COPY.text("title.leave", "Exit")
-	_back.position = Vector2(24, 24)
-	_back.size = Vector2(160, 52)
-	_back.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	_back.pressed.connect(close_cabin)
-	_back.z_index = 5
-	UxStyle.dress_title_button(_back, 160)
-	_int_root.add_child(_back)
-
+	_rooms_clip = Control.new()
+	_rooms_clip.name = "RoomsClip"
+	_rooms_clip.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_rooms_clip.clip_contents = true
+	_rooms_clip.mouse_filter = Control.MOUSE_FILTER_STOP
+	_rooms_clip.visible = false
+	add_child(_rooms_clip)
+	_int_root = _rooms_clip
+	_rooms_host = Control.new()
+	_rooms_host.name = "RoomsHost"
+	_rooms_host.position = Vector2.ZERO
+	_rooms_host.size = Vector2(ROOM_W * 5.0, 1040.0)
+	_rooms_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_rooms_clip.add_child(_rooms_host)
+	_build_rooms()
+	_build_chrome()
+	_build_overlays()
 	_fade = ColorRect.new()
 	_fade.color = Color(0, 0, 0, 0)
-	_fade.set_anchors_preset(PRESET_FULL_RECT)
+	_fade.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_fade.visible = false
+	_fade.z_index = 20
 	add_child(_fade)
 	_apply_art()
 
@@ -310,7 +690,7 @@ func _build() -> void:
 func _full_bg(host: Control) -> TextureRect:
 	var bg := TextureRect.new()
 	bg.name = "bg"
-	bg.set_anchors_preset(PRESET_FULL_RECT)
+	bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	bg.stretch_mode = TextureRect.STRETCH_KEEP
 	bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -367,18 +747,25 @@ func _clear_button(b: Button) -> void:
 
 func _apply_art() -> void:
 	_ext_bg.texture = _home("cabin_exterior")
-	_int_bg.texture = _home("cabin_interior")
+	if _int_bg:
+		_int_bg.texture = _home("cabin_interior")
 	_door.texture = _home("cabin_door_closed")
 	_window_glow.texture = _home("window_glow")
 	_door_glow.texture = _home("door_glow")
 	_lantern_glow.texture = _home("lantern_glow")
-	_fire_glow.texture = _home("fire_glow")
+	if _fire_glow:
+		_fire_glow.texture = _home("rooms/room_main_fire_glow.png")
 	_lantern.sprite_frames = _frames("swing", ["lantern_swing_f0", "lantern_swing_f1", "lantern_swing_f2", "lantern_swing_f1"], 5.0, true)
 	_smoke.sprite_frames = _frames("puff", ["smoke_puff_f0", "smoke_puff_f1", "smoke_puff_f2"], 1000.0 / 260.0, true)
-	_fire.sprite_frames = _frames("burn", ["fire_f0", "fire_f1", "fire_f2"], 1000.0 / 150.0, true)
-	_rock.sprite_frames = _frames("rock", ["hero_rock_f1", "hero_rock_f2", "hero_rock_f3", "hero_rock_f0"], 4.0, true)
+	if _fire:
+		_fire.sprite_frames = _frames("burn", ["fire_f0", "fire_f1", "fire_f2"], 1000.0 / 150.0, true)
+	if _rock:
+		_rock.sprite_frames = _frames("rock", ["hero_rock_f1", "hero_rock_f2", "hero_rock_f3", "hero_rock_f0"], 4.0, true)
+	if _chair_empty:
+		_chair_empty.texture = _home("chair_empty")
 	_cat.texture = _home("cat_idle_f0")
-	_sack.texture = _home("loot_sack_dropped")
+	if _sack:
+		_sack.texture = _home("loot_sack_dropped")
 
 
 func _frames(anim: String, stems: Array, fps: float, loop: bool) -> SpriteFrames:
@@ -404,7 +791,7 @@ func _show_exterior() -> void:
 	_host_hero(_ext_root)
 	_hero.flip_h = false
 	_hero.visible = false
-	_rock.visible = false
+	_stop_rock()
 	if _lantern.sprite_frames:
 		_lantern.play("swing")
 	if _smoke.sprite_frames:
@@ -430,91 +817,167 @@ func _place_hero(origin: Vector2) -> void:
 	_hero.position = _pt(x, origin.y)
 
 
+func _arrive_alive(gen: int) -> bool:
+	return visible and gen == _arrive_gen
+
+
 func _play_arrive() -> void:
 	if not visible:
 		return
+	var gen: int = _arrive_gen
 	_arriving = true
-	_door_busy = true
-	_door_hit.disabled = true
+	_door_busy = false
+	_door_hit.disabled = false
+	_set_idle_hero_visible(false)
+	if _rock:
+		_rock.visible = false
 	_beat = "pan"
 	_host_hero(_ext_root)
 	_hero.z_index = 1
 	_hero.visible = true
 	_hero.flip_h = false
-	_hero.texture = _home("hero_walk_loot_f0")
+	_set_wide_offset(false)
+	_set_hero_frame(_walk_family(true), 0)
 	_place_hero(Vector2(-30, 218))
 	_ext_root.position = Vector2(280, 0)
-	var pan := create_tween()
-	pan.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	pan.set_trans(Tween.TRANS_CUBIC)
-	pan.set_ease(Tween.EASE_OUT)
-	pan.tween_property(_ext_root, "position", Vector2.ZERO, 0.6)
-	if sfx:
-		sfx.play("whoosh", -14.0, 0.9)
-	await pan.finished
-	if not visible:
+	if _arrive_skip == 0:
+		var pan := _make_arrive_tween()
+		pan.set_trans(Tween.TRANS_CUBIC)
+		pan.set_ease(Tween.EASE_OUT)
+		pan.tween_property(_ext_root, "position", Vector2.ZERO, 0.6)
+		if sfx:
+			sfx.play("whoosh", -14.0, 0.9)
+		await _await_arrive_tween(pan)
+		if not _arrive_alive(gen):
+			return
+	if _arrive_skip == 0:
+		_beat = "walk"
+		await _walk_path()
+		if not _arrive_alive(gen):
+			return
+	if _arrive_skip == 0:
+		_place_hero(Vector2(242, 175))
+		_set_hero_frame("hero_idle_blink", 0)
+		_beat = "door"
+		if sfx:
+			sfx.play("door_open", -10.0)
+		for stem in ["cabin_door_open_f0", "cabin_door_open_f1", "cabin_door_open_f2"]:
+			var tex: Texture2D = _home(stem)
+			if tex:
+				_door.texture = tex
+			await _wait(0.08)
+			if _arrive_skip != 0:
+				break
+		_door_glow_open = true
+		_beat = "enter"
+		_hero.z_index = 2
+		if _arrive_skip == 0:
+			await _walk_hero(Vector2(242, 175), Vector2(248, 148), true, false)
+			if not _arrive_alive(gen):
+				return
+	if _arrive_skip != 0 or _ext_root.visible:
+		_beat = "fade"
+		await _cut_arrive_to_interior()
+		if not _arrive_alive(gen):
+			return
+		if _arrive_skip == 1:
+			_arrive_skip = 0
+	if _arrive_skip >= 2:
+		await _sit_into_chair(true)
+	else:
+		_set_idle_hero_visible(false)
+		_show_empty_chair(true)
+		_hero.z_index = 4
+		_hero.visible = true
+		_hero.flip_h = true
+		_place_hero(Vector2(388, 205))
+		_set_hero_frame(_walk_family(true), 0)
+		_beat = "int_walk"
+		await _walk_hero(Vector2(388, 205), Vector2(70, 205), true, true, -1.0, ARRIVE_INT_SPEED)
+		if not _arrive_alive(gen):
+			return
+		if _arrive_skip >= 2:
+			await _sit_into_chair(true)
+		else:
+			_beat = "drop"
+			if _homecoming_kind == "loss":
+				await _play_sack_shake()
+			else:
+				_set_hero_frame("hero_idle_loot", 0)
+				await _wait(0.5)
+				_set_hero_frame("hero_idle_loot", 1)
+				await _wait(0.5)
+				await _play_sack_dump()
+				await _play_cheer()
+			if not _arrive_alive(gen):
+				return
+			if _homecoming_kind != "loss":
+				_sack.visible = true
+				_sack.texture = _home("loot_sack_dropped")
+				_sack.flip_h = true
+				_place_sack(Vector2(70, 205))
+			await _wait(0.3)
+			if _arrive_skip >= 2:
+				await _sit_into_chair(true)
+			else:
+				_beat = "to_chair"
+				await _walk_hero(Vector2(70, 205), Vector2(10, 205), false, true, -1.0, ARRIVE_INT_SPEED)
+				if not _arrive_alive(gen):
+					return
+				_hero.flip_h = false
+				_place_hero(Vector2(10, 205))
+				_beat = "sit"
+				await _play_sit()
+				if not _arrive_alive(gen):
+					return
+				_settle_arrive_chair()
+	if not _arrive_alive(gen):
 		return
-	_beat = "walk"
-	await _walk_path()
-	if not visible:
-		return
-	_place_hero(Vector2(242, 175))
-	_hero.texture = _home("hero_idle_blink_f0")
-	_beat = "door"
-	if sfx:
-		sfx.play("door_open", -10.0)
-	for stem in ["cabin_door_open_f0", "cabin_door_open_f1", "cabin_door_open_f2"]:
-		var tex: Texture2D = _home(stem)
-		if tex:
-			_door.texture = tex
-		await _wait(0.08)
-	_door_glow_open = true
-	_beat = "enter"
-	_hero.z_index = 2
-	await _walk_hero(Vector2(242, 175), Vector2(248, 148), true, false)
-	if not visible:
-		return
-	_beat = "fade"
-	await _fade_to_interior()
-	if not visible:
-		return
-	_host_hero(_int_root)
-	_hero.z_index = 1
-	_hero.visible = true
-	_hero.flip_h = true
-	_place_hero(Vector2(388, 205))
-	_hero.texture = _home("hero_walk_loot_f0")
-	_beat = "int_walk"
-	await _walk_hero(Vector2(388, 205), Vector2(70, 205), true, true)
-	if not visible:
-		return
-	_beat = "drop"
-	await _play_drop()
-	if not visible:
-		return
-	_sack.visible = true
-	_sack.texture = _home("loot_sack_dropped")
-	_sack.flip_h = true
-	_place_sack(Vector2(70, 205))
-	await _wait(0.3)
-	_beat = "to_chair"
-	await _walk_hero(Vector2(70, 205), Vector2(10, 205), false, true)
-	if not visible:
-		return
-	_hero.flip_h = false
-	_place_hero(Vector2(10, 205))
-	_beat = "sit"
-	await _play_sit()
-	if not visible:
-		return
-	_hero.visible = false
-	_rock.visible = true
-	if _rock.sprite_frames:
-		_rock.play("rock")
-		_hook_rock()
-	_beat = "rock"
 	_arriving = false
 	_door_busy = false
+	_door_hit.disabled = true
+	_show_empty_chair(false)
+	if _arrive_pending_name != "":
+		var pending_n: String = _arrive_pending_name
+		var pending_r: String = _arrive_pending_room
+		_arrive_pending_name = ""
+		_arrive_pending_room = ""
+		counters.homecomings = int(counters.get("homecomings", 0)) + 1
+		if _homecoming_kind == "loss":
+			counters.losses = int(counters.get("losses", 0)) + 1
+		else:
+			counters.hauls = int(counters.get("hauls", 0)) + 1
+		_save()
+		_beat = "idle"
+		_play_station()
+		_apply_gate()
+		_on_hotspot(pending_n, pending_r)
+		return
+	counters.homecomings = int(counters.get("homecomings", 0)) + 1
+	if _homecoming_kind == "loss":
+		counters.losses = int(counters.get("losses", 0)) + 1
+	else:
+		counters.hauls = int(counters.get("hauls", 0)) + 1
+		var p: Vector2i = cabinet_progress()
+		if p.y > 0:
+			var pct: int = int(round(100.0 * float(p.x) / float(p.y)))
+			for m in [25, 50, 75]:
+				if pct >= m and not milestones_said.has(m):
+					milestones_said.append(m)
+					if _dialog:
+						_dialog.say(["nib.milestone.%d" % m])
+			if pct >= 100 and not ending_seen:
+				_save()
+				await play_ending()
+				return
+		if int(counters.hauls) >= 1 and not key_ring_seen:
+			_save()
+			await play_key_ring()
+			return
+	_save()
+	_beat = "idle"
+	_play_station()
+	_apply_gate()
 
 
 func _place_sack(origin: Vector2) -> void:
@@ -537,38 +1000,32 @@ func _walk_path() -> void:
 		if i > 0:
 			dist += prev.distance_to(pt)
 		prev = pt
-	var dur: float = maxf(0.8, dist / 32.0)
+	var dur: float = maxf(0.8, dist / ARRIVE_WALK_SPEED)
 	_hero.flip_h = false
-	var tw := create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	var tw := _make_arrive_tween()
 	tw.set_trans(Tween.TRANS_LINEAR)
 	tw.tween_method(func(t: float) -> void:
 		var feet: Vector2 = _cubic(p0, p1, p2, p3, t)
 		_place_hero(Vector2(feet.x - 16.0, feet.y - 30.0))
 		var fi: int = int(t * dur * 8.0) % 4
 		_foot(fi)
-		var tex: Texture2D = _home("hero_walk_loot_f%s" % fi)
-		if tex:
-			_hero.texture = tex
+		_set_hero_frame(_walk_family(true), fi)
 	, 0.0, 1.0, dur)
-	await tw.finished
-	_place_hero(Vector2(242, 175))
+	await _await_arrive_tween(tw)
+	if _arrive_skip == 0:
+		_place_hero(Vector2(242, 175))
 
 
 func _begin_walk(from: Vector2, to: Vector2, loot: bool, flipped: bool, dur: float) -> Tween:
 	_hero.flip_h = flipped
 	_place_hero(from)
-	var tw := create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	var tw := _make_arrive_tween()
 	tw.set_trans(Tween.TRANS_LINEAR)
 	tw.tween_method(func(t: float) -> void:
 		_place_hero(from.lerp(to, t))
 		var fi: int = int(t * dur * 8.0) % 4
 		_foot(fi)
-		var stem: String = ("hero_walk_loot_f%s" if loot else "hero_walk_f%s") % fi
-		var tex: Texture2D = _home(stem)
-		if tex:
-			_hero.texture = tex
+		_set_hero_frame(_walk_family(loot), fi)
 	, 0.0, 1.0, dur)
 	tw.tween_callback(func() -> void:
 		_place_hero(to)
@@ -576,44 +1033,80 @@ func _begin_walk(from: Vector2, to: Vector2, loot: bool, flipped: bool, dur: flo
 	return tw
 
 
-func _walk_hero(from: Vector2, to: Vector2, loot: bool, flipped: bool, dur: float = -1.0) -> void:
+func _walk_hero(from: Vector2, to: Vector2, loot: bool, flipped: bool, dur: float = -1.0, speed: float = ARRIVE_WALK_SPEED) -> void:
 	var dist: float = from.distance_to(to)
 	if dur < 0.0:
-		dur = maxf(0.25, dist / 32.0)
+		dur = maxf(0.25, dist / speed)
 	var tw: Tween = _begin_walk(from, to, loot, flipped, dur)
-	await tw.finished
+	await _await_arrive_tween(tw)
 
 
 func _play_drop() -> void:
+	await _play_sack_dump()
+
+
+func _play_sack_dump() -> void:
 	_hero.flip_h = true
 	_place_hero(Vector2(70, 205))
-	var stems := ["hero_drop_sack_f0", "hero_drop_sack_f1", "hero_drop_sack_f2", "hero_drop_sack_f3"]
-	var durs := [0.14, 0.14, 0.22, 0.16]
-	for i in stems.size():
-		var tex: Texture2D = _home(stems[i])
-		if tex:
-			_hero.texture = tex
+	_set_wide_offset(true)
+	var durs := [0.12, 0.20, 0.26, 0.26, 0.30]
+	for i in durs.size():
+		_set_hero_frame("hero_sack_dump", i)
 		if i == 2:
 			_bump()
-			if sfx and sfx.has_method("play_event"):
-				sfx.play_event(&"cabin.sack")
+			KIT.cue(sfx, &"cabin.hero_yip")
+			await _spawn_sack_pops()
 		await _wait(durs[i])
+	_set_wide_offset(false)
+
+
+func _play_sack_shake() -> void:
+	_hero.flip_h = true
+	_place_hero(Vector2(70, 205))
+	_set_wide_offset(true)
+	var durs := [0.12, 0.16, 0.16, 0.16, 0.40, 0.50]
+	for i in durs.size():
+		_set_hero_frame("hero_sack_shake", i)
+		if i == 0:
+			KIT.cue(sfx, &"cabin.sack")
+		if i == 1:
+			KIT.cue(sfx, &"cabin.sack_shake")
+		if i == 2:
+			_spawn_moth()
+		if i == 4:
+			KIT.cue(sfx, &"cabin.sack_empty")
+			KIT.cue(sfx, &"sting.empty")
+		if i == 5:
+			KIT.cue(sfx, &"cabin.hero_sigh")
+		await _wait(durs[i])
+	_set_wide_offset(false)
+	_spawn_limp_sack()
+
+
+func _sit_into_chair(fast: bool = false) -> void:
+	_kill_arrive_motion()
+	_set_idle_hero_visible(false)
+	_hero.visible = true
+	_hero.z_index = 4
+	await _play_sit(fast)
+	_settle_arrive_chair()
 
 
 func _play_sit(fast: bool = false) -> void:
+	_show_empty_chair(false)
 	_hero.flip_h = false
+	_hero.z_index = 4
+	_hero.visible = true
 	_place_hero(Vector2(10, 205))
-	var stems := ["hero_sit_f0", "hero_sit_f1", "hero_sit_f2", "hero_sit_f3", "hero_sit_f4"]
 	var durs := [0.08, 0.06, 0.06, 0.10, 0.12] if fast else [0.15, 0.12, 0.11, 0.20, 0.25]
-	for i in stems.size():
-		var tex: Texture2D = _home(stems[i])
-		if tex:
-			_hero.texture = tex
+	_set_wide_offset(false)
+	for i in durs.size():
+		_set_hero_frame("hero_sit", i)
 		if i == 3:
 			_bump()
 			if sfx and sfx.has_method("play_event"):
 				sfx.play_event(&"cabin.sit")
-		await _wait(durs[i])
+		await _wait(durs[i], true)
 
 
 func _foot(fi: int) -> void:
@@ -631,6 +1124,8 @@ func _hook_rock() -> void:
 
 
 func _on_rock_loop() -> void:
+	if not visible or _rock == null or not _rock.visible or not _rock.is_playing():
+		return
 	if sfx and sfx.has_method("play_event"):
 		sfx.play_event(&"cabin.rock")
 
@@ -656,8 +1151,14 @@ func _fade_to_interior() -> void:
 	await tw.finished
 	_ext_root.visible = false
 	_int_root.visible = true
+	_current_room = "main"
+	_snap_to("main")
+	_set_idle_hero_visible(false)
 	_start_interior_loops()
 	_rebuild_shelves()
+	var main_room = _rooms.get("main", null)
+	if main_room:
+		_host_hero(main_room)
 	tw = create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.tween_property(_fade, "color:a", 0.0, 0.2)
@@ -757,8 +1258,85 @@ func _cubic(a: Vector2, b: Vector2, c: Vector2, d: Vector2, t: float) -> Vector2
 	return a * (u * u * u) + b * (3.0 * u * u * t) + c * (3.0 * u * t * t) + d * (t * t * t)
 
 
+func _kill_arrive_motion() -> void:
+	if _arrive_motion and is_instance_valid(_arrive_motion):
+		_arrive_motion.kill()
+	_arrive_motion = null
+
+
+func _set_idle_hero_visible(on: bool) -> void:
+	var main_room = _rooms.get("main")
+	if main_room == null:
+		return
+	var hs = main_room.spots.get("Hero", null)
+	if hs:
+		hs.visible = on
+
+
+func _show_empty_chair(on: bool) -> void:
+	if _chair_empty == null:
+		return
+	if on and _chair_empty.texture == null:
+		var tex: Texture2D = _home("chair_empty")
+		if tex:
+			_chair_empty.texture = tex
+	_chair_empty.visible = on
+	if _chair_hit:
+		_chair_hit.visible = on
+		_chair_hit.mouse_filter = Control.MOUSE_FILTER_STOP if on else Control.MOUSE_FILTER_IGNORE
+
+
+func _on_empty_chair_input(ev: InputEvent) -> void:
+	if not (ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT):
+		return
+	if _arriving and _int_root.visible:
+		_arrive_skip = maxi(_arrive_skip, 2)
+		_kill_arrive_motion()
+		get_viewport().set_input_as_handled()
+		return
+	if _busy():
+		return
+	_on_chair()
+	get_viewport().set_input_as_handled()
+
+
+func _cut_arrive_to_interior() -> void:
+	_kill_arrive_motion()
+	_ext_root.position = Vector2.ZERO
+	if _arrive_skip != 0:
+		var open_tex: Texture2D = _home("cabin_door_open_f2")
+		if open_tex:
+			_door.texture = open_tex
+		_door_glow_open = true
+		if sfx:
+			sfx.play("door_open", -10.0)
+	_set_idle_hero_visible(false)
+	if _rock:
+		_rock.visible = false
+	await _fade_to_interior()
+	_door_hit.disabled = true
+
+
+func _settle_arrive_chair() -> void:
+	_kill_arrive_motion()
+	_hero.visible = false
+	_show_empty_chair(false)
+	_set_idle_hero_visible(false)
+	if _sack and _homecoming_kind != "loss":
+		_sack.visible = true
+		_sack.texture = _home("loot_sack_dropped")
+		_sack.flip_h = true
+		_place_sack(Vector2(70, 205))
+	_start_rock()
+	_snap_to("main")
+
+
 func _on_door() -> void:
-	if _int_root.visible or _door_busy or _arriving:
+	if _arriving and _ext_root.visible:
+		_arrive_skip = maxi(_arrive_skip, 1)
+		_kill_arrive_motion()
+		return
+	if _int_root.visible or _door_busy:
 		return
 	_door_busy = true
 	_door_hit.disabled = true
@@ -771,12 +1349,9 @@ func _on_door() -> void:
 		await _wait(0.08)
 	_door_glow_open = true
 	await _fade_to_interior()
-	_hero.visible = false
-	_rock.visible = true
-	if _rock.sprite_frames:
-		_rock.play("rock")
-		_hook_rock()
-	_beat = "rock"
+	_set_idle_hero_visible(false)
+	_show_empty_chair(false)
+	_start_rock()
 	_door_busy = false
 
 
@@ -845,51 +1420,13 @@ func _carve(count: int, hole: Vector2, cell: Vector2) -> Dictionary:
 
 
 func _place_nav() -> void:
-	if _hole == null:
-		return
-	var y: float = _pt(0, 100).y
-	_prev_btn.position = Vector2(_pt(8, 0).x, y)
-	_next_btn.position = Vector2(_hole.position.x + _hole.size.x - _next_btn.size.x + 12.0, y)
-	_prev_btn.visible = _room > 0
-	_next_btn.visible = _room < _max_room
-	_prev_btn.modulate.a = 0.35 if _room_busy else 1.0
-	_next_btn.modulate.a = 0.35 if _room_busy else 1.0
-	if _pips:
-		_pips.position = Vector2(_hole.position.x, _hole.position.y + _hole.size.y + 8.0)
-		_pips.size = Vector2(_hole.size.x, 28.0)
+	var hall = _rooms.get("hall", null)
+	if hall and hall.has_method("refresh_locks"):
+		hall.refresh_locks()
 
 
 func _rebuild_pips() -> void:
-	if _pips == null:
-		return
-	for c in _pips.get_children():
-		_pips.remove_child(c)
-		c.queue_free()
-	for b in range(0, _max_room + 1):
-		var pip := Button.new()
-		pip.focus_mode = Control.FOCUS_NONE
-		pip.custom_minimum_size = Vector2(18, 18)
-		pip.size = Vector2(18, 18)
-		pip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		pip.mouse_filter = Control.MOUSE_FILTER_STOP
-		var first_b: int = int(_buckets_on_screen(b)[0])
-		var locked: bool = first_b > buckets_open
-		var on: bool = b == _room
-		var sb := StyleBoxFlat.new()
-		if on:
-			sb.bg_color = Color("e8c36a") if not locked else Color("8a7a48")
-		elif locked:
-			sb.bg_color = Color("2a2218")
-		else:
-			sb.bg_color = Color("5a4a38")
-		sb.border_color = Color("e8c36a") if on else Color("3a3228")
-		sb.set_border_width_all(2 if on else 1)
-		sb.set_corner_radius_all(9)
-		pip.add_theme_stylebox_override("normal", sb)
-		pip.add_theme_stylebox_override("hover", sb)
-		pip.add_theme_stylebox_override("pressed", sb)
-		pip.pressed.connect(_on_pip.bind(b))
-		_pips.add_child(pip)
+	pass
 
 
 func _on_pip(dest: int) -> void:
@@ -897,12 +1434,21 @@ func _on_pip(dest: int) -> void:
 
 
 func _on_nav(delta: int) -> void:
-	if delta == 0 or _room_busy or _arriving or _door_busy:
+	if delta == 0 or _room_busy or _arriving or _door_busy or _pan_busy:
 		return
-	if not _int_root.visible:
+	if _current_room != "hall" or not _int_root.visible:
 		return
 	var nxt: int = _room + delta
-	if nxt < 0 or nxt > _max_room:
+	if nxt < 0:
+		pan_to("main")
+		return
+	if nxt > _max_room:
+		if is_room_unlocked("study"):
+			pan_to("study")
+		else:
+			_bump()
+			KIT.cue(sfx, &"cabin.locked")
+			say_bubble("cabin.locked")
 		return
 	_change_room(nxt)
 
@@ -911,41 +1457,10 @@ func _change_room(nxt: int) -> void:
 	if nxt == _room:
 		return
 	_room_busy = true
-	_place_nav()
 	item_unhovered.emit()
 	var going_next: bool = nxt > _room
-	if _next_door and going_next:
-		await _nudge_door(_next_door)
-	elif _prev_door and not going_next:
-		await _nudge_door(_prev_door)
-	if _rock and _rock.visible:
-		await _play_stand()
-		if not visible:
-			_room_busy = false
-			return
-	var from := Vector2(10, 205)
-	var to := Vector2(318, 205) if going_next else Vector2(-16, 205)
-	var walk_tw: Tween = _begin_walk(from, to, false, not going_next, ROOM_WALK)
-	await _wait(ROOM_WIPE_AT)
-	if not visible:
-		_room_busy = false
-		return
 	await _wipe_pan(going_next, nxt)
-	if walk_tw and walk_tw.is_running():
-		await walk_tw.finished
-	if not visible:
-		_room_busy = false
-		return
-	if _hero:
-		await _play_sit(true)
-		if not visible:
-			_room_busy = false
-			return
-		_hero.visible = false
-		_rock.visible = true
-		if _rock.sprite_frames:
-			_rock.play("rock")
-	_beat = "rock"
+	_beat = "idle"
 	_room_busy = false
 	_place_nav()
 
@@ -1000,20 +1515,20 @@ func _wipe_pan(going_next: bool, nxt: int) -> void:
 
 
 func _play_stand() -> void:
-	if _rock:
-		_rock.stop()
-		_rock.visible = false
+	_stop_rock()
+	_show_empty_chair(false)
 	_host_hero(_int_root)
 	_hero.visible = true
+	_hero.z_index = 4
 	_hero.flip_h = false
+	_set_wide_offset(false)
 	_place_hero(Vector2(10, 205))
-	var stems := ["hero_sit_f4", "hero_sit_f3", "hero_sit_f2", "hero_sit_f1", "hero_sit_f0"]
 	var durs := [0.06, 0.05, 0.05, 0.06, 0.08]
-	for i in stems.size():
-		var tex: Texture2D = _home(stems[i])
-		if tex:
-			_hero.texture = tex
+	for i in durs.size():
+		_set_hero_frame("hero_sit", 4 - i)
 		await _wait(durs[i])
+	_show_empty_chair(true)
+	_set_hero_frame("hero_walk", 0)
 
 
 func _fade_shelf(out: bool) -> void:
@@ -1205,19 +1720,19 @@ func _mount_slot(card: Dictionary, pos: Vector2, msize: Vector2, room_locked: bo
 		_play_burst(wrap)
 	if is_seen:
 		var plate: Rect2 = _plate_rect(msize)
-		var lab := Label.new()
-		lab.text = str(card.get("name", id))
+		var font_n: int = clampi(int(msize.x * 0.13), 17, 24)
+		var lab: FitLabelBox = FitLabelBox.make()
+		lab.show_frame = false
+		lab.padding = 0
+		lab.max_font_size = font_n
+		lab.min_font_size = 12
+		lab.set_plain(str(card.get("name", id)))
 		lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		lab.max_lines_visible = 2
-		var font_n: int = clampi(int(msize.x * 0.13), 17, 24)
 		lab.size = Vector2(msize.x - 8.0, maxf(plate.size.y + 10.0, float(font_n) * 2.2))
 		lab.position = Vector2(4.0, msize.y - lab.size.y + 2.0)
-		lab.add_theme_font_size_override("font_size", font_n)
-		lab.add_theme_color_override("font_color", Color("1c120c"))
-		lab.add_theme_color_override("font_outline_color", Color("f3e6d0"))
-		lab.add_theme_constant_override("outline_size", 2)
+		lab.font_color = Color("1c120c")
+		lab.set_outline(Color("f3e6d0"), 2)
 		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		wrap.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		var glint := AnimatedSprite2D.new()
@@ -1251,6 +1766,28 @@ func _mount_slot(card: Dictionary, pos: Vector2, msize: Vector2, room_locked: bo
 			_set_glint(id, false)
 			item_unhovered.emit()
 		)
+	else:
+		wrap.mouse_entered.connect(func() -> void:
+			show_hover_tag("cabin.tip.locked", wrap)
+		)
+		wrap.mouse_exited.connect(func() -> void:
+			hide_hover_tag()
+		)
+	if bool(new_unseen.get(id, false)) and is_swiped:
+		var glow := AnimatedSprite2D.new()
+		glow.centered = false
+		glow.position = Vector2(-16, -16)
+		glow.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		glow.sprite_frames = _frames("ng", ["fx/shelf_new_glow_f0", "fx/shelf_new_glow_f1", "fx/shelf_new_glow_f2", "fx/shelf_new_glow_f3"], 1000.0 / 160.0, true)
+		wrap.add_child(glow)
+		if glow.sprite_frames:
+			glow.play("ng")
+		var tag := TextureRect.new()
+		tag.texture = _home("fx/new_tag.png")
+		tag.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		tag.position = Vector2(msize.x - 8.0, -8.0)
+		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		wrap.add_child(tag)
 	return wrap
 
 
@@ -1408,21 +1945,140 @@ func _tick_cat(delta: float) -> void:
 func _load_save() -> void:
 	seen.clear()
 	swiped.clear()
+	new_unseen.clear()
+	met_monsters.clear()
+	_raw_save.clear()
 	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
 	if f == null:
+		_apply_defaults()
 		return
 	var parsed: Variant = JSON.parse_string(f.get_as_text())
 	if typeof(parsed) != TYPE_DICTIONARY:
+		_apply_defaults()
 		return
+	_raw_save = (parsed as Dictionary).duplicate(true)
 	for id in parsed.get("seen", []):
 		seen[str(id)] = true
 	for id2 in parsed.get("swiped", []):
 		swiped[str(id2)] = true
 		seen[str(id2)] = true
+	if not parsed.has("version"):
+		_migrate_v1()
+		return
+	_read_v2(parsed)
+
+
+func _apply_defaults() -> void:
+	intro_seen = false
+	nib_first_done = false
+	tutorial_done = false
+	tutorial_declined = false
+	rooms_unlocked = ["main"]
+	key_ring_seen = false
+	ending_seen = false
+	deepest_belly = 0
+	last_route = ""
+	radio_station = 0
+	gear_worn = {"head": "", "eyes": "", "belt": ""}
+	letters_read = []
+	bestiary_read = []
+	will_read = false
+	drawer_hint_said = false
+	drawer_opened = false
+	geode_on_mantel = false
+	drawer_stuck_index = 0
+	milestones_said = []
+	nib_idle_index = 0
+	counters = {"delves": 0, "homecomings": 0, "hauls": 0, "losses": 0}
+
+
+func _migrate_v1() -> void:
+	_apply_defaults()
+	intro_seen = false
+	tutorial_declined = true
+	nib_first_done = true
+	if swiped.size() > 0:
+		counters.hauls = 1
+	deepest_belly = 0
+	met_monsters.clear()
+
+
+func _read_v2(parsed: Dictionary) -> void:
+	for id in parsed.get("new_unseen", []):
+		new_unseen[str(id)] = true
+	intro_seen = bool(parsed.get("intro_seen", false))
+	nib_first_done = bool(parsed.get("nib_first_done", false))
+	tutorial_done = bool(parsed.get("tutorial_done", false))
+	tutorial_declined = bool(parsed.get("tutorial_declined", false))
+	rooms_unlocked = []
+	for r in parsed.get("rooms_unlocked", ["main"]):
+		rooms_unlocked.append(str(r))
+	if rooms_unlocked.is_empty():
+		rooms_unlocked = ["main"]
+	key_ring_seen = bool(parsed.get("key_ring_seen", false))
+	ending_seen = bool(parsed.get("ending_seen", false))
+	deepest_belly = int(parsed.get("deepest_belly", 0))
+	for m in parsed.get("met_monsters", []):
+		met_monsters[str(m)] = true
+	last_route = str(parsed.get("last_route", ""))
+	radio_station = int(parsed.get("radio_station", 0))
+	var gw: Variant = parsed.get("gear_worn", {})
+	if typeof(gw) == TYPE_DICTIONARY:
+		gear_worn = {"head": str(gw.get("head", "")), "eyes": str(gw.get("eyes", "")), "belt": str(gw.get("belt", ""))}
+	letters_read = []
+	for l in parsed.get("letters_read", []):
+		letters_read.append(str(l))
+	bestiary_read = []
+	for b in parsed.get("bestiary_read", []):
+		bestiary_read.append(str(b))
+	will_read = bool(parsed.get("will_read", false))
+	drawer_hint_said = bool(parsed.get("drawer_hint_said", false))
+	drawer_opened = bool(parsed.get("drawer_opened", false))
+	geode_on_mantel = bool(parsed.get("geode_on_mantel", false))
+	drawer_stuck_index = int(parsed.get("drawer_stuck_index", 0))
+	milestones_said = []
+	for ms in parsed.get("milestones_said", []):
+		milestones_said.append(int(ms) if typeof(ms) != TYPE_STRING else str(ms))
+	nib_idle_index = int(parsed.get("nib_idle_index", 0))
+	var c: Variant = parsed.get("counters", {})
+	if typeof(c) == TYPE_DICTIONARY:
+		counters = {
+			"delves": int(c.get("delves", 0)),
+			"homecomings": int(c.get("homecomings", 0)),
+			"hauls": int(c.get("hauls", 0)),
+			"losses": int(c.get("losses", 0)),
+		}
 
 
 func _save() -> void:
-	var data := {"seen": seen.keys(), "swiped": swiped.keys()}
+	var data: Dictionary = _raw_save.duplicate(true)
+	data["version"] = 2
+	data["seen"] = seen.keys()
+	data["swiped"] = swiped.keys()
+	data["new_unseen"] = new_unseen.keys()
+	data["intro_seen"] = intro_seen
+	data["nib_first_done"] = nib_first_done
+	data["tutorial_done"] = tutorial_done
+	data["tutorial_declined"] = tutorial_declined
+	data["rooms_unlocked"] = rooms_unlocked
+	data["key_ring_seen"] = key_ring_seen
+	data["ending_seen"] = ending_seen
+	data["deepest_belly"] = deepest_belly
+	data["met_monsters"] = met_monsters.keys()
+	data["last_route"] = last_route
+	data["radio_station"] = radio_station
+	data["gear_worn"] = gear_worn
+	data["letters_read"] = letters_read
+	data["bestiary_read"] = bestiary_read
+	data["will_read"] = will_read
+	data["drawer_hint_said"] = drawer_hint_said
+	data["drawer_opened"] = drawer_opened
+	data["geode_on_mantel"] = geode_on_mantel
+	data["drawer_stuck_index"] = drawer_stuck_index
+	data["milestones_said"] = milestones_said
+	data["nib_idle_index"] = nib_idle_index
+	data["counters"] = counters
+	_raw_save = data
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f != null:
 		f.store_string(JSON.stringify(data, "\t"))
@@ -1435,6 +2091,7 @@ func _mcp_state() -> Dictionary:
 	var door_tex := ""
 	if _door and _door.texture:
 		door_tex = String(_door.texture.resource_path).get_file()
+	var prog: Vector2i = cabinet_progress()
 	return {
 		"beat": _beat,
 		"cabin_on": visible,
@@ -1454,9 +2111,20 @@ func _mcp_state() -> Dictionary:
 		"just_n": _just_mounted.size(),
 		"swiped_n": swiped.size(),
 		"buckets": buckets_open,
-		"room": _room,
+		"room": _current_room,
+		"shelf_page": _room,
 		"max_room": _max_room,
 		"max_bucket": _max_bucket,
+		"overlay": _cutscene.kind if _cutscene and _cutscene.is_playing() else _overlay_name,
+		"cut_panel": _cutscene.panel_index if _cutscene and _cutscene.is_playing() else -1,
+		"rooms_unlocked": rooms_unlocked,
+		"tutorial_done": tutorial_done,
+		"new_unseen": new_unseen.size(),
+		"progress": [prog.x, prog.y],
+		"intro_seen": intro_seen,
+		"ending_seen": ending_seen,
+		"drawer_opened": drawer_opened,
+		"geode_on_mantel": geode_on_mantel,
 	}
 
 
@@ -1489,94 +2157,1351 @@ func debug_pose(beat: String) -> void:
 	_arriving = false
 	_door_busy = false
 	_beat = beat
+	visible = true
+	_menu_on = true
+	_overlay_name = ""
+	if _map and _map.has_method("close"):
+		_map.close()
+	if _radio and _radio.has_method("close"):
+		_radio.close()
+	if _journal and _journal.has_method("close"):
+		_journal.close()
+	if _will and _will.has_method("close"):
+		_will.close()
+	if _drawer and _drawer.has_method("close"):
+		_drawer.close()
+	if _card and _card.has_method("close"):
+		_card.close()
+	if _dialog:
+		_dialog.visible = false
 	match beat:
 		"walk":
 			_show_exterior()
 			_hero.visible = true
 			_hero.flip_h = false
 			_place_hero(Vector2(140, 188))
-			_hero.texture = _home("hero_walk_loot_f1")
-		"door":
-			_show_exterior()
-			_hero.visible = true
-			_hero.flip_h = false
-			_place_hero(Vector2(242, 175))
-			_hero.texture = _home("hero_idle_blink_f0")
-			_door.texture = _home("cabin_door_open_f1")
-			_door_glow_open = true
+			_set_hero_frame("hero_walk_loot", 1)
+		"intro", "intro_p1":
+			intro_seen = false
+			play_intro()
+		"nib_first", "main_gate":
+			tutorial_done = false
+			tutorial_declined = false
+			nib_first_done = true
+			show_menu("main")
+			_apply_gate()
+		"map":
+			show_menu("main")
+			_open_map()
+		"radio":
+			show_menu("main")
+			_open_radio()
+		"gear":
+			gear_worn = {"head": "helm", "eyes": "goggles", "belt": "rope"}
+			show_menu("main")
+			_refresh_rooms()
+		"rope_exit":
+			pass
+		"sack_peek":
+			pass
+		"pause_give_up", "pause_in_run":
+			pass
+		"caught":
+			pass
+		"homecoming_loss", "loss":
+			_homecoming_kind = "loss"
+			show_menu("main")
+		"homecoming_win", "win":
+			_homecoming_kind = "win"
+			show_menu("main")
+		"keyring", "key_ring":
+			key_ring_seen = false
+			rooms_unlocked = ["main"]
+			_refresh_rooms()
+			play_key_ring()
+		"hall", "trophy":
+			if not is_room_unlocked("hall"):
+				_grant_all_rooms()
+			show_menu("hall")
+		"study", "journal", "will":
+			if not is_room_unlocked("study"):
+				_grant_all_rooms()
+			show_menu("study")
+			if beat == "journal" and _journal:
+				_journal.open_journal("bestiary")
+			if beat == "will" and _will:
+				_will.open_will()
+		"workshop":
+			if not is_room_unlocked("workshop"):
+				_grant_all_rooms()
+			show_menu("workshop")
+		"loft":
+			if not is_room_unlocked("loft"):
+				_grant_all_rooms()
+			show_menu("loft")
+		"ending":
+			ending_seen = false
+			play_ending()
+		"drawer_stuck":
+			ending_seen = false
+			if not is_room_unlocked("study"):
+				_grant_all_rooms()
+			ending_seen = false
+			show_menu("study")
+		"drawer_hint":
+			ending_seen = true
+			drawer_hint_said = false
+			show_menu("main")
+		"drawer_ajar":
+			ending_seen = true
+			drawer_opened = false
+			if not is_room_unlocked("study"):
+				_grant_all_rooms()
+			show_menu("study")
+			_refresh_rooms()
+		"drawer_open":
+			ending_seen = true
+			drawer_opened = true
+			if not is_room_unlocked("study"):
+				_grant_all_rooms()
+			show_menu("study")
+			if _drawer:
+				_drawer.open_drawer()
+		"geode":
+			geode_on_mantel = true
+			show_menu("main")
+			_refresh_rooms()
+		"will_replay":
+			if not is_room_unlocked("study"):
+				_grant_all_rooms()
+			show_menu("study")
+			if _journal:
+				_journal.open_journal("will")
+		"intro_replay":
+			if not is_room_unlocked("study"):
+				_grant_all_rooms()
+			play_intro(true)
+		"declined":
+			tutorial_declined = true
+			tutorial_done = false
+			show_menu("main")
+			_apply_gate()
 		"drop":
-			_ext_root.visible = false
-			_int_root.visible = true
-			_start_interior_loops()
-			_host_hero(_int_root)
+			show_menu("main")
 			_hero.visible = true
 			_hero.flip_h = true
 			_place_hero(Vector2(70, 205))
-			_hero.texture = _home("hero_drop_sack_f2")
-			_sack.visible = false
-			_rock.visible = false
-			_bump()
-		"sit":
-			_ext_root.visible = false
-			_int_root.visible = true
-			_start_interior_loops()
-			_host_hero(_int_root)
-			_hero.visible = true
-			_hero.flip_h = false
-			_place_hero(Vector2(10, 205))
-			_hero.texture = _home("hero_sit_f3")
-			_sack.visible = true
-			_sack.flip_h = true
-			_place_sack(Vector2(70, 205))
-			_rock.visible = false
-			_bump()
-		"rock":
-			_ext_root.visible = false
-			_int_root.visible = true
-			_start_interior_loops()
-			_hero.visible = false
-			_sack.visible = true
-			_sack.flip_h = true
-			_place_sack(Vector2(70, 205))
-			_rock.visible = true
-			if _rock.sprite_frames:
-				_rock.play("rock")
+			_set_wide_offset(true)
+			_set_hero_frame("hero_sack_dump", 2)
+		"sit", "rock", "interior":
+			show_menu("main")
 		"rest":
 			_show_exterior()
-		"interior":
-			_ext_root.visible = false
-			_int_root.visible = true
-			_start_interior_loops()
-			_hero.visible = false
-			_rock.visible = true
-			if _rock.sprite_frames:
-				_rock.play("rock")
 		_:
-			pass
+			show_menu("main")
 
 
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
+	if settings_ui and settings_ui.visible:
+		return
+	if _cutscene and _cutscene.is_playing():
+		if event.is_action_pressed("ui_cancel"):
+			_open_pause()
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("ui_accept"):
+			_cutscene.request_advance()
+			get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("ui_cancel"):
+		_escape()
+		get_viewport().set_input_as_handled()
+		return
+	if _journal and _journal.visible and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
+		_journal.handle_page(-1 if event.is_action_pressed("ui_left") else 1)
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("ui_left") and _int_root.visible:
-		_on_nav(-1)
+		_arrow(-1)
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_right") and _int_root.visible:
-		_on_nav(1)
+		_arrow(1)
 		get_viewport().set_input_as_handled()
 		return
-	if event.is_action_pressed("ui_cancel"):
-		if _arriving or _room_busy:
-			get_viewport().set_input_as_handled()
-			return
-		if _int_root.visible:
-			item_unhovered.emit()
-			if _fire:
-				_fire.stop()
-			if _rock:
-				_rock.stop()
-			_show_exterior()
-		else:
-			close_cabin()
+
+
+func _escape() -> void:
+	if _arriving:
+		_arrive_skip = 2
+		_kill_arrive_motion()
 		get_viewport().set_input_as_handled()
+		return
+	if _dialog and _dialog.is_open():
+		if _dialog.has_choices():
+			return
+		_dialog.advance()
+		return
+	if _close_top_overlay():
+		return
+	if _current_room != "main":
+		pan_to("main")
+		return
+	if settings_ui and settings_ui.visible:
+		settings_ui.close_menu()
+		return
+	_open_pause()
+
+
+func _open_pause() -> void:
+	if settings_ui == null or not settings_ui.has_method("open_menu"):
+		return
+	if _cutscene and _cutscene.is_playing():
+		_cutscene.set_held(true)
+	settings_ui.open_menu(false)
+
+
+func on_pause_closed() -> void:
+	if _cutscene and _cutscene.is_playing():
+		_cutscene.set_held(false)
+
+
+func stop_story() -> void:
+	_story_seq += 1
+	if _cutscene and _cutscene.is_playing():
+		_cutscene.abort()
+	if _dialog and _dialog.has_method("close"):
+		_dialog.visible = false
+	elif _dialog:
+		_dialog.visible = false
+	_close_top_overlay()
+	_arriving = false
+	_room_busy = false
+	_beat = "idle"
+
+
+func clear_to_fresh_save() -> void:
+	stop_story()
+	seen.clear()
+	swiped.clear()
+	new_unseen.clear()
+	met_monsters.clear()
+	_just_mounted.clear()
+	_raw_save.clear()
+	_apply_defaults()
+	_save()
+	_rebuild_shelves()
+	_refresh_rooms()
+	_apply_gate()
+
+
+func fill_complete_save() -> void:
+	stop_story()
+	seen.clear()
+	swiped.clear()
+	new_unseen.clear()
+	met_monsters.clear()
+	_just_mounted.clear()
+	_apply_defaults()
+	intro_seen = true
+	nib_first_done = true
+	tutorial_done = true
+	tutorial_declined = false
+	key_ring_seen = true
+	ending_seen = false
+	drawer_hint_said = false
+	drawer_opened = false
+	geode_on_mantel = false
+	milestones_said = [25, 50, 75]
+	counters = {"delves": 12, "homecomings": 12, "hauls": 12, "losses": 0}
+	deepest_belly = 12
+	for id in ROOM_ORDER:
+		if not rooms_unlocked.has(id):
+			rooms_unlocked.append(id)
+	for id2 in items_by_id.keys():
+		var card: Dictionary = items_by_id[id2]
+		if str(card.get("status", "live")) in ["retired", "hold"]:
+			continue
+		if BucketRules.is_token(card.get("bucket", 0)):
+			continue
+		var sid: String = str(id2)
+		if sid == "spider_egg":
+			continue
+		swiped[sid] = true
+		seen[sid] = true
+	var mons: Variant = catalog.get("monsters", [])
+	if typeof(mons) == TYPE_ARRAY:
+		for raw in mons:
+			if typeof(raw) != TYPE_DICTIONARY:
+				continue
+			var st: String = str(raw.get("status", "live"))
+			if st == "retired" or st == "hold":
+				continue
+			var mid: String = str(raw.get("id", ""))
+			if mid != "":
+				met_monsters[mid] = true
+	_save()
+	_rebuild_shelves()
+	_refresh_rooms()
+	_apply_gate()
+	for r in _rooms.values():
+		if r.has_method("request_bg"):
+			r.request_bg()
+			r.ensure_bg()
+
+
+func _arrow(delta: int) -> void:
+	if _current_room == "hall":
+		_on_nav(delta)
+		return
+	var i: int = ROOM_ORDER.find(_current_room)
+	var nxt: int = i + delta
+	if nxt < 0 or nxt >= ROOM_ORDER.size():
+		_bump()
+		return
+	var dest: String = ROOM_ORDER[nxt]
+	if is_room_unlocked(dest):
+		pan_to(dest)
+	else:
+		_bump()
+		KIT.cue(sfx, &"cabin.locked")
+		say_bubble("cabin.locked")
+
+
+func _build_rooms() -> void:
+	var scripts := {
+		"main": preload("res://scripts/cabin/room_main.gd"),
+		"hall": preload("res://scripts/cabin/room_hall.gd"),
+		"study": preload("res://scripts/cabin/room_study.gd"),
+		"workshop": preload("res://scripts/cabin/room_workshop.gd"),
+		"loft": preload("res://scripts/cabin/room_loft.gd"),
+	}
+	var rooms_layout: Dictionary = layout.get("rooms", {})
+	for i in ROOM_ORDER.size():
+		var id: String = ROOM_ORDER[i]
+		var room = scripts[id].new()
+		room.name = "Room" + id.capitalize()
+		room.position = Vector2(float(i) * ROOM_W, 0)
+		room.setup(self, id, rooms_layout.get(id, []), extra)
+		room.hotspot_activated.connect(_on_hotspot.bind(id))
+		room.hotspot_hovered.connect(_on_spot_hover)
+		room.hotspot_unhovered.connect(_on_spot_unhover)
+		_rooms_host.add_child(room)
+		_rooms[id] = room
+	var main_room = _rooms.get("main")
+	_fire_glow = main_room.spots.get("room_main_fire_glow", null)
+	_fire = AnimatedSprite2D.new()
+	_fire.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_fire.centered = false
+	_fire.position = _pt(76, 164)
+	_fire.z_index = 4
+	main_room.add_child(_fire)
+	_sack = Sprite2D.new()
+	_sack.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_sack.centered = false
+	_sack.visible = false
+	_sack.position = _pt(70, 205)
+	_sack.flip_h = true
+	_sack.z_index = 5
+	main_room.add_child(_sack)
+	_rock = AnimatedSprite2D.new()
+	_rock.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_rock.centered = false
+	_rock.position = _pt(10, 205)
+	_rock.visible = false
+	_rock.z_index = 5
+	main_room.add_child(_rock)
+	_chair_empty = Sprite2D.new()
+	_chair_empty.name = "EmptyChair"
+	_chair_empty.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_chair_empty.centered = false
+	_chair_empty.position = _pt(10, 205)
+	_chair_empty.visible = false
+	_chair_empty.z_index = 3
+	main_room.add_child(_chair_empty)
+	_chair_hit = Control.new()
+	_chair_hit.name = "EmptyChairHit"
+	_chair_hit.position = _pt(10, 205)
+	_chair_hit.size = _pt(32, 32)
+	_chair_hit.visible = false
+	_chair_hit.z_index = 6
+	_chair_hit.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_chair_hit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_chair_hit.gui_input.connect(_on_empty_chair_input)
+	main_room.add_child(_chair_hit)
+	var hall = _rooms.get("hall")
+	_hole = Control.new()
+	_hole.position = _pt(100, 24)
+	_hole.size = _pt(260, 160)
+	_hole.clip_contents = true
+	_hole.mouse_filter = Control.MOUSE_FILTER_STOP
+	_hole.z_index = 3
+	hall.add_child(_hole)
+	_shelf_host = Control.new()
+	_shelf_host.position = Vector2.ZERO
+	_shelf_host.size = _hole.size
+	_shelf_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hole.add_child(_shelf_host)
+	_cordon = TextureRect.new()
+	_cordon.set_anchors_preset(PRESET_FULL_RECT)
+	_cordon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_cordon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_cordon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_cordon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cordon.visible = false
+	_hole.add_child(_cordon)
+	_shelf_fade = ColorRect.new()
+	_shelf_fade.set_anchors_preset(PRESET_FULL_RECT)
+	_shelf_fade.color = Color(0.07, 0.05, 0.04, 0)
+	_shelf_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shelf_fade.visible = false
+	_hole.add_child(_shelf_fade)
+	_gauge = TextureProgressBar.new()
+	_gauge.texture_under = KIT.load_tex("ui/gauge_under.png")
+	_gauge.texture_progress = KIT.load_tex("ui/gauge_fill.png")
+	_gauge.min_value = 0
+	_gauge.max_value = 1
+	_gauge.value = 0
+	_gauge.nine_patch_stretch = false
+	_gauge.position = _pt(148, 188)
+	_gauge.size = _pt(164, 5)
+	_gauge.z_index = 3
+	_gauge.mouse_filter = Control.MOUSE_FILTER_STOP
+	_gauge.mouse_entered.connect(func() -> void:
+		var p: Vector2i = cabinet_progress()
+		var key: String = "cabin.hall.full" if p.x >= p.y and p.y > 0 else "cabin.hall.gauge"
+		show_hover_tag(key, _gauge, {"n": p.x, "total": p.y})
+	)
+	_gauge.mouse_exited.connect(hide_hover_tag)
+	hall.add_child(_gauge)
+
+
+func _build_chrome() -> void:
+	_toast = TextureRect.new()
+	_toast.texture = KIT.load_tex("ui/room_toast.png")
+	_toast.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_toast.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_toast.size = _toast.texture.get_size() if _toast.texture else _pt(120, 26)
+	_toast.position = Vector2((1680.0 - _toast.size.x) * 0.5, -26.0 * PX)
+	_toast.z_index = 4
+	_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_toast)
+	_toast_lab = KIT.raw_label("", 28, KIT.CREAM)
+	_toast_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_toast_lab.set_anchors_preset(PRESET_FULL_RECT)
+	_toast.add_child(_toast_lab)
+	_hover_tag = KIT.framed("", 20, "ui/tooltip_parchment_9.png", Vector2(8, 8), KIT.INK, true)
+	_hover_tag.grow_to_text = true
+	_hover_tag.max_width = 420
+	_hover_tag.z_index = 5
+	_hover_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hover_tag.visible = false
+	add_child(_hover_tag)
+	_editor_strip = VBoxContainer.new()
+	_editor_strip.position = Vector2(16, 16)
+	_editor_strip.z_index = 9
+	_editor_strip.visible = false
+	add_child(_editor_strip)
+
+
+func _build_overlays() -> void:
+	_overlays = Control.new()
+	_overlays.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_overlays.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_overlays.z_index = 6
+	add_child(_overlays)
+	_map = preload("res://scripts/cabin/map_overlay.gd").new()
+	_map.setup(self, extra)
+	_map.go.connect(_on_map_go)
+	_map.closed.connect(func() -> void:
+		_overlay_name = ""
+	)
+	_overlays.add_child(_map)
+	_radio = preload("res://scripts/cabin/radio_overlay.gd").new()
+	_radio.setup(self, extra, sfx)
+	_radio.closed.connect(func() -> void:
+		_overlay_name = ""
+	)
+	_overlays.add_child(_radio)
+	_journal = preload("res://scripts/cabin/journal_overlay.gd").new()
+	_journal.setup(self, extra, lore, catalog, art)
+	_journal.closed.connect(func() -> void:
+		_overlay_name = ""
+	)
+	_journal.replay_intro.connect(func() -> void:
+		play_intro(true)
+	)
+	_overlays.add_child(_journal)
+	_will = preload("res://scripts/cabin/will_overlay.gd").new()
+	_will.setup(self, extra)
+	_will.closed.connect(func() -> void:
+		_overlay_name = ""
+	)
+	_overlays.add_child(_will)
+	_drawer = preload("res://scripts/cabin/drawer_overlay.gd").new()
+	_drawer.setup(self, extra)
+	_drawer.closed.connect(func() -> void:
+		_overlay_name = ""
+	)
+	_drawer.take_geode.connect(_on_take_geode)
+	_drawer.open_note.connect(_on_drawer_note)
+	_overlays.add_child(_drawer)
+	_card = preload("res://scripts/cabin/parchment_card.gd").new()
+	_card.setup()
+	_card.closed.connect(func() -> void:
+		_overlay_name = ""
+	)
+	_overlays.add_child(_card)
+	_dialog = preload("res://scripts/cabin/cabin_dialog.gd").new()
+	_dialog.setup(self)
+	add_child(_dialog)
+	_cutscene = preload("res://scripts/cabin/cutscene_player.gd").new()
+	_cutscene.setup(self)
+	add_child(_cutscene)
+
+
+func attach_editor(main) -> void:
+	if main == null or not DevFlag.on():
+		return
+	_editor_strip.visible = true
+	for pair in [["Play Latest", "latest"], ["Developer Test", "dev"], ["Roster", "roster"], ["Script", "script"]]:
+		var b := Button.new()
+		b.text = str(pair[0])
+		b.pressed.connect(func() -> void:
+			if main.settings_ui:
+				main.settings_ui.mode_picked.emit(str(pair[1]))
+		)
+		_editor_strip.add_child(b)
+
+
+func _play_station() -> void:
+	if sfx == null:
+		return
+	var bed: String = STATION_BEDS[clampi(radio_station, 0, 3)]
+	if sfx.has_method("music_to"):
+		sfx.music_to(StringName(bed), 0.8)
+	elif sfx.has_method("music_cabin"):
+		sfx.music_cabin()
+
+
+func _snap_to(room: String) -> void:
+	_current_room = room
+	var i: int = ROOM_ORDER.find(room)
+	if i < 0:
+		i = 0
+	_rooms_host.position.x = -float(i) * ROOM_W
+	var r = _rooms.get(room)
+	if r and r.has_method("ensure_bg"):
+		r.ensure_bg()
+
+
+func pan_to(room: String) -> void:
+	if _pan_busy or not is_room_unlocked(room):
+		if not is_room_unlocked(room):
+			_bump()
+			KIT.cue(sfx, &"cabin.locked")
+			say_bubble("cabin.locked")
+		return
+	var i: int = ROOM_ORDER.find(room)
+	if i < 0:
+		return
+	_pan_busy = true
+	_rooms_host.mouse_filter = Control.MOUSE_FILTER_STOP
+	KIT.cue(sfx, &"cabin.pan")
+	var r = _rooms.get(room)
+	if r and r.has_method("request_bg"):
+		r.request_bg()
+		r.ensure_bg()
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_trans(Tween.TRANS_SINE)
+	tw.set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(_rooms_host, "position:x", -float(i) * ROOM_W, 0.45)
+	await tw.finished
+	if not is_inside_tree():
+		return
+	_current_room = room
+	_pan_busy = false
+	_rooms_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_show_toast("cabin.room.%s" % room)
+
+
+func _pan_unlocked(room: String) -> void:
+	if not is_room_unlocked(room):
+		if not rooms_unlocked.has(room):
+			rooms_unlocked.append(room)
+			_save()
+			_refresh_rooms()
+	var i: int = ROOM_ORDER.find(room)
+	if i < 0:
+		return
+	_pan_busy = true
+	KIT.cue(sfx, &"cabin.pan")
+	var r = _rooms.get(room)
+	if r and r.has_method("request_bg"):
+		r.request_bg()
+		r.ensure_bg()
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_trans(Tween.TRANS_SINE)
+	tw.set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(_rooms_host, "position:x", -float(i) * ROOM_W, 0.45)
+	await tw.finished
+	if not is_inside_tree():
+		return
+	_current_room = room
+	_pan_busy = false
+	_show_toast("cabin.room.%s" % room)
+
+
+func _move_nib_x(x_native: float, dur: float) -> void:
+	var main_room = _rooms.get("main")
+	if main_room == null:
+		return
+	var nib = main_room.nib
+	var hs = main_room.spots.get("Nib", null)
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_parallel(true)
+	if nib:
+		tw.tween_property(nib, "position:x", x_native * PX, dur)
+	if hs is Control:
+		tw.tween_property(hs, "position:x", x_native * PX, dur)
+	await tw.finished
+
+
+func _unlock_spot(room_id: String, node_name: String, unlock_room: String, line_key: String, ladder: bool) -> void:
+	var room = _rooms.get(room_id)
+	if room == null:
+		return
+	var hs = room.spots.get(node_name, null)
+	var origin := Vector2.ZERO
+	if hs is CabinHotspot:
+		origin = hs.origin_native
+		hs.visible = false
+	var rels: Array = (
+		["doors/ladder_unlock_f0.png", "doors/ladder_unlock_f1.png", "doors/ladder_unlock_f2.png", "doors/ladder_unlock_f3.png"]
+		if ladder else
+		["doors/side_door_unlock_f0.png", "doors/side_door_unlock_f1.png", "doors/side_door_unlock_f2.png", "doors/side_door_unlock_f3.png"]
+	)
+	var anim: AnimatedSprite2D = KIT.anim_sprite(rels, "u", 1000.0 / 110.0, false, origin)
+	anim.z_index = 6
+	room.add_child(anim)
+	if anim.sprite_frames:
+		anim.play("u")
+	var spark: AnimatedSprite2D = KIT.anim_sprite(
+		["doors/unlock_sparkle_f0.png", "doors/unlock_sparkle_f1.png", "doors/unlock_sparkle_f2.png", "doors/unlock_sparkle_f3.png"],
+		"s", 1000.0 / 110.0, false, origin + Vector2(0, 16)
+	)
+	spark.z_index = 7
+	room.add_child(spark)
+	if spark.sprite_frames:
+		spark.play("s")
+	KIT.cue(sfx, &"cabin.unlock")
+	KIT.cue(sfx, &"sting.unlock")
+	if not ladder:
+		var t := get_tree().create_timer(0.22, true, true, true)
+		t.timeout.connect(func() -> void:
+			KIT.cue(sfx, &"cabin.chain_drop")
+		, CONNECT_ONE_SHOT)
+	await _wait(0.44)
+	if is_instance_valid(anim):
+		anim.queue_free()
+	if is_instance_valid(spark):
+		spark.queue_free()
+	if not rooms_unlocked.has(unlock_room):
+		rooms_unlocked.append(unlock_room)
+	_save()
+	_refresh_rooms()
+	if hs:
+		hs.visible = true
+	await _say_key(line_key)
+
+
+func _say_key(key: String) -> void:
+	if key == "" or _dialog == null:
+		return
+	_dialog.say([key])
+	await _dialog.finished
+
+
+func _play_cheer() -> void:
+	var main_room = _rooms.get("main")
+	_stop_rock()
+	_set_idle_hero_visible(false)
+	_host_hero(main_room if main_room else _int_root)
+	_hero.visible = true
+	_set_wide_offset(false)
+	var origin: Vector2 = Vector2(70, 205) if _arriving else Vector2(10, 205)
+	_place_hero(origin)
+	_set_hero_frame("hero_cheer", 0)
+	await _wait(0.14)
+	_set_hero_frame("hero_cheer", 1)
+	var base_y: float = _hero.position.y
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_property(_hero, "position:y", base_y - _px(4), 0.12)
+	tw.tween_property(_hero, "position:y", base_y, 0.14)
+	await _wait(0.26)
+
+
+func _show_toast(key: String, vars: Dictionary = {}) -> void:
+	_toast_lab.text = KIT.fill_text(key, vars) if vars.size() > 0 else KIT.copy_text(key)
+	_toast.position.y = -26.0 * PX
+	KIT.cue(sfx, &"cabin.room_sign")
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_trans(Tween.TRANS_BACK)
+	tw.set_ease(Tween.EASE_OUT)
+	tw.tween_property(_toast, "position:y", 0.0, 0.18)
+	tw.tween_interval(1.2)
+	tw.tween_property(_toast, "position:y", -26.0 * PX, 0.18)
+
+
+func show_hover_tag(key: String, hit: Control, vars: Dictionary = {}) -> void:
+	var t: String = KIT.fill_text(key, vars) if vars.size() > 0 else KIT.copy_text(key)
+	if t == "":
+		return
+	_hover_tag.set_plain(t)
+	if hit:
+		var g: Vector2 = hit.get_global_rect().position
+		_hover_tag.global_position = Vector2(g.x, g.y - 12.0 * PX - _hover_tag.size.y)
+	_hover_tag.visible = true
+
+
+func hide_hover_tag() -> void:
+	_hover_tag.visible = false
+
+
+func say_bubble(key: String, vars: Dictionary = {}) -> void:
+	if _dialog:
+		_dialog.say_bubble(key, Vector2(216, 150), vars)
+
+
+func nib_talk(on: bool) -> void:
+	var main_room = _rooms.get("main")
+	if main_room and main_room.nib and main_room.nib.sprite_frames:
+		main_room.nib.play("talk" if on else ("psst" if _gate_on() else "idle"))
+
+
+func _gate_on() -> bool:
+	return not tutorial_done and not tutorial_declined
+
+
+func _apply_gate() -> void:
+	var main_room = _rooms.get("main")
+	if main_room and main_room.has_method("set_gate"):
+		main_room.set_gate(_gate_on())
+	_refresh_rooms()
+
+
+func _refresh_rooms() -> void:
+	for r in _rooms.values():
+		if r.has_method("refresh_locks"):
+			r.refresh_locks()
+	_refresh_gauge()
+
+
+func _refresh_gauge() -> void:
+	if _gauge == null:
+		return
+	var p: Vector2i = cabinet_progress()
+	_gauge.max_value = maxi(p.y, 1)
+	_gauge.value = p.x
+
+
+func _busy() -> bool:
+	return _pan_busy or _room_busy or _arriving or (_dialog and _dialog.is_open()) or _overlay_name != "" or (_cutscene and _cutscene.is_playing())
+
+
+func _on_hotspot(node_name: String, room: String = "main") -> void:
+	if _arriving and _int_root.visible:
+		if node_name == "Hero":
+			_arrive_skip = maxi(_arrive_skip, 2)
+			_kill_arrive_motion()
+			return
+		if node_name == "RunDoor" or node_name == "SideDoor" or node_name == "BackDoor":
+			_arrive_pending_name = node_name
+			_arrive_pending_room = room
+			_arrive_skip = maxi(_arrive_skip, 2)
+			_kill_arrive_motion()
+			return
+	if _busy() and node_name != "Nib":
+		return
+	match node_name:
+		"RunDoor":
+			_on_run_door()
+		"SideDoor":
+			_on_side_door(room)
+		"BackDoor":
+			_on_back_door(room)
+		"Map":
+			_on_map()
+		"Radio", "RadioFirefly":
+			_open_radio()
+		"Nib":
+			_on_nib()
+		"Fire":
+			if _dialog:
+				_dialog.say(["nib.fire"])
+		"Hero":
+			_on_chair()
+		"PortraitSmall":
+			if _dialog:
+				_dialog.say(["nib.portrait"])
+		"LuckyGeode":
+			_on_geode()
+		"Gear_helm", "Gear_cap", "Gear_goggles", "Gear_rope":
+			_wear(node_name.trim_prefix("Gear_"))
+		"ShelfPrev":
+			_on_nav(-1)
+		"ShelfNext":
+			_on_nav(1)
+		"PortraitBig", "Will":
+			_open_will()
+		"Journal":
+			_open_journal()
+		"MountainModel":
+			var k: String = "cabin.model.none" if deepest_belly <= 0 else "cabin.model.deepest"
+			show_hover_tag(k, null, {"n": deepest_belly})
+		"Drawer":
+			_on_drawer()
+		"Dummy":
+			_on_dummy()
+		"BragOMeter":
+			_open_brag()
+		"Patents":
+			_open_patents()
+		"Ladder":
+			pan_to("loft")
+		"Bed":
+			_on_bed()
+		"Telescope":
+			var tk: String = "cabin.telescope.none" if deepest_belly <= 0 else "cabin.telescope.line"
+			if _dialog:
+				_dialog.say([tk] if deepest_belly <= 0 else [])
+				if deepest_belly > 0:
+					_dialog.say([])
+					say_bubble(tk, {"n": deepest_belly})
+			KIT.cue(sfx, &"cabin.telescope")
+		"Trunk":
+			_on_trunk()
+		"Cat":
+			say_bubble("cabin.cat.line")
+			KIT.cue(sfx, &"cabin.cat")
+			if sfx and sfx.has_method("loop_start"):
+				sfx.loop_start(&"amb.cat_purr", 0.0)
+		"Hatch":
+			pan_to("workshop")
+
+
+func _on_spot_hover(_n: String, key: String, hit: Control) -> void:
+	show_hover_tag(key, hit)
+
+
+func _on_spot_unhover(_n: String) -> void:
+	hide_hover_tag()
+
+
+func _on_run_door() -> void:
+	if _gate_on():
+		_interrupt()
+		return
+	if last_route == "":
+		_open_map()
+		return
+	_leave_for_run(last_route)
+
+
+func _on_map() -> void:
+	if _gate_on():
+		if _dialog:
+			_dialog.say(["map.first_only"])
+		return
+	_open_map()
+
+
+func _open_map() -> void:
+	_overlay_name = "map"
+	_map.open_map(last_route)
+
+
+func _open_radio() -> void:
+	_overlay_name = "radio"
+	_radio.open_radio()
+
+
+func _open_journal() -> void:
+	_overlay_name = "journal"
+	var tab := "bestiary" if met_monsters.size() > 0 else "items"
+	_journal.open_journal(tab)
+
+
+func _open_will() -> void:
+	_overlay_name = "will"
+	_will.open_will()
+
+
+func _on_map_go(route: String) -> void:
+	last_route = route
+	_save()
+	_leave_for_run(route)
+
+
+func _leave_for_run(route: String) -> void:
+	counters.delves = int(counters.get("delves", 0)) + 1
+	last_route = route
+	_save()
+	route_chosen.emit(route)
+
+
+func _interrupt() -> void:
+	var main_room = _rooms.get("main")
+	if main_room and main_room.nib:
+		KIT.cue(sfx, &"speech.nib_gasp")
+		main_room.nib.play("gasp")
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.tween_property(main_room.nib, "position:x", 232.0 * PX, 0.4)
+	if _dialog:
+		_dialog.say(["nib.interrupt.1", "nib.interrupt.2"], ["nib.interrupt.yes", "nib.interrupt.no"])
+		var ch: int = await _dialog.finished
+		if ch == 0:
+			tutorial_wanted.emit()
+		else:
+			tutorial_declined = true
+			_save()
+			_dialog.say(["nib.interrupt.no_reply"])
+			await _dialog.finished
+			_apply_gate()
+			_open_map()
+
+
+func _on_nib() -> void:
+	if _gate_on():
+		if _dialog:
+			_dialog.say(["nib.interrupt.2"], ["nib.interrupt.yes", "nib.interrupt.no"])
+			var ch: int = await _dialog.finished
+			if ch == 0:
+				tutorial_wanted.emit()
+			else:
+				tutorial_declined = true
+				_save()
+				_dialog.say(["nib.interrupt.no_reply"])
+				await _dialog.finished
+				_apply_gate()
+				_open_map()
+		return
+	var keys := ["nib.idle.1", "nib.idle.2", "nib.idle.3", "nib.idle.4", "nib.idle.5", "nib.idle.6"]
+	var k: String = str(keys[nib_idle_index % keys.size()])
+	nib_idle_index = (nib_idle_index + 1) % keys.size()
+	_save()
+	if _dialog:
+		_dialog.say([k])
+	if nib_idle_index in [1, 4, 0]:
+		KIT.cue(sfx, &"speech.nib_chuckle")
+
+
+func _on_side_door(room: String) -> void:
+	match room:
+		"main":
+			pan_to("hall")
+		"hall":
+			pan_to("study")
+		"study":
+			pan_to("workshop")
+
+
+func _on_back_door(room: String) -> void:
+	match room:
+		"hall":
+			pan_to("main")
+		"study":
+			pan_to("hall")
+		"workshop":
+			pan_to("study")
+
+
+func _on_chair() -> void:
+	var any: bool = str(gear_worn.get("head", "")) != "" or str(gear_worn.get("eyes", "")) != "" or str(gear_worn.get("belt", "")) != ""
+	if any:
+		_hang(_gear_last if _gear_last != "" else "helm")
+		return
+	if _dialog:
+		_dialog.say(["nib.chair"])
+
+
+func _wear(piece: String) -> void:
+	var slot: String = str(extra.get("gear_slots", {}).get(piece, ""))
+	if slot == "":
+		return
+	var old: String = str(gear_worn.get(slot, ""))
+	if old != "" and old != piece:
+		gear_worn[slot] = ""
+	gear_worn[slot] = piece
+	_gear_last = piece
+	KIT.cue(sfx, &"cabin.gear_take")
+	_save()
+	_refresh_rooms()
+	if _rocking:
+		_set_hero_frame("hero_rock", _rock_i)
+	elif _hero and _hero.visible and _hero.texture:
+		var path: String = String(_hero.texture.resource_path).get_file().get_basename()
+		var fam: String = path.substr(0, path.rfind("_f")) if path.rfind("_f") >= 0 else ""
+		var fi: int = int(path.get_slice("_f", 1)) if path.contains("_f") else 0
+		if fam != "":
+			_set_hero_frame(fam, fi)
+
+
+func _hang(piece: String) -> void:
+	var slot: String = str(extra.get("gear_slots", {}).get(piece, ""))
+	if slot == "":
+		return
+	gear_worn[slot] = ""
+	KIT.cue(sfx, &"cabin.gear_hang")
+	_save()
+	_refresh_rooms()
+	if _rocking:
+		_set_hero_frame("hero_rock", _rock_i)
+
+
+func _on_geode() -> void:
+	_geode_line = 1 - _geode_line
+	var k: String = "cabin.geode.line.1" if _geode_line == 0 else "cabin.geode.line.2"
+	if _dialog:
+		_dialog.say([k])
+	KIT.cue(sfx, &"cabin.geode_chime")
+
+
+func _on_drawer() -> void:
+	if not ending_seen:
+		KIT.cue(sfx, &"cabin.drawer_stuck")
+		drawer_stuck_index = (drawer_stuck_index + 1) % 3
+		_save()
+		if _dialog:
+			_dialog.say(["drawer.stuck.%d" % (drawer_stuck_index if drawer_stuck_index > 0 else 3)])
+		return
+	KIT.cue(sfx, &"cabin.drawer_open")
+	if not drawer_opened:
+		drawer_opened = true
+		_save()
+		_refresh_rooms()
+		if _dialog:
+			_dialog.say(["drawer.open.nib"])
+			await _dialog.finished
+	_overlay_name = "drawer"
+	_drawer.open_drawer()
+
+
+func _on_take_geode() -> void:
+	geode_on_mantel = true
+	_save()
+	pan_to("main")
+	_refresh_rooms()
+	if _dialog:
+		_dialog.say(["drawer.taken.nib"])
+
+
+func _on_drawer_note() -> void:
+	var note: Dictionary = lore.get("drawer_note", {})
+	_overlay_name = "letter"
+	_card.open_card("drawer.note", KIT.named(str(note.get("body", ""))), "cabin.trunk.close")
+	KIT.cue(sfx, &"cabin.scroll")
+
+
+func _on_dummy() -> void:
+	KIT.cue(sfx, &"cabin.dummy")
+	if _dialog:
+		_dialog.say(["cabin.dummy.ask"], ["cabin.dummy.yes", "cabin.dummy.no"])
+		var ch: int = await _dialog.finished
+		if ch == 0:
+			return_room = "workshop"
+			tutorial_wanted.emit()
+
+
+func _open_brag() -> void:
+	KIT.cue(sfx, &"cabin.brag")
+	var p: Vector2i = cabinet_progress()
+	var lines := [
+		KIT.fill_text("cabin.brag.delves", {"n": counters.get("delves", 0)}),
+		KIT.fill_text("cabin.brag.homecomings", {"n": counters.get("hauls", 0)}),
+		KIT.fill_text("cabin.brag.deepest", {"n": deepest_belly}),
+		KIT.fill_text("cabin.brag.swiped", {"n": p.x, "total": p.y}),
+		KIT.fill_text("cabin.brag.met", {"n": met_monsters.size(), "total": 35}),
+	]
+	_overlay_name = "brag"
+	_card.open_card("cabin.brag.title", "\n".join(lines), "cabin.brag.close")
+
+
+func _open_patents() -> void:
+	KIT.cue(sfx, &"cabin.scroll")
+	_overlay_name = "patents"
+	_card.open_card("cabin.credits.title", KIT.copy_text("cabin.credits.body"), "cabin.credits.close")
+
+
+func _on_bed() -> void:
+	KIT.cue(sfx, &"cabin.bed")
+	if OS.has_feature("web"):
+		if _dialog:
+			_dialog.say(["cabin.bed.web"])
+		return
+	if _dialog:
+		_dialog.say(["cabin.bed.ask"], ["cabin.bed.yes", "cabin.bed.no"])
+		var ch: int = await _dialog.finished
+		if ch == 0:
+			quit_wanted.emit()
+
+
+func _on_trunk() -> void:
+	KIT.cue(sfx, &"cabin.trunk")
+	trunk_open = true
+	_refresh_rooms()
+	var unlocked: Array = []
+	var p: Vector2i = cabinet_progress()
+	var pct: int = 0 if p.y <= 0 else int(round(100.0 * float(p.x) / float(p.y)))
+	for letter in lore.get("letters", []):
+		if typeof(letter) != TYPE_DICTIONARY:
+			continue
+		if pct >= int(letter.get("unlock_pct", 100)):
+			unlocked.append(letter)
+	if unlocked.is_empty():
+		if _dialog:
+			_dialog.say(["cabin.trunk.empty"])
+		return
+	var pick: Dictionary = unlocked[unlocked.size() - 1]
+	var lid: String = str(pick.get("id", ""))
+	if lid != "" and not letters_read.has(lid):
+		letters_read.append(lid)
+		_save()
+	_overlay_name = "letter"
+	_card.open_card("", KIT.named(str(pick.get("body", ""))), "cabin.trunk.close")
+	_card._title.text = KIT.named(str(pick.get("title", "")))
+
+
+func _close_top_overlay() -> bool:
+	for o in [_journal, _will, _drawer, _card, _map, _radio]:
+		if o and o.visible:
+			if o.has_method("close"):
+				o.close()
+			elif o.has_method("close_card"):
+				o.close()
+			_overlay_name = ""
+			return true
+	return false
+
+
+func _ensure_hero_layers() -> void:
+	if _hero == null:
+		return
+	if _hero_layers.size() >= 4:
+		return
+	for piece in ["rope", "goggles", "cap", "helm"]:
+		if _hero_layers.has(piece) and is_instance_valid(_hero_layers[piece]):
+			continue
+		var spr := Sprite2D.new()
+		spr.name = "Gear_%s" % piece
+		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		spr.centered = _hero.centered
+		spr.offset = _hero.offset
+		spr.flip_h = _hero.flip_h
+		spr.position = Vector2.ZERO
+		_hero.add_child(spr)
+		_hero_layers[piece] = spr
+
+
+func _set_wide_offset(on: bool) -> void:
+	_hero.offset = Vector2(-8, -8) * PX if on else Vector2.ZERO
+	for piece in _hero_layers.keys():
+		var layer: Sprite2D = _hero_layers[piece]
+		if layer:
+			layer.offset = _hero.offset
+
+
+func _set_hero_frame(family: String, i: int) -> void:
+	_ensure_hero_layers()
+	var rel: String = "hero/%s_f%d.png" % [family, i]
+	var tex: Texture2D = _home(rel)
+	if tex == null:
+		tex = _home("%s_f%d" % [family, i])
+	if tex:
+		_hero.texture = tex
+	var head: String = str(gear_worn.get("head", ""))
+	for piece in ["rope", "goggles", "cap", "helm"]:
+		var layer: Sprite2D = _hero_layers.get(piece)
+		if layer == null:
+			continue
+		layer.centered = _hero.centered
+		layer.offset = _hero.offset
+		layer.flip_h = _hero.flip_h
+		var slot: String = str(extra.get("gear_slots", {}).get(piece, ""))
+		var worn: bool = str(gear_worn.get(slot, "")) == piece
+		if piece == "cap" or piece == "helm":
+			worn = worn and head == piece
+		if not worn:
+			layer.texture = null
+			continue
+		layer.texture = KIT.load_tex("hero/gear/%s/%s_f%d.png" % [piece, family, i])
+
+
+func _walk_family(loot: bool) -> String:
+	if _homecoming_kind == "loss":
+		return "hero_walk_sad"
+	return "hero_walk_loot" if loot else "hero_walk"
+
+
+func _start_rock() -> void:
+	_stop_rock()
+	if _rock:
+		_rock.stop()
+		_rock.visible = false
+	_show_empty_chair(false)
+	_set_idle_hero_visible(false)
+	var main_room = _rooms.get("main")
+	_host_hero(main_room if main_room else _int_root)
+	_hero.visible = true
+	_hero.z_index = 4
+	_hero.flip_h = false
+	_set_wide_offset(false)
+	_place_hero(Vector2(10, 205))
+	_rocking = true
+	_rock_i = 1
+	_set_hero_frame("hero_rock", _rock_i)
+	_beat = "rock"
+	_tick_rock()
+
+
+func _tick_rock() -> void:
+	if not _rocking or not visible:
+		return
+	var t := get_tree().create_timer(0.25, true, true, true)
+	t.timeout.connect(func() -> void:
+		if not _rocking or not visible:
+			return
+		_rock_i = (_rock_i + 1) % 4
+		_set_hero_frame("hero_rock", _rock_i)
+		if _rock_i == 0:
+			KIT.cue(sfx, &"cabin.rock")
+		_tick_rock()
+	, CONNECT_ONE_SHOT)
+
+
+func _stop_rock() -> void:
+	_rocking = false
+	if _rock:
+		_rock.stop()
+		_rock.visible = false
+
+
+func debug_hero_family(family: String, i: int, flip: bool = false) -> void:
+	_stop_rock()
+	_set_idle_hero_visible(false)
+	if _rock:
+		_rock.visible = false
+	var main_room = _rooms.get("main")
+	if main_room:
+		_host_hero(main_room)
+	_hero.visible = true
+	_hero.flip_h = flip
+	var wide: bool = family == "hero_sack_dump" or family == "hero_sack_shake"
+	var seated: bool = family == "hero_sit" or family == "hero_rock"
+	_set_wide_offset(wide)
+	if seated:
+		_show_empty_chair(false)
+		_place_hero(Vector2(10, 205))
+	else:
+		_show_empty_chair(true)
+		_place_hero(Vector2(70, 205) if wide else Vector2(80, 205))
+	_set_hero_frame(family, i)
+
+
+func _spawn_moth() -> void:
+	var main_room = _rooms.get("main")
+	if main_room == null:
+		return
+	var moth := AnimatedSprite2D.new()
+	moth.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	moth.centered = false
+	moth.position = _pt(60, 198)
+	moth.z_index = 8
+	moth.sprite_frames = _frames("moth", ["fx/moth_f0.png", "fx/moth_f1.png"], 10.0, true)
+	main_room.add_child(moth)
+	if moth.sprite_frames:
+		moth.play("moth")
+	KIT.cue(sfx, &"cabin.moth")
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_property(moth, "position", moth.position + _pt(-18, -36), 1.2).set_trans(Tween.TRANS_SINE)
+	tw.parallel().tween_property(moth, "modulate:a", 0.0, 1.2)
+	tw.tween_callback(moth.queue_free)
+
+
+func _spawn_limp_sack() -> void:
+	var main_room = _rooms.get("main")
+	if main_room == null:
+		return
+	if _limp == null:
+		_limp = Sprite2D.new()
+		_limp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_limp.centered = false
+		_limp.z_index = 4
+		main_room.add_child(_limp)
+	_limp.texture = _home("hero/hero_sack_empty_limp.png")
+	_limp.position = _pt(70 + 14, 205 + 24)
+	_limp.visible = true
+	if _sack:
+		_sack.visible = false
+
+
+func _hide_limp_sack() -> void:
+	if _limp:
+		_limp.visible = false
+
+
+func _spawn_sack_pops() -> void:
+	var ids: Array = []
+	for id in _new_ids:
+		ids.append(id)
+	var extras: int = 0
+	for id2 in _held_ids:
+		if _new_ids.has(id2):
+			continue
+		if extras >= 12:
+			break
+		ids.append(id2)
+		extras += 1
+	if ids.is_empty():
+		return
+	var main_room = _rooms.get("main")
+	if main_room == null:
+		return
+	var i: int = 0
+	for id3 in ids:
+		var tex: Texture2D = tex_by_item.get(str(id3), null)
+		if tex == null:
+			continue
+		var spr := Sprite2D.new()
+		spr.texture = tex
+		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		spr.centered = true
+		spr.position = _pt(69, 231)
+		spr.z_index = 7
+		main_room.add_child(spr)
+		var slot_x: float = 92.0 + float(i % 6) * 24.0
+		var slot_y: float = 222.0 + float(i / 6) * 16.0
+		var dest: Vector2 = _pt(slot_x, slot_y)
+		var peak: Vector2 = Vector2((spr.position.x + dest.x) * 0.5, minf(spr.position.y, dest.y) - _px(24))
+		KIT.cue(sfx, &"cabin.item_pop")
+		var from: Vector2 = spr.position
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.tween_method(func(t: float) -> void:
+			spr.position = _quad_bez(from, peak, dest, t)
+		, 0.0, 1.0, 0.35)
+		i += 1
+		await _wait(0.16)
+
+
+func _quad_bez(a: Vector2, b: Vector2, c: Vector2, t: float) -> Vector2:
+	var u: float = 1.0 - t
+	return a * (u * u) + b * (2.0 * u * t) + c * (t * t)

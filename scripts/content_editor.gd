@@ -62,11 +62,12 @@ var _was_paused: bool = false
 func setup() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
+	top_level = true
 	set_anchors_preset(PRESET_FULL_RECT)
 	color = Color("100e0ce8")
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_ALL
-	z_index = 130
+	z_index = 200
 
 	var center := CenterContainer.new()
 	center.set_anchors_preset(PRESET_FULL_RECT)
@@ -143,6 +144,12 @@ func open_card(kind: String, card_id: String, catalog_card: Dictionary = {}) -> 
 	_status.text = "Editing %s · %s" % [kind, card_id]
 	_was_paused = get_tree().paused
 	visible = true
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	var vis: Rect2 = get_viewport().get_visible_rect() if get_viewport() else Rect2()
+	if vis.size.x > 8.0:
+		size = vis.size
+		global_position = vis.position
+	move_to_front()
 	get_tree().paused = true
 	var vp := get_viewport()
 	if vp:
@@ -207,6 +214,7 @@ func _from_catalog(kind: String, card_id: String, cat: Dictionary) -> Dictionary
 		"contradiction_ids": [],
 		"review": REVIEW_STAGE.of_card(cat),
 		"review_note": str(cat.get("review_note", "")),
+		"mode_pool": ModePool.parse(cat.get("mode_pool", "all")),
 	}
 
 
@@ -274,6 +282,9 @@ func _rebuild(card: Dictionary) -> void:
 		bucket_opts.append(bucket_label)
 	_add_pick(row2, "Bucket", "bucket", BucketRules.label_of(card.get("bucket", 0)), bucket_opts)
 	_sheet.add_child(row2)
+	var row_mode := _grid(2)
+	_add_pick(row_mode, "Modes", "mode_pool", ModePool.label_of(card.get("mode_pool", "all")), ["All", "Adventure-Only", "Challenge-Only"])
+	_sheet.add_child(row_mode)
 	if _fields.has("bucket") and _fields["bucket"] is OptionButton:
 		var bucket_pick: OptionButton = _fields["bucket"]
 		BucketRules.paint(bucket_pick)
@@ -537,6 +548,7 @@ func _gather() -> Dictionary:
 		"status": _text_of("status"),
 		"rarity": _text_of("rarity"),
 		"bucket": BucketRules.parse(_text_of("bucket")),
+		"mode_pool": ModePool.parse(_text_of("mode_pool")) if _fields.has("mode_pool") else ModePool.parse(_original.get("mode_pool", "all")),
 		"tier": _int_of("tier", 1),
 		"count": _int_of("count", 1),
 		"priority": _int_of("priority", 3),

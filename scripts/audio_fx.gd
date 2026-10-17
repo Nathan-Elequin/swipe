@@ -230,7 +230,7 @@ func _build_players() -> void:
 	_music_b.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_music_b)
 	music = _music_a
-	for cue_id in ["amb.fire", "amb.cat_purr"]:
+	for cue_id in ["amb.fire", "amb.cat_purr", "amb.radio_static"]:
 		var lp := AudioStreamPlayer.new()
 		lp.bus = "Ambience"
 		lp.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -385,6 +385,9 @@ func _play_event_inner(cue_id: StringName, ctx: Dictionary, depth: int) -> void:
 
 
 func _play_cue_voice(id: String, cue: Dictionary, ctx: Dictionary, files: Array) -> void:
+	if bool(cue.get("loop", false)) and _loop_players.has(id):
+		loop_start(StringName(id), 0.15)
+		return
 	var stream: AudioStream = _pick_stream(id, files)
 	if stream == null:
 		return
@@ -622,7 +625,7 @@ func _set_speech_duck(db: float) -> void:
 	_mix_duck(0.05)
 
 
-func loop_start(cue_id: StringName, fade_s: float) -> void:
+func loop_start(cue_id: StringName, fade_s: float, db_override: float = INF) -> void:
 	var id: String = String(cue_id)
 	var player: AudioStreamPlayer = _loop_players.get(id, null)
 	if player == null:
@@ -637,6 +640,8 @@ func loop_start(cue_id: StringName, fade_s: float) -> void:
 	player.bus = str(cue.get("bus", "Ambience"))
 	player.pitch_scale = 1.0
 	var target: float = float(cue.get("db", -10))
+	if db_override != INF:
+		target = db_override
 	if not player.playing:
 		player.volume_db = -40.0
 		player.play()
@@ -645,7 +650,8 @@ func loop_start(cue_id: StringName, fade_s: float) -> void:
 	tw.tween_property(player, "volume_db", target, maxf(fade_s, 0.01))
 
 
-func loop_stop(cue_id: StringName, fade_s: float) -> void:
+func loop_stop(cue_id: StringName, fade_s: float = 0.4) -> void:
+	stop_cue_voices(cue_id)
 	var player: AudioStreamPlayer = _loop_players.get(String(cue_id), null)
 	if player == null or not player.playing:
 		return
@@ -660,8 +666,19 @@ func loop_stop_all(fade_s: float) -> void:
 		loop_stop(StringName(str(id)), fade_s)
 
 
+func stop_cue_voices(cue_id: StringName) -> void:
+	var id: String = String(cue_id)
+	for i in _pool.size():
+		if str(_voice_meta[i].get("cue_id", "")) != id:
+			continue
+		_pool[i].stop()
+		_voice_meta[i] = {"cue_id": "", "priority": 0, "started_ms": 0}
+
+
 func music_to(bed: StringName, fade_s: float) -> void:
 	var id: String = String(bed)
+	if id in ["combat", "title", "deadly", "intro"]:
+		loop_stop(&"amb.radio_static", 0.25)
 	if not _beds.has(id):
 		return
 	if _current_bed == bed and music != null and music.playing:
@@ -861,6 +878,12 @@ func _apply_cue_music(cue_id: String, bed: String) -> void:
 				music_defeat()
 			else:
 				music_victory()
+		"intro":
+			music_state = &"intro"
+			music_to(&"intro", float(_music_cfg.get("crossfade_s", {}).get("default", 0.8)))
+		"ending":
+			music_state = &"ending"
+			music_to(&"ending", float(_music_cfg.get("crossfade_s", {}).get("default", 0.8)))
 
 
 func _mix_duck(attack: float) -> void:

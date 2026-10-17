@@ -1,0 +1,31 @@
+---
+description: Hand off major UX, sprite, and animation art to the visual designer
+alwaysApply: true
+---
+
+# Visual handoff
+
+For any change that would affect a major UX, visual, or animation part of the game, stop and ask whether it needs a dedicated sprite, asset, or visual element that should be drawn elsewhere.
+
+## Do
+
+1. Think about it on purpose. Engine modulate, a Label, a recolor, or a reused mount is fine when that is actually enough.
+2. If a new drawing would make the screen read clearly — or if you are stretching, hiding, or faking something the player will stare at — **tell Nathan in that turn**.
+3. Package **one** prompt or file he can paste to the visual-designer agent. That packet must be enough for them to return files this repo can drop in without a follow-up interview.
+
+## The packet must name
+
+- Exact PNG filenames and folder (`assets/dungeon/...`)
+- Native pixel size of each file, then 4× nearest-neighbor (same pipeline as the rest of the game)
+- Transparent vs opaque, registration / pivot, and which frames loop
+- Palette hexes and what **not** to draw (no English on plaques, no redrawing card art, unless the request says otherwise)
+- How code will use it (overlay, additive glint, empty 16×16 well, nine-slice, and so on)
+- A one-page size list they return with the PNGs
+
+## Don't
+
+- Ship a stretched, illegible, or placeholder stand-in and call the visual done when a real asset is what would fix it.
+- Ask Nathan to write the designer prompt.
+- Scatter the request across chat when a single file would do.
+
+Feel, layout, and copy can still be built the same turn with what is already in the folder. The handoff is for the missing drawing, not a reason to skip the rest of the request.

@@ -17,3 +17,5 @@ data/*.proposed*.json
 
 .DS_Store
 *~
+
+_pixel_extras/

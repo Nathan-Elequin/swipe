@@ -128,13 +128,272 @@ var _threat_tween: Tween
 var draft_glow: bool = false
 var _glow_t: float = 0.0
 var hub_pierce: bool = false
+signal death_floor
+
+const HERO_PRI := {
+	"death": 0,
+	"hit": 1,
+	"block": 2,
+	"heal": 3,
+	"swipe": 4,
+	"grab": 5,
+	"victory": 6,
+	"lowhp": 7,
+	"idle": 8,
+	"walkoff": 9,
+}
+const HERO_GEAR_ORDER := ["rope", "goggles", "cap", "helm"]
+
+var _hero_layout: Dictionary = {}
+var _hero_frames: Dictionary = {}
+var _hero_gear: Dictionary = {}
+var _badge_tex: Dictionary = {}
+var hub_gear: Dictionary = {"head": "", "eyes": "", "belt": ""}
+var hero_anim: String = "idle"
+var hero_frame: int = 0
+var hub_death_dim: bool = false
+var _hero_t: float = 0.0
+var _hero_hold: bool = false
+var _hero_loops: int = 1
+var _hero_frozen: bool = false
+var _pierce_float_t: float = -1.0
+var _hp_punch_t: float = 0.0
+var _blk_punch_t: float = 0.0
 
 
 func set_hub_pierce(on: bool) -> void:
-	if hub_pierce == on:
-		return
+	if on and not hub_pierce:
+		_pierce_float_t = 0.0
+	if not on:
+		_pierce_float_t = -1.0
 	hub_pierce = on
 	queue_redraw()
+
+
+func set_hub_gear(worn: Dictionary) -> void:
+	hub_gear = {
+		"head": str(worn.get("head", "")),
+		"eyes": str(worn.get("eyes", "")),
+		"belt": str(worn.get("belt", "")),
+	}
+	queue_redraw()
+
+
+func setup_run_hero(art) -> void:
+	_hero_layout = {}
+	if FileAccess.file_exists("res://assets/dungeon/hero_run/layout.json"):
+		var txt: String = FileAccess.get_file_as_string("res://assets/dungeon/hero_run/layout.json")
+		var parsed: Variant = JSON.parse_string(txt)
+		if typeof(parsed) == TYPE_DICTIONARY:
+			_hero_layout = parsed
+	_hero_frames.clear()
+	_hero_gear.clear()
+	_badge_tex.clear()
+	var anims: Dictionary = _hero_layout.get("anims", {})
+	if anims.is_empty():
+		anims = {
+			"idle": {}, "lowhp": {}, "swipe": {}, "hit": {}, "block": {},
+			"heal": {}, "death": {}, "victory": {}, "grab": {}, "walkoff": {},
+		}
+	for anim in anims.keys():
+		var name: String = str(anim)
+		if art and art.has_method("hero_run_anim"):
+			_hero_frames[name] = art.hero_run_anim(name)
+			for piece in HERO_GEAR_ORDER:
+				if not _hero_gear.has(piece):
+					_hero_gear[piece] = {}
+				_hero_gear[piece][name] = art.hero_run_gear(piece, name)
+	if art and art.has_method("hero_run_badge"):
+		for stem in ["badge_hp", "badge_hp_flash", "badge_hp_low", "badge_hp_empty", "badge_blk", "badge_blk_empty", "badge_blk_up", "badge_blk_pierced"]:
+			_badge_tex[stem] = art.hero_run_badge(stem)
+	reset_hero()
+
+
+func reset_hero() -> void:
+	hub_death_dim = false
+	_pierce_float_t = -1.0
+	_hp_punch_t = 0.0
+	_blk_punch_t = 0.0
+	_hero_frozen = false
+	play_hero("idle", 1, true)
+	queue_redraw()
+
+
+func play_hero(anim: String, loops: int = 1, force: bool = false) -> void:
+	if anim == "":
+		return
+	if not force:
+		var pri: int = int(HERO_PRI.get(anim, 99))
+		var cur: int = int(HERO_PRI.get(hero_anim, 99))
+		if not _hero_is_loop(hero_anim) and pri > cur:
+			return
+	hero_anim = anim
+	hero_frame = 0
+	_hero_t = 0.0
+	_hero_hold = false
+	_hero_frozen = false
+	_hero_loops = maxi(1, loops)
+	_on_hero_frame()
+
+
+func debug_hero(anim: String, frame: int) -> void:
+	hero_anim = anim
+	hero_frame = maxi(0, frame)
+	_hero_t = 0.0
+	_hero_hold = true
+	_hero_frozen = true
+	_hero_loops = 1
+	if anim == "death" and hero_frame >= 2:
+		hub_death_dim = true
+	queue_redraw()
+
+
+func wait_hero_frame(anim: String, fi: int) -> void:
+	if hero_anim != anim:
+		play_hero(anim)
+	while is_inside_tree() and hero_anim == anim and hero_frame < fi and not _hero_frozen:
+		await get_tree().process_frame
+
+
+func wait_hero_done() -> void:
+	while is_inside_tree() and not _hero_is_loop(hero_anim) and not _hero_hold and not _hero_frozen:
+		await get_tree().process_frame
+	if hero_anim == "death":
+		while is_inside_tree() and hero_frame < 4 and not _hero_frozen:
+			await get_tree().process_frame
+
+
+func _hero_is_loop(anim: String) -> bool:
+	return anim == "idle" or anim == "lowhp" or anim == "walkoff"
+
+
+func _hero_is_low() -> bool:
+	if hub_hp <= 0:
+		return false
+	if hub_hp <= 3:
+		return true
+	return hub_hp_max > 0 and float(hub_hp) / float(hub_hp_max) <= 0.30
+
+
+func _hero_spec(anim: String) -> Dictionary:
+	var anims: Dictionary = _hero_layout.get("anims", {})
+	var spec: Variant = anims.get(anim, {})
+	if typeof(spec) == TYPE_DICTIONARY:
+		return spec
+	return {}
+
+
+func _hero_return_idle() -> void:
+	var nxt: String = "lowhp" if _hero_is_low() else "idle"
+	play_hero(nxt, 1, true)
+
+
+func _on_hero_frame() -> void:
+	if hero_anim == "death":
+		if hero_frame >= 2:
+			hub_death_dim = true
+		if hero_frame == 3:
+			death_floor.emit()
+	if hero_anim == "block" and hero_frame == 1:
+		_start_blk_punch()
+	queue_redraw()
+
+
+func _hero_tick(delta: float) -> void:
+	if _pierce_float_t >= 0.0:
+		_pierce_float_t += delta
+		if _pierce_float_t >= 0.7:
+			_pierce_float_t = -1.0
+	if _hp_punch_t > 0.0:
+		_hp_punch_t = maxf(0.0, _hp_punch_t - delta)
+	if _blk_punch_t > 0.0:
+		_blk_punch_t = maxf(0.0, _blk_punch_t - delta)
+	if _hero_frozen or _hero_hold:
+		return
+	if _hero_is_loop(hero_anim) and (hero_anim == "idle" or hero_anim == "lowhp"):
+		var want: String = "lowhp" if _hero_is_low() else "idle"
+		if want != hero_anim:
+			play_hero(want, 1, true)
+			return
+	var spec: Dictionary = _hero_spec(hero_anim)
+	var ms: Array = spec.get("ms", [])
+	var nframes: int = int(spec.get("frames", _hero_frames.get(hero_anim, []).size()))
+	if nframes <= 0:
+		nframes = 1
+	if hero_frame < 0 or hero_frame >= nframes:
+		hero_frame = clampi(hero_frame, 0, nframes - 1)
+	var wait_ms: float = 180.0
+	if hero_frame < ms.size():
+		wait_ms = float(ms[hero_frame])
+	if wait_ms <= 0.0:
+		_hero_hold = true
+		hero_frame = nframes - 1
+		_on_hero_frame()
+		return
+	_hero_t += delta
+	if _hero_t < wait_ms / 1000.0:
+		return
+	_hero_t = 0.0
+	if hero_frame + 1 < nframes:
+		hero_frame += 1
+		_on_hero_frame()
+		return
+	if _hero_loops > 1:
+		_hero_loops -= 1
+		hero_frame = 0
+		_on_hero_frame()
+		return
+	if str(spec.get("playback", "")) == "loop" or _hero_is_loop(hero_anim):
+		hero_frame = 0
+		_on_hero_frame()
+		return
+	_hero_return_idle()
+
+
+func _start_blk_punch() -> void:
+	_blk_punch_t = 0.06
+	hub_flash = 1.0
+
+
+func _start_hp_punch() -> void:
+	_hp_punch_t = 0.06
+	hub_hp_flash = 1.0
+
+
+func _layout_xy(folder: String, key: String, fallback: Vector2) -> Vector2:
+	var d: Variant = _hero_layout.get(folder, {})
+	if typeof(d) != TYPE_DICTIONARY:
+		return fallback
+	var v: Variant = (d as Dictionary).get(key, null)
+	if typeof(v) != TYPE_ARRAY or (v as Array).size() < 2:
+		return fallback
+	var a: Array = v
+	return Vector2(float(a[0]), float(a[1]))
+
+
+func _badge_xy(which: String, key: String, fallback: Vector2) -> Vector2:
+	var badges: Variant = _hero_layout.get("badges", {})
+	if typeof(badges) != TYPE_DICTIONARY:
+		return fallback
+	var d: Variant = (badges as Dictionary).get(which, {})
+	if typeof(d) != TYPE_DICTIONARY:
+		return fallback
+	var v: Variant = (d as Dictionary).get(key, null)
+	if typeof(v) != TYPE_ARRAY or (v as Array).size() < 2:
+		return fallback
+	var a: Array = v
+	return Vector2(float(a[0]), float(a[1]))
+
+
+func _badge_rect_from_c(which: String) -> Rect2:
+	var d: Dictionary = _hero_layout.get("badges", {}).get(which, {}) if typeof(_hero_layout.get("badges", {})) == TYPE_DICTIONARY else {}
+	var r: Variant = d.get("rect_from_c", [])
+	if typeof(r) == TYPE_ARRAY and (r as Array).size() >= 4:
+		var a: Array = r
+		return Rect2(float(a[0]), float(a[1]), float(a[2]), float(a[3]))
+	if which == "hp":
+		return Rect2(-64, 24, 44, 40)
+	return Rect2(38, 21, 44, 48)
 
 
 func _ready() -> void:
@@ -187,6 +446,10 @@ func set_vitals(hp_n: int, hp_max: int, hp_ghost: int, blk_n: int, blk_ghost: in
 	hub_hp = hp_n
 	hub_hp_max = maxi(1, hp_max)
 	hub_hp_ghost = hp_ghost
+	if _hero_is_loop(hero_anim) and (hero_anim == "idle" or hero_anim == "lowhp"):
+		var want: String = "lowhp" if _hero_is_low() else "idle"
+		if want != hero_anim:
+			play_hero(want, 1, true)
 	if hub_on and hub_blk != blk_n and hub_blk >= 0:
 		_hub_old = str(hub_blk)
 		_hub_old_t = 1.0
@@ -223,6 +486,9 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 			var now: Dictionary = slices[slay_index]
 			var now_key := "%s:%s" % [now.get("kind", ""), now.get("card_id", "")]
 			if now_key != slay_key:
+				clear_slay()
+			elif slay_kind == "block" and face != slay_index:
+				# Flee leaves the monster in place. Drop BLOCKED once we are no longer facing them.
 				clear_slay()
 	for i in slices.size():
 		var s: Dictionary = slices[i]
@@ -262,9 +528,9 @@ func set_hub(blk_n: int, ghost: int, on: bool) -> void:
 
 
 func punch_hub() -> void:
-	hub_flash = 1.0
+	_start_blk_punch()
 	var tw := create_tween()
-	tw.tween_property(self, "hub_flash", 0.0, 0.28)
+	tw.tween_property(self, "hub_flash", 0.0, 0.06)
 
 
 ## Small player-hub hit / block tell. Not the faced-slice BLOCKED stamp.
@@ -272,20 +538,22 @@ func play_hub_sting(kind: String, amount: int = 0) -> void:
 	hub_sting_kind = kind
 	hub_sting = 1.0
 	var c: Vector2 = _center()
-	var hub_r: float = _radius() * HUB_FRAC
-	if kind == "hurt" and amount > 0:
-		_floaters.append({
-			"pos": c + Vector2(-22.0, hub_r * 0.42),
-			"text": "-%s" % amount,
-			"col": DOWN_COL,
-			"t": 0.0,
-			"life": 0.7,
-		})
-		hub_hp_flash = 1.0
-		var htw := create_tween()
-		htw.tween_property(self, "hub_hp_flash", 0.0, 0.26)
+	if kind == "hurt":
+		play_hero("hit")
+		if amount > 0:
+			var hp_anchor: Vector2 = _badge_xy("hp", "number_anchor_from_c", Vector2(-42, 41))
+			_floaters.append({
+				"pos": c + hp_anchor,
+				"text": "-%s" % amount,
+				"col": DOWN_COL,
+				"t": 0.0,
+				"life": 0.7,
+			})
+			_start_hp_punch()
+			var htw := create_tween()
+			htw.tween_property(self, "hub_hp_flash", 0.0, 0.26)
 	elif kind == "block":
-		punch_hub()
+		play_hero("block")
 	var knock := Vector2(5.0, 3.0) if kind == "hurt" else Vector2(-2.5, 0.0)
 	var dur: float = 0.30 if kind == "hurt" else 0.34
 	var tw := create_tween()
@@ -457,6 +725,8 @@ func recenter_on(index: int, dur: float = 0.28) -> void:
 func spin_to(index: int) -> void:
 	if _spin_tween != null:
 		_spin_tween.kill()
+	if slay_index >= 0:
+		clear_slay()
 	spinning = true
 	facing_index = -1
 	hover_index = -1
@@ -568,6 +838,7 @@ func _process(delta: float) -> void:
 		if av > 0.02:
 			atk_punch_keep[ak] = av
 	_atk_punch = atk_punch_keep
+	_hero_tick(delta)
 	queue_redraw()
 
 
@@ -870,6 +1141,7 @@ func _draw() -> void:
 	if slices.is_empty():
 		draw_arc(c, radius, 0.0, TAU, 72, Color("3a322b"), 2.0, true)
 		_draw_pointer(c, radius)
+		_draw_hub_block(c, radius)
 		return
 	var n: int = slices.size()
 	var starts: PackedFloat32Array = _starts()
@@ -1608,82 +1880,36 @@ func _draw_floaters(font: Font) -> void:
 		draw_string(font, pos2, str(g["text"]), HORIZONTAL_ALIGNMENT_LEFT, -1, int(g.get("fs", 18)), col2)
 
 
-func _draw_hub_block(c: Vector2, radius: float) -> void:
-	var hub_r: float = radius * HUB_FRAC
-	var bob: float = sin(_glow_t * 4.0) * 2.0
-	var ppos: Vector2 = c + Vector2(0.0, -6.0 + bob) + hub_nudge
+func _draw_hub_block(c: Vector2, _radius: float) -> void:
 	var sting_tint := Color.WHITE
 	if hub_sting > 0.02:
 		if hub_sting_kind == "hurt":
 			sting_tint = Color.WHITE.lerp(Color("e07a7a"), hub_sting * 0.85)
 		else:
 			sting_tint = Color.WHITE.lerp(Color("8ec8f0"), hub_sting * 0.7)
-	if not tex_player.is_empty():
-		var fi: int = int(_glow_t / 0.18) % tex_player.size()
-		var tex: Texture2D = tex_player[fi]
-		var psz := Vector2(56, 80)
-		draw_texture_rect(tex, Rect2(ppos - psz * 0.5, psz), false, sting_tint)
+	var top: Vector2 = _layout_xy("hero", "texture_top_left_from_c", Vector2(-48, -50))
+	var hero_rect := Rect2(c + top + hub_nudge, Vector2(96, 96))
+	hero_rect.position = hero_rect.position.round()
+	var frames: Array = _hero_frames.get(hero_anim, tex_player)
+	var tex: Texture2D = null
+	if typeof(frames) == TYPE_ARRAY and not frames.is_empty():
+		var fi: int = clampi(hero_frame, 0, frames.size() - 1)
+		tex = frames[fi]
+	if tex:
+		draw_texture_rect(tex, hero_rect, false, sting_tint)
+		_draw_hub_gear(hero_rect, sting_tint)
 	else:
-		draw_circle(ppos, 16.0, Color("c4a574") * sting_tint)
+		draw_circle(c + Vector2(0, 8) + hub_nudge, 16.0, Color("c4a574") * sting_tint)
 	var font: Font = get_theme_default_font()
 	if font == null:
 		font = ThemeDB.fallback_font
-	var hp_pos: Vector2 = c + Vector2(-22.0, hub_r * 0.42)
-	var hs: float = 32.0 + hub_hp_flash * 6.0
-	var hp_fill: Color = HP_FILL
-	if hub_hp_ghost >= 0 and hub_hp_ghost < hub_hp:
-		hp_fill = hp_fill.lerp(Color("f0e6d8"), 0.35 + 0.25 * absf(sin(_glow_t * 12.0)))
-	if bool(log_focus.get("hub_hp", false)):
-		hp_fill = hp_fill.lerp(Color("fff0c0"), 0.4 + 0.3 * absf(sin(_glow_t * 8.0)))
-		hs += 4.0
-	_draw_heart_shape(hp_pos, hs, hp_fill, Color("1c120c"))
-	_draw_bold_num(font, hp_pos + Vector2(0.0, 2.0), str(maxi(hub_hp, 0)), 18, Color("f0e6d8"))
-	_draw_outlined_string(font, hp_pos + Vector2(0.0, 22.0), "HP", 11, Color("e8a0a0"), Color("100e0c"))
-	var shown: int = hub_ghost if hub_ghost >= 0 else hub_blk
-	var fill := Color("2a6aa8")
-	var rim := Color("6bb3d9")
-	if shown <= 0:
-		fill = Color("1a3348")
-		rim = Color("4a6a80")
-	if hub_ghost >= 0 and hub_ghost > hub_blk:
-		fill = Color("2a7a58")
-		rim = Color("7dba7d")
-	if bool(log_focus.get("hub_blk", false)):
-		fill = fill.lerp(Color("fff0c0"), 0.35 + 0.25 * absf(sin(_glow_t * 8.0)))
-		rim = Color("fff0c0")
-	var scale: float = 1.0 + hub_flash * 0.28
-	var shield_c: Vector2 = c + Vector2(24.0, hub_r * 0.42)
-	var sw: float = 28.0 * scale
-	var shield := PackedVector2Array([
-		shield_c + Vector2(0.0, -sw * 0.78),
-		shield_c + Vector2(sw * 0.70, -sw * 0.28),
-		shield_c + Vector2(sw * 0.55, sw * 0.48),
-		shield_c + Vector2(0.0, sw * 0.88),
-		shield_c + Vector2(-sw * 0.55, sw * 0.48),
-		shield_c + Vector2(-sw * 0.70, -sw * 0.28),
-	])
-	draw_colored_polygon(shield, fill)
-	shield.append(shield[0])
-	draw_polyline(shield, rim, 3.0, true)
-	var txt: String = str(maxi(shown, 0))
-	_draw_bold_num(font, shield_c + Vector2(0.0, 1.0), txt, 18, Color("f0e6d8"))
-	_draw_outlined_string(font, shield_c + Vector2(0.0, sw * 0.92 + 8.0), "BLK", 11, Color("8ec8e8"), Color("100e0c"))
-	if hub_pierce:
-		var slash_a: float = 0.55 + 0.35 * absf(sin(_glow_t * 6.0))
-		var slash := Color("e07a3d", slash_a)
-		var a := shield_c + Vector2(-sw * 0.62, -sw * 0.55)
-		var b := shield_c + Vector2(sw * 0.62, sw * 0.62)
-		draw_line(a, b, Color("100e0c", slash_a), 5.0, true)
-		draw_line(a, b, slash, 3.0, true)
-		_draw_outlined_string(font, shield_c + Vector2(0.0, sw * 0.92 + 22.0), "IGNORED", 10, Color("e8c36a"), Color("100e0c"))
-	if _hub_old_t > 0.0 and _hub_old != txt:
-		var oc := Color(0.94, 0.90, 0.85, _hub_old_t)
-		var osz: Vector2 = font.get_string_size(_hub_old, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
-		draw_string(font, shield_c + Vector2(-osz.x * 0.5, 8.0 - (1.0 - _hub_old_t) * 16.0), _hub_old, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, oc)
+	var dim: float = 0.35 if hub_death_dim else 1.0
+	_draw_hp_badge(c, font, dim)
+	_draw_blk_badge(c, font, dim)
 	if hub_sting > 0.02:
 		var ink: Color = Color("e07a7a") if hub_sting_kind == "hurt" else Color("5aa8e8")
 		ink.a = hub_sting * 0.9
-		var origin: Vector2 = ppos if hub_sting_kind == "hurt" else shield_c
+		var origin: Vector2 = c + (Vector2(0, 8) if hub_sting_kind == "hurt" else Vector2(60, 40))
 		var burst: float = lerpf(22.0, 10.0, hub_sting)
 		draw_arc(origin, burst * 0.55, 0.0, TAU, 18, Color(ink.r, ink.g, ink.b, hub_sting * 0.45), 2.0, true)
 		for i in 6:
@@ -1691,6 +1917,108 @@ func _draw_hub_block(c: Vector2, radius: float) -> void:
 			var inner: Vector2 = origin + Vector2.from_angle(ang) * burst * 0.22
 			var outer: Vector2 = origin + Vector2.from_angle(ang) * burst
 			draw_line(inner, outer, ink, 2.4, true)
+
+
+func _draw_hub_gear(hero_rect: Rect2, sting_tint: Color) -> void:
+	var head: String = str(hub_gear.get("head", ""))
+	for piece in HERO_GEAR_ORDER:
+		var worn: bool = false
+		if piece == "rope":
+			worn = str(hub_gear.get("belt", "")) == "rope"
+		elif piece == "goggles":
+			worn = str(hub_gear.get("eyes", "")) == "goggles"
+		elif piece == "cap" or piece == "helm":
+			worn = head == piece
+		if not worn:
+			continue
+		var by_anim: Dictionary = _hero_gear.get(piece, {})
+		var frames: Array = by_anim.get(hero_anim, [])
+		if frames.is_empty():
+			continue
+		var fi: int = clampi(hero_frame, 0, frames.size() - 1)
+		var gtex: Texture2D = frames[fi]
+		if gtex:
+			draw_texture_rect(gtex, hero_rect, false, sting_tint)
+
+
+func _hp_badge_stem() -> String:
+	if hub_hp <= 0:
+		return "badge_hp_empty"
+	if _hero_is_low():
+		return "badge_hp_low"
+	var flashing: bool = (hub_hp_ghost >= 0 and hub_hp_ghost < hub_hp) or bool(log_focus.get("hub_hp", false))
+	if flashing and sin(_glow_t * 12.0) > 0.0:
+		return "badge_hp_flash"
+	return "badge_hp"
+
+
+func _blk_badge_stem() -> String:
+	if hub_pierce:
+		return "badge_blk_pierced"
+	var shown: int = hub_ghost if hub_ghost >= 0 else hub_blk
+	if shown <= 0:
+		return "badge_blk_empty"
+	if (hub_ghost >= 0 and hub_ghost > hub_blk) or bool(log_focus.get("hub_blk", false)):
+		return "badge_blk_up"
+	return "badge_blk"
+
+
+func _draw_badge_tex(c: Vector2, which: String, stem: String, punch: bool, dim: float) -> Rect2:
+	var local: Rect2 = _badge_rect_from_c(which)
+	var vis: Vector2 = _badge_xy(which, "visual_centre_from_c", local.position + local.size * 0.5)
+	var size: Vector2 = local.size
+	if punch:
+		size = size * 1.25
+	var pos: Vector2 = c + vis - size * 0.5
+	if not punch:
+		pos = (c + local.position).round()
+		size = local.size
+	var rect := Rect2(pos.round() if punch else pos, size)
+	var tex: Texture2D = _badge_tex.get(stem, null)
+	var col := Color(1, 1, 1, dim)
+	if tex:
+		draw_texture_rect(tex, rect, false, col)
+	return rect
+
+
+func _draw_hp_badge(c: Vector2, font: Font, dim: float) -> void:
+	_draw_badge_tex(c, "hp", _hp_badge_stem(), _hp_punch_t > 0.0, dim)
+	var anchor: Vector2 = c + _badge_xy("hp", "number_anchor_from_c", Vector2(-42, 41))
+	var ncol := Color("f0e6d8")
+	ncol.a = dim
+	_draw_bold_num(font, anchor, str(maxi(hub_hp, 0)), 18, ncol)
+
+
+func _draw_blk_badge(c: Vector2, font: Font, dim: float) -> void:
+	_draw_badge_tex(c, "blk", _blk_badge_stem(), _blk_punch_t > 0.0, dim)
+	var shown: int = hub_ghost if hub_ghost >= 0 else hub_blk
+	var txt: String = str(maxi(shown, 0))
+	var anchor: Vector2 = c + _badge_xy("blk", "number_anchor_from_c", Vector2(60, 41))
+	var ncol := Color("f0e6d8")
+	ncol.a = dim
+	_draw_bold_num(font, anchor, txt, 18, ncol)
+	if _hub_old_t > 0.0 and _hub_old != txt:
+		var oc := Color(0.94, 0.90, 0.85, _hub_old_t * dim)
+		var osz: Vector2 = font.get_string_size(_hub_old, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
+		draw_string(font, anchor + Vector2(-osz.x * 0.5, 8.0 - (1.0 - _hub_old_t) * 16.0), _hub_old, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, oc)
+	if _pierce_float_t >= 0.0:
+		var t: float = clampf(_pierce_float_t / 0.7, 0.0, 1.0)
+		var from_c: Vector2 = _badge_xy("blk", "from_c", Vector2(60, 16))
+		var pierce: Dictionary = _hero_layout.get("badges", {}).get("pierce_text", {}) if typeof(_hero_layout.get("badges", {})) == TYPE_DICTIONARY else {}
+		var from_a: Variant = pierce.get("from_c", [60, 16])
+		var to_a: Variant = pierce.get("to_c", [60, 2])
+		if typeof(from_a) == TYPE_ARRAY and (from_a as Array).size() >= 2:
+			from_c = Vector2(float(from_a[0]), float(from_a[1]))
+		var to_c := Vector2(60, 2)
+		if typeof(to_a) == TYPE_ARRAY and (to_a as Array).size() >= 2:
+			to_c = Vector2(float(to_a[0]), float(to_a[1]))
+		var pos: Vector2 = c + from_c.lerp(to_c, t)
+		var a: float = 1.0
+		if _pierce_float_t > 0.4:
+			a = clampf(1.0 - (_pierce_float_t - 0.4) / 0.3, 0.0, 1.0)
+		var col := Color("e8c36a", a)
+		var ink := Color("100e0c", a)
+		_draw_outlined_string(font, pos + Vector2(0, 4), "IGNORED", 10, col, ink)
 
 
 func _heart_pts(pos: Vector2, hs: float) -> PackedVector2Array:

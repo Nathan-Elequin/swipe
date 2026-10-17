@@ -6,11 +6,12 @@ signal hovered_item(it: Dictionary, card: Control)
 signal unhovered_item
 
 const UX := preload("res://scripts/ux_style.gd")
+const COPY := preload("res://scripts/player_copy.gd")
 
-var _title: Label
-var _sub: Label
+var _title
+var _sub
 var _row: HBoxContainer
-var _hint: Label
+var _hint
 var left_it: Dictionary = {}
 var right_it: Dictionary = {}
 var _busy: bool = false
@@ -36,32 +37,39 @@ func setup() -> void:
 	col.add_theme_constant_override("separation", 8)
 	col.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	add_child(col)
-	_title = Label.new()
+	_title = FitLabelBox.make()
+	_title.show_frame = false
+	_title.padding = 0
+	_title.max_font_size = 20
+	_title.min_font_size = 16
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_title.add_theme_font_size_override("font_size", 20)
-	_title.add_theme_color_override("font_color", Color("e8c36a"))
-	_title.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_title.add_theme_constant_override("outline_size", 4)
+	_title.font_color = Color("e8c36a")
+	_title.set_outline(Color("100e0c"), 4)
+	_title.custom_minimum_size = Vector2(480, 28)
 	col.add_child(_title)
-	_sub = Label.new()
+	_sub = FitLabelBox.make()
+	_sub.show_frame = false
+	_sub.padding = 0
+	_sub.max_font_size = 14
+	_sub.min_font_size = 12
 	_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_sub.add_theme_font_size_override("font_size", 14)
-	_sub.add_theme_color_override("font_color", Color("d8cbb8"))
-	_sub.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_sub.add_theme_constant_override("outline_size", 3)
+	_sub.font_color = Color("d8cbb8")
+	_sub.set_outline(Color("100e0c"), 3)
+	_sub.custom_minimum_size = Vector2(480, 22)
 	col.add_child(_sub)
 	_row = HBoxContainer.new()
 	_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_row.add_theme_constant_override("separation", 12)
 	col.add_child(_row)
-	_hint = Label.new()
+	_hint = FitLabelBox.make()
+	_hint.show_frame = false
+	_hint.padding = 0
+	_hint.max_font_size = 13
+	_hint.min_font_size = 12
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_hint.add_theme_font_size_override("font_size", 13)
-	_hint.add_theme_color_override("font_color", Color("c4a574"))
-	_hint.text = "Pick one. Hover to read it."
+	_hint.font_color = Color("c4a574")
+	_hint.set_copy("challenge.pick_hover")
+	_hint.custom_minimum_size = Vector2(480, 20)
 	col.add_child(_hint)
 
 

@@ -4,14 +4,16 @@ extends Control
 
 signal finished
 
+const COPY := preload("res://scripts/player_copy.gd")
+
 var sfx = null
 var _go: bool = false
 var _playing: bool = false
 var _t: float = 0.0
-var _title: Label
-var _sub: Label
-var _loot_head: Label
-var _foe_head: Label
+var _title
+var _sub
+var _loot_head
+var _foe_head
 var _loot_row: HBoxContainer
 var _foe_row: HBoxContainer
 var _kind: Label
@@ -75,25 +77,31 @@ func _build() -> void:
 	col.add_theme_constant_override("separation", 10)
 	margin.add_child(col)
 
-	_title = Label.new()
+	_title = FitLabelBox.make()
+	_title.show_frame = false
+	_title.padding = 0
+	_title.max_font_size = 40
+	_title.min_font_size = 16
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_title.add_theme_font_size_override("font_size", 40)
-	_title.add_theme_color_override("font_color", Color("f0d78a"))
+	_title.custom_minimum_size = Vector2(640, 52)
+	_title.font_color = Color("f0d78a")
 	col.add_child(_title)
 
-	_sub = Label.new()
+	_sub = FitLabelBox.make()
+	_sub.show_frame = false
+	_sub.padding = 0
+	_sub.max_font_size = 20
+	_sub.min_font_size = 16
 	_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_sub.add_theme_font_size_override("font_size", 20)
-	_sub.add_theme_color_override("font_color", Color("e6d7c4"))
+	_sub.custom_minimum_size = Vector2(640, 32)
+	_sub.font_color = Color("e6d7c4")
 	col.add_child(_sub)
 
-	_loot_head = _section("Loot")
+	_loot_head = _section(COPY.text("bucket.loot", "Loot"))
 	col.add_child(_loot_head)
 	_loot_row = _row()
 	col.add_child(_center(_loot_row))
-	_foe_head = _section("Foes")
+	_foe_head = _section(COPY.text("bucket.foes", "Foes"))
 	col.add_child(_foe_head)
 	_foe_row = _row()
 	col.add_child(_center(_foe_row))
@@ -138,8 +146,10 @@ func _build() -> void:
 
 	var bar := CenterContainer.new()
 	col.add_child(bar)
-	_next = Button.new()
-	_next.text = "Onward"
+	_next = FitButton.new()
+	_next.max_font_size = 26
+	_next.min_font_size = 16
+	_next.text = COPY.text("bucket.onward", "Onward")
 	_next.custom_minimum_size = Vector2(240, 64)
 	_next.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_next.add_theme_font_size_override("font_size", 26)
@@ -149,12 +159,16 @@ func _build() -> void:
 	bar.add_child(_next)
 
 
-func _section(text: String) -> Label:
-	var l := Label.new()
-	l.text = text
+func _section(text: String) -> Control:
+	var l: FitLabelBox = FitLabelBox.make()
+	l.show_frame = false
+	l.padding = 0
+	l.max_font_size = 18
+	l.min_font_size = 12
+	l.set_plain(text)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", 18)
-	l.add_theme_color_override("font_color", Color("c4a574"))
+	l.font_color = Color("c4a574")
+	l.custom_minimum_size = Vector2(240, 24)
 	return l
 
 
@@ -206,8 +220,8 @@ func play(bucket_n: int, entries: Array) -> void:
 	_fit()
 	set_process(true)
 	visible = true
-	_title.text = "As you venture deeper, new Loot and Foes reveal themselves."
-	_sub.text = "Hover a shadow to see what it is. From now on, these can show up in every dungeon."
+	_title.text = COPY.text("bucket.title", "As you venture deeper, new Loot and Foes reveal themselves.")
+	_sub.text = COPY.text("bucket.sub", "Hover a shadow to see what it is. From now on, these can show up in every dungeon.")
 	_title.modulate.a = 0.0
 	_sub.modulate.a = 0.0
 	_clear_detail()
@@ -370,14 +384,14 @@ func _show_detail(entry: Dictionary) -> void:
 	if str(entry.get("hp", "")) != "":
 		bits.append("HP %s" % entry.get("hp", ""))
 	_stats.text = "   ·   ".join(bits)
-	_body.text = str(entry.get("ability", ""))
+	_body.text = COPY.apply_names(str(entry.get("ability", "")))
 
 
 func _clear_detail() -> void:
 	_kind.text = ""
 	_dname.text = ""
 	_stats.text = ""
-	_body.text = "Hover a shadow."
+	_body.text = COPY.text("bucket.hover", "Hover a shadow.")
 
 
 func _on_next() -> void:

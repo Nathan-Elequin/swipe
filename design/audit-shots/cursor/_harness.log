@@ -1,0 +1,36 @@
+run start
+skip 21a_win_homecoming_dump.png: Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.
+skip 21b_win_homecoming_fly.png: NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.
+run start
+skip 21a_win_homecoming_dump.png: Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.
+skip 21b_win_homecoming_fly.png: NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.
+run start
+skip 21a_win_homecoming_dump.png: Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.
+skip 21b_win_homecoming_fly.png: NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.
+run start
+skip 21a_win_homecoming_dump.png: Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.
+skip 21b_win_homecoming_fly.png: NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.
+skip 14_keyring_midbeat.png: side-door unlock sprite never appeared after skipping the key-ring panel
+run start
+skip 21a_win_homecoming_dump.png: Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.
+skip 21b_win_homecoming_fly.png: NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.
+skip 14_keyring_midbeat.png: side-door unlock sprite never appeared after skipping the key-ring panel
+run start
+skip 21a_win_homecoming_dump.png: Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.
+skip 21b_win_homecoming_fly.png: NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.
+run start
+skip 21a_win_homecoming_dump.png: Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.
+skip 21b_win_homecoming_fly.png: NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.
+run start
+skip 21a_win_homecoming_dump.png: Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.
+skip 21b_win_homecoming_fly.png: NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.
+run start
+skip 21a_win_homecoming_dump.png: Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.
+skip 21b_win_homecoming_fly.png: NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.
+run start
+skip 21a_win_homecoming_dump.png: Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.
+skip 21b_win_homecoming_fly.png: NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.
+skip 14_keyring_midbeat.png: side-door unlock sprite never appeared after skipping the key-ring panel
+text-targets start
+text-targets start
+text-targets start

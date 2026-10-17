@@ -26,18 +26,18 @@ var _glow: GlowFrame
 var _stamp: TierStamp
 var _actor: Control
 var _stage: Control
-var _cue: Label
+var _cue
 var _tier_sub: Label
 var _relic_host: CenterContainer
 var _item_tag: Label
-var _door_title: Label
+var _door_title
 var _owner_tag: Label
 var _rules_box: PanelContainer
 var _rules: RichTextLabel
 var _hook: Label
 var _refuse: Button
-var _hint: Label
-var _guard: Label
+var _hint
+var _guard
 var _btns: HBoxContainer
 var _owner_plate
 var _pips: HBoxContainer
@@ -69,29 +69,35 @@ func setup(p_art, p_sfx = null) -> void:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 10)
 	_panel.add_child(col)
-	_cue = Label.new()
+	_cue = FitLabelBox.make()
+	_cue.show_frame = false
+	_cue.padding = 0
+	_cue.max_font_size = 24
+	_cue.min_font_size = 16
 	_cue.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_cue.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_cue.add_theme_font_size_override("font_size", 24)
-	_cue.add_theme_color_override("font_color", Color("f0e6d8"))
-	_cue.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_cue.add_theme_constant_override("outline_size", 6)
+	_cue.font_color = Color("f0e6d8")
+	_cue.set_outline(Color("100e0c"), 6)
+	_cue.custom_minimum_size = Vector2(GATE_W - 24, 32)
 	col.add_child(_cue)
-	_hint = Label.new()
+	_hint = FitLabelBox.make()
+	_hint.show_frame = false
+	_hint.padding = 0
+	_hint.max_font_size = 16
+	_hint.min_font_size = 12
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_hint.add_theme_font_size_override("font_size", 16)
-	_hint.add_theme_color_override("font_color", Color("c4a574"))
-	_hint.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_hint.add_theme_constant_override("outline_size", 4)
+	_hint.font_color = Color("c4a574")
+	_hint.set_outline(Color("100e0c"), 4)
+	_hint.custom_minimum_size = Vector2(GATE_W - 24, 24)
 	col.add_child(_hint)
-	_guard = Label.new()
+	_guard = FitLabelBox.make()
+	_guard.show_frame = false
+	_guard.padding = 0
+	_guard.max_font_size = 22
+	_guard.min_font_size = 16
 	_guard.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_guard.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_guard.add_theme_font_size_override("font_size", 22)
-	_guard.add_theme_color_override("font_color", Color("e8c36a"))
-	_guard.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_guard.add_theme_constant_override("outline_size", 6)
+	_guard.font_color = Color("e8c36a")
+	_guard.set_outline(Color("100e0c"), 6)
+	_guard.custom_minimum_size = Vector2(GATE_W - 24, 28)
 	_guard.visible = false
 	col.add_child(_guard)
 	_stamp = TierStamp.new()

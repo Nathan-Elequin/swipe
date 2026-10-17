@@ -234,3 +234,159 @@ music_deadly.ogg (25.90 s)
     <- Dungeon Deep / dungeon_deep.mp3 — Eldritch Grim — CC0 1.0 — https://opengameart.org/content/dungeon-deep-0
 music_cabin.ogg (64.00 s)
     <- A Small Fire Will Do (Calming Loop) / a_small_fire_will_do.wav — Trex0n (Cal McEachern) — CC0 1.0 (credit appreciated) — https://opengameart.org/content/a-small-fire-will-do-calming-loop
+
+Cabin overhaul (2026-10-17): new files
+--------------------------------------
+Same processing as audio pass 1 (trim, pitch where noted, SFX active-RMS targets ui -20 / sfx -16 / sting -16 / amb -22 dBFS,
+peak <= -1 dBFS; music -22/-23 LUFS). Rebuild: tools/audio/cabin_sfxgen.py then tools/audio/build_cabin_audio.py.
+
+cab_hover_a.ogg (0.09 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_hover_wood_a.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_hover_b.ogg (0.09 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_hover_wood_b.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_click.ogg (0.16 s)
+    <- Kenney — Impact Sounds / Audio/impactWood_light_000.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — Interface Sounds / Audio/click_002.ogg (-8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+cab_locked.ogg (0.25 s)
+    <- Kenney — RPG Audio / Audio/metalLatch.ogg (pitch x1.1) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — Impact Sounds / Audio/impactMetal_light_001.ogg (pitch x1.2, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cab_unlock.ogg (0.72 s)
+    <- Kenney — RPG Audio / Audio/metalLatch.ogg (pitch x0.9) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — Impact Sounds / Audio/impactMetal_light_003.ogg (pitch x1.3, -4 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_unlock_glint.wav (-6 dB layer) — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_chain_drop.ogg (0.35 s)
+    <- Kenney — Impact Sounds / Audio/impactMetal_medium_002.ogg (pitch x1.1) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — Impact Sounds / Audio/impactMetal_light_004.ogg (pitch x0.9, -3 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — Impact Sounds / Audio/impactMetal_light_002.ogg (pitch x1.2, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cab_door_creak.ogg (1.41 s)
+    <- Kenney — RPG Audio / Audio/creak2.ogg (pitch x0.85) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — RPG Audio / Audio/doorOpen_2.ogg (-4 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_key_jingle.ogg (0.68 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_key_jingle.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+    <- Kenney — RPG Audio / Audio/metalClick.ogg (pitch x1.2, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+sting_unlock.ogg (1.39 s)
+    <- Kenney — Music Jingles / Audio/Steel jingles/jingles_STEEL02.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+cab_radio_on.ogg (0.94 s)
+    <- Kenney — RPG Audio / Audio/metalClick.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_radio_on.wav (-2 dB layer) — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_radio_knob.ogg (0.06 s)
+    <- Kenney — Interface Sounds / Audio/tick_004.ogg (pitch x0.8) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+cab_radio_tune.ogg (0.66 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_radio_tune.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_radio_static_loop.ogg (2.40 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_radio_static_loop.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_page_flip_1.ogg (0.67 s)
+    <- Kenney — RPG Audio / Audio/bookFlip1.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_page_flip_2.ogg (0.39 s)
+    <- Kenney — RPG Audio / Audio/bookFlip2.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_page_flip_3.ogg (0.23 s)
+    <- Kenney — RPG Audio / Audio/bookFlip3.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_book_open.ogg (0.14 s)
+    <- Kenney — RPG Audio / Audio/bookOpen.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_book_close.ogg (0.23 s)
+    <- Kenney — RPG Audio / Audio/bookClose.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_scroll.ogg (0.48 s)
+    <- Kenney — RPG Audio / Audio/bookFlip2.ogg (pitch x0.8) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — RPG Audio / Audio/cloth3.ogg (pitch x1.1, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_map_pin.ogg (0.22 s)
+    <- Kenney — Impact Sounds / Audio/impactTin_medium_000.ogg (pitch x1.5) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — Interface Sounds / Audio/select_003.ogg (-8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+cab_seal_stamp.ogg (0.51 s)
+    <- Kenney — Impact Sounds / Audio/impactPlank_medium_003.ogg (pitch x0.8) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — Impact Sounds / Audio/impactSoft_medium_002.ogg (-2 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cab_sack_shake.ogg (0.73 s)
+    <- Kenney — RPG Audio / Audio/handleSmallLeather.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — RPG Audio / Audio/cloth1.ogg (-3 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — RPG Audio / Audio/handleSmallLeather2.ogg (pitch x1.05, -2 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_sack_empty.ogg (0.65 s)
+    <- Kenney — Impact Sounds / Audio/impactSoft_heavy_001.ogg (pitch x0.8) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+sting_empty.ogg (1.08 s)
+    <- Kenney — Music Jingles / Audio/Sax jingles/jingles_SAX03.ogg (pitch x0.9) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+cab_moth.ogg (0.60 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_moth.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_item_pop_a.ogg (0.69 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_item_pop_a.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+    <- Kenney — Casino Audio / Audio/card-place-1.ogg (-8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
+cab_item_pop_b.ogg (0.45 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_item_pop_b.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+    <- Kenney — Casino Audio / Audio/card-place-2.ogg (-8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
+cab_item_burst.ogg (0.64 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_item_burst.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+    <- Kenney — Impact Sounds / Audio/impactGlass_light_000.ogg (pitch x1.2, -8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cab_item_whoosh.ogg (0.43 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_item_whoosh.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_shelf_chime.ogg (0.53 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_shelf_chime.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_hero_yip.ogg (0.22 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_hero_yip.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_hero_sigh.ogg (0.90 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_hero_sigh.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_rope_climb_1.ogg (0.45 s)
+    <- Kenney — RPG Audio / Audio/cloth2.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — RPG Audio / Audio/creak1.ogg (pitch x1.3, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_rope_climb_2.ogg (0.38 s)
+    <- Kenney — RPG Audio / Audio/cloth4.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — RPG Audio / Audio/creak3.ogg (pitch x1.35, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_rope_creak.ogg (0.78 s)
+    <- Kenney — RPG Audio / Audio/creak1.ogg (pitch x0.75) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_hole_rumble.ogg (1.40 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_hole_rumble.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_gear_take.ogg (0.71 s)
+    <- Kenney — RPG Audio / Audio/clothBelt.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — RPG Audio / Audio/metalClick.ogg (pitch x1.3, -8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_gear_hang.ogg (0.26 s)
+    <- Kenney — RPG Audio / Audio/beltHandle1.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_dummy.ogg (0.30 s)
+    <- Kenney — Impact Sounds / Audio/impactSoft_medium_000.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — RPG Audio / Audio/creak3.ogg (pitch x1.2, -5 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_bed.ogg (0.55 s)
+    <- Kenney — Impact Sounds / Audio/impactSoft_heavy_003.ogg (pitch x0.9) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cab_telescope.ogg (0.41 s)
+    <- Kenney — RPG Audio / Audio/metalClick.ogg (pitch x0.9) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — Interface Sounds / Audio/maximize_003.ogg (-6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+cab_trunk.ogg (0.63 s)
+    <- Kenney — RPG Audio / Audio/bookOpen.ogg (pitch x0.7) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — RPG Audio / Audio/creak1.ogg (-4 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cab_brag_cog.ogg (0.13 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_cog_tick.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_room_sign.ogg (0.20 s)
+    <- Kenney — Impact Sounds / Audio/impactWood_light_002.ogg (pitch x1.2) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cab_panel_whoosh.ogg (0.33 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_panel_whoosh.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+nib_psst.ogg (0.53 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_nib_psst.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+nib_gasp.ogg (0.18 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_nib_gasp.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+nib_chuckle.ogg (0.33 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_nib_chuckle.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+sting_intro.ogg (1.68 s)
+    <- Kenney — Music Jingles / Audio/Steel jingles/jingles_STEEL07.ogg (pitch x0.85) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+sting_ending.ogg (1.39 s)
+    <- Kenney — Music Jingles / Audio/Steel jingles/jingles_STEEL03.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+    <- Kenney — Music Jingles / Audio/Pizzicato jingles/jingles_PIZZI10.ogg (-6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+music_intro.ogg (156.00 s)
+    <- 4 Music Box Tracks / musicbox/musicbox3_sad_tune.ogg — Mjorlaja & Aureolus_Omicron — CC0 1.0 — https://opengameart.org/content/4-music-box-tracks
+music_ending.ogg (171.43 s)
+    <- 4 Music Box Tracks / musicbox/musicbox4_happy_polka.ogg — Mjorlaja & Aureolus_Omicron — CC0 1.0 — https://opengameart.org/content/4-music-box-tracks
+music_station_inn.ogg (49.95 s)
+    <- "Medieval: The Old Tower Inn" (loop version) / Loop_The_Old_Tower_Inn.wav (5.8 ms wrap crossfade; -2.6 dB gain; -20.1 LUFS / -4.7 dBTP) — RandomMind — CC0 1.0 — https://opengameart.org/content/medieval-the-old-tower-inn
+music_station_rag.ogg (111.84 s)
+    <- "Ragtime! Jazz" / ragtime.mp3 (trimmed 50 ms head; 15 ms fade into loop; -2.0 dB gain; -20.0 LUFS / -2.2 dBTP) — Tarush Singhal — CC0 1.0 — https://opengameart.org/content/ragtime-jazz
+music_station_harp.ogg (149.36 s)
+    <- "Meadow Thoughts" / Meadow Thoughts.ogg (trimmed 0.38 s trailing silence; 150 ms fade on final ring-out; -5.3 dB gain; -20.1 LUFS / -5.5 dBTP) — Écrivain — CC0 1.0 — https://opengameart.org/content/meadow-thoughts
+cab_drawer_stuck.ogg (0.61 s)
+    <- Kenney — Impact Sounds / Audio/impactWood_medium_001.ogg (pitch x1.1) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — Impact Sounds / Audio/impactWood_light_003.ogg (pitch x1.2, -3 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — Impact Sounds / Audio/impactWood_light_001.ogg (pitch x1.25, -5 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — Impact Sounds / Audio/impactMining_000.ogg (pitch x1.3, -12 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cab_drawer_unlatch.ogg (0.76 s)
+    <- Kenney — RPG Audio / Audio/metalLatch.ogg (pitch x1.3) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — RPG Audio / Audio/metalClick.ogg (pitch x0.9, -4 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_unlock_glint.wav (-12 dB layer) — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+cab_drawer_open.ogg (0.97 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_drawer_slide.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+    <- Kenney — Impact Sounds / Audio/impactMining_002.ogg (pitch x1.1, -4 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — Impact Sounds / Audio/impactMining_004.ogg (pitch x1.25, -7 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cab_geode_chime.ogg (0.59 s)
+    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_geode_chime.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
+    <- Kenney — Impact Sounds / Audio/impactGlass_light_002.ogg (pitch x0.9, -8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds

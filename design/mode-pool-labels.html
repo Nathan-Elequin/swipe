@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mode labels</title>
+<style>
+  :root { --ink:#f0e6d8; --muted:#cbbba6; --bg:#120e0c; --panel:#1c1612; --gold:#e8c36a; --bronze:#c08050; --silver:#c5cdd8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.4 "Iowan Old Style", Palatino, Georgia, serif; }
+  header { position: sticky; top: 0; z-index: 8; background: #120e0cf2; padding: 18px 24px 14px; border-bottom: 1px solid #3a322c; }
+  h1 { margin: 0 0 6px; font-size: 26px; }
+  .lead { color: var(--muted); margin: 0 0 10px; max-width: 860px; }
+  .bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button.main { background: #2a1c14; border: 2px solid var(--gold); border-radius: 999px; padding: 6px 16px; }
+  button.ghost { background: transparent; border: 1px solid #6b5344; border-radius: 999px; padding: 5px 12px; }
+  .count { color: var(--gold); font-weight: 700; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 20px 40px; }
+  @media (max-width: 980px) { .cols { grid-template-columns: 1fr; } }
+  h2 { margin: 0 0 10px; font-size: 20px; }
+  .card { border: 3px solid #6b5344; background: var(--panel); padding: 10px 12px 12px; margin: 0 0 10px; }
+  .card.t1 { border-color: var(--bronze); }
+  .card.t2 { border-color: var(--silver); }
+  .card.t3 { border-color: var(--gold); }
+  .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .nm { font-weight: 700; font-size: 18px; }
+  .meta { font-size: 12px; color: var(--muted); }
+  .ab { margin: 6px 0 10px; color: #e6d8c6; min-height: 2.6em; }
+  .btns { display: flex; gap: 6px; }
+  .btns button { flex: 1; border-radius: 8px; border: 2px solid #6b5344; background: #241c18; padding: 6px 4px; font-size: 13px; }
+  .btns button.on.all { border-color: #8dcb8d; background: #1a2a16; }
+  .btns button.on.adventure { border-color: #6bb3d9; background: #142028; }
+  .btns button.on.challenge { border-color: var(--gold); background: #2a1c08; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Which modes can this card show up in?</h1>
+  <p class="lead">Click All, Adventure-Only, or Challenge-Only on every card. Smoke Bomb, Danger Magnet, and Clockwork Knight already start as Adventure-Only, matching the live bans. When you are done, download the file, then tell me it is in Downloads and I will write it into the game.</p>
+  <div class="bar">
+    <span class="count" id="progress"></span>
+    <button class="ghost" id="onlyLeft">Show not-All only</button>
+    <button class="ghost" id="showAll">Show all</button>
+    <button class="main" id="download">Download labels</button>
+  </div>
+</header>
+<div class="cols">
+  <section>
+    <h2>Items</h2>
+    <div id="items"></div>
+  </section>
+  <section>
+    <h2>Monsters</h2>
+    <div id="mons"></div>
+  </section>
+</div>
+<script>
+const CARDS = [{"kind": "item", "id": "throwing_knife", "name": "Throwing Knife", "ability": "Atk 3, or Atk 1 and Keep this item", "tier": 1, "bucket": 0, "mode": "all"}, {"kind": "item", "id": "shield", "name": "Shield", "ability": "Gain 4 Block.", "tier": 1, "bucket": 0, "mode": "all"}, {"kind": "item", "id": "sai", "name": "Sai", "ability": "Flips 2 ↔ 4 after any Item is used.", "tier": 1, "bucket": 3, "mode": "all"}, {"kind": "item", "id": "medallion", "name": "Medallion", "ability": "Block equal to the HP you are missing.", "tier": 1, "bucket": 0, "mode": "all"}, {"kind": "item", "id": "helmet", "name": "Helmet", "ability": "Block equal to the lower HP between you and the Enemy.", "tier": 1, "bucket": 0, "mode": "all"}, {"kind": "item", "id": "da_boot", "name": "The Boot", "ability": "Defeat an enemy with less HP than you. Combat ends immediately.", "tier": 1, "bucket": 0, "mode": "all"}, {"kind": "item", "id": "bloody_gauntlets", "name": "Bloody Wraps", "ability": "+1 ATK for each HP you are missing.", "tier": 1, "bucket": 1, "mode": "all"}, {"kind": "item", "id": "bracers", "name": "Right Bracer", "ability": "Block equal to the Neighboring enemy's Attack on the Right.", "tier": 2, "bucket": 1, "mode": "all"}, {"kind": "item", "id": "left_bracer", "name": "Left Bracer", "ability": "Block equal to the Neighboring enemy's Attack on the Left.", "tier": 2, "bucket": 1, "mode": "all"}, {"kind": "item", "id": "knucklers", "name": "Knucklers", "ability": "Attack equal to 8 minus the Items still in your hand.", "tier": 2, "bucket": 0, "mode": "all"}, {"kind": "item", "id": "spiked_flail", "name": "Spiked Flail", "ability": "This gains +2 Attack each time you lose any HP.", "tier": 3, "bucket": 8, "mode": "all"}, {"kind": "item", "id": "sledgehammer", "name": "Sledgehammer", "ability": "Defeat an enemy with 5 or more Attack. Combat ends immediately.", "tier": 3, "bucket": 9, "mode": "all"}, {"kind": "item", "id": "grimoire", "name": "Grimoire", "ability": "Attack equal to the Attack of the last monster you faced.", "tier": 1, "bucket": 9, "mode": "all"}, {"kind": "item", "id": "breastplate", "name": "Breastplate", "ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.", "tier": 3, "bucket": 3, "mode": "all"}, {"kind": "item", "id": "smoke_bomb", "name": "Smoke Bomb", "ability": "Spin again and gain a Random Item.", "tier": 2, "bucket": 3, "mode": "adventure"}, {"kind": "item", "id": "fangs", "name": "Fangs", "ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.", "tier": 2, "bucket": 9, "mode": "all"}, {"kind": "item", "id": "poison_flask", "name": "Poison Flask", "ability": "Mark a Neighbor. When you spin them, they lose 5 HP immediately.", "tier": 2, "bucket": 6, "mode": "all"}, {"kind": "item", "id": "healing_potion", "name": "Healing Potion", "ability": "Unplayable. If you would die, discard this and Heal 3.", "tier": 3, "bucket": 10, "mode": "all"}, {"kind": "item", "id": "crossbow", "name": "Crossbow", "ability": "Deal 4 Attack to a Neighboring enemy.", "tier": 2, "bucket": 2, "mode": "all"}, {"kind": "item", "id": "pocketwatch", "name": "Pocketwatch", "ability": "Select an enemy. They Attack the enemy you are facing.", "tier": 3, "bucket": 10, "mode": "all"}, {"kind": "item", "id": "double_axe", "name": "Double Axe", "ability": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once.", "tier": 2, "bucket": 5, "mode": "all"}, {"kind": "item", "id": "victory_flask", "name": "Victory Flask", "ability": "Heal 1, plus 1 for each monster Defeated", "tier": 2, "bucket": 0, "mode": "all"}, {"kind": "item", "id": "grappling_hook", "name": "Grappling Hook", "ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.", "tier": 1, "bucket": 2, "mode": "all"}, {"kind": "item", "id": "spiked_shield", "name": "Spiked Shield", "ability": "Deal 2 Attack, or gain 2 Block.", "tier": 1, "bucket": 4, "mode": "all"}, {"kind": "item", "id": "grief_jar", "name": "Grief Jar", "ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block", "tier": 2, "bucket": 5, "mode": "all"}, {"kind": "item", "id": "longbow", "name": "Longbow", "ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)", "tier": 2, "bucket": 6, "mode": "all"}, {"kind": "item", "id": "lantern", "name": "Lantern", "ability": "Heal 2. Keep this if you are still missing HP.", "tier": 3, "bucket": 4, "mode": "all"}, {"kind": "item", "id": "mirror_shard", "name": "Mirror Shard", "ability": "Gain Block equal to the last Block you gained.", "tier": 2, "bucket": 10, "mode": "all"}, {"kind": "item", "id": "echo_bell", "name": "Echo Bell", "ability": "Becomes a copy of the last item you used.", "tier": 3, "bucket": 7, "mode": "all"}, {"kind": "item", "id": "quiet_bell", "name": "Quiet Bell", "ability": "Remove your Enemy's unique ability", "tier": 2, "bucket": 2, "mode": "all"}, {"kind": "item", "id": "net", "name": "Net", "ability": "Choose to reduce the facing owner's Attack by 1, 2, or 3.", "tier": 1, "bucket": 0, "mode": "all"}, {"kind": "item", "id": "iron_chain", "name": "Chain", "ability": "Deal Attack equal to Block you hold. Keep this item.", "tier": 2, "bucket": 7, "mode": "all"}, {"kind": "item", "id": "counting_beads", "name": "Counting Beads", "ability": "(1), (2), (3), or (4) Atk", "tier": 1, "bucket": 0, "mode": "all"}, {"kind": "item", "id": "last_match", "name": "Paci-Fist", "ability": "If you have zero items that deal Atk damage, Defeat the enemy.", "tier": 3, "bucket": 8, "mode": "all"}, {"kind": "item", "id": "measuring_tape", "name": "Scythe", "ability": "Defeat any Monster with exactly double your HP", "tier": 3, "bucket": 3, "mode": "all"}, {"kind": "item", "id": "mute_stone", "name": "Chaos Stone", "ability": "Choose 2 Items and replace them with random Items of the same Tier.", "tier": 2, "bucket": 6, "mode": "all"}, {"kind": "item", "id": "cursed_scroll", "name": "Cursed Scroll", "ability": "Heal 6. On Spin, lose 1 HP.", "tier": 2, "bucket": 5, "mode": "all"}, {"kind": "item", "id": "danger_magnet", "name": "Danger Magnet", "ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.", "tier": 2, "bucket": 4, "mode": "adventure"}, {"kind": "item", "id": "spider_egg", "name": "Spider Egg", "ability": "Take 2 Attack. If you still hold this when you Spin Spider Queen, discard it; she gains +2 HP and +2 Attack.", "tier": 1, "bucket": -1, "mode": "all"}, {"kind": "item", "id": "arrow_head", "name": "Arrow Head", "ability": "Atk 3. While in hand, your Attacks deal +1 Dmg and Enemy Attacks ignore your Block.", "tier": 2, "bucket": 7, "mode": "all"}, {"kind": "monster", "id": "wizard", "name": "Wizard", "ability": "", "tier": 1, "bucket": 0.0, "mode": "all"}, {"kind": "monster", "id": "golem", "name": "Golem", "ability": "", "tier": 1, "bucket": 0.0, "mode": "all"}, {"kind": "monster", "id": "goblin", "name": "Goblin", "ability": "I cannot take Attack damage.", "tier": 1, "bucket": 0.0, "mode": "all"}, {"kind": "monster", "id": "skeleton", "name": "Skeleton", "ability": "I copy the HP of the last enemy you faced.", "tier": 1, "bucket": 1.0, "mode": "all"}, {"kind": "monster", "id": "hornet_swarm", "name": "Hornet Swarm", "ability": "I Attack twice.", "tier": 1, "bucket": 0.0, "mode": "all"}, {"kind": "monster", "id": "lich", "name": "Lich", "ability": "I give my Neighbors +1 HP.", "tier": 1, "bucket": 2.0, "mode": "all"}, {"kind": "monster", "id": "ogre", "name": "Ogre", "ability": "When you lose HP, I lose equal HP.", "tier": 2, "bucket": 1.0, "mode": "all"}, {"kind": "monster", "id": "vampire", "name": "Vampire", "ability": "Every time you lose HP, I gain +1 HP and +1 ATK.", "tier": 3, "bucket": 1.0, "mode": "all"}, {"kind": "monster", "id": "berserker", "name": "Berserker", "ability": "I alternate between 3, 4, and 8 Atk every time you Spin.", "tier": 2, "bucket": 0.0, "mode": "all"}, {"kind": "monster", "id": "dire_wolf", "name": "Dire Wolf", "ability": "My Attack is your HP.", "tier": 2, "bucket": 0.0, "mode": "all"}, {"kind": "monster", "id": "bandit", "name": "Bandit", "ability": "+1 Atk for each Item you hold.", "tier": 2, "bucket": 0.0, "mode": "all"}, {"kind": "monster", "id": "two_headed_serpent", "name": "Damsel in Distress", "ability": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.", "tier": 3, "bucket": 2.0, "mode": "all"}, {"kind": "monster", "id": "slime_boss", "name": "Slime Boss", "ability": "My Attack always equals my HP.", "tier": 3, "bucket": 0.0, "mode": "all"}, {"kind": "monster", "id": "leech_league", "name": "Leech League", "ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.", "tier": 3, "bucket": 3.0, "mode": "all"}, {"kind": "monster", "id": "wraith", "name": "Wraith", "ability": "I copy the higher ATK of my Neighbors", "tier": 2, "bucket": 5.0, "mode": "all"}, {"kind": "monster", "id": "mimic", "name": "Mimic", "ability": "If I go down before I Attack, you gain an Item.", "tier": 2, "bucket": 4.0, "mode": "all"}, {"kind": "monster", "id": "spider_queen", "name": "Spider Queen", "ability": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.", "tier": 3, "bucket": 3.0, "mode": "all"}, {"kind": "monster", "id": "commander", "name": "Commander", "ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee.", "tier": 3, "bucket": 8.0, "mode": "all"}, {"kind": "monster", "id": "dragon", "name": "Dragon", "ability": "My Attack ignores Block.", "tier": 3, "bucket": 0.0, "mode": "all"}, {"kind": "monster", "id": "needleback", "name": "Needleback", "ability": "I Attack you for 1 Damage each time I take ATK Damage.", "tier": 2, "bucket": 4.0, "mode": "all"}, {"kind": "monster", "id": "gelatinous_cube", "name": "Gelatinous Cube", "ability": "I make you feed me one of two items.", "tier": 2, "bucket": 7.0, "mode": "all"}, {"kind": "monster", "id": "gargoyle", "name": "Gargoyle", "ability": "I petrify your highest Attack item until you Spin again.", "tier": 2, "bucket": 6.0, "mode": "all"}, {"kind": "monster", "id": "harpy", "name": "Harpy", "ability": "I attack you when your Spin lands on me, and after each item you use.", "tier": 2, "bucket": 6.0, "mode": "all"}, {"kind": "monster", "id": "kobold_trapper", "name": "Kobold Trapper", "ability": "I attack an extra time for each item you use this fight.", "tier": 2, "bucket": 7.0, "mode": "all"}, {"kind": "monster", "id": "clockwork_knight", "name": "Clockwork Knight", "ability": "If I live, I leave two Tough Monsters in my place.", "tier": 3, "bucket": 8.0, "mode": "adventure"}, {"kind": "monster", "id": "basilisk", "name": "Basilisk", "ability": "While facing me, you cannot Gain or Keep any Items.", "tier": 2, "bucket": 7.0, "mode": "all"}, {"kind": "monster", "id": "hollow", "name": "Twins", "ability": "Attack or Block values that are Even happen twice against me.", "tier": 1, "bucket": 5.0, "mode": "all"}, {"kind": "monster", "id": "beggar", "name": "Beggar", "ability": "I gain Atk equal to your leftmost Atk Item", "tier": 1, "bucket": 9.0, "mode": "all"}, {"kind": "monster", "id": "wick", "name": "Wick", "ability": "I Lose 2 HP each time a Neighbor is Defeated", "tier": 2, "bucket": 9.0, "mode": "all"}, {"kind": "monster", "id": "anvil", "name": "Anvil", "ability": "I cannot lose more than 1 HP at a time.", "tier": 2, "bucket": 5.0, "mode": "all"}, {"kind": "monster", "id": "bodyguard", "name": "Bodyguard", "ability": "When my Neighbors would take Attack Damage, I take it instead", "tier": 1, "bucket": 2.0, "mode": "all"}, {"kind": "monster", "id": "cowardly_king", "name": "Cowardly King", "ability": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated.", "tier": 3, "bucket": 9.0, "mode": "all"}, {"kind": "monster", "id": "merchant", "name": "Merchant", "ability": "When you Spin me, choose an Item and I will upgrade it", "tier": 1, "bucket": 4.0, "mode": "all"}, {"kind": "monster", "id": "juggernaut", "name": "Juggernaut", "ability": "When you face me, Gain a Shield", "tier": 2, "bucket": 8.0, "mode": "all"}, {"kind": "monster", "id": "cleric", "name": "Cleric", "ability": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item", "tier": 2, "bucket": 6.0, "mode": "all"}];
+const KEY = "boss-rush-mode-pool-labels-v1";
+const LABELS = {all:"All", adventure:"Adventure-Only", challenge:"Challenge-Only"};
+let onlyLeft = false;
+function load() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { saved = {}; }
+  for (const c of CARDS) {
+    const k = c.kind + ":" + c.id;
+    if (saved[k]) c.mode = saved[k];
+  }
+}
+function save() {
+  const out = {};
+  for (const c of CARDS) out[c.kind + ":" + c.id] = c.mode;
+  localStorage.setItem(KEY, JSON.stringify(out));
+}
+function render() {
+  const items = document.getElementById("items");
+  const mons = document.getElementById("mons");
+  items.innerHTML = "";
+  mons.innerHTML = "";
+  let labeled = 0;
+  for (const c of CARDS) {
+    if (c.mode) labeled++;
+    if (onlyLeft && c.mode === "all") continue;
+    const el = document.createElement("article");
+    el.className = "card t" + c.tier;
+    el.innerHTML = '<div class="top"><div class="nm"></div><div class="meta"></div></div><div class="ab"></div><div class="btns"></div>';
+    el.querySelector(".nm").textContent = c.name;
+    el.querySelector(".meta").textContent = "T" + c.tier + " · bucket " + c.bucket;
+    el.querySelector(".ab").textContent = c.ability || "(no ability text)";
+    const btns = el.querySelector(".btns");
+    for (const id of ["all","adventure","challenge"]) {
+      const b = document.createElement("button");
+      b.textContent = LABELS[id];
+      b.className = id + (c.mode === id ? " on" : "");
+      b.onclick = () => { c.mode = id; save(); render(); };
+      btns.appendChild(b);
+    }
+    (c.kind === "item" ? items : mons).appendChild(el);
+  }
+  const adv = CARDS.filter(c => c.mode === "adventure").length;
+  const ch = CARDS.filter(c => c.mode === "challenge").length;
+  document.getElementById("progress").textContent = CARDS.length + " cards · " + adv + " Adventure-Only · " + ch + " Challenge-Only";
+}
+function download() {
+  const items = {};
+  const monsters = {};
+  for (const c of CARDS) {
+    (c.kind === "item" ? items : monsters)[c.id] = c.mode || "all";
+  }
+  const blob = new Blob([JSON.stringify({items, monsters}, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "mode-pool-labels.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+load();
+save();
+render();
+document.getElementById("onlyLeft").onclick = () => { onlyLeft = true; render(); };
+document.getElementById("showAll").onclick = () => { onlyLeft = false; render(); };
+document.getElementById("download").onclick = download;
+</script>
+</body>
+</html>

@@ -24,9 +24,9 @@ var _dim: Array = []
 var _ring: Panel
 var _talk: PanelContainer
 var _face: TextureRect
-var _name: Label
-var _body: Label
-var _hint: Label
+var _name
+var _body
+var _hint
 var _go: Button
 var _skip: Button
 var _target: Control
@@ -163,31 +163,43 @@ func _build_talk(art) -> void:
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 6)
 	row.add_child(col)
-	_name = Label.new()
-	_name.text = COPY.text("tutorial.speaker", "Nib")
-	_name.add_theme_font_size_override("font_size", 18)
-	_name.add_theme_color_override("font_color", Color("6b4a10"))
+	_name = FitLabelBox.make()
+	_name.show_frame = false
+	_name.padding = 0
+	_name.max_font_size = 18
+	_name.min_font_size = 12
+	_name.set_copy("tutorial.speaker")
+	_name.font_color = Color("6b4a10")
+	_name.custom_minimum_size = Vector2(230, 24)
 	col.add_child(_name)
-	_body = Label.new()
-	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_body.add_theme_font_size_override("font_size", 15)
-	_body.add_theme_color_override("font_color", Color("1c120c"))
-	_body.custom_minimum_size = Vector2(230, 0)
+	_body = FitLabelBox.make()
+	_body.show_frame = false
+	_body.padding = 0
+	_body.max_font_size = 15
+	_body.min_font_size = 12
+	_body.max_lines = 4
+	_body.font_color = Color("1c120c")
+	_body.custom_minimum_size = Vector2(230, 48)
 	col.add_child(_body)
-	_hint = Label.new()
-	_hint.add_theme_font_size_override("font_size", 13)
-	_hint.add_theme_color_override("font_color", Color("6b4a10"))
-	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_hint = FitLabelBox.make()
+	_hint.show_frame = false
+	_hint.padding = 0
+	_hint.max_font_size = 13
+	_hint.min_font_size = 12
+	_hint.font_color = Color("6b4a10")
+	_hint.custom_minimum_size = Vector2(230, 20)
 	col.add_child(_hint)
 	var btns := HBoxContainer.new()
 	btns.alignment = BoxContainer.ALIGNMENT_END
 	btns.add_theme_constant_override("separation", 8)
 	col.add_child(btns)
-	_skip = Button.new()
+	_skip = FitButton.new()
 	_skip.visible = false
 	_skip.pressed.connect(func() -> void: skipped.emit())
-	_go = Button.new()
-	_go.text = "Next"
+	_go = FitButton.new()
+	_go.max_font_size = 26
+	_go.min_font_size = 16
+	_go.text = COPY.text("tutorial.next", "Next")
 	_go.custom_minimum_size = Vector2(210, 58)
 	_go.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_go.add_theme_font_size_override("font_size", 26)
@@ -260,11 +272,12 @@ func advance() -> void:
 	then_focus = str(b.get("then_focus", ""))
 	nib_close = float(b.get("nib", 0.0))
 	_tiny = bool(b.get("tiny", false))
-	_body.text = str(b.get("text", ""))
+	_body.text = COPY.apply_names(str(b.get("text", "")))
 	if sfx and sfx.has_method("speak"):
-		sfx.speak(&"nib", str(b.get("text", "")))
-	_hint.text = str(b.get("hint", ""))
-	_go.text = str(b.get("go", "Next"))
+		sfx.speak(&"nib", _body.text)
+	_hint.text = COPY.apply_names(str(b.get("hint", "")))
+	var go_raw: String = str(b.get("go", "")).strip_edges()
+	_go.text = COPY.apply_names(go_raw) if go_raw != "" else COPY.text("tutorial.next", "Next")
 	_name.text = COPY.text("tutorial.speaker", "Nib")
 	_skip.visible = false
 	_go.visible = wait == "continue"
@@ -272,7 +285,8 @@ func advance() -> void:
 	var said: String = str(b.get("text", "")).to_lower()
 	if said.find("survived all") >= 0 or said.find("venture deeper") >= 0:
 		world_open = true
-	_body.add_theme_font_size_override("font_size", 12 if _tiny else 15)
+	_body.max_font_size = 12 if _tiny else 15
+	_body.fit()
 	_arm = 0.35
 	_talk.reset_size()
 

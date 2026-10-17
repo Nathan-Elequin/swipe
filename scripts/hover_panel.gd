@@ -1,5 +1,6 @@
 extends PanelContainer
 ## Punchy inspect plate. Item equations and monster copy share this language.
+## Keyword sub-tooltips (Always, Flee, …) dock here, not on the speech balloon.
 
 const COPY := preload("res://scripts/player_copy.gd")
 const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
@@ -14,6 +15,7 @@ var edit_id: String = ""
 ## Face plaque accepts right-click. Fly tips stay click-through so hover does not trap the mouse.
 var accept_clicks: bool = false
 var _kw_tip: PanelContainer
+var _pin_always: bool = false
 
 
 func _ready() -> void:
@@ -85,10 +87,16 @@ func show_rule(
 	portrait: Texture2D = null,
 	p_kind: String = "",
 	p_id: String = "",
-	look: Dictionary = {}
+	look: Dictionary = {},
+	journal: Dictionary = {}
 ) -> void:
 	edit_kind = p_kind
 	edit_id = p_id
+	title = COPY.apply_names(title)
+	value_line = COPY.apply_names(value_line)
+	equation = COPY.apply_names(equation)
+	body = COPY.apply_names(body)
+	warn = COPY.apply_names(warn)
 	_apply_look(look)
 	_wipe()
 	mouse_filter = Control.MOUSE_FILTER_STOP if accept_clicks and p_id != "" else Control.MOUSE_FILTER_IGNORE
@@ -108,13 +116,16 @@ func show_rule(
 		pic.texture_filter = TEXTURE_FILTER_NEAREST
 		pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(pic)
-	var t := Label.new()
-	t.text = title
+	var t: FitLabelBox = FitLabelBox.make()
+	t.show_frame = false
+	t.padding = 0
+	t.max_font_size = 22
+	t.min_font_size = 16
+	t.set_plain(title)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	t.add_theme_font_size_override("font_size", 22)
-	t.add_theme_color_override("font_color", ink)
-	t.add_theme_color_override("font_outline_color", ink_out)
-	t.add_theme_constant_override("outline_size", 3 if _on_dark else 2)
+	t.font_color = ink
+	t.set_outline(ink_out, 3 if _on_dark else 2)
+	t.custom_minimum_size = Vector2(216, 28)
 	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(t)
 	if value_line != "":
@@ -144,11 +155,15 @@ func show_rule(
 		col.add_child(eq)
 	var rank: String = str(look.get("rank", "")).strip_edges()
 	if rank != "":
-		var rk := Label.new()
-		rk.text = rank
+		var rk: FitLabelBox = FitLabelBox.make()
+		rk.show_frame = false
+		rk.padding = 0
+		rk.max_font_size = 12
+		rk.min_font_size = 12
+		rk.set_plain(rank)
 		rk.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		rk.add_theme_font_size_override("font_size", 12)
-		rk.add_theme_color_override("font_color", Color("c4a574") if _on_dark else Color("6a5a48"))
+		rk.font_color = Color("c4a574") if _on_dark else Color("6a5a48")
+		rk.custom_minimum_size = Vector2(216, 18)
 		rk.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(rk)
 	if body != "":
@@ -158,17 +173,23 @@ func show_rule(
 		b.scroll_active = false
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.meta_underlined = false
-		b.add_theme_font_size_override("normal_font_size", 15)
-		b.add_theme_font_size_override("bold_font_size", 15)
-		b.add_theme_color_override("default_color", body_col)
+		var body_size: int = 13 if not journal.is_empty() else 15
+		b.add_theme_font_size_override("normal_font_size", body_size)
+		b.add_theme_font_size_override("bold_font_size", body_size)
+		b.add_theme_color_override("default_color", Color("6e5434") if not journal.is_empty() else body_col)
 		b.text = body
 		b.custom_minimum_size = Vector2(216, 0)
-		if body.find("[url=") >= 0 and accept_clicks:
+		if body.find("[url=") >= 0:
 			b.mouse_filter = Control.MOUSE_FILTER_STOP
-			UxStyle.wire_def_hover(b, _kw_tip)
+			UxStyle.wire_def_hover(b, _kw_tip, self)
 		else:
 			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(b)
+	_pin_always = body.find("[url=kw:always]") >= 0
+	if _pin_always:
+		pin_always_def()
+	elif _kw_tip != null and _kw_tip.has_method("hide_def"):
+		_kw_tip.hide_def()
 	if warn != "":
 		var w := Label.new()
 		w.text = warn
@@ -196,8 +217,54 @@ func show_rule(
 		h.custom_minimum_size = Vector2(216, 0)
 		h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(h)
+	var journal_body: String = COPY.apply_names(str(journal.get("body", "")).strip_edges())
+	if journal_body != "":
+		var rule := ColorRect.new()
+		rule.custom_minimum_size = Vector2(216, 1)
+		rule.color = Color("a8946c")
+		rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.add_child(rule)
+		var jh := Label.new()
+		jh.text = COPY.text("cabin.tip.journal", "")
+		jh.add_theme_font_size_override("font_size", 12)
+		jh.add_theme_color_override("font_color", Color("6e5434"))
+		jh.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.add_child(jh)
+		var jb := Label.new()
+		jb.text = journal_body
+		jb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		jb.add_theme_font_size_override("font_size", 15)
+		jb.add_theme_color_override("font_color", ink)
+		jb.custom_minimum_size = Vector2(216, 0)
+		jb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.add_child(jb)
+		for fn in journal.get("footnotes", []):
+			var fl := Label.new()
+			fl.text = COPY.apply_names(str(fn))
+			fl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			fl.add_theme_font_size_override("font_size", 12)
+			fl.add_theme_color_override("font_color", Color("7a6a48"))
+			fl.custom_minimum_size = Vector2(216, 0)
+			fl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			col.add_child(fl)
+	if bool(journal.get("is_new", false)):
+		var nw := Label.new()
+		nw.text = COPY.text("cabin.tip.new", "")
+		nw.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		nw.add_theme_font_size_override("font_size", 14)
+		nw.add_theme_color_override("font_color", Color("c45c5c"))
+		nw.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.add_child(nw)
 	visible = true
 	reset_size()
+	if _pin_always:
+		pin_always_def()
+
+
+func pin_always_def() -> void:
+	if not _pin_always or _kw_tip == null or not _kw_tip.has_method("show_def"):
+		return
+	_kw_tip.show_def(UxStyle.def_of("always"), self, "always")
 
 
 func hide_plate() -> void:
@@ -205,6 +272,7 @@ func hide_plate() -> void:
 	edit_kind = ""
 	edit_id = ""
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pin_always = false
 	if _kw_tip != null and _kw_tip.has_method("hide_def"):
 		_kw_tip.hide_def()
 	_apply_look({})

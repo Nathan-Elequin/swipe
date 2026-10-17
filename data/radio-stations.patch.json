@@ -1,0 +1,159 @@
+{
+  "_meta": {
+    "purpose": "Swap Snatchwick Melodeon radio stations 1-3 from music-box tracks to new CC0 beds. Station 0 (cabin) unchanged. The 'ending' bed stays for the ending cutscene but leaves the radio.",
+    "date": "2026-10-17",
+    "applies_to": [
+      "data/sfx-map.json",
+      "data/player-copy.json",
+      "scripts/home_cabin.gd",
+      "scripts/cabin/radio_overlay.gd"
+    ],
+    "spec": "design/audio/RADIO-SWAP.md"
+  },
+  "data/sfx-map.json": {
+    "music_beds": {
+      "add": {
+        "station_inn": {
+          "file": "music_station_inn",
+          "gain_db": 0,
+          "loop": true,
+          "resume_position": true
+        },
+        "station_rag": {
+          "file": "music_station_rag",
+          "gain_db": 0,
+          "loop": true,
+          "resume_position": true
+        },
+        "station_harp": {
+          "file": "music_station_harp",
+          "gain_db": 0,
+          "loop": true,
+          "resume_position": true
+        }
+      },
+      "remove": [
+        "station_waltz",
+        "station_tune"
+      ],
+      "unchanged": {
+        "cabin": {
+          "file": "music_cabin",
+          "gain_db": -2,
+          "loop": true,
+          "resume_position": true
+        },
+        "ending": {
+          "file": "music_ending",
+          "loop": true,
+          "resume_position": false,
+          "_note": "still used by the ending cutscene; no longer a radio station"
+        }
+      }
+    },
+    "radio": {
+      "set": {
+        "stations": [
+          "cabin",
+          "station_inn",
+          "station_rag",
+          "station_harp"
+        ]
+      },
+      "unchanged": {
+        "station_copy_keys": [
+          "radio.station.0",
+          "radio.station.1",
+          "radio.station.2",
+          "radio.station.3"
+        ],
+        "crossfade_s": 0.6
+      },
+      "before": {
+        "stations": [
+          "cabin",
+          "station_waltz",
+          "station_tune",
+          "ending"
+        ]
+      }
+    }
+  },
+  "data/player-copy.json": {
+    "upsert_rows": [
+      {
+        "key": "radio.station.1",
+        "cat": "Radio",
+        "where": "Station name under the dial",
+        "text": "The Rusty Tankard",
+        "draft": false,
+        "note": "Jam-approved 2026-10-17",
+        "was": "The Grumble Waltz"
+      },
+      {
+        "key": "radio.station.2",
+        "cat": "Radio",
+        "where": "Station name under the dial",
+        "text": "Snatchwick Rag",
+        "draft": false,
+        "note": "Jam-approved 2026-10-17",
+        "was": "Gloria's Lullaby"
+      },
+      {
+        "key": "radio.station.3",
+        "cat": "Radio",
+        "where": "Station name under the dial",
+        "text": "Gloria's Lullaby",
+        "draft": false,
+        "note": "Jam-approved 2026-10-17",
+        "was": "Snatchwick Polka"
+      }
+    ],
+    "unchanged_rows": [
+      {
+        "key": "radio.station.0",
+        "text": "Fireside Crackle"
+      }
+    ]
+  },
+  "scripts/home_cabin.gd": {
+    "line": 20,
+    "replace": "const STATION_BEDS := [\"cabin\", \"station_waltz\", \"station_tune\", \"ending\"]",
+    "with": "const STATION_BEDS := [\"cabin\", \"station_inn\", \"station_rag\", \"station_harp\"]"
+  },
+  "scripts/cabin/radio_overlay.gd": {
+    "line": 9,
+    "replace": "const BEDS := [\"cabin\", \"station_waltz\", \"station_tune\", \"ending\"]",
+    "with": "const BEDS := [\"cabin\", \"station_inn\", \"station_rag\", \"station_harp\"]"
+  },
+  "assets/audio": {
+    "add": [
+      "music_station_inn.ogg",
+      "music_station_rag.ogg",
+      "music_station_harp.ogg"
+    ],
+    "delete": [
+      "music_station_waltz.ogg",
+      "music_station_waltz.ogg.import",
+      "music_station_tune.ogg",
+      "music_station_tune.ogg.import"
+    ],
+    "keep": [
+      "music_ending.ogg"
+    ]
+  },
+  "save_migration": {
+    "_note": "Assumes saves store radio_station as an index 0-3 (unverified; I didn't read the repo). The station order is kept, so old saves map by index with no code change. legacy_bed_aliases are only needed if a save or setting stores the bed NAME instead.",
+    "index_map": {
+      "0": "cabin",
+      "1": "station_inn",
+      "2": "station_rag",
+      "3": "station_harp"
+    },
+    "legacy_bed_aliases": {
+      "station_waltz": "station_inn",
+      "station_tune": "station_rag",
+      "ending": "station_harp"
+    }
+  }
+}
