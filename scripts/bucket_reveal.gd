@@ -232,6 +232,9 @@ func play(bucket_n: int, entries: Array) -> void:
 	if sfx != null and sfx.has_method("play"):
 		sfx.play("bong", -6.0, 0.72)
 		sfx.play("whoosh", -8.0, 0.85)
+		if sfx.has_method("play_event"):
+			sfx.play_event(&"bucket.open")
+			sfx.play_event(&"sting.bucket")
 	var tin := create_tween()
 	tin.tween_property(_title, "modulate:a", 1.0, 0.45)
 	tin.parallel().tween_property(_sub, "modulate:a", 1.0, 0.55)
@@ -250,8 +253,8 @@ func play(bucket_n: int, entries: Array) -> void:
 		tw.tween_property(slot, "scale", Vector2(1.06, 1.06), 0.14)
 		tw.chain().tween_property(slot, "scale", Vector2.ONE, 0.1)
 		tex_rect.modulate = Color(0.04, 0.03, 0.025, 1)
-		if sfx != null and sfx.has_method("play"):
-			sfx.play("drop", -14.0, 0.9 + randf() * 0.16)
+		if sfx != null and sfx.has_method("play_event"):
+			sfx.play_event(&"bucket.card_pop")
 		await get_tree().create_timer(0.11).timeout
 	if sfx != null and sfx.has_method("play"):
 		sfx.play("confirm_big", -8.0, 1.0)
@@ -343,12 +346,8 @@ func _on_card_enter(slot: PanelContainer, tex_rect: TextureRect, name: Label, en
 	pop.tween_property(slot, "scale", Vector2(1.06, 1.06), 0.08)
 	pop.tween_property(slot, "scale", Vector2.ONE, 0.1)
 	_show_detail(entry)
-	if sfx != null and sfx.has_method("play"):
-		if first:
-			sfx.play("pluck", -8.0, 1.15)
-			sfx.play("whoosh", -16.0, 1.25)
-		elif sfx.has_method("hover"):
-			sfx.hover()
+	if sfx != null and sfx.has_method("play_event"):
+		sfx.play_event(&"bucket.card_hover")
 
 
 func _on_card_exit(slot: PanelContainer, bucket_n: int) -> void:
