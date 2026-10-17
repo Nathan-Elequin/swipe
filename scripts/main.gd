@@ -774,6 +774,18 @@ func _build_ui() -> void:
 	wheel_view.slice_clicked.connect(_on_slice_clicked)
 	wheel_view.slice_hovered.connect(_on_slice_hovered)
 	wheel_view.slice_right_clicked.connect(_on_slice_right_clicked)
+	wheel_view.segment_passed.connect(func(_i: int, speed01: float) -> void:
+		if sfx:
+			sfx.play_tick(speed01)
+	)
+	wheel_view.atk_ticked.connect(func() -> void:
+		if sfx:
+			sfx.play_event(&"wheel.num_tick_atk")
+	)
+	wheel_view.hp_ticked.connect(func() -> void:
+		if sfx:
+			sfx.play_event(&"wheel.num_tick_hp")
+	)
 
 	blk_hud = PanelContainer.new()
 	blk_hud.visible = false
@@ -4418,6 +4430,7 @@ func _bribe_at(index: int) -> void:
 	if sfx:
 		sfx.play("scratch", -8.0)
 		sfx.play("creak", -12.0)
+		sfx.play_event(&"wheel.bribe")
 	if not pending_item.is_empty():
 		_log("discard", str(pending_item.get("name", "?")))
 	if not pending_monster.is_empty():
@@ -4515,9 +4528,12 @@ func _on_spin() -> void:
 	if phase != "spinning":
 		return
 	if sfx:
-		sfx.play("door_close", -8.0)
-		sfx.play("land", -14.0)
-		sfx.play("bong", -16.0)
+		var land_m: Dictionary = wheel[idx] if idx >= 0 and idx < wheel.size() else {}
+		var land_t: int = _tier_of(land_m) if not land_m.is_empty() else 1
+		var land_ctx := {"tier": land_t, "monster_id": str(land_m.get("card_id", ""))}
+		if land_t >= 3:
+			land_ctx["pitch_mul"] = sfx.deadly_pitch(str(land_m.get("card_id", "")))
+		sfx.play_event(sfx.resolve(&"enter", land_ctx), land_ctx)
 	facing_index = idx
 	if _magnet_pending_consume != "":
 		_consume_armed_magnets(_magnet_pending_consume)
@@ -9158,6 +9174,8 @@ func _apply_preview(p: Dictionary) -> void:
 
 
 func _on_spin_hover(on: bool) -> void:
+	if on and sfx:
+		sfx.play_event(&"wheel.spin_hover")
 	if not on or phase != "ready":
 		_apply_preview({})
 		return

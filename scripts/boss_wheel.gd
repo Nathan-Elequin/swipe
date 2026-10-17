@@ -4,6 +4,9 @@ extends Control
 signal slice_clicked(index: int)
 signal slice_hovered(index: int)
 signal slice_right_clicked(index: int)
+signal segment_passed(index: int, speed01: float)
+signal atk_ticked
+signal hp_ticked
 
 var show_shift: bool = false
 
@@ -53,6 +56,9 @@ var tex_special: Dictionary = {}
 var tex_portraits: Dictionary = {}
 
 var _spin_tween: Tween
+var _tick_seg: int = -1
+var _tick_last_rot: float = 0.0
+var _peak_omega: float = 0.0
 var _lift: Dictionary = {}
 var _floaters: Array = []
 var _flash: Dictionary = {}
@@ -390,6 +396,13 @@ func rotation_for_index(index: int) -> float:
 	return SIX - center_at_zero
 
 
+func _seg_under_pointer() -> int:
+	var n: int = _n()
+	var ang: float = TAU / float(n)
+	var shifted: float = fposmod(SIX - rot - ang * 0.5, TAU)
+	return posmod(int(floor(shifted / ang)), n)
+
+
 func rotation_for_top(index: int) -> float:
 	return rotation_for_index(index) + PI
 
@@ -458,6 +471,9 @@ func spin_to(index: int) -> void:
 	_spin_tween.set_ignore_time_scale(true)
 	_spin_tween.set_trans(Tween.TRANS_CUBIC)
 	_spin_tween.set_ease(Tween.EASE_IN_OUT)
+	_tick_seg = -1
+	_tick_last_rot = rot
+	_peak_omega = 0.0
 	_spin_tween.tween_property(self, "rot", rot + delta, 1.2)
 	await _spin_tween.finished
 	rot = fposmod(rot, TAU)
@@ -496,10 +512,23 @@ func _radius() -> float:
 
 func _process(delta: float) -> void:
 	_glow_t += delta
+	if spinning:
+		var drot: float = absf(rot - _tick_last_rot)
+		_tick_last_rot = rot
+		var omega: float = drot / maxf(delta, 0.0001)
+		if omega > _peak_omega:
+			_peak_omega = omega
+		var speed01: float = omega / maxf(_peak_omega, 0.001)
+		var seg: int = _seg_under_pointer()
+		if seg != _tick_seg:
+			_tick_seg = seg
+			segment_passed.emit(seg, speed01)
 	for i in slices.size():
 		var want: float = 0.0
 		if not spinning:
-			if i == hover_index:
+			if i == selected_index and facing_index < 0:
+				want = 0.62 + 0.28 * sin(_glow_t * 5.0)
+			elif i == hover_index:
 				want = 0.7
 			elif i == facing_index:
 				want = 0.12
@@ -730,6 +759,7 @@ func play_atk_ticks(index: int, from_n: int, to_n: int) -> void:
 		n += step
 		_atk_disp[index] = n
 		punch_atk(index)
+		atk_ticked.emit()
 		if get_tree():
 			await get_tree().create_timer(0.035).timeout
 	_atk_disp.erase(index)
@@ -748,6 +778,7 @@ func play_hp_ticks(index: int, from_n: int, to_n: int) -> void:
 		n += step
 		_hp_disp[index] = n
 		punch_hp(index)
+		hp_ticked.emit()
 		if get_tree():
 			await get_tree().create_timer(0.035).timeout
 	_hp_disp.erase(index)
@@ -963,7 +994,7 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 		rw = 5.2
 	elif is_sel:
 		rim = FACE_RIM
-		rw = 3.4
+		rw = 6.4
 	elif highlight == "place" and str(s.get("kind", "")) == "empty":
 		rim = PLACE_RIM
 		rw = 2.5
