@@ -77,14 +77,15 @@ func play(p_kind: String, opts: Dictionary = {}) -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_audio_started = false
 	_busy_fade = false
-	_web_wait = kind == "intro" and not replay and OS.has_feature("web")
+	# Itch already consumed a click to launch the iframe; waiting again hid
+	# captions and made the first in-game click skip the still instead of reading it.
+	_web_wait = false
 	_panels = _make_panels(kind)
 	panel_index = 0
 	_skip.visible = skippable
 	_black.modulate.a = 1.0
 	_panel_b.modulate.a = 0.0
-	if not _web_wait:
-		_start_audio()
+	_start_audio()
 	_show_panel(0, true)
 	set_process(true)
 
@@ -585,4 +586,5 @@ func _finish(skipped: bool) -> void:
 		_bar.visible = false
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_web_wait = false
 	finished.emit(skipped)

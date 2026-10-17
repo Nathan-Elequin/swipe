@@ -23,6 +23,7 @@ var seen: Dictionary = {}
 var swiped: Dictionary = {}
 var new_unseen: Dictionary = {}
 var intro_seen: bool = false
+var intro_pack: int = 1
 var nib_first_done: bool = false
 var tutorial_done: bool = false
 var tutorial_declined: bool = false
@@ -1970,6 +1971,7 @@ func _load_save() -> void:
 
 func _apply_defaults() -> void:
 	intro_seen = false
+	intro_pack = 1
 	nib_first_done = false
 	tutorial_done = false
 	tutorial_declined = false
@@ -2007,6 +2009,10 @@ func _read_v2(parsed: Dictionary) -> void:
 	for id in parsed.get("new_unseen", []):
 		new_unseen[str(id)] = true
 	intro_seen = bool(parsed.get("intro_seen", false))
+	intro_pack = int(parsed.get("intro_pack", 0))
+	if intro_pack < 1:
+		intro_seen = false
+		intro_pack = 1
 	nib_first_done = bool(parsed.get("nib_first_done", false))
 	tutorial_done = bool(parsed.get("tutorial_done", false))
 	tutorial_declined = bool(parsed.get("tutorial_declined", false))
@@ -2057,6 +2063,7 @@ func _save() -> void:
 	data["swiped"] = swiped.keys()
 	data["new_unseen"] = new_unseen.keys()
 	data["intro_seen"] = intro_seen
+	data["intro_pack"] = intro_pack
 	data["nib_first_done"] = nib_first_done
 	data["tutorial_done"] = tutorial_done
 	data["tutorial_declined"] = tutorial_declined
@@ -2911,7 +2918,26 @@ func _refresh_gauge() -> void:
 	_gauge.value = p.x
 
 
+func _tidy_blocking() -> void:
+	if _cutscene and _cutscene.is_playing() and _beat == "idle":
+		_cutscene.abort()
+	if _dialog and _dialog.has_method("is_open") and _dialog.is_open() and not _dialog.visible:
+		if _dialog.has_method("dismiss"):
+			_dialog.dismiss()
+	if _overlay_name == "radio" and (_radio == null or not _radio.visible):
+		_overlay_name = ""
+	elif _overlay_name == "map" and (_map == null or not _map.visible):
+		_overlay_name = ""
+	elif _overlay_name == "journal" and (_journal == null or not _journal.visible):
+		_overlay_name = ""
+	elif _overlay_name == "will" and (_will == null or not _will.visible):
+		_overlay_name = ""
+	elif _overlay_name == "drawer" and (_drawer == null or not _drawer.visible):
+		_overlay_name = ""
+
+
 func _busy() -> bool:
+	_tidy_blocking()
 	return _pan_busy or _room_busy or _arriving or (_dialog and _dialog.is_open()) or _overlay_name != "" or (_cutscene and _cutscene.is_playing())
 
 
@@ -2927,7 +2953,7 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 			_arrive_skip = maxi(_arrive_skip, 2)
 			_kill_arrive_motion()
 			return
-	if _busy() and node_name != "Nib":
+	if _busy() and node_name != "Nib" and not (node_name == "RunDoor" and _gate_on()):
 		return
 	match node_name:
 		"RunDoor":
@@ -3064,34 +3090,30 @@ func _interrupt() -> void:
 		var tw := create_tween()
 		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 		tw.tween_property(main_room.nib, "position:x", 232.0 * PX, 0.4)
-	if _dialog:
-		_dialog.say(["nib.interrupt.1", "nib.interrupt.2"], ["nib.interrupt.yes", "nib.interrupt.no"])
-		var ch: int = await _dialog.finished
-		if ch == 0:
-			tutorial_wanted.emit()
-		else:
-			tutorial_declined = true
-			_save()
-			_dialog.say(["nib.interrupt.no_reply"])
-			await _dialog.finished
-			_apply_gate()
-			_open_map()
+	if _dialog == null:
+		tutorial_declined = true
+		_save()
+		_apply_gate()
+		_open_map()
+		return
+	if _dialog.has_method("dismiss"):
+		_dialog.dismiss()
+	_dialog.say(["nib.interrupt.1", "nib.interrupt.2"], ["nib.interrupt.yes", "nib.interrupt.no"])
+	var ch: int = await _dialog.finished
+	if ch == 0:
+		tutorial_wanted.emit()
+	else:
+		tutorial_declined = true
+		_save()
+		_dialog.say(["nib.interrupt.no_reply"])
+		await _dialog.finished
+		_apply_gate()
+		_open_map()
 
 
 func _on_nib() -> void:
 	if _gate_on():
-		if _dialog:
-			_dialog.say(["nib.interrupt.2"], ["nib.interrupt.yes", "nib.interrupt.no"])
-			var ch: int = await _dialog.finished
-			if ch == 0:
-				tutorial_wanted.emit()
-			else:
-				tutorial_declined = true
-				_save()
-				_dialog.say(["nib.interrupt.no_reply"])
-				await _dialog.finished
-				_apply_gate()
-				_open_map()
+		_interrupt()
 		return
 	var keys := ["nib.idle.1", "nib.idle.2", "nib.idle.3", "nib.idle.4", "nib.idle.5", "nib.idle.6"]
 	var k: String = str(keys[nib_idle_index % keys.size()])

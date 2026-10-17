@@ -254,6 +254,17 @@ func _show_choices() -> void:
 		tw.tween_property(b, "scale", Vector2.ONE, 0.12)
 
 
+func dismiss() -> void:
+	if not _open and not visible:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		return
+	_open = false
+	_typing = false
+	visible = false
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_choices.visible = false
+
+
 func _close(choice: int) -> void:
 	_open = false
 	_typing = false

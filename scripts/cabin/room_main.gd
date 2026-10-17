@@ -33,11 +33,17 @@ func _build_special() -> void:
 	nib.sprite_frames = sf
 	add_child(nib)
 	nib.play("idle")
+	var nib_hot = spots.get("Nib", null)
+	if nib_hot is CabinHotspot:
+		nib_hot.z_index = 7
 	prompt = KIT.nine("ui/dialog_box_9.png", Vector2(8, 8))
 	prompt.size = KIT.pt(58, 22)
 	prompt.position = KIT.pt(232, 148)
 	prompt.z_index = 6
 	prompt.visible = false
+	prompt.mouse_filter = Control.MOUSE_FILTER_STOP
+	prompt.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	prompt.gui_input.connect(_on_prompt_input)
 	add_child(prompt)
 	prompt_lab = KIT.label("nib.prompt", 18, KIT.INK)
 	prompt_lab.set_anchors_preset(PRESET_FULL_RECT)
@@ -63,8 +69,17 @@ func _add_anim(sf: SpriteFrames, anim: String, rels: Array, fps: float, loop: bo
 
 func set_gate(on: bool) -> void:
 	prompt.visible = on
+	prompt.mouse_filter = Control.MOUSE_FILTER_STOP if on else Control.MOUSE_FILTER_IGNORE
 	if nib and nib.sprite_frames:
 		nib.play("psst" if on else "idle")
+
+
+func _on_prompt_input(event: InputEvent) -> void:
+	if not prompt.visible:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		hotspot_activated.emit("Nib")
+		accept_event()
 
 
 func _refresh_doors() -> void:
