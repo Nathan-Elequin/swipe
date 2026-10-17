@@ -21,8 +21,7 @@ var _vol_tw: Tween
 
 func setup() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_ensure_bus("Music")
-	_ensure_bus("SFX")
+	_ensure_layout()
 	_load_save()
 	music = AudioStreamPlayer.new()
 	music.bus = "Music"
@@ -75,6 +74,15 @@ func setup() -> void:
 	apply_levels()
 
 
+func _ensure_layout() -> void:
+	for n in ["Music", "Stings", "Ambience", "SFX", "UI"]:
+		_ensure_bus(str(n))
+	_ensure_master_limiter()
+	_ensure_music_duck()
+	_ensure_ambience_lpf()
+	_ensure_sfx_compressor()
+
+
 func _ensure_bus(bus_name: String) -> void:
 	if AudioServer.get_bus_index(bus_name) >= 0:
 		return
@@ -82,6 +90,68 @@ func _ensure_bus(bus_name: String) -> void:
 	AudioServer.add_bus(idx)
 	AudioServer.set_bus_name(idx, bus_name)
 	AudioServer.set_bus_send(idx, "Master")
+
+
+func _bus_has_effect(bus_name: String, script_class: String) -> bool:
+	var idx: int = AudioServer.get_bus_index(bus_name)
+	if idx < 0:
+		return false
+	for i in AudioServer.get_bus_effect_count(idx):
+		var fx := AudioServer.get_bus_effect(idx, i)
+		if fx != null and fx.get_class() == script_class:
+			return true
+	return false
+
+
+func _ensure_master_limiter() -> void:
+	if _bus_has_effect("Master", "AudioEffectHardLimiter"):
+		return
+	var idx: int = AudioServer.get_bus_index("Master")
+	if idx < 0:
+		return
+	var lim := AudioEffectHardLimiter.new()
+	lim.ceiling_db = -1.0
+	lim.pre_gain_db = 0.0
+	lim.release = 0.1
+	AudioServer.add_bus_effect(idx, lim, 0)
+
+
+func _ensure_music_duck() -> void:
+	if _bus_has_effect("Music", "AudioEffectAmplify"):
+		return
+	var idx: int = AudioServer.get_bus_index("Music")
+	if idx < 0:
+		return
+	var amp := AudioEffectAmplify.new()
+	amp.resource_name = "Duck"
+	amp.volume_db = 0.0
+	AudioServer.add_bus_effect(idx, amp, 0)
+
+
+func _ensure_ambience_lpf() -> void:
+	if _bus_has_effect("Ambience", "AudioEffectLowPassFilter"):
+		return
+	var idx: int = AudioServer.get_bus_index("Ambience")
+	if idx < 0:
+		return
+	var lpf := AudioEffectLowPassFilter.new()
+	lpf.cutoff_hz = 20000.0
+	AudioServer.add_bus_effect(idx, lpf, 0)
+
+
+func _ensure_sfx_compressor() -> void:
+	if _bus_has_effect("SFX", "AudioEffectCompressor"):
+		return
+	var idx: int = AudioServer.get_bus_index("SFX")
+	if idx < 0:
+		return
+	var comp := AudioEffectCompressor.new()
+	comp.threshold = -14.0
+	comp.ratio = 3.0
+	comp.attack_us = 5000.0
+	comp.release_ms = 120.0
+	comp.gain = 0.0
+	AudioServer.add_bus_effect(idx, comp, 0)
 
 
 func _bind(id: String, path: String) -> void:
