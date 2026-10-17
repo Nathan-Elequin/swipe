@@ -7,6 +7,7 @@ signal unhovered
 signal edit_wanted
 signal passed_swipe
 
+const COPY := preload("res://scripts/player_copy.gd")
 const CARD_W := 118.0
 const CARD_H := 162.0
 const SHOW_W := 236.0
@@ -22,7 +23,7 @@ var _ghost: Label
 var _eq: RichTextLabel
 var _mark: TextureRect
 var _icon: TextureRect
-var _title: Label
+var _title
 var _rank: Label
 var _fill: Color
 var _rim: Color
@@ -99,7 +100,7 @@ func setup(
 	_rank = Label.new()
 	_rank.visible = false
 	_rank.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_rank.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_rank.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_rank.max_lines_visible = 2
 	_rank.custom_minimum_size = Vector2(104, 0)
 	_rank.add_theme_font_size_override("font_size", 12)
@@ -108,17 +109,17 @@ func setup(
 	_rank.add_theme_constant_override("outline_size", 3)
 	_rank.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	_title = Label.new()
-	_title.text = title
+	_title = FitLabelBox.make()
+	_title.show_frame = false
+	_title.padding = 0
+	_title.max_font_size = 14
+	_title.min_font_size = 12
+	_title.set_plain(title)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_title.autowrap_mode = TextServer.AUTOWRAP_WORD
-	_title.max_lines_visible = 2
 	_title.custom_minimum_size = Vector2(104, 38)
-	_title.add_theme_font_size_override("font_size", 14)
-	_title.add_theme_color_override("font_color", Color("f0e6d8"))
-	_title.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_title.add_theme_constant_override("outline_size", 3)
+	_title.font_color = Color("f0e6d8")
+	_title.set_outline(Color("100e0c"), 3)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_title)
 	col.add_child(_rank)
@@ -228,7 +229,7 @@ func setup(
 	_ability.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(_ability)
 	_used = Label.new()
-	_used.text = "USED"
+	_used.text = COPY.text("combat.used", "USED")
 	_used.visible = false
 	_used.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_used.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -314,13 +315,13 @@ func set_petrified(on: bool) -> void:
 func set_title(text: String) -> void:
 	if _title == null:
 		return
-	_title.text = text
+	_title.text = COPY.apply_names(text)
 
 
 func set_ability_bb(bb: String) -> void:
 	if _ability == null:
 		return
-	var raw: String = bb.strip_edges()
+	var raw: String = COPY.apply_names(bb.strip_edges())
 	_ability.text = "[center]%s[/center]" % raw
 	_ability.visible = _showcase and raw != ""
 
@@ -343,9 +344,10 @@ func set_showcase(on: bool) -> void:
 	_pass_swipe = on
 	custom_minimum_size = Vector2(SHOW_W, SHOW_H) if on else Vector2(CARD_W, CARD_H)
 	if _title:
-		_title.add_theme_font_size_override("font_size", 22 if on else 14)
+		_title.max_font_size = 22 if on else 14
 		_title.custom_minimum_size = Vector2(196 if on else 104, 48 if on else 38)
-		_title.max_lines_visible = 2
+		_title.max_lines = 2
+		_title.fit()
 	if _rank:
 		_rank.visible = _rank.text.strip_edges() != ""
 		_rank.add_theme_font_size_override("font_size", 15 if on else 12)

@@ -5,6 +5,7 @@ signal committed(items: Array, monsters: Array)
 signal closed
 signal open_card(kind: String, card_id: String)
 signal unlocks_reset
+signal open_buckets
 
 const BOARD_PATH := "res://data/content-board.json"
 const RUNTIME_PATH := "res://data/runtime.json"
@@ -49,6 +50,7 @@ const COL_ITEM := [
 	{"key": "status", "label": "Status", "sub": "live / todo / hold", "help": "live = in the dungeon. todo = needs a code pass. hold = skip. retired = hidden.", "w": 92.0, "kind": "pick", "opts": ["live", "todo", "hold", "retired"], "group": "meta"},
 	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "Left over from the old night-watch flag. The bucket decides which dungeon can deal this card.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
 	{"key": "bucket", "label": "Bucket", "sub": "when it unlocks", "help": "0 is in the first dungeon. 1 opens after the first Adventure ending, 2 after the second, and so on. A clear or a death counts. Bucket 0 should be 9 items and 9 monsters. Each later bucket should be 4 and 4. Smoke Bomb is always one of the four opening items in every dungeon and does not count toward those numbers. Token is never drafted and never shown in an unlock.", "w": 108.0, "kind": "pick", "opts": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "Token"], "group": "meta"},
+	{"key": "mode_pool", "label": "Modes", "sub": "which dungeons", "help": "All = both modes. Adventure-Only = mill and spin, never Challenge. Challenge-Only = pick-your-foe, never Adventure.", "w": 148.0, "kind": "pick", "opts": ["All", "Adventure-Only", "Challenge-Only"], "group": "meta"},
 	{"key": "id", "label": "Id", "sub": "internal code", "help": "Internal code id. Change this only when adding a brand-new card.", "w": 118.0, "kind": "line", "group": "meta"},
 	{"key": "tier", "label": "Tier", "sub": "1 bronze · 3 gold", "help": "1 bronze, 2 silver, 3 gold. A mill pack's relic and monster share this metal.", "w": 56.0, "kind": "line", "group": "pool"},
 	{"key": "count", "label": "Copies", "sub": "× in the pool", "help": "How many of this card exist in the dungeon pool. Not attack.", "w": 80.0, "kind": "line", "group": "pool"},
@@ -75,6 +77,7 @@ const COL_MONSTER := [
 	{"key": "status", "label": "Status", "sub": "live / todo / hold", "help": "live = in the dungeon. todo = needs a code pass. hold = skip. retired = hidden.", "w": 92.0, "kind": "pick", "opts": ["live", "todo", "hold", "retired"], "group": "meta"},
 	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "Left over from the old night-watch flag. The bucket decides which dungeon can deal this card.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
 	{"key": "bucket", "label": "Bucket", "sub": "when it unlocks", "help": "0 is in the first dungeon. 1 opens after the first Adventure ending, 2 after the second, and so on. A clear or a death counts. Bucket 0 should be 9 items and 9 monsters. Each later bucket should be 4 and 4. Smoke Bomb is always one of the four opening items in every dungeon and does not count toward those numbers. Token is never drafted and never shown in an unlock.", "w": 108.0, "kind": "pick", "opts": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "Token"], "group": "meta"},
+	{"key": "mode_pool", "label": "Modes", "sub": "which dungeons", "help": "All = both modes. Adventure-Only = mill and spin, never Challenge. Challenge-Only = pick-your-foe, never Adventure.", "w": 148.0, "kind": "pick", "opts": ["All", "Adventure-Only", "Challenge-Only"], "group": "meta"},
 	{"key": "id", "label": "Id", "sub": "internal code", "help": "Internal code id. Change this only when adding a brand-new card.", "w": 118.0, "kind": "line", "group": "meta"},
 	{"key": "tier", "label": "Tier", "sub": "1 bronze · 3 gold", "help": "1 bronze, 2 silver, 3 gold. Matches the relic in its mill pack.", "w": 56.0, "kind": "line", "group": "pool"},
 	{"key": "count", "label": "Copies", "sub": "× in the pool", "help": "How many of this monster exist in the pool. Not Attack.", "w": 80.0, "kind": "line", "group": "pool"},
@@ -101,10 +104,6 @@ var _order_chips: Dictionary = {}
 var _was_paused: bool = false
 var _status: Label
 var _bucket_warn: BucketAlertBar
-var _bucket_panel: Control
-var _bucket_body: VBoxContainer
-var _bucket_scroll: ScrollContainer
-var _bucket_alert: BucketAlertBar
 var _search: LineEdit
 var _tab_items: Button
 var _tab_mons: Button
@@ -121,6 +120,7 @@ var _focused_row: HBoxContainer = null
 var _dup_btn: Button
 var _shown_n: int = 0
 var _total_n: int = 0
+var _fitting: bool = false
 
 
 func setup(p_art, p_sfx) -> void:
@@ -134,7 +134,9 @@ func setup(p_art, p_sfx) -> void:
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
-	resized.connect(_fit_to_viewport)
+	var vp_node := get_viewport()
+	if vp_node != null and not vp_node.size_changed.is_connected(_fit_to_viewport):
+		vp_node.size_changed.connect(_fit_to_viewport)
 	var root := MarginContainer.new()
 	root.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -194,7 +196,7 @@ func setup(p_art, p_sfx) -> void:
 	_dup_btn = _btn("Duplicate", Color("3a3220"), Color("c4a574"), _on_duplicate, 120)
 	head.add_child(_dup_btn)
 	head.add_child(_btn("Reset unlocks", Color("3a2420"), Color("c47a5c"), _on_reset_unlocks, 140))
-	head.add_child(_btn("Buckets", Color("2a3340"), Color("8eb4d4"), _toggle_buckets, 110))
+	head.add_child(_btn("Buckets", Color("2a3340"), Color("8eb4d4"), _on_open_buckets, 110))
 	head.add_child(_btn("Save all", Color("3a2820"), Color("c4a574"), _on_save, 110))
 	head.add_child(_btn("Close", Color("3a3220"), Color("9a8b78"), close_editor, 90))
 	col.add_child(_build_review_bar())
@@ -248,16 +250,18 @@ func setup(p_art, p_sfx) -> void:
 
 
 func _fit_to_viewport() -> void:
-	if not is_inside_tree():
+	if _fitting or not is_inside_tree():
 		return
 	var vp: Vector2 = get_viewport_rect().size
 	if vp.x < 8.0 or vp.y < 8.0:
 		return
+	_fitting = true
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	if size != vp:
 		size = vp
 	if global_position != Vector2.ZERO:
 		global_position = Vector2.ZERO
+	_fitting = false
 	if visible and _header != null:
 		_wire_h_scroll()
 
@@ -274,8 +278,6 @@ func open_roster() -> void:
 		_search.text = ""
 	_dirty = false
 	_esc_armed = false
-	if _bucket_panel:
-		_bucket_panel.visible = false
 	_rebuild()
 	_was_paused = get_tree().paused
 	visible = true
@@ -729,6 +731,8 @@ func _make_row(card: Dictionary, cols: Array, zebra: int, grid_w: float) -> HBox
 				pick_v = REVIEW_STAGE.of_card(card)
 			if key == "bucket":
 				pick_v = BucketRules.label_of(card.get("bucket", 0))
+			if key == "mode_pool":
+				pick_v = ModePool.label_of(card.get("mode_pool", "all"))
 			var pick := _pick_cell(pick_v, spec.get("opts", []), w, help, row)
 			fields[key] = pick
 			_focusables.append(pick)
@@ -1204,6 +1208,7 @@ func _gather_row(row: HBoxContainer, strict: bool = true) -> Dictionary:
 		"status": _text_of(fields["status"]),
 		"rarity": _text_of(fields["rarity"]),
 		"bucket": BucketRules.parse(_text_of(fields["bucket"])) if fields.has("bucket") else BucketRules.parse(orig.get("bucket", 0)),
+		"mode_pool": ModePool.parse(_text_of(fields["mode_pool"])) if fields.has("mode_pool") else ModePool.parse(orig.get("mode_pool", "all")),
 		"tier": _int_of(_text_of(fields["tier"]), 1),
 		"count": _int_of(_text_of(fields["count"]), 1),
 		"priority": _int_of(_text_of(fields["priority"]), 3),
@@ -1319,6 +1324,7 @@ func _on_add() -> void:
 		"status": "todo",
 		"rarity": "uncommon",
 		"bucket": 0,
+		"mode_pool": "all",
 		"tier": 1,
 		"count": 1,
 		"priority": 3,
@@ -1362,24 +1368,24 @@ func _on_reset_unlocks() -> void:
 		sfx.play("confirm", -10.0)
 
 
-func _toggle_buckets() -> void:
-	if _bucket_panel == null:
-		_build_bucket_panel()
-	if _bucket_panel.visible:
-		_close_buckets()
-		return
+func _on_open_buckets() -> void:
 	if not _flush_visible(false):
 		return
-	_fill_buckets()
-	_bucket_panel.visible = true
-	_focus_buckets()
+	open_buckets.emit()
 
 
-func _close_buckets() -> void:
-	_cancel_gui_grab()
-	if _bucket_panel:
-		_bucket_panel.visible = false
+func live_board() -> Dictionary:
+	return _board.duplicate(true)
+
+
+func reload_from_disk() -> void:
+	_load_board()
 	_rebuild()
+	_refresh_bucket_warn()
+
+
+func flush_for_buckets() -> bool:
+	return _flush_visible(false)
 
 
 func _open_deep_card(kind: String, card_id: String) -> void:
@@ -1387,12 +1393,6 @@ func _open_deep_card(kind: String, card_id: String) -> void:
 	if sfx:
 		sfx.play("book", -12.0)
 	open_card.emit(kind, card_id)
-
-
-func _focus_buckets() -> void:
-	_cancel_gui_grab()
-	if _bucket_panel:
-		_bucket_panel.grab_focus()
 
 
 func _cancel_gui_grab() -> void:
@@ -1413,500 +1413,6 @@ func _higher_overlay_open() -> bool:
 		if child.visible and int(child.z_index) > z_index:
 			return true
 	return false
-
-
-func _build_bucket_panel() -> void:
-	_bucket_panel = ColorRect.new()
-	_bucket_panel.color = Color(0.06, 0.05, 0.04, 0.55)
-	_bucket_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_bucket_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	_bucket_panel.focus_mode = Control.FOCUS_ALL
-	_bucket_panel.visible = false
-	_bucket_panel.z_index = 4
-	_bucket_panel.name = "bucket_panel"
-	add_child(_bucket_panel)
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 28)
-	margin.add_theme_constant_override("margin_right", 28)
-	margin.add_theme_constant_override("margin_top", 24)
-	margin.add_theme_constant_override("margin_bottom", 24)
-	_bucket_panel.add_child(margin)
-	var panel := PanelContainer.new()
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("f3e6d0")
-	sb.border_color = Color("c4a574")
-	sb.set_border_width_all(3)
-	sb.set_corner_radius_all(12)
-	sb.content_margin_left = 16
-	sb.content_margin_right = 16
-	sb.content_margin_top = 12
-	sb.content_margin_bottom = 12
-	panel.add_theme_stylebox_override("panel", sb)
-	margin.add_child(panel)
-	var col := VBoxContainer.new()
-	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	col.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	col.add_theme_constant_override("separation", 8)
-	panel.add_child(col)
-	var head := HBoxContainer.new()
-	col.add_child(head)
-	var title := Label.new()
-	title.text = "Buckets"
-	title.add_theme_font_size_override("font_size", 24)
-	title.add_theme_color_override("font_color", Color("1c120c"))
-	head.add_child(title)
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	head.add_child(spacer)
-	head.add_child(_btn("Close", Color("3a3220"), Color("9a8b78"), _close_buckets, 90))
-	var note := Label.new()
-	note.text = "Wheel scrolls this board. Cards in a column sort by tier: bronze, then silver, then gold. Thick borders are the tier. Each bucket should have at least one of each tier on both sides. Bucket 0 should be 9 items and 9 monsters. Each later bucket should be 4 and 4. Smoke Bomb is always a starter and does not count toward those numbers. Token is never drafted."
-	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	note.add_theme_font_size_override("font_size", 14)
-	note.add_theme_color_override("font_color", Color("6b4a10"))
-	col.add_child(note)
-	_bucket_alert = BucketAlertBar.new()
-	col.add_child(_bucket_alert)
-	_bucket_scroll = WheelBoard.new()
-	_bucket_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_bucket_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_bucket_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
-	_bucket_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
-	_skin_scroll(_bucket_scroll)
-	col.add_child(_bucket_scroll)
-	_bucket_body = VBoxContainer.new()
-	_bucket_body.name = "bucket_body"
-	_bucket_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_bucket_body.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	_bucket_body.add_theme_constant_override("separation", 12)
-	_bucket_scroll.add_child(_bucket_body)
-
-
-func _fill_buckets() -> void:
-	if _bucket_body == null:
-		return
-	var keep_h: int = 0
-	var keep_v: int = 0
-	if _bucket_scroll:
-		keep_h = _bucket_scroll.scroll_horizontal
-		keep_v = _bucket_scroll.scroll_vertical
-	for child in _bucket_body.get_children():
-		_bucket_body.remove_child(child)
-		child.queue_free()
-	var groups: Dictionary = {}
-	for kind in ["item", "monster"]:
-		var key_name: String = "items" if kind == "item" else "monsters"
-		var arr: Array = _board.get(key_name, [])
-		for card in arr:
-			if typeof(card) != TYPE_DICTIONARY:
-				continue
-			var st: String = str(card.get("status", "live"))
-			if st == "retired" or st == "hold":
-				continue
-			var b: int = BucketRules.parse(card.get("bucket", 0))
-			var label: String = "Token" if b < 0 else str(b)
-			if not groups.has(label):
-				groups[label] = {"item": [], "monster": []}
-			(groups[label][kind] as Array).append(card)
-	_bucket_body.add_child(_bucket_row([
-		_make_kanban_column("0", _sorted_bucket(groups, "0", "item"), _sorted_bucket(groups, "0", "monster"), true),
-	]))
-	var later: Array[String] = []
-	for i in range(1, BucketRules.MAX_BUCKET + 1):
-		later.append(str(i))
-	var n: int = 0
-	while n < later.size():
-		var cols: Array = []
-		for k in range(BucketRules.LATER_PER_ROW):
-			if n + k >= later.size():
-				break
-			var label: String = later[n + k]
-			cols.append(_make_kanban_column(label, _sorted_bucket(groups, label, "item"), _sorted_bucket(groups, label, "monster"), false))
-		_bucket_body.add_child(_bucket_row(cols))
-		n += BucketRules.LATER_PER_ROW
-	_bucket_body.add_child(_bucket_row([
-		_make_kanban_column("Token", _sorted_bucket(groups, "Token", "item"), _sorted_bucket(groups, "Token", "monster"), false),
-	]))
-	_paint_bucket_alert()
-	if _bucket_scroll:
-		_bucket_scroll.scroll_horizontal = keep_h
-		_bucket_scroll.scroll_vertical = keep_v
-
-
-func _sorted_bucket(groups: Dictionary, label: String, kind: String) -> Array:
-	var cards: Array = groups[label][kind] if groups.has(label) else []
-	cards.sort_custom(func(a, b) -> bool:
-		var ta: int = BucketRules.tier_of(a)
-		var tb: int = BucketRules.tier_of(b)
-		if ta != tb:
-			return ta < tb
-		return str(a.get("name", "")).to_lower() < str(b.get("name", "")).to_lower()
-	)
-	return cards
-
-
-func _bucket_row(cols: Array) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 10)
-	for col in cols:
-		row.add_child(col)
-	return row
-
-
-func _make_kanban_column(label: String, items: Array, mons: Array, wide: bool) -> KanbanColumn:
-	var col := KanbanColumn.new()
-	col.bucket_label = label
-	col.drop_cb = _assign_kanban
-	col.custom_minimum_size = Vector2(520 if wide else 240, 180)
-	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	col.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var b: int = -1 if label == "Token" else int(label)
-	var ni: int = BucketRules.pool_count(items)
-	var nm: int = BucketRules.pool_count(mons)
-	var bad: bool = BucketRules.is_unbalanced(b, ni, nm)
-	var accent: Color = BucketRules.TOKEN_COLOR if label == "Token" else BucketRules.color_of(b)
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("f8d0c8") if bad else Color("efe6d4")
-	sb.border_color = Color("8b1e1e") if bad else accent
-	sb.set_border_width_all(3 if bad else 2)
-	sb.set_corner_radius_all(10)
-	sb.content_margin_left = 8
-	sb.content_margin_right = 8
-	sb.content_margin_top = 8
-	sb.content_margin_bottom = 8
-	col.add_theme_stylebox_override("panel", sb)
-	var stack := VBoxContainer.new()
-	stack.add_theme_constant_override("separation", 6)
-	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	col.add_child(stack)
-	var head := Label.new()
-	var want: int = BucketRules.want_items(b)
-	if label == "Token":
-		head.text = "Token  ·  %s items, %s monsters" % [items.size(), mons.size()]
-	elif want > 0:
-		head.text = "%s  ·  %s / %s items, %s / %s monsters" % [label, ni, want, nm, want]
-	else:
-		head.text = "%s  ·  %s items, %s monsters" % [label, ni, nm]
-	head.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	head.add_theme_font_size_override("font_size", 16)
-	head.add_theme_color_override("font_color", Color("8b1e1e") if bad else accent.darkened(0.35))
-	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stack.add_child(head)
-	if bad:
-		var hint := Label.new()
-		hint.text = "Should be %s and %s." % [want, want]
-		hint.add_theme_font_size_override("font_size", 12)
-		hint.add_theme_color_override("font_color", Color("8b1e1e"))
-		hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		stack.add_child(hint)
-	var miss_i: PackedInt32Array = BucketRules.missing_tiers(items)
-	var miss_m: PackedInt32Array = BucketRules.missing_tiers(mons)
-	if not miss_i.is_empty() or not miss_m.is_empty():
-		var bits: PackedStringArray = PackedStringArray()
-		if not miss_i.is_empty():
-			bits.append("items missing %s" % _tier_gap_text(miss_i))
-		if not miss_m.is_empty():
-			bits.append("monsters missing %s" % _tier_gap_text(miss_m))
-		var gap := Label.new()
-		gap.text = "Need at least one of each tier — %s." % " · ".join(bits)
-		gap.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		gap.add_theme_font_size_override("font_size", 12)
-		gap.add_theme_color_override("font_color", Color("8b1e1e"))
-		gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		stack.add_child(gap)
-	if label == "0":
-		var always := Label.new()
-		always.text = "Smoke Bomb is always a starter in every dungeon."
-		always.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		always.add_theme_font_size_override("font_size", 12)
-		always.add_theme_color_override("font_color", Color("6b4a10"))
-		always.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		stack.add_child(always)
-	var pane := KanbanPane.new()
-	pane.host = col
-	pane.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	stack.add_child(pane)
-	if wide:
-		var split := HBoxContainer.new()
-		split.add_theme_constant_override("separation", 8)
-		split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		split.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		pane.add_child(split)
-		split.add_child(_kanban_stack("Items", Color("6b4a10"), items, "item", label, col, "Drop items here."))
-		split.add_child(_kanban_stack("Monsters", Color("6a1c14"), mons, "monster", label, col, "Drop monsters here."))
-	else:
-		var body := VBoxContainer.new()
-		body.add_theme_constant_override("separation", 6)
-		body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		pane.add_child(body)
-		body.add_child(_kanban_stack("Items", Color("6b4a10"), items, "item", label, col, "Drop items here."))
-		body.add_child(_kanban_stack("Monsters", Color("6a1c14"), mons, "monster", label, col, "Drop monsters here."))
-	return col
-
-
-func _kanban_stack(title: String, ink: Color, cards: Array, kind: String, label: String, host: KanbanColumn, empty_text: String) -> VBoxContainer:
-	var body := VBoxContainer.new()
-	body.add_theme_constant_override("separation", 6)
-	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 8)
-	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	head.add_child(_kanban_section(title, ink))
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	head.add_child(spacer)
-	head.add_child(_tier_pips(cards))
-	body.add_child(head)
-	if cards.is_empty():
-		body.add_child(_kanban_empty(empty_text))
-	else:
-		for card in cards:
-			body.add_child(_make_kanban_tile(card, kind, label, host))
-	return body
-
-
-func _tier_pips(cards: Array) -> HBoxContainer:
-	var counts: Array[int] = [0, 0, 0, 0]
-	for card in cards:
-		if typeof(card) != TYPE_DICTIONARY:
-			continue
-		counts[BucketRules.tier_of(card)] += 1
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 4)
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var filled: int = cards.size()
-	for t in range(1, 4):
-		var n: int = counts[t]
-		var metal: Color = BucketRules.tier_color(t)
-		var chip := PanelContainer.new()
-		chip.mouse_filter = Control.MOUSE_FILTER_STOP
-		chip.tooltip_text = "Tier %s %s: %s" % [t, BucketRules.tier_label(t), n]
-		var sb := StyleBoxFlat.new()
-		var emptyish: bool = n == 0 and filled >= 3
-		sb.bg_color = metal if n > 0 else metal.lerp(Color("efe6d4"), 0.78)
-		sb.border_color = Color("8b1e1e") if emptyish else metal.darkened(0.28)
-		sb.set_border_width_all(3 if emptyish else 2)
-		sb.set_corner_radius_all(5)
-		sb.content_margin_left = 7
-		sb.content_margin_right = 7
-		sb.content_margin_top = 2
-		sb.content_margin_bottom = 2
-		chip.add_theme_stylebox_override("panel", sb)
-		var lab := Label.new()
-		lab.text = "%s %s" % [t, n]
-		lab.add_theme_font_size_override("font_size", 12)
-		lab.add_theme_color_override("font_color", Color("8b1e1e") if emptyish else BucketRules.ink_for(sb.bg_color))
-		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		chip.add_child(lab)
-		row.add_child(chip)
-	return row
-
-
-func _tier_gap_text(miss: PackedInt32Array) -> String:
-	var names: PackedStringArray = PackedStringArray()
-	for t in miss:
-		names.append(BucketRules.tier_label(int(t)).to_lower())
-	return " and ".join(names)
-
-
-func _kanban_section(text: String, ink: Color) -> Label:
-	var lab := Label.new()
-	lab.text = text
-	lab.add_theme_font_size_override("font_size", 12)
-	lab.add_theme_color_override("font_color", ink)
-	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return lab
-
-
-func _kanban_empty(text: String) -> Label:
-	var lab := Label.new()
-	lab.text = text
-	lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	lab.add_theme_font_size_override("font_size", 12)
-	lab.add_theme_color_override("font_color", Color("8a6a3a"))
-	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return lab
-
-
-func _make_kanban_tile(card: Dictionary, kind: String, bucket_label: String, host: KanbanColumn) -> KanbanTile:
-	var tile := KanbanTile.new()
-	tile.host = host
-	var tier_n: int = BucketRules.tier_of(card)
-	var metal: Color = BucketRules.tier_color(tier_n)
-	tile.payload = {
-		"type": "bucket_card",
-		"kind": kind,
-		"id": str(card.get("id", "")),
-		"name": str(card.get("name", card.get("id", "?"))),
-		"bucket": bucket_label,
-		"tier": tier_n,
-	}
-	tile.custom_minimum_size = Vector2(228, 0)
-	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tile.mouse_default_cursor_shape = Control.CURSOR_MOVE
-	tile.tooltip_text = "Tier %s %s. Drag to another column to change the bucket. Right-click opens the card." % [tier_n, BucketRules.tier_label(tier_n)]
-	var tsb := StyleBoxFlat.new()
-	tsb.bg_color = BucketRules.tier_fill(tier_n)
-	tsb.border_color = metal
-	tsb.set_border_width_all(4)
-	tsb.set_corner_radius_all(8)
-	tsb.content_margin_left = 6
-	tsb.content_margin_right = 8
-	tsb.content_margin_top = 6
-	tsb.content_margin_bottom = 6
-	tile.add_theme_stylebox_override("panel", tsb)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tile.add_child(row)
-	var stripe := ColorRect.new()
-	stripe.custom_minimum_size = Vector2(10, 48)
-	stripe.color = metal
-	stripe.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(stripe)
-	var pic := TextureRect.new()
-	pic.custom_minimum_size = Vector2(48, 48)
-	pic.texture_filter = TEXTURE_FILTER_NEAREST
-	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var cid: String = str(card.get("id", ""))
-	if art != null:
-		pic.texture = art.monster_still(cid) if kind == "monster" else art.item_tex(cid)
-	row.add_child(pic)
-	var text_col := VBoxContainer.new()
-	text_col.add_theme_constant_override("separation", 2)
-	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_col.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(text_col)
-	var name_l := Label.new()
-	name_l.text = str(card.get("name", cid))
-	name_l.add_theme_font_size_override("font_size", 14)
-	name_l.add_theme_color_override("font_color", Color("1c120c"))
-	name_l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	name_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var name_row := HBoxContainer.new()
-	name_row.add_theme_constant_override("separation", 6)
-	name_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	name_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_row.add_child(name_l)
-	var badge := PanelContainer.new()
-	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var bsb := StyleBoxFlat.new()
-	bsb.bg_color = metal
-	bsb.set_corner_radius_all(5)
-	bsb.content_margin_left = 7
-	bsb.content_margin_right = 7
-	bsb.content_margin_top = 1
-	bsb.content_margin_bottom = 1
-	badge.add_theme_stylebox_override("panel", bsb)
-	var blab := Label.new()
-	blab.text = "%s %s" % [tier_n, BucketRules.tier_label(tier_n)]
-	blab.add_theme_font_size_override("font_size", 11)
-	blab.add_theme_color_override("font_color", BucketRules.ink_for(metal))
-	blab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	badge.add_child(blab)
-	name_row.add_child(badge)
-	text_col.add_child(name_row)
-	var ability := Label.new()
-	ability.text = str(card.get("ability", "")).strip_edges()
-	if ability.text == "":
-		ability.text = "(no player text)"
-		ability.add_theme_color_override("font_color", Color("8a6a3a"))
-	else:
-		ability.add_theme_color_override("font_color", Color("3a3220"))
-	ability.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	ability.max_lines_visible = 3
-	ability.add_theme_font_size_override("font_size", 12)
-	ability.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	text_col.add_child(ability)
-	if BucketRules.is_always_starter_id(cid):
-		var tag := Label.new()
-		tag.text = "Always a starter"
-		tag.add_theme_font_size_override("font_size", 11)
-		tag.add_theme_color_override("font_color", Color("5d8a45"))
-		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		text_col.add_child(tag)
-		tile.tooltip_text = "Always a starter. Tier %s %s. Does not count toward the 9. Drag to another column to change the bucket. Right-click opens the card." % [tier_n, BucketRules.tier_label(tier_n)]
-	tile.gui_input.connect(func(event: InputEvent) -> void:
-		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-			_open_deep_card(kind, cid)
-			tile.accept_event()
-	)
-	return tile
-
-
-func _assign_kanban(data: Variant, label: String) -> void:
-	if typeof(data) != TYPE_DICTIONARY:
-		return
-	var kind: String = str(data.get("kind", ""))
-	var id: String = str(data.get("id", ""))
-	if kind == "" or id == "":
-		return
-	if str(data.get("bucket", "")) == label:
-		return
-	_assign_bucket(kind, id, label)
-
-
-func _assign_bucket(kind: String, card_id: String, label: String) -> void:
-	var parsed: int = BucketRules.parse(label)
-	var key: String = "items" if kind == "item" else "monsters"
-	var found := false
-	for card in _board.get(key, []):
-		if typeof(card) != TYPE_DICTIONARY:
-			continue
-		if str(card.get("id", "")) != card_id:
-			continue
-		card["bucket"] = parsed
-		found = true
-		break
-	if not found:
-		return
-	for row in _rows:
-		if row == null or not is_instance_valid(row):
-			continue
-		if str(row.get_meta("orig_id", "")) != card_id:
-			continue
-		if str(row.get_meta("kind", "")) != kind:
-			continue
-		var fields: Dictionary = row.get_meta("fields")
-		var pick: Variant = fields.get("bucket", null)
-		if pick is OptionButton:
-			var ob: OptionButton = pick
-			for i in ob.item_count:
-				if ob.get_item_text(i) == label:
-					ob.select(i)
-					BucketRules.paint(ob)
-					break
-		_mark_dirty(row)
-		var orig: Dictionary = row.get_meta("orig")
-		orig["bucket"] = parsed
-		row.set_meta("orig", orig)
-	if not _dirty:
-		_dirty = true
-	_status.text = "Moved to bucket %s. Save all to keep it." % label
-	_status.add_theme_color_override("font_color", Color("6b4a10"))
-	if sfx:
-		sfx.play("click2", -12.0)
-	call_deferred("_fill_buckets")
-	call_deferred("_refresh_bucket_warn")
-
-
-func _paint_bucket_alert() -> void:
-	if _bucket_alert == null:
-		return
-	var msg: String = BucketRules.counts_warning(_board.get("items", []), _board.get("monsters", []))
-	_bucket_alert.set_message(msg, "Counts match, and every filled bucket has bronze, silver, and gold on both sides.")
 
 
 func _refresh_bucket_warn() -> void:
@@ -2155,17 +1661,10 @@ func _input(event: InputEvent) -> void:
 	if not visible or _higher_overlay_open():
 		return
 	if event.is_action_pressed("ui_cancel"):
-		if _bucket_panel and _bucket_panel.visible:
-			_close_buckets()
-			get_viewport().set_input_as_handled()
-			return
 		close_editor()
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_accept"):
-		if _bucket_panel and _bucket_panel.visible:
-			_close_buckets()
-			get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.ctrl_pressed:
 		match event.keycode:
@@ -2180,143 +1679,3 @@ func _input(event: InputEvent) -> void:
 			KEY_D:
 				_on_duplicate()
 				get_viewport().set_input_as_handled()
-
-
-class WheelBoard extends ScrollContainer:
-	const STEP := 80
-
-	func _ready() -> void:
-		set_process_input(true)
-
-	func _input(event: InputEvent) -> void:
-		if not is_visible_in_tree():
-			return
-		if not event is InputEventMouseButton:
-			return
-		var e: InputEventMouseButton = event
-		if not e.pressed:
-			return
-		var area: Control = self
-		var n: Node = self
-		while n:
-			if n.name == "bucket_panel" and n is Control:
-				area = n
-				break
-			n = n.get_parent()
-		var hovered: Control = get_viewport().gui_get_hovered_control() if get_viewport() else null
-		if hovered != null and hovered != area and not area.is_ancestor_of(hovered):
-			return
-		if not area.get_global_rect().has_point(get_global_mouse_position()):
-			return
-		var dx: int = 0
-		var dy: int = 0
-		match e.button_index:
-			MOUSE_BUTTON_WHEEL_UP:
-				if e.shift_pressed:
-					dx = -STEP
-				else:
-					dy = -STEP
-			MOUSE_BUTTON_WHEEL_DOWN:
-				if e.shift_pressed:
-					dx = STEP
-				else:
-					dy = STEP
-			_:
-				return
-		if dy != 0:
-			scroll_vertical += dy
-		if dx != 0:
-			scroll_horizontal += dx
-		get_viewport().set_input_as_handled()
-
-
-class KanbanColumn extends PanelContainer:
-	var bucket_label: String = "0"
-	var drop_cb: Callable
-
-	func _can_drop_data(_at: Vector2, data: Variant) -> bool:
-		if not _is_card(data):
-			return false
-		_paint_drop_hot()
-		return true
-
-	func _drop_data(_at: Vector2, data: Variant) -> void:
-		_clear_kanban_hot()
-		if drop_cb.is_valid():
-			drop_cb.call(data, bucket_label)
-
-	func _paint_drop_hot() -> void:
-		_clear_kanban_hot()
-		modulate = Color(1.12, 1.08, 0.9)
-
-	func _clear_kanban_hot() -> void:
-		var n: Node = self
-		while n:
-			if n.name == "bucket_body":
-				for row in n.get_children():
-					for child in row.get_children():
-						if child is KanbanColumn:
-							child.modulate = Color.WHITE
-				return
-			n = n.get_parent()
-
-	static func _is_card(data: Variant) -> bool:
-		return typeof(data) == TYPE_DICTIONARY and str(data.get("type", "")) == "bucket_card"
-
-
-class KanbanPane extends PanelContainer:
-	var host: KanbanColumn
-
-	func _ready() -> void:
-		var sb := StyleBoxEmpty.new()
-		add_theme_stylebox_override("panel", sb)
-		mouse_filter = Control.MOUSE_FILTER_STOP
-		size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	func _can_drop_data(at: Vector2, data: Variant) -> bool:
-		return host != null and host._can_drop_data(at, data)
-
-	func _drop_data(at: Vector2, data: Variant) -> void:
-		if host:
-			host._drop_data(at, data)
-
-
-class KanbanTile extends PanelContainer:
-	var host: KanbanColumn
-	var payload: Dictionary = {}
-
-	func _get_drag_data(_at: Vector2) -> Variant:
-		var preview := PanelContainer.new()
-		var tier_n: int = int(payload.get("tier", 1))
-		var metal: Color = BucketRules.tier_color(tier_n)
-		var sb := StyleBoxFlat.new()
-		sb.bg_color = BucketRules.tier_fill(tier_n)
-		sb.border_color = metal
-		sb.set_border_width_all(4)
-		sb.set_corner_radius_all(8)
-		sb.content_margin_left = 10
-		sb.content_margin_right = 10
-		sb.content_margin_top = 6
-		sb.content_margin_bottom = 6
-		preview.add_theme_stylebox_override("panel", sb)
-		var lab := Label.new()
-		lab.text = "%s  ·  %s %s" % [str(payload.get("name", "card")), tier_n, BucketRules.tier_label(tier_n)]
-		lab.add_theme_font_size_override("font_size", 15)
-		lab.add_theme_color_override("font_color", Color("1c120c"))
-		preview.add_child(lab)
-		set_drag_preview(preview)
-		modulate.a = 0.45
-		return payload
-
-	func _notification(what: int) -> void:
-		if what == NOTIFICATION_DRAG_END:
-			modulate.a = 1.0
-			if host:
-				host._clear_kanban_hot()
-
-	func _can_drop_data(at: Vector2, data: Variant) -> bool:
-		return host != null and host._can_drop_data(at, data)
-
-	func _drop_data(at: Vector2, data: Variant) -> void:
-		if host:
-			host._drop_data(at, data)

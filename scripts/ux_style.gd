@@ -49,6 +49,39 @@ static func long_button(kind: String = "brown", pressed: bool = false) -> StyleB
 	return nine_patch(path, 20, top, 20, bot, 20, 10, 20, 10)
 
 
+static func title_button_style(pressed: bool = false) -> StyleBoxFlat:
+	var s := StyleBoxFlat.new()
+	s.bg_color = Color("2a1c14") if pressed else Color("1c140e")
+	s.border_color = Color("e8c36a")
+	s.set_border_width_all(3)
+	s.set_corner_radius_all(10)
+	s.content_margin_left = 22
+	s.content_margin_right = 22
+	s.content_margin_top = 12
+	s.content_margin_bottom = 12
+	return s
+
+
+static func dress_title_button(b: Button, width: float = 0.0) -> void:
+	if b == null:
+		return
+	b.custom_minimum_size = Vector2(width, 52)
+	b.add_theme_font_size_override("font_size", 21)
+	b.add_theme_color_override("font_color", Color("f8f2ea"))
+	b.add_theme_color_override("font_hover_color", Color("ffffff"))
+	b.add_theme_color_override("font_pressed_color", Color("e8c36a"))
+	b.add_theme_color_override("font_outline_color", Color("100e0c"))
+	b.add_theme_constant_override("outline_size", 4)
+	var up := title_button_style(false)
+	var hover := title_button_style(false)
+	hover.bg_color = Color("2a1c14")
+	var down := title_button_style(true)
+	b.add_theme_stylebox_override("normal", up)
+	b.add_theme_stylebox_override("hover", hover)
+	b.add_theme_stylebox_override("focus", hover)
+	b.add_theme_stylebox_override("pressed", down)
+
+
 ## Same metals the item rims use. 1 Weak / bronze, 2 Tough / silver, 3 Deadly / gold.
 static func metal(tier: int) -> Color:
 	if tier >= 3:
@@ -131,6 +164,7 @@ const HP := "#E8A0A0"
 const BLK := "#6BB3D9"
 const VAR := "#C9A0FF"
 const HEAL := "#8FD18F"
+const ALWAYS := "#E8C36A"
 
 
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
@@ -178,6 +212,8 @@ static func def_id_of(piece: String) -> String:
 		return "flee"
 	if low.begins_with("spin"):
 		return "spin"
+	if low == "always":
+		return "always"
 	return ""
 
 
@@ -187,6 +223,8 @@ static func def_of(id: String) -> String:
 			return "If you are facing them, Spin the wheel at random."
 		"spin":
 			return "The wheel lands on a random living monster."
+		"always":
+			return "Always: cannot be changed in any other way"
 		_:
 			return ""
 
@@ -198,25 +236,28 @@ static func with_def_link(shown: String, piece: String) -> String:
 	return "[url=kw:%s]%s[/url]" % [id, shown]
 
 
-static func wire_def_hover(rtl: RichTextLabel, tip: Node) -> void:
+static func wire_def_hover(rtl: RichTextLabel, tip: Node, anchor: Control = null) -> void:
 	if rtl == null or tip == null:
 		return
 	rtl.bbcode_enabled = true
 	rtl.meta_underlined = false
-	if not rtl.meta_hover_started.is_connected(_on_def_hover.bind(tip)):
-		rtl.meta_hover_started.connect(_on_def_hover.bind(tip))
-	if not rtl.meta_hover_ended.is_connected(_on_def_unhover.bind(tip)):
-		rtl.meta_hover_ended.connect(_on_def_unhover.bind(tip))
+	if not rtl.meta_hover_started.is_connected(_on_def_hover.bind(tip, anchor)):
+		rtl.meta_hover_started.connect(_on_def_hover.bind(tip, anchor))
+	if not rtl.meta_hover_ended.is_connected(_on_def_unhover.bind(tip, anchor)):
+		rtl.meta_hover_ended.connect(_on_def_unhover.bind(tip, anchor))
 
 
-static func _on_def_hover(meta: Variant, tip: Node) -> void:
+static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> void:
 	if tip == null or not tip.has_method("show_def"):
 		return
 	var id: String = str(meta).trim_prefix("kw:")
-	tip.show_def(def_of(id))
+	tip.show_def(def_of(id), anchor, id)
 
 
-static func _on_def_unhover(_meta: Variant, tip: Node) -> void:
+static func _on_def_unhover(_meta: Variant, tip: Node, anchor: Control = null) -> void:
+	if anchor != null and bool(anchor.get("_pin_always")) and anchor.has_method("pin_always_def"):
+		anchor.pin_always_def()
+		return
 	if tip != null and tip.has_method("hide_def"):
 		tip.hide_def()
 
@@ -456,6 +497,7 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"fleeing", "flees", "fled", "flee",
 		"spinning", "spins", "spin",
 		"losing", "loses", "lost", "lose",
+		"always",
 		"atk", "blk", "hp",
 	])
 	var nums := "one|two|three|four|five|six|seven|eight|nine|ten|twice|thrice"
@@ -525,6 +567,8 @@ static func _format_keyword_token(tok: String) -> String:
 	var low: String = core.to_lower()
 	if low == "atk" or low == "blk" or low == "hp":
 		return prefix + low.to_upper() + suffix
+	if low == "always":
+		return prefix + "Always" + suffix
 	if _is_word_num(low) or _token_has_digit(core):
 		return tok
 	if _is_keyword_stem(low):
@@ -556,6 +600,8 @@ static func _is_keyword_stem(low: String) -> bool:
 
 
 static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, var_c: String, blk_c: String) -> String:
+	if low == "always":
+		return ALWAYS
 	if low.begins_with("defeat"):
 		return var_c
 	if low.begins_with("attack") or low == "atk":

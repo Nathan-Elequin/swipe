@@ -1,0 +1,797 @@
+{
+ "version": 1,
+ "status": "additions for data/sfx-map.json (merge keys; do not replace existing cues)",
+ "doc": "Cabin overhaul cues. Merge 'cues' into sfx-map.json cues, 'music_beds' into music.beds, 'music_states' into music.states, 'radio' at top level. Files resolve to res://assets/audio/<name>.ogg.",
+ "cues": {
+  "cabin.hover": {
+   "files": [
+    "cab_hover_a",
+    "cab_hover_b"
+   ],
+   "bus": "UI",
+   "db": -16,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "cooldown_ms": 60,
+   "max_voices": 1,
+   "priority": 0
+  },
+  "cabin.click": {
+   "files": [
+    "cab_click"
+   ],
+   "bus": "UI",
+   "db": -9,
+   "pitch": [
+    0.98,
+    1.02
+   ],
+   "cooldown_ms": 40,
+   "max_voices": 2,
+   "priority": 1
+  },
+  "cabin.locked": {
+   "files": [
+    "cab_locked"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 300,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.unlock": {
+   "files": [
+    "cab_unlock"
+   ],
+   "bus": "SFX",
+   "db": -6,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 2
+  },
+  "cabin.chain_drop": {
+   "files": [
+    "cab_chain_drop"
+   ],
+   "bus": "SFX",
+   "db": -8,
+   "pitch": [
+    0.95,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 2
+  },
+  "cabin.door_creak": {
+   "files": [
+    "cab_door_creak"
+   ],
+   "bus": "SFX",
+   "db": -10,
+   "pitch": [
+    0.95,
+    1.02
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.key_jingle": {
+   "files": [
+    "cab_key_jingle"
+   ],
+   "bus": "SFX",
+   "db": -7,
+   "pitch": [
+    0.97,
+    1.05
+   ],
+   "cooldown_ms": 150,
+   "max_voices": 1,
+   "priority": 2
+  },
+  "sting.unlock": {
+   "files": [
+    "sting_unlock"
+   ],
+   "bus": "Stings",
+   "db": -6,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 3,
+   "duck_music": {
+    "db": -8,
+    "attack_s": 0.05,
+    "release_s": 1.2
+   }
+  },
+  "cabin.radio_on": {
+   "files": [
+    "cab_radio_on"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.radio_knob": {
+   "files": [
+    "cab_radio_knob"
+   ],
+   "bus": "UI",
+   "db": -12,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "cooldown_ms": 50,
+   "max_voices": 1,
+   "priority": 0
+  },
+  "cabin.radio_tune": {
+   "files": [
+    "cab_radio_tune"
+   ],
+   "bus": "SFX",
+   "db": -10,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "cooldown_ms": 200,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "amb.radio_static": {
+   "files": [
+    "cab_radio_static_loop"
+   ],
+   "bus": "Ambience",
+   "db": -24,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 0,
+   "loop": true,
+   "note": "play for 600 ms while the station changes, then fade 300 ms; also faint (-34 dB) under the radio close-up"
+  },
+  "cabin.page_flip": {
+   "files": [
+    "cab_page_flip_1",
+    "cab_page_flip_2",
+    "cab_page_flip_3"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "cooldown_ms": 80,
+   "max_voices": 2,
+   "priority": 1
+  },
+  "cabin.book_open": {
+   "files": [
+    "cab_book_open"
+   ],
+   "bus": "SFX",
+   "db": -8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.book_close": {
+   "files": [
+    "cab_book_close"
+   ],
+   "bus": "SFX",
+   "db": -8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.scroll": {
+   "files": [
+    "cab_scroll"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.map_pin": {
+   "files": [
+    "cab_map_pin"
+   ],
+   "bus": "UI",
+   "db": -9,
+   "pitch": [
+    0.95,
+    1.08
+   ],
+   "cooldown_ms": 60,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.seal_stamp": {
+   "files": [
+    "cab_seal_stamp"
+   ],
+   "bus": "SFX",
+   "db": -5,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 3
+  },
+  "cabin.sack_shake": {
+   "files": [
+    "cab_sack_shake"
+   ],
+   "bus": "SFX",
+   "db": -7,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 2
+  },
+  "cabin.sack_empty": {
+   "files": [
+    "cab_sack_empty"
+   ],
+   "bus": "SFX",
+   "db": -6,
+   "pitch": [
+    0.95,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 2
+  },
+  "sting.empty": {
+   "files": [
+    "sting_empty"
+   ],
+   "bus": "Stings",
+   "db": -8,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 3,
+   "duck_music": {
+    "db": -6,
+    "attack_s": 0.1,
+    "release_s": 1.5
+   }
+  },
+  "cabin.moth": {
+   "files": [
+    "cab_moth"
+   ],
+   "bus": "SFX",
+   "db": -14,
+   "pitch": [
+    0.95,
+    1.1
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.item_pop": {
+   "files": [
+    "cab_item_pop_a",
+    "cab_item_pop_b"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    0.92,
+    1.12
+   ],
+   "cooldown_ms": 60,
+   "max_voices": 3,
+   "priority": 1
+  },
+  "cabin.item_burst": {
+   "files": [
+    "cab_item_burst"
+   ],
+   "bus": "SFX",
+   "db": -8,
+   "pitch": [
+    0.97,
+    1.05
+   ],
+   "cooldown_ms": 90,
+   "max_voices": 2,
+   "priority": 2
+  },
+  "cabin.item_whoosh": {
+   "files": [
+    "cab_item_whoosh"
+   ],
+   "bus": "SFX",
+   "db": -11,
+   "pitch": [
+    0.95,
+    1.08
+   ],
+   "cooldown_ms": 60,
+   "max_voices": 3,
+   "priority": 1
+  },
+  "cabin.shelf_chime": {
+   "files": [
+    "cab_shelf_chime"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    0.98,
+    1.06
+   ],
+   "cooldown_ms": 90,
+   "max_voices": 2,
+   "priority": 2
+  },
+  "cabin.hero_yip": {
+   "files": [
+    "cab_hero_yip"
+   ],
+   "bus": "SFX",
+   "db": -10,
+   "pitch": [
+    0.95,
+    1.08
+   ],
+   "cooldown_ms": 300,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.hero_sigh": {
+   "files": [
+    "cab_hero_sigh"
+   ],
+   "bus": "SFX",
+   "db": -11,
+   "pitch": [
+    0.97,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.rope_climb": {
+   "files": [
+    "cab_rope_climb_1",
+    "cab_rope_climb_2"
+   ],
+   "bus": "SFX",
+   "db": -10,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "cooldown_ms": 150,
+   "max_voices": 2,
+   "priority": 1
+  },
+  "amb.rope_creak": {
+   "files": [
+    "cab_rope_creak"
+   ],
+   "bus": "Ambience",
+   "db": -18,
+   "pitch": [
+    0.9,
+    1.05
+   ],
+   "cooldown_ms": 2500,
+   "max_voices": 1,
+   "priority": 0
+  },
+  "cabin.hole_rumble": {
+   "files": [
+    "cab_hole_rumble"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    0.95,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 2
+  },
+  "cabin.gear_take": {
+   "files": [
+    "cab_gear_take"
+   ],
+   "bus": "SFX",
+   "db": -10,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.gear_hang": {
+   "files": [
+    "cab_gear_hang"
+   ],
+   "bus": "SFX",
+   "db": -10,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.dummy": {
+   "files": [
+    "cab_dummy"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "cooldown_ms": 120,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.bed": {
+   "files": [
+    "cab_bed"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.telescope": {
+   "files": [
+    "cab_telescope"
+   ],
+   "bus": "SFX",
+   "db": -10,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.trunk": {
+   "files": [
+    "cab_trunk"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.brag": {
+   "files": [
+    "cab_brag_cog"
+   ],
+   "bus": "UI",
+   "db": -12,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "cooldown_ms": 100,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.room_sign": {
+   "files": [
+    "cab_room_sign"
+   ],
+   "bus": "UI",
+   "db": -13,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "cooldown_ms": 200,
+   "max_voices": 1,
+   "priority": 0
+  },
+  "cabin.panel": {
+   "files": [
+    "cab_panel_whoosh"
+   ],
+   "bus": "UI",
+   "db": -12,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 150,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.drawer_stuck": {
+   "files": [
+    "cab_drawer_stuck"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "cooldown_ms": 300,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "cabin.drawer_unlatch": {
+   "files": [
+    "cab_drawer_unlatch"
+   ],
+   "bus": "SFX",
+   "db": -7,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 2
+  },
+  "cabin.drawer_open": {
+   "files": [
+    "cab_drawer_open"
+   ],
+   "bus": "SFX",
+   "db": -7,
+   "pitch": [
+    0.98,
+    1.02
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 2
+  },
+  "cabin.geode_chime": {
+   "files": [
+    "cab_geode_chime"
+   ],
+   "bus": "SFX",
+   "db": -9,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 200,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "speech.nib_psst": {
+   "files": [
+    "nib_psst"
+   ],
+   "bus": "UI",
+   "db": -12,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown_ms": 3000,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "speech.nib_gasp": {
+   "files": [
+    "nib_gasp"
+   ],
+   "bus": "UI",
+   "db": -11,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "speech.nib_chuckle": {
+   "files": [
+    "nib_chuckle"
+   ],
+   "bus": "UI",
+   "db": -12,
+   "pitch": [
+    0.97,
+    1.05
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1
+  },
+  "sting.intro": {
+   "files": [
+    "sting_intro"
+   ],
+   "bus": "Stings",
+   "db": -6,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 3,
+   "duck_music": {
+    "db": -8,
+    "attack_s": 0.1,
+    "release_s": 1.5
+   }
+  },
+  "sting.ending": {
+   "files": [
+    "sting_ending"
+   ],
+   "bus": "Stings",
+   "db": -5,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 3,
+   "duck_music": {
+    "db": -12,
+    "attack_s": 0.1,
+    "release_s": 2.0
+   }
+  },
+  "cabin.intro_start": {
+   "files": [],
+   "bus": "SFX",
+   "db": -12,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1,
+   "music": "intro"
+  },
+  "cabin.ending_start": {
+   "files": [],
+   "bus": "SFX",
+   "db": -12,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown_ms": 0,
+   "max_voices": 1,
+   "priority": 1,
+   "music": "ending"
+  }
+ },
+ "music_beds": {
+  "intro": {
+   "file": "music_intro",
+   "gain_db": 0.0,
+   "loop": true,
+   "resume_position": false
+  },
+  "ending": {
+   "file": "music_ending",
+   "gain_db": 0.0,
+   "loop": true,
+   "resume_position": false
+  },
+  "station_waltz": {
+   "file": "music_station_waltz",
+   "gain_db": 0.0,
+   "loop": true,
+   "resume_position": true
+  },
+  "station_tune": {
+   "file": "music_station_tune",
+   "gain_db": 0.0,
+   "loop": true,
+   "resume_position": true
+  }
+ },
+ "music_states": {
+  "intro": "intro",
+  "ending": "ending",
+  "keyring": "cabin(ducked)",
+  "rope_exit": "combat(ducked)",
+  "homecoming": "cabin"
+ },
+ "radio": {
+  "stations": [
+   "cabin",
+   "station_waltz",
+   "station_tune",
+   "ending"
+  ],
+  "station_copy_keys": [
+   "radio.station.0",
+   "radio.station.1",
+   "radio.station.2",
+   "radio.station.3"
+  ],
+  "crossfade_s": 0.6,
+  "static_cue": "cabin.radio_tune",
+  "save_key": "radio_station",
+  "note": "The cabin bed follows the saved station while the cabin is open. Combat/deadly/title beds are untouched."
+ }
+}

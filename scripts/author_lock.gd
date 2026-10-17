@@ -73,7 +73,7 @@ static func stamp_script_row(row: Dictionary, previous: Dictionary = {}) -> void
 	row["locked_at"] = Time.get_date_string_from_system()
 
 
-static func rebuild_ledger(board: Variant = null, copy: Variant = null) -> void:
+static func rebuild_ledger(board: Variant = null, copy: Variant = null, names: Variant = null) -> void:
 	var board_d: Dictionary = {}
 	var copy_d: Dictionary = {}
 	if typeof(board) == TYPE_DICTIONARY:
@@ -116,12 +116,32 @@ static func rebuild_ledger(board: Variant = null, copy: Variant = null) -> void:
 			"text": str(row.get("text", "")),
 			"locked_at": str(row.get("locked_at", "")),
 		}
+	var names_d: Dictionary = {}
+	if typeof(names) == TYPE_DICTIONARY:
+		names_d = names
+	else:
+		names_d = _read_json("res://data/script-names.json")
+	var name_locks := {}
+	for nrow in names_d.get("names", []):
+		if typeof(nrow) != TYPE_DICTIONARY:
+			continue
+		if not bool(nrow.get("author_lock", false)):
+			continue
+		var nid: String = str(nrow.get("id", ""))
+		if nid == "":
+			continue
+		name_locks[nid] = {
+			"display": str(nrow.get("display", "")),
+			"note": str(nrow.get("note", "")),
+			"locked_at": str(nrow.get("locked_at", "")),
+		}
 	var ledger := {
 		"id": "boss-rush-author-locks",
 		"updated": Time.get_date_string_from_system(),
 		"instructions": "Nathan locked these by clicking Save in Roster, the card editor, the Script editor, or the HTML board. Do not restyle them. A gold-box note that replaces a field is the overwrite. If chat asks to change a locked field with no gold-box note, stop, name the keys, and wait for a yes.",
 		"cards": cards,
 		"script": script,
+		"names": name_locks,
 	}
 	write_json(LEDGER_PATH, ledger)
 

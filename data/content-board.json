@@ -8,6 +8,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 0.0,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 2.0,
@@ -36,6 +37,7 @@
 				"card_color"
 			],
 			"log_hint": "3 damage, or nick 1",
+			"mode_pool": "all",
 			"name": "Throwing Knife",
 			"notes": "",
 			"ops": {
@@ -57,6 +59,7 @@
 			},
 			"priority": 1.0,
 			"rarity": "starter",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -68,6 +71,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 0.0,
+			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -96,6 +100,7 @@
 				"card_color"
 			],
 			"log_hint": "Gain 4 Block",
+			"mode_pool": "all",
 			"name": "Shield",
 			"notes": "",
 			"ops": {
@@ -104,17 +109,18 @@
 			},
 			"priority": 1.0,
 			"rarity": "starter",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
 			"tier": 1.0
 		},
 		{
-			"ability": "Flips 2 ↔ 4 after any Item is used.\n",
+			"ability": "Flips 2 ↔ 4 after any Item is used.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
@@ -125,7 +131,7 @@
 			"hp_formula": "",
 			"id": "sai",
 			"kind": "item",
-			"locked_at": "2026-10-14",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -147,6 +153,7 @@
 				"log_hint"
 			],
 			"log_hint": "Attack flips 2 or 4",
+			"mode_pool": "all",
 			"name": "Sai",
 			"notes": "This should NOT start at 2 each fight, it should carry over its value between combats (not between dungeons eg adventure mode)",
 			"ops": {
@@ -165,7 +172,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 1.0,
+			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -175,7 +183,7 @@
 			"hp_formula": "",
 			"id": "medallion",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -194,6 +202,7 @@
 				"card_color"
 			],
 			"log_hint": "Block for missing HP",
+			"mode_pool": "all",
 			"name": "Medallion",
 			"notes": "",
 			"ops": {
@@ -201,6 +210,7 @@
 			},
 			"priority": 2.0,
 			"rarity": "starter",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -212,6 +222,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 0.0,
+			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 2.0,
@@ -242,6 +253,7 @@
 				"card_color"
 			],
 			"log_hint": "Block equal to lower HP",
+			"mode_pool": "all",
 			"name": "Helmet",
 			"notes": "",
 			"ops": {
@@ -249,6 +261,7 @@
 			},
 			"priority": 2.0,
 			"rarity": "starter",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -259,7 +272,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 1.0,
+			"call_name": "",
 			"card_color": "defeat",
 			"contradiction_ids": [],
 			"count": 2.0,
@@ -269,7 +283,7 @@
 			"hp_formula": "",
 			"id": "da_boot",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -290,6 +304,7 @@
 				"card_color"
 			],
 			"log_hint": "Kill if they have less HP",
+			"mode_pool": "all",
 			"name": "The Boot",
 			"notes": "",
 			"ops": {
@@ -297,6 +312,7 @@
 			},
 			"priority": 2.0,
 			"rarity": "starter",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -307,7 +323,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 3,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -317,7 +334,7 @@
 			"hp_formula": "",
 			"id": "bloody_gauntlets",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -338,6 +355,7 @@
 				"card_color"
 			],
 			"log_hint": "+1 Attack per missing HP",
+			"mode_pool": "all",
 			"name": "Bloody Wraps",
 			"notes": "",
 			"ops": {
@@ -345,6 +363,7 @@
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -355,7 +374,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 3.0,
+			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [
 				"bracers_listed_as_atk"
@@ -367,7 +387,7 @@
 			"hp_formula": "",
 			"id": "bracers",
 			"kind": "item",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -385,6 +405,7 @@
 				"hp_formula"
 			],
 			"log_hint": "Block from right neighbor",
+			"mode_pool": "all",
 			"name": "Right Bracer",
 			"notes": "Final enemy: unusable.",
 			"ops": {
@@ -392,6 +413,7 @@
 			},
 			"priority": 3.0,
 			"rarity": "starter",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -402,7 +424,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 2.0,
+			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -412,7 +435,7 @@
 			"hp_formula": "",
 			"id": "left_bracer",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -433,6 +456,7 @@
 				"card_color"
 			],
 			"log_hint": "Block from left neighbor",
+			"mode_pool": "all",
 			"name": "Left Bracer",
 			"notes": "Final enemy: unusable.",
 			"ops": {
@@ -441,6 +465,7 @@
 			},
 			"priority": 3.0,
 			"rarity": "starter",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -452,6 +477,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 0.0,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [
 				"knucklers"
@@ -482,6 +508,7 @@
 				"card_color"
 			],
 			"log_hint": "Attack 8 minus your items",
+			"mode_pool": "all",
 			"name": "Knucklers",
 			"notes": "",
 			"ops": {
@@ -489,6 +516,7 @@
 			},
 			"priority": 3.0,
 			"rarity": "starter",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -499,7 +527,7 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 4.0,
 			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [
@@ -512,7 +540,7 @@
 			"hp_formula": "",
 			"id": "spiked_flail",
 			"kind": "item",
-			"locked_at": "2026-10-16",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -534,6 +562,7 @@
 				"log_hint"
 			],
 			"log_hint": "+2 Attack when you bleed",
+			"mode_pool": "all",
 			"name": "Spiked Flail",
 			"notes": "Change to Base 0 ATK",
 			"ops": {
@@ -552,7 +581,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 1.0,
+			"call_name": "",
 			"card_color": "defeat",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -562,7 +592,7 @@
 			"hp_formula": "",
 			"id": "sledgehammer",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -583,6 +613,7 @@
 				"card_color"
 			],
 			"log_hint": "Kill 5+ Attack enemies",
+			"mode_pool": "all",
 			"name": "Sledgehammer",
 			"notes": "",
 			"ops": {
@@ -590,6 +621,7 @@
 			},
 			"priority": 2.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -600,7 +632,7 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 2.0,
 			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
@@ -611,7 +643,7 @@
 			"hp_formula": "",
 			"id": "grimoire",
 			"kind": "item",
-			"locked_at": "2026-10-16",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -633,6 +665,7 @@
 				"log_hint"
 			],
 			"log_hint": "Copy last enemy Attack",
+			"mode_pool": "all",
 			"name": "Grimoire",
 			"notes": "",
 			"ops": {},
@@ -649,7 +682,7 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 0.0,
 			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
@@ -660,7 +693,7 @@
 			"hp_formula": "",
 			"id": "breastplate",
 			"kind": "item",
-			"locked_at": "2026-10-16",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -682,6 +715,7 @@
 				"log_hint"
 			],
 			"log_hint": "2 Block, keep if hurt",
+			"mode_pool": "all",
 			"name": "Breastplate",
 			"notes": "",
 			"ops": {},
@@ -698,7 +732,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 0.0,
+			"call_name": "",
 			"card_color": "smoke",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -708,7 +743,7 @@
 			"hp_formula": "",
 			"id": "smoke_bomb",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -726,14 +761,17 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Spin again, random item",
+			"mode_pool": "adventure",
 			"name": "Smoke Bomb",
 			"notes": "",
 			"ops": {},
 			"priority": 4.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "todo",
@@ -744,7 +782,7 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 2,
 			"call_name": "",
 			"card_color": "defeat",
 			"contradiction_ids": [],
@@ -755,7 +793,7 @@
 			"hp_formula": "",
 			"id": "fangs",
 			"kind": "item",
-			"locked_at": "2026-10-12",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -773,9 +811,11 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Let them hit, then kill",
+			"mode_pool": "all",
 			"name": "Fangs",
 			"notes": "",
 			"ops": {},
@@ -792,7 +832,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 2,
+			"call_name": "",
 			"card_color": "utility",
 			"contradiction_ids": [],
 			"count": 2.0,
@@ -802,7 +843,7 @@
 			"hp_formula": "",
 			"id": "poison_flask",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -823,11 +864,13 @@
 				"card_color"
 			],
 			"log_hint": "Mark a neighbor for 5",
+			"mode_pool": "all",
 			"name": "Poison Flask",
 			"notes": "",
 			"ops": {},
 			"priority": 4.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "todo",
@@ -838,7 +881,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 10.0,
+			"bucket": 0.0,
+			"call_name": "",
 			"card_color": "heal",
 			"contradiction_ids": [
 				"healing_potion"
@@ -850,7 +894,7 @@
 			"hp_formula": "",
 			"id": "healing_potion",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -869,11 +913,13 @@
 				"card_color"
 			],
 			"log_hint": "Save you from death",
+			"mode_pool": "all",
 			"name": "Healing Potion",
 			"notes": "",
 			"ops": {},
 			"priority": 3.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "todo",
@@ -884,7 +930,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 1,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -894,7 +941,7 @@
 			"hp_formula": "",
 			"id": "crossbow",
 			"kind": "item",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -915,6 +962,7 @@
 				"card_color"
 			],
 			"log_hint": "4 damage to a neighbor",
+			"mode_pool": "all",
 			"name": "Crossbow",
 			"notes": "",
 			"ops": {
@@ -923,6 +971,7 @@
 			},
 			"priority": 4.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -933,18 +982,18 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 10,
+			"bucket": 5,
 			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "(pick an enemy → they hit yours)",
 			"flow": "",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "pocketwatch",
 			"kind": "item",
-			"locked_at": "2026-10-16",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -966,23 +1015,25 @@
 				"log_hint"
 			],
 			"log_hint": "A monster hits for you",
+			"mode_pool": "all",
 			"name": "Pocketwatch",
 			"notes": "Final enemy: unusable.",
 			"ops": {},
-			"priority": 3,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 4,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -992,7 +1043,7 @@
 			"hp_formula": "",
 			"id": "double_axe",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1011,6 +1062,7 @@
 				"card_color"
 			],
 			"log_hint": "Hit them and both neighbors",
+			"mode_pool": "all",
 			"name": "Double Axe",
 			"notes": "",
 			"ops": {
@@ -1019,6 +1071,7 @@
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -1030,6 +1083,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 0.0,
+			"call_name": "",
 			"card_color": "heal",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1058,6 +1112,7 @@
 				"card_color"
 			],
 			"log_hint": "Heal 1 per kill",
+			"mode_pool": "all",
 			"name": "Victory Flask",
 			"notes": "",
 			"ops": {
@@ -1065,6 +1120,7 @@
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -1076,6 +1132,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 2.0,
+			"call_name": "",
 			"card_color": "utility",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1106,6 +1163,7 @@
 				"card_color"
 			],
 			"log_hint": "Swap in a neighbor",
+			"mode_pool": "all",
 			"name": "Grappling Hook",
 			"notes": "",
 			"ops": {
@@ -1113,6 +1171,7 @@
 			},
 			"priority": 2.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -1124,6 +1183,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 4.0,
+			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1154,6 +1214,7 @@
 				"card_color"
 			],
 			"log_hint": "2 Attack or 2 Block",
+			"mode_pool": "all",
 			"name": "Spiked Shield",
 			"notes": "Art is a stand-in until a spiked shield tile exists.",
 			"ops": {
@@ -1175,6 +1236,7 @@
 			},
 			"priority": 2.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -1186,6 +1248,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 5.0,
+			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1214,6 +1277,7 @@
 				"card_color"
 			],
 			"log_hint": "Each Spin: lose HP, gain Block",
+			"mode_pool": "all",
 			"name": "Grief Jar",
 			"notes": "",
 			"ops": {
@@ -1221,6 +1285,7 @@
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -1231,7 +1296,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 3,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1241,7 +1307,7 @@
 			"hp_formula": "",
 			"id": "longbow",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1260,6 +1326,7 @@
 				"card_color"
 			],
 			"log_hint": "4 damage across the wheel",
+			"mode_pool": "all",
 			"name": "Longbow",
 			"notes": "",
 			"ops": {
@@ -1268,6 +1335,7 @@
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -1279,6 +1347,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 4.0,
+			"call_name": "",
 			"card_color": "heal",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1307,6 +1376,7 @@
 				"card_color"
 			],
 			"log_hint": "Heal 2, keep if still hurt",
+			"mode_pool": "all",
 			"name": "Lantern",
 			"notes": "Breastplate keeps if you bled. This keeps if you are still hurt after the heal.",
 			"ops": {
@@ -1315,6 +1385,7 @@
 			},
 			"priority": 2.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
@@ -1325,7 +1396,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 10.0,
+			"bucket": 5,
+			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1335,7 +1407,7 @@
 			"hp_formula": "",
 			"id": "mirror_shard",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1354,6 +1426,7 @@
 				"card_color"
 			],
 			"log_hint": "Copy last Block gained",
+			"mode_pool": "all",
 			"name": "Mirror Shard",
 			"notes": "Last Block is the amount from the last time you gained Block, not your current Block total.",
 			"ops": {
@@ -1361,6 +1434,7 @@
 			},
 			"priority": 2.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
@@ -1371,7 +1445,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 5,
+			"call_name": "",
 			"card_color": "chaos",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1381,7 +1456,7 @@
 			"hp_formula": "",
 			"id": "echo_bell",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1400,6 +1475,7 @@
 				"card_color"
 			],
 			"log_hint": "Copy the last item used",
+			"mode_pool": "all",
 			"name": "Echo Bell",
 			"notes": "Updates when you use an item. Cube feed is not an item use. First fight of a run: Unplayable.",
 			"ops": {
@@ -1407,6 +1483,7 @@
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
@@ -1417,7 +1494,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 6,
+			"call_name": "",
 			"card_color": "utility",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1427,7 +1505,7 @@
 			"hp_formula": "",
 			"id": "quiet_bell",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1448,6 +1526,7 @@
 				"card_color"
 			],
 			"log_hint": "Turns their ability off",
+			"mode_pool": "all",
 			"name": "Quiet Bell",
 			"notes": "Golem: cannot click. Bandit and other formulas fall back to the ATK/HP columns.",
 			"ops": {
@@ -1455,17 +1534,19 @@
 			},
 			"priority": 4.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
 			"tier": 2.0
 		},
 		{
-			"ability": "Reduce the facing owner's Attack by 1, 2, or 3.",
+			"ability": "Choose to reduce the facing owner's Attack by 1, 2, or 3.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 0.0,
+			"call_name": "",
 			"card_color": "utility",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1475,7 +1556,7 @@
 			"hp_formula": "",
 			"id": "net",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-16",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1494,6 +1575,7 @@
 				"card_color"
 			],
 			"log_hint": "Cut their Attack by 1-3",
+			"mode_pool": "all",
 			"name": "Net",
 			"notes": "Caltrops is retired. This is the milder version, last in calc.",
 			"ops": {
@@ -1518,6 +1600,7 @@
 			},
 			"priority": 2.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
@@ -1529,6 +1612,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 7.0,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1546,6 +1630,7 @@
 				"card_color"
 			],
 			"log_hint": "Attack equal to your Block",
+			"mode_pool": "all",
 			"name": "Chain",
 			"notes": "Hornet and Queen still Attack after. You still hold the Block for those swings.",
 			"ops": {
@@ -1553,6 +1638,7 @@
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
@@ -1563,7 +1649,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 3,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 2.0,
@@ -1573,7 +1660,7 @@
 			"hp_formula": "",
 			"id": "counting_beads",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"ability",
 				"explainer",
@@ -1592,6 +1679,7 @@
 				"card_color"
 			],
 			"log_hint": "Pick 1, 2, 3, or 4 Attack",
+			"mode_pool": "all",
 			"name": "Counting Beads",
 			"notes": "Cube feed is not an item use, so the cycle does not advance. Anvil takes 1 from this Attack.",
 			"ops": {
@@ -1599,6 +1687,7 @@
 			},
 			"priority": 2.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
@@ -1609,7 +1698,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 2,
+			"call_name": "",
 			"card_color": "defeat",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1619,7 +1709,7 @@
 			"hp_formula": "",
 			"id": "last_match",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"tier",
@@ -1628,6 +1718,7 @@
 				"card_color"
 			],
 			"log_hint": "Win if you have no Attack",
+			"mode_pool": "all",
 			"name": "Paci-Fist",
 			"notes": "Holding only this works. Echo copying an Attack item counts as an Attack item. Shield alone is enough.",
 			"ops": {
@@ -1635,6 +1726,7 @@
 			},
 			"priority": 4.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
@@ -1678,6 +1770,7 @@
 				"log_hint"
 			],
 			"log_hint": "Kill at exactly double HP",
+			"mode_pool": "all",
 			"name": "Scythe",
 			"notes": "",
 			"ops": {
@@ -1697,6 +1790,7 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 6.0,
+			"call_name": "",
 			"card_color": "chaos",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1714,6 +1808,7 @@
 				"card_color"
 			],
 			"log_hint": "Reroll chosen items",
+			"mode_pool": "all",
 			"name": "Chaos Stone",
 			"notes": "Does not deal Attack. Gargoyle petrify does not pick this. Cube feed is not this.",
 			"ops": {
@@ -1721,6 +1816,7 @@
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
@@ -1731,7 +1827,8 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 4,
+			"call_name": "",
 			"card_color": "heal",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1741,7 +1838,7 @@
 			"hp_formula": "",
 			"id": "cursed_scroll",
 			"kind": "item",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1762,6 +1859,7 @@
 				"card_color"
 			],
 			"log_hint": "Heal 6, then bleed 1",
+			"mode_pool": "all",
 			"name": "Cursed Scroll",
 			"notes": "",
 			"ops": {
@@ -1769,7 +1867,55 @@
 			},
 			"priority": 4.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
+			"review_note": "",
+			"status": "live",
+			"tier": 2.0
+		},
+		{
+			"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
+			"atk_base": null,
+			"atk_formula": "",
+			"author_lock": false,
+			"bucket": 7,
+			"call_name": "",
+			"card_color": "utility",
+			"contradiction_ids": [],
+			"count": 1.0,
+			"explainer": "(Highest ATK) or (Lowest ATK) or (Off)",
+			"flow": "Click at Ready or during a fight. Three pills: Highest Attack, Lowest Attack, Off. Highest or Lowest arms this copy. Off clears the arm. Attack numbers are read at Spin after formulas. Ties pick at random among those Attack values. The next Spin (button, auto-spin after a fight, Smoke Bomb, Commander flee, Wick, Vampire shuffle) lands on that monster, then this copy is discarded. Tutorial scripted landings ignore it and do not discard it. Two copies: the most recently set Highest or Lowest wins; copies armed that way are discarded; the other mode stays. Quiet Bell does not turn this off. Not in the tutorial kit.",
+			"hp_base": null,
+			"hp_formula": "",
+			"id": "danger_magnet",
+			"kind": "item",
+			"locked_at": "",
+			"locked_fields": [],
+			"log_hint": "Steer the next Spin",
+			"mode_pool": "adventure",
+			"name": "Danger Magnet",
+			"notes": "Bucket 4. Count 1. No Attack. Petrified still steers if already armed.",
+			"ops": {
+				"kind": "magnet",
+				"options": [
+					{
+						"id": "high",
+						"label": "Highest Attack"
+					},
+					{
+						"id": "low",
+						"label": "Lowest Attack"
+					},
+					{
+						"id": "off",
+						"label": "Off"
+					}
+				]
+			},
+			"priority": 2.0,
+			"rarity": "uncommon",
+			"reminder": "",
+			"review": "rough",
 			"review_note": "",
 			"status": "live",
 			"tier": 2.0
@@ -1780,6 +1926,7 @@
 			"atk_formula": "",
 			"author_lock": false,
 			"bucket": -1.0,
+			"call_name": "",
 			"card_color": "egg",
 			"contradiction_ids": [],
 			"count": 0.0,
@@ -1792,6 +1939,7 @@
 			"locked_at": "",
 			"locked_fields": [],
 			"log_hint": "Hurt you, or feed the Queen",
+			"mode_pool": "adventure",
 			"name": "Spider Egg",
 			"notes": "Not drafted. Queen creates it. Tier 0 so Merchant can turn it into a Tier 1 item.",
 			"ops": {
@@ -1800,6 +1948,7 @@
 			},
 			"priority": 9.0,
 			"rarity": "uncommon",
+			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -1985,6 +2134,7 @@
 			"atk_formula": "",
 			"author_lock": false,
 			"bucket": 7.0,
+			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -1997,6 +2147,7 @@
 			"locked_at": "",
 			"locked_fields": [],
 			"log_hint": "3 Attack, and you pierce",
+			"mode_pool": "all",
 			"name": "Arrow Head",
 			"notes": "Bucket 7. Two copies each add +1. Take X / Done uses the ignore-Block math. Echo Bell that is a copy of this also runs the aura.",
 			"ops": {
@@ -2005,50 +2156,7 @@
 			},
 			"priority": 2.0,
 			"rarity": "uncommon",
-			"review": "rough",
-			"review_note": "",
-			"status": "live",
-			"tier": 2.0
-		},
-		{
-			"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
-			"atk_base": null,
-			"atk_formula": "",
-			"author_lock": false,
-			"bucket": 4.0,
-			"card_color": "utility",
-			"contradiction_ids": [],
-			"count": 1.0,
-			"explainer": "(Highest ATK) or (Lowest ATK) or (Off)",
-			"flow": "Click at Ready or during a fight. Three pills: Highest Attack, Lowest Attack, Off. Highest or Lowest arms this copy. Off clears the arm. Attack numbers are read at Spin after formulas. Ties pick at random among those Attack values. The next Spin (button, auto-spin after a fight, Smoke Bomb, Commander flee, Wick, Vampire shuffle) lands on that monster, then this copy is discarded. Tutorial scripted landings ignore it and do not discard it. Two copies: the most recently set Highest or Lowest wins; copies armed that way are discarded; the other mode stays. Quiet Bell does not turn this off. Not in the tutorial kit.",
-			"hp_base": null,
-			"hp_formula": "",
-			"id": "danger_magnet",
-			"kind": "item",
-			"locked_at": "",
-			"locked_fields": [],
-			"log_hint": "Steer the next Spin",
-			"name": "Danger Magnet",
-			"notes": "Bucket 4. Count 1. No Attack. Petrified still steers if already armed.",
-			"ops": {
-				"kind": "magnet",
-				"options": [
-					{
-						"id": "high",
-						"label": "Highest Attack"
-					},
-					{
-						"id": "low",
-						"label": "Lowest Attack"
-					},
-					{
-						"id": "off",
-						"label": "Off"
-					}
-				]
-			},
-			"priority": 2.0,
-			"rarity": "uncommon",
+			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
@@ -2093,6 +2201,7 @@
 				"card_color"
 			],
 			"log_hint": "No special",
+			"mode_pool": "all",
 			"name": "Wizard",
 			"notes": "",
 			"ops": {},
@@ -2138,6 +2247,7 @@
 				"hp_formula"
 			],
 			"log_hint": "No special",
+			"mode_pool": "all",
 			"name": "Golem",
 			"notes": "",
 			"ops": {},
@@ -2186,6 +2296,7 @@
 				"card_color"
 			],
 			"log_hint": "Cannot take Attack",
+			"mode_pool": "all",
 			"name": "Goblin",
 			"notes": "",
 			"ops": {},
@@ -2234,6 +2345,7 @@
 				"card_color"
 			],
 			"log_hint": "Copies last enemy HP",
+			"mode_pool": "all",
 			"name": "Skeleton",
 			"notes": "If this is the first unit faced, set HP to 3.",
 			"ops": {},
@@ -2282,6 +2394,7 @@
 				"card_color"
 			],
 			"log_hint": "Attacks you twice",
+			"mode_pool": "all",
 			"name": "Hornet Swarm",
 			"notes": "",
 			"ops": {},
@@ -2298,7 +2411,7 @@
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 1,
 			"call_name": "Siphon",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -2309,7 +2422,7 @@
 			"hp_formula": "",
 			"id": "lich",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2330,6 +2443,7 @@
 				"card_color"
 			],
 			"log_hint": "Neighbors gain 1 HP",
+			"mode_pool": "adventure",
 			"name": "Lich",
 			"notes": "",
 			"ops": {},
@@ -2343,7 +2457,7 @@
 		},
 		{
 			"ability": "When you lose HP, I lose equal HP.",
-			"atk_base": 4.0,
+			"atk_base": 5.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 1.0,
@@ -2357,7 +2471,7 @@
 			"hp_formula": "",
 			"id": "ogre",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-16",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2375,9 +2489,11 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Mirrors the HP you lose",
+			"mode_pool": "all",
 			"name": "Ogre",
 			"notes": "",
 			"ops": {},
@@ -2426,6 +2542,7 @@
 				"card_color"
 			],
 			"log_hint": "You lost HP. Vampire grew.",
+			"mode_pool": "all",
 			"name": "Vampire",
 			"notes": "Once per hit or bleed, not once per heart. Every copy on the wheel.",
 			"ops": {},
@@ -2474,6 +2591,7 @@
 				"card_color"
 			],
 			"log_hint": "Attack cycles 3, 4, then 8",
+			"mode_pool": "all",
 			"name": "Berserker",
 			"notes": "",
 			"ops": {},
@@ -2486,7 +2604,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "My Attack is your HP.",
+			"ability": "My Attack always equals your HP.",
 			"atk_base": 0.0,
 			"atk_formula": "player_hp",
 			"author_lock": true,
@@ -2495,13 +2613,13 @@
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 2.0,
-			"explainer": "Attack is your HP",
+			"explainer": "Attack always equals your HP",
 			"flow": "",
 			"hp_base": 4.0,
 			"hp_formula": "",
 			"id": "dire_wolf",
 			"kind": "monster",
-			"locked_at": "2026-10-12",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2521,13 +2639,14 @@
 				"reminder",
 				"card_color"
 			],
-			"log_hint": "Attack equals your HP",
+			"log_hint": "Attack always equals your HP",
+			"mode_pool": "all",
 			"name": "Dire Wolf",
 			"notes": "",
 			"ops": {},
 			"priority": 2.0,
 			"rarity": "uncommon",
-			"reminder": "attack is your HP",
+			"reminder": "Attack always equals your HP",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
@@ -2570,6 +2689,7 @@
 				"card_color"
 			],
 			"log_hint": "+1 Attack per item held",
+			"mode_pool": "all",
 			"name": "Bandit",
 			"notes": "",
 			"ops": {},
@@ -2586,7 +2706,7 @@
 			"atk_base": 0.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 5,
 			"call_name": "Guarded by Monsters",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -2597,7 +2717,7 @@
 			"hp_formula": "",
 			"id": "two_headed_serpent",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2618,6 +2738,7 @@
 				"card_color"
 			],
 			"log_hint": "Neighbors hit, then it heals",
+			"mode_pool": "all",
 			"name": "Damsel in Distress",
 			"notes": "",
 			"ops": {},
@@ -2666,6 +2787,7 @@
 				"card_color"
 			],
 			"log_hint": "Attack always equals HP",
+			"mode_pool": "all",
 			"name": "Slime Boss",
 			"notes": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer.",
 			"ops": {},
@@ -2715,6 +2837,7 @@
 				"log_hint"
 			],
 			"log_hint": "Raises lowest HP Monster until it equals another Monster",
+			"mode_pool": "all",
 			"name": "Leech League",
 			"notes": "",
 			"ops": {},
@@ -2731,7 +2854,7 @@
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 4,
 			"call_name": "Neighbor's Wrath",
 			"card_color": "",
 			"contradiction_ids": [
@@ -2744,7 +2867,7 @@
 			"hp_formula": "",
 			"id": "wraith",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2765,6 +2888,7 @@
 				"card_color"
 			],
 			"log_hint": "Copies higher neighbor Attack",
+			"mode_pool": "all",
 			"name": "Wraith",
 			"notes": "",
 			"ops": {},
@@ -2811,6 +2935,7 @@
 				"call_name"
 			],
 			"log_hint": "Drops an item if you kill it",
+			"mode_pool": "all",
 			"name": "Mimic",
 			"notes": "",
 			"ops": {},
@@ -2827,7 +2952,7 @@
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 4,
 			"call_name": "Egg Layer",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -2838,7 +2963,7 @@
 			"hp_formula": "",
 			"id": "spider_queen",
 			"kind": "monster",
-			"locked_at": "2026-10-16",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2860,6 +2985,7 @@
 				"log_hint"
 			],
 			"log_hint": "Gives you an Egg each Spin",
+			"mode_pool": "adventure",
 			"name": "Spider Queen",
 			"notes": "",
 			"ops": {},
@@ -2876,7 +3002,7 @@
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 2,
 			"call_name": "War Cry",
 			"card_color": "",
 			"contradiction_ids": [
@@ -2889,7 +3015,7 @@
 			"hp_formula": "",
 			"id": "commander",
 			"kind": "monster",
-			"locked_at": "2026-10-14",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2911,6 +3037,7 @@
 				"log_hint"
 			],
 			"log_hint": "Neighbors +2 Attack, then flees",
+			"mode_pool": "all",
 			"name": "Commander",
 			"notes": "",
 			"ops": {},
@@ -2961,6 +3088,7 @@
 				"card_color"
 			],
 			"log_hint": "Attack ignores Block",
+			"mode_pool": "all",
 			"name": "Dragon",
 			"notes": "",
 			"ops": {},
@@ -2977,7 +3105,7 @@
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 2,
 			"call_name": "Spiky",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -2988,7 +3116,7 @@
 			"hp_formula": "",
 			"id": "needleback",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3009,6 +3137,7 @@
 				"card_color"
 			],
 			"log_hint": "Hits you when it takes Attack",
+			"mode_pool": "all",
 			"name": "Needleback",
 			"notes": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
 			"ops": {},
@@ -3025,7 +3154,7 @@
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 4.0,
 			"call_name": "Devour Item",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -3036,7 +3165,7 @@
 			"hp_formula": "",
 			"id": "gelatinous_cube",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3054,9 +3183,11 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Makes you feed it an item",
+			"mode_pool": "all",
 			"name": "Gelatinous Cube",
 			"notes": "Not an item use: no Kobold extra, no Echo update, no Harpy after the feed.",
 			"ops": {},
@@ -3073,7 +3204,7 @@
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 1,
 			"call_name": "Petrify",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -3084,7 +3215,7 @@
 			"hp_formula": "",
 			"id": "gargoyle",
 			"kind": "monster",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3105,6 +3236,7 @@
 				"card_color"
 			],
 			"log_hint": "Petrifies your best Attack",
+			"mode_pool": "all",
 			"name": "Gargoyle",
 			"notes": "Petrify tooltip: Unplayable until your next Spin.",
 			"ops": {},
@@ -3117,11 +3249,11 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "I attack you when we meet, and after each item you use.",
+			"ability": "I attack you when your Spin lands on me, and after each item you use.",
 			"atk_base": 2.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 2,
 			"call_name": "Impatient",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -3132,7 +3264,7 @@
 			"hp_formula": "",
 			"id": "harpy",
 			"kind": "monster",
-			"locked_at": "2026-10-16",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3154,6 +3286,7 @@
 				"card_color"
 			],
 			"log_hint": "Hits on meet and after items",
+			"mode_pool": "challenge",
 			"name": "Harpy",
 			"notes": "One swing, fight stays open. If an item already killed me, no extra swing.",
 			"ops": {},
@@ -3170,7 +3303,7 @@
 			"atk_base": 2.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 5,
 			"call_name": "Trap Card",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -3181,7 +3314,7 @@
 			"hp_formula": "",
 			"id": "kobold_trapper",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3200,6 +3333,7 @@
 				"call_name"
 			],
 			"log_hint": "Extra hits per item used",
+			"mode_pool": "all",
 			"name": "Kobold Trapper",
 			"notes": "0 items = 1 swing. 2 items = 3 swings.",
 			"ops": {},
@@ -3216,7 +3350,7 @@
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 7,
 			"call_name": "Disassemble",
 			"contradiction_ids": [],
 			"count": 1.0,
@@ -3226,7 +3360,7 @@
 			"hp_formula": "",
 			"id": "clockwork_knight",
 			"kind": "monster",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3247,6 +3381,7 @@
 				"card_color"
 			],
 			"log_hint": "Splits into two monsters",
+			"mode_pool": "adventure",
 			"name": "Clockwork Knight",
 			"notes": "Quiet Bell strips this: I leave like anyone else, no heirs.",
 			"ops": {},
@@ -3263,7 +3398,7 @@
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 5,
 			"call_name": "Famine",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -3274,7 +3409,7 @@
 			"hp_formula": "",
 			"id": "basilisk",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -3295,6 +3430,7 @@
 				"card_color"
 			],
 			"log_hint": "You cannot Gain or Keep",
+			"mode_pool": "all",
 			"name": "Basilisk",
 			"notes": "Keep after the fight is already over does not apply — the toss happens when you click.",
 			"ops": {},
@@ -3311,7 +3447,7 @@
 			"atk_base": 6.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 3,
 			"call_name": "Doubly Troubled",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -3322,7 +3458,7 @@
 			"hp_formula": "",
 			"id": "hollow",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -3343,6 +3479,7 @@
 				"card_color"
 			],
 			"log_hint": "Even numbers hit us twice",
+			"mode_pool": "all",
 			"name": "Twins",
 			"notes": "Anvil would take 1 from each of those two Attacks. Poison Flask is not an Attack.",
 			"ops": {},
@@ -3359,7 +3496,7 @@
 			"atk_base": 1.0,
 			"atk_formula": "Base Atk (0) + Leftmost Item with an Atk value",
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 4,
 			"call_name": "Leftie",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -3370,7 +3507,7 @@
 			"hp_formula": "",
 			"id": "beggar",
 			"kind": "monster",
-			"locked_at": "2026-10-16",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -3392,6 +3529,7 @@
 				"log_hint"
 			],
 			"log_hint": "Attack from your leftmost item",
+			"mode_pool": "all",
 			"name": "Beggar",
 			"notes": "Spent cards are skipped. Petrified cards have no Attack number for this.",
 			"ops": {},
@@ -3404,22 +3542,22 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "I gain 1 Attack and lose 1 HP whenever you use an item.",
-			"atk_base": 3.0,
-			"atk_formula": "printed Attack, plus item uses on the wheel",
+			"ability": "I Lose 2 HP each time a Neighbor is Defeated",
+			"atk_base": 6.0,
+			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 9.0,
-			"call_name": "Short Fuse",
+			"bucket": 5.0,
+			"call_name": "Death Toll",
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "+1 Attack −1 HP per item use",
-			"flow": "Whenever you use an item, every Wick on the wheel gains 1 Attack and loses 1 HP immediately, even if you are not facing them. A Wick at 0 HP is not removed until the fight you are in ends. If you are facing a Wick at 0 HP, they do not Attack; Done removes them as Slain. Cube feed is not an item use. Quiet Bell strips this.",
-			"hp_base": 8.0,
+			"explainer": "-2 HP per Neighbor Defeated.",
+			"flow": "When a Neighbor's fight ends as Defeated, Slain, or Blocked, I lose 2 HP. Flee (Cowardly King, Commander) does not count. If this drops me to 0 HP, I am Defeated.",
+			"hp_base": 10.0,
 			"hp_formula": "",
 			"id": "wick",
 			"kind": "monster",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -3437,11 +3575,13 @@
 				"rarity",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
-			"log_hint": "+1 Attack, -1 HP per item",
+			"log_hint": "-2 HP (Neighbor Defeated)",
+			"mode_pool": "all",
 			"name": "Wick",
-			"notes": "Kobold adds extra swings. I add to the Attack number. Both can stack if they ever sat together; they will not in one fight.",
+			"notes": "",
 			"ops": {},
 			"priority": 3.0,
 			"rarity": "uncommon",
@@ -3456,7 +3596,7 @@
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 3,
 			"call_name": "Tough Blood",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -3467,7 +3607,7 @@
 			"hp_formula": "",
 			"id": "anvil",
 			"kind": "monster",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -3488,6 +3628,7 @@
 				"card_color"
 			],
 			"log_hint": "Loses only 1 HP at a time",
+			"mode_pool": "all",
 			"name": "Anvil",
 			"notes": "Needleback poke is not an Item hitting me. Poison Flask is not an Attack. Extra Attacks each chip 1.",
 			"ops": {},
@@ -3518,6 +3659,7 @@
 			"locked_at": "",
 			"locked_fields": [],
 			"log_hint": "Takes hits for neighbors",
+			"mode_pool": "all",
 			"name": "Bodyguard",
 			"notes": "Bucket 2. Right is counterclockwise when a King is also passing. Goblin still shows Immune to Attack Damage when the hit actually lands on Goblin.",
 			"ops": {},
@@ -3534,7 +3676,7 @@
 			"atk_base": 2.0,
 			"atk_formula": "",
 			"author_lock": false,
-			"bucket": 9.0,
+			"bucket": 5,
 			"call_name": "Guards!",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -3548,6 +3690,7 @@
 			"locked_at": "",
 			"locked_fields": [],
 			"log_hint": "Hits you and flees if hurt",
+			"mode_pool": "all",
 			"name": "Cowardly King",
 			"notes": "Bucket 9. One Poison Flask deals 5, so a fresh King is left at 1 HP. Flee here means he stays after his own attack. It is not Commander's shuffle.",
 			"ops": {},
@@ -3563,23 +3706,43 @@
 			"ability": "When you Spin me, choose an Item and I will upgrade it",
 			"atk_base": 4.0,
 			"atk_formula": "",
-			"author_lock": false,
-			"bucket": 4.0,
+			"author_lock": true,
+			"bucket": 2,
 			"call_name": "Fair Trade",
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1.0,
 			"explainer": "Choose an item. I upgrade it.",
-			"flow": "After Spin, and after Spider Queen lays an egg, every item in hand gets a button. You must pick one before using items or Done. That item becomes a different item of the next tier, drawn from live items whose bucket is already open. Tier 3 stays Tier 3 but must be a different item. No items means nothing. Quiet Bell turns this off.",
+			"flow": "After Spin, and after Spider Queen lays an egg, every item in hand that still has a remaining copy in this dungeon’s item pile of the next tier gets a button. That copy is used up. Tier 0 becomes Tier 1, Tier 1 becomes Tier 2, Tier 2 becomes Tier 3, Tier 3 stays Tier 3. You cannot go over a card’s copy count. You must pick one of those buttons before using items or Done. Clicking an item with nothing legal left leaves it as it is; you still pick a different item. If no item has a legal upgrade, nothing. Quiet Bell turns this off.",
 			"hp_base": 4.0,
 			"hp_formula": "",
 			"id": "merchant",
 			"kind": "monster",
-			"locked_at": "",
-			"locked_fields": [],
+			"locked_at": "2026-10-17",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
 			"log_hint": "Upgrades a chosen item",
+			"mode_pool": "all",
 			"name": "Merchant",
-			"notes": "Bucket 4. Open buckets only. A new Spider Egg laid on this spin can be picked.",
+			"notes": "Bucket 4. Remaining dungeon pile, that copy is used up. Two Sais is legal. A third is not. A new Spider Egg laid on this spin can be picked if a Tier 1 copy is still in the pile.",
 			"ops": {},
 			"priority": 3.0,
 			"rarity": "uncommon",
@@ -3594,7 +3757,7 @@
 			"atk_base": 9.0,
 			"atk_formula": "",
 			"author_lock": false,
-			"bucket": 8.0,
+			"bucket": 6,
 			"call_name": "Blockhead",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -3608,6 +3771,7 @@
 			"locked_at": "",
 			"locked_fields": [],
 			"log_hint": "Gives you a Shield",
+			"mode_pool": "all",
 			"name": "Juggernaut",
 			"notes": "Bucket 8. The Shield is the live Shield card. You can click it this fight.",
 			"ops": {},
@@ -3624,7 +3788,7 @@
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 3,
 			"call_name": "Health Insurance",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -3635,7 +3799,7 @@
 			"hp_formula": "",
 			"id": "cleric",
 			"kind": "monster",
-			"locked_at": "2026-10-13",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3656,6 +3820,7 @@
 				"card_color"
 			],
 			"log_hint": "Heals 3, or takes an item",
+			"mode_pool": "all",
 			"name": "Cleric",
 			"notes": "Bucket 6. Spider Egg is Tier 0. Missing 3 HP means 3 hearts or fewer. Two Clerics: the second only pays if you are still missing 3 after the first Heal 3.",
 			"ops": {},
@@ -3668,5 +3833,5 @@
 			"tier": 2.0
 		}
 	],
-	"updated": "2026-10-16"
+	"updated": "2026-10-17"
 }

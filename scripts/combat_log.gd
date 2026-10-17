@@ -298,7 +298,7 @@ func _paint(raw: String) -> String:
 
 func _link_kws(t: String) -> String:
 	var rx := RegEx.new()
-	if rx.compile("(?i)\\b(fleeing|flees|fled|flee|spinning|spins|spin)\\b") != OK:
+	if rx.compile("(?i)\\b(fleeing|flees|fled|flee|spinning|spins|spin|always)\\b") != OK:
 		return t
 	var hits: Array = rx.search_all(t)
 	var out := t
@@ -308,7 +308,8 @@ func _link_kws(t: String) -> String:
 		var id: String = UX.def_id_of(piece)
 		if id == "":
 			continue
-		var shown: String = "[url=kw:%s][color=#E8C36A][b]%s[/b][/color][/url]" % [id, piece]
+		var shown_word: String = "Always" if id == "always" else piece
+		var shown: String = "[url=kw:%s][color=#E8C36A][b]%s[/b][/color][/url]" % [id, shown_word]
 		out = out.substr(0, m.get_start()) + shown + out.substr(m.get_end())
 	return out
 

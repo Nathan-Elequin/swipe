@@ -1,20 +1,31 @@
 extends ColorRect
-## Escape overlay: volumes + the same start options as the title screen.
+## Escape overlay: Master volume plus Resume / Peek / Give up / Quit.
 
 signal closed
 signal quit_pressed
 signal mode_picked(mode: String)
 signal roster_pressed
 signal script_pressed
+signal peek_pressed
+signal give_up_confirmed
+signal fresh_save_pressed
+signal complete_save_pressed
+signal bucket_progress_pressed
 
 const COPY := preload("res://scripts/player_copy.gd")
+const KIT := preload("res://scripts/cabin/cabin_kit.gd")
+const PX := 4.0
 
 var _master: HSlider
 var _music: HSlider
+var _ambience: HSlider
 var _sfx: HSlider
+var _ui_vol: HSlider
+var _lab_ambience: Label
+var _lab_ui: Label
 var _audio
 var _sfx_ready: bool = false
-var _title: Label
+var _title
 var _hint: Label
 var _play: Label
 var _btn_resume: Button
@@ -23,129 +34,219 @@ var _btn_how: Button
 var _btn_dive: Button
 var _btn_begin: Button
 var _btn_adventure: Button
+var _btn_home: Button
+var _btn_peek: Button
+var _btn_give_up: Button
+var _btn_dev: Button
+var _btn_fresh: Button
+var _btn_complete: Button
+var _btn_buckets: Button
+var _btn_dev_back: Button
+var _confirm: Control
+var _in_run: bool = true
+var _board: Control
+var _keep_paused: bool = false
+var _board_y: float = 40.0 * PX
+var _page: String = "main"
+var _sl_wrap: VBoxContainer
 
 
 func setup(audio) -> void:
 	_audio = audio
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
-	set_anchors_preset(PRESET_FULL_RECT)
-	color = Color("100e0ce8")
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	color = Color(0, 0, 0, 0)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	z_index = 120
-	gui_input.connect(_on_dim_input)
 
-	var center := CenterContainer.new()
-	center.set_anchors_preset(PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(center)
+	var veil := KIT.veil()
+	veil.gui_input.connect(_on_dim_input)
+	add_child(veil)
 
-	var panel := PanelContainer.new()
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("1c1814")
-	sb.border_color = Color("c4a574")
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(16)
-	sb.content_margin_left = 28
-	sb.content_margin_right = 28
-	sb.content_margin_top = 22
-	sb.content_margin_bottom = 22
-	panel.add_theme_stylebox_override("panel", sb)
-	center.add_child(panel)
+	_board = TextureRect.new()
+	_board.texture = KIT.load_tex("overlays/pause_board.png")
+	_board.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_board.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_board.stretch_mode = TextureRect.STRETCH_KEEP
+	_board.mouse_filter = Control.MOUSE_FILTER_STOP
+	_board.position = Vector2(110, 40) * PX
+	_board.size = Vector2(200, 180) * PX
+	_board.z_index = 1
+	add_child(_board)
 
-	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 12)
-	col.custom_minimum_size = Vector2(460, 0)
-	panel.add_child(col)
-
-	_title = Label.new()
-	_title.text = "Settings"
+	_title = KIT.label("pause.settings", 32, KIT.CREAM)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_title.add_theme_font_size_override("font_size", 32)
-	_title.add_theme_color_override("font_color", Color("c4a574"))
-	col.add_child(_title)
-
-	_master = _add_slider(col, "Master")
-	_music = _add_slider(col, "Music")
-	_sfx = _add_slider(col, "SFX")
+	_title.position = Vector2(0, 2) * PX
+	_title.size = Vector2(200, 16) * PX
+	_board.add_child(_title)
 
 	_hint = Label.new()
-	_hint.text = "Escape resumes. Start over without closing the game."
-	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD
-	_hint.add_theme_font_size_override("font_size", 14)
-	_hint.add_theme_color_override("font_color", Color("9a8b78"))
-	col.add_child(_hint)
+	_hint.visible = false
+	_board.add_child(_hint)
 
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 16)
-	col.add_child(row)
-	_btn_resume = _btn("Resume", Color("3a3220"), Color("e8c36a"), _on_resume, 140)
-	_btn_quit = _btn("Quit", Color("3a2020"), Color("e07a7a"), _on_quit, 140)
-	row.add_child(_btn_resume)
+	_btn_resume = KIT.choice_tag("pause.resume", Vector2(128, 16))
+	_btn_resume.pressed.connect(_on_resume)
+	_board.add_child(_btn_resume)
+	_hook_hover(_btn_resume)
+
+	_btn_peek = KIT.choice_tag("pause.peek", Vector2(128, 16))
+	_btn_peek.pressed.connect(_on_peek)
+	_board.add_child(_btn_peek)
+	_hook_hover(_btn_peek)
+
+	_btn_give_up = KIT.choice_tag("pause.give_up", Vector2(128, 16))
+	_btn_give_up.pressed.connect(_on_give_up)
+	_board.add_child(_btn_give_up)
+	_hook_hover(_btn_give_up)
+
+	_btn_quit = KIT.choice_tag("pause.quit", Vector2(128, 16))
+	_btn_quit.pressed.connect(_on_quit)
 	if not OS.has_feature("web"):
-		row.add_child(_btn_quit)
+		_board.add_child(_btn_quit)
+		_hook_hover(_btn_quit)
+	else:
+		_btn_quit.visible = false
 
-	_play = Label.new()
-	_play.text = "Start over"
-	_play.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_play.add_theme_font_size_override("font_size", 16)
-	_play.add_theme_color_override("font_color", Color("c4a574"))
-	col.add_child(_play)
+	if DevFlag.on():
+		_btn_dev = KIT.choice_tag("pause.resume", Vector2(128, 16))
+		_btn_dev.text = "Developer Mode"
+		_btn_dev.pressed.connect(_on_developer)
+		_board.add_child(_btn_dev)
+		_hook_hover(_btn_dev)
+		_btn_fresh = KIT.choice_tag("pause.resume", Vector2(152, 16))
+		_btn_fresh.text = "Fresh Save"
+		_btn_fresh.pressed.connect(_on_fresh)
+		_btn_fresh.visible = false
+		_board.add_child(_btn_fresh)
+		_hook_hover(_btn_fresh)
+		_btn_complete = KIT.choice_tag("pause.resume", Vector2(160, 16))
+		_btn_complete.text = "One Hundred Percent Complete"
+		_btn_complete.pressed.connect(_on_complete)
+		_btn_complete.visible = false
+		_board.add_child(_btn_complete)
+		_hook_hover(_btn_complete)
+		_btn_buckets = KIT.choice_tag("pause.resume", Vector2(152, 16))
+		_btn_buckets.text = "Bucket Progress"
+		_btn_buckets.pressed.connect(_on_buckets)
+		_btn_buckets.visible = false
+		_board.add_child(_btn_buckets)
+		_hook_hover(_btn_buckets)
+		_btn_dev_back = KIT.choice_tag("pause.resume", Vector2(128, 16))
+		_btn_dev_back.text = "Back"
+		_btn_dev_back.pressed.connect(_on_dev_back)
+		_btn_dev_back.visible = false
+		_board.add_child(_btn_dev_back)
+		_hook_hover(_btn_dev_back)
 
-	var modes := HBoxContainer.new()
-	modes.alignment = BoxContainer.ALIGNMENT_CENTER
-	modes.add_theme_constant_override("separation", 10)
-	col.add_child(modes)
-	_btn_how = _btn("How to Play", Color("3a2820"), Color("e8c36a"), _pick.bind("tutorial"), 132)
-	_btn_dive = _btn("Dive In", Color("2a2622"), Color("c4a574"), _pick.bind("dive"), 110)
-	_btn_begin = _btn("Begin", Color("2a2622"), Color("6a5f52"), _pick.bind("begin"), 100)
-	modes.add_child(_btn_how)
-	modes.add_child(_btn_dive)
-	modes.add_child(_btn_begin)
-	var adv_row := HBoxContainer.new()
-	adv_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	col.add_child(adv_row)
-	_btn_adventure = _btn("Challenge Mode", Color("3a2820"), Color("e8c36a"), _pick.bind("adventure"), 220)
-	adv_row.add_child(_btn_adventure)
+	_sl_wrap = VBoxContainer.new()
+	_sl_wrap.position = Vector2(24, 148) * PX
+	_sl_wrap.size = Vector2(152, 28) * PX
+	_board.add_child(_sl_wrap)
+	_master = _add_slider(_sl_wrap, "Master", COPY.text("pause.master", ""))
 
-	if OS.has_feature("editor"):
+	_confirm = PanelContainer.new()
+	_confirm.visible = false
+	_confirm.z_index = 3
+	_confirm.position = Vector2(16, 40) * PX
+	_confirm.size = Vector2(168, 100) * PX
+	_board.add_child(_confirm)
+	var ask := VBoxContainer.new()
+	ask.add_theme_constant_override("separation", 10)
+	_confirm.add_child(ask)
+	var ask_l := KIT.label("pause.give_up_ask", 20, KIT.INK, true)
+	ask.add_child(ask_l)
+	var yes := KIT.choice_tag("pause.give_up_yes", Vector2(120, 16))
+	yes.pressed.connect(_on_give_up_yes)
+	ask.add_child(yes)
+	_hook_hover(yes)
+	var no := KIT.choice_tag("pause.give_up_no", Vector2(120, 16))
+	no.pressed.connect(_on_give_up_no)
+	ask.add_child(no)
+	_hook_hover(no)
+
+	if DevFlag.on():
 		var latest_row := HBoxContainer.new()
-		latest_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		col.add_child(latest_row)
-		latest_row.add_child(_btn("Play Latest", Color("3a3220"), Color("e8c36a"), _pick.bind("latest"), 200))
-		var dev_row := HBoxContainer.new()
-		dev_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		col.add_child(dev_row)
-		dev_row.add_child(_btn("Developer Test", Color("1c1814"), Color("8a8178"), _pick.bind("dev"), 200))
-		dev_row.add_child(_btn("Roster", Color("3a2820"), Color("c4a574"), _on_roster, 120))
-		dev_row.add_child(_btn("Script", Color("3a2820"), Color("c4a574"), _on_script, 110))
+		latest_row.position = Vector2(24, 1000)
+		latest_row.add_theme_constant_override("separation", 10)
+		add_child(latest_row)
+		latest_row.add_child(_btn("Play Latest", Color("3a3220"), Color("e8c36a"), _pick.bind("latest"), 160))
+		latest_row.add_child(_btn("Developer Test", Color("1c1814"), Color("8a8178"), _pick.bind("dev"), 180))
+		latest_row.add_child(_btn("Roster", Color("3a2820"), Color("c4a574"), _on_roster, 110))
+		latest_row.add_child(_btn("Script", Color("3a2820"), Color("c4a574"), _on_script, 110))
+	_layout_buttons()
 	apply_copy()
 
 
 func apply_copy() -> void:
 	if _title:
-		_title.text = COPY.text("pause.settings", "Settings")
+		if _page == "developer":
+			_title.text = "Developer Mode"
+		else:
+			_title.text = COPY.text("pause.settings", "Settings")
 	if _hint:
-		_hint.text = COPY.text("pause.hint", "Escape resumes. Start over without closing the game.")
+		_hint.text = COPY.text("pause.hint", "")
 	if _btn_resume:
 		_btn_resume.text = COPY.text("pause.resume", "Resume")
 	if _btn_quit:
 		_btn_quit.text = COPY.text("pause.quit", "Quit")
-	if _play:
-		_play.text = COPY.text("pause.start_over", "Start over")
-	if _btn_how:
-		_btn_how.text = COPY.text("title.how_to_play", "How to Play")
-	if _btn_dive:
-		_btn_dive.text = COPY.text("title.dive_in", "Dive In")
-	if _btn_begin:
-		_btn_begin.text = COPY.text("title.begin", "Begin")
-	if _btn_adventure:
-		_btn_adventure.text = COPY.text("title.adventure", "Challenge Mode")
+	if _btn_peek:
+		_btn_peek.text = COPY.text("pause.peek", "")
+	if _btn_give_up:
+		_btn_give_up.text = COPY.text("pause.give_up", "")
+	if _btn_dev:
+		_btn_dev.text = "Developer Mode"
+	if _btn_fresh:
+		_btn_fresh.text = "Fresh Save"
+	if _btn_complete:
+		_btn_complete.text = "One Hundred Percent Complete"
+	if _btn_buckets:
+		_btn_buckets.text = "Bucket Progress"
+	if _btn_dev_back:
+		_btn_dev_back.text = "Back"
 
 
-func _add_slider(host: VBoxContainer, label: String) -> HSlider:
+func _layout_buttons() -> void:
+	var on_dev: bool = _page == "developer"
+	if _btn_resume:
+		_btn_resume.visible = not on_dev
+	if _btn_peek:
+		_btn_peek.visible = (not on_dev) and _in_run
+	if _btn_give_up:
+		_btn_give_up.visible = (not on_dev) and _in_run
+	if _btn_quit:
+		_btn_quit.visible = (not on_dev) and not OS.has_feature("web")
+	if _btn_dev:
+		_btn_dev.visible = not on_dev
+	if _btn_fresh:
+		_btn_fresh.visible = on_dev
+	if _btn_complete:
+		_btn_complete.visible = on_dev
+	if _btn_buckets:
+		_btn_buckets.visible = on_dev
+	if _btn_dev_back:
+		_btn_dev_back.visible = on_dev
+	if _sl_wrap:
+		_sl_wrap.visible = not on_dev
+	var y: float = 46.0
+	var buttons: Array = [_btn_resume, _btn_peek, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_complete, _btn_buckets, _btn_dev_back]
+	for b in buttons:
+		if b == null or not b.visible or b.get_parent() != _board:
+			continue
+		var wide: bool = on_dev and b != _btn_dev_back
+		b.position = Vector2(24.0 if wide else 36.0, y) * PX
+		y += 26.0
+	if _sl_wrap and _sl_wrap.visible:
+		_sl_wrap.position = Vector2(24, y + 2.0) * PX
+
+
+func _set_page(page: String) -> void:
+	_page = page
+	apply_copy()
+	_layout_buttons()
+
+
+func _add_slider(host: VBoxContainer, which: String, label: String) -> HSlider:
 	var wrap := VBoxContainer.new()
 	wrap.add_theme_constant_override("separation", 4)
 	var lab := Label.new()
@@ -157,17 +258,28 @@ func _add_slider(host: VBoxContainer, label: String) -> HSlider:
 	sl.min_value = 0
 	sl.max_value = 100
 	sl.step = 1
-	sl.custom_minimum_size = Vector2(360, 28)
-	sl.value_changed.connect(_on_slider.bind(label))
+	sl.custom_minimum_size = Vector2(152.0 * PX, 28)
+	sl.value_changed.connect(_on_slider.bind(which))
 	wrap.add_child(sl)
 	host.add_child(wrap)
 	return sl
 
 
+func _slider_label(sl: HSlider) -> Label:
+	if sl == null or sl.get_parent() == null:
+		return null
+	for c in sl.get_parent().get_children():
+		if c is Label:
+			return c
+	return null
+
+
 func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float = 140) -> Button:
-	var b := Button.new()
+	var b := FitButton.new()
+	b.max_font_size = 16
+	b.min_font_size = 12
 	b.text = text
-	b.custom_minimum_size = Vector2(width, 44)
+	b.custom_minimum_size = Vector2(width, 36)
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	b.add_theme_color_override("font_color", Color("f0e6d8"))
 	var n := StyleBoxFlat.new()
@@ -177,30 +289,72 @@ func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float = 14
 	n.set_corner_radius_all(999)
 	n.content_margin_left = 14
 	n.content_margin_right = 14
-	n.content_margin_top = 8
-	n.content_margin_bottom = 8
+	n.content_margin_top = 6
+	n.content_margin_bottom = 6
 	b.add_theme_stylebox_override("normal", n)
 	var h := n.duplicate()
 	(h as StyleBoxFlat).bg_color = fill.lightened(0.16)
 	b.add_theme_stylebox_override("hover", h)
 	b.pressed.connect(cb)
+	_hook_hover(b)
 	return b
 
 
-func open_menu() -> void:
+func _hook_hover(b: Button) -> void:
+	b.mouse_entered.connect(func() -> void:
+		if _audio and _audio.has_method("play_event"):
+			_audio.play_event(&"ui.hover_menu")
+	)
+
+
+func open_menu(in_run: bool = true) -> void:
+	_in_run = in_run
+	_keep_paused = get_tree().paused
+	_page = "main"
+	if _confirm:
+		_confirm.visible = false
+	_layout_buttons()
+	apply_copy()
 	if _audio:
 		_sfx_ready = false
-		_master.value = _audio.master_lin * 100.0
-		_music.value = _audio.music_lin * 100.0
-		_sfx.value = _audio.sfx_lin * 100.0
+		if _master:
+			_master.value = _audio.master_lin * 100.0
+		if _music:
+			_music.value = _audio.music_lin * 100.0
+		if _ambience:
+			_ambience.value = _audio.ambience_lin * 100.0
+		if _sfx:
+			_sfx.value = _audio.sfx_lin * 100.0
+		if _ui_vol:
+			_ui_vol.value = _audio.ui_lin * 100.0
 		_sfx_ready = true
+		if _audio.has_method("on_pause"):
+			_audio.on_pause(true)
+		if _audio.has_method("play_event"):
+			_audio.play_event(&"ui.menu_open")
 	visible = true
+	move_to_front()
 	get_tree().paused = true
+	if _board:
+		_board.position.y = -180.0 * PX
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.set_trans(Tween.TRANS_BACK)
+		tw.set_ease(Tween.EASE_OUT)
+		tw.tween_property(_board, "position:y", _board_y, 0.22)
 
 
 func close_menu() -> void:
+	if _audio and _audio.has_method("play_event"):
+		_audio.play_event(&"ui.resume")
+	elif _audio:
+		_audio.play("click", -10.0)
+	if _audio and _audio.has_method("on_pause"):
+		_audio.on_pause(false)
+	_page = "main"
 	visible = false
-	get_tree().paused = false
+	if not _keep_paused:
+		get_tree().paused = false
 	closed.emit()
 
 
@@ -213,10 +367,18 @@ func _on_slider(value: float, which: String) -> void:
 			_audio.set_master(lin)
 		"Music":
 			_audio.set_music(lin)
+		"Ambience":
+			_audio.set_ambience(lin)
+			if _sfx_ready and _audio.has_method("play_event"):
+				_audio.play_event(&"ui.slider_tick", {"bus": "Ambience"})
 		"SFX":
 			_audio.set_sfx(lin)
-			if _sfx_ready:
-				_audio.play("click", -10.0)
+			if _sfx_ready and _audio.has_method("play_event"):
+				_audio.play_event(&"ui.slider_tick", {"bus": "SFX"})
+		"UI":
+			_audio.set_ui(lin)
+			if _sfx_ready and _audio.has_method("play_event"):
+				_audio.play_event(&"ui.slider_tick", {"bus": "UI"})
 
 
 func _on_resume() -> void:
@@ -254,13 +416,67 @@ func _on_quit() -> void:
 
 func _on_dim_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.position.x < 0:
-			close_menu()
+		close_menu()
+
+
+func _on_peek() -> void:
+	peek_pressed.emit()
+
+
+func _on_give_up() -> void:
+	if _confirm:
+		_confirm.visible = true
+
+
+func _on_give_up_yes() -> void:
+	_confirm.visible = false
+	close_menu()
+	give_up_confirmed.emit()
+
+
+func _on_give_up_no() -> void:
+	if _confirm:
+		_confirm.visible = false
+
+
+func _on_developer() -> void:
+	if _audio:
+		_audio.play("click", -8.0)
+	_set_page("developer")
+
+
+func _on_dev_back() -> void:
+	if _audio:
+		_audio.play("click", -10.0)
+	_set_page("main")
+
+
+func _on_fresh() -> void:
+	if _audio:
+		_audio.play("confirm", -8.0)
+	fresh_save_pressed.emit()
+
+
+func _on_complete() -> void:
+	if _audio:
+		_audio.play("confirm", -8.0)
+	complete_save_pressed.emit()
+
+
+func _on_buckets() -> void:
+	if _audio:
+		_audio.play("book", -10.0)
+	bucket_progress_pressed.emit()
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
 	if event.is_action_pressed("ui_cancel"):
-		close_menu()
+		if _confirm and _confirm.visible:
+			_confirm.visible = false
+		elif _page == "developer":
+			_set_page("main")
+		else:
+			close_menu()
 		get_viewport().set_input_as_handled()

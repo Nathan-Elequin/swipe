@@ -468,8 +468,8 @@ Cards,card.monster.berserker.name,Roster · monster name (live),Berserker
 Cards,card.monster.berserker.ability,Roster · monster player text (Berserker),I gain one HP and Attack with each monster you Defeat.
 Cards,card.monster.berserker.explainer,Roster · monster Shift math (Berserker),Attack and HP plus Defeat
 Cards,card.monster.dire_wolf.name,Roster · monster name (live),Dire Wolf
-Cards,card.monster.dire_wolf.ability,Roster · monster player text (Dire Wolf),My Attack is your HP.
-Cards,card.monster.dire_wolf.explainer,Roster · monster Shift math (Dire Wolf),Attack is your HP
+Cards,card.monster.dire_wolf.ability,Roster · monster player text (Dire Wolf),My Attack always equals your HP.
+Cards,card.monster.dire_wolf.explainer,Roster · monster Shift math (Dire Wolf),Attack always equals your HP
 Cards,card.monster.bandit.name,Roster · monster name (live),Bandit
 Cards,card.monster.bandit.ability,Roster · monster player text (Bandit),My Attack is how many Items you hold.
 Cards,card.monster.bandit.explainer,Roster · monster Shift math (Bandit),Attack is Items

@@ -309,6 +309,44 @@ func nib_frames() -> Array:
 	return frames("goblin")
 
 
+func home_tex(stem: String) -> Texture2D:
+	var path: String = stem
+	if not path.ends_with(".png"):
+		path += ".png"
+	return _load_tex("res://assets/dungeon/home/%s" % path)
+
+
+func hero_run_tex(rel: String) -> Texture2D:
+	var path: String = rel
+	if not path.ends_with(".png"):
+		path += ".png"
+	return _load_tex("res://assets/dungeon/hero_run/%s" % path)
+
+
+func hero_run_anim(anim: String) -> Array:
+	var out: Array = []
+	for i in 8:
+		var t: Texture2D = hero_run_tex("run_%s_f%d.png" % [anim, i])
+		if t == null:
+			break
+		out.append(t)
+	return out
+
+
+func hero_run_gear(piece: String, anim: String) -> Array:
+	var out: Array = []
+	for i in 8:
+		var t: Texture2D = hero_run_tex("gear/%s/run_%s_f%d.png" % [piece, anim, i])
+		if t == null:
+			break
+		out.append(t)
+	return out
+
+
+func hero_run_badge(stem: String) -> Texture2D:
+	return hero_run_tex("badges/%s.png" % stem)
+
+
 func item_tex(card_id: String) -> Texture2D:
 	if extra_items.has(card_id) and extra_items[card_id] != null:
 		return extra_items[card_id]

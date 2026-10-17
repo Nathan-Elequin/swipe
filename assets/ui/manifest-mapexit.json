@@ -1,0 +1,102 @@
+[
+ {
+  "path": "assets/ui/map/map_close_x_normal.png",
+  "src_1x": "assets/ui/_src_1x/map/map_close_x_normal.png",
+  "native": [
+   16,
+   16
+  ],
+  "shipped": [
+   64,
+   64
+  ],
+  "nine_slice_4x": null,
+  "used_by": "MapOverlay CloseX normal",
+  "status": "new"
+ },
+ {
+  "path": "assets/ui/map/map_close_x_hover.png",
+  "src_1x": "assets/ui/_src_1x/map/map_close_x_hover.png",
+  "native": [
+   16,
+   16
+  ],
+  "shipped": [
+   64,
+   64
+  ],
+  "nine_slice_4x": null,
+  "used_by": "CloseX hover",
+  "status": "new"
+ },
+ {
+  "path": "assets/ui/map/map_close_x_pressed.png",
+  "src_1x": "assets/ui/_src_1x/map/map_close_x_pressed.png",
+  "native": [
+   16,
+   16
+  ],
+  "shipped": [
+   64,
+   64
+  ],
+  "nine_slice_4x": null,
+  "used_by": "CloseX pressed (1 px down)",
+  "status": "new"
+ },
+ {
+  "path": "assets/ui/map/route_dot_hover.png",
+  "src_1x": "assets/ui/_src_1x/map/route_dot_hover.png",
+  "native": [
+   2,
+   2
+  ],
+  "shipped": [
+   8,
+   8
+  ],
+  "nine_slice_4x": null,
+  "used_by": "Route trail dot, hover state (between idle and lit)",
+  "status": "new"
+ },
+ {
+  "path": "assets/ui/panel/parchment_panel_9.png",
+  "src_1x": "assets/ui/_src_1x/panel/parchment_panel_9.png",
+  "native": [
+   24,
+   24
+  ],
+  "shipped": [
+   96,
+   96
+  ],
+  "nine_slice_4x": {
+   "left": 24,
+   "top": 24,
+   "right": 24,
+   "bottom": 24
+  },
+  "used_by": "Map description panel, sack peek panel. Content inset 36 px.",
+  "status": "new"
+ },
+ {
+  "path": "assets/ui/rope/rope_sign_9.png",
+  "src_1x": "assets/ui/_src_1x/rope/rope_sign_9.png",
+  "native": [
+   24,
+   20
+  ],
+  "shipped": [
+   96,
+   80
+  ],
+  "nine_slice_4x": {
+   "left": 24,
+   "top": 24,
+   "right": 24,
+   "bottom": 28
+  },
+  "used_by": "RopeExit sign (replaces rope_sign_notice.png). Inner text rect = rect inset (28,28,28,32).",
+  "status": "new"
+ }
+]

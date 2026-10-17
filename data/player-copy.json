@@ -7,7 +7,7 @@
 			"cat": "Title",
 			"key": "title.overlay",
 			"locked_at": "2026-10-07",
-			"text": "Swipe",
+			"text": "{game_title}",
 			"where": "Title parchment headline"
 		},
 		{
@@ -38,8 +38,8 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.begin",
-			"locked_at": "2026-10-07",
-			"text": "Play",
+			"locked_at": "2026-10-16",
+			"text": "Adventure Mode",
 			"where": "Title + pause button"
 		},
 		{
@@ -48,6 +48,13 @@
 			"key": "title.adventure",
 			"locked_at": "2026-10-16",
 			"text": "Challenge Mode",
+			"where": "Title + pause button"
+		},
+		{
+			"author_lock": false,
+			"cat": "Title",
+			"key": "title.home",
+			"text": "Home",
 			"where": "Title + pause button"
 		},
 		{
@@ -243,11 +250,25 @@
 			"where": "Escape menu label"
 		},
 		{
+			"author_lock": false,
+			"cat": "Pause",
+			"key": "pause.ambience",
+			"text": "Ambience",
+			"where": "Escape menu volume slider"
+		},
+		{
+			"author_lock": false,
+			"cat": "Pause",
+			"key": "pause.ui",
+			"text": "UI",
+			"where": "Escape menu volume slider"
+		},
+		{
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.speaker",
 			"locked_at": "2026-10-07",
-			"text": "Nib",
+			"text": "{nib}",
 			"where": "Talk box name"
 		},
 		{
@@ -279,7 +300,7 @@
 			"cat": "Tutorial",
 			"key": "tutorial.beat.01.body",
 			"locked_at": "2026-10-16",
-			"text": "Hey there, greedy goblin. I'm Nib. I was just in the middle of enjoying my nap when you had to barge into this dungeon and start swiping loot left n' right!\n(Click 'next' to continue)\nWell, now you've gone and done it â€” the monsters are coming to claim their stuff, and you're going to have to defend yourself with that loot or else die in this strange catacomb.\n(Click 'next' to continue)\n(Highlights dungeon wheel)\nWelcome to the Merry Go' Round of doom â€” a series of circular catacombs that rotate around this particular spot. Don't ask me why, the architect of this dungeon doesn't like answering questions.\n(Click 'next' to continue)\n(Highlights single empty slice of dungeon wheel)\nThis is a Corridor â€” there are 8 in total. Monsters will pop into these slots as they line up to clean your clock and take your junk.\n(Click 'next' to continue)\n(Highlights player hotbar)\nThis is your loot. Looks like you started off with some basic loot for this tutorial, but you'll find lots of fancy weapons and armor out here.\n(Click 'next' to continue)\n(Sprite of Nib comes very close to the player, nearly covering 80% of the screen)\nYour mission...\n(Click to continue)\n(Comes closer)\n...is to get out of the dungeon with as much loot as possible.\n(Returns to his original position)\n...Got it?\n(Click 'Got It' to continue)\nOkay, let me show you how things work a'ROUND these parts.\n(Click 'next' to continue)\n(in very tiny text, in italics parentheses) â€” (y'know, cause of the round dungeon...)\n(Click to continue)\n(Highlight the healthbar)\nYou have 6 health (HP). You can never have more than 6. If it reaches 0 at any point, you're dead.\n(Click to continue)\nWhen you complete a Dungeon (clear out this wheel), you will heal back to full HP. Spend your HP wisely.\n(Click to continue)\nAlright, that's enough. Let's spin the wheel and learn the rest as we go. Click 'Spin' to randomly choose your first opponent.\n(Click 'Spin' â€” spins the wheel, forcing it to stop on Wizard)\nAhh, a crotchety ol' wizard, eh?\n(Click to continue)\n(Highlights Wizard's Attack icon)\nHe looks pretty scary â€” 5 Attack would nearly kill you in one strike.\n(Click to continue)\n(Highlights Wizard's HP icon)\n...but he's also super frail. Most weapons will kill him before he gets to strike.\n(Click to continue)\n(Highlights the Sai)\nUse the Sai. It will kill him and end the fight.\n(Click the Sai to use it, resolving combat as normal)\n1 down, nice. When an Enemy is Defeated, it will trigger the Dungeon to Spin again.\n(Click to continue)\n(Only NOW does the wheel Spin, and will now land on Golem)\nInteresting...this Golem is much harder to kill, so you'd usually want to block this.\n(Click to continue)\n(Highlights Block icon on the character)\nBlock is temporary for the current fight. It goes away whenever you Spin the Dungeon.\n(Click to continue)\nBut I've got good news â€” if you Block an enemy, they are also Defeated.\n(Click to continue)\n(Nib gets 50% closer to the viewer, 'leaning' in)\nI guess they just...run out of time to kill you, I guess? Not sure, this Dungeon is kinda weird.\n(Click to continue)\n(Nib returns to his position)\n(Highlights the Helmet item in the hotbar)\nAnyway, look at the Helmet, since this item has a unique ability.\n(Click to continue)\nYou can hold Shift to see any Item's details at a glance.\n(Click to continue)\n(Highlights the detail view panel to the right)\nLooks like the Helmet's Block is based on whichever HP is lower between you and your Enemy.\n(Click to continue)\n(Highlight both player HP and the Golem's HP)\nIn this case, that's you with 6 HP.\n(Click to continue)\nGlad you didn't lose 5 HP to the Wizard earlier, that would make this Helmet useless!\n(Click to continue)\nItems change all the time based on circumstances. Your job is to juggle your loot to maximize their effectiveness against the unique enemies in the dungeon.\n(Click to continue)\n(Highlights the Helmet again)\nOkay, let's use the Helmet and Block this incoming attack.\n(Click the Helmet)\n(Highlights the 'Safe' button)\nThis button will always show you how much HP you are going to lose if you end the fight now.\n(Click to continue)\nSince you are safe, you can click 'Safe' to end the fight.\n(Click 'Safe' and resolve the combat)\nGreat, so you've Defeated enemies in 2 different ways, by Attacking and Defending.\n(Click to continue)\nThere's one final type of item, so let's Spin again and try it out.\n(Click 'Spin' and land on Goblin)\nAww, look at this little guy! He is so cute...but he also has an ability.\n(Click to continue)\n(Highlight on the Monster card)\nHover over any Monster and hold Shift to learn the details of their ability, just like Items.\n(When the user hovers and holds Shift, highlight the details)\nAw, Goblins are 'Evasive', so they cannot take Attack damage! Looks like our Knucklers would be wasted here.\n(Click to continue)\n(Highlight 'Da Boot' in the hotbar)\nBut wait...this item is a Special Item. It doesn't Attack or Block. Take a look.\n(When the user hovers or holds Shift)\nThis item allows you to instantly Defeat an Enemy if you have more HP than them!\n(Click to continue)\nThat's a good item...\n(Click to continue)\n(Nib moves close to the viewer)\n...but are you sure you want to use it?\n(Click to continue)\n(Nib returns)\nSo far you've lost zero HP in this dungeon, but remember â€” each time you clear a Dungeon, you heal back to full.\n(Click to continue)\nAND you get to keep all of the Loot that you didn't use in this dungeon. Pretty sweet, huh?\n(Click to continue)\nSo I'll give you a choice. You can use Da Boot and get the sweet satisfaction of stomping this Goblin into the dirt...\n(Click to continue)\n...Orrrr you can let him slice you up, and keep it. The choice is yours.\n(The player will click on either Da Boot or 'Take 3'. Either will resolve the combat)\n\n---(If the player chose 'Da Boot', after combat resolves)---\nHonestly, I respect it. Those Goblins are super annoying, so here's a tip:\n(Click to continue)\nIf you see one in your upcoming Dungeon, you should always hold onto a Block or Defeat item to avoid that damage.\n(Click to continue)\nYou won't always have a Boot, after all.\n(Click to continue â€” joins back with standard dialogue)\n---(If the player chose to 'Take 3')---\nOuch â€” hurts, doesn't it?\n(Click to continue)\nWell the next time that Boot saves you from death in a future Dungeon, you'll be glad you let that little rascal nick you for 3.\n(Click to continue)\nI'm sure you can tell, but I'll give you a tip straight from the source:\n(Click to continue)\nSpend your HP like it was made of gold. Sometimes it will be correct to drop to 1 HP â€” you'll find Items that reward you for losing HP â€” we call that Bleeding.\n(Click to continue â€” joins back with standard dialogue)\n---JOINS TOGETHER\nAlright, so you survived all 3 Monsters and cleared the Dungeon! Challenge Mode is the real haul \u2014 here's what happens when you go deeper.\n(Click to continue)\n(Highlights dungeon wheel)\nSix monsters walk in. No empty corridors. A face-down deck sits off to the side \u2014 six more waiting to replace whoever you drop.\n(Click to continue)\n(Highlights 2 random slices)\nThen, 2 of those starting Monsters will be upgraded to more dangerous foes\n(Click to continue)\n(Highlights hotbar)\nThen you pick loot: two items at a time, matching the monsters already sitting on the wheel. You keep what you already hold, up to ten cards.\n(Click to continue)\n(Nib moves to center screen)\nAfter that you pick who you fight. Click a monster, then click Spin. Knock one down and you pick loot equal to their tier, then a new monster climbs out of the deck into that seat. When the deck's empty, the wheel starts closing for real.\n(Click to continue)\nSome items are very strong against certain monsters, and it's up to you to manage your resources and make it out with the best haul.\n(Click to continue)\nWith that, I'm off to finish my nap again. Good luck with your dungeon delve, you greedy grubber!\n(Click to continue)\n(Animates Nib 'walking off' to the right)\n(vignette background, only buttons below are 'Main Menu' and 'Play', which goes to Challenge Mode)",
+			"text": "Hey there, greedy goblin. I'm {nib}. I was just in the middle of enjoying my nap when you had to barge into this dungeon and start swiping loot left n' right!\n(Click 'next' to continue)\nWell, now you've gone and done it â€” the monsters are coming to claim their stuff, and you're going to have to defend yourself with that loot or else die in this strange catacomb.\n(Click 'next' to continue)\n(Highlights dungeon wheel)\nWelcome to the Merry Go' Round of doom â€” a series of circular catacombs that rotate around this particular spot. Don't ask me why, the architect of this dungeon doesn't like answering questions.\n(Click 'next' to continue)\n(Highlights single empty slice of dungeon wheel)\nThis is a Corridor â€” there are 8 in total. Monsters will pop into these slots as they line up to clean your clock and take your junk.\n(Click 'next' to continue)\n(Highlights player hotbar)\nThis is your loot. Looks like you started off with some basic loot for this tutorial, but you'll find lots of fancy weapons and armor out here.\n(Click 'next' to continue)\n(Sprite of {nib} comes very close to the player, nearly covering 80% of the screen)\nYour mission...\n(Click to continue)\n(Comes closer)\n...is to get out of the dungeon with as much loot as possible.\n(Returns to his original position)\n...Got it?\n(Click 'Got It' to continue)\nOkay, let me show you how things work a'ROUND these parts.\n(Click 'next' to continue)\n(in very tiny text, in italics parentheses) â€” (y'know, cause of the round dungeon...)\n(Click to continue)\n(Highlight the healthbar)\nYou have 6 health (HP). You can never have more than 6. If it reaches 0 at any point, you're dead.\n(Click to continue)\nWhen you complete a Dungeon (clear out this wheel), you will heal back to full HP. Spend your HP wisely.\n(Click to continue)\nAlright, that's enough. Let's spin the wheel and learn the rest as we go. Click 'Spin' to randomly choose your first opponent.\n(Click 'Spin' â€” spins the wheel, forcing it to stop on Wizard)\nAhh, a crotchety ol' wizard, eh?\n(Click to continue)\n(Highlights Wizard's Attack icon)\nHe looks pretty scary â€” 5 Attack would nearly kill you in one strike.\n(Click to continue)\n(Highlights Wizard's HP icon)\n...but he's also super frail. Most weapons will kill him before he gets to strike.\n(Click to continue)\n(Highlights the Sai)\nUse the Sai. It will kill him and end the fight.\n(Click the Sai to use it, resolving combat as normal)\n1 down, nice. When an Enemy is Defeated, it will trigger the Dungeon to Spin again.\n(Click to continue)\n(Only NOW does the wheel Spin, and will now land on Golem)\nInteresting...this Golem is much harder to kill, so you'd usually want to block this.\n(Click to continue)\n(Highlights Block icon on the character)\nBlock is temporary for the current fight. It goes away whenever you Spin the Dungeon.\n(Click to continue)\nBut I've got good news â€” if you Block an enemy, they are also Defeated.\n(Click to continue)\n({nib} gets 50% closer to the viewer, 'leaning' in)\nI guess they just...run out of time to kill you, I guess? Not sure, this Dungeon is kinda weird.\n(Click to continue)\n({nib} returns to his position)\n(Highlights the Helmet item in the hotbar)\nAnyway, look at the Helmet, since this item has a unique ability.\n(Click to continue)\nYou can hold Shift to see any Item's details at a glance.\n(Click to continue)\n(Highlights the detail view panel to the right)\nLooks like the Helmet's Block is based on whichever HP is lower between you and your Enemy.\n(Click to continue)\n(Highlight both player HP and the Golem's HP)\nIn this case, that's you with 6 HP.\n(Click to continue)\nGlad you didn't lose 5 HP to the Wizard earlier, that would make this Helmet useless!\n(Click to continue)\nItems change all the time based on circumstances. Your job is to juggle your loot to maximize their effectiveness against the unique enemies in the dungeon.\n(Click to continue)\n(Highlights the Helmet again)\nOkay, let's use the Helmet and Block this incoming attack.\n(Click the Helmet)\n(Highlights the 'Safe' button)\nThis button will always show you how much HP you are going to lose if you end the fight now.\n(Click to continue)\nSince you are safe, you can click 'Safe' to end the fight.\n(Click 'Safe' and resolve the combat)\nGreat, so you've Defeated enemies in 2 different ways, by Attacking and Defending.\n(Click to continue)\nThere's one final type of item, so let's Spin again and try it out.\n(Click 'Spin' and land on Goblin)\nAww, look at this little guy! He is so cute...but he also has an ability.\n(Click to continue)\n(Highlight on the Monster card)\nHover over any Monster and hold Shift to learn the details of their ability, just like Items.\n(When the user hovers and holds Shift, highlight the details)\nAw, Goblins are 'Evasive', so they cannot take Attack damage! Looks like our Knucklers would be wasted here.\n(Click to continue)\n(Highlight 'Da Boot' in the hotbar)\nBut wait...this item is a Special Item. It doesn't Attack or Block. Take a look.\n(When the user hovers or holds Shift)\nThis item allows you to instantly Defeat an Enemy if you have more HP than them!\n(Click to continue)\nThat's a good item...\n(Click to continue)\n({nib} moves close to the viewer)\n...but are you sure you want to use it?\n(Click to continue)\n({nib} returns)\nSo far you've lost zero HP in this dungeon, but remember â€” each time you clear a Dungeon, you heal back to full.\n(Click to continue)\nAND you get to keep all of the Loot that you didn't use in this dungeon. Pretty sweet, huh?\n(Click to continue)\nSo I'll give you a choice. You can use Da Boot and get the sweet satisfaction of stomping this Goblin into the dirt...\n(Click to continue)\n...Orrrr you can let him slice you up, and keep it. The choice is yours.\n(The player will click on either Da Boot or 'Take 3'. Either will resolve the combat)\n\n---(If the player chose 'Da Boot', after combat resolves)---\nHonestly, I respect it. Those Goblins are super annoying, so here's a tip:\n(Click to continue)\nIf you see one in your upcoming Dungeon, you should always hold onto a Block or Defeat item to avoid that damage.\n(Click to continue)\nYou won't always have a Boot, after all.\n(Click to continue â€” joins back with standard dialogue)\n---(If the player chose to 'Take 3')---\nOuch â€” hurts, doesn't it?\n(Click to continue)\nWell the next time that Boot saves you from death in a future Dungeon, you'll be glad you let that little rascal nick you for 3.\n(Click to continue)\nI'm sure you can tell, but I'll give you a tip straight from the source:\n(Click to continue)\nSpend your HP like it was made of gold. Sometimes it will be correct to drop to 1 HP â€” you'll find Items that reward you for losing HP â€” we call that Bleeding.\n(Click to continue â€” joins back with standard dialogue)\n---JOINS TOGETHER\nAlright, so you survived all 3 Monsters and cleared the Dungeon! Challenge Mode is the real haul — here's what happens when you go deeper.\n(Click to continue)\n(Highlights dungeon wheel)\nSix monsters walk in. No empty corridors. A face-down deck sits off to the side — six more waiting to replace whoever you drop.\n(Click to continue)\n(Highlights 2 random slices)\nThen, 2 of those starting Monsters will be upgraded to more dangerous foes\n(Click to continue)\n(Highlights hotbar)\nThen you pick loot: two items at a time, matching the monsters already sitting on the wheel. You keep what you already hold, up to ten cards.\n(Click to continue)\n({nib} moves to center screen)\nAfter that you pick who you fight. Click a monster, then click Spin. Knock one down and you pick loot equal to their tier, then a new monster climbs out of the deck into that seat. When the deck's empty, the wheel starts closing for real.\n(Click to continue)\nSome items are very strong against certain monsters, and it's up to you to manage your resources and make it out with the best haul.\n(Click to continue)\nWith that, I'm off to finish my nap again. Good luck with your dungeon delve, you greedy grubber!\n(Click to continue)\n(Animates {nib} 'walking off' to the right)\n(vignette background, only buttons below are 'Main Menu' and 'Play', which goes to Challenge Mode)",
 			"where": "How to Play step 1 Â· continue / (none) Â· main line"
 		},
 		{
@@ -1841,6 +1862,1547 @@
 			"locked_at": "2026-10-07",
 			"text": "Stop winding. I'll stop you.",
 			"where": "Door balloon after taking pocketwatch Â· line 5 of 5"
+		},
+		{
+			"cat": "Intro",
+			"key": "intro.p1",
+			"where": "Intro panel 1 caption",
+			"text": "Over the tannery in {village} lived a small goblin with nobody at all.",
+			"draft": true
+		},
+		{
+			"cat": "Intro",
+			"key": "intro.p2",
+			"where": "Intro panel 2 caption",
+			"text": "Then, one rainy night, somebody knocked.",
+			"draft": true
+		},
+		{
+			"cat": "Intro",
+			"key": "intro.p2_nib",
+			"where": "Intro panel 2, Nib speaking",
+			"text": "Delivery for the grandchild of {bartleby} {snatchwick}. Sign here. Or bite here. I hear you're a biter.",
+			"draft": true
+		},
+		{
+			"cat": "Intro",
+			"key": "intro.p3",
+			"where": "Intro panel 3 caption",
+			"text": "Your grandfather, the legendary {lucky_snatchwick}, has died inside {mountain}.",
+			"draft": true
+		},
+		{
+			"cat": "Intro",
+			"key": "intro.p3_nib",
+			"where": "Intro panel 3, Nib speaking",
+			"text": "He left you everything. Unfortunately, everything is still in the mountain.",
+			"draft": true
+		},
+		{
+			"cat": "Intro",
+			"key": "intro.p4",
+			"where": "Intro panel 4 caption",
+			"text": "Up {hill}, in {the_grumble|poss} shadow, {nib} walks you home.",
+			"draft": true
+		},
+		{
+			"cat": "Intro",
+			"key": "intro.p5_nib",
+			"where": "Intro panel 5, Nib speaking",
+			"text": "Here we are, {hero}. Wipe your feet. He never did.",
+			"draft": true
+		},
+		{
+			"cat": "Intro",
+			"key": "intro.skip",
+			"where": "Intro skip button (top right)",
+			"text": "Skip",
+			"draft": true
+		},
+		{
+			"cat": "Intro",
+			"key": "intro.next",
+			"where": "Intro hint under the caption",
+			"text": "Click to continue",
+			"draft": true
+		},
+		{
+			"cat": "Will",
+			"key": "will.title",
+			"where": "Will close-up headline",
+			"text": "The Last Will & Considerable Testament of {bartleby} {snatchwick}, Esq.",
+			"draft": true
+		},
+		{
+			"cat": "Will",
+			"key": "will.p1",
+			"where": "Will close-up, paragraph 1",
+			"text": "I, {grandpa_full}, being of sound mind and even sounder luck, do hereby leave EVERYTHING to my grandchild, whom I met only once. You bit me. Good instincts.",
+			"draft": true
+		},
+		{
+			"cat": "Will",
+			"key": "will.p2",
+			"where": "Will close-up, paragraph 2",
+			"text": "Everything is presently inside {mountain}, in the pockets of assorted monsters who picked it up after I fell over. Each piece is engraved with my name. They know it is not theirs.",
+			"draft": true
+		},
+		{
+			"cat": "Will",
+			"key": "will.p3",
+			"where": "Will close-up, paragraph 3",
+			"text": "Bring my things home and set them in the {cabinet}. Only what you are holding when you get out counts. What the mountain keeps, it keeps.",
+			"draft": true
+		},
+		{
+			"cat": "Will",
+			"key": "will.p4",
+			"where": "Will close-up, paragraph 4",
+			"text": "When the Cabinet is full, this cabin and the deed to {hill} are yours. {nib} will stamp it. {nib} loves stamping.",
+			"draft": true
+		},
+		{
+			"cat": "Will",
+			"key": "will.p5",
+			"where": "Will close-up, paragraph 5",
+			"text": "{nib} is to be paid in biscuits. Do not open the left-hand drawer of my desk.",
+			"draft": true
+		},
+		{
+			"cat": "Will",
+			"key": "will.sign",
+			"where": "Will signature line",
+			"text": "B. {snatchwick}, Esq.",
+			"draft": true
+		},
+		{
+			"cat": "Will",
+			"key": "will.witness",
+			"where": "Will witness line",
+			"text": "Witnessed: {nib} (his mark)",
+			"draft": true
+		},
+		{
+			"cat": "Will",
+			"key": "will.close",
+			"where": "Will close button",
+			"text": "Roll it up",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.room.main",
+			"where": "Room-name sign that drops in on room change",
+			"text": "The Front Room",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.room.hall",
+			"where": "Room-name sign that drops in on room change",
+			"text": "Trophy Hall",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.room.study",
+			"where": "Room-name sign that drops in on room change",
+			"text": "The Study",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.room.workshop",
+			"where": "Room-name sign that drops in on room change",
+			"text": "The Workshop",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.room.loft",
+			"where": "Room-name sign that drops in on room change",
+			"text": "The Loft",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.run_door",
+			"where": "Hover label for the run_door hotspot",
+			"text": "Into {the_grumble}",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.map",
+			"where": "Hover label for the map hotspot",
+			"text": "{grandpa|poss} Map",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.radio",
+			"where": "Hover label for the radio hotspot",
+			"text": "The Melodeon",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.nib",
+			"where": "Hover label for the nib hotspot",
+			"text": "{nib}",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.fire",
+			"where": "Hover label for the fire hotspot",
+			"text": "The Fire",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.chair",
+			"where": "Hover label for the chair hotspot",
+			"text": "{grandpa|poss} Chair",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.portrait_small",
+			"where": "Hover label for the portrait_small hotspot",
+			"text": "{grandpa}",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.portrait_big",
+			"where": "Hover label for the portrait_big hotspot",
+			"text": "{grandpa}, Looking Important",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.journal",
+			"where": "Hover label for the journal hotspot",
+			"text": "{grandpa|poss} Journal",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.will",
+			"where": "Hover label for the will hotspot",
+			"text": "The Will",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.model",
+			"where": "Hover label for the model hotspot",
+			"text": "Model of {the_grumble}",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.dummy",
+			"where": "Hover label for the dummy hotspot",
+			"text": "Training Dummy",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.brag",
+			"where": "Hover label for the brag hotspot",
+			"text": "Brag-o-Meter",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.patents",
+			"where": "Hover label for the patents hotspot",
+			"text": "Patents Pending",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.bed",
+			"where": "Hover label for the bed hotspot",
+			"text": "{grandpa|poss} Bed",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.telescope",
+			"where": "Hover label for the telescope hotspot",
+			"text": "Telescope",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.trunk",
+			"where": "Hover label for the trunk hotspot",
+			"text": "Trunk of Letters",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.cat",
+			"where": "Hover label for the cat hotspot",
+			"text": "The Cat",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.back",
+			"where": "Hover label for the back hotspot",
+			"text": "Back",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.hatch",
+			"where": "Hover label for the hatch hotspot",
+			"text": "Back downstairs",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.cabinet",
+			"where": "Hover label for the cabinet hotspot",
+			"text": "The Cabinet",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.door_locked",
+			"where": "Hover label for the door_locked hotspot",
+			"text": "Locked",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.gauge",
+			"where": "Hover label for the gauge hotspot",
+			"text": "Cabinet progress",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.door_hall",
+			"where": "Hover label on an unlocked door",
+			"text": "To the Trophy Hall",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.door_study",
+			"where": "Hover label on an unlocked door",
+			"text": "To the Study",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.door_workshop",
+			"where": "Hover label on an unlocked door",
+			"text": "To the Workshop",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hot.door_loft",
+			"where": "Hover label on an unlocked door",
+			"text": "Up to the Loft",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.gear.helm",
+			"where": "Gear rack piece hover label",
+			"text": "Dented Helm",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.gear.cap",
+			"where": "Gear rack piece hover label",
+			"text": "Lucky Cap",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.gear.goggles",
+			"where": "Gear rack piece hover label",
+			"text": "Brass Goggles",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.gear.rope",
+			"where": "Gear rack piece hover label",
+			"text": "Coil of Rope",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.gear.wear",
+			"where": "Gear hover hint when on the peg",
+			"text": "Wear it",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.gear.hang",
+			"where": "Gear hover hint when worn (click the hero or the empty peg)",
+			"text": "Hang it up",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.gear.flavour",
+			"where": "Gear hover sub-line",
+			"text": "Just for looks. {grandpa} would approve.",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.gauge",
+			"where": "Trophy hall gauge tooltip",
+			"text": "{n} of {total} curiosities home",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.full",
+			"where": "Trophy hall gauge tooltip when complete",
+			"text": "Every shelf full!",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.tip.journal",
+			"where": "Trophy tooltip, header above Grandpa's entry",
+			"text": "From {grandpa|poss} journal:",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.tip.new",
+			"where": "Trophy tooltip tag on a never-clicked new item",
+			"text": "New!",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.tip.locked",
+			"where": "Trophy tooltip on an item still in the mountain",
+			"text": "Still somewhere in {the_grumble}.",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.tip.seen",
+			"where": "Trophy tooltip on an item seen in a run but never brought home",
+			"text": "Seen in {the_grumble}. Not home yet.",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.model.deepest",
+			"where": "Mountain model hover",
+			"text": "Deepest: Belly {n}",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.model.none",
+			"where": "Mountain model hover, never delved",
+			"text": "You haven't been inside yet.",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.tab.bestiary",
+			"where": "Journal bookmark tab",
+			"text": "Bestiary",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.tab.items",
+			"where": "Journal bookmark tab",
+			"text": "Curiosities",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.tab.will",
+			"where": "Journal bookmark tab",
+			"text": "The Will",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.unmet",
+			"where": "Bestiary page for a monster not met yet (silhouette)",
+			"text": "Not met yet.",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.unmet_hint",
+			"where": "Bestiary page hint",
+			"text": "",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.met_count",
+			"where": "Bestiary footer",
+			"text": "Met {n} of {total}",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.page",
+			"where": "Journal page counter",
+			"text": "{n} / {total}",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.close",
+			"where": "Journal close button",
+			"text": "Close the book",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.weak",
+			"where": "Bestiary danger stamp (internal tier 1)",
+			"text": "Weak",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.tough",
+			"where": "Bestiary danger stamp (internal tier 2)",
+			"text": "Tough",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.deadly",
+			"where": "Bestiary danger stamp (internal tier 3)",
+			"text": "Deadly",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.dummy.ask",
+			"where": "Training dummy click: Nib asks",
+			"text": "Run through the basics with me again?",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.dummy.yes",
+			"where": "Training dummy choice",
+			"text": "Show me again",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.dummy.no",
+			"where": "Training dummy choice",
+			"text": "I've got it",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.brag.title",
+			"where": "Brag-o-Meter card",
+			"text": "Brag-o-Meter",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.brag.delves",
+			"where": "Brag-o-Meter card",
+			"text": "Delves: {n}",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.brag.homecomings",
+			"where": "Brag-o-Meter card",
+			"text": "Hauls brought home: {n}",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.brag.deepest",
+			"where": "Brag-o-Meter card",
+			"text": "Deepest belly: {n}",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.brag.swiped",
+			"where": "Brag-o-Meter card",
+			"text": "Curiosities home: {n} of {total}",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.brag.met",
+			"where": "Brag-o-Meter card",
+			"text": "Monsters met: {n} of {total}",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.brag.close",
+			"where": "Brag-o-Meter card",
+			"text": "Put it down",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.credits.title",
+			"where": "Patents (credits) card headline",
+			"text": "Patents Pending",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.credits.body",
+			"where": "Patents (credits) card body (Jam/Nathan to confirm names)",
+			"text": "{game_title}, by Nathan Elequin.\nArt: 0x72, Kenney, Shade, HomoHikka, Jetrel, Flare/AntumDeluge (all CC0).\nSounds: Kenney, Mjorlaja, Aureolus_Omicron, iamoneabe, Eldritch Grim, Trex0n, PagDev, Kerzoven, and yd (all CC0).\nPatent No. 1: The Self-Buttering Biscuit (pending).",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.credits.close",
+			"where": "Patents card close",
+			"text": "Close",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.bed.ask",
+			"where": "Bed click on desktop",
+			"text": "Turn in for the night?",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.bed.yes",
+			"where": "Bed choice (desktop) = Quit",
+			"text": "Sleep (Quit)",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.bed.no",
+			"where": "Bed choice (desktop)",
+			"text": "Not yet",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.bed.web",
+			"where": "Bed click on web (no quit): Nib's line",
+			"text": "Not now, {hero}. The mountain's still got your stuff.",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.telescope.line",
+			"where": "Telescope click",
+			"text": "The Grumble, belly-up under the moon. A light flickers in Belly {n}.",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.telescope.none",
+			"where": "Telescope click, never delved",
+			"text": "The Grumble, belly-up under the moon. It rumbles. It's hungry.",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.trunk.empty",
+			"where": "Trunk click with no letters unlocked",
+			"text": "Mothballs. And one sock.",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.trunk.sealed",
+			"where": "Trunk: a letter not yet unlocked",
+			"text": "Sealed. {nib} says he wanted them read in order.",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.trunk.close",
+			"where": "Letter card close",
+			"text": "Fold it up",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.cat.line",
+			"where": "Loft cat click",
+			"text": "Purrs. Ignores you magnificently.",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.locked",
+			"where": "Clicking a locked door before the key ring",
+			"text": "Locked. Bring a haul home first and {nib} will hunt for the keys.",
+			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.new_count",
+			"where": "Toast after a win homecoming",
+			"text": "{n} new for the cabinet!",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.title",
+			"where": "Map close-up headline",
+			"text": "{grandpa|poss} Map of {mountain} (Mostly Accurate)",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.route.gatehouse",
+			"where": "Map pin label",
+			"text": "The Gatehouse",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.route.gatehouse.desc",
+			"where": "Map pin description (hover / selected)",
+			"text": "One belly, start to finish. Win it and everything in your hand comes home.",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.route.long_drop",
+			"where": "Map pin label",
+			"text": "The Long Drop",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.route.long_drop.desc",
+			"where": "Map pin description (hover / selected)",
+			"text": "Belly after belly. After each clear, climb {grandpa|poss} rope home or keep going deeper.",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.route.shortcut",
+			"where": "Map pin label",
+			"text": "{grandpa|poss} Shortcut",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.route.shortcut.desc",
+			"where": "Map pin description (hover / selected)",
+			"text": "Skip the setup and jump straight in. {grandpa} swore it was faster.",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.route.gatehouse.mode",
+			"where": "Map pin subtitle under The Gatehouse. Equal-weight mode name.",
+			"text": "Adventure Mode"
+		},
+		{
+			"cat": "Map",
+			"key": "map.route.long_drop.mode",
+			"where": "Map pin subtitle under The Long Drop. Equal-weight mode name.",
+			"text": "Challenge Mode"
+		},
+		{
+			"cat": "Map",
+			"key": "map.go",
+			"where": "Map confirm button",
+			"text": "Off we go",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.go.named",
+			"where": "Map confirm button with the chosen mode. {mode} = that route's .mode text. Falls back to map.go",
+			"text": "Off we go: {mode}"
+		},
+		{
+			"cat": "Map",
+			"key": "map.back",
+			"where": "Map close button",
+			"text": "Back",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.deepest",
+			"where": "Map flag tooltip on the Long Drop",
+			"text": "Deepest: Belly {n}",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.legend",
+			"where": "Map legend box",
+			"text": "X = treasure (probably). Here be snacks.",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.first_only",
+			"where": "Map before the tutorial is done (Nib)",
+			"text": "Talk to me first, {hero}. Then the map.",
+			"draft": true
+		},
+		{
+			"cat": "Radio",
+			"key": "radio.title",
+			"where": "Radio close-up headline",
+			"text": "The {radio}",
+			"draft": true
+		},
+		{
+			"cat": "Radio",
+			"key": "radio.station",
+			"where": "Station dial label",
+			"text": "Station",
+			"draft": true
+		},
+		{
+			"cat": "Radio",
+			"key": "radio.station.0",
+			"where": "Station name under the dial",
+			"text": "Fireside Crackle",
+			"draft": true
+		},
+		{
+			"cat": "Radio",
+			"key": "radio.station.1",
+			"where": "Station name under the dial",
+			"text": "The Rusty Tankard",
+			"draft": false,
+			"note": "Jam-approved 2026-10-17"
+		},
+		{
+			"cat": "Radio",
+			"key": "radio.station.2",
+			"where": "Station name under the dial",
+			"text": "Snatchwick Rag",
+			"draft": false,
+			"note": "Jam-approved 2026-10-17"
+		},
+		{
+			"cat": "Radio",
+			"key": "radio.station.3",
+			"where": "Station name under the dial",
+			"text": "Gloria's Lullaby",
+			"draft": false,
+			"note": "Jam-approved 2026-10-17"
+		},
+		{
+			"cat": "Radio",
+			"key": "radio.gloria",
+			"where": "Firefly tooltip",
+			"text": "{gloria}. She powers the radio. She bites.",
+			"draft": true
+		},
+		{
+			"cat": "Radio",
+			"key": "radio.close",
+			"where": "Radio close button",
+			"text": "Done",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.prompt",
+			"where": "Bubble over Nib while the tutorial is not done",
+			"text": "Psst. {hero}. Over here.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.first.1",
+			"where": "First visit, line 1",
+			"text": "Welcome home, {hero}. Well. His home. Yours on paper, once the cabinet's full.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.first.2",
+			"where": "First visit, line 2",
+			"text": "Everything with his name on it went into the mountain with him. The monsters have been wearing it ever since.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.first.3",
+			"where": "First visit, line 3",
+			"text": "Bring it back, put it on his shelves, and the deed's yours. I'll stamp it. I love stamping.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.interrupt.1",
+			"where": "Run door clicked before the tutorial is done",
+			"text": "Whoa, whoa. Straight into {the_grumble}? Without a word from the professional?",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.interrupt.2",
+			"where": "Run door interrupt, offer",
+			"text": "First delve's on me. I'll walk you through it. What do you say?",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.interrupt.yes",
+			"where": "Interrupt choice: start the tutorial",
+			"text": "Show me how",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.interrupt.no",
+			"where": "Interrupt choice: decline",
+			"text": "I'll wing it",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.interrupt.no_reply",
+			"where": "After declining",
+			"text": "Just like him. Off you go. Try to come back with more than you left with.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.tutorial_done",
+			"where": "After the tutorial finishes, back in the cabin",
+			"text": "There. Practically a professional. Now go and fetch his things.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.idle.1",
+			"where": "Click Nib (rotating line 1)",
+			"text": "He used to sit in that chair and flip a coin for hours. Never lost a toss. Never explained it.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.idle.2",
+			"where": "Click Nib (rotating line 2)",
+			"text": "The map's wrong, by the way. He drew it from memory. His memory was mostly confidence.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.idle.3",
+			"where": "Click Nib (rotating line 3)",
+			"text": "If the radio stops, tap the glass. Gently. {gloria} bites.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.idle.4",
+			"where": "Click Nib (rotating line 4)",
+			"text": "Every piece is engraved: 'Property of B. {snatchwick}. If found, how dare you.'",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.idle.5",
+			"where": "Click Nib (rotating line 5)",
+			"text": "He tied rope ladders in every belly of the mountain. 'For emergencies.' He used them for lunch.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.idle.6",
+			"where": "Click Nib (rotating line 6)",
+			"text": "I'm not sentimental. I'm an executor. Executors don't cry. They file.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.portrait",
+			"where": "Click the small portrait",
+			"text": "That's him, the year he lost a duel to a hatstand. He'd want me to say 'won'.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.fire",
+			"where": "Click the fire",
+			"text": "Keep it lit. He said the cabin gets lonely.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.chair",
+			"where": "Click the hero in the chair",
+			"text": "His chair. Rocks on its own sometimes. Draughts. Definitely draughts.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.milestone.25",
+			"where": "Homecoming that crosses 25% of the cabinet",
+			"text": "A quarter of his shelves! He'd have thrown a party. Then knocked something over at it.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.milestone.50",
+			"where": "Homecoming that crosses 50% of the cabinet",
+			"text": "Halfway, {hero}. The cabin's starting to smell like him again. That's a compliment. Mostly.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.milestone.75",
+			"where": "Homecoming that crosses 75% of the cabinet",
+			"text": "Three quarters. I've started drafting the deed. In pencil. I'm not made of ink.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.home.loss.1",
+			"where": "Loss homecoming (random 1)",
+			"text": "Empty? Well. You came back. That's the part he never managed.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.home.loss.2",
+			"where": "Loss homecoming (random 2)",
+			"text": "The mountain keeps what it catches. You'll catch it back.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.home.loss.3",
+			"where": "Loss homecoming (random 3)",
+			"text": "Sit. Warm up. The Grumble isn't going anywhere. It's a mountain.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.home.win.1",
+			"where": "Win homecoming (random 1)",
+			"text": "Look at that! Home where it belongs!",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.home.win.2",
+			"where": "Win homecoming (random 2)",
+			"text": "Shelves, {hero}. Shelves!",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.home.win.3",
+			"where": "Win homecoming (random 3)",
+			"text": "He'd be insufferable about this. In a good way.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.home.new",
+			"where": "First NEW item flies to the hall",
+			"text": "That one's new! Off to the hall with it.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.home.nothing_new",
+			"where": "Win homecoming with no new items",
+			"text": "Nothing new, but a good haul's a good haul. His things like being held.",
+			"draft": true
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.next",
+			"where": "Dialogue box advance hint",
+			"text": "Next",
+			"draft": true
+		},
+		{
+			"cat": "Keyring",
+			"key": "keyring.1",
+			"where": "Key ring cutscene, Nib line 1",
+			"text": "Found them! Behind the biscuits. Where else?",
+			"draft": true
+		},
+		{
+			"cat": "Keyring",
+			"key": "keyring.2",
+			"where": "Key ring cutscene, Nib line 2",
+			"text": "Four keys, four doors. Let's see what he was hiding.",
+			"draft": true
+		},
+		{
+			"cat": "Keyring",
+			"key": "keyring.door.hall",
+			"where": "Key ring cutscene, as each door unlocks",
+			"text": "The Trophy Hall. His pride and joy. Mostly empty.",
+			"draft": true
+		},
+		{
+			"cat": "Keyring",
+			"key": "keyring.door.study",
+			"where": "Key ring cutscene, as each door unlocks",
+			"text": "The Study. Mind the left-hand drawer.",
+			"draft": true
+		},
+		{
+			"cat": "Keyring",
+			"key": "keyring.door.workshop",
+			"where": "Key ring cutscene, as each door unlocks",
+			"text": "The Workshop. Don't touch anything that ticks.",
+			"draft": true
+		},
+		{
+			"cat": "Keyring",
+			"key": "keyring.door.loft",
+			"where": "Key ring cutscene, as each door unlocks",
+			"text": "The Loft. His bed, his telescope, his letters. Go gently.",
+			"draft": true
+		},
+		{
+			"cat": "Keyring",
+			"key": "keyring.done",
+			"where": "Key ring cutscene, last line",
+			"text": "There. It's your cabin now. Well. Nearly.",
+			"draft": true
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.sign",
+			"where": "Wooden sign by the rope ladder",
+			"text": "{grandpa|poss} Emergency Exit",
+			"draft": true
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.cleared",
+			"where": "Rope exit headline",
+			"text": "Belly {n} cleared!",
+			"draft": true
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.sub",
+			"where": "Rope exit sub-line",
+			"text": "A knotted rope ladder, tagged with his name. Daylight, far above.",
+			"draft": true
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.climb",
+			"where": "Climb button / ladder hover",
+			"text": "Climb home",
+			"draft": true
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.climb_sub",
+			"where": "Climb hover sub-line",
+			"text": "Bring home everything you're holding.",
+			"draft": true
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.deeper",
+			"where": "Hole button / hole hover",
+			"text": "Delve deeper",
+			"draft": true
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.deeper_sub",
+			"where": "Hole hover sub-line",
+			"text": "Keep your sack. Belly {n} is waiting.",
+			"draft": true
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.peek",
+			"where": "Rope exit button: open the sack peek",
+			"text": "Peek in the sack",
+			"draft": true
+		},
+		{
+			"cat": "Sack",
+			"key": "sack.title",
+			"where": "Sack peek headline",
+			"text": "Peek in the sack",
+			"draft": true
+		},
+		{
+			"cat": "Sack",
+			"key": "sack.new_count",
+			"where": "Sack peek sub-line",
+			"text": "{n} new for the cabinet",
+			"draft": true
+		},
+		{
+			"cat": "Sack",
+			"key": "sack.none",
+			"where": "Sack peek when no new items are held",
+			"text": "Nothing new in here. The cabinet already has all of this.",
+			"draft": true
+		},
+		{
+			"cat": "Sack",
+			"key": "sack.hint",
+			"where": "Sack peek footer",
+			"text": "Only what you're holding when you get out comes home.",
+			"draft": true
+		},
+		{
+			"cat": "Sack",
+			"key": "sack.close",
+			"where": "Sack peek close",
+			"text": "Tie it shut",
+			"draft": true
+		},
+		{
+			"cat": "Pause",
+			"key": "pause.give_up",
+			"where": "Pause: abandon the run (counts as a loss)",
+			"text": "Give up",
+			"draft": true
+		},
+		{
+			"cat": "Pause",
+			"key": "pause.give_up_ask",
+			"where": "Pause: confirm abandon",
+			"text": "Give up? The sack comes home empty.",
+			"draft": true
+		},
+		{
+			"cat": "Pause",
+			"key": "pause.give_up_yes",
+			"where": "Pause: confirm abandon button",
+			"text": "Give up",
+			"draft": true
+		},
+		{
+			"cat": "Pause",
+			"key": "pause.give_up_no",
+			"where": "Pause: cancel abandon",
+			"text": "Keep going",
+			"draft": true
+		},
+		{
+			"cat": "Pause",
+			"key": "pause.peek",
+			"where": "Pause: open the sack peek",
+			"text": "Peek in the sack",
+			"draft": true
+		},
+		{
+			"cat": "Ending",
+			"key": "ending.p1",
+			"where": "Ending caption 1",
+			"text": "Every shelf full. Every curiosity home.",
+			"draft": true
+		},
+		{
+			"cat": "Ending",
+			"key": "ending.p2",
+			"where": "Ending caption 2",
+			"text": "\"By the powers vested in me by a dead goblin and a rubber stamp...\"",
+			"draft": true
+		},
+		{
+			"cat": "Ending",
+			"key": "ending.p3",
+			"where": "Ending caption 3",
+			"text": "\"...the cabin on {hill} belongs to his grandchild.\"",
+			"draft": true
+		},
+		{
+			"cat": "Ending",
+			"key": "ending.p4",
+			"where": "Ending caption 4",
+			"text": "{grandpa|poss} luck, it turns out, runs in the family.",
+			"draft": true
+		},
+		{
+			"cat": "Ending",
+			"key": "ending.nib",
+			"where": "Ending, Nib's last line",
+			"text": "He'd have liked you, {hero}. He'd never have said so. He'd have put it in a footnote.",
+			"draft": true
+		},
+		{
+			"cat": "Ending",
+			"key": "ending.deed",
+			"where": "Deed headline",
+			"text": "Deed to {hill}",
+			"draft": true
+		},
+		{
+			"cat": "Ending",
+			"key": "ending.continue",
+			"where": "Ending button (play continues)",
+			"text": "Keep delving",
+			"draft": true
+		},
+		{
+			"cat": "Defeat",
+			"key": "defeat.home",
+			"where": "Caught screen button (replaces 'Again'): starts the loss homecoming",
+			"text": "Limp home",
+			"draft": true
+		},
+		{
+			"cat": "Pause",
+			"key": "pause.master",
+			"where": "Radio/pause Master volume label. Live pause menu already showed this as hardcoded English; the snapshot Pixel expected this key to exist.",
+			"text": "Master",
+			"draft": true
+		},
+		{
+			"cat": "Pause",
+			"key": "pause.music",
+			"where": "Radio/pause Music volume label. Live pause menu already showed this as hardcoded English; the snapshot Pixel expected this key to exist.",
+			"text": "Music",
+			"draft": true
+		},
+		{
+			"cat": "Pause",
+			"key": "pause.sound",
+			"where": "Radio/pause SFX volume label. Live pause menu already showed this as hardcoded English (SFX); the snapshot Pixel expected this key to exist.",
+			"text": "SFX",
+			"draft": true
+		},
+		{
+			"cat": "Journal",
+			"key": "journal.will.replay",
+			"where": "Will tab: choice tag under Grandpa's portrait (left page). Replays the intro cutscene; returns to the Study. ADDED AFTER JAM REVIEW (Pixel, Nathan decision 5, 2026-10-17)",
+			"text": "Read it again",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "cabin.hot.drawer",
+			"where": "Hover label for the left-hand desk drawer (study), before it has ever been opened ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "The left-hand drawer",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "cabin.hot.drawer_ajar",
+			"where": "Hover label for the drawer after the ending (open a crack, glinting), until first opened ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "The left-hand drawer. It's open a crack.",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "cabin.hot.drawer_open",
+			"where": "Hover label for the drawer once it has been opened (click reopens the close-up) ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "{grandpa|poss} rock drawer",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "drawer.stuck.1",
+			"where": "Nib, clicking the stuck drawer before the ending (rotating line 1; the existing joke lines will.p5, keyring.door.study and letter_100 stay as they are) ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "It won't budge. He did say not to.",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "drawer.stuck.2",
+			"where": "Nib, clicking the stuck drawer before the ending (rotating line 2) ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "No keyhole. Just a brass plate and a lot of attitude.",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "drawer.stuck.3",
+			"where": "Nib, clicking the stuck drawer before the ending (rotating line 3) ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "Something heavy rattles in there. Rocks, by the sound. Very him.",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "drawer.hint",
+			"where": "Nib, once, back in the main room right after the ending (after the offscreen clunk cue) ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "Did you hear that clunk? It came from the study. His desk.",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "drawer.title",
+			"where": "Heading over the drawer close-up ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "The left-hand drawer",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "drawer.open.nib",
+			"where": "Nib, the first time the drawer close-up opens ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "Rocks. A whole drawer of rocks. Of course it was rocks.",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "drawer.note",
+			"where": "Hover label for the folded note in the drawer (click opens it in the letter card; text = lore.json drawer_note) ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "A note in his handwriting",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "drawer.geode",
+			"where": "Hover label for the lucky geode in the drawer ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "The one that is not a rock",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "drawer.take",
+			"where": "Choice tag on the drawer close-up while the lucky geode is still in the drawer ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "Put it on the mantel",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "drawer.close",
+			"where": "Choice tag: close the drawer close-up ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "Close the drawer",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "drawer.taken.nib",
+			"where": "Nib, after the lucky geode lands on the main-room mantel ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "On the mantel. Where he'd have put it, if he ever finished anything.",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "cabin.hot.geode",
+			"where": "Hover label for the lucky geode on the main-room mantel (bonus cosmetic) ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "The lucky geode",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "cabin.geode.line.1",
+			"where": "Nib, clicking the mantel geode (rotating line 1) ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "Still lucky. I checked.",
+			"draft": true
+		},
+		{
+			"cat": "Drawer",
+			"key": "cabin.geode.line.2",
+			"where": "Nib, clicking the mantel geode (rotating line 2) ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
+			"text": "He'd be insufferable about this. Good.",
+			"draft": true
+		},
+		{
+			"cat": "Combat",
+			"key": "combat.log",
+			"where": "Combat log button, closed",
+			"text": "Log"
+		},
+		{
+			"cat": "Combat",
+			"key": "combat.log_hide",
+			"where": "Combat log button, open",
+			"text": "Hide log"
+		},
+		{
+			"cat": "Combat",
+			"key": "combat.used",
+			"where": "Spent item overlay on a hand card",
+			"text": "USED"
+		},
+		{
+			"cat": "Title",
+			"key": "bucket.title",
+			"where": "New bucket reveal headline",
+			"text": "As you venture deeper, new Loot and Foes reveal themselves."
+		},
+		{
+			"cat": "Title",
+			"key": "bucket.sub",
+			"where": "New bucket reveal subtitle",
+			"text": "Hover a shadow to see what it is. From now on, these can show up in every dungeon."
+		},
+		{
+			"cat": "Title",
+			"key": "bucket.onward",
+			"where": "New bucket reveal continue",
+			"text": "Onward"
+		},
+		{
+			"cat": "Title",
+			"key": "bucket.loot",
+			"where": "New bucket reveal loot heading",
+			"text": "Loot"
+		},
+		{
+			"cat": "Title",
+			"key": "bucket.foes",
+			"where": "New bucket reveal foes heading",
+			"text": "Foes"
+		},
+		{
+			"cat": "Title",
+			"key": "bucket.hover",
+			"where": "New bucket reveal empty hover",
+			"text": "Hover a shadow."
+		},
+		{
+			"cat": "Inspect",
+			"key": "keyword.always",
+			"where": "Keyword tip title for Always",
+			"text": "Always"
+		},
+		{
+			"cat": "Inspect",
+			"key": "keyword.always_body",
+			"where": "Keyword tip body for Always",
+			"text": "cannot be changed in any other way"
+		},
+		{
+			"cat": "Tutorial",
+			"key": "tutorial.next",
+			"where": "How to Play continue button",
+			"text": "Next"
+		},
+		{
+			"cat": "Title",
+			"key": "challenge.pick_hover",
+			"where": "Challenge pick-two hover hint",
+			"text": "Pick one. Hover to read it."
 		}
 	],
 	"updated": "2026-10-10"

@@ -38,7 +38,8 @@
 		"mute_stone",
 		"cursed_scroll",
 		"danger_magnet",
-		"spider_egg"
+		"spider_egg",
+		"arrow_head"
 	],
 	"monsters": [
 		"wizard",

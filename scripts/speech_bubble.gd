@@ -1,7 +1,6 @@
 extends Control
 ## Comic balloon: sits up-right of the speaker, tail joins the oval and points at the sprite.
-
-const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
+## Keyword definitions (Always, Flee, …) stay on the hover inspect plate, not here.
 
 var _mouth: Vector2 = Vector2.ZERO
 var _text: String = ""
@@ -11,7 +10,6 @@ var _paper: Color = Color("f7ecda")
 var _font_sz := 21
 var _rad := 28.0
 var _body: RichTextLabel
-var _kw_tip: PanelContainer
 
 
 func setup() -> void:
@@ -31,10 +29,6 @@ func setup() -> void:
 	_body.add_theme_color_override("default_color", _ink)
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_body)
-	_kw_tip = KEYWORD_TIP.new()
-	add_child(_kw_tip)
-	_kw_tip.setup()
-	UxStyle.wire_def_hover(_body, _kw_tip)
 
 
 func present(mouth_global: Vector2, text: String, look: Dictionary = {}, prefer_left: bool = false, keep_left_of: float = -1.0) -> void:
@@ -59,9 +53,8 @@ func present(mouth_global: Vector2, text: String, look: Dictionary = {}, prefer_
 		_body.text = _text
 		_body.position = Vector2(22.0, 16.0)
 		_body.size = Vector2(size.x - 44.0, size.y - 28.0)
-		var has_kw: bool = _text.find("[url=") >= 0
-		_body.mouse_filter = Control.MOUSE_FILTER_STOP if has_kw else Control.MOUSE_FILTER_IGNORE
-		mouse_filter = Control.MOUSE_FILTER_STOP if has_kw else Control.MOUSE_FILTER_IGNORE
+		_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = true
 	queue_redraw()
 
@@ -70,8 +63,6 @@ func hide_speech() -> void:
 	visible = false
 	_text = ""
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if _kw_tip != null and _kw_tip.has_method("hide_def"):
-		_kw_tip.hide_def()
 
 
 func _plain_bb(raw: String) -> String:
