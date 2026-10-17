@@ -3,7 +3,7 @@ extends Node
 
 const OUT_DIR := "res://design/audit-shots/cursor"
 const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
-const TEXT_OUT_DIR := "res://design/cli-runs/01-font-revert"
+const TEXT_OUT_DIR := "res://design/cli-runs/02-fx-tooltips"
 const SAVE_PATH := "user://home_cabin.json"
 const SACK_OWNED := ["throwing_knife", "shield"]
 const SACK_NEW := ["net", "lantern", "caltrops", "dagger", "longbow"]
@@ -481,7 +481,8 @@ func _shot_intro() -> void:
 	var cabin = main.home_cabin
 	if cabin == null or cabin._cutscene == null:
 		_skip("13a_intro_panel1.png", "cabin or cutscene missing")
-		_skip("13b_intro_panel3.png", "cabin or cutscene missing")
+		_skip("13b_intro_panel2.png", "cabin or cutscene missing")
+		_skip("13c_intro_panel3.png", "cabin or cutscene missing")
 		return
 	cabin.intro_seen = false
 	cabin.nib_first_done = true
@@ -493,7 +494,8 @@ func _shot_intro() -> void:
 	, 3.0)
 	if not started:
 		_skip("13a_intro_panel1.png", "intro cutscene did not start")
-		_skip("13b_intro_panel3.png", "intro cutscene did not start")
+		_skip("13b_intro_panel2.png", "intro cutscene did not start")
+		_skip("13c_intro_panel3.png", "intro cutscene did not start")
 		return
 	await _wait(0.35)
 	_finish_cut_line(cabin._cutscene)
@@ -502,7 +504,17 @@ func _shot_intro() -> void:
 	if cabin._cutscene.panel_index != 0:
 		_skip("13a_intro_panel1.png", "intro was not on panel 1 (index 0)")
 	else:
-		await _capture("13a_intro_panel1.png", "play_intro(), full caption on panel 0")
+		await _capture("13a_intro_panel1.png", "play_intro(), full caption on panel 0, rain clipped inside the frame")
+	cabin._cutscene.set_held(false)
+	cabin._cutscene._show_panel(1, true)
+	cabin._cutscene._start_line()
+	_finish_cut_line(cabin._cutscene)
+	cabin._cutscene.set_held(true)
+	await _wait(0.12)
+	if cabin._cutscene.panel_index != 1:
+		_skip("13b_intro_panel2.png", "could not hold intro panel 2 (index 1)")
+	else:
+		await _capture("13b_intro_panel2.png", "intro panel 2, full-frame rain under the dialog")
 	cabin._cutscene.set_held(false)
 	cabin._cutscene._show_panel(2, true)
 	cabin._cutscene._line_i = 1
@@ -511,9 +523,9 @@ func _shot_intro() -> void:
 	cabin._cutscene.set_held(true)
 	await _wait(0.12)
 	if cabin._cutscene.panel_index != 2:
-		_skip("13b_intro_panel3.png", "could not hold intro panel 3 (index 2)")
+		_skip("13c_intro_panel3.png", "could not hold intro panel 3 (index 2)")
 	else:
-		await _capture("13b_intro_panel3.png", "same intro, panel 3 Nib line, reserved portrait/text/prompt")
+		await _capture("13c_intro_panel3.png", "same intro, panel 3 Nib line, reserved portrait/text/prompt")
 	cabin._cutscene.abort()
 	cabin.stop_story()
 
@@ -595,7 +607,9 @@ func _shot_combat_tooltips() -> void:
 		for id2 in main.items_by_id.keys():
 			iid = str(id2)
 			break
-	main.wheel = [main._make_monster(mid)]
+	main.wheel = []
+	for _i in 8:
+		main.wheel.append(main._make_monster(mid))
 	main.facing_index = 0
 	main.hotbar.clear()
 	main.hotbar.append(main._make_item(iid))

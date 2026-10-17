@@ -98,23 +98,24 @@ func _place() -> void:
 	var sz: Vector2 = get_combined_minimum_size()
 	sz.x = maxf(sz.x, 236.0)
 	var vp: Vector2 = get_viewport_rect().size
-	var pos: Vector2
+	var anchor := Rect2()
 	if _anchor != null and is_instance_valid(_anchor) and _anchor.visible:
-		var apos: Vector2 = _anchor.global_position
-		var asz: Vector2 = _anchor.size
-		if asz.x < 8.0:
-			asz = _anchor.get_combined_minimum_size()
-		pos = apos + Vector2(asz.x + 10.0, 0.0)
-		if pos.x + sz.x > vp.x - 8.0:
-			pos.x = apos.x
-			pos.y = apos.y + asz.y + 8.0
-		if pos.y + sz.y > vp.y - 8.0:
-			pos.y = maxf(8.0, apos.y + asz.y - sz.y)
-			if pos.x == apos.x:
-				pos.y = maxf(8.0, apos.y - sz.y - 8.0)
+		anchor = _anchor.get_global_rect()
+		if anchor.size.x < 8.0:
+			var asz: Vector2 = _anchor.get_combined_minimum_size()
+			anchor.size = asz
 	else:
-		pos = get_global_mouse_position() + Vector2(16.0, 18.0)
-	pos.x = clampf(pos.x, 8.0, maxf(8.0, vp.x - sz.x - 8.0))
-	pos.y = clampf(pos.y, 8.0, maxf(8.0, vp.y - sz.y - 8.0))
+		var mouse: Vector2 = get_global_mouse_position()
+		anchor = Rect2(mouse, Vector2(12, 12))
+	var gap := 10.0
+	var right := Vector2(anchor.end.x + gap, anchor.position.y)
+	var left := Vector2(anchor.position.x - sz.x - gap, anchor.position.y)
+	var below := Vector2(anchor.position.x, anchor.end.y + 8.0)
+	var above := Vector2(anchor.position.x, anchor.position.y - sz.y - 8.0)
+	var blocks: Array = [anchor]
+	var main: Node = get_tree().root.get_node_or_null("Main")
+	if main != null and main.has_method("_log_block_rects"):
+		blocks.append_array(main._log_block_rects())
+	var pos: Vector2 = preload("res://scripts/ui/tooltip_clamp.gd").place(vp, sz, [right, left, below, above], blocks)
 	global_position = pos
 	size = sz

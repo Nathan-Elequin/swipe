@@ -362,10 +362,13 @@ func _follow_hint() -> void:
 		return
 	_hint_tip.reset_size()
 	var sz: Vector2 = _hint_tip.get_combined_minimum_size()
-	var pos: Vector2 = get_global_mouse_position() + Vector2(16.0, 18.0)
 	var vp: Vector2 = get_viewport_rect().size
-	pos.x = clampf(pos.x, 8.0, maxf(8.0, vp.x - sz.x - 8.0))
-	pos.y = clampf(pos.y, 8.0, maxf(8.0, vp.y - sz.y - 8.0))
+	var log_r: Rect2 = get_global_rect()
+	var mouse: Vector2 = get_global_mouse_position()
+	var prefer := Vector2(log_r.position.x - sz.x - 12.0, mouse.y)
+	var below := Vector2(log_r.position.x - sz.x - 12.0, log_r.end.y + 12.0)
+	var above := Vector2(log_r.position.x - sz.x - 12.0, log_r.position.y - sz.y - 12.0)
+	var pos: Vector2 = preload("res://scripts/ui/tooltip_clamp.gd").place(vp, sz, [prefer, above, below], [log_r])
 	_hint_tip.global_position = pos
 	_hint_tip.size = sz
 

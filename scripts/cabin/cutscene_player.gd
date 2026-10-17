@@ -138,7 +138,7 @@ func _build() -> void:
 	_black.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_black.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_black)
-	_frame = KIT.tex_rect("cutscenes/panel_frame.png", Vector2(42, 32), Vector2(336, 196), 1)
+	_frame = KIT.tex_rect("cutscenes/panel_frame.png", Vector2(42, 32), Vector2(336, 196), 4)
 	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_frame)
 	_panel_a = TextureRect.new()
@@ -149,36 +149,42 @@ func _build() -> void:
 	_panel_a.size = Vector2(320, 180) * PX
 	_panel_a.pivot_offset = _panel_a.size * 0.5
 	_panel_a.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_panel_a.z_index = 2
+	_panel_a.z_index = 1
 	add_child(_panel_a)
 	_panel_b = _panel_a.duplicate() as TextureRect
 	_panel_b.modulate.a = 0.0
-	_panel_b.z_index = 3
+	_panel_b.z_index = 2
 	add_child(_panel_b)
 	_fx = Control.new()
+	_fx.name = "CutsceneFx"
 	_fx.position = _panel_a.position
 	_fx.size = _panel_a.size
 	_fx.clip_contents = true
+	_fx.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
 	_fx.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_fx.z_index = 4
+	_fx.z_index = 3
+	_fx.z_as_relative = true
+	_fx.set_meta("fx", true)
 	add_child(_fx)
 	_rain = KIT.anim_sprite(
 		["cutscenes/rain_f0.png", "cutscenes/rain_f1.png", "cutscenes/rain_f2.png"],
 		"r", 1000.0 / 90.0, true, Vector2.ZERO
 	)
 	_rain.visible = false
+	_track_fx(_rain)
 	_fx.add_child(_rain)
 	_drip = ColorRect.new()
 	_drip.color = Color("8cbc48")
 	_drip.size = Vector2(2, 8)
 	_drip.visible = false
 	_drip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_track_fx(_drip)
 	_fx.add_child(_drip)
 	_bar = Control.new()
 	_bar.name = "DialogBar"
 	_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_bar.clip_contents = true
-	_bar.z_index = 5
+	_bar.z_index = 6
 	add_child(_bar)
 	_bar_bg = Panel.new()
 	_bar_bg.name = "DialogPanel"
@@ -218,7 +224,7 @@ func _build() -> void:
 	_deed.size = Vector2(1280, 48)
 	_deed.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_deed.visible = false
-	_deed.z_index = 5
+	_deed.z_index = 6
 	add_child(_deed)
 	_skip = Button.new()
 	_skip.text = KIT.copy_text("intro.skip")
@@ -229,7 +235,7 @@ func _build() -> void:
 	_skip.add_theme_font_size_override("font_size", 20)
 	_skip.add_theme_color_override("font_color", KIT.MUTED)
 	_skip.add_theme_color_override("font_hover_color", KIT.CREAM)
-	_skip.z_index = 6
+	_skip.z_index = 7
 	_skip.pressed.connect(skip)
 	add_child(_skip)
 	gui_input.connect(_on_gui)
@@ -276,6 +282,7 @@ func _layout_dialog() -> void:
 	TEXT_RESERVE.settle(_bar)
 	_caption.fit()
 	_next.fit()
+	_sync_fx_clip()
 
 
 func _make_panels(p_kind: String) -> Array:
@@ -370,6 +377,7 @@ func _apply_fx(spec: Dictionary) -> void:
 			_rain.play("r")
 	if fx == "glint":
 		_spawn_glints()
+	_sync_fx_clip()
 	var sting: String = str(spec.get("sting", ""))
 	if sting != "" and sting != "cabin.ending_start":
 		KIT.cue(cabin.sfx if cabin else null, StringName(sting))
@@ -543,11 +551,44 @@ func _spawn_glints() -> void:
 			["plaque_glint_f0.png", "plaque_glint_f1.png", "plaque_glint_f2.png", "plaque_glint_f3.png"],
 			"g", 8.0, true, p
 		)
-		sp.z_index = 1
+		_track_fx(sp)
 		_fx.add_child(sp)
 		if sp.sprite_frames:
 			sp.play("g")
 		_glints.append(sp)
+
+
+func _track_fx(node: CanvasItem) -> void:
+	node.z_index = 0
+	node.z_as_relative = true
+	node.set_meta("fx", true)
+
+
+func _frame_hole() -> Rect2:
+	# panel_frame.png keeps an 8px-native clear window. Rain stays inside that hole.
+	var inset := 8.0 * PX
+	return Rect2(_frame.position + Vector2(inset, inset), _frame.size - Vector2(inset, inset) * 2.0)
+
+
+func _sync_fx_clip() -> void:
+	if _fx == null or _frame == null:
+		return
+	var hole := _frame_hole()
+	if _bar != null and _bar.visible:
+		var bar := Rect2(_bar.position, _bar.size)
+		if hole.intersects(bar):
+			hole.size.y = maxf(0.0, bar.position.y - hole.position.y)
+	if _skip != null and _skip.visible:
+		var skip_r := Rect2(_skip.position, _skip.size)
+		if hole.intersects(skip_r) and skip_r.end.y > hole.position.y:
+			var top: float = skip_r.end.y
+			var bottom: float = hole.end.y
+			hole.position.y = top
+			hole.size.y = maxf(0.0, bottom - top)
+	_fx.position = hole.position
+	_fx.size = hole.size
+	_fx.clip_contents = true
+	_fx.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
 
 
 func _clear_glints() -> void:
