@@ -7,4 +7,6 @@ Full pack notes live in:
 - `assets/dungeon/CREDITS.txt`
 - `assets/audio/CREDITS.txt`
 
+Audio pass 1: see `assets/audio/CREDITS.txt`.
+
 Short list: 0x72 DungeonTileset II, Kenney (Tiny Dungeon, UI, particles, interface/RPG audio), Jetrel, Shade, HomoHikka, Flare/AntumDeluge footgear, yd dungeon ambience.

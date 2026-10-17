@@ -1,13 +1,236 @@
-CC0 audio
+Swipe — audio credits / licence ledger
+======================================
+Every file in assets/audio/ is listed. Only CC0 1.0 sources and self-generated audio are used; no attribution is legally
+required for CC0, but we credit everyone anyway. Do NOT add non-commercial (NC), ND, or unclear-licence audio.
+CC0 1.0 deed: https://creativecommons.org/publicdomain/zero/1.0/
 
-Kenney.nl — Interface Sounds (UI clicks, confirms, whooshes)
-Kenney.nl — RPG Audio (hits, metal, cloth, doors, books)
-yd — Dungeon Ambience (music.ogg), OpenGameArt, CC0
-Kenney.nl — RPG Audio extras: door_slam.ogg (doorClose_4), metal_latch.ogg
+Pack / source index
+-------------------
+* A Small Fire Will Do (Calming Loop) — Trex0n (Cal McEachern) — CC0 1.0 (credit appreciated) — https://opengameart.org/content/a-small-fire-will-do-calming-loop
+* Cat Purr & Meow — Kerzoven — CC0 1.0 — https://opengameart.org/content/cat-purr-meow
+* Dungeon Ambience (OpenGameArt) — yd — CC0 1.0 — https://opengameart.org/content/dungeon-ambience
+* Dungeon Deep — Eldritch Grim — CC0 1.0 — https://opengameart.org/content/dungeon-deep-0
+* Fireplace Sound loop — PagDev — CC0 1.0 — https://opengameart.org/content/fireplace-sound-loop
+* Kenney — Casino Audio — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
+* Kenney — Impact Sounds — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+* Kenney — Interface Sounds — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+* Kenney — Music Jingles — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+* Kenney — RPG Audio — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+* RPG Battle Loop — iamoneabe — CC0 1.0 — https://opengameart.org/content/rpg-battle-loop
+* Swipe sfxgen (tools/audio/sfxgen.py) — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
 
-bleed.wav — original short drip for Bleed (Grief Jar). Not an Attack tell.
+Pre-existing files (unchanged by audio pass 1; credit per the original ledger)
+-----------------------------------------------------------------------------
+bong.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+click.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+click2.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+confirm.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+confirm_big.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+drop.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+error.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+error_big.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+glass.wav — Kenney — Interface Sounds / RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+hover.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+land.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+open.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+pluck.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+question.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+scratch.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+select.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+switch.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+whoosh.wav — Kenney — Interface Sounds — Kenney — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+block.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+block_heavy.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+book.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+chop.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cloth.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+creak.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+door_close.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+door_open.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+draw.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+hit.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+door_slam.ogg — Kenney — RPG Audio (doorClose_4) — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+metal_latch.ogg — Kenney — RPG Audio extras — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+bleed.wav — original drip made for Swipe — CC0 1.0. Not an Attack tell (Grief Jar).
+music.ogg — "Dungeon Ambience" (dungeon002.ogg) — yd — CC0 1.0 — https://opengameart.org/content/dungeon-ambience
 
-Combat bed: Ironchest Dungeon Loops (CC0) was not dropped in as music_combat.ogg
-(itch name-your-price download blocked). Spin/fight ducks the existing yd bed −2.5 dB.
+Audio pass 1 (2026-10-17) — new files
+-------------------------------------
+Processing for all: trimmed, pitch-shifted where noted, normalised (SFX active-RMS target, peak <= -1 dBFS; music to
+-20/-22 LUFS), encoded OGG Vorbis (SFX 48 kHz mono q4, music 44.1 kHz stereo q1.5). Rebuild: tools/audio/build_audio.py
 
-Credit is not required under CC0; names kept here so we remember the source.
+ui_hover_soft_a.ogg (0.04 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / ui_hover_soft_a.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+ui_hover_soft_b.ogg (0.04 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / ui_hover_soft_b.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+ui_tick.ogg (0.02 s)
+    <- Kenney — Interface Sounds / Audio/tick_002.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+ui_back.ogg (0.07 s)
+    <- Kenney — Interface Sounds / Audio/back_002.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+wheel_tick_a.ogg (0.05 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / wheel_tick_a.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+wheel_tick_b.ogg (0.04 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / wheel_tick_b.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+wheel_tick_c.ogg (0.05 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / wheel_tick_c.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+wheel_detent.ogg (0.16 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / wheel_detent.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+wheel_land_weak.ogg (0.26 s)
+    <- Kenney — Impact Sounds / Audio/impactWood_light_002.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+wheel_land_tough.ogg (0.48 s)
+    <- Kenney — Impact Sounds / Audio/impactPlank_medium_001.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+wheel_land_deadly.ogg (1.60 s)
+    <- Kenney — Impact Sounds / Audio/impactBell_heavy_001.ogg (pitch x0.8) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+atk_hit_light_1.ogg (0.28 s)
+    <- Kenney — Impact Sounds / Audio/impactPunch_medium_000.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+atk_hit_light_2.ogg (0.29 s)
+    <- Kenney — Impact Sounds / Audio/impactPunch_medium_001.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+atk_hit_light_3.ogg (0.36 s)
+    <- Kenney — Impact Sounds / Audio/impactPunch_medium_002.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+atk_hit_heavy_1.ogg (0.56 s)
+    <- Kenney — Impact Sounds / Audio/impactPunch_heavy_000.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+atk_hit_heavy_2.ogg (0.46 s)
+    <- Kenney — Impact Sounds / Audio/impactPunch_heavy_001.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+atk_slash.ogg (0.39 s)
+    <- Kenney — RPG Audio / Audio/knifeSlice.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+blk_gain_1.ogg (0.49 s)
+    <- Kenney — Impact Sounds / Audio/impactPlate_light_000.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+blk_gain_2.ogg (0.59 s)
+    <- Kenney — Impact Sounds / Audio/impactPlate_light_001.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+blk_gain_big.ogg (0.49 s)
+    <- Kenney — Impact Sounds / Audio/impactPlate_heavy_000.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+heal_sparkle.ogg (0.60 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / heal_sparkle.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+    <- Kenney — Impact Sounds / Audio/impactGlass_light_001.ogg (pitch x1.2, -10 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+defeat_slash.ogg (0.47 s)
+    <- Kenney — RPG Audio / Audio/knifeSlice2.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+smoke_poof.ogg (0.53 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / smoke_poof.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+echo_bell.ogg (0.69 s)
+    <- Kenney — Impact Sounds / Audio/impactBell_heavy_002.ogg (pitch x1.25) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+chaos_warble.ogg (1.14 s)
+    <- Kenney — Music Jingles / Audio/Pizzicato jingles/jingles_PIZZI03.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+egg_crack.ogg (0.25 s)
+    <- Kenney — Impact Sounds / Audio/impactGlass_light_003.ogg (pitch x0.75) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — Impact Sounds / Audio/impactSoft_medium_001.ogg (pitch x0.8, -3 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+egg_squelch.ogg (0.75 s)
+    <- Kenney — Impact Sounds / Audio/impactSoft_heavy_002.ogg (pitch x0.7) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+util_magnet.ogg (0.35 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / util_magnet.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+mon_hurt_deadly.ogg (0.18 s)
+    <- Kenney — Impact Sounds / Audio/impactMetal_heavy_000.ogg (pitch x0.85) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+mon_death_weak.ogg (0.51 s)
+    <- Kenney — Impact Sounds / Audio/impactSoft_heavy_000.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+mon_death_tough.ogg (0.34 s)
+    <- Kenney — Impact Sounds / Audio/impactWood_heavy_001.ogg (pitch x0.85) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+mon_death_deadly.ogg (0.86 s)
+    <- Kenney — Impact Sounds / Audio/impactBell_heavy_003.ogg (pitch x0.7) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+loot_coins.ogg (0.72 s)
+    <- Kenney — RPG Audio / Audio/handleCoins.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+loot_coins_small.ogg (0.30 s)
+    <- Kenney — RPG Audio / Audio/handleCoins2.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+player_oof_a.ogg (0.12 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / gob_oof_a.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+player_oof_b.ogg (0.12 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / gob_oof_b.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+status_petrify.ogg (0.83 s)
+    <- Kenney — Impact Sounds / Audio/impactMining_001.ogg (pitch x0.8) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+status_poison.ogg (0.57 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / status_poison.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+status_hypnotize.ogg (1.08 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / status_hypnotize.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+status_silence.ogg (0.25 s)
+    <- Kenney — Impact Sounds / Audio/impactBell_heavy_004.ogg (pitch x1.1) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+mon_leech_pulse.ogg (0.28 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / mon_leech_pulse.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+mon_hornet_buzz.ogg (0.49 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / mon_hornet_buzz.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+mon_cube_gulp.ogg (0.21 s)
+    <- Kenney — Impact Sounds / Audio/impactSoft_medium_003.ogg (pitch x0.6) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+mon_clockwork.ogg (0.37 s)
+    <- Kenney — RPG Audio / Audio/metalClick.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+nib_blip_01.ogg (0.07 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / nib_blip_01.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+nib_blip_02.ogg (0.07 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / nib_blip_02.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+nib_blip_03.ogg (0.07 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / nib_blip_03.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+nib_blip_04.ogg (0.07 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / nib_blip_04.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+nib_blip_05.ogg (0.07 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / nib_blip_05.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+nib_blip_06.ogg (0.07 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / nib_blip_06.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+nib_blip_07.ogg (0.07 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / nib_blip_07.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+nib_blip_08.ogg (0.07 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / nib_blip_08.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+monster_blip_01.ogg (0.10 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / monster_blip_01.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+monster_blip_02.ogg (0.10 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / monster_blip_02.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+monster_blip_03.ogg (0.10 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / monster_blip_03.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+monster_blip_04.ogg (0.10 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / monster_blip_04.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+bucket_open.ogg (0.94 s)
+    <- Kenney — Casino Audio / Audio/cards-pack-open-1.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
+card_place_1.ogg (0.69 s)
+    <- Kenney — Casino Audio / Audio/card-place-1.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
+card_place_2.ogg (0.45 s)
+    <- Kenney — Casino Audio / Audio/card-place-2.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
+card_place_3.ogg (0.88 s)
+    <- Kenney — Casino Audio / Audio/card-place-3.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
+card_slide.ogg (0.60 s)
+    <- Kenney — Casino Audio / Audio/card-slide-1.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
+card_shove.ogg (0.77 s)
+    <- Kenney — Casino Audio / Audio/card-shove-1.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
+cabin_step_1.ogg (0.25 s)
+    <- Kenney — Impact Sounds / Audio/footstep_wood_000.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cabin_step_2.ogg (0.25 s)
+    <- Kenney — Impact Sounds / Audio/footstep_wood_001.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cabin_step_3.ogg (0.25 s)
+    <- Kenney — Impact Sounds / Audio/footstep_wood_002.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cabin_step_4.ogg (0.25 s)
+    <- Kenney — Impact Sounds / Audio/footstep_wood_003.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+cabin_sack.ogg (0.35 s)
+    <- Kenney — RPG Audio / Audio/dropLeather.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+    <- Kenney — RPG Audio / Audio/handleCoins2.ogg (pitch x0.95, -4 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cabin_sit.ogg (0.35 s)
+    <- Kenney — Impact Sounds / Audio/impactWood_medium_000.ogg (pitch x0.9, -2 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — RPG Audio / Audio/creak3.ogg (-3 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cabin_rock_1.ogg (0.65 s)
+    <- Kenney — RPG Audio / Audio/creak1.ogg (pitch x0.9) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cabin_rock_2.ogg (0.84 s)
+    <- Kenney — RPG Audio / Audio/creak2.ogg (pitch x0.9) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cabin_rock_3.ogg (0.33 s)
+    <- Kenney — RPG Audio / Audio/creak3.ogg (pitch x0.9) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+cabin_trophy.ogg (0.40 s)
+    <- Kenney — Impact Sounds / Audio/impactPlank_medium_002.ogg (pitch x1.1, -2 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / cabin_glint.wav (-4 dB layer) — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+cabin_glint.ogg (0.35 s)
+    <- Swipe sfxgen (tools/audio/sfxgen.py) / cabin_glint.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
+cabin_cat_mew.ogg (1.92 s)
+    <- Cat Purr & Meow / cat_softmew.wav — Kerzoven — CC0 1.0 — https://opengameart.org/content/cat-purr-meow
+cabin_cat_mewpurr.ogg (1.39 s)
+    <- Cat Purr & Meow / cat_mewpurr.wav — Kerzoven — CC0 1.0 — https://opengameart.org/content/cat-purr-meow
+cabin_cat_purr_loop.ogg (4.80 s)
+    <- Cat Purr & Meow / cat_purrsleepy_loop.wav — Kerzoven — CC0 1.0 — https://opengameart.org/content/cat-purr-meow
+cabin_fire_loop.ogg (12.00 s)
+    <- Fireplace Sound loop / fire.wav — PagDev — CC0 1.0 — https://opengameart.org/content/fireplace-sound-loop
+sting_deadly.ogg (0.47 s)
+    <- Kenney — Music Jingles / Audio/Hit jingles/jingles_HIT06.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+sting_bucket.ogg (0.95 s)
+    <- Kenney — Music Jingles / Audio/Pizzicato jingles/jingles_PIZZI02.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+sting_victory.ogg (0.80 s)
+    <- Kenney — Music Jingles / Audio/Pizzicato jingles/jingles_PIZZI10.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+sting_clear.ogg (0.80 s)
+    <- Kenney — Music Jingles / Audio/Pizzicato jingles/jingles_PIZZI15.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+sting_defeat.ogg (0.83 s)
+    <- Kenney — Music Jingles / Audio/Sax jingles/jingles_SAX01.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+music_combat.ogg (59.08 s)
+    <- RPG Battle Loop / rbl_0.mp3 — iamoneabe — CC0 1.0 — https://opengameart.org/content/rpg-battle-loop
+music_deadly.ogg (25.90 s)
+    <- Dungeon Deep / dungeon_deep.mp3 — Eldritch Grim — CC0 1.0 — https://opengameart.org/content/dungeon-deep-0
+music_cabin.ogg (64.00 s)
+    <- A Small Fire Will Do (Calming Loop) / a_small_fire_will_do.wav — Trex0n (Cal McEachern) — CC0 1.0 (credit appreciated) — https://opengameart.org/content/a-small-fire-will-do-calming-loop
