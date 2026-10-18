@@ -1,0 +1,15 @@
+{
+  "_schema": "A size list is a JSON array of entries, or an object like this one with an assets array (any other keys are notes and are ignored). Each entry is {path, native:[w,h], shipped:[w,h]}. path is repo-relative; res:// and backslashes are accepted. check_ui_pngs.py requires the PNG IHDR size to equal shipped. native is the 1x size for the art list and is not compared. These two entries use the file's measured IHDR for both fields.",
+  "assets": [
+    {
+      "path": "assets/ui/map/route_dot_idle.png",
+      "native": [8, 8],
+      "shipped": [8, 8]
+    },
+    {
+      "path": "assets/ui/button/btn_plank_normal.png",
+      "native": [128, 64],
+      "shipped": [128, 64]
+    }
+  ]
+}
