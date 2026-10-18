@@ -1,0 +1,29 @@
+---
+description: Swipe visual tasks run from a handoff folder
+alwaysApply: true
+---
+
+# Swipe design loop
+
+If `design/handoff/<task-id>/TASK.md` exists for this run, read it before editing. It is the assignment.
+
+## Ownership
+- Pixel: `design/visual/**`, `design/handoff/**/TASK.md`, spec-named `assets/**`.
+- Agent: `scripts/**`, `scenes/**`, `.import`, `REPORT.md`.
+- Do not overwrite PNG bytes. Stay inside the TASK.md "Files you may touch" list.
+
+## Spec
+- Numbers live in `design/visual/layouts/<id>.layout.json`. JSON wins over the screen markdown; flag the disagreement in REPORT.md.
+- Palette, type roles, outline widths, and nine-slices belong in `design/visual/`. A layout may name a role. Do not invent a hex or a size.
+- Set each built node's `name` to its JSON `id`.
+- Two readings that would change a rect, number, state, target, or owned file: write questions in `REPORT.md` (tag [Pixel]/[Jam]/[Nathan]), status `BLOCKED`, and stop.
+
+## Do not
+- No new font files and no generated bitmap fonts. Use `ThemeDB.fallback_font` only (until a tokens file under `design/visual/` names a font).
+- No player-facing copy edits. Jam owns `data/player-copy.json`. No "Tier" or "owner" in UI text.
+- No stretching, hiding, or recoloring art to fake a missing asset. Ask in REPORT.md with path, native size, 4× nearest, pivot, loop, palette.
+- No new dependencies, no paid or non-CC0 assets, no save-format changes, no merges, no pushes.
+- Never commit to `cabin-overhaul-1` directly; work only in the task worktree.
+
+## Done
+Commit each step as `<task-id>(n): …`. Run the named shots (`-- --shots=`) and the text and layout audits; one Godot process at a time. Write `REPORT.md`: status, checkpoint, commits, files, shots, audit summary, deviations, questions, what Nathan should look at. Do not grade "looks like the mockup".
