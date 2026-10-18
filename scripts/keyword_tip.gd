@@ -69,6 +69,10 @@ func show_def(msg: String, anchor: Control = null, id: String = "") -> void:
 		_title.text = COPY.text("keyword.always", "Always")
 		_title.visible = true
 		_lab.text = COPY.text("keyword.always_body", "cannot be changed in any other way")
+	elif _kind == "swap":
+		_title.text = COPY.text("keyword.swap", "Swap")
+		_title.visible = true
+		_lab.text = COPY.text("keyword.swap_body", "exchange for a random Item of the same Tier")
 	else:
 		_title.text = ""
 		_title.visible = false

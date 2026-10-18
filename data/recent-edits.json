@@ -20,7 +20,7 @@
 		"item:left_bracer": 1792136735.68746,
 		"item:measuring_tape": 1792135714.63887,
 		"item:mirror_shard": 1792136735.68746,
-		"item:mute_stone": 1792136735.68746,
+		"item:mute_stone": 1792452000.0,
 		"item:net": 1792230000.0,
 		"item:pocketwatch": 1792193151.0,
 		"item:quiet_bell": 1792136735.68746,
@@ -29,7 +29,7 @@
 		"item:spiked_flail": 1792194900.0,
 		"monster:anvil": 1792136735.68746,
 		"monster:bandit": 1791981000.0,
-		"monster:basilisk": 1792136735.68746,
+		"monster:basilisk": 1792430000.0,
 		"monster:beggar": 1792178915.0,
 		"monster:berserker": 1792136735.68746,
 		"monster:cleric": 1791944780.0,
@@ -61,8 +61,22 @@
 		"monster:plague_doctor": 1792320000.0,
 		"item:ale_flagon": 1792400000.0,
 		"monster:hired_hand": 1792400000.0,
-		"monster:hydra": 1792410000.0
+		"monster:hydra": 1792410000.0,
+		"item:napalm": 1792420000.0,
+		"item:lucky_nickel": 1792428000.0,
+		"monster:zombie": 1792430000.0,
+		"monster:triclops": 1792434000.0,
+		"monster:shambling_mound": 1792435200.0,
+		"item:double_buckler": 1792436400.0,
+		"monster:almighty_worm": 1792437600.0,
+		"monster:cultist": 1792438800.0,
+		"item:blood_pact": 1792438800.0,
+		"monster:bushido": 1792440000.0,
+		"item:jar_o_grease": 1792452000.0,
+		"monster:shark": 1792452000.0,
+		"monster:death_bell": 1792462800.0,
+		"item:toll": 1792462800.0
 	},
 	"id": "boss-rush-recent-edits",
-	"updated": "2026-10-18T00:25:00"
+	"updated": "2026-10-18T03:00:00"
 }

@@ -77,6 +77,12 @@
       "pocketwatch": {
         "use": "status.hypnotize"
       },
+      "double_buckler": {
+        "use": "blk.gain"
+      },
+      "almighty_worm": {
+        "ask": "mon.merchant_ask"
+      },
       "_note": "Ids are best guesses from the audit; Cursor must verify against data/catalog.json and drop/rename unknown keys.",
       "danger_magnet": {
         "use": "util.magnet"
@@ -86,6 +92,23 @@
       },
       "mute_stone": {
         "use": "chaos.transform"
+      },
+      "jar_o_grease": {
+        "use": "heal.sparkle"
+      },
+      "blood_pact": {
+        "use": "egg.hurt"
+      },
+      "death_bell": {
+        "spawn": "egg.lay",
+        "tick": "chaos.echo_bell",
+        "ring": "chaos.echo_bell"
+      },
+      "toll": {
+        "tick": "chaos.echo_bell"
+      },
+      "shark": {
+        "second_swing": "mon.hornet_buzz"
       },
       "magnet": {
         "use": "util.magnet"
@@ -156,11 +179,26 @@
       },
       "kobold_trapper": {},
       "basilisk": {},
+      "zombie": {},
+      "triclops": {},
+      "shambling_mound": {
+        "second_swing": "mon.hornet_buzz"
+      },
       "_note": "Keys = monster ids; confirm against MONSTER_SPECIAL (main.gd:126–160).",
       "no_atk_dmg": {},
       "last_hp": {},
       "double_hit": {
         "second_swing": "mon.hornet_buzz"
+      },
+      "self_deconstruct": {
+        "second_swing": "mon.hornet_buzz"
+      },
+      "blood_thresh": {
+        "second_swing": "mon.hornet_buzz"
+      },
+      "patient_disarm": {},
+      "blood_pact": {
+        "special": "egg.lay"
       },
       "buff_hp": {},
       "hp_spin": {},
@@ -199,6 +237,10 @@
       "petrify": {
         "special": "status.petrify"
       },
+      "petrify_gaze": {
+        "special": "status.petrify"
+      },
+      "triple_threat": {},
       "interrupt": {
         "special": "mon.harpy_poke"
       },

@@ -3494,6 +3494,22 @@
 			"text": "Memories",
 			"draft": true,
 			"where": ""
+		},
+		{
+			"cat": "Inspect",
+			"key": "keyword.swap",
+			"where": "Keyword tip title for Swap",
+			"text": "Swap",
+			"author_lock": true,
+			"locked_at": "2026-10-18"
+		},
+		{
+			"cat": "Inspect",
+			"key": "keyword.swap_body",
+			"where": "Keyword tip body for Swap",
+			"text": "exchange for a random Item of the same Tier",
+			"author_lock": true,
+			"locked_at": "2026-10-18"
 		}
 	],
 	"updated": "2026-10-17"

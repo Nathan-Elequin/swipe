@@ -45,7 +45,13 @@
 		"bag_of_marbles",
 		"marble",
 		"hex",
-		"ale_flagon"
+		"ale_flagon",
+		"napalm",
+		"lucky_nickel",
+		"double_buckler",
+		"blood_pact",
+		"jar_o_grease",
+		"toll"
 	],
 	"monsters": [
 		"wizard",
@@ -87,7 +93,15 @@
 		"prism",
 		"plague_doctor",
 		"hired_hand",
-		"hydra"
+		"hydra",
+		"zombie",
+		"triclops",
+		"shambling_mound",
+		"almighty_worm",
+		"cultist",
+		"bushido",
+		"shark",
+		"death_bell"
 	],
 	"notes": "Full roster minus retired/hidden rows (Dagger, Bandana, old Helmet) and Cursed Scroll. Commander + Lich apply last."
 }

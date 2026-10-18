@@ -126,6 +126,12 @@ const ITEM_PNG := {
 	"marble": "res://assets/dungeon/items/marble.png",
 	"hex": "res://assets/dungeon/items/hex.png",
 	"ale_flagon": "res://assets/dungeon/items/ale_flagon.png",
+	"napalm": "res://assets/dungeon/items/napalm.png",
+	"lucky_nickel": "res://assets/dungeon/items/lucky_nickel.png",
+	"double_buckler": "res://assets/dungeon/items/double_buckler.png",
+	"blood_pact": "res://assets/dungeon/items/blood_pact.png",
+	"jar_o_grease": "res://assets/dungeon/items/jar_o_grease.png",
+	"toll": "res://assets/dungeon/items/toll.png",
 }
 
 const MONSTER_PNG := {
@@ -169,6 +175,14 @@ const MONSTER_PNG := {
 	"plague_doctor": "res://assets/dungeon/extra/plague_doctor.png",
 	"hired_hand": "res://assets/dungeon/extra/hired_hand.png",
 	"hydra": "res://assets/dungeon/extra/hydra.png",
+	"zombie": "res://assets/dungeon/extra/zombie.png",
+	"triclops": "res://assets/dungeon/extra/triclops.png",
+	"shambling_mound": "res://assets/dungeon/extra/shambling_mound.png",
+	"almighty_worm": "res://assets/dungeon/extra/almighty_worm.png",
+	"cultist": "res://assets/dungeon/extra/cultist.png",
+	"bushido": "res://assets/dungeon/extra/bushido.png",
+	"shark": "res://assets/dungeon/extra/shark.png",
+	"death_bell": "res://assets/dungeon/extra/death_bell.png",
 }
 
 var atlas: Texture2D

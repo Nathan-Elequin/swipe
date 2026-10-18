@@ -170,11 +170,11 @@ const ALWAYS := "#E8C36A"
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
 static func call_color(special_id: String) -> Color:
 	match special_id:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm":
 			return GOLD
-		"no_atk_dmg", "double_hit", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward":
+		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh":
 			return CALL_ATK
-		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead":
+		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact":
 			return CALL_HP
 		"kill_scale", "atk_eq_hp":
 			return CALL_VAR
@@ -214,6 +214,8 @@ static func def_id_of(piece: String) -> String:
 		return "spin"
 	if low == "always":
 		return "always"
+	if low == "swap" or low.begins_with("swap"):
+		return "swap"
 	return ""
 
 
@@ -225,6 +227,8 @@ static func def_of(id: String) -> String:
 			return "The wheel lands on a random living monster."
 		"always":
 			return "Always: cannot be changed in any other way"
+		"swap":
+			return "Swap: exchange for a random Item of the same Tier"
 		_:
 			return ""
 
@@ -628,6 +632,8 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low.begins_with("flee"):
 		return gold
 	if low.begins_with("spin"):
+		return gold
+	if low == "swap" or low.begins_with("swap"):
 		return gold
 	return ""
 

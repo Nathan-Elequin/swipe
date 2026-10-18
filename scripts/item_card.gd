@@ -295,7 +295,15 @@ func set_echo_mark(tex: Texture2D) -> void:
 	_echo_mark.modulate = Color(1, 1, 1, 0.42)
 
 
-func set_petrified(on: bool) -> void:
+func set_num_color(c: Color) -> void:
+	_num_col = c
+	if _num:
+		_num.add_theme_color_override("font_color", c)
+	if _ghost:
+		_ghost.add_theme_color_override("font_color", c)
+
+
+func set_petrified(on: bool, dummy: bool = false) -> void:
 	if _stone == null:
 		_stone = TextureRect.new()
 		_stone.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -304,10 +312,14 @@ func set_petrified(on: bool) -> void:
 		_stone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		_stone.texture_filter = TEXTURE_FILTER_NEAREST
 		_stone.texture = load("res://assets/dungeon/ui/petrify_stone.png") as Texture2D
-		_stone.modulate = Color(0.82, 0.78, 0.70, 0.78)
 		add_child(_stone)
 	_stone.visible = on
-	modulate = Color(0.58, 0.56, 0.52, 1.0) if on else Color.WHITE
+	if dummy:
+		_stone.modulate = Color(0.82, 0.78, 0.70, 0.55)
+		modulate = Color.WHITE
+	else:
+		_stone.modulate = Color(0.82, 0.78, 0.70, 0.78)
+		modulate = Color(0.58, 0.56, 0.52, 1.0) if on else Color.WHITE
 
 
 func set_title(text: String) -> void:

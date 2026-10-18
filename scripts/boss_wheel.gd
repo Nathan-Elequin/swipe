@@ -88,6 +88,13 @@ var aura_index: int = -1:
 	set(v):
 		aura_index = v
 		queue_redraw()
+var threat_indices: Array[int] = []:
+	set(v):
+		var typed: Array[int] = []
+		for x in v:
+			typed.append(int(x))
+		threat_indices = typed
+		queue_redraw()
 var hub_on: bool = false
 var hub_flash: float = 0.0:
 	set(v):
@@ -799,6 +806,8 @@ func _process(delta: float) -> void:
 		if not spinning:
 			if i == selected_index and facing_index < 0:
 				want = 0.62 + 0.28 * sin(_glow_t * 5.0)
+			elif threat_indices.has(i) and facing_index < 0:
+				want = 0.72 + 0.28 * sin(_glow_t * 7.0)
 			elif i == hover_index:
 				want = 0.7
 			elif i == facing_index:
@@ -1300,6 +1309,7 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 	var is_face: bool = (not spinning) and i == facing_index
 	var is_hover: bool = i == hover_index
 	var is_sel: bool = (not spinning) and i == selected_index and facing_index < 0
+	var is_threat: bool = (not spinning) and facing_index < 0 and threat_indices.has(i)
 	var lift: float = _lift_of(i)
 	var dir: Vector2 = Vector2.from_angle((a0 + a1) * 0.5)
 	var origin: Vector2 = c + dir * (lift * 8.0) + _slay_push(i)
@@ -1322,9 +1332,9 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 	if is_face:
 		rim = FACE_RIM
 		rw = 5.2
-	elif is_sel:
+	elif is_sel or is_threat:
 		rim = FACE_RIM
-		rw = 6.4
+		rw = 6.4 if is_sel else 7.2
 	elif highlight == "place" and str(s.get("kind", "")) == "empty":
 		rim = PLACE_RIM
 		rw = 2.5
@@ -1384,10 +1394,11 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	var port_pos: Vector2 = sp["port"]
 	var plate_r: float = float(sp.get("plate_r", 36.0))
 	_draw_tier_plate(port_pos, plate_r, s)
-	if i == aura_index:
+	if i == aura_index or threat_indices.has(i):
 		var glow := Color("e8c36a")
-		glow.a = 0.42 + 0.18 * absf(sin(_glow_t * 8.0))
-		draw_circle(port_pos, plate_r + 14.0, glow)
+		glow.a = 0.50 + 0.28 * absf(sin(_glow_t * 9.0))
+		draw_circle(port_pos, plate_r + 16.0, glow)
+		draw_arc(port_pos, plate_r + 20.0, 0.0, TAU, 28, Color(1.0, 0.90, 0.35, 0.45 + 0.35 * absf(sin(_glow_t * 9.0))), 3.5, true)
 	if tex_portraits.has(pid) and i != portrait_away:
 		_draw_portrait_window(port_pos, plate_r, s, tex_portraits[pid], 0.0, dim)
 	if bool(s.get("rage_fire", false)):
@@ -1761,11 +1772,11 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 
 func _ability_icon_color(sid: String) -> Color:
 	match sid:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm":
 			return Color("e8c36a")
-		"no_atk_dmg", "double_hit", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward":
+		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh":
 			return Color("e07040")
-		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead":
+		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact":
 			return Color("e8a0a0")
 		"kill_scale", "atk_eq_hp":
 			return Color("c9a0ff")
@@ -1883,15 +1894,17 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 		dc.a = blink
 		_draw_bold_num(font, pos + Vector2(0.0, -rad * 1.15), str(atk_next), 18 if big else 15, dc)
 		draw_string(font, pos + Vector2(rad * 0.55, -rad * 0.7), _delta_text(atk_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
-	if str(s.get("card_id", "")) == "hornet_swarm":
+	var cid: String = str(s.get("card_id", ""))
+	if cid == "hornet_swarm" or cid == "shambling_mound" or cid == "shark":
 		var inward: Vector2 = (_center() - pos)
 		if inward.length() < 1.0:
 			inward = Vector2(0, 1)
 		var mark: Vector2 = pos + inward.normalized() * (rad + 10.0)
+		var tag: String = "∞" if cid == "shambling_mound" else ("↻" if cid == "shark" else "×2")
 		var badge := Rect2(mark - Vector2(16.0, 8.0), Vector2(32.0, 16.0))
 		draw_rect(badge, Color("1c120ce8"), true)
 		draw_rect(badge, Color("e8c36a"), false, 1.5)
-		_draw_outlined_string(font, mark + Vector2(0.0, 4.0), "×2", 12, Color("e8c36a"), Color("1c120c"))
+		_draw_outlined_string(font, mark + Vector2(0.0, 4.0), tag, 12, Color("e8c36a"), Color("1c120c"))
 
 
 func _draw_atk_badge(pos: Vector2, rad: float, fill: Color) -> void:
