@@ -5,8 +5,8 @@ signal closed
 signal replay_intro
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
+const COPY := preload("res://scripts/player_copy.gd")
 const PX := 4.0
-const GRADE := {1: "journal.weak", 2: "journal.tough", 3: "journal.deadly"}
 
 var cabin
 var extra: Dictionary = {}
@@ -187,7 +187,7 @@ func _refresh() -> void:
 			cabin.mark_bestiary_read(id)
 		_left_name.text = str(row.get("name", id)) if met else KIT.copy_text("journal.unmet")
 		var tier: int = clampi(int(row.get("tier", 1)), 1, 3)
-		_left_grade.text = KIT.copy_text(str(GRADE.get(tier, "journal.weak"))) if met else ""
+		_left_grade.text = COPY.tier_name(tier) if met else ""
 		_left_ability.text = KIT.named(str(row.get("ability", ""))) if met else ""
 		var entry: Dictionary = lore.get("monsters", {}).get(id, {})
 		var hint: String = KIT.copy_text("journal.unmet_hint")

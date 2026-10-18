@@ -2,7 +2,7 @@ extends RefCounted
 class_name ShotCli
 ## Command-line shot runner args and save backup. Ships in exports so a leftover marker can be restored. The runner itself never starts when OS.has_feature("template") is true.
 
-const TEXT_TARGETS := "13a_intro_panel1,13b_intro_panel2,13c_intro_panel3,text_combat_tips,text_item_hand"
+const TEXT_TARGETS := "13a_intro_panel1,13b_intro_panel2,13c_intro_panel3,text_combat_tips,text_item_hand,40_itch_midfight,41_itch_draft_gate,42_itch_boss"
 const DEFAULT_OUT := "res://design/audit-shots/cursor"
 const SAVE := "user://home_cabin.json"
 const BACKUP_DIR := "user://_harness_backup"

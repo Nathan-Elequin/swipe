@@ -147,7 +147,7 @@ const MONSTER_SPECIAL := {
 	"gargoyle": {"id": "petrify", "text": "I petrify your highest Attack item until the next Spin."},
 	"harpy": {"id": "interrupt", "text": "I attack you when we meet, and after each item you use."},
 	"kobold_trapper": {"id": "item_swings", "text": "I attack an extra time for each item you use this fight."},
-	"clockwork_knight": {"id": "split_t2", "text": "If I live, I leave two random Tier 2 monsters in my place."},
+	"clockwork_knight": {"id": "split_t2", "text": "If I live, I leave two Tough monsters in my place."},
 	"basilisk": {"id": "no_keep", "text": "While facing me, you cannot Gain or Keep any Items."},
 	"hollow": {"id": "even_twice", "text": "Even Attack and even Block happen twice against me."},
 	"beggar": {"id": "left_atk", "text": "I gain Atk equal to your leftmost Atk Item"},
@@ -1479,7 +1479,7 @@ func _fill_dev_grids() -> void:
 
 
 func _dev_tile(id: String, name: String, rarity: String, tier: int, is_mon: bool) -> Button:
-	var sub: String = "Tier %s" % tier if tier > 0 else ""
+	var sub: String = PLAYER_COPY.tier_name(tier) if tier > 0 else ""
 	if rarity != "" and rarity != "starter":
 		sub = "%s · %s" % [rarity, sub] if sub != "" else rarity
 	var b := Button.new()
@@ -3060,7 +3060,7 @@ func _challenge_run_opening_drafts() -> void:
 		var who: String = str(row.get("name", "Monster"))
 		await _challenge_offer_pick(
 			PLAYER_COPY.text("challenge.pick_open", "Choose your loot"),
-			"%s  ·  Tier %s" % [who, t],
+			"%s  ·  %s" % [who, PLAYER_COPY.tier_name(t)],
 			t,
 			true
 		)
@@ -3258,7 +3258,7 @@ func _challenge_resolve_holes(from: int) -> void:
 			sfx.play("bong", -14.0, 1.1)
 		await _challenge_offer_pick(
 			PLAYER_COPY.text("challenge.pick_loot", "Loot"),
-			"%s  ·  Tier %s" % [who, t],
+			"%s  ·  %s" % [who, PLAYER_COPY.tier_name(t)],
 			t,
 			true
 		)
@@ -3542,7 +3542,7 @@ func _draw_offer(kind: String) -> void:
 			if iid != "":
 				pending_item = _make_item(iid)
 				_stamp_pack(pending_item, _pack_tier_for(iid, items_by_id, int(pending_monster.get("pack_tier", 1))), "starter")
-		_log("on_draft", "Tier %s  %s" % [int(pending_monster.get("pack_tier", 1)), pending_monster.get("name", "?")])
+		_log("on_draft", "%s  %s" % [PLAYER_COPY.tier_name(int(pending_monster.get("pack_tier", 1))), pending_monster.get("name", "?")])
 		if not pending_item.is_empty():
 			_log("on_draft", "pack item  %s" % pending_item.get("name", "?"))
 		if sfx:
@@ -3560,7 +3560,7 @@ func _draw_offer(kind: String) -> void:
 	if iid2 != "":
 		pending_item = _make_item(iid2)
 		_stamp_pack(pending_item, pack_t, "draft")
-	_log("on_draft", "Tier %s lure" % pack_t)
+	_log("on_draft", "%s lure" % PLAYER_COPY.tier_name(pack_t))
 	if not pending_item.is_empty():
 		_log("on_draft", "relic  %s" % pending_item.get("name", "?"))
 	if sfx:
@@ -3582,7 +3582,8 @@ func _present_gate(passes: int) -> void:
 	if draft_gate == null:
 		return
 	_offer_card = null
-	draft_gate.present_mystery(pending_item, _pack_tier_now(), _offer_tex(), passes)
+	var guard_tier: int = _pack_tier_now()
+	draft_gate.present_mystery(pending_item, guard_tier, _offer_tex(), passes)
 	if not pending_item.is_empty():
 		var card: Control = _spawn_item_card(pending_item, false)
 		card.picked.connect(func() -> void:
@@ -3602,7 +3603,7 @@ func _present_gate(passes: int) -> void:
 			)
 		draft_gate.mount_relic(card)
 		_offer_card = card
-		_refresh_offer_card()
+		_refresh_offer_card(guard_tier)
 	if wheel_view:
 		draft_gate.dock(wheel_view)
 
@@ -4760,26 +4761,30 @@ func _on_roster_committed(items: Array, monsters: Array) -> void:
 	_refresh_offer_card()
 
 
-func _refresh_offer_card() -> void:
+func _refresh_offer_card(guard_tier: int = -1) -> void:
 	if _offer_card == null or not is_instance_valid(_offer_card):
 		_offer_card = null
 		return
 	if pending_item.is_empty():
 		return
-	_dress_showcase_card(_offer_card, pending_item, true)
+	var tier: int = guard_tier if guard_tier >= 1 else _pack_tier_now()
+	_dress_showcase_card(_offer_card, pending_item, true, tier)
 
 
-func _dress_showcase_card(card: Control, it: Dictionary, can_pass: bool) -> void:
+func _dress_showcase_card(card: Control, it: Dictionary, can_pass: bool, guard_tier: int = -1) -> void:
 	if card == null or not is_instance_valid(card) or it.is_empty():
 		return
 	var view: Dictionary = _item_view(it)
 	var rule: Dictionary = _item_rule(it)
+	var tier: int = guard_tier if guard_tier >= 1 else _tier_of(it)
+	if guard_tier >= 1:
+		view["rim"] = _tier_metal(tier)
 	if card.has_method("set_title"):
 		card.set_title(_title_case(str(it.get("name", "?"))))
 	if card.has_method("set_rank"):
-		card.set_rank("Tier %s" % _tier_of(it))
+		card.set_rank(PLAYER_COPY.tier_name(tier))
 	if card.has_method("set_palette"):
-		card.set_palette(view["fill"], view["rim"], _tier_of(it))
+		card.set_palette(view["fill"], view["rim"], tier)
 	if card.has_method("set_live"):
 		card.set_live(str(view["number"]), str(view.get("note", "")), true)
 	if card.has_method("set_showcase"):
@@ -10560,7 +10565,7 @@ func _monster_rule(s: Dictionary) -> Dictionary:
 
 func _monster_plate_look(s: Dictionary, rule: Dictionary) -> Dictionary:
 	var look: Dictionary = _monster_look(s)
-	look["rank"] = "Tier %s" % _tier_of(s)
+	look["rank"] = PLAYER_COPY.tier_name(_tier_of(s))
 	if _shift_held:
 		look["hint"] = ""
 	else:
@@ -11394,6 +11399,9 @@ func _sync_buttons() -> void:
 	btn_bribe.visible = false
 	btn_spin.visible = phase == "ready"
 	btn_done.visible = enemy_up
+	btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
+	if tex_rotate != null:
+		btn_spin.icon = tex_rotate
 	if btn_challenge_begin:
 		btn_challenge_begin.visible = adventure and phase == "draft" and draft_action == "challenge_begin"
 		btn_challenge_begin.disabled = busy
@@ -11418,7 +11426,12 @@ func _sync_buttons() -> void:
 		btn_done.disabled = busy or not enemy_up or tut == null or (tut.wait != "done" and tut.wait != "choice")
 	if enemy_up:
 		var hit: int = _incoming_hit()
-		btn_done.text = PLAYER_COPY.fill("combat.take_hit", {"n": hit}, "Take %s" % hit) if hit > 0 else PLAYER_COPY.text("combat.safe", "Safe")
+		if hit > 0:
+			btn_done.text = PLAYER_COPY.fill("combat.take_hit", {"n": hit}, "Take %s" % hit)
+			btn_done.icon = tex_sword
+		else:
+			btn_done.text = PLAYER_COPY.text("combat.safe", "Safe")
+			btn_done.icon = tex_shield
 
 
 func _sync_overlay() -> void:

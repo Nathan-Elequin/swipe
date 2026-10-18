@@ -398,6 +398,8 @@ func _flag(hits: Array, screen: String, shot: String) -> Array:
 			reasons.append("below_min_size")
 		if not _contrast_ok(node, rect, img):
 			reasons.append("contrast")
+		for wrap_reason in _wrap_reasons(node):
+			reasons.append(wrap_reason)
 		var overlapped := false
 		for j in hits.size():
 			if j <= i:
@@ -585,6 +587,172 @@ func _font_size(node: Control) -> int:
 		if lab:
 			return lab.get_theme_font_size("font_size")
 	return 0
+
+
+## Visible Label / RichTextLabel / Button only. Reason codes: "wrap_mode:<mode>", "mid_word".
+func _wrap_reasons(node: Control) -> PackedStringArray:
+	var out := PackedStringArray()
+	var measured := _measured_text_control(node)
+	if not (measured is Label or measured is RichTextLabel or measured is Button):
+		return out
+	var mode := _autowrap_of(measured)
+	if mode != TextServer.AUTOWRAP_OFF and mode != TextServer.AUTOWRAP_WORD_SMART:
+		out.append("wrap_mode:%s" % _autowrap_name(mode))
+	if _has_mid_word_break(measured):
+		out.append("mid_word")
+	return out
+
+
+func _measured_text_control(node: Control) -> Control:
+	if node is FitLabelBox:
+		var inner: Label = node.get_node_or_null("Label")
+		if inner:
+			return inner
+	return node
+
+
+func _autowrap_of(node: Control) -> int:
+	if "autowrap_mode" in node:
+		return int(node.get("autowrap_mode"))
+	return TextServer.AUTOWRAP_OFF
+
+
+func _autowrap_name(mode: int) -> String:
+	match mode:
+		TextServer.AUTOWRAP_OFF:
+			return "AUTOWRAP_OFF"
+		TextServer.AUTOWRAP_ARBITRARY:
+			return "AUTOWRAP_ARBITRARY"
+		TextServer.AUTOWRAP_WORD:
+			return "AUTOWRAP_WORD"
+		TextServer.AUTOWRAP_WORD_SMART:
+			return "AUTOWRAP_WORD_SMART"
+		_:
+			return str(mode)
+
+
+func _break_flags_for(mode: int) -> int:
+	var flags := TextServer.BREAK_MANDATORY
+	match mode:
+		TextServer.AUTOWRAP_WORD_SMART:
+			flags = TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE | TextServer.BREAK_MANDATORY
+		TextServer.AUTOWRAP_WORD:
+			flags = TextServer.BREAK_WORD_BOUND | TextServer.BREAK_MANDATORY
+		TextServer.AUTOWRAP_ARBITRARY:
+			flags = TextServer.BREAK_GRAPHEME_BOUND | TextServer.BREAK_MANDATORY
+		_:
+			flags = TextServer.BREAK_MANDATORY
+	if mode != TextServer.AUTOWRAP_OFF:
+		flags |= TextServer.BREAK_TRIM_EDGE_SPACES
+	return flags
+
+
+func _has_mid_word_break(node: Control) -> bool:
+	var text := _text_of(node)
+	if text.length() < 2:
+		return false
+	var mode := _autowrap_of(node)
+	var font := _font_of(node)
+	var px := _font_size(node)
+	if px <= 0:
+		px = 16
+	var para := TextParagraph.new()
+	para.break_flags = _break_flags_for(mode)
+	para.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	para.max_lines_visible = 0
+	if mode == TextServer.AUTOWRAP_OFF:
+		para.width = -1
+	else:
+		para.width = _wrap_width(node)
+	para.add_string(text, font, px)
+	var lines := para.get_line_count()
+	if lines <= 1:
+		return false
+	var shown := lines
+	if _overrun_trims(node):
+		shown = mini(lines, _visible_line_budget(node, font, px))
+	if shown <= 1:
+		return false
+	for i in shown - 1:
+		var nxt: Vector2i = para.get_line_range(i + 1)
+		if _chars_split_word(text, nxt.x):
+			return true
+	return false
+
+
+func _overrun_trims(node: Control) -> bool:
+	if not ("text_overrun_behavior" in node):
+		return false
+	var behavior := int(node.get("text_overrun_behavior"))
+	return behavior != TextServer.OVERRUN_NO_TRIMMING
+
+
+func _visible_line_budget(node: Control, font: Font, px: int) -> int:
+	var spacing := 0
+	if node is CanvasItem:
+		spacing = int(node.get_theme_constant("line_spacing"))
+	var line_h := float(font.get_height(px)) + float(spacing)
+	var h := _control_box(node).y
+	var fit := int(floor(h / maxf(line_h, 1.0)))
+	fit = maxi(fit, 1)
+	if "max_lines_visible" in node:
+		var cap := int(node.get("max_lines_visible"))
+		if cap > 0:
+			fit = mini(fit, cap)
+	return fit
+
+
+func _control_box(node: Control) -> Vector2:
+	var s := node.size
+	if s.x < 1.0 or s.y < 1.0:
+		s = node.custom_minimum_size
+	return s
+
+
+func _wrap_width(node: Control) -> float:
+	var w := _control_box(node).x
+	if node is Button:
+		var sb: StyleBox = (node as Button).get_theme_stylebox("normal")
+		if sb:
+			w -= sb.get_margin(SIDE_LEFT) + sb.get_margin(SIDE_RIGHT)
+	return maxf(w, 1.0)
+
+
+func _font_of(node: Control) -> Font:
+	var font: Font = null
+	if node is RichTextLabel:
+		font = (node as RichTextLabel).get_theme_font("normal_font")
+	elif node is Label or node is Button:
+		font = node.get_theme_font("font")
+	if font == null:
+		font = ThemeDB.fallback_font
+	return font
+
+
+func _chars_split_word(text: String, next_start: int) -> bool:
+	if next_start <= 0 or next_start >= text.length():
+		return false
+	var before := text.substr(next_start - 1, 1)
+	var after := text.substr(next_start, 1)
+	if _is_break_sep(before) or _is_break_sep(after):
+		return false
+	return _is_word_char(before) and _is_word_char(after)
+
+
+func _is_break_sep(ch: String) -> bool:
+	if ch == " " or ch == "\t" or ch == "\n" or ch == "\r":
+		return true
+	var c := ch.unicode_at(0)
+	return c == 0x2D or c == 0xAD or c == 0x2010 or c == 0x2011 or c == 0x2012 or c == 0x2013 or c == 0x2014
+
+
+func _is_word_char(ch: String) -> bool:
+	if ch.is_empty():
+		return false
+	var c := ch.unicode_at(0)
+	if c >= 0x30 and c <= 0x39:
+		return true
+	return ch.to_lower() != ch.to_upper()
 
 
 func _content_size(lab: Label) -> Vector2:
