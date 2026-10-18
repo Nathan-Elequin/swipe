@@ -1,0 +1,159 @@
+{
+ "notes": "New content batch 4 2026-10-18 (Pixel). 16x16 native, stored 4x.",
+ "assets": [
+  {
+   "path": "assets/dungeon/extra/amalgam.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/death_bell.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/druid.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/eel.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/fairy.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/phoenix.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/phoenix_egg.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/triclops_v2.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/blood_chalice.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/catapult.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/pacemaker.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/polymorph.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/stone_wall.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/toll.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  }
+ ]
+}
