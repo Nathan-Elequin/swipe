@@ -3,6 +3,7 @@ extends Node
 
 const OUT_DIR := "res://design/audit-shots/cursor"
 const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
+const LAYOUT_CHECK := preload("res://scripts/dev/layout_check.gd")
 const TEXT_OUT_DIR := "res://design/cli-runs/02-fx-tooltips"
 const SAVE_PATH := "user://home_cabin.json"
 const SACK_OWNED := ["throwing_knife", "shield"]
@@ -807,7 +808,7 @@ func _restore_all() -> void:
 	main._refresh()
 
 
-func _capture(filename: String, how: String) -> void:
+func _capture(filename: String, how: String, layout_id: String = "") -> void:
 	TEXT_RESERVE.settle(main)
 	if main.text_audit:
 		main.text_audit.visible = false
@@ -830,6 +831,8 @@ func _capture(filename: String, how: String) -> void:
 		return
 	notes.append({"file": filename, "status": "ok", "how": how})
 	_audit_shot(filename)
+	if layout_id != "":
+		LAYOUT_CHECK.layout_check(layout_id, get_tree())
 
 
 func _skip(filename: String, why: String) -> void:
