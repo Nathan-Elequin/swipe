@@ -1,0 +1,10 @@
+{"notes": "Oct 17 playtest Pixel packet. Stored at 4x nearest.", "assets": [
+{"path": "assets/dungeon/home/props/cat_rub_f0.png", "native": [16,16], "shipped": [64,64]},
+{"path": "assets/dungeon/home/props/cat_rub_f1.png", "native": [16,16], "shipped": [64,64]},
+{"path": "assets/dungeon/home/props/cat_rub_f2.png", "native": [16,16], "shipped": [64,64]},
+{"path": "assets/dungeon/home/props/cat_rub_f3.png", "native": [16,16], "shipped": [64,64]},
+{"path": "assets/dungeon/home/overlays/journal_cover.png", "native": [380,240], "shipped": [1520,960]},
+{"path": "assets/dungeon/home/overlays/journal_scribble.png", "native": [166,80], "shipped": [664,320]},
+{"path": "assets/dungeon/home/overlays/journal_photo_tape_a.png", "native": [120,72], "shipped": [480,288]},
+{"path": "assets/dungeon/home/overlays/journal_photo_tape_b.png", "native": [120,72], "shipped": [480,288]}
+]}
