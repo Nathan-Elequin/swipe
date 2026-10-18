@@ -1,0 +1,60 @@
+{
+ "notes": "New content batch 3 2026-10-18 (Pixel). 16x16 native, stored 4x.",
+ "assets": [
+  {
+   "path": "assets/dungeon/items/blood_pact.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/jar_o_grease.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/cultist.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/bushido.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/shark.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  }
+ ]
+}
