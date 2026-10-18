@@ -5,16 +5,17 @@
 		"item:breastplate": 1792189453.0,
 		"item:counting_beads": 1792136735.68746,
 		"item:crossbow": 1792035889.34183,
-		"item:cursed_scroll": 1792035889.34183,
+		"item:cursed_scroll": 1792282200.0,
 		"item:danger_magnet": 1791910000.0,
 		"item:double_axe": 1792197000.0,
 		"item:echo_bell": 1792136735.68746,
-		"item:fangs": 1792277086.0,
+		"item:fangs": 1792282200.0,
 		"item:grief_jar": 1792035889.34183,
-		"item:grimoire": 1792194900.0,
+		"item:grimoire": 1792282200.0,
 		"item:iron_chain": 1792136735.68746,
 		"item:knucklers": 1791957461.0,
 		"item:lantern": 1792136735.68746,
+		"item:longbow": 1792282200.0,
 		"item:last_match": 1792136735.68746,
 		"item:left_bracer": 1792136735.68746,
 		"item:measuring_tape": 1792135714.63887,
@@ -52,5 +53,5 @@
 		"monster:wick": 1792277094.0
 	},
 	"id": "boss-rush-recent-edits",
-	"updated": "2026-10-17T22:45:00"
+	"updated": "2026-10-17T23:55:00"
 }

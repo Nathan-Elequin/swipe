@@ -502,7 +502,7 @@ func _ready() -> void:
 func _kick_text_targets() -> void:
 	if shot_harness == null:
 		return
-	shot_harness.out_dir = "res://design/cli-runs/01-font-revert"
+	shot_harness.out_dir = "res://design/cli-runs/02-fx-tooltips"
 	shot_harness.begin_text_targets()
 
 
@@ -5172,6 +5172,11 @@ func _unlock_if_fighting() -> void:
 		_sync_buttons()
 
 
+func _lock_item_fx() -> void:
+	_walker_busy = true
+	_sync_buttons()
+
+
 func _on_done() -> void:
 	if phase != "fighting" or facing_index < 0:
 		return
@@ -5179,7 +5184,7 @@ func _on_done() -> void:
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
-	if _wheel_busy():
+	if _wheel_busy() or _walker_busy:
 		return
 	if in_tutorial and (tut == null or (tut.wait != "done" and tut.wait != "choice")):
 		if tut:
@@ -5989,18 +5994,23 @@ func _use_item(uid: int) -> void:
 			_undo_abort()
 		return
 	_bleed_begin()
+	_lock_item_fx()
 	await _apply_ops(it, ops, {})
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	await _after_item_resolved(it)
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	await _bleed_end()
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	if in_tutorial:
 		_tutorial_item_used(str(it.get("card_id", "")))
 	_undo_finish_item()
+	_unlock_if_fighting()
 	call_deferred("_refresh")
 
 
@@ -6023,6 +6033,7 @@ func _choose_option(opt: Dictionary) -> void:
 		call_deferred("_refresh")
 		return
 	_bleed_begin()
+	_lock_item_fx()
 	if int(opt.get("atk_drop", 0)) > 0:
 		await _apply_ops(it, {"kind": "atk_drop", "n": int(opt.get("atk_drop", 0))}, opt)
 	elif int(opt.get("blk", 0)) > 0:
@@ -6030,16 +6041,20 @@ func _choose_option(opt: Dictionary) -> void:
 	else:
 		await _apply_ops(it, {"kind": "atk", "n": int(opt.get("atk", 0))}, opt)
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	await _after_item_resolved(it)
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	await _bleed_end()
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	if sfx:
 		sfx.play("click2", -8.0)
 	_undo_finish_item()
+	_unlock_if_fighting()
 	call_deferred("_refresh")
 
 
@@ -10628,44 +10643,61 @@ func _fly_goes_left(near: Control) -> bool:
 	return false
 
 
+func _log_block_rects() -> Array:
+	var out: Array = []
+	if log_label != null and log_label.visible and log_label.is_visible_in_tree():
+		out.append(log_label.get_global_rect())
+	if log_btn != null and log_btn.visible and log_btn.is_visible_in_tree():
+		out.append(log_btn.get_global_rect())
+	return out
+
+
 func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 	if fly_tip == null or not fly_tip.visible:
 		return
 	fly_tip.reset_size()
 	var sz: Vector2 = fly_tip.get_combined_minimum_size()
 	sz.x = maxf(sz.x, 280.0)
-	var pos: Vector2
-	if at.x < 100000.0:
-		pos = at + Vector2(18.0, -8.0)
-	elif near != null and is_instance_valid(near):
-		if _fly_goes_left(near):
-			pos = near.global_position + Vector2(-sz.x - 12.0, -8.0)
-		else:
-			pos = near.global_position + Vector2(near.size.x + 10.0, -8.0)
+	if bool(fly_tip.get("_pin_always")):
+		sz.x = maxf(sz.x, 250.0)
+	var anchor := Rect2()
+	var prefer_right := true
+	if near != null and is_instance_valid(near):
+		anchor = near.get_global_rect()
+		prefer_right = not _fly_goes_left(near)
+	elif at.x < 100000.0:
+		anchor = Rect2(at - Vector2(28, 28), Vector2(56, 56))
+		if wheel_view != null and wheel_view.has_method("slice_avoid_global"):
+			var best := -1
+			var best_d := 100000.0
+			var n: int = wheel.size()
+			for i in n:
+				var r: Rect2 = wheel_view.slice_avoid_global(i)
+				var d: float = r.get_center().distance_to(at)
+				if d < best_d:
+					best_d = d
+					best = i
+			if best >= 0 and best_d < 80.0:
+				anchor = wheel_view.slice_avoid_global(best)
 	else:
-		pos = get_global_mouse_position() + Vector2(20.0, 16.0)
-	var vp: Vector2 = get_viewport_rect().size
-	var room: float = 250.0 if bool(fly_tip.get("_pin_always")) else 8.0
-	pos.x = clampf(pos.x, 8.0, maxf(8.0, vp.x - sz.x - room))
-	pos.y = clampf(pos.y, 8.0, maxf(8.0, vp.y - sz.y - 8.0))
-	var tip_r := Rect2(pos, sz)
+		var mouse: Vector2 = get_global_mouse_position()
+		anchor = Rect2(mouse, Vector2(12, 12))
+	var gap := 12.0
+	var right := Vector2(anchor.end.x + gap, anchor.position.y - 8.0)
+	var left := Vector2(anchor.position.x - sz.x - gap, anchor.position.y - 8.0)
+	var above := Vector2(anchor.position.x, anchor.position.y - sz.y - gap)
+	var below := Vector2(anchor.position.x, anchor.end.y + gap)
+	var candidates: Array = [right, left, above, below] if prefer_right else [left, right, above, below]
+	var blocks: Array = [anchor]
+	blocks.append_array(_log_block_rects())
 	for other in [face_box, inspect, speech_box]:
 		if other == null or other == fly_tip or not (other is Control):
 			continue
 		var oc: Control = other
 		if not oc.visible or not oc.is_visible_in_tree():
 			continue
-		var orr: Rect2 = oc.get_global_rect()
-		if not tip_r.intersects(orr):
-			continue
-		var left_x: float = orr.position.x - sz.x - 12.0
-		if left_x >= 8.0:
-			pos.x = left_x
-		else:
-			pos.x = orr.end.x + 12.0
-		pos.x = clampf(pos.x, 8.0, maxf(8.0, vp.x - sz.x - 8.0))
-		pos.y = clampf(pos.y, 8.0, maxf(8.0, vp.y - sz.y - 8.0))
-		tip_r = Rect2(pos, sz)
+		blocks.append(oc.get_global_rect())
+	var pos: Vector2 = preload("res://scripts/ui/tooltip_clamp.gd").place(get_viewport_rect().size, sz, candidates, blocks)
 	fly_tip.global_position = pos
 	fly_tip.size = sz
 	if fly_tip.has_method("pin_always_def"):
@@ -10798,15 +10830,23 @@ func _place_fight_art() -> void:
 		total += gap
 	total += plaque_h
 	var gap_side := 16.0
-	var right_x: float = wr.end.x + gap_side
-	var left_x: float = wr.position.x - gap_side - stack_w
-	left_x = maxf(8.0, left_x)
 	var speech_room := 156.0
 	var y: float = wr.end.y - total - 18.0
 	y = maxf(y, wr.position.y + speech_room)
 	if y + total > wr.end.y + 8.0:
 		y = wr.position.y + maxf(8.0, wr.size.y - total)
-	var port_y: float = y
+	var stack_sz := Vector2(stack_w, maxf(total, 8.0))
+	var prefer := Vector2(wr.end.x + gap_side, y)
+	var flip := Vector2(wr.position.x - gap_side - stack_w, y)
+	var blocks: Array = _log_block_rects()
+	if wheel_view.has_method("slice_avoid_global") and facing_index >= 0:
+		blocks.append(wheel_view.slice_avoid_global(facing_index))
+	var stack_pos: Vector2 = preload("res://scripts/ui/tooltip_clamp.gd").place(get_viewport_rect().size, stack_sz, [prefer, flip, Vector2(prefer.x, wr.position.y), Vector2(flip.x, wr.position.y)], blocks)
+	var on_left: bool = stack_pos.x < wr.get_center().x
+	var right_x: float = stack_pos.x
+	var left_x: float = wr.end.x + gap_side if on_left else wr.position.x - gap_side - stack_w
+	var port_y: float = stack_pos.y
+	y = stack_pos.y
 	if combat_stage != null and combat_stage.visible and not combat_stage.busy:
 		combat_stage.size = port_sz
 		combat_stage.global_position = Vector2(right_x + (stack_w - port_sz.x) * 0.5, y)

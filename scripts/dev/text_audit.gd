@@ -124,8 +124,12 @@ func _sprite_hits() -> Array:
 		elif n is Panel:
 			rect = (n as Panel).get_global_rect()
 			kind = "Panel"
+		elif n is CPUParticles2D or n is GPUParticles2D or _is_fx_draw(n):
+			rect = _fx_rect(n)
+			kind = "fx"
 		else:
 			continue
+		rect = _apply_clips(n, rect)
 		if rect.size.x < 8.0 or rect.size.y < 8.0:
 			continue
 		if rect.size.x >= view.size.x * 0.85 and rect.size.y >= view.size.y * 0.85:
@@ -180,6 +184,58 @@ func _drawn_in_front(a: Node, b: Node) -> bool:
 		if za != zb:
 			return za > zb
 	return child_a.get_index() > child_b.get_index()
+
+
+func _is_fx_draw(n: Node) -> bool:
+	if bool(n.get_meta("fx", false)):
+		return true
+	if n is TextureRect and bool(n.get_meta("fx", false)):
+		return true
+	var nm := str(n.name).to_lower()
+	if nm == "fx" or nm.ends_with("fx") or nm.contains("particle"):
+		return n is CanvasItem and n.has_method("_draw")
+	return false
+
+
+func _fx_rect(n: Node) -> Rect2:
+	if n is GPUParticles2D:
+		var gp: GPUParticles2D = n
+		return _xform_local(gp, gp.visibility_rect)
+	if n is CPUParticles2D:
+		var cp: CPUParticles2D = n
+		var ext := Vector2(48, 48)
+		if cp.emission_shape == CPUParticles2D.EMISSION_SHAPE_RECTANGLE:
+			ext = cp.emission_rect_extents
+		elif cp.emission_shape == CPUParticles2D.EMISSION_SHAPE_SPHERE:
+			ext = Vector2.ONE * cp.emission_sphere_radius
+		return _xform_local(cp, Rect2(-ext, ext * 2.0))
+	if n is Control:
+		return (n as Control).get_global_rect()
+	if n is Node2D:
+		return _canvas_rect(n)
+	return Rect2()
+
+
+func _xform_local(ci: Node2D, r: Rect2) -> Rect2:
+	var xf: Transform2D = ci.get_global_transform()
+	var p1: Vector2 = xf * r.position
+	var p2: Vector2 = xf * (r.position + Vector2(r.size.x, 0))
+	var p3: Vector2 = xf * (r.position + Vector2(0, r.size.y))
+	var p4: Vector2 = xf * r.end
+	var tl := Vector2(minf(minf(p1.x, p2.x), minf(p3.x, p4.x)), minf(minf(p1.y, p2.y), minf(p3.y, p4.y)))
+	var br := Vector2(maxf(maxf(p1.x, p2.x), maxf(p3.x, p4.x)), maxf(maxf(p1.y, p2.y), maxf(p3.y, p4.y)))
+	return Rect2(tl, br - tl)
+
+
+func _apply_clips(node: Node, rect: Rect2) -> Rect2:
+	var out := rect
+	var p: Node = node.get_parent()
+	while p is Control:
+		var pc: Control = p
+		if pc.clip_contents:
+			out = out.intersection(pc.get_global_rect())
+		p = p.get_parent()
+	return out
 
 
 func _canvas_rect(ci: Node2D) -> Rect2:

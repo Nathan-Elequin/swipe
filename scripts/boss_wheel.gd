@@ -978,6 +978,41 @@ func slice_portrait_global(i: int) -> Vector2:
 	return get_global_transform() * local
 
 
+func slice_avoid_global(i: int) -> Rect2:
+	if i < 0 or i >= slices.size():
+		return Rect2(global_position, Vector2(8, 8))
+	var s: Dictionary = slices[i]
+	var sp: Dictionary = _spoke(i)
+	var font: Font = get_theme_default_font()
+	if font == null:
+		font = ThemeDB.fallback_font
+	var crowded: bool = slices.size() >= 9
+	var is_face: bool = (not spinning) and i == facing_index
+	var is_hover: bool = i == hover_index
+	var title := Rect2()
+	if str(s.get("kind", "")) == "monster":
+		title = _title_metrics(font, sp, s, is_face, crowded, is_hover).rect
+	var plate_r: float = float(sp.get("plate_r", 36.0))
+	var port: Vector2 = sp["port"]
+	var side: float = plate_r * 1.55
+	var portrait := Rect2(port - Vector2(side, side) * 0.5, Vector2(side, side))
+	var local: Rect2 = portrait
+	if title.size.x > 1.0:
+		local = local.merge(title)
+	return _xform_rect(local)
+
+
+func _xform_rect(r: Rect2) -> Rect2:
+	var xf: Transform2D = get_global_transform()
+	var p1: Vector2 = xf * r.position
+	var p2: Vector2 = xf * (r.position + Vector2(r.size.x, 0))
+	var p3: Vector2 = xf * (r.position + Vector2(0, r.size.y))
+	var p4: Vector2 = xf * r.end
+	var tl := Vector2(minf(minf(p1.x, p2.x), minf(p3.x, p4.x)), minf(minf(p1.y, p2.y), minf(p3.y, p4.y)))
+	var br := Vector2(maxf(maxf(p1.x, p2.x), maxf(p3.x, p4.x)), maxf(maxf(p1.y, p2.y), maxf(p3.y, p4.y)))
+	return Rect2(tl, br - tl)
+
+
 func hp_global(i: int) -> Vector2:
 	if i < 0 or i >= slices.size():
 		return global_position
@@ -1564,6 +1599,55 @@ func _draw_bold_name(font: Font, pos: Vector2, text: String, fs: int, col: Color
 
 
 func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, crowded: bool, dim: float = 1.0, is_hover: bool = false) -> void:
+	var laid: Dictionary = _title_metrics(font, sp, s, is_face, crowded, is_hover)
+	if laid.is_empty():
+		return
+	var name_fs: int = int(laid.name_fs)
+	var call_fs: int = int(laid.call_fs)
+	var rect: Rect2 = laid.rect
+	var name_txt: String = str(laid.name_txt)
+	var call_txt: String = str(laid.call_txt)
+	var tier_txt: String = str(laid.tier_txt)
+	name_fs = int(laid.name_fs)
+	call_fs = int(laid.call_fs)
+	var tier_fs: int = int(laid.tier_fs)
+	var inner_w: float = float(laid.inner_w)
+	var fill := Color(0.08, 0.06, 0.05, 0.90 * dim)
+	var edge: Color = Color("e8c36a") if is_face else Color("c4a574")
+	edge.a = dim
+	_draw_capsule(rect, fill, edge)
+	var ink := Color(0.06, 0.05, 0.04, dim)
+	var name_col: Color = Color("e8c36a") if is_face else Color("f0e6d8")
+	name_col.a = dim
+	var np := Vector2(float(laid.name_x), float(laid.name_base))
+	for ox in [-1, 0, 1]:
+		for oy in [-1, 0, 1]:
+			if ox == 0 and oy == 0:
+				continue
+			draw_multiline_string(font, np + Vector2(ox, oy), name_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, name_fs, 2, ink)
+	draw_multiline_string(font, np, name_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, name_fs, 2, name_col)
+	if call_txt != "":
+		var col: Color = _ability_icon_color(str(s.get("special_id", "")))
+		col.a = dim
+		var cp := Vector2(float(laid.name_x), float(laid.call_base))
+		for ox2 in [-1, 0, 1]:
+			for oy2 in [-1, 0, 1]:
+				if ox2 == 0 and oy2 == 0:
+					continue
+				draw_multiline_string(font, cp + Vector2(ox2, oy2), call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, call_fs, 2, ink)
+		draw_multiline_string(font, cp, call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, call_fs, 2, col)
+	var tc := Color("c4a574")
+	tc.a = dim
+	var tp := Vector2(float(laid.name_x), float(laid.tier_base))
+	for ox3 in [-1, 0, 1]:
+		for oy3 in [-1, 0, 1]:
+			if ox3 == 0 and oy3 == 0:
+				continue
+			draw_string(font, tp + Vector2(ox3, oy3), tier_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, tier_fs, ink)
+	draw_string(font, tp, tier_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, tier_fs, tc)
+
+
+func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, crowded: bool, is_hover: bool) -> Dictionary:
 	var name_s: String = str(s.get("name", "")).strip_edges()
 	var call_s: String = str(s.get("call_name", "")).strip_edges()
 	if bool(s.get("silenced", false)):
@@ -1577,8 +1661,8 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 	if bool(s.get("fled_once", false)) and str(s.get("card_id", "")) == "commander" and call_s != "":
 		call_s = "%s · used" % call_s
 	if name_s == "":
-		return
-	if call_s.to_lower() == name_s.to_lower() or name_s.to_lower().find(call_s.to_lower()) >= 0:
+		return {}
+	if call_s.to_lower() == name_s.to_lower() or (call_s != "" and name_s.to_lower().find(call_s.to_lower()) >= 0):
 		call_s = ""
 	var name_fs: int = 18 if is_face else (15 if is_hover else 13)
 	var call_fs: int = 12 if is_face else 11
@@ -1590,24 +1674,36 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 	var name_fit: Dictionary = _fit_plate_label(font, name_s, name_fs, 10 if crowded else 11, max_w)
 	name_fs = int(name_fit.get("fs", name_fs))
 	var name_txt: String = str(name_fit.get("text", name_s))
-	var call_txt := ""
-	if call_s != "":
-		var call_fit: Dictionary = _fit_plate_label(font, call_s, call_fs, 8 if crowded else 9, max_w)
-		call_fs = int(call_fit.get("fs", call_fs))
-		call_txt = str(call_fit.get("text", call_s))
 	var tier_fs: int = 10 if is_face else 9
 	if crowded:
 		tier_fs = maxi(8, tier_fs - 1)
 	var tier_txt: String = "Tier %s" % _plate_tier(s)
-	var name_sz: Vector2 = font.get_multiline_string_size(name_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, name_fs)
-	var call_sz: Vector2 = font.get_multiline_string_size(call_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, call_fs) if call_txt != "" else Vector2.ZERO
-	var tier_sz: Vector2 = font.get_string_size(tier_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, tier_fs)
+	var edge_w := 1.6
+	var sub_clear := 2.0
+	# Text is stroked 1px, and the capsule stroke sits on the rect edge.
 	var pad_x := 8.0
-	var pad_y := 4.0
+	var pad_top := 4.0
+	var pad_bot := sub_clear + edge_w + 1.0
 	var gap := 2.0
+	var max_h: float = clampf(_radius() * 0.30, 56.0, 108.0)
+	var name_sz: Vector2 = font.get_multiline_string_size(name_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, name_fs)
+	var tier_sz: Vector2 = font.get_string_size(tier_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, tier_fs)
+	var call_txt := ""
+	var call_sz := Vector2.ZERO
+	if call_s != "":
+		var room: float = max_h - pad_top - pad_bot - name_sz.y - gap - tier_sz.y - gap
+		room = maxf(font.get_height(8), room)
+		var plan: Dictionary = FitLabelBox.plan(font, call_s, Vector2(max_w, room), call_fs, 8 if crowded else 9, 2)
+		call_fs = int(plan.get("size", call_fs))
+		if bool(plan.get("wrap", false)):
+			var wrapped: String = _wrap_at_break_only(font, call_s, call_fs, max_w)
+			call_txt = wrapped if wrapped != "" else call_s
+		else:
+			call_txt = call_s
+		call_sz = font.get_multiline_string_size(call_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, call_fs)
 	var inner_w: float = minf(maxf(maxf(name_sz.x, call_sz.x), tier_sz.x), max_w)
 	var w: float = inner_w + pad_x * 2.0
-	var h: float = pad_y * 2.0 + name_sz.y
+	var h: float = pad_top + name_sz.y + pad_bot
 	if call_txt != "":
 		h += gap + call_sz.y
 	h += gap + tier_sz.y
@@ -1619,44 +1715,27 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 	var band_b: Vector2 = rim - dir * (h * 0.5 + 6.0)
 	var pos: Vector2 = band_a.lerp(band_b, 0.42) if band_a.distance_to(band_b) > 4.0 else Vector2(sp["name"])
 	var top_left := Vector2(pos.x - w * 0.5, pos.y - h * 0.5)
-	var fill := Color(0.08, 0.06, 0.05, 0.90 * dim)
-	var edge: Color = Color("e8c36a") if is_face else Color("c4a574")
-	edge.a = dim
-	_draw_capsule(Rect2(top_left, Vector2(w, h)), fill, edge)
-	var ink := Color(0.06, 0.05, 0.04, dim)
-	var name_col: Color = Color("e8c36a") if is_face else Color("f0e6d8")
-	name_col.a = dim
-	var y: float = top_left.y + pad_y + font.get_ascent(name_fs)
-	var np := Vector2(top_left.x + pad_x, y)
-	for ox in [-1, 0, 1]:
-		for oy in [-1, 0, 1]:
-			if ox == 0 and oy == 0:
-				continue
-			draw_multiline_string(font, np + Vector2(ox, oy), name_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, name_fs, 2, ink)
-	draw_multiline_string(font, np, name_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, name_fs, 2, name_col)
+	var name_base: float = top_left.y + pad_top + font.get_ascent(name_fs)
+	var cursor: float = top_left.y + pad_top + name_sz.y
+	var call_base := 0.0
 	if call_txt != "":
-		var col: Color = _ability_icon_color(str(s.get("special_id", "")))
-		col.a = dim
-		var cp := Vector2(top_left.x + pad_x, y + name_sz.y + gap)
-		for ox2 in [-1, 0, 1]:
-			for oy2 in [-1, 0, 1]:
-				if ox2 == 0 and oy2 == 0:
-					continue
-				draw_multiline_string(font, cp + Vector2(ox2, oy2), call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, call_fs, 2, ink)
-		draw_multiline_string(font, cp, call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, call_fs, 2, col)
-	var tier_y: float = y + name_sz.y
-	if call_txt != "":
-		tier_y += gap + call_sz.y
-	tier_y += gap
-	var tc := Color("c4a574")
-	tc.a = dim
-	var tp := Vector2(top_left.x + pad_x, tier_y)
-	for ox3 in [-1, 0, 1]:
-		for oy3 in [-1, 0, 1]:
-			if ox3 == 0 and oy3 == 0:
-				continue
-			draw_string(font, tp + Vector2(ox3, oy3), tier_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, tier_fs, ink)
-	draw_string(font, tp, tier_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, tier_fs, tc)
+		call_base = cursor + gap + font.get_ascent(call_fs)
+		cursor += gap + call_sz.y
+	var tier_base: float = cursor + gap + font.get_ascent(tier_fs)
+	return {
+		"rect": Rect2(top_left, Vector2(w, h)),
+		"name_txt": name_txt,
+		"call_txt": call_txt,
+		"tier_txt": tier_txt,
+		"name_fs": name_fs,
+		"call_fs": call_fs,
+		"tier_fs": tier_fs,
+		"inner_w": inner_w,
+		"name_x": top_left.x + pad_x,
+		"name_base": name_base,
+		"call_base": call_base,
+		"tier_base": tier_base,
+	}
 
 
 func _ability_icon_color(sid: String) -> Color:

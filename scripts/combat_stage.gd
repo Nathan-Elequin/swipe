@@ -41,7 +41,8 @@ func setup(p_art) -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	gui_input.connect(_on_gui)
 	texture_filter = TEXTURE_FILTER_NEAREST
-	clip_contents = false
+	clip_contents = true
+	clip_children = CanvasItem.CLIP_CHILDREN_ONLY
 	z_index = 12
 	top_level = true
 	visible = false
@@ -55,9 +56,14 @@ func setup(p_art) -> void:
 	_sprite.material = _outline
 	add_child(_sprite)
 	var fx := FxLayer.new()
+	fx.name = "Fx"
 	fx.host = self
 	fx.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	fx.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fx.z_index = 0
+	fx.z_as_relative = true
+	fx.set_meta("fx", true)
+	fx.clip_contents = true
 	_fx = fx
 	add_child(_fx)
 	set_process(true)
