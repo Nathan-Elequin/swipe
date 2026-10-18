@@ -1,0 +1,192 @@
+{
+ "notes": "New content art 2026-10-18 (Pixel). 16x16 native, stored 4x nearest.",
+ "assets": [
+  {
+   "path": "assets/dungeon/extra/hired_hand.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/hydra.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/martyr.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/plague_doctor.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/prism.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/shambling_mound.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/triclops.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/zombie.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/ale_flagon.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/bag_of_marbles.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/double_buckler.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/hex.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/lucky_nickel.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/marble.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/miasma.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/napalm.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/shuriken.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  }
+ ]
+}
