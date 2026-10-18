@@ -1,0 +1,16 @@
+{
+ "notes": "Almighty Worm 2026-10-18 (Pixel). 16x16 native, stored 4x.",
+ "assets": [
+  {
+   "path": "assets/dungeon/extra/almighty_worm.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  }
+ ]
+}
