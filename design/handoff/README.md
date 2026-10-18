@@ -1,0 +1,1 @@
+A handoff folder is one task under `design/handoff/<task-id>/`: `TASK.md` is the assignment that goes in, and `REPORT.md` is what the agent writes when the run finishes. The rule that loads on every chat is [swipe-design-loop.mdc](../../.cursor/rules/swipe-design-loop.mdc).

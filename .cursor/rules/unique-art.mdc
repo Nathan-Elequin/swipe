@@ -1,20 +1,32 @@
 ---
-description: Every item and monster needs its own matching sprite
+description: Every item and monster needs its own matching sprite (detect and report; Pixel supplies art)
 alwaysApply: true
 ---
 
 # Unique card art
 
-Every item and every monster must have its own sprite. Never reuse another card’s art.
+Source of truth: `swipe-design-loop.mdc`. Pixel owns art and PNG bytes. Cursor does not draw, generate, recolor, or replace art.
 
-When you add a card, or when Nathan says the picture is wrong:
+Every item and every monster must have its own sprite that shows the named object. No card may reuse another card's art.
 
-1. Find or draw a sprite whose pack title or filename names the object (chain, flask, goblet, palm, anvil, candle, snake, ghost, net, hook). Close is allowed. A torch or spear for a chain is not.
-2. Two drink items must look like different vessels. Victory Flask is not a recolor of Healing Potion.
-3. Register the PNG in `scripts/dungeon_art.gd` `ITEM_PNG` / `MONSTER_PNG`. Extra files beat atlas stems.
-4. Confirm uniqueness (no two cards share the same pixels).
-5. Prefer CC0 16×16 (Kenney Tiny Dungeon, Jetrel, 0x72) scaled with nearest-neighbor. Hand-draw 16×16 if the pack has no matching object. Do not ship photoreal photographs.
+## How to spot a violation
 
-Matching the named object matters. Matching the rest of the pack’s style does not.
+1. The sprite does not show the named object (chain, flask, goblet, palm, anvil, candle, snake, ghost, net, hook). Close is fine. A torch or spear standing in for a chain is not.
+2. Two drink items look like the same vessel. For example, Victory Flask is a recolor of Healing Potion.
+3. Two cards share the same pixels. Compare file hashes, or decoded pixels, of every `ITEM_PNG` / `MONSTER_PNG` entry in `scripts/dungeon_art.gd`, including extras and atlas stems.
+4. A card has no registered PNG, or it points at a generic or atlas fallback.
+5. The art is photoreal, not pixel art, or it is not CC0.
 
-If Godot marks a PNG corrupt (`ERR_FILE_CORRUPT`, `valid=false`, signal 11 on Spin), do not Read that file as an image. Replace it. See `corrupt-png.mdc`.
+## When you find one
+
+Stop. Do not guess and do not draw. Add an `## ART-REQUEST` section to `design/handoff/<task-id>/REPORT.md`. If no task is running, put it in your reply to Nathan. Include:
+- the card id, and the file path the art must land at
+- native size (16x16 unless the spec says otherwise), shipped size (4x nearest), frames and loop, pivot
+- what is wrong (wrong object, duplicate of `<other path>`, missing) and what the object must read as
+- a screenshot path that shows the problem
+
+Pixel supplies the PNG. Cursor then only wires it: registers it in `ITEM_PNG` / `MONSTER_PNG` (extras beat atlas stems), checks the `.import` (Nearest, lossless, no mipmaps; `tools/qa/check_ui_pngs.py`), and re-checks uniqueness.
+
+Exception: when a TASK.md spec asks for placeholders, Cursor may create placeholder PNGs at the exact final size. They must be plainly named (`<stem>.png` with a flat magenta fill and a 1 px outline, listed in REPORT.md as placeholders), and must never be presented as final art.
+
+If Godot reports a PNG as corrupt, follow `corrupt-png.mdc`. Do not open that file as an image.
