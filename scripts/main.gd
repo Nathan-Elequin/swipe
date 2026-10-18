@@ -502,7 +502,7 @@ func _ready() -> void:
 func _kick_text_targets() -> void:
 	if shot_harness == null:
 		return
-	shot_harness.out_dir = "res://design/cli-runs/03-itch-combat"
+	shot_harness.out_dir = "res://design/cli-runs/04-tier-fix"
 	shot_harness.begin_text_targets()
 
 
@@ -3578,7 +3578,8 @@ func _present_gate(passes: int) -> void:
 	if draft_gate == null:
 		return
 	_offer_card = null
-	draft_gate.present_mystery(pending_item, _pack_tier_now(), _offer_tex(), passes)
+	var guard_tier: int = _pack_tier_now()
+	draft_gate.present_mystery(pending_item, guard_tier, _offer_tex(), passes)
 	if not pending_item.is_empty():
 		var card: Control = _spawn_item_card(pending_item, false)
 		card.picked.connect(func() -> void:
@@ -3598,7 +3599,7 @@ func _present_gate(passes: int) -> void:
 			)
 		draft_gate.mount_relic(card)
 		_offer_card = card
-		_refresh_offer_card()
+		_refresh_offer_card(guard_tier)
 	if wheel_view:
 		draft_gate.dock(wheel_view)
 
@@ -4756,26 +4757,30 @@ func _on_roster_committed(items: Array, monsters: Array) -> void:
 	_refresh_offer_card()
 
 
-func _refresh_offer_card() -> void:
+func _refresh_offer_card(guard_tier: int = -1) -> void:
 	if _offer_card == null or not is_instance_valid(_offer_card):
 		_offer_card = null
 		return
 	if pending_item.is_empty():
 		return
-	_dress_showcase_card(_offer_card, pending_item, true)
+	var tier: int = guard_tier if guard_tier >= 1 else _pack_tier_now()
+	_dress_showcase_card(_offer_card, pending_item, true, tier)
 
 
-func _dress_showcase_card(card: Control, it: Dictionary, can_pass: bool) -> void:
+func _dress_showcase_card(card: Control, it: Dictionary, can_pass: bool, guard_tier: int = -1) -> void:
 	if card == null or not is_instance_valid(card) or it.is_empty():
 		return
 	var view: Dictionary = _item_view(it)
 	var rule: Dictionary = _item_rule(it)
+	var tier: int = guard_tier if guard_tier >= 1 else _tier_of(it)
+	if guard_tier >= 1:
+		view["rim"] = _tier_metal(tier)
 	if card.has_method("set_title"):
 		card.set_title(_title_case(str(it.get("name", "?"))))
 	if card.has_method("set_rank"):
-		card.set_rank(_rank_label(it))
+		card.set_rank(PLAYER_COPY.tier_name(tier))
 	if card.has_method("set_palette"):
-		card.set_palette(view["fill"], view["rim"], _tier_of(it))
+		card.set_palette(view["fill"], view["rim"], tier)
 	if card.has_method("set_live"):
 		card.set_live(str(view["number"]), str(view.get("note", "")), true)
 	if card.has_method("set_showcase"):

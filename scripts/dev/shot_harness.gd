@@ -3,7 +3,7 @@ extends Node
 
 const OUT_DIR := "res://design/audit-shots/cursor"
 const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
-const TEXT_OUT_DIR := "res://design/cli-runs/03-itch-combat"
+const TEXT_OUT_DIR := "res://design/cli-runs/04-tier-fix"
 const SAVE_PATH := "user://home_cabin.json"
 const SACK_OWNED := ["throwing_knife", "shield"]
 const SACK_NEW := ["net", "lantern", "caltrops", "dagger", "longbow"]
@@ -701,10 +701,13 @@ func _shot_itch_draft_gate() -> void:
 	if not main.monsters_by_id.has(lure):
 		lure = str(main.wheel[0].get("card_id", "goblin")) if main.wheel.size() > 0 else "goblin"
 	main.pending_monster = main._make_monster(lure)
+	var guard_tier: int = main._tier_of(main.pending_monster)
+	main._stamp_pack(main.pending_monster, guard_tier, "draft")
 	var relic := "breastplate"
 	if not main.items_by_id.has(relic):
 		relic = "shield" if main.items_by_id.has("shield") else "throwing_knife"
 	main.pending_item = main._make_item(relic)
+	main._stamp_pack(main.pending_item, guard_tier, "draft")
 	main._refresh()
 	main._layout_play_field()
 	main._present_gate(2)
