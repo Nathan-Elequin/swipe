@@ -4,6 +4,9 @@ extends "res://scripts/cabin/cabin_room.gd"
 var cat_sleep: AnimatedSprite2D
 var new_tag: TextureRect
 
+const CAT_SLEEP := Vector2(176, 196)
+const CAT_RUB := Vector2(180, 196)
+
 
 func _build_special() -> void:
 	var flames: Array = extra.get("anchors", {}).get("loft", {}).get("flame", [])
@@ -12,7 +15,7 @@ func _build_special() -> void:
 			_candle(Vector2(float(f[0]), float(f[1])))
 	cat_sleep = KIT.anim_sprite(
 		["props/cat_sleep_f0.png", "props/cat_sleep_f1.png"],
-		"z", 1000.0 / 900.0, true, Vector2(176, 196)
+		"z", 1000.0 / 900.0, true, CAT_SLEEP
 	)
 	cat_sleep.z_index = 3
 	add_child(cat_sleep)
@@ -27,9 +30,45 @@ func _build_special() -> void:
 				var tex: Texture2D = KIT.load_tex("props/cat_rub_f%d.png" % i)
 				if tex:
 					sf.add_frame("rub", tex)
+		if not cat_sleep.animation_finished.is_connected(_on_cat_anim_finished):
+			cat_sleep.animation_finished.connect(_on_cat_anim_finished)
 	new_tag = KIT.tex_rect("fx/new_tag.png", Vector2(126, 182), Vector2(16, 10), 5)
 	new_tag.visible = false
 	add_child(new_tag)
+
+
+func play_rub() -> bool:
+	if not _rub_ready():
+		return false
+	cat_sleep.position = CAT_RUB * KIT.PX
+	cat_sleep.play("rub")
+	return true
+
+
+func pose_rub_frame(frame_i: int) -> void:
+	if not _rub_ready():
+		return
+	var count := cat_sleep.sprite_frames.get_frame_count("rub")
+	cat_sleep.position = CAT_RUB * KIT.PX
+	cat_sleep.play("rub")
+	cat_sleep.pause()
+	cat_sleep.frame = clampi(frame_i, 0, count - 1)
+
+
+func _rub_ready() -> bool:
+	if cat_sleep == null or cat_sleep.sprite_frames == null:
+		return false
+	if not cat_sleep.sprite_frames.has_animation("rub"):
+		return false
+	return cat_sleep.sprite_frames.get_frame_count("rub") > 0
+
+
+func _on_cat_anim_finished() -> void:
+	if cat_sleep == null or cat_sleep.animation != "rub":
+		return
+	cat_sleep.position = CAT_SLEEP * KIT.PX
+	if cat_sleep.sprite_frames and cat_sleep.sprite_frames.has_animation("z"):
+		cat_sleep.play("z")
 
 
 func _refresh_doors() -> void:
