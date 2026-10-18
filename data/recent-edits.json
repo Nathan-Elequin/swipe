@@ -50,8 +50,19 @@
 		"monster:spider_queen": 1792143600.0,
 		"monster:two_headed_serpent": 1792136735.68746,
 		"monster:vampire": 1791957982.0,
-		"monster:wick": 1792277094.0
+		"monster:wick": 1792277094.0,
+		"item:shuriken": 1792320000.0,
+		"item:miasma": 1792320000.0,
+		"item:bag_of_marbles": 1792320000.0,
+		"item:marble": 1792320000.0,
+		"item:hex": 1792320000.0,
+		"monster:martyr": 1792320000.0,
+		"monster:prism": 1792320000.0,
+		"monster:plague_doctor": 1792320000.0,
+		"item:ale_flagon": 1792400000.0,
+		"monster:hired_hand": 1792400000.0,
+		"monster:hydra": 1792410000.0
 	},
 	"id": "boss-rush-recent-edits",
-	"updated": "2026-10-17T23:55:00"
+	"updated": "2026-10-18T00:25:00"
 }

@@ -190,9 +190,9 @@ func _layout_talk(with_choices: bool) -> void:
 	var bust_sz := Vector2(32, 32) * PX
 	var prompt_h := 36.0
 	var gap := 12.0
-	var box_h := 64.0 * PX
+	var box_h := 54.0 * PX
 	if with_choices:
-		box_h += 20.0 * PX
+		box_h += 18.0 * PX
 	var box_w := 300.0 * PX
 	box_w = minf(box_w, view.x - safe * 2.0)
 	var box_x := clampf((view.x - box_w) * 0.5, safe, view.x - safe - box_w)
@@ -210,7 +210,7 @@ func _layout_talk(with_choices: bool) -> void:
 	var text_h := inner.size.y - prompt_h - gap
 	_text.position = Vector2(text_x, inner.position.y)
 	_text.size = Vector2(maxf(8.0, text_w), maxf(8.0, text_h))
-	_text.max_lines = 3
+	_text.max_lines = 4
 	_text.fit()
 	_next.position = Vector2(inner.end.x - 18.0 * PX, inner.end.y - 16.0 * PX)
 	_choices.position = Vector2(text_x, inner.end.y - prompt_h)
@@ -241,7 +241,9 @@ func _show_choices() -> void:
 		c.queue_free()
 	_choices.visible = true
 	for i in _choice_keys.size():
-		var b: Button = KIT.choice_tag(str(_choice_keys[i]), Vector2(92, 16))
+		var b: Button = KIT.choice_tag(str(_choice_keys[i]), Vector2(100, 18))
+		b.add_theme_color_override("font_color", Color("1c120c"))
+		b.add_theme_color_override("font_hover_color", Color("100e0c"))
 		var idx: int = i
 		b.pressed.connect(func() -> void:
 			pick(idx)

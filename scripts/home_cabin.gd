@@ -369,6 +369,9 @@ func play_intro(is_replay: bool = false) -> void:
 	else:
 		_snap_to("main")
 	_start_interior_loops()
+	if sfx and sfx.has_method("set_combat_music"):
+		sfx.set_combat_music(false)
+	_play_station()
 	if _cutscene:
 		_cutscene.play("intro", {"replay": is_replay})
 		await _cutscene.finished
@@ -841,11 +844,14 @@ func _play_arrive() -> void:
 	_set_hero_frame(_walk_family(true), 0)
 	_place_hero(Vector2(-30, 218))
 	_ext_root.position = Vector2(280, 0)
+	if _homecoming_kind == "loss" and _arrive_skip == 0:
+		_ext_root.position = Vector2.ZERO
+		_place_hero(Vector2(140, 218))
 	if _arrive_skip == 0:
 		var pan := _make_arrive_tween()
 		pan.set_trans(Tween.TRANS_CUBIC)
 		pan.set_ease(Tween.EASE_OUT)
-		pan.tween_property(_ext_root, "position", Vector2.ZERO, 0.6)
+		pan.tween_property(_ext_root, "position", Vector2.ZERO, 0.36 if _homecoming_kind == "loss" else 0.6)
 		if sfx:
 			sfx.play("whoosh", -14.0, 0.9)
 		await _await_arrive_tween(pan)
@@ -866,7 +872,7 @@ func _play_arrive() -> void:
 			var tex: Texture2D = _home(stem)
 			if tex:
 				_door.texture = tex
-			await _wait(0.08)
+			await _wait(0.05)
 			if _arrive_skip != 0:
 				break
 		_door_glow_open = true
@@ -891,10 +897,12 @@ func _play_arrive() -> void:
 		_hero.z_index = 4
 		_hero.visible = true
 		_hero.flip_h = true
-		_place_hero(Vector2(388, 205))
+		var start_in := Vector2(220, 205) if _homecoming_kind == "loss" else Vector2(388, 205)
+		var int_spd: float = ARRIVE_INT_SPEED * (1.4 if _homecoming_kind == "loss" else 1.0)
+		_place_hero(start_in)
 		_set_hero_frame(_walk_family(true), 0)
 		_beat = "int_walk"
-		await _walk_hero(Vector2(388, 205), Vector2(70, 205), true, true, -1.0, ARRIVE_INT_SPEED)
+		await _walk_hero(start_in, Vector2(70, 205), true, true, -1.0, int_spd)
 		if not _arrive_alive(gen):
 			return
 		if _arrive_skip >= 2:
@@ -1144,6 +1152,8 @@ func _bump() -> void:
 
 
 func _fade_to_interior() -> void:
+	_hero.visible = false
+	_set_idle_hero_visible(false)
 	_fade.visible = true
 	_fade.color = Color(0, 0, 0, 0)
 	var tw := create_tween()
@@ -2629,6 +2639,7 @@ func _build_overlays() -> void:
 	_radio.setup(self, extra, sfx)
 	_radio.closed.connect(func() -> void:
 		_overlay_name = ""
+		_overlays.z_index = 6
 	)
 	_overlays.add_child(_radio)
 	_journal = preload("res://scripts/cabin/journal_overlay.gd").new()
@@ -2979,7 +2990,12 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 		"LuckyGeode":
 			_on_geode()
 		"Gear_helm", "Gear_cap", "Gear_goggles", "Gear_rope":
-			_wear(node_name.trim_prefix("Gear_"))
+			var piece: String = node_name.trim_prefix("Gear_")
+			var slot: String = str(extra.get("gear_slots", {}).get(piece, ""))
+			if slot != "" and str(gear_worn.get(slot, "")) == piece:
+				_hang(piece)
+			else:
+				_wear(piece)
 		"ShelfPrev":
 			_on_nav(-1)
 		"ShelfNext":
@@ -3005,19 +3021,16 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 			_on_bed()
 		"Telescope":
 			var tk: String = "cabin.telescope.none" if deepest_belly <= 0 else "cabin.telescope.line"
-			if _dialog:
-				_dialog.say([tk] if deepest_belly <= 0 else [])
-				if deepest_belly > 0:
-					_dialog.say([])
-					say_bubble(tk, {"n": deepest_belly})
+			if deepest_belly <= 0:
+				if _dialog:
+					_dialog.say([tk])
+			else:
+				say_bubble(tk, {"n": deepest_belly})
 			KIT.cue(sfx, &"cabin.telescope")
 		"Trunk":
 			_on_trunk()
 		"Cat":
-			say_bubble("cabin.cat.line")
-			KIT.cue(sfx, &"cabin.cat")
-			if sfx and sfx.has_method("loop_start"):
-				sfx.loop_start(&"amb.cat_purr", 0.0)
+			_on_cat()
 		"Hatch":
 			pan_to("workshop")
 
@@ -3034,10 +3047,7 @@ func _on_run_door() -> void:
 	if _gate_on():
 		_interrupt()
 		return
-	if last_route == "":
-		_open_map()
-		return
-	_leave_for_run(last_route)
+	_open_map()
 
 
 func _on_map() -> void:
@@ -3055,6 +3065,7 @@ func _open_map() -> void:
 
 func _open_radio() -> void:
 	_overlay_name = "radio"
+	_overlays.z_index = 20
 	_radio.open_radio()
 
 
@@ -3123,6 +3134,35 @@ func _on_nib() -> void:
 		_dialog.say([k])
 	if nib_idle_index in [1, 4, 0]:
 		KIT.cue(sfx, &"speech.nib_chuckle")
+
+
+func _on_locked_door() -> void:
+	if _dialog == null:
+		return
+	_dialog.say(["cabin.locked.first"], ["cabin.locked.try", "cabin.locked.wait"])
+	var ch: int = await _dialog.finished
+	if ch == 0:
+		_open_map()
+
+
+func _on_cat() -> void:
+	say_bubble("cabin.cat.line")
+	KIT.cue(sfx, &"cabin.cat")
+	if sfx and sfx.has_method("loop_start"):
+		sfx.loop_start(&"amb.cat_purr", 0.0)
+	var loft = _rooms.get("loft")
+	if loft and loft.cat_sleep:
+		var cat: AnimatedSprite2D = loft.cat_sleep
+		if cat.sprite_frames and cat.sprite_frames.has_animation("rub"):
+			cat.play("rub")
+			await cat.animation_finished
+			if cat.sprite_frames.has_animation("z"):
+				cat.play("z")
+		else:
+			var tw := create_tween()
+			tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+			tw.tween_property(cat, "scale", Vector2(1.12, 0.92), 0.12)
+			tw.tween_property(cat, "scale", Vector2.ONE, 0.18)
 
 
 func _on_side_door(room: String) -> void:
@@ -3437,6 +3477,65 @@ func debug_hero_family(family: String, i: int, flip: bool = false) -> void:
 	_set_hero_frame(family, i)
 
 
+func debug_win_dump() -> void:
+	debug_hero_family("hero_sack_dump", 2, false)
+	_place_debug_loot(false)
+	_spawn_hall_glow(false)
+
+
+func debug_win_fly() -> void:
+	debug_hero_family("hero_sack_dump", 2, false)
+	_place_debug_loot(true)
+	_spawn_hall_glow(false)
+
+
+func _item_spr_scale(tex: Texture2D, mul: float = 1.0) -> Vector2:
+	var w: float = float(tex.get_width()) if tex else 16.0
+	var s: float = 64.0 / maxf(w, 1.0)
+	return Vector2(s, s) * mul
+
+
+func _place_debug_loot(flying: bool) -> void:
+	if _new_ids.is_empty():
+		_new_ids = ["net", "lantern", "caltrops"]
+	if _held_ids.is_empty():
+		_held_ids = ["throwing_knife", "shield", "net", "lantern", "caltrops"]
+	var main_room = _rooms.get("main")
+	if main_room == null:
+		return
+	var from: Vector2 = _pt(69, 231)
+	var i: int = 0
+	for id3 in _new_ids:
+		var tex: Texture2D = tex_by_item.get(str(id3), null)
+		if tex == null and art:
+			tex = art.item_tex(str(id3))
+		if tex == null:
+			continue
+		var spr := Sprite2D.new()
+		spr.texture = tex
+		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		spr.centered = true
+		spr.z_index = 7
+		spr.name = "DebugLoot%s" % i
+		spr.add_to_group("debug_fx")
+		spr.scale = _item_spr_scale(tex, 1.35)
+		if flying:
+			spr.position = from + Vector2(280.0 + float(i) * 110.0, -90.0 - float(i) * 36.0)
+		else:
+			spr.position = from + Vector2(float(i) * 36.0 - 12.0, -28.0 - float(i % 2) * 18.0)
+		main_room.add_child(spr)
+		i += 1
+
+
+func clear_debug_fx() -> void:
+	var doomed: Array = []
+	for n in get_tree().get_nodes_in_group("debug_fx"):
+		doomed.append(n)
+	for n2 in doomed:
+		if is_instance_valid(n2):
+			n2.free()
+
+
 func _spawn_moth() -> void:
 	var main_room = _rooms.get("main")
 	if main_room == null:
@@ -3508,20 +3607,43 @@ func _spawn_sack_pops() -> void:
 		spr.centered = true
 		spr.position = _pt(69, 231)
 		spr.z_index = 7
+		spr.scale = _item_spr_scale(tex, 0.4)
 		main_room.add_child(spr)
-		var slot_x: float = 92.0 + float(i % 6) * 24.0
-		var slot_y: float = 222.0 + float(i / 6) * 16.0
-		var dest: Vector2 = _pt(slot_x, slot_y)
-		var peak: Vector2 = Vector2((spr.position.x + dest.x) * 0.5, minf(spr.position.y, dest.y) - _px(24))
 		KIT.cue(sfx, &"cabin.item_pop")
 		var from: Vector2 = spr.position
+		var dest: Vector2 = Vector2(ROOM_W + 80.0, from.y - 40.0 - float(i % 5) * 18.0)
+		var peak: Vector2 = Vector2((from.x + dest.x) * 0.45, from.y - _px(40))
 		var tw := create_tween()
 		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.tween_property(spr, "scale", _item_spr_scale(tex, 1.35), 0.18)
 		tw.tween_method(func(t: float) -> void:
 			spr.position = _quad_bez(from, peak, dest, t)
-		, 0.0, 1.0, 0.35)
+		, 0.0, 1.0, 0.55)
+		tw.parallel().tween_property(spr, "modulate:a", 0.0, 0.55)
 		i += 1
-		await _wait(0.16)
+		await _wait(0.10)
+	_spawn_hall_glow()
+
+
+func _spawn_hall_glow(fade: bool = true) -> void:
+	var main_room = _rooms.get("main")
+	if main_room == null:
+		return
+	var glow := ColorRect.new()
+	glow.name = "HallGlow"
+	glow.add_to_group("debug_fx")
+	glow.color = Color("fff3d6aa")
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glow.z_index = 8
+	glow.size = Vector2(320, KIT.ROOM_H)
+	glow.position = Vector2(ROOM_W - 320.0, 0)
+	main_room.add_child(glow)
+	if not fade:
+		return
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_property(glow, "modulate:a", 0.0, 1.1)
+	tw.tween_callback(glow.queue_free)
 
 
 func _quad_bez(a: Vector2, b: Vector2, c: Vector2, t: float) -> Vector2:

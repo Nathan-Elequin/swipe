@@ -75,10 +75,11 @@ func setup(audio) -> void:
 	_board.z_index = 1
 	add_child(_board)
 
-	_title = KIT.label("pause.settings", 32, KIT.CREAM)
+	_title = KIT.label("pause.settings", 36, KIT.INK)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_title.position = Vector2(0, 2) * PX
-	_title.size = Vector2(200, 16) * PX
+	_title.position = Vector2(0, 6) * PX
+	_title.size = Vector2(200, 20) * PX
+	_title.set_outline(Color("fff3d6"), 5)
 	_board.add_child(_title)
 
 	_hint = Label.new()
@@ -148,8 +149,18 @@ func setup(audio) -> void:
 	_confirm = PanelContainer.new()
 	_confirm.visible = false
 	_confirm.z_index = 3
-	_confirm.position = Vector2(16, 40) * PX
-	_confirm.size = Vector2(168, 100) * PX
+	_confirm.position = Vector2(12, 28) * PX
+	_confirm.size = Vector2(176, 124) * PX
+	var confirm_sb := StyleBoxFlat.new()
+	confirm_sb.bg_color = Color("100e0ce8")
+	confirm_sb.border_color = Color("e8c36a")
+	confirm_sb.set_border_width_all(2)
+	confirm_sb.set_corner_radius_all(8)
+	confirm_sb.content_margin_left = 16
+	confirm_sb.content_margin_right = 16
+	confirm_sb.content_margin_top = 12
+	confirm_sb.content_margin_bottom = 12
+	_confirm.add_theme_stylebox_override("panel", confirm_sb)
 	_board.add_child(_confirm)
 	var ask := VBoxContainer.new()
 	ask.add_theme_constant_override("separation", 10)
@@ -211,7 +222,7 @@ func _layout_buttons() -> void:
 	if _btn_resume:
 		_btn_resume.visible = not on_dev
 	if _btn_peek:
-		_btn_peek.visible = (not on_dev) and _in_run
+		_btn_peek.visible = false
 	if _btn_give_up:
 		_btn_give_up.visible = (not on_dev) and _in_run
 	if _btn_quit:
@@ -228,16 +239,21 @@ func _layout_buttons() -> void:
 		_btn_dev_back.visible = on_dev
 	if _sl_wrap:
 		_sl_wrap.visible = not on_dev
-	var y: float = 46.0
-	var buttons: Array = [_btn_resume, _btn_peek, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_complete, _btn_buckets, _btn_dev_back]
+	var shown: Array = []
+	var buttons: Array = [_btn_resume, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_complete, _btn_buckets, _btn_dev_back]
 	for b in buttons:
 		if b == null or not b.visible or b.get_parent() != _board:
 			continue
-		var wide: bool = on_dev and b != _btn_dev_back
-		b.position = Vector2(24.0 if wide else 36.0, y) * PX
-		y += 26.0
+		shown.append(b)
+	var row_h: float = 26.0
+	var block: float = float(shown.size()) * row_h
+	var y: float = 46.0 + maxf(0.0, (88.0 - block) * 0.5)
+	for b2 in shown:
+		var wide: bool = on_dev and b2 != _btn_dev_back
+		b2.position = Vector2(24.0 if wide else 36.0, y) * PX
+		y += row_h
 	if _sl_wrap and _sl_wrap.visible:
-		_sl_wrap.position = Vector2(24, y + 2.0) * PX
+		_sl_wrap.position = Vector2(24, 148) * PX
 
 
 func _set_page(page: String) -> void:

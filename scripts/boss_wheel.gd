@@ -46,6 +46,7 @@ var rot: float = 0.0:
 		queue_redraw()
 
 var tex_heart: Texture2D
+var tex_poison: Texture2D
 var tex_sword: Texture2D
 var tex_plus: Texture2D
 var tex_shield: Texture2D
@@ -1111,7 +1112,7 @@ func focus_rect(kind: String) -> Rect2:
 	if kind == "hp" and facing_index >= 0:
 		return _global_badge(_hp_pos(facing_index), 34.0)
 	if kind == "empty":
-		return _slice_global_rect(_first_empty_slice())
+		return _slice_annulus_rect(_first_empty_slice())
 	if kind == "face" and facing_index >= 0:
 		return _slice_global_rect(facing_index)
 	return Rect2()
@@ -1131,6 +1132,28 @@ func _first_empty_slice() -> int:
 
 func slice_rect(i: int) -> Rect2:
 	return _slice_global_rect(i)
+
+
+func _slice_annulus_rect(i: int) -> Rect2:
+	if i < 0 or i >= slices.size():
+		return Rect2()
+	var starts: PackedFloat32Array = _starts()
+	var a0: float = starts[i]
+	var a1: float = a0 + _span(i)
+	var c: Vector2 = _center()
+	var radius: float = _radius()
+	var inner: float = radius * 0.42
+	var mn := Vector2(1.0e9, 1.0e9)
+	var mx := Vector2(-1.0e9, -1.0e9)
+	for k in 9:
+		var ang: float = lerpf(a0, a1, float(k) / 8.0)
+		for rad in [inner, radius]:
+			var g: Vector2 = get_global_transform() * (c + Vector2.from_angle(ang) * rad)
+			mn.x = minf(mn.x, g.x)
+			mn.y = minf(mn.y, g.y)
+			mx.x = maxf(mx.x, g.x)
+			mx.y = maxf(mx.y, g.y)
+	return Rect2(mn, mx - mn).grow(4.0)
 
 
 func _slice_global_rect(i: int) -> Rect2:
@@ -1243,7 +1266,7 @@ func _fill_for(s: Dictionary, is_face: bool, is_hover: bool) -> Color:
 		fill = fill.lightened(0.10)
 	elif facing_index >= 0 and (not spinning) and str(s.get("kind", "")) == "monster":
 		fill = fill.darkened(0.18)
-	if bool(s.get("poisoned", false)):
+	if _poison_n(s) > 0:
 		fill = fill.lerp(Color("2e4a32"), 0.55)
 	if bool(s.get("crossbowed", false)):
 		fill = fill.lerp(Color("5a4a18"), 0.45)
@@ -1385,8 +1408,6 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	_draw_slice_title(font, sp, s, is_face, crowded, dim, is_hover)
 	_draw_heart_stat(font, sp["hp"], s, pv, big, i)
 	_draw_atk_stat(font, sp["atk"], s, pv, big, i)
-	if bool(s.get("poisoned", false)):
-		draw_circle(sp["hp"] + Vector2(12, -10), 4.0, Color("7dba7d"))
 	var would_die: bool = int(s.get("hp", 0)) + int(pv.get("hp", 0)) <= 0 and int(pv.get("hp", 0)) < 0
 	if would_die or bool(pv.get("kill", false)):
 		var xa: float = 0.55 + 0.25 * sin(_glow_t * 12.0)
@@ -1924,6 +1945,7 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		var pulse2: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 		draw_arc(pos, hs * 0.52, 0.0, TAU, 20, Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2), 2.6, true)
 	_draw_bold_num(font, pos + Vector2(0.0, 2.0), str(hp), 21 if big else 18, Color("f0e6d8"))
+	_draw_poison_badge(font, pos, s, big)
 	if hp_d != 0:
 		var blink: float = 0.40 + 0.60 * absf(sin(_glow_t * 10.0))
 		var dc: Color = UP_COL if hp_d > 0 else DOWN_COL
@@ -1931,6 +1953,33 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		_draw_bold_num(font, pos + Vector2(0.0, -hs * 0.62), str(hp_next), 18 if big else 15, dc)
 		draw_string(font, pos + Vector2(hs * 0.28, -hs * 0.38), _delta_text(hp_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
 
+
+
+func _poison_n(s: Dictionary) -> int:
+	if s.has("poison"):
+		return maxi(0, int(s.get("poison", 0)))
+	return 5 if bool(s.get("poisoned", false)) else 0
+
+
+func _poison_tex() -> Texture2D:
+	if tex_poison == null and ResourceLoader.exists("res://assets/icons/droplet.svg"):
+		tex_poison = load("res://assets/icons/droplet.svg") as Texture2D
+	return tex_poison
+
+
+func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool) -> void:
+	var n: int = _poison_n(s)
+	if n <= 0:
+		return
+	var drop_pos: Vector2 = pos + Vector2(22.0 if big else 18.0, -12.0 if big else -10.0)
+	var tex: Texture2D = _poison_tex()
+	var col := Color("7dba7d")
+	if tex != null:
+		var sz := Vector2(16, 16) if big else Vector2(14, 14)
+		draw_texture_rect(tex, Rect2(drop_pos - sz * 0.5, sz), false, col)
+	else:
+		draw_circle(drop_pos, 5.0 if big else 4.0, col)
+	_draw_bold_num(font, drop_pos + Vector2(10.0, 1.0), str(n), 14 if big else 12, Color("d8f0d0"))
 
 
 func _delta_text(d: int) -> String:

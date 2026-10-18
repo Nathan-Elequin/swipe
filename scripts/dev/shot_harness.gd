@@ -5,7 +5,7 @@ const OUT_DIR := "res://design/audit-shots/cursor"
 const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
 const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 const LAYOUT_CHECK := preload("res://scripts/dev/layout_check.gd")
-const TEXT_OUT_DIR := "res://design/cli-runs/04-tier-fix"
+const TEXT_OUT_DIR := "res://design/cli-runs/05-playtest-pass"
 const SAVE_PATH := "user://home_cabin.json"
 const SACK_OWNED := ["throwing_knife", "shield"]
 const SACK_NEW := ["net", "lantern", "caltrops", "dagger", "longbow"]
@@ -377,13 +377,55 @@ func _shot_rope_belly3() -> void:
 
 
 func _shot_21a() -> void:
-	_skip("21a_win_homecoming_dump.png", "Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.")
-	await get_tree().process_frame
+	status = "21a_win_homecoming_dump.png"
+	_reset_between()
+	_hide_chrome(false)
+	var cabin = main.home_cabin
+	if cabin == null or not cabin.has_method("debug_hero_family"):
+		_skip("21a_win_homecoming_dump.png", "home_cabin missing")
+		return
+	cabin.intro_seen = true
+	cabin.nib_first_done = true
+	cabin.tutorial_done = true
+	cabin.key_ring_seen = true
+	cabin.stop_story()
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._new_ids = SACK_NEW.duplicate()
+	cabin._held_ids = SACK_OWNED.duplicate()
+	cabin._held_ids.append_array(SACK_NEW)
+	if cabin.has_method("debug_win_dump"):
+		cabin.debug_win_dump()
+	else:
+		cabin.debug_hero_family("hero_sack_dump", 2, false)
+	await _wait(0.2)
+	await _capture("21a_win_homecoming_dump.png", "win dump pose at the sack, items grown at the dump")
+	cabin.visible = false
+	cabin.stop_story()
 
 
 func _shot_21b() -> void:
-	_skip("21b_win_homecoming_fly.png", "NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.")
-	await get_tree().process_frame
+	status = "21b_win_homecoming_fly.png"
+	_reset_between()
+	_hide_chrome(false)
+	var cabin = main.home_cabin
+	if cabin == null or not cabin.has_method("debug_win_fly"):
+		_skip("21b_win_homecoming_fly.png", "debug_win_fly missing")
+		return
+	cabin.intro_seen = true
+	cabin.nib_first_done = true
+	cabin.tutorial_done = true
+	cabin.key_ring_seen = true
+	cabin.stop_story()
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin.debug_win_fly()
+	await _wait(0.25)
+	await _capture("21b_win_homecoming_fly.png", "new items in the air flying toward the hall glow")
+	if cabin.has_method("clear_debug_fx"):
+		cabin.clear_debug_fx()
+	cabin.visible = false
+	cabin.stop_story()
 
 
 func _shot_rope(filename: String, cleared: int, extra: String) -> void:
@@ -403,7 +445,10 @@ func _shot_rope(filename: String, cleared: int, extra: String) -> void:
 		_skip(filename, "rope_exit node missing")
 		return
 	main.rope_exit.z_index = 200
-	main.rope_exit.open_exit(cleared)
+	if main.has_method("_rope_loot_rows"):
+		main.rope_exit.open_exit(cleared, main._rope_loot_rows())
+	else:
+		main.rope_exit.open_exit(cleared)
 	await _wait(0.45)
 	main.rope_exit.modulate.a = 1.0
 	if not main.rope_exit.visible:
@@ -428,22 +473,21 @@ func _shot_rope_peek(filename: String) -> void:
 	if main.play_field:
 		main.play_field.visible = false
 	get_tree().paused = false
-	if main.rope_exit == null or main.sack_peek == null:
-		_skip(filename, "rope_exit or sack_peek missing")
+	if main.rope_exit == null:
+		_skip(filename, "rope_exit node missing")
 		return
 	main.rope_exit.z_index = 200
-	main.rope_exit.open_exit(1)
+	if main.has_method("_rope_loot_rows"):
+		main.rope_exit.open_exit(1, main._rope_loot_rows())
+	else:
+		main.rope_exit.open_exit(1)
 	await _wait(0.4)
 	main.rope_exit.modulate.a = 1.0
-	main._open_sack_peek()
-	main.sack_peek.z_index = 210
-	await _wait(0.45)
-	if not main.sack_peek.visible:
-		_skip(filename, "sack peek did not open")
+	if not main.rope_exit.visible:
+		_skip(filename, "rope_exit did not stay visible")
 		return
-	await _capture(filename, "same rest/rope_exit as Belly 1, HUD stowed, then sack_peek.open_peek() with 5 new ids")
+	await _capture(filename, "rope exit with loot in the air, no peek overlay")
 	main.rope_exit.z_index = 80
-	main.sack_peek.z_index = 81
 	if main.play_field:
 		main.play_field.visible = true
 
@@ -619,6 +663,35 @@ func _shot_combat_tooltips() -> void:
 	await _wait(0.2)
 	await _capture("text_combat_tips.png", "fighting goblin, face plaque + item tooltip open")
 	main._hide_fight_hover()
+
+
+func _shot_challenge_ready() -> void:
+	status = "text_challenge_ready.png"
+	_prep_play("ready")
+	main.adventure = true
+	main.in_tutorial = false
+	main.facing_index = -1
+	main.challenge_aim = 0
+	_seat_ids(["goblin", "wizard", "golem", "ogre", "harpy", "bandit"])
+	main.phase = "ready"
+	main._refresh()
+	await _wait(0.25)
+	await _capture("text_challenge_ready.png", "Challenge ready, Spin is reminder text, a slice is selected")
+
+
+func _shot_tutorial_nib() -> void:
+	status = "text_tutorial_nib.png"
+	_prep_play("ready")
+	if main.tut == null:
+		_skip("text_tutorial_nib.png", "tutorial missing")
+		return
+	main.in_tutorial = true
+	main.tut.visible = true
+	main.tut.open()
+	await _wait(0.3)
+	await _capture("text_tutorial_nib.png", "tutorial Nib box to the right of the wheel")
+	main.tut.close()
+	main.in_tutorial = false
 
 
 func _prep_play(phase_name: String) -> void:
@@ -856,6 +929,10 @@ func _reset_between() -> void:
 	_restore_disk()
 	if main.home_cabin:
 		main.home_cabin.stop_story()
+		if main.home_cabin.has_method("clear_debug_fx"):
+			main.home_cabin.clear_debug_fx()
+		if main.home_cabin._dialog and main.home_cabin._dialog.has_method("dismiss"):
+			main.home_cabin._dialog.dismiss()
 		if main.home_cabin._cutscene and main.home_cabin._cutscene.is_playing():
 			main.home_cabin._cutscene.abort()
 		main.home_cabin._load_save()
@@ -990,9 +1067,18 @@ func _shot_text_screens() -> void:
 	await _wait(0.25)
 	await _capture("text_cabin_main.png", "cabin main idle")
 	if cabin._dialog and cabin._dialog.has_method("say"):
+		cabin._dialog.say(["cabin.locked.first"], ["cabin.locked.try", "cabin.locked.wait"])
+		cabin._dialog.advance()
+		cabin._dialog.advance()
+		await _wait(0.25)
+		await _capture("text_cabin_nib.png", "cabin Nib talk box with try-again")
+		if cabin._dialog.has_method("dismiss"):
+			cabin._dialog.dismiss()
 		cabin.say_bubble("cabin.locked")
 		await _wait(0.2)
 		await _capture("text_cabin_bubble.png", "locked bubble")
+		if cabin._dialog.has_method("dismiss"):
+			cabin._dialog.dismiss()
 	if main.settings_ui:
 		main.settings_ui.open_menu(false)
 		await _wait(0.2)
@@ -1002,7 +1088,13 @@ func _shot_text_screens() -> void:
 	if cabin.has_method("_open_map"):
 		cabin._open_map()
 		await _wait(0.25)
-		await _capture("text_map.png", "map overlay")
+		if cabin._map and cabin._map.has_method("debug_select"):
+			cabin._map.debug_select("gatehouse")
+			await _wait(0.2)
+			await _capture("text_map_adventure.png", "map Adventure / Gatehouse selected")
+			cabin._map.debug_select("long_drop")
+			await _wait(0.2)
+		await _capture("text_map.png", "map Challenge / Long Drop selected")
 		if cabin._map:
 			cabin._map.close()
 	if cabin.has_method("_open_journal"):
@@ -1145,9 +1237,12 @@ func _ensure_registry() -> void:
 	_shot_fns["14_keyring_midbeat"] = _shot_keyring_mid
 	_shot_fns["24_rope_exit_belly3"] = _shot_rope_belly3
 	_bind_many([
-		"text_cabin_main", "text_cabin_bubble", "text_pause", "text_map", "text_journal",
+		"text_cabin_main", "text_cabin_nib", "text_cabin_bubble", "text_pause", "text_map",
+		"text_map_adventure", "text_journal",
 		"text_radio", "text_will", "text_drawer", "text_parchment",
 	], _shot_text_screens)
+	_shot_fns["text_challenge_ready"] = _shot_challenge_ready
+	_shot_fns["text_tutorial_nib"] = _shot_tutorial_nib
 
 
 func _bind_many(stems: Array, fn: Callable) -> void:

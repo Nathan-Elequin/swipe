@@ -36,6 +36,10 @@ func _build_special() -> void:
 	var nib_hot = spots.get("Nib", null)
 	if nib_hot is CabinHotspot:
 		nib_hot.z_index = 7
+		nib_hot.idle_tex = null
+		nib_hot.hover_tex = null
+		nib_hot.press_tex = null
+		nib_hot.texture = null
 	prompt = KIT.nine("ui/dialog_box_9.png", Vector2(8, 8))
 	prompt.size = KIT.pt(58, 22)
 	prompt.position = KIT.pt(232, 148)
@@ -89,7 +93,12 @@ func _refresh_doors() -> void:
 		side.tag_key = "cabin.hot.door_hall" if hall_open else "cabin.hot.door_locked"
 		side.set_locked(not hall_open, KIT.load_tex("doors/side_door_locked.png"))
 		if hall_open:
-			side.set_idle_tex(KIT.load_tex("doors/side_door_closed.png"))
+			var closed: Texture2D = KIT.load_tex("doors/side_door_closed.png")
+			side.locked_tex = null
+			side.hover_tex = KIT.load_tex("doors/side_door_hover.png")
+			if side.hover_tex == null:
+				side.hover_tex = closed
+			side.set_idle_tex(closed)
 	_refresh_gear()
 
 
@@ -104,4 +113,5 @@ func _refresh_gear() -> void:
 			continue
 		var slot: String = str(extra.get("gear_slots", {}).get(piece, ""))
 		var on: bool = str(worn.get(slot, "")) == piece
-		hs.visible = not on
+		hs.visible = true
+		hs.modulate = Color(0.45, 0.45, 0.5, 0.85) if on else Color.WHITE

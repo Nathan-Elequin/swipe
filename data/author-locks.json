@@ -1607,6 +1607,270 @@
 			],
 			"locked_at": "2026-10-17",
 			"name": "Wraith"
+		},
+		"item:shuriken": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-17",
+			"name": "Shuriken"
+		},
+		"item:miasma": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-17",
+			"name": "Miasma"
+		},
+		"item:bag_of_marbles": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-17",
+			"name": "Bag of Marbles"
+		},
+		"item:marble": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-17",
+			"name": "Marble"
+		},
+		"item:hex": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-17",
+			"name": "Hex"
+		},
+		"monster:martyr": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-17",
+			"name": "Martyr"
+		},
+		"monster:prism": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-17",
+			"name": "Prism"
+		},
+		"monster:plague_doctor": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-17",
+			"name": "Plague Doctor"
+		},
+		"item:ale_flagon": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-18",
+			"name": "Ale Flagon"
+		},
+		"monster:hired_hand": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-18",
+			"name": "Hired Hand"
+		},
+		"monster:hydra": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-18",
+			"name": "Hydra"
 		}
 	},
 	"id": "boss-rush-author-locks",
@@ -1633,9 +1897,10 @@
 		},
 		"challenge.click_target": {
 			"cat": "Title",
-			"locked_at": "2026-10-16",
-			"text": "Click who you fight, then Spin.",
-			"where": "Challenge ready cue"
+			"locked_at": "2026-10-17",
+			"text": "Click who you fight.",
+			"where": "Challenge ready cue",
+			"author_lock": true
 		},
 		"challenge.full_hand": {
 			"cat": "Title",
@@ -1657,9 +1922,10 @@
 		},
 		"challenge.spin_confirm": {
 			"cat": "Title",
-			"locked_at": "2026-10-16",
-			"text": "Spin to lock that fight.",
-			"where": "Challenge ready cue after click"
+			"locked_at": "2026-10-17",
+			"text": "Click a monster on the wheel.",
+			"where": "Challenge ready cue after click",
+			"author_lock": true
 		},
 		"combat.blocked": {
 			"cat": "Combat",
@@ -2593,9 +2859,10 @@
 		},
 		"tutorial.beat.01.body": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-16",
-			"text": "Hey there, greedy goblin. I'm {nib}. I was just in the middle of enjoying my nap when you had to barge into this dungeon and start swiping loot left n' right!\n(Click 'next' to continue)\nWell, now you've gone and done it â€” the monsters are coming to claim their stuff, and you're going to have to defend yourself with that loot or else die in this strange catacomb.\n(Click 'next' to continue)\n(Highlights dungeon wheel)\nWelcome to the Merry Go' Round of doom â€” a series of circular catacombs that rotate around this particular spot. Don't ask me why, the architect of this dungeon doesn't like answering questions.\n(Click 'next' to continue)\n(Highlights single empty slice of dungeon wheel)\nThis is a Corridor â€” there are 8 in total. Monsters will pop into these slots as they line up to clean your clock and take your junk.\n(Click 'next' to continue)\n(Highlights player hotbar)\nThis is your loot. Looks like you started off with some basic loot for this tutorial, but you'll find lots of fancy weapons and armor out here.\n(Click 'next' to continue)\n(Sprite of {nib} comes very close to the player, nearly covering 80% of the screen)\nYour mission...\n(Click to continue)\n(Comes closer)\n...is to get out of the dungeon with as much loot as possible.\n(Returns to his original position)\n...Got it?\n(Click 'Got It' to continue)\nOkay, let me show you how things work a'ROUND these parts.\n(Click 'next' to continue)\n(in very tiny text, in italics parentheses) â€” (y'know, cause of the round dungeon...)\n(Click to continue)\n(Highlight the healthbar)\nYou have 6 health (HP). You can never have more than 6. If it reaches 0 at any point, you're dead.\n(Click to continue)\nWhen you complete a Dungeon (clear out this wheel), you will heal back to full HP. Spend your HP wisely.\n(Click to continue)\nAlright, that's enough. Let's spin the wheel and learn the rest as we go. Click 'Spin' to randomly choose your first opponent.\n(Click 'Spin' â€” spins the wheel, forcing it to stop on Wizard)\nAhh, a crotchety ol' wizard, eh?\n(Click to continue)\n(Highlights Wizard's Attack icon)\nHe looks pretty scary â€” 5 Attack would nearly kill you in one strike.\n(Click to continue)\n(Highlights Wizard's HP icon)\n...but he's also super frail. Most weapons will kill him before he gets to strike.\n(Click to continue)\n(Highlights the Sai)\nUse the Sai. It will kill him and end the fight.\n(Click the Sai to use it, resolving combat as normal)\n1 down, nice. When an Enemy is Defeated, it will trigger the Dungeon to Spin again.\n(Click to continue)\n(Only NOW does the wheel Spin, and will now land on Golem)\nInteresting...this Golem is much harder to kill, so you'd usually want to block this.\n(Click to continue)\n(Highlights Block icon on the character)\nBlock is temporary for the current fight. It goes away whenever you Spin the Dungeon.\n(Click to continue)\nBut I've got good news â€” if you Block an enemy, they are also Defeated.\n(Click to continue)\n({nib} gets 50% closer to the viewer, 'leaning' in)\nI guess they just...run out of time to kill you, I guess? Not sure, this Dungeon is kinda weird.\n(Click to continue)\n({nib} returns to his position)\n(Highlights the Helmet item in the hotbar)\nAnyway, look at the Helmet, since this item has a unique ability.\n(Click to continue)\nYou can hold Shift to see any Item's details at a glance.\n(Click to continue)\n(Highlights the detail view panel to the right)\nLooks like the Helmet's Block is based on whichever HP is lower between you and your Enemy.\n(Click to continue)\n(Highlight both player HP and the Golem's HP)\nIn this case, that's you with 6 HP.\n(Click to continue)\nGlad you didn't lose 5 HP to the Wizard earlier, that would make this Helmet useless!\n(Click to continue)\nItems change all the time based on circumstances. Your job is to juggle your loot to maximize their effectiveness against the unique enemies in the dungeon.\n(Click to continue)\n(Highlights the Helmet again)\nOkay, let's use the Helmet and Block this incoming attack.\n(Click the Helmet)\n(Highlights the 'Safe' button)\nThis button will always show you how much HP you are going to lose if you end the fight now.\n(Click to continue)\nSince you are safe, you can click 'Safe' to end the fight.\n(Click 'Safe' and resolve the combat)\nGreat, so you've Defeated enemies in 2 different ways, by Attacking and Defending.\n(Click to continue)\nThere's one final type of item, so let's Spin again and try it out.\n(Click 'Spin' and land on Goblin)\nAww, look at this little guy! He is so cute...but he also has an ability.\n(Click to continue)\n(Highlight on the Monster card)\nHover over any Monster and hold Shift to learn the details of their ability, just like Items.\n(When the user hovers and holds Shift, highlight the details)\nAw, Goblins are 'Evasive', so they cannot take Attack damage! Looks like our Knucklers would be wasted here.\n(Click to continue)\n(Highlight 'Da Boot' in the hotbar)\nBut wait...this item is a Special Item. It doesn't Attack or Block. Take a look.\n(When the user hovers or holds Shift)\nThis item allows you to instantly Defeat an Enemy if you have more HP than them!\n(Click to continue)\nThat's a good item...\n(Click to continue)\n({nib} moves close to the viewer)\n...but are you sure you want to use it?\n(Click to continue)\n({nib} returns)\nSo far you've lost zero HP in this dungeon, but remember â€” each time you clear a Dungeon, you heal back to full.\n(Click to continue)\nAND you get to keep all of the Loot that you didn't use in this dungeon. Pretty sweet, huh?\n(Click to continue)\nSo I'll give you a choice. You can use Da Boot and get the sweet satisfaction of stomping this Goblin into the dirt...\n(Click to continue)\n...Orrrr you can let him slice you up, and keep it. The choice is yours.\n(The player will click on either Da Boot or 'Take 3'. Either will resolve the combat)\n\n---(If the player chose 'Da Boot', after combat resolves)---\nHonestly, I respect it. Those Goblins are super annoying, so here's a tip:\n(Click to continue)\nIf you see one in your upcoming Dungeon, you should always hold onto a Block or Defeat item to avoid that damage.\n(Click to continue)\nYou won't always have a Boot, after all.\n(Click to continue â€” joins back with standard dialogue)\n---(If the player chose to 'Take 3')---\nOuch â€” hurts, doesn't it?\n(Click to continue)\nWell the next time that Boot saves you from death in a future Dungeon, you'll be glad you let that little rascal nick you for 3.\n(Click to continue)\nI'm sure you can tell, but I'll give you a tip straight from the source:\n(Click to continue)\nSpend your HP like it was made of gold. Sometimes it will be correct to drop to 1 HP â€” you'll find Items that reward you for losing HP â€” we call that Bleeding.\n(Click to continue â€” joins back with standard dialogue)\n---JOINS TOGETHER\nAlright, so you survived all 3 Monsters and cleared the Dungeon! Challenge Mode is the real haul — here's what happens when you go deeper.\n(Click to continue)\n(Highlights dungeon wheel)\nSix monsters walk in. No empty corridors. A face-down deck sits off to the side — six more waiting to replace whoever you drop.\n(Click to continue)\n(Highlights 2 random slices)\nThen, 2 of those starting Monsters will be upgraded to more dangerous foes\n(Click to continue)\n(Highlights hotbar)\nThen you pick loot: two items at a time, matching the monsters already sitting on the wheel. You keep what you already hold, up to ten cards.\n(Click to continue)\n({nib} moves to center screen)\nAfter that you pick who you fight. Click a monster, then click Spin. Knock one down and you pick loot equal to their tier, then a new monster climbs out of the deck into that seat. When the deck's empty, the wheel starts closing for real.\n(Click to continue)\nSome items are very strong against certain monsters, and it's up to you to manage your resources and make it out with the best haul.\n(Click to continue)\nWith that, I'm off to finish my nap again. Good luck with your dungeon delve, you greedy grubber!\n(Click to continue)\n(Animates {nib} 'walking off' to the right)\n(vignette background, only buttons below are 'Main Menu' and 'Play', which goes to Challenge Mode)",
-			"where": "How to Play step 1 Â· continue / (none) Â· main line"
+			"locked_at": "2026-10-17",
+			"text": "Hey there, greedy goblin. I'm {nib}. I was just in the middle of enjoying my nap when you had to barge into this dungeon and start swiping loot left n' right!\n(Click 'next' to continue)\nWell, now you've gone and done it â€” the monsters are coming to claim their stuff, and you're going to have to defend yourself with that loot or else die in this strange catacomb.\n(Click 'next' to continue)\n(Highlights dungeon wheel)\nWelcome to the Merry Go' Round of doom â€” a series of circular catacombs that rotate around this particular spot. Don't ask me why, the architect of this dungeon doesn't like answering questions.\n(Click 'next' to continue)\n(Highlights single empty slice of dungeon wheel)\nThis is a Corridor â€” there are 8 in total. Monsters will pop into these slots as they line up to clean your clock and take your junk.\n(Click 'next' to continue)\n(Highlights player hotbar)\nThis is your loot. Looks like you started off with some basic loot for this tutorial, but you'll find lots of fancy weapons and armor out here.\n(Click 'next' to continue)\n(Sprite of {nib} comes very close to the player, nearly covering 80% of the screen)\nYour mission...\n(Click to continue)\n(Comes closer)\n...is to get out of the dungeon with as much loot as possible.\n(Returns to his original position)\n...Got it?\n(Click 'Got It' to continue)\nOkay, let me show you how things work a'ROUND these parts.\n(Click 'next' to continue)\n(in very tiny text, in italics parentheses) â€” (y'know, cause of the round dungeon...)\n(Click to continue)\n(Highlight the healthbar)\nYou have 6 health (HP). You can never have more than 6. If it reaches 0 at any point, you're dead.\n(Click to continue)\nWhen you complete a Dungeon (clear out this wheel), you will heal back to full HP. Spend your HP wisely.\n(Click to continue)\nAlright, that's enough. Let's learn the rest as we go. Click the Wizard on the wheel.\n(Click the Wizard)\nAhh, a crotchety ol' wizard, eh?\n(Click to continue)\n(Highlights Wizard's Attack icon)\nHe looks pretty scary â€” 5 Attack would nearly kill you in one strike.\n(Click to continue)\n(Highlights Wizard's HP icon)\n...but he's also super frail. Most weapons will kill him before he gets to strike.\n(Click to continue)\n(Highlights the Sai)\nUse the Sai. It will kill him and end the fight.\n(Click the Sai to use it, resolving combat as normal)\n1 down, nice. When an Enemy is Defeated, it will trigger the Dungeon to Spin again.\n(Click to continue)\n(Only NOW does the wheel Spin, and will now land on Golem)\nInteresting...this Golem is much harder to kill, so you'd usually want to block this.\n(Click to continue)\n(Highlights Block icon on the character)\nBlock is temporary for the current fight. It goes away whenever you Spin the Dungeon.\n(Click to continue)\nBut I've got good news â€” if you Block an enemy, they are also Defeated.\n(Click to continue)\n({nib} gets 50% closer to the viewer, 'leaning' in)\nI guess they just...run out of time to kill you, I guess? Not sure, this Dungeon is kinda weird.\n(Click to continue)\n({nib} returns to his position)\n(Highlights the Helmet item in the hotbar)\nAnyway, look at the Helmet, since this item has a unique ability.\n(Click to continue)\nHover any item to see its details at a glance.\n(Click to continue)\n(Highlights the detail view panel to the right)\nLooks like the Helmet's Block is based on whichever HP is lower between you and your Enemy.\n(Click to continue)\n(Highlight both player HP and the Golem's HP)\nIn this case, that's you with 6 HP.\n(Click to continue)\nGlad you didn't lose 5 HP to the Wizard earlier, that would make this Helmet useless!\n(Click to continue)\nItems change all the time based on circumstances. Your job is to juggle your loot to maximize their effectiveness against the unique enemies in the dungeon.\n(Click to continue)\n(Highlights the Helmet again)\nOkay, let's use the Helmet and Block this incoming attack.\n(Click the Helmet)\n(Highlights the 'Safe' button)\nThis button will always show you how much HP you are going to lose if you end the fight now.\n(Click to continue)\nSince you are safe, you can click 'Safe' to end the fight.\n(Click 'Safe' and resolve the combat)\nGreat, so you've Defeated enemies in 2 different ways, by Attacking and Defending.\n(Click to continue)\nThere's one final type of item. Click the Goblin on the wheel.\n(Click the Goblin)\nAww, look at this little guy! He is so cute...but he also has an ability.\n(Click to continue)\n(Highlight on the Monster card)\nHover any monster to learn their ability, just like items.\n(When the user hovers)\nAw, Goblins are 'Evasive', so they cannot take Attack damage! Looks like our Knucklers would be wasted here.\n(Click to continue)\n(Highlight 'The Boot' in the hotbar)\nBut wait...this item is a Special Item. It doesn't Attack or Block. Take a look.\n(When the user hovers)\nThis item allows you to instantly Defeat an Enemy if you have more HP than them!\n(Click to continue)\nThat's a good item...\n(Click to continue)\n({nib} moves close to the viewer)\n...but are you sure you want to use it?\n(Click to continue)\n({nib} returns)\nSo far you've lost zero HP in this dungeon, but remember â€” each time you clear a Dungeon, you heal back to full.\n(Click to continue)\nAND you get to keep all of the Loot that you didn't use in this dungeon. Pretty sweet, huh?\n(Click to continue)\nSo I'll give you a choice. You can use The Boot and get the sweet satisfaction of stomping this Goblin into the dirt...\n(Click to continue)\n...Orrrr you can let him slice you up, and keep it. The choice is yours.\n(The player will click on either The Boot or 'Take 3'. Either will resolve the combat)\n\n---(If the player chose 'The Boot', after combat resolves)---\nHonestly, I respect it. Those Goblins are super annoying, so here's a tip:\n(Click to continue)\nIf you see one in your upcoming Dungeon, you should always hold onto a Block or Defeat item to avoid that damage.\n(Click to continue)\nYou won't always have a Boot, after all.\n(Click to continue â€” joins back with standard dialogue)\n---(If the player chose to 'Take 3')---\nOuch â€” hurts, doesn't it?\n(Click to continue)\nWell the next time that Boot saves you from death in a future Dungeon, you'll be glad you let that little rascal nick you for 3.\n(Click to continue)\nI'm sure you can tell, but I'll give you a tip straight from the source:\n(Click to continue)\nSpend your HP like it was made of gold. Sometimes it will be correct to drop to 1 HP â€” you'll find Items that reward you for losing HP â€” we call that Bleeding.\n(Click to continue â€” joins back with standard dialogue)\n---JOINS TOGETHER\nAlright, so you survived all 3 Monsters and cleared the Dungeon! Challenge Mode is the real haul — here's what happens when you go deeper.\n(Click to continue)\n(Highlights dungeon wheel)\nSix monsters walk in. No empty corridors. A face-down deck sits off to the side — six more waiting to replace whoever you drop.\n(Click to continue)\n(Highlights 2 random slices)\nThen, 2 of those starting Monsters will be upgraded to more dangerous foes\n(Click to continue)\n(Highlights hotbar)\nThen you pick loot: two items at a time, matching the monsters already sitting on the wheel. You keep what you already hold, up to ten cards.\n(Click to continue)\n({nib} moves to center screen)\nAfter that you pick who you fight. Click Begin when your loot is ready.\n(Highlights Begin)\n(Click 'next' to continue)\nThen click a monster on the wheel — that click is the spin. Knock one down and you pick loot equal to their tier, then a new monster climbs out of the deck into that seat. When the deck's empty, the wheel starts closing for real.\n(Highlights dungeon wheel)\n(Click to continue)\nSome items are very strong against certain monsters, and it's up to you to manage your resources and make it out with the best haul.\n(Click to continue)\nWith that, I'm off to finish my nap again. Good luck with your dungeon delve, you greedy grubber!\n(Click to continue)\n(Animates {nib} 'walking off' to the right)\n(vignette background, only buttons below are 'Main Menu' and 'Play', which goes to Challenge Mode)",
+			"where": "How to Play step 1 Â· continue / (none) Â· main line",
+			"author_lock": true
 		},
 		"tutorial.beat.01.go": {
 			"cat": "Tutorial",
@@ -2917,9 +3184,10 @@
 		},
 		"tutorial.nudge_item": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-07",
-			"text": "Wrong shiny.",
-			"where": "Wrong item during How to Play"
+			"locked_at": "2026-10-17",
+			"text": "Click the highlighted thing — not that one.",
+			"where": "Wrong item during How to Play",
+			"author_lock": true
 		},
 		"tutorial.nudge_wait": {
 			"cat": "Tutorial",
@@ -2976,5 +3244,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-10-17"
+	"updated": "2026-10-18"
 }

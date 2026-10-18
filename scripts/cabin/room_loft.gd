@@ -18,6 +18,15 @@ func _build_special() -> void:
 	add_child(cat_sleep)
 	if cat_sleep.sprite_frames:
 		cat_sleep.play("z")
+		var sf: SpriteFrames = cat_sleep.sprite_frames
+		if not sf.has_animation("rub"):
+			sf.add_animation("rub")
+			sf.set_animation_loop("rub", false)
+			sf.set_animation_speed("rub", 1000.0 / 180.0)
+			for i in 4:
+				var tex: Texture2D = KIT.load_tex("props/cat_rub_f%d.png" % i)
+				if tex:
+					sf.add_frame("rub", tex)
 	new_tag = KIT.tex_rect("fx/new_tag.png", Vector2(126, 182), Vector2(16, 10), 5)
 	new_tag.visible = false
 	add_child(new_tag)

@@ -39,7 +39,13 @@
 		"cursed_scroll",
 		"danger_magnet",
 		"spider_egg",
-		"arrow_head"
+		"arrow_head",
+		"shuriken",
+		"miasma",
+		"bag_of_marbles",
+		"marble",
+		"hex",
+		"ale_flagon"
 	],
 	"monsters": [
 		"wizard",
@@ -76,7 +82,12 @@
 		"cowardly_king",
 		"merchant",
 		"juggernaut",
-		"cleric"
+		"cleric",
+		"martyr",
+		"prism",
+		"plague_doctor",
+		"hired_hand",
+		"hydra"
 	],
 	"notes": "Full roster minus retired/hidden rows (Dagger, Bandana, old Helmet) and Cursed Scroll. Commander + Lich apply last."
 }

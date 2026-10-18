@@ -29,6 +29,7 @@ var _plank_normal: StyleBox
 var _plank_hover: StyleBox
 var _busy: bool = false
 var _chrome: Array = []
+var _loot_host: Control
 
 
 func setup(p_cabin, p_extra: Dictionary) -> void:
@@ -77,16 +78,25 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	_hero.texture = KIT.load_tex("hero/hero_idle_loot_f0.png")
 	_hero.z_index = 4
 	add_child(_hero)
+	_loot_host = Control.new()
+	_loot_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_loot_host.z_index = 12
+	add_child(_loot_host)
 	_build_chrome()
 	_build_hotspots()
 
 
-func open_exit(cleared: int) -> void:
+func open_exit(cleared: int, loot: Array = []) -> void:
 	_cleared = cleared
 	_busy = false
 	_headline.set_copy("rope.cleared", {"n": cleared})
+	if _sub:
+		_sub.set_copy("rope.loot_tip")
 	_deeper_sub.set_copy("rope.deeper_sub", {"n": cleared + 1})
 	set_chrome_visible(true)
+	if _peek_btn:
+		_peek_btn.visible = false
+	_show_loot(loot)
 	if visible:
 		return
 	visible = true
@@ -98,8 +108,46 @@ func open_exit(cleared: int) -> void:
 
 func hide_exit() -> void:
 	visible = false
+	_clear_loot()
 	if cabin and cabin.sfx and cabin.sfx.has_method("loop_stop"):
 		cabin.sfx.loop_stop(&"amb.rope_creak", 0.3)
+
+
+func _clear_loot() -> void:
+	if _loot_host == null:
+		return
+	for c in _loot_host.get_children():
+		c.queue_free()
+
+
+func _show_loot(loot: Array) -> void:
+	_clear_loot()
+	if _loot_host == null:
+		return
+	var i: int = 0
+	for row in loot:
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var tex: Texture2D = row.get("tex", null)
+		if tex == null:
+			continue
+		var spr := TextureRect.new()
+		spr.texture = tex
+		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		spr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		spr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		spr.size = Vector2(64, 64)
+		spr.pivot_offset = Vector2(32, 32)
+		var col: int = i % 6
+		var rw: int = int(i / 6)
+		spr.position = Vector2(520.0 + float(col) * 72.0, 240.0 + float(rw) * 80.0)
+		spr.modulate = Color("fff3d6") if bool(row.get("is_new", false)) else Color("c4a574")
+		_loot_host.add_child(spr)
+		var tw := create_tween()
+		tw.set_loops(4)
+		tw.tween_property(spr, "modulate:a", 0.55, 0.45)
+		tw.tween_property(spr, "modulate:a", 1.0, 0.45)
+		i += 1
 
 
 func set_chrome_visible(on: bool) -> void:
@@ -187,28 +235,7 @@ func _build_chrome() -> void:
 	_chrome.append(sign_lab)
 	_climb_btn = _plank_choice("Climb", "rope.climb", "rope.climb_sub", {}, _on_climb)
 	_deeper_btn = _plank_choice("Delve", "rope.deeper", "rope.deeper_sub", {"n": 1}, _on_deeper)
-	var peek_el: Dictionary = KIT.layout_el(_lay, "Peek")
-	_peek_btn = KIT.plank(KIT.rect_px(peek_el.get("rect", [624, 716, 240, 64])), int(peek_el.get("z", 20)))
-	_peek_btn.pressed.connect(func() -> void:
-		peek.emit()
-	)
-	add_child(_peek_btn)
-	_chrome.append(_peek_btn)
-	var peek_lab_el: Dictionary = KIT.layout_child(peek_el, "Peek.Label")
-	var plt: Dictionary = peek_lab_el.get("text", {})
-	var peek_lab: FitLabelBox = KIT.fit_label(
-		"rope.peek",
-		KIT.rect_px(peek_lab_el.get("rect", [])),
-		int(plt.get("font_max", 32)),
-		int(plt.get("font_min", 16)),
-		int(plt.get("max_lines", 2)),
-		KIT.INK,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		VERTICAL_ALIGNMENT_CENTER,
-		int(peek_lab_el.get("z", 21))
-	)
-	add_child(peek_lab)
-	_chrome.append(peek_lab)
+	_peek_btn = null
 
 
 func _plank_choice(el_id: String, label_key: String, sub_key: String, vars: Dictionary, action: Callable) -> FitButton:
