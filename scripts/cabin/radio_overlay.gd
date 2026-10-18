@@ -26,6 +26,7 @@ func setup(p_cabin, p_extra: Dictionary, p_audio) -> void:
 	audio = p_audio
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	z_index = 20
 	visible = false
 	var v := KIT.veil()
 	v.gui_input.connect(func(ev: InputEvent) -> void:
@@ -36,6 +37,7 @@ func setup(p_cabin, p_extra: Dictionary, p_audio) -> void:
 	var origin: Array = extra.get("overlay_origins", {}).get("overlays/radio_close.png", [60, 30])
 	_body = KIT.tex_rect("overlays/radio_close.png", Vector2(float(origin[0]), float(origin[1])), Vector2(300, 200), 0)
 	_body.mouse_filter = Control.MOUSE_FILTER_STOP
+	_body.z_index = 1
 	add_child(_body)
 	var title := KIT.label("radio.title", 32, KIT.CREAM)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -52,7 +54,10 @@ func setup(p_cabin, p_extra: Dictionary, p_audio) -> void:
 	if gloria.sprite_frames:
 		gloria.play("g")
 	var centres: Array = extra.get("radio_knobs", [])
+	var tip_keys := {1: "radio.tip.music", 2: "radio.tip.ambiance", 3: "radio.tip.sfx"}
 	for i in centres.size():
+		if i == 4:
+			continue
 		var c: Array = centres[i]
 		var kn := TextureRect.new()
 		kn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -66,6 +71,16 @@ func setup(p_cabin, p_extra: Dictionary, p_audio) -> void:
 		kn.gui_input.connect(func(ev: InputEvent) -> void:
 			_knob_input(idx, ev)
 		)
+		if tip_keys.has(i):
+			var tip_key: String = str(tip_keys[i])
+			kn.mouse_entered.connect(func() -> void:
+				if cabin:
+					cabin.show_hover_tag(tip_key, kn, {})
+			)
+			kn.mouse_exited.connect(func() -> void:
+				if cabin:
+					cabin.hide_hover_tag()
+			)
 		add_child(kn)
 		_knobs.append(kn)
 		var mid_x: float = kn.position.x + 12.0 * PX
@@ -93,10 +108,10 @@ func setup(p_cabin, p_extra: Dictionary, p_audio) -> void:
 		add_child(lab)
 	_needle = KIT.tex_rect("overlays/radio_needle.png", Vector2.ZERO, Vector2(4, 16), 2)
 	add_child(_needle)
-	_station_lab = KIT.label("radio.station.0", 22, KIT.CREAM)
+	_station_lab = KIT.label("radio.station.0", 28, KIT.TITLE_CREAM)
 	_station_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_station_lab.position = _body.position + Vector2(66, 100) * PX
-	_station_lab.size = Vector2(168, 28) * PX
+	_station_lab.size = Vector2(168, 32) * PX
 	add_child(_station_lab)
 	var cap := KIT.label("radio.station", 16, KIT.MUTED)
 	cap.position = _station_lab.position + Vector2(0, 28)
@@ -184,7 +199,9 @@ func _set_vol(i: int, v: float) -> void:
 			audio.set_ambience(v)
 		3:
 			audio.set_sfx(v)
+			audio.set_ui(v)
 		4:
+			audio.set_sfx(v)
 			audio.set_ui(v)
 	KIT.cue(cabin.sfx if cabin else null, &"cabin.radio_knob")
 	KIT.cue(cabin.sfx if cabin else null, &"ui.slider_tick")

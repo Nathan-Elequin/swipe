@@ -53,6 +53,7 @@ var _log_focus: bool = false
 var _plus: TextureRect
 var _ban: TextureRect
 var _used: Label
+var _danger: bool = false
 
 
 func setup(
@@ -141,15 +142,12 @@ func setup(
 
 	_mark = TextureRect.new()
 	_mark.texture = mark
-	_mark.visible = mark != null and number_text == ""
+	_mark.visible = mark != null and (number_text == "" or (p_kind == "DEFEAT" and number_text.is_valid_int()))
 	_mark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_mark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_mark.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	_mark.offset_left = -18
-	_mark.offset_top = -18
-	_mark.offset_right = 18
-	_mark.offset_bottom = 18
+	_layout_mark(number_text)
 	num_host.add_child(_mark)
 
 	_ghost = Label.new()
@@ -388,19 +386,21 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 	else:
 		_shown = number_text
 		_num.text = number_text
-	if _glow or _aura or _log_focus:
+	if _glow or _aura or _log_focus or _danger:
 		pass
 	elif spent:
 		modulate = Color(0.38, 0.36, 0.34, 0.72)
-	elif not can_use:
+	elif not can_use and not (kind == "DEFEAT" and number_text.is_valid_int()):
 		modulate = Color(0.62, 0.60, 0.58, 0.70)
 	else:
 		modulate = Color.WHITE
 	if _used != null:
 		_used.visible = spent
 	if _mark != null and not _formula_on:
-		_mark.visible = _mark.texture != null and number_text == ""
+		var beside: bool = kind == "DEFEAT" and number_text.is_valid_int()
+		_mark.visible = _mark.texture != null and (number_text == "" or beside)
 		_mark.modulate.a = 0.95
+		_layout_mark(number_text)
 
 
 func set_rank(text: String) -> void:
@@ -417,10 +417,30 @@ func set_palette(fill: Color, metal: Color, tier: int = 1) -> void:
 	_apply_style(_hot)
 
 
+func _want_process() -> bool:
+	return _glow or _playable or _aura or _log_focus or _danger
+
+
+func _layout_mark(number_text: String) -> void:
+	if _mark == null:
+		return
+	var beside: bool = kind == "DEFEAT" and number_text.is_valid_int()
+	if beside:
+		_mark.offset_left = -40
+		_mark.offset_top = -16
+		_mark.offset_right = -8
+		_mark.offset_bottom = 16
+	else:
+		_mark.offset_left = -18
+		_mark.offset_top = -18
+		_mark.offset_right = 18
+		_mark.offset_bottom = 18
+
+
 func set_draft_glow(on: bool) -> void:
 	_glow = on
-	set_process(on or _playable or _aura or _log_focus)
-	if not on and not _playable and not _aura:
+	set_process(_want_process())
+	if not on and not _playable and not _aura and not _danger:
 		_glow_t = 0.0
 		if not spent:
 			modulate = Color.WHITE
@@ -429,8 +449,8 @@ func set_draft_glow(on: bool) -> void:
 
 func set_log_focus(on: bool) -> void:
 	_log_focus = on
-	set_process(_glow or _playable or _aura or _log_focus)
-	if not on and not _glow and not _playable and not _aura:
+	set_process(_want_process())
+	if not on and not _glow and not _playable and not _aura and not _danger:
 		_glow_t = 0.0
 		if not spent:
 			modulate = Color.WHITE
@@ -439,8 +459,18 @@ func set_log_focus(on: bool) -> void:
 
 func set_aura(on: bool) -> void:
 	_aura = on
-	set_process(_glow or _playable or _aura or _log_focus)
-	if not on and not _glow and not _playable and not _log_focus:
+	set_process(_want_process())
+	if not on and not _glow and not _playable and not _log_focus and not _danger:
+		_glow_t = 0.0
+		if not spent:
+			modulate = Color.WHITE
+	_apply_style(_hot)
+
+
+func set_danger(on: bool) -> void:
+	_danger = on
+	set_process(_want_process())
+	if not on and not _glow and not _playable and not _aura and not _log_focus:
 		_glow_t = 0.0
 		if not spent:
 			modulate = Color.WHITE
@@ -460,14 +490,14 @@ func set_passive_icons(plus_tex: Texture2D, ban_tex: Texture2D, on: bool) -> voi
 
 func set_playable(on: bool) -> void:
 	_playable = on
-	set_process(_glow or _playable or _aura or _log_focus)
-	if not on and not _glow and not _aura and not _log_focus and not spent:
+	set_process(_want_process())
+	if not on and not _glow and not _aura and not _log_focus and not _danger and not spent:
 		modulate = Color.WHITE
 	_apply_style(_hot)
 
 
 func _process(delta: float) -> void:
-	if not _glow and not _playable and not _aura and not _log_focus:
+	if not _want_process():
 		return
 	_glow_t += delta
 	_apply_style(_hot)
@@ -490,7 +520,8 @@ func show_formula(on: bool) -> void:
 		_ban.visible = (not _formula_on) and _ban.texture != null
 	_ghost.visible = not _formula_on
 	if _mark != null:
-		_mark.visible = (not _formula_on) and _mark.texture != null and _shown == ""
+		var beside: bool = kind == "DEFEAT" and _shown.is_valid_int()
+		_mark.visible = (not _formula_on) and _mark.texture != null and (_shown == "" or beside)
 
 
 func _dissolve(old_s: String, new_s: String) -> void:
@@ -558,6 +589,12 @@ func _apply_style(hot: bool) -> void:
 		metal = metal.lerp(gold, 0.45 + pulse * 0.55)
 		sb.bg_color = sb.bg_color.lerp(gold.darkened(0.35), pulse * 0.22)
 		modulate = Color.WHITE.lerp(Color("ffe6a8"), pulse * 0.38)
+	elif _danger and not spent:
+		pulse = 0.40 + 0.60 * absf(sin(_glow_t * TAU / 0.45))
+		var blood := Color("c41e1e")
+		metal = metal.lerp(blood, 0.55 + pulse * 0.45)
+		sb.bg_color = sb.bg_color.lerp(blood.darkened(0.15), pulse * 0.42)
+		modulate = Color.WHITE.lerp(Color("ff6a4a"), pulse * 0.55)
 	elif _aura and not spent:
 		pulse = 0.45 + 0.55 * absf(sin(_glow_t * TAU / 0.9))
 		var ember := Color("e07a3d")
@@ -586,7 +623,7 @@ func _apply_style(hot: bool) -> void:
 		bw = 5
 	if hot:
 		bw += 1
-	if _glow or _aura or _log_focus:
+	if _glow or _aura or _log_focus or _danger:
 		bw += int(pulse * 2.0)
 	sb.set_border_width_all(bw)
 	sb.set_corner_radius_all(8 if _showcase else 6)

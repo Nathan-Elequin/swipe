@@ -8,7 +8,7 @@ signal skipped
 signal finished
 
 const PAD := 10.0
-const TALK_W := 340.0
+const TALK_W := 420.0
 
 var step: int = -1
 var wait: String = ""
@@ -172,13 +172,13 @@ func _build_talk(art) -> void:
 	_name.font_color = Color("6b4a10")
 	_name.custom_minimum_size = Vector2(230, 24)
 	col.add_child(_name)
-	_body = FitLabelBox.make()
-	_body.show_frame = false
-	_body.padding = 0
-	_body.max_font_size = 15
-	_body.min_font_size = 12
-	_body.max_lines = 4
-	_body.font_color = Color("1c120c")
+	_body = RichTextLabel.new()
+	_body.bbcode_enabled = true
+	_body.fit_content = true
+	_body.scroll_active = false
+	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_body.add_theme_color_override("default_color", Color("1c120c"))
+	_body.add_theme_font_size_override("normal_font_size", 20)
 	_body.custom_minimum_size = Vector2(230, 48)
 	col.add_child(_body)
 	_hint = FitLabelBox.make()
@@ -203,13 +203,16 @@ func _build_talk(art) -> void:
 	_go.custom_minimum_size = Vector2(210, 58)
 	_go.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_go.add_theme_font_size_override("font_size", 26)
-	_style_btn(_go, Color("3a2820"), Color("e8c36a"))
+	_style_btn(_go, Color("fff3d6"), Color("3a2414"))
 	_go.pressed.connect(func() -> void: continued.emit())
 	btns.add_child(_go)
 
 
 func _style_btn(b: Button, fill: Color, rim: Color) -> void:
-	b.add_theme_color_override("font_color", Color("f0e6d8"))
+	b.add_theme_color_override("font_color", Color("1c120c"))
+	b.add_theme_color_override("font_hover_color", Color("100e0c"))
+	b.add_theme_color_override("font_outline_color", Color("fff3d6"))
+	b.add_theme_constant_override("outline_size", 2)
 	var s := StyleBoxFlat.new()
 	s.bg_color = fill
 	s.border_color = rim
@@ -272,9 +275,11 @@ func advance() -> void:
 	then_focus = str(b.get("then_focus", ""))
 	nib_close = float(b.get("nib", 0.0))
 	_tiny = bool(b.get("tiny", false))
-	_body.text = COPY.apply_names(str(b.get("text", "")))
+	var spoken: String = COPY.apply_names(str(b.get("text", "")))
+	_body.clear()
+	_body.append_text(UxStyle.paint(spoken, true, "#c45c26"))
 	if sfx and sfx.has_method("speak"):
-		sfx.speak(&"nib", _body.text)
+		sfx.speak(&"nib", spoken)
 	_hint.text = COPY.apply_names(str(b.get("hint", "")))
 	var go_raw: String = str(b.get("go", "")).strip_edges()
 	_go.text = COPY.apply_names(go_raw) if go_raw != "" else COPY.text("tutorial.next", "Next")
@@ -285,14 +290,16 @@ func advance() -> void:
 	var said: String = str(b.get("text", "")).to_lower()
 	if said.find("survived all") >= 0 or said.find("venture deeper") >= 0:
 		world_open = true
-	_body.max_font_size = 12 if _tiny else 15
-	_body.fit()
+	_body.add_theme_font_size_override("normal_font_size", 12 if _tiny else 20)
 	_arm = 0.35
 	_talk.reset_size()
 
 
 func nudge(msg: String) -> void:
-	_hint.text = msg
+	var step_hint := ""
+	if step >= 0 and step < _beats.size():
+		step_hint = COPY.apply_names(str(_beats[step].get("hint", "")).strip_edges())
+	_hint.text = step_hint if step_hint != "" else msg
 
 
 func armed() -> bool:
@@ -302,7 +309,7 @@ func armed() -> bool:
 func spoken() -> String:
 	if _body == null:
 		return ""
-	return _body.text
+	return _body.get_parsed_text() if _body.has_method("get_parsed_text") else _body.text
 
 
 func follow(target: Control) -> void:
@@ -346,7 +353,9 @@ func _layout() -> void:
 		_face.custom_minimum_size = Vector2(64.0 * face_s, 112.0 * face_s)
 	_talk.reset_size()
 	var ts: Vector2 = _talk.get_combined_minimum_size()
-	ts.x = maxf(ts.x, TALK_W + 80.0 * nib_close)
+	var frac: float = 0.18 if not _spots.is_empty() else 0.26
+	var want: float = clampf(vp.x * frac, 320.0, vp.x * 0.32) + 80.0 * nib_close
+	ts.x = maxf(ts.x, want)
 	_talk.size = ts
 	if ts.y < 8.0:
 		return
@@ -354,7 +363,7 @@ func _layout() -> void:
 	if key == _pin_key and _pin_pos != Vector2.ZERO:
 		_talk.global_position = _pin_pos
 		return
-	var pos := Vector2(vp.x - ts.x - 16.0, 16.0) if world_open else Vector2((vp.x - ts.x) * 0.5, vp.y - ts.y - 28.0)
+	var pos := Vector2(vp.x - ts.x - 16.0, clampf((vp.y - ts.y) * 0.28, 16.0, vp.y - ts.y - 16.0))
 	var box := Rect2(pos, ts)
 	if _hits_spot(box):
 		pos = Vector2(vp.x - ts.x - 16.0, 16.0)
@@ -551,10 +560,13 @@ func _apply_direction(cur: Dictionary, t: String) -> void:
 		cur["wait"] = "continue"
 		if str(cur.get("go", "")) == "":
 			cur["go"] = "Next"
-	if low.find("click 'spin'") >= 0 or low.find("click spin") >= 0:
+	if low.find("highlights begin") >= 0 or (low.find("click begin") >= 0 and low.find("click 'next'") < 0):
+		cur["focus"] = "begin"
+		cur["hint"] = "(click Begin)"
+	if low.find("click 'spin'") >= 0 or low.find("click spin") >= 0 or low.find("click the wizard") >= 0 or low.find("click the goblin") >= 0 or low.find("click a monster") >= 0 or low.find("click the wheel") >= 0:
 		cur["wait"] = "spin"
-		cur["focus"] = "spin"
-		cur["hint"] = "(click Spin)"
+		cur["focus"] = "wheel"
+		cur["hint"] = "(click that monster on the wheel)"
 		if low.find("wizard") >= 0:
 			cur["force"] = "wizard"
 		elif low.find("golem") >= 0:
@@ -576,21 +588,21 @@ func _apply_direction(cur: Dictionary, t: String) -> void:
 		if low.find("click the helmet") >= 0:
 			cur["wait"] = "item:helmet"
 			cur["hint"] = "(click Helmet)"
-	if low.find("da boot") >= 0 and low.find("take 3") >= 0:
+	if (low.find("da boot") >= 0 or low.find("the boot") >= 0) and low.find("take 3") >= 0:
 		cur["wait"] = "choice"
 		cur["focus"] = "item:da_boot"
-		cur["hint"] = "(click Da Boot, or Take 3)"
-	elif low.find("da boot") >= 0:
+		cur["hint"] = "(click The Boot, or Take 3)"
+	elif low.find("da boot") >= 0 or low.find("the boot") >= 0:
 		cur["focus"] = "item:da_boot"
 	if low.find("safe") >= 0 and (low.find("click") >= 0 or low.find("highlight") >= 0):
 		cur["focus"] = "done"
 		if low.find("click 'safe'") >= 0 or low.find("click safe") >= 0:
 			cur["wait"] = "done"
 			cur["hint"] = "(click Safe)"
-	if low.find("hovers and holds") >= 0:
-		cur["wait"] = "hover_shift"
+	if low.find("hovers and holds") >= 0 or low.find("hover over any monster") >= 0 or (low.find("hover") >= 0 and low.find("monster") >= 0):
+		cur["wait"] = "hover"
 		cur["focus"] = "wheel"
-		cur["hint"] = "(hover a monster and hold Shift)"
+		cur["hint"] = "(hover a monster)"
 	if low.find("empty slice") >= 0 or low.find("corridor") >= 0:
 		cur["focus"] = "empty"
 	elif low.find("dungeon wheel") >= 0 or low.find("monster card") >= 0 or low.find("2 random") >= 0:
@@ -610,7 +622,7 @@ func _apply_direction(cur: Dictionary, t: String) -> void:
 	if low.find("detail view") >= 0 or low.find("the details") >= 0:
 		cur["focus"] = "inspect"
 	# Hover-and-hold has to land on the monster. "Highlight the details" is the panel they should see after that, not the hole that blocks the wheel.
-	if str(cur.get("wait", "")) == "hover_shift":
+	if str(cur.get("wait", "")) == "hover_shift" or str(cur.get("wait", "")) == "hover":
 		cur["focus"] = "wheel"
 		if low.find("the details") >= 0 or low.find("detail view") >= 0:
 			cur["then_focus"] = "inspect"
@@ -782,11 +794,18 @@ class SpotInk extends Control:
 			var b: Vector2 = pair[1] - origin
 			if a.distance_to(b) < 12.0:
 				continue
+			draw_line(a, b, Color("100e0c"), 9.0, true)
 			draw_line(a, b, gold, 5.0, true)
 			var dir: Vector2 = (b - a).normalized()
 			var side: Vector2 = Vector2(-dir.y, dir.x)
-			draw_colored_polygon(PackedVector2Array([
+			var tip := PackedVector2Array([
 				b,
 				b - dir * 18.0 + side * 9.0,
 				b - dir * 18.0 - side * 9.0,
+			])
+			draw_colored_polygon(tip, Color("100e0c"))
+			draw_colored_polygon(PackedVector2Array([
+				b - dir * 2.0,
+				b - dir * 16.0 + side * 6.0,
+				b - dir * 16.0 - side * 6.0,
 			]), gold)

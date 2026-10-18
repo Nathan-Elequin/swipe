@@ -517,7 +517,7 @@ func play_slam(fast: bool = false) -> void:
 	var open := create_tween()
 	open.set_trans(Tween.TRANS_BACK)
 	open.set_ease(Tween.EASE_OUT)
-	open.tween_property(self, "_doors", 0.0, 0.16 if fast else 0.32)
+	open.tween_property(self, "_doors", 0.0, 0.10 if fast else 0.20)
 	await open.finished
 
 

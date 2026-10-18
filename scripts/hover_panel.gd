@@ -185,10 +185,8 @@ func show_rule(
 		else:
 			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(b)
-	_pin_always = body.find("[url=kw:always]") >= 0
-	if _pin_always:
-		pin_always_def()
-	elif _kw_tip != null and _kw_tip.has_method("hide_def"):
+	_pin_always = false
+	if _kw_tip != null and _kw_tip.has_method("hide_def"):
 		_kw_tip.hide_def()
 	if warn != "":
 		var w := Label.new()
@@ -257,8 +255,6 @@ func show_rule(
 		col.add_child(nw)
 	visible = true
 	reset_size()
-	if _pin_always:
-		pin_always_def()
 
 
 func pin_always_def() -> void:

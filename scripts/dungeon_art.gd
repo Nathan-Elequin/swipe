@@ -120,6 +120,12 @@ const ITEM_PNG := {
 	"cursed_scroll": "res://assets/dungeon/items/cursed_scroll.png",
 	"arrow_head": "res://assets/dungeon/items/arrow_head.png",
 	"danger_magnet": "res://assets/dungeon/items/danger_magnet.png",
+	"shuriken": "res://assets/dungeon/items/shuriken.png",
+	"miasma": "res://assets/dungeon/items/miasma.png",
+	"bag_of_marbles": "res://assets/dungeon/items/bag_of_marbles.png",
+	"marble": "res://assets/dungeon/items/marble.png",
+	"hex": "res://assets/dungeon/items/hex.png",
+	"ale_flagon": "res://assets/dungeon/items/ale_flagon.png",
 }
 
 const MONSTER_PNG := {
@@ -158,6 +164,11 @@ const MONSTER_PNG := {
 	"slime_boss": "res://assets/dungeon/extra/slime_boss.png",
 	"spider_queen": "res://assets/dungeon/extra/spider.png",
 	"hollow": "res://assets/dungeon/extra/hollow.png",
+	"martyr": "res://assets/dungeon/extra/martyr.png",
+	"prism": "res://assets/dungeon/extra/prism.png",
+	"plague_doctor": "res://assets/dungeon/extra/plague_doctor.png",
+	"hired_hand": "res://assets/dungeon/extra/hired_hand.png",
+	"hydra": "res://assets/dungeon/extra/hydra.png",
 }
 
 var atlas: Texture2D

@@ -303,6 +303,7 @@ static func card_color_opts() -> Array:
 		{"id": "smoke", "label": "Smoke"},
 		{"id": "chaos", "label": "Chaos"},
 		{"id": "egg", "label": "Egg"},
+		{"id": "yellow", "label": "Yellow"},
 	]
 
 
@@ -334,6 +335,8 @@ static func card_color_fill(id: String) -> Color:
 			return Color("3a1460")
 		"egg":
 			return Color("070605")
+		"yellow":
+			return Color("4a3d14")
 		_:
 			return Color(0, 0, 0, 0)
 
@@ -406,6 +409,8 @@ static func card_color_family(id: String) -> String:
 		"chaos":
 			return "SKIP"
 		"egg":
+			return "ATK"
+		"yellow":
 			return "ATK"
 		_:
 			return ""

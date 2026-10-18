@@ -39,7 +39,15 @@ func _refresh_doors() -> void:
 		side.tag_key = "cabin.hot.door_workshop" if shop_open else "cabin.hot.door_locked"
 		side.set_locked(not shop_open, KIT.load_tex("doors/side_door_locked.png"))
 		if shop_open:
-			side.set_idle_tex(KIT.load_tex("doors/side_door_closed.png"))
+			side.locked_tex = null
+			side.hover_tex = KIT.load_tex("doors/side_door_hover.png")
+			var closed: Texture2D = KIT.load_tex("doors/side_door_closed.png")
+			if side.hover_tex == null:
+				side.hover_tex = closed
+			side.set_idle_tex(closed)
+	var back = spots.get("BackDoor", null)
+	if back is CabinHotspot:
+		back.tag_key = "cabin.hot.back_hall"
 	var dr = spots.get("Drawer", null)
 	if dr is CabinHotspot and cabin:
 		if not cabin.ending_seen:

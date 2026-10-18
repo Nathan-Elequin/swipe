@@ -24,6 +24,7 @@ var _panel_name: FitLabelBox
 var _panel_mode: FitLabelBox
 var _panel_body: FitLabelBox
 var _panel_foot: FitLabelBox
+var _panel_note: FitLabelBox
 var _go_lab: FitLabelBox
 var _go_btn: FitButton
 var _tip: FitLabelBox
@@ -336,6 +337,19 @@ func _build_panel() -> void:
 		int(foot.get("z", 65))
 	)
 	add_child(_panel_foot)
+	_panel_note = KIT.fit_label(
+		"map.prefer_note",
+		KIT.rect_px([1028, 680, 440, 36]),
+		20,
+		14,
+		2,
+		KIT.WOOD,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		VERTICAL_ALIGNMENT_TOP,
+		66
+	)
+	_panel_note.font_color = KIT.WOOD
+	add_child(_panel_note)
 
 
 func _build_title() -> void:

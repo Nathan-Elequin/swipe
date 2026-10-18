@@ -32,4 +32,16 @@ func _refresh_doors() -> void:
 		lad.tag_key = "cabin.hot.door_loft" if loft_open else "cabin.hot.door_locked"
 		lad.set_locked(not loft_open, KIT.load_tex("doors/ladder_locked.png"))
 		if loft_open:
-			lad.set_idle_tex(KIT.load_tex("doors/ladder_open.png"))
+			lad.locked_tex = null
+			lad.hover_tex = KIT.load_tex("doors/ladder_hover.png")
+			var opened: Texture2D = KIT.load_tex("doors/ladder_open.png")
+			if lad.hover_tex == null:
+				lad.hover_tex = opened
+			lad.set_idle_tex(opened)
+	var back = spots.get("BackDoor", null)
+	if back is CabinHotspot:
+		back.tag_key = "cabin.hot.back_study"
+	var sign = spots.get("SignLoft", null)
+	if sign is CanvasItem:
+		sign.visible = true
+		sign.z_index = 5

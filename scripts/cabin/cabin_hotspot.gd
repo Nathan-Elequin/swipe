@@ -147,7 +147,9 @@ func _on_gui(event: InputEvent) -> void:
 			KIT.cue(cabin.sfx if cabin else null, &"cabin.locked")
 			if cabin and cabin.has_method("_bump"):
 				cabin._bump()
-			if cabin and cabin.has_method("say_bubble"):
+			if cabin and cabin.has_method("_on_locked_door"):
+				cabin._on_locked_door()
+			elif cabin and cabin.has_method("say_bubble"):
 				cabin.say_bubble("cabin.locked")
 			return
 		KIT.cue(cabin.sfx if cabin else null, &"cabin.click")
