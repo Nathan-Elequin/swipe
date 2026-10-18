@@ -132,6 +132,11 @@ const ITEM_PNG := {
 	"blood_pact": "res://assets/dungeon/items/blood_pact.png",
 	"jar_o_grease": "res://assets/dungeon/items/jar_o_grease.png",
 	"toll": "res://assets/dungeon/items/toll.png",
+	"pacemaker": "res://assets/dungeon/items/pacemaker.png",
+	"catapult": "res://assets/dungeon/items/catapult.png",
+	"polymorph": "res://assets/dungeon/items/polymorph.png",
+	"stone_wall": "res://assets/dungeon/items/stone_wall.png",
+	"blood_chalice": "res://assets/dungeon/items/blood_chalice.png",
 }
 
 const MONSTER_PNG := {
@@ -183,6 +188,13 @@ const MONSTER_PNG := {
 	"bushido": "res://assets/dungeon/extra/bushido.png",
 	"shark": "res://assets/dungeon/extra/shark.png",
 	"death_bell": "res://assets/dungeon/extra/death_bell.png",
+	"triclops": "res://assets/dungeon/extra/triclops_v2.png",
+	"phoenix_egg": "res://assets/dungeon/extra/phoenix_egg.png",
+	"phoenix": "res://assets/dungeon/extra/phoenix.png",
+	"amalgam": "res://assets/dungeon/extra/amalgam.png",
+	"fairy": "res://assets/dungeon/extra/fairy.png",
+	"eel": "res://assets/dungeon/extra/eel.png",
+	"druid": "res://assets/dungeon/extra/druid.png",
 }
 
 var atlas: Texture2D
