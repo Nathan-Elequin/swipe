@@ -1099,6 +1099,8 @@ func _shot_text_screens() -> void:
 			cabin._map.close()
 	if cabin.has_method("_open_journal"):
 		cabin._open_journal()
+		if cabin._journal and cabin._journal.has_method("open_spread"):
+			cabin._journal.open_spread()
 		await _wait(0.25)
 		await _capture("text_journal.png", "journal overlay")
 		if cabin._journal:
@@ -1243,6 +1245,10 @@ func _ensure_registry() -> void:
 	], _shot_text_screens)
 	_shot_fns["text_challenge_ready"] = _shot_challenge_ready
 	_shot_fns["text_tutorial_nib"] = _shot_tutorial_nib
+	_bind_many([
+		"60_loft", "61_loft_cat_rub", "62_journal_cover", "63_journal_bestiary",
+		"64_journal_items", "65_journal_memories", "66_journal_unmet",
+	], _shot_playtest_art)
 
 
 func _bind_many(stems: Array, fn: Callable) -> void:
@@ -1264,6 +1270,81 @@ func _shot_loss_home() -> void:
 
 func _shot_keyring_mid() -> void:
 	await _shot_keyring("14_keyring_midbeat.png")
+
+
+func _shot_playtest_art() -> void:
+	status = "playtest-art"
+	_reset_between()
+	_hide_chrome(false)
+	var cabin = main.home_cabin
+	if cabin == null:
+		_skip("60_loft.png", "home_cabin missing")
+		return
+	if main.play_field:
+		main.play_field.visible = false
+	if main.overlay:
+		main.overlay.visible = false
+	cabin.intro_seen = true
+	cabin.nib_first_done = true
+	cabin.tutorial_done = true
+	cabin.key_ring_seen = true
+	cabin.stop_story()
+	if not cabin.rooms_unlocked.has("loft"):
+		cabin.rooms_unlocked.append("loft")
+	if not cabin.rooms_unlocked.has("study"):
+		cabin.rooms_unlocked.append("study")
+	cabin.visible = true
+	cabin.show_menu("loft")
+	await _wait(0.25)
+	var loft = cabin._rooms.get("loft") if cabin._rooms else null
+	if loft and loft.cat_sleep:
+		loft.cat_sleep.position = Vector2(176, 196) * 4.0
+		if loft.cat_sleep.sprite_frames and loft.cat_sleep.sprite_frames.has_animation("z"):
+			loft.cat_sleep.play("z")
+	await _capture("60_loft.png", "loft, sleep cat at native (176, 196)")
+	if loft and loft.has_method("pose_rub_frame"):
+		loft.pose_rub_frame(2)
+		await _wait(0.08)
+		await _capture("61_loft_cat_rub.png", "loft cat rub frame f2 at native (180, 196)")
+	else:
+		_skip("61_loft_cat_rub.png", "pose_rub_frame missing")
+	if cabin._journal == null:
+		_skip("62_journal_cover.png", "journal overlay missing")
+		cabin.visible = false
+		return
+	cabin.show_menu("study")
+	await _wait(0.2)
+	var first_id := ""
+	var mons: Variant = cabin.catalog.get("monsters", [])
+	if mons is Array:
+		for row in mons:
+			if row is Dictionary and str(row.get("id", "")) != "":
+				first_id = str(row.get("id", ""))
+				break
+	cabin.met_monsters = {}
+	if first_id != "":
+		cabin.met_monsters[first_id] = true
+	cabin._journal.open_journal("bestiary")
+	await _wait(0.2)
+	await _capture("62_journal_cover.png", "journal cover at the spread origin, spread still closed")
+	cabin._journal.open_spread()
+	await _wait(0.15)
+	await _capture("63_journal_bestiary.png", "bestiary spread, first monster met")
+	cabin._journal.show_tab("items")
+	await _wait(0.12)
+	await _capture("64_journal_items.png", "items tab, no lore rect")
+	cabin._journal.show_tab("memories")
+	await _wait(0.12)
+	await _capture("65_journal_memories.png", "memories tab, intro shots under tape wells")
+	cabin.met_monsters = {}
+	cabin._journal.show_tab("bestiary")
+	await _wait(0.12)
+	await _capture("66_journal_unmet.png", "unmet bestiary entry, scribble inside the right lore rect")
+	cabin._journal.close()
+	cabin.visible = false
+	cabin.stop_story()
+	if main.play_field:
+		main.play_field.visible = true
 
 
 func _apply_out_dir(dest: String) -> String:
