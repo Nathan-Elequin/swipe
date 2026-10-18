@@ -411,7 +411,7 @@
 		{
 			"ability": "Attack equal to the Attack of the last monster you faced.",
 			"author_lock": true,
-			"bucket": 2,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "atk",
 			"count": 1,
@@ -456,7 +456,7 @@
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1,
+			"tier": 2,
 			"type": "I"
 		},
 		{
@@ -730,7 +730,7 @@
 		{
 			"ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
 			"author_lock": true,
-			"bucket": 2,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 2,
@@ -832,7 +832,7 @@
 		{
 			"ability": "Heal 6. On Spin, lose 1 HP.",
 			"author_lock": true,
-			"bucket": 4,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "heal",
 			"count": 1,
@@ -1455,10 +1455,10 @@
 		{
 			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
 			"author_lock": true,
-			"bucket": 3,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1,
+			"count": 2,
 			"defined": "Usable in a fight only when living slice count is even. Deal 4 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
 			"exceptions": "",
 			"explainer": "(ATK 4) to furthest enemy",

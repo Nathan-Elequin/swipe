@@ -5172,6 +5172,11 @@ func _unlock_if_fighting() -> void:
 		_sync_buttons()
 
 
+func _lock_item_fx() -> void:
+	_walker_busy = true
+	_sync_buttons()
+
+
 func _on_done() -> void:
 	if phase != "fighting" or facing_index < 0:
 		return
@@ -5179,7 +5184,7 @@ func _on_done() -> void:
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
-	if _wheel_busy():
+	if _wheel_busy() or _walker_busy:
 		return
 	if in_tutorial and (tut == null or (tut.wait != "done" and tut.wait != "choice")):
 		if tut:
@@ -5989,18 +5994,23 @@ func _use_item(uid: int) -> void:
 			_undo_abort()
 		return
 	_bleed_begin()
+	_lock_item_fx()
 	await _apply_ops(it, ops, {})
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	await _after_item_resolved(it)
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	await _bleed_end()
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	if in_tutorial:
 		_tutorial_item_used(str(it.get("card_id", "")))
 	_undo_finish_item()
+	_unlock_if_fighting()
 	call_deferred("_refresh")
 
 
@@ -6023,6 +6033,7 @@ func _choose_option(opt: Dictionary) -> void:
 		call_deferred("_refresh")
 		return
 	_bleed_begin()
+	_lock_item_fx()
 	if int(opt.get("atk_drop", 0)) > 0:
 		await _apply_ops(it, {"kind": "atk_drop", "n": int(opt.get("atk_drop", 0))}, opt)
 	elif int(opt.get("blk", 0)) > 0:
@@ -6030,16 +6041,20 @@ func _choose_option(opt: Dictionary) -> void:
 	else:
 		await _apply_ops(it, {"kind": "atk", "n": int(opt.get("atk", 0))}, opt)
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	await _after_item_resolved(it)
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	await _bleed_end()
 	if _undo_stale(token):
+		_unlock_if_fighting()
 		return
 	if sfx:
 		sfx.play("click2", -8.0)
 	_undo_finish_item()
+	_unlock_if_fighting()
 	call_deferred("_refresh")
 
 
