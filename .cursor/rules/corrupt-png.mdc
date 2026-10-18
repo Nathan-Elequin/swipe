@@ -1,31 +1,33 @@
 ---
-description: Do not open Godot-corrupt PNGs as images; replace them
+description: Detect Godot-corrupt PNGs from text and bytes only, never open them as images, and report them for Pixel
 alwaysApply: true
 ---
 
 # Corrupt PNG files
 
-If Godot says a PNG is corrupt, **do not open that file with the Read tool**. Replace it. Reading a broken PNG attaches it as an image; the model provider then fails with `ERROR_OPENAI` / "Unable to reach the model provider" / `[unavailable]`. Retrying that same chat keeps failing because the bad image is already in the history.
+Source of truth: `swipe-design-loop.mdc`. Pixel owns PNG bytes. Cursor detects and reports corrupt files; it does not redraw or regenerate them.
 
-## This is the bug when
+If Godot says a PNG is corrupt, **do not open that file with the Read tool**. Reading a broken PNG attaches it as an image, and the model provider then fails (`ERROR_OPENAI` / "Unable to reach the model provider" / `[unavailable]`). Retrying the same chat keeps failing, because the bad image is already in the history.
 
-- Editor log: `ERR_FILE_CORRUPT`, `Error loading image`, `ERR_FILE_UNRECOGNIZED`
-- `.import` has `valid=false` and no `dest_files` / no `.ctex` next to it
-- Signal 11 / access violation after Spin, `show_monster()`, or a wheel redraw
-- The PNG is tiny and the wrong shape (worked examples: `bodyguard.png` and `cowardly_king.png` were ~170 bytes at 64×16)
+## It is this bug when
+
+- The editor log shows `ERR_FILE_CORRUPT`, `Error loading image`, or `ERR_FILE_UNRECOGNIZED`.
+- The `.import` has `valid=false` and no `dest_files`, and there is no `.ctex` next to it.
+- Signal 11 or an access violation happens after Spin, `show_monster()`, or a wheel redraw.
+- The PNG is tiny and the wrong shape. Worked examples: `bodyguard.png` and `cowardly_king.png` were about 170 bytes at 64x16.
 
 ## Do
 
-1. Confirm from **text and bytes only**: file size, PNG header, IHDR width/height, the `.import` file, Godot `get_log_messages`. PowerShell or `py -3` is fine.
-2. Replace the file the same way other extras are made: 16×16 in `tools/_install_unique_art.py` (`draw` + 4× nearest), unique vs every other item/extra PNG. Follow `unique-art.mdc`.
-3. Delete the failed `.import` and leftover `.md5`. Then `godot_editor_edit` **rescan** with those `res://` paths.
-4. Confirm import with `godot_resource` `get_info` (width/height, `CompressedTexture2D`) or a new `.import` that has `dest_files`. You may Read the **new** PNG after Godot accepts it.
+1. Confirm it from **text and bytes only**: file size, PNG signature, IHDR width/height, the `.import` file, and Godot `get_log_messages`. PowerShell, `py -3`, and `tools/qa/check_ui_pngs.py` are fine.
+2. Stop. Do not guess and do not draw a replacement. Add an `## ART-REQUEST` section to `design/handoff/<task-id>/REPORT.md` (or your reply to Nathan if no task is running) with: the path, the bytes and IHDR you found, the expected native size / shipped size (4x nearest), frames and loop, the card it belongs to, what is wrong, and a screenshot path or log excerpt. Set Status `BLOCKED` if the task needs that art.
+3. To keep the game from crashing until Pixel delivers, you may unregister or guard that one entry in code (fall back to the card's existing default, never to another card's art), and list that in REPORT.md under Deviations.
+4. After Pixel replaces the file: delete the failed `.import` and any leftover `.md5`, rescan or `--import`, and confirm with `godot_resource get_info` or a new `.import` that has `dest_files`. You may Read the **new** PNG once Godot accepts it. Re-check uniqueness (`unique-art.mdc`).
 
 ## Do not
 
-- Do not Read the named corrupt path as an image, including “just to see what is wrong.”
+- Do not Read the corrupt path as an image, not even "just to see what is wrong".
 - Do not paste those PNGs into chat or pass them to a subagent as attachments.
-- Do not keep retrying a chat that already opened them. Start a new thread if that happened.
-- Do not skip uniqueness. A valid PNG that is a copy of another card is still wrong.
+- Do not keep retrying a chat that already opened one. Start a new thread.
+- Do not write new PNG bytes yourself (no Pillow scripts, no `tools/_install_unique_art.py` draws). The only exception is spec-requested placeholders, as in `unique-art.mdc`.
 
-Healthy Kenney / hand-drawn PNGs (beggar, anvil, items, and so on) are fine to open. This rule is only for files Godot already rejected, or files that match the tiny/wrong-shape pattern above.
+Healthy PNGs are fine to open. This rule only covers files Godot already rejected, or files that match the tiny/wrong-shape pattern above.
