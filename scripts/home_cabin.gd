@@ -3151,18 +3151,14 @@ func _on_cat() -> void:
 	if sfx and sfx.has_method("loop_start"):
 		sfx.loop_start(&"amb.cat_purr", 0.0)
 	var loft = _rooms.get("loft")
-	if loft and loft.cat_sleep:
+	if loft and loft.has_method("play_rub") and loft.play_rub():
+		await loft.cat_sleep.animation_finished
+	elif loft and loft.cat_sleep:
 		var cat: AnimatedSprite2D = loft.cat_sleep
-		if cat.sprite_frames and cat.sprite_frames.has_animation("rub"):
-			cat.play("rub")
-			await cat.animation_finished
-			if cat.sprite_frames.has_animation("z"):
-				cat.play("z")
-		else:
-			var tw := create_tween()
-			tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-			tw.tween_property(cat, "scale", Vector2(1.12, 0.92), 0.12)
-			tw.tween_property(cat, "scale", Vector2.ONE, 0.18)
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.tween_property(cat, "scale", Vector2(1.12, 0.92), 0.12)
+		tw.tween_property(cat, "scale", Vector2.ONE, 0.18)
 
 
 func _on_side_door(room: String) -> void:
