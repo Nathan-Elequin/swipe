@@ -3,6 +3,8 @@ extends CanvasLayer
 
 const OUT_PATH := "user://text_audit.json"
 const COPY_PATH := "res://design/audit-shots/cursor/text_audit.json"
+
+var copy_dir: String = "res://design/audit-shots/cursor"
 const MIN_DEFAULT := 16
 const MIN_BADGE := 12
 const CONTRAST := 4.5
@@ -859,9 +861,10 @@ func _write(fails: Array) -> void:
 	var f := FileAccess.open(OUT_PATH, FileAccess.WRITE)
 	if f:
 		f.store_string(raw)
-	var abs_copy: String = ProjectSettings.globalize_path(COPY_PATH)
+	var copy_path := copy_dir.path_join("text_audit.json") if copy_dir.begins_with("res://") else COPY_PATH
+	var abs_copy: String = ProjectSettings.globalize_path(copy_path)
 	DirAccess.make_dir_recursive_absolute(abs_copy.get_base_dir())
-	var g := FileAccess.open(COPY_PATH, FileAccess.WRITE)
+	var g := FileAccess.open(copy_path, FileAccess.WRITE)
 	if g:
 		g.store_string(raw)
 
