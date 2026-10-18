@@ -26,9 +26,12 @@ var _replay: Button
 var _scribble: TextureRect
 var _cover: TextureRect
 var _wells: Array = []
+var _photos: Array = []
+var _tab_buttons: Array = []
 var _item_grid: Control
 var _turn_l: ColorRect
 var _turn_r: ColorRect
+var _close_btn: Button
 
 
 func setup(p_cabin, p_extra: Dictionary, p_lore: Dictionary, p_catalog: Dictionary, p_art) -> void:
@@ -50,9 +53,11 @@ func setup(p_cabin, p_extra: Dictionary, p_lore: Dictionary, p_catalog: Dictiona
 	_book = KIT.tex_rect("overlays/journal_spread.png", Vector2(float(origin[0]), float(origin[1])), Vector2(380, 240), 0)
 	_book.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_book)
-	_cover = KIT.tex_rect("overlays/journal_cover.png", Vector2(float(origin[0]), float(origin[1])), Vector2(380, 240), 1)
-	_cover.visible = KIT.load_tex("overlays/journal_cover.png") != null
+	_cover = KIT.tex_rect("overlays/journal_cover.png", Vector2(float(origin[0]), float(origin[1])), Vector2(380, 240), 6)
+	_cover.name = "journal_cover"
+	_cover.visible = false
 	_cover.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cover.gui_input.connect(_on_cover)
 	add_child(_cover)
 	var tabs: Dictionary = extra.get("journal_tabs", {})
 	var tab_ids := ["bestiary", "items", "will"]
@@ -69,6 +74,7 @@ func setup(p_cabin, p_extra: Dictionary, p_lore: Dictionary, p_catalog: Dictiona
 		b.size = Vector2(40, 40) * PX
 		b.z_index = 3
 		var tt: String = str(tab_keys[i])
+		_tab_buttons.append(b)
 		b.pressed.connect(func() -> void:
 			tab = tt
 			page = 0
@@ -117,12 +123,17 @@ func setup(p_cabin, p_extra: Dictionary, p_lore: Dictionary, p_catalog: Dictiona
 	_right.add_theme_color_override("default_color", KIT.INK)
 	add_child(_right)
 	_scribble = TextureRect.new()
+	_scribble.name = "journal_scribble"
 	_scribble.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_scribble.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_scribble.stretch_mode = TextureRect.STRETCH_KEEP
 	_scribble.texture = KIT.load_tex("overlays/journal_scribble.png")
 	_scribble.position = _right.position
-	_scribble.size = Vector2(166, 80) * PX
+	var lore_native := Vector2(float(rp[2]), float(rp[3]))
+	var scrib_native := Vector2(166, 80)
+	scrib_native.x = minf(scrib_native.x, lore_native.x)
+	scrib_native.y = minf(scrib_native.y, lore_native.y)
+	_scribble.size = scrib_native * PX
 	_scribble.visible = false
 	_scribble.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_scribble)
@@ -132,13 +143,32 @@ func setup(p_cabin, p_extra: Dictionary, p_lore: Dictionary, p_catalog: Dictiona
 	_item_grid.visible = false
 	_item_grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_item_grid)
+	var memory_shots := ["cutscenes/intro_p1.png", "cutscenes/intro_p2.png"]
 	for w in 2:
+		var stem := "a" if w == 0 else "b"
+		var well_pos := _book.position + Vector2(48.0 + float(w) * 130.0, 48.0) * PX
+		var photo := TextureRect.new()
+		photo.name = "journal_memory_%s" % stem
+		photo.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		photo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		photo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		photo.texture = KIT.load_tex(memory_shots[w])
+		photo.position = well_pos + Vector2(10, 5) * PX
+		photo.size = Vector2(100, 62) * PX
+		photo.z_index = 2
+		photo.visible = false
+		photo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(photo)
+		_photos.append(photo)
 		var well := TextureRect.new()
+		well.name = "journal_photo_tape_%s" % stem
 		well.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		well.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		well.texture = KIT.load_tex("overlays/journal_photo_tape_%s.png" % ("a" if w == 0 else "b"))
-		well.position = _book.position + Vector2(48.0 + float(w) * 130.0, 48.0) * PX
+		well.stretch_mode = TextureRect.STRETCH_KEEP
+		well.texture = KIT.load_tex("overlays/journal_photo_tape_%s.png" % stem)
+		well.position = well_pos
 		well.size = Vector2(120, 72) * PX
+		well.z_index = 3
 		well.visible = false
 		well.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(well)
@@ -171,20 +201,75 @@ func setup(p_cabin, p_extra: Dictionary, p_lore: Dictionary, p_catalog: Dictiona
 		replay_intro.emit()
 	)
 	add_child(_replay)
-	var close_b: Button = KIT.choice_tag("journal.close", Vector2(80, 16))
-	close_b.position = KIT.pt(170, 232)
-	close_b.z_index = 2
-	close_b.pressed.connect(close)
-	add_child(close_b)
+	_close_btn = KIT.choice_tag("journal.close", Vector2(80, 16))
+	_close_btn.position = KIT.pt(170, 232)
+	_close_btn.z_index = 2
+	_close_btn.pressed.connect(close)
+	add_child(_close_btn)
 	_book.gui_input.connect(_on_book)
 
 
 func open_journal(start_tab: String = "bestiary") -> void:
-	tab = start_tab
+	tab = "memories" if start_tab == "will" else start_tab
 	page = 0
 	visible = true
 	KIT.cue(cabin.sfx if cabin else null, &"cabin.book_open")
+	if _cover != null and _cover.texture != null:
+		_present_cover()
+	else:
+		_refresh()
+
+
+func open_spread() -> void:
 	_refresh()
+
+
+func show_tab(which: String) -> void:
+	tab = "memories" if which == "will" else which
+	page = 0
+	open_spread()
+
+
+func _present_cover() -> void:
+	for b in _tab_buttons:
+		if b is CanvasItem:
+			b.visible = false
+	if _portrait:
+		_portrait.visible = false
+	if _left_name:
+		_left_name.visible = false
+	if _left_grade:
+		_left_grade.visible = false
+	if _left_ability:
+		_left_ability.visible = false
+	if _right:
+		_right.visible = false
+	if _scribble:
+		_scribble.visible = false
+	if _item_grid:
+		_item_grid.visible = false
+	for well in _wells:
+		well.visible = false
+	for photo in _photos:
+		photo.visible = false
+	if _replay:
+		_replay.visible = false
+	if _turn_l:
+		_turn_l.visible = false
+	if _turn_r:
+		_turn_r.visible = false
+	if _footer:
+		_footer.visible = false
+	if _close_btn:
+		_close_btn.visible = false
+	_cover.visible = true
+	_cover.mouse_filter = Control.MOUSE_FILTER_STOP
+	_cover.z_index = 6
+
+
+func _on_cover(ev: InputEvent) -> void:
+	if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+		open_spread()
 
 
 func close() -> void:
@@ -213,12 +298,26 @@ func _ids(kind: String) -> Array:
 func _refresh() -> void:
 	if _cover:
 		_cover.visible = false
+		_cover.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for b in _tab_buttons:
+		if b is CanvasItem:
+			b.visible = true
+	if _turn_l:
+		_turn_l.visible = true
+	if _turn_r:
+		_turn_r.visible = true
+	if _footer:
+		_footer.visible = true
+	if _close_btn:
+		_close_btn.visible = true
 	if _item_grid:
 		_item_grid.visible = false
 		for c in _item_grid.get_children():
 			c.queue_free()
-	for well in _wells:
-		well.visible = tab == "memories"
+	for i in _wells.size():
+		_wells[i].visible = tab == "memories"
+		if i < _photos.size():
+			_photos[i].visible = tab == "memories"
 	if _scribble:
 		_scribble.visible = false
 	_replay.visible = tab == "memories"
