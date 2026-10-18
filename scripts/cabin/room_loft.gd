@@ -32,6 +32,9 @@ func _build_special() -> void:
 					sf.add_frame("rub", tex)
 		if not cat_sleep.animation_finished.is_connected(_on_cat_anim_finished):
 			cat_sleep.animation_finished.connect(_on_cat_anim_finished)
+	new_tag = KIT.tex_rect("fx/new_tag.png", Vector2(126, 182), Vector2(16, 10), 5)
+	new_tag.visible = false
+	add_child(new_tag)
 
 
 func play_rub() -> bool:
@@ -66,9 +69,6 @@ func _on_cat_anim_finished() -> void:
 	cat_sleep.position = CAT_SLEEP * KIT.PX
 	if cat_sleep.sprite_frames and cat_sleep.sprite_frames.has_animation("z"):
 		cat_sleep.play("z")
-	new_tag = KIT.tex_rect("fx/new_tag.png", Vector2(126, 182), Vector2(16, 10), 5)
-	new_tag.visible = false
-	add_child(new_tag)
 
 
 func _refresh_doors() -> void:
