@@ -23,16 +23,7 @@ func setup() -> void:
 	clip_contents = false
 	z_index = 20
 	custom_minimum_size = Vector2(508, 0)
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("1a1410f2")
-	sb.border_color = Color("c4a574")
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(8)
-	sb.content_margin_left = 12
-	sb.content_margin_right = 12
-	sb.content_margin_top = 10
-	sb.content_margin_bottom = 12
-	add_theme_stylebox_override("panel", sb)
+	_skin_panel(1)
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 8)
 	col.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
@@ -59,7 +50,7 @@ func setup() -> void:
 	col.add_child(_sub)
 	_row = HBoxContainer.new()
 	_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_row.add_theme_constant_override("separation", 12)
+	_row.add_theme_constant_override("separation", 22)
 	col.add_child(_row)
 	_hint = FitLabelBox.make()
 	_hint.show_frame = false
@@ -71,6 +62,7 @@ func setup() -> void:
 	_hint.set_copy("challenge.pick_hover")
 	_hint.custom_minimum_size = Vector2(480, 20)
 	col.add_child(_hint)
+	_skin_panel(1)
 
 
 func present(title: String, sub: String, a: Control, b: Control, ia: Dictionary, ib: Dictionary) -> void:
@@ -79,12 +71,44 @@ func present(title: String, sub: String, a: Control, b: Control, ia: Dictionary,
 	left_it = ia
 	right_it = ib
 	_busy = false
+	var t: int = int(ia.get("pack_tier", ia.get("tier", 1)))
+	if t < 1:
+		t = int(ib.get("pack_tier", ib.get("tier", 1)))
+	_skin_panel(maxi(1, t))
 	for c in _row.get_children():
 		_row.remove_child(c)
 		c.queue_free()
 	_mount(a, ia)
 	_mount(b, ib)
 	visible = true
+
+
+func _metal(tier: int) -> Color:
+	if tier >= 3:
+		return Color("e8c36a")
+	if tier == 2:
+		return Color("c5cdd8")
+	return Color("c08050")
+
+
+func _skin_panel(tier: int) -> void:
+	var metal: Color = _metal(tier)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("1a1410f2")
+	sb.border_color = metal
+	sb.set_border_width_all(2 if tier <= 1 else (3 if tier == 2 else 4))
+	sb.set_corner_radius_all(8)
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	sb.content_margin_top = 10
+	sb.content_margin_bottom = 12
+	sb.shadow_color = Color(metal.r, metal.g, metal.b, 0.28 if tier <= 1 else (0.40 if tier == 2 else 0.55))
+	sb.shadow_size = 4 if tier <= 1 else (8 if tier == 2 else 14)
+	add_theme_stylebox_override("panel", sb)
+	if _title:
+		_title.font_color = metal.lightened(0.12)
+	if _hint:
+		_hint.font_color = metal
 
 
 func draft_cards() -> Array:

@@ -11,40 +11,73 @@ const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 const LINES := preload("res://scripts/monster_lines.gd")
 const UX := preload("res://scripts/ux_style.gd")
 const DEFAULT_EXPLAINER := {
-	"hornet_swarm": "(2) then (2) — block is spent per swing",
-	"goblin": "(NO ATK DAMAGE)",
+	"hornet_swarm": "(2) then (2)",
+	"goblin": "(NO ATK DMG)",
 	"skeleton": "(LAST ENEMY HP)",
 	"lich": "(NEIGHBOR HP + 1)",
 	"ogre": "(YOUR HP)",
-	"berserker": "(1 + DEFEAT)    (2 + DEFEAT)",
-	"dire_wolf": "(YOUR HP)",
-	"bandit": "(ITEMS)",
-	"slime_boss": "(ATTACK = HP)",
-	"wraith": "(HIGHER NEIGHBOR)",
-	"mimic": "(ITEM IF I NEVER SWING)",
-	"spider_queen": "Egg on Spin. Facing me eats eggs for +2 HP +2 Attack each.",
+	"berserker": "(3) then (4) then (8)",
+	"dire_wolf": "(ATK = YOUR HP)",
+	"bandit": "(ATK = Items)",
+	"slime_boss": "(ATK = HP)",
+	"wraith": "(HIGHER NEIGHBOR ATK)",
+	"mimic": "Item if I never Attack",
+	"spider_queen": "Egg on Spin. +2 HP +2 ATK each Egg",
 	"commander": "(NEIGHBOR ATK + 2)",
-	"dragon": "(IGNORES BLOCK)",
+	"dragon": "(ignores BLK)",
 	"sai": "(2) then (4) then (2)…",
-	"throwing_knife": "(3) or (1 and KEEP)",
-	"pocketwatch": "(2) or (4 if EVEN ATK)",
-	"medallion": "(6 − HP)",
-	"helmet": "(the lower of YOUR HP and ENEMY HP)",
+	"throwing_knife": "(3) or (1 and Keep)",
+	"pocketwatch": "Pick → their ATK hits yours",
+	"medallion": "(7 − HP)",
+	"helmet": "min(YOUR HP, ENEMY HP)",
 	"da_boot": "(ENEMY HP < YOUR HP)",
-	"measuring_tape": "(ENEMY HP = YOUR HP × 2)",
+	"measuring_tape": "(ENEMY HP = 2 × YOUR HP)",
 	"bloody_gauntlets": "(7 − HP)",
-	"bracers": "(NEIGHBOR ATK)",
-	"knucklers": "(8 − ITEMS)",
-	"spiked_flail": "(2 × TIMES YOU BLED)",
-	"sledgehammer": "(ENEMY ATK ≥ 5)",
+	"bracers": "(Right Neighbor ATK)",
+	"knucklers": "(8 − Items)",
+	"spiked_flail": "(2 × Bleeds)",
+	"sledgehammer": "(ENEMY ATK ≥ 6)",
 	"grimoire": "(LAST ENEMY ATK)",
-	"dagger": "(NEIGHBOR ATK)",
-	"breastplate": "(2) and KEEP if you bled",
-	"fangs": "(TAKE THEIR ATK) then DEFEAT then HEAL THEIR HP",
-	"crossbow": "ATK 4 to Neighbor",
-	"arrow_head": "(ATK 3)  (+1)  (ignores Block)",
-	"danger_magnet": "(Highest ATK) or (Lowest ATK) or (Off)",
-	"cleric": "After Spin: if missing 3 HP, Heal 3 and take worst item",
+	"breastplate": "(BLK 2) Keep if Bleed",
+	"fangs": "Take ATK → Defeat → Heal HP",
+	"crossbow": "(ATK 4) Neighbor",
+	"arrow_head": "(ATK 3) +1  ignore BLK",
+	"danger_magnet": "HIGH or LOW or Off",
+	"shield": "(BLK 4)",
+	"smoke_bomb": "Spin + 1 Item",
+	"healing_potion": "Lethal → Heal 3",
+	"poison_flask": "Neighbor −5 HP on Spin",
+	"left_bracer": "(Left Neighbor ATK)",
+	"double_axe": "(ATK 2) facing + Neighbors",
+	"victory_flask": "(1 + Defeats)",
+	"grappling_hook": "Swap Neighbor + 1 Item",
+	"spiked_shield": "(ATK 2) or (BLK 2)",
+	"grief_jar": "Spin: −1 HP, +2 BLK",
+	"longbow": "(ATK 4) opposite",
+	"lantern": "(HEAL 2) Keep if HP < 6",
+	"mirror_shard": "(Last BLK)",
+	"echo_bell": "(Copy last Item)",
+	"quiet_bell": "Silence",
+	"net": "(−1) or (−2) or (−3)",
+	"iron_chain": "(ATK = BLK) Keep",
+	"counting_beads": "(1) then (2) then (3) then (4)",
+	"last_match": "0 ATK Items → Defeat",
+	"mute_stone": "Swap 1–2 Items",
+	"cursed_scroll": "(HEAL 6)  Spin: −1 HP",
+	"spider_egg": "(Take ATK 2)",
+	"shuriken": "(ATK 2) Keep + Flee if live",
+	"miasma": "Poison all = min HP",
+	"bag_of_marbles": "Fill to 10 Marbles",
+	"marble": "(N ATK or N BLK)",
+	"hex": "Defeat at Spin 0",
+	"ale_flagon": "(HEAL 5) + Poison 3",
+	"napalm": "HP → 1 (you + Enemy + Neighbors)",
+	"lucky_nickel": "(BLK 1) Keep if even",
+	"double_buckler": "Halve next even ATK",
+	"blood_pact": "−2 HP you and Enemy",
+	"jar_o_grease": "(HEAL 1) Swap 1  Keep",
+	"toll": "−1 / Item Use  Die at 0",
+	"cleric": "Spin: if −3 HP, Heal 3 + worst Item",
 }
 
 var _kind: String = ""
@@ -321,12 +354,13 @@ func _rebuild(card: Dictionary) -> void:
 		stat_n.add_theme_color_override("font_color", Color("6b4a10"))
 		_sheet.add_child(stat_n)
 	_add_area(_sheet, "Ability (player-facing, short)", "ability", str(card.get("ability", "")), 90, false)
-	_add_area(_sheet, "Callout explainer (the math line on hover)", "explainer", _explainer_shown(card), 80, false)
 	if _kind == "monster":
+		_add_area(_sheet, "Inspect extra (if Ability is empty)", "explainer", _explainer_shown(card), 80, false)
 		_add_line(_sheet, "Call name (subtitle under the title)", "call_name", str(card.get("call_name", LINES.call_of(str(card.get("id", "")), card))))
 		_add_area(_sheet, "Log hover (under 6 words, on the Call name in the fight log)", "log_hint", str(card.get("log_hint", "")), 48, false)
-		_add_area(_sheet, "Shift line (replaces the call name while you hold Shift)", "reminder", str(card.get("reminder", LINES.reminder_of(str(card.get("id", "")), card))), 64, false)
+		_add_area(_sheet, "Shift Text (the formula when holding Shift)", "reminder", str(card.get("reminder", LINES.reminder_of(str(card.get("id", "")), card))), 64, false)
 	else:
+		_add_area(_sheet, "Shift Text (the formula when holding Shift)", "explainer", _explainer_shown(card), 80, false)
 		_add_area(_sheet, "Log hover (under 6 words, on this item in the fight log)", "log_hint", str(card.get("log_hint", "")), 48, false)
 	_add_pick(_sheet, "Card color", "card_color", UX.card_color_id(str(card.get("card_color", ""))), ["auto", "atk", "blk", "heal", "defeat", "utility", "smoke", "chaos", "egg"])
 	_add_area(_sheet, "Function flow / pseudocode (long)", "flow", str(card.get("flow", "")), 160, true)

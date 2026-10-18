@@ -205,8 +205,8 @@ func setup(
 	_eq.fit_content = true
 	_eq.scroll_active = false
 	_eq.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_eq.add_theme_font_size_override("normal_font_size", 13)
-	_eq.add_theme_font_size_override("bold_font_size", 13)
+	_eq.add_theme_font_size_override("normal_font_size", 11)
+	_eq.add_theme_font_size_override("bold_font_size", 11)
 	_eq.add_theme_color_override("default_color", Color("f0e6d8"))
 	_eq.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -359,7 +359,7 @@ func set_showcase(on: bool) -> void:
 		_title.max_lines = 2
 		_title.fit()
 	if _rank:
-		_rank.visible = _rank.text.strip_edges() != ""
+		_rank.visible = false
 		_rank.add_theme_font_size_override("font_size", 15 if on else 12)
 		_rank.custom_minimum_size = Vector2(196 if on else 104, 0)
 	if _icon:
@@ -371,8 +371,8 @@ func set_showcase(on: bool) -> void:
 	if _ghost:
 		_ghost.add_theme_font_size_override("font_size", 48 if on else 32)
 	if _eq:
-		_eq.add_theme_font_size_override("normal_font_size", 16 if on else 13)
-		_eq.add_theme_font_size_override("bold_font_size", 16 if on else 13)
+		_eq.add_theme_font_size_override("normal_font_size", 16 if on else 11)
+		_eq.add_theme_font_size_override("bold_font_size", 16 if on else 11)
 	if _ability:
 		_ability.add_theme_font_size_override("normal_font_size", 15 if on else 13)
 		_ability.add_theme_font_size_override("bold_font_size", 15 if on else 13)
@@ -419,7 +419,7 @@ func set_rank(text: String) -> void:
 	if _rank == null:
 		return
 	_rank.text = text
-	_rank.visible = text.strip_edges() != ""
+	_rank.visible = false
 
 
 func set_palette(fill: Color, metal: Color, tier: int = 1) -> void:
@@ -427,6 +427,14 @@ func set_palette(fill: Color, metal: Color, tier: int = 1) -> void:
 	_rim = metal
 	_tier = maxi(1, tier)
 	_apply_style(_hot)
+
+
+func _tier_shine() -> Color:
+	if _tier >= 3:
+		return Color("ffe6a8")
+	if _tier == 2:
+		return Color("f4f7fb")
+	return Color("d4894e")
 
 
 func _want_process() -> bool:
@@ -596,11 +604,11 @@ func _apply_style(hot: bool) -> void:
 	var metal: Color = _rim.lightened(0.18) if hot else _rim
 	var pulse := 0.0
 	if _glow:
-		pulse = 0.50 + 0.50 * absf(sin(_glow_t * TAU / 1.2))
-		var gold := Color("e8c36a")
-		metal = metal.lerp(gold, 0.45 + pulse * 0.55)
-		sb.bg_color = sb.bg_color.lerp(gold.darkened(0.35), pulse * 0.22)
-		modulate = Color.WHITE.lerp(Color("ffe6a8"), pulse * 0.38)
+		var period: float = 1.45 if _tier <= 1 else (1.05 if _tier == 2 else 0.72)
+		pulse = 0.50 + 0.50 * absf(sin(_glow_t * TAU / period))
+		metal = _rim.lerp(_tier_shine(), 0.20 + pulse * 0.55)
+		sb.bg_color = _fill.lightened(0.04 if hot else 0.0)
+		modulate = Color.WHITE
 	elif _danger and not spent:
 		pulse = 0.40 + 0.60 * absf(sin(_glow_t * TAU / 0.45))
 		var blood := Color("c41e1e")
@@ -635,20 +643,46 @@ func _apply_style(hot: bool) -> void:
 		bw = 5
 	if hot:
 		bw += 1
-	if _glow or _aura or _log_focus or _danger:
+	if _glow:
+		bw += int(pulse * float(_tier))
+	elif _aura or _log_focus or _danger:
 		bw += int(pulse * 2.0)
 	sb.set_border_width_all(bw)
 	sb.set_corner_radius_all(8 if _showcase else 6)
 	if _showcase:
 		bw += 1
-	sb.shadow_color = Color(metal.r, metal.g, metal.b, (0.55 if _tier >= 3 else 0.32) + pulse * 0.35)
-	sb.shadow_size = (10 if _tier >= 3 else (6 if _tier == 2 else 4)) + int(pulse * 8.0) + (6 if _showcase else 0)
+	if _glow:
+		sb.shadow_color = Color(metal.r, metal.g, metal.b, 0.42 + pulse * (0.18 + 0.12 * float(_tier)))
+		sb.shadow_size = (6 if _tier <= 1 else (12 if _tier == 2 else 20)) + int(pulse * (4 + _tier * 6)) + (4 if _showcase else 0)
+	else:
+		sb.shadow_color = Color(metal.r, metal.g, metal.b, (0.55 if _tier >= 3 else 0.32) + pulse * 0.35)
+		sb.shadow_size = (10 if _tier >= 3 else (6 if _tier == 2 else 4)) + int(pulse * 8.0) + (6 if _showcase else 0)
 	sb.shadow_offset = Vector2.ZERO
 	sb.content_margin_left = 6
 	sb.content_margin_right = 6
 	sb.content_margin_top = 8
 	sb.content_margin_bottom = 6
 	add_theme_stylebox_override("panel", sb)
+	queue_redraw()
+
+
+func _draw() -> void:
+	if not _glow:
+		return
+	var period: float = 1.45 if _tier <= 1 else (1.05 if _tier == 2 else 0.72)
+	var pulse: float = 0.50 + 0.50 * absf(sin(_glow_t * TAU / period))
+	var pad: float = 3.0 + float(_tier) * 4.0 + pulse * (2.0 + float(_tier) * 2.5)
+	var ring_col: Color = _rim.lerp(_tier_shine(), 0.25 + pulse * 0.50)
+	var ring := StyleBoxFlat.new()
+	ring.draw_center = false
+	ring.bg_color = Color(0, 0, 0, 0)
+	ring.border_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.70 + pulse * 0.25)
+	ring.set_border_width_all(2 + _tier)
+	ring.set_corner_radius_all(12 if _showcase else 9)
+	ring.shadow_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.40 + pulse * 0.28)
+	ring.shadow_size = 4 + _tier * 5 + int(pulse * (3 + _tier * 3))
+	ring.shadow_offset = Vector2.ZERO
+	ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
 
 
 func _on_in() -> void:

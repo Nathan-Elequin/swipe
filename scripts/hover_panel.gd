@@ -128,6 +128,18 @@ func show_rule(
 	t.custom_minimum_size = Vector2(216, 28)
 	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(t)
+	var rank: String = str(look.get("rank", "")).strip_edges()
+	if rank != "":
+		var rk := Label.new()
+		rk.text = rank
+		rk.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		rk.add_theme_font_size_override("font_size", 12)
+		rk.add_theme_color_override("font_color", Color("c4a574") if _on_dark else Color("6a5a48"))
+		rk.add_theme_color_override("font_outline_color", Color("100e0c"))
+		rk.add_theme_constant_override("outline_size", 3)
+		rk.custom_minimum_size = Vector2(216, 0)
+		rk.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.add_child(rk)
 	if value_line != "":
 		var e := RichTextLabel.new()
 		e.bbcode_enabled = true
@@ -153,19 +165,6 @@ func show_rule(
 		eq.custom_minimum_size = Vector2(216, 0)
 		eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(eq)
-	var rank: String = str(look.get("rank", "")).strip_edges()
-	if rank != "":
-		var rk: FitLabelBox = FitLabelBox.make()
-		rk.show_frame = false
-		rk.padding = 0
-		rk.max_font_size = 12
-		rk.min_font_size = 12
-		rk.set_plain(rank)
-		rk.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		rk.font_color = Color("c4a574") if _on_dark else Color("6a5a48")
-		rk.custom_minimum_size = Vector2(216, 18)
-		rk.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		col.add_child(rk)
 	if body != "":
 		var b := RichTextLabel.new()
 		b.bbcode_enabled = true

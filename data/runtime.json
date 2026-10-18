@@ -51,7 +51,12 @@
 		"double_buckler",
 		"blood_pact",
 		"jar_o_grease",
-		"toll"
+		"toll",
+		"pacemaker",
+		"catapult",
+		"polymorph",
+		"stone_wall",
+		"blood_chalice"
 	],
 	"monsters": [
 		"wizard",
@@ -101,7 +106,13 @@
 		"cultist",
 		"bushido",
 		"shark",
-		"death_bell"
+		"death_bell",
+		"three_seeker",
+		"phoenix_egg",
+		"amalgam",
+		"fairy",
+		"eel",
+		"druid"
 	],
 	"notes": "Full roster minus retired/hidden rows (Dagger, Bandana, old Helmet) and Cursed Scroll. Commander + Lich apply last."
 }

@@ -1,0 +1,49 @@
+---
+description: How Nathan writes new or changed monsters in chat
+alwaysApply: true
+---
+
+# Monster shorthand
+
+Boss Rush / Swipe only. When Nathan pastes a monster in this shape, that block is the spec. Do not wait for a second format.
+
+```
+Name (image described here, if left blank you choose/intuit)
+4/4
+Ability Name
+Ability (player facing)
+
+How it works bullets
+Token: …
+|Keyword| or |Keyword: exact player-facing definition|
+```
+
+## Field map
+
+1. **Name** → `name`. Optional `(image …)` in the same line. If the parens are empty or missing, pick what the sprite must read as and file an `## ART-REQUEST` (`unique-art.mdc`). Do not draw or replace PNG bytes.
+2. **`4/4`** → `4` HP, `4` ATK (`hp.base` then `atk.base`). Not ATK/HP.
+3. **Ability Name** → `call_name` (monster callout title).
+4. **Ability** → `ability`. Same sentence goes in the callout and the speech bubble. Use his words. Strip the `|` markers when saving; the player sees the word, not the pipes.
+5. **Shift line** → he leaves this blank on purpose. You always write `explainer` (hold Shift). Do not ask him to invent it. Do not put pipes in it.
+6. **How it works** → Flow / Notes / implementation. Bullets are the rule. Paper Fight the collisions; do not code this turn.
+7. **`Token:`** → a labeled overlay, countdown, chip, or other on-card mark. Wire it like existing tokens. If Pixel must draw it, ART-REQUEST (path, size, frames). Do not draw it.
+
+## Keywords
+
+- `|Flee|` means treat that word like **Flee** everywhere the player can see it: Title Case, keyword color, hover definition on the inspect plate (not the speech balloon), registered in `def_id_of` / `def_of` / keyword stems (`scripts/ux_style.gd`, `scripts/main.gd`).
+- `|Flee: ipsum lorem|` is a **new** keyword. The text after the colon is the exact player-facing definition. Do not restyle it. Jam still owns `data/player-copy.json` for other UI words; this definition is Nathan’s authored copy, same as Ability.
+- `|NewWord|` with no colon, and it is not already Flee / Spin / Always / Swap / another live keyword: ask for the definition language. Do not invent it.
+
+## Paper Fight
+
+This block is new or changed gameplay. Fill `design/paper-fight/CURRENT.md`, then ask only the questions that would change the code, using `AskQuestion` multiple choice. Stop. Do not implement in that turn.
+
+Skip only if he said **skip the Paper Fight** / **just ship it** / **F5 this**.
+
+Quoted Ability / Call name / HP / ATK still go onto the official fields in the same turn. Wait only on the collision questions.
+
+## Do not
+
+- Do not invent player-facing Ability or a new keyword’s definition.
+- Do not leave `|pipes|` in inspect, the balloon, or Shift.
+- Do not skip this parse because the rest of the chat was about UI, keys, or a different card.

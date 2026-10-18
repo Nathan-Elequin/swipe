@@ -170,11 +170,11 @@ const ALWAYS := "#E8C36A"
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
 static func call_color(special_id: String) -> Color:
 	match special_id:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust":
 			return GOLD
-		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh":
+		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return CALL_ATK
-		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact":
+		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator":
 			return CALL_HP
 		"kill_scale", "atk_eq_hp":
 			return CALL_VAR
@@ -208,6 +208,14 @@ static func chip(text: String, ink_hex: String) -> String:
 
 static func def_id_of(piece: String) -> String:
 	var low: String = piece.strip_edges().to_lower()
+	if low == "any monster":
+		return "any"
+	if low.begins_with("eject"):
+		return "eject"
+	if low == "phoenix egg":
+		return "phoenix_egg"
+	if low == "phoenix":
+		return "phoenix"
 	if low.begins_with("flee"):
 		return "flee"
 	if low.begins_with("spin"):
@@ -221,6 +229,10 @@ static func def_id_of(piece: String) -> String:
 
 static func def_of(id: String) -> String:
 	match id:
+		"any":
+			return "select any Monster on the wheel"
+		"eject":
+			return "remove them from the dungeon immediately, placing them on the bottom of the Dungeon Deck"
 		"flee":
 			return "If you are facing them, Spin the wheel at random."
 		"spin":
@@ -252,10 +264,16 @@ static func wire_def_hover(rtl: RichTextLabel, tip: Node, anchor: Control = null
 
 
 static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> void:
-	if tip == null or not tip.has_method("show_def"):
+	if tip == null:
 		return
 	var id: String = str(meta).trim_prefix("kw:")
-	tip.show_def(def_of(id), anchor, id)
+	if id == "phoenix" or id == "phoenix_egg":
+		var main: Node = tip.get_tree().root.get_node_or_null("Main")
+		if main != null and main.has_method("keyword_monster_callout") and tip.has_method("show_callout"):
+			tip.show_callout(main.keyword_monster_callout(id), anchor, id)
+			return
+	if tip.has_method("show_def"):
+		tip.show_def(def_of(id), anchor, id)
 
 
 static func _on_def_unhover(_meta: Variant, tip: Node, anchor: Control = null) -> void:
@@ -493,6 +511,9 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		["enemy hp", hp_c],
 		["your hp", hp_c],
 		["even atk", gold],
+		["any monster", gold],
+		["phoenix egg", gold],
+		["phoenix", gold],
 	]
 	var stems := PackedStringArray([
 		"defeated", "defeats", "defeating", "defeat",
@@ -507,6 +528,7 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"spinning", "spins", "spin",
 		"losing", "loses", "lost", "lose",
 		"always",
+		"eject",
 		"atk", "blk", "hp",
 	])
 	var nums := "one|two|three|four|five|six|seven|eight|nine|ten|twice|thrice"
@@ -634,6 +656,8 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low.begins_with("spin"):
 		return gold
 	if low == "swap" or low.begins_with("swap"):
+		return gold
+	if low.begins_with("eject"):
 		return gold
 	return ""
 

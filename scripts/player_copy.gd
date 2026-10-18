@@ -357,11 +357,11 @@ static func card_snapshot() -> Array:
 			var name: String = str(card.get("name", cid))
 			out.append({"src": "card", "cat": "Cards", "key": "card.%s.%s.name" % [kind, cid], "where": "%s name (%s)" % [kind, st], "text": name, "author_lock": bool(card.get("author_lock", false))})
 			out.append({"src": "card", "cat": "Cards", "key": "card.%s.%s.ability" % [kind, cid], "where": "%s Ability (%s)" % [kind, name], "text": str(card.get("ability", "")), "author_lock": bool(card.get("author_lock", false))})
-			out.append({"src": "card", "cat": "Cards", "key": "card.%s.%s.explainer" % [kind, cid], "where": "%s Shift math (%s)" % [kind, name], "text": str(card.get("explainer", "")), "author_lock": bool(card.get("author_lock", false))})
+			out.append({"src": "card", "cat": "Cards", "key": "card.%s.%s.explainer" % [kind, cid], "where": "%s Shift Text (%s)" % [kind, name], "text": str(card.get("explainer", "")), "author_lock": bool(card.get("author_lock", false))})
 			out.append({"src": "card", "cat": "Cards", "key": "card.%s.%s.log_hint" % [kind, cid], "where": "%s log hover (%s)" % [kind, name], "text": str(card.get("log_hint", "")), "author_lock": bool(card.get("author_lock", false))})
 			if kind == "monster":
 				out.append({"src": "card", "cat": "Cards", "key": "card.%s.%s.call_name" % [kind, cid], "where": "%s Call name (%s)" % [kind, name], "text": str(card.get("call_name", "")), "author_lock": bool(card.get("author_lock", false))})
-				out.append({"src": "card", "cat": "Cards", "key": "card.%s.%s.reminder" % [kind, cid], "where": "%s Shift line (%s)" % [kind, name], "text": str(card.get("reminder", "")), "author_lock": bool(card.get("author_lock", false))})
+				out.append({"src": "card", "cat": "Cards", "key": "card.%s.%s.reminder" % [kind, cid], "where": "%s Shift Text (%s)" % [kind, name], "text": str(card.get("reminder", "")), "author_lock": bool(card.get("author_lock", false))})
 	return out
 
 

@@ -29,7 +29,7 @@ If Ability vs Flow vs Notes disagree: Paper Fight, do not guess. Same as the con
 1. Read this rubric.
 2. Overwrite `design/paper-fight/CURRENT.md` from `TEMPLATE.md`.
 3. Fill every heading. If “Which existing cards this touches” is empty, the write-up is not done.
-4. Ask the questions that would change the code (`AskQuestion`). **Do not implement in that turn.**
+4. Ask the questions that would change the code (`AskQuestion`, multiple choice). **Do not implement in that turn.** A monster pasted in the chat shorthand is this step, same as any other new card.
 5. After he answers: implement, then move CURRENT to `design/paper-fight/done/YYYY-MM-DD-slug.md`.
 
 Worked example: `_example-copy-the-owner.md`.

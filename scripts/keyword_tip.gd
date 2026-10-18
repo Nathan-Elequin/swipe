@@ -5,8 +5,11 @@ const COPY := preload("res://scripts/player_copy.gd")
 
 var _title
 var _lab
+var _col: VBoxContainer
+var _mini: PanelContainer
 var _anchor: Control = null
 var _kind: String = ""
+var _gold_sb: StyleBox
 
 
 func setup() -> void:
@@ -28,11 +31,13 @@ func setup() -> void:
 	hsb.content_margin_bottom = 10
 	hsb.shadow_color = Color(0.06, 0.04, 0.03, 0.55)
 	hsb.shadow_size = 8
+	_gold_sb = hsb
 	add_theme_stylebox_override("panel", hsb)
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 4)
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(col)
+	_col = col
 	_title = FitLabelBox.make()
 	_title.show_frame = false
 	_title.padding = 0
@@ -63,6 +68,9 @@ func show_def(msg: String, anchor: Control = null, id: String = "") -> void:
 	if t == "":
 		hide_def()
 		return
+	_hide_mini()
+	if _gold_sb:
+		add_theme_stylebox_override("panel", _gold_sb)
 	_anchor = anchor
 	_kind = id.strip_edges().to_lower()
 	if _kind == "always":
@@ -73,20 +81,83 @@ func show_def(msg: String, anchor: Control = null, id: String = "") -> void:
 		_title.text = COPY.text("keyword.swap", "Swap")
 		_title.visible = true
 		_lab.text = COPY.text("keyword.swap_body", "exchange for a random Item of the same Tier")
+	elif _kind == "any":
+		_title.text = "Any"
+		_title.visible = true
+		_lab.text = t
+	elif _kind == "eject":
+		_title.text = "Eject"
+		_title.visible = true
+		_lab.text = t
 	else:
 		_title.text = ""
 		_title.visible = false
 		_lab.text = t
+	_lab.visible = true
 	visible = true
 	reset_size()
 	set_process(true)
 	_place()
 
 
+func show_callout(pack: Dictionary, anchor: Control = null, id: String = "") -> void:
+	if pack.is_empty():
+		hide_def()
+		return
+	_hide_text()
+	_anchor = anchor
+	_kind = id.strip_edges().to_lower()
+	var clear := StyleBoxEmpty.new()
+	add_theme_stylebox_override("panel", clear)
+	if _mini == null:
+		_mini = (load("res://scripts/hover_panel.gd") as GDScript).new()
+		_col.add_child(_mini)
+		_mini.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_mini.scale = Vector2(0.7, 0.7)
+		_mini.pivot_offset = Vector2.ZERO
+	_mini.visible = true
+	var body: String = str(pack.get("body", ""))
+	var url_rx := RegEx.new()
+	if url_rx.compile("\\[url=[^\\]]+\\]|\\[/url\\]") == OK:
+		body = url_rx.sub(body, "", true)
+	_mini.show_rule(
+		str(pack.get("title", "")),
+		str(pack.get("value", "")),
+		str(pack.get("equation", "")),
+		body,
+		str(pack.get("warn", "")),
+		pack.get("portrait", null),
+		"monster",
+		str(pack.get("card_id", "")),
+		pack.get("look", {})
+	)
+	visible = true
+	reset_size()
+	set_process(true)
+	_place()
+
+
+func _hide_text() -> void:
+	if _title:
+		_title.visible = false
+	if _lab:
+		_lab.visible = false
+
+
+func _hide_mini() -> void:
+	if _mini != null:
+		_mini.visible = false
+		if _mini.has_method("hide_plate"):
+			_mini.hide_plate()
+
+
 func hide_def() -> void:
 	visible = false
 	_anchor = null
 	_kind = ""
+	_hide_mini()
+	if _gold_sb:
+		add_theme_stylebox_override("panel", _gold_sb)
 	set_process(false)
 
 
