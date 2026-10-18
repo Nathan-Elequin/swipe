@@ -28,6 +28,7 @@ const DRAFT_LINES := preload("res://scripts/draft_lines.gd")
 const DUNGEON_DECK := preload("res://scripts/dungeon_deck.gd")
 const CHALLENGE_DRAFT := preload("res://scripts/challenge_draft.gd")
 const HOME_CABIN := preload("res://scripts/home_cabin.gd")
+const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 const HOT_EMPTY := preload("res://scripts/hot_empty_slot.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 const RECENT_EDITS := preload("res://scripts/recent_edits.gd")
@@ -478,6 +479,8 @@ var overlay_undo: Button
 
 
 func _ready() -> void:
+	if not SHOT_CLI.enabled(OS.get_cmdline_user_args()):
+		SHOT_CLI.recover_if_marked()
 	Engine.time_scale = ANIM_TIME_SCALE
 	PLAYER_COPY.reload()
 	_load_textures()
@@ -495,15 +498,16 @@ func _ready() -> void:
 	_refresh()
 	if sfx and (home_cabin == null or not home_cabin.visible):
 		sfx.start_music()
-	if OS.get_cmdline_user_args().has("--text-targets") and shot_harness:
-		call_deferred("_kick_text_targets")
+	if SHOT_CLI.enabled(OS.get_cmdline_user_args()) and shot_harness:
+		call_deferred("_kick_shots")
 
 
-func _kick_text_targets() -> void:
+func _kick_shots() -> void:
 	if shot_harness == null:
+		get_tree().quit(2)
 		return
-	shot_harness.out_dir = "res://design/cli-runs/02-fx-tooltips"
-	shot_harness.begin_text_targets()
+	var args := OS.get_cmdline_user_args()
+	shot_harness.begin_shots(SHOT_CLI.list_raw(args), SHOT_CLI.out_dir(args), true)
 
 
 func _tex(path: String) -> Texture2D:
@@ -513,7 +517,7 @@ func _tex(path: String) -> Texture2D:
 
 
 func _authoring() -> bool:
-	return DevFlag.on() or OS.get_cmdline_user_args().has("--text-targets")
+	return DevFlag.on() or SHOT_CLI.enabled(OS.get_cmdline_user_args())
 
 
 func _prefer_pixel_art() -> void:

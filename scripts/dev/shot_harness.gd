@@ -3,7 +3,7 @@ extends Node
 
 const OUT_DIR := "res://design/audit-shots/cursor"
 const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
-const TEXT_OUT_DIR := "res://design/cli-runs/02-fx-tooltips"
+const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 const SAVE_PATH := "user://home_cabin.json"
 const SACK_OWNED := ["throwing_knife", "shield"]
 const SACK_NEW := ["net", "lantern", "caltrops", "dagger", "longbow"]
@@ -20,6 +20,11 @@ var audit_fails: Array = []
 var _save_text: String = ""
 var _stamp_was: bool = false
 var out_dir: String = OUT_DIR
+var _quit_when_done: bool = false
+var _harness_error: String = ""
+var _wanted: Dictionary = {}
+var _shot_fns: Dictionary = {}
+var _ping_ok: bool = false
 
 
 func setup(p_main) -> void:
@@ -29,10 +34,23 @@ func setup(p_main) -> void:
 
 
 func begin() -> String:
+	return begin_shots("all", OUT_DIR, false)
+
+
+func begin_shots(list_raw: String, dest: String, quit_when_done: bool) -> String:
+	_quit_when_done = quit_when_done
+	_harness_error = ""
 	if main == null or not main._authoring():
-		return "blocked: not authoring"
+		return _finish_early("blocked: not authoring", 2)
 	if running:
-		return "already running"
+		return _finish_early("already running", 2)
+	var dest_err := _apply_out_dir(dest)
+	if dest_err != "":
+		return _finish_early(dest_err, 2)
+	_ensure_registry()
+	var list_err := _fill_wanted(list_raw)
+	if list_err != "":
+		return _finish_early(list_err, 2)
 	running = true
 	finished = false
 	notes.clear()
@@ -43,55 +61,50 @@ func begin() -> String:
 	return "started"
 
 
-func begin_text_targets() -> String:
-	if main == null or not main._authoring():
-		return "blocked: not authoring"
-	if running:
-		return "already running"
-	running = true
-	finished = false
-	notes.clear()
-	audit_fails.clear()
-	status = "text-targets"
-	out_dir = TEXT_OUT_DIR
-	var kick := get_tree().create_timer(0.0, true, false, true)
-	kick.timeout.connect(_run_text_targets, CONNECT_ONE_SHOT)
-	return "started"
+func _finish_early(why: String, code: int) -> String:
+	print("SHOT_HARNESS: ", why)
+	if _quit_when_done and is_inside_tree():
+		get_tree().quit(code)
+	return why
 
 
 func _run() -> void:
-	var abs_dir: String = ProjectSettings.globalize_path(OUT_DIR)
+	var abs_dir: String = ProjectSettings.globalize_path(out_dir)
 	DirAccess.make_dir_recursive_absolute(abs_dir)
 	_log_progress("run start")
 	get_tree().paused = false
-	_snapshot_save()
-	if main._copy_stamp:
-		_stamp_was = main._copy_stamp.visible
-		main._copy_stamp.visible = false
-
-	await _shot_run_hero()
-	await _shot_cabin_hero()
-	await _shot_map_routes()
-
-	await _shot_rope("18_rope_exit_belly1.png", 1, "sign visible, nothing else open")
-	await _shot_rope_peek("19_rope_exit_sack_peek.png")
-	await _shot_caught("20_caught_sheet.png")
-	_skip("21a_win_homecoming_dump.png", "Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.")
-	_skip("21b_win_homecoming_fly.png", "NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.")
-	await _shot_loss("22_loss_homecoming.png")
-	await _shot_intro()
-	await _shot_combat_tooltips()
-	await _shot_item_hand()
-	await _shot_keyring("14_keyring_midbeat.png")
-	await _shot_rope("24_rope_exit_belly3.png", 3, "later belly headline")
-	await _shot_text_screens()
-
-	_restore_all()
-	if main._copy_stamp:
-		main._copy_stamp.visible = _stamp_was
+	var guarded := false
+	if not SHOT_CLI.begin_guard():
+		_harness_error = "save backup failed"
+	else:
+		guarded = true
+		_snapshot_save()
+		if main.home_cabin:
+			main.home_cabin._load_save()
+		if main._copy_stamp:
+			_stamp_was = main._copy_stamp.visible
+			main._copy_stamp.visible = false
+		if main.text_audit == null:
+			_harness_error = "text audit missing"
+		else:
+			main.text_audit.copy_dir = out_dir
+			await _run_table()
+			_note_missing()
+		_restore_all()
+		if main._copy_stamp:
+			main._copy_stamp.visible = _stamp_was
+		if main.text_audit:
+			main.text_audit.set_on(false)
+	if not guarded and _harness_error == "":
+		_harness_error = "save backup failed"
+	_write_audit_summary()
 	running = false
 	finished = true
-	status = "done"
+	status = "done" if _harness_error == "" else _harness_error
+	var code := _exit_code()
+	_log_progress("exit %s" % code)
+	if _quit_when_done:
+		get_tree().quit(code)
 
 
 func _shot_run_hero() -> void:
@@ -353,6 +366,24 @@ func _shot_map_routes() -> void:
 		main.play_field.visible = true
 
 
+func _shot_rope_belly1() -> void:
+	await _shot_rope("18_rope_exit_belly1.png", 1, "sign visible, nothing else open")
+
+
+func _shot_rope_belly3() -> void:
+	await _shot_rope("24_rope_exit_belly3.png", 3, "later belly headline")
+
+
+func _shot_21a() -> void:
+	_skip("21a_win_homecoming_dump.png", "Live homecoming still uses hero_drop_sack then the chair. Items do not pop out of the sack.")
+	await get_tree().process_frame
+
+
+func _shot_21b() -> void:
+	_skip("21b_win_homecoming_fly.png", "NEW items do not fly to the cabinet yet. Only a scale burst on a rebuilt mount exists.")
+	await get_tree().process_frame
+
+
 func _shot_rope(filename: String, cleared: int, extra: String) -> void:
 	status = filename
 	_reset_between()
@@ -528,44 +559,6 @@ func _shot_intro() -> void:
 		await _capture("13c_intro_panel3.png", "same intro, panel 3 Nib line, reserved portrait/text/prompt")
 	cabin._cutscene.abort()
 	cabin.stop_story()
-
-
-func _run_text_targets() -> void:
-	out_dir = TEXT_OUT_DIR
-	var abs_dir: String = ProjectSettings.globalize_path(out_dir)
-	DirAccess.make_dir_recursive_absolute(abs_dir)
-	_log_progress("text-targets start")
-	get_tree().paused = false
-	_snapshot_save()
-	if main._copy_stamp:
-		_stamp_was = main._copy_stamp.visible
-		main._copy_stamp.visible = false
-	if main.text_audit:
-		main.text_audit.set_on(true)
-	await _shot_intro()
-	await _shot_combat_tooltips()
-	await _shot_item_hand()
-	_restore_all()
-	if main._copy_stamp:
-		main._copy_stamp.visible = _stamp_was
-	if main.text_audit:
-		main.text_audit.set_on(false)
-		var pack := {
-			"updated": Time.get_datetime_string_from_system(),
-			"failures": audit_fails,
-		}
-		var raw: String = JSON.stringify(pack, "\t")
-		var f := FileAccess.open("user://text_audit.json", FileAccess.WRITE)
-		if f:
-			f.store_string(raw)
-		var g := FileAccess.open(out_dir.path_join("text_audit.json"), FileAccess.WRITE)
-		if g:
-			g.store_string(raw)
-	running = false
-	finished = true
-	status = "done"
-	if OS.get_cmdline_user_args().has("--text-targets"):
-		get_tree().quit()
 
 
 func _finish_cut_line(cut) -> void:
@@ -785,6 +778,8 @@ func _restore_disk() -> void:
 
 func _restore_all() -> void:
 	_restore_disk()
+	if not SHOT_CLI.end_guard():
+		_harness_error = "save restore failed"
 	if main.home_cabin:
 		main.home_cabin.stop_story()
 		main.home_cabin._load_save()
@@ -808,6 +803,8 @@ func _restore_all() -> void:
 
 
 func _capture(filename: String, how: String) -> void:
+	if not _wants_file(filename):
+		return
 	TEXT_RESERVE.settle(main)
 	if main.text_audit:
 		main.text_audit.visible = false
@@ -833,6 +830,8 @@ func _capture(filename: String, how: String) -> void:
 
 
 func _skip(filename: String, why: String) -> void:
+	if not _wants_file(filename):
+		return
 	notes.append({"file": filename, "status": "skip", "how": why})
 	_log_progress("skip %s: %s" % [filename, why])
 
@@ -925,17 +924,234 @@ func _shot_text_screens() -> void:
 	cabin.stop_story()
 	if main.text_audit:
 		main.text_audit.set_on(false)
-		var pack := {
-			"updated": Time.get_datetime_string_from_system(),
-			"failures": audit_fails,
-		}
-		var raw: String = JSON.stringify(pack, "\t")
-		var f := FileAccess.open("user://text_audit.json", FileAccess.WRITE)
-		if f:
-			f.store_string(raw)
-		var g := FileAccess.open(OUT_DIR.path_join("text_audit.json"), FileAccess.WRITE)
-		if g:
-			g.store_string(raw)
+
+
+func shot_names() -> PackedStringArray:
+	_ensure_registry()
+	var names := PackedStringArray()
+	for stem in _shot_fns.keys():
+		names.append(str(stem))
+	return names
+
+
+func self_check() -> String:
+	_ensure_registry()
+	if _shot_fns.size() < 40:
+		return "registry short (%s)" % _shot_fns.size()
+	var seen := {}
+	var method_of := {}
+	for stem in _shot_fns.keys():
+		var name := str(stem)
+		if seen.has(name):
+			return "duplicate stem %s" % name
+		seen[name] = true
+		if name == "" or name.contains("."):
+			return "bad stem %s" % name
+		var fn: Callable = _shot_fns[stem]
+		var method_id := str(fn.get_method())
+		if method_id == "":
+			return "empty runner id for %s" % name
+		method_of[name] = method_id
+	if method_of["30_hub_idle"] != method_of["39_untouched"]:
+		return "hub shots do not share a runner"
+	if method_of["18_rope_exit_belly1"] == method_of["24_rope_exit_belly3"]:
+		return "rope belly shots collapsed to one runner"
+	for target in SHOT_CLI.parse_names(SHOT_CLI.TEXT_TARGETS):
+		if not _shot_fns.has(target):
+			return "text target missing %s" % target
+	var unknown := _fill_wanted("no_such_shot")
+	if not unknown.begins_with("unknown"):
+		return "unknown shot was accepted"
+	var all_err := _fill_wanted("all")
+	if all_err != "" or _wanted.size() != _shot_fns.size():
+		return "all did not select every shot"
+	var list_err := _fill_wanted("30_hub_idle,31_hub_badges.png")
+	if list_err != "" or not _wanted.has("30_hub_idle") or not _wanted.has("31_hub_badges") or _wanted.size() != 2:
+		return "comma list failed"
+	if not _wants_file("30_hub_idle.png") or not _wants_file("31_hub_badges.png"):
+		return "want filter missed a requested shot"
+	if _apply_out_dir("C:/temp") == "":
+		return "non-res shots-out was accepted"
+	if _apply_out_dir("res://design/audit-shots/cursor") != "":
+		return "res:// shots-out was rejected"
+	if not _wants_file("30_hub_idle.png"):
+		return "out dir change cleared the shot list"
+	_fill_wanted("30_hub_idle")
+	if not _wants_file("30_hub_idle.png") or _wants_file("31_hub_badges.png"):
+		return "want filter failed"
+	return ""
+
+
+func self_check_async() -> String:
+	_ping_ok = false
+	var fn := _ping
+	await fn.call()
+	if not _ping_ok:
+		return "callable await failed"
+	return ""
+
+
+func _ping() -> void:
+	await get_tree().process_frame
+	_ping_ok = true
+
+
+func _ensure_registry() -> void:
+	if not _shot_fns.is_empty():
+		return
+	_bind_many([
+		"30_hub_idle", "31_hub_badges", "32a_blk_empty", "32b_blk_full", "32c_blk_up",
+		"32d_hp_flash", "32e_hp_low", "32f_hp_empty", "33_pierce_float", "34a_swipe_f2",
+		"34b_hit", "34c_block_f1", "34d_heal_f2", "34e_grab_f1", "34f_victory",
+		"34g_death_f3", "35_death_dim", "36a_gear_helm", "36b_gear_helm_swipe",
+		"36c_gear_cap", "36d_gear_none", "37a_clear_idle", "37b_clear_swipe_f2",
+		"37c_clear_block_f1", "37d_clear_heal_f2", "37e_clear_lowhp_f0",
+		"38_courier_walkoff", "39_untouched",
+	], _shot_run_hero)
+	_bind_many([
+		"40a_cabin_gear_helm_sit", "40b_cabin_gear_helm_rock", "40c_cabin_gear_helm_walk",
+		"40d_cabin_gear_helm_walk_sad", "40e_cabin_gear_helm_dump", "40f_cabin_gear_helm_shake",
+		"41a_cabin_rock_cap", "41b_cabin_rock_helm", "42_cabin_gear_none",
+		"43a_cabin_flip_walk_loot", "43b_cabin_flip_dump",
+	], _shot_cabin_hero)
+	_bind_many([
+		"15a_map_classic_selected", "15b_map_challenge_hover", "15c_map_challenge_selected",
+	], _shot_map_routes)
+	_shot_fns["18_rope_exit_belly1"] = _shot_rope_belly1
+	_shot_fns["19_rope_exit_sack_peek"] = _shot_peek
+	_shot_fns["20_caught_sheet"] = _shot_caught_sheet
+	_shot_fns["21a_win_homecoming_dump"] = _shot_21a
+	_shot_fns["21b_win_homecoming_fly"] = _shot_21b
+	_shot_fns["22_loss_homecoming"] = _shot_loss_home
+	_bind_many(["13a_intro_panel1", "13b_intro_panel2", "13c_intro_panel3"], _shot_intro)
+	_shot_fns["text_combat_tips"] = _shot_combat_tooltips
+	_shot_fns["text_item_hand"] = _shot_item_hand
+	_shot_fns["14_keyring_midbeat"] = _shot_keyring_mid
+	_shot_fns["24_rope_exit_belly3"] = _shot_rope_belly3
+	_bind_many([
+		"text_cabin_main", "text_cabin_bubble", "text_pause", "text_map", "text_journal",
+		"text_radio", "text_will", "text_drawer", "text_parchment",
+	], _shot_text_screens)
+
+
+func _bind_many(stems: Array, fn: Callable) -> void:
+	for stem in stems:
+		_shot_fns[str(stem)] = fn
+
+
+func _shot_peek() -> void:
+	await _shot_rope_peek("19_rope_exit_sack_peek.png")
+
+
+func _shot_caught_sheet() -> void:
+	await _shot_caught("20_caught_sheet.png")
+
+
+func _shot_loss_home() -> void:
+	await _shot_loss("22_loss_homecoming.png")
+
+
+func _shot_keyring_mid() -> void:
+	await _shot_keyring("14_keyring_midbeat.png")
+
+
+func _apply_out_dir(dest: String) -> String:
+	var path := dest.strip_edges()
+	if path == "":
+		path = OUT_DIR
+	if not path.begins_with("res://"):
+		return "shots-out must be a res:// directory"
+	out_dir = path
+	return ""
+
+
+func _fill_wanted(raw: String) -> String:
+	var names := SHOT_CLI.parse_names(raw)
+	if names.is_empty():
+		return "empty shot list"
+	var use_all := false
+	for name in names:
+		if name == "all":
+			use_all = true
+			break
+	_wanted.clear()
+	if use_all:
+		for stem in _shot_fns.keys():
+			_wanted[str(stem)] = true
+		return ""
+	var unknown: PackedStringArray = []
+	for name in names:
+		if name == "all":
+			continue
+		if not _shot_fns.has(name):
+			unknown.append(name)
+		else:
+			_wanted[name] = true
+	if unknown.size() > 0:
+		return "unknown shot: " + ",".join(unknown)
+	if _wanted.is_empty():
+		return "empty shot list"
+	return ""
+
+
+func _run_table() -> void:
+	var ran := {}
+	for stem in _shot_fns.keys():
+		if not _wanted.has(str(stem)):
+			continue
+		var fn: Callable = _shot_fns[stem]
+		var id := str(fn.get_method())
+		if ran.has(id):
+			continue
+		ran[id] = true
+		await fn.call()
+
+
+func _wants_file(filename: String) -> bool:
+	return _wanted.has(filename.get_basename())
+
+
+func _noted(stem: String) -> bool:
+	for row in notes:
+		if str(row.get("file", "")).get_basename() == stem:
+			return true
+	return false
+
+
+func _note_missing() -> void:
+	for stem in _wanted.keys():
+		if _noted(str(stem)):
+			continue
+		notes.append({"file": str(stem) + ".png", "status": "skip", "how": "not captured"})
+		_log_progress("skip %s: not captured" % stem)
+
+
+func _exit_code() -> int:
+	if _harness_error != "":
+		return 2
+	for row in notes:
+		var st := str(row.get("status", ""))
+		if st == "skip" or st == "text_audit":
+			return 1
+	return 0
+
+
+func _write_audit_summary() -> void:
+	var pack := {
+		"updated": Time.get_datetime_string_from_system(),
+		"failures": audit_fails,
+	}
+	var raw: String = JSON.stringify(pack, "\t")
+	var copy_path := out_dir.path_join("text_audit.json")
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	var g := FileAccess.open(copy_path, FileAccess.WRITE)
+	if g:
+		g.store_string(raw)
+		g.close()
+	var f := FileAccess.open("user://text_audit.json", FileAccess.WRITE)
+	if f:
+		f.store_string(raw)
+		f.close()
 
 
 func _wait(sec: float) -> void:
