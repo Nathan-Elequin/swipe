@@ -1677,7 +1677,7 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 	var tier_fs: int = 10 if is_face else 9
 	if crowded:
 		tier_fs = maxi(8, tier_fs - 1)
-	var tier_txt: String = "Tier %s" % _plate_tier(s)
+	var tier_txt: String = COPY.tier_name(_plate_tier(s))
 	var edge_w := 1.6
 	var sub_clear := 2.0
 	# Text is stroked 1px, and the capsule stroke sits on the rect edge.
