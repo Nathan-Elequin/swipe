@@ -13,6 +13,7 @@ var ambience_lin: float = 0.8
 var sfx_lin: float = 1.0
 var ui_lin: float = 0.9
 var music_state: StringName = &"boot"
+var cutscene_autoplay: bool = true
 
 var _map: Dictionary = {}
 var _cues: Dictionary = {}
@@ -987,6 +988,11 @@ func set_sfx(lin: float) -> void:
 	_save()
 
 
+func set_cutscene_autoplay(on: bool) -> void:
+	cutscene_autoplay = on
+	_save()
+
+
 func set_ui(lin: float) -> void:
 	ui_lin = clampf(lin, 0.0, 1.0)
 	apply_levels()
@@ -1028,6 +1034,7 @@ func _load_save() -> void:
 	ambience_lin = clampf(float(d.get("ambience", 0.8)), 0.0, 1.0)
 	sfx_lin = clampf(float(d.get("sfx", 1.0)), 0.0, 1.0)
 	ui_lin = clampf(float(d.get("ui", 0.9)), 0.0, 1.0)
+	cutscene_autoplay = bool(d.get("cutscene_autoplay", true))
 
 
 func _save() -> void:
@@ -1041,4 +1048,5 @@ func _save() -> void:
 		"ambience": ambience_lin,
 		"sfx": sfx_lin,
 		"ui": ui_lin,
+		"cutscene_autoplay": cutscene_autoplay,
 	}))

@@ -1,0 +1,6 @@
+name = "swipe-playtest-inbox"
+main = "worker.js"
+compatibility_date = "2026-10-19"
+
+[vars]
+GITHUB_REPO = "Nathan-Elequin/swipe"

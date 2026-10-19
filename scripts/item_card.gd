@@ -8,6 +8,7 @@ signal edit_wanted
 signal passed_swipe
 
 const COPY := preload("res://scripts/player_copy.gd")
+const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const CARD_W := 118.0
 const CARD_H := 162.0
 const SHOW_W := 236.0
@@ -48,6 +49,7 @@ var _echo_mark: TextureRect
 var _stone: TextureRect
 var _playable: bool = false
 var _hatch: Control
+var _lock_shade: Control
 var _aura: bool = false
 var _log_focus: bool = false
 var _plus: TextureRect
@@ -240,6 +242,7 @@ func setup(
 	add_child(_used)
 	_shown = number_text
 	_sync_hatch()
+	_sync_lock_shade()
 
 
 func _sync_hatch() -> void:
@@ -251,6 +254,8 @@ func _sync_hatch() -> void:
 	if _hatch == null:
 		_hatch = Control.new()
 		_hatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hatch.clip_contents = true
+		_hatch.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
 		_hatch.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		_hatch.draw.connect(_draw_egg_hatch)
 		_hatch.resized.connect(_hatch.queue_redraw)
@@ -274,6 +279,50 @@ func _draw_egg_hatch() -> void:
 	while x < w + h:
 		_hatch.draw_line(Vector2(x, h), Vector2(x + h * 0.65, 0.0), ink, 1.0)
 		x += 6.0
+
+
+func _sync_lock_shade() -> void:
+	var locked: bool = (not _showcase) and (spent or not _playable)
+	if not locked:
+		if _lock_shade != null:
+			_lock_shade.visible = false
+		return
+	if _lock_shade == null:
+		_lock_shade = Control.new()
+		_lock_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_lock_shade.clip_contents = true
+		_lock_shade.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
+		_lock_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_lock_shade.draw.connect(_draw_lock_shade)
+		_lock_shade.resized.connect(func() -> void:
+			if _lock_shade != null:
+				_lock_shade.queue_redraw()
+		)
+		add_child(_lock_shade)
+	_lock_shade.visible = true
+	if _used != null:
+		move_child(_used, get_child_count() - 1)
+	_lock_shade.queue_redraw()
+
+
+func _draw_lock_shade() -> void:
+	if _lock_shade == null:
+		return
+	var w: float = _lock_shade.size.x
+	var h: float = _lock_shade.size.y
+	if w < 2.0 or h < 2.0:
+		return
+	_lock_shade.draw_rect(Rect2(0, 0, w, h), Color(0.07, 0.05, 0.04, 0.16))
+	var ink := Color(0.10, 0.08, 0.07, 0.32)
+	var x: float = -h
+	while x < w + h:
+		_lock_shade.draw_line(Vector2(x, h), Vector2(x + h * 0.58, 0.0), ink, 1.5)
+		x += 8.0
+	var dust := Color(0.96, 0.90, 0.80, 0.08)
+	x = -h
+	while x < w + h:
+		_lock_shade.draw_line(Vector2(x, 0.0), Vector2(x + h * 0.58, h), dust, 1.0)
+		x += 12.0
 
 
 func set_echo_mark(tex: Texture2D) -> void:
@@ -377,6 +426,7 @@ func set_showcase(on: bool) -> void:
 		_ability.add_theme_font_size_override("normal_font_size", 15 if on else 13)
 		_ability.add_theme_font_size_override("bold_font_size", 15 if on else 13)
 		_ability.visible = on and _ability.text.strip_edges() != "" and _ability.text != "[center][/center]"
+	_sync_lock_shade()
 	_apply_style(_hot)
 
 
@@ -401,13 +451,13 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 	if _glow or _aura or _log_focus or _danger:
 		pass
 	elif spent:
-		modulate = Color(0.38, 0.36, 0.34, 0.72)
-	elif not can_use and not (kind == "DEFEAT" and number_text.is_valid_int()):
-		modulate = Color(0.62, 0.60, 0.58, 0.70)
+		modulate = Color(0.86, 0.84, 0.80, 1.0)
 	else:
 		modulate = Color.WHITE
+	_playable = can_use and not spent
 	if _used != null:
 		_used.visible = spent
+	_sync_lock_shade()
 	if _mark != null and not _formula_on:
 		var beside: bool = kind == "DEFEAT" and number_text.is_valid_int()
 		_mark.visible = _mark.texture != null and (number_text == "" or beside)
@@ -509,10 +559,11 @@ func set_passive_icons(plus_tex: Texture2D, ban_tex: Texture2D, on: bool) -> voi
 
 
 func set_playable(on: bool) -> void:
-	_playable = on
+	_playable = on and not spent
 	set_process(_want_process())
-	if not on and not _glow and not _aura and not _log_focus and not _danger and not spent:
-		modulate = Color.WHITE
+	if not _playable and not _glow and not _aura and not _log_focus and not _danger:
+		modulate = Color.WHITE if not spent else Color(0.86, 0.84, 0.80, 1.0)
+	_sync_lock_shade()
 	_apply_style(_hot)
 
 
@@ -716,7 +767,7 @@ func _on_out() -> void:
 func _on_gui(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			if OS.has_feature("editor"):
+			if OS.has_feature("editor") or PLAYTEST_FLAG.on():
 				edit_wanted.emit()
 			return
 		if spent:

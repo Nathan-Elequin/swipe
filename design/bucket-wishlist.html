@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bucket wishlist</title>
+<style>
+  body { margin: 0; background: #120e0c; color: #f0e6d8; font: 16px/1.45 "Iowan Old Style", Palatino, Georgia, serif; }
+  header { padding: 28px 28px 8px; max-width: 980px; }
+  h1 { font-size: 28px; margin: 0 0 8px; }
+  .lead { color: #d9cbb8; max-width: 760px; }
+  .seed { color: #8dcb8d; font-size: 14px; }
+  main { padding: 12px 20px 36px; display: grid; gap: 12px; max-width: 1100px; }
+  .block { display: flex; gap: 12px; align-items: stretch; }
+  .num { font: 700 28px/64px ui-sans-serif, sans-serif; min-width: 48px; color: #c4a574; }
+  .stage { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+  .slot { box-sizing: border-box; min-height: 64px; padding: 6px 10px 8px; border: 3px solid #6b5344; background: #1c1612; display: flex; flex-direction: column; justify-content: center; gap: 1px; }
+  .slot .k { font-size: 11px; color: #cbbba6; }
+  .slot .v { font-size: 22px; font-weight: 700; line-height: 1.15; white-space: nowrap; }
+  .slot.kind.item { border-color: #e8c36a; background: #2a1c08; color: #ffe9a8; }
+  .slot.kind.monster { border-color: #c45c7a; background: #241018; color: #f3d0d6; }
+  .slot.kind .k { color: rgba(255,255,255,0.86); }
+  .slot.tier.t1 { border-color: #c08050; background: #24160e; color: #f3d2b0; }
+  .slot.tier.t2 { border-color: #c5cdd8; background: #14161a; color: #eef2f8; }
+  .slot.tier.t3 { border-color: #e8c36a; background: #2a1c08; color: #ffe9a8; }
+  .slot.bucket { color: #fff; }
+  .slot.bucket .k { color: rgba(255,255,255,0.86); }
+  .slot.bucket.b0 { background: #5d8a45; border-color: #5d8a45; }
+  .slot.bucket.b1 { background: #2f6f9f; border-color: #2f6f9f; }
+  .slot.bucket.b2 { background: #6d4c9a; border-color: #6d4c9a; }
+  .slot.bucket.b3 { background: #b8860b; border-color: #b8860b; }
+  .slot.bucket.b4 { background: #b85c2a; border-color: #b85c2a; }
+  .slot.bucket.b5 { background: #8f3048; border-color: #8f3048; }
+  .slot.bucket.b6 { background: #1f6f6a; border-color: #1f6f6a; }
+  .slot.bucket.b7 { background: #4a5a8a; border-color: #4a5a8a; }
+  .slot.bucket.b8 { background: #7a5a2a; border-color: #7a5a2a; }
+  .slot.type { border-color: #c4a574; }
+  .slot.trait.plus { color: #b7e0a8; background: #1a2a16; border-color: #8dcb8d; }
+  .slot.trait.minus { color: #f0a0a0; background: #2a1614; border-color: #e07a7a; }
+  .slot.trait .sign { display: inline-block; min-width: 0.75em; }
+  .mill { padding: 8px 28px 48px; max-width: 900px; color: #cbbba6; font-size: 14px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Shopping list</h1>
+  <p class="lead">Each row is one hole after the live cards were placed. Design them in this order. Plus is a high number. Minus is a weak number, or it helps the player.</p>
+  <p class="seed">Rolled from the Trait Matrix. Seed 695979055. 6 holes.</p>
+</header>
+<main>
+<article class="block">
+  <div class="num">01</div>
+  <div class="stage">
+    <div class="slot kind item"><span class="k">Kind</span><span class="v">Item</span></div>
+    <div class="slot bucket b7"><span class="k">Bucket</span><span class="v">7</span></div>
+    <div class="slot tier t2"><span class="k">Tier</span><span class="v">2</span></div>
+    <div class="slot type"><span class="k">Type</span><span class="v">Utility</span></div>
+    <div class="slot trait plus"><span class="k">Trait</span><span class="v"><span class="sign">+</span> Cap</span></div>
+    <div class="slot trait plus"><span class="k">Trait</span><span class="v"><span class="sign">+</span> HP</span></div>
+  </div>
+</article><article class="block">
+  <div class="num">02</div>
+  <div class="stage">
+    <div class="slot kind item"><span class="k">Kind</span><span class="v">Item</span></div>
+    <div class="slot bucket b8"><span class="k">Bucket</span><span class="v">8</span></div>
+    <div class="slot tier t1"><span class="k">Tier</span><span class="v">1</span></div>
+    <div class="slot type"><span class="k">Type</span><span class="v">Attack</span></div>
+    <div class="slot trait plus"><span class="k">Trait</span><span class="v"><span class="sign">+</span> Position</span></div>
+    <div class="slot trait plus"><span class="k">Trait</span><span class="v"><span class="sign">+</span> Petrify</span></div>
+  </div>
+</article><article class="block">
+  <div class="num">03</div>
+  <div class="stage">
+    <div class="slot kind item"><span class="k">Kind</span><span class="v">Item</span></div>
+    <div class="slot bucket b8"><span class="k">Bucket</span><span class="v">8</span></div>
+    <div class="slot tier t2"><span class="k">Tier</span><span class="v">2</span></div>
+    <div class="slot type"><span class="k">Type</span><span class="v">Utility</span></div>
+    <div class="slot trait minus"><span class="k">Trait</span><span class="v"><span class="sign">−</span> Count</span></div>
+    <div class="slot trait plus"><span class="k">Trait</span><span class="v"><span class="sign">+</span> Discard</span></div>
+  </div>
+</article><article class="block">
+  <div class="num">04</div>
+  <div class="stage">
+    <div class="slot kind monster"><span class="k">Kind</span><span class="v">Monster</span></div>
+    <div class="slot bucket b8"><span class="k">Bucket</span><span class="v">8</span></div>
+    <div class="slot tier t1"><span class="k">Tier</span><span class="v">1</span></div>
+    <div class="slot type"><span class="k">Type</span><span class="v">Monster</span></div>
+    <div class="slot trait plus"><span class="k">Trait</span><span class="v"><span class="sign">+</span> Block</span></div>
+    <div class="slot trait plus"><span class="k">Trait</span><span class="v"><span class="sign">+</span> Pierce</span></div>
+  </div>
+</article><article class="block">
+  <div class="num">05</div>
+  <div class="stage">
+    <div class="slot kind monster"><span class="k">Kind</span><span class="v">Monster</span></div>
+    <div class="slot bucket b8"><span class="k">Bucket</span><span class="v">8</span></div>
+    <div class="slot tier t2"><span class="k">Tier</span><span class="v">2</span></div>
+    <div class="slot type"><span class="k">Type</span><span class="v">Monster</span></div>
+    <div class="slot trait plus"><span class="k">Trait</span><span class="v"><span class="sign">+</span> Pierce</span></div>
+    <div class="slot trait plus"><span class="k">Trait</span><span class="v"><span class="sign">+</span> Spin</span></div>
+  </div>
+</article><article class="block">
+  <div class="num">06</div>
+  <div class="stage">
+    <div class="slot kind monster"><span class="k">Kind</span><span class="v">Monster</span></div>
+    <div class="slot bucket b8"><span class="k">Bucket</span><span class="v">8</span></div>
+    <div class="slot tier t2"><span class="k">Tier</span><span class="v">2</span></div>
+    <div class="slot type"><span class="k">Type</span><span class="v">Monster</span></div>
+    <div class="slot trait plus"><span class="k">Trait</span><span class="v"><span class="sign">+</span> Position</span></div>
+    <div class="slot trait plus"><span class="k">Trait</span><span class="v"><span class="sign">+</span> Poison</span></div>
+  </div>
+</article>
+</main>
+<section class="mill">
+<h1>Live mill after this pass</h1>
+<p><b>Bucket 0</b> — Items (10/10): Net, Sai, Shield, The Boot, Throwing Knife, Crossbow, Quiet Bell, Victory Flask, Healing Potion, Sledgehammer<br>Monsters (10/10): Bandit, Goblin, Golem, Hornet Swarm, Wizard, Dire Wolf, Mimic, Needleback, Dragon, Slime Boss<br>Extra: Smoke Bomb</p><p><b>Bucket 1</b> — Items (5/5): Counting Beads, Medallion, Chaos Stone, Fangs, Spiked Flail<br>Monsters (5/5): Juggernaut, Skeleton, Ogre, Shark, Vampire</p><p><b>Bucket 2</b> — Items (5/5): Helmet, Shuriken, Jar O' Grease, Poison Flask, Bag Of Marbles<br>Monsters (5/5): Beggar, Eel, Gelatinous Cube, Zombie, Commander<br>Extra: Lich, Harpy</p><p><b>Bucket 3</b> — Items (5/5): Bloody Wraps, Knucklers, Hex, Lantern, Echo Bell<br>Monsters (5/5): Fairy, Wick, Anvil, Wraith, Prism</p><p><b>Bucket 4</b> — Items (5/5): Ale Flagon, Double-Buckler, Grimoire, Paci-Fist, Miasma<br>Monsters (5/5): Bodyguard, Shambling Mound, Bushido, Gargoyle, Amalgam<br>Extra: Danger Magnet, Catapult</p><p><b>Bucket 5</b> — Items (5/5): Chain, Grappling Hook, Great Axe, Lucky Nickel, Scythe<br>Monsters (5/5): Merchant, Twins, Berserker, Druid, Leech League</p><p><b>Bucket 6</b> — Items (5/5): Blood Chalice, Left Bracer, Chakram, Longbow, Polymorph<br>Monsters (5/5): Martyr, Plague Doctor, Kobold Trapper, Phoenix Egg, Cowardly King<br>Extra: Right Bracer, Spider Queen</p><p><b>Bucket 7</b> — Items (4/5): Sling, Spiked Shield, Arrow Head, Napalm<br>Monsters (5/5): Cultist, Hired Hand, Cleric, Triclops, Hydra<br>Extra: Clockwork Knight</p><p><b>Bucket 8</b> — Items (8/5): Cursed Scroll, Signpost, Breastplate, Grief Jar, Mirror Shard, Pacemaker, Pocketwatch, Stone Wall<br>Monsters (5/5): Mouse, Almighty Worm, Basilisk, Damsel In Distress, Death Bell</p>
+<p>Bucket 8 still holds extra Defense items (Mirror Shard, Pacemaker, Stone Wall) and extra Tier 3 monsters (Damsel, Worm, Death Bell). Leave them. After you design these six, I will place the new cards and move the extras.</p>
+</section>
+</body>
+</html>

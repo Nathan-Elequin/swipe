@@ -4,6 +4,7 @@ extends Control
 signal edit_wanted(card_id: String)
 
 const OUTLINE_SHADER := preload("res://shaders/tier_outline.gdshader")
+const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 
 var art
 var card_id: String = ""
@@ -99,7 +100,7 @@ func show_monster(id: String, p_tier: int = 1) -> void:
 func _on_gui(event: InputEvent) -> void:
 	if card_id == "":
 		return
-	if not OS.has_feature("editor"):
+	if not OS.has_feature("editor") and not PLAYTEST_FLAG.on():
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 		edit_wanted.emit(card_id)
@@ -194,6 +195,13 @@ func play_rage_down() -> void:
 	_burst("smoke", Color("9aa0a8"), 1.2)
 	_burst("twirl", Color("6a7280"), 0.9)
 	_flash = 0.35
+
+
+func play_transform() -> void:
+	_burst("twirl", Color("c77dff"), 1.25)
+	_burst("magic", Color("8ec8f0"), 1.05)
+	_burst("spark", Color("ffe08a"), 0.95)
+	_flash = 0.7
 
 
 func play_block() -> void:

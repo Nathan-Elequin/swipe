@@ -19,3 +19,11 @@ data/*.proposed*.json
 *~
 
 _pixel_extras/
+
+# Python bytecode, Cloudflare wrangler state, local playtest inbox config (holds the shared token)
+__pycache__/
+*.pyc
+.wrangler/
+.dev.vars
+.env
+data/playtest-inbox.json

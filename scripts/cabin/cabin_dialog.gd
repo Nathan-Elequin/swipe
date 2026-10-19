@@ -34,6 +34,7 @@ var _open: bool = false
 var _picked: int = -1
 var _sfx
 var _talk_cb: Callable
+var _fallbacks: Dictionary = {}
 
 
 func setup(p_cabin) -> void:
@@ -65,7 +66,7 @@ func setup(p_cabin) -> void:
 	_bust.size = Vector2(32, 32) * PX
 	_bust.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_box.add_child(_bust)
-	_text = KIT.raw_label("", 30, KIT.INK, true)
+	_text = KIT.raw_label("", KIT.DIALOG_FONT, KIT.INK, true)
 	_text.max_lines = 3
 	_text.min_font_size = 16
 	_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -78,12 +79,12 @@ func setup(p_cabin) -> void:
 	_choices.visible = false
 	_box.add_child(_choices)
 	_layout_talk(false)
-	_bubble = KIT.nine("ui/dialog_box_9.png", Vector2(8, 8))
+	_bubble = KIT.nine("ui/dialog_box_9.png", Vector2(KIT.BUBBLE_PATCH_NATIVE, KIT.BUBBLE_PATCH_NATIVE))
 	_bubble.visible = false
 	_bubble.z_index = 8
 	_bubble.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_bubble)
-	_bubble_lab = KIT.raw_label("", 26, KIT.INK)
+	_bubble_lab = KIT.raw_label("", KIT.BUBBLE_FONT, KIT.INK)
 	_bubble_lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_bubble.add_child(_bubble_lab)
 	set_process(true)
@@ -97,15 +98,17 @@ func has_choices() -> bool:
 	return _open and _choices.visible
 
 
-func say(keys: Array, choices: Array = [], vars: Dictionary = {}) -> void:
+func say(keys: Array, choices: Array = [], vars: Dictionary = {}, fallbacks: Dictionary = {}) -> void:
 	_keys = keys.duplicate()
 	_choice_keys = choices.duplicate()
+	_fallbacks = fallbacks.duplicate()
 	_line_i = 0
 	_picked = -1
 	_open = true
 	visible = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_choices.visible = false
+	_refresh_gate()
 	_layout_talk(choices.size() > 0)
 	_box.modulate.a = 0.0
 	_shade.modulate.a = 0.0
@@ -131,13 +134,14 @@ func say_bubble(key: String, at_native: Vector2 = Vector2(216, 150), vars: Dicti
 	var t: String = KIT.fill_text(key, vars)
 	if t == "":
 		t = KIT.copy_text(key)
-	_bubble_lab.text = t
-	_bubble_lab.size = Vector2.ZERO
-	_bubble_lab.custom_minimum_size = Vector2(0, 0)
-	var w: float = minf(140.0 * PX, maxf(40.0 * PX, t.length() * 11.0))
-	_bubble_lab.custom_minimum_size = Vector2(w - 16.0, 0)
-	_bubble.size = Vector2(w, 36 * PX)
-	_bubble.position = Vector2(at_native.x * PX - w * 0.5, at_native.y * PX)
+	var sz: Vector2 = KIT.fit_bubble(_bubble, _bubble_lab, t, KIT.BUBBLE_FONT)
+	var view := Vector2(KIT.ROOM_W, KIT.ROOM_H)
+	if is_inside_tree():
+		view = get_viewport_rect().size
+	var avoid := Rect2()
+	if _open and _box:
+		avoid = Rect2(_box.position, _box.size)
+	_bubble.position = KIT.place_bubble(sz, at_native * PX, view, avoid)
 	_bubble.visible = true
 	_bubble.modulate.a = 1.0
 	if _bubble_tw:
@@ -185,24 +189,18 @@ func _layout_talk(with_choices: bool) -> void:
 	var view := Vector2(KIT.ROOM_W, KIT.ROOM_H)
 	if is_inside_tree():
 		view = get_viewport_rect().size
-	var safe := 32.0
-	var pad := 16.0
-	var bust_sz := Vector2(32, 32) * PX
-	var prompt_h := 36.0
-	var gap := 12.0
-	var box_h := 54.0 * PX
-	if with_choices:
-		box_h += 18.0 * PX
-	var box_w := 300.0 * PX
-	box_w = minf(box_w, view.x - safe * 2.0)
-	var box_x := clampf((view.x - box_w) * 0.5, safe, view.x - safe - box_w)
-	var box_y := view.y - safe - box_h
-	_box.position = Vector2(box_x, box_y)
-	_box.size = Vector2(box_w, box_h)
-	_shade.position = Vector2(box_x - 8.0, box_y - 8.0)
-	_shade.size = Vector2(box_w + 16.0, box_h + 16.0)
+	var extra: float = 18.0 * PX if with_choices else 0.0
+	var L: Dictionary = KIT.dialog_bar(view, extra, KIT.DIALOG_SAFE_CABIN)
+	var bar: Rect2 = L["bar"]
+	var inner: Rect2 = L["inner"]
+	var bust_sz: Vector2 = L["bust_sz"]
+	var prompt_h: float = float(L["prompt_h"])
+	var gap: float = float(L["gap"])
+	_box.position = bar.position
+	_box.size = bar.size
+	_shade.position = Vector2(bar.position.x - 8.0, bar.position.y - 8.0)
+	_shade.size = Vector2(bar.size.x + 16.0, bar.size.y + 16.0)
 	_plate.position = Vector2(8, -8) * PX
-	var inner := Rect2(Vector2(pad, pad), Vector2(box_w - pad * 2.0, box_h - pad * 2.0))
 	_bust.position = inner.position
 	_bust.size = bust_sz
 	var text_x := inner.position.x + bust_sz.x + gap
@@ -210,12 +208,13 @@ func _layout_talk(with_choices: bool) -> void:
 	var text_h := inner.size.y - prompt_h - gap
 	_text.position = Vector2(text_x, inner.position.y)
 	_text.size = Vector2(maxf(8.0, text_w), maxf(8.0, text_h))
-	_text.max_lines = 4
+	_text.max_lines = 3
+	_text.max_font_size = KIT.DIALOG_FONT
+	_text.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_text.fit()
 	_next.position = Vector2(inner.end.x - 18.0 * PX, inner.end.y - 16.0 * PX)
 	_choices.position = Vector2(text_x, inner.end.y - prompt_h)
 	_choices.size = Vector2(text_w, prompt_h)
-	_text.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	TEXT_RESERVE.settle(_box)
 	_text.fit()
 
@@ -223,11 +222,14 @@ func _layout_talk(with_choices: bool) -> void:
 func _show_line(_vars: Dictionary) -> void:
 	var key: String = str(_keys[_line_i])
 	_full = KIT.copy_text(key)
+	if _full == "" and _fallbacks.has(key):
+		_full = str(_fallbacks[key])
 	_shown = 0
 	_acc = 0.0
 	_typing = true
 	_text.text = _full
 	_text.visible_characters = 0
+	_text.fit()
 	_next.visible = false
 	_bust.texture = KIT.load_tex("nib/nib_bust_f0.png")
 	if _sfx and _sfx.has_method("speak"):
@@ -237,6 +239,7 @@ func _show_line(_vars: Dictionary) -> void:
 
 
 func _show_choices() -> void:
+	_layout_talk(true)
 	for c in _choices.get_children():
 		c.queue_free()
 	_choices.visible = true
@@ -265,12 +268,14 @@ func dismiss() -> void:
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_choices.visible = false
+	_refresh_gate()
 
 
 func _close(choice: int) -> void:
 	_open = false
 	_typing = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_refresh_gate()
 	if cabin and cabin.has_method("nib_talk"):
 		cabin.nib_talk(false)
 	var tw := create_tween()
@@ -306,6 +311,16 @@ func _process(delta: float) -> void:
 	if _blink_t <= 0.0 and _open and not _typing:
 		_bust.texture = KIT.load_tex("nib/nib_bust_blink.png")
 		_blink_t = randf_range(3.0, 5.0)
+
+
+func _refresh_gate() -> void:
+	if cabin and cabin.has_method("_apply_gate"):
+		cabin._apply_gate()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED and _open:
+		_layout_talk(_choices.visible)
 
 
 func _gui_input(event: InputEvent) -> void:

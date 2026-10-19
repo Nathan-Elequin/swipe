@@ -1,13 +1,17 @@
 class_name BucketRules
 extends RefCounted
 
-const MAX_BUCKET := 12
+const MAX_BUCKET := 8
 const TOKEN := "Token"
 const TOKEN_COLOR := Color("6e675c")
 const ALWAYS_STARTER_ITEMS: PackedStringArray = ["smoke_bomb"]
-const WANT_ZERO := 9
-const WANT_LATER := 4
-const LATER_PER_ROW := 4
+## Second card of a pair. Same bucket as its partner; does not fill the 10/5.
+const PAIR_EXTRA_ITEMS: PackedStringArray = ["bracers"]
+const WANT_ZERO := 10
+const WANT_LATER := 5
+const LATER_PER_ROW := 5
+const ZERO_TIERS: PackedInt32Array = [5, 3, 2]
+const LATER_TIERS: PackedInt32Array = [2, 2, 1]
 const TIER_BRONZE := Color("c08050")
 const TIER_SILVER := Color("6e7f96")
 const TIER_GOLD := Color("e8c36a")
@@ -139,6 +143,35 @@ static func is_always_starter_id(id: String) -> bool:
 	return ALWAYS_STARTER_ITEMS.has(id)
 
 
+static func counts_for_mill(card: Variant) -> bool:
+	return not _skip(card)
+
+
+static func item_family(card: Variant) -> String:
+	if typeof(card) != TYPE_DICTIONARY:
+		return "U"
+	var col: String = str(card.get("card_color", "")).strip_edges().to_lower()
+	if col == "atk":
+		return "A"
+	if col == "blk" or col == "heal":
+		return "D"
+	if col == "defeat":
+		return "C"
+	return "U"
+
+
+static func family_fill(card: Variant) -> Color:
+	match item_family(card):
+		"A":
+			return Color("5c2626")
+		"D":
+			return Color("1c3d52")
+		"C":
+			return Color("3a2450")
+		_:
+			return Color("4a3d14")
+
+
 static func want_items(bucket: int) -> int:
 	if bucket < 0:
 		return 0
@@ -149,18 +182,42 @@ static func want_monsters(bucket: int) -> int:
 	return want_items(bucket)
 
 
-static func is_unbalanced(bucket: int, item_n: int, monster_n: int) -> bool:
+static func want_tier(bucket: int, tier: int) -> int:
+	if bucket < 0:
+		return 0
+	var t: int = maxi(1, mini(3, tier))
+	if bucket == 0:
+		return int(ZERO_TIERS[t - 1])
+	return int(LATER_TIERS[t - 1])
+
+
+static func is_unbalanced(bucket: int, item_n: int, monster_n: int, last_used: int = -1) -> bool:
 	if bucket < 0:
 		return false
 	if item_n == 0 and monster_n == 0:
 		return false
-	return item_n != want_items(bucket) or monster_n != want_monsters(bucket)
+	var want: int = want_items(bucket)
+	if last_used >= 0 and bucket == last_used:
+		if item_n > want or monster_n > want:
+			return true
+		if item_n <= 0 or monster_n <= 0:
+			return true
+		return false
+	return item_n != want or monster_n != want_monsters(bucket)
 
 
 static func counts_warning(items: Array, monsters: Array) -> String:
 	var tallied: Dictionary = tally(items, monsters)
 	var nums: Array = tallied.keys()
 	nums.sort()
+	var last_used: int = -1
+	for raw0 in nums:
+		var b0: int = int(raw0)
+		if b0 < 0:
+			continue
+		var pair0: Dictionary = tallied[raw0]
+		if int(pair0.get("items", 0)) > 0 or int(pair0.get("monsters", 0)) > 0:
+			last_used = b0
 	var lines: PackedStringArray = PackedStringArray()
 	for raw in nums:
 		var b3: int = int(raw)
@@ -169,7 +226,7 @@ static func counts_warning(items: Array, monsters: Array) -> String:
 		var pair: Dictionary = tallied[raw]
 		var ni: int = int(pair.get("items", 0))
 		var nm: int = int(pair.get("monsters", 0))
-		if not is_unbalanced(b3, ni, nm):
+		if not is_unbalanced(b3, ni, nm, last_used):
 			continue
 		var want: int = want_items(b3)
 		lines.append("Bucket %s has %s items and %s monsters. It should be %s and %s." % [b3, ni, nm, want, want])
@@ -281,4 +338,12 @@ static func _skip(card: Variant) -> bool:
 		return true
 	if is_token(card.get("bucket", 0)):
 		return true
-	return is_always_starter(card)
+	if is_always_starter(card):
+		return true
+	if PAIR_EXTRA_ITEMS.has(str(card.get("id", ""))):
+		return true
+	var mode: String = str(card.get("mode_pool", "all")).strip_edges().to_lower()
+	mode = mode.replace(" ", "").replace("_", "-")
+	if mode != "" and mode != "all":
+		return true
+	return false

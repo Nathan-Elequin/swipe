@@ -319,6 +319,27 @@
     "note": "existing fire_f0..2 (clicking the fire = Nib/hero flavour line)"
    },
    {
+    "node": "Rug",
+    "file": "",
+    "origin": [
+     40,
+     226
+    ],
+    "size": [
+     40,
+     28
+    ],
+    "hotspot": [
+     40,
+     226,
+     40,
+     28
+    ],
+    "hover": null,
+    "z": 3,
+    "note": "round rug left of the fire; first click plays the Poison Flask gag"
+   },
+   {
     "node": "Hero",
     "file": "hero_rock_f0.png",
     "origin": [

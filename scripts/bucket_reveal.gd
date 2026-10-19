@@ -298,10 +298,13 @@ func _clear_row(row: HBoxContainer) -> void:
 
 
 func _make_card(row: HBoxContainer, entry: Dictionary, bucket_n: int) -> Dictionary:
+	var extra: bool = bool(entry.get("extra", false))
 	var slot := PanelContainer.new()
-	slot.custom_minimum_size = Vector2(168, 196)
+	slot.custom_minimum_size = Vector2(118, 138) if extra else Vector2(168, 196)
 	slot.mouse_filter = Control.MOUSE_FILTER_STOP
 	slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	if extra:
+		slot.modulate = Color(0.78, 0.78, 0.78, 1)
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color("100c0a")
 	sb.border_color = BucketRules.color_of(bucket_n).darkened(0.35)
@@ -319,7 +322,7 @@ func _make_card(row: HBoxContainer, entry: Dictionary, bucket_n: int) -> Diction
 	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	tex_rect.custom_minimum_size = Vector2(144, 144)
+	tex_rect.custom_minimum_size = Vector2(96, 96) if extra else Vector2(144, 144)
 	tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tex_rect.modulate = Color(0, 0, 0, 1)
 	slot.add_child(tex_rect)
@@ -327,7 +330,7 @@ func _make_card(row: HBoxContainer, entry: Dictionary, bucket_n: int) -> Diction
 	name.text = str(entry.get("name", ""))
 	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name.custom_minimum_size = Vector2(144, 36)
+	name.custom_minimum_size = Vector2(96, 28) if extra else Vector2(144, 36)
 	name.add_theme_font_size_override("font_size", 15)
 	name.add_theme_color_override("font_color", Color("f4ede3"))
 	name.modulate.a = 0.0

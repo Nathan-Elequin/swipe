@@ -1,0 +1,125 @@
+{
+  "seed": 695979055,
+  "wishlist": [
+    {
+      "n": 1,
+      "kind": "item",
+      "bucket": 7,
+      "tier": 2,
+      "type": "U",
+      "type_label": "Utility",
+      "tied": false,
+      "tie_from": null,
+      "traits": [
+        {
+          "trait": "Cap",
+          "sign": "+"
+        },
+        {
+          "trait": "HP",
+          "sign": "+"
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "kind": "item",
+      "bucket": 8,
+      "tier": 1,
+      "type": "A",
+      "type_label": "Attack",
+      "tied": false,
+      "tie_from": null,
+      "traits": [
+        {
+          "trait": "Position",
+          "sign": "+"
+        },
+        {
+          "trait": "Petrify",
+          "sign": "+"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "kind": "item",
+      "bucket": 8,
+      "tier": 2,
+      "type": "U",
+      "type_label": "Utility",
+      "tied": false,
+      "tie_from": null,
+      "traits": [
+        {
+          "trait": "Count",
+          "sign": "−"
+        },
+        {
+          "trait": "Discard",
+          "sign": "+"
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "kind": "monster",
+      "bucket": 8,
+      "tier": 1,
+      "type": "Monster",
+      "type_label": "Monster",
+      "tied": false,
+      "tie_from": null,
+      "traits": [
+        {
+          "trait": "Block",
+          "sign": "+"
+        },
+        {
+          "trait": "Pierce",
+          "sign": "+"
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "kind": "monster",
+      "bucket": 8,
+      "tier": 2,
+      "type": "Monster",
+      "type_label": "Monster",
+      "tied": false,
+      "tie_from": null,
+      "traits": [
+        {
+          "trait": "Pierce",
+          "sign": "+"
+        },
+        {
+          "trait": "Spin",
+          "sign": "+"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "kind": "monster",
+      "bucket": 8,
+      "tier": 2,
+      "type": "Monster",
+      "type_label": "Monster",
+      "tied": false,
+      "tie_from": null,
+      "traits": [
+        {
+          "trait": "Position",
+          "sign": "+"
+        },
+        {
+          "trait": "Poison",
+          "sign": "+"
+        }
+      ]
+    }
+  ]
+}

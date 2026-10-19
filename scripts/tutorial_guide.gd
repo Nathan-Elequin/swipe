@@ -443,7 +443,7 @@ func _legacy_beats() -> Array:
 
 
 func _fix_mojibake(s: String) -> String:
-	return s.replace("â€”", "—").replace("â€“", "–").replace("â€™", "'").replace("â€˜", "'").replace("â€œ", "\"").replace("â€\u009d", "\"").replace("Â·", "·")
+	return COPY.fix_mojibake(s)
 
 
 func _new_beat() -> Dictionary:

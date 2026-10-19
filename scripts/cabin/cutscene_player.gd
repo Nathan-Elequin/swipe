@@ -28,6 +28,7 @@ var _caption
 var _bust: TextureRect
 var _deed
 var _skip: Button
+var _autoplay: Button
 var _next
 var _bar: Control
 var _bar_bg: Panel
@@ -83,6 +84,7 @@ func play(p_kind: String, opts: Dictionary = {}) -> void:
 	_panels = _make_panels(kind)
 	panel_index = 0
 	_skip.visible = skippable
+	_sync_autoplay_btn()
 	_black.modulate.a = 1.0
 	_panel_b.modulate.a = 0.0
 	_start_audio()
@@ -205,7 +207,7 @@ func _build() -> void:
 	_bust.visible = false
 	_bust.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_bar.add_child(_bust)
-	_caption = KIT.raw_label("", 34, KIT.CREAM, true)
+	_caption = KIT.raw_label("", KIT.DIALOG_FONT, KIT.CREAM, true)
 	_caption.max_lines = 3
 	_caption.min_font_size = 16
 	_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -238,6 +240,17 @@ func _build() -> void:
 	_skip.z_index = 7
 	_skip.pressed.connect(skip)
 	add_child(_skip)
+	_autoplay = Button.new()
+	_autoplay.flat = true
+	_autoplay.size = KIT.pt(48, 14)
+	_autoplay.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_autoplay.add_theme_font_size_override("font_size", 20)
+	_autoplay.add_theme_color_override("font_color", KIT.MUTED)
+	_autoplay.add_theme_color_override("font_hover_color", KIT.CREAM)
+	_autoplay.z_index = 7
+	_autoplay.pressed.connect(_toggle_autoplay)
+	add_child(_autoplay)
+	_sync_autoplay_btn()
 	gui_input.connect(_on_gui)
 
 
@@ -245,19 +258,14 @@ func _layout_dialog() -> void:
 	var view := Vector2(KIT.ROOM_W, KIT.ROOM_H)
 	if is_inside_tree():
 		view = get_viewport_rect().size
-	var safe := 32.0
-	var pad := 16.0
-	var bust_sz := Vector2(32, 32) * PX
-	var prompt_h := 32.0
-	var gap := 12.0
-	var bar_h := pad + bust_sz.y + gap + prompt_h + pad
-	var max_h: float = maxf(bar_h, view.y - safe * 2.0)
-	bar_h = minf(bar_h, max_h)
-	var bar_y: float = clampf(view.y - safe - bar_h, safe, maxf(safe, view.y - safe - bar_h))
-	var bar := Rect2(safe, bar_y, maxf(8.0, view.x - safe * 2.0), bar_h)
+	var L: Dictionary = KIT.dialog_bar(view)
+	var bar: Rect2 = L["bar"]
+	var inner: Rect2 = L["inner"]
+	var bust_sz: Vector2 = L["bust_sz"]
+	var prompt_h: float = float(L["prompt_h"])
+	var gap: float = float(L["gap"])
 	_bar.position = bar.position
 	_bar.size = bar.size
-	var inner := Rect2(Vector2(pad, pad), bar.size - Vector2(pad * 2.0, pad * 2.0))
 	var text_x := inner.position.x
 	var text_w := inner.size.x
 	if _bust.visible:
@@ -270,8 +278,9 @@ func _layout_dialog() -> void:
 		_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var text_h := inner.size.y - prompt_h - gap
 	_caption.position = Vector2(text_x, inner.position.y)
-	_caption.size = Vector2(text_w, text_h)
+	_caption.size = Vector2(text_w, maxf(8.0, text_h))
 	_caption.max_lines = 3
+	_caption.max_font_size = KIT.DIALOG_FONT
 	_caption.fit()
 	var next_w := minf(420.0, text_w)
 	_next.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -486,10 +495,45 @@ func _tick_typing(delta: float) -> void:
 		_next.visible = true
 
 
+func _autoplay_on() -> bool:
+	if cabin != null and cabin.sfx != null:
+		return bool(cabin.sfx.cutscene_autoplay)
+	return true
+
+
+func _autoplay_caption() -> String:
+	var on: bool = _autoplay_on()
+	var key: String = "intro.autoplay.on" if on else "intro.autoplay.off"
+	var t: String = KIT.copy_text(key)
+	if t != "":
+		return t
+	return "Autoplay: On" if on else "Autoplay: Off"
+
+
+func _sync_autoplay_btn() -> void:
+	if _autoplay == null:
+		return
+	_autoplay.visible = playing
+	_autoplay.text = _autoplay_caption()
+	var skip_x: float = KIT.ROOM_W - 32.0
+	if _skip != null:
+		skip_x = _skip.position.x
+	_autoplay.position = Vector2(skip_x - 16.0 - _autoplay.size.x, 32.0)
+
+
+func _toggle_autoplay() -> void:
+	var on: bool = not _autoplay_on()
+	if cabin != null and cabin.sfx != null and cabin.sfx.has_method("set_cutscene_autoplay"):
+		cabin.sfx.set_cutscene_autoplay(on)
+	_sync_autoplay_btn()
+
+
 func _tick_hold(delta: float) -> void:
 	if _web_wait or _busy_fade:
 		return
 	_elapsed += delta
+	if not _autoplay_on():
+		return
 	if _elapsed < _hold:
 		return
 	if _typing:
@@ -585,6 +629,12 @@ func _sync_fx_clip() -> void:
 			var bottom: float = hole.end.y
 			hole.position.y = top
 			hole.size.y = maxf(0.0, bottom - top)
+	if _autoplay != null and _autoplay.visible:
+		var ap_r := Rect2(_autoplay.position, _autoplay.size)
+		if hole.intersects(ap_r) and ap_r.end.y > hole.position.y:
+			var ap_bottom: float = hole.end.y
+			hole.position.y = ap_r.end.y
+			hole.size.y = maxf(0.0, ap_bottom - hole.position.y)
 	_fx.position = hole.position
 	_fx.size = hole.size
 	_fx.clip_contents = true
@@ -596,6 +646,11 @@ func _clear_glints() -> void:
 		if is_instance_valid(g):
 			g.queue_free()
 	_glints.clear()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED and playing:
+		_layout_dialog()
 
 
 func _on_gui(event: InputEvent) -> void:
@@ -625,6 +680,8 @@ func _finish(skipped: bool) -> void:
 	_next.visible = false
 	if _bar:
 		_bar.visible = false
+	if _autoplay:
+		_autoplay.visible = false
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_web_wait = false

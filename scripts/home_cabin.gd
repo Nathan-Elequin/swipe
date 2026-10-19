@@ -8,9 +8,11 @@ signal item_unhovered
 signal route_chosen(route: String)
 signal tutorial_wanted
 signal quit_wanted
+signal comment_wanted(card_id: String)
 
 const SAVE_PATH := "user://home_cabin.json"
 const COPY := preload("res://scripts/player_copy.gd")
+const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const PX := 4.0
 const ARRIVE_WALK_SPEED := 32.0
@@ -18,6 +20,14 @@ const ARRIVE_INT_SPEED := 51.2
 const ROOM_W := 1680.0
 const ROOM_ORDER: Array[String] = ["main", "hall", "study", "workshop", "loft"]
 const STATION_BEDS := ["cabin", "station_inn", "station_rag", "station_harp"]
+const RUG_SECRET_ID := "poison_flask"
+const RUG_COPY := {
+	"nib.rug.1": "Grandpa stuffed a Poison Flask under the rug. He said the mice had it coming.",
+	"nib.rug.2": "There's only one thing that can be done with this.",
+	"nib.rug.3": "And that one thing is to drop it directly in the dungeon so you can use it on your next dungeon delve.",
+	"nib.rug.again": "Already threw it. You'll see it in the mill next time you leave.",
+	"cabin.rug.unlock": "Poison Flask is unlocked. It can show up in every dungeon from here on.",
+}
 
 var seen: Dictionary = {}
 var swiped: Dictionary = {}
@@ -44,6 +54,7 @@ var geode_on_mantel: bool = false
 var drawer_stuck_index: int = 0
 var milestones_said: Array = []
 var nib_idle_index: int = 0
+var rug_secret_found: bool = false
 var counters: Dictionary = {"delves": 0, "homecomings": 0, "hauls": 0, "losses": 0}
 var _raw_save: Dictionary = {}
 var lore: Dictionary = {}
@@ -1777,6 +1788,13 @@ func _mount_slot(card: Dictionary, pos: Vector2, msize: Vector2, room_locked: bo
 			_set_glint(id, false)
 			item_unhovered.emit()
 		)
+		wrap.gui_input.connect(func(event: InputEvent) -> void:
+			if not PLAYTEST_FLAG.on():
+				return
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+				comment_wanted.emit(id)
+				wrap.accept_event()
+		)
 	else:
 		wrap.mouse_entered.connect(func() -> void:
 			show_hover_tag("cabin.tip.locked", wrap)
@@ -2001,6 +2019,7 @@ func _apply_defaults() -> void:
 	drawer_stuck_index = 0
 	milestones_said = []
 	nib_idle_index = 0
+	rug_secret_found = false
 	counters = {"delves": 0, "homecomings": 0, "hauls": 0, "losses": 0}
 
 
@@ -2056,6 +2075,7 @@ func _read_v2(parsed: Dictionary) -> void:
 	for ms in parsed.get("milestones_said", []):
 		milestones_said.append(int(ms) if typeof(ms) != TYPE_STRING else str(ms))
 	nib_idle_index = int(parsed.get("nib_idle_index", 0))
+	rug_secret_found = bool(parsed.get("rug_secret_found", false))
 	var c: Variant = parsed.get("counters", {})
 	if typeof(c) == TYPE_DICTIONARY:
 		counters = {
@@ -2094,6 +2114,7 @@ func _save() -> void:
 	data["drawer_stuck_index"] = drawer_stuck_index
 	data["milestones_said"] = milestones_said
 	data["nib_idle_index"] = nib_idle_index
+	data["rug_secret_found"] = rug_secret_found
 	data["counters"] = counters
 	_raw_save = data
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -2411,6 +2432,68 @@ func clear_to_fresh_save() -> void:
 	_rebuild_shelves()
 	_refresh_rooms()
 	_apply_gate()
+
+
+func has_save() -> bool:
+	return FileAccess.file_exists(SAVE_PATH)
+
+
+func fill_middle_save() -> void:
+	stop_story()
+	seen.clear()
+	swiped.clear()
+	new_unseen.clear()
+	met_monsters.clear()
+	_just_mounted.clear()
+	_apply_defaults()
+	intro_seen = true
+	nib_first_done = true
+	tutorial_done = true
+	tutorial_declined = true
+	key_ring_seen = true
+	ending_seen = false
+	counters = {"delves": 3, "homecomings": 3, "hauls": 3, "losses": 0}
+	deepest_belly = 3
+	last_route = "gatehouse"
+	var owned := 0
+	var ids: Array = items_by_id.keys()
+	ids.sort()
+	for id in ids:
+		var card: Dictionary = items_by_id[id]
+		if str(card.get("status", "live")) in ["retired", "hold"]:
+			continue
+		if BucketRules.is_token(card.get("bucket", 0)):
+			continue
+		if BucketRules.parse(card.get("bucket", 0)) > 3:
+			continue
+		var sid: String = str(id)
+		if sid == "spider_egg":
+			continue
+		seen[sid] = true
+		if owned < 8:
+			swiped[sid] = true
+			owned += 1
+	var mons: Variant = catalog.get("monsters", [])
+	if typeof(mons) == TYPE_ARRAY:
+		for raw in mons:
+			if typeof(raw) != TYPE_DICTIONARY:
+				continue
+			var st: String = str(raw.get("status", "live"))
+			if st == "retired" or st == "hold":
+				continue
+			if BucketRules.parse(raw.get("bucket", 0)) > 3:
+				continue
+			var mid: String = str(raw.get("id", ""))
+			if mid != "":
+				met_monsters[mid] = true
+	_save()
+	_rebuild_shelves()
+	_refresh_rooms()
+	_apply_gate()
+	for r in _rooms.values():
+		if r.has_method("request_bg"):
+			r.request_bg()
+			r.ensure_bg()
 
 
 func fill_complete_save() -> void:
@@ -2910,7 +2993,8 @@ func _gate_on() -> bool:
 func _apply_gate() -> void:
 	var main_room = _rooms.get("main")
 	if main_room and main_room.has_method("set_gate"):
-		main_room.set_gate(_gate_on())
+		var talking: bool = _dialog != null and _dialog.has_method("is_open") and _dialog.is_open()
+		main_room.set_gate(_gate_on() and not talking)
 	_refresh_rooms()
 
 
@@ -2982,6 +3066,8 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 		"Fire":
 			if _dialog:
 				_dialog.say(["nib.fire"])
+		"Rug":
+			_on_rug()
 		"Hero":
 			_on_chair()
 		"PortraitSmall":
@@ -3188,6 +3274,108 @@ func _on_chair() -> void:
 		return
 	if _dialog:
 		_dialog.say(["nib.chair"])
+
+
+func _on_rug() -> void:
+	if rug_secret_found:
+		if _dialog:
+			_dialog.say(["nib.rug.again"], [], {}, RUG_COPY)
+		return
+	await _play_rug_secret()
+
+
+func _play_rug_secret() -> void:
+	_room_busy = true
+	var room = _rooms.get("main")
+	var flask := TextureRect.new()
+	flask.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	flask.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	flask.stretch_mode = TextureRect.STRETCH_KEEP
+	flask.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flask.z_index = 8
+	var tex: Texture2D = tex_by_item.get(RUG_SECRET_ID, null)
+	if tex == null:
+		tex = load("res://assets/dungeon/items/poison_flask.png") as Texture2D
+	flask.texture = tex
+	flask.size = Vector2(16, 16) * PX * 2.0
+	flask.pivot_offset = flask.size * 0.5
+	flask.position = Vector2(48, 214) * PX
+	flask.scale = Vector2(0.2, 0.2)
+	flask.modulate = Color(0.55, 0.55, 0.55, 1.0)
+	if room:
+		room.add_child(flask)
+	else:
+		add_child(flask)
+	KIT.cue(sfx, &"cabin.item_pop")
+	var pop := create_tween()
+	pop.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	pop.set_trans(Tween.TRANS_BACK)
+	pop.set_ease(Tween.EASE_OUT)
+	pop.tween_property(flask, "scale", Vector2.ONE, 0.35)
+	pop.parallel().tween_property(flask, "modulate", Color.WHITE, 0.35)
+	pop.parallel().tween_property(flask, "position:y", flask.position.y - 18.0 * PX, 0.35)
+	await pop.finished
+	if _dialog:
+		_dialog.say(["nib.rug.1", "nib.rug.2"], [], {}, RUG_COPY)
+		await _dialog.finished
+	await _wait(0.55, true)
+	KIT.cue(sfx, &"cabin.item_whoosh")
+	var toss := create_tween()
+	toss.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	toss.set_trans(Tween.TRANS_QUAD)
+	toss.set_ease(Tween.EASE_IN)
+	toss.tween_property(flask, "position", Vector2(520, 150) * PX, 0.7)
+	toss.parallel().tween_property(flask, "rotation", TAU * 2.2, 0.7)
+	toss.parallel().tween_property(flask, "scale", Vector2(0.7, 0.7), 0.7)
+	await toss.finished
+	if sfx and sfx.has_method("play"):
+		sfx.play("error_big", -4.0)
+	if is_instance_valid(flask):
+		flask.queue_free()
+	await _wait(0.4, true)
+	if _dialog:
+		_dialog.say(["nib.rug.3"], [], {}, RUG_COPY)
+		await _dialog.finished
+	rug_secret_found = true
+	_save()
+	await _show_system_banner(str(RUG_COPY["cabin.rug.unlock"]))
+	_room_busy = false
+
+
+func _show_system_banner(text: String) -> void:
+	var host := Control.new()
+	host.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	host.mouse_filter = Control.MOUSE_FILTER_STOP
+	host.z_index = 9
+	add_child(host)
+	var veil := ColorRect.new()
+	veil.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	veil.color = Color("100e0c88")
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.add_child(veil)
+	var box: NinePatchRect = KIT.nine("ui/dialog_box_9.png", Vector2(KIT.DIALOG_PATCH_NATIVE, KIT.DIALOG_PATCH_NATIVE))
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.add_child(box)
+	var lab = KIT.raw_label(text, KIT.DIALOG_FONT, KIT.INK, true)
+	box.add_child(lab)
+	var sz: Vector2 = KIT.fit_bubble(box, lab, text, KIT.DIALOG_FONT)
+	sz.x = maxf(sz.x, 220.0 * PX)
+	box.size = sz
+	lab.size = Vector2(sz.x - KIT.DIALOG_PATCH_NATIVE * PX * 2.0, sz.y - KIT.DIALOG_PATCH_NATIVE * PX * 2.0)
+	lab.fit()
+	box.position = Vector2((KIT.ROOM_W - box.size.x) * 0.5, KIT.ROOM_H * 0.42)
+	KIT.cue(sfx, &"sting.unlock")
+	var done := false
+	host.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+			done = true
+	)
+	var t: float = 0.0
+	while not done and t < 3.4:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	if is_instance_valid(host):
+		host.queue_free()
 
 
 func _wear(piece: String) -> void:

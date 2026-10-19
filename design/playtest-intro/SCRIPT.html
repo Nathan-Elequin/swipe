@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Playtest intro script — mark this up</title>
+<style>
+  :root {
+    --bg: #100e0c;
+    --panel: #1c140e;
+    --gold: #e8c36a;
+    --ink: #f4ede3;
+    --mute: #c9b9a8;
+    --stage: #8dcb8d;
+    --dim: #3a3220;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  header {
+    padding: 20px 28px 12px;
+    border-bottom: 2px solid var(--gold);
+  }
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  header p { margin: 0 0 6px; color: var(--mute); font-size: 16px; max-width: 720px; }
+  .path { font-family: Consolas, monospace; color: var(--gold); }
+  .stage-label { color: var(--stage); font-style: italic; }
+  #play {
+    min-height: 420px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .talk {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    width: min(760px, 100%);
+    background: var(--panel);
+    border: 3px solid var(--gold);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .talk img {
+    width: 96px;
+    height: 96px;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+  }
+  .talk-body { flex: 1; }
+  .who {
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+  .said {
+    font-size: 20px;
+    line-height: 1.35;
+    white-space: pre-wrap;
+  }
+  .meta {
+    width: min(760px, 100%);
+    color: var(--mute);
+    font-size: 15px;
+  }
+  .scene { color: var(--gold); }
+  .row {
+    display: flex;
+    gap: 12px;
+    width: min(760px, 100%);
+  }
+  button {
+    font-family: inherit;
+    font-size: 18px;
+    padding: 10px 22px;
+    background: var(--dim);
+    color: var(--gold);
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button:disabled { opacity: 0.35; cursor: default; }
+  #print-script { padding: 28px 32px 80px; }
+  #print-script h2 { color: var(--gold); }
+  .beat {
+    border-left: 4px solid var(--gold);
+    padding: 10px 0 10px 16px;
+    margin: 0 0 18px;
+    page-break-inside: avoid;
+  }
+  .beat h3 { margin: 0 0 6px; font-size: 16px; color: var(--gold); }
+  .beat .spoken {
+    font-size: 18px;
+    line-height: 1.4;
+    min-height: 2.8em;
+    border-bottom: 1px dotted #6a5a48;
+    padding-bottom: 12px;
+  }
+  .beat .dir { color: var(--stage); font-style: italic; margin-top: 6px; }
+  .edit-box {
+    margin-top: 28px;
+    padding: 16px;
+    border: 1px dashed var(--gold);
+  }
+  @media print {
+    header, #play { display: none !important; }
+    body { background: #fff; color: #111; }
+    #print-script { padding: 0; }
+    #print-script h2 { color: #111; }
+    .beat h3, .scene { color: #111; }
+    .beat { border-color: #111; }
+    .beat .spoken { border-bottom: 1px solid #999; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Playtest intro — click through, then mark it up</h1>
+  <p>This is a draft of Nib’s lines. Click Next the way a friend would. Then print this page, or edit <span class="path">design/playtest-intro/SCRIPT.md</span> and tell me it is ready.</p>
+  <p>Parentheses are stage directions. They never show in the talk box.</p>
+</header>
+
+<section id="play">
+  <div class="talk">
+    <img src="../../assets/dungeon/home/nib/nib_bust_f0.png" alt="Nib">
+    <div class="talk-body">
+      <div class="who">Nib</div>
+      <div class="said" id="said"></div>
+    </div>
+  </div>
+  <div class="meta">
+    <span id="counter"></span>
+    · <span class="scene" id="scene"></span><br>
+    <span class="stage-label" id="dir"></span>
+  </div>
+  <div class="row">
+    <button type="button" id="back">Back (preview only)</button>
+    <button type="button" id="next">Next</button>
+  </div>
+</section>
+
+<section id="print-script">
+  <h2>Full script — write on this</h2>
+  <p>Wide dotted gaps under each spoken beat are for handwritten edits.</p>
+  <div id="list"></div>
+  <div class="edit-box">
+    <h2>After the intro (hub + chip)</h2>
+    <p><strong>Brand New</strong> — Start from scratch.</p>
+    <p><strong>Middle Progress</strong> — A few dungeons in.</p>
+    <p><strong>Continue</strong> — Last save.</p>
+    <p><strong>Feedback</strong> — button only.</p>
+    <p>Bottom-left during play: Right-click a card, or press F2, to send a note.</p>
+  </div>
+</section>
+
+<script>
+const BEATS = [
+  { scene: "A · Notes", dir: "Talk box only. No menu yet.", go: "Next",
+    text: "Hey friends — thanks for playtesting my game, Swipe.\nJust a few notes before you jump in." },
+  { scene: "A · Notes", dir: "Still talk box only.", go: "Next",
+    text: "First. This game is in early prototype mode. The things I most want to hear from your feedback are about what is fun, what is boring, what is confusing, and what things you think I should add to the game." },
+  { scene: "A · Notes", dir: "Still talk box only.", go: "Next",
+    text: "Second. Be honest and picky! You don't need to consider anyone else's perspective. I just want to hear yours." },
+  { scene: "A · Notes", dir: "Still talk box only.", go: "Next",
+    text: "And finally, have fun! Break the game, find cool combos, test the limits. And don't be afraid to dream big with your requests." },
+  { scene: "B · Hub tutorial", dir: "Highlights Brand New, Middle Progress, Continue, Feedback.", go: "Next",
+    text: "This is the menu you'll land on." },
+  { scene: "B · Hub tutorial", dir: "Highlights Brand New.", go: "Next",
+    text: "Brand New starts from the beginning, as if you had never played." },
+  { scene: "B · Hub tutorial", dir: "Highlights Middle Progress.", go: "Next",
+    text: "Middle Progress puts you a few dungeons in, with some items already unlocked." },
+  { scene: "B · Hub tutorial", dir: "Highlights Continue.", go: "Next",
+    text: "Continue picks up your last playtest save." },
+  { scene: "B · Hub tutorial", dir: "Highlights Feedback.", go: "Next",
+    text: "Feedback opens a note to me. Use it for anything that is not tied to one card." },
+  { scene: "B · Hub tutorial", dir: "No extra highlight. Still on the hub.", go: "Next",
+    text: "You can right-click any item or monster in the game and leave feedback. That is useful for bugs, confusion, or balance issues." },
+  { scene: "B · Hub tutorial", dir: "Highlights the Feedback button in the bottom right.", go: "Next",
+    text: "For general comments while you play, click Feedback in the bottom right, or press F2." },
+  { scene: "C · F2 overlay", dir: "Shows the real Feedback overlay. Highlights Send.", go: "Next",
+    text: "This is the F2 screen. Type a note, click Send, and it goes to my game development console. Next time I sit down to work, I will see it and can make the fix or the change." },
+  { scene: "D · Voice memo", dir: "Talk box. YOUR EXPERIENCE in all caps.", go: "Next",
+    text: "However — for those who want to give the best kind of feedback, I would love to actually hear YOUR EXPERIENCE." },
+  { scene: "D · Voice memo", dir: "Talk box. Email is nathan.elequin@gmail.com until you change it.", go: "Next",
+    text: "Consider taking your phone, setting it to a voice memo or recorder, and just letting it run while you play. Talk out loud about your thought process, your first impressions, your feedback, anything at all. Then send me the entire file when you are done, because I can turn that into a much more detailed look at your player experience. If you are interested in doing that, you can email the files to me at nathan.elequin@gmail.com." },
+  { scene: "D · Close", dir: "Continue lands on the stripped playtest menu.", go: "Continue",
+    text: "So thank you again for playtesting. If you have any questions, you can always reach out to me. Now enjoy." }
+];
+
+let i = 0;
+const said = document.getElementById("said");
+const counter = document.getElementById("counter");
+const scene = document.getElementById("scene");
+const dir = document.getElementById("dir");
+const next = document.getElementById("next");
+const back = document.getElementById("back");
+const list = document.getElementById("list");
+
+function render() {
+  const b = BEATS[i];
+  said.textContent = b.text;
+  counter.textContent = "Beat " + String(i + 1).padStart(2, "0") + " / " + String(BEATS.length).padStart(2, "0");
+  scene.textContent = b.scene;
+  dir.textContent = b.dir;
+  next.textContent = b.go;
+  back.disabled = i === 0;
+  next.disabled = false;
+}
+
+next.addEventListener("click", () => {
+  if (i < BEATS.length - 1) {
+    i += 1;
+    render();
+  } else {
+    said.textContent = "(End of intro. In the game this click opens the playtest menu.)";
+    dir.textContent = "Preview finished. Scroll down to mark up lines, or print.";
+    next.disabled = true;
+  }
+});
+back.addEventListener("click", () => {
+  if (i > 0) {
+    i -= 1;
+    render();
+  }
+});
+
+BEATS.forEach((b, n) => {
+  const el = document.createElement("article");
+  el.className = "beat";
+  el.innerHTML = "<h3>Beat " + String(n + 1).padStart(2, "0") + " · " + b.scene + "</h3>"
+    + "<div class='spoken'>" + b.text.replace(/</g, "&lt;") + "</div>"
+    + "<div class='dir'>(" + b.dir + " · button: " + b.go + ")</div>";
+  list.appendChild(el);
+});
+
+render();
+</script>
+</body>
+</html>

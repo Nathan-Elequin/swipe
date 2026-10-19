@@ -10,8 +10,10 @@ const COPY := preload("res://scripts/player_copy.gd")
 
 var _title
 var _sub
+var _final
 var _row: HBoxContainer
 var _hint
+var _final_t: float = 0.0
 var left_it: Dictionary = {}
 var right_it: Dictionary = {}
 var _busy: bool = false
@@ -48,6 +50,17 @@ func setup() -> void:
 	_sub.set_outline(Color("100e0c"), 3)
 	_sub.custom_minimum_size = Vector2(480, 22)
 	col.add_child(_sub)
+	_final = FitLabelBox.make()
+	_final.show_frame = false
+	_final.padding = 0
+	_final.max_font_size = 22
+	_final.min_font_size = 16
+	_final.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_final.font_color = Color("e8c36a")
+	_final.set_outline(Color("100e0c"), 4)
+	_final.custom_minimum_size = Vector2(480, 26)
+	_final.visible = false
+	col.add_child(_final)
 	_row = HBoxContainer.new()
 	_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_row.add_theme_constant_override("separation", 22)
@@ -81,6 +94,28 @@ func present(title: String, sub: String, a: Control, b: Control, ia: Dictionary,
 	_mount(a, ia)
 	_mount(b, ib)
 	visible = true
+
+
+func set_final_item(on: bool) -> void:
+	if _final == null:
+		return
+	_final.visible = on
+	if on:
+		_final.text = COPY.text("challenge.final_item", "Final Item")
+		_final_t = 0.0
+		set_process(true)
+	else:
+		set_process(false)
+		_final.modulate = Color.WHITE
+
+
+func _process(delta: float) -> void:
+	if _final == null or not _final.visible:
+		set_process(false)
+		return
+	_final_t += delta * 6.0
+	var pulse: float = 0.72 + 0.28 * (0.5 + 0.5 * sin(_final_t))
+	_final.modulate = Color(1.0, pulse, 0.45, 1.0)
 
 
 func _metal(tier: int) -> Color:
@@ -124,6 +159,7 @@ func hide_draft() -> void:
 	visible = false
 	left_it = {}
 	right_it = {}
+	set_final_item(false)
 	for c in _row.get_children():
 		_row.remove_child(c)
 		c.queue_free()

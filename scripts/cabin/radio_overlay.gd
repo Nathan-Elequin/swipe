@@ -43,6 +43,7 @@ func setup(p_cabin, p_extra: Dictionary, p_audio) -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.position = Vector2(0, (float(origin[1]) - 14.0) * PX)
 	title.size = Vector2(1680, 40)
+	title.z_index = 4
 	add_child(title)
 	var gloria := KIT.anim_sprite(
 		["overlays/gloria_f0.png", "overlays/gloria_f1.png", "overlays/gloria_f2.png", "overlays/gloria_f3.png"],
@@ -104,19 +105,24 @@ func setup(p_cabin, p_extra: Dictionary, p_audio) -> void:
 		var lab := KIT.label(KNOB_KEYS[i], 16, KIT.CREAM)
 		lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		lab.position = Vector2(mid_x - 64.0, row_y + 13.0 * PX)
-		lab.size = Vector2(128, 24)
+		lab.size = Vector2(160, 40)
+		lab.z_index = 4
+		lab.clip_contents = false
 		add_child(lab)
+		lab.fit()
 	_needle = KIT.tex_rect("overlays/radio_needle.png", Vector2.ZERO, Vector2(4, 16), 2)
 	add_child(_needle)
 	_station_lab = KIT.label("radio.station.0", 28, KIT.TITLE_CREAM)
 	_station_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_station_lab.position = _body.position + Vector2(66, 100) * PX
 	_station_lab.size = Vector2(168, 32) * PX
+	_station_lab.z_index = 4
 	add_child(_station_lab)
 	var cap := KIT.label("radio.station", 16, KIT.MUTED)
 	cap.position = _station_lab.position + Vector2(0, 28)
 	cap.size = Vector2(168, 20) * PX
 	cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	cap.z_index = 4
 	add_child(cap)
 	var sk := Control.new()
 	var skc: Array = extra.get("station_knob", [262, 84])

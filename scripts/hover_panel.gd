@@ -1,9 +1,10 @@
 extends PanelContainer
 ## Punchy inspect plate. Item equations and monster copy share this language.
-## Keyword sub-tooltips (Always, Flee, …) dock here, not on the speech balloon.
+## Keyword sub-tooltips (Always, Flee, …) are small capsules docked to this callout.
 
 const COPY := preload("res://scripts/player_copy.gd")
 const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
+const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 
 signal edit_pressed(kind: String, card_id: String)
 
@@ -70,6 +71,8 @@ func _plain_skin() -> void:
 func show_placeholder() -> void:
 	if OS.has_feature("editor"):
 		show_text(COPY.text("inspect.title", "Inspect"), COPY.text("inspect.placeholder", "Hover an owner on the ring, or loot in your hand. Right-click to edit."))
+	elif PLAYTEST_FLAG.on():
+		show_text(COPY.text("inspect.title", "Inspect"), COPY.text("playtest.right_click_hint", "Right-click any item or monster to leave a comment."))
 	else:
 		show_text(COPY.text("inspect.title", "Inspect"), COPY.text("inspect.idle", "Hover an owner on the ring, or loot in your hand."))
 
@@ -165,6 +168,8 @@ func show_rule(
 		eq.custom_minimum_size = Vector2(216, 0)
 		eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(eq)
+	if bool(look.get("unplayable", false)):
+		col.add_child(_unplayable_chip())
 	if body != "":
 		var b := RichTextLabel.new()
 		b.bbcode_enabled = true
@@ -256,6 +261,49 @@ func show_rule(
 	reset_size()
 
 
+func _unplayable_chip() -> Control:
+	var box := Control.new()
+	box.custom_minimum_size = Vector2(216, 28)
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.mouse_filter = Control.MOUSE_FILTER_STOP
+	box.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	box.clip_contents = true
+	box.draw.connect(func() -> void:
+		var w: float = box.size.x
+		var h: float = box.size.y
+		if w < 2.0 or h < 2.0:
+			return
+		box.draw_rect(Rect2(0, 0, w, h), Color("3d3a38"))
+		var ink := Color(0.22, 0.20, 0.19, 0.55)
+		var x: float = -h
+		while x < w + h:
+			box.draw_line(Vector2(x, h), Vector2(x + h * 0.62, 0.0), ink, 1.0)
+			x += 5.0
+		box.draw_rect(Rect2(0.5, 0.5, w - 1.0, h - 1.0), Color("6a6560"), false, 1.0)
+	)
+	box.resized.connect(box.queue_redraw)
+	var lab := Label.new()
+	lab.text = "Unplayable"
+	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lab.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	lab.add_theme_font_size_override("font_size", 15)
+	lab.add_theme_color_override("font_color", Color("cfc8c0"))
+	lab.add_theme_color_override("font_outline_color", Color("100e0c"))
+	lab.add_theme_constant_override("outline_size", 3)
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(lab)
+	box.mouse_entered.connect(func() -> void:
+		if _kw_tip != null and _kw_tip.has_method("show_def"):
+			_kw_tip.show_def(UxStyle.def_of("unplayable"), self, "unplayable")
+	)
+	box.mouse_exited.connect(func() -> void:
+		if _kw_tip != null and _kw_tip.has_method("hide_def"):
+			_kw_tip.hide_def()
+	)
+	return box
+
+
 func pin_always_def() -> void:
 	if not _pin_always or _kw_tip == null or not _kw_tip.has_method("show_def"):
 		return
@@ -276,7 +324,7 @@ func hide_plate() -> void:
 func _on_gui(event: InputEvent) -> void:
 	if not accept_clicks or edit_id == "":
 		return
-	if not OS.has_feature("editor"):
+	if not OS.has_feature("editor") and not PLAYTEST_FLAG.on():
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 		edit_pressed.emit(edit_kind, edit_id)

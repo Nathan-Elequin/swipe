@@ -149,6 +149,7 @@ func _tag_for(node_name: String) -> String:
 		"Nib": "cabin.hot.nib",
 		"Fire": "cabin.hot.fire",
 		"Hero": "cabin.hot.chair",
+		"Rug": "cabin.hot.rug",
 		"BackDoor": "cabin.hot.back",
 		"ShelfPrev": "cabin.hot.cabinet",
 		"ShelfNext": "cabin.hot.cabinet",

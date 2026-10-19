@@ -85,7 +85,7 @@ static func _raw(key: String, fallback: String = "") -> String:
 	if typeof(row) != TYPE_DICTIONARY:
 		return fallback
 	var t: String = str(row.get("text", ""))
-	return t if t != "" else fallback
+	return fix_mojibake(t if t != "" else fallback)
 
 
 static func has_key(key: String) -> bool:
@@ -115,9 +115,24 @@ static func possessive(display: String) -> String:
 	return d + "'s"
 
 
+static func fix_mojibake(s: String) -> String:
+	if s == "":
+		return s
+	# UTF-8 em dash / punctuation that was saved as Windows-1252, then UTF-8 again.
+	s = s.replace("\u00e2\u20ac\u201d", "\u2014")
+	s = s.replace("\u00e2\u20ac\u201c", "\u2013")
+	s = s.replace("\u00e2\u20ac\u2122", "'")
+	s = s.replace("\u00e2\u20ac\u02dc", "'")
+	s = s.replace("\u00e2\u20ac\u0153", "\"")
+	s = s.replace("\u00e2\u20ac\u009d", "\"")
+	s = s.replace("\u00c2\u00b7", "\u00b7")
+	return s
+
+
 static func apply_names(t: String) -> String:
 	if t == "":
 		return t
+	t = fix_mojibake(t)
 	if names_by_id.is_empty():
 		_load_names()
 	var out: String = t

@@ -6,6 +6,8 @@ var nib: AnimatedSprite2D
 var prompt: NinePatchRect
 var prompt_lab
 var gear_layers: Dictionary = {}
+var _prompt_rest: Vector2 = Vector2.ZERO
+var _prompt_tw: Tween
 
 
 func _build_special() -> void:
@@ -40,25 +42,16 @@ func _build_special() -> void:
 		nib_hot.hover_tex = null
 		nib_hot.press_tex = null
 		nib_hot.texture = null
-	prompt = KIT.nine("ui/dialog_box_9.png", Vector2(8, 8))
-	prompt.size = KIT.pt(58, 22)
-	prompt.position = KIT.pt(232, 148)
+	prompt = KIT.nine("ui/dialog_box_9.png", Vector2(KIT.BUBBLE_PATCH_NATIVE, KIT.BUBBLE_PATCH_NATIVE))
 	prompt.z_index = 6
 	prompt.visible = false
 	prompt.mouse_filter = Control.MOUSE_FILTER_STOP
 	prompt.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	prompt.gui_input.connect(_on_prompt_input)
 	add_child(prompt)
-	prompt_lab = KIT.label("nib.prompt", 18, KIT.INK)
-	prompt_lab.set_anchors_preset(PRESET_FULL_RECT)
-	prompt_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	prompt_lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	prompt_lab = KIT.label("nib.prompt", KIT.BUBBLE_FONT, KIT.INK)
 	prompt.add_child(prompt_lab)
-	var tw := create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tw.set_loops()
-	tw.tween_property(prompt, "position:y", prompt.position.y - 2.0 * PX, 0.6)
-	tw.tween_property(prompt, "position:y", prompt.position.y, 0.6)
+	_fit_prompt()
 
 
 func _add_anim(sf: SpriteFrames, anim: String, rels: Array, fps: float, loop: bool) -> void:
@@ -74,8 +67,40 @@ func _add_anim(sf: SpriteFrames, anim: String, rels: Array, fps: float, loop: bo
 func set_gate(on: bool) -> void:
 	prompt.visible = on
 	prompt.mouse_filter = Control.MOUSE_FILTER_STOP if on else Control.MOUSE_FILTER_IGNORE
+	if on:
+		_fit_prompt()
 	if nib and nib.sprite_frames:
 		nib.play("psst" if on else "idle")
+
+
+func _fit_prompt() -> void:
+	if prompt == null or prompt_lab == null:
+		return
+	var t: String = KIT.copy_text("nib.prompt")
+	KIT.fit_bubble(prompt, prompt_lab, t, KIT.BUBBLE_FONT)
+	_place_prompt()
+	_bob_prompt()
+
+
+func _place_prompt() -> void:
+	if prompt == null or nib == null:
+		return
+	var want := Vector2(nib.position.x + 12.0 * PX, nib.position.y)
+	var view := Vector2(KIT.ROOM_W, KIT.ROOM_H)
+	_prompt_rest = KIT.place_bubble(prompt.size, want, view)
+	prompt.position = _prompt_rest
+
+
+func _bob_prompt() -> void:
+	if prompt == null:
+		return
+	if _prompt_tw:
+		_prompt_tw.kill()
+	_prompt_tw = create_tween()
+	_prompt_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	_prompt_tw.set_loops()
+	_prompt_tw.tween_property(prompt, "position:y", _prompt_rest.y - 2.0 * PX, 0.6)
+	_prompt_tw.tween_property(prompt, "position:y", _prompt_rest.y, 0.6)
 
 
 func _on_prompt_input(event: InputEvent) -> void:

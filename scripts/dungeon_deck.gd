@@ -6,10 +6,13 @@ signal hovered
 signal unhovered
 signal edit_wanted
 
+const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const BACK := Color("1a1410")
 const RIM := Color("c4a574")
 const GOLD := Color("e8c36a")
 const INK := Color("f0e6d8")
+const WARN := Color("e07040")
+const EMPTY := Color("8b1e1e")
 
 var count: int = 0
 var art_tex: Texture2D
@@ -18,20 +21,25 @@ var peek_name: String = ""
 var _shake: float = 0.0
 var _draw_t: float = 0.0
 var _busy: bool = false
+var _sack: Texture2D
+var _warn_t: float = 0.0
 
 
 func setup() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	custom_minimum_size = Vector2(110, 156)
+	custom_minimum_size = Vector2(148, 168)
 	z_index = 8
 	mouse_entered.connect(_on_in)
 	mouse_exited.connect(_on_out)
 	gui_input.connect(_on_gui)
+	if ResourceLoader.exists("res://assets/dungeon/home/loot_sack_dropped.png"):
+		_sack = load("res://assets/dungeon/home/loot_sack_dropped.png")
 
 
 func set_count(n: int) -> void:
 	count = maxi(0, n)
 	_sync_mouse()
+	set_process(true)
 	queue_redraw()
 
 
@@ -60,7 +68,7 @@ func _on_out() -> void:
 
 func _on_gui(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-		if OS.has_feature("editor") and peek_name != "":
+		if (OS.has_feature("editor") or PLAYTEST_FLAG.on()) and peek_name != "":
 			edit_wanted.emit()
 		accept_event()
 
@@ -95,42 +103,75 @@ func play_draw() -> void:
 
 
 func _process(delta: float) -> void:
-	if _shake > 0.02 or _draw_t > 0.0:
+	var warn: bool = count <= 2
+	if _shake > 0.02 or _draw_t > 0.0 or warn:
 		queue_redraw()
 	_shake = maxf(0.0, _shake - delta * 0.15)
+	if warn:
+		_warn_t += delta * 5.0
+	else:
+		_warn_t = 0.0
+		if _shake <= 0.02 and _draw_t <= 0.0:
+			set_process(false)
 
 
 func _draw() -> void:
 	var n: int = mini(count, 6)
-	if n <= 0 and _draw_t <= 0.0:
-		return
-	var w: float = size.x
-	var h: float = size.y
+	var card_w := 110.0
 	var jitter: float = _shake * 4.0
-	for i in n:
-		var off := Vector2(float(i) * 2.2 + sin(_shake * 12.0 + float(i)) * jitter, -float(i) * 2.4)
-		_draw_back(Rect2(Vector2(6, 18) + off, Vector2(w - 18, h - 36)), Color.WHITE, i == n - 1)
-	if _draw_t > 0.0:
-		var fly := Vector2(-40.0 * _draw_t, -80.0 * _draw_t)
-		var a: float = 1.0 - _draw_t
-		var col := Color(1, 1, 1, a)
-		draw_set_transform(fly, -0.4 * _draw_t, Vector2.ONE)
-		_draw_back(Rect2(Vector2(6, 18), Vector2(w - 18, h - 36)), col, true)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if n > 0 or _draw_t > 0.0:
+		for i in n:
+			var off := Vector2(float(i) * 2.2 + sin(_shake * 12.0 + float(i)) * jitter, -float(i) * 2.4)
+			_draw_back(Rect2(Vector2(6, 18) + off, Vector2(card_w - 18, size.y - 36)), Color.WHITE, i == n - 1)
+		if _draw_t > 0.0:
+			var fly := Vector2(-40.0 * _draw_t, -80.0 * _draw_t)
+			var a: float = 1.0 - _draw_t
+			var col := Color(1, 1, 1, a)
+			draw_set_transform(fly, -0.4 * _draw_t, Vector2.ONE)
+			_draw_back(Rect2(Vector2(6, 18), Vector2(card_w - 18, size.y - 36)), col, true)
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	_draw_loot_bags()
 	var font: Font = ThemeDB.fallback_font
 	if peek_name != "" and count > 0:
 		var who: String = peek_name
 		var wfs := 12
 		var wsz: Vector2 = font.get_string_size(who, HORIZONTAL_ALIGNMENT_CENTER, -1, wfs)
-		var wp := Vector2((size.x - wsz.x) * 0.5, 16.0)
+		var wp := Vector2((card_w - wsz.x) * 0.5, 16.0)
 		draw_string(font, wp + Vector2(1, 1), who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs, Color("100e0c"))
 		draw_string(font, wp, who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs, INK)
 	var lab := str(count)
 	var fs := 22
 	var tsz: Vector2 = font.get_string_size(lab, HORIZONTAL_ALIGNMENT_CENTER, -1, fs)
-	var p := Vector2((size.x - tsz.x) * 0.5, size.y - 2.0)
+	var ink: Color = GOLD
+	if count <= 0:
+		ink = EMPTY
+	elif count <= 2:
+		ink = WARN
+	var p := Vector2((card_w - tsz.x) * 0.5, size.y - 2.0)
 	draw_string(font, p + Vector2(1, 1), lab, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("100e0c"))
-	draw_string(font, p, lab, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, GOLD)
+	draw_string(font, p, lab, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
+
+
+func _draw_loot_bags() -> void:
+	var bags: int = mini(count, 12)
+	if bags <= 0:
+		return
+	var pulse: float = 1.0
+	var tint := Color.WHITE
+	if count <= 2:
+		tint = WARN if count > 0 else EMPTY
+		pulse = 0.78 + 0.22 * (0.5 + 0.5 * sin(_warn_t))
+	tint.a = pulse
+	var x := 112.0
+	var step := 22.0
+	var top := 18.0
+	for i in bags:
+		var r := Rect2(x, top + float(i) * step, 32, 32)
+		if _sack != null:
+			draw_texture_rect(_sack, r, false, tint)
+		else:
+			draw_rect(r.grow(-4.0), tint, true)
+			draw_rect(r.grow(-4.0), GOLD, false, 1.2)
 
 
 func _draw_back(r: Rect2, tint: Color = Color.WHITE, face: bool = false) -> void:

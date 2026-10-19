@@ -1639,10 +1639,8 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 	var rect: Rect2 = laid.rect
 	var name_txt: String = str(laid.name_txt)
 	var call_txt: String = str(laid.call_txt)
-	var tier_txt: String = str(laid.tier_txt)
 	name_fs = int(laid.name_fs)
 	call_fs = int(laid.call_fs)
-	var tier_fs: int = int(laid.tier_fs)
 	var inner_w: float = float(laid.inner_w)
 	var fill := Color(0.08, 0.06, 0.05, 0.90 * dim)
 	var edge: Color = Color("e8c36a") if is_face else Color("c4a574")
@@ -1668,15 +1666,6 @@ func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool,
 					continue
 				draw_multiline_string(font, cp + Vector2(ox2, oy2), call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, call_fs, 2, ink)
 		draw_multiline_string(font, cp, call_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, call_fs, 2, col)
-	var tc := Color("c4a574")
-	tc.a = dim
-	var tp := Vector2(float(laid.name_x), float(laid.tier_base))
-	for ox3 in [-1, 0, 1]:
-		for oy3 in [-1, 0, 1]:
-			if ox3 == 0 and oy3 == 0:
-				continue
-			draw_string(font, tp + Vector2(ox3, oy3), tier_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, tier_fs, ink)
-	draw_string(font, tp, tier_txt, HORIZONTAL_ALIGNMENT_CENTER, inner_w, tier_fs, tc)
 
 
 func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, crowded: bool, is_hover: bool) -> Dictionary:
@@ -1706,10 +1695,6 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 	var name_fit: Dictionary = _fit_plate_label(font, name_s, name_fs, 10 if crowded else 11, max_w)
 	name_fs = int(name_fit.get("fs", name_fs))
 	var name_txt: String = str(name_fit.get("text", name_s))
-	var tier_fs: int = 10 if is_face else 9
-	if crowded:
-		tier_fs = maxi(8, tier_fs - 1)
-	var tier_txt: String = COPY.tier_name(_plate_tier(s))
 	var edge_w := 1.6
 	var sub_clear := 2.0
 	# Text is stroked 1px, and the capsule stroke sits on the rect edge.
@@ -1719,11 +1704,10 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 	var gap := 2.0
 	var max_h: float = clampf(_radius() * 0.30, 56.0, 108.0)
 	var name_sz: Vector2 = font.get_multiline_string_size(name_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, name_fs)
-	var tier_sz: Vector2 = font.get_string_size(tier_txt, HORIZONTAL_ALIGNMENT_CENTER, -1, tier_fs)
 	var call_txt := ""
 	var call_sz := Vector2.ZERO
 	if call_s != "":
-		var room: float = max_h - pad_top - pad_bot - name_sz.y - gap - tier_sz.y - gap
+		var room: float = max_h - pad_top - pad_bot - name_sz.y - gap
 		room = maxf(font.get_height(8), room)
 		var plan: Dictionary = FitLabelBox.plan(font, call_s, Vector2(max_w, room), call_fs, 8 if crowded else 9, 2)
 		call_fs = int(plan.get("size", call_fs))
@@ -1733,12 +1717,11 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 		else:
 			call_txt = call_s
 		call_sz = font.get_multiline_string_size(call_txt, HORIZONTAL_ALIGNMENT_CENTER, max_w, call_fs)
-	var inner_w: float = minf(maxf(maxf(name_sz.x, call_sz.x), tier_sz.x), max_w)
+	var inner_w: float = minf(maxf(name_sz.x, call_sz.x), max_w)
 	var w: float = inner_w + pad_x * 2.0
 	var h: float = pad_top + name_sz.y + pad_bot
 	if call_txt != "":
 		h += gap + call_sz.y
-	h += gap + tier_sz.y
 	var dir: Vector2 = sp["dir"]
 	var port: Vector2 = sp["port"]
 	var plate_r: float = float(sp.get("plate_r", 36.0))
@@ -1753,20 +1736,19 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 	if call_txt != "":
 		call_base = cursor + gap + font.get_ascent(call_fs)
 		cursor += gap + call_sz.y
-	var tier_base: float = cursor + gap + font.get_ascent(tier_fs)
 	return {
 		"rect": Rect2(top_left, Vector2(w, h)),
 		"name_txt": name_txt,
 		"call_txt": call_txt,
-		"tier_txt": tier_txt,
+		"tier_txt": "",
 		"name_fs": name_fs,
 		"call_fs": call_fs,
-		"tier_fs": tier_fs,
+		"tier_fs": 0,
 		"inner_w": inner_w,
 		"name_x": top_left.x + pad_x,
 		"name_base": name_base,
 		"call_base": call_base,
-		"tier_base": tier_base,
+		"tier_base": 0.0,
 	}
 
 

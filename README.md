@@ -6,7 +6,9 @@ A shrinking-wheel dungeon. Friends play the itch.io page. This repo is the sourc
 
 ## Play
 
-**Play:** https://nathan-elequin.itch.io/swipe
+**Play (playtest):** https://nathan-elequin.itch.io/swipe-playtest
+
+The public page https://nathan-elequin.itch.io/swipe is frozen. Do not push builds there.
 
 Source: https://github.com/Nathan-Elequin/swipe
 
@@ -18,14 +20,14 @@ Source: https://github.com/Nathan-Elequin/swipe
 
 Roster, Script, and Developer Test only show in the editor. They are hidden in the web build friends play.
 
-## Export a web build
+## Export the playtest web build
 
-In Godot: **Project → Export → Web → Export Project** to `build/web/index.html`.
+F5 in the editor is the playtest game. Friends play the playtest itch page.
 
-Or from a terminal (Godot 4.7.2 on PATH, export templates installed):
+Godot: **Project → Export → Web Playtest → Export Project** to `build/web-playtest/index.html`.
 
 ```
-Godot_v4.7.2-stable_win64.exe --headless --path . --export-release Web build/web/index.html
+Godot_v4.7.2-stable_win64.exe --headless --path . --export-release "Web Playtest" build/web-playtest/index.html
 ```
 
-Zip the `build/web` folder and replace the HTML file on the itch project.
+After a playable fix, export and `butler push` in that same turn to `nathan-elequin/swipe-playtest` (channel `html5`). Do not wait. Do not push `nathan-elequin/swipe`. Worker setup: `tools/playtest-inbox/README.md`.

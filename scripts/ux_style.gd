@@ -62,6 +62,38 @@ static func title_button_style(pressed: bool = false) -> StyleBoxFlat:
 	return s
 
 
+static func dress_small_button(b: Button, width: float = 0.0) -> void:
+	if b == null:
+		return
+	b.custom_minimum_size = Vector2(width, 32)
+	b.add_theme_font_size_override("font_size", 13)
+	b.add_theme_color_override("font_color", Color("f8f2ea"))
+	b.add_theme_color_override("font_hover_color", Color("ffffff"))
+	b.add_theme_color_override("font_pressed_color", Color("e8c36a"))
+	b.add_theme_color_override("font_outline_color", Color("100e0c"))
+	b.add_theme_constant_override("outline_size", 2)
+	var up := title_button_style(false)
+	up.set_border_width_all(2)
+	up.set_corner_radius_all(8)
+	up.content_margin_left = 10
+	up.content_margin_right = 10
+	up.content_margin_top = 4
+	up.content_margin_bottom = 4
+	var hover := up.duplicate() as StyleBoxFlat
+	hover.bg_color = Color("2a1c14")
+	var down := title_button_style(true)
+	down.set_border_width_all(2)
+	down.set_corner_radius_all(8)
+	down.content_margin_left = 10
+	down.content_margin_right = 10
+	down.content_margin_top = 4
+	down.content_margin_bottom = 4
+	b.add_theme_stylebox_override("normal", up)
+	b.add_theme_stylebox_override("hover", hover)
+	b.add_theme_stylebox_override("focus", hover)
+	b.add_theme_stylebox_override("pressed", down)
+
+
 static func dress_title_button(b: Button, width: float = 0.0) -> void:
 	if b == null:
 		return
@@ -165,6 +197,7 @@ const BLK := "#6BB3D9"
 const VAR := "#C9A0FF"
 const HEAL := "#8FD18F"
 const ALWAYS := "#E8C36A"
+const UNPLAYABLE := "#C8C2BA"
 
 
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
@@ -208,7 +241,7 @@ static func chip(text: String, ink_hex: String) -> String:
 
 static func def_id_of(piece: String) -> String:
 	var low: String = piece.strip_edges().to_lower()
-	if low == "any monster":
+	if low == "any" or low == "any monster":
 		return "any"
 	if low.begins_with("eject"):
 		return "eject"
@@ -224,6 +257,8 @@ static func def_id_of(piece: String) -> String:
 		return "always"
 	if low == "swap" or low.begins_with("swap"):
 		return "swap"
+	if low == "unplayable":
+		return "unplayable"
 	return ""
 
 
@@ -241,6 +276,8 @@ static func def_of(id: String) -> String:
 			return "Always: cannot be changed in any other way"
 		"swap":
 			return "Swap: exchange for a random Item of the same Tier"
+		"unplayable":
+			return "You cannot click this."
 		_:
 			return ""
 
@@ -525,10 +562,12 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"keep",
 		"bled", "bleeds", "bleeding", "bleed",
 		"fleeing", "flees", "fled", "flee",
+		"any",
 		"spinning", "spins", "spin",
 		"losing", "loses", "lost", "lose",
 		"always",
 		"eject",
+		"unplayable",
 		"atk", "blk", "hp",
 	])
 	var nums := "one|two|three|four|five|six|seven|eight|nine|ten|twice|thrice"
@@ -600,6 +639,8 @@ static func _format_keyword_token(tok: String) -> String:
 		return prefix + low.to_upper() + suffix
 	if low == "always":
 		return prefix + "Always" + suffix
+	if low == "unplayable":
+		return prefix + "Unplayable" + suffix
 	if _is_word_num(low) or _token_has_digit(core):
 		return tok
 	if _is_keyword_stem(low):
@@ -653,12 +694,16 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 		return gold
 	if low.begins_with("flee"):
 		return gold
+	if low == "any":
+		return gold
 	if low.begins_with("spin"):
 		return gold
 	if low == "swap" or low.begins_with("swap"):
 		return gold
 	if low.begins_with("eject"):
 		return gold
+	if low == "unplayable":
+		return UNPLAYABLE
 	return ""
 
 

@@ -1,11 +1,15 @@
 ---
-description: How Nathan writes new or changed monsters in chat
+description: How Nathan writes new items and monsters in chat, and how Cursor places them in buckets without being told the number
 alwaysApply: true
 ---
 
-# Monster shorthand
+# Card shorthand and bucket placement
 
-Boss Rush / Swipe only. When Nathan pastes a monster in this shape, that block is the spec. Do not wait for a second format.
+Boss Rush / Swipe only. Nathan does not name a bucket. Cursor reads the live mill, places the new card, and moves whatever it displaces the way he would drag in Roster.
+
+When he pastes a monster or an item in the shapes below, that block is the spec. Do not wait for a second format. Do not ask which bucket it goes in.
+
+## Monster paste
 
 ```
 Name (image described here, if left blank you choose/intuit)
@@ -18,32 +22,120 @@ Token: …
 |Keyword| or |Keyword: exact player-facing definition|
 ```
 
+## Item paste
+
+```
+Name (image described here, if left blank you choose/intuit)
+Ability (player facing)
+
+How it works bullets
+Type: Attack | Defense | Cheese | Utility
+Token: …
+|Keyword| or |Keyword: exact player-facing definition|
+```
+
+If he omits `Type:`, infer it from the rule:
+
+- **Attack** — the card’s job is dealing ATK (including formulas and neighbor ATK).
+- **Defense** — Block or Heal (Heal counts as Defense, not Utility).
+- **Cheese** — it trivializes or skips a fight if you planned for it (Defeat checks, Eject, Polymorph, delayed Defeat, set-HP-to-1, make them hit each other).
+- **Utility** — everything else (Swap, silence, steer Spin, fill the hand, copy last item).
+
+If he omits tier, pick it after you know the bucket (see mix, below).
+
 ## Field map
 
-1. **Name** → `name`. Optional `(image …)` in the same line. If the parens are empty or missing, pick what the sprite must read as and file an `## ART-REQUEST` (`unique-art.mdc`). Do not draw or replace PNG bytes.
-2. **`4/4`** → `4` HP, `4` ATK (`hp.base` then `atk.base`). Not ATK/HP.
-3. **Ability Name** → `call_name` (monster callout title).
-4. **Ability** → `ability`. Same sentence goes in the callout and the speech bubble. Use his words. Strip the `|` markers when saving; the player sees the word, not the pipes.
-5. **Shift line** → he leaves this blank on purpose. You always write `explainer` (hold Shift). Do not ask him to invent it. Do not put pipes in it.
+1. **Name** → `name`. Optional `(image …)` on the same line. Empty or missing parens: intuit what the sprite must show, then `## ART-REQUEST` (`unique-art.mdc`). Do not draw or replace PNG bytes.
+2. **Monster `4/4`** → `4` HP, `4` ATK (`hp.base` then `atk.base`). Not ATK/HP.
+3. **Ability Name** (monsters) → `call_name`.
+4. **Ability** → `ability`. His words. Callout and speech bubble for monsters. Strip `|` markers; the player sees the word, not the pipes.
+5. **Shift line** → he leaves this blank on purpose. Always write `explainer` (hold Shift). Do not ask him to invent it. Do not put pipes in it.
 6. **How it works** → Flow / Notes / implementation. Bullets are the rule. Paper Fight the collisions; do not code this turn.
-7. **`Token:`** → a labeled overlay, countdown, chip, or other on-card mark. Wire it like existing tokens. If Pixel must draw it, ART-REQUEST (path, size, frames). Do not draw it.
+7. **`Token:`** → labeled overlay, countdown, chip. Wire like existing tokens. Pixel draws; ART-REQUEST. Do not draw it.
 
 ## Keywords
 
 - `|Flee|` means treat that word like **Flee** everywhere the player can see it: Title Case, keyword color, hover definition on the inspect plate (not the speech balloon), registered in `def_id_of` / `def_of` / keyword stems (`scripts/ux_style.gd`, `scripts/main.gd`).
-- `|Flee: ipsum lorem|` is a **new** keyword. The text after the colon is the exact player-facing definition. Do not restyle it. Jam still owns `data/player-copy.json` for other UI words; this definition is Nathan’s authored copy, same as Ability.
+- `|Flee: ipsum lorem|` is a **new** keyword. The text after the colon is the exact player-facing definition. Do not restyle it. Jam owns `data/player-copy.json` for other UI words; this definition is Nathan’s authored copy, same as Ability.
 - `|NewWord|` with no colon, and it is not already Flee / Spin / Always / Swap / another live keyword: ask for the definition language. Do not invent it.
+
+## Quotas (do not count these toward 10 / 5)
+
+- Tokens (bucket Token / −1). **Phoenix** is Token; **Phoenix Egg** is a mill monster.
+- **Smoke Bomb** — always one of the four opening items; extra, not one of the 10.
+- Mode-only cards (`adventure` / `challenge`) — sit extra in a bucket so Challenge-only and Adventure-only cancel. They do not fill the 10/5.
+- Pair extras: **Right Bracer** (`bracers`) sits in the same bucket as Left Bracer and does not count. The pair is one unlock. Add future pairs the same way (second card extra, same bucket).
+- Hold / retired.
+
+**Bucket 0:** 10 items and 10 monsters. Tiers 5 / 3 / 2. Item types 3 Attack / 3 Defense / 2 Cheese / 2 Utility.
+
+**Later buckets:** 5 items and 5 monsters. Tiers 2 / 2 / 1. Item types 2–1–1–1, rotating whether Attack or Defense gets the extra 2. Last used bucket may be short. Fill bucket N completely before N+1.
+
+`3/2/1` for five cards is six slots. Do not use it. Later mix is **2/2/1**.
+
+## Per-bucket priority
+
+When a card could go in more than one bucket, rank the bucket by:
+
+1. **Tier mix** (5/3/2 in 0, 2/2/1 later)
+2. **Type mix** (items only: Attack / Defense / Cheese / Utility)
+3. **Complexity climb** (later buckets denser than earlier ones)
+
+## Complexity
+
+Weigh all of these. None of them wins alone:
+
+- New verbs / keywords the mill has not needed yet
+- Tracking (counters, delayed triggers, remember the last fight, even/odd, exact HP)
+- Length of Ability + Shift
+- How many other live cards you must already understand
+
+Short text and a trap idea count equally. **Goblin** stays in Bucket 0 because it is in the tutorial, even though “cannot take Attack damage” is a trap. Keep Boot and Net (or equal Cheese / Utility) in 0 with it.
+
+**Bucket 0 must teach:** Attack, Block, Defeat, Neighbor, Spin, Keep. Smoke Bomb may be the Spin teacher in Adventure. Challenge has no Smoke — a mill card in 0 must cover Spin there, or Smoke must be allowed in Challenge too. Do not leave Challenge 0 with no Spin.
+
+**New unique keyword:** first appearance is the earliest bucket whose *other* cards do not also introduce a new verb. One new word per unlock. At most **two** new verbs in a 5-card unlock, and one of those two must already have shown in the previous bucket. Three is too many. If the candidate needs two brand-new words, it waits or something else is bumped out.
+
+**Tracking:** any bucket may have at most one tracking card (Hex-style delay, Pacemaker “exactly 2”, Grief Jar per-Spin growth). A second tracker waits.
+
+**Copy / “uses another card’s number”:** a bit more complex. Spread these across buckets. No hard ban on Bucket 0 for self-formulas (missing HP, items in hand).
+
+**Click then pick a target** (Throwing Knife, Crossbow) is not extra complexity. Place by type and tier.
+
+**Cheese climb:** exactly one Cheese per bucket from 0 onward. Read-then-plan: compare one plate number first (Boot, then Sledgehammer), then exact match, delay, or rewrite the owner (Scythe, Hex, Polymorph, Napalm). Extra Cheese after every bucket already has one starts at the last bucket and walks backward.
+
+**T3 slot:** the prize of that unlock. Scary numbers with a short rule (Dragon) and the densest rule are both allowed.
+
+**Pairs:** same bucket, always. The second card does not count toward 5.
+
+## Where it goes (do this instead of asking for a bucket)
+
+1. Read live mill from `data/catalog.json` / `data/content-board.json` (skip Token, Smoke, mode-only, pair extras, Hold, retired).
+2. Score the new card’s complexity against cards already in each bucket (verbs, tracking, length, cards-you-must-know).
+3. Pick the earliest bucket that still wants that **tier** and, for items, that **type**, without breaking the one-new-keyword / one-tracker / one-Cheese rules.
+4. If that bucket is full, **displace** like Roster drag-and-drop:
+   - Items: bump the card already there with the **same type and same tier** that is least at-home in that bucket (too simple for it, or the type is overweight).
+   - Monsters: bump the **same tier** that is least at-home.
+   - Re-place the bumped card with this same procedure.
+5. If the new card is simpler than everything in the bucket it landed in, walk it earlier: bump the most complex card in the earlier bucket later, put the new one as early as it deserves.
+6. **Stop and ask** (talk through the proposal, then wait) if placing it correctly would move **more than two** existing mill cards. Two or fewer: just move them and say what you dragged.
+7. Write `bucket` and `tier` on the board, the catalog, and any hardcoded fallback. Do not leave the card in an overflow hole when an earlier hole of the right mix exists.
+
+Mode-only: still assign a bucket number. Pair a Challenge-only extra with an Adventure-only extra in the same bucket so both modes see one extra.
 
 ## Paper Fight
 
-This block is new or changed gameplay. Fill `design/paper-fight/CURRENT.md`, then ask only the questions that would change the code, using `AskQuestion` multiple choice. Stop. Do not implement in that turn.
+A new or changed item/monster rule still Paper Fights (`paper-fight.mdc`). Fill `design/paper-fight/CURRENT.md`, ask only collision questions, stop. Do not implement the **rule** in that turn.
 
-Skip only if he said **skip the Paper Fight** / **just ship it** / **F5 this**.
+Skip Paper Fight only if he said **skip the Paper Fight** / **just ship it** / **F5 this**.
 
-Quoted Ability / Call name / HP / ATK still go onto the official fields in the same turn. Wait only on the collision questions.
+Quoted Ability / Call name / HP / ATK / type still go onto the official fields in the same turn. Wait only on collision questions. Bucket placement runs after those answers (or immediately if Paper Fight was skipped).
 
 ## Do not
 
+- Do not ask Nathan which bucket to use.
 - Do not invent player-facing Ability or a new keyword’s definition.
 - Do not leave `|pipes|` in inspect, the balloon, or Shift.
 - Do not skip this parse because the rest of the chat was about UI, keys, or a different card.
+- Do not draw or replace PNG bytes.
+- Do not break Bucket 0’s tutorial needs (Goblin, Boot, Net, Attack / Block / Defeat / Neighbor / Spin / Keep).

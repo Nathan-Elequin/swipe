@@ -28,6 +28,7 @@ var _stack: Array = []
 var _hint_tip: PanelContainer
 var _hint_lab: Label
 var _fitting: bool = false
+var _plain: PackedStringArray = PackedStringArray()
 
 
 func setup() -> void:
@@ -86,6 +87,7 @@ func setup() -> void:
 
 func clear_all() -> void:
 	_stack.clear()
+	_plain.clear()
 	_hide_hint()
 	for c in _col.get_children():
 		_col.remove_child(c)
@@ -102,13 +104,36 @@ func begin_proc(data: Dictionary) -> void:
 	_host().add_child(cap)
 	var kids: VBoxContainer = cap.get_meta("kids")
 	_stack.append(kids)
+	var head: String = str(data.get("title", "")).strip_edges()
+	var sub: String = str(data.get("subtitle", "")).strip_edges()
+	if sub != "" and head != "":
+		_plain.append(_web_safe("%s - %s" % [sub, head]))
+	elif head != "":
+		_plain.append(_web_safe(head))
 	_scroll_end()
 
 
 func push_line(kind: String, msg: String, highlight: Dictionary = {}) -> void:
+	msg = _web_safe(msg)
 	var row := _leaf_row(kind, msg, highlight)
 	_host().add_child(row)
+	var info: Dictionary = TAG.get(kind, TAG["var"])
+	var tag: String = str(info.get("tag", ""))
+	var line: String = ("%s %s" % [tag, _strip_bb(msg)]).strip_edges()
+	if line != "":
+		_plain.append(line)
 	_scroll_end()
+
+
+func dump_plain() -> String:
+	return "\n".join(_plain)
+
+
+func _strip_bb(raw: String) -> String:
+	var rx := RegEx.new()
+	if rx.compile("\\[/?[^\\]]+\\]") != OK:
+		return raw
+	return rx.sub(raw, "", true)
 
 
 func _host() -> VBoxContainer:
@@ -223,7 +248,7 @@ func _leaf_row(kind: String, msg: String, highlight: Dictionary) -> HBoxContaine
 	row.mouse_entered.connect(_on_row_in.bind(highlight))
 	if not _stack.is_empty():
 		var arrow := Label.new()
-		arrow.text = "↳"
+		arrow.text = ">"
 		arrow.add_theme_font_size_override("font_size", 13)
 		arrow.add_theme_color_override("font_color", Color("8a8178"))
 		arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -267,11 +292,21 @@ func _on_kw_meta_out(_meta: Variant) -> void:
 	_hide_hint()
 
 
+func _web_safe(t: String) -> String:
+	t = t.replace(" → ", " to ")
+	t = t.replace("→", " to ")
+	t = t.replace(" — ", " - ")
+	t = t.replace("—", "-")
+	t = t.replace("–", "-")
+	t = t.replace("−", "-")
+	t = t.replace("↳", ">")
+	return t
+
+
 func _paint(raw: String) -> String:
-	var t: String = raw.strip_edges()
+	var t: String = _web_safe(raw.strip_edges())
 	if t == "" or t.find("[color") >= 0:
-		return raw
-	t = t.replace(" → ", " → ")
+		return t
 	t = _color_word(t, "ATK", "#E06C75")
 	t = _color_word(t, "BLK", "#6BB3D9")
 	t = _color_word(t, "HP", "#E8A0A0")
@@ -298,7 +333,7 @@ func _paint(raw: String) -> String:
 
 func _link_kws(t: String) -> String:
 	var rx := RegEx.new()
-	if rx.compile("(?i)\\b(fleeing|flees|fled|flee|spinning|spins|spin|always)\\b") != OK:
+	if rx.compile("(?i)\\b(fleeing|flees|fled|flee|spinning|spins|spin|always|unplayable)\\b") != OK:
 		return t
 	var hits: Array = rx.search_all(t)
 	var out := t
@@ -308,8 +343,13 @@ func _link_kws(t: String) -> String:
 		var id: String = UX.def_id_of(piece)
 		if id == "":
 			continue
-		var shown_word: String = "Always" if id == "always" else piece
-		var shown: String = "[url=kw:%s][color=#E8C36A][b]%s[/b][/color][/url]" % [id, shown_word]
+		var shown_word: String = piece
+		if id == "always":
+			shown_word = "Always"
+		elif id == "unplayable":
+			shown_word = "Unplayable"
+		var hex: String = "#A8A29A" if id == "unplayable" else "#E8C36A"
+		var shown: String = "[url=kw:%s][color=%s][b]%s[/b][/color][/url]" % [id, hex, shown_word]
 		out = out.substr(0, m.get_start()) + shown + out.substr(m.get_end())
 	return out
 

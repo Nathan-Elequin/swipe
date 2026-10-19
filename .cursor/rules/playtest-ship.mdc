@@ -1,0 +1,33 @@
+---
+description: After every playtest-game fix, export Web Playtest and butler-push to itch immediately. Do not wait. Never push the public Swipe page.
+alwaysApply: true
+---
+
+# Playtest is the browser build
+
+Friends and Nathan play https://nathan-elequin.itch.io/swipe-playtest
+
+F5 in Godot on this repo **is** that same playtest game (`PlaytestFlag.on()` is true in the editor and in the Web Playtest export). Roster stays F6 in the editor.
+
+## Ship (default, every fix)
+
+Locked **2026-10-19**. Nathan does not quality-test before the playtest page updates. Keep doing this until he changes this rule.
+
+After any change that friends would play (bug, overlay, card behavior, hub, Feedback, copy wiring, this checkout's game):
+
+1. Export **Web Playtest** only (`build/web-playtest/index.html`).
+2. `butler push` only to `nathan-elequin/swipe-playtest` (channel `html5`).
+3. Do it **in the same turn as the fix**. Do not wait for him to say ship, verify, F5, or “update itch.”
+
+Worked examples of “ship immediately”: unplayable hotbar overlay, Bodyguard dying at 0 HP, Bushido dummy only on the second item.
+
+## Do not
+
+- Do not wait for a second message before exporting.
+- Do not export the **Web** preset for friends.
+- Do not `butler push` to `nathan-elequin/swipe` (the public page). That page is frozen unless Nathan says **promote** in that chat.
+- Do not add `playtest` to `project.godot` features (that would bake into every export).
+
+## Local Play (Cherry PC)
+
+No extra Godot setting. Stop Play if it is already running, then F5. You should get the playtest hub (Brand New / Middle Progress / Continue / Feedback). F2 is Feedback. F6 is still Roster.

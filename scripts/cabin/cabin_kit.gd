@@ -18,6 +18,18 @@ const ROOM_H := 1040.0
 const HOME := "res://assets/dungeon/home/"
 const UI := "res://assets/ui/"
 const ROOM_ORDER: Array[String] = ["main", "hall", "study", "workshop", "loft"]
+## Shared talk-bar metrics. Intro captions and cabin Nib lines use the same numbers.
+const DIALOG_SAFE := 32.0
+## Cabin talk sits above the playtest Feedback pill (16px margin + ~48px button).
+const DIALOG_SAFE_CABIN := 72.0
+const DIALOG_PAD := 16.0
+const DIALOG_GAP := 12.0
+const DIALOG_PROMPT_H := 32.0
+const DIALOG_FONT := 34
+const DIALOG_PATCH_NATIVE := 12.0
+const BUBBLE_PATCH_NATIVE := 8.0
+const BUBBLE_FONT := 26
+const BUBBLE_MAX_W_NATIVE := 140.0
 
 
 static func px(n: float) -> float:
@@ -275,6 +287,83 @@ static func named(s: String) -> String:
 	return COPY.apply_names(s)
 
 
+## Full-width caption bar: same geometry for the intro stills and Nib's cabin talk box.
+static func dialog_bar(view: Vector2, extra_h: float = 0.0, safe_bottom: float = -1.0) -> Dictionary:
+	var bust_sz := Vector2(32, 32) * PX
+	var safe := DIALOG_SAFE
+	var bot: float = safe_bottom if safe_bottom >= 0.0 else safe
+	var bar_h: float = DIALOG_PAD + bust_sz.y + DIALOG_GAP + DIALOG_PROMPT_H + DIALOG_PAD + extra_h
+	var max_h: float = maxf(bar_h, view.y - safe - bot)
+	bar_h = minf(bar_h, max_h)
+	var bar_y: float = clampf(
+		view.y - bot - bar_h,
+		safe,
+		maxf(safe, view.y - bot - bar_h)
+	)
+	var bar := Rect2(safe, bar_y, maxf(8.0, view.x - safe * 2.0), bar_h)
+	var inner := Rect2(
+		Vector2(DIALOG_PAD, DIALOG_PAD),
+		bar.size - Vector2(DIALOG_PAD * 2.0, DIALOG_PAD * 2.0)
+	)
+	return {
+		"bar": bar,
+		"inner": inner,
+		"bust_sz": bust_sz,
+		"prompt_h": DIALOG_PROMPT_H,
+		"gap": DIALOG_GAP,
+	}
+
+
+## Size a parchment nine-slice to its line so the gold frame never sits on the glyphs.
+static func fit_bubble(box: NinePatchRect, lab: FitLabelBox, src: String, font_px: int = BUBBLE_FONT, patch_native: float = BUBBLE_PATCH_NATIVE) -> Vector2:
+	if box == null or lab == null:
+		return Vector2.ZERO
+	var t: String = src.strip_edges()
+	var patch: float = patch_native * PX
+	box.patch_margin_left = int(patch)
+	box.patch_margin_right = int(patch)
+	box.patch_margin_top = int(patch)
+	box.patch_margin_bottom = int(patch)
+	lab.set_plain(t)
+	lab.max_font_size = font_px
+	lab.min_font_size = 16
+	lab.max_lines = 2
+	lab.padding = 0
+	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var font: Font = FitLabelBox.theme_font(lab)
+	var max_inner: float = maxf(48.0, BUBBLE_MAX_W_NATIVE * PX - patch * 2.0)
+	var one: Vector2 = FitLabelBox.measure(font, t, font_px, -1.0, false)
+	var wrap: bool = one.x + 8.0 > max_inner
+	var inner_w: float = max_inner if wrap else clampf(one.x + 8.0, 48.0, max_inner)
+	var inner_h: float = maxf(float(font_px) * 1.25, one.y)
+	if wrap:
+		var multi: Vector2 = FitLabelBox.measure(font, t, font_px, inner_w, true)
+		inner_h = maxf(inner_h, multi.y)
+	var air: float = 8.0
+	var sz := Vector2(inner_w + patch * 2.0, inner_h + patch * 2.0 + air)
+	sz.x = maxf(sz.x, patch * 2.0 + 24.0)
+	sz.y = maxf(sz.y, patch * 2.0 + inner_h)
+	box.size = sz
+	lab.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	lab.position = Vector2(patch, patch)
+	lab.size = Vector2(inner_w, sz.y - patch * 2.0)
+	lab.fit()
+	return sz
+
+
+## Keep a control on screen and above another rect (the talk box) if they would overlap.
+static func place_bubble(sz: Vector2, want: Vector2, view: Vector2, avoid: Rect2 = Rect2()) -> Vector2:
+	var pos := Vector2(want.x - sz.x * 0.5, want.y - sz.y)
+	var m: float = 8.0
+	pos.x = clampf(pos.x, m, maxf(m, view.x - sz.x - m))
+	pos.y = clampf(pos.y, m, maxf(m, view.y - sz.y - m))
+	if avoid.size.x > 4.0 and Rect2(pos, sz).intersects(avoid):
+		pos.y = maxf(m, avoid.position.y - sz.y - m)
+	return pos
+
+
 static func label(key: String, font_px: int, color: Color = CREAM, autowrap: bool = false) -> FitLabelBox:
 	var l: FitLabelBox = FitLabelBox.make()
 	l.show_frame = false
@@ -312,7 +401,7 @@ static func framed(key: String, font_px: int, rel: String, margins_native: Vecto
 	l.patch_margin_right = int(margins_native.x * PX)
 	l.patch_margin_top = int(margins_native.y * PX)
 	l.patch_margin_bottom = int(margins_native.y * PX)
-	l.padding = 12
+	l.padding = maxi(int(margins_native.x * PX), int(margins_native.y * PX))
 	return l
 
 

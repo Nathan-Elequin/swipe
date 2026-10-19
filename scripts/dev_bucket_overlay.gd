@@ -146,7 +146,7 @@ func _build_chrome() -> void:
 	add_child(_token_btn)
 
 	_hint = KIT.raw_label(
-		"Bronze, silver, gold sit in that order. Empty wells are holes to fill. Wheel scrolls; Shift+wheel pans buckets. Drag near an edge to pan. Right-click edits. Click a header to set this save’s unlock.",
+		"Bucket 0 is 10 and 10 (5 / 3 / 2). Later buckets are 5 and 5 (2 / 2 / 1). Counted cards on top. Smoke, pair extras, and mode-only sit dim in Extra and do not fill the count. Item tiles are Attack, Defense, Cheese, or Utility. Rows stay Bronze / Silver / Gold. Empty wells are holes. Wheel scrolls; Shift+wheel pans. Right-click edits. Click a header to set this save’s unlock.",
 		18,
 		KIT.MUTED,
 		true
@@ -352,8 +352,17 @@ func _kind_block(kind: String, cards: Array, bucket: int) -> VBoxContainer:
 	var wrap := VBoxContainer.new()
 	wrap.add_theme_constant_override("separation", 6)
 	wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var counted: Array = []
+	var extras: Array = []
+	for card in cards:
+		if typeof(card) != TYPE_DICTIONARY:
+			continue
+		if BucketRules.counts_for_mill(card):
+			counted.append(card)
+		else:
+			extras.append(card)
 	var want: int = 0 if bucket < 0 else BucketRules.want_items(bucket)
-	var have: int = BucketRules.pool_count(cards)
+	var have: int = counted.size()
 	var lab := Label.new()
 	if kind == "item":
 		lab.text = "Items  %s / %s" % [have, want] if want > 0 else "Items  %s" % cards.size()
@@ -364,10 +373,8 @@ func _kind_block(kind: String, cards: Array, bucket: int) -> VBoxContainer:
 	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	wrap.add_child(lab)
 	var by_tier := {1: [], 2: [], 3: []}
-	for card in cards:
-		if typeof(card) != TYPE_DICTIONARY:
-			continue
-		(by_tier[BucketRules.tier_of(card)] as Array).append(card)
+	for card2 in counted:
+		(by_tier[BucketRules.tier_of(card2)] as Array).append(card2)
 	var empties: int = 0
 	for t in range(1, 4):
 		var row_cards: Array = by_tier[t]
@@ -381,6 +388,22 @@ func _kind_block(kind: String, cards: Array, bucket: int) -> VBoxContainer:
 		var short: int = maxi(0, want - have - empties)
 		if short > 0:
 			wrap.add_child(_extra_holes(short))
+	if not extras.is_empty():
+		var ex_lab := Label.new()
+		ex_lab.text = "Extra"
+		ex_lab.add_theme_font_size_override("font_size", 12)
+		ex_lab.add_theme_color_override("font_color", Color("8a7d6c"))
+		ex_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		wrap.add_child(ex_lab)
+		var flow := HFlowContainer.new()
+		flow.add_theme_constant_override("h_separation", 8)
+		flow.add_theme_constant_override("v_separation", 8)
+		flow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for extra in extras:
+			var tile := _make_tile(extra, kind, bucket)
+			tile.modulate = Color(0.62, 0.62, 0.62, 1)
+			flow.add_child(tile)
+		wrap.add_child(flow)
 	return wrap
 
 
@@ -458,7 +481,10 @@ func _make_tile(card: Dictionary, kind: String, bucket: int) -> BucketTile:
 	var tier_n: int = BucketRules.tier_of(card)
 	var metal: Color = BucketRules.tier_color(tier_n)
 	var tsb := StyleBoxFlat.new()
-	tsb.bg_color = BucketRules.tier_fill(tier_n)
+	if kind == "item":
+		tsb.bg_color = BucketRules.family_fill(card)
+	else:
+		tsb.bg_color = BucketRules.tier_fill(tier_n)
 	tsb.border_color = Color("f4d36a") if moved else metal
 	tsb.set_border_width_all(4)
 	tsb.set_corner_radius_all(6)
@@ -492,7 +518,10 @@ func _make_tile(card: Dictionary, kind: String, bucket: int) -> BucketTile:
 	name_l.text = str(card.get("name", id))
 	name_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_l.add_theme_font_size_override("font_size", 11)
-	name_l.add_theme_color_override("font_color", Color("1c120c"))
+	if kind == "item":
+		name_l.add_theme_color_override("font_color", Color("f4ede3"))
+	else:
+		name_l.add_theme_color_override("font_color", Color("1c120c"))
 	name_l.autowrap_mode = TextServer.AUTOWRAP_OFF
 	name_l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	name_l.mouse_filter = Control.MOUSE_FILTER_IGNORE

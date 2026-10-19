@@ -6,7 +6,7 @@ Title,title.dive_in,Title + pause button,Quick Start
 Title,title.begin,Title + pause button,Play
 Title,title.adventure,Title + pause button,Challenge Mode
 Title,title.rest,Between-dungeon headline,On to the next haul.
-Title,title.rest_sub,Between-dungeon subtitle,So you've cleared {n} Dungeons. Better hold on to that loot â€” you'll need it in the next one.
+Title,title.rest_sub,Between-dungeon subtitle,So you've cleared {n} Dungeons. Better hold on to that loot — you'll need it in the next one.
 Title,title.continue,Between-dungeon Continue,Delve Deeper
 Title,title.leave,Between-dungeon Leave,Exit
 Title,title.adventure_win,Adventure victory headline,Victory
@@ -24,17 +24,17 @@ Pause,pause.quit,Escape menu button,Quit
 Pause,pause.start_over,Escape menu label,Start over
 Tutorial,tutorial.speaker,Talk box name,Nib
 Tutorial,tutorial.skip,How to Play skip button,Skip
-Tutorial,tutorial.nudge_wait,Wrong click during How to Play,Hey â€” finish this first.
+Tutorial,tutorial.nudge_wait,Wrong click during How to Play,Hey — finish this first.
 Tutorial,tutorial.nudge_item,Wrong item during How to Play,Wrong shiny.
 Tutorial,tutorial.beat.01.body,How to Play step 1 · continue / (none) · main line,"Hey there, greedy goblin. I'm Nib. I was just in the middle of enjoying my nap when you had to barge into this dungeon and start swiping loot left n' right!
 (Click 'next' to continue)
-Well, now you've gone and done it â€” the monsters are coming to claim their stuff, and you're going to have to defend yourself with that loot or else die in this strange catacomb.
+Well, now you've gone and done it — the monsters are coming to claim their stuff, and you're going to have to defend yourself with that loot or else die in this strange catacomb.
 (Click 'next' to continue)
 (Highlights dungeon wheel)
-Welcome to the Merry Go' Round of doom â€” a series of circular catacombs that rotate around this particular spot. Don't ask me why, the architect of this dungeon doesn't like answering questions.
+Welcome to the Merry Go' Round of doom — a series of circular catacombs that rotate around this particular spot. Don't ask me why, the architect of this dungeon doesn't like answering questions.
 (Click 'next' to continue)
 (Highlights single empty slice of dungeon wheel)
-This is a Corridor â€” there are 8 in total. Monsters will pop into these slots as they line up to clean your clock and take your junk.
+This is a Corridor — there are 8 in total. Monsters will pop into these slots as they line up to clean your clock and take your junk.
 (Click 'next' to continue)
 (Highlights player hotbar)
 This is your loot. Looks like you started off with some basic loot for this tutorial, but you'll find lots of fancy weapons and armor out here.
@@ -49,7 +49,7 @@ Your mission...
 (Click 'Got It' to continue)
 Okay, let me show you how things work a'ROUND these parts.
 (Click 'next' to continue)
-(in very tiny text, in italics parentheses) â€” (y'know, cause of the round dungeon...)
+(in very tiny text, in italics parentheses) — (y'know, cause of the round dungeon...)
 (Click to continue)
 (Highlight the healthbar)
 You have 6 health (HP). You can never have more than 6. If it reaches 0 at any point, you're dead.
@@ -57,11 +57,11 @@ You have 6 health (HP). You can never have more than 6. If it reaches 0 at any p
 When you complete a Dungeon (clear out this wheel), you will heal back to full HP. Spend your HP wisely.
 (Click to continue)
 Alright, that's enough. Let's spin the wheel and learn the rest as we go. Click 'Spin' to randomly choose your first opponent.
-(Click 'Spin' â€” spins the wheel, forcing it to stop on Wizard)
+(Click 'Spin' — spins the wheel, forcing it to stop on Wizard)
 Ahh, a crotchety ol' wizard, eh?
 (Click to continue)
 (Highlights Wizard's Attack icon)
-He looks pretty scary â€” 5 Attack would nearly kill you in one strike.
+He looks pretty scary — 5 Attack would nearly kill you in one strike.
 (Click to continue)
 (Highlights Wizard's HP icon)
 ...but he's also super frail. Most weapons will kill him before he gets to strike.
@@ -77,7 +77,7 @@ Interesting...this Golem is much harder to kill, so you'd usually want to block 
 (Highlights Block icon on the character)
 Block is temporary for the current fight. It goes away whenever you Spin the Dungeon.
 (Click to continue)
-But I've got good news â€” if you Block an enemy, they are also Defeated.
+But I've got good news — if you Block an enemy, they are also Defeated.
 (Click to continue)
 (Nib gets 50% closer to the viewer, 'leaning' in)
 I guess they just...run out of time to kill you, I guess? Not sure, this Dungeon is kinda weird.
@@ -128,7 +128,7 @@ That's a good item...
 ...but are you sure you want to use it?
 (Click to continue)
 (Nib returns)
-So far you've lost zero HP in this dungeon, but remember â€” each time you clear a Dungeon, you heal back to full.
+So far you've lost zero HP in this dungeon, but remember — each time you clear a Dungeon, you heal back to full.
 (Click to continue)
 AND you get to keep all of the Loot that you didn't use in this dungeon. Pretty sweet, huh?
 (Click to continue)
@@ -143,16 +143,16 @@ Honestly, I respect it. Those Goblins are super annoying, so here's a tip:
 If you see one in your upcoming Dungeon, you should always hold onto a Block or Defeat item to avoid that damage.
 (Click to continue)
 You won't always have a Boot, after all.
-(Click to continue â€” joins back with standard dialogue)
+(Click to continue — joins back with standard dialogue)
 ---(If the player chose to 'Take 3')---
-Ouch â€” hurts, doesn't it?
+Ouch — hurts, doesn't it?
 (Click to continue)
 Well the next time that Boot saves you from death in a future Dungeon, you'll be glad you let that little rascal nick you for 3.
 (Click to continue)
 I'm sure you can tell, but I'll give you a tip straight from the source:
 (Click to continue)
-Spend your HP like it was made of gold. Sometimes it will be correct to drop to 1 HP â€” you'll find Items that reward you for losing HP â€” we call that Bleeding.
-(Click to continue â€” joins back with standard dialogue)
+Spend your HP like it was made of gold. Sometimes it will be correct to drop to 1 HP — you'll find Items that reward you for losing HP — we call that Bleeding.
+(Click to continue — joins back with standard dialogue)
 ---JOINS TOGETHER
 Alright, so you survived all 3 Monsters and cleared the Dungeon! At this point you would venture deeper and the following would occur:
 (Click to continue)
@@ -175,7 +175,7 @@ With that, I'm off to finish my nap again. Good luck with your dungeon delve, yo
 (vignette background, only buttons below are 'Main Menu' and 'Play', which goes to adventure mode)"
 Tutorial,tutorial.beat.01.go,How to Play step 1 · continue button,I'm in
 Tutorial,tutorial.beat.01.hint,How to Play step 1 · gold hint,
-Tutorial,tutorial.beat.02.body,How to Play step 2 · continue / wheel · main line,"Round room. Eight alcoves. The floor turns â€” whoever stops in front of you gets a swing. I parked a Golem, a Wizard, and a Berserker. Follow my finger."
+Tutorial,tutorial.beat.02.body,How to Play step 2 · continue / wheel · main line,"Round room. Eight alcoves. The floor turns — whoever stops in front of you gets a swing. I parked a Golem, a Wizard, and a Berserker. Follow my finger."
 Tutorial,tutorial.beat.02.go,How to Play step 2 · continue button,Show me
 Tutorial,tutorial.beat.02.hint,How to Play step 2 · gold hint,
 Tutorial,tutorial.beat.03.body,How to Play step 3 · continue / hearts · main line,Those hearts are your pulse. Zero means they pry the loot off you. One heart left still counts. Pretty leftovers don't.
@@ -184,7 +184,7 @@ Tutorial,tutorial.beat.03.hint,How to Play step 3 · gold hint,
 Tutorial,tutorial.beat.04.body,How to Play step 4 · hover_item / hotbar · main line,Stolen goods sit along the bottom. Hover a card. Hold Shift if you want the ugly math instead of the big number.
 Tutorial,tutorial.beat.04.go,How to Play step 4 · continue button,
 Tutorial,tutorial.beat.04.hint,How to Play step 4 · gold hint,(hover any item)
-Tutorial,tutorial.beat.05.body,How to Play step 5 · continue / item:helmet · main line,Helmet's number breathes with your health â€” ignore it for now. Shield is the soft landing. Flail gets hungrier if you bleed. Boot's the dirty trick. Don't ask how I got it.
+Tutorial,tutorial.beat.05.body,How to Play step 5 · continue / item:helmet · main line,Helmet's number breathes with your health — ignore it for now. Shield is the soft landing. Flail gets hungrier if you bleed. Boot's the dirty trick. Don't ask how I got it.
 Tutorial,tutorial.beat.05.go,How to Play step 5 · continue button,Fine
 Tutorial,tutorial.beat.05.hint,How to Play step 5 · gold hint,
 Tutorial,tutorial.beat.06.body,How to Play step 6 · spin / spin · main line,Hit Spin. I'll cheat the Golem into place. Big. Slow. Hits for three.
@@ -193,28 +193,28 @@ Tutorial,tutorial.beat.06.hint,How to Play step 6 · gold hint,(click Spin)
 Tutorial,tutorial.beat.07.body,How to Play step 7 · item:shield / item:shield · main line,Three coming in. Shield gives four. Tap the Shield before you eat the knuckles.
 Tutorial,tutorial.beat.07.go,How to Play step 7 · continue button,
 Tutorial,tutorial.beat.07.hint,How to Play step 7 · gold hint,(click Shield)
-Tutorial,tutorial.beat.08.body,How to Play step 8 · continue / wheel · main line,"Gold in the middle is Block â€” a pillow for this scrap only. Fight ends, pillow vanishes. Hearts stick around. That's the deal."
+Tutorial,tutorial.beat.08.body,How to Play step 8 · continue / wheel · main line,"Gold in the middle is Block — a pillow for this scrap only. Fight ends, pillow vanishes. Hearts stick around. That's the deal."
 Tutorial,tutorial.beat.08.go,How to Play step 8 · continue button,OK
 Tutorial,tutorial.beat.08.hint,How to Play step 8 · gold hint,
-Tutorial,tutorial.beat.09.body,How to Play step 9 · done / done · main line,"Button says Safe because you covered it. Click it. If a heart had cracked, we'd still walk â€” breathing is the scoreboard."
+Tutorial,tutorial.beat.09.body,How to Play step 9 · done / done · main line,"Button says Safe because you covered it. Click it. If a heart had cracked, we'd still walk — breathing is the scoreboard."
 Tutorial,tutorial.beat.09.go,How to Play step 9 · continue button,
 Tutorial,tutorial.beat.09.hint,How to Play step 9 · gold hint,(click Safe)
-Tutorial,tutorial.beat.10.body,How to Play step 10 · continue / trophy · main line,Pillow's gone. You're not. That skull plaque is your tally â€” Flail's watching it too. Two monsters left who want their stuff.
+Tutorial,tutorial.beat.10.body,How to Play step 10 · continue / trophy · main line,Pillow's gone. You're not. That skull plaque is your tally — Flail's watching it too. Two monsters left who want their stuff.
 Tutorial,tutorial.beat.10.go,How to Play step 10 · continue button,Spin when ready
 Tutorial,tutorial.beat.10.hint,How to Play step 10 · gold hint,
 Tutorial,tutorial.beat.11.body,How to Play step 11 · spin / spin · main line,Spin. Wizard this time. Don't open your mouth for whatever they're cooking.
 Tutorial,tutorial.beat.11.go,How to Play step 11 · continue button,
 Tutorial,tutorial.beat.11.hint,How to Play step 11 · gold hint,(click Spin)
-Tutorial,tutorial.beat.12.body,How to Play step 12 · item:da_boot / item:da_boot · main line,"Five attack, two health. You could pillow up and still get nicked â€” or end it. Click the Boot. Less health than you? Fight's over. They don't get a speech."
+Tutorial,tutorial.beat.12.body,How to Play step 12 · item:da_boot / item:da_boot · main line,"Five attack, two health. You could pillow up and still get nicked — or end it. Click the Boot. Less health than you? Fight's over. They don't get a speech."
 Tutorial,tutorial.beat.12.go,How to Play step 12 · continue button,
 Tutorial,tutorial.beat.12.hint,How to Play step 12 · gold hint,(click the Boot)
-Tutorial,tutorial.beat.13.body,How to Play step 13 · continue / item:helmet · main line,"That's the other door out of a fight: finish the fragile ones. Flail only fattens when you bleed â€” you didn't, so it's still a 2. Helmet pillows the last brat."
+Tutorial,tutorial.beat.13.body,How to Play step 13 · continue / item:helmet · main line,"That's the other door out of a fight: finish the fragile ones. Flail only fattens when you bleed — you didn't, so it's still a 2. Helmet pillows the last brat."
 Tutorial,tutorial.beat.13.go,How to Play step 13 · continue button,Got it
 Tutorial,tutorial.beat.13.hint,How to Play step 13 · gold hint,
 Tutorial,tutorial.beat.14.body,How to Play step 14 · hover_slice:berserker / wheel · main line,Last alcove. Hover them. Monsters brag if you listen. This one gets louder every time you win. Charming.
 Tutorial,tutorial.beat.14.go,How to Play step 14 · continue button,
 Tutorial,tutorial.beat.14.hint,How to Play step 14 · gold hint,(hover the Berserker)
-Tutorial,tutorial.beat.15.body,How to Play step 15 · spin / spin · main line,Spin. Berserker hits three. Helmet matches the smaller health bar â€” yours or theirs.
+Tutorial,tutorial.beat.15.body,How to Play step 15 · spin / spin · main line,Spin. Berserker hits three. Helmet matches the smaller health bar — yours or theirs.
 Tutorial,tutorial.beat.15.go,How to Play step 15 · continue button,
 Tutorial,tutorial.beat.15.hint,How to Play step 15 · gold hint,(click Spin)
 Tutorial,tutorial.beat.16.body,How to Play step 16 · item:helmet / item:helmet · main line,Helmet. Now. Four block into three attack. Do the math with your fingers if you have to.
@@ -223,7 +223,7 @@ Tutorial,tutorial.beat.16.hint,How to Play step 16 · gold hint,(click Helmet)
 Tutorial,tutorial.beat.17.body,How to Play step 17 · done / done · main line,Safe. Pillow dumps. Hearts stay. That's how a thief keeps a pile.
 Tutorial,tutorial.beat.17.go,How to Play step 17 · continue button,
 Tutorial,tutorial.beat.17.hint,How to Play step 17 · gold hint,(click Safe)
-Tutorial,tutorial.beat.18.body,How to Play step 18 · continue / (none) · main line,"You're still breathing. I still want my cut. Quick Start is the real room â€” I don't steer, and eight monsters show up hungry. Try not to scream for me."
+Tutorial,tutorial.beat.18.body,How to Play step 18 · continue / (none) · main line,"You're still breathing. I still want my cut. Quick Start is the real room — I don't steer, and eight monsters show up hungry. Try not to scream for me."
 Tutorial,tutorial.beat.18.go,How to Play step 18 · continue button,I'm good
 Tutorial,tutorial.beat.18.hint,How to Play step 18 · gold hint,
 Door,door.title,Gate chrome top,THE DOOR
@@ -241,7 +241,7 @@ Cues,cue.ask,"Draft choice, passes remaining",Take it or leave it?
 Cues,cue.steal,"Draft choice, no passes left",No passes left
 Cues,cue.seat,"After steal, pick an alcove",A monster approaches. Select their location.
 Cues,cue.filling,Between door packs,More monsters. Less floor.
-Cues,cue.ready,"Wheel full, combat",Spin â€” somebody wants their stuff.
+Cues,cue.ready,"Wheel full, combat",Spin — somebody wants their stuff.
 Cues,cue.fighting,During a fight,"Spend loot, or eat the hit."
 Cues,cue.mark,Poison / Crossbow neighbor pick,Pick a neighbor.
 Cues,cue.devtest,Developer Test (leave unless you want it player-facing),"Click a monster to seat it, an item to add it to your hand. Play when you have at least one monster."
@@ -258,13 +258,13 @@ Inspect,inspect.empty_title,Empty alcove headline,Empty
 Inspect,inspect.empty_place,Empty alcove while seating,Empty alcove
 Inspect,inspect.empty,Empty alcove otherwise,Nobody home. Yet.
 Inspect,inspect.shift,"Monster inspect, Shift hint",hold Shift to explain
-Inspect,inspect.placeholder,Editor inspect fallback,â€”
+Inspect,inspect.placeholder,Editor inspect fallback,—
 Warns,warn.spent,Used item this fight,Already spent this scrap.
-Warns,warn.boot,the Boot cannot fire,"Can't â€” they're as healthy as you, or healthier."
-Warns,warn.neighbor,Bracers / Pocketwatch no neighbor,Can't â€” nobody next door.
-Warns,warn.sledge,Sledgehammer cannot fire,Can't â€” they don't hit hard enough.
-Warns,warn.poison,Poison Flask cannot fire,Can't â€” no neighbor to spike.
-Warns,warn.crossbow,Crossbow cannot fire,Can't â€” no soft neighbor who can take a bolt.
+Warns,warn.boot,the Boot cannot fire,"Can't — they're as healthy as you, or healthier."
+Warns,warn.neighbor,Bracers / Pocketwatch no neighbor,Can't — nobody next door.
+Warns,warn.sledge,Sledgehammer cannot fire,Can't — they don't hit hard enough.
+Warns,warn.poison,Poison Flask cannot fire,Can't — no neighbor to spike.
+Warns,warn.crossbow,Crossbow cannot fire,Can't — no soft neighbor who can take a bolt.
 Taunts,taunt.default.1,Door balloon fallback 1 of 5. {item} = loot name,Hey! That {item} was in MY bag!
 Taunts,taunt.default.2,Door balloon fallback 2 of 5. {item} = loot name,Put the {item} down before I make you.
 Taunts,taunt.default.3,Door balloon fallback 3 of 5. {item} = loot name,You nicked the {item}. I noticed. Bad day for you.
@@ -285,7 +285,7 @@ Taunts,taunt.sai.2,Door balloon after taking sai · line 2 of 5,You grabbed my S
 Taunts,taunt.sai.3,Door balloon after taking sai · line 3 of 5,Pokey thief. Pokey ending.
 Taunts,taunt.sai.4,Door balloon after taking sai · line 4 of 5,Put them down. I asked nice once.
 Taunts,taunt.sai.5,Door balloon after taking sai · line 5 of 5,Fancy steal. Still mine.
-Taunts,taunt.medallion.1,Door balloon after taking medallion · line 1 of 5,My luck charm â€” on YOU?!
+Taunts,taunt.medallion.1,Door balloon after taking medallion · line 1 of 5,My luck charm — on YOU?!
 Taunts,taunt.medallion.2,Door balloon after taking medallion · line 2 of 5,Shiny thief. Short career.
 Taunts,taunt.medallion.3,Door balloon after taking medallion · line 3 of 5,That medallion hums for me. You're noise.
 Taunts,taunt.medallion.4,Door balloon after taking medallion · line 4 of 5,Hand it over. I'll be almost polite.
@@ -295,14 +295,14 @@ Taunts,taunt.helmet.2,Door balloon after taking helmet · line 2 of 5,Cover up. 
 Taunts,taunt.helmet.3,Door balloon after taking helmet · line 3 of 5,You swiped my lid. Bold. Dumb.
 Taunts,taunt.helmet.4,Door balloon after taking helmet · line 4 of 5,That metal's mine. Your thoughts can stay.
 Taunts,taunt.helmet.5,Door balloon after taking helmet · line 5 of 5,Wear it. I'll take the rest separately.
-Taunts,taunt.da_boot.1,Door balloon after taking da_boot · line 1 of 5,MY BOOT â€” give it!
+Taunts,taunt.da_boot.1,Door balloon after taking da_boot · line 1 of 5,MY BOOT — give it!
 Taunts,taunt.da_boot.2,Door balloon after taking da_boot · line 2 of 5,You stole a boot. I stole a seat. Guess who wins.
 Taunts,taunt.da_boot.3,Door balloon after taking da_boot · line 3 of 5,That's my size. Your foot's a suggestion.
 Taunts,taunt.da_boot.4,Door balloon after taking da_boot · line 4 of 5,Boot thief. I'm laughing. Then I'm not.
 Taunts,taunt.da_boot.5,Door balloon after taking da_boot · line 5 of 5,Keep it laced. I reclaim clean.
 Taunts,taunt.grimoire.1,Door balloon after taking grimoire · line 1 of 5,My book! Close it!
 Taunts,taunt.grimoire.2,Door balloon after taking grimoire · line 2 of 5,"Homework's over, thief. Fight's on."
-Taunts,taunt.grimoire.3,Door balloon after taking grimoire · line 3 of 5,Magic pages. Sticky paws. Bad combo â€” for you.
+Taunts,taunt.grimoire.3,Door balloon after taking grimoire · line 3 of 5,Magic pages. Sticky paws. Bad combo — for you.
 Taunts,taunt.grimoire.4,Door balloon after taking grimoire · line 4 of 5,Don't crease it. I'll still fold you.
 Taunts,taunt.grimoire.5,Door balloon after taking grimoire · line 5 of 5,That grimoire called me. You just grabbed.
 Taunts,taunt.bloody_gauntlets.1,Door balloon after taking bloody_gauntlets · line 1 of 5,Those gloves were already my color!
@@ -310,7 +310,7 @@ Taunts,taunt.bloody_gauntlets.2,Door balloon after taking bloody_gauntlets · li
 Taunts,taunt.bloody_gauntlets.3,Door balloon after taking bloody_gauntlets · line 3 of 5,Red looks busy on you. It'll look better elsewhere.
 Taunts,taunt.bloody_gauntlets.4,Door balloon after taking bloody_gauntlets · line 4 of 5,Sticky red fingers. Adorable. Temporary.
 Taunts,taunt.bloody_gauntlets.5,Door balloon after taking bloody_gauntlets · line 5 of 5,Gauntlets: mine. Blood: negotiable.
-Taunts,taunt.breastplate.1,Door balloon after taking breastplate · line 1 of 5,My plate â€” on a pest?!
+Taunts,taunt.breastplate.1,Door balloon after taking breastplate · line 1 of 5,My plate — on a pest?!
 Taunts,taunt.breastplate.2,Door balloon after taking breastplate · line 2 of 5,I'll dent it. Then I'll keep it.
 Taunts,taunt.breastplate.3,Door balloon after taking breastplate · line 3 of 5,Tin thief. Ribs can commute.
 Taunts,taunt.breastplate.4,Door balloon after taking breastplate · line 4 of 5,Armor stolen. Teeth not.
@@ -321,11 +321,11 @@ Taunts,taunt.bracers.3,Door balloon after taking bracers · line 3 of 5,You grab
 Taunts,taunt.bracers.4,Door balloon after taking bracers · line 4 of 5,Cute armor. Wrong monster now.
 Taunts,taunt.bracers.5,Door balloon after taking bracers · line 5 of 5,Leave them on. Better portrait when I reclaim.
 Taunts,taunt.smoke_bomb.1,Door balloon after taking smoke_bomb · line 1 of 5,My smoke?! Hiding already?
-Taunts,taunt.smoke_bomb.2,Door balloon after taking smoke_bomb · line 2 of 5,Puff. Me. You â€” briefly.
+Taunts,taunt.smoke_bomb.2,Door balloon after taking smoke_bomb · line 2 of 5,Puff. Me. You — briefly.
 Taunts,taunt.smoke_bomb.3,Door balloon after taking smoke_bomb · line 3 of 5,You stole my exit. Cute. Cancelled.
 Taunts,taunt.smoke_bomb.4,Door balloon after taking smoke_bomb · line 4 of 5,I live in the dark. Your trick's a candle.
 Taunts,taunt.smoke_bomb.5,Door balloon after taking smoke_bomb · line 5 of 5,Take the bomb. I'll find the smell.
-Taunts,taunt.knucklers.1,Door balloon after taking knucklers · line 1 of 5,My brass â€” on YOUR fists?!
+Taunts,taunt.knucklers.1,Door balloon after taking knucklers · line 1 of 5,My brass — on YOUR fists?!
 Taunts,taunt.knucklers.2,Door balloon after taking knucklers · line 2 of 5,You want to punch me with my knuckles. Precious.
 Taunts,taunt.knucklers.3,Door balloon after taking knucklers · line 3 of 5,Those are mine. Your plan is napkin math.
 Taunts,taunt.knucklers.4,Door balloon after taking knucklers · line 4 of 5,Packed for a brawl with stolen gear. Rude.
@@ -335,7 +335,7 @@ Taunts,taunt.fangs.2,Door balloon after taking fangs · line 2 of 5,Teeth thief 
 Taunts,taunt.fangs.3,Door balloon after taking fangs · line 3 of 5,Those fangs are extras. I want them back.
 Taunts,taunt.fangs.4,Door balloon after taking fangs · line 4 of 5,Bite toys. Guess the target.
 Taunts,taunt.fangs.5,Door balloon after taking fangs · line 5 of 5,Hold them ready. Matching pair incoming.
-Taunts,taunt.poison_flask.1,Door balloon after taking poison_flask · line 1 of 5,My green vintage â€” spit it!
+Taunts,taunt.poison_flask.1,Door balloon after taking poison_flask · line 1 of 5,My green vintage — spit it!
 Taunts,taunt.poison_flask.2,Door balloon after taking poison_flask · line 2 of 5,Poison thief. You first.
 Taunts,taunt.poison_flask.3,Door balloon after taking poison_flask · line 3 of 5,Don't spill. I want every drop home.
 Taunts,taunt.poison_flask.4,Door balloon after taking poison_flask · line 4 of 5,You packed my flask. I packed appetite.
@@ -360,7 +360,7 @@ Taunts,taunt.sledgehammer.2,Door balloon after taking sledgehammer · line 2 of 
 Taunts,taunt.sledgehammer.3,Door balloon after taking sledgehammer · line 3 of 5,You dragged my sledge into my nest. Fun. Fatal.
 Taunts,taunt.sledgehammer.4,Door balloon after taking sledgehammer · line 4 of 5,Wall can keep the hole. Hammer comes home.
 Taunts,taunt.sledgehammer.5,Door balloon after taking sledgehammer · line 5 of 5,I'll take it. Keep the headache.
-Taunts,taunt.pocketwatch.1,Door balloon after taking pocketwatch · line 1 of 5,My watch! Time's up â€” not poetry.
+Taunts,taunt.pocketwatch.1,Door balloon after taking pocketwatch · line 1 of 5,My watch! Time's up — not poetry.
 Taunts,taunt.pocketwatch.2,Door balloon after taking pocketwatch · line 2 of 5,Tick. That's me walking. Tock. That's you not.
 Taunts,taunt.pocketwatch.3,Door balloon after taking pocketwatch · line 3 of 5,Nice steal. Time of death: pending.
 Taunts,taunt.pocketwatch.4,Door balloon after taking pocketwatch · line 4 of 5,You grabbed a clock. I grabbed a seat.
