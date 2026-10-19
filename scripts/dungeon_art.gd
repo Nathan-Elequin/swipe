@@ -137,6 +137,9 @@ const ITEM_PNG := {
 	"polymorph": "res://assets/dungeon/items/polymorph.png",
 	"stone_wall": "res://assets/dungeon/items/stone_wall.png",
 	"blood_chalice": "res://assets/dungeon/items/blood_chalice.png",
+	"chakram": "res://assets/dungeon/items/chakram.png",
+	"signpost": "res://assets/dungeon/items/signpost.png",
+	"sling": "res://assets/dungeon/items/sling.png",
 }
 
 const MONSTER_PNG := {
@@ -195,6 +198,7 @@ const MONSTER_PNG := {
 	"fairy": "res://assets/dungeon/extra/fairy.png",
 	"eel": "res://assets/dungeon/extra/eel.png",
 	"druid": "res://assets/dungeon/extra/druid.png",
+	"mouse": "res://assets/dungeon/extra/mouse.png",
 }
 
 var atlas: Texture2D
