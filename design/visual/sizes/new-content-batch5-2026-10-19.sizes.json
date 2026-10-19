@@ -1,0 +1,49 @@
+{
+ "notes": "New content batch 5 2026-10-19 (Pixel). 16x16 native, stored 4x.",
+ "assets": [
+  {
+   "path": "assets/dungeon/items/chakram.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/signpost.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/items/sling.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  },
+  {
+   "path": "assets/dungeon/extra/mouse.png",
+   "native": [
+    16,
+    16
+   ],
+   "shipped": [
+    64,
+    64
+   ]
+  }
+ ]
+}
