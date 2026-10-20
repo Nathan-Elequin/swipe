@@ -25,5 +25,10 @@ If `design/handoff/<task-id>/TASK.md` exists for this run, read it before editin
 - No new dependencies, no paid or non-CC0 assets, no save-format changes, no merges, no pushes.
 - Never commit to `cabin-overhaul-1` directly; work only in the task worktree.
 
+## New card art
+- A catalog entry that needs new art (`flags.art` false, or notes say it needs unique art): after saving the catalog, run `tools\request_art.cmd <id> [<id> ...]` once per batch. `art ping not configured` is fine; carry on.
+- Keep the placeholder. Do not draw PNGs. Do not add those ids to `ITEM_PNG` / `MONSTER_PNG` in `scripts/dungeon_art.gd`. Pixel draws and wires them.
+- When the batch is done, commit it (data, scripts, docs) so Pixel can wire art without clashing.
+
 ## Done
 Commit each step as `<task-id>(n): …`. Run the named shots (`-- --shots=`) and the text and layout audits; one Godot process at a time. Write `REPORT.md`: status, checkpoint, commits, files, shots, audit summary, deviations, questions, what Nathan should look at. Do not grade "looks like the mockup".

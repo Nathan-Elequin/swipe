@@ -45,7 +45,7 @@ If he omits tier, pick it after you know the bucket (see mix, below).
 
 ## Field map
 
-1. **Name** → `name`. Optional `(image …)` on the same line. Empty or missing parens: intuit what the sprite must show, then `## ART-REQUEST` (`unique-art.mdc`). Do not draw or replace PNG bytes.
+1. **Name** → `name`. Optional `(image …)` on the same line. Empty or missing parens: intuit what the sprite must show, then `## ART-REQUEST` (`unique-art.mdc`) and `tools\request_art.cmd <id>`. Do not draw or replace PNG bytes.
 2. **Monster `4/4`** → `4` HP, `4` ATK (`hp.base` then `atk.base`). Not ATK/HP.
 3. **Ability Name** (monsters) → `call_name`.
 4. **Ability** → `ability`. His words. Callout and speech bubble for monsters. Strip `|` markers; the player sees the word, not the pipes.
