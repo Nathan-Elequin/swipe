@@ -20,6 +20,7 @@ const STONE_DEEP := Color("1c1814")
 const RING := Color("c4a574")
 const HUB := Color("100e0c")
 const HUB_FRAC := 0.34
+const HUB_HERO_EDGE := 56.0
 const FACE_RIM := Color("e8c36a")
 const PLACE_RIM := Color("8dcb8d")
 const BRIBE_RIM := Color("d19a66")
@@ -409,9 +410,12 @@ func _heart_arc_layout() -> Dictionary:
 	var c: Vector2 = _center()
 	var hub_r: float = _radius() * HUB_FRAC
 	var n: int = maxi(hub_hp_max, 1)
-	var hs: float = clampf(hub_r * 0.20, 16.0, 26.0)
-	var r: float = maxf(hub_r - hs * 0.55 - 3.0, hs)
+	var hs: float = clampf(hub_r * 0.25, 20.0, 32.0)
+	var r_arc_inner: float = hub_r - 1.3
+	var r: float = maxf((r_arc_inner + HUB_HERO_EDGE) * 0.5, HUB_HERO_EDGE + hs * 0.5)
 	var span: float = deg_to_rad(112.0)
+	if n > 1:
+		hs = minf(hs, 2.0 * r * sin(span / float(n - 1) * 0.5) * 0.9)
 	var a0: float = -PI * 0.5 - span * 0.5
 	var pts: Array = []
 	for i in n:
@@ -459,7 +463,7 @@ func _draw_hub_heart_arc(dim: float) -> void:
 		elif live and hub_poison > 0 and i >= maxi(0, hub_hp - hub_poison) and i < hub_hp:
 			tint = Color("6ebd6e", dim)
 		elif not live:
-			tint = Color(1, 1, 1, 0.18 * dim)
+			tint = Color(1, 1, 1, 0.9 * dim)
 		_draw_hub_pip(pts[i], sz, live, soon, tint)
 
 

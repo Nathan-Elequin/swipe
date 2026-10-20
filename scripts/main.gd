@@ -3638,6 +3638,8 @@ func _challenge_refill_or_collapse(index: int) -> void:
 		return
 	if not challenge_deck.is_empty():
 		if dungeon_deck_ui:
+			if wheel_view:
+				dungeon_deck_ui.entry_global = wheel_view.slice_portrait_global(index)
 			await dungeon_deck_ui.play_draw()
 		var raw: Variant = challenge_deck.pop_front()
 		var nid: String = _deck_card_id(raw)
@@ -15370,7 +15372,6 @@ func _sync_challenge_peek() -> void:
 	var tex: Texture2D = null
 	if art != null:
 		tex = art.monster_still(nid)
-	dungeon_deck_ui.set_peek(tex, nm)
 	if str(_peek_slice.get("card_id", "")) != nid:
 		if monsters_by_id.has(nid):
 			_peek_slice = _make_monster(nid)
@@ -15379,6 +15380,7 @@ func _sync_challenge_peek() -> void:
 			_peek_slice = {}
 	elif not _peek_slice.is_empty():
 		_apply_formulas_to(_peek_slice)
+	dungeon_deck_ui.set_peek(tex, nm, 0 if _peek_slice.is_empty() else _tier_of(_peek_slice))
 	if _deck_hovering:
 		_fill_inspect_from_deck()
 
