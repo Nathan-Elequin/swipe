@@ -2857,7 +2857,7 @@
 			"count": 1.0,
 			"explainer": "(HEAL 1 on exact-2 loss) Use: Lose 2",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -2914,7 +2914,7 @@
 			"count": 1.0,
 			"explainer": "Eject them. Draw 1.",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -2971,7 +2971,7 @@
 			"count": 1.0,
 			"explainer": "Copy a Neighbor onto the enemy you face.",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -3028,7 +3028,7 @@
 			"count": 1.0,
 			"explainer": "(BLK 10) leftover stays for the next fight",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -3086,7 +3086,7 @@
 			"count": 1.0,
 			"explainer": "(HEAL = last HP lost)",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -3143,7 +3143,7 @@
 			"count": 1.0,
 			"explainer": "(BLK 3 if no Block Items)  (ATK 3 if no Attack Items)",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -3202,7 +3202,7 @@
 			"count": 1.0,
 			"explainer": "(BLK 7) then a Neighbor Attacks you",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -5551,7 +5551,7 @@
 			"count": 1.0,
 			"explainer": "3 HP: Defeated. Else Defeat: −2 HP and Flee",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -6196,7 +6196,7 @@
 			"count": 1.0,
 			"explainer": "Facing: takes Attack = Block you Gain",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -6301,7 +6301,7 @@
 			"count": 2.0,
 			"explainer": "On Spin: if your HP is higher, I lose 2 HP and Flee",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},

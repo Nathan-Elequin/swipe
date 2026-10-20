@@ -87,7 +87,7 @@
 			"exceptions": "",
 			"explainer": "(3) or (1 and Keep)",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -528,7 +528,7 @@
 			"exceptions": "",
 			"explainer": "(BLK 2) Keep if Bleed",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -632,7 +632,7 @@
 			"exceptions": "",
 			"explainer": "Spin + 1 Item",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -791,7 +791,7 @@
 			"exceptions": "",
 			"explainer": "Neighbor −5 HP on Spin",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -991,7 +991,7 @@
 			"exceptions": "",
 			"explainer": "Lethal → Heal 3",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -1039,7 +1039,7 @@
 			"exceptions": "",
 			"explainer": "(ATK 4) Neighbor",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -1145,7 +1145,7 @@
 			"exceptions": "Final enemy: unusable.",
 			"explainer": "Pick → their ATK hits yours",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -2182,7 +2182,7 @@
 			"exceptions": "Final enemy: unusable.",
 			"explainer": "(Left Neighbor ATK)",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -2991,7 +2991,7 @@
 			"exceptions": "Needs art.",
 			"explainer": "(HEAL 1 on exact-2 loss) Use: Lose 2",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -3045,7 +3045,7 @@
 			"exceptions": "Challenge only. Needs art.",
 			"explainer": "Eject them. Draw 1.",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -3099,7 +3099,7 @@
 			"exceptions": "Spell scroll depicting a fluffy sheep. Needs art.",
 			"explainer": "Copy a Neighbor onto the enemy you face.",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -3153,7 +3153,7 @@
 			"exceptions": "Needs art.",
 			"explainer": "(BLK 10) leftover stays for the next fight",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -3208,7 +3208,7 @@
 			"exceptions": "Needs art.",
 			"explainer": "(HEAL = last HP lost)",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -3262,7 +3262,7 @@
 			"exceptions": "Tier 2. Circular throwing blade. Needs unique art at assets/dungeon/items/chakram.png.",
 			"explainer": "(BLK 3 if no Block Items)  (ATK 3 if no Attack Items)",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -3318,7 +3318,7 @@
 			"exceptions": "Tier 1. Wooden road sign. Paper Fight before ops.",
 			"explainer": "(BLK 7) then a Neighbor Attacks you",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -3373,7 +3373,7 @@
 			"exceptions": "Tier 1. Leather sling. Bucket 6 (after Bag of Marbles). Paper Fight before ops.",
 			"explainer": "Next Attack this fight can target Any monster.",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -4271,7 +4271,7 @@
 			"exceptions": "",
 			"explainer": "Lowest HP Monster +1 until tied with another",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -4386,7 +4386,7 @@
 			"exceptions": "",
 			"explainer": "Item if I never swing",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -4493,7 +4493,7 @@
 			"exceptions": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer.",
 			"explainer": "Attack equals HP",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -4548,7 +4548,7 @@
 			"exceptions": "",
 			"explainer": "Spider Egg: an Item that on use deals you 2 Atk, or is devoured by the Queen to give her +2 HP and +2 ATK",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -4667,7 +4667,7 @@
 			"exceptions": "",
 			"explainer": "ignores Block",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -4723,7 +4723,7 @@
 			"exceptions": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
 			"explainer": "2 Thorns",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -5977,7 +5977,7 @@
 			"exceptions": "Bucket 5. New Triclops. Needs new art. 3-Seeker keeps Triple Threat.",
 			"explainer": "3 HP: Defeated. Else Defeat: −2 HP and Flee",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -6499,7 +6499,7 @@
 			"exceptions": "Bucket 6. Plasmoid science experiment, distinct from Gelatinous Cube. Needs art.",
 			"explainer": "Each Use: remaining HP and ATK ×2",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -6557,7 +6557,7 @@
 			"exceptions": "Bucket 3. Needs art.",
 			"explainer": "On Spin: Heal you and Neighbors 2",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -6615,7 +6615,7 @@
 			"exceptions": "Tier 1. No numbered bucket named. Needs art.",
 			"explainer": "Facing: takes Attack = Block you Gain",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -6673,7 +6673,7 @@
 			"exceptions": "Bucket 3. Needs art.",
 			"explainer": "Attack: Heal you 2× HP lost, after death check",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -6730,7 +6730,7 @@
 			"exceptions": "Tier 1. Small mouse. Paper Fight before special.",
 			"explainer": "On Spin: if your HP is higher, I lose 2 HP and Flee",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
