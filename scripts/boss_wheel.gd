@@ -128,6 +128,7 @@ var tex_player: Array = []
 var hub_hp: int = 6
 var hub_hp_max: int = 6
 var hub_hp_ghost: int = -1
+var hub_poison: int = 0
 var threat_t: float = 0.0:
 	set(v):
 		threat_t = v
@@ -401,7 +402,65 @@ func _badge_rect_from_c(which: String) -> Rect2:
 		return Rect2(float(a[0]), float(a[1]), float(a[2]), float(a[3]))
 	if which == "hp":
 		return Rect2(-64, 24, 44, 40)
-	return Rect2(38, 21, 44, 48)
+	return Rect2(-22, 52, 44, 48)
+
+
+func _heart_arc_layout() -> Dictionary:
+	var c: Vector2 = _center()
+	var hub_r: float = _radius() * HUB_FRAC
+	var n: int = maxi(hub_hp_max, 1)
+	var hs: float = clampf(hub_r * 0.20, 16.0, 26.0)
+	var r: float = maxf(hub_r - hs * 0.55 - 3.0, hs)
+	var span: float = deg_to_rad(112.0)
+	var a0: float = -PI * 0.5 - span * 0.5
+	var pts: Array = []
+	for i in n:
+		var t: float = 0.5 if n <= 1 else float(i) / float(n - 1)
+		var a: float = a0 + span * t
+		pts.append(c + Vector2.from_angle(a) * r)
+	return {"pts": pts, "hs": hs, "c": c, "r": r}
+
+
+func _heart_arc_global_rect() -> Rect2:
+	var laid: Dictionary = _heart_arc_layout()
+	var pts: Array = laid.get("pts", [])
+	var hs: float = float(laid.get("hs", 20.0))
+	if pts.is_empty():
+		return Rect2()
+	var pad: float = hs * 0.6
+	var tl: Vector2 = pts[0]
+	var br: Vector2 = pts[0]
+	for p in pts:
+		tl = Vector2(minf(tl.x, p.x), minf(tl.y, p.y))
+		br = Vector2(maxf(br.x, p.x), maxf(br.y, p.y))
+	var local := Rect2(tl - Vector2(pad, pad), (br - tl) + Vector2(pad, pad) * 2.0)
+	return _xform_rect(local)
+
+
+func _draw_hub_heart_arc(dim: float) -> void:
+	var laid: Dictionary = _heart_arc_layout()
+	var pts: Array = laid.get("pts", [])
+	var hs: float = float(laid.get("hs", 20.0))
+	var n: int = pts.size()
+	var punch: bool = hub_hp_flash > 0.12 or _hp_punch_t > 0.0
+	var sz := Vector2(hs, hs)
+	if punch:
+		sz *= 1.12
+	for i in n:
+		var live: bool = i < hub_hp
+		var soon: bool = hub_hp_ghost >= 0 and i >= hub_hp_ghost and i < hub_hp
+		if hub_poison > 0:
+			var from_p: int = maxi(0, hub_hp - hub_poison)
+			if i >= from_p and i < hub_hp:
+				soon = true
+		var tint := Color(1, 1, 1, dim)
+		if live and hub_hp_ghost >= 0 and i >= hub_hp_ghost and i < hub_hp:
+			tint = Color("e07a7a", dim)
+		elif live and hub_poison > 0 and i >= maxi(0, hub_hp - hub_poison) and i < hub_hp:
+			tint = Color("6ebd6e", dim)
+		elif not live:
+			tint = Color(1, 1, 1, 0.18 * dim)
+		_draw_hub_pip(pts[i], sz, live, soon, tint)
 
 
 func _ready() -> void:
@@ -439,6 +498,10 @@ func set_player(frames: Array) -> void:
 func set_hub_hearts(full: Texture2D, empty: Texture2D) -> void:
 	tex_heart_full = full
 	tex_heart_empty = empty
+	if ResourceLoader.exists("res://assets/ui/hub/heart_full.png"):
+		tex_heart_full = load("res://assets/ui/hub/heart_full.png") as Texture2D
+	if ResourceLoader.exists("res://assets/ui/hub/heart_empty.png"):
+		tex_heart_empty = load("res://assets/ui/hub/heart_empty.png") as Texture2D
 	queue_redraw()
 
 
@@ -792,7 +855,7 @@ func _play_threat() -> void:
 
 
 func _radius() -> float:
-	return minf(size.x, size.y) * 0.46
+	return minf(size.x, size.y) * 0.48
 
 
 func _process(delta: float) -> void:
@@ -1043,15 +1106,19 @@ func atk_global(i: int) -> Vector2:
 
 
 func hub_hearts_global() -> Vector2:
-	var c: Vector2 = _center()
-	var hub_r: float = _radius() * HUB_FRAC
-	return get_global_transform() * (c + Vector2(-22.0, hub_r * 0.42))
+	var laid: Dictionary = _heart_arc_layout()
+	var pts: Array = laid.get("pts", [])
+	if pts.is_empty():
+		return get_global_transform() * _center()
+	var mid: int = int(pts.size() / 2)
+	return get_global_transform() * pts[mid]
 
 
 func hub_blk_global() -> Vector2:
 	var c: Vector2 = _center()
-	var hub_r: float = _radius() * HUB_FRAC
-	return get_global_transform() * (c + Vector2(24.0, hub_r * 0.42))
+	var local: Rect2 = _badge_rect_from_c("blk")
+	var vis: Vector2 = _badge_xy("blk", "visual_centre_from_c", local.position + local.size * 0.5)
+	return get_global_transform() * (c + vis)
 
 
 func punch_hp(index: int) -> void:
@@ -1118,11 +1185,12 @@ func _hp_pos(i: int) -> Vector2:
 
 func focus_rect(kind: String) -> Rect2:
 	var c: Vector2 = _center()
-	var hub_r: float = _radius() * HUB_FRAC
 	if kind == "hub_hp":
-		return _global_badge(c + Vector2(-22.0, hub_r * 0.42), 36.0)
+		return _heart_arc_global_rect()
 	if kind == "hub_blk":
-		return _global_badge(c + Vector2(24.0, hub_r * 0.42), 36.0)
+		var local: Rect2 = _badge_rect_from_c("blk")
+		var vis: Vector2 = _badge_xy("blk", "visual_centre_from_c", local.position + local.size * 0.5)
+		return _global_badge(c + vis, maxf(local.size.x, local.size.y) * 0.55)
 	if kind == "atk" and facing_index >= 0:
 		return _global_badge(_atk_pos(facing_index), 34.0)
 	if kind == "hp" and facing_index >= 0:
@@ -1463,12 +1531,18 @@ func _plate_pts(center: Vector2, rad: float, tier: int) -> PackedVector2Array:
 
 func _draw_tier_plate(center: Vector2, rad: float, s: Dictionary) -> void:
 	var t: int = _plate_tier(s)
-	var fill := Color("241610")
+	var fill: Color = UxStyle.metal_well(t)
+	var rim: Color = UxStyle.metal(t)
+	var w: float = 2.2
 	if t == 2:
-		fill = Color("161018")
+		w = 2.6
 	elif t >= 3:
-		fill = Color("100308")
-	_fill_poly(_plate_pts(center, rad, t), fill)
+		w = 3.0
+	if draft_glow:
+		var pulse: float = 0.50 + 0.50 * absf(sin(_glow_t * 3.0 + float(t) * 0.7))
+		rim = rim.lerp(rim.lightened(0.55), pulse * 0.75)
+		w += pulse * (2.4 if t >= 3 else 1.6)
+	UxStyle.draw_squircle(self, center, rad, t, fill, rim, w)
 
 
 func _fill_poly(pts: PackedVector2Array, col: Color) -> void:
@@ -1487,26 +1561,8 @@ func _draw_tier_num(_font: Font, _pos: Vector2, _s: Dictionary, _is_face: bool, 
 	pass
 
 
-func _draw_tier_rim(center: Vector2, rad: float, s: Dictionary) -> void:
-	var t: int = _plate_tier(s)
-	var col := Color("c08050")
-	var w: float = 2.2
-	if t == 2:
-		col = Color("c5cdd8")
-		w = 2.6
-	elif t >= 3:
-		col = Color("e8c36a")
-		w = 3.0
-	if draft_glow:
-		var pulse: float = 0.50 + 0.50 * absf(sin(_glow_t * 3.0 + float(t) * 0.7))
-		col = col.lerp(col.lightened(0.55), pulse * 0.75)
-		w += pulse * (2.4 if t >= 3 else 1.6)
-	if t >= 2:
-		var pts: PackedVector2Array = _plate_pts(center, rad, t)
-		pts.append(pts[0])
-		draw_polyline(pts, col, w, true)
-	else:
-		draw_arc(center, rad, 0.0, TAU, 28, col, w, true)
+func _draw_tier_rim(_center: Vector2, _rad: float, _s: Dictionary) -> void:
+	pass
 
 
 func _draw_portrait_window(center: Vector2, rad: float, s: Dictionary, tex: Texture2D, face_ang: float, dim: float = 1.0) -> void:
@@ -1687,8 +1743,6 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 			shift_s = str(s.get("ability", "")).strip_edges()
 		if shift_s != "":
 			call_s = shift_s
-	if crowded and not is_face and not is_hover:
-		call_s = ""
 	if bool(s.get("fled_once", false)) and str(s.get("card_id", "")) == "commander" and call_s != "":
 		call_s = "%s · used" % call_s
 	if name_s == "":
@@ -2037,12 +2091,12 @@ func _draw_hub_block(c: Vector2, _radius: float) -> void:
 	if font == null:
 		font = ThemeDB.fallback_font
 	var dim: float = 0.35 if hub_death_dim else 1.0
-	_draw_hp_badge(c, font, dim)
+	_draw_hub_heart_arc(dim)
 	_draw_blk_badge(c, font, dim)
 	if hub_sting > 0.02:
 		var ink: Color = Color("e07a7a") if hub_sting_kind == "hurt" else Color("5aa8e8")
 		ink.a = hub_sting * 0.9
-		var origin: Vector2 = c + (Vector2(0, 8) if hub_sting_kind == "hurt" else Vector2(60, 40))
+		var origin: Vector2 = c + (Vector2(0, 8) if hub_sting_kind == "hurt" else _badge_xy("blk", "visual_centre_from_c", Vector2(0, 71)))
 		var burst: float = lerpf(22.0, 10.0, hub_sting)
 		draw_arc(origin, burst * 0.55, 0.0, TAU, 18, Color(ink.r, ink.g, ink.b, hub_sting * 0.45), 2.0, true)
 		for i in 6:
@@ -2126,7 +2180,7 @@ func _draw_blk_badge(c: Vector2, font: Font, dim: float) -> void:
 	_draw_badge_tex(c, "blk", _blk_badge_stem(), _blk_punch_t > 0.0, dim)
 	var shown: int = hub_ghost if hub_ghost >= 0 else hub_blk
 	var txt: String = str(maxi(shown, 0))
-	var anchor: Vector2 = c + _badge_xy("blk", "number_anchor_from_c", Vector2(60, 41))
+	var anchor: Vector2 = c + _badge_xy("blk", "number_anchor_from_c", Vector2(0, 72))
 	var ncol := Color("f0e6d8")
 	ncol.a = dim
 	_draw_bold_num(font, anchor, txt, 18, ncol)
@@ -2136,13 +2190,13 @@ func _draw_blk_badge(c: Vector2, font: Font, dim: float) -> void:
 		draw_string(font, anchor + Vector2(-osz.x * 0.5, 8.0 - (1.0 - _hub_old_t) * 16.0), _hub_old, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, oc)
 	if _pierce_float_t >= 0.0:
 		var t: float = clampf(_pierce_float_t / 0.7, 0.0, 1.0)
-		var from_c: Vector2 = _badge_xy("blk", "from_c", Vector2(60, 16))
+		var from_c: Vector2 = _badge_xy("blk", "from_c", Vector2(0, 48))
 		var pierce: Dictionary = _hero_layout.get("badges", {}).get("pierce_text", {}) if typeof(_hero_layout.get("badges", {})) == TYPE_DICTIONARY else {}
-		var from_a: Variant = pierce.get("from_c", [60, 16])
-		var to_a: Variant = pierce.get("to_c", [60, 2])
+		var from_a: Variant = pierce.get("from_c", [0, 48])
+		var to_a: Variant = pierce.get("to_c", [0, 34])
 		if typeof(from_a) == TYPE_ARRAY and (from_a as Array).size() >= 2:
 			from_c = Vector2(float(from_a[0]), float(from_a[1]))
-		var to_c := Vector2(60, 2)
+		var to_c := Vector2(0, 34)
 		if typeof(to_a) == TYPE_ARRAY and (to_a as Array).size() >= 2:
 			to_c = Vector2(float(to_a[0]), float(to_a[1]))
 		var pos: Vector2 = c + from_c.lerp(to_c, t)
@@ -2172,7 +2226,7 @@ func _draw_heart_shape(pos: Vector2, hs: float, fill: Color, outline: Color) -> 
 	draw_circle(pos + Vector2(-hs * 0.16, -hs * 0.10), hs * 0.11, fill.lightened(0.28))
 
 
-func _draw_hub_pip(pos: Vector2, sz: Vector2, live: bool, soon: bool) -> void:
+func _draw_hub_pip(pos: Vector2, sz: Vector2, live: bool, soon: bool, tint: Color = Color.WHITE) -> void:
 	var pulse: float = 0.55 + 0.45 * sin(_glow_t * 14.0)
 	var draw_sz: Vector2 = sz
 	if soon:
@@ -2181,11 +2235,9 @@ func _draw_hub_pip(pos: Vector2, sz: Vector2, live: bool, soon: bool) -> void:
 	if soon and pulse > 0.55:
 		tex = tex_heart_empty
 	if tex != null:
-		var col := Color.WHITE
+		var col: Color = tint
 		if soon:
-			col = Color.WHITE.lerp(Color("f0e6d8"), pulse)
-		elif not live:
-			col = Color(1, 1, 1, 0.92)
+			col = tint.lerp(Color("f0e6d8"), pulse * 0.35)
 		draw_texture_rect(tex, Rect2(pos - draw_sz * 0.5, draw_sz), false, col)
 		return
 	var hcol := HP_FILL if live else Color(0.28, 0.18, 0.16, 0.9)

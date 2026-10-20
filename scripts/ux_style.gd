@@ -184,6 +184,55 @@ static func round_plate(center: Vector2, rad: float) -> PackedVector2Array:
 	return pts
 
 
+const SQUIRCLE_PNG := {
+	1: "res://assets/ui/wheel/squircle_t1.png",
+	2: "res://assets/ui/wheel/squircle_t2.png",
+	3: "res://assets/ui/wheel/squircle_t3.png",
+}
+const INSPECT_SQUIRCLE_PNG := {
+	1: "res://assets/ui/inspect/squircle_t1.png",
+	2: "res://assets/ui/inspect/squircle_t2.png",
+	3: "res://assets/ui/inspect/squircle_t3.png",
+}
+static var _squircle_tex: Dictionary = {}
+static var _inspect_squircle_tex: Dictionary = {}
+
+
+static func squircle_tex(tier: int, inspect: bool = false) -> Texture2D:
+	var t: int = clampi(tier, 1, 3)
+	var cache: Dictionary = _inspect_squircle_tex if inspect else _squircle_tex
+	if cache.has(t):
+		return cache[t]
+	var table: Dictionary = INSPECT_SQUIRCLE_PNG if inspect else SQUIRCLE_PNG
+	var path: String = str(table.get(t, ""))
+	var tex: Texture2D = null
+	if path != "" and ResourceLoader.exists(path):
+		tex = load(path) as Texture2D
+	if tex == null and inspect:
+		tex = squircle_tex(t, false)
+	cache[t] = tex
+	return tex
+
+
+## Code stand-in until Pixel's squircle PNGs land. Uses today's metals; Pixel picks brown / blue / deep red.
+static func draw_squircle(ci: CanvasItem, center: Vector2, rad: float, tier: int, fill: Color, rim: Color, rim_w: float, inspect: bool = false) -> void:
+	if ci == null or rad < 2.0:
+		return
+	var tex: Texture2D = squircle_tex(tier, inspect)
+	if tex != null:
+		var hh: float = rad * 0.92
+		var box := Rect2(center - Vector2(rad, hh), Vector2(rad * 2.0, hh * 2.0))
+		ci.draw_texture_rect(tex, box, false)
+		return
+	var pts: PackedVector2Array = round_plate(center, rad)
+	if pts.size() < 3:
+		return
+	ci.draw_colored_polygon(pts, fill)
+	var loop: PackedVector2Array = pts.duplicate()
+	loop.append(pts[0])
+	ci.draw_polyline(loop, rim, rim_w, true)
+
+
 const CALL_ATK := Color("e07040")
 const CALL_HP := Color("e8a0a0")
 const CALL_VAR := Color("c9a0ff")

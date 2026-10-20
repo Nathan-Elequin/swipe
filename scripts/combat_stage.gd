@@ -384,18 +384,15 @@ class FxLayer extends Control:
 
 
 func _frame() -> void:
-	var gold := Color("c4a574")
+	var metal: Color = _tier_col()
 	if log_glow:
-		gold = Color("fff0c0")
+		metal = Color("fff0c0")
 		draw_rect(Rect2(Vector2(0, 0), size), Color(1.0, 0.94, 0.75, 0.22 + 0.18 * absf(sin(_bob * 8.0))), false, 6.0)
-	draw_rect(Rect2(Vector2(4, 4), size - Vector2(8, 8)), gold, false, 3.0)
-	draw_rect(Rect2(Vector2(9, 9), size - Vector2(18, 18)), Color("e8c36a") if not log_glow else Color("fff8d8"), false, 1.0)
+	var c: Vector2 = size * 0.5
+	var rad: float = minf(size.x, size.y) * 0.48
+	UxStyle.draw_squircle(self, c, rad, _tier, Color("1a120e"), metal, 3.4, true)
 	if art.tile("wall_mid") != null:
 		draw_texture_rect(art.tile("wall_mid"), Rect2(Vector2(0, 0), Vector2(size.x, 18)), false)
-	_corner(Vector2(2, 2), 1.0, 1.0)
-	_corner(Vector2(size.x - 2, 2), -1.0, 1.0)
-	_corner(Vector2(2, size.y - 2), 1.0, -1.0)
-	_corner(Vector2(size.x - 2, size.y - 2), -1.0, -1.0)
 
 
 func _corner(p: Vector2, sx: float, sy: float) -> void:

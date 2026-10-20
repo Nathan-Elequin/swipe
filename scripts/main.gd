@@ -58,6 +58,7 @@ const PLAYTEST_FEEDBACK := preload("res://scripts/playtest_feedback.gd")
 const PLAYTEST_TIER := preload("res://scripts/playtest_tier_list.gd")
 const PLAYTEST_INBOX := preload("res://scripts/playtest_inbox.gd")
 const PLAYTEST_INTRO := preload("res://scripts/playtest_intro.gd")
+const TITLE_TEASER := preload("res://scripts/title_teaser.gd")
 const PLAYTEST_META_PATH := "user://playtest_meta.json"
 
 const LOG_KIND := {
@@ -604,6 +605,7 @@ var playtest_feedback
 var playtest_tier
 var playtest_inbox
 var playtest_intro
+var playtest_teaser
 var playtest_fab: Button
 var playtest_voice: Label
 var _playtest_preset: String = ""
@@ -929,7 +931,8 @@ func _build_ui() -> void:
 	left.add_child(play_field)
 
 	hearts_box = HBoxContainer.new()
-	hearts_box.visible = true
+	hearts_box.visible = false
+	hearts_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hearts_box.add_theme_constant_override("separation", 2)
 	play_field.add_child(hearts_box)
 	for _h in range(HP_MAX):
@@ -1042,16 +1045,16 @@ func _build_ui() -> void:
 	btn_place = _pill("Place", Color("1a2a1a"), Color("8dcb8d"), _on_place_mode)
 	btn_bribe = _pill("Bribe", Color("2a1c14"), Color("d19a66"), _on_bribe_mode)
 	btn_spin = _pill(PLAYER_COPY.text("combat.spin", "Spin"), Color("3a3220"), Color("e8c36a"), _on_spin)
-	btn_spin.custom_minimum_size = Vector2(228, 64)
+	btn_spin.custom_minimum_size = Vector2(228, 56)
 	btn_spin.add_theme_font_size_override("font_size", 28)
 	btn_spin.add_theme_constant_override("outline_size", 6)
 	if tex_rotate != null:
 		btn_spin.icon = tex_rotate
 	btn_challenge_begin = _pill(PLAYER_COPY.text("challenge.begin", "Begin"), Color("1a2a1a"), Color("8dcb8d"), _challenge_begin_play)
-	btn_challenge_begin.custom_minimum_size = Vector2(228, 64)
+	btn_challenge_begin.custom_minimum_size = Vector2(228, 56)
 	btn_challenge_begin.visible = false
 	btn_done = _pill("Done", Color("3a2820"), Color("d19a66"), _on_done)
-	btn_done.custom_minimum_size = Vector2(228, 64)
+	btn_done.custom_minimum_size = Vector2(228, 56)
 	btn_done.add_theme_font_size_override("font_size", 28)
 	btn_done.add_theme_constant_override("outline_size", 6)
 	btn_undo = _pill("Undo", Color("1c2428"), Color("6bb3d9"), _on_undo)
@@ -1095,7 +1098,7 @@ func _build_ui() -> void:
 	left.add_child(choice_box)
 
 	hotbar_wrap = MarginContainer.new()
-	hotbar_wrap.add_theme_constant_override("margin_top", 6)
+	hotbar_wrap.add_theme_constant_override("margin_top", 2)
 	hotbar_wrap.add_theme_constant_override("margin_bottom", 2)
 	hotbar_wrap.z_index = 16
 	hotbar_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1114,10 +1117,10 @@ func _build_ui() -> void:
 	hsb.border_color = Color("c4a574")
 	hsb.set_border_width_all(2)
 	hsb.set_corner_radius_all(8)
-	hsb.content_margin_left = 6
-	hsb.content_margin_right = 6
-	hsb.content_margin_top = 6
-	hsb.content_margin_bottom = 6
+	hsb.content_margin_left = 4
+	hsb.content_margin_right = 4
+	hsb.content_margin_top = 4
+	hsb.content_margin_bottom = 4
 	hotbar_panel.add_theme_stylebox_override("panel", hsb)
 	hot_align.add_child(hotbar_panel)
 	hotbar_box = GridContainer.new()
@@ -1125,7 +1128,7 @@ func _build_ui() -> void:
 	hotbar_box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	hotbar_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hotbar_box.add_theme_constant_override("h_separation", 8)
-	hotbar_box.add_theme_constant_override("v_separation", 8)
+	hotbar_box.add_theme_constant_override("v_separation", 4)
 	hotbar_panel.add_child(hotbar_box)
 
 	var right := VBoxContainer.new()
@@ -4909,6 +4912,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		if playtest_intro != null and playtest_intro.visible:
 			get_viewport().set_input_as_handled()
 			return
+		if playtest_teaser != null and playtest_teaser.visible and not playtest_teaser.holding_still:
+			get_viewport().set_input_as_handled()
+			return
 		_toggle_playtest_feedback()
 		get_viewport().set_input_as_handled()
 		return
@@ -5085,6 +5091,10 @@ func _build_playtest() -> void:
 	playtest_intro.skipped.connect(_playtest_intro_done)
 	playtest_intro.wants_f2.connect(_playtest_intro_f2)
 	playtest_intro.wants_fab.connect(_playtest_intro_fab)
+	playtest_teaser = TITLE_TEASER.new()
+	add_child(playtest_teaser)
+	playtest_teaser.setup(art, sfx)
+	playtest_teaser.finished.connect(_playtest_teaser_done)
 	_sync_playtest_chrome()
 
 
@@ -5106,22 +5116,62 @@ func _open_playtest_hub() -> void:
 		playtest_intro.open_intro()
 		_sync_playtest_chrome()
 		return
-	_show_playtest_hub()
+	_maybe_open_teaser()
 
 
-func _show_playtest_hub() -> void:
+func _show_playtest_hub(over_still: bool = false) -> void:
 	if playtest_intro:
 		playtest_intro.close_intro()
 	if playtest_feedback:
 		playtest_feedback.force_close()
 	var can_continue: bool = home_cabin != null and home_cabin.has_save()
-	playtest_hub.open_hub(can_continue)
+	playtest_hub.open_hub(can_continue, over_still)
 	_sync_playtest_chrome()
 
 
 func _playtest_intro_done() -> void:
 	_mark_playtest_intro_seen()
-	_show_playtest_hub()
+	_maybe_open_teaser()
+
+
+func _teaser_should_play() -> bool:
+	if not PLAYTEST_FLAG.on():
+		return false
+	if OS.has_feature("editor"):
+		return true
+	return TITLE_TEASER.still_ready()
+
+
+func _maybe_open_teaser() -> void:
+	if playtest_intro:
+		playtest_intro.close_intro()
+	if playtest_teaser == null or not _teaser_should_play():
+		_show_playtest_hub()
+		return
+	if playtest_hub:
+		playtest_hub.close_hub()
+	playtest_teaser.open_teaser(_playtest_teaser_seen())
+	_sync_playtest_chrome()
+
+
+func _playtest_teaser_done() -> void:
+	_mark_playtest_teaser_seen()
+	if playtest_teaser:
+		playtest_teaser.yield_to_hub()
+	_show_playtest_hub(true)
+
+
+func _playtest_teaser_seen() -> bool:
+	return bool(_playtest_meta().get("teaser_v1", false))
+
+
+func _mark_playtest_teaser_seen() -> void:
+	_save_playtest_meta({"teaser_v1": true})
+
+
+func _close_playtest_teaser() -> void:
+	if playtest_teaser:
+		playtest_teaser.close_teaser()
 
 
 func _playtest_intro_f2(on: bool) -> void:
@@ -5151,6 +5201,7 @@ func _playtest_intro_fab(on: bool) -> void:
 func _playtest_brand_new() -> void:
 	if playtest_hub:
 		playtest_hub.close_hub()
+	_close_playtest_teaser()
 	_set_playtest_preset("new")
 	_sync_playtest_chrome()
 	_dev_fresh_save()
@@ -5159,6 +5210,7 @@ func _playtest_brand_new() -> void:
 func _playtest_middle() -> void:
 	if playtest_hub:
 		playtest_hub.close_hub()
+	_close_playtest_teaser()
 	_set_playtest_preset("middle")
 	if settings_ui:
 		settings_ui.close_menu()
@@ -5183,6 +5235,7 @@ func _playtest_middle() -> void:
 func _playtest_continue() -> void:
 	if playtest_hub:
 		playtest_hub.close_hub()
+	_close_playtest_teaser()
 	if _playtest_preset == "":
 		_set_playtest_preset("continue")
 	_sync_playtest_chrome()
@@ -5198,6 +5251,8 @@ func _toggle_playtest_feedback() -> void:
 
 func _open_playtest_comment(kind: String, card_id: String) -> void:
 	if playtest_intro != null and playtest_intro.visible:
+		return
+	if playtest_teaser != null and playtest_teaser.visible and not playtest_teaser.holding_still:
 		return
 	if playtest_feedback == null:
 		return
@@ -5339,12 +5394,13 @@ func _mark_playtest_intro_seen() -> void:
 func _sync_playtest_chrome() -> void:
 	var hub_up: bool = playtest_hub != null and playtest_hub.visible
 	var intro_up: bool = playtest_intro != null and playtest_intro.visible
+	var teaser_up: bool = playtest_teaser != null and playtest_teaser.visible
 	if playtest_fab:
 		var cut_up: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("cutscene_playing") and home_cabin.cutscene_playing()
-		var show_fab: bool = PLAYTEST_FLAG.on() and not hub_up and not cut_up and (not intro_up or playtest_intro.showing_fab())
+		var show_fab: bool = PLAYTEST_FLAG.on() and not hub_up and not cut_up and not teaser_up and (not intro_up or playtest_intro.showing_fab())
 		playtest_fab.visible = show_fab
 	if playtest_voice:
-		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up
+		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up
 
 
 func _on_script_saved(items: Array, monsters: Array) -> void:
@@ -15003,12 +15059,14 @@ func _on_done_press(down: bool) -> void:
 
 func _refresh_hearts() -> void:
 	if wheel_view:
+		wheel_view.hub_poison = player_poison
 		wheel_view.set_vitals(hp, HP_MAX, _ghost_hp, blk, _ghost_blk)
 		if wheel_view.has_method("set_hub_pierce"):
 			wheel_view.set_hub_pierce(_hand_pierce() and phase == "fighting")
+	if hearts_box:
+		hearts_box.visible = false
 	if hearts_box == null:
 		return
-	hearts_box.visible = overlay == null or not overlay.visible
 	var poison_from: int = maxi(0, hp - player_poison) if player_poison > 0 else -1
 	var hi: int = 0
 	for child in hearts_box.get_children():
@@ -15205,23 +15263,17 @@ func _layout_play_field() -> void:
 			trophy.size = ts
 			trophy.position = Vector2(0.0, 4.0)
 			trophy_h = ts.y + 6.0
-	var hearts_h := 0.0
 	if hearts_box:
-		var hs: Vector2 = hearts_box.get_combined_minimum_size()
-		hearts_box.size = hs
-		hearts_box.position = Vector2(8.0, trophy_h + 4.0)
-		if hearts_box.visible:
-			hearts_h = hs.y + 8.0
+		hearts_box.visible = false
 	if tray != null and tray.visible:
 		var tmin: Vector2 = tray.get_combined_minimum_size()
 		tray.position = Vector2((sz.x - tmin.x) * 0.5, 6.0)
 		tray.size = tmin
 	var extra: float = _wheel_side_gutter()
-	var top_need: float = trophy_h + hearts_h + 8.0
+	var top_need: float = trophy_h + 8.0
 	if tray != null and tray.visible:
 		top_need = maxf(top_need, tray.position.y + tray.size.y + 8.0)
 	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - top_need - 8.0))
-	side = minf(640.0, side)
 	var x: float = (sz.x - side - extra) * 0.5
 	var wheel_y: float = maxf(top_need, (sz.y - side) * 0.5)
 	if tray != null and tray.visible:
@@ -15259,7 +15311,7 @@ func _layout_play_field() -> void:
 			draft_y = maxf(8.0, sz.y - h - 8.0)
 		challenge_draft_ui.position = Vector2(x + side + 8.0, draft_y)
 	if cue_label:
-		cue_label.position = Vector2(12.0, maxf(side + 4.0, sz.y - 40.0))
+		cue_label.position = Vector2(12.0, minf(wheel_y + side + 4.0, sz.y - 36.0))
 		cue_label.size = Vector2(maxf(sz.x - 24.0, 180.0), 36.0)
 	_place_log_overlay()
 	_place_fight_art()
@@ -15592,8 +15644,8 @@ func _sync_buttons() -> void:
 		if hit > 0:
 			btn_done.text = PLAYER_COPY.fill("combat.take_hit", {"n": hit}, "Take %s" % hit)
 			btn_done.icon = tex_heart
-			btn_done.custom_minimum_size = Vector2(260, 76)
-			btn_done.add_theme_font_size_override("font_size", 36)
+			btn_done.custom_minimum_size = Vector2(260, 64)
+			btn_done.add_theme_font_size_override("font_size", 32)
 			btn_done.add_theme_constant_override("icon_max_width", 40)
 			btn_done.add_theme_color_override("font_color", Color("6a1212"))
 			btn_done.add_theme_color_override("font_hover_color", Color("8a1818"))
@@ -15603,8 +15655,8 @@ func _sync_buttons() -> void:
 		else:
 			btn_done.text = PLAYER_COPY.text("combat.safe", "Safe")
 			btn_done.icon = tex_shield
-			btn_done.custom_minimum_size = Vector2(228, 64)
-			btn_done.add_theme_font_size_override("font_size", 28)
+			btn_done.custom_minimum_size = Vector2(228, 56)
+			btn_done.add_theme_font_size_override("font_size", 26)
 			btn_done.add_theme_constant_override("icon_max_width", 28)
 			btn_done.add_theme_color_override("font_color", Color("1c120c"))
 			btn_done.add_theme_color_override("font_hover_color", Color("100e0c"))
@@ -15788,10 +15840,10 @@ func _sync_hotbar() -> void:
 			hsb.border_color = Color("c4a574")
 			hsb.set_border_width_all(2)
 			hsb.set_corner_radius_all(8)
-			hsb.content_margin_left = 6
-			hsb.content_margin_right = 6
-			hsb.content_margin_top = 6
-			hsb.content_margin_bottom = 6
+			hsb.content_margin_left = 4
+			hsb.content_margin_right = 4
+			hsb.content_margin_top = 4
+			hsb.content_margin_bottom = 4
 			hotbar_panel.add_theme_stylebox_override("panel", hsb)
 		else:
 			hotbar_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
@@ -16315,7 +16367,6 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 		_tut_add_rect(spots, wheel_view.focus_rect("empty"))
 		return
 	if tag == "hearts":
-		_tut_add_control(spots, hearts_box)
 		if wheel_view != null:
 			_tut_add_rect(spots, wheel_view.focus_rect("hub_hp"))
 		return
@@ -16378,7 +16429,7 @@ func _tut_focus() -> Control:
 		"wheel", "empty", "atk", "hp", "block":
 			return wheel_view
 		"hearts":
-			return hearts_box
+			return wheel_view
 		"hotbar":
 			return hotbar_box
 		"spin":

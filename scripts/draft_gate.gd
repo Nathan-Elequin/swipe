@@ -601,23 +601,6 @@ class TierStamp extends Control:
 			return Color("c5cdd8")
 		return Color("c08050")
 
-	func _plate_pts(center: Vector2, rad: float) -> PackedVector2Array:
-		var pts := PackedVector2Array()
-		if tier >= 3:
-			for k in 10:
-				var a: float = -PI * 0.5 + float(k) * TAU / 10.0
-				var rr: float = rad * (1.12 if k % 2 == 0 else 0.72)
-				pts.append(center + Vector2.from_angle(a) * rr)
-		elif tier == 2:
-			for k2 in 6:
-				var a2: float = -PI * 0.5 + float(k2) * TAU / 6.0
-				pts.append(center + Vector2.from_angle(a2) * rad)
-		else:
-			for k3 in 24:
-				var a3: float = -PI * 0.5 + float(k3) * TAU / 24.0
-				pts.append(center + Vector2.from_angle(a3) * rad)
-		return pts
-
 	func _draw() -> void:
 		if loom:
 			_draw_loom()
@@ -628,21 +611,10 @@ class TierStamp extends Control:
 		var c := Vector2(size.x * 0.5, size.y * 0.5)
 		var plate_r := 28.0 + pulse * 3.2
 		draw_circle(c, plate_r + 14.0, glow)
-		var fill := Color("241610")
-		if tier == 2:
-			fill = Color("161018")
-		elif tier >= 3:
-			fill = Color("100308")
-		var pts: PackedVector2Array = _plate_pts(c, plate_r)
-		draw_colored_polygon(pts, fill)
+		var fill: Color = UxStyle.metal_well(tier)
 		var rim: Color = metal.lerp(metal.lightened(0.5), pulse * 0.6)
 		var w: float = 3.0 + pulse * 1.8
-		if tier >= 2:
-			var ring: PackedVector2Array = pts.duplicate()
-			ring.append(pts[0])
-			draw_polyline(ring, rim, w, true)
-		else:
-			draw_arc(c, plate_r, 0.0, TAU, 32, rim, w, true)
+		UxStyle.draw_squircle(self, c, plate_r, tier, fill, rim, w)
 		if tier >= 3:
 			for i in 5:
 				var ang: float = bob * 2.2 + float(i) * TAU / 5.0
@@ -737,23 +709,6 @@ class Actor extends Control:
 			return Color("c5cdd8")
 		return Color("c08050")
 
-	func _plate_pts(center: Vector2, rad: float) -> PackedVector2Array:
-		var pts := PackedVector2Array()
-		if tier >= 3:
-			for k in 10:
-				var a: float = -PI * 0.5 + float(k) * TAU / 10.0
-				var rr: float = rad * (1.12 if k % 2 == 0 else 0.72)
-				pts.append(center + Vector2.from_angle(a) * rr)
-		elif tier == 2:
-			for k2 in 6:
-				var a2: float = -PI * 0.5 + float(k2) * TAU / 6.0
-				pts.append(center + Vector2.from_angle(a2) * rad)
-		else:
-			for k3 in 24:
-				var a3: float = -PI * 0.5 + float(k3) * TAU / 24.0
-				pts.append(center + Vector2.from_angle(a3) * rad)
-		return pts
-
 	func _draw() -> void:
 		var sz: Vector2 = size
 		var jig: float = sin(bob * 48.0) * shake * 5.0
@@ -785,28 +740,21 @@ class Actor extends Control:
 		draw_arc(Vector2(sz.x * 0.5, 48), sz.x * 0.36, PI, TAU, 18, Color("3a3228"), 6.0, true)
 
 	func _draw_plate(center: Vector2, rad: float) -> void:
-		var fill := Color("241610")
-		if tier == 2:
-			fill = Color("161018")
-		elif tier >= 3:
-			fill = Color("100308")
-		draw_colored_polygon(_plate_pts(center, rad), fill)
-
-	func _draw_plate_rim(center: Vector2, rad: float) -> void:
+		var fill: Color = UxStyle.metal_well(tier)
 		var metal: Color = _metal()
 		var pulse: float = 0.55 + 0.45 * absf(sin(bob * 3.0))
 		var col: Color = metal.lerp(metal.lightened(0.45), pulse * 0.7)
 		var w: float = 2.4 + pulse * 1.6
-		var pts: PackedVector2Array = _plate_pts(center, rad)
-		if tier >= 2:
-			pts.append(pts[0])
-			draw_polyline(pts, col, w, true)
-		else:
-			draw_arc(center, rad, 0.0, TAU, 28, col, w, true)
-		if tier >= 3:
-			for i in 4:
-				var ang: float = bob * 2.4 + float(i) * TAU / 4.0
-				draw_circle(center + Vector2.from_angle(ang) * (rad + 8.0), 2.0 + pulse, Color(metal.r, metal.g, metal.b, 0.45 + pulse * 0.4))
+		UxStyle.draw_squircle(self, center, rad, tier, fill, col, w)
+
+	func _draw_plate_rim(center: Vector2, rad: float) -> void:
+		if tier < 3:
+			return
+		var metal: Color = _metal()
+		var pulse: float = 0.55 + 0.45 * absf(sin(bob * 3.0))
+		for i in 4:
+			var ang: float = bob * 2.4 + float(i) * TAU / 4.0
+			draw_circle(center + Vector2.from_angle(ang) * (rad + 8.0), 2.0 + pulse, Color(metal.r, metal.g, metal.b, 0.45 + pulse * 0.4))
 
 	func _draw_silhouette(c: Vector2, sz: Vector2) -> void:
 		var ink := Color(0.04, 0.03, 0.03, 0.94)

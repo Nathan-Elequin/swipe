@@ -49,9 +49,10 @@ func setup() -> void:
 	_col.add_child(_make_button(COPY.text("playtest.feedback", "Feedback"), func() -> void: feedback_wanted.emit()))
 
 
-func open_hub(can_continue: bool) -> void:
+func open_hub(can_continue: bool, see_through: bool = false) -> void:
 	if _continue_box:
 		_continue_box.visible = can_continue
+	color = Color("100e0c99") if see_through else Color("100e0cf2")
 	visible = true
 	move_to_front()
 

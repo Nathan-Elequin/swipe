@@ -59,27 +59,27 @@
   },
   "blk": {
    "rect_from_c": [
-    38,
-    21,
+    -22,
+    52,
     44,
     48
    ],
    "centre_from_c": [
-    60,
-    45
+    0,
+    76
    ],
    "visual_centre_from_c": [
-    60,
-    40.1
+    0,
+    71.1
    ],
-   "note": "visual (alpha-centroid) centre is level with the heart visual centre; numbers share y = c.y+41",
+   "note": "Centered under the hero. Number sits on the shield. Hearts moved to an inner-rim arc over his head.",
    "number_anchor_in_rect": [
     22,
     20
    ],
    "number_anchor_from_c": [
-    60,
-    41
+    0,
+    72
    ],
    "states": {
     "badge_blk": "BLK > 0",
@@ -108,12 +108,12 @@
    "text": "existing literal/key used today (\"IGNORED\"), unchanged",
    "once_per": "set_hub_pierce(true)",
    "from_c": [
-    60,
-    16
+    0,
+    48
    ],
    "to_c": [
-    60,
-    2
+    0,
+    34
    ],
    "anchor": "text centre",
    "secs": 0.7,
@@ -124,8 +124,8 @@
    "badge_state": "badge_blk_pierced while hub_pierce"
   },
   "max_pixel_radius_from_c": {
-   "hp": 77.2,
-   "blk": 93.5
+   "hp": 90.0,
+   "blk": 96.0
   }
  },
  "courier": {

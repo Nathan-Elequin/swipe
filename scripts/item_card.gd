@@ -10,7 +10,7 @@ signal passed_swipe
 const COPY := preload("res://scripts/player_copy.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const CARD_W := 118.0
-const CARD_H := 162.0
+const CARD_H := 120.0
 const SHOW_W := 236.0
 const SHOW_H := 340.0
 
@@ -91,10 +91,10 @@ func setup(
 	gui_input.connect(_on_gui)
 
 	var pad := MarginContainer.new()
-	pad.add_theme_constant_override("margin_left", 6)
-	pad.add_theme_constant_override("margin_right", 6)
-	pad.add_theme_constant_override("margin_top", 5)
-	pad.add_theme_constant_override("margin_bottom", 5)
+	pad.add_theme_constant_override("margin_left", 4)
+	pad.add_theme_constant_override("margin_right", 4)
+	pad.add_theme_constant_override("margin_top", 3)
+	pad.add_theme_constant_override("margin_bottom", 3)
 	add_child(pad)
 	var col := VBoxContainer.new()
 	col.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -122,7 +122,7 @@ func setup(
 	_title.set_plain(title)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_title.custom_minimum_size = Vector2(104, 38)
+	_title.custom_minimum_size = Vector2(104, 22)
 	_title.font_color = Color("f0e6d8")
 	_title.set_outline(Color("100e0c"), 3)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -131,7 +131,7 @@ func setup(
 
 	_icon = TextureRect.new()
 	_icon.texture = icon
-	_icon.custom_minimum_size = Vector2(64, 64)
+	_icon.custom_minimum_size = Vector2(48, 48)
 	_icon.texture_filter = TEXTURE_FILTER_NEAREST
 	_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -139,7 +139,7 @@ func setup(
 	col.add_child(_icon)
 
 	var num_host := Control.new()
-	num_host.custom_minimum_size = Vector2(104, 44)
+	num_host.custom_minimum_size = Vector2(104, 32)
 	num_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(num_host)
 	_num_host = num_host
@@ -157,7 +157,7 @@ func setup(
 	_ghost = Label.new()
 	_ghost.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_ghost.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_ghost.add_theme_font_size_override("font_size", 32)
+	_ghost.add_theme_font_size_override("font_size", 26)
 	_ghost.add_theme_color_override("font_color", _num_col)
 	_ghost.add_theme_color_override("font_outline_color", Color("100e0c"))
 	_ghost.add_theme_constant_override("outline_size", 3)
@@ -170,7 +170,7 @@ func setup(
 	_num.text = number_text
 	_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_num.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_num.add_theme_font_size_override("font_size", 32)
+	_num.add_theme_font_size_override("font_size", 26)
 	_num.add_theme_color_override("font_color", _num_col)
 	_num.add_theme_color_override("font_outline_color", Color("100e0c"))
 	_num.add_theme_constant_override("outline_size", 3)
@@ -784,10 +784,16 @@ func _apply_style(hot: bool) -> void:
 		sb.shadow_color = Color(metal.r, metal.g, metal.b, (0.55 if _tier >= 3 else 0.32) + pulse * 0.35)
 		sb.shadow_size = (10 if _tier >= 3 else (6 if _tier == 2 else 4)) + int(pulse * 8.0) + (6 if _showcase else 0)
 	sb.shadow_offset = Vector2.ZERO
-	sb.content_margin_left = 6
-	sb.content_margin_right = 6
-	sb.content_margin_top = 8
-	sb.content_margin_bottom = 6
+	if _showcase:
+		sb.content_margin_left = 6
+		sb.content_margin_right = 6
+		sb.content_margin_top = 8
+		sb.content_margin_bottom = 6
+	else:
+		sb.content_margin_left = 4
+		sb.content_margin_right = 4
+		sb.content_margin_top = 3
+		sb.content_margin_bottom = 3
 	add_theme_stylebox_override("panel", sb)
 	queue_redraw()
 

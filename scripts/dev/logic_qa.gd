@@ -251,6 +251,8 @@ func _run_bucket0() -> void:
 func _dismiss_hub() -> void:
 	if main.playtest_intro != null and main.playtest_intro.has_method("close_intro"):
 		main.playtest_intro.close_intro()
+	if main.playtest_teaser != null and main.playtest_teaser.has_method("close_teaser"):
+		main.playtest_teaser.close_teaser()
 	if main.playtest_hub != null and main.playtest_hub.has_method("close_hub"):
 		main.playtest_hub.close_hub()
 	if main.overlay:
