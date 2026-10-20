@@ -19,6 +19,13 @@
 			"where": "Title parchment subtitle"
 		},
 		{
+			"author_lock": false,
+			"cat": "Title",
+			"key": "title.tagline",
+			"text": "Where there's a will, there's a slay.",
+			"where": "Title screen tagline"
+		},
+		{
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.how_to_play",

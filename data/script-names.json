@@ -3,7 +3,7 @@
 	"updated": "2026-10-17",
 	"instructions": "Shared proper names. Lines store {id} and {id|poss}. Script editor Save locks a changed display. Chat may not restyle locked names unless Nathan overrides.",
 	"names": [
-		{"id": "game_title", "display": "Swipe", "note": "Title parchment"},
+		{"id": "game_title", "display": "Spinheritance", "note": "Title parchment"},
 		{"id": "nib", "display": "Nib", "note": "Imp, executor"},
 		{"id": "hero", "display": "Sprout", "note": "Nib's name for the grandchild"},
 		{"id": "grandpa_esq", "display": "Bartleby \"Lucky\" Snatchwick, Esq.", "note": "Full legal name with Esq."},

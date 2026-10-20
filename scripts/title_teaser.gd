@@ -200,8 +200,8 @@ func debug_capture(t: float) -> Dictionary:
 
 
 func _build_labels() -> void:
-	_title = _plain("_title", COPY.text("title.overlay", "Swipe"), 72, Color("e8c36a"), LOGO_RECT)
-	_tag = _plain("_tag", COPY.text("title.sub", "Use it, Lose it, or Lose your head"), 28, Color("f4ede3"), TAG_RECT)
+	_title = _plain("_title", COPY.text("title.overlay", "Spinheritance"), 72, Color("e8c36a"), LOGO_RECT)
+	_tag = _plain("_tag", COPY.text("title.tagline", "Where there's a will, there's a slay."), 28, Color("f4ede3"), TAG_RECT)
 	_click = _plain("_click", COPY.text("intro.next", "Click to continue"), 22, Color("c9b9a8"), CLICK_RECT)
 	_music_lab = _plain("_music_lab", "", 14, Color("c9b9a8"), Rect2(1280, 980, 360, 40))
 	add_child(_title)
