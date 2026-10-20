@@ -1,0 +1,1748 @@
+{
+	"captures": [
+		{
+			"blits": [
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-88.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hill_strip.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						1592.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hill_strip.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						68.0,
+						516.0,
+						96.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/home/nib/nib_idle_f0.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						436.0,
+						548.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/hero_run/run_walkoff_f1.png"
+				}
+			],
+			"hall_strip_in_use": "hill",
+			"labels": [
+				{
+					"name": "_title",
+					"rect": [
+						340.0,
+						80.0,
+						1000.0,
+						160.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_tag",
+					"rect": [
+						260.0,
+						250.0,
+						1160.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_click",
+					"rect": [
+						340.0,
+						920.0,
+						1000.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_music_lab",
+					"rect": [
+						1280.0,
+						980.0,
+						360.0,
+						40.0
+					],
+					"visible": false
+				}
+			],
+			"logo_rect": [
+				480.0,
+				80.0,
+				720.0,
+				160.0
+			],
+			"still_a": 0.0,
+			"t": 1.0,
+			"title_visible": false,
+			"white": 0.0
+		},
+		{
+			"blits": [
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-792.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hall_strip.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						888.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hall_strip.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						428.0,
+						516.0,
+						128.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/goblin.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						396.0,
+						516.0,
+						112.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/dire_wolf.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						240.0,
+						536.0,
+						64.0,
+						112.0
+					],
+					"tex": "res://assets/dungeon/extra/skeleton.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						504.0,
+						604.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/pocketwatch.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						904.0,
+						560.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/lantern.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						1192.0,
+						588.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/grimoire.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						1480.0,
+						580.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/healing_potion.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						744.0,
+						556.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/lucky_nickel.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						1320.0,
+						588.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/sledgehammer.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						680.0,
+						560.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/boot.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						1032.0,
+						572.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/helmet.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						556.0,
+						548.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/hero_run/run_grab_f0.png"
+				}
+			],
+			"hall_strip_in_use": "hall",
+			"labels": [
+				{
+					"name": "_title",
+					"rect": [
+						340.0,
+						80.0,
+						1000.0,
+						160.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_tag",
+					"rect": [
+						260.0,
+						250.0,
+						1160.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_click",
+					"rect": [
+						340.0,
+						920.0,
+						1000.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_music_lab",
+					"rect": [
+						1280.0,
+						980.0,
+						360.0,
+						40.0
+					],
+					"visible": false
+				}
+			],
+			"logo_rect": [
+				480.0,
+				80.0,
+				720.0,
+				160.0
+			],
+			"still_a": 0.0,
+			"t": 3.6,
+			"title_visible": false,
+			"white": 0.0
+		},
+		{
+			"blits": [
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-1252.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hall_strip_b.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						428.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hall_strip_b.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						0.550000011920929,
+						0.5,
+						1.0
+					],
+					"rect": [
+						384.0,
+						508.0,
+						128.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/goblin.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						396.0,
+						508.0,
+						112.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/dire_wolf.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						380.0,
+						524.0,
+						64.0,
+						112.0
+					],
+					"tex": "res://assets/dungeon/extra/skeleton.png"
+				},
+				{
+					"flip_h": true,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						264.0,
+						496.0,
+						128.0,
+						144.0
+					],
+					"tex": "res://assets/dungeon/extra/ogre.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-176.0,
+						512.0,
+						112.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/hornet_swarm.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						584.0,
+						616.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/pocketwatch.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						524.0,
+						616.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/lantern.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						484.0,
+						568.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/grimoire.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						500.0,
+						512.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/healing_potion.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-600.0,
+						584.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/lucky_nickel.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-24.0,
+						564.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/sledgehammer.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						0.814814805984497
+					],
+					"rect": [
+						560.0,
+						596.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/boot.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						556.0,
+						484.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/helmet.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						556.0,
+						548.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/hero_run/run_swipe_f1.png"
+				}
+			],
+			"hall_strip_in_use": "hall_b",
+			"labels": [
+				{
+					"name": "_title",
+					"rect": [
+						340.0,
+						80.0,
+						1000.0,
+						160.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_tag",
+					"rect": [
+						260.0,
+						250.0,
+						1160.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_click",
+					"rect": [
+						340.0,
+						920.0,
+						1000.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_music_lab",
+					"rect": [
+						1280.0,
+						980.0,
+						360.0,
+						40.0
+					],
+					"visible": false
+				}
+			],
+			"logo_rect": [
+				480.0,
+				80.0,
+				720.0,
+				160.0
+			],
+			"still_a": 0.0,
+			"t": 5.7,
+			"title_visible": false,
+			"white": 0.0
+		},
+		{
+			"blits": [
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-1560.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hall_strip_b.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						120.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hall_strip_b.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						0.550000011920929,
+						0.5,
+						1.0
+					],
+					"rect": [
+						428.0,
+						508.0,
+						128.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/goblin.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						396.0,
+						512.0,
+						112.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/dire_wolf.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						380.0,
+						528.0,
+						64.0,
+						112.0
+					],
+					"tex": "res://assets/dungeon/extra/skeleton.png"
+				},
+				{
+					"flip_h": true,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						300.0,
+						500.0,
+						128.0,
+						144.0
+					],
+					"tex": "res://assets/dungeon/extra/ogre.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						268.0,
+						516.0,
+						112.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/hornet_swarm.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						176.0,
+						456.0,
+						192.0,
+						192.0
+					],
+					"tex": "res://assets/dungeon/extra/spider_queen.png"
+				},
+				{
+					"flip_h": true,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-84.0,
+						360.0,
+						256.0,
+						288.0
+					],
+					"tex": "res://assets/dungeon/extra/dragon.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						536.0,
+						484.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/pocketwatch.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						596.0,
+						500.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/lantern.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						624.0,
+						552.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/grimoire.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						600.0,
+						608.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/healing_potion.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-1496.0,
+						576.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/lucky_nickel.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-920.0,
+						576.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/sledgehammer.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						556.0,
+						548.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/hero_run/run_block_f0.png"
+				}
+			],
+			"hall_strip_in_use": "hall_b",
+			"labels": [
+				{
+					"name": "_title",
+					"rect": [
+						340.0,
+						80.0,
+						1000.0,
+						160.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_tag",
+					"rect": [
+						260.0,
+						250.0,
+						1160.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_click",
+					"rect": [
+						340.0,
+						920.0,
+						1000.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_music_lab",
+					"rect": [
+						1280.0,
+						980.0,
+						360.0,
+						40.0
+					],
+					"visible": false
+				}
+			],
+			"logo_rect": [
+				480.0,
+				80.0,
+				720.0,
+				160.0
+			],
+			"still_a": 0.0,
+			"t": 7.1,
+			"title_visible": false,
+			"white": 0.0
+		},
+		{
+			"blits": [
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-408.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hall_strip_b.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						1272.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hall_strip_b.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						0.550000011920929,
+						0.5,
+						1.0
+					],
+					"rect": [
+						684.0,
+						584.0,
+						128.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/goblin.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						700.0,
+						596.0,
+						112.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/dire_wolf.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						732.0,
+						620.0,
+						64.0,
+						112.0
+					],
+					"tex": "res://assets/dungeon/extra/skeleton.png"
+				},
+				{
+					"flip_h": true,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						968.0,
+						300.0,
+						128.0,
+						144.0
+					],
+					"tex": "res://assets/dungeon/extra/ogre.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						976.0,
+						304.0,
+						112.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/hornet_swarm.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						956.0,
+						264.0,
+						192.0,
+						192.0
+					],
+					"tex": "res://assets/dungeon/extra/spider_queen.png"
+				},
+				{
+					"flip_h": true,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						944.0,
+						208.0,
+						256.0,
+						288.0
+					],
+					"tex": "res://assets/dungeon/extra/dragon.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						700.0,
+						396.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/pocketwatch.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						808.0,
+						360.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/lantern.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						900.0,
+						424.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/grimoire.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						912.0,
+						536.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/healing_potion.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-3032.0,
+						568.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/lucky_nickel.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-2456.0,
+						568.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/sledgehammer.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						724.0,
+						548.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/hero_run/run_walkoff_f2.png"
+				}
+			],
+			"hall_strip_in_use": "hall_b",
+			"labels": [
+				{
+					"name": "_title",
+					"rect": [
+						340.0,
+						80.0,
+						1000.0,
+						160.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_tag",
+					"rect": [
+						260.0,
+						250.0,
+						1160.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_click",
+					"rect": [
+						340.0,
+						920.0,
+						1000.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_music_lab",
+					"rect": [
+						1280.0,
+						980.0,
+						360.0,
+						40.0
+					],
+					"visible": false
+				}
+			],
+			"logo_rect": [
+				480.0,
+				80.0,
+				720.0,
+				160.0
+			],
+			"still_a": 0.0,
+			"t": 9.5,
+			"title_visible": false,
+			"white": 0.0
+		},
+		{
+			"blits": [
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-872.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hall_strip_b.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						808.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/hall_strip_b.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						0.550000011920929,
+						0.5,
+						1.0
+					],
+					"rect": [
+						928.0,
+						288.0,
+						128.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/goblin.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						936.0,
+						276.0,
+						112.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/dire_wolf.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						956.0,
+						280.0,
+						64.0,
+						112.0
+					],
+					"tex": "res://assets/dungeon/extra/skeleton.png"
+				},
+				{
+					"flip_h": true,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						560.0,
+						400.0,
+						128.0,
+						144.0
+					],
+					"tex": "res://assets/dungeon/extra/ogre.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						560.0,
+						428.0,
+						112.0,
+						128.0
+					],
+					"tex": "res://assets/dungeon/extra/hornet_swarm.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						512.0,
+						328.0,
+						192.0,
+						192.0
+					],
+					"tex": "res://assets/dungeon/extra/spider_queen.png"
+				},
+				{
+					"flip_h": true,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						480.0,
+						192.0,
+						256.0,
+						288.0
+					],
+					"tex": "res://assets/dungeon/extra/dragon.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						672.0,
+						544.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/pocketwatch.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						672.0,
+						432.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/lantern.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						764.0,
+						364.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/grimoire.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						872.0,
+						392.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/healing_potion.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-4376.0,
+						560.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/lucky_nickel.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						-3800.0,
+						588.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/items/sledgehammer.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						792.0,
+						548.0,
+						96.0,
+						96.0
+					],
+					"tex": "res://assets/dungeon/hero_run/run_walkoff_f3.png"
+				}
+			],
+			"hall_strip_in_use": "hall_b",
+			"labels": [
+				{
+					"name": "_title",
+					"rect": [
+						340.0,
+						80.0,
+						1000.0,
+						160.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_tag",
+					"rect": [
+						260.0,
+						250.0,
+						1160.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_click",
+					"rect": [
+						340.0,
+						920.0,
+						1000.0,
+						80.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_music_lab",
+					"rect": [
+						1280.0,
+						980.0,
+						360.0,
+						40.0
+					],
+					"visible": false
+				}
+			],
+			"logo_rect": [
+				480.0,
+				80.0,
+				720.0,
+				160.0
+			],
+			"still_a": 0.0,
+			"t": 11.6,
+			"title_visible": false,
+			"white": 0.5
+		},
+		{
+			"blits": [
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						0.0,
+						0.0,
+						1680.0,
+						1040.0
+					],
+					"tex": "res://assets/dungeon/title/title_still.png"
+				},
+				{
+					"flip_h": false,
+					"mod": [
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					],
+					"rect": [
+						480.0,
+						80.0,
+						720.0,
+						160.0
+					],
+					"tex": "res://assets/dungeon/title/logo.png"
+				}
+			],
+			"hall_strip_in_use": "",
+			"labels": [
+				{
+					"name": "_title",
+					"rect": [
+						340.0,
+						80.0,
+						1000.0,
+						160.0
+					],
+					"visible": false
+				},
+				{
+					"name": "_tag",
+					"rect": [
+						260.0,
+						250.0,
+						1160.0,
+						80.0
+					],
+					"visible": true
+				},
+				{
+					"name": "_click",
+					"rect": [
+						340.0,
+						920.0,
+						1000.0,
+						80.0
+					],
+					"visible": true
+				},
+				{
+					"name": "_music_lab",
+					"rect": [
+						1280.0,
+						980.0,
+						360.0,
+						40.0
+					],
+					"visible": true
+				}
+			],
+			"logo_rect": [
+				480.0,
+				80.0,
+				720.0,
+				160.0
+			],
+			"still_a": 1.0,
+			"t": 13.5,
+			"title_visible": true,
+			"white": 0.0
+		}
+	],
+	"fails": []
+}
