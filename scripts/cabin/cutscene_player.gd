@@ -27,6 +27,9 @@ var _drip: ColorRect
 var _caption
 var _bust: TextureRect
 var _deed
+## Intro will panel: live title + signature on the painted scroll (copy keys will.title / will.sign).
+var _will_title
+var _will_sign
 var _skip: Button
 var _autoplay: Button
 var _next
@@ -157,6 +160,13 @@ func _build() -> void:
 	_panel_b.modulate.a = 0.0
 	_panel_b.z_index = 2
 	add_child(_panel_b)
+	# Native scroll coords from cutscenes/intro_p3.png (320x180 at 4x): title above the double rule, name on the signature rule.
+	_will_title = KIT.fit_label("will.title", Rect2(KIT.pt(108, 22), KIT.pt(132, 28)), 34, 18, 2, KIT.INK, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_BOTTOM, 0)
+	_will_title.visible = false
+	_panel_a.add_child(_will_title)
+	_will_sign = KIT.fit_label("will.sign", Rect2(KIT.pt(110, 136), KIT.pt(80, 11)), 28, 16, 1, KIT.INK, HORIZONTAL_ALIGNMENT_LEFT, VERTICAL_ALIGNMENT_BOTTOM, 0)
+	_will_sign.visible = false
+	_panel_a.add_child(_will_sign)
 	_fx = Control.new()
 	_fx.name = "CutsceneFx"
 	_fx.position = _panel_a.position
@@ -308,7 +318,7 @@ func _make_panels(p_kind: String) -> Array:
 	return [
 		{"tex": "cutscenes/intro_p1.png", "lines": [{"key": "intro.p1", "nib": false}], "hold": 6.0, "fx": "rain_window", "motion": "push_in"},
 		{"tex": "cutscenes/intro_p2.png", "lines": [{"key": "intro.p2", "nib": false}, {"key": "intro.p2_nib", "nib": true}], "hold": 6.0, "fx": "rain_full", "motion": "", "knock": true},
-		{"tex": "cutscenes/intro_p3.png", "lines": [{"key": "intro.p3", "nib": false}, {"key": "intro.p3_nib", "nib": true}], "hold": 7.0, "fx": "", "motion": "nudge_up", "sting": "sting.intro"},
+		{"tex": "cutscenes/intro_p3.png", "lines": [{"key": "intro.p3", "nib": false}, {"key": "intro.p3_nib", "nib": true}], "hold": 7.0, "fx": "", "motion": "nudge_up", "sting": "sting.intro", "will_text": true},
 		{"tex": "cutscenes/intro_p4.png", "lines": [{"key": "intro.p4", "nib": false}], "hold": 5.0, "fx": "", "motion": "pan_x"},
 		{"tex": "cutscenes/intro_p5.png", "lines": [{"key": "intro.p5_nib", "nib": true}], "hold": 6.0, "fx": "", "motion": ""},
 	]
@@ -352,6 +362,8 @@ func _show_panel(i: int, instant: bool) -> void:
 		_start_line()
 		return
 	KIT.cue(cabin.sfx if cabin else null, &"cabin.panel")
+	_will_title.visible = false
+	_will_sign.visible = false
 	_panel_b.texture = tex
 	_panel_b.position = KIT.pt(50, 40)
 	_panel_b.scale = Vector2.ONE
@@ -374,6 +386,9 @@ func _show_panel(i: int, instant: bool) -> void:
 
 func _apply_fx(spec: Dictionary) -> void:
 	var fx: String = str(spec.get("fx", ""))
+	var will_on: bool = bool(spec.get("will_text", false))
+	_will_title.visible = will_on
+	_will_sign.visible = will_on
 	_rain.visible = fx.begins_with("rain")
 	_drip.visible = fx == "rain_window"
 	if fx == "rain_window":
