@@ -25,7 +25,7 @@ Stop. Do not guess and do not draw. Add an `## ART-REQUEST` section to `design/h
 - what is wrong (wrong object, duplicate of `<other path>`, missing) and what the object must read as
 - a screenshot path that shows the problem
 
-Pixel supplies the PNG. Cursor then only wires it: registers it in `ITEM_PNG` / `MONSTER_PNG` (extras beat atlas stems), checks the `.import` (Nearest, lossless, no mipmaps; `tools/qa/check_ui_pngs.py`), and re-checks uniqueness.
+Pixel supplies the PNG. For a new catalog card, also run `tools\request_art.cmd <id>`; Pixel then wires that id in `ITEM_PNG` / `MONSTER_PNG`, so do not add it yourself (`swipe-design-loop.mdc`, New card art). For art a TASK.md hands you to wire, Cursor only wires it: registers it in `ITEM_PNG` / `MONSTER_PNG` (extras beat atlas stems), checks the `.import` (Nearest, lossless, no mipmaps; `tools/qa/check_ui_pngs.py`), and re-checks uniqueness.
 
 Exception: when a TASK.md spec asks for placeholders, Cursor may create placeholder PNGs at the exact final size. They must be plainly named (`<stem>.png` with a flat magenta fill and a 1 px outline, listed in REPORT.md as placeholders), and must never be presented as final art.
 

@@ -26,3 +26,5 @@ __pycache__/
 .wrangler/
 .dev.vars
 .env
+.art-ping.env
+.art-ping.last
