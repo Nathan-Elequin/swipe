@@ -415,7 +415,28 @@ func _turn(delta: int) -> void:
 		return
 	page += delta
 	KIT.cue(cabin.sfx if cabin else null, &"cabin.page_flip")
+	_play_page_flip(delta > 0)
 	_refresh()
+
+
+func _play_page_flip(right_to_left: bool) -> void:
+	var rels := ["overlays/page_flip_f0.png", "overlays/page_flip_f1.png", "overlays/page_flip_f2.png"]
+	if KIT.load_tex(rels[0]) == null:
+		return
+	var flip := KIT.anim_sprite(rels, "flip", 1000.0 / 70.0, false, Vector2.ZERO)
+	flip.z_index = 10
+	flip.flip_h = not right_to_left
+	# Right page origin ≈ book + (196, 18); left page ≈ book + (22, 18). Canvas 180x224.
+	var local := Vector2(196, 18) if right_to_left else Vector2(22, 18)
+	flip.position = _book.position + local * PX
+	add_child(flip)
+	if flip.sprite_frames:
+		flip.play("flip")
+		flip.animation_finished.connect(func() -> void:
+			flip.queue_free()
+		, CONNECT_ONE_SHOT)
+	else:
+		flip.queue_free()
 
 
 func handle_page(delta: int) -> bool:

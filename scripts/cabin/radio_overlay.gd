@@ -18,6 +18,7 @@ var _plus: Array = []
 var _needle: TextureRect
 var _station_lab
 var _static_gen: int = 0
+var _knob_hover: Dictionary = {}
 
 
 func setup(p_cabin, p_extra: Dictionary, p_audio) -> void:
@@ -72,16 +73,18 @@ func setup(p_cabin, p_extra: Dictionary, p_audio) -> void:
 		kn.gui_input.connect(func(ev: InputEvent) -> void:
 			_knob_input(idx, ev)
 		)
-		if tip_keys.has(i):
-			var tip_key: String = str(tip_keys[i])
-			kn.mouse_entered.connect(func() -> void:
-				if cabin:
-					cabin.show_hover_tag(tip_key, kn, {})
-			)
-			kn.mouse_exited.connect(func() -> void:
-				if cabin:
-					cabin.hide_hover_tag()
-			)
+		kn.mouse_entered.connect(func() -> void:
+			_knob_hover[idx] = true
+			_refresh_knob(idx)
+			if tip_keys.has(idx) and cabin:
+				cabin.show_hover_tag(str(tip_keys[idx]), kn, {})
+		)
+		kn.mouse_exited.connect(func() -> void:
+			_knob_hover[idx] = false
+			_refresh_knob(idx)
+			if cabin:
+				cabin.hide_hover_tag()
+		)
 		add_child(kn)
 		_knobs.append(kn)
 		var mid_x: float = kn.position.x + 12.0 * PX
@@ -224,7 +227,12 @@ func _refresh() -> void:
 
 func _refresh_knob(i: int) -> void:
 	var frame: int = clampi(int(round(_vol(i) * 8.0)), 0, 8)
-	(_knobs[i] as TextureRect).texture = KIT.load_tex("overlays/radio_knob_f%d.png" % frame)
+	var hovered: bool = bool(_knob_hover.get(i, false))
+	var rel: String = "overlays/radio_knob_hover_f%d.png" % frame if hovered else "overlays/radio_knob_f%d.png" % frame
+	var tex: Texture2D = KIT.load_tex(rel)
+	if tex == null and hovered:
+		tex = KIT.load_tex("overlays/radio_knob_f%d.png" % frame)
+	(_knobs[i] as TextureRect).texture = tex
 	var v: float = _vol(i)
 	if i < _minus.size():
 		(_minus[i] as Button).disabled = v <= 0.001
