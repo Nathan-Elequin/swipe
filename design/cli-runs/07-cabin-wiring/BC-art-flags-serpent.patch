@@ -1,0 +1,462 @@
+--- a/data/catalog.json
++++ b/data/catalog.json
+@@ -87,7 +87,7 @@
+ 			"exceptions": "",
+ 			"explainer": "(3) or (1 and Keep)",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -528,7 +528,7 @@
+ 			"exceptions": "",
+ 			"explainer": "(BLK 2) Keep if Bleed",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -632,7 +632,7 @@
+ 			"exceptions": "",
+ 			"explainer": "Spin + 1 Item",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -791,7 +791,7 @@
+ 			"exceptions": "",
+ 			"explainer": "Neighbor −5 HP on Spin",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -991,7 +991,7 @@
+ 			"exceptions": "",
+ 			"explainer": "Lethal → Heal 3",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -1039,7 +1039,7 @@
+ 			"exceptions": "",
+ 			"explainer": "(ATK 4) Neighbor",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -2182,7 +2182,7 @@
+ 			"exceptions": "Final enemy: unusable.",
+ 			"explainer": "(Left Neighbor ATK)",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -2988,10 +2988,10 @@
+ 			"card_color": "heal",
+ 			"count": 1.0,
+ 			"defined": "While this is in your hand unspent, each time you lose exactly 2 HP in one event, Heal 1. Click during a fight: Lose 2 HP (that also Heals 1), then this is used up. Fight only.",
+-			"exceptions": "Needs art.",
++			"exceptions": "",
+ 			"explainer": "(HEAL 1 on exact-2 loss) Use: Lose 2",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -3020,7 +3020,7 @@
+ 			"log_hint": "Use: Lose 2 HP. Exact-2 loss: Heal 1",
+ 			"mode_pool": "all",
+ 			"name": "Pacemaker",
+-			"notes": "Needs art.",
++			"notes": "",
+ 			"ops": {
+ 				"kind": "pacemaker_use"
+ 			},
+@@ -3042,10 +3042,10 @@
+ 			"card_color": "defeat",
+ 			"count": 1.0,
+ 			"defined": "Challenge only. Click during a fight. Used up. The facing enemy leaves with no loot and Wick does not chip. They go to the bottom of the dungeon deck with permanent HP/ATK/poison. The empty seat fills from the deck; that arrival still gives you an item. War Cry-style passives do not stay as a number.",
+-			"exceptions": "Challenge only. Needs art.",
++			"exceptions": "Challenge only.",
+ 			"explainer": "Eject them. Draw 1.",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -3074,7 +3074,7 @@
+ 			"log_hint": "Eject facing enemy, draw an Item",
+ 			"mode_pool": "challenge",
+ 			"name": "Catapult",
+-			"notes": "Challenge only. Needs art.",
++			"notes": "Challenge only.",
+ 			"ops": {
+ 				"kind": "eject_draw"
+ 			},
+@@ -3096,10 +3096,10 @@
+ 			"card_color": "defeat",
+ 			"count": 1.0,
+ 			"defined": "Click during a fight, then click a living Neighbor. Used up. The facing enemy becomes that Neighbor’s card (name, art, ability) with that Neighbor’s current HP, max HP, ATK minus Commander aura, and marked poison. Seat auras recalculate. No Neighbor: unplayable.",
+-			"exceptions": "Spell scroll depicting a fluffy sheep. Needs art.",
++			"exceptions": "Spell scroll depicting a fluffy sheep.",
+ 			"explainer": "Copy a Neighbor onto the enemy you face.",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -3128,7 +3128,7 @@
+ 			"log_hint": "Facing enemy becomes a copy of a chosen Neighbor",
+ 			"mode_pool": "all",
+ 			"name": "Polymorph",
+-			"notes": "Spell scroll depicting a fluffy sheep. Needs art.",
++			"notes": "Spell scroll depicting a fluffy sheep.",
+ 			"ops": {
+ 				"kind": "polymorph"
+ 			},
+@@ -3150,10 +3150,10 @@
+ 			"card_color": "blk",
+ 			"count": 1.0,
+ 			"defined": "Click during a fight. Gain 10 Block. Used up. Leftover Block after this fight stays for the next fight only, then clears.",
+-			"exceptions": "Needs art.",
++			"exceptions": "",
+ 			"explainer": "(BLK 10) leftover stays for the next fight",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -3182,7 +3182,7 @@
+ 			"log_hint": "Block 10, leftover remains for the next fight",
+ 			"mode_pool": "all",
+ 			"name": "Stone Wall",
+-			"notes": "Needs art.",
++			"notes": "",
+ 			"ops": {
+ 				"kind": "blk",
+ 				"n": 10.0
+@@ -3205,10 +3205,10 @@
+ 			"card_color": "heal",
+ 			"count": 1.0,
+ 			"defined": "Click during a fight. Used up. Heal equal to the last HP-loss event this dungeon. If you have not lost HP yet, unplayable.",
+-			"exceptions": "Needs art.",
++			"exceptions": "",
+ 			"explainer": "(HEAL = last HP lost)",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -3237,7 +3237,7 @@
+ 			"log_hint": "Heal equal to last HP lost",
+ 			"mode_pool": "all",
+ 			"name": "Blood Chalice",
+-			"notes": "Needs art.",
++			"notes": "",
+ 			"ops": {
+ 				"kind": "heal_last_loss"
+ 			},
+@@ -3259,10 +3259,10 @@
+ 			"card_color": "",
+ 			"count": 1.0,
+ 			"defined": "Click during a fight. Used up. Realtime check of the rest of the hotbar: if no other item Grants Block, Gain 3 Block. If no other item deals Attack, deal 3 Attack. One click can do one or both. Other Chakrams do not count. Petrified items and Bushido dummy (or similar silencing) do not count. Marble counts as both, including at 0. Double-Buckler does not count (it does not Grant Block). An item that would Block or Attack for 0 still counts. Grey / unplayable only when both a Block item and an Attack item are sitting unmuted in the hotbar.",
+-			"exceptions": "Tier 2. Circular throwing blade. Needs unique art at assets/dungeon/items/chakram.png.",
++			"exceptions": "Tier 2. Circular throwing blade.",
+ 			"explainer": "(BLK 3 if no Block Items)  (ATK 3 if no Attack Items)",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -3291,7 +3291,7 @@
+ 			"log_hint": "Block 3 and/or Attack 3 if the rest of the hand has none",
+ 			"mode_pool": "all",
+ 			"name": "Chakram",
+-			"notes": "Tier 2. Circular throwing blade. Needs unique art at assets/dungeon/items/chakram.png.",
++			"notes": "Tier 2. Circular throwing blade.",
+ 			"ops": {
+ 				"atk": 3.0,
+ 				"blk": 3.0,
+@@ -3318,7 +3318,7 @@
+ 			"exceptions": "Tier 1. Wooden road sign. Paper Fight before ops.",
+ 			"explainer": "(BLK 7) then a Neighbor Attacks you",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -3373,7 +3373,7 @@
+ 			"exceptions": "Tier 1. Leather sling. Bucket 6 (after Bag of Marbles). Paper Fight before ops.",
+ 			"explainer": "Next Attack this fight can target Any monster.",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -3424,7 +3424,7 @@
+ 			"card_color": "utility",
+ 			"count": 1.0,
+ 			"defined": "Click during a fight, on the owner you spun, like The Boot. Empty bag: if their current HP is less than yours, they leave the wheel (no Phoenix / Gargoyle / Commander / Triclops / Wick / Death Bell on this capture) and this card stays, renamed Bag of that monster, with their sprite and the HP they had. Later uses: if the new owner has less HP than the number on the bag, they replace whoever was inside. Bagged counts as Defeated for Mimic gift and kill counters. When the wheel has 0 owners, before a clear, the bag is discarded and the latest captive sits back down as they were. You no longer have the bag, so you cannot bag them with this card again. Unused bag does nothing at a clear.",
+-			"exceptions": "Bucket 7 Tier 2 Utility hole. Plays like Cheese; Napalm stays the Cheese of this bucket. Needs unique art.",
++			"exceptions": "Bucket 7 Tier 2 Utility hole. Plays like Cheese; Napalm stays the Cheese of this bucket.",
+ 			"explainer": "(ENEMY HP < YOUR HP). They go in the bag.",
+ 			"flags": {
+ 				"art": true,
+@@ -3478,7 +3478,7 @@
+ 			"card_color": "atk",
+ 			"count": 1.0,
+ 			"defined": "Sits at Attack 2. Click during a fight to deal its current Attack to the owner you spun, then it is discarded. Whenever you or an Enemy would Flee, that Flee does not happen, a Can't Flee banner shows this card, and its Attack goes up by 2. That can happen again on a later Flee. A petrified copy does not interrupt. Two copies both gain +2. Commander cancelled Flee: they are not Defeated, they do not go to full HP, they stay at the HP they had before that Attack. Phoenix / Egg still transform in this seat. Triclops still lose 2 HP and stay. Basilisk still Petrifies, then stays if this is not petrified.",
+-			"exceptions": "Shopping-list hole 02. Bucket 8 Tier 1 Attack. Needs unique black-iron ball and chain art.",
++			"exceptions": "Shopping-list hole 02. Bucket 8 Tier 1 Attack.",
+ 			"explainer": "(ATK 2. Whenever you or an Enemy would Flee, cancel it. This gains +2 Attack.)",
+ 			"flags": {
+ 				"art": true,
+@@ -3533,7 +3533,7 @@
+ 			"card_color": "utility",
+ 			"count": 1.0,
+ 			"defined": "Unplayable watcher. Drafts at 5. Each real Discard ticks it down. Use and successful Keep do not tick. Bell, Cube, Worm, bribe, Challenge throw-away, failed Keep, and the bag emptying do. At 1 it flashes: the next Discard is copied into the hand as that same card (Grief Jar keeps its stored Block). Recycler stays and resets to 5. If Recycler itself is discarded at 1, it comes back at 5. Two Recyclers at 1 make two copies. Extra copies that will not fit the hand are lost (Can't Gain). Recycler still resets.",
+-			"exceptions": "Shopping-list hole 03. Bucket 8 Tier 2 Utility. Needs unique recycle-icon-on-steel-plate art.",
++			"exceptions": "Shopping-list hole 03. Bucket 8 Tier 2 Utility.",
+ 			"explainer": "(Every 5th Discard copies that Item into your Hand.)",
+ 			"flags": {
+ 				"art": true,
+@@ -4271,7 +4271,7 @@
+ 			"exceptions": "",
+ 			"explainer": "Lowest HP Monster +1 until tied with another",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -4386,7 +4386,7 @@
+ 			"exceptions": "",
+ 			"explainer": "Item if I never swing",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -4439,7 +4439,7 @@
+ 			"exceptions": "",
+ 			"explainer": "Neighbors attack, then Heal 3",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -4493,7 +4493,7 @@
+ 			"exceptions": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer.",
+ 			"explainer": "Attack equals HP",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -4667,7 +4667,7 @@
+ 			"exceptions": "",
+ 			"explainer": "ignores Block",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": false,
+ 				"hide": false
+ 			},
+@@ -4723,7 +4723,7 @@
+ 			"exceptions": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
+ 			"explainer": "2 Thorns",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -5974,10 +5974,10 @@
+ 			"card_color": "",
+ 			"count": 1.0,
+ 			"defined": "If my HP is exactly 3, I am Defeated (loot). If something else would Defeat or Slay me (0 HP, Boot, Hex), I instead lose 2 HP from the HP I had before that Defeat and Flee. After that Flee, if I have 3 HP, I am Defeated. Quiet Bell turns this off.",
+-			"exceptions": "Bucket 5. New Triclops. Needs new art. 3-Seeker keeps Triple Threat.",
++			"exceptions": "Bucket 5. New Triclops. 3-Seeker keeps Triple Threat.",
+ 			"explainer": "3 HP: Defeated. Else Defeat: −2 HP and Flee",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -6009,7 +6009,7 @@
+ 			"log_hint": "3 HP dies. Other Defeat: −2 and Flee",
+ 			"mode_pool": "all",
+ 			"name": "Triclops",
+-			"notes": "Bucket 5. New Triclops. Needs new art. 3-Seeker keeps Triple Threat.",
++			"notes": "Bucket 5. New Triclops. 3-Seeker keeps Triple Threat.",
+ 			"ops": {},
+ 			"poc": false,
+ 			"priority": 3.0,
+@@ -6380,7 +6380,7 @@
+ 			"card_color": "",
+ 			"count": 1.0,
+ 			"defined": "When Defeated or Slain, Flee (if you are facing me) and this seat becomes Phoenix at 4 HP / 6 ATK. Quiet Bell turns this off.",
+-			"exceptions": "Bucket 4. Needs art. Hatches into Phoenix.",
++			"exceptions": "Bucket 4. Hatches into Phoenix.",
+ 			"explainer": "Defeated: Flee, become Phoenix",
+ 			"flags": {
+ 				"art": true,
+@@ -6415,7 +6415,7 @@
+ 			"log_hint": "Defeated: Flee, become Phoenix",
+ 			"mode_pool": "all",
+ 			"name": "Phoenix Egg",
+-			"notes": "Bucket 4. Needs art. Hatches into Phoenix.",
++			"notes": "Bucket 4. Hatches into Phoenix.",
+ 			"ops": {},
+ 			"poc": false,
+ 			"priority": 3.0,
+@@ -6438,7 +6438,7 @@
+ 			"card_color": "",
+ 			"count": 0.0,
+ 			"defined": "Token. If Defeated or Slain before I Attack, Flee (if you are facing me) and this seat becomes Phoenix Egg at 2 HP / 2 ATK. After I Attack, Defeat and Slay are real. Quiet Bell turns this off.",
+-			"exceptions": "Token. Not drafted. Phoenix Egg creates it. Needs art.",
++			"exceptions": "Token. Not drafted. Phoenix Egg creates it.",
+ 			"explainer": "Defeated or Slain before Attack: Flee, become Egg",
+ 			"flags": {
+ 				"art": true,
+@@ -6473,7 +6473,7 @@
+ 			"log_hint": "Before Attack: Flee, become Egg",
+ 			"mode_pool": "all",
+ 			"name": "Phoenix",
+-			"notes": "Token. Not drafted. Phoenix Egg creates it. Needs art.",
++			"notes": "Token. Not drafted. Phoenix Egg creates it.",
+ 			"ops": {},
+ 			"poc": false,
+ 			"priority": 3.0,
+@@ -6496,10 +6496,10 @@
+ 			"card_color": "",
+ 			"count": 1.0,
+ 			"defined": "While you face me and I am not silenced, after each Item Use, my current HP, max HP, and ATK each double.",
+-			"exceptions": "Bucket 6. Plasmoid science experiment, distinct from Gelatinous Cube. Needs art.",
++			"exceptions": "Bucket 6. Plasmoid science experiment, distinct from Gelatinous Cube.",
+ 			"explainer": "Each Use: remaining HP and ATK ×2",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -6531,7 +6531,7 @@
+ 			"log_hint": "Each Use: remaining HP and ATK ×2",
+ 			"mode_pool": "all",
+ 			"name": "Amalgam",
+-			"notes": "Bucket 6. Plasmoid science experiment, distinct from Gelatinous Cube. Needs art.",
++			"notes": "Bucket 6. Plasmoid science experiment, distinct from Gelatinous Cube.",
+ 			"ops": {},
+ 			"poc": false,
+ 			"priority": 3.0,
+@@ -6554,10 +6554,10 @@
+ 			"card_color": "",
+ 			"count": 1.0,
+ 			"defined": "On Spin onto me, if I am not silenced, Heal you 2 and Heal each Neighbor 2, then the fight happens. Quiet Bell turns this off.",
+-			"exceptions": "Bucket 3. Needs art.",
++			"exceptions": "Bucket 3.",
+ 			"explainer": "On Spin: Heal you and Neighbors 2",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -6589,7 +6589,7 @@
+ 			"log_hint": "On Spin: Heal you and Neighbors 2",
+ 			"mode_pool": "all",
+ 			"name": "Fairy",
+-			"notes": "Bucket 3. Needs art.",
++			"notes": "Bucket 3.",
+ 			"ops": {},
+ 			"poc": false,
+ 			"priority": 3.0,
+@@ -6612,10 +6612,10 @@
+ 			"card_color": "",
+ 			"count": 1.0,
+ 			"defined": "While you face me and I am not silenced, each time you Gain Block, I take that much Attack damage (Needleback and Harpy still apply). Quiet Bell turns this off.",
+-			"exceptions": "Tier 1. No numbered bucket named. Needs art.",
++			"exceptions": "Tier 1. No numbered bucket named.",
+ 			"explainer": "Facing: takes Attack = Block you Gain",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -6647,7 +6647,7 @@
+ 			"log_hint": "Facing: takes Attack = Block you Gain",
+ 			"mode_pool": "all",
+ 			"name": "Eel",
+-			"notes": "Tier 1. No numbered bucket named. Needs art.",
++			"notes": "Tier 1. No numbered bucket named.",
+ 			"ops": {},
+ 			"poc": false,
+ 			"priority": 3.0,
+@@ -6670,10 +6670,10 @@
+ 			"card_color": "",
+ 			"count": 1.0,
+ 			"defined": "When I Attack, death is checked first. If you still live, Heal twice the HP you actually lost from that Attack. Fully blocked: Heal 0. Quiet Bell turns this off.",
+-			"exceptions": "Bucket 3. Needs art.",
++			"exceptions": "Bucket 3.",
+ 			"explainer": "Attack: Heal you 2× HP lost, after death check",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+@@ -6705,7 +6705,7 @@
+ 			"log_hint": "Attack: Heal you 2× HP you lost",
+ 			"mode_pool": "all",
+ 			"name": "Druid",
+-			"notes": "Bucket 3. Needs art.",
++			"notes": "Bucket 3.",
+ 			"ops": {},
+ 			"poc": false,
+ 			"priority": 3.0,
+@@ -6730,7 +6730,7 @@
+ 			"exceptions": "Tier 1. Small mouse. Paper Fight before special.",
+ 			"explainer": "On Spin: if your HP is higher, I lose 2 HP and Flee",
+ 			"flags": {
+-				"art": false,
++				"art": true,
+ 				"dev": true,
+ 				"hide": false
+ 			},
+--- a/scripts/dungeon_art.gd
++++ b/scripts/dungeon_art.gd
+@@ -171,7 +171,7 @@
+ 	"commander": "res://assets/dungeon/extra/commander.png",
+ 	"bodyguard": "res://assets/dungeon/extra/bodyguard.png",
+ 	"juggernaut": "res://assets/dungeon/extra/juggernaut.png",
+-	"two_headed_serpent": "res://assets/dungeon/extra/damsel.png",
++	"two_headed_serpent": "res://assets/dungeon/extra/two_headed_serpent.png",
+ 	"beggar": "res://assets/dungeon/extra/beggar.png",
+ 	"cowardly_king": "res://assets/dungeon/extra/cowardly_king.png",
+ 	"merchant": "res://assets/dungeon/extra/merchant.png",

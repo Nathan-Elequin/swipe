@@ -494,6 +494,69 @@ static func cue(sfx, id: StringName) -> void:
 		sfx.play_event(id)
 
 
+static func home_tex_style(rel: String, l: int, t: int, r: int, b: int) -> StyleBoxTexture:
+	var sb := StyleBoxTexture.new()
+	sb.texture = load_tex(rel)
+	if sb.texture == null:
+		return null
+	sb.texture_margin_left = float(l)
+	sb.texture_margin_top = float(t)
+	sb.texture_margin_right = float(r)
+	sb.texture_margin_bottom = float(b)
+	sb.content_margin_left = float(l)
+	sb.content_margin_top = float(t)
+	sb.content_margin_right = float(r)
+	sb.content_margin_bottom = float(b)
+	return sb
+
+
+## HSlider chrome from home/ui slider PNGs. No-op when textures are missing.
+static func apply_hslider(sl: HSlider) -> void:
+	if sl == null:
+		return
+	var track: StyleBoxTexture = home_tex_style("ui/slider_track_9.png", int(4.0 * PX), 0, int(4.0 * PX), 0)
+	if track == null:
+		return
+	sl.add_theme_stylebox_override("slider", track)
+	var fill: StyleBoxTexture = home_tex_style("ui/slider_fill_9.png", int(4.0 * PX), 0, int(4.0 * PX), 0)
+	if fill:
+		sl.add_theme_stylebox_override("grabber_area", fill)
+		sl.add_theme_stylebox_override("grabber_area_highlight", fill)
+	var grab: Texture2D = load_tex("ui/slider_grabber.png")
+	if grab:
+		sl.add_theme_icon_override("grabber", grab)
+	var grab_h: Texture2D = load_tex("ui/slider_grabber_hover.png")
+	if grab_h:
+		sl.add_theme_icon_override("grabber_highlight", grab_h)
+
+
+## One-shot frame swap on a TextureRect / Sprite2D. Falls back silently if frames missing.
+static func play_tex_frames(node: CanvasItem, rels: Array, ms_each: Array, hold_last_ms: float = 0.0) -> void:
+	if node == null or rels.is_empty():
+		return
+	var first: Texture2D = load_tex(str(rels[0]))
+	if first == null:
+		return
+	_set_node_tex(node, first)
+	for i in rels.size():
+		var tex: Texture2D = load_tex(str(rels[i]))
+		if tex:
+			_set_node_tex(node, tex)
+		var ms: float = float(ms_each[i]) if i < ms_each.size() else 80.0
+		await node.get_tree().create_timer(ms / 1000.0, true, true, true).timeout
+	if hold_last_ms > 0.0:
+		await node.get_tree().create_timer(hold_last_ms / 1000.0, true, true, true).timeout
+
+
+static func _set_node_tex(node: CanvasItem, tex: Texture2D) -> void:
+	if node is TextureRect:
+		(node as TextureRect).texture = tex
+	elif node is Sprite2D:
+		(node as Sprite2D).texture = tex
+	elif node is AnimatedSprite2D:
+		pass
+
+
 static func room_index(id: String) -> int:
 	return ROOM_ORDER.find(id)
 

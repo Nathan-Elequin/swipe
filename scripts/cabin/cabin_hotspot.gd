@@ -93,6 +93,12 @@ func set_idle_tex(tex: Texture2D) -> void:
 		_place_idle()
 
 
+func set_hover_tex(tex: Texture2D) -> void:
+	hover_tex = tex
+	if _hovering and not locked and not _pressing:
+		_refresh_tex()
+
+
 func _refresh_tex() -> void:
 	if locked and locked_tex:
 		texture = locked_tex

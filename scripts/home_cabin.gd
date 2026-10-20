@@ -1153,6 +1153,7 @@ func _on_rock_loop() -> void:
 func _bump() -> void:
 	offset_top = 4.0
 	offset_bottom = 4.0
+	_spawn_dust_puff(_hero.position + Vector2(16, 30) * PX if _hero else Vector2(70, 235) * PX)
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.tween_interval(0.07)
@@ -1160,6 +1161,27 @@ func _bump() -> void:
 		offset_top = 0.0
 		offset_bottom = 0.0
 	)
+
+
+func _spawn_dust_puff(at_px: Vector2) -> void:
+	var rels := ["fx/dust_puff_f0.png", "fx/dust_puff_f1.png", "fx/dust_puff_f2.png"]
+	if KIT.load_tex(rels[0]) == null:
+		return
+	var host: Node = _rooms.get(_current_room) if _rooms.has(_current_room) else self
+	if host == null:
+		host = self
+	var puff: AnimatedSprite2D = KIT.anim_sprite(rels, "dust", 1000.0 / 80.0, false, Vector2.ZERO)
+	puff.centered = true
+	puff.position = at_px
+	puff.z_index = 9
+	host.add_child(puff)
+	if puff.sprite_frames:
+		puff.play("dust")
+		puff.animation_finished.connect(func() -> void:
+			puff.queue_free()
+		, CONNECT_ONE_SHOT)
+	else:
+		puff.queue_free()
 
 
 func _fade_to_interior() -> void:
@@ -1551,6 +1573,24 @@ func _play_stand() -> void:
 		await _wait(durs[i])
 	_show_empty_chair(true)
 	_set_hero_frame("hero_walk", 0)
+	await _play_chair_settle()
+
+
+func _play_chair_settle() -> void:
+	if _chair_empty == null:
+		return
+	var rels := ["chair_settle_f0", "chair_settle_f1", "chair_settle_f2", "chair_settle_f3"]
+	if _home(rels[0]) == null:
+		return
+	_chair_empty.visible = true
+	for stem in rels:
+		var tex: Texture2D = _home(str(stem))
+		if tex:
+			_chair_empty.texture = tex
+		await _wait(0.08)
+	var rest: Texture2D = _home("chair_empty")
+	if rest:
+		_chair_empty.texture = rest
 
 
 func _fade_shelf(out: bool) -> void:
@@ -1733,6 +1773,21 @@ func _mount_slot(card: Dictionary, pos: Vector2, msize: Vector2, room_locked: bo
 	else:
 		item.modulate = Color(0.09, 0.07, 0.06, 1.0)
 	wrap.add_child(item)
+	# Seen-but-not-owned: grey frame over the 16x16 recess (item_seen_overlay).
+	if is_seen and not is_swiped:
+		var seen_ov: Texture2D = _home("item_seen_overlay")
+		if seen_ov:
+			var ov := TextureRect.new()
+			ov.name = "SeenOverlay"
+			ov.texture = seen_ov
+			ov.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			ov.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			ov.stretch_mode = TextureRect.STRETCH_SCALE
+			ov.position = well.position
+			ov.size = well.size
+			ov.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			ov.z_index = 2
+			wrap.add_child(ov)
 	if fresh:
 		item.scale = Vector2.ZERO
 		var tw := create_tween()
@@ -1740,6 +1795,8 @@ func _mount_slot(card: Dictionary, pos: Vector2, msize: Vector2, room_locked: bo
 		tw.tween_property(item, "scale", Vector2(1.15, 1.15), 0.12)
 		tw.tween_property(item, "scale", Vector2.ONE, 0.13)
 		_play_burst(wrap)
+		if bool(new_unseen.get(id, false)):
+			_play_new_burst(wrap)
 	if is_seen:
 		var plate: Rect2 = _plate_rect(msize)
 		var font_n: int = clampi(int(msize.x * 0.13), 17, 24)
@@ -1869,6 +1926,33 @@ func _play_burst(wrap: Control) -> void:
 	burst.animation_finished.connect(func() -> void:
 		burst.queue_free()
 	)
+
+
+func _play_new_burst(wrap: Control) -> void:
+	var rels := [
+		"fx/new_burst_f0.png", "fx/new_burst_f1.png", "fx/new_burst_f2.png",
+		"fx/new_burst_f3.png", "fx/new_burst_f4.png", "fx/new_burst_f5.png",
+	]
+	if KIT.load_tex(rels[0]) == null:
+		return
+	var burst: AnimatedSprite2D = KIT.anim_sprite(rels, "nb", 1000.0 / 60.0, false, Vector2.ZERO)
+	burst.centered = true
+	var s: float = wrap.size.x / _mount_cell().x
+	# Centre (24,24) native on 48x48 canvas → mount recess centre.
+	burst.position = Vector2(wrap.size.x * 0.5, wrap.size.y * 0.4)
+	burst.scale = Vector2(s, s)
+	var mat := CanvasItemMaterial.new()
+	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	burst.material = mat
+	burst.z_index = 6
+	wrap.add_child(burst)
+	if burst.sprite_frames:
+		burst.play("nb")
+		burst.animation_finished.connect(func() -> void:
+			burst.queue_free()
+		, CONNECT_ONE_SHOT)
+	else:
+		burst.queue_free()
 
 
 func _set_glint(id: String, hovered: bool) -> void:
@@ -3136,6 +3220,31 @@ func _on_run_door() -> void:
 	_open_map()
 
 
+func _play_run_door_open() -> void:
+	var room = _rooms.get("main")
+	if room == null:
+		return
+	var hs = room.spots.get("RunDoor", null)
+	if hs == null or not (hs is CabinHotspot):
+		return
+	var rels := ["doors/run_door_open_f0.png", "doors/run_door_open_f1.png", "doors/run_door_open_f2.png"]
+	if KIT.load_tex(rels[0]) == null:
+		return
+	var closed: Texture2D = hs.idle_tex
+	var ms := [100.0, 100.0, 100.0]
+	for i in rels.size():
+		var tex: Texture2D = KIT.load_tex(str(rels[i]))
+		if tex:
+			hs.texture = tex
+			hs.position = hs.origin_native * PX
+			hs.size = tex.get_size()
+		await _wait(ms[i] / 1000.0)
+	# Hold f2 briefly then restore closed for next visit.
+	await _wait(0.05)
+	if closed:
+		hs.set_idle_tex(closed)
+
+
 func _on_map() -> void:
 	if _gate_on():
 		if _dialog:
@@ -3169,6 +3278,7 @@ func _open_will() -> void:
 func _on_map_go(route: String) -> void:
 	last_route = route
 	_save()
+	await _play_run_door_open()
 	_leave_for_run(route)
 
 
@@ -3248,6 +3358,7 @@ func _on_cat() -> void:
 
 
 func _on_side_door(room: String) -> void:
+	await _flash_side_door_open(room)
 	match room:
 		"main":
 			pan_to("hall")
@@ -3255,6 +3366,25 @@ func _on_side_door(room: String) -> void:
 			pan_to("study")
 		"study":
 			pan_to("workshop")
+
+
+func _flash_side_door_open(room: String) -> void:
+	var r = _rooms.get(room)
+	if r == null:
+		return
+	var hs = r.spots.get("SideDoor", null)
+	if hs == null or not (hs is CabinHotspot) or hs.locked:
+		return
+	var open_tex: Texture2D = KIT.load_tex("doors/side_door_open.png")
+	if open_tex == null:
+		return
+	var closed: Texture2D = hs.idle_tex
+	hs.texture = open_tex
+	hs.position = hs.origin_native * PX
+	hs.size = open_tex.get_size()
+	await _wait(0.12)
+	if closed:
+		hs.set_idle_tex(closed)
 
 
 func _on_back_door(room: String) -> void:
@@ -3423,12 +3553,14 @@ func _on_geode() -> void:
 func _on_drawer() -> void:
 	if not ending_seen:
 		KIT.cue(sfx, &"cabin.drawer_stuck")
+		await _play_drawer_rattle()
 		drawer_stuck_index = (drawer_stuck_index + 1) % 3
 		_save()
 		if _dialog:
 			_dialog.say(["drawer.stuck.%d" % (drawer_stuck_index if drawer_stuck_index > 0 else 3)])
 		return
 	KIT.cue(sfx, &"cabin.drawer_open")
+	await _play_drawer_open()
 	if not drawer_opened:
 		drawer_opened = true
 		_save()
@@ -3438,6 +3570,64 @@ func _on_drawer() -> void:
 			await _dialog.finished
 	_overlay_name = "drawer"
 	_drawer.open_drawer()
+
+
+func _drawer_hotspot() -> CabinHotspot:
+	var study = _rooms.get("study")
+	if study == null:
+		return null
+	var hs = study.spots.get("Drawer", null)
+	if hs is CabinHotspot:
+		return hs
+	return null
+
+
+func _play_drawer_rattle() -> void:
+	var hs: CabinHotspot = _drawer_hotspot()
+	if hs == null:
+		return
+	var rels := [
+		"props/desk_drawer_rattle_f0.png",
+		"props/desk_drawer_rattle_f1.png",
+		"props/desk_drawer_rattle_f2.png",
+		"props/desk_drawer_rattle_f0.png",
+	]
+	if KIT.load_tex(rels[0]) == null:
+		return
+	var rest: Texture2D = hs.idle_tex
+	var origin := Vector2(200, 166)
+	for rel in rels:
+		var tex: Texture2D = KIT.load_tex(str(rel))
+		if tex:
+			hs.texture = tex
+			hs.position = origin * PX
+			hs.size = tex.get_size()
+		await _wait(0.06)
+	if rest:
+		hs.set_idle_tex(rest)
+
+
+func _play_drawer_open() -> void:
+	var hs: CabinHotspot = _drawer_hotspot()
+	if hs == null:
+		return
+	var rels := [
+		"props/desk_drawer_open_f0.png",
+		"props/desk_drawer_open_f1.png",
+		"props/desk_drawer_open_f2.png",
+		"props/desk_drawer_open_f3.png",
+	]
+	if KIT.load_tex(rels[0]) == null:
+		return
+	var origin := Vector2(198, 163)
+	for i in rels.size():
+		var tex: Texture2D = KIT.load_tex(str(rels[i]))
+		if tex:
+			hs.texture = tex
+			hs.position = origin * PX
+			hs.size = tex.get_size()
+		await _wait(0.09)
+	# Hold f3 while close-up is up; overlay open follows.
 
 
 func _on_take_geode() -> void:
@@ -3458,12 +3648,36 @@ func _on_drawer_note() -> void:
 
 func _on_dummy() -> void:
 	KIT.cue(sfx, &"cabin.dummy")
+	await _play_dummy_tilt()
 	if _dialog:
 		_dialog.say(["cabin.dummy.ask"], ["cabin.dummy.yes", "cabin.dummy.no"])
 		var ch: int = await _dialog.finished
 		if ch == 0:
 			return_room = "workshop"
 			tutorial_wanted.emit()
+
+
+func _play_dummy_tilt() -> void:
+	var shop = _rooms.get("workshop")
+	if shop == null:
+		return
+	var hs = shop.spots.get("Dummy", null)
+	if hs == null or not (hs is CabinHotspot):
+		return
+	var idle: Texture2D = hs.idle_tex if hs.idle_tex else KIT.load_tex("props/dummy.png")
+	var tilt_l: Texture2D = KIT.load_tex("props/dummy_tilt_l.png")
+	var tilt_r: Texture2D = KIT.load_tex("props/dummy_tilt_r.png")
+	if tilt_l == null or tilt_r == null:
+		return
+	var seq: Array = [idle, tilt_l, tilt_r, tilt_l, idle]
+	for tex in seq:
+		if tex:
+			hs.texture = tex
+			hs.position = hs.origin_native * PX
+			hs.size = tex.get_size()
+		await _wait(0.07)
+	if idle:
+		hs.set_idle_tex(idle)
 
 
 func _open_brag() -> void:
@@ -3650,6 +3864,7 @@ func debug_hero_family(family: String, i: int, flip: bool = false) -> void:
 	_hero.visible = true
 	_hero.flip_h = flip
 	var wide: bool = family == "hero_sack_dump" or family == "hero_sack_shake"
+	var drop: bool = family == "hero_drop_sack"
 	var seated: bool = family == "hero_sit" or family == "hero_rock"
 	_set_wide_offset(wide)
 	if seated:
@@ -3657,7 +3872,7 @@ func debug_hero_family(family: String, i: int, flip: bool = false) -> void:
 		_place_hero(Vector2(10, 205))
 	else:
 		_show_empty_chair(true)
-		_place_hero(Vector2(70, 205) if wide else Vector2(80, 205))
+		_place_hero(Vector2(70, 205) if (wide or drop) else Vector2(80, 205))
 	_set_hero_frame(family, i)
 
 
@@ -3671,6 +3886,87 @@ func debug_win_fly() -> void:
 	debug_hero_family("hero_sack_dump", 2, false)
 	_place_debug_loot(true)
 	_spawn_hall_glow(false)
+
+
+func debug_drop_sack(frame: int = 2) -> void:
+	debug_hero_family("hero_drop_sack", clampi(frame, 0, 3), true)
+
+
+func debug_run_door_open(frame: int = 2) -> void:
+	var room = _rooms.get("main")
+	if room == null:
+		return
+	var hs = room.spots.get("RunDoor", null)
+	if hs == null or not (hs is CabinHotspot):
+		return
+	var tex: Texture2D = KIT.load_tex("doors/run_door_open_f%d.png" % clampi(frame, 0, 2))
+	if tex:
+		hs.texture = tex
+		hs.position = hs.origin_native * PX
+		hs.size = tex.get_size()
+
+
+func debug_side_door_open(room_id: String = "main") -> void:
+	var r = _rooms.get(room_id)
+	if r == null:
+		return
+	var hs = r.spots.get("SideDoor", null)
+	if hs == null or not (hs is CabinHotspot):
+		return
+	var tex: Texture2D = KIT.load_tex("doors/side_door_open.png")
+	if tex:
+		hs.texture = tex
+		hs.position = hs.origin_native * PX
+		hs.size = tex.get_size()
+
+
+func debug_drawer_rattle_frame(frame: int = 1) -> void:
+	var hs: CabinHotspot = _drawer_hotspot()
+	if hs == null:
+		return
+	var tex: Texture2D = KIT.load_tex("props/desk_drawer_rattle_f%d.png" % clampi(frame, 0, 2))
+	if tex:
+		hs.texture = tex
+		hs.position = Vector2(200, 166) * PX
+		hs.size = tex.get_size()
+
+
+func debug_drawer_open_frame(frame: int = 3) -> void:
+	var hs: CabinHotspot = _drawer_hotspot()
+	if hs == null:
+		return
+	var tex: Texture2D = KIT.load_tex("props/desk_drawer_open_f%d.png" % clampi(frame, 0, 3))
+	if tex:
+		hs.texture = tex
+		hs.position = Vector2(198, 163) * PX
+		hs.size = tex.get_size()
+
+
+func debug_dummy_tilt(side: String = "l") -> void:
+	var shop = _rooms.get("workshop")
+	if shop == null:
+		return
+	var hs = shop.spots.get("Dummy", null)
+	if hs == null or not (hs is CabinHotspot):
+		return
+	var rel: String = "props/dummy_tilt_l.png" if side != "r" else "props/dummy_tilt_r.png"
+	var tex: Texture2D = KIT.load_tex(rel)
+	if tex:
+		hs.texture = tex
+		hs.position = hs.origin_native * PX
+		hs.size = tex.get_size()
+
+
+func debug_new_burst() -> void:
+	var hall = _rooms.get("hall")
+	if hall == null or _shelf_host == null:
+		return
+	var wrap := Control.new()
+	wrap.size = _mount_cell()
+	wrap.position = Vector2(80, 40)
+	wrap.add_to_group("debug_fx")
+	_shelf_host.add_child(wrap)
+	_play_new_burst(wrap)
 
 
 func _item_spr_scale(tex: Texture2D, mul: float = 1.0) -> Vector2:
@@ -3708,6 +4004,8 @@ func _place_debug_loot(flying: bool) -> void:
 		else:
 			spr.position = from + Vector2(float(i) * 36.0 - 12.0, -28.0 - float(i % 2) * 18.0)
 		main_room.add_child(spr)
+		if flying:
+			_attach_fly_fx(spr)
 		i += 1
 
 
@@ -3780,6 +4078,7 @@ func _spawn_sack_pops() -> void:
 	var main_room = _rooms.get("main")
 	if main_room == null:
 		return
+	_spawn_spin_coin(main_room, _pt(69, 220))
 	var i: int = 0
 	for id3 in ids:
 		var tex: Texture2D = tex_by_item.get(str(id3), null)
@@ -3793,6 +4092,7 @@ func _spawn_sack_pops() -> void:
 		spr.z_index = 7
 		spr.scale = _item_spr_scale(tex, 0.4)
 		main_room.add_child(spr)
+		_attach_fly_fx(spr)
 		KIT.cue(sfx, &"cabin.item_pop")
 		var from: Vector2 = spr.position
 		var dest: Vector2 = Vector2(ROOM_W + 80.0, from.y - 40.0 - float(i % 5) * 18.0)
@@ -3804,9 +4104,62 @@ func _spawn_sack_pops() -> void:
 			spr.position = _quad_bez(from, peak, dest, t)
 		, 0.0, 1.0, 0.55)
 		tw.parallel().tween_property(spr, "modulate:a", 0.0, 0.55)
+		tw.tween_callback(func() -> void:
+			if is_instance_valid(spr):
+				spr.queue_free()
+		)
 		i += 1
 		await _wait(0.10)
 	_spawn_hall_glow()
+
+
+func _spawn_spin_coin(host: Node, at_px: Vector2) -> void:
+	var rels := ["fx/coin_f0.png", "fx/coin_f1.png", "fx/coin_f2.png", "fx/coin_f3.png"]
+	if KIT.load_tex(rels[0]) == null:
+		return
+	var coin: AnimatedSprite2D = KIT.anim_sprite(rels, "coin", 1000.0 / 80.0, true, Vector2.ZERO)
+	coin.centered = true
+	coin.position = at_px
+	coin.z_index = 8
+	host.add_child(coin)
+	if coin.sprite_frames:
+		coin.play("coin")
+	var peak: Vector2 = at_px + Vector2(24, -48) * PX
+	var land: Vector2 = at_px + Vector2(40, 8) * PX
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_method(func(t: float) -> void:
+		coin.position = _quad_bez(at_px, peak, land, t)
+	, 0.0, 1.0, 0.55)
+	tw.tween_property(coin, "modulate:a", 0.0, 0.2)
+	tw.tween_callback(coin.queue_free)
+
+
+func _attach_fly_fx(spr: Sprite2D) -> void:
+	var spark_rels := ["fx/fly_spark_f0.png", "fx/fly_spark_f1.png", "fx/fly_spark_f2.png"]
+	if KIT.load_tex(spark_rels[0]):
+		var spark: AnimatedSprite2D = KIT.anim_sprite(spark_rels, "spark", 1000.0 / 80.0, true, Vector2.ZERO)
+		spark.centered = true
+		spark.z_index = 1
+		spr.add_child(spark)
+		if spark.sprite_frames:
+			spark.play("spark")
+	var trail_tex: Texture2D = KIT.load_tex("fx/fly_trail.png")
+	if trail_tex:
+		var parts := CPUParticles2D.new()
+		parts.texture = trail_tex
+		parts.amount = 12
+		parts.lifetime = 0.35
+		parts.emitting = true
+		parts.direction = Vector2(-1, 0)
+		parts.spread = 18.0
+		parts.gravity = Vector2.ZERO
+		parts.initial_velocity_min = 20.0
+		parts.initial_velocity_max = 60.0
+		parts.scale_amount_min = 0.6
+		parts.scale_amount_max = 1.2
+		parts.z_index = 0
+		spr.add_child(parts)
 
 
 func _spawn_hall_glow(fade: bool = true) -> void:

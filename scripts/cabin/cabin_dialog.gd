@@ -15,6 +15,7 @@ var _plate_lab
 var _bust: TextureRect
 var _text
 var _next: AnimatedSprite2D
+var _tail: TextureRect
 var _choices: HBoxContainer
 var _bubble: NinePatchRect
 var _bubble_lab
@@ -52,6 +53,16 @@ func setup(p_cabin) -> void:
 	_box = KIT.nine("ui/dialog_box_9.png", Vector2(12, 12))
 	_box.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_box)
+	_tail = TextureRect.new()
+	_tail.name = "SpeechTail"
+	_tail.texture = KIT.load_tex("ui/speech_tail.png")
+	_tail.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_tail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_tail.stretch_mode = TextureRect.STRETCH_KEEP
+	_tail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tail.size = Vector2(10, 8) * PX
+	_tail.visible = _tail.texture != null
+	_box.add_child(_tail)
 	_plate = KIT.nine("ui/nameplate_9.png", Vector2(6, 4))
 	_plate.size = Vector2(40, 14) * PX
 	_box.add_child(_plate)
@@ -215,6 +226,13 @@ func _layout_talk(with_choices: bool) -> void:
 	_next.position = Vector2(inner.end.x - 18.0 * PX, inner.end.y - 16.0 * PX)
 	_choices.position = Vector2(text_x, inner.end.y - prompt_h)
 	_choices.size = Vector2(text_w, prompt_h)
+	if _tail and _tail.texture:
+		# Point at Nib/bust: under the box bottom edge, overlapping border by 1 native px.
+		_tail.position = Vector2(
+			inner.position.x + bust_sz.x * 0.5 - 5.0 * PX,
+			bar.size.y - 1.0 * PX
+		)
+		_tail.visible = true
 	TEXT_RESERVE.settle(_box)
 	_text.fit()
 

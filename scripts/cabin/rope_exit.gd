@@ -16,6 +16,7 @@ var _lay: Dictionary = {}
 var _ladder: AnimatedSprite2D
 var _ladder_hover: TextureRect
 var _hole: TextureRect
+var _hole_glow: AnimatedSprite2D
 var _hero: Sprite2D
 var _headline: FitLabelBox
 var _sub: FitLabelBox
@@ -71,6 +72,16 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	_hole = KIT.tex_rect("overlays/deeper_hole_idle.png", Vector2(250, 214), Vector2(96, 40), 3)
 	_hole.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_hole)
+	_hole_glow = KIT.anim_sprite(
+		["overlays/deeper_hole_glow_f0.png", "overlays/deeper_hole_glow_f1.png"],
+		"g", 1000.0 / 500.0, true, Vector2(250, 214)
+	)
+	_hole_glow.z_index = 2
+	_hole_glow.visible = false
+	add_child(_hole_glow)
+	if _hole_glow.sprite_frames and _hole_glow.sprite_frames.get_frame_count("g") > 0:
+		_hole_glow.visible = true
+		_hole_glow.play("g")
 	_hero = Sprite2D.new()
 	_hero.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_hero.centered = false
@@ -331,6 +342,10 @@ func _set_climb_hot(on: bool) -> void:
 
 func _set_delve_hot(on: bool) -> void:
 	_hole.texture = KIT.load_tex("overlays/deeper_hole_hover.png" if on else "overlays/deeper_hole_idle.png")
+	if _hole_glow:
+		_hole_glow.visible = not on and _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
+		if _hole_glow.visible and not _hole_glow.is_playing():
+			_hole_glow.play("g")
 	if _deeper_btn:
 		_deeper_btn.add_theme_stylebox_override("normal", _plank_hover if on else _plank_normal)
 	if on:

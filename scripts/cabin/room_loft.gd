@@ -77,5 +77,8 @@ func _refresh_doors() -> void:
 	var tr = spots.get("Trunk", null)
 	if tr is CabinHotspot and cabin and bool(cabin.get("trunk_open")):
 		tr.set_idle_tex(KIT.load_tex("props/trunk_open.png"))
+		var toh: Texture2D = KIT.load_tex("props/trunk_open_hover.png")
+		tr.set_hover_tex(toh if toh else KIT.load_tex("props/trunk_hover.png"))
 	elif tr is CabinHotspot:
 		tr.set_idle_tex(KIT.load_tex("props/trunk.png"))
+		tr.set_hover_tex(KIT.load_tex("props/trunk_hover.png"))

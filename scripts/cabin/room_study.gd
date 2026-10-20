@@ -53,20 +53,27 @@ func _refresh_doors() -> void:
 		if not cabin.ending_seen:
 			dr.tag_key = "cabin.hot.drawer"
 			dr.set_idle_tex(KIT.load_tex("props/desk_drawer.png"))
+			dr.set_hover_tex(KIT.load_tex("props/desk_drawer_hover.png"))
 			drawer_glint.visible = false
 		elif not cabin.drawer_opened:
 			dr.tag_key = "cabin.hot.drawer_ajar"
 			dr.set_idle_tex(KIT.load_tex("props/desk_drawer_ajar.png"))
+			var ajar_h: Texture2D = KIT.load_tex("props/desk_drawer_ajar_hover.png")
+			dr.set_hover_tex(ajar_h if ajar_h else KIT.load_tex("props/desk_drawer_hover.png"))
 			drawer_glint.visible = true
 			if drawer_glint.sprite_frames and not drawer_glint.is_playing():
 				drawer_glint.play("g")
 		else:
 			dr.tag_key = "cabin.hot.drawer_open"
 			dr.set_idle_tex(KIT.load_tex("props/desk_drawer.png"))
+			dr.set_hover_tex(KIT.load_tex("props/desk_drawer_hover.png"))
 			drawer_glint.visible = false
 	var j = spots.get("Journal", null)
 	if j is CabinHotspot and cabin and cabin.has_method("journal_has_unread"):
 		if cabin.journal_has_unread():
 			j.set_idle_tex(KIT.load_tex("props/journal_new.png"))
+			var jh: Texture2D = KIT.load_tex("props/journal_new_hover.png")
+			j.set_hover_tex(jh if jh else KIT.load_tex("props/journal_hover.png"))
 		else:
 			j.set_idle_tex(KIT.load_tex("props/journal.png"))
+			j.set_hover_tex(KIT.load_tex("props/journal_hover.png"))
