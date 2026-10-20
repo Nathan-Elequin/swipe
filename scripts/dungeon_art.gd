@@ -89,7 +89,7 @@ const ITEM_PNG := {
 	"left_bracer": "res://assets/dungeon/items/left_bracer.png",
 	"spider_egg": "res://assets/dungeon/items/spider_egg.png",
 	"grimoire": "res://assets/dungeon/items/grimoire.png",
-	"pocketwatch": "res://assets/dungeon/items/watch.png",
+	"pocketwatch": "res://assets/dungeon/items/pocketwatch.png",
 	"healing_potion": "res://assets/dungeon/items/healing_potion.png",
 	"poison_flask": "res://assets/dungeon/items/poison_flask.png",
 	"smoke_bomb": "res://assets/dungeon/items/smoke_bomb.png",
@@ -124,6 +124,7 @@ const ITEM_PNG := {
 	"miasma": "res://assets/dungeon/items/miasma.png",
 	"bag_of_marbles": "res://assets/dungeon/items/bag_of_marbles.png",
 	"marble": "res://assets/dungeon/items/marble.png",
+	"cats_eye_marble": "res://assets/dungeon/items/cats_eye_marble.png",
 	"hex": "res://assets/dungeon/items/hex.png",
 	"ale_flagon": "res://assets/dungeon/items/ale_flagon.png",
 	"napalm": "res://assets/dungeon/items/napalm.png",
@@ -140,6 +141,11 @@ const ITEM_PNG := {
 	"chakram": "res://assets/dungeon/items/chakram.png",
 	"signpost": "res://assets/dungeon/items/signpost.png",
 	"sling": "res://assets/dungeon/items/sling.png",
+	"rust": "res://assets/dungeon/items/rust.png",
+	"bag_of_holding": "res://assets/dungeon/items/bag_of_holding.png",
+	"bag_of_holding_closed": "res://assets/dungeon/items/bag_of_holding_closed.png",
+	"ball_and_chain": "res://assets/dungeon/items/ball_and_chain.png",
+	"recycler": "res://assets/dungeon/items/recycler.png",
 }
 
 const MONSTER_PNG := {
@@ -176,7 +182,7 @@ const MONSTER_PNG := {
 	"ogre": "res://assets/dungeon/extra/ogre.png",
 	"dragon": "res://assets/dungeon/extra/dragon.png",
 	"slime_boss": "res://assets/dungeon/extra/slime_boss.png",
-	"spider_queen": "res://assets/dungeon/extra/spider.png",
+	"spider_queen": "res://assets/dungeon/extra/spider_queen.png",
 	"hollow": "res://assets/dungeon/extra/hollow.png",
 	"martyr": "res://assets/dungeon/extra/martyr.png",
 	"prism": "res://assets/dungeon/extra/prism.png",
@@ -199,6 +205,9 @@ const MONSTER_PNG := {
 	"eel": "res://assets/dungeon/extra/eel.png",
 	"druid": "res://assets/dungeon/extra/druid.png",
 	"mouse": "res://assets/dungeon/extra/mouse.png",
+	"magicat": "res://assets/dungeon/extra/magicat.png",
+	"rust_bucket": "res://assets/dungeon/extra/rust_bucket.png",
+	"poison_frog": "res://assets/dungeon/extra/poison_frog.png",
 }
 
 var atlas: Texture2D
