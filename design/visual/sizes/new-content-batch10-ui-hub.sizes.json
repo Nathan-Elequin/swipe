@@ -1,0 +1,14 @@
+{
+ "notes": "Wheel hub UI art 2026-10-20 batch 10 (Pixel), per design/visual/ui-fixes-2026-10-20/WHEEL-HUB-ART.md. Squircle tier plates (brown Weak / blue Tough / deep red Deadly), inspect-size squircles, hub hearts, Dungeon Deck card back. Stored 4x nearest, still frames, centre pivot, no 9-slice. Draw the deck card at 3x native (96x132) so Nearest stays pixel-exact; its lower third is plain for the name caption.",
+ "assets": [
+  {"path": "assets/ui/wheel/squircle_t1.png", "native": [32, 32], "shipped": [128, 128]},
+  {"path": "assets/ui/wheel/squircle_t2.png", "native": [32, 32], "shipped": [128, 128]},
+  {"path": "assets/ui/wheel/squircle_t3.png", "native": [32, 32], "shipped": [128, 128]},
+  {"path": "assets/ui/inspect/squircle_t1.png", "native": [48, 40], "shipped": [192, 160]},
+  {"path": "assets/ui/inspect/squircle_t2.png", "native": [48, 40], "shipped": [192, 160]},
+  {"path": "assets/ui/inspect/squircle_t3.png", "native": [48, 40], "shipped": [192, 160]},
+  {"path": "assets/ui/hub/heart_full.png", "native": [16, 16], "shipped": [64, 64]},
+  {"path": "assets/ui/hub/heart_empty.png", "native": [16, 16], "shipped": [64, 64]},
+  {"path": "assets/ui/deck/playing_card.png", "native": [32, 44], "shipped": [128, 176]}
+ ]
+}

@@ -22,6 +22,7 @@ var _shake: float = 0.0
 var _draw_t: float = 0.0
 var _busy: bool = false
 var _sack: Texture2D
+var _card: Texture2D
 var _warn_t: float = 0.0
 
 
@@ -34,6 +35,9 @@ func setup() -> void:
 	gui_input.connect(_on_gui)
 	if ResourceLoader.exists("res://assets/dungeon/home/loot_sack_dropped.png"):
 		_sack = load("res://assets/dungeon/home/loot_sack_dropped.png")
+	if ResourceLoader.exists("res://assets/ui/deck/playing_card.png"):
+		_card = load("res://assets/ui/deck/playing_card.png")
+	texture_filter = TEXTURE_FILTER_NEAREST
 
 
 func set_count(n: int) -> void:
@@ -182,6 +186,16 @@ func _draw_loot_bags() -> void:
 
 
 func _draw_back(r: Rect2, tint: Color = Color.WHITE, face: bool = false) -> void:
+	if _card != null:
+		# Pixel's card back (32x44 native, shipped 4x). Drawn at 3x native so Nearest stays pixel-exact.
+		var csz := Vector2(_card.get_width(), _card.get_height()) * 0.75
+		var cr := Rect2(r.get_center() - csz * 0.5, csz)
+		draw_texture_rect(_card, cr, false, tint)
+		if face and peek_tex != null:
+			var pad := 12.0
+			var box := Rect2(cr.position + Vector2(pad, pad), Vector2(cr.size.x - pad * 2.0, cr.size.y * 0.62 - pad))
+			draw_texture_rect(peek_tex, box, false, tint)
+		return
 	var fill: Color = BACK * tint
 	var edge: Color = RIM * tint
 	draw_rect(r, fill, true)
