@@ -275,6 +275,7 @@ func _add_slider(host: VBoxContainer, which: String, label: String) -> HSlider:
 	sl.max_value = 100
 	sl.step = 1
 	sl.custom_minimum_size = Vector2(152.0 * PX, 28)
+	KIT.apply_hslider(sl)
 	sl.value_changed.connect(_on_slider.bind(which))
 	wrap.add_child(sl)
 	host.add_child(wrap)
