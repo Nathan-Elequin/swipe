@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Apply Poison to all Monsters equal to the lowest HP on any Monster",
+			"id": "miasma",
+			"kind": "item",
+			"name": "Miasma",
+			"sprite": "assets/dungeon/items/miasma.png"
+		},
+		{
+			"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
+			"id": "phoenix_egg",
+			"kind": "monster",
+			"name": "Phoenix Egg",
+			"sprite": "assets/dungeon/extra/phoenix_egg.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Miasma"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Miasma — Apply Poison to all Monsters equal to the lowest HP on any Monster Monster: Phoenix Egg — When I am Defeated, I Flee and hatch into a Phoenix. Challenge hand. Wheel phoenix_egg, wizard, golem. Click Miasma, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-miasma-phoenix_egg",
+	"log": "Draft enter\nYou Spin\nSpin Phoenix Egg\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0\nMiasma\nFight poison 2 all\nitems this combat 1\nSpin poison  to  0 HP\nFight Phoenix Egg Flee and become Phoenix\nBLK 0\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nSpin poison  to  5 HP",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use miasma",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "phoenix_egg",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Miasma vs Phoenix Egg",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

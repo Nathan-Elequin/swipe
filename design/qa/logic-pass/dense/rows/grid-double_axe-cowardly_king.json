@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once.",
+			"id": "double_axe",
+			"kind": "item",
+			"name": "Great Axe",
+			"sprite": "assets/dungeon/items/double_axe.png"
+		},
+		{
+			"ability": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated.",
+			"id": "cowardly_king",
+			"kind": "monster",
+			"name": "Cowardly King",
+			"sprite": "assets/dungeon/extra/cowardly_king.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Great Axe"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Great Axe — Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once. Monster: Cowardly King — When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated. Challenge hand. Wheel cowardly_king, wizard, golem. Click Great Axe, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_axe-cowardly_king",
+	"log": "Draft enter\nYou Spin\nSpin Cowardly King\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0\nGreat Axe\nCowardly King - Guards!\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nBLK 0\nitems this combat 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 4 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use double_axe",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "cowardly_king",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Great Axe vs Cowardly King",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

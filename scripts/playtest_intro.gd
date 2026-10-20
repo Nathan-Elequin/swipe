@@ -354,10 +354,14 @@ func _build_talk() -> void:
 	sb.content_margin_bottom = 12
 	_talk.add_theme_stylebox_override("panel", sb)
 	add_child(_talk)
+	var wrap := VBoxContainer.new()
+	wrap.add_theme_constant_override("separation", 10)
+	wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_talk.add_child(wrap)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_talk.add_child(row)
+	wrap.add_child(row)
 	_face = TextureRect.new()
 	_face.custom_minimum_size = Vector2(72, 120)
 	_face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -394,11 +398,11 @@ func _build_talk() -> void:
 	var btns := HBoxContainer.new()
 	btns.alignment = BoxContainer.ALIGNMENT_END
 	btns.add_theme_constant_override("separation", 8)
-	col.add_child(btns)
+	wrap.add_child(btns)
 	_skip = _talk_btn(COPY.text("tutorial.skip", "Skip"), func() -> void: skipped.emit())
 	_back = _talk_btn(COPY.text("playtest.intro.back", "Back"), func() -> void: _back_step())
 	_go = _talk_btn(COPY.text("tutorial.next", "Next"), func() -> void: _advance())
-	_go.custom_minimum_size = Vector2(160, 48)
+	_go.custom_minimum_size = Vector2(108, 44)
 	btns.add_child(_skip)
 	btns.add_child(_back)
 	btns.add_child(_go)

@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
+			"id": "breastplate",
+			"kind": "item",
+			"name": "Breastplate",
+			"sprite": "assets/dungeon/items/breastplate.png"
+		},
+		{
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+			"id": "leech_league",
+			"kind": "monster",
+			"name": "Leech League",
+			"sprite": "assets/dungeon/extra/leech_league.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Breastplate"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Breastplate — Gain 2 Block. If you lose HP this combat, Keep this Item. Monster: Leech League — On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. Challenge hand. Wheel leech_league. Click Breastplate, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-breastplate-leech_league",
+	"log": "Draft enter\nYou Spin\nSpin Leech League\nenemy ATK 4   HP 1\nBLK 0\nitems this combat 0\nBreastplate\nBLK +2  to  2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 2 · face Leech League ATK 4 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use breastplate",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 1,
+		"face_id": "leech_league",
+		"face_name": "Leech League",
+		"hand": [
+			"Breastplate"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Breastplate vs Leech League",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

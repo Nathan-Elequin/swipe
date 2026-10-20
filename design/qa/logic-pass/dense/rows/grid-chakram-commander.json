@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee.",
+			"id": "commander",
+			"kind": "monster",
+			"name": "Commander",
+			"sprite": "assets/dungeon/extra/commander.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Commander — I give my Neighbors +2 Attack. The first time I am Defeated, I Flee. Challenge hand. Wheel commander, wizard, golem. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-commander",
+	"log": "Draft enter\nYou Spin\nSpin Commander\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nChakram\nBLK +3  to  3\nATK 3  to  Commander HP 0\nitems this combat 1\nFight Commander flees\nBLK 0\nYou Spin\nSpin Commander\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0",
+	"mismatch": "A number did not match the card: phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"note": "",
+	"observed": "A number did not match the card: phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "commander",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Commander",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

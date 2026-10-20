@@ -203,7 +203,7 @@ const UNPLAYABLE := "#C8C2BA"
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
 static func call_color(special_id: String) -> Color:
 	match special_id:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "cats_eye", "toxic_skin", "rust":
 			return GOLD
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return CALL_ATK
@@ -251,7 +251,7 @@ static func def_id_of(piece: String) -> String:
 		return "phoenix"
 	if low.begins_with("flee"):
 		return "flee"
-	if low.begins_with("spin"):
+	if low.begins_with("spin") or low == "spun":
 		return "spin"
 	if low == "always":
 		return "always"
@@ -259,6 +259,8 @@ static func def_id_of(piece: String) -> String:
 		return "swap"
 	if low == "unplayable":
 		return "unplayable"
+	if low == "rust":
+		return "rust"
 	return ""
 
 
@@ -278,6 +280,8 @@ static func def_of(id: String) -> String:
 			return "Swap: exchange for a random Item of the same Tier"
 		"unplayable":
 			return "You cannot click this."
+		"rust":
+			return "Item that makes all Monsters ignore your Block for 3 Spins"
 		_:
 			return ""
 
@@ -308,6 +312,11 @@ static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> v
 		var main: Node = tip.get_tree().root.get_node_or_null("Main")
 		if main != null and main.has_method("keyword_monster_callout") and tip.has_method("show_callout"):
 			tip.show_callout(main.keyword_monster_callout(id), anchor, id)
+			return
+	if id == "rust":
+		var main_i: Node = tip.get_tree().root.get_node_or_null("Main")
+		if main_i != null and main_i.has_method("keyword_item_callout") and tip.has_method("show_callout"):
+			tip.show_callout(main_i.keyword_item_callout("rust"), anchor, id)
 			return
 	if tip.has_method("show_def"):
 		tip.show_def(def_of(id), anchor, id)
@@ -563,11 +572,12 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"bled", "bleeds", "bleeding", "bleed",
 		"fleeing", "flees", "fled", "flee",
 		"any",
-		"spinning", "spins", "spin",
+		"spinning", "spins", "spun", "spin",
 		"losing", "loses", "lost", "lose",
 		"always",
 		"eject",
 		"unplayable",
+		"rust",
 		"atk", "blk", "hp",
 	])
 	var nums := "one|two|three|four|five|six|seven|eight|nine|ten|twice|thrice"
@@ -696,7 +706,7 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 		return gold
 	if low == "any":
 		return gold
-	if low.begins_with("spin"):
+	if low.begins_with("spin") or low == "spun":
 		return gold
 	if low == "swap" or low.begins_with("swap"):
 		return gold
@@ -704,6 +714,8 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 		return gold
 	if low == "unplayable":
 		return UNPLAYABLE
+	if low == "rust":
+		return gold
 	return ""
 
 

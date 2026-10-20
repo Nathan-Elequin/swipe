@@ -1,0 +1,12 @@
+[
+  {"id":"uniq-clockwork_knight","result":"blocked","observed":"Disassemble fires when the Knight lives at the end of combat. I never clicked Done."},
+  {"id":"uniq-basilisk","result":"pass","observed":"First Spin: Basilisk Fled and Petrifying Gaze ran (0 items).","note":"Snapshot was on ready after Flee. Not a fail."},
+  {"id":"uniq-hollow","result":"blocked","observed":"Even Attack/Block happen twice. This fight never used an even number."},
+  {"id":"uniq-beggar","result":"pass","observed":"Leftmost item was Shield (no Attack). Beggar stayed at printed ATK 3."},
+  {"id":"uniq-wick","result":"blocked","observed":"Wick loses 2 HP when a neighbor is Defeated. No neighbor died."},
+  {"id":"uniq-anvil","result":"pass","observed":"Knife throw 3 only removed 1 HP (Anvil 3→2). Tough Blood fired."},
+  {"id":"uniq-bodyguard","result":"blocked","observed":"Bodyguard intercepts neighbor hits. I never attacked a neighbor."},
+  {"id":"uniq-cowardly_king","result":"pass","observed":"Guards! redirected. Combat left the King (you took 2, then ready)."},
+  {"id":"uniq-merchant","result":"pass","observed":"Merchant offered an upgrade on Spin.","note":"False fail: judge looked for Fair."},
+  {"id":"uniq-juggernaut","result":"pass","observed":"Juggernaut granted a Shield on Spin."}
+]

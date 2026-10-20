@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Deal Attack equal to Block you hold. Keep this item.",
+			"id": "iron_chain",
+			"kind": "item",
+			"name": "Chain",
+			"sprite": "assets/dungeon/items/iron_chain.png"
+		},
+		{
+			"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
+			"id": "poison_frog",
+			"kind": "monster",
+			"name": "Poison Frog",
+			"sprite": "assets/dungeon/extra/poison_frog.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chain"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chain — Deal Attack equal to Block you hold. Keep this item. Monster: Poison Frog — When you Spin me and when I take Atk damage from any source, you Gain 2 Poison Challenge hand. Wheel poison_frog. Click Chain, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-iron_chain-poison_frog",
+	"log": "Draft enter\nYou Spin\nSpin Poison Frog\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nPoison Frog - Toxic Skin\nUsed poison 2\nChain\nUsed cannot",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Poison Frog ATK 2 HP 4",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Poison Frog ATK 2 HP 4",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use iron_chain",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 4,
+		"face_id": "poison_frog",
+		"face_name": "Poison Frog",
+		"hand": [
+			"Chain"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chain vs Poison Frog",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

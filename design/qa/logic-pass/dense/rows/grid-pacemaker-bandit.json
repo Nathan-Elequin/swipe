@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+			"id": "pacemaker",
+			"kind": "item",
+			"name": "Pacemaker",
+			"sprite": "assets/dungeon/items/pacemaker.png"
+		},
+		{
+			"ability": "+1 Atk for each Item you hold.",
+			"id": "bandit",
+			"kind": "monster",
+			"name": "Bandit",
+			"sprite": "assets/dungeon/extra/bandit.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Pacemaker"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Pacemaker — When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP. Monster: Bandit — +1 Atk for each Item you hold. Challenge hand. Wheel bandit. Click Pacemaker, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pacemaker-bandit",
+	"log": "Draft enter\nYou Spin\nSpin Bandit\nenemy ATK 1   HP 3\nBLK 0\nitems this combat 0\nPacemaker\nHP heal +1  now 2\nHP bleed -2  now 2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 2 · BLK 0 · face Bandit ATK 0 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pacemaker",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 3,
+		"face_id": "bandit",
+		"face_name": "Bandit",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 2
+	},
+	"title": "Pacemaker vs Bandit",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

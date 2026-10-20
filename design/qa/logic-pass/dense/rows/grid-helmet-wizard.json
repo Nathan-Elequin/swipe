@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the lower HP between you and the Enemy.",
+			"id": "helmet",
+			"kind": "item",
+			"name": "Helmet",
+			"sprite": "assets/dungeon/items/helmet.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Helmet"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Helmet — Block equal to the lower HP between you and the Enemy. Monster: Wizard — (printed ATK/HP only) Challenge hand. Wheel wizard. Click Helmet, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-helmet-wizard",
+	"log": "Draft enter\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0\nHelmet\nBLK +2  to  2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 2 · face Wizard ATK 5 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use helmet",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 2,
+		"face_id": "wizard",
+		"face_name": "Wizard",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Helmet vs Wizard",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

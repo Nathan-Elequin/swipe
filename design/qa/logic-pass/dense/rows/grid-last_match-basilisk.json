@@ -1,0 +1,49 @@
+{
+	"cards": [
+		{
+			"ability": "If you have zero items that deal Atk damage, Defeat the enemy.",
+			"id": "last_match",
+			"kind": "item",
+			"name": "Paci-Fist",
+			"sprite": "assets/dungeon/items/last_match.png"
+		},
+		{
+			"ability": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
+			"id": "basilisk",
+			"kind": "monster",
+			"name": "Basilisk",
+			"sprite": "assets/dungeon/extra/basilisk.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Paci-Fist"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Paci-Fist — If you have zero items that deal Atk damage, Defeat the enemy. Monster: Basilisk — The first time you Spin me, I Flee and Petrify every other Item for 3 Spins. Challenge hand. Wheel basilisk. Click Paci-Fist, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-last_match-basilisk",
+	"log": "Draft enter\nYou Spin\nSpin Basilisk\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin Petrifying Gaze  0 items\nFight Basilisk Flees\nBLK 0",
+	"note": "",
+	"observed": "spin did not reach fighting (phase=ready)",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"title": "Paci-Fist vs Basilisk",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

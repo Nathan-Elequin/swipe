@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal equal to the amount of HP you most recently lose.",
+			"id": "blood_chalice",
+			"kind": "item",
+			"name": "Blood Chalice",
+			"sprite": "assets/dungeon/items/blood_chalice.png"
+		},
+		{
+			"ability": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
+			"id": "shambling_mound",
+			"kind": "monster",
+			"name": "Shambling Mound",
+			"sprite": "assets/dungeon/extra/shambling_mound.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Blood Chalice"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Blood Chalice — Heal equal to the amount of HP you most recently lose. Monster: Shambling Mound — I Attack repeatedly until I die. I lose 1 HP each time I Attack. Challenge hand. Wheel shambling_mound. Click Blood Chalice, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-blood_chalice-shambling_mound",
+	"log": "Draft enter\nYou Spin\nSpin Shambling Mound\nenemy ATK 1   HP 4\nBLK 0\nitems this combat 0\nBlood Chalice\nUsed cannot\nYou Done\nFight hit 1  ATK 1 - BLK\nBLK 0\nHP take -1  now 2\nShambling Mound - Self Deconstruct\nFight hit 2  ATK 1 - BLK\nBLK 0\nHP take -1  now 1\nShambling Mound - Self Deconstruct\nFight hit 3  ATK 1 - BLK\nBLK 0\nHP take -1  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 3 · BLK 0 · face Shambling Mound ATK 1 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use blood_chalice",
+			"done "
+		],
+		"face_atk": 1,
+		"face_hp": 4,
+		"face_id": "shambling_mound",
+		"face_name": "Shambling Mound",
+		"hand": [
+			"Blood Chalice"
+		],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Blood Chalice vs Shambling Mound",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

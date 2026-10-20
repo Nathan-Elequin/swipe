@@ -1,0 +1,49 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+			"id": "sledgehammer",
+			"kind": "item",
+			"name": "Sledgehammer",
+			"sprite": "assets/dungeon/items/sledgehammer.png"
+		},
+		{
+			"ability": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
+			"id": "basilisk",
+			"kind": "monster",
+			"name": "Basilisk",
+			"sprite": "assets/dungeon/extra/basilisk.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Sledgehammer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Sledgehammer — Defeat an enemy with 6 or more Attack. Combat ends immediately. Monster: Basilisk — The first time you Spin me, I Flee and Petrify every other Item for 3 Spins. Challenge hand. Wheel basilisk. Click Sledgehammer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-sledgehammer-basilisk",
+	"log": "Draft enter\nYou Spin\nSpin Basilisk\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin Petrifying Gaze  0 items\nFight Basilisk Flees\nBLK 0",
+	"note": "",
+	"observed": "spin did not reach fighting (phase=ready)",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"title": "Sledgehammer vs Basilisk",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

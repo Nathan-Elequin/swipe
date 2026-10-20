@@ -14,7 +14,7 @@ const COPY := preload("res://scripts/player_copy.gd")
 const FX_RAYS := preload("res://scripts/fx_rays.gd")
 
 const SIX := PI / 2.0
-const EMPTY_FILL := Color("14110e")
+const EMPTY_FILL := Color("1c1914")
 const STONE := Color("2a231e")
 const STONE_DEEP := Color("1c1814")
 const RING := Color("c4a574")
@@ -741,6 +741,13 @@ func spin_to(index: int) -> void:
 	preview.clear()
 	queue_redraw()
 	var target: float = rotation_for_index(index)
+	var instant: bool = OS.has_feature("editor") and bool(get_meta("qa_instant", false))
+	if instant:
+		rot = fposmod(target, TAU)
+		spinning = false
+		facing_index = index
+		queue_redraw()
+		return
 	var delta: float = fposmod(target - rot, TAU)
 	if delta < 0.45:
 		delta += TAU
@@ -951,7 +958,7 @@ func _spoke(i: int) -> Dictionary:
 	var r: float = _radius() + lift * 12.0
 	var n: int = maxi(slices.size(), 1)
 	var is_face: bool = (not spinning) and i == facing_index
-	var crowded: bool = n >= 9
+	var crowded: bool = n >= 6
 	var win: float = 70.0 if is_face else 64.0
 	if crowded:
 		win -= 6.0
@@ -996,7 +1003,7 @@ func slice_avoid_global(i: int) -> Rect2:
 	var font: Font = get_theme_default_font()
 	if font == null:
 		font = ThemeDB.fallback_font
-	var crowded: bool = slices.size() >= 9
+	var crowded: bool = slices.size() >= 6
 	var is_face: bool = (not spinning) and i == facing_index
 	var is_hover: bool = i == hover_index
 	var title := Rect2()
@@ -1382,14 +1389,15 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	if facing_index >= 0 and not spinning and not is_face and not is_hover:
 		dim = 0.84
 	if str(s.get("kind", "")) != "monster":
-		if highlight == "place" and tex_plus != null:
+		if tex_plus != null:
 			var p: Vector2 = origin + dir * r * 0.58
-			draw_texture_rect(tex_plus, Rect2(p - Vector2(16, 16), Vector2(32, 32)), false)
+			var a: float = 0.88 if highlight == "place" else 0.42
+			draw_texture_rect(tex_plus, Rect2(p - Vector2(16, 16), Vector2(32, 32)), false, Color(1, 1, 1, a))
 		return
 	var pv: Dictionary = preview.get(i, preview.get(str(i), {}))
 	if typeof(pv) != TYPE_DICTIONARY:
 		pv = {}
-	var crowded: bool = slices.size() >= 9
+	var crowded: bool = slices.size() >= 6
 	var pid: String = str(s.get("card_id", ""))
 	var port_pos: Vector2 = sp["port"]
 	var plate_r: float = float(sp.get("plate_r", 36.0))
@@ -1673,12 +1681,14 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 	var call_s: String = str(s.get("call_name", "")).strip_edges()
 	if bool(s.get("silenced", false)):
 		call_s = ""
-	elif show_shift:
+	elif show_shift and str(s.get("card_id", "")) != "golem" and str(s.get("card_id", "")) != "wizard":
 		var shift_s: String = str(s.get("reminder", "")).strip_edges()
 		if shift_s == "" or shift_s == "---":
 			shift_s = str(s.get("ability", "")).strip_edges()
 		if shift_s != "":
 			call_s = shift_s
+	if crowded and not is_face and not is_hover:
+		call_s = ""
 	if bool(s.get("fled_once", false)) and str(s.get("card_id", "")) == "commander" and call_s != "":
 		call_s = "%s · used" % call_s
 	if name_s == "":
@@ -1754,7 +1764,7 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 
 func _ability_icon_color(sid: String) -> Color:
 	match sid:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "cats_eye", "toxic_skin", "rust":
 			return Color("e8c36a")
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return Color("e07040")
@@ -1861,7 +1871,7 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 	if punch > 0.02:
 		fill = fill.lerp(Color("ffd0a0"), punch * 0.55)
 	var rad: float = 21.0 if big else 18.0
-	if slices.size() >= 9:
+	if slices.size() >= 6:
 		rad -= 1.0
 	rad += punch * 4.0
 	_draw_atk_badge(pos, rad, fill)
@@ -1926,7 +1936,7 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	if punch > 0.02:
 		fill = fill.lerp(Color("ffd0a0"), punch * 0.55)
 	var hs: float = 38.0 if big else 34.0
-	if slices.size() >= 9:
+	if slices.size() >= 6:
 		hs -= 2.0
 	hs += punch * 10.0
 	_draw_heart_shape(pos, hs, fill, Color("1c120c"))

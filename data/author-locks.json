@@ -21,8 +21,56 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-19",
 			"name": "Ale Flagon"
+		},
+		"item:arrow_head": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
+			"locked_at": "2026-10-19",
+			"name": "Arrow Head"
+		},
+		"item:bag_of_holding": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-19",
+			"name": "Bag of Holding"
 		},
 		"item:bag_of_marbles": {
 			"fields": [
@@ -47,6 +95,30 @@
 			],
 			"locked_at": "2026-10-19",
 			"name": "Bag of Marbles"
+		},
+		"item:ball_and_chain": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-19",
+			"name": "Ball & Chain"
 		},
 		"item:bandana": {
 			"fields": [
@@ -226,6 +298,30 @@
 			],
 			"locked_at": "2026-10-18",
 			"name": "Catapult"
+		},
+		"item:chakram": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-19",
+			"name": "Chakram"
 		},
 		"item:counting_beads": {
 			"fields": [
@@ -761,7 +857,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-19",
 			"name": "Marble"
 		},
 		"item:measuring_tape": {
@@ -1027,6 +1123,54 @@
 			"locked_at": "2026-10-17",
 			"name": "Quiet Bell"
 		},
+		"item:recycler": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-19",
+			"name": "Recycler"
+		},
+		"item:rust": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-20",
+			"name": "Rust"
+		},
 		"item:sai": {
 			"fields": [
 				"name",
@@ -1096,6 +1240,30 @@
 			"locked_at": "2026-10-17",
 			"name": "Shuriken"
 		},
+		"item:signpost": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-19",
+			"name": "Signpost"
+		},
 		"item:sledgehammer": {
 			"fields": [
 				"name",
@@ -1118,6 +1286,30 @@
 			],
 			"locked_at": "2026-10-17",
 			"name": "Sledgehammer"
+		},
+		"item:sling": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-19",
+			"name": "Sling"
 		},
 		"item:smoke_bomb": {
 			"fields": [
@@ -1911,7 +2103,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-19",
 			"name": "Hydra"
 		},
 		"monster:juggernaut": {
@@ -2006,6 +2198,30 @@
 			"locked_at": "2026-10-17",
 			"name": "Lich"
 		},
+		"monster:magicat": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-19",
+			"name": "Magicat"
+		},
 		"monster:martyr": {
 			"fields": [
 				"name",
@@ -2074,6 +2290,29 @@
 			],
 			"locked_at": "2026-10-10",
 			"name": "Mimic"
+		},
+		"monster:mouse": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color"
+			],
+			"locked_at": "2026-10-19",
+			"name": "Mouse"
 		},
 		"monster:needleback": {
 			"fields": [
@@ -2195,6 +2434,30 @@
 			"locked_at": "2026-10-17",
 			"name": "Plague Doctor"
 		},
+		"monster:poison_frog": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-19",
+			"name": "Poison Frog"
+		},
 		"monster:prism": {
 			"fields": [
 				"name",
@@ -2218,6 +2481,30 @@
 			],
 			"locked_at": "2026-10-17",
 			"name": "Prism"
+		},
+		"monster:rust_bucket": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint"
+			],
+			"locked_at": "2026-10-20",
+			"name": "Rust Bucket"
 		},
 		"monster:shambling_mound": {
 			"fields": [
@@ -2523,101 +2810,6 @@
 			],
 			"locked_at": "2026-10-18",
 			"name": "Zombie"
-		},
-		"item:chakram": {
-			"fields": [
-				"name",
-				"ability",
-				"explainer",
-				"flow",
-				"notes",
-				"ops",
-				"rarity",
-				"tier",
-				"count",
-				"priority",
-				"atk_base",
-				"hp_base",
-				"atk_formula",
-				"hp_formula",
-				"call_name",
-				"reminder",
-				"card_color",
-				"log_hint"
-			],
-			"locked_at": "2026-10-19",
-			"name": "Chakram"
-		},
-		"item:signpost": {
-			"fields": [
-				"name",
-				"ability",
-				"explainer",
-				"flow",
-				"notes",
-				"ops",
-				"rarity",
-				"tier",
-				"count",
-				"priority",
-				"atk_base",
-				"hp_base",
-				"atk_formula",
-				"hp_formula",
-				"call_name",
-				"reminder",
-				"card_color",
-				"log_hint"
-			],
-			"locked_at": "2026-10-19",
-			"name": "Signpost"
-		},
-		"item:sling": {
-			"fields": [
-				"name",
-				"ability",
-				"explainer",
-				"flow",
-				"notes",
-				"ops",
-				"rarity",
-				"tier",
-				"count",
-				"priority",
-				"atk_base",
-				"hp_base",
-				"atk_formula",
-				"hp_formula",
-				"call_name",
-				"reminder",
-				"card_color",
-				"log_hint"
-			],
-			"locked_at": "2026-10-19",
-			"name": "Sling"
-		},
-		"monster:mouse": {
-			"fields": [
-				"name",
-				"ability",
-				"explainer",
-				"flow",
-				"notes",
-				"ops",
-				"rarity",
-				"tier",
-				"count",
-				"priority",
-				"atk_base",
-				"hp_base",
-				"atk_formula",
-				"hp_formula",
-				"call_name",
-				"reminder",
-				"card_color"
-			],
-			"locked_at": "2026-10-19",
-			"name": "Mouse"
 		}
 	},
 	"id": "boss-rush-author-locks",
@@ -4251,5 +4443,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-10-19"
+	"updated": "2026-10-20"
 }

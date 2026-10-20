@@ -1,0 +1,49 @@
+{
+	"cards": [
+		{
+			"ability": "Fill your inventory with Marbles",
+			"id": "bag_of_marbles",
+			"kind": "item",
+			"name": "Bag Of Marbles",
+			"sprite": "assets/dungeon/items/bag_of_marbles.png"
+		},
+		{
+			"ability": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
+			"id": "mouse",
+			"kind": "monster",
+			"name": "Mouse",
+			"sprite": "assets/dungeon/extra/mouse.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Bag Of Marbles"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Bag Of Marbles — Fill your inventory with Marbles Monster: Mouse — When you Spin me, if you have more HP than me I lose 2 HP and Flee Challenge hand. Wheel mouse. Click Bag Of Marbles, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bag_of_marbles-mouse",
+	"log": "Draft enter\nYou Spin\nSpin Mouse\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nMouse - Scurry\nSpin Scurry -2 HP\nBLK 0",
+	"note": "",
+	"observed": "spin did not reach fighting (phase=ready)",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"title": "Bag Of Marbles vs Mouse",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

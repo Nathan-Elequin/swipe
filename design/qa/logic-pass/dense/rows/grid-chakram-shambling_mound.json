@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
+			"id": "shambling_mound",
+			"kind": "monster",
+			"name": "Shambling Mound",
+			"sprite": "assets/dungeon/extra/shambling_mound.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Shambling Mound — I Attack repeatedly until I die. I lose 1 HP each time I Attack. Challenge hand. Wheel shambling_mound. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-shambling_mound",
+	"log": "Draft enter\nYou Spin\nSpin Shambling Mound\nenemy ATK 1   HP 4\nBLK 0\nitems this combat 0\nChakram\nBLK +3  to  3\nATK 3  to  Shambling Mound HP 1\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Shambling Mound ATK 1 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 1,
+		"face_hp": 1,
+		"face_id": "shambling_mound",
+		"face_name": "Shambling Mound",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Shambling Mound",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

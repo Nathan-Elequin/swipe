@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Gain 4 Block.",
+			"id": "shield",
+			"kind": "item",
+			"name": "Shield",
+			"sprite": "assets/dungeon/items/shield.png"
+		},
+		{
+			"ability": "I cannot lose more than 1 HP at a time.",
+			"id": "anvil",
+			"kind": "monster",
+			"name": "Anvil",
+			"sprite": "assets/dungeon/extra/anvil.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Shield"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Shield — Gain 4 Block. Monster: Anvil — I cannot lose more than 1 HP at a time. Challenge hand. Wheel anvil. Click Shield, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-shield-anvil",
+	"log": "Draft enter\nYou Spin\nSpin Anvil\nenemy ATK 4   HP 3\nBLK 0\nitems this combat 0\nShield\nBLK +4  to  4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 4 · face Anvil ATK 4 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use shield",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 3,
+		"face_id": "anvil",
+		"face_name": "Anvil",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Shield vs Anvil",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

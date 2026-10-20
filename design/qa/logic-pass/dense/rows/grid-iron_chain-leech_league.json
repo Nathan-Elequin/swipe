@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Deal Attack equal to Block you hold. Keep this item.",
+			"id": "iron_chain",
+			"kind": "item",
+			"name": "Chain",
+			"sprite": "assets/dungeon/items/iron_chain.png"
+		},
+		{
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+			"id": "leech_league",
+			"kind": "monster",
+			"name": "Leech League",
+			"sprite": "assets/dungeon/extra/leech_league.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chain"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chain — Deal Attack equal to Block you hold. Keep this item. Monster: Leech League — On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. Challenge hand. Wheel leech_league. Click Chain, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-iron_chain-leech_league",
+	"log": "Draft enter\nYou Spin\nSpin Leech League\nenemy ATK 4   HP 1\nBLK 0\nitems this combat 0\nChain\nUsed cannot",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Leech League ATK 4 HP 1",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Leech League ATK 4 HP 1",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use iron_chain",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 1,
+		"face_id": "leech_league",
+		"face_name": "Leech League",
+		"hand": [
+			"Chain"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chain vs Leech League",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

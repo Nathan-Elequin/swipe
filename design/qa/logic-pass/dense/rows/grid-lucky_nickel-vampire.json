@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"id": "lucky_nickel",
+			"kind": "item",
+			"name": "Lucky Nickel",
+			"sprite": "assets/dungeon/items/lucky_nickel.png"
+		},
+		{
+			"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+			"id": "vampire",
+			"kind": "monster",
+			"name": "Vampire",
+			"sprite": "assets/dungeon/extra/vampire.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lucky Nickel"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Vampire — Every time you lose HP, I gain +1 HP and +1 ATK. Challenge hand. Wheel vampire. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lucky_nickel-vampire",
+	"log": "Draft enter\nYou Spin\nSpin Vampire\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nLucky Nickel\nBLK +1  to  1\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 1 · face Vampire ATK 4 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lucky_nickel",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "vampire",
+		"face_name": "Vampire",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Lucky Nickel vs Vampire",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

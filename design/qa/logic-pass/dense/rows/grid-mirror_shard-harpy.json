@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to the last Block you gained.",
+			"id": "mirror_shard",
+			"kind": "item",
+			"name": "Mirror Shard",
+			"sprite": "assets/dungeon/items/mirror_shard.png"
+		},
+		{
+			"ability": "I attack you when your Spin lands on me, and after each item you use.",
+			"id": "harpy",
+			"kind": "monster",
+			"name": "Harpy",
+			"sprite": "assets/dungeon/extra/harpy.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Mirror Shard"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Mirror Shard — Gain Block equal to the last Block you gained. Monster: Harpy — I attack you when your Spin lands on me, and after each item you use. Challenge hand. Wheel harpy. Click Mirror Shard, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-mirror_shard-harpy",
+	"log": "Draft enter\nYou Spin\nSpin Harpy\nenemy ATK 2   HP 5\nBLK 0\nitems this combat 0\nHarpy - Impatient\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nMirror Shard\nUsed cannot",
+	"mismatch": "A number did not match the card: phase fighting · HP 4 · BLK 0 · face Harpy ATK 2 HP 5",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 4 · BLK 0 · face Harpy ATK 2 HP 5",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use mirror_shard",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 5,
+		"face_id": "harpy",
+		"face_name": "Harpy",
+		"hand": [
+			"Mirror Shard"
+		],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Mirror Shard vs Harpy",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

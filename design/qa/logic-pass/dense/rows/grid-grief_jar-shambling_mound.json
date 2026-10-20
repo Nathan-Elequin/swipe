@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
+			"id": "grief_jar",
+			"kind": "item",
+			"name": "Grief Jar",
+			"sprite": "assets/dungeon/items/grief_jar.png"
+		},
+		{
+			"ability": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
+			"id": "shambling_mound",
+			"kind": "monster",
+			"name": "Shambling Mound",
+			"sprite": "assets/dungeon/extra/shambling_mound.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grief Jar"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grief Jar — Each time you Spin, Lose 1 HP and this item gains +2 Block Monster: Shambling Mound — I Attack repeatedly until I die. I lose 1 HP each time I Attack. Challenge hand. Wheel shambling_mound. Click Grief Jar, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grief_jar-shambling_mound",
+	"log": "Draft enter\nYou Spin\nSpin Shambling Mound\nenemy ATK 1   HP 4\nBLK 0\nitems this combat 0\nGrief Jar BLK 2\nGrief Jar\nHP bleed -1  now 5\nGrief Jar\nBLK +2  to  2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 2 · face Shambling Mound ATK 1 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grief_jar",
+			"done "
+		],
+		"face_atk": 1,
+		"face_hp": 4,
+		"face_id": "shambling_mound",
+		"face_name": "Shambling Mound",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Grief Jar vs Shambling Mound",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the HP you are missing.",
+			"id": "medallion",
+			"kind": "item",
+			"name": "Medallion",
+			"sprite": "assets/dungeon/items/medallion.png"
+		},
+		{
+			"ability": "I attack you when your Spin lands on me, and after each item you use.",
+			"id": "harpy",
+			"kind": "monster",
+			"name": "Harpy",
+			"sprite": "assets/dungeon/extra/harpy.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Medallion"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Medallion — Block equal to the HP you are missing. Monster: Harpy — I attack you when your Spin lands on me, and after each item you use. Challenge hand. Wheel harpy. Click Medallion, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-medallion-harpy",
+	"log": "Draft enter\nYou Spin\nSpin Harpy\nenemy ATK 2   HP 5\nBLK 0\nitems this combat 0\nHarpy - Impatient\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nMedallion\nBLK +3  to  3\nitems this combat 1\nHarpy - Impatient\nFight hit 1  ATK 2 - BLK\nBLK 1\nHP take 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 1 · face Harpy ATK 2 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use medallion",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 5,
+		"face_id": "harpy",
+		"face_name": "Harpy",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Medallion vs Harpy",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Remove your Enemy's unique ability",
+			"id": "quiet_bell",
+			"kind": "item",
+			"name": "Quiet Bell",
+			"sprite": "assets/dungeon/items/quiet_bell.png"
+		},
+		{
+			"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
+			"id": "poison_frog",
+			"kind": "monster",
+			"name": "Poison Frog",
+			"sprite": "assets/dungeon/extra/poison_frog.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Quiet Bell"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Quiet Bell — Remove your Enemy's unique ability Monster: Poison Frog — When you Spin me and when I take Atk damage from any source, you Gain 2 Poison Challenge hand. Wheel poison_frog. Click Quiet Bell, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-quiet_bell-poison_frog",
+	"log": "Draft enter\nYou Spin\nSpin Poison Frog\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nPoison Frog - Toxic Skin\nUsed poison 2\nQuiet Bell\nFight silenced poison_frog\nitems this combat 1",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: On Spin and when I take Attack damage: you Gain 2 Poison.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: On Spin and when I take Attack damage: you Gain 2 Poison.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use quiet_bell",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 4,
+		"face_id": "poison_frog",
+		"face_name": "Poison Frog",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Quiet Bell vs Poison Frog",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

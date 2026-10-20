@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "+1 Atk for each Item you hold.",
+			"id": "bandit",
+			"kind": "monster",
+			"name": "Bandit",
+			"sprite": "assets/dungeon/extra/bandit.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Bandit — +1 Atk for each Item you hold. Challenge hand. Wheel bandit. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-bandit",
+	"log": "Draft enter\nYou Spin\nSpin Bandit\nenemy ATK 1   HP 3\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Attack = Your Items.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Attack = Your Items.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram"
+		],
+		"face_atk": 1,
+		"face_hp": 3,
+		"face_id": "bandit",
+		"face_name": "Bandit",
+		"hand": [
+			"Chakram"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Bandit",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

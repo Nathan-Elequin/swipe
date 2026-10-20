@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with less HP than you.",
+			"id": "da_boot",
+			"kind": "item",
+			"name": "The Boot",
+			"sprite": "assets/dungeon/items/boot.png"
+		},
+		{
+			"ability": "If you Discard an item when facing me, I will Attack one of my Neighbors and Flee.",
+			"id": "hired_hand",
+			"kind": "monster",
+			"name": "Hired Hand",
+			"sprite": "assets/dungeon/extra/hired_hand.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"The Boot"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: The Boot — Defeat an enemy with less HP than you. Monster: Hired Hand — If you Discard an item when facing me, I will Attack one of my Neighbors and Flee. Challenge hand. Wheel hired_hand, wizard, golem. Click The Boot, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-da_boot-hired_hand",
+	"log": "Draft enter\nYou Spin\nSpin Hired Hand\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin hired hand bribe\nSpin bribe The Boot\nHired Hand - Bribe\nFight Hired Hand Flees\nBLK 0\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use da_boot",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "hired_hand",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "The Boot vs Hired Hand",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

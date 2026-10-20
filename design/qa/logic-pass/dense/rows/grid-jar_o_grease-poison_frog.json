@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 1, randomly Swap an Item, and Keep this.",
+			"id": "jar_o_grease",
+			"kind": "item",
+			"name": "Jar O' Grease",
+			"sprite": "assets/dungeon/items/jar_o_grease.png"
+		},
+		{
+			"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
+			"id": "poison_frog",
+			"kind": "monster",
+			"name": "Poison Frog",
+			"sprite": "assets/dungeon/extra/poison_frog.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Jar O' Grease"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Jar O' Grease — Heal 1, randomly Swap an Item, and Keep this. Monster: Poison Frog — When you Spin me and when I take Atk damage from any source, you Gain 2 Poison Challenge hand. Wheel poison_frog. Click Jar O' Grease, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-jar_o_grease-poison_frog",
+	"log": "Draft enter\nYou Spin\nSpin Poison Frog\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nPoison Frog - Toxic Skin\nUsed poison 2\nJar O' Grease\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 3 · BLK 0 · face Poison Frog ATK 2 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use jar_o_grease",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 4,
+		"face_id": "poison_frog",
+		"face_name": "Poison Frog",
+		"hand": [
+			"Jar O' Grease"
+		],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Jar O' Grease vs Poison Frog",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Choose to reduce the facing owner's Attack by 1, 2, or 3.",
+			"id": "net",
+			"kind": "item",
+			"name": "Net",
+			"sprite": "assets/dungeon/items/net.png"
+		},
+		{
+			"ability": "I Lose 2 HP each time a Neighbor is Defeated",
+			"id": "wick",
+			"kind": "monster",
+			"name": "Wick",
+			"sprite": "assets/dungeon/extra/wick.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Net"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Net — Choose to reduce the facing owner's Attack by 1, 2, or 3. Monster: Wick — I Lose 2 HP each time a Neighbor is Defeated Challenge hand. Wheel wick, wizard, golem. Click Net, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-net-wick",
+	"log": "Draft enter\nYou Spin\nSpin Wick\nenemy ATK 6   HP 10\nBLK 0\nitems this combat 0\nUsed choose\nNet\nATK facing ATK -1  to  5\nitems this combat 1\nYou Done\nFight hit 1  ATK 5 - BLK\nBLK 0\nHP take -5  now 1\nDefeated Wick\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Wick ATK 5 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use net",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 10,
+		"face_id": "wick",
+		"face_name": "Wick",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Net vs Wick",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

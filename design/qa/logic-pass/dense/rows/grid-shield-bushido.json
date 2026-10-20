@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Gain 4 Block.",
+			"id": "shield",
+			"kind": "item",
+			"name": "Shield",
+			"sprite": "assets/dungeon/items/shield.png"
+		},
+		{
+			"ability": "When facing me, your second Item used has no effect",
+			"id": "bushido",
+			"kind": "monster",
+			"name": "Bushido",
+			"sprite": "assets/dungeon/extra/bushido.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Shield"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Shield — Gain 4 Block. Monster: Bushido — When facing me, your second Item used has no effect Challenge hand. Wheel bushido. Click Shield, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-shield-bushido",
+	"log": "Draft enter\nYou Spin\nSpin Bushido\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nShield\nBLK +4  to  4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 4 · face Bushido ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use shield",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "bushido",
+		"face_name": "Bushido",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Shield vs Bushido",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

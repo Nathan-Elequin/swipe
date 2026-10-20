@@ -1,0 +1,62 @@
+{
+	"cards": [
+		{
+			"ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
+			"id": "fangs",
+			"kind": "item",
+			"name": "Fangs",
+			"sprite": "assets/dungeon/items/fangs.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Fangs"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Fangs — Let the Enemy Attack, then Defeat them and Heal equal to their current HP. Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Fangs. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-fangs-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nFangs\nFight hit 1  ATK 5 - BLK\nBLK 0\nHP take -5  now 0\nOgre - Empath\nitems this combat 1\nEnd dead",
+	"mismatch": "A number did not match the card: phase defeat · HP 0 · BLK 0 · face — ATK — HP —",
+	"note": "",
+	"observed": "A number did not match the card: phase defeat · HP 0 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use fangs"
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "ogre",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 0
+	},
+	"title": "Fangs vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

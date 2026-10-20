@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Deal Attack equal to Block you hold. Keep this item.",
+			"id": "iron_chain",
+			"kind": "item",
+			"name": "Chain",
+			"sprite": "assets/dungeon/items/iron_chain.png"
+		},
+		{
+			"ability": "My Attack ignores Block.",
+			"id": "dragon",
+			"kind": "monster",
+			"name": "Dragon",
+			"sprite": "assets/dungeon/extra/dragon.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chain"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chain — Deal Attack equal to Block you hold. Keep this item. Monster: Dragon — My Attack ignores Block. Challenge hand. Wheel dragon. Click Chain, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-iron_chain-dragon",
+	"log": "Draft enter\nYou Spin\nSpin Dragon\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0\nChain\nUsed cannot\nYou Done\nFight hit 1  ATK 6  (ignores BLK)\nDragon - Firebreather\nHP take -6  now 0\nEnd dead",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Dragon ATK 6 HP 6",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Dragon ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use iron_chain",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "dragon",
+		"face_name": "Dragon",
+		"hand": [
+			"Chain"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chain vs Dragon",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

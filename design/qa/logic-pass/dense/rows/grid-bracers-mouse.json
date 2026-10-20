@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the Neighboring enemy's Attack on the Right.",
+			"id": "bracers",
+			"kind": "item",
+			"name": "Right Bracer",
+			"sprite": "assets/dungeon/items/bracers.png"
+		},
+		{
+			"ability": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
+			"id": "mouse",
+			"kind": "monster",
+			"name": "Mouse",
+			"sprite": "assets/dungeon/extra/mouse.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Right Bracer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Right Bracer — Block equal to the Neighboring enemy's Attack on the Right. Monster: Mouse — When you Spin me, if you have more HP than me I lose 2 HP and Flee Challenge hand. Wheel mouse, wizard, golem. Click Right Bracer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bracers-mouse",
+	"log": "Draft enter\nYou Spin\nSpin Mouse\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nMouse - Scurry\nSpin Scurry -2 HP\nBLK 0",
+	"note": "",
+	"observed": "spin did not reach fighting (phase=ready)",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"title": "Right Bracer vs Mouse",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

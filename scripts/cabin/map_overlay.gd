@@ -349,6 +349,8 @@ func _build_panel() -> void:
 		66
 	)
 	_panel_note.font_color = KIT.WOOD
+	var note_txt: String = KIT.copy_text("map.prefer_note")
+	_panel_note.visible = note_txt.find("test note") < 0
 	add_child(_panel_note)
 
 

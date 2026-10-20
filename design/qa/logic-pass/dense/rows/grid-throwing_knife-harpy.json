@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Atk 3, or Atk 1 and Keep this item",
+			"id": "throwing_knife",
+			"kind": "item",
+			"name": "Throwing Knife",
+			"sprite": "assets/dungeon/items/throwing_knife.png"
+		},
+		{
+			"ability": "I attack you when your Spin lands on me, and after each item you use.",
+			"id": "harpy",
+			"kind": "monster",
+			"name": "Harpy",
+			"sprite": "assets/dungeon/extra/harpy.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Throwing Knife"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Throwing Knife — Atk 3, or Atk 1 and Keep this item Monster: Harpy — I attack you when your Spin lands on me, and after each item you use. Challenge hand. Wheel harpy. Click Throwing Knife, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-throwing_knife-harpy",
+	"log": "Draft enter\nYou Spin\nSpin Harpy\nenemy ATK 2   HP 5\nBLK 0\nitems this combat 0\nHarpy - Impatient\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nUsed choose\nThrowing Knife\nATK 3  to  Harpy HP 2\nitems this combat 1\nHarpy - Impatient\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 2\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 2 · BLK 0 · face Harpy ATK 2 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use throwing_knife",
+			"choose throw",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 2,
+		"face_id": "harpy",
+		"face_name": "Harpy",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 2
+	},
+	"title": "Throwing Knife vs Harpy",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

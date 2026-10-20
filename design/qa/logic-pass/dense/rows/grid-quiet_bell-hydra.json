@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Remove your Enemy's unique ability",
+			"id": "quiet_bell",
+			"kind": "item",
+			"name": "Quiet Bell",
+			"sprite": "assets/dungeon/items/quiet_bell.png"
+		},
+		{
+			"ability": "When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each",
+			"id": "hydra",
+			"kind": "monster",
+			"name": "Hydra",
+			"sprite": "assets/dungeon/extra/hydra.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Quiet Bell"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Quiet Bell — Remove your Enemy's unique ability Monster: Hydra — When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each Challenge hand. Wheel hydra. Click Quiet Bell, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-quiet_bell-hydra",
+	"log": "Draft enter\nYou Spin\nSpin Hydra\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0\nSpin hydra petrify none\nQuiet Bell\nFight silenced hydra\nitems this combat 1",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Petrify even Attack and Block. +2 Attack each..",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Petrify even Attack and Block. +2 Attack each..",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use quiet_bell",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 5,
+		"face_id": "hydra",
+		"face_name": "Hydra",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Quiet Bell vs Hydra",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

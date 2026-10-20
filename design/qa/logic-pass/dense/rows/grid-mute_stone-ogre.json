@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Choose 2 Items and Swap them.",
+			"id": "mute_stone",
+			"kind": "item",
+			"name": "Chaos Stone",
+			"sprite": "assets/dungeon/items/mute_stone.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chaos Stone"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chaos Stone — Choose 2 Items and Swap them. Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Chaos Stone, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-mute_stone-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Ogre ATK 5 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use mute_stone",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 10,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [
+			"Chaos Stone"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chaos Stone vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -13,6 +13,8 @@ var _skin_tex: Texture2D
 var _on_dark: bool = false
 var edit_kind: String = ""
 var edit_id: String = ""
+## Last inspect payload. Logic QA reads this; the player never sees it.
+var last_shown: Dictionary = {}
 ## Face plaque accepts right-click. Fly tips stay click-through so hover does not trap the mouse.
 var accept_clicks: bool = false
 var _kw_tip: PanelContainer
@@ -100,6 +102,15 @@ func show_rule(
 	equation = COPY.apply_names(equation)
 	body = COPY.apply_names(body)
 	warn = COPY.apply_names(warn)
+	last_shown = {
+		"title": title,
+		"value": value_line,
+		"equation": equation,
+		"body": body,
+		"warn": warn,
+		"kind": p_kind,
+		"id": p_id,
+	}
 	_apply_look(look)
 	_wipe()
 	mouse_filter = Control.MOUSE_FILTER_STOP if accept_clicks and p_id != "" else Control.MOUSE_FILTER_IGNORE
@@ -154,7 +165,7 @@ func show_rule(
 		e.add_theme_color_override("default_color", ink)
 		e.text = value_line
 		e.custom_minimum_size = Vector2(216, 0)
-		e.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_wire_kw(e)
 		col.add_child(e)
 	if equation != "":
 		var eq := RichTextLabel.new()
@@ -166,7 +177,7 @@ func show_rule(
 		eq.add_theme_color_override("default_color", ink)
 		eq.text = equation
 		eq.custom_minimum_size = Vector2(216, 0)
-		eq.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_wire_kw(eq)
 		col.add_child(eq)
 	if bool(look.get("unplayable", false)):
 		col.add_child(_unplayable_chip())
@@ -183,11 +194,7 @@ func show_rule(
 		b.add_theme_color_override("default_color", Color("6e5434") if not journal.is_empty() else body_col)
 		b.text = body
 		b.custom_minimum_size = Vector2(216, 0)
-		if body.find("[url=") >= 0:
-			b.mouse_filter = Control.MOUSE_FILTER_STOP
-			UxStyle.wire_def_hover(b, _kw_tip, self)
-		else:
-			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_wire_kw(b)
 		col.add_child(b)
 	_pin_always = false
 	if _kw_tip != null and _kw_tip.has_method("hide_def"):
@@ -302,6 +309,16 @@ func _unplayable_chip() -> Control:
 			_kw_tip.hide_def()
 	)
 	return box
+
+
+func _wire_kw(rtl: RichTextLabel) -> void:
+	if rtl == null:
+		return
+	if str(rtl.text).find("[url=") >= 0:
+		rtl.mouse_filter = Control.MOUSE_FILTER_STOP
+		UxStyle.wire_def_hover(rtl, _kw_tip, self)
+	else:
+		rtl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func pin_always_def() -> void:

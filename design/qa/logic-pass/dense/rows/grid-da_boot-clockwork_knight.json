@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with less HP than you.",
+			"id": "da_boot",
+			"kind": "item",
+			"name": "The Boot",
+			"sprite": "assets/dungeon/items/boot.png"
+		},
+		{
+			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"id": "clockwork_knight",
+			"kind": "monster",
+			"name": "Clockwork Knight",
+			"sprite": "assets/dungeon/extra/clockwork_knight.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"The Boot"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: The Boot — Defeat an enemy with less HP than you. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click The Boot, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-da_boot-clockwork_knight",
+	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nThe Boot\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Clockwork Knight ATK 4 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use da_boot",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 7,
+		"face_id": "clockwork_knight",
+		"face_name": "Clockwork Knight",
+		"hand": [
+			"The Boot"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "The Boot vs Clockwork Knight",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 1, randomly Swap an Item, and Keep this.",
+			"id": "jar_o_grease",
+			"kind": "item",
+			"name": "Jar O' Grease",
+			"sprite": "assets/dungeon/items/jar_o_grease.png"
+		},
+		{
+			"ability": "Attack or Block values that are Even happen twice against me.",
+			"id": "hollow",
+			"kind": "monster",
+			"name": "Twins",
+			"sprite": "assets/dungeon/extra/hollow.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Jar O' Grease"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Jar O' Grease — Heal 1, randomly Swap an Item, and Keep this. Monster: Twins — Attack or Block values that are Even happen twice against me. Challenge hand. Wheel hollow. Click Jar O' Grease, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-jar_o_grease-hollow",
+	"log": "Draft enter\nYou Spin\nSpin Twins\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0\nJar O' Grease\nUsed cannot\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 3 · BLK 0 · face Twins ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use jar_o_grease",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "hollow",
+		"face_name": "Twins",
+		"hand": [
+			"Jar O' Grease"
+		],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Jar O' Grease vs Twins",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

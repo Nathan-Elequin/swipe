@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to the last Block you gained.",
+			"id": "mirror_shard",
+			"kind": "item",
+			"name": "Mirror Shard",
+			"sprite": "assets/dungeon/items/mirror_shard.png"
+		},
+		{
+			"ability": "I Attack until you lose HP",
+			"id": "shark",
+			"kind": "monster",
+			"name": "Shark",
+			"sprite": "assets/dungeon/extra/shark.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Mirror Shard"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Mirror Shard — Gain Block equal to the last Block you gained. Monster: Shark — I Attack until you lose HP Challenge hand. Wheel shark. Click Mirror Shard, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-mirror_shard-shark",
+	"log": "Draft enter\nYou Spin\nSpin Shark\nenemy ATK 3   HP 6\nBLK 0\nitems this combat 0\nMirror Shard\nUsed cannot",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Shark ATK 3 HP 6",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Shark ATK 3 HP 6",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use mirror_shard",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 6,
+		"face_id": "shark",
+		"face_name": "Shark",
+		"hand": [
+			"Mirror Shard"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Mirror Shard vs Shark",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

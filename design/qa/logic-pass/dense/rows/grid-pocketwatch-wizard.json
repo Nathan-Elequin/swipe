@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Select an enemy. They Attack the enemy you are facing.",
+			"id": "pocketwatch",
+			"kind": "item",
+			"name": "Pocketwatch",
+			"sprite": "assets/dungeon/items/watch.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Pocketwatch"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Pocketwatch — Select an enemy. They Attack the enemy you are facing. Monster: Wizard — (printed ATK/HP only) Challenge hand. Wheel wizard. Click Pocketwatch, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pocketwatch-wizard",
+	"log": "Draft enter\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Wizard ATK 5 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pocketwatch",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 2,
+		"face_id": "wizard",
+		"face_name": "Wizard",
+		"hand": [
+			"Pocketwatch"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Pocketwatch vs Wizard",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

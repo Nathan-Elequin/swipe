@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Becomes a copy of the last item you used.",
+			"id": "echo_bell",
+			"kind": "item",
+			"name": "Echo Bell",
+			"sprite": "assets/dungeon/items/echo_bell.png"
+		},
+		{
+			"ability": "While facing me, you cannot Gain or Keep any Items.",
+			"id": "zombie",
+			"kind": "monster",
+			"name": "Zombie",
+			"sprite": "assets/dungeon/extra/zombie.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Echo Bell"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Echo Bell — Becomes a copy of the last item you used. Monster: Zombie — While facing me, you cannot Gain or Keep any Items. Challenge hand. Wheel zombie. Click Echo Bell, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-echo_bell-zombie",
+	"log": "Draft enter\nYou Spin\nSpin Zombie\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nEcho Bell",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Zombie ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use echo_bell",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "zombie",
+		"face_name": "Zombie",
+		"hand": [
+			"Echo Bell"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Echo Bell vs Zombie",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

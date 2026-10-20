@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Attack equal to the Attack of the last monster you faced.",
+			"id": "grimoire",
+			"kind": "item",
+			"name": "Grimoire",
+			"sprite": "assets/dungeon/items/grimoire.png"
+		},
+		{
+			"ability": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
+			"id": "triclops",
+			"kind": "monster",
+			"name": "Triclops",
+			"sprite": "assets/dungeon/extra/triclops_v2.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grimoire"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grimoire — Attack equal to the Attack of the last monster you faced. Monster: Triclops — If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee. Challenge hand. Wheel triclops. Click Grimoire, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grimoire-triclops",
+	"log": "Draft enter\nYou Spin\nSpin Triclops\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: 3 HP: Defeated. Else Defeat: −2 HP and Flee.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: 3 HP: Defeated. Else Defeat: −2 HP and Flee.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grimoire"
+		],
+		"face_atk": 4,
+		"face_hp": 7,
+		"face_id": "triclops",
+		"face_name": "Triclops",
+		"hand": [
+			"Grimoire"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Grimoire vs Triclops",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Heal equal to the amount of HP you most recently lose.",
+			"id": "blood_chalice",
+			"kind": "item",
+			"name": "Blood Chalice",
+			"sprite": "assets/dungeon/items/blood_chalice.png"
+		},
+		{
+			"ability": "My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2.",
+			"id": "plague_doctor",
+			"kind": "monster",
+			"name": "Plague Doctor",
+			"sprite": "assets/dungeon/extra/plague_doctor.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Blood Chalice"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Blood Chalice — Heal equal to the amount of HP you most recently lose. Monster: Plague Doctor — My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2. Challenge hand. Wheel plague_doctor, wizard, golem. Click Blood Chalice, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-blood_chalice-plague_doctor",
+	"log": "Draft enter\nYou Spin\nSpin Plague Doctor\nenemy ATK 2   HP 3\nBLK 0\nitems this combat 0\nSpin Plague Doctor heal +2  to  9 HP\nSpin Plague Doctor heal +2  to  4 HP\nBlood Chalice\nUsed cannot\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 1\nDefeated Plague Doctor\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 9\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 3 · BLK 0 · face Plague Doctor ATK 2 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use blood_chalice",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 3,
+		"face_id": "plague_doctor",
+		"face_name": "Plague Doctor",
+		"hand": [
+			"Blood Chalice"
+		],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Blood Chalice vs Plague Doctor",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

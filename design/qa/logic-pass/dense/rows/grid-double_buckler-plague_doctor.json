@@ -1,0 +1,76 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
+			"id": "double_buckler",
+			"kind": "item",
+			"name": "Double-Buckler",
+			"sprite": "assets/dungeon/items/double_buckler.png"
+		},
+		{
+			"ability": "My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2.",
+			"id": "plague_doctor",
+			"kind": "monster",
+			"name": "Plague Doctor",
+			"sprite": "assets/dungeon/extra/plague_doctor.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Double-Buckler"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Double-Buckler — Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this. Monster: Plague Doctor — My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2. Challenge hand. Wheel plague_doctor, wizard, golem. Click Double-Buckler, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_buckler-plague_doctor",
+	"log": "Draft enter\nYou Spin\nSpin Plague Doctor\nenemy ATK 2   HP 3\nBLK 0\nitems this combat 0\nSpin Plague Doctor heal +2  to  9 HP\nSpin Plague Doctor heal +2  to  4 HP\nYou Done\nDouble-Buckler\nFight hit 1  ATK 1 - BLK\nBLK 0\nHP take -1  now 5\nDefeated Plague Doctor\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 9\nBLK 0\nitems this combat 0",
+	"mismatch": "Keep / unplayable card double_buckler is gone from the hand after the fight. It should still be there.",
+	"note": "",
+	"observed": "Keep / unplayable card double_buckler is gone from the hand after the fight. It should still be there.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 9,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Double-Buckler vs Plague Doctor",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

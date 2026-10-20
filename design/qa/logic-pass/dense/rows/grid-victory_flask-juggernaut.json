@@ -1,0 +1,66 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 1, plus 1 for each monster Defeated",
+			"id": "victory_flask",
+			"kind": "item",
+			"name": "Victory Flask",
+			"sprite": "assets/dungeon/items/victory_flask.png"
+		},
+		{
+			"ability": "When you Spin me, Gain a Shield",
+			"id": "juggernaut",
+			"kind": "monster",
+			"name": "Juggernaut",
+			"sprite": "assets/dungeon/extra/juggernaut.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Shield",
+			"Victory Flask"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Victory Flask — Heal 1, plus 1 for each monster Defeated Monster: Juggernaut — When you Spin me, Gain a Shield Challenge hand. Wheel juggernaut. Click Victory Flask, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-victory_flask-juggernaut",
+	"log": "Draft enter\nYou Spin\nSpin Juggernaut\nenemy ATK 7   HP 3\nBLK 0\nitems this combat 0\nJuggernaut - Blockhead\nDraft gain Shield\nVictory Flask\nHP heal +1  now 4\nitems this combat 1\nYou Done\nFight hit 1  ATK 7 - BLK\nBLK 0\nHP take -7  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Juggernaut ATK 7 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use victory_flask",
+			"done "
+		],
+		"face_atk": 7,
+		"face_hp": 3,
+		"face_id": "juggernaut",
+		"face_name": "Juggernaut",
+		"hand": [
+			"Shield"
+		],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Victory Flask vs Juggernaut",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

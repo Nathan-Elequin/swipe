@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the Neighboring enemy's Attack on the Left.",
+			"id": "left_bracer",
+			"kind": "item",
+			"name": "Left Bracer",
+			"sprite": "assets/dungeon/items/left_bracer.png"
+		},
+		{
+			"ability": "I attack an extra time for each item you use this fight.",
+			"id": "kobold_trapper",
+			"kind": "monster",
+			"name": "Kobold Trapper",
+			"sprite": "assets/dungeon/extra/kobold_trapper.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Left Bracer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Left Bracer — Block equal to the Neighboring enemy's Attack on the Left. Monster: Kobold Trapper — I attack an extra time for each item you use this fight. Challenge hand. Wheel kobold_trapper, wizard, golem. Click Left Bracer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-left_bracer-kobold_trapper",
+	"log": "Draft enter\nYou Spin\nSpin Kobold Trapper\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0\nLeft Bracer\nBLK +5  to  5\nitems this combat 1\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 3\nHP take 0\nKobold Trapper - Trap Card\nFight hit 2  ATK 2 - BLK\nBLK 1\nHP take 0\nDefeated Kobold Trapper\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 5 · face Kobold Trapper ATK 2 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use left_bracer",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 6,
+		"face_id": "kobold_trapper",
+		"face_name": "Kobold Trapper",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Left Bracer vs Kobold Trapper",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 10. Retain leftover block from this combat.",
+			"id": "stone_wall",
+			"kind": "item",
+			"name": "Stone Wall",
+			"sprite": "assets/dungeon/items/stone_wall.png"
+		},
+		{
+			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"id": "clockwork_knight",
+			"kind": "monster",
+			"name": "Clockwork Knight",
+			"sprite": "assets/dungeon/extra/clockwork_knight.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Stone Wall"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Stone Wall — Block 10. Retain leftover block from this combat. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click Stone Wall, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-stone_wall-clockwork_knight",
+	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nStone Wall\nBLK +10  to  10\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 10 · face Clockwork Knight ATK 4 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use stone_wall",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 7,
+		"face_id": "clockwork_knight",
+		"face_name": "Clockwork Knight",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Stone Wall vs Clockwork Knight",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

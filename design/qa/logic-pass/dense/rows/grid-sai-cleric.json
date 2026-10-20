@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Flips 2 ↔ 4 after any Item is used.",
+			"id": "sai",
+			"kind": "item",
+			"name": "Sai",
+			"sprite": "assets/dungeon/items/sai.png"
+		},
+		{
+			"ability": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item",
+			"id": "cleric",
+			"kind": "monster",
+			"name": "Cleric",
+			"sprite": "assets/dungeon/extra/cleric.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Sai"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Sai — Flips 2 ↔ 4 after any Item is used. Monster: Cleric — After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item Challenge hand. Wheel cleric. Click Sai, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-sai-cleric",
+	"log": "Draft enter\nYou Spin\nSpin Cleric\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nSai\nATK 2  to  Cleric HP 3\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Cleric ATK 4 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use sai",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 3,
+		"face_id": "cleric",
+		"face_name": "Cleric",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Sai vs Cleric",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

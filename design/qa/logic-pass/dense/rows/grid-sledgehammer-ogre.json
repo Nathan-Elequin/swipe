@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+			"id": "sledgehammer",
+			"kind": "item",
+			"name": "Sledgehammer",
+			"sprite": "assets/dungeon/items/sledgehammer.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Sledgehammer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Sledgehammer — Defeat an enemy with 6 or more Attack. Combat ends immediately. Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Sledgehammer. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-sledgehammer-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nSledgehammer\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Ogre ATK 5 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use sledgehammer"
+		],
+		"face_atk": 5,
+		"face_hp": 10,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [
+			"Sledgehammer"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Sledgehammer vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

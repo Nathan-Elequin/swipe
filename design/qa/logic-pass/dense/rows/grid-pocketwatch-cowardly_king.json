@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Select an enemy. They Attack the enemy you are facing.",
+			"id": "pocketwatch",
+			"kind": "item",
+			"name": "Pocketwatch",
+			"sprite": "assets/dungeon/items/watch.png"
+		},
+		{
+			"ability": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated.",
+			"id": "cowardly_king",
+			"kind": "monster",
+			"name": "Cowardly King",
+			"sprite": "assets/dungeon/extra/cowardly_king.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Pocketwatch"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Pocketwatch — Select an enemy. They Attack the enemy you are facing. Monster: Cowardly King — When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated. Challenge hand. Wheel cowardly_king, wizard, golem. Click Pocketwatch, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pocketwatch-cowardly_king",
+	"log": "Draft enter\nYou Spin\nSpin Cowardly King\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0\nUsed pick who hits your enemy\nPocketwatch\nUsed hypnotize Wizard\nitems this combat 1\nCowardly King - Guards!\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nBLK 0\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0\nYou Done\nFight hit 1  ATK 5 - BLK\nBLK 0\nHP take -5  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Wizard ATK 5 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pocketwatch",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 2,
+		"face_id": "wizard",
+		"face_name": "Wizard",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Pocketwatch vs Cowardly King",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,70 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
+			"id": "longbow",
+			"kind": "item",
+			"name": "Longbow",
+			"sprite": "assets/dungeon/items/longbow.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Longbow"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Longbow — Deal 4 Attack to the monster across from you (only works if even # of monsters remaining) Monster: Wizard — (printed ATK/HP only) Challenge hand. Wheel wizard, golem. Click Longbow, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-longbow-wizard",
+	"log": "Draft enter\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0\nLongbow\nATK 4  to  Golem HP 3\nitems this combat 1\nYou Done\nFight hit 1  ATK 5 - BLK\nBLK 0\nHP take -5  now 1\nDefeated Wizard\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Wizard ATK 5 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use longbow",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 2,
+		"face_id": "wizard",
+		"face_name": "Wizard",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Longbow vs Wizard",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the Neighboring enemy's Attack on the Right.",
+			"id": "bracers",
+			"kind": "item",
+			"name": "Right Bracer",
+			"sprite": "assets/dungeon/items/bracers.png"
+		},
+		{
+			"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
+			"id": "phoenix_egg",
+			"kind": "monster",
+			"name": "Phoenix Egg",
+			"sprite": "assets/dungeon/extra/phoenix_egg.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Right Bracer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Right Bracer — Block equal to the Neighboring enemy's Attack on the Right. Monster: Phoenix Egg — When I am Defeated, I Flee and hatch into a Phoenix. Challenge hand. Wheel phoenix_egg, wizard, golem. Click Right Bracer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bracers-phoenix_egg",
+	"log": "Draft enter\nYou Spin\nSpin Phoenix Egg\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0\nRight Bracer\nBLK +3  to  3\nitems this combat 1\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 1\nHP take 0\nFight Phoenix Egg Flee and become Phoenix\nBLK 0\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Phoenix Egg ATK 2 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use bracers",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 2,
+		"face_id": "phoenix_egg",
+		"face_name": "Phoenix Egg",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Right Bracer vs Phoenix Egg",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

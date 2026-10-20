@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 6. On Spin, lose 1 HP.",
+			"id": "cursed_scroll",
+			"kind": "item",
+			"name": "Cursed Scroll",
+			"sprite": "assets/dungeon/items/cursed_scroll.png"
+		},
+		{
+			"ability": "When Spun, I have a 50% chance to gain +4 Atk",
+			"id": "berserker",
+			"kind": "monster",
+			"name": "Berserker",
+			"sprite": "assets/dungeon/extra/berserker.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Cursed Scroll"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Cursed Scroll — Heal 6. On Spin, lose 1 HP. Monster: Berserker — When Spun, I have a 50% chance to gain +4 Atk Challenge hand. Wheel berserker. Click Cursed Scroll, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-cursed_scroll-berserker",
+	"log": "Draft enter\nYou Spin\nSpin Berserker\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin Cursed Scroll\nCursed Scroll\nHP bleed -1  now 2\nBerserker +4 ATK  to  7\nCursed Scroll\nHP heal +4  now 6\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Berserker ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use cursed_scroll",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "berserker",
+		"face_name": "Berserker",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Cursed Scroll vs Berserker",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+			"id": "sledgehammer",
+			"kind": "item",
+			"name": "Sledgehammer",
+			"sprite": "assets/dungeon/items/sledgehammer.png"
+		},
+		{
+			"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
+			"id": "amalgam",
+			"kind": "monster",
+			"name": "Amalgam",
+			"sprite": "assets/dungeon/extra/amalgam.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Sledgehammer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Sledgehammer — Defeat an enemy with 6 or more Attack. Combat ends immediately. Monster: Amalgam — After any Item you Use while facing me, double my remaining HP and ATK. Challenge hand. Wheel amalgam. Click Sledgehammer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-sledgehammer-amalgam",
+	"log": "Draft enter\nYou Spin\nSpin Amalgam\nenemy ATK 5   HP 6\nBLK 0\nitems this combat 0\nSledgehammer\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Amalgam ATK 5 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use sledgehammer",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 6,
+		"face_id": "amalgam",
+		"face_name": "Amalgam",
+		"hand": [
+			"Sledgehammer"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Sledgehammer vs Amalgam",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

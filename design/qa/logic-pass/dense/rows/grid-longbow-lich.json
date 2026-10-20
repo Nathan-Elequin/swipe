@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
+			"id": "longbow",
+			"kind": "item",
+			"name": "Longbow",
+			"sprite": "assets/dungeon/items/longbow.png"
+		},
+		{
+			"ability": "I give my Neighbors +1 HP.",
+			"id": "lich",
+			"kind": "monster",
+			"name": "Lich",
+			"sprite": "assets/dungeon/extra/lich.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Longbow"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Longbow — Deal 4 Attack to the monster across from you (only works if even # of monsters remaining) Monster: Lich — I give my Neighbors +1 HP. Challenge hand. Wheel lich, wizard, golem. Click Longbow, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-longbow-lich",
+	"log": "Draft enter\nYou Spin\nSpin Lich\nenemy ATK 3   HP 1\nBLK 0\nitems this combat 0\nLongbow\nUsed cannot\nYou Done\nFight hit 1  ATK 3 - BLK\nBLK 0\nHP take -3  now 3\nDefeated Lich\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Lich ATK 3 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use longbow",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 1,
+		"face_id": "lich",
+		"face_name": "Lich",
+		"hand": [
+			"Longbow"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Longbow vs Lich",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

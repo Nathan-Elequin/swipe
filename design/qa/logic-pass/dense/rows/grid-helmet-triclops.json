@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the lower HP between you and the Enemy.",
+			"id": "helmet",
+			"kind": "item",
+			"name": "Helmet",
+			"sprite": "assets/dungeon/items/helmet.png"
+		},
+		{
+			"ability": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
+			"id": "triclops",
+			"kind": "monster",
+			"name": "Triclops",
+			"sprite": "assets/dungeon/extra/triclops_v2.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Helmet"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Helmet — Block equal to the lower HP between you and the Enemy. Monster: Triclops — If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee. Challenge hand. Wheel triclops. Click Helmet, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-helmet-triclops",
+	"log": "Draft enter\nYou Spin\nSpin Triclops\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nHelmet\nBLK +6  to  6\nitems this combat 1\nYou Done\nFight hit 1  ATK 4 - BLK\nBLK 2\nHP take 0\nFight Triclops -2 HP and Flee  to  5\nBLK 0\nYou Spin\nSpin Triclops\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 6 · face Triclops ATK 4 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use helmet",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 7,
+		"face_id": "triclops",
+		"face_name": "Triclops",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Helmet vs Triclops",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+			"id": "sledgehammer",
+			"kind": "item",
+			"name": "Sledgehammer",
+			"sprite": "assets/dungeon/items/sledgehammer.png"
+		},
+		{
+			"ability": "My Attack ignores Block.",
+			"id": "dragon",
+			"kind": "monster",
+			"name": "Dragon",
+			"sprite": "assets/dungeon/extra/dragon.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Sledgehammer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Sledgehammer — Defeat an enemy with 6 or more Attack. Combat ends immediately. Monster: Dragon — My Attack ignores Block. Challenge hand. Wheel dragon. Click Sledgehammer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-sledgehammer-dragon",
+	"log": "Draft enter\nYou Spin\nSpin Dragon\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0",
+	"mismatch": "BLOCKED: This special fires on Done, and I never clicked Done.",
+	"note": "",
+	"observed": "This special fires on Done, and I never clicked Done.",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use sledgehammer"
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "dragon",
+		"face_name": "Dragon",
+		"hand": [
+			"Sledgehammer"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Sledgehammer vs Dragon",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

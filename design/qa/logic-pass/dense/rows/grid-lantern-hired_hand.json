@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"id": "lantern",
+			"kind": "item",
+			"name": "Lantern",
+			"sprite": "assets/dungeon/items/lantern.png"
+		},
+		{
+			"ability": "If you Discard an item when facing me, I will Attack one of my Neighbors and Flee.",
+			"id": "hired_hand",
+			"kind": "monster",
+			"name": "Hired Hand",
+			"sprite": "assets/dungeon/extra/hired_hand.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lantern"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Hired Hand — If you Discard an item when facing me, I will Attack one of my Neighbors and Flee. Challenge hand. Wheel hired_hand, wizard, golem. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lantern-hired_hand",
+	"log": "Draft enter\nYou Spin\nSpin Hired Hand\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin hired hand bribe\nSpin bribe Lantern\nHired Hand - Bribe\nDefeated Wizard\nFight Hired Hand Flees\nBLK 0\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 3 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lantern",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "hired_hand",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Lantern vs Hired Hand",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

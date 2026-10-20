@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat Any Monster with exactly double your HP",
+			"id": "measuring_tape",
+			"kind": "item",
+			"name": "Scythe",
+			"sprite": "assets/dungeon/items/measuring_tape.png"
+		},
+		{
+			"ability": "Attack or Block values that are Even happen twice against me.",
+			"id": "hollow",
+			"kind": "monster",
+			"name": "Twins",
+			"sprite": "assets/dungeon/extra/hollow.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Scythe"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Scythe — Defeat Any Monster with exactly double your HP Monster: Twins — Attack or Block values that are Even happen twice against me. Challenge hand. Wheel hollow. Click Scythe, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-measuring_tape-hollow",
+	"log": "Draft enter\nYou Spin\nSpin Twins\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0\nUsed cannot\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Twins ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use measuring_tape",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "hollow",
+		"face_name": "Twins",
+		"hand": [
+			"Scythe"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Scythe vs Twins",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

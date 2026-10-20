@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Defeats the Monster 6 Spins from now.",
+			"id": "hex",
+			"kind": "item",
+			"name": "Hex",
+			"sprite": "assets/dungeon/items/hex.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Hex"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Hex — Unplayable. Defeats the Monster 6 Spins from now. Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Hex, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-hex-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nHex\nHex 5",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: HP is yours.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: HP is yours.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 10,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [
+			"Hex"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Hex vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

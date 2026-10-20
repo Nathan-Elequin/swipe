@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Deal Attack equal to Block you hold. Keep this item.",
+			"id": "iron_chain",
+			"kind": "item",
+			"name": "Chain",
+			"sprite": "assets/dungeon/items/iron_chain.png"
+		},
+		{
+			"ability": "When you Spin me, choose an Item and I will upgrade it",
+			"id": "merchant",
+			"kind": "monster",
+			"name": "Merchant",
+			"sprite": "assets/dungeon/extra/merchant.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chain"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chain — Deal Attack equal to Block you hold. Keep this item. Monster: Merchant — When you Spin me, choose an Item and I will upgrade it Challenge hand. Wheel merchant. Click Chain, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-iron_chain-merchant",
+	"log": "Draft enter\nYou Spin\nSpin Merchant\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin merchant offers an upgrade\nSpin upgrade Chain to Grimoire",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Merchant ATK 4 HP 4",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Merchant ATK 4 HP 4",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use iron_chain",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "merchant",
+		"face_name": "Merchant",
+		"hand": [
+			"Grimoire"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chain vs Merchant",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

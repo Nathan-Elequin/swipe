@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
+			"id": "double_buckler",
+			"kind": "item",
+			"name": "Double-Buckler",
+			"sprite": "assets/dungeon/items/double_buckler.png"
+		},
+		{
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+			"id": "leech_league",
+			"kind": "monster",
+			"name": "Leech League",
+			"sprite": "assets/dungeon/extra/leech_league.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Double-Buckler"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Double-Buckler — Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this. Monster: Leech League — On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. Challenge hand. Wheel leech_league. Click Double-Buckler, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_buckler-leech_league",
+	"log": "Draft enter\nYou Spin\nSpin Leech League\nenemy ATK 4   HP 1\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Lowest HP Monster +1 until tied with another.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Lowest HP Monster +1 until tied with another.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 1,
+		"face_id": "leech_league",
+		"face_name": "Leech League",
+		"hand": [
+			"Double-Buckler"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Double-Buckler vs Leech League",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Flips 2 ↔ 4 after any Item is used.",
+			"id": "sai",
+			"kind": "item",
+			"name": "Sai",
+			"sprite": "assets/dungeon/items/sai.png"
+		},
+		{
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+			"id": "leech_league",
+			"kind": "monster",
+			"name": "Leech League",
+			"sprite": "assets/dungeon/extra/leech_league.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Sai"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Sai — Flips 2 ↔ 4 after any Item is used. Monster: Leech League — On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. Challenge hand. Wheel leech_league. Click Sai, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-sai-leech_league",
+	"log": "Draft enter\nYou Spin\nSpin Leech League\nenemy ATK 4   HP 1\nBLK 0\nitems this combat 0",
+	"mismatch": "BLOCKED: This special fires on Done, and I never clicked Done.",
+	"note": "",
+	"observed": "This special fires on Done, and I never clicked Done.",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use sai"
+		],
+		"face_atk": 4,
+		"face_hp": 1,
+		"face_id": "leech_league",
+		"face_name": "Leech League",
+		"hand": [
+			"Sai"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Sai vs Leech League",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

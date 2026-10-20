@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 5. Gain 3 Poison.",
+			"id": "ale_flagon",
+			"kind": "item",
+			"name": "Ale Flagon",
+			"sprite": "assets/dungeon/items/ale_flagon.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Ale Flagon"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Ale Flagon — Heal 5. Gain 3 Poison. Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Ale Flagon, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-ale_flagon-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nAle Flagon\nHP heal +3  now 6\nUsed poison 3\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Ogre ATK 5 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use ale_flagon",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 10,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Ale Flagon vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,4443 @@
+{
+	"id": "scenario-pass",
+	"title": "Named scenarios — Fail only if the log contradicts the expected sentence",
+	"tests": [
+		{
+			"id": "shield-gains-4",
+			"title": "Shield grants 4 Block",
+			"family": "happy",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				}
+			],
+			"expected_text": "Click Shield. Log shows BLK +4 to 4. Shield is spent.",
+			"expected": {
+				"blk": 4,
+				"log_has": [
+					"Shield",
+					"BLK +4"
+				],
+				"spent": {
+					"shield": true
+				}
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "stone-wall-10",
+			"title": "Stone Wall grants 10 Block",
+			"family": "happy",
+			"items": [
+				"stone_wall"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "stone_wall",
+					"auto": true
+				}
+			],
+			"expected_text": "Click Stone Wall. Log shows BLK +10. Stone Wall is spent.",
+			"expected": {
+				"blk": 10,
+				"log_has": [
+					"BLK +10"
+				],
+				"spent": {
+					"stone_wall": true
+				}
+			},
+			"cards": [
+				{
+					"id": "stone_wall",
+					"kind": "item",
+					"name": "Stone Wall",
+					"ability": "Block 10. Retain leftover block from this combat.",
+					"sprite": "assets/dungeon/items/stone_wall.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "lucky-nickel-1",
+			"title": "Lucky Nickel grants 1 Block",
+			"family": "happy",
+			"items": [
+				"lucky_nickel"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "lucky_nickel",
+					"auto": true
+				}
+			],
+			"expected_text": "Click Lucky Nickel. Log shows BLK +1. Block is 1 (odd), so it does not Keep.",
+			"expected": {
+				"blk": 1,
+				"log_has": [
+					"BLK +1"
+				]
+			},
+			"cards": [
+				{
+					"id": "lucky_nickel",
+					"kind": "item",
+					"name": "Lucky Nickel",
+					"ability": "Block 1. If your Block is now Even, Keep this.",
+					"sprite": "assets/dungeon/items/lucky_nickel.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "breastplate-2",
+			"title": "Breastplate grants 2 Block",
+			"family": "happy",
+			"items": [
+				"breastplate"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "breastplate",
+					"auto": true
+				}
+			],
+			"expected_text": "Click Breastplate. Log shows BLK +2 to 2.",
+			"expected": {
+				"blk": 2,
+				"log_has": [
+					"BLK +2"
+				]
+			},
+			"cards": [
+				{
+					"id": "breastplate",
+					"kind": "item",
+					"name": "Breastplate",
+					"ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
+					"sprite": "assets/dungeon/items/breastplate.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "knife-throw-wizard",
+			"title": "Throwing Knife throw Defeats Wizard",
+			"family": "happy",
+			"items": [
+				"throwing_knife"
+			],
+			"monsters": [
+				"wizard"
+			],
+			"face": "wizard",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "throwing_knife",
+					"auto": false
+				},
+				{
+					"op": "choose",
+					"id": "throw",
+					"atk": 3,
+					"keep": false
+				}
+			],
+			"expected_text": "Throw for ATK 3. Wizard has 2 HP, so Wizard is Defeated. Knife is spent.",
+			"expected": {
+				"log_has": [
+					"Knife"
+				],
+				"spent": {
+					"throwing_knife": true
+				}
+			},
+			"cards": [
+				{
+					"id": "throwing_knife",
+					"kind": "item",
+					"name": "Throwing Knife",
+					"ability": "Atk 3, or Atk 1 and Keep this item",
+					"sprite": "assets/dungeon/items/throwing_knife.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "knife-keep-wizard",
+			"title": "Throwing Knife Keep nicks Wizard",
+			"family": "happy",
+			"items": [
+				"throwing_knife"
+			],
+			"monsters": [
+				"wizard"
+			],
+			"face": "wizard",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "throwing_knife",
+					"auto": false
+				},
+				{
+					"op": "choose",
+					"id": "nick",
+					"atk": 1,
+					"keep": true
+				}
+			],
+			"expected_text": "Nick for ATK 1 and Keep. Wizard HP 2→1. Knife stays in hand.",
+			"expected": {
+				"face_hp": 1,
+				"spent": {
+					"throwing_knife": false
+				}
+			},
+			"cards": [
+				{
+					"id": "throwing_knife",
+					"kind": "item",
+					"name": "Throwing Knife",
+					"ability": "Atk 3, or Atk 1 and Keep this item",
+					"sprite": "assets/dungeon/items/throwing_knife.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "boot-defeats-wizard",
+			"title": "The Boot Defeats Wizard",
+			"family": "happy",
+			"items": [
+				"da_boot"
+			],
+			"monsters": [
+				"wizard"
+			],
+			"face": "wizard",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "da_boot",
+					"auto": true
+				}
+			],
+			"expected_text": "Wizard has 2 HP, you have 6. Boot Defeats Wizard.",
+			"expected": {
+				"log_has": [
+					"Boot"
+				]
+			},
+			"cards": [
+				{
+					"id": "da_boot",
+					"kind": "item",
+					"name": "The Boot",
+					"ability": "Defeat an enemy with less HP than you.",
+					"sprite": "assets/dungeon/items/boot.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "sledge-defeats-dragon",
+			"title": "Sledgehammer Defeats Dragon",
+			"family": "happy",
+			"items": [
+				"sledgehammer"
+			],
+			"monsters": [
+				"dragon"
+			],
+			"face": "dragon",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "sledgehammer",
+					"auto": true
+				}
+			],
+			"expected_text": "Dragon has 6 Attack. Sledgehammer Defeats an enemy with 6 or more Attack.",
+			"expected": {
+				"log_has": [
+					"Sledgehammer"
+				]
+			},
+			"cards": [
+				{
+					"id": "sledgehammer",
+					"kind": "item",
+					"name": "Sledgehammer",
+					"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+					"sprite": "assets/dungeon/items/sledgehammer.png"
+				},
+				{
+					"id": "dragon",
+					"kind": "monster",
+					"name": "Dragon",
+					"ability": "My Attack ignores Block.",
+					"sprite": "assets/dungeon/extra/dragon.png"
+				}
+			]
+		},
+		{
+			"id": "arrow-head-6",
+			"title": "Arrow Head deals 6 and you lose 2 HP",
+			"family": "happy",
+			"items": [
+				"arrow_head"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "arrow_head",
+					"auto": true
+				}
+			],
+			"expected_text": "Click Arrow Head. Golem takes 6 Attack. You lose 2 HP (6→4).",
+			"expected": {
+				"hp": 4,
+				"face_hp": 1,
+				"log_has": [
+					"Arrow"
+				]
+			},
+			"cards": [
+				{
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"ability": "6 Atk and Lose 2 HP.",
+					"sprite": "assets/dungeon/items/arrow_head.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "lantern-heal-2",
+			"title": "Lantern Heals 2",
+			"family": "happy",
+			"items": [
+				"lantern"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "lantern",
+					"auto": true
+				}
+			],
+			"expected_text": "Start at 3 HP. Click Lantern. Heal 2, now 5 HP. You are still missing HP, so Keep.",
+			"expected": {
+				"hp": 5,
+				"log_has": [
+					"Lantern"
+				]
+			},
+			"cards": [
+				{
+					"id": "lantern",
+					"kind": "item",
+					"name": "Lantern",
+					"ability": "Heal 2. Keep this if you are still missing HP.",
+					"sprite": "assets/dungeon/items/lantern.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"hp_before": 3
+		},
+		{
+			"id": "scroll-heal-to-full",
+			"title": "Cursed Scroll Heals 6",
+			"family": "happy",
+			"items": [
+				"cursed_scroll"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "cursed_scroll",
+					"auto": true
+				}
+			],
+			"expected_text": "Start at 1 HP. Click Cursed Scroll. Heal 6 (capped at your max).",
+			"expected": {
+				"hp_min": 6,
+				"log_has": [
+					"Scroll"
+				]
+			},
+			"cards": [
+				{
+					"id": "cursed_scroll",
+					"kind": "item",
+					"name": "Cursed Scroll",
+					"ability": "Heal 6. On Spin, lose 1 HP.",
+					"sprite": "assets/dungeon/items/cursed_scroll.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"hp_before": 1
+		},
+		{
+			"id": "ale-heal-5",
+			"title": "Ale Flagon Heals 5",
+			"family": "happy",
+			"items": [
+				"ale_flagon"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "ale_flagon",
+					"auto": true
+				}
+			],
+			"expected_text": "Start at 1 HP. Click Ale Flagon. Heal 5, now 6. You also Gain 3 Poison.",
+			"expected": {
+				"hp": 6,
+				"log_has": [
+					"Ale"
+				]
+			},
+			"cards": [
+				{
+					"id": "ale_flagon",
+					"kind": "item",
+					"name": "Ale Flagon",
+					"ability": "Heal 5. Gain 3 Poison.",
+					"sprite": "assets/dungeon/items/ale_flagon.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"hp_before": 1
+		},
+		{
+			"id": "chakram-solo-golem",
+			"title": "Chakram solo: Block 3 and ATK 3",
+			"family": "happy",
+			"items": [
+				"chakram"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "chakram",
+					"auto": true
+				}
+			],
+			"expected_text": "Only Chakram in hand. Block 3 if you have no Block items, ATK 3 if you have no Attack items. Golem 7 HP → 4.",
+			"expected": {
+				"blk": 3,
+				"face_hp": 4,
+				"log_has": [
+					"Chakram"
+				]
+			},
+			"cards": [
+				{
+					"id": "chakram",
+					"kind": "item",
+					"name": "Chakram",
+					"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+					"sprite": "assets/dungeon/items/chakram.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "last-match-solo-wizard",
+			"title": "Last Match Defeats Wizard when you have no Attack item",
+			"family": "happy",
+			"items": [
+				"last_match"
+			],
+			"monsters": [
+				"wizard"
+			],
+			"face": "wizard",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "last_match",
+					"auto": true
+				}
+			],
+			"expected_text": "Last Match is not an Attack item. Zero Attack items in hand, so it Defeats Wizard.",
+			"expected": {
+				"log_has": [
+					"Match"
+				]
+			},
+			"cards": [
+				{
+					"id": "last_match",
+					"kind": "item",
+					"name": "Paci-Fist",
+					"ability": "If you have zero items that deal Atk damage, Defeat the enemy.",
+					"sprite": "assets/dungeon/items/last_match.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "quiet-bell-silences-eel",
+			"title": "Quiet Bell removes Eel's ability",
+			"family": "happy",
+			"items": [
+				"quiet_bell"
+			],
+			"monsters": [
+				"eel"
+			],
+			"face": "eel",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "quiet_bell",
+					"auto": true
+				}
+			],
+			"expected_text": "Click Quiet Bell. Log says the fight is silenced. Eel no longer takes Attack from Block you gain.",
+			"expected": {
+				"log_has": [
+					"Quiet Bell",
+					"silen"
+				]
+			},
+			"cards": [
+				{
+					"id": "quiet_bell",
+					"kind": "item",
+					"name": "Quiet Bell",
+					"ability": "Remove your Enemy's unique ability",
+					"sprite": "assets/dungeon/items/quiet_bell.png"
+				},
+				{
+					"id": "eel",
+					"kind": "monster",
+					"name": "Eel",
+					"ability": "When facing me, I take Attack damage equal to Block you gain.",
+					"sprite": "assets/dungeon/extra/eel.png"
+				}
+			]
+		},
+		{
+			"id": "hex-stays-unplayable",
+			"title": "Hex stays in hand (Unplayable)",
+			"family": "happy",
+			"items": [
+				"hex"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Hex is Unplayable. Do not click it. It stays in hand and starts its 6-Spin Defeat.",
+			"expected": {
+				"spent": {
+					"hex": false
+				},
+				"log_has": [
+					"Hex"
+				]
+			},
+			"cards": [
+				{
+					"id": "hex",
+					"kind": "item",
+					"name": "Hex",
+					"ability": "Unplayable. Defeats the Monster 6 Spins from now.",
+					"sprite": "assets/dungeon/items/hex.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "buckler-stays-unplayable",
+			"title": "Double-Buckler stays in hand",
+			"family": "happy",
+			"items": [
+				"double_buckler"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Double-Buckler is Unplayable. Do not click it. It stays in hand until even Attack damage hits you.",
+			"expected": {
+				"spent": {
+					"double_buckler": false
+				}
+			},
+			"cards": [
+				{
+					"id": "double_buckler",
+					"kind": "item",
+					"name": "Double-Buckler",
+					"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
+					"sprite": "assets/dungeon/items/double_buckler.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "net-drop-atk",
+			"title": "Net reduces facing Attack",
+			"family": "happy",
+			"items": [
+				"net"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "net",
+					"auto": true
+				}
+			],
+			"expected_text": "Click Net and pick a reduction. Golem's Attack goes down. Net is spent.",
+			"expected": {
+				"log_has": [
+					"Net"
+				],
+				"spent": {
+					"net": true
+				}
+			},
+			"cards": [
+				{
+					"id": "net",
+					"kind": "item",
+					"name": "Net",
+					"ability": "Choose to reduce the facing owner's Attack by 1, 2, or 3.",
+					"sprite": "assets/dungeon/items/net.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "ball-and-chain-2",
+			"title": "Ball and Chain deals 2 Attack",
+			"family": "happy",
+			"items": [
+				"ball_and_chain"
+			],
+			"monsters": [
+				"wizard"
+			],
+			"face": "wizard",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "ball_and_chain",
+					"auto": true
+				}
+			],
+			"expected_text": "Click Ball and Chain. 2 Attack into Wizard (2 HP), so Wizard is Defeated.",
+			"expected": {
+				"log_has": [
+					"Ball"
+				]
+			},
+			"cards": [
+				{
+					"id": "ball_and_chain",
+					"kind": "item",
+					"name": "Ball & Chain",
+					"ability": "2 Atk. The next time you or an Enemy would Flee, cancel it and this gains +2 Atk.",
+					"sprite": "assets/dungeon/items/ball_and_chain.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "napalm-sets-1",
+			"title": "Napalm sets you and the Enemy to 1 HP",
+			"family": "happy",
+			"items": [
+				"napalm"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "napalm",
+					"auto": true
+				}
+			],
+			"expected_text": "Click Napalm. Golem HP becomes 1. Your HP becomes 1.",
+			"expected": {
+				"hp": 1,
+				"face_hp": 1,
+				"log_has": [
+					"Napalm"
+				]
+			},
+			"cards": [
+				{
+					"id": "napalm",
+					"kind": "item",
+					"name": "Napalm",
+					"ability": "Set the HP of the Enemy, its Neighbors, and yourself to 1 HP",
+					"sprite": "assets/dungeon/items/napalm.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "spiked-shield-no-atk",
+			"title": "Spiked Shield with no Attack item grants 0",
+			"family": "miss",
+			"items": [
+				"spiked_shield"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "spiked_shield",
+					"auto": true
+				}
+			],
+			"expected_text": "Only Spiked Shield in hand. Highest Attack Item is none, so BLK +0. That matches the Ability.",
+			"expected": {
+				"blk": 0,
+				"log_has": [
+					"Spiked Shield",
+					"BLK +0"
+				]
+			},
+			"cards": [
+				{
+					"id": "spiked_shield",
+					"kind": "item",
+					"name": "Spiked Shield",
+					"ability": "Gain Block equal to your highest Attack Item",
+					"sprite": "assets/dungeon/items/spiked_shield.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "chain-no-block",
+			"title": "Chain with 0 Block cannot spend Block",
+			"family": "miss",
+			"items": [
+				"iron_chain"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "iron_chain",
+					"auto": true
+				}
+			],
+			"expected_text": "You hold 0 Block. Chain deals Attack equal to Block you hold. Log is Used cannot, or ATK 0. Chain Keeps.",
+			"expected": {
+				"blk": 0,
+				"spent": {
+					"iron_chain": false
+				}
+			},
+			"cards": [
+				{
+					"id": "iron_chain",
+					"kind": "item",
+					"name": "Chain",
+					"ability": "Deal Attack equal to Block you hold. Keep this item.",
+					"sprite": "assets/dungeon/items/iron_chain.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "mirror-no-last-block",
+			"title": "Mirror Shard with no last Block cannot copy",
+			"family": "miss",
+			"items": [
+				"mirror_shard"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "mirror_shard",
+					"auto": true
+				}
+			],
+			"expected_text": "No Block was gained yet. Mirror Shard copies the last Block you gained. Used cannot, or BLK +0.",
+			"expected": {
+				"blk": 0
+			},
+			"cards": [
+				{
+					"id": "mirror_shard",
+					"kind": "item",
+					"name": "Mirror Shard",
+					"ability": "Gain Block equal to the last Block you gained.",
+					"sprite": "assets/dungeon/items/mirror_shard.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "boot-golem-too-fat",
+			"title": "The Boot does not Defeat Golem (7 HP vs your 6)",
+			"family": "miss",
+			"items": [
+				"da_boot"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "da_boot",
+					"auto": true
+				}
+			],
+			"expected_text": "Golem has 7 HP, you have 6. Boot only Defeats an enemy with less HP than you. Golem still there.",
+			"expected": {
+				"face_hp": 7,
+				"log_has": [
+					"Boot"
+				]
+			},
+			"cards": [
+				{
+					"id": "da_boot",
+					"kind": "item",
+					"name": "The Boot",
+					"ability": "Defeat an enemy with less HP than you.",
+					"sprite": "assets/dungeon/items/boot.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "medallion-full-hp",
+			"title": "Medallion at full HP grants 0 Block",
+			"family": "miss",
+			"items": [
+				"medallion"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "medallion",
+					"auto": true
+				}
+			],
+			"expected_text": "You are at 6/6 HP, missing 0. Block equal to HP you are missing is 0.",
+			"expected": {
+				"blk": 0,
+				"log_has": [
+					"Medallion"
+				]
+			},
+			"cards": [
+				{
+					"id": "medallion",
+					"kind": "item",
+					"name": "Medallion",
+					"ability": "Block equal to the HP you are missing.",
+					"sprite": "assets/dungeon/items/medallion.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "bracers-no-right-neighbor",
+			"title": "Right Bracer with no neighbor grants 0",
+			"family": "miss",
+			"items": [
+				"bracers"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "bracers",
+					"auto": true
+				}
+			],
+			"expected_text": "Wheel is only Golem. No Neighbor on the Right. Block equal to that Attack is 0.",
+			"expected": {
+				"blk": 0
+			},
+			"cards": [
+				{
+					"id": "bracers",
+					"kind": "item",
+					"name": "Right Bracer",
+					"ability": "Block equal to the Neighboring enemy's Attack on the Right.",
+					"sprite": "assets/dungeon/items/bracers.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "left-bracer-no-neighbor",
+			"title": "Left Bracer with no neighbor grants 0",
+			"family": "miss",
+			"items": [
+				"left_bracer"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "left_bracer",
+					"auto": true
+				}
+			],
+			"expected_text": "Wheel is only Golem. No Neighbor on the Left. Block equal to that Attack is 0.",
+			"expected": {
+				"blk": 0
+			},
+			"cards": [
+				{
+					"id": "left_bracer",
+					"kind": "item",
+					"name": "Left Bracer",
+					"ability": "Block equal to the Neighboring enemy's Attack on the Left.",
+					"sprite": "assets/dungeon/items/left_bracer.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "grimoire-no-last-monster",
+			"title": "Grimoire with no last monster deals 0",
+			"family": "miss",
+			"items": [
+				"grimoire"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "grimoire",
+					"auto": true
+				}
+			],
+			"expected_text": "No previous enemy this dungeon. Attack equal to the last monster you faced is 0 (or Used cannot).",
+			"expected": {
+				"face_hp": 7
+			},
+			"cards": [
+				{
+					"id": "grimoire",
+					"kind": "item",
+					"name": "Grimoire",
+					"ability": "Attack equal to the Attack of the last monster you faced.",
+					"sprite": "assets/dungeon/items/grimoire.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "last-match-with-knife",
+			"title": "Last Match does not Defeat if you hold an Attack item",
+			"family": "miss",
+			"items": [
+				"last_match",
+				"throwing_knife"
+			],
+			"monsters": [
+				"wizard"
+			],
+			"face": "wizard",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "last_match",
+					"auto": true
+				}
+			],
+			"expected_text": "Throwing Knife deals Atk. Last Match only Defeats if you have zero Attack items. Wizard still there.",
+			"expected": {
+				"face_hp": 2
+			},
+			"cards": [
+				{
+					"id": "last_match",
+					"kind": "item",
+					"name": "Paci-Fist",
+					"ability": "If you have zero items that deal Atk damage, Defeat the enemy.",
+					"sprite": "assets/dungeon/items/last_match.png"
+				},
+				{
+					"id": "throwing_knife",
+					"kind": "item",
+					"name": "Throwing Knife",
+					"ability": "Atk 3, or Atk 1 and Keep this item",
+					"sprite": "assets/dungeon/items/throwing_knife.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "measuring-tape-not-double",
+			"title": "Measuring Tape does not Defeat Golem (not exactly double HP)",
+			"family": "miss",
+			"items": [
+				"measuring_tape"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "measuring_tape",
+					"auto": true
+				}
+			],
+			"expected_text": "You have 6 HP. Double is 12. Golem has 7. Not exactly double, so Golem stays.",
+			"expected": {
+				"face_hp": 7
+			},
+			"cards": [
+				{
+					"id": "measuring_tape",
+					"kind": "item",
+					"name": "Scythe",
+					"ability": "Defeat Any Monster with exactly double your HP",
+					"sprite": "assets/dungeon/items/measuring_tape.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "cube-eats-shield",
+			"title": "Gelatinous Cube eats Shield instead of playing it",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"gelatinous_cube"
+			],
+			"face": "gelatinous_cube",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				}
+			],
+			"expected_text": "Cube makes you feed it. Clicking Shield feeds Cube. Log says it ate Shield. Block stays 0. That is Cube working.",
+			"expected": {
+				"outcome": "cube_ate",
+				"blk": 0,
+				"log_has": [
+					"ate"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "gelatinous_cube",
+					"kind": "monster",
+					"name": "Gelatinous Cube",
+					"ability": "I make you feed me one of two items.",
+					"sprite": "assets/dungeon/extra/gelatinous_cube.png"
+				}
+			]
+		},
+		{
+			"id": "goblin-ignores-knife",
+			"title": "Goblin does not take Attack from Throwing Knife",
+			"family": "collide",
+			"items": [
+				"throwing_knife"
+			],
+			"monsters": [
+				"goblin"
+			],
+			"face": "goblin",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "throwing_knife",
+					"auto": false
+				},
+				{
+					"op": "choose",
+					"id": "throw",
+					"atk": 3,
+					"keep": false
+				}
+			],
+			"expected_text": "Goblin cannot take Attack damage. Knife throw does not lower Goblin HP.",
+			"expected": {
+				"invariants": [
+					"goblin_no_atk_dmg"
+				],
+				"log_has": [
+					"Knife"
+				]
+			},
+			"cards": [
+				{
+					"id": "throwing_knife",
+					"kind": "item",
+					"name": "Throwing Knife",
+					"ability": "Atk 3, or Atk 1 and Keep this item",
+					"sprite": "assets/dungeon/items/throwing_knife.png"
+				},
+				{
+					"id": "goblin",
+					"kind": "monster",
+					"name": "Goblin",
+					"ability": "I cannot take Attack damage.",
+					"sprite": "assets/dungeon/extra/goblin.png"
+				}
+			]
+		},
+		{
+			"id": "eel-takes-block-as-atk",
+			"title": "Eel takes Attack equal to Block you gain",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"eel"
+			],
+			"face": "eel",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				}
+			],
+			"expected_text": "Click Shield, Gain 4 Block. Eel takes 4 Attack. Eel has 4 HP, so Eel is Defeated.",
+			"expected": {
+				"blk": 4,
+				"log_has": [
+					"Shield",
+					"BLK +4"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "eel",
+					"kind": "monster",
+					"name": "Eel",
+					"ability": "When facing me, I take Attack damage equal to Block you gain.",
+					"sprite": "assets/dungeon/extra/eel.png"
+				}
+			]
+		},
+		{
+			"id": "dragon-ignores-block",
+			"title": "Dragon's Attack ignores Block",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"dragon"
+			],
+			"face": "dragon",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				},
+				{
+					"op": "done"
+				}
+			],
+			"expected_text": "Gain 4 Block, then Done. Dragon ignores Block. You take the full Attack.",
+			"expected": {
+				"log_has": [
+					"ignores"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "dragon",
+					"kind": "monster",
+					"name": "Dragon",
+					"ability": "My Attack ignores Block.",
+					"sprite": "assets/dungeon/extra/dragon.png"
+				}
+			]
+		},
+		{
+			"id": "basilisk-flees-on-spin",
+			"title": "Basilisk Flees on the first Spin",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"basilisk"
+			],
+			"face": "basilisk",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "The first time you Spin Basilisk, it Flees (and Petrifies). There is no fight to click Shield. That is Basilisk working.",
+			"expected": {
+				"outcome": "fled",
+				"log_has": [
+					"Flee"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "basilisk",
+					"kind": "monster",
+					"name": "Basilisk",
+					"ability": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
+					"sprite": "assets/dungeon/extra/basilisk.png"
+				}
+			]
+		},
+		{
+			"id": "mouse-flees-on-spin",
+			"title": "Mouse Flees on Spin because you have more HP",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"mouse"
+			],
+			"face": "mouse",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "You have 6 HP, Mouse has 4. On Spin it loses 2 HP and Flees. No fight to click Shield. That is Mouse working.",
+			"expected": {
+				"outcome": "fled",
+				"log_has": [
+					"Scurry"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "mouse",
+					"kind": "monster",
+					"name": "Mouse",
+					"ability": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
+					"sprite": "assets/dungeon/extra/mouse.png"
+				}
+			]
+		},
+		{
+			"id": "harpy-hits-after-item",
+			"title": "Harpy attacks after you use Shield",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"harpy"
+			],
+			"face": "harpy",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				}
+			],
+			"expected_text": "Harpy attacks when Spin lands and after each item. Shield grants 2+ Block, then Harpy hits and spends that Block.",
+			"expected": {
+				"log_has": [
+					"Harpy",
+					"Shield"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "harpy",
+					"kind": "monster",
+					"name": "Harpy",
+					"ability": "I attack you when your Spin lands on me, and after each item you use.",
+					"sprite": "assets/dungeon/extra/harpy.png"
+				}
+			]
+		},
+		{
+			"id": "queen-lays-on-spin",
+			"title": "Spider Queen lays an egg on Spin",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"spider_queen"
+			],
+			"face": "spider_queen",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Each time you Spin, Gain 1 Spider Egg. After Spin, hand has an egg (unless the hand was full).",
+			"expected": {
+				"log_has": [
+					"Egg"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "spider_queen",
+					"kind": "monster",
+					"name": "Spider Queen",
+					"ability": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
+					"sprite": "assets/dungeon/extra/spider.png"
+				}
+			]
+		},
+		{
+			"id": "fangs-you-can-die",
+			"title": "Fangs lets Golem Attack first; you can die before Heal",
+			"family": "collide",
+			"items": [
+				"fangs"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "fangs",
+					"auto": true
+				}
+			],
+			"expected_text": "Fangs: let the Enemy Attack, then Defeat them and Heal. Golem deals 3. You had 6. If the hit lands, you may die before Heal. The card still did what it says.",
+			"expected": {
+				"outcome": "item_did_fire",
+				"log_has": [
+					"Fangs"
+				]
+			},
+			"cards": [
+				{
+					"id": "fangs",
+					"kind": "item",
+					"name": "Fangs",
+					"ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
+					"sprite": "assets/dungeon/items/fangs.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "bushido-second-item-blank",
+			"title": "Bushido: second item this fight does nothing",
+			"family": "collide",
+			"items": [
+				"shield",
+				"lantern"
+			],
+			"monsters": [
+				"bushido"
+			],
+			"face": "bushido",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				},
+				{
+					"op": "use",
+					"item": "lantern",
+					"auto": true
+				}
+			],
+			"expected_text": "Facing Bushido, your second item has no effect. Shield should grant Block. Lantern should not Heal.",
+			"expected": {
+				"log_has": [
+					"Shield"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "lantern",
+					"kind": "item",
+					"name": "Lantern",
+					"ability": "Heal 2. Keep this if you are still missing HP.",
+					"sprite": "assets/dungeon/items/lantern.png"
+				},
+				{
+					"id": "bushido",
+					"kind": "monster",
+					"name": "Bushido",
+					"ability": "When facing me, your second Item used has no effect",
+					"sprite": "assets/dungeon/extra/bushido.png"
+				}
+			]
+		},
+		{
+			"id": "echo-copies-shield",
+			"title": "Echo Bell copies the last item (Shield)",
+			"family": "collide",
+			"items": [
+				"shield",
+				"echo_bell"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				},
+				{
+					"op": "use",
+					"item": "echo_bell",
+					"auto": true
+				}
+			],
+			"expected_text": "Use Shield (BLK +4), then Echo Bell. Echo becomes a copy of Shield and grants Block again.",
+			"expected": {
+				"log_has": [
+					"Echo"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "echo_bell",
+					"kind": "item",
+					"name": "Echo Bell",
+					"ability": "Becomes a copy of the last item you used.",
+					"sprite": "assets/dungeon/items/echo_bell.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "mirror-after-shield",
+			"title": "Mirror Shard copies the 4 Block from Shield",
+			"family": "collide",
+			"items": [
+				"shield",
+				"mirror_shard"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				},
+				{
+					"op": "use",
+					"item": "mirror_shard",
+					"auto": true
+				}
+			],
+			"expected_text": "Shield first (BLK +4). Mirror Shard copies the last Block gained, so another +4.",
+			"expected": {
+				"blk_min": 8,
+				"log_has": [
+					"Mirror"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "mirror_shard",
+					"kind": "item",
+					"name": "Mirror Shard",
+					"ability": "Gain Block equal to the last Block you gained.",
+					"sprite": "assets/dungeon/items/mirror_shard.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "chain-after-shield",
+			"title": "Chain spends the 4 Block from Shield as Attack",
+			"family": "collide",
+			"items": [
+				"shield",
+				"iron_chain"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				},
+				{
+					"op": "use",
+					"item": "iron_chain",
+					"auto": true
+				}
+			],
+			"expected_text": "Shield first (4 Block). Chain deals Attack equal to Block you hold (4) into Golem 7 HP → 3. Chain Keeps.",
+			"expected": {
+				"face_hp": 3,
+				"spent": {
+					"iron_chain": false
+				}
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "iron_chain",
+					"kind": "item",
+					"name": "Chain",
+					"ability": "Deal Attack equal to Block you hold. Keep this item.",
+					"sprite": "assets/dungeon/items/iron_chain.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "spiked-with-knife",
+			"title": "Spiked Shield copies Throwing Knife's Attack as Block",
+			"family": "collide",
+			"items": [
+				"throwing_knife",
+				"spiked_shield"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "spiked_shield",
+					"auto": true
+				}
+			],
+			"expected_text": "Hand has Throwing Knife (an Attack item) and Spiked Shield. Gain Block equal to your highest Attack Item.",
+			"expected": {
+				"log_has": [
+					"Spiked Shield"
+				]
+			},
+			"cards": [
+				{
+					"id": "throwing_knife",
+					"kind": "item",
+					"name": "Throwing Knife",
+					"ability": "Atk 3, or Atk 1 and Keep this item",
+					"sprite": "assets/dungeon/items/throwing_knife.png"
+				},
+				{
+					"id": "spiked_shield",
+					"kind": "item",
+					"name": "Spiked Shield",
+					"ability": "Gain Block equal to your highest Attack Item",
+					"sprite": "assets/dungeon/items/spiked_shield.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "anvil-caps-damage",
+			"title": "Anvil cannot lose more than 1 HP at a time",
+			"family": "collide",
+			"items": [
+				"arrow_head"
+			],
+			"monsters": [
+				"anvil"
+			],
+			"face": "anvil",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "arrow_head",
+					"auto": true
+				}
+			],
+			"expected_text": "Arrow Head is 6 Attack. Anvil cannot lose more than 1 HP at a time, so Anvil loses 1 HP, not 6.",
+			"expected": {
+				"log_has": [
+					"Anvil"
+				]
+			},
+			"cards": [
+				{
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"ability": "6 Atk and Lose 2 HP.",
+					"sprite": "assets/dungeon/items/arrow_head.png"
+				},
+				{
+					"id": "anvil",
+					"kind": "monster",
+					"name": "Anvil",
+					"ability": "I cannot lose more than 1 HP at a time.",
+					"sprite": "assets/dungeon/extra/anvil.png"
+				}
+			]
+		},
+		{
+			"id": "hollow-even-doubles",
+			"title": "Hollow: even Block happens twice",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"hollow"
+			],
+			"face": "hollow",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				}
+			],
+			"expected_text": "Shield grants 4 Block (even). Against Hollow, even Block values happen twice.",
+			"expected": {
+				"log_has": [
+					"Hollow"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "hollow",
+					"kind": "monster",
+					"name": "Twins",
+					"ability": "Attack or Block values that are Even happen twice against me.",
+					"sprite": "assets/dungeon/extra/hollow.png"
+				}
+			]
+		},
+		{
+			"id": "bodyguard-eats-neighbor-hit",
+			"title": "Bodyguard takes Attack meant for a Neighbor",
+			"family": "collide",
+			"items": [
+				"crossbow"
+			],
+			"monsters": [
+				"wizard",
+				"bodyguard"
+			],
+			"face": "wizard",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "crossbow",
+					"auto": true
+				}
+			],
+			"expected_text": "Crossbow deals 4 to a Neighbor. Bodyguard takes Attack meant for Neighbors instead of Wizard.",
+			"expected": {
+				"log_has": [
+					"Bodyguard"
+				]
+			},
+			"cards": [
+				{
+					"id": "crossbow",
+					"kind": "item",
+					"name": "Crossbow",
+					"ability": "Deal 4 Attack to a Neighboring enemy.",
+					"sprite": "assets/dungeon/items/crossbow.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				},
+				{
+					"id": "bodyguard",
+					"kind": "monster",
+					"name": "Bodyguard",
+					"ability": "When my Neighbors would take Attack Damage, I take it instead",
+					"sprite": "assets/dungeon/extra/bodyguard.png"
+				}
+			]
+		},
+		{
+			"id": "amalgam-doubles-after-item",
+			"title": "Amalgam doubles after you use an item",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"amalgam"
+			],
+			"face": "amalgam",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				}
+			],
+			"expected_text": "After any item you use while facing Amalgam, double remaining HP and ATK.",
+			"expected": {
+				"log_has": [
+					"Amalgam"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "amalgam",
+					"kind": "monster",
+					"name": "Amalgam",
+					"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
+					"sprite": "assets/dungeon/extra/amalgam.png"
+				}
+			]
+		},
+		{
+			"id": "gargoyle-petrifies-atk",
+			"title": "Gargoyle petrifies your highest Attack item",
+			"family": "collide",
+			"items": [
+				"arrow_head"
+			],
+			"monsters": [
+				"gargoyle"
+			],
+			"face": "gargoyle",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Gargoyle petrifies your highest Attack item until you Spin again. Arrow Head should be unplayable this fight.",
+			"expected": {
+				"log_has": [
+					"petrif"
+				]
+			},
+			"cards": [
+				{
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"ability": "6 Atk and Lose 2 HP.",
+					"sprite": "assets/dungeon/items/arrow_head.png"
+				},
+				{
+					"id": "gargoyle",
+					"kind": "monster",
+					"name": "Gargoyle",
+					"ability": "I petrify your highest Attack item until you Spin again.",
+					"sprite": "assets/dungeon/extra/gargoyle.png"
+				}
+			]
+		},
+		{
+			"id": "zombie-no-keep",
+			"title": "Zombie: you cannot Gain or Keep items",
+			"family": "collide",
+			"items": [
+				"throwing_knife"
+			],
+			"monsters": [
+				"zombie"
+			],
+			"face": "zombie",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "throwing_knife",
+					"auto": false
+				},
+				{
+					"op": "choose",
+					"id": "nick",
+					"atk": 1,
+					"keep": true
+				}
+			],
+			"expected_text": "While facing Zombie you cannot Gain or Keep. Knife Keep should not leave the card in hand.",
+			"expected": {
+				"log_has": [
+					"Zombie"
+				]
+			},
+			"cards": [
+				{
+					"id": "throwing_knife",
+					"kind": "item",
+					"name": "Throwing Knife",
+					"ability": "Atk 3, or Atk 1 and Keep this item",
+					"sprite": "assets/dungeon/items/throwing_knife.png"
+				},
+				{
+					"id": "zombie",
+					"kind": "monster",
+					"name": "Zombie",
+					"ability": "While facing me, you cannot Gain or Keep any Items.",
+					"sprite": "assets/dungeon/extra/zombie.png"
+				}
+			]
+		},
+		{
+			"id": "juggernaut-grants-shield",
+			"title": "Juggernaut: Gain a Shield on Spin",
+			"family": "collide",
+			"items": [],
+			"monsters": [
+				"juggernaut"
+			],
+			"face": "juggernaut",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "When you Spin Juggernaut, Gain a Shield. After Spin, hand has a Shield.",
+			"expected": {
+				"log_has": [
+					"Shield"
+				]
+			},
+			"cards": [
+				{
+					"id": "juggernaut",
+					"kind": "monster",
+					"name": "Juggernaut",
+					"ability": "When you Spin me, Gain a Shield",
+					"sprite": "assets/dungeon/extra/juggernaut.png"
+				}
+			]
+		},
+		{
+			"id": "fairy-heals-on-spin",
+			"title": "Fairy Heals you 2 on Spin",
+			"family": "collide",
+			"items": [],
+			"monsters": [
+				"fairy"
+			],
+			"face": "fairy",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "When you Spin Fairy, Heal you and Neighbors for 2. Start at 3 HP, after Spin you have 5.",
+			"expected": {
+				"hp": 5,
+				"log_has": [
+					"Fairy"
+				]
+			},
+			"cards": [
+				{
+					"id": "fairy",
+					"kind": "monster",
+					"name": "Fairy",
+					"ability": "When you Spin me, I Heal you and my Neighbors for 2 HP.",
+					"sprite": "assets/dungeon/extra/fairy.png"
+				}
+			],
+			"hp_before": 3
+		},
+		{
+			"id": "dire-wolf-atk-equals-your-hp",
+			"title": "Dire Wolf Attack equals your HP",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"dire_wolf"
+			],
+			"face": "dire_wolf",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Dire Wolf Attack always equals your HP. You have 6, so the plate shows ATK 6.",
+			"expected": {
+				"face_atk": 6
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "dire_wolf",
+					"kind": "monster",
+					"name": "Dire Wolf",
+					"ability": "My Attack always equals your HP.",
+					"sprite": "assets/dungeon/extra/dire_wolf.png"
+				}
+			]
+		},
+		{
+			"id": "slime-atk-equals-hp",
+			"title": "Slime Attack equals its HP",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"slime_boss"
+			],
+			"face": "slime_boss",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Slime Attack always equals its HP. Plate ATK and HP are the same number.",
+			"expected": {
+				"log_has": [
+					"Slime"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "slime_boss",
+					"kind": "monster",
+					"name": "Slime Boss",
+					"ability": "My Attack always equals my HP.",
+					"sprite": "assets/dungeon/extra/slime_boss.png"
+				}
+			]
+		},
+		{
+			"id": "bandit-plus-items",
+			"title": "Bandit +1 Attack per item you hold",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"bandit"
+			],
+			"face": "bandit",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Bandit +1 Atk for each Item you hold. One Shield in hand, so Attack is printed + 1.",
+			"expected": {
+				"log_has": [
+					"Bandit"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "bandit",
+					"kind": "monster",
+					"name": "Bandit",
+					"ability": "+1 Atk for each Item you hold.",
+					"sprite": "assets/dungeon/extra/bandit.png"
+				}
+			]
+		},
+		{
+			"id": "needleback-on-atk",
+			"title": "Needleback hits you when it takes Attack",
+			"family": "collide",
+			"items": [
+				"arrow_head"
+			],
+			"monsters": [
+				"needleback"
+			],
+			"face": "needleback",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "arrow_head",
+					"auto": true
+				}
+			],
+			"expected_text": "Needleback Attacks you for 2 each time it takes ATK damage. Arrow Head hits it, then it hits you for 2.",
+			"expected": {
+				"log_has": [
+					"Needleback"
+				]
+			},
+			"cards": [
+				{
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"ability": "6 Atk and Lose 2 HP.",
+					"sprite": "assets/dungeon/items/arrow_head.png"
+				},
+				{
+					"id": "needleback",
+					"kind": "monster",
+					"name": "Needleback",
+					"ability": "I Attack you for 2 Damage each time I take ATK Damage.",
+					"sprite": "assets/dungeon/extra/needleback.png"
+				}
+			]
+		},
+		{
+			"id": "ogre-mirrors-hp-loss",
+			"title": "Ogre loses HP when you lose HP",
+			"family": "collide",
+			"items": [
+				"arrow_head"
+			],
+			"monsters": [
+				"ogre"
+			],
+			"face": "ogre",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "arrow_head",
+					"auto": true
+				}
+			],
+			"expected_text": "Arrow Head: you lose 2 HP. When you lose HP, Ogre loses equal HP.",
+			"expected": {
+				"hp": 4,
+				"log_has": [
+					"Ogre"
+				]
+			},
+			"cards": [
+				{
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"ability": "6 Atk and Lose 2 HP.",
+					"sprite": "assets/dungeon/items/arrow_head.png"
+				},
+				{
+					"id": "ogre",
+					"kind": "monster",
+					"name": "Ogre",
+					"ability": "When you lose HP, I lose equal HP.",
+					"sprite": "assets/dungeon/extra/ogre.png"
+				}
+			]
+		},
+		{
+			"id": "vampire-grows-on-your-loss",
+			"title": "Vampire gains +1/+1 when you lose HP",
+			"family": "collide",
+			"items": [
+				"arrow_head"
+			],
+			"monsters": [
+				"vampire"
+			],
+			"face": "vampire",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "arrow_head",
+					"auto": true
+				}
+			],
+			"expected_text": "Arrow Head: you lose 2 HP. Vampire gains +1 HP and +1 ATK each time you lose HP.",
+			"expected": {
+				"log_has": [
+					"Vampire"
+				]
+			},
+			"cards": [
+				{
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"ability": "6 Atk and Lose 2 HP.",
+					"sprite": "assets/dungeon/items/arrow_head.png"
+				},
+				{
+					"id": "vampire",
+					"kind": "monster",
+					"name": "Vampire",
+					"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+					"sprite": "assets/dungeon/extra/vampire.png"
+				}
+			]
+		},
+		{
+			"id": "triclops-at-3",
+			"title": "Triclops is Defeated at exactly 3 HP",
+			"family": "collide",
+			"items": [
+				"napalm"
+			],
+			"monsters": [
+				"triclops"
+			],
+			"face": "triclops",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "napalm",
+					"auto": true
+				}
+			],
+			"expected_text": "Napalm sets HP to 1, or any path that leaves Triclops at 3 HP Defeats it. If Defeated another way, it Flees instead.",
+			"expected": {
+				"log_has": [
+					"Triclops"
+				]
+			},
+			"cards": [
+				{
+					"id": "napalm",
+					"kind": "item",
+					"name": "Napalm",
+					"ability": "Set the HP of the Enemy, its Neighbors, and yourself to 1 HP",
+					"sprite": "assets/dungeon/items/napalm.png"
+				},
+				{
+					"id": "triclops",
+					"kind": "monster",
+					"name": "Triclops",
+					"ability": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
+					"sprite": "assets/dungeon/extra/triclops_v2.png"
+				}
+			]
+		},
+		{
+			"id": "wick-on-neighbor-death",
+			"title": "Wick loses 2 HP when a Neighbor is Defeated",
+			"family": "collide",
+			"items": [
+				"sledgehammer"
+			],
+			"monsters": [
+				"dragon",
+				"wick"
+			],
+			"face": "dragon",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "sledgehammer",
+					"auto": true
+				}
+			],
+			"expected_text": "Sledgehammer Defeats Dragon (neighbor). Wick loses 2 HP.",
+			"expected": {
+				"log_has": [
+					"Wick"
+				]
+			},
+			"cards": [
+				{
+					"id": "sledgehammer",
+					"kind": "item",
+					"name": "Sledgehammer",
+					"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+					"sprite": "assets/dungeon/items/sledgehammer.png"
+				},
+				{
+					"id": "dragon",
+					"kind": "monster",
+					"name": "Dragon",
+					"ability": "My Attack ignores Block.",
+					"sprite": "assets/dungeon/extra/dragon.png"
+				},
+				{
+					"id": "wick",
+					"kind": "monster",
+					"name": "Wick",
+					"ability": "I Lose 2 HP each time a Neighbor is Defeated",
+					"sprite": "assets/dungeon/extra/wick.png"
+				}
+			]
+		},
+		{
+			"id": "phoenix-egg-hatches",
+			"title": "Phoenix Egg Flees and hatches when Defeated",
+			"family": "collide",
+			"items": [
+				"da_boot"
+			],
+			"monsters": [
+				"phoenix_egg"
+			],
+			"face": "phoenix_egg",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "da_boot",
+					"auto": true
+				}
+			],
+			"expected_text": "Boot Defeats Phoenix Egg (low HP). It Flees and hatches into a Phoenix.",
+			"expected": {
+				"log_has": [
+					"Phoenix"
+				]
+			},
+			"cards": [
+				{
+					"id": "da_boot",
+					"kind": "item",
+					"name": "The Boot",
+					"ability": "Defeat an enemy with less HP than you.",
+					"sprite": "assets/dungeon/items/boot.png"
+				},
+				{
+					"id": "phoenix_egg",
+					"kind": "monster",
+					"name": "Phoenix Egg",
+					"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
+					"sprite": "assets/dungeon/extra/phoenix_egg.png"
+				}
+			]
+		},
+		{
+			"id": "poison-frog-on-spin",
+			"title": "Poison Frog gives you 2 Poison on Spin",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"poison_frog"
+			],
+			"face": "poison_frog",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "When you Spin Poison Frog, you Gain 2 Poison.",
+			"expected": {
+				"log_has": [
+					"Poison"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "poison_frog",
+					"kind": "monster",
+					"name": "Poison Frog",
+					"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
+					"sprite": "assets/dungeon/extra/poison_frog.png"
+				}
+			]
+		},
+		{
+			"id": "rust-bucket-grants-rust",
+			"title": "Rust Bucket: Gain 1 Rust when it enters",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"rust_bucket"
+			],
+			"face": "rust_bucket",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "When Rust Bucket enters the dungeon, Gain 1 Rust.",
+			"expected": {
+				"log_has": [
+					"Rust"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "rust_bucket",
+					"kind": "monster",
+					"name": "Rust Bucket",
+					"ability": "When I enter the Dungeon, Gain 1 Rust",
+					"sprite": "assets/dungeon/extra/rust_bucket.png"
+				}
+			]
+		},
+		{
+			"id": "cultist-blood-pact",
+			"title": "Cultist: Gain 1 Blood Pact on Spin",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"cultist"
+			],
+			"face": "cultist",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "When you Spin Cultist or its Neighbor, Gain 1 Blood Pact.",
+			"expected": {
+				"log_has": [
+					"Pact"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "cultist",
+					"kind": "monster",
+					"name": "Cultist",
+					"ability": "When you Spin me or my Neighbor, Gain 1 Blood Pact",
+					"sprite": "assets/dungeon/extra/cultist.png"
+				}
+			]
+		},
+		{
+			"id": "clockwork-leaves-tough",
+			"title": "Clockwork Knight leaves two Tough monsters if it lives",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"clockwork_knight"
+			],
+			"face": "clockwork_knight",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				},
+				{
+					"op": "done"
+				}
+			],
+			"expected_text": "If Clockwork Knight lives through Done, it leaves two Tough monsters in its place.",
+			"expected": {
+				"log_has": [
+					"Clockwork"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "clockwork_knight",
+					"kind": "monster",
+					"name": "Clockwork Knight",
+					"ability": "If I live, I leave two Tough Monsters in my place.",
+					"sprite": "assets/dungeon/extra/clockwork_knight.png"
+				}
+			]
+		},
+		{
+			"id": "martyr-dies-on-attack",
+			"title": "Martyr dies when it Attacks",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"martyr"
+			],
+			"face": "martyr",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				},
+				{
+					"op": "done"
+				}
+			],
+			"expected_text": "When Martyr Attacks, it dies. Neighbors gain HP equal to its current HP.",
+			"expected": {
+				"log_has": [
+					"Martyr"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "martyr",
+					"kind": "monster",
+					"name": "Martyr",
+					"ability": "When I Attack, I die. My Neighbors each gain HP equal to my current HP",
+					"sprite": "assets/dungeon/extra/martyr.png"
+				}
+			]
+		},
+		{
+			"id": "two-head-neighbors-hit",
+			"title": "Two-Headed Serpent: neighbors attack, then it Heals 3",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"wizard",
+				"two_headed_serpent",
+				"golem"
+			],
+			"face": "two_headed_serpent",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				},
+				{
+					"op": "done"
+				}
+			],
+			"expected_text": "Neighbors attack you (left, then right), then Serpent Heals you for 3.",
+			"expected": {
+				"log_has": [
+					"Serpent"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				},
+				{
+					"id": "two_headed_serpent",
+					"kind": "monster",
+					"name": "Damsel In Distress",
+					"ability": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.",
+					"sprite": "assets/dungeon/extra/damsel.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "prism-splits-atk",
+			"title": "Prism: Neighbors take Attack instead",
+			"family": "collide",
+			"items": [
+				"arrow_head"
+			],
+			"monsters": [
+				"wizard",
+				"prism",
+				"golem"
+			],
+			"face": "prism",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "arrow_head",
+					"auto": true
+				}
+			],
+			"expected_text": "When Prism would take Attack, both Neighbors take it instead.",
+			"expected": {
+				"log_has": [
+					"Prism"
+				]
+			},
+			"cards": [
+				{
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"ability": "6 Atk and Lose 2 HP.",
+					"sprite": "assets/dungeon/items/arrow_head.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				},
+				{
+					"id": "prism",
+					"kind": "monster",
+					"name": "Prism",
+					"ability": "When I would take Attack damage, both of my Neighbors take it instead.",
+					"sprite": "assets/dungeon/extra/prism.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "cowardly-king-redirect",
+			"title": "Cowardly King: Right neighbor takes your Attack",
+			"family": "collide",
+			"items": [
+				"arrow_head"
+			],
+			"monsters": [
+				"cowardly_king",
+				"wizard"
+			],
+			"face": "cowardly_king",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "arrow_head",
+					"auto": true
+				}
+			],
+			"expected_text": "When you Attack the King, the Neighbor to the Right takes it instead.",
+			"expected": {
+				"log_has": [
+					"King"
+				]
+			},
+			"cards": [
+				{
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"ability": "6 Atk and Lose 2 HP.",
+					"sprite": "assets/dungeon/items/arrow_head.png"
+				},
+				{
+					"id": "cowardly_king",
+					"kind": "monster",
+					"name": "Cowardly King",
+					"ability": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated.",
+					"sprite": "assets/dungeon/extra/cowardly_king.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "commander-buffs-then-flees",
+			"title": "Commander buffs Neighbors; first Defeat Flees",
+			"family": "collide",
+			"items": [
+				"sledgehammer"
+			],
+			"monsters": [
+				"commander",
+				"wizard"
+			],
+			"face": "commander",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "sledgehammer",
+					"auto": true
+				}
+			],
+			"expected_text": "Commander gives Neighbors +2 Attack. The first time it is Defeated, it Flees.",
+			"expected": {
+				"log_has": [
+					"Commander"
+				]
+			},
+			"cards": [
+				{
+					"id": "sledgehammer",
+					"kind": "item",
+					"name": "Sledgehammer",
+					"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+					"sprite": "assets/dungeon/items/sledgehammer.png"
+				},
+				{
+					"id": "commander",
+					"kind": "monster",
+					"name": "Commander",
+					"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee.",
+					"sprite": "assets/dungeon/extra/commander.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "bag-holds-wizard",
+			"title": "Bag of Holding bags Wizard (less HP than you)",
+			"family": "collide",
+			"items": [
+				"bag_of_holding"
+			],
+			"monsters": [
+				"wizard"
+			],
+			"face": "wizard",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "bag_of_holding",
+					"auto": true
+				}
+			],
+			"expected_text": "Wizard has 2 HP, you have 6. Bag an enemy with less HP than you.",
+			"expected": {
+				"log_has": [
+					"Bag"
+				]
+			},
+			"cards": [
+				{
+					"id": "bag_of_holding",
+					"kind": "item",
+					"name": "Bag of Holding",
+					"ability": "Bag an enemy with less HP than you.",
+					"sprite": "assets/dungeon/items/bag_of_holding.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "catapult-ejects",
+			"title": "Catapult Ejects the Enemy",
+			"family": "collide",
+			"items": [
+				"catapult"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "catapult",
+					"auto": true
+				}
+			],
+			"expected_text": "Click Catapult. Golem is Ejected. You Draw an Item.",
+			"expected": {
+				"log_has": [
+					"Catapult"
+				]
+			},
+			"cards": [
+				{
+					"id": "catapult",
+					"kind": "item",
+					"name": "Catapult",
+					"ability": "Eject your Enemy. Draw an Item.",
+					"sprite": "assets/dungeon/items/catapult.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "shuriken-flee-if-lives",
+			"title": "Shuriken: if Golem lives, you Flee and Keep",
+			"family": "collide",
+			"items": [
+				"shuriken"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shuriken",
+					"auto": true
+				}
+			],
+			"expected_text": "2 Attack into Golem 7 HP. Golem lives, so you Flee and Keep Shuriken.",
+			"expected": {
+				"spent": {
+					"shuriken": false
+				},
+				"log_has": [
+					"Shuriken"
+				]
+			},
+			"cards": [
+				{
+					"id": "shuriken",
+					"kind": "item",
+					"name": "Shuriken",
+					"ability": "2 Attack. If the Enemy lives, you Flee and Keep this.",
+					"sprite": "assets/dungeon/items/shuriken.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "signpost-block-then-neighbor",
+			"title": "Signpost: Block 7, then a Neighbor Attacks you",
+			"family": "collide",
+			"items": [
+				"signpost"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "signpost",
+					"auto": true
+				}
+			],
+			"expected_text": "Block 7, then choose a Neighbor to Attack you.",
+			"expected": {
+				"blk_min": 1,
+				"log_has": [
+					"Signpost"
+				]
+			},
+			"cards": [
+				{
+					"id": "signpost",
+					"kind": "item",
+					"name": "Signpost",
+					"ability": "Block 7, then choose a Neighbor to Attack you",
+					"sprite": "assets/dungeon/items/signpost.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "double-axe-cleave",
+			"title": "Double Axe hits facing and Neighbors",
+			"family": "collide",
+			"items": [
+				"double_axe"
+			],
+			"monsters": [
+				"wizard",
+				"golem",
+				"skeleton"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "double_axe",
+					"auto": true
+				}
+			],
+			"expected_text": "Deal 2 Attack to facing and each Neighbor. Same enemy only once.",
+			"expected": {
+				"log_has": [
+					"Axe"
+				]
+			},
+			"cards": [
+				{
+					"id": "double_axe",
+					"kind": "item",
+					"name": "Great Axe",
+					"ability": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once.",
+					"sprite": "assets/dungeon/items/double_axe.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				},
+				{
+					"id": "skeleton",
+					"kind": "monster",
+					"name": "Skeleton",
+					"ability": "I copy the HP of the last enemy you faced.",
+					"sprite": "assets/dungeon/extra/skeleton.png"
+				}
+			]
+		},
+		{
+			"id": "longbow-even-wheel",
+			"title": "Longbow hits across when the wheel has an even count",
+			"family": "collide",
+			"items": [
+				"longbow"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "longbow",
+					"auto": true
+				}
+			],
+			"expected_text": "Two monsters (even). Longbow deals 4 to the monster across from you.",
+			"expected": {
+				"log_has": [
+					"Longbow"
+				]
+			},
+			"cards": [
+				{
+					"id": "longbow",
+					"kind": "item",
+					"name": "Longbow",
+					"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
+					"sprite": "assets/dungeon/items/longbow.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "miasma-poison-lowest",
+			"title": "Miasma Poisons all equal to the lowest HP",
+			"family": "collide",
+			"items": [
+				"miasma"
+			],
+			"monsters": [
+				"wizard",
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "miasma",
+					"auto": true
+				}
+			],
+			"expected_text": "Lowest HP on the wheel is Wizard at 2. Apply 2 Poison to all monsters.",
+			"expected": {
+				"log_has": [
+					"Miasma"
+				]
+			},
+			"cards": [
+				{
+					"id": "miasma",
+					"kind": "item",
+					"name": "Miasma",
+					"ability": "Apply Poison to all Monsters equal to the lowest HP on any Monster",
+					"sprite": "assets/dungeon/items/miasma.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "bag-of-marbles-fills",
+			"title": "Bag of Marbles fills the hand",
+			"family": "collide",
+			"items": [
+				"bag_of_marbles"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "bag_of_marbles",
+					"auto": true
+				}
+			],
+			"expected_text": "Fill your inventory with Marbles.",
+			"expected": {
+				"log_has": [
+					"Marble"
+				]
+			},
+			"cards": [
+				{
+					"id": "bag_of_marbles",
+					"kind": "item",
+					"name": "Bag Of Marbles",
+					"ability": "Fill your inventory with Marbles",
+					"sprite": "assets/dungeon/items/bag_of_marbles.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "polymorph-copy-neighbor",
+			"title": "Polymorph copies a Neighbor onto the facing enemy",
+			"family": "collide",
+			"items": [
+				"polymorph"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "polymorph",
+					"auto": true
+				}
+			],
+			"expected_text": "Turn Golem into an exact copy of Wizard (the Neighbor you pick).",
+			"expected": {
+				"log_has": [
+					"Polymorph"
+				]
+			},
+			"cards": [
+				{
+					"id": "polymorph",
+					"kind": "item",
+					"name": "Polymorph",
+					"ability": "Turn your opponent into an exact copy of a Neighbor of your choice.",
+					"sprite": "assets/dungeon/items/polymorph.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "hook-swaps-neighbor",
+			"title": "Grappling Hook swaps a Neighbor in",
+			"family": "collide",
+			"items": [
+				"grappling_hook"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "grappling_hook",
+					"auto": true
+				}
+			],
+			"expected_text": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+			"expected": {
+				"log_has": [
+					"Hook"
+				]
+			},
+			"cards": [
+				{
+					"id": "grappling_hook",
+					"kind": "item",
+					"name": "Grappling Hook",
+					"ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+					"sprite": "assets/dungeon/items/grappling_hook.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "pacemaker-on-use",
+			"title": "Pacemaker: on use you lose 2 HP, then Heal 1 because you lost exactly 2",
+			"family": "collide",
+			"items": [
+				"pacemaker"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "pacemaker",
+					"auto": true
+				}
+			],
+			"expected_text": "On Use, Lose 2 HP. When you lose exactly 2 HP, Heal 1. Net −1 HP (6→5).",
+			"expected": {
+				"hp": 5,
+				"log_has": [
+					"Pacemaker"
+				]
+			},
+			"cards": [
+				{
+					"id": "pacemaker",
+					"kind": "item",
+					"name": "Pacemaker",
+					"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+					"sprite": "assets/dungeon/items/pacemaker.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "grief-jar-on-spin",
+			"title": "Grief Jar: on Spin you lose 1 HP and it gains +2 Block",
+			"family": "collide",
+			"items": [
+				"grief_jar"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Each time you Spin, Lose 1 HP and this item gains +2 Block. After Spin you are at 5 HP.",
+			"expected": {
+				"hp": 5,
+				"log_has": [
+					"Grief"
+				]
+			},
+			"cards": [
+				{
+					"id": "grief_jar",
+					"kind": "item",
+					"name": "Grief Jar",
+					"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
+					"sprite": "assets/dungeon/items/grief_jar.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "knucklers-one-in-hand",
+			"title": "Knucklers: Attack equals 8 minus items still in hand",
+			"family": "collide",
+			"items": [
+				"knucklers"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "knucklers",
+					"auto": true
+				}
+			],
+			"expected_text": "One item in hand. 8 − 1 = 7 Attack into Golem 7 HP.",
+			"expected": {
+				"log_has": [
+					"Knuckler"
+				]
+			},
+			"cards": [
+				{
+					"id": "knucklers",
+					"kind": "item",
+					"name": "Knucklers",
+					"ability": "Attack equal to 8 minus the Items still in your hand.",
+					"sprite": "assets/dungeon/items/knucklers.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "bloody-gauntlets-missing-hp",
+			"title": "Bloody Gauntlets: +1 ATK per missing HP",
+			"family": "collide",
+			"items": [
+				"bloody_gauntlets"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "bloody_gauntlets",
+					"auto": true
+				}
+			],
+			"expected_text": "Start at 3 HP (missing 3). +1 ATK for each missing HP.",
+			"expected": {
+				"log_has": [
+					"Gauntlet"
+				]
+			},
+			"cards": [
+				{
+					"id": "bloody_gauntlets",
+					"kind": "item",
+					"name": "Bloody Wraps",
+					"ability": "+1 ATK for each HP you are missing.",
+					"sprite": "assets/dungeon/items/bloody_gauntlets.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"hp_before": 3
+		},
+		{
+			"id": "helmet-lower-hp",
+			"title": "Helmet: Block equal to the lower HP (you vs Enemy)",
+			"family": "collide",
+			"items": [
+				"helmet"
+			],
+			"monsters": [
+				"wizard"
+			],
+			"face": "wizard",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "helmet",
+					"auto": true
+				}
+			],
+			"expected_text": "You 6, Wizard 2. Lower HP is 2, so Block 2.",
+			"expected": {
+				"blk": 2,
+				"log_has": [
+					"Helmet"
+				]
+			},
+			"cards": [
+				{
+					"id": "helmet",
+					"kind": "item",
+					"name": "Helmet",
+					"ability": "Block equal to the lower HP between you and the Enemy.",
+					"sprite": "assets/dungeon/items/helmet.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "counting-beads-pick",
+			"title": "Counting Beads: pick 1–4 Attack",
+			"family": "collide",
+			"items": [
+				"counting_beads"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "counting_beads",
+					"auto": true
+				}
+			],
+			"expected_text": "Choose (1), (2), (3), or (4) Atk. Auto-picks the first option. Golem takes that Attack.",
+			"expected": {
+				"log_has": [
+					"Bead"
+				]
+			},
+			"cards": [
+				{
+					"id": "counting_beads",
+					"kind": "item",
+					"name": "Counting Beads",
+					"ability": "(1), (2), (3), or (4) Atk",
+					"sprite": "assets/dungeon/items/counting_beads.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "sai-first-swing",
+			"title": "Sai first swing vs Golem",
+			"family": "collide",
+			"items": [
+				"sai"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "sai",
+					"auto": true
+				}
+			],
+			"expected_text": "Sai flips 2 ↔ 4 after any item is used. First click this fight is 2 or 4. Log names Sai.",
+			"expected": {
+				"log_has": [
+					"Sai"
+				]
+			},
+			"cards": [
+				{
+					"id": "sai",
+					"kind": "item",
+					"name": "Sai",
+					"ability": "Flips 2 ↔ 4 after any Item is used.",
+					"sprite": "assets/dungeon/items/sai.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "keep-knife-until-done",
+			"title": "Knife Keep stays until Done",
+			"family": "seed",
+			"items": [
+				"throwing_knife"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "throwing_knife",
+					"auto": false
+				},
+				{
+					"op": "choose",
+					"id": "nick",
+					"atk": 1,
+					"keep": true
+				},
+				{
+					"op": "done"
+				}
+			],
+			"expected_text": "Nick and Keep. After Done the Knife is still in hand (Keep).",
+			"expected": {
+				"spent": {
+					"throwing_knife": false
+				},
+				"invariants": [
+					"keep_until_done"
+				]
+			},
+			"cards": [
+				{
+					"id": "throwing_knife",
+					"kind": "item",
+					"name": "Throwing Knife",
+					"ability": "Atk 3, or Atk 1 and Keep this item",
+					"sprite": "assets/dungeon/items/throwing_knife.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "order-sai-then-shield",
+			"title": "Sai then Shield: Sai flips after Shield too",
+			"family": "order",
+			"items": [
+				"sai",
+				"shield"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "sai",
+					"auto": true
+				},
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				}
+			],
+			"expected_text": "Sai first, then Shield. Sai flips after any item, including Shield. Both click. Log names both.",
+			"expected": {
+				"log_has": [
+					"Sai",
+					"Shield"
+				]
+			},
+			"cards": [
+				{
+					"id": "sai",
+					"kind": "item",
+					"name": "Sai",
+					"ability": "Flips 2 ↔ 4 after any Item is used.",
+					"sprite": "assets/dungeon/items/sai.png"
+				},
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "order-shield-then-sai",
+			"title": "Shield then Sai",
+			"family": "order",
+			"items": [
+				"shield",
+				"sai"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				},
+				{
+					"op": "use",
+					"item": "sai",
+					"auto": true
+				}
+			],
+			"expected_text": "Shield first (BLK +4), then Sai. Both fire. Log names both.",
+			"expected": {
+				"blk_min": 4,
+				"log_has": [
+					"Shield",
+					"Sai"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "sai",
+					"kind": "item",
+					"name": "Sai",
+					"ability": "Flips 2 ↔ 4 after any Item is used.",
+					"sprite": "assets/dungeon/items/sai.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "leech-league-on-spin",
+			"title": "Leech League Heals the lowest HP monster on Spin",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"leech_league",
+				"wizard"
+			],
+			"face": "leech_league",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "On Spin, repeatedly Heals the lowest HP monster until it ties another.",
+			"expected": {
+				"log_has": [
+					"Leech"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "leech_league",
+					"kind": "monster",
+					"name": "Leech League",
+					"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+					"sprite": "assets/dungeon/extra/leech_league.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "hydra-petrify-even",
+			"title": "Hydra petrifies even ATK/BLK items on Spin",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"hydra"
+			],
+			"face": "hydra",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Shield is even Block 4. On Spin, Hydra Petrifies even ATK/BLK items and gains +2 Atk each.",
+			"expected": {
+				"log_has": [
+					"Hydra"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "hydra",
+					"kind": "monster",
+					"name": "Hydra",
+					"ability": "When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each",
+					"sprite": "assets/dungeon/extra/hydra.png"
+				}
+			]
+		},
+		{
+			"id": "magicat-to-marble",
+			"title": "Magicat turns two ATK/BLK items into Marbles on Spin",
+			"family": "collide",
+			"items": [
+				"shield",
+				"arrow_head"
+			],
+			"monsters": [
+				"magicat"
+			],
+			"face": "magicat",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "On Spin, Magicat turns two of your Atk or Blk items into a Marble with the same value.",
+			"expected": {
+				"log_has": [
+					"Marble"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"ability": "6 Atk and Lose 2 HP.",
+					"sprite": "assets/dungeon/items/arrow_head.png"
+				},
+				{
+					"id": "magicat",
+					"kind": "monster",
+					"name": "Magicat",
+					"ability": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
+					"sprite": "assets/dungeon/extra/magicat.png"
+				}
+			]
+		},
+		{
+			"id": "death-bell-toll",
+			"title": "Death Bell: Gain 1 Toll when it spawns",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"death_bell"
+			],
+			"face": "death_bell",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "When Death Bell spawns, Gain 1 Toll. On Spin it loses 2 HP.",
+			"expected": {
+				"log_has": [
+					"Toll"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "death_bell",
+					"kind": "monster",
+					"name": "Death Bell",
+					"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
+					"sprite": "assets/dungeon/extra/death_bell.png"
+				}
+			]
+		},
+		{
+			"id": "almighty-worm-discard",
+			"title": "Almighty Worm: you may Discard items on Spin",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"almighty_worm"
+			],
+			"face": "almighty_worm",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "When you Spin Worm, you may Discard items. Each sacrifice reduces its Atk and HP by 3. If the prompt appears, auto-resolve. If you keep Shield, Worm stays at printed numbers.",
+			"expected": {
+				"log_has": [
+					"Worm"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "almighty_worm",
+					"kind": "monster",
+					"name": "Almighty Worm",
+					"ability": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3.",
+					"sprite": "assets/dungeon/extra/almighty_worm.png"
+				}
+			]
+		},
+		{
+			"id": "cleric-heals-and-takes",
+			"title": "Cleric Heals 3 and takes your worst item if you are missing 3 HP",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"cleric"
+			],
+			"face": "cleric",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Start at 3 HP (missing 3). After Spin, Cleric Heals you for 3 and takes your worst item.",
+			"expected": {
+				"hp": 6
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "cleric",
+					"kind": "monster",
+					"name": "Cleric",
+					"ability": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item",
+					"sprite": "assets/dungeon/extra/cleric.png"
+				}
+			],
+			"hp_before": 3
+		},
+		{
+			"id": "merchant-upgrade",
+			"title": "Merchant: choose an item to upgrade on Spin",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"merchant"
+			],
+			"face": "merchant",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "When you Spin Merchant, choose an item and it will upgrade it. Auto-pick Shield.",
+			"expected": {
+				"log_has": [
+					"Merchant"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "merchant",
+					"kind": "monster",
+					"name": "Merchant",
+					"ability": "When you Spin me, choose an Item and I will upgrade it",
+					"sprite": "assets/dungeon/extra/merchant.png"
+				}
+			]
+		},
+		{
+			"id": "plague-doctor-poison-neighbors",
+			"title": "Plague Doctor: neighbors Always have 2 Poison",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"wizard",
+				"plague_doctor",
+				"golem"
+			],
+			"face": "plague_doctor",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Neighbors Always have 2 Poison. On Spin, Doctor Heals neighbors for 2.",
+			"expected": {
+				"log_has": [
+					"Plague"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				},
+				{
+					"id": "plague_doctor",
+					"kind": "monster",
+					"name": "Plague Doctor",
+					"ability": "My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2.",
+					"sprite": "assets/dungeon/extra/plague_doctor.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "hired-hand-on-discard",
+			"title": "Hired Hand attacks a Neighbor and Flees if you Discard",
+			"family": "collide",
+			"items": [
+				"recycler"
+			],
+			"monsters": [
+				"hired_hand",
+				"wizard"
+			],
+			"face": "hired_hand",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "If you Discard an item when facing Hired Hand, it Attacks a Neighbor and Flees. This fight only Spins; if no Discard, Hand stays. Log names Hired Hand.",
+			"expected": {
+				"log_has": [
+					"Hired"
+				]
+			},
+			"cards": [
+				{
+					"id": "recycler",
+					"kind": "item",
+					"name": "Recycler",
+					"ability": "Every 5th Item Discarded is copied into your Hand",
+					"sprite": "assets/dungeon/items/recycler.png"
+				},
+				{
+					"id": "hired_hand",
+					"kind": "monster",
+					"name": "Hired Hand",
+					"ability": "If you Discard an item when facing me, I will Attack one of my Neighbors and Flee.",
+					"sprite": "assets/dungeon/extra/hired_hand.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			]
+		},
+		{
+			"id": "skeleton-copies-last-hp",
+			"title": "Skeleton copies the last enemy's HP — first fight has no last enemy",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"skeleton"
+			],
+			"face": "skeleton",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Skeleton copies the HP of the last enemy you faced. First fight: no last enemy, so printed HP (or 0). Plate still shows a Skeleton.",
+			"expected": {
+				"log_has": [
+					"Skeleton"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "skeleton",
+					"kind": "monster",
+					"name": "Skeleton",
+					"ability": "I copy the HP of the last enemy you faced.",
+					"sprite": "assets/dungeon/extra/skeleton.png"
+				}
+			]
+		},
+		{
+			"id": "lich-buffs-neighbors",
+			"title": "Lich gives Neighbors +1 HP",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"wizard",
+				"lich",
+				"golem"
+			],
+			"face": "lich",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Lich gives Neighbors +1 HP. Wizard and Golem should be +1 HP vs printed.",
+			"expected": {
+				"log_has": [
+					"Lich"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				},
+				{
+					"id": "lich",
+					"kind": "monster",
+					"name": "Lich",
+					"ability": "I give my Neighbors +1 HP.",
+					"sprite": "assets/dungeon/extra/lich.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		}
+	]
+}

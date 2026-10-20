@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "+1 ATK for each HP you are missing.",
+			"id": "bloody_gauntlets",
+			"kind": "item",
+			"name": "Bloody Wraps",
+			"sprite": "assets/dungeon/items/bloody_gauntlets.png"
+		},
+		{
+			"ability": "When you Spin me, choose an Item and I will upgrade it",
+			"id": "merchant",
+			"kind": "monster",
+			"name": "Merchant",
+			"sprite": "assets/dungeon/extra/merchant.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Bloody Wraps"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Bloody Wraps — +1 ATK for each HP you are missing. Monster: Merchant — When you Spin me, choose an Item and I will upgrade it Challenge hand. Wheel merchant. Click Bloody Wraps, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bloody_gauntlets-merchant",
+	"log": "Draft enter\nYou Spin\nSpin Merchant\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin merchant offers an upgrade\nSpin upgrade Bloody Wraps to Grimoire",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Merchant ATK 4 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use bloody_gauntlets",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "merchant",
+		"face_name": "Merchant",
+		"hand": [
+			"Grimoire"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Bloody Wraps vs Merchant",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

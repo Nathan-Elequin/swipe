@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
+			"id": "amalgam",
+			"kind": "monster",
+			"name": "Amalgam",
+			"sprite": "assets/dungeon/extra/amalgam.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Amalgam — After any Item you Use while facing me, double my remaining HP and ATK. Challenge hand. Wheel amalgam. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-amalgam",
+	"log": "Draft enter\nYou Spin\nSpin Amalgam\nenemy ATK 5   HP 6\nBLK 0\nitems this combat 0\nChakram\nBLK +3  to  3\nATK 3  to  Amalgam HP 3\nitems this combat 1\nFight Amalgam doubles  to  6/12  ATK 10\nYou Done\nFight hit 1  ATK 10 - BLK\nBLK 0\nHP take -7  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Amalgam ATK 10 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 10,
+		"face_hp": 6,
+		"face_id": "amalgam",
+		"face_name": "Amalgam",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Amalgam",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

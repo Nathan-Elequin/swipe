@@ -74,10 +74,12 @@ func _show(payload: Dictionary) -> void:
 	_life = 0.0
 	_clock = 0.0
 	log_glow = false
+	var fast: bool = bool(payload.get("fast", false))
 	_tw = create_tween()
-	_tw.tween_property(self, "_life", 1.0, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_tw.tween_interval(0.38)
-	_tw.tween_property(self, "_life", 0.0, 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_tw.tween_property(self, "_life", 1.0, 0.06 if fast else 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	var hold: float = 0.55 if _call == "Can't Flee" else (0.19 if fast else 0.38)
+	_tw.tween_interval(hold)
+	_tw.tween_property(self, "_life", 0.0, 0.08 if fast else 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await _tw.finished
 	visible = false
 	card_id = ""
@@ -126,7 +128,14 @@ func _draw() -> void:
 	gold.a = a
 	var y: float = port.end.y + 22.0
 	if _is_item:
-		_draw_centered(font, _title, y, 20, ink)
+		_draw_centered(font, _title, y, 18, ink)
+		if _call != "":
+			y += 26.0
+			var flash_gold := gold
+			if _call == "Can't Flee" and sin(_clock * 14.0) > 0.0:
+				flash_gold = Color("fff0c0")
+				flash_gold.a = a
+			_draw_centered(font, _call, y, 26, flash_gold)
 	else:
 		if _title != "":
 			_draw_centered(font, _title, y, 18, ink)

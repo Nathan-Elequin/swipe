@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
+			"id": "double_buckler",
+			"kind": "item",
+			"name": "Double-Buckler",
+			"sprite": "assets/dungeon/items/double_buckler.png"
+		},
+		{
+			"ability": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
+			"id": "shambling_mound",
+			"kind": "monster",
+			"name": "Shambling Mound",
+			"sprite": "assets/dungeon/extra/shambling_mound.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Double-Buckler"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Double-Buckler — Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this. Monster: Shambling Mound — I Attack repeatedly until I die. I lose 1 HP each time I Attack. Challenge hand. Wheel shambling_mound. Click Double-Buckler, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_buckler-shambling_mound",
+	"log": "Draft enter\nYou Spin\nSpin Shambling Mound\nenemy ATK 1   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: I Attack repeatedly until I die. I lose 1 HP each time I Attack..",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: I Attack repeatedly until I die. I lose 1 HP each time I Attack..",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 1,
+		"face_hp": 4,
+		"face_id": "shambling_mound",
+		"face_name": "Shambling Mound",
+		"hand": [
+			"Double-Buckler"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Double-Buckler vs Shambling Mound",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

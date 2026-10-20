@@ -1,0 +1,62 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
+			"id": "double_buckler",
+			"kind": "item",
+			"name": "Double-Buckler",
+			"sprite": "assets/dungeon/items/double_buckler.png"
+		},
+		{
+			"ability": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
+			"id": "triclops",
+			"kind": "monster",
+			"name": "Triclops",
+			"sprite": "assets/dungeon/extra/triclops_v2.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Double-Buckler"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Double-Buckler — Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this. Monster: Triclops — If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee. Challenge hand. Wheel triclops. Click Double-Buckler, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_buckler-triclops",
+	"log": "Draft enter\nYou Spin\nSpin Triclops\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nYou Done\nDouble-Buckler\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nFight Triclops -2 HP and Flee  to  5\nBLK 0\nYou Spin\nSpin Triclops\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0",
+	"mismatch": "Keep / unplayable card double_buckler is gone from the hand after the fight. It should still be there.",
+	"note": "",
+	"observed": "Keep / unplayable card double_buckler is gone from the hand after the fight. It should still be there.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "triclops",
+		"face_name": "Triclops",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Double-Buckler vs Triclops",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

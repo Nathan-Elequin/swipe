@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Becomes a copy of the last item you used.",
+			"id": "echo_bell",
+			"kind": "item",
+			"name": "Echo Bell",
+			"sprite": "assets/dungeon/items/echo_bell.png"
+		},
+		{
+			"ability": "I cannot lose more than 1 HP at a time.",
+			"id": "anvil",
+			"kind": "monster",
+			"name": "Anvil",
+			"sprite": "assets/dungeon/extra/anvil.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Echo Bell"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Echo Bell — Becomes a copy of the last item you used. Monster: Anvil — I cannot lose more than 1 HP at a time. Challenge hand. Wheel anvil. Click Echo Bell, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-echo_bell-anvil",
+	"log": "Draft enter\nYou Spin\nSpin Anvil\nenemy ATK 4   HP 3\nBLK 0\nitems this combat 0\nEcho Bell",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Anvil ATK 4 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use echo_bell",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 3,
+		"face_id": "anvil",
+		"face_name": "Anvil",
+		"hand": [
+			"Echo Bell"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Echo Bell vs Anvil",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

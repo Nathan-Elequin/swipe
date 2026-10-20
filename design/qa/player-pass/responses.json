@@ -1,0 +1,44 @@
+{
+  "saved_from": "Zen localStorage file:///design/qa/player-pass/board.html",
+  "key": "player-pass-answers-2026-10-20",
+  "answers": {
+    "intro-overlap": { "v": "do" },
+    "click-continue": { "v": "do" },
+    "dialog-click": { "v": "do" },
+    "choices-overflow": { "v": "do" },
+    "golem-owner": {
+      "v": "do",
+      "note": "Shift explainer for both Golem and Wizard should be removed entirely"
+    },
+    "stale-log": { "v": "do" },
+    "will-unreadable": { "v": "do" },
+    "hero-is-goblin": { "v": "no", "note": "Explain this better" },
+    "goblin-name-double": { "v": "no", "note": "Explain this better" },
+    "empty-grid": { "v": "do" },
+    "gargoyle-art": { "v": "do" },
+    "wheel-cramp": { "v": "do" },
+    "eight-vs-four": { "v": "do" },
+    "hp-5-vs-6": { "v": "do" },
+    "helmet-number": { "v": "do" },
+    "block-killed-golem": {
+      "note": "Block really DOES Defeat enemies, so the tutorial should explain that"
+    },
+    "only-leave": { "v": "do" },
+    "anvil-corner": {
+      "v": "do",
+      "note": "Label it - I want to keep showing the sprite/telegraphing the next monster to enter"
+    },
+    "click-wizard-spins": { "v": "do" },
+    "challenge-lecture": { "v": "no" },
+    "middle-empty-hand": {
+      "v": "do",
+      "note": "Seed the hand with those unlocks"
+    },
+    "inspect-good": { "v": "do" },
+    "cabin-love": { "v": "no" },
+    "will-hook": { "v": "do" },
+    "test-note": { "v": "do" },
+    "f2-tier-wrap": { "v": "do" },
+    "two-boots": { "v": "do" }
+  }
+}

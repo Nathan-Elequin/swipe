@@ -19,7 +19,7 @@ var _kind: String = "item"
 var _tier: int = 1
 var _bucket_on: Dictionary = {}
 var _ranks: Dictionary = {}
-var _pool: HFlowContainer
+var _pool: VBoxContainer
 var _row_hosts: Dictionary = {}
 var _bucket_row: HFlowContainer
 var _tab_items: Button
@@ -44,6 +44,7 @@ func setup() -> void:
 	margin.add_theme_constant_override("margin_bottom", 18)
 	add_child(margin)
 	var col := VBoxContainer.new()
+	col.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 10)
 	margin.add_child(col)
 	var head := Label.new()
@@ -83,18 +84,15 @@ func setup() -> void:
 	_bucket_row.add_theme_constant_override("h_separation", 8)
 	_bucket_row.add_theme_constant_override("v_separation", 6)
 	col.add_child(_bucket_row)
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	col.add_child(scroll)
-	var body := VBoxContainer.new()
-	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 10)
-	scroll.add_child(body)
-	body.add_child(_section(COPY.text("playtest.unranked", "Unranked"), "_pool"))
+	var board := HBoxContainer.new()
+	board.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	board.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	board.add_theme_constant_override("separation", 8)
+	col.add_child(board)
+	board.add_child(_kanban_col(COPY.text("playtest.unranked", "Unranked"), "_pool", true))
 	_pool = _row_hosts["_pool"]
 	for row_id in ROWS:
-		body.add_child(_section(row_id, row_id))
+		board.add_child(_kanban_col(row_id, row_id, false))
 	var foot := Label.new()
 	foot.text = COPY.text("playtest.screenshot", "You can screenshot this screen and send it.")
 	foot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -144,10 +142,14 @@ func show_result(ok: bool, detail: String) -> void:
 
 
 func export_ranks() -> Dictionary:
+	var cap: int = _bucket_cap()
+	var buckets: Array = []
+	for b in range(0, cap + 1):
+		buckets.append(b)
 	return {
 		"kind": _kind,
 		"card_tier": _tier,
-		"buckets": _on_buckets(),
+		"buckets": buckets,
 		"rows": _ranks_for(_kind, _tier).duplicate(true),
 	}
 
@@ -197,43 +199,55 @@ func _rebuild_bucket_toggles() -> void:
 		_bucket_row.add_child(btn)
 
 
-func _on_buckets() -> Array:
-	var out: Array = []
+func _bucket_cap() -> int:
+	var cap: int = 0
 	for k in _bucket_on.keys():
 		if bool(_bucket_on[k]):
-			out.append(int(k))
-	out.sort()
-	return out
+			cap = maxi(cap, int(k))
+	return cap
 
 
-func _section(title: String, row_id: String) -> PanelContainer:
+func _kanban_col(title: String, row_id: String, bank: bool) -> PanelContainer:
 	var pan := PanelContainer.new()
+	pan.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	if bank:
+		pan.custom_minimum_size = Vector2(168, 0)
+		pan.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	else:
+		pan.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color("1c1814")
-	sb.border_color = Color("3a322b")
+	sb.border_color = Color("c4a574") if bank else Color("3a322b")
 	sb.set_border_width_all(2)
 	sb.set_corner_radius_all(8)
-	sb.content_margin_left = 10
-	sb.content_margin_right = 10
+	sb.content_margin_left = 8
+	sb.content_margin_right = 8
 	sb.content_margin_top = 8
 	sb.content_margin_bottom = 8
 	pan.add_theme_stylebox_override("panel", sb)
 	var col := VBoxContainer.new()
+	col.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 6)
 	pan.add_child(col)
 	var lab := Label.new()
 	lab.text = title
+	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lab.add_theme_font_size_override("font_size", 18)
 	lab.add_theme_color_override("font_color", Color("e8c36a"))
 	col.add_child(lab)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	col.add_child(scroll)
 	var flow := RankRow.new()
 	flow.row_id = row_id
-	flow.custom_minimum_size = Vector2(0, 158)
 	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	flow.add_theme_constant_override("h_separation", 8)
-	flow.add_theme_constant_override("v_separation", 8)
+	flow.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	flow.custom_minimum_size = Vector2(90, 280)
+	flow.add_theme_constant_override("separation", 8)
 	flow.dropped.connect(_on_drop)
-	col.add_child(flow)
+	scroll.add_child(flow)
 	_row_hosts[row_id] = flow
 	return pan
 
@@ -296,7 +310,9 @@ func _visible_card(id: String) -> bool:
 	if int(card.get("tier", 1)) != _tier:
 		return false
 	var b: int = BucketRules.parse(card.get("bucket", 0))
-	return bool(_bucket_on.get(b, false))
+	if b < 0:
+		return false
+	return b <= _bucket_cap()
 
 
 func _chip(id: String) -> RankChip:
@@ -357,7 +373,7 @@ func _btn(text: String, cb: Callable) -> Button:
 	return b
 
 
-class RankRow extends HFlowContainer:
+class RankRow extends VBoxContainer:
 	signal dropped(row_id: String, kind: String, card_id: String, insert_at: int)
 	var row_id: String = ""
 
@@ -370,7 +386,7 @@ class RankRow extends HFlowContainer:
 		var insert_at := get_child_count()
 		for i in range(get_child_count()):
 			var c: Control = get_child(i)
-			if at.x < c.position.x + c.size.x * 0.5:
+			if at.y < c.position.y + c.size.y * 0.5:
 				insert_at = i
 				break
 		dropped.emit(row_id, str(data.get("kind", "")), str(data.get("id", "")), insert_at)
@@ -385,7 +401,8 @@ class RankChip extends PanelContainer:
 	func setup(p_kind: String, p_id: String, title: String, icon: Texture2D) -> void:
 		kind = p_kind
 		card_id = p_id
-		custom_minimum_size = Vector2(118, 150)
+		custom_minimum_size = Vector2(104, 136)
+		size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		mouse_filter = Control.MOUSE_FILTER_STOP
 		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		var sb := StyleBoxFlat.new()
@@ -411,7 +428,7 @@ class RankChip extends PanelContainer:
 		name_l.add_theme_color_override("font_color", Color("f0e6d8"))
 		name_l.add_theme_color_override("font_outline_color", Color("100e0c"))
 		name_l.add_theme_constant_override("outline_size", 2)
-		name_l.custom_minimum_size = Vector2(104, 34)
+		name_l.custom_minimum_size = Vector2(92, 32)
 		name_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(name_l)
 		var tex := TextureRect.new()

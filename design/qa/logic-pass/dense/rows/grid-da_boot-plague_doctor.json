@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with less HP than you.",
+			"id": "da_boot",
+			"kind": "item",
+			"name": "The Boot",
+			"sprite": "assets/dungeon/items/boot.png"
+		},
+		{
+			"ability": "My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2.",
+			"id": "plague_doctor",
+			"kind": "monster",
+			"name": "Plague Doctor",
+			"sprite": "assets/dungeon/extra/plague_doctor.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"The Boot"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: The Boot — Defeat an enemy with less HP than you. Monster: Plague Doctor — My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2. Challenge hand. Wheel plague_doctor, wizard, golem. Click The Boot, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-da_boot-plague_doctor",
+	"log": "Draft enter\nYou Spin\nSpin Plague Doctor\nenemy ATK 2   HP 3\nBLK 0\nitems this combat 0\nSpin Plague Doctor heal +2  to  9 HP\nSpin Plague Doctor heal +2  to  4 HP\nThe Boot\nitems this combat 1\nFight defeat\nDefeated Plague Doctor\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 9\nBLK 0\nitems this combat 0\nYou Done\nFight hit 1  ATK 3 - BLK\nBLK 0\nHP take -3  now 3\nDefeated Golem\nBLK 0\ndefeated 2\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Golem ATK 3 HP 9",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use da_boot",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 9,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "The Boot vs Plague Doctor",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,19 @@
+---
+description: Logic QA itch freeze is OFF. Follow playtest-ship.mdc. Do not re-freeze unless Nathan says so.
+alwaysApply: true
+---
+
+# Logic QA itch freeze — lifted
+
+Lifted **2026-10-20** when Nathan asked to update the itch playtest. `playtest-ship.mdc` is in force again.
+
+## Do
+
+- After a change friends would play: export **Web Playtest** and `butler push` to `nathan-elequin/swipe-playtest` (`html5`) in that same turn.
+- Keep writing findings to `design/qa/logic-pass/` if the covering pass is still running.
+
+## Do not
+
+- Do not treat this pass as a reason to skip itch.
+- Do not `butler push` to `nathan-elequin/swipe` (the public page) unless Nathan says **promote**.
+- Do not re-enable the freeze unless Nathan says the freeze is on.

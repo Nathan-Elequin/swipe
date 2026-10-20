@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 1, plus 1 for each monster Defeated",
+			"id": "victory_flask",
+			"kind": "item",
+			"name": "Victory Flask",
+			"sprite": "assets/dungeon/items/victory_flask.png"
+		},
+		{
+			"ability": "Attack or Block values that are Even happen twice against me.",
+			"id": "hollow",
+			"kind": "monster",
+			"name": "Twins",
+			"sprite": "assets/dungeon/extra/hollow.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Victory Flask"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Victory Flask — Heal 1, plus 1 for each monster Defeated Monster: Twins — Attack or Block values that are Even happen twice against me. Challenge hand. Wheel hollow. Click Victory Flask, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-victory_flask-hollow",
+	"log": "Draft enter\nYou Spin\nSpin Twins\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0\nVictory Flask\nHP heal +1  now 4\nitems this combat 1\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Twins ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use victory_flask",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "hollow",
+		"face_name": "Twins",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Victory Flask vs Twins",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

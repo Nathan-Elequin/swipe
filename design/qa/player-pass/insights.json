@@ -1,0 +1,38 @@
+{
+  "title": "First-look player pass",
+  "played": "2026-10-20",
+  "personas": [
+    {
+      "id": "maya",
+      "name": "Maya Chen",
+      "age": 28,
+      "who": "Austin. Plays Slay the Spire, Balatro, Inscryption after work. Wants clever cards, hates a first fight that does not explain the click.",
+      "start": "Brand New, read every intro line, Show me how."
+    },
+    {
+      "id": "derek",
+      "name": "Derek Hall",
+      "age": 41,
+      "who": "Suburban D&D dungeon master. A friend sent the itch link. Not a roguelike veteran. Skips flavor if a Skip button exists.",
+      "start": "Skipped intro, Middle Progress, The Long Drop (Challenge)."
+    }
+  ],
+  "patched": [
+    "Intro Next/Back/Skip no longer sit on top of Nathan's lines, and Next is not an empty pill.",
+    "Clicking Nib's talk box advances the line (the parchment was eating the click).",
+    "Choice buttons sit inside the talk bar instead of on the frame.",
+    "Golem and Wizard inspect never show the roster note \"plain ATK/HP Owner\", including on Shift.",
+    "Adventure draft now has a Take it button next to Leave it.",
+    "Map leftover \"(test note)\" is hidden.",
+    "Feedback pill hides during the opening will cutscene so Click to continue is readable.",
+    "F2's tier-list button is wider so the label is not three clipped lines.",
+    "Tutorial empty corridors show a faint plus so the wheel reads as eight seats.",
+    "Heart row sits above the wheel so all six hearts stay visible.",
+    "Combat log starts empty each fight and stays closed during the tutorial.",
+    "Opening Adventure mill does not grant two copies of the same starter item.",
+    "Middle Progress Challenge starts with the eight unlocked items already in the bag.",
+    "Challenge deck peek shows the next monster's name on a labeled bar under the sprite.",
+    "Hovering Helmet or Knucklers shows the formula. Tutorial inspects them when Nib points at them.",
+    "Six-monster wheels hide the call name unless you hover or face that slice."
+  ]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"id": "clockwork_knight",
+			"kind": "monster",
+			"name": "Clockwork Knight",
+			"sprite": "assets/dungeon/extra/clockwork_knight.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-clockwork_knight",
+	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nChakram\nBLK +3  to  3\nATK 3  to  Clockwork Knight HP 4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Clockwork Knight ATK 4 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "clockwork_knight",
+		"face_name": "Clockwork Knight",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Clockwork Knight",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

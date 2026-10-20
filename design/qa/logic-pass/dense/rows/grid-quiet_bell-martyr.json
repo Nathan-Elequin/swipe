@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Remove your Enemy's unique ability",
+			"id": "quiet_bell",
+			"kind": "item",
+			"name": "Quiet Bell",
+			"sprite": "assets/dungeon/items/quiet_bell.png"
+		},
+		{
+			"ability": "When I Attack, I die. My Neighbors each gain HP equal to my current HP",
+			"id": "martyr",
+			"kind": "monster",
+			"name": "Martyr",
+			"sprite": "assets/dungeon/extra/martyr.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Quiet Bell"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Quiet Bell — Remove your Enemy's unique ability Monster: Martyr — When I Attack, I die. My Neighbors each gain HP equal to my current HP Challenge hand. Wheel martyr, wizard, golem. Click Quiet Bell, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-quiet_bell-martyr",
+	"log": "Draft enter\nYou Spin\nSpin Martyr\nenemy ATK 0   HP 7\nBLK 0\nitems this combat 0\nQuiet Bell\nFight silenced martyr\nitems this combat 1\nYou Done\nFight hit 1  ATK 0 - BLK\nBLK 0\nHP take 0\nDefeated Martyr\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: On Attack: I die. Neighbors gain my HP.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: On Attack: I die. Neighbors gain my HP.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use quiet_bell",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 7,
+		"face_id": "martyr",
+		"face_name": "Martyr",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Quiet Bell vs Martyr",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

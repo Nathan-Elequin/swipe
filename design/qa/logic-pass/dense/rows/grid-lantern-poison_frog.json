@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"id": "lantern",
+			"kind": "item",
+			"name": "Lantern",
+			"sprite": "assets/dungeon/items/lantern.png"
+		},
+		{
+			"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
+			"id": "poison_frog",
+			"kind": "monster",
+			"name": "Poison Frog",
+			"sprite": "assets/dungeon/extra/poison_frog.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lantern"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Poison Frog — When you Spin me and when I take Atk damage from any source, you Gain 2 Poison Challenge hand. Wheel poison_frog. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lantern-poison_frog",
+	"log": "Draft enter\nYou Spin\nSpin Poison Frog\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nPoison Frog - Toxic Skin\nUsed poison 2\nLantern\nHP heal +2  now 5\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 0 · face Poison Frog ATK 2 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lantern",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 4,
+		"face_id": "poison_frog",
+		"face_name": "Poison Frog",
+		"hand": [
+			"Lantern"
+		],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Lantern vs Poison Frog",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

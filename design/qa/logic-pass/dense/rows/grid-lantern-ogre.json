@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"id": "lantern",
+			"kind": "item",
+			"name": "Lantern",
+			"sprite": "assets/dungeon/items/lantern.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lantern"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lantern-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nLantern\nHP heal +2  now 5\nitems this combat 1\nYou Done\nFight hit 1  ATK 5 - BLK\nBLK 0\nHP take -5  now 0\nOgre - Empath\nEnd dead\nKept Lantern",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 0 · face Ogre ATK 5 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lantern",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 10,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [
+			"Lantern"
+		],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Lantern vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the Neighboring enemy's Attack on the Right.",
+			"id": "bracers",
+			"kind": "item",
+			"name": "Right Bracer",
+			"sprite": "assets/dungeon/items/bracers.png"
+		},
+		{
+			"ability": "When I Attack, I die. My Neighbors each gain HP equal to my current HP",
+			"id": "martyr",
+			"kind": "monster",
+			"name": "Martyr",
+			"sprite": "assets/dungeon/extra/martyr.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Right Bracer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Right Bracer — Block equal to the Neighboring enemy's Attack on the Right. Monster: Martyr — When I Attack, I die. My Neighbors each gain HP equal to my current HP Challenge hand. Wheel martyr, wizard, golem. Click Right Bracer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bracers-martyr",
+	"log": "Draft enter\nYou Spin\nSpin Martyr\nenemy ATK 0   HP 7\nBLK 0\nitems this combat 0\nRight Bracer\nBLK +3  to  3\nitems this combat 1\nYou Done\nFight hit 1  ATK 0 - BLK\nBLK 3\nHP take 0\nDefeated Martyr\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Martyr ATK 0 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use bracers",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 7,
+		"face_id": "martyr",
+		"face_name": "Martyr",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Right Bracer vs Martyr",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

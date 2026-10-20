@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the lower HP between you and the Enemy.",
+			"id": "helmet",
+			"kind": "item",
+			"name": "Helmet",
+			"sprite": "assets/dungeon/items/helmet.png"
+		},
+		{
+			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"id": "clockwork_knight",
+			"kind": "monster",
+			"name": "Clockwork Knight",
+			"sprite": "assets/dungeon/extra/clockwork_knight.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Helmet"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Helmet — Block equal to the lower HP between you and the Enemy. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click Helmet, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-helmet-clockwork_knight",
+	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nHelmet\nBLK +6  to  6\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 6 · face Clockwork Knight ATK 4 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use helmet",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 7,
+		"face_id": "clockwork_knight",
+		"face_name": "Clockwork Knight",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Helmet vs Clockwork Knight",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

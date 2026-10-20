@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the Neighboring enemy's Attack on the Left.",
+			"id": "left_bracer",
+			"kind": "item",
+			"name": "Left Bracer",
+			"sprite": "assets/dungeon/items/left_bracer.png"
+		},
+		{
+			"ability": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
+			"id": "basilisk",
+			"kind": "monster",
+			"name": "Basilisk",
+			"sprite": "assets/dungeon/extra/basilisk.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Left Bracer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Left Bracer — Block equal to the Neighboring enemy's Attack on the Left. Monster: Basilisk — The first time you Spin me, I Flee and Petrify every other Item for 3 Spins. Challenge hand. Wheel basilisk, wizard, golem. Click Left Bracer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-left_bracer-basilisk",
+	"log": "Draft enter\nYou Spin\nSpin Basilisk\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin Petrifying Gaze  0 items\nFight Basilisk Flees\nBLK 0",
+	"note": "",
+	"observed": "spin did not reach fighting (phase=ready)",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"title": "Left Bracer vs Basilisk",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

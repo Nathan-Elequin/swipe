@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "This gains +2 Attack each time you lose any HP.",
+			"id": "spiked_flail",
+			"kind": "item",
+			"name": "Spiked Flail",
+			"sprite": "assets/dungeon/items/spiked_flail.png"
+		},
+		{
+			"ability": "I petrify your highest Attack item until you Spin again.",
+			"id": "gargoyle",
+			"kind": "monster",
+			"name": "Gargoyle",
+			"sprite": "assets/dungeon/extra/gargoyle.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Spiked Flail"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Spiked Flail — This gains +2 Attack each time you lose any HP. Monster: Gargoyle — I petrify your highest Attack item until you Spin again. Challenge hand. Wheel gargoyle. Click Spiked Flail, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-spiked_flail-gargoyle",
+	"log": "Draft enter\nYou Spin\nSpin Gargoyle\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nSpin petrify Spiked Flail\nGargoyle - Petrify\nUsed petrified",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Gargoyle ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use spiked_flail",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "gargoyle",
+		"face_name": "Gargoyle",
+		"hand": [
+			"Spiked Flail"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Spiked Flail vs Gargoyle",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

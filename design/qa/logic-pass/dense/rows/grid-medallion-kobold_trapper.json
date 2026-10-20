@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the HP you are missing.",
+			"id": "medallion",
+			"kind": "item",
+			"name": "Medallion",
+			"sprite": "assets/dungeon/items/medallion.png"
+		},
+		{
+			"ability": "I attack an extra time for each item you use this fight.",
+			"id": "kobold_trapper",
+			"kind": "monster",
+			"name": "Kobold Trapper",
+			"sprite": "assets/dungeon/extra/kobold_trapper.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Medallion"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Medallion — Block equal to the HP you are missing. Monster: Kobold Trapper — I attack an extra time for each item you use this fight. Challenge hand. Wheel kobold_trapper. Click Medallion, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-medallion-kobold_trapper",
+	"log": "Draft enter\nYou Spin\nSpin Kobold Trapper\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0\nMedallion\nBLK +1  to  1\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 1 · face Kobold Trapper ATK 2 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use medallion",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 6,
+		"face_id": "kobold_trapper",
+		"face_name": "Kobold Trapper",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Medallion vs Kobold Trapper",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+			"id": "grappling_hook",
+			"kind": "item",
+			"name": "Grappling Hook",
+			"sprite": "assets/dungeon/items/grappling_hook.png"
+		},
+		{
+			"ability": "I attack you when your Spin lands on me, and after each item you use.",
+			"id": "harpy",
+			"kind": "monster",
+			"name": "Harpy",
+			"sprite": "assets/dungeon/extra/harpy.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grappling Hook"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grappling Hook — Swap a Neighboring Owner into this fight. Draw a Random Item. Monster: Harpy — I attack you when your Spin lands on me, and after each item you use. Challenge hand. Wheel harpy, wizard, golem. Click Grappling Hook, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grappling_hook-harpy",
+	"log": "Draft enter\nYou Spin\nSpin Harpy\nenemy ATK 2   HP 5\nBLK 0\nitems this combat 0\nHarpy - Impatient\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nUsed pick a neighbor\nGrappling Hook\nitems this combat 1\nUsed hook Wizard\nDraft gain Ale Flagon\nYou Done\nFight hit 1  ATK 5 - BLK\nBLK 0\nHP take -5  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Wizard ATK 5 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grappling_hook",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 2,
+		"face_id": "wizard",
+		"face_name": "Wizard",
+		"hand": [
+			"Ale Flagon"
+		],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Grappling Hook vs Harpy",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

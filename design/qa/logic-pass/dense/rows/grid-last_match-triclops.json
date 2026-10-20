@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "If you have zero items that deal Atk damage, Defeat the enemy.",
+			"id": "last_match",
+			"kind": "item",
+			"name": "Paci-Fist",
+			"sprite": "assets/dungeon/items/last_match.png"
+		},
+		{
+			"ability": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
+			"id": "triclops",
+			"kind": "monster",
+			"name": "Triclops",
+			"sprite": "assets/dungeon/extra/triclops_v2.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Paci-Fist"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Paci-Fist — If you have zero items that deal Atk damage, Defeat the enemy. Monster: Triclops — If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee. Challenge hand. Wheel triclops. Click Paci-Fist, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-last_match-triclops",
+	"log": "Draft enter\nYou Spin\nSpin Triclops\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nPaci-Fist\nitems this combat 1\nFight defeat\nFight Triclops -2 HP and Flee  to  5\nBLK 0\nYou Spin\nSpin Triclops\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use last_match",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "triclops",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Paci-Fist vs Triclops",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Select an enemy. They Attack the enemy you are facing.",
+			"id": "pocketwatch",
+			"kind": "item",
+			"name": "Pocketwatch",
+			"sprite": "assets/dungeon/items/watch.png"
+		},
+		{
+			"ability": "When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each",
+			"id": "hydra",
+			"kind": "monster",
+			"name": "Hydra",
+			"sprite": "assets/dungeon/extra/hydra.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Pocketwatch"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Pocketwatch — Select an enemy. They Attack the enemy you are facing. Monster: Hydra — When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each Challenge hand. Wheel hydra. Click Pocketwatch, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pocketwatch-hydra",
+	"log": "Draft enter\nYou Spin\nSpin Hydra\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0\nSpin hydra petrify none\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Hydra ATK 3 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pocketwatch",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 5,
+		"face_id": "hydra",
+		"face_name": "Hydra",
+		"hand": [
+			"Pocketwatch"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Pocketwatch vs Hydra",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

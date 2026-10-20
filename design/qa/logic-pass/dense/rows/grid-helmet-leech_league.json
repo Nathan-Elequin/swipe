@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the lower HP between you and the Enemy.",
+			"id": "helmet",
+			"kind": "item",
+			"name": "Helmet",
+			"sprite": "assets/dungeon/items/helmet.png"
+		},
+		{
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+			"id": "leech_league",
+			"kind": "monster",
+			"name": "Leech League",
+			"sprite": "assets/dungeon/extra/leech_league.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Helmet"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Helmet — Block equal to the lower HP between you and the Enemy. Monster: Leech League — On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. Challenge hand. Wheel leech_league. Click Helmet, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-helmet-leech_league",
+	"log": "Draft enter\nYou Spin\nSpin Leech League\nenemy ATK 4   HP 1\nBLK 0\nitems this combat 0\nHelmet\nBLK +1  to  1\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 1 · face Leech League ATK 4 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use helmet",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 1,
+		"face_id": "leech_league",
+		"face_name": "Leech League",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Helmet vs Leech League",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

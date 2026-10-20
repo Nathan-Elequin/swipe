@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
+			"id": "grief_jar",
+			"kind": "item",
+			"name": "Grief Jar",
+			"sprite": "assets/dungeon/items/grief_jar.png"
+		},
+		{
+			"ability": "When facing me, I take Attack damage equal to Block you gain.",
+			"id": "eel",
+			"kind": "monster",
+			"name": "Eel",
+			"sprite": "assets/dungeon/extra/eel.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grief Jar"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grief Jar — Each time you Spin, Lose 1 HP and this item gains +2 Block Monster: Eel — When facing me, I take Attack damage equal to Block you gain. Challenge hand. Wheel eel. Click Grief Jar, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grief_jar-eel",
+	"log": "Draft enter\nYou Spin\nSpin Eel\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0\nGrief Jar BLK 2\nGrief Jar\nHP bleed -1  now 5\nGrief Jar\nBLK +2  to  2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 2 · face Eel ATK 6 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grief_jar",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 2,
+		"face_id": "eel",
+		"face_name": "Eel",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Grief Jar vs Eel",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

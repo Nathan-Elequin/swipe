@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal equal to the amount of HP you most recently lose.",
+			"id": "blood_chalice",
+			"kind": "item",
+			"name": "Blood Chalice",
+			"sprite": "assets/dungeon/items/blood_chalice.png"
+		},
+		{
+			"ability": "When facing me, your second Item used has no effect",
+			"id": "bushido",
+			"kind": "monster",
+			"name": "Bushido",
+			"sprite": "assets/dungeon/extra/bushido.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Blood Chalice"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Blood Chalice — Heal equal to the amount of HP you most recently lose. Monster: Bushido — When facing me, your second Item used has no effect Challenge hand. Wheel bushido. Click Blood Chalice, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-blood_chalice-bushido",
+	"log": "Draft enter\nYou Spin\nSpin Bushido\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nBlood Chalice\nUsed cannot\nYou Done\nFight hit 1  ATK 4 - BLK\nBLK 0\nHP take -4  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 3 · BLK 0 · face Bushido ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use blood_chalice",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "bushido",
+		"face_name": "Bushido",
+		"hand": [
+			"Blood Chalice"
+		],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Blood Chalice vs Bushido",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

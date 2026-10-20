@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
+			"id": "grief_jar",
+			"kind": "item",
+			"name": "Grief Jar",
+			"sprite": "assets/dungeon/items/grief_jar.png"
+		},
+		{
+			"ability": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3.",
+			"id": "almighty_worm",
+			"kind": "monster",
+			"name": "Almighty Worm",
+			"sprite": "assets/dungeon/extra/almighty_worm.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grief Jar"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grief Jar — Each time you Spin, Lose 1 HP and this item gains +2 Block Monster: Almighty Worm — When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3. Challenge hand. Wheel almighty_worm. Click Grief Jar, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grief_jar-almighty_worm",
+	"log": "Draft enter\nYou Spin\nSpin Almighty Worm\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nGrief Jar BLK 2\nGrief Jar\nHP bleed -1  now 5\nSpin almighty worm hunger\nSpin worm ate Grief Jar\nSpin worm hunger done",
+	"mismatch": "A number did not match the card: phase fighting · HP 5 · BLK 0 · face Almighty Worm ATK 6 HP 6",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 5 · BLK 0 · face Almighty Worm ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grief_jar",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "almighty_worm",
+		"face_name": "Almighty Worm",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Grief Jar vs Almighty Worm",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Attack equal to 8 minus the Items still in your hand.",
+			"id": "knucklers",
+			"kind": "item",
+			"name": "Knucklers",
+			"sprite": "assets/dungeon/items/knucklers.png"
+		},
+		{
+			"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+			"id": "vampire",
+			"kind": "monster",
+			"name": "Vampire",
+			"sprite": "assets/dungeon/extra/vampire.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Knucklers"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Knucklers — Attack equal to 8 minus the Items still in your hand. Monster: Vampire — Every time you lose HP, I gain +1 HP and +1 ATK. Challenge hand. Wheel vampire. Click Knucklers. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-knucklers-vampire",
+	"log": "Draft enter\nYou Spin\nSpin Vampire\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: +1 HP and +1 ATK each time you lose HP.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: +1 HP and +1 ATK each time you lose HP.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use knucklers"
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "vampire",
+		"face_name": "Vampire",
+		"hand": [
+			"Knucklers"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Knucklers vs Vampire",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

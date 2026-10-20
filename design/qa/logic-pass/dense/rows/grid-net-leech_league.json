@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Choose to reduce the facing owner's Attack by 1, 2, or 3.",
+			"id": "net",
+			"kind": "item",
+			"name": "Net",
+			"sprite": "assets/dungeon/items/net.png"
+		},
+		{
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+			"id": "leech_league",
+			"kind": "monster",
+			"name": "Leech League",
+			"sprite": "assets/dungeon/extra/leech_league.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Net"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Net — Choose to reduce the facing owner's Attack by 1, 2, or 3. Monster: Leech League — On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. Challenge hand. Wheel leech_league. Click Net, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-net-leech_league",
+	"log": "Draft enter\nYou Spin\nSpin Leech League\nenemy ATK 4   HP 1\nBLK 0\nitems this combat 0\nUsed choose\nNet\nATK facing ATK -1  to  3\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Leech League ATK 3 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use net",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 1,
+		"face_id": "leech_league",
+		"face_name": "Leech League",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Net vs Leech League",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

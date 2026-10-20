@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the Neighboring enemy's Attack on the Right.",
+			"id": "bracers",
+			"kind": "item",
+			"name": "Right Bracer",
+			"sprite": "assets/dungeon/items/bracers.png"
+		},
+		{
+			"ability": "My Attack ignores Block.",
+			"id": "dragon",
+			"kind": "monster",
+			"name": "Dragon",
+			"sprite": "assets/dungeon/extra/dragon.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Right Bracer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Right Bracer — Block equal to the Neighboring enemy's Attack on the Right. Monster: Dragon — My Attack ignores Block. Challenge hand. Wheel dragon, wizard, golem. Click Right Bracer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bracers-dragon",
+	"log": "Draft enter\nYou Spin\nSpin Dragon\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0\nRight Bracer\nBLK +3  to  3\nitems this combat 1\nYou Done\nFight hit 1  ATK 6  (ignores BLK)\nDragon - Firebreather\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Dragon ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use bracers",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "dragon",
+		"face_name": "Dragon",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Right Bracer vs Dragon",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

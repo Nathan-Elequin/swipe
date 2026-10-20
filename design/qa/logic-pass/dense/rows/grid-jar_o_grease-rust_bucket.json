@@ -1,0 +1,67 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 1, randomly Swap an Item, and Keep this.",
+			"id": "jar_o_grease",
+			"kind": "item",
+			"name": "Jar O' Grease",
+			"sprite": "assets/dungeon/items/jar_o_grease.png"
+		},
+		{
+			"ability": "When I enter the Dungeon, Gain 1 Rust",
+			"id": "rust_bucket",
+			"kind": "monster",
+			"name": "Rust Bucket",
+			"sprite": "assets/dungeon/extra/rust_bucket.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Rust",
+			"Jar O' Grease"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Jar O' Grease — Heal 1, randomly Swap an Item, and Keep this. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket. Click Jar O' Grease, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-jar_o_grease-rust_bucket",
+	"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3\nJar O' Grease\nUsed cannot\nYou Done\nFight hit 1  ATK 3  (ignores BLK)\nRust Bucket - Rust\nHP take -3  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 3 · BLK 0 · face Rust Bucket ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use jar_o_grease",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "rust_bucket",
+		"face_name": "Rust Bucket",
+		"hand": [
+			"Rust",
+			"Jar O' Grease"
+		],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Jar O' Grease vs Rust Bucket",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

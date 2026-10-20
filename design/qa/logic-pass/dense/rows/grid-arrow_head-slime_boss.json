@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "6 Atk and Lose 2 HP.",
+			"id": "arrow_head",
+			"kind": "item",
+			"name": "Arrow Head",
+			"sprite": "assets/dungeon/items/arrow_head.png"
+		},
+		{
+			"ability": "My Attack always equals my HP.",
+			"id": "slime_boss",
+			"kind": "monster",
+			"name": "Slime Boss",
+			"sprite": "assets/dungeon/extra/slime_boss.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Arrow Head"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Arrow Head — 6 Atk and Lose 2 HP. Monster: Slime Boss — My Attack always equals my HP. Challenge hand. Wheel slime_boss. Click Arrow Head, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-arrow_head-slime_boss",
+	"log": "Draft enter\nYou Spin\nSpin Slime Boss\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nArrow Head\nATK 6  to  Slime Boss HP 3\nHP bleed -2  now 4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Slime Boss ATK 3 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use arrow_head",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 3,
+		"face_id": "slime_boss",
+		"face_name": "Slime Boss",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Arrow Head vs Slime Boss",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "This gains +2 Attack each time you lose any HP.",
+			"id": "spiked_flail",
+			"kind": "item",
+			"name": "Spiked Flail",
+			"sprite": "assets/dungeon/items/spiked_flail.png"
+		},
+		{
+			"ability": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item",
+			"id": "cleric",
+			"kind": "monster",
+			"name": "Cleric",
+			"sprite": "assets/dungeon/extra/cleric.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Spiked Flail"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Spiked Flail — This gains +2 Attack each time you lose any HP. Monster: Cleric — After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item Challenge hand. Wheel cleric. Click Spiked Flail, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-spiked_flail-cleric",
+	"log": "Draft enter\nYou Spin\nSpin Cleric\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nSpiked Flail\nATK 0  to  Cleric HP 5\nATK 0  to  Cleric HP 5\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Cleric ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use spiked_flail",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "cleric",
+		"face_name": "Cleric",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Spiked Flail vs Cleric",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

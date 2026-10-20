@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the HP you are missing.",
+			"id": "medallion",
+			"kind": "item",
+			"name": "Medallion",
+			"sprite": "assets/dungeon/items/medallion.png"
+		},
+		{
+			"ability": "After I Attack, I Heal you for double the HP I cause you to lose.",
+			"id": "druid",
+			"kind": "monster",
+			"name": "Druid",
+			"sprite": "assets/dungeon/extra/druid.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Medallion"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Medallion — Block equal to the HP you are missing. Monster: Druid — After I Attack, I Heal you for double the HP I cause you to lose. Challenge hand. Wheel druid. Click Medallion, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-medallion-druid",
+	"log": "Draft enter\nYou Spin\nSpin Druid\nenemy ATK 7   HP 4\nBLK 0\nitems this combat 0\nMedallion\nBLK +1  to  1\nitems this combat 1\nYou Done\nFight hit 1  ATK 7 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 1 · face Druid ATK 7 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use medallion",
+			"done "
+		],
+		"face_atk": 7,
+		"face_hp": 4,
+		"face_id": "druid",
+		"face_name": "Druid",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Medallion vs Druid",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item",
+			"id": "cleric",
+			"kind": "monster",
+			"name": "Cleric",
+			"sprite": "assets/dungeon/extra/cleric.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Cleric — After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item Challenge hand. Wheel cleric. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-cleric",
+	"log": "Draft enter\nYou Spin\nSpin Cleric\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nChakram\nBLK +3  to  3\nATK 3  to  Cleric HP 2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Cleric ATK 4 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 2,
+		"face_id": "cleric",
+		"face_name": "Cleric",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Cleric",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

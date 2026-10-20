@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 1, plus 1 for each monster Defeated",
+			"id": "victory_flask",
+			"kind": "item",
+			"name": "Victory Flask",
+			"sprite": "assets/dungeon/items/victory_flask.png"
+		},
+		{
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+			"id": "leech_league",
+			"kind": "monster",
+			"name": "Leech League",
+			"sprite": "assets/dungeon/extra/leech_league.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Victory Flask"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Victory Flask — Heal 1, plus 1 for each monster Defeated Monster: Leech League — On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. Challenge hand. Wheel leech_league. Click Victory Flask, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-victory_flask-leech_league",
+	"log": "Draft enter\nYou Spin\nSpin Leech League\nenemy ATK 4   HP 1\nBLK 0\nitems this combat 0\nVictory Flask\nHP heal +1  now 4\nitems this combat 1\nYou Done\nFight hit 1  ATK 4 - BLK\nBLK 0\nHP take -4  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Leech League ATK 4 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use victory_flask",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 1,
+		"face_id": "leech_league",
+		"face_name": "Leech League",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Victory Flask vs Leech League",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

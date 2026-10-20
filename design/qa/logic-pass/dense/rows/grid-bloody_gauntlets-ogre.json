@@ -1,0 +1,62 @@
+{
+	"cards": [
+		{
+			"ability": "+1 ATK for each HP you are missing.",
+			"id": "bloody_gauntlets",
+			"kind": "item",
+			"name": "Bloody Wraps",
+			"sprite": "assets/dungeon/items/bloody_gauntlets.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Bloody Wraps"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Bloody Wraps — +1 ATK for each HP you are missing. Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Bloody Wraps. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bloody_gauntlets-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nBloody Wraps\nATK 1  to  Ogre HP 9\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Ogre ATK 5 HP 9",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use bloody_gauntlets"
+		],
+		"face_atk": 5,
+		"face_hp": 9,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Bloody Wraps vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

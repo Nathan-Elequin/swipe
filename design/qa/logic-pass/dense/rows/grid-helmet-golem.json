@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the lower HP between you and the Enemy.",
+			"id": "helmet",
+			"kind": "item",
+			"name": "Helmet",
+			"sprite": "assets/dungeon/items/helmet.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Helmet"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Helmet — Block equal to the lower HP between you and the Enemy. Monster: Golem — (printed ATK/HP only) Challenge hand. Wheel golem. Click Helmet, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-helmet-golem",
+	"log": "Draft enter\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nHelmet\nBLK +6  to  6\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 6 · face Golem ATK 3 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use helmet",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 7,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Helmet vs Golem",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

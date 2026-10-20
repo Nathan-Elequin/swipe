@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to the last Block you gained.",
+			"id": "mirror_shard",
+			"kind": "item",
+			"name": "Mirror Shard",
+			"sprite": "assets/dungeon/items/mirror_shard.png"
+		},
+		{
+			"ability": "When my Neighbors would take Attack Damage, I take it instead",
+			"id": "bodyguard",
+			"kind": "monster",
+			"name": "Bodyguard",
+			"sprite": "assets/dungeon/extra/bodyguard.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Mirror Shard"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Mirror Shard — Gain Block equal to the last Block you gained. Monster: Bodyguard — When my Neighbors would take Attack Damage, I take it instead Challenge hand. Wheel bodyguard, wizard, golem. Click Mirror Shard, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-mirror_shard-bodyguard",
+	"log": "Draft enter\nYou Spin\nSpin Bodyguard\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nMirror Shard\nUsed cannot\nYou Done\nFight hit 1  ATK 3 - BLK\nBLK 0\nHP take -3  now 3\nDefeated Bodyguard\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Bodyguard ATK 3 HP 3",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Bodyguard ATK 3 HP 3",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use mirror_shard",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 3,
+		"face_id": "bodyguard",
+		"face_name": "Bodyguard",
+		"hand": [
+			"Mirror Shard"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Mirror Shard vs Bodyguard",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

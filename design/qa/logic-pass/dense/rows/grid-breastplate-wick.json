@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
+			"id": "breastplate",
+			"kind": "item",
+			"name": "Breastplate",
+			"sprite": "assets/dungeon/items/breastplate.png"
+		},
+		{
+			"ability": "I Lose 2 HP each time a Neighbor is Defeated",
+			"id": "wick",
+			"kind": "monster",
+			"name": "Wick",
+			"sprite": "assets/dungeon/extra/wick.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Breastplate"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Breastplate — Gain 2 Block. If you lose HP this combat, Keep this Item. Monster: Wick — I Lose 2 HP each time a Neighbor is Defeated Challenge hand. Wheel wick, wizard, golem. Click Breastplate, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-breastplate-wick",
+	"log": "Draft enter\nYou Spin\nSpin Wick\nenemy ATK 6   HP 10\nBLK 0\nitems this combat 0\nBreastplate\nBLK +2  to  2\nitems this combat 1\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -4  now 2\nDefeated Wick\nKept Breastplate\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 2 · face Wick ATK 6 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use breastplate",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 10,
+		"face_id": "wick",
+		"face_name": "Wick",
+		"hand": [
+			"Breastplate"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Breastplate vs Wick",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

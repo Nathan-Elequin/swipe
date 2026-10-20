@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Choose to reduce the facing owner's Attack by 1, 2, or 3.",
+			"id": "net",
+			"kind": "item",
+			"name": "Net",
+			"sprite": "assets/dungeon/items/net.png"
+		},
+		{
+			"ability": "I gain Atk equal to your leftmost Atk Item",
+			"id": "beggar",
+			"kind": "monster",
+			"name": "Beggar",
+			"sprite": "assets/dungeon/extra/beggar.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Net"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Net — Choose to reduce the facing owner's Attack by 1, 2, or 3. Monster: Beggar — I gain Atk equal to your leftmost Atk Item Challenge hand. Wheel beggar. Click Net, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-net-beggar",
+	"log": "Draft enter\nYou Spin\nSpin Beggar\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nUsed choose\nNet\nATK facing ATK -1  to  2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Beggar ATK 2 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use net",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 4,
+		"face_id": "beggar",
+		"face_name": "Beggar",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Net vs Beggar",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

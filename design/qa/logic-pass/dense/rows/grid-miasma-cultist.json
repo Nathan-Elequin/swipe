@@ -1,0 +1,80 @@
+{
+	"cards": [
+		{
+			"ability": "Apply Poison to all Monsters equal to the lowest HP on any Monster",
+			"id": "miasma",
+			"kind": "item",
+			"name": "Miasma",
+			"sprite": "assets/dungeon/items/miasma.png"
+		},
+		{
+			"ability": "When you Spin me or my Neighbor, Gain 1 Blood Pact",
+			"id": "cultist",
+			"kind": "monster",
+			"name": "Cultist",
+			"sprite": "assets/dungeon/extra/cultist.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Miasma",
+			"Blood Pact"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Miasma — Apply Poison to all Monsters equal to the lowest HP on any Monster Monster: Cultist — When you Spin me or my Neighbor, Gain 1 Blood Pact Challenge hand. Wheel cultist, wizard, golem. Click Miasma, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-miasma-cultist",
+	"log": "Draft enter\nYou Spin\nSpin Cultist\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0\nCultist - Blood Pact\nDraft gain Blood Pact\nMiasma\nFight poison 2 all\nitems this combat 1\nSpin poison  to  0 HP\nDefeated Cultist\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nSpin poison  to  5 HP",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Golem ATK 3 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use miasma",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 5,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": [
+			"Blood Pact"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Miasma vs Cultist",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

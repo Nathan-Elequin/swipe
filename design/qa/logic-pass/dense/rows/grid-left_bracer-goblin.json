@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the Neighboring enemy's Attack on the Left.",
+			"id": "left_bracer",
+			"kind": "item",
+			"name": "Left Bracer",
+			"sprite": "assets/dungeon/items/left_bracer.png"
+		},
+		{
+			"ability": "I cannot take Attack damage.",
+			"id": "goblin",
+			"kind": "monster",
+			"name": "Goblin",
+			"sprite": "assets/dungeon/extra/goblin.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Left Bracer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Left Bracer — Block equal to the Neighboring enemy's Attack on the Left. Monster: Goblin — I cannot take Attack damage. Challenge hand. Wheel goblin, wizard, golem. Click Left Bracer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-left_bracer-goblin",
+	"log": "Draft enter\nYou Spin\nSpin Goblin\nenemy ATK 3   HP 1\nBLK 0\nitems this combat 0\nLeft Bracer\nBLK +5  to  5\nitems this combat 1\nYou Done\nFight hit 1  ATK 3 - BLK\nBLK 2\nHP take 0\nDefeated Goblin\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 5 · face Goblin ATK 3 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use left_bracer",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 1,
+		"face_id": "goblin",
+		"face_name": "Goblin",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Left Bracer vs Goblin",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "This gains +2 Attack each time you lose any HP.",
+			"id": "spiked_flail",
+			"kind": "item",
+			"name": "Spiked Flail",
+			"sprite": "assets/dungeon/items/spiked_flail.png"
+		},
+		{
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+			"id": "leech_league",
+			"kind": "monster",
+			"name": "Leech League",
+			"sprite": "assets/dungeon/extra/leech_league.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Spiked Flail"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Spiked Flail — This gains +2 Attack each time you lose any HP. Monster: Leech League — On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. Challenge hand. Wheel leech_league. Click Spiked Flail, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-spiked_flail-leech_league",
+	"log": "Draft enter\nYou Spin\nSpin Leech League\nenemy ATK 4   HP 1\nBLK 0\nitems this combat 0\nSpiked Flail\nATK 0  to  Leech League HP 1\nATK 0  to  Leech League HP 1\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Leech League ATK 4 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use spiked_flail",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 1,
+		"face_id": "leech_league",
+		"face_name": "Leech League",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Spiked Flail vs Leech League",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,78 @@
+{
+	"cards": [
+		{
+			"ability": "Atk 3, or Atk 1 and Keep this item",
+			"id": "throwing_knife",
+			"kind": "item",
+			"name": "Throwing Knife",
+			"sprite": "assets/dungeon/items/throwing_knife.png"
+		},
+		{
+			"ability": "If you Discard an item when facing me, I will Attack one of my Neighbors and Flee.",
+			"id": "hired_hand",
+			"kind": "monster",
+			"name": "Hired Hand",
+			"sprite": "assets/dungeon/extra/hired_hand.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Throwing Knife"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Throwing Knife — Atk 3, or Atk 1 and Keep this item Monster: Hired Hand — If you Discard an item when facing me, I will Attack one of my Neighbors and Flee. Challenge hand. Wheel hired_hand, wizard, golem. Click Throwing Knife, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-throwing_knife-hired_hand",
+	"log": "Draft enter\nYou Spin\nSpin Hired Hand\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin hired hand bribe\nSpin bribe Throwing Knife\nHired Hand - Bribe\nFight Hired Hand Flees\nBLK 0\nYou Spin\nSpin Golem\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nYou Done\nFight hit 1  ATK 3 - BLK\nBLK 0\nHP take -3  now 3\nDefeated Golem\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Golem ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use throwing_knife",
+			"choose throw",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Throwing Knife vs Hired Hand",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

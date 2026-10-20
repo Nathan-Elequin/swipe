@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "6 Atk and Lose 2 HP.",
+			"id": "arrow_head",
+			"kind": "item",
+			"name": "Arrow Head",
+			"sprite": "assets/dungeon/items/arrow_head.png"
+		},
+		{
+			"ability": "I attack an extra time for each item you use this fight.",
+			"id": "kobold_trapper",
+			"kind": "monster",
+			"name": "Kobold Trapper",
+			"sprite": "assets/dungeon/extra/kobold_trapper.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Arrow Head"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Arrow Head — 6 Atk and Lose 2 HP. Monster: Kobold Trapper — I attack an extra time for each item you use this fight. Challenge hand. Wheel kobold_trapper. Click Arrow Head, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-arrow_head-kobold_trapper",
+	"log": "Draft enter\nYou Spin\nSpin Kobold Trapper\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0",
+	"mismatch": "BLOCKED: This special fires on Done, and I never clicked Done.",
+	"note": "",
+	"observed": "This special fires on Done, and I never clicked Done.",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use arrow_head"
+		],
+		"face_atk": 2,
+		"face_hp": 6,
+		"face_id": "kobold_trapper",
+		"face_name": "Kobold Trapper",
+		"hand": [
+			"Arrow Head"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Arrow Head vs Kobold Trapper",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

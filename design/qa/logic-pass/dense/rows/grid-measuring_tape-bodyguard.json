@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat Any Monster with exactly double your HP",
+			"id": "measuring_tape",
+			"kind": "item",
+			"name": "Scythe",
+			"sprite": "assets/dungeon/items/measuring_tape.png"
+		},
+		{
+			"ability": "When my Neighbors would take Attack Damage, I take it instead",
+			"id": "bodyguard",
+			"kind": "monster",
+			"name": "Bodyguard",
+			"sprite": "assets/dungeon/extra/bodyguard.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Scythe"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Scythe — Defeat Any Monster with exactly double your HP Monster: Bodyguard — When my Neighbors would take Attack Damage, I take it instead Challenge hand. Wheel bodyguard, wizard, golem. Click Scythe, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-measuring_tape-bodyguard",
+	"log": "Draft enter\nYou Spin\nSpin Bodyguard\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nUsed cannot\nYou Done\nFight hit 1  ATK 3 - BLK\nBLK 0\nHP take -3  now 3\nDefeated Bodyguard\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Bodyguard ATK 3 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use measuring_tape",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 3,
+		"face_id": "bodyguard",
+		"face_name": "Bodyguard",
+		"hand": [
+			"Scythe"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Scythe vs Bodyguard",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

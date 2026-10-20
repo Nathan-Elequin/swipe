@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Spin again and gain a Random Item.",
+			"id": "smoke_bomb",
+			"kind": "item",
+			"name": "Smoke Bomb",
+			"sprite": "assets/dungeon/items/smoke_bomb.png"
+		},
+		{
+			"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
+			"id": "phoenix_egg",
+			"kind": "monster",
+			"name": "Phoenix Egg",
+			"sprite": "assets/dungeon/extra/phoenix_egg.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Smoke Bomb"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Smoke Bomb — Spin again and gain a Random Item. Monster: Phoenix Egg — When I am Defeated, I Flee and hatch into a Phoenix. Challenge hand. Wheel phoenix_egg. Click Smoke Bomb, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-smoke_bomb-phoenix_egg",
+	"log": "Draft enter\nYou Spin\nSpin Phoenix Egg\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0\nSmoke Bomb\nitems this combat 1\nDraft gain Helmet\nUsed Smoke Bomb\nYou Spin\nSpin Phoenix Egg\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use smoke_bomb",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "phoenix_egg",
+		"face_name": "",
+		"hand": [
+			"Helmet"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Smoke Bomb vs Phoenix Egg",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

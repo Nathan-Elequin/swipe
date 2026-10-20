@@ -1,0 +1,49 @@
+{
+	"cards": [
+		{
+			"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
+			"id": "grief_jar",
+			"kind": "item",
+			"name": "Grief Jar",
+			"sprite": "assets/dungeon/items/grief_jar.png"
+		},
+		{
+			"ability": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
+			"id": "mouse",
+			"kind": "monster",
+			"name": "Mouse",
+			"sprite": "assets/dungeon/extra/mouse.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grief Jar"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grief Jar — Each time you Spin, Lose 1 HP and this item gains +2 Block Monster: Mouse — When you Spin me, if you have more HP than me I lose 2 HP and Flee Challenge hand. Wheel mouse. Click Grief Jar, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grief_jar-mouse",
+	"log": "Draft enter\nYou Spin\nSpin Mouse\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nGrief Jar BLK 2\nGrief Jar\nHP bleed -1  now 5\nMouse - Scurry\nSpin Scurry -2 HP\nBLK 0",
+	"note": "",
+	"observed": "spin did not reach fighting (phase=ready)",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"title": "Grief Jar vs Mouse",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "6 Atk and Lose 2 HP.",
+			"id": "arrow_head",
+			"kind": "item",
+			"name": "Arrow Head",
+			"sprite": "assets/dungeon/items/arrow_head.png"
+		},
+		{
+			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"id": "clockwork_knight",
+			"kind": "monster",
+			"name": "Clockwork Knight",
+			"sprite": "assets/dungeon/extra/clockwork_knight.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Arrow Head"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Arrow Head — 6 Atk and Lose 2 HP. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click Arrow Head, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-arrow_head-clockwork_knight",
+	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nArrow Head\nATK 6  to  Clockwork Knight HP 1\nHP bleed -2  now 4\nitems this combat 1\nYou Done\nFight hit 1  ATK 4 - BLK\nBLK 0\nHP take -4  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Clockwork Knight ATK 4 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use arrow_head",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 1,
+		"face_id": "clockwork_knight",
+		"face_name": "Clockwork Knight",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Arrow Head vs Clockwork Knight",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

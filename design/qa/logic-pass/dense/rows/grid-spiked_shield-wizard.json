@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to your highest Attack Item",
+			"id": "spiked_shield",
+			"kind": "item",
+			"name": "Spiked Shield",
+			"sprite": "assets/dungeon/items/spiked_shield.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Spiked Shield"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Spiked Shield — Gain Block equal to your highest Attack Item Monster: Wizard — (printed ATK/HP only) Challenge hand. Wheel wizard. Click Spiked Shield, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-spiked_shield-wizard",
+	"log": "Draft enter\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0\nSpiked Shield\nBLK +0  to  0\nitems this combat 1",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Wizard ATK 5 HP 2",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Wizard ATK 5 HP 2",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use spiked_shield",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 2,
+		"face_id": "wizard",
+		"face_name": "Wizard",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Spiked Shield vs Wizard",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

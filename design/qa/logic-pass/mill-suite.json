@@ -1,0 +1,2460 @@
+{
+	"id": "mill-unique",
+	"tests": [
+		{
+			"id": "uniq-medallion",
+			"title": "Medallion unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"medallion"
+			],
+			"face": "golem",
+			"expected_text": "Block equal to the HP you are missing. Using it vs Golem must raise Block above 0.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "medallion",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"medallion"
+				],
+				"blk_min": 1
+			}
+		},
+		{
+			"id": "uniq-helmet",
+			"title": "Helmet unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"helmet"
+			],
+			"face": "golem",
+			"expected_text": "Block equal to the lower HP between you and the Enemy. Using it vs Golem must raise Block above 0.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "helmet",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"helmet"
+				],
+				"blk_min": 1
+			}
+		},
+		{
+			"id": "uniq-grimoire",
+			"title": "Grimoire unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"grimoire"
+			],
+			"face": "golem",
+			"expected_text": "Attack equal to the Attack of the last monster you faced.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "grimoire",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"grimoire"
+				]
+			}
+		},
+		{
+			"id": "uniq-bloody_gauntlets",
+			"title": "Bloody Wraps unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"bloody_gauntlets"
+			],
+			"face": "golem",
+			"expected_text": "+1 ATK for each HP you are missing.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "bloody_gauntlets",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"bloody"
+				]
+			}
+		},
+		{
+			"id": "uniq-breastplate",
+			"title": "Breastplate unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"breastplate"
+			],
+			"face": "golem",
+			"expected_text": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "breastplate",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"breastplate"
+				]
+			}
+		},
+		{
+			"id": "uniq-bracers",
+			"title": "Right Bracer unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"items": [
+				"bracers"
+			],
+			"face": "golem",
+			"expected_text": "Block equal to the Neighboring enemy's Attack on the Right. Using it vs Golem must raise Block above 0.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "bracers",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"right"
+				],
+				"blk_min": 1
+			}
+		},
+		{
+			"id": "uniq-knucklers",
+			"title": "Knucklers unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"knucklers"
+			],
+			"face": "golem",
+			"expected_text": "Attack equal to 8 minus the Items still in your hand.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "knucklers",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"knucklers"
+				]
+			}
+		},
+		{
+			"id": "uniq-fangs",
+			"title": "Fangs unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"fangs"
+			],
+			"face": "golem",
+			"expected_text": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "fangs",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"fangs"
+				]
+			}
+		},
+		{
+			"id": "uniq-cursed_scroll",
+			"title": "Cursed Scroll unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"cursed_scroll"
+			],
+			"face": "golem",
+			"expected_text": "Heal 6. On Spin, lose 1 HP. You start at 3 HP. After the click you must be at 4 or more.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "cursed_scroll",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"cursed"
+				],
+				"hp_min": 4
+			},
+			"hp_before": 3
+		},
+		{
+			"id": "uniq-spiked_flail",
+			"title": "Spiked Flail unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"spiked_flail"
+			],
+			"face": "golem",
+			"expected_text": "This gains +2 Attack each time you lose any HP.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "spiked_flail",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"spiked"
+				]
+			}
+		},
+		{
+			"id": "uniq-pocketwatch",
+			"title": "Pocketwatch unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"pocketwatch"
+			],
+			"face": "golem",
+			"expected_text": "Select an enemy. They Attack the enemy you are facing.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "pocketwatch",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"pocketwatch"
+				]
+			}
+		},
+		{
+			"id": "uniq-double_axe",
+			"title": "Great Axe unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"items": [
+				"double_axe"
+			],
+			"face": "golem",
+			"expected_text": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once. Golem 7 HP must drop by 2.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "double_axe",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"great"
+				],
+				"face_hp": 5
+			}
+		},
+		{
+			"id": "uniq-grappling_hook",
+			"title": "Grappling Hook unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"items": [
+				"grappling_hook"
+			],
+			"face": "golem",
+			"expected_text": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "grappling_hook",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"grappling"
+				]
+			}
+		},
+		{
+			"id": "uniq-spiked_shield",
+			"title": "Spiked Shield unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"spiked_shield"
+			],
+			"face": "golem",
+			"expected_text": "Gain Block equal to your highest Attack Item Using it vs Golem must raise Block above 0.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "spiked_shield",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"spiked"
+				],
+				"blk_min": 1
+			}
+		},
+		{
+			"id": "uniq-grief_jar",
+			"title": "Grief Jar unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"grief_jar"
+			],
+			"face": "golem",
+			"expected_text": "Each time you Spin, Lose 1 HP and this item gains +2 Block Using it vs Golem must raise Block above 0.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "grief_jar",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"grief"
+				],
+				"blk_min": 1
+			}
+		},
+		{
+			"id": "uniq-longbow",
+			"title": "Longbow unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"items": [
+				"longbow"
+			],
+			"face": "golem",
+			"expected_text": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining) Golem 7 HP must drop by 4.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "longbow",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"longbow"
+				],
+				"face_hp": 3
+			}
+		},
+		{
+			"id": "uniq-lantern",
+			"title": "Lantern unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"lantern"
+			],
+			"face": "golem",
+			"expected_text": "Heal 2. Keep this if you are still missing HP. You start at 3 HP. After the click you must be at 4 or more.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "lantern",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"lantern"
+				],
+				"hp_min": 4
+			},
+			"hp_before": 3
+		},
+		{
+			"id": "uniq-mirror_shard",
+			"title": "Mirror Shard unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"mirror_shard"
+			],
+			"face": "golem",
+			"expected_text": "Gain Block equal to the last Block you gained. Using it vs Golem must raise Block above 0.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "mirror_shard",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"mirror"
+				],
+				"blk_min": 1
+			}
+		},
+		{
+			"id": "uniq-echo_bell",
+			"title": "Echo Bell unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"echo_bell"
+			],
+			"face": "golem",
+			"expected_text": "Becomes a copy of the last item you used.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "echo_bell",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"echo"
+				]
+			}
+		},
+		{
+			"id": "uniq-iron_chain",
+			"title": "Chain unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"iron_chain"
+			],
+			"face": "golem",
+			"expected_text": "Deal Attack equal to Block you hold. Keep this item.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "iron_chain",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"chain"
+				]
+			}
+		},
+		{
+			"id": "uniq-counting_beads",
+			"title": "Counting Beads unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"counting_beads"
+			],
+			"face": "golem",
+			"expected_text": "(1), (2), (3), or (4) Atk First option should deal 1. Golem 7→6.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "counting_beads",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"counting"
+				],
+				"face_hp": 6
+			}
+		},
+		{
+			"id": "uniq-last_match",
+			"title": "Paci-Fist unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"last_match"
+			],
+			"face": "golem",
+			"expected_text": "If you have zero items that deal Atk damage, Defeat the enemy.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "last_match",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"paci"
+				]
+			}
+		},
+		{
+			"id": "uniq-measuring_tape",
+			"title": "Scythe unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"wizard"
+			],
+			"items": [
+				"measuring_tape"
+			],
+			"face": "wizard",
+			"expected_text": "Defeat Any Monster with exactly double your HP Wizard 2 HP < your 6, so this must Defeat.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "measuring_tape",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"defeat"
+				]
+			}
+		},
+		{
+			"id": "uniq-mute_stone",
+			"title": "Chaos Stone unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"mute_stone"
+			],
+			"face": "golem",
+			"expected_text": "Choose 2 Items and Swap them.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "mute_stone",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"chaos"
+				]
+			}
+		},
+		{
+			"id": "uniq-left_bracer",
+			"title": "Left Bracer unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"items": [
+				"left_bracer"
+			],
+			"face": "golem",
+			"expected_text": "Block equal to the Neighboring enemy's Attack on the Left. Using it vs Golem must raise Block above 0.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "left_bracer",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"left"
+				],
+				"blk_min": 1
+			}
+		},
+		{
+			"id": "uniq-arrow_head",
+			"title": "Arrow Head unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"arrow_head"
+			],
+			"face": "golem",
+			"expected_text": "6 Atk and Lose 2 HP. Golem 7 HP must drop by 6.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "arrow_head",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"arrow"
+				],
+				"face_hp": 1
+			}
+		},
+		{
+			"id": "uniq-danger_magnet",
+			"title": "Danger Magnet unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"danger_magnet"
+			],
+			"face": "golem",
+			"expected_text": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "danger_magnet",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"danger"
+				]
+			}
+		},
+		{
+			"id": "uniq-shuriken",
+			"title": "Shuriken unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"shuriken"
+			],
+			"face": "golem",
+			"expected_text": "2 Attack. If the Enemy lives, you Flee and Keep this. Golem 7 HP must drop by 2.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shuriken",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"shuriken"
+				],
+				"face_hp": 5
+			}
+		},
+		{
+			"id": "uniq-miasma",
+			"title": "Miasma unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"miasma"
+			],
+			"face": "golem",
+			"expected_text": "Apply Poison to all Monsters equal to the lowest HP on any Monster",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "miasma",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"miasma"
+				]
+			}
+		},
+		{
+			"id": "uniq-bag_of_marbles",
+			"title": "Bag Of Marbles unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"bag_of_marbles"
+			],
+			"face": "golem",
+			"expected_text": "Fill your inventory with Marbles",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "bag_of_marbles",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"bag"
+				]
+			}
+		},
+		{
+			"id": "uniq-hex",
+			"title": "Hex unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"hex"
+			],
+			"face": "golem",
+			"expected_text": "Unplayable. Defeats the Monster 6 Spins from now. Unplayable. Must still be in hand after Spin.",
+			"clicks": [],
+			"expected": {
+				"spent": {
+					"hex": false
+				}
+			}
+		},
+		{
+			"id": "uniq-ale_flagon",
+			"title": "Ale Flagon unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"ale_flagon"
+			],
+			"face": "golem",
+			"expected_text": "Heal 5. Gain 3 Poison. You start at 3 HP. After the click you must be at 4 or more.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "ale_flagon",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"ale"
+				],
+				"hp_min": 4
+			},
+			"hp_before": 3
+		},
+		{
+			"id": "uniq-napalm",
+			"title": "Napalm unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"items": [
+				"napalm"
+			],
+			"face": "golem",
+			"expected_text": "Set the HP of the Enemy, its Neighbors, and yourself to 1 HP Golem and you both become 1 HP.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "napalm",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"napalm"
+				],
+				"face_hp": 1,
+				"hp": 1
+			}
+		},
+		{
+			"id": "uniq-lucky_nickel",
+			"title": "Lucky Nickel unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"lucky_nickel"
+			],
+			"face": "golem",
+			"expected_text": "Block 1. If your Block is now Even, Keep this. Using it vs Golem must raise Block above 0.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "lucky_nickel",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"lucky"
+				],
+				"blk_min": 1
+			}
+		},
+		{
+			"id": "uniq-double_buckler",
+			"title": "Double-Buckler unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"double_buckler"
+			],
+			"face": "golem",
+			"expected_text": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this. Unplayable. Must still be in hand after Spin.",
+			"clicks": [],
+			"expected": {
+				"spent": {
+					"double_buckler": false
+				}
+			}
+		},
+		{
+			"id": "uniq-jar_o_grease",
+			"title": "Jar O' Grease unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"jar_o_grease"
+			],
+			"face": "golem",
+			"expected_text": "Heal 1, randomly Swap an Item, and Keep this. You start at 3 HP. After the click you must be at 4 or more.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "jar_o_grease",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"jar"
+				],
+				"hp_min": 4
+			},
+			"hp_before": 3
+		},
+		{
+			"id": "uniq-pacemaker",
+			"title": "Pacemaker unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"pacemaker"
+			],
+			"face": "golem",
+			"expected_text": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "pacemaker",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"pacemaker"
+				]
+			}
+		},
+		{
+			"id": "uniq-catapult",
+			"title": "Catapult unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"catapult"
+			],
+			"face": "golem",
+			"expected_text": "Eject your Enemy. Draw an Item.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "catapult",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"catapult"
+				]
+			}
+		},
+		{
+			"id": "uniq-polymorph",
+			"title": "Polymorph unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"items": [
+				"polymorph"
+			],
+			"face": "golem",
+			"expected_text": "Turn your opponent into an exact copy of a Neighbor of your choice.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "polymorph",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"polymorph"
+				]
+			}
+		},
+		{
+			"id": "uniq-stone_wall",
+			"title": "Stone Wall unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"stone_wall"
+			],
+			"face": "golem",
+			"expected_text": "Block 10. Retain leftover block from this combat. Using it vs Golem must raise Block above 0.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "stone_wall",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"stone"
+				],
+				"blk_min": 1
+			}
+		},
+		{
+			"id": "uniq-blood_chalice",
+			"title": "Blood Chalice unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"blood_chalice"
+			],
+			"face": "golem",
+			"expected_text": "Heal equal to the amount of HP you most recently lose. You start at 3 HP. After the click you must be at 4 or more.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "blood_chalice",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"blood"
+				],
+				"hp_min": 4
+			},
+			"hp_before": 3
+		},
+		{
+			"id": "uniq-chakram",
+			"title": "Chakram unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"chakram"
+			],
+			"face": "golem",
+			"expected_text": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "chakram",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"chakram"
+				]
+			}
+		},
+		{
+			"id": "uniq-signpost",
+			"title": "Signpost unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem",
+				"wizard"
+			],
+			"items": [
+				"signpost"
+			],
+			"face": "golem",
+			"expected_text": "Block 7, then choose a Neighbor to Attack you",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "signpost",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"signpost"
+				]
+			}
+		},
+		{
+			"id": "uniq-sling",
+			"title": "Sling unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"sling"
+			],
+			"face": "golem",
+			"expected_text": "Your next attack this fight can target Any monster.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "sling",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"sling"
+				]
+			}
+		},
+		{
+			"id": "uniq-bag_of_holding",
+			"title": "Bag of Holding unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"bag_of_holding"
+			],
+			"face": "golem",
+			"expected_text": "Bag an enemy with less HP than you.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "bag_of_holding",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"bag"
+				]
+			}
+		},
+		{
+			"id": "uniq-ball_and_chain",
+			"title": "Ball & Chain unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"ball_and_chain"
+			],
+			"face": "golem",
+			"expected_text": "2 Atk. The next time you or an Enemy would Flee, cancel it and this gains +2 Atk. Golem 7 HP must drop by 2.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "ball_and_chain",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"ball"
+				],
+				"face_hp": 5
+			}
+		},
+		{
+			"id": "uniq-recycler",
+			"title": "Recycler unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"golem"
+			],
+			"items": [
+				"recycler"
+			],
+			"face": "golem",
+			"expected_text": "Every 5th Item Discarded is copied into your Hand",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "recycler",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"recycler"
+				]
+			}
+		},
+		{
+			"id": "uniq-skeleton",
+			"title": "Skeleton unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"skeleton"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "skeleton",
+			"expected_text": "I copy the HP of the last enemy you faced. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"hp"
+				]
+			}
+		},
+		{
+			"id": "uniq-lich",
+			"title": "Lich unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"lich",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "lich",
+			"expected_text": "I give my Neighbors +1 HP. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"siphon"
+				]
+			}
+		},
+		{
+			"id": "uniq-ogre",
+			"title": "Ogre unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"ogre"
+			],
+			"items": [
+				"throwing_knife"
+			],
+			"face": "ogre",
+			"expected_text": "When you lose HP, I lose equal HP. Knife ATK 1 must make the special fire (a log line or a number change).",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "throwing_knife"
+				},
+				{
+					"op": "choose",
+					"id": "nick",
+					"atk": 1,
+					"keep": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"empath"
+				]
+			}
+		},
+		{
+			"id": "uniq-vampire",
+			"title": "Vampire unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"vampire"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "vampire",
+			"expected_text": "Every time you lose HP, I gain +1 HP and +1 ATK. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"bloodlust"
+				]
+			}
+		},
+		{
+			"id": "uniq-berserker",
+			"title": "Berserker unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"berserker"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "berserker",
+			"expected_text": "When Spun, I have a 50% chance to gain +4 Atk After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"outburst"
+				]
+			}
+		},
+		{
+			"id": "uniq-leech_league",
+			"title": "Leech League unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"leech_league"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "leech_league",
+			"expected_text": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"blood"
+				]
+			}
+		},
+		{
+			"id": "uniq-two_headed_serpent",
+			"title": "Damsel In Distress unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"two_headed_serpent",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "two_headed_serpent",
+			"expected_text": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"guarded"
+				]
+			}
+		},
+		{
+			"id": "uniq-spider_queen",
+			"title": "Spider Queen unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"spider_queen"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "spider_queen",
+			"expected_text": "Spin the Queen with no Eggs: Gain 1 Egg, then she eats it. Queen 3/3 becomes 5 HP and 5 ATK.",
+			"clicks": [],
+			"expected": {
+				"face_hp": 5,
+				"face_atk": 5,
+				"log_has": ["egg"]
+			}
+		},
+		{
+			"id": "uniq-spider_queen-other-seat",
+			"title": "Spider Queen lays an Egg while you face Golem",
+			"verbs": ["unique"],
+			"monsters": ["golem", "spider_queen"],
+			"items": ["shield"],
+			"face": "golem",
+			"expected_text": "Spin Golem while Queen sits in another seat: Gain 1 Spider Egg. Queen stays 3 ATK / 3 HP.",
+			"clicks": [],
+			"expected": {
+				"log_has": ["egg"]
+			}
+		},
+		{
+			"id": "uniq-commander",
+			"title": "Commander unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"commander",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "commander",
+			"expected_text": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"war"
+				]
+			}
+		},
+		{
+			"id": "uniq-gelatinous_cube",
+			"title": "Gelatinous Cube unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"gelatinous_cube"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "gelatinous_cube",
+			"expected_text": "I make you feed me one of two items. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"devour"
+				]
+			}
+		},
+		{
+			"id": "uniq-gargoyle",
+			"title": "Gargoyle unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"gargoyle"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "gargoyle",
+			"expected_text": "I petrify your highest Attack item until you Spin again. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"petrify"
+				]
+			}
+		},
+		{
+			"id": "uniq-harpy",
+			"title": "Harpy unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"harpy"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "harpy",
+			"expected_text": "I attack you when your Spin lands on me, and after each item you use. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"impatient"
+				]
+			}
+		},
+		{
+			"id": "uniq-kobold_trapper",
+			"title": "Kobold Trapper unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"kobold_trapper"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "kobold_trapper",
+			"expected_text": "I attack an extra time for each item you use this fight. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"trap"
+				]
+			}
+		},
+		{
+			"id": "uniq-clockwork_knight",
+			"title": "Clockwork Knight unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"clockwork_knight"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "clockwork_knight",
+			"expected_text": "If I live, I leave two Tough Monsters in my place. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"disassemble"
+				]
+			}
+		},
+		{
+			"id": "uniq-basilisk",
+			"title": "Basilisk unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"basilisk"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "basilisk",
+			"expected_text": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"petrifying"
+				]
+			}
+		},
+		{
+			"id": "uniq-hollow",
+			"title": "Twins unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"hollow"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "hollow",
+			"expected_text": "Attack or Block values that are Even happen twice against me. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"doubly"
+				]
+			}
+		},
+		{
+			"id": "uniq-beggar",
+			"title": "Beggar unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"beggar",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "beggar",
+			"expected_text": "I gain Atk equal to your leftmost Atk Item After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"leftie"
+				]
+			}
+		},
+		{
+			"id": "uniq-wick",
+			"title": "Wick unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"wick",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "wick",
+			"expected_text": "I Lose 2 HP each time a Neighbor is Defeated After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"death"
+				]
+			}
+		},
+		{
+			"id": "uniq-anvil",
+			"title": "Anvil unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"anvil"
+			],
+			"items": [
+				"throwing_knife"
+			],
+			"face": "anvil",
+			"expected_text": "I cannot lose more than 1 HP at a time. Knife throw 3 must only remove 1 HP (Anvil 3→2).",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "throwing_knife"
+				},
+				{
+					"op": "choose",
+					"id": "throw",
+					"atk": 3,
+					"keep": false
+				}
+			],
+			"expected": {
+				"face_hp": 2
+			}
+		},
+		{
+			"id": "uniq-bodyguard",
+			"title": "Bodyguard unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"bodyguard",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "bodyguard",
+			"expected_text": "When my Neighbors would take Attack Damage, I take it instead After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"protector"
+				]
+			}
+		},
+		{
+			"id": "uniq-cowardly_king",
+			"title": "Cowardly King unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"cowardly_king",
+				"wizard"
+			],
+			"items": [
+				"throwing_knife"
+			],
+			"face": "cowardly_king",
+			"expected_text": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated. Knife ATK 1 must make the special fire (a log line or a number change).",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "throwing_knife"
+				},
+				{
+					"op": "choose",
+					"id": "nick",
+					"atk": 1,
+					"keep": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"guards"
+				]
+			}
+		},
+		{
+			"id": "uniq-merchant",
+			"title": "Merchant unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"merchant"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "merchant",
+			"expected_text": "When you Spin me, choose an Item and I will upgrade it After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"fair"
+				]
+			}
+		},
+		{
+			"id": "uniq-juggernaut",
+			"title": "Juggernaut unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"juggernaut"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "juggernaut",
+			"expected_text": "When you Spin me, Gain a Shield Spin must grant a Shield.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"shield"
+				]
+			}
+		},
+		{
+			"id": "uniq-cleric",
+			"title": "Cleric unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"cleric"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "cleric",
+			"expected_text": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"health"
+				]
+			}
+		},
+		{
+			"id": "uniq-martyr",
+			"title": "Martyr unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"martyr",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "martyr",
+			"expected_text": "When I Attack, I die. My Neighbors each gain HP equal to my current HP After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"noble"
+				]
+			}
+		},
+		{
+			"id": "uniq-prism",
+			"title": "Prism unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"prism",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "prism",
+			"expected_text": "When I would take Attack damage, both of my Neighbors take it instead. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"refract"
+				]
+			}
+		},
+		{
+			"id": "uniq-plague_doctor",
+			"title": "Plague Doctor unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"plague_doctor",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "plague_doctor",
+			"expected_text": "My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"always"
+				]
+			}
+		},
+		{
+			"id": "uniq-hired_hand",
+			"title": "Hired Hand unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"hired_hand",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "hired_hand",
+			"expected_text": "If you Discard an item when facing me, I will Attack one of my Neighbors and Flee. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"bribe"
+				]
+			}
+		},
+		{
+			"id": "uniq-hydra",
+			"title": "Hydra unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"hydra"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "hydra",
+			"expected_text": "When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"even"
+				]
+			}
+		},
+		{
+			"id": "uniq-zombie",
+			"title": "Zombie unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"zombie"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "zombie",
+			"expected_text": "While facing me, you cannot Gain or Keep any Items. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"decay"
+				]
+			}
+		},
+		{
+			"id": "uniq-triclops",
+			"title": "Triclops unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"triclops"
+			],
+			"items": [
+				"throwing_knife"
+			],
+			"face": "triclops",
+			"expected_text": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee. A 1-damage nick must not fully Defeat (would Flee or drop 2 HP instead).",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "throwing_knife"
+				},
+				{
+					"op": "choose",
+					"id": "nick",
+					"atk": 1,
+					"keep": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"triclops"
+				]
+			}
+		},
+		{
+			"id": "uniq-shambling_mound",
+			"title": "Shambling Mound unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"shambling_mound"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "shambling_mound",
+			"expected_text": "I Attack repeatedly until I die. I lose 1 HP each time I Attack. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"self"
+				]
+			}
+		},
+		{
+			"id": "uniq-almighty_worm",
+			"title": "Almighty Worm unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"almighty_worm"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "almighty_worm",
+			"expected_text": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"hunger"
+				]
+			}
+		},
+		{
+			"id": "uniq-cultist",
+			"title": "Cultist unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"cultist",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "cultist",
+			"expected_text": "When you Spin me or my Neighbor, Gain 1 Blood Pact After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"blood"
+				]
+			}
+		},
+		{
+			"id": "uniq-bushido",
+			"title": "Bushido unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"bushido"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "bushido",
+			"expected_text": "When facing me, your second Item used has no effect After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"patient"
+				]
+			}
+		},
+		{
+			"id": "uniq-shark",
+			"title": "Shark unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"shark"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "shark",
+			"expected_text": "I Attack until you lose HP After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"blood"
+				]
+			}
+		},
+		{
+			"id": "uniq-death_bell",
+			"title": "Death Bell unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"death_bell"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "death_bell",
+			"expected_text": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"toll"
+				]
+			}
+		},
+		{
+			"id": "uniq-phoenix_egg",
+			"title": "Phoenix Egg unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"phoenix_egg"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "phoenix_egg",
+			"expected_text": "When I am Defeated, I Flee and hatch into a Phoenix. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"hatch"
+				]
+			}
+		},
+		{
+			"id": "uniq-amalgam",
+			"title": "Amalgam unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"amalgam"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "amalgam",
+			"expected_text": "After any Item you Use while facing me, double my remaining HP and ATK. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"adaptation"
+				]
+			}
+		},
+		{
+			"id": "uniq-fairy",
+			"title": "Fairy unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"fairy",
+				"wizard"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "fairy",
+			"expected_text": "When you Spin me, I Heal you and my Neighbors for 2 HP. Spin heals you 2. You start at 4, must become 6.",
+			"clicks": [],
+			"expected": {
+				"hp_min": 6
+			},
+			"hp_before": 4
+		},
+		{
+			"id": "uniq-eel",
+			"title": "Eel unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"eel"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "eel",
+			"expected_text": "When facing me, I take Attack damage equal to Block you gain. Gaining 4 Block while facing Eel must deal Attack to Eel.",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"eel"
+				]
+			}
+		},
+		{
+			"id": "uniq-druid",
+			"title": "Druid unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"druid"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "druid",
+			"expected_text": "After I Attack, I Heal you for double the HP I cause you to lose. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"cultivator"
+				]
+			}
+		},
+		{
+			"id": "uniq-mouse",
+			"title": "Mouse unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"mouse"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "mouse",
+			"expected_text": "When you Spin me, if you have more HP than me I lose 2 HP and Flee You have 6 HP > Mouse 4. Spin must Flee.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"flee"
+				]
+			}
+		},
+		{
+			"id": "uniq-magicat",
+			"title": "Magicat unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"magicat"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "magicat",
+			"expected_text": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"cat"
+				]
+			}
+		},
+		{
+			"id": "uniq-rust_bucket",
+			"title": "Rust Bucket unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"rust_bucket"
+			],
+			"items": [
+				"shield"
+			],
+			"face": "rust_bucket",
+			"expected_text": "When I enter the Dungeon, Gain 1 Rust After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"clicks": [],
+			"expected": {
+				"log_has": [
+					"rust"
+				]
+			}
+		},
+		{
+			"id": "uniq-poison_frog",
+			"title": "Poison Frog unique ability",
+			"verbs": [
+				"unique"
+			],
+			"monsters": [
+				"poison_frog"
+			],
+			"items": [
+				"throwing_knife"
+			],
+			"face": "poison_frog",
+			"expected_text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison Knife ATK 1 must make the special fire (a log line or a number change).",
+			"clicks": [
+				{
+					"op": "use",
+					"item": "throwing_knife"
+				},
+				{
+					"op": "choose",
+					"id": "nick",
+					"atk": 1,
+					"keep": true
+				}
+			],
+			"expected": {
+				"log_has": [
+					"toxic"
+				]
+			}
+		}
+	],
+	"sprites": {
+		"shield": "assets/dungeon/items/shield.png",
+		"helmet": "assets/dungeon/items/helmet.png",
+		"breastplate": "assets/dungeon/items/breastplate.png",
+		"medallion": "assets/dungeon/items/medallion.png",
+		"da_boot": "assets/dungeon/items/boot.png",
+		"bloody_gauntlets": "assets/dungeon/items/bloody_gauntlets.png",
+		"bracers": "assets/dungeon/items/bracers.png",
+		"left_bracer": "assets/dungeon/items/left_bracer.png",
+		"grimoire": "assets/dungeon/items/grimoire.png",
+		"pocketwatch": "assets/dungeon/items/watch.png",
+		"throwing_knife": "assets/dungeon/items/throwing_knife.png",
+		"spiked_flail": "assets/dungeon/items/spiked_flail.png",
+		"sledgehammer": "assets/dungeon/items/sledgehammer.png",
+		"double_axe": "assets/dungeon/items/double_axe.png",
+		"victory_flask": "assets/dungeon/items/victory_flask.png",
+		"grappling_hook": "assets/dungeon/items/grappling_hook.png",
+		"grief_jar": "assets/dungeon/items/grief_jar.png",
+		"longbow": "assets/dungeon/items/longbow.png",
+		"lantern": "assets/dungeon/items/lantern.png",
+		"mirror_shard": "assets/dungeon/items/mirror_shard.png",
+		"echo_bell": "assets/dungeon/items/echo_bell.png",
+		"quiet_bell": "assets/dungeon/items/quiet_bell.png",
+		"iron_chain": "assets/dungeon/items/iron_chain.png",
+		"counting_beads": "assets/dungeon/items/counting_beads.png",
+		"measuring_tape": "assets/dungeon/items/measuring_tape.png",
+		"last_match": "assets/dungeon/items/last_match.png",
+		"mute_stone": "assets/dungeon/items/mute_stone.png",
+		"sai": "assets/dungeon/items/sai.png",
+		"fangs": "assets/dungeon/items/fangs.png",
+		"knucklers": "assets/dungeon/items/knucklers.png",
+		"crossbow": "assets/dungeon/items/crossbow.png",
+		"spiked_shield": "assets/dungeon/items/spiked_shield.png",
+		"cursed_scroll": "assets/dungeon/items/cursed_scroll.png",
+		"arrow_head": "assets/dungeon/items/arrow_head.png",
+		"danger_magnet": "assets/dungeon/items/danger_magnet.png",
+		"shuriken": "assets/dungeon/items/shuriken.png",
+		"miasma": "assets/dungeon/items/miasma.png",
+		"bag_of_marbles": "assets/dungeon/items/bag_of_marbles.png",
+		"hex": "assets/dungeon/items/hex.png",
+		"ale_flagon": "assets/dungeon/items/ale_flagon.png",
+		"napalm": "assets/dungeon/items/napalm.png",
+		"lucky_nickel": "assets/dungeon/items/lucky_nickel.png",
+		"double_buckler": "assets/dungeon/items/double_buckler.png",
+		"jar_o_grease": "assets/dungeon/items/jar_o_grease.png",
+		"pacemaker": "assets/dungeon/items/pacemaker.png",
+		"catapult": "assets/dungeon/items/catapult.png",
+		"polymorph": "assets/dungeon/items/polymorph.png",
+		"stone_wall": "assets/dungeon/items/stone_wall.png",
+		"blood_chalice": "assets/dungeon/items/blood_chalice.png",
+		"chakram": "assets/dungeon/items/chakram.png",
+		"signpost": "assets/dungeon/items/signpost.png",
+		"sling": "assets/dungeon/items/sling.png",
+		"bag_of_holding": "assets/dungeon/items/bag_of_holding.png",
+		"ball_and_chain": "assets/dungeon/items/ball_and_chain.png",
+		"recycler": "assets/dungeon/items/recycler.png",
+		"smoke_bomb": "assets/dungeon/items/smoke_bomb.png",
+		"goblin": "assets/dungeon/extra/goblin.png",
+		"kobold_trapper": "assets/dungeon/extra/kobold_trapper.png",
+		"leech_league": "assets/dungeon/extra/leech_league.png",
+		"wick": "assets/dungeon/extra/wick.png",
+		"needleback": "assets/dungeon/extra/needleback.png",
+		"gelatinous_cube": "assets/dungeon/extra/gelatinous_cube.png",
+		"anvil": "assets/dungeon/extra/anvil.png",
+		"dire_wolf": "assets/dungeon/extra/dire_wolf.png",
+		"basilisk": "assets/dungeon/extra/basilisk.png",
+		"wizard": "assets/dungeon/extra/wizard.png",
+		"cleric": "assets/dungeon/extra/cleric.png",
+		"skeleton": "assets/dungeon/extra/skeleton.png",
+		"lich": "assets/dungeon/extra/lich.png",
+		"vampire": "assets/dungeon/extra/vampire.png",
+		"berserker": "assets/dungeon/extra/berserker.png",
+		"bandit": "assets/dungeon/extra/bandit.png",
+		"commander": "assets/dungeon/extra/commander.png",
+		"bodyguard": "assets/dungeon/extra/bodyguard.png",
+		"juggernaut": "assets/dungeon/extra/juggernaut.png",
+		"two_headed_serpent": "assets/dungeon/extra/damsel.png",
+		"beggar": "assets/dungeon/extra/beggar.png",
+		"cowardly_king": "assets/dungeon/extra/cowardly_king.png",
+		"merchant": "assets/dungeon/extra/merchant.png",
+		"harpy": "assets/dungeon/extra/harpy.png",
+		"gargoyle": "assets/dungeon/extra/gargoyle.png",
+		"clockwork_knight": "assets/dungeon/extra/clockwork_knight.png",
+		"golem": "assets/dungeon/extra/golem.png",
+		"ogre": "assets/dungeon/extra/ogre.png",
+		"dragon": "assets/dungeon/extra/dragon.png",
+		"slime_boss": "assets/dungeon/extra/slime_boss.png",
+		"spider_queen": "assets/dungeon/extra/spider.png",
+		"hollow": "assets/dungeon/extra/hollow.png",
+		"martyr": "assets/dungeon/extra/martyr.png",
+		"prism": "assets/dungeon/extra/prism.png",
+		"plague_doctor": "assets/dungeon/extra/plague_doctor.png",
+		"hired_hand": "assets/dungeon/extra/hired_hand.png",
+		"hydra": "assets/dungeon/extra/hydra.png",
+		"zombie": "assets/dungeon/extra/zombie.png",
+		"three_seeker": "assets/dungeon/extra/triclops.png",
+		"shambling_mound": "assets/dungeon/extra/shambling_mound.png",
+		"almighty_worm": "assets/dungeon/extra/almighty_worm.png",
+		"cultist": "assets/dungeon/extra/cultist.png",
+		"bushido": "assets/dungeon/extra/bushido.png",
+		"shark": "assets/dungeon/extra/shark.png",
+		"death_bell": "assets/dungeon/extra/death_bell.png",
+		"triclops": "assets/dungeon/extra/triclops_v2.png",
+		"phoenix_egg": "assets/dungeon/extra/phoenix_egg.png",
+		"amalgam": "assets/dungeon/extra/amalgam.png",
+		"fairy": "assets/dungeon/extra/fairy.png",
+		"eel": "assets/dungeon/extra/eel.png",
+		"druid": "assets/dungeon/extra/druid.png",
+		"mouse": "assets/dungeon/extra/mouse.png",
+		"magicat": "assets/dungeon/extra/magicat.png",
+		"rust_bucket": "assets/dungeon/extra/rust_bucket.png",
+		"poison_frog": "assets/dungeon/extra/poison_frog.png"
+	}
+}

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Dense mill</title>
+<style>
+  :root {
+    --bg: #100e0c;
+    --cream: #f3e6d0;
+    --muted: #9a8b78;
+    --gold: #c4a574;
+    --wood: #3a2a1c;
+    --ink: #1c120c;
+    --fail: #8a3030;
+    --rule: #6a2ea8;
+    --ok: #3d6b3d;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--cream); font: 17px/1.5 Georgia, "Times New Roman", serif; }
+  header {
+    position: sticky; top: 0; z-index: 8;
+    padding: 14px 20px 12px; background: #14110f; border-bottom: 2px solid var(--gold);
+  }
+  header h1 { margin: 0 0 6px; font-size: 22px; color: var(--gold); }
+  header .how { margin: 0; color: var(--muted); max-width: 760px; }
+  header .how b { color: var(--cream); }
+  .meter {
+    margin-top: 10px; padding: 10px 12px; background: #1c1612; border: 2px solid var(--gold);
+    font: 700 20px ui-sans-serif, sans-serif; color: var(--gold);
+  }
+  .meter .barwrap { height: 10px; background: #3a322b; margin-top: 8px; }
+  .meter .barfill { height: 10px; background: var(--gold); width: 0; }
+  .bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  button {
+    font: inherit; cursor: pointer; border-radius: 999px;
+    border: 2px solid var(--gold); background: var(--wood); color: var(--cream);
+    padding: 7px 14px;
+  }
+  button:hover { filter: brightness(1.12); }
+  button.gold { background: #3a2820; color: var(--gold); }
+  button.on { background: var(--gold); color: #1a1714; }
+  .save { font-size: 14px; color: #8dcb8d; }
+  .save.bad { color: #e07a7a; }
+  nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  main { max-width: 980px; margin: 0 auto; padding: 18px 18px 64px; }
+  .job {
+    background: #1c1612; border: 3px solid var(--gold); padding: 14px 16px; margin: 0 0 18px;
+  }
+  .job h2 { margin: 0 0 6px; font-size: 18px; color: var(--gold); }
+  .job p { margin: 0; color: var(--muted); }
+  .case {
+    background: #1c1612; border: 3px solid #4a3b32; padding: 16px 18px; margin: 0 0 16px;
+  }
+  .case.fail { border-color: var(--fail); }
+  .case.needs_ruling { border-color: var(--rule); }
+  .case.pass { border-color: #3d6b3d; }
+  .case.blocked { border-color: #8a5a2b; }
+  .case.side { border-color: #1a6a8c; }
+  .case h3 { margin: 0 0 4px; font-size: 20px; }
+  .tag {
+    display: inline-block; font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-right: 6px;
+  }
+  .tag.fail { color: #f0a0a0; } .tag.needs_ruling { color: #c9a0ff; }
+  .tag.pass { color: #8dcb8d; } .tag.blocked { color: #e0b07a; } .tag.side { color: #6bb3d9; }
+  .scene {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center;
+    margin: 14px 0; padding: 12px; background: #14110f; border: 2px solid #3a322b;
+  }
+  .who { display: flex; gap: 10px; align-items: center; }
+  .who.you { justify-content: flex-start; }
+  .who.them { justify-content: flex-end; }
+  img.px { width: 72px; height: 72px; object-fit: contain; image-rendering: pixelated; display: block; }
+  .missing { width: 72px; height: 72px; background: #000; border: 1px solid #3a322b; }
+  .vs { color: var(--gold); font-weight: 700; letter-spacing: .08em; text-align: center; }
+  .nm { font-weight: 700; font-size: 18px; }
+  .nums { font: 700 15px ui-sans-serif, sans-serif; color: #e8c36a; }
+  .hand { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .hand .chip { display: flex; gap: 6px; align-items: center; background: #14110f; border: 2px solid #4a3b32; padding: 4px 8px; }
+  .hand img.px { width: 40px; height: 40px; }
+  .steps { margin: 8px 0 0; padding-left: 22px; }
+  .steps li { margin: 4px 0; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  @media (max-width: 720px) { .scene, .pair { grid-template-columns: 1fr; } .who.them { justify-content: flex-start; } }
+  .box { background: #14110f; border: 2px solid #4a3b32; padding: 10px 12px; }
+  .box.say { border-color: #c4a574; }
+  .box.saw { border-color: #6bb3d9; }
+  .box.bad { border-color: #e07a7a; }
+  .box h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .kw { color: #e8c36a; font-weight: 700; }
+  .kw.atk { color: #c42c2c; } .kw.blk { color: #6bb3d9; } .kw.keep { color: #8dcb8d; }
+  .kw.defeat { color: #c89be0; } .kw.spin { color: #6ec8e8; }
+  pre.log {
+    margin: 10px 0 0; padding: 10px 12px; background: #0c0a09; border: 1px solid #3a322b;
+    font: 13px/1.4 Consolas, "Courier New", monospace; white-space: pre-wrap; color: #d9cbb8;
+  }
+  .ability { margin: 8px 0; color: #d9cbb8; }
+  .answered {
+    margin-top: 10px; padding: 10px 12px; background: #1a2a16; border: 2px solid #8dcb8d; color: #b7e0a8;
+  }
+  .ask { margin-top: 10px; padding: 10px 12px; background: #1a1220; border: 2px solid #6a2ea8; }
+  .ask label { display: block; margin: 8px 0; cursor: pointer; padding: 8px; border: 1px solid #4a3b32; background: #14110f; }
+  .ask label:hover { border-color: var(--gold); }
+  .ev { margin-top: 10px; padding: 10px 12px; background: #14110f; border: 2px solid #3a322b; color: var(--muted); }
+  .ev b { color: var(--cream); }
+  textarea.note {
+    width: 100%; min-height: 64px; margin-top: 8px; font: inherit;
+    background: #201c18; color: var(--cream); border: 1px solid #3a322b; border-radius: 6px; padding: 8px;
+  }
+  details.passlist { margin-top: 8px; color: var(--muted); }
+  details.passlist summary { cursor: pointer; color: var(--gold); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Covering pass</h1>
+  <p class="how">Fails are grouped by theme. <b>One question per theme, with a count and one example.</b> A Fail means the plates (or what actually happened) did not match the Ability. Duplicate cards under a theme are collapsed.</p>
+  <div class="meter" id="meter">Loading fight count…</div>
+  <div class="bar">
+    <nav id="nav"></nav>
+    <button class="gold" id="btnSave">Save notes</button>
+    <span class="save" id="saveMsg"></span>
+  </div>
+</header>
+<main>
+  <section class="job" id="job"></section>
+  <div id="stack"></div>
+</main>
+<script>
+const KW = [
+  ["Unplayable", "keep"], ["Neighbor", "blk"], ["Defeat", "defeat"], ["Attack", "atk"],
+  ["Block", "blk"], ["Keep", "keep"], ["Spin", "spin"], ["Always", "spin"], ["Flee", "defeat"],
+  ["Heal", "keep"],
+];
+const TABS = [
+  { id: "need", label: "Needs a look" },
+  { id: "ruled", label: "You already answered" },
+  { id: "ok", label: "Passed" },
+  { id: "park", label: "Parked / tabled" },
+];
+const CHOICE_EN = {
+  generous: "You picked the generous reading.",
+  stingy: "You picked the stingy reading.",
+  other: "You wrote your own reading.",
+};
+
+let index = { rows: [] };
+let rulings = { column_overrides: {}, notes: {}, answers: {} };
+let progress = null;
+let tab = "need";
+
+const $ = (id) => document.getElementById(id);
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+}
+function paint(text) {
+  let html = esc(text);
+  for (const [word, cls] of KW) {
+    html = html.replace(new RegExp("\\b(" + word + ")\\b", "gi"), `<span class="kw ${cls}">$1</span>`);
+  }
+  return html;
+}
+function colOf(row) {
+  return rulings.column_overrides[row.id] || row.column || row.result || "queue";
+}
+function noteOf(row) {
+  return rulings.notes[row.id] != null ? rulings.notes[row.id] : (row.note || "");
+}
+function sprite(card, size) {
+  if (card && card.sprite) {
+    return `<img class="px" src="/${esc(card.sprite)}" alt="${esc(card.name)}" style="${size ? "width:"+size+"px;height:"+size+"px" : ""}">`;
+  }
+  return `<div class="missing" title="no sprite"></div>`;
+}
+function cardBy(row, kind) {
+  return (row.cards || []).filter((c) => c.kind === kind);
+}
+function inTab(row) {
+  const col = colOf(row);
+  const ruled = row.ruling && row.ruling.id && rulings.answers[row.ruling.id];
+  if (tab === "need") return col === "fail" || (col === "needs_ruling" && !ruled);
+  if (tab === "ruled") return col === "needs_ruling" && ruled;
+  if (tab === "ok") return col === "pass";
+  if (tab === "park") return col === "blocked" || col === "side" || col === "feel" || col === "retired";
+  return true;
+}
+
+function jobCopy() {
+  if (tab === "need") {
+    return {
+      h: "Click one answer, then Save notes",
+      p: "Purple cards are two readings of the same sentence — pick which one you mean. Red cards are a Fail. For those: pick “this is a bug”, “you missed something” (type what), or “I don’t know, retest”. Then Save notes. I will not patch until that Save exists.",
+    };
+  }
+  if (tab === "ruled") {
+    return {
+      h: "Rulings you already Saved",
+      p: "I will use these when we implement. You do not have to drag them anywhere.",
+    };
+  }
+  if (tab === "ok") {
+    return {
+      h: "The special fired once. That is not a full test.",
+      p: "Open a log only if you want to check that one dummy fight. Empty hand, full hand, neighbors, Done, Undo, inspect, and collisions were not in this pass.",
+    };
+  }
+  return {
+    h: "Parked — including 29 fights that never ran",
+    p: "Blocked means I never clicked the trigger, or the dungeon reset before I could read the log. Those cards are untested. Side is art/copy for Pixel or Jam. Retired stays out.",
+  };
+}
+
+function themeBlocks(rows) {
+  const groups = {};
+  for (const row of rows) {
+    const t = row.theme || (String(row.mismatch || "").toLowerCase().includes("hand") ? "keep" : "plates");
+    if (!groups[t]) groups[t] = [];
+    groups[t].push(row);
+  }
+  const labels = {
+    plates: "A plate number did not match the Ability",
+    keep: "Keep / still-in-hand after Done",
+    harness: "The injected click never landed",
+    monster: "A monster special did something else",
+    false_flee: "Ability mentions Flee, but this monster does not Flee on Spin",
+    heal_setup: "Heal was tested without the HP-loss the formula needs",
+    adventure_surface: "Adventure / hub / cabin / map / Smoke — tabled or blocked",
+    item: "The item did not do what its Ability says",
+    keyword: "A keyword collision",
+    surface: "Undo / Smoke",
+    other: "Other",
+  };
+  return Object.keys(groups).map((t) => {
+    const list = groups[t];
+    const example = list[0];
+    const rest = list.slice(1);
+    return `<section class="job">
+      <h2>${esc(labels[t] || t)} <span class="tag fail">${list.length}</span></h2>
+      <p>${esc(example.narrative || example.expected || "")}</p>
+    </section>${caseHtml(example)}${rest.length ? `<details class="passlist"><summary>${rest.length} more in this theme</summary>${rest.map(caseHtml).join("")}</details>` : ""}`;
+  }).join("");
+}
+
+function render() {
+  const rows = (index.rows || []).filter(inTab);
+  $("nav").innerHTML = TABS.map((t) => {
+    let n = 0;
+    const hold = tab; tab = t.id;
+    n = (index.rows || []).filter(inTab).length;
+    tab = hold;
+    return `<button class="${t.id === tab ? "on" : ""}" data-tab="${t.id}">${esc(t.label)} (${n})</button>`;
+  }).join("");
+  const job = jobCopy();
+  let prog = "";
+  if (progress && progress.total) {
+    prog = ` <span class="muted">${progress.n || 0} / ${progress.total} fights${progress.busy ? " running" : " done"}.</span>`;
+  }
+  $("job").innerHTML = `<h2>${esc(job.h)}</h2><p>${esc(job.p)}${prog}</p>`;
+  if (tab === "ok") {
+    $("stack").innerHTML = `<details class="passlist"><summary>${rows.length} passed</summary>${rows.map(caseHtml).join("")}</details>`;
+  } else if (tab === "need") {
+    $("stack").innerHTML = themeBlocks(rows) || `<p class="how">Nothing in this tab.</p>`;
+  } else {
+    $("stack").innerHTML = rows.map(caseHtml).join("") || `<p class="how">Nothing in this tab.</p>`;
+  }
+  bind();
+}
+
+function caseHtml(row) {
+  const col = colOf(row);
+  const sc = row.scene || {};
+  const items = cardBy(row, "item");
+  const mons = cardBy(row, "monster");
+  const face = mons.find((m) => m.id === sc.face_id) || mons[0] || {};
+  const item0 = items[0] || {};
+  const steps = (sc.clicks || []).map((s) => `<li>You ${esc(s)}.</li>`).join("");
+  const ability = items.map((c) => `<div class="ability"><b>${esc(c.name)}</b> — ${paint(c.ability || "(no ability text)")}</div>`).join("")
+    + mons.filter((m) => (m.ability || "").trim()).map((c) => `<div class="ability"><b>${esc(c.name)}</b> — ${paint(c.ability)}</div>`).join("");
+  const sawBad = col === "fail";
+  const ruling = row.ruling && row.ruling.id ? row.ruling : null;
+  const ans = ruling ? (rulings.answers[ruling.id] || {}) : {};
+  const verd = (rulings.verdicts || {})[row.id] || {};
+  let rulingHtml = "";
+  if (ruling && ans.choice) {
+    const line = ans.choice === "generous" ? ruling.generous
+      : ans.choice === "stingy" ? ruling.stingy
+      : (ans.other || "");
+    rulingHtml = `<div class="answered"><b>${esc(CHOICE_EN[ans.choice] || ans.choice)}</b> ${esc(line)}</div>`;
+  } else if (ruling) {
+    rulingHtml = `<div class="ask">
+      <div><b>${esc(ruling.prompt)}</b></div>
+      <p style="margin:6px 0 8px;color:#9a8b78">Click one. Then click Save notes at the top.</p>
+      <label><input type="radio" name="r-${esc(ruling.id)}" value="generous"> ${esc(ruling.generous)}</label>
+      <label><input type="radio" name="r-${esc(ruling.id)}" value="stingy"> ${esc(ruling.stingy)}</label>
+      <label><input type="radio" name="r-${esc(ruling.id)}" value="other"> Other — type it in Your note below</label>
+    </div>`;
+  } else if (col === "fail") {
+    if (verd.choice) {
+      const labels = { bug: "You said this is a bug. I will patch it.", missed: "You said I missed something.", retest: "You asked me to retest." };
+      rulingHtml = `<div class="answered"><b>${esc(labels[verd.choice] || verd.choice)}</b></div>`;
+    } else {
+      rulingHtml = `<div class="ask">
+      <div><b>What should I do with this Fail?</b></div>
+      <p style="margin:6px 0 8px;color:#9a8b78">Click one. Then click Save notes at the top. Use the note box only if you picked “you missed something”.</p>
+      <label><input type="radio" name="v-${esc(row.id)}" value="bug"> This is a bug. Patch it.</label>
+      <label><input type="radio" name="v-${esc(row.id)}" value="missed"> You missed something. I typed it in Your note.</label>
+      <label><input type="radio" name="v-${esc(row.id)}" value="retest"> I cannot tell. Retest and show the hand after the click.</label>
+    </div>`;
+    }
+  }
+  const ev = row.evidence || {};
+  const evHtml = (ev.hand_before || ev.looked_at || ev.did_not) ? `<div class="ev">
+    <div><b>Hand before:</b> ${esc((ev.hand_before || []).join(", ") || "empty")} · <b>Slots:</b> ${esc(ev.slots || "?")}</div>
+    <div><b>I looked at:</b> ${esc((ev.looked_at || []).join("; ") || "the log")}</div>
+    <div><b>I did not look at:</b> ${esc((ev.did_not || []).join("; ") || "nothing extra")}</div>
+  </div>` : "";
+  const log = (row.log || "").trim();
+  return `<article class="case ${esc(col)}" data-id="${esc(row.id)}">
+    <div><span class="tag ${esc(col)}">${esc(col.replace("_", " "))}</span></div>
+    <h3>${esc(row.title)}</h3>
+    <div class="scene">
+      <div class="who you">
+        <div>
+          <div class="nm">You</div>
+          <div class="nums">HP ${esc(sc.you_hp ?? 6)}</div>
+        </div>
+      </div>
+      <div class="vs">vs</div>
+      <div class="who them">
+        ${sprite(face, 72)}
+        <div>
+          <div class="nm">${esc(sc.face_name || face.name || "—")}</div>
+          <div class="nums">${sc.face_name ? `ATK ${esc(sc.face_atk)} · HP ${esc(sc.face_hp)}` : ""}</div>
+        </div>
+      </div>
+    </div>
+    <div class="hand">${items.map((c) => `<span class="chip">${sprite(c, 40)} ${esc(c.name)}</span>`).join("") || "<span class='muted'>No items in this setup.</span>"}</div>
+    ${steps ? `<ol class="steps">${steps}</ol>` : ""}
+    ${ability}
+    <div class="pair">
+      <div class="box say"><h4>The card says</h4><div>${paint(row.expected || "")}</div></div>
+      <div class="box saw ${sawBad ? "bad" : ""}"><h4>${sawBad ? "Why I marked this fail" : "What the fight did"}</h4><div>${esc((row.mismatch || row.observed) || "(no snapshot)")}</div></div>
+    </div>
+    ${log ? `<pre class="log">${esc(log)}</pre>` : `<p style="color:#9a8b78;margin:10px 0 0">No combat log — the dungeon reset before I could copy it.</p>`}
+    ${evHtml}
+    ${rulingHtml}
+    <label style="display:block;margin-top:10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#9a8b78">Your note</label>
+    <textarea class="note" data-note="${esc(row.id)}">${esc(noteOf(row))}</textarea>
+  </article>`;
+}
+
+function bind() {
+  $("nav").querySelectorAll("button").forEach((b) => {
+    b.onclick = () => { tab = b.dataset.tab; render(); };
+  });
+  document.querySelectorAll("textarea.note").forEach((el) => {
+    el.oninput = () => { rulings.notes[el.dataset.note] = el.value; };
+  });
+  document.querySelectorAll("input[type=radio]").forEach((inp) => {
+    inp.onchange = () => {
+      const kind = inp.name.slice(0, 2);
+      const rid = inp.name.slice(2);
+      if (kind === "v-") {
+        rulings.verdicts = rulings.verdicts || {};
+        rulings.verdicts[rid] = rulings.verdicts[rid] || {};
+        rulings.verdicts[rid].choice = inp.value;
+      } else {
+        rulings.answers[rid] = rulings.answers[rid] || {};
+        rulings.answers[rid].choice = inp.value;
+      }
+    };
+  });
+  document.querySelectorAll("input[data-other]").forEach((inp) => {
+    inp.oninput = () => {
+      const rid = inp.dataset.other;
+      rulings.answers[rid] = rulings.answers[rid] || {};
+      rulings.answers[rid].choice = "other";
+      rulings.answers[rid].other = inp.value;
+    };
+  });
+}
+
+async function save() {
+  const el = $("saveMsg");
+  el.textContent = "Saving…";
+  el.classList.remove("bad");
+  const body = JSON.stringify(rulings, null, 2);
+  localStorage.setItem("logic-qa-rulings", body);
+  try {
+    const res = await fetch("rulings.json", { method: "POST", headers: { "Content-Type": "application/json" }, body });
+    if (!res.ok) throw new Error(String(res.status));
+    el.textContent = "Saved.";
+  } catch (err) {
+    el.textContent = "Could not write the file — keep this tab on the 8757 URL.";
+    el.classList.add("bad");
+  }
+}
+$("btnSave").onclick = save;
+
+function loadBoard() {
+  return Promise.all([
+    fetch("index.json?t=" + Date.now()).then((r) => r.json()),
+    fetch("rulings.json").then((r) => r.json()).catch(() => ({})),
+    fetch("covering/progress.json?t=" + Date.now()).then((r) => r.json()).catch(() => fetch("scenario/progress.json?t=" + Date.now()).then((r) => r.json()).catch(() => fetch("dense/progress.json?t=" + Date.now()).then((r) => r.json()).catch(() => null))),
+  ]).then(([idx, rul, prog]) => {
+    index = idx || { rows: [] };
+    progress = prog;
+    rulings = Object.assign({ column_overrides: {}, notes: {}, answers: {}, verdicts: {} }, rul || {});
+    try {
+      const local = JSON.parse(localStorage.getItem("logic-qa-rulings") || "null");
+      if (local && local.answers) {
+        rulings.answers = Object.assign({}, local.answers, rulings.answers);
+        rulings.notes = Object.assign({}, local.notes || {}, rulings.notes);
+      }
+    } catch (e) {}
+    paintMeter();
+    render();
+  });
+}
+function paintMeter() {
+  const el = $("meter");
+  if (!el) return;
+  if (!progress || !progress.total) {
+    el.innerHTML = "Godot is not writing a fight count yet.";
+    return;
+  }
+  const n = progress.n || 0;
+  const total = progress.total || 1;
+  const pct = Math.max(0, Math.min(100, Math.round((n / total) * 100)));
+  const counts = progress.counts || {};
+  const bits = [];
+  if (counts.pass) bits.push(counts.pass + " passed");
+  if (counts.fail) bits.push(counts.fail + " failed");
+  if (counts.blocked) bits.push(counts.blocked + " blocked");
+  if (counts.needs_ruling) bits.push(counts.needs_ruling + " need a ruling");
+  const state = progress.busy ? "running in Godot — you do not need this chat for that" : "done";
+  el.innerHTML = `${n} / ${total} fights (${state})`
+    + (bits.length ? `<div style="font-size:14px;font-weight:400;color:#9a8b78;margin-top:4px">${bits.join(" · ")}</div>` : "")
+    + `<div class="barwrap"><div class="barfill" style="width:${pct}%"></div></div>`;
+}
+
+loadBoard();
+setInterval(() => {
+  fetch("covering/progress.json?t=" + Date.now()).then((r) => r.json()).catch(() => null).then((prog) => {
+    if (prog) return prog;
+    return fetch("scenario/progress.json?t=" + Date.now()).then((r) => r.json()).catch(() => fetch("dense/progress.json?t=" + Date.now()).then((r) => r.json()).catch(() => null));
+  }).then((prog) => {
+    progress = prog;
+    paintMeter();
+  }).catch(() => {});
+}, 2000);
+</script>
+</body>
+</html>

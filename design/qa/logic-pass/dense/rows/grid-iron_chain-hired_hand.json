@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Deal Attack equal to Block you hold. Keep this item.",
+			"id": "iron_chain",
+			"kind": "item",
+			"name": "Chain",
+			"sprite": "assets/dungeon/items/iron_chain.png"
+		},
+		{
+			"ability": "If you Discard an item when facing me, I will Attack one of my Neighbors and Flee.",
+			"id": "hired_hand",
+			"kind": "monster",
+			"name": "Hired Hand",
+			"sprite": "assets/dungeon/extra/hired_hand.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chain"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chain — Deal Attack equal to Block you hold. Keep this item. Monster: Hired Hand — If you Discard an item when facing me, I will Attack one of my Neighbors and Flee. Challenge hand. Wheel hired_hand, wizard, golem. Click Chain, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-iron_chain-hired_hand",
+	"log": "Draft enter\nYou Spin\nSpin Hired Hand\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin hired hand bribe\nSpin bribe Chain\nHired Hand - Bribe\nDefeated Wizard\nFight Hired Hand Flees\nBLK 0\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "A number did not match the card: phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"note": "",
+	"observed": "A number did not match the card: phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use iron_chain",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "hired_hand",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chain vs Hired Hand",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

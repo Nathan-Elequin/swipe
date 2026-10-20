@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the Neighboring enemy's Attack on the Left.",
+			"id": "left_bracer",
+			"kind": "item",
+			"name": "Left Bracer",
+			"sprite": "assets/dungeon/items/left_bracer.png"
+		},
+		{
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+			"id": "leech_league",
+			"kind": "monster",
+			"name": "Leech League",
+			"sprite": "assets/dungeon/extra/leech_league.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Left Bracer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Left Bracer — Block equal to the Neighboring enemy's Attack on the Left. Monster: Leech League — On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. Challenge hand. Wheel leech_league, wizard, golem. Click Left Bracer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-left_bracer-leech_league",
+	"log": "Draft enter\nYou Spin\nSpin Leech League\nenemy ATK 4   HP 1\nBLK 0\nitems this combat 0\nLeech League - Blood Rise\nSpin Leech +1 HP to Leech League\nLeft Bracer\nBLK +5  to  5\nitems this combat 1\nYou Done\nFight hit 1  ATK 4 - BLK\nBLK 1\nHP take 0\nDefeated Leech League\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 5 · face Leech League ATK 4 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use left_bracer",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 2,
+		"face_id": "leech_league",
+		"face_name": "Leech League",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Left Bracer vs Leech League",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

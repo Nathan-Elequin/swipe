@@ -1,0 +1,66 @@
+{
+	"cards": [
+		{
+			"ability": "Attack equal to the Attack of the last monster you faced.",
+			"id": "grimoire",
+			"kind": "item",
+			"name": "Grimoire",
+			"sprite": "assets/dungeon/items/grimoire.png"
+		},
+		{
+			"ability": "When I enter the Dungeon, Gain 1 Rust",
+			"id": "rust_bucket",
+			"kind": "monster",
+			"name": "Rust Bucket",
+			"sprite": "assets/dungeon/extra/rust_bucket.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grimoire",
+			"Rust"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Grimoire — Attack equal to the Attack of the last monster you faced. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket. Click Grimoire, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grimoire-rust_bucket",
+	"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3\nGrimoire\nATK 3  to  Rust Bucket HP 1\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Rust Bucket ATK 3 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grimoire",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 1,
+		"face_id": "rust_bucket",
+		"face_name": "Rust Bucket",
+		"hand": [
+			"Rust"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Grimoire vs Rust Bucket",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

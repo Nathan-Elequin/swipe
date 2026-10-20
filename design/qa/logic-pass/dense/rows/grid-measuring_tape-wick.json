@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat Any Monster with exactly double your HP",
+			"id": "measuring_tape",
+			"kind": "item",
+			"name": "Scythe",
+			"sprite": "assets/dungeon/items/measuring_tape.png"
+		},
+		{
+			"ability": "I Lose 2 HP each time a Neighbor is Defeated",
+			"id": "wick",
+			"kind": "monster",
+			"name": "Wick",
+			"sprite": "assets/dungeon/extra/wick.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Scythe"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Scythe — Defeat Any Monster with exactly double your HP Monster: Wick — I Lose 2 HP each time a Neighbor is Defeated Challenge hand. Wheel wick, wizard, golem. Click Scythe, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-measuring_tape-wick",
+	"log": "Draft enter\nYou Spin\nSpin Wick\nenemy ATK 6   HP 10\nBLK 0\nitems this combat 0\nUsed cannot\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Wick ATK 6 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use measuring_tape",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 10,
+		"face_id": "wick",
+		"face_name": "Wick",
+		"hand": [
+			"Scythe"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Scythe vs Wick",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,12 @@
+[
+  {"id":"uniq-hex","result":"pass","observed":"Hex is unplayable and armed a 5-Spin countdown on Golem."},
+  {"id":"uniq-ale_flagon","result":"pass","observed":"Ale Flagon healed you to 6 and applied 3 Poison."},
+  {"id":"uniq-napalm","result":"pass","observed":"Napalm set Golem, Wizard, and you to 1 HP."},
+  {"id":"uniq-lucky_nickel","result":"pass","observed":"Lucky Nickel gained 1 Block."},
+  {"id":"uniq-double_buckler","result":"pass","observed":"Double Buckler stayed unplayable in hand after Spin."},
+  {"id":"uniq-jar_o_grease","result":"pass","observed":"Only Jar in hand, so Swap cannot. That is the card working.","note":"False fail."},
+  {"id":"uniq-pacemaker","result":"pass","observed":"Pacemaker lost 2 HP and healed 1. You ended at 5."},
+  {"id":"uniq-catapult","result":"pass","observed":"Catapult cannot vs the only remaining monster (nowhere to Eject)."},
+  {"id":"uniq-polymorph","result":"pass","observed":"Polymorph turned Golem into a copy of Wizard."},
+  {"id":"uniq-stone_wall","result":"pass","observed":"Stone Wall gained 10 Block."}
+]

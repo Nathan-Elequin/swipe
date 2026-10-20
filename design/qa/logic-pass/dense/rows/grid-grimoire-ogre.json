@@ -1,0 +1,62 @@
+{
+	"cards": [
+		{
+			"ability": "Attack equal to the Attack of the last monster you faced.",
+			"id": "grimoire",
+			"kind": "item",
+			"name": "Grimoire",
+			"sprite": "assets/dungeon/items/grimoire.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grimoire"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grimoire — Attack equal to the Attack of the last monster you faced. Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Grimoire. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grimoire-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nGrimoire\nATK 5  to  Ogre HP 5\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Ogre ATK 5 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grimoire"
+		],
+		"face_atk": 5,
+		"face_hp": 5,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Grimoire vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once.",
+			"id": "double_axe",
+			"kind": "item",
+			"name": "Great Axe",
+			"sprite": "assets/dungeon/items/double_axe.png"
+		},
+		{
+			"ability": "My Attack always equals my HP.",
+			"id": "slime_boss",
+			"kind": "monster",
+			"name": "Slime Boss",
+			"sprite": "assets/dungeon/extra/slime_boss.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Great Axe"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Great Axe — Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once. Monster: Slime Boss — My Attack always equals my HP. Challenge hand. Wheel slime_boss, wizard, golem. Click Great Axe, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_axe-slime_boss",
+	"log": "Draft enter\nYou Spin\nSpin Slime Boss\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nGreat Axe\nATK 2  to  Slime Boss HP 7\nATK 2  to  Golem HP 5\nATK 2  to  Wizard HP 0\nDefeated Wizard\nitems this combat 1\nYou Done\nFight hit 1  ATK 7 - BLK\nBLK 0\nHP take -7  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Slime Boss ATK 7 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use double_axe",
+			"done "
+		],
+		"face_atk": 7,
+		"face_hp": 7,
+		"face_id": "slime_boss",
+		"face_name": "Slime Boss",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Great Axe vs Slime Boss",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 1, plus 1 for each monster Defeated",
+			"id": "victory_flask",
+			"kind": "item",
+			"name": "Victory Flask",
+			"sprite": "assets/dungeon/items/victory_flask.png"
+		},
+		{
+			"ability": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
+			"id": "shambling_mound",
+			"kind": "monster",
+			"name": "Shambling Mound",
+			"sprite": "assets/dungeon/extra/shambling_mound.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Victory Flask"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Victory Flask — Heal 1, plus 1 for each monster Defeated Monster: Shambling Mound — I Attack repeatedly until I die. I lose 1 HP each time I Attack. Challenge hand. Wheel shambling_mound. Click Victory Flask, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-victory_flask-shambling_mound",
+	"log": "Draft enter\nYou Spin\nSpin Shambling Mound\nenemy ATK 1   HP 4\nBLK 0\nitems this combat 0\nVictory Flask\nHP heal +1  now 4\nitems this combat 1\nYou Done\nFight hit 1  ATK 1 - BLK\nBLK 0\nHP take -1  now 3\nShambling Mound - Self Deconstruct\nFight hit 2  ATK 1 - BLK\nBLK 0\nHP take -1  now 2\nShambling Mound - Self Deconstruct\nFight hit 3  ATK 1 - BLK\nBLK 0\nHP take -1  now 1\nShambling Mound - Self Deconstruct\nFight hit 4  ATK 1 - BLK\nBLK 0\nHP take -1  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Shambling Mound ATK 1 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use victory_flask",
+			"done "
+		],
+		"face_atk": 1,
+		"face_hp": 4,
+		"face_id": "shambling_mound",
+		"face_name": "Shambling Mound",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Victory Flask vs Shambling Mound",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

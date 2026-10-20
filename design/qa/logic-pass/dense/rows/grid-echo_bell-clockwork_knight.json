@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Becomes a copy of the last item you used.",
+			"id": "echo_bell",
+			"kind": "item",
+			"name": "Echo Bell",
+			"sprite": "assets/dungeon/items/echo_bell.png"
+		},
+		{
+			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"id": "clockwork_knight",
+			"kind": "monster",
+			"name": "Clockwork Knight",
+			"sprite": "assets/dungeon/extra/clockwork_knight.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Echo Bell"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Echo Bell — Becomes a copy of the last item you used. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click Echo Bell, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-echo_bell-clockwork_knight",
+	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nEcho Bell",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Clockwork Knight ATK 4 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use echo_bell",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 7,
+		"face_id": "clockwork_knight",
+		"face_name": "Clockwork Knight",
+		"hand": [
+			"Echo Bell"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Echo Bell vs Clockwork Knight",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

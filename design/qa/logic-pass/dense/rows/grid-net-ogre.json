@@ -1,0 +1,62 @@
+{
+	"cards": [
+		{
+			"ability": "Choose to reduce the facing owner's Attack by 1, 2, or 3.",
+			"id": "net",
+			"kind": "item",
+			"name": "Net",
+			"sprite": "assets/dungeon/items/net.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Net"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Net — Choose to reduce the facing owner's Attack by 1, 2, or 3. Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Net. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-net-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nUsed choose\nNet\nATK facing ATK -1  to  4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Ogre ATK 4 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use net"
+		],
+		"face_atk": 4,
+		"face_hp": 10,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Net vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat Any Monster with exactly double your HP",
+			"id": "measuring_tape",
+			"kind": "item",
+			"name": "Scythe",
+			"sprite": "assets/dungeon/items/measuring_tape.png"
+		},
+		{
+			"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
+			"id": "phoenix_egg",
+			"kind": "monster",
+			"name": "Phoenix Egg",
+			"sprite": "assets/dungeon/extra/phoenix_egg.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Scythe"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Scythe — Defeat Any Monster with exactly double your HP Monster: Phoenix Egg — When I am Defeated, I Flee and hatch into a Phoenix. Challenge hand. Wheel phoenix_egg. Click Scythe, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-measuring_tape-phoenix_egg",
+	"log": "Draft enter\nYou Spin\nSpin Phoenix Egg\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0\nUsed cannot\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nFight Phoenix Egg Flee and become Phoenix\nBLK 0\nYou Spin\nSpin Phoenix\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Phoenix Egg ATK 2 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use measuring_tape",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 2,
+		"face_id": "phoenix_egg",
+		"face_name": "Phoenix Egg",
+		"hand": [
+			"Scythe"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Scythe vs Phoenix Egg",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

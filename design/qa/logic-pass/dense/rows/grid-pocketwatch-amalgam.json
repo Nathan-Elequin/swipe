@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Select an enemy. They Attack the enemy you are facing.",
+			"id": "pocketwatch",
+			"kind": "item",
+			"name": "Pocketwatch",
+			"sprite": "assets/dungeon/items/watch.png"
+		},
+		{
+			"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
+			"id": "amalgam",
+			"kind": "monster",
+			"name": "Amalgam",
+			"sprite": "assets/dungeon/extra/amalgam.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Pocketwatch"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Pocketwatch — Select an enemy. They Attack the enemy you are facing. Monster: Amalgam — After any Item you Use while facing me, double my remaining HP and ATK. Challenge hand. Wheel amalgam. Click Pocketwatch, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pocketwatch-amalgam",
+	"log": "Draft enter\nYou Spin\nSpin Amalgam\nenemy ATK 5   HP 6\nBLK 0\nitems this combat 0\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Amalgam ATK 5 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pocketwatch",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 6,
+		"face_id": "amalgam",
+		"face_name": "Amalgam",
+		"hand": [
+			"Pocketwatch"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Pocketwatch vs Amalgam",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

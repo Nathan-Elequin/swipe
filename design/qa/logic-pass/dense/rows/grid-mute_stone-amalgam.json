@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Choose 2 Items and Swap them.",
+			"id": "mute_stone",
+			"kind": "item",
+			"name": "Chaos Stone",
+			"sprite": "assets/dungeon/items/mute_stone.png"
+		},
+		{
+			"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
+			"id": "amalgam",
+			"kind": "monster",
+			"name": "Amalgam",
+			"sprite": "assets/dungeon/extra/amalgam.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chaos Stone"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chaos Stone — Choose 2 Items and Swap them. Monster: Amalgam — After any Item you Use while facing me, double my remaining HP and ATK. Challenge hand. Wheel amalgam. Click Chaos Stone, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-mute_stone-amalgam",
+	"log": "Draft enter\nYou Spin\nSpin Amalgam\nenemy ATK 5   HP 6\nBLK 0\nitems this combat 0\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Amalgam ATK 5 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use mute_stone",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 6,
+		"face_id": "amalgam",
+		"face_name": "Amalgam",
+		"hand": [
+			"Chaos Stone"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chaos Stone vs Amalgam",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

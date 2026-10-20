@@ -1,0 +1,66 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the HP you are missing.",
+			"id": "medallion",
+			"kind": "item",
+			"name": "Medallion",
+			"sprite": "assets/dungeon/items/medallion.png"
+		},
+		{
+			"ability": "When I enter the Dungeon, Gain 1 Rust",
+			"id": "rust_bucket",
+			"kind": "monster",
+			"name": "Rust Bucket",
+			"sprite": "assets/dungeon/extra/rust_bucket.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Medallion",
+			"Rust"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Medallion — Block equal to the HP you are missing. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket. Click Medallion, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-medallion-rust_bucket",
+	"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3\nMedallion\nBLK +1  to  1\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 1 · face Rust Bucket ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use medallion",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "rust_bucket",
+		"face_name": "Rust Bucket",
+		"hand": [
+			"Rust"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Medallion vs Rust Bucket",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

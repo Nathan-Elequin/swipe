@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Attack equal to 8 minus the Items still in your hand.",
+			"id": "knucklers",
+			"kind": "item",
+			"name": "Knucklers",
+			"sprite": "assets/dungeon/items/knucklers.png"
+		},
+		{
+			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"id": "clockwork_knight",
+			"kind": "monster",
+			"name": "Clockwork Knight",
+			"sprite": "assets/dungeon/extra/clockwork_knight.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Knucklers"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Knucklers — Attack equal to 8 minus the Items still in your hand. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click Knucklers, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-knucklers-clockwork_knight",
+	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "BLOCKED: This special fires on Done, and I never clicked Done.",
+	"note": "",
+	"observed": "This special fires on Done, and I never clicked Done.",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use knucklers"
+		],
+		"face_atk": 4,
+		"face_hp": 7,
+		"face_id": "clockwork_knight",
+		"face_name": "Clockwork Knight",
+		"hand": [
+			"Knucklers"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Knucklers vs Clockwork Knight",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

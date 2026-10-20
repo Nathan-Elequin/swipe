@@ -1,0 +1,66 @@
+{
+	"cards": [
+		{
+			"ability": "If you have zero items that deal Atk damage, Defeat the enemy.",
+			"id": "last_match",
+			"kind": "item",
+			"name": "Paci-Fist",
+			"sprite": "assets/dungeon/items/last_match.png"
+		},
+		{
+			"ability": "When you Spin me, Gain a Shield",
+			"id": "juggernaut",
+			"kind": "monster",
+			"name": "Juggernaut",
+			"sprite": "assets/dungeon/extra/juggernaut.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Shield",
+			"Paci-Fist"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Paci-Fist — If you have zero items that deal Atk damage, Defeat the enemy. Monster: Juggernaut — When you Spin me, Gain a Shield Challenge hand. Wheel juggernaut. Click Paci-Fist, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-last_match-juggernaut",
+	"log": "Draft enter\nYou Spin\nSpin Juggernaut\nenemy ATK 7   HP 3\nBLK 0\nitems this combat 0\nJuggernaut - Blockhead\nDraft gain Shield",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Gain a Shield.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Gain a Shield.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use last_match"
+		],
+		"face_atk": 7,
+		"face_hp": 3,
+		"face_id": "juggernaut",
+		"face_name": "Juggernaut",
+		"hand": [
+			"Shield",
+			"Paci-Fist"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Paci-Fist vs Juggernaut",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

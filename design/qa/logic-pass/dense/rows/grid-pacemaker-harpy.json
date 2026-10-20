@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+			"id": "pacemaker",
+			"kind": "item",
+			"name": "Pacemaker",
+			"sprite": "assets/dungeon/items/pacemaker.png"
+		},
+		{
+			"ability": "I attack you when your Spin lands on me, and after each item you use.",
+			"id": "harpy",
+			"kind": "monster",
+			"name": "Harpy",
+			"sprite": "assets/dungeon/extra/harpy.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Pacemaker"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Pacemaker — When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP. Monster: Harpy — I attack you when your Spin lands on me, and after each item you use. Challenge hand. Wheel harpy. Click Pacemaker, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pacemaker-harpy",
+	"log": "Draft enter\nYou Spin\nSpin Harpy\nenemy ATK 2   HP 5\nBLK 0\nitems this combat 0\nHarpy - Impatient\nHP heal +1  now 2\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 2\nPacemaker\nHP heal +1  now 1\nHP bleed -2  now 1\nitems this combat 1\nHarpy - Impatient\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 0\nEnd dead",
+	"mismatch": "A number did not match the card: phase defeat · HP 0 · BLK 0 · face — ATK — HP —",
+	"note": "",
+	"observed": "A number did not match the card: phase defeat · HP 0 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pacemaker",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "harpy",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 0
+	},
+	"title": "Pacemaker vs Harpy",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

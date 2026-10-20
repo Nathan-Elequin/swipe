@@ -134,9 +134,16 @@ func _draw() -> void:
 	var font: Font = ThemeDB.fallback_font
 	if peek_name != "" and count > 0:
 		var who: String = peek_name
-		var wfs := 12
-		var wsz: Vector2 = font.get_string_size(who, HORIZONTAL_ALIGNMENT_CENTER, -1, wfs)
-		var wp := Vector2((card_w - wsz.x) * 0.5, 16.0)
+		var cap_h := 24.0
+		var cap := Rect2(6.0, size.y - cap_h - 4.0, card_w - 18.0, cap_h)
+		draw_rect(cap, Color("1a1410"), true)
+		draw_rect(cap, GOLD, false, 1.4)
+		var wfs := 14
+		var wsz: Vector2 = font.get_string_size(who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs)
+		while wsz.x > cap.size.x - 8.0 and wfs > 10:
+			wfs -= 1
+			wsz = font.get_string_size(who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs)
+		var wp := Vector2(cap.position.x + (cap.size.x - wsz.x) * 0.5, cap.position.y + cap.size.y - 6.0)
 		draw_string(font, wp + Vector2(1, 1), who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs, Color("100e0c"))
 		draw_string(font, wp, who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs, INK)
 	var lab := str(count)

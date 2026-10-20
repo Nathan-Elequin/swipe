@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
+			"id": "double_buckler",
+			"kind": "item",
+			"name": "Double-Buckler",
+			"sprite": "assets/dungeon/items/double_buckler.png"
+		},
+		{
+			"ability": "My Attack always equals my HP.",
+			"id": "slime_boss",
+			"kind": "monster",
+			"name": "Slime Boss",
+			"sprite": "assets/dungeon/extra/slime_boss.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Double-Buckler"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Double-Buckler — Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this. Monster: Slime Boss — My Attack always equals my HP. Challenge hand. Wheel slime_boss. Click Double-Buckler, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_buckler-slime_boss",
+	"log": "Draft enter\nYou Spin\nSpin Slime Boss\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nYou Done\nFight hit 1  ATK 9 - BLK\nBLK 0\nHP take -9  now 0\nEnd dead",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Attack equals HP.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Attack equals HP.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 9,
+		"face_hp": 9,
+		"face_id": "slime_boss",
+		"face_name": "Slime Boss",
+		"hand": [
+			"Double-Buckler"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Double-Buckler vs Slime Boss",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

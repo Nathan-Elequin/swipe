@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 10. Retain leftover block from this combat.",
+			"id": "stone_wall",
+			"kind": "item",
+			"name": "Stone Wall",
+			"sprite": "assets/dungeon/items/stone_wall.png"
+		},
+		{
+			"ability": "I petrify your highest Attack item until you Spin again.",
+			"id": "gargoyle",
+			"kind": "monster",
+			"name": "Gargoyle",
+			"sprite": "assets/dungeon/extra/gargoyle.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Stone Wall"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Stone Wall — Block 10. Retain leftover block from this combat. Monster: Gargoyle — I petrify your highest Attack item until you Spin again. Challenge hand. Wheel gargoyle. Click Stone Wall, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-stone_wall-gargoyle",
+	"log": "Draft enter\nYou Spin\nSpin Gargoyle\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nSpin petrify none\nStone Wall\nBLK +10  to  10\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 10 · face Gargoyle ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use stone_wall",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "gargoyle",
+		"face_name": "Gargoyle",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Stone Wall vs Gargoyle",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

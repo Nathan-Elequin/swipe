@@ -1,0 +1,62 @@
+{
+	"cards": [
+		{
+			"ability": "(1), (2), (3), or (4) Atk",
+			"id": "counting_beads",
+			"kind": "item",
+			"name": "Counting Beads",
+			"sprite": "assets/dungeon/items/counting_beads.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Counting Beads"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Counting Beads — (1), (2), (3), or (4) Atk Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Counting Beads. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-counting_beads-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nCounting Beads\nATK 1  to  Ogre HP 9\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Ogre ATK 5 HP 9",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use counting_beads"
+		],
+		"face_atk": 5,
+		"face_hp": 9,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Counting Beads vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once.",
+			"id": "double_axe",
+			"kind": "item",
+			"name": "Great Axe",
+			"sprite": "assets/dungeon/items/double_axe.png"
+		},
+		{
+			"ability": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item",
+			"id": "cleric",
+			"kind": "monster",
+			"name": "Cleric",
+			"sprite": "assets/dungeon/extra/cleric.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Great Axe"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Great Axe — Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once. Monster: Cleric — After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item Challenge hand. Wheel cleric, wizard, golem. Click Great Axe, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_axe-cleric",
+	"log": "Draft enter\nYou Spin\nSpin Cleric\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nGreat Axe\nATK 2  to  Cleric HP 3\nATK 2  to  Golem HP 5\nATK 2  to  Wizard HP 0\nDefeated Wizard\nitems this combat 1\nYou Done\nFight hit 1  ATK 4 - BLK\nBLK 0\nHP take -4  now 2\nDefeated Cleric\nBLK 0\ndefeated 2\nYou Spin\nSpin Golem\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Cleric ATK 4 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use double_axe",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 3,
+		"face_id": "cleric",
+		"face_name": "Cleric",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Great Axe vs Cleric",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

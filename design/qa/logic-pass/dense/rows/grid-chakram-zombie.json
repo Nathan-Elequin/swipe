@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "While facing me, you cannot Gain or Keep any Items.",
+			"id": "zombie",
+			"kind": "monster",
+			"name": "Zombie",
+			"sprite": "assets/dungeon/extra/zombie.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Zombie — While facing me, you cannot Gain or Keep any Items. Challenge hand. Wheel zombie. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-zombie",
+	"log": "Draft enter\nYou Spin\nSpin Zombie\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nChakram\nBLK +3  to  3\nATK 3  to  Zombie HP 2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Zombie ATK 4 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 2,
+		"face_id": "zombie",
+		"face_name": "Zombie",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Zombie",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

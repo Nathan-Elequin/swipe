@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"id": "lantern",
+			"kind": "item",
+			"name": "Lantern",
+			"sprite": "assets/dungeon/items/lantern.png"
+		},
+		{
+			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"id": "clockwork_knight",
+			"kind": "monster",
+			"name": "Clockwork Knight",
+			"sprite": "assets/dungeon/extra/clockwork_knight.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lantern"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lantern-clockwork_knight",
+	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nLantern\nHP heal +2  now 5\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 0 · face Clockwork Knight ATK 4 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lantern",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 7,
+		"face_id": "clockwork_knight",
+		"face_name": "Clockwork Knight",
+		"hand": [
+			"Lantern"
+		],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Lantern vs Clockwork Knight",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

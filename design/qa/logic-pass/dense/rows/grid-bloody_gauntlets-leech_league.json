@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "+1 ATK for each HP you are missing.",
+			"id": "bloody_gauntlets",
+			"kind": "item",
+			"name": "Bloody Wraps",
+			"sprite": "assets/dungeon/items/bloody_gauntlets.png"
+		},
+		{
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+			"id": "leech_league",
+			"kind": "monster",
+			"name": "Leech League",
+			"sprite": "assets/dungeon/extra/leech_league.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Bloody Wraps"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Bloody Wraps — +1 ATK for each HP you are missing. Monster: Leech League — On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. Challenge hand. Wheel leech_league. Click Bloody Wraps, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bloody_gauntlets-leech_league",
+	"log": "Draft enter\nYou Spin\nSpin Leech League\nenemy ATK 4   HP 1\nBLK 0\nitems this combat 0",
+	"mismatch": "BLOCKED: This special fires on Done, and I never clicked Done.",
+	"note": "",
+	"observed": "This special fires on Done, and I never clicked Done.",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use bloody_gauntlets"
+		],
+		"face_atk": 4,
+		"face_hp": 1,
+		"face_id": "leech_league",
+		"face_name": "Leech League",
+		"hand": [
+			"Bloody Wraps"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Bloody Wraps vs Leech League",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

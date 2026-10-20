@@ -1,0 +1,76 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
+			"id": "double_buckler",
+			"kind": "item",
+			"name": "Double-Buckler",
+			"sprite": "assets/dungeon/items/double_buckler.png"
+		},
+		{
+			"ability": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated.",
+			"id": "cowardly_king",
+			"kind": "monster",
+			"name": "Cowardly King",
+			"sprite": "assets/dungeon/extra/cowardly_king.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Double-Buckler"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Double-Buckler — Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this. Monster: Cowardly King — When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated. Challenge hand. Wheel cowardly_king, wizard, golem. Click Double-Buckler, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_buckler-cowardly_king",
+	"log": "Draft enter\nYou Spin\nSpin Cowardly King\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0\nYou Done\nDouble-Buckler\nFight hit 1  ATK 1 - BLK\nBLK 0\nHP take -1  now 5\nDefeated Cowardly King\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "Keep / unplayable card double_buckler is gone from the hand after the fight. It should still be there.",
+	"note": "",
+	"observed": "Keep / unplayable card double_buckler is gone from the hand after the fight. It should still be there.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 2,
+		"face_id": "wizard",
+		"face_name": "Wizard",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Double-Buckler vs Cowardly King",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

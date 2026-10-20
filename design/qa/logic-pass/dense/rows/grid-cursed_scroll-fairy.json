@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 6. On Spin, lose 1 HP.",
+			"id": "cursed_scroll",
+			"kind": "item",
+			"name": "Cursed Scroll",
+			"sprite": "assets/dungeon/items/cursed_scroll.png"
+		},
+		{
+			"ability": "When you Spin me, I Heal you and my Neighbors for 2 HP.",
+			"id": "fairy",
+			"kind": "monster",
+			"name": "Fairy",
+			"sprite": "assets/dungeon/extra/fairy.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Cursed Scroll"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Cursed Scroll — Heal 6. On Spin, lose 1 HP. Monster: Fairy — When you Spin me, I Heal you and my Neighbors for 2 HP. Challenge hand. Wheel fairy, wizard, golem. Click Cursed Scroll, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-cursed_scroll-fairy",
+	"log": "Draft enter\nYou Spin\nSpin Fairy\nenemy ATK 3   HP 1\nBLK 0\nitems this combat 0\nSpin Cursed Scroll\nCursed Scroll\nHP bleed -1  now 2\nFairy - Fairy Dust\nHP heal +2  now 4\nCursed Scroll\nHP heal +2  now 6\nitems this combat 1\nYou Done\nFight hit 1  ATK 3 - BLK\nBLK 0\nHP take -3  now 3\nDefeated Fairy\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Fairy ATK 3 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use cursed_scroll",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 1,
+		"face_id": "fairy",
+		"face_name": "Fairy",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Cursed Scroll vs Fairy",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

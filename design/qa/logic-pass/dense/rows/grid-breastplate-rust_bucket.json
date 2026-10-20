@@ -1,0 +1,67 @@
+{
+	"cards": [
+		{
+			"ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
+			"id": "breastplate",
+			"kind": "item",
+			"name": "Breastplate",
+			"sprite": "assets/dungeon/items/breastplate.png"
+		},
+		{
+			"ability": "When I enter the Dungeon, Gain 1 Rust",
+			"id": "rust_bucket",
+			"kind": "monster",
+			"name": "Rust Bucket",
+			"sprite": "assets/dungeon/extra/rust_bucket.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Breastplate",
+			"Rust"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Breastplate — Gain 2 Block. If you lose HP this combat, Keep this Item. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket. Click Breastplate, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-breastplate-rust_bucket",
+	"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3\nBreastplate\nBLK +2  to  2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 2 · face Rust Bucket ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use breastplate",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "rust_bucket",
+		"face_name": "Rust Bucket",
+		"hand": [
+			"Breastplate",
+			"Rust"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Breastplate vs Rust Bucket",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

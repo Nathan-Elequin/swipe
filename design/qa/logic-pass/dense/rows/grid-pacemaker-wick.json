@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+			"id": "pacemaker",
+			"kind": "item",
+			"name": "Pacemaker",
+			"sprite": "assets/dungeon/items/pacemaker.png"
+		},
+		{
+			"ability": "I Lose 2 HP each time a Neighbor is Defeated",
+			"id": "wick",
+			"kind": "monster",
+			"name": "Wick",
+			"sprite": "assets/dungeon/extra/wick.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Pacemaker"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Pacemaker — When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP. Monster: Wick — I Lose 2 HP each time a Neighbor is Defeated Challenge hand. Wheel wick, wizard, golem. Click Pacemaker, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pacemaker-wick",
+	"log": "Draft enter\nYou Spin\nSpin Wick\nenemy ATK 6   HP 10\nBLK 0\nitems this combat 0\nPacemaker\nHP heal +1  now 2\nHP bleed -2  now 2\nitems this combat 1\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 2 · BLK 0 · face Wick ATK 6 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pacemaker",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 10,
+		"face_id": "wick",
+		"face_name": "Wick",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 2
+	},
+	"title": "Pacemaker vs Wick",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

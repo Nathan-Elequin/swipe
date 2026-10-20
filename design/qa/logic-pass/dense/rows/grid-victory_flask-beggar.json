@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 1, plus 1 for each monster Defeated",
+			"id": "victory_flask",
+			"kind": "item",
+			"name": "Victory Flask",
+			"sprite": "assets/dungeon/items/victory_flask.png"
+		},
+		{
+			"ability": "I gain Atk equal to your leftmost Atk Item",
+			"id": "beggar",
+			"kind": "monster",
+			"name": "Beggar",
+			"sprite": "assets/dungeon/extra/beggar.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Victory Flask"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Victory Flask — Heal 1, plus 1 for each monster Defeated Monster: Beggar — I gain Atk equal to your leftmost Atk Item Challenge hand. Wheel beggar. Click Victory Flask, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-victory_flask-beggar",
+	"log": "Draft enter\nYou Spin\nSpin Beggar\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nVictory Flask\nHP heal +1  now 4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Beggar ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use victory_flask",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "beggar",
+		"face_name": "Beggar",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Victory Flask vs Beggar",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

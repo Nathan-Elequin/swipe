@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
+			"id": "longbow",
+			"kind": "item",
+			"name": "Longbow",
+			"sprite": "assets/dungeon/items/longbow.png"
+		},
+		{
+			"ability": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3.",
+			"id": "almighty_worm",
+			"kind": "monster",
+			"name": "Almighty Worm",
+			"sprite": "assets/dungeon/extra/almighty_worm.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Longbow"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Longbow — Deal 4 Attack to the monster across from you (only works if even # of monsters remaining) Monster: Almighty Worm — When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3. Challenge hand. Wheel almighty_worm, wizard, golem. Click Longbow, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-longbow-almighty_worm",
+	"log": "Draft enter\nYou Spin\nSpin Almighty Worm\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nSpin almighty worm hunger\nSpin worm ate Longbow\nSpin worm hunger done",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Almighty Worm ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use longbow",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "almighty_worm",
+		"face_name": "Almighty Worm",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Longbow vs Almighty Worm",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

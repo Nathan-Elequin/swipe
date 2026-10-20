@@ -1,0 +1,5 @@
+[
+  {"id":"uniq-magicat","result":"pass","observed":"Cat's Eye turned items into a 4 Marble on Spin."},
+  {"id":"uniq-rust_bucket","result":"pass","observed":"You gained Rust when Rust Bucket entered the dungeon."},
+  {"id":"uniq-poison_frog","result":"pass","observed":"Toxic Skin applied 2 Poison on Spin, then 4 more when Knife hit. Frog 4→3 HP."}
+]

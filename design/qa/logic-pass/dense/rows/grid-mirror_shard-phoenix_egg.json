@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to the last Block you gained.",
+			"id": "mirror_shard",
+			"kind": "item",
+			"name": "Mirror Shard",
+			"sprite": "assets/dungeon/items/mirror_shard.png"
+		},
+		{
+			"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
+			"id": "phoenix_egg",
+			"kind": "monster",
+			"name": "Phoenix Egg",
+			"sprite": "assets/dungeon/extra/phoenix_egg.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Mirror Shard"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Mirror Shard — Gain Block equal to the last Block you gained. Monster: Phoenix Egg — When I am Defeated, I Flee and hatch into a Phoenix. Challenge hand. Wheel phoenix_egg. Click Mirror Shard, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-mirror_shard-phoenix_egg",
+	"log": "Draft enter\nYou Spin\nSpin Phoenix Egg\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0\nMirror Shard\nUsed cannot\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nFight Phoenix Egg Flee and become Phoenix\nBLK 0\nYou Spin\nSpin Phoenix\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Phoenix Egg ATK 2 HP 2",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Phoenix Egg ATK 2 HP 2",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use mirror_shard",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 2,
+		"face_id": "phoenix_egg",
+		"face_name": "Phoenix Egg",
+		"hand": [
+			"Mirror Shard"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Mirror Shard vs Phoenix Egg",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

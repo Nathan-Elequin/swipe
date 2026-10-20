@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once.",
+			"id": "double_axe",
+			"kind": "item",
+			"name": "Great Axe",
+			"sprite": "assets/dungeon/items/double_axe.png"
+		},
+		{
+			"ability": "I give my Neighbors +1 HP.",
+			"id": "lich",
+			"kind": "monster",
+			"name": "Lich",
+			"sprite": "assets/dungeon/extra/lich.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Great Axe"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Great Axe — Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once. Monster: Lich — I give my Neighbors +1 HP. Challenge hand. Wheel lich, wizard, golem. Click Great Axe, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_axe-lich",
+	"log": "Draft enter\nYou Spin\nSpin Lich\nenemy ATK 3   HP 1\nBLK 0\nitems this combat 0\nGreat Axe\nATK 2  to  Lich HP 0\nATK 2  to  Golem HP 6\nATK 2  to  Wizard HP 1\nitems this combat 1\nDefeated Lich\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0\nDefeated Wizard",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Golem ATK 3 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use double_axe",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 5,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Great Axe vs Lich",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

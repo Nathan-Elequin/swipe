@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Flips 2 ↔ 4 after any Item is used.",
+			"id": "sai",
+			"kind": "item",
+			"name": "Sai",
+			"sprite": "assets/dungeon/items/sai.png"
+		},
+		{
+			"ability": "I attack an extra time for each item you use this fight.",
+			"id": "kobold_trapper",
+			"kind": "monster",
+			"name": "Kobold Trapper",
+			"sprite": "assets/dungeon/extra/kobold_trapper.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Sai"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Sai — Flips 2 ↔ 4 after any Item is used. Monster: Kobold Trapper — I attack an extra time for each item you use this fight. Challenge hand. Wheel kobold_trapper. Click Sai, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-sai-kobold_trapper",
+	"log": "Draft enter\nYou Spin\nSpin Kobold Trapper\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0\nSai\nATK 2  to  Kobold Trapper HP 4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Kobold Trapper ATK 2 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use sai",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 4,
+		"face_id": "kobold_trapper",
+		"face_name": "Kobold Trapper",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Sai vs Kobold Trapper",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

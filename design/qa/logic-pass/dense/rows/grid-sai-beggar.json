@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Flips 2 ↔ 4 after any Item is used.",
+			"id": "sai",
+			"kind": "item",
+			"name": "Sai",
+			"sprite": "assets/dungeon/items/sai.png"
+		},
+		{
+			"ability": "I gain Atk equal to your leftmost Atk Item",
+			"id": "beggar",
+			"kind": "monster",
+			"name": "Beggar",
+			"sprite": "assets/dungeon/extra/beggar.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Sai"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Sai — Flips 2 ↔ 4 after any Item is used. Monster: Beggar — I gain Atk equal to your leftmost Atk Item Challenge hand. Wheel beggar. Click Sai, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-sai-beggar",
+	"log": "Draft enter\nYou Spin\nSpin Beggar\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nSai\nATK 2  to  Beggar HP 2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Beggar ATK 3 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use sai",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 2,
+		"face_id": "beggar",
+		"face_name": "Beggar",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Sai vs Beggar",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

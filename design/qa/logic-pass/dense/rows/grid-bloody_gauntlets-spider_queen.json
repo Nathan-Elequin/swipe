@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "+1 ATK for each HP you are missing.",
+			"id": "bloody_gauntlets",
+			"kind": "item",
+			"name": "Bloody Wraps",
+			"sprite": "assets/dungeon/items/bloody_gauntlets.png"
+		},
+		{
+			"ability": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
+			"id": "spider_queen",
+			"kind": "monster",
+			"name": "Spider Queen",
+			"sprite": "assets/dungeon/extra/spider.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Bloody Wraps"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Bloody Wraps — +1 ATK for each HP you are missing. Monster: Spider Queen — Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each. Challenge hand. Wheel spider_queen. Click Bloody Wraps, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bloody_gauntlets-spider_queen",
+	"log": "Draft enter\nYou Spin\nSpin Spider Queen\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nSpider Queen - Egg Layer\nDraft gain Spider Egg\nGone Spider Egg\nSpider Queen - Egg Layer\nQueen +2 HP +2 ATK\nBloody Wraps\nATK 1  to  Spider Queen HP 4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Spider Queen ATK 5 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use bloody_gauntlets",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 4,
+		"face_id": "spider_queen",
+		"face_name": "Spider Queen",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Bloody Wraps vs Spider Queen",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

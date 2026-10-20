@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Select an enemy. They Attack the enemy you are facing.",
+			"id": "pocketwatch",
+			"kind": "item",
+			"name": "Pocketwatch",
+			"sprite": "assets/dungeon/items/watch.png"
+		},
+		{
+			"ability": "My Attack ignores Block.",
+			"id": "dragon",
+			"kind": "monster",
+			"name": "Dragon",
+			"sprite": "assets/dungeon/extra/dragon.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Pocketwatch"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Pocketwatch — Select an enemy. They Attack the enemy you are facing. Monster: Dragon — My Attack ignores Block. Challenge hand. Wheel dragon. Click Pocketwatch, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pocketwatch-dragon",
+	"log": "Draft enter\nYou Spin\nSpin Dragon\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0\nUsed cannot\nYou Done\nFight hit 1  ATK 6  (ignores BLK)\nDragon - Firebreather\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Dragon ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pocketwatch",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "dragon",
+		"face_name": "Dragon",
+		"hand": [
+			"Pocketwatch"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Pocketwatch vs Dragon",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

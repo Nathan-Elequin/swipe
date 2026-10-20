@@ -79,4 +79,4 @@ If any of those is missing, I do not understand the idea well enough to build it
 
 ## After answers
 
-Implement the reading Nathan chose. Do not reopen flavor. Do not add screens. Player-facing sentences come from the board Save / dictation — do not synonym-rewrite Jam copy. Put the behavior next to the other item and monster ops. Then say: where it is, what the rule does, what to click in Play.
+Implement the whole remaining reading Nathan chose, in this chat. Do not reopen flavor. Do not open a second question round. New collisions found while coding are clustered and written down; they do not stop the build. Do not add screens. Player-facing sentences come from the board Save / dictation — do not synonym-rewrite Jam copy. Put the behavior next to the other item and monster ops. Then say: where it is, what the rule does, what to click in Play.

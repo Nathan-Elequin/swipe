@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Flips 2 ↔ 4 after any Item is used.",
+			"id": "sai",
+			"kind": "item",
+			"name": "Sai",
+			"sprite": "assets/dungeon/items/sai.png"
+		},
+		{
+			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"id": "clockwork_knight",
+			"kind": "monster",
+			"name": "Clockwork Knight",
+			"sprite": "assets/dungeon/extra/clockwork_knight.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Sai"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Sai — Flips 2 ↔ 4 after any Item is used. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click Sai, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-sai-clockwork_knight",
+	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nSai\nATK 2  to  Clockwork Knight HP 5\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Clockwork Knight ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use sai",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "clockwork_knight",
+		"face_name": "Clockwork Knight",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Sai vs Clockwork Knight",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

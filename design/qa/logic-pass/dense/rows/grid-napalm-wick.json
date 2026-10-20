@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Set the HP of the Enemy, its Neighbors, and yourself to 1 HP",
+			"id": "napalm",
+			"kind": "item",
+			"name": "Napalm",
+			"sprite": "assets/dungeon/items/napalm.png"
+		},
+		{
+			"ability": "I Lose 2 HP each time a Neighbor is Defeated",
+			"id": "wick",
+			"kind": "monster",
+			"name": "Wick",
+			"sprite": "assets/dungeon/extra/wick.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Napalm"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Napalm — Set the HP of the Enemy, its Neighbors, and yourself to 1 HP Monster: Wick — I Lose 2 HP each time a Neighbor is Defeated Challenge hand. Wheel wick, wizard, golem. Click Napalm, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-napalm-wick",
+	"log": "Draft enter\nYou Spin\nSpin Wick\nenemy ATK 6   HP 10\nBLK 0\nitems this combat 0\nNapalm\nHP Wick  now 1\nWick - Death Toll\nHP Wizard  now 1\nWizard - Wizard\nHP Golem  now 1\nGolem - Golem\nHP bleed -5  now 1\nitems this combat 1\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 1 · BLK 0 · face Wick ATK 6 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use napalm",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 1,
+		"face_id": "wick",
+		"face_name": "Wick",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 1
+	},
+	"title": "Napalm vs Wick",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

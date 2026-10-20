@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with less HP than you.",
+			"id": "da_boot",
+			"kind": "item",
+			"name": "The Boot",
+			"sprite": "assets/dungeon/items/boot.png"
+		},
+		{
+			"ability": "I cannot take Attack damage.",
+			"id": "goblin",
+			"kind": "monster",
+			"name": "Goblin",
+			"sprite": "assets/dungeon/extra/goblin.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"The Boot"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: The Boot — Defeat an enemy with less HP than you. Monster: Goblin — I cannot take Attack damage. Challenge hand. Wheel goblin. Click The Boot, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-da_boot-goblin",
+	"log": "Draft enter\nYou Spin\nSpin Goblin\nenemy ATK 3   HP 1\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Goblin ATK 3 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use da_boot"
+		],
+		"face_atk": 3,
+		"face_hp": 1,
+		"face_id": "goblin",
+		"face_name": "Goblin",
+		"hand": [
+			"The Boot"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "The Boot vs Goblin",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

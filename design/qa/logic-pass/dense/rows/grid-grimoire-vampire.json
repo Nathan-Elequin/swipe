@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Attack equal to the Attack of the last monster you faced.",
+			"id": "grimoire",
+			"kind": "item",
+			"name": "Grimoire",
+			"sprite": "assets/dungeon/items/grimoire.png"
+		},
+		{
+			"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+			"id": "vampire",
+			"kind": "monster",
+			"name": "Vampire",
+			"sprite": "assets/dungeon/extra/vampire.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grimoire"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grimoire — Attack equal to the Attack of the last monster you faced. Monster: Vampire — Every time you lose HP, I gain +1 HP and +1 ATK. Challenge hand. Wheel vampire. Click Grimoire. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grimoire-vampire",
+	"log": "Draft enter\nYou Spin\nSpin Vampire\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: +1 HP and +1 ATK each time you lose HP.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: +1 HP and +1 ATK each time you lose HP.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grimoire"
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "vampire",
+		"face_name": "Vampire",
+		"hand": [
+			"Grimoire"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Grimoire vs Vampire",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

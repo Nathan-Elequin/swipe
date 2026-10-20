@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Defeats the Monster 6 Spins from now.",
+			"id": "hex",
+			"kind": "item",
+			"name": "Hex",
+			"sprite": "assets/dungeon/items/hex.png"
+		},
+		{
+			"ability": "I cannot lose more than 1 HP at a time.",
+			"id": "anvil",
+			"kind": "monster",
+			"name": "Anvil",
+			"sprite": "assets/dungeon/extra/anvil.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Hex"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Hex — Unplayable. Defeats the Monster 6 Spins from now. Monster: Anvil — I cannot lose more than 1 HP at a time. Challenge hand. Wheel anvil. Click Hex, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-hex-anvil",
+	"log": "Draft enter\nYou Spin\nSpin Anvil\nenemy ATK 4   HP 3\nBLK 0\nitems this combat 0\nHex\nHex 5",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Max 1 HP per source.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Max 1 HP per source.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 3,
+		"face_id": "anvil",
+		"face_name": "Anvil",
+		"hand": [
+			"Hex"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Hex vs Anvil",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Atk 3, or Atk 1 and Keep this item",
+			"id": "throwing_knife",
+			"kind": "item",
+			"name": "Throwing Knife",
+			"sprite": "assets/dungeon/items/throwing_knife.png"
+		},
+		{
+			"ability": "I Attack you for 2 Damage each time I take ATK Damage.",
+			"id": "needleback",
+			"kind": "monster",
+			"name": "Needleback",
+			"sprite": "assets/dungeon/extra/needleback.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Throwing Knife"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Throwing Knife — Atk 3, or Atk 1 and Keep this item Monster: Needleback — I Attack you for 2 Damage each time I take ATK Damage. Challenge hand. Wheel needleback. Click Throwing Knife, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-throwing_knife-needleback",
+	"log": "Draft enter\nYou Spin\nSpin Needleback\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0\nUsed choose\nThrowing Knife\nNeedleback - Spiky\nHP poke -2  now 4\nUsed Throwing Knife\nATK 3  to  Needleback HP 2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Needleback ATK 3 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use throwing_knife",
+			"choose throw",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 2,
+		"face_id": "needleback",
+		"face_name": "Needleback",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Throwing Knife vs Needleback",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

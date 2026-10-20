@@ -1,0 +1,80 @@
+{
+	"cards": [
+		{
+			"ability": "Apply Poison to all Monsters equal to the lowest HP on any Monster",
+			"id": "miasma",
+			"kind": "item",
+			"name": "Miasma",
+			"sprite": "assets/dungeon/items/miasma.png"
+		},
+		{
+			"ability": "When I enter the Dungeon, Gain 1 Rust",
+			"id": "rust_bucket",
+			"kind": "monster",
+			"name": "Rust Bucket",
+			"sprite": "assets/dungeon/extra/rust_bucket.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Miasma",
+			"Rust"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Miasma — Apply Poison to all Monsters equal to the lowest HP on any Monster Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket, wizard, golem. Click Miasma, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-miasma-rust_bucket",
+	"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3\nMiasma\nFight poison 2 all\nitems this combat 1\nSpin poison  to  2 HP\nYou Done\nFight hit 1  ATK 3  (ignores BLK)\nRust Bucket - Rust\nHP take -3  now 3\nDefeated Rust Bucket\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0\nSpin poison  to  0 HP\nDefeated Wizard\nBLK 0\ndefeated 2\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nSpin poison  to  5 HP\nRust\nRust 2",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Rust Bucket ATK 3 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use miasma",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 2,
+		"face_id": "rust_bucket",
+		"face_name": "Rust Bucket",
+		"hand": [
+			"Rust"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Miasma vs Rust Bucket",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the Neighboring enemy's Attack on the Left.",
+			"id": "left_bracer",
+			"kind": "item",
+			"name": "Left Bracer",
+			"sprite": "assets/dungeon/items/left_bracer.png"
+		},
+		{
+			"ability": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
+			"id": "magicat",
+			"kind": "monster",
+			"name": "Magicat",
+			"sprite": "assets/dungeon/extra/magicat.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Marble"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Left Bracer — Block equal to the Neighboring enemy's Attack on the Left. Monster: Magicat — When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value Challenge hand. Wheel magicat, wizard, golem. Click Left Bracer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-left_bracer-magicat",
+	"log": "Draft enter\nYou Spin\nSpin Magicat\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nMagicat - Cat's Eye\nSpin Cat's Eye  to  5 Marble\nYou Done\nFight hit 1  ATK 3 - BLK\nBLK 0\nHP take -3  now 3\nDefeated Magicat\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Magicat ATK 3 HP 3",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Magicat ATK 3 HP 3",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use left_bracer",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 3,
+		"face_id": "magicat",
+		"face_name": "Magicat",
+		"hand": [
+			"Marble"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Left Bracer vs Magicat",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

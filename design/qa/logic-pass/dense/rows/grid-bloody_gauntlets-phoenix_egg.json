@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "+1 ATK for each HP you are missing.",
+			"id": "bloody_gauntlets",
+			"kind": "item",
+			"name": "Bloody Wraps",
+			"sprite": "assets/dungeon/items/bloody_gauntlets.png"
+		},
+		{
+			"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
+			"id": "phoenix_egg",
+			"kind": "monster",
+			"name": "Phoenix Egg",
+			"sprite": "assets/dungeon/extra/phoenix_egg.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Bloody Wraps"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Bloody Wraps — +1 ATK for each HP you are missing. Monster: Phoenix Egg — When I am Defeated, I Flee and hatch into a Phoenix. Challenge hand. Wheel phoenix_egg. Click Bloody Wraps, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bloody_gauntlets-phoenix_egg",
+	"log": "Draft enter\nYou Spin\nSpin Phoenix Egg\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0\nBloody Wraps\nATK 1  to  Phoenix Egg HP 1\nitems this combat 1\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nFight Phoenix Egg Flee and become Phoenix\nBLK 0\nYou Spin\nSpin Phoenix\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Phoenix Egg ATK 2 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use bloody_gauntlets",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 1,
+		"face_id": "phoenix_egg",
+		"face_name": "Phoenix Egg",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Bloody Wraps vs Phoenix Egg",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

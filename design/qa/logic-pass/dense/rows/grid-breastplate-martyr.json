@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
+			"id": "breastplate",
+			"kind": "item",
+			"name": "Breastplate",
+			"sprite": "assets/dungeon/items/breastplate.png"
+		},
+		{
+			"ability": "When I Attack, I die. My Neighbors each gain HP equal to my current HP",
+			"id": "martyr",
+			"kind": "monster",
+			"name": "Martyr",
+			"sprite": "assets/dungeon/extra/martyr.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Breastplate"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Breastplate — Gain 2 Block. If you lose HP this combat, Keep this Item. Monster: Martyr — When I Attack, I die. My Neighbors each gain HP equal to my current HP Challenge hand. Wheel martyr, wizard, golem. Click Breastplate, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-breastplate-martyr",
+	"log": "Draft enter\nYou Spin\nSpin Martyr\nenemy ATK 0   HP 7\nBLK 0\nitems this combat 0\nBreastplate\nBLK +2  to  2\nitems this combat 1\nYou Done\nFight hit 1  ATK 0 - BLK\nBLK 2\nHP take 0\nDefeated Martyr\nGone Breastplate\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 2 · face Martyr ATK 0 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use breastplate",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 7,
+		"face_id": "martyr",
+		"face_name": "Martyr",
+		"hand": [
+			"Breastplate"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Breastplate vs Martyr",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

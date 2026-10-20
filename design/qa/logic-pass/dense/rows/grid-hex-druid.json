@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Defeats the Monster 6 Spins from now.",
+			"id": "hex",
+			"kind": "item",
+			"name": "Hex",
+			"sprite": "assets/dungeon/items/hex.png"
+		},
+		{
+			"ability": "After I Attack, I Heal you for double the HP I cause you to lose.",
+			"id": "druid",
+			"kind": "monster",
+			"name": "Druid",
+			"sprite": "assets/dungeon/extra/druid.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Hex"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Hex — Unplayable. Defeats the Monster 6 Spins from now. Monster: Druid — After I Attack, I Heal you for double the HP I cause you to lose. Challenge hand. Wheel druid. Click Hex, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-hex-druid",
+	"log": "Draft enter\nYou Spin\nSpin Druid\nenemy ATK 7   HP 4\nBLK 0\nitems this combat 0\nHex\nHex 5\nYou Done\nFight hit 1  ATK 7 - BLK\nBLK 0\nHP take -7  now 0\nEnd dead",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Attack: Heal you 2× HP lost, after death check.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Attack: Heal you 2× HP lost, after death check.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 7,
+		"face_hp": 4,
+		"face_id": "druid",
+		"face_name": "Druid",
+		"hand": [
+			"Hex"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Hex vs Druid",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

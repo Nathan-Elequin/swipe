@@ -1,0 +1,75 @@
+{
+	"cards": [
+		{
+			"ability": "Fill your inventory with Marbles",
+			"id": "bag_of_marbles",
+			"kind": "item",
+			"name": "Bag Of Marbles",
+			"sprite": "assets/dungeon/items/bag_of_marbles.png"
+		},
+		{
+			"ability": "When I enter the Dungeon, Gain 1 Rust",
+			"id": "rust_bucket",
+			"kind": "monster",
+			"name": "Rust Bucket",
+			"sprite": "assets/dungeon/extra/rust_bucket.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Bag Of Marbles",
+			"Rust"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Bag Of Marbles — Fill your inventory with Marbles Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket. Click Bag Of Marbles, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bag_of_marbles-rust_bucket",
+	"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3\nBag Of Marbles\nitems this combat 1\nDraft gain 9 Marbles",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Rust Bucket ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use bag_of_marbles",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "rust_bucket",
+		"face_name": "Rust Bucket",
+		"hand": [
+			"Marble",
+			"Marble",
+			"Marble",
+			"Marble",
+			"Marble",
+			"Marble",
+			"Marble",
+			"Marble",
+			"Marble",
+			"Rust"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Bag Of Marbles vs Rust Bucket",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

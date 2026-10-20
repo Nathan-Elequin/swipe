@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "2 Attack. If the Enemy lives, you Flee and Keep this.",
+			"id": "shuriken",
+			"kind": "item",
+			"name": "Shuriken",
+			"sprite": "assets/dungeon/items/shuriken.png"
+		},
+		{
+			"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
+			"id": "phoenix_egg",
+			"kind": "monster",
+			"name": "Phoenix Egg",
+			"sprite": "assets/dungeon/extra/phoenix_egg.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Shuriken"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Shuriken — 2 Attack. If the Enemy lives, you Flee and Keep this. Monster: Phoenix Egg — When I am Defeated, I Flee and hatch into a Phoenix. Challenge hand. Wheel phoenix_egg. Click Shuriken, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-shuriken-phoenix_egg",
+	"log": "Draft enter\nYou Spin\nSpin Phoenix Egg\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0\nShuriken\nATK 2  to  Phoenix Egg HP 0\nitems this combat 1\nFight Phoenix Egg Flee and become Phoenix\nBLK 0\nYou Spin\nSpin Phoenix\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use shuriken",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "phoenix_egg",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Shuriken vs Phoenix Egg",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

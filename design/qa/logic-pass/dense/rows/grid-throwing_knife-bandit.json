@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Atk 3, or Atk 1 and Keep this item",
+			"id": "throwing_knife",
+			"kind": "item",
+			"name": "Throwing Knife",
+			"sprite": "assets/dungeon/items/throwing_knife.png"
+		},
+		{
+			"ability": "+1 Atk for each Item you hold.",
+			"id": "bandit",
+			"kind": "monster",
+			"name": "Bandit",
+			"sprite": "assets/dungeon/extra/bandit.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Throwing Knife"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Throwing Knife — Atk 3, or Atk 1 and Keep this item Monster: Bandit — +1 Atk for each Item you hold. Challenge hand. Wheel bandit. Click Throwing Knife, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-throwing_knife-bandit",
+	"log": "Draft enter\nYou Spin\nSpin Bandit\nenemy ATK 1   HP 3\nBLK 0\nitems this combat 0\nUsed choose",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Bandit ATK 1 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use throwing_knife",
+			"choose throw"
+		],
+		"face_atk": 1,
+		"face_hp": 3,
+		"face_id": "bandit",
+		"face_name": "Bandit",
+		"hand": [
+			"Throwing Knife"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Throwing Knife vs Bandit",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,7 +1,7 @@
 class_name BucketRules
 extends RefCounted
 
-const MAX_BUCKET := 8
+const MAX_BUCKET := 9
 const TOKEN := "Token"
 const TOKEN_COLOR := Color("6e675c")
 const ALWAYS_STARTER_ITEMS: PackedStringArray = ["smoke_bomb"]

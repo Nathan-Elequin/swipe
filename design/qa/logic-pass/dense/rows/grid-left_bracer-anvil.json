@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the Neighboring enemy's Attack on the Left.",
+			"id": "left_bracer",
+			"kind": "item",
+			"name": "Left Bracer",
+			"sprite": "assets/dungeon/items/left_bracer.png"
+		},
+		{
+			"ability": "I cannot lose more than 1 HP at a time.",
+			"id": "anvil",
+			"kind": "monster",
+			"name": "Anvil",
+			"sprite": "assets/dungeon/extra/anvil.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Left Bracer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Left Bracer — Block equal to the Neighboring enemy's Attack on the Left. Monster: Anvil — I cannot lose more than 1 HP at a time. Challenge hand. Wheel anvil, wizard, golem. Click Left Bracer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-left_bracer-anvil",
+	"log": "Draft enter\nYou Spin\nSpin Anvil\nenemy ATK 4   HP 3\nBLK 0\nitems this combat 0\nLeft Bracer\nBLK +5  to  5\nitems this combat 1\nYou Done\nFight hit 1  ATK 4 - BLK\nBLK 1\nHP take 0\nDefeated Anvil\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 5 · face Anvil ATK 4 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use left_bracer",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 3,
+		"face_id": "anvil",
+		"face_name": "Anvil",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Left Bracer vs Anvil",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

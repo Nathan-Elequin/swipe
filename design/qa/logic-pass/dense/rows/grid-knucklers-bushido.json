@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Attack equal to 8 minus the Items still in your hand.",
+			"id": "knucklers",
+			"kind": "item",
+			"name": "Knucklers",
+			"sprite": "assets/dungeon/items/knucklers.png"
+		},
+		{
+			"ability": "When facing me, your second Item used has no effect",
+			"id": "bushido",
+			"kind": "monster",
+			"name": "Bushido",
+			"sprite": "assets/dungeon/extra/bushido.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Knucklers"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Knucklers — Attack equal to 8 minus the Items still in your hand. Monster: Bushido — When facing me, your second Item used has no effect Challenge hand. Wheel bushido. Click Knucklers, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-knucklers-bushido",
+	"log": "Draft enter\nYou Spin\nSpin Bushido\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: When facing me, your second Item used has no effect.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: When facing me, your second Item used has no effect.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use knucklers"
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "bushido",
+		"face_name": "Bushido",
+		"hand": [
+			"Knucklers"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Knucklers vs Bushido",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

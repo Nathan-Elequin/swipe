@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Defeats the Monster 6 Spins from now.",
+			"id": "hex",
+			"kind": "item",
+			"name": "Hex",
+			"sprite": "assets/dungeon/items/hex.png"
+		},
+		{
+			"ability": "I attack an extra time for each item you use this fight.",
+			"id": "kobold_trapper",
+			"kind": "monster",
+			"name": "Kobold Trapper",
+			"sprite": "assets/dungeon/extra/kobold_trapper.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Hex"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Hex — Unplayable. Defeats the Monster 6 Spins from now. Monster: Kobold Trapper — I attack an extra time for each item you use this fight. Challenge hand. Wheel kobold_trapper. Click Hex, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-hex-kobold_trapper",
+	"log": "Draft enter\nYou Spin\nSpin Kobold Trapper\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0\nHex\nHex 5",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: (1 + items used).",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: (1 + items used).",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 6,
+		"face_id": "kobold_trapper",
+		"face_name": "Kobold Trapper",
+		"hand": [
+			"Hex"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Hex vs Kobold Trapper",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

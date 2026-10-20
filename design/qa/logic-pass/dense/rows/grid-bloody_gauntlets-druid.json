@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "+1 ATK for each HP you are missing.",
+			"id": "bloody_gauntlets",
+			"kind": "item",
+			"name": "Bloody Wraps",
+			"sprite": "assets/dungeon/items/bloody_gauntlets.png"
+		},
+		{
+			"ability": "After I Attack, I Heal you for double the HP I cause you to lose.",
+			"id": "druid",
+			"kind": "monster",
+			"name": "Druid",
+			"sprite": "assets/dungeon/extra/druid.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Bloody Wraps"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Bloody Wraps — +1 ATK for each HP you are missing. Monster: Druid — After I Attack, I Heal you for double the HP I cause you to lose. Challenge hand. Wheel druid. Click Bloody Wraps, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bloody_gauntlets-druid",
+	"log": "Draft enter\nYou Spin\nSpin Druid\nenemy ATK 7   HP 4\nBLK 0\nitems this combat 0\nBloody Wraps\nATK 1  to  Druid HP 3\nitems this combat 1\nYou Done\nFight hit 1  ATK 7 - BLK\nBLK 0\nHP take -7  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Druid ATK 7 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use bloody_gauntlets",
+			"done "
+		],
+		"face_atk": 7,
+		"face_hp": 3,
+		"face_id": "druid",
+		"face_name": "Druid",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Bloody Wraps vs Druid",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

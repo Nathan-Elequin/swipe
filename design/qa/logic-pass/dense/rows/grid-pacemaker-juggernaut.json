@@ -1,0 +1,66 @@
+{
+	"cards": [
+		{
+			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+			"id": "pacemaker",
+			"kind": "item",
+			"name": "Pacemaker",
+			"sprite": "assets/dungeon/items/pacemaker.png"
+		},
+		{
+			"ability": "When you Spin me, Gain a Shield",
+			"id": "juggernaut",
+			"kind": "monster",
+			"name": "Juggernaut",
+			"sprite": "assets/dungeon/extra/juggernaut.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Shield",
+			"Pacemaker"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Pacemaker — When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP. Monster: Juggernaut — When you Spin me, Gain a Shield Challenge hand. Wheel juggernaut. Click Pacemaker, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pacemaker-juggernaut",
+	"log": "Draft enter\nYou Spin\nSpin Juggernaut\nenemy ATK 7   HP 3\nBLK 0\nitems this combat 0\nJuggernaut - Blockhead\nDraft gain Shield\nPacemaker\nHP heal +1  now 2\nHP bleed -2  now 2\nitems this combat 1\nYou Done\nFight hit 1  ATK 7 - BLK\nBLK 0\nHP take -7  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 2 · BLK 0 · face Juggernaut ATK 7 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pacemaker",
+			"done "
+		],
+		"face_atk": 7,
+		"face_hp": 3,
+		"face_id": "juggernaut",
+		"face_name": "Juggernaut",
+		"hand": [
+			"Shield"
+		],
+		"kind": "fight",
+		"you_hp": 2
+	},
+	"title": "Pacemaker vs Juggernaut",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

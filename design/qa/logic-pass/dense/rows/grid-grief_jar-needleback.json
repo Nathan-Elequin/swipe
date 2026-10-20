@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
+			"id": "grief_jar",
+			"kind": "item",
+			"name": "Grief Jar",
+			"sprite": "assets/dungeon/items/grief_jar.png"
+		},
+		{
+			"ability": "I Attack you for 2 Damage each time I take ATK Damage.",
+			"id": "needleback",
+			"kind": "monster",
+			"name": "Needleback",
+			"sprite": "assets/dungeon/extra/needleback.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grief Jar"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grief Jar — Each time you Spin, Lose 1 HP and this item gains +2 Block Monster: Needleback — I Attack you for 2 Damage each time I take ATK Damage. Challenge hand. Wheel needleback. Click Grief Jar, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grief_jar-needleback",
+	"log": "Draft enter\nYou Spin\nSpin Needleback\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0\nGrief Jar BLK 2\nGrief Jar\nHP bleed -1  now 5\nGrief Jar\nBLK +2  to  2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 2 · face Needleback ATK 3 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grief_jar",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 5,
+		"face_id": "needleback",
+		"face_name": "Needleback",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Grief Jar vs Needleback",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the lower HP between you and the Enemy.",
+			"id": "helmet",
+			"kind": "item",
+			"name": "Helmet",
+			"sprite": "assets/dungeon/items/helmet.png"
+		},
+		{
+			"ability": "While facing me, you cannot Gain or Keep any Items.",
+			"id": "zombie",
+			"kind": "monster",
+			"name": "Zombie",
+			"sprite": "assets/dungeon/extra/zombie.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Helmet"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Helmet — Block equal to the lower HP between you and the Enemy. Monster: Zombie — While facing me, you cannot Gain or Keep any Items. Challenge hand. Wheel zombie. Click Helmet, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-helmet-zombie",
+	"log": "Draft enter\nYou Spin\nSpin Zombie\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nHelmet\nBLK +5  to  5\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 5 · face Zombie ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use helmet",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "zombie",
+		"face_name": "Zombie",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Helmet vs Zombie",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with less HP than you.",
+			"id": "da_boot",
+			"kind": "item",
+			"name": "The Boot",
+			"sprite": "assets/dungeon/items/boot.png"
+		},
+		{
+			"ability": "When I would take Attack damage, both of my Neighbors take it instead.",
+			"id": "prism",
+			"kind": "monster",
+			"name": "Prism",
+			"sprite": "assets/dungeon/extra/prism.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"The Boot"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: The Boot — Defeat an enemy with less HP than you. Monster: Prism — When I would take Attack damage, both of my Neighbors take it instead. Challenge hand. Wheel prism, wizard, golem. Click The Boot, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-da_boot-prism",
+	"log": "Draft enter\nYou Spin\nSpin Prism\nenemy ATK 8   HP 6\nBLK 0\nitems this combat 0\nThe Boot\nUsed cannot\nYou Done\nFight hit 1  ATK 8 - BLK\nBLK 0\nHP take -8  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Prism ATK 8 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use da_boot",
+			"done "
+		],
+		"face_atk": 8,
+		"face_hp": 6,
+		"face_id": "prism",
+		"face_name": "Prism",
+		"hand": [
+			"The Boot"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "The Boot vs Prism",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

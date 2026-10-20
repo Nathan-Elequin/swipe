@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Choose 2 Items and Swap them.",
+			"id": "mute_stone",
+			"kind": "item",
+			"name": "Chaos Stone",
+			"sprite": "assets/dungeon/items/mute_stone.png"
+		},
+		{
+			"ability": "I attack you when your Spin lands on me, and after each item you use.",
+			"id": "harpy",
+			"kind": "monster",
+			"name": "Harpy",
+			"sprite": "assets/dungeon/extra/harpy.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chaos Stone"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chaos Stone — Choose 2 Items and Swap them. Monster: Harpy — I attack you when your Spin lands on me, and after each item you use. Challenge hand. Wheel harpy. Click Chaos Stone, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-mute_stone-harpy",
+	"log": "Draft enter\nYou Spin\nSpin Harpy\nenemy ATK 2   HP 5\nBLK 0\nitems this combat 0\nHarpy - Impatient\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Harpy ATK 2 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use mute_stone",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 5,
+		"face_id": "harpy",
+		"face_name": "Harpy",
+		"hand": [
+			"Chaos Stone"
+		],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Chaos Stone vs Harpy",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

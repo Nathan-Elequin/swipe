@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "I cannot take Attack damage.",
+			"id": "goblin",
+			"kind": "monster",
+			"name": "Goblin",
+			"sprite": "assets/dungeon/extra/goblin.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Goblin — I cannot take Attack damage. Challenge hand. Wheel goblin. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-goblin",
+	"log": "Draft enter\nYou Spin\nSpin Goblin\nenemy ATK 3   HP 1\nBLK 0\nitems this combat 0\nChakram\nBLK +3  to  3\nno ATK dmg\nGoblin - Evasive\nATK 0  to  Goblin immune\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Goblin ATK 3 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 1,
+		"face_id": "goblin",
+		"face_name": "Goblin",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Goblin",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

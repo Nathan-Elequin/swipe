@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 4 Attack to a Neighboring enemy.",
+			"id": "crossbow",
+			"kind": "item",
+			"name": "Crossbow",
+			"sprite": "assets/dungeon/items/crossbow.png"
+		},
+		{
+			"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
+			"id": "poison_frog",
+			"kind": "monster",
+			"name": "Poison Frog",
+			"sprite": "assets/dungeon/extra/poison_frog.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Crossbow"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Crossbow — Deal 4 Attack to a Neighboring enemy. Monster: Poison Frog — When you Spin me and when I take Atk damage from any source, you Gain 2 Poison Challenge hand. Wheel poison_frog, wizard, golem. Click Crossbow, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-crossbow-poison_frog",
+	"log": "Draft enter\nYou Spin\nSpin Poison Frog\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nPoison Frog - Toxic Skin\nUsed poison 2\nUsed pick a neighbor\nCrossbow\nUsed crossbow Wizard\nATK 4  to  Wizard HP 0\nitems this combat 1\nDefeated Wizard\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nDefeated Poison Frog\nBLK 0\ndefeated 2\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nHP poison -2  now 2",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Poison Frog ATK 2 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use crossbow",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 4,
+		"face_id": "poison_frog",
+		"face_name": "Poison Frog",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Crossbow vs Poison Frog",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

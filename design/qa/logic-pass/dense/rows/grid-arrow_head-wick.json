@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "6 Atk and Lose 2 HP.",
+			"id": "arrow_head",
+			"kind": "item",
+			"name": "Arrow Head",
+			"sprite": "assets/dungeon/items/arrow_head.png"
+		},
+		{
+			"ability": "I Lose 2 HP each time a Neighbor is Defeated",
+			"id": "wick",
+			"kind": "monster",
+			"name": "Wick",
+			"sprite": "assets/dungeon/extra/wick.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Arrow Head"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Arrow Head — 6 Atk and Lose 2 HP. Monster: Wick — I Lose 2 HP each time a Neighbor is Defeated Challenge hand. Wheel wick, wizard, golem. Click Arrow Head, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-arrow_head-wick",
+	"log": "Draft enter\nYou Spin\nSpin Wick\nenemy ATK 6   HP 10\nBLK 0\nitems this combat 0\nArrow Head\nATK 6  to  Wick HP 4\nHP bleed -2  now 4\nitems this combat 1\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Wick ATK 6 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use arrow_head",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 4,
+		"face_id": "wick",
+		"face_name": "Wick",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Arrow Head vs Wick",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

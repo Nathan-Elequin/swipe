@@ -1,0 +1,81 @@
+{
+  "column_overrides": {},
+  "notes": {
+    "last-match-solo-wizard": "Shouldn't it say 'Paci-Fist' instead of match?",
+    "ball-and-chain-2": "Shouldn't it be 'Ball & Chain'?",
+    "grimoire-no-last-monster": "Grimoire may start with 3, but let's nerf it and return it to its original text (it should be unplayable in the first combat)",
+    "dragon-ignores-block": "It should name the dragon's abiolity 'Firebreather'",
+    "hollow-even-doubles": "Shouldn't it be named 'Doubly Troubled' or reference 'Twins'?",
+    "two-head-neighbors-hit": "This monster is now named Damsel, fix the id/labeling"
+  },
+  "answers": {
+    "sai-carry": {
+      "choice": "generous"
+    },
+    "hornet-block": {
+      "choice": "generous"
+    },
+    "boot-equal-hp": {
+      "choice": "stingy"
+    },
+    "potion-heal-3-or-4": {
+      "choice": "stingy"
+    },
+    "queen-egg-when-facing": {
+      "choice": "generous"
+    }
+  },
+  "verdicts": {
+    "knife-throw-wizard": {
+      "choice": "bug"
+    },
+    "knife-keep-wizard": {
+      "choice": "bug"
+    },
+    "boot-defeats-wizard": {
+      "choice": "bug"
+    },
+    "sledge-defeats-dragon": {
+      "choice": "bug"
+    },
+    "last-match-solo-wizard": {
+      "choice": "missed"
+    },
+    "ball-and-chain-2": {
+      "choice": "missed"
+    },
+    "medallion-full-hp": {
+      "choice": "bug"
+    },
+    "grimoire-no-last-monster": {
+      "choice": "missed"
+    },
+    "eel-takes-block-as-atk": {
+      "choice": "bug"
+    },
+    "dragon-ignores-block": {
+      "choice": "missed"
+    },
+    "fangs-you-can-die": {
+      "choice": "bug"
+    },
+    "chain-after-shield": {
+      "choice": "bug"
+    },
+    "hollow-even-doubles": {
+      "choice": "missed"
+    },
+    "two-head-neighbors-hit": {
+      "choice": "missed"
+    },
+    "knucklers-one-in-hand": {
+      "choice": "bug"
+    },
+    "bloody-gauntlets-missing-hp": {
+      "choice": "bug"
+    },
+    "keep-knife-until-done": {
+      "choice": "bug"
+    }
+  }
+}

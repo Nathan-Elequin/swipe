@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Attack equal to the Attack of the last monster you faced.",
+			"id": "grimoire",
+			"kind": "item",
+			"name": "Grimoire",
+			"sprite": "assets/dungeon/items/grimoire.png"
+		},
+		{
+			"ability": "When my Neighbors would take Attack Damage, I take it instead",
+			"id": "bodyguard",
+			"kind": "monster",
+			"name": "Bodyguard",
+			"sprite": "assets/dungeon/extra/bodyguard.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grimoire"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grimoire — Attack equal to the Attack of the last monster you faced. Monster: Bodyguard — When my Neighbors would take Attack Damage, I take it instead Challenge hand. Wheel bodyguard, wizard, golem. Click Grimoire, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grimoire-bodyguard",
+	"log": "Draft enter\nYou Spin\nSpin Bodyguard\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nGrimoire\nATK 3  to  Bodyguard HP 0\nitems this combat 1\nDefeated Bodyguard\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nYou Done\nFight hit 1  ATK 3 - BLK\nBLK 0\nHP take -3  now 3\nDefeated Golem\nBLK 0\ndefeated 2\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Golem ATK 3 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grimoire",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 7,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Grimoire vs Bodyguard",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

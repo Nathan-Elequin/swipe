@@ -1,0 +1,61 @@
+{
+	"cards": [
+		{
+			"ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
+			"id": "fangs",
+			"kind": "item",
+			"name": "Fangs",
+			"sprite": "assets/dungeon/items/fangs.png"
+		},
+		{
+			"ability": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item",
+			"id": "cleric",
+			"kind": "monster",
+			"name": "Cleric",
+			"sprite": "assets/dungeon/extra/cleric.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "0 / 50"
+	},
+	"expected": "Item: Fangs — Let the Enemy Attack, then Defeat them and Heal equal to their current HP. Monster: Cleric — After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item Challenge hand. Wheel cleric. Click Fangs, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-fangs-cleric",
+	"log": "Draft enter\nYou Spin\nSpin Cleric\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nCleric - Health Insurance\nHP heal +3  now 6\nSpin Health Insurance Heal 3  to  6\nSpin Cleric took worst item",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Cleric ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use fangs",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "cleric",
+		"face_name": "Cleric",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Fangs vs Cleric",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

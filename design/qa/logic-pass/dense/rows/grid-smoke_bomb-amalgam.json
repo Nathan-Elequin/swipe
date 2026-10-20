@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Spin again and gain a Random Item.",
+			"id": "smoke_bomb",
+			"kind": "item",
+			"name": "Smoke Bomb",
+			"sprite": "assets/dungeon/items/smoke_bomb.png"
+		},
+		{
+			"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
+			"id": "amalgam",
+			"kind": "monster",
+			"name": "Amalgam",
+			"sprite": "assets/dungeon/extra/amalgam.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Smoke Bomb"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Smoke Bomb — Spin again and gain a Random Item. Monster: Amalgam — After any Item you Use while facing me, double my remaining HP and ATK. Challenge hand. Wheel amalgam. Click Smoke Bomb, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-smoke_bomb-amalgam",
+	"log": "Draft enter\nYou Spin\nSpin Amalgam\nenemy ATK 5   HP 6\nBLK 0\nitems this combat 0\nSmoke Bomb\nitems this combat 1\nFight Amalgam doubles  to  12/12  ATK 10\nDraft gain Lantern\nUsed Smoke Bomb\nYou Spin\nSpin Amalgam\nenemy ATK 10   HP 12\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use smoke_bomb",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "amalgam",
+		"face_name": "",
+		"hand": [
+			"Lantern"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Smoke Bomb vs Amalgam",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

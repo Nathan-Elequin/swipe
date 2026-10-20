@@ -1,0 +1,49 @@
+{
+	"cards": [
+		{
+			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"id": "lucky_nickel",
+			"kind": "item",
+			"name": "Lucky Nickel",
+			"sprite": "assets/dungeon/items/lucky_nickel.png"
+		},
+		{
+			"ability": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
+			"id": "basilisk",
+			"kind": "monster",
+			"name": "Basilisk",
+			"sprite": "assets/dungeon/extra/basilisk.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lucky Nickel"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Basilisk — The first time you Spin me, I Flee and Petrify every other Item for 3 Spins. Challenge hand. Wheel basilisk. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lucky_nickel-basilisk",
+	"log": "Draft enter\nYou Spin\nSpin Basilisk\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin Petrifying Gaze  0 items\nFight Basilisk Flees\nBLK 0",
+	"note": "",
+	"observed": "spin did not reach fighting (phase=ready)",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"title": "Lucky Nickel vs Basilisk",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

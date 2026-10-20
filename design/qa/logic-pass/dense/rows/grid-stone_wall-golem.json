@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 10. Retain leftover block from this combat.",
+			"id": "stone_wall",
+			"kind": "item",
+			"name": "Stone Wall",
+			"sprite": "assets/dungeon/items/stone_wall.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Stone Wall"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Stone Wall — Block 10. Retain leftover block from this combat. Monster: Golem — (printed ATK/HP only) Challenge hand. Wheel golem. Click Stone Wall, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-stone_wall-golem",
+	"log": "Draft enter\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nStone Wall\nBLK +10  to  10\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 10 · face Golem ATK 3 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use stone_wall",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 7,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Stone Wall vs Golem",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

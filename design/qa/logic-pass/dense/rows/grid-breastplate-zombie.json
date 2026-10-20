@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
+			"id": "breastplate",
+			"kind": "item",
+			"name": "Breastplate",
+			"sprite": "assets/dungeon/items/breastplate.png"
+		},
+		{
+			"ability": "While facing me, you cannot Gain or Keep any Items.",
+			"id": "zombie",
+			"kind": "monster",
+			"name": "Zombie",
+			"sprite": "assets/dungeon/extra/zombie.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Breastplate"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Breastplate — Gain 2 Block. If you lose HP this combat, Keep this Item. Monster: Zombie — While facing me, you cannot Gain or Keep any Items. Challenge hand. Wheel zombie. Click Breastplate, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-breastplate-zombie",
+	"log": "Draft enter\nYou Spin\nSpin Zombie\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nBreastplate\nBLK +2  to  2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 2 · face Zombie ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use breastplate",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "zombie",
+		"face_name": "Zombie",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Breastplate vs Zombie",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

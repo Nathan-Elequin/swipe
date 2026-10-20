@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Select an enemy. They Attack the enemy you are facing.",
+			"id": "pocketwatch",
+			"kind": "item",
+			"name": "Pocketwatch",
+			"sprite": "assets/dungeon/items/watch.png"
+		},
+		{
+			"ability": "I Attack you for 2 Damage each time I take ATK Damage.",
+			"id": "needleback",
+			"kind": "monster",
+			"name": "Needleback",
+			"sprite": "assets/dungeon/extra/needleback.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Pocketwatch"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Pocketwatch — Select an enemy. They Attack the enemy you are facing. Monster: Needleback — I Attack you for 2 Damage each time I take ATK Damage. Challenge hand. Wheel needleback. Click Pocketwatch, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pocketwatch-needleback",
+	"log": "Draft enter\nYou Spin\nSpin Needleback\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Needleback ATK 3 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pocketwatch",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 5,
+		"face_id": "needleback",
+		"face_name": "Needleback",
+		"hand": [
+			"Pocketwatch"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Pocketwatch vs Needleback",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

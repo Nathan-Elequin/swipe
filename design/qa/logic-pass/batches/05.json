@@ -1,0 +1,12 @@
+[
+  {"id":"uniq-blood_chalice","result":"pass","observed":"No HP lost yet, so Chalice cannot. That is the card working.","note":"False fail."},
+  {"id":"uniq-chakram","result":"pass","observed":"No other Block or Attack items, so Chakram gained 3 Block and dealt 3 Attack."},
+  {"id":"uniq-signpost","result":"pass","observed":"Signpost gained 7 Block, then Wizard attacked into it. You took 0."},
+  {"id":"uniq-sling","result":"pass","observed":"No Attack item in hand, so Sling cannot. That is the card working.","note":"False fail."},
+  {"id":"uniq-bag_of_holding","result":"pass","observed":"Golem 7 HP is not less than your 6, so Bag cannot."},
+  {"id":"uniq-ball_and_chain","result":"pass","observed":"Ball & Chain dealt 2. Golem 7→5."},
+  {"id":"uniq-recycler","result":"blocked","observed":"Passive: copies every 5th discarded item. This fight never discarded 5 items, so it could not fire."},
+  {"id":"uniq-skeleton","result":"pass","observed":"First fight, no prior enemy. Skeleton stayed at printed 3 HP."},
+  {"id":"uniq-lich","result":"blocked","observed":"I did not snapshot the neighbor's HP, so I cannot prove Siphon +1."},
+  {"id":"uniq-ogre","result":"blocked","observed":"Knife hit the Ogre. Empath needs YOU to lose HP. Wrong trigger."}
+]

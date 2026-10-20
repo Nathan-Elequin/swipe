@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"id": "lucky_nickel",
+			"kind": "item",
+			"name": "Lucky Nickel",
+			"sprite": "assets/dungeon/items/lucky_nickel.png"
+		},
+		{
+			"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
+			"id": "amalgam",
+			"kind": "monster",
+			"name": "Amalgam",
+			"sprite": "assets/dungeon/extra/amalgam.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lucky Nickel"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Amalgam — After any Item you Use while facing me, double my remaining HP and ATK. Challenge hand. Wheel amalgam. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lucky_nickel-amalgam",
+	"log": "Draft enter\nYou Spin\nSpin Amalgam\nenemy ATK 5   HP 6\nBLK 0\nitems this combat 0\nLucky Nickel\nBLK +1  to  1\nitems this combat 1\nFight Amalgam doubles  to  12/12  ATK 10\nYou Done\nFight hit 1  ATK 10 - BLK\nBLK 0\nHP take -9  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 1 · face Amalgam ATK 10 HP 12",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lucky_nickel",
+			"done "
+		],
+		"face_atk": 10,
+		"face_hp": 12,
+		"face_id": "amalgam",
+		"face_name": "Amalgam",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Lucky Nickel vs Amalgam",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

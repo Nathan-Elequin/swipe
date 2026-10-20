@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Eject your Enemy. Draw an Item.",
+			"id": "catapult",
+			"kind": "item",
+			"name": "Catapult",
+			"sprite": "assets/dungeon/items/catapult.png"
+		},
+		{
+			"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
+			"id": "amalgam",
+			"kind": "monster",
+			"name": "Amalgam",
+			"sprite": "assets/dungeon/extra/amalgam.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Catapult"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Catapult — Eject your Enemy. Draw an Item. Monster: Amalgam — After any Item you Use while facing me, double my remaining HP and ATK. Challenge hand. Wheel amalgam. Click Catapult, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-catapult-amalgam",
+	"log": "Draft enter\nYou Spin\nSpin Amalgam\nenemy ATK 5   HP 6\nBLK 0\nitems this combat 0\nCatapult\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Amalgam ATK 5 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use catapult",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 6,
+		"face_id": "amalgam",
+		"face_name": "Amalgam",
+		"hand": [
+			"Catapult"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Catapult vs Amalgam",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

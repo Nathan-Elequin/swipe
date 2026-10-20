@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with less HP than you.",
+			"id": "da_boot",
+			"kind": "item",
+			"name": "The Boot",
+			"sprite": "assets/dungeon/items/boot.png"
+		},
+		{
+			"ability": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
+			"id": "magicat",
+			"kind": "monster",
+			"name": "Magicat",
+			"sprite": "assets/dungeon/extra/magicat.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"The Boot"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: The Boot — Defeat an enemy with less HP than you. Monster: Magicat — When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value Challenge hand. Wheel magicat. Click The Boot, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-da_boot-magicat",
+	"log": "Draft enter\nYou Spin\nSpin Magicat\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nMagicat - Cat's Eye",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: On Spin: 2 Atk or Blk Items become Marbles with that number.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: On Spin: 2 Atk or Blk Items become Marbles with that number.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use da_boot"
+		],
+		"face_atk": 3,
+		"face_hp": 3,
+		"face_id": "magicat",
+		"face_name": "Magicat",
+		"hand": [
+			"The Boot"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "The Boot vs Magicat",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

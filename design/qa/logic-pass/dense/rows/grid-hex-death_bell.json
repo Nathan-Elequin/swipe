@@ -1,0 +1,66 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Defeats the Monster 6 Spins from now.",
+			"id": "hex",
+			"kind": "item",
+			"name": "Hex",
+			"sprite": "assets/dungeon/items/hex.png"
+		},
+		{
+			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
+			"id": "death_bell",
+			"kind": "monster",
+			"name": "Death Bell",
+			"sprite": "assets/dungeon/extra/death_bell.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Hex",
+			"Toll"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Hex — Unplayable. Defeats the Monster 6 Spins from now. Monster: Death Bell — When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item. Challenge hand. Wheel death_bell. Click Hex, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-hex-death_bell",
+	"log": "Draft gain Toll\nDraft enter\nYou Spin\nSpin Death Bell\nenemy ATK 8   HP 12\nBLK 0\nitems this combat 0\nSpin Death Bell -2 HP\nHex\nHex 5\nYou Done\nFight hit 1  ATK 8 - BLK\nBLK 0\nHP take -8  now 0\nEnd dead",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item..",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item..",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 8,
+		"face_hp": 10,
+		"face_id": "death_bell",
+		"face_name": "Death Bell",
+		"hand": [
+			"Hex",
+			"Toll"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Hex vs Death Bell",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

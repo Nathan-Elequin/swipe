@@ -1,0 +1,49 @@
+{
+	"cards": [
+		{
+			"ability": "Becomes a copy of the last item you used.",
+			"id": "echo_bell",
+			"kind": "item",
+			"name": "Echo Bell",
+			"sprite": "assets/dungeon/items/echo_bell.png"
+		},
+		{
+			"ability": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
+			"id": "mouse",
+			"kind": "monster",
+			"name": "Mouse",
+			"sprite": "assets/dungeon/extra/mouse.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Echo Bell"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Echo Bell — Becomes a copy of the last item you used. Monster: Mouse — When you Spin me, if you have more HP than me I lose 2 HP and Flee Challenge hand. Wheel mouse. Click Echo Bell, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-echo_bell-mouse",
+	"log": "Draft enter\nYou Spin\nSpin Mouse\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nMouse - Scurry\nSpin Scurry -2 HP\nBLK 0",
+	"note": "",
+	"observed": "spin did not reach fighting (phase=ready)",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"title": "Echo Bell vs Mouse",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

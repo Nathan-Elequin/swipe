@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "I petrify your highest Attack item until you Spin again.",
+			"id": "gargoyle",
+			"kind": "monster",
+			"name": "Gargoyle",
+			"sprite": "assets/dungeon/extra/gargoyle.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Gargoyle — I petrify your highest Attack item until you Spin again. Challenge hand. Wheel gargoyle. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-gargoyle",
+	"log": "Draft enter\nYou Spin\nSpin Gargoyle\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nSpin petrify none\nChakram\nBLK +3  to  3\nATK 3  to  Gargoyle HP 2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Gargoyle ATK 4 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 2,
+		"face_id": "gargoyle",
+		"face_name": "Gargoyle",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Gargoyle",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

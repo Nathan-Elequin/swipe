@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal equal to the amount of HP you most recently lose.",
+			"id": "blood_chalice",
+			"kind": "item",
+			"name": "Blood Chalice",
+			"sprite": "assets/dungeon/items/blood_chalice.png"
+		},
+		{
+			"ability": "My Attack always equals my HP.",
+			"id": "slime_boss",
+			"kind": "monster",
+			"name": "Slime Boss",
+			"sprite": "assets/dungeon/extra/slime_boss.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Blood Chalice"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Blood Chalice — Heal equal to the amount of HP you most recently lose. Monster: Slime Boss — My Attack always equals my HP. Challenge hand. Wheel slime_boss. Click Blood Chalice, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-blood_chalice-slime_boss",
+	"log": "Draft enter\nYou Spin\nSpin Slime Boss\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nBlood Chalice\nUsed cannot\nYou Done\nFight hit 1  ATK 9 - BLK\nBLK 0\nHP take -9  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 3 · BLK 0 · face Slime Boss ATK 9 HP 9",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use blood_chalice",
+			"done "
+		],
+		"face_atk": 9,
+		"face_hp": 9,
+		"face_id": "slime_boss",
+		"face_name": "Slime Boss",
+		"hand": [
+			"Blood Chalice"
+		],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Blood Chalice vs Slime Boss",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

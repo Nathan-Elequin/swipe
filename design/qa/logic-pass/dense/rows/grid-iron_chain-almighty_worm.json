@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Deal Attack equal to Block you hold. Keep this item.",
+			"id": "iron_chain",
+			"kind": "item",
+			"name": "Chain",
+			"sprite": "assets/dungeon/items/iron_chain.png"
+		},
+		{
+			"ability": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3.",
+			"id": "almighty_worm",
+			"kind": "monster",
+			"name": "Almighty Worm",
+			"sprite": "assets/dungeon/extra/almighty_worm.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chain"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chain — Deal Attack equal to Block you hold. Keep this item. Monster: Almighty Worm — When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3. Challenge hand. Wheel almighty_worm. Click Chain, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-iron_chain-almighty_worm",
+	"log": "Draft enter\nYou Spin\nSpin Almighty Worm\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nSpin almighty worm hunger\nSpin worm ate Chain\nSpin worm hunger done",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Almighty Worm ATK 6 HP 6",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Almighty Worm ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use iron_chain",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "almighty_worm",
+		"face_name": "Almighty Worm",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chain vs Almighty Worm",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

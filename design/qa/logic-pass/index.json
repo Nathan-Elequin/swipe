@@ -1,0 +1,2552 @@
+{
+	"counts": {
+		"blocked": 1,
+		"fail": 40,
+		"pass": 90
+	},
+	"generated": "2026-10-20 06:19:04",
+	"mode": "dense",
+	"progress": {
+		"last_id": "surface-smoke-bomb",
+		"n": 131,
+		"total": 131
+	},
+	"rows": [
+		{
+			"cards": [
+				{
+					"ability": "Atk 3, or Atk 1 and Keep this item",
+					"id": "throwing_knife",
+					"kind": "item",
+					"name": "Throwing Knife",
+					"sprite": "assets/dungeon/items/throwing_knife.png"
+				},
+				{
+					"ability": "",
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Throwing Knife"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Click Throwing Knife. The first option fires. Plates or the hand change.",
+			"family": "item",
+			"id": "throwing_knife-auto",
+			"log": "Draft enter\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Click Throwing Knife. The first option fires. Plates or the hand change.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use throwing_knife"
+				],
+				"face_atk": 5,
+				"face_hp": 2,
+				"face_id": "wizard",
+				"face_name": "Wizard",
+				"hand": [
+					"Throwing Knife"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Throwing Knife auto-picks the first option",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Defeat an enemy with less HP than you.",
+					"id": "da_boot",
+					"kind": "item",
+					"name": "The Boot",
+					"sprite": "assets/dungeon/items/boot.png"
+				},
+				{
+					"ability": "",
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"The Boot"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Facing HP 2, you have 6. The Boot should Defeat or Bag them.",
+			"family": "item",
+			"id": "da_boot-yes-low",
+			"log": "Draft enter\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Facing HP 2, you have 6. The Boot should Defeat or Bag them.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use da_boot"
+				],
+				"face_atk": 5,
+				"face_hp": 2,
+				"face_id": "wizard",
+				"face_name": "Wizard",
+				"hand": [
+					"The Boot"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "The Boot works vs a lower-HP enemy",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Attack equal to 8 minus the Items still in your hand.",
+					"id": "knucklers",
+					"kind": "item",
+					"name": "Knucklers",
+					"sprite": ""
+				},
+				{
+					"ability": "",
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Knucklers"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Click Knucklers. An Attack, Defeat, or Flee happens on the plates.",
+			"family": "item",
+			"id": "knucklers-atk",
+			"log": "Draft enter\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Click Knucklers. An Attack, Defeat, or Flee happens on the plates.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use knucklers"
+				],
+				"face_atk": 3,
+				"face_hp": 7,
+				"face_id": "golem",
+				"face_name": "Golem",
+				"hand": [
+					"Knucklers"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Knucklers Attack fires",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
+					"id": "fangs",
+					"kind": "item",
+					"name": "Fangs",
+					"sprite": ""
+				},
+				{
+					"ability": "",
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Fangs"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Click Fangs. The plates or the hand change, or the log names Fangs / cannot.",
+			"family": "item",
+			"id": "fangs-fires",
+			"log": "Draft enter\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Click Fangs. The plates or the hand change, or the log names Fangs / cannot.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use fangs"
+				],
+				"face_atk": 3,
+				"face_hp": 7,
+				"face_id": "golem",
+				"face_name": "Golem",
+				"hand": [
+					"Fangs"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Fangs fires vs a dummy",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+					"id": "sledgehammer",
+					"kind": "item",
+					"name": "Sledgehammer",
+					"sprite": "assets/dungeon/items/sledgehammer.png"
+				},
+				{
+					"ability": "My Attack ignores Block.",
+					"id": "dragon",
+					"kind": "monster",
+					"name": "Dragon",
+					"sprite": "assets/dungeon/extra/dragon.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Sledgehammer"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Sledgehammer Defeats an enemy with 6 or more Attack.",
+			"family": "item",
+			"id": "sledgehammer-yes-dragon",
+			"log": "Draft enter\nYou Spin\nSpin Dragon\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Sledgehammer Defeats an enemy with 6 or more Attack.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use sledgehammer"
+				],
+				"face_atk": 6,
+				"face_hp": 6,
+				"face_id": "dragon",
+				"face_name": "Dragon",
+				"hand": [
+					"Sledgehammer"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Sledgehammer Defeats 6+ Attack",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Becomes a copy of the last item you used.",
+					"id": "echo_bell",
+					"kind": "item",
+					"name": "Echo Bell",
+					"sprite": ""
+				},
+				{
+					"ability": "",
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Echo Bell"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Click Echo Bell. The plates or the hand change, or the log names Echo Bell / cannot.",
+			"family": "item",
+			"id": "echo_bell-fires",
+			"log": "Draft enter\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nEcho Bell",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Click Echo Bell. The plates or the hand change, or the log names Echo Bell / cannot.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use echo_bell"
+				],
+				"face_atk": 3,
+				"face_hp": 7,
+				"face_id": "golem",
+				"face_name": "Golem",
+				"hand": [
+					"Echo Bell"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Echo Bell fires vs a dummy",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "If you have zero items that deal Atk damage, Defeat the enemy.",
+					"id": "last_match",
+					"kind": "item",
+					"name": "Paci-Fist",
+					"sprite": ""
+				},
+				{
+					"ability": "",
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Paci-Fist"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Click Paci-Fist. The plates or the hand change, or the log names Paci-Fist / cannot.",
+			"family": "item",
+			"id": "last_match-fires",
+			"log": "Draft enter\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Click Paci-Fist. The plates or the hand change, or the log names Paci-Fist / cannot.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use last_match"
+				],
+				"face_atk": 3,
+				"face_hp": 7,
+				"face_id": "golem",
+				"face_name": "Golem",
+				"hand": [
+					"Paci-Fist"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Paci-Fist fires vs a dummy",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
+					"id": "danger_magnet",
+					"kind": "item",
+					"name": "Danger Magnet",
+					"sprite": ""
+				},
+				{
+					"ability": "",
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Danger Magnet"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Click Danger Magnet. The plates or the hand change, or the log names Danger Magnet / cannot.",
+			"family": "item",
+			"id": "danger_magnet-fires",
+			"log": "Draft enter\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nDanger Magnet\nUsed Danger Magnet - choose\nDanger Magnet\nUsed magnet high\nitems this combat 1",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Click Danger Magnet. The plates or the hand change, or the log names Danger Magnet / cannot.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use danger_magnet"
+				],
+				"face_atk": 3,
+				"face_hp": 7,
+				"face_id": "golem",
+				"face_name": "Golem",
+				"hand": [
+					"Danger Magnet"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Danger Magnet fires vs a dummy",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Heal 1, randomly Swap an Item, and Keep this.",
+					"id": "jar_o_grease",
+					"kind": "item",
+					"name": "Jar O' Grease",
+					"sprite": ""
+				},
+				{
+					"ability": "",
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Jar O' Grease"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Start at 3 HP. Click Jar O' Grease. Your HP plate goes up (capped at 6).",
+			"family": "item",
+			"id": "jar_o_grease-heal-at-3",
+			"log": "Draft enter\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nJar O' Grease\nUsed cannot",
+			"mismatch": "Player HP should be at least 4.0. The plate showed 3.",
+			"narrative": "Start at 3 HP. Click Jar O' Grease. Your HP plate goes up (capped at 6).",
+			"note": "",
+			"observed": "Player HP should be at least 4.0. The plate showed 3.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use jar_o_grease"
+				],
+				"face_atk": 3,
+				"face_hp": 7,
+				"face_id": "golem",
+				"face_name": "Golem",
+				"hand": [
+					"Jar O' Grease"
+				],
+				"kind": "fight",
+				"you_hp": 3
+			},
+			"theme": "heal_setup",
+			"title": "Jar O' Grease Heals from 3 HP",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Heal equal to the amount of HP you most recently lose.",
+					"id": "blood_chalice",
+					"kind": "item",
+					"name": "Blood Chalice",
+					"sprite": ""
+				},
+				{
+					"ability": "",
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Blood Chalice"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Start at 3 HP. Click Blood Chalice. Your HP plate goes up (capped at 6).",
+			"family": "item",
+			"id": "blood_chalice-heal-at-3",
+			"log": "Draft enter\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nBlood Chalice\nUsed cannot",
+			"mismatch": "Player HP should be at least 4.0. The plate showed 3.",
+			"narrative": "Start at 3 HP. Click Blood Chalice. Your HP plate goes up (capped at 6).",
+			"note": "",
+			"observed": "Player HP should be at least 4.0. The plate showed 3.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use blood_chalice"
+				],
+				"face_atk": 3,
+				"face_hp": 7,
+				"face_id": "golem",
+				"face_name": "Golem",
+				"hand": [
+					"Blood Chalice"
+				],
+				"kind": "fight",
+				"you_hp": 3
+			},
+			"theme": "heal_setup",
+			"title": "Blood Chalice Heals from 3 HP",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Every 5th Item Discarded is copied into your Hand",
+					"id": "recycler",
+					"kind": "item",
+					"name": "Recycler",
+					"sprite": ""
+				},
+				{
+					"ability": "",
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Recycler"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Click Recycler. The plates or the hand change, or the log names Recycler / cannot.",
+			"family": "item",
+			"id": "recycler-fires",
+			"log": "Draft enter\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Click Recycler. The plates or the hand change, or the log names Recycler / cannot.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use recycler"
+				],
+				"face_atk": 3,
+				"face_hp": 7,
+				"face_id": "golem",
+				"face_name": "Golem",
+				"hand": [
+					"Recycler"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Recycler fires vs a dummy",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "",
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Wizard. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-wizard",
+			"log": "Draft enter\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Wizard. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 5,
+				"face_hp": 2,
+				"face_id": "wizard",
+				"face_name": "Wizard",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Wizard special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "",
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Golem. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-golem",
+			"log": "Draft enter\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Golem. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 3,
+				"face_hp": 7,
+				"face_id": "golem",
+				"face_name": "Golem",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Golem special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "I copy the HP of the last enemy you faced.",
+					"id": "skeleton",
+					"kind": "monster",
+					"name": "Skeleton",
+					"sprite": "assets/dungeon/extra/skeleton.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Skeleton. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-skeleton",
+			"log": "Draft enter\nYou Spin\nSpin Skeleton\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Skeleton. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 3,
+				"face_hp": 3,
+				"face_id": "skeleton",
+				"face_name": "Skeleton",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Skeleton special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "6 Atk and Lose 2 HP.",
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"sprite": ""
+				},
+				{
+					"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+					"id": "vampire",
+					"kind": "monster",
+					"name": "Vampire",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Arrow Head"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Player clicked an item that costs HP, facing Vampire. The when-you-lose-HP special happens.",
+			"family": "monster",
+			"id": "monster-vampire",
+			"log": "Draft enter\nYou Spin\nSpin Vampire\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Player clicked an item that costs HP, facing Vampire. The when-you-lose-HP special happens.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use arrow_head"
+				],
+				"face_atk": 4,
+				"face_hp": 4,
+				"face_id": "vampire",
+				"face_name": "Vampire",
+				"hand": [
+					"Arrow Head"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Vampire special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When Spun, I have a 50% chance to gain +4 Atk",
+					"id": "berserker",
+					"kind": "monster",
+					"name": "Berserker",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Berserker. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-berserker",
+			"log": "Draft enter\nYou Spin\nSpin Berserker\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin Outburst miss",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Berserker. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 3,
+				"face_hp": 4,
+				"face_id": "berserker",
+				"face_name": "Berserker",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Berserker special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "My Attack always equals your HP.",
+					"id": "dire_wolf",
+					"kind": "monster",
+					"name": "Dire Wolf",
+					"sprite": "assets/dungeon/extra/dire_wolf.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Dire Wolf. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-dire_wolf",
+			"log": "Draft enter\nYou Spin\nSpin Dire Wolf\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Dire Wolf. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 6,
+				"face_hp": 4,
+				"face_id": "dire_wolf",
+				"face_name": "Dire Wolf",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Dire Wolf special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "+1 Atk for each Item you hold.",
+					"id": "bandit",
+					"kind": "monster",
+					"name": "Bandit",
+					"sprite": "assets/dungeon/extra/bandit.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Bandit. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-bandit",
+			"log": "Draft enter\nYou Spin\nSpin Bandit\nenemy ATK 1   HP 3\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Bandit. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 1,
+				"face_hp": 3,
+				"face_id": "bandit",
+				"face_name": "Bandit",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Bandit special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
+					"id": "spider_queen",
+					"kind": "monster",
+					"name": "Spider Queen",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Spider Queen. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-spider_queen",
+			"log": "Draft enter\nYou Spin\nSpin Spider Queen\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nSpider Queen - Egg Layer\nDraft gain Spider Egg\nGone Spider Egg\nSpider Queen - Egg Layer\nQueen +2 HP +2 ATK",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Spider Queen. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 5,
+				"face_hp": 5,
+				"face_id": "spider_queen",
+				"face_name": "Spider Queen",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Spider Queen special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee.",
+					"id": "commander",
+					"kind": "monster",
+					"name": "Commander",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Commander. It Flees. No fight to play an item. That is the monster working.",
+			"family": "monster",
+			"id": "monster-commander",
+			"log": "Draft enter\nYou Spin\nSpin Commander\nenemy ATK 7   HP 3\nBLK 0\nitems this combat 0",
+			"mismatch": "Player Spun this monster; it should have Fled. Plates still show a fight.",
+			"narrative": "Spin Commander. It Flees. No fight to play an item. That is the monster working.",
+			"note": "",
+			"observed": "Player Spun this monster; it should have Fled. Plates still show a fight.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 7,
+				"face_hp": 3,
+				"face_id": "commander",
+				"face_name": "Commander",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "false_flee",
+			"title": "Commander special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "6 Atk and Lose 2 HP.",
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"sprite": ""
+				},
+				{
+					"ability": "I Attack you for 2 Damage each time I take ATK Damage.",
+					"id": "needleback",
+					"kind": "monster",
+					"name": "Needleback",
+					"sprite": "assets/dungeon/extra/needleback.png"
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Arrow Head"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Player clicked Attack while facing Needleback. The on-hit special happens.",
+			"family": "monster",
+			"id": "monster-needleback",
+			"log": "Draft enter\nYou Spin\nSpin Needleback\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Player clicked Attack while facing Needleback. The on-hit special happens.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use arrow_head"
+				],
+				"face_atk": 3,
+				"face_hp": 5,
+				"face_id": "needleback",
+				"face_name": "Needleback",
+				"hand": [
+					"Arrow Head"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Needleback special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "I petrify your highest Attack item until you Spin again.",
+					"id": "gargoyle",
+					"kind": "monster",
+					"name": "Gargoyle",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Gargoyle. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-gargoyle",
+			"log": "Draft enter\nYou Spin\nSpin Gargoyle\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nSpin petrify none",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Gargoyle. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 4,
+				"face_hp": 5,
+				"face_id": "gargoyle",
+				"face_name": "Gargoyle",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Gargoyle special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "Attack or Block values that are Even happen twice against me.",
+					"id": "hollow",
+					"kind": "monster",
+					"name": "Twins",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Twins. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-hollow",
+			"log": "Draft enter\nYou Spin\nSpin Twins\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Twins. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 6,
+				"face_hp": 6,
+				"face_id": "hollow",
+				"face_name": "Twins",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Twins special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "I gain Atk equal to your leftmost Atk Item",
+					"id": "beggar",
+					"kind": "monster",
+					"name": "Beggar",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Beggar. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-beggar",
+			"log": "Draft enter\nYou Spin\nSpin Beggar\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Beggar. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 3,
+				"face_hp": 4,
+				"face_id": "beggar",
+				"face_name": "Beggar",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Beggar special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated.",
+					"id": "cowardly_king",
+					"kind": "monster",
+					"name": "Cowardly King",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Cowardly King. It Flees. No fight to play an item. That is the monster working.",
+			"family": "monster",
+			"id": "monster-cowardly_king",
+			"log": "Draft enter\nYou Spin\nSpin Cowardly King\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0",
+			"mismatch": "Player Spun this monster; it should have Fled. Plates still show a fight.",
+			"narrative": "Spin Cowardly King. It Flees. No fight to play an item. That is the monster working.",
+			"note": "",
+			"observed": "Player Spun this monster; it should have Fled. Plates still show a fight.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 2,
+				"face_hp": 6,
+				"face_id": "cowardly_king",
+				"face_name": "Cowardly King",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "false_flee",
+			"title": "Cowardly King special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When you Spin me, choose an Item and I will upgrade it",
+					"id": "merchant",
+					"kind": "monster",
+					"name": "Merchant",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Merchant. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-merchant",
+			"log": "Draft enter\nYou Spin\nSpin Merchant\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin merchant offers an upgrade",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Merchant. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 4,
+				"face_hp": 4,
+				"face_id": "merchant",
+				"face_name": "Merchant",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Merchant special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When you Spin me, Gain a Shield",
+					"id": "juggernaut",
+					"kind": "monster",
+					"name": "Juggernaut",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield",
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "2 / 50"
+			},
+			"expected": "Spin Juggernaut. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-juggernaut",
+			"log": "Draft enter\nYou Spin\nSpin Juggernaut\nenemy ATK 7   HP 3\nBLK 0\nitems this combat 0\nJuggernaut - Blockhead\nDraft gain Shield",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Juggernaut. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 7,
+				"face_hp": 3,
+				"face_id": "juggernaut",
+				"face_name": "Juggernaut",
+				"hand": [
+					"Shield",
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Juggernaut special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item",
+					"id": "cleric",
+					"kind": "monster",
+					"name": "Cleric",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Cleric. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-cleric",
+			"log": "Draft enter\nYou Spin\nSpin Cleric\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Cleric. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 4,
+				"face_hp": 5,
+				"face_id": "cleric",
+				"face_name": "Cleric",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Cleric special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "If you Discard an item when facing me, I will Attack one of my Neighbors and Flee.",
+					"id": "hired_hand",
+					"kind": "monster",
+					"name": "Hired Hand",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Hired Hand. It Flees. No fight to play an item. That is the monster working.",
+			"family": "monster",
+			"id": "monster-hired_hand",
+			"log": "Draft enter\nYou Spin\nSpin Hired Hand\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin hired hand bribe",
+			"mismatch": "Player Spun this monster; it should have Fled. Plates still show a fight.",
+			"narrative": "Spin Hired Hand. It Flees. No fight to play an item. That is the monster working.",
+			"note": "",
+			"observed": "Player Spun this monster; it should have Fled. Plates still show a fight.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 3,
+				"face_hp": 4,
+				"face_id": "hired_hand",
+				"face_name": "Hired Hand",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "false_flee",
+			"title": "Hired Hand special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each",
+					"id": "hydra",
+					"kind": "monster",
+					"name": "Hydra",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Hydra. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-hydra",
+			"log": "Draft enter\nYou Spin\nSpin Hydra\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0\nSpin hydra petrify 1  +2 ATK  to  5\nHydra - Even Killer",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Hydra. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 5,
+				"face_hp": 5,
+				"face_id": "hydra",
+				"face_name": "Hydra",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Hydra special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
+					"id": "triclops",
+					"kind": "monster",
+					"name": "Triclops",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Triclops. It Flees. No fight to play an item. That is the monster working.",
+			"family": "monster",
+			"id": "monster-triclops",
+			"log": "Draft enter\nYou Spin\nSpin Triclops\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0",
+			"mismatch": "Player Spun this monster; it should have Fled. Plates still show a fight.",
+			"narrative": "Spin Triclops. It Flees. No fight to play an item. That is the monster working.",
+			"note": "",
+			"observed": "Player Spun this monster; it should have Fled. Plates still show a fight.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 4,
+				"face_hp": 7,
+				"face_id": "triclops",
+				"face_name": "Triclops",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "false_flee",
+			"title": "Triclops special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3.",
+					"id": "almighty_worm",
+					"kind": "monster",
+					"name": "Almighty Worm",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Almighty Worm. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-almighty_worm",
+			"log": "Draft enter\nYou Spin\nSpin Almighty Worm\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nSpin almighty worm hunger",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Almighty Worm. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 9,
+				"face_hp": 9,
+				"face_id": "almighty_worm",
+				"face_name": "Almighty Worm",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Almighty Worm special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When facing me, your second Item used has no effect",
+					"id": "bushido",
+					"kind": "monster",
+					"name": "Bushido",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Bushido. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-bushido",
+			"log": "Draft enter\nYou Spin\nSpin Bushido\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Bushido. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 4,
+				"face_hp": 5,
+				"face_id": "bushido",
+				"face_name": "Bushido",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Bushido special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
+					"id": "death_bell",
+					"kind": "monster",
+					"name": "Death Bell",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield",
+					"Toll"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "2 / 50"
+			},
+			"expected": "Spin Death Bell. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-death_bell",
+			"log": "Draft gain Toll\nDraft enter\nYou Spin\nSpin Death Bell\nenemy ATK 8   HP 12\nBLK 0\nitems this combat 0\nSpin Death Bell -2 HP",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Death Bell. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 8,
+				"face_hp": 10,
+				"face_id": "death_bell",
+				"face_name": "Death Bell",
+				"hand": [
+					"Shield",
+					"Toll"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Death Bell special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
+					"id": "phoenix_egg",
+					"kind": "monster",
+					"name": "Phoenix Egg",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Phoenix Egg. It Flees. No fight to play an item. That is the monster working.",
+			"family": "monster",
+			"id": "monster-phoenix_egg",
+			"log": "Draft enter\nYou Spin\nSpin Phoenix Egg\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0",
+			"mismatch": "Player Spun this monster; it should have Fled. Plates still show a fight.",
+			"narrative": "Spin Phoenix Egg. It Flees. No fight to play an item. That is the monster working.",
+			"note": "",
+			"observed": "Player Spun this monster; it should have Fled. Plates still show a fight.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 2,
+				"face_hp": 2,
+				"face_id": "phoenix_egg",
+				"face_name": "Phoenix Egg",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "false_flee",
+			"title": "Phoenix Egg special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
+					"id": "amalgam",
+					"kind": "monster",
+					"name": "Amalgam",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Amalgam. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-amalgam",
+			"log": "Draft enter\nYou Spin\nSpin Amalgam\nenemy ATK 5   HP 6\nBLK 0\nitems this combat 0",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Amalgam. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 5,
+				"face_hp": 6,
+				"face_id": "amalgam",
+				"face_name": "Amalgam",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Amalgam special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When facing me, I take Attack damage equal to Block you gain.",
+					"id": "eel",
+					"kind": "monster",
+					"name": "Eel",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Player clicked Shield. Eel takes Attack equal to Block you gain.",
+			"family": "monster",
+			"id": "monster-eel",
+			"log": "Draft enter\nYou Spin\nSpin Eel\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0",
+			"mismatch": "Block should be 4.0. The plate showed 0.",
+			"narrative": "Player clicked Shield. Eel takes Attack equal to Block you gain.",
+			"note": "",
+			"observed": "Block should be 4.0. The plate showed 0.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use shield"
+				],
+				"face_atk": 6,
+				"face_hp": 4,
+				"face_id": "eel",
+				"face_name": "Eel",
+				"hand": [
+					"Shield"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Eel special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
+					"id": "magicat",
+					"kind": "monster",
+					"name": "Magicat",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Marble"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Spin Magicat. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-magicat",
+			"log": "Draft enter\nYou Spin\nSpin Magicat\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nMagicat - Cat's Eye\nSpin Cat's Eye  to  4 Marble",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Magicat. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 3,
+				"face_hp": 3,
+				"face_id": "magicat",
+				"face_name": "Magicat",
+				"hand": [
+					"Marble"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Magicat special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Gain 4 Block.",
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"ability": "When I enter the Dungeon, Gain 1 Rust",
+					"id": "rust_bucket",
+					"kind": "monster",
+					"name": "Rust Bucket",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Shield",
+					"Rust"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "2 / 50"
+			},
+			"expected": "Spin Rust Bucket. Its Ability happens (plates or log).",
+			"family": "monster",
+			"id": "monster-rust_bucket",
+			"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Spin Rust Bucket. Its Ability happens (plates or log).",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [],
+				"face_atk": 3,
+				"face_hp": 4,
+				"face_id": "rust_bucket",
+				"face_name": "Rust Bucket",
+				"hand": [
+					"Shield",
+					"Rust"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Rust Bucket special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "6 Atk and Lose 2 HP.",
+					"id": "arrow_head",
+					"kind": "item",
+					"name": "Arrow Head",
+					"sprite": ""
+				},
+				{
+					"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
+					"id": "poison_frog",
+					"kind": "monster",
+					"name": "Poison Frog",
+					"sprite": ""
+				}
+			],
+			"column": "fail",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Arrow Head"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 50"
+			},
+			"expected": "Player clicked Attack while facing Poison Frog. The on-hit special happens.",
+			"family": "monster",
+			"id": "monster-poison_frog",
+			"log": "Draft enter\nYou Spin\nSpin Poison Frog\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nPoison Frog - Toxic Skin\nUsed poison 2",
+			"mismatch": "Player clicked the card. The plates and the hand did not change.",
+			"narrative": "Player clicked Attack while facing Poison Frog. The on-hit special happens.",
+			"note": "",
+			"observed": "Player clicked the card. The plates and the hand did not change.",
+			"paper_fight": "",
+			"result": "fail",
+			"ruling": {},
+			"scene": {
+				"clicks": [
+					"use arrow_head"
+				],
+				"face_atk": 2,
+				"face_hp": 4,
+				"face_id": "poison_frog",
+				"face_name": "Poison Frog",
+				"hand": [
+					"Arrow Head"
+				],
+				"kind": "fight",
+				"you_hp": 6
+			},
+			"theme": "harness",
+			"title": "Poison Frog special",
+			"verbs": []
+		},
+		{
+			"cards": [
+				{
+					"ability": "Spin again and gain a Random Item.",
+					"id": "smoke_bomb",
+					"kind": "item",
+					"name": "Smoke Bomb",
+					"sprite": "assets/dungeon/items/smoke_bomb.png"
+				},
+				{
+					"ability": "",
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			],
+			"column": "blocked",
+			"evidence": {
+				"did_not": [
+					"screenshot"
+				],
+				"hand_before": [
+					"Smoke Bomb"
+				],
+				"looked_at": [
+					"combat log",
+					"plate ATK/HP",
+					"inspect",
+					"Shift inspect",
+					"hotbar"
+				],
+				"slots": "1 / 10"
+			},
+			"expected": "Adventure-only: Smoke Bomb Spins again and grants a random item. If Challenge blocks it, that is cannot, not a Fail of Shield.",
+			"family": "surface",
+			"id": "surface-smoke-bomb",
+			"log": "Draft enter",
+			"note": "",
+			"observed": "spin did not reach fighting (phase=ready)",
+			"paper_fight": "",
+			"result": "blocked",
+			"ruling": {},
+			"title": "Smoke Bomb Spin again",
+			"verbs": [],
+			"theme": "adventure_surface"
+		},
+		{
+			"id": "parked-hub-cabin-map",
+			"title": "Hub, cabin, map, draft — not driven this pass",
+			"theme": "adventure_surface",
+			"column": "blocked",
+			"result": "blocked",
+			"narrative": "Tabled. Constructed fights ran. Hub / cabin / map / draft clicks are not wired in this harness yet.",
+			"expected": "Player can click Brand New, cabin, the map, and a draft. This pass did not drive those screens.",
+			"mismatch": "Tabled so the pass could finish. Not a card Fail.",
+			"observed": "Tabled so the pass could finish. Not a card Fail.",
+			"cards": []
+		}
+	],
+	"title": "Covering pass"
+}

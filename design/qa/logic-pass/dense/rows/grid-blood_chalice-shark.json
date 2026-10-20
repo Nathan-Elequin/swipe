@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal equal to the amount of HP you most recently lose.",
+			"id": "blood_chalice",
+			"kind": "item",
+			"name": "Blood Chalice",
+			"sprite": "assets/dungeon/items/blood_chalice.png"
+		},
+		{
+			"ability": "I Attack until you lose HP",
+			"id": "shark",
+			"kind": "monster",
+			"name": "Shark",
+			"sprite": "assets/dungeon/extra/shark.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Blood Chalice"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Blood Chalice — Heal equal to the amount of HP you most recently lose. Monster: Shark — I Attack until you lose HP Challenge hand. Wheel shark. Click Blood Chalice, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-blood_chalice-shark",
+	"log": "Draft enter\nYou Spin\nSpin Shark\nenemy ATK 3   HP 6\nBLK 0\nitems this combat 0\nBlood Chalice\nUsed cannot\nYou Done\nFight hit 1  ATK 3 - BLK\nBLK 0\nHP take -3  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 3 · BLK 0 · face Shark ATK 3 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use blood_chalice",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 6,
+		"face_id": "shark",
+		"face_name": "Shark",
+		"hand": [
+			"Blood Chalice"
+		],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Blood Chalice vs Shark",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

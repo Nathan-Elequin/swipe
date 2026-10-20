@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
+			"id": "breastplate",
+			"kind": "item",
+			"name": "Breastplate",
+			"sprite": "assets/dungeon/items/breastplate.png"
+		},
+		{
+			"ability": "After I Attack, I Heal you for double the HP I cause you to lose.",
+			"id": "druid",
+			"kind": "monster",
+			"name": "Druid",
+			"sprite": "assets/dungeon/extra/druid.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Breastplate"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Breastplate — Gain 2 Block. If you lose HP this combat, Keep this Item. Monster: Druid — After I Attack, I Heal you for double the HP I cause you to lose. Challenge hand. Wheel druid. Click Breastplate, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-breastplate-druid",
+	"log": "Draft enter\nYou Spin\nSpin Druid\nenemy ATK 7   HP 4\nBLK 0\nitems this combat 0\nBreastplate\nBLK +2  to  2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 2 · face Druid ATK 7 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use breastplate",
+			"done "
+		],
+		"face_atk": 7,
+		"face_hp": 4,
+		"face_id": "druid",
+		"face_name": "Druid",
+		"hand": [
+			"Breastplate"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Breastplate vs Druid",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

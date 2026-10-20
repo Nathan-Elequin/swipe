@@ -288,6 +288,16 @@ func intro_pending() -> bool:
 	return not intro_seen and _beat != "intro" and not (_cutscene and _cutscene.is_playing())
 
 
+func cutscene_playing() -> bool:
+	return _cutscene != null and _cutscene.is_playing()
+
+
+func _sync_playtest_fab() -> void:
+	var main = get_parent()
+	if main != null and main.has_method("_sync_playtest_chrome"):
+		main._sync_playtest_chrome()
+
+
 func open_cabin(p_items: Dictionary, p_tex: Dictionary, p_buckets: int, walk_in: bool, kind: String = "win", new_ids: Array = [], held_ids: Array = []) -> void:
 	items_by_id = p_items
 	tex_by_item = p_tex
@@ -385,7 +395,9 @@ func play_intro(is_replay: bool = false) -> void:
 	_play_station()
 	if _cutscene:
 		_cutscene.play("intro", {"replay": is_replay})
+		_sync_playtest_fab()
 		await _cutscene.finished
+		_sync_playtest_fab()
 	if seq != _story_seq or not visible:
 		return
 	if is_replay:

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to your highest Attack Item",
+			"id": "spiked_shield",
+			"kind": "item",
+			"name": "Spiked Shield",
+			"sprite": "assets/dungeon/items/spiked_shield.png"
+		},
+		{
+			"ability": "I petrify your highest Attack item until you Spin again.",
+			"id": "gargoyle",
+			"kind": "monster",
+			"name": "Gargoyle",
+			"sprite": "assets/dungeon/extra/gargoyle.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Spiked Shield"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Spiked Shield — Gain Block equal to your highest Attack Item Monster: Gargoyle — I petrify your highest Attack item until you Spin again. Challenge hand. Wheel gargoyle. Click Spiked Shield, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-spiked_shield-gargoyle",
+	"log": "Draft enter\nYou Spin\nSpin Gargoyle\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nSpin petrify none\nSpiked Shield\nBLK +0  to  0\nitems this combat 1",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Gargoyle ATK 4 HP 5",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Gargoyle ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use spiked_shield",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "gargoyle",
+		"face_name": "Gargoyle",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Spiked Shield vs Gargoyle",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

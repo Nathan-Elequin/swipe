@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"id": "lantern",
+			"kind": "item",
+			"name": "Lantern",
+			"sprite": "assets/dungeon/items/lantern.png"
+		},
+		{
+			"ability": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated.",
+			"id": "cowardly_king",
+			"kind": "monster",
+			"name": "Cowardly King",
+			"sprite": "assets/dungeon/extra/cowardly_king.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lantern"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Cowardly King — When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated. Challenge hand. Wheel cowardly_king, wizard, golem. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lantern-cowardly_king",
+	"log": "Draft enter\nYou Spin\nSpin Cowardly King\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0\nLantern\nHP heal +2  now 5\nitems this combat 1\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 3\nDefeated Cowardly King\nKept Lantern\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 0 · face Cowardly King ATK 2 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lantern",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 6,
+		"face_id": "cowardly_king",
+		"face_name": "Cowardly King",
+		"hand": [
+			"Lantern"
+		],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Lantern vs Cowardly King",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

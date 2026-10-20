@@ -1,0 +1,12 @@
+[
+  {"id":"uniq-cleric","result":"pass","observed":"You were at 6 HP, so Cleric does not Heal (needs 3 missing)."},
+  {"id":"uniq-martyr","result":"blocked","observed":"Martyr dies when it Attacks (Done). I never clicked Done."},
+  {"id":"uniq-prism","result":"blocked","observed":"Prism sends Attack to neighbors. The Knife click never landed."},
+  {"id":"uniq-plague_doctor","result":"pass","observed":"On Spin, Plague Doctor healed a neighbor +2 to 4 HP.","note":"False fail: judge looked for Always."},
+  {"id":"uniq-hired_hand","result":"pass","observed":"Hired Hand offered a bribe on Spin."},
+  {"id":"uniq-hydra","result":"pass","observed":"Hydra petrified 1 even item and gained +2 ATK (3→5)."},
+  {"id":"uniq-zombie","result":"blocked","observed":"Zombie blocks Gain/Keep while facing it. This fight never gained an item."},
+  {"id":"uniq-triclops","result":"pass","observed":"ATK 1 nick: Triclops 7→6, not Defeated. The 3-HP clause did not apply."},
+  {"id":"uniq-shambling_mound","result":"blocked","observed":"Mound Attacks on Done until it dies. I never clicked Done."},
+  {"id":"uniq-almighty_worm","result":"pass","observed":"Almighty Worm offered Hunger (discard items) on Spin."}
+]

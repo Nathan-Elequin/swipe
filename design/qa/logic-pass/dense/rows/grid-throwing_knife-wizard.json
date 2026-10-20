@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Atk 3, or Atk 1 and Keep this item",
+			"id": "throwing_knife",
+			"kind": "item",
+			"name": "Throwing Knife",
+			"sprite": "assets/dungeon/items/throwing_knife.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Throwing Knife"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Throwing Knife — Atk 3, or Atk 1 and Keep this item Monster: Wizard — (printed ATK/HP only) Challenge hand. Wheel wizard. Click Throwing Knife, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-throwing_knife-wizard",
+	"log": "Draft enter\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0\nUsed choose",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Wizard ATK 5 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use throwing_knife",
+			"choose throw"
+		],
+		"face_atk": 5,
+		"face_hp": 2,
+		"face_id": "wizard",
+		"face_name": "Wizard",
+		"hand": [
+			"Throwing Knife"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Throwing Knife vs Wizard",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

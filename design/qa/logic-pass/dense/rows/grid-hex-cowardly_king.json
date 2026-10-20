@@ -1,0 +1,78 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Defeats the Monster 6 Spins from now.",
+			"id": "hex",
+			"kind": "item",
+			"name": "Hex",
+			"sprite": "assets/dungeon/items/hex.png"
+		},
+		{
+			"ability": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated.",
+			"id": "cowardly_king",
+			"kind": "monster",
+			"name": "Cowardly King",
+			"sprite": "assets/dungeon/extra/cowardly_king.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Hex"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Hex — Unplayable. Defeats the Monster 6 Spins from now. Monster: Cowardly King — When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated. Challenge hand. Wheel cowardly_king, wizard, golem. Click Hex, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-hex-cowardly_king",
+	"log": "Draft enter\nYou Spin\nSpin Cowardly King\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0\nHex\nHex 5\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nDefeated Cowardly King\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nHex\nHex 4",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Golem ATK 3 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 7,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": [
+			"Hex"
+		],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Hex vs Cowardly King",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "(1), (2), (3), or (4) Atk",
+			"id": "counting_beads",
+			"kind": "item",
+			"name": "Counting Beads",
+			"sprite": "assets/dungeon/items/counting_beads.png"
+		},
+		{
+			"ability": "While facing me, you cannot Gain or Keep any Items.",
+			"id": "zombie",
+			"kind": "monster",
+			"name": "Zombie",
+			"sprite": "assets/dungeon/extra/zombie.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Counting Beads"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Counting Beads — (1), (2), (3), or (4) Atk Monster: Zombie — While facing me, you cannot Gain or Keep any Items. Challenge hand. Wheel zombie. Click Counting Beads, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-counting_beads-zombie",
+	"log": "Draft enter\nYou Spin\nSpin Zombie\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nCounting Beads\nATK 1  to  Zombie HP 4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Zombie ATK 4 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use counting_beads",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "zombie",
+		"face_name": "Zombie",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Counting Beads vs Zombie",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

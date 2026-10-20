@@ -1,0 +1,78 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
+			"id": "longbow",
+			"kind": "item",
+			"name": "Longbow",
+			"sprite": "assets/dungeon/items/longbow.png"
+		},
+		{
+			"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+			"id": "vampire",
+			"kind": "monster",
+			"name": "Vampire",
+			"sprite": "assets/dungeon/extra/vampire.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Longbow"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Longbow — Deal 4 Attack to the monster across from you (only works if even # of monsters remaining) Monster: Vampire — Every time you lose HP, I gain +1 HP and +1 ATK. Challenge hand. Wheel vampire, wizard, golem. Click Longbow. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-longbow-vampire",
+	"log": "Draft enter\nYou Spin\nSpin Vampire\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nLongbow\nUsed cannot",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Vampire ATK 4 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use longbow"
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "vampire",
+		"face_name": "Vampire",
+		"hand": [
+			"Longbow"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Longbow vs Vampire",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

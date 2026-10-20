@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"id": "lucky_nickel",
+			"kind": "item",
+			"name": "Lucky Nickel",
+			"sprite": "assets/dungeon/items/lucky_nickel.png"
+		},
+		{
+			"ability": "When my Neighbors would take Attack Damage, I take it instead",
+			"id": "bodyguard",
+			"kind": "monster",
+			"name": "Bodyguard",
+			"sprite": "assets/dungeon/extra/bodyguard.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lucky Nickel"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Bodyguard — When my Neighbors would take Attack Damage, I take it instead Challenge hand. Wheel bodyguard, wizard, golem. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lucky_nickel-bodyguard",
+	"log": "Draft enter\nYou Spin\nSpin Bodyguard\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nLucky Nickel\nBLK +1  to  1\nitems this combat 1\nYou Done\nFight hit 1  ATK 3 - BLK\nBLK 0\nHP take -2  now 4\nDefeated Bodyguard\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 1 · face Bodyguard ATK 3 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lucky_nickel",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 3,
+		"face_id": "bodyguard",
+		"face_name": "Bodyguard",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Lucky Nickel vs Bodyguard",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

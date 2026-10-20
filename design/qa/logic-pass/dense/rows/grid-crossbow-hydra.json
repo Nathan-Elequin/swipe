@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 4 Attack to a Neighboring enemy.",
+			"id": "crossbow",
+			"kind": "item",
+			"name": "Crossbow",
+			"sprite": "assets/dungeon/items/crossbow.png"
+		},
+		{
+			"ability": "When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each",
+			"id": "hydra",
+			"kind": "monster",
+			"name": "Hydra",
+			"sprite": "assets/dungeon/extra/hydra.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Crossbow"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Crossbow — Deal 4 Attack to a Neighboring enemy. Monster: Hydra — When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each Challenge hand. Wheel hydra, wizard, golem. Click Crossbow, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-crossbow-hydra",
+	"log": "Draft enter\nYou Spin\nSpin Hydra\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0\nSpin hydra petrify 1  +2 ATK  to  5\nHydra - Even Killer\nUsed petrified\nYou Done\nFight hit 1  ATK 5 - BLK\nBLK 0\nHP take -5  now 1\nDefeated Hydra\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Hydra ATK 5 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use crossbow",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 5,
+		"face_id": "hydra",
+		"face_name": "Hydra",
+		"hand": [
+			"Crossbow"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Crossbow vs Hydra",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

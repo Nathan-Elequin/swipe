@@ -1,0 +1,62 @@
+{
+	"cards": [
+		{
+			"ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
+			"id": "fangs",
+			"kind": "item",
+			"name": "Fangs",
+			"sprite": "assets/dungeon/items/fangs.png"
+		},
+		{
+			"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+			"id": "vampire",
+			"kind": "monster",
+			"name": "Vampire",
+			"sprite": "assets/dungeon/extra/vampire.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Fangs"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Fangs — Let the Enemy Attack, then Defeat them and Heal equal to their current HP. Monster: Vampire — Every time you lose HP, I gain +1 HP and +1 ATK. Challenge hand. Wheel vampire. Click Fangs. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-fangs-vampire",
+	"log": "Draft enter\nYou Spin\nSpin Vampire\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nFangs\nFight hit 1  ATK 4 - BLK\nBLK 0\nHP take -4  now 0\nVampire - Bloodlust\nVampire +1 HP +1 ATK  to  5/5  ATK 5\nitems this combat 1\nEnd dead",
+	"mismatch": "A number did not match the card: phase defeat · HP 0 · BLK 0 · face — ATK — HP —",
+	"note": "",
+	"observed": "A number did not match the card: phase defeat · HP 0 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use fangs"
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "vampire",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 0
+	},
+	"title": "Fangs vs Vampire",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Becomes a copy of the last item you used.",
+			"id": "echo_bell",
+			"kind": "item",
+			"name": "Echo Bell",
+			"sprite": "assets/dungeon/items/echo_bell.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Echo Bell"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Echo Bell — Becomes a copy of the last item you used. Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Echo Bell, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-echo_bell-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nEcho Bell",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Ogre ATK 5 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use echo_bell",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 10,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [
+			"Echo Bell"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Echo Bell vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

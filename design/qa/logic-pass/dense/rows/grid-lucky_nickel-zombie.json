@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"id": "lucky_nickel",
+			"kind": "item",
+			"name": "Lucky Nickel",
+			"sprite": "assets/dungeon/items/lucky_nickel.png"
+		},
+		{
+			"ability": "While facing me, you cannot Gain or Keep any Items.",
+			"id": "zombie",
+			"kind": "monster",
+			"name": "Zombie",
+			"sprite": "assets/dungeon/extra/zombie.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lucky Nickel"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Zombie — While facing me, you cannot Gain or Keep any Items. Challenge hand. Wheel zombie. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lucky_nickel-zombie",
+	"log": "Draft enter\nYou Spin\nSpin Zombie\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nLucky Nickel\nBLK +1  to  1\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 1 · face Zombie ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lucky_nickel",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "zombie",
+		"face_name": "Zombie",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Lucky Nickel vs Zombie",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

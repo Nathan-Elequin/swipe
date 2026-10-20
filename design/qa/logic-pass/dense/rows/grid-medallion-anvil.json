@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the HP you are missing.",
+			"id": "medallion",
+			"kind": "item",
+			"name": "Medallion",
+			"sprite": "assets/dungeon/items/medallion.png"
+		},
+		{
+			"ability": "I cannot lose more than 1 HP at a time.",
+			"id": "anvil",
+			"kind": "monster",
+			"name": "Anvil",
+			"sprite": "assets/dungeon/extra/anvil.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Medallion"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Medallion — Block equal to the HP you are missing. Monster: Anvil — I cannot lose more than 1 HP at a time. Challenge hand. Wheel anvil. Click Medallion, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-medallion-anvil",
+	"log": "Draft enter\nYou Spin\nSpin Anvil\nenemy ATK 4   HP 3\nBLK 0\nitems this combat 0\nMedallion\nBLK +1  to  1\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 1 · face Anvil ATK 4 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use medallion",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 3,
+		"face_id": "anvil",
+		"face_name": "Anvil",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Medallion vs Anvil",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

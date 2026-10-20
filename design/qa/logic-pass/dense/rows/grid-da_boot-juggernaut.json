@@ -1,0 +1,66 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with less HP than you.",
+			"id": "da_boot",
+			"kind": "item",
+			"name": "The Boot",
+			"sprite": "assets/dungeon/items/boot.png"
+		},
+		{
+			"ability": "When you Spin me, Gain a Shield",
+			"id": "juggernaut",
+			"kind": "monster",
+			"name": "Juggernaut",
+			"sprite": "assets/dungeon/extra/juggernaut.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Shield",
+			"The Boot"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: The Boot — Defeat an enemy with less HP than you. Monster: Juggernaut — When you Spin me, Gain a Shield Challenge hand. Wheel juggernaut. Click The Boot, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-da_boot-juggernaut",
+	"log": "Draft enter\nYou Spin\nSpin Juggernaut\nenemy ATK 7   HP 3\nBLK 0\nitems this combat 0\nJuggernaut - Blockhead\nDraft gain Shield",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Gain a Shield.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Gain a Shield.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use da_boot"
+		],
+		"face_atk": 7,
+		"face_hp": 3,
+		"face_id": "juggernaut",
+		"face_name": "Juggernaut",
+		"hand": [
+			"Shield",
+			"The Boot"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "The Boot vs Juggernaut",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

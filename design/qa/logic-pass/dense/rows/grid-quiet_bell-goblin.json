@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Remove your Enemy's unique ability",
+			"id": "quiet_bell",
+			"kind": "item",
+			"name": "Quiet Bell",
+			"sprite": "assets/dungeon/items/quiet_bell.png"
+		},
+		{
+			"ability": "I cannot take Attack damage.",
+			"id": "goblin",
+			"kind": "monster",
+			"name": "Goblin",
+			"sprite": "assets/dungeon/extra/goblin.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Quiet Bell"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Quiet Bell — Remove your Enemy's unique ability Monster: Goblin — I cannot take Attack damage. Challenge hand. Wheel goblin. Click Quiet Bell, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-quiet_bell-goblin",
+	"log": "Draft enter\nYou Spin\nSpin Goblin\nenemy ATK 3   HP 1\nBLK 0\nitems this combat 0\nQuiet Bell\nFight silenced goblin\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Goblin ATK 3 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use quiet_bell",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 1,
+		"face_id": "goblin",
+		"face_name": "Goblin",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Quiet Bell vs Goblin",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Attack equal to 8 minus the Items still in your hand.",
+			"id": "knucklers",
+			"kind": "item",
+			"name": "Knucklers",
+			"sprite": "assets/dungeon/items/knucklers.png"
+		},
+		{
+			"ability": "I attack an extra time for each item you use this fight.",
+			"id": "kobold_trapper",
+			"kind": "monster",
+			"name": "Kobold Trapper",
+			"sprite": "assets/dungeon/extra/kobold_trapper.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Knucklers"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Knucklers — Attack equal to 8 minus the Items still in your hand. Monster: Kobold Trapper — I attack an extra time for each item you use this fight. Challenge hand. Wheel kobold_trapper. Click Knucklers, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-knucklers-kobold_trapper",
+	"log": "Draft enter\nYou Spin\nSpin Kobold Trapper\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0",
+	"mismatch": "BLOCKED: This special fires on Done, and I never clicked Done.",
+	"note": "",
+	"observed": "This special fires on Done, and I never clicked Done.",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use knucklers"
+		],
+		"face_atk": 2,
+		"face_hp": 6,
+		"face_id": "kobold_trapper",
+		"face_name": "Kobold Trapper",
+		"hand": [
+			"Knucklers"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Knucklers vs Kobold Trapper",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

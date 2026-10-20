@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Attack equal to 8 minus the Items still in your hand.",
+			"id": "knucklers",
+			"kind": "item",
+			"name": "Knucklers",
+			"sprite": "assets/dungeon/items/knucklers.png"
+		},
+		{
+			"ability": "I Attack until you lose HP",
+			"id": "shark",
+			"kind": "monster",
+			"name": "Shark",
+			"sprite": "assets/dungeon/extra/shark.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Knucklers"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Knucklers — Attack equal to 8 minus the Items still in your hand. Monster: Shark — I Attack until you lose HP Challenge hand. Wheel shark. Click Knucklers, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-knucklers-shark",
+	"log": "Draft enter\nYou Spin\nSpin Shark\nenemy ATK 3   HP 6\nBLK 0\nitems this combat 0",
+	"mismatch": "BLOCKED: This special fires on Done, and I never clicked Done.",
+	"note": "",
+	"observed": "This special fires on Done, and I never clicked Done.",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use knucklers"
+		],
+		"face_atk": 3,
+		"face_hp": 6,
+		"face_id": "shark",
+		"face_name": "Shark",
+		"hand": [
+			"Knucklers"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Knucklers vs Shark",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,49 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 1, randomly Swap an Item, and Keep this.",
+			"id": "jar_o_grease",
+			"kind": "item",
+			"name": "Jar O' Grease",
+			"sprite": "assets/dungeon/items/jar_o_grease.png"
+		},
+		{
+			"ability": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
+			"id": "basilisk",
+			"kind": "monster",
+			"name": "Basilisk",
+			"sprite": "assets/dungeon/extra/basilisk.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Jar O' Grease"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Jar O' Grease — Heal 1, randomly Swap an Item, and Keep this. Monster: Basilisk — The first time you Spin me, I Flee and Petrify every other Item for 3 Spins. Challenge hand. Wheel basilisk. Click Jar O' Grease, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-jar_o_grease-basilisk",
+	"log": "Draft enter\nYou Spin\nSpin Basilisk\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin Petrifying Gaze  0 items\nFight Basilisk Flees\nBLK 0",
+	"note": "",
+	"observed": "spin did not reach fighting (phase=ready)",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"title": "Jar O' Grease vs Basilisk",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

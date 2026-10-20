@@ -1,0 +1,80 @@
+{
+	"cards": [
+		{
+			"ability": "Block 10. Retain leftover block from this combat.",
+			"id": "stone_wall",
+			"kind": "item",
+			"name": "Stone Wall",
+			"sprite": "assets/dungeon/items/stone_wall.png"
+		},
+		{
+			"ability": "When you Spin me or my Neighbor, Gain 1 Blood Pact",
+			"id": "cultist",
+			"kind": "monster",
+			"name": "Cultist",
+			"sprite": "assets/dungeon/extra/cultist.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Stone Wall",
+			"Blood Pact"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Stone Wall — Block 10. Retain leftover block from this combat. Monster: Cultist — When you Spin me or my Neighbor, Gain 1 Blood Pact Challenge hand. Wheel cultist, wizard, golem. Click Stone Wall, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-stone_wall-cultist",
+	"log": "Draft enter\nYou Spin\nSpin Cultist\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0\nCultist - Blood Pact\nDraft gain Blood Pact\nStone Wall\nBLK +10  to  10\nitems this combat 1\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 8\nHP take 0\nDefeated Cultist\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 10 · face Cultist ATK 2 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use stone_wall",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 2,
+		"face_id": "cultist",
+		"face_name": "Cultist",
+		"hand": [
+			"Blood Pact"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Stone Wall vs Cultist",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with less HP than you.",
+			"id": "da_boot",
+			"kind": "item",
+			"name": "The Boot",
+			"sprite": "assets/dungeon/items/boot.png"
+		},
+		{
+			"ability": "When facing me, I take Attack damage equal to Block you gain.",
+			"id": "eel",
+			"kind": "monster",
+			"name": "Eel",
+			"sprite": "assets/dungeon/extra/eel.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"The Boot"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: The Boot — Defeat an enemy with less HP than you. Monster: Eel — When facing me, I take Attack damage equal to Block you gain. Challenge hand. Wheel eel. Click The Boot, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-da_boot-eel",
+	"log": "Draft enter\nYou Spin\nSpin Eel\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Facing: takes Attack = Block you Gain.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Facing: takes Attack = Block you Gain.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use da_boot"
+		],
+		"face_atk": 6,
+		"face_hp": 4,
+		"face_id": "eel",
+		"face_name": "Eel",
+		"hand": [
+			"The Boot"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "The Boot vs Eel",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

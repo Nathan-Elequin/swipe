@@ -1,0 +1,61 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 6. On Spin, lose 1 HP.",
+			"id": "cursed_scroll",
+			"kind": "item",
+			"name": "Cursed Scroll",
+			"sprite": "assets/dungeon/items/cursed_scroll.png"
+		},
+		{
+			"ability": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item",
+			"id": "cleric",
+			"kind": "monster",
+			"name": "Cleric",
+			"sprite": "assets/dungeon/extra/cleric.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "0 / 50"
+	},
+	"expected": "Item: Cursed Scroll — Heal 6. On Spin, lose 1 HP. Monster: Cleric — After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item Challenge hand. Wheel cleric. Click Cursed Scroll, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-cursed_scroll-cleric",
+	"log": "Draft enter\nYou Spin\nSpin Cleric\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nSpin Cursed Scroll\nCursed Scroll\nHP bleed -1  now 2\nCleric - Health Insurance\nHP heal +3  now 5\nSpin Health Insurance Heal 3  to  5\nSpin Cleric took worst item",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 0 · face Cleric ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use cursed_scroll",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "cleric",
+		"face_name": "Cleric",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Cursed Scroll vs Cleric",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

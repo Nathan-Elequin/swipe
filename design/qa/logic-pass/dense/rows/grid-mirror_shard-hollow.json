@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to the last Block you gained.",
+			"id": "mirror_shard",
+			"kind": "item",
+			"name": "Mirror Shard",
+			"sprite": "assets/dungeon/items/mirror_shard.png"
+		},
+		{
+			"ability": "Attack or Block values that are Even happen twice against me.",
+			"id": "hollow",
+			"kind": "monster",
+			"name": "Twins",
+			"sprite": "assets/dungeon/extra/hollow.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Mirror Shard"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Mirror Shard — Gain Block equal to the last Block you gained. Monster: Twins — Attack or Block values that are Even happen twice against me. Challenge hand. Wheel hollow. Click Mirror Shard, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-mirror_shard-hollow",
+	"log": "Draft enter\nYou Spin\nSpin Twins\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0\nMirror Shard\nUsed cannot\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Twins ATK 6 HP 6",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Twins ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use mirror_shard",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "hollow",
+		"face_name": "Twins",
+		"hand": [
+			"Mirror Shard"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Mirror Shard vs Twins",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

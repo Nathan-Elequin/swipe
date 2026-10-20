@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 10. Retain leftover block from this combat.",
+			"id": "stone_wall",
+			"kind": "item",
+			"name": "Stone Wall",
+			"sprite": "assets/dungeon/items/stone_wall.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Stone Wall"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Stone Wall — Block 10. Retain leftover block from this combat. Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Stone Wall, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-stone_wall-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nStone Wall\nBLK +10  to  10\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 10 · face Ogre ATK 5 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use stone_wall",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 10,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Stone Wall vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to your highest Attack Item",
+			"id": "spiked_shield",
+			"kind": "item",
+			"name": "Spiked Shield",
+			"sprite": "assets/dungeon/items/spiked_shield.png"
+		},
+		{
+			"ability": "While facing me, you cannot Gain or Keep any Items.",
+			"id": "zombie",
+			"kind": "monster",
+			"name": "Zombie",
+			"sprite": "assets/dungeon/extra/zombie.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Spiked Shield"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Spiked Shield — Gain Block equal to your highest Attack Item Monster: Zombie — While facing me, you cannot Gain or Keep any Items. Challenge hand. Wheel zombie. Click Spiked Shield, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-spiked_shield-zombie",
+	"log": "Draft enter\nYou Spin\nSpin Zombie\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nSpiked Shield\nBLK +0  to  0\nitems this combat 1",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Zombie ATK 4 HP 5",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Zombie ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use spiked_shield",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "zombie",
+		"face_name": "Zombie",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Spiked Shield vs Zombie",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

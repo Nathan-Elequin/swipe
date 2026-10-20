@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Choose to reduce the facing owner's Attack by 1, 2, or 3.",
+			"id": "net",
+			"kind": "item",
+			"name": "Net",
+			"sprite": "assets/dungeon/items/net.png"
+		},
+		{
+			"ability": "I attack you when your Spin lands on me, and after each item you use.",
+			"id": "harpy",
+			"kind": "monster",
+			"name": "Harpy",
+			"sprite": "assets/dungeon/extra/harpy.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Net"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Net — Choose to reduce the facing owner's Attack by 1, 2, or 3. Monster: Harpy — I attack you when your Spin lands on me, and after each item you use. Challenge hand. Wheel harpy. Click Net, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-net-harpy",
+	"log": "Draft enter\nYou Spin\nSpin Harpy\nenemy ATK 2   HP 5\nBLK 0\nitems this combat 0\nHarpy - Impatient\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nUsed choose\nNet\nATK facing ATK -1  to  1\nitems this combat 1\nHarpy - Impatient\nFight hit 1  ATK 1 - BLK\nBLK 0\nHP take -1  now 3",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 3 · BLK 0 · face Harpy ATK 1 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use net",
+			"done "
+		],
+		"face_atk": 1,
+		"face_hp": 5,
+		"face_id": "harpy",
+		"face_name": "Harpy",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Net vs Harpy",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,49 @@
+{
+	"cards": [
+		{
+			"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
+			"id": "danger_magnet",
+			"kind": "item",
+			"name": "Danger Magnet",
+			"sprite": "assets/dungeon/items/danger_magnet.png"
+		},
+		{
+			"ability": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
+			"id": "mouse",
+			"kind": "monster",
+			"name": "Mouse",
+			"sprite": "assets/dungeon/extra/mouse.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Danger Magnet"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Danger Magnet — Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this. Monster: Mouse — When you Spin me, if you have more HP than me I lose 2 HP and Flee Challenge hand. Wheel mouse. Click Danger Magnet, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-danger_magnet-mouse",
+	"log": "Draft enter\nYou Spin\nSpin Mouse\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nMouse - Scurry\nSpin Scurry -2 HP\nBLK 0",
+	"note": "",
+	"observed": "spin did not reach fighting (phase=ready)",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"title": "Danger Magnet vs Mouse",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

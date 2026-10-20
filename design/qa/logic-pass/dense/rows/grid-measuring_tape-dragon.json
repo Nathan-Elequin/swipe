@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat Any Monster with exactly double your HP",
+			"id": "measuring_tape",
+			"kind": "item",
+			"name": "Scythe",
+			"sprite": "assets/dungeon/items/measuring_tape.png"
+		},
+		{
+			"ability": "My Attack ignores Block.",
+			"id": "dragon",
+			"kind": "monster",
+			"name": "Dragon",
+			"sprite": "assets/dungeon/extra/dragon.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Scythe"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Scythe — Defeat Any Monster with exactly double your HP Monster: Dragon — My Attack ignores Block. Challenge hand. Wheel dragon. Click Scythe, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-measuring_tape-dragon",
+	"log": "Draft enter\nYou Spin\nSpin Dragon\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0\nUsed cannot\nYou Done\nFight hit 1  ATK 6  (ignores BLK)\nDragon - Firebreather\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Dragon ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use measuring_tape",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "dragon",
+		"face_name": "Dragon",
+		"hand": [
+			"Scythe"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Scythe vs Dragon",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

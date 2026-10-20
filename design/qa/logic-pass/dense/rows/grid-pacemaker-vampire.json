@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+			"id": "pacemaker",
+			"kind": "item",
+			"name": "Pacemaker",
+			"sprite": "assets/dungeon/items/pacemaker.png"
+		},
+		{
+			"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+			"id": "vampire",
+			"kind": "monster",
+			"name": "Vampire",
+			"sprite": "assets/dungeon/extra/vampire.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Pacemaker"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Pacemaker — When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP. Monster: Vampire — Every time you lose HP, I gain +1 HP and +1 ATK. Challenge hand. Wheel vampire. Click Pacemaker, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pacemaker-vampire",
+	"log": "Draft enter\nYou Spin\nSpin Vampire\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nPacemaker\nHP heal +1  now 2\nHP bleed -2  now 2\nVampire - Bloodlust\nVampire +1 HP +1 ATK  to  5/5  ATK 5\nitems this combat 1\nYou Done\nFight hit 1  ATK 5 - BLK\nBLK 0\nHP take -5  now 0\nVampire - Bloodlust\nVampire +1 HP +1 ATK  to  6/6  ATK 6\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 2 · BLK 0 · face Vampire ATK 5 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pacemaker",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 5,
+		"face_id": "vampire",
+		"face_name": "Vampire",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 2
+	},
+	"title": "Pacemaker vs Vampire",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

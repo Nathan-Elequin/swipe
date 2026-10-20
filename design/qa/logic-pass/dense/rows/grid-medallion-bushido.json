@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block equal to the HP you are missing.",
+			"id": "medallion",
+			"kind": "item",
+			"name": "Medallion",
+			"sprite": "assets/dungeon/items/medallion.png"
+		},
+		{
+			"ability": "When facing me, your second Item used has no effect",
+			"id": "bushido",
+			"kind": "monster",
+			"name": "Bushido",
+			"sprite": "assets/dungeon/extra/bushido.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Medallion"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Medallion — Block equal to the HP you are missing. Monster: Bushido — When facing me, your second Item used has no effect Challenge hand. Wheel bushido. Click Medallion, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-medallion-bushido",
+	"log": "Draft enter\nYou Spin\nSpin Bushido\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nMedallion\nBLK +1  to  1\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 1 · face Bushido ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use medallion",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "bushido",
+		"face_name": "Bushido",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Medallion vs Bushido",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

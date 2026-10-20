@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to your highest Attack Item",
+			"id": "spiked_shield",
+			"kind": "item",
+			"name": "Spiked Shield",
+			"sprite": "assets/dungeon/items/spiked_shield.png"
+		},
+		{
+			"ability": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
+			"id": "spider_queen",
+			"kind": "monster",
+			"name": "Spider Queen",
+			"sprite": "assets/dungeon/extra/spider.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Spiked Shield"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Spiked Shield — Gain Block equal to your highest Attack Item Monster: Spider Queen — Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each. Challenge hand. Wheel spider_queen. Click Spiked Shield, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-spiked_shield-spider_queen",
+	"log": "Draft enter\nYou Spin\nSpin Spider Queen\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nSpider Queen - Egg Layer\nDraft gain Spider Egg\nGone Spider Egg\nSpider Queen - Egg Layer\nQueen +2 HP +2 ATK\nSpiked Shield\nBLK +0  to  0\nitems this combat 1",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Spider Queen ATK 5 HP 5",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Spider Queen ATK 5 HP 5",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use spiked_shield",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 5,
+		"face_id": "spider_queen",
+		"face_name": "Spider Queen",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Spiked Shield vs Spider Queen",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "My Attack always equals my HP.",
+			"id": "slime_boss",
+			"kind": "monster",
+			"name": "Slime Boss",
+			"sprite": "assets/dungeon/extra/slime_boss.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Slime Boss — My Attack always equals my HP. Challenge hand. Wheel slime_boss. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-slime_boss",
+	"log": "Draft enter\nYou Spin\nSpin Slime Boss\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nChakram\nBLK +3  to  3\nATK 3  to  Slime Boss HP 6\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Slime Boss ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "slime_boss",
+		"face_name": "Slime Boss",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Slime Boss",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,66 @@
+{
+	"cards": [
+		{
+			"ability": "Atk 3, or Atk 1 and Keep this item",
+			"id": "throwing_knife",
+			"kind": "item",
+			"name": "Throwing Knife",
+			"sprite": "assets/dungeon/items/throwing_knife.png"
+		},
+		{
+			"ability": "When you Spin me, choose an Item and I will upgrade it",
+			"id": "merchant",
+			"kind": "monster",
+			"name": "Merchant",
+			"sprite": "assets/dungeon/extra/merchant.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Throwing Knife"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Throwing Knife — Atk 3, or Atk 1 and Keep this item Monster: Merchant — When you Spin me, choose an Item and I will upgrade it Challenge hand. Wheel merchant. Click Throwing Knife, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-throwing_knife-merchant",
+	"log": "Draft enter\nYou Spin\nSpin Merchant\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin merchant offers an upgrade\nSpin upgrade Throwing Knife to Paci-Fist",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Merchant ATK 4 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use throwing_knife",
+			"choose throw",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "merchant",
+		"face_name": "Merchant",
+		"hand": [
+			"Paci-Fist"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Throwing Knife vs Merchant",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

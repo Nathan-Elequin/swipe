@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"id": "lantern",
+			"kind": "item",
+			"name": "Lantern",
+			"sprite": "assets/dungeon/items/lantern.png"
+		},
+		{
+			"ability": "When facing me, your second Item used has no effect",
+			"id": "bushido",
+			"kind": "monster",
+			"name": "Bushido",
+			"sprite": "assets/dungeon/extra/bushido.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lantern"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Bushido — When facing me, your second Item used has no effect Challenge hand. Wheel bushido. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lantern-bushido",
+	"log": "Draft enter\nYou Spin\nSpin Bushido\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nLantern\nHP heal +2  now 5\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 0 · face Bushido ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lantern",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "bushido",
+		"face_name": "Bushido",
+		"hand": [
+			"Lantern"
+		],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Lantern vs Bushido",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

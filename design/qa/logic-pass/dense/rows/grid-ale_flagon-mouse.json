@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 5. Gain 3 Poison.",
+			"id": "ale_flagon",
+			"kind": "item",
+			"name": "Ale Flagon",
+			"sprite": "assets/dungeon/items/ale_flagon.png"
+		},
+		{
+			"ability": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
+			"id": "mouse",
+			"kind": "monster",
+			"name": "Mouse",
+			"sprite": "assets/dungeon/extra/mouse.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Ale Flagon"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Ale Flagon — Heal 5. Gain 3 Poison. Monster: Mouse — When you Spin me, if you have more HP than me I lose 2 HP and Flee Challenge hand. Wheel mouse. Click Ale Flagon, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-ale_flagon-mouse",
+	"log": "Draft enter\nYou Spin\nSpin Mouse\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nAle Flagon\nHP heal +3  now 6\nUsed poison 3\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Mouse ATK 2 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use ale_flagon",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 4,
+		"face_id": "mouse",
+		"face_name": "Mouse",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Ale Flagon vs Mouse",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

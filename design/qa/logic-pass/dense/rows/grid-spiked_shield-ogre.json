@@ -1,0 +1,62 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to your highest Attack Item",
+			"id": "spiked_shield",
+			"kind": "item",
+			"name": "Spiked Shield",
+			"sprite": "assets/dungeon/items/spiked_shield.png"
+		},
+		{
+			"ability": "When you lose HP, I lose equal HP.",
+			"id": "ogre",
+			"kind": "monster",
+			"name": "Ogre",
+			"sprite": "assets/dungeon/extra/ogre.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Spiked Shield"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Spiked Shield — Gain Block equal to your highest Attack Item Monster: Ogre — When you lose HP, I lose equal HP. Challenge hand. Wheel ogre. Click Spiked Shield. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-spiked_shield-ogre",
+	"log": "Draft enter\nYou Spin\nSpin Ogre\nenemy ATK 5   HP 10\nBLK 0\nitems this combat 0\nSpiked Shield\nBLK +0  to  0\nitems this combat 1",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Ogre ATK 5 HP 10",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Ogre ATK 5 HP 10",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use spiked_shield"
+		],
+		"face_atk": 5,
+		"face_hp": 10,
+		"face_id": "ogre",
+		"face_name": "Ogre",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Spiked Shield vs Ogre",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

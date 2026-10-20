@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"id": "lantern",
+			"kind": "item",
+			"name": "Lantern",
+			"sprite": "assets/dungeon/items/lantern.png"
+		},
+		{
+			"ability": "I cannot take Attack damage.",
+			"id": "goblin",
+			"kind": "monster",
+			"name": "Goblin",
+			"sprite": "assets/dungeon/extra/goblin.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lantern"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Goblin — I cannot take Attack damage. Challenge hand. Wheel goblin. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lantern-goblin",
+	"log": "Draft enter\nYou Spin\nSpin Goblin\nenemy ATK 3   HP 1\nBLK 0\nitems this combat 0\nLantern\nHP heal +2  now 5\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 0 · face Goblin ATK 3 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lantern",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 1,
+		"face_id": "goblin",
+		"face_name": "Goblin",
+		"hand": [
+			"Lantern"
+		],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Lantern vs Goblin",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

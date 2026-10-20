@@ -1,0 +1,66 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
+			"id": "death_bell",
+			"kind": "monster",
+			"name": "Death Bell",
+			"sprite": "assets/dungeon/extra/death_bell.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram",
+			"Toll"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Death Bell — When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item. Challenge hand. Wheel death_bell. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-death_bell",
+	"log": "Draft gain Toll\nDraft enter\nYou Spin\nSpin Death Bell\nenemy ATK 8   HP 12\nBLK 0\nitems this combat 0\nSpin Death Bell -2 HP\nChakram\nBLK +3  to  3\nATK 3  to  Death Bell HP 7\nitems this combat 1\nToll 5",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Death Bell ATK 8 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 8,
+		"face_hp": 7,
+		"face_id": "death_bell",
+		"face_name": "Death Bell",
+		"hand": [
+			"Toll"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Death Bell",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

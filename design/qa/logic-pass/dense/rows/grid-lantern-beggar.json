@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"id": "lantern",
+			"kind": "item",
+			"name": "Lantern",
+			"sprite": "assets/dungeon/items/lantern.png"
+		},
+		{
+			"ability": "I gain Atk equal to your leftmost Atk Item",
+			"id": "beggar",
+			"kind": "monster",
+			"name": "Beggar",
+			"sprite": "assets/dungeon/extra/beggar.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lantern"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Beggar — I gain Atk equal to your leftmost Atk Item Challenge hand. Wheel beggar. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lantern-beggar",
+	"log": "Draft enter\nYou Spin\nSpin Beggar\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nLantern\nHP heal +2  now 5\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 0 · face Beggar ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lantern",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "beggar",
+		"face_name": "Beggar",
+		"hand": [
+			"Lantern"
+		],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Lantern vs Beggar",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

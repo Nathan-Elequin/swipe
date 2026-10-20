@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
+			"id": "danger_magnet",
+			"kind": "item",
+			"name": "Danger Magnet",
+			"sprite": "assets/dungeon/items/danger_magnet.png"
+		},
+		{
+			"ability": "I make you feed me one of two items.",
+			"id": "gelatinous_cube",
+			"kind": "monster",
+			"name": "Gelatinous Cube",
+			"sprite": "assets/dungeon/extra/gelatinous_cube.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Danger Magnet"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Danger Magnet — Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this. Monster: Gelatinous Cube — I make you feed me one of two items. Challenge hand. Wheel gelatinous_cube. Click Danger Magnet, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-danger_magnet-gelatinous_cube",
+	"log": "Draft enter\nYou Spin\nSpin Gelatinous Cube\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin cube demands a feed\nSpin cube ate Danger Magnet",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Gelatinous Cube ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use danger_magnet",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "gelatinous_cube",
+		"face_name": "Gelatinous Cube",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Danger Magnet vs Gelatinous Cube",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

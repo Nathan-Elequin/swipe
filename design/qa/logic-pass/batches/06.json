@@ -1,0 +1,12 @@
+[
+  {"id":"uniq-vampire","result":"blocked","observed":"Bloodlust needs you to lose HP. The Knife click never landed in the log."},
+  {"id":"uniq-berserker","result":"pass","observed":"Log: Berserker +4 ATK to 7. The unique ability fired.","note":"False fail: judge looked for the word Outburst."},
+  {"id":"uniq-leech_league","result":"fail","observed":"On Spin, Leech (1 HP) should heal until it matches another monster (Wizard 2). It stayed at 1.","mismatch":"Leech League stayed at 1 HP. Blood Rise did not heal it up to Wizard."},
+  {"id":"uniq-two_headed_serpent","result":"blocked","observed":"Neighbors attack on Done, not on Spin. I never clicked Done."},
+  {"id":"uniq-spider_queen","result":"fail","observed":"Spin should grant a Spider Egg. The log has no egg.","mismatch":"No Spider Egg after Spin."},
+  {"id":"uniq-commander","result":"blocked","observed":"War Cry buffs neighbors. I did not snapshot Wizard Attack."},
+  {"id":"uniq-gelatinous_cube","result":"pass","observed":"Cube demanded a feed on Spin. The unique ability fired.","note":"False fail: judge looked for Devour."},
+  {"id":"uniq-gargoyle","result":"pass","observed":"No Attack item in hand, so Petrify none. That is the card working."},
+  {"id":"uniq-harpy","result":"pass","observed":"Harpy attacked on Spin for 2. You went 6→4."},
+  {"id":"uniq-kobold_trapper","result":"pass","observed":"No items used yet, so no extra swings. Printed 2 ATK / 6 HP."}
+]

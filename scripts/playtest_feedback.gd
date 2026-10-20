@@ -73,16 +73,16 @@ func setup() -> void:
 	_tier.text = COPY.text("playtest.make_tier_list", "Make An Item/Monster Tier List")
 	_tier.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_tier.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	UX.dress_small_button(_tier, 210)
+	UX.dress_small_button(_tier, 248)
 	_tier.pressed.connect(_on_tier)
 	_tier.anchor_left = 1.0
 	_tier.anchor_top = 0.0
 	_tier.anchor_right = 1.0
 	_tier.anchor_bottom = 0.0
-	_tier.offset_left = -210.0
+	_tier.offset_left = -248.0
 	_tier.offset_top = 0.0
 	_tier.offset_right = 0.0
-	_tier.offset_bottom = 36.0
+	_tier.offset_bottom = 40.0
 	head.add_child(_tier)
 	var hint := Label.new()
 	hint.text = COPY.text("playtest.f2_hint", "F2 also opens this.")

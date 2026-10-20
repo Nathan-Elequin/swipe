@@ -1,0 +1,611 @@
+{
+  "count": 101,
+  "tests": [
+    {
+      "id": "shield-gains-4",
+      "title": "Shield grants 4 Block",
+      "family": "happy",
+      "expected_text": "Click Shield. Log shows BLK +4 to 4. Shield is spent."
+    },
+    {
+      "id": "stone-wall-10",
+      "title": "Stone Wall grants 10 Block",
+      "family": "happy",
+      "expected_text": "Click Stone Wall. Log shows BLK +10. Stone Wall is spent."
+    },
+    {
+      "id": "lucky-nickel-1",
+      "title": "Lucky Nickel grants 1 Block",
+      "family": "happy",
+      "expected_text": "Click Lucky Nickel. Log shows BLK +1. Block is 1 (odd), so it does not Keep."
+    },
+    {
+      "id": "breastplate-2",
+      "title": "Breastplate grants 2 Block",
+      "family": "happy",
+      "expected_text": "Click Breastplate. Log shows BLK +2 to 2."
+    },
+    {
+      "id": "knife-throw-wizard",
+      "title": "Throwing Knife throw Defeats Wizard",
+      "family": "happy",
+      "expected_text": "Throw for ATK 3. Wizard has 2 HP, so Wizard is Defeated. Knife is spent."
+    },
+    {
+      "id": "knife-keep-wizard",
+      "title": "Throwing Knife Keep nicks Wizard",
+      "family": "happy",
+      "expected_text": "Nick for ATK 1 and Keep. Wizard HP 2\u21921. Knife stays in hand."
+    },
+    {
+      "id": "boot-defeats-wizard",
+      "title": "The Boot Defeats Wizard",
+      "family": "happy",
+      "expected_text": "Wizard has 2 HP, you have 6. Boot Defeats Wizard."
+    },
+    {
+      "id": "sledge-defeats-dragon",
+      "title": "Sledgehammer Defeats Dragon",
+      "family": "happy",
+      "expected_text": "Dragon has 6 Attack. Sledgehammer Defeats an enemy with 6 or more Attack."
+    },
+    {
+      "id": "arrow-head-6",
+      "title": "Arrow Head deals 6 and you lose 2 HP",
+      "family": "happy",
+      "expected_text": "Click Arrow Head. Golem takes 6 Attack. You lose 2 HP (6\u21924)."
+    },
+    {
+      "id": "lantern-heal-2",
+      "title": "Lantern Heals 2",
+      "family": "happy",
+      "expected_text": "Start at 3 HP. Click Lantern. Heal 2, now 5 HP. You are still missing HP, so Keep."
+    },
+    {
+      "id": "scroll-heal-to-full",
+      "title": "Cursed Scroll Heals 6",
+      "family": "happy",
+      "expected_text": "Start at 1 HP. Click Cursed Scroll. Heal 6 (capped at your max)."
+    },
+    {
+      "id": "ale-heal-5",
+      "title": "Ale Flagon Heals 5",
+      "family": "happy",
+      "expected_text": "Start at 1 HP. Click Ale Flagon. Heal 5, now 6. You also Gain 3 Poison."
+    },
+    {
+      "id": "chakram-solo-golem",
+      "title": "Chakram solo: Block 3 and ATK 3",
+      "family": "happy",
+      "expected_text": "Only Chakram in hand. Block 3 if you have no Block items, ATK 3 if you have no Attack items. Golem 7 HP \u2192 4."
+    },
+    {
+      "id": "last-match-solo-wizard",
+      "title": "Last Match Defeats Wizard when you have no Attack item",
+      "family": "happy",
+      "expected_text": "Last Match is not an Attack item. Zero Attack items in hand, so it Defeats Wizard."
+    },
+    {
+      "id": "quiet-bell-silences-eel",
+      "title": "Quiet Bell removes Eel's ability",
+      "family": "happy",
+      "expected_text": "Click Quiet Bell. Log says the fight is silenced. Eel no longer takes Attack from Block you gain."
+    },
+    {
+      "id": "hex-stays-unplayable",
+      "title": "Hex stays in hand (Unplayable)",
+      "family": "happy",
+      "expected_text": "Hex is Unplayable. Do not click it. It stays in hand and starts its 6-Spin Defeat."
+    },
+    {
+      "id": "buckler-stays-unplayable",
+      "title": "Double-Buckler stays in hand",
+      "family": "happy",
+      "expected_text": "Double-Buckler is Unplayable. Do not click it. It stays in hand until even Attack damage hits you."
+    },
+    {
+      "id": "net-drop-atk",
+      "title": "Net reduces facing Attack",
+      "family": "happy",
+      "expected_text": "Click Net and pick a reduction. Golem's Attack goes down. Net is spent."
+    },
+    {
+      "id": "ball-and-chain-2",
+      "title": "Ball and Chain deals 2 Attack",
+      "family": "happy",
+      "expected_text": "Click Ball and Chain. 2 Attack into Wizard (2 HP), so Wizard is Defeated."
+    },
+    {
+      "id": "napalm-sets-1",
+      "title": "Napalm sets you and the Enemy to 1 HP",
+      "family": "happy",
+      "expected_text": "Click Napalm. Golem HP becomes 1. Your HP becomes 1."
+    },
+    {
+      "id": "spiked-shield-no-atk",
+      "title": "Spiked Shield with no Attack item grants 0",
+      "family": "miss",
+      "expected_text": "Only Spiked Shield in hand. Highest Attack Item is none, so BLK +0. That matches the Ability."
+    },
+    {
+      "id": "chain-no-block",
+      "title": "Chain with 0 Block cannot spend Block",
+      "family": "miss",
+      "expected_text": "You hold 0 Block. Chain deals Attack equal to Block you hold. Log is Used cannot, or ATK 0. Chain Keeps."
+    },
+    {
+      "id": "mirror-no-last-block",
+      "title": "Mirror Shard with no last Block cannot copy",
+      "family": "miss",
+      "expected_text": "No Block was gained yet. Mirror Shard copies the last Block you gained. Used cannot, or BLK +0."
+    },
+    {
+      "id": "boot-golem-too-fat",
+      "title": "The Boot does not Defeat Golem (7 HP vs your 6)",
+      "family": "miss",
+      "expected_text": "Golem has 7 HP, you have 6. Boot only Defeats an enemy with less HP than you. Golem still there."
+    },
+    {
+      "id": "medallion-full-hp",
+      "title": "Medallion at full HP grants 0 Block",
+      "family": "miss",
+      "expected_text": "You are at 6/6 HP, missing 0. Block equal to HP you are missing is 0."
+    },
+    {
+      "id": "bracers-no-right-neighbor",
+      "title": "Right Bracer with no neighbor grants 0",
+      "family": "miss",
+      "expected_text": "Wheel is only Golem. No Neighbor on the Right. Block equal to that Attack is 0."
+    },
+    {
+      "id": "left-bracer-no-neighbor",
+      "title": "Left Bracer with no neighbor grants 0",
+      "family": "miss",
+      "expected_text": "Wheel is only Golem. No Neighbor on the Left. Block equal to that Attack is 0."
+    },
+    {
+      "id": "grimoire-no-last-monster",
+      "title": "Grimoire with no last monster deals 0",
+      "family": "miss",
+      "expected_text": "No previous enemy this dungeon. Attack equal to the last monster you faced is 0 (or Used cannot)."
+    },
+    {
+      "id": "last-match-with-knife",
+      "title": "Last Match does not Defeat if you hold an Attack item",
+      "family": "miss",
+      "expected_text": "Throwing Knife deals Atk. Last Match only Defeats if you have zero Attack items. Wizard still there."
+    },
+    {
+      "id": "measuring-tape-not-double",
+      "title": "Measuring Tape does not Defeat Golem (not exactly double HP)",
+      "family": "miss",
+      "expected_text": "You have 6 HP. Double is 12. Golem has 7. Not exactly double, so Golem stays."
+    },
+    {
+      "id": "cube-eats-shield",
+      "title": "Gelatinous Cube eats Shield instead of playing it",
+      "family": "collide",
+      "expected_text": "Cube makes you feed it. Clicking Shield feeds Cube. Log says it ate Shield. Block stays 0. That is Cube working."
+    },
+    {
+      "id": "goblin-ignores-knife",
+      "title": "Goblin does not take Attack from Throwing Knife",
+      "family": "collide",
+      "expected_text": "Goblin cannot take Attack damage. Knife throw does not lower Goblin HP."
+    },
+    {
+      "id": "eel-takes-block-as-atk",
+      "title": "Eel takes Attack equal to Block you gain",
+      "family": "collide",
+      "expected_text": "Click Shield, Gain 4 Block. Eel takes 4 Attack. Eel has 4 HP, so Eel is Defeated."
+    },
+    {
+      "id": "dragon-ignores-block",
+      "title": "Dragon's Attack ignores Block",
+      "family": "collide",
+      "expected_text": "Gain 4 Block, then Done. Dragon ignores Block. You take the full Attack."
+    },
+    {
+      "id": "basilisk-flees-on-spin",
+      "title": "Basilisk Flees on the first Spin",
+      "family": "collide",
+      "expected_text": "The first time you Spin Basilisk, it Flees (and Petrifies). There is no fight to click Shield. That is Basilisk working."
+    },
+    {
+      "id": "mouse-flees-on-spin",
+      "title": "Mouse Flees on Spin because you have more HP",
+      "family": "collide",
+      "expected_text": "You have 6 HP, Mouse has 4. On Spin it loses 2 HP and Flees. No fight to click Shield. That is Mouse working."
+    },
+    {
+      "id": "harpy-hits-after-item",
+      "title": "Harpy attacks after you use Shield",
+      "family": "collide",
+      "expected_text": "Harpy attacks when Spin lands and after each item. Shield grants 2+ Block, then Harpy hits and spends that Block."
+    },
+    {
+      "id": "queen-lays-on-spin",
+      "title": "Spider Queen lays an egg on Spin",
+      "family": "collide",
+      "expected_text": "Each time you Spin, Gain 1 Spider Egg. After Spin, hand has an egg (unless the hand was full)."
+    },
+    {
+      "id": "fangs-you-can-die",
+      "title": "Fangs lets Golem Attack first; you can die before Heal",
+      "family": "collide",
+      "expected_text": "Fangs: let the Enemy Attack, then Defeat them and Heal. Golem deals 3. You had 6. If the hit lands, you may die before Heal. The card still did what it says."
+    },
+    {
+      "id": "bushido-second-item-blank",
+      "title": "Bushido: second item this fight does nothing",
+      "family": "collide",
+      "expected_text": "Facing Bushido, your second item has no effect. Shield should grant Block. Lantern should not Heal."
+    },
+    {
+      "id": "echo-copies-shield",
+      "title": "Echo Bell copies the last item (Shield)",
+      "family": "collide",
+      "expected_text": "Use Shield (BLK +4), then Echo Bell. Echo becomes a copy of Shield and grants Block again."
+    },
+    {
+      "id": "mirror-after-shield",
+      "title": "Mirror Shard copies the 4 Block from Shield",
+      "family": "collide",
+      "expected_text": "Shield first (BLK +4). Mirror Shard copies the last Block gained, so another +4."
+    },
+    {
+      "id": "chain-after-shield",
+      "title": "Chain spends the 4 Block from Shield as Attack",
+      "family": "collide",
+      "expected_text": "Shield first (4 Block). Chain deals Attack equal to Block you hold (4) into Golem 7 HP \u2192 3. Chain Keeps."
+    },
+    {
+      "id": "spiked-with-knife",
+      "title": "Spiked Shield copies Throwing Knife's Attack as Block",
+      "family": "collide",
+      "expected_text": "Hand has Throwing Knife (an Attack item) and Spiked Shield. Gain Block equal to your highest Attack Item."
+    },
+    {
+      "id": "anvil-caps-damage",
+      "title": "Anvil cannot lose more than 1 HP at a time",
+      "family": "collide",
+      "expected_text": "Arrow Head is 6 Attack. Anvil cannot lose more than 1 HP at a time, so Anvil loses 1 HP, not 6."
+    },
+    {
+      "id": "hollow-even-doubles",
+      "title": "Hollow: even Block happens twice",
+      "family": "collide",
+      "expected_text": "Shield grants 4 Block (even). Against Hollow, even Block values happen twice."
+    },
+    {
+      "id": "bodyguard-eats-neighbor-hit",
+      "title": "Bodyguard takes Attack meant for a Neighbor",
+      "family": "collide",
+      "expected_text": "Crossbow deals 4 to a Neighbor. Bodyguard takes Attack meant for Neighbors instead of Wizard."
+    },
+    {
+      "id": "amalgam-doubles-after-item",
+      "title": "Amalgam doubles after you use an item",
+      "family": "collide",
+      "expected_text": "After any item you use while facing Amalgam, double remaining HP and ATK."
+    },
+    {
+      "id": "gargoyle-petrifies-atk",
+      "title": "Gargoyle petrifies your highest Attack item",
+      "family": "collide",
+      "expected_text": "Gargoyle petrifies your highest Attack item until you Spin again. Arrow Head should be unplayable this fight."
+    },
+    {
+      "id": "zombie-no-keep",
+      "title": "Zombie: you cannot Gain or Keep items",
+      "family": "collide",
+      "expected_text": "While facing Zombie you cannot Gain or Keep. Knife Keep should not leave the card in hand."
+    },
+    {
+      "id": "juggernaut-grants-shield",
+      "title": "Juggernaut: Gain a Shield on Spin",
+      "family": "collide",
+      "expected_text": "When you Spin Juggernaut, Gain a Shield. After Spin, hand has a Shield."
+    },
+    {
+      "id": "fairy-heals-on-spin",
+      "title": "Fairy Heals you 2 on Spin",
+      "family": "collide",
+      "expected_text": "When you Spin Fairy, Heal you and Neighbors for 2. Start at 3 HP, after Spin you have 5."
+    },
+    {
+      "id": "dire-wolf-atk-equals-your-hp",
+      "title": "Dire Wolf Attack equals your HP",
+      "family": "collide",
+      "expected_text": "Dire Wolf Attack always equals your HP. You have 6, so the plate shows ATK 6."
+    },
+    {
+      "id": "slime-atk-equals-hp",
+      "title": "Slime Attack equals its HP",
+      "family": "collide",
+      "expected_text": "Slime Attack always equals its HP. Plate ATK and HP are the same number."
+    },
+    {
+      "id": "bandit-plus-items",
+      "title": "Bandit +1 Attack per item you hold",
+      "family": "collide",
+      "expected_text": "Bandit +1 Atk for each Item you hold. One Shield in hand, so Attack is printed + 1."
+    },
+    {
+      "id": "needleback-on-atk",
+      "title": "Needleback hits you when it takes Attack",
+      "family": "collide",
+      "expected_text": "Needleback Attacks you for 2 each time it takes ATK damage. Arrow Head hits it, then it hits you for 2."
+    },
+    {
+      "id": "ogre-mirrors-hp-loss",
+      "title": "Ogre loses HP when you lose HP",
+      "family": "collide",
+      "expected_text": "Arrow Head: you lose 2 HP. When you lose HP, Ogre loses equal HP."
+    },
+    {
+      "id": "vampire-grows-on-your-loss",
+      "title": "Vampire gains +1/+1 when you lose HP",
+      "family": "collide",
+      "expected_text": "Arrow Head: you lose 2 HP. Vampire gains +1 HP and +1 ATK each time you lose HP."
+    },
+    {
+      "id": "triclops-at-3",
+      "title": "Triclops is Defeated at exactly 3 HP",
+      "family": "collide",
+      "expected_text": "Napalm sets HP to 1, or any path that leaves Triclops at 3 HP Defeats it. If Defeated another way, it Flees instead."
+    },
+    {
+      "id": "wick-on-neighbor-death",
+      "title": "Wick loses 2 HP when a Neighbor is Defeated",
+      "family": "collide",
+      "expected_text": "Sledgehammer Defeats Dragon (neighbor). Wick loses 2 HP."
+    },
+    {
+      "id": "phoenix-egg-hatches",
+      "title": "Phoenix Egg Flees and hatches when Defeated",
+      "family": "collide",
+      "expected_text": "Boot Defeats Phoenix Egg (low HP). It Flees and hatches into a Phoenix."
+    },
+    {
+      "id": "poison-frog-on-spin",
+      "title": "Poison Frog gives you 2 Poison on Spin",
+      "family": "collide",
+      "expected_text": "When you Spin Poison Frog, you Gain 2 Poison."
+    },
+    {
+      "id": "rust-bucket-grants-rust",
+      "title": "Rust Bucket: Gain 1 Rust when it enters",
+      "family": "collide",
+      "expected_text": "When Rust Bucket enters the dungeon, Gain 1 Rust."
+    },
+    {
+      "id": "cultist-blood-pact",
+      "title": "Cultist: Gain 1 Blood Pact on Spin",
+      "family": "collide",
+      "expected_text": "When you Spin Cultist or its Neighbor, Gain 1 Blood Pact."
+    },
+    {
+      "id": "clockwork-leaves-tough",
+      "title": "Clockwork Knight leaves two Tough monsters if it lives",
+      "family": "collide",
+      "expected_text": "If Clockwork Knight lives through Done, it leaves two Tough monsters in its place."
+    },
+    {
+      "id": "martyr-dies-on-attack",
+      "title": "Martyr dies when it Attacks",
+      "family": "collide",
+      "expected_text": "When Martyr Attacks, it dies. Neighbors gain HP equal to its current HP."
+    },
+    {
+      "id": "two-head-neighbors-hit",
+      "title": "Two-Headed Serpent: neighbors attack, then it Heals 3",
+      "family": "collide",
+      "expected_text": "Neighbors attack you (left, then right), then Serpent Heals you for 3."
+    },
+    {
+      "id": "prism-splits-atk",
+      "title": "Prism: Neighbors take Attack instead",
+      "family": "collide",
+      "expected_text": "When Prism would take Attack, both Neighbors take it instead."
+    },
+    {
+      "id": "cowardly-king-redirect",
+      "title": "Cowardly King: Right neighbor takes your Attack",
+      "family": "collide",
+      "expected_text": "When you Attack the King, the Neighbor to the Right takes it instead."
+    },
+    {
+      "id": "commander-buffs-then-flees",
+      "title": "Commander buffs Neighbors; first Defeat Flees",
+      "family": "collide",
+      "expected_text": "Commander gives Neighbors +2 Attack. The first time it is Defeated, it Flees."
+    },
+    {
+      "id": "bag-holds-wizard",
+      "title": "Bag of Holding bags Wizard (less HP than you)",
+      "family": "collide",
+      "expected_text": "Wizard has 2 HP, you have 6. Bag an enemy with less HP than you."
+    },
+    {
+      "id": "catapult-ejects",
+      "title": "Catapult Ejects the Enemy",
+      "family": "collide",
+      "expected_text": "Click Catapult. Golem is Ejected. You Draw an Item."
+    },
+    {
+      "id": "shuriken-flee-if-lives",
+      "title": "Shuriken: if Golem lives, you Flee and Keep",
+      "family": "collide",
+      "expected_text": "2 Attack into Golem 7 HP. Golem lives, so you Flee and Keep Shuriken."
+    },
+    {
+      "id": "signpost-block-then-neighbor",
+      "title": "Signpost: Block 7, then a Neighbor Attacks you",
+      "family": "collide",
+      "expected_text": "Block 7, then choose a Neighbor to Attack you."
+    },
+    {
+      "id": "double-axe-cleave",
+      "title": "Double Axe hits facing and Neighbors",
+      "family": "collide",
+      "expected_text": "Deal 2 Attack to facing and each Neighbor. Same enemy only once."
+    },
+    {
+      "id": "longbow-even-wheel",
+      "title": "Longbow hits across when the wheel has an even count",
+      "family": "collide",
+      "expected_text": "Two monsters (even). Longbow deals 4 to the monster across from you."
+    },
+    {
+      "id": "miasma-poison-lowest",
+      "title": "Miasma Poisons all equal to the lowest HP",
+      "family": "collide",
+      "expected_text": "Lowest HP on the wheel is Wizard at 2. Apply 2 Poison to all monsters."
+    },
+    {
+      "id": "bag-of-marbles-fills",
+      "title": "Bag of Marbles fills the hand",
+      "family": "collide",
+      "expected_text": "Fill your inventory with Marbles."
+    },
+    {
+      "id": "polymorph-copy-neighbor",
+      "title": "Polymorph copies a Neighbor onto the facing enemy",
+      "family": "collide",
+      "expected_text": "Turn Golem into an exact copy of Wizard (the Neighbor you pick)."
+    },
+    {
+      "id": "hook-swaps-neighbor",
+      "title": "Grappling Hook swaps a Neighbor in",
+      "family": "collide",
+      "expected_text": "Swap a Neighboring Owner into this fight. Draw a Random Item."
+    },
+    {
+      "id": "pacemaker-on-use",
+      "title": "Pacemaker: on use you lose 2 HP, then Heal 1 because you lost exactly 2",
+      "family": "collide",
+      "expected_text": "On Use, Lose 2 HP. When you lose exactly 2 HP, Heal 1. Net \u22121 HP (6\u21925)."
+    },
+    {
+      "id": "grief-jar-on-spin",
+      "title": "Grief Jar: on Spin you lose 1 HP and it gains +2 Block",
+      "family": "collide",
+      "expected_text": "Each time you Spin, Lose 1 HP and this item gains +2 Block. After Spin you are at 5 HP."
+    },
+    {
+      "id": "knucklers-one-in-hand",
+      "title": "Knucklers: Attack equals 8 minus items still in hand",
+      "family": "collide",
+      "expected_text": "One item in hand. 8 \u2212 1 = 7 Attack into Golem 7 HP."
+    },
+    {
+      "id": "bloody-gauntlets-missing-hp",
+      "title": "Bloody Gauntlets: +1 ATK per missing HP",
+      "family": "collide",
+      "expected_text": "Start at 3 HP (missing 3). +1 ATK for each missing HP."
+    },
+    {
+      "id": "helmet-lower-hp",
+      "title": "Helmet: Block equal to the lower HP (you vs Enemy)",
+      "family": "collide",
+      "expected_text": "You 6, Wizard 2. Lower HP is 2, so Block 2."
+    },
+    {
+      "id": "counting-beads-pick",
+      "title": "Counting Beads: pick 1\u20134 Attack",
+      "family": "collide",
+      "expected_text": "Choose (1), (2), (3), or (4) Atk. Auto-picks the first option. Golem takes that Attack."
+    },
+    {
+      "id": "sai-first-swing",
+      "title": "Sai first swing vs Golem",
+      "family": "collide",
+      "expected_text": "Sai flips 2 \u2194 4 after any item is used. First click this fight is 2 or 4. Log names Sai."
+    },
+    {
+      "id": "keep-knife-until-done",
+      "title": "Knife Keep stays until Done",
+      "family": "seed",
+      "expected_text": "Nick and Keep. After Done the Knife is still in hand (Keep)."
+    },
+    {
+      "id": "order-sai-then-shield",
+      "title": "Sai then Shield: Sai flips after Shield too",
+      "family": "order",
+      "expected_text": "Sai first, then Shield. Sai flips after any item, including Shield. Both click. Log names both."
+    },
+    {
+      "id": "order-shield-then-sai",
+      "title": "Shield then Sai",
+      "family": "order",
+      "expected_text": "Shield first (BLK +4), then Sai. Both fire. Log names both."
+    },
+    {
+      "id": "leech-league-on-spin",
+      "title": "Leech League Heals the lowest HP monster on Spin",
+      "family": "collide",
+      "expected_text": "On Spin, repeatedly Heals the lowest HP monster until it ties another."
+    },
+    {
+      "id": "hydra-petrify-even",
+      "title": "Hydra petrifies even ATK/BLK items on Spin",
+      "family": "collide",
+      "expected_text": "Shield is even Block 4. On Spin, Hydra Petrifies even ATK/BLK items and gains +2 Atk each."
+    },
+    {
+      "id": "magicat-to-marble",
+      "title": "Magicat turns two ATK/BLK items into Marbles on Spin",
+      "family": "collide",
+      "expected_text": "On Spin, Magicat turns two of your Atk or Blk items into a Marble with the same value."
+    },
+    {
+      "id": "death-bell-toll",
+      "title": "Death Bell: Gain 1 Toll when it spawns",
+      "family": "collide",
+      "expected_text": "When Death Bell spawns, Gain 1 Toll. On Spin it loses 2 HP."
+    },
+    {
+      "id": "almighty-worm-discard",
+      "title": "Almighty Worm: you may Discard items on Spin",
+      "family": "collide",
+      "expected_text": "When you Spin Worm, you may Discard items. Each sacrifice reduces its Atk and HP by 3. If the prompt appears, auto-resolve. If you keep Shield, Worm stays at printed numbers."
+    },
+    {
+      "id": "cleric-heals-and-takes",
+      "title": "Cleric Heals 3 and takes your worst item if you are missing 3 HP",
+      "family": "collide",
+      "expected_text": "Start at 3 HP (missing 3). After Spin, Cleric Heals you for 3 and takes your worst item."
+    },
+    {
+      "id": "merchant-upgrade",
+      "title": "Merchant: choose an item to upgrade on Spin",
+      "family": "collide",
+      "expected_text": "When you Spin Merchant, choose an item and it will upgrade it. Auto-pick Shield."
+    },
+    {
+      "id": "plague-doctor-poison-neighbors",
+      "title": "Plague Doctor: neighbors Always have 2 Poison",
+      "family": "collide",
+      "expected_text": "Neighbors Always have 2 Poison. On Spin, Doctor Heals neighbors for 2."
+    },
+    {
+      "id": "hired-hand-on-discard",
+      "title": "Hired Hand attacks a Neighbor and Flees if you Discard",
+      "family": "collide",
+      "expected_text": "If you Discard an item when facing Hired Hand, it Attacks a Neighbor and Flees. This fight only Spins; if no Discard, Hand stays. Log names Hired Hand."
+    },
+    {
+      "id": "skeleton-copies-last-hp",
+      "title": "Skeleton copies the last enemy's HP \u2014 first fight has no last enemy",
+      "family": "collide",
+      "expected_text": "Skeleton copies the HP of the last enemy you faced. First fight: no last enemy, so printed HP (or 0). Plate still shows a Skeleton."
+    },
+    {
+      "id": "lich-buffs-neighbors",
+      "title": "Lich gives Neighbors +1 HP",
+      "family": "collide",
+      "expected_text": "Lich gives Neighbors +1 HP. Wizard and Golem should be +1 HP vs printed."
+    }
+  ]
+}

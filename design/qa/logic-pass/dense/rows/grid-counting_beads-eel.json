@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "(1), (2), (3), or (4) Atk",
+			"id": "counting_beads",
+			"kind": "item",
+			"name": "Counting Beads",
+			"sprite": "assets/dungeon/items/counting_beads.png"
+		},
+		{
+			"ability": "When facing me, I take Attack damage equal to Block you gain.",
+			"id": "eel",
+			"kind": "monster",
+			"name": "Eel",
+			"sprite": "assets/dungeon/extra/eel.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Counting Beads"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Counting Beads — (1), (2), (3), or (4) Atk Monster: Eel — When facing me, I take Attack damage equal to Block you gain. Challenge hand. Wheel eel. Click Counting Beads, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-counting_beads-eel",
+	"log": "Draft enter\nYou Spin\nSpin Eel\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0\nCounting Beads\nATK 1  to  Eel HP 3\nitems this combat 1\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Eel ATK 6 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use counting_beads",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 3,
+		"face_id": "eel",
+		"face_name": "Eel",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Counting Beads vs Eel",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

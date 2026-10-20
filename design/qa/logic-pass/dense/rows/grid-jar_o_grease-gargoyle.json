@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 1, randomly Swap an Item, and Keep this.",
+			"id": "jar_o_grease",
+			"kind": "item",
+			"name": "Jar O' Grease",
+			"sprite": "assets/dungeon/items/jar_o_grease.png"
+		},
+		{
+			"ability": "I petrify your highest Attack item until you Spin again.",
+			"id": "gargoyle",
+			"kind": "monster",
+			"name": "Gargoyle",
+			"sprite": "assets/dungeon/extra/gargoyle.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Jar O' Grease"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Jar O' Grease — Heal 1, randomly Swap an Item, and Keep this. Monster: Gargoyle — I petrify your highest Attack item until you Spin again. Challenge hand. Wheel gargoyle. Click Jar O' Grease, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-jar_o_grease-gargoyle",
+	"log": "Draft enter\nYou Spin\nSpin Gargoyle\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nSpin petrify none\nJar O' Grease\nUsed cannot\nYou Done\nFight hit 1  ATK 4 - BLK\nBLK 0\nHP take -4  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 3 · BLK 0 · face Gargoyle ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use jar_o_grease",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "gargoyle",
+		"face_name": "Gargoyle",
+		"hand": [
+			"Jar O' Grease"
+		],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Jar O' Grease vs Gargoyle",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
+			"id": "double_buckler",
+			"kind": "item",
+			"name": "Double-Buckler",
+			"sprite": "assets/dungeon/items/double_buckler.png"
+		},
+		{
+			"ability": "After I Attack, I Heal you for double the HP I cause you to lose.",
+			"id": "druid",
+			"kind": "monster",
+			"name": "Druid",
+			"sprite": "assets/dungeon/extra/druid.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Double-Buckler"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Double-Buckler — Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this. Monster: Druid — After I Attack, I Heal you for double the HP I cause you to lose. Challenge hand. Wheel druid. Click Double-Buckler, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_buckler-druid",
+	"log": "Draft enter\nYou Spin\nSpin Druid\nenemy ATK 7   HP 4\nBLK 0\nitems this combat 0\nYou Done\nFight hit 1  ATK 7 - BLK\nBLK 0\nHP take -7  now 0\nEnd dead",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Attack: Heal you 2× HP lost, after death check.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Attack: Heal you 2× HP lost, after death check.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"done "
+		],
+		"face_atk": 7,
+		"face_hp": 4,
+		"face_id": "druid",
+		"face_name": "Druid",
+		"hand": [
+			"Double-Buckler"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Double-Buckler vs Druid",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

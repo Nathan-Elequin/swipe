@@ -1,0 +1,62 @@
+{
+	"cards": [
+		{
+			"ability": "This gains +2 Attack each time you lose any HP.",
+			"id": "spiked_flail",
+			"kind": "item",
+			"name": "Spiked Flail",
+			"sprite": "assets/dungeon/items/spiked_flail.png"
+		},
+		{
+			"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+			"id": "vampire",
+			"kind": "monster",
+			"name": "Vampire",
+			"sprite": "assets/dungeon/extra/vampire.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Spiked Flail"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Spiked Flail — This gains +2 Attack each time you lose any HP. Monster: Vampire — Every time you lose HP, I gain +1 HP and +1 ATK. Challenge hand. Wheel vampire. Click Spiked Flail. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-spiked_flail-vampire",
+	"log": "Draft enter\nYou Spin\nSpin Vampire\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpiked Flail\nATK 0  to  Vampire HP 4\nATK 0  to  Vampire HP 4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Vampire ATK 4 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use spiked_flail"
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "vampire",
+		"face_name": "Vampire",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Spiked Flail vs Vampire",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

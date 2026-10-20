@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
+			"id": "fangs",
+			"kind": "item",
+			"name": "Fangs",
+			"sprite": "assets/dungeon/items/fangs.png"
+		},
+		{
+			"ability": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
+			"id": "mouse",
+			"kind": "monster",
+			"name": "Mouse",
+			"sprite": "assets/dungeon/extra/mouse.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Fangs"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Fangs — Let the Enemy Attack, then Defeat them and Heal equal to their current HP. Monster: Mouse — When you Spin me, if you have more HP than me I lose 2 HP and Flee Challenge hand. Wheel mouse. Click Fangs, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-fangs-mouse",
+	"log": "Draft enter\nYou Spin\nSpin Mouse\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: On Spin: if your HP is higher, I lose 2 HP and Flee.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: On Spin: if your HP is higher, I lose 2 HP and Flee.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use fangs"
+		],
+		"face_atk": 2,
+		"face_hp": 4,
+		"face_id": "mouse",
+		"face_name": "Mouse",
+		"hand": [
+			"Fangs"
+		],
+		"kind": "fight",
+		"you_hp": 3
+	},
+	"title": "Fangs vs Mouse",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

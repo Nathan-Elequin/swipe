@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Remove your Enemy's unique ability",
+			"id": "quiet_bell",
+			"kind": "item",
+			"name": "Quiet Bell",
+			"sprite": "assets/dungeon/items/quiet_bell.png"
+		},
+		{
+			"ability": "+1 Atk for each Item you hold.",
+			"id": "bandit",
+			"kind": "monster",
+			"name": "Bandit",
+			"sprite": "assets/dungeon/extra/bandit.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Quiet Bell"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Quiet Bell — Remove your Enemy's unique ability Monster: Bandit — +1 Atk for each Item you hold. Challenge hand. Wheel bandit. Click Quiet Bell, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-quiet_bell-bandit",
+	"log": "Draft enter\nYou Spin\nSpin Bandit\nenemy ATK 1   HP 3\nBLK 0\nitems this combat 0\nQuiet Bell\nFight silenced bandit\nitems this combat 1",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Attack = Your Items.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Attack = Your Items.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use quiet_bell",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 3,
+		"face_id": "bandit",
+		"face_name": "Bandit",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Quiet Bell vs Bandit",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

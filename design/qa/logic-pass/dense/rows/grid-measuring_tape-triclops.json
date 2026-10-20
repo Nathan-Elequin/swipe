@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat Any Monster with exactly double your HP",
+			"id": "measuring_tape",
+			"kind": "item",
+			"name": "Scythe",
+			"sprite": "assets/dungeon/items/measuring_tape.png"
+		},
+		{
+			"ability": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
+			"id": "triclops",
+			"kind": "monster",
+			"name": "Triclops",
+			"sprite": "assets/dungeon/extra/triclops_v2.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Scythe"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Scythe — Defeat Any Monster with exactly double your HP Monster: Triclops — If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee. Challenge hand. Wheel triclops. Click Scythe, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-measuring_tape-triclops",
+	"log": "Draft enter\nYou Spin\nSpin Triclops\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nUsed cannot\nYou Done\nFight hit 1  ATK 4 - BLK\nBLK 0\nHP take -4  now 2\nFight Triclops -2 HP and Flee  to  5\nBLK 0\nYou Spin\nSpin Triclops\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Triclops ATK 4 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use measuring_tape",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 7,
+		"face_id": "triclops",
+		"face_name": "Triclops",
+		"hand": [
+			"Scythe"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Scythe vs Triclops",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

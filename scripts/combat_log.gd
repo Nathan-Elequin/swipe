@@ -115,6 +115,11 @@ func begin_proc(data: Dictionary) -> void:
 
 func push_line(kind: String, msg: String, highlight: Dictionary = {}) -> void:
 	msg = _web_safe(msg)
+	if kind == "on_item_use" and not _stack.is_empty():
+		var host: VBoxContainer = _host()
+		var titled: String = str(host.get_meta("title", "")).strip_edges().to_lower()
+		if titled != "" and titled == _strip_bb(msg).strip_edges().to_lower():
+			return
 	var row := _leaf_row(kind, msg, highlight)
 	_host().add_child(row)
 	var info: Dictionary = TAG.get(kind, TAG["var"])
@@ -152,9 +157,13 @@ func _proc_capsule(data: Dictionary) -> PanelContainer:
 	p.mouse_filter = Control.MOUSE_FILTER_STOP
 	var tier: int = int(data.get("tier", 1))
 	var is_item: bool = str(data.get("kind", "")) == "item"
+	var rim: Color = UX.metal(tier) if is_item else Color("e8c36a")
+	var ink_s: String = str(data.get("ink", "")).strip_edges()
+	if ink_s != "":
+		rim = Color(ink_s)
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color("1a1410f2")
-	sb.border_color = UX.metal(tier) if is_item else Color("e8c36a")
+	sb.border_color = rim
 	sb.set_border_width_all(2)
 	sb.set_corner_radius_all(10)
 	sb.content_margin_left = 10
@@ -209,6 +218,7 @@ func _proc_capsule(data: Dictionary) -> PanelContainer:
 	kids.add_theme_constant_override("separation", 3)
 	kids.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	kids.set_meta("highlight", hl)
+	kids.set_meta("title", str(data.get("title", "")))
 	wrap.add_child(kids)
 	p.set_meta("kids", kids)
 	return p
@@ -333,7 +343,7 @@ func _paint(raw: String) -> String:
 
 func _link_kws(t: String) -> String:
 	var rx := RegEx.new()
-	if rx.compile("(?i)\\b(fleeing|flees|fled|flee|spinning|spins|spin|always|unplayable)\\b") != OK:
+	if rx.compile("(?i)\\b(fleeing|flees|fled|flee|spinning|spins|spun|spin|always|unplayable|rust)\\b") != OK:
 		return t
 	var hits: Array = rx.search_all(t)
 	var out := t

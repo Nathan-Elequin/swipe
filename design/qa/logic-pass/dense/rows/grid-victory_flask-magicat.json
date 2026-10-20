@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 1, plus 1 for each monster Defeated",
+			"id": "victory_flask",
+			"kind": "item",
+			"name": "Victory Flask",
+			"sprite": "assets/dungeon/items/victory_flask.png"
+		},
+		{
+			"ability": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
+			"id": "magicat",
+			"kind": "monster",
+			"name": "Magicat",
+			"sprite": "assets/dungeon/extra/magicat.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Victory Flask"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Victory Flask — Heal 1, plus 1 for each monster Defeated Monster: Magicat — When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value Challenge hand. Wheel magicat. Click Victory Flask, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-victory_flask-magicat",
+	"log": "Draft enter\nYou Spin\nSpin Magicat\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nMagicat - Cat's Eye\nVictory Flask\nHP heal +1  now 4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Magicat ATK 3 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use victory_flask",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 3,
+		"face_id": "magicat",
+		"face_name": "Magicat",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Victory Flask vs Magicat",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

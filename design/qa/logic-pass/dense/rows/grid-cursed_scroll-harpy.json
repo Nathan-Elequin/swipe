@@ -1,0 +1,49 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 6. On Spin, lose 1 HP.",
+			"id": "cursed_scroll",
+			"kind": "item",
+			"name": "Cursed Scroll",
+			"sprite": "assets/dungeon/items/cursed_scroll.png"
+		},
+		{
+			"ability": "I attack you when your Spin lands on me, and after each item you use.",
+			"id": "harpy",
+			"kind": "monster",
+			"name": "Harpy",
+			"sprite": "assets/dungeon/extra/harpy.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Cursed Scroll"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Cursed Scroll — Heal 6. On Spin, lose 1 HP. Monster: Harpy — I attack you when your Spin lands on me, and after each item you use. Challenge hand. Wheel harpy. Click Cursed Scroll, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-cursed_scroll-harpy",
+	"log": "Draft enter\nYou Spin\nSpin Harpy\nenemy ATK 2   HP 5\nBLK 0\nitems this combat 0\nSpin Cursed Scroll\nCursed Scroll\nHP bleed -1  now 2\nHarpy - Impatient\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 0\nEnd dead",
+	"note": "",
+	"observed": "spin did not reach fighting (phase=defeat)",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"title": "Cursed Scroll vs Harpy",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

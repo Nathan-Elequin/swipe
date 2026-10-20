@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Fill your inventory with Marbles",
+			"id": "bag_of_marbles",
+			"kind": "item",
+			"name": "Bag Of Marbles",
+			"sprite": "assets/dungeon/items/bag_of_marbles.png"
+		},
+		{
+			"ability": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3.",
+			"id": "almighty_worm",
+			"kind": "monster",
+			"name": "Almighty Worm",
+			"sprite": "assets/dungeon/extra/almighty_worm.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Bag Of Marbles"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Bag Of Marbles — Fill your inventory with Marbles Monster: Almighty Worm — When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3. Challenge hand. Wheel almighty_worm. Click Bag Of Marbles, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-bag_of_marbles-almighty_worm",
+	"log": "Draft enter\nYou Spin\nSpin Almighty Worm\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nSpin almighty worm hunger\nSpin worm ate Bag Of Marbles\nSpin worm hunger done",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Almighty Worm ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use bag_of_marbles",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "almighty_worm",
+		"face_name": "Almighty Worm",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Bag Of Marbles vs Almighty Worm",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

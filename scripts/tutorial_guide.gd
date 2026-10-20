@@ -569,6 +569,7 @@ func _apply_direction(cur: Dictionary, t: String) -> void:
 		cur["hint"] = "(click that monster on the wheel)"
 		if low.find("wizard") >= 0:
 			cur["force"] = "wizard"
+			cur["hint"] = "(click the Wizard to face them)"
 		elif low.find("golem") >= 0:
 			cur["force"] = "golem"
 		elif low.find("goblin") >= 0:

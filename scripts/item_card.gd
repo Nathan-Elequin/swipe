@@ -56,6 +56,8 @@ var _plus: TextureRect
 var _ban: TextureRect
 var _used: Label
 var _danger: bool = false
+var _bag_stamp: TextureRect
+var _or: RichTextLabel
 
 
 func setup(
@@ -176,6 +178,21 @@ func setup(
 	_num.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	num_host.add_child(_num)
 
+	_or = RichTextLabel.new()
+	_or.bbcode_enabled = true
+	_or.scroll_active = false
+	_or.fit_content = true
+	_or.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_or.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_or.add_theme_font_size_override("normal_font_size", 22)
+	_or.add_theme_color_override("default_color", Color("f0e6d8"))
+	_or.add_theme_color_override("font_outline_color", Color("100e0c"))
+	_or.add_theme_constant_override("outline_size", 3)
+	_or.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_or.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_or.visible = false
+	num_host.add_child(_or)
+
 	_plus = TextureRect.new()
 	_plus.visible = false
 	_plus.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -240,7 +257,7 @@ func setup(
 	_used.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_used.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_used)
-	_shown = number_text
+	set_live(number_text, "", true)
 	_sync_hatch()
 	_sync_lock_shade()
 
@@ -323,6 +340,36 @@ func _draw_lock_shade() -> void:
 	while x < w + h:
 		_lock_shade.draw_line(Vector2(x, 0.0), Vector2(x + h * 0.58, h), dust, 1.0)
 		x += 12.0
+
+
+func set_icon(tex: Texture2D) -> void:
+	if _icon == null:
+		return
+	_icon.texture = tex
+
+
+func set_bag_stamp(tex: Texture2D) -> void:
+	if tex == null:
+		if _bag_stamp:
+			_bag_stamp.visible = false
+		return
+	if _bag_stamp == null:
+		_bag_stamp = TextureRect.new()
+		_bag_stamp.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_bag_stamp.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_bag_stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_bag_stamp.texture_filter = TEXTURE_FILTER_NEAREST
+		_bag_stamp.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+		_bag_stamp.offset_left = -36
+		_bag_stamp.offset_top = -36
+		_bag_stamp.offset_right = -2
+		_bag_stamp.offset_bottom = -2
+		if _icon:
+			_icon.add_child(_bag_stamp)
+		else:
+			add_child(_bag_stamp)
+	_bag_stamp.texture = tex
+	_bag_stamp.visible = true
 
 
 func set_echo_mark(tex: Texture2D) -> void:
@@ -433,12 +480,26 @@ func set_showcase(on: bool) -> void:
 func set_live(number_text: String, _note: String = "", can_use: bool = true) -> void:
 	if _num == null:
 		return
+	var or_bits: PackedStringArray = _or_parts(number_text)
 	var wordy: bool = number_text.length() > 2 and not number_text.is_valid_int()
 	var face: int = 48 if _showcase else 32
 	_num.add_theme_font_size_override("font_size", 18 if wordy else face)
 	if _ghost:
 		_ghost.add_theme_font_size_override("font_size", 18 if wordy else face)
-	if not _formula_on:
+	if or_bits.size() == 2:
+		_shown = number_text
+		_num.visible = false
+		_num.text = number_text
+		if _ghost:
+			_ghost.visible = false
+		if _or:
+			_or.visible = not _formula_on
+			_or.text = "[center][color=#e06c75]%s[/color] OR [color=#6bb3d9]%s[/color][/center]" % [or_bits[0], or_bits[1]]
+	elif not _formula_on:
+		if _or:
+			_or.visible = false
+		if _ghost:
+			_ghost.visible = true
 		_num.visible = number_text != ""
 		if number_text != "" and number_text != _shown and _shown != "":
 			_dissolve(_shown, number_text)
@@ -448,6 +509,8 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 	else:
 		_shown = number_text
 		_num.text = number_text
+		if _or:
+			_or.visible = false
 	if _glow or _aura or _log_focus or _danger:
 		pass
 	elif spent:
@@ -463,6 +526,15 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 		_mark.visible = _mark.texture != null and (number_text == "" or beside)
 		_mark.modulate.a = 0.95
 		_layout_mark(number_text)
+
+
+func _or_parts(number_text: String) -> PackedStringArray:
+	var bits: PackedStringArray = number_text.split(" OR ", false)
+	if bits.size() != 2:
+		return PackedStringArray()
+	if not str(bits[0]).is_valid_int() or not str(bits[1]).is_valid_int():
+		return PackedStringArray()
+	return bits
 
 
 func set_rank(text: String) -> void:
@@ -584,7 +656,10 @@ func show_formula(on: bool) -> void:
 		return
 	_eq.text = "[center]%s[/center]" % _formula
 	_eq.visible = _formula_on
-	_num.visible = not _formula_on and _shown != ""
+	var or_on: bool = _or_parts(_shown).size() == 2
+	_num.visible = not _formula_on and _shown != "" and not or_on
+	if _or:
+		_or.visible = not _formula_on and or_on
 	if _plus != null:
 		_plus.visible = (not _formula_on) and _plus.texture != null
 	if _ban != null:

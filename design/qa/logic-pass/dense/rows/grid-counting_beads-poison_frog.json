@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "(1), (2), (3), or (4) Atk",
+			"id": "counting_beads",
+			"kind": "item",
+			"name": "Counting Beads",
+			"sprite": "assets/dungeon/items/counting_beads.png"
+		},
+		{
+			"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
+			"id": "poison_frog",
+			"kind": "monster",
+			"name": "Poison Frog",
+			"sprite": "assets/dungeon/extra/poison_frog.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Counting Beads"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Counting Beads — (1), (2), (3), or (4) Atk Monster: Poison Frog — When you Spin me and when I take Atk damage from any source, you Gain 2 Poison Challenge hand. Wheel poison_frog. Click Counting Beads, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-counting_beads-poison_frog",
+	"log": "Draft enter\nYou Spin\nSpin Poison Frog\nenemy ATK 2   HP 4\nBLK 0\nitems this combat 0\nPoison Frog - Toxic Skin\nUsed poison 2\nCounting Beads\nPoison Frog - Toxic Skin\nUsed poison 4\nUsed Counting Beads\nATK 1  to  Poison Frog HP 3\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Poison Frog ATK 2 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use counting_beads",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 3,
+		"face_id": "poison_frog",
+		"face_name": "Poison Frog",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Counting Beads vs Poison Frog",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

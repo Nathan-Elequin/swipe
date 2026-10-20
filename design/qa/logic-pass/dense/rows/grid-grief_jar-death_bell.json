@@ -1,0 +1,66 @@
+{
+	"cards": [
+		{
+			"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
+			"id": "grief_jar",
+			"kind": "item",
+			"name": "Grief Jar",
+			"sprite": "assets/dungeon/items/grief_jar.png"
+		},
+		{
+			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
+			"id": "death_bell",
+			"kind": "monster",
+			"name": "Death Bell",
+			"sprite": "assets/dungeon/extra/death_bell.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grief Jar",
+			"Toll"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Grief Jar — Each time you Spin, Lose 1 HP and this item gains +2 Block Monster: Death Bell — When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item. Challenge hand. Wheel death_bell. Click Grief Jar, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grief_jar-death_bell",
+	"log": "Draft gain Toll\nDraft enter\nYou Spin\nSpin Death Bell\nenemy ATK 8   HP 12\nBLK 0\nitems this combat 0\nGrief Jar BLK 2\nGrief Jar\nHP bleed -1  now 5\nSpin Death Bell -2 HP\nGrief Jar\nBLK +2  to  2\nitems this combat 1\nToll 5\nYou Done\nFight hit 1  ATK 8 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 5 · BLK 2 · face Death Bell ATK 8 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grief_jar",
+			"done "
+		],
+		"face_atk": 8,
+		"face_hp": 10,
+		"face_id": "death_bell",
+		"face_name": "Death Bell",
+		"hand": [
+			"Toll"
+		],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Grief Jar vs Death Bell",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

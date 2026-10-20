@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each",
+			"id": "hydra",
+			"kind": "monster",
+			"name": "Hydra",
+			"sprite": "assets/dungeon/extra/hydra.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Hydra — When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each Challenge hand. Wheel hydra. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-hydra",
+	"log": "Draft enter\nYou Spin\nSpin Hydra\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0\nSpin hydra petrify none\nChakram\nBLK +3  to  3\nATK 3  to  Hydra HP 2\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Hydra ATK 3 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 2,
+		"face_id": "hydra",
+		"face_name": "Hydra",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Hydra",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

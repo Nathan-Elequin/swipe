@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with less HP than you.",
+			"id": "da_boot",
+			"kind": "item",
+			"name": "The Boot",
+			"sprite": "assets/dungeon/items/boot.png"
+		},
+		{
+			"ability": "When you Spin me, choose an Item and I will upgrade it",
+			"id": "merchant",
+			"kind": "monster",
+			"name": "Merchant",
+			"sprite": "assets/dungeon/extra/merchant.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"The Boot"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: The Boot — Defeat an enemy with less HP than you. Monster: Merchant — When you Spin me, choose an Item and I will upgrade it Challenge hand. Wheel merchant. Click The Boot, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-da_boot-merchant",
+	"log": "Draft enter\nYou Spin\nSpin Merchant\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin merchant offers an upgrade\nSpin upgrade The Boot to Jar O' Grease",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Merchant ATK 4 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use da_boot",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "merchant",
+		"face_name": "Merchant",
+		"hand": [
+			"Jar O' Grease"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "The Boot vs Merchant",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

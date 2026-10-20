@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mill distribution</title>
+<style>
+  :root { --ink:#f0e6d8; --muted:#cbbba6; --bg:#120e0c; --panel:#1c1612; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.45 "Iowan Old Style", Palatino, Georgia, serif; }
+  .wrap { padding:24px 24px 64px; max-width:1180px; }
+  h1 { font-size:28px; margin:0 0 8px; }
+  h2 { font-size:20px; margin:28px 0 10px; }
+  h3 { font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:16px 0 8px; }
+  .how { color:#8dcb8d; margin:0 0 18px; }
+  .verdict { background:#241810; border:3px solid #c08050; padding:16px 18px; }
+  .verdict p { margin:0 0 10px; color:var(--muted); }
+  .verdict ol, .verdict ul { margin:8px 0 0; padding-left:22px; }
+  .bars { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:10px; margin-top:14px; }
+  .bar { background:var(--panel); border:3px solid #6b5344; padding:10px 12px; }
+  .bar.over { border-color:#e07a7a; }
+  .bar.short { border-color:#e8c36a; }
+  .bar.ok { border-color:#5d8a45; }
+  .bn { font:700 22px ui-sans-serif,sans-serif; }
+  .want { font-size:13px; color:var(--muted); }
+  .have { font-weight:700; margin-top:4px; }
+  .board { display:flex; gap:12px; overflow-x:auto; padding:8px 0 16px; }
+  .col { min-width:240px; flex:0 0 240px; background:var(--panel); border:3px solid var(--b,#6b5344); padding:10px; }
+  .col header { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .dot { width:36px; height:36px; background:var(--b); color:#fff; font:700 18px/36px ui-sans-serif,sans-serif; text-align:center; }
+  .card { background:#14110f; border:2px solid #4a3b32; padding:6px 8px; margin:0 0 6px; }
+  .card.t3 { border-color:#e8c36a; }
+  .card.t2 { border-color:#6e7f96; }
+  .card.t1 { border-color:#c08050; }
+  .card.keep { background:#1a2a16; border-color:#8dcb8d; }
+  .card.walk { background:#2a1614; border-color:#e07a7a; }
+  .name { font-weight:700; }
+  .meta { font-size:12px; color:var(--muted); }
+  .legend { display:flex; flex-wrap:wrap; gap:14px; color:var(--muted); font-size:13px; margin:12px 0; }
+  .keep-key { color:#b7e0a8; }
+  .walk-key { color:#f0a0a0; }
+  .quota { font-size:13px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Live mill — drag in F6 Roster</h1>
+  <p class="how">F6 Roster · drag a card into another column · Save. Token / Smoke / pair extras / mode-only / Hold / retired do not fill the 10/5.</p>
+
+  <section class="verdict">
+    <h2>Bucket 9 is the overflow parking lot — 8 is a real 5 and 5 now</h2>
+    <p>I would not change ATK or HP from this board. Counts, tiers, and item types are the quota. Strength is for you to feel in play. I am satisfied with the <em>shape</em> of buckets 1, 3, and 5. I am not satisfied with 8, and 0 / 2 / 6 / 7 still need a look after you empty 8.</p>
+    <p class="quota">Want: Bucket 0 = 10 items + 10 monsters, tiers 5/3/2, types 3 Attack / 3 Defense / 2 Cheese / 2 Utility. Later = 5 + 5, tiers 2/2/1, types 2-1-1-1 with extra Attack on odd buckets and extra Defense on even.</p>
+    <h3>What I would drag, in this order</h3>
+    <ol>
+      <li>Keep in 8: <strong>Ball &amp; Chain</strong> (T1 Attack), <strong>Recycler</strong> (T2 Utility), <strong>Pocketwatch</strong> (Cheese), <strong>Magicat</strong> (T1), <strong>Mouse</strong> (T1), <strong>Rust Bucket</strong> (T2), <strong>Poison Frog</strong> (T2). That is already 3 items and 4 monsters. Add two Defense items and one T3 monster to hit 5 and 5.</li>
+      <li>Walk the leftover T3 monsters out of 8 first: <strong>Damsel</strong>, <strong>Almighty Worm</strong>, <strong>Death Bell</strong>. A later bucket only wants one T3 monster.</li>
+      <li>Walk extra Defense out of 8. Sitting there now: <strong>Breastplate</strong>, <strong>Cursed Scroll</strong>, <strong>Grief Jar</strong>, <strong>Mirror Shard</strong>, <strong>Pacemaker</strong>, <strong>Stone Wall</strong>, <strong>Signpost</strong>. Keep two of those as the Defense pair. Even buckets want 2 Defense, not 7.</li>
+      <li>Keep <strong>Pocketwatch</strong> as the Cheese of 8, or walk it if you would rather a later Cheese. Do not also keep Sledgehammer here — that one is already Bucket 0.</li>
+      <li><strong>Basilisk</strong> is the extra late monster in 8, not Clockwork (Clockwork is already in 7). Walk Basilisk with the extra T3s.</li>
+      <li><strong>Juggernaut</strong> is already Bucket 1 in the file. Notes still say 8. Leave him in 1 unless you want that 3 HP / 7 Attack as the late T1.</li>
+      <li><strong>Arrow Head</strong> is 6 Attack then Lose 2 HP, still in Bucket 7. Your gold box wanted Bucket 1. Drag it to 1 after you bump a T2 Attack out of 1 — do that as a separate drag, not as part of emptying 8.</li>
+    </ol>
+    <p>More than two mill cards have to move. I am not silent-rewriting buckets. Roster drag is the right tool.</p>
+  </section>
+
+  <h2>Raw seat counts (catalog bucket field)</h2>
+  <p class="quota">These counts include mode-only extras still sitting in a numbered bucket. Smoke, Right Bracer, Danger Magnet, and Catapult should not fill the 10/5. Token cards are separate.</p>
+  <div class="bars">
+    <div class="bar over"><div class="bn">0</div><div class="want">want 10 / 10</div><div class="have">25 cards in the field (Smoke is extra)</div></div>
+    <div class="bar ok"><div class="bn">1</div><div class="want">want 5 / 5</div><div class="have">10 cards — count looks right</div></div>
+    <div class="bar over"><div class="bn">2</div><div class="want">want 5 / 5</div><div class="have">12 cards — two extra</div></div>
+    <div class="bar ok"><div class="bn">3</div><div class="want">want 5 / 5</div><div class="have">10 cards — count looks right</div></div>
+    <div class="bar ok"><div class="bn">4</div><div class="want">want 5 / 5</div><div class="have">12 including Magnet + Catapult extras → mill 10</div></div>
+    <div class="bar ok"><div class="bn">5</div><div class="want">want 5 / 5</div><div class="have">10 cards — count looks right</div></div>
+    <div class="bar over"><div class="bn">6</div><div class="want">want 5 / 5</div><div class="have">12 including Right Bracer extra → still one over</div></div>
+    <div class="bar short"><div class="bn">7</div><div class="want">want 5 / 5</div><div class="have">9 cards — short one</div></div>
+    <div class="bar over"><div class="bn">8</div><div class="want">want 5 / 5</div><div class="have">18 cards — eight extra</div></div>
+  </div>
+
+  <div class="legend">
+    <span class="keep-key">green = keep in 8</span>
+    <span class="walk-key">red = walk out of 8</span>
+    <span>bronze / silver / gold border = T1 / T2 / T3</span>
+  </div>
+
+  <h2>Bucket 8, named</h2>
+  <div class="board">
+    <section class="col" style="--b:#7a5a2a">
+      <header><div class="dot">8</div><div><strong>Items · 10 sitting, want 5</strong><div class="meta">even bucket wants 1A 2D 1C 1U</div></div></header>
+      <article class="card t1 keep"><div class="name">Ball &amp; Chain</div><div class="meta">T1 Attack · keep</div></article>
+      <article class="card t2 keep"><div class="name">Recycler</div><div class="meta">T2 Utility · keep</div></article>
+      <article class="card t2 walk"><div class="name">Breastplate</div><div class="meta">T2 Defense · walk</div></article>
+      <article class="card t2 walk"><div class="name">Cursed Scroll</div><div class="meta">Heal / Defense · walk unless it is one of your two Defense</div></article>
+      <article class="card keep"><div class="name">Pocketwatch</div><div class="meta">Cheese · keep as the one Cheese</div></article>
+      <article class="card walk"><div class="name">Grief Jar</div><div class="meta">tracking Defense · walk (Pacemaker is also a tracker here)</div></article>
+      <article class="card t2 walk"><div class="name">Mirror Shard</div><div class="meta">T2 Defense · walk</div></article>
+      <article class="card t2 walk"><div class="name">Pacemaker</div><div class="meta">T2 Defense / tracker · walk</div></article>
+      <article class="card t3 walk"><div class="name">Stone Wall</div><div class="meta">T3 Defense · walk</div></article>
+      <article class="card walk"><div class="name">Signpost</div><div class="meta">Utility-ish · walk unless you use it as the fifth item</div></article>
+    </section>
+    <section class="col" style="--b:#7a5a2a">
+      <header><div class="dot">8</div><div><strong>Monsters · 8 sitting, want 5</strong><div class="meta">want tiers 2 / 2 / 1</div></div></header>
+      <article class="card t1 keep"><div class="name">Magicat</div><div class="meta">T1 · keep</div></article>
+      <article class="card t1 keep"><div class="name">Mouse</div><div class="meta">T1 · keep as the second T1, or swap with Juggernaut</div></article>
+      <article class="card t2 keep"><div class="name">Rust Bucket</div><div class="meta">T2 · keep · Rust token is extra</div></article>
+      <article class="card t2 keep"><div class="name">Poison Frog</div><div class="meta">T2 · keep</div></article>
+      <article class="card t3 walk"><div class="name">Damsel In Distress</div><div class="meta">T3 · walk</div></article>
+      <article class="card t3 walk"><div class="name">Almighty Worm</div><div class="meta">T3 · walk</div></article>
+      <article class="card t3 walk"><div class="name">Death Bell</div><div class="meta">T3 · walk</div></article>
+      <article class="card walk"><div class="name">Basilisk</div><div class="meta">Flee + Petrify · walk</div></article>
+    </section>
+  </div>
+
+  <h2>What is actually well balanced</h2>
+  <ul>
+    <li>The six shopping-list holes are filled. 8 does not have empty seats. It has too many seats.</li>
+    <li>Item types across the mill still teach Attack, Block, Defeat, Neighbor, Spin, Keep in 0 if Goblin / Boot / Net / a Spin teacher are still there. Check that in Roster, not here.</li>
+    <li>Cheese should be one per bucket. 8 already has Pocketwatch for that. Sledgehammer is in Bucket 0, which is the right early Cheese.</li>
+    <li>Trackers: Grief Jar and Pacemaker both in 8 is two trackers. Walk one (probably both) out.</li>
+    <li>I would not nerf or buff numbers from this view. The mix problem is placement, not “Ball &amp; Chain is too strong.”</li>
+  </ul>
+</div>
+</body>
+</html>

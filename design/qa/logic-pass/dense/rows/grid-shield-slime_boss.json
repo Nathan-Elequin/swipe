@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Gain 4 Block.",
+			"id": "shield",
+			"kind": "item",
+			"name": "Shield",
+			"sprite": "assets/dungeon/items/shield.png"
+		},
+		{
+			"ability": "My Attack always equals my HP.",
+			"id": "slime_boss",
+			"kind": "monster",
+			"name": "Slime Boss",
+			"sprite": "assets/dungeon/extra/slime_boss.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Shield"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Shield — Gain 4 Block. Monster: Slime Boss — My Attack always equals my HP. Challenge hand. Wheel slime_boss. Click Shield, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-shield-slime_boss",
+	"log": "Draft enter\nYou Spin\nSpin Slime Boss\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nShield\nBLK +4  to  4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 4 · face Slime Boss ATK 9 HP 9",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use shield",
+			"done "
+		],
+		"face_atk": 9,
+		"face_hp": 9,
+		"face_id": "slime_boss",
+		"face_name": "Slime Boss",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Shield vs Slime Boss",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

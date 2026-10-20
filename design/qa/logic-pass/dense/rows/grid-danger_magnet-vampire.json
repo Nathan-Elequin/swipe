@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
+			"id": "danger_magnet",
+			"kind": "item",
+			"name": "Danger Magnet",
+			"sprite": "assets/dungeon/items/danger_magnet.png"
+		},
+		{
+			"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+			"id": "vampire",
+			"kind": "monster",
+			"name": "Vampire",
+			"sprite": "assets/dungeon/extra/vampire.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Danger Magnet"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Danger Magnet — Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this. Monster: Vampire — Every time you lose HP, I gain +1 HP and +1 ATK. Challenge hand. Wheel vampire. Click Danger Magnet, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-danger_magnet-vampire",
+	"log": "Draft enter\nYou Spin\nSpin Vampire\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nUsed choose\nDanger Magnet\nUsed magnet high\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Vampire ATK 4 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use danger_magnet",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "vampire",
+		"face_name": "Vampire",
+		"hand": [
+			"Danger Magnet"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Danger Magnet vs Vampire",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

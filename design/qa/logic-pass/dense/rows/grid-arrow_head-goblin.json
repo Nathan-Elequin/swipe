@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "6 Atk and Lose 2 HP.",
+			"id": "arrow_head",
+			"kind": "item",
+			"name": "Arrow Head",
+			"sprite": "assets/dungeon/items/arrow_head.png"
+		},
+		{
+			"ability": "I cannot take Attack damage.",
+			"id": "goblin",
+			"kind": "monster",
+			"name": "Goblin",
+			"sprite": "assets/dungeon/extra/goblin.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Arrow Head"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Arrow Head — 6 Atk and Lose 2 HP. Monster: Goblin — I cannot take Attack damage. Challenge hand. Wheel goblin. Click Arrow Head, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-arrow_head-goblin",
+	"log": "Draft enter\nYou Spin\nSpin Goblin\nenemy ATK 3   HP 1\nBLK 0\nitems this combat 0\nArrow Head\nno ATK dmg\nGoblin - Evasive\nUsed Arrow Head\nATK 0  to  Goblin immune\nHP bleed -2  now 4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 4 · BLK 0 · face Goblin ATK 3 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use arrow_head",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 1,
+		"face_id": "goblin",
+		"face_name": "Goblin",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 4
+	},
+	"title": "Arrow Head vs Goblin",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

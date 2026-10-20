@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "If you have zero items that deal Atk damage, Defeat the enemy.",
+			"id": "last_match",
+			"kind": "item",
+			"name": "Paci-Fist",
+			"sprite": "assets/dungeon/items/last_match.png"
+		},
+		{
+			"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
+			"id": "phoenix_egg",
+			"kind": "monster",
+			"name": "Phoenix Egg",
+			"sprite": "assets/dungeon/extra/phoenix_egg.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Paci-Fist"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Paci-Fist — If you have zero items that deal Atk damage, Defeat the enemy. Monster: Phoenix Egg — When I am Defeated, I Flee and hatch into a Phoenix. Challenge hand. Wheel phoenix_egg. Click Paci-Fist, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-last_match-phoenix_egg",
+	"log": "Draft enter\nYou Spin\nSpin Phoenix Egg\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0\nPaci-Fist\nitems this combat 1\nFight defeat\nFight Phoenix Egg Flee and become Phoenix\nBLK 0\nYou Spin\nSpin Phoenix\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use last_match",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "phoenix_egg",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Paci-Fist vs Phoenix Egg",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

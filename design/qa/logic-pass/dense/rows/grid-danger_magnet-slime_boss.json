@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
+			"id": "danger_magnet",
+			"kind": "item",
+			"name": "Danger Magnet",
+			"sprite": "assets/dungeon/items/danger_magnet.png"
+		},
+		{
+			"ability": "My Attack always equals my HP.",
+			"id": "slime_boss",
+			"kind": "monster",
+			"name": "Slime Boss",
+			"sprite": "assets/dungeon/extra/slime_boss.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Danger Magnet"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Danger Magnet — Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this. Monster: Slime Boss — My Attack always equals my HP. Challenge hand. Wheel slime_boss. Click Danger Magnet, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-danger_magnet-slime_boss",
+	"log": "Draft enter\nYou Spin\nSpin Slime Boss\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nUsed choose\nDanger Magnet\nUsed magnet high\nitems this combat 1\nYou Done\nFight hit 1  ATK 9 - BLK\nBLK 0\nHP take -9  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Slime Boss ATK 9 HP 9",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use danger_magnet",
+			"done "
+		],
+		"face_atk": 9,
+		"face_hp": 9,
+		"face_id": "slime_boss",
+		"face_name": "Slime Boss",
+		"hand": [
+			"Danger Magnet"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Danger Magnet vs Slime Boss",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

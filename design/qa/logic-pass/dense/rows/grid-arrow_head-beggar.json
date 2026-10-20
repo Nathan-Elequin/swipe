@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "6 Atk and Lose 2 HP.",
+			"id": "arrow_head",
+			"kind": "item",
+			"name": "Arrow Head",
+			"sprite": "assets/dungeon/items/arrow_head.png"
+		},
+		{
+			"ability": "I gain Atk equal to your leftmost Atk Item",
+			"id": "beggar",
+			"kind": "monster",
+			"name": "Beggar",
+			"sprite": "assets/dungeon/extra/beggar.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Arrow Head"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Arrow Head — 6 Atk and Lose 2 HP. Monster: Beggar — I gain Atk equal to your leftmost Atk Item Challenge hand. Wheel beggar. Click Arrow Head, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-arrow_head-beggar",
+	"log": "Draft enter\nYou Spin\nSpin Beggar\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Leftmost Attack, or 3.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Leftmost Attack, or 3.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use arrow_head"
+		],
+		"face_atk": 6,
+		"face_hp": 4,
+		"face_id": "beggar",
+		"face_name": "Beggar",
+		"hand": [
+			"Arrow Head"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Arrow Head vs Beggar",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

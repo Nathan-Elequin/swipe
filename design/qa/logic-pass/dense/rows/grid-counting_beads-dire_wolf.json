@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "(1), (2), (3), or (4) Atk",
+			"id": "counting_beads",
+			"kind": "item",
+			"name": "Counting Beads",
+			"sprite": "assets/dungeon/items/counting_beads.png"
+		},
+		{
+			"ability": "My Attack always equals your HP.",
+			"id": "dire_wolf",
+			"kind": "monster",
+			"name": "Dire Wolf",
+			"sprite": "assets/dungeon/extra/dire_wolf.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Counting Beads"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Counting Beads — (1), (2), (3), or (4) Atk Monster: Dire Wolf — My Attack always equals your HP. Challenge hand. Wheel dire_wolf. Click Counting Beads, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-counting_beads-dire_wolf",
+	"log": "Draft enter\nYou Spin\nSpin Dire Wolf\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0\nCounting Beads\nATK 1  to  Dire Wolf HP 3\nitems this combat 1\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Dire Wolf ATK 6 HP 3",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use counting_beads",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 3,
+		"face_id": "dire_wolf",
+		"face_name": "Dire Wolf",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Counting Beads vs Dire Wolf",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

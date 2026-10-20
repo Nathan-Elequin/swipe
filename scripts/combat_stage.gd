@@ -140,14 +140,16 @@ func take_hit() -> void:
 	tw.tween_property(self, "rotation", 0.0, 0.08)
 
 
-func lunge() -> void:
+func lunge(fast: bool = false) -> void:
 	if OS.has_feature("editor"):
 		print("[resolve] stage.lunge id=", card_id, " frames=", _idle.size(), "/", _run.size())
 	busy = true
 	_mode = "run"
+	var go: float = 0.05 if fast else 0.1
+	var back: float = 0.08 if fast else 0.16
 	var tw := create_tween()
-	tw.tween_property(self, "_lunge_x", 22.0, 0.1).set_trans(Tween.TRANS_BACK)
-	tw.tween_property(self, "_lunge_x", 0.0, 0.16)
+	tw.tween_property(self, "_lunge_x", 22.0, go).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(self, "_lunge_x", 0.0, back)
 	await tw.finished
 	_mode = "idle"
 	busy = false

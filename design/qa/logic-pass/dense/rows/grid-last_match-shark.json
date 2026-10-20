@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "If you have zero items that deal Atk damage, Defeat the enemy.",
+			"id": "last_match",
+			"kind": "item",
+			"name": "Paci-Fist",
+			"sprite": "assets/dungeon/items/last_match.png"
+		},
+		{
+			"ability": "I Attack until you lose HP",
+			"id": "shark",
+			"kind": "monster",
+			"name": "Shark",
+			"sprite": "assets/dungeon/extra/shark.png"
+		}
+	],
+	"column": "blocked",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Paci-Fist"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Paci-Fist — If you have zero items that deal Atk damage, Defeat the enemy. Monster: Shark — I Attack until you lose HP Challenge hand. Wheel shark. Click Paci-Fist, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-last_match-shark",
+	"log": "Draft enter\nYou Spin\nSpin Shark\nenemy ATK 3   HP 6\nBLK 0\nitems this combat 0",
+	"mismatch": "BLOCKED: This special fires on Done, and I never clicked Done.",
+	"note": "",
+	"observed": "This special fires on Done, and I never clicked Done.",
+	"paper_fight": "",
+	"result": "blocked",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use last_match"
+		],
+		"face_atk": 3,
+		"face_hp": 6,
+		"face_id": "shark",
+		"face_name": "Shark",
+		"hand": [
+			"Paci-Fist"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Paci-Fist vs Shark",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

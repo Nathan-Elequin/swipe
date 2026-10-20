@@ -1,0 +1,12 @@
+[
+  {"id":"uniq-counting_beads","result":"pass","observed":"First bead option dealt 1. Golem 7→6."},
+  {"id":"uniq-last_match","result":"blocked","observed":"Dungeon reset after Done/Defeat. Not used as proof."},
+  {"id":"uniq-measuring_tape","result":"pass","observed":"Wizard 2 is not double your 6 HP, so Tape cannot. That is the card working.","note":"False fail from a bad setup."},
+  {"id":"uniq-mute_stone","result":"pass","observed":"Only Mute Stone in hand, so Swap cannot. That is the card working.","note":"False fail."},
+  {"id":"uniq-left_bracer","result":"pass","observed":"Left Bracer gained 5 Block from the left neighbor Attack."},
+  {"id":"uniq-arrow_head","result":"pass","observed":"Arrow Head dealt 6 (Golem 7→1) and you lost 2 HP (6→4)."},
+  {"id":"uniq-danger_magnet","result":"pass","observed":"Magnet set the next Spin to highest Attack."},
+  {"id":"uniq-shuriken","result":"pass","observed":"Shuriken dealt 2, Golem lived, you Fled, Shuriken was Kept.","note":"False fail: snapshot was on the ready screen after Flee."},
+  {"id":"uniq-miasma","result":"blocked","observed":"Dungeon reset before the log could be copied."},
+  {"id":"uniq-bag_of_marbles","result":"pass","observed":"Bag filled the hand with 10 Marbles."}
+]

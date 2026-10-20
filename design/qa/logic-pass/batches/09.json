@@ -1,0 +1,12 @@
+[
+  {"id":"uniq-cultist","result":"pass","observed":"Cultist granted Blood Pact on Spin."},
+  {"id":"uniq-bushido","result":"blocked","observed":"Second item used has no effect. This fight never used two items."},
+  {"id":"uniq-shark","result":"blocked","observed":"Shark Attacks until you lose HP, on Done. I never clicked Done."},
+  {"id":"uniq-death_bell","result":"pass","observed":"You gained Toll. On Spin, Death Bell lost 2 HP (12→10)."},
+  {"id":"uniq-phoenix_egg","result":"blocked","observed":"Hatch fires when Defeated. I never Defeated it."},
+  {"id":"uniq-amalgam","result":"blocked","observed":"Doubles remaining HP/ATK after an item use. I never used an item."},
+  {"id":"uniq-fairy","result":"pass","observed":"Fairy Dust healed you 2 (4→6)."},
+  {"id":"uniq-eel","result":"blocked","observed":"Dungeon reset after Shield. Not used as proof."},
+  {"id":"uniq-druid","result":"blocked","observed":"Druid heals you after it Attacks (Done). I never clicked Done."},
+  {"id":"uniq-mouse","result":"pass","observed":"You had more HP, so Mouse scurried: -2 HP and Fled.","note":"Snapshot was on ready after Flee. Not a fail."}
+]

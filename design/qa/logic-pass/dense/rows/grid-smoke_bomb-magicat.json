@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Spin again and gain a Random Item.",
+			"id": "smoke_bomb",
+			"kind": "item",
+			"name": "Smoke Bomb",
+			"sprite": "assets/dungeon/items/smoke_bomb.png"
+		},
+		{
+			"ability": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
+			"id": "magicat",
+			"kind": "monster",
+			"name": "Magicat",
+			"sprite": "assets/dungeon/extra/magicat.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Smoke Bomb"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Smoke Bomb — Spin again and gain a Random Item. Monster: Magicat — When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value Challenge hand. Wheel magicat. Click Smoke Bomb, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-smoke_bomb-magicat",
+	"log": "Draft enter\nYou Spin\nSpin Magicat\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nMagicat - Cat's Eye\nSmoke Bomb\nitems this combat 1\nDraft gain Chaos Stone\nUsed Smoke Bomb\nYou Spin\nSpin Magicat\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nMagicat - Cat's Eye",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use smoke_bomb",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "magicat",
+		"face_name": "",
+		"hand": [
+			"Chaos Stone"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Smoke Bomb vs Magicat",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

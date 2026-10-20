@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Apply Poison to all Monsters equal to the lowest HP on any Monster",
+			"id": "miasma",
+			"kind": "item",
+			"name": "Miasma",
+			"sprite": "assets/dungeon/items/miasma.png"
+		},
+		{
+			"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
+			"id": "amalgam",
+			"kind": "monster",
+			"name": "Amalgam",
+			"sprite": "assets/dungeon/extra/amalgam.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Miasma"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Miasma — Apply Poison to all Monsters equal to the lowest HP on any Monster Monster: Amalgam — After any Item you Use while facing me, double my remaining HP and ATK. Challenge hand. Wheel amalgam, wizard, golem. Click Miasma, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-miasma-amalgam",
+	"log": "Draft enter\nYou Spin\nSpin Amalgam\nenemy ATK 5   HP 6\nBLK 0\nitems this combat 0\nMiasma\nFight poison 2 all\nitems this combat 1\nFight Amalgam doubles  to  12/12  ATK 10\nSpin poison  to  10 HP\nYou Done\nFight hit 1  ATK 10 - BLK\nBLK 0\nHP take -10  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Amalgam ATK 10 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use miasma",
+			"done "
+		],
+		"face_atk": 10,
+		"face_hp": 10,
+		"face_id": "amalgam",
+		"face_name": "Amalgam",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Miasma vs Amalgam",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

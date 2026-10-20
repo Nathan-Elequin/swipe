@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Gain 4 Block.",
+			"id": "shield",
+			"kind": "item",
+			"name": "Shield",
+			"sprite": "assets/dungeon/items/shield.png"
+		},
+		{
+			"ability": "I petrify your highest Attack item until you Spin again.",
+			"id": "gargoyle",
+			"kind": "monster",
+			"name": "Gargoyle",
+			"sprite": "assets/dungeon/extra/gargoyle.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Shield"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Shield — Gain 4 Block. Monster: Gargoyle — I petrify your highest Attack item until you Spin again. Challenge hand. Wheel gargoyle. Click Shield, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-shield-gargoyle",
+	"log": "Draft enter\nYou Spin\nSpin Gargoyle\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nSpin petrify none\nShield\nBLK +4  to  4\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 4 · face Gargoyle ATK 4 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use shield",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 5,
+		"face_id": "gargoyle",
+		"face_name": "Gargoyle",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Shield vs Gargoyle",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

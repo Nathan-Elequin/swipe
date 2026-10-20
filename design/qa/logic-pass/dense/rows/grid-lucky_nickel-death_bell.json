@@ -1,0 +1,66 @@
+{
+	"cards": [
+		{
+			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"id": "lucky_nickel",
+			"kind": "item",
+			"name": "Lucky Nickel",
+			"sprite": "assets/dungeon/items/lucky_nickel.png"
+		},
+		{
+			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
+			"id": "death_bell",
+			"kind": "monster",
+			"name": "Death Bell",
+			"sprite": "assets/dungeon/extra/death_bell.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lucky Nickel",
+			"Toll"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Death Bell — When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item. Challenge hand. Wheel death_bell. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lucky_nickel-death_bell",
+	"log": "Draft gain Toll\nDraft enter\nYou Spin\nSpin Death Bell\nenemy ATK 8   HP 12\nBLK 0\nitems this combat 0\nSpin Death Bell -2 HP\nLucky Nickel\nBLK +1  to  1\nitems this combat 1\nToll 5\nYou Done\nFight hit 1  ATK 8 - BLK\nBLK 0\nHP take -7  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 1 · face Death Bell ATK 8 HP 10",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lucky_nickel",
+			"done "
+		],
+		"face_atk": 8,
+		"face_hp": 10,
+		"face_id": "death_bell",
+		"face_name": "Death Bell",
+		"hand": [
+			"Toll"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Lucky Nickel vs Death Bell",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

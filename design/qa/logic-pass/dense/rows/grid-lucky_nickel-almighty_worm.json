@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"id": "lucky_nickel",
+			"kind": "item",
+			"name": "Lucky Nickel",
+			"sprite": "assets/dungeon/items/lucky_nickel.png"
+		},
+		{
+			"ability": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3.",
+			"id": "almighty_worm",
+			"kind": "monster",
+			"name": "Almighty Worm",
+			"sprite": "assets/dungeon/extra/almighty_worm.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lucky Nickel"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Almighty Worm — When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3. Challenge hand. Wheel almighty_worm. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lucky_nickel-almighty_worm",
+	"log": "Draft enter\nYou Spin\nSpin Almighty Worm\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nSpin almighty worm hunger\nSpin worm ate Lucky Nickel\nSpin worm hunger done",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Almighty Worm ATK 6 HP 6",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Almighty Worm ATK 6 HP 6",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lucky_nickel",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 6,
+		"face_id": "almighty_worm",
+		"face_name": "Almighty Worm",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Lucky Nickel vs Almighty Worm",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

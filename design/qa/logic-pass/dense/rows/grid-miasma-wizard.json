@@ -1,0 +1,70 @@
+{
+	"cards": [
+		{
+			"ability": "Apply Poison to all Monsters equal to the lowest HP on any Monster",
+			"id": "miasma",
+			"kind": "item",
+			"name": "Miasma",
+			"sprite": "assets/dungeon/items/miasma.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Miasma"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Miasma — Apply Poison to all Monsters equal to the lowest HP on any Monster Monster: Wizard — (printed ATK/HP only) Challenge hand. Wheel wizard, golem. Click Miasma, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-miasma-wizard",
+	"log": "Draft enter\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0\nMiasma\nFight poison 2 all\nitems this combat 1\nSpin poison  to  0 HP\nDefeated Wizard\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nSpin poison  to  5 HP",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Golem ATK 3 HP 5",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use miasma",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 5,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Miasma vs Wizard",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

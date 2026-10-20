@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Heal 6. On Spin, lose 1 HP.",
+			"id": "cursed_scroll",
+			"kind": "item",
+			"name": "Cursed Scroll",
+			"sprite": "assets/dungeon/items/cursed_scroll.png"
+		},
+		{
+			"ability": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated.",
+			"id": "cowardly_king",
+			"kind": "monster",
+			"name": "Cowardly King",
+			"sprite": "assets/dungeon/extra/cowardly_king.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Cursed Scroll"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Cursed Scroll — Heal 6. On Spin, lose 1 HP. Monster: Cowardly King — When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated. Challenge hand. Wheel cowardly_king, wizard, golem. Click Cursed Scroll, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-cursed_scroll-cowardly_king",
+	"log": "Draft enter\nYou Spin\nSpin Cowardly King\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0\nSpin Cursed Scroll\nCursed Scroll\nHP bleed -1  now 2\nCursed Scroll\nHP heal +4  now 6\nitems this combat 1\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nDefeated Cowardly King\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Cowardly King ATK 2 HP 6",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use cursed_scroll",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 6,
+		"face_id": "cowardly_king",
+		"face_name": "Cowardly King",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Cursed Scroll vs Cowardly King",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

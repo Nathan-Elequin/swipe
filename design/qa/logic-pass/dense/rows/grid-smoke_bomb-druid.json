@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Spin again and gain a Random Item.",
+			"id": "smoke_bomb",
+			"kind": "item",
+			"name": "Smoke Bomb",
+			"sprite": "assets/dungeon/items/smoke_bomb.png"
+		},
+		{
+			"ability": "After I Attack, I Heal you for double the HP I cause you to lose.",
+			"id": "druid",
+			"kind": "monster",
+			"name": "Druid",
+			"sprite": "assets/dungeon/extra/druid.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Smoke Bomb"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Smoke Bomb — Spin again and gain a Random Item. Monster: Druid — After I Attack, I Heal you for double the HP I cause you to lose. Challenge hand. Wheel druid. Click Smoke Bomb, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-smoke_bomb-druid",
+	"log": "Draft enter\nYou Spin\nSpin Druid\nenemy ATK 7   HP 4\nBLK 0\nitems this combat 0\nSmoke Bomb\nitems this combat 1\nDraft gain Shield\nUsed Smoke Bomb\nYou Spin\nSpin Druid\nenemy ATK 7   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use smoke_bomb",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "druid",
+		"face_name": "",
+		"hand": [
+			"Shield"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Smoke Bomb vs Druid",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

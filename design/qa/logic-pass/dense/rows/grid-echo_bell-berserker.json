@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Becomes a copy of the last item you used.",
+			"id": "echo_bell",
+			"kind": "item",
+			"name": "Echo Bell",
+			"sprite": "assets/dungeon/items/echo_bell.png"
+		},
+		{
+			"ability": "When Spun, I have a 50% chance to gain +4 Atk",
+			"id": "berserker",
+			"kind": "monster",
+			"name": "Berserker",
+			"sprite": "assets/dungeon/extra/berserker.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Echo Bell"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Echo Bell — Becomes a copy of the last item you used. Monster: Berserker — When Spun, I have a 50% chance to gain +4 Atk Challenge hand. Wheel berserker. Click Echo Bell, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-echo_bell-berserker",
+	"log": "Draft enter\nYou Spin\nSpin Berserker\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nBerserker +4 ATK  to  7\nEcho Bell",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Berserker ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use echo_bell",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "berserker",
+		"face_name": "Berserker",
+		"hand": [
+			"Echo Bell"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Echo Bell vs Berserker",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

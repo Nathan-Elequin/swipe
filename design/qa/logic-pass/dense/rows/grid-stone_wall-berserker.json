@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 10. Retain leftover block from this combat.",
+			"id": "stone_wall",
+			"kind": "item",
+			"name": "Stone Wall",
+			"sprite": "assets/dungeon/items/stone_wall.png"
+		},
+		{
+			"ability": "When Spun, I have a 50% chance to gain +4 Atk",
+			"id": "berserker",
+			"kind": "monster",
+			"name": "Berserker",
+			"sprite": "assets/dungeon/extra/berserker.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Stone Wall"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Stone Wall — Block 10. Retain leftover block from this combat. Monster: Berserker — When Spun, I have a 50% chance to gain +4 Atk Challenge hand. Wheel berserker. Click Stone Wall, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-stone_wall-berserker",
+	"log": "Draft enter\nYou Spin\nSpin Berserker\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin Outburst miss\nStone Wall\nBLK +10  to  10\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 10 · face Berserker ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use stone_wall",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "berserker",
+		"face_name": "Berserker",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Stone Wall vs Berserker",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

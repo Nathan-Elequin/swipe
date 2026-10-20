@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Spin again and gain a Random Item.",
+			"id": "smoke_bomb",
+			"kind": "item",
+			"name": "Smoke Bomb",
+			"sprite": "assets/dungeon/items/smoke_bomb.png"
+		},
+		{
+			"ability": "I attack an extra time for each item you use this fight.",
+			"id": "kobold_trapper",
+			"kind": "monster",
+			"name": "Kobold Trapper",
+			"sprite": "assets/dungeon/extra/kobold_trapper.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Smoke Bomb"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Smoke Bomb — Spin again and gain a Random Item. Monster: Kobold Trapper — I attack an extra time for each item you use this fight. Challenge hand. Wheel kobold_trapper. Click Smoke Bomb, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-smoke_bomb-kobold_trapper",
+	"log": "Draft enter\nYou Spin\nSpin Kobold Trapper\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0\nSmoke Bomb\nitems this combat 1\nDraft gain Shield\nUsed Smoke Bomb\nYou Spin\nSpin Kobold Trapper\nenemy ATK 2   HP 6\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use smoke_bomb",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "kobold_trapper",
+		"face_name": "",
+		"hand": [
+			"Shield"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Smoke Bomb vs Kobold Trapper",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

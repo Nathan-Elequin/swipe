@@ -1,0 +1,590 @@
+{
+	"id": "bucket0-demo",
+	"tests": [
+		{
+			"id": "smoke-shield",
+			"title": "Shield vs Golem",
+			"verbs": ["block"],
+			"monsters": ["golem"],
+			"items": ["shield"],
+			"face": "golem",
+			"expected_text": "Gain 4 Block.",
+			"clicks": [{ "op": "use", "item": "shield" }],
+			"expected": { "blk": 4, "log_has": ["shield"], "spent": { "shield": true } }
+		},
+		{
+			"id": "smoke-knife-throw",
+			"title": "Throwing Knife throw vs Wizard",
+			"verbs": ["attack", "keep"],
+			"monsters": ["wizard"],
+			"items": ["throwing_knife"],
+			"face": "wizard",
+			"expected_text": "Atk 3, or Atk 1 and Keep this item — throw spends it, Wizard HP 2→0.",
+			"clicks": [
+				{ "op": "use", "item": "throwing_knife" },
+				{ "op": "choose", "id": "throw", "atk": 3, "keep": false }
+			],
+			"expected": { "log_has": ["knife"], "spent": { "throwing_knife": true } }
+		},
+		{
+			"id": "deep-knife-keep",
+			"title": "Throwing Knife Keep vs Wizard",
+			"verbs": ["attack", "keep"],
+			"monsters": ["wizard"],
+			"items": ["throwing_knife"],
+			"face": "wizard",
+			"expected_text": "ATK 1 and Keep — card stays, Wizard HP 2→1.",
+			"clicks": [
+				{ "op": "use", "item": "throwing_knife" },
+				{ "op": "choose", "id": "nick", "atk": 1, "keep": true }
+			],
+			"expected": { "face_hp": 1, "spent": { "throwing_knife": false } }
+		},
+		{
+			"id": "smoke-sai",
+			"title": "Sai first swing vs Wizard",
+			"verbs": ["attack"],
+			"monsters": ["wizard"],
+			"items": ["sai"],
+			"face": "wizard",
+			"expected_text": "Flips 2 ↔ 4 after any Item is used. First use is 2 or 4 depending on the carried value.",
+			"note": "Notes say the 2/4 value carries between combats, not dungeons.",
+			"clicks": [{ "op": "use", "item": "sai" }],
+			"expected": { "log_has": ["sai"] }
+		},
+		{
+			"id": "deep-sai-flip",
+			"skip": true,
+			"title": "Sai second use flips",
+			"note": "Bad test: one Sai is spent after the first click. Replaced by deep-sai-two-copies.",
+			"verbs": ["attack"],
+			"monsters": ["golem"],
+			"items": ["sai"],
+			"face": "golem",
+			"expected_text": "Second Sai use this fight should be the other of 2/4.",
+			"clicks": [
+				{ "op": "use", "item": "sai" },
+				{ "op": "use", "item": "sai" }
+			],
+			"expected": { "log_has": ["sai"] },
+			"column": "needs_ruling",
+			"ruling": {
+				"id": "sai-carry",
+				"prompt": "Sai’s 2↔4 value: Notes say it carries between combats in one dungeon, and does not reset at the start of each fight. What should the first use of a new fight be?",
+				"generous": "Whatever it last flipped to stays for the next fight in this dungeon.",
+				"stingy": "Each fight starts Sai at 2, even in the same dungeon."
+			}
+		},
+		{
+			"id": "smoke-boot-yes",
+			"title": "Boot Defeats Wizard (2 HP vs your 6)",
+			"verbs": ["cheese", "defeat"],
+			"monsters": ["wizard"],
+			"items": ["da_boot"],
+			"face": "wizard",
+			"expected_text": "Defeat an enemy with less HP than you. Wizard 2 < 6, combat ends immediately.",
+			"clicks": [{ "op": "use", "item": "da_boot" }],
+			"expected": { "log_has": ["boot"] }
+		},
+		{
+			"id": "deep-boot-no",
+			"title": "Boot cannot Defeat Golem (7 HP vs your 6)",
+			"verbs": ["cheese", "defeat"],
+			"monsters": ["golem"],
+			"items": ["da_boot"],
+			"face": "golem",
+			"expected_text": "Golem 7 HP is not less than your 6. Boot should not Defeat.",
+			"clicks": [{ "op": "use", "item": "da_boot" }],
+			"expected": { "face_hp": 7, "log_missing": ["defeated golem"] }
+		},
+		{
+			"id": "smoke-sledge-yes",
+			"title": "Sledgehammer Defeats Dragon (ATK 6)",
+			"verbs": ["cheese", "defeat"],
+			"monsters": ["dragon"],
+			"items": ["sledgehammer"],
+			"face": "dragon",
+			"expected_text": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+			"clicks": [{ "op": "use", "item": "sledgehammer" }],
+			"expected": { "log_has": ["sledge"] }
+		},
+		{
+			"id": "deep-sledge-no",
+			"title": "Sledgehammer cannot Defeat Goblin (ATK 3)",
+			"verbs": ["cheese", "defeat"],
+			"monsters": ["goblin"],
+			"items": ["sledgehammer"],
+			"face": "goblin",
+			"expected_text": "Goblin Attack 3 is below 6. Sledgehammer should not Defeat.",
+			"clicks": [{ "op": "use", "item": "sledgehammer" }],
+			"expected": { "log_missing": ["defeated goblin"] }
+		},
+		{
+			"id": "smoke-crossbow",
+			"title": "Crossbow 4 ATK into a Neighbor",
+			"verbs": ["attack", "neighbor", "target"],
+			"monsters": ["golem", "wizard"],
+			"items": ["crossbow"],
+			"face": "golem",
+			"expected_text": "Deal 4 Attack to a Neighboring enemy. Wizard 2 HP should go down immediately.",
+			"clicks": [
+				{ "op": "use", "item": "crossbow" },
+				{ "op": "mark", "monster": "wizard" }
+			],
+			"expected": { "log_has": ["crossbow"], "spent": { "crossbow": true } }
+		},
+		{
+			"id": "deep-crossbow-empty",
+			"title": "Crossbow with no Neighbor",
+			"verbs": ["neighbor", "target"],
+			"monsters": ["golem"],
+			"items": ["crossbow"],
+			"face": "golem",
+			"expected_text": "Unusable with 0 eligible neighbors. Card stays.",
+			"clicks": [{ "op": "use", "item": "crossbow" }],
+			"expected": { "log_has": ["cannot"], "spent": { "crossbow": false } }
+		},
+		{
+			"id": "smoke-flask",
+			"title": "Victory Flask heals 1 with 0 Defeats",
+			"verbs": ["heal"],
+			"monsters": ["golem"],
+			"items": ["victory_flask"],
+			"face": "golem",
+			"hp_before": 4,
+			"expected_text": "Heal 1, plus 1 for each monster Defeated. First fight: Heal 1.",
+			"clicks": [{ "op": "use", "item": "victory_flask" }],
+			"expected": { "hp": 5, "spent": { "victory_flask": true } }
+		},
+		{
+			"id": "smoke-quiet-goblin",
+			"title": "Quiet Bell silences Goblin",
+			"verbs": ["always"],
+			"monsters": ["goblin"],
+			"items": ["quiet_bell"],
+			"face": "goblin",
+			"expected_text": "Remove your Enemy's unique ability. Goblin should lose Evasive for the rest of this dungeon.",
+			"clicks": [{ "op": "use", "item": "quiet_bell" }],
+			"expected": { "log_has": ["quiet"], "spent": { "quiet_bell": true } }
+		},
+		{
+			"id": "deep-quiet-golem",
+			"title": "Quiet Bell vs Golem does nothing",
+			"verbs": ["always"],
+			"monsters": ["golem"],
+			"items": ["quiet_bell"],
+			"face": "golem",
+			"expected_text": "Golem has no unique ability. Click does nothing and the card stays.",
+			"clicks": [{ "op": "use", "item": "quiet_bell" }],
+			"expected": { "spent": { "quiet_bell": false } }
+		},
+		{
+			"id": "smoke-net",
+			"title": "Net −2 Attack on Dragon",
+			"verbs": ["attack"],
+			"monsters": ["dragon"],
+			"items": ["net"],
+			"face": "dragon",
+			"expected_text": "Choose to reduce the facing owner's Attack by 1, 2, or 3. Pick −2: Dragon 6→4.",
+			"clicks": [
+				{ "op": "use", "item": "net" },
+				{ "op": "choose", "id": "drop2", "atk_drop": 2 }
+			],
+			"expected": { "face_atk": 4, "spent": { "net": true } }
+		},
+		{
+			"id": "smoke-goblin",
+			"title": "Goblin ignores Attack from Knife throw",
+			"verbs": ["unhittable"],
+			"monsters": ["goblin"],
+			"items": ["throwing_knife"],
+			"face": "goblin",
+			"expected_text": "I cannot take Attack damage. Knife throw should not reduce Goblin HP (1).",
+			"clicks": [
+				{ "op": "use", "item": "throwing_knife" },
+				{ "op": "choose", "id": "throw", "atk": 3, "keep": false }
+			],
+			"expected": { "face_hp": 1 }
+		},
+		{
+			"id": "deep-goblin-boot",
+			"title": "Boot still Defeats Goblin",
+			"verbs": ["unhittable", "cheese"],
+			"monsters": ["goblin"],
+			"items": ["da_boot"],
+			"face": "goblin",
+			"expected_text": "Flow: HP can never be reduced, but the unit can be defeated through all other means. Goblin 1 HP < your 6.",
+			"clicks": [{ "op": "use", "item": "da_boot" }],
+			"expected": { "log_has": ["boot"] }
+		},
+		{
+			"id": "smoke-dragon-pierce",
+			"title": "Dragon ignores Block on Done",
+			"verbs": ["pierce"],
+			"monsters": ["dragon"],
+			"items": ["shield"],
+			"face": "dragon",
+			"expected_text": "My Attack ignores Block. Shield 4 Block should not stop Dragon 6 — you take 6.",
+			"clicks": [
+				{ "op": "use", "item": "shield" },
+				{ "op": "done" }
+			],
+			"expected": { "hp": 0 }
+		},
+		{
+			"id": "smoke-golem",
+			"title": "Golem is plain ATK/HP",
+			"verbs": ["attack"],
+			"monsters": ["golem"],
+			"items": ["shield"],
+			"face": "golem",
+			"expected_text": "No unique ability. Printed 3 ATK / 7 HP. Shield then Done: take max(0, 3-4)=0.",
+			"clicks": [
+				{ "op": "use", "item": "shield" },
+				{ "op": "done" }
+			],
+			"expected": { "hp": 6, "blk": 0 }
+		},
+		{
+			"id": "smoke-wizard",
+			"title": "Wizard printed 5 ATK / 2 HP",
+			"verbs": ["attack"],
+			"monsters": ["wizard"],
+			"items": ["shield"],
+			"face": "wizard",
+			"expected_text": "Empty Ability. Face 5 ATK 2 HP. Shield 4, Done: take 1.",
+			"clicks": [
+				{ "op": "use", "item": "shield" },
+				{ "op": "done" }
+			],
+			"expected": { "hp": 5, "face_atk": 5, "face_hp": 2 }
+		},
+		{
+			"id": "smoke-dire-wolf",
+			"title": "Dire Wolf Attack equals your HP",
+			"verbs": ["copy"],
+			"monsters": ["dire_wolf"],
+			"items": ["shield"],
+			"face": "dire_wolf",
+			"expected_text": "My Attack always equals your HP. At 6 HP, Wolf ATK is 6.",
+			"clicks": [],
+			"expected": { "face_atk": 6, "face_hp": 4 }
+		},
+		{
+			"id": "smoke-bandit",
+			"title": "Bandit +1 ATK per item in hand",
+			"verbs": ["copy"],
+			"monsters": ["bandit"],
+			"items": ["shield", "sai"],
+			"face": "bandit",
+			"expected_text": "+1 Atk for each Item you hold. Two items → ATK 2 at combat start.",
+			"clicks": [],
+			"expected": { "face_atk": 2 }
+		},
+		{
+			"id": "smoke-slime",
+			"title": "Slime Boss Attack equals its HP",
+			"verbs": ["copy"],
+			"monsters": ["slime_boss"],
+			"items": ["shield"],
+			"face": "slime_boss",
+			"expected_text": "My Attack always equals my HP. Printed HP 9 → ATK 9 on Spin.",
+			"clicks": [],
+			"expected": { "face_atk": 9, "face_hp": 9 }
+		},
+		{
+			"id": "smoke-needleback",
+			"title": "Needleback thorns 2 when hit",
+			"verbs": ["attack"],
+			"monsters": ["needleback"],
+			"items": ["throwing_knife"],
+			"face": "needleback",
+			"hp_before": 6,
+			"expected_text": "I Attack you for 2 Damage each time I take ATK Damage. Knife throw 3: Needleback 5→2, you take 2 (no Block).",
+			"clicks": [
+				{ "op": "use", "item": "throwing_knife" },
+				{ "op": "choose", "id": "throw", "atk": 3, "keep": false }
+			],
+			"expected": { "face_hp": 2, "hp": 4 }
+		},
+		{
+			"id": "side-needleback-art",
+			"title": "Needleback art note",
+			"verbs": ["art"],
+			"monsters": ["needleback"],
+			"items": ["shield"],
+			"face": "needleback",
+			"expected_text": "Notes: portrait is a stand-in until a porcupine/toad tile exists. Side log for Pixel. Not a logic FAIL.",
+			"clicks": [],
+			"column": "side",
+			"note": "ART-REQUEST already implied by the card Notes. Do not draw."
+		},
+		{
+			"id": "smoke-hornet",
+			"skip": true,
+			"title": "Hornet Swarm attacks twice on Done",
+			"verbs": ["extra-swing"],
+			"monsters": ["hornet_swarm"],
+			"items": ["shield"],
+			"face": "hornet_swarm",
+			"expected_text": "I Attack twice. ATK 2, Shield 4: first swing 0 through Block, second swing 2 with Block already spent? Flow: logically consistent with two enemies attacking.",
+			"clicks": [
+				{ "op": "use", "item": "shield" },
+				{ "op": "done" }
+			],
+			"column": "needs_ruling",
+			"ruling": {
+				"id": "hornet-block",
+				"prompt": "Hornet Swarm attacks twice. You have 4 Block. Each swing is 2 Attack. How should Block apply?",
+				"generous": "Block covers both swings this fight (you take 0).",
+				"stingy": "Block is consumed by the first swing; the second swing deals 2."
+			},
+			"expected": { "log_has": ["hornet"] }
+		},
+		{
+			"id": "smoke-mimic",
+			"skip": true,
+			"title": "Mimic Treasure if it never swings",
+			"verbs": ["cheese"],
+			"monsters": ["mimic"],
+			"items": ["da_boot"],
+			"face": "mimic",
+			"expected_text": "If I go down before I Attack, you gain an Item. Boot: Mimic 6 HP is not less than your 6, so Boot should fail. Need HP 7 to Boot, or Deal enough ATK. Using Boot at equal HP is the stingy miss.",
+			"clicks": [{ "op": "use", "item": "da_boot" }],
+			"column": "needs_ruling",
+			"ruling": {
+				"id": "boot-equal-hp",
+				"prompt": "Boot says Defeat an enemy with less HP than you. Mimic is 6, you are 6. Equal HP:",
+				"generous": "Equal counts (Defeat).",
+				"stingy": "Less than, not equal. Boot does nothing."
+			}
+		},
+		{
+			"id": "deep-mimic-loot",
+			"skip": true,
+			"title": "Mimic loots when Knifed to 0 before Done",
+			"verbs": ["cheese"],
+			"monsters": ["mimic"],
+			"items": ["throwing_knife", "throwing_knife"],
+			"face": "mimic",
+			"expected_text": "Mimic 6 HP. Two ATK 3 throws should drop it before it Attacks. You should gain an Item.",
+			"clicks": [
+				{ "op": "use", "item": "throwing_knife" },
+				{ "op": "choose", "id": "throw", "atk": 3, "keep": false },
+				{ "op": "use", "item": "throwing_knife" },
+				{ "op": "choose", "id": "throw", "atk": 3, "keep": false }
+			],
+			"expected": { "log_has": ["item"] }
+		},
+		{
+			"id": "smoke-potion",
+			"skip": true,
+			"title": "Healing Potion on lethal",
+			"verbs": ["heal", "unplayable"],
+			"monsters": ["dragon"],
+			"items": ["healing_potion"],
+			"face": "dragon",
+			"hp_before": 1,
+			"expected_text": "Unplayable. If you would die, discard this and Heal 3. Ability vs Flow (set HP to 4) disagree in the catalog.",
+			"clicks": [{ "op": "done" }],
+			"column": "needs_ruling",
+			"ruling": {
+				"id": "potion-heal-3-or-4",
+				"prompt": "Healing Potion: Ability says discard and Heal 3. Catalog Flow says set HP to 4. You were at 1 HP and Dragon hit for lethal. What HP should you have?",
+				"generous": "Set to 4 (the Flow / old defined line).",
+				"stingy": "Heal 3 from 0, so HP 3 (the Ability)."
+			}
+		},
+		{
+			"id": "smoke-smoke-bomb",
+			"title": "Smoke Bomb Spin again",
+			"verbs": ["spin"],
+			"monsters": ["golem", "wizard"],
+			"items": ["smoke_bomb"],
+			"face": "golem",
+			"expected_text": "Spin again and gain a Random Item. End combat without resolving. Not the same slice.",
+			"clicks": [{ "op": "use", "item": "smoke_bomb" }],
+			"expected": { "log_has": ["smoke"] }
+		},
+		{
+			"id": "smoke-caltrops",
+			"skip": true,
+			"column": "retired",
+			"title": "Caltrops — retired, out of this pass",
+			"verbs": ["attack"],
+			"monsters": ["dragon"],
+			"items": ["caltrops"],
+			"face": "dragon",
+			"expected_text": "The facing owner's Attack becomes 0 this fight.",
+			"clicks": [{ "op": "use", "item": "caltrops" }],
+			"expected": { "face_atk": 0 }
+		},
+		{
+			"id": "smoke-dagger",
+			"skip": true,
+			"column": "retired",
+			"title": "Dagger — retired, out of this pass",
+			"verbs": ["attack", "keep"],
+			"monsters": ["wizard"],
+			"items": ["dagger"],
+			"face": "wizard",
+			"expected_text": "(ATK 2), then return to your hand.",
+			"clicks": [{ "op": "use", "item": "dagger" }],
+			"expected": { "log_has": ["dagger"] }
+		},
+		{
+			"id": "smoke-bandana",
+			"skip": true,
+			"column": "retired",
+			"title": "Bandana — retired, out of this pass",
+			"verbs": ["tracking"],
+			"monsters": ["golem"],
+			"items": ["bandana"],
+			"face": "golem",
+			"expected_text": "At the start of each combat, lose 1 HP.",
+			"clicks": [],
+			"expected": { "hp": 5 }
+		},
+		{
+			"id": "smoke-helmet-hidden",
+			"skip": true,
+			"column": "retired",
+			"title": "Helmet — retired, out of this pass",
+			"verbs": ["block"],
+			"monsters": ["wizard"],
+			"items": ["helmet_hidden"],
+			"face": "wizard",
+			"expected_text": "Retired Helmet row. Spawn and click if it still exists.",
+			"clicks": [{ "op": "use", "item": "helmet_hidden" }],
+			"expected": {}
+		},
+		{
+			"id": "deep-knife-goblin-then-quiet",
+			"title": "Quiet Bell then Knife can hurt Goblin",
+			"verbs": ["unhittable", "always"],
+			"monsters": ["goblin"],
+			"items": ["quiet_bell", "throwing_knife"],
+			"face": "goblin",
+			"expected_text": "Silence Evasive, then ATK 3 should reduce Goblin HP 1→0.",
+			"clicks": [
+				{ "op": "use", "item": "quiet_bell" },
+				{ "op": "use", "item": "throwing_knife" },
+				{ "op": "choose", "id": "throw", "atk": 3, "keep": false }
+			],
+			"expected": { "face_hp": 0 }
+		},
+		{
+			"id": "surfaces-challenge-boot",
+			"title": "Hub path into Challenge Mode",
+			"verbs": ["surfaces"],
+			"kind": "hub",
+			"expected_text": "F5 playtest can start Challenge. Log should show Challenge Mode, or phase becomes draft/ready.",
+			"items": [],
+			"monsters": []
+		},
+		{
+			"id": "deep-wolf-after-heal",
+			"title": "Dire Wolf Attack follows your HP after Heal",
+			"verbs": ["copy"],
+			"monsters": ["dire_wolf"],
+			"items": ["victory_flask"],
+			"face": "dire_wolf",
+			"hp_before": 4,
+			"expected_text": "My Attack always equals your HP. At 4 HP the Wolf is ATK 4. Flask heals 1 (no Defeats) → you are 5, Wolf must become ATK 5. If it stays 4, the special did not update.",
+			"clicks": [{ "op": "use", "item": "victory_flask" }],
+			"expected": { "hp": 5, "face_atk": 5 }
+		},
+		{
+			"id": "deep-slime-after-hit",
+			"title": "Slime Boss Attack follows its HP after a hit",
+			"verbs": ["copy"],
+			"monsters": ["slime_boss"],
+			"items": ["throwing_knife"],
+			"face": "slime_boss",
+			"expected_text": "My Attack always equals my HP. Printed 9. Knife Keep ATK 1 → Slime HP 8, Attack must become 8. If Attack stays 9, the special did not update.",
+			"clicks": [
+				{ "op": "use", "item": "throwing_knife" },
+				{ "op": "choose", "id": "nick", "atk": 1, "keep": true }
+			],
+			"expected": { "face_hp": 8, "face_atk": 8 }
+		},
+		{
+			"id": "deep-flask-after-kill",
+			"title": "Victory Flask heals 2 after one Defeat",
+			"verbs": ["heal"],
+			"monsters": ["golem", "wizard"],
+			"items": ["crossbow", "victory_flask"],
+			"face": "golem",
+			"hp_before": 4,
+			"expected_text": "Heal 1, plus 1 for each monster Defeated. Crossbow the neighboring Wizard (2 HP) so they are Defeated, then Flask: Heal 2. You go 4→6. If you only go to 5, it ignored the Defeat.",
+			"clicks": [
+				{ "op": "use", "item": "crossbow" },
+				{ "op": "mark", "monster": "wizard" },
+				{ "op": "use", "item": "victory_flask" }
+			],
+			"expected": { "hp": 6 }
+		},
+		{
+			"id": "deep-shield-done-golem",
+			"title": "Shield then Done vs Golem — Block eats 3 Attack",
+			"verbs": ["block"],
+			"monsters": ["golem"],
+			"items": ["shield"],
+			"face": "golem",
+			"expected_text": "No unique ability. Printed 3 ATK. Shield 4, then Done: you take 0. You stay at 6 HP. If you drop, Block did not eat the swing.",
+			"clicks": [
+				{ "op": "use", "item": "shield" },
+				{ "op": "done" }
+			],
+			"expected": { "hp": 6 }
+		},
+		{
+			"id": "deep-bandit-empty",
+			"title": "Bandit with 0 items is ATK 0",
+			"verbs": ["copy"],
+			"monsters": ["bandit"],
+			"items": [],
+			"face": "bandit",
+			"expected_text": "+1 Atk for each Item you hold. Empty hand → Attack 0. If Attack is still 1 or more, the special did not fire.",
+			"clicks": [],
+			"expected": { "face_atk": 0 }
+		},
+		{
+			"id": "deep-bandit-three",
+			"title": "Bandit with 3 items is ATK 3",
+			"verbs": ["copy"],
+			"monsters": ["bandit"],
+			"items": ["shield", "sai", "net"],
+			"face": "bandit",
+			"expected_text": "+1 Atk for each Item you hold. Three items → Attack 3 at combat start.",
+			"clicks": [],
+			"expected": { "face_atk": 3 }
+		},
+		{
+			"id": "deep-boot-equal-wizard",
+			"title": "Boot does nothing at equal HP (Wizard 2 vs you 2)",
+			"verbs": ["cheese", "defeat"],
+			"monsters": ["wizard"],
+			"items": ["da_boot"],
+			"face": "wizard",
+			"hp_before": 2,
+			"expected_text": "Defeat an enemy with less HP than you. Wizard 2, you 2. Equal is not less. Boot does nothing. Wizard stays 2 HP.",
+			"clicks": [{ "op": "use", "item": "da_boot" }],
+			"expected": { "face_hp": 2, "log_has": ["cannot"] }
+		},
+		{
+			"id": "deep-sai-two-copies",
+			"title": "Two Sais in one fight flip 2 then 4",
+			"verbs": ["attack"],
+			"monsters": ["golem"],
+			"items": ["sai", "sai"],
+			"face": "golem",
+			"expected_text": "Flips 2 ↔ 4 after any Item is used. Two copies vs Golem 7: first hit 2 or 4, second hit the other. Golem HP should be 1 (7-2-4). If it stays at 5, the second Sai never fired.",
+			"clicks": [
+				{ "op": "use", "item": "sai" },
+				{ "op": "use", "item": "sai" }
+			],
+			"expected": { "face_hp": 1 }
+		}
+	]
+}

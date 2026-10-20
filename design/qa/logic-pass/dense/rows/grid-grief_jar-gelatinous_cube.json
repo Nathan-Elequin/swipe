@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
+			"id": "grief_jar",
+			"kind": "item",
+			"name": "Grief Jar",
+			"sprite": "assets/dungeon/items/grief_jar.png"
+		},
+		{
+			"ability": "I make you feed me one of two items.",
+			"id": "gelatinous_cube",
+			"kind": "monster",
+			"name": "Gelatinous Cube",
+			"sprite": "assets/dungeon/extra/gelatinous_cube.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grief Jar"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grief Jar — Each time you Spin, Lose 1 HP and this item gains +2 Block Monster: Gelatinous Cube — I make you feed me one of two items. Challenge hand. Wheel gelatinous_cube. Click Grief Jar, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grief_jar-gelatinous_cube",
+	"log": "Draft enter\nYou Spin\nSpin Gelatinous Cube\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nGrief Jar BLK 2\nGrief Jar\nHP bleed -1  now 5\nSpin cube demands a feed\nSpin cube ate Grief Jar",
+	"mismatch": "A number did not match the card: phase fighting · HP 5 · BLK 0 · face Gelatinous Cube ATK 3 HP 4",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 5 · BLK 0 · face Gelatinous Cube ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grief_jar",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "gelatinous_cube",
+		"face_name": "Gelatinous Cube",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 5
+	},
+	"title": "Grief Jar vs Gelatinous Cube",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

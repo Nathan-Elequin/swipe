@@ -9,8 +9,8 @@ Before implementing any **gameplay** addition or change (item, monster, special,
 
 1. Read `design/paper-fight/RUBRIC.md`.
 2. Overwrite `design/paper-fight/CURRENT.md` from `TEMPLATE.md`. Fill every heading.
-3. Ask Nathan only the questions whose answers would change what you write (`AskQuestion`, multiple choice). Stop. Do not implement in that turn. A monster pasted in the chat shorthand (`monster-shorthand.mdc`) is a Paper Fight, same as any other new card.
-4. After he answers, implement that reading. Move CURRENT into `design/paper-fight/done/`.
+3. Ask Nathan only the questions whose answers would change what you write (`AskQuestion`, multiple choice). Put every such question in that one batch. Stop. Do not implement in that turn. A monster pasted in the chat shorthand (`monster-shorthand.mdc`) is a Paper Fight, same as any other new card.
+4. After he answers, implement the whole remaining reading in this chat. Move CURRENT into `design/paper-fight/done/`. Do not open a second question round (`finish-after-intake.mdc`). New collisions found while coding are clustered and written down; they do not stop the build.
 
 Skip Paper Fight for: copy/art/audio only; an exact number he named on an existing rule; Ability+Flow+Notes already agree and say what happens when cards collide; he said **skip the Paper Fight** / **just ship it** / **F5 this**.
 

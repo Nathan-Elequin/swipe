@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to the last Block you gained.",
+			"id": "mirror_shard",
+			"kind": "item",
+			"name": "Mirror Shard",
+			"sprite": "assets/dungeon/items/mirror_shard.png"
+		},
+		{
+			"ability": "When Spun, I have a 50% chance to gain +4 Atk",
+			"id": "berserker",
+			"kind": "monster",
+			"name": "Berserker",
+			"sprite": "assets/dungeon/extra/berserker.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Mirror Shard"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Mirror Shard — Gain Block equal to the last Block you gained. Monster: Berserker — When Spun, I have a 50% chance to gain +4 Atk Challenge hand. Wheel berserker. Click Mirror Shard, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-mirror_shard-berserker",
+	"log": "Draft enter\nYou Spin\nSpin Berserker\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin Outburst miss\nMirror Shard\nUsed cannot",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Berserker ATK 3 HP 4",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Berserker ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use mirror_shard",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "berserker",
+		"face_name": "Berserker",
+		"hand": [
+			"Mirror Shard"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Mirror Shard vs Berserker",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

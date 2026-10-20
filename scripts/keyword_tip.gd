@@ -116,7 +116,7 @@ func show_callout(pack: Dictionary, anchor: Control = null, id: String = "") -> 
 		body,
 		str(pack.get("warn", "")),
 		pack.get("portrait", null),
-		"monster",
+		str(pack.get("plate_kind", "monster")),
 		str(pack.get("card_id", "")),
 		pack.get("look", {})
 	)

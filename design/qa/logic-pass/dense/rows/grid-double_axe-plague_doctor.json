@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once.",
+			"id": "double_axe",
+			"kind": "item",
+			"name": "Great Axe",
+			"sprite": "assets/dungeon/items/double_axe.png"
+		},
+		{
+			"ability": "My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2.",
+			"id": "plague_doctor",
+			"kind": "monster",
+			"name": "Plague Doctor",
+			"sprite": "assets/dungeon/extra/plague_doctor.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Great Axe"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Great Axe — Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once. Monster: Plague Doctor — My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2. Challenge hand. Wheel plague_doctor, wizard, golem. Click Great Axe, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-double_axe-plague_doctor",
+	"log": "Draft enter\nYou Spin\nSpin Plague Doctor\nenemy ATK 2   HP 3\nBLK 0\nitems this combat 0\nSpin Plague Doctor heal +2  to  9 HP\nSpin Plague Doctor heal +2  to  4 HP\nGreat Axe\nATK 2  to  Plague Doctor HP 1\nATK 2  to  Golem HP 7\nATK 2  to  Wizard HP 2\nitems this combat 1\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nDefeated Plague Doctor\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Plague Doctor ATK 2 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use double_axe",
+			"done "
+		],
+		"face_atk": 2,
+		"face_hp": 1,
+		"face_id": "plague_doctor",
+		"face_name": "Plague Doctor",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Great Axe vs Plague Doctor",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

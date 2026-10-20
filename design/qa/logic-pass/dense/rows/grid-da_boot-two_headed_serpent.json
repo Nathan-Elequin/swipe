@@ -1,0 +1,79 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with less HP than you.",
+			"id": "da_boot",
+			"kind": "item",
+			"name": "The Boot",
+			"sprite": "assets/dungeon/items/boot.png"
+		},
+		{
+			"ability": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.",
+			"id": "two_headed_serpent",
+			"kind": "monster",
+			"name": "Damsel In Distress",
+			"sprite": "assets/dungeon/extra/damsel.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"The Boot"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: The Boot — Defeat an enemy with less HP than you. Monster: Damsel In Distress — My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP. Challenge hand. Wheel two_headed_serpent, wizard, golem. Click The Boot, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-da_boot-two_headed_serpent",
+	"log": "Draft enter\nYou Spin\nSpin Damsel In Distress\nenemy ATK 0   HP 9\nBLK 0\nitems this combat 0\nThe Boot\nUsed cannot\nYou Done\nDamsel In Distress - Guarded by Monsters\nFight hit 1  ATK 3 - BLK\nBLK 0\nHP take -3  now 3\nFight hit 1  ATK 5 - BLK\nBLK 0\nHP take -5  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Damsel In Distress ATK 0 HP 9",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use da_boot",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 9,
+		"face_id": "two_headed_serpent",
+		"face_name": "Damsel In Distress",
+		"hand": [
+			"The Boot"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "The Boot vs Damsel In Distress",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

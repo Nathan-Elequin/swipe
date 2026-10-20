@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Turn your opponent into an exact copy of a Neighbor of your choice.",
+			"id": "polymorph",
+			"kind": "item",
+			"name": "Polymorph",
+			"sprite": "assets/dungeon/items/polymorph.png"
+		},
+		{
+			"ability": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.",
+			"id": "two_headed_serpent",
+			"kind": "monster",
+			"name": "Damsel In Distress",
+			"sprite": "assets/dungeon/extra/damsel.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Polymorph"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Polymorph — Turn your opponent into an exact copy of a Neighbor of your choice. Monster: Damsel In Distress — My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP. Challenge hand. Wheel two_headed_serpent, wizard, golem. Click Polymorph, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-polymorph-two_headed_serpent",
+	"log": "Draft enter\nYou Spin\nSpin Damsel In Distress\nenemy ATK 0   HP 9\nBLK 0\nitems this combat 0\nUsed pick a neighbor\nPolymorph\nitems this combat 1\nUsed Polymorph to Wizard\nYou Done\nFight hit 1  ATK 5 - BLK\nBLK 0\nHP take -5  now 1\nDefeated Wizard\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Wizard ATK 5 HP 2",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use polymorph",
+			"done "
+		],
+		"face_atk": 5,
+		"face_hp": 2,
+		"face_id": "wizard",
+		"face_name": "Wizard",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Polymorph vs Damsel In Distress",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

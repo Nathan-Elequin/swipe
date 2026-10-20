@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"id": "lucky_nickel",
+			"kind": "item",
+			"name": "Lucky Nickel",
+			"sprite": "assets/dungeon/items/lucky_nickel.png"
+		},
+		{
+			"ability": "I make you feed me one of two items.",
+			"id": "gelatinous_cube",
+			"kind": "monster",
+			"name": "Gelatinous Cube",
+			"sprite": "assets/dungeon/extra/gelatinous_cube.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Lucky Nickel"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Gelatinous Cube — I make you feed me one of two items. Challenge hand. Wheel gelatinous_cube. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-lucky_nickel-gelatinous_cube",
+	"log": "Draft enter\nYou Spin\nSpin Gelatinous Cube\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin cube demands a feed\nSpin cube ate Lucky Nickel",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Gelatinous Cube ATK 3 HP 4",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Gelatinous Cube ATK 3 HP 4",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use lucky_nickel",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 4,
+		"face_id": "gelatinous_cube",
+		"face_name": "Gelatinous Cube",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Lucky Nickel vs Gelatinous Cube",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

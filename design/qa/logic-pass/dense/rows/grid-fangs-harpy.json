@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
+			"id": "fangs",
+			"kind": "item",
+			"name": "Fangs",
+			"sprite": "assets/dungeon/items/fangs.png"
+		},
+		{
+			"ability": "I attack you when your Spin lands on me, and after each item you use.",
+			"id": "harpy",
+			"kind": "monster",
+			"name": "Harpy",
+			"sprite": "assets/dungeon/extra/harpy.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Fangs"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Fangs — Let the Enemy Attack, then Defeat them and Heal equal to their current HP. Monster: Harpy — I attack you when your Spin lands on me, and after each item you use. Challenge hand. Wheel harpy. Click Fangs, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-fangs-harpy",
+	"log": "Draft enter\nYou Spin\nSpin Harpy\nenemy ATK 2   HP 5\nBLK 0\nitems this combat 0\nHarpy - Impatient\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 1\nFangs\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 0\nitems this combat 1\nEnd dead",
+	"mismatch": "A number did not match the card: phase defeat · HP 0 · BLK 0 · face — ATK — HP —",
+	"note": "",
+	"observed": "A number did not match the card: phase defeat · HP 0 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use fangs",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "harpy",
+		"face_name": "",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 0
+	},
+	"title": "Fangs vs Harpy",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

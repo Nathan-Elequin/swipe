@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+			"id": "sledgehammer",
+			"kind": "item",
+			"name": "Sledgehammer",
+			"sprite": "assets/dungeon/items/sledgehammer.png"
+		},
+		{
+			"ability": "My Attack always equals your HP.",
+			"id": "dire_wolf",
+			"kind": "monster",
+			"name": "Dire Wolf",
+			"sprite": "assets/dungeon/extra/dire_wolf.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Sledgehammer"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Sledgehammer — Defeat an enemy with 6 or more Attack. Combat ends immediately. Monster: Dire Wolf — My Attack always equals your HP. Challenge hand. Wheel dire_wolf. Click Sledgehammer, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-sledgehammer-dire_wolf",
+	"log": "Draft enter\nYou Spin\nSpin Dire Wolf\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: Attack always equals your HP.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: Attack always equals your HP.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use sledgehammer"
+		],
+		"face_atk": 6,
+		"face_hp": 4,
+		"face_id": "dire_wolf",
+		"face_name": "Dire Wolf",
+		"hand": [
+			"Sledgehammer"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Sledgehammer vs Dire Wolf",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

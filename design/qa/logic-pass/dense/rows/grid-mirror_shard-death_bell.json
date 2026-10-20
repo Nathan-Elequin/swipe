@@ -1,0 +1,67 @@
+{
+	"cards": [
+		{
+			"ability": "Gain Block equal to the last Block you gained.",
+			"id": "mirror_shard",
+			"kind": "item",
+			"name": "Mirror Shard",
+			"sprite": "assets/dungeon/items/mirror_shard.png"
+		},
+		{
+			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
+			"id": "death_bell",
+			"kind": "monster",
+			"name": "Death Bell",
+			"sprite": "assets/dungeon/extra/death_bell.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Mirror Shard",
+			"Toll"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Mirror Shard — Gain Block equal to the last Block you gained. Monster: Death Bell — When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item. Challenge hand. Wheel death_bell. Click Mirror Shard, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-mirror_shard-death_bell",
+	"log": "Draft gain Toll\nDraft enter\nYou Spin\nSpin Death Bell\nenemy ATK 8   HP 12\nBLK 0\nitems this combat 0\nSpin Death Bell -2 HP\nMirror Shard\nUsed cannot\nYou Done\nFight hit 1  ATK 8 - BLK\nBLK 0\nHP take -8  now 0\nEnd dead",
+	"mismatch": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Death Bell ATK 8 HP 10",
+	"note": "",
+	"observed": "A number did not match the card: phase fighting · HP 6 · BLK 0 · face Death Bell ATK 8 HP 10",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use mirror_shard",
+			"done "
+		],
+		"face_atk": 8,
+		"face_hp": 10,
+		"face_id": "death_bell",
+		"face_name": "Death Bell",
+		"hand": [
+			"Mirror Shard",
+			"Toll"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Mirror Shard vs Death Bell",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

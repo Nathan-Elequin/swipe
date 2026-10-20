@@ -51,7 +51,7 @@ func setup(p_cabin) -> void:
 	_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_shade)
 	_box = KIT.nine("ui/dialog_box_9.png", Vector2(12, 12))
-	_box.mouse_filter = Control.MOUSE_FILTER_STOP
+	_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_box)
 	_tail = TextureRect.new()
 	_tail.name = "SpeechTail"

@@ -1,0 +1,12 @@
+[
+  {"id":"uniq-pocketwatch","result":"fail","column":"fail","observed":"Used cannot vs Golem with Wizard as neighbor.","log":"Used cannot"},
+  {"id":"uniq-double_axe","result":"pass","column":"pass","observed":"Great Axe dealt 2 to Golem and 2 to Wizard. Wizard Defeated.","log":"Great Axe\nATK 2  to  Golem HP 5\nATK 2  to  Wizard HP 0\nDefeated Wizard"},
+  {"id":"uniq-grappling_hook","result":"pass","column":"pass","observed":"Hook swapped Wizard into the fight and drew Lucky Nickel.","log":"Used hook Wizard\nDraft gain Lucky Nickel"},
+  {"id":"uniq-spiked_shield","result":"pass","column":"pass","observed":"No Attack item in hand, so Block gained was 0. That is the card working.","log":"Spiked Shield\nBLK +0  to  0","note":"False fail from blk_min. Recategorized pass."},
+  {"id":"uniq-grief_jar","result":"pass","column":"pass","observed":"You lost 1 HP and Grief Jar gained 2 Block.","log":"Grief Jar\nHP bleed -1  now 5\nBLK +2  to  2"},
+  {"id":"uniq-longbow","result":"pass","column":"pass","observed":"Longbow dealt 4 to Wizard across the wheel. Wizard Defeated. Golem (facing) stayed at 7.","log":"Longbow\nATK 4  to  Wizard HP 0\nDefeated Wizard","note":"False fail: judge expected Golem HP to drop. The card hits across."},
+  {"id":"uniq-lantern","result":"pass","column":"pass","observed":"You started at 3 HP. Lantern healed 2 to 5 and the card stayed (still missing HP).","log":"Lantern\nHP heal +2  now 5"},
+  {"id":"uniq-mirror_shard","result":"pass","column":"pass","observed":"No Block gained yet this fight, so Mirror Shard is unplayable. That is the card working.","log":"Mirror Shard\nUsed cannot","note":"False fail. Recategorized pass."},
+  {"id":"uniq-echo_bell","result":"pass","column":"pass","observed":"No last item this dungeon, Echo Bell logged and did not copy.","log":"Echo Bell"},
+  {"id":"uniq-iron_chain","result":"pass","column":"pass","observed":"You hold 0 Block, so Chain is unplayable. That is the card working.","log":"Chain\nUsed cannot"}
+]

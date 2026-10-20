@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Set the HP of the Enemy, its Neighbors, and yourself to 1 HP",
+			"id": "napalm",
+			"kind": "item",
+			"name": "Napalm",
+			"sprite": "assets/dungeon/items/napalm.png"
+		},
+		{
+			"ability": "After I Attack, I Heal you for double the HP I cause you to lose.",
+			"id": "druid",
+			"kind": "monster",
+			"name": "Druid",
+			"sprite": "assets/dungeon/extra/druid.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Napalm"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Napalm — Set the HP of the Enemy, its Neighbors, and yourself to 1 HP Monster: Druid — After I Attack, I Heal you for double the HP I cause you to lose. Challenge hand. Wheel druid, wizard, golem. Click Napalm, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-napalm-druid",
+	"log": "Draft enter\nYou Spin\nSpin Druid\nenemy ATK 7   HP 4\nBLK 0\nitems this combat 0\nNapalm\nHP Druid  now 1\nDruid - Cultivator\nHP Wizard  now 1\nWizard - Wizard\nHP Golem  now 1\nGolem - Golem\nHP bleed -5  now 1\nitems this combat 1\nYou Done\nFight hit 1  ATK 7 - BLK\nBLK 0\nHP take -7  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 1 · BLK 0 · face Druid ATK 7 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use napalm",
+			"done "
+		],
+		"face_atk": 7,
+		"face_hp": 1,
+		"face_id": "druid",
+		"face_name": "Druid",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 1
+	},
+	"title": "Napalm vs Druid",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

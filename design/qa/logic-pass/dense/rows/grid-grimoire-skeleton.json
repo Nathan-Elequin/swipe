@@ -1,0 +1,64 @@
+{
+	"cards": [
+		{
+			"ability": "Attack equal to the Attack of the last monster you faced.",
+			"id": "grimoire",
+			"kind": "item",
+			"name": "Grimoire",
+			"sprite": "assets/dungeon/items/grimoire.png"
+		},
+		{
+			"ability": "I copy the HP of the last enemy you faced.",
+			"id": "skeleton",
+			"kind": "monster",
+			"name": "Skeleton",
+			"sprite": "assets/dungeon/extra/skeleton.png"
+		}
+	],
+	"column": "fail",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Grimoire"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Grimoire — Attack equal to the Attack of the last monster you faced. Monster: Skeleton — I copy the HP of the last enemy you faced. Challenge hand. Wheel skeleton. Click Grimoire, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-grimoire-skeleton",
+	"log": "Draft enter\nYou Spin\nSpin Skeleton\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0",
+	"mismatch": "Holding Shift shows no explainer, but the card has one: last enemy HP.",
+	"note": "",
+	"observed": "Holding Shift shows no explainer, but the card has one: last enemy HP.",
+	"paper_fight": "",
+	"result": "fail",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use grimoire"
+		],
+		"face_atk": 3,
+		"face_hp": 3,
+		"face_id": "skeleton",
+		"face_name": "Skeleton",
+		"hand": [
+			"Grimoire"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Grimoire vs Skeleton",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

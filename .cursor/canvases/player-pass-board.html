@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>First-look player pass</title>
+<style>
+  :root {
+    --bg: #100e0c;
+    --cream: #f3e6d0;
+    --muted: #9a8b78;
+    --gold: #c4a574;
+    --wood: #3a2a1c;
+    --ink: #1c120c;
+    --fail: #8a3030;
+    --ok: #3d6b3d;
+    --jam: #6a2ea8;
+    --pixel: #1a6a8c;
+    --later: #8a5a2b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--cream); font: 17px/1.5 Georgia, "Times New Roman", serif; }
+  header {
+    position: sticky; top: 0; z-index: 8;
+    padding: 14px 20px 12px; background: #14110f; border-bottom: 2px solid var(--gold);
+  }
+  header h1 { margin: 0 0 6px; font-size: 22px; color: var(--gold); }
+  header .how { margin: 0; color: var(--muted); max-width: 820px; }
+  header .how b { color: var(--cream); }
+  .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  button, .chip {
+    font: inherit; cursor: pointer; border-radius: 999px;
+    border: 2px solid var(--gold); background: var(--wood); color: var(--cream);
+    padding: 6px 12px;
+  }
+  button:hover { filter: brightness(1.12); }
+  button.on { background: var(--gold); color: #1a1714; }
+  .save { font-size: 14px; color: #8dcb8d; }
+  .save.bad { color: #e07a7a; }
+  main { max-width: 980px; margin: 0 auto; padding: 18px 18px 80px; }
+  .who {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 18px;
+  }
+  .who article {
+    background: #1c1612; border: 3px solid var(--gold); padding: 14px 16px;
+  }
+  .who h2 { margin: 0 0 6px; font-size: 18px; color: var(--gold); }
+  .who p { margin: 0 0 6px; color: var(--muted); }
+  .who p:last-child { margin: 0; color: var(--cream); }
+  h3.cat { margin: 28px 0 10px; color: var(--gold); font-size: 20px; }
+  .card {
+    background: #1c1612; border: 3px solid #4a3b32; padding: 14px 16px; margin: 0 0 14px;
+  }
+  .card.patched { border-color: var(--ok); }
+  .card.pixel { border-color: var(--pixel); }
+  .card.jam { border-color: var(--jam); }
+  .card h4 { margin: 0 0 6px; font-size: 18px; }
+  .tag {
+    display: inline-block; font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin: 0 6px 6px 0;
+  }
+  .tag.bug { color: #f0a0a0; }
+  .tag.confusion { color: #e0b07a; }
+  .tag.feel { color: #8dcb8d; }
+  .tag.pixel { color: #6bb3d9; }
+  .tag.jam { color: #c9a0ff; }
+  .tag.patched { color: #8dcb8d; }
+  .who-line { color: var(--muted); font-size: 14px; margin: 0 0 8px; }
+  .card p { margin: 0 0 8px; }
+  .card .do { margin: 0 0 10px; color: var(--gold); }
+  .answers { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  textarea {
+    width: 100%; min-height: 56px; background: #14110f; color: var(--cream);
+    border: 2px solid #4a3b32; padding: 8px; font: 15px/1.4 Georgia, serif;
+  }
+  details { margin: 18px 0; background: #1c1612; border: 2px solid #4a3b32; padding: 10px 14px; }
+  details summary { cursor: pointer; color: var(--gold); font-weight: 700; }
+  pre { white-space: pre-wrap; color: var(--cream); font: 15px/1.45 Georgia, serif; }
+  .patched-box { background: #1c1612; border: 3px solid var(--ok); padding: 14px 16px; margin: 0 0 18px; }
+  .patched-box h3 { margin: 0 0 8px; color: #8dcb8d; }
+  .patched-box li { margin: 0 0 6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>First-look player pass — click an answer on each card</h1>
+  <p class="how">Two friends got the itch link and talked out loud. <b>Do this</b> means you want it in the game. <b>Later</b> parks it. <b>Not this</b> kills it. Notes save in this browser. Itch is still frozen, so the patches below are local only.</p>
+  <div class="bar">
+    <button type="button" id="filter-all" class="on">All</button>
+    <button type="button" data-filter="open">Needs you</button>
+    <button type="button" data-filter="patched">Already patched</button>
+    <button type="button" data-filter="pixel">Pixel</button>
+    <button type="button" data-filter="jam">Jam</button>
+    <span class="save" id="save">Answers stay on this PC.</span>
+  </div>
+</header>
+<main>
+  <div class="who">
+    <article>
+      <h2>Maya Chen, 28</h2>
+      <p>Austin. Slay the Spire, Balatro, Inscryption. Wants clever cards. Hates a first fight that hides the click.</p>
+      <p>Brand New. Read every intro line. Clicked Show me how. Played the tutorial wheel, then the map, then the first real Gatehouse draft.</p>
+    </article>
+    <article>
+      <h2>Derek Hall, 41</h2>
+      <p>D&amp;D dungeon master. A friend sent the link. Not a roguelike person. Hits Skip if it exists.</p>
+      <p>Skipped intro. Middle Progress. Picked The Long Drop (Challenge). Drafted Net then Knucklers against a six-monster wheel.</p>
+    </article>
+  </div>
+
+  <div class="patched-box">
+    <h3>Already patched this turn (local only — itch freeze)</h3>
+    <ol>
+      <li>Intro Next is a real button, and Skip/Back/Next sit under the line instead of on top of it.</li>
+      <li>Clicking Nib’s parchment advances the line.</li>
+      <li>Show me how / I’ll wing it sit in the talk bar, not on the frame.</li>
+      <li>Golem inspect no longer shows “plain ATK/HP Owner” unless Shift is held.</li>
+      <li>Adventure draft has Take it next to Leave it. You can still click the card.</li>
+      <li>The map’s “(test note)” line is hidden.</li>
+      <li>Feedback hides during the opening will, so Click to continue is readable.</li>
+      <li>F2’s tier-list button is wide enough to hold the label.</li>
+    </ol>
+  </div>
+
+  <div id="cards"></div>
+
+  <details>
+    <summary>Maya’s voice memo (shortened, still her words)</summary>
+    <pre>
+Okay I’m on the playtest page… black screen, tiny box, some cartoon cat in a vest named Nathan. Cute. Skip and Next are sitting on the sentence. The Next button is just a blank cream pill. I’m clicking Next because that’s what you do.
+
+He’s asking me to voice-memo. That’s this. Then a fake menu. The real Playtest menu is cleaner. I’m hitting Brand New. Start from scratch.
+
+Will from grandpa Lucky Snatchwick, died in Mount Grumblegurt. I cannot read the actual will, it’s lined paper with no words. Autoplay is On, Skip is up there. Feedback is covering Click to continue.
+
+Cabin is the first time this looks like a game. Fireplace, cat, map, locked cabinet. “Welcome home, Sprout. Well. His home.” I don’t know who I am yet. I clicked the cat’s text and nothing happened. I clicked the dark room. That worked. That’s annoying.
+
+“Psst. Sprout. Over here.” I went for the door because that’s how you leave a room. Nib stops me. Show me how.
+
+Now I’m in a dungeon. Five hearts top left. Nib later says I have six. The little guy in the middle of the wheel looks like the Goblin on the slice. I thought I was fighting him already.
+
+He says eight corridors. I count four pie slices. Goblin’s name is printed on top of itself. Helmet says 6, then when I fight the Wizard it says 2, then it’s 6 again. I never got a tooltip unless I hovered later.
+
+“Use the Sai. It will kill him.” I do. Sai disappears. So cards get spent. Knucklers went 4, 5, 6… I have no idea why.
+
+Golem inspect says “plain ATK/HP Owner.” That is not a sentence a player says. I Block with the Helmet, the button becomes Safe, I click it, the Golem is gone. Did Block kill a 7 HP statue? Nib says I Defeated him by Defending. I will try that on everything and be wrong.
+
+Goblin: cannot take Attack damage. Boot or Take 3. I Boot. Empty wheel, the green guy is still standing in the hole. Then a lecture about Challenge Mode after I just did a three-monster tutorial. Then I’m in the cabin with no arrow.
+
+Map is charming. “Which mode did you like more, and why? (test note)” is still on the parchment. I go to the Gatehouse.
+
+Take it or leave it? There is only Leave it. I stared at it. I clicked the Sai. That was Take. Then I have to park a Bandit on a plus sign. I did not know empty seats existed until the pluses showed up. Two Boots in my hand. Why two Boots.
+    </pre>
+  </details>
+
+  <details>
+    <summary>Derek’s voice memo (shortened, still his words)</summary>
+    <pre>
+Skip. I don’t need the designer talking to me. Middle Progress, I want to see the real game. Map pops up immediately. Challenge is The Long Drop, so that’s the campaign. Off we go.
+
+Empty dashed boxes along the bottom. Looks unfinished. Six monsters on a wheel, names on top of numbers. The fellow in the middle still looks like a Goblin even though I’m staring at an Eel and an Ogre. Is that me?
+
+Choose your loot: Counting Beads or Net. “Pick one. Hover to read it.” I hovered. Net makes sense against an Eel if Eel cares about Attack. There’s a tiny Anvil in the corner of the loot panel. Is that a monster in the deck? A curse? A decoration?
+
+I took Net. It lands in the dashed grid. Next pair is Knucklers 7 — “Attack equal to 8 minus the items still in your hand.” That’s actually a card I understand. Why didn’t the tutorial say that instead of letting the number twitch.
+
+Helmet: Block equal to the lower HP. That’s a real rule. If the tutorial had shown me that sentence I would not have thought the 6 turning into a 2 was a bug.
+
+I still don’t know when the fight starts. There’s no Begin on this screen yet. I’m picking cards in the dark. Middle Progress said I had unlocks. I started this dungeon with an empty bag.
+
+If this were a session I ran at the table I would have put a big cardboard arrow on “click the loot, then click a plus, then click Begin.” Right now I’m the player who is being polite and lost.
+    </pre>
+  </details>
+</main>
+<script>
+const CARDS = [
+  {id:"intro-overlap", cat:"Bugs and visual glitches", tag:"patched", who:"Maya", title:"Intro Next is an empty pill sitting on the sentence",
+    saw:"Skip / Back / Next cover Nathan’s line. Next has no word on it once Back appears.",
+    do:"Patched: buttons sit under the line; Next is a real labeled pill.", status:"patched"},
+  {id:"will-unreadable", cat:"Art and music", tag:"pixel", who:"Maya", title:"The will is lined paper with no words",
+    saw:"Grandpa died in the mountain. The prop looks important and you cannot read it.",
+    do:"Pixel: write the will at native size, or make the lines obviously decorative so it does not feel like broken text.", status:"pixel"},
+  {id:"click-continue", cat:"Bugs and visual glitches", tag:"patched", who:"Maya", title:"Feedback covers Click to continue",
+    saw:"The will asks you to click. The Feedback pill sits on that prompt.",
+    do:"Patched: Feedback hides while that cutscene is playing.", status:"patched"},
+  {id:"dialog-click", cat:"Bugs and visual glitches", tag:"patched", who:"Maya", title:"Clicking Nib’s parchment does nothing",
+    saw:"Maya clicked the sentence. Nothing. Clicking the dark cabin worked.",
+    do:"Patched: the parchment no longer eats the click.", status:"patched"},
+  {id:"choices-overflow", cat:"Bugs and visual glitches", tag:"patched", who:"Maya", title:"Show me how sits on the dialog frame",
+    saw:"Both choices clip the bottom border. Feedback still kisses the right one.",
+    do:"Patched the bar height. Pixel still owes nicer choice planks if the brown boxes look like placeholders.", status:"patched"},
+  {id:"eight-vs-four", cat:"Confusion", tag:"confusion", who:"Maya", title:"Nib says 8 corridors. The first wheel shows 4 slices",
+    saw:"Empty seats are hidden in the tutorial, then plus signs appear in the real Gatehouse.",
+    do:"Show the empty seats (even faint) in the tutorial, or tell her this wheel is only half full.", status:"open"},
+  {id:"hero-is-goblin", cat:"Art and music", tag:"pixel", who:"Maya + Derek", title:"The person in the middle of the wheel looks like the Goblin",
+    saw:"Both of them thought the hub was the facing monster. Shield 0 and three hearts on that figure make it worse.",
+    do:"Pixel: the hero must not read as Goblin. Different silhouette, color, or gear.", status:"pixel"},
+  {id:"hp-5-vs-6", cat:"Confusion", tag:"confusion", who:"Maya", title:"Five hearts on screen. Nib says you have 6 HP",
+    saw:"Top-left hearts were 5 through the whole tutorial. Log said HP 6. After the tutorial, six hearts showed up.",
+    do:"Make the heart row, the log, and Nib’s line show the same number on the first fight.", status:"open"},
+  {id:"helmet-number", cat:"Confusion", tag:"confusion", who:"Maya", title:"Helmet says 6, then 2, then 6, and nobody tells you why",
+    saw:"Shift/hover later says Block equals the lower HP. Tutorial never shows that sentence. Knucklers also climbed 4-5-6-7 for the same silent-formula reason.",
+    do:"On first hover, show the formula. Or freeze the tutorial Helmet at 6 and inspect it before she fights.", status:"open"},
+  {id:"golem-owner", cat:"Bugs and visual glitches", tag:"patched", who:"Maya", title:"Golem inspect shows “plain ATK/HP Owner”",
+    saw:"That is roster math, not a monster line.",
+    do:"Patched: Ability stays empty on the plate; Shift still has the explainer.", status:"patched"},
+  {id:"block-killed-golem", cat:"Confusion", tag:"confusion", who:"Maya", title:"Safe after Block removed a 7 HP Golem",
+    saw:"Nib: you Defeated enemies by Attacking and Defending. Maya will now think Block kills.",
+    do:"If Safe is only ending the fight because the tutorial cheated the Golem out, say so, or don’t remove him. If Block really Defeated him, the inspect must say that.", status:"open"},
+  {id:"goblin-name-double", cat:"Art and music", tag:"pixel", who:"Maya + Derek", title:"Goblin’s name prints on top of itself",
+    saw:"Every small wedge: “Goblin” twice. Hornet Swarm numbers sit on the bees. Wraith’s call wraps into “Neighbor's Wrat”.",
+    do:"Pixel + layout: one name, one call, numbers that do not sit on the sprite.", status:"pixel"},
+  {id:"stale-log", cat:"Bugs and visual glitches", tag:"bug", who:"Maya", title:"Combat log still says Wizard 5/2 while you fight Golem",
+    saw:"The log pane overlaps Nib and repeats BLK 0. It never clears between fights.",
+    do:"New fight, new log. Don’t cover the tutorial box.", status:"open"},
+  {id:"challenge-lecture", cat:"Overall thoughts and core gameplay", tag:"feel", who:"Maya", title:"After a 3-monster tutorial, Nib dumps the whole Challenge rulebook",
+    saw:"Six monsters, face-down deck, Keep 10, loot equal to tier, click is the Spin. Then she is in the cabin with no arrow.",
+    do:"Save Challenge rules for the first Challenge map click. In the cabin, point at the map.", status:"open"},
+  {id:"test-note", cat:"Playtest tooling", tag:"patched", who:"Maya + Derek", title:"Map still has “(test note)”",
+    saw:"Which mode did you like more, and why? (test note)",
+    do:"Patched: hidden until Jam writes a real line. Locked copy was not rewritten.", status:"patched"},
+  {id:"only-leave", cat:"Confusion", tag:"patched", who:"Maya", title:"Take it or leave it? has only Leave it",
+    saw:"She stared, then clicked the Sai. That was Take. Derek got a two-card pick which was clearer.",
+    do:"Patched: Take it button using the existing locked “Take it” line. Clicking the card still works.", status:"patched"},
+  {id:"two-boots", cat:"Content", tag:"feel", who:"Maya", title:"First real Gatehouse hand is two Boots, a Potion, Smoke, then Sai",
+    saw:"Two identical Boots. Healing Potion shows a plus instead of a number.",
+    do:"Don’t start Adventure with a duplicate Boot unless that’s the joke, and then Nib should mention it.", status:"open"},
+  {id:"empty-grid", cat:"Art and music", tag:"pixel", who:"Derek", title:"Challenge hotbar is ten dashed empty boxes",
+    saw:"Looks like a UI placeholder. Middle Progress promised unlocks. He started the dungeon with an empty bag.",
+    do:"Pixel: real empty-slot art. Design: put the Middle Progress items in the bag, or tell him Challenge drafts from nothing.", status:"pixel"},
+  {id:"anvil-corner", cat:"Confusion", tag:"confusion", who:"Derek", title:"A tiny Anvil sits on the loot panel with no words",
+    saw:"He asked if it was a curse, the next monster, or decoration.",
+    do:"Label it (next in the deck / upcoming owner) or don’t show a sprite until it matters.", status:"open"},
+  {id:"middle-empty-hand", cat:"Overall thoughts and core gameplay", tag:"feel", who:"Derek", title:"Middle Progress does not put unlocked cards in the Challenge hand",
+    saw:"The map even listed Victory Flask, Crossbow, Sledgehammer in the tree. None of them were in his bag.",
+    do:"Either seed the hand with those unlocks, or the Middle Progress blurb should say you only get them in Adventure.", status:"open"},
+  {id:"f2-tier-wrap", cat:"Playtest tooling", tag:"patched", who:"Maya", title:"Make An Item/Monster Tier List wraps into three clipped lines",
+    saw:"The button is too short for the locked label.",
+    do:"Patched: wider button. Jam can still shorten the label later if she wants.", status:"patched"},
+  {id:"gargoyle-art", cat:"Art and music", tag:"pixel", who:"inbox", title:"Gargoyle still needs to look like a gargoyle",
+    saw:"Already on GitHub as playtest #56. Neither persona saw that fight this pass; the request stands.",
+    do:"Pixel: unique gargoyle, not a reused statue.", status:"pixel"},
+  {id:"wheel-cramp", cat:"Art and music", tag:"pixel", who:"Derek", title:"Six-monster Challenge wheel is unreadable",
+    saw:"HP/ATK sit on sprites. Call names wrap. Gold vs brown wedges are fine. The type is not.",
+    do:"Pixel/layout: smaller sprites or a hover-only name. The inspect plate is doing the real work.", status:"pixel"},
+  {id:"inspect-good", cat:"Overall thoughts and core gameplay", tag:"feel", who:"Maya + Derek", title:"Once inspect is up, the game starts working",
+    saw:"Wizard Weak, HP 2 Attack 5. Goblin Evasive, cannot take Attack. Helmet and Knucklers formulas on the Challenge pick are actually good cards.",
+    do:"Keep inspect. Teach hover/Shift earlier than “click the Wizard” which actually Spins.", status:"open"},
+  {id:"click-wizard-spins", cat:"Confusion", tag:"confusion", who:"Maya", title:"Click the Wizard on the wheel Spins into the fight",
+    saw:"She thought click meant inspect. Inspect is hover. Click is the Spin. Tutorial copy says click.",
+    do:"If click is the Spin, say “click the Wizard to face them.” Put inspect on a first hover with Nib paused.", status:"open"},
+  {id:"cabin-love", cat:"Overall thoughts and core gameplay", tag:"feel", who:"Maya", title:"The cabin is the first time it feels like a place",
+    saw:"Fireplace, map, radio, locked X-cabinet, Nib in a vest. “I love stamping.” They both liked this more than the black intro.",
+    do:"Lead with the cabin, not a black dialog. Keep Nib’s voice.", status:"open"},
+  {id:"will-hook", cat:"Overall thoughts and core gameplay", tag:"feel", who:"Maya", title:"Lucky Snatchwick died in the mountain, monsters are wearing his stuff",
+    saw:"That pitch landed. Bring it back, shelves, deed, stamp.",
+    do:"Do not bury it under Autoplay and an unreadable prop.", status:"open"}
+];
+
+const cats = [];
+CARDS.forEach(c => { if (!cats.includes(c.cat)) cats.push(c.cat); });
+const root = document.getElementById("cards");
+const KEY = "player-pass-answers-2026-10-20";
+let answers = {};
+try { answers = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { answers = {}; }
+
+function render(filter) {
+  root.innerHTML = "";
+  cats.forEach(cat => {
+    const group = CARDS.filter(c => c.cat === cat).filter(c => {
+      if (filter === "open") return c.status === "open";
+      if (filter === "patched") return c.status === "patched";
+      if (filter === "pixel") return c.status === "pixel";
+      if (filter === "jam") return c.status === "jam";
+      return true;
+    });
+    if (!group.length) return;
+    const h = document.createElement("h3");
+    h.className = "cat";
+    h.textContent = cat;
+    root.appendChild(h);
+    group.forEach(c => {
+      const a = answers[c.id] || {};
+      const el = document.createElement("article");
+      el.className = "card " + c.status;
+      el.innerHTML = `
+        <div><span class="tag ${c.tag}">${c.tag}</span><span class="tag ${c.status}">${c.status}</span></div>
+        <h4>${c.title}</h4>
+        <p class="who-line">${c.who}</p>
+        <p>${c.saw}</p>
+        <p class="do">${c.do}</p>
+        <div class="answers">
+          <button type="button" data-id="${c.id}" data-v="do" class="${a.v==="do"?"on":""}">Do this</button>
+          <button type="button" data-id="${c.id}" data-v="later" class="${a.v==="later"?"on":""}">Later</button>
+          <button type="button" data-id="${c.id}" data-v="no" class="${a.v==="no"?"on":""}">Not this</button>
+        </div>
+        <textarea data-id="${c.id}" placeholder="Your note">${a.note || ""}</textarea>
+      `;
+      root.appendChild(el);
+    });
+  });
+}
+function persist() {
+  localStorage.setItem(KEY, JSON.stringify(answers));
+  document.getElementById("save").textContent = "Saved in this browser.";
+  document.getElementById("save").className = "save";
+}
+root.addEventListener("click", (ev) => {
+  const b = ev.target.closest("button[data-id]");
+  if (!b) return;
+  const id = b.getAttribute("data-id");
+  answers[id] = answers[id] || {};
+  answers[id].v = b.getAttribute("data-v");
+  persist();
+  render(document.querySelector(".bar button.on").dataset.filter || "all");
+});
+root.addEventListener("input", (ev) => {
+  if (ev.target.tagName !== "TEXTAREA") return;
+  const id = ev.target.getAttribute("data-id");
+  answers[id] = answers[id] || {};
+  answers[id].note = ev.target.value;
+  persist();
+});
+document.querySelector(".bar").addEventListener("click", (ev) => {
+  const b = ev.target.closest("button");
+  if (!b) return;
+  document.querySelectorAll(".bar button").forEach(x => x.classList.remove("on"));
+  b.classList.add("on");
+  render(b.dataset.filter || "all");
+});
+render("all");
+</script>
+</body>
+</html>

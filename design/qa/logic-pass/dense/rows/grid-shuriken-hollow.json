@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "2 Attack. If the Enemy lives, you Flee and Keep this.",
+			"id": "shuriken",
+			"kind": "item",
+			"name": "Shuriken",
+			"sprite": "assets/dungeon/items/shuriken.png"
+		},
+		{
+			"ability": "Attack or Block values that are Even happen twice against me.",
+			"id": "hollow",
+			"kind": "monster",
+			"name": "Twins",
+			"sprite": "assets/dungeon/extra/hollow.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Shuriken"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Shuriken — 2 Attack. If the Enemy lives, you Flee and Keep this. Monster: Twins — Attack or Block values that are Even happen twice against me. Challenge hand. Wheel hollow. Click Shuriken, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-shuriken-hollow",
+	"log": "Draft enter\nYou Spin\nSpin Twins\nenemy ATK 6   HP 6\nBLK 0\nitems this combat 0\nShuriken\nATK 2  to  Twins HP 2\nitems this combat 1\nFight flee\nKept Shuriken\nBLK 0\nYou Spin\nSpin Twins\nenemy ATK 6   HP 2\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase ready · HP 6 · BLK 0 · face — ATK — HP —",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use shuriken",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 0,
+		"face_id": "hollow",
+		"face_name": "",
+		"hand": [
+			"Shuriken"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Shuriken vs Twins",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

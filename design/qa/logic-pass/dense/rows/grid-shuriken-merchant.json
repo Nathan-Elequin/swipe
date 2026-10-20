@@ -1,0 +1,65 @@
+{
+	"cards": [
+		{
+			"ability": "2 Attack. If the Enemy lives, you Flee and Keep this.",
+			"id": "shuriken",
+			"kind": "item",
+			"name": "Shuriken",
+			"sprite": "assets/dungeon/items/shuriken.png"
+		},
+		{
+			"ability": "When you Spin me, choose an Item and I will upgrade it",
+			"id": "merchant",
+			"kind": "monster",
+			"name": "Merchant",
+			"sprite": "assets/dungeon/extra/merchant.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Shuriken"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Shuriken — 2 Attack. If the Enemy lives, you Flee and Keep this. Monster: Merchant — When you Spin me, choose an Item and I will upgrade it Challenge hand. Wheel merchant. Click Shuriken, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-shuriken-merchant",
+	"log": "Draft enter\nYou Spin\nSpin Merchant\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin merchant offers an upgrade\nSpin upgrade Shuriken to Paci-Fist",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Merchant ATK 4 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use shuriken",
+			"done "
+		],
+		"face_atk": 4,
+		"face_hp": 4,
+		"face_id": "merchant",
+		"face_name": "Merchant",
+		"hand": [
+			"Paci-Fist"
+		],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Shuriken vs Merchant",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

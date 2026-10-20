@@ -1,0 +1,80 @@
+{
+	"cards": [
+		{
+			"ability": "Set the HP of the Enemy, its Neighbors, and yourself to 1 HP",
+			"id": "napalm",
+			"kind": "item",
+			"name": "Napalm",
+			"sprite": "assets/dungeon/items/napalm.png"
+		},
+		{
+			"ability": "When I enter the Dungeon, Gain 1 Rust",
+			"id": "rust_bucket",
+			"kind": "monster",
+			"name": "Rust Bucket",
+			"sprite": "assets/dungeon/extra/rust_bucket.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Napalm",
+			"Rust"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "2 / 50"
+	},
+	"expected": "Item: Napalm — Set the HP of the Enemy, its Neighbors, and yourself to 1 HP Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket, wizard, golem. Click Napalm, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-napalm-rust_bucket",
+	"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3\nNapalm\nHP Rust Bucket  now 1\nRust Bucket - Rust\nHP Wizard  now 1\nWizard - Wizard\nHP Golem  now 1\nGolem - Golem\nHP bleed -5  now 1\nitems this combat 1\nYou Done\nFight hit 1  ATK 3  (ignores BLK)\nRust Bucket - Rust\nHP take -3  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 1 · BLK 0 · face Rust Bucket ATK 3 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use napalm",
+			"done "
+		],
+		"face_atk": 3,
+		"face_hp": 1,
+		"face_id": "rust_bucket",
+		"face_name": "Rust Bucket",
+		"hand": [
+			"Rust"
+		],
+		"kind": "fight",
+		"you_hp": 1
+	},
+	"title": "Napalm vs Rust Bucket",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

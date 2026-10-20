@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+			"id": "pacemaker",
+			"kind": "item",
+			"name": "Pacemaker",
+			"sprite": "assets/dungeon/items/pacemaker.png"
+		},
+		{
+			"ability": "When I Attack, I die. My Neighbors each gain HP equal to my current HP",
+			"id": "martyr",
+			"kind": "monster",
+			"name": "Martyr",
+			"sprite": "assets/dungeon/extra/martyr.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Pacemaker"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Pacemaker — When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP. Monster: Martyr — When I Attack, I die. My Neighbors each gain HP equal to my current HP Challenge hand. Wheel martyr, wizard, golem. Click Pacemaker, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-pacemaker-martyr",
+	"log": "Draft enter\nYou Spin\nSpin Martyr\nenemy ATK 0   HP 7\nBLK 0\nitems this combat 0\nPacemaker\nHP heal +1  now 2\nHP bleed -2  now 2\nitems this combat 1\nYou Done\nFight hit 1  ATK 0 - BLK\nBLK 0\nHP take 0\nDefeated Martyr\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 2 · BLK 0 · face Martyr ATK 0 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use pacemaker",
+			"done "
+		],
+		"face_atk": 0,
+		"face_hp": 7,
+		"face_id": "martyr",
+		"face_name": "Martyr",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 2
+	},
+	"title": "Pacemaker vs Martyr",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

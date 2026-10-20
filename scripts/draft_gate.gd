@@ -35,6 +35,7 @@ var _owner_tag: Label
 var _rules_box: PanelContainer
 var _rules: RichTextLabel
 var _hook: Label
+var _take: Button
 var _refuse: Button
 var _hint
 var _guard
@@ -159,8 +160,13 @@ func setup(p_art, p_sfx = null) -> void:
 	_btns.alignment = BoxContainer.ALIGNMENT_CENTER
 	_btns.add_theme_constant_override("separation", 10)
 	col.add_child(_btns)
+	_take = _kenney(COPY.text("door.take", "Take it"), "btn_brown", "btn_brown_down", Color("f0e6d8"))
+	_take.custom_minimum_size = Vector2(160, 48)
+	_take.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_btns.add_child(_take)
+	_take.pressed.connect(func() -> void: send_pressed.emit())
 	_refuse = _kenney(COPY.fill("door.pass", {"n": 3}, "Leave it"), "btn_brown", "btn_brown_down", Color("f0e6d8"))
-	_refuse.custom_minimum_size = Vector2(280, 48)
+	_refuse.custom_minimum_size = Vector2(160, 48)
 	_refuse.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_btns.add_child(_refuse)
 	_refuse.pressed.connect(func() -> void: refuse_pressed.emit())

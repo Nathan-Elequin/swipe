@@ -116,7 +116,10 @@
 		"fairy",
 		"eel",
 		"druid",
-		"mouse"
+		"mouse",
+		"magicat",
+		"rust_bucket",
+		"poison_frog"
 	],
 	"notes": "Full roster minus retired/hidden rows (Dagger, Bandana, old Helmet) and Cursed Scroll. Commander + Lich apply last."
 }

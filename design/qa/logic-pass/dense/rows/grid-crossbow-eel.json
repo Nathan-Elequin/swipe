@@ -1,0 +1,77 @@
+{
+	"cards": [
+		{
+			"ability": "Deal 4 Attack to a Neighboring enemy.",
+			"id": "crossbow",
+			"kind": "item",
+			"name": "Crossbow",
+			"sprite": "assets/dungeon/items/crossbow.png"
+		},
+		{
+			"ability": "When facing me, I take Attack damage equal to Block you gain.",
+			"id": "eel",
+			"kind": "monster",
+			"name": "Eel",
+			"sprite": "assets/dungeon/extra/eel.png"
+		},
+		{
+			"ability": "",
+			"id": "wizard",
+			"kind": "monster",
+			"name": "Wizard",
+			"sprite": "assets/dungeon/extra/wizard.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Crossbow"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Crossbow — Deal 4 Attack to a Neighboring enemy. Monster: Eel — When facing me, I take Attack damage equal to Block you gain. Challenge hand. Wheel eel, wizard, golem. Click Crossbow, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-crossbow-eel",
+	"log": "Draft enter\nYou Spin\nSpin Eel\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0\nUsed pick a neighbor\nCrossbow\nUsed crossbow Wizard\nATK 4  to  Wizard HP 0\nitems this combat 1\nDefeated Wizard\nYou Done\nFight hit 1  ATK 6 - BLK\nBLK 0\nHP take -6  now 0\nEnd dead",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Eel ATK 6 HP 4",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use crossbow",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 4,
+		"face_id": "eel",
+		"face_name": "Eel",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Crossbow vs Eel",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}

@@ -1,0 +1,63 @@
+{
+	"cards": [
+		{
+			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
+			"id": "chakram",
+			"kind": "item",
+			"name": "Chakram",
+			"sprite": "assets/dungeon/items/chakram.png"
+		},
+		{
+			"ability": "My Attack always equals your HP.",
+			"id": "dire_wolf",
+			"kind": "monster",
+			"name": "Dire Wolf",
+			"sprite": "assets/dungeon/extra/dire_wolf.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": [
+			"screenshot"
+		],
+		"hand_before": [
+			"Chakram"
+		],
+		"looked_at": [
+			"combat log",
+			"plate ATK/HP",
+			"inspect",
+			"Shift inspect",
+			"hotbar"
+		],
+		"slots": "1 / 50"
+	},
+	"expected": "Item: Chakram — Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack. Monster: Dire Wolf — My Attack always equals your HP. Challenge hand. Wheel dire_wolf. Click Chakram, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"family": "grid",
+	"id": "grid-chakram-dire_wolf",
+	"log": "Draft enter\nYou Spin\nSpin Dire Wolf\nenemy ATK 6   HP 4\nBLK 0\nitems this combat 0\nChakram\nBLK +3  to  3\nATK 3  to  Dire Wolf HP 1\nitems this combat 1",
+	"mismatch": "",
+	"note": "",
+	"observed": "phase fighting · HP 6 · BLK 3 · face Dire Wolf ATK 6 HP 1",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [
+			"use chakram",
+			"done "
+		],
+		"face_atk": 6,
+		"face_hp": 1,
+		"face_id": "dire_wolf",
+		"face_name": "Dire Wolf",
+		"hand": [],
+		"kind": "fight",
+		"you_hp": 6
+	},
+	"title": "Chakram vs Dire Wolf",
+	"verbs": [
+		"grid",
+		"surfaces"
+	]
+}
