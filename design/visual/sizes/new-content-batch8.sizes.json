@@ -1,0 +1,7 @@
+{
+ "notes": "New content art 2026-10-20 batch 8 (Pixel). Pocketwatch and Spider Queen replacement sprites (catalog flags.art false). 16x16 native, stored 4x nearest (64x64).",
+ "assets": [
+  {"path": "assets/dungeon/items/pocketwatch.png", "native": [16, 16], "shipped": [64, 64]},
+  {"path": "assets/dungeon/extra/spider_queen.png", "native": [16, 16], "shipped": [64, 64]}
+ ]
+}
