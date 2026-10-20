@@ -1249,6 +1249,12 @@ func _ensure_registry() -> void:
 		"60_loft", "61_loft_cat_rub", "62_journal_cover", "63_journal_bestiary",
 		"64_journal_items", "65_journal_memories", "66_journal_unmet",
 	], _shot_playtest_art)
+	_bind_many([
+		"67_run_door_open_f2", "68_side_door_open", "69_drawer_rattle", "70_drawer_open",
+		"71_dummy_tilt", "72_radio_knob_hover", "73_journal_page_flip", "74_deeper_hole_glow",
+		"75_homecoming_fly_spark", "76_new_burst", "77_drop_sack", "78_settings_sliders",
+		"79_dialog_speech_tail", "80_trunk_open_hover",
+	], _shot_cabin_wiring)
 
 
 func _bind_many(stems: Array, fn: Callable) -> void:
@@ -1341,6 +1347,173 @@ func _shot_playtest_art() -> void:
 	await _wait(0.12)
 	await _capture("66_journal_unmet.png", "unmet bestiary entry, scribble inside the right lore rect")
 	cabin._journal.close()
+	cabin.visible = false
+	cabin.stop_story()
+	if main.play_field:
+		main.play_field.visible = true
+
+
+func _shot_cabin_wiring() -> void:
+	status = "cabin-wiring"
+	_reset_between()
+	_hide_chrome(false)
+	var cabin = main.home_cabin
+	if cabin == null:
+		_skip("67_run_door_open_f2.png", "home_cabin missing")
+		return
+	if main.play_field:
+		main.play_field.visible = false
+	if main.overlay:
+		main.overlay.visible = false
+	cabin.intro_seen = true
+	cabin.nib_first_done = true
+	cabin.tutorial_done = true
+	cabin.key_ring_seen = true
+	cabin.ending_seen = true
+	cabin.drawer_opened = false
+	cabin.stop_story()
+	cabin.visible = true
+	for r in ["hall", "study", "workshop", "loft"]:
+		if not cabin.rooms_unlocked.has(r):
+			cabin.rooms_unlocked.append(r)
+	cabin.show_menu("main")
+	await _wait(0.2)
+	if cabin.has_method("debug_run_door_open"):
+		cabin.debug_run_door_open(2)
+		await _wait(0.08)
+		await _capture("67_run_door_open_f2.png", "run door open f2 (night + Grumblegut)")
+	else:
+		_skip("67_run_door_open_f2.png", "debug_run_door_open missing")
+	if cabin.has_method("debug_side_door_open"):
+		cabin.debug_side_door_open("main")
+		await _wait(0.08)
+		await _capture("68_side_door_open.png", "main side door open state")
+	else:
+		_skip("68_side_door_open.png", "debug_side_door_open missing")
+	cabin.show_menu("study")
+	await _wait(0.15)
+	cabin._refresh_rooms()
+	if cabin.has_method("debug_drawer_rattle_frame"):
+		cabin.debug_drawer_rattle_frame(1)
+		await _wait(0.08)
+		await _capture("69_drawer_rattle.png", "stuck drawer rattle mid-frame")
+	else:
+		_skip("69_drawer_rattle.png", "debug_drawer_rattle_frame missing")
+	if cabin.has_method("debug_drawer_open_frame"):
+		cabin.debug_drawer_open_frame(3)
+		await _wait(0.08)
+		await _capture("70_drawer_open.png", "drawer open hold f3")
+	else:
+		_skip("70_drawer_open.png", "debug_drawer_open_frame missing")
+	cabin.show_menu("workshop")
+	await _wait(0.15)
+	if cabin.has_method("debug_dummy_tilt"):
+		cabin.debug_dummy_tilt("l")
+		await _wait(0.08)
+		await _capture("71_dummy_tilt.png", "training dummy tilt_l")
+	else:
+		_skip("71_dummy_tilt.png", "debug_dummy_tilt missing")
+	cabin.show_menu("main")
+	await _wait(0.1)
+	if cabin._radio:
+		cabin._open_radio()
+		await _wait(0.15)
+		if cabin._radio._knobs.size() > 0:
+			cabin._radio._knob_hover[0] = true
+			cabin._radio._refresh_knob(0)
+		await _wait(0.08)
+		await _capture("72_radio_knob_hover.png", "radio knob 0 hover frame")
+		cabin._radio.close()
+	else:
+		_skip("72_radio_knob_hover.png", "radio missing")
+	cabin.show_menu("study")
+	await _wait(0.1)
+	if cabin._journal:
+		cabin.met_monsters = {"goblin": true}
+		cabin._journal.open_journal("bestiary")
+		await _wait(0.15)
+		cabin._journal.open_spread()
+		await _wait(0.1)
+		cabin._journal._play_page_flip(true)
+		await _wait(0.12)
+		await _capture("73_journal_page_flip.png", "journal page flip mid anim")
+		cabin._journal.close()
+	else:
+		_skip("73_journal_page_flip.png", "journal missing")
+	if main.rope_exit:
+		cabin.visible = false
+		main.rope_exit.z_index = 200
+		main.rope_exit.open_exit(1, [])
+		main.rope_exit.modulate.a = 1.0
+		await _wait(0.25)
+		await _capture("74_deeper_hole_glow.png", "deeper hole idle glow pulse")
+		main.rope_exit.hide_exit()
+		main.rope_exit.z_index = 80
+		cabin.visible = true
+	else:
+		_skip("74_deeper_hole_glow.png", "rope_exit missing")
+	cabin.show_menu("main")
+	await _wait(0.1)
+	if cabin.has_method("debug_win_fly"):
+		cabin.debug_win_fly()
+		await _wait(0.2)
+		await _capture("75_homecoming_fly_spark.png", "fly spark + trail on mid-air loot")
+		if cabin.has_method("clear_debug_fx"):
+			cabin.clear_debug_fx()
+	else:
+		_skip("75_homecoming_fly_spark.png", "debug_win_fly missing")
+	cabin.show_menu("hall")
+	await _wait(0.15)
+	if cabin.has_method("debug_new_burst"):
+		cabin.debug_new_burst()
+		await _wait(0.12)
+		await _capture("76_new_burst.png", "NEW item burst on mount")
+		if cabin.has_method("clear_debug_fx"):
+			cabin.clear_debug_fx()
+	else:
+		_skip("76_new_burst.png", "debug_new_burst missing")
+	cabin.show_menu("main")
+	await _wait(0.1)
+	if cabin.has_method("debug_drop_sack"):
+		cabin.debug_drop_sack(2)
+		await _wait(0.08)
+		await _capture("77_drop_sack.png", "hero_drop_sack f2 at (70,205) flip_h")
+	else:
+		_skip("77_drop_sack.png", "debug_drop_sack missing")
+	if main.settings_ui:
+		main.settings_ui.open_menu(false)
+		await _wait(0.15)
+		await _capture("78_settings_sliders.png", "pause sliders with cabin track/grabber")
+		if main.settings_ui.has_method("close_menu"):
+			main.settings_ui.close_menu()
+	else:
+		_skip("78_settings_sliders.png", "settings_ui missing")
+	cabin.show_menu("main")
+	await _wait(0.1)
+	if cabin._dialog:
+		cabin._dialog.say(["nib.idle.1"])
+		await _wait(0.2)
+		await _capture("79_dialog_speech_tail.png", "dialog box with speech_tail under bust")
+		if cabin._dialog.has_method("dismiss"):
+			cabin._dialog.dismiss()
+	else:
+		_skip("79_dialog_speech_tail.png", "dialog missing")
+	cabin.trunk_open = true
+	cabin.show_menu("loft")
+	await _wait(0.15)
+	cabin._refresh_rooms()
+	var loft = cabin._rooms.get("loft")
+	var trunk = loft.spots.get("Trunk", null) if loft else null
+	if trunk is CabinHotspot:
+		trunk._hovering = true
+		trunk._refresh_tex()
+		await _wait(0.08)
+		await _capture("80_trunk_open_hover.png", "trunk open + open_hover")
+		trunk._hovering = false
+		trunk._refresh_tex()
+	else:
+		_skip("80_trunk_open_hover.png", "trunk hotspot missing")
+	cabin.trunk_open = false
 	cabin.visible = false
 	cabin.stop_story()
 	if main.play_field:
