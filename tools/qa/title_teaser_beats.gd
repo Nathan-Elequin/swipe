@@ -6,14 +6,22 @@ const TIMES := [1.0, 3.6, 5.7, 7.1, 9.5, 11.6, 13.5]
 
 
 func _init() -> void:
+	call_deferred("_run")
+
+
+func _run() -> void:
 	var art = preload("res://scripts/dungeon_art.gd").new()
 	if art.has_method("setup"):
 		art.setup()
 	var teaser = load("res://scripts/title_teaser.gd").new()
 	root.add_child(teaser)
 	teaser.setup(art, null)
+	teaser.anchor_left = 0.0
+	teaser.anchor_top = 0.0
+	teaser.anchor_right = 0.0
+	teaser.anchor_bottom = 0.0
+	teaser.position = Vector2.ZERO
 	teaser.size = Vector2(1680, 1040)
-	teaser.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	teaser.custom_minimum_size = Vector2(1680, 1040)
 
 	var captures: Array = []
@@ -265,23 +273,22 @@ func _assert_no_drift(teaser, fails: Array[String]) -> void:
 	for t in [6.5, 6.8, 7.2, 7.6, 8.0]:
 		teaser.debug_capture(float(t))
 		var hx: float = teaser._hero_x(Vector2(1680, 1040))
-		# Use goblin (first born, settled) slot offset.
-		var gob = null
+		# Skeleton: settled in hall, not the boot's knockback target (nearest = goblin).
+		var mon = null
 		for m in teaser._mons:
-			if str(m.get("id", "")) == "goblin":
-				gob = m
+			if str(m.get("id", "")) == "skeleton":
+				mon = m
 				break
-		if gob == null:
-			fails.append("i:no_goblin")
-			print("ASSERT i FAIL no goblin")
+		if mon == null:
+			fails.append("i:no_skeleton")
+			print("ASSERT i FAIL no skeleton")
 			return
-		var age: float = float(t) - float(gob.get("born", 0.0))
+		var age: float = float(t) - float(mon.get("born", 0.0))
 		var ease: float = clampf(age / 0.6, 0.0, 1.0)
 		ease = ease * ease * (3.0 - 2.0 * ease)
-		var slot_x: float = hx - float(gob.get("gap", 110.0))
+		var slot_x: float = hx - float(mon.get("gap", 190.0)) - float(mon.get("knock", 0.0))
 		var from_x := -120.0
 		var x: float = lerpf(from_x, slot_x, ease)
-		# Relative offset hero - monster (settled should be ~gap).
 		var off: float = hx - x
 		samples.append(off)
 	var lo: float = float(samples[0])

@@ -162,11 +162,15 @@ func yield_to_hub() -> void:
 
 
 func debug_capture(t: float) -> Dictionary:
+	if size.x < 8.0 or size.y < 8.0:
+		size = Vector2(1680, 1040)
 	open_teaser(false)
 	var dt := 1.0 / 60.0
-	while _t < t:
+	while _t < t and not holding_still:
 		var step: float = minf(dt, t - _t)
 		_tick(step)
+	# Still holds the clock at T_STILL; report the requested sample time.
+	var report_t: float = t if holding_still else _t
 	_rec = []
 	_rec_draw = false
 	_paint()
@@ -177,14 +181,14 @@ func debug_capture(t: float) -> Dictionary:
 	for lab in [_title, _tag, _click, _music_lab]:
 		if lab == null:
 			continue
-		var r: Rect2 = lab.get_rect()
+		var r: Rect2 = Rect2(lab.position, lab.size)
 		labels.append({
 			"name": str(lab.name),
 			"rect": [r.position.x, r.position.y, r.size.x, r.size.y],
 			"visible": lab.visible,
 		})
 	return {
-		"t": _t,
+		"t": report_t,
 		"blits": blits,
 		"white": _white,
 		"still_a": _still_a,
@@ -586,11 +590,13 @@ func _try_advance() -> void:
 
 func _view_size() -> Vector2:
 	var sz: Vector2 = size
-	if sz.x < 8.0:
-		sz = get_viewport_rect().size
-	if sz.x < 8.0:
-		sz = Vector2(1680, 1040)
-	return sz
+	if sz.x >= 8.0 and sz.y >= 8.0:
+		return sz
+	if is_inside_tree():
+		var vs: Vector2 = get_viewport_rect().size
+		if vs.x >= 8.0 and vs.y >= 8.0:
+			return vs
+	return Vector2(1680, 1040)
 
 
 func _hero_x(sz: Vector2) -> float:
