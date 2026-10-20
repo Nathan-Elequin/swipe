@@ -1,0 +1,7 @@
+{
+ "notes": "Dungeon Deck face-up redesign 2026-10-20 batch 12 (Pixel). Card front shares the back's bone frame pixel-for-pixel (rows 0-3/40-43, cols 0-3/28-31). Monster window interior native (7,7) 18x17; plain lower third native (5,28) 22x11 for the name and the Weak/Tough/Deadly plate. Empty slot is a faint card outline. Stored 4x nearest; scripts/dungeon_deck.gd resamples to native and draws at exactly 3x (96x132).",
+ "assets": [
+  {"path": "assets/ui/deck/card_front.png", "native": [32, 44], "shipped": [128, 176]},
+  {"path": "assets/ui/deck/card_slot_empty.png", "native": [32, 44], "shipped": [128, 176]}
+ ]
+}

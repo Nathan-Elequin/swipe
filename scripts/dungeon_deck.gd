@@ -1,5 +1,7 @@
 extends Control
-## Face-down Challenge deck. Sits off the top-right of the wheel.
+## Dungeon Deck: the Challenge monster deck beside the wheel.
+## A short stack of card backs with the next monster face up on top (face down when the next
+## monster is hidden). Pixel's card art is 32x44 native, shipped 4x; drawn at exactly 3x here.
 
 signal draw_finished
 signal hovered
@@ -7,23 +9,54 @@ signal unhovered
 signal edit_wanted
 
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
+const PLAYER_COPY := preload("res://scripts/player_copy.gd")
 const BACK := Color("1a1410")
 const RIM := Color("c4a574")
 const GOLD := Color("e8c36a")
 const INK := Color("f0e6d8")
 const WARN := Color("e07040")
 const EMPTY := Color("8b1e1e")
+const OUTLINE := Color("100e0c")
+
+const NATIVE := Vector2i(32, 44)
+const PX := 3                                   # screen px per native px
+const CARD := Vector2(96, 132)                  # NATIVE * PX
+const CARD_POS := Vector2(4, 8)                 # top card, top-left (local)
+const STACK_STEP := Vector2(3, 3)               # 1 native px down-right per card underneath
+# Native-pixel rects on card_front.png (see design/visual/sizes/new-content-batch12-deck.sizes.json).
+const WINDOW_N := Rect2i(7, 7, 18, 17)          # monster window interior
+const LOWER_N := Rect2i(5, 28, 22, 11)          # plain lower third: name + Weak/Tough/Deadly plate
+const PLATE_FILL := [Color("3a2a1a"), Color("172636"), Color("3a1014")]
+const PLATE_RIM := [Color("a8784a"), Color("5a8ac4"), Color("c43a3a")]
+
+const SLIDE_S := 0.25
+const FLIP_HALF_S := 0.08
+const RIFFLE_S := 0.4
 
 var count: int = 0
 var art_tex: Texture2D
 var peek_tex: Texture2D
 var peek_name: String = ""
-var _shake: float = 0.0
-var _draw_t: float = 0.0
+var peek_tier: int = 0
+## Global point the drawn card slides toward (e.g. the wheel slot it lands in). INF = slide left.
+var entry_global: Vector2 = Vector2.INF
+
 var _busy: bool = false
+var _back: Texture2D
+var _front: Texture2D
+var _slot: Texture2D
 var _sack: Texture2D
-var _card: Texture2D
 var _warn_t: float = 0.0
+
+var _face_up: bool = false
+var _awaiting_face: bool = false
+var _flip_sx: float = 1.0
+var _flip_sy: float = 1.0
+var _flipping: bool = false
+var _depth_hold: int = -1
+var _slide_t: float = 0.0
+var _out: Dictionary = {}
+var _riffle_t: float = -1.0
 
 
 func setup() -> void:
@@ -35,22 +68,63 @@ func setup() -> void:
 	gui_input.connect(_on_gui)
 	if ResourceLoader.exists("res://assets/dungeon/home/loot_sack_dropped.png"):
 		_sack = load("res://assets/dungeon/home/loot_sack_dropped.png")
-	if ResourceLoader.exists("res://assets/ui/deck/playing_card.png"):
-		_card = load("res://assets/ui/deck/playing_card.png")
+	_back = _at_3x("res://assets/ui/deck/playing_card.png")
+	_front = _at_3x("res://assets/ui/deck/card_front.png")
+	_slot = _at_3x("res://assets/ui/deck/card_slot_empty.png")
 	texture_filter = TEXTURE_FILTER_NEAREST
+
+
+## Shipped PNGs are 4x. Nearest-sample down to native, then up to exactly 3x, so every
+## native pixel is a clean 3x3 block instead of the 4x->3x drop-a-column look.
+func _at_3x(path: String) -> Texture2D:
+	if not ResourceLoader.exists(path):
+		return null
+	var tex: Texture2D = load(path)
+	if tex == null:
+		return null
+	var img: Image = tex.get_image()
+	if img == null:
+		return tex
+	if img.is_compressed():
+		img.decompress()
+	img = img.duplicate()
+	img.resize(NATIVE.x, NATIVE.y, Image.INTERPOLATE_NEAREST)
+	img.resize(NATIVE.x * PX, NATIVE.y * PX, Image.INTERPOLATE_NEAREST)
+	return ImageTexture.create_from_image(img)
 
 
 func set_count(n: int) -> void:
 	count = maxi(0, n)
+	if count <= 0:
+		_face_up = false
+		_awaiting_face = false
 	_sync_mouse()
 	set_process(true)
 	queue_redraw()
 
 
-func set_peek(tex: Texture2D, who: String) -> void:
+## who == "" means no next monster to show (deck empty, or the mode hides it): top stays face down.
+func set_peek(tex: Texture2D, who: String, tier: int = -1) -> void:
 	peek_tex = tex
 	peek_name = who.strip_edges()
+	if tier >= 0:
+		peek_tier = tier
 	_sync_mouse()
+	if not _busy and not _flipping:
+		if peek_name == "" or count <= 0:
+			_face_up = false
+			_awaiting_face = false
+			_depth_hold = -1
+		elif _awaiting_face:
+			_awaiting_face = false
+			_flip_up()
+		elif not _face_up:
+			_face_up = true
+	queue_redraw()
+
+
+func set_peek_tier(tier: int) -> void:
+	peek_tier = tier
 	queue_redraw()
 
 
@@ -81,75 +155,120 @@ func is_busy() -> bool:
 	return _busy
 
 
+static func depth_for(under: int) -> int:
+	if under > 6:
+		return 3
+	if under >= 3:
+		return 2
+	if under >= 1:
+		return 1
+	return 0
+
+
+## Run start: ~0.4s riffle of backs, then the top card flips face up (if the next monster is shown).
 func play_shuffle() -> void:
 	_busy = true
-	_shake = 1.0
+	_face_up = false
+	_riffle_t = 0.0
+	set_process(true)
 	var tw := create_tween()
-	tw.tween_property(self, "_shake", 0.0, 0.55).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(self, "_riffle_t", 1.0, RIFFLE_S).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await tw.finished
+	_riffle_t = -1.0
 	_busy = false
+	if count > 0 and peek_name != "":
+		await _flip_up()
+	elif count > 0:
+		_awaiting_face = true
 	queue_redraw()
 
 
+## A monster leaves the deck: the top card slides toward the entry point and fades (0.25s, ease out).
+## The next card flips face up once main hands over its peek (set_peek), and depth updates after.
 func play_draw() -> void:
 	if count <= 0:
 		return
 	_busy = true
-	_draw_t = 0.0
-	var tw := create_tween()
-	tw.tween_property(self, "_draw_t", 1.0, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	await tw.finished
+	_out = {"face": _face_up and peek_name != "", "tex": peek_tex, "name": peek_name, "tier": peek_tier}
+	_depth_hold = depth_for(count - 1)
 	count = maxi(0, count - 1)
-	_draw_t = 0.0
+	_face_up = false
+	_slide_t = 0.0
+	set_process(true)
+	var tw := create_tween()
+	tw.tween_property(self, "_slide_t", 1.0, SLIDE_S).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await tw.finished
+	_out = {}
+	_slide_t = 0.0
 	_busy = false
+	if count > 0:
+		_awaiting_face = true
+	else:
+		_depth_hold = -1
 	queue_redraw()
 	draw_finished.emit()
 
 
+func _flip_up() -> void:
+	_flipping = true
+	_flip_sx = 1.0
+	_flip_sy = 1.0
+	set_process(true)
+	var tw := create_tween()
+	tw.tween_property(self, "_flip_sx", 0.0, FLIP_HALF_S).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tw.tween_callback(_flip_swap)
+	tw.tween_property(self, "_flip_sx", 1.0, FLIP_HALF_S).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(self, "_flip_sy", 1.0, FLIP_HALF_S).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await tw.finished
+	_flip_sx = 1.0
+	_flip_sy = 1.0
+	_flipping = false
+	_depth_hold = -1
+	queue_redraw()
+
+
+func _flip_swap() -> void:
+	_face_up = peek_name != "" and count > 0
+	_flip_sy = 1.05
+
+
+func _animating() -> bool:
+	return _busy or _flipping or _riffle_t >= 0.0 or not _out.is_empty()
+
+
 func _process(delta: float) -> void:
 	var warn: bool = count <= 2
-	if _shake > 0.02 or _draw_t > 0.0 or warn:
+	if _animating() or warn:
 		queue_redraw()
-	_shake = maxf(0.0, _shake - delta * 0.15)
 	if warn:
 		_warn_t += delta * 5.0
 	else:
 		_warn_t = 0.0
-		if _shake <= 0.02 and _draw_t <= 0.0:
+		if not _animating():
 			set_process(false)
 
 
 func _draw() -> void:
-	var n: int = mini(count, 6)
-	var card_w := 110.0
-	var jitter: float = _shake * 4.0
-	if n > 0 or _draw_t > 0.0:
-		for i in n:
-			var off := Vector2(float(i) * 2.2 + sin(_shake * 12.0 + float(i)) * jitter, -float(i) * 2.4)
-			_draw_back(Rect2(Vector2(6, 18) + off, Vector2(card_w - 18, size.y - 36)), Color.WHITE, i == n - 1)
-		if _draw_t > 0.0:
-			var fly := Vector2(-40.0 * _draw_t, -80.0 * _draw_t)
-			var a: float = 1.0 - _draw_t
-			var col := Color(1, 1, 1, a)
-			draw_set_transform(fly, -0.4 * _draw_t, Vector2.ONE)
-			_draw_back(Rect2(Vector2(6, 18), Vector2(card_w - 18, size.y - 36)), col, true)
-			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if _riffle_t >= 0.0:
+		_draw_riffle(_riffle_t)
+	elif count <= 0:
+		if _slot != null:
+			draw_texture_rect(_slot, Rect2(CARD_POS, CARD), false, Color(1, 1, 1, 0.38))
+	else:
+		var depth: int = _depth_hold if _depth_hold >= 0 else depth_for(count - 1)
+		for k in range(depth, 0, -1):
+			_draw_card(CARD_POS + STACK_STEP * float(k), false)
+		var c := CARD_POS + CARD * 0.5
+		draw_set_transform(c, 0.0, Vector2(_flip_sx, _flip_sy))
+		var show_face: bool = _face_up and peek_name != ""
+		_draw_card(-CARD * 0.5, show_face, peek_tex, peek_name, peek_tier)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if not _out.is_empty():
+		var a: float = 1.0 - _slide_t
+		var off: Vector2 = (_slide_target() * _slide_t).round()
+		_draw_card(CARD_POS + off, bool(_out.get("face", false)), _out.get("tex"), str(_out.get("name", "")), int(_out.get("tier", 0)), Color(1, 1, 1, a))
 	_draw_loot_bags()
 	var font: Font = ThemeDB.fallback_font
-	if peek_name != "" and count > 0:
-		var who: String = peek_name
-		var cap_h := 24.0
-		var cap := Rect2(6.0, size.y - cap_h - 4.0, card_w - 18.0, cap_h)
-		draw_rect(cap, Color("1a1410"), true)
-		draw_rect(cap, GOLD, false, 1.4)
-		var wfs := 14
-		var wsz: Vector2 = font.get_string_size(who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs)
-		while wsz.x > cap.size.x - 8.0 and wfs > 10:
-			wfs -= 1
-			wsz = font.get_string_size(who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs)
-		var wp := Vector2(cap.position.x + (cap.size.x - wsz.x) * 0.5, cap.position.y + cap.size.y - 6.0)
-		draw_string(font, wp + Vector2(1, 1), who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs, Color("100e0c"))
-		draw_string(font, wp, who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs, INK)
 	var lab := str(count)
 	var fs := 22
 	var tsz: Vector2 = font.get_string_size(lab, HORIZONTAL_ALIGNMENT_CENTER, -1, fs)
@@ -158,9 +277,89 @@ func _draw() -> void:
 		ink = EMPTY
 	elif count <= 2:
 		ink = WARN
-	var p := Vector2((card_w - tsz.x) * 0.5, size.y - 2.0)
-	draw_string(font, p + Vector2(1, 1), lab, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("100e0c"))
+	var p := Vector2((110.0 - tsz.x) * 0.5, size.y - 2.0)
+	draw_string(font, p + Vector2(1, 1), lab, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, OUTLINE)
 	draw_string(font, p, lab, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
+
+
+func _slide_target() -> Vector2:
+	var dir := Vector2(-150.0, 12.0)
+	if entry_global.is_finite():
+		var to: Vector2 = get_global_transform().affine_inverse() * entry_global - (CARD_POS + CARD * 0.5)
+		dir = to * 0.7
+		if dir.length() > 180.0:
+			dir = dir.normalized() * 180.0
+	return dir
+
+
+func _draw_riffle(t: float) -> void:
+	# Two half-stacks split apart, interleave, and square back up into one pile.
+	var spread: float = sin(t * PI) * 20.0
+	var lift: float = sin(t * PI) * 6.0
+	var cards: int = clampi(count, 2, 6)
+	for i in cards:
+		var left: bool = i % 2 == 0
+		var drop: float = clampf((t - float(i) / float(cards) * 0.5) * 2.0, 0.0, 1.0)
+		var dx: float = (-spread if left else spread) * (1.0 - drop * 0.35)
+		var dy: float = -lift * (1.0 - drop) - float(i) * 1.0
+		var c := (CARD_POS + CARD * 0.5 + Vector2(dx, dy)).round()
+		var rot: float = (-0.08 if left else 0.08) * sin(t * PI)
+		draw_set_transform(c, rot, Vector2.ONE)
+		_draw_card(-CARD * 0.5, false)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+func _draw_card(pos: Vector2, face: bool, tex: Texture2D = null, who: String = "", tier: int = 0, tint: Color = Color.WHITE) -> void:
+	var r := Rect2(pos, CARD)
+	if not face:
+		if _back != null:
+			draw_texture_rect(_back, r, false, tint)
+		else:
+			draw_rect(r, BACK * tint, true)
+			draw_rect(r, RIM * tint, false, 2.0)
+			if art_tex != null:
+				draw_texture_rect(art_tex, Rect2(r.position + (r.size - Vector2(32, 32)) * 0.5, Vector2(32, 32)), false, tint)
+		return
+	if _front != null:
+		draw_texture_rect(_front, r, false, tint)
+	else:
+		draw_rect(r, Color("3a2e22") * tint, true)
+		draw_rect(r, RIM * tint, false, 2.0)
+	if tex != null:
+		var win := Rect2(pos + Vector2(WINDOW_N.position * PX), Vector2(WINDOW_N.size * PX))
+		var ts: Vector2 = tex.get_size()
+		var k: float = minf(win.size.x / maxf(ts.x, 1.0), win.size.y / maxf(ts.y, 1.0))
+		var ds: Vector2 = (ts * k).floor()
+		draw_texture_rect(tex, Rect2((win.position + (win.size - ds) * 0.5).round(), ds), false, tint)
+	_draw_lower(Rect2(pos + Vector2(LOWER_N.position * PX), Vector2(LOWER_N.size * PX)), who, tier, tint)
+
+
+func _draw_lower(box: Rect2, who: String, tier: int, tint: Color) -> void:
+	var font: Font = ThemeDB.fallback_font
+	if who != "":
+		var wfs := 13
+		var wsz: Vector2 = font.get_string_size(who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs)
+		while wsz.x > box.size.x - 2.0 and wfs > 9:
+			wfs -= 1
+			wsz = font.get_string_size(who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs)
+		var top_h: float = box.size.y if tier <= 0 else box.size.y * 0.5
+		var wp := Vector2(box.position.x + (box.size.x - wsz.x) * 0.5, box.position.y + (top_h + font.get_ascent(wfs) - font.get_descent(wfs)) * 0.5).round()
+		draw_string(font, wp + Vector2(1, 1), who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs, OUTLINE * tint)
+		draw_string(font, wp, who, HORIZONTAL_ALIGNMENT_LEFT, -1, wfs, INK * tint)
+	if tier <= 0:
+		return
+	var ti: int = clampi(tier, 1, 3) - 1
+	var word: String = PLAYER_COPY.tier_name(tier)
+	var pfs := 10
+	var psz: Vector2 = font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, pfs)
+	var pw: float = minf(box.size.x, float(ceili((psz.x + 10.0) / PX)) * PX)
+	var ph: float = 15.0
+	var plate := Rect2((Vector2(box.position.x + (box.size.x - pw) * 0.5, box.end.y - ph - 1.0)).round(), Vector2(pw, ph))
+	draw_rect(plate, OUTLINE * tint, true)
+	draw_rect(plate.grow(-1.0), PLATE_RIM[ti] * tint, true)
+	draw_rect(plate.grow(-2.0), PLATE_FILL[ti] * tint, true)
+	var tp := Vector2(plate.position.x + (pw - psz.x) * 0.5, plate.position.y + (ph + font.get_ascent(pfs) - font.get_descent(pfs)) * 0.5).round()
+	draw_string(font, tp, word, HORIZONTAL_ALIGNMENT_LEFT, -1, pfs, INK * tint)
 
 
 func _draw_loot_bags() -> void:
@@ -183,31 +382,3 @@ func _draw_loot_bags() -> void:
 		else:
 			draw_rect(r.grow(-4.0), tint, true)
 			draw_rect(r.grow(-4.0), GOLD, false, 1.2)
-
-
-func _draw_back(r: Rect2, tint: Color = Color.WHITE, face: bool = false) -> void:
-	if _card != null:
-		# Pixel's card back (32x44 native, shipped 4x). Drawn at 3x native so Nearest stays pixel-exact.
-		var csz := Vector2(_card.get_width(), _card.get_height()) * 0.75
-		var cr := Rect2(r.get_center() - csz * 0.5, csz)
-		draw_texture_rect(_card, cr, false, tint)
-		if face and peek_tex != null:
-			var pad := 12.0
-			var box := Rect2(cr.position + Vector2(pad, pad), Vector2(cr.size.x - pad * 2.0, cr.size.y * 0.62 - pad))
-			draw_texture_rect(peek_tex, box, false, tint)
-		return
-	var fill: Color = BACK * tint
-	var edge: Color = RIM * tint
-	draw_rect(r, fill, true)
-	draw_rect(r, edge, false, 2.0)
-	var inner := r.grow(-8.0)
-	draw_rect(inner, Color("2a2218") * tint, false, 1.2)
-	if face and peek_tex != null:
-		var pad := 10.0
-		var ts: Vector2 = Vector2(r.size.x - pad * 2.0, r.size.y - pad * 2.0)
-		draw_texture_rect(peek_tex, Rect2(r.position + Vector2(pad, pad), ts), false, tint)
-	elif art_tex != null:
-		var ts: Vector2 = Vector2(32, 32)
-		draw_texture_rect(art_tex, Rect2(r.position + (r.size - ts) * 0.5, ts), false, tint)
-	else:
-		draw_arc(r.get_center(), 10.0, 0.0, TAU, 16, GOLD * tint, 1.6, true)
