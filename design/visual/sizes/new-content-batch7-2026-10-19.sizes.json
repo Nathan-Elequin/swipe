@@ -1,0 +1,6 @@
+{
+ "notes": "New content art 2026-10-19 batch 7 (Pixel). Gargoyle replacement. 16x16 native, stored 4x nearest (64x64).",
+ "assets": [
+  {"path": "assets/dungeon/extra/gargoyle.png", "native": [16, 16], "shipped": [64, 64]}
+ ]
+}
