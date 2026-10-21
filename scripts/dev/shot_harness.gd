@@ -1278,8 +1278,12 @@ func _anim_ready_seat(monsters: Array, items: Array, hp_n: int = 6, blk_n: int =
 	main.player_poison = 0
 	main.facing_index = -1
 	main.phase = "ready"
-	if main.combat_stage:
-		main.combat_stage.visible = true
+	# Do not force combat_stage visible here — show_monster on Spin owns that.
+	# A pre-shown empty stage parked the intent plate on a bad rect.
+	if main.combat_stage and main.combat_stage.has_method("hide_stage"):
+		main.combat_stage.hide_stage()
+	elif main.combat_stage:
+		main.combat_stage.visible = false
 	main._sync_wheel_stats()
 	main._refresh()
 	main._layout_play_field()
@@ -1292,39 +1296,84 @@ func _anim_spin_face(idx: int = 0) -> void:
 	main.set_meta("qa_spin_idx", idx)
 	await main._on_spin()
 	await _wait(0.30)
+	if main.has_method("_sync_intent_plate"):
+		main._sync_intent_plate()
+	if main.intent_plate != null and main.intent_plate.has_method("reanchor"):
+		main.intent_plate.reanchor()
+	await _wait(0.10)
+
+
+func _anim_capture_hook(filename: String) -> void:
+	var how := "anim QA mid-sequence"
+	match filename:
+		"02_hit1_lit.png":
+			how = "real Take: badge 1 lit/spent after lunge"
+		"03_hit2.png":
+			how = "real Take: badge 2 after hit 2 lunge"
+		"04_hornet_block_soak.png":
+			how = "real Take + 2 Block: badge 1 blue flash, still 2"
+		"01_hornet_two_rings.png":
+			how = "real Take HP loss: two bleed rings + Flail/Vampire"
+		"02_poison_pacemaker.png":
+			how = "poison tick 2: ring visible + Pacemaker heal 1"
+	await _capture(filename, how)
+
+
+func _anim_arm_capture() -> void:
+	main.set_meta("qa_anim_capture", _anim_capture_hook)
+
+
+func _anim_clear_capture() -> void:
+	if main.has_meta("qa_anim_capture"):
+		main.remove_meta("qa_anim_capture")
+	if main.has_meta("qa_anim_hit_shots"):
+		main.remove_meta("qa_anim_hit_shots")
+	if main.has_meta("qa_anim_bleed_shot"):
+		main.remove_meta("qa_anim_bleed_shot")
 
 
 func _shot_anim_intent_plate() -> void:
 	out_dir = "res://design/visual/anim-qa/intent-plate"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	status = "anim-intent-plate"
+	_anim_arm_capture()
 	await _anim_ready_seat(["hornet_swarm", "goblin", "skeleton", "bandit"], [], 6, 0)
 	await _anim_spin_face(0)
 	await _wait(0.20)
 	await _capture("01_hornet_plate.png", "Hornet Swarm: two badges each 2")
-	if main.intent_plate != null and main.phase == "fighting":
-		await main.intent_plate.fire(0, false, false)
-		await _wait(0.05)
-		await _capture("02_hit1_lit.png", "badge 1 lit / spent after hit 1")
-		await main.intent_plate.fire(1, false, false)
-		await _wait(0.05)
-		await _capture("03_hit2.png", "badge 2 after hit 2")
+	if main.phase == "fighting":
+		main._walker_busy = false
+		main.set_meta("qa_anim_hit_shots", {1: "02_hit1_lit.png", 2: "03_hit2.png"})
+		await main._on_done()
+		if main.has_meta("qa_anim_hit_shots"):
+			main.remove_meta("qa_anim_hit_shots")
 	await _anim_ready_seat(["hornet_swarm", "goblin"], [], 6, 2)
 	await _anim_spin_face(0)
 	main.blk = 2
 	main._refresh()
+	if main.has_method("_sync_intent_plate"):
+		main._sync_intent_plate()
 	await _wait(0.20)
-	await _capture("04_hornet_block_soak.png", "2 Block: badge 1 still reads 2 (soaked)")
+	if main.phase == "fighting":
+		main._walker_busy = false
+		main.set_meta("qa_anim_hit_shots", {1: "04_hornet_block_soak.png"})
+		await main._on_done()
+		if main.has_meta("qa_anim_hit_shots"):
+			main.remove_meta("qa_anim_hit_shots")
 	await _anim_ready_seat(["kobold_trapper", "goblin"], ["throwing_knife", "lantern", "net"], 6, 0)
 	await _anim_spin_face(0)
 	main.items_used_this_combat = 2
 	main._refresh()
+	if main.has_method("_sync_intent_plate"):
+		main._sync_intent_plate()
 	await _wait(0.20)
 	await _capture("05_kobold_3.png", "Kobold after 2 items: 3 badges")
 	await _anim_ready_seat(["dragon", "goblin"], [], 6, 4)
 	await _anim_spin_face(0)
 	main.blk = 4
 	main._refresh()
+	if main.has_method("_sync_intent_plate"):
+		main._sync_intent_plate()
 	await _wait(0.25)
 	await _capture("06_dragon_flame.png", "Dragon pierce flame variant")
 	await _anim_ready_seat(["shark", "goblin"], [], 6, 0)
@@ -1337,28 +1386,32 @@ func _shot_anim_intent_plate() -> void:
 		main.wheel[main.facing_index]["hp"] = 9
 		main.wheel[main.facing_index]["hp_max"] = 9
 	main._refresh()
+	if main.has_method("_sync_intent_plate"):
+		main._sync_intent_plate()
 	await _wait(0.25)
 	await _capture("08_shambling_overflow.png", "Shambling HP 9: overflow ×N")
+	_anim_clear_capture()
 
 
 func _shot_anim_bleed_pulse() -> void:
 	out_dir = "res://design/visual/anim-qa/bleed-pulse"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	status = "anim-bleed-pulse"
+	_anim_arm_capture()
 	await _anim_ready_seat(["hornet_swarm", "vampire", "goblin"], ["spiked_flail"], 6, 0)
 	await _anim_spin_face(0)
-	if main.bleed_pulse != null:
-		main.bleed_pulse.on_bled(2)
-		await _wait(0.15)
-		main.bleed_pulse.on_bled(2)
-		await _wait(0.22)
-		await _capture("01_hornet_two_rings.png", "two bleed rings 150ms apart vs Flail + Vampire")
+	if main.phase == "fighting":
+		main._walker_busy = false
+		main.set_meta("qa_anim_bleed_shot", "01_hornet_two_rings.png")
+		await main._on_done()
+	# Poison tick of 2 with Pacemaker: capture while the ring is mid-flight.
 	await _anim_ready_seat(["golem", "goblin"], ["pacemaker"], 6, 0)
 	main.player_poison = 2
 	main._refresh()
-	await _anim_spin_face(0)
-	await _wait(0.30)
-	await _capture("02_poison_pacemaker.png", "poison tick 2: ring + Pacemaker heal 1")
+	main.set_meta("qa_spin_idx", 0)
+	main.set_meta("qa_anim_bleed_shot", "02_poison_pacemaker.png")
+	await main._on_spin()
+	_anim_clear_capture()
 
 
 func _shot_peek() -> void:

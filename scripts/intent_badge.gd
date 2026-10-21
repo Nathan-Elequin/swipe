@@ -137,18 +137,29 @@ func set_next(on: bool) -> void:
 
 
 func fire(blocked: bool, pierce_hit: bool) -> void:
+	await fire_with_shot(blocked, pierce_hit, "", Callable())
+
+
+## Same as fire(), but optionally captures a screenshot +60ms into lit/blue flash.
+func fire_with_shot(blocked: bool, pierce_hit: bool, shot_name: String, capturer: Callable) -> void:
 	set_next(false)
 	spent = true
 	var full_soak: bool = blocked and soaked
 	if blocked or soaked:
-		await _flash_blue()
+		if shot_name != "" and capturer.is_valid():
+			await _flash_blue_with_shot(shot_name, capturer)
+		else:
+			await _flash_blue()
 		_show_chip("shield")
 		if full_soak and int(n_raw) > 0 and not pierce_hit:
 			_mark_spent()
 			return
 	if pierce_hit:
 		pierce = true
-	await _play_lit_burst(pierce_hit)
+	if shot_name != "" and capturer.is_valid() and not (blocked or soaked):
+		await _play_lit_burst_with_shot(pierce_hit, shot_name, capturer)
+	else:
+		await _play_lit_burst(pierce_hit)
 	_mark_spent()
 
 
@@ -188,6 +199,18 @@ func _flash_blue() -> void:
 	await _flash_tw.finished
 
 
+func _flash_blue_with_shot(shot_name: String, capturer: Callable) -> void:
+	if _flash_tw != null and is_instance_valid(_flash_tw):
+		_flash_tw.kill()
+	var was: Color = modulate
+	modulate = BLUE
+	await get_tree().create_timer(0.06).timeout
+	if capturer.is_valid():
+		await capturer.call(shot_name)
+	await get_tree().create_timer(0.06).timeout
+	modulate = was
+
+
 func _play_lit_burst(flame: bool) -> void:
 	if _face == null:
 		return
@@ -196,6 +219,26 @@ func _play_lit_burst(flame: bool) -> void:
 	if _face.sprite_frames.has_animation(lit_anim):
 		_face.play(lit_anim)
 		await get_tree().create_timer(FRAME_MS * 4.0).timeout
+	if _burst and _burst.sprite_frames.has_animation(burst_anim):
+		_burst.visible = true
+		_burst.play(burst_anim)
+		await get_tree().create_timer(FRAME_MS * 4.0).timeout
+		_burst.visible = false
+
+
+func _play_lit_burst_with_shot(flame: bool, shot_name: String, capturer: Callable) -> void:
+	if _face == null:
+		return
+	var lit_anim := "flame_lit" if flame else "lit"
+	var burst_anim := "flame_burst" if flame else "burst"
+	if _face.sprite_frames.has_animation(lit_anim):
+		_face.play(lit_anim)
+		await get_tree().create_timer(0.06).timeout
+		if capturer.is_valid():
+			await capturer.call(shot_name)
+		await get_tree().create_timer(maxf(0.0, FRAME_MS * 4.0 - 0.06)).timeout
+	elif capturer.is_valid():
+		await capturer.call(shot_name)
 	if _burst and _burst.sprite_frames.has_animation(burst_anim):
 		_burst.visible = true
 		_burst.play(burst_anim)

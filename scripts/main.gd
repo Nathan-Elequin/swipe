@@ -6136,6 +6136,14 @@ func _on_spin() -> void:
 	_store_last_faced_hp()
 	_undo_arm()
 	_unlock_if_fighting()
+	# Layout is often deferred one frame after Spin lands; re-sync so the
+	# intent plate is not left at the pre-layout stage rect (missing on the
+	# first fight until a later refresh).
+	if phase == "fighting":
+		await get_tree().process_frame
+		_sync_intent_plate()
+		if intent_plate != null and intent_plate.has_method("reanchor"):
+			intent_plate.reanchor()
 	if in_tutorial and phase == "fighting":
 		call_deferred("_tutorial_combat_started")
 
@@ -6359,7 +6367,17 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 	var pierce: bool = bool(swing.get("pierce", false))
 	var incoming: int = int(swing["dmg"])
 	if intent_plate:
-		await intent_plate.fire(maxi(0, hit_n - 1), incoming == 0 and not pierce, pierce)
+		var fire_i: int = maxi(0, hit_n - 1)
+		var blocked_hit: bool = incoming == 0 and not pierce
+		var shot_name := ""
+		if OS.has_feature("editor") and has_meta("qa_anim_hit_shots"):
+			var shots: Variant = get_meta("qa_anim_hit_shots")
+			if typeof(shots) == TYPE_DICTIONARY and (shots as Dictionary).has(hit_n):
+				shot_name = str((shots as Dictionary)[hit_n])
+		var capturer: Callable = Callable()
+		if shot_name != "" and has_meta("qa_anim_capture") and get_meta("qa_anim_capture") is Callable:
+			capturer = get_meta("qa_anim_capture") as Callable
+		await intent_plate.fire(fire_i, blocked_hit, pierce, shot_name, capturer)
 	blk = int(swing["blk"])
 	hp = maxi(0, hp - incoming)
 	if incoming > 0:
@@ -15053,6 +15071,8 @@ func _place_fight_art() -> void:
 	if ability_slash != null and not ability_slash.visible:
 		ability_slash.size = Vector2(stack_w, port_sz.y + 72.0)
 		ability_slash.global_position = Vector2(left_x, port_y)
+	if intent_plate != null and intent_plate.has_method("reanchor"):
+		intent_plate.reanchor()
 
 
 func _speech_gutter() -> Rect2:
@@ -15085,10 +15105,14 @@ func _incoming_hit() -> int:
 func _sync_intent_plate() -> void:
 	if intent_plate == null:
 		return
-	if phase != "fighting" or facing_index < 0:
-		intent_plate.clear()
+	if phase == "fighting" and facing_index >= 0:
+		intent_plate.sync(_intent_hits())
 		return
-	intent_plate.sync(_intent_hits())
+	# Resolve sets phase to slaying before _owner_attack -> fire(). Keep the
+	# badges up so lit/spent/blocked can play; _play_ended/_play_leave clear.
+	if phase == "slaying":
+		return
+	intent_plate.clear()
 
 
 ## One entry per incoming hit. n_raw is before Block. soaked = Block spends on that hit.

@@ -10,3 +10,4 @@ skip 02_poison_pacemaker: not captured
 exit 1
 exit 1
 exit 1
+exit 1

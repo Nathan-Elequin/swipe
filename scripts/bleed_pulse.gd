@@ -36,6 +36,10 @@ func on_bled(n: int) -> void:
 	_spawn_ring(n)
 
 
+func active_ring_count() -> int:
+	return _rings.size()
+
+
 func flush_queue() -> void:
 	if _queue.is_empty() or _flushing:
 		return
@@ -46,6 +50,13 @@ func flush_queue() -> void:
 		_spawn_ring(int(pending[i]))
 		if i < pending.size() - 1:
 			await get_tree().create_timer(STAGGER_MS).timeout
+	# Shot harness: capture while rings are mid-flight on the real HP-loss path.
+	if main != null and OS.has_feature("editor") and main.has_meta("qa_anim_bleed_shot"):
+		var fname: String = str(main.get_meta("qa_anim_bleed_shot"))
+		main.remove_meta("qa_anim_bleed_shot")
+		await get_tree().create_timer(0.225).timeout
+		if main.has_meta("qa_anim_capture") and main.get_meta("qa_anim_capture") is Callable:
+			await (main.get_meta("qa_anim_capture") as Callable).call(fname)
 	_flushing = false
 
 

@@ -87,7 +87,7 @@ func sync(hits: Array) -> void:
 	_ghost = false
 	var sig := _hits_sig(hits)
 	if sig == _sig and visible and not _hits.is_empty():
-		_place()
+		reanchor()
 		return
 	var was_visible := visible and not _badges.is_empty()
 	_sig = sig
@@ -96,7 +96,7 @@ func sync(hits: Array) -> void:
 		clear()
 		return
 	_rebuild()
-	_place()
+	reanchor()
 	if was_visible:
 		visible = true
 		_mark_next()
@@ -108,7 +108,7 @@ func ghost(hits: Array) -> void:
 	_ghost = true
 	_hits = hits.duplicate(true)
 	_rebuild()
-	_place()
+	reanchor()
 	if _hits.is_empty():
 		clear()
 		return
@@ -116,15 +116,25 @@ func ghost(hits: Array) -> void:
 	visible = true
 
 
-func fire(i: int, blocked: bool = false, pierce: bool = false) -> void:
+func fire(i: int, blocked: bool = false, pierce: bool = false, shot_name: String = "", capturer: Callable = Callable()) -> void:
 	if i < 0 or i >= _badges.size():
 		return
 	var b = _badges[i]
 	if b == null or not is_instance_valid(b):
 		return
-	await b.fire(blocked, pierce)
+	if shot_name != "" and capturer.is_valid() and b.has_method("fire_with_shot"):
+		await b.fire_with_shot(blocked, pierce, shot_name, capturer)
+	else:
+		await b.fire(blocked, pierce)
 	_next_i = i + 1
 	_mark_next()
+
+
+## Re-fit and re-position after combat_stage / wheel layout moves.
+func reanchor() -> void:
+	if _hits.is_empty() and _badges.is_empty():
+		return
+	_place()
 
 
 func clear() -> void:
@@ -189,21 +199,7 @@ func _rebuild() -> void:
 		_loop.queue_redraw()
 	_next_i = 0
 	_mark_next()
-	_fit_capsule()
-
-
-func _fit_capsule() -> void:
-	await get_tree().process_frame
-	if not is_instance_valid(_capsule):
-		return
-	var need := _col.get_combined_minimum_size()
-	var w: float = need.x + PAD * 2.0
-	var h: float = need.y + PAD * 2.0
-	_capsule.custom_minimum_size = Vector2(w, h)
-	_capsule.size = Vector2(w, h)
-	size = Vector2(w, h + 18.0)
-	_col.position = Vector2(PAD, PAD)
-	_col.size = need
+	_fit_capsule_sync()
 
 
 func _play_in() -> void:
@@ -211,10 +207,14 @@ func _play_in() -> void:
 	modulate = Color(1, 1, 1, 1 if not _ghost else 0.55)
 	if _in_tw != null and is_instance_valid(_in_tw):
 		_in_tw.kill()
-	var base_y: float = position.y
-	position.y = base_y - 24.0
+		_in_tw = null
+	# Anchor first, then drop from 24px above the final spot so later reanchor
+	# calls (layout) are not fighting a stale tween target.
+	_place()
+	var base_y: float = global_position.y
+	global_position.y = base_y - 24.0
 	_in_tw = create_tween()
-	_in_tw.tween_property(self, "position:y", base_y, DROP_IN).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_in_tw.tween_property(self, "global_position:y", base_y, DROP_IN).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	var delay := 0.0
 	for b in _badges:
 		if b != null and is_instance_valid(b) and b.has_method("pop_in"):
@@ -232,15 +232,24 @@ func _mark_next() -> void:
 func _place() -> void:
 	if main == null:
 		return
+	if _in_tw != null and is_instance_valid(_in_tw):
+		_in_tw.kill()
+		_in_tw = null
 	var tip := Vector2.ZERO
 	var center := Vector2.ZERO
 	var use_tail := true
+	# Prefer the wheel portrait when the stage has no real rect yet (harness /
+	# first frame after Spin). An empty visible stage at (0,0) used to park the
+	# plate off-screen or at a tiny size before layout landed.
+	var stage_ok := false
 	if main.combat_stage != null and main.combat_stage.visible:
 		var r: Rect2 = main.combat_stage.get_global_rect()
-		center = Vector2(r.position.x + r.size.x * 0.5, r.position.y - 12.0)
-		tip = Vector2(r.position.x + r.size.x * 0.5, r.position.y)
-		use_tail = false
-	elif main.wheel_view != null and int(main.facing_index) >= 0:
+		if r.size.x >= 32.0 and r.size.y >= 32.0 and r.position.y > 8.0:
+			center = Vector2(r.position.x + r.size.x * 0.5, r.position.y - 12.0)
+			tip = Vector2(r.position.x + r.size.x * 0.5, r.position.y)
+			use_tail = false
+			stage_ok = true
+	if not stage_ok and main.wheel_view != null and int(main.facing_index) >= 0:
 		var portrait: Vector2 = main.wheel_view.slice_portrait_global(int(main.facing_index))
 		var hub: Vector2 = main.wheel_view.hub_hearts_global()
 		var spoke: Vector2 = portrait - hub
@@ -254,7 +263,7 @@ func _place() -> void:
 			center = outward
 		tip = portrait
 		use_tail = true
-	else:
+	elif not stage_ok:
 		return
 	_fit_capsule_sync()
 	global_position = center - Vector2(size.x * 0.5, size.y)
