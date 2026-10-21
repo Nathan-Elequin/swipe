@@ -3,6 +3,8 @@ description: Every item and monster needs its own matching sprite (detect and re
 alwaysApply: true
 ---
 
+> Art handoff 2026-10-21: where this rule says Pixel, follow `art-handoff.mdc` and `design/handoff/CURSOR-AGENT/README.md`.
+
 # Unique card art
 
 Source of truth: `swipe-design-loop.mdc`. Pixel owns art and PNG bytes. Cursor does not draw, generate, recolor, or replace art.

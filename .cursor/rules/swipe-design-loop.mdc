@@ -3,6 +3,8 @@ description: Swipe visual tasks run from a handoff folder
 alwaysApply: true
 ---
 
+> Art handoff 2026-10-21: where this rule says Pixel, follow `art-handoff.mdc` and `design/handoff/CURSOR-AGENT/README.md`.
+
 # Swipe design loop
 
 If `design/handoff/<task-id>/TASK.md` exists for this run, read it before editing. It is the assignment.
@@ -21,7 +23,7 @@ If `design/handoff/<task-id>/TASK.md` exists for this run, read it before editin
 ## Do not
 - No new font files and no generated bitmap fonts. Use `ThemeDB.fallback_font` only (until a tokens file under `design/visual/` names a font).
 - No player-facing copy edits. Jam owns `data/player-copy.json`. No "Tier" or "owner" in UI text.
-- No stretching, hiding, or recoloring art to fake a missing asset. Ask in REPORT.md with path, native size, 4× nearest, pivot, loop, palette.
+- No stretching, hiding, or recoloring art to fake a missing asset. Ask in REPORT.md with path, native size, 4Ã— nearest, pivot, loop, palette.
 - No new dependencies, no paid or non-CC0 assets, no save-format changes, no merges, no pushes.
 - Never commit to `cabin-overhaul-1` directly; work only in the task worktree.
 
@@ -31,4 +33,4 @@ If `design/handoff/<task-id>/TASK.md` exists for this run, read it before editin
 - When the batch is done, commit it (data, scripts, docs) so Pixel can wire art without clashing.
 
 ## Done
-Commit each step as `<task-id>(n): …`. Run the named shots (`-- --shots=`) and the text and layout audits; one Godot process at a time. Write `REPORT.md`: status, checkpoint, commits, files, shots, audit summary, deviations, questions, what Nathan should look at. Do not grade "looks like the mockup".
+Commit each step as `<task-id>(n): â€¦`. Run the named shots (`-- --shots=`) and the text and layout audits; one Godot process at a time. Write `REPORT.md`: status, checkpoint, commits, files, shots, audit summary, deviations, questions, what Nathan should look at. Do not grade "looks like the mockup".
