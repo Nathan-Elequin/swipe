@@ -112,8 +112,26 @@ func ghost(hits: Array) -> void:
 	if _hits.is_empty():
 		clear()
 		return
-	modulate.a = 0.55
 	visible = true
+	if _in_tw != null and is_instance_valid(_in_tw):
+		_in_tw.kill()
+	var start_a: float = modulate.a if modulate.a > 0.05 else 0.0
+	modulate.a = start_a
+	_in_tw = create_tween()
+	_in_tw.tween_property(self, "modulate:a", 0.55, 0.12)
+
+
+func unghost() -> void:
+	if not _ghost and not visible:
+		return
+	if _in_tw != null and is_instance_valid(_in_tw):
+		_in_tw.kill()
+	_in_tw = create_tween()
+	_in_tw.tween_property(self, "modulate:a", 0.0, 0.10)
+	_in_tw.tween_callback(func() -> void:
+		_ghost = false
+		clear()
+	)
 
 
 func fire(i: int, blocked: bool = false, pierce: bool = false, shot_name: String = "", capturer: Callable = Callable()) -> void:

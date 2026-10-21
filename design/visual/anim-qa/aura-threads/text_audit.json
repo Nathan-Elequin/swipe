@@ -1,0 +1,1725 @@
+{
+	"failures": [
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1032/@Label@1028",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1032/@RichTextLabel@1031",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1036/@RichTextLabel@1035",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1040/@RichTextLabel@1039",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1044/@RichTextLabel@1043",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@HBoxContainer@1102/@PanelContainer@1104/@Label@1103",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "Ale Flagon"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@Label@1107",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@Label@1108",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@RichTextLabel@1111",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "heal +-2  now 6"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@Label@1113",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@Label@1114",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@RichTextLabel@1117",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "poison 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1134/@Label@1130",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1134/@RichTextLabel@1133",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1166/@MarginContainer@1146/@VBoxContainer@1147/@Control@1150/@Label@1153",
+			"reason": "overflow_parent",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1032/@Label@1028",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1032/@RichTextLabel@1031",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1036/@RichTextLabel@1035",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1040/@RichTextLabel@1039",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1044/@RichTextLabel@1043",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@HBoxContainer@1102/@PanelContainer@1104/@Label@1103",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "Ale Flagon"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@Label@1107",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@Label@1108",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@RichTextLabel@1111",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "heal +-2  now 6"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@Label@1113",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@Label@1114",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@RichTextLabel@1117",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "poison 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1134/@Label@1130",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1134/@RichTextLabel@1133",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1166/@MarginContainer@1146/@VBoxContainer@1147/@Control@1150/@Label@1153",
+			"reason": "overflow_parent",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1358/@Label@1354",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1358/@RichTextLabel@1357",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "Ogre"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1362/@RichTextLabel@1361",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "enemy ATK 5   HP 10"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1366/@RichTextLabel@1365",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1370/@RichTextLabel@1369",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1386/@Label@1382",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1386/@RichTextLabel@1385",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "poison  to  9 HP"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1496/@Label@1492",
+			"reason": "below_min_size",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1496/@RichTextLabel@1495",
+			"reason": "below_min_size",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1500/@RichTextLabel@1499",
+			"reason": "below_min_size",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1504/@RichTextLabel@1503",
+			"reason": "below_min_size",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1508/@RichTextLabel@1507",
+			"reason": "below_min_size",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1489/@MarginContainer@1469/@VBoxContainer@1470/@Control@1473/@Label@1476",
+			"reason": "overflow_parent",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1617/@Label@1613",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1617/@RichTextLabel@1616",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1621/@RichTextLabel@1620",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1625/@RichTextLabel@1624",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1629/@RichTextLabel@1628",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@HBoxContainer@1675/@PanelContainer@1677/@Label@1676",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "Ale Flagon"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1685/@Label@1680",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1685/@Label@1681",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1685/@RichTextLabel@1684",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "heal +-2  now 6"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1691/@Label@1686",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1691/@Label@1687",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1691/@RichTextLabel@1690",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "poison 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1707/@Label@1703",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1707/@RichTextLabel@1706",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1893/@Label@1889",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1893/@RichTextLabel@1892",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Plague Doctor"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1897/@RichTextLabel@1896",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1901/@RichTextLabel@1900",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1905/@RichTextLabel@1904",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1921/@Label@1917",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1921/@RichTextLabel@1920",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Plague Doctor heal +2  to  5 HP"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1926/@Label@1922",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1926/@RichTextLabel@1925",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Plague Doctor heal +2  to  3 HP"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1887/@MarginContainer@1867/@VBoxContainer@1868/@Control@1871/@Label@1874",
+			"reason": "overflow_parent",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@Label@2109",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@RichTextLabel@2112",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "Gargoyle"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2117/@RichTextLabel@2116",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "enemy ATK 4   HP 5"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2121/@RichTextLabel@2120",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2125/@RichTextLabel@2124",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@Label@2137",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@RichTextLabel@2140",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "petrify Longbow"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2062/@MarginContainer@2042/@VBoxContainer@2043/@Control@2046/@Label@2049",
+			"reason": "overflow_parent",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2083/@MarginContainer@2063/@VBoxContainer@2064/@Control@2067/@Label@2070",
+			"reason": "overflow_parent",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@Label@2109",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@RichTextLabel@2112",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "Gargoyle"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2117/@RichTextLabel@2116",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "enemy ATK 4   HP 5"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2121/@RichTextLabel@2120",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2125/@RichTextLabel@2124",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@Label@2137",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@RichTextLabel@2140",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "petrify Longbow"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2062/@MarginContainer@2042/@VBoxContainer@2043/@Control@2046/@Label@2049",
+			"reason": "overflow_parent",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2083/@MarginContainer@2063/@VBoxContainer@2064/@Control@2067/@Label@2070",
+			"reason": "overflow_parent",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@Label@2109",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@RichTextLabel@2112",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "Gargoyle"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2117/@RichTextLabel@2116",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "enemy ATK 4   HP 5"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2121/@RichTextLabel@2120",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2125/@RichTextLabel@2124",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@Label@2137",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@RichTextLabel@2140",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "petrify Longbow"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2151/@VBoxContainer@2145/@HBoxContainer@2146/@VBoxContainer@2147/@Label@2148",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "Gargoyle"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2151/@VBoxContainer@2145/@HBoxContainer@2146/@VBoxContainer@2147/@Label@2149",
+			"reason": "overflow_parent",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "Petrify"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2183/@MarginContainer@2163/@VBoxContainer@2164/@Control@2167/@Label@2170",
+			"reason": "overflow_parent",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2204/@MarginContainer@2184/@VBoxContainer@2185/@Control@2188/@Label@2191",
+			"reason": "overflow_parent",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2444/@Label@2440",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2444/@RichTextLabel@2443",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "Hydra"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2448/@RichTextLabel@2447",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "enemy ATK 3   HP 5"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2452/@RichTextLabel@2451",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2456/@RichTextLabel@2455",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2372/@MarginContainer@2352/@VBoxContainer@2353/@Control@2356/@Label@2359",
+			"reason": "overflow_parent",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2393/@MarginContainer@2373/@VBoxContainer@2374/@Control@2377/@Label@2380",
+			"reason": "overflow_parent",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2414/@MarginContainer@2394/@VBoxContainer@2395/@Control@2398/@Label@2401",
+			"reason": "overflow_parent",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2807/@Label@2803",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2807/@RichTextLabel@2806",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "Basilisk"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2811/@RichTextLabel@2810",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "enemy ATK 4   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2815/@RichTextLabel@2814",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2819/@RichTextLabel@2818",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2835/@Label@2831",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2835/@RichTextLabel@2834",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "Petrifying Gaze  2 items"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2735/@MarginContainer@2715/@VBoxContainer@2716/@Control@2719/@Label@2722",
+			"reason": "overflow_parent",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2798/@MarginContainer@2778/@VBoxContainer@2779/@Control@2782/@Label@2785",
+			"reason": "overflow_parent",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3154/@Label@3150",
+			"reason": "below_min_size",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3154/@RichTextLabel@3153",
+			"reason": "below_min_size",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3158/@RichTextLabel@3157",
+			"reason": "below_min_size",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3162/@RichTextLabel@3161",
+			"reason": "below_min_size",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3166/@RichTextLabel@3165",
+			"reason": "below_min_size",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3242/@MarginContainer@3222/@VBoxContainer@3223/@Control@3226/@Label@3229",
+			"reason": "overflow_parent",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3263/@MarginContainer@3243/@VBoxContainer@3244/@Control@3247/@Label@3249",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3284/@MarginContainer@3264/@VBoxContainer@3265/@Control@3268/@Label@3271",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3263/@MarginContainer@3243/@VBoxContainer@3244/@Control@3247/@Label@3250",
+			"reason": "overflow_parent",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3305/@MarginContainer@3285/@VBoxContainer@3286/@Control@3289/@Label@3291",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3305/@MarginContainer@3285/@VBoxContainer@3286/@TextureRect@3288",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3305/@MarginContainer@3285/@VBoxContainer@3286/@Control@3289/@Label@3292",
+			"reason": "overflow_parent",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@Label@3416",
+			"reason": "below_min_size",
+			"screen": "01_hook_mark",
+			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@RichTextLabel@3419",
+			"reason": "below_min_size",
+			"screen": "01_hook_mark",
+			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3424/@RichTextLabel@3423",
+			"reason": "below_min_size",
+			"screen": "01_hook_mark",
+			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3428/@RichTextLabel@3427",
+			"reason": "below_min_size",
+			"screen": "01_hook_mark",
+			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3432/@RichTextLabel@3431",
+			"reason": "below_min_size",
+			"screen": "01_hook_mark",
+			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@Label@3477",
+			"reason": "below_min_size",
+			"screen": "01_hook_mark",
+			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@RichTextLabel@3480",
+			"reason": "below_min_size",
+			"screen": "01_hook_mark",
+			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
+			"text": "pick a neighbor"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3413/@MarginContainer@3393/@VBoxContainer@3394/@Control@3397/@Label@3400",
+			"reason": "overflow_parent",
+			"screen": "01_hook_mark",
+			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@Label@3416",
+			"reason": "below_min_size",
+			"screen": "02_hook_200ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@RichTextLabel@3419",
+			"reason": "below_min_size",
+			"screen": "02_hook_200ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3424/@RichTextLabel@3423",
+			"reason": "below_min_size",
+			"screen": "02_hook_200ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3428/@RichTextLabel@3427",
+			"reason": "below_min_size",
+			"screen": "02_hook_200ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3432/@RichTextLabel@3431",
+			"reason": "below_min_size",
+			"screen": "02_hook_200ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@Label@3477",
+			"reason": "below_min_size",
+			"screen": "02_hook_200ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@RichTextLabel@3480",
+			"reason": "below_min_size",
+			"screen": "02_hook_200ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
+			"text": "pick a neighbor"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3413/@MarginContainer@3393/@VBoxContainer@3394/@Control@3397/@Label@3400",
+			"reason": "overflow_parent",
+			"screen": "02_hook_200ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@Label@3416",
+			"reason": "below_min_size",
+			"screen": "03_hook_360ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@RichTextLabel@3419",
+			"reason": "below_min_size",
+			"screen": "03_hook_360ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3424/@RichTextLabel@3423",
+			"reason": "below_min_size",
+			"screen": "03_hook_360ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3428/@RichTextLabel@3427",
+			"reason": "below_min_size",
+			"screen": "03_hook_360ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3432/@RichTextLabel@3431",
+			"reason": "below_min_size",
+			"screen": "03_hook_360ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@Label@3477",
+			"reason": "below_min_size",
+			"screen": "03_hook_360ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@RichTextLabel@3480",
+			"reason": "below_min_size",
+			"screen": "03_hook_360ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
+			"text": "pick a neighbor"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3413/@MarginContainer@3393/@VBoxContainer@3394/@Control@3397/@Label@3400",
+			"reason": "overflow_parent",
+			"screen": "03_hook_360ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@Label@3416",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@RichTextLabel@3419",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3424/@RichTextLabel@3423",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3428/@RichTextLabel@3427",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3432/@RichTextLabel@3431",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@Label@3477",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@RichTextLabel@3480",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "pick a neighbor"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3496/@RichTextLabel@3495",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3501/@Label@3497",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3501/@RichTextLabel@3500",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "hook Ogre"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3413/@MarginContainer@3393/@VBoxContainer@3394/FitLabelBox",
+			"reason": "overlap:/root/@PanelContainer@3392/@MarginContainer@3372/@VBoxContainer@3373/@TextureRect@3375",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "Shield"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3413/@MarginContainer@3393/@VBoxContainer@3394/@Control@3397/@Label@3400",
+			"reason": "overflow_parent, overlap:/root/@PanelContainer@3392/@MarginContainer@3372/@VBoxContainer@3373/@Control@3376/@TextureRect@3377",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@Label@3416",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@RichTextLabel@3419",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3424/@RichTextLabel@3423",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3428/@RichTextLabel@3427",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3432/@RichTextLabel@3431",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@Label@3477",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@RichTextLabel@3480",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "pick a neighbor"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3496/@RichTextLabel@3495",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3501/@Label@3497",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3501/@RichTextLabel@3500",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "hook Ogre"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3533/@MarginContainer@3513/@VBoxContainer@3514/@Control@3517/@Label@3520",
+			"reason": "overflow_parent",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3632/@Label@3628",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3632/@RichTextLabel@3631",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3636/@RichTextLabel@3635",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "enemy ATK 3   HP 2"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3640/@RichTextLabel@3639",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3644/@RichTextLabel@3643",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3694/@VBoxContainer@3689/@HBoxContainer@3690/@PanelContainer@3692/@Label@3691",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "Grappling Hook"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3694/@VBoxContainer@3689/@VBoxContainer@3693/@HBoxContainer@3711/@Label@3706",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3694/@VBoxContainer@3689/@VBoxContainer@3693/@HBoxContainer@3711/@Label@3707",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3694/@VBoxContainer@3689/@VBoxContainer@3693/@HBoxContainer@3711/@RichTextLabel@3710",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "pick a neighbor"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3624/@MarginContainer@3604/@VBoxContainer@3605/@Control@3608/@Label@3611",
+			"reason": "overflow_parent",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@Label@3816",
+			"reason": "below_min_size",
+			"screen": "01_commander_threads",
+			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@RichTextLabel@3819",
+			"reason": "below_min_size",
+			"screen": "01_commander_threads",
+			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
+			"text": "Commander"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3824/@RichTextLabel@3823",
+			"reason": "below_min_size",
+			"screen": "01_commander_threads",
+			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
+			"text": "enemy ATK 3   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3828/@RichTextLabel@3827",
+			"reason": "below_min_size",
+			"screen": "01_commander_threads",
+			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3832/@RichTextLabel@3831",
+			"reason": "below_min_size",
+			"screen": "01_commander_threads",
+			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3813/@MarginContainer@3793/@VBoxContainer@3794/@Control@3797/@Label@3800",
+			"reason": "overflow_parent",
+			"screen": "01_commander_threads",
+			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@Label@3816",
+			"reason": "below_min_size",
+			"screen": "02_snap",
+			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@RichTextLabel@3819",
+			"reason": "below_min_size",
+			"screen": "02_snap",
+			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
+			"text": "Commander"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3824/@RichTextLabel@3823",
+			"reason": "below_min_size",
+			"screen": "02_snap",
+			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
+			"text": "enemy ATK 3   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3828/@RichTextLabel@3827",
+			"reason": "below_min_size",
+			"screen": "02_snap",
+			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3832/@RichTextLabel@3831",
+			"reason": "below_min_size",
+			"screen": "02_snap",
+			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3813/@MarginContainer@3793/@VBoxContainer@3794/@Control@3797/@Label@3800",
+			"reason": "overflow_parent",
+			"screen": "02_snap",
+			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@Label@3816",
+			"reason": "below_min_size",
+			"screen": "03_retie",
+			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@RichTextLabel@3819",
+			"reason": "below_min_size",
+			"screen": "03_retie",
+			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
+			"text": "Commander"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3824/@RichTextLabel@3823",
+			"reason": "below_min_size",
+			"screen": "03_retie",
+			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
+			"text": "enemy ATK 3   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3828/@RichTextLabel@3827",
+			"reason": "below_min_size",
+			"screen": "03_retie",
+			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3832/@RichTextLabel@3831",
+			"reason": "below_min_size",
+			"screen": "03_retie",
+			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3813/@MarginContainer@3793/@VBoxContainer@3794/@Control@3797/@Label@3800",
+			"reason": "overflow_parent",
+			"screen": "03_retie",
+			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3930/@Label@3926",
+			"reason": "below_min_size",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3930/@RichTextLabel@3929",
+			"reason": "below_min_size",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": "Commander"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3934/@RichTextLabel@3933",
+			"reason": "below_min_size",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": "enemy ATK 3   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3938/@RichTextLabel@3937",
+			"reason": "below_min_size",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3942/@RichTextLabel@3941",
+			"reason": "below_min_size",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@HBoxContainer@3988/@PanelContainer@3990/@Label@3989",
+			"reason": "below_min_size",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": "Quiet Bell"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@VBoxContainer@3991/@HBoxContainer@3998/@Label@3993",
+			"reason": "below_min_size",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@VBoxContainer@3991/@HBoxContainer@3998/@Label@3994",
+			"reason": "below_min_size",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": "Fight"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@VBoxContainer@3991/@HBoxContainer@3998/@RichTextLabel@3997",
+			"reason": "below_min_size",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": "silenced commander"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@VBoxContainer@3991/@HBoxContainer@4003/@Label@3999",
+			"reason": "below_min_size",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@VBoxContainer@3991/@HBoxContainer@4003/@RichTextLabel@4002",
+			"reason": "below_min_size",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Button",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@25/@HBoxContainer@26/@HBoxContainer@28/@Button@36",
+			"reason": "overlap:/root/@PanelContainer@3924/@MarginContainer@3904/@VBoxContainer@3905/@Control@3908/@TextureRect@3909",
+			"screen": "04_quiet_grey",
+			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
+			"text": "Take 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@4065/@Label@4061",
+			"reason": "below_min_size",
+			"screen": "05_six_seats",
+			"shot": "res://design/visual/anim-qa/aura-threads/05_six_seats.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@4065/@RichTextLabel@4064",
+			"reason": "below_min_size",
+			"screen": "05_six_seats",
+			"shot": "res://design/visual/anim-qa/aura-threads/05_six_seats.png",
+			"text": "Commander"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@4069/@RichTextLabel@4068",
+			"reason": "below_min_size",
+			"screen": "05_six_seats",
+			"shot": "res://design/visual/anim-qa/aura-threads/05_six_seats.png",
+			"text": "enemy ATK 3   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@4073/@RichTextLabel@4072",
+			"reason": "below_min_size",
+			"screen": "05_six_seats",
+			"shot": "res://design/visual/anim-qa/aura-threads/05_six_seats.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@4077/@RichTextLabel@4076",
+			"reason": "below_min_size",
+			"screen": "05_six_seats",
+			"shot": "res://design/visual/anim-qa/aura-threads/05_six_seats.png",
+			"text": "items this combat 0"
+		}
+	],
+	"updated": "2026-10-21T02:22:54"
+}

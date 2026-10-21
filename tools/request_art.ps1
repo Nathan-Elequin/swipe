@@ -1,7 +1,13 @@
-﻿# Ping Pixel's art webhook when the catalog gains cards that need art.
+﻿# Ping the Cursor automation "Swipe art request" webhook when cards need art.
+# art-handoff.mdc: Pixel's Grok Bot routine is paused and does nothing useful.
+# This script is the Cherry-side ping for that Cursor automation instead.
 # Usage: tools\request_art.cmd <id>[=Name] [<id>[=Name] ...]
-# Config: <repo>\.art-ping.env (gitignored) with ART_PING_URL=... and ART_PING_KEY=...
-# Never breaks the caller: missing config exits 0. Same id set within 10 min is skipped.
+# Config: <repo>\.art-ping.env (gitignored). After you save the automation at
+# https://cursor.com/automations, copy its webhook URL and API key:
+#   ART_PING_URL=<webhook URL from the automation after save>
+#   ART_PING_KEY=<webhook API key>
+# Never put the URL or key in git. Missing config exits 0. Same id set within 10 min is skipped.
+# POST JSON with Authorization: Bearer <ART_PING_KEY> (Cursor webhook docs).
 param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Cards)
 
 $ErrorActionPreference = 'Stop'
@@ -27,8 +33,8 @@ foreach ($line in Get-Content -LiteralPath $envFile) {
     if ($i -lt 1) { continue }
     $cfg[$l.Substring(0, $i).Trim()] = $l.Substring($i + 1).Trim().Trim('"')
 }
-$url = [string]$cfg['ART_PING_URL']
-$key = [string]$cfg['ART_PING_KEY']
+$url = ([string]$cfg['ART_PING_URL']).Trim().Trim("`r", "`n")
+$key = ([string]$cfg['ART_PING_KEY']).Trim().Trim("`r", "`n")
 if ($url -eq '' -or $key -eq '') {
     Write-Host 'art ping not configured'
     exit 0
@@ -64,7 +70,7 @@ if (Test-Path -LiteralPath $lastFile) {
 }
 
 $body = [ordered]@{ cards = $list; source = 'cursor'; when = $now.ToString('o') } | ConvertTo-Json -Depth 4 -Compress
-$headers = @{ 'Authorization' = "Bearer $key"; 'X-Webhook-Key' = $key }
+$headers = @{ 'Authorization' = "Bearer $key" }
 
 try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
