@@ -1,0 +1,20 @@
+---
+description: Pixel handed Spinheritance art and animation to the Cursor project (2026-10-21); this overrides Pixel-ownership lines in other rules
+alwaysApply: true
+---
+
+# Art handoff (overrides)
+
+On 2026-10-21 Nathan moved all remaining art and animation work from Pixel (Grok Bot) to his Cursor project. Pixel no longer draws, wires, reviews, or answers art requests.
+
+Before any art, animation, UI, or `assets/**` work, read `design/handoff/CURSOR-AGENT/README.md` and `design/handoff/CURSOR-AGENT/TASK.md`. They hold Pixel's rules, specs, build order, and PixelLab workflow. Specs live in `design/handoff/CURSOR-AGENT/specs/` and `design/visual/`.
+
+Where `swipe-design-loop.mdc`, `unique-art.mdc`, or `corrupt-png.mdc` say "Pixel draws / owns PNG bytes / supplies art", read it as: the Cursor art agent makes the art with PixelLab, following the handoff README. Specifically:
+- You may create and replace PNGs, but only through PixelLab (`design/handoff/CURSOR-AGENT/pixellab/`, token from env `PIXELLAB_API_TOKEN`) plus grid/palette cleanup. Hand-fix only small issues, or a piece PixelLab failed twice.
+- Crypt Classic style: 1px #100e0c outline, light from upper-left, no anti-aliasing, gold #FFD84A, palette in `design/handoff/CURSOR-AGENT/palette/`, Nearest filter, lossless, no mipmaps.
+- One contact sheet per batch, attached to the PR for Nathan.
+- You may wire new ids into `ITEM_PNG` / `MONSTER_PNG`.
+- ART-REQUEST sections are now work for the Cursor project, not Pixel. `tools\request_art.cmd` pings a paused Grok Bot routine and does nothing useful.
+- Per handoff pass: branch, PR, local QA on Cherry (`LOCAL-QA-PROMPT.md`), then merge to main. This replaces "no merges, no pushes" for handoff work only.
+
+Unchanged and still hard rules: never edit player-facing copy (Jam owns `data/player-copy.json`; flag it in the PR). Never show "Tier", "ATK", or "atk" to players. Normal animation speed is 0.675; Shift fast-forward is 2.025. Never touch Nathan's `movement` checkout or its uncommitted work. Never kill a Godot process you didn't start. Never export or push to itch. Never commit secrets.
