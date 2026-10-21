@@ -5,17 +5,17 @@ alwaysApply: true
 
 # Clickable questions
 
-Locked **2026-10-21**. Annie: every decision that would change the work is a **clickable** multiple-choice question in this chat. Do not ask people to type A/B, open GitHub, open a prompt file, or go to another machine to complete a choice.
+Locked **2026-10-21**. Annie: every decision that would change the work is a **clickable** multiple-choice question **inside Cursor**. Staying in Cursor is enough (a sibling agent thread is fine). Do not send her to GitHub, a prompt file, a browser tab, or another machine to complete a choice.
 
 ## Do
 
 1. Use the clickable question UI (`AskQuestion` or the current equivalent). One tight batch. Each item is yes/no or a short named list.
 2. Put the choices in that widget, not only in markdown.
 3. Show pictures in the same turn when the choice is visual (old vs new art).
-4. After answers, finish the work. Do not send them somewhere else to complete it.
+4. If this chat has no AskQuestion tool, spin up a Cursor agent whose only job is those clickable questions, and point her at that agent. After answers, finish the work here.
 
 ## Don't
 
 - A/B letters in a paragraph as the only way to answer.
-- “Open this PR / run this file / go to Cherry” as the way to decide.
+- “Open this PR / run this file / go to Cherry / leave Cursor” as the way to decide.
 - Skip the clickable widget because markdown is faster.
