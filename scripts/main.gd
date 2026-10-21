@@ -1,6 +1,8 @@
 extends Control
 ## Full loop: title, mill gate draft, combat, victory/defeat.
 
+signal bled(n: int)
+
 const CATALOG_PATH := "res://data/catalog.json"
 const RUNTIME_PATH := "res://data/runtime.json"
 const WHEEL_SCRIPT := preload("res://scripts/boss_wheel.gd")
@@ -52,6 +54,8 @@ const ANIM_TIME_SCALE := 0.675
 
 const COMBAT_LOG := preload("res://scripts/combat_log.gd")
 const ABILITY_SLASH := preload("res://scripts/ability_slash.gd")
+const INTENT_PLATE := preload("res://scripts/intent_plate.gd")
+const BLEED_PULSE := preload("res://scripts/bleed_pulse.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const PLAYTEST_HUB := preload("res://scripts/playtest_hub.gd")
 const PLAYTEST_FEEDBACK := preload("res://scripts/playtest_feedback.gd")
@@ -457,6 +461,8 @@ var _hypno_src: int = -1
 var speech_box
 var ability_fx
 var ability_slash
+var intent_plate
+var bleed_pulse
 var log_label
 var log_btn: Button
 var right_col: VBoxContainer
@@ -630,15 +636,41 @@ func _ready() -> void:
 	_empty_wheel()
 	phase = "title"
 	_load_playtest_preset()
-	if PLAYTEST_FLAG.on() and not SHOT_CLI.enabled(OS.get_cmdline_user_args()):
+	var covering_ids := _covering_cli_ids()
+	if PLAYTEST_FLAG.on() and not SHOT_CLI.enabled(OS.get_cmdline_user_args()) and covering_ids == "":
 		_playtest_boot = true
 	_refresh()
 	if sfx and (home_cabin == null or not home_cabin.visible):
 		sfx.start_music()
-	if SHOT_CLI.enabled(OS.get_cmdline_user_args()) and shot_harness:
+	if covering_ids != "" and logic_qa != null:
+		call_deferred("_kick_covering", covering_ids)
+	elif SHOT_CLI.enabled(OS.get_cmdline_user_args()) and shot_harness:
 		call_deferred("_kick_shots")
 	elif PLAYTEST_FLAG.on():
 		call_deferred("_open_playtest_hub")
+
+
+func _covering_cli_ids() -> String:
+	for arg in OS.get_cmdline_user_args():
+		var text := str(arg)
+		if text.begins_with("--covering="):
+			return text.substr(11).strip_edges()
+	return ""
+
+
+func _kick_covering(ids: String) -> void:
+	if logic_qa == null:
+		get_tree().quit(2)
+		return
+	var started: String = logic_qa.run_covering(ids)
+	print("COVERING: ", started)
+	if not started.begins_with("started"):
+		get_tree().quit(2)
+		return
+	while logic_qa != null and bool(logic_qa.busy):
+		await get_tree().process_frame
+	print("COVERING: ", logic_qa.dump_json() if logic_qa else "{}")
+	get_tree().quit(0 if logic_qa != null and str(logic_qa.last_error) == "" else 1)
 
 
 func _kick_shots() -> void:
@@ -656,7 +688,7 @@ func _tex(path: String) -> Texture2D:
 
 
 func _authoring() -> bool:
-	return DevFlag.on() or SHOT_CLI.enabled(OS.get_cmdline_user_args())
+	return DevFlag.on() or SHOT_CLI.enabled(OS.get_cmdline_user_args()) or _covering_cli_ids() != ""
 
 
 func _prefer_pixel_art() -> void:
@@ -1237,6 +1269,13 @@ func _build_ui() -> void:
 	ability_slash = ABILITY_SLASH.new()
 	add_child(ability_slash)
 	ability_slash.setup(art)
+	intent_plate = INTENT_PLATE.new()
+	add_child(intent_plate)
+	intent_plate.setup(self)
+	bleed_pulse = BLEED_PULSE.new()
+	add_child(bleed_pulse)
+	bleed_pulse.setup(self)
+	bled.connect(bleed_pulse.on_bled)
 
 	draft_gate = DRAFT_GATE.new()
 	add_child(draft_gate)
@@ -6097,6 +6136,14 @@ func _on_spin() -> void:
 	_store_last_faced_hp()
 	_undo_arm()
 	_unlock_if_fighting()
+	# Layout is often deferred one frame after Spin lands; re-sync so the
+	# intent plate is not left at the pre-layout stage rect (missing on the
+	# first fight until a later refresh).
+	if phase == "fighting":
+		await get_tree().process_frame
+		_sync_intent_plate()
+		if intent_plate != null and intent_plate.has_method("reanchor"):
+			intent_plate.reanchor()
 	if in_tutorial and phase == "fighting":
 		call_deferred("_tutorial_combat_started")
 
@@ -6203,6 +6250,8 @@ func _play_ended_visuals() -> void:
 	phase = "slaying"
 	pending_choice.clear()
 	pending_feed = {}
+	if intent_plate:
+		intent_plate.clear()
 	_refresh()
 	if OS.has_feature("editor") and logic_qa != null and bool(logic_qa.busy):
 		return
@@ -6225,6 +6274,8 @@ func _play_leave_visuals() -> void:
 	phase = "slaying"
 	pending_choice.clear()
 	pending_feed = {}
+	if intent_plate:
+		intent_plate.clear()
 	_refresh()
 	if OS.has_feature("editor") and logic_qa != null and bool(logic_qa.busy):
 		return
@@ -6315,6 +6366,18 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 	var swing: Dictionary = _swing(m, blk)
 	var pierce: bool = bool(swing.get("pierce", false))
 	var incoming: int = int(swing["dmg"])
+	if intent_plate:
+		var fire_i: int = maxi(0, hit_n - 1)
+		var blocked_hit: bool = incoming == 0 and not pierce
+		var shot_name := ""
+		if OS.has_feature("editor") and has_meta("qa_anim_hit_shots"):
+			var shots: Variant = get_meta("qa_anim_hit_shots")
+			if typeof(shots) == TYPE_DICTIONARY and (shots as Dictionary).has(hit_n):
+				shot_name = str((shots as Dictionary)[hit_n])
+		var capturer: Callable = Callable()
+		if shot_name != "" and has_meta("qa_anim_capture") and get_meta("qa_anim_capture") is Callable:
+			capturer = get_meta("qa_anim_capture") as Callable
+		await intent_plate.fire(fire_i, blocked_hit, pierce, shot_name, capturer)
 	blk = int(swing["blk"])
 	hp = maxi(0, hp - incoming)
 	if incoming > 0:
@@ -8217,6 +8280,7 @@ func _tick_player_poison() -> bool:
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
+		_note_hp_lost(before - hp)
 	_log("hp", "poison -%s  now %s" % [n, hp])
 	_flash_screen(Color("2e4a32"), 0.28)
 	_refresh_hearts()
@@ -9441,6 +9505,7 @@ func _note_hp_lost(n: int) -> void:
 	if n <= 0:
 		return
 	last_hp_lost = n
+	bled.emit(n)
 	if n != 2:
 		return
 	var has_pace: bool = false
@@ -10471,6 +10536,8 @@ func _bleed_begin() -> void:
 
 func _bleed_end() -> void:
 	_bleed_hold = maxi(0, _bleed_hold - 1)
+	if _bleed_hold == 0 and bleed_pulse != null:
+		await bleed_pulse.flush_queue()
 
 
 func _cleric_maybe_flush() -> void:
@@ -11349,6 +11416,7 @@ func _count_item_use() -> void:
 		_resolve_toll_death()
 	_amalgam_after_use()
 	_sync_wheel_stats()
+	_sync_intent_plate()
 
 
 func _deal_atk(n: int) -> bool:
@@ -11838,6 +11906,7 @@ func _player_take_atk(n: int) -> bool:
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
+		_note_hp_lost(incoming)
 	if incoming == 0:
 		_log("hp", "poke 0")
 		_refresh_blk(false)
@@ -15015,6 +15084,8 @@ func _place_fight_art() -> void:
 	if ability_slash != null and not ability_slash.visible:
 		ability_slash.size = Vector2(stack_w, port_sz.y + 72.0)
 		ability_slash.global_position = Vector2(left_x, port_y)
+	if intent_plate != null and intent_plate.has_method("reanchor"):
+		intent_plate.reanchor()
 
 
 func _speech_gutter() -> Rect2:
@@ -15042,6 +15113,107 @@ func _speech_gutter() -> Rect2:
 
 func _incoming_hit() -> int:
 	return _incoming_total()
+
+
+func _sync_intent_plate() -> void:
+	if intent_plate == null:
+		return
+	if phase == "fighting" and facing_index >= 0:
+		intent_plate.sync(_intent_hits())
+		return
+	# Resolve sets phase to slaying before _owner_attack -> fire(). Keep the
+	# badges up so lit/spent/blocked can play; _play_ended/_play_leave clear.
+	if phase == "slaying":
+		return
+	intent_plate.clear()
+
+
+## One entry per incoming hit. n_raw is before Block. soaked = Block spends on that hit.
+func _intent_hits() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if skip_swing_this_fight or facing_index < 0 or facing_index >= wheel.size():
+		return out
+	var m: Dictionary = wheel[facing_index]
+	var face_id: String = str(m.get("card_id", ""))
+	if face_id == "two_headed_serpent" and not _is_silenced(m):
+		var left_blk: int = blk
+		var buckler_ok: bool = true
+		for j in _damsel_neighbors(facing_index):
+			var nm: Dictionary = wheel[j]
+			for _h in range(_hit_count(j)):
+				var swing: Dictionary = _preview_swing(nm, left_blk, buckler_ok)
+				var n_raw: int = int(nm.get("atk", 0))
+				if bool(swing.get("used_buckler", false)):
+					n_raw = int(n_raw / 2)
+					buckler_ok = false
+				var dmg: int = int(swing["dmg"])
+				var pierce: bool = bool(swing.get("pierce", false))
+				out.append({
+					"n_raw": n_raw,
+					"soaked": (not pierce) and dmg < n_raw,
+					"pierce": pierce,
+					"src_index": j,
+					"poison": false,
+					"loop": false,
+					"chip": "",
+				})
+				left_blk = int(swing["blk"])
+		return out
+	if _blood_threshes(facing_index):
+		# Shark: first swing's raw hit, then a loop chip (↻).
+		var zeros: int = 0
+		var probe_left: int = blk
+		var probe_buck: bool = true
+		var chosen: Dictionary = {}
+		var chosen_raw: int = int(m.get("atk", 0))
+		while zeros < 5:
+			var sw: Dictionary = _preview_swing(m, probe_left, probe_buck)
+			var raw: int = int(m.get("atk", 0))
+			if bool(sw.get("used_buckler", false)):
+				raw = int(raw / 2)
+				probe_buck = false
+			if chosen.is_empty() or int(sw["dmg"]) > 0:
+				chosen = sw
+				chosen_raw = raw
+			if int(sw["dmg"]) > 0:
+				break
+			probe_left = int(sw["blk"])
+			zeros += 1
+		if chosen.is_empty():
+			chosen = _preview_swing(m, blk, true)
+			chosen_raw = int(m.get("atk", 0))
+		out.append({
+			"n_raw": chosen_raw,
+			"soaked": (not bool(chosen.get("pierce", false))) and int(chosen["dmg"]) < chosen_raw,
+			"pierce": bool(chosen.get("pierce", false)),
+			"src_index": facing_index,
+			"poison": false,
+			"loop": false,
+			"chip": "",
+		})
+		out.append({"n_raw": 0, "soaked": false, "pierce": false, "src_index": facing_index, "poison": false, "loop": true, "chip": ""})
+		return out
+	var left3: int = blk
+	var buckler_ok3: bool = true
+	for _h3 in range(_hit_count(facing_index)):
+		var swing3: Dictionary = _preview_swing(m, left3, buckler_ok3)
+		var n_raw3: int = int(m.get("atk", 0))
+		if bool(swing3.get("used_buckler", false)):
+			n_raw3 = int(n_raw3 / 2)
+			buckler_ok3 = false
+		var dmg3: int = int(swing3["dmg"])
+		var pierce3: bool = bool(swing3.get("pierce", false))
+		out.append({
+			"n_raw": n_raw3,
+			"soaked": (not pierce3) and dmg3 < n_raw3,
+			"pierce": pierce3,
+			"src_index": facing_index,
+			"poison": false,
+			"loop": false,
+			"chip": "",
+		})
+		left3 = int(swing3["blk"])
+	return out
 
 
 func _punch_hero(b: Button, on: bool) -> void:
@@ -15678,6 +15850,7 @@ func _sync_buttons() -> void:
 			btn_done.remove_theme_color_override("icon_normal_color")
 			btn_done.remove_theme_color_override("icon_hover_color")
 		btn_done.scale = Vector2.ONE
+		_sync_intent_plate()
 	if btn_spin:
 		btn_spin.scale = Vector2.ONE
 	if feed_kind == "worm_hunger":

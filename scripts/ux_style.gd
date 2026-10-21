@@ -217,6 +217,26 @@ static func squircle_tex(tier: int, inspect: bool = false) -> Texture2D:
 
 
 ## Code stand-in until Pixel's squircle PNGs land. Uses today's metals; Pixel picks brown / blue / deep red.
+## Hornet ×2 / Shambling ∞ / Shark ↻ capsule. Shared by the wheel and the intent plate.
+static func draw_multi_tag(ci: CanvasItem, mark: Vector2, tag: String, font: Font) -> void:
+	if ci == null or font == null:
+		return
+	var badge := Rect2(mark - Vector2(16.0, 8.0), Vector2(32.0, 16.0))
+	ci.draw_rect(badge, Color("1c120ce8"), true)
+	ci.draw_rect(badge, Color("e8c36a"), false, 1.5)
+	var fs: int = 12
+	var col := Color("e8c36a")
+	var outline := Color("1c120c")
+	var tsz: Vector2 = font.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+	var p: Vector2 = mark + Vector2(-tsz.x * 0.5, 4.0)
+	for ox in [-1, 0, 1]:
+		for oy in [-1, 0, 1]:
+			if ox == 0 and oy == 0:
+				continue
+			ci.draw_string(font, p + Vector2(ox, oy), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, outline)
+	ci.draw_string(font, p, tag, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+
+
 static func draw_squircle(ci: CanvasItem, center: Vector2, rad: float, tier: int, fill: Color, rim: Color, rim_w: float, inspect: bool = false) -> void:
 	if ci == null or rad < 2.0:
 		return

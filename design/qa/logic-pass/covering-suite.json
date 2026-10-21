@@ -2568,6 +2568,44 @@
 			]
 		},
 		{
+			"id": "pacemaker-poison-tick",
+			"title": "Pacemaker heals 1 after a poison tick of exactly 2",
+			"family": "item",
+			"items": [
+				"pacemaker"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"poison_before": 2,
+			"clicks": [],
+			"expected_text": "Start at 6 HP with poison 2. Spin. Poison deals 2, Pacemaker Heals 1. Plate shows 5.",
+			"expected": {
+				"hp": 5,
+				"log_has": [
+					"poison"
+				]
+			},
+			"cards": [
+				{
+					"id": "pacemaker",
+					"kind": "item",
+					"name": "Pacemaker",
+					"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+					"sprite": "assets/dungeon/items/pacemaker.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
 			"id": "catapult-fires",
 			"title": "Catapult fires vs a dummy",
 			"family": "item",
@@ -2758,6 +2796,51 @@
 			"expected_text": "Start at 6 HP. Heal cannot raise you past max. Plate stays 6 (or the card still spends).",
 			"expected": {
 				"hp": 6
+			},
+			"cards": [
+				{
+					"id": "blood_chalice",
+					"kind": "item",
+					"name": "Blood Chalice",
+					"ability": "Heal equal to the amount of HP you most recently lose.",
+					"sprite": "assets/dungeon/items/blood_chalice.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "blood_chalice-poison-tick",
+			"title": "Blood Chalice heals the poison-tick loss",
+			"family": "item",
+			"items": [
+				"blood_chalice"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"poison_before": 2,
+			"hp_before": 6,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "blood_chalice",
+					"auto": true
+				}
+			],
+			"expected_text": "Poison tick loses 2 HP (last loss). Click Blood Chalice. Heal 2.",
+			"expected": {
+				"hp_min": 5,
+				"log_has": [
+					"poison"
+				]
 			},
 			"cards": [
 				{

@@ -1,0 +1,773 @@
+{
+	"failures": [
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@953/@Label@949",
+			"reason": "below_min_size",
+			"screen": "01_hornet_plate",
+			"shot": "res://design/visual/anim-qa/intent-plate/01_hornet_plate.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@953/@RichTextLabel@952",
+			"reason": "below_min_size",
+			"screen": "01_hornet_plate",
+			"shot": "res://design/visual/anim-qa/intent-plate/01_hornet_plate.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@957/@RichTextLabel@956",
+			"reason": "below_min_size",
+			"screen": "01_hornet_plate",
+			"shot": "res://design/visual/anim-qa/intent-plate/01_hornet_plate.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@961/@RichTextLabel@960",
+			"reason": "below_min_size",
+			"screen": "01_hornet_plate",
+			"shot": "res://design/visual/anim-qa/intent-plate/01_hornet_plate.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@965/@RichTextLabel@964",
+			"reason": "below_min_size",
+			"screen": "01_hornet_plate",
+			"shot": "res://design/visual/anim-qa/intent-plate/01_hornet_plate.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@953/@Label@949",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@953/@RichTextLabel@952",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@957/@RichTextLabel@956",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@961/@RichTextLabel@960",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@965/@RichTextLabel@964",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1026/@Label@1022",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "You"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1026/@RichTextLabel@1025",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "Done"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@953/@Label@949",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@953/@RichTextLabel@952",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@957/@RichTextLabel@956",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@961/@RichTextLabel@960",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@965/@RichTextLabel@964",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1026/@Label@1022",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "You"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1026/@RichTextLabel@1025",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "Done"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1042/@Label@1038",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "Fight"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1042/@RichTextLabel@1041",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "hit 1  ATK 2 - BLK"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1046/@RichTextLabel@1045",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1051/@Label@1047",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1051/@RichTextLabel@1050",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "take -2  now 4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1069/@VBoxContainer@1063/@HBoxContainer@1064/@VBoxContainer@1065/@Label@1066",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1069/@VBoxContainer@1063/@HBoxContainer@1064/@VBoxContainer@1065/@Label@1067",
+			"reason": "overflow_parent",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "Double Strike"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1201/@Label@1197",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1201/@RichTextLabel@1200",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1205/@RichTextLabel@1204",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1209/@RichTextLabel@1208",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1213/@RichTextLabel@1212",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1274/@Label@1270",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "You"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1274/@RichTextLabel@1273",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "Done"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1507/@Label@1503",
+			"reason": "below_min_size",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1507/@RichTextLabel@1506",
+			"reason": "below_min_size",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "Kobold Trapper"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1511/@RichTextLabel@1510",
+			"reason": "below_min_size",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "enemy ATK 2   HP 6"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1515/@RichTextLabel@1514",
+			"reason": "below_min_size",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1519/@RichTextLabel@1518",
+			"reason": "below_min_size",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1552/@MarginContainer@1531/@VBoxContainer@1532/@Control@1535/@Label@1538",
+			"reason": "overflow_parent",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1574/@MarginContainer@1553/@VBoxContainer@1554/@Control@1557/@Label@1560",
+			"reason": "overflow_parent",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1651/@Label@1647",
+			"reason": "below_min_size",
+			"screen": "06_dragon_flame",
+			"shot": "res://design/visual/anim-qa/intent-plate/06_dragon_flame.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1651/@RichTextLabel@1650",
+			"reason": "below_min_size",
+			"screen": "06_dragon_flame",
+			"shot": "res://design/visual/anim-qa/intent-plate/06_dragon_flame.png",
+			"text": "Dragon"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1655/@RichTextLabel@1654",
+			"reason": "below_min_size",
+			"screen": "06_dragon_flame",
+			"shot": "res://design/visual/anim-qa/intent-plate/06_dragon_flame.png",
+			"text": "enemy ATK 6   HP 6"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1659/@RichTextLabel@1658",
+			"reason": "below_min_size",
+			"screen": "06_dragon_flame",
+			"shot": "res://design/visual/anim-qa/intent-plate/06_dragon_flame.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1663/@RichTextLabel@1662",
+			"reason": "below_min_size",
+			"screen": "06_dragon_flame",
+			"shot": "res://design/visual/anim-qa/intent-plate/06_dragon_flame.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1728/@Label@1724",
+			"reason": "below_min_size",
+			"screen": "07_shark_loop",
+			"shot": "res://design/visual/anim-qa/intent-plate/07_shark_loop.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1728/@RichTextLabel@1727",
+			"reason": "below_min_size",
+			"screen": "07_shark_loop",
+			"shot": "res://design/visual/anim-qa/intent-plate/07_shark_loop.png",
+			"text": "Shark"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1732/@RichTextLabel@1731",
+			"reason": "below_min_size",
+			"screen": "07_shark_loop",
+			"shot": "res://design/visual/anim-qa/intent-plate/07_shark_loop.png",
+			"text": "enemy ATK 3   HP 6"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1736/@RichTextLabel@1735",
+			"reason": "below_min_size",
+			"screen": "07_shark_loop",
+			"shot": "res://design/visual/anim-qa/intent-plate/07_shark_loop.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1740/@RichTextLabel@1739",
+			"reason": "below_min_size",
+			"screen": "07_shark_loop",
+			"shot": "res://design/visual/anim-qa/intent-plate/07_shark_loop.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1795/@Label@1791",
+			"reason": "below_min_size",
+			"screen": "08_shambling_overflow",
+			"shot": "res://design/visual/anim-qa/intent-plate/08_shambling_overflow.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1795/@RichTextLabel@1794",
+			"reason": "below_min_size",
+			"screen": "08_shambling_overflow",
+			"shot": "res://design/visual/anim-qa/intent-plate/08_shambling_overflow.png",
+			"text": "Shambling Mound"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1799/@RichTextLabel@1798",
+			"reason": "below_min_size",
+			"screen": "08_shambling_overflow",
+			"shot": "res://design/visual/anim-qa/intent-plate/08_shambling_overflow.png",
+			"text": "enemy ATK 1   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1803/@RichTextLabel@1802",
+			"reason": "below_min_size",
+			"screen": "08_shambling_overflow",
+			"shot": "res://design/visual/anim-qa/intent-plate/08_shambling_overflow.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1807/@RichTextLabel@1806",
+			"reason": "below_min_size",
+			"screen": "08_shambling_overflow",
+			"shot": "res://design/visual/anim-qa/intent-plate/08_shambling_overflow.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1899/@Label@1895",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1899/@RichTextLabel@1898",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1903/@RichTextLabel@1902",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1907/@RichTextLabel@1906",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1911/@RichTextLabel@1910",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1982/@Label@1978",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "You"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1982/@RichTextLabel@1981",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Done"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1999/@Label@1995",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Fight"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1999/@RichTextLabel@1998",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "hit 1  ATK 2 - BLK"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2003/@RichTextLabel@2002",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2008/@Label@2004",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2008/@RichTextLabel@2007",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "take -2  now 4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2026/@VBoxContainer@2020/@HBoxContainer@2021/@VBoxContainer@2022/@Label@2023",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Vampire"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2026/@VBoxContainer@2020/@HBoxContainer@2021/@VBoxContainer@2022/@Label@2024",
+			"reason": "overflow_parent",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Bloodlust"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2026/@VBoxContainer@2020/@VBoxContainer@2025/@HBoxContainer@2031/@Label@2027",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2026/@VBoxContainer@2020/@VBoxContainer@2025/@HBoxContainer@2031/@RichTextLabel@2030",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Vampire +1 HP +1 ATK  to  5/5  ATK 5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2049/@VBoxContainer@2043/@HBoxContainer@2044/@VBoxContainer@2045/@Label@2046",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2049/@VBoxContainer@2043/@HBoxContainer@2044/@VBoxContainer@2045/@Label@2047",
+			"reason": "overflow_parent",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Double Strike"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2049/@VBoxContainer@2043/@VBoxContainer@2048/@HBoxContainer@2055/@Label@2050",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2049/@VBoxContainer@2043/@VBoxContainer@2048/@HBoxContainer@2055/@Label@2051",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Fight"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2049/@VBoxContainer@2043/@VBoxContainer@2048/@HBoxContainer@2055/@RichTextLabel@2054",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "hit 2  ATK 2 - BLK"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2049/@VBoxContainer@2043/@VBoxContainer@2048/@HBoxContainer@2060/@Label@2056",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2049/@VBoxContainer@2043/@VBoxContainer@2048/@HBoxContainer@2060/@RichTextLabel@2059",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2049/@VBoxContainer@2043/@VBoxContainer@2048/@HBoxContainer@2066/@Label@2061",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2049/@VBoxContainer@2043/@VBoxContainer@2048/@HBoxContainer@2066/@Label@2062",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2049/@VBoxContainer@2043/@VBoxContainer@2048/@HBoxContainer@2066/@RichTextLabel@2065",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "take -2  now 2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2084/@VBoxContainer@2078/@HBoxContainer@2079/@VBoxContainer@2080/@Label@2081",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Vampire"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2084/@VBoxContainer@2078/@HBoxContainer@2079/@VBoxContainer@2080/@Label@2082",
+			"reason": "overflow_parent",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Bloodlust"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2084/@VBoxContainer@2078/@VBoxContainer@2083/@HBoxContainer@2089/@Label@2085",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2084/@VBoxContainer@2078/@VBoxContainer@2083/@HBoxContainer@2089/@RichTextLabel@2088",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Vampire +1 HP +1 ATK  to  6/6  ATK 6"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1944/@MarginContainer@1923/@VBoxContainer@1924/@Control@1927/@Label@1930",
+			"reason": "overflow_parent",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "10"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2272/@Label@2268",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2272/@RichTextLabel@2271",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "Golem"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2276/@RichTextLabel@2275",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "enemy ATK 3   HP 7"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2280/@RichTextLabel@2279",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2284/@RichTextLabel@2283",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2316/@Label@2312",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2316/@RichTextLabel@2315",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "heal +1  now 5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2321/@Label@2317",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2321/@RichTextLabel@2320",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "poison -2  now 5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2311/@MarginContainer@2290/@VBoxContainer@2291/@Control@2294/@Label@2297",
+			"reason": "overflow_parent",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "−2"
+		}
+	],
+	"updated": "2026-10-20T22:34:05"
+}

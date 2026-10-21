@@ -363,6 +363,9 @@ func _run_fight(spec: Dictionary, row: Dictionary) -> Dictionary:
 	if spec.has("hp_before"):
 		main.hp = int(spec.get("hp_before", 6))
 		main._refresh()
+	if spec.has("poison_before"):
+		main.player_poison = int(spec.get("poison_before", 0))
+		main._refresh()
 	var face_id: String = str(spec.get("face", ""))
 	var face_i: int = _index_of(face_id)
 	if face_i < 0:

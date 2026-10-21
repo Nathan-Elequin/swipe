@@ -1,0 +1,13 @@
+skip 02_hit1_lit: not captured
+skip 03_hit2: not captured
+skip 04_hornet_block_soak: not captured
+skip 05_kobold_3: not captured
+skip 06_dragon_flame: not captured
+skip 07_shark_loop: not captured
+skip 08_shambling_overflow: not captured
+skip 01_hornet_two_rings: not captured
+skip 02_poison_pacemaker: not captured
+exit 1
+exit 1
+exit 1
+exit 1

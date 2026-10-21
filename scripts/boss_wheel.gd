@@ -1951,10 +1951,7 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 			inward = Vector2(0, 1)
 		var mark: Vector2 = pos + inward.normalized() * (rad + 10.0)
 		var tag: String = "∞" if cid == "shambling_mound" else ("↻" if cid == "shark" else "×2")
-		var badge := Rect2(mark - Vector2(16.0, 8.0), Vector2(32.0, 16.0))
-		draw_rect(badge, Color("1c120ce8"), true)
-		draw_rect(badge, Color("e8c36a"), false, 1.5)
-		_draw_outlined_string(font, mark + Vector2(0.0, 4.0), tag, 12, Color("e8c36a"), Color("1c120c"))
+		UxStyle.draw_multi_tag(self, mark, tag, font)
 
 
 func _draw_atk_badge(pos: Vector2, rad: float, fill: Color) -> void:

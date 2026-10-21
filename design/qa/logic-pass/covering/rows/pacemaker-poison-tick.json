@@ -1,0 +1,50 @@
+{
+	"cards": [
+		{
+			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+			"id": "pacemaker",
+			"kind": "item",
+			"name": "Pacemaker",
+			"sprite": "assets/dungeon/items/pacemaker.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": ["screenshot"],
+		"hand_before": ["Pacemaker"],
+		"looked_at": ["combat log", "plate ATK/HP", "inspect", "Shift inspect", "hotbar"],
+		"slots": "1 / 50"
+	},
+	"expected": "Start at 6 HP with poison 2. Spin. Poison deals 2, Pacemaker Heals 1. Plate shows 5.",
+	"family": "item",
+	"id": "pacemaker-poison-tick",
+	"log": "Spin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nHP poison -2  now 5\nHP heal +1  now 5",
+	"mismatch": "",
+	"narrative": "Start at 6 HP with poison 2. Spin. Poison deals 2, Pacemaker Heals 1. Plate shows 5.",
+	"note": "Requires _note_hp_lost on poison tick.",
+	"observed": "phase fighting · HP 5 · BLK 0 · face Golem ATK 3 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": [],
+		"face_atk": 3,
+		"face_hp": 7,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": ["Pacemaker"],
+		"kind": "fight",
+		"poison_before": 2,
+		"you_hp": 5
+	},
+	"theme": "plates",
+	"title": "Pacemaker heals 1 after a poison tick of exactly 2",
+	"verbs": []
+}
