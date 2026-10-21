@@ -2,11 +2,19 @@
 	"failures": [
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1036/@Label@1032",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1032/@Label@1028",
 			"reason": "below_min_size",
 			"screen": "01_ale_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
 			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1032/@RichTextLabel@1031",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "Goblin"
 		},
 		{
 			"kind": "RichTextLabel",
@@ -14,7 +22,7 @@
 			"reason": "below_min_size",
 			"screen": "01_ale_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
-			"text": "Goblin"
+			"text": "enemy ATK 3   HP 1"
 		},
 		{
 			"kind": "RichTextLabel",
@@ -22,7 +30,7 @@
 			"reason": "below_min_size",
 			"screen": "01_ale_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
-			"text": "enemy ATK 3   HP 1"
+			"text": "BLK 0"
 		},
 		{
 			"kind": "RichTextLabel",
@@ -30,27 +38,83 @@
 			"reason": "below_min_size",
 			"screen": "01_ale_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
-			"text": "BLK 0"
-		},
-		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1048/@RichTextLabel@1047",
-			"reason": "below_min_size",
-			"screen": "01_ale_burst",
-			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
 			"text": "items this combat 0"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1007/@MarginContainer@986/@VBoxContainer@987/@Control@990/@Label@993",
-			"reason": "overflow_parent",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@HBoxContainer@1102/@PanelContainer@1104/@Label@1103",
+			"reason": "below_min_size",
 			"screen": "01_ale_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
-			"text": "5"
+			"text": "Ale Flagon"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1029/@MarginContainer@1008/@VBoxContainer@1009/@Control@1012/@Label@1015",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@Label@1107",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@Label@1108",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@RichTextLabel@1111",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "heal +-2  now 6"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@Label@1113",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@Label@1114",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@RichTextLabel@1117",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "poison 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1134/@Label@1130",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1134/@RichTextLabel@1133",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1166/@MarginContainer@1146/@VBoxContainer@1147/@Control@1150/@Label@1153",
 			"reason": "overflow_parent",
 			"screen": "01_ale_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
@@ -58,11 +122,19 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1036/@Label@1032",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1032/@Label@1028",
 			"reason": "below_min_size",
 			"screen": "02_ale_hearts",
 			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
 			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1032/@RichTextLabel@1031",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "Goblin"
 		},
 		{
 			"kind": "RichTextLabel",
@@ -70,7 +142,7 @@
 			"reason": "below_min_size",
 			"screen": "02_ale_hearts",
 			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
-			"text": "Goblin"
+			"text": "enemy ATK 3   HP 1"
 		},
 		{
 			"kind": "RichTextLabel",
@@ -78,7 +150,7 @@
 			"reason": "below_min_size",
 			"screen": "02_ale_hearts",
 			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
-			"text": "enemy ATK 3   HP 1"
+			"text": "BLK 0"
 		},
 		{
 			"kind": "RichTextLabel",
@@ -86,27 +158,83 @@
 			"reason": "below_min_size",
 			"screen": "02_ale_hearts",
 			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
-			"text": "BLK 0"
-		},
-		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1048/@RichTextLabel@1047",
-			"reason": "below_min_size",
-			"screen": "02_ale_hearts",
-			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
 			"text": "items this combat 0"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1007/@MarginContainer@986/@VBoxContainer@987/@Control@990/@Label@993",
-			"reason": "overflow_parent",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@HBoxContainer@1102/@PanelContainer@1104/@Label@1103",
+			"reason": "below_min_size",
 			"screen": "02_ale_hearts",
 			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
-			"text": "5"
+			"text": "Ale Flagon"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1029/@MarginContainer@1008/@VBoxContainer@1009/@Control@1012/@Label@1015",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@Label@1107",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@Label@1108",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1112/@RichTextLabel@1111",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "heal +-2  now 6"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@Label@1113",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@Label@1114",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1118/@RichTextLabel@1117",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "poison 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1134/@Label@1130",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1106/@VBoxContainer@1101/@VBoxContainer@1105/@HBoxContainer@1134/@RichTextLabel@1133",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1166/@MarginContainer@1146/@VBoxContainer@1147/@Control@1150/@Label@1153",
 			"reason": "overflow_parent",
 			"screen": "02_ale_hearts",
 			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
@@ -114,7 +242,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1286/@Label@1282",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1358/@Label@1354",
 			"reason": "below_min_size",
 			"screen": "03_miasma_drip",
 			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
@@ -122,23 +250,23 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1286/@RichTextLabel@1285",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1358/@RichTextLabel@1357",
 			"reason": "below_min_size",
 			"screen": "03_miasma_drip",
 			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
-			"text": "Bandit"
+			"text": "Ogre"
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1290/@RichTextLabel@1289",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1362/@RichTextLabel@1361",
 			"reason": "below_min_size",
 			"screen": "03_miasma_drip",
 			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
-			"text": "enemy ATK 0   HP 3"
+			"text": "enemy ATK 5   HP 10"
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1294/@RichTextLabel@1293",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1366/@RichTextLabel@1365",
 			"reason": "below_min_size",
 			"screen": "03_miasma_drip",
 			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
@@ -146,7 +274,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1298/@RichTextLabel@1297",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1370/@RichTextLabel@1369",
 			"reason": "below_min_size",
 			"screen": "03_miasma_drip",
 			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
@@ -154,7 +282,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1314/@Label@1310",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1386/@Label@1382",
 			"reason": "below_min_size",
 			"screen": "03_miasma_drip",
 			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
@@ -162,15 +290,15 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1314/@RichTextLabel@1313",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1386/@RichTextLabel@1385",
 			"reason": "below_min_size",
 			"screen": "03_miasma_drip",
 			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
-			"text": "poison  to  2 HP"
+			"text": "poison  to  9 HP"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1286/@Label@1282",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1496/@Label@1492",
 			"reason": "below_min_size",
 			"screen": "04_miasma_one_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
@@ -178,23 +306,23 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1286/@RichTextLabel@1285",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1496/@RichTextLabel@1495",
 			"reason": "below_min_size",
 			"screen": "04_miasma_one_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
-			"text": "Bandit"
+			"text": "Goblin"
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1290/@RichTextLabel@1289",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1500/@RichTextLabel@1499",
 			"reason": "below_min_size",
 			"screen": "04_miasma_one_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
-			"text": "enemy ATK 0   HP 3"
+			"text": "enemy ATK 3   HP 1"
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1294/@RichTextLabel@1293",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1504/@RichTextLabel@1503",
 			"reason": "below_min_size",
 			"screen": "04_miasma_one_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
@@ -202,7 +330,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1298/@RichTextLabel@1297",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1508/@RichTextLabel@1507",
 			"reason": "below_min_size",
 			"screen": "04_miasma_one_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
@@ -210,23 +338,15 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1314/@Label@1310",
-			"reason": "below_min_size",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1489/@MarginContainer@1469/@VBoxContainer@1470/@Control@1473/@Label@1476",
+			"reason": "overflow_parent",
 			"screen": "04_miasma_one_burst",
 			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
-			"text": "Spin"
-		},
-		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1314/@RichTextLabel@1313",
-			"reason": "below_min_size",
-			"screen": "04_miasma_one_burst",
-			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
-			"text": "poison  to  2 HP"
+			"text": "1"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1426/@Label@1422",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1617/@Label@1613",
 			"reason": "below_min_size",
 			"screen": "05_poison_ff",
 			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
@@ -234,7 +354,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1426/@RichTextLabel@1425",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1617/@RichTextLabel@1616",
 			"reason": "below_min_size",
 			"screen": "05_poison_ff",
 			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
@@ -242,7 +362,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1430/@RichTextLabel@1429",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1621/@RichTextLabel@1620",
 			"reason": "below_min_size",
 			"screen": "05_poison_ff",
 			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
@@ -250,7 +370,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1434/@RichTextLabel@1433",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1625/@RichTextLabel@1624",
 			"reason": "below_min_size",
 			"screen": "05_poison_ff",
 			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
@@ -258,7 +378,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1438/@RichTextLabel@1437",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1629/@RichTextLabel@1628",
 			"reason": "below_min_size",
 			"screen": "05_poison_ff",
 			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
@@ -266,15 +386,159 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1419/@MarginContainer@1398/@VBoxContainer@1399/@Control@1402/@Label@1405",
-			"reason": "overflow_parent",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@HBoxContainer@1675/@PanelContainer@1677/@Label@1676",
+			"reason": "below_min_size",
 			"screen": "05_poison_ff",
 			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
-			"text": "5"
+			"text": "Ale Flagon"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1630/@Label@1626",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1685/@Label@1680",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1685/@Label@1681",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1685/@RichTextLabel@1684",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "heal +-2  now 6"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1691/@Label@1686",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1691/@Label@1687",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1691/@RichTextLabel@1690",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "poison 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1707/@Label@1703",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1679/@VBoxContainer@1674/@VBoxContainer@1678/@HBoxContainer@1707/@RichTextLabel@1706",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1893/@Label@1889",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1893/@RichTextLabel@1892",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Plague Doctor"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1897/@RichTextLabel@1896",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1901/@RichTextLabel@1900",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1905/@RichTextLabel@1904",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1921/@Label@1917",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1921/@RichTextLabel@1920",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Plague Doctor heal +2  to  5 HP"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1926/@Label@1922",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1926/@RichTextLabel@1925",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Plague Doctor heal +2  to  3 HP"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1887/@MarginContainer@1867/@VBoxContainer@1868/@Control@1871/@Label@1874",
+			"reason": "overflow_parent",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@Label@2109",
 			"reason": "below_min_size",
 			"screen": "01_gargoyle_beam",
 			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
@@ -282,7 +546,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1630/@RichTextLabel@1629",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@RichTextLabel@2112",
 			"reason": "below_min_size",
 			"screen": "01_gargoyle_beam",
 			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
@@ -290,7 +554,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1634/@RichTextLabel@1633",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2117/@RichTextLabel@2116",
 			"reason": "below_min_size",
 			"screen": "01_gargoyle_beam",
 			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
@@ -298,7 +562,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1638/@RichTextLabel@1637",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2121/@RichTextLabel@2120",
 			"reason": "below_min_size",
 			"screen": "01_gargoyle_beam",
 			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
@@ -306,7 +570,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1642/@RichTextLabel@1641",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2125/@RichTextLabel@2124",
 			"reason": "below_min_size",
 			"screen": "01_gargoyle_beam",
 			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
@@ -314,7 +578,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1658/@Label@1654",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@Label@2137",
 			"reason": "below_min_size",
 			"screen": "01_gargoyle_beam",
 			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
@@ -322,7 +586,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1658/@RichTextLabel@1657",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@RichTextLabel@2140",
 			"reason": "below_min_size",
 			"screen": "01_gargoyle_beam",
 			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
@@ -330,7 +594,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1578/@MarginContainer@1557/@VBoxContainer@1558/@Control@1561/@Label@1564",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2062/@MarginContainer@2042/@VBoxContainer@2043/@Control@2046/@Label@2049",
 			"reason": "overflow_parent",
 			"screen": "01_gargoyle_beam",
 			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
@@ -338,7 +602,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1600/@MarginContainer@1579/@VBoxContainer@1580/@Control@1583/@Label@1586",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2083/@MarginContainer@2063/@VBoxContainer@2064/@Control@2067/@Label@2070",
 			"reason": "overflow_parent",
 			"screen": "01_gargoyle_beam",
 			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
@@ -346,7 +610,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1630/@Label@1626",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@Label@2109",
 			"reason": "below_min_size",
 			"screen": "02_gargoyle_creep",
 			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
@@ -354,7 +618,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1630/@RichTextLabel@1629",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@RichTextLabel@2112",
 			"reason": "below_min_size",
 			"screen": "02_gargoyle_creep",
 			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
@@ -362,7 +626,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1634/@RichTextLabel@1633",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2117/@RichTextLabel@2116",
 			"reason": "below_min_size",
 			"screen": "02_gargoyle_creep",
 			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
@@ -370,7 +634,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1638/@RichTextLabel@1637",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2121/@RichTextLabel@2120",
 			"reason": "below_min_size",
 			"screen": "02_gargoyle_creep",
 			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
@@ -378,7 +642,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1642/@RichTextLabel@1641",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2125/@RichTextLabel@2124",
 			"reason": "below_min_size",
 			"screen": "02_gargoyle_creep",
 			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
@@ -386,7 +650,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1658/@Label@1654",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@Label@2137",
 			"reason": "below_min_size",
 			"screen": "02_gargoyle_creep",
 			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
@@ -394,7 +658,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1658/@RichTextLabel@1657",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@RichTextLabel@2140",
 			"reason": "below_min_size",
 			"screen": "02_gargoyle_creep",
 			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
@@ -402,7 +666,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1578/@MarginContainer@1557/@VBoxContainer@1558/@Control@1561/@Label@1564",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2062/@MarginContainer@2042/@VBoxContainer@2043/@Control@2046/@Label@2049",
 			"reason": "overflow_parent",
 			"screen": "02_gargoyle_creep",
 			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
@@ -410,7 +674,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1600/@MarginContainer@1579/@VBoxContainer@1580/@Control@1583/@Label@1586",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2083/@MarginContainer@2063/@VBoxContainer@2064/@Control@2067/@Label@2070",
 			"reason": "overflow_parent",
 			"screen": "02_gargoyle_creep",
 			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
@@ -418,7 +682,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1630/@Label@1626",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@Label@2109",
 			"reason": "below_min_size",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
@@ -426,7 +690,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1630/@RichTextLabel@1629",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2113/@RichTextLabel@2112",
 			"reason": "below_min_size",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
@@ -434,7 +698,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1634/@RichTextLabel@1633",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2117/@RichTextLabel@2116",
 			"reason": "below_min_size",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
@@ -442,7 +706,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1638/@RichTextLabel@1637",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2121/@RichTextLabel@2120",
 			"reason": "below_min_size",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
@@ -450,7 +714,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1642/@RichTextLabel@1641",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2125/@RichTextLabel@2124",
 			"reason": "below_min_size",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
@@ -458,7 +722,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1658/@Label@1654",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@Label@2137",
 			"reason": "below_min_size",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
@@ -466,7 +730,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1658/@RichTextLabel@1657",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2141/@RichTextLabel@2140",
 			"reason": "below_min_size",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
@@ -474,7 +738,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1670/@VBoxContainer@1664/@HBoxContainer@1665/@VBoxContainer@1666/@Label@1667",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2151/@VBoxContainer@2145/@HBoxContainer@2146/@VBoxContainer@2147/@Label@2148",
 			"reason": "below_min_size",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
@@ -482,31 +746,15 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1670/@VBoxContainer@1664/@HBoxContainer@1665/@VBoxContainer@1666/@Label@1668",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2151/@VBoxContainer@2145/@HBoxContainer@2146/@VBoxContainer@2147/@Label@2149",
 			"reason": "overflow_parent",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
 			"text": "Petrify"
 		},
 		{
-			"kind": "Control",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1703/@MarginContainer@1682/@VBoxContainer@1683/FitLabelBox",
-			"reason": "overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1703/@TextureRect@1702",
-			"screen": "03_gargoyle_shatter",
-			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
-			"text": "Longbow"
-		},
-		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1703/@MarginContainer@1682/@VBoxContainer@1683/@Control@1686/@Label@1689",
-			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1703/@TextureRect@1702",
-			"screen": "03_gargoyle_shatter",
-			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
-			"text": "4"
-		},
-		{
-			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1725/@MarginContainer@1704/@VBoxContainer@1705/@Control@1708/@Label@1711",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2183/@MarginContainer@2163/@VBoxContainer@2164/@Control@2167/@Label@2170",
 			"reason": "overflow_parent",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
@@ -514,7 +762,15 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1976/@Label@1972",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2204/@MarginContainer@2184/@VBoxContainer@2185/@Control@2188/@Label@2191",
+			"reason": "overflow_parent",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2444/@Label@2440",
 			"reason": "below_min_size",
 			"screen": "04_hydra_beams",
 			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
@@ -522,7 +778,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1976/@RichTextLabel@1975",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2444/@RichTextLabel@2443",
 			"reason": "below_min_size",
 			"screen": "04_hydra_beams",
 			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
@@ -530,7 +786,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1980/@RichTextLabel@1979",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2448/@RichTextLabel@2447",
 			"reason": "below_min_size",
 			"screen": "04_hydra_beams",
 			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
@@ -538,7 +794,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1984/@RichTextLabel@1983",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2452/@RichTextLabel@2451",
 			"reason": "below_min_size",
 			"screen": "04_hydra_beams",
 			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
@@ -546,7 +802,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1988/@RichTextLabel@1987",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2456/@RichTextLabel@2455",
 			"reason": "below_min_size",
 			"screen": "04_hydra_beams",
 			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
@@ -554,7 +810,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1900/@MarginContainer@1879/@VBoxContainer@1880/@Control@1883/@Label@1886",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2372/@MarginContainer@2352/@VBoxContainer@2353/@Control@2356/@Label@2359",
 			"reason": "overflow_parent",
 			"screen": "04_hydra_beams",
 			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
@@ -562,7 +818,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1966/@MarginContainer@1945/@VBoxContainer@1946/@Control@1949/@Label@1952",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2393/@MarginContainer@2373/@VBoxContainer@2374/@Control@2377/@Label@2380",
 			"reason": "overflow_parent",
 			"screen": "04_hydra_beams",
 			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
@@ -570,7 +826,15 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2350/@Label@2346",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2414/@MarginContainer@2394/@VBoxContainer@2395/@Control@2398/@Label@2401",
+			"reason": "overflow_parent",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2807/@Label@2803",
 			"reason": "below_min_size",
 			"screen": "05_basilisk_pips",
 			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
@@ -578,7 +842,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2350/@RichTextLabel@2349",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2807/@RichTextLabel@2806",
 			"reason": "below_min_size",
 			"screen": "05_basilisk_pips",
 			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
@@ -586,7 +850,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2354/@RichTextLabel@2353",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2811/@RichTextLabel@2810",
 			"reason": "below_min_size",
 			"screen": "05_basilisk_pips",
 			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
@@ -594,7 +858,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2358/@RichTextLabel@2357",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2815/@RichTextLabel@2814",
 			"reason": "below_min_size",
 			"screen": "05_basilisk_pips",
 			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
@@ -602,7 +866,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2362/@RichTextLabel@2361",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2819/@RichTextLabel@2818",
 			"reason": "below_min_size",
 			"screen": "05_basilisk_pips",
 			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
@@ -610,7 +874,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2378/@Label@2374",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2835/@Label@2831",
 			"reason": "below_min_size",
 			"screen": "05_basilisk_pips",
 			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
@@ -618,7 +882,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2378/@RichTextLabel@2377",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2835/@RichTextLabel@2834",
 			"reason": "below_min_size",
 			"screen": "05_basilisk_pips",
 			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
@@ -626,47 +890,23 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2274/@MarginContainer@2253/@VBoxContainer@2254/@Control@2257/@Label@2260",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2735/@MarginContainer@2715/@VBoxContainer@2716/@Control@2719/@Label@2722",
 			"reason": "overflow_parent",
 			"screen": "05_basilisk_pips",
 			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
 			"text": "4"
 		},
 		{
-			"kind": "Control",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2296/@MarginContainer@2275/@VBoxContainer@2276/FitLabelBox",
-			"reason": "overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2296/@TextureRect@2295",
-			"screen": "05_basilisk_pips",
-			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
-			"text": "Net"
-		},
-		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2296/@MarginContainer@2275/@VBoxContainer@2276/@Control@2279/@Label@2282",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2798/@MarginContainer@2778/@VBoxContainer@2779/@Control@2782/@Label@2785",
 			"reason": "overflow_parent",
 			"screen": "05_basilisk_pips",
 			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
-			"text": "3"
-		},
-		{
-			"kind": "Control",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2340/@MarginContainer@2319/@VBoxContainer@2320/FitLabelBox",
-			"reason": "overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2340/@TextureRect@2339",
-			"screen": "05_basilisk_pips",
-			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
-			"text": "Longbow"
+			"text": "4"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2340/@MarginContainer@2319/@VBoxContainer@2320/@Control@2323/@Label@2326",
-			"reason": "overflow_parent",
-			"screen": "05_basilisk_pips",
-			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
-			"text": "3"
-		},
-		{
-			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2714/@Label@2710",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3154/@Label@3150",
 			"reason": "below_min_size",
 			"screen": "06_basilisk_tick",
 			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
@@ -674,7 +914,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2714/@RichTextLabel@2713",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3154/@RichTextLabel@3153",
 			"reason": "below_min_size",
 			"screen": "06_basilisk_tick",
 			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
@@ -682,7 +922,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2718/@RichTextLabel@2717",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3158/@RichTextLabel@3157",
 			"reason": "below_min_size",
 			"screen": "06_basilisk_tick",
 			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
@@ -690,7 +930,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2722/@RichTextLabel@2721",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3162/@RichTextLabel@3161",
 			"reason": "below_min_size",
 			"screen": "06_basilisk_tick",
 			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
@@ -698,7 +938,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2726/@RichTextLabel@2725",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3166/@RichTextLabel@3165",
 			"reason": "below_min_size",
 			"screen": "06_basilisk_tick",
 			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
@@ -706,63 +946,47 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2639/@MarginContainer@2618/@VBoxContainer@2619/@Control@2622/@Label@2625",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3242/@MarginContainer@3222/@VBoxContainer@3223/@Control@3226/@Label@3229",
 			"reason": "overflow_parent",
 			"screen": "06_basilisk_tick",
 			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
 			"text": "4"
 		},
 		{
-			"kind": "Control",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2661/@MarginContainer@2640/@VBoxContainer@2641/FitLabelBox",
-			"reason": "overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2661/@TextureRect@2660",
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3263/@MarginContainer@3243/@VBoxContainer@3244/@Control@3247/@Label@3249",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3284/@MarginContainer@3264/@VBoxContainer@3265/@Control@3268/@Label@3271",
 			"screen": "06_basilisk_tick",
 			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
-			"text": "Net"
+			"text": "3"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2661/@MarginContainer@2640/@VBoxContainer@2641/@Control@2644/@Label@2646",
-			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2661/@MarginContainer@2640/@VBoxContainer@2641/@TextureRect@2643",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3263/@MarginContainer@3243/@VBoxContainer@3244/@Control@3247/@Label@3250",
+			"reason": "overflow_parent",
 			"screen": "06_basilisk_tick",
 			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
 			"text": "2"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2661/@MarginContainer@2640/@VBoxContainer@2641/@Control@2644/@Label@2647",
-			"reason": "overflow_parent",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3305/@MarginContainer@3285/@VBoxContainer@3286/@Control@3289/@Label@3291",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3305/@MarginContainer@3285/@VBoxContainer@3286/@TextureRect@3288",
 			"screen": "06_basilisk_tick",
 			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
-			"text": "1"
-		},
-		{
-			"kind": "Control",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2705/@MarginContainer@2684/@VBoxContainer@2685/FitLabelBox",
-			"reason": "overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2705/@TextureRect@2704",
-			"screen": "06_basilisk_tick",
-			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
-			"text": "Longbow"
+			"text": "3"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2705/@MarginContainer@2684/@VBoxContainer@2685/@Control@2688/@Label@2690",
-			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2705/@MarginContainer@2684/@VBoxContainer@2685/@TextureRect@2687",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3305/@MarginContainer@3285/@VBoxContainer@3286/@Control@3289/@Label@3292",
+			"reason": "overflow_parent",
 			"screen": "06_basilisk_tick",
 			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
 			"text": "2"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2705/@MarginContainer@2684/@VBoxContainer@2685/@Control@2688/@Label@2691",
-			"reason": "overflow_parent",
-			"screen": "06_basilisk_tick",
-			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
-			"text": "1"
-		},
-		{
-			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2900/@Label@2896",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@Label@3416",
 			"reason": "below_min_size",
 			"screen": "01_hook_mark",
 			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
@@ -770,7 +994,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2900/@RichTextLabel@2899",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@RichTextLabel@3419",
 			"reason": "below_min_size",
 			"screen": "01_hook_mark",
 			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
@@ -778,7 +1002,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2904/@RichTextLabel@2903",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3424/@RichTextLabel@3423",
 			"reason": "below_min_size",
 			"screen": "01_hook_mark",
 			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
@@ -786,7 +1010,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2908/@RichTextLabel@2907",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3428/@RichTextLabel@3427",
 			"reason": "below_min_size",
 			"screen": "01_hook_mark",
 			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
@@ -794,7 +1018,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2912/@RichTextLabel@2911",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3432/@RichTextLabel@3431",
 			"reason": "below_min_size",
 			"screen": "01_hook_mark",
 			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
@@ -802,7 +1026,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2961/@Label@2957",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@Label@3477",
 			"reason": "below_min_size",
 			"screen": "01_hook_mark",
 			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
@@ -810,7 +1034,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2961/@RichTextLabel@2960",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@RichTextLabel@3480",
 			"reason": "below_min_size",
 			"screen": "01_hook_mark",
 			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
@@ -818,7 +1042,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2893/@MarginContainer@2872/@VBoxContainer@2873/@Control@2876/@Label@2879",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3413/@MarginContainer@3393/@VBoxContainer@3394/@Control@3397/@Label@3400",
 			"reason": "overflow_parent",
 			"screen": "01_hook_mark",
 			"shot": "res://design/visual/anim-qa/grappling-hook/01_hook_mark.png",
@@ -826,7 +1050,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2900/@Label@2896",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@Label@3416",
 			"reason": "below_min_size",
 			"screen": "02_hook_200ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
@@ -834,7 +1058,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2900/@RichTextLabel@2899",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@RichTextLabel@3419",
 			"reason": "below_min_size",
 			"screen": "02_hook_200ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
@@ -842,7 +1066,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2904/@RichTextLabel@2903",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3424/@RichTextLabel@3423",
 			"reason": "below_min_size",
 			"screen": "02_hook_200ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
@@ -850,7 +1074,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2908/@RichTextLabel@2907",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3428/@RichTextLabel@3427",
 			"reason": "below_min_size",
 			"screen": "02_hook_200ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
@@ -858,7 +1082,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2912/@RichTextLabel@2911",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3432/@RichTextLabel@3431",
 			"reason": "below_min_size",
 			"screen": "02_hook_200ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
@@ -866,7 +1090,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2961/@Label@2957",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@Label@3477",
 			"reason": "below_min_size",
 			"screen": "02_hook_200ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
@@ -874,7 +1098,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2961/@RichTextLabel@2960",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@RichTextLabel@3480",
 			"reason": "below_min_size",
 			"screen": "02_hook_200ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
@@ -882,7 +1106,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2893/@MarginContainer@2872/@VBoxContainer@2873/@Control@2876/@Label@2879",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3413/@MarginContainer@3393/@VBoxContainer@3394/@Control@3397/@Label@3400",
 			"reason": "overflow_parent",
 			"screen": "02_hook_200ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/02_hook_200ms.png",
@@ -890,7 +1114,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2900/@Label@2896",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@Label@3416",
 			"reason": "below_min_size",
 			"screen": "03_hook_360ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
@@ -898,7 +1122,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2900/@RichTextLabel@2899",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@RichTextLabel@3419",
 			"reason": "below_min_size",
 			"screen": "03_hook_360ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
@@ -906,7 +1130,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2904/@RichTextLabel@2903",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3424/@RichTextLabel@3423",
 			"reason": "below_min_size",
 			"screen": "03_hook_360ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
@@ -914,7 +1138,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2908/@RichTextLabel@2907",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3428/@RichTextLabel@3427",
 			"reason": "below_min_size",
 			"screen": "03_hook_360ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
@@ -922,7 +1146,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2912/@RichTextLabel@2911",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3432/@RichTextLabel@3431",
 			"reason": "below_min_size",
 			"screen": "03_hook_360ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
@@ -930,7 +1154,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2961/@Label@2957",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@Label@3477",
 			"reason": "below_min_size",
 			"screen": "03_hook_360ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
@@ -938,7 +1162,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2961/@RichTextLabel@2960",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@RichTextLabel@3480",
 			"reason": "below_min_size",
 			"screen": "03_hook_360ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
@@ -946,7 +1170,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2893/@MarginContainer@2872/@VBoxContainer@2873/@Control@2876/@Label@2879",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3413/@MarginContainer@3393/@VBoxContainer@3394/@Control@3397/@Label@3400",
 			"reason": "overflow_parent",
 			"screen": "03_hook_360ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/03_hook_360ms.png",
@@ -954,7 +1178,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2900/@Label@2896",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@Label@3416",
 			"reason": "below_min_size",
 			"screen": "04_hook_600ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
@@ -962,7 +1186,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2900/@RichTextLabel@2899",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@RichTextLabel@3419",
 			"reason": "below_min_size",
 			"screen": "04_hook_600ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
@@ -970,7 +1194,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2904/@RichTextLabel@2903",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3424/@RichTextLabel@3423",
 			"reason": "below_min_size",
 			"screen": "04_hook_600ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
@@ -978,7 +1202,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2908/@RichTextLabel@2907",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3428/@RichTextLabel@3427",
 			"reason": "below_min_size",
 			"screen": "04_hook_600ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
@@ -986,7 +1210,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2912/@RichTextLabel@2911",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3432/@RichTextLabel@3431",
 			"reason": "below_min_size",
 			"screen": "04_hook_600ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
@@ -994,7 +1218,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2961/@Label@2957",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@Label@3477",
 			"reason": "below_min_size",
 			"screen": "04_hook_600ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
@@ -1002,23 +1226,55 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2961/@RichTextLabel@2960",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@RichTextLabel@3480",
 			"reason": "below_min_size",
 			"screen": "04_hook_600ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
 			"text": "pick a neighbor"
 		},
 		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3496/@RichTextLabel@3495",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "items this combat 1"
+		},
+		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2893/@MarginContainer@2872/@VBoxContainer@2873/@Control@2876/@Label@2879",
-			"reason": "overflow_parent",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3501/@Label@3497",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3501/@RichTextLabel@3500",
+			"reason": "below_min_size",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "hook Ogre"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3413/@MarginContainer@3393/@VBoxContainer@3394/FitLabelBox",
+			"reason": "overlap:/root/@PanelContainer@3392/@MarginContainer@3372/@VBoxContainer@3373/@TextureRect@3375",
+			"screen": "04_hook_600ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
+			"text": "Shield"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3413/@MarginContainer@3393/@VBoxContainer@3394/@Control@3397/@Label@3400",
+			"reason": "overflow_parent, overlap:/root/@PanelContainer@3392/@MarginContainer@3372/@VBoxContainer@3373/@Control@3376/@TextureRect@3377",
 			"screen": "04_hook_600ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/04_hook_600ms.png",
 			"text": "4"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2900/@Label@2896",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@Label@3416",
 			"reason": "below_min_size",
 			"screen": "05_hook_1100ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
@@ -1026,7 +1282,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2900/@RichTextLabel@2899",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3420/@RichTextLabel@3419",
 			"reason": "below_min_size",
 			"screen": "05_hook_1100ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
@@ -1034,7 +1290,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2904/@RichTextLabel@2903",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3424/@RichTextLabel@3423",
 			"reason": "below_min_size",
 			"screen": "05_hook_1100ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
@@ -1042,7 +1298,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2908/@RichTextLabel@2907",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3428/@RichTextLabel@3427",
 			"reason": "below_min_size",
 			"screen": "05_hook_1100ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
@@ -1050,7 +1306,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2912/@RichTextLabel@2911",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3432/@RichTextLabel@3431",
 			"reason": "below_min_size",
 			"screen": "05_hook_1100ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
@@ -1058,7 +1314,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2961/@Label@2957",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@Label@3477",
 			"reason": "below_min_size",
 			"screen": "05_hook_1100ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
@@ -1066,95 +1322,167 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2961/@RichTextLabel@2960",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3481/@RichTextLabel@3480",
 			"reason": "below_min_size",
 			"screen": "05_hook_1100ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
 			"text": "pick a neighbor"
 		},
 		{
-			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@2978/@VBoxContainer@2973/@HBoxContainer@2974/@PanelContainer@2976/@Label@2975",
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3496/@RichTextLabel@3495",
 			"reason": "below_min_size",
 			"screen": "05_hook_1100ms",
 			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3501/@Label@3497",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3501/@RichTextLabel@3500",
+			"reason": "below_min_size",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "hook Ogre"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3533/@MarginContainer@3513/@VBoxContainer@3514/@Control@3517/@Label@3520",
+			"reason": "overflow_parent",
+			"screen": "05_hook_1100ms",
+			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3632/@Label@3628",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3632/@RichTextLabel@3631",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3636/@RichTextLabel@3635",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "enemy ATK 3   HP 2"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3640/@RichTextLabel@3639",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3644/@RichTextLabel@3643",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3694/@VBoxContainer@3689/@HBoxContainer@3690/@PanelContainer@3692/@Label@3691",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
 			"text": "Grappling Hook"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2893/@MarginContainer@2872/@VBoxContainer@2873/@Control@2876/@Label@2879",
-			"reason": "overflow_parent",
-			"screen": "05_hook_1100ms",
-			"shot": "res://design/visual/anim-qa/grappling-hook/05_hook_1100ms.png",
-			"text": "4"
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3694/@VBoxContainer@3689/@VBoxContainer@3693/@HBoxContainer@3711/@Label@3706",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": ">"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3081/@Label@3077",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3694/@VBoxContainer@3689/@VBoxContainer@3693/@HBoxContainer@3711/@Label@3707",
 			"reason": "below_min_size",
-			"screen": "01_commander_threads",
-			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
-			"text": "Spin"
-		},
-		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3081/@RichTextLabel@3080",
-			"reason": "below_min_size",
-			"screen": "01_commander_threads",
-			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
-			"text": "Commander"
-		},
-		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3085/@RichTextLabel@3084",
-			"reason": "below_min_size",
-			"screen": "01_commander_threads",
-			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
-			"text": "enemy ATK 3   HP 4"
-		},
-		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3089/@RichTextLabel@3088",
-			"reason": "below_min_size",
-			"screen": "01_commander_threads",
-			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
-			"text": "BLK 0"
-		},
-		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3093/@RichTextLabel@3092",
-			"reason": "below_min_size",
-			"screen": "01_commander_threads",
-			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
-			"text": "items this combat 0"
-		},
-		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3141/@RichTextLabel@3140",
-			"reason": "below_min_size",
-			"screen": "01_commander_threads",
-			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
-			"text": "items this combat 1"
-		},
-		{
-			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3146/@Label@3142",
-			"reason": "below_min_size",
-			"screen": "01_commander_threads",
-			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
 			"text": "Used"
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3146/@RichTextLabel@3145",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3694/@VBoxContainer@3689/@VBoxContainer@3693/@HBoxContainer@3711/@RichTextLabel@3710",
+			"reason": "below_min_size",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "pick a neighbor"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3624/@MarginContainer@3604/@VBoxContainer@3605/@Control@3608/@Label@3611",
+			"reason": "overflow_parent",
+			"screen": "06_six_seats",
+			"shot": "res://design/visual/anim-qa/grappling-hook/06_six_seats.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@Label@3816",
 			"reason": "below_min_size",
 			"screen": "01_commander_threads",
 			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
-			"text": "hook Commander"
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@RichTextLabel@3819",
+			"reason": "below_min_size",
+			"screen": "01_commander_threads",
+			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
+			"text": "Commander"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3824/@RichTextLabel@3823",
+			"reason": "below_min_size",
+			"screen": "01_commander_threads",
+			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
+			"text": "enemy ATK 3   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3828/@RichTextLabel@3827",
+			"reason": "below_min_size",
+			"screen": "01_commander_threads",
+			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3832/@RichTextLabel@3831",
+			"reason": "below_min_size",
+			"screen": "01_commander_threads",
+			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
+			"text": "items this combat 0"
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3073/@MarginContainer@3052/@VBoxContainer@3053/@Control@3056/@Label@3059",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3813/@MarginContainer@3793/@VBoxContainer@3794/@Control@3797/@Label@3800",
 			"reason": "overflow_parent",
 			"screen": "01_commander_threads",
 			"shot": "res://design/visual/anim-qa/aura-threads/01_commander_threads.png",
@@ -1162,7 +1490,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3081/@Label@3077",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@Label@3816",
 			"reason": "below_min_size",
 			"screen": "02_snap",
 			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
@@ -1170,7 +1498,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3081/@RichTextLabel@3080",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@RichTextLabel@3819",
 			"reason": "below_min_size",
 			"screen": "02_snap",
 			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
@@ -1178,7 +1506,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3085/@RichTextLabel@3084",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3824/@RichTextLabel@3823",
 			"reason": "below_min_size",
 			"screen": "02_snap",
 			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
@@ -1186,7 +1514,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3089/@RichTextLabel@3088",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3828/@RichTextLabel@3827",
 			"reason": "below_min_size",
 			"screen": "02_snap",
 			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
@@ -1194,39 +1522,15 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3093/@RichTextLabel@3092",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3832/@RichTextLabel@3831",
 			"reason": "below_min_size",
 			"screen": "02_snap",
 			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
 			"text": "items this combat 0"
 		},
 		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3141/@RichTextLabel@3140",
-			"reason": "below_min_size",
-			"screen": "02_snap",
-			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
-			"text": "items this combat 1"
-		},
-		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3146/@Label@3142",
-			"reason": "below_min_size",
-			"screen": "02_snap",
-			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
-			"text": "Used"
-		},
-		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3146/@RichTextLabel@3145",
-			"reason": "below_min_size",
-			"screen": "02_snap",
-			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
-			"text": "hook Commander"
-		},
-		{
-			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3201/@MarginContainer@3180/@VBoxContainer@3181/@Control@3184/@Label@3187",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3813/@MarginContainer@3793/@VBoxContainer@3794/@Control@3797/@Label@3800",
 			"reason": "overflow_parent",
 			"screen": "02_snap",
 			"shot": "res://design/visual/anim-qa/aura-threads/02_snap.png",
@@ -1234,7 +1538,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3081/@Label@3077",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@Label@3816",
 			"reason": "below_min_size",
 			"screen": "03_retie",
 			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
@@ -1242,7 +1546,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3081/@RichTextLabel@3080",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3820/@RichTextLabel@3819",
 			"reason": "below_min_size",
 			"screen": "03_retie",
 			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
@@ -1250,7 +1554,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3085/@RichTextLabel@3084",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3824/@RichTextLabel@3823",
 			"reason": "below_min_size",
 			"screen": "03_retie",
 			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
@@ -1258,7 +1562,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3089/@RichTextLabel@3088",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3828/@RichTextLabel@3827",
 			"reason": "below_min_size",
 			"screen": "03_retie",
 			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
@@ -1266,39 +1570,15 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3093/@RichTextLabel@3092",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3832/@RichTextLabel@3831",
 			"reason": "below_min_size",
 			"screen": "03_retie",
 			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
 			"text": "items this combat 0"
 		},
 		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3141/@RichTextLabel@3140",
-			"reason": "below_min_size",
-			"screen": "03_retie",
-			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
-			"text": "items this combat 1"
-		},
-		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3146/@Label@3142",
-			"reason": "below_min_size",
-			"screen": "03_retie",
-			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
-			"text": "Used"
-		},
-		{
-			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3146/@RichTextLabel@3145",
-			"reason": "below_min_size",
-			"screen": "03_retie",
-			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
-			"text": "hook Commander"
-		},
-		{
-			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3201/@MarginContainer@3180/@VBoxContainer@3181/@Control@3184/@Label@3187",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3813/@MarginContainer@3793/@VBoxContainer@3794/@Control@3797/@Label@3800",
 			"reason": "overflow_parent",
 			"screen": "03_retie",
 			"shot": "res://design/visual/anim-qa/aura-threads/03_retie.png",
@@ -1306,7 +1586,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3268/@Label@3264",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3930/@Label@3926",
 			"reason": "below_min_size",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
@@ -1314,7 +1594,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3268/@RichTextLabel@3267",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3930/@RichTextLabel@3929",
 			"reason": "below_min_size",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
@@ -1322,7 +1602,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3272/@RichTextLabel@3271",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3934/@RichTextLabel@3933",
 			"reason": "below_min_size",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
@@ -1330,7 +1610,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3276/@RichTextLabel@3275",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3938/@RichTextLabel@3937",
 			"reason": "below_min_size",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
@@ -1338,7 +1618,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3280/@RichTextLabel@3279",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3942/@RichTextLabel@3941",
 			"reason": "below_min_size",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
@@ -1346,7 +1626,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3330/@VBoxContainer@3325/@HBoxContainer@3326/@PanelContainer@3328/@Label@3327",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@HBoxContainer@3988/@PanelContainer@3990/@Label@3989",
 			"reason": "below_min_size",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
@@ -1354,7 +1634,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3330/@VBoxContainer@3325/@VBoxContainer@3329/@HBoxContainer@3336/@Label@3331",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@VBoxContainer@3991/@HBoxContainer@3998/@Label@3993",
 			"reason": "below_min_size",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
@@ -1362,7 +1642,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3330/@VBoxContainer@3325/@VBoxContainer@3329/@HBoxContainer@3336/@Label@3332",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@VBoxContainer@3991/@HBoxContainer@3998/@Label@3994",
 			"reason": "below_min_size",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
@@ -1370,7 +1650,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3330/@VBoxContainer@3325/@VBoxContainer@3329/@HBoxContainer@3336/@RichTextLabel@3335",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@VBoxContainer@3991/@HBoxContainer@3998/@RichTextLabel@3997",
 			"reason": "below_min_size",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
@@ -1378,7 +1658,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3330/@VBoxContainer@3325/@VBoxContainer@3329/@HBoxContainer@3341/@Label@3337",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@VBoxContainer@3991/@HBoxContainer@4003/@Label@3999",
 			"reason": "below_min_size",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
@@ -1386,7 +1666,7 @@
 		},
 		{
 			"kind": "RichTextLabel",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3330/@VBoxContainer@3325/@VBoxContainer@3329/@HBoxContainer@3341/@RichTextLabel@3340",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@3992/@VBoxContainer@3987/@VBoxContainer@3991/@HBoxContainer@4003/@RichTextLabel@4002",
 			"reason": "below_min_size",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
@@ -1395,11 +1675,51 @@
 		{
 			"kind": "Button",
 			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@25/@HBoxContainer@26/@HBoxContainer@28/@Button@36",
-			"reason": "overlap:/root/@PanelContainer@3262/@MarginContainer@3241/@VBoxContainer@3242/@Control@3245/@TextureRect@3246",
+			"reason": "overlap:/root/@PanelContainer@3924/@MarginContainer@3904/@VBoxContainer@3905/@Control@3908/@TextureRect@3909",
 			"screen": "04_quiet_grey",
 			"shot": "res://design/visual/anim-qa/aura-threads/04_quiet_grey.png",
 			"text": "Take 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@4065/@Label@4061",
+			"reason": "below_min_size",
+			"screen": "05_six_seats",
+			"shot": "res://design/visual/anim-qa/aura-threads/05_six_seats.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@4065/@RichTextLabel@4064",
+			"reason": "below_min_size",
+			"screen": "05_six_seats",
+			"shot": "res://design/visual/anim-qa/aura-threads/05_six_seats.png",
+			"text": "Commander"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@4069/@RichTextLabel@4068",
+			"reason": "below_min_size",
+			"screen": "05_six_seats",
+			"shot": "res://design/visual/anim-qa/aura-threads/05_six_seats.png",
+			"text": "enemy ATK 3   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@4073/@RichTextLabel@4072",
+			"reason": "below_min_size",
+			"screen": "05_six_seats",
+			"shot": "res://design/visual/anim-qa/aura-threads/05_six_seats.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@4077/@RichTextLabel@4076",
+			"reason": "below_min_size",
+			"screen": "05_six_seats",
+			"shot": "res://design/visual/anim-qa/aura-threads/05_six_seats.png",
+			"text": "items this combat 0"
 		}
 	],
-	"updated": "2026-10-21T01:40:33"
+	"updated": "2026-10-21T02:22:54"
 }

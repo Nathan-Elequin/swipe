@@ -64,12 +64,19 @@ var _petrify_spins: int = 0
 var _petrify_creep: float = 0.0:
 	set(v):
 		_petrify_creep = v
-		if material is ShaderMaterial:
-			(material as ShaderMaterial).set_shader_parameter("creep", _petrify_creep)
+		_apply_petrify_creep_uniform()
 		queue_redraw()
 var _shatter: AnimatedSprite2D
 var _petrify_mat: ShaderMaterial
 var _pip_flash: float = 0.0
+
+
+func _apply_petrify_creep_uniform() -> void:
+	# Shader lives on the icon TextureRect so TEXTURE is the item art, not the panel.
+	if _icon != null and _icon.material is ShaderMaterial:
+		(_icon.material as ShaderMaterial).set_shader_parameter("creep", _petrify_creep)
+	elif material is ShaderMaterial:
+		(material as ShaderMaterial).set_shader_parameter("creep", _petrify_creep)
 
 
 func setup(
@@ -421,6 +428,9 @@ func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: 
 	if not on:
 		_stone.visible = false
 		material = null
+		if _icon != null:
+			_icon.material = null
+			_icon.modulate = Color.WHITE
 		_petrify_creep = 0.0
 		if not _petrify_dummy:
 			modulate = Color.WHITE
@@ -430,6 +440,8 @@ func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: 
 	if dummy:
 		# Bushido dummy overlay — static stone, no creep/shatter.
 		material = null
+		if _icon != null:
+			_icon.material = null
 		_stone.visible = true
 		_stone.modulate = Color(0.82, 0.78, 0.70, 0.55)
 		modulate = Color.WHITE
@@ -437,30 +449,36 @@ func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: 
 		_sync_lock_shade()
 		queue_redraw()
 		return
-	_stone.modulate = Color(0.82, 0.78, 0.70, 0.78)
+	# Real petrify: creep shader on the icon; stone TextureRect only over the icon.
+	_stone.visible = false
+	material = null
 	if animate:
-		_stone.visible = false
-		material = _petrify_mat
+		if _icon != null and _petrify_mat != null:
+			_icon.material = _petrify_mat
 		_petrify_creep = 0.0
 		modulate = Color.WHITE
+		if _icon != null:
+			_icon.modulate = Color.WHITE
 		var tw := create_tween()
 		tw.set_trans(Tween.TRANS_SINE)
 		tw.set_ease(Tween.EASE_IN_OUT)
 		tw.tween_property(self, "_petrify_creep", 1.0, 0.36)
 		tw.parallel().tween_property(self, "modulate", Color(0.58, 0.56, 0.52, 1.0), 0.36)
-		tw.finished.connect(func() -> void:
-			_stone.visible = true
-			material = null
-			_sync_lock_shade()
-			queue_redraw()
-		, CONNECT_ONE_SHOT)
+		await tw.finished
+		_petrify_creep = 1.0
+		# Keep stone TextureRect hidden for real petrify — the PNG's dither reads as a
+		# transparency checker when stretched over the icon. Shader holds the final look.
+		_stone.visible = false
+		_sync_lock_shade()
+		queue_redraw()
 	else:
-		_stone.visible = true
-		material = null
+		if _icon != null and _petrify_mat != null:
+			_icon.material = _petrify_mat
 		_petrify_creep = 1.0
 		modulate = Color(0.58, 0.56, 0.52, 1.0)
-	_sync_lock_shade()
-	queue_redraw()
+		_stone.visible = false
+		_sync_lock_shade()
+		queue_redraw()
 
 
 func petrify_tick(spins_left: int) -> void:
@@ -492,6 +510,8 @@ func petrify_shatter() -> void:
 	_ensure_shatter()
 	_stone.visible = false
 	material = null
+	if _icon != null:
+		_icon.material = null
 	_shatter.visible = true
 	_shatter.position = size * 0.5
 	if _shatter.sprite_frames != null and _shatter.sprite_frames.get_frame_count("shatter") > 0:
@@ -501,6 +521,8 @@ func petrify_shatter() -> void:
 	fall.parallel().tween_property(_shatter, "modulate:a", 0.0, 0.25)
 	var fade := create_tween()
 	fade.tween_property(self, "modulate", Color.WHITE, 0.15)
+	if _icon != null:
+		fade.parallel().tween_property(_icon, "modulate", Color.WHITE, 0.15)
 	await fall.finished
 	_shatter.visible = false
 	_shatter.modulate.a = 1.0
@@ -514,14 +536,20 @@ func _ensure_stone() -> void:
 	if _stone != null:
 		return
 	_stone = TextureRect.new()
+	_stone.name = "PetrifyStone"
 	_stone.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Cover the icon only — full-card stretch read as a checker + white number strip.
 	_stone.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_stone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_stone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_stone.stretch_mode = TextureRect.STRETCH_SCALE
 	_stone.texture_filter = TEXTURE_FILTER_NEAREST
 	_stone.texture = load("res://assets/dungeon/ui/petrify_stone.png") as Texture2D
 	_stone.visible = false
-	add_child(_stone)
+	_stone.modulate = Color(0.86, 0.82, 0.74, 0.42)
+	if _icon != null:
+		_icon.add_child(_stone)
+	else:
+		add_child(_stone)
 
 
 func _ensure_petrify_shader() -> void:

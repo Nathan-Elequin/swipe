@@ -11194,37 +11194,57 @@ func _hotbar_card_by_uid(uid: int):
 	return null
 
 
-func _petrify_beam(to_card: Vector2) -> void:
-	var from: Vector2 = Vector2.ZERO
+func _petrify_fx_host() -> Node2D:
+	## Line2D under a Control draws in the wrong space; keep beams on a top-level Node2D.
+	var host := get_node_or_null("PetrifyFxHost") as Node2D
+	if host != null:
+		return host
+	host = Node2D.new()
+	host.name = "PetrifyFxHost"
+	host.top_level = true
+	host.z_index = 40
+	host.z_as_relative = false
+	add_child(host)
+	return host
+
+
+func _petrify_beam_from() -> Vector2:
+	# Prefer the facing wheel portrait so beams read across the fight, not the sidebar stage.
+	if wheel_view != null and facing_index >= 0 and facing_index < wheel.size():
+		return wheel_view.slice_portrait_global(facing_index)
 	if combat_stage != null and combat_stage.visible:
-		from = combat_stage.global_position + combat_stage.size * 0.5
-	elif wheel_view != null and facing_index >= 0:
-		from = wheel_view.slice_portrait_global(facing_index)
-	else:
+		return combat_stage.global_position + combat_stage.size * 0.5
+	return Vector2.ZERO
+
+
+func _petrify_beam(to_card: Vector2, linger: float = 0.22) -> Array:
+	## Returns [beam, core] Line2Ds. linger keeps them visible after hit for QA / read.
+	var from: Vector2 = _petrify_beam_from()
+	if from == Vector2.ZERO:
 		from = to_card + Vector2(0, -80)
+	var host: Node2D = _petrify_fx_host()
 	var beam := Line2D.new()
-	beam.top_level = true
+	beam.name = "PetrifyBeam"
 	beam.z_index = 15
 	beam.width = 6.0
 	beam.default_color = Color("c9b9a8")
 	beam.antialiased = false
 	beam.add_point(from)
 	beam.add_point(from)
-	add_child(beam)
+	host.add_child(beam)
 	var core := Line2D.new()
-	core.top_level = true
+	core.name = "PetrifyBeamCore"
 	core.z_index = 16
-	core.width = 2.0
+	core.width = 2.5
 	core.default_color = Color.WHITE
 	core.add_point(from)
 	core.add_point(from)
-	add_child(core)
-	var tip := {"p": from}
+	host.add_child(core)
+	set_meta("qa_petrify_beams", _count_petrify_beams())
 	var tw := create_tween()
 	tw.tween_method(
 		func(u: float) -> void:
 			var p: Vector2 = from.lerp(to_card, u)
-			tip["p"] = p
 			beam.set_point_position(1, p)
 			core.set_point_position(1, p),
 		0.0,
@@ -11236,15 +11256,32 @@ func _petrify_beam(to_card: Vector2) -> void:
 		var dust := ColorRect.new()
 		dust.color = Color("c9b9a8")
 		dust.size = Vector2(4, 4)
-		dust.top_level = true
+		dust.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		dust.z_index = 17
+		host.add_child(dust)
 		dust.global_position = to_card + Vector2(randf_range(-8, 8), randf_range(-8, 8))
-		add_child(dust)
 		var dt := create_tween()
 		dt.tween_property(dust, "modulate:a", 0.0, 0.12)
 		dt.finished.connect(dust.queue_free, CONNECT_ONE_SHOT)
-	beam.queue_free()
-	core.queue_free()
+	if linger > 0.0:
+		await get_tree().create_timer(linger).timeout
+	if is_instance_valid(beam):
+		beam.queue_free()
+	if is_instance_valid(core):
+		core.queue_free()
+	set_meta("qa_petrify_beams", _count_petrify_beams())
+	return []
+
+
+func _count_petrify_beams() -> int:
+	var host := get_node_or_null("PetrifyFxHost")
+	if host == null:
+		return 0
+	var n: int = 0
+	for c in host.get_children():
+		if str(c.name).begins_with("PetrifyBeam"):
+			n += 1
+	return n
 
 
 func _apply_basilisk_gaze() -> bool:
@@ -11268,13 +11305,13 @@ func _apply_basilisk_gaze() -> bool:
 			targets.append(hotbar[i])
 			cap += 1
 	_log("on_spin", "Petrifying Gaze  %s items" % cap)
-	# Sweep left→right across the hotbar.
+	# Sweep left→right across the hotbar. Creep finishes before the slash so pips read.
 	for it in targets:
 		var dest: Vector2 = _item_card_global(int(it.get("uid", -1)))
-		await _petrify_beam(dest)
+		await _petrify_beam(dest, 0.06)
 		var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
 		if card != null and card.has_method("set_petrified"):
-			card.set_petrified(true, false, 3, true)
+			await card.set_petrified(true, false, 3, true)
 	_refresh()
 	if sfx:
 		sfx.play_event(&"status.petrify")
@@ -11331,10 +11368,11 @@ func _petrify_best_atk() -> void:
 	pick["petrified"] = true
 	_log("on_spin", "petrify %s" % str(pick.get("name", "?")))
 	var dest: Vector2 = _item_card_global(int(pick.get("uid", -1)))
-	await _petrify_beam(dest)
+	# Linger so the harness (and the player) can read the beam before creep.
+	await _petrify_beam(dest, 0.40)
 	var card = _hotbar_card_by_uid(int(pick.get("uid", -1)))
 	if card != null and card.has_method("set_petrified"):
-		card.set_petrified(true, false, 0, true)
+		await card.set_petrified(true, false, 0, true)
 	if facing_index >= 0:
 		await _announce_slice(facing_index, dest)
 	if sfx:
@@ -11397,14 +11435,71 @@ func _hydra_even_killer() -> void:
 	if hits.is_empty():
 		_log("on_spin", "hydra petrify none")
 		return
+	# Keep every beam until the volley ends so Hydra's multi-target read is visible.
+	var host: Node2D = _petrify_fx_host()
+	var kept: Array = []
+	var from: Vector2 = _petrify_beam_from()
 	for it in hits:
 		it["petrified"] = true
 		var dest: Vector2 = _item_card_global(int(it.get("uid", -1)))
-		await _petrify_beam(dest)
+		if from == Vector2.ZERO:
+			from = dest + Vector2(0, -80)
+		var beam := Line2D.new()
+		beam.name = "PetrifyBeam"
+		beam.z_index = 15
+		beam.width = 6.0
+		beam.default_color = Color("c9b9a8")
+		beam.antialiased = false
+		beam.add_point(from)
+		beam.add_point(from)
+		host.add_child(beam)
+		var core := Line2D.new()
+		core.name = "PetrifyBeamCore"
+		core.z_index = 16
+		core.width = 2.5
+		core.default_color = Color.WHITE
+		core.add_point(from)
+		core.add_point(from)
+		host.add_child(core)
+		kept.append(beam)
+		kept.append(core)
+		set_meta("qa_petrify_beams", _count_petrify_beams())
+		var tw := create_tween()
+		tw.tween_method(
+			func(u: float) -> void:
+				var p: Vector2 = from.lerp(dest, u)
+				beam.set_point_position(1, p)
+				core.set_point_position(1, p),
+			0.0,
+			1.0,
+			0.16
+		)
+		await tw.finished
+		for di in 3:
+			var dust := ColorRect.new()
+			dust.color = Color("c9b9a8")
+			dust.size = Vector2(4, 4)
+			dust.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			dust.z_index = 17
+			host.add_child(dust)
+			dust.global_position = dest + Vector2(randf_range(-8, 8), randf_range(-8, 8))
+			var dt := create_tween()
+			dt.tween_property(dust, "modulate:a", 0.0, 0.12)
+			dt.finished.connect(dust.queue_free, CONNECT_ONE_SHOT)
 		var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
 		if card != null and card.has_method("set_petrified"):
-			card.set_petrified(true, false, 0, true)
+			await card.set_petrified(true, false, 0, true)
 		await get_tree().create_timer(0.12).timeout
+	set_meta("qa_hydra_beams_ready", true)
+	set_meta("qa_petrify_beams", _count_petrify_beams())
+	# Hold the full fan so QA / the player can see every beam together.
+	await get_tree().create_timer(0.55).timeout
+	for n in kept:
+		if is_instance_valid(n):
+			n.queue_free()
+	if has_meta("qa_hydra_beams_ready"):
+		remove_meta("qa_hydra_beams_ready")
+	set_meta("qa_petrify_beams", 0)
 	var gain: int = 2 * hits.size()
 	wheel[facing_index]["hydra_bonus"] = int(wheel[facing_index].get("hydra_bonus", 0)) + gain
 	wheel[facing_index]["atk"] = _card_base_atk("hydra") + int(wheel[facing_index].get("hydra_bonus", 0))
@@ -12373,7 +12468,10 @@ func _apply_mark(index: int) -> void:
 		_undo_abort()
 		call_deferred("_refresh")
 		return
-	await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos())
+	# Hook FX must play before the item banner — otherwise the rope is buried under the slash.
+	var defer_announce: bool = kind == "hook_swap"
+	if not defer_announce:
+		await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos())
 	var token: int = _undo_gen
 	if kind == "defeat_double_hp":
 		await _apply_scythe(index, it, token)
@@ -12427,6 +12525,8 @@ func _apply_mark(index: int) -> void:
 				gained_card.play_transform()
 		if sfx:
 			sfx.play_event(&"util.hook")
+		# Banner after the rope/draw so timed QA shots catch throw → swap → courier.
+		await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos())
 		await _after_item_resolved(it)
 		await _bleed_end()
 		if _undo_stale(token):

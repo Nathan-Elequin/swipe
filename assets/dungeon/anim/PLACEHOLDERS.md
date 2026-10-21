@@ -2,9 +2,9 @@
 
 Import: Filter Nearest, mipmaps off, Lossless.
 
-## Grappling Hook (pass 4) — placeholders
+## Grappling Hook (pass 4) — final PixelLab art
 
-Flat magenta fill + 1px `#100e0c` outline. PixelLab overwrites the same paths.
+Overwrite landed at the same paths as the old placeholders.
 
 | File | Native | Frames | Notes |
 |---|---|---|---|

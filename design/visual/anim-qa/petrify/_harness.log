@@ -1,1 +1,4 @@
 exit 1
+exit 1
+hydra beams=2 ready=true
+hydra beams=2 ready=true

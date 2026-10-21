@@ -466,19 +466,21 @@ func _draw_hub_poison_badge(font: Font, dim: float) -> void:
 	var bob: float = 0.0 if hub_poison_locked else (2.0 * sin(_glow_t * 4.0))
 	anchor.y += bob
 	var sz := Vector2(48, 48)
-	var col := Color("7dba7d", dim)
+	# PixelLab drip/burst art already has its purple ramp — draw unmodulated.
+	var art_col := Color(1, 1, 1, dim)
+	var legacy_col := Color("7dba7d", dim)
 	var drip_tex: Texture2D = null
 	if not hub_poison_locked and not _poison_drip.is_empty():
 		var fi: int = int(floor(_glow_t / 0.15)) % _poison_drip.size()
 		drip_tex = _poison_drip[fi]
 	if drip_tex != null:
-		draw_texture_rect(drip_tex, Rect2(anchor - sz * 0.5, sz), false, col)
+		draw_texture_rect(drip_tex, Rect2(anchor - sz * 0.5, sz), false, art_col)
 	else:
 		var tex: Texture2D = _poison_tex()
 		if tex != null:
-			draw_texture_rect(tex, Rect2(anchor - Vector2(16, 16), Vector2(32, 32)), false, col)
+			draw_texture_rect(tex, Rect2(anchor - Vector2(16, 16), Vector2(32, 32)), false, legacy_col)
 		else:
-			draw_circle(anchor, 10.0, col)
+			draw_circle(anchor, 10.0, legacy_col)
 	_draw_bold_num(font, anchor + Vector2(18, 2), str(hub_poison), 16, Color("d8f0d0", dim))
 	if hub_poison_locked and _poison_lock_tex != null:
 		draw_texture_rect(_poison_lock_tex, Rect2(anchor + Vector2(10, 8), Vector2(12, 12)), false, Color(1, 1, 1, dim))
@@ -1787,16 +1789,13 @@ func _collect_bond_pairs() -> Array:
 		var silenced: bool = bool(s.get("silenced", false))
 		match cid:
 			"commander":
-				if str(s.get("special_id", "")) == "":
-					continue
+				# Still draw when silenced (grey); only skip if the aura was stripped for another reason.
 				for off in [n - 1, 1]:
 					var j: int = (i + off) % n
 					if not _living_neighbor(j):
 						continue
 					out.append(_bond_pair(i, j, "commander", Color("d63a2a"), "sword", false, false, silenced, "atk"))
 			"lich":
-				if str(s.get("special_id", "")) == "":
-					continue
 				for off2 in [n - 1, 1]:
 					var j2: int = (i + off2) % n
 					if not _living_neighbor(j2):
@@ -1953,15 +1952,16 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 			bow = a_pt.lerp(bow, u_draw)
 		_draw_thread(a_pt, bow, b_pt, col, hot, bool(pair.get("dashed", false)), bool(pair.get("dotted", false)))
 		var glyph: String = str(pair.get("glyph", ""))
+		# Glyphs sit on the thread near the bow (never over either portrait).
 		if glyph != "" and u_draw > 0.85:
-			var gu: float = fposmod(_glow_t * 0.6, 1.0)
-			var gp: Vector2 = _quad_bezier(a_pt, bow, b_pt, gu)
+			var gp: Vector2 = _quad_bezier(a_pt, bow, b_pt, 0.48)
 			_draw_aura_glyph(gp, glyph, col)
 		if bool(pair.get("lock", false)) and u_draw > 0.85:
-			_draw_aura_glyph(b_pt + Vector2(10, -8), "lock", col)
+			var lock_p: Vector2 = _quad_bezier(a_pt, bow, b_pt, 0.58) + Vector2(6, -8)
+			_draw_aura_glyph(lock_p, "lock", col)
 		if bool(pair.get("silenced", false)):
 			var lab: String = COPY.text("status.silenced", "Silenced")
-			_draw_outlined_string(font, mid + Vector2(0, -6), lab, 11, Color(0.75, 0.75, 0.75, 0.55), Color("100e0c"))
+			_draw_outlined_string(font, bow + Vector2(0, -10), lab, 11, Color(0.78, 0.78, 0.78, 0.70), Color("100e0c"))
 
 
 func _draw_bond_snap(pair: Dictionary, t: float) -> void:
@@ -2031,9 +2031,11 @@ func _ensure_aura_glyphs() -> void:
 
 func _draw_aura_glyph(pos: Vector2, name: String, col: Color) -> void:
 	var tex: Texture2D = _aura_glyphs.get(name, null)
+	# 8×8 native at 3× = 24px. PixelLab glyphs keep their own colours (unmodulated).
 	var sz := Vector2(24, 24)
 	if tex != null:
-		draw_texture_rect(tex, Rect2(pos - sz * 0.5, sz), false, Color(col.r, col.g, col.b, mini(1.0, col.a + 0.35)))
+		var a: float = clampf(col.a + 0.35, 0.0, 1.0)
+		draw_texture_rect(tex, Rect2(pos - sz * 0.5, sz), false, Color(1, 1, 1, a))
 	else:
 		draw_circle(pos, 4.0, col)
 
@@ -2405,19 +2407,20 @@ func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool, idx:
 		sc *= clear_t
 	var base_sz := Vector2(32, 32) if big else Vector2(28, 28)
 	var sz: Vector2 = base_sz * sc
-	var col := Color("7dba7d")
+	var art_col := Color.WHITE
+	var legacy_col := Color("7dba7d")
 	var drip_tex: Texture2D = null
 	if not locked and not _poison_drip.is_empty():
 		var fi: int = int(floor(_glow_t / 0.15)) % _poison_drip.size()
 		drip_tex = _poison_drip[fi]
 	if drip_tex != null:
-		draw_texture_rect(drip_tex, Rect2(drop_pos - sz * 0.5, sz), false, col)
+		draw_texture_rect(drip_tex, Rect2(drop_pos - sz * 0.5, sz), false, art_col)
 	else:
 		var tex: Texture2D = _poison_tex()
 		if tex != null:
-			draw_texture_rect(tex, Rect2(drop_pos - sz * 0.5, sz * 0.5), false, col)
+			draw_texture_rect(tex, Rect2(drop_pos - sz * 0.5, sz * 0.5), false, legacy_col)
 		else:
-			draw_circle(drop_pos, 5.0 * sc if big else 4.0 * sc, col)
+			draw_circle(drop_pos, 5.0 * sc if big else 4.0 * sc, legacy_col)
 	if n > 0:
 		_draw_bold_num(font, drop_pos + Vector2(12.0 * sc, 1.0), str(n), 14 if big else 12, Color("d8f0d0"))
 	if locked and _poison_lock_tex != null:

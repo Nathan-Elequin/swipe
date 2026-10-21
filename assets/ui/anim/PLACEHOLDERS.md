@@ -27,24 +27,27 @@ Overwrite landed at the same paths as the old placeholders. Loaders still use `r
 | `ticker_token_stamp_f0.png` … `ticker_token_stamp_f3.png` | 12×12 | 4 | Press-down + ink tick |
 | `ticker_ff.png` | 12×8 | 1 | Gold ▶▶ chevrons |
 
-### Poison pop (pass 4) — placeholders
-
-Flat magenta fill + 1px `#100e0c` outline. PixelLab overwrites the same paths.
+### Poison pop (pass 4) — final PixelLab art
 
 | File | Native | Frames | Notes |
 |---|---|---|---|
 | `poison_badge_drip_f0.png` … `f3.png` | 8×8 | 4 | Slice/hub drip loop |
 | `poison_burst_f0.png` … `f3.png` | 24×24 | 4 | Tick burst |
 | `heart_drip_f0.png` … `f3.png` | 12×12 | 4 | Player heart drip |
-| `poison_lock.png` | 6×6 | 1 | Plague Doctor Always padlock |
 
-### Petrify (pass 4) — placeholders
+### Poison pop (pass 4) — still a placeholder
+
+| File | Native | Frames | Notes |
+|---|---|---|---|
+| `poison_lock.png` | 6×6 | 1 | Plague Doctor Always padlock (magenta placeholder until PixelLab) |
+
+### Petrify (pass 4) — final PixelLab art
 
 | File | Native | Frames | Notes |
 |---|---|---|---|
 | `petrify_shatter_f0.png` … `f4.png` | 30×30 | 5 | Stone shatter over card |
 
-### Aura threads (pass 4) — placeholders
+### Aura threads (pass 4) — final PixelLab art
 
 | File | Native | Frames | Notes |
 |---|---|---|---|

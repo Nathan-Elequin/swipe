@@ -202,7 +202,7 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1122/@VBoxContainer@1116/@HBoxContainer@1117/@VBoxContainer@1118/@Label@1119",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1120/@VBoxContainer@1114/@HBoxContainer@1115/@VBoxContainer@1116/@Label@1117",
 			"reason": "below_min_size",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
@@ -210,36 +210,276 @@
 		},
 		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1122/@VBoxContainer@1116/@HBoxContainer@1117/@VBoxContainer@1118/@Label@1120",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1120/@VBoxContainer@1114/@HBoxContainer@1115/@VBoxContainer@1116/@Label@1118",
 			"reason": "overflow_parent",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
 			"text": "Petrify"
 		},
 		{
-			"kind": "Control",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1155/@MarginContainer@1134/@VBoxContainer@1135/FitLabelBox",
-			"reason": "overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1155/@TextureRect@1154",
-			"screen": "03_gargoyle_shatter",
-			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
-			"text": "Longbow"
-		},
-		{
 			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1155/@MarginContainer@1134/@VBoxContainer@1135/@Control@1138/@Label@1141",
-			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1155/@TextureRect@1154",
-			"screen": "03_gargoyle_shatter",
-			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
-			"text": "4"
-		},
-		{
-			"kind": "Label",
-			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1177/@MarginContainer@1156/@VBoxContainer@1157/@Control@1160/@Label@1163",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1153/@MarginContainer@1132/@VBoxContainer@1133/@Control@1136/@Label@1139",
 			"reason": "overflow_parent",
 			"screen": "03_gargoyle_shatter",
 			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
 			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1175/@MarginContainer@1154/@VBoxContainer@1155/@Control@1158/@Label@1161",
+			"reason": "overflow_parent",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1425/@Label@1421",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1425/@RichTextLabel@1424",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "Hydra"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1429/@RichTextLabel@1428",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "enemy ATK 3   HP 5"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1433/@RichTextLabel@1432",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1437/@RichTextLabel@1436",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1466/@Label@1462",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1466/@RichTextLabel@1465",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "hydra petrify 3  +6 ATK  to  9"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1473/@VBoxContainer@1467/@HBoxContainer@1468/@VBoxContainer@1469/@Label@1470",
+			"reason": "below_min_size",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "Hydra"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1473/@VBoxContainer@1467/@HBoxContainer@1468/@VBoxContainer@1469/@Label@1471",
+			"reason": "overflow_parent",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "Even Killer"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1506/@MarginContainer@1485/@VBoxContainer@1486/@Control@1489/@Label@1492",
+			"reason": "overflow_parent",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1528/@MarginContainer@1507/@VBoxContainer@1508/@Control@1511/@Label@1514",
+			"reason": "overflow_parent",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1550/@MarginContainer@1529/@VBoxContainer@1530/@Control@1533/@Label@1536",
+			"reason": "overflow_parent",
+			"screen": "04_hydra_beams",
+			"shot": "res://design/visual/anim-qa/petrify/04_hydra_beams.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1800/@Label@1796",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1800/@RichTextLabel@1799",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "Basilisk"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1804/@RichTextLabel@1803",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "enemy ATK 4   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1808/@RichTextLabel@1807",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1812/@RichTextLabel@1811",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1828/@Label@1824",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1828/@RichTextLabel@1827",
+			"reason": "below_min_size",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "Petrifying Gaze  2 items"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1724/@MarginContainer@1703/@VBoxContainer@1704/@Control@1707/@Label@1710",
+			"reason": "overflow_parent",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1790/@MarginContainer@1769/@VBoxContainer@1770/@Control@1773/@Label@1776",
+			"reason": "overflow_parent",
+			"screen": "05_basilisk_pips",
+			"shot": "res://design/visual/anim-qa/petrify/05_basilisk_pips.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2158/@Label@2154",
+			"reason": "below_min_size",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2158/@RichTextLabel@2157",
+			"reason": "below_min_size",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2162/@RichTextLabel@2161",
+			"reason": "below_min_size",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2166/@RichTextLabel@2165",
+			"reason": "below_min_size",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@2170/@RichTextLabel@2169",
+			"reason": "below_min_size",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2083/@MarginContainer@2062/@VBoxContainer@2063/@Control@2066/@Label@2069",
+			"reason": "overflow_parent",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2105/@MarginContainer@2084/@VBoxContainer@2085/@Control@2088/@Label@2090",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2127/@MarginContainer@2106/@VBoxContainer@2107/@Control@2110/@Label@2113",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2105/@MarginContainer@2084/@VBoxContainer@2085/@Control@2088/@Label@2091",
+			"reason": "overflow_parent",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2149/@MarginContainer@2128/@VBoxContainer@2129/@Control@2132/@Label@2134",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2149/@MarginContainer@2128/@VBoxContainer@2129/@TextureRect@2131",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@2149/@MarginContainer@2128/@VBoxContainer@2129/@Control@2132/@Label@2135",
+			"reason": "overflow_parent",
+			"screen": "06_basilisk_tick",
+			"shot": "res://design/visual/anim-qa/petrify/06_basilisk_tick.png",
+			"text": "2"
 		}
 	],
-	"updated": "2026-10-21T01:44:22"
+	"updated": "2026-10-21T02:09:08"
 }

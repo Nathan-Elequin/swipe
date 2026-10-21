@@ -34,10 +34,13 @@ func setup(main: Node) -> void:
 	_taut_tex = _load_tex(TAUT_PATH)
 	_rope = Line2D.new()
 	_rope.name = "Rope"
-	_rope.width = 8.0
+	_rope.width = 10.0
 	_rope.default_color = Color("c4a574")
 	_rope.texture_mode = Line2D.LINE_TEXTURE_TILE
 	_rope.texture_filter = TEXTURE_FILTER_NEAREST
+	_rope.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	_rope.end_cap_mode = Line2D.LINE_CAP_ROUND
+	_rope.joint_mode = Line2D.LINE_JOINT_ROUND
 	var rope_tex: Texture2D = _load_tex(ROPE_PATH)
 	if rope_tex != null:
 		_rope.texture = rope_tex
@@ -47,7 +50,8 @@ func setup(main: Node) -> void:
 	_head.name = "Head"
 	_head.texture_filter = TEXTURE_FILTER_NEAREST
 	_head.centered = true
-	_head.scale = Vector2(2, 2)
+	_head.scale = Vector2(2.5, 2.5)
+	_head.z_index = 1
 	var frames := SpriteFrames.new()
 	frames.add_animation("throw")
 	frames.set_animation_speed("throw", 25.0)

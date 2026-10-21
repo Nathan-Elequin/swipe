@@ -26,6 +26,9 @@ var _quit_when_done: bool = false
 var _harness_error: String = ""
 var _wanted: Dictionary = {}
 var _shot_fns: Dictionary = {}
+## When a suite function runs, these basenames may be written even if the
+## registry stem collided (e.g. poison-pop/06_six_seats vs grappling-hook/06_six_seats).
+var _suite_files: Dictionary = {}
 var _ping_ok: bool = false
 
 
@@ -1275,7 +1278,7 @@ func _ensure_registry() -> void:
 	], _shot_anim_cascade_ticker)
 	_bind_many([
 		"01_ale_burst", "02_ale_hearts", "03_miasma_drip", "04_miasma_one_burst",
-		"05_poison_ff",
+		"05_poison_ff", "07_plague_lock", "poison_pop_six_seats",
 	], _shot_anim_poison_pop)
 	_bind_many([
 		"01_gargoyle_beam", "02_gargoyle_creep", "03_gargoyle_shatter",
@@ -1283,9 +1286,10 @@ func _ensure_registry() -> void:
 	], _shot_anim_petrify)
 	_bind_many([
 		"01_hook_mark", "02_hook_200ms", "03_hook_360ms", "04_hook_600ms", "05_hook_1100ms",
+		"hook_six_seats",
 	], _shot_anim_grappling_hook)
 	_bind_many([
-		"01_commander_threads", "02_snap", "03_retie", "04_quiet_grey",
+		"01_commander_threads", "02_snap", "03_retie", "04_quiet_grey", "aura_six_seats",
 	], _shot_anim_aura_threads)
 	_bind_many([
 		"60_loft", "61_loft_cat_rub", "62_journal_cover", "63_journal_bestiary",
@@ -1603,10 +1607,37 @@ func _uid_of_item(card_id: String) -> int:
 	return -1
 
 
+func _wait_game(sec: float) -> void:
+	## Wait `sec` of Engine time (tweens/timers), as wall-clock via time_scale.
+	var scale: float = maxf(0.001, Engine.time_scale)
+	await _wait(sec / scale)
+
+
+func _slash_visible() -> bool:
+	return main.ability_slash != null and bool(main.ability_slash.visible)
+
+
+func _petrify_beam_count() -> int:
+	if main != null and main.has_method("_count_petrify_beams"):
+		return int(main._count_petrify_beams())
+	var host = main.get_node_or_null("PetrifyFxHost") if main != null else null
+	if host == null:
+		return 0
+	var n: int = 0
+	for c in host.get_children():
+		if str(c.name).begins_with("PetrifyBeam"):
+			n += 1
+	return n
+
+
 func _shot_anim_poison_pop() -> void:
 	out_dir = "res://design/visual/anim-qa/poison-pop"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	status = "anim-poison-pop"
+	_begin_suite([
+		"01_ale_burst", "02_ale_hearts", "03_miasma_drip", "04_miasma_one_burst",
+		"05_poison_ff", "06_six_seats", "07_plague_lock",
+	])
 	# Ale Flagon needs fighting. Spin once, drink, Spin again so player poison ticks.
 	await _anim_ready_seat(["goblin", "skeleton", "bandit", "ogre"], ["ale_flagon", "shield"], 8, 0, 0)
 	await _anim_spin_face(0)
@@ -1616,9 +1647,9 @@ func _shot_anim_poison_pop() -> void:
 	await _wait(0.10)
 	main.set_meta("qa_spin_idx", 1)
 	main._on_spin()
-	await _wait(0.35)
+	await _wait_game(0.35)
 	await _capture("01_ale_burst.png", "Ale Flagon then Spin: hub poison burst")
-	await _wait(0.30)
+	await _wait_game(0.30)
 	await _capture("02_ale_hearts.png", "Ale Flagon then Spin: hearts dripping / −n fly")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
 	# Miasma: all drip, only facing bursts.
@@ -1633,28 +1664,25 @@ func _shot_anim_poison_pop() -> void:
 		await main._use_item(mid)
 	await _wait(0.20)
 	await _capture("03_miasma_drip.png", "Miasma: drip badges on slices")
-	# After miasma use it may already tick facing; seat fresh poison then spin another seat.
-	if main.phase != "fighting":
-		await _anim_ready_seat(
-			["goblin", "skeleton", "bandit", "ogre"],
-			["miasma"],
-			8, 0, 0
-		)
-		await _anim_spin_face(0)
-		mid = _uid_of_item("miasma")
-		if mid >= 0:
-			# Apply poison without auto-tick by setting slices directly.
-			for i in main.wheel.size():
-				if str(main.wheel[i].get("kind", "")) == "monster":
-					main.wheel[i]["poison"] = 3
-					main.wheel[i]["poisoned"] = true
-			main._refresh()
+	# Fresh poison on every seat, then spin a non-facing seat so only that slice bursts.
+	await _anim_ready_seat(
+		["goblin", "skeleton", "bandit", "ogre"],
+		["miasma"],
+		8, 0, 0
+	)
+	await _anim_spin_face(0)
+	for i in main.wheel.size():
+		if str(main.wheel[i].get("kind", "")) == "monster":
+			main.wheel[i]["poison"] = 3
+			main.wheel[i]["poisoned"] = true
+	main._sync_wheel_stats()
+	main._refresh()
 	main.set_meta("qa_spin_idx", 1)
 	main._on_spin()
-	await _wait(0.40)
+	await _wait_game(0.40)
 	await _capture("04_miasma_one_burst.png", "Miasma: only spun slice bursts")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
-	# Shift ×3 during poison tick.
+	# Shift ×3 during poison tick (2.025 = ANIM_TIME_SCALE * 3).
 	await _anim_ready_seat(["goblin", "skeleton", "bandit", "ogre"], ["ale_flagon"], 8, 0, 0)
 	await _anim_spin_face(0)
 	uid = _uid_of_item("ale_flagon")
@@ -1662,44 +1690,105 @@ func _shot_anim_poison_pop() -> void:
 		await main._use_item(uid)
 	main.set_meta("qa_force_shift", true)
 	main.set_meta("qa_spin_idx", 1)
+	_log_progress("poison_ff_start time_scale=%s want=%s" % [Engine.time_scale, main.ANIM_TIME_SCALE * 3.0])
 	main._on_spin()
-	await _wait(0.15)
-	await _capture("05_poison_ff.png", "Hold Shift: poison tick at ×3")
+	await _until(func() -> bool: return bool(main._walker_busy), 6.0)
+	# Drive the same ×3 the game applies on Shift during a cascade (harness window is often unfocused).
+	Engine.time_scale = main.ANIM_TIME_SCALE * 3.0
+	if main.cascade_ticker != null and main.cascade_ticker.has_method("set_ff"):
+		main.cascade_ticker.set_ff(true)
+	_log_progress("poison_ff_held time_scale=%s" % Engine.time_scale)
+	await _capture("05_poison_ff.png", "Hold Shift: poison tick at ×3 (time_scale≈2.025)")
 	if main.has_meta("qa_force_shift"):
 		main.remove_meta("qa_force_shift")
+	Engine.time_scale = main.ANIM_TIME_SCALE
+	if main.cascade_ticker != null and main.cascade_ticker.has_method("set_ff"):
+		main.cascade_ticker.set_ff(false)
+	_log_progress("poison_ff_release time_scale=%s want=%s" % [Engine.time_scale, main.ANIM_TIME_SCALE])
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
+	_suite_files.clear()
+	# 6-seat wheel: drip badges still land.
+	await _anim_ready_seat(
+		["goblin", "skeleton", "bandit", "ogre", "kobold_trapper", "lich"],
+		["miasma"],
+		8, 0, 6
+	)
+	await _anim_spin_face(0)
+	for i2 in main.wheel.size():
+		if str(main.wheel[i2].get("kind", "")) == "monster":
+			main.wheel[i2]["poison"] = 2
+			main.wheel[i2]["poisoned"] = true
+	main._sync_wheel_stats()
+	main._refresh()
+	await _wait(0.15)
+	_log_progress("poison six_seats wheel=%s" % main.wheel.size())
+	await _capture("06_six_seats.png", "Poison drip badges on a 6-seat wheel")
+	# Plague Doctor Always padlock on neighbour badges.
+	await _anim_ready_seat(
+		["plague_doctor", "goblin", "skeleton", "bandit"],
+		["shield"],
+		8, 0, 0
+	)
+	await _anim_spin_face(0)
+	await _wait(0.25)
+	await _capture("07_plague_lock.png", "Plague Doctor: Always padlock on neighbour poison")
 
 
 func _shot_anim_petrify() -> void:
 	out_dir = "res://design/visual/anim-qa/petrify"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	status = "anim-petrify"
-	# Gargoyle: highest ATK item stones.
+	_begin_suite([
+		"01_gargoyle_beam", "02_gargoyle_creep", "03_gargoyle_shatter",
+		"04_hydra_beams", "05_basilisk_pips", "06_basilisk_tick",
+	])
+	# Gargoyle: capture beam while Line2D lives; creep after beam ends, before slash.
 	await _anim_ready_seat(["gargoyle", "goblin", "skeleton", "bandit"], ["longbow", "shield", "net"], 8, 0, 0)
 	main.set_meta("qa_spin_idx", 0)
 	main._on_spin()
-	await _wait(0.20)
-	await _capture("01_gargoyle_beam.png", "Gargoyle ~200ms: gaze beam")
-	await _wait(0.30)
-	await _capture("02_gargoyle_creep.png", "Gargoyle ~500ms: stone creep")
+	await _until(func() -> bool: return _petrify_beam_count() > 0, 10.0)
+	await _wait_game(0.10)
+	await _capture("01_gargoyle_beam.png", "Gargoyle: gaze beam to highest Attack item")
+	# Creep on card while beam still up or just after; never under the slash cut-in.
+	await _until(func() -> bool:
+		var card = null
+		if main.hotbar_box:
+			for c in main.hotbar_box.get_children():
+				if str(c.get("card_id")) == "longbow":
+					card = c
+					break
+		var creep_on := card != null and float(card.get("_petrify_creep")) >= 0.45
+		return creep_on and not _slash_visible()
+	, 12.0)
+	await _wait(0.05)
+	await _capture("02_gargoyle_creep.png", "Gargoyle: stone creep on card (no slash)")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
 	main.set_meta("qa_spin_idx", 1)
 	main._on_spin()
-	await _wait(0.125)
+	# Shatter plays at the start of the next Spin (_clear_petrify).
+	await _wait_game(0.12)
 	await _capture("03_gargoyle_shatter.png", "Next Spin: petrify shatter")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
-	# Hydra: three even items.
+	# Hydra: three even ATK/BLK items → three beams held together.
 	await _anim_ready_seat(
 		["hydra", "goblin", "skeleton", "bandit"],
-		["shield", "net", "da_boot", "longbow"],
+		["shield", "longbow", "shuriken", "net"],
 		8, 0, 0
 	)
+	if main.has_meta("qa_hydra_beams_ready"):
+		main.remove_meta("qa_hydra_beams_ready")
 	main.set_meta("qa_spin_idx", 0)
 	main._on_spin()
-	await _wait(0.55)
-	await _capture("04_hydra_beams.png", "Hydra: staggered beams on even items")
+	await _until(func() -> bool:
+		return bool(main.get_meta("qa_hydra_beams_ready", false)) or _petrify_beam_count() >= 6
+	, 16.0)
+	await _wait(0.04)
+	_log_progress("hydra beams=%s ready=%s" % [
+		_petrify_beam_count(), main.get_meta("qa_hydra_beams_ready", false)
+	])
+	await _capture("04_hydra_beams.png", "Hydra: three beams to three even items")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
-	# Basilisk: every other card, 3 pips.
+	# Basilisk: every other card, 3 pips — shoot after creep, before slash.
 	await _anim_ready_seat(
 		["basilisk", "goblin", "skeleton", "bandit"],
 		["shield", "net", "da_boot", "longbow"],
@@ -1707,10 +1796,18 @@ func _shot_anim_petrify() -> void:
 	)
 	main.set_meta("qa_spin_idx", 0)
 	main._on_spin()
-	await _wait(0.80)
+	await _until(func() -> bool:
+		var any_pips := false
+		for c in main.hotbar_box.get_children() if main.hotbar_box else []:
+			if int(c.get("_petrify_spins")) >= 3 and float(c.get("_petrify_creep")) >= 0.99:
+				any_pips = true
+				break
+		return any_pips and not _slash_visible()
+	, 18.0)
+	await _wait(0.08)
 	await _capture("05_basilisk_pips.png", "Basilisk: every other card stone with 3 pips")
 	await _until(func() -> bool: return not bool(main._walker_busy), 25.0)
-	# Re-seat basilisk gaze already fled; apply petrify_n manually for countdown shot.
+	# Countdown across Spins: seat petrify_n=3, tick to 2, then show pips→shatter path.
 	await _anim_ready_seat(
 		["goblin", "skeleton", "bandit", "ogre"],
 		["shield", "net", "da_boot", "longbow"],
@@ -1719,18 +1816,27 @@ func _shot_anim_petrify() -> void:
 	await _anim_spin_face(0)
 	for i in main.hotbar.size():
 		if (i + 1) % 2 == 0:
-			main.hotbar[i]["petrify_n"] = 2
+			main.hotbar[i]["petrify_n"] = 3
+			main.hotbar[i]["petrified"] = true
+			var card = main._hotbar_card_by_uid(int(main.hotbar[i].get("uid", -1)))
+			if card != null and card.has_method("set_petrified"):
+				await card.set_petrified(true, false, 3, false)
 	main._refresh()
-	await _wait(0.10)
+	await _wait(0.08)
 	await main._tick_gaze_petrify()
-	await _wait(0.12)
-	await _capture("06_basilisk_tick.png", "Basilisk countdown: pip cracked off")
+	await _wait_game(0.12)
+	await _capture("06_basilisk_tick.png", "Basilisk countdown: pip cracked (3→2)")
+	_suite_files.clear()
 
 
 func _shot_anim_grappling_hook() -> void:
 	out_dir = "res://design/visual/anim-qa/grappling-hook"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	status = "anim-grappling-hook"
+	_begin_suite([
+		"01_hook_mark", "02_hook_200ms", "03_hook_360ms", "04_hook_600ms", "05_hook_1100ms",
+		"06_six_seats",
+	])
 	await _anim_ready_seat(
 		["goblin", "skeleton", "bandit", "ogre"],
 		["grappling_hook", "shield"],
@@ -1741,33 +1847,63 @@ func _shot_anim_grappling_hook() -> void:
 	if uid < 0:
 		_skip("01_hook_mark.png", "grappling_hook missing")
 		return
-	main._use_item(uid)
+	await main._use_item(uid)
 	await _wait(0.20)
 	await _capture("01_hook_mark.png", "Hook mark highlights (cue.mark)")
-	var neighbor: int = 1 if main.wheel.size() > 1 else -1
+	var neighbor: int = -1
+	if main.has_method("_neighbor_indices"):
+		var nbs: Array = main._neighbor_indices()
+		if not nbs.is_empty():
+			neighbor = int(nbs[0])
+	if neighbor < 0 and main.wheel.size() > 1:
+		neighbor = 1
 	if neighbor < 0:
 		_skip("02_hook_200ms.png", "no neighbour")
 		return
-	var t0: int = Time.get_ticks_msec()
+	_log_progress("hook mark neighbor=%s face=%s" % [neighbor, main.facing_index])
 	main._apply_mark(neighbor)
-	await _wait(0.20)
+	await _until(func() -> bool: return main.hook_fx != null and bool(main.hook_fx.visible), 5.0)
+	# Spec marks are game-ms from throw start; convert via Engine.time_scale.
+	await _wait_game(0.20)
 	await _capture("02_hook_200ms.png", "Hook throw ~200ms")
-	var elapsed: float = float(Time.get_ticks_msec() - t0) / 1000.0
-	await _wait(maxf(0.01, 0.36 - elapsed))
+	await _wait_game(0.16)
 	await _capture("03_hook_360ms.png", "Hook taut ~360ms")
-	elapsed = float(Time.get_ticks_msec() - t0) / 1000.0
-	await _wait(maxf(0.01, 0.60 - elapsed))
+	await _wait_game(0.24)
 	await _capture("04_hook_600ms.png", "Hook mid-swap ~600ms")
-	elapsed = float(Time.get_ticks_msec() - t0) / 1000.0
-	await _wait(maxf(0.01, 1.10 - elapsed))
+	await _wait_game(0.50)
 	await _capture("05_hook_1100ms.png", "Hook drawn item arriving ~1100ms")
 	await _until(func() -> bool: return main.pending_mark.is_empty() and not bool(main._walker_busy), 20.0)
+	# 6-seat hook swap still throws.
+	await _anim_ready_seat(
+		["goblin", "skeleton", "bandit", "ogre", "kobold_trapper", "lich"],
+		["grappling_hook", "shield"],
+		8, 0, 6
+	)
+	await _anim_spin_face(0)
+	uid = _uid_of_item("grappling_hook")
+	if uid >= 0:
+		await main._use_item(uid)
+		neighbor = 1
+		if main.has_method("_neighbor_indices"):
+			var nbs2: Array = main._neighbor_indices()
+			if not nbs2.is_empty():
+				neighbor = int(nbs2[0])
+		main._apply_mark(neighbor)
+		await _until(func() -> bool: return main.hook_fx != null and bool(main.hook_fx.visible), 5.0)
+		await _wait_game(0.22)
+	_log_progress("hook six_seats wheel=%s" % main.wheel.size())
+	await _capture("06_six_seats.png", "Grappling Hook throw on a 6-seat wheel")
+	await _until(func() -> bool: return main.pending_mark.is_empty() and not bool(main._walker_busy), 20.0)
+	_suite_files.clear()
 
 
 func _shot_anim_aura_threads() -> void:
 	out_dir = "res://design/visual/anim-qa/aura-threads"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	status = "anim-aura-threads"
+	_begin_suite([
+		"01_commander_threads", "02_snap", "03_retie", "04_quiet_grey", "05_six_seats",
+	])
 	# Commander between Kobold Trapper and Lich.
 	await _anim_ready_seat(
 		["kobold_trapper", "commander", "lich", "goblin"],
@@ -1775,9 +1911,9 @@ func _shot_anim_aura_threads() -> void:
 		8, 0, 0
 	)
 	await _anim_spin_face(1)
-	await _wait(0.20)
-	await _capture("01_commander_threads.png", "Commander red threads + Lich green")
-	# Kill kobold neighbour.
+	await _wait(0.25)
+	await _capture("01_commander_threads.png", "Commander red threads + Lich green; glyphs at ends")
+	# Kill kobold neighbour → collapse → snap → retie.
 	if main.wheel.size() > 0 and str(main.wheel[0].get("card_id", "")) == "kobold_trapper":
 		main.wheel[0]["hp"] = 0
 		main._sync_wheel_stats()
@@ -1790,11 +1926,12 @@ func _shot_anim_aura_threads() -> void:
 		main._sync_wheel_stats()
 		if main.wheel_view:
 			main.wheel_view.set_slices(main.wheel, main.facing_index, "none")
-	await _wait(0.10)
+	# Snap anim is ~180ms; catch it mid-break, then the re-tie.
+	await _wait_game(0.06)
 	await _capture("02_snap.png", "After neighbour dies: thread snap")
-	await _wait(0.30)
+	await _wait_game(0.20)
 	await _capture("03_retie.png", "Threads re-tie to new neighbour")
-	# Quiet Bell greys Commander.
+	# Quiet Bell greys Commander + Silenced on the plate / thread.
 	await _anim_ready_seat(
 		["kobold_trapper", "commander", "lich", "goblin"],
 		["quiet_bell"],
@@ -1806,8 +1943,19 @@ func _shot_anim_aura_threads() -> void:
 		await main._use_item(qid)
 		if not main.pending_mark.is_empty():
 			await main._apply_mark(main.facing_index)
-	await _wait(0.25)
+	await _wait(0.30)
 	await _capture("04_quiet_grey.png", "Quiet Bell: Commander threads grey + Silenced")
+	# 6-seat aura threads.
+	await _anim_ready_seat(
+		["kobold_trapper", "commander", "lich", "goblin", "skeleton", "bandit"],
+		["quiet_bell"],
+		8, 0, 6
+	)
+	await _anim_spin_face(1)
+	await _wait(0.25)
+	_log_progress("aura six_seats wheel=%s" % main.wheel.size())
+	await _capture("05_six_seats.png", "Aura threads on a 6-seat wheel")
+	_suite_files.clear()
 
 
 func _shot_anim_cascade_ticker() -> void:
@@ -2208,7 +2356,16 @@ func _run_table() -> void:
 
 
 func _wants_file(filename: String) -> bool:
-	return _wanted.has(filename.get_basename())
+	var base: String = filename.get_basename()
+	if _wanted.has(base):
+		return true
+	return _suite_files.has(base)
+
+
+func _begin_suite(files: Array) -> void:
+	_suite_files.clear()
+	for f in files:
+		_suite_files[str(f).get_basename() if str(f).ends_with(".png") else str(f)] = true
 
 
 func _noted(stem: String) -> bool:
@@ -2219,11 +2376,25 @@ func _noted(stem: String) -> bool:
 
 
 func _note_missing() -> void:
+	# Suite alias stems (poison_pop_six_seats → 06_six_seats.png) count as captured when the file exists.
+	var alias := {
+		"poison_pop_six_seats": "06_six_seats",
+		"hook_six_seats": "06_six_seats",
+		"aura_six_seats": "05_six_seats",
+	}
 	for stem in _wanted.keys():
-		if _noted(str(stem)):
+		var s: String = str(stem)
+		if _noted(s):
 			continue
-		notes.append({"file": str(stem) + ".png", "status": "skip", "how": "not captured"})
-		_log_progress("skip %s: not captured" % stem)
+		var mapped: String = str(alias.get(s, s))
+		if _noted(mapped):
+			continue
+		var path: String = ProjectSettings.globalize_path(out_dir).path_join(mapped + ".png")
+		if FileAccess.file_exists(path):
+			notes.append({"file": mapped + ".png", "status": "ok", "how": "suite alias %s" % s})
+			continue
+		notes.append({"file": s + ".png", "status": "skip", "how": "not captured"})
+		_log_progress("skip %s: not captured" % s)
 
 
 func _exit_code() -> int:
