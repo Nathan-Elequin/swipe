@@ -5,5 +5,5 @@
 - `PL_BUDGET=40`, spent **24** gens from `calls.log`
 - Balance 1721 → 1697 / 2000
 - Poison is green (`#7dba7d` family). Burst unique colours had no purple.
-- Hornet/Worm candidates only; live slash not overwritten
-- Pass 4 overlap: take green poison over purple on merge
+- Hornet/Worm: Annie 2026-10-21 picked NEW three-bee Hornet slash and NEW round Worm slash. Copied candidates into `assets/dungeon/anim/slash/`.
+- Pass 4 overlap: kept this branch’s green poison, NEW petrify, NEW hook over pass 4 purple / old frames.
