@@ -1259,6 +1259,10 @@ func _ensure_registry() -> void:
 		"09_item_banner", "10_ogre_6_seats",
 	], _shot_anim_slash_portrait)
 	_bind_many([
+		"01_cascade_300ms", "02_cascade_900ms", "03_cascade_1800ms",
+		"04_cascade_ff_600ms", "05_cascade_ff_release", "06_space_untouched",
+	], _shot_anim_cascade_ticker)
+	_bind_many([
 		"60_loft", "61_loft_cat_rub", "62_journal_cover", "63_journal_bestiary",
 		"64_journal_items", "65_journal_memories", "66_journal_unmet",
 	], _shot_playtest_art)
@@ -1538,6 +1542,99 @@ func _shot_anim_slash_portrait() -> void:
 	await _wait(0.30)
 	await _capture("10_ogre_6_seats.png", "Ogre cut-in with 6 wheel seats seated")
 	await _slash_wait_idle()
+
+
+func _cascade_capture(filename: String, how: String) -> void:
+	## Concurrent with `_on_spin`; avoid RenderingServer.frame_post_draw (can stall mid-await).
+	if not _wants_file(filename):
+		return
+	if main.text_audit:
+		main.text_audit.visible = false
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var tex: ViewportTexture = main.get_viewport().get_texture()
+	if tex == null:
+		_skip(filename, "viewport texture missing")
+		return
+	var img: Image = tex.get_image()
+	if img == null or img.is_empty():
+		_skip(filename, "viewport image empty")
+		return
+	if img.get_width() != W or img.get_height() != H:
+		img.resize(W, H, Image.INTERPOLATE_NEAREST)
+	var abs_path: String = ProjectSettings.globalize_path(out_dir).path_join(filename)
+	var err: Error = img.save_png(abs_path)
+	if err != OK:
+		_skip(filename, "save_png failed (%s)" % err)
+		return
+	notes.append({"file": filename, "status": "ok", "how": how})
+	_log_progress("captured %s" % filename)
+
+
+func _shot_anim_cascade_ticker() -> void:
+	out_dir = "res://design/visual/anim-qa/spin-cascade-ticker"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-cascade-ticker"
+	# Plague Doctor, Spider Queen, Cultist, Harpy + Grief Jar + Marble.
+	# Force-spin a Cultist neighbour (Harpy at index 3; Cultist at 2).
+	await _anim_ready_seat(
+		["plague_doctor", "spider_queen", "cultist", "harpy"],
+		["grief_jar", "marble"],
+		6, 0
+	)
+	if main.cascade_ticker == null:
+		_skip("01_cascade_300ms.png", "cascade_ticker missing")
+		return
+	_log_progress("cascade seat ok wheel=%s" % main.wheel.size())
+	main.set_meta("qa_spin_idx", 3)
+	main._on_spin()
+	var t0: int = Time.get_ticks_msec()
+	await _wait(0.30)
+	_log_progress("mark_300ms elapsed=%s ticker=%s" % [Time.get_ticks_msec() - t0, main.cascade_ticker.visible])
+	await _cascade_capture("01_cascade_300ms.png", "cascade ~300ms: tokens appearing")
+	await _wait(0.60)
+	_log_progress("mark_900ms elapsed=%s" % [Time.get_ticks_msec() - t0])
+	await _cascade_capture("02_cascade_900ms.png", "cascade ~900ms: active token lifted")
+	await _wait(0.90)
+	_log_progress("mark_1800ms elapsed=%s" % [Time.get_ticks_msec() - t0])
+	await _cascade_capture("03_cascade_1800ms.png", "cascade ~1800ms: stamped tokens")
+	await _until(func() -> bool:
+		return not bool(main._walker_busy)
+	, 20.0)
+	_log_progress("cascade1 done phase=%s busy=%s hp=%s" % [main.phase, main._walker_busy, main.hp])
+	# Let the first `_on_spin` coroutine finish its deferred intent-plate tail.
+	await _wait(0.35)
+	# Repeat with Shift / FF held. Fresh HP so Grief Jar bleed cannot end the cascade early.
+	await _anim_ready_seat(
+		["plague_doctor", "spider_queen", "cultist", "harpy"],
+		["grief_jar", "marble"],
+		8, 0
+	)
+	main.hp = 8
+	main.set_meta("qa_force_shift", true)
+	main.set_meta("qa_spin_idx", 3)
+	_log_progress("ff_start time_scale=%s hp=%s" % [Engine.time_scale, main.hp])
+	main._on_spin()
+	await _wait(0.20)
+	_log_progress("ff_held time_scale=%s ff_chip=%s busy=%s phase=%s" % [
+		Engine.time_scale,
+		main.cascade_ticker != null and main.cascade_ticker.is_ff(),
+		main._walker_busy,
+		main.phase,
+	])
+	await _wait(0.40)
+	await _cascade_capture("04_cascade_ff_600ms.png", "Shift FF ~600ms: FF chip + time_scale≈3")
+	main.set_meta("qa_force_shift", false)
+	await _wait(0.12)
+	_log_progress("ff_release time_scale=%s" % Engine.time_scale)
+	await _cascade_capture("05_cascade_ff_release.png", "Shift released mid-cascade: time_scale back to 1.0")
+	await _until(func() -> bool:
+		return not bool(main._walker_busy)
+	, 20.0)
+	if main.has_meta("qa_force_shift"):
+		main.remove_meta("qa_force_shift")
+	_log_progress("space_untouched: no Spin shortcut added; ui_accept left alone")
+	await _cascade_capture("06_space_untouched.png", "Space/ui_accept unchanged; no new Spin shortcut")
 
 
 func _shot_peek() -> void:
