@@ -112,26 +112,8 @@ func ghost(hits: Array) -> void:
 	if _hits.is_empty():
 		clear()
 		return
+	modulate.a = 0.55
 	visible = true
-	if _in_tw != null and is_instance_valid(_in_tw):
-		_in_tw.kill()
-	var start_a: float = modulate.a if modulate.a > 0.05 else 0.0
-	modulate.a = start_a
-	_in_tw = create_tween()
-	_in_tw.tween_property(self, "modulate:a", 0.55, 0.12)
-
-
-func unghost() -> void:
-	if not _ghost and not visible:
-		return
-	if _in_tw != null and is_instance_valid(_in_tw):
-		_in_tw.kill()
-	_in_tw = create_tween()
-	_in_tw.tween_property(self, "modulate:a", 0.0, 0.10)
-	_in_tw.tween_callback(func() -> void:
-		_ghost = false
-		clear()
-	)
 
 
 func fire(i: int, blocked: bool = false, pierce: bool = false, shot_name: String = "", capturer: Callable = Callable()) -> void:
@@ -268,22 +250,18 @@ func _place() -> void:
 			use_tail = false
 			stage_ok = true
 	if not stage_ok and main.wheel_view != null and int(main.facing_index) >= 0:
-		var face_i: int = int(main.facing_index)
-		var portrait: Vector2 = main.wheel_view.slice_portrait_global(face_i)
-		if main.wheel_view.has_method("hub_edge_global"):
-			center = main.wheel_view.hub_edge_global(face_i)
-			tip = portrait
-		else:
-			var hub: Vector2 = main.wheel_view.hub_hearts_global()
-			var spoke: Vector2 = portrait - hub
-			if spoke.length() < 1.0:
-				spoke = Vector2(0, -1)
-			center = portrait + Vector2(0.0, -96.0)
-			var outward: Vector2 = portrait + spoke.normalized() * 120.0
-			var vp: Rect2 = get_viewport().get_visible_rect()
-			if vp.has_point(outward) and outward.y > vp.position.y + 80.0:
-				center = outward
-			tip = portrait
+		var portrait: Vector2 = main.wheel_view.slice_portrait_global(int(main.facing_index))
+		var hub: Vector2 = main.wheel_view.hub_hearts_global()
+		var spoke: Vector2 = portrait - hub
+		if spoke.length() < 1.0:
+			spoke = Vector2(0, -1)
+		# Prefer above the portrait so the plate stays on-screen for bottom-facing slices.
+		center = portrait + Vector2(0.0, -96.0)
+		var outward: Vector2 = portrait + spoke.normalized() * 120.0
+		var vp: Rect2 = get_viewport().get_visible_rect()
+		if vp.has_point(outward) and outward.y > vp.position.y + 80.0:
+			center = outward
+		tip = portrait
 		use_tail = true
 	elif not stage_ok:
 		return

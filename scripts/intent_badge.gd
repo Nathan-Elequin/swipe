@@ -20,12 +20,6 @@ var spent: bool = false
 var is_next: bool = false
 var chip_kind: String = ""
 var neighbour_tex: Texture2D
-var ghost_mode: bool = false
-var n_old: int = -1
-var range_lo: int = -1
-var range_hi: int = -1
-var ghost_plus: bool = false
-var kill_dim: bool = false
 
 var _face: AnimatedSprite2D
 var _burst: AnimatedSprite2D
@@ -95,29 +89,14 @@ func setup(hit: Dictionary) -> void:
 	overflow = bool(hit.get("overflow", false))
 	chip_kind = str(hit.get("chip", ""))
 	neighbour_tex = hit.get("neighbour_tex", null)
-	ghost_mode = bool(hit.get("ghost_mode", false)) or bool(hit.get("ghost", false))
-	ghost_plus = bool(hit.get("ghost_plus", false))
-	kill_dim = bool(hit.get("kill_dim", false))
-	n_old = int(hit.get("n_old", -1))
-	range_lo = int(hit.get("range_lo", -1))
-	range_hi = int(hit.get("range_hi", -1))
 	spent = false
 	is_next = false
 	if is_inside_tree():
 		_show_idle()
 		_apply_num()
 		_apply_chip()
-		if kill_dim:
-			modulate = Color(0.45, 0.45, 0.48, 0.50)
-			position.y = 4.0
-		elif ghost_mode:
-			modulate = Color(1, 1, 1, 0.5)
-			position.y = 0.0
-		else:
-			modulate = Color.WHITE
-			position.y = 0.0
+		modulate = Color.WHITE
 		scale = Vector2.ONE
-		queue_redraw()
 
 
 func set_number(n: int) -> void:
@@ -282,18 +261,10 @@ func _apply_num() -> void:
 		return
 	if overflow:
 		_num.text = PLAYER_COPY.fill("combat.intent_overflow", {"n": n_raw}, "×%s" % n_raw)
-		_num.add_theme_color_override("font_color", INK)
-	elif range_lo >= 0 and range_hi >= 0 and n_old >= 0:
-		_num.text = "%s→%s…%s" % [n_old, range_lo, range_hi]
-		_num.add_theme_color_override("font_color", Color("ffe6a8"))
-	elif n_old >= 0 and str(n_old).length() <= 2 and str(n_raw).length() <= 2:
-		_num.text = "%s→%s" % [n_old, n_raw]
-		_num.add_theme_color_override("font_color", Color("ffe6a8"))
 	else:
 		_num.text = str(n_raw)
-		_num.add_theme_color_override("font_color", Color("ffe6a8") if n_old >= 0 else INK)
 	var digits: int = _num.text.length()
-	_num.add_theme_font_size_override("font_size", 16 if digits >= 5 else (24 if digits >= 2 else 30))
+	_num.add_theme_font_size_override("font_size", 24 if digits >= 2 else 30)
 
 
 func _apply_chip() -> void:
@@ -317,49 +288,9 @@ func _show_chip(kind: String) -> void:
 			path = ANIM + "intent_chip_drop.png"
 		"flee":
 			path = ANIM + "intent_chip_flee.png"
-		"plus":
-			path = ANIM + "intent_chip_plus.png"
-	if ghost_plus and ResourceLoader.exists(ANIM + "intent_chip_plus.png"):
-		path = ANIM + "intent_chip_plus.png"
 	if path != "" and ResourceLoader.exists(path):
 		_chip.texture = load(path)
 		_chip.visible = true
-
-
-func _draw() -> void:
-	if not ghost_mode:
-		return
-	var col := Color("e07a7a") if ghost_plus else Color("e8c36a")
-	col.a = 0.85
-	var r := Rect2(Vector2(2, 2), size - Vector2(4, 4))
-	var dash := 5.0
-	var gap := 4.0
-	_dash_rect(r, col, dash, gap)
-
-
-func _dash_rect(r: Rect2, col: Color, dash: float, gap: float) -> void:
-	var pts: PackedVector2Array = PackedVector2Array([
-		r.position,
-		Vector2(r.end.x, r.position.y),
-		r.end,
-		Vector2(r.position.x, r.end.y),
-		r.position,
-	])
-	for i in range(4):
-		_dash_line(pts[i], pts[i + 1], col, dash, gap)
-
-
-func _dash_line(a: Vector2, b: Vector2, col: Color, dash: float, gap: float) -> void:
-	var d: Vector2 = b - a
-	var length: float = d.length()
-	if length < 1.0:
-		return
-	var dir: Vector2 = d / length
-	var t: float = 0.0
-	while t < length:
-		var t2: float = minf(t + dash, length)
-		draw_line(a + dir * t, a + dir * t2, col, 2.0)
-		t += dash + gap
 
 
 func _tex(path: String) -> Texture2D:
