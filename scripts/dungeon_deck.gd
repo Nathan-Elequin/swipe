@@ -10,7 +10,6 @@ signal edit_wanted
 
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const PLAYER_COPY := preload("res://scripts/player_copy.gd")
-const RANK_SHIMMER := preload("res://scripts/rank_shimmer.gd")
 const BACK := Color("1a1410")
 const RIM := Color("c4a574")
 const GOLD := Color("e8c36a")
@@ -58,8 +57,6 @@ var _depth_hold: int = -1
 var _slide_t: float = 0.0
 var _out: Dictionary = {}
 var _riffle_t: float = -1.0
-var _shimmer_mat: ShaderMaterial
-var _shimmer_clock: float = 0.0
 
 
 func setup() -> void:
@@ -75,8 +72,6 @@ func setup() -> void:
 	_front = _at_3x("res://assets/ui/deck/card_front.png")
 	_slot = _at_3x("res://assets/ui/deck/card_slot_empty.png")
 	texture_filter = TEXTURE_FILTER_NEAREST
-	_shimmer_mat = RANK_SHIMMER.make_mat(1, 2, Vector2(148, 168))
-	material = _shimmer_mat
 
 
 ## Shipped PNGs are 4x. Nearest-sample down to native, then up to exactly 3x, so every
@@ -125,15 +120,11 @@ func set_peek(tex: Texture2D, who: String, tier: int = -1) -> void:
 			_flip_up()
 		elif not _face_up:
 			_face_up = true
-	if peek_name != "":
-		set_process(true)
-	_tick_shimmer()
 	queue_redraw()
 
 
 func set_peek_tier(tier: int) -> void:
 	peek_tier = tier
-	_tick_shimmer()
 	queue_redraw()
 
 
@@ -246,8 +237,6 @@ func _animating() -> bool:
 
 
 func _process(delta: float) -> void:
-	_shimmer_clock += delta
-	_tick_shimmer()
 	var warn: bool = count <= 2
 	if _animating() or warn:
 		queue_redraw()
@@ -255,7 +244,7 @@ func _process(delta: float) -> void:
 		_warn_t += delta * 5.0
 	else:
 		_warn_t = 0.0
-		if not _animating() and peek_name == "":
+		if not _animating():
 			set_process(false)
 
 
@@ -291,13 +280,6 @@ func _draw() -> void:
 	var p := Vector2((110.0 - tsz.x) * 0.5, size.y - 2.0)
 	draw_string(font, p + Vector2(1, 1), lab, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, OUTLINE)
 	draw_string(font, p, lab, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
-
-
-func _tick_shimmer() -> void:
-	if _shimmer_mat == null:
-		return
-	var t: int = peek_tier if peek_tier > 0 else 1
-	RANK_SHIMMER.apply(_shimmer_mat, t, 2, 0.0, 0.0, _shimmer_clock, size if size.x > 8.0 else Vector2(148, 168))
 
 
 func _slide_target() -> Vector2:

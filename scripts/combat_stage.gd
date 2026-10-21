@@ -73,12 +73,7 @@ func setup(p_art) -> void:
 func show_monster(id: String, p_tier: int = 1) -> void:
 	card_id = id
 	_tier = p_tier
-	_idle = []
-	if art:
-		if art.has_method("monster_facing_idle"):
-			_idle = art.monster_facing_idle(id)
-		if _idle.is_empty():
-			_idle = art.monster_idle(id)
+	_idle = art.monster_idle(id) if art else []
 	_run = art.monster_run(id) if art else []
 	_mode = "idle"
 	_fi = 0.0
@@ -99,12 +94,6 @@ func show_monster(id: String, p_tier: int = 1) -> void:
 	tw.set_trans(Tween.TRANS_BACK)
 	tw.set_ease(Tween.EASE_OUT)
 	tw.tween_property(self, "scale", Vector2.ONE, 0.28)
-	if not _idle.is_empty() and _idle[0] != null:
-		var tw0: float = float(_idle[0].get_width())
-		var th0: float = float(_idle[0].get_height())
-		if tw0 <= 80.0 and th0 <= 80.0 and _idle.size() >= 4:
-			size = Vector2(maxf(192.0, tw0 * 4.0), maxf(160.0, th0 * 4.0 + 16.0))
-			custom_minimum_size = size
 	_place_sprite()
 
 
@@ -253,12 +242,7 @@ func vanish() -> void:
 func _process(delta: float) -> void:
 	if not visible:
 		return
-	if _mode == "run":
-		_fi += delta * 10.0
-	elif _idle.size() >= 4:
-		_fi += delta / 0.140
-	else:
-		_fi += delta * 6.0
+	_fi += delta * (10.0 if _mode == "run" else 6.0)
 	_bob += delta
 	if _flash > 0.0:
 		_flash = maxf(0.0, _flash - delta * 4.2)
@@ -335,14 +319,11 @@ func _place_sprite() -> void:
 		return
 	var tw: float = float(tex.get_width())
 	var th: float = float(tex.get_height())
-	var scale_n: float = 4.0 if (tw <= 80.0 and th <= 80.0 and _idle.size() >= 4) else 1.0
-	var dw: float = tw * scale_n
-	var dh: float = th * scale_n
-	var bob: float = 0.0 if _idle.size() >= 4 else sin(_bob * 3.2) * 3.0
+	var bob: float = sin(_bob * 3.2) * 3.0
 	_sprite.texture = tex
-	_sprite.size = Vector2(dw, dh)
-	_sprite.pivot_offset = Vector2(dw * 0.5, dh)
-	_sprite.position = Vector2(size.x * 0.5 - dw * 0.5 + _lunge_x, size.y - dh - 8.0 + bob)
+	_sprite.size = Vector2(tw, th)
+	_sprite.pivot_offset = Vector2(tw * 0.5, th)
+	_sprite.position = Vector2(size.x * 0.5 - tw * 0.5 + _lunge_x, size.y - th - 8.0 + bob)
 	_sprite.flip_h = flip_h
 	var mod := Color.WHITE
 	if _flash > 0.45:
