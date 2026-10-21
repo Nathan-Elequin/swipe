@@ -1,0 +1,28 @@
+poison_ff_start time_scale=0.675 want=2.025
+poison_ff_held time_scale=0.675
+poison_ff_release time_scale=0.675 want=0.675
+poison six_seats wheel=6
+poison_ff_start time_scale=0.675 want=2.025
+poison_ff_held time_scale=0.675
+poison_ff_release time_scale=0.675 want=0.675
+poison six_seats wheel=6
+skip poison_pop_six_seats: not captured
+exit 1
+poison_ff_start time_scale=0.675 want=2.025
+poison_ff_held time_scale=2.025
+poison_ff_release time_scale=0.675 want=0.675
+poison six_seats wheel=6
+exit 1
+poison_ff_start time_scale=0.675 want=2.025
+poison_ff_held time_scale=2.025
+poison_ff_release time_scale=0.675 want=0.675
+poison six_seats wheel=6
+exit 1
+poison_ff_start time_scale=0.675 want=2.025
+poison_ff_held time_scale=2.025
+poison_ff_release time_scale=0.675 want=0.675
+poison six_seats wheel=6
+poison_ff_start time_scale=0.675 want=2.025
+poison_ff_held time_scale=2.025
+poison_ff_release time_scale=0.675 want=0.675
+poison six_seats wheel=6

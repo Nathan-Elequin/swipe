@@ -1,0 +1,541 @@
+{
+	"failures": [
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1036/@Label@1032",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1036/@RichTextLabel@1035",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1040/@RichTextLabel@1039",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1044/@RichTextLabel@1043",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1048/@RichTextLabel@1047",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@HBoxContainer@1094/@PanelContainer@1096/@Label@1095",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "Ale Flagon"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1104/@Label@1099",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1104/@Label@1100",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1104/@RichTextLabel@1103",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "heal +-2  now 6"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1110/@Label@1105",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1110/@Label@1106",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1110/@RichTextLabel@1109",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "poison 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1126/@Label@1122",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1126/@RichTextLabel@1125",
+			"reason": "below_min_size",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1159/@MarginContainer@1138/@VBoxContainer@1139/@Control@1142/@Label@1145",
+			"reason": "overflow_parent",
+			"screen": "01_ale_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/01_ale_burst.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1036/@Label@1032",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1036/@RichTextLabel@1035",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1040/@RichTextLabel@1039",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1044/@RichTextLabel@1043",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1048/@RichTextLabel@1047",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@HBoxContainer@1094/@PanelContainer@1096/@Label@1095",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "Ale Flagon"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1104/@Label@1099",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1104/@Label@1100",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1104/@RichTextLabel@1103",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "heal +-2  now 6"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1110/@Label@1105",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1110/@Label@1106",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1110/@RichTextLabel@1109",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "poison 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1126/@Label@1122",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1098/@VBoxContainer@1093/@VBoxContainer@1097/@HBoxContainer@1126/@RichTextLabel@1125",
+			"reason": "below_min_size",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1159/@MarginContainer@1138/@VBoxContainer@1139/@Control@1142/@Label@1145",
+			"reason": "overflow_parent",
+			"screen": "02_ale_hearts",
+			"shot": "res://design/visual/anim-qa/poison-pop/02_ale_hearts.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1353/@Label@1349",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1353/@RichTextLabel@1352",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "Ogre"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1357/@RichTextLabel@1356",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "enemy ATK 5   HP 10"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1361/@RichTextLabel@1360",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1365/@RichTextLabel@1364",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1381/@Label@1377",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1381/@RichTextLabel@1380",
+			"reason": "below_min_size",
+			"screen": "03_miasma_drip",
+			"shot": "res://design/visual/anim-qa/poison-pop/03_miasma_drip.png",
+			"text": "poison  to  9 HP"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1493/@Label@1489",
+			"reason": "below_min_size",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1493/@RichTextLabel@1492",
+			"reason": "below_min_size",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1497/@RichTextLabel@1496",
+			"reason": "below_min_size",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1501/@RichTextLabel@1500",
+			"reason": "below_min_size",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1505/@RichTextLabel@1504",
+			"reason": "below_min_size",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1486/@MarginContainer@1465/@VBoxContainer@1466/@Control@1469/@Label@1472",
+			"reason": "overflow_parent",
+			"screen": "04_miasma_one_burst",
+			"shot": "res://design/visual/anim-qa/poison-pop/04_miasma_one_burst.png",
+			"text": "1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1616/@Label@1612",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1616/@RichTextLabel@1615",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "Goblin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1620/@RichTextLabel@1619",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "enemy ATK 3   HP 1"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1624/@RichTextLabel@1623",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1628/@RichTextLabel@1627",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1678/@VBoxContainer@1673/@HBoxContainer@1674/@PanelContainer@1676/@Label@1675",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "Ale Flagon"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1678/@VBoxContainer@1673/@VBoxContainer@1677/@HBoxContainer@1684/@Label@1679",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1678/@VBoxContainer@1673/@VBoxContainer@1677/@HBoxContainer@1684/@Label@1680",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1678/@VBoxContainer@1673/@VBoxContainer@1677/@HBoxContainer@1684/@RichTextLabel@1683",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "heal +-2  now 6"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1678/@VBoxContainer@1673/@VBoxContainer@1677/@HBoxContainer@1690/@Label@1685",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": ">"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1678/@VBoxContainer@1673/@VBoxContainer@1677/@HBoxContainer@1690/@Label@1686",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "Used"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1678/@VBoxContainer@1673/@VBoxContainer@1677/@HBoxContainer@1690/@RichTextLabel@1689",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "poison 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1678/@VBoxContainer@1673/@VBoxContainer@1677/@HBoxContainer@1706/@Label@1702",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": ">"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1678/@VBoxContainer@1673/@VBoxContainer@1677/@HBoxContainer@1706/@RichTextLabel@1705",
+			"reason": "below_min_size",
+			"screen": "05_poison_ff",
+			"shot": "res://design/visual/anim-qa/poison-pop/05_poison_ff.png",
+			"text": "items this combat 1"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1896/@Label@1892",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1896/@RichTextLabel@1895",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Plague Doctor"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1900/@RichTextLabel@1899",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1904/@RichTextLabel@1903",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1908/@RichTextLabel@1907",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1924/@Label@1920",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1924/@RichTextLabel@1923",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Plague Doctor heal +2  to  5 HP"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1929/@Label@1925",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1929/@RichTextLabel@1928",
+			"reason": "below_min_size",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "Plague Doctor heal +2  to  3 HP"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1890/@MarginContainer@1869/@VBoxContainer@1870/@Control@1873/@Label@1876",
+			"reason": "overflow_parent",
+			"screen": "07_plague_lock",
+			"shot": "res://design/visual/anim-qa/poison-pop/07_plague_lock.png",
+			"text": "4"
+		}
+	],
+	"updated": "2026-10-21T02:08:43"
+}
