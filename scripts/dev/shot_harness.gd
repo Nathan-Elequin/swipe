@@ -1283,6 +1283,7 @@ func _ensure_registry() -> void:
 	_bind_many([
 		"01_gargoyle_beam", "02_gargoyle_creep", "03_gargoyle_shatter",
 		"04_hydra_beams", "05_basilisk_pips", "06_basilisk_tick",
+		"petrify_six_seats",
 	], _shot_anim_petrify)
 	_bind_many([
 		"01_hook_mark", "02_hook_200ms", "03_hook_360ms", "04_hook_600ms", "05_hook_1100ms",
@@ -1766,6 +1767,7 @@ func _shot_anim_petrify() -> void:
 	_begin_suite([
 		"01_gargoyle_beam", "02_gargoyle_creep", "03_gargoyle_shatter",
 		"04_hydra_beams", "05_basilisk_pips", "06_basilisk_tick",
+		"06_six_seats",
 	])
 	# Gargoyle: capture beam while Line2D lives; creep after beam ends, before slash.
 	await _anim_ready_seat(["gargoyle", "goblin", "skeleton", "bandit"], ["longbow", "shield", "net"], 8, 0, 0)
@@ -1851,6 +1853,19 @@ func _shot_anim_petrify() -> void:
 	await main._tick_gaze_petrify()
 	await _wait_game(0.12)
 	await _capture("06_basilisk_tick.png", "Basilisk countdown: pip cracked (3→2)")
+	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
+	# 6-seat wheel: beam still aims at a hotbar card, not a fixed seat index.
+	await _anim_ready_seat(
+		["gargoyle", "goblin", "skeleton", "bandit", "ogre", "lich"],
+		["longbow", "shield"],
+		8, 0, 6
+	)
+	main.set_meta("qa_spin_idx", 0)
+	main._on_spin()
+	await _until(func() -> bool: return _petrify_beam_count() > 0, 8.0)
+	_log_progress("petrify six_seats wheel=%s beams=%s" % [main.wheel.size(), _petrify_beam_count()])
+	await _capture("06_six_seats.png", "Gargoyle beam on a 6-seat wheel")
+	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
 	_suite_files.clear()
 
 
@@ -2400,6 +2415,7 @@ func _note_missing() -> void:
 		"poison_pop_six_seats": "06_six_seats",
 		"hook_six_seats": "06_six_seats",
 		"aura_six_seats": "05_six_seats",
+		"petrify_six_seats": "06_six_seats",
 	}
 	for stem in _wanted.keys():
 		var s: String = str(stem)
