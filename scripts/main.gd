@@ -12295,6 +12295,14 @@ func _apply_hypnotize(src: int, it: Dictionary) -> void:
 	call_deferred("_refresh")
 
 
+func _sling_is_loaded(it: Dictionary) -> bool:
+	if pending_mark.is_empty():
+		return false
+	if str(pending_mark.get("kind", "")) != "sling_any":
+		return false
+	return int(pending_mark.get("uid", -1)) == int(it.get("uid", -1))
+
+
 func _sling_attack_options(skip_uid: int) -> Array:
 	var out: Array = []
 	for it in hotbar:
@@ -13371,7 +13379,7 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["can_use"] = fighting and not _mark_targets("signpost").is_empty()
 		"sling":
 			out["kind"] = "ATK"
-			out["number"] = "Any"
+			out["number"] = PLAYER_COPY.text("status.sling_loaded", "Loaded") if _sling_is_loaded(it) else "Any"
 			out["note"] = ""
 			out["can_use"] = fighting and not _sling_attack_options(int(it.get("uid", -1))).is_empty()
 		_:
@@ -13965,6 +13973,7 @@ func _rewrite_keywords(raw: String, colored: bool, num_hex: String) -> String:
 		"random",
 		"always",
 		"swap",
+		"loaded",
 		"eject",
 		"unplayable",
 		"rust",
@@ -14223,7 +14232,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 		"atk_alt_24":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
 			out["equation"] = "(%s) then (%s) then (%s)…" % [_bb(atk_c, "2"), _bb(atk_c, "4"), _bb(atk_c, "2")]
-			out["body"] = "Flips 2 ↔ 4 after any item is used. The number stays for later fights in this dungeon. A new dungeon starts it at 2."
+			out["body"] = str(it.get("ability", "Flips 2 ↔ 4 after any Item is used. Keeps its number between fights."))
 		"choose":
 			var drop_n := false
 			var spike_n := false
@@ -14502,7 +14511,10 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = PLAYER_COPY.text("warn.neighbor", "Can't — no neighboring enemy.")
 		"sling":
-			out["value"] = _value_bb("Any", "", gold)
+			if _sling_is_loaded(it):
+				out["value"] = UxStyle.with_def_link(_value_bb(PLAYER_COPY.text("status.sling_loaded", "Loaded"), "", gold), "Loaded")
+			else:
+				out["value"] = _value_bb("Any", "", gold)
 			out["body"] = str(it.get("ability", "Your next attack this fight can target Any monster."))
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = "Can't — you need an Attack item."
@@ -14633,11 +14645,12 @@ func _monster_rule(s: Dictionary) -> Dictionary:
 	var call_n: String = str(s.get("call_name", "")).strip_edges()
 	out["call"] = call_n
 	if _is_silenced(id):
+		var sil: String = PLAYER_COPY.text("status.silenced", "Silenced")
 		out["speech"] = ""
-		out["equation"] = ""
+		out["equation"] = sil
 		out["reminder"] = ""
 		out["hint"] = ""
-		out["call"] = ""
+		out["call"] = sil
 		return out
 	if (id == "gargoyle" or id == "hydra") and _shift_held:
 		out["warn"] = "Petrify — becomes Unplayable until your next Spin."

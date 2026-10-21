@@ -3514,9 +3514,33 @@
 			"cat": "Inspect",
 			"key": "keyword.swap_body",
 			"where": "Keyword tip body for Swap",
-			"text": "exchange for a random Item of the same Tier",
+			"text": "Swap: trade it for a random item of the same rank (Weak, Tough or Deadly).",
 			"author_lock": true,
 			"locked_at": "2026-10-18"
+		},
+		{
+			"cat": "Combat",
+			"key": "status.silenced",
+			"where": "Silenced status on a monster plate",
+			"text": "Silenced",
+			"author_lock": true,
+			"locked_at": "2026-10-20"
+		},
+		{
+			"cat": "Combat",
+			"key": "status.sling_loaded",
+			"where": "Sling armed-state label",
+			"text": "Loaded",
+			"author_lock": true,
+			"locked_at": "2026-10-20"
+		},
+		{
+			"cat": "Combat",
+			"key": "status.sling_loaded_tip",
+			"where": "Sling Loaded tooltip",
+			"text": "Loaded: your next Attack can hit any monster.",
+			"author_lock": true,
+			"locked_at": "2026-10-20"
 		},
 		{
 			"cat": "Playtest",

@@ -75,7 +75,9 @@ func show_def(msg: String, anchor: Control = null, id: String = "") -> void:
 	if _kind == "always":
 		_lab.text = COPY.text("keyword.always_body", "cannot be changed in any other way")
 	elif _kind == "swap":
-		_lab.text = COPY.text("keyword.swap_body", "exchange for a random Item of the same Tier")
+		_lab.text = COPY.text("keyword.swap_body", "Swap: trade it for a random item of the same rank (Weak, Tough or Deadly).")
+	elif _kind == "loaded":
+		_lab.text = COPY.text("status.sling_loaded_tip", "Loaded: your next Attack can hit any monster.")
 	elif _kind == "any":
 		_lab.text = t
 	elif _kind == "eject":

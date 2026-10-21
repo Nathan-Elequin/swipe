@@ -1777,7 +1777,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-20",
 			"name": "Death Bell"
 		},
 		"monster:dire_wolf": {
@@ -3071,8 +3071,26 @@
 		"keyword.swap_body": {
 			"cat": "Inspect",
 			"locked_at": "2026-10-18",
-			"text": "exchange for a random Item of the same Tier",
+			"text": "Swap: trade it for a random item of the same rank (Weak, Tough or Deadly).",
 			"where": "Keyword tip body for Swap"
+		},
+		"status.silenced": {
+			"cat": "Combat",
+			"locked_at": "2026-10-20",
+			"text": "Silenced",
+			"where": "Silenced status on a monster plate"
+		},
+		"status.sling_loaded": {
+			"cat": "Combat",
+			"locked_at": "2026-10-20",
+			"text": "Loaded",
+			"where": "Sling armed-state label"
+		},
+		"status.sling_loaded_tip": {
+			"cat": "Combat",
+			"locked_at": "2026-10-20",
+			"text": "Loaded: your next Attack can hit any monster.",
+			"where": "Sling Loaded tooltip"
 		},
 		"pause.hint": {
 			"cat": "Pause",

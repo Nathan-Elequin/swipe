@@ -193,7 +193,7 @@
 			"type": "I"
 		},
 		{
-			"ability": "Flips 2 ↔ 4 after any Item is used.",
+			"ability": "Flips 2 ↔ 4 after any Item is used. Keeps its number between fights.",
 			"author_lock": true,
 			"bucket": 0.0,
 			"call_name": "",
@@ -2139,7 +2139,7 @@
 			"call_name": "",
 			"card_color": "chaos",
 			"count": 1.0,
-			"defined": "Click during a fight, then click other items in your hand. If you hold only one other item that can Swap, Swap that one. If you hold two or more that can Swap, pick two. Each Swap exchanges that card for a random leftover copy of the same Tier from the draft pile and returns the old card to the pile. You cannot Swap into a card with no remaining count. This card cannot target itself. Unplayable if nothing can Swap. Used up. Counts as an item use.",
+			"defined": "Click during a fight, then click other items in your hand. If you hold only one other item that can Swap, Swap that one. If you hold two or more that can Swap, pick two. Each Swap exchanges that card for a random leftover copy of the same rank from the draft pile and returns the old card to the pile. You cannot Swap into a card with no remaining count. This card cannot target itself. Unplayable if nothing can Swap. Used up. Counts as an item use.",
 			"exceptions": "Does not deal Attack. Gargoyle petrify does not pick this. Cube feed is not this.",
 			"explainer": "Swap 1–2 Items",
 			"flags": {
@@ -2878,7 +2878,7 @@
 			"call_name": "",
 			"card_color": "heal",
 			"count": 1.0,
-			"defined": "Click during a fight. Heal 1 (cap 6). Then one other unspent item in your hand Swaps: it is exchanged for a random leftover copy of the same Tier from the draft pile, and the old card goes back into that pile. You cannot Swap into a card with no remaining count. Never Swaps the Jar itself. If there is no legal other item (only the Jar, or no leftover copy of that item's Tier), the click is illegal. Keep this unless facing Zombie. Counts as an item use. Swap keyword: exchange for a random Item of the same Tier.",
+			"defined": "Click during a fight. Heal 1 (cap 6). Then one other unspent item in your hand Swaps: it is exchanged for a random leftover copy of the same rank from the draft pile, and the old card goes back into that pile. You cannot Swap into a card with no remaining count. Never Swaps the Jar itself. If there is no legal other item (only the Jar, or no leftover copy of that item's Tier), the click is illegal. Keep this unless facing Zombie. Counts as an item use. Swap keyword: exchange for a random Item of the same rank.",
 			"exceptions": "Bucket 0. Jar of grease. Swap uses leftover draft counts.",
 			"explainer": "(HEAL 1) Swap 1  Keep",
 			"flags": {
@@ -3582,10 +3582,10 @@
 		{
 			"ability": "Enemies ignore your Block for 3 Spins",
 			"author_lock": true,
-			"bucket": -1,
+			"bucket": -1.0,
 			"call_name": "",
 			"card_color": "egg",
-			"count": 0,
+			"count": 0.0,
 			"defined": "Unplayable token. Starts at 3. While it sits, all monsters ignore your Block (same pierce as Arrow Head). Each Spin, including the first after it enters your hand: 3 → 2 → 1 → Discard after the third fight. Bell, Cube, Worm, and other Discards can remove it earlier. Recycler ticks those Discards.",
 			"exceptions": "Token. Not drafted. Rust Bucket creates it. Broken shield + countdown.",
 			"explainer": "Ignore Block. Discard after 3 Spins.",
@@ -3624,13 +3624,13 @@
 				"kind": "rust_watch"
 			},
 			"poc": false,
-			"priority": 9,
+			"priority": 9.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0,
+			"tier": 0.0,
 			"type": "I"
 		}
 	],
@@ -4990,9 +4990,9 @@
 			"bucket": 7.0,
 			"call_name": "Disassemble",
 			"count": 1.0,
-			"defined": "If you do not Defeat or Slay me, I leave and two random Tier 2 owners sit immediately, even if that grows the wheel past 8. You are not in a new fight yet.",
+			"defined": "If you do not Defeat or Slay me, I leave and two random Tough monsters sit immediately, even if that grows the wheel past 8. You are not in a new fight yet.",
 			"exceptions": "Quiet Bell strips this: I leave like anyone else, no heirs.",
-			"explainer": "Two Tier 2 if I live",
+			"explainer": "Two Tough monsters if I live",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -5970,7 +5970,7 @@
 			},
 			"author_lock": true,
 			"bucket": 7.0,
-			"call_name": "",
+			"call_name": "Cut And Run",
 			"card_color": "",
 			"count": 1.0,
 			"defined": "If my HP is exactly 3, I am Defeated (loot). If something else would Defeat or Slay me (0 HP, Boot, Hex), I instead lose 2 HP from the HP I had before that Defeat and Flee. After that Flee, if I have 3 HP, I am Defeated. Quiet Bell turns this off.",
@@ -6314,13 +6314,13 @@
 		{
 			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
 			"atk": {
-				"base": 8.0
+				"base": 8
 			},
 			"author_lock": true,
-			"bucket": 8.0,
-			"call_name": "Toll Of The Dead",
+			"bucket": 8,
+			"call_name": "Death Knell",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test), Gain 1 Toll at 6 even if Zombie would block Gain. If the hand is full, the player clicks one item to throw away, then Toll lands. A second Death Bell grants a second Toll at 6. On Spin of this monster, if it is not silenced, it loses 2 HP (Anvil still max 1). Quiet Bell: skip the -2 HP and skip the Defeat discard; Tolls already in hand still tick. Item uses that already increment Beads (including Bushido's dummy throw) tick every Toll by 1. Potion auto, Buckler auto, and Cube/Worm/overlay picks do not tick. At Toll 1 the card pulses. At 0 they Die; Healing Potion can save. If the killing item ticks Toll from 1 to 0 while this Bell is the one being Defeated, the Defeat discard overlay happens first so they can throw Toll away and live. Defeat overlay: must click one item (Ability as the line), then the Bell rings and leaves with loot. Empty hand: skip discard, still ring. Toll is T0, black like Egg, Unplayable, not drafted.",
 			"exceptions": "Bucket 9. Giant evil church bell. 12 HP 8 ATK.",
 			"explainer": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
@@ -6330,10 +6330,10 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 12.0
+				"base": 12
 			},
 			"id": "death_bell",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-20",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6360,13 +6360,13 @@
 			"notes": "Bucket 9. Giant evil church bell. 12 HP 8 ATK.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "M"
 		},
 		{
@@ -6832,12 +6832,12 @@
 		{
 			"ability": "When I enter the Dungeon, Gain 1 Rust",
 			"atk": {
-				"base": 3
+				"base": 3.0
 			},
 			"author_lock": true,
-			"bucket": 8,
+			"bucket": 8.0,
 			"call_name": "Rust",
-			"count": 1,
+			"count": 1.0,
 			"defined": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test): Gain 1 Rust. Same overlay as Death Bell if the hand is full. Quiet Bell does not skip the Gain. Two Rust Buckets grant two Rusts.",
 			"exceptions": "Bucket 8 T2. D&D rust monster as a bucket. Token Rust is extra. Art missing.",
 			"explainer": "When I enter the Dungeon, Gain 1 Rust",
@@ -6847,7 +6847,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3
+				"base": 3.0
 			},
 			"id": "rust_bucket",
 			"locked_at": "2026-10-20",
@@ -6877,13 +6877,13 @@
 			"notes": "Bucket 8 T2. D&D rust monster as a bucket. Token Rust is extra. Art missing.",
 			"ops": {},
 			"poc": false,
-			"priority": 3,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "When I enter the Dungeon, Gain 1 Rust",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "M"
 		},
 		{
@@ -7051,7 +7051,7 @@
 		{
 			"chat": "2026-10-05",
 			"id": "sai_alt_24",
-			"rule": "Sai alternates 2 and 4 each time any item is used. Starts at 2 each combat. Deals the current value, then the flip applies to later cards."
+			"rule": "Sai alternates 2 and 4 each time any item is used. Keeps its number between fights; back to 2 each new dungeon. Deals the current value, then the flip applies to later cards."
 		},
 		{
 			"chat": "2026-10-05",

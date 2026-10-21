@@ -2,6 +2,8 @@ extends RefCounted
 class_name UxStyle
 ## Shared combat chrome. Chips, plates, and kind colors — not player copy.
 
+const COPY := preload("res://scripts/player_copy.gd")
+
 const INK := Color("f4ede3")
 const INK_DIM := Color("c9b9a8")
 const INK_OUT := Color("100e0c")
@@ -306,6 +308,8 @@ static func def_id_of(piece: String) -> String:
 		return "always"
 	if low == "swap" or low.begins_with("swap"):
 		return "swap"
+	if low == "loaded":
+		return "loaded"
 	if low == "unplayable":
 		return "unplayable"
 	if low == "rust":
@@ -326,7 +330,9 @@ static func def_of(id: String) -> String:
 		"always":
 			return "Always: cannot be changed in any other way"
 		"swap":
-			return "Swap: exchange for a random Item of the same Tier"
+			return COPY.text("keyword.swap_body", "Swap: trade it for a random item of the same rank (Weak, Tough or Deadly).")
+		"loaded":
+			return COPY.text("status.sling_loaded_tip", "Loaded: your next Attack can hit any monster.")
 		"unplayable":
 			return "You cannot click this."
 		"rust":
@@ -758,6 +764,8 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low.begins_with("spin") or low == "spun":
 		return gold
 	if low == "swap" or low.begins_with("swap"):
+		return gold
+	if low == "loaded":
 		return gold
 	if low.begins_with("eject"):
 		return gold

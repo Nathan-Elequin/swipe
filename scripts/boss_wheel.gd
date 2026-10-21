@@ -1740,7 +1740,7 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 	var name_s: String = str(s.get("name", "")).strip_edges()
 	var call_s: String = str(s.get("call_name", "")).strip_edges()
 	if bool(s.get("silenced", false)):
-		call_s = ""
+		call_s = COPY.text("status.silenced", "Silenced")
 	elif show_shift and str(s.get("card_id", "")) != "golem" and str(s.get("card_id", "")) != "wizard":
 		var shift_s: String = str(s.get("reminder", "")).strip_edges()
 		if shift_s == "" or shift_s == "---":
