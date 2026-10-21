@@ -85,6 +85,10 @@ var portrait_away: int = -1:
 	set(v):
 		portrait_away = v
 		queue_redraw()
+var hide_portraits: Array = []:
+	set(v):
+		hide_portraits = v
+		queue_redraw()
 var aura_index: int = -1:
 	set(v):
 		aura_index = v
@@ -130,6 +134,16 @@ var hub_hp: int = 6
 var hub_hp_max: int = 6
 var hub_hp_ghost: int = -1
 var hub_poison: int = 0
+var hub_poison_locked: bool = false
+var _poison_drip: Array = []
+var _poison_lock_tex: Texture2D
+var _poison_badge_scale: Dictionary = {}
+var _poison_clear_t: Dictionary = {}
+var _aura_glyphs: Dictionary = {}
+var _bond_anim: Dictionary = {}
+var _bond_prev: Dictionary = {}
+var _bond_hold_diff: bool = false
+var _facing_for_bonds: int = -1
 var threat_t: float = 0.0:
 	set(v):
 		threat_t = v
@@ -441,6 +455,35 @@ func _heart_arc_global_rect() -> Rect2:
 	return _xform_rect(local)
 
 
+func _draw_hub_poison_badge(font: Font, dim: float) -> void:
+	if hub_poison <= 0:
+		return
+	_ensure_poison_drip()
+	var anchor: Vector2 = _center()
+	var pts: Array = _heart_arc_layout().get("pts", [])
+	if not pts.is_empty():
+		anchor = pts[int(pts.size() / 2)] + Vector2(54, 0)
+	var bob: float = 0.0 if hub_poison_locked else (2.0 * sin(_glow_t * 4.0))
+	anchor.y += bob
+	var sz := Vector2(48, 48)
+	var col := Color("7dba7d", dim)
+	var drip_tex: Texture2D = null
+	if not hub_poison_locked and not _poison_drip.is_empty():
+		var fi: int = int(floor(_glow_t / 0.15)) % _poison_drip.size()
+		drip_tex = _poison_drip[fi]
+	if drip_tex != null:
+		draw_texture_rect(drip_tex, Rect2(anchor - sz * 0.5, sz), false, col)
+	else:
+		var tex: Texture2D = _poison_tex()
+		if tex != null:
+			draw_texture_rect(tex, Rect2(anchor - Vector2(16, 16), Vector2(32, 32)), false, col)
+		else:
+			draw_circle(anchor, 10.0, col)
+	_draw_bold_num(font, anchor + Vector2(18, 2), str(hub_poison), 16, Color("d8f0d0", dim))
+	if hub_poison_locked and _poison_lock_tex != null:
+		draw_texture_rect(_poison_lock_tex, Rect2(anchor + Vector2(10, 8), Vector2(12, 12)), false, Color(1, 1, 1, dim))
+
+
 func _draw_hub_heart_arc(dim: float) -> void:
 	var laid: Dictionary = _heart_arc_layout()
 	var pts: Array = laid.get("pts", [])
@@ -551,8 +594,11 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 	var prev := {}
 	for s in slices:
 		prev[str(s.get("slot", ""))] = s
+	var bonds_before: Dictionary = _bond_prev if _bond_hold_diff else _bond_pair_map()
+	_bond_hold_diff = false
 	slices = next
 	facing_index = face
+	_facing_for_bonds = face
 	highlight = mode
 	if slay_index >= 0:
 		if slay_index >= slices.size():
@@ -577,6 +623,8 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 			_pt_ghosts.append({"pos": pos, "text": str(old.get("atk", 0)), "col": ATK_COL, "t": 0.0, "life": 0.28, "fs": 18})
 		if int(old.get("hp", 0)) != int(s.get("hp", 0)):
 			_pt_ghosts.append({"pos": _hp_pos(i), "text": str(old.get("hp", 0)), "col": HP_COL, "t": 0.0, "life": 0.28, "fs": 18})
+	_bond_prev = _bond_pair_map()
+	_start_bond_diff(bonds_before, _bond_prev)
 	queue_redraw()
 
 
@@ -665,6 +713,8 @@ func collapse_slice(index: int, pin: int = -1) -> void:
 	busy = true
 	slay_index = index
 	collapse = 0.0
+	_bond_prev = _bond_pair_map()
+	_bond_hold_diff = true
 	var tw := create_tween()
 	tw.set_trans(Tween.TRANS_BACK)
 	tw.set_ease(Tween.EASE_IN)
@@ -695,6 +745,7 @@ func collapse_slice(index: int, pin: int = -1) -> void:
 	slay_kind = "slay"
 	collapse = 0.0
 	slay_t = 0.0
+	_bond_hold_diff = true
 	queue_redraw()
 
 
@@ -864,6 +915,14 @@ func _radius() -> float:
 
 func _process(delta: float) -> void:
 	_glow_t += delta
+	var anim_dirty: bool = false
+	for k in _bond_anim.keys():
+		var ent: Dictionary = _bond_anim[k]
+		ent["t"] = float(ent.get("t", 0.0)) + delta
+		_bond_anim[k] = ent
+		anim_dirty = true
+	if anim_dirty:
+		queue_redraw()
 	if spinning:
 		var drot: float = absf(rot - _tick_last_rot)
 		_tick_last_rot = rot
@@ -1479,7 +1538,7 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		glow.a = 0.50 + 0.28 * absf(sin(_glow_t * 9.0))
 		draw_circle(port_pos, plate_r + 16.0, glow)
 		draw_arc(port_pos, plate_r + 20.0, 0.0, TAU, 28, Color(1.0, 0.90, 0.35, 0.45 + 0.35 * absf(sin(_glow_t * 9.0))), 3.5, true)
-	if tex_portraits.has(pid) and i != portrait_away:
+	if tex_portraits.has(pid) and i != portrait_away and not hide_portraits.has(i):
 		_draw_portrait_window(port_pos, plate_r, s, tex_portraits[pid], 0.0, dim)
 	if bool(s.get("rage_fire", false)):
 		var flicker: float = 0.45 + 0.35 * absf(sin(_glow_t * 11.0))
@@ -1639,11 +1698,85 @@ func _draw_edge_ticks(i: int, j: int, col: Color) -> void:
 	draw_line(c + a * radius * HUB_FRAC, c + a * radius * 0.76, col, 3.2, true)
 
 
-func _draw_bonds(_c: Vector2, _radius: float) -> void:
-	var n: int = slices.size()
-	if n == 0:
+func set_facing_for_bonds(index: int) -> void:
+	_facing_for_bonds = index
+	queue_redraw()
+
+
+func poison_badge_gain(index: int) -> void:
+	_poison_badge_scale[index] = 1.2
+	queue_redraw()
+	var tw := create_tween()
+	tw.tween_method(
+		func(v: float) -> void:
+			_poison_badge_scale[index] = v
+			queue_redraw(),
+		1.2,
+		1.0,
+		0.10
+	)
+
+
+func poison_badge_clear(index: int) -> void:
+	_poison_clear_t[index] = 1.0
+	queue_redraw()
+	var tw := create_tween()
+	tw.tween_method(
+		func(v: float) -> void:
+			_poison_clear_t[index] = v
+			queue_redraw(),
+		1.0,
+		0.0,
+		0.12
+	)
+
+
+func hub_poison_badge_global() -> Vector2:
+	return hub_hearts_global() + Vector2(54, 0)
+
+
+func _start_bond_diff(before: Dictionary, after: Dictionary) -> void:
+	if before.is_empty() and after.is_empty():
 		return
-	var pulse: float = 0.50 + 0.50 * sin(_glow_t * 6.0)
+	var lost: Array = []
+	var gained: Array = []
+	for k in before.keys():
+		if not after.has(k):
+			lost.append(before[k])
+	for k2 in after.keys():
+		if not before.has(k2):
+			gained.append(after[k2])
+	if lost.is_empty() and gained.is_empty():
+		return
+	for pair in lost:
+		var key: String = str(pair.get("key", ""))
+		_bond_anim[key] = {"t": 0.0, "kind": "snap", "pair": pair}
+	var stagger: int = 0
+	for pair2 in gained:
+		var key2: String = str(pair2.get("key", ""))
+		_bond_anim[key2] = {"t": -0.08 * float(stagger), "kind": "tie", "pair": pair2}
+		stagger += 1
+		var j: int = int(pair2.get("j", -1))
+		if j >= 0:
+			if str(pair2.get("punch", "")) == "hp":
+				punch_hp(j)
+			else:
+				punch_atk(j)
+	queue_redraw()
+
+
+func _bond_pair_map() -> Dictionary:
+	var out := {}
+	for pair in _collect_bond_pairs():
+		out[str(pair.get("key", ""))] = pair
+	return out
+
+
+func _collect_bond_pairs() -> Array:
+	var n: int = slices.size()
+	var out: Array = []
+	if n == 0:
+		return out
 	for i in n:
 		var s: Dictionary = slices[i]
 		if str(s.get("kind", "")) != "monster":
@@ -1651,39 +1784,258 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 		if int(s.get("hp", 0)) <= 0:
 			continue
 		var cid: String = str(s.get("card_id", ""))
-		var sp: Dictionary = _spoke(i)
-		var hot: bool = i == hover_index
-		if cid == "commander" and str(s.get("special_id", "")) != "":
+		var silenced: bool = bool(s.get("silenced", false))
+		match cid:
+			"commander":
+				if str(s.get("special_id", "")) == "":
+					continue
+				for off in [n - 1, 1]:
+					var j: int = (i + off) % n
+					if not _living_neighbor(j):
+						continue
+					out.append(_bond_pair(i, j, "commander", Color("d63a2a"), "sword", false, false, silenced, "atk"))
+			"lich":
+				if str(s.get("special_id", "")) == "":
+					continue
+				for off2 in [n - 1, 1]:
+					var j2: int = (i + off2) % n
+					if not _living_neighbor(j2):
+						continue
+					out.append(_bond_pair(i, j2, "lich", Color("8dcb8d"), "wisp", false, false, silenced, "hp"))
+			"plague_doctor":
+				for off3 in [n - 1, 1]:
+					var j3: int = (i + off3) % n
+					if not _living_neighbor(j3):
+						continue
+					out.append(_bond_pair(i, j3, "plague", Color("9a5bd1"), "drop", false, false, silenced, "hp", true))
+			"wraith":
+				var src: int = int(s.get("copy_from", -1))
+				if src < 0:
+					src = _higher_atk_neighbor(i)
+				if src >= 0 and src < n and _living_neighbor(src):
+					out.append(_bond_pair(src, i, "wraith", Color("c9b9a8"), "", true, false, silenced, "atk"))
+			"slime_boss":
+				out.append({"key": "slime:%s" % i, "i": i, "j": i, "kind": "slime", "col": Color(0.45, 0.82, 0.42, 0.85), "glyph": "", "dashed": false, "dotted": false, "silenced": false, "punch": "", "lock": false, "special": "slime"})
+			"bodyguard":
+				for off4 in [n - 1, 1]:
+					var j4: int = (i + off4) % n
+					if not _living_neighbor(j4):
+						continue
+					# Arrow from neighbour → Bodyguard.
+					out.append(_bond_pair(j4, i, "bodyguard", Color("a0a8b8"), "shield", false, false, silenced, "hp"))
+			"prism":
+				for off5 in [n - 1, 1]:
+					var j5: int = (i + off5) % n
+					if not _living_neighbor(j5):
+						continue
+					out.append(_bond_pair(i, j5, "prism", Color("e8c36a"), "", false, false, silenced, "atk", false, true))
+			"cowardly_king":
+				var jr: int = (i + 1) % n
+				if _living_neighbor(jr):
+					out.append(_bond_pair(i, jr, "king", Color("a0a8b8"), "", false, false, silenced, "atk"))
+			"wick":
+				for off6 in [n - 1, 1]:
+					var j6: int = (i + off6) % n
+					if not _living_neighbor(j6):
+						continue
+					out.append(_bond_pair(i, j6, "wick", Color("f0d48a"), "", false, true, silenced, "hp"))
+			"leech_league":
+				if i != _facing_for_bonds:
+					continue
+				var low: int = _lowest_hp_other(i)
+				if low >= 0:
+					out.append(_bond_pair(i, low, "leech", Color("6a1c14"), "", false, false, silenced, "hp"))
+	return out
+
+
+func _bond_pair(i: int, j: int, kind: String, col: Color, glyph: String, dashed: bool, dotted: bool, silenced: bool, punch: String, lock_end: bool = false, rainbow: bool = false) -> Dictionary:
+	return {
+		"key": "%s:%s>%s" % [kind, i, j],
+		"i": i,
+		"j": j,
+		"kind": kind,
+		"col": col,
+		"glyph": glyph,
+		"dashed": dashed,
+		"dotted": dotted,
+		"silenced": silenced,
+		"punch": punch,
+		"lock": lock_end,
+		"rainbow": rainbow,
+		"special": "",
+	}
+
+
+func _higher_atk_neighbor(i: int) -> int:
+	var n: int = slices.size()
+	var best: int = -1
+	var best_atk: int = -1
+	for off in [n - 1, 1]:
+		var j: int = (i + off) % n
+		if not _living_neighbor(j):
+			continue
+		var a: int = int(slices[j].get("atk", 0))
+		if a > best_atk:
+			best_atk = a
+			best = j
+	return best
+
+
+func _lowest_hp_other(i: int) -> int:
+	var best: int = -1
+	var best_hp: int = 999999
+	for j in slices.size():
+		if j == i or not _living_neighbor(j):
+			continue
+		var h: int = int(slices[j].get("hp", 0))
+		if h < best_hp:
+			best_hp = h
+			best = j
+	return best
+
+
+func _draw_bonds(_c: Vector2, _radius: float) -> void:
+	var n: int = slices.size()
+	if n == 0:
+		return
+	var pulse: float = 0.50 + 0.50 * sin(_glow_t * 6.0)
+	var font: Font = get_theme_default_font()
+	if font == null:
+		font = ThemeDB.fallback_font
+	_ensure_aura_glyphs()
+	for pair in _collect_bond_pairs():
+		if str(pair.get("special", "")) == "slime":
+			var i_s: int = int(pair.get("i", -1))
+			if i_s < 0:
+				continue
+			var sp_s: Dictionary = _spoke(i_s)
+			var midp: Vector2 = (sp_s["atk"] + sp_s["hp"]) * 0.5
+			_draw_outlined_string(font, midp + Vector2(0, 5), "=", 15, Color(0.45, 0.82, 0.42, 0.85), Color("1c120c"))
+			continue
+		var i: int = int(pair.get("i", -1))
+		var j: int = int(pair.get("j", -1))
+		if i < 0 or j < 0 or i >= n or j >= n:
+			continue
+		var key: String = str(pair.get("key", ""))
+		var anim: Dictionary = _bond_anim.get(key, {})
+		var kind: String = str(anim.get("kind", ""))
+		var at: float = float(anim.get("t", 0.0))
+		if kind == "snap":
+			_draw_bond_snap(pair, at)
+			if at >= 0.18:
+				_bond_anim.erase(key)
+			continue
+		var u_draw: float = 1.0
+		if kind == "tie":
+			if at < 0.0:
+				continue
+			u_draw = clampf(at / 0.24, 0.0, 1.0)
+			if at >= 0.24:
+				_bond_anim.erase(key)
+		var hot: bool = i == hover_index or j == hover_index
+		var col: Color = pair.get("col", Color.WHITE)
+		if bool(pair.get("rainbow", false)):
+			var hue: float = fposmod(_glow_t * 0.35, 1.0)
+			col = Color.from_hsv(hue, 0.65, 0.95)
+		if bool(pair.get("silenced", false)):
+			col = Color(0.55, 0.55, 0.55, 0.25)
+		else:
 			var a: float = (0.82 + 0.18 * pulse) if hot else (0.30 + 0.10 * pulse)
-			var rc := Color(0.92, 0.22, 0.16, a)
-			for off in [n - 1, 1]:
-				var j: int = (i + off) % n
-				if not _living_neighbor(j):
-					continue
-				FX_RAYS.draw(self, sp["port"], _spoke(j)["port"], rc, _glow_t, hot)
-				FX_RAYS.draw(self, sp["port"], _spoke(j)["atk"], Color(rc.r, rc.g, rc.b, rc.a * 0.7), _glow_t, hot)
-		elif cid == "lich" and str(s.get("special_id", "")) != "":
-			var a2: float = (0.82 + 0.18 * pulse) if hot else (0.30 + 0.10 * pulse)
-			var cream := Color(0.95, 0.88, 0.72, a2)
-			for off2 in [n - 1, 1]:
-				var j2: int = (i + off2) % n
-				if not _living_neighbor(j2):
-					continue
-				FX_RAYS.draw(self, sp["port"], _spoke(j2)["port"], cream, _glow_t, hot)
-				FX_RAYS.draw(self, sp["port"], _spoke(j2)["hp"], Color(cream.r, cream.g, cream.b, cream.a * 0.7), _glow_t, hot)
-		elif cid == "wraith":
-			var src: int = int(s.get("copy_from", -1))
-			if src >= 0 and src < n and _living_neighbor(src):
-				var a3: float = (0.82 + 0.18 * pulse) if hot else (0.30 + 0.10 * pulse)
-				var pur := Color(0.72, 0.42, 0.92, a3)
-				FX_RAYS.draw(self, _spoke(src)["atk"], sp["atk"], pur, _glow_t, hot)
-		elif cid == "slime_boss":
-			var slime := Color(0.45, 0.82, 0.42, 0.85)
-			var midp: Vector2 = (sp["atk"] + sp["hp"]) * 0.5
-			var font: Font = get_theme_default_font()
-			if font == null:
-				font = ThemeDB.fallback_font
-			_draw_outlined_string(font, midp + Vector2(0, 5), "=", 15, slime, Color("1c120c"))
+			col.a = a
+		var a_pt: Vector2 = _spoke(i)["port"]
+		var b_pt: Vector2 = _spoke(j)["port"]
+		var hub: Vector2 = _center()
+		var mid: Vector2 = (a_pt + b_pt) * 0.5
+		var bow: Vector2 = mid.lerp(hub, 0.35)
+		bow = mid + (bow - mid).normalized() * 18.0
+		if u_draw < 0.999:
+			b_pt = _quad_bezier(a_pt, bow, b_pt, u_draw)
+			bow = a_pt.lerp(bow, u_draw)
+		_draw_thread(a_pt, bow, b_pt, col, hot, bool(pair.get("dashed", false)), bool(pair.get("dotted", false)))
+		var glyph: String = str(pair.get("glyph", ""))
+		if glyph != "" and u_draw > 0.85:
+			var gu: float = fposmod(_glow_t * 0.6, 1.0)
+			var gp: Vector2 = _quad_bezier(a_pt, bow, b_pt, gu)
+			_draw_aura_glyph(gp, glyph, col)
+		if bool(pair.get("lock", false)) and u_draw > 0.85:
+			_draw_aura_glyph(b_pt + Vector2(10, -8), "lock", col)
+		if bool(pair.get("silenced", false)):
+			var lab: String = COPY.text("status.silenced", "Silenced")
+			_draw_outlined_string(font, mid + Vector2(0, -6), lab, 11, Color(0.75, 0.75, 0.75, 0.55), Color("100e0c"))
+
+
+func _draw_bond_snap(pair: Dictionary, t: float) -> void:
+	var i: int = int(pair.get("i", -1))
+	var j: int = int(pair.get("j", -1))
+	if i < 0 or j < 0:
+		return
+	var a_pt: Vector2 = _spoke(i)["port"]
+	var b_pt: Vector2 = _spoke(j)["port"]
+	var mid: Vector2 = (a_pt + b_pt) * 0.5
+	var hub: Vector2 = _center()
+	var bow: Vector2 = mid + (mid.lerp(hub, 0.35) - mid).normalized() * 18.0
+	var u: float = clampf(t / 0.18, 0.0, 1.0)
+	var col: Color = pair.get("col", Color.WHITE)
+	col.a = 0.55 * (1.0 - u)
+	var left_end: Vector2 = mid.lerp(a_pt, u)
+	var right_end: Vector2 = mid.lerp(b_pt, u)
+	draw_line(a_pt, left_end, Color("100e0c", col.a), 5.0 if false else 4.0, true)
+	draw_line(a_pt, left_end, col, 3.0, true)
+	draw_line(b_pt, right_end, Color("100e0c", col.a), 4.0, true)
+	draw_line(b_pt, right_end, col, 3.0, true)
+	if ResourceLoader.exists("res://assets/dungeon/vfx/spark.png") and u < 0.5:
+		var spark: Texture2D = load("res://assets/dungeon/vfx/spark.png") as Texture2D
+		if spark != null:
+			for k in 3:
+				var ang: float = float(k) * TAU / 3.0 + t * 8.0
+				var off := Vector2.from_angle(ang) * (4.0 + u * 10.0)
+				draw_texture_rect(spark, Rect2(bow + off - Vector2(4, 4), Vector2(8, 8)), false, Color(1, 1, 1, 1.0 - u))
+
+
+func _draw_thread(a: Vector2, bow: Vector2, b: Vector2, col: Color, hot: bool, dashed: bool, dotted: bool) -> void:
+	var w: float = 4.0 if hot else 3.0
+	var ink := Color("100e0c", col.a * 0.85)
+	var pts: PackedVector2Array = PackedVector2Array()
+	var steps: int = 12
+	for s in steps + 1:
+		var u: float = float(s) / float(steps)
+		pts.append(_quad_bezier(a, bow, b, u))
+	if dashed or dotted:
+		var gap: int = 2 if dotted else 3
+		var on: int = 1 if dotted else 2
+		var i: int = 0
+		while i < pts.size() - 1:
+			if (i % (on + gap)) < on:
+				draw_line(pts[i], pts[i + 1], ink, w + 1.0, true)
+				draw_line(pts[i], pts[i + 1], col, w, true)
+			i += 1
+	else:
+		for i2 in pts.size() - 1:
+			draw_line(pts[i2], pts[i2 + 1], ink, w + 1.0, true)
+			draw_line(pts[i2], pts[i2 + 1], col, w, true)
+
+
+func _quad_bezier(a: Vector2, b: Vector2, c: Vector2, t: float) -> Vector2:
+	var u: float = 1.0 - t
+	return u * u * a + 2.0 * u * t * b + t * t * c
+
+
+func _ensure_aura_glyphs() -> void:
+	if not _aura_glyphs.is_empty():
+		return
+	for name in ["sword", "wisp", "drop", "lock", "shield"]:
+		var p := "res://assets/ui/anim/aura_glyph_%s.png" % name
+		if ResourceLoader.exists(p):
+			_aura_glyphs[name] = load(p) as Texture2D
+
+
+func _draw_aura_glyph(pos: Vector2, name: String, col: Color) -> void:
+	var tex: Texture2D = _aura_glyphs.get(name, null)
+	var sz := Vector2(24, 24)
+	if tex != null:
+		draw_texture_rect(tex, Rect2(pos - sz * 0.5, sz), false, Color(col.r, col.g, col.b, mini(1.0, col.a + 0.35)))
+	else:
+		draw_circle(pos, 4.0, col)
 
 
 func _living_neighbor(j: int) -> bool:
@@ -2005,7 +2357,7 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		var pulse2: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 		draw_arc(pos, hs * 0.52, 0.0, TAU, 20, Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2), 2.6, true)
 	_draw_bold_num(font, pos + Vector2(0.0, 2.0), str(hp), 21 if big else 18, Color("f0e6d8"))
-	_draw_poison_badge(font, pos, s, big)
+	_draw_poison_badge(font, pos, s, big, i)
 	if hp_d != 0:
 		var blink: float = 0.40 + 0.60 * absf(sin(_glow_t * 10.0))
 		var dc: Color = UP_COL if hp_d > 0 else DOWN_COL
@@ -2027,19 +2379,52 @@ func _poison_tex() -> Texture2D:
 	return tex_poison
 
 
-func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool) -> void:
-	var n: int = _poison_n(s)
-	if n <= 0:
+func _ensure_poison_drip() -> void:
+	if not _poison_drip.is_empty():
 		return
+	for i in 4:
+		var p := "res://assets/ui/anim/poison_badge_drip_f%s.png" % i
+		if ResourceLoader.exists(p):
+			_poison_drip.append(load(p) as Texture2D)
+	if _poison_lock_tex == null and ResourceLoader.exists("res://assets/ui/anim/poison_lock.png"):
+		_poison_lock_tex = load("res://assets/ui/anim/poison_lock.png") as Texture2D
+
+
+func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool, idx: int = -1) -> void:
+	var n: int = _poison_n(s)
+	var clear_t: float = float(_poison_clear_t.get(idx, 0.0)) if idx >= 0 else 0.0
+	if n <= 0 and clear_t <= 0.01:
+		return
+	_ensure_poison_drip()
+	var locked: bool = bool(s.get("plague_held", false))
 	var drop_pos: Vector2 = pos + Vector2(22.0 if big else 18.0, -12.0 if big else -10.0)
-	var tex: Texture2D = _poison_tex()
+	var bob: float = 0.0 if locked else (2.0 * sin(_glow_t * 4.0))
+	drop_pos.y += bob
+	var sc: float = float(_poison_badge_scale.get(idx, 1.0)) if idx >= 0 else 1.0
+	if clear_t > 0.01:
+		sc *= clear_t
+	var base_sz := Vector2(32, 32) if big else Vector2(28, 28)
+	var sz: Vector2 = base_sz * sc
 	var col := Color("7dba7d")
-	if tex != null:
-		var sz := Vector2(16, 16) if big else Vector2(14, 14)
-		draw_texture_rect(tex, Rect2(drop_pos - sz * 0.5, sz), false, col)
+	var drip_tex: Texture2D = null
+	if not locked and not _poison_drip.is_empty():
+		var fi: int = int(floor(_glow_t / 0.15)) % _poison_drip.size()
+		drip_tex = _poison_drip[fi]
+	if drip_tex != null:
+		draw_texture_rect(drip_tex, Rect2(drop_pos - sz * 0.5, sz), false, col)
 	else:
-		draw_circle(drop_pos, 5.0 if big else 4.0, col)
-	_draw_bold_num(font, drop_pos + Vector2(10.0, 1.0), str(n), 14 if big else 12, Color("d8f0d0"))
+		var tex: Texture2D = _poison_tex()
+		if tex != null:
+			draw_texture_rect(tex, Rect2(drop_pos - sz * 0.5, sz * 0.5), false, col)
+		else:
+			draw_circle(drop_pos, 5.0 * sc if big else 4.0 * sc, col)
+	if n > 0:
+		_draw_bold_num(font, drop_pos + Vector2(12.0 * sc, 1.0), str(n), 14 if big else 12, Color("d8f0d0"))
+	if locked and _poison_lock_tex != null:
+		var lz := Vector2(12, 12) if big else Vector2(10, 10)
+		draw_texture_rect(_poison_lock_tex, Rect2(drop_pos + Vector2(6, 4) - lz * 0.5, lz), false, Color.WHITE)
+	elif locked:
+		draw_rect(Rect2(drop_pos + Vector2(4, 2), Vector2(6, 7)), Color("e8c36a"))
 
 
 func _delta_text(d: int) -> String:
@@ -2093,6 +2478,7 @@ func _draw_hub_block(c: Vector2, _radius: float) -> void:
 		font = ThemeDB.fallback_font
 	var dim: float = 0.35 if hub_death_dim else 1.0
 	_draw_hub_heart_arc(dim)
+	_draw_hub_poison_badge(font, dim)
 	_draw_blk_badge(c, font, dim)
 	if hub_sting > 0.02:
 		var ink: Color = Color("e07a7a") if hub_sting_kind == "hurt" else Color("5aa8e8")

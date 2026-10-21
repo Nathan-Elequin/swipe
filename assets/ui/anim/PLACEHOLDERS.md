@@ -27,6 +27,29 @@ Overwrite landed at the same paths as the old placeholders. Loaders still use `r
 | `ticker_token_stamp_f0.png` … `ticker_token_stamp_f3.png` | 12×12 | 4 | Press-down + ink tick |
 | `ticker_ff.png` | 12×8 | 1 | Gold ▶▶ chevrons |
 
-## Still placeholders
+### Poison pop (pass 4) — placeholders
 
-None under `assets/ui/anim/` right now. Future temp flats go here until PixelLab overwrites the same path.
+Flat magenta fill + 1px `#100e0c` outline. PixelLab overwrites the same paths.
+
+| File | Native | Frames | Notes |
+|---|---|---|---|
+| `poison_badge_drip_f0.png` … `f3.png` | 8×8 | 4 | Slice/hub drip loop |
+| `poison_burst_f0.png` … `f3.png` | 24×24 | 4 | Tick burst |
+| `heart_drip_f0.png` … `f3.png` | 12×12 | 4 | Player heart drip |
+| `poison_lock.png` | 6×6 | 1 | Plague Doctor Always padlock |
+
+### Petrify (pass 4) — placeholders
+
+| File | Native | Frames | Notes |
+|---|---|---|---|
+| `petrify_shatter_f0.png` … `f4.png` | 30×30 | 5 | Stone shatter over card |
+
+### Aura threads (pass 4) — placeholders
+
+| File | Native | Frames | Notes |
+|---|---|---|---|
+| `aura_glyph_sword.png` | 8×8 | 1 | Commander |
+| `aura_glyph_wisp.png` | 8×8 | 1 | Lich |
+| `aura_glyph_drop.png` | 8×8 | 1 | Plague Doctor |
+| `aura_glyph_lock.png` | 8×8 | 1 | Always padlock end |
+| `aura_glyph_shield.png` | 8×8 | 1 | Bodyguard |

@@ -1274,6 +1274,20 @@ func _ensure_registry() -> void:
 		"07_six_seats", "08_intent_plate_final_art",
 	], _shot_anim_cascade_ticker)
 	_bind_many([
+		"01_ale_burst", "02_ale_hearts", "03_miasma_drip", "04_miasma_one_burst",
+		"05_poison_ff",
+	], _shot_anim_poison_pop)
+	_bind_many([
+		"01_gargoyle_beam", "02_gargoyle_creep", "03_gargoyle_shatter",
+		"04_hydra_beams", "05_basilisk_pips", "06_basilisk_tick",
+	], _shot_anim_petrify)
+	_bind_many([
+		"01_hook_mark", "02_hook_200ms", "03_hook_360ms", "04_hook_600ms", "05_hook_1100ms",
+	], _shot_anim_grappling_hook)
+	_bind_many([
+		"01_commander_threads", "02_snap", "03_retie", "04_quiet_grey",
+	], _shot_anim_aura_threads)
+	_bind_many([
 		"60_loft", "61_loft_cat_rub", "62_journal_cover", "63_journal_bestiary",
 		"64_journal_items", "65_journal_memories", "66_journal_unmet",
 	], _shot_playtest_art)
@@ -1580,6 +1594,220 @@ func _cascade_capture(filename: String, how: String) -> void:
 		return
 	notes.append({"file": filename, "status": "ok", "how": how})
 	_log_progress("captured %s" % filename)
+
+
+func _uid_of_item(card_id: String) -> int:
+	for it in main.hotbar:
+		if str(it.get("card_id", "")) == card_id:
+			return int(it.get("uid", -1))
+	return -1
+
+
+func _shot_anim_poison_pop() -> void:
+	out_dir = "res://design/visual/anim-qa/poison-pop"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-poison-pop"
+	# Ale Flagon needs fighting. Spin once, drink, Spin again so player poison ticks.
+	await _anim_ready_seat(["goblin", "skeleton", "bandit", "ogre"], ["ale_flagon", "shield"], 8, 0, 0)
+	await _anim_spin_face(0)
+	var uid: int = _uid_of_item("ale_flagon")
+	if uid >= 0:
+		await main._use_item(uid)
+	await _wait(0.10)
+	main.set_meta("qa_spin_idx", 1)
+	main._on_spin()
+	await _wait(0.35)
+	await _capture("01_ale_burst.png", "Ale Flagon then Spin: hub poison burst")
+	await _wait(0.30)
+	await _capture("02_ale_hearts.png", "Ale Flagon then Spin: hearts dripping / −n fly")
+	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
+	# Miasma: all drip, only facing bursts.
+	await _anim_ready_seat(
+		["goblin", "skeleton", "bandit", "ogre"],
+		["miasma"],
+		8, 0, 0
+	)
+	await _anim_spin_face(0)
+	var mid: int = _uid_of_item("miasma")
+	if mid >= 0:
+		await main._use_item(mid)
+	await _wait(0.20)
+	await _capture("03_miasma_drip.png", "Miasma: drip badges on slices")
+	# After miasma use it may already tick facing; seat fresh poison then spin another seat.
+	if main.phase != "fighting":
+		await _anim_ready_seat(
+			["goblin", "skeleton", "bandit", "ogre"],
+			["miasma"],
+			8, 0, 0
+		)
+		await _anim_spin_face(0)
+		mid = _uid_of_item("miasma")
+		if mid >= 0:
+			# Apply poison without auto-tick by setting slices directly.
+			for i in main.wheel.size():
+				if str(main.wheel[i].get("kind", "")) == "monster":
+					main.wheel[i]["poison"] = 3
+					main.wheel[i]["poisoned"] = true
+			main._refresh()
+	main.set_meta("qa_spin_idx", 1)
+	main._on_spin()
+	await _wait(0.40)
+	await _capture("04_miasma_one_burst.png", "Miasma: only spun slice bursts")
+	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
+	# Shift ×3 during poison tick.
+	await _anim_ready_seat(["goblin", "skeleton", "bandit", "ogre"], ["ale_flagon"], 8, 0, 0)
+	await _anim_spin_face(0)
+	uid = _uid_of_item("ale_flagon")
+	if uid >= 0:
+		await main._use_item(uid)
+	main.set_meta("qa_force_shift", true)
+	main.set_meta("qa_spin_idx", 1)
+	main._on_spin()
+	await _wait(0.15)
+	await _capture("05_poison_ff.png", "Hold Shift: poison tick at ×3")
+	if main.has_meta("qa_force_shift"):
+		main.remove_meta("qa_force_shift")
+	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
+
+
+func _shot_anim_petrify() -> void:
+	out_dir = "res://design/visual/anim-qa/petrify"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-petrify"
+	# Gargoyle: highest ATK item stones.
+	await _anim_ready_seat(["gargoyle", "goblin", "skeleton", "bandit"], ["longbow", "shield", "net"], 8, 0, 0)
+	main.set_meta("qa_spin_idx", 0)
+	main._on_spin()
+	await _wait(0.20)
+	await _capture("01_gargoyle_beam.png", "Gargoyle ~200ms: gaze beam")
+	await _wait(0.30)
+	await _capture("02_gargoyle_creep.png", "Gargoyle ~500ms: stone creep")
+	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
+	main.set_meta("qa_spin_idx", 1)
+	main._on_spin()
+	await _wait(0.125)
+	await _capture("03_gargoyle_shatter.png", "Next Spin: petrify shatter")
+	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
+	# Hydra: three even items.
+	await _anim_ready_seat(
+		["hydra", "goblin", "skeleton", "bandit"],
+		["shield", "net", "da_boot", "longbow"],
+		8, 0, 0
+	)
+	main.set_meta("qa_spin_idx", 0)
+	main._on_spin()
+	await _wait(0.55)
+	await _capture("04_hydra_beams.png", "Hydra: staggered beams on even items")
+	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
+	# Basilisk: every other card, 3 pips.
+	await _anim_ready_seat(
+		["basilisk", "goblin", "skeleton", "bandit"],
+		["shield", "net", "da_boot", "longbow"],
+		8, 0, 0
+	)
+	main.set_meta("qa_spin_idx", 0)
+	main._on_spin()
+	await _wait(0.80)
+	await _capture("05_basilisk_pips.png", "Basilisk: every other card stone with 3 pips")
+	await _until(func() -> bool: return not bool(main._walker_busy), 25.0)
+	# Re-seat basilisk gaze already fled; apply petrify_n manually for countdown shot.
+	await _anim_ready_seat(
+		["goblin", "skeleton", "bandit", "ogre"],
+		["shield", "net", "da_boot", "longbow"],
+		8, 0, 0
+	)
+	await _anim_spin_face(0)
+	for i in main.hotbar.size():
+		if (i + 1) % 2 == 0:
+			main.hotbar[i]["petrify_n"] = 2
+	main._refresh()
+	await _wait(0.10)
+	await main._tick_gaze_petrify()
+	await _wait(0.12)
+	await _capture("06_basilisk_tick.png", "Basilisk countdown: pip cracked off")
+
+
+func _shot_anim_grappling_hook() -> void:
+	out_dir = "res://design/visual/anim-qa/grappling-hook"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-grappling-hook"
+	await _anim_ready_seat(
+		["goblin", "skeleton", "bandit", "ogre"],
+		["grappling_hook", "shield"],
+		8, 0, 0
+	)
+	await _anim_spin_face(0)
+	var uid: int = _uid_of_item("grappling_hook")
+	if uid < 0:
+		_skip("01_hook_mark.png", "grappling_hook missing")
+		return
+	main._use_item(uid)
+	await _wait(0.20)
+	await _capture("01_hook_mark.png", "Hook mark highlights (cue.mark)")
+	var neighbor: int = 1 if main.wheel.size() > 1 else -1
+	if neighbor < 0:
+		_skip("02_hook_200ms.png", "no neighbour")
+		return
+	var t0: int = Time.get_ticks_msec()
+	main._apply_mark(neighbor)
+	await _wait(0.20)
+	await _capture("02_hook_200ms.png", "Hook throw ~200ms")
+	var elapsed: float = float(Time.get_ticks_msec() - t0) / 1000.0
+	await _wait(maxf(0.01, 0.36 - elapsed))
+	await _capture("03_hook_360ms.png", "Hook taut ~360ms")
+	elapsed = float(Time.get_ticks_msec() - t0) / 1000.0
+	await _wait(maxf(0.01, 0.60 - elapsed))
+	await _capture("04_hook_600ms.png", "Hook mid-swap ~600ms")
+	elapsed = float(Time.get_ticks_msec() - t0) / 1000.0
+	await _wait(maxf(0.01, 1.10 - elapsed))
+	await _capture("05_hook_1100ms.png", "Hook drawn item arriving ~1100ms")
+	await _until(func() -> bool: return main.pending_mark.is_empty() and not bool(main._walker_busy), 20.0)
+
+
+func _shot_anim_aura_threads() -> void:
+	out_dir = "res://design/visual/anim-qa/aura-threads"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-aura-threads"
+	# Commander between Kobold Trapper and Lich.
+	await _anim_ready_seat(
+		["kobold_trapper", "commander", "lich", "goblin"],
+		["quiet_bell", "longbow"],
+		8, 0, 0
+	)
+	await _anim_spin_face(1)
+	await _wait(0.20)
+	await _capture("01_commander_threads.png", "Commander red threads + Lich green")
+	# Kill kobold neighbour.
+	if main.wheel.size() > 0 and str(main.wheel[0].get("card_id", "")) == "kobold_trapper":
+		main.wheel[0]["hp"] = 0
+		main._sync_wheel_stats()
+		if main.wheel_view:
+			await main.wheel_view.collapse_slice(0, main.facing_index)
+		main.wheel.remove_at(0)
+		if main.facing_index > 0:
+			main.facing_index -= 1
+		main._reseat_slots()
+		main._sync_wheel_stats()
+		if main.wheel_view:
+			main.wheel_view.set_slices(main.wheel, main.facing_index, "none")
+	await _wait(0.10)
+	await _capture("02_snap.png", "After neighbour dies: thread snap")
+	await _wait(0.30)
+	await _capture("03_retie.png", "Threads re-tie to new neighbour")
+	# Quiet Bell greys Commander.
+	await _anim_ready_seat(
+		["kobold_trapper", "commander", "lich", "goblin"],
+		["quiet_bell"],
+		8, 0, 0
+	)
+	await _anim_spin_face(1)
+	var qid: int = _uid_of_item("quiet_bell")
+	if qid >= 0:
+		await main._use_item(qid)
+		if not main.pending_mark.is_empty():
+			await main._apply_mark(main.facing_index)
+	await _wait(0.25)
+	await _capture("04_quiet_grey.png", "Quiet Bell: Commander threads grey + Silenced")
 
 
 func _shot_anim_cascade_ticker() -> void:

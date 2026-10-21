@@ -1,0 +1,245 @@
+{
+	"failures": [
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1082/@Label@1078",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1082/@RichTextLabel@1081",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "Gargoyle"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1086/@RichTextLabel@1085",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "enemy ATK 4   HP 5"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1090/@RichTextLabel@1089",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1094/@RichTextLabel@1093",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1110/@Label@1106",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1110/@RichTextLabel@1109",
+			"reason": "below_min_size",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "petrify Longbow"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1030/@MarginContainer@1009/@VBoxContainer@1010/@Control@1013/@Label@1016",
+			"reason": "overflow_parent",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1052/@MarginContainer@1031/@VBoxContainer@1032/@Control@1035/@Label@1038",
+			"reason": "overflow_parent",
+			"screen": "01_gargoyle_beam",
+			"shot": "res://design/visual/anim-qa/petrify/01_gargoyle_beam.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1082/@Label@1078",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1082/@RichTextLabel@1081",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "Gargoyle"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1086/@RichTextLabel@1085",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "enemy ATK 4   HP 5"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1090/@RichTextLabel@1089",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1094/@RichTextLabel@1093",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1110/@Label@1106",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1110/@RichTextLabel@1109",
+			"reason": "below_min_size",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "petrify Longbow"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1030/@MarginContainer@1009/@VBoxContainer@1010/@Control@1013/@Label@1016",
+			"reason": "overflow_parent",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1052/@MarginContainer@1031/@VBoxContainer@1032/@Control@1035/@Label@1038",
+			"reason": "overflow_parent",
+			"screen": "02_gargoyle_creep",
+			"shot": "res://design/visual/anim-qa/petrify/02_gargoyle_creep.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1082/@Label@1078",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1082/@RichTextLabel@1081",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "Gargoyle"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1086/@RichTextLabel@1085",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "enemy ATK 4   HP 5"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1090/@RichTextLabel@1089",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1094/@RichTextLabel@1093",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1110/@Label@1106",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1110/@RichTextLabel@1109",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "petrify Longbow"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1122/@VBoxContainer@1116/@HBoxContainer@1117/@VBoxContainer@1118/@Label@1119",
+			"reason": "below_min_size",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "Gargoyle"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@PanelContainer@1122/@VBoxContainer@1116/@HBoxContainer@1117/@VBoxContainer@1118/@Label@1120",
+			"reason": "overflow_parent",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "Petrify"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1155/@MarginContainer@1134/@VBoxContainer@1135/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1155/@TextureRect@1154",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "Longbow"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1155/@MarginContainer@1134/@VBoxContainer@1135/@Control@1138/@Label@1141",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1155/@TextureRect@1154",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1177/@MarginContainer@1156/@VBoxContainer@1157/@Control@1160/@Label@1163",
+			"reason": "overflow_parent",
+			"screen": "03_gargoyle_shatter",
+			"shot": "res://design/visual/anim-qa/petrify/03_gargoyle_shatter.png",
+			"text": "4"
+		}
+	],
+	"updated": "2026-10-21T01:44:22"
+}
