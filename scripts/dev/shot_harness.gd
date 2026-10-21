@@ -1293,6 +1293,22 @@ func _ensure_registry() -> void:
 		"01_commander_threads", "02_snap", "03_retie", "04_quiet_grey", "aura_six_seats",
 	], _shot_anim_aura_threads)
 	_bind_many([
+		"01_split_120ms", "02_split_240ms", "03_split_360ms",
+		"04_merge", "05_carryover", "06_dungeon_reset", "07_sai_6_seats",
+	], _shot_anim_sai_twirl)
+	_bind_many([
+		"01_bag_fill", "02_swirl_120ms", "03_settle_300ms",
+		"04_courier_600ms", "05_grow", "06_marble_6_seats",
+	], _shot_anim_marble_swirl)
+	_bind_many([
+		"01_glint_0s", "02_glint_1s", "03_glint_3s", "04_glint_6s",
+		"05_boot_sink", "06_sling_loaded", "07_shimmer_6_seats",
+	], _shot_anim_hotbar_shimmer)
+	_bind_many([
+		"01_kobold_plus", "02_net_range", "03_amalgam",
+		"04_bushido", "05_kill", "06_unhover", "07_hover_6_seats",
+	], _shot_anim_hover_preview)
+	_bind_many([
 		"60_loft", "61_loft_cat_rub", "62_journal_cover", "63_journal_bestiary",
 		"64_journal_items", "65_journal_memories", "66_journal_unmet",
 	], _shot_playtest_art)
@@ -2077,6 +2093,251 @@ func _shot_anim_cascade_ticker() -> void:
 	await _anim_spin_face(0)
 	await _wait(0.20)
 	await _cascade_capture("08_intent_plate_final_art.png", "Hornet Swarm intent plate: final claw art")
+
+
+func _game_wait(sec: float) -> void:
+	await get_tree().create_timer(sec).timeout
+
+
+func _hot_card(id: String) -> Control:
+	if main.has_method("_hotbar_card"):
+		return main._hotbar_card(id)
+	return null
+
+
+func _shot_anim_sai_twirl() -> void:
+	out_dir = "res://design/visual/anim-qa/sai-twirl-split"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-sai-twirl"
+	await _anim_ready_seat(["goblin", "skeleton", "bandit", "ogre"], ["sai", "shield", "net"], 6, 0)
+	await _anim_spin_face(0)
+	var sai: Control = _hot_card("sai")
+	if sai == null or not sai.has_method("play_sai"):
+		_skip("01_split_120ms.png", "sai card missing")
+		return
+	if "alt_n" in main.hotbar[0] or true:
+		for it in main.hotbar:
+			if str(it.get("card_id", "")) == "sai":
+				it["alt_n"] = 2
+	sai.play_sai(2, 4)
+	await _game_wait(0.12)
+	await _capture("01_split_120ms.png", "Sai split ~120ms: twirl, number dissolve")
+	await _game_wait(0.12)
+	await _capture("02_split_240ms.png", "Sai split ~240ms: blade separating")
+	await _game_wait(0.12)
+	await _capture("03_split_360ms.png", "Sai split ~360ms: pair with 4")
+	sai.play_sai(4, 2)
+	await _game_wait(0.36)
+	await _capture("04_merge.png", "Sai merge: frames reversed, 2")
+	for it2 in main.hotbar:
+		if str(it2.get("card_id", "")) == "sai":
+			it2["alt_n"] = 4
+	main._hotbar_sig = ""
+	main._refresh()
+	main.phase = "ready"
+	main.facing_index = -1
+	main._refresh()
+	await _wait(0.15)
+	await _capture("05_carryover.png", "Sai still a pair with 4 after the fight")
+	if main.has_method("_prep_next_dungeon"):
+		main._prep_next_dungeon()
+	main._refresh()
+	await _wait(0.15)
+	await _capture("06_dungeon_reset.png", "new dungeon: single sai with 2, no anim")
+	await _anim_ready_seat(
+		["goblin", "skeleton", "bandit", "ogre", "lich", "wizard"],
+		["sai", "shield", "net"], 6, 0, 6
+	)
+	await _anim_spin_face(0)
+	var sai6: Control = _hot_card("sai")
+	if sai6 != null and sai6.has_method("play_sai"):
+		sai6.play_sai(2, 4)
+		await _game_wait(0.24)
+	_log_progress("sai six_seats wheel=%s" % main.wheel.size())
+	await _capture("07_sai_6_seats.png", "Sai split on a 6-seat wheel")
+
+
+func _shot_anim_marble_swirl() -> void:
+	out_dir = "res://design/visual/anim-qa/marble-swirl"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-marble-swirl"
+	await _anim_ready_seat(["goblin", "skeleton", "bandit", "ogre"], ["bag_of_marbles"], 6, 0)
+	await _anim_spin_face(0)
+	var bag: Control = _hot_card("bag_of_marbles")
+	if bag != null:
+		main._walker_busy = false
+		if not main.hotbar.is_empty():
+			await main._apply_bag_marbles(main.hotbar[0])
+	await _game_wait(0.18)
+	await _capture("01_bag_fill.png", "Bag of Marbles: staggered roll-in")
+	var marble: Dictionary = {}
+	for it in main.hotbar:
+		if str(it.get("card_id", "")) == "marble":
+			marble = it
+			break
+	if marble.is_empty():
+		_skip("02_swirl_120ms.png", "no marble after bag")
+		return
+	marble["marble_n"] = 2
+	main.rng.seed = 3
+	var card: Control = main._hotbar_card_by_uid(int(marble.get("uid", -1))) if main.has_method("_hotbar_card_by_uid") else _hot_card("marble")
+	if card != null and card.has_method("play_marble"):
+		card.play_marble(true)
+	await _game_wait(0.12)
+	await _capture("02_swirl_120ms.png", "marble swirl ~120ms")
+	await _game_wait(0.18)
+	await _capture("03_settle_300ms.png", "marble settled red/blue ~300ms")
+	await _game_wait(0.30)
+	await _capture("04_courier_600ms.png", "marble courier toward Attack or Block")
+	if card != null and card.has_method("marble_grow"):
+		card.marble_grow(3)
+	await _game_wait(0.16)
+	await _capture("05_grow.png", "marble grow punch +1")
+	await _anim_ready_seat(
+		["goblin", "skeleton", "bandit", "ogre", "lich", "wizard"],
+		["marble", "shield"], 6, 0, 6
+	)
+	for it6 in main.hotbar:
+		if str(it6.get("card_id", "")) == "marble":
+			it6["marble_n"] = 1
+	main._refresh()
+	await _anim_spin_face(0)
+	_log_progress("marble six_seats wheel=%s" % main.wheel.size())
+	await _capture("06_marble_6_seats.png", "marble idle on a 6-seat wheel")
+
+
+func _shot_anim_hotbar_shimmer() -> void:
+	out_dir = "res://design/visual/anim-qa/hotbar-shimmer"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-hotbar-shimmer"
+	await _anim_ready_seat(["goblin", "ogre", "dragon", "bandit"], ["net", "shield", "sledgehammer"], 6, 0)
+	# Force Weak / Tough / Deadly ranks on the three cards.
+	if main.hotbar.size() >= 3:
+		main.hotbar[0]["tier"] = 1
+		main.hotbar[1]["tier"] = 2
+		main.hotbar[2]["tier"] = 3
+	main._hotbar_sig = ""
+	await _anim_spin_face(0)
+	main._refresh()
+	await _wait(0.10)
+	await _capture("01_glint_0s.png", "Weak / Tough / Deadly glints start")
+	await _game_wait(1.0)
+	await _capture("02_glint_1s.png", "glints ~1s")
+	await _game_wait(2.0)
+	await _capture("03_glint_3s.png", "glints ~3s")
+	await _game_wait(3.0)
+	await _capture("04_glint_6s.png", "6s: three rates + Deadly sparkle")
+	await _anim_ready_seat(["ogre", "goblin", "skeleton", "bandit"], ["da_boot", "shield"], 6, 0)
+	await _anim_spin_face(0)
+	main._refresh()
+	await _wait(0.15)
+	await _capture("05_boot_sink.png", "unusable Boot sinks and desaturates")
+	await _anim_ready_seat(["goblin", "skeleton", "bandit", "ogre"], ["sling", "throwing_knife"], 6, 0)
+	await _anim_spin_face(0)
+	if not main.hotbar.is_empty():
+		var sling: Dictionary = {}
+		for it in main.hotbar:
+			if str(it.get("card_id", "")) == "sling":
+				sling = it
+				break
+		if not sling.is_empty():
+			main.pending_mark = {"kind": "sling_any", "uid": int(sling.get("uid", -1))}
+	main._refresh()
+	await _wait(0.15)
+	await _capture("06_sling_loaded.png", "Sling Loaded chip; tooltip from PLAYER_COPY")
+	await _anim_ready_seat(
+		["goblin", "skeleton", "bandit", "ogre", "lich", "wizard"],
+		["net", "shield", "sledgehammer"], 6, 0, 6
+	)
+	if main.hotbar.size() >= 3:
+		main.hotbar[0]["tier"] = 1
+		main.hotbar[1]["tier"] = 2
+		main.hotbar[2]["tier"] = 3
+	main._hotbar_sig = ""
+	await _anim_spin_face(0)
+	_log_progress("shimmer six_seats wheel=%s" % main.wheel.size())
+	await _capture("07_shimmer_6_seats.png", "rank shimmer on a 6-seat wheel")
+
+
+func _shot_anim_hover_preview() -> void:
+	out_dir = "res://design/visual/anim-qa/item-hover-preview"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-hover-preview"
+	await _anim_ready_seat(["kobold_trapper", "goblin"], ["shield", "net"], 6, 0)
+	await _anim_spin_face(0)
+	main.items_used_this_combat = 1
+	main._refresh()
+	if main.has_method("_sync_intent_plate"):
+		main._sync_intent_plate()
+	var sh: Control = _hot_card("shield")
+	if sh != null:
+		main._on_item_hovered(main.hotbar[0] if str(main.hotbar[0].get("card_id", "")) == "shield" else _item_in_hand("shield"), sh)
+	await _game_wait(0.22)
+	await _capture("01_kobold_plus.png", "Kobold: ghost +1 badge")
+	main._on_item_unhovered()
+	await _anim_ready_seat(["hornet_swarm", "goblin"], ["net", "shield"], 6, 0)
+	await _anim_spin_face(0)
+	var net: Control = _hot_card("net")
+	if net != null:
+		main._on_item_hovered(_item_in_hand("net"), net)
+	await _game_wait(0.22)
+	await _capture("02_net_range.png", "Net on Hornet: 2→0…1")
+	main._on_item_unhovered()
+	await _anim_ready_seat(["amalgam", "goblin"], ["shield", "net"], 6, 0)
+	await _anim_spin_face(0)
+	var sh2: Control = _hot_card("shield")
+	if sh2 != null:
+		main._on_item_hovered(_item_in_hand("shield"), sh2)
+	await _game_wait(0.22)
+	await _capture("03_amalgam.png", "Amalgam: ghost numbers ×2")
+	main._on_item_unhovered()
+	await _anim_ready_seat(["bushido", "goblin"], ["shield", "net"], 6, 0)
+	await _anim_spin_face(0)
+	main.items_used_this_combat = 1
+	main._refresh()
+	var sh3: Control = _hot_card("shield")
+	if sh3 != null:
+		main._on_item_hovered(_item_in_hand("shield"), sh3)
+	await _game_wait(0.22)
+	await _capture("04_bushido.png", "Bushido 2nd use: no-effect overlay")
+	main._on_item_unhovered()
+	await _anim_ready_seat(["skeleton", "goblin"], ["sai"], 6, 0)
+	if main.wheel.size() > 0:
+		main.wheel[0]["hp"] = 1
+		main.wheel[0]["hp_max"] = 1
+	await _anim_spin_face(0)
+	if main.wheel.size() > 0:
+		main.wheel[0]["hp"] = 1
+		main.wheel[0]["hp_max"] = 1
+		main._refresh()
+	var sai_k: Control = _hot_card("sai")
+	if sai_k != null:
+		main._on_item_hovered(_item_in_hand("sai"), sai_k)
+	await _game_wait(0.22)
+	await _capture("05_kill.png", "kill preview: badges dim; ghost hearts unchanged")
+	main._on_item_unhovered()
+	await _game_wait(0.12)
+	await _capture("06_unhover.png", "hover out: no stale ghosts")
+	await _anim_ready_seat(
+		["kobold_trapper", "goblin", "skeleton", "bandit", "ogre", "lich"],
+		["shield", "net"], 6, 0, 6
+	)
+	await _anim_spin_face(0)
+	main.items_used_this_combat = 1
+	main._refresh()
+	var sh6: Control = _hot_card("shield")
+	if sh6 != null:
+		main._on_item_hovered(_item_in_hand("shield"), sh6)
+	await _game_wait(0.22)
+	_log_progress("hover six_seats wheel=%s" % main.wheel.size())
+	await _capture("07_hover_6_seats.png", "hover preview on a 6-seat wheel")
+
+
+func _item_in_hand(id: String) -> Dictionary:
+	for it in main.hotbar:
+		if str(it.get("card_id", "")) == id:
+			return it
+	return {}
 
 
 func _shot_peek() -> void:
