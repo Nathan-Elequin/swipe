@@ -7,7 +7,8 @@ const GAP := 8.0
 const MAX_SHOW := 12
 const STRIP_MAX_W := 640.0
 const STRIP_Y := 690.0
-const VIEW_W := 1680.0
+const STRIP_PAD := 12.0
+const FF_SLOT_W := 56.0
 
 const FRAME_PATH := "res://assets/ui/anim/ticker_token_frame.png"
 const STAMP_PATHS := [
@@ -265,19 +266,26 @@ func _trim_overflow() -> void:
 
 
 func _layout_strip() -> void:
+	# Width follows the token count only (4–8 wheel seats never size this strip).
 	var n: int = maxi(1, _tokens.get_child_count())
-	var ff_w: float = 56.0 if _ff_on else 0.0
-	var inner_w: float = n * TOKEN_PX + maxi(0, n - 1) * GAP + 24.0 + ff_w
+	var ff_w: float = FF_SLOT_W if _ff_on else 0.0
+	var inner_w: float = float(n) * TOKEN_PX + float(maxi(0, n - 1)) * GAP + STRIP_PAD * 2.0 + ff_w
 	var w: float = minf(STRIP_MAX_W, maxf(120.0, inner_w))
-	var h: float = TOKEN_PX + 24.0
+	var h: float = TOKEN_PX + STRIP_PAD * 2.0
 	size = Vector2(w, h)
-	global_position = Vector2((VIEW_W - w) * 0.5, STRIP_Y)
+	var view_w: float = 1680.0
+	var vp := get_viewport()
+	if vp != null:
+		var vr: Rect2 = vp.get_visible_rect()
+		if vr.size.x > 1.0:
+			view_w = vr.size.x
+	global_position = Vector2((view_w - w) * 0.5, STRIP_Y)
 	_strip.position = Vector2.ZERO
 	_strip.size = size
-	_tokens.position = Vector2(12.0, 12.0)
-	_tokens.size = Vector2(w - 24.0 - ff_w, TOKEN_PX)
+	_tokens.position = Vector2(STRIP_PAD, STRIP_PAD)
+	_tokens.size = Vector2(w - STRIP_PAD * 2.0 - ff_w, TOKEN_PX)
 	if _ff != null:
-		_ff.position = Vector2(w - 12.0 - 48.0, (h - 32.0) * 0.5)
+		_ff.position = Vector2(w - STRIP_PAD - 48.0, (h - 32.0) * 0.5)
 	if _speed_line != null:
 		_speed_line.position = Vector2(w - 4.0, 8.0)
 		_speed_line.size = Vector2(2.0, h - 16.0)

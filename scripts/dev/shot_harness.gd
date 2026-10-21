@@ -719,7 +719,9 @@ func _prep_play(phase_name: String) -> void:
 		main._hide_fight_hover()
 
 
-func _seat_ids(ids: Array) -> void:
+func _seat_ids(ids: Array, seat_count: int = 0) -> void:
+	## Build a wheel from the given monster ids. Optional seat_count pads empty
+	## seats (or trims) so QA can cover 4–8 without assuming Adventure's 8.
 	main.wheel = []
 	for id in ids:
 		var mid := str(id)
@@ -728,8 +730,16 @@ func _seat_ids(ids: Array) -> void:
 	if main.wheel.is_empty():
 		for id2 in main.monsters_by_id.keys():
 			main.wheel.append(main._make_monster(str(id2)))
-			if main.wheel.size() >= 8:
+			if seat_count > 0 and main.wheel.size() >= seat_count:
 				break
+			if seat_count <= 0 and main.wheel.size() >= 8:
+				break
+	if seat_count > 0:
+		while main.wheel.size() < seat_count:
+			var slot: String = str(main.wheel.size())
+			main.wheel.append({"kind": "empty", "slot": slot})
+		if main.wheel.size() > seat_count:
+			main.wheel.resize(seat_count)
 
 
 func _hand_ids(ids: Array) -> void:
@@ -1261,6 +1271,7 @@ func _ensure_registry() -> void:
 	_bind_many([
 		"01_cascade_300ms", "02_cascade_900ms", "03_cascade_1800ms",
 		"04_cascade_ff_600ms", "05_cascade_ff_release", "06_space_untouched",
+		"07_six_seats", "08_intent_plate_final_art",
 	], _shot_anim_cascade_ticker)
 	_bind_many([
 		"60_loft", "61_loft_cat_rub", "62_journal_cover", "63_journal_bestiary",
@@ -1279,9 +1290,9 @@ func _bind_many(stems: Array, fn: Callable) -> void:
 		_shot_fns[str(stem)] = fn
 
 
-func _anim_ready_seat(monsters: Array, items: Array, hp_n: int = 6, blk_n: int = 0) -> void:
+func _anim_ready_seat(monsters: Array, items: Array, hp_n: int = 6, blk_n: int = 0, seat_count: int = 0) -> void:
 	_prep_play("ready")
-	_seat_ids(monsters)
+	_seat_ids(monsters, seat_count)
 	_hand_ids(items)
 	main.hp = hp_n
 	main.blk = blk_n
@@ -1577,10 +1588,11 @@ func _shot_anim_cascade_ticker() -> void:
 	status = "anim-cascade-ticker"
 	# Plague Doctor, Spider Queen, Cultist, Harpy + Grief Jar + Marble.
 	# Force-spin a Cultist neighbour (Harpy at index 3; Cultist at 2).
+	# Wheel size = seated count (4 here); strip must not assume 8.
 	await _anim_ready_seat(
 		["plague_doctor", "spider_queen", "cultist", "harpy"],
 		["grief_jar", "marble"],
-		6, 0
+		6, 0, 0
 	)
 	if main.cascade_ticker == null:
 		_skip("01_cascade_300ms.png", "cascade_ticker missing")
@@ -1608,13 +1620,14 @@ func _shot_anim_cascade_ticker() -> void:
 	await _anim_ready_seat(
 		["plague_doctor", "spider_queen", "cultist", "harpy"],
 		["grief_jar", "marble"],
-		8, 0
+		8, 0, 0
 	)
 	main.hp = 8
 	main.set_meta("qa_force_shift", true)
 	main.set_meta("qa_spin_idx", 3)
-	_log_progress("ff_start time_scale=%s hp=%s" % [Engine.time_scale, main.hp])
+	_log_progress("ff_start time_scale=%s hp=%s wheel=%s" % [Engine.time_scale, main.hp, main.wheel.size()])
 	main._on_spin()
+	# Wall-clock ~200ms at 3x ≈ 600ms cascade time; capture before the next slash fills the strip.
 	await _wait(0.20)
 	_log_progress("ff_held time_scale=%s ff_chip=%s busy=%s phase=%s" % [
 		Engine.time_scale,
@@ -1622,8 +1635,7 @@ func _shot_anim_cascade_ticker() -> void:
 		main._walker_busy,
 		main.phase,
 	])
-	await _wait(0.40)
-	await _cascade_capture("04_cascade_ff_600ms.png", "Shift FF ~600ms: FF chip + time_scale≈3")
+	await _cascade_capture("04_cascade_ff_600ms.png", "Shift FF ~600ms cascade-time: FF chip + time_scale≈3")
 	main.set_meta("qa_force_shift", false)
 	await _wait(0.12)
 	_log_progress("ff_release time_scale=%s" % Engine.time_scale)
@@ -1635,6 +1647,26 @@ func _shot_anim_cascade_ticker() -> void:
 		main.remove_meta("qa_force_shift")
 	_log_progress("space_untouched: no Spin shortcut added; ui_accept left alone")
 	await _cascade_capture("06_space_untouched.png", "Space/ui_accept unchanged; no new Spin shortcut")
+	# Challenge-sized wheel (6 seats). Strip width follows tokens, not seat count.
+	await _anim_ready_seat(
+		["plague_doctor", "spider_queen", "cultist", "harpy", "goblin", "skeleton"],
+		["grief_jar", "marble"],
+		8, 0, 6
+	)
+	_log_progress("six_seats wheel=%s" % main.wheel.size())
+	main.set_meta("qa_spin_idx", 3)
+	main._on_spin()
+	await _wait(0.90)
+	await _cascade_capture("07_six_seats.png", "cascade with 6 wheel seats; ticker independent of seat count")
+	await _until(func() -> bool:
+		return not bool(main._walker_busy)
+	, 20.0)
+	await _wait(0.25)
+	# Hornet Swarm intent plate with final PixelLab claw art.
+	await _anim_ready_seat(["hornet_swarm", "goblin", "skeleton", "bandit"], [], 6, 0, 0)
+	await _anim_spin_face(0)
+	await _wait(0.20)
+	await _cascade_capture("08_intent_plate_final_art.png", "Hornet Swarm intent plate: final claw art")
 
 
 func _shot_peek() -> void:
