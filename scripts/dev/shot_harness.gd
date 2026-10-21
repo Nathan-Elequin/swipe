@@ -353,14 +353,18 @@ func _shot_map_routes() -> void:
 		_skip("15a_map_classic_selected.png", "map overlay did not stay visible")
 		return
 	await _capture("15a_map_classic_selected.png", "cabin._open_map(), gatehouse selected, confirm uses map.go.named")
-	if cabin._map.has_method("debug_hover"):
-		cabin._map.debug_hover("long_drop")
-	await _wait(0.12)
-	await _capture("15b_map_challenge_hover.png", "gatehouse selected, long_drop hover previews the panel")
-	if cabin._map.has_method("debug_select"):
-		cabin._map.debug_select("long_drop")
-	await _wait(0.45)
-	await _capture("15c_map_challenge_selected.png", "long_drop selected, deepest footer on, confirm names Challenge Mode")
+	if DevFlags.show_long_drop():
+		if cabin._map.has_method("debug_hover"):
+			cabin._map.debug_hover("long_drop")
+		await _wait(0.12)
+		await _capture("15b_map_challenge_hover.png", "gatehouse selected, long_drop hover previews the panel")
+		if cabin._map.has_method("debug_select"):
+			cabin._map.debug_select("long_drop")
+		await _wait(0.45)
+		await _capture("15c_map_challenge_selected.png", "long_drop selected, deepest footer on, confirm names Challenge Mode")
+	else:
+		_skip("15b_map_challenge_hover.png", "Long Drop is archived behind DevFlags.SHOW_LONG_DROP")
+		_skip("15c_map_challenge_selected.png", "Long Drop is archived behind DevFlags.SHOW_LONG_DROP")
 	cabin._map.close()
 	cabin.visible = false
 	cabin.stop_story()
@@ -1092,9 +1096,12 @@ func _shot_text_screens() -> void:
 			cabin._map.debug_select("gatehouse")
 			await _wait(0.2)
 			await _capture("text_map_adventure.png", "map Adventure / Gatehouse selected")
-			cabin._map.debug_select("long_drop")
-			await _wait(0.2)
-		await _capture("text_map.png", "map Challenge / Long Drop selected")
+			if DevFlags.show_long_drop():
+				cabin._map.debug_select("long_drop")
+				await _wait(0.2)
+				await _capture("text_map.png", "map Challenge / Long Drop selected")
+			else:
+				await _capture("text_map.png", "map Adventure / Gatehouse selected (Long Drop archived)")
 		if cabin._map:
 			cabin._map.close()
 	if cabin.has_method("_open_journal"):
