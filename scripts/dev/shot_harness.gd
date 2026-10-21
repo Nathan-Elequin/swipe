@@ -1331,6 +1331,31 @@ func _anim_ready_seat(monsters: Array, items: Array, hp_n: int = 6, blk_n: int =
 	await _wait(0.05)
 
 
+func _hook_fx_busy() -> bool:
+	return main != null and main.hook_fx != null and bool(main.hook_fx.visible)
+
+
+func _await_hook_idle() -> void:
+	## The hook swap reads seat indexes after throw(). Wait until the rope is gone
+	## before the next shot reseats the wheel (4–8 seats).
+	if not _hook_fx_busy():
+		return
+	await _until(func() -> bool: return not _hook_fx_busy(), 12.0)
+
+
+func _live_neighbor() -> int:
+	var n: int = main.wheel.size() if main != null else 0
+	if main != null and main.has_method("_neighbor_indices"):
+		var nbs: Array = main._neighbor_indices()
+		for raw in nbs:
+			var j: int = int(raw)
+			if j >= 0 and j < n:
+				return j
+	if n > 1:
+		return 0 if main.facing_index != 0 else 1
+	return -1
+
+
 func _anim_spin_face(idx: int = 0) -> void:
 	main.set_meta("qa_spin_idx", idx)
 	await main._on_spin()
@@ -1837,6 +1862,7 @@ func _shot_anim_grappling_hook() -> void:
 		"01_hook_mark", "02_hook_200ms", "03_hook_360ms", "04_hook_600ms", "05_hook_1100ms",
 		"06_six_seats",
 	])
+	await _await_hook_idle()
 	await _anim_ready_seat(
 		["goblin", "skeleton", "bandit", "ogre"],
 		["grappling_hook", "shield"],
@@ -1850,17 +1876,11 @@ func _shot_anim_grappling_hook() -> void:
 	await main._use_item(uid)
 	await _wait(0.20)
 	await _capture("01_hook_mark.png", "Hook mark highlights (cue.mark)")
-	var neighbor: int = -1
-	if main.has_method("_neighbor_indices"):
-		var nbs: Array = main._neighbor_indices()
-		if not nbs.is_empty():
-			neighbor = int(nbs[0])
-	if neighbor < 0 and main.wheel.size() > 1:
-		neighbor = 1
-	if neighbor < 0:
+	var neighbor: int = _live_neighbor()
+	if neighbor < 0 or neighbor >= main.wheel.size():
 		_skip("02_hook_200ms.png", "no neighbour")
 		return
-	_log_progress("hook mark neighbor=%s face=%s" % [neighbor, main.facing_index])
+	_log_progress("hook mark neighbor=%s face=%s wheel=%s" % [neighbor, main.facing_index, main.wheel.size()])
 	main._apply_mark(neighbor)
 	await _until(func() -> bool: return main.hook_fx != null and bool(main.hook_fx.visible), 5.0)
 	# Spec marks are game-ms from throw start; convert via Engine.time_scale.
@@ -1872,8 +1892,8 @@ func _shot_anim_grappling_hook() -> void:
 	await _capture("04_hook_600ms.png", "Hook mid-swap ~600ms")
 	await _wait_game(0.50)
 	await _capture("05_hook_1100ms.png", "Hook drawn item arriving ~1100ms")
-	await _until(func() -> bool: return main.pending_mark.is_empty() and not bool(main._walker_busy), 20.0)
-	# 6-seat hook swap still throws.
+	await _await_hook_idle()
+	# 6-seat hook swap still throws. Left neighbour of seat 0 is index 5 — in range only while the wheel stays at 6.
 	await _anim_ready_seat(
 		["goblin", "skeleton", "bandit", "ogre", "kobold_trapper", "lich"],
 		["grappling_hook", "shield"],
@@ -1883,17 +1903,16 @@ func _shot_anim_grappling_hook() -> void:
 	uid = _uid_of_item("grappling_hook")
 	if uid >= 0:
 		await main._use_item(uid)
-		neighbor = 1
-		if main.has_method("_neighbor_indices"):
-			var nbs2: Array = main._neighbor_indices()
-			if not nbs2.is_empty():
-				neighbor = int(nbs2[0])
-		main._apply_mark(neighbor)
-		await _until(func() -> bool: return main.hook_fx != null and bool(main.hook_fx.visible), 5.0)
-		await _wait_game(0.22)
-	_log_progress("hook six_seats wheel=%s" % main.wheel.size())
+		neighbor = _live_neighbor()
+		_log_progress("hook six_seats wheel=%s neighbor=%s" % [main.wheel.size(), neighbor])
+		if neighbor >= 0 and neighbor < main.wheel.size():
+			main._apply_mark(neighbor)
+			await _until(func() -> bool: return main.hook_fx != null and bool(main.hook_fx.visible), 5.0)
+			await _wait_game(0.22)
+	else:
+		_log_progress("hook six_seats wheel=%s neighbor=missing" % main.wheel.size())
 	await _capture("06_six_seats.png", "Grappling Hook throw on a 6-seat wheel")
-	await _until(func() -> bool: return main.pending_mark.is_empty() and not bool(main._walker_busy), 20.0)
+	await _await_hook_idle()
 	_suite_files.clear()
 
 

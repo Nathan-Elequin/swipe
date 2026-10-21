@@ -1967,7 +1967,8 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 func _draw_bond_snap(pair: Dictionary, t: float) -> void:
 	var i: int = int(pair.get("i", -1))
 	var j: int = int(pair.get("j", -1))
-	if i < 0 or j < 0:
+	var n_now: int = slices.size()
+	if i < 0 or j < 0 or i >= n_now or j >= n_now:
 		return
 	var a_pt: Vector2 = _spoke(i)["port"]
 	var b_pt: Vector2 = _spoke(j)["port"]

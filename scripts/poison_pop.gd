@@ -58,6 +58,7 @@ func setup(main: Node) -> void:
 	_num.custom_minimum_size = Vector2(64, 40)
 	_num.size = Vector2(64, 40)
 	add_child(_num)
+	# One drip sprite per heart. The cap is the player's heart count, not the wheel seat count.
 	for i in 6:
 		var drip := AnimatedSprite2D.new()
 		drip.name = "Drip%s" % i
@@ -82,6 +83,9 @@ func burst_slice(index: int, n: int) -> void:
 		return
 	var wheel = _main.get("wheel_view")
 	if wheel == null:
+		return
+	var slices: Variant = wheel.get("slices")
+	if typeof(slices) != TYPE_ARRAY or index < 0 or index >= (slices as Array).size():
 		return
 	var from: Vector2 = _slice_badge_global(wheel, index)
 	var to: Vector2 = wheel.hp_global(index) if wheel.has_method("hp_global") else from

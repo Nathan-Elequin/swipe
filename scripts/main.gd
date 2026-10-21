@@ -8324,12 +8324,17 @@ func _tick_monster_poison() -> bool:
 	_ticker_push_poison("monster_poison")
 	if poison_pop != null and poison_pop.has_method("burst_slice"):
 		await poison_pop.burst_slice(facing_index, n)
+	if facing_index < 0 or facing_index >= wheel.size():
+		return false
 	if await _chip_hp(facing_index, n):
-		_clear_monster_poison(facing_index)
+		if facing_index >= 0 and facing_index < wheel.size():
+			_clear_monster_poison(facing_index)
 		_store_last_faced_hp()
 		_undo_arm()
 		_unlock_if_fighting()
 		return true
+	if facing_index < 0 or facing_index >= wheel.size():
+		return false
 	_clear_monster_poison(facing_index)
 	var m: Dictionary = wheel[facing_index]
 	_log("on_spin", "poison  →  %s HP" % m["hp"])
@@ -11373,7 +11378,7 @@ func _petrify_best_atk() -> void:
 	var card = _hotbar_card_by_uid(int(pick.get("uid", -1)))
 	if card != null and card.has_method("set_petrified"):
 		await card.set_petrified(true, false, 0, true)
-	if facing_index >= 0:
+	if facing_index >= 0 and facing_index < wheel.size():
 		await _announce_slice(facing_index, dest)
 	if sfx:
 		sfx.play_event(&"status.petrify")
@@ -11500,6 +11505,8 @@ func _hydra_even_killer() -> void:
 	if has_meta("qa_hydra_beams_ready"):
 		remove_meta("qa_hydra_beams_ready")
 	set_meta("qa_petrify_beams", 0)
+	if facing_index < 0 or facing_index >= wheel.size():
+		return
 	var gain: int = 2 * hits.size()
 	wheel[facing_index]["hydra_bonus"] = int(wheel[facing_index].get("hydra_bonus", 0)) + gain
 	wheel[facing_index]["atk"] = _card_base_atk("hydra") + int(wheel[facing_index].get("hydra_bonus", 0))
@@ -12455,6 +12462,31 @@ func _can_mark(index: int, kind: String) -> bool:
 	return false
 
 
+func _seat_uid_at(index: int) -> int:
+	if index < 0 or index >= wheel.size():
+		return -1
+	return int(wheel[index].get("seat_uid", -1))
+
+
+func _hook_seats_held(face_i: int, targ_i: int, face_uid: int, targ_uid: int) -> bool:
+	## Both seats must still be the monsters the throw aimed at.
+	## Index 5 is the left neighbour on a 6-seat wheel and is out of range on a 4-seat wheel.
+	if face_uid < 0 or targ_uid < 0 or face_i < 0 or targ_i < 0 or face_i == targ_i:
+		return false
+	if face_i >= wheel.size() or targ_i >= wheel.size():
+		return false
+	if _seat_uid_at(face_i) != face_uid or _seat_uid_at(targ_i) != targ_uid:
+		return false
+	return str(wheel[face_i].get("kind", "")) == "monster" and str(wheel[targ_i].get("kind", "")) == "monster"
+
+
+func _hook_fx_abort() -> void:
+	if wheel_view != null:
+		wheel_view.hide_portraits = []
+	if hook_fx != null and hook_fx.has_method("retract"):
+		await hook_fx.retract()
+
+
 func _apply_mark(index: int) -> void:
 	var kind: String = str(pending_mark.get("kind", ""))
 	var atk_uid: int = int(pending_mark.get("atk_uid", -1))
@@ -12490,29 +12522,50 @@ func _apply_mark(index: int) -> void:
 		return
 	_bleed_begin()
 	if kind == "hook_swap":
+		var face_i: int = facing_index
+		var targ_i: int = index
+		var face_uid: int = _seat_uid_at(face_i)
+		var targ_uid: int = _seat_uid_at(targ_i)
+		if not _hook_seats_held(face_i, targ_i, face_uid, targ_uid):
+			await _hook_fx_abort()
+			await _bleed_end()
+			call_deferred("_refresh")
+			return
 		var from_card: Vector2 = _item_card_global(int(it.get("uid", -1)))
-		var to_slice: Vector2 = wheel_view.slice_portrait_global(index) if wheel_view else Vector2.ZERO
+		var to_slice: Vector2 = wheel_view.slice_portrait_global(targ_i) if wheel_view else Vector2.ZERO
 		if hook_fx != null and hook_fx.has_method("throw"):
 			await hook_fx.throw(from_card, to_slice)
-		var a: Dictionary = wheel[facing_index].duplicate(true)
-		var b: Dictionary = wheel[index].duplicate(true)
+		# Throw awaits ~300ms. A collapse or a harness reseat (4–8 seats) can move these indexes.
+		if not _hook_seats_held(face_i, targ_i, face_uid, targ_uid):
+			await _hook_fx_abort()
+			await _bleed_end()
+			call_deferred("_refresh")
+			return
+		var a: Dictionary = wheel[face_i].duplicate(true)
+		var b: Dictionary = wheel[targ_i].duplicate(true)
 		if hook_fx != null and hook_fx.has_method("yank"):
 			if wheel_view != null:
-				wheel_view.hide_portraits = [facing_index, index]
-			await hook_fx.yank(facing_index, index)
+				wheel_view.hide_portraits = [face_i, targ_i]
+			await hook_fx.yank(face_i, targ_i)
 			if wheel_view != null:
 				wheel_view.hide_portraits = []
+		if not _hook_seats_held(face_i, targ_i, face_uid, targ_uid):
+			await _hook_fx_abort()
+			await _bleed_end()
+			call_deferred("_refresh")
+			return
 		a["spin_locked"] = false
 		b["spin_locked"] = true
-		wheel[facing_index] = b
-		wheel[index] = a
+		wheel[face_i] = b
+		wheel[targ_i] = a
+		facing_index = face_i
 		it["spent"] = true
 		await _count_item_use()
 		_toss_item(int(it["uid"]), false)
 		_log("on_item_use", "hook %s" % b.get("name", "?"))
 		_sync_wheel_stats()
-		if combat_stage:
-			combat_stage.show_monster(str(wheel[facing_index].get("card_id", "")), int(wheel[facing_index].get("tier", 1)))
+		if combat_stage and face_i >= 0 and face_i < wheel.size():
+			combat_stage.show_monster(str(wheel[face_i].get("card_id", "")), int(wheel[face_i].get("tier", 1)))
 			_tune_combat_stage()
 		if hook_fx != null and hook_fx.has_method("retract"):
 			await hook_fx.retract()
