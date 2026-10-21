@@ -1,0 +1,6 @@
+cell 10.51
+f0: 2 leg blobs (x 14/32, bottoms 46/46); darkened back leg, 23 px; orphans removed 0, outline px added 48, bottom shift 0
+f1: 2 leg blobs (x 17/23, bottoms 45/46); darkened lifted leg, 14 px; orphans removed 0, outline px added 33, bottom shift 0
+f2: 2 leg blobs (x 15/33, bottoms 45/46); darkened front leg, 28 px; orphans removed 0, outline px added 34, bottom shift 0
+f3: 2 leg blobs (x 16/33, bottoms 43/46); darkened planted leg, 27 px; orphans removed 0, outline px added 40, bottom shift 0
+colours 16 ['0b0706', '100e0c', '1a1210', '1c1814', '33605a', '4e4028', '4f8a7c', '5a8a30', '5e1c18', '74603e', '8a6a40', '8cbc48', '9a3428', 'a08458', 'e8c36a', 'ffd84a']

@@ -1,0 +1,68 @@
+{
+ "native": [
+  420,
+  260
+ ],
+ "shipped": [
+  1680,
+  1040
+ ],
+ "mode": [
+  "RGB",
+  "RGB"
+ ],
+ "format": "PNG",
+ "x4_nearest_exact": true,
+ "palette_count": 105,
+ "live_files_checked": 142,
+ "best_match": [
+  0.288,
+  "sling.png",
+  [
+   346,
+   222
+  ]
+ ],
+ "top5": [
+  [
+   0.288,
+   "sling.png",
+   [
+    346,
+    222
+   ]
+  ],
+  [
+   0.28,
+   "longbow.png",
+   [
+    282,
+    201
+   ]
+  ],
+  [
+   0.278,
+   "arrow_head.png",
+   [
+    341,
+    219
+   ]
+  ],
+  [
+   0.273,
+   "throwing_knife.png",
+   [
+    13,
+    222
+   ]
+  ],
+  [
+   0.273,
+   "spiked_flail.png",
+   [
+    85,
+    210
+   ]
+  ]
+ ]
+}

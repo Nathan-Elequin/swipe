@@ -1,0 +1,3 @@
+{
+  "install": "python3 -m pip install --user -r design/handoff/CURSOR-AGENT/pixellab/requirements.txt || python3 -m pip install --break-system-packages -r design/handoff/CURSOR-AGENT/pixellab/requirements.txt"
+}

@@ -1,0 +1,4 @@
+{"endpoint": "/create-image-pixflux", "prefix": "<ANIM_PITCH>/mockups/layouts/crest/raw/b3_med", "status": 200, "bal_before": 1783.0, "bal_after": 1782.0, "files": ["<ANIM_PITCH>/mockups/layouts/crest/raw/b3_med_0.png"]} {"usage": {"type": "generations", "generations": 1.0}, "image": {"type": "base64", "base64": "<b64>", "format": "png"}}
+own used 1.0
+{"endpoint": "/create-image-pixflux", "prefix": "<ANIM_PITCH>/mockups/layouts/crest/raw/tag_topnotch", "status": 200, "bal_before": 1781.0, "bal_after": 1781.0, "files": ["<ANIM_PITCH>/mockups/layouts/crest/raw/tag_topnotch_0.png"]} {"usage": {"type": "generations", "generations": 1.0}, "image": {"type": "base64", "base64": "<b64>", "format": "png"}}
+own used 2.0
