@@ -1933,6 +1933,8 @@ func _on_overlay_primary() -> void:
 func _reset_run() -> void:
 	_undo_clear()
 	_mill_seq += 1
+	if ability_slash != null and ability_slash.has_method("reset_slash_seen"):
+		ability_slash.reset_slash_seen()
 	_rug_secret_in_run = false
 	_gate_line = ""
 	_cube_line = ""
@@ -9347,18 +9349,21 @@ func _announce_slice(index: int, to: Vector2 = Vector2.INF, fast: bool = false) 
 	var s: Dictionary = wheel[index]
 	_trace_resolve("announce %s call=%s" % [str(s.get("card_id", "")), str(s.get("call_name", ""))])
 	var call_n: String = str(s.get("call_name", "")).strip_edges()
+	var mid: String = str(s.get("card_id", ""))
+	if call_n == "" and mid == "triclops":
+		call_n = "Cut And Run"
 	if call_n == "" and str(s.get("name", "")).strip_edges() == "":
 		return
 	if ability_slash:
 		var tex: Texture2D = null
 		if art != null:
-			tex = art.monster_still(str(s.get("card_id", "")))
+			tex = art.monster_still(mid)
 		await ability_slash.play({
 			"title": str(s.get("name", "")),
 			"call": call_n,
 			"tex": tex,
 			"is_item": false,
-			"card_id": str(s.get("card_id", "")),
+			"card_id": mid,
 			"fast": fast,
 		})
 	_log_begin_monster(index)
@@ -15082,8 +15087,12 @@ func _place_fight_art() -> void:
 			hypno_box.size = hsz
 			hypno_box.global_position = Vector2(left_x, port_y + port_sz.y + gap)
 	if ability_slash != null and not ability_slash.visible:
-		ability_slash.size = Vector2(stack_w, port_sz.y + 72.0)
-		ability_slash.global_position = Vector2(left_x, port_y)
+		# Park gutter rect for item banners; monster cut-ins set full 1680×1040 in _show.
+		if ability_slash.has_method("park_gutter"):
+			ability_slash.park_gutter(Vector2(stack_w, port_sz.y + 72.0), Vector2(left_x, port_y))
+		else:
+			ability_slash.size = Vector2(stack_w, port_sz.y + 72.0)
+			ability_slash.global_position = Vector2(left_x, port_y)
 	if intent_plate != null and intent_plate.has_method("reanchor"):
 		intent_plate.reanchor()
 

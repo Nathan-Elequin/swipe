@@ -1,0 +1,77 @@
+{
+	"failures": [
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@953/@MarginContainer@932/@VBoxContainer@933/@Control@936/@Label@939",
+			"reason": "overflow_parent",
+			"screen": "01_ogre_60ms",
+			"shot": "res://design/visual/anim-qa/slash-portrait/01_ogre_60ms.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@953/@MarginContainer@932/@VBoxContainer@933/@Control@936/@Label@939",
+			"reason": "overflow_parent",
+			"screen": "02_ogre_300ms",
+			"shot": "res://design/visual/anim-qa/slash-portrait/02_ogre_300ms.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@953/@MarginContainer@932/@VBoxContainer@933/@Control@936/@Label@939",
+			"reason": "overflow_parent",
+			"screen": "03_ogre_700ms",
+			"shot": "res://design/visual/anim-qa/slash-portrait/03_ogre_700ms.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@953/@MarginContainer@932/@VBoxContainer@933/@Control@936/@Label@939",
+			"reason": "overflow_parent",
+			"screen": "04_hornet_still",
+			"shot": "res://design/visual/anim-qa/slash-portrait/04_hornet_still.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@953/@MarginContainer@932/@VBoxContainer@933/@Control@936/@Label@939",
+			"reason": "overflow_parent",
+			"screen": "05_vampire_still",
+			"shot": "res://design/visual/anim-qa/slash-portrait/05_vampire_still.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@953/@MarginContainer@932/@VBoxContainer@933/@Control@936/@Label@939",
+			"reason": "overflow_parent",
+			"screen": "06_queue_three",
+			"shot": "res://design/visual/anim-qa/slash-portrait/06_queue_three.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@953/@MarginContainer@932/@VBoxContainer@933/@Control@936/@Label@939",
+			"reason": "overflow_parent",
+			"screen": "07_ogre_first",
+			"shot": "res://design/visual/anim-qa/slash-portrait/07_ogre_first.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@953/@MarginContainer@932/@VBoxContainer@933/@Control@936/@Label@939",
+			"reason": "overflow_parent",
+			"screen": "08_ogre_second",
+			"shot": "res://design/visual/anim-qa/slash-portrait/08_ogre_second.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@953/@MarginContainer@932/@VBoxContainer@933/@Control@936/@Label@939",
+			"reason": "overflow_parent",
+			"screen": "09_item_banner",
+			"shot": "res://design/visual/anim-qa/slash-portrait/09_item_banner.png",
+			"text": "4"
+		}
+	],
+	"updated": "2026-10-21T00:12:20"
+}

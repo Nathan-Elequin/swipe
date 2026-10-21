@@ -1,7 +1,18 @@
 extends Control
-## Left-gutter outburst: diagonal wipe, portrait pans in, title stack under it.
+## Monster cut-in (full-screen diagonal band) + item gutter banner. Queued: play → _drain → _show.
 
 const FX_RAYS := preload("res://scripts/fx_rays.gd")
+const SLASH_SHADER := preload("res://shaders/slash_lines.gdshader")
+const CIRCLE_TEX := preload("res://assets/dungeon/vfx/circle.png")
+
+const VIEW_W := 1680.0
+const VIEW_H := 1040.0
+const SNAP_MS := 120.0
+const FRAME_MS := 70.0
+const HOLD_MS := 120.0
+const FIRST_HOLD_BONUS_MS := 250.0
+const OUT_MS := 160.0
+const PORTRAIT_TRAIL_MS := 40.0
 
 var art
 var _q: Array = []
@@ -18,6 +29,26 @@ var _call: String = ""
 var _is_item: bool = false
 var log_glow: bool = false
 var card_id: String = ""
+var _slash_seen: Dictionary = {}
+var _gutter_size: Vector2 = Vector2(252, 200)
+var _gutter_pos: Vector2 = Vector2.ZERO
+var _cutin_active: bool = false
+var _frame_texs: Array = []
+var _frame_i: int = 0
+var _shake: Vector2 = Vector2.ZERO
+
+var _dim: ColorRect
+var _band_host: Node2D
+var _half_a: Polygon2D
+var _half_b: Polygon2D
+var _edge_top: Line2D
+var _edge_bot: Line2D
+var _flash: Sprite2D
+var _portrait: Sprite2D
+var _name_lbl: Label
+var _call_lbl: Label
+var _cut: Line2D
+var _band_mat: ShaderMaterial
 
 
 func setup(p_art) -> void:
@@ -30,6 +61,27 @@ func setup(p_art) -> void:
 	custom_minimum_size = Vector2(252, 200)
 	size = Vector2(252, 200)
 	set_process(true)
+	_build_cutin_nodes()
+	_set_cutin_visible(false)
+
+
+func reset_slash_seen() -> void:
+	_slash_seen.clear()
+
+
+func mark_slash_seen(id: String) -> void:
+	var key := str(id).strip_edges()
+	if key != "":
+		_slash_seen[key] = true
+
+
+func is_busy() -> bool:
+	return _draining
+
+
+func park_gutter(sz: Vector2, pos: Vector2) -> void:
+	_gutter_size = sz
+	_gutter_pos = pos
 
 
 func set_log_glow(on: bool) -> void:
@@ -56,6 +108,13 @@ func _drain() -> void:
 	_draining = false
 
 
+func _dur(ms: float, fast: bool) -> float:
+	var sec: float = ms / 1000.0
+	if fast:
+		return sec / 3.0
+	return sec
+
+
 func _show(payload: Dictionary) -> void:
 	if OS.has_feature("editor"):
 		print("[resolve] slash.show ", payload.get("card_id", ""), " tex=", payload.get("tex", null) != null)
@@ -64,39 +123,393 @@ func _show(payload: Dictionary) -> void:
 	_call = str(payload.get("call", "")).strip_edges()
 	_is_item = bool(payload.get("is_item", false))
 	card_id = str(payload.get("card_id", ""))
+	if card_id == "triclops" and _call == "":
+		_call = "Cut And Run"
 	if _title == "" and _call == "" and _tex == null:
 		return
-	if size.x < 32.0 or size.y < 32.0:
-		size = Vector2(252, 200)
 	if _tw != null and is_instance_valid(_tw):
 		_tw.kill()
 	visible = true
 	_life = 0.0
 	_clock = 0.0
 	log_glow = false
+	_shake = Vector2.ZERO
 	var fast: bool = bool(payload.get("fast", false))
+	if _is_item:
+		await _show_item(fast)
+	else:
+		await _show_cutin(fast)
+	visible = false
+	_cutin_active = false
+	_set_cutin_visible(false)
+	card_id = ""
+	_tex = null
+	_title = ""
+	_call = ""
+	_frame_texs.clear()
+	queue_redraw()
+
+
+func _show_item(fast: bool) -> void:
+	_cutin_active = false
+	_set_cutin_visible(false)
+	size = _gutter_size if _gutter_size.x >= 32.0 else Vector2(252, 200)
+	global_position = _gutter_pos
+	if size.x < 32.0 or size.y < 32.0:
+		size = Vector2(252, 200)
 	_tw = create_tween()
 	_tw.tween_property(self, "_life", 1.0, 0.06 if fast else 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	var hold: float = 0.55 if _call == "Can't Flee" else (0.19 if fast else 0.38)
 	_tw.tween_interval(hold)
 	_tw.tween_property(self, "_life", 0.0, 0.08 if fast else 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await _tw.finished
-	visible = false
-	card_id = ""
-	_tex = null
-	_title = ""
-	_call = ""
-	queue_redraw()
+
+
+func _show_cutin(fast: bool) -> void:
+	_cutin_active = true
+	size = Vector2(VIEW_W, VIEW_H)
+	global_position = Vector2.ZERO
+	_set_cutin_visible(true)
+	_life = 1.0
+	_prepare_band()
+	_prepare_flash()
+	_prepare_labels()
+	_prepare_portrait()
+	var first: bool = card_id != "" and not bool(_slash_seen.get(card_id, false))
+	if card_id != "":
+		_slash_seen[card_id] = true
+	var axis: Vector2 = Vector2(1760.0, -370.0).normalized()
+	var start_off: Vector2 = -axis * 1900.0
+	_band_host.position = start_off
+	_band_host.modulate = Color(1, 1, 1, 1)
+	_half_a.position = Vector2.ZERO
+	_half_b.position = Vector2.ZERO
+	_half_a.modulate.a = 1.0
+	_half_b.modulate.a = 1.0
+	_half_b.visible = false
+	_edge_top.visible = true
+	_edge_bot.visible = true
+	_cut.visible = false
+	_cut.modulate.a = 0.0
+	_dim.modulate.a = 0.0
+	_flash.modulate.a = 0.0
+	_portrait.modulate.a = 0.0
+	_portrait.position = _portrait_center() + start_off
+	_name_lbl.modulate.a = 0.0
+	_call_lbl.modulate.a = 0.0
+	if _band_mat != null:
+		_band_mat.set_shader_parameter("split", 0.0)
+		_band_mat.set_shader_parameter("alpha", 1.0)
+		_band_mat.set_shader_parameter("speed", 2.2 if not fast else 4.5)
+	var use_frames: bool = not _frame_texs.is_empty()
+	if use_frames:
+		_portrait.scale = Vector2(4, 4)
+	else:
+		_portrait.scale = Vector2(3.6, 3.6)
+	_tw = create_tween()
+	_tw.set_parallel(true)
+	_tw.tween_property(_dim, "modulate:a", 0.47, _dur(SNAP_MS, fast))
+	_tw.tween_property(_band_host, "position", Vector2.ZERO, _dur(SNAP_MS, fast)).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	_tw.tween_property(_flash, "modulate:a", 0.55, _dur(SNAP_MS, fast))
+	_tw.tween_property(_name_lbl, "modulate:a", 1.0, _dur(SNAP_MS, fast))
+	_tw.tween_property(_call_lbl, "modulate:a", 1.0, _dur(SNAP_MS, fast))
+	# Portrait trails the band by 40ms; action frames still start at SNAP_MS.
+	_tw.tween_property(_portrait, "position", _portrait_center(), _dur(SNAP_MS, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	_tw.tween_property(_portrait, "modulate:a", 1.0, _dur(SNAP_MS, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast))
+	if not use_frames:
+		_tw.tween_property(_portrait, "scale", Vector2(4, 4), _dur(SNAP_MS + 80.0, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await get_tree().create_timer(_dur(SNAP_MS, fast), false).timeout
+	# Action: frames or still shake (band is already in).
+	if use_frames:
+		for i in range(_frame_texs.size()):
+			_frame_i = i
+			_portrait.texture = _frame_texs[i]
+			await get_tree().create_timer(_dur(FRAME_MS, fast), false).timeout
+	else:
+		await _punch_shake(fast)
+	var hold_ms: float = HOLD_MS + (FIRST_HOLD_BONUS_MS if first else 0.0)
+	await get_tree().create_timer(_dur(hold_ms, fast), false).timeout
+	# Slash out.
+	_prepare_cut_line()
+	_cut.visible = true
+	_cut.modulate.a = 0.8
+	await get_tree().process_frame
+	_split_band_halves()
+	var perp: Vector2 = Vector2(-axis.y, axis.x) * 60.0
+	if _tw != null and is_instance_valid(_tw):
+		_tw.kill()
+	_tw = create_tween()
+	_tw.set_parallel(true)
+	_tw.tween_property(_half_a, "position", -perp, _dur(OUT_MS, fast)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_tw.tween_property(_half_b, "position", perp, _dur(OUT_MS, fast)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_tw.tween_property(_half_a, "modulate:a", 0.0, _dur(OUT_MS, fast))
+	_tw.tween_property(_half_b, "modulate:a", 0.0, _dur(OUT_MS, fast))
+	_tw.tween_property(_edge_top, "modulate:a", 0.0, _dur(OUT_MS, fast))
+	_tw.tween_property(_edge_bot, "modulate:a", 0.0, _dur(OUT_MS, fast))
+	_tw.tween_property(_dim, "modulate:a", 0.0, _dur(OUT_MS, fast))
+	_tw.tween_property(_flash, "modulate:a", 0.0, _dur(OUT_MS, fast))
+	_tw.tween_property(_portrait, "modulate:a", 0.0, _dur(OUT_MS, fast))
+	_tw.tween_property(_name_lbl, "modulate:a", 0.0, _dur(OUT_MS, fast))
+	_tw.tween_property(_call_lbl, "modulate:a", 0.0, _dur(OUT_MS, fast))
+	_tw.tween_property(_cut, "modulate:a", 0.0, _dur(OUT_MS * 0.6, fast))
+	if _band_mat != null:
+		_tw.tween_method(func(v: float) -> void: _band_mat.set_shader_parameter("split", v), 0.0, 1.0, _dur(OUT_MS, fast))
+	await _tw.finished
+
+
+func _punch_shake(fast: bool) -> void:
+	var n: int = 6
+	var step: float = _dur(FRAME_MS, fast) * 0.55
+	for i in n:
+		_shake = Vector2(randf_range(-2.0, 2.0), randf_range(-2.0, 2.0))
+		_portrait.position = _portrait_center() + _shake
+		await get_tree().create_timer(step, false).timeout
+	_shake = Vector2.ZERO
+	_portrait.position = _portrait_center()
+
+
+func _portrait_center() -> Vector2:
+	var tex: Texture2D = _portrait.texture
+	var native: Vector2 = Vector2(48, 48)
+	if tex != null:
+		native = Vector2(tex.get_width(), tex.get_height())
+	return Vector2(750.0, 610.0) - native * 2.0
+
+
+func _build_cutin_nodes() -> void:
+	_dim = ColorRect.new()
+	_dim.name = "Dim"
+	_dim.color = Color(0, 0, 0, 1)
+	_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_dim.modulate.a = 0.0
+	add_child(_dim)
+	_band_host = Node2D.new()
+	_band_host.name = "BandHost"
+	add_child(_band_host)
+	_band_mat = ShaderMaterial.new()
+	_band_mat.shader = SLASH_SHADER
+	_half_a = Polygon2D.new()
+	_half_a.name = "Band"
+	_half_a.color = Color(1, 1, 1, 1)
+	_half_a.material = _band_mat
+	_band_host.add_child(_half_a)
+	_half_b = Polygon2D.new()
+	_half_b.name = "BandB"
+	_half_b.color = Color(1, 1, 1, 1)
+	_half_b.material = _band_mat
+	_half_b.visible = false
+	_band_host.add_child(_half_b)
+	_edge_top = Line2D.new()
+	_edge_top.name = "EdgeTop"
+	_edge_top.width = 6.0
+	_edge_top.default_color = Color("e8c36a")
+	_edge_top.antialiased = true
+	_band_host.add_child(_edge_top)
+	_edge_bot = Line2D.new()
+	_edge_bot.name = "EdgeBot"
+	_edge_bot.width = 4.0
+	_edge_bot.default_color = Color("e8c36a")
+	_edge_bot.antialiased = true
+	_band_host.add_child(_edge_bot)
+	_flash = Sprite2D.new()
+	_flash.name = "Flash"
+	_flash.texture = CIRCLE_TEX
+	_flash.centered = true
+	_flash.texture_filter = TEXTURE_FILTER_NEAREST
+	_flash.z_index = 1
+	add_child(_flash)
+	_portrait = Sprite2D.new()
+	_portrait.name = "Portrait"
+	_portrait.centered = false
+	_portrait.texture_filter = TEXTURE_FILTER_NEAREST
+	_portrait.z_index = 2
+	add_child(_portrait)
+	_name_lbl = Label.new()
+	_name_lbl.name = "Name"
+	_name_lbl.add_theme_font_size_override("font_size", 34)
+	_name_lbl.add_theme_color_override("font_color", Color("f0e6d8"))
+	_name_lbl.add_theme_color_override("font_outline_color", Color(0.06, 0.05, 0.04, 1))
+	_name_lbl.add_theme_constant_override("outline_size", 3)
+	_name_lbl.position = Vector2(1000, 555)
+	_name_lbl.z_index = 3
+	add_child(_name_lbl)
+	_call_lbl = Label.new()
+	_call_lbl.name = "Call"
+	_call_lbl.add_theme_font_size_override("font_size", 44)
+	_call_lbl.add_theme_color_override("font_color", Color("e8c36a"))
+	_call_lbl.add_theme_color_override("font_outline_color", Color(0.06, 0.05, 0.04, 1))
+	_call_lbl.add_theme_constant_override("outline_size", 3)
+	_call_lbl.position = Vector2(1000, 598)
+	_call_lbl.z_index = 3
+	add_child(_call_lbl)
+	_cut = Line2D.new()
+	_cut.name = "Cut"
+	_cut.width = 8.0
+	_cut.default_color = Color(1, 1, 1, 0.8)
+	_cut.antialiased = true
+	_cut.z_index = 4
+	_cut.visible = false
+	add_child(_cut)
+
+
+func _set_cutin_visible(on: bool) -> void:
+	if _dim:
+		_dim.visible = on
+	if _band_host:
+		_band_host.visible = on
+	if _flash:
+		_flash.visible = on
+	if _portrait:
+		_portrait.visible = on
+	if _name_lbl:
+		_name_lbl.visible = on
+	if _call_lbl:
+		_call_lbl.visible = on
+	if _cut and not on:
+		_cut.visible = false
+
+
+func _band_points() -> PackedVector2Array:
+	return PackedVector2Array([
+		Vector2(-40, 620),
+		Vector2(1720, 250),
+		Vector2(1720, 600),
+		Vector2(-40, 970),
+	])
+
+
+func _prepare_band() -> void:
+	var pts: PackedVector2Array = _band_points()
+	_half_a.polygon = pts
+	_half_a.uv = PackedVector2Array([
+		Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1),
+	])
+	_half_a.visible = true
+	_half_b.visible = false
+	_half_a.position = Vector2.ZERO
+	_half_b.position = Vector2.ZERO
+	_half_a.modulate = Color(1, 1, 1, 1)
+	_half_b.modulate = Color(1, 1, 1, 1)
+	_edge_top.points = PackedVector2Array([pts[0], pts[1]])
+	_edge_bot.points = PackedVector2Array([pts[3], pts[2]])
+	_edge_top.modulate = Color(1, 1, 1, 1)
+	_edge_bot.modulate = Color(1, 1, 1, 1)
+	if _band_mat != null:
+		_band_mat.set_shader_parameter("fill_color", Color(0.039, 0.027, 0.024, 0.92))
+		_band_mat.set_shader_parameter("line_color", Color("e8c36a", 0.55))
+
+
+func _split_band_halves() -> void:
+	var pts: PackedVector2Array = _band_points()
+	var mid_top: Vector2 = (pts[0] + pts[1]) * 0.5
+	var mid_bot: Vector2 = (pts[3] + pts[2]) * 0.5
+	_half_a.polygon = PackedVector2Array([pts[0], mid_top, mid_bot, pts[3]])
+	_half_a.uv = PackedVector2Array([
+		Vector2(0, 0), Vector2(0.5, 0), Vector2(0.5, 1), Vector2(0, 1),
+	])
+	_half_b.polygon = PackedVector2Array([mid_top, pts[1], pts[2], mid_bot])
+	_half_b.uv = PackedVector2Array([
+		Vector2(0.5, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0.5, 1),
+	])
+	_half_b.visible = true
+	_edge_top.points = PackedVector2Array([pts[0], pts[1]])
+	_edge_bot.points = PackedVector2Array([pts[3], pts[2]])
+
+
+func _prepare_cut_line() -> void:
+	var pts: PackedVector2Array = _band_points()
+	var mid_top: Vector2 = (pts[0] + pts[1]) * 0.5
+	var mid_bot: Vector2 = (pts[3] + pts[2]) * 0.5
+	var dir: Vector2 = (mid_bot - mid_top).normalized()
+	_cut.points = PackedVector2Array([
+		mid_top - dir * 40.0,
+		mid_bot + dir * 40.0,
+	])
+
+
+func _prepare_flash() -> void:
+	_flash.texture = CIRCLE_TEX
+	_flash.position = Vector2(750, 610)
+	var native: float = 64.0
+	if CIRCLE_TEX != null:
+		native = float(CIRCLE_TEX.get_width())
+	var target: float = 280.0
+	var s: float = target / maxf(native, 1.0)
+	_flash.scale = Vector2(s, s)
+	_flash.modulate = _flash_color(card_id)
+
+
+func _flash_color(id: String) -> Color:
+	var family: String = _flash_family(id)
+	match family:
+		"heal":
+			return Color("8dcb8d")
+		"poison":
+			return Color("9a6ab8")
+		"stone":
+			return Color("9a9a9a")
+		"flee":
+			return Color("a8c8e8")
+		"loot":
+			return Color("e8c36a")
+		_:
+			return Color("8b1e1e")
+
+
+func _flash_family(id: String) -> String:
+	match id:
+		"lich", "cleric", "martyr", "fairy", "pacemaker":
+			return "heal"
+		"plague_doctor", "poison_frog", "eel":
+			return "poison"
+		"gargoyle", "basilisk", "hydra":
+			return "stone"
+		"triclops", "goblin", "mouse":
+			return "flee"
+		"bandit", "mimic", "merchant", "beggar", "gelatinous_cube", "hired_hand":
+			return "loot"
+		_:
+			return "damage"
+
+
+func _prepare_labels() -> void:
+	_name_lbl.text = _title
+	_call_lbl.text = _call
+	_name_lbl.visible = _title != ""
+	_call_lbl.visible = _call != ""
+
+
+func _prepare_portrait() -> void:
+	_frame_texs.clear()
+	_frame_i = 0
+	if art != null and art.has_method("monster_slash_frames") and card_id != "":
+		var frames: Array = art.monster_slash_frames(card_id)
+		for f in frames:
+			if f is Texture2D and f != null:
+				_frame_texs.append(f)
+	var still: Texture2D = _tex
+	if still == null and art != null and card_id != "" and art.has_method("monster_still"):
+		still = art.monster_still(card_id)
+	if not _frame_texs.is_empty():
+		_portrait.texture = _frame_texs[0]
+	else:
+		_portrait.texture = still
+	_portrait.scale = Vector2(4, 4)
+	_portrait.position = _portrait_center()
 
 
 func _process(delta: float) -> void:
 	if not visible:
 		return
 	_clock += delta
-	queue_redraw()
+	if not _cutin_active:
+		queue_redraw()
 
 
 func _draw() -> void:
+	if _cutin_active:
+		return
 	if _life <= 0.01 or size.x < 32.0 or size.y < 32.0:
 		return
 	var a: float = clampf(_life, 0.0, 1.0)
