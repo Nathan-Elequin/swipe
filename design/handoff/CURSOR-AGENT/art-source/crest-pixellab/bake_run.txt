@@ -1,0 +1,4 @@
+{"endpoint": "/create-image-pixflux", "prefix": "<ANIM_PITCH>/mockups/layouts/crest/raw/bake_medallion", "status": 200, "bal_before": 1800.0, "bal_after": 1800.0, "files": ["<ANIM_PITCH>/mockups/layouts/crest/raw/bake_medallion_0.png"]} {"usage": {"type": "generations", "generations": 1.0}, "image": {"type": "base64", "base64": "<b64>", "format": "png"}}
+own used 5.0
+{"endpoint": "/create-image-pixflux", "prefix": "<ANIM_PITCH>/mockups/layouts/crest/raw/bake_shield", "status": 200, "bal_before": 1800.0, "bal_after": 1799.0, "files": ["<ANIM_PITCH>/mockups/layouts/crest/raw/bake_shield_0.png"]} {"usage": {"type": "generations", "generations": 1.0}, "image": {"type": "base64", "base64": "<b64>", "format": "png"}}
+own used 6.0

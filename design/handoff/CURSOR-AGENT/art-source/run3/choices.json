@@ -1,0 +1,3 @@
+{"wolf":{"raw":"wolf_gallop_c"},"hornet":{"raw":"hornet_fly_a"},"goblin":{"raw":"goblin_run"},"skeleton":{"raw":"skeleton_run"},
+ "spider":{"raw":"spider_move"},"dragon":{"raw":"dragon_move"},"hurt":{"raw":"s64_hurt"},"victory":{"raw":"s64_victory_r2"},
+ "defeat":{"raw":"s64_defeat"},"blink":{"raw":"s64_blink"},"lantern":{"raw":"lantern_flicker"},"coin":{"raw":"coin_glint"},"scroll":{"raw":"scroll_unfurl"}}

@@ -3,6 +3,8 @@ description: Detect Godot-corrupt PNGs from text and bytes only, never open them
 alwaysApply: true
 ---
 
+> Art handoff 2026-10-21: where this rule says Pixel, follow `art-handoff.mdc` and `design/handoff/CURSOR-AGENT/README.md`.
+
 # Corrupt PNG files
 
 Source of truth: `swipe-design-loop.mdc`. Pixel owns PNG bytes. Cursor detects and reports corrupt files; it does not redraw or regenerate them.

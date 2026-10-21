@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Title teaser storyboard</title>
+<style>
+  :root {
+    --ink: #fff3d6;
+    --dim: #c9b9a8;
+    --gold: #e8c36a;
+    --oak: #3a2414;
+    --bg: #100e0c;
+    --panel: #1c140e;
+    --line: #5a3a24;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 Georgia, serif; }
+  header { padding: 28px 40px 8px; max-width: 1100px; }
+  h1 { font-size: 34px; margin: 0 0 8px; color: var(--gold); }
+  .sub { color: var(--dim); max-width: 72ch; }
+  main { padding: 12px 40px 64px; max-width: 1100px; }
+  h2 { color: var(--gold); font-size: 22px; margin: 32px 0 12px; }
+  .beats { display: grid; gap: 18px; }
+  .beat {
+    background: var(--panel);
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .stage {
+    height: 220px;
+    position: relative;
+    background: #0a0807;
+    overflow: hidden;
+  }
+  .stage .sky { position: absolute; inset: 0 0 40% 0; background: linear-gradient(#1a1520, #0a0807); }
+  .stage .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 42%; background: #2a2018; }
+  .stage .hall { position: absolute; inset: 0; background:
+    repeating-linear-gradient(90deg, #2a2218 0 48px, #221a14 48px 96px);
+  }
+  .stage .hall::after {
+    content: "";
+    position: absolute; left: 0; right: 0; top: 0; height: 38%;
+    background: #3a3026;
+    box-shadow: inset 0 -8px 0 #1c140e;
+  }
+  .dot {
+    position: absolute; bottom: 36px; width: 28px; height: 36px;
+    background: #6ec86a; border: 2px solid #1c120c; border-radius: 6px 6px 3px 3px;
+  }
+  .nib {
+    position: absolute; bottom: 40px; width: 22px; height: 28px;
+    background: #c45a3a; border: 2px solid #1c120c; border-radius: 50% 50% 8px 8px;
+  }
+  .loot {
+    position: absolute; width: 18px; height: 18px;
+    background: var(--gold); border: 2px solid #1c120c; border-radius: 3px;
+  }
+  .mon {
+    position: absolute; bottom: 38px; width: 34px; height: 34px;
+    background: #8a3a3a; border: 2px solid #1c120c; border-radius: 4px;
+  }
+  .ghost { opacity: 0.45; }
+  .copy { padding: 12px 16px 16px; }
+  .copy h3 { margin: 0 0 6px; color: var(--gold); font-size: 18px; }
+  .meta { color: var(--dim); font-size: 13px; margin-bottom: 8px; }
+  ul { margin: 0; padding-left: 1.2em; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--gold); background: #18110c; }
+  .note { color: var(--dim); }
+  .swirl .loot, .swirl .mon, .swirl .dot { animation: none; }
+  .white { position: absolute; inset: 0; background: #fff; opacity: 0.35; }
+  footer { color: var(--dim); font-size: 13px; padding-top: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Silent teaser → title still</h1>
+  <p class="sub"><strong>Pixel: read <code>design/handoff/title-teaser/PIXEL.md</code> first.</strong> F5 in the editor is a programmer dummy (tiny combat sprites, tiled fight hall). Do not match it. This page is beat order only. File sizes and pivots are in <code>ART-REQUEST.md</code>.</p>
+  <p class="sub">After the Feedback Tutorial. No text boxes in the motion. Combat theme from frame 1. Sprout is taking grandpa’s things back. Monsters of the mountain want them. He has to use some loot to get out with the rest. Tagline on the still: <strong>Use it, Lose it, or Lose your head</strong>.</p>
+</header>
+<main>
+  <h2>Beats (~12s motion, then hold)</h2>
+  <div class="beats">
+    <article class="beat">
+      <div class="stage">
+        <div class="sky"></div>
+        <div class="ground"></div>
+        <div class="nib" style="left: 12%"></div>
+        <div class="dot" style="left: 28%"></div>
+      </div>
+      <div class="copy">
+        <h3>1. Threshold · 0–2s</h3>
+        <div class="meta">Camera: side-scroll, pan right into dark. Art: new hill strip if Pixel has it; else cabin room + run door. Reuse: hero walkoff, Nib, run door.</div>
+        <ul>
+          <li>Night hill / cabin door. Hero runs into the mountain.</li>
+          <li>Nib holds a lantern and does not follow. Knock scene stays on Brand New.</li>
+          <li><code>music_combat</code> starts.</li>
+        </ul>
+      </div>
+    </article>
+    <article class="beat">
+      <div class="stage">
+        <div class="hall"></div>
+        <div class="dot" style="left: 34%"></div>
+        <div class="loot" style="left: 58%; bottom: 88px;"></div>
+        <div class="loot ghost" style="left: 72%; bottom: 110px;"></div>
+        <div class="mon" style="left: 8%"></div>
+      </div>
+      <div class="copy">
+        <h3>2. Grab · 2–5s</h3>
+        <div class="meta">Camera: side-scroll. Art: hall strip or tiled hall. Reuse: live item 16×16, monster sheets.</div>
+        <ul>
+          <li>Halls scroll. Grandpa’s items float ahead.</li>
+          <li>Hero catches some, misses some.</li>
+          <li>Monsters enter from behind.</li>
+        </ul>
+      </div>
+    </article>
+    <article class="beat">
+      <div class="stage">
+        <div class="hall"></div>
+        <div class="dot" style="left: 40%"></div>
+        <div class="loot" style="left: 48%; bottom: 70px;"></div>
+        <div class="mon" style="left: 22%"></div>
+        <div class="mon" style="left: 6%"></div>
+      </div>
+      <div class="copy">
+        <h3>3. Spend to keep · 5–8.5s</h3>
+        <div class="meta">Camera: still tracking, chase tightens. Hero: swipe / block. Used sprite is gone.</div>
+        <ul>
+          <li>Hero uses Boot / Block / potion-class into a monster so he can keep running with the rest.</li>
+          <li>That item disappears. Remaining loot clings to him.</li>
+          <li>Halls change. More monsters.</li>
+        </ul>
+      </div>
+    </article>
+    <article class="beat swirl">
+      <div class="stage">
+        <div class="hall"></div>
+        <div class="dot" style="left: 48%; bottom: 90px;"></div>
+        <div class="loot" style="left: 62%; bottom: 140px;"></div>
+        <div class="loot" style="left: 36%; bottom: 150px;"></div>
+        <div class="mon" style="left: 30%; bottom: 120px;"></div>
+        <div class="mon" style="left: 64%; bottom: 70px;"></div>
+      </div>
+      <div class="copy">
+        <h3>4. Swirl · 8.5–11s</h3>
+        <div class="meta">Camera stops tracking. Hero to center. Remaining loot, monsters, hall fragments orbit. Bloom from the items he still holds.</div>
+        <ul>
+          <li>This is the greedy escape tightening into a title card, not a fight UI.</li>
+        </ul>
+      </div>
+    </article>
+    <article class="beat">
+      <div class="stage">
+        <div class="hall"></div>
+        <div class="white"></div>
+        <div class="dot" style="left: 48%; bottom: 90px; opacity: 0.2;"></div>
+      </div>
+      <div class="copy">
+        <h3>5. Whiteout → still · 11s then hold</h3>
+        <div class="meta">Sprites bloom to white, then Pixel’s full-bleed still. Name (once locked), tagline, Click to continue. Click opens the current hub on top, art dimmed.</div>
+        <ul>
+          <li>Pixel proposes the still composition after this board.</li>
+          <li>Do not letter until NAME.md is locked. Recommended: Snatchwick.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+
+  <h2>What Pixel draws (not the dummy)</h2>
+  <table>
+    <tr><th>Piece</th><th>Dummy in F5</th><th>You drop</th></tr>
+    <tr><td>Sprout</td><td>24px wheel hero</td><td><code>sprout_run/grab/throw</code> 48×48 native, facing right</td></tr>
+    <tr><td>Items / monsters</td><td>Live 16×16 cards</td><td><code>item_*</code> 32×32, <code>mon_*</code> 32 or 48, unique vs card PNGs</td></tr>
+    <tr><td>Hill / hall</td><td>Cabin room + tiled fight hall</td><td><code>hill_strip</code>, <code>hall_strip</code>, optional <code>_b</code> — 420×260, floor y=161</td></tr>
+    <tr><td>Title still</td><td>Stretched cabin + tiny goblin</td><td><code>title_still.png</code> 420×260 — itch waits on this</td></tr>
+    <tr><td>Music</td><td><code>music_combat.ogg</code></td><td>Do not replace</td></tr>
+  </table>
+
+  <h2>Name (lettering later)</h2>
+  <p>1. <strong>Snatchwick</strong> (recommended) · 2. Swipe · 3. Everything. Runtime stays Swipe until that pick.</p>
+  <p class="note">Brief: <code>design/handoff/title-teaser/PIXEL.md</code> · Files: <code>ART-REQUEST.md</code> · Type hole: <code>SCREEN-title-still.md</code></p>
+  <footer>No text boxes in the motion. Brand New still plays the rain / will cutscene after the hub.</footer>
+</main>
+</body>
+</html>

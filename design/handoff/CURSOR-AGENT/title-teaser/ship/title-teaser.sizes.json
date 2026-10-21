@@ -1,0 +1,27 @@
+{
+  "_note": "Title teaser art (Pixel, 2026-10-20). Native is the 420x260 virtual grid; shipped is 4x nearest, lossless, no mipmaps. Strips loop on X and share floor y=161 native (644 shipped). Logo is separate from the still; title_still.png carries no lettering.",
+  "viewport": [1680, 1040],
+  "scale": 4,
+  "floor_y": {"native": 161, "shipped": 644},
+  "rects_shipped": {
+    "logo": [340, 80, 1000, 160],
+    "tagline": [260, 250, 1160, 80],
+    "click": [340, 920, 1000, 80],
+    "hub_hole": [480, 260, 720, 520]
+  },
+  "rects_native": {
+    "logo": [85, 20, 250, 40],
+    "tagline": [65, 62.5, 290, 20],
+    "click": [85, 230, 250, 20],
+    "hub_hole": [120, 65, 180, 130]
+  },
+  "logo_cap_native_w": 210,
+  "logo_placement_native": [120, 20],
+  "assets": [
+    {"path": "assets/dungeon/title/title_still.png", "native": [420, 260], "shipped": [1680, 1040], "opaque": true, "tiling": "none", "frames": 1},
+    {"path": "assets/dungeon/title/hill_strip.png", "native": [420, 260], "shipped": [1680, 1040], "opaque": true, "tiling": "seamless_x", "frames": 1, "floor_y_native": 161},
+    {"path": "assets/dungeon/title/hall_strip.png", "native": [420, 260], "shipped": [1680, 1040], "opaque": true, "tiling": "seamless_x", "frames": 1, "floor_y_native": 161},
+    {"path": "assets/dungeon/title/hall_strip_b.png", "native": [420, 260], "shipped": [1680, 1040], "opaque": true, "tiling": "seamless_x", "frames": 1, "floor_y_native": 161},
+    {"path": "assets/dungeon/title/logo.png", "native": [180, 40], "shipped": [720, 160], "opaque": false, "tiling": "none", "frames": 1, "pivot": "centre", "fits_rect": "logo"}
+  ]
+}

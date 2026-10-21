@@ -1,0 +1,675 @@
+{
+	"id": "swipe-lore-v1-cabin",
+	"status": "DRAFT for Nathan (Jam-reviewed 2026-10-17)",
+	"updated": "2026-10-17",
+	"instructions": "Player-facing prose. Jam owns this file. Grandpa journal entries (trophy hall tooltip + journal Curiosities tab) and bestiary (journal Bestiary tab). Names here are for writers only; the game shows catalog names. Footnotes render smaller under the entry, in order.",
+	"engraving": "PROPERTY OF B. SNATCHWICK. IF FOUND, HOW DARE YOU.",
+	"glossary": {
+		"grandpa": "Bartleby \"Lucky\" Snatchwick, Esq. Legendary, bumbling, lucky goblin delver. Died in the Bellyvault of Mount Grumblegut. Never shown alive: portraits, notes and the will only.",
+		"hero": "\"Sprout\" (Nib's name for them). Orphaned grandchild raised over the tannery in Muddlecombe. Teal cloak, red scarf.",
+		"nib": "Imp. Grandpa's sidekick, fence, valet and now executor. Monocle, mustard coat. Dry, fond, loves stamping, paid in biscuits.",
+		"mountain": "Mount Grumblegut (\"the Grumble\"). It rumbles like an empty stomach. Its levels are bellies; the deepest is the Bellyvault.",
+		"village": "Muddlecombe. The cabin stands on Kettle Hill, facing the mountain.",
+		"cabinet": "The Snatchwick Cabinet of Considerable Curiosities (the trophy hall).",
+		"radio": "The Snatchwick Melodeon, a wooden jukebox radio powered by Gloria the firefly.",
+		"rope": "Grandpa tied knotted rope ladders in every belly \"for emergencies\". They are the rope exit after each clear.",
+		"cast": {
+			"prudence": "Dame Prudence Vexley: rival explorer, always right, Grandpa's favourite footnote target.",
+			"oswin": "Brother Oswin Plunk: the Cleric. Heals, then invoices.",
+			"hobnail": "Mrs. Hobnail: Muddlecombe pawnbroker. Her cousin Hob is the Merchant.",
+			"gorm": "Gorm: the Golem. Waves at everything.",
+			"pettifog": "King Pettifog the Cowardly: the Cowardly King of the Ninth Belly.",
+			"gloria": "Gloria: the firefly in the radio tube.",
+			"fenwick": "Old Fenwick: the Wizard of the First Belly.",
+			"varnish": "Count Varnish: the Vampire.",
+			"smoulder": "Old Smoulder: the Dragon (missing one teaspoon).",
+			"arachnelda": "Queen Arachnelda: the Spider Queen.",
+			"brunhilda": "Brunhilda: the Berserker."
+		}
+	},
+	"items": {
+		"throwing_knife": {
+			"name_ref": "Throwing Knife",
+			"status": "live",
+			"journal": "My first knife, and I am pleased to say I have thrown it at every major landmark in {the_grumble}. It mostly comes back. I take the credit for this. Skill, I call it. Others call it a slope.",
+			"footnotes": [
+				"¹ {nib} says the handle is weighted wrong. {nib} has never once thrown anything but a tantrum."
+			],
+			"words": 56
+		},
+		"shield": {
+			"name_ref": "Shield",
+			"status": "live",
+			"journal": "A sturdy round shield, painted with my crest: a goblin rampant upon a slightly larger goblin. It has stopped arrows, axes, and one very determined goose. I had it repainted after the goose, out of respect.",
+			"footnotes": [
+				"¹ The crest is not upside down. The goblin is merely doing a handstand of triumph."
+			],
+			"words": 52
+		},
+		"sai": {
+			"name_ref": "Sai",
+			"status": "live",
+			"journal": "A clever little fork for fighting, bought from a travelling instructor who swore it took nine years to master. I mastered it on the walk home. It flips its mood every time I do anything at all. So do I.",
+			"footnotes": [
+				"¹ I have been told one does not 'flip' a sai. I have been told many things."
+			],
+			"words": 57
+		},
+		"medallion": {
+			"name_ref": "Medallion",
+			"status": "live",
+			"journal": "Awarded to me by the {village} Society of Gentlemen Explorers for Valour, and then, a week later, for Returning the Society's Silverware. It grows heavier the worse I feel. It is the only medal that truly understands me.",
+			"footnotes": [
+				"¹ {prudence} has two. Hers are for Accuracy, which is not a real virtue."
+			],
+			"words": 54
+		},
+		"helmet": {
+			"name_ref": "Helmet",
+			"status": "live",
+			"journal": "A dented iron pot with ambitions. It has saved my head so often that I have stopped thanking it, which I regret. It guards best when things are even, which is how I like my fights and my sandwiches.",
+			"footnotes": [
+				"¹ It does not fit over the pith helmet. I tried. There were complications."
+			],
+			"words": 53
+		},
+		"da_boot": {
+			"name_ref": "The Boot",
+			"status": "live",
+			"journal": "The left boot of a giant I talked out of a fight by pointing out that his shoe was untied. While he looked, I took the boot. Anyone smaller than me who sees it coming generally leaves. Quickly. Permanently.",
+			"footnotes": [
+				"¹ I never found the right boot. I suspect the giant is still hopping about somewhere, furious."
+			],
+			"words": 56
+		},
+		"grimoire": {
+			"name_ref": "Grimoire",
+			"status": "live",
+			"journal": "A spellbook that copies whatever it last saw. I opened it beside a Golem once and it hit me in the face with the force of a falling wall. Remarkable book. I keep it shut and pointed at other people.",
+			"footnotes": [
+				"¹ {nib} reads it on Sundays. He says it is mostly recipes. That is how it gets you."
+			],
+			"words": 58
+		},
+		"bloody_gauntlets": {
+			"name_ref": "Bloody Wraps",
+			"status": "live",
+			"journal": "Hand wraps that get angrier the more I bleed. A very loyal sort of fabric. I have learned not to cut myself shaving while wearing them, as they then try to fight the mirror. The mirror lost.",
+			"footnotes": [
+				"¹ {oswin} invoiced me for the mirror. Twice. Once for 'emotional damages.'"
+			],
+			"words": 51
+		},
+		"breastplate": {
+			"name_ref": "Breastplate",
+			"status": "live",
+			"journal": "Polished steel, hand-fitted, slightly too short. It stays with me if things get painful, like a good friend or a bad rash. I wore it to my own birthday once and was asked to leave the party.",
+			"footnotes": [
+				"¹ It was a very sharp cake. I maintain I was protecting the other guests."
+			],
+			"words": 52
+		},
+		"bracers": {
+			"name_ref": "Right Bracer",
+			"status": "live",
+			"journal": "One half of a matching pair, the bracer for my right arm, which is my best arm and my second-best arm on Tuesdays. It catches whatever the monster to my right was planning. Rather nosy of it.",
+			"footnotes": [
+				"¹ The left one is somewhere. They had a falling out. Do not seat them together."
+			],
+			"words": 53
+		},
+		"left_bracer": {
+			"name_ref": "Left Bracer",
+			"status": "live",
+			"journal": "The other bracer. It watches my left, which is where trouble comes from, according to my mother and every tavern I have ever sat in. It is slightly more paranoid than its brother. I respect that.",
+			"footnotes": [
+				"¹ If you find the right one, introduce them gently. Brothers are like that."
+			],
+			"words": 50
+		},
+		"smoke_bomb": {
+			"name_ref": "Smoke Bomb",
+			"status": "todo",
+			"journal": "A clay ball full of something sneezy. One drop and the fight forgets I am there, and I, having vanished, generally come back holding something new. I call it a Strategic Disappearance. {nib} calls it Running Away.",
+			"footnotes": [
+				"¹ Both of us are correct, but I am more correct, because I wrote this."
+			],
+			"words": 52
+		},
+		"knucklers": {
+			"name_ref": "Knucklers",
+			"status": "live",
+			"journal": "Brass knuckles, best used when I have nothing else in my pockets, which is often. The fewer things I carry, the harder they hit. Philosophers call this Minimalism. I call it Punching.",
+			"footnotes": [
+				"¹ I once carried nothing but these and a sandwich. The sandwich weakened them. Lesson learned. Sandwich eaten."
+			],
+			"words": 50
+		},
+		"fangs": {
+			"name_ref": "Fangs",
+			"status": "live",
+			"journal": "A set of false teeth pried from a vampire who had, in fairness, pried them from someone else first. You must take a bite to give a bite. Grisly business. They clack when they are hungry, which is always.",
+			"footnotes": [
+				"¹ Do not keep them near the biscuits. {nib} knows why. {nib} will not discuss it."
+			],
+			"words": 55
+		},
+		"poison_flask": {
+			"name_ref": "Poison Flask",
+			"status": "todo",
+			"journal": "A thin green flask I use to mark a monster for later, the way one marks a page. When I finally get round to them, they are already feeling unwell. Patience, you see, is a weapon. So is poison.",
+			"footnotes": [
+				"¹ Not for salad dressing. I cannot stress this enough. Ask {gorm} the Golem's cousin."
+			],
+			"words": 54
+		},
+		"cursed_scroll": {
+			"name_ref": "Cursed Scroll",
+			"status": "live",
+			"journal": "This scroll heals beautifully and then nibbles at you every time the wheel turns. Rather like a cat. I bought it at a discount, which, in hindsight, was the curse. Never trust a bargain that winks.",
+			"footnotes": [
+				"¹ It did wink. I saw it. {nib} says scrolls cannot wink. {nib} was not there."
+			],
+			"words": 52
+		},
+		"spider_egg": {
+			"name_ref": "Spider Egg",
+			"status": "token",
+			"journal": "Not mine. Absolutely not mine. A Spider Queen keeps shoving these into my bag like a proud aunt with photographs. Get rid of them before you meet her again, or she takes it as a compliment.",
+			"footnotes": [
+				"¹ This entry is here so you will stop asking why it has no shelf. It has no shelf. Out it goes."
+			],
+			"words": 58
+		},
+		"spiked_flail": {
+			"name_ref": "Spiked Flail",
+			"status": "live",
+			"journal": "A ball, a chain, and a temper. It grows meaner every time I get hurt, like a big sister. I named it Agatha. Agatha has never lost a fight, though she has twice lost me.",
+			"footnotes": [
+				"¹ Swinging it indoors is how the chandelier became the floor lamp."
+			],
+			"words": 47
+		},
+		"healing_potion": {
+			"name_ref": "Healing Potion",
+			"status": "todo",
+			"journal": "My emergency bottle. If ever I was about to perish, it would leap from my pocket and patch me up out of pure spite. I owe it my life, roughly eleven times. It has never once been thanked.",
+			"footnotes": [
+				"¹ Thank you, bottle. There. Now it is in writing, and I need never say it aloud."
+			],
+			"words": 55
+		},
+		"crossbow": {
+			"name_ref": "Crossbow",
+			"status": "live",
+			"journal": "A fine crossbow for shooting the monster beside the monster I am actually arguing with. Very rude. Very effective. I won it at cards from a dwarf who, in his defence, was holding five aces too.",
+			"footnotes": [
+				"¹ We agreed to call it a draw and he agreed I should keep the crossbow. He was outnumbered."
+			],
+			"words": 55
+		},
+		"sledgehammer": {
+			"name_ref": "Sledgehammer",
+			"status": "live",
+			"journal": "Built for the big ones. The bigger they hit, the harder they fall, and this hammer is how I help them fall. I cannot lift it above my head, so I swing it at knee height. Everyone has knees.",
+			"footnotes": [
+				"¹ Except the Gelatinous Cube. I have written to the Society about this oversight."
+			],
+			"words": 53
+		},
+		"pocketwatch": {
+			"name_ref": "Pocketwatch",
+			"status": "live",
+			"journal": "My father's watch. It has never kept good time, but it keeps a keen eye on the strongest brute nearby and borrows their muscle on the hour. Punctuality is overrated. Borrowing is underrated.",
+			"footnotes": [
+				"¹ It stopped at a quarter past luck and never started again. Fitting."
+			],
+			"words": 46
+		},
+		"double_axe": {
+			"name_ref": "Double Axe",
+			"status": "live",
+			"journal": "Two blades, one handle, no patience. It strikes the fellow in front of me and both his neighbours, which is a great way to meet everyone at a party. I have not been invited to many parties since.",
+			"footnotes": [
+				"¹ I maintain the Society's Winter Ball was already on fire when I arrived."
+			],
+			"words": 52
+		},
+		"victory_flask": {
+			"name_ref": "Victory Flask",
+			"status": "live",
+			"journal": "I fill this flask with something warm after every monster I best. The more I win, the better it tastes. On my best day, it tasted like soup made by a choir. On my worst day, it was soup.",
+			"footnotes": [
+				"¹ Yes, it is a goblet. 'Victory Goblet' would not fit on the engraving."
+			],
+			"words": 53
+		},
+		"grappling_hook": {
+			"name_ref": "Grappling Hook",
+			"status": "live",
+			"journal": "My dearest gadget. It pulls a neighbouring monster into my fight and usually shakes loose a trinket on the way. I have also used it to retrieve hats, cats, and once my own trousers from a chandelier.",
+			"footnotes": [
+				"¹ I installed knotted rope ladders in every belly of {the_grumble} with this. For emergencies. You are welcome."
+			],
+			"words": 56
+		},
+		"spiked_shield": {
+			"name_ref": "Spiked Shield",
+			"status": "live",
+			"journal": "A shield that cannot decide whether it wants to hug you or stab you. Very much like {prudence}. I choose for it, each time. I choose stabbing more often than is polite.",
+			"footnotes": [
+				"¹ {prudence_short}, if you are reading this: I meant the hugging."
+			],
+			"words": 45
+		},
+		"grief_jar": {
+			"name_ref": "Grief Jar",
+			"status": "live",
+			"journal": "An urn that sips a little of my health every time the wheel turns and hoards it as armour. Sad, sturdy little thing. I talk to it on long nights. It never talks back, which makes it my best listener after {nib}.",
+			"footnotes": [
+				"¹ {nib} says he listens. {nib} says this while counting coins."
+			],
+			"words": 53
+		},
+		"longbow": {
+			"name_ref": "Longbow",
+			"status": "live",
+			"journal": "Taller than me by a good foot, which is not difficult. It only shoots straight across a fair, even room. Odd rooms upset it. I sympathise. I, too, have been upset by odd rooms.",
+			"footnotes": [
+				"¹ The Seventh Belly is perfectly round. I do not go there. Neither does the bow."
+			],
+			"words": 50
+		},
+		"lantern": {
+			"name_ref": "Lantern",
+			"status": "live",
+			"journal": "My old brass lantern. It mends you a little, and if you are still hurting, it refuses to go out. I carried it into every belly of {the_grumble} and it never blinked once, unlike me.",
+			"footnotes": [
+				"¹ Put it in the window if you ever want me to know you are home. Old habit."
+			],
+			"words": 54
+		},
+		"mirror_shard": {
+			"name_ref": "Mirror Shard",
+			"status": "live",
+			"journal": "A sliver of a mirror that remembers the last time I was safe and does it again. I found it in a witch's bathroom. I did not ask. She did not either. We have an understanding.",
+			"footnotes": [
+				"¹ Do not look into it before breakfast. It remembers that, too."
+			],
+			"words": 48
+		},
+		"echo_bell": {
+			"name_ref": "Echo Bell",
+			"status": "live",
+			"journal": "A bell that rings whatever was rung before it. Use a knife, it becomes a knife. Use soup, soup. I rang it once in an empty room and it became a long, embarrassed silence.",
+			"footnotes": [
+				"¹ That silence is also in the cabinet, technically. Mind the gap on the second shelf."
+			],
+			"words": 50
+		},
+		"quiet_bell": {
+			"name_ref": "Quiet Bell",
+			"status": "live",
+			"journal": "This bell makes no sound at all, and somehow every monster who hears it forgets whatever clever trick they had. I tried it on {nib}. He forgot how to be sarcastic for nearly a minute. Bliss.",
+			"footnotes": [
+				"¹ {nib} would like the record to show that it was nine seconds. {nib} is wrong."
+			],
+			"words": 52
+		},
+		"net": {
+			"name_ref": "Net",
+			"status": "live",
+			"journal": "A fishing net, repurposed. Toss it on a monster and they hit softer, out of sheer embarrassment. I once caught a dragon's tail in it. The dragon was too surprised to be cross. Briefly.",
+			"footnotes": [
+				"¹ I also caught three trout, a boot, and Brother {oswin_short}, who invoiced me for the trout."
+			],
+			"words": 51
+		},
+		"iron_chain": {
+			"name_ref": "Chain",
+			"status": "live",
+			"journal": "A length of chain that strikes as hard as the armour I am wearing, then politely stays. I keep it wrapped about my waist like a belt, which explains my posture and none of my decisions.",
+			"footnotes": [
+				"¹ Not the same chain as on the doors. Those are {nib|poss}, and {nib} is particular."
+			],
+			"words": 52
+		},
+		"counting_beads": {
+			"name_ref": "Counting Beads",
+			"status": "live",
+			"journal": "An abacus of four beads. Each time I use something, the next bead clicks over, one, two, three, four, and it hits that hard. I never learned to count past four, so it suits me perfectly. Anything above four is simply 'a heap.'",
+			"footnotes": [
+				"¹ Dame {prudence_short} can count to a thousand. Show-off. A heap is a perfectly scientific measurement."
+			],
+			"words": 59
+		},
+		"last_match": {
+			"name_ref": "Paci-Fist",
+			"status": "live",
+			"journal": "An open-handed gauntlet that only works when I am carrying nothing that hurts. Peace, it turns out, is a terrifying weapon. I walked up to a troll completely unarmed and he simply fell over. Neither of us knows why.",
+			"footnotes": [
+				"¹ I have tried to explain this to the Society. They gave me a pamphlet on Dangerous Hobbies."
+			],
+			"words": 57
+		},
+		"measuring_tape": {
+			"name_ref": "Scythe",
+			"status": "live",
+			"journal": "A farmer's scythe that hits for half my courage and gives me back as much again. If the brute survives, it stays for another go. I keep it oiled and named. Its name is Gerald.",
+			"footnotes": [
+				"¹ Gerald was a tailor's tape before an unfortunate incident with a wizard. Do not ask Gerald."
+			],
+			"words": 52
+		},
+		"mute_stone": {
+			"name_ref": "Chaos Stone",
+			"status": "live",
+			"journal": "A pebble that turns my other things into other, different things. I rubbed it on my spoon and got a slightly worse spoon. I rubbed it on my sock and got a slightly better hat.",
+			"footnotes": [
+				"¹ Do not rub it on {nib}. The paperwork is extraordinary."
+			],
+			"words": 46
+		},
+		"arrow_head": {
+			"name_ref": "Arrow Head",
+			"status": "live",
+			"journal": "A single arrowhead, no arrow attached. I think of it as an arrow that has already done the hard part. It sits in my pocket and pokes me whenever I am about to do something foolish. It pokes constantly.",
+			"footnotes": [
+				"¹ Found embedded in my hat. The hat is fine. The hat has seen worse."
+			],
+			"words": 54
+		},
+		"danger_magnet": {
+			"name_ref": "Danger Magnet",
+			"status": "live",
+			"journal": "A horseshoe magnet that attracts trouble. I bought it believing it repelled trouble. The shopkeeper said 'well, it does something with trouble.' Fair. It does. Constantly.",
+			"footnotes": [
+				"¹ I hung it on the front door for luck. Luck came. So did a bear."
+			],
+			"words": 42
+		},
+		"dagger": {
+			"name_ref": "Dagger",
+			"status": "retired",
+			"journal": "My very first dagger, retired with honours. It always came back to my hand, like a cheerful dog with a blade for a face. I gave it a pension and a velvet drawer. It is happier there than I ever am.",
+			"footnotes": [
+				"¹ If it ever wanders back into {the_grumble}, it is not running away. It is visiting."
+			],
+			"words": 58
+		},
+		"helmet_hidden": {
+			"name_ref": "Helmet (spare)",
+			"status": "retired",
+			"journal": "My spare helmet, kept in a sock, for emergencies involving my other helmet. Identical in every way except it remembers nothing. I keep it here so the real one does not get lonely.",
+			"footnotes": [
+				"¹ Yes, I own two helmets. Yes, I have one head. Preparation is a virtue."
+			],
+			"words": 48
+		},
+		"bandana": {
+			"name_ref": "Bandana",
+			"status": "retired",
+			"journal": "A red bandana that made me look dashing and also a little ill every morning. Fashion is pain. In this case, a small and precise amount of pain, daily, like a subscription.",
+			"footnotes": [
+				"¹ Retired after {nib} pointed out the dashing part was mostly in my head."
+			],
+			"words": 46
+		},
+		"caltrops": {
+			"name_ref": "Caltrops",
+			"status": "retired",
+			"journal": "Little iron jacks you scatter so the monster facing you forgets how to fight. I scattered them in the cabin once to test them. {nib} now walks everywhere on tiptoe. I call that a success.",
+			"footnotes": [
+				"¹ Retired. There is still one under the sofa. There is always one under the sofa."
+			],
+			"words": 51
+		}
+	},
+	"monsters": {
+		"wizard": {
+			"name_ref": "Wizard",
+			"status": "live",
+			"entry": "{fenwick_full} of the First Belly. His sparks can fell an ox, but he folds like a napkin if you poke him first. We have a standing arrangement: I poke first. Lovely man. Terrible beard.",
+			"words": 35
+		},
+		"golem": {
+			"name_ref": "Golem",
+			"status": "live",
+			"entry": "{gorm}. Seven feet of pure opinion carved out of the mountain's knee. As hard to knock down as a hillside, and with the conversational range of one. I taught him to wave. He waves at everything now, including me, very hard.",
+			"words": 41
+		},
+		"goblin": {
+			"name_ref": "Goblin",
+			"status": "live",
+			"entry": "A cousin, very distant, very slippery. Weapons simply will not touch him; he is too busy not being there. Do not try to stab him. Try to embarrass him. It is how we were raised.",
+			"words": 35
+		},
+		"skeleton": {
+			"name_ref": "Skeleton",
+			"status": "live",
+			"entry": "A bony fellow who copies whoever you fought last, out of insecurity. I have tried telling him he is fine as he is. He then became exactly as tough as my compliment. Rattling good listener.",
+			"words": 35
+		},
+		"hornet_swarm": {
+			"name_ref": "Hornet Swarm",
+			"status": "todo",
+			"entry": "Not one monster, but forty rude ones flying in formation. They sting twice for every once, out of principle. I fled them through three bellies and a wedding. The wedding was not mine. They stung the groom.",
+			"words": 37
+		},
+		"lich": {
+			"name_ref": "Lich",
+			"status": "live",
+			"entry": "A tidy, fussy undead who spends his evenings propping up his neighbours with a little extra life. Rather sweet, in a ghoulish way. He embroidered me a doily once. It screamed.",
+			"words": 31
+		},
+		"ogre": {
+			"name_ref": "Ogre",
+			"status": "live",
+			"entry": "An enormous, sympathetic soul. Whenever I get hurt, he feels it too, and shrinks a bit. Hitting him is unkind and unnecessary. Getting hurt near him, oddly, is a strategy. I do not recommend it. It works.",
+			"words": 37
+		},
+		"vampire": {
+			"name_ref": "Vampire",
+			"status": "live",
+			"entry": "{varnish_full} of the Third Belly, a gentleman with dreadful table manners. The longer the fight, the thirstier he gets. I brought him tomato juice once as a joke. He did not find it funny. He drank it, though.",
+			"words": 39
+		},
+		"berserker": {
+			"name_ref": "Berserker",
+			"status": "live",
+			"entry": "A woman named {brunhilda} whose mood changes every time the wheel does: grumpy, grumpier, absolutely furious. Approach her when she is merely grumpy. Bring a cake. Do not let her see the cake first.",
+			"words": 34
+		},
+		"dire_wolf": {
+			"name_ref": "Dire Wolf",
+			"status": "live",
+			"entry": "A huge grey wolf who bites exactly as hard as you are healthy. The better you feel, the worse it goes. I have learned to approach him feeling terrible, which comes naturally after the Fourth Belly stairs.",
+			"words": 37
+		},
+		"bandit": {
+			"name_ref": "Bandit",
+			"status": "live",
+			"entry": "A light-fingered rogue who gets braver with every trinket you carry. Professional rival. We once robbed each other at the same moment and walked off with our own purses. We still exchange cards at midwinter.",
+			"words": 35
+		},
+		"leech_league": {
+			"name_ref": "Leech League",
+			"status": "live",
+			"entry": "A sporting society of leeches. Their health is the size of the crowd: the more monsters about, the harder they are to squash. Clear the room first. Then they are only a moist committee.",
+			"words": 34
+		},
+		"wraith": {
+			"name_ref": "Wraith",
+			"status": "todo",
+			"entry": "A chilly ghost who borrows the worst temper from whichever neighbour is angriest. Never seat her beside anyone cross. Never seat her at all, if you can help it. She takes the good chair.",
+			"words": 34
+		},
+		"mimic": {
+			"name_ref": "Mimic",
+			"status": "todo",
+			"entry": "A treasure chest with teeth and a grudge. Beat it quickly, before it bites, and it coughs up a prize out of sheer surprise. I have a soft spot for it. Also a scar.",
+			"words": 34
+		},
+		"two_headed_serpent": {
+			"name_ref": "Damsel In Distress",
+			"status": "live",
+			"entry": "Do not be fooled. The Damsel hollers until her neighbours attack you for her, left then right, and then she patches you up and thanks you for your help. Charming. Exhausting.",
+			"words": 31
+		},
+		"slime_boss": {
+			"name_ref": "Slime Boss",
+			"status": "live",
+			"entry": "A wobbling heap whose punch is exactly as big as he is. Shrink him and he softens. I tried to bottle him once; he wobbled out and took the cork. He calls it his crown now.",
+			"words": 36
+		},
+		"spider_queen": {
+			"name_ref": "Spider Queen",
+			"status": "live",
+			"entry": "Her Majesty {arachnelda}. Every time the wheel turns, another egg lands in your bag. Bring them back to her and she grows stronger out of maternal pride. Throw them out first. Politely.",
+			"words": 32
+		},
+		"commander": {
+			"name_ref": "Commander",
+			"status": "live",
+			"entry": "A shouty officer who makes everyone beside him hit harder simply by bellowing. I saluted him once by accident. He made me do forty push-ups. I did four. He was very disappointed.",
+			"words": 32
+		},
+		"dragon": {
+			"name_ref": "Dragon",
+			"status": "live",
+			"entry": "{smoulder_full}. His fire goes straight through shields, armour, and excuses. I stole a teaspoon from his hoard in my youth. He has never forgotten. He has also never found it. It is in the cabinet.",
+			"words": 36
+		},
+		"needleback": {
+			"name_ref": "Needleback",
+			"status": "live",
+			"entry": "A hedgehog the size of a carriage. Every time you hit him, he hits back a little, out of reflex rather than malice. Pleasant company if you keep your hands in your pockets.",
+			"words": 33
+		},
+		"gelatinous_cube": {
+			"name_ref": "Gelatinous Cube",
+			"status": "live",
+			"entry": "A great wobbling block that insists you feed it one of two things you are carrying. It has eaten two of my hats and a very good sandwich. It has never once said thank you.",
+			"words": 35
+		},
+		"gargoyle": {
+			"name_ref": "Gargoyle",
+			"status": "live",
+			"entry": "A stone grump who turns your strongest weapon to stone until the wheel turns again. He is not evil. He simply cannot abide anyone looking more dangerous than himself. I understand him completely.",
+			"words": 33
+		},
+		"harpy": {
+			"name_ref": "Harpy",
+			"status": "live",
+			"entry": "A shrieking bird-woman with no patience at all. She attacks the moment you arrive and again every time you fiddle with your pockets. Do your fiddling before you open the door.",
+			"words": 31
+		},
+		"kobold_trapper": {
+			"name_ref": "Kobold Trapper",
+			"status": "live",
+			"entry": "A cheerful little trapper who punishes busy hands: for every gadget you use, another swing. Fight him with as few tricks as possible. I fought him with one boot and a stern look. Worked a treat.",
+			"words": 36
+		},
+		"clockwork_knight": {
+			"name_ref": "Clockwork Knight",
+			"status": "live",
+			"entry": "A tin knight wound by some long-dead tinkerer. If you leave him standing, he unfolds into two Tough monsters, out of spite or engineering. Take him apart thoroughly. Keep the screws.",
+			"words": 31
+		},
+		"basilisk": {
+			"name_ref": "Basilisk",
+			"status": "live",
+			"entry": "While she stares at you, nothing new may come into your hands and nothing old may stay. A famine of pockets. I faced her with my eyes shut and my bag sewn closed. Survived. Lost a button.",
+			"words": 37
+		},
+		"hollow": {
+			"name_ref": "Twins",
+			"status": "live",
+			"entry": "Two hollow sisters who find even numbers deeply upsetting. Hit them with an even blow and it lands twice as hard. Odd blows land as usual. I could never tell which twin was which. Neither could they.",
+			"words": 37
+		},
+		"beggar": {
+			"name_ref": "Beggar",
+			"status": "live",
+			"entry": "A poor fellow who grows stronger the better your leftmost weapon is, out of envy. Keep your nicest blade on the right. He means well. He also means to rob you.",
+			"words": 31
+		},
+		"wick": {
+			"name_ref": "Wick",
+			"status": "live",
+			"entry": "A living candle who burns brighter and shorter every time you use a gadget. Fight him with patience, or not at all. Do not, under any circumstances, light him. I learned that the warm way.",
+			"words": 35
+		},
+		"anvil": {
+			"name_ref": "Anvil",
+			"status": "live",
+			"entry": "An iron fellow who refuses to lose more than one point of health at a time, no matter how hard you swing. Stubborn as my aunt Philomena. Chip away. It is very good exercise.",
+			"words": 34
+		},
+		"bodyguard": {
+			"name_ref": "Bodyguard",
+			"status": "live",
+			"entry": "A large, loyal brute who throws himself in front of his friends. Admirable. Inconvenient. He took an arrow meant for a Wizard and then apologised to me for the trouble. Excellent manners.",
+			"words": 32
+		},
+		"cowardly_king": {
+			"name_ref": "Cowardly King",
+			"status": "live",
+			"entry": "{pettifog_full}, ruler of the Ninth Belly and every cupboard in it. Shout 'boo' and he summons his guards. Shout 'please' and he summons them faster. Never take his crown. I did. Long story.",
+			"words": 36
+		},
+		"merchant": {
+			"name_ref": "Merchant",
+			"status": "live",
+			"entry": "{hobnail|poss} cousin, {hob}, who runs a stall in the deeper bellies. Everything is a Fair Trade, according to {hob}, and {hob} decides what fair is. I traded him a compliment. He gave me change.",
+			"words": 35
+		},
+		"juggernaut": {
+			"name_ref": "Juggernaut",
+			"status": "live",
+			"entry": "A walking wall with a very small head and very large opinions about armour. Hitting him is like arguing with a cliff. Go around. If you cannot go around, go home and come back with a hammer.",
+			"words": 37
+		},
+		"cleric": {
+			"name_ref": "Cleric",
+			"status": "live",
+			"entry": "{oswin}, healer, scholar, and invoicer. Every miracle is itemised. He healed my knee once and billed me for both legs, 'in case.' I am still paying in instalments. {nib} handles it.",
+			"words": 33
+		}
+	},
+	"letters": [
+		{
+			"id": "letter_25",
+			"unlock_pct": 25,
+			"title": "The first letter",
+			"body": "Dear {hero},\nI am told you have teeth now. Excellent. Use them on vegetables first, then on anyone who calls me a fraud.\nYour loving {grandpa}\nP.S. {nib} says I must stop saving you rocks. They are not rocks. They are geodes. Mostly."
+		},
+		{
+			"id": "letter_50",
+			"unlock_pct": 50,
+			"title": "The second letter",
+			"body": "Dear {hero},\nToday I fell down the Long Drop, landed on a Golem, and was declared the winner. Luck is a muscle. Mine is enormous. Yours will be too, I expect. It skips a generation, and your father was dreadfully careful.\n{grandpa}"
+		},
+		{
+			"id": "letter_75",
+			"unlock_pct": 75,
+			"title": "The third letter",
+			"body": "Dear {hero},\nI have hung a rope ladder in every belly of {the_grumble}, in case you ever come looking for me. Climb it when your sack is full and your knees are wobbly. Never be too proud to go home. I always was too proud. Look where it got me: a very nice cave.\n{grandpa}"
+		},
+		{
+			"id": "letter_100",
+			"unlock_pct": 100,
+			"title": "The last letter",
+			"body": "Dear {hero},\nIf you are reading this, {nib} has opened the last letter, which means the cabinet is full, which means you have done what I never managed: you went into that mountain and came home with everything.\nThe cabin is yours. So is the luck. Mind the left-hand drawer.\nAll my love, and most of my footnotes,\n{bartleby} {snatchwick}, Esq."
+		}
+	],
+	"drawer_note": {
+		"id": "drawer_note",
+		"status": "DRAFT (added after Jam review: Nathan decision 6)",
+		"unlock": "drawer_opened (after ending_seen)",
+		"title": "The note in the drawer",
+		"body": "Dear {hero},\nSo the latch let you in. It is my Patent No. 7, the Rightful Heir Latch, and it opens for my heir and nobody else. Congratulations.\nThese are the rocks. I saved you one every week. {nib} counted ninety-one.\nMost are only rocks. One is not. That one is the luck I mentioned. Keep it where you can see it on the bad days.\n{grandpa}",
+		"words": 71,
+		"notes": "Shown in the loft LetterCard style when the folded note in the drawer close-up is clicked. Pays off letter_25 (the saved rocks: \"geodes. Mostly.\"), letter_100 (\"So is the luck. Mind the left-hand drawer.\") and the will's \"Do not open the left-hand drawer of my desk.\" No contractions (Grandpa voice)."
+	}
+}

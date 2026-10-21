@@ -1,0 +1,23 @@
+# run4 PROGRESS (start 21:52 CDT, balance 1959, budget 220 gens)
+- refs/: repo sprites copied from Cherry (read-only copy via temp zip; all are 16px-native at 4x). Use damsel.png for two_headed_serpent, triclops.png for triclops.
+- Nathan changes: no intent_chip_unknown (Shark uses existing loop icon); sai: split only, no merge asset.
+- Steering 21:55: every monster gets a full-body hi-fi base facing right -> final/bases/<id>_base.png; slash close-up cropped from it. No idle anims yet.
+- lib4.py (budget 220, logs calls.log), clean4.py (palette = hex + tokens, down(), clean(), fit()), sheet.py.
+- bitforge min size 16 (style image must match size). Small UI: generate at 2x/4x then down().
+- test: test_claw16 (1 gen).
+- U1 launched (18 pixflux bases: claw, flame, chips, glyphs, token, ff, heart, sparkle, rope, sai x2, marbles_rb, marble_base, cat_base, hook_base, hook_taut, pbubble, stone)
+- ~21:58 U1 done (18) + P1 7 PL bases (s11). Spent 26. Rerolls running: u2 (claw_idle_r2, pbubble_r2, sai_pair_r2), pbase s23 for dire_wolf/dragon/ogre (init rescaled to fill canvas). procui.py = UI base processing -> work/ui/
+- ~22:00 u2 rerolls done (claw_idle_r2, pbubble_r2, sai_pair_r2 used). Added poison purple ramp to palette (spec: poison purple-green). A1 launched: 14 UI anims (inputs base/a/, upscaled; downsample back after).
+- P2 launched: 49 non-PL monster bases (pbase.py seed 11, init 160)
+- ~22:10 P2 bases (s11, init 160 blocky 6x) looked like enlarged 16px sprites -> rejected. Test smooth bicubic init @80 (s31) much better (lich/wraith/vampire). P4 launched: 46 remaining non-PL bases SMOOTH=1 s31 80. PL picks: wolf/dragon/ogre s23, others s11 (pchoice.json; default for non-PL will be s31).
+- ~22:20 A1 done (14 anims; 6f/8f animate cost 1 gen each). finui.py writes final/assets/ui/anim + dungeon/anim. Review: OK most; rerolls u3.py: rope_r2 (rope tile was black bar), sai_split_r2 (mid frames lost the sai), hdrip_r2 (no drip), pbubble_r3+pburst_r2 (bubble snapped blue, no burst).
+- ~22:20 u3 rerolls integrated into finui.py (sai_split_r2, hdrip_r2, pburst_r2, rope_r2 /8 + side outline).
+- ~22:28 P4 done (46 s31). Review: rerolled text-only (no init) gelatinous_cube/leech_league/needleback (s41). pport.py crop rules: CENTER set, wide->top-right head. spent ~152.
+- 22:31 PA launched: 56 portrait anims (panim.py seed 11 tag a, PAR 4) from work/crop/<id>.png. raw/pa_<id>_a_*.png. Do NOT relaunch ids already in raw/.
+- 22:40 finport.py + showcase.py written; PA in progress.
+- 22:47 resumed after interrupt: PA still running (29/56 done), log spent 181, balance 1755 (=204 below 1959 start; ~19 more than log + in-flight -> investigate). No wheel tags/medallions (B4 covered elsewhere).
+- 22:51 bal/log deltas match during PA (7 vs 8) -> the ~20 extra gens off the balance were likely used outside run4 (shared account). Cap counted from calls.log.
+- 22:58 PA done (56). finport + showcase run. log spent 208, balance 1728.
+- 23:02 hornet portrait: old base was blocky; new base s43 (no init) + anim d with head crop. spent 212.
+- 23:05 hand touch-ups (PL failed twice): heart_drip (progressive drain + tip drip), poison_burst (f2/f3 droplet ring). Originals in work/pre_hand/. Showcase rebuilt.
+- 23:07 DONE except copy: Cherry offline. Ready-made bundle: run4/run4_out.zip (final/ + showcase/ + PROGRESS.md, 530 files). To finish: CopyFromBox run4_out.zip -> C:\Users\Natha\Documents\spinheritance-art-kit\returns\pixellab\run4_out.zip, then in PowerShell: Expand-Archive -Force <zip> ...\returns\pixellab\run4 ; Remove-Item <zip>.
