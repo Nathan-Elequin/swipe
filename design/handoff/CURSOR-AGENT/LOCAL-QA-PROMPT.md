@@ -21,7 +21,7 @@ Steps:
 4. Seats: confirm nothing assumes 8 seats (4, 6 and 8 seats at minimum; for pass 6 also 5 and 7, with fit-table clearances logged ≥ 0).
 5. Text audit (runs with the harness): 0 "Tier", 0 "ATK"/"atk". No player-copy changes in the diff (data/player-copy.json untouched unless Nathan asked).
 6. Fix small bugs on <BRANCH>. Commit as `<pass-id>(n): local QA fixes`. Commit only your files: no project.godot, default_bus_layout.tres, .godot/, unrelated .import churn, logs, build/, .wrangler/, .art-ping.*.
-7. Movement dry-run: git merge-tree --write-tree origin/movement <BRANCH>, and the same against origin/main. List any conflicted files in the PR.
+7. Movement dry-run: origin/movement has unrelated history (no merge base), so do the file-level overlap check from README section 5 step 4: files changed vs origin/main that also exist on origin/movement with different content. Also confirm `git merge-tree --write-tree origin/main <BRANCH>` is clean. List the results in the PR.
 8. Push, update the PR description (shots list, speed result, seat result, audit result, conflicts, questions for Nathan). If everything passes, merge the PR to main. Then run `git -C C:\Users\Natha\Documents\boss-rush fetch origin main:main` (this only updates local main; never touch movement) and remove the QA worktree.
 Don't export or push to itch.
 ```

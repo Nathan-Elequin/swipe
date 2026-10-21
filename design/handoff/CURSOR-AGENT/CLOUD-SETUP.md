@@ -61,5 +61,5 @@ Paste `LOCAL-QA-PROMPT.md` into Cursor local on Cherry, filling in the branch/PR
     - small UI must be generated at 2–4x, then downsampled
     - bases can face left (mirror them)
     - the shared balance can drop from Nathan's own use
-17. **Merge-tree on old git.** `git merge-tree --write-tree` needs git ≥ 2.38. Otherwise do a throwaway `git worktree add` + `git merge --no-commit --no-ff` and then `git merge --abort`. That is local only and never pushed.
+17. **`movement` is an unrelated history.** `origin/movement` has a separate root commit and no merge base with `main`. Its tree is missing about 690 files that are on main. A real merge or `merge-tree` is impossible, so do the file-level overlap check from README section 5 step 4 and report the overlapping files. Nathan reconciles movement himself.
 18. **Reconstructed fix prompt.** The pass 4 fix prompt is a reconstruction. Treat it as intent, not as Nathan's exact words.

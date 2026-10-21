@@ -144,7 +144,7 @@ For each pass:
 1. Branch off the latest `origin/main`: `anim/passN-...` or `art/...`.
 2. Commit in steps: `anim-passN(k): ...`.
 3. Open the PR. Its description needs the files-changed summary, the shot list, open questions for Nathan, and a **movement dry-run note**.
-4. Movement dry-run: `git fetch origin movement && git merge-tree --write-tree origin/main <your-branch>` and `git merge-tree --write-tree origin/movement <your-branch>`. Report any conflicted files in the PR. **Never** check out, merge into or push `movement`. Nathan has uncommitted work on it.
+4. Movement dry-run. **`origin/movement` shares no history with `main`** (checked 2026-10-21: separate root, so `git merge-tree` says "refusing to merge unrelated histories"). Do a file-level overlap check instead: list the files your branch changes vs `origin/main` (`git diff --name-only origin/main <branch>`), then flag any that also exist on `origin/movement` with different content (`git rev-parse origin/main:<f>` vs `origin/movement:<f>`). Put that list in the PR as a dry-run note. Example: pass 4 overlaps on `scripts/main.gd`, `scripts/dev/shot_harness.gd` and `assets/ui/anim/PLACEHOLDERS.md`. **Never** check out, merge into or push `movement`. Nathan has uncommitted work on it.
 5. Once local QA passes, merge to main (squash or merge commit, matching #71–#73, which used merge commits).
 
 ## 6. How to QA
