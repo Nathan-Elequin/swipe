@@ -352,6 +352,23 @@ func monster_still(card_id: String) -> Texture2D:
 	return idle[0]
 
 
+func monster_slash_frames(card_id: String) -> Array:
+	## Action frames for the slash cut-in. Empty → caller uses monster_still punch-in.
+	var out: Array = []
+	var id: String = str(card_id).strip_edges()
+	if id == "":
+		return out
+	var base_path := "res://assets/dungeon/anim/slash/%s_slash_base.png" % id
+	var _base: Texture2D = _load_tex(base_path)
+	for i in 12:
+		var path := "res://assets/dungeon/anim/slash/%s_slash_f%d.png" % [id, i]
+		var t: Texture2D = _load_tex(path)
+		if t == null:
+			break
+		out.append(t)
+	return out
+
+
 func nib_frames() -> Array:
 	var t: Texture2D = _load_tex("res://assets/dungeon/extra/nib.png")
 	if t != null:

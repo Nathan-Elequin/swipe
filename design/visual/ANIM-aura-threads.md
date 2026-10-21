@@ -31,7 +31,7 @@
 Silenced sources draw their thread grey at α0.25 and labelled by the existing `Silenced` status.
 
 ## Layout
-- Threads are quadratic Béziers between portrait ports, bowed 18px toward the hub so they never cover numbers.
+- Threads are quadratic Béziers between portrait ports, bowed 18px toward the hub so they never cover numbers. **After pass 6 (ANIM-wheel-monsters):** attach to `_spoke(i)["feet"]` and bow to `r ≈ 0.40R` (the inner arc), so threads never cross the 96px sprites or nameplates.
 - Width 3px (hover 4px), with a 1px `outline` underlay.
 - Glyphs (8×8 native at 3x = 24px) travel along each thread at 0.6 loops/s.
 

@@ -32,7 +32,7 @@ Example: Hornet Swarm shows two badges, each with **2**. Badge 1 bursts on hit 1
 ## Layout (1680×1040)
 - **Anchor:** above the facing monster.
   - If `combat_stage.visible`, centre over the top edge of the combat_stage rect, 12px gap.
-  - Otherwise, beside `wheel_view.slice_portrait_global(facing_index)`, offset outward along the slice spoke by 150px. Use a capsule with a 3px gold tail pointing at the portrait (as in mockup 1, which puts the plate at x≈420–600, y≈300–396 for the Hornet slice).
+  - Otherwise, beside `wheel_view.slice_portrait_global(facing_index)`, offset outward along the slice spoke by 150px. **After pass 6 (ANIM-wheel-monsters):** when the stage is hidden, use the hub edge facing the slice (`centre + dir*(hub_r+40)`) instead, because the outward spot holds the new nameplate. Use a capsule with a 3px gold tail pointing at the portrait (as in mockup 1, which puts the plate at x≈420–600, y≈300–396 for the Hornet slice).
 - **Badge:** 64×64 on screen (16×16 native at 4x), with a 20px gap between badges.
 - **Wrap and overflow:** up to 5 badges per row, then a second row. Above 8 hits (Shambling Mound), show 7 badges plus a `×N` overflow badge.
 - **Capsule:** fill `#14100c` at α0.92, 3px `gold` border, radius 14, padding 16.

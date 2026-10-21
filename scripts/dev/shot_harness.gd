@@ -1253,6 +1253,12 @@ func _ensure_registry() -> void:
 		"01_hornet_two_rings", "02_poison_pacemaker",
 	], _shot_anim_bleed_pulse)
 	_bind_many([
+		"01_ogre_60ms", "02_ogre_300ms", "03_ogre_700ms",
+		"04_hornet_still", "05_vampire_frames",
+		"06_queue_three", "07_ogre_first", "08_ogre_second",
+		"09_item_banner", "10_ogre_6_seats",
+	], _shot_anim_slash_portrait)
+	_bind_many([
 		"60_loft", "61_loft_cat_rub", "62_journal_cover", "63_journal_bestiary",
 		"64_journal_items", "65_journal_memories", "66_journal_unmet",
 	], _shot_playtest_art)
@@ -1412,6 +1418,126 @@ func _shot_anim_bleed_pulse() -> void:
 	main.set_meta("qa_anim_bleed_shot", "02_poison_pacemaker.png")
 	await main._on_spin()
 	_anim_clear_capture()
+
+
+func _slash_payload(id: String, is_item: bool = false) -> Dictionary:
+	var title := id.capitalize().replace("_", " ")
+	var call_n := ""
+	var tex: Texture2D = null
+	if is_item:
+		if main.items_by_id.has(id):
+			var it: Dictionary = main._make_item(id)
+			title = str(it.get("name", title))
+			if main.has_method("_item_icon_tex"):
+				tex = main._item_icon_tex(it)
+		return {"title": title, "call": "", "tex": tex, "is_item": true, "card_id": id, "fast": false}
+	if main.monsters_by_id.has(id):
+		var m: Dictionary = main._make_monster(id)
+		title = str(m.get("name", title))
+		call_n = str(m.get("call_name", "")).strip_edges()
+		if call_n == "" and id == "triclops":
+			call_n = "Cut And Run"
+	if main.art != null and main.art.has_method("monster_still"):
+		tex = main.art.monster_still(id)
+	return {
+		"title": title,
+		"call": call_n,
+		"tex": tex,
+		"is_item": false,
+		"card_id": id,
+		"fast": false,
+	}
+
+
+func _slash_wait_idle(timeout: float = 4.0) -> void:
+	await _until(func() -> bool:
+		if main.ability_slash == null:
+			return true
+		if main.ability_slash.has_method("is_busy") and main.ability_slash.is_busy():
+			return false
+		return not main.ability_slash.visible
+	, timeout)
+
+
+func _shot_anim_slash_portrait() -> void:
+	out_dir = "res://design/visual/anim-qa/slash-portrait"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-slash-portrait"
+	# Seat count is not fixed at 8; slash cut-in must work with 4–8. Start with 4.
+	await _anim_ready_seat(["ogre", "hornet_swarm", "vampire", "goblin"], ["shield"], 6, 0)
+	if main.ability_slash == null:
+		_skip("01_ogre_60ms.png", "ability_slash missing")
+		return
+	main.ability_slash.reset_slash_seen()
+	# Timed marks use the normal hold (not the first-cut-in +250ms) so 700ms lands in slash-out.
+	if main.ability_slash.has_method("mark_slash_seen"):
+		main.ability_slash.mark_slash_seen("ogre")
+	# Ogre timed shots (frames path).
+	main.ability_slash.play(_slash_payload("ogre"))
+	await _wait(0.06)
+	await _capture("01_ogre_60ms.png", "Ogre cut-in ~60ms band entering")
+	await _wait(0.24)
+	await _capture("02_ogre_300ms.png", "Ogre cut-in ~300ms mid action; compare mock_slash_portrait_ogre.png")
+	await _wait(0.40)
+	await _capture("03_ogre_700ms.png", "Ogre cut-in ~700ms slash-out")
+	await _slash_wait_idle()
+	# Still fallback: Hornet Swarm (frames pending). Vampire has real frames.
+	main.ability_slash.play(_slash_payload("hornet_swarm"))
+	await _wait(0.28)
+	await _capture("04_hornet_still.png", "Hornet Swarm still fallback punch-in")
+	await _slash_wait_idle()
+	main.ability_slash.play(_slash_payload("vampire"))
+	await _wait(0.28)
+	await _capture("05_vampire_frames.png", "Vampire cut-in using real slash frames")
+	await _slash_wait_idle()
+	# Three queued triggers never overlap.
+	var overlap := false
+	var seen_busy := 0
+	main.ability_slash.play(_slash_payload("ogre"))
+	main.ability_slash.play(_slash_payload("hornet_swarm"))
+	main.ability_slash.play(_slash_payload("vampire"))
+	var guard_ms: int = Time.get_ticks_msec() + 5000
+	while Time.get_ticks_msec() < guard_ms:
+		if main.ability_slash.visible:
+			seen_busy += 1
+		# Queue depth cannot be two visibles; only one Control.
+		await _wait(0.03)
+		if not main.ability_slash.is_busy():
+			break
+	if seen_busy < 3:
+		overlap = true
+	await _capture("06_queue_three.png", "after three queued cut-ins; serialized=%s" % (not overlap))
+	_log_progress("queue_three seen_busy_ticks=%s overlap_flag=%s" % [seen_busy, overlap])
+	await _slash_wait_idle()
+	# First Ogre cut-in longer than second (+250ms hold).
+	main.ability_slash.reset_slash_seen()
+	var t0: int = Time.get_ticks_msec()
+	await main.ability_slash.play(_slash_payload("ogre"))
+	var first_ms: int = Time.get_ticks_msec() - t0
+	await _capture("07_ogre_first.png", "first Ogre cut-in done (%sms)" % first_ms)
+	var t1: int = Time.get_ticks_msec()
+	await main.ability_slash.play(_slash_payload("ogre"))
+	var second_ms: int = Time.get_ticks_msec() - t1
+	await _capture("08_ogre_second.png", "second Ogre cut-in done (%sms); first_longer=%s" % [second_ms, first_ms > second_ms + 100])
+	_log_progress("ogre_first_ms=%s ogre_second_ms=%s" % [first_ms, second_ms])
+	# Item keeps the small gutter banner.
+	main._layout_play_field()
+	main.ability_slash.play(_slash_payload("shield", true))
+	await _wait(0.20)
+	await _capture("09_item_banner.png", "item trigger still uses small gutter banner")
+	await _slash_wait_idle()
+	# Six seats seated (Challenge-sized wheel); cut-in must not assume 8.
+	await _anim_ready_seat([
+		"ogre", "goblin", "skeleton", "vampire", "bandit", "lich",
+	], ["shield"], 6, 0)
+	_log_progress("six_seats wheel_size=%s" % main.wheel.size())
+	main.ability_slash.reset_slash_seen()
+	if main.ability_slash.has_method("mark_slash_seen"):
+		main.ability_slash.mark_slash_seen("ogre")
+	main.ability_slash.play(_slash_payload("ogre"))
+	await _wait(0.30)
+	await _capture("10_ogre_6_seats.png", "Ogre cut-in with 6 wheel seats seated")
+	await _slash_wait_idle()
 
 
 func _shot_peek() -> void:
