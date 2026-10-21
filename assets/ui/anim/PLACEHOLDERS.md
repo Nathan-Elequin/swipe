@@ -31,15 +31,10 @@ Overwrite landed at the same paths as the old placeholders. Loaders still use `r
 
 | File | Native | Frames | Notes |
 |---|---|---|---|
-| `poison_badge_drip_f0.png` … `f3.png` | 8×8 | 4 | Slice/hub drip loop |
-| `poison_burst_f0.png` … `f3.png` | 24×24 | 4 | Tick burst |
+| `poison_badge_drip_f0.png` … `f3.png` | 8×8 | 4 | Slice/hub drip loop (still purple from the first PixelLab pass; Task 5 reroll) |
+| `poison_burst_f0.png` … `f3.png` | 24×24 | 4 | Tick burst (still purple from the first PixelLab pass; Task 5 reroll) |
 | `heart_drip_f0.png` … `f3.png` | 12×12 | 4 | Player heart drip |
-
-### Poison pop (pass 4) — still a placeholder
-
-| File | Native | Frames | Notes |
-|---|---|---|---|
-| `poison_lock.png` | 6×6 | 1 | Plague Doctor Always padlock (magenta placeholder until PixelLab) |
+| `poison_lock.png` | 6×6 | 1 | Plague Doctor Always padlock. Green (`#7dba7d` / `#8dcb8d`). PixelLab 2026-10-21. Nathan: poison is green. |
 
 ### Petrify (pass 4) — final PixelLab art
 
