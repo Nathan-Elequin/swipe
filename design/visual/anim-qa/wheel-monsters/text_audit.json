@@ -1,0 +1,53 @@
+{
+	"failures": [
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@973/@MarginContainer@951/@VBoxContainer@952/@Control@955/@Label@958",
+			"reason": "overflow_parent",
+			"screen": "03_hover",
+			"shot": "res://design/visual/anim-qa/wheel-monsters/03_hover.png",
+			"text": "3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@984/@Label@980",
+			"reason": "below_min_size",
+			"screen": "06_facing",
+			"shot": "res://design/visual/anim-qa/wheel-monsters/06_facing.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@984/@RichTextLabel@983",
+			"reason": "below_min_size",
+			"screen": "06_facing",
+			"shot": "res://design/visual/anim-qa/wheel-monsters/06_facing.png",
+			"text": "Vampire"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@988/@RichTextLabel@987",
+			"reason": "below_min_size",
+			"screen": "06_facing",
+			"shot": "res://design/visual/anim-qa/wheel-monsters/06_facing.png",
+			"text": "enemy ATK 4   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@992/@RichTextLabel@991",
+			"reason": "below_min_size",
+			"screen": "06_facing",
+			"shot": "res://design/visual/anim-qa/wheel-monsters/06_facing.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@996/@RichTextLabel@995",
+			"reason": "below_min_size",
+			"screen": "06_facing",
+			"shot": "res://design/visual/anim-qa/wheel-monsters/06_facing.png",
+			"text": "items this combat 0"
+		}
+	],
+	"updated": "2026-10-21T15:07:10"
+}
