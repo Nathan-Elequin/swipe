@@ -275,13 +275,13 @@ func _run_hub(spec: Dictionary, row: Dictionary) -> Dictionary:
 	await _wait_idle(180)
 	var snap: Dictionary = _snapshot()
 	row["log"] = str(snap.get("log", ""))
-	row["observed"] = "phase %s · HP %s · log has Challenge=%s" % [
+	row["observed"] = "phase %s · HP %s · log has Adventure=%s" % [
 		snap.get("phase", ""),
 		snap.get("hp", ""),
-		str(row["log"]).findn("Challenge") >= 0,
+		str(row["log"]).findn("Adventure") >= 0,
 	]
 	var log_l: String = str(row["log"]).to_lower()
-	if log_l.find("challenge") >= 0 or str(snap.get("phase", "")) in ["draft", "ready", "fighting"]:
+	if log_l.find("adventure") >= 0 or log_l.find("challenge") >= 0 or str(snap.get("phase", "")) in ["draft", "ready", "fighting"]:
 		row["result"] = "pass"
 	else:
 		row["result"] = "fail"
@@ -337,6 +337,9 @@ func _run_fight(spec: Dictionary, row: Dictionary) -> Dictionary:
 		row["result"] = "blocked"
 		row["observed"] = "not authoring"
 		return row
+	main.adventure = false
+	main.challenge_route = false
+	main._challenge_force_spin = false
 	main._open_dev_test()
 	await _wait_frames(4)
 	if main.log_label and main.log_label.has_method("clear_all"):

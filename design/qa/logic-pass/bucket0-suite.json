@@ -475,10 +475,10 @@
 		},
 		{
 			"id": "surfaces-challenge-boot",
-			"title": "Hub path into Challenge Mode",
+			"title": "Hub path into Adventure Mode",
 			"verbs": ["surfaces"],
 			"kind": "hub",
-			"expected_text": "F5 playtest can start Challenge. Log should show Challenge Mode, or phase becomes draft/ready.",
+			"expected_text": "F5 playtest can start Adventure. Log should show Adventure Mode, or phase becomes draft/ready/fighting.",
 			"items": [],
 			"monsters": []
 		},
