@@ -1015,6 +1015,8 @@ func _build_ui() -> void:
 	var heart_empty: Texture2D = _tex("res://assets/icons/heart_empty.png")
 	if art != null:
 		wheel_view.set_portraits(art.portraits())
+		if wheel_view.has_method("set_wheel_frames") and art.has_method("wheel_frames_all"):
+			wheel_view.set_wheel_frames(art.wheel_frames_all())
 		if wheel_view.has_method("setup_run_hero"):
 			wheel_view.setup_run_hero(art)
 		else:

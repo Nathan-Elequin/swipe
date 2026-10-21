@@ -352,6 +352,48 @@ func monster_still(card_id: String) -> Texture2D:
 	return idle[0]
 
 
+func monster_wheel_frames(card_id: String) -> Array:
+	var id: String = str(card_id).strip_edges()
+	var out: Array = []
+	if id == "":
+		return out
+	var f0: Texture2D = _load_tex("res://assets/dungeon/anim/wheel/%s_wheel_breathe_f0.png" % id)
+	var f1: Texture2D = _load_tex("res://assets/dungeon/anim/wheel/%s_wheel_breathe_f1.png" % id)
+	if f0 != null:
+		out.append(f0)
+	if f1 != null:
+		out.append(f1)
+	if out.is_empty():
+		var base: Texture2D = _load_tex("res://assets/dungeon/anim/wheel/%s_wheel_base.png" % id)
+		if base != null:
+			out.append(base)
+	return out
+
+
+func monster_facing_idle(card_id: String) -> Array:
+	var id: String = str(card_id).strip_edges()
+	var out: Array = []
+	if id == "":
+		return monster_idle(card_id)
+	for i in 6:
+		var t: Texture2D = _load_tex("res://assets/dungeon/anim/facing/%s_facing_idle_f%d.png" % [id, i])
+		if t == null:
+			break
+		out.append(t)
+	if out.is_empty():
+		return monster_idle(card_id)
+	return out
+
+
+func wheel_frames_all() -> Dictionary:
+	var d := {}
+	for id in MONSTER_PNG.keys():
+		var frames: Array = monster_wheel_frames(str(id))
+		if not frames.is_empty():
+			d[str(id)] = frames
+	return d
+
+
 func monster_slash_frames(card_id: String) -> Array:
 	## Action frames for the slash cut-in. Empty → caller uses monster_still punch-in.
 	var out: Array = []
