@@ -1,0 +1,5 @@
+start balance 1819.0
+{"endpoint": "/create-image-pixflux", "prefix": "<ANIM_PITCH>/mockups/layouts/crest/raw/medallion", "status": 200, "bal_before": 1805.0, "bal_after": 1805.0, "files": ["<ANIM_PITCH>/mockups/layouts/crest/raw/medallion_0.png"]} {"usage": {"type": "generations", "generations": 1.0}, "image": {"type": "base64", "base64": "<b64>", "format": "png"}}
+own used 3.0
+{"endpoint": "/create-image-pixflux", "prefix": "<ANIM_PITCH>/mockups/layouts/crest/raw/shield", "status": 200, "bal_before": 1805.0, "bal_after": 1802.0, "files": ["<ANIM_PITCH>/mockups/layouts/crest/raw/shield_0.png"]} {"usage": {"type": "generations", "generations": 1.0}, "image": {"type": "base64", "base64": "<b64>", "format": "png"}}
+own used 4.0

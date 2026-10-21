@@ -1,0 +1,160 @@
+[
+ {
+  "name": "sprout_run",
+  "raw": "sprout_run_raw.jpg",
+  "N": 48,
+  "frames": 4,
+  "cell": 10.43,
+  "colours": 30,
+  "extra_used": [
+   "2e2450"
+  ],
+  "leg_diff_f0_f2": 0.173,
+  "leg_diff_f0_f1": 0.399
+ },
+ {
+  "name": "sprout_grab",
+  "raw": "sprout_grab_raw.jpg",
+  "N": 48,
+  "frames": 4,
+  "cell": 11.45,
+  "colours": 38,
+  "extra_used": [
+   "2e2450",
+   "633f2b"
+  ],
+  "leg_diff_f0_f2": 0.283,
+  "leg_diff_f0_f1": 0.138
+ },
+ {
+  "name": "sprout_throw",
+  "raw": "sprout_throw_raw.jpg",
+  "N": 48,
+  "frames": 4,
+  "cell": 10.06,
+  "colours": 36,
+  "extra_used": [
+   "2e2450",
+   "633f2b"
+  ],
+  "leg_diff_f0_f2": 0.237,
+  "leg_diff_f0_f1": 0.168
+ },
+ {
+  "name": "nib_lantern",
+  "raw": "nib_lantern_raw.jpg",
+  "N": 32,
+  "frames": 2,
+  "cell": 11.28,
+  "colours": 25,
+  "extra_used": [
+   "4a446a"
+  ]
+ },
+ {
+  "name": "mon_goblin",
+  "raw": "mon_goblin_raw.jpg",
+  "N": 32,
+  "frames": 4,
+  "cell": 16.23,
+  "colours": 22,
+  "extra_used": [
+   "8c5228"
+  ],
+  "leg_diff_f0_f2": 0.288,
+  "leg_diff_f0_f1": 0.177
+ },
+ {
+  "name": "mon_skeleton",
+  "raw": "mon_skeleton_raw.jpg",
+  "N": 32,
+  "frames": 4,
+  "cell": 16.92,
+  "colours": 21,
+  "extra_used": [
+   "8c5228"
+  ],
+  "leg_diff_f0_f2": 0.163,
+  "leg_diff_f0_f1": 0.382
+ },
+ {
+  "name": "mon_ogre",
+  "raw": "mon_ogre_raw.jpg",
+  "N": 48,
+  "frames": 3,
+  "cell": 6.57,
+  "colours": 30,
+  "extra_used": [
+   "2e2450",
+   "633f2b"
+  ]
+ },
+ {
+  "name": "mon_hornet_swarm",
+  "raw": "mon_hornet_swarm_raw.jpg",
+  "N": 32,
+  "frames": 4,
+  "cell": 16.22,
+  "colours": 9,
+  "extra_used": [],
+  "leg_diff_f0_f2": 0.389,
+  "leg_diff_f0_f1": 0.337
+ },
+ {
+  "name": "mon_spider_queen",
+  "raw": "mon_spider_queen_raw.jpg",
+  "N": 48,
+  "frames": 4,
+  "cell": 12.43,
+  "colours": 23,
+  "extra_used": [
+   "2e2450",
+   "4a3a78",
+   "4a446a"
+  ],
+  "leg_diff_f0_f2": 0.408,
+  "leg_diff_f0_f1": 0.589
+ },
+ {
+  "name": "mon_dragon",
+  "raw": "mon_dragon_raw.jpg",
+  "N": 64,
+  "frames": 4,
+  "cell": 11.21,
+  "colours": 28,
+  "extra_used": [
+   "2e2450"
+  ],
+  "leg_diff_f0_f2": 0.496,
+  "leg_diff_f0_f1": 0.479
+ },
+ {
+  "name": "sprout_design_views",
+  "raw": "sprout_design_raw.jpg",
+  "N": 48,
+  "frames": 4,
+  "cell": 7.21,
+  "colours": 38,
+  "extra_used": [
+   "2e2450",
+   "4a3a78",
+   "633f2b",
+   "8c5228"
+  ],
+  "leg_diff_f0_f2": 0.469,
+  "leg_diff_f0_f1": 0.4
+ },
+ {
+  "name": "sprout_design_coin",
+  "raw": "sprout_design_raw.jpg",
+  "N": 48,
+  "frames": 1,
+  "cell": 8.51,
+  "colours": 35,
+  "extra_used": [
+   "4a3a78",
+   "633f2b",
+   "8c5228"
+  ]
+ }
+]

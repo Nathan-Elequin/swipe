@@ -1,0 +1,350 @@
+{
+ "units": "shipped px (native x4, Nearest). Offsets are from the wheel centre c (hub centre) unless stated.",
+ "hero": {
+  "texture": [
+   96,
+   96
+  ],
+  "native": [
+   24,
+   24
+  ],
+  "scale": 4,
+  "pivot_in_texture": [
+   48,
+   92
+  ],
+  "pivot_meaning": "centre of the feet, on the floor line (shadow row is native row 23, below the pivot)",
+  "feet_from_c": [
+   0,
+   42
+  ],
+  "texture_top_left_from_c": [
+   -48,
+   -50
+  ],
+  "bob": "none in code - the idle frames already sink 1px; drop the old +bob",
+  "facing": "right (toward the boss); flip_h never"
+ },
+ "badges": {
+  "hp": {
+   "rect_from_c": [
+    -64,
+    24,
+    44,
+    40
+   ],
+   "centre_from_c": [
+    -42,
+    44
+   ],
+   "visual_centre_from_c": [
+    -42,
+    40.4
+   ],
+   "number_anchor_in_rect": [
+    22,
+    17
+   ],
+   "number_anchor_from_c": [
+    -42,
+    41
+   ],
+   "states": {
+    "badge_hp": "HP normal",
+    "badge_hp_flash": "HP just changed / log focus: swap in for ~0.12s (replaces the fill lerp to f0e6d8)",
+    "badge_hp_low": "HP at or below the low-HP threshold (pair with run_lowhp); can blink with badge_hp",
+    "badge_hp_empty": "HP 0 (death)"
+   }
+  },
+  "blk": {
+   "rect_from_c": [
+    -22,
+    52,
+    44,
+    48
+   ],
+   "centre_from_c": [
+    0,
+    76
+   ],
+   "visual_centre_from_c": [
+    0,
+    71.1
+   ],
+   "note": "Centered under the hero. Number sits on the shield. Hearts moved to an inner-rim arc over his head.",
+   "number_anchor_in_rect": [
+    22,
+    20
+   ],
+   "number_anchor_from_c": [
+    0,
+    72
+   ],
+   "states": {
+    "badge_blk": "BLK > 0",
+    "badge_blk_empty": "BLK 0 (replaces fill 1a3348 / rim 4a6a80)",
+    "badge_blk_up": "BLK gained this beat (ghost > blk; replaces fill 2a7a58 / rim 7dba7d) and log focus",
+    "badge_blk_pierced": "pierce active (hub_pierce): cracked shield. Code adds one short float-up of the existing pierce text above the shield; the old slash line and static caption are removed"
+   }
+  },
+  "number": {
+   "fn": "_draw_bold_num",
+   "size": 18,
+   "colour": "#f0e6d8",
+   "centre": "horizontally and vertically on the anchor"
+  },
+  "labels": "none: the HP / BLK captions are removed (decision 2)",
+  "death_dim": {
+   "from": "run_death_f2",
+   "alpha": 0.35,
+   "applies_to": [
+    "hp",
+    "blk"
+   ],
+   "until": "the run screen resets"
+  },
+  "pierce_text": {
+   "text": "existing literal/key used today (\"IGNORED\"), unchanged",
+   "once_per": "set_hub_pierce(true)",
+   "from_c": [
+    0,
+    48
+   ],
+   "to_c": [
+    0,
+    34
+   ],
+   "anchor": "text centre",
+   "secs": 0.7,
+   "alpha": "1 -> 0 over the last 0.3s",
+   "size": 10,
+   "colour": "#e8c36a",
+   "outline": "#100e0c",
+   "badge_state": "badge_blk_pierced while hub_pierce"
+  },
+  "max_pixel_radius_from_c": {
+   "hp": 90.0,
+   "blk": 96.0
+  }
+ },
+ "courier": {
+  "frames": "run_walkoff_f0..f3",
+  "ms": 70,
+  "scale": 1.0,
+  "size": [
+   96,
+   96
+  ],
+  "gear": "child TextureRects, same order"
+ },
+ "gear": {
+  "order_bottom_to_top": [
+   "rope",
+   "goggles",
+   "cap",
+   "helm"
+  ],
+  "exclusive": [
+   [
+    "cap",
+    "helm"
+   ]
+  ],
+  "overlay": "same 96x96 rect + pivot as the base frame; draw base then overlays in order",
+  "path": "assets/dungeon/hero_run/gear/<piece>/<frame>.png"
+ },
+ "anims": {
+  "idle": {
+   "frames": 4,
+   "ms": [
+    220,
+    180,
+    220,
+    180
+   ],
+   "playback": "loop",
+   "note": "body sinks 1px f1-f2, ear flops a frame late",
+   "files": [
+    "assets/dungeon/hero_run/run_idle_f0.png",
+    "assets/dungeon/hero_run/run_idle_f1.png",
+    "assets/dungeon/hero_run/run_idle_f2.png",
+    "assets/dungeon/hero_run/run_idle_f3.png"
+   ]
+  },
+  "swipe": {
+   "frames": 5,
+   "ms": [
+    90,
+    60,
+    80,
+    110,
+    120
+   ],
+   "playback": "once",
+   "note": "f0 wind-up, f1 lunge, f2 SNATCH = hit frame, f3 fist + coin, f4 recover",
+   "files": [
+    "assets/dungeon/hero_run/run_swipe_f0.png",
+    "assets/dungeon/hero_run/run_swipe_f1.png",
+    "assets/dungeon/hero_run/run_swipe_f2.png",
+    "assets/dungeon/hero_run/run_swipe_f3.png",
+    "assets/dungeon/hero_run/run_swipe_f4.png"
+   ]
+  },
+  "hit": {
+   "frames": 3,
+   "ms": [
+    70,
+    110,
+    120
+   ],
+   "playback": "once",
+   "note": "knocked back, hunch, recover (0.30s = hurt sting)",
+   "files": [
+    "assets/dungeon/hero_run/run_hit_f0.png",
+    "assets/dungeon/hero_run/run_hit_f1.png",
+    "assets/dungeon/hero_run/run_hit_f2.png"
+   ]
+  },
+  "block": {
+   "frames": 3,
+   "ms": [
+    60,
+    160,
+    120
+   ],
+   "playback": "once",
+   "note": "shield up, f1 IMPACT (BLK punch), lower (0.34s = block sting)",
+   "files": [
+    "assets/dungeon/hero_run/run_block_f0.png",
+    "assets/dungeon/hero_run/run_block_f1.png",
+    "assets/dungeon/hero_run/run_block_f2.png"
+   ]
+  },
+  "heal": {
+   "frames": 4,
+   "ms": [
+    120,
+    120,
+    220,
+    180
+   ],
+   "playback": "once",
+   "note": "flask from pouch, raise, f2 gulp, satisfied glint",
+   "files": [
+    "assets/dungeon/hero_run/run_heal_f0.png",
+    "assets/dungeon/hero_run/run_heal_f1.png",
+    "assets/dungeon/hero_run/run_heal_f2.png",
+    "assets/dungeon/hero_run/run_heal_f3.png"
+   ]
+  },
+  "lowhp": {
+   "frames": 4,
+   "ms": [
+    260,
+    200,
+    260,
+    200
+   ],
+   "playback": "loop",
+   "note": "replaces idle at low HP: hunched, panting, sweat",
+   "files": [
+    "assets/dungeon/hero_run/run_lowhp_f0.png",
+    "assets/dungeon/hero_run/run_lowhp_f1.png",
+    "assets/dungeon/hero_run/run_lowhp_f2.png",
+    "assets/dungeon/hero_run/run_lowhp_f3.png"
+   ]
+  },
+  "death": {
+   "frames": 5,
+   "ms": [
+    140,
+    140,
+    160,
+    200,
+    0
+   ],
+   "playback": "once-hold",
+   "note": "stagger, buckle, topple, f3 FLOOR (bump), f4 sack spilled: hold",
+   "files": [
+    "assets/dungeon/hero_run/run_death_f0.png",
+    "assets/dungeon/hero_run/run_death_f1.png",
+    "assets/dungeon/hero_run/run_death_f2.png",
+    "assets/dungeon/hero_run/run_death_f3.png",
+    "assets/dungeon/hero_run/run_death_f4.png"
+   ]
+  },
+  "victory": {
+   "frames": 4,
+   "ms": [
+    100,
+    140,
+    160,
+    120
+   ],
+   "playback": "once x2",
+   "note": "crouch, hop, apex fist + coin, land",
+   "files": [
+    "assets/dungeon/hero_run/run_victory_f0.png",
+    "assets/dungeon/hero_run/run_victory_f1.png",
+    "assets/dungeon/hero_run/run_victory_f2.png",
+    "assets/dungeon/hero_run/run_victory_f3.png"
+   ]
+  },
+  "grab": {
+   "frames": 4,
+   "ms": [
+    100,
+    90,
+    140,
+    180
+   ],
+   "playback": "once",
+   "note": "draft pick: reach, grab, stuff in sack, pat",
+   "files": [
+    "assets/dungeon/hero_run/run_grab_f0.png",
+    "assets/dungeon/hero_run/run_grab_f1.png",
+    "assets/dungeon/hero_run/run_grab_f2.png",
+    "assets/dungeon/hero_run/run_grab_f3.png"
+   ]
+  },
+  "walkoff": {
+   "frames": 4,
+   "ms": [
+    70,
+    70,
+    70,
+    70
+   ],
+   "playback": "loop",
+   "note": "hall-wipe courier run with the sack",
+   "files": [
+    "assets/dungeon/hero_run/run_walkoff_f0.png",
+    "assets/dungeon/hero_run/run_walkoff_f1.png",
+    "assets/dungeon/hero_run/run_walkoff_f2.png",
+    "assets/dungeon/hero_run/run_walkoff_f3.png"
+   ]
+  }
+ },
+ "events": {
+  "swipe": {
+   "hit_frame": 2
+  },
+  "block": {
+   "impact_frame": 1
+  },
+  "heal": {
+   "gulp_frame": 2
+  },
+  "death": {
+   "floor_bump_frame": 3,
+   "hold_frame": 4
+  },
+  "victory": {
+   "coin_frame": 2
+  },
+  "grab": {
+   "grab_frame": 1
+  }
+ }
+}

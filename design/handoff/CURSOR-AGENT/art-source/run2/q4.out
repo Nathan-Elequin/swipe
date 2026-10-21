@@ -1,0 +1,84 @@
+{"endpoint": "/animate-with-text-v3", "prefix": "raw/p1_candle", "status": 200, "bal_before": 10.0, "bal_after": 9.0, "files": ["raw/p1_candle_0.png", "raw/p1_candle_1.png", "raw/p1_candle_2.png", "raw/p1_candle_3.png", "raw/p1_candle_4.png"]} {"usage": {"type": "generations", "generations": 1.0}, "id": "32089545-d5a5-425f-85f7-ab643e4319da", "status": "completed", "created_at": "2026-10-20T23:25:08.930156+00:00", "last_response": {"seed": 11, "type": "message_done", "usage": {"usd": 0.0, "type": "generations", "generations": 1, "cost_if_paid": 0.02303035729461246}, "images": [{"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>"
+{"endpoint": "/animate-with-text-v3", "prefix": "raw/p3_seal", "status": 200, "bal_before": 9.0, "bal_after": 8.0, "files": ["raw/p3_seal_0.png", "raw/p3_seal_1.png", "raw/p3_seal_2.png", "raw/p3_seal_3.png", "raw/p3_seal_4.png"]} {"usage": {"type": "generations", "generations": 1.0}, "id": "65bf3ae3-6663-4e63-8f6b-c121ff9fb854", "status": "completed", "created_at": "2026-10-20T23:28:27.798250+00:00", "last_response": {"seed": 11, "type": "message_done", "usage": {"usd": 0.0, "type": "generations", "generations": 1, "cost_if_paid": 0.022891962753401864}, "images": [{"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>
+{"endpoint": "/animate-with-text-v3", "prefix": "raw/pocketwatch_glint", "status": 200, "bal_before": 8.0, "bal_after": 7.0, "files": ["raw/pocketwatch_glint_0.png", "raw/pocketwatch_glint_1.png", "raw/pocketwatch_glint_2.png", "raw/pocketwatch_glint_3.png", "raw/pocketwatch_glint_4.png"]} {"usage": {"type": "generations", "generations": 1.0}, "id": "43e84dfb-1842-4c04-bb53-d50ca111ecc2", "status": "completed", "created_at": "2026-10-20T23:32:33.555862+00:00", "last_response": {"seed": 11, "type": "message_done", "usage": {"usd": 0.0, "type": "generations", "generations": 1, "cost_if_paid": 0.022025405082437728}, "images": [{"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>
+{"endpoint": "/animate-with-text-v3", "prefix": "raw/grimoire_glint", "status": 200, "bal_before": 7.0, "bal_after": 6.0, "files": ["raw/grimoire_glint_0.png", "raw/grimoire_glint_1.png", "raw/grimoire_glint_2.png", "raw/grimoire_glint_3.png", "raw/grimoire_glint_4.png"]} {"usage": {"type": "generations", "generations": 1.0}, "id": "899f8554-40ca-4dc1-a64d-41dce83bc6fc", "status": "completed", "created_at": "2026-10-20T23:38:56.861923+00:00", "last_response": {"seed": 11, "type": "message_done", "usage": {"usd": 0.0, "type": "generations", "generations": 1, "cost_if_paid": 0.0196207016242875}, "images": [{"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>", "format": "png"}, {"type": "base64", "base64": "<b64>",
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.13/dist-packages/urllib3/connectionpool.py", line 540, in _make_request
+    response = conn.getresponse()
+  File "/usr/local/lib/python3.13/dist-packages/urllib3/connection.py", line 638, in getresponse
+    httplib_response = super().getresponse()
+  File "/usr/lib/python3.13/http/client.py", line 1459, in getresponse
+    response.begin()
+    ~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/http/client.py", line 336, in begin
+    version, status, reason = self._read_status()
+                              ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/http/client.py", line 297, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/socket.py", line 719, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/lib/python3.13/ssl.py", line 1304, in recv_into
+    return self.read(nbytes, buffer)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/ssl.py", line 1138, in read
+    return self._sslobj.read(len, buffer)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+TimeoutError: The read operation timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.13/dist-packages/requests/adapters.py", line 696, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "/usr/local/lib/python3.13/dist-packages/urllib3/connectionpool.py", line 847, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "/usr/local/lib/python3.13/dist-packages/urllib3/util/retry.py", line 510, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/urllib3/util/util.py", line 39, in reraise
+    raise value
+  File "/usr/local/lib/python3.13/dist-packages/urllib3/connectionpool.py", line 793, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "/usr/local/lib/python3.13/dist-packages/urllib3/connectionpool.py", line 542, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/urllib3/connectionpool.py", line 373, in _raise_timeout
+    raise ReadTimeoutError(
+        self, url, f"Read timed out. (read timeout={timeout_value})"
+    ) from err
+urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='api.pixellab.ai', port=443): Read timed out. (read timeout=300)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<ART_KIT>/pixellab/run2/q4.py", line 12, in <module>
+    anim('base/sprout_base48.png','overhand throw: first pulls throwing arm far back behind the head, then whips it forward and releases to the right, side view','raw/sprout_throw_r2',seed=29)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<ART_KIT>/pixellab/run2/q4.py", line 7, in anim
+    return call('/animate-with-text-v3',{'first_frame':b64(base),'action':action,'frame_count':n,'no_background':nb,'seed':seed},prefix,0)
+  File "<ART_KIT>/pixellab/pl.py", line 36, in call
+    r=requests.post(API+endpoint,headers=H,json=payload,timeout=300)
+  File "/usr/local/lib/python3.13/dist-packages/requests/api.py", line 134, in post
+    return request("post", url, data=data, json=json, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/requests/api.py", line 71, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/requests/sessions.py", line 651, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/requests/sessions.py", line 784, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/requests/adapters.py", line 742, in send
+    raise ReadTimeout(e, request=request)
+requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='api.pixellab.ai', port=443): Read timed out. (read timeout=300)

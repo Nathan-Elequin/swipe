@@ -1,0 +1,64 @@
+raw/wolf_bf_a retry 500
+raw/wolf_px_a 200 1.0 1 
+raw/wolf_px_b 200 1.0 1 
+raw/wolf_bf_b retry 500
+raw/wolf_bf_a retry 500
+raw/hor_px_a 200 1.0 1 
+raw/wolf_bf_b retry 500
+raw/hor_px_b 200 1.0 1 
+raw/hor_bf_a retry 500
+raw/wolf_bf_a retry 500
+raw/hor_bf_a retry 500
+raw/wolf_bf_b retry 500
+raw/wolf_bf_a retry 500
+raw/hor_bf_a retry 500
+raw/wolf_bf_b retry 500
+raw/hor_bf_a retry 500
+raw/wolf_bf_a retry 500
+raw/wolf_bf_b retry 500
+raw/hor_bf_a retry 500
+raw/wolf_bf_a retry 500
+raw/wolf_bf_b retry 500
+raw/hor_bf_a retry 500
+raw/wolf_bf_a 500 None 0 {"detail": "style_image must be size (32, 32), not torch.Size([48, 48])"}
+raw/hor_bf_b retry 500
+raw/wolf_bf_b 500 None 0 {"detail": "style_image must be size (32, 32), not torch.Size([48, 48])"}
+raw/hor_bf_b retry 500
+raw/goblin_px 200 1.0 1 
+raw/goblin_bf retry 500
+raw/hor_bf_a 500 None 0 {"detail": "style_image must be size (32, 32), not torch.Size([48, 48])"}
+raw/goblin_bf retry 500
+raw/skeleton_px 200 1.0 1 
+raw/hor_bf_b retry 500
+raw/skeleton_bf retry 500
+raw/skeleton_bf retry 500
+raw/goblin_bf retry 500
+raw/hor_bf_b retry 500
+raw/skeleton_bf retry 500
+raw/goblin_bf retry 500
+raw/hor_bf_b retry 500
+raw/skeleton_bf retry 500
+raw/goblin_bf retry 500
+raw/skeleton_bf retry 500
+raw/hor_bf_b retry 500
+raw/goblin_bf retry 500
+raw/skeleton_bf retry 500
+raw/hor_bf_b 500 None 0 {"detail": "style_image must be size (32, 32), not torch.Size([48, 48])"}
+raw/spider_queen_px 200 1.0 1 
+raw/goblin_bf 500 None 0 {"detail": "style_image must be size (32, 32), not torch.Size([48, 48])"}
+raw/spider_queen_bf 200 1.0 1 
+raw/dragon_px 200 1.0 1 
+raw/dragon_bf retry 500
+raw/scroll_a 200 1.0 1 
+raw/skeleton_bf 500 None 0 {"detail": "style_image must be size (32, 32), not torch.Size([48, 48])"}
+raw/dragon_bf retry 500
+raw/lantern_a 200 1.0 1 
+raw/lantern_b 200 1.0 1 
+raw/coin_a 200 1.0 1 
+raw/coin_b 200 1.0 1 
+raw/dragon_bf retry 500
+raw/scroll_b 200 1.0 1 
+raw/dragon_bf retry 500
+raw/dragon_bf retry 500
+raw/dragon_bf retry 500
+raw/dragon_bf 500 None 0 {"detail": "style_image must be size (64, 64), not torch.Size([48, 48])"}
