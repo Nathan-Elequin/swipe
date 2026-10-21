@@ -11,3 +11,9 @@
 - 01:48 CLI shooting QA (shots.log, shots2.log). Nathan playtesting via editor (game pid 35844, editor 41820)
 - 02:09 resumed after interruption: fix run still alive (ps 16232, node 30624), shooting QA. PROMPT-fix.md vanished from wt dir (agent.log/err truncated at 02:07 too) -> restore from run4pass/PROMPT-fix.md before commit. Nathan's editor 41820 no longer running (not ours to touch).
 - 02:22 fix run still going (shots-all2.log). no commit yet
+
+Cloud (2026-10-21, this project owns `anim/pass4`):
+- Kept `47fb804` anim-pass4(2) and `321aaf8` anim-pass4(3). Did not redo them. Merged `origin/main` for `.cursor/rules/art-handoff.mdc`.
+- Poison colour: Nathan 2026-10-21 — green. Stated on PR #74; not asked again.
+- PixelLab `poison_lock.png`: 3 charged gens (2×32px + 1×48px; one 24px 422 not charged). Balance before 1724. Picked seed 37 (green padlock), palette-snap, nearest down to 6×6. Contact: `poison-lock-contact.png` in this folder.
+- Drip/burst still purple — Task 5 reroll. No visual QA from cloud.

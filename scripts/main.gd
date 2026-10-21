@@ -57,6 +57,8 @@ const ABILITY_SLASH := preload("res://scripts/ability_slash.gd")
 const INTENT_PLATE := preload("res://scripts/intent_plate.gd")
 const BLEED_PULSE := preload("res://scripts/bleed_pulse.gd")
 const CASCADE_TICKER := preload("res://scripts/cascade_ticker.gd")
+const POISON_POP := preload("res://scripts/poison_pop.gd")
+const HOOK_FX := preload("res://scripts/hook_fx.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const PLAYTEST_HUB := preload("res://scripts/playtest_hub.gd")
 const PLAYTEST_FEEDBACK := preload("res://scripts/playtest_feedback.gd")
@@ -465,6 +467,8 @@ var ability_slash
 var intent_plate
 var bleed_pulse
 var cascade_ticker
+var poison_pop
+var hook_fx
 var _cascade_ff: bool = false
 var _phase_for_ff: String = ""
 var log_label
@@ -1286,6 +1290,12 @@ func _build_ui() -> void:
 	add_child(cascade_ticker)
 	cascade_ticker.setup()
 	ability_slash.cascade_ticker = cascade_ticker
+	poison_pop = POISON_POP.new()
+	add_child(poison_pop)
+	poison_pop.setup(self)
+	hook_fx = HOOK_FX.new()
+	add_child(hook_fx)
+	hook_fx.setup(self)
 
 	draft_gate = DRAFT_GATE.new()
 	add_child(draft_gate)
@@ -6082,8 +6092,8 @@ func _on_spin() -> void:
 	_cube_line = ""
 	_cleric_line = ""
 	_cleric_talk_index = -1
-	_clear_petrify()
-	_tick_gaze_petrify()
+	await _clear_petrify()
+	await _tick_gaze_petrify()
 	num_items_at_combat = hotbar.size()
 	lost_hp_this_combat = false
 	enemy_attacked = false
@@ -8146,6 +8156,8 @@ func _add_monster_poison(index: int, n: int) -> void:
 	m["poison"] = amt
 	m["poisoned"] = amt > 0
 	wheel[index] = m
+	if wheel_view != null and wheel_view.has_method("poison_badge_gain"):
+		wheel_view.poison_badge_gain(index)
 
 
 func _plague_locks_poison(index: int) -> bool:
@@ -8284,6 +8296,8 @@ func _clear_monster_poison(index: int) -> void:
 		return
 	wheel[index]["poison"] = 0
 	wheel[index]["poisoned"] = false
+	if wheel_view != null and wheel_view.has_method("poison_badge_clear"):
+		wheel_view.poison_badge_clear(index)
 
 
 func _living_monster_count() -> int:
@@ -8311,12 +8325,19 @@ func _tick_monster_poison() -> bool:
 	if n <= 0:
 		return false
 	_ticker_push_poison("monster_poison")
+	if poison_pop != null and poison_pop.has_method("burst_slice"):
+		await poison_pop.burst_slice(facing_index, n)
+	if facing_index < 0 or facing_index >= wheel.size():
+		return false
 	if await _chip_hp(facing_index, n):
-		_clear_monster_poison(facing_index)
+		if facing_index >= 0 and facing_index < wheel.size():
+			_clear_monster_poison(facing_index)
 		_store_last_faced_hp()
 		_undo_arm()
 		_unlock_if_fighting()
 		return true
+	if facing_index < 0 or facing_index >= wheel.size():
+		return false
 	_clear_monster_poison(facing_index)
 	var m: Dictionary = wheel[facing_index]
 	_log("on_spin", "poison  →  %s HP" % m["hp"])
@@ -8348,7 +8369,9 @@ func _tick_player_poison() -> bool:
 			if tr != null and hi >= from and hi < hp:
 				_punch_heart(tr)
 			hi += 1
-	if get_tree():
+	if poison_pop != null and poison_pop.has_method("burst_hub"):
+		await poison_pop.burst_hub(n)
+	elif get_tree():
 		await get_tree().create_timer(0.22).timeout
 	player_poison = 0
 	var before: int = hp
@@ -9492,7 +9515,11 @@ func _ticker_push_poison(id: String) -> void:
 	if cascade_ticker == null or not cascade_ticker.active:
 		return
 	var tex: Texture2D = null
-	if ResourceLoader.exists("res://assets/icons/droplet.svg"):
+	if ResourceLoader.exists("res://assets/ui/anim/poison_badge_drip_f0.png"):
+		tex = load("res://assets/ui/anim/poison_badge_drip_f0.png") as Texture2D
+	elif ResourceLoader.exists("res://assets/ui/anim/intent_chip_drop.png"):
+		tex = load("res://assets/ui/anim/intent_chip_drop.png") as Texture2D
+	elif ResourceLoader.exists("res://assets/icons/droplet.svg"):
 		tex = load("res://assets/icons/droplet.svg") as Texture2D
 	var ticket_i: int = cascade_ticker.push(id, tex)
 	if ticket_i >= 0:
@@ -11168,7 +11195,13 @@ func _harpy_poke() -> void:
 
 func _clear_petrify() -> void:
 	for it in hotbar:
+		if not bool(it.get("petrified", false)):
+			continue
+		var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
+		if card != null and card.has_method("petrify_shatter"):
+			await card.petrify_shatter()
 		it["petrified"] = false
+	_refresh()
 
 
 func _item_stoned(it: Dictionary) -> bool:
@@ -11180,7 +11213,111 @@ func _tick_gaze_petrify() -> void:
 		var n: int = int(it.get("petrify_n", 0))
 		if n <= 0:
 			continue
-		it["petrify_n"] = n - 1
+		var left: int = n - 1
+		it["petrify_n"] = left
+		var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
+		if card != null and card.has_method("petrify_tick"):
+			await card.petrify_tick(left)
+	_refresh()
+
+
+func _hotbar_card_by_uid(uid: int):
+	if hotbar_box == null or uid < 0:
+		return null
+	for c in hotbar_box.get_children():
+		if int(c.get("uid")) == uid:
+			return c
+	return null
+
+
+func _petrify_fx_host() -> Node2D:
+	## Line2D under a Control draws in the wrong space; keep beams on a top-level Node2D.
+	var host := get_node_or_null("PetrifyFxHost") as Node2D
+	if host != null:
+		return host
+	host = Node2D.new()
+	host.name = "PetrifyFxHost"
+	host.top_level = true
+	host.z_index = 40
+	host.z_as_relative = false
+	add_child(host)
+	return host
+
+
+func _petrify_beam_from() -> Vector2:
+	# Prefer the facing wheel portrait so beams read across the fight, not the sidebar stage.
+	if wheel_view != null and facing_index >= 0 and facing_index < wheel.size():
+		return wheel_view.slice_portrait_global(facing_index)
+	if combat_stage != null and combat_stage.visible:
+		return combat_stage.global_position + combat_stage.size * 0.5
+	return Vector2.ZERO
+
+
+func _petrify_beam(to_card: Vector2, linger: float = 0.22) -> Array:
+	## Returns [beam, core] Line2Ds. linger keeps them visible after hit for QA / read.
+	var from: Vector2 = _petrify_beam_from()
+	if from == Vector2.ZERO:
+		from = to_card + Vector2(0, -80)
+	var host: Node2D = _petrify_fx_host()
+	var beam := Line2D.new()
+	beam.name = "PetrifyBeam"
+	beam.z_index = 15
+	beam.width = 6.0
+	beam.default_color = Color("c9b9a8")
+	beam.antialiased = false
+	beam.add_point(from)
+	beam.add_point(from)
+	host.add_child(beam)
+	var core := Line2D.new()
+	core.name = "PetrifyBeamCore"
+	core.z_index = 16
+	core.width = 2.5
+	core.default_color = Color.WHITE
+	core.add_point(from)
+	core.add_point(from)
+	host.add_child(core)
+	set_meta("qa_petrify_beams", _count_petrify_beams())
+	var tw := create_tween()
+	tw.tween_method(
+		func(u: float) -> void:
+			var p: Vector2 = from.lerp(to_card, u)
+			beam.set_point_position(1, p)
+			core.set_point_position(1, p),
+		0.0,
+		1.0,
+		0.16
+	)
+	await tw.finished
+	for i in 3:
+		var dust := ColorRect.new()
+		dust.color = Color("c9b9a8")
+		dust.size = Vector2(4, 4)
+		dust.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		dust.z_index = 17
+		host.add_child(dust)
+		dust.global_position = to_card + Vector2(randf_range(-8, 8), randf_range(-8, 8))
+		var dt := create_tween()
+		dt.tween_property(dust, "modulate:a", 0.0, 0.12)
+		dt.finished.connect(dust.queue_free, CONNECT_ONE_SHOT)
+	if linger > 0.0:
+		await get_tree().create_timer(linger).timeout
+	if is_instance_valid(beam):
+		beam.queue_free()
+	if is_instance_valid(core):
+		core.queue_free()
+	set_meta("qa_petrify_beams", _count_petrify_beams())
+	return []
+
+
+func _count_petrify_beams() -> int:
+	var host := get_node_or_null("PetrifyFxHost")
+	if host == null:
+		return 0
+	var n: int = 0
+	for c in host.get_children():
+		if str(c.name).begins_with("PetrifyBeam"):
+			n += 1
+	return n
 
 
 func _apply_basilisk_gaze() -> bool:
@@ -11197,11 +11334,20 @@ func _apply_basilisk_gaze() -> bool:
 		_log("on_spin", "Basilisk silenced")
 		return false
 	var cap: int = 0
+	var targets: Array = []
 	for i in hotbar.size():
 		if (i + 1) % 2 == 0:
 			hotbar[i]["petrify_n"] = 3
+			targets.append(hotbar[i])
 			cap += 1
 	_log("on_spin", "Petrifying Gaze  %s items" % cap)
+	# Sweep left→right across the hotbar. Creep finishes before the slash so pips read.
+	for it in targets:
+		var dest: Vector2 = _item_card_global(int(it.get("uid", -1)))
+		await _petrify_beam(dest, 0.06)
+		var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
+		if card != null and card.has_method("set_petrified"):
+			await card.set_petrified(true, false, 3, true)
 	_refresh()
 	if sfx:
 		sfx.play_event(&"status.petrify")
@@ -11257,10 +11403,17 @@ func _petrify_best_atk() -> void:
 	var pick: Dictionary = picks[rng.randi() % picks.size()]
 	pick["petrified"] = true
 	_log("on_spin", "petrify %s" % str(pick.get("name", "?")))
-	if facing_index >= 0:
-		await _announce_slice(facing_index, _item_card_global(int(pick.get("uid", -1))))
+	var dest: Vector2 = _item_card_global(int(pick.get("uid", -1)))
+	# Linger so the harness (and the player) can read the beam before creep.
+	await _petrify_beam(dest, 0.40)
+	var card = _hotbar_card_by_uid(int(pick.get("uid", -1)))
+	if card != null and card.has_method("set_petrified"):
+		await card.set_petrified(true, false, 0, true)
+	if facing_index >= 0 and facing_index < wheel.size():
+		await _announce_slice(facing_index, dest)
 	if sfx:
 		sfx.play_event(&"status.petrify")
+	_refresh()
 
 
 func _hydra_live_n(it: Dictionary) -> int:
@@ -11318,14 +11471,81 @@ func _hydra_even_killer() -> void:
 	if hits.is_empty():
 		_log("on_spin", "hydra petrify none")
 		return
+	# Keep every beam until the volley ends so Hydra's multi-target read is visible.
+	var host: Node2D = _petrify_fx_host()
+	var kept: Array = []
+	var from: Vector2 = _petrify_beam_from()
 	for it in hits:
 		it["petrified"] = true
+		var dest: Vector2 = _item_card_global(int(it.get("uid", -1)))
+		if from == Vector2.ZERO:
+			from = dest + Vector2(0, -80)
+		var beam := Line2D.new()
+		beam.name = "PetrifyBeam"
+		beam.z_index = 15
+		beam.width = 6.0
+		beam.default_color = Color("c9b9a8")
+		beam.antialiased = false
+		beam.add_point(from)
+		beam.add_point(from)
+		host.add_child(beam)
+		var core := Line2D.new()
+		core.name = "PetrifyBeamCore"
+		core.z_index = 16
+		core.width = 2.5
+		core.default_color = Color.WHITE
+		core.add_point(from)
+		core.add_point(from)
+		host.add_child(core)
+		kept.append(beam)
+		kept.append(core)
+		set_meta("qa_petrify_beams", _count_petrify_beams())
+		var tw := create_tween()
+		tw.tween_method(
+			func(u: float) -> void:
+				var p: Vector2 = from.lerp(dest, u)
+				beam.set_point_position(1, p)
+				core.set_point_position(1, p),
+			0.0,
+			1.0,
+			0.16
+		)
+		await tw.finished
+		for di in 3:
+			var dust := ColorRect.new()
+			dust.color = Color("c9b9a8")
+			dust.size = Vector2(4, 4)
+			dust.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			dust.z_index = 17
+			host.add_child(dust)
+			dust.global_position = dest + Vector2(randf_range(-8, 8), randf_range(-8, 8))
+			var dt := create_tween()
+			dt.tween_property(dust, "modulate:a", 0.0, 0.12)
+			dt.finished.connect(dust.queue_free, CONNECT_ONE_SHOT)
+		var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
+		if card != null and card.has_method("set_petrified"):
+			await card.set_petrified(true, false, 0, true)
+		await get_tree().create_timer(0.12).timeout
+	set_meta("qa_hydra_beams_ready", true)
+	set_meta("qa_petrify_beams", _count_petrify_beams())
+	# Hold the full fan so QA / the player can see every beam together.
+	await get_tree().create_timer(0.55).timeout
+	for n in kept:
+		if is_instance_valid(n):
+			n.queue_free()
+	if has_meta("qa_hydra_beams_ready"):
+		remove_meta("qa_hydra_beams_ready")
+	set_meta("qa_petrify_beams", 0)
+	if facing_index < 0 or facing_index >= wheel.size():
+		return
 	var gain: int = 2 * hits.size()
 	wheel[facing_index]["hydra_bonus"] = int(wheel[facing_index].get("hydra_bonus", 0)) + gain
 	wheel[facing_index]["atk"] = _card_base_atk("hydra") + int(wheel[facing_index].get("hydra_bonus", 0))
 	if wheel[facing_index].has("atk_innate"):
 		wheel[facing_index]["atk_innate"] = int(wheel[facing_index]["atk"])
 	_log("on_spin", "hydra petrify %s  +%s ATK  →  %s" % [hits.size(), gain, wheel[facing_index]["atk"]])
+	if wheel_view != null and wheel_view.has_method("punch_atk"):
+		wheel_view.punch_atk(facing_index)
 	var first: Dictionary = hits[0]
 	await _announce_slice(facing_index, _item_card_global(int(first.get("uid", -1))))
 	if sfx:
@@ -12273,6 +12493,31 @@ func _can_mark(index: int, kind: String) -> bool:
 	return false
 
 
+func _seat_uid_at(index: int) -> int:
+	if index < 0 or index >= wheel.size():
+		return -1
+	return int(wheel[index].get("seat_uid", -1))
+
+
+func _hook_seats_held(face_i: int, targ_i: int, face_uid: int, targ_uid: int) -> bool:
+	## Both seats must still be the monsters the throw aimed at.
+	## Index 5 is the left neighbour on a 6-seat wheel and is out of range on a 4-seat wheel.
+	if face_uid < 0 or targ_uid < 0 or face_i < 0 or targ_i < 0 or face_i == targ_i:
+		return false
+	if face_i >= wheel.size() or targ_i >= wheel.size():
+		return false
+	if _seat_uid_at(face_i) != face_uid or _seat_uid_at(targ_i) != targ_uid:
+		return false
+	return str(wheel[face_i].get("kind", "")) == "monster" and str(wheel[targ_i].get("kind", "")) == "monster"
+
+
+func _hook_fx_abort() -> void:
+	if wheel_view != null:
+		wheel_view.hide_portraits = []
+	if hook_fx != null and hook_fx.has_method("retract"):
+		await hook_fx.retract()
+
+
 func _apply_mark(index: int) -> void:
 	var kind: String = str(pending_mark.get("kind", ""))
 	var atk_uid: int = int(pending_mark.get("atk_uid", -1))
@@ -12286,7 +12531,10 @@ func _apply_mark(index: int) -> void:
 		_undo_abort()
 		call_deferred("_refresh")
 		return
-	await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos())
+	# Hook FX must play before the item banner — otherwise the rope is buried under the slash.
+	var defer_announce: bool = kind == "hook_swap"
+	if not defer_announce:
+		await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos())
 	var token: int = _undo_gen
 	if kind == "defeat_double_hp":
 		await _apply_scythe(index, it, token)
@@ -12305,23 +12553,64 @@ func _apply_mark(index: int) -> void:
 		return
 	_bleed_begin()
 	if kind == "hook_swap":
-		var a: Dictionary = wheel[facing_index].duplicate(true)
-		var b: Dictionary = wheel[index].duplicate(true)
+		var face_i: int = facing_index
+		var targ_i: int = index
+		var face_uid: int = _seat_uid_at(face_i)
+		var targ_uid: int = _seat_uid_at(targ_i)
+		if not _hook_seats_held(face_i, targ_i, face_uid, targ_uid):
+			await _hook_fx_abort()
+			await _bleed_end()
+			call_deferred("_refresh")
+			return
+		var from_card: Vector2 = _item_card_global(int(it.get("uid", -1)))
+		var to_slice: Vector2 = wheel_view.slice_portrait_global(targ_i) if wheel_view else Vector2.ZERO
+		if hook_fx != null and hook_fx.has_method("throw"):
+			await hook_fx.throw(from_card, to_slice)
+		# Throw awaits ~300ms. A collapse or a harness reseat (4–8 seats) can move these indexes.
+		if not _hook_seats_held(face_i, targ_i, face_uid, targ_uid):
+			await _hook_fx_abort()
+			await _bleed_end()
+			call_deferred("_refresh")
+			return
+		var a: Dictionary = wheel[face_i].duplicate(true)
+		var b: Dictionary = wheel[targ_i].duplicate(true)
+		if hook_fx != null and hook_fx.has_method("yank"):
+			if wheel_view != null:
+				wheel_view.hide_portraits = [face_i, targ_i]
+			await hook_fx.yank(face_i, targ_i)
+			if wheel_view != null:
+				wheel_view.hide_portraits = []
+		if not _hook_seats_held(face_i, targ_i, face_uid, targ_uid):
+			await _hook_fx_abort()
+			await _bleed_end()
+			call_deferred("_refresh")
+			return
 		a["spin_locked"] = false
 		b["spin_locked"] = true
-		wheel[facing_index] = b
-		wheel[index] = a
+		wheel[face_i] = b
+		wheel[targ_i] = a
+		facing_index = face_i
 		it["spent"] = true
 		await _count_item_use()
 		_toss_item(int(it["uid"]), false)
 		_log("on_item_use", "hook %s" % b.get("name", "?"))
 		_sync_wheel_stats()
-		_draw_unseen_item()
-		if combat_stage:
-			combat_stage.show_monster(str(wheel[facing_index].get("card_id", "")), int(wheel[facing_index].get("tier", 1)))
+		if combat_stage and face_i >= 0 and face_i < wheel.size():
+			combat_stage.show_monster(str(wheel[face_i].get("card_id", "")), int(wheel[face_i].get("tier", 1)))
 			_tune_combat_stage()
+		if hook_fx != null and hook_fx.has_method("retract"):
+			await hook_fx.retract()
+		_draw_unseen_item()
+		_refresh()
+		if not hotbar.is_empty():
+			var gained = hotbar[hotbar.size() - 1]
+			var gained_card = _hotbar_card_by_uid(int(gained.get("uid", -1)))
+			if gained_card != null and gained_card.has_method("play_transform"):
+				gained_card.play_transform()
 		if sfx:
 			sfx.play_event(&"util.hook")
+		# Banner after the rope/draw so timed QA shots catch throw → swap → courier.
+		await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos())
 		await _after_item_resolved(it)
 		await _bleed_end()
 		if _undo_stale(token):
@@ -13169,12 +13458,13 @@ func _apply_bag_look(card, it: Dictionary) -> void:
 func _apply_item_stone_look(card, it: Dictionary) -> void:
 	if card == null or not card.has_method("set_petrified"):
 		return
+	var pn: int = int(it.get("petrify_n", 0))
 	if _item_stoned(it):
-		card.set_petrified(true, false)
+		card.set_petrified(true, false, pn, false)
 	elif _bushido_dummy_now():
-		card.set_petrified(true, true)
+		card.set_petrified(true, true, 0, false)
 	else:
-		card.set_petrified(false)
+		card.set_petrified(false, false, 0, false)
 
 
 func _item_view(it: Dictionary) -> Dictionary:

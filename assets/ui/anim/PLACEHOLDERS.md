@@ -34,6 +34,27 @@ Overwrite landed at the same paths as the old placeholders. Loaders still use `r
 | `ticker_token_stamp_f0.png` … `ticker_token_stamp_f3.png` | 12×12 | 4 | Press-down + ink tick |
 | `ticker_ff.png` | 12×8 | 1 | Gold ▶▶ chevrons |
 
-## Still placeholders
+### Poison pop (pass 4) — final PixelLab art
 
-None under `assets/ui/anim/` right now. Future temp flats go here until PixelLab overwrites the same path.
+| File | Native | Frames | Notes |
+|---|---|---|---|
+| `poison_badge_drip_f0.png` … `f3.png` | 8×8 | 4 | Slice/hub drip loop (still purple from the first PixelLab pass; Task 5 reroll) |
+| `poison_burst_f0.png` … `f3.png` | 24×24 | 4 | Tick burst (still purple from the first PixelLab pass; Task 5 reroll) |
+| `heart_drip_f0.png` … `f3.png` | 12×12 | 4 | Player heart drip |
+| `poison_lock.png` | 6×6 | 1 | Plague Doctor Always padlock. Green (`#7dba7d` / `#8dcb8d`). PixelLab 2026-10-21. Nathan: poison is green. |
+
+### Petrify (pass 4) — final PixelLab art
+
+| File | Native | Frames | Notes |
+|---|---|---|---|
+| `petrify_shatter_f0.png` … `f4.png` | 30×30 | 5 | Stone shatter over card |
+
+### Aura threads (pass 4) — final PixelLab art
+
+| File | Native | Frames | Notes |
+|---|---|---|---|
+| `aura_glyph_sword.png` | 8×8 | 1 | Commander |
+| `aura_glyph_wisp.png` | 8×8 | 1 | Lich |
+| `aura_glyph_drop.png` | 8×8 | 1 | Plague Doctor |
+| `aura_glyph_lock.png` | 8×8 | 1 | Always padlock end |
+| `aura_glyph_shield.png` | 8×8 | 1 | Bodyguard |

@@ -73,6 +73,25 @@ var _no_effect: bool = false
 var _sparkle_t: float = 0.0
 var _desat: float = 0.0
 var _sink_tw: Tween
+var _petrified: bool = false
+var _petrify_dummy: bool = false
+var _petrify_spins: int = 0
+var _petrify_creep: float = 0.0:
+	set(v):
+		_petrify_creep = v
+		_apply_petrify_creep_uniform()
+		queue_redraw()
+var _shatter: AnimatedSprite2D
+var _petrify_mat: ShaderMaterial
+var _pip_flash: float = 0.0
+
+
+func _apply_petrify_creep_uniform() -> void:
+	# Shader lives on the icon TextureRect so TEXTURE is the item art, not the panel.
+	if _icon != null and _icon.material is ShaderMaterial:
+		(_icon.material as ShaderMaterial).set_shader_parameter("creep", _petrify_creep)
+	elif material is ShaderMaterial:
+		(material as ShaderMaterial).set_shader_parameter("creep", _petrify_creep)
 
 
 func setup(
@@ -316,7 +335,8 @@ func _draw_egg_hatch() -> void:
 
 
 func _sync_lock_shade() -> void:
-	var locked: bool = (not _showcase) and (spent or not _playable)
+	# Petrify uses its own stone look; keep the hatch off so creep/shatter read.
+	var locked: bool = (not _showcase) and (spent or not _playable) and not (_petrified and not _petrify_dummy)
 	if not locked:
 		if _lock_shade != null:
 			_lock_shade.visible = false
@@ -418,23 +438,172 @@ func set_num_color(c: Color) -> void:
 		_ghost.add_theme_color_override("font_color", c)
 
 
-func set_petrified(on: bool, dummy: bool = false) -> void:
-	if _stone == null:
-		_stone = TextureRect.new()
-		_stone.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_stone.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		_stone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		_stone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		_stone.texture_filter = TEXTURE_FILTER_NEAREST
-		_stone.texture = load("res://assets/dungeon/ui/petrify_stone.png") as Texture2D
-		add_child(_stone)
-	_stone.visible = on
+func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: bool = true) -> void:
+	_ensure_stone()
+	_ensure_petrify_shader()
+	_petrified = on
+	_petrify_dummy = dummy
+	_petrify_spins = maxi(0, spins_left)
+	if not on:
+		_stone.visible = false
+		material = null
+		if _icon != null:
+			_icon.material = null
+			_icon.modulate = Color.WHITE
+		_petrify_creep = 0.0
+		if not _petrify_dummy:
+			modulate = Color.WHITE
+		_sync_lock_shade()
+		queue_redraw()
+		return
 	if dummy:
+		# Bushido dummy overlay — static stone, no creep/shatter.
+		material = null
+		if _icon != null:
+			_icon.material = null
+		_stone.visible = true
 		_stone.modulate = Color(0.82, 0.78, 0.70, 0.55)
 		modulate = Color.WHITE
+		_petrify_creep = 1.0
+		_sync_lock_shade()
+		queue_redraw()
+		return
+	# Real petrify: creep shader on the icon; stone TextureRect only over the icon.
+	_stone.visible = false
+	material = null
+	if animate:
+		if _icon != null and _petrify_mat != null:
+			_icon.material = _petrify_mat
+		_petrify_creep = 0.0
+		modulate = Color.WHITE
+		if _icon != null:
+			_icon.modulate = Color.WHITE
+		var tw := create_tween()
+		tw.set_trans(Tween.TRANS_SINE)
+		tw.set_ease(Tween.EASE_IN_OUT)
+		tw.tween_property(self, "_petrify_creep", 1.0, 0.36)
+		tw.parallel().tween_property(self, "modulate", Color(0.58, 0.56, 0.52, 1.0), 0.36)
+		await tw.finished
+		_petrify_creep = 1.0
+		# Keep stone TextureRect hidden for real petrify — the PNG's dither reads as a
+		# transparency checker when stretched over the icon. Shader holds the final look.
+		_stone.visible = false
+		_sync_lock_shade()
+		queue_redraw()
 	else:
-		_stone.modulate = Color(0.82, 0.78, 0.70, 0.78)
-		modulate = Color(0.58, 0.56, 0.52, 1.0) if on else Color.WHITE
+		if _icon != null and _petrify_mat != null:
+			_icon.material = _petrify_mat
+		_petrify_creep = 1.0
+		modulate = Color(0.58, 0.56, 0.52, 1.0)
+		_stone.visible = false
+		_sync_lock_shade()
+		queue_redraw()
+
+
+func petrify_tick(spins_left: int) -> void:
+	_petrify_spins = maxi(0, spins_left)
+	_pip_flash = 1.0
+	queue_redraw()
+	var tw := create_tween()
+	tw.tween_property(self, "_pip_flash", 0.0, 0.10)
+	# Three shard particles at the cracked pip.
+	for i in 3:
+		var spark := ColorRect.new()
+		spark.color = Color("c9b9a8")
+		spark.size = Vector2(3, 3)
+		spark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		spark.position = Vector2(size.x - 18.0 + float(i) * 2.0, 6.0 + float(i))
+		add_child(spark)
+		var st := create_tween()
+		st.tween_property(spark, "position", spark.position + Vector2(randf_range(-8, 8), 14.0), 0.12)
+		st.parallel().tween_property(spark, "modulate:a", 0.0, 0.12)
+		st.finished.connect(spark.queue_free, CONNECT_ONE_SHOT)
+	await tw.finished
+	if _petrify_spins <= 0 and _petrified and not _petrify_dummy:
+		await petrify_shatter()
+
+
+func petrify_shatter() -> void:
+	if _petrify_dummy:
+		return
+	_ensure_shatter()
+	_stone.visible = false
+	material = null
+	if _icon != null:
+		_icon.material = null
+	_shatter.visible = true
+	_shatter.position = size * 0.5
+	if _shatter.sprite_frames != null and _shatter.sprite_frames.get_frame_count("shatter") > 0:
+		_shatter.play("shatter")
+	var fall := create_tween()
+	fall.tween_property(_shatter, "position", _shatter.position + Vector2(0, 40), 0.25)
+	fall.parallel().tween_property(_shatter, "modulate:a", 0.0, 0.25)
+	var fade := create_tween()
+	fade.tween_property(self, "modulate", Color.WHITE, 0.15)
+	if _icon != null:
+		fade.parallel().tween_property(_icon, "modulate", Color.WHITE, 0.15)
+	await fall.finished
+	_shatter.visible = false
+	_shatter.modulate.a = 1.0
+	_petrified = false
+	_petrify_spins = 0
+	_petrify_creep = 0.0
+	queue_redraw()
+
+
+func _ensure_stone() -> void:
+	if _stone != null:
+		return
+	_stone = TextureRect.new()
+	_stone.name = "PetrifyStone"
+	_stone.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Cover the icon only — full-card stretch read as a checker + white number strip.
+	_stone.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_stone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_stone.stretch_mode = TextureRect.STRETCH_SCALE
+	_stone.texture_filter = TEXTURE_FILTER_NEAREST
+	_stone.texture = load("res://assets/dungeon/ui/petrify_stone.png") as Texture2D
+	_stone.visible = false
+	_stone.modulate = Color(0.86, 0.82, 0.74, 0.42)
+	if _icon != null:
+		_icon.add_child(_stone)
+	else:
+		add_child(_stone)
+
+
+func _ensure_petrify_shader() -> void:
+	if _petrify_mat != null:
+		return
+	var sh: Shader = load("res://shaders/petrify.gdshader") as Shader
+	if sh == null:
+		return
+	_petrify_mat = ShaderMaterial.new()
+	_petrify_mat.shader = sh
+	var stone: Texture2D = load("res://assets/dungeon/ui/petrify_stone.png") as Texture2D
+	if stone != null:
+		_petrify_mat.set_shader_parameter("stone_tex", stone)
+	_petrify_mat.set_shader_parameter("creep", 0.0)
+
+
+func _ensure_shatter() -> void:
+	if _shatter != null:
+		return
+	_shatter = AnimatedSprite2D.new()
+	_shatter.name = "ShatterFx"
+	_shatter.centered = true
+	_shatter.scale = Vector2(4, 4)
+	_shatter.texture_filter = TEXTURE_FILTER_NEAREST
+	_shatter.visible = false
+	var frames := SpriteFrames.new()
+	frames.add_animation("shatter")
+	frames.set_animation_speed("shatter", 20.0)
+	frames.set_animation_loop("shatter", false)
+	for i in 5:
+		var p := "res://assets/ui/anim/petrify_shatter_f%s.png" % i
+		if ResourceLoader.exists(p):
+			frames.add_frame("shatter", load(p) as Texture2D)
+	_shatter.sprite_frames = frames
+	add_child(_shatter)
 
 
 func set_title(text: String) -> void:
@@ -830,22 +999,32 @@ func _apply_style(hot: bool) -> void:
 
 
 func _draw() -> void:
-	if not _glow:
-		return
-	var period: float = 1.45 if _tier <= 1 else (1.05 if _tier == 2 else 0.72)
-	var pulse: float = 0.50 + 0.50 * absf(sin(_glow_t * TAU / period))
-	var pad: float = 3.0 + float(_tier) * 4.0 + pulse * (2.0 + float(_tier) * 2.5)
-	var ring_col: Color = _rim.lerp(_tier_shine(), 0.25 + pulse * 0.50)
-	var ring := StyleBoxFlat.new()
-	ring.draw_center = false
-	ring.bg_color = Color(0, 0, 0, 0)
-	ring.border_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.70 + pulse * 0.25)
-	ring.set_border_width_all(2 + _tier)
-	ring.set_corner_radius_all(12 if _showcase else 9)
-	ring.shadow_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.40 + pulse * 0.28)
-	ring.shadow_size = 4 + _tier * 5 + int(pulse * (3 + _tier * 3))
-	ring.shadow_offset = Vector2.ZERO
-	ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
+	if _glow:
+		var period: float = 1.45 if _tier <= 1 else (1.05 if _tier == 2 else 0.72)
+		var pulse: float = 0.50 + 0.50 * absf(sin(_glow_t * TAU / period))
+		var pad: float = 3.0 + float(_tier) * 4.0 + pulse * (2.0 + float(_tier) * 2.5)
+		var ring_col: Color = _rim.lerp(_tier_shine(), 0.25 + pulse * 0.50)
+		var ring := StyleBoxFlat.new()
+		ring.draw_center = false
+		ring.bg_color = Color(0, 0, 0, 0)
+		ring.border_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.70 + pulse * 0.25)
+		ring.set_border_width_all(2 + _tier)
+		ring.set_corner_radius_all(12 if _showcase else 9)
+		ring.shadow_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.40 + pulse * 0.28)
+		ring.shadow_size = 4 + _tier * 5 + int(pulse * (3 + _tier * 3))
+		ring.shadow_offset = Vector2.ZERO
+		ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
+	# Basilisk gaze countdown pips (top-right, 12px each).
+	if _petrified and not _petrify_dummy and _petrify_spins > 0:
+		var base := Vector2(size.x - 14.0, 10.0)
+		for i in 3:
+			var on: bool = i < _petrify_spins
+			var p: Vector2 = base + Vector2(float(i) * -14.0, 0.0)
+			var col := Color("c9b9a8") if on else Color("100e0c", 0.45)
+			if on and i == _petrify_spins - 1 and _pip_flash > 0.05:
+				col = col.lerp(Color.WHITE, _pip_flash)
+			draw_circle(p, 6.0, Color("100e0c", 0.85))
+			draw_circle(p, 4.5 if on else 3.0, col)
 
 
 func _on_in() -> void:

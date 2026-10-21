@@ -15,3 +15,13 @@ These files were already on `main` from run4. Pass 5 wires them. Do **not** over
 | `marble_swirl_f0.png` … `marble_swirl_f5.png` | 24×24 | 6 | Use swirl |
 | `marble_red.png`, `marble_blue.png` | 24×24 | 1 each | Attack / Block settle |
 | `marble_cat_idle_f0.png` … `marble_cat_idle_f3.png` | 24×24 | 4 | Magicat cat's-eye idle |
+
+## Grappling Hook (pass 4) — final PixelLab art
+
+Overwrite landed at the same paths as the old placeholders.
+
+| File | Native | Frames | Notes |
+|---|---|---|---|
+| `hook_throw_f0.png` … `f5.png` | 24×24 | 6 | Hook head throw |
+| `hook_taut.png` | 24×24 | 1 | Caught / taut |
+| `rope_tile.png` | 4×8 | 1 | Line2D tile |
