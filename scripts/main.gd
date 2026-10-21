@@ -4988,7 +4988,7 @@ func _sync_cascade_ff() -> void:
 	if has_meta("qa_force_shift"):
 		shift_down = bool(get_meta("qa_force_shift"))
 	var ff: bool = shift_down and not _text_input_focused()
-	var want: float = 3.0 if ff else 1.0
+	var want: float = ANIM_TIME_SCALE * 3.0 if ff else ANIM_TIME_SCALE  # x3 on top of the game's normal anim speed
 	if not is_equal_approx(Engine.time_scale, want):
 		Engine.time_scale = want
 		print("[cascade-ff] time_scale=", Engine.time_scale, " ff=", ff)
@@ -5002,7 +5002,7 @@ func _sync_cascade_ff() -> void:
 
 func _restore_cascade_time_scale() -> void:
 	_cascade_ff = false
-	# Cascade runs at 1.0 / 3.0; leave combat back on the global anim scale.
+	# Cascade runs at ANIM_TIME_SCALE (x3 while Shift is held); restore the global anim scale.
 	Engine.time_scale = ANIM_TIME_SCALE
 	if cascade_ticker != null and cascade_ticker.has_method("set_ff"):
 		cascade_ticker.set_ff(false)

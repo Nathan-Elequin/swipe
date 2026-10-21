@@ -1,0 +1,14 @@
+Follow-up for pass 3 on branch anim/pass3-cascade-ticker (the anim-pass3 commits so far are yours). Re-read design/visual/ANIM-spin-cascade-ticker.md.
+
+New: final PixelLab art has been dropped into assets/ui/anim/ at the exact placeholder paths. It overwrote your ticker placeholders (ticker_token_frame.png, ticker_token_stamp_f0..f3.png, ticker_ff.png) and the pass 1 intent placeholders (intent_claw_idle, intent_claw_lit_f0..f3, intent_claw_burst_f0..f3, intent_claw_flame_idle, intent_claw_flame_burst_f0..f3, intent_chip_shield, intent_chip_drop, intent_chip_flee). Same native sizes as the placeholders.
+
+Do:
+1. Make sure every one of those PNGs has a matching .import (Filter Nearest, no mipmaps, Lossless, same settings as the existing assets/ui/anim .import files) and commit the PNGs and .import files. Revert all unrelated --import churn (other .import files, project.godot, default_bus_layout.tres) before committing.
+2. Update assets/ui/anim/PLACEHOLDERS.md: mark the ticker and intent files above as final PixelLab art. Keep listing anything that is still a placeholder.
+3. The cascade ticker must not depend on the wheel seat count (the game runs 4-8 seats; a test branch uses 6). Check cascade_ticker.gd, the hooks and the harness for any 8-seat assumption (token count, strip width, indexes), and make the strip fit any number of tokens.
+4. Re-run the QA at 1680x1040 into design/visual/anim-qa/spin-cascade-ticker/ and overwrite the PNGs: the Plague Doctor / Spider Queen / Cultist / Harpy + Grief Jar + Marble cascade at 300/900/1800ms, the Shift-held version with the ▶▶ chip visible (log Engine.time_scale), release mid-cascade back to 1.0, and Space unchanged. Add 07_six_seats.png, a cascade with 6 seats, and 08_intent_plate_final_art.png, a Hornet Swarm intent plate showing the new claw art. Look at every PNG you produce.
+5. Remove the stray log design/cli-runs/11-anim-pass3/cascade-shots6.log from the branch (git rm), and kill any Godot process you started that is still running when you finish. Run Godot headless --quit and confirm no new SCRIPT ERROR or parse errors. Run the text audit (no "Tier"). Confirm Space/ui_accept bindings and project.godot input map are unchanged versus origin/main.
+
+Rules: never show "Tier" or "ATK"/"atk" in new UI; new strings go through PLAYER_COPY.text(); respect Engine.time_scale; always restore time_scale to 1.0. Nathan's Godot editor is open on his main folder: never touch it, the main folder, other worktrees, or the branch `movement`. Run only one Godot process at a time, on this worktree. Don't commit .wrangler/, .art-ping.env, .art-ping.last, build/ or stray logs, and never read or print .art-ping.env. Don't push, merge, rebase, stash or reset.
+
+Commit on the branch as anim-pass3(N): with a summary of what changed and the final screenshot list. Don't export or push to itch.

@@ -21,3 +21,16 @@ SHOT_HARNESS: six_seats wheel=6
 SHOT_HARNESS: captured 07_six_seats.png
 SHOT_HARNESS: captured 08_intent_plate_final_art.png
 SHOT_HARNESS: exit 0
+cascade seat ok wheel=4
+mark_300ms elapsed=308 ticker=true
+mark_900ms elapsed=925
+mark_1800ms elapsed=1826
+cascade1 done phase=fighting busy=false hp=3
+ff_start time_scale=0.675 hp=8 wheel=4
+ff_held time_scale=2.025 ff_chip=true busy=true phase=fighting
+captured 04_cascade_ff_600ms.png
+ff_release time_scale=0.675
+captured 05_cascade_ff_release.png
+space_untouched: no Spin shortcut added; ui_accept left alone
+six_seats wheel=6
+exit 0
