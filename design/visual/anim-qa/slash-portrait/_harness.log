@@ -10,3 +10,8 @@ run start
 queue_three seen_busy_ticks=97 overlap_flag=false
 ogre_first_ms=1502 ogre_second_ms=1138
 exit 1
+run start
+queue_three seen_busy_ticks=102 overlap_flag=false
+ogre_first_ms=1504 ogre_second_ms=1134
+six_seats wheel_size=6
+exit 1

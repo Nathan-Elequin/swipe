@@ -1254,9 +1254,9 @@ func _ensure_registry() -> void:
 	], _shot_anim_bleed_pulse)
 	_bind_many([
 		"01_ogre_60ms", "02_ogre_300ms", "03_ogre_700ms",
-		"04_hornet_still", "05_vampire_still",
+		"04_hornet_still", "05_vampire_frames",
 		"06_queue_three", "07_ogre_first", "08_ogre_second",
-		"09_item_banner",
+		"09_item_banner", "10_ogre_6_seats",
 	], _shot_anim_slash_portrait)
 	_bind_many([
 		"60_loft", "61_loft_cat_rub", "62_journal_cover", "63_journal_bestiary",
@@ -1463,6 +1463,7 @@ func _shot_anim_slash_portrait() -> void:
 	out_dir = "res://design/visual/anim-qa/slash-portrait"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	status = "anim-slash-portrait"
+	# Seat count is not fixed at 8; slash cut-in must work with 4–8. Start with 4.
 	await _anim_ready_seat(["ogre", "hornet_swarm", "vampire", "goblin"], ["shield"], 6, 0)
 	if main.ability_slash == null:
 		_skip("01_ogre_60ms.png", "ability_slash missing")
@@ -1480,14 +1481,14 @@ func _shot_anim_slash_portrait() -> void:
 	await _wait(0.40)
 	await _capture("03_ogre_700ms.png", "Ogre cut-in ~700ms slash-out")
 	await _slash_wait_idle()
-	# Still fallback: Hornet Swarm and Vampire (no frame files).
+	# Still fallback: Hornet Swarm (frames pending). Vampire has real frames.
 	main.ability_slash.play(_slash_payload("hornet_swarm"))
 	await _wait(0.28)
 	await _capture("04_hornet_still.png", "Hornet Swarm still fallback punch-in")
 	await _slash_wait_idle()
 	main.ability_slash.play(_slash_payload("vampire"))
 	await _wait(0.28)
-	await _capture("05_vampire_still.png", "Vampire still fallback punch-in")
+	await _capture("05_vampire_frames.png", "Vampire cut-in using real slash frames")
 	await _slash_wait_idle()
 	# Three queued triggers never overlap.
 	var overlap := false
@@ -1524,6 +1525,18 @@ func _shot_anim_slash_portrait() -> void:
 	main.ability_slash.play(_slash_payload("shield", true))
 	await _wait(0.20)
 	await _capture("09_item_banner.png", "item trigger still uses small gutter banner")
+	await _slash_wait_idle()
+	# Six seats seated (Challenge-sized wheel); cut-in must not assume 8.
+	await _anim_ready_seat([
+		"ogre", "goblin", "skeleton", "vampire", "bandit", "lich",
+	], ["shield"], 6, 0)
+	_log_progress("six_seats wheel_size=%s" % main.wheel.size())
+	main.ability_slash.reset_slash_seen()
+	if main.ability_slash.has_method("mark_slash_seen"):
+		main.ability_slash.mark_slash_seen("ogre")
+	main.ability_slash.play(_slash_payload("ogre"))
+	await _wait(0.30)
+	await _capture("10_ogre_6_seats.png", "Ogre cut-in with 6 wheel seats seated")
 	await _slash_wait_idle()
 
 

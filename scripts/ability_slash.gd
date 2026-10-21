@@ -13,6 +13,9 @@ const HOLD_MS := 120.0
 const FIRST_HOLD_BONUS_MS := 250.0
 const OUT_MS := 160.0
 const PORTRAIT_TRAIL_MS := 40.0
+## Native canvases are 32/48/64/80. Show at 4x unless that exceeds 64px@4x (band fit).
+const PORTRAIT_SCALE := 4.0
+const PORTRAIT_MAX_DISPLAY := 256.0
 
 var art
 var _q: Array = []
@@ -202,10 +205,12 @@ func _show_cutin(fast: bool) -> void:
 		_band_mat.set_shader_parameter("alpha", 1.0)
 		_band_mat.set_shader_parameter("speed", 2.2 if not fast else 4.5)
 	var use_frames: bool = not _frame_texs.is_empty()
+	var target_scale: float = _portrait_scale_for(_portrait.texture)
 	if use_frames:
-		_portrait.scale = Vector2(4, 4)
+		_portrait.scale = Vector2(target_scale, target_scale)
 	else:
-		_portrait.scale = Vector2(3.6, 3.6)
+		var punch_start: float = target_scale * (3.6 / PORTRAIT_SCALE)
+		_portrait.scale = Vector2(punch_start, punch_start)
 	_tw = create_tween()
 	_tw.set_parallel(true)
 	_tw.tween_property(_dim, "modulate:a", 0.47, _dur(SNAP_MS, fast))
@@ -217,7 +222,7 @@ func _show_cutin(fast: bool) -> void:
 	_tw.tween_property(_portrait, "position", _portrait_center(), _dur(SNAP_MS, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	_tw.tween_property(_portrait, "modulate:a", 1.0, _dur(SNAP_MS, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast))
 	if not use_frames:
-		_tw.tween_property(_portrait, "scale", Vector2(4, 4), _dur(SNAP_MS + 80.0, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_tw.tween_property(_portrait, "scale", Vector2(target_scale, target_scale), _dur(SNAP_MS + 80.0, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await get_tree().create_timer(_dur(SNAP_MS, fast), false).timeout
 	# Action: frames or still shake (band is already in).
 	if use_frames:
@@ -268,12 +273,25 @@ func _punch_shake(fast: bool) -> void:
 	_portrait.position = _portrait_center()
 
 
+func _portrait_scale_for(tex: Texture2D) -> float:
+	if tex == null:
+		return PORTRAIT_SCALE
+	var native_max: float = maxf(float(tex.get_width()), float(tex.get_height()))
+	if native_max <= 0.0:
+		return PORTRAIT_SCALE
+	var at4: float = native_max * PORTRAIT_SCALE
+	if at4 <= PORTRAIT_MAX_DISPLAY:
+		return PORTRAIT_SCALE
+	return PORTRAIT_MAX_DISPLAY / native_max
+
+
 func _portrait_center() -> Vector2:
 	var tex: Texture2D = _portrait.texture
 	var native: Vector2 = Vector2(48, 48)
 	if tex != null:
 		native = Vector2(tex.get_width(), tex.get_height())
-	return Vector2(750.0, 610.0) - native * 2.0
+	var s: float = _portrait_scale_for(tex)
+	return Vector2(750.0, 610.0) - native * (s * 0.5)
 
 
 func _build_cutin_nodes() -> void:
@@ -495,7 +513,8 @@ func _prepare_portrait() -> void:
 		_portrait.texture = _frame_texs[0]
 	else:
 		_portrait.texture = still
-	_portrait.scale = Vector2(4, 4)
+	var s: float = _portrait_scale_for(_portrait.texture)
+	_portrait.scale = Vector2(s, s)
 	_portrait.position = _portrait_center()
 
 
