@@ -382,10 +382,10 @@ func _show_detail(entry: Dictionary) -> void:
 	var call_s: String = str(entry.get("call", ""))
 	if call_s != "":
 		bits.append(call_s)
-	if str(entry.get("atk", "")) != "":
-		bits.append("Attack %s" % entry.get("atk", ""))
 	if str(entry.get("hp", "")) != "":
 		bits.append("HP %s" % entry.get("hp", ""))
+	if str(entry.get("atk", "")) != "":
+		bits.append("Attack %s" % entry.get("atk", ""))
 	_stats.text = "   ·   ".join(bits)
 	_body.text = COPY.apply_names(str(entry.get("ability", "")))
 

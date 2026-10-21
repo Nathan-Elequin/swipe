@@ -1,0 +1,55 @@
+{
+	"failures": [
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3897/@Label@3893",
+			"reason": "below_min_size",
+			"screen": "07_hover_6_seats",
+			"shot": "res://design/visual/anim-qa/item-hover-preview/07_hover_6_seats.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3897/@RichTextLabel@3896",
+			"reason": "below_min_size",
+			"screen": "07_hover_6_seats",
+			"shot": "res://design/visual/anim-qa/item-hover-preview/07_hover_6_seats.png",
+			"text": "Kobold Trapper"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3901/@RichTextLabel@3900",
+			"reason": "below_min_size",
+			"screen": "07_hover_6_seats",
+			"shot": "res://design/visual/anim-qa/item-hover-preview/07_hover_6_seats.png",
+			"text": "enemy ATK 2   HP 7"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3905/@RichTextLabel@3904",
+			"reason": "below_min_size",
+			"screen": "07_hover_6_seats",
+			"shot": "res://design/visual/anim-qa/item-hover-preview/07_hover_6_seats.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@3909/@RichTextLabel@3908",
+			"reason": "below_min_size",
+			"screen": "07_hover_6_seats",
+			"shot": "res://design/visual/anim-qa/item-hover-preview/07_hover_6_seats.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@3867/@MarginContainer@3845/@VBoxContainer@3846/@Control@3849/@RichTextLabel@3860",
+			"reason": "below_min_size",
+			"screen": "07_hover_6_seats",
+			"shot": "res://design/visual/anim-qa/item-hover-preview/07_hover_6_seats.png",
+			"text": "(BLK 4)"
+		}
+	],
+	"screen": "07_hover_6_seats",
+	"shot": "res://design/visual/anim-qa/item-hover-preview/07_hover_6_seats.png",
+	"updated": "2026-10-21T15:06:57"
+}
