@@ -60,20 +60,31 @@ func place_from_tag(tag_global: Rect2, dir: Vector2, hub_global: Vector2) -> voi
 	_measure()
 	var w: float = size.x
 	var h: float = size.y
-	var outward: Vector2 = dir
-	if outward.length() < 0.01:
-		outward = Vector2(1, 0)
-	outward = outward.normalized()
-	if absf(outward.x) < absf(outward.y):
-		outward = Vector2(-1, 0) if tag_global.get_center().x < hub_global.x else Vector2(1, 0)
-	var pos := Vector2.ZERO
-	if outward.x >= 0.0:
-		pos = Vector2(tag_global.end.x + 12.0, tag_global.position.y + tag_global.size.y * 0.5 - h * 0.5)
-	else:
-		pos = Vector2(tag_global.position.x - 12.0 - w, tag_global.position.y + tag_global.size.y * 0.5 - h * 0.5)
 	var view: Rect2 = get_viewport().get_visible_rect()
+	var screen_mid: float = view.get_center().x if view.size.x > 1.0 else hub_global.x
+	var tag_mid: Vector2 = tag_global.get_center()
+	# Top/bottom seats go left or right, away from the screen centre.
+	var go_right: bool = tag_mid.x < screen_mid
+	if absf(dir.x) >= absf(dir.y) and dir.length() >= 0.01:
+		go_right = dir.x >= 0.0
+	var pos := Vector2.ZERO
+	if go_right:
+		pos = Vector2(tag_global.end.x + 12.0, tag_mid.y - h * 0.5)
+	else:
+		pos = Vector2(tag_global.position.x - 12.0 - w, tag_mid.y - h * 0.5)
 	if pos.x + w > RIGHT_PANEL_X - 4.0:
 		pos.x = tag_global.position.x - 12.0 - w
+		go_right = false
+	if pos.x < view.position.x + 8.0:
+		pos.x = tag_global.end.x + 12.0
+		go_right = true
+	# Keep off the tag itself (bottom-seat cards were landing on the slice).
+	var card := Rect2(pos, Vector2(w, h))
+	if card.intersects(tag_global.grow(8.0)):
+		if go_right:
+			pos.x = tag_global.end.x + 12.0
+		else:
+			pos.x = tag_global.position.x - 12.0 - w
 	pos.x = clampf(pos.x, view.position.x + 8.0, minf(view.end.x - w - 8.0, RIGHT_PANEL_X - w - 4.0))
 	pos.y = clampf(pos.y, view.position.y + 8.0, view.end.y - h - 8.0)
 	global_position = pos

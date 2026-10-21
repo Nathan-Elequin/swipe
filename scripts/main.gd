@@ -47,6 +47,7 @@ const HAND_MAX := 50
 const CHALLENGE_SEATS := 6
 const CHALLENGE_DECK_N := 6
 const CHALLENGE_HAND := 10
+const ADVENTURE_MOVES := 3
 const MARBLE_FILL := 10
 ## 1.0 = original speed. Wheel spin ignores this.
 ## 0.675 = 35% faster than the previous 0.5 setting.
@@ -585,10 +586,19 @@ var _mill_beat: String = ""
 var refusals_left: int = REFUSALS_MAX
 var _copy_stamp
 var adventure: bool = false
+## True only for archived Long Drop (click-to-pick spin, rope, more dungeons).
+var challenge_route: bool = false
 var dungeon_index: int = 1
 var dungeons_cleared: int = 0
 var adventure_seat_tiers: Array = [1, 1, 1, 1, 1, 1]
 var _adventure_busy: bool = false
+var moves_left: int = 0
+var _move_busy: bool = false
+var _howto_move_shown: bool = false
+var move_box: Control
+var move_count: Label
+var btn_move_left: Button
+var btn_move_right: Button
 var dungeon_deck_ui
 var challenge_draft_ui
 var btn_challenge_begin: Button
@@ -1049,6 +1059,7 @@ func _build_ui() -> void:
 	challenge_draft_ui = CHALLENGE_DRAFT.new()
 	challenge_draft_ui.setup()
 	play_field.add_child(challenge_draft_ui)
+	_build_move_ui()
 	challenge_draft_ui.hovered_item.connect(_on_item_hovered)
 	challenge_draft_ui.unhovered_item.connect(_on_item_unhovered)
 	trophy.z_index = 6
@@ -1468,7 +1479,7 @@ func _build_overlay() -> void:
 	overlay_dive = _title_pill(PLAYER_COPY.text("title.dive_in", "Dive In"), _quick_start)
 	overlay_btn = _title_pill(PLAYER_COPY.text("title.begin", "Adventure Mode"), _on_overlay_primary)
 	overlay_undo = _pill("Undo", Color("1c2428"), Color("6bb3d9"), _on_undo)
-	overlay_adventure = _title_pill(PLAYER_COPY.text("title.adventure", "Challenge Mode"), _begin_adventure)
+	overlay_adventure = _title_pill(PLAYER_COPY.text("title.adventure", "Challenge Mode"), _begin_long_drop)
 	overlay_home = _title_pill(PLAYER_COPY.text("title.home", "Home"), _open_home_from_title)
 	UxStyle.dress_title_button(overlay_btn, 240)
 	UxStyle.dress_title_button(overlay_adventure, 240)
@@ -1480,7 +1491,10 @@ func _build_overlay() -> void:
 	modes.add_theme_constant_override("separation", 14)
 	col.add_child(modes)
 	modes.add_child(overlay_btn)
-	modes.add_child(overlay_adventure)
+	if DevFlags.show_long_drop():
+		modes.add_child(overlay_adventure)
+	else:
+		overlay_adventure.visible = false
 	modes.add_child(overlay_home)
 	modes.add_child(overlay_undo)
 	overlay_rest_row = HBoxContainer.new()
@@ -1931,13 +1945,37 @@ func _sync_dev_panel() -> void:
 		dev_enter.disabled = _monsters_left() <= 0
 
 
+func _is_long_drop() -> bool:
+	return adventure and challenge_route
+
+
+func _is_adventure_mode() -> bool:
+	return adventure and not challenge_route
+
+
+func _click_choose_fight() -> bool:
+	return _is_long_drop() or in_tutorial
+
+
+func _qa_busy() -> bool:
+	return OS.has_feature("editor") and logic_qa != null and bool(logic_qa.busy)
+
+
+func _reset_moves() -> void:
+	moves_left = ADVENTURE_MOVES if _is_adventure_mode() else 0
+	_move_busy = false
+	_howto_move_shown = false
+
+
 func _on_new() -> void:
 	if phase == "spinning":
 		return
-	if adventure:
-		_begin_adventure()
-	else:
+	if DevFlags.show_old_gatehouse() and not adventure:
 		_begin_run()
+	elif _is_long_drop():
+		_begin_long_drop()
+	else:
+		_begin_adventure()
 
 
 func _on_overlay_primary() -> void:
@@ -1945,11 +1983,14 @@ func _on_overlay_primary() -> void:
 		_go_home_loss()
 		return
 	if phase == "title":
-		_begin_run()
-	elif adventure:
-		_begin_adventure()
+		if DevFlags.show_old_gatehouse():
+			_begin_run()
+		else:
+			_begin_adventure()
+	elif _is_long_drop():
+		_begin_long_drop()
 	else:
-		_begin_run()
+		_begin_adventure()
 
 
 func _reset_run() -> void:
@@ -1964,10 +2005,14 @@ func _reset_run() -> void:
 	_cleric_talk_index = -1
 	_mill_beat = ""
 	adventure = false
+	challenge_route = false
 	dungeon_index = 1
 	dungeons_cleared = 0
 	adventure_seat_tiers = [1, 1, 1, 1, 1, 1]
 	_adventure_busy = false
+	moves_left = 0
+	_move_busy = false
+	_howto_move_shown = false
 	challenge_deck.clear()
 	challenge_aim = -1
 	_unspin_armed = false
@@ -2093,16 +2138,26 @@ func _begin_run() -> void:
 
 
 func _begin_adventure() -> void:
+	await _begin_six_seat_run(false)
+
+
+func _begin_long_drop() -> void:
+	await _begin_six_seat_run(true)
+
+
+func _begin_six_seat_run(long_drop: bool) -> void:
 	_hide_cabin_for_run()
 	_reset_run()
 	_arm_rug_secret_for_run()
 	adventure = true
+	challenge_route = long_drop
+	_reset_moves()
 	dungeon_index = 1
 	dungeons_cleared = 0
 	adventure_seat_tiers = [1, 1, 1, 1, 1, 1]
 	phase = "draft"
 	draft_action = "busy"
-	_log("on_click", "Challenge Mode")
+	_log("on_click", "Challenge Mode" if long_drop else "Adventure Mode")
 	_log("var", "HP %s" % hp)
 	_log("on_draft", "Dungeon 1")
 	_refresh()
@@ -2110,6 +2165,9 @@ func _begin_adventure() -> void:
 	_fill_challenge_pools()
 	_empty_wheel(CHALLENGE_SEATS)
 	await _run_challenge_setup()
+	if not long_drop and draft_action == "challenge_begin":
+		_challenge_begin_play()
+		await _maybe_auto_spin()
 
 
 func _enter_dungeon_clear() -> void:
@@ -2135,9 +2193,12 @@ func _enter_dungeon_clear() -> void:
 		return
 	dungeons_cleared += 1
 	_advance_bucket_counter()
-	phase = "rest"
 	_log("end", "dungeon %s" % dungeons_cleared)
 	facing_index = -1
+	if not challenge_route:
+		_classic_swipe_home()
+		return
+	phase = "rest"
 
 
 func _adventure_leave() -> void:
@@ -2200,13 +2261,19 @@ func _start_route(route: String) -> void:
 		home_cabin.note_belly(1)
 	match route:
 		"gatehouse":
-			_begin_run()
+			if DevFlags.show_old_gatehouse():
+				_begin_run()
+			else:
+				_begin_adventure()
 		"long_drop":
-			_begin_adventure()
+			if DevFlags.show_long_drop():
+				_begin_long_drop()
+			else:
+				_begin_adventure()
 		"shortcut":
 			_quick_start()
 		_:
-			_begin_run()
+			_begin_adventure()
 
 
 func _go_home_loss() -> void:
@@ -2274,9 +2341,7 @@ func _cabin_up() -> bool:
 
 
 func _hide_fight_hover() -> void:
-	_fly_card = null
-	if fly_tip:
-		fly_tip.hide_plate()
+	_on_item_unhovered()
 	if inspect:
 		inspect.visible = false
 	if speech_box and speech_box.has_method("hide_speech"):
@@ -2385,6 +2450,7 @@ func _adventure_continue() -> void:
 	_prep_next_dungeon()
 	_log("on_draft", "Dungeon %s" % dungeon_index)
 	_refresh()
+	_reset_moves()
 	_fill_challenge_pools()
 	_empty_wheel(CHALLENGE_SEATS)
 	await _run_challenge_setup()
@@ -2661,6 +2727,8 @@ func _quick_start() -> void:
 	_reset_run()
 	_arm_rug_secret_for_run()
 	adventure = true
+	challenge_route = false
+	_reset_moves()
 	dungeon_index = 1
 	dungeons_cleared = 0
 	adventure_seat_tiers = [1, 1, 1, 1, 1, 1]
@@ -2690,6 +2758,7 @@ func _quick_start() -> void:
 	_undo_arm()
 	_refresh()
 	_layout_play_field()
+	await _maybe_auto_spin()
 
 
 func _load_bucket_progress() -> void:
@@ -3190,6 +3259,8 @@ func _hand_full() -> bool:
 
 
 func _challenge_item_banned(id: String) -> bool:
+	if id == "smoke_bomb":
+		return true
 	return not ModePool.allows(items_by_id.get(id, {}), ModePool.CHALLENGE)
 
 
@@ -3323,6 +3394,8 @@ func _challenge_take_item(tier: int, exclude_id: String) -> String:
 		var iid: String = str(id)
 		if exclude_id != "" and iid == exclude_id:
 			continue
+		if iid == "smoke_bomb":
+			continue
 		var card: Dictionary = items_by_id.get(iid, {})
 		if card.is_empty():
 			continue
@@ -3379,6 +3452,16 @@ func _run_challenge_setup() -> void:
 	_refresh()
 	await _challenge_seat_dungeon(dungeon_index > 1)
 	if seq != _mill_seq:
+		return
+	if _qa_busy():
+		_challenge_auto_opening_loot()
+		if challenge_draft_ui:
+			challenge_draft_ui.hide_draft()
+		draft_action = "challenge_begin"
+		phase = "draft"
+		_sort_hotbar()
+		_refresh()
+		_layout_play_field()
 		return
 	await _challenge_run_opening_drafts()
 
@@ -3788,6 +3871,8 @@ func _challenge_after_fight() -> void:
 	_walker_busy = false
 	if in_tutorial:
 		call_deferred("_tutorial_after_fight")
+	elif _is_adventure_mode() and _monsters_left() > 0:
+		await _maybe_auto_spin()
 
 
 func _pick_tier() -> int:
@@ -5117,9 +5202,15 @@ func _on_pause_mode(mode: String) -> void:
 		"dive":
 			_quick_start()
 		"begin":
-			_begin_run()
+			if DevFlags.show_old_gatehouse():
+				_begin_run()
+			else:
+				_begin_adventure()
 		"adventure":
-			_begin_adventure()
+			if DevFlags.show_long_drop():
+				_begin_long_drop()
+			else:
+				_begin_adventure()
 		"dev":
 			_open_dev_test()
 		"latest":
@@ -5850,7 +5941,7 @@ func _on_slice_clicked(index: int) -> void:
 			wheel_view.selected_index = index
 		await _on_spin()
 		return
-	if adventure and phase == "ready" and facing_index < 0:
+	if _click_choose_fight() and adventure and phase == "ready" and facing_index < 0:
 		if str(wheel[index].get("kind", "")) != "monster":
 			return
 		if int(wheel[index].get("hp", 0)) <= 0:
@@ -6032,7 +6123,7 @@ func _on_spin() -> void:
 			await _triclops_sorry(idx)
 	elif tut_forced < 0 and flee_rand:
 		_challenge_force_spin = false
-	elif tut_forced < 0 and adventure:
+	elif tut_forced < 0 and _click_choose_fight():
 		if _challenge_force_spin:
 			_challenge_force_spin = false
 		elif challenge_aim >= 0 and pool.find(challenge_aim) >= 0:
@@ -6042,6 +6133,8 @@ func _on_spin() -> void:
 				sfx.play("error", -12.0)
 			_flash_banner(PLAYER_COPY.text("challenge.click_target", "Click who you fight."))
 			return
+	elif tut_forced < 0 and adventure:
+		_challenge_force_spin = false
 	var mag_mode: String = _armed_magnet_mode()
 	if tri.is_empty() and tut_forced < 0 and not adventure and mag_mode != "" and not flee_rand:
 		idx = _magnet_pick(pool, mag_mode == "high")
@@ -6049,7 +6142,7 @@ func _on_spin() -> void:
 	challenge_aim = -1
 	if wheel_view:
 		wheel_view.selected_index = -1
-	if adventure and not in_tutorial:
+	if _click_choose_fight() and adventure and not in_tutorial:
 		_undo_stack.append(_capture_run())
 		_redo_stack.clear()
 		_unspin_armed = true
@@ -6219,6 +6312,9 @@ func _on_spin() -> void:
 	_store_last_faced_hp()
 	_undo_arm()
 	_unlock_if_fighting()
+	if _is_adventure_mode() and not _howto_move_shown and phase == "fighting":
+		_howto_move_shown = true
+		_flash_banner(PLAYER_COPY.text("howto.move", "Spend a Move to walk to a neighboring monster before you press Done."))
 	# Layout is often deferred one frame after Spin lands; re-sync so the
 	# intent plate is not left at the pre-layout stage rect (missing on the
 	# first fight until a later refresh).
@@ -6644,7 +6740,11 @@ func _clear_after_fight(clockwork_split: bool = false) -> void:
 func _maybe_auto_spin() -> void:
 	if in_tutorial:
 		return
-	if adventure and not _challenge_force_spin:
+	if phase == "devtest":
+		return
+	if _qa_busy() and not _is_adventure_mode():
+		return
+	if _click_choose_fight() and not _challenge_force_spin:
 		return
 	if phase != "ready":
 		return
@@ -6652,6 +6752,8 @@ func _maybe_auto_spin() -> void:
 		return
 	_trace_resolve("auto-spin wait n=%s" % _monsters_left())
 	await get_tree().create_timer(0.15).timeout
+	if _qa_busy() and not _is_adventure_mode():
+		return
 	_trace_resolve("auto-spin after timer phase=%s" % phase)
 	if ability_slash != null:
 		var guard := 0
@@ -6763,6 +6865,8 @@ func _capture_run() -> Dictionary:
 		"challenge_deck": challenge_deck.duplicate(true),
 		"challenge_aim": challenge_aim,
 		"adventure_seat_tiers": adventure_seat_tiers.duplicate(true),
+		"moves_left": moves_left,
+		"challenge_route": challenge_route,
 	}
 
 
@@ -6966,6 +7070,8 @@ func _restore_run(snap: Dictionary) -> void:
 	challenge_deck = _undo_dup(snap.get("challenge_deck", challenge_deck))
 	challenge_aim = int(snap.get("challenge_aim", challenge_aim))
 	adventure_seat_tiers = _undo_dup(snap.get("adventure_seat_tiers", adventure_seat_tiers))
+	moves_left = int(snap.get("moves_left", moves_left))
+	challenge_route = bool(snap.get("challenge_route", challenge_route))
 	if wheel_view:
 		wheel_view.selected_index = challenge_aim if phase == "ready" else -1
 	if dungeon_deck_ui:
@@ -11223,15 +11329,6 @@ func _tick_gaze_petrify() -> void:
 	_refresh()
 
 
-func _hotbar_card_by_uid(uid: int):
-	if hotbar_box == null or uid < 0:
-		return null
-	for c in hotbar_box.get_children():
-		if int(c.get("uid")) == uid:
-			return c
-	return null
-
-
 func _petrify_fx_host() -> Node2D:
 	## Line2D under a Control draws in the wrong space; keep beams on a top-level Node2D.
 	var host := get_node_or_null("PetrifyFxHost") as Node2D
@@ -12587,19 +12684,15 @@ func _apply_mark(index: int) -> void:
 			await _bleed_end()
 			call_deferred("_refresh")
 			return
-		a["spin_locked"] = false
-		b["spin_locked"] = true
 		wheel[face_i] = b
 		wheel[targ_i] = a
 		facing_index = face_i
+		_apply_face_lock(targ_i, face_i)
 		it["spent"] = true
 		await _count_item_use()
 		_toss_item(int(it["uid"]), false)
 		_log("on_item_use", "hook %s" % b.get("name", "?"))
-		_sync_wheel_stats()
-		if combat_stage and face_i >= 0 and face_i < wheel.size():
-			combat_stage.show_monster(str(wheel[face_i].get("card_id", "")), int(wheel[face_i].get("tier", 1)))
-			_tune_combat_stage()
+		_show_faced_monster()
 		if hook_fx != null and hook_fx.has_method("retract"):
 			await hook_fx.retract()
 		_draw_unseen_item()
@@ -13120,6 +13213,8 @@ func _slay_dead_after_watch() -> void:
 
 func _wheel_busy() -> bool:
 	if _challenge_loot_wait:
+		return true
+	if _move_busy:
 		return true
 	if challenge_draft_ui != null and challenge_draft_ui.visible:
 		return true
@@ -15499,13 +15594,14 @@ func _place_fight_art() -> void:
 	if combat_stage != null and combat_stage.visible:
 		if not combat_stage.busy:
 			combat_stage.size = port_sz
-			combat_stage.global_position = Vector2(right_x + (stack_w - port_sz.x) * 0.5, y)
+			var at: Vector2 = _slice_from(facing_index)
+			if at != Vector2.ZERO:
+				combat_stage.global_position = at - port_sz * 0.5
+			else:
+				combat_stage.global_position = Vector2(right_x + (stack_w - port_sz.x) * 0.5, y)
 		y += port_sz.y + gap
 	if face_box != null and face_box.visible:
-		var psz: Vector2 = face_box.get_combined_minimum_size()
-		psz.x = stack_w
-		face_box.size = psz
-		face_box.global_position = Vector2(right_x, y)
+		face_box.hide_plate()
 	if hypno_stage != null and hypno_stage.visible:
 		hypno_stage.size = port_sz
 		hypno_stage.global_position = Vector2(left_x + (stack_w - port_sz.x) * 0.5, port_y)
@@ -15940,6 +16036,14 @@ func _layout_play_field() -> void:
 	if cue_label:
 		cue_label.position = Vector2(12.0, minf(wheel_y + side + 4.0, sz.y - 36.0))
 		cue_label.size = Vector2(maxf(sz.x - 24.0, 180.0), 36.0)
+	if move_box:
+		move_box.reset_size()
+		var msz: Vector2 = move_box.get_combined_minimum_size()
+		move_box.size = msz
+		move_box.position = Vector2(
+			wheel_view.position.x + (wheel_view.size.x - msz.x) * 0.5,
+			wheel_view.position.y + wheel_view.size.y * 0.70
+		)
 	_place_log_overlay()
 	_place_fight_art()
 
@@ -15965,8 +16069,8 @@ func _refresh_face() -> void:
 		_refresh_hypno_box()
 		return
 	var m: Dictionary = wheel[facing_index]
-	var rule: Dictionary = _monster_rule(m)
-	face_box.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule.get("speech", "")), str(rule.get("warn", "")), null, "monster", str(m.get("card_id", "")), _monster_plate_look(m, rule))
+	# B4: the on-wheel ability card plus HP/ATK badges replace this side plaque.
+	face_box.hide_plate()
 	var atk_s: String = str(m.get("atk", 0))
 	var hp_s: String = str(m.get("hp", 0))
 	if (atk_s != _face_atk_shown and _face_atk_shown != "") or (hp_s != _face_hp_shown and _face_hp_shown != ""):
@@ -16178,10 +16282,12 @@ func _cue_text() -> String:
 		"ready":
 			if not pending_choice.is_empty():
 				return "Highest Attack, Lowest Attack, or Off."
-			if adventure:
+			if _click_choose_fight() and adventure:
 				if challenge_aim < 0:
 					return PLAYER_COPY.text("challenge.click_target", "Click who you fight.")
 				return PLAYER_COPY.text("challenge.spin_confirm", "Click a monster on the wheel.")
+			if _is_adventure_mode():
+				return ""
 			return PLAYER_COPY.text("cue.ready", "Spin — the nest turns.")
 		"fighting":
 			if not pending_feed.is_empty():
@@ -16213,7 +16319,7 @@ func _cue_text() -> String:
 func _sync_buttons() -> void:
 	var busy: bool = phase == "spinning" or phase == "slaying" or (phase == "draft" and draft_action == "busy") or _wheel_busy() or _adventure_busy
 	var enemy_up: bool = phase == "fighting" and facing_index >= 0 and (int(wheel[facing_index].get("hp", 0)) > 0 or _wick_waiting(facing_index))
-	var need_aim: bool = adventure and challenge_aim < 0 and not _challenge_force_spin
+	var need_aim: bool = _click_choose_fight() and challenge_aim < 0 and not _challenge_force_spin
 	btn_spin.disabled = busy or phase != "ready" or need_aim
 	var feed_kind: String = str(pending_feed.get("kind", "")) if not pending_feed.is_empty() else ""
 	var feed_continue: bool = feed_kind == "worm_hunger" or feed_kind == "hired_bribe"
@@ -16221,12 +16327,12 @@ func _sync_buttons() -> void:
 	btn_start.disabled = busy
 	btn_place.visible = false
 	btn_bribe.visible = false
-	btn_spin.visible = phase == "ready"
+	btn_spin.visible = phase == "ready" and not _is_adventure_mode()
 	btn_done.visible = enemy_up
 	btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
 	if tex_rotate != null:
 		btn_spin.icon = tex_rotate
-	if adventure and phase == "ready" and pending_choice.is_empty():
+	if _click_choose_fight() and phase == "ready" and pending_choice.is_empty():
 		btn_spin.disabled = true
 		btn_spin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		btn_spin.icon = null
@@ -16236,7 +16342,7 @@ func _sync_buttons() -> void:
 		btn_spin.mouse_filter = Control.MOUSE_FILTER_STOP
 		btn_spin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	if btn_challenge_begin:
-		btn_challenge_begin.visible = adventure and phase == "draft" and draft_action == "challenge_begin"
+		btn_challenge_begin.visible = _is_long_drop() and phase == "draft" and draft_action == "challenge_begin"
 		btn_challenge_begin.disabled = busy
 	if btn_undo:
 		var undo_on: bool = _undo_in_scope() and (phase == "fighting" or phase == "ready" or phase == "slaying") and _undo_can_undo()
@@ -16303,6 +16409,148 @@ func _sync_buttons() -> void:
 		btn_done.disabled = busy
 		btn_done.text = "Decline"
 		btn_done.icon = null
+	_sync_move_ui()
+
+
+func _build_move_ui() -> void:
+	move_box = VBoxContainer.new()
+	move_box.name = "MoveBox"
+	move_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	move_box.add_theme_constant_override("separation", 6)
+	move_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	move_box.z_index = 18
+	move_box.visible = false
+	play_field.add_child(move_box)
+	move_count = Label.new()
+	move_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	move_count.add_theme_font_size_override("font_size", 22)
+	move_count.add_theme_color_override("font_color", Color("f0e6d8"))
+	move_count.add_theme_color_override("font_outline_color", Color("100e0c"))
+	move_count.add_theme_constant_override("outline_size", 4)
+	move_count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	move_box.add_child(move_count)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	move_box.add_child(row)
+	btn_move_left = _pill(PLAYER_COPY.text("combat.move_left", "◀ Move"), Color("1c2428"), Color("6bb3d9"), _on_move_left)
+	btn_move_left.custom_minimum_size = Vector2(148, 48)
+	btn_move_right = _pill(PLAYER_COPY.text("combat.move_right", "Move ▶"), Color("1c2428"), Color("6bb3d9"), _on_move_right)
+	btn_move_right.custom_minimum_size = Vector2(148, 48)
+	row.add_child(btn_move_left)
+	row.add_child(btn_move_right)
+
+
+func _move_count_text() -> String:
+	if moves_left <= 0:
+		return PLAYER_COPY.text("combat.moves_none", "No Moves")
+	if moves_left == 1:
+		return PLAYER_COPY.text("combat.moves_one", "1 Move")
+	return PLAYER_COPY.fill("combat.moves_n", {"n": moves_left}, "%s Moves" % moves_left)
+
+
+func _moves_window_open() -> bool:
+	if not _is_adventure_mode():
+		return false
+	if phase != "fighting" or facing_index < 0:
+		return false
+	if _move_busy or _walker_busy or _wheel_busy():
+		return false
+	if not pending_mark.is_empty() or not pending_feed.is_empty() or not pending_chaos.is_empty() or not pending_choice.is_empty():
+		return false
+	return true
+
+
+func _live_neighbor_seat(from: int, dir: int) -> int:
+	var n: int = wheel.size()
+	if n <= 0 or from < 0:
+		return -1
+	var i: int = from
+	for _step in n:
+		i = (i + dir) % n
+		if i < 0:
+			i += n
+		if i == from:
+			return -1
+		if str(wheel[i].get("kind", "")) != "monster":
+			continue
+		if int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		return i
+	return -1
+
+
+func _can_move(dir: int) -> bool:
+	return _moves_window_open() and moves_left > 0 and _live_neighbor_seat(facing_index, dir) >= 0
+
+
+func _sync_move_ui() -> void:
+	if move_box == null:
+		return
+	var show: bool = _is_adventure_mode() and (phase == "fighting" or phase == "ready")
+	move_box.visible = show
+	if not show:
+		return
+	if move_count:
+		move_count.text = _move_count_text()
+	if btn_move_left:
+		btn_move_left.disabled = not _can_move(-1)
+		btn_move_left.text = PLAYER_COPY.text("combat.move_left", "◀ Move")
+	if btn_move_right:
+		btn_move_right.disabled = not _can_move(1)
+		btn_move_right.text = PLAYER_COPY.text("combat.move_right", "Move ▶")
+
+
+func _on_move_left() -> void:
+	_try_move(-1)
+
+
+func _on_move_right() -> void:
+	_try_move(1)
+
+
+func _apply_face_lock(leave_i: int, arrive_i: int) -> void:
+	if leave_i >= 0 and leave_i < wheel.size() and typeof(wheel[leave_i]) == TYPE_DICTIONARY:
+		wheel[leave_i]["spin_locked"] = false
+	if arrive_i >= 0 and arrive_i < wheel.size() and typeof(wheel[arrive_i]) == TYPE_DICTIONARY:
+		wheel[arrive_i]["spin_locked"] = true
+	_sync_wheel_stats()
+
+
+func _show_faced_monster() -> void:
+	if combat_stage == null or facing_index < 0 or facing_index >= wheel.size():
+		return
+	var m: Dictionary = wheel[facing_index]
+	combat_stage.show_monster(str(m.get("card_id", "")), int(m.get("tier", 1)))
+	_tune_combat_stage()
+
+
+func _try_move(dir: int) -> void:
+	if not _can_move(dir):
+		if sfx:
+			sfx.play("error", -12.0)
+		return
+	var dest: int = _live_neighbor_seat(facing_index, dir)
+	if dest < 0:
+		return
+	_move_busy = true
+	_sync_move_ui()
+	var leave: int = facing_index
+	facing_index = dest
+	_apply_face_lock(leave, dest)
+	moves_left = maxi(0, moves_left - 1)
+	_undo_wall()
+	_undo_arm()
+	_log("on_item_use", "Move %s" % str(wheel[dest].get("name", "?")))
+	_show_faced_monster()
+	if sfx:
+		sfx.play("whoosh", -12.0, 1.1)
+	if wheel_view:
+		wheel_view.facing_index = dest
+		await wheel_view.recenter_on(dest, 0.28)
+	_move_busy = false
+	_refresh()
 
 
 func _sync_overlay() -> void:
@@ -17173,10 +17421,6 @@ func _clear_hover_preview() -> void:
 				c.set_no_effect(false)
 	if intent_plate != null:
 		_sync_intent_plate()
-
-
-func _hide_fight_hover() -> void:
-	_on_item_unhovered()
 
 
 func _run_hover_preview(it: Dictionary, card: Control) -> void:

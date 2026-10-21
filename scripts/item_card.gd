@@ -1434,4 +1434,3 @@ func _anim_tex(path: String) -> Texture2D:
 	if ResourceLoader.exists(path):
 		return load(path) as Texture2D
 	return null
-
