@@ -19,6 +19,13 @@ Overwrite landed at the same paths as the old placeholders. Loaders still use `r
 | `intent_chip_drop.png` | 8×8 | 1 | Drop / poison chip |
 | `intent_chip_flee.png` | 8×8 | 1 | Flee footprints chip |
 
+### Hotbar shimmer / hover chips
+
+| File | Native | Frames | Notes |
+|---|---|---|---|
+| `deadly_sparkle_f0.png` … `deadly_sparkle_f3.png` | 8×8 | 4 | Final PixelLab run4. Deadly sparkle. Do not overwrite. |
+| `intent_chip_plus.png` | 8×8 | 1 | Final PixelLab run4. Hover-preview plus chip. Do not overwrite. |
+
 ### Spin cascade ticker
 
 | File | Native | Frames | Notes |

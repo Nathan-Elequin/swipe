@@ -9,6 +9,7 @@ signal passed_swipe
 
 const COPY := preload("res://scripts/player_copy.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
+const RANK_SHIMMER := preload("res://scripts/rank_shimmer.gd")
 const CARD_W := 118.0
 const CARD_H := 120.0
 const SHOW_W := 236.0
@@ -58,6 +59,20 @@ var _used: Label
 var _danger: bool = false
 var _bag_stamp: TextureRect
 var _or: RichTextLabel
+var _sai_fx: AnimatedSprite2D
+var _marble_fx: AnimatedSprite2D
+var _sparkle: AnimatedSprite2D
+var _shimmer_mat: ShaderMaterial
+var _shimmer_clock: float = 0.0
+var _sai_busy: bool = false
+var _marble_busy: bool = false
+var _pending_live: String = ""
+var _armed: bool = false
+var _armed_lab: Label
+var _no_effect: bool = false
+var _sparkle_t: float = 0.0
+var _desat: float = 0.0
+var _sink_tw: Tween
 
 
 func setup(
@@ -260,6 +275,8 @@ func setup(
 	set_live(number_text, "", true)
 	_sync_hatch()
 	_sync_lock_shade()
+	_bind_rank_fx()
+	set_process(true)
 
 
 func _sync_hatch() -> void:
@@ -344,6 +361,8 @@ func _draw_lock_shade() -> void:
 
 func set_icon(tex: Texture2D) -> void:
 	if _icon == null:
+		return
+	if _sai_busy or _marble_busy:
 		return
 	_icon.texture = tex
 
@@ -486,6 +505,13 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 	_num.add_theme_font_size_override("font_size", 18 if wordy else face)
 	if _ghost:
 		_ghost.add_theme_font_size_override("font_size", 18 if wordy else face)
+	if _sai_busy and number_text != "" and number_text != _shown:
+		_pending_live = number_text
+		_playable = can_use and not spent
+		if _used != null:
+			_used.visible = spent
+		_sync_lock_shade()
+		return
 	if or_bits.size() == 2:
 		_shown = number_text
 		_num.visible = false
@@ -549,6 +575,7 @@ func set_palette(fill: Color, metal: Color, tier: int = 1) -> void:
 	_rim = metal
 	_tier = maxi(1, tier)
 	_apply_style(_hot)
+	_tick_shimmer()
 
 
 func _tier_shine() -> Color:
@@ -560,7 +587,7 @@ func _tier_shine() -> Color:
 
 
 func _want_process() -> bool:
-	return _glow or _playable or _aura or _log_focus or _danger
+	return true
 
 
 func _layout_mark(number_text: String) -> void:
@@ -632,18 +659,22 @@ func set_passive_icons(plus_tex: Texture2D, ban_tex: Texture2D, on: bool) -> voi
 
 func set_playable(on: bool) -> void:
 	_playable = on and not spent
-	set_process(_want_process())
-	if not _playable and not _glow and not _aura and not _log_focus and not _danger:
-		modulate = Color.WHITE if not spent else Color(0.86, 0.84, 0.80, 1.0)
+	set_process(true)
 	_sync_lock_shade()
 	_apply_style(_hot)
+	_tween_sink(not _playable and not spent)
+	_tick_shimmer()
 
 
 func _process(delta: float) -> void:
-	if not _want_process():
-		return
-	_glow_t += delta
-	_apply_style(_hot)
+	_shimmer_clock += delta
+	if _glow or _aura or _log_focus or _danger or _hot:
+		_glow_t += delta
+		_apply_style(_hot)
+	_tick_shimmer()
+	_tick_breathe()
+	_tick_sparkle(delta)
+	_place_fx()
 
 
 func set_formula(bb: String) -> void:
@@ -757,7 +788,7 @@ func _apply_style(hot: bool) -> void:
 		metal = metal.lerp(gold, 0.55 + pulse * 0.45)
 		sb.bg_color = sb.bg_color.lerp(gold.darkened(0.45), pulse * 0.28)
 		modulate = Color.WHITE.lerp(Color("ffe6a8"), pulse * 0.42)
-	elif _playable and not spent:
+	elif _playable and not spent and _hot:
 		pulse = 0.35 + 0.35 * absf(sin(_glow_t * TAU / 1.6))
 		metal = metal.lerp(Color("e8c36a"), pulse * 0.45)
 		sb.bg_color = sb.bg_color.lightened(pulse * 0.08)
@@ -820,6 +851,7 @@ func _draw() -> void:
 func _on_in() -> void:
 	_hot = true
 	_apply_style(true)
+	_force_glint()
 	pivot_offset = size * 0.5
 	if spent:
 		return
@@ -869,3 +901,358 @@ func _on_gui(event: InputEvent) -> void:
 		else:
 			picked.emit()
 		accept_event()
+
+
+func sai_busy() -> bool:
+	return _sai_busy
+
+
+func marble_busy() -> bool:
+	return _marble_busy
+
+
+func set_sai_static(pair: bool) -> void:
+	_sai_busy = false
+	var path: String = "res://assets/dungeon/anim/sai_pair.png" if pair else "res://assets/dungeon/anim/sai_single.png"
+	if ResourceLoader.exists(path) and _icon != null:
+		_icon.texture = load(path) as Texture2D
+		_icon.modulate.a = 1.0
+	if _sai_fx != null:
+		_sai_fx.visible = false
+		_sai_fx.stop()
+
+
+func play_sai(old_n: int, new_n: int) -> void:
+	if has_meta("tossing"):
+		set_sai_static(new_n == 4)
+		return
+	if _sai_busy or old_n == new_n:
+		return
+	_sai_busy = true
+	clip_contents = false
+	_ensure_sai_fx()
+	if _icon:
+		_icon.modulate.a = 0.0
+	_sai_fx.visible = true
+	if old_n == 4:
+		_sai_fx.play_backwards("split")
+	else:
+		_sai_fx.play("split")
+	await get_tree().create_timer(0.12).timeout
+	if not is_instance_valid(self):
+		return
+	if _pending_live != "":
+		var nxt: String = _pending_live
+		_pending_live = ""
+		_sai_busy = false
+		set_live(nxt, "", _playable)
+		_sai_busy = true
+	await get_tree().create_timer(0.24).timeout
+	if not is_instance_valid(self):
+		return
+	_sai_busy = false
+	set_sai_static(new_n == 4)
+	bounce()
+
+
+func start_marble_idle(cats_eye: bool = false) -> void:
+	if _marble_busy:
+		return
+	_ensure_marble_fx()
+	var anim: String = "cat_idle" if cats_eye else "idle"
+	if _marble_fx.sprite_frames == null or not _marble_fx.sprite_frames.has_animation(anim):
+		anim = "idle"
+	_marble_fx.visible = true
+	_marble_fx.play(anim)
+	if _icon:
+		_icon.modulate.a = 0.0
+
+
+func play_marble(is_atk: bool) -> void:
+	if has_meta("tossing"):
+		return
+	_marble_busy = true
+	_ensure_marble_fx()
+	if _icon:
+		_icon.modulate.a = 0.0
+	_marble_fx.visible = true
+	var swirl: String = "swirl"
+	if _marble_fx.sprite_frames.has_animation("cat_swirl") and _marble_fx.animation.begins_with("cat"):
+		swirl = "cat_swirl"
+	if _marble_fx.sprite_frames.has_animation(swirl):
+		_marble_fx.play(swirl)
+		await get_tree().create_timer(0.24).timeout
+	if not is_instance_valid(self):
+		return
+	var hold: String = "red" if is_atk else "blue"
+	if _marble_fx.sprite_frames.has_animation(hold):
+		_marble_fx.play(hold)
+	pivot_offset = size * 0.5
+	var tw := create_tween()
+	tw.tween_property(self, "scale", Vector2(1.25, 1.25), 0.06)
+	tw.tween_property(self, "scale", Vector2.ONE, 0.06)
+	await get_tree().create_timer(0.12).timeout
+	if is_instance_valid(self):
+		_marble_busy = false
+
+
+func marble_grow(_n: int) -> void:
+	if _icon == null:
+		return
+	_icon.pivot_offset = _icon.size * 0.5
+	var tw := create_tween()
+	tw.tween_property(_icon, "scale", Vector2(1.15, 1.15), 0.08)
+	tw.tween_property(_icon, "scale", Vector2.ONE, 0.08)
+	if _marble_fx != null:
+		tw.parallel().tween_property(_marble_fx, "scale", Vector2(2.3, 2.3), 0.08)
+		tw.tween_property(_marble_fx, "scale", Vector2(2, 2), 0.08)
+	var old_rim: Color = _rim
+	_rim = Color.WHITE
+	_apply_style(_hot)
+	await get_tree().create_timer(0.16).timeout
+	if is_instance_valid(self):
+		_rim = old_rim
+		_apply_style(_hot)
+
+
+func marble_roll_in(from_global: Vector2, delay: float) -> void:
+	if from_global == Vector2.ZERO:
+		return
+	var dest: Vector2 = global_position
+	var host: Node = get_parent()
+	var idx: int = get_index()
+	reparent(get_tree().root, true)
+	global_position = from_global - size * 0.5
+	rotation = 0.85
+	modulate.a = 0.25
+	var tw := create_tween()
+	if delay > 0.0:
+		tw.tween_interval(delay)
+	tw.tween_property(self, "global_position", dest, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(self, "rotation", 0.0, 0.22)
+	tw.parallel().tween_property(self, "modulate:a", 1.0, 0.18)
+	await tw.finished
+	if not is_instance_valid(self):
+		return
+	if host != null and is_instance_valid(host):
+		reparent(host, true)
+		if idx >= 0 and idx < host.get_child_count():
+			host.move_child(self, idx)
+	rotation = 0.0
+	modulate.a = 1.0
+
+
+func set_armed(on: bool, label_key: String = "") -> void:
+	_armed = on
+	if _armed_lab == null:
+		_armed_lab = Label.new()
+		_armed_lab.name = "ArmedChip"
+		_armed_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_armed_lab.add_theme_font_size_override("font_size", 11)
+		_armed_lab.add_theme_color_override("font_color", Color("ffe6a8"))
+		_armed_lab.add_theme_color_override("font_outline_color", Color("100e0c"))
+		_armed_lab.add_theme_constant_override("outline_size", 3)
+		_armed_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_armed_lab.set_anchors_preset(Control.PRESET_TOP_WIDE)
+		_armed_lab.offset_top = 2
+		_armed_lab.offset_bottom = 18
+		add_child(_armed_lab)
+	if on and label_key != "":
+		_armed_lab.text = COPY.text(label_key, "Loaded" if label_key == "status.sling_loaded" else "")
+		_armed_lab.visible = _armed_lab.text != ""
+		if label_key == "status.sling_loaded":
+			tooltip_text = COPY.text("status.sling_loaded_tip", "Loaded: your next Attack can hit any monster.")
+	else:
+		_armed_lab.visible = false
+		if tooltip_text.begins_with("Loaded"):
+			tooltip_text = ""
+	_tick_shimmer()
+
+
+func set_no_effect(on: bool) -> void:
+	_no_effect = on
+	set_petrified(on, true)
+	if _stone != null and on:
+		_stone.modulate = Color(0.82, 0.78, 0.70, 0.6)
+
+
+func _bind_rank_fx() -> void:
+	_shimmer_mat = RANK_SHIMMER.make_mat(_tier, uid, Vector2(CARD_W, CARD_H))
+	material = _shimmer_mat
+	_tick_shimmer()
+
+
+func _tick_shimmer() -> void:
+	if _shimmer_mat == null:
+		return
+	var desat: float = _desat
+	if not _playable and not spent and not _showcase:
+		desat = 0.6
+	RANK_SHIMMER.apply(_shimmer_mat, _tier, uid, desat, 1.0 if _armed else 0.0, _shimmer_clock, size if size.x > 8.0 else Vector2(CARD_W, CARD_H))
+
+
+func _force_glint() -> void:
+	_shimmer_clock = -RANK_SHIMMER.phase_of(uid, _tier)
+	_tick_shimmer()
+
+
+func _tween_sink(sink: bool) -> void:
+	var target: Color = Color(0.70, 0.70, 0.70, 1.0) if sink else Color.WHITE
+	if spent:
+		target = Color(0.86, 0.84, 0.80, 1.0)
+	if _glow or _aura or _log_focus or _danger:
+		return
+	if _stone != null and _stone.visible:
+		return
+	if _sink_tw != null and is_instance_valid(_sink_tw):
+		_sink_tw.kill()
+	_sink_tw = create_tween()
+	_sink_tw.tween_property(self, "modulate", target, 0.16)
+	_desat = 0.6 if sink else 0.0
+
+
+func _tick_breathe() -> void:
+	if _showcase or _hot or spent or not _playable or _sai_busy or _marble_busy:
+		return
+	pivot_offset = size * 0.5
+	var s: float = 1.0 + 0.015 * sin(_shimmer_clock * TAU * 0.5)
+	scale = Vector2(s, s)
+
+
+func _tick_sparkle(delta: float) -> void:
+	if _tier < 3 or spent or _showcase:
+		if _sparkle != null:
+			_sparkle.visible = false
+		return
+	_ensure_sparkle()
+	_sparkle_t += delta
+	if _sparkle.is_playing():
+		return
+	if _sparkle_t < 1.2:
+		return
+	_sparkle_t = 0.0
+	var pad := Vector2(18, 18)
+	_sparkle.position = Vector2(
+		pad.x + randf() * maxf(8.0, size.x - pad.x * 2.0),
+		pad.y + randf() * maxf(8.0, size.y - pad.y * 2.0)
+	)
+	_sparkle.visible = true
+	_sparkle.play("spark")
+
+
+func _place_fx() -> void:
+	var mid: Vector2 = _icon_center()
+	if _sai_fx != null:
+		_sai_fx.position = mid
+	if _marble_fx != null:
+		_marble_fx.position = mid
+
+
+func _icon_center() -> Vector2:
+	if _icon == null:
+		return size * 0.5
+	return _icon.position + _icon.size * 0.5
+
+
+func _ensure_sai_fx() -> void:
+	if _sai_fx != null:
+		return
+	_sai_fx = AnimatedSprite2D.new()
+	_sai_fx.name = "SaiFx"
+	_sai_fx.centered = true
+	_sai_fx.scale = Vector2(2, 2)
+	_sai_fx.texture_filter = TEXTURE_FILTER_NEAREST
+	_sai_fx.visible = false
+	_sai_fx.sprite_frames = _sai_frames()
+	add_child(_sai_fx)
+
+
+func _ensure_marble_fx() -> void:
+	if _marble_fx != null:
+		return
+	_marble_fx = AnimatedSprite2D.new()
+	_marble_fx.name = "MarbleFx"
+	_marble_fx.centered = true
+	_marble_fx.scale = Vector2(2, 2)
+	_marble_fx.texture_filter = TEXTURE_FILTER_NEAREST
+	_marble_fx.visible = false
+	_marble_fx.sprite_frames = _marble_frames()
+	add_child(_marble_fx)
+
+
+func _ensure_sparkle() -> void:
+	if _sparkle != null:
+		return
+	_sparkle = AnimatedSprite2D.new()
+	_sparkle.name = "Sparkle"
+	_sparkle.centered = true
+	_sparkle.scale = Vector2(4, 4)
+	_sparkle.texture_filter = TEXTURE_FILTER_NEAREST
+	_sparkle.visible = false
+	_sparkle.z_index = 4
+	_sparkle.sprite_frames = _sparkle_frames()
+	add_child(_sparkle)
+
+
+func _sai_frames() -> SpriteFrames:
+	var sf := SpriteFrames.new()
+	sf.add_animation("split")
+	sf.set_animation_speed("split", 1.0 / 0.045)
+	sf.set_animation_loop("split", false)
+	for i in range(8):
+		var t := _anim_tex("res://assets/dungeon/anim/sai_split_f%d.png" % i)
+		if t:
+			sf.add_frame("split", t)
+	return sf
+
+
+func _marble_frames() -> SpriteFrames:
+	var sf := SpriteFrames.new()
+	_add_loop(sf, "idle", "res://assets/dungeon/anim/marble_idle_f%d.png", 4, 1.0 / 0.18)
+	_add_loop(sf, "cat_idle", "res://assets/dungeon/anim/marble_cat_idle_f%d.png", 4, 1.0 / 0.18)
+	_add_once(sf, "swirl", "res://assets/dungeon/anim/marble_swirl_f%d.png", 6, 1.0 / 0.04)
+	_add_still(sf, "red", "res://assets/dungeon/anim/marble_red.png")
+	_add_still(sf, "blue", "res://assets/dungeon/anim/marble_blue.png")
+	return sf
+
+
+func _sparkle_frames() -> SpriteFrames:
+	var sf := SpriteFrames.new()
+	_add_once(sf, "spark", "res://assets/ui/anim/deadly_sparkle_f%d.png", 4, 1.0 / 0.08)
+	return sf
+
+
+func _add_loop(sf: SpriteFrames, anim: String, pattern: String, n: int, fps: float) -> void:
+	sf.add_animation(anim)
+	sf.set_animation_speed(anim, fps)
+	sf.set_animation_loop(anim, true)
+	for i in range(n):
+		var t := _anim_tex(pattern % i)
+		if t:
+			sf.add_frame(anim, t)
+
+
+func _add_once(sf: SpriteFrames, anim: String, pattern: String, n: int, fps: float) -> void:
+	sf.add_animation(anim)
+	sf.set_animation_speed(anim, fps)
+	sf.set_animation_loop(anim, false)
+	for i in range(n):
+		var t := _anim_tex(pattern % i)
+		if t:
+			sf.add_frame(anim, t)
+
+
+func _add_still(sf: SpriteFrames, anim: String, path: String) -> void:
+	sf.add_animation(anim)
+	sf.set_animation_speed(anim, 1.0)
+	sf.set_animation_loop(anim, false)
+	var t := _anim_tex(path)
+	if t:
+		sf.add_frame(anim, t)
+
+
+func _anim_tex(path: String) -> Texture2D:
+	if ResourceLoader.exists(path):
+		return load(path) as Texture2D
+	return null
+

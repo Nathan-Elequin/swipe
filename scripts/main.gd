@@ -528,6 +528,8 @@ var btn_place: Button
 var btn_bribe: Button
 var _fly_card: Control
 var _ghost_hp: int = -1
+var _hover_preview_tw: Tween
+var _hover_ghost_on: bool = false
 var _hp_shown: int = HP_MAX
 var sfx
 var settings_ui
@@ -6989,6 +6991,7 @@ func _undo_play_fx(is_redo: bool) -> void:
 	if sfx:
 		sfx.play("whoosh", -10.0, 1.2 if is_redo else 0.72)
 		sfx.play("click2", -12.0)
+	_apply_sai_static()
 
 
 func _on_undo() -> void:
@@ -9134,8 +9137,12 @@ func _flip_alt_sais() -> void:
 			continue
 		if str(_ops_of(it).get("kind", "")) != "atk_alt_24":
 			continue
-		var n: int = int(it.get("alt_n", 2))
-		it["alt_n"] = 2 if n == 4 else 4
+		var old_n: int = int(it.get("alt_n", 2))
+		var new_n: int = 2 if old_n == 4 else 4
+		it["alt_n"] = new_n
+		var card: Control = _hotbar_card_by_uid(int(it.get("uid", -1)))
+		if card != null and card.has_method("play_sai"):
+			card.play_sai(old_n, new_n)
 
 
 
@@ -10138,11 +10145,15 @@ func _step_marbles() -> void:
 			if ticket_i >= 0:
 				cascade_ticker.light(ticket_i)
 				cascade_ticker.stamp(ticket_i)
+		var card: Control = _hotbar_card_by_uid(int(it.get("uid", -1)))
+		if card != null and card.has_method("marble_grow"):
+			card.marble_grow(int(it.get("marble_n", 0)))
 
 
 func _apply_bag_marbles(it: Dictionary) -> void:
 	_log("on_item_use", str(it.get("name", "Bag of Marbles")))
 	it["spent"] = true
+	var bag_from: Vector2 = _item_card_global(int(it.get("uid", -1)))
 	await _count_item_use()
 	_toss_item(int(it.get("uid", -1)), false)
 	var blocked: bool = _gain_blocked_now()
@@ -10154,15 +10165,25 @@ func _apply_bag_marbles(it: Dictionary) -> void:
 		_sync_wheel_stats()
 		return
 	var made := 0
+	var new_uids: Array = []
 	while hotbar.size() < MARBLE_FILL:
 		var tok: Dictionary = _make_item("marble")
 		hotbar.append(tok)
+		new_uids.append(int(tok.get("uid", -1)))
 		made += 1
 	if made > 0:
 		_sort_hotbar()
 		_log("on_draft", "gain %s Marbles" % made)
 		if sfx:
 			sfx.play_event(&"hand.gain", {"card_id": "marble"})
+		_hotbar_sig = ""
+		_sync_hotbar()
+		var delay: float = 0.0
+		for uid in new_uids:
+			var card: Control = _hotbar_card_by_uid(int(uid))
+			if card != null and card.has_method("marble_roll_in"):
+				card.marble_roll_in(bag_from, delay)
+				delay += 0.05
 	_sync_wheel_stats()
 
 
@@ -10258,6 +10279,16 @@ func _apply_chakram(it: Dictionary) -> bool:
 func _apply_marble(it: Dictionary) -> bool:
 	var n: int = int(it.get("marble_n", 0))
 	var as_atk: bool = rng.randf() < 0.5
+	var skip_fx: bool = OS.has_feature("editor") and logic_qa != null and bool(logic_qa.busy)
+	var card: Control = _hotbar_card_by_uid(int(it.get("uid", -1)))
+	if not skip_fx and card != null and card.has_method("play_marble"):
+		await card.play_marble(as_atk)
+		var hold_path: String = "res://assets/dungeon/anim/marble_red.png" if as_atk else "res://assets/dungeon/anim/marble_blue.png"
+		var hold_tex: Texture2D = load(hold_path) as Texture2D if ResourceLoader.exists(hold_path) else _item_icon_tex(it)
+		var from: Vector2 = _item_card_global(int(it.get("uid", -1)))
+		var to: Vector2 = _item_fx_dest("atk") if as_atk else _hub_blk_pos()
+		if from != Vector2.ZERO and to != Vector2.ZERO:
+			await _fly_courier(hold_tex, from, to, 0.4)
 	var call: String = "Attack" if as_atk else "Block"
 	_flash_banner(call, "marble", _item_icon_tex(it))
 	_log("on_item_use", str(it.get("name", "Marble")))
@@ -15233,6 +15264,8 @@ func _incoming_hit() -> int:
 func _sync_intent_plate() -> void:
 	if intent_plate == null:
 		return
+	if _hover_ghost_on:
+		return
 	if phase == "fighting" and facing_index >= 0:
 		intent_plate.sync(_intent_hits())
 		return
@@ -16161,7 +16194,8 @@ func _sync_hotbar() -> void:
 		if typeof(it.get("echo_copy", null)) == TYPE_DICTIONARY:
 			echo_id = str((it["echo_copy"] as Dictionary).get("card_id", ""))
 		var chain_n: int = int(_ops_of(it).get("n", 0)) if str(it.get("card_id", "")) == "ball_and_chain" else 0
-		sig.append("%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s" % [it.get("uid", 0), it.get("card_id", ""), echo_id, it.get("petrified", false), it.get("toll_n", 0), it.get("bagged_hp", 0), it.get("bagged_name", ""), chain_n, it.get("recycle_n", 0), it.get("cats_eye", false), it.get("marble_n", 0), it.get("rust_n", 0), it.get("hex_n", 0)])
+		# marble_n is omitted so grow / swirl can play on the live card.
+		sig.append("%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s" % [it.get("uid", 0), it.get("card_id", ""), echo_id, it.get("petrified", false), it.get("toll_n", 0), it.get("bagged_hp", 0), it.get("bagged_name", ""), chain_n, it.get("recycle_n", 0), it.get("cats_eye", false), 0, it.get("rust_n", 0), it.get("hex_n", 0)])
 	var empties: int = (CHALLENGE_HAND - hotbar.size()) if adventure else 0
 	var joined: String = ",".join(sig) + "|e%s|d%s" % [empties, 1 if _challenge_loot_wait else 0]
 	if joined != _hotbar_sig:
@@ -16223,6 +16257,7 @@ func _sync_hotbar() -> void:
 			card.set_aura(is_snack or rec_ready or (mag_on and (phase == "fighting" or phase == "ready")))
 		if card.has_method("set_passive_icons"):
 			card.set_passive_icons(null, null, false)
+		_sync_card_pass5(card, it, can_click, in_fight)
 	_sync_hotbar_formulas()
 
 
@@ -16232,6 +16267,11 @@ func _make_hot_empty() -> Control:
 
 func _item_icon_tex(it: Dictionary, show_id: String = "") -> Texture2D:
 	var sid: String = show_id if show_id != "" else str(it.get("card_id", ""))
+	if sid == "sai" or str(_ops_of(it).get("kind", "")) == "atk_alt_24":
+		var pair: bool = int(it.get("alt_n", 2)) == 4
+		var sai_path: String = "res://assets/dungeon/anim/sai_pair.png" if pair else "res://assets/dungeon/anim/sai_single.png"
+		if ResourceLoader.exists(sai_path):
+			return load(sai_path) as Texture2D
 	if sid == "bag_of_holding" and int(it.get("bagged_hp", 0)) > 0:
 		sid = "bag_of_holding_closed"
 	if bool(it.get("cats_eye", false)):
@@ -16358,11 +16398,13 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 	_apply_preview(_preview_from_item(it))
 	_refresh_blk(false)
 	_tutorial_on_item_hover()
+	_queue_hover_preview(it, card)
 
 
 func _on_item_unhovered() -> void:
 	_fly_card = null
 	_ghost_blk = -1
+	_clear_hover_preview()
 	_apply_preview({})
 	_sync_hotbar_formulas()
 	if fly_tip:
@@ -16762,6 +16804,182 @@ func _hotbar_card(id: String) -> Control:
 		if str(c.card_id) == id:
 			return c
 	return null
+
+
+func _hotbar_card_by_uid(uid: int) -> Control:
+	if hotbar_box == null or uid < 0:
+		return null
+	for c in hotbar_box.get_children():
+		if int(c.get("uid")) == uid:
+			return c
+	return null
+
+
+func _apply_sai_static() -> void:
+	if hotbar_box == null:
+		return
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(_ops_of(it).get("kind", "")) != "atk_alt_24":
+			continue
+		var card: Control = _hotbar_card_by_uid(int(it.get("uid", -1)))
+		if card != null and card.has_method("set_sai_static"):
+			card.set_sai_static(int(it.get("alt_n", 2)) == 4)
+
+
+func _sync_card_pass5(card: Control, it: Dictionary, _can_click: bool, in_fight: bool) -> void:
+	var cid: String = str(it.get("card_id", ""))
+	var sai_busy: bool = card.has_method("sai_busy") and card.sai_busy()
+	var marble_busy: bool = card.has_method("marble_busy") and card.marble_busy()
+	if not sai_busy and not marble_busy and card.has_method("set_icon"):
+		if cid == "sai" or str(_ops_of(it).get("kind", "")) == "atk_alt_24":
+			if card.has_method("set_sai_static"):
+				card.set_sai_static(int(it.get("alt_n", 2)) == 4)
+			else:
+				card.set_icon(_item_icon_tex(it))
+		elif cid == "marble":
+			pass
+		else:
+			card.set_icon(_item_icon_tex(it))
+	if cid == "marble" and card.has_method("start_marble_idle") and not marble_busy:
+		card.start_marble_idle(bool(it.get("cats_eye", false)))
+	if card.has_method("set_armed"):
+		var sling_on: bool = cid == "sling" and _sling_is_loaded(it)
+		var armed: bool = sling_on
+		if in_fight and not bool(it.get("spent", false)):
+			if cid == "double_buckler" or cid == "pacemaker" or cid == "healing_potion":
+				armed = true
+			if cid == "danger_magnet" and _is_magnet(it) and _magnet_mode_of(it) != "off":
+				armed = true
+		var key: String = "status.sling_loaded" if sling_on else ""
+		card.set_armed(armed, key)
+	if card.has_method("set_no_effect") and not _hover_ghost_on:
+		card.set_no_effect(false)
+
+
+func _queue_hover_preview(it: Dictionary, card: Control) -> void:
+	if _hover_preview_tw != null and is_instance_valid(_hover_preview_tw):
+		_hover_preview_tw.kill()
+	_hover_preview_tw = create_tween()
+	_hover_preview_tw.tween_interval(0.08)
+	_hover_preview_tw.tween_callback(func() -> void:
+		if _fly_card != card:
+			return
+		_run_hover_preview(it, card)
+	)
+
+
+func _clear_hover_preview() -> void:
+	if _hover_preview_tw != null and is_instance_valid(_hover_preview_tw):
+		_hover_preview_tw.kill()
+		_hover_preview_tw = null
+	_hover_ghost_on = false
+	if hotbar_box != null:
+		for c in hotbar_box.get_children():
+			if c.has_method("set_no_effect"):
+				c.set_no_effect(false)
+	if intent_plate != null:
+		_sync_intent_plate()
+
+
+func _hide_fight_hover() -> void:
+	_on_item_unhovered()
+
+
+func _run_hover_preview(it: Dictionary, card: Control) -> void:
+	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
+		return
+	if card != null and not bool(_item_view(it).get("can_use", false)):
+		return
+	_hover_ghost_on = true
+	var face: Dictionary = wheel[facing_index]
+	var fid: String = str(face.get("card_id", ""))
+	var silenced: bool = _is_silenced(face)
+	var hits: Array = _intent_hits()
+	var p: Dictionary = _preview_from_item(it)
+	var view: Dictionary = _item_view(it)
+	var ops: Dictionary = _ops_of(it)
+	var kind: String = str(ops.get("kind", ""))
+	var bushido_dummy: bool = fid == "bushido" and not silenced and items_used_this_combat == 1
+	if bushido_dummy:
+		if card != null and card.has_method("set_no_effect"):
+			card.set_no_effect(true)
+		if intent_plate:
+			intent_plate.ghost(hits)
+		_apply_preview(p)
+		_refresh_blk(false)
+		return
+	if fid == "kobold_trapper" and not silenced:
+		var extra: Dictionary = {}
+		if not hits.is_empty():
+			extra = (hits[hits.size() - 1] as Dictionary).duplicate(true)
+		extra["n_raw"] = int(face.get("atk", 0))
+		extra["ghost_plus"] = true
+		extra["ghost_mode"] = true
+		extra["chip"] = "plus"
+		hits.append(extra)
+	if fid == "harpy" and not silenced:
+		hits.append({
+			"n_raw": int(face.get("atk", 0)),
+			"soaked": false,
+			"pierce": false,
+			"src_index": facing_index,
+			"poison": false,
+			"loop": false,
+			"chip": "plus",
+			"ghost_plus": true,
+			"ghost_mode": true,
+		})
+	if fid == "amalgam" and not silenced:
+		for h in hits:
+			if typeof(h) != TYPE_DICTIONARY:
+				continue
+			h["n_old"] = int(h.get("n_raw", 0))
+			h["n_raw"] = int(h.get("n_raw", 0)) * 2
+			h["ghost_mode"] = true
+		var slot: Dictionary = p.get(facing_index, {})
+		slot["hp"] = int(face.get("hp", 0))
+		slot["atk"] = int(face.get("atk", 0))
+		p[facing_index] = slot
+	var is_net: bool = str(it.get("card_id", "")) == "net"
+	if not is_net and kind == "choose":
+		var opts: Variant = ops.get("options", [])
+		if typeof(opts) == TYPE_ARRAY:
+			for ov in opts:
+				if typeof(ov) == TYPE_DICTIONARY and (ov as Dictionary).has("atk_drop"):
+					is_net = true
+					break
+	if is_net:
+		for h in hits:
+			if typeof(h) != TYPE_DICTIONARY:
+				continue
+			var raw: int = int(h.get("n_raw", 0))
+			h["n_old"] = raw
+			h["range_lo"] = maxi(0, raw - 3)
+			h["range_hi"] = maxi(0, raw - 1)
+			h["ghost_mode"] = true
+	var kill: bool = false
+	if bool(view.get("can_use", false)) and _kind_deals_atk(kind) and fid != "goblin":
+		var dmg: int = int(view.get("n", 0))
+		if int(face.get("hp", 0)) > 0 and dmg >= int(face.get("hp", 0)):
+			kill = true
+	if kill:
+		for h in hits:
+			if typeof(h) != TYPE_DICTIONARY:
+				continue
+			h["kill_dim"] = true
+			h["ghost_mode"] = true
+		var kslot: Dictionary = p.get(facing_index, {})
+		kslot["kill"] = true
+		p[facing_index] = kslot
+	for h2 in hits:
+		if typeof(h2) == TYPE_DICTIONARY:
+			h2["ghost_mode"] = true
+	if intent_plate:
+		intent_plate.ghost(hits)
+	_apply_preview(p)
+	_refresh_blk(false)
 
 
 func _index_of_monster(id: String) -> int:
