@@ -2274,9 +2274,7 @@ func _cabin_up() -> bool:
 
 
 func _hide_fight_hover() -> void:
-	_fly_card = null
-	if fly_tip:
-		fly_tip.hide_plate()
+	_on_item_unhovered()
 	if inspect:
 		inspect.visible = false
 	if speech_box and speech_box.has_method("hide_speech"):
@@ -11223,15 +11221,6 @@ func _tick_gaze_petrify() -> void:
 	_refresh()
 
 
-func _hotbar_card_by_uid(uid: int):
-	if hotbar_box == null or uid < 0:
-		return null
-	for c in hotbar_box.get_children():
-		if int(c.get("uid")) == uid:
-			return c
-	return null
-
-
 func _petrify_fx_host() -> Node2D:
 	## Line2D under a Control draws in the wrong space; keep beams on a top-level Node2D.
 	var host := get_node_or_null("PetrifyFxHost") as Node2D
@@ -17173,10 +17162,6 @@ func _clear_hover_preview() -> void:
 				c.set_no_effect(false)
 	if intent_plate != null:
 		_sync_intent_plate()
-
-
-func _hide_fight_hover() -> void:
-	_on_item_unhovered()
 
 
 func _run_hover_preview(it: Dictionary, card: Control) -> void:
