@@ -1,0 +1,8 @@
+exit 1
+hook mark neighbor=3 face=0
+hook six_seats wheel=6
+exit 1
+hook mark neighbor=3 face=0
+hook six_seats wheel=6
+hook mark neighbor=3 face=0
+hook six_seats wheel=6
