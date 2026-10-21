@@ -6,6 +6,7 @@ signal refuse_pressed
 
 const COPY := preload("res://scripts/player_copy.gd")
 const HOVER_PANEL := preload("res://scripts/hover_panel.gd")
+const RANK_SHIMMER := preload("res://scripts/rank_shimmer.gd")
 
 var art
 var sfx
@@ -43,6 +44,8 @@ var _btns: HBoxContainer
 var _owner_plate
 var _pips: HBoxContainer
 var _pip_dots: Array = []
+var _shimmer_mat: ShaderMaterial
+var _shimmer_clock: float = 0.0
 const GATE_W := 400.0
 
 
@@ -66,6 +69,8 @@ func setup(p_art, p_sfx = null) -> void:
 	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_panel.custom_minimum_size = Vector2(GATE_W, 0)
 	_skin_panel(1)
+	_shimmer_mat = RANK_SHIMMER.make_mat(1, 1, Vector2(GATE_W, 420))
+	_panel.material = _shimmer_mat
 	add_child(_panel)
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 10)
@@ -199,6 +204,8 @@ func _skin_panel(tier: int) -> void:
 	sb.content_margin_top = 16
 	sb.content_margin_bottom = 18
 	_panel.add_theme_stylebox_override("panel", sb)
+	if _shimmer_mat != null:
+		RANK_SHIMMER.apply(_shimmer_mat, tier, 1, 0.0, 0.0, _shimmer_clock, _panel.size if _panel.size.x > 8.0 else Vector2(GATE_W, 420))
 
 
 func _kenney(text: String, up_key: String, down_key: String, ink: Color) -> Button:
@@ -563,6 +570,9 @@ func _sync_actor() -> void:
 func _process(delta: float) -> void:
 	if not visible:
 		return
+	_shimmer_clock += delta
+	if _shimmer_mat != null:
+		RANK_SHIMMER.apply(_shimmer_mat, pack_tier, 1, 0.0, 0.0, _shimmer_clock, _panel.size if _panel != null and _panel.size.x > 8.0 else Vector2(GATE_W, 420))
 	_fi += delta * 5.5
 	_bob += delta
 	_stamp.bob = _bob
