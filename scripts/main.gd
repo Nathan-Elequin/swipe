@@ -56,6 +56,7 @@ const COMBAT_LOG := preload("res://scripts/combat_log.gd")
 const ABILITY_SLASH := preload("res://scripts/ability_slash.gd")
 const INTENT_PLATE := preload("res://scripts/intent_plate.gd")
 const BLEED_PULSE := preload("res://scripts/bleed_pulse.gd")
+const CASCADE_TICKER := preload("res://scripts/cascade_ticker.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const PLAYTEST_HUB := preload("res://scripts/playtest_hub.gd")
 const PLAYTEST_FEEDBACK := preload("res://scripts/playtest_feedback.gd")
@@ -463,6 +464,9 @@ var ability_fx
 var ability_slash
 var intent_plate
 var bleed_pulse
+var cascade_ticker
+var _cascade_ff: bool = false
+var _phase_for_ff: String = ""
 var log_label
 var log_btn: Button
 var right_col: VBoxContainer
@@ -1276,6 +1280,10 @@ func _build_ui() -> void:
 	add_child(bleed_pulse)
 	bleed_pulse.setup(self)
 	bled.connect(bleed_pulse.on_bled)
+	cascade_ticker = CASCADE_TICKER.new()
+	add_child(cascade_ticker)
+	cascade_ticker.setup()
+	ability_slash.cascade_ticker = cascade_ticker
 
 	draft_gate = DRAFT_GATE.new()
 	add_child(draft_gate)
@@ -4933,6 +4941,7 @@ func _process(delta: float) -> void:
 			_tutorial_try_shift_inspect()
 	if in_tutorial:
 		_tutorial_try_shift_inspect()
+	_sync_cascade_ff()
 	_place_speech()
 	if draft_gate != null and draft_gate.visible and wheel_view != null:
 		draft_gate.dock(wheel_view)
@@ -4944,6 +4953,62 @@ func _process(delta: float) -> void:
 		btn_spin.pivot_offset = btn_spin.size * 0.5
 	elif btn_spin != null:
 		btn_spin.modulate = Color.WHITE
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		# Alt-tab clears the 3x scale; holding Shift after focus returns re-applies it.
+		# Shot harness may run unfocused — keep QA force-shift alive.
+		if has_meta("qa_force_shift") and bool(get_meta("qa_force_shift")):
+			return
+		if _cascade_ff or Engine.time_scale > ANIM_TIME_SCALE + 0.01:
+			_restore_cascade_time_scale()
+
+
+func _text_input_focused() -> bool:
+	var vp := get_viewport()
+	if vp == null:
+		return false
+	var f: Control = vp.gui_get_focus_owner() as Control
+	return f is LineEdit or f is TextEdit
+
+
+func _sync_cascade_ff() -> void:
+	if str(phase) != _phase_for_ff:
+		var left_cascade: bool = _phase_for_ff in ["fighting", "slaying"] and phase not in ["fighting", "slaying"]
+		_phase_for_ff = str(phase)
+		if left_cascade:
+			_restore_cascade_time_scale()
+	var in_cascade: bool = phase in ["fighting", "slaying"] and _walker_busy
+	if not in_cascade:
+		if _cascade_ff:
+			_restore_cascade_time_scale()
+		return
+	var shift_down: bool = Input.is_key_pressed(KEY_SHIFT)
+	if has_meta("qa_force_shift"):
+		shift_down = bool(get_meta("qa_force_shift"))
+	var ff: bool = shift_down and not _text_input_focused()
+	var want: float = ANIM_TIME_SCALE * 3.0 if ff else ANIM_TIME_SCALE  # x3 on top of the game's normal anim speed
+	if not is_equal_approx(Engine.time_scale, want):
+		Engine.time_scale = want
+		print("[cascade-ff] time_scale=", Engine.time_scale, " ff=", ff)
+	if ff != _cascade_ff:
+		_cascade_ff = ff
+		if cascade_ticker != null and cascade_ticker.has_method("set_ff"):
+			cascade_ticker.set_ff(ff)
+		if ability_slash != null and ability_slash.has_method("set_fast_holds"):
+			ability_slash.set_fast_holds(ff)
+
+
+func _restore_cascade_time_scale() -> void:
+	_cascade_ff = false
+	# Cascade runs at ANIM_TIME_SCALE (x3 while Shift is held); restore the global anim scale.
+	Engine.time_scale = ANIM_TIME_SCALE
+	if cascade_ticker != null and cascade_ticker.has_method("set_ff"):
+		cascade_ticker.set_ff(false)
+	if ability_slash != null and ability_slash.has_method("set_fast_holds"):
+		ability_slash.set_fast_holds(false)
+	print("[cascade-ff] restore time_scale=", Engine.time_scale, " busy=", _walker_busy, " phase=", phase)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -6046,6 +6111,8 @@ func _on_spin() -> void:
 		_tune_combat_stage()
 	_refresh()
 	_bleed_begin()
+	if cascade_ticker != null:
+		cascade_ticker.begin()
 	if await _apply_basilisk_gaze():
 		await _bleed_end()
 		_store_last_faced_hp()
@@ -6156,6 +6223,9 @@ func _trace_resolve(msg: String) -> void:
 
 
 func _unlock_if_fighting() -> void:
+	if cascade_ticker != null and cascade_ticker.has_method("end"):
+		cascade_ticker.end()
+	_restore_cascade_time_scale()
 	if phase == "fighting" or phase == "ready":
 		_walker_busy = false
 		_sync_buttons()
@@ -8237,6 +8307,7 @@ func _tick_monster_poison() -> bool:
 	var n: int = _poison_of(wheel[facing_index])
 	if n <= 0:
 		return false
+	_ticker_push_poison("monster_poison")
 	if await _chip_hp(facing_index, n):
 		_clear_monster_poison(facing_index)
 		_store_last_faced_hp()
@@ -8264,6 +8335,7 @@ func _tick_player_poison() -> bool:
 	var n: int = player_poison
 	if n <= 0:
 		return false
+	_ticker_push_poison("player_poison")
 	_refresh_hearts()
 	if hearts_box:
 		var hi: int = 0
@@ -9232,9 +9304,15 @@ func _slay_ogre_at(index: int) -> void:
 
 
 
-func _flash_banner(msg: String) -> void:
+func _flash_banner(msg: String, ticker_id: String = "", ticker_tex: Texture2D = null) -> void:
 	if play_field == null or msg.strip_edges() == "":
 		return
+	# Item triggers that flash a banner (no slash) still stamp the cascade ticker.
+	if ticker_id != "" and cascade_ticker != null and cascade_ticker.active:
+		var ticket_i: int = cascade_ticker.push(ticker_id, ticker_tex)
+		if ticket_i >= 0:
+			cascade_ticker.light(ticket_i)
+			cascade_ticker.stamp(ticket_i)
 	var lab: FitLabelBox = FitLabelBox.make()
 	lab.show_frame = false
 	lab.padding = 0
@@ -9358,6 +9436,9 @@ func _announce_slice(index: int, to: Vector2 = Vector2.INF, fast: bool = false) 
 		var tex: Texture2D = null
 		if art != null:
 			tex = art.monster_still(mid)
+		var ticket_i: int = -1
+		if cascade_ticker != null and cascade_ticker.active:
+			ticket_i = cascade_ticker.push(mid, tex)
 		await ability_slash.play({
 			"title": str(s.get("name", "")),
 			"call": call_n,
@@ -9365,6 +9446,7 @@ func _announce_slice(index: int, to: Vector2 = Vector2.INF, fast: bool = false) 
 			"is_item": false,
 			"card_id": mid,
 			"fast": fast,
+			"ticket": ticket_i,
 		})
 	_log_begin_monster(index)
 
@@ -9384,14 +9466,31 @@ func _announce_item_use(it: Dictionary, to: Vector2 = Vector2.INF) -> void:
 				break
 	if ability_slash:
 		var tex: Texture2D = _item_icon_tex(it)
+		var iid: String = str(it.get("card_id", ""))
+		var ticket_i: int = -1
+		if cascade_ticker != null and cascade_ticker.active:
+			ticket_i = cascade_ticker.push(iid, tex)
 		await ability_slash.play({
 			"title": title,
 			"call": "",
 			"tex": tex,
 			"is_item": true,
-			"card_id": str(it.get("card_id", "")),
+			"card_id": iid,
+			"ticket": ticket_i,
 		})
 	_log_begin_item(it)
+
+
+func _ticker_push_poison(id: String) -> void:
+	if cascade_ticker == null or not cascade_ticker.active:
+		return
+	var tex: Texture2D = null
+	if ResourceLoader.exists("res://assets/icons/droplet.svg"):
+		tex = load("res://assets/icons/droplet.svg") as Texture2D
+	var ticket_i: int = cascade_ticker.push(id, tex)
+	if ticket_i >= 0:
+		cascade_ticker.light(ticket_i)
+		cascade_ticker.stamp(ticket_i)
 
 
 func _item_fx_dest(kind: String) -> Vector2:
@@ -10032,6 +10131,13 @@ func _step_marbles() -> void:
 		if bool(it.get("spent", false)):
 			continue
 		it["marble_n"] = int(it.get("marble_n", 0)) + 1
+		# Quiet counter bump — still stamp the cascade when the step fires.
+		if cascade_ticker != null and cascade_ticker.active:
+			var tex: Texture2D = _item_icon_tex(it)
+			var ticket_i: int = cascade_ticker.push("marble", tex)
+			if ticket_i >= 0:
+				cascade_ticker.light(ticket_i)
+				cascade_ticker.stamp(ticket_i)
 
 
 func _apply_bag_marbles(it: Dictionary) -> void:
@@ -10153,7 +10259,7 @@ func _apply_marble(it: Dictionary) -> bool:
 	var n: int = int(it.get("marble_n", 0))
 	var as_atk: bool = rng.randf() < 0.5
 	var call: String = "Attack" if as_atk else "Block"
-	_flash_banner(call)
+	_flash_banner(call, "marble", _item_icon_tex(it))
 	_log("on_item_use", str(it.get("name", "Marble")))
 	if as_atk:
 		var hit: int = _atk_with_head(n)

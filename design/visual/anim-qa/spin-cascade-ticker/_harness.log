@@ -1,0 +1,36 @@
+SHOT_HARNESS: run start
+SHOT_HARNESS: cascade seat ok wheel=4
+[cascade-ff] time_scale=1.0 ff=false
+SHOT_HARNESS: mark_300ms elapsed=308 ticker=true
+SHOT_HARNESS: captured 01_cascade_300ms.png
+SHOT_HARNESS: mark_900ms elapsed=992
+SHOT_HARNESS: captured 02_cascade_900ms.png
+SHOT_HARNESS: mark_1800ms elapsed=2014
+SHOT_HARNESS: captured 03_cascade_1800ms.png
+SHOT_HARNESS: cascade1 done phase=fighting busy=false hp=3
+SHOT_HARNESS: ff_start time_scale=0.675 hp=8 wheel=4
+[cascade-ff] time_scale=3.0 ff=true
+SHOT_HARNESS: ff_held time_scale=3.0 ff_chip=true busy=true phase=fighting
+SHOT_HARNESS: captured 04_cascade_ff_600ms.png
+[cascade-ff] time_scale=1.0 ff=false
+SHOT_HARNESS: ff_release time_scale=1.0
+SHOT_HARNESS: captured 05_cascade_ff_release.png
+SHOT_HARNESS: space_untouched: no Spin shortcut added; ui_accept left alone
+SHOT_HARNESS: captured 06_space_untouched.png
+SHOT_HARNESS: six_seats wheel=6
+SHOT_HARNESS: captured 07_six_seats.png
+SHOT_HARNESS: captured 08_intent_plate_final_art.png
+SHOT_HARNESS: exit 0
+cascade seat ok wheel=4
+mark_300ms elapsed=308 ticker=true
+mark_900ms elapsed=925
+mark_1800ms elapsed=1826
+cascade1 done phase=fighting busy=false hp=3
+ff_start time_scale=0.675 hp=8 wheel=4
+ff_held time_scale=2.025 ff_chip=true busy=true phase=fighting
+captured 04_cascade_ff_600ms.png
+ff_release time_scale=0.675
+captured 05_cascade_ff_release.png
+space_untouched: no Spin shortcut added; ui_accept left alone
+six_seats wheel=6
+exit 0

@@ -23,6 +23,7 @@ var _pin_always: bool = false
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	focus_mode = Control.FOCUS_NONE
 	custom_minimum_size = Vector2(252, 0)
 	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	gui_input.connect(_on_gui)
@@ -314,6 +315,7 @@ func _unplayable_chip() -> Control:
 func _wire_kw(rtl: RichTextLabel) -> void:
 	if rtl == null:
 		return
+	rtl.focus_mode = Control.FOCUS_NONE
 	if str(rtl.text).find("[url=") >= 0:
 		rtl.mouse_filter = Control.MOUSE_FILTER_STOP
 		UxStyle.wire_def_hover(rtl, _kw_tip, self)

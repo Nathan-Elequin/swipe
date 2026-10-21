@@ -18,6 +18,7 @@ const PORTRAIT_SCALE := 4.0
 const PORTRAIT_MAX_DISPLAY := 256.0
 
 var art
+var cascade_ticker
 var _q: Array = []
 var _draining: bool = false
 var _tw: Tween
@@ -39,6 +40,7 @@ var _cutin_active: bool = false
 var _frame_texs: Array = []
 var _frame_i: int = 0
 var _shake: Vector2 = Vector2.ZERO
+var _ff_holds: bool = false
 
 var _dim: ColorRect
 var _band_host: Node2D
@@ -92,6 +94,12 @@ func set_log_glow(on: bool) -> void:
 	queue_redraw()
 
 
+func set_fast_holds(on: bool) -> void:
+	## Holds stay on Engine.time_scale; flag is for callers that want a shorter hold
+	## without stacking another /3 on top of time_scale=3.
+	_ff_holds = on
+
+
 func play(payload: Dictionary) -> void:
 	var ticket := {"payload": payload, "done": false}
 	_q.append(ticket)
@@ -126,10 +134,14 @@ func _show(payload: Dictionary) -> void:
 	_call = str(payload.get("call", "")).strip_edges()
 	_is_item = bool(payload.get("is_item", false))
 	card_id = str(payload.get("card_id", ""))
+	var ticket_i: int = int(payload.get("ticket", -1))
 	if card_id == "triclops" and _call == "":
 		_call = "Cut And Run"
 	if _title == "" and _call == "" and _tex == null:
+		_ticker_stamp(ticket_i)
 		return
+	if ticket_i >= 0 and cascade_ticker != null and cascade_ticker.has_method("light"):
+		cascade_ticker.light(ticket_i)
 	if _tw != null and is_instance_valid(_tw):
 		_tw.kill()
 	visible = true
@@ -137,7 +149,8 @@ func _show(payload: Dictionary) -> void:
 	_clock = 0.0
 	log_glow = false
 	_shake = Vector2.ZERO
-	var fast: bool = bool(payload.get("fast", false))
+	# time_scale already speeds the cascade; do not also divide holds by 3 while FF.
+	var fast: bool = bool(payload.get("fast", false)) and not _ff_holds
 	if _is_item:
 		await _show_item(fast)
 	else:
@@ -145,12 +158,20 @@ func _show(payload: Dictionary) -> void:
 	visible = false
 	_cutin_active = false
 	_set_cutin_visible(false)
+	_ticker_stamp(ticket_i)
 	card_id = ""
 	_tex = null
 	_title = ""
 	_call = ""
 	_frame_texs.clear()
 	queue_redraw()
+
+
+func _ticker_stamp(ticket_i: int) -> void:
+	if ticket_i < 0 or cascade_ticker == null:
+		return
+	if cascade_ticker.has_method("stamp"):
+		cascade_ticker.stamp(ticket_i)
 
 
 func _show_item(fast: bool) -> void:
