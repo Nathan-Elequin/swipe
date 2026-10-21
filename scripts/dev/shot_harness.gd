@@ -1318,6 +1318,10 @@ func _ensure_registry() -> void:
 		"75_homecoming_fly_spark", "76_new_burst", "77_drop_sack", "78_settings_sliders",
 		"79_dialog_speech_tail", "80_trunk_open_hover",
 	], _shot_cabin_wiring)
+	_bind_many([
+		"01_four", "02_full8", "02b_full6", "02c_n4", "02d_n5", "02e_n7",
+		"03_hover", "04_breathe_a", "05_breathe_b", "06_facing", "07_threads", "08_reveal",
+	], _shot_anim_wheel_monsters)
 
 
 func _bind_many(stems: Array, fn: Callable) -> void:
@@ -2719,6 +2723,86 @@ func _write_audit_summary() -> void:
 	if f:
 		f.store_string(raw)
 		f.close()
+
+
+func _shot_anim_wheel_monsters() -> void:
+	out_dir = "res://design/visual/anim-qa/wheel-monsters"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-wheel-monsters"
+	_anim_arm_capture()
+	await _wheel_seat_mixed(["commander", "", "merchant", "", "eel", "", "vampire", ""], "draft")
+	await _capture("01_four.png", "Commander, Merchant, Eel, Vampire with empties, draft gate")
+	await _wheel_n(["commander", "merchant", "eel", "vampire", "goblin", "ogre", "dragon", "hornet_swarm"], 8, "02_full8.png")
+	await _wheel_n(["commander", "merchant", "eel", "vampire", "goblin", "ogre"], 6, "02b_full6.png")
+	await _wheel_n(["commander", "merchant", "eel", "vampire"], 4, "02c_n4.png")
+	await _wheel_n(["commander", "merchant", "eel", "vampire", "goblin"], 5, "02d_n5.png")
+	await _wheel_n(["commander", "merchant", "eel", "vampire", "goblin", "ogre", "dragon"], 7, "02e_n7.png")
+	await _anim_ready_seat(["commander", "merchant", "eel", "vampire", "goblin", "ogre"], ["throwing_knife"], 6, 0, 6)
+	if main.wheel_view and main.wheel_view.has_method("qa_hover_chrome"):
+		main.wheel_view.qa_hover_chrome(0)
+	await _wait(0.12)
+	await _capture("03_hover.png", "hover Commander medallion; ability card outward")
+	await _anim_ready_seat(["commander", "merchant", "eel", "vampire", "goblin", "ogre"], [], 6, 0, 6)
+	await _capture("04_breathe_a.png", "breathe frame A")
+	await _wait(0.30)
+	await _capture("05_breathe_b.png", "breathe frame B, 300ms later")
+	await _anim_ready_seat(["goblin", "vampire", "merchant", "eel"], [], 6, 0, 4)
+	var vamp_i: int = 1
+	for i in main.wheel.size():
+		if str(main.wheel[i].get("card_id", "")) == "vampire":
+			vamp_i = i
+			break
+	await _anim_spin_face(vamp_i)
+	await _wait(0.20)
+	await _capture("06_facing.png", "Vampire facing idle + ability card + intent plate")
+	await _anim_ready_seat(["goblin", "commander", "skeleton"], [], 6, 0, 6)
+	await _wait(0.12)
+	await _capture("07_threads.png", "Commander neighbor threads from feet")
+	if main._bucket_reveal != null:
+		var br = main._bucket_reveal
+		br.visible = true
+		br.set_process(true)
+		if br.has_method("_show_detail"):
+			br._show_detail({
+				"kind": "Foe",
+				"name": "Goblin",
+				"call": "Coward",
+				"atk": "2",
+				"hp": "3",
+				"ability": "",
+			})
+		await _wait(0.15)
+		await _capture("08_reveal.png", "bucket_reveal: call, then HP N, then Attack N")
+		br.visible = false
+		br.set_process(false)
+	else:
+		_skip("08_reveal.png", "bucket_reveal missing")
+	_anim_clear_capture()
+
+
+func _wheel_n(ids: Array, n: int, filename: String) -> void:
+	await _anim_ready_seat(ids, [], 6, 0, n)
+	if main.wheel_view and main.wheel_view.has_method("fit_clearances"):
+		_log_progress("pass6-fit %s %s" % [filename, main.wheel_view.fit_clearances()])
+	await _capture(filename, "B4 layout at %s seats" % n)
+
+
+func _wheel_seat_mixed(ids: Array, phase_name: String) -> void:
+	_prep_play(phase_name)
+	main.wheel = []
+	for id in ids:
+		var mid := str(id)
+		if mid == "":
+			main.wheel.append({"kind": "empty", "slot": str(main.wheel.size())})
+		elif main.monsters_by_id.has(mid):
+			main.wheel.append(main._make_monster(mid))
+	main.hp = 6
+	main.blk = 0
+	main.facing_index = -1
+	main._sync_wheel_stats()
+	main._refresh()
+	main._layout_play_field()
+	await _wait(0.08)
 
 
 func _wait(sec: float) -> void:
