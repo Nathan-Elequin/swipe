@@ -1,0 +1,469 @@
+{
+	"failures": [
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@941/@Label@937",
+			"reason": "below_min_size",
+			"screen": "01_hornet_plate",
+			"shot": "res://design/visual/anim-qa/intent-plate/01_hornet_plate.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@941/@RichTextLabel@940",
+			"reason": "below_min_size",
+			"screen": "01_hornet_plate",
+			"shot": "res://design/visual/anim-qa/intent-plate/01_hornet_plate.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@945/@RichTextLabel@944",
+			"reason": "below_min_size",
+			"screen": "01_hornet_plate",
+			"shot": "res://design/visual/anim-qa/intent-plate/01_hornet_plate.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@949/@RichTextLabel@948",
+			"reason": "below_min_size",
+			"screen": "01_hornet_plate",
+			"shot": "res://design/visual/anim-qa/intent-plate/01_hornet_plate.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@953/@RichTextLabel@952",
+			"reason": "below_min_size",
+			"screen": "01_hornet_plate",
+			"shot": "res://design/visual/anim-qa/intent-plate/01_hornet_plate.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@941/@Label@937",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@941/@RichTextLabel@940",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@945/@RichTextLabel@944",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@949/@RichTextLabel@948",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@953/@RichTextLabel@952",
+			"reason": "below_min_size",
+			"screen": "02_hit1_lit",
+			"shot": "res://design/visual/anim-qa/intent-plate/02_hit1_lit.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@941/@Label@937",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@941/@RichTextLabel@940",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@945/@RichTextLabel@944",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@949/@RichTextLabel@948",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@953/@RichTextLabel@952",
+			"reason": "below_min_size",
+			"screen": "03_hit2",
+			"shot": "res://design/visual/anim-qa/intent-plate/03_hit2.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1007/@Label@1003",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1007/@RichTextLabel@1006",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1011/@RichTextLabel@1010",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1015/@RichTextLabel@1014",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1019/@RichTextLabel@1018",
+			"reason": "below_min_size",
+			"screen": "04_hornet_block_soak",
+			"shot": "res://design/visual/anim-qa/intent-plate/04_hornet_block_soak.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1155/@Label@1151",
+			"reason": "below_min_size",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1155/@RichTextLabel@1154",
+			"reason": "below_min_size",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "Kobold Trapper"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1159/@RichTextLabel@1158",
+			"reason": "below_min_size",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "enemy ATK 2   HP 6"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1163/@RichTextLabel@1162",
+			"reason": "below_min_size",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1167/@RichTextLabel@1166",
+			"reason": "below_min_size",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1200/@MarginContainer@1179/@VBoxContainer@1180/@Control@1183/@Label@1186",
+			"reason": "overflow_parent",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1222/@MarginContainer@1201/@VBoxContainer@1202/@Control@1205/@Label@1208",
+			"reason": "overflow_parent",
+			"screen": "05_kobold_3",
+			"shot": "res://design/visual/anim-qa/intent-plate/05_kobold_3.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1299/@Label@1295",
+			"reason": "below_min_size",
+			"screen": "06_dragon_flame",
+			"shot": "res://design/visual/anim-qa/intent-plate/06_dragon_flame.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1299/@RichTextLabel@1298",
+			"reason": "below_min_size",
+			"screen": "06_dragon_flame",
+			"shot": "res://design/visual/anim-qa/intent-plate/06_dragon_flame.png",
+			"text": "Dragon"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1303/@RichTextLabel@1302",
+			"reason": "below_min_size",
+			"screen": "06_dragon_flame",
+			"shot": "res://design/visual/anim-qa/intent-plate/06_dragon_flame.png",
+			"text": "enemy ATK 6   HP 6"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1307/@RichTextLabel@1306",
+			"reason": "below_min_size",
+			"screen": "06_dragon_flame",
+			"shot": "res://design/visual/anim-qa/intent-plate/06_dragon_flame.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1311/@RichTextLabel@1310",
+			"reason": "below_min_size",
+			"screen": "06_dragon_flame",
+			"shot": "res://design/visual/anim-qa/intent-plate/06_dragon_flame.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1377/@Label@1373",
+			"reason": "below_min_size",
+			"screen": "07_shark_loop",
+			"shot": "res://design/visual/anim-qa/intent-plate/07_shark_loop.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1377/@RichTextLabel@1376",
+			"reason": "below_min_size",
+			"screen": "07_shark_loop",
+			"shot": "res://design/visual/anim-qa/intent-plate/07_shark_loop.png",
+			"text": "Shark"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1381/@RichTextLabel@1380",
+			"reason": "below_min_size",
+			"screen": "07_shark_loop",
+			"shot": "res://design/visual/anim-qa/intent-plate/07_shark_loop.png",
+			"text": "enemy ATK 3   HP 6"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1385/@RichTextLabel@1384",
+			"reason": "below_min_size",
+			"screen": "07_shark_loop",
+			"shot": "res://design/visual/anim-qa/intent-plate/07_shark_loop.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1389/@RichTextLabel@1388",
+			"reason": "below_min_size",
+			"screen": "07_shark_loop",
+			"shot": "res://design/visual/anim-qa/intent-plate/07_shark_loop.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1443/@Label@1439",
+			"reason": "below_min_size",
+			"screen": "08_shambling_overflow",
+			"shot": "res://design/visual/anim-qa/intent-plate/08_shambling_overflow.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1443/@RichTextLabel@1442",
+			"reason": "below_min_size",
+			"screen": "08_shambling_overflow",
+			"shot": "res://design/visual/anim-qa/intent-plate/08_shambling_overflow.png",
+			"text": "Shambling Mound"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1447/@RichTextLabel@1446",
+			"reason": "below_min_size",
+			"screen": "08_shambling_overflow",
+			"shot": "res://design/visual/anim-qa/intent-plate/08_shambling_overflow.png",
+			"text": "enemy ATK 1   HP 4"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1451/@RichTextLabel@1450",
+			"reason": "below_min_size",
+			"screen": "08_shambling_overflow",
+			"shot": "res://design/visual/anim-qa/intent-plate/08_shambling_overflow.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1455/@RichTextLabel@1454",
+			"reason": "below_min_size",
+			"screen": "08_shambling_overflow",
+			"shot": "res://design/visual/anim-qa/intent-plate/08_shambling_overflow.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1547/@Label@1543",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1547/@RichTextLabel@1546",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "Hornet Swarm"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1551/@RichTextLabel@1550",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "enemy ATK 2   HP 3"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1555/@RichTextLabel@1554",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1559/@RichTextLabel@1558",
+			"reason": "below_min_size",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1592/@MarginContainer@1571/@VBoxContainer@1572/@Control@1575/@Label@1578",
+			"reason": "overflow_parent",
+			"screen": "01_hornet_two_rings",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/01_hornet_two_rings.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1659/@Label@1655",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "Spin"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1659/@RichTextLabel@1658",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "Golem"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1663/@RichTextLabel@1662",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "enemy ATK 3   HP 7"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1667/@RichTextLabel@1666",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "BLK 0"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1671/@RichTextLabel@1670",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "items this combat 0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1703/@Label@1699",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1703/@RichTextLabel@1702",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "heal +1  now 5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1708/@Label@1704",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "HP"
+		},
+		{
+			"kind": "RichTextLabel",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@Control@7/@ScrollContainer@75/@VBoxContainer@72/@HBoxContainer@1708/@RichTextLabel@1707",
+			"reason": "below_min_size",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "poison -2  now 5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@4/@HBoxContainer@5/@VBoxContainer@6/@MarginContainer@39/@HBoxContainer@40/@PanelContainer@41/@GridContainer@42/@PanelContainer@1698/@MarginContainer@1677/@VBoxContainer@1678/@Control@1681/@Label@1684",
+			"reason": "overflow_parent",
+			"screen": "02_poison_pacemaker",
+			"shot": "res://design/visual/anim-qa/bleed-pulse/02_poison_pacemaker.png",
+			"text": "−2"
+		}
+	],
+	"updated": "2026-10-20T22:21:59"
+}

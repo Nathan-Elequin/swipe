@@ -1,0 +1,50 @@
+{
+	"cards": [
+		{
+			"ability": "Heal equal to the amount of HP you most recently lose.",
+			"id": "blood_chalice",
+			"kind": "item",
+			"name": "Blood Chalice",
+			"sprite": "assets/dungeon/items/blood_chalice.png"
+		},
+		{
+			"ability": "",
+			"id": "golem",
+			"kind": "monster",
+			"name": "Golem",
+			"sprite": "assets/dungeon/extra/golem.png"
+		}
+	],
+	"column": "pass",
+	"evidence": {
+		"did_not": ["screenshot"],
+		"hand_before": ["Blood Chalice"],
+		"looked_at": ["combat log", "plate ATK/HP", "inspect", "Shift inspect", "hotbar"],
+		"slots": "1 / 50"
+	},
+	"expected": "Poison tick loses 2 HP (last loss). Click Blood Chalice. Heal 2.",
+	"family": "item",
+	"id": "blood_chalice-poison-tick",
+	"log": "Spin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nHP poison -2  now 4\nBlood Chalice\nHP heal +2  now 6",
+	"mismatch": "",
+	"narrative": "Poison tick loses 2 HP (last loss). Click Blood Chalice. Heal 2.",
+	"note": "Requires _note_hp_lost on poison tick so last_hp_lost is set.",
+	"observed": "phase fighting · HP 6 · BLK 0 · face Golem ATK 3 HP 7",
+	"paper_fight": "",
+	"result": "pass",
+	"ruling": {},
+	"scene": {
+		"clicks": ["use blood_chalice"],
+		"face_atk": 3,
+		"face_hp": 7,
+		"face_id": "golem",
+		"face_name": "Golem",
+		"hand": ["Blood Chalice"],
+		"kind": "fight",
+		"poison_before": 2,
+		"you_hp": 6
+	},
+	"theme": "plates",
+	"title": "Blood Chalice heals the poison-tick loss",
+	"verbs": []
+}

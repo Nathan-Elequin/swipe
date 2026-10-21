@@ -1246,6 +1246,13 @@ func _ensure_registry() -> void:
 	_shot_fns["text_challenge_ready"] = _shot_challenge_ready
 	_shot_fns["text_tutorial_nib"] = _shot_tutorial_nib
 	_bind_many([
+		"01_hornet_plate", "02_hit1_lit", "03_hit2", "04_hornet_block_soak",
+		"05_kobold_3", "06_dragon_flame", "07_shark_loop", "08_shambling_overflow",
+	], _shot_anim_intent_plate)
+	_bind_many([
+		"01_hornet_two_rings", "02_poison_pacemaker",
+	], _shot_anim_bleed_pulse)
+	_bind_many([
 		"60_loft", "61_loft_cat_rub", "62_journal_cover", "63_journal_bestiary",
 		"64_journal_items", "65_journal_memories", "66_journal_unmet",
 	], _shot_playtest_art)
@@ -1260,6 +1267,98 @@ func _ensure_registry() -> void:
 func _bind_many(stems: Array, fn: Callable) -> void:
 	for stem in stems:
 		_shot_fns[str(stem)] = fn
+
+
+func _anim_ready_seat(monsters: Array, items: Array, hp_n: int = 6, blk_n: int = 0) -> void:
+	_prep_play("ready")
+	_seat_ids(monsters)
+	_hand_ids(items)
+	main.hp = hp_n
+	main.blk = blk_n
+	main.player_poison = 0
+	main.facing_index = -1
+	main.phase = "ready"
+	if main.combat_stage:
+		main.combat_stage.visible = true
+	main._sync_wheel_stats()
+	main._refresh()
+	main._layout_play_field()
+	if main.wheel_view:
+		main.wheel_view.set_meta("qa_instant", true)
+	await _wait(0.05)
+
+
+func _anim_spin_face(idx: int = 0) -> void:
+	main.set_meta("qa_spin_idx", idx)
+	await main._on_spin()
+	await _wait(0.30)
+
+
+func _shot_anim_intent_plate() -> void:
+	out_dir = "res://design/visual/anim-qa/intent-plate"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-intent-plate"
+	await _anim_ready_seat(["hornet_swarm", "goblin", "skeleton", "bandit"], [], 6, 0)
+	await _anim_spin_face(0)
+	await _wait(0.20)
+	await _capture("01_hornet_plate.png", "Hornet Swarm: two badges each 2")
+	if main.intent_plate != null and main.phase == "fighting":
+		await main.intent_plate.fire(0, false, false)
+		await _wait(0.05)
+		await _capture("02_hit1_lit.png", "badge 1 lit / spent after hit 1")
+		await main.intent_plate.fire(1, false, false)
+		await _wait(0.05)
+		await _capture("03_hit2.png", "badge 2 after hit 2")
+	await _anim_ready_seat(["hornet_swarm", "goblin"], [], 6, 2)
+	await _anim_spin_face(0)
+	main.blk = 2
+	main._refresh()
+	await _wait(0.20)
+	await _capture("04_hornet_block_soak.png", "2 Block: badge 1 still reads 2 (soaked)")
+	await _anim_ready_seat(["kobold_trapper", "goblin"], ["throwing_knife", "lantern", "net"], 6, 0)
+	await _anim_spin_face(0)
+	main.items_used_this_combat = 2
+	main._refresh()
+	await _wait(0.20)
+	await _capture("05_kobold_3.png", "Kobold after 2 items: 3 badges")
+	await _anim_ready_seat(["dragon", "goblin"], [], 6, 4)
+	await _anim_spin_face(0)
+	main.blk = 4
+	main._refresh()
+	await _wait(0.25)
+	await _capture("06_dragon_flame.png", "Dragon pierce flame variant")
+	await _anim_ready_seat(["shark", "goblin"], [], 6, 0)
+	await _anim_spin_face(0)
+	await _wait(0.25)
+	await _capture("07_shark_loop.png", "Shark badge + loop chip matching wheel tag")
+	await _anim_ready_seat(["shambling_mound", "goblin"], [], 6, 0)
+	await _anim_spin_face(0)
+	if main.facing_index >= 0 and main.facing_index < main.wheel.size():
+		main.wheel[main.facing_index]["hp"] = 9
+		main.wheel[main.facing_index]["hp_max"] = 9
+	main._refresh()
+	await _wait(0.25)
+	await _capture("08_shambling_overflow.png", "Shambling HP 9: overflow ×N")
+
+
+func _shot_anim_bleed_pulse() -> void:
+	out_dir = "res://design/visual/anim-qa/bleed-pulse"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	status = "anim-bleed-pulse"
+	await _anim_ready_seat(["hornet_swarm", "vampire", "goblin"], ["spiked_flail"], 6, 0)
+	await _anim_spin_face(0)
+	if main.bleed_pulse != null:
+		main.bleed_pulse.on_bled(2)
+		await _wait(0.15)
+		main.bleed_pulse.on_bled(2)
+		await _wait(0.22)
+		await _capture("01_hornet_two_rings.png", "two bleed rings 150ms apart vs Flail + Vampire")
+	await _anim_ready_seat(["golem", "goblin"], ["pacemaker"], 6, 0)
+	main.player_poison = 2
+	main._refresh()
+	await _anim_spin_face(0)
+	await _wait(0.30)
+	await _capture("02_poison_pacemaker.png", "poison tick 2: ring + Pacemaker heal 1")
 
 
 func _shot_peek() -> void:
