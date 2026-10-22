@@ -153,6 +153,7 @@ For each pass:
   - Exit codes: 0 = ok, 1 = a skip or audit fail, 2 = bad args.
   - `godot --headless --path . --quit` (or `--script res://tools/qa/check_shot_cli.gd`) is fine for parse checks.
 - godot-mcp (`addons/godot_mcp`, `.cursor/mcp.json`) attaches to whichever editor is open, which is often Nathan's on his `movement` checkout. Only use it when the editor is open on your worktree.
+- Playtest folder and "approved" flow: see `.cursor/rules/playtest-approve.mdc`.
 - Text audit: `scripts/dev/text_audit.gd` runs as part of the harness. It must show 0 "Tier" and 0 "ATK".
 - Reference shots of what "good" looked like for passes 1–3 are in `qa-reference/pass1..3`.
 

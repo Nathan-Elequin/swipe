@@ -6,7 +6,7 @@ Fill in `<BRANCH>`, `<PR>` and `<SPEC NAMES>` first.
 You are doing LOCAL QA for Spinheritance PR <PR> (branch <BRANCH>) on Nathan's PC. Read design/handoff/CURSOR-AGENT/README.md (sections 4-6) and CLOUD-SETUP.md (Pitfalls) first.
 
 Safety:
-- Nathan's checkout C:\Users\Natha\Documents\boss-rush is on branch `movement` with UNCOMMITTED edits. Never checkout, stash, reset, commit or run Godot there. Never save scenes from an editor opened on it.
+- C:\Users\Natha\Documents\boss-rush is Nathan's playtest folder. Follow `.cursor/rules/playtest-approve.mdc`: build and check in a worktree, only switch boss-rush when `git status` is clean apart from .import/project.godot churn, and never stash, reset or discard his work.
 - Work in a worktree: `git -C C:\Users\Natha\Documents\boss-rush fetch origin` then `git -C C:\Users\Natha\Documents\boss-rush worktree add C:\Users\Natha\Documents\boss-rush-wt\qa-<BRANCH-SLUG> <BRANCH>` (or reuse it if it exists).
 - godot-mcp attaches to whichever Godot editor is open. If the open editor is Nathan's (on the movement folder), do NOT use godot-mcp. Use the shot harness CLI below, or ask Nathan to close it and open the editor on the QA worktree.
 - Never kill Godot processes you didn't start; Nathan may be playtesting. Run one Godot process at a time.
