@@ -69,7 +69,8 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	add_child(_sheet)
 	_add_flags()
 	_build_route("Route.Classic", "gatehouse")
-	_build_route("Route.Challenge", "long_drop")
+	if DEV_FLAGS.show_long_drop():
+		_build_route("Route.Challenge", "long_drop")
 	_hero = KIT.anim_sprite(["overlays/map_hero_f0.png", "overlays/map_hero_f1.png"], "h", 1000.0 / 400.0, true, Vector2.ZERO)
 	var hero_el: Dictionary = KIT.layout_el(_lay, "HeroMarker")
 	_hero.centered = false
@@ -97,10 +98,17 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	add_child(_tip)
 
 
+func _live_routes() -> Array[String]:
+	var out: Array[String] = ["gatehouse"]
+	if DEV_FLAGS.show_long_drop():
+		out.append("long_drop")
+	return out
+
+
 func open_map(route: String = "") -> void:
 	visible = true
 	var want: String = route if route != "" else str(cabin.last_route if cabin else "")
-	if want not in ROUTES:
+	if want not in _live_routes():
 		want = "gatehouse"
 	selected = want
 	_hovered = ""
@@ -129,7 +137,7 @@ func close() -> void:
 
 
 func debug_select(route: String) -> void:
-	if route not in ROUTES:
+	if route not in _live_routes():
 		return
 	_select(route, false)
 	_hovered = ""
@@ -137,7 +145,7 @@ func debug_select(route: String) -> void:
 
 
 func debug_hover(route: String) -> void:
-	_hovered = route if route in ROUTES else ""
+	_hovered = route if route in _live_routes() else ""
 	_refresh_all(false)
 
 
@@ -501,7 +509,7 @@ func _on_route_clicked(route: String) -> void:
 
 
 func _select(route: String, sfx_on: bool) -> void:
-	if route not in ROUTES:
+	if route not in _live_routes():
 		return
 	selected = route
 	if cabin:
@@ -513,7 +521,7 @@ func _select(route: String, sfx_on: bool) -> void:
 
 
 func _refresh_all(draw_on: bool) -> void:
-	for r in ROUTES:
+	for r in _live_routes():
 		_apply_route_visual(r, draw_on and r == selected)
 	_refresh_panel()
 	_refresh_go()
@@ -600,7 +608,7 @@ func _hide_tip() -> void:
 
 func _go() -> void:
 	var r: String = selected
-	if r not in ROUTES:
+	if r not in _live_routes():
 		r = "gatehouse"
 	close()
 	go.emit(r)

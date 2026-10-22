@@ -5,8 +5,8 @@
 - The ability **medallion** sits **in front of** the tag, centred, overlapping the tag's top edge by about 30% of the medallion's height. Its top also overlaps the feet a little.
 - **Z-order:** tag < medallion < HP/ATK badges.
 - **HP heart left, ATK star right.**
-- The full ability text lives on a **card shown on hover or when facing**.
-- **Sprites:** 24 native px at 4x (96px).
+- The full ability text lives on a **card shown while holding Shift**. It must not cover the facing callout, the monster deck, Take, or hub hearts. Hover and facing no longer open that card.
+- **Sprites:** 24 native px displayed at **2x (48px)**. Existing 24px wheel art is not redrawn. (Was 4x/96px in the 2026-10-20 B4 lock; Nathan 2026-10-21: too large on the live wheel.)
 - **Seat count:** every rule works for **any seat count from 4 to 8** (the wheel may move from 8 seats to 6; not locked).
 
 **Mockups** (in `mockups/layouts/crest/`):
@@ -92,8 +92,8 @@ For each seat, search for the feet point F:
   No overlaps at any seat count.
 - If any seat's clearance goes negative (for example a 28-native-tall sprite at 8 seats), shrink only that seat's tag font to 13px and retry. If it is still negative, log a warning; never scale the art.
 
-### Ability card (hover or facing)
-- **Trigger:** hovering the medallion or tag, or the seat becoming `facing_index`.
+### Ability card (Shift only)
+- **Trigger:** holding Shift. Not hover. Not automatically for the faced seat (the right-hand callout covers facing).
 - **Card:**
   - 9-slice plate, 72px tall, width `max(text) + 40`.
   - Line 1: 2x icon plus call name, 16px in `_ability_icon_color`.
