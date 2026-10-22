@@ -29,3 +29,26 @@ alwaysApply: true
 - Never commit `.cursor/mcp.json` with a literal token (it must say `Bearer ${env:PIXELLAB_API_TOKEN}`), or `.art-ping.env`, `.wrangler/`, `build/` or logs.
 - Never push to itch unless Nathan asks.
 - Run only one Godot process at a time. Never kill Nathan's Godot.
+
+## Nathan's own Cursor sessions
+- Edit boss-rush directly. Nathan presses F5 to test. No branch needed.
+- "approved" / "save it" / "ship it" on `main`: commit and push to origin `main`.
+- If boss-rush is on a feature branch when he makes his own edits, commit them onto that branch so they ride along with it.
+- Never leave his approved work uncommitted. At the end of any session where he approved changes, everything is committed and pushed.
+
+## "not yet: <reason>" on a feature branch
+- Post the reason as a comment on that branch's PR with `gh pr comment` (gh is installed on Cherry).
+- If gh isn't available, write it to `design/feedback/<branch>.md`, commit and push to the branch.
+- Then switch boss-rush back to `main`.
+
+## Screenshots
+- Use godot-mcp on Nathan's open editor. It is always the boss-rush folder, so shots match what he plays.
+
+## itch
+- Only when Nathan says "publish to itch".
+- boss-rush must be on `main`, clean, pushed and in sync with origin.
+- Run the headless parse check. Export the "Web Playtest" preset and `butler push` to `swipe-playtest:html5`. Report the build version.
+- Never publish from a feature branch or a dirty folder.
+
+## Grok Bot (Pixel)
+- If it needs to load a branch but boss-rush has uncommitted work, it tells Nathan "say approved in Cursor first". Nobody else touches his work.
