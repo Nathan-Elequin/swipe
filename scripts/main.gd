@@ -31,6 +31,7 @@ const DUNGEON_DECK := preload("res://scripts/dungeon_deck.gd")
 const CHALLENGE_DRAFT := preload("res://scripts/challenge_draft.gd")
 const HOME_CABIN := preload("res://scripts/home_cabin.gd")
 const SHOT_CLI := preload("res://scripts/shot_cli.gd")
+const BRANCH_TAG := preload("res://scripts/dev/branch_tag.gd")
 const HOT_EMPTY := preload("res://scripts/hot_empty_slot.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 const RECENT_EDITS := preload("res://scripts/recent_edits.gd")
@@ -629,6 +630,7 @@ var _playtest_boot: bool = false
 
 
 func _ready() -> void:
+	BRANCH_TAG.attach(self)
 	if not SHOT_CLI.enabled(OS.get_cmdline_user_args()):
 		SHOT_CLI.recover_if_marked()
 	Engine.time_scale = ANIM_TIME_SCALE
