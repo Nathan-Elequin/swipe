@@ -25,7 +25,7 @@ If `design/handoff/<task-id>/TASK.md` exists for this run, read it before editin
 - No player-facing copy edits. Jam owns `data/player-copy.json`. No "Tier" or "owner" in UI text.
 - No stretching, hiding, or recoloring art to fake a missing asset. Ask in REPORT.md with path, native size, 4Ã— nearest, pivot, loop, palette.
 - No new dependencies, no paid or non-CC0 assets, no save-format changes, no merges, no pushes.
-- Never commit to `cabin-overhaul-1` directly; work only in the task worktree.
+- Never commit to `cabin-overhaul-1` directly. Where to build and how Nathan playtests: see `.cursor/rules/playtest-approve.mdc`.
 
 ## New card art
 - A catalog entry that needs new art (`flags.art` false, or notes say it needs unique art): after saving the catalog, run `tools\request_art.cmd <id> [<id> ...]` once per batch. `art ping not configured` is fine; carry on.
