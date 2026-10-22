@@ -11,10 +11,29 @@ alwaysApply: true
 1. At the start, quietly run:
    `gh pr list --repo Nathan-Elequin/swipe --label ready-to-test --json number,title,headRefName,body`
 2. Do what Nathan asked first.
-3. Then, for each listed PR he hasn't already responded to in this chat, end the reply with a short "Ready to test from Pixel" note:
-   - One line on what it is and why. Assume he doesn't remember the context.
-   - 1–3 things to try in-game.
-   - "Say 'load it' to try it." If boss-rush is already on that branch, say "it's already loaded, just press F5" instead.
+3. Then, for each listed PR he hasn't already responded to in this chat, end the reply with a "Ready to test from Pixel" section (format below).
+
+## Note format (same house style as `playtest-inbox.mdc`)
+- Its own section, after everything else in the reply (after **Closed issues** if those appear): `### 🎨 Ready to test from Pixel`.
+- One block per PR, started by a bold title line with the PR link.
+- Bold labels, each followed by an em dash and a short line: **What it is**, **Why**, **Try this in-game** (1–3 numbered items), **To try it**.
+- Write it assuming Nathan doesn't remember the context. Friend-voice, plain words.
+- **To try it** is a one-line call to action: "Say **load it**." If boss-rush is already on that branch: "It's already loaded, just press F5."
+
+Example:
+
+```
+### 🎨 Ready to test from Pixel
+
+**[#87 Fusion Adventure + today's cards](https://github.com/Nathan-Elequin/swipe/pull/87)**
+- **What it is** — Your fusion Adventure mode from yesterday plus today's Pocketwatch, Shuriken and move-arc work, all on one branch.
+- **Why** — Step 1 of the cleanup: one clean branch instead of scattered local changes.
+- **Try this in-game**
+  1. Start Adventure: 6 random monsters, pick 2 cards six times.
+  2. Use your 3 moves (winged-foot pips, curved arrows beside Take), then undo one.
+  3. Longbow should hit for 5 with an even number of monsters.
+- **To try it** — Say **load it**.
+```
 
 ## "load it"
 1. If boss-rush has uncommitted work beyond `.import` / `project.godot` / `default_bus_layout.tres` churn, ask whether to save it first. If he says yes, commit and push it to its current branch. Never discard it.
@@ -33,5 +52,24 @@ alwaysApply: true
 
 ## Who does what (advisory)
 If Nathan asks Cursor for a Pixel-type job, mention once that it's usually a Pixel job. If he insists, do it.
-- **Cursor (Nathan directly):** balance numbers, card/monster rules and abilities, bugs found while playing, small UI tweaks, adding cards/monsters with placeholder art, small tweaks to one existing visual, publishing to itch.
-- **Pixel:** new art and animation (sprites, frames, PixelLab), screen redesigns (mockup first), big visual passes across many files (title intro, wheel monster art), visual consistency audits, repo cleanups/recovery.
+
+**Cursor (Nathan directly)**
+- Balance numbers
+- Card/monster rules and abilities
+- Bugs found while playing
+- Small UI tweaks
+- Adding cards/monsters with placeholder art
+- Small tweaks to one existing visual
+- Publishing to itch
+
+**Pixel**
+- New art and animation (sprites, frames, PixelLab)
+- Screen redesigns (mockup first)
+- Big visual passes across many files (title intro, wheel monster art)
+- Visual consistency audits
+- Repo cleanups and recovery
+
+**Gray zone** (ask Nathan once, then go with his answer)
+- A UI tweak that needs new art
+- A new card or monster that also needs final art: Cursor adds it with placeholder art, Pixel draws it
+- Visual bugs that touch many files
