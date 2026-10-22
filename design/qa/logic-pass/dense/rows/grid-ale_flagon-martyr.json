@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Heal 5. Gain 3 Poison.",
+			"ability": "Heal 5. Gain 2 Poison.",
 			"id": "ale_flagon",
 			"kind": "item",
 			"name": "Ale Flagon",
@@ -46,7 +46,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Ale Flagon — Heal 5. Gain 3 Poison. Monster: Martyr — When I Attack, I die. My Neighbors each gain HP equal to my current HP Challenge hand. Wheel martyr, wizard, golem. Click Ale Flagon, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Ale Flagon — Heal 5. Gain 2 Poison. Monster: Martyr — When I Attack, I die. My Neighbors each gain HP equal to my current HP Challenge hand. Wheel martyr, wizard, golem. Click Ale Flagon, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-ale_flagon-martyr",
 	"log": "Draft enter\nYou Spin\nSpin Martyr\nenemy ATK 0   HP 7\nBLK 0\nitems this combat 0\nAle Flagon\nHP heal +3  now 6\nUsed poison 3\nitems this combat 1\nYou Done\nFight hit 1  ATK 0 - BLK\nBLK 0\nHP take 0\nDefeated Martyr\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0\nHP poison -3  now 3",

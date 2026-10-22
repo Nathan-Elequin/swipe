@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Heal 5. Gain 3 Poison.",
+			"ability": "Heal 5. Gain 2 Poison.",
 			"id": "ale_flagon",
 			"kind": "item",
 			"name": "Ale Flagon",
@@ -33,7 +33,7 @@
 		],
 		"slots": "2 / 50"
 	},
-	"expected": "Item: Ale Flagon — Heal 5. Gain 3 Poison. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket. Click Ale Flagon, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Ale Flagon — Heal 5. Gain 2 Poison. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket. Click Ale Flagon, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-ale_flagon-rust_bucket",
 	"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3\nAle Flagon\nHP heal +3  now 6\nUsed poison 3\nitems this combat 1",

@@ -1826,11 +1826,52 @@ func _draw() -> void:
 	for i in n:
 		_draw_slice_contents(font, c, radius, starts[i], _span(i), i)
 	_draw_bonds(c, radius)
+	_draw_across_aim()
 	_draw_hub_block(c, radius)
 	_draw_threat(c, radius)
 	_draw_floaters(font)
 	if slay_index >= 0 and slay_t > 0.0:
 		_draw_slay(font, c, radius)
+
+
+func _across_aimed(i: int) -> bool:
+	if hover_index < 0 or hover_index >= slices.size() or hover_index == i:
+		return false
+	return int(slices[hover_index].get("across", -1)) == i
+
+
+func _draw_across_aim() -> void:
+	if highlight != "mark" or hover_index < 0 or hover_index >= slices.size():
+		return
+	var dest: int = int(slices[hover_index].get("across", -1))
+	if dest < 0 or dest >= slices.size() or dest == hover_index:
+		return
+	var a: Vector2 = _spoke(hover_index)["port"]
+	var b: Vector2 = _spoke(dest)["port"]
+	var pulse: float = 0.45 + 0.35 * absf(sin(_glow_t * 9.0))
+	draw_circle(b, 64.0, Color(0.78, 0.08, 0.08, 0.22 + 0.16 * pulse))
+	draw_arc(b, 58.0, 0.0, TAU, 32, Color(0.95, 0.22, 0.16, 0.45 + 0.4 * pulse), 3.0, true)
+	var delta: Vector2 = b - a
+	var length: float = delta.length()
+	if length < 24.0:
+		return
+	var nrm: Vector2 = delta / length
+	var travel: float = fposmod(_glow_t * 84.0, 26.0)
+	var start: float = 40.0
+	var end: float = length - 52.0
+	var t: float = start + travel
+	while t < end:
+		var p: Vector2 = a + nrm * t
+		var seg: float = minf(12.0, end - t)
+		draw_line(p, p + nrm * seg, Color(0.86, 0.12, 0.1, 0.9), 4.0, true)
+		t += 26.0
+	var tip: Vector2 = b - nrm * 50.0
+	var side: Vector2 = Vector2(-nrm.y, nrm.x)
+	draw_colored_polygon(PackedVector2Array([
+		tip + nrm * 18.0,
+		tip - nrm * 6.0 + side * 9.0,
+		tip - nrm * 6.0 - side * 9.0,
+	]), Color(0.92, 0.16, 0.12, 0.95))
 
 
 func _draw_pointer(c: Vector2, radius: float) -> void:
@@ -1938,8 +1979,12 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 		rim = BRIBE_RIM
 		rw = 3.0
 	elif highlight == "mark" and bool(s.get("markable", false)):
-		rim = Color("8dcb8d")
-		rw = 3.2
+		if is_hover and int(s.get("across", -1)) >= 0:
+			rim = Color("ffd84a")
+			rw = 4.2
+		else:
+			rim = Color("8dcb8d")
+			rw = 3.2
 	elif str(s.get("kind", "")) == "monster":
 		var t: int = _plate_tier(s)
 		rim = Color("c08050")
@@ -1961,6 +2006,9 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 		rw += 2.4
 		var pulse: float = 0.55 + 0.45 * sin(_glow_t * 8.0)
 		draw_arc(origin, r + 6.0, a0, a1, 26, Color(1.0, 0.94, 0.75, 0.35 + 0.4 * pulse), 4.0, true)
+	elif _across_aimed(i):
+		rim = Color("c42828")
+		rw = 4.6
 	draw_arc(origin, r, a0, a1, 26, rim, rw, true)
 
 
