@@ -54,6 +54,10 @@ var _stamp_done: bool = false
 var _motion: Tween
 var _built: bool = false
 var _held: bool = false
+## Optional looping panel frames (PixelLab candle / wax-seal loops). Empty = the still.
+var _panel_anim: Array = []
+var _panel_anim_t: float = 0.0
+const PANEL_ANIM_FPS := 8.0
 
 
 func setup(p_cabin) -> void:
@@ -316,9 +320,9 @@ func _make_panels(p_kind: String) -> Array:
 			{"tex": "cutscenes/keyring_p1.png", "lines": [{"key": "keyring.1", "nib": true}, {"key": "keyring.2", "nib": true}], "hold": 8.0, "fx": "", "motion": ""},
 		]
 	return [
-		{"tex": "cutscenes/intro_p1.png", "lines": [{"key": "intro.p1", "nib": false}], "hold": 6.0, "fx": "rain_window", "motion": "push_in"},
+		{"tex": "cutscenes/intro_p1.png", "anim": "cutscenes/intro_p1_candle", "lines": [{"key": "intro.p1", "nib": false}], "hold": 6.0, "fx": "rain_window", "motion": "push_in"},
 		{"tex": "cutscenes/intro_p2.png", "lines": [{"key": "intro.p2", "nib": false}, {"key": "intro.p2_nib", "nib": true}], "hold": 6.0, "fx": "rain_full", "motion": "", "knock": true},
-		{"tex": "cutscenes/intro_p3.png", "lines": [{"key": "intro.p3", "nib": false}, {"key": "intro.p3_nib", "nib": true}], "hold": 7.0, "fx": "", "motion": "nudge_up", "sting": "sting.intro", "will_text": true},
+		{"tex": "cutscenes/intro_p3.png", "anim": "cutscenes/intro_p3_seal", "lines": [{"key": "intro.p3", "nib": false}, {"key": "intro.p3_nib", "nib": true}], "hold": 7.0, "fx": "", "motion": "nudge_up", "sting": "sting.intro", "will_text": true},
 		{"tex": "cutscenes/intro_p4.png", "lines": [{"key": "intro.p4", "nib": false}], "hold": 5.0, "fx": "", "motion": "pan_x"},
 		{"tex": "cutscenes/intro_p5.png", "lines": [{"key": "intro.p5_nib", "nib": true}], "hold": 6.0, "fx": "", "motion": ""},
 	]
@@ -357,6 +361,7 @@ func _show_panel(i: int, instant: bool) -> void:
 		_panel_a.position = KIT.pt(50, 40)
 		_panel_a.scale = Vector2.ONE
 		_panel_b.modulate.a = 0.0
+		_set_panel_anim(spec)
 		_apply_fx(spec)
 		_start_motion(spec)
 		_start_line()
@@ -364,6 +369,7 @@ func _show_panel(i: int, instant: bool) -> void:
 	KIT.cue(cabin.sfx if cabin else null, &"cabin.panel")
 	_will_title.visible = false
 	_will_sign.visible = false
+	_panel_anim = []
 	_panel_b.texture = tex
 	_panel_b.position = KIT.pt(50, 40)
 	_panel_b.scale = Vector2.ONE
@@ -378,6 +384,7 @@ func _show_panel(i: int, instant: bool) -> void:
 		_panel_a.scale = Vector2.ONE
 		_panel_b.modulate.a = 0.0
 		_busy_fade = false
+		_set_panel_anim(spec)
 		_apply_fx(spec)
 		_start_motion(spec)
 		_start_line()
@@ -493,6 +500,32 @@ func _process(delta: float) -> void:
 	_tick_hold(delta)
 	_tick_fx(delta)
 	_tick_bust(delta)
+	_tick_panel_anim(delta)
+
+
+func _set_panel_anim(spec: Dictionary) -> void:
+	_panel_anim = []
+	_panel_anim_t = 0.0
+	var stem: String = str(spec.get("anim", ""))
+	if stem == "":
+		return
+	for i in 8:
+		var t: Texture2D = KIT.load_tex("%s_f%d.png" % [stem, i])
+		if t == null:
+			break
+		_panel_anim.append(t)
+	if _panel_anim.size() < 2:
+		_panel_anim = []
+
+
+func _tick_panel_anim(delta: float) -> void:
+	if _panel_anim.is_empty() or _busy_fade:
+		return
+	_panel_anim_t += delta * PANEL_ANIM_FPS
+	var idx: int = int(_panel_anim_t) % _panel_anim.size()
+	var t: Texture2D = _panel_anim[idx]
+	if _panel_a.texture != t:
+		_panel_a.texture = t
 
 
 func _tick_typing(delta: float) -> void:
@@ -684,6 +717,7 @@ func _finish(skipped: bool) -> void:
 		return
 	playing = false
 	set_process(false)
+	_panel_anim = []
 	if _motion:
 		_motion.kill()
 		_motion = null
