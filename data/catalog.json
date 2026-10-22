@@ -1441,7 +1441,7 @@
 			"type": "I"
 		},
 		{
-			"ability": "Deal 5 Attack to the monster Across from you",
+			"ability": "Deal 5 Attack to the monster across from you (only works if even # of monsters remaining)",
 			"author_lock": true,
 			"bucket": 6.0,
 			"call_name": "",
