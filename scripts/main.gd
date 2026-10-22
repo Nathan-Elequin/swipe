@@ -120,7 +120,7 @@ const ITEM_OPS := {
 	"stone_wall": {"kind": "blk", "n": 10},
 	"blood_chalice": {"kind": "heal_last_loss"},
 	"grief_jar": {"kind": "blk_siphon"},
-	"longbow": {"kind": "atk_opposite", "n": 4},
+	"longbow": {"kind": "atk_opposite", "n": 5},
 	"lantern": {"kind": "heal_keep", "n": 2},
 	"mirror_shard": {"kind": "blk_last"},
 	"caltrops": {"kind": "atk_zero"},
@@ -15003,8 +15003,8 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = "Deal 2 attack to the enemy you face and each neighboring enemy. The same enemy is only hit once."
 		"atk_opposite":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
-			out["equation"] = "(%s) opposite if even count" % _bb(atk_c, "4")
-			out["body"] = "Deal 4 attack to the owner across from you. Needs an even number of owners."
+			out["equation"] = "(%s) opposite if even count" % _bb(atk_c, "5")
+			out["body"] = "Deal 5 attack to the owner across from you. Needs an even number of owners."
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = "Can't — odd number of owners on the wheel."
 		"heal_kills":

@@ -533,7 +533,7 @@
 				"hide": false
 			},
 			"id": "breastplate",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-21",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -565,7 +565,7 @@
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 3.0,
 			"type": "I"
 		},
 		{
@@ -1441,22 +1441,22 @@
 			"type": "I"
 		},
 		{
-			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
+			"ability": "Deal 5 Attack to the monster Across from you",
 			"author_lock": true,
 			"bucket": 6.0,
 			"call_name": "",
 			"card_color": "atk",
 			"count": 2.0,
-			"defined": "Usable in a fight only when living slice count is even. Deal 4 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
+			"defined": "Usable in a fight only when living slice count is even. Deal 5 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
 			"exceptions": "",
-			"explainer": "(ATK 4) opposite",
+			"explainer": "(ATK 5) opposite",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
 			"id": "longbow",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-21",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1474,12 +1474,12 @@
 				"hp_formula",
 				"card_color"
 			],
-			"log_hint": "4 damage across the wheel",
+			"log_hint": "5 damage across the wheel",
 			"mode_pool": "all",
 			"name": "Longbow",
 			"ops": {
 				"kind": "atk_opposite",
-				"n": 4.0
+				"n": 5.0
 			},
 			"poc": false,
 			"priority": 3.0,
@@ -5224,7 +5224,7 @@
 				"base": 10.0
 			},
 			"id": "wick",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-21",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -5255,7 +5255,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 2.0,
 			"type": "M"
 		},
 		{
