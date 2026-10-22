@@ -237,7 +237,10 @@ func _load_art() -> void:
 	_swipe = _seq("sprout_throw")
 	if _swipe.is_empty():
 		_swipe = _frames("swipe")
-	_block = _frames("block")
+	# Helmet beat: Sprout takes the hit (PixelLab 64px hurt, shipped 3x to match the run size).
+	_block = _seq("sprout_hurt")
+	if _block.is_empty():
+		_block = _frames("block")
 	_grab = _seq("sprout_grab")
 	if _grab.is_empty():
 		_grab = _frames("grab")

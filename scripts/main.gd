@@ -11451,7 +11451,7 @@ func _petrify_beam(to_card: Vector2, linger: float = 0.22) -> Array:
 	beam.antialiased = false
 	beam.add_point(from)
 	beam.add_point(from)
-	host.add_child(beam)
+	host.add_child(beam, true)
 	var core := Line2D.new()
 	core.name = "PetrifyBeamCore"
 	core.z_index = 16
@@ -11459,7 +11459,7 @@ func _petrify_beam(to_card: Vector2, linger: float = 0.22) -> Array:
 	core.default_color = Color.WHITE
 	core.add_point(from)
 	core.add_point(from)
-	host.add_child(core)
+	host.add_child(core, true)
 	set_meta("qa_petrify_beams", _count_petrify_beams())
 	var tw := create_tween()
 	tw.tween_method(
@@ -11498,8 +11498,11 @@ func _count_petrify_beams() -> int:
 	if host == null:
 		return 0
 	var n: int = 0
+	# One per beam: skip the white core lines. Siblings get readable names
+	# (PetrifyBeam2, PetrifyBeam3...) so every Hydra beam is counted.
 	for c in host.get_children():
-		if str(c.name).begins_with("PetrifyBeam"):
+		var nm: String = str(c.name)
+		if nm.begins_with("PetrifyBeam") and not nm.begins_with("PetrifyBeamCore"):
 			n += 1
 	return n
 
@@ -11672,7 +11675,7 @@ func _hydra_even_killer() -> void:
 		beam.antialiased = false
 		beam.add_point(from)
 		beam.add_point(from)
-		host.add_child(beam)
+		host.add_child(beam, true)
 		var core := Line2D.new()
 		core.name = "PetrifyBeamCore"
 		core.z_index = 16
@@ -11680,7 +11683,7 @@ func _hydra_even_killer() -> void:
 		core.default_color = Color.WHITE
 		core.add_point(from)
 		core.add_point(from)
-		host.add_child(core)
+		host.add_child(core, true)
 		kept.append(beam)
 		kept.append(core)
 		set_meta("qa_petrify_beams", _count_petrify_beams())

@@ -38,8 +38,8 @@ Overwrite landed at the same paths as the old placeholders. Loaders still use `r
 
 | File | Native | Frames | Notes |
 |---|---|---|---|
-| `poison_badge_drip_f0.png` … `f3.png` | 8×8 | 4 | Slice/hub drip loop (still purple from the first PixelLab pass; Task 5 reroll) |
-| `poison_burst_f0.png` … `f3.png` | 24×24 | 4 | Tick burst (still purple from the first PixelLab pass; Task 5 reroll) |
+| `poison_badge_drip_f0.png` … `f3.png` | 8×8 | 4 | Slice/hub drip loop. Green. PixelLab Task 5 reroll, then palette-swapped (no new gens) onto the `#7dba7d` / `#8dcb8d` family by `design/handoff/CURSOR-AGENT/rerolls/recolor_poison.py`. Nathan: poison is green. |
+| `poison_burst_f0.png` … `f3.png` | 24×24 | 4 | Tick burst. Green. Same palette swap: `#3d6b3f` / `#5a965c` / `#7dba7d` / `#8dcb8d` / `#b2e0b0` / `#d8f0d0`. Nathan: poison is green. |
 | `heart_drip_f0.png` … `f3.png` | 12×12 | 4 | Player heart drip |
 | `poison_lock.png` | 6×6 | 1 | Plague Doctor Always padlock. Green (`#7dba7d` / `#8dcb8d`). PixelLab 2026-10-21. Nathan: poison is green. |
 

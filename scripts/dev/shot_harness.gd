@@ -1678,7 +1678,8 @@ func _petrify_beam_count() -> int:
 		return 0
 	var n: int = 0
 	for c in host.get_children():
-		if str(c.name).begins_with("PetrifyBeam"):
+		var nm: String = str(c.name)
+		if nm.begins_with("PetrifyBeam") and not nm.begins_with("PetrifyBeamCore"):
 			n += 1
 	return n
 
@@ -1834,7 +1835,7 @@ func _shot_anim_petrify() -> void:
 	main.set_meta("qa_spin_idx", 0)
 	main._on_spin()
 	await _until(func() -> bool:
-		return bool(main.get_meta("qa_hydra_beams_ready", false)) or _petrify_beam_count() >= 6
+		return bool(main.get_meta("qa_hydra_beams_ready", false)) or _petrify_beam_count() >= 3
 	, 16.0)
 	await _wait(0.04)
 	_log_progress("hydra beams=%s ready=%s" % [
