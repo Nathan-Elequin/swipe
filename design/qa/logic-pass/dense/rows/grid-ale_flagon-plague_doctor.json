@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Heal 5. Gain 3 Poison.",
+			"ability": "Heal 5. Gain 2 Poison.",
 			"id": "ale_flagon",
 			"kind": "item",
 			"name": "Ale Flagon",
@@ -46,7 +46,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Ale Flagon — Heal 5. Gain 3 Poison. Monster: Plague Doctor — My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2. Challenge hand. Wheel plague_doctor, wizard, golem. Click Ale Flagon, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Ale Flagon — Heal 5. Gain 2 Poison. Monster: Plague Doctor — My Neighbors Always have 2 Poison. When you Spin, I heal my Neighbors for 2. Challenge hand. Wheel plague_doctor, wizard, golem. Click Ale Flagon, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-ale_flagon-plague_doctor",
 	"log": "Draft enter\nYou Spin\nSpin Plague Doctor\nenemy ATK 2   HP 3\nBLK 0\nitems this combat 0\nSpin Plague Doctor heal +2  to  9 HP\nSpin Plague Doctor heal +2  to  4 HP\nAle Flagon\nHP heal +3  now 6\nUsed poison 3\nitems this combat 1\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -2  now 4\nDefeated Plague Doctor\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 4\nBLK 0\nitems this combat 0\nHP poison -3  now 1",

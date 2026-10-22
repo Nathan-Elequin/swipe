@@ -42,9 +42,9 @@ func setup(p_art) -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	gui_input.connect(_on_gui)
 	texture_filter = TEXTURE_FILTER_NEAREST
-	clip_contents = true
-	clip_children = CanvasItem.CLIP_CHILDREN_ONLY
-	z_index = 12
+	clip_contents = false
+	clip_children = CanvasItem.CLIP_CHILDREN_DISABLED
+	z_index = 15
 	top_level = true
 	visible = false
 	_outline = ShaderMaterial.new()
@@ -92,19 +92,8 @@ func show_monster(id: String, p_tier: int = 1) -> void:
 	_rage_cd = 0.0
 	_fled = false
 	modulate = Color.WHITE
-	scale = Vector2(0.72, 0.72)
 	visible = true
 	pivot_offset = size * 0.5
-	var tw := create_tween()
-	tw.set_trans(Tween.TRANS_BACK)
-	tw.set_ease(Tween.EASE_OUT)
-	tw.tween_property(self, "scale", Vector2.ONE, 0.28)
-	if not _idle.is_empty() and _idle[0] != null:
-		var tw0: float = float(_idle[0].get_width())
-		var th0: float = float(_idle[0].get_height())
-		if tw0 <= 80.0 and th0 <= 80.0 and _idle.size() >= 4:
-			size = Vector2(maxf(192.0, tw0 * 4.0), maxf(160.0, th0 * 4.0 + 16.0))
-			custom_minimum_size = size
 	_place_sprite()
 
 
@@ -335,14 +324,18 @@ func _place_sprite() -> void:
 		return
 	var tw: float = float(tex.get_width())
 	var th: float = float(tex.get_height())
-	var scale_n: float = 4.0 if (tw <= 80.0 and th <= 80.0 and _idle.size() >= 4) else 1.0
+	var fit_x: float = maxf(1.0, floor((size.x - 8.0) / maxf(tw, 1.0)))
+	var fit_y: float = maxf(1.0, floor((size.y - 8.0) / maxf(th, 1.0)))
+	var scale_n: float = maxf(1.0, minf(fit_x, fit_y))
+	if tw <= 80.0 and th <= 80.0:
+		scale_n = minf(scale_n, 3.0)
 	var dw: float = tw * scale_n
 	var dh: float = th * scale_n
 	var bob: float = 0.0 if _idle.size() >= 4 else sin(_bob * 3.2) * 3.0
 	_sprite.texture = tex
 	_sprite.size = Vector2(dw, dh)
 	_sprite.pivot_offset = Vector2(dw * 0.5, dh)
-	_sprite.position = Vector2(size.x * 0.5 - dw * 0.5 + _lunge_x, size.y - dh - 8.0 + bob)
+	_sprite.position = Vector2(size.x * 0.5 - dw * 0.5 + _lunge_x, size.y - dh - 4.0 + bob)
 	_sprite.flip_h = flip_h
 	var mod := Color.WHITE
 	if _flash > 0.45:

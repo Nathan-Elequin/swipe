@@ -1,5 +1,5 @@
 extends Control
-## Stone wheel. Frameless 96px sprites on floor shadows. B4 name tag + medallion. HP left, ATK right.
+## Stone wheel. Frameless sprites (24 native at 2x = 48px). B4 name tag + medallion. HP left, ATK right.
 
 signal slice_clicked(index: int)
 signal slice_hovered(index: int)
@@ -86,6 +86,14 @@ const RING := Color("c4a574")
 const HUB := Color("100e0c")
 const HUB_FRAC := 0.34
 const HUB_HERO_EDGE := 56.0
+## Display scale of existing 24-native wheel art. Pass 6 shipped 4x/96px; Nathan 2026-10-21: shrink, do not redraw.
+## Opaque pixels fill a 48px box on their long axis (empty canvas padding is ignored).
+const WHEEL_SPRITE_SCALE := 2.0
+const WHEEL_SPRITE_MAX := 48.0
+const MEDAL_PX := 28.0
+const BADGE_ICON_PX := 24.0
+const TAG_H := 48.0
+const TAG_H_CALL := 70.0
 const FACE_RIM := Color("e8c36a")
 const PLACE_RIM := Color("8dcb8d")
 const BRIBE_RIM := Color("d19a66")
@@ -124,6 +132,7 @@ var tex_portraits: Dictionary = {}
 var tex_wheel_frames: Dictionary = {}
 var tex_name_tag: Texture2D
 var tex_medals: Dictionary = {}
+var _used_cache: Dictionary = {}
 var _fit_cache: Dictionary = {}
 var _fit_sig: String = ""
 var _fit_clearance: Array = []
@@ -208,6 +217,9 @@ var tex_player: Array = []
 var hub_hp: int = 6
 var hub_hp_max: int = 6
 var hub_hp_ghost: int = -1
+var hub_moves: int = 0
+var hub_moves_max: int = 0
+var _ability_avoids: Array = []
 var hub_poison: int = 0
 var hub_poison_locked: bool = false
 var _poison_drip: Array = []
@@ -916,6 +928,25 @@ func rot_to_center(index: int) -> float:
 	return SIX - mid
 
 
+func snap_to_index(index: int) -> void:
+	if index < 0 or index >= slices.size():
+		return
+	rot = fposmod(rotation_for_index(index), TAU)
+	facing_index = index
+	queue_redraw()
+
+
+func set_moves(left: int, cap: int) -> void:
+	hub_moves = maxi(0, left)
+	hub_moves_max = maxi(0, cap)
+	queue_redraw()
+
+
+func set_ability_avoids(rects: Array) -> void:
+	_ability_avoids = rects
+	_sync_ability_cards()
+
+
 func recenter_on(index: int, dur: float = 0.28) -> void:
 	if index < 0 or index >= slices.size():
 		return
@@ -1184,11 +1215,12 @@ func _spoke(i: int) -> Dictionary:
 		var odd: int = int(_glow_t / 0.6 + float(i) * 0.37) % 2
 		feet += Vector2(0, -4.0 if odd == 1 else 0.0)
 	var port: Vector2 = feet - Vector2(0, h * 0.5)
-	var hp: Vector2 = feet + Vector2(-(w * 0.5 + 24.0), -20.0)
-	var atk: Vector2 = feet + Vector2(w * 0.5 + 24.0, -20.0)
+	var hp: Vector2 = feet + Vector2(-(w * 0.5 + 12.0), -h * 0.42)
+	var atk: Vector2 = feet + Vector2(w * 0.5 + 12.0, -h * 0.42)
 	var tag_w: float = _tag_width_px(i)
-	var tag_rect := Rect2(Vector2(feet.x - tag_w * 0.5, feet.y + 30.0), Vector2(tag_w, 48.0))
-	var medal := Vector2(feet.x, feet.y + 18.0)
+	var tag_h: float = _tag_height_px(i)
+	var tag_rect := Rect2(Vector2(feet.x - tag_w * 0.5, feet.y + 28.0), Vector2(tag_w, tag_h))
+	var medal := Vector2(feet.x, feet.y + 22.0)
 	var sprite_rect := Rect2(Vector2(feet.x - w * 0.5, feet.y - h), Vector2(w, h))
 	return {
 		"c": c,
@@ -1196,7 +1228,7 @@ func _spoke(i: int) -> Dictionary:
 		"tan": tan,
 		"origin": origin,
 		"r": r,
-		"win": 96.0,
+		"win": h if h > 1.0 else 48.0,
 		"plate_r": 48.0,
 		"port": port,
 		"feet": feet,
@@ -1226,9 +1258,9 @@ func slice_avoid_global(i: int) -> Rect2:
 	if tag.size.x > 1.0:
 		local = local.merge(tag)
 	var medal: Vector2 = sp.get("medal", Vector2.ZERO)
-	local = local.merge(Rect2(medal - Vector2(30, 30), Vector2(60, 60)))
-	local = local.merge(Rect2(sp["hp"] - Vector2(26, 26), Vector2(52, 52)))
-	local = local.merge(Rect2(sp["atk"] - Vector2(26, 26), Vector2(52, 52)))
+	local = local.merge(Rect2(medal - Vector2(MEDAL_PX * 0.5, MEDAL_PX * 0.5), Vector2(MEDAL_PX, MEDAL_PX)))
+	local = local.merge(Rect2(sp["hp"] - Vector2(BADGE_ICON_PX * 0.5, BADGE_ICON_PX * 0.5), Vector2(BADGE_ICON_PX, BADGE_ICON_PX)))
+	local = local.merge(Rect2(sp["atk"] - Vector2(BADGE_ICON_PX * 0.5, BADGE_ICON_PX * 0.5), Vector2(BADGE_ICON_PX, BADGE_ICON_PX)))
 	return _xform_rect(local)
 
 
@@ -1476,15 +1508,60 @@ func _breathe_bob(i: int) -> bool:
 	return frames.size() < 2
 
 
-func _seat_sprite_size(i: int) -> Vector2:
-	var tex: Texture2D = _wheel_tex(i)
+func _tex_used(tex: Texture2D) -> Rect2:
 	if tex == null:
-		return Vector2(96, 96)
-	var tw: float = float(tex.get_width())
-	var th: float = float(tex.get_height())
-	if th <= 32.0:
-		return Vector2(tw * 4.0, th * 4.0)
-	return Vector2(tw, th)
+		return Rect2()
+	var key: String = str(tex.resource_path)
+	if key == "":
+		key = str(tex.get_instance_id())
+	if _used_cache.has(key):
+		return _used_cache[key]
+	var full := Rect2(0, 0, tex.get_width(), tex.get_height())
+	var img: Image = tex.get_image()
+	if img != null:
+		var used: Rect2i = img.get_used_rect()
+		if used.size.x >= 1 and used.size.y >= 1:
+			full = Rect2(used)
+	_used_cache[key] = full
+	return full
+
+
+func _seat_sprite_size(i: int) -> Vector2:
+	var tex: Texture2D = null
+	if i >= 0 and i < slices.size():
+		var pid: String = str(slices[i].get("card_id", ""))
+		var frames: Array = tex_wheel_frames.get(pid, [])
+		if frames.size() > 0:
+			tex = frames[0]
+	if tex == null:
+		tex = _wheel_tex(i)
+	if tex == null:
+		return Vector2(WHEEL_SPRITE_MAX, WHEEL_SPRITE_MAX)
+	var used: Rect2 = _tex_used(tex)
+	var long_axis: float = maxf(used.size.x, used.size.y)
+	if long_axis < 1.0:
+		return Vector2(WHEEL_SPRITE_MAX, WHEEL_SPRITE_MAX)
+	var scale: float = WHEEL_SPRITE_MAX / long_axis
+	return Vector2(used.size.x * scale, used.size.y * scale)
+
+
+func _call_of_slice(i: int) -> String:
+	if i < 0 or i >= slices.size():
+		return ""
+	var s: Dictionary = slices[i]
+	if bool(s.get("silenced", false)):
+		return ""
+	var name_s: String = str(s.get("name", "")).strip_edges()
+	var call_s: String = str(s.get("call_name", "")).strip_edges()
+	if call_s == "" or call_s.to_lower() == name_s.to_lower():
+		return ""
+	if name_s.to_lower().find(call_s.to_lower()) >= 0:
+		return ""
+	return call_s
+
+
+func _tag_height_px(i: int) -> float:
+	return TAG_H_CALL if _call_of_slice(i) != "" else TAG_H
 
 
 func _tag_width_px(i: int) -> float:
@@ -1492,12 +1569,15 @@ func _tag_width_px(i: int) -> float:
 	if font == null:
 		font = ThemeDB.fallback_font
 	var name_s: String = ""
+	var call_s: String = _call_of_slice(i)
 	if i >= 0 and i < slices.size():
 		name_s = str(slices[i].get("name", "")).strip_edges()
 	var fs: int = int(_tag_fs.get(i, 15))
 	var name_px: float = 48.0
 	if font != null and name_s != "":
 		name_px = font.get_string_size(name_s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+		if call_s != "":
+			name_px = maxf(name_px, font.get_string_size(call_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x)
 	var native_w: float = maxf(36.0, ceil((name_px + 40.0) / 3.0))
 	return native_w * 3.0
 
@@ -1512,7 +1592,7 @@ func _fit_sig_of(n: int) -> String:
 		var name_s := ""
 		if i < slices.size():
 			name_s = str(slices[i].get("name", ""))
-		bits.append("%s:%s:%s" % [sz.x, sz.y, name_s])
+		bits.append("%s:%s:%s:%s" % [sz.x, sz.y, name_s, _call_of_slice(i)])
 	return ",".join(bits)
 
 
@@ -1594,10 +1674,11 @@ func _block_clearance(f: Vector2, c: Vector2, R: float, hub_r: float, a0: float,
 	var w: float = sz.x
 	var h: float = sz.y
 	var tag_w: float = _tag_width_px(i)
+	var tag_h: float = _tag_height_px(i)
 	var rects: Array[Rect2] = [
 		Rect2(Vector2(f.x - w * 0.5, f.y - h), Vector2(w, h)),
-		Rect2(Vector2(f.x - (w * 0.5 + 48.0), f.y - 44.0), Vector2(w + 96.0, 48.0)),
-		Rect2(Vector2(f.x - tag_w * 0.5, f.y + 30.0), Vector2(tag_w, 48.0)),
+		Rect2(Vector2(f.x - (w * 0.5 + 28.0), f.y - 32.0), Vector2(w + 56.0, 40.0)),
+		Rect2(Vector2(f.x - tag_w * 0.5, f.y + 28.0), Vector2(tag_w, tag_h)),
 	]
 	var worst: float = 1.0e9
 	for rec in rects:
@@ -1639,7 +1720,7 @@ func _sync_chrome_hover() -> void:
 	if hover_index >= 0 and hover_index < slices.size() and str(slices[hover_index].get("kind", "")) == "monster":
 		var sp: Dictionary = _spoke(hover_index)
 		var tag: Rect2 = sp.get("tag_rect", Rect2())
-		var medal := Rect2(sp["medal"] - Vector2(30, 30), Vector2(60, 60))
+		var medal := Rect2(sp["medal"] - Vector2(MEDAL_PX * 0.5, MEDAL_PX * 0.5), Vector2(MEDAL_PX, MEDAL_PX))
 		if tag.has_point(local) or medal.has_point(local):
 			_chrome_hover = hover_index
 
@@ -1673,26 +1754,14 @@ func _sync_ability_cards() -> void:
 	_ensure_ability_cards()
 	for card in _ability_cards:
 		card.visible = false
-	if _item_held():
+	if _item_held() or not show_shift:
 		return
-	var want: Array[int] = []
-	if _chrome_hover >= 0:
-		want.append(_chrome_hover)
-	elif facing_index >= 0 and not spinning and facing_index < slices.size() and str(slices[facing_index].get("kind", "")) == "monster":
-		want.append(facing_index)
-	if show_shift:
-		var all_i: Array[int] = []
-		for i in slices.size():
-			if str(slices[i].get("kind", "")) == "monster":
-				all_i.append(i)
-		if _ability_rects_fit(all_i):
-			want = all_i
 	var hub_g: Vector2 = get_global_transform() * _center()
 	var used := 0
-	for i in want:
+	for i in slices.size():
 		if used >= _ability_cards.size():
 			break
-		if i < 0 or i >= slices.size() or str(slices[i].get("kind", "")) != "monster":
+		if str(slices[i].get("kind", "")) != "monster":
 			continue
 		var s: Dictionary = slices[i]
 		var sp: Dictionary = _spoke(i)
@@ -1707,8 +1776,8 @@ func _sync_ability_cards() -> void:
 			call_s = "%s · used" % call_s
 		card.set_content(call_s, body, _medal_tex(str(s.get("card_id", ""))), _ability_icon_color(str(s.get("special_id", ""))), bool(s.get("silenced", false)))
 		var tag_g: Rect2 = _xform_rect(sp["tag_rect"])
-		card.place_from_tag(tag_g, sp["dir"], hub_g)
-		used += 1
+		if card.place_from_tag(tag_g, sp["dir"], hub_g, _ability_avoids):
+			used += 1
 
 
 func _ability_rects_fit(idxs: Array[int]) -> bool:
@@ -1757,11 +1826,52 @@ func _draw() -> void:
 	for i in n:
 		_draw_slice_contents(font, c, radius, starts[i], _span(i), i)
 	_draw_bonds(c, radius)
+	_draw_across_aim()
 	_draw_hub_block(c, radius)
 	_draw_threat(c, radius)
 	_draw_floaters(font)
 	if slay_index >= 0 and slay_t > 0.0:
 		_draw_slay(font, c, radius)
+
+
+func _across_aimed(i: int) -> bool:
+	if hover_index < 0 or hover_index >= slices.size() or hover_index == i:
+		return false
+	return int(slices[hover_index].get("across", -1)) == i
+
+
+func _draw_across_aim() -> void:
+	if highlight != "mark" or hover_index < 0 or hover_index >= slices.size():
+		return
+	var dest: int = int(slices[hover_index].get("across", -1))
+	if dest < 0 or dest >= slices.size() or dest == hover_index:
+		return
+	var a: Vector2 = _spoke(hover_index)["port"]
+	var b: Vector2 = _spoke(dest)["port"]
+	var pulse: float = 0.45 + 0.35 * absf(sin(_glow_t * 9.0))
+	draw_circle(b, 64.0, Color(0.78, 0.08, 0.08, 0.22 + 0.16 * pulse))
+	draw_arc(b, 58.0, 0.0, TAU, 32, Color(0.95, 0.22, 0.16, 0.45 + 0.4 * pulse), 3.0, true)
+	var delta: Vector2 = b - a
+	var length: float = delta.length()
+	if length < 24.0:
+		return
+	var nrm: Vector2 = delta / length
+	var travel: float = fposmod(_glow_t * 84.0, 26.0)
+	var start: float = 40.0
+	var end: float = length - 52.0
+	var t: float = start + travel
+	while t < end:
+		var p: Vector2 = a + nrm * t
+		var seg: float = minf(12.0, end - t)
+		draw_line(p, p + nrm * seg, Color(0.86, 0.12, 0.1, 0.9), 4.0, true)
+		t += 26.0
+	var tip: Vector2 = b - nrm * 50.0
+	var side: Vector2 = Vector2(-nrm.y, nrm.x)
+	draw_colored_polygon(PackedVector2Array([
+		tip + nrm * 18.0,
+		tip - nrm * 6.0 + side * 9.0,
+		tip - nrm * 6.0 - side * 9.0,
+	]), Color(0.92, 0.16, 0.12, 0.95))
 
 
 func _draw_pointer(c: Vector2, radius: float) -> void:
@@ -1869,8 +1979,12 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 		rim = BRIBE_RIM
 		rw = 3.0
 	elif highlight == "mark" and bool(s.get("markable", false)):
-		rim = Color("8dcb8d")
-		rw = 3.2
+		if is_hover and int(s.get("across", -1)) >= 0:
+			rim = Color("ffd84a")
+			rw = 4.2
+		else:
+			rim = Color("8dcb8d")
+			rw = 3.2
 	elif str(s.get("kind", "")) == "monster":
 		var t: int = _plate_tier(s)
 		rim = Color("c08050")
@@ -1892,6 +2006,9 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 		rw += 2.4
 		var pulse: float = 0.55 + 0.45 * sin(_glow_t * 8.0)
 		draw_arc(origin, r + 6.0, a0, a1, 26, Color(1.0, 0.94, 0.75, 0.35 + 0.4 * pulse), 4.0, true)
+	elif _across_aimed(i):
+		rim = Color("c42828")
+		rw = 4.6
 	draw_arc(origin, r, a0, a1, 26, rim, rw, true)
 
 
@@ -2445,20 +2562,23 @@ func _draw_wheel_sprite(_i: int, sp: Dictionary, s: Dictionary, dim: float) -> v
 	var tex: Texture2D = _wheel_tex(_i)
 	var sprite_rect: Rect2 = sp.get("sprite_rect", Rect2())
 	var feet: Vector2 = sp.get("feet", sp["port"] + Vector2(0, 48))
-	var w: float = sprite_rect.size.x if sprite_rect.size.x > 1.0 else 96.0
+	var w: float = sprite_rect.size.x if sprite_rect.size.x > 1.0 else WHEEL_SPRITE_MAX
+	var h: float = sprite_rect.size.y if sprite_rect.size.y > 1.0 else WHEEL_SPRITE_MAX
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	draw_colored_polygon(_shadow_pts(feet, w * 0.9, 16.0), SHADOW_COL)
+	draw_colored_polygon(_shadow_pts(feet, w * 0.9, 10.0), SHADOW_COL)
 	if tex == null:
 		return
-	var dest := Rect2(Vector2(feet.x - w * 0.5, feet.y - sprite_rect.size.y), Vector2(w, sprite_rect.size.y))
-	if dest.size.y < 1.0:
-		dest = Rect2(feet - Vector2(w * 0.5, 96.0), Vector2(w, 96.0))
+	var dest := Rect2(Vector2(feet.x - w * 0.5, feet.y - h), Vector2(w, h))
+	var src: Rect2 = _tex_used(tex)
+	if src.size.x < 1.0 or src.size.y < 1.0:
+		src = Rect2(0, 0, tex.get_width(), tex.get_height())
 	var outline := Color(OUTLINE_PX.r, OUTLINE_PX.g, OUTLINE_PX.b, dim)
+	var ring: float = WHEEL_SPRITE_SCALE
 	for k in 8:
 		var a: float = float(k) * TAU / 8.0
-		draw_texture_rect(tex, Rect2(dest.position + Vector2.from_angle(a) * 4.0, dest.size), false, outline)
+		draw_texture_rect_region(tex, Rect2(dest.position + Vector2.from_angle(a) * ring, dest.size), src, outline)
 	var mod := Color(dim, dim, dim, 1.0)
-	draw_texture_rect(tex, dest, false, mod)
+	draw_texture_rect_region(tex, dest, src, mod)
 
 
 func _shadow_pts(feet: Vector2, width: float, height: float) -> PackedVector2Array:
@@ -2498,26 +2618,38 @@ func _draw_name_tag(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, di
 	_draw_nine_slice(tex_name_tag, tag, 5.0, 15.0)
 	var col: Color = Color("e8c36a") if is_face else INK_ON_DARK
 	col.a = dim
+	var call_s: String = _call_of_slice(i)
+	var name_y: float = sp["feet"].y + (52.0 if call_s == "" else 48.0)
 	var tsz: Vector2 = font.get_string_size(name_s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	var p: Vector2 = Vector2(sp["feet"].x - tsz.x * 0.5, sp["feet"].y + 60.0)
+	var p: Vector2 = Vector2(sp["feet"].x - tsz.x * 0.5, name_y)
 	for ox in range(-3, 4):
 		for oy in range(-3, 4):
 			if ox == 0 and oy == 0:
 				continue
 			draw_string(font, p + Vector2(ox, oy), name_s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("100e0c"))
 	draw_string(font, p, name_s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
-	var medal: Vector2 = sp.get("medal", Vector2(sp["feet"].x, sp["feet"].y + 18.0))
+	if call_s != "":
+		var call_col: Color = _ability_icon_color(str(s.get("special_id", "")))
+		call_col.a = dim
+		var csz: Vector2 = font.get_string_size(call_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
+		var cp: Vector2 = Vector2(sp["feet"].x - csz.x * 0.5, name_y + 16.0)
+		for ox2 in range(-2, 3):
+			for oy2 in range(-2, 3):
+				if ox2 == 0 and oy2 == 0:
+					continue
+				draw_string(font, cp + Vector2(ox2, oy2), call_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("100e0c"))
+		draw_string(font, cp, call_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, call_col)
+	var medal: Vector2 = sp.get("medal", Vector2(sp["feet"].x, sp["feet"].y + 22.0))
 	var mtex: Texture2D = _medal_tex(str(s.get("card_id", "")))
-	var mdest := Rect2(medal - Vector2(30, 30), Vector2(60, 60))
-	mdest.position.y = sp["feet"].y - 12.0
+	var mdest := Rect2(medal - Vector2(MEDAL_PX * 0.5, MEDAL_PX * 0.5), Vector2(MEDAL_PX, MEDAL_PX))
 	var ma: float = 0.45 if bool(s.get("silenced", false)) else dim
 	if mtex != null:
 		draw_texture_rect(mtex, mdest, false, Color(1, 1, 1, ma))
 	else:
-		draw_circle(medal, 18.0, Color(0.16, 0.14, 0.12, ma))
-		draw_arc(medal, 18.0, 0, TAU, 20, Color("1c1814"), 2.0, true)
-	if is_hover:
-		draw_arc(Vector2(mdest.get_center()), 32.0, 0.0, TAU, 28, TAG_GOLD, 3.0, true)
+		draw_circle(medal, MEDAL_PX * 0.5, Color(0.16, 0.14, 0.12, ma))
+		draw_arc(medal, MEDAL_PX * 0.5, 0, TAU, 20, Color("1c1814"), 2.0, true)
+	if is_hover and show_shift:
+		draw_arc(Vector2(mdest.get_center()), MEDAL_PX * 0.55, 0.0, TAU, 28, TAG_GOLD, 3.0, true)
 
 
 func _draw_slice_title(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, crowded: bool, dim: float = 1.0, is_hover: bool = false) -> void:
@@ -2750,19 +2882,19 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 	var punch: float = float(_atk_punch.get(i, 0.0)) if i >= 0 else 0.0
 	if punch > 0.02:
 		fill = fill.lerp(Color("ffd0a0"), punch * 0.55)
-	var rad: float = 26.0 + punch * 4.0
-	_draw_atk_badge(pos, rad, fill)
+	var icon_sz: float = BADGE_ICON_PX + punch * 4.0
+	_draw_stat_icon(pos, tex_sword, icon_sz, fill, false)
 	if bool(s.get("cmd_buff", false)):
-		draw_arc(pos, rad + 3.0, 0.0, TAU, 24, Color(0.95, 0.22, 0.16, 0.45 + 0.5 * pulse), 2.6, true)
+		draw_arc(pos, icon_sz * 0.58, 0.0, TAU, 24, Color(0.95, 0.22, 0.16, 0.45 + 0.5 * pulse), 2.6, true)
 	if int(s.get("copy_from", -1)) >= 0:
-		draw_arc(pos, rad + 2.5, 0.0, TAU, 24, Color(0.72, 0.42, 0.92, 0.4 + 0.45 * pulse), 2.4, true)
-	_draw_bold_num(font, pos + Vector2(0.0, 1.0), str(atk), 26, Color("f0e6d8"))
+		draw_arc(pos, icon_sz * 0.55, 0.0, TAU, 24, Color(0.72, 0.42, 0.92, 0.4 + 0.45 * pulse), 2.4, true)
+	_draw_bold_num(font, pos + Vector2(icon_sz * 0.62, 1.0), str(atk), 22, Color("f0e6d8"))
 	if atk_d != 0:
 		var blink: float = 0.40 + 0.60 * absf(sin(_glow_t * 10.0))
 		var dc: Color = UP_COL if atk_d > 0 else DOWN_COL
 		dc.a = blink
-		_draw_bold_num(font, pos + Vector2(0.0, -rad * 1.15), str(atk_next), 18 if big else 15, dc)
-		draw_string(font, pos + Vector2(rad * 0.55, -rad * 0.7), _delta_text(atk_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
+		_draw_bold_num(font, pos + Vector2(0.0, -icon_sz * 0.62), str(atk_next), 18 if big else 15, dc)
+		draw_string(font, pos + Vector2(icon_sz * 0.28, -icon_sz * 0.38), _delta_text(atk_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
 	var cid: String = str(s.get("card_id", ""))
 	if cid == "hornet_swarm" or cid == "shambling_mound" or cid == "shark":
 		var mark: Vector2 = pos + Vector2(20.0, 22.0)
@@ -2775,9 +2907,7 @@ func _draw_atk_badge(pos: Vector2, rad: float, fill: Color) -> void:
 	var edge: Color = ATK_EDGE
 	_fill_star(pos, rad * 1.22, rad * 0.46, ink)
 	_fill_star(pos, rad * 1.08, rad * 0.40, fill)
-	draw_arc(pos, rad * 0.52, 0.0, TAU, 22, edge, 2.2, true)
-	draw_circle(pos, rad * 0.46, Color(fill.r, fill.g, fill.b, 0.96))
-	draw_arc(pos, rad * 0.46, 0.0, TAU, 22, ink, 1.2, true)
+	draw_arc(pos, rad * 0.42, 0.0, TAU, 22, edge, 1.6, true)
 
 
 func _fill_star(c: Vector2, outer: float, inner: float, col: Color, n: int = 8) -> void:
@@ -2806,9 +2936,9 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	var punch: float = float(_hp_punch.get(i, 0.0)) if i >= 0 else 0.0
 	if punch > 0.02:
 		fill = fill.lerp(Color("ffd0a0"), punch * 0.55)
-	var hs: float = 26.0 + punch * 4.0
-	_draw_heart_shape(pos, hs, fill, Color("1c120c"))
-	draw_circle(pos + Vector2(0.0, 4.0), hs * 0.28, Color("6a1818"))
+	var hs: float = BADGE_ICON_PX + punch * 4.0
+	var heart_tex: Texture2D = tex_heart_full if tex_heart_full != null else tex_heart
+	_draw_stat_icon(pos, heart_tex, hs, fill, true)
 	if punch > 0.35:
 		var slash := Color("f0e6d8", punch * 0.85)
 		var arm: float = hs * 0.42
@@ -2817,7 +2947,7 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	if bool(s.get("lich_buff", false)):
 		var pulse2: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 		draw_arc(pos, hs * 0.52, 0.0, TAU, 20, Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2), 2.6, true)
-	_draw_bold_num(font, pos + Vector2(0.0, 2.0), str(hp), 26, Color("f0e6d8"))
+	_draw_bold_num(font, pos + Vector2(-hs * 0.62, 2.0), str(hp), 22, Color("f0e6d8"))
 	_draw_poison_badge(font, pos, s, big, i)
 	if hp_d != 0:
 		var blink: float = 0.40 + 0.60 * absf(sin(_glow_t * 10.0))
@@ -2940,6 +3070,7 @@ func _draw_hub_block(c: Vector2, _radius: float) -> void:
 		font = ThemeDB.fallback_font
 	var dim: float = 0.35 if hub_death_dim else 1.0
 	_draw_hub_heart_arc(dim)
+	_draw_hub_move_pips(dim)
 	_draw_hub_poison_badge(font, dim)
 	_draw_blk_badge(c, font, dim)
 	if hub_sting > 0.02:
@@ -3073,6 +3204,85 @@ func _draw_heart_shape(pos: Vector2, hs: float, fill: Color, outline: Color) -> 
 	var inner: PackedVector2Array = _heart_pts(pos, hs)
 	draw_colored_polygon(inner, fill)
 	draw_circle(pos + Vector2(-hs * 0.16, -hs * 0.10), hs * 0.11, fill.lightened(0.28))
+
+
+func _draw_stat_icon(pos: Vector2, tex: Texture2D, px: float, tint: Color, is_heart: bool) -> void:
+	if tex != null:
+		draw_texture_rect(tex, Rect2(pos - Vector2(px, px) * 0.5, Vector2(px, px)), false, Color.WHITE)
+		return
+	if is_heart:
+		_draw_heart_shape(pos, px * 0.42, tint, Color("1c120c"))
+	else:
+		_draw_atk_badge(pos, px * 0.42, tint)
+
+
+func _draw_hub_move_pips(dim: float) -> void:
+	if hub_moves_max <= 0:
+		return
+	var c: Vector2 = _center()
+	var hub_r: float = _radius() * HUB_FRAC
+	var n: int = hub_moves_max
+	var gap: float = 24.0
+	var y: float = c.y + hub_r - 16.0
+	var total: float = gap * float(n - 1)
+	for i in n:
+		var p := Vector2(c.x - total * 0.5 + gap * float(i), y)
+		_draw_winged_foot(p, 11.0, i < hub_moves, dim)
+
+
+func _draw_winged_foot(pos: Vector2, s: float, live: bool, dim: float) -> void:
+	var a: float = dim if live else dim * 0.38
+	var ink := Color("100e0c", a)
+	var gold := Color("FFD84A", a)
+	var leather := Color("7a4e2b", a)
+	var cream := Color("f0e6d8", a)
+	if not live:
+		gold = Color("6a5f52", a)
+		leather = Color("3a322b", a)
+		cream = Color("5c6474", a)
+	# The five-point wing crosses itself (upper tip through the notch). Godot will not triangulate that.
+	var wing_root := pos + Vector2(-s * 0.15, -s * 0.05)
+	var wing_notch := pos + Vector2(-s * 0.35, -s * 0.55)
+	draw_colored_polygon(PackedVector2Array([
+		wing_root,
+		pos + Vector2(-s * 1.05, -s * 0.85),
+		wing_notch,
+	]), ink)
+	draw_colored_polygon(PackedVector2Array([
+		wing_root,
+		wing_notch,
+		pos + Vector2(-s * 1.15, -s * 0.25),
+		pos + Vector2(-s * 0.20, s * 0.10),
+	]), ink)
+	var fill: Color = gold if live else cream
+	var wing_root_in := pos + Vector2(-s * 0.12, -s * 0.02)
+	var wing_notch_in := pos + Vector2(-s * 0.32, -s * 0.48)
+	draw_colored_polygon(PackedVector2Array([
+		wing_root_in,
+		pos + Vector2(-s * 0.92, -s * 0.72),
+		wing_notch_in,
+	]), fill)
+	draw_colored_polygon(PackedVector2Array([
+		wing_root_in,
+		wing_notch_in,
+		pos + Vector2(-s * 0.98, -s * 0.22),
+		pos + Vector2(-s * 0.16, s * 0.06),
+	]), fill)
+	var sole := PackedVector2Array([
+		pos + Vector2(-s * 0.45, s * 0.08),
+		pos + Vector2(s * 0.70, -s * 0.02),
+		pos + Vector2(s * 0.62, s * 0.42),
+		pos + Vector2(-s * 0.38, s * 0.48),
+	])
+	draw_colored_polygon(sole, ink)
+	var sole_in := PackedVector2Array([
+		pos + Vector2(-s * 0.35, s * 0.14),
+		pos + Vector2(s * 0.58, s * 0.04),
+		pos + Vector2(s * 0.52, s * 0.34),
+		pos + Vector2(-s * 0.28, s * 0.38),
+	])
+	draw_colored_polygon(sole_in, leather)
+	draw_line(pos + Vector2(-s * 0.10, s * 0.16), pos + Vector2(s * 0.40, s * 0.10), cream, 1.2, false)
 
 
 func _draw_hub_pip(pos: Vector2, sz: Vector2, live: bool, soon: bool, tint: Color = Color.WHITE) -> void:

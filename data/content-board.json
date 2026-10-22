@@ -116,7 +116,7 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "Flips 2 ↔ 4 after any Item is used. Keeps its number between fights.",
+			"ability": "Flips 2 ↔ 4 after each Item used.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -131,7 +131,7 @@
 			"hp_formula": "",
 			"id": "sai",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -168,7 +168,7 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "Block equal to the HP you are missing.",
+			"ability": "+1 Block for each HP you are missing.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -183,7 +183,7 @@
 			"hp_formula": "",
 			"id": "medallion",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -199,7 +199,10 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
 			"log_hint": "Block for missing HP",
 			"mode_pool": "all",
@@ -684,18 +687,18 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "(BLK 2) Keep if Bleed",
 			"flow": "Tap on use. Discard on resolve unless HP dropped vs On Spin. Healing Potion this combat makes Did Lose HP always True.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "breastplate",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -721,13 +724,13 @@
 			"name": "Breastplate",
 			"notes": "",
 			"ops": {},
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0
+			"tier": 3
 		},
 		{
 			"ability": "Spin again and gain a Random Item.",
@@ -980,7 +983,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "Select an enemy. They Attack the enemy you are facing.",
+			"ability": "Target any enemy. That enemy attacks the monster that is Across from them.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -989,13 +992,13 @@
 			"card_color": "defeat",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "Pick → their ATK hits yours",
+			"explainer": "Pick any monster. They Attack the monster Across from them. Unplayable when the number of monsters is odd.",
 			"flow": "",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "pocketwatch",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1016,10 +1019,10 @@
 				"reminder",
 				"log_hint"
 			],
-			"log_hint": "A monster hits for you",
+			"log_hint": "A monster hits across",
 			"mode_pool": "all",
 			"name": "Pocketwatch",
-			"notes": "Final enemy: unusable.",
+			"notes": "Odd living-monster count: unusable. Across skips empty corridors and walks the living monsters.",
 			"ops": {},
 			"priority": 3.0,
 			"rarity": "uncommon",
@@ -1345,7 +1348,7 @@
 			"hp_formula": "",
 			"id": "lantern",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1361,7 +1364,10 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
 			"log_hint": "Heal 2, keep if still hurt",
 			"mode_pool": "all",
@@ -1377,7 +1383,7 @@
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0
+			"tier": 3.0
 		},
 		{
 			"ability": "Gain Block equal to the last Block you gained.",
@@ -1633,7 +1639,7 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "(1), (2), (3), or (4) Atk",
+			"ability": "(1), (2), (3), or (4) Atk. Changes on Item use",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -1648,7 +1654,7 @@
 			"hp_formula": "",
 			"id": "counting_beads",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"ability",
 				"explainer",
@@ -1664,7 +1670,10 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
 			"log_hint": "Pick 1, 2, 3, or 4 Attack",
 			"mode_pool": "all",
@@ -2171,7 +2180,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "2 Attack. If the Enemy lives, you Flee and Keep this.",
+			"ability": "Move →, then Attack 3.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -2180,18 +2189,13 @@
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "(ATK 2) Keep + Flee if live",
-			"flags": {
-				"art": true,
-				"dev": true,
-				"hide": false
-			},
-			"flow": "Click during a fight. Deal 2 Attack. Needleback and Harpy still apply. If they still have HP, you Flee (Spin at random, can be the same monster) and Keep this. If they hit 0, this is used up and you do not Flee. Goblin ignores Attack so they live. Fight only.",
+			"explainer": "Move →, then (ATK 3).",
+			"flow": "Click during a fight. Used up. If another living monster is on the wheel, shift to the neighbor up and to the right (counter-clockwise, the same way as the Move-right button) without Spinning. This does not spend an adventure Move. Then deal 3 Attack to whoever you are facing. If they are the only living monster, skip the shift and deal 3 to them. No Keep. Goblin ignores Attack. Needleback, Harpy, Anvil, and Prism apply to whoever takes the hit.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "shuriken",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2212,13 +2216,13 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "2 Attack, Flee and Keep if they live",
+			"log_hint": "Move →, then Attack 3",
 			"mode_pool": "all",
 			"name": "Shuriken",
-			"notes": "Bucket 1. Flee skips their Attack (Hornet never swings).",
+			"notes": "Move up-right, then 3 Attack. One living monster: no Move, the 3 still hits. No Keep.",
 			"ops": {
-				"kind": "atk_flee_keep",
-				"n": 2.0
+				"kind": "atk_move",
+				"n": 3.0
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
@@ -2447,7 +2451,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "Heal 5. Gain 3 Poison.",
+			"ability": "Heal 5. Gain 2 Poison.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -2456,13 +2460,13 @@
 			"card_color": "heal",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "(HEAL 5) + Gain 3 Poison",
-			"flow": "Click during a fight. Used up. Heal 5 (cap 6). Gain 3 Poison; amounts add. Droplet with the number sits next to your HP. Next Spin: facing monster’s poison ticks first and clears, then you lose HP equal to your poison and it clears. Block does not stop it. If that Spin already finished the last monster, skip your tick (victory). Healing Potion still saves a 0; poison is already gone. New dungeon wipes leftover poison. Any Spin counts.",
+			"explainer": "(HEAL 5) + Gain 2 Poison",
+			"flow": "Click during a fight. Used up. Heal 5 (cap 6). Gain 2 Poison; amounts add. Droplet with the number sits next to your HP. Next Spin: facing monster’s poison ticks first and clears, then you lose HP equal to your poison and it clears. Block does not stop it. If that Spin already finished the last monster, skip your tick (victory). Healing Potion still saves a 0; poison is already gone. New dungeon wipes leftover poison. Any Spin counts.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "ale_flagon",
 			"kind": "item",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2483,14 +2487,14 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Heal 5, Gain 3 Poison",
+			"log_hint": "Heal 5, Gain 2 Poison",
 			"mode_pool": "all",
 			"name": "Ale Flagon",
 			"notes": "Bucket 6. Same droplet as monster poison.",
 			"ops": {
 				"heal": 5.0,
 				"kind": "heal_poison",
-				"poison": 3.0
+				"poison": 2.0
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
@@ -2626,17 +2630,12 @@
 			"contradiction_ids": [],
 			"count": 1.0,
 			"explainer": "Halve next even ATK",
-			"flags": {
-				"art": true,
-				"dev": true,
-				"hide": false
-			},
 			"flow": "Never click this. Listens like Healing Potion. The next enemy Attack whose ATK number is even (2, 4, 6…) and would deal more than 0 after Block/pierce: mid-swing, cut that ATK in half (floor), then apply Block. Discard. 0 ATK and fully blocked even ATK do not fire. Spider Egg is not an enemy. Hornet/Damsel/Kobold/Shambling Mound: waits for the first even swing in that burst, then later swings are full. Two copies: first even spends one. Petrify still listens. Potion can still save if the halved hit kills you.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "double_buckler",
 			"kind": "item",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2668,8 +2667,8 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "",
-			"status": "live",
+			"review_note": "(The 'unplayable' hatch makes it too difficult for players to perceive that it is active and can protect them, fix this)",
+			"status": "todo",
 			"tier": 1.0
 		},
 		{
@@ -2741,17 +2740,12 @@
 			"contradiction_ids": [],
 			"count": 1.0,
 			"explainer": "(HEAL 1) Swap 1  Keep",
-			"flags": {
-				"art": true,
-				"dev": true,
-				"hide": false
-			},
 			"flow": "Click during a fight. Heal 1 (cap 6). Then one other unspent item in your hand Swaps: it is exchanged for a random leftover copy of the same rank from the draft pile, and the old card goes back into that pile. You cannot Swap into a card with no remaining count. Never Swaps the Jar itself. If there is no legal other item (only the Jar, or no leftover copy of that item's Tier), the click is illegal. Keep this unless facing Zombie. Counts as an item use. Swap keyword: exchange for a random Item of the same rank.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "jar_o_grease",
 			"kind": "item",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2784,8 +2778,8 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "",
-			"status": "live",
+			"review_note": "REWORK: On Use, item Heals 2\nPassive ability: Whenever you |Move|, you |Move| an additional space in that direction.\n\n(This will likely need an icon that properly reminds the player of this in the hotbar)",
+			"status": "todo",
 			"tier": 2.0
 		},
 		{
@@ -4922,7 +4916,7 @@
 			"hp_formula": "",
 			"id": "wick",
 			"kind": "monster",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -4954,7 +4948,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0
+			"tier": 2.0
 		},
 		{
 			"ability": "I cannot lose more than 1 HP at a time.",
@@ -5282,17 +5276,12 @@
 			"contradiction_ids": [],
 			"count": 1.0,
 			"explainer": "Neighbors take my Attack damage",
-			"flags": {
-				"art": true,
-				"dev": true,
-				"hide": false
-			},
 			"flow": "When Attack would hit me, I take 0. Living neighbors take that Attack as if you attacked them, left (clockwise) first, then right. One living neighbor takes the full hit once. Zero living neighbors: I take it. A loop (two Prisms) fizzles that share. Needleback, Twins, Bodyguard, Goblin, Anvil apply on the one who actually takes it. Poison, Boot, Sledgehammer still hit me. Quiet Bell turns this off.",
 			"hp_base": 6.0,
 			"hp_formula": "",
 			"id": "prism",
 			"kind": "monster",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5871,17 +5860,17 @@
 		},
 		{
 			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
-			"atk_base": 8,
+			"atk_base": 8.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 8,
+			"bucket": 8.0,
 			"call_name": "Death Knell",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
 			"flow": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test), Gain 1 Toll at 6 even if Zombie would block Gain. If the hand is full, the player clicks one item to throw away, then Toll lands. A second Death Bell grants a second Toll at 6. On Spin of this monster, if it is not silenced, it loses 2 HP (Anvil still max 1). Quiet Bell: skip the -2 HP and skip the Defeat discard; Tolls already in hand still tick. Item uses that already increment Beads (including Bushido's dummy throw) tick every Toll by 1. Potion auto, Buckler auto, and Cube/Worm/overlay picks do not tick. At Toll 1 the card pulses. At 0 they Die; Healing Potion can save. If the killing item ticks Toll from 1 to 0 while this Bell is the one being Defeated, the Defeat discard overlay happens first so they can throw Toll away and live. Defeat overlay: must click one item (Ability as the line), then the Bell rings and leaves with loot. Empty hand: skip discard, still ring. Toll is T0, black like Egg, Unplayable, not drafted.",
-			"hp_base": 12,
+			"hp_base": 12.0,
 			"hp_formula": "",
 			"id": "death_bell",
 			"kind": "monster",
@@ -5911,13 +5900,13 @@
 			"name": "Death Bell",
 			"notes": "Bucket 9. Giant evil church bell. 12 HP 8 ATK.",
 			"ops": {},
-			"priority": 3,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "If you have 3, 6, or 9 Items, you Always Spin me next",
@@ -6499,5 +6488,5 @@
 			"tier": 2.0
 		}
 	],
-	"updated": "2026-10-20"
+	"updated": "2026-10-22"
 }
