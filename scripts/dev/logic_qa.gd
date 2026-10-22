@@ -818,6 +818,19 @@ func _judge_reason(expected: Dictionary, snap: Dictionary, after_spin: Dictionar
 		return "Facing HP should be %s. The plate showed %s." % [expected.get("face_hp"), face.get("hp")]
 	if expected.has("face_atk") and int(face.get("atk", -1)) != int(expected.get("face_atk", -1)):
 		return "Facing Attack should be %s. The plate showed %s." % [expected.get("face_atk"), face.get("atk")]
+	var want_nb: Variant = expected.get("neighbor_hp", {})
+	if typeof(want_nb) == TYPE_DICTIONARY and not (want_nb as Dictionary).is_empty():
+		var nbs: Array = snap.get("neighbors", [])
+		for kid in (want_nb as Dictionary).keys():
+			var found_hp: int = -999
+			for nb in nbs:
+				if str(nb.get("id", "")) == str(kid):
+					found_hp = int(nb.get("hp", -1))
+					break
+			if found_hp == -999:
+				return "Neighbor %s should be on the wheel." % kid
+			if found_hp != int((want_nb as Dictionary)[kid]):
+				return "Neighbor %s HP should be %s. The plate showed %s." % [kid, (want_nb as Dictionary)[kid], found_hp]
 	var want_hand: Dictionary = expected.get("in_hand", expected.get("spent", {}))
 	var hand_is_spent: bool = expected.has("spent") and not expected.has("in_hand")
 	for k in want_hand.keys():

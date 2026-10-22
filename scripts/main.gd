@@ -64,6 +64,7 @@ const PLAYTEST_TIER := preload("res://scripts/playtest_tier_list.gd")
 const PLAYTEST_INBOX := preload("res://scripts/playtest_inbox.gd")
 const PLAYTEST_INTRO := preload("res://scripts/playtest_intro.gd")
 const TITLE_TEASER := preload("res://scripts/title_teaser.gd")
+const SPIN_ARROW_BTN := preload("res://scripts/spin_arrow_btn.gd")
 const PLAYTEST_META_PATH := "user://playtest_meta.json"
 
 const LOG_KIND := {
@@ -585,10 +586,9 @@ var _adventure_busy: bool = false
 var moves_left: int = 0
 var _move_busy: bool = false
 var _howto_move_shown: bool = false
-var move_box: Control
 var move_count: Label
-var btn_move_left: Button
-var btn_move_right: Button
+var btn_move_left: BaseButton
+var btn_move_right: BaseButton
 var dungeon_deck_ui
 var challenge_draft_ui
 var btn_challenge_begin: Button
@@ -1047,7 +1047,6 @@ func _build_ui() -> void:
 	challenge_draft_ui = CHALLENGE_DRAFT.new()
 	challenge_draft_ui.setup()
 	play_field.add_child(challenge_draft_ui)
-	_build_move_ui()
 	challenge_draft_ui.hovered_item.connect(_on_item_hovered)
 	challenge_draft_ui.unhovered_item.connect(_on_item_unhovered)
 	trophy.z_index = 6
@@ -1133,6 +1132,7 @@ func _build_ui() -> void:
 	btn_done.mouse_exited.connect(_on_done_hover.bind(false))
 	btn_done.button_down.connect(_on_done_press.bind(true))
 	btn_done.button_up.connect(_on_done_press.bind(false))
+	_build_move_ui()
 
 	choice_box = HBoxContainer.new()
 	choice_box.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -3757,6 +3757,23 @@ func _challenge_resolve_holes(from: int) -> void:
 		start = (i + 1) % maxi(1, wheel.size())
 
 
+func _fight_facing_live() -> bool:
+	if phase != "fighting":
+		return false
+	if facing_index < 0 or facing_index >= wheel.size():
+		return false
+	if str(wheel[facing_index].get("kind", "")) != "monster":
+		return false
+	return int(wheel[facing_index].get("hp", 0)) > 0
+
+
+func _restore_fight_wheel() -> void:
+	if wheel_view == null or not _fight_facing_live():
+		return
+	wheel_view.set_slices(wheel, facing_index, "none")
+	await wheel_view.recenter_on(facing_index)
+
+
 func _challenge_refill_or_collapse(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
@@ -3788,23 +3805,31 @@ func _challenge_refill_or_collapse(index: int) -> void:
 		if wheel_view:
 			if wheel_view.slay_index == index:
 				wheel_view.clear_slay()
-			wheel_view.set_slices(wheel, -1, "none")
+			var face: int = facing_index if _fight_facing_live() else -1
+			wheel_view.set_slices(wheel, face, "none")
 			wheel_view.pulse_arrive(index)
 		if sfx:
 			sfx.play("drop", -8.0)
 			sfx.play("whoosh", -12.0, 0.9)
 		_refresh()
+		await _restore_fight_wheel()
 		return
+	var pin: int = facing_index if _fight_facing_live() else -1
 	if wheel_view:
-		await wheel_view.collapse_slice(index)
+		await wheel_view.collapse_slice(index, pin)
 	wheel.remove_at(index)
 	if challenge_aim == index:
 		challenge_aim = -1
 	elif challenge_aim > index:
 		challenge_aim -= 1
+	if facing_index == index:
+		facing_index = -1
+	elif index < facing_index:
+		facing_index -= 1
 	_reseat_slots()
 	_sync_wheel_stats()
 	_refresh()
+	await _restore_fight_wheel()
 
 
 func _challenge_after_fight() -> void:
@@ -6893,6 +6918,7 @@ func _undo_finish_item() -> void:
 func _undo_kill_motion() -> void:
 	_walker_busy = false
 	_adventure_busy = false
+	_move_busy = false
 	if wheel_view != null:
 		if wheel_view.has_method("kill_spin"):
 			wheel_view.kill_spin()
@@ -6990,6 +7016,9 @@ func _restore_run(snap: Dictionary) -> void:
 	challenge_route = bool(snap.get("challenge_route", challenge_route))
 	if wheel_view:
 		wheel_view.selected_index = challenge_aim if phase == "ready" else -1
+		wheel_view.facing_index = facing_index
+		if facing_index >= 0 and facing_index < wheel.size() and wheel_view.has_method("rotation_for_index"):
+			wheel_view.rot = fposmod(wheel_view.rotation_for_index(facing_index), TAU)
 	if dungeon_deck_ui:
 		dungeon_deck_ui.set_count(challenge_deck.size() if typeof(challenge_deck) == TYPE_ARRAY else 0)
 	_hotbar_sig = ""
@@ -7889,7 +7918,7 @@ func _recycle_after_gone(snap: Dictionary) -> void:
 		if str(it.get("card_id", "")) == "recycler" and int(it.get("uid", -1)) in fire_uids:
 			if hotbar_box:
 				for c in hotbar_box.get_children():
-					if int(c.get("uid")) == int(it.get("uid", -1)) and c.has_method("bounce"):
+					if int(c.uid) == int(it.get("uid", -1)) and c.has_method("bounce"):
 						c.bounce()
 	for _i in copies:
 		if _hand_full():
@@ -9113,7 +9142,7 @@ func _play_item_transform(uid: int) -> void:
 		sfx.play("confirm", -10.0, 0.85)
 	if hotbar_box:
 		for c in hotbar_box.get_children():
-			if int(c.get("uid")) != uid:
+			if int(c.uid) != uid:
 				continue
 			if c.has_method("play_transform"):
 				c.play_transform()
@@ -9482,7 +9511,7 @@ func _announce_item_use(it: Dictionary, to: Vector2 = Vector2.INF) -> void:
 	var uid: int = int(it.get("uid", -1))
 	if hotbar_box:
 		for c in hotbar_box.get_children():
-			if int(c.get("uid")) == uid and c.has_method("bounce"):
+			if int(c.uid) == uid and c.has_method("bounce"):
 				c.bounce()
 				break
 	if ability_slash:
@@ -9674,8 +9703,25 @@ func _fairy_after_spin() -> void:
 		return
 	await _announce_slice(facing_index, _hub_hp_pos())
 	await _heal(2)
-	for i in _neighbor_indices():
-		_heal_monster(i, 2)
+	for i in _neighbors_of(facing_index):
+		if i < 0 or i >= wheel.size():
+			continue
+		var m: Dictionary = wheel[i]
+		if str(m.get("kind", "")) != "monster":
+			continue
+		if int(m.get("hp", 0)) <= 0:
+			continue
+		m["hp_max"] = int(m.get("hp_max", m.get("hp", 0))) + 2
+		m["hp"] = int(m.get("hp", 0)) + 2
+		m["hp_locked"] = true
+		if str(m.get("card_id", "")) == "slime_boss":
+			m["atk"] = int(m["hp"])
+		wheel[i] = m
+		_log("on_spin", "Fairy heal +2  →  %s HP" % m["hp"])
+		if sfx:
+			sfx.play("pluck", -10.0)
+		if wheel_view:
+			wheel_view.hit_feedback(i, -2, 0)
 	_refresh()
 
 
@@ -10828,7 +10874,7 @@ func _item_card_global(uid: int) -> Vector2:
 		return Vector2.ZERO
 	var found: Control = null
 	for c in hotbar_box.get_children():
-		if int(c.get("uid")) == uid:
+		if int(c.uid) == uid:
 			found = c
 			break
 	if found == null:
@@ -11719,6 +11765,7 @@ func _next_bodyguard(current: int, used: Dictionary) -> int:
 
 
 ## Each Bodyguard once, to the end of that line.
+## Prism splits before Bodyguard can steal the aimed seat.
 func _plan_redirect(aim: int, n: int) -> Dictionary:
 	var path: Array = [aim]
 	var current: int = aim
@@ -11727,7 +11774,7 @@ func _plan_redirect(aim: int, n: int) -> Dictionary:
 	if _living_id(current, "bodyguard"):
 		used[current] = true
 	var stepping := true
-	while stepping:
+	while stepping and not _living_id(current, "prism"):
 		stepping = false
 		var nxt: int = _next_bodyguard(current, used)
 		if nxt >= 0:
@@ -11774,6 +11821,10 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	last_item_atk = n
 	if index < 0 or index >= wheel.size():
 		return false
+	if _living_id(index, "prism"):
+		var prism_dests: Array[int] = _prism_living_neighbors(index)
+		if not prism_dests.is_empty():
+			return await _prism_split_to(index, n, prism_dests)
 	if not skip_redirect:
 		var plan: Dictionary = _plan_redirect(index, n)
 		if bool(plan.get("fizzle", false)) or bool(plan.get("moved", false)):
@@ -11947,7 +11998,7 @@ func _play_chain_cancel() -> bool:
 		var uid: int = int(it.get("uid", -1))
 		if hotbar_box:
 			for c in hotbar_box.get_children():
-				if int(c.get("uid")) == uid and c.has_method("bounce"):
+				if int(c.uid) == uid and c.has_method("bounce"):
 					c.bounce()
 					break
 	return true
@@ -12044,6 +12095,42 @@ func _opposite_index() -> int:
 	if n < 2 or n % 2 != 0 or facing_index < 0:
 		return -1
 	return (facing_index + (n >> 1)) % n
+
+
+func _prism_living_neighbors(index: int) -> Array[int]:
+	var out: Array[int] = []
+	for j in _neighbors_of(index):
+		if j < 0 or j >= wheel.size():
+			continue
+		if str(wheel[j].get("kind", "")) != "monster":
+			continue
+		if int(wheel[j].get("hp", 0)) <= 0:
+			continue
+		out.append(j)
+	return out
+
+
+func _prism_split_to(index: int, n: int, dests: Array[int]) -> bool:
+	if dests.is_empty():
+		return false
+	last_atk_index = -1
+	last_atk_line = "0  →  Prism"
+	_log("on_resolve", "Prism refract")
+	await _announce_slice(index, _slice_hp_pos(dests[0]))
+	for j in dests:
+		if _living_id(j, "prism"):
+			last_atk_index = -1
+			last_atk_line = "0  →  no target"
+			_log("atk", last_atk_line)
+			if sfx:
+				sfx.play("glass", -8.0, 0.85)
+			continue
+		if await _deal_atk_at(j, n, false, false, true):
+			return true
+		_log("atk", last_atk_line)
+		if j != facing_index and j >= 0 and j < wheel.size() and int(wheel[j].get("hp", 0)) <= 0:
+			await _maybe_slay_down(j)
+	return false
 
 
 func _neighbors_of(index: int) -> Array[int]:
@@ -12822,6 +12909,7 @@ func _kill_neighbor(index: int) -> void:
 		_challenge_vacate(index)
 		_refresh()
 		await _challenge_resolve_holes(index)
+		await _restore_fight_wheel()
 		if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 			if not _wick_waiting(facing_index):
 				await _maybe_slay_down(facing_index)
@@ -15606,14 +15694,6 @@ func _layout_play_field() -> void:
 	if cue_label:
 		cue_label.position = Vector2(12.0, minf(wheel_y + side + 4.0, sz.y - 36.0))
 		cue_label.size = Vector2(maxf(sz.x - 24.0, 180.0), 36.0)
-	if move_box:
-		move_box.reset_size()
-		var msz: Vector2 = move_box.get_combined_minimum_size()
-		move_box.size = msz
-		move_box.position = Vector2(
-			wheel_view.position.x + (wheel_view.size.x - msz.x) * 0.5,
-			wheel_view.position.y + wheel_view.size.y * 0.70
-		)
 	_place_log_overlay()
 	_place_fight_art()
 
@@ -15983,33 +16063,43 @@ func _sync_buttons() -> void:
 
 
 func _build_move_ui() -> void:
-	move_box = VBoxContainer.new()
-	move_box.name = "MoveBox"
-	move_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	move_box.add_theme_constant_override("separation", 6)
-	move_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	move_box.z_index = 18
-	move_box.visible = false
-	play_field.add_child(move_box)
+	if btn_done == null:
+		return
+	var mid: HBoxContainer = btn_done.get_parent() as HBoxContainer
+	if mid == null:
+		return
+	mid.add_theme_constant_override("separation", 8)
+	btn_move_left = SPIN_ARROW_BTN.new()
+	btn_move_left.name = "MoveLeft"
+	btn_move_left.set("arc_left", true)
+	btn_move_left.pressed.connect(_on_move_left)
+	btn_move_right = SPIN_ARROW_BTN.new()
+	btn_move_right.name = "MoveRight"
+	btn_move_right.set("arc_left", false)
+	btn_move_right.pressed.connect(_on_move_right)
 	move_count = Label.new()
+	move_count.name = "MoveCount"
 	move_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	move_count.add_theme_font_size_override("font_size", 22)
+	move_count.add_theme_font_size_override("font_size", 16)
 	move_count.add_theme_color_override("font_color", Color("f0e6d8"))
 	move_count.add_theme_color_override("font_outline_color", Color("100e0c"))
 	move_count.add_theme_constant_override("outline_size", 4)
 	move_count.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	move_box.add_child(move_count)
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 10)
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	move_box.add_child(row)
-	btn_move_left = _pill(PLAYER_COPY.text("combat.move_left", "◀ Move"), Color("1c2428"), Color("6bb3d9"), _on_move_left)
-	btn_move_left.custom_minimum_size = Vector2(148, 48)
-	btn_move_right = _pill(PLAYER_COPY.text("combat.move_right", "Move ▶"), Color("1c2428"), Color("6bb3d9"), _on_move_right)
-	btn_move_right.custom_minimum_size = Vector2(148, 48)
-	row.add_child(btn_move_left)
-	row.add_child(btn_move_right)
+	var take_col := VBoxContainer.new()
+	take_col.name = "TakeCol"
+	take_col.alignment = BoxContainer.ALIGNMENT_END
+	take_col.add_theme_constant_override("separation", 0)
+	take_col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var done_i: int = btn_done.get_index()
+	mid.remove_child(btn_done)
+	take_col.add_child(move_count)
+	take_col.add_child(btn_done)
+	mid.add_child(btn_move_left)
+	mid.move_child(btn_move_left, done_i)
+	mid.add_child(take_col)
+	mid.move_child(take_col, done_i + 1)
+	mid.add_child(btn_move_right)
+	mid.move_child(btn_move_right, done_i + 2)
 
 
 func _move_count_text() -> String:
@@ -16056,28 +16146,29 @@ func _can_move(dir: int) -> bool:
 
 
 func _sync_move_ui() -> void:
-	if move_box == null:
-		return
-	var show: bool = _is_adventure_mode() and (phase == "fighting" or phase == "ready")
-	move_box.visible = show
-	if not show:
-		return
-	if move_count:
-		move_count.text = _move_count_text()
+	var show: bool = _is_adventure_mode() and phase == "fighting"
 	if btn_move_left:
-		btn_move_left.disabled = not _can_move(-1)
-		btn_move_left.text = PLAYER_COPY.text("combat.move_left", "◀ Move")
+		btn_move_left.visible = show
+		btn_move_left.disabled = not _can_move(1)
+		btn_move_left.mouse_default_cursor_shape = Control.CURSOR_ARROW if btn_move_left.disabled else Control.CURSOR_POINTING_HAND
+		btn_move_left.queue_redraw()
 	if btn_move_right:
-		btn_move_right.disabled = not _can_move(1)
-		btn_move_right.text = PLAYER_COPY.text("combat.move_right", "Move ▶")
+		btn_move_right.visible = show
+		btn_move_right.disabled = not _can_move(-1)
+		btn_move_right.mouse_default_cursor_shape = Control.CURSOR_ARROW if btn_move_right.disabled else Control.CURSOR_POINTING_HAND
+		btn_move_right.queue_redraw()
+	if move_count:
+		move_count.visible = show
+		if show:
+			move_count.text = _move_count_text()
 
 
 func _on_move_left() -> void:
-	_try_move(-1)
+	_try_move(1)
 
 
 func _on_move_right() -> void:
-	_try_move(1)
+	_try_move(-1)
 
 
 func _apply_face_lock(leave_i: int, arrive_i: int) -> void:
@@ -16104,14 +16195,14 @@ func _try_move(dir: int) -> void:
 	var dest: int = _live_neighbor_seat(facing_index, dir)
 	if dest < 0:
 		return
+	_undo_begin()
 	_move_busy = true
 	_sync_move_ui()
 	var leave: int = facing_index
 	facing_index = dest
 	_apply_face_lock(leave, dest)
 	moves_left = maxi(0, moves_left - 1)
-	_undo_wall()
-	_undo_arm()
+	_undo_commit()
 	_log("on_item_use", "Move %s" % str(wheel[dest].get("name", "?")))
 	_show_faced_monster()
 	if sfx:

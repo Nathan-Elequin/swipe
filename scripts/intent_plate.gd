@@ -4,11 +4,12 @@ extends Control
 const INTENT_BADGE := preload("res://scripts/intent_badge.gd")
 const PLAYER_COPY := preload("res://scripts/player_copy.gd")
 
-const BADGE_GAP := 20.0
-const PAD := 16.0
+const BADGE_GAP := 6.0
+const PAD := 6.0
+const BADGE := 48.0
 const MAX_ROW := 5
 const MAX_SHOW := 8
-const DROP_IN := 0.140
+const DROP_IN := 0.100
 
 var main
 var _capsule: Panel
@@ -38,10 +39,10 @@ func setup(p_main) -> void:
 	_capsule.name = "Capsule"
 	_capsule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.078, 0.063, 0.047, 0.92) # #14100c
+	sb.bg_color = Color(0.078, 0.063, 0.047, 0.78) # #14100c
 	sb.border_color = Color("e8c36a")
-	sb.set_border_width_all(3)
-	sb.set_corner_radius_all(14)
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(8)
 	sb.content_margin_left = PAD
 	sb.content_margin_right = PAD
 	sb.content_margin_top = PAD
@@ -50,7 +51,7 @@ func setup(p_main) -> void:
 	add_child(_capsule)
 	_col = VBoxContainer.new()
 	_col.name = "Col"
-	_col.add_theme_constant_override("separation", 8)
+	_col.add_theme_constant_override("separation", 4)
 	_capsule.add_child(_col)
 	_row = HBoxContainer.new()
 	_row.name = "Row"
@@ -63,8 +64,8 @@ func setup(p_main) -> void:
 	_col.add_child(_row2)
 	_loop = Control.new()
 	_loop.name = "LoopChip"
-	_loop.custom_minimum_size = Vector2(32, 16)
-	_loop.size = Vector2(32, 16)
+	_loop.custom_minimum_size = Vector2(22, 12)
+	_loop.size = Vector2(22, 12)
 	_loop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_loop.visible = false
 	_loop.draw.connect(_draw_loop)
@@ -212,7 +213,7 @@ func _play_in() -> void:
 	# calls (layout) are not fighting a stale tween target.
 	_place()
 	var base_y: float = global_position.y
-	global_position.y = base_y - 24.0
+	global_position.y = base_y - 12.0
 	_in_tw = create_tween()
 	_in_tw.tween_property(self, "global_position:y", base_y, DROP_IN).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	var delay := 0.0
@@ -245,8 +246,12 @@ func _place() -> void:
 	if main.combat_stage != null and main.combat_stage.visible:
 		var r: Rect2 = main.combat_stage.get_global_rect()
 		if r.size.x >= 32.0 and r.size.y >= 32.0 and r.position.y > 8.0:
-			center = Vector2(r.position.x + r.size.x * 0.5, r.position.y - 12.0)
-			tip = Vector2(r.position.x + r.size.x * 0.5, r.position.y)
+			var sprite_top := Vector2(r.position.x + r.size.x * 0.5, r.position.y + 8.0)
+			if main.combat_stage.has_method("sprite_top_global"):
+				sprite_top = main.combat_stage.sprite_top_global()
+			# Sit just above the portrait, overlapping the empty stage above it.
+			center = sprite_top + Vector2(0.0, 8.0)
+			tip = sprite_top
 			use_tail = false
 			stage_ok = true
 	if not stage_ok and main.wheel_view != null and int(main.facing_index) >= 0:
@@ -256,8 +261,8 @@ func _place() -> void:
 		if spoke.length() < 1.0:
 			spoke = Vector2(0, -1)
 		# Prefer above the portrait so the plate stays on-screen for bottom-facing slices.
-		center = portrait + Vector2(0.0, -96.0)
-		var outward: Vector2 = portrait + spoke.normalized() * 120.0
+		center = portrait + Vector2(0.0, -56.0)
+		var outward: Vector2 = portrait + spoke.normalized() * 72.0
 		var vp: Rect2 = get_viewport().get_visible_rect()
 		if vp.has_point(outward) and outward.y > vp.position.y + 80.0:
 			center = outward
@@ -281,12 +286,12 @@ func _place() -> void:
 func _fit_capsule_sync() -> void:
 	var n: int = mini(_badges.size(), MAX_ROW)
 	var rows: int = 1 if _badges.size() <= MAX_ROW else 2
-	var loop_w: float = 32.0 + BADGE_GAP if _loop.visible else 0.0
-	var w: float = PAD * 2.0 + n * 64.0 + maxf(0, n - 1) * BADGE_GAP + loop_w
+	var loop_w: float = 22.0 + BADGE_GAP if _loop.visible else 0.0
+	var w: float = PAD * 2.0 + n * BADGE + maxf(0, n - 1) * BADGE_GAP + loop_w
 	if _badges.size() > MAX_ROW:
 		var n2: int = _badges.size() - MAX_ROW
-		w = maxf(w, PAD * 2.0 + n2 * 64.0 + maxf(0, n2 - 1) * BADGE_GAP)
-	var h: float = PAD * 2.0 + rows * 64.0 + (8.0 if rows > 1 else 0.0)
+		w = maxf(w, PAD * 2.0 + n2 * BADGE + maxf(0, n2 - 1) * BADGE_GAP)
+	var h: float = PAD * 2.0 + rows * BADGE + (4.0 if rows > 1 else 0.0)
 	_capsule.custom_minimum_size = Vector2(w, h)
 	_capsule.size = Vector2(w, h)
 	size = Vector2(w, h + 18.0)

@@ -252,7 +252,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-21",
 			"name": "Breastplate"
 		},
 		"item:caltrops": {
@@ -807,9 +807,12 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-21",
 			"name": "Longbow"
 		},
 		"item:lucky_nickel": {
@@ -2739,7 +2742,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-21",
 			"name": "Wick"
 		},
 		"monster:wizard": {
@@ -3074,24 +3077,6 @@
 			"text": "Swap: trade it for a random item of the same rank (Weak, Tough or Deadly).",
 			"where": "Keyword tip body for Swap"
 		},
-		"status.silenced": {
-			"cat": "Combat",
-			"locked_at": "2026-10-20",
-			"text": "Silenced",
-			"where": "Silenced status on a monster plate"
-		},
-		"status.sling_loaded": {
-			"cat": "Combat",
-			"locked_at": "2026-10-20",
-			"text": "Loaded",
-			"where": "Sling armed-state label"
-		},
-		"status.sling_loaded_tip": {
-			"cat": "Combat",
-			"locked_at": "2026-10-20",
-			"text": "Loaded: your next Attack can hit any monster.",
-			"where": "Sling Loaded tooltip"
-		},
 		"pause.hint": {
 			"cat": "Pause",
 			"locked_at": "2026-10-07",
@@ -3373,6 +3358,24 @@
 			"locked_at": "2026-10-19",
 			"text": "Keep a phone voice memo running. Talk out loud at every interaction.",
 			"where": "Playtest chip"
+		},
+		"status.silenced": {
+			"cat": "Combat",
+			"locked_at": "2026-10-20",
+			"text": "Silenced",
+			"where": "Silenced status on a monster plate"
+		},
+		"status.sling_loaded": {
+			"cat": "Combat",
+			"locked_at": "2026-10-20",
+			"text": "Loaded",
+			"where": "Sling armed-state label"
+		},
+		"status.sling_loaded_tip": {
+			"cat": "Combat",
+			"locked_at": "2026-10-20",
+			"text": "Loaded: your next Attack can hit any monster.",
+			"where": "Sling Loaded tooltip"
 		},
 		"taunt.bloody_gauntlets.1": {
 			"cat": "Taunts",
@@ -4461,5 +4464,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-10-20"
+	"updated": "2026-10-21"
 }

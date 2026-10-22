@@ -3,7 +3,7 @@ extends Control
 
 const PLAYER_COPY := preload("res://scripts/player_copy.gd")
 
-const SIZE_ON := Vector2(64, 64)
+const SIZE_ON := Vector2(48, 48)
 const ANIM := "res://assets/ui/anim/"
 const FRAME_MS := 0.040
 const BLUE := Color("6ec8e8")
@@ -40,7 +40,7 @@ func _ready() -> void:
 	_face.name = "Face"
 	_face.centered = true
 	_face.position = SIZE_ON * 0.5
-	_face.scale = Vector2(4, 4)
+	_face.scale = Vector2(3, 3)
 	_face.texture_filter = TEXTURE_FILTER_NEAREST
 	_face.sprite_frames = _build_frames()
 	add_child(_face)
@@ -48,7 +48,7 @@ func _ready() -> void:
 	_burst.name = "Burst"
 	_burst.centered = true
 	_burst.position = SIZE_ON * 0.5
-	_burst.scale = Vector2(4, 4)
+	_burst.scale = Vector2(3, 3)
 	_burst.texture_filter = TEXTURE_FILTER_NEAREST
 	_burst.sprite_frames = _face.sprite_frames
 	_burst.visible = false
@@ -66,9 +66,9 @@ func _ready() -> void:
 	add_child(_num)
 	_chip = TextureRect.new()
 	_chip.name = "Chip"
-	_chip.custom_minimum_size = Vector2(32, 32)
-	_chip.size = Vector2(32, 32)
-	_chip.position = Vector2(SIZE_ON.x - 28, SIZE_ON.y - 28)
+	_chip.custom_minimum_size = Vector2(20, 20)
+	_chip.size = Vector2(20, 20)
+	_chip.position = Vector2(SIZE_ON.x - 18, SIZE_ON.y - 18)
 	_chip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_chip.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_chip.texture_filter = TEXTURE_FILTER_NEAREST
@@ -264,7 +264,7 @@ func _apply_num() -> void:
 	else:
 		_num.text = str(n_raw)
 	var digits: int = _num.text.length()
-	_num.add_theme_font_size_override("font_size", 24 if digits >= 2 else 30)
+	_num.add_theme_font_size_override("font_size", 16 if digits >= 2 else 20)
 
 
 func _apply_chip() -> void:

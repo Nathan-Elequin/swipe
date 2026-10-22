@@ -304,6 +304,14 @@ func _tier_col() -> Color:
 	return Color("c08050")
 
 
+func sprite_top_global() -> Vector2:
+	var r: Rect2 = get_global_rect()
+	if _sprite == null or _sprite.texture == null:
+		return Vector2(r.position.x + r.size.x * 0.5, r.position.y + r.size.y * 0.42)
+	var sr: Rect2 = _sprite.get_global_rect()
+	return Vector2(sr.position.x + sr.size.x * 0.5, sr.position.y)
+
+
 func _place_sprite() -> void:
 	if _sprite == null:
 		return

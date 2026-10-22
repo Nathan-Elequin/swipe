@@ -2242,25 +2242,46 @@
 			"family": "collide",
 			"items": [],
 			"monsters": [
-				"fairy"
+				"wizard",
+				"fairy",
+				"golem"
 			],
 			"face": "fairy",
 			"challenge": true,
 			"clicks": [],
-			"expected_text": "When you Spin Fairy, Heal you and Neighbors for 2. Start at 3 HP, after Spin you have 5.",
+			"expected_text": "When you Spin Fairy, Heal you and Neighbors for 2. Start at 3 HP, after Spin you have 5, and each Neighbor is +2.",
 			"expected": {
 				"hp": 5,
+				"neighbor_hp": {
+					"wizard": 4,
+					"golem": 9
+				},
 				"log_has": [
-					"Fairy"
+					"Fairy",
+					"Fairy heal"
 				]
 			},
 			"cards": [
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				},
 				{
 					"id": "fairy",
 					"kind": "monster",
 					"name": "Fairy",
 					"ability": "When you Spin me, I Heal you and my Neighbors for 2 HP.",
 					"sprite": "assets/dungeon/extra/fairy.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
 				}
 			],
 			"hp_before": 3
@@ -2914,8 +2935,12 @@
 			],
 			"expected_text": "When Prism would take Attack, both Neighbors take it instead.",
 			"expected": {
+				"face_hp": 6,
+				"neighbor_hp": {
+					"golem": 1
+				},
 				"log_has": [
-					"Prism"
+					"Prism refract"
 				]
 			},
 			"cards": [

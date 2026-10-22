@@ -695,7 +695,7 @@
 			"hp_formula": "",
 			"id": "breastplate",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-21",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -727,7 +727,7 @@
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0
+			"tier": 3.0
 		},
 		{
 			"ability": "Spin again and gain a Random Item.",
@@ -1280,7 +1280,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
+			"ability": "Deal 5 Attack to the monster Across from you",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -1289,13 +1289,13 @@
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 2.0,
-			"explainer": "(ATK 4) opposite",
-			"flow": "Usable in a fight only when living slice count is even. Deal 4 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
+			"explainer": "(ATK 5) opposite",
+			"flow": "Usable in a fight only when living slice count is even. Deal 5 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "longbow",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-21",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1311,22 +1311,25 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
-			"log_hint": "4 damage across the wheel",
+			"log_hint": "5 damage across the wheel",
 			"mode_pool": "all",
 			"name": "Longbow",
 			"notes": "",
 			"ops": {
 				"kind": "atk_opposite",
-				"n": 4.0
+				"n": 5.0
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
-			"status": "live",
+			"status": "todo",
 			"tier": 2.0
 		},
 		{
@@ -4908,21 +4911,21 @@
 		},
 		{
 			"ability": "I Lose 2 HP each time a Neighbor is Defeated",
-			"atk_base": 6.0,
+			"atk_base": 6,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 3,
 			"call_name": "Death Toll",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "-2 HP per Neighbor Defeated.",
 			"flow": "When a Neighbor's fight ends as Defeated, Slain, or Blocked, I lose 2 HP. Flee (Cowardly King, Commander) does not count. If this drops me to 0 HP, I am Defeated.",
-			"hp_base": 10.0,
+			"hp_base": 10,
 			"hp_formula": "",
 			"id": "wick",
 			"kind": "monster",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-21",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -4948,13 +4951,13 @@
 			"name": "Wick",
 			"notes": "",
 			"ops": {},
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0
+			"tier": 2
 		},
 		{
 			"ability": "I cannot lose more than 1 HP at a time.",
@@ -5871,17 +5874,17 @@
 		},
 		{
 			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
-			"atk_base": 8,
+			"atk_base": 8.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 8,
+			"bucket": 8.0,
 			"call_name": "Death Knell",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
 			"flow": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test), Gain 1 Toll at 6 even if Zombie would block Gain. If the hand is full, the player clicks one item to throw away, then Toll lands. A second Death Bell grants a second Toll at 6. On Spin of this monster, if it is not silenced, it loses 2 HP (Anvil still max 1). Quiet Bell: skip the -2 HP and skip the Defeat discard; Tolls already in hand still tick. Item uses that already increment Beads (including Bushido's dummy throw) tick every Toll by 1. Potion auto, Buckler auto, and Cube/Worm/overlay picks do not tick. At Toll 1 the card pulses. At 0 they Die; Healing Potion can save. If the killing item ticks Toll from 1 to 0 while this Bell is the one being Defeated, the Defeat discard overlay happens first so they can throw Toll away and live. Defeat overlay: must click one item (Ability as the line), then the Bell rings and leaves with loot. Empty hand: skip discard, still ring. Toll is T0, black like Egg, Unplayable, not drafted.",
-			"hp_base": 12,
+			"hp_base": 12.0,
 			"hp_formula": "",
 			"id": "death_bell",
 			"kind": "monster",
@@ -5911,13 +5914,13 @@
 			"name": "Death Bell",
 			"notes": "Bucket 9. Giant evil church bell. 12 HP 8 ATK.",
 			"ops": {},
-			"priority": 3,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "If you have 3, 6, or 9 Items, you Always Spin me next",
@@ -6499,5 +6502,5 @@
 			"tier": 2.0
 		}
 	],
-	"updated": "2026-10-20"
+	"updated": "2026-10-21"
 }
