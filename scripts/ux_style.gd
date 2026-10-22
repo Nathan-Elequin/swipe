@@ -320,6 +320,10 @@ static func def_id_of(piece: String) -> String:
 		return "phoenix_egg"
 	if low == "phoenix":
 		return "phoenix"
+	if low == "across":
+		return "across"
+	if low == "move":
+		return "move"
 	if low.begins_with("flee"):
 		return "flee"
 	if low.begins_with("spin") or low == "spun":
@@ -343,6 +347,10 @@ static func def_of(id: String) -> String:
 			return "select any Monster on the wheel"
 		"eject":
 			return "remove them from the dungeon immediately, placing them on the bottom of the Dungeon Deck"
+		"across":
+			return "across on the opposite side of the wheel."
+		"move":
+			return "shift to a Neighbor without Spinning"
 		"flee":
 			return "If you are facing them, Spin the wheel at random."
 		"spin":
@@ -644,6 +652,7 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"heals", "healed", "healing", "heal",
 		"thorns", "thorn",
 		"keep",
+		"move",
 		"bled", "bleeds", "bleeding", "bleed",
 		"fleeing", "flees", "fled", "flee",
 		"any",
@@ -776,6 +785,10 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low.begins_with("thorn"):
 		return atk_c
 	if low == "keep":
+		return gold
+	if low == "across":
+		return gold
+	if low == "move":
 		return gold
 	if low.begins_with("flee"):
 		return gold

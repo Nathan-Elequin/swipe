@@ -130,7 +130,10 @@ func _try_catches(ring: Dictionary) -> void:
 		for c in main.hotbar_box.get_children():
 			if c == null:
 				continue
-			var uid: int = int(c.get("uid"))
+			var uid_v: Variant = c.get("uid")
+			if typeof(uid_v) != TYPE_INT:
+				continue
+			var uid: int = uid_v
 			if uid < 0:
 				continue
 			var key := "card_%s" % uid

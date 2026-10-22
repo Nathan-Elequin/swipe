@@ -1,0 +1,27 @@
+---
+description: When a Boss Rush change is finished, show Nathan a screenshot (PixelLab contact sheet and/or in-game Godot MCP shot)
+alwaysApply: true
+---
+
+# Finished work needs a screenshot
+
+Boss Rush / Swipe only. Locked **2026-10-21**.
+
+Whenever a piece of work is finished, Nathan sees proof in chat. A description is not enough.
+
+## Do
+
+1. **PixelLab major series** (a finished batch of sprites, medallions, frames): build a contact sheet, attach it in chat (`Read` the PNG). One sheet per series, not one image per frame.
+2. **In the running game** (layout, wiring, animation, a bug fix friends would see): take a Godot MCP screenshot of the actual surface. Exercise the thing, then shoot. A still of the editor filesystem is not the shot.
+3. **Use the Godot already open** on this PC. Do not launch a second editor unless he asked. Screenshot only.
+4. Caption the shot in one line: what it is, and which checkout/branch it came from.
+
+## Don't
+
+- Don't finish a visual change with only text.
+- Don't save, run, or write files through Godot MCP if that editor is on `movement` or another dirty checkout. Shot only.
+- Don't kill a Godot process you didn't start.
+- Don't skip the in-game shot because a contact sheet exists, or skip the contact sheet because an in-game shot is coming later.
+- Don't export or push to itch for art-handoff work.
+
+Ignore outside this repo.

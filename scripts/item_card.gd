@@ -171,6 +171,10 @@ func setup(
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_icon)
+	if p_id == "shuriken":
+		var arc := preload("res://scripts/move_arc_icon.gd").new()
+		arc.name = "MoveArc"
+		_icon.add_child(arc)
 
 	var num_host := Control.new()
 	num_host.custom_minimum_size = Vector2(104, 32)
@@ -1434,4 +1438,3 @@ func _anim_tex(path: String) -> Texture2D:
 	if ResourceLoader.exists(path):
 		return load(path) as Texture2D
 	return null
-

@@ -193,7 +193,7 @@
 			"type": "I"
 		},
 		{
-			"ability": "Flips 2 ↔ 4 after any Item is used. Keeps its number between fights.",
+			"ability": "Flips 2 ↔ 4 after each Item used.",
 			"author_lock": true,
 			"bucket": 0.0,
 			"call_name": "",
@@ -208,7 +208,7 @@
 				"hide": false
 			},
 			"id": "sai",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -249,7 +249,7 @@
 			]
 		},
 		{
-			"ability": "Block equal to the HP you are missing.",
+			"ability": "+1 Block for each HP you are missing.",
 			"author_lock": true,
 			"bucket": 1.0,
 			"call_name": "",
@@ -264,7 +264,7 @@
 				"hide": false
 			},
 			"id": "medallion",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -280,7 +280,10 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
 			"log_hint": "Block for missing HP",
 			"mode_pool": "all",
@@ -533,7 +536,7 @@
 				"hide": false
 			},
 			"id": "breastplate",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -565,7 +568,7 @@
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 3.0,
 			"type": "I"
 		},
 		{
@@ -1135,22 +1138,22 @@
 			"usable_when": "enemy_atk >= 6"
 		},
 		{
-			"ability": "Select an enemy. They Attack the enemy you are facing.",
+			"ability": "Target any enemy. That enemy attacks the monster that is Across from them.",
 			"author_lock": true,
 			"bucket": 8.0,
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 1.0,
-			"defined": "",
-			"exceptions": "Final enemy: unusable.",
-			"explainer": "Pick → their ATK hits yours",
+			"defined": "Odd living-monster count: cannot use. Click any living monster, including the one you face. They use their current Pocket Watch attack on the living monster halfway around the living circle. Empty corridors are skipped. Used up.",
+			"exceptions": "Odd number of living monsters: unusable.",
+			"explainer": "Pick any monster. They Attack the monster Across from them. Unplayable when the number of monsters is odd.",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
 			"id": "pocketwatch",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1171,7 +1174,7 @@
 				"reminder",
 				"log_hint"
 			],
-			"log_hint": "A monster hits for you",
+			"log_hint": "A monster hits across",
 			"mode_pool": "all",
 			"name": "Pocketwatch",
 			"ops": {},
@@ -1648,7 +1651,7 @@
 				"hide": false
 			},
 			"id": "lantern",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1664,7 +1667,10 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
 			"log_hint": "Heal 2, keep if still hurt",
 			"mode_pool": "all",
@@ -1680,7 +1686,7 @@
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 3.0,
 			"type": "I"
 		},
 		{
@@ -1990,7 +1996,7 @@
 			"type": "I"
 		},
 		{
-			"ability": "(1), (2), (3), or (4) Atk",
+			"ability": "(1), (2), (3), or (4) Atk. Changes on Item use",
 			"author_lock": true,
 			"bucket": 1.0,
 			"call_name": "",
@@ -2005,7 +2011,7 @@
 				"hide": false
 			},
 			"id": "counting_beads",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"ability",
 				"explainer",
@@ -2021,7 +2027,10 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
 			"log_hint": "Pick 1, 2, 3, or 4 Attack",
 			"mode_pool": "all",
@@ -2327,22 +2336,22 @@
 			"type": "I"
 		},
 		{
-			"ability": "2 Attack. If the Enemy lives, you Flee and Keep this.",
+			"ability": "Move →, then Attack 3.",
 			"author_lock": true,
 			"bucket": 2.0,
 			"call_name": "",
 			"card_color": "atk",
 			"count": 1.0,
-			"defined": "Click during a fight. Deal 2 Attack. Needleback and Harpy still apply. If they still have HP, you Flee (Spin at random, can be the same monster) and Keep this. If they hit 0, this is used up and you do not Flee. Goblin ignores Attack so they live. Fight only.",
-			"exceptions": "Bucket 1. Flee skips their Attack (Hornet never swings).",
-			"explainer": "(ATK 2) Keep + Flee if live",
+			"defined": "Click during a fight. Used up. If another living monster is on the wheel, shift to the neighbor up and to the right (counter-clockwise, the same way as the Move-right button) without Spinning. This does not spend an adventure Move. Then deal 3 Attack to whoever you are facing. If they are the only living monster, skip the shift and deal 3 to them. No Keep. Goblin ignores Attack. Needleback, Harpy, Anvil, and Prism apply to whoever takes the hit.",
+			"exceptions": "Move up-right, then 3 Attack. One living monster: no Move, the 3 still hits. No Keep.",
+			"explainer": "Move →, then (ATK 3).",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
 			"id": "shuriken",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2363,13 +2372,13 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "2 Attack, Flee and Keep if they live",
+			"log_hint": "Move →, then Attack 3",
 			"mode_pool": "all",
 			"name": "Shuriken",
-			"notes": "Bucket 1. Flee skips their Attack (Hornet never swings).",
+			"notes": "Move up-right, then 3 Attack. One living monster: no Move, the 3 still hits. No Keep.",
 			"ops": {
-				"kind": "atk_flee_keep",
-				"n": 2.0
+				"kind": "atk_move",
+				"n": 3.0
 			},
 			"poc": false,
 			"priority": 3.0,
@@ -2598,22 +2607,22 @@
 			"type": "I"
 		},
 		{
-			"ability": "Heal 5. Gain 3 Poison.",
+			"ability": "Heal 5. Gain 2 Poison.",
 			"author_lock": true,
 			"bucket": 4.0,
 			"call_name": "",
 			"card_color": "heal",
 			"count": 1.0,
-			"defined": "Click during a fight. Used up. Heal 5 (cap 6). Gain 3 Poison; amounts add. Droplet with the number sits next to your HP. Next Spin: facing monster’s poison ticks first and clears, then you lose HP equal to your poison and it clears. Block does not stop it. If that Spin already finished the last monster, skip your tick (victory). Healing Potion still saves a 0; poison is already gone. New dungeon wipes leftover poison. Any Spin counts.",
+			"defined": "Click during a fight. Used up. Heal 5 (cap 6). Gain 2 Poison; amounts add. Droplet with the number sits next to your HP. Next Spin: facing monster’s poison ticks first and clears, then you lose HP equal to your poison and it clears. Block does not stop it. If that Spin already finished the last monster, skip your tick (victory). Healing Potion still saves a 0; poison is already gone. New dungeon wipes leftover poison. Any Spin counts.",
 			"exceptions": "Bucket 6. Same droplet as monster poison.",
-			"explainer": "(HEAL 5) + Gain 3 Poison",
+			"explainer": "(HEAL 5) + Gain 2 Poison",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
 			"id": "ale_flagon",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2634,14 +2643,14 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Heal 5, Gain 3 Poison",
+			"log_hint": "Heal 5, Gain 2 Poison",
 			"mode_pool": "all",
 			"name": "Ale Flagon",
 			"notes": "Bucket 6. Same droplet as monster poison.",
 			"ops": {
 				"heal": 5.0,
 				"kind": "heal_poison",
-				"poison": 3.0
+				"poison": 2.0
 			},
 			"poc": false,
 			"priority": 3.0,
@@ -2778,7 +2787,7 @@
 				"hide": false
 			},
 			"id": "double_buckler",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2811,8 +2820,8 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "",
-			"status": "live",
+			"review_note": "(The 'unplayable' hatch makes it too difficult for players to perceive that it is active and can protect them, fix this)",
+			"status": "todo",
 			"tier": 1.0,
 			"type": "I"
 		},
@@ -2887,7 +2896,7 @@
 				"hide": false
 			},
 			"id": "jar_o_grease",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2921,8 +2930,8 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "",
-			"status": "live",
+			"review_note": "REWORK: On Use, item Heals 2\nPassive ability: Whenever you |Move|, you |Move| an additional space in that direction.\n\n(This will likely need an icon that properly reminds the player of this in the hotbar)",
+			"status": "todo",
 			"tier": 2.0,
 			"type": "I"
 		},
@@ -5224,7 +5233,7 @@
 				"base": 10.0
 			},
 			"id": "wick",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -5255,7 +5264,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 2.0,
 			"type": "M"
 		},
 		{
@@ -5638,7 +5647,7 @@
 				"base": 6.0
 			},
 			"id": "prism",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-22",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6314,13 +6323,13 @@
 		{
 			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
 			"atk": {
-				"base": 8
+				"base": 8.0
 			},
 			"author_lock": true,
-			"bucket": 8,
+			"bucket": 8.0,
 			"call_name": "Death Knell",
 			"card_color": "",
-			"count": 1,
+			"count": 1.0,
 			"defined": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test), Gain 1 Toll at 6 even if Zombie would block Gain. If the hand is full, the player clicks one item to throw away, then Toll lands. A second Death Bell grants a second Toll at 6. On Spin of this monster, if it is not silenced, it loses 2 HP (Anvil still max 1). Quiet Bell: skip the -2 HP and skip the Defeat discard; Tolls already in hand still tick. Item uses that already increment Beads (including Bushido's dummy throw) tick every Toll by 1. Potion auto, Buckler auto, and Cube/Worm/overlay picks do not tick. At Toll 1 the card pulses. At 0 they Die; Healing Potion can save. If the killing item ticks Toll from 1 to 0 while this Bell is the one being Defeated, the Defeat discard overlay happens first so they can throw Toll away and live. Defeat overlay: must click one item (Ability as the line), then the Bell rings and leaves with loot. Empty hand: skip discard, still ring. Toll is T0, black like Egg, Unplayable, not drafted.",
 			"exceptions": "Bucket 9. Giant evil church bell. 12 HP 8 ATK.",
 			"explainer": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
@@ -6330,7 +6339,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 12
+				"base": 12.0
 			},
 			"id": "death_bell",
 			"locked_at": "2026-10-20",
@@ -6360,13 +6369,13 @@
 			"notes": "Bucket 9. Giant evil church bell. 12 HP 8 ATK.",
 			"ops": {},
 			"poc": false,
-			"priority": 3,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3,
+			"tier": 3.0,
 			"type": "M"
 		},
 		{

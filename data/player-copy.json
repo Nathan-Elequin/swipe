@@ -919,6 +919,48 @@
 			"where": "Spin button"
 		},
 		{
+			"cat": "Combat",
+			"draft": true,
+			"key": "combat.move_left",
+			"text": "◀ Move",
+			"where": "Walk one seat left during a fight"
+		},
+		{
+			"cat": "Combat",
+			"draft": true,
+			"key": "combat.move_right",
+			"text": "Move ▶",
+			"where": "Walk one seat right during a fight"
+		},
+		{
+			"cat": "Combat",
+			"draft": true,
+			"key": "combat.moves_n",
+			"text": "{n} Moves",
+			"where": "Moves remaining. {n} is 2 or 3"
+		},
+		{
+			"cat": "Combat",
+			"draft": true,
+			"key": "combat.moves_one",
+			"text": "1 Move",
+			"where": "Moves remaining when one is left"
+		},
+		{
+			"cat": "Combat",
+			"draft": true,
+			"key": "combat.moves_none",
+			"text": "No Moves",
+			"where": "Moves remaining when none are left"
+		},
+		{
+			"cat": "How to Play",
+			"draft": true,
+			"key": "howto.move",
+			"text": "Spend a Move to walk to a neighboring monster before you press Done.",
+			"where": "One-line How to Play mention for walking during a fight"
+		},
+		{
 			"author_lock": true,
 			"cat": "Combat",
 			"key": "combat.safe",

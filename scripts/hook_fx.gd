@@ -112,10 +112,11 @@ func yank(face_i: int, neighbor_i: int) -> void:
 	var slices: Array = wheel.slices
 	var id_a := ""
 	var id_b := ""
-	if face_i >= 0 and face_i < slices.size():
-		id_a = str(slices[face_i].get("card_id", ""))
-	if neighbor_i >= 0 and neighbor_i < slices.size():
-		id_b = str(slices[neighbor_i].get("card_id", ""))
+	if face_i < 0 or neighbor_i < 0 or face_i >= slices.size() or neighbor_i >= slices.size():
+		await get_tree().create_timer(0.08).timeout
+		return
+	id_a = str(slices[face_i].get("card_id", ""))
+	id_b = str(slices[neighbor_i].get("card_id", ""))
 	var tex_a: Texture2D = null
 	var tex_b: Texture2D = null
 	if art != null and art.has_method("monster_still"):

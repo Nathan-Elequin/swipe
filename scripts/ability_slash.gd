@@ -54,6 +54,8 @@ var _name_lbl: Label
 var _call_lbl: Label
 var _cut: Line2D
 var _band_mat: ShaderMaterial
+## Portrait+band cluster used to sit at (750, 610). Shift so that point lands on the wheel.
+var wheel_center: Vector2 = Vector2(750, 480)
 
 
 func setup(p_art) -> void:
@@ -306,13 +308,17 @@ func _portrait_scale_for(tex: Texture2D) -> float:
 	return PORTRAIT_MAX_DISPLAY / native_max
 
 
+func _cutin_shift() -> Vector2:
+	return wheel_center - Vector2(750.0, 610.0)
+
+
 func _portrait_center() -> Vector2:
 	var tex: Texture2D = _portrait.texture
 	var native: Vector2 = Vector2(48, 48)
 	if tex != null:
 		native = Vector2(tex.get_width(), tex.get_height())
 	var s: float = _portrait_scale_for(tex)
-	return Vector2(750.0, 610.0) - native * (s * 0.5)
+	return Vector2(750.0, 610.0) + _cutin_shift() - native * (s * 0.5)
 
 
 func _build_cutin_nodes() -> void:
@@ -410,11 +416,12 @@ func _set_cutin_visible(on: bool) -> void:
 
 
 func _band_points() -> PackedVector2Array:
+	var s: Vector2 = _cutin_shift()
 	return PackedVector2Array([
-		Vector2(-40, 620),
-		Vector2(1720, 250),
-		Vector2(1720, 600),
-		Vector2(-40, 970),
+		Vector2(-40, 620) + s,
+		Vector2(1720, 250) + s,
+		Vector2(1720, 600) + s,
+		Vector2(-40, 970) + s,
 	])
 
 
@@ -469,7 +476,7 @@ func _prepare_cut_line() -> void:
 
 func _prepare_flash() -> void:
 	_flash.texture = CIRCLE_TEX
-	_flash.position = Vector2(750, 610)
+	_flash.position = Vector2(750, 610) + _cutin_shift()
 	var native: float = 64.0
 	if CIRCLE_TEX != null:
 		native = float(CIRCLE_TEX.get_width())
@@ -517,6 +524,9 @@ func _prepare_labels() -> void:
 	_call_lbl.text = _call
 	_name_lbl.visible = _title != ""
 	_call_lbl.visible = _call != ""
+	var s: Vector2 = _cutin_shift()
+	_name_lbl.position = Vector2(1000, 555) + s
+	_call_lbl.position = Vector2(1000, 598) + s
 
 
 func _prepare_portrait() -> void:

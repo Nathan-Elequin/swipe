@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Heal 5. Gain 3 Poison.",
+			"ability": "Heal 5. Gain 2 Poison.",
 			"id": "ale_flagon",
 			"kind": "item",
 			"name": "Ale Flagon",
@@ -30,7 +30,7 @@
 		],
 		"slots": "0 / 50"
 	},
-	"expected": "Item: Ale Flagon — Heal 5. Gain 3 Poison. Monster: Cleric — After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item Challenge hand. Wheel cleric. Click Ale Flagon, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Ale Flagon — Heal 5. Gain 2 Poison. Monster: Cleric — After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item Challenge hand. Wheel cleric. Click Ale Flagon, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-ale_flagon-cleric",
 	"log": "Draft enter\nYou Spin\nSpin Cleric\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nCleric - Health Insurance\nHP heal +3  now 6\nSpin Health Insurance Heal 3  to  6\nSpin Cleric took worst item",

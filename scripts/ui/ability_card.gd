@@ -56,29 +56,44 @@ func _measure() -> void:
 	size = custom_minimum_size
 
 
-func place_from_tag(tag_global: Rect2, dir: Vector2, hub_global: Vector2) -> void:
+func place_from_tag(tag_global: Rect2, dir: Vector2, hub_global: Vector2, avoids: Array = []) -> bool:
 	_measure()
 	var w: float = size.x
 	var h: float = size.y
-	var outward: Vector2 = dir
-	if outward.length() < 0.01:
-		outward = Vector2(1, 0)
-	outward = outward.normalized()
-	if absf(outward.x) < absf(outward.y):
-		outward = Vector2(-1, 0) if tag_global.get_center().x < hub_global.x else Vector2(1, 0)
-	var pos := Vector2.ZERO
-	if outward.x >= 0.0:
-		pos = Vector2(tag_global.end.x + 12.0, tag_global.position.y + tag_global.size.y * 0.5 - h * 0.5)
-	else:
-		pos = Vector2(tag_global.position.x - 12.0 - w, tag_global.position.y + tag_global.size.y * 0.5 - h * 0.5)
+	var mid: Vector2 = tag_global.get_center()
+	var candidates: Array[Vector2] = [
+		Vector2(tag_global.end.x + 12.0, mid.y - h * 0.5),
+		Vector2(tag_global.position.x - 12.0 - w, mid.y - h * 0.5),
+		Vector2(mid.x - w * 0.5, tag_global.position.y - 12.0 - h),
+		Vector2(mid.x - w * 0.5, tag_global.end.y + 12.0),
+	]
+	if dir.x < 0.0:
+		var swap: Vector2 = candidates[0]
+		candidates[0] = candidates[1]
+		candidates[1] = swap
 	var view: Rect2 = get_viewport().get_visible_rect()
-	if pos.x + w > RIGHT_PANEL_X - 4.0:
-		pos.x = tag_global.position.x - 12.0 - w
-	pos.x = clampf(pos.x, view.position.x + 8.0, minf(view.end.x - w - 8.0, RIGHT_PANEL_X - w - 4.0))
-	pos.y = clampf(pos.y, view.position.y + 8.0, view.end.y - h - 8.0)
-	global_position = pos
-	visible = true
-	queue_redraw()
+	for pos in candidates:
+		var p: Vector2 = pos
+		p.x = clampf(p.x, view.position.x + 8.0, minf(view.end.x - w - 8.0, RIGHT_PANEL_X - w - 4.0))
+		p.y = clampf(p.y, view.position.y + 8.0, view.end.y - h - 8.0)
+		var r := Rect2(p, Vector2(w, h))
+		if r.end.x > RIGHT_PANEL_X - 2.0:
+			continue
+		if _hits_avoid(r, avoids):
+			continue
+		global_position = p
+		visible = true
+		queue_redraw()
+		return true
+	visible = false
+	return false
+
+
+func _hits_avoid(r: Rect2, avoids: Array) -> bool:
+	for a in avoids:
+		if typeof(a) == TYPE_RECT2 and r.intersects(a as Rect2):
+			return true
+	return false
 
 
 func _draw() -> void:
