@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://82mpk4dq0clj"
+path="res://.godot/imported/item_helmet_f0.png-987db4ad033ee64d3cc7020b6cc186e5.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/item_helmet_f0.png"
+dest_files=["res://.godot/imported/item_helmet_f0.png-987db4ad033ee64d3cc7020b6cc186e5.ctex"]
 
 [params]
 

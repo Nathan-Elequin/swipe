@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://dca8b14yox5q6"
+path="res://.godot/imported/sprout_grab_f3.png-047827c595bd5e217bf348eab2d28a90.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/sprout_grab_f3.png"
+dest_files=["res://.godot/imported/sprout_grab_f3.png-047827c595bd5e217bf348eab2d28a90.ctex"]
 
 [params]
 

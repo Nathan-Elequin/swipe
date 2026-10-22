@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://couu3c2p31qmc"
+path="res://.godot/imported/mon_ogre_f2.png-2beceb906baf38be89970b8ca9fe7ce6.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/mon_ogre_f2.png"
+dest_files=["res://.godot/imported/mon_ogre_f2.png-2beceb906baf38be89970b8ca9fe7ce6.ctex"]
 
 [params]
 

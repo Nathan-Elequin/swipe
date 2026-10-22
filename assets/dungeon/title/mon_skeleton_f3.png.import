@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://di60lhwdg84i1"
+path="res://.godot/imported/mon_skeleton_f3.png-82a9d3aaf2d60f907b02551e3ab2c901.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/mon_skeleton_f3.png"
+dest_files=["res://.godot/imported/mon_skeleton_f3.png-82a9d3aaf2d60f907b02551e3ab2c901.ctex"]
 
 [params]
 

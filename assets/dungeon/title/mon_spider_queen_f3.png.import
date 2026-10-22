@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://bfctupofq5hfu"
+path="res://.godot/imported/mon_spider_queen_f3.png-fc58e5e68921c35cd5adbb2eb4faf4ac.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/mon_spider_queen_f3.png"
+dest_files=["res://.godot/imported/mon_spider_queen_f3.png-fc58e5e68921c35cd5adbb2eb4faf4ac.ctex"]
 
 [params]
 

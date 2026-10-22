@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://dh1kdg7xnnph2"
+path="res://.godot/imported/nib_lantern_f0.png-5dda2e6792665df74e5ece45de2a64da.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/nib_lantern_f0.png"
+dest_files=["res://.godot/imported/nib_lantern_f0.png-5dda2e6792665df74e5ece45de2a64da.ctex"]
 
 [params]
 

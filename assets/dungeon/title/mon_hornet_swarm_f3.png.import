@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://d3r04vlkgck0h"
+path="res://.godot/imported/mon_hornet_swarm_f3.png-7e4049a2307a476d176fc81bb107f800.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/mon_hornet_swarm_f3.png"
+dest_files=["res://.godot/imported/mon_hornet_swarm_f3.png-7e4049a2307a476d176fc81bb107f800.ctex"]
 
 [params]
 

@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://d3t0352p5e85x"
+path="res://.godot/imported/mon_dire_wolf_f1.png-d03f63a64f92f94f2a9d2b38dfe21926.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/mon_dire_wolf_f1.png"
+dest_files=["res://.godot/imported/mon_dire_wolf_f1.png-d03f63a64f92f94f2a9d2b38dfe21926.ctex"]
 
 [params]
 

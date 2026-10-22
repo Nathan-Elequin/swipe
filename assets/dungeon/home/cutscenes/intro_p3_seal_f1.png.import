@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://d0pgmqggral5x"
+path="res://.godot/imported/intro_p3_seal_f1.png-90b28b77643515a21f361a02b5cb8a45.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/home/cutscenes/intro_p3_seal_f1.png"
+dest_files=["res://.godot/imported/intro_p3_seal_f1.png-90b28b77643515a21f361a02b5cb8a45.ctex"]
 
 [params]
 

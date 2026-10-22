@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://cj1m5f42im5ov"
+path="res://.godot/imported/sprout_hurt_f3.png-ef4544b0a19dc7b8c64ec55b95e6ae6b.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/sprout_hurt_f3.png"
+dest_files=["res://.godot/imported/sprout_hurt_f3.png-ef4544b0a19dc7b8c64ec55b95e6ae6b.ctex"]
 
 [params]
 

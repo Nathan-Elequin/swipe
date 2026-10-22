@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://c7ne0ga2qunsf"
+path="res://.godot/imported/sprout_throw_f3.png-2b6e53dc44db406366a32619138e2cf1.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/sprout_throw_f3.png"
+dest_files=["res://.godot/imported/sprout_throw_f3.png-2b6e53dc44db406366a32619138e2cf1.ctex"]
 
 [params]
 

@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://c7v26rei3a76b"
+path="res://.godot/imported/item_pocketwatch_f1.png-3c39d6e36cc5d9b8dec08ebbbc3c7dcf.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/item_pocketwatch_f1.png"
+dest_files=["res://.godot/imported/item_pocketwatch_f1.png-3c39d6e36cc5d9b8dec08ebbbc3c7dcf.ctex"]
 
 [params]
 

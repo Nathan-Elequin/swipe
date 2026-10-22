@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://cmj3g2uptgssi"
+path="res://.godot/imported/intro_p1_candle_f3.png-3b24406449eb4d28d97a6d3dedb7b3ef.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/home/cutscenes/intro_p1_candle_f3.png"
+dest_files=["res://.godot/imported/intro_p1_candle_f3.png-3b24406449eb4d28d97a6d3dedb7b3ef.ctex"]
 
 [params]
 

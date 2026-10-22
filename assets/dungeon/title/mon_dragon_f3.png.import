@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://comld0t3v476t"
+path="res://.godot/imported/mon_dragon_f3.png-01e4baef10ef324905e36d619649fa6e.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/mon_dragon_f3.png"
+dest_files=["res://.godot/imported/mon_dragon_f3.png-01e4baef10ef324905e36d619649fa6e.ctex"]
 
 [params]
 

@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://bpjtvacacbm2p"
+path="res://.godot/imported/item_da_boot_f0.png-ca877214c72d609af332082e0322cf1f.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/item_da_boot_f0.png"
+dest_files=["res://.godot/imported/item_da_boot_f0.png-ca877214c72d609af332082e0322cf1f.ctex"]
 
 [params]
 

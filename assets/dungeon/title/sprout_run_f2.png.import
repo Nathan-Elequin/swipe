@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://o7n5brvqq0eo"
+path="res://.godot/imported/sprout_run_f2.png-3165ae8de1540db5255f43ba74f0a27c.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/title/sprout_run_f2.png"
+dest_files=["res://.godot/imported/sprout_run_f2.png-3165ae8de1540db5255f43ba74f0a27c.ctex"]
 
 [params]
 
