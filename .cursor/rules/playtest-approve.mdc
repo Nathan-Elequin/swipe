@@ -5,26 +5,28 @@ alwaysApply: true
 
 # Playtest folder and "approved"
 
+- On first use in a session: if `git config core.hooksPath` is empty, run `tools/dev/install-hooks.ps1` (turns on the pre-commit guard).
+
 - Nathan plays ONLY in `C:\Users\Natha\Documents\boss-rush`.
 - Small game changes from Nathan's Cursor sessions: commit straight to `main` and push, like at the start of the project.
 
 ## Bigger jobs
 - Give them their own branch. Build and check them in boss-rush by default, so Nathan can press F5 right away.
-- Switch boss-rush to that branch ONLY if `git status --porcelain` shows nothing except `*.import` / `project.godot` / `default_bus_layout.tres` churn. Throw that churn away with `git checkout -- <files>`.
-- If anything else shows up (Nathan's uncommitted edits), or he's mid-playtest on a different branch, fall back to a worktree under `C:\Users\Natha\Documents\boss-rush-wt\<branch>`. Never stash, reset or discard his work. Delete the worktree once its PR is merged or closed.
-- Check: headless `--import`, then headless `--quit`. Need 0 `SCRIPT ERROR` and 0 `Parse Error`.
+- Switch boss-rush to that branch with `tools/dev/load-pr.ps1 <branch>`. It stashes Nathan's uncommitted edits and re-applies them, keeping the stash as a backup.
+- If that would collide with his edits (the script reports a conflict), or he's mid-playtest on a different branch, fall back to a worktree under `C:\Users\Natha\Documents\boss-rush-wt\<branch>`. Never reset or discard his work; the scripts' named, kept stashes are the only stashing allowed. Delete the worktree once its PR is merged or closed.
+- Check: `tools/dev/godot-check.ps1`. Need `Godot: 0 errors`.
 - Where and how agents run: see `.cursor/rules/agent-runtime.mdc`.
 
 ## "approved" / "approve" / "ship it" (boss-rush is on a non-main branch)
-1. Throw away only the `.import` / `project.godot` / `default_bus_layout.tres` churn.
-2. Run the headless `--quit` parse check. If it fails, don't merge. Report it.
+1. Run `tools/dev/clean-import-churn.ps1`, then throw away `project.godot` / `default_bus_layout.tres` churn.
+2. Run `tools/dev/godot-check.ps1`. If it fails, don't merge. Report it.
 3. Merge the branch into `main`, then `git push origin main`.
-4. Switch boss-rush to `main` and pull.
+4. Switch boss-rush back with `tools/dev/back-to-main.ps1`.
 5. Delete the branch locally and on origin.
 6. Confirm the PR shows as merged.
 
 ## "not yet" / "reject"
-- Switch boss-rush back to `main`. Keep the branch.
+- Run `tools/dev/back-to-main.ps1`. Keep the branch.
 
 ## Always
 - Never commit `.cursor/mcp.json` with a literal token (it must say `Bearer ${env:PIXELLAB_API_TOKEN}`), or `.art-ping.env`, `.wrangler/`, `build/` or logs.
@@ -33,14 +35,14 @@ alwaysApply: true
 
 ## Nathan's own Cursor sessions
 - Edit boss-rush directly. Nathan presses F5 to test. No branch needed.
-- "approved" / "save it" / "ship it" on `main`: commit and push to origin `main`.
+- "approved" / "save it" / "ship it" on `main`: run `tools/dev/clean-import-churn.ps1`, then commit and push to origin `main`.
 - If boss-rush is on a feature branch when he makes his own edits, commit them onto that branch so they ride along with it.
 - Never leave his approved work uncommitted. At the end of any session where he approved changes, everything is committed and pushed.
 
 ## "not yet: <reason>" on a feature branch
 - Post the reason as a comment on that branch's PR with `gh pr comment` (gh is installed on Cherry).
 - If gh isn't available, write it to `design/feedback/<branch>.md`, commit and push to the branch.
-- Then switch boss-rush back to `main`.
+- Then switch boss-rush back with `tools/dev/back-to-main.ps1`.
 
 ## Screenshots
 - Use godot-mcp on Nathan's open editor. It is always the boss-rush folder, so shots match what he plays.
@@ -48,7 +50,7 @@ alwaysApply: true
 ## itch
 - Only when Nathan says "publish to itch".
 - boss-rush must be on `main`, clean, pushed and in sync with origin.
-- Run the headless parse check. Export the "Web Playtest" preset and `butler push` to `swipe-playtest:html5`. Report the build version.
+- Run `tools/dev/godot-check.ps1`. Export the "Web Playtest" preset and `butler push` to `swipe-playtest:html5`. Report the build version.
 - Never publish from a feature branch or a dirty folder.
 
 ## Pixel's branches

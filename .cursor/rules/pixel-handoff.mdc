@@ -9,10 +9,9 @@ alwaysApply: true
 - Where and how agents run (Cherry first, work in boss-rush, worktree only as a collision fallback): see `.cursor/rules/agent-runtime.mdc`.
 
 ## Every Nathan message
-1. At the start, quietly run:
-   `gh pr list --repo Nathan-Elequin/swipe --label ready-to-test --json number,title,headRefName,body`
+1. At the start, quietly run `tools/dev/ready-prs.ps1`. If it prints nothing, say nothing about Pixel.
 2. Do what Nathan asked first.
-3. Then, for each listed PR he hasn't already responded to in this chat, end the reply with a "Ready to test from Pixel" section (format below).
+3. Then, for each listed PR he hasn't already responded to in this chat, end the reply with a "Ready to test from Pixel" section (format below). Get the details with `gh pr view <n>`.
 
 ## Note format (same house style as `playtest-inbox.mdc`)
 - Its own section, after everything else in the reply (after **Closed issues** if those appear): `### 🎨 Ready to test from Pixel`.
@@ -37,10 +36,9 @@ Example:
 ```
 
 ## "load it"
-1. If boss-rush has uncommitted work beyond `.import` / `project.godot` / `default_bus_layout.tres` churn, ask whether to save it first. If he says yes, commit and push it to its current branch. Never discard it.
-2. Discard the churn, `git fetch`, check out the PR branch.
-3. Run the headless `--quit` parse check.
-4. Tell him: click into Godot, reload, press F5.
+1. Run `tools/dev/load-pr.ps1 <n>`. It stashes his uncommitted work as `wip-before-<branch>-<time>`, checks out the PR branch and re-applies the work, keeping the stash as a backup. If it reports a conflict, stop and show him the file list. Never discard anything.
+2. Run `tools/dev/godot-check.ps1`.
+3. Tell him: click into Godot, reload, press F5.
 
 ## "approved" on a Pixel branch
 - Follow `playtest-approve.mdc` (merge into main, push, back to main, delete the branch).
@@ -49,7 +47,7 @@ Example:
 ## "not yet: <reason>"
 - `gh pr comment` with his words.
 - Swap the label to `needs-changes`.
-- Switch boss-rush back to `main`. Pixel picks it up from there.
+- Switch boss-rush back with `tools/dev/back-to-main.ps1`. Pixel picks it up from there.
 
 ## Who does what (advisory)
 If Nathan asks Cursor for a Pixel-type job, mention once that it's usually a Pixel job. If he insists, do it.

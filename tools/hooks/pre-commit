@@ -1,0 +1,68 @@
+#!/bin/sh
+# Spinheritance pre-commit guard. Installed by tools/dev/install-hooks.ps1
+# (git config core.hooksPath tools/hooks). Never bypass with --no-verify.
+# Blocks: secrets and local-only files, and "Tier" / "ATK" / "atk" in player-facing copy.
+# Messages name the file only. They never print the offending line.
+
+fail() {
+	echo "pre-commit BLOCKED: $1" >&2
+	echo "Fix it and commit again. Do not use --no-verify." >&2
+	exit 1
+}
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+# (a1) Local-only files and folders.
+echo "$staged" | while IFS= read -r f; do
+	base=${f##*/}
+	case "$base" in
+		.art-ping.env|.art-ping.last) echo "$f"; exit 0 ;;
+	esac
+	case "/$f" in
+		*/.wrangler/*|*/build/*) echo "$f"; exit 0 ;;
+	esac
+done > "${TMPDIR:-/tmp}/spin_hook_paths.$$"
+bad=$(head -n 1 "${TMPDIR:-/tmp}/spin_hook_paths.$$")
+rm -f "${TMPDIR:-/tmp}/spin_hook_paths.$$"
+[ -n "$bad" ] && fail "'$bad' is local-only (.art-ping.env / .art-ping.last / .wrangler/ / build/). Unstage it: git reset -- \"$bad\""
+
+# (a2) Literal secrets in added lines (text diffs only; binaries are skipped by git).
+added_with_file() {
+	git diff --cached -U0 --no-color --diff-filter=ACMR -- "$@" | awk '
+		/^\+\+\+ / { f = substr($0, 7); next }
+		/^\+/ { print f "\t" substr($0, 2) }'
+}
+secret_re='(Bearer[[:space:]]+[A-Za-z0-9_.=-]{20,})|(PIXELLAB_API_TOKEN["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"']?[A-Za-z0-9_-]{16,})|(ART_PING_(KEY|URL)[[:space:]]*=[[:space:]]*[^[:space:]<$#])|(sk-[A-Za-z0-9]{20,})'
+hit=$(added_with_file . ':(exclude)tools/hooks/pre-commit' | grep -E "$secret_re" | grep -v 'Bearer \${env:' | head -n 1 | cut -f 1)
+[ -n "$hit" ] && fail "'$hit' adds what looks like a literal token/key. Use an env reference like \${env:PIXELLAB_API_TOKEN}."
+
+# (a3) .cursor/mcp.json may only carry env references for credentials.
+if echo "$staged" | grep -qx '.cursor/mcp.json'; then
+	if git show :.cursor/mcp.json | grep -iE '"(authorization|api[_-]?key|token|x-api-key)"[[:space:]]*:' | grep -vq '\${env:'; then
+		fail ".cursor/mcp.json has a credential that is not a \${env:...} reference (e.g. \"Bearer \${env:PIXELLAB_API_TOKEN}\")."
+	fi
+fi
+
+# (b) Player-facing copy: no whole-word Tier / ATK / atk in player text.
+# JSON: only the player-text keys are checked, so "key"/"where"/notes and code are never blocked.
+copy_json='data/player-copy.json data/player-copy.additions.json data/lore.json'
+for f in $copy_json; do
+	echo "$staged" | grep -qx "$f" || continue
+	if added_with_file "$f" | cut -f 2- \
+		| grep -E '^[[:space:]]*"(text|entry|journal|body|title|engraving)"[[:space:]]*:' \
+		| grep -qwE 'Tier|ATK|atk'; then
+		fail "$f adds player text with 'Tier', 'ATK' or 'atk'. Players never see those words."
+	fi
+done
+# CSV mirror (category,key,where,text): check only the text column.
+f='data/player-copy.csv'
+if echo "$staged" | grep -qx "$f"; then
+	if added_with_file "$f" | cut -f 2- \
+		| sed -E 's/^[^,]*,[^,]*,("([^"]|"")*"|[^,]*),//' \
+		| grep -qwE 'Tier|ATK|atk'; then
+		fail "$f adds player text with 'Tier', 'ATK' or 'atk'. Players never see those words."
+	fi
+fi
+
+exit 0

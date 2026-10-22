@@ -42,3 +42,23 @@ alwaysApply: true
 
 ## 7. The cloud project stays paused
 - The old Cursor cloud handoff project (Official, `bc-96e5315d`) stays parked unless Nathan revives it.
+
+## 8. Same steps every time = script, not agent
+- If the steps never change, they live in a script under `tools/dev/` (see `tools/dev/README.md`). Agents must call the script instead of redoing the steps by hand:
+  - `load-pr.ps1 <n|branch>`: "load it". Stashes WIP, checks out the PR branch, re-applies the WIP.
+  - `back-to-main.ps1`: "not yet" / switch back. Same stash dance, then `pull --ff-only`.
+  - `ready-prs.ps1`: the per-message `ready-to-test` check. Prints nothing when there's nothing.
+  - `godot-check.ps1 [path]`: headless import + parse check at low priority. Prints `Godot: N errors`.
+  - `clean-import-churn.ps1`: drops `.import` uid/line-ending churn before a commit.
+  - `install-hooks.ps1`: turns on the pre-commit guard.
+- If a script fails, report its output. Don't hand-roll a workaround.
+
+## 9. Hard limits live in code
+- `tools/hooks/pre-commit` blocks:
+  - secrets: literal tokens, a non-`${env:...}` credential in `.cursor/mcp.json`;
+  - local-only files: `.art-ping.env`, `.art-ping.last`, `.wrangler/`, `build/`;
+  - `Tier` / `ATK` / `atk` in player-facing copy.
+- Never bypass it with `--no-verify`. If it blocks something you believe is fine, stop and ask Nathan.
+
+## 10. Keep automatic check-ins rare
+- No scheduled or recurring agent runs for this game. Nathan starts things.
