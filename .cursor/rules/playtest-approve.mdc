@@ -9,10 +9,11 @@ alwaysApply: true
 - Small game changes from Nathan's Cursor sessions: commit straight to `main` and push, like at the start of the project.
 
 ## Bigger jobs
-- Give them their own branch. Build and check them in a worktree under `C:\Users\Natha\Documents\boss-rush-wt\`.
+- Give them their own branch. Build and check them in boss-rush by default, so Nathan can press F5 right away.
+- Switch boss-rush to that branch ONLY if `git status --porcelain` shows nothing except `*.import` / `project.godot` / `default_bus_layout.tres` churn. Throw that churn away with `git checkout -- <files>`.
+- If anything else shows up (Nathan's uncommitted edits), or he's mid-playtest on a different branch, fall back to a worktree under `C:\Users\Natha\Documents\boss-rush-wt\<branch>`. Never stash, reset or discard his work. Delete the worktree once its PR is merged or closed.
 - Check: headless `--import`, then headless `--quit`. Need 0 `SCRIPT ERROR` and 0 `Parse Error`.
-- Then switch the boss-rush folder to that branch so Nathan can press F5. Do this ONLY if `git status --porcelain` shows nothing except `*.import` / `project.godot` / `default_bus_layout.tres` churn. Throw that churn away with `git checkout -- <files>`.
-- If anything else shows up, stop and tell Nathan. Never stash, reset or discard his work.
+- Where and how agents run: see `.cursor/rules/agent-runtime.mdc`.
 
 ## "approved" / "approve" / "ship it" (boss-rush is on a non-main branch)
 1. Throw away only the `.import` / `project.godot` / `default_bus_layout.tres` churn.

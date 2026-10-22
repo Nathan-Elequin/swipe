@@ -1,0 +1,44 @@
+---
+description: Where and how agents run for Spinheritance
+alwaysApply: true
+---
+
+# Agent runtime
+
+## 1. Local first
+- Every agent job for this game runs on Cherry: local Cursor, Cursor CLI, or Pixel driving Cherry.
+- Use Cursor cloud agents only when:
+  - Cherry is off or asleep and the job can't wait, or
+  - Nathan asks for a cloud agent by name, or
+  - more than about 3 big jobs must run in parallel.
+- Why: the token rate is the same, but local agents already have the repo, Godot and godot-mcp. Less setup, fewer retries, and they can check their own work.
+
+## 2. Work in the playtest folder
+- Default: all work happens in `C:\Users\Natha\Documents\boss-rush` (the primary worktree), so Nathan can press F5 and test right away.
+- Nathan uploads feedback in batches and tests them in place.
+- A worktree under `C:\Users\Natha\Documents\boss-rush-wt\<branch>` is a fallback only. Use one when:
+  - the job would overwrite or collide with Nathan's uncommitted edits, or
+  - it runs while he's mid-playtest on a different branch.
+- Delete fallback worktrees once their PR is merged or closed.
+- Never discard or overwrite Nathan's uncommitted changes.
+
+## 3. GitHub is the source of truth
+- Every job is committed and pushed.
+- Bigger jobs: their own branch and a PR, labeled `ready-to-test` with the `### 🎨 Ready to test from Pixel` note (see `pixel-handoff.mdc`).
+- Small jobs: straight to `main` (see `playtest-approve.mdc`).
+- Never copy files between folders by hand.
+
+## 4. One job per area at a time
+- If two jobs would edit the same files or systems (e.g. both touch the wheel), the second waits.
+
+## 5. Pick the model to fit the job
+- Cheaper model for mechanical work: wiring in art, recolors, renames, cleanups.
+- Stronger model only for real design or tricky code.
+
+## 6. Go easy on Cherry while Nathan plays
+- Run heavy headless Godot jobs (import, screenshot QA) at low priority.
+- Anything that needs the editor window waits until he isn't playing.
+- Never kill Godot processes you didn't start.
+
+## 7. The cloud project stays paused
+- The old Cursor cloud handoff project (Official, `bc-96e5315d`) stays parked unless Nathan revives it.

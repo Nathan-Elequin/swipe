@@ -6,6 +6,7 @@ alwaysApply: true
 # Pixel handoff
 
 - Pixel is Nathan's Grok Bot art/visual agent. It can't talk to Cursor directly. It signals through GitHub PRs labeled `ready-to-test`.
+- Where and how agents run (Cherry first, work in boss-rush, worktree only as a collision fallback): see `.cursor/rules/agent-runtime.mdc`.
 
 ## Every Nathan message
 1. At the start, quietly run:
