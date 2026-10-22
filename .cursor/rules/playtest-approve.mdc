@@ -50,5 +50,5 @@ alwaysApply: true
 - Run the headless parse check. Export the "Web Playtest" preset and `butler push` to `swipe-playtest:html5`. Report the build version.
 - Never publish from a feature branch or a dirty folder.
 
-## Grok Bot (Pixel)
-- If it needs to load a branch but boss-rush has uncommitted work, it tells Nathan "say approved in Cursor first". Nobody else touches his work.
+## Pixel's branches
+- Cursor (not Pixel) loads Pixel's branches into boss-rush. Follow `.cursor/rules/pixel-handoff.mdc`.
