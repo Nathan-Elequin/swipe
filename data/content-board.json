@@ -3862,7 +3862,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+			"ability": "Every time you lose HP, I gain +1 HP and +1 Attack.",
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -3871,7 +3871,7 @@
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "+1 HP and +1 ATK each time you lose HP",
+			"explainer": "+1 HP and +1 Attack each time you lose HP",
 			"flow": "Each time the player's HP number goes down, every living Vampire on the wheel gains +1 current HP, +1 max HP, and +1 Attack. A 4-heart hit is still +1/+1. A fully blocked hit does nothing. Healing does not remove the bonus. The bonus stays until that Vampire dies or leaves. Quiet Bell stops further gains and keeps the HP and Attack already gained. The new Attack is for the next swing.",
 			"hp_base": 4.0,
 			"hp_formula": "",

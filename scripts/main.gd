@@ -194,7 +194,7 @@ const MONSTER_SPECIAL := {
 	"beggar": {"id": "left_atk", "text": "I gain Atk equal to your leftmost Atk Item"},
 	"wick": {"id": "last_hp", "text": "I Lose 2 HP each time a Neighbor is Defeated"},
 	"anvil": {"id": "one_chip", "text": "I cannot lose more than 1 HP from one source."},
-	"vampire": {"id": "bloodlust", "text": "Every time you lose HP, I gain +1 HP and +1 ATK."},
+	"vampire": {"id": "bloodlust", "text": "Every time you lose HP, I gain +1 HP and +1 Attack."},
 	"bodyguard": {"id": "take_instead", "text": "When my Neighbors would take Attack Damage, I take it instead."},
 	"cowardly_king": {"id": "coward", "text": "Whenever I lose HP, I Attack you and Flee."},
 	"merchant": {"id": "fair_trade", "text": "When you Spin me, choose an Item and I will upgrade it."},
