@@ -190,7 +190,6 @@ const MONSTER_PNG := {
 	"hired_hand": "res://assets/dungeon/extra/hired_hand.png",
 	"hydra": "res://assets/dungeon/extra/hydra.png",
 	"zombie": "res://assets/dungeon/extra/zombie.png",
-	"three_seeker": "res://assets/dungeon/extra/triclops.png",
 	"shambling_mound": "res://assets/dungeon/extra/shambling_mound.png",
 	"almighty_worm": "res://assets/dungeon/extra/almighty_worm.png",
 	"cultist": "res://assets/dungeon/extra/cultist.png",

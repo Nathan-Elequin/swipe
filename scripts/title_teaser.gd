@@ -535,16 +535,15 @@ func _set_title_visible(on: bool) -> void:
 	if _click:
 		_click.visible = on
 	if _music_lab:
-		_music_lab.visible = on and OS.has_feature("editor")
+		# Lab hint only. Never paint it on the title the player sees.
+		_music_lab.visible = false
 
 
 func _sync_music_lab() -> void:
 	if _music_lab == null:
 		return
-	if music_dip:
-		_music_lab.set_plain("M: title bed (dip)")
-	else:
-		_music_lab.set_plain("M: combat through")
+	_music_lab.visible = false
+	_music_lab.set_plain("")
 
 
 func _apply_music_dip(on: bool) -> void:

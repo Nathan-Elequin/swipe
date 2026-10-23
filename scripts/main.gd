@@ -3214,6 +3214,8 @@ func _fill_pools() -> void:
 		var card: Dictionary = monsters_by_id.get(str(id), {})
 		if card.is_empty() or not _bucket_open(card):
 			continue
+		if str(card.get("status", "live")) == "retired" or str(card.get("status", "live")) == "hold":
+			continue
 		if not ModePool.allows(card, ModePool.ADVENTURE):
 			continue
 		for _c in range(maxi(0, int(card.get("count", 1)))):
@@ -3282,6 +3284,8 @@ func _fill_challenge_pools() -> void:
 			continue
 		var card: Dictionary = monsters_by_id.get(mid, {})
 		if card.is_empty() or not _bucket_open(card):
+			continue
+		if str(card.get("status", "live")) == "retired" or str(card.get("status", "live")) == "hold":
 			continue
 		for _c in range(maxi(0, int(card.get("count", 1)))):
 			monster_pool.append(mid)
