@@ -326,6 +326,8 @@ static func def_id_of(piece: String) -> String:
 		return "move"
 	if low.begins_with("flee"):
 		return "flee"
+	if low.find("poison") >= 0:
+		return "poison"
 	if low.begins_with("spin") or low == "spun":
 		return "spin"
 	if low == "always":
@@ -353,6 +355,8 @@ static func def_of(id: String) -> String:
 			return "shift to a Neighbor without Spinning"
 		"flee":
 			return "If you are facing them, Spin the wheel at random."
+		"poison":
+			return "On a Spin, a monster with this loses that much HP immediately, wherever they sit, before their spin ability. Then it clears."
 		"spin":
 			return "The wheel lands on a random living monster."
 		"always":
@@ -655,6 +659,7 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"move",
 		"bled", "bleeds", "bleeding", "bleed",
 		"fleeing", "flees", "fled", "flee",
+		"poisoned", "poisons", "poison",
 		"any",
 		"spinning", "spins", "spun", "spin",
 		"losing", "loses", "lost", "lose",
@@ -792,6 +797,8 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 		return gold
 	if low.begins_with("flee"):
 		return gold
+	if low.begins_with("poison"):
+		return gold
 	if low == "any":
 		return gold
 	if low.begins_with("spin") or low == "spun":
@@ -896,3 +903,78 @@ static func _number_hex(full: String, start: int, end: int, fallback: String, go
 	if l_ok:
 		return str(left["hex"])
 	return fallback
+
+
+static func _ellipse_pts(c: Vector2, rx: float, ry: float, n: int = 16) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	for i in n:
+		var a: float = TAU * float(i) / float(n)
+		pts.append(c + Vector2(cos(a) * rx, sin(a) * ry))
+	return pts
+
+
+## Soft floor contact under a fight sprite. Width is 70% of the sprite, 10px tall.
+static func draw_floor_shadow(ci: CanvasItem, foot: Vector2, sprite_w: float) -> void:
+	var rx: float = maxf(6.0, sprite_w * 0.35)
+	var col := Color(0, 0, 0, 0.45)
+	ci.draw_colored_polygon(_ellipse_pts(foot, rx, 5.0, 20), col)
+
+
+## Code-drawn fight floor. obvious = Sprout's lit slab. The monster gets the same shape, smaller.
+static func draw_stage_plinth(ci: CanvasItem, foot: Vector2, width: float, obvious: bool) -> void:
+	var rx: float = maxf(24.0, width * 0.5)
+	var ry: float = 11.0 if obvious else 7.0
+	var shadow := INK_OUT
+	shadow.a = 0.62 if obvious else 0.4
+	ci.draw_colored_polygon(_ellipse_pts(foot + Vector2(0, 8.0), rx * 1.08, ry), shadow)
+	var top_w: float = rx * 0.76
+	var h: float = 30.0 if obvious else 16.0
+	var slab := PackedVector2Array([
+		foot + Vector2(-top_w, -h * 0.42),
+		foot + Vector2(top_w, -h * 0.42),
+		foot + Vector2(rx, h * 0.38),
+		foot + Vector2(-rx, h * 0.38),
+	])
+	var top_c := GOLD if obvious else GOLD_DIM
+	var bot_c := Color("1c140e")
+	ci.draw_polygon(slab, PackedColorArray([top_c, top_c, bot_c, bot_c]))
+	var rim := GOLD if obvious else INK_OUT
+	var outline := slab.duplicate()
+	outline.append(slab[0])
+	ci.draw_polyline(outline, rim, 2.0 if obvious else 1.5, false)
+	if obvious:
+		var pool := INK
+		pool.a = 0.72
+		ci.draw_colored_polygon(_ellipse_pts(foot + Vector2(0, -4.0), top_w * 0.62, 5.5), pool)
+
+
+## Flat gold bands, not a smooth gradient, so the beam stays in the pixel-art fight.
+static func draw_spot_beam(ci: CanvasItem, head: Vector2, foot: Vector2, width: float) -> void:
+	var top := Vector2(head.x, head.y - 46.0)
+	var bot := Vector2(foot.x, foot.y + 6.0)
+	var bands := 4
+	var w0: float = 36.0
+	var w1: float = maxf(width, 150.0)
+	for i in bands:
+		var t_a: float = float(i) / float(bands)
+		var t_b: float = float(i + 1) / float(bands)
+		var col := GOLD
+		col.a = lerpf(0.34, 0.78, (t_a + t_b) * 0.5)
+		var wa: float = lerpf(w0, w1, t_a)
+		var wb: float = lerpf(w0, w1, t_b)
+		var ya: float = lerpf(top.y, bot.y, t_a)
+		var yb: float = lerpf(top.y, bot.y, t_b)
+		ci.draw_colored_polygon(PackedVector2Array([
+			Vector2(head.x - wa * 0.5, ya),
+			Vector2(head.x + wa * 0.5, ya),
+			Vector2(head.x + wb * 0.5, yb),
+			Vector2(head.x - wb * 0.5, yb),
+		]), col)
+	var core := INK
+	core.a = 0.55
+	ci.draw_colored_polygon(PackedVector2Array([
+		Vector2(head.x - 14.0, top.y),
+		Vector2(head.x + 14.0, top.y),
+		Vector2(head.x + w1 * 0.18, bot.y),
+		Vector2(head.x - w1 * 0.18, bot.y),
+	]), core)

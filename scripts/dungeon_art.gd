@@ -148,6 +148,65 @@ const ITEM_PNG := {
 	"recycler": "res://assets/dungeon/items/recycler.png",
 }
 
+## Art facing before any mirror. R = drawn looking right, L = drawn looking left.
+## Anything missing is front-facing and must not be flipped.
+const MONSTER_FACES := {
+	"wizard": "R",
+	"goblin": "R",
+	"ogre": "R",
+	"dragon": "R",
+	"shark": "L",
+	"harpy": "R",
+	"bandit": "R",
+	"vampire": "R",
+	"berserker": "R",
+	"dire_wolf": "R",
+	"leech_league": "R",
+	"slime_boss": "R",
+	"spider_queen": "R",
+	"needleback": "R",
+	"gelatinous_cube": "R",
+	"gargoyle": "R",
+	"kobold_trapper": "R",
+	"clockwork_knight": "R",
+	"beggar": "R",
+	"anvil": "R",
+	"bodyguard": "R",
+	"cowardly_king": "R",
+	"merchant": "R",
+	"cleric": "R",
+	"martyr": "R",
+	"prism": "R",
+	"plague_doctor": "R",
+	"hired_hand": "R",
+	"hydra": "R",
+	"triclops": "R",
+	"shambling_mound": "R",
+	"almighty_worm": "R",
+	"cultist": "R",
+	"bushido": "R",
+	"death_bell": "R",
+	"phoenix_egg": "R",
+	"phoenix": "R",
+	"amalgam": "R",
+	"fairy": "R",
+	"eel": "R",
+	"druid": "R",
+	"mouse": "R",
+	"magicat": "R",
+	"rust_bucket": "R",
+	"golem": "R",
+	"skeleton": "R",
+	"lich": "R",
+	"two_headed_serpent": "R",
+	"commander": "R",
+	"basilisk": "R",
+	"hollow": "R",
+	"wick": "R",
+	"juggernaut": "R",
+	"poison_frog": "R",
+}
+
 const MONSTER_PNG := {
 	"goblin": "res://assets/dungeon/extra/goblin.png",
 	"kobold_trapper": "res://assets/dungeon/extra/kobold_trapper.png",
@@ -190,7 +249,6 @@ const MONSTER_PNG := {
 	"hired_hand": "res://assets/dungeon/extra/hired_hand.png",
 	"hydra": "res://assets/dungeon/extra/hydra.png",
 	"zombie": "res://assets/dungeon/extra/zombie.png",
-	"three_seeker": "res://assets/dungeon/extra/triclops.png",
 	"shambling_mound": "res://assets/dungeon/extra/shambling_mound.png",
 	"almighty_worm": "res://assets/dungeon/extra/almighty_worm.png",
 	"cultist": "res://assets/dungeon/extra/cultist.png",
@@ -329,6 +387,15 @@ func _seq(stem: String, suffix: String) -> Array:
 	return out
 
 
+func monster_flip_h(id: String, want: String = "L") -> bool:
+	var facing: String = str(MONSTER_FACES.get(id.strip_edges(), "F"))
+	if facing != "L" and facing != "R":
+		return false
+	if want != "L" and want != "R":
+		return false
+	return facing != want
+
+
 func monster_stem(card_id: String) -> String:
 	return str(MONSTER_STEM.get(card_id, ""))
 
@@ -386,12 +453,103 @@ func monster_facing_idle(card_id: String) -> Array:
 
 
 func wheel_frames_all() -> Dictionary:
+	# Seat art is the 24px full-body wheel base, one frame. The breathe pair is a
+	# different crop of the same canvas, so it does not play here. The fight
+	# callout still uses monster_portrait_frames (the closer facing idle).
 	var d := {}
 	for id in MONSTER_PNG.keys():
+		var base: Texture2D = _load_tex("res://assets/dungeon/anim/wheel/%s_wheel_base.png" % str(id))
+		if base != null:
+			d[str(id)] = [base]
+			continue
 		var frames: Array = monster_wheel_frames(str(id))
 		if not frames.is_empty():
-			d[str(id)] = frames
+			d[str(id)] = [frames[0]]
 	return d
+
+
+var _portrait_cache: Dictionary = {}
+
+
+## Facing art with a flat backdrop removed and every frame cropped to the same box.
+## Fight callout only. The wheel seat uses the 24px full-body base.
+func monster_portrait_frames(card_id: String) -> Array:
+	var id: String = str(card_id).strip_edges()
+	if id == "":
+		return []
+	if _portrait_cache.has(id):
+		return _portrait_cache[id]
+	var src: Array = monster_facing_idle(id)
+	if src.is_empty():
+		src = monster_wheel_frames(id)
+	var imgs: Array = []
+	for t in src:
+		if t == null:
+			continue
+		var img: Image = t.get_image()
+		if img == null:
+			continue
+		img = img.duplicate()
+		_knock_backdrop(img)
+		imgs.append(img)
+	if imgs.is_empty():
+		_portrait_cache[id] = src
+		return src
+	var union := Rect2i()
+	var have := false
+	for img in imgs:
+		var used: Rect2i = img.get_used_rect()
+		if used.size.x < 1 or used.size.y < 1:
+			continue
+		union = used if not have else union.merge(used)
+		have = true
+	if not have:
+		_portrait_cache[id] = src
+		return src
+	var out: Array = []
+	for img in imgs:
+		var region: Rect2i = union.intersection(Rect2i(Vector2i.ZERO, img.get_size()))
+		if region.size.x < 1 or region.size.y < 1:
+			region = Rect2i(Vector2i.ZERO, img.get_size())
+		out.append(ImageTexture.create_from_image(img.get_region(region)))
+	_portrait_cache[id] = out
+	return out
+
+
+func _knock_backdrop(img: Image) -> void:
+	var w: int = img.get_width()
+	var h: int = img.get_height()
+	if w < 4 or h < 4:
+		return
+	var seed: Color = img.get_pixel(0, 0)
+	if seed.a < 0.2:
+		return
+	var sat: float = maxf(seed.r, maxf(seed.g, seed.b)) - minf(seed.r, minf(seed.g, seed.b))
+	if sat > 0.18:
+		return
+	var tol := 0.14
+	var stack: Array[Vector2i] = [Vector2i(0, 0), Vector2i(w - 1, 0), Vector2i(0, h - 1), Vector2i(w - 1, h - 1)]
+	var seen := {}
+	var clear := Color(0, 0, 0, 0)
+	while not stack.is_empty():
+		var p: Vector2i = stack.pop_back()
+		if p.x < 0 or p.y < 0 or p.x >= w or p.y >= h:
+			continue
+		var key: int = p.x + p.y * w
+		if seen.has(key):
+			continue
+		var c: Color = img.get_pixel(p.x, p.y)
+		if c.a < 0.15:
+			seen[key] = true
+			continue
+		if absf(c.r - seed.r) > tol or absf(c.g - seed.g) > tol or absf(c.b - seed.b) > tol:
+			continue
+		seen[key] = true
+		img.set_pixel(p.x, p.y, clear)
+		stack.append(p + Vector2i(1, 0))
+		stack.append(p + Vector2i(-1, 0))
+		stack.append(p + Vector2i(0, 1))
+		stack.append(p + Vector2i(0, -1))
 
 
 func monster_slash_frames(card_id: String) -> Array:
@@ -454,6 +612,16 @@ func hero_run_gear(piece: String, anim: String) -> Array:
 
 func hero_run_badge(stem: String) -> Texture2D:
 	return hero_run_tex("badges/%s.png" % stem)
+
+
+func sprout_anim(state: String) -> Array:
+	var out: Array = []
+	for n in 8:
+		var tex: Texture2D = _load_tex("res://assets/dungeon/anim/player/sprout_%s_f%d.png" % [state, n])
+		if tex == null:
+			break
+		out.append(tex)
+	return out
 
 
 func item_tex(card_id: String) -> Texture2D:

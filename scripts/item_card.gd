@@ -10,7 +10,7 @@ signal passed_swipe
 const COPY := preload("res://scripts/player_copy.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const RANK_SHIMMER := preload("res://scripts/rank_shimmer.gd")
-const CARD_W := 118.0
+const CARD_W := 147.5
 const CARD_H := 120.0
 const SHOW_W := 236.0
 const SHOW_H := 340.0
@@ -24,6 +24,8 @@ var _num: Label
 var _ghost: Label
 var _eq: RichTextLabel
 var _mark: TextureRect
+var _atk_pip: TextureRect
+var _atk_pip_on: bool = false
 var _icon: TextureRect
 var _title
 var _rank: Label
@@ -37,6 +39,7 @@ var _formula: String = ""
 var _formula_on: bool = false
 var _glow: bool = false
 var _glow_t: float = 0.0
+var _rim_glow: bool = true
 var _hot: bool = false
 var _showcase: bool = false
 var _pass_swipe: bool = false
@@ -49,6 +52,7 @@ var _holding: bool = false
 var _echo_mark: TextureRect
 var _stone: TextureRect
 var _playable: bool = false
+var _guarding: bool = false
 var _hatch: Control
 var _lock_shade: Control
 var _aura: bool = false
@@ -141,7 +145,7 @@ func setup(
 	_rank.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_rank.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_rank.max_lines_visible = 2
-	_rank.custom_minimum_size = Vector2(104, 0)
+	_rank.custom_minimum_size = Vector2(CARD_W - 14.0, 0)
 	_rank.add_theme_font_size_override("font_size", 12)
 	_rank.add_theme_color_override("font_color", Color("c4a574"))
 	_rank.add_theme_color_override("font_outline_color", Color("100e0c"))
@@ -152,11 +156,11 @@ func setup(
 	_title.show_frame = false
 	_title.padding = 0
 	_title.max_font_size = 14
-	_title.min_font_size = 12
+	_title.min_font_size = 10
 	_title.set_plain(title)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_title.custom_minimum_size = Vector2(104, 22)
+	_title.custom_minimum_size = Vector2(CARD_W - 14.0, 22)
 	_title.font_color = Color("f0e6d8")
 	_title.set_outline(Color("100e0c"), 3)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -177,7 +181,7 @@ func setup(
 		_icon.add_child(arc)
 
 	var num_host := Control.new()
-	num_host.custom_minimum_size = Vector2(104, 32)
+	num_host.custom_minimum_size = Vector2(CARD_W - 14.0, 32)
 	num_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(num_host)
 	_num_host = num_host
@@ -215,6 +219,19 @@ func setup(
 	_num.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_num.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	num_host.add_child(_num)
+
+	_atk_pip = TextureRect.new()
+	_atk_pip.name = "AtkPip"
+	_atk_pip.visible = false
+	_atk_pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_atk_pip.texture_filter = TEXTURE_FILTER_NEAREST
+	_atk_pip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_atk_pip.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	if ResourceLoader.exists("res://assets/ui/icons/atk_burst_single_s24_2x.png"):
+		_atk_pip.texture = load("res://assets/ui/icons/atk_burst_single_s24_2x.png")
+	elif ResourceLoader.exists("res://assets/ui/icons/atk_burst_18.png"):
+		_atk_pip.texture = load("res://assets/ui/icons/atk_burst_18.png")
+	num_host.add_child(_atk_pip)
 
 	_or = RichTextLabel.new()
 	_or.bbcode_enabled = true
@@ -340,7 +357,7 @@ func _draw_egg_hatch() -> void:
 
 func _sync_lock_shade() -> void:
 	# Petrify uses its own stone look; keep the hatch off so creep/shatter read.
-	var locked: bool = (not _showcase) and (spent or not _playable) and not (_petrified and not _petrify_dummy)
+	var locked: bool = (not _showcase) and (spent or not _playable) and not _guarding and not (_petrified and not _petrify_dummy)
 	if not locked:
 		if _lock_shade != null:
 			_lock_shade.visible = false
@@ -643,17 +660,17 @@ func set_showcase(on: bool) -> void:
 	custom_minimum_size = Vector2(SHOW_W, SHOW_H) if on else Vector2(CARD_W, CARD_H)
 	if _title:
 		_title.max_font_size = 22 if on else 14
-		_title.custom_minimum_size = Vector2(196 if on else 104, 48 if on else 38)
+		_title.custom_minimum_size = Vector2(196 if on else CARD_W - 14.0, 48 if on else 38)
 		_title.max_lines = 2
 		_title.fit()
 	if _rank:
 		_rank.visible = false
 		_rank.add_theme_font_size_override("font_size", 15 if on else 12)
-		_rank.custom_minimum_size = Vector2(196 if on else 104, 0)
+		_rank.custom_minimum_size = Vector2(196 if on else CARD_W - 14.0, 0)
 	if _icon:
 		_icon.custom_minimum_size = Vector2(128, 128) if on else Vector2(64, 64)
 	if _num_host:
-		_num_host.custom_minimum_size = Vector2(196, 58) if on else Vector2(104, 44)
+		_num_host.custom_minimum_size = Vector2(196, 58) if on else Vector2(CARD_W - 14.0, 44)
 	if _num:
 		_num.add_theme_font_size_override("font_size", 48 if on else 32)
 	if _ghost:
@@ -725,6 +742,7 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 		_mark.visible = _mark.texture != null and (number_text == "" or beside)
 		_mark.modulate.a = 0.95
 		_layout_mark(number_text)
+	_layout_atk_pip()
 
 
 func _or_parts(number_text: String) -> PackedStringArray:
@@ -763,6 +781,54 @@ func _want_process() -> bool:
 	return true
 
 
+func set_atk_pip(on: bool) -> void:
+	_atk_pip_on = on and kind == "ATK"
+	_layout_atk_pip()
+
+
+func _layout_atk_pip() -> void:
+	if _atk_pip == null or _num == null or _num_host == null:
+		return
+	var show: bool = _atk_pip_on and _atk_pip.texture != null and not _formula_on and _num.visible and _num.text.strip_edges() != "" and _num.text != "—" and (_or == null or not _or.visible)
+	_atk_pip.visible = show
+	_num.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_num.offset_left = 0.0
+	_num.offset_top = 0.0
+	_num.offset_right = 0.0
+	_num.offset_bottom = 0.0
+	_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if not show:
+		_num.add_theme_color_override("font_color", _num_col)
+		_num.add_theme_constant_override("outline_size", 3)
+		return
+	_num.add_theme_font_size_override("font_size", 22)
+	_num.add_theme_color_override("font_color", Color("f0e6d8"))
+	_num.add_theme_color_override("font_outline_color", Color("100e0c"))
+	_num.add_theme_constant_override("outline_size", 2)
+	if _ghost:
+		_ghost.add_theme_font_size_override("font_size", 22)
+		_ghost.add_theme_color_override("font_color", Color("f0e6d8"))
+		_ghost.add_theme_constant_override("outline_size", 2)
+	var host_w: float = _num_host.size.x
+	var host_h: float = _num_host.size.y
+	if host_w < 8.0:
+		host_w = CARD_W - 14.0
+	if host_h < 8.0:
+		host_h = 32.0
+	var icon := 48.0
+	if _atk_pip.texture != null:
+		icon = float(_atk_pip.texture.get_width())
+	var left: float = (host_w - icon) * 0.5
+	var top: float = (host_h - icon) * 0.5
+	_atk_pip.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_atk_pip.offset_left = left
+	_atk_pip.offset_top = top
+	_atk_pip.offset_right = left + icon
+	_atk_pip.offset_bottom = top + icon
+	_atk_pip.z_index = 0
+	_num.z_index = 1
+
+
 func _layout_mark(number_text: String) -> void:
 	if _mark == null:
 		return
@@ -777,6 +843,11 @@ func _layout_mark(number_text: String) -> void:
 		_mark.offset_top = -18
 		_mark.offset_right = 18
 		_mark.offset_bottom = 18
+
+
+func set_rim_glow(on: bool) -> void:
+	_rim_glow = on
+	_apply_style(_hot)
 
 
 func set_draft_glow(on: bool) -> void:
@@ -830,12 +901,19 @@ func set_passive_icons(plus_tex: Texture2D, ban_tex: Texture2D, on: bool) -> voi
 		_ban.modulate = Color("e8c36a")
 
 
+func set_guarding(on: bool) -> void:
+	_guarding = on
+	_sync_lock_shade()
+	_tween_sink(not _playable and not spent and not _guarding)
+	_tick_shimmer()
+
+
 func set_playable(on: bool) -> void:
 	_playable = on and not spent
 	set_process(true)
 	_sync_lock_shade()
 	_apply_style(_hot)
-	_tween_sink(not _playable and not spent)
+	_tween_sink(not _playable and not spent and not _guarding)
 	_tick_shimmer()
 
 
@@ -872,6 +950,7 @@ func show_formula(on: bool) -> void:
 	if _mark != null:
 		var beside: bool = kind == "DEFEAT" and _shown.is_valid_int()
 		_mark.visible = (not _formula_on) and _mark.texture != null and (_shown == "" or beside)
+	_layout_atk_pip()
 
 
 func _dissolve(old_s: String, new_s: String) -> void:
@@ -988,6 +1067,9 @@ func _apply_style(hot: bool) -> void:
 		sb.shadow_color = Color(metal.r, metal.g, metal.b, (0.55 if _tier >= 3 else 0.32) + pulse * 0.35)
 		sb.shadow_size = (10 if _tier >= 3 else (6 if _tier == 2 else 4)) + int(pulse * 8.0) + (6 if _showcase else 0)
 	sb.shadow_offset = Vector2.ZERO
+	if not _rim_glow:
+		sb.shadow_size = 0
+		sb.shadow_color = Color(0, 0, 0, 0)
 	if _showcase:
 		sb.content_margin_left = 6
 		sb.content_margin_right = 6
@@ -1029,6 +1111,11 @@ func _draw() -> void:
 				col = col.lerp(Color.WHITE, _pip_flash)
 			draw_circle(p, 6.0, Color("100e0c", 0.85))
 			draw_circle(p, 4.5 if on else 3.0, col)
+	if card_id == "jar_o_grease" and not spent:
+		var foot := Vector2(16.0, 16.0)
+		draw_circle(foot, 7.0, Color("100e0c", 0.9))
+		draw_arc(foot, 5.0, 0.4, PI - 0.2, 10, Color("f0e6d8"), 1.6, true)
+		draw_line(foot + Vector2(-3, 2), foot + Vector2(4, 3), Color("f0e6d8"), 1.4, true)
 
 
 func _on_in() -> void:
@@ -1269,7 +1356,7 @@ func _tick_shimmer() -> void:
 	if _shimmer_mat == null:
 		return
 	var desat: float = _desat
-	if not _playable and not spent and not _showcase:
+	if not _playable and not spent and not _showcase and not _guarding:
 		desat = 0.6
 	RANK_SHIMMER.apply(_shimmer_mat, _tier, uid, desat, 1.0 if _armed else 0.0, _shimmer_clock, size if size.x > 8.0 else Vector2(CARD_W, CARD_H))
 

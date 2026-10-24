@@ -110,7 +110,6 @@
 		"bushido",
 		"shark",
 		"death_bell",
-		"three_seeker",
 		"phoenix_egg",
 		"amalgam",
 		"fairy",
@@ -121,5 +120,5 @@
 		"rust_bucket",
 		"poison_frog"
 	],
-	"notes": "Full roster minus retired/hidden rows (Dagger, Bandana, old Helmet) and Cursed Scroll. Commander + Lich apply last."
+	"notes": "Full roster minus retired/hidden rows (Dagger, Bandana, old Helmet, 3-Seeker) and Cursed Scroll. Commander + Lich apply last. 3-Seeker stays out until it has its own wheel breathe and facing art."
 }

@@ -374,7 +374,11 @@ func _color_word(t: String, word: String, hex: String) -> String:
 			out += t.substr(i)
 			break
 		out += t.substr(i, at - i)
-		out += "[color=%s][b]%s[/b][/color]" % [hex, t.substr(at, needle.length())]
+		var shown: String = t.substr(at, needle.length())
+		if word == "ATK":
+			out += "[color=%s][b][img=18x18]res://assets/ui/icons/atk_burst_18.png[/img] %s[/b][/color]" % [hex, shown]
+		else:
+			out += "[color=%s][b]%s[/b][/color]" % [hex, shown]
 		i = at + needle.length()
 	return out
 

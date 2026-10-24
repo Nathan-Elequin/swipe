@@ -1,4 +1,63 @@
 {
-	"failures": [],
-	"updated": "2026-10-17T17:39:55"
+	"failures": [
+		{
+			"kind": "Button",
+			"path": "/root/Main/@MarginContainer@6/@HBoxContainer@7/@VBoxContainer@8/@MarginContainer@28/@HBoxContainer@29/@HBoxContainer@31/@Button@39",
+			"reason": "overlap:/root/Main/@MarginContainer@6/@HBoxContainer@7/@VBoxContainer@8/@MarginContainer@42/@HBoxContainer@43/@PanelContainer@44/@GridContainer@45/@PanelContainer@779/@AnimatedSprite2D@777",
+			"screen": "75_item_cards_burst",
+			"shot": "res://design/visual/qa-wheel-pass2/75_item_cards_burst.png",
+			"text": "Take"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@6/@HBoxContainer@7/@VBoxContainer@8/@MarginContainer@42/@HBoxContainer@43/@PanelContainer@44/@GridContainer@45/@PanelContainer@756/@MarginContainer@736/@VBoxContainer@737/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@6/@HBoxContainer@7/@VBoxContainer@8/@MarginContainer@42/@HBoxContainer@43/@PanelContainer@44/@GridContainer@45/@PanelContainer@779/@AnimatedSprite2D@777",
+			"screen": "75_item_cards_burst",
+			"shot": "res://design/visual/qa-wheel-pass2/75_item_cards_burst.png",
+			"text": "Crossbow"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@6/@HBoxContainer@7/@VBoxContainer@8/@MarginContainer@42/@HBoxContainer@43/@PanelContainer@44/@GridContainer@45/@PanelContainer@756/@MarginContainer@736/@VBoxContainer@737/@Control@740/@Label@743",
+			"reason": "overflow_parent",
+			"screen": "75_item_cards_burst",
+			"shot": "res://design/visual/qa-wheel-pass2/75_item_cards_burst.png",
+			"text": "4"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@6/@HBoxContainer@7/@VBoxContainer@8/@MarginContainer@42/@HBoxContainer@43/@PanelContainer@44/@GridContainer@45/@PanelContainer@779/@MarginContainer@757/@VBoxContainer@758/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@6/@HBoxContainer@7/@VBoxContainer@8/@MarginContainer@42/@HBoxContainer@43/@PanelContainer@44/@GridContainer@45/@PanelContainer@779/@AnimatedSprite2D@777",
+			"screen": "75_item_cards_burst",
+			"shot": "res://design/visual/qa-wheel-pass2/75_item_cards_burst.png",
+			"text": "Shield"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@6/@HBoxContainer@7/@VBoxContainer@8/@MarginContainer@42/@HBoxContainer@43/@PanelContainer@44/@GridContainer@45/@PanelContainer@779/@MarginContainer@757/@VBoxContainer@758/@Control@761/@Label@764",
+			"reason": "overflow_parent",
+			"screen": "75_item_cards_burst",
+			"shot": "res://design/visual/qa-wheel-pass2/75_item_cards_burst.png",
+			"text": "4"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@6/@HBoxContainer@7/@VBoxContainer@8/@MarginContainer@42/@HBoxContainer@43/@PanelContainer@44/@GridContainer@45/@PanelContainer@802/@MarginContainer@780/@VBoxContainer@781/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@6/@HBoxContainer@7/@VBoxContainer@8/@MarginContainer@42/@HBoxContainer@43/@PanelContainer@44/@GridContainer@45/@PanelContainer@802/@AnimatedSprite2D@800",
+			"screen": "75_item_cards_burst",
+			"shot": "res://design/visual/qa-wheel-pass2/75_item_cards_burst.png",
+			"text": "Throwing Knife"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@6/@HBoxContainer@7/@VBoxContainer@8/@MarginContainer@42/@HBoxContainer@43/@PanelContainer@44/@GridContainer@45/@PanelContainer@802/@MarginContainer@780/@VBoxContainer@781/@Control@784/@Label@787",
+			"reason": "overflow_parent",
+			"screen": "75_item_cards_burst",
+			"shot": "res://design/visual/qa-wheel-pass2/75_item_cards_burst.png",
+			"text": "3"
+		}
+	],
+	"screen": "75_item_cards_burst",
+	"shot": "res://design/visual/qa-wheel-pass2/75_item_cards_burst.png",
+	"updated": "2026-10-23T22:36:05"
 }

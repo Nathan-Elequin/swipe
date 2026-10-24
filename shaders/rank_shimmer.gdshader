@@ -10,6 +10,7 @@ uniform float desat = 0.0;
 uniform float armed = 0.0;
 uniform float clock = 0.0;
 uniform vec2 card_px = vec2(118.0, 120.0);
+uniform float amount = 0.42;
 
 void fragment() {
 	vec4 col = COLOR;
@@ -33,8 +34,8 @@ void fragment() {
 		float d2 = abs(diag - (pos + 21.0));
 		float band1 = 1.0 - smoothstep(0.0, 13.0, d1);
 		float band2 = 1.0 - smoothstep(0.0, 4.0, d2);
-		float mask = max(band1 * 0.45, band2 * 0.28) * round_m;
-		col.rgb += shine_col.rgb * mask;
+		float mask = max(band1 * 0.22, band2 * 0.12) * round_m;
+		col.rgb += shine_col.rgb * mask * amount;
 	}
 
 	if (armed > 0.5) {
@@ -44,8 +45,15 @@ void fragment() {
 		float rim = min(edge.x, edge.y);
 		float on_rim = 1.0 - smoothstep(1.0, 4.5, abs(rim - 3.0));
 		float d_ang = abs(atan(sin(a - ang), cos(a - ang)));
-		float glint = (1.0 - smoothstep(0.0, 0.32, d_ang)) * on_rim * 0.72;
-		col.rgb += shine_col.rgb * glint * armed;
+		float glint = (1.0 - smoothstep(0.0, 0.16, d_ang)) * on_rim * 0.35;
+		col.rgb += shine_col.rgb * glint * armed * amount;
+		for (int s = 0; s < 3; s++) {
+			float sp = ang + float(s) * 2.0943951;
+			vec2 spark = vec2(cos(sp), sin(sp)) * 0.42;
+			float sd = length((UV - vec2(0.5)) - spark);
+			float dotp = (1.0 - smoothstep(0.0, 0.035, sd)) * round_m;
+			col.rgb += shine_col.rgb * dotp * 0.55 * amount;
+		}
 	}
 
 	COLOR = col;

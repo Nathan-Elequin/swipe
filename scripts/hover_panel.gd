@@ -71,6 +71,35 @@ func _plain_skin() -> void:
 	add_theme_stylebox_override("panel", sb)
 
 
+## Same drawing as the wheel seat, at 1×, 2×, 3×, or 4× so pixels stay even.
+## The 56×62 row stays put when the sprite fits. A taller sprite may grow that row.
+func _crisp_monster_portrait(portrait: Texture2D) -> Control:
+	var tw: int = maxi(1, portrait.get_width())
+	var th: int = maxi(1, portrait.get_height())
+	var box := Vector2i(56, 62)
+	var scale := 1
+	for step in [4, 3, 2, 1]:
+		if tw * step <= box.x and th * step <= box.y:
+			scale = step
+			break
+	var disp := Vector2(tw * scale, th * scale)
+	var slot := CenterContainer.new()
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slot.custom_minimum_size = Vector2(maxf(float(box.x), disp.x), maxf(float(box.y), disp.y))
+	var pic := TextureRect.new()
+	pic.texture = portrait
+	pic.texture_filter = TEXTURE_FILTER_NEAREST
+	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	pic.custom_minimum_size = disp
+	pic.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	pic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.add_child(pic)
+	return slot
+
+
 func show_placeholder() -> void:
 	if OS.has_feature("editor"):
 		show_text(COPY.text("inspect.title", "Inspect"), COPY.text("inspect.placeholder", "Hover an owner on the ring, or loot in your hand. Right-click to edit."))
@@ -103,10 +132,14 @@ func show_rule(
 	equation = COPY.apply_names(equation)
 	body = COPY.apply_names(body)
 	warn = COPY.apply_names(warn)
+	# Shift puts the explainer on the item card. Hover shows the ability sentence only.
+	if p_kind == "item":
+		equation = ""
 	last_shown = {
 		"title": title,
 		"value": value_line,
 		"equation": equation,
+		"call_chip": str(look.get("call_chip", "")),
 		"body": body,
 		"warn": warn,
 		"kind": p_kind,
@@ -120,17 +153,36 @@ func show_rule(
 	var body_col: Color = Color("e8dcc8") if _on_dark else Color("2a1c14")
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 5)
+	col.alignment = BoxContainer.ALIGNMENT_CENTER
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	add_child(col)
+	if bool(look.get("stage_card", false)):
+		_fill_stage_card(col, title, body, ink, look)
+		visible = true
+		custom_minimum_size = Vector2(340, 0)
+		reset_size()
+		size.x = 340
+		return
+	var center_copy: bool = p_kind == "monster"
+	var drop: float = float(look.get("title_drop", 0.0))
+	if drop > 1.0:
+		var gap := Control.new()
+		gap.custom_minimum_size = Vector2(0, drop)
+		gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.add_child(gap)
 	if portrait != null:
-		var pic := TextureRect.new()
-		pic.texture = portrait
-		pic.custom_minimum_size = Vector2(56, 62)
-		pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		pic.texture_filter = TEXTURE_FILTER_NEAREST
-		pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		col.add_child(pic)
+		if p_kind == "monster":
+			col.add_child(_crisp_monster_portrait(portrait))
+		else:
+			var pic := TextureRect.new()
+			pic.texture = portrait
+			pic.custom_minimum_size = Vector2(56, 62)
+			pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			pic.texture_filter = TEXTURE_FILTER_NEAREST
+			pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			col.add_child(pic)
 	var t: FitLabelBox = FitLabelBox.make()
 	t.show_frame = false
 	t.padding = 0
@@ -155,29 +207,48 @@ func show_rule(
 		rk.custom_minimum_size = Vector2(216, 0)
 		rk.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(rk)
-	if value_line != "":
+	var badge_hp: String = str(look.get("hp_n", "")).strip_edges()
+	var badge_atk: String = str(look.get("atk_n", "")).strip_edges()
+	if center_copy and badge_hp != "" and badge_atk != "":
+		col.add_child(_wheel_stat_row(badge_hp, badge_atk, int(look.get("stat_style", 0))))
+	elif value_line != "":
 		var e := RichTextLabel.new()
 		e.bbcode_enabled = true
 		e.fit_content = true
 		e.scroll_active = false
 		e.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		e.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if center_copy else HORIZONTAL_ALIGNMENT_LEFT
 		e.add_theme_font_size_override("normal_font_size", 22)
 		e.add_theme_font_size_override("bold_font_size", 24)
 		e.add_theme_color_override("default_color", ink)
 		e.text = value_line
 		e.custom_minimum_size = Vector2(216, 0)
+		e.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_wire_kw(e)
 		col.add_child(e)
+	var call_chip: String = str(look.get("call_chip", "")).strip_edges()
+	if call_chip != "":
+		var call_col := Color("e8c36a")
+		var raw_col: Variant = look.get("call_color", call_col)
+		if raw_col is Color:
+			call_col = raw_col
+		var medal: Texture2D = null
+		var raw_medal: Variant = look.get("medal", null)
+		if raw_medal is Texture2D:
+			medal = raw_medal
+		col.add_child(_call_chip(call_chip, call_col, medal))
 	if equation != "":
 		var eq := RichTextLabel.new()
 		eq.bbcode_enabled = true
 		eq.fit_content = true
 		eq.scroll_active = false
 		eq.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		eq.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if center_copy else HORIZONTAL_ALIGNMENT_LEFT
 		eq.add_theme_font_size_override("normal_font_size", 18)
 		eq.add_theme_color_override("default_color", ink)
 		eq.text = equation
 		eq.custom_minimum_size = Vector2(216, 0)
+		eq.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_wire_kw(eq)
 		col.add_child(eq)
 	if bool(look.get("unplayable", false)):
@@ -190,11 +261,13 @@ func show_rule(
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.meta_underlined = false
 		var body_size: int = 13 if not journal.is_empty() else 15
+		b.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if center_copy else HORIZONTAL_ALIGNMENT_LEFT
 		b.add_theme_font_size_override("normal_font_size", body_size)
 		b.add_theme_font_size_override("bold_font_size", body_size)
 		b.add_theme_color_override("default_color", Color("6e5434") if not journal.is_empty() else body_col)
 		b.text = body
 		b.custom_minimum_size = Vector2(216, 0)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_wire_kw(b)
 		col.add_child(b)
 	_pin_always = false
@@ -203,6 +276,7 @@ func show_rule(
 	if warn != "":
 		var w := Label.new()
 		w.text = warn
+		w.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if center_copy else HORIZONTAL_ALIGNMENT_LEFT
 		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		w.add_theme_font_size_override("font_size", 15)
 		var flee_def: bool = warn.strip_edges().to_lower().begins_with("flee")
@@ -267,6 +341,112 @@ func show_rule(
 		col.add_child(nw)
 	visible = true
 	reset_size()
+
+
+## Same heart and sword the wheel draws, with the number on the icon. Centered as a pair.
+func _wheel_stat_row(hp: String, atk: String, style: int) -> Control:
+	var slot := CenterContainer.new()
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 28)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var heart := WheelStatBadge.new()
+	heart.is_heart = true
+	heart.num_text = hp
+	heart.style = style
+	var sword := WheelStatBadge.new()
+	sword.is_heart = false
+	sword.num_text = atk
+	sword.style = style
+	row.add_child(heart)
+	row.add_child(sword)
+	slot.add_child(row)
+	return slot
+
+
+func _call_chip(text: String, col: Color, medal: Texture2D) -> Control:
+	var slot := CenterContainer.new()
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var chip := Control.new()
+	chip.name = "CallChip"
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var font: Font = ThemeDB.fallback_font
+	var fs := 16
+	var medal_span := 50.0
+	var right_pad := 16.0
+	var max_w := 216.0
+	var text_limit := max_w - medal_span - right_pad
+	if font != null:
+		while fs > 11 and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > text_limit:
+			fs -= 1
+	var text_w := text_limit
+	if font != null:
+		text_w = minf(text_limit, font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x)
+	chip.custom_minimum_size = Vector2(medal_span + text_w + right_pad, 48.0)
+	chip.set_meta("call_text", text)
+	chip.set_meta("call_color", col)
+	chip.set_meta("call_fs", fs)
+	if medal != null:
+		chip.set_meta("medal", medal)
+	chip.draw.connect(_paint_call_chip.bind(chip))
+	slot.add_child(chip)
+	return slot
+
+
+func _paint_call_chip(chip: Control) -> void:
+	var rect := Rect2(Vector2.ZERO, chip.size)
+	if rect.size.x < 8.0 or rect.size.y < 8.0:
+		return
+	_paint_pill(chip, rect, Color(0.08, 0.06, 0.05, 0.94), Color("e8c36a"))
+	var medal_px := 28.0
+	var center := Vector2(26.0, rect.size.y * 0.5)
+	var ring: float = medal_px * 0.62
+	chip.draw_circle(center, ring + 1.5, Color("1a120e"))
+	chip.draw_arc(center, ring + 1.5, 0.0, TAU, 28, Color("c4a574"), 3.0, true)
+	var medal: Variant = chip.get_meta("medal", null)
+	if medal is Texture2D:
+		var mdest := Rect2(center - Vector2(medal_px, medal_px) * 0.5, Vector2(medal_px, medal_px))
+		chip.draw_texture_rect(medal, mdest, false)
+	var text: String = str(chip.get_meta("call_text", ""))
+	var col: Color = chip.get_meta("call_color", Color("e8c36a"))
+	var fs: int = int(chip.get_meta("call_fs", 16))
+	var font: Font = chip.get_theme_default_font()
+	if font == null:
+		font = ThemeDB.fallback_font
+	if font == null or text == "":
+		return
+	var baseline: float = (rect.size.y - font.get_height(fs)) * 0.5 + font.get_ascent(fs)
+	var origin := Vector2(50.0, baseline)
+	var ink := Color("100e0c")
+	for ox in range(-2, 3):
+		for oy in range(-2, 3):
+			if ox == 0 and oy == 0:
+				continue
+			chip.draw_string(font, origin + Vector2(ox, oy), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
+	chip.draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+
+
+func _paint_pill(chip: Control, rect: Rect2, fill: Color, edge: Color) -> void:
+	var rr: float = rect.size.y * 0.5
+	var y: float = rect.position.y + rr
+	var x0: float = rect.position.x + rr
+	var x1: float = rect.position.x + rect.size.x - rr
+	if x1 < x0:
+		var c := Vector2(rect.get_center().x, y)
+		chip.draw_circle(c, rr, fill)
+		chip.draw_arc(c, rr, 0.0, TAU, 24, edge, 1.6, true)
+		return
+	chip.draw_circle(Vector2(x0, y), rr, fill)
+	chip.draw_circle(Vector2(x1, y), rr, fill)
+	chip.draw_rect(Rect2(x0, rect.position.y, x1 - x0, rect.size.y), fill, true)
+	chip.draw_arc(Vector2(x0, y), rr, PI * 0.5, PI * 1.5, 16, edge, 1.6, true)
+	chip.draw_arc(Vector2(x1, y), rr, -PI * 0.5, PI * 0.5, 16, edge, 1.6, true)
+	chip.draw_line(Vector2(x0, rect.position.y), Vector2(x1, rect.position.y), edge, 1.6, true)
+	chip.draw_line(Vector2(x0, rect.position.y + rect.size.y), Vector2(x1, rect.position.y + rect.size.y), edge, 1.6, true)
 
 
 func _unplayable_chip() -> Control:
@@ -393,10 +573,12 @@ func _apply_look(look: Dictionary) -> void:
 		sb.shadow_color = Color(metal.r, metal.g, metal.b, 0.5)
 		sb.shadow_size = 8 if tier >= 3 else (5 if tier == 2 else 3)
 	sb.shadow_offset = Vector2.ZERO
-	sb.content_margin_left = 18
-	sb.content_margin_right = 18
-	sb.content_margin_top = 14
-	sb.content_margin_bottom = 14
+	var stage: bool = bool(look.get("stage_card", false))
+	var pad: int = int(look.get("stage_pad", 0))
+	sb.content_margin_left = 16 if stage else 18
+	sb.content_margin_right = 16 if stage else 18
+	sb.content_margin_top = (8 + pad) if stage else 14
+	sb.content_margin_bottom = 12 if stage else 14
 	add_theme_stylebox_override("panel", sb)
 
 
@@ -406,3 +588,249 @@ func _wipe() -> void:
 			continue
 		remove_child(c)
 		c.queue_free()
+
+
+func _fill_stage_card(col: VBoxContainer, title: String, body: String, ink: Color, look: Dictionary) -> void:
+	col.add_theme_constant_override("separation", 8)
+	var slice: Dictionary = look.get("slice", {})
+	if typeof(slice) != TYPE_DICTIONARY:
+		slice = {}
+	col.add_child(_stage_top_row(title, str(look.get("rank", "")), slice, ink))
+	var call_chip: String = str(look.get("call_chip", "")).strip_edges()
+	if call_chip == "":
+		return
+	var call_col := Color("e8c36a")
+	var raw_col: Variant = look.get("call_color", call_col)
+	if raw_col is Color:
+		call_col = raw_col
+	var medal: Texture2D = null
+	var raw_medal: Variant = look.get("medal", null)
+	if raw_medal is Texture2D:
+		medal = raw_medal
+	col.add_child(_stage_ability(call_chip, call_col, medal))
+	if body == "":
+		return
+	var b := RichTextLabel.new()
+	b.bbcode_enabled = true
+	b.fit_content = true
+	b.scroll_active = false
+	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	b.meta_underlined = false
+	b.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	b.add_theme_font_size_override("normal_font_size", 22)
+	b.add_theme_font_size_override("bold_font_size", 22)
+	b.add_theme_color_override("default_color", Color("e8dcc8") if _on_dark else Color("2a1c14"))
+	b.text = body
+	b.custom_minimum_size = Vector2(308, 0)
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_wire_kw(b)
+	col.add_child(b)
+
+
+func _stage_top_row(title: String, rank: String, slice: Dictionary, ink: Color) -> Control:
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 6)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(_stage_badge(true, slice))
+	var mid := VBoxContainer.new()
+	mid.alignment = BoxContainer.ALIGNMENT_CENTER
+	mid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	mid.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mid.add_theme_constant_override("separation", 0)
+	var name := Label.new()
+	name.text = title
+	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name.autowrap_mode = TextServer.AUTOWRAP_OFF
+	name.clip_text = true
+	name.custom_minimum_size = Vector2(140, 34)
+	name.add_theme_font_size_override("font_size", 28)
+	name.add_theme_color_override("font_color", Color("f0e6d8") if _on_dark else Color("1c120c"))
+	name.add_theme_color_override("font_outline_color", Color("1c120c") if _on_dark else Color("f3e6d0"))
+	name.add_theme_constant_override("outline_size", 3 if _on_dark else 2)
+	name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	mid.add_child(name)
+	if rank.strip_edges() != "":
+		var rk := Label.new()
+		rk.text = rank
+		rk.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		rk.add_theme_font_size_override("font_size", 14)
+		rk.add_theme_color_override("font_color", Color("c4a574") if _on_dark else Color("6a5a48"))
+		rk.add_theme_color_override("font_outline_color", Color("100e0c"))
+		rk.add_theme_constant_override("outline_size", 3)
+		rk.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		mid.add_child(rk)
+	row.add_child(mid)
+	row.add_child(_stage_badge(false, slice))
+	return row
+
+
+func _stage_badge(heart: bool, slice: Dictionary) -> Control:
+	var wrap := Control.new()
+	wrap.custom_minimum_size = Vector2(84, 96)
+	wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var badge := StageWheelBadge.new()
+	badge.heart = heart
+	badge.slice = slice
+	badge.scale = Vector2(2, 2)
+	wrap.add_child(badge)
+	return wrap
+
+
+func _stage_ability(text: String, col: Color, medal: Texture2D) -> Control:
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 8)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var pic := TextureRect.new()
+	pic.custom_minimum_size = Vector2(56, 56)
+	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pic.stretch_mode = TextureRect.STRETCH_SCALE
+	pic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	pic.texture = medal
+	pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(pic)
+	var font: Font = ThemeDB.fallback_font
+	var fs := 24
+	var text_w := 160.0
+	if font != null:
+		text_w = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+		while fs > 16 and text_w > 220.0:
+			fs -= 1
+			text_w = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+	var chip := Control.new()
+	chip.custom_minimum_size = Vector2(text_w + 28.0, 40.0)
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.set_meta("call_text", text)
+	chip.set_meta("call_color", col)
+	chip.set_meta("call_fs", fs)
+	chip.draw.connect(_paint_stage_capsule.bind(chip))
+	row.add_child(chip)
+	return row
+
+
+func _paint_stage_capsule(chip: Control) -> void:
+	var rect := Rect2(Vector2.ZERO, chip.size)
+	if rect.size.x < 8.0:
+		return
+	_paint_pill(chip, rect, Color(0.08, 0.06, 0.05, 0.94), Color("e8c36a"))
+	var text: String = str(chip.get_meta("call_text", ""))
+	var col: Color = chip.get_meta("call_color", Color("e8c36a"))
+	var fs: int = int(chip.get_meta("call_fs", 24))
+	var font: Font = ThemeDB.fallback_font
+	if font == null or text == "":
+		return
+	var tsz := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+	var origin := Vector2((rect.size.x - tsz.x) * 0.5, (rect.size.y - font.get_height(fs)) * 0.5 + font.get_ascent(fs))
+	var ink := Color("100e0c")
+	for ox in range(-2, 3):
+		for oy in range(-2, 3):
+			if ox == 0 and oy == 0:
+				continue
+			chip.draw_string(font, origin + Vector2(ox, oy), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
+	chip.draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+
+
+func _fight_wheel() -> Node:
+	var n: Node = self
+	while n != null:
+		var wheel: Variant = n.get("wheel_view")
+		if wheel != null:
+			return wheel
+		n = n.get_parent()
+	return null
+
+
+## Heart or sword at the wheel's 36px stat size, number painted the same way.
+class WheelStatBadge extends Control:
+	var num_text: String = ""
+	var is_heart: bool = true
+	var style: int = 0
+	var _tex: Texture2D
+	var _region := Rect2()
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		var path := "res://assets/ui/hub/heart_full.png" if is_heart else "res://assets/ui/icons/atk_burst.png"
+		if not ResourceLoader.exists(path):
+			path = "res://assets/icons/heart_full.png" if is_heart else "res://assets/icons/sword.svg"
+		if ResourceLoader.exists(path):
+			_tex = load(path) as Texture2D
+		if _tex != null:
+			_region = Rect2(Vector2.ZERO, _tex.get_size())
+			var img := _tex.get_image()
+			if img != null:
+				var used := img.get_used_rect()
+				if used.size.x >= 1.0 and used.size.y >= 1.0:
+					_region = used
+		custom_minimum_size = Vector2(56, 68 if style == 1 else 52)
+
+	func _draw() -> void:
+		var px := 36.0
+		var pos := Vector2(size.x * 0.5, 26.0 if style == 1 else size.y * 0.5)
+		if style != 0:
+			var plate := Rect2(pos - Vector2(px * 0.72, px * 0.62), Vector2(px * 1.44, px * 1.35))
+			draw_rect(plate, Color(0.0627, 0.0549, 0.0471, 0.82), true)
+			draw_rect(plate, Color("c4a574"), false, 1.5)
+		if _tex != null:
+			var rect := Rect2(pos - Vector2(px, px) * 0.5, Vector2(px, px))
+			for k in 8:
+				var o := Vector2.from_angle(float(k) * TAU / 8.0) * 2.2
+				draw_texture_rect_region(_tex, Rect2(rect.position + o, rect.size), _region, Color("100e0c"))
+			draw_texture_rect_region(_tex, rect, _region, Color.WHITE)
+		var font: Font = ThemeDB.fallback_font
+		if font == null or num_text == "":
+			return
+		var fs := 14 if style == 1 else 15
+		var y_k := 0.08
+		if style == 0:
+			y_k = -0.08 if is_heart else 0.0
+		var at := pos + (Vector2(0.0, px * 0.55) if style == 1 else Vector2(0.0, px * y_k))
+		var tsz := font.get_string_size(num_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+		var p := at + Vector2(-tsz.x * 0.5, fs * 0.36)
+		var ink := Color("100e0c")
+		for ox in [-1, 0, 1]:
+			for oy in [-1, 0, 1]:
+				if ox == 0 and oy == 0:
+					continue
+				draw_string(font, p + Vector2(ox, oy), num_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
+		draw_string(font, p, num_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("f0e6d8"))
+
+
+## Wheel HP / ATK badge, drawn with the wheel's own painters, shown at 2×.
+class StageWheelBadge extends Control:
+	var heart: bool = true
+	var slice: Dictionary = {}
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		custom_minimum_size = Vector2(42, 48)
+		size = Vector2(42, 48)
+		clip_contents = false
+
+	func _draw() -> void:
+		var wheel: Node = _wheel()
+		if wheel == null:
+			return
+		wheel._ext_ci = self
+		var font: Font = ThemeDB.fallback_font
+		var pos := size * 0.5
+		if heart and wheel.has_method("_draw_heart_stat"):
+			wheel._draw_heart_stat(font, pos, slice, {}, false, -1)
+		elif wheel.has_method("_draw_atk_stat"):
+			wheel._draw_atk_stat(font, pos, slice, {}, false, -1)
+		wheel._ext_ci = null
+
+	func _wheel() -> Node:
+		var n: Node = self
+		while n != null:
+			var found: Variant = n.get("wheel_view")
+			if found != null:
+				return found
+			n = n.get_parent()
+		return null

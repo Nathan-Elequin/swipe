@@ -1,5 +1,6 @@
 extends Control
 ## Boot teaser: chase, spend-to-keep, whiteout, title still, click to continue.
+## TEASER_ARCHIVED: the chase stays in this file. While true, boot shows title_gemini.png and the theme, then the usual menu.
 
 signal finished
 
@@ -7,6 +8,9 @@ const COPY := preload("res://scripts/player_copy.gd")
 const DUNGEON_BG := preload("res://scripts/dungeon_bg.gd")
 
 const STILL_PATH := "res://assets/dungeon/title/title_still.png"
+const ARCHIVED_STILL := "res://assets/dungeon/title/title_gemini.png"
+## Flip to false to play the chase again. Art and beats below stay as they are.
+const TEASER_ARCHIVED := true
 const HILL_PATH := "res://assets/dungeon/title/hill_strip.png"
 const HALL_PATH := "res://assets/dungeon/title/hall_strip.png"
 const HALL_B_PATH := "res://assets/dungeon/title/hall_strip_b.png"
@@ -67,6 +71,7 @@ var _swipe: Array = []
 var _block: Array = []
 var _grab: Array = []
 var _still: Texture2D
+var _still_contain: bool = false
 var _hill: Texture2D
 var _hall_strip: Texture2D
 var _hall_strip_b: Texture2D
@@ -87,6 +92,10 @@ var _rec_draw: bool = true
 
 static func still_ready() -> bool:
 	return ResourceLoader.exists(STILL_PATH)
+
+
+static func archived() -> bool:
+	return TEASER_ARCHIVED
 
 
 func setup(p_art, p_sfx) -> void:
@@ -113,7 +122,33 @@ func setup(p_art, p_sfx) -> void:
 	_set_title_visible(false)
 
 
+func open_archived_still() -> void:
+	skippable = false
+	holding_still = true
+	_yielded = true
+	_t = T_STILL
+	_white = 0.0
+	_still_a = 1.0
+	_still_contain = true
+	_logo = null
+	_still = _opt(ARCHIVED_STILL)
+	if _still == null:
+		_still = _opt(STILL_PATH)
+		_still_contain = false
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	z_index = 120
+	visible = true
+	if _hall:
+		_hall.visible = false
+	_set_title_visible(false)
+	move_to_front()
+	queue_redraw()
+
+
 func open_teaser(can_skip: bool) -> void:
+	if TEASER_ARCHIVED:
+		open_archived_still()
+		return
 	skippable = can_skip
 	music_dip = false
 	holding_still = false
@@ -535,16 +570,15 @@ func _set_title_visible(on: bool) -> void:
 	if _click:
 		_click.visible = on
 	if _music_lab:
-		_music_lab.visible = on and OS.has_feature("editor")
+		# Lab hint only. Never paint it on the title the player sees.
+		_music_lab.visible = false
 
 
 func _sync_music_lab() -> void:
 	if _music_lab == null:
 		return
-	if music_dip:
-		_music_lab.set_plain("M: title bed (dip)")
-	else:
-		_music_lab.set_plain("M: combat through")
+	_music_lab.visible = false
+	_music_lab.set_plain("")
 
 
 func _apply_music_dip(on: bool) -> void:
@@ -820,7 +854,10 @@ func _logo_draw_rect() -> Array:
 func _draw_still(sz: Vector2, a: float) -> void:
 	var col := Color(1, 1, 1, a)
 	if _still != null:
-		_blit(_still, Rect2(Vector2.ZERO, sz), col)
+		if _still_contain:
+			_blit_contain(_still, sz, col)
+		else:
+			_blit(_still, Rect2(Vector2.ZERO, sz), col)
 	else:
 		_fill_rect(Rect2(Vector2.ZERO, sz), Color(0.08, 0.07, 0.06, a))
 		if _cabin != null:
@@ -833,6 +870,18 @@ func _draw_still(sz: Vector2, a: float) -> void:
 	if _logo != null:
 		var lr: Array = _logo_draw_rect()
 		_blit(_logo, Rect2(float(lr[0]), float(lr[1]), float(lr[2]), float(lr[3])), col)
+
+
+func _blit_contain(tex: Texture2D, sz: Vector2, col: Color) -> void:
+	var tw: float = float(tex.get_width())
+	var th: float = float(tex.get_height())
+	if tw < 1.0 or th < 1.0:
+		return
+	var scale: float = maxf(sz.x / tw, sz.y / th)
+	var w: float = tw * scale
+	var h: float = th * scale
+	var origin := Vector2((sz.x - w) * 0.5, sz.y - h)
+	_blit(tex, Rect2(origin, Vector2(w, h)), col)
 
 
 func _blit_strip(tex: Texture2D, sz: Vector2, pan: float) -> void:
