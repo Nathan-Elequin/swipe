@@ -11,7 +11,7 @@ alwaysApply: true
 ## Every Nathan message
 1. At the start, quietly run `tools/dev/ready-prs.ps1`. If it prints nothing, say nothing about Pixel.
 2. Do what Nathan asked first.
-3. Then, for each listed PR he hasn't already responded to in this chat, end the reply with a "Ready to test from Pixel" section (format below). Get the details with `gh pr view <n>`.
+3. Then, for each listed PR that is not retired in `.cursor/pixel-shown.json` (`pixel-shown-enough.mdc`), end the reply with a "Ready to test from Pixel" section (format below). Get the details with `gh pr view <n>`. Skip a PR he has already been shown three times, or that he said to close out. Do not mention the skipped ones.
 
 ## Note format (same house style as `playtest-inbox.mdc`)
 - Its own section, after everything else in the reply (after **Closed issues** if those appear): `### 🎨 Ready to test from Pixel`.

@@ -7,6 +7,9 @@ signal slice_right_clicked(index: int)
 signal segment_passed(index: int, speed01: float)
 signal atk_ticked
 signal hp_ticked
+signal stat_style_changed(style: int)
+
+const SHOW_STAT_LAYOUT := false
 
 var show_shift: bool = false
 
@@ -86,10 +89,15 @@ const RING := Color("c4a574")
 const HUB := Color("100e0c")
 const HUB_FRAC := 0.34
 const HUB_HERO_EDGE := 56.0
+## 64px Sprout frames draw at 1.5 (96px). 48px frames draw at 2.0, also 96px.
+const HUB_SPROUT_SCALE := 1.5
 ## Display scale of existing 24-native wheel art. Pass 6 shipped 4x/96px; Nathan 2026-10-21: shrink, do not redraw.
 ## Opaque pixels fill a 48px box on their long axis (empty canvas padding is ignored).
 const WHEEL_SPRITE_SCALE := 2.0
 const WHEEL_SPRITE_MAX := 48.0
+const WHEEL_FIT_H := 96.0
+const WHEEL_FIT_W := 100.0
+const WHEEL_SCALE_STEP := 0.25
 const MEDAL_PX := 28.0
 const BADGE_ICON_PX := 24.0
 const TAG_H := 48.0
@@ -121,7 +129,8 @@ var rot: float = 0.0:
 
 var tex_heart: Texture2D
 var tex_poison: Texture2D
-var tex_sword: Texture2D
+var tex_atk: Texture2D
+var _atk_variant_cache: Dictionary = {}
 var tex_plus: Texture2D
 var tex_shield: Texture2D
 var tex_heart_full: Texture2D
@@ -131,6 +140,7 @@ var tex_special: Dictionary = {}
 var tex_portraits: Dictionary = {}
 var tex_wheel_frames: Dictionary = {}
 var tex_name_tag: Texture2D
+var _art = null
 var tex_medals: Dictionary = {}
 var _used_cache: Dictionary = {}
 var _fit_cache: Dictionary = {}
@@ -219,6 +229,15 @@ var hub_hp_max: int = 6
 var hub_hp_ghost: int = -1
 var hub_moves: int = 0
 var hub_moves_max: int = 0
+## 0 number inside the icon, 1 plate under the icon, 2 both. F5 test button cycles these.
+var stat_style: int = 0
+var _icon_used: Dictionary = {}
+var hurt_preview: bool = false
+var move_hint_dir: int = 0
+var move_hint_amt: float = 0.0
+## Signed hover nudge, in radians. Wedges, sprites, and name tags all read this.
+var _hint_ang: float = 0.0
+var _scale_note: Dictionary = {}
 var _ability_avoids: Array = []
 var hub_poison: int = 0
 var hub_poison_locked: bool = false
@@ -262,8 +281,12 @@ var _badge_tex: Dictionary = {}
 var hub_gear: Dictionary = {"head": "", "eyes": "", "belt": ""}
 var hero_anim: String = "idle"
 var hero_frame: int = 0
-var hub_death_dim: bool = false
 var _hero_t: float = 0.0
+var hub_death_dim: bool = false
+var _sprout_hub: bool = false
+var _sprout_blink_t: float = 0.0
+var _sprout_blink_wait: float = 5.0
+var _sprout_gear_warned: bool = false
 var _hero_hold: bool = false
 var _hero_loops: int = 1
 var _hero_frozen: bool = false
@@ -291,6 +314,7 @@ func set_hub_gear(worn: Dictionary) -> void:
 
 
 func setup_run_hero(art) -> void:
+	_art = art
 	_hero_layout = {}
 	if FileAccess.file_exists("res://assets/dungeon/hero_run/layout.json"):
 		var txt: String = FileAccess.get_file_as_string("res://assets/dungeon/hero_run/layout.json")
@@ -300,20 +324,39 @@ func setup_run_hero(art) -> void:
 	_hero_frames.clear()
 	_hero_gear.clear()
 	_badge_tex.clear()
-	var anims: Dictionary = _hero_layout.get("anims", {})
-	if anims.is_empty():
-		anims = {
-			"idle": {}, "lowhp": {}, "swipe": {}, "hit": {}, "block": {},
-			"heal": {}, "death": {}, "victory": {}, "grab": {}, "walkoff": {},
-		}
-	for anim in anims.keys():
-		var name: String = str(anim)
-		if art and art.has_method("hero_run_anim"):
-			_hero_frames[name] = art.hero_run_anim(name)
-			for piece in HERO_GEAR_ORDER:
-				if not _hero_gear.has(piece):
-					_hero_gear[piece] = {}
-				_hero_gear[piece][name] = art.hero_run_gear(piece, name)
+	_sprout_hub = false
+	if art and art.has_method("sprout_anim"):
+		var idle: Array = art.sprout_anim("idle")
+		if not idle.is_empty():
+			_sprout_hub = true
+			_hero_frames["idle"] = idle
+			_hero_frames["lowhp"] = idle
+			_hero_frames["swipe"] = art.sprout_anim("attack")
+			_hero_frames["hit"] = art.sprout_anim("hit")
+			_hero_frames["block"] = idle
+			_hero_frames["heal"] = art.sprout_anim("grab")
+			_hero_frames["death"] = art.sprout_anim("defeat")
+			_hero_frames["victory"] = art.sprout_anim("victory")
+			_hero_frames["grab"] = art.sprout_anim("grab")
+			_hero_frames["walkoff"] = art.sprout_anim("run")
+			_hero_frames["blink"] = art.sprout_anim("blink")
+			_sprout_blink_t = 0.0
+			_sprout_blink_wait = randf_range(4.0, 6.0)
+	if not _sprout_hub:
+		var anims: Dictionary = _hero_layout.get("anims", {})
+		if anims.is_empty():
+			anims = {
+				"idle": {}, "lowhp": {}, "swipe": {}, "hit": {}, "block": {},
+				"heal": {}, "death": {}, "victory": {}, "grab": {}, "walkoff": {},
+			}
+		for anim in anims.keys():
+			var name: String = str(anim)
+			if art and art.has_method("hero_run_anim"):
+				_hero_frames[name] = art.hero_run_anim(name)
+				for piece in HERO_GEAR_ORDER:
+					if not _hero_gear.has(piece):
+						_hero_gear[piece] = {}
+					_hero_gear[piece][name] = art.hero_run_gear(piece, name)
 	if art and art.has_method("hero_run_badge"):
 		for stem in ["badge_hp", "badge_hp_flash", "badge_hp_low", "badge_hp_empty", "badge_blk", "badge_blk_empty", "badge_blk_up", "badge_blk_pierced"]:
 			_badge_tex[stem] = art.hero_run_badge(stem)
@@ -578,7 +621,7 @@ func _draw_hub_heart_arc(dim: float) -> void:
 	var pts: Array = laid.get("pts", [])
 	var hs: float = float(laid.get("hs", 20.0))
 	var n: int = pts.size()
-	var punch: bool = hub_hp_flash > 0.12 or _hp_punch_t > 0.0
+	var punch: bool = hub_hp_flash > 0.12 or _hp_punch_t > 0.0 or (hurt_preview and absf(sin(_glow_t * 7.0)) > 0.35)
 	var sz := Vector2(hs, hs)
 	if punch:
 		sz *= 1.12
@@ -605,15 +648,36 @@ func _ready() -> void:
 	resized.connect(queue_redraw)
 	mouse_exited.connect(_on_mouse_out)
 	set_process(true)
+	# Dev cycle for where the numbers sit. Off unless this is turned on here.
+	if SHOW_STAT_LAYOUT:
+		var numbers := Button.new()
+		numbers.name = "StatLayout"
+		numbers.focus_mode = Control.FOCUS_NONE
+		numbers.position = Vector2(8, 8)
+		numbers.z_index = 30
+		numbers.text = "Numbers: inside"
+		numbers.pressed.connect(_cycle_stat_style)
+		add_child(numbers)
+
+
+func _cycle_stat_style() -> void:
+	stat_style = (stat_style + 1) % 3
+	var labels: PackedStringArray = PackedStringArray(["Numbers: inside", "Numbers: plate", "Numbers: both"])
+	var btn: Node = get_node_or_null("StatLayout")
+	if btn is Button:
+		(btn as Button).text = labels[stat_style]
+	_fit_sig = ""
+	stat_style_changed.emit(stat_style)
+	queue_redraw()
 
 
 func set_atlas(heart: Texture2D, sword: Texture2D, plus: Texture2D, by_id: Dictionary, specials: Dictionary, shield: Texture2D = null) -> void:
 	tex_heart = heart
-	tex_sword = sword
-	if ResourceLoader.exists("res://assets/dungeon/ui/cursorSword_gold.png"):
-		var gold_sw: Texture2D = load("res://assets/dungeon/ui/cursorSword_gold.png") as Texture2D
-		if gold_sw != null:
-			tex_sword = gold_sw
+	tex_atk = sword
+	if ResourceLoader.exists("res://assets/ui/icons/atk_burst.png"):
+		var burst: Texture2D = load("res://assets/ui/icons/atk_burst.png") as Texture2D
+		if burst != null:
+			tex_atk = burst
 	tex_plus = plus
 	tex_by_id = by_id
 	tex_special = specials
@@ -689,9 +753,6 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 	if slay_index >= 0 and slay_index < slices.size():
 		var held: Dictionary = slices[slay_index]
 		slay_key = "%s:%s" % [held.get("kind", ""), held.get("card_id", "")]
-	var prev := {}
-	for s in slices:
-		prev[str(s.get("slot", ""))] = s
 	var bonds_before: Dictionary = _bond_prev if _bond_hold_diff else _bond_pair_map()
 	_bond_hold_diff = false
 	slices = next
@@ -710,18 +771,9 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 			elif slay_kind == "block" and face != slay_index:
 				# Flee leaves the monster in place. Drop BLOCKED once we are no longer facing them.
 				clear_slay()
-	for i in slices.size():
-		var s: Dictionary = slices[i]
-		var old: Dictionary = prev.get(str(s.get("slot", "")), {})
-		if old.is_empty() or str(old.get("kind", "")) != "monster":
-			continue
-		if str(s.get("kind", "")) != "monster":
-			continue
-		var pos: Vector2 = _atk_pos(i)
-		if int(old.get("atk", 0)) != int(s.get("atk", 0)):
-			_pt_ghosts.append({"pos": pos, "text": str(old.get("atk", 0)), "col": ATK_COL, "t": 0.0, "life": 0.28, "fs": 18})
-		if int(old.get("hp", 0)) != int(s.get("hp", 0)):
-			_pt_ghosts.append({"pos": _hp_pos(i), "text": str(old.get("hp", 0)), "col": HP_COL, "t": 0.0, "life": 0.28, "fs": 18})
+	# Old HP/ATK used to be drawn again on top of the new number for a short fade.
+	# That left a second number on the badge and a loose number on the slice.
+	_pt_ghosts.clear()
 	_bond_prev = _bond_pair_map()
 	_start_bond_diff(bonds_before, _bond_prev)
 	queue_redraw()
@@ -1033,6 +1085,13 @@ func _radius() -> float:
 
 func _process(delta: float) -> void:
 	_glow_t += delta
+	# One angle for the whole wheel. Seats used to snap in 0.02 rad steps while the wedges eased, so the art looked like it was stuttering against the rim.
+	var hint_goal: float = -0.32 * float(move_hint_dir)
+	var hint_k: float = 1.0 - exp(-delta * 8.0)
+	_hint_ang = lerpf(_hint_ang, hint_goal, hint_k)
+	if absf(_hint_ang - hint_goal) < 0.0004:
+		_hint_ang = hint_goal
+	move_hint_amt = clampf(absf(_hint_ang) / 0.32, 0.0, 1.0)
 	var anim_dirty: bool = false
 	for k in _bond_anim.keys():
 		var ent: Dictionary = _bond_anim[k]
@@ -1172,11 +1231,21 @@ func _span(i: int) -> float:
 	return TAU * _weight(i) / tot
 
 
+func _move_hint_angle() -> float:
+	# Left hover is move_hint_dir +1. That click faces the monster on the left,
+	# and the wheel turns counterclockwise to get there.
+	return _hint_ang
+
+
 func _starts() -> PackedFloat32Array:
+	return _wedge_starts(rot + _move_hint_angle())
+
+
+func _wedge_starts(base_angle: float) -> PackedFloat32Array:
 	var n: int = slices.size()
 	var s := PackedFloat32Array()
 	s.resize(n)
-	var a: float = rot
+	var a: float = base_angle
 	for i in n:
 		s[i] = a
 		a += _span(i)
@@ -1196,8 +1265,16 @@ func _bezel_pos(i: int) -> Vector2:
 
 
 func _spoke(i: int) -> Dictionary:
+	var built: Dictionary = _spoke_rest(i)
+	return _spin_spoke(built, _move_hint_angle())
+
+
+func _spoke_rest(i: int) -> Dictionary:
 	var c: Vector2 = _center()
-	var dir: Vector2 = _dir_of(i)
+	var starts: PackedFloat32Array = _wedge_starts(rot)
+	var dir: Vector2 = Vector2.DOWN
+	if i >= 0 and i < starts.size():
+		dir = Vector2.from_angle(starts[i] + _span(i) * 0.5)
 	var tan: Vector2 = Vector2(-dir.y, dir.x)
 	var lift: float = _lift_of(i)
 	var origin: Vector2 = c + dir * (lift * 8.0) + _slay_push(i)
@@ -1215,12 +1292,13 @@ func _spoke(i: int) -> Dictionary:
 		var odd: int = int(_glow_t / 0.6 + float(i) * 0.37) % 2
 		feet += Vector2(0, -4.0 if odd == 1 else 0.0)
 	var port: Vector2 = feet - Vector2(0, h * 0.5)
-	var hp: Vector2 = feet + Vector2(-(w * 0.5 + 12.0), -h * 0.42)
-	var atk: Vector2 = feet + Vector2(w * 0.5 + 12.0, -h * 0.42)
+	var dx: float = clampf(w * 0.5 - 4.0, 30.0, 40.0)
+	var hp: Vector2 = feet + Vector2(-dx, -8.0)
+	var atk: Vector2 = feet + Vector2(dx, -8.0)
 	var tag_w: float = _tag_width_px(i)
 	var tag_h: float = _tag_height_px(i)
-	var tag_rect := Rect2(Vector2(feet.x - tag_w * 0.5, feet.y + 28.0), Vector2(tag_w, tag_h))
-	var medal := Vector2(feet.x, feet.y + 22.0)
+	var tag_rect := Rect2(Vector2(feet.x - tag_w * 0.5, feet.y + 10.0), Vector2(tag_w, tag_h))
+	var medal := Vector2(tag_rect.position.x - 2.0, tag_rect.position.y + tag_h * 0.5)
 	var sprite_rect := Rect2(Vector2(feet.x - w * 0.5, feet.y - h), Vector2(w, h))
 	return {
 		"c": c,
@@ -1398,6 +1476,17 @@ func focus_rect(kind: String) -> Rect2:
 		return _global_badge(_hp_pos(facing_index), 34.0)
 	if kind == "empty":
 		return _slice_annulus_rect(_first_empty_slice())
+	if kind == "moves" and hub_moves_max > 0:
+		var hub_r: float = _radius() * HUB_FRAC
+		var gap: float = 24.0
+		var y: float = c.y + hub_r - 16.0
+		var total: float = gap * float(hub_moves_max - 1)
+		var left: float = c.x - total * 0.5 - 16.0
+		var right: float = c.x + total * 0.5 + 16.0
+		var xf: Transform2D = get_global_transform()
+		var p0: Vector2 = xf * Vector2(left, y - 16.0)
+		var p1: Vector2 = xf * Vector2(right, y + 16.0)
+		return Rect2(p0, p1 - p0)
 	if kind == "face" and facing_index >= 0:
 		return _slice_global_rect(facing_index)
 	return Rect2()
@@ -1485,27 +1574,50 @@ func _medal_tex(id: String) -> Texture2D:
 	return tex_medals.get(_medal_key(id), null)
 
 
+func medal_tex_for(card_id: String) -> Texture2D:
+	if tex_medals.is_empty():
+		_load_wheel_ui()
+	return _medal_tex(card_id)
+
+
+func ability_color_for(sid: String) -> Color:
+	return _ability_icon_color(sid)
+
+
 func _wheel_tex(i: int) -> Texture2D:
 	if i < 0 or i >= slices.size():
 		return null
 	var pid: String = str(slices[i].get("card_id", ""))
 	var frames: Array = tex_wheel_frames.get(pid, [])
-	if frames.size() >= 2:
-		var fi: int = int(_glow_t / 0.6 + float(i) * 0.37) % 2
-		return frames[fi]
-	if frames.size() == 1:
+	if frames.is_empty():
+		if tex_portraits.has(pid):
+			return tex_portraits[pid]
+		return null
+	if frames.size() == 1 or _wheel_idle_held(i):
 		return frames[0]
-	if tex_portraits.has(pid):
-		return tex_portraits[pid]
-	return null
+	# 200ms per frame. Process delta already follows Engine.time_scale, so Shift speeds this.
+	var fi: int = int(_glow_t / 0.2 + float(i) * 0.37) % frames.size()
+	return frames[fi]
 
 
-func _breathe_bob(i: int) -> bool:
+func _wheel_idle_held(i: int) -> bool:
 	if i < 0 or i >= slices.size():
-		return false
-	var pid: String = str(slices[i].get("card_id", ""))
-	var frames: Array = tex_wheel_frames.get(pid, [])
-	return frames.size() < 2
+		return true
+	var s: Dictionary = slices[i]
+	if int(s.get("hp", 1)) <= 0:
+		return true
+	if bool(s.get("fled_once", false)):
+		return true
+	if bool(s.get("petrified", false)) or int(s.get("petrify_n", 0)) > 0:
+		return true
+	# Same seats _draw_slice_contents draws dimmed while a fight is facing someone else.
+	if facing_index >= 0 and not spinning and i != facing_index and i != hover_index:
+		return true
+	return false
+
+
+func _breathe_bob(_i: int) -> bool:
+	return false
 
 
 func _tex_used(tex: Texture2D) -> Rect2:
@@ -1526,10 +1638,17 @@ func _tex_used(tex: Texture2D) -> Rect2:
 	return full
 
 
+func _sprite_slot(i: int) -> float:
+	var span: float = _span(i) if i >= 0 else 1.0
+	var chord: float = _radius() * maxf(span, 0.2) * 0.72
+	return clampf(minf(chord, _radius() * 0.42), 64.0, 96.0)
+
+
 func _seat_sprite_size(i: int) -> Vector2:
 	var tex: Texture2D = null
+	var pid := ""
 	if i >= 0 and i < slices.size():
-		var pid: String = str(slices[i].get("card_id", ""))
+		pid = str(slices[i].get("card_id", ""))
 		var frames: Array = tex_wheel_frames.get(pid, [])
 		if frames.size() > 0:
 			tex = frames[0]
@@ -1537,12 +1656,15 @@ func _seat_sprite_size(i: int) -> Vector2:
 		tex = _wheel_tex(i)
 	if tex == null:
 		return Vector2(WHEEL_SPRITE_MAX, WHEEL_SPRITE_MAX)
-	var used: Rect2 = _tex_used(tex)
-	var long_axis: float = maxf(used.size.x, used.size.y)
-	if long_axis < 1.0:
-		return Vector2(WHEEL_SPRITE_MAX, WHEEL_SPRITE_MAX)
-	var scale: float = WHEEL_SPRITE_MAX / long_axis
-	return Vector2(used.size.x * scale, used.size.y * scale)
+	var tw: float = maxf(1.0, float(tex.get_width()))
+	var th: float = maxf(1.0, float(tex.get_height()))
+	var s: float = minf(WHEEL_FIT_H / th, WHEEL_FIT_W / tw)
+	if s < 1.0 and not _scale_note.has(pid):
+		_scale_note[pid] = true
+		push_warning("wheel sprite %s is %sx%s and does not fit the wedge at a whole-pixel scale" % [pid, tw, th])
+	s = floorf(s / WHEEL_SCALE_STEP) * WHEEL_SCALE_STEP
+	s = clampf(s, 1.0, 4.0)
+	return Vector2(tw * s, th * s)
 
 
 func _call_of_slice(i: int) -> String:
@@ -1555,13 +1677,18 @@ func _call_of_slice(i: int) -> String:
 	var call_s: String = str(s.get("call_name", "")).strip_edges()
 	if call_s == "" or call_s.to_lower() == name_s.to_lower():
 		return ""
-	if name_s.to_lower().find(call_s.to_lower()) >= 0:
-		return ""
 	return call_s
 
 
 func _tag_height_px(i: int) -> float:
-	return TAG_H_CALL if _call_of_slice(i) != "" else TAG_H
+	var font: Font = get_theme_default_font()
+	if font == null:
+		font = ThemeDB.fallback_font
+	var fs: int = int(_tag_fs.get(i, 15))
+	var h: float = 6.0 + font.get_height(fs) + 8.0
+	if _call_of_slice(i) != "":
+		h += 1.0 + font.get_height(11)
+	return h
 
 
 func _tag_width_px(i: int) -> float:
@@ -1585,7 +1712,7 @@ func _tag_width_px(i: int) -> float:
 func _fit_sig_of(n: int) -> String:
 	var bits: PackedStringArray = PackedStringArray()
 	bits.append(str(n))
-	bits.append(str(snappedf(rot, 0.05)))
+	bits.append(str(snappedf(rot, 0.02)))
 	bits.append(str(int(_radius())))
 	for i in n:
 		var sz: Vector2 = _seat_sprite_size(i)
@@ -1605,13 +1732,17 @@ func _fit_table(n: int) -> Array:
 	var c: Vector2 = _center()
 	var R: float = _radius()
 	var hub_r: float = R * HUB_FRAC
-	var starts: PackedFloat32Array = _starts()
+	# Fit on the settled wheel, then spin that layout by the live hover angle.
+	# Re-fitting every frame picked a new screen nudge and made the sprites hitch.
+	var starts: PackedFloat32Array = _wedge_starts(rot)
 	var feet_out: Array = []
 	_fit_clearance.clear()
 	_tag_fs.clear()
 	for i in n:
 		_tag_fs[i] = 15
-		var dir: Vector2 = _dir_of(i)
+		var dir: Vector2 = Vector2.DOWN
+		if i >= 0 and i < starts.size():
+			dir = Vector2.from_angle(starts[i] + _span(i) * 0.5)
 		var a0: float = starts[i] if i < starts.size() else (-PI * 0.5 + float(i) * TAU / float(n))
 		var a1: float = a0 + _span(i)
 		var sz: Vector2 = _seat_sprite_size(i)
@@ -1640,6 +1771,31 @@ func _fit_table(n: int) -> Array:
 	if not spinning:
 		print("[pass6-fit] n=%s clearances=%s" % [n, _fit_clearance])
 	return feet_out
+
+
+func _spin_pt(p: Vector2, c: Vector2, ang: float) -> Vector2:
+	var d: Vector2 = p - c
+	var cs: float = cos(ang)
+	var sn: float = sin(ang)
+	return c + Vector2(d.x * cs - d.y * sn, d.x * sn + d.y * cs)
+
+
+func _spin_rect(r: Rect2, c: Vector2, ang: float) -> Rect2:
+	var mid: Vector2 = _spin_pt(r.get_center(), c, ang)
+	return Rect2(mid - r.size * 0.5, r.size)
+
+
+func _spin_spoke(sp: Dictionary, ang: float) -> Dictionary:
+	if absf(ang) < 0.00001:
+		return sp
+	var c: Vector2 = sp["c"]
+	for k in ["origin", "port", "feet", "name", "atk", "hp", "medal"]:
+		sp[k] = _spin_pt(sp[k] as Vector2, c, ang)
+	sp["dir"] = (sp["dir"] as Vector2).rotated(ang)
+	sp["tan"] = Vector2(-(sp["dir"] as Vector2).y, (sp["dir"] as Vector2).x)
+	sp["tag_rect"] = _spin_rect(sp["tag_rect"], c, ang)
+	sp["sprite_rect"] = _spin_rect(sp["sprite_rect"], c, ang)
+	return sp
 
 
 func _search_feet(c: Vector2, R: float, hub_r: float, dir: Vector2, a0: float, a1: float, sz: Vector2, i: int, fallback: Vector2) -> Dictionary:
@@ -1678,7 +1834,7 @@ func _block_clearance(f: Vector2, c: Vector2, R: float, hub_r: float, a0: float,
 	var rects: Array[Rect2] = [
 		Rect2(Vector2(f.x - w * 0.5, f.y - h), Vector2(w, h)),
 		Rect2(Vector2(f.x - (w * 0.5 + 28.0), f.y - 32.0), Vector2(w + 56.0, 40.0)),
-		Rect2(Vector2(f.x - tag_w * 0.5, f.y + 28.0), Vector2(tag_w, tag_h)),
+		Rect2(Vector2(f.x - tag_w * 0.5, f.y + 10.0), Vector2(tag_w, tag_h)),
 	]
 	var worst: float = 1.0e9
 	for rec in rects:
@@ -1826,6 +1982,7 @@ func _draw() -> void:
 	for i in n:
 		_draw_slice_contents(font, c, radius, starts[i], _span(i), i)
 	_draw_bonds(c, radius)
+	_draw_move_hint(c, radius)
 	_draw_across_aim()
 	_draw_hub_block(c, radius)
 	_draw_threat(c, radius)
@@ -2394,6 +2551,48 @@ func _lowest_hp_other(i: int) -> int:
 	return best
 
 
+func rim_global() -> Vector2:
+	return get_global_transform() * _center()
+
+
+func rim_radius() -> float:
+	return _radius()
+
+
+func _step_living(from: int, dir: int) -> int:
+	var n: int = slices.size()
+	if n <= 0 or from < 0 or dir == 0:
+		return -1
+	var i: int = from
+	for _step in n:
+		i = (i + dir) % n
+		if i < 0:
+			i += n
+		if i == from:
+			return -1
+		if str(slices[i].get("kind", "")) != "monster":
+			continue
+		if int(slices[i].get("hp", 0)) <= 0:
+			continue
+		return i
+	return -1
+
+
+func _draw_move_hint(c: Vector2, radius: float) -> void:
+	if move_hint_dir == 0 or move_hint_amt < 0.04 or facing_index < 0:
+		return
+	var dest: int = _step_living(facing_index, move_hint_dir)
+	if dest < 0:
+		return
+	var starts: PackedFloat32Array = _starts()
+	if dest >= starts.size():
+		return
+	var a0: float = starts[dest]
+	var a1: float = a0 + _span(dest)
+	var col := Color("FFD84A", 0.25 + 0.55 * move_hint_amt)
+	draw_arc(c, radius + 10.0, a0, a1, 20, col, 7.0, true)
+
+
 func _draw_bonds(_c: Vector2, _radius: float) -> void:
 	var n: int = slices.size()
 	if n == 0:
@@ -2442,6 +2641,9 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 		else:
 			var a: float = (0.82 + 0.18 * pulse) if hot else (0.30 + 0.10 * pulse)
 			col.a = a
+		if i == hover_index:
+			var ring: float = 18.0 + 10.0 * absf(sin(_glow_t * 5.0))
+			draw_arc(_spoke(i)["port"], ring, 0.0, TAU, 24, Color(col.r, col.g, col.b, 0.55), 2.4, true)
 		var a_sp: Dictionary = _spoke(i)
 		var b_sp: Dictionary = _spoke(j)
 		var a_pt: Vector2 = a_sp.get("feet", a_sp["port"])
@@ -2531,6 +2733,8 @@ func _ensure_aura_glyphs() -> void:
 		return
 	for name in ["sword", "wisp", "drop", "lock", "shield"]:
 		var p := "res://assets/ui/anim/aura_glyph_%s.png" % name
+		if name == "sword":
+			p = "res://assets/ui/icons/atk_burst_18.png"
 		if ResourceLoader.exists(p):
 			_aura_glyphs[name] = load(p) as Texture2D
 
@@ -2564,14 +2768,19 @@ func _draw_wheel_sprite(_i: int, sp: Dictionary, s: Dictionary, dim: float) -> v
 	var feet: Vector2 = sp.get("feet", sp["port"] + Vector2(0, 48))
 	var w: float = sprite_rect.size.x if sprite_rect.size.x > 1.0 else WHEEL_SPRITE_MAX
 	var h: float = sprite_rect.size.y if sprite_rect.size.y > 1.0 else WHEEL_SPRITE_MAX
+	var dest := sprite_rect
+	if dest.size.x < 1.0 or dest.size.y < 1.0:
+		dest = Rect2(Vector2(feet.x - w * 0.5, feet.y - h), Vector2(w, h))
+	var shadow_at := Vector2(dest.position.x + dest.size.x * 0.5, dest.end.y)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	draw_colored_polygon(_shadow_pts(feet, w * 0.9, 10.0), SHADOW_COL)
+	draw_colored_polygon(_shadow_pts(shadow_at, dest.size.x * 0.9, 10.0), SHADOW_COL)
 	if tex == null:
 		return
-	var dest := Rect2(Vector2(feet.x - w * 0.5, feet.y - h), Vector2(w, h))
-	var src: Rect2 = _tex_used(tex)
-	if src.size.x < 1.0 or src.size.y < 1.0:
-		src = Rect2(0, 0, tex.get_width(), tex.get_height())
+	var card_id := str(s.get("card_id", ""))
+	var flip: bool = _art != null and _art.has_method("monster_flip_h") and _art.monster_flip_h(card_id, "L")
+	var src := Rect2(0, 0, tex.get_width(), tex.get_height())
+	if flip:
+		draw_set_transform(Vector2(2.0 * shadow_at.x, 0.0), 0.0, Vector2(-1.0, 1.0))
 	var outline := Color(OUTLINE_PX.r, OUTLINE_PX.g, OUTLINE_PX.b, dim)
 	var ring: float = WHEEL_SPRITE_SCALE
 	for k in 8:
@@ -2579,6 +2788,8 @@ func _draw_wheel_sprite(_i: int, sp: Dictionary, s: Dictionary, dim: float) -> v
 		draw_texture_rect_region(tex, Rect2(dest.position + Vector2.from_angle(a) * ring, dest.size), src, outline)
 	var mod := Color(dim, dim, dim, 1.0)
 	draw_texture_rect_region(tex, dest, src, mod)
+	if flip:
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _shadow_pts(feet: Vector2, width: float, height: float) -> PackedVector2Array:
@@ -2615,13 +2826,16 @@ func _draw_name_tag(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, di
 		return
 	var fs: int = int(_tag_fs.get(i, 15))
 	var tag: Rect2 = sp.get("tag_rect", Rect2())
-	_draw_nine_slice(tex_name_tag, tag, 5.0, 15.0)
+	var lip := 16.0
+	var shell := Rect2(tag.position - Vector2(lip, 0.0), Vector2(tag.size.x + lip, tag.size.y))
+	_draw_nine_slice(tex_name_tag, shell, 5.0, minf(8.0, shell.size.y * 0.28))
 	var col: Color = Color("e8c36a") if is_face else INK_ON_DARK
 	col.a = dim
 	var call_s: String = _call_of_slice(i)
-	var name_y: float = sp["feet"].y + (52.0 if call_s == "" else 48.0)
+	var text_box := Rect2(tag.position.x + 10.0, tag.position.y, maxf(24.0, tag.size.x - 10.0), tag.size.y)
+	var name_y: float = text_box.position.y + 6.0 + font.get_ascent(fs)
 	var tsz: Vector2 = font.get_string_size(name_s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	var p: Vector2 = Vector2(sp["feet"].x - tsz.x * 0.5, name_y)
+	var p: Vector2 = Vector2(text_box.position.x + (text_box.size.x - tsz.x) * 0.5, name_y)
 	for ox in range(-3, 4):
 		for oy in range(-3, 4):
 			if ox == 0 and oy == 0:
@@ -2632,22 +2846,25 @@ func _draw_name_tag(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, di
 		var call_col: Color = _ability_icon_color(str(s.get("special_id", "")))
 		call_col.a = dim
 		var csz: Vector2 = font.get_string_size(call_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
-		var cp: Vector2 = Vector2(sp["feet"].x - csz.x * 0.5, name_y + 16.0)
+		var call_y: float = name_y + (font.get_height(fs) - font.get_ascent(fs)) + 1.0 + font.get_ascent(11)
+		var cp: Vector2 = Vector2(text_box.position.x + (text_box.size.x - csz.x) * 0.5, call_y)
 		for ox2 in range(-2, 3):
 			for oy2 in range(-2, 3):
 				if ox2 == 0 and oy2 == 0:
 					continue
 				draw_string(font, cp + Vector2(ox2, oy2), call_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("100e0c"))
 		draw_string(font, cp, call_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, call_col)
-	var medal: Vector2 = sp.get("medal", Vector2(sp["feet"].x, sp["feet"].y + 22.0))
+	var medal: Vector2 = sp.get("medal", Vector2(shell.position.x + 14.0, shell.position.y + shell.size.y * 0.5))
 	var mtex: Texture2D = _medal_tex(str(s.get("card_id", "")))
-	var mdest := Rect2(medal - Vector2(MEDAL_PX * 0.5, MEDAL_PX * 0.5), Vector2(MEDAL_PX, MEDAL_PX))
+	var ring: float = MEDAL_PX * 0.62
 	var ma: float = 0.45 if bool(s.get("silenced", false)) else dim
+	draw_circle(medal, ring + 1.5, Color("1a120e", ma))
+	draw_arc(medal, ring + 1.5, 0.0, TAU, 28, Color("c4a574", ma), 3.0, true)
+	var mdest := Rect2(medal - Vector2(MEDAL_PX * 0.5, MEDAL_PX * 0.5), Vector2(MEDAL_PX, MEDAL_PX))
 	if mtex != null:
 		draw_texture_rect(mtex, mdest, false, Color(1, 1, 1, ma))
 	else:
-		draw_circle(medal, MEDAL_PX * 0.5, Color(0.16, 0.14, 0.12, ma))
-		draw_arc(medal, MEDAL_PX * 0.5, 0, TAU, 20, Color("1c1814"), 2.0, true)
+		draw_circle(medal, MEDAL_PX * 0.34, Color(0.16, 0.14, 0.12, ma))
 	if is_hover and show_shift:
 		draw_arc(Vector2(mdest.get_center()), MEDAL_PX * 0.55, 0.0, TAU, 28, TAG_GOLD, 3.0, true)
 
@@ -2776,7 +2993,7 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 
 func _ability_icon_color(sid: String) -> Color:
 	match sid:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "cats_eye", "toxic_skin", "rust":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "cats_eye", "toxic_skin":
 			return Color("e8c36a")
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return Color("e07040")
@@ -2788,8 +3005,20 @@ func _ability_icon_color(sid: String) -> Color:
 			return Color("e8c36a")
 		"split_t2":
 			return Color("c5cdd8")
+		"refract":
+			return Color("7eb6d6")
+		"toll_dead":
+			return Color("d4a24a")
+		"rust":
+			return Color("c47a3a")
 		_:
-			return Color("f0e6d8")
+			if sid == "":
+				return Color("c5cdd8")
+			var palette: Array[Color] = [
+				Color("7eb6d6"), Color("d4a24a"), Color("c47a3a"), Color("7dba7d"),
+				Color("c9a0ff"), Color("e07040"), Color("e8a0a0"), Color("c5cdd8"),
+			]
+			return palette[absi(sid.hash()) % palette.size()]
 
 
 func _fit_plate_label(font: Font, label: String, start_fs: int, min_fs: int, max_w: float) -> Dictionary:
@@ -2865,6 +3094,39 @@ func _star_pts(c: Vector2, outer: float, inner: float, n: int = 8) -> PackedVect
 	return pts
 
 
+func _atk_variant_texture(kind: String) -> Texture2D:
+	var key: String = kind if kind == "loop" or kind == "double" else "single"
+	if _atk_variant_cache.has(key):
+		return _atk_variant_cache[key]
+	var path := "res://assets/ui/icons/atk_burst_%s_s18_2x.png" % key
+	var tex: Texture2D = null
+	if ResourceLoader.exists(path):
+		tex = load(path) as Texture2D
+	if tex == null:
+		tex = tex_atk
+	_atk_variant_cache[key] = tex
+	return tex
+
+
+func _draw_atk_variant(pos: Vector2, kind: String, punch: float, fill: Color) -> Vector2:
+	var tex: Texture2D = _atk_variant_texture(kind)
+	var front: Vector2 = Vector2(18.0, 18.0)
+	if kind == "double":
+		front = Vector2(18.0, 24.0)
+	if tex == null:
+		_draw_stat_icon(pos, null, 36.0, fill, false, true)
+		return pos + Vector2(18.0, -18.0)
+	var grow: float = 1.0 + punch * 0.08
+	var draw_sz: Vector2 = tex.get_size() * grow
+	var top_left: Vector2 = pos - front * grow
+	var rect := Rect2(top_left, draw_sz)
+	for k in 8:
+		var o: Vector2 = Vector2.from_angle(float(k) * TAU / 8.0) * 2.2
+		draw_texture_rect(tex, Rect2(rect.position + o, rect.size), false, Color("100e0c"))
+	draw_texture_rect(tex, rect, false, Color.WHITE)
+	return top_left + Vector2(draw_sz.x, 0.0)
+
+
 func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1) -> void:
 	var atk: int = int(s.get("atk", 0))
 	if i >= 0 and _atk_disp.has(i):
@@ -2882,24 +3144,26 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 	var punch: float = float(_atk_punch.get(i, 0.0)) if i >= 0 else 0.0
 	if punch > 0.02:
 		fill = fill.lerp(Color("ffd0a0"), punch * 0.55)
-	var icon_sz: float = BADGE_ICON_PX + punch * 4.0
-	_draw_stat_icon(pos, tex_sword, icon_sz, fill, false)
+	var icon_sz: float = 36.0 + punch * 4.0
+	var atk_kind: String = str(s.get("atk_kind", "single"))
+	if atk_kind != "loop" and atk_kind != "double":
+		atk_kind = "single"
+	var atk_n: int = int(s.get("atk_n", 1))
+	_draw_stat_plate(pos, icon_sz)
+	var drawn: Vector2 = _draw_atk_variant(pos, atk_kind, punch, fill)
 	if bool(s.get("cmd_buff", false)):
 		draw_arc(pos, icon_sz * 0.58, 0.0, TAU, 24, Color(0.95, 0.22, 0.16, 0.45 + 0.5 * pulse), 2.6, true)
 	if int(s.get("copy_from", -1)) >= 0:
 		draw_arc(pos, icon_sz * 0.55, 0.0, TAU, 24, Color(0.72, 0.42, 0.92, 0.4 + 0.45 * pulse), 2.4, true)
-	_draw_bold_num(font, pos + Vector2(icon_sz * 0.62, 1.0), str(atk), 22, Color("f0e6d8"))
+	_draw_stat_number(font, pos, icon_sz, str(atk), 0.0)
 	if atk_d != 0:
 		var blink: float = 0.40 + 0.60 * absf(sin(_glow_t * 10.0))
 		var dc: Color = UP_COL if atk_d > 0 else DOWN_COL
 		dc.a = blink
 		_draw_bold_num(font, pos + Vector2(0.0, -icon_sz * 0.62), str(atk_next), 18 if big else 15, dc)
 		draw_string(font, pos + Vector2(icon_sz * 0.28, -icon_sz * 0.38), _delta_text(atk_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
-	var cid: String = str(s.get("card_id", ""))
-	if cid == "hornet_swarm" or cid == "shambling_mound" or cid == "shark":
-		var mark: Vector2 = pos + Vector2(20.0, 22.0)
-		var tag: String = "∞" if cid == "shambling_mound" else ("↻" if cid == "shark" else "×2")
-		UxStyle.draw_multi_tag(self, mark, tag, font)
+	if atk_kind == "double" and atk_n >= 3:
+		UxStyle.draw_multi_tag(self, drawn, "×%d" % atk_n, font)
 
 
 func _draw_atk_badge(pos: Vector2, rad: float, fill: Color) -> void:
@@ -2936,9 +3200,10 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	var punch: float = float(_hp_punch.get(i, 0.0)) if i >= 0 else 0.0
 	if punch > 0.02:
 		fill = fill.lerp(Color("ffd0a0"), punch * 0.55)
-	var hs: float = BADGE_ICON_PX + punch * 4.0
+	var hs: float = 36.0 + punch * 4.0
 	var heart_tex: Texture2D = tex_heart_full if tex_heart_full != null else tex_heart
-	_draw_stat_icon(pos, heart_tex, hs, fill, true)
+	_draw_stat_plate(pos, hs)
+	_draw_stat_icon(pos, heart_tex, hs, fill, true, true)
 	if punch > 0.35:
 		var slash := Color("f0e6d8", punch * 0.85)
 		var arm: float = hs * 0.42
@@ -2947,7 +3212,7 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	if bool(s.get("lich_buff", false)):
 		var pulse2: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 		draw_arc(pos, hs * 0.52, 0.0, TAU, 20, Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2), 2.6, true)
-	_draw_bold_num(font, pos + Vector2(-hs * 0.62, 2.0), str(hp), 22, Color("f0e6d8"))
+	_draw_stat_number(font, pos, hs, str(hp), -0.08)
 	_draw_poison_badge(font, pos, s, big, i)
 	if hp_d != 0:
 		var blink: float = 0.40 + 0.60 * absf(sin(_glow_t * 10.0))
@@ -3070,7 +3335,6 @@ func _draw_hub_block(c: Vector2, _radius: float) -> void:
 		font = ThemeDB.fallback_font
 	var dim: float = 0.35 if hub_death_dim else 1.0
 	_draw_hub_heart_arc(dim)
-	_draw_hub_move_pips(dim)
 	_draw_hub_poison_badge(font, dim)
 	_draw_blk_badge(c, font, dim)
 	if hub_sting > 0.02:
@@ -3206,11 +3470,52 @@ func _draw_heart_shape(pos: Vector2, hs: float, fill: Color, outline: Color) -> 
 	draw_circle(pos + Vector2(-hs * 0.16, -hs * 0.10), hs * 0.11, fill.lightened(0.28))
 
 
-func _draw_stat_icon(pos: Vector2, tex: Texture2D, px: float, tint: Color, is_heart: bool) -> void:
-	if tex != null:
-		draw_texture_rect(tex, Rect2(pos - Vector2(px, px) * 0.5, Vector2(px, px)), false, Color.WHITE)
+func _draw_stat_plate(pos: Vector2, px: float) -> void:
+	if stat_style == 0:
 		return
-	if is_heart:
+	var plate := Rect2(pos - Vector2(px * 0.72, px * 0.62), Vector2(px * 1.44, px * 1.35))
+	draw_rect(plate, Color("100e0c", 0.82), true)
+	draw_rect(plate, Color("c4a574"), false, 1.5)
+
+
+func _draw_stat_number(font: Font, pos: Vector2, px: float, txt: String, y_k: float = 0.08) -> void:
+	var at: Vector2 = pos
+	var fs: int = 15
+	if stat_style == 1:
+		at = pos + Vector2(0.0, px * 0.55)
+		fs = 14
+	elif stat_style == 0:
+		at = pos + Vector2(0.0, px * y_k)
+	else:
+		at = pos + Vector2(0.0, px * 0.08)
+	_draw_bold_num(font, at, txt, fs, Color("f0e6d8"))
+
+
+func _icon_region(tex: Texture2D) -> Rect2:
+	var key: String = tex.resource_path
+	if _icon_used.has(key):
+		return _icon_used[key]
+	var img: Image = tex.get_image()
+	var region := Rect2(Vector2.ZERO, tex.get_size())
+	if img != null:
+		var used: Rect2 = img.get_used_rect()
+		if used.size.x >= 1.0 and used.size.y >= 1.0:
+			region = used
+	_icon_used[key] = region
+	return region
+
+
+func _draw_stat_icon(pos: Vector2, tex: Texture2D, px: float, tint: Color, heart_shape: bool, outline: bool = false) -> void:
+	if tex != null:
+		var region: Rect2 = _icon_region(tex)
+		var rect := Rect2(pos - Vector2(px, px) * 0.5, Vector2(px, px))
+		if outline:
+			for k in 8:
+				var o: Vector2 = Vector2.from_angle(float(k) * TAU / 8.0) * 2.2
+				draw_texture_rect_region(tex, Rect2(rect.position + o, rect.size), region, Color("100e0c"))
+		draw_texture_rect_region(tex, rect, region, Color.WHITE)
+		return
+	if heart_shape:
 		_draw_heart_shape(pos, px * 0.42, tint, Color("1c120c"))
 	else:
 		_draw_atk_badge(pos, px * 0.42, tint)

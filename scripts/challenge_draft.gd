@@ -14,6 +14,8 @@ var _final
 var _row: HBoxContainer
 var _hint
 var _final_t: float = 0.0
+var _aura_t: float = 0.0
+var _tier: int = 1
 var left_it: Dictionary = {}
 var right_it: Dictionary = {}
 var _busy: bool = false
@@ -38,7 +40,8 @@ func setup() -> void:
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.font_color = Color("e8c36a")
 	_title.set_outline(Color("100e0c"), 4)
-	_title.custom_minimum_size = Vector2(480, 28)
+	_title.custom_minimum_size = Vector2.ZERO
+	_title.visible = false
 	col.add_child(_title)
 	_sub = FitLabelBox.make()
 	_sub.show_frame = false
@@ -48,7 +51,8 @@ func setup() -> void:
 	_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_sub.font_color = Color("d8cbb8")
 	_sub.set_outline(Color("100e0c"), 3)
-	_sub.custom_minimum_size = Vector2(480, 22)
+	_sub.custom_minimum_size = Vector2.ZERO
+	_sub.visible = false
 	col.add_child(_sub)
 	_final = FitLabelBox.make()
 	_final.show_frame = false
@@ -63,7 +67,7 @@ func setup() -> void:
 	col.add_child(_final)
 	_row = HBoxContainer.new()
 	_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_row.add_theme_constant_override("separation", 22)
+	_row.add_theme_constant_override("separation", 10)
 	col.add_child(_row)
 	_hint = FitLabelBox.make()
 	_hint.show_frame = false
@@ -78,22 +82,33 @@ func setup() -> void:
 	_skin_panel(1)
 
 
-func present(title: String, sub: String, a: Control, b: Control, ia: Dictionary, ib: Dictionary) -> void:
-	_title.text = title
-	_sub.text = sub
+func present(_title_text: String, _sub_text: String, a: Control, b: Control, ia: Dictionary, ib: Dictionary) -> void:
+	if _title:
+		_title.visible = false
+		_title.text = ""
+	if _sub:
+		_sub.visible = false
+		_sub.text = ""
 	left_it = ia
 	right_it = ib
 	_busy = false
 	var t: int = int(ia.get("pack_tier", ia.get("tier", 1)))
 	if t < 1:
 		t = int(ib.get("pack_tier", ib.get("tier", 1)))
-	_skin_panel(maxi(1, t))
+	_tier = maxi(1, t)
+	_skin_panel(_tier)
 	for c in _row.get_children():
 		_row.remove_child(c)
 		c.queue_free()
 	_mount(a, ia)
+	if b != null:
+		var rule := PickRule.new()
+		rule.ink = _metal(_tier)
+		_row.add_child(rule)
 	_mount(b, ib)
 	visible = true
+	_aura_t = 0.0
+	set_process(true)
 
 
 func set_final_item(on: bool) -> void:
@@ -105,13 +120,16 @@ func set_final_item(on: bool) -> void:
 		_final_t = 0.0
 		set_process(true)
 	else:
-		set_process(false)
 		_final.modulate = Color.WHITE
 
 
 func _process(delta: float) -> void:
-	if _final == null or not _final.visible:
+	if not visible:
 		set_process(false)
+		return
+	_aura_t += delta
+	_skin_panel(_tier)
+	if _final == null or not _final.visible:
 		return
 	_final_t += delta * 6.0
 	var pulse: float = 0.72 + 0.28 * (0.5 + 0.5 * sin(_final_t))
@@ -131,15 +149,22 @@ func _skin_panel(tier: int) -> void:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color("1a1410f2")
 	sb.border_color = metal
-	sb.set_border_width_all(2 if tier <= 1 else (3 if tier == 2 else 4))
-	sb.set_corner_radius_all(8)
-	sb.content_margin_left = 12
-	sb.content_margin_right = 12
-	sb.content_margin_top = 10
+	var breath: float = 0.5 + 0.5 * sin(_aura_t * 2.4)
+	sb.set_border_width_all(3)
+	sb.set_corner_radius_all(2)
+	sb.content_margin_left = 14
+	sb.content_margin_right = 14
+	sb.content_margin_top = 14
 	sb.content_margin_bottom = 12
-	sb.shadow_color = Color(metal.r, metal.g, metal.b, 0.28 if tier <= 1 else (0.40 if tier == 2 else 0.55))
-	sb.shadow_size = 4 if tier <= 1 else (8 if tier == 2 else 14)
+	sb.shadow_color = Color(metal.r, metal.g, metal.b, 0.34 + breath * 0.22)
+	sb.shadow_size = 14 + int(breath * 8.0)
+	sb.shadow_offset = Vector2.ZERO
 	add_theme_stylebox_override("panel", sb)
+	if _row:
+		for c in _row.get_children():
+			if c is PickRule:
+				(c as PickRule).ink = metal
+				c.queue_redraw()
 	if _title:
 		_title.font_color = metal.lightened(0.12)
 	if _hint:
@@ -157,9 +182,11 @@ func draft_cards() -> Array:
 
 func hide_draft() -> void:
 	visible = false
+	scale = Vector2.ONE
 	left_it = {}
 	right_it = {}
 	set_final_item(false)
+	set_process(false)
 	for c in _row.get_children():
 		_row.remove_child(c)
 		c.queue_free()
@@ -184,3 +211,19 @@ func _mount(card: Control, it: Dictionary) -> void:
 		card.unhovered.connect(func() -> void:
 			unhovered_item.emit()
 		)
+
+
+class PickRule extends Control:
+	var ink: Color = Color("f0e6d8")
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		custom_minimum_size = Vector2(22, 0)
+		size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+	func _draw() -> void:
+		var x: float = size.x * 0.5
+		var top := Vector2(x, 2.0)
+		var bot := Vector2(x, maxf(8.0, size.y - 2.0))
+		draw_line(top, bot, Color("100e0c"), 12.0, true)
+		draw_line(top, bot, ink, 6.0, true)

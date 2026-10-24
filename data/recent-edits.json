@@ -17,7 +17,7 @@
 		"item:da_boot": 1792433272.0,
 		"item:danger_magnet": 1791910000.0,
 		"item:double_axe": 1792470000.0,
-		"item:double_buckler": 1792694362.0,
+		"item:double_buckler": 1792760000.0,
 		"item:echo_bell": 1792136735.68746,
 		"item:fangs": 1792282200.0,
 		"item:grief_jar": 1792035889.34183,
@@ -25,7 +25,7 @@
 		"item:helmet": 1792446156.0,
 		"item:hex": 1792508400.0,
 		"item:iron_chain": 1792136735.68746,
-		"item:jar_o_grease": 1792694328.0,
+		"item:jar_o_grease": 1792790558.8285286,
 		"item:knucklers": 1791957461.0,
 		"item:lantern": 1792694472.0,
 		"item:last_match": 1792136735.68746,
@@ -104,7 +104,9 @@
 		"monster:two_headed_serpent": 1792136735.68746,
 		"monster:vampire": 1792470000.0,
 		"monster:wick": 1792689329.0,
-		"monster:zombie": 1792430000.0
+		"monster:zombie": 1792430000.0,
+		"monster:wizard": 1792790558.8285286,
+		"monster:golem": 1792790558.8285286
 	},
 	"id": "boss-rush-recent-edits",
 	"item:signpost": 1792450564.02935,

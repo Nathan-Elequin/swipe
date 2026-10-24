@@ -288,7 +288,7 @@ func advance() -> void:
 	_go.visible = wait == "continue"
 	_go.custom_minimum_size = Vector2(210, 58)
 	var said: String = str(b.get("text", "")).to_lower()
-	if said.find("survived all") >= 0 or said.find("venture deeper") >= 0:
+	if said.find("survived all") >= 0 or said.find("venture deeper") >= 0 or said.find("come back") >= 0:
 		world_open = true
 	_body.add_theme_font_size_override("normal_font_size", 12 if _tiny else 20)
 	_arm = 0.35
@@ -521,14 +521,14 @@ func _parse_nib_script(raw: String) -> Array:
 
 func _is_direction_line(t: String) -> bool:
 	var low: String = t.to_lower()
-	if low.begins_with("(click") or low.begins_with("(highlight") or low.begins_with("(sprite") or low.begins_with("(comes") or low.begins_with("(returns") or low.begins_with("(nib") or low.begins_with("(only now") or low.begins_with("(when the") or low.begins_with("(the player") or low.begins_with("(animates") or low.begins_with("(vignette") or low.begins_with("(in very tiny"):
+	if low.begins_with("(click") or low.begins_with("(highlight") or low.begins_with("(take") or low.begins_with("(turn") or low.begins_with("(sprite") or low.begins_with("(comes") or low.begins_with("(returns") or low.begins_with("(nib") or low.begins_with("(only now") or low.begins_with("(when the") or low.begins_with("(the player") or low.begins_with("(animates") or low.begins_with("(vignette") or low.begins_with("(in very tiny"):
 		return true
 	return t.begins_with("(") and t.ends_with(")") and t.length() < 120 and low.find("highlight") >= 0
 
 
 func _direction_ends_beat(t: String) -> bool:
 	var low: String = t.to_lower()
-	if low.begins_with("(click") or low.begins_with("(the player") or low.begins_with("(when the user hovers and holds"):
+	if low.begins_with("(click") or low.begins_with("(take") or low.begins_with("(turn") or low.begins_with("(the player") or low.begins_with("(when the user hovers and holds"):
 		return true
 	if low.begins_with("(only now") or low.begins_with("(vignette") or low.begins_with("(animates"):
 		return true
@@ -627,6 +627,26 @@ func _apply_direction(cur: Dictionary, t: String) -> void:
 		cur["focus"] = "wheel"
 		if low.find("the details") >= 0 or low.find("detail view") >= 0:
 			cur["then_focus"] = "inspect"
+	if low.find("dungeon deck") >= 0:
+		cur["focus"] = "deck"
+	if low.find("take the shuriken") >= 0:
+		cur["wait"] = "draft:shuriken"
+		cur["focus"] = "draft"
+		cur["hint"] = "(take the Shuriken)"
+	elif low.find("shuriken") >= 0 and low.find("click") >= 0:
+		cur["wait"] = "item:shuriken"
+		cur["focus"] = "item:shuriken"
+		cur["hint"] = "(click the Shuriken)"
+	if low.find("turn to the bandit") >= 0:
+		cur["wait"] = "face"
+		cur["force"] = "bandit"
+		cur["focus"] = "wheel"
+		cur["hint"] = "(turn to the Bandit)"
+	if low.find("move arrow") >= 0:
+		cur["wait"] = "move"
+		cur["force"] = "gelatinous_cube"
+		cur["focus"] = "move_arrow"
+		cur["hint"] = "(click the arrow)"
 
 
 func _flush_beat(out: Array, cur: Dictionary) -> void:

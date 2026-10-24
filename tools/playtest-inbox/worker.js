@@ -30,6 +30,8 @@ function issueTitle(payload) {
   const kind = String(payload.kind || "").trim();
   if (kind === "ranks") return "[playtest] tier list";
   if (name) return clip(`[playtest] ${name}`, 80);
+  const note = String(payload.note || "").trim().split("\n")[0];
+  if (note) return clip(`[playtest] ${note}`, 80);
   return "[playtest] general";
 }
 

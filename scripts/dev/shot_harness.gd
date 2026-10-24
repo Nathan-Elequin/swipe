@@ -1734,7 +1734,7 @@ func _shot_anim_poison_pop() -> void:
 	main.set_meta("qa_spin_idx", 1)
 	main._on_spin()
 	await _wait_game(0.40)
-	await _capture("04_miasma_one_burst.png", "Miasma: only spun slice bursts")
+	await _capture("04_miasma_one_burst.png", "Poison: every marked slice pays on this Spin")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
 	# Shift ×3 during poison tick (2.025 = ANIM_TIME_SCALE * 3).
 	await _anim_ready_seat(["goblin", "skeleton", "bandit", "ogre"], ["ale_flagon"], 8, 0, 0)

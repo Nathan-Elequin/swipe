@@ -833,7 +833,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "Mark a Neighbor. When you spin them, they lose 5 HP immediately.",
+			"ability": "Mark a Neighbor with 5 Poison.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -842,8 +842,8 @@
 			"card_color": "defeat",
 			"contradiction_ids": [],
 			"count": 2.0,
-			"explainer": "Neighbor −5 HP on Spin",
-			"flow": "Lose HP is not ATK dmg (can kill Goblin). Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
+			"explainer": "Neighbor gets 5 Poison",
+			"flow": "Click during a fight, then click a living Neighbor. Used up. They gain 5 Poison. Amounts add. Plague Doctor neighbors stay at 2. On the next Spin, every monster with Poison loses that much HP immediately, wherever they sit, then the mark clears. This is before their spin ability. If it kills them, that ability does not happen. They stay in the seat until the other spin abilities finish. A dead monster who is not the one you landed on then leaves and the seat fills. If the one you landed on died, the fight ends after those abilities. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "poison_flask",
@@ -878,7 +878,7 @@
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
-			"status": "todo",
+			"status": "live",
 			"tier": 2.0
 		},
 		{
@@ -2248,7 +2248,7 @@
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Plague Doctor neighbors stay at 2. The facing enemy ticks immediately (lose that HP, mark clears). If that slays them, combat ends. Other marks tick on a later Spin, then clear. Fight only. Used up.",
+			"flow": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Plague Doctor neighbors stay at 2. Nothing is paid when you play this. On the next Spin, every monster with Poison loses that much HP, wherever they sit, then the mark clears. Fight only. Used up.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "miasma",
@@ -2409,7 +2409,7 @@
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Hex fires before poison on that landing. New dungeon resets to 6. Used up when it fires.",
+			"flow": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Poison is paid before Hex. If that poison already killed the monster you landed on, Hex does not count down and does not Defeat. New dungeon resets to 6. Used up when it fires.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "hex",
@@ -2667,8 +2667,8 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "(The 'unplayable' hatch makes it too difficult for players to perceive that it is active and can protect them, fix this)",
-			"status": "todo",
+			"review_note": "",
+			"status": "live",
 			"tier": 1.0
 		},
 		{
@@ -2730,7 +2730,7 @@
 			"tier": 0.0
 		},
 		{
-			"ability": "Heal 1, randomly Swap an Item, and Keep this.",
+			"ability": "Heal 2. Whenever you Move, you Move an additional space in that direction.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -2739,8 +2739,8 @@
 			"card_color": "heal",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "(HEAL 1) Swap 1  Keep",
-			"flow": "Click during a fight. Heal 1 (cap 6). Then one other unspent item in your hand Swaps: it is exchanged for a random leftover copy of the same rank from the draft pile, and the old card goes back into that pile. You cannot Swap into a card with no remaining count. Never Swaps the Jar itself. If there is no legal other item (only the Jar, or no leftover copy of that item's Tier), the click is illegal. Keep this unless facing Zombie. Counts as an item use. Swap keyword: exchange for a random Item of the same rank.",
+			"explainer": "Heal 2. One Move slides two seats.",
+			"flow": "Click during a fight. Heal 2 (cap 6). The Jar is used up. While it is still in your hand, one Move spends 1 move and slides two seats in that direction. If the second seat has no living monster, you only slide one.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "jar_o_grease",
@@ -2766,20 +2766,20 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Heal 1, randomly Swap an Item, Keep",
+			"log_hint": "Heal 2. Move slides two seats.",
 			"mode_pool": "all",
 			"name": "Jar O' Grease",
-			"notes": "Bucket 0. Jar of grease. Swap uses leftover draft counts.",
+			"notes": "Bucket 2. On use Heal 2. Passive extra seat on Move while held. Swap and Keep are gone.",
 			"ops": {
 				"kind": "heal_swap_keep",
-				"n": 1.0
+				"n": 2.0
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "REWORK: On Use, item Heals 2\nPassive ability: Whenever you |Move|, you |Move| an additional space in that direction.\n\n(This will likely need an icon that properly reminds the player of this in the hotbar)",
-			"status": "todo",
+			"review_note": "",
+			"status": "live",
 			"tier": 2.0
 		},
 		{
@@ -5331,7 +5331,7 @@
 				"dev": true,
 				"hide": false
 			},
-			"flow": "While I live unsilenced, each living neighbor's Poison is exactly 2. Extra Poison cannot raise them. Every Spin: facing poison ticks first (then clears; I write 2 again if they lived). Then I heal each living neighbor +2 current HP and +2 max HP. A 2 HP neighbor dies to poison before the heal. When I die, Always ends and the 2 goes away. Quiet Bell turns this off.",
+			"flow": "While I live unsilenced, each living neighbor's Poison is exactly 2. Extra Poison cannot raise them. Every Spin: every living neighbor loses that 2 HP first, wherever you landed (then it clears; I write 2 again if they lived), before their spin ability. Then I heal each living neighbor +2 current HP and +2 max HP. A 2 HP neighbor dies before the heal, even if you did not land on them, and stays in the seat until the other spin abilities finish. When I die, Always ends and the 2 goes away. Quiet Bell turns this off.",
 			"hp_base": 3.0,
 			"hp_formula": "",
 			"id": "plague_doctor",

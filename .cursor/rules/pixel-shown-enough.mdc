@@ -1,0 +1,23 @@
+---
+description: Stop repeating a Ready-to-test Pixel item after it has been shown three times
+alwaysApply: true
+---
+
+# Pixel items leave the chat after three shows
+
+Locked **2026-10-23**. This covers the `### 🎨 Ready to test from Pixel` section only. Playtest inbox issues stay listed until they are live on itch or Nathan says that ticket is closed (`playtest-inbox.mdc`).
+
+## Do
+
+1. Read `.cursor/pixel-shown.json` before writing that section.
+2. Each time a pull request is included in the section, add 1 to its `shown` count in that file before the reply goes out.
+3. After the third reply that included it, set `retired` to true. Do not include it in any later reply.
+4. If Nathan says that item is closed, done, finished, or to close it out, set `retired` to true in that same turn, even if `shown` is under 3. Then leave it out.
+5. A reply that does not mention the pull request does not add to `shown`. Silence, a different topic, or "not yet" on something else still counts as a response for the three-show cap. Do not keep the item alive because he talked about something else.
+6. Bring a retired item back only when he explicitly asks for that number or that branch in that chat. One mention, then retire it again.
+
+## Don't
+
+- Do not merge, close, or comment on the GitHub pull request just because it left the chat.
+- Do not list a retired number again "so he remembers."
+- Do not apply this cap to playtest inbox issues.

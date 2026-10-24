@@ -22,6 +22,8 @@ var _lunge_x: float = 0.0:
 		_place_sprite()
 		queue_redraw()
 var flip_h: bool = false
+var face_want := "L"
+var lunge_dir := -1.0
 var log_glow: bool = false
 var _watch_tex: Texture2D
 var _watch_t: float = 0.0
@@ -32,7 +34,12 @@ var busy: bool = false
 var _tier: int = 1
 var _sprite: TextureRect
 var _outline: ShaderMaterial
+var _crop: AtlasTexture
+var _opaque: Dictionary = {}
 var _fx: Control
+var _body_center: Vector2 = Vector2.ZERO
+var _plinth_foot: Vector2 = Vector2.ZERO
+var _plinth_w: float = 0.0
 
 
 func setup(p_art) -> void:
@@ -75,7 +82,9 @@ func show_monster(id: String, p_tier: int = 1) -> void:
 	_tier = p_tier
 	_idle = []
 	if art:
-		if art.has_method("monster_facing_idle"):
+		if art.has_method("monster_portrait_frames"):
+			_idle = art.monster_portrait_frames(id)
+		if _idle.is_empty() and art.has_method("monster_facing_idle"):
 			_idle = art.monster_facing_idle(id)
 		if _idle.is_empty():
 			_idle = art.monster_idle(id)
@@ -114,7 +123,9 @@ func set_log_glow(on: bool) -> void:
 
 func mouth_global() -> Vector2:
 	var r: Rect2 = get_global_rect()
-	return r.position + Vector2(r.size.x * 0.52, r.size.y * 0.50)
+	var flipped := _sprite != null and _sprite.flip_h
+	var mouth_x: float = 0.48 if flipped else 0.52
+	return r.position + Vector2(r.size.x * mouth_x, r.size.y * 0.50)
 
 
 func hide_stage() -> void:
@@ -148,7 +159,7 @@ func lunge(fast: bool = false) -> void:
 	var go: float = 0.05 if fast else 0.1
 	var back: float = 0.08 if fast else 0.16
 	var tw := create_tween()
-	tw.tween_property(self, "_lunge_x", 22.0, go).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(self, "_lunge_x", 22.0 * lunge_dir, go).set_trans(Tween.TRANS_BACK)
 	tw.tween_property(self, "_lunge_x", 0.0, back)
 	await tw.finished
 	_mode = "idle"
@@ -301,6 +312,20 @@ func _burst(kind: String, col: Color, sc: float) -> void:
 	})
 
 
+func _opaque_rect(tex: Texture2D) -> Rect2:
+	var key: String = "%s:%s" % [tex.resource_path, tex.get_size()]
+	if _opaque.has(key):
+		return _opaque[key]
+	var region := Rect2(Vector2.ZERO, tex.get_size())
+	var img: Image = tex.get_image()
+	if img != null:
+		var used: Rect2 = img.get_used_rect()
+		if used.size.x >= 1.0 and used.size.y >= 1.0:
+			region = used
+	_opaque[key] = region
+	return region
+
+
 func _tier_col() -> Color:
 	if _tier >= 3:
 		return Color("e8c36a")
@@ -322,21 +347,37 @@ func _place_sprite() -> void:
 		_sprite.texture = null
 		_sprite.material = null
 		return
-	var tw: float = float(tex.get_width())
-	var th: float = float(tex.get_height())
-	var fit_x: float = maxf(1.0, floor((size.x - 8.0) / maxf(tw, 1.0)))
-	var fit_y: float = maxf(1.0, floor((size.y - 8.0) / maxf(th, 1.0)))
-	var scale_n: float = maxf(1.0, minf(fit_x, fit_y))
-	if tw <= 80.0 and th <= 80.0:
-		scale_n = minf(scale_n, 3.0)
-	var dw: float = tw * scale_n
-	var dh: float = th * scale_n
+	var used: Rect2 = _opaque_rect(tex)
+	var uw: float = maxf(1.0, used.size.x)
+	var uh: float = maxf(1.0, used.size.y)
+	var fit_w: float = maxf(1.0, size.x - 8.0)
+	var fit_h: float = maxf(1.0, size.y - 12.0)
+	var scale_n: float = minf(fit_h / uh, fit_w / uw)
+	scale_n = floor(scale_n / 0.25) * 0.25
+	scale_n = clampf(scale_n, 0.25, 4.0)
+	var dw: float = uw * scale_n
+	var dh: float = uh * scale_n
 	var bob: float = 0.0 if _idle.size() >= 4 else sin(_bob * 3.2) * 3.0
-	_sprite.texture = tex
+	if _crop == null:
+		_crop = AtlasTexture.new()
+	_crop.atlas = tex
+	_crop.region = used
+	_sprite.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_sprite.texture = _crop
+	_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_sprite.stretch_mode = TextureRect.STRETCH_SCALE
 	_sprite.size = Vector2(dw, dh)
 	_sprite.pivot_offset = Vector2(dw * 0.5, dh)
-	_sprite.position = Vector2(size.x * 0.5 - dw * 0.5 + _lunge_x, size.y - dh - 4.0 + bob)
-	_sprite.flip_h = flip_h
+	var rest_y: float = size.y - 6.0 - dh
+	var y: float = clampf(rest_y + bob, 0.0, maxf(0.0, rest_y))
+	_sprite.position = Vector2(size.x * 0.5 - dw * 0.5 + _lunge_x, y)
+	_body_center = Vector2(size.x * 0.5, rest_y + dh * 0.5)
+	_plinth_foot = Vector2(size.x * 0.5, rest_y + dh)
+	_plinth_w = clampf(dw * 0.55, 56.0, 112.0)
+	if art != null and art.has_method("monster_flip_h"):
+		_sprite.flip_h = art.monster_flip_h(card_id, face_want)
+	else:
+		_sprite.flip_h = flip_h
 	var mod := Color.WHITE
 	if _flash > 0.45:
 		mod = Color(1.6, 1.6, 1.8)
@@ -346,14 +387,19 @@ func _place_sprite() -> void:
 	if _outline != null:
 		_sprite.material = _outline
 		_outline.set_shader_parameter("outline_color", _tier_col())
-		_outline.set_shader_parameter("outline_size", 1.5)
+		_outline.set_shader_parameter("outline_size", 0.0)
+
+
+func body_center_global() -> Vector2:
+	if _plinth_w <= 0.0:
+		return global_position + size * 0.5
+	return global_position + _body_center
 
 
 func _draw() -> void:
-	var r := Rect2(Vector2.ZERO, size)
-	draw_rect(r, Color("1a120e"), true)
-	if art != null:
-		_frame()
+	if _plinth_w <= 0.0:
+		return
+	UxStyle.draw_stage_plinth(self, _plinth_foot, _plinth_w, false)
 
 
 func _paint_fx(ci: Control) -> void:

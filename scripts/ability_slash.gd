@@ -230,10 +230,10 @@ func _show_cutin(fast: bool) -> void:
 	var use_frames: bool = not _frame_texs.is_empty()
 	var target_scale: float = _portrait_scale_for(_portrait.texture)
 	if use_frames:
-		_portrait.scale = Vector2(target_scale, target_scale)
+		_portrait.scale = _portrait_scale_vec(target_scale)
 	else:
 		var punch_start: float = target_scale * (3.6 / PORTRAIT_SCALE)
-		_portrait.scale = Vector2(punch_start, punch_start)
+		_portrait.scale = _portrait_scale_vec(punch_start)
 	_tw = create_tween()
 	_tw.set_parallel(true)
 	_tw.tween_property(_dim, "modulate:a", 0.47, _dur(SNAP_MS, fast))
@@ -245,7 +245,7 @@ func _show_cutin(fast: bool) -> void:
 	_tw.tween_property(_portrait, "position", _portrait_center(), _dur(SNAP_MS, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	_tw.tween_property(_portrait, "modulate:a", 1.0, _dur(SNAP_MS, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast))
 	if not use_frames:
-		_tw.tween_property(_portrait, "scale", Vector2(target_scale, target_scale), _dur(SNAP_MS + 80.0, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_tw.tween_property(_portrait, "scale", _portrait_scale_vec(target_scale), _dur(SNAP_MS + 80.0, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await get_tree().create_timer(_dur(SNAP_MS, fast), false).timeout
 	# Action: frames or still shake (band is already in).
 	if use_frames:
@@ -296,6 +296,15 @@ func _punch_shake(fast: bool) -> void:
 	_portrait.position = _portrait_center()
 
 
+func _portrait_faces_left() -> bool:
+	return art != null and card_id != "" and art.has_method("monster_flip_h") and art.monster_flip_h(card_id, "L")
+
+
+func _portrait_scale_vec(mag: float) -> Vector2:
+	var x: float = -mag if _portrait_faces_left() else mag
+	return Vector2(x, mag)
+
+
 func _portrait_scale_for(tex: Texture2D) -> float:
 	if tex == null:
 		return PORTRAIT_SCALE
@@ -318,7 +327,10 @@ func _portrait_center() -> Vector2:
 	if tex != null:
 		native = Vector2(tex.get_width(), tex.get_height())
 	var s: float = _portrait_scale_for(tex)
-	return Vector2(750.0, 610.0) + _cutin_shift() - native * (s * 0.5)
+	var origin := Vector2(750.0, 610.0) + _cutin_shift() - native * (s * 0.5)
+	if _portrait_faces_left():
+		origin.x += native.x * s
+	return origin
 
 
 func _build_cutin_nodes() -> void:
@@ -545,7 +557,7 @@ func _prepare_portrait() -> void:
 	else:
 		_portrait.texture = still
 	var s: float = _portrait_scale_for(_portrait.texture)
-	_portrait.scale = Vector2(s, s)
+	_portrait.scale = _portrait_scale_vec(s)
 	_portrait.position = _portrait_center()
 
 
@@ -581,7 +593,13 @@ func _draw() -> void:
 		var bob: float = sin(_clock * 8.0) * 2.0 * a
 		var dest := Rect2(port.position + Vector2(28.0, 8.0 + bob), Vector2(112, 112))
 		var mod := Color(1, 1, 1, a)
+		var flip := _portrait_faces_left()
+		if flip:
+			var axis_x: float = dest.position.x + dest.size.x * 0.5
+			draw_set_transform(Vector2(2.0 * axis_x, 0.0), 0.0, Vector2(-1.0, 1.0))
 		draw_texture_rect(_tex, dest, false, mod)
+		if flip:
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	var font: Font = get_theme_default_font()
 	if font == null:
 		font = ThemeDB.fallback_font

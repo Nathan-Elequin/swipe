@@ -4,6 +4,8 @@ class_name RankShimmer
 
 const SHADER := preload("res://shaders/rank_shimmer.gdshader")
 
+static var shown: bool = true
+
 
 static func shine(tier: int) -> Color:
 	if tier >= 3:
@@ -53,3 +55,4 @@ static func apply(mat: ShaderMaterial, tier: int, uid: int, desat: float, armed:
 	mat.set_shader_parameter("armed", armed)
 	mat.set_shader_parameter("clock", clock)
 	mat.set_shader_parameter("card_px", px)
+	mat.set_shader_parameter("amount", 0.42 if shown else 0.0)

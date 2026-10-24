@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Swipe — Bucket editor</title>
+  <style>
+    :root {
+      --bg: #100e0c;
+      --panel: #1c1814;
+      --panel-dim: #141210;
+      --cream: #f0e6d8;
+      --muted: #9a8b78;
+      --gold: #c4a574;
+      --gold-bright: #f4d36a;
+      --warn: #e8c36a;
+      --ok: #8dcb8d;
+      --err: #e07a7a;
+      --col-w: 268px;
+      --col-gap: 16px;
+      --tile-w: 88px;
+      --tile-h: 90px;
+      --sprite: 56px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; height: 100%;
+      background: var(--bg); color: var(--cream);
+      font: 15px/1.35 Georgia, "Times New Roman", serif;
+    }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      background: #14110ff2; border-bottom: 2px solid var(--gold);
+      padding: 10px 16px 12px;
+    }
+    header .top {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
+    }
+    header h1 {
+      margin: 0; font-size: 22px; color: var(--gold); font-weight: 600;
+    }
+    .hint {
+      margin: 8px 0 0; font-size: 13px; color: var(--muted); max-width: 920px;
+    }
+    .hint code { font-size: 12px; color: #b8a890; }
+    .status { font-size: 13px; color: var(--muted); min-width: 140px; }
+    .status.warn { color: var(--warn); }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--err); }
+    .warnings {
+      margin: 8px 0 0; padding: 8px 10px; border-radius: 8px;
+      background: #2a1814; border: 1px solid #8a5040; color: #f0c8b8;
+      font-size: 13px; white-space: pre-wrap; max-width: 960px;
+    }
+    .warnings:empty { display: none; }
+    button, .btn {
+      font: inherit; cursor: pointer; border-radius: 999px;
+      border: 2px solid var(--gold); background: #3a3220; color: var(--cream);
+      padding: 6px 12px; font-size: 14px;
+    }
+    button:hover:not(:disabled) { filter: brightness(1.12); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.gold { background: #3a2820; color: var(--gold-bright); border-color: var(--gold-bright); }
+    button.secondary { border-color: #6a6258; color: var(--muted); background: #201c18; }
+    .link-note {
+      margin: 6px 0 0; font-size: 12px; color: var(--muted);
+    }
+    .link-note a { color: var(--gold); }
+    .scroll-wrap {
+      overflow: auto; height: calc(100vh - 132px);
+      padding: 16px; scroll-behavior: auto;
+    }
+    .row {
+      display: flex; gap: var(--col-gap); align-items: flex-start;
+      min-height: 420px;
+    }
+    .column {
+      flex: 0 0 var(--col-w); width: var(--col-w);
+      border-radius: 10px; border: 2px solid #3a3220;
+      background: var(--panel); padding: 10px;
+    }
+    .column.locked { background: var(--panel-dim); }
+    .column.revealed { border-width: 3px; }
+    .column.drag-over { filter: brightness(1.12); outline: 2px solid var(--gold-bright); }
+    .col-head {
+      width: 100%; border: none; border-radius: 6px; padding: 8px;
+      font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+      text-align: left; margin-bottom: 8px;
+    }
+    .col-head:disabled { cursor: default; opacity: 0.95; }
+    .kind-block { margin-bottom: 10px; }
+    .kind-label { font-size: 14px; color: var(--cream); margin-bottom: 4px; }
+    .tier-cap { font-size: 12px; margin: 4px 0 2px; }
+    .tier-flow {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .tile {
+      width: var(--tile-w); min-height: var(--tile-h);
+      border-radius: 6px; border: 4px solid #6a6258;
+      padding: 0 3px 3px; cursor: grab; user-select: none;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .tile.moved { border-color: var(--gold-bright); }
+    .tile.dim { opacity: 0.62; }
+    .tile .stripe { height: 10px; flex-shrink: 0; }
+    .tile .pic {
+      width: var(--sprite); height: var(--sprite); margin: 2px auto;
+      image-rendering: pixelated; object-fit: contain;
+      background: #12100e;
+    }
+    .tile .nm {
+      font-size: 11px; text-align: center; line-height: 1.15;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      padding: 0 2px;
+    }
+    .tile.item .nm { color: #f4ede3; }
+    .tile.monster .nm { color: #1c120c; }
+    .well {
+      width: var(--tile-w); height: 86px; border-radius: 6px;
+      border: 4px solid #6a6258; background: #12100e;
+      position: relative; overflow: hidden;
+    }
+    .well .stripe { height: 10px; width: 100%; }
+    .extra-label { font-size: 12px; color: #8a7d6c; margin: 6px 0 4px; }
+    .jump-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+    .jump-tabs button { padding: 4px 10px; font-size: 13px; }
+    #loadPanel {
+      position: fixed; inset: 0; background: #100e0cf0; z-index: 50;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    #loadPanel.hidden { display: none; }
+    #loadPanel .box {
+      background: var(--panel); border: 2px solid var(--gold);
+      border-radius: 12px; padding: 24px; max-width: 420px; text-align: center;
+    }
+    .drag-ghost {
+      position: fixed; pointer-events: none; z-index: 100;
+      background: #3a3220; border: 2px solid var(--gold-bright);
+      border-radius: 6px; padding: 8px 12px; font-size: 14px;
+      color: var(--cream); opacity: 0.92;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="top">
+      <h1>Buckets</h1>
+      <button type="button" class="gold" id="btnSave" disabled>Save into repo</button>
+      <button type="button" id="btnCopyCursor">Copy for Cursor</button>
+      <button type="button" class="secondary" id="btnCopyBoard">Copy full board JSON</button>
+      <button type="button" id="btnRevert" disabled>Revert</button>
+      <button type="button" id="btnReloadSeed">Reload seed</button>
+      <button type="button" id="btnToken">Show Token</button>
+      <button type="button" class="secondary" id="btnConnect">Connect data files…</button>
+      <div class="jump-tabs" id="jumpTabs"></div>
+      <span class="status" id="status">Loading…</span>
+    </div>
+    <p class="hint">
+      Bucket 0 is 10 and 10 (5 / 3 / 2). Later buckets are 5 and 5 (2 / 2 / 1). Counted cards sit in tier rows; Smoke, pair extras, and mode-only sit dim under Extra. Item tiles use Attack / Defense / Cheese / Utility fills. Empty wells are holes. Scroll the wheel; Shift+wheel pans sideways. Drag tiles between columns. Click a header to mark the highest unlocked bucket for this session.
+    </p>
+    <div class="warnings" id="warnings"></div>
+    <p class="link-note">
+      Direct save: run <code>tools\buckets_editor.cmd</code> then open
+      <a href="http://127.0.0.1:8767/buckets.html" target="_blank" rel="noopener">http://127.0.0.1:8767/buckets.html</a>
+    </p>
+  </header>
+  <div class="scroll-wrap" id="scroll">
+    <div class="row" id="columns"></div>
+  </div>
+  <div id="loadPanel" class="hidden">
+    <div class="box">
+      <h2 style="margin:0 0 12px;color:var(--gold);font-size:18px;">Load data</h2>
+      <p style="color:var(--muted);font-size:14px;">Pick <code>content-board.json</code> and <code>catalog.json</code>, or run the local server / seed script.</p>
+      <p style="margin-top:16px;">
+        <button type="button" id="btnPickBoard">Pick content-board.json</button>
+      </p>
+      <p>
+        <button type="button" id="btnPickCatalog">Pick catalog.json</button>
+      </p>
+    </div>
+  </div>
+
+  <script src="buckets-seed.js"></script>
+  <script>
+(function () {
+  "use strict";
+
+  const MAX_BUCKET = 9;
+  const ALWAYS_STARTER_ITEMS = ["smoke_bomb"];
+  const PAIR_EXTRA_ITEMS = ["bracers"];
+  const WANT_ZERO = 10;
+  const WANT_LATER = 5;
+  const ZERO_TIERS = [5, 3, 2];
+  const LATER_TIERS = [2, 2, 1];
+  const DRAFT_KEY = "swipe-buckets-draft";
+  const IDB_NAME = "swipe-buckets";
+  const TIER_BRONZE = "#c08050";
+  const TIER_SILVER = "#6e7f96";
+  const TIER_GOLD = "#e8c36a";
+  const TOKEN_COLOR = "#6e675c";
+  const BUCKET_COLORS = [
+    "#5d8a45", "#2f6f9f", "#6d4c9a", "#b8860b", "#b85c2a", "#8f3048",
+    "#1f6f6a", "#4a5a8a", "#7a5a2a", "#3d5a32", "#5a3d55", "#2a4a62", "#6a3a2a",
+  ];
+
+  let board = { items: [], monsters: [], updated: "" };
+  let catalog = { items: [], monsters: [] };
+  let art = { items: {}, monsters: {} };
+  let pending = {};
+  let revealed = MAX_BUCKET;
+  let showToken = false;
+  let serverMode = false;
+  let dragPayload = null;
+  let ghostEl = null;
+
+  const $ = (id) => document.getElementById(id);
+  const statusEl = $("status");
+  const warningsEl = $("warnings");
+  const columnsEl = $("columns");
+  const scrollEl = $("scroll");
+
+  const BucketRules = {
+    parse(v) {
+      if (v == null) return 0;
+      if (typeof v === "string") {
+        const s = v.trim();
+        if (!s) return 0;
+        if (s.toLowerCase() === "token") return -1;
+        const n = Number(s);
+        return Number.isFinite(n) ? Math.trunc(n) : 0;
+      }
+      return Math.trunc(Number(v)) || 0;
+    },
+    isToken(v) { return this.parse(v) < 0; },
+    colorOf(n) {
+      const i = n < 0 ? 0 : n;
+      return BUCKET_COLORS[i % BUCKET_COLORS.length];
+    },
+    inkFor(hex) {
+      const c = hexToRgb(hex);
+      const lum = (0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b) / 255;
+      return lum > 0.45 ? "#1c120c" : "#f0e6d8";
+    },
+    tierOf(card) {
+      const t = Math.trunc(Number(card.tier) || 1);
+      return Math.max(1, Math.min(3, t));
+    },
+    tierColor(tier) {
+      if (tier >= 3) return TIER_GOLD;
+      if (tier === 2) return TIER_SILVER;
+      return TIER_BRONZE;
+    },
+    tierFill(tier) {
+      if (tier >= 3) return "#f6e7c4";
+      if (tier === 2) return "#dde3eb";
+      return "#f3ddcc";
+    },
+    tierLabel(tier) {
+      if (tier >= 3) return "Gold";
+      if (tier === 2) return "Silver";
+      return "Bronze";
+    },
+    isAlwaysStarterId(id) { return ALWAYS_STARTER_ITEMS.includes(id); },
+    isAlwaysStarter(card) {
+      return card && typeof card === "object" && this.isAlwaysStarterId(String(card.id || ""));
+    },
+    itemFamily(card) {
+      const col = String(card.card_color || "").trim().toLowerCase();
+      if (col === "atk") return "A";
+      if (col === "blk" || col === "heal") return "D";
+      if (col === "defeat") return "C";
+      return "U";
+    },
+    familyFill(card) {
+      switch (this.itemFamily(card)) {
+        case "A": return "#5c2626";
+        case "D": return "#1c3d52";
+        case "C": return "#3a2450";
+        default: return "#4a3d14";
+      }
+    },
+    wantItems(bucket) {
+      if (bucket < 0) return 0;
+      return bucket === 0 ? WANT_ZERO : WANT_LATER;
+    },
+    wantMonsters(bucket) { return this.wantItems(bucket); },
+    wantTier(bucket, tier) {
+      if (bucket < 0) return 0;
+      const t = Math.max(1, Math.min(3, tier));
+      return bucket === 0 ? ZERO_TIERS[t - 1] : LATER_TIERS[t - 1];
+    },
+    isUnbalanced(bucket, itemN, monsterN, lastUsed) {
+      if (bucket < 0) return false;
+      if (itemN === 0 && monsterN === 0) return false;
+      const want = this.wantItems(bucket);
+      if (lastUsed >= 0 && bucket === lastUsed) {
+        if (itemN > want || monsterN > want) return true;
+        if (itemN <= 0 || monsterN <= 0) return true;
+        return false;
+      }
+      return itemN !== want || monsterN !== want;
+    },
+    skip(card) {
+      if (!card || typeof card !== "object") return true;
+      const st = String(card.status || "live");
+      if (st === "retired" || st === "hold") return true;
+      if (this.isToken(card.bucket)) return true;
+      if (this.isAlwaysStarter(card)) return true;
+      if (PAIR_EXTRA_ITEMS.includes(String(card.id || ""))) return true;
+      let mode = String(card.mode_pool || "all").trim().toLowerCase().replace(/ /g, "").replace(/_/g, "-");
+      if (mode && mode !== "all") return true;
+      return false;
+    },
+    countsForMill(card) { return !this.skip(card); },
+    tally(items, monsters) {
+      const out = {};
+      for (const card of items) {
+        if (this.skip(card)) continue;
+        const b = this.parse(card.bucket);
+        if (!out[b]) out[b] = { items: 0, monsters: 0 };
+        out[b].items++;
+      }
+      for (const card of monsters) {
+        if (this.skip(card)) continue;
+        const b = this.parse(card.bucket);
+        if (!out[b]) out[b] = { items: 0, monsters: 0 };
+        out[b].monsters++;
+      }
+      return out;
+    },
+    missingTiers(cards) {
+      const seen = [false, false, false, false];
+      let n = 0;
+      for (const card of cards) {
+        const st = String(card.status || "live");
+        if (st === "retired" || st === "hold") continue;
+        n++;
+        seen[this.tierOf(card)] = true;
+      }
+      const out = [];
+      if (n < 3) return out;
+      for (let t = 1; t <= 3; t++) if (!seen[t]) out.push(t);
+      return out;
+    },
+    countsWarning(items, monsters) {
+      const tallied = this.tally(items, monsters);
+      const nums = Object.keys(tallied).map(Number).sort((a, b) => a - b);
+      let lastUsed = -1;
+      for (const b0 of nums) {
+        if (b0 < 0) continue;
+        const pair = tallied[b0];
+        if (pair.items > 0 || pair.monsters > 0) lastUsed = b0;
+      }
+      const lines = [];
+      for (const b3 of nums) {
+        if (b3 < 0) continue;
+        const pair = tallied[b3];
+        const ni = pair.items;
+        const nm = pair.monsters;
+        if (!this.isUnbalanced(b3, ni, nm, lastUsed)) continue;
+        const want = this.wantItems(b3);
+        lines.push(`Bucket ${b3} has ${ni} items and ${nm} monsters. It should be ${want} and ${want}.`);
+      }
+      for (const extra of this.tierWarningLines(items, monsters)) lines.push(extra);
+      return lines.join("\n");
+    },
+    tierWarningLines(items, monsters) {
+      const byB = {};
+      const add = (side, card) => {
+        const st = String(card.status || "live");
+        if (st === "retired" || st === "hold") return;
+        const b = this.parse(card.bucket);
+        if (b < 0) return;
+        if (!byB[b]) byB[b] = { item: [], monster: [] };
+        byB[b][side].push(card);
+      };
+      for (const c of items) add("item", c);
+      for (const c of monsters) add("monster", c);
+      const lines = [];
+      for (const b of Object.keys(byB).map(Number).sort((a, b) => a - b)) {
+        const pair = byB[b];
+        this.appendTierGap(lines, b, "items", pair.item);
+        this.appendTierGap(lines, b, "monsters", pair.monster);
+      }
+      return lines;
+    },
+    appendTierGap(lines, bucket, side, cards) {
+      const miss = this.missingTiers(cards);
+      if (!miss.length) return;
+      const names = miss.map((t) => this.tierLabel(t).toLowerCase());
+      lines.push(`Bucket ${bucket} ${side} are missing ${names.join(" and ")}.`);
+    },
+  };
+
+  function hexToRgb(hex) {
+    const h = hex.replace("#", "");
+    return {
+      r: parseInt(h.slice(0, 2), 16),
+      g: parseInt(h.slice(2, 4), 16),
+      b: parseInt(h.slice(4, 6), 16),
+    };
+  }
+
+  const IDB = {
+    db: null,
+    async open() {
+      if (this.db) return this.db;
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, 1);
+        req.onupgradeneeded = () => req.result.createObjectStore("handles");
+        req.onsuccess = () => { this.db = req.result; resolve(this.db); };
+        req.onerror = () => reject(req.error);
+      });
+    },
+    async set(key, handle) {
+      const db = await this.open();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction("handles", "readwrite");
+        tx.objectStore("handles").put(handle, key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    },
+    async get(key) {
+      const db = await this.open();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction("handles", "readonly");
+        const req = tx.objectStore("handles").get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+    },
+  };
+
+  function pkey(kind, id) { return `${kind}:${id}`; }
+
+  function findCard(kind, id) {
+    const key = kind === "item" ? "items" : "monsters";
+    for (const c of board[key] || []) {
+      if (c && String(c.id) === id) return c;
+    }
+    return null;
+  }
+
+  function effBucket(kind, id, card) {
+    const k = pkey(kind, id);
+    if (Object.prototype.hasOwnProperty.call(pending, k)) return pending[k];
+    return BucketRules.parse(card.bucket);
+  }
+
+  function loadDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data && data.pending && typeof data.pending === "object") {
+        if (!data.boardUpdated || data.boardUpdated === board.updated) {
+          pending = { ...data.pending };
+        }
+      }
+    } catch (_) { /* ignore */ }
+  }
+
+  function saveDraft() {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      pending,
+      boardUpdated: board.updated || "",
+    }));
+  }
+
+  function clearDraft() {
+    pending = {};
+    localStorage.removeItem(DRAFT_KEY);
+  }
+
+  function cardsForWarning() {
+    const items = (board.items || []).map((c) => {
+      const copy = { ...c };
+      const id = String(c.id);
+      const k = pkey("item", id);
+      if (Object.prototype.hasOwnProperty.call(pending, k)) copy.bucket = pending[k];
+      return copy;
+    });
+    const monsters = (board.monsters || []).map((c) => {
+      const copy = { ...c };
+      const id = String(c.id);
+      const k = pkey("monster", id);
+      if (Object.prototype.hasOwnProperty.call(pending, k)) copy.bucket = pending[k];
+      return copy;
+    });
+    return { items, monsters };
+  }
+
+  function syncBar() {
+    const n = Object.keys(pending).length;
+    $("btnSave").disabled = n === 0;
+    $("btnRevert").disabled = n === 0;
+    if (n === 0) {
+      statusEl.textContent = "No unsaved moves.";
+      statusEl.className = "status";
+    } else {
+      statusEl.textContent = `${n} unsaved move${n === 1 ? "" : "s"}. Save keeps them on the board.`;
+      statusEl.className = "status warn";
+    }
+    const { items, monsters } = cardsForWarning();
+    const msg = BucketRules.countsWarning(items, monsters);
+    warningsEl.textContent = msg;
+    saveDraft();
+  }
+
+  function groupCards() {
+    const out = {};
+    for (let b = 0; b <= MAX_BUCKET; b++) out[b] = { item: [], monster: [] };
+    out[-1] = { item: [], monster: [] };
+
+    const collect = (kind) => {
+      const key = kind === "item" ? "items" : "monsters";
+      for (const card of board[key] || []) {
+        if (!card) continue;
+        const st = String(card.status || "live");
+        if (st === "retired" || st === "hold") continue;
+        const id = String(card.id || "");
+        if (!id) continue;
+        const b = effBucket(kind, id, card);
+        if (b < 0 && !showToken) continue;
+        if (!out[b]) out[b] = { item: [], monster: [] };
+        out[b][kind].push({ ...card, id });
+      }
+    };
+    collect("item");
+    collect("monster");
+
+    for (const b of Object.keys(out)) {
+      for (const kind of ["item", "monster"]) {
+        out[b][kind].sort((a, c) => {
+          const ta = BucketRules.tierOf(a);
+          const tc = BucketRules.tierOf(c);
+          if (ta !== tc) return ta - tc;
+          return String(a.name || "").toLowerCase().localeCompare(String(c.name || "").toLowerCase());
+        });
+      }
+    }
+    return out;
+  }
+
+  function resolveArtPath(path) {
+    if (!path) return "";
+    path = path.replace(/\/assets\/assets\//g, "/assets/");
+    if (path.startsWith("/assets/")) {
+      return serverMode ? path : ".." + path;
+    }
+    if (path.startsWith("../assets/")) {
+      const abs = path.slice(2);
+      return serverMode ? abs : path;
+    }
+    return path;
+  }
+
+  function artUrl(kind, id) {
+    const map = kind === "monster" ? art.monsters : art.items;
+    let path = map && map[id] ? map[id] : "";
+    if (!path) {
+      path = kind === "item"
+        ? `/assets/dungeon/items/${id}.png`
+        : `/assets/dungeon/extra/${id}.png`;
+    }
+    return resolveArtPath(path);
+  }
+
+  function makeTile(card, kind, bucket) {
+    const id = String(card.id);
+    const moved = Object.prototype.hasOwnProperty.call(pending, pkey(kind, id));
+    const tierN = BucketRules.tierOf(card);
+    const metal = BucketRules.tierColor(tierN);
+    const el = document.createElement("div");
+    el.className = `tile ${kind}${moved ? " moved" : ""}`;
+    el.draggable = true;
+    el.style.background = kind === "item" ? BucketRules.familyFill(card) : BucketRules.tierFill(tierN);
+    el.style.borderColor = moved ? "var(--gold-bright)" : metal;
+    el.dataset.kind = kind;
+    el.dataset.id = id;
+
+    const stripe = document.createElement("div");
+    stripe.className = "stripe";
+    stripe.style.background = metal;
+    el.appendChild(stripe);
+
+    const src = artUrl(kind, id);
+    if (src) {
+      const pic = document.createElement("img");
+      pic.className = "pic";
+      pic.alt = "";
+      pic.src = src;
+      pic.onerror = () => { pic.style.visibility = "hidden"; };
+      el.appendChild(pic);
+    } else {
+      const ph = document.createElement("div");
+      ph.className = "pic";
+      el.appendChild(ph);
+    }
+
+    const nm = document.createElement("div");
+    nm.className = "nm";
+    nm.textContent = String(card.name || id);
+    nm.title = nm.textContent;
+    el.appendChild(nm);
+
+    const payload = { type: "bucket_card", kind, id, bucket, name: nm.textContent, tier: tierN };
+
+    el.addEventListener("dragstart", (e) => {
+      dragPayload = payload;
+      e.dataTransfer.setData("text/plain", JSON.stringify(payload));
+      e.dataTransfer.effectAllowed = "move";
+      el.style.opacity = "0.4";
+      if (!ghostEl) {
+        ghostEl = document.createElement("div");
+        ghostEl.className = "drag-ghost";
+        document.body.appendChild(ghostEl);
+      }
+      ghostEl.textContent = nm.textContent;
+      ghostEl.hidden = false;
+    });
+    el.addEventListener("dragend", () => {
+      el.style.opacity = "1";
+      dragPayload = null;
+      if (ghostEl) ghostEl.hidden = true;
+    });
+
+    return el;
+  }
+
+  function makeWell(tier) {
+    const metal = tier >= 1 ? BucketRules.tierColor(tier) : "#6a6258";
+    const el = document.createElement("div");
+    el.className = "well";
+    el.style.borderColor = metal;
+    const stripe = document.createElement("div");
+    stripe.className = "stripe";
+    stripe.style.background = metal;
+    el.appendChild(stripe);
+    wireDropTarget(el, null);
+    return el;
+  }
+
+  function wireDropTarget(el, bucket) {
+    el.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      const col = el.closest(".column");
+      if (col) col.classList.add("drag-over");
+    });
+    el.addEventListener("dragleave", () => {
+      const col = el.closest(".column");
+      if (col) col.classList.remove("drag-over");
+    });
+    el.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const col = el.closest(".column");
+      if (col) col.classList.remove("drag-over");
+      let data;
+      try {
+        data = JSON.parse(e.dataTransfer.getData("text/plain"));
+      } catch (_) {
+        data = dragPayload;
+      }
+      onDrop(data, bucket != null ? bucket : Number(col?.dataset.bucket));
+    });
+  }
+
+  function onDrop(data, dest) {
+    if (!data || data.type !== "bucket_card") return;
+    const kind = data.kind;
+    const id = data.id;
+    const card = findCard(kind, id);
+    if (!card) return;
+    const orig = BucketRules.parse(card.bucket);
+    const key = pkey(kind, id);
+    if (dest === orig) delete pending[key];
+    else pending[key] = dest;
+    render();
+    syncBar();
+  }
+
+  function kindBlock(kind, cards, bucket) {
+    const wrap = document.createElement("div");
+    wrap.className = "kind-block";
+    const counted = [];
+    const extras = [];
+    for (const c of cards) {
+      if (BucketRules.countsForMill(c)) counted.push(c);
+      else extras.push(c);
+    }
+    const want = bucket < 0 ? 0 : BucketRules.wantItems(bucket);
+    const have = counted.length;
+    const lab = document.createElement("div");
+    lab.className = "kind-label";
+    if (kind === "item") {
+      lab.textContent = want > 0 ? `Items  ${have} / ${want}` : `Items  ${cards.length}`;
+    } else {
+      lab.textContent = want > 0 ? `Monsters  ${have} / ${want}` : `Monsters  ${cards.length}`;
+    }
+    wrap.appendChild(lab);
+
+    const byTier = { 1: [], 2: [], 3: [] };
+    for (const c of counted) byTier[BucketRules.tierOf(c)].push(c);
+    let empties = 0;
+    for (let t = 1; t <= 3; t++) {
+      const rowCards = byTier[t];
+      const needHole = bucket >= 0 && rowCards.length === 0;
+      if (bucket < 0 && rowCards.length === 0) continue;
+      const cap = document.createElement("div");
+      cap.className = "tier-cap";
+      cap.style.color = BucketRules.tierColor(t);
+      cap.textContent = BucketRules.tierLabel(t);
+      wrap.appendChild(cap);
+      const flow = document.createElement("div");
+      flow.className = "tier-flow";
+      for (const c of rowCards) flow.appendChild(makeTile(c, kind, bucket));
+      if (needHole) {
+        flow.appendChild(makeWell(t));
+        empties++;
+      }
+      wrap.appendChild(flow);
+    }
+    if (bucket >= 0) {
+      const short = Math.max(0, want - have - empties);
+      const flow = document.createElement("div");
+      flow.className = "tier-flow";
+      for (let i = 0; i < short; i++) flow.appendChild(makeWell(0));
+      if (short > 0) wrap.appendChild(flow);
+    }
+    if (extras.length) {
+      const ex = document.createElement("div");
+      ex.className = "extra-label";
+      ex.textContent = "Extra";
+      wrap.appendChild(ex);
+      const flow = document.createElement("div");
+      flow.className = "tier-flow";
+      for (const c of extras) {
+        const tile = makeTile(c, kind, bucket);
+        tile.classList.add("dim");
+        flow.appendChild(tile);
+      }
+      wrap.appendChild(flow);
+    }
+    return wrap;
+  }
+
+  function headerText(bucket) {
+    if (bucket < 0) return "Token";
+    let lockWord = bucket <= revealed ? "Unlocked" : "Locked";
+    if (bucket === revealed) lockWord = "Highest unlocked";
+    return `Bucket ${bucket}  ·  ${lockWord}`;
+  }
+
+  function makeColumn(bucket, group) {
+    const open = bucket >= 0 && bucket <= revealed;
+    const accent = bucket < 0 ? TOKEN_COLOR : BucketRules.colorOf(bucket);
+    const col = document.createElement("div");
+    col.className = "column" + (open || bucket < 0 ? "" : " locked") + (bucket === revealed && bucket >= 0 ? " revealed" : "");
+    col.dataset.bucket = String(bucket);
+    col.style.borderColor = open || bucket < 0 ? accent : accent + "73";
+    col.style.background = open || bucket < 0 ? "var(--panel)" : "var(--panel-dim)";
+
+    const head = document.createElement("button");
+    head.type = "button";
+    head.className = "col-head";
+    head.textContent = headerText(bucket);
+    head.style.background = open || bucket < 0 ? accent : accent + "66";
+    head.style.color = BucketRules.inkFor(accent);
+    if (bucket >= 0) {
+      head.addEventListener("click", () => {
+        revealed = Math.max(0, Math.min(MAX_BUCKET, bucket));
+        render();
+      });
+    } else {
+      head.disabled = true;
+    }
+    col.appendChild(head);
+
+    col.appendChild(kindBlock("item", group.item || [], bucket));
+    col.appendChild(kindBlock("monster", group.monster || [], bucket));
+    wireDropTarget(col, bucket);
+    return col;
+  }
+
+  function renderJumpTabs() {
+    const tabs = $("jumpTabs");
+    tabs.innerHTML = "";
+    const pages = [
+      { label: "0–3", at: 0 },
+      { label: "4–7", at: 4 },
+      { label: "8–9", at: 8 },
+    ];
+    if (showToken) pages.push({ label: "Token", at: -1 });
+    for (const page of pages) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = page.label;
+      b.addEventListener("click", () => jumpTo(page.at));
+      tabs.appendChild(b);
+    }
+  }
+
+  function jumpTo(bucket) {
+    const col = columnsEl.querySelector(`.column[data-bucket="${bucket}"]`);
+    if (!col) return;
+    const x = col.offsetLeft - 8;
+    scrollEl.scrollLeft = Math.max(0, x);
+  }
+
+  function render() {
+    const groups = groupCards();
+    columnsEl.innerHTML = "";
+    for (let b = 0; b <= MAX_BUCKET; b++) {
+      columnsEl.appendChild(makeColumn(b, groups[b] || { item: [], monster: [] }));
+    }
+    if (showToken) {
+      columnsEl.appendChild(makeColumn(-1, groups[-1] || { item: [], monster: [] }));
+    }
+    renderJumpTabs();
+    $("btnToken").textContent = showToken ? "Hide Token" : "Show Token";
+  }
+
+  async function fetchJson(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(r.statusText);
+    return r.json();
+  }
+
+  async function tryServerLoad() {
+    try {
+      const health = await fetch("/api/health");
+      if (!health.ok) return false;
+      serverMode = true;
+      board = await fetchJson("/data/content-board.json");
+      catalog = await fetchJson("/data/catalog.json");
+      try {
+        art = await fetchJson("/data/buckets-art.json");
+      } catch (_) {
+        art = { items: {}, monsters: {} };
+      }
+      return true;
+    } catch (_) {
+      serverMode = false;
+      return false;
+    }
+  }
+
+  function loadFromSeed() {
+    const seed = window.BUCKETS_SEED;
+    if (!seed || !seed.board) return false;
+    board = seed.board;
+    catalog = seed.catalog || { items: [], monsters: [] };
+    art = seed.art || { items: {}, monsters: {} };
+    return true;
+  }
+
+  function applyLoaded() {
+    loadDraft();
+    render();
+    syncBar();
+    statusEl.textContent = serverMode
+      ? "Loaded from local server — Save writes repo files."
+      : "Loaded — use Save, Connect, or Copy for Cursor.";
+    statusEl.className = "status ok";
+  }
+
+  async function initLoad() {
+    if (await tryServerLoad()) {
+      applyLoaded();
+      return;
+    }
+    if (loadFromSeed()) {
+      applyLoaded();
+      return;
+    }
+    $("loadPanel").classList.remove("hidden");
+    statusEl.textContent = "Pick JSON files or run buckets_editor.cmd.";
+    statusEl.className = "status";
+  }
+
+  async function readFileAsJson(file) {
+    const text = await file.text();
+    return JSON.parse(text);
+  }
+
+  $("btnPickBoard").addEventListener("click", () => {
+    const inp = document.createElement("input");
+    inp.type = "file";
+    inp.accept = "application/json,.json";
+    inp.onchange = async () => {
+      const f = inp.files && inp.files[0];
+      if (!f) return;
+      board = await readFileAsJson(f);
+      if (catalog.items || catalog.monsters) {
+        $("loadPanel").classList.add("hidden");
+        applyLoaded();
+      }
+    };
+    inp.click();
+  });
+
+  $("btnPickCatalog").addEventListener("click", () => {
+    const inp = document.createElement("input");
+    inp.type = "file";
+    inp.accept = "application/json,.json";
+    inp.onchange = async () => {
+      const f = inp.files && inp.files[0];
+      if (!f) return;
+      catalog = await readFileAsJson(f);
+      if (board.items || board.monsters) {
+        $("loadPanel").classList.add("hidden");
+        applyLoaded();
+      }
+    };
+    inp.click();
+  });
+
+  function stampBucket(card, prevBucket) {
+    const today = new Date().toISOString().slice(0, 10);
+    const fields = Array.isArray(card.locked_fields) ? card.locked_fields.slice() : [];
+    if (BucketRules.parse(card.bucket) !== BucketRules.parse(prevBucket) && !fields.includes("bucket")) {
+      fields.push("bucket");
+    }
+    if (fields.length || card.author_lock) {
+      card.author_lock = true;
+      card.locked_fields = fields.length ? fields : (card.locked_fields || ["bucket"]);
+      card.locked_at = today;
+    }
+  }
+
+  function applyPendingToBoard(targetBoard) {
+    for (const key of Object.keys(pending)) {
+      const idx = key.indexOf(":");
+      if (idx < 0) continue;
+      const kind = key.slice(0, idx);
+      const id = key.slice(idx + 1);
+      const card = findCardIn(targetBoard, kind, id);
+      if (!card) continue;
+      const prev = card.bucket;
+      card.bucket = pending[key];
+      stampBucket(card, prev);
+    }
+    targetBoard.updated = new Date().toISOString().slice(0, 10);
+  }
+
+  function findCardIn(b, kind, id) {
+    const key = kind === "item" ? "items" : "monsters";
+    for (const c of b[key] || []) {
+      if (c && String(c.id) === id) return c;
+    }
+    return null;
+  }
+
+  function syncCatalogFromBoard(targetBoard, targetCatalog) {
+    const byId = (arr) => {
+      const m = {};
+      for (const c of arr || []) if (c && c.id != null) m[String(c.id)] = c;
+      return m;
+    };
+    const bi = byId(targetBoard.items);
+    const bm = byId(targetBoard.monsters);
+    for (const c of targetCatalog.items || []) {
+      const id = String(c.id);
+      if (bi[id]) c.bucket = bi[id].bucket;
+    }
+    for (const c of targetCatalog.monsters || []) {
+      const id = String(c.id);
+      if (bm[id]) c.bucket = bm[id].bucket;
+    }
+  }
+
+  function buildAssignments() {
+    const out = [];
+    const push = (kind, key) => {
+      for (const card of board[key] || []) {
+        if (!card) continue;
+        const st = String(card.status || "live");
+        if (st === "retired" || st === "hold") continue;
+        const id = String(card.id || "");
+        if (!id) continue;
+        const bucket = effBucket(kind, id, card);
+        out.push({
+          kind,
+          id,
+          name: String(card.name || id),
+          bucket,
+        });
+      }
+    };
+    push("item", "items");
+    push("monster", "monsters");
+    return out;
+  }
+
+  async function writeHandle(handle, data) {
+    if (handle.queryPermission) {
+      const perm = await handle.queryPermission({ mode: "readwrite" });
+      if (perm !== "granted" && handle.requestPermission) {
+        const req = await handle.requestPermission({ mode: "readwrite" });
+        if (req !== "granted") throw new Error("Write permission denied");
+      }
+    }
+    const w = await handle.createWritable();
+    await w.write(JSON.stringify(data, null, "\t") + "\n");
+    await w.close();
+  }
+
+  async function saveBoth() {
+    const nextBoard = JSON.parse(JSON.stringify(board));
+    const nextCatalog = JSON.parse(JSON.stringify(catalog));
+    applyPendingToBoard(nextBoard);
+    syncCatalogFromBoard(nextBoard, nextCatalog);
+
+    if (serverMode) {
+      const r = await fetch("/api/save-both", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ board: nextBoard, catalog: nextCatalog }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || r.statusText);
+      board = nextBoard;
+      catalog = nextCatalog;
+      clearDraft();
+      return;
+    }
+    const boardHandle = await IDB.get("boardHandle");
+    const catalogHandle = await IDB.get("catalogHandle");
+    if (boardHandle && catalogHandle && window.showOpenFilePicker) {
+      await writeHandle(boardHandle, nextBoard);
+      await writeHandle(catalogHandle, nextCatalog);
+      board = nextBoard;
+      catalog = nextCatalog;
+      clearDraft();
+      return;
+    }
+    alert(
+      "Cannot write files from this page.\n\n" +
+      "Run tools\\buckets_editor.cmd and open http://127.0.0.1:8767/buckets.html for direct save,\n" +
+      "or use Connect data files… with a Chromium-based browser,\n" +
+      "or Copy for Cursor and paste the assignments in chat."
+    );
+    throw new Error("no save target");
+  }
+
+  $("btnSave").addEventListener("click", async () => {
+    if (!Object.keys(pending).length) return;
+    try {
+      await saveBoth();
+      render();
+      syncBar();
+      statusEl.textContent = "Saved bucket moves.";
+      statusEl.className = "status ok";
+    } catch (e) {
+      if (e.message !== "no save target") {
+        statusEl.textContent = "Save failed: " + e.message;
+        statusEl.className = "status err";
+      }
+    }
+  });
+
+  $("btnRevert").addEventListener("click", () => {
+    clearDraft();
+    render();
+    syncBar();
+  });
+
+  $("btnReloadSeed").addEventListener("click", async () => {
+    if (serverMode) {
+      board = await fetchJson("/data/content-board.json");
+      catalog = await fetchJson("/data/catalog.json");
+    } else if (!loadFromSeed()) {
+      statusEl.textContent = "No seed — reload server or pick files.";
+      statusEl.className = "status err";
+      return;
+    }
+    clearDraft();
+    applyLoaded();
+  });
+
+  $("btnToken").addEventListener("click", () => {
+    showToken = !showToken;
+    render();
+  });
+
+  $("btnCopyCursor").addEventListener("click", async () => {
+    const payload = {
+      swipe_bucket_save: true,
+      updated: board.updated || new Date().toISOString().slice(0, 10),
+      assignments: buildAssignments(),
+    };
+    await navigator.clipboard.writeText(JSON.stringify(payload));
+    statusEl.textContent = "Copied — paste in Cursor chat.";
+    statusEl.className = "status ok";
+  });
+
+  $("btnCopyBoard").addEventListener("click", async () => {
+    const copy = JSON.parse(JSON.stringify(board));
+    for (const key of Object.keys(pending)) {
+      const idx = key.indexOf(":");
+      if (idx < 0) continue;
+      const kind = key.slice(0, idx);
+      const id = key.slice(idx + 1);
+      const card = findCard(kind, id);
+      if (card) card.bucket = pending[key];
+    }
+    await navigator.clipboard.writeText(JSON.stringify(copy, null, 2));
+    statusEl.textContent = "Full board JSON copied.";
+    statusEl.className = "status ok";
+  });
+
+  $("btnConnect").addEventListener("click", async () => {
+    if (!window.showOpenFilePicker) {
+      alert("File System Access needs Chromium (Chrome/Edge). Use the local server or Copy for Cursor.");
+      return;
+    }
+    try {
+      const [boardHandle] = await window.showOpenFilePicker({
+        types: [{ description: "JSON", accept: { "application/json": [".json"] } }],
+        multiple: false,
+      });
+      const [catalogHandle] = await window.showOpenFilePicker({
+        types: [{ description: "JSON", accept: { "application/json": [".json"] } }],
+        multiple: false,
+      });
+      await IDB.set("boardHandle", boardHandle);
+      await IDB.set("catalogHandle", catalogHandle);
+      const bf = await boardHandle.getFile();
+      const cf = await catalogHandle.getFile();
+      board = JSON.parse(await bf.text());
+      catalog = JSON.parse(await cf.text());
+      $("loadPanel").classList.add("hidden");
+      clearDraft();
+      applyLoaded();
+      statusEl.textContent = "Connected — Save writes linked files.";
+      statusEl.className = "status ok";
+    } catch (e) {
+      if (e.name !== "AbortError") {
+        statusEl.textContent = "Connect failed: " + e.message;
+        statusEl.className = "status err";
+      }
+    }
+  });
+
+  scrollEl.addEventListener("wheel", (e) => {
+    if (e.shiftKey) {
+      e.preventDefault();
+      scrollEl.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
+
+  document.addEventListener("dragover", (e) => {
+    if (ghostEl && !ghostEl.hidden) {
+      ghostEl.style.left = e.clientX + 12 + "px";
+      ghostEl.style.top = e.clientY + 12 + "px";
+    }
+    if (!dragPayload) return;
+    const r = scrollEl.getBoundingClientRect();
+    const EDGE = 88;
+    const SPEED = 24;
+    if (e.clientX < r.left + EDGE) scrollEl.scrollLeft -= SPEED;
+    else if (e.clientX > r.right - EDGE) scrollEl.scrollLeft += SPEED;
+    if (e.clientY < r.top + EDGE) scrollEl.scrollTop -= SPEED;
+    else if (e.clientY > r.bottom - EDGE) scrollEl.scrollTop += SPEED;
+  });
+
+  window.addEventListener("beforeunload", (e) => {
+    if (Object.keys(pending).length) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key === "s") {
+      e.preventDefault();
+      if (!$("btnSave").disabled) $("btnSave").click();
+    }
+  });
+
+  initLoad();
+})();
+  </script>
+</body>
+</html>

@@ -9,8 +9,13 @@ signal feedback_wanted
 const COPY := preload("res://scripts/player_copy.gd")
 const UX := preload("res://scripts/ux_style.gd")
 
+const LOGO_PATH := "res://assets/dungeon/title/logo.png"
+
 var _continue_box: VBoxContainer
 var _col: VBoxContainer
+var _hub_title: Control
+var _logo: TextureRect
+var _tag: Control
 
 
 func setup() -> void:
@@ -29,7 +34,22 @@ func setup() -> void:
 	_col.add_theme_constant_override("separation", 18)
 	_col.custom_minimum_size = Vector2(720, 0)
 	wrap.add_child(_col)
-	_plain(COPY.text("playtest.hub_title", "Playtest"), 48, Color("e8c36a"), 56)
+	_logo = TextureRect.new()
+	_logo.name = "title_logo"
+	_logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_logo.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_logo.custom_minimum_size = Vector2(720, 160)
+	_logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_logo.visible = false
+	if ResourceLoader.exists(LOGO_PATH):
+		_logo.texture = load(LOGO_PATH)
+	_col.add_child(_logo)
+	_tag = _plain(COPY.text("title.tagline", "Where there's a will, there's a slay."), 28, Color("f4ede3"), 48)
+	_tag.name = "title_tagline"
+	_tag.visible = false
+	_hub_title = _plain(COPY.text("playtest.hub_title", "Playtest"), 48, Color("e8c36a"), 56)
+	_hub_title.name = "hub_title"
 	_col.add_child(_action(
 		COPY.text("playtest.brand_new", "Brand New"),
 		COPY.text("playtest.brand_new_blurb", "Playtest as if you're starting the game for the first time."),
@@ -52,6 +72,13 @@ func setup() -> void:
 func open_hub(can_continue: bool, see_through: bool = false) -> void:
 	if _continue_box:
 		_continue_box.visible = can_continue
+	var on_title: bool = see_through and _logo != null and _logo.texture != null
+	if _logo:
+		_logo.visible = on_title
+	if _tag:
+		_tag.visible = on_title
+	if _hub_title:
+		_hub_title.visible = not on_title
 	color = Color("100e0c99") if see_through else Color("100e0cf2")
 	visible = true
 	move_to_front()
@@ -61,7 +88,7 @@ func close_hub() -> void:
 	visible = false
 
 
-func _plain(text: String, size_px: int, col: Color, height: int) -> void:
+func _plain(text: String, size_px: int, col: Color, height: int) -> Control:
 	var lab = FitLabelBox.make()
 	lab.show_frame = false
 	lab.padding = 0
@@ -72,6 +99,7 @@ func _plain(text: String, size_px: int, col: Color, height: int) -> void:
 	lab.font_color = col
 	lab.set_plain(text)
 	_col.add_child(lab)
+	return lab
 
 
 func _action(title: String, blurb: String, cb: Callable) -> VBoxContainer:
