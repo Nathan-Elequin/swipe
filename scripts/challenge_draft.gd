@@ -180,6 +180,19 @@ func draft_cards() -> Array:
 	return out
 
 
+func pick_card_id(id: String) -> bool:
+	if _busy or not visible:
+		return false
+	var want: String = id.strip_edges()
+	for it in [left_it, right_it]:
+		if str(it.get("card_id", "")) != want:
+			continue
+		_busy = true
+		chosen.emit(int(it.get("uid", 0)))
+		return true
+	return false
+
+
 func hide_draft() -> void:
 	visible = false
 	scale = Vector2.ONE

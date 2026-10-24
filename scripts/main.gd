@@ -583,6 +583,7 @@ var _tut_d2_focus: String = ""
 var _tut_d2_busy: bool = false
 var _tut_d2_pending: String = ""
 var _tut_bandit_seated: bool = false
+var _tut_show_deck: bool = false
 var _tut_draft_busy: bool = false
 var _tut_finisher_armed: bool = false
 var _tut_hold_slay: bool = false
@@ -1295,8 +1296,10 @@ func _build_ui() -> void:
 	add_child(tut)
 	tut.setup(art, sfx)
 	tut.continued.connect(_tut_on_continue)
+	tut.progress_key.connect(_tut_on_progress_key)
 	tut.skipped.connect(_tut_skip)
 	tut.finished.connect(_tut_finished)
+	tut.branch_ok = _tut_branch_ok
 
 	combat_stage = COMBAT_STAGE.new()
 	add_child(combat_stage)
@@ -1998,7 +2001,7 @@ func _is_adventure_mode() -> bool:
 
 
 func _click_choose_fight() -> bool:
-	return _is_long_drop() or in_tutorial
+	return _is_long_drop()
 
 
 func _qa_busy() -> bool:
@@ -6261,16 +6264,6 @@ func _on_slice_clicked(index: int) -> void:
 		_seat_petitioner(index)
 		return
 	if in_tutorial and tut != null:
-		if tut.wait == "spin" and phase == "ready" and facing_index < 0:
-			if str(wheel[index].get("kind", "")) != "monster":
-				return
-			if int(wheel[index].get("hp", 0)) <= 0:
-				return
-			challenge_aim = index
-			if wheel_view:
-				wheel_view.selected_index = index
-			await _on_spin()
-			return
 		if tut.visible:
 			tut.nudge(PLAYER_COPY.text("tutorial.nudge_wait", "Hey — finish this first."))
 			if sfx:
@@ -17271,6 +17264,8 @@ func _refresh_challenge_draft_cards() -> void:
 
 
 func _wheel_side_gutter() -> float:
+	if in_tutorial and _tut_show_deck and phase != "title" and phase != "victory" and phase != "defeat" and phase != "rest":
+		return 176.0
 	if not adventure or phase == "title" or phase == "victory" or phase == "defeat" or phase == "rest":
 		return 0.0
 	if challenge_draft_ui != null and challenge_draft_ui.visible:
@@ -17317,7 +17312,7 @@ func _layout_play_field() -> void:
 	if btn_wrap:
 		btn_wrap.add_theme_constant_override("margin_right", gutter_px)
 	if dungeon_deck_ui:
-		var show_deck: bool = adventure and phase != "title" and phase != "victory" and phase != "defeat" and phase != "rest"
+		var show_deck: bool = (adventure or (in_tutorial and _tut_show_deck)) and phase != "title" and phase != "victory" and phase != "defeat" and phase != "rest"
 		dungeon_deck_ui.visible = show_deck
 		dungeon_deck_ui.size = Vector2(148, 168)
 		dungeon_deck_ui.position = Vector2(x + side + 8.0, wheel_y)
@@ -17861,14 +17856,13 @@ func _sync_buttons() -> void:
 	btn_start.modulate = Color.WHITE
 	if in_tutorial:
 		btn_start.disabled = true
-		if tut != null and tut.wait == "spin" and phase == "ready":
-			btn_spin.disabled = true
-			btn_spin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			btn_spin.icon = null
-			btn_spin.text = PLAYER_COPY.text("challenge.spin_confirm", "Click a monster on the wheel.")
-			btn_spin.mouse_default_cursor_shape = Control.CURSOR_ARROW
-		else:
-			btn_spin.disabled = busy or phase != "ready" or tut == null or (tut.wait != "spin" and tut.wait != "auto_spin")
+		var spin_ready: bool = tut != null and tut.wait == "spin" and phase == "ready" and not busy and facing_index < 0
+		btn_spin.disabled = not spin_ready
+		btn_spin.mouse_filter = Control.MOUSE_FILTER_STOP
+		btn_spin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
+		if tex_rotate != null:
+			btn_spin.icon = tex_rotate
 		btn_done.disabled = busy or not enemy_up or tut == null or (tut.wait != "done" and tut.wait != "choice")
 	_hide_take_burst()
 	if enemy_up:
@@ -18570,23 +18564,43 @@ func _tutorial_keeps_seat() -> bool:
 		return false
 	if facing_index < 0 or facing_index >= wheel.size():
 		return false
-	return str(wheel[facing_index].get("card_id", "")) == "wizard"
+	return str(wheel[facing_index].get("kind", "")) == "monster"
 
 
 func _tutorial_replace_with_deck(index: int, id: String) -> void:
 	_tut_bandit_seated = true
+	_tut_show_deck = true
+	if challenge_deck.is_empty():
+		challenge_deck.append(id)
 	if dungeon_deck_ui:
 		dungeon_deck_ui.visible = true
-		var tex: Texture2D = tex_by_monster.get(id, null)
-		if tex == null and art != null:
-			tex = art.monster_still(id)
-		var who: String = str(monsters_by_id.get(id, {}).get("name", id))
-		dungeon_deck_ui.set_count(1)
-		dungeon_deck_ui.set_peek(tex, who, 1)
+		_layout_play_field()
+		if not dungeon_deck_ui.is_busy():
+			dungeon_deck_ui.set_count(challenge_deck.size())
+		_sync_challenge_peek()
 		if wheel_view and wheel_view.has_method("slice_portrait_global"):
 			dungeon_deck_ui.entry_global = wheel_view.slice_portrait_global(index)
 		await dungeon_deck_ui.play_draw()
+	if not challenge_deck.is_empty():
+		challenge_deck.pop_front()
+	if dungeon_deck_ui and not dungeon_deck_ui.is_busy():
+		dungeon_deck_ui.set_count(challenge_deck.size())
+		_sync_challenge_peek()
+	if wheel_view and wheel_view.has_method("rotate_index_to_top"):
+		await wheel_view.rotate_index_to_top(index, 0.42)
+	if ability_slash:
+		var slash_tex: Texture2D = null
+		if art != null:
+			slash_tex = art.monster_still(id)
+		await ability_slash.play({
+			"title": _title_case(str(monsters_by_id.get(id, {}).get("name", id))),
+			"call": MONSTER_LINES.call_of(id, monsters_by_id.get(id, {})),
+			"tex": slash_tex,
+			"is_item": false,
+			"card_id": id,
+		})
 	if index < 0 or index >= wheel.size():
+		_refresh()
 		return
 	var slot: String = str(wheel[index].get("slot", ""))
 	var seated: Dictionary = _make_monster(id)
@@ -18594,8 +18608,14 @@ func _tutorial_replace_with_deck(index: int, id: String) -> void:
 	wheel[index] = seated
 	_sync_wheel_stats()
 	if wheel_view:
+		if wheel_view.slay_index == index and wheel_view.has_method("clear_slay"):
+			wheel_view.clear_slay()
+		_stamp_atk_variants()
 		wheel_view.set_slices(wheel, -1, "none")
 		wheel_view.pulse_arrive(index)
+	if sfx:
+		sfx.play("drop", -8.0)
+		sfx.play("whoosh", -12.0, 0.9)
 	_refresh()
 
 
@@ -18786,6 +18806,8 @@ func _start_tutorial() -> void:
 		_log("on_place", "item  %s" % iid)
 	_sort_hotbar()
 	_sync_wheel_stats()
+	_tut_show_deck = true
+	challenge_deck = ["bandit"]
 	phase = "ready"
 	_log("on_click", "Tutorial")
 	_log("var", "HP %s" % hp)
@@ -19034,6 +19056,9 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 		return
 	if tag == "deck":
 		_tut_add_control(spots, dungeon_deck_ui)
+		var deck_seat: int = _index_of_monster("bandit") if _tut_bandit_seated else facing_index
+		if deck_seat >= 0 and wheel_view != null and wheel_view.has_method("slice_rect"):
+			_tut_add_rect(spots, wheel_view.slice_rect(deck_seat))
 		return
 	if tag == "draft":
 		_tut_add_control(spots, challenge_draft_ui)
@@ -19337,10 +19362,6 @@ func _tutorial_spin_index() -> int:
 		var forced: int = _index_of_monster(str(tut.force_id))
 		if forced >= 0:
 			return forced
-	for id in ["wizard", "golem", "goblin", "berserker"]:
-		var i: int = _index_of_monster(id)
-		if i >= 0:
-			return i
 	return -1
 
 
@@ -19379,8 +19400,67 @@ func _tutorial_combat_started() -> void:
 		return
 	if tut.wait != "spin" and tut.wait != "auto_spin" and tut.wait != "face":
 		return
+	if facing_index >= 0 and facing_index < wheel.size():
+		tut.land = str(wheel[facing_index].get("card_id", ""))
 	tut.advance()
 	_tut_after_advance()
+
+
+func _tut_branch_ok(br: String) -> bool:
+	if br == "golem_waiting":
+		return _index_of_monster("golem") >= 0
+	if br == "goblin_waiting":
+		return _index_of_monster("goblin") >= 0
+	return false
+
+
+func _tut_on_progress_key() -> void:
+	if not in_tutorial or tut == null or not tut.visible or not tut.armed():
+		return
+	var w: String = tut.wait
+	if w == "continue":
+		_tut_on_continue()
+		return
+	if w == "spin" or w == "auto_spin":
+		if phase == "ready" and facing_index < 0:
+			await _on_spin()
+		return
+	if w == "done" or w == "choice":
+		await _on_done()
+		return
+	if w.begins_with("item:"):
+		var iid: String = w.substr(5)
+		for it in hotbar:
+			if typeof(it) != TYPE_DICTIONARY:
+				continue
+			if str(it.get("card_id", "")) != iid or bool(it.get("spent", false)):
+				continue
+			await _use_item(int(it.get("uid", -1)))
+			return
+		return
+	if w == "move":
+		if _can_move(1):
+			await _try_move(1)
+		elif _can_move(-1):
+			await _try_move(-1)
+		return
+	if w == "hover" or w == "hover_shift" or w.begins_with("hover_slice"):
+		if wheel_view != null:
+			var hi: int = facing_index
+			if hi < 0:
+				hi = _index_of_monster("goblin")
+			if hi < 0:
+				hi = _index_of_monster("wizard")
+			if hi >= 0:
+				wheel_view.hover_index = hi
+				_tutorial_on_slice_hover(hi)
+				_tutorial_try_shift_inspect()
+		return
+	if w == "hover_item":
+		_tutorial_on_item_hover()
+		return
+	if w.begins_with("draft:") and challenge_draft_ui != null and challenge_draft_ui.has_method("pick_card_id"):
+		challenge_draft_ui.pick_card_id(w.substr(6))
 
 
 func _tutorial_after_fight() -> void:
@@ -19410,7 +19490,9 @@ func _tutorial_on_item_hover() -> void:
 func _tutorial_on_slice_hover(index: int) -> void:
 	if not in_tutorial or tut == null or not tut.armed():
 		return
-	if tut.wait == "hover_shift":
+	if tut.wait == "hover_shift" or tut.wait == "hover":
+		if wheel_view != null and index >= 0:
+			wheel_view.hover_index = index
 		_tutorial_try_shift_inspect()
 		return
 	if tut.wait != "hover_slice:berserker":

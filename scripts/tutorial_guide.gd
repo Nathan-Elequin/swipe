@@ -4,6 +4,7 @@ extends Control
 const COPY := preload("res://scripts/player_copy.gd")
 
 signal continued
+signal progress_key
 signal skipped
 signal finished
 
@@ -16,6 +17,8 @@ var focus_tag: String = ""
 var force_id: String = ""
 var then_focus: String = ""
 var choice: String = ""
+var land: String = ""
+var branch_ok: Callable = Callable()
 var nib_close: float = 0.0
 var _arm: float = 0.0
 var _frames: Array = []
@@ -39,6 +42,8 @@ var _dimmer: ColorRect
 var _ink
 var _pin_key: String = ""
 var _pin_pos: Vector2 = Vector2.ZERO
+var _idle: float = 0.0
+var _space_hint: Label
 var sfx
 
 
@@ -177,6 +182,7 @@ func _build_talk(art) -> void:
 	_body.fit_content = true
 	_body.scroll_active = false
 	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_body.add_theme_color_override("default_color", Color("1c120c"))
 	_body.add_theme_font_size_override("normal_font_size", 20)
 	_body.custom_minimum_size = Vector2(230, 48)
@@ -201,11 +207,26 @@ func _build_talk(art) -> void:
 	_go.min_font_size = 16
 	_go.text = COPY.text("tutorial.next", "Next")
 	_go.custom_minimum_size = Vector2(210, 58)
+	_go.mouse_filter = Control.MOUSE_FILTER_STOP
 	_go.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_go.focus_mode = Control.FOCUS_ALL
+	_go.z_index = 5
 	_go.add_theme_font_size_override("font_size", 26)
 	_style_btn(_go, Color("fff3d6"), Color("3a2414"))
 	_go.pressed.connect(func() -> void: continued.emit())
 	btns.add_child(_go)
+	_space_hint = Label.new()
+	_space_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_space_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_space_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_space_hint.text = COPY.text("tutorial.space_hint", "Press Space to continue.")
+	_space_hint.add_theme_font_size_override("font_size", 20)
+	_space_hint.add_theme_color_override("font_color", Color("fff6df"))
+	_space_hint.add_theme_color_override("font_outline_color", Color("100e0c"))
+	_space_hint.add_theme_constant_override("outline_size", 8)
+	_space_hint.modulate = Color(1, 1, 1, 0)
+	_space_hint.z_index = 8
+	add_child(_space_hint)
 
 
 func _style_btn(b: Button, fill: Color, rim: Color) -> void:
@@ -231,6 +252,8 @@ func _style_btn(b: Button, fill: Color, rim: Color) -> void:
 func open() -> void:
 	step = -1
 	choice = ""
+	land = ""
+	_idle = 0.0
 	force_id = ""
 	then_focus = ""
 	world_open = false
@@ -261,7 +284,7 @@ func advance() -> void:
 	while step < _beats.size():
 		var skip: Dictionary = _beats[step]
 		var br: String = str(skip.get("branch", ""))
-		if br == "" or br == "join" or br == choice:
+		if _branch_shows(br):
 			break
 		step += 1
 	if step >= _beats.size():
@@ -277,7 +300,8 @@ func advance() -> void:
 	_tiny = bool(b.get("tiny", false))
 	var spoken: String = COPY.apply_names(str(b.get("text", "")))
 	_body.clear()
-	_body.append_text(UxStyle.paint(spoken, true, "#c45c26"))
+	_body.append_text(_paint_on_paper(spoken))
+	_idle = 0.0
 	if sfx and sfx.has_method("speak"):
 		sfx.speak(&"nib", spoken)
 	_hint.text = COPY.apply_names(str(b.get("hint", "")))
@@ -323,10 +347,51 @@ func set_spots(spots: Array, arrows: Array) -> void:
 		_ink.queue_redraw()
 
 
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	_idle = 0.0
+	var key_ok: bool = event.is_action_pressed("ui_accept")
+	if event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_SPACE or event.physical_keycode == KEY_SPACE):
+		key_ok = true
+	if not key_ok:
+		return
+	get_viewport().set_input_as_handled()
+	progress_key.emit()
+
+
+func _paint_on_paper(spoken: String) -> String:
+	var bb: String = UxStyle.paint(spoken, true, "#7a2408")
+	bb = bb.replace("#E07A7A", "#8d1414")
+	bb = bb.replace("#E8A0A0", "#7a1212")
+	bb = bb.replace("#6BB3D9", "#0a456e")
+	bb = bb.replace("#C9A0FF", "#4e1c86")
+	bb = bb.replace("#E8C36A", "#6a3c00")
+	bb = bb.replace("#c45c26", "#7a2408")
+	bb = bb.replace("[color=", "[outline_size=6][outline_color=#100e0c][color=")
+	bb = bb.replace("[/color]", "[/color][/outline_color][/outline_size]")
+	return bb
+
+
+func _branch_shows(br: String) -> bool:
+	if br == "" or br == "join":
+		return true
+	if br == choice or (land != "" and br == land):
+		return true
+	if branch_ok.is_valid():
+		return bool(branch_ok.call(br))
+	return false
+
+
 func _process(delta: float) -> void:
 	if not visible:
 		return
 	_arm = maxf(0.0, _arm - delta)
+	_idle += delta
+	if _space_hint != null:
+		var want: float = 1.0 if _idle >= 5.0 else 0.0
+		var step_a: float = delta / 0.45
+		_space_hint.modulate.a = move_toward(_space_hint.modulate.a, want, step_a)
 	if not _frames.is_empty() and _face != null:
 		_fi += delta * 5.0
 		var n: int = _frames.size()
@@ -345,6 +410,19 @@ func _layout() -> void:
 	if _ink:
 		_ink.position = Vector2.ZERO
 		_ink.size = vp
+	if _space_hint != null:
+		_space_hint.position = Vector2(24.0, vp.y - 46.0)
+		_space_hint.size = Vector2(maxf(120.0, vp.x - 48.0), 36.0)
+	if _talk != null:
+		var cap: float = maxf(160.0, vp.y - 28.0)
+		if _body != null and _talk.get_combined_minimum_size().y > cap:
+			_body.fit_content = false
+			_body.scroll_active = true
+			_body.custom_minimum_size.y = maxf(48.0, cap - 150.0)
+		elif _body != null:
+			_body.fit_content = true
+			_body.scroll_active = false
+			_body.custom_minimum_size.y = 48.0
 	_push_dim(vp)
 	_ring.visible = false
 	_place_dims(Rect2(), vp)
@@ -475,7 +553,17 @@ func _parse_nib_script(raw: String) -> Array:
 			_flush_beat(out, cur)
 			cur = _new_beat()
 			var low: String = t.to_lower()
-			if low.find("da boot") >= 0:
+			if low.find("landed on the wizard") >= 0:
+				branch = "wizard"
+			elif low.find("landed on the golem") >= 0:
+				branch = "golem"
+			elif low.find("landed on the goblin") >= 0:
+				branch = "goblin"
+			elif low.find("golem is still") >= 0:
+				branch = "golem_waiting"
+			elif low.find("goblin is still") >= 0:
+				branch = "goblin_waiting"
+			elif low.find("da boot") >= 0 or (low.find("the boot") >= 0 and low.find("chose") >= 0):
 				branch = "boot"
 			elif low.find("take 3") >= 0:
 				branch = "take"
@@ -528,7 +616,7 @@ func _is_direction_line(t: String) -> bool:
 
 func _direction_ends_beat(t: String) -> bool:
 	var low: String = t.to_lower()
-	if low.begins_with("(click") or low.begins_with("(take") or low.begins_with("(turn") or low.begins_with("(the player") or low.begins_with("(when the user hovers and holds"):
+	if low.begins_with("(click") or low.begins_with("(take") or low.begins_with("(turn") or low.begins_with("(the player") or low.begins_with("(when the user hovers"):
 		return true
 	if low.begins_with("(only now") or low.begins_with("(vignette") or low.begins_with("(animates"):
 		return true
@@ -563,14 +651,12 @@ func _apply_direction(cur: Dictionary, t: String) -> void:
 	if low.find("highlights begin") >= 0 or (low.find("click begin") >= 0 and low.find("click 'next'") < 0):
 		cur["focus"] = "begin"
 		cur["hint"] = "(click Begin)"
-	if low.find("click 'spin'") >= 0 or low.find("click spin") >= 0 or low.find("click the wizard") >= 0 or low.find("click the goblin") >= 0 or low.find("click a monster") >= 0 or low.find("click the wheel") >= 0:
+	if low.find("click 'spin'") >= 0 or low.find("click spin") >= 0 or low.find("click the wizard") >= 0:
 		cur["wait"] = "spin"
-		cur["focus"] = "wheel"
-		cur["hint"] = "(click that monster on the wheel)"
-		if low.find("wizard") >= 0:
-			cur["force"] = "wizard"
-			cur["hint"] = "(click the Wizard to face them)"
-		elif low.find("golem") >= 0:
+		cur["focus"] = "spin"
+		cur["force"] = ""
+		cur["hint"] = "(click Spin)"
+		if low.find("golem") >= 0:
 			cur["force"] = "golem"
 		elif low.find("goblin") >= 0:
 			cur["force"] = "goblin"
@@ -600,9 +686,28 @@ func _apply_direction(cur: Dictionary, t: String) -> void:
 		if low.find("click 'safe'") >= 0 or low.find("click safe") >= 0:
 			cur["wait"] = "done"
 			cur["hint"] = "(click Safe)"
-	if low.find("hovers and holds") >= 0 or low.find("hover over any monster") >= 0 or (low.find("hover") >= 0 and low.find("monster") >= 0):
-		cur["wait"] = "hover"
+	if low.find("when the user hovers") >= 0:
+		var blob: String = (str(cur.get("text", "")) + " " + str(cur.get("focus", ""))).to_lower()
+		var item_focus: bool = str(cur.get("focus", "")).begins_with("item:")
+		if blob.find("monster") >= 0 and not item_focus:
+			cur["wait"] = "hover_shift"
+			cur["focus"] = "wheel"
+			cur["then_focus"] = "inspect"
+			cur["hint"] = "(hover the monster)"
+		elif item_focus or blob.find("item") >= 0 or blob.find("boot") >= 0 or blob.find("helmet") >= 0:
+			cur["wait"] = "hover_item"
+			if not item_focus:
+				cur["focus"] = "hotbar"
+			cur["hint"] = "(hover the item)"
+		else:
+			cur["wait"] = "hover_shift"
+			cur["focus"] = "wheel"
+			cur["then_focus"] = "inspect"
+			cur["hint"] = "(hover the monster)"
+	elif low.find("hovers and holds") >= 0 or low.find("hover over any monster") >= 0 or (low.find("hover") >= 0 and low.find("monster") >= 0):
+		cur["wait"] = "hover_shift"
 		cur["focus"] = "wheel"
+		cur["then_focus"] = "inspect"
 		cur["hint"] = "(hover a monster)"
 	if low.find("empty slice") >= 0 or low.find("corridor") >= 0:
 		cur["focus"] = "empty"
