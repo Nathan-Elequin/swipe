@@ -22,6 +22,10 @@ var _opaque: Dictionary = {}
 const FRAME_SEC := 0.18
 const FOOT_PAD := 18.0
 
+var face_left: bool = false
+## While a run tween owns global x, layout may still set y.
+var traveling: bool = false
+
 
 func setup(p_art) -> void:
 	art = p_art
@@ -249,13 +253,16 @@ func _draw() -> void:
 	if tex == null:
 		return
 	var lay: Dictionary = _layout()
-	var foot := Vector2(size.x * 0.5, float(lay["foot_y"]))
-	var head := Vector2(size.x * 0.5, float(lay["head_y"]))
-	var beam_w: float = maxf(168.0, float(lay["body_w"]) * 1.7)
-	UxStyle.draw_spot_beam(self, head, foot, beam_w)
-	UxStyle.draw_stage_plinth(self, foot, maxf(156.0, float(lay["body_w"]) * 1.55), true)
 	var dest: Rect2 = lay["dest"]
+	var foot := Vector2(dest.get_center().x, float(lay["foot_y"]))
+	UxStyle.draw_floor_shadow(self, foot, dest.size.x)
 	var tint := Color.WHITE
 	if _blue > 0.0:
 		tint = Color(0.55, 0.78, 1.0)
-	draw_texture_rect(tex, dest, false, tint)
+	if face_left:
+		var pivot := Vector2(dest.get_center().x, dest.position.y + dest.size.y)
+		draw_set_transform(pivot, 0.0, Vector2(-1, 1))
+		draw_texture_rect(tex, Rect2(dest.position - pivot, dest.size), false, tint)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	else:
+		draw_texture_rect(tex, dest, false, tint)

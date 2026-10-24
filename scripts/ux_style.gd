@@ -913,6 +913,13 @@ static func _ellipse_pts(c: Vector2, rx: float, ry: float, n: int = 16) -> Packe
 	return pts
 
 
+## Soft floor contact under a fight sprite. Width is 70% of the sprite, 10px tall.
+static func draw_floor_shadow(ci: CanvasItem, foot: Vector2, sprite_w: float) -> void:
+	var rx: float = maxf(6.0, sprite_w * 0.35)
+	var col := Color(0, 0, 0, 0.45)
+	ci.draw_colored_polygon(_ellipse_pts(foot, rx, 5.0, 20), col)
+
+
 ## Code-drawn fight floor. obvious = Sprout's lit slab. The monster gets the same shape, smaller.
 static func draw_stage_plinth(ci: CanvasItem, foot: Vector2, width: float, obvious: bool) -> void:
 	var rx: float = maxf(24.0, width * 0.5)

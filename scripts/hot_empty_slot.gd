@@ -1,7 +1,7 @@
 extends Control
 ## Empty challenge-hand seat. Pixel-art socket (9-slice) with a dim empty-pouch mark so the 5x2 grid still reads.
 
-const CARD_W := 118.0
+const CARD_W := 147.5
 const CARD_H := 120.0
 const SOCKET := preload("res://assets/ui/slot/hot_slot_empty_9.png")
 const POUCH := preload("res://assets/ui/slot/hot_slot_pouch.png")

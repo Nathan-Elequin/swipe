@@ -396,10 +396,22 @@ func body_center_global() -> Vector2:
 	return global_position + _body_center
 
 
-func _draw() -> void:
+func sprite_height() -> float:
+	if _sprite == null:
+		return 0.0
+	return _sprite.size.y
+
+
+func foot_local() -> Vector2:
 	if _plinth_w <= 0.0:
+		return Vector2(size.x * 0.5, size.y)
+	return _plinth_foot
+
+
+func _draw() -> void:
+	if _plinth_w <= 0.0 or _sprite == null:
 		return
-	UxStyle.draw_stage_plinth(self, _plinth_foot, _plinth_w, false)
+	UxStyle.draw_floor_shadow(self, _plinth_foot, _sprite.size.x)
 
 
 func _paint_fx(ci: Control) -> void:

@@ -284,6 +284,13 @@ var hero_frame: int = 0
 var _hero_t: float = 0.0
 var hub_death_dim: bool = false
 var _sprout_hub: bool = false
+## Hub Sprout can leave the wheel. Hearts and Block stay.
+var hub_sprout_on: bool = true
+var hub_flip: bool = false
+var hub_sy: float = 1.0
+var hub_mod: Color = Color.WHITE
+## When set, badge painters draw onto this canvas instead of the wheel.
+var _ext_ci: CanvasItem = null
 var _sprout_blink_t: float = 0.0
 var _sprout_blink_wait: float = 5.0
 var _sprout_gear_warned: bool = false
@@ -3073,16 +3080,21 @@ func _draw_capsule(rect: Rect2, fill: Color, edge: Color) -> void:
 	draw_line(Vector2(x0, rect.position.y + rect.size.y), Vector2(x1, rect.position.y + rect.size.y), edge, 1.6, true)
 
 
+func _d() -> CanvasItem:
+	return _ext_ci if _ext_ci != null else self
+
+
 func _draw_bold_num(font: Font, pos: Vector2, txt: String, fs: int, col: Color) -> void:
 	var tsz: Vector2 = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
 	var p: Vector2 = pos + Vector2(-tsz.x * 0.5, fs * 0.36)
 	var ink := Color("100e0c")
+	var ci := _d()
 	for ox in [-1, 0, 1]:
 		for oy in [-1, 0, 1]:
 			if ox == 0 and oy == 0:
 				continue
-			draw_string(font, p + Vector2(ox, oy), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
-	draw_string(font, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+			ci.draw_string(font, p + Vector2(ox, oy), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
+	ci.draw_string(font, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
 
 
 func _star_pts(c: Vector2, outer: float, inner: float, n: int = 8) -> PackedVector2Array:
@@ -3120,10 +3132,11 @@ func _draw_atk_variant(pos: Vector2, kind: String, punch: float, fill: Color) ->
 	var draw_sz: Vector2 = tex.get_size() * grow
 	var top_left: Vector2 = pos - front * grow
 	var rect := Rect2(top_left, draw_sz)
+	var ci := _d()
 	for k in 8:
 		var o: Vector2 = Vector2.from_angle(float(k) * TAU / 8.0) * 2.2
-		draw_texture_rect(tex, Rect2(rect.position + o, rect.size), false, Color("100e0c"))
-	draw_texture_rect(tex, rect, false, Color.WHITE)
+		ci.draw_texture_rect(tex, Rect2(rect.position + o, rect.size), false, Color("100e0c"))
+	ci.draw_texture_rect(tex, rect, false, Color.WHITE)
 	return top_left + Vector2(draw_sz.x, 0.0)
 
 
@@ -3151,19 +3164,20 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 	var atk_n: int = int(s.get("atk_n", 1))
 	_draw_stat_plate(pos, icon_sz)
 	var drawn: Vector2 = _draw_atk_variant(pos, atk_kind, punch, fill)
+	var ci := _d()
 	if bool(s.get("cmd_buff", false)):
-		draw_arc(pos, icon_sz * 0.58, 0.0, TAU, 24, Color(0.95, 0.22, 0.16, 0.45 + 0.5 * pulse), 2.6, true)
+		ci.draw_arc(pos, icon_sz * 0.58, 0.0, TAU, 24, Color(0.95, 0.22, 0.16, 0.45 + 0.5 * pulse), 2.6, true)
 	if int(s.get("copy_from", -1)) >= 0:
-		draw_arc(pos, icon_sz * 0.55, 0.0, TAU, 24, Color(0.72, 0.42, 0.92, 0.4 + 0.45 * pulse), 2.4, true)
+		ci.draw_arc(pos, icon_sz * 0.55, 0.0, TAU, 24, Color(0.72, 0.42, 0.92, 0.4 + 0.45 * pulse), 2.4, true)
 	_draw_stat_number(font, pos, icon_sz, str(atk), 0.0)
 	if atk_d != 0:
 		var blink: float = 0.40 + 0.60 * absf(sin(_glow_t * 10.0))
 		var dc: Color = UP_COL if atk_d > 0 else DOWN_COL
 		dc.a = blink
 		_draw_bold_num(font, pos + Vector2(0.0, -icon_sz * 0.62), str(atk_next), 18 if big else 15, dc)
-		draw_string(font, pos + Vector2(icon_sz * 0.28, -icon_sz * 0.38), _delta_text(atk_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
+		ci.draw_string(font, pos + Vector2(icon_sz * 0.28, -icon_sz * 0.38), _delta_text(atk_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
 	if atk_kind == "double" and atk_n >= 3:
-		UxStyle.draw_multi_tag(self, drawn, "×%d" % atk_n, font)
+		UxStyle.draw_multi_tag(ci, drawn, "×%d" % atk_n, font)
 
 
 func _draw_atk_badge(pos: Vector2, rad: float, fill: Color) -> void:
@@ -3171,7 +3185,7 @@ func _draw_atk_badge(pos: Vector2, rad: float, fill: Color) -> void:
 	var edge: Color = ATK_EDGE
 	_fill_star(pos, rad * 1.22, rad * 0.46, ink)
 	_fill_star(pos, rad * 1.08, rad * 0.40, fill)
-	draw_arc(pos, rad * 0.42, 0.0, TAU, 22, edge, 1.6, true)
+	_d().draw_arc(pos, rad * 0.42, 0.0, TAU, 22, edge, 1.6, true)
 
 
 func _fill_star(c: Vector2, outer: float, inner: float, col: Color, n: int = 8) -> void:
@@ -3179,8 +3193,9 @@ func _fill_star(c: Vector2, outer: float, inner: float, col: Color, n: int = 8) 
 	var count: int = pts.size()
 	if count < 3:
 		return
+	var ci := _d()
 	for i in count:
-		draw_colored_polygon(PackedVector2Array([c, pts[i], pts[(i + 1) % count]]), col)
+		ci.draw_colored_polygon(PackedVector2Array([c, pts[i], pts[(i + 1) % count]]), col)
 
 
 func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1) -> void:
@@ -3204,14 +3219,15 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	var heart_tex: Texture2D = tex_heart_full if tex_heart_full != null else tex_heart
 	_draw_stat_plate(pos, hs)
 	_draw_stat_icon(pos, heart_tex, hs, fill, true, true)
+	var ci := _d()
 	if punch > 0.35:
 		var slash := Color("f0e6d8", punch * 0.85)
 		var arm: float = hs * 0.42
-		draw_line(pos + Vector2(-arm, -arm * 0.2), pos + Vector2(arm, arm * 0.55), Color("1c120c", punch), 4.2, true)
-		draw_line(pos + Vector2(-arm, -arm * 0.2), pos + Vector2(arm, arm * 0.55), slash, 2.4, true)
+		ci.draw_line(pos + Vector2(-arm, -arm * 0.2), pos + Vector2(arm, arm * 0.55), Color("1c120c", punch), 4.2, true)
+		ci.draw_line(pos + Vector2(-arm, -arm * 0.2), pos + Vector2(arm, arm * 0.55), slash, 2.4, true)
 	if bool(s.get("lich_buff", false)):
 		var pulse2: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
-		draw_arc(pos, hs * 0.52, 0.0, TAU, 20, Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2), 2.6, true)
+		ci.draw_arc(pos, hs * 0.52, 0.0, TAU, 20, Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2), 2.6, true)
 	_draw_stat_number(font, pos, hs, str(hp), -0.08)
 	_draw_poison_badge(font, pos, s, big, i)
 	if hp_d != 0:
@@ -3219,7 +3235,7 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		var dc: Color = UP_COL if hp_d > 0 else DOWN_COL
 		dc.a = blink
 		_draw_bold_num(font, pos + Vector2(0.0, -hs * 0.62), str(hp_next), 18 if big else 15, dc)
-		draw_string(font, pos + Vector2(hs * 0.28, -hs * 0.38), _delta_text(hp_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
+		ci.draw_string(font, pos + Vector2(hs * 0.28, -hs * 0.38), _delta_text(hp_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
 
 
 
@@ -3267,21 +3283,22 @@ func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool, idx:
 	if not locked and not _poison_drip.is_empty():
 		var fi: int = int(floor(_glow_t / 0.15)) % _poison_drip.size()
 		drip_tex = _poison_drip[fi]
+	var ci := _d()
 	if drip_tex != null:
-		draw_texture_rect(drip_tex, Rect2(drop_pos - sz * 0.5, sz), false, art_col)
+		ci.draw_texture_rect(drip_tex, Rect2(drop_pos - sz * 0.5, sz), false, art_col)
 	else:
 		var tex: Texture2D = _poison_tex()
 		if tex != null:
-			draw_texture_rect(tex, Rect2(drop_pos - sz * 0.5, sz * 0.5), false, legacy_col)
+			ci.draw_texture_rect(tex, Rect2(drop_pos - sz * 0.5, sz * 0.5), false, legacy_col)
 		else:
-			draw_circle(drop_pos, 5.0 * sc if big else 4.0 * sc, legacy_col)
+			ci.draw_circle(drop_pos, 5.0 * sc if big else 4.0 * sc, legacy_col)
 	if n > 0:
 		_draw_bold_num(font, drop_pos + Vector2(12.0 * sc, 1.0), str(n), 14 if big else 12, Color("d8f0d0"))
 	if locked and _poison_lock_tex != null:
 		var lz := Vector2(12, 12) if big else Vector2(10, 10)
-		draw_texture_rect(_poison_lock_tex, Rect2(drop_pos + Vector2(6, 4) - lz * 0.5, lz), false, Color.WHITE)
+		ci.draw_texture_rect(_poison_lock_tex, Rect2(drop_pos + Vector2(6, 4) - lz * 0.5, lz), false, Color.WHITE)
 	elif locked:
-		draw_rect(Rect2(drop_pos + Vector2(4, 2), Vector2(6, 7)), Color("e8c36a"))
+		ci.draw_rect(Rect2(drop_pos + Vector2(4, 2), Vector2(6, 7)), Color("e8c36a"))
 
 
 func _delta_text(d: int) -> String:
@@ -3325,10 +3342,16 @@ func _draw_hub_block(c: Vector2, _radius: float) -> void:
 	if typeof(frames) == TYPE_ARRAY and not frames.is_empty():
 		var fi: int = clampi(hero_frame, 0, frames.size() - 1)
 		tex = frames[fi]
-	if tex:
-		draw_texture_rect(tex, hero_rect, false, sting_tint)
-		_draw_hub_gear(hero_rect, sting_tint)
-	else:
+	if tex and hub_sprout_on and hub_mod.a > 0.01:
+		var tint: Color = sting_tint * hub_mod
+		var pivot := Vector2(hero_rect.get_center().x, hero_rect.end.y)
+		var scx: float = -1.0 if hub_flip else 1.0
+		draw_set_transform(pivot, 0.0, Vector2(scx, hub_sy))
+		draw_texture_rect(tex, Rect2(hero_rect.position - pivot, hero_rect.size), false, tint)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		if not hub_flip and is_equal_approx(hub_sy, 1.0):
+			_draw_hub_gear(hero_rect, tint)
+	elif tex == null:
 		draw_circle(c + Vector2(0, 8) + hub_nudge, 16.0, Color("c4a574") * sting_tint)
 	var font: Font = get_theme_default_font()
 	if font == null:
@@ -3463,19 +3486,21 @@ func _heart_pts(pos: Vector2, hs: float) -> PackedVector2Array:
 
 
 func _draw_heart_shape(pos: Vector2, hs: float, fill: Color, outline: Color) -> void:
+	var ci := _d()
 	var outer: PackedVector2Array = _heart_pts(pos, hs * 1.14)
-	draw_colored_polygon(outer, outline)
+	ci.draw_colored_polygon(outer, outline)
 	var inner: PackedVector2Array = _heart_pts(pos, hs)
-	draw_colored_polygon(inner, fill)
-	draw_circle(pos + Vector2(-hs * 0.16, -hs * 0.10), hs * 0.11, fill.lightened(0.28))
+	ci.draw_colored_polygon(inner, fill)
+	ci.draw_circle(pos + Vector2(-hs * 0.16, -hs * 0.10), hs * 0.11, fill.lightened(0.28))
 
 
 func _draw_stat_plate(pos: Vector2, px: float) -> void:
 	if stat_style == 0:
 		return
 	var plate := Rect2(pos - Vector2(px * 0.72, px * 0.62), Vector2(px * 1.44, px * 1.35))
-	draw_rect(plate, Color("100e0c", 0.82), true)
-	draw_rect(plate, Color("c4a574"), false, 1.5)
+	var ci := _d()
+	ci.draw_rect(plate, Color("100e0c", 0.82), true)
+	ci.draw_rect(plate, Color("c4a574"), false, 1.5)
 
 
 func _draw_stat_number(font: Font, pos: Vector2, px: float, txt: String, y_k: float = 0.08) -> void:
@@ -3509,11 +3534,12 @@ func _draw_stat_icon(pos: Vector2, tex: Texture2D, px: float, tint: Color, heart
 	if tex != null:
 		var region: Rect2 = _icon_region(tex)
 		var rect := Rect2(pos - Vector2(px, px) * 0.5, Vector2(px, px))
+		var ci := _d()
 		if outline:
 			for k in 8:
 				var o: Vector2 = Vector2.from_angle(float(k) * TAU / 8.0) * 2.2
-				draw_texture_rect_region(tex, Rect2(rect.position + o, rect.size), region, Color("100e0c"))
-		draw_texture_rect_region(tex, rect, region, Color.WHITE)
+				ci.draw_texture_rect_region(tex, Rect2(rect.position + o, rect.size), region, Color("100e0c"))
+		ci.draw_texture_rect_region(tex, rect, region, Color.WHITE)
 		return
 	if heart_shape:
 		_draw_heart_shape(pos, px * 0.42, tint, Color("1c120c"))

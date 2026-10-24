@@ -10,7 +10,7 @@ signal passed_swipe
 const COPY := preload("res://scripts/player_copy.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const RANK_SHIMMER := preload("res://scripts/rank_shimmer.gd")
-const CARD_W := 118.0
+const CARD_W := 147.5
 const CARD_H := 120.0
 const SHOW_W := 236.0
 const SHOW_H := 340.0
@@ -145,7 +145,7 @@ func setup(
 	_rank.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_rank.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_rank.max_lines_visible = 2
-	_rank.custom_minimum_size = Vector2(104, 0)
+	_rank.custom_minimum_size = Vector2(CARD_W - 14.0, 0)
 	_rank.add_theme_font_size_override("font_size", 12)
 	_rank.add_theme_color_override("font_color", Color("c4a574"))
 	_rank.add_theme_color_override("font_outline_color", Color("100e0c"))
@@ -156,11 +156,11 @@ func setup(
 	_title.show_frame = false
 	_title.padding = 0
 	_title.max_font_size = 14
-	_title.min_font_size = 12
+	_title.min_font_size = 10
 	_title.set_plain(title)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_title.custom_minimum_size = Vector2(104, 22)
+	_title.custom_minimum_size = Vector2(CARD_W - 14.0, 22)
 	_title.font_color = Color("f0e6d8")
 	_title.set_outline(Color("100e0c"), 3)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -181,7 +181,7 @@ func setup(
 		_icon.add_child(arc)
 
 	var num_host := Control.new()
-	num_host.custom_minimum_size = Vector2(104, 32)
+	num_host.custom_minimum_size = Vector2(CARD_W - 14.0, 32)
 	num_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(num_host)
 	_num_host = num_host
@@ -227,7 +227,9 @@ func setup(
 	_atk_pip.texture_filter = TEXTURE_FILTER_NEAREST
 	_atk_pip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_atk_pip.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	if ResourceLoader.exists("res://assets/ui/icons/atk_burst_18.png"):
+	if ResourceLoader.exists("res://assets/ui/icons/atk_burst_single_s24_2x.png"):
+		_atk_pip.texture = load("res://assets/ui/icons/atk_burst_single_s24_2x.png")
+	elif ResourceLoader.exists("res://assets/ui/icons/atk_burst_18.png"):
 		_atk_pip.texture = load("res://assets/ui/icons/atk_burst_18.png")
 	num_host.add_child(_atk_pip)
 
@@ -658,17 +660,17 @@ func set_showcase(on: bool) -> void:
 	custom_minimum_size = Vector2(SHOW_W, SHOW_H) if on else Vector2(CARD_W, CARD_H)
 	if _title:
 		_title.max_font_size = 22 if on else 14
-		_title.custom_minimum_size = Vector2(196 if on else 104, 48 if on else 38)
+		_title.custom_minimum_size = Vector2(196 if on else CARD_W - 14.0, 48 if on else 38)
 		_title.max_lines = 2
 		_title.fit()
 	if _rank:
 		_rank.visible = false
 		_rank.add_theme_font_size_override("font_size", 15 if on else 12)
-		_rank.custom_minimum_size = Vector2(196 if on else 104, 0)
+		_rank.custom_minimum_size = Vector2(196 if on else CARD_W - 14.0, 0)
 	if _icon:
 		_icon.custom_minimum_size = Vector2(128, 128) if on else Vector2(64, 64)
 	if _num_host:
-		_num_host.custom_minimum_size = Vector2(196, 58) if on else Vector2(104, 44)
+		_num_host.custom_minimum_size = Vector2(196, 58) if on else Vector2(CARD_W - 14.0, 44)
 	if _num:
 		_num.add_theme_font_size_override("font_size", 48 if on else 32)
 	if _ghost:
@@ -787,41 +789,44 @@ func set_atk_pip(on: bool) -> void:
 func _layout_atk_pip() -> void:
 	if _atk_pip == null or _num == null or _num_host == null:
 		return
-	var show: bool = _atk_pip_on and _atk_pip.texture != null and not _formula_on and _num.visible and _num.text.strip_edges() != "" and _num.text != "—"
+	var show: bool = _atk_pip_on and _atk_pip.texture != null and not _formula_on and _num.visible and _num.text.strip_edges() != "" and _num.text != "—" and (_or == null or not _or.visible)
 	_atk_pip.visible = show
+	_num.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_num.offset_left = 0.0
+	_num.offset_top = 0.0
+	_num.offset_right = 0.0
+	_num.offset_bottom = 0.0
+	_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	if not show:
-		_num.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		_num.offset_left = 0.0
-		_num.offset_top = 0.0
-		_num.offset_right = 0.0
-		_num.offset_bottom = 0.0
-		_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_num.add_theme_color_override("font_color", _num_col)
+		_num.add_theme_constant_override("outline_size", 3)
 		return
-	var font: Font = _num.get_theme_font("font")
-	var fs: int = _num.get_theme_font_size("font_size")
-	var tw: float = 16.0
-	if font != null:
-		tw = font.get_string_size(_num.text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-	var icon := 36.0
-	var gap := 4.0
+	_num.add_theme_font_size_override("font_size", 22)
+	_num.add_theme_color_override("font_color", Color("f0e6d8"))
+	_num.add_theme_color_override("font_outline_color", Color("100e0c"))
+	_num.add_theme_constant_override("outline_size", 2)
+	if _ghost:
+		_ghost.add_theme_font_size_override("font_size", 22)
+		_ghost.add_theme_color_override("font_color", Color("f0e6d8"))
+		_ghost.add_theme_constant_override("outline_size", 2)
 	var host_w: float = _num_host.size.x
 	var host_h: float = _num_host.size.y
 	if host_w < 8.0:
-		host_w = 104.0
+		host_w = CARD_W - 14.0
 	if host_h < 8.0:
 		host_h = 32.0
-	var left: float = (host_w - (icon + gap + tw)) * 0.5
+	var icon := 48.0
+	if _atk_pip.texture != null:
+		icon = float(_atk_pip.texture.get_width())
+	var left: float = (host_w - icon) * 0.5
+	var top: float = (host_h - icon) * 0.5
 	_atk_pip.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_atk_pip.offset_left = left
-	_atk_pip.offset_top = (host_h - icon) * 0.5
+	_atk_pip.offset_top = top
 	_atk_pip.offset_right = left + icon
-	_atk_pip.offset_bottom = _atk_pip.offset_top + icon
-	_num.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_num.offset_left = left + icon + gap
-	_num.offset_right = -(host_w - (left + icon + gap + tw))
-	_num.offset_top = 0.0
-	_num.offset_bottom = 0.0
-	_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_atk_pip.offset_bottom = top + icon
+	_atk_pip.z_index = 0
+	_num.z_index = 1
 
 
 func _layout_mark(number_text: String) -> void:
