@@ -389,6 +389,8 @@ static func wire_def_hover(rtl: RichTextLabel, tip: Node, anchor: Control = null
 		rtl.meta_hover_started.connect(_on_def_hover.bind(tip, anchor))
 	if not rtl.meta_hover_ended.is_connected(_on_def_unhover.bind(tip, anchor)):
 		rtl.meta_hover_ended.connect(_on_def_unhover.bind(tip, anchor))
+	if not rtl.meta_clicked.is_connected(_on_def_click.bind(tip, anchor)):
+		rtl.meta_clicked.connect(_on_def_click.bind(tip, anchor))
 
 
 static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> void:
@@ -410,11 +412,24 @@ static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> v
 
 
 static func _on_def_unhover(_meta: Variant, tip: Node, anchor: Control = null) -> void:
+	if tip != null and bool(tip.get("_pinned")):
+		return
 	if anchor != null and bool(anchor.get("_pin_always")) and anchor.has_method("pin_always_def"):
 		anchor.pin_always_def()
 		return
 	if tip != null and tip.has_method("hide_def"):
 		tip.hide_def()
+
+
+static func _on_def_click(meta: Variant, tip: Node, anchor: Control = null) -> void:
+	if tip == null:
+		return
+	var id: String = str(meta).trim_prefix("kw:")
+	if tip.has_method("pin_def"):
+		tip.pin_def(def_of(id), anchor, id)
+		return
+	if tip.has_method("show_def"):
+		tip.show_def(def_of(id), anchor, id)
 
 
 ## Hairline outline + tiny drop shadow on cream talk paper. Keep this thin — 15px blobs at 3+.

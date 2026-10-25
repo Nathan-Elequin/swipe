@@ -2,6 +2,7 @@ extends Control
 ## Vignette, hole, and Nib's talk box. No new screens — sits on the live board.
 
 const COPY := preload("res://scripts/player_copy.gd")
+const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 
 signal continued
 signal progress_key
@@ -45,6 +46,12 @@ var _pin_pos: Vector2 = Vector2.ZERO
 var _idle: float = 0.0
 var _space_hint: Label
 var sfx
+var lift_dim: bool = false
+var _type_full: String = ""
+var _type_shown: int = 0
+var _typing: bool = false
+var _type_acc: float = 0.0
+const TYPE_CPS := 48.0
 
 
 func setup(art, p_sfx = null) -> void:
@@ -299,8 +306,13 @@ func advance() -> void:
 	nib_close = float(b.get("nib", 0.0))
 	_tiny = bool(b.get("tiny", false))
 	var spoken: String = COPY.apply_names(str(b.get("text", "")))
+	_type_full = spoken
+	_type_shown = 0
+	_type_acc = 0.0
+	_typing = spoken != ""
 	_body.clear()
 	_body.append_text(_paint_on_paper(spoken))
+	_body.visible_characters = 0 if _typing else -1
 	_idle = 0.0
 	if sfx and sfx.has_method("speak"):
 		sfx.speak(&"nib", spoken)
@@ -309,7 +321,7 @@ func advance() -> void:
 	_go.text = COPY.apply_names(go_raw) if go_raw != "" else COPY.text("tutorial.next", "Next")
 	_name.text = COPY.text("tutorial.speaker", "Nib")
 	_skip.visible = false
-	_go.visible = wait == "continue"
+	_go.visible = wait == "continue" and not _typing
 	_go.custom_minimum_size = Vector2(210, 58)
 	var said: String = str(b.get("text", "")).to_lower()
 	if said.find("survived all") >= 0 or said.find("venture deeper") >= 0 or said.find("come back") >= 0:
@@ -347,16 +359,33 @@ func set_spots(spots: Array, arrows: Array) -> void:
 		_ink.queue_redraw()
 
 
+func set_lift(on: bool) -> void:
+	lift_dim = on
+	_push_dim(get_viewport_rect().size if is_inside_tree() else Vector2(1280, 720))
+
+
+func _finish_type() -> void:
+	_typing = false
+	_type_shown = _type_full.length()
+	_body.visible_characters = -1
+	if wait == "continue":
+		_go.visible = true
+
+
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
 	_idle = 0.0
 	var key_ok: bool = event.is_action_pressed("ui_accept")
-	if event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_SPACE or event.physical_keycode == KEY_SPACE):
-		key_ok = true
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_SPACE or event.physical_keycode == KEY_SPACE or event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+			key_ok = true
 	if not key_ok:
 		return
 	get_viewport().set_input_as_handled()
+	if _typing:
+		_finish_type()
+		return
 	progress_key.emit()
 
 
@@ -388,6 +417,25 @@ func _process(delta: float) -> void:
 		return
 	_arm = maxf(0.0, _arm - delta)
 	_idle += delta
+	if _typing:
+		_type_acc += delta * TYPE_CPS
+		while _type_acc >= 1.0 and _type_shown < _type_full.length():
+			_type_acc -= 1.0
+			_type_shown += 1
+		_body.visible_characters = _type_shown
+		if _type_shown >= _type_full.length():
+			_finish_type()
+	if _go != null and _go.visible and wait == "continue":
+		var pulse: float = 0.62 + 0.38 * absf(sin(_idle * 5.0))
+		_go.modulate = Color(1, 1, 1, pulse)
+	elif _go != null:
+		_go.modulate = Color.WHITE
+	var host: Node = get_tree().root.get_node_or_null("Main")
+	if host != null:
+		var slash: Variant = host.get("ability_slash")
+		var want: bool = bool(host.get("_walker_busy")) or (slash != null and slash.visible)
+		if want != lift_dim:
+			set_lift(want)
 	if _space_hint != null:
 		var want: float = 1.0 if _idle >= 5.0 else 0.0
 		var step_a: float = delta / 0.45
@@ -478,7 +526,12 @@ func _push_dim(_vp: Vector2) -> void:
 		mat.set_shader_parameter("h%d" % i, packed[i])
 	mat.set_shader_parameter("hole_n", mini(_spots.size(), 8))
 	mat.set_shader_parameter("view_size", _dimmer.size)
-	mat.set_shader_parameter("dim_a", 0.14 if world_open else 0.72)
+	var dim_a: float = PlaytestUx.spotlight_dim_alpha()
+	if world_open:
+		dim_a = 0.14
+	elif lift_dim:
+		dim_a = PlaytestUx.spotlight_lift_alpha()
+	mat.set_shader_parameter("dim_a", dim_a)
 
 
 func _place_dims(hole: Rect2, vp: Vector2) -> void:

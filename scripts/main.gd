@@ -15,6 +15,7 @@ const ROSTER_EDITOR := preload("res://scripts/roster_editor.gd")
 const BUCKET_OVERLAY := preload("res://scripts/dev_bucket_overlay.gd")
 const SCRIPT_EDITOR := preload("res://scripts/script_editor.gd")
 const PLAYER_COPY := preload("res://scripts/player_copy.gd")
+const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
 const MONSTER_LINES := preload("res://scripts/monster_lines.gd")
 const DUNGEON_BG := preload("res://scripts/dungeon_bg.gd")
@@ -3743,6 +3744,35 @@ func _challenge_run_opening_drafts() -> void:
 	_layout_play_field()
 
 
+func _live_facing_seat() -> int:
+	if facing_index < 0 or facing_index >= wheel.size():
+		return -1
+	var face: Dictionary = wheel[facing_index]
+	if str(face.get("kind", "")) != "monster":
+		return -1
+	if int(face.get("hp", 0)) <= 0 and not _wick_waiting(facing_index):
+		return -1
+	return facing_index
+
+
+func _sync_loot_pips() -> void:
+	if challenge_draft_ui == null or not challenge_draft_ui.has_method("set_loot_pips"):
+		return
+	if not challenge_draft_ui.visible:
+		challenge_draft_ui.set_loot_pips(0, 0)
+		return
+	var opening: bool = draft_action == "challenge_pick"
+	var pack: Dictionary = PlaytestUx.loot_remaining(
+		opening,
+		challenge_pick_i,
+		challenge_draft_plan.size(),
+		CHALLENGE_SEATS,
+		challenge_deck.size(),
+		true
+	)
+	challenge_draft_ui.set_loot_pips(int(pack.get("remaining", 0)), int(pack.get("total", 0)))
+
+
 func _challenge_begin_play() -> void:
 	if not adventure:
 		return
@@ -3786,6 +3816,7 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 		b.custom_minimum_size = Vector2(236, 340)
 		b.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	challenge_draft_ui.present(title, sub, a, b, pair[0], ib)
+	_sync_loot_pips()
 	var last_loot: bool = challenge_deck.is_empty() and draft_action != "challenge_pick"
 	if draft_action == "challenge_pick":
 		last_loot = challenge_pick_i >= challenge_draft_plan.size() - 1 and challenge_deck.is_empty()
@@ -4144,7 +4175,10 @@ func _challenge_refill_or_collapse(index: int) -> void:
 		if dungeon_deck_ui and not dungeon_deck_ui.is_busy():
 			dungeon_deck_ui.set_count(challenge_deck.size())
 		if wheel_view:
-			await wheel_view.rotate_index_to_top(index, 0.42)
+			if PlaytestUx.keep_face_after_neighbor_hole() and _live_facing_seat() >= 0:
+				await wheel_view.recenter_on(_live_facing_seat(), 0.28)
+			else:
+				await wheel_view.rotate_index_to_top(index, 0.42)
 		if ability_slash:
 			var tex: Texture2D = null
 			if art != null:
@@ -4163,7 +4197,12 @@ func _challenge_refill_or_collapse(index: int) -> void:
 			if wheel_view.slay_index == index:
 				wheel_view.clear_slay()
 			_stamp_atk_variants()
-			wheel_view.set_slices(wheel, -1, "none")
+			var keep_face: int = _live_facing_seat()
+			if PlaytestUx.keep_face_after_neighbor_hole() and keep_face >= 0:
+				wheel_view.set_slices(wheel, keep_face, "none")
+				await wheel_view.recenter_on(keep_face, 0.22)
+			else:
+				wheel_view.set_slices(wheel, -1, "none")
 			wheel_view.pulse_arrive(index)
 		if sfx:
 			sfx.play("drop", -8.0)
@@ -6354,8 +6393,6 @@ func _on_slice_hovered(index: int) -> void:
 		return
 	if _deck_hovering:
 		return
-	if fly_tip != null and fly_tip.edit_kind == "monster":
-		fly_tip.hide_plate()
 	if index < 0 or index >= wheel.size():
 		_hover_slice = -1
 		if _deck_hovering:
@@ -16186,7 +16223,7 @@ func _fill_inspect_from_slice(index: int) -> void:
 	if _cabin_up():
 		_hide_fight_hover()
 		return
-	if phase == "fighting" or phase == "slaying":
+	if not PlaytestUx.hover_inspect_allowed(phase):
 		_idle_inspect()
 		return
 	if index < 0 or index >= wheel.size():
@@ -16286,11 +16323,22 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 	var gap := 12.0
 	var right := Vector2(anchor.end.x + gap, anchor.position.y - 8.0)
 	var left := Vector2(anchor.position.x - sz.x - gap, anchor.position.y - 8.0)
-	var above := Vector2(anchor.position.x, anchor.position.y - sz.y - gap)
-	var below := Vector2(anchor.position.x, anchor.end.y + gap)
+	var above := Vector2(anchor.position.x + (anchor.size.x - sz.x) * 0.5, anchor.position.y - sz.y - gap)
+	var below := Vector2(anchor.position.x + (anchor.size.x - sz.x) * 0.5, anchor.end.y + gap)
 	var candidates: Array = [right, left, above, below] if prefer_right else [left, right, above, below]
+	if fly_tip.edit_kind == "monster":
+		candidates = [above, below, right, left]
+	if PlaytestUx.draft_tip_prefer_below() and challenge_draft_ui != null and challenge_draft_ui.visible and near != null and is_instance_valid(near) and challenge_draft_ui.is_ancestor_of(near):
+		var box: Rect2 = challenge_draft_ui.get_global_rect()
+		var under := Vector2(box.position.x + (box.size.x - sz.x) * 0.5, box.end.y + 10.0)
+		var off_wheel := Vector2(box.position.x, box.end.y + 10.0)
+		candidates = [under, off_wheel, below, left]
 	var blocks: Array = [anchor]
 	blocks.append_array(_log_block_rects())
+	if challenge_draft_ui != null and challenge_draft_ui.visible and challenge_draft_ui.has_method("draft_cards"):
+		for card in challenge_draft_ui.draft_cards():
+			if card is Control:
+				blocks.append((card as Control).get_global_rect())
 	for other in [face_box, inspect, speech_box]:
 		if other == null or other == fly_tip or not (other is Control):
 			continue
@@ -16299,6 +16347,17 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 			continue
 		blocks.append(oc.get_global_rect())
 	var pos: Vector2 = preload("res://scripts/ui/tooltip_clamp.gd").place(get_viewport_rect().size, sz, candidates, blocks)
+	if challenge_draft_ui != null and challenge_draft_ui.visible and near != null and is_instance_valid(near) and challenge_draft_ui.is_ancestor_of(near):
+		var tip_r := Rect2(pos, sz)
+		var covers := false
+		if challenge_draft_ui.has_method("draft_cards"):
+			for card in challenge_draft_ui.draft_cards():
+				if card is Control and tip_r.intersects((card as Control).get_global_rect()):
+					covers = true
+					break
+		if covers:
+			fly_tip.hide_plate()
+			return
 	fly_tip.global_position = pos
 	fly_tip.size = sz
 	if fly_tip.has_method("pin_always_def"):
@@ -17691,6 +17750,11 @@ func _refresh() -> void:
 		_stamp_atk_variants()
 		wheel_view.set_slices(wheel, facing_index, mode)
 		wheel_view.draft_glow = phase == "draft"
+		wheel_view.closed_empties = in_tutorial and PlaytestUx.closed_empty_in_tutorial() and mode != "place"
+	_sync_loot_pips()
+	if tut != null and tut.has_method("set_lift"):
+		var slash_up: bool = ability_slash != null and ability_slash.visible
+		tut.set_lift(in_tutorial and tut.visible and (_walker_busy or slash_up))
 
 	_set_cue(_cue_text())
 	_rebuild_tray()

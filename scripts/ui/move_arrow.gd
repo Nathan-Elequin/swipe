@@ -4,6 +4,7 @@ extends Button
 ## The moves count sits in a foot outline at the bottom of the pair, not on Take.
 
 const BODY_W := 30.0
+const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 
 var pointing: int = 1
 var guide_c: Vector2 = Vector2.ZERO
@@ -45,8 +46,9 @@ func set_guide(c_local: Vector2, radius: float, n: int, show_n: bool) -> void:
 
 
 func _arc_span() -> Vector2:
-	var a0: float = PI * 0.5 - float(pointing) * 0.2
-	var sweep: float = -float(pointing) * (PI * 0.25)
+	var off: float = PlaytestUx.move_arrow_start_offset()
+	var a0: float = PI * 0.5 - float(pointing) * off
+	var sweep: float = -float(pointing) * (PI * 0.28)
 	return Vector2(a0, sweep)
 
 
@@ -70,7 +72,7 @@ func arc_global_rect() -> Rect2:
 
 func _arc_pts() -> PackedVector2Array:
 	var span: Vector2 = _arc_span()
-	var rad: float = guide_r + 36.0
+	var rad: float = guide_r + PlaytestUx.move_arrow_outer_pad()
 	var pts := PackedVector2Array()
 	for i in 28:
 		var t: float = float(i) / 27.0
@@ -115,7 +117,7 @@ func _draw() -> void:
 	_draw_shaft(pts, live, hot)
 	_draw_head(pts, live, hot)
 	if show_count and pointing < 0:
-		var foot_at: Vector2 = guide_c + Vector2.from_angle(PI * 0.5 + 0.46) * (guide_r - 18.0)
+		var foot_at: Vector2 = guide_c + Vector2.from_angle(PI * 0.5 + 0.72) * (guide_r + PlaytestUx.move_arrow_outer_pad() + 8.0)
 		_draw_foot_count(foot_at, live)
 
 

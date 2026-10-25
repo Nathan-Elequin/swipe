@@ -701,6 +701,65 @@ func _shot_tutorial_nib() -> void:
 	main.in_tutorial = false
 
 
+func _shot_playtest_ux() -> void:
+	status = "playtest-ux"
+	_prep_play("fighting")
+	main.adventure = false
+	main.in_tutorial = false
+	main.phase = "fighting"
+	main.hp = 6
+	main.blk = 2
+	main.wheel = []
+	for id in ["wizard", "golem", "goblin", "bandit", "commander"]:
+		if main.monsters_by_id.has(id):
+			main.wheel.append(main._make_monster(id))
+	while main.wheel.size() < 5:
+		main.wheel.append(main._make_monster("goblin"))
+	main.facing_index = 2
+	main._refresh()
+	await _wait(0.15)
+	if main.has_method("_fill_inspect_from_slice"):
+		main._fill_inspect_from_slice(0)
+	await _wait(0.1)
+	await _capture("sp06_monster_hover.png", "SP-06 fighting hover on Wizard face")
+	_prep_play("ready")
+	if main.tut:
+		main.in_tutorial = true
+		main.tut.visible = true
+		main.tut.open()
+		await _wait(0.45)
+		await _capture("sp10_dialogue_next.png", "SP-10 tutorial types LTR; next cue after the line")
+		main.wheel = []
+		for i in 8:
+			if i == 0 or i == 2 or i == 4:
+				main.wheel.append(main._make_monster(["wizard", "golem", "goblin"][i / 2]))
+			else:
+				main.wheel.append({"kind": "empty", "slot": str(i)})
+		if main.wheel_view:
+			main.wheel_view.closed_empties = true
+		main._refresh()
+		await _wait(0.15)
+		await _capture("sp12_tutorial_wheel.png", "SP-12 closed empties + landing marker at six")
+		main.tut.close()
+		main.in_tutorial = false
+	_prep_play("draft")
+	main.adventure = true
+	main.draft_action = "challenge_pick"
+	main.challenge_pick_i = 0
+	main.challenge_draft_plan = [{}, {}, {}, {}, {}, {}]
+	if main.challenge_draft_ui:
+		var a := Control.new()
+		a.custom_minimum_size = Vector2(200, 240)
+		var b := Control.new()
+		b.custom_minimum_size = Vector2(200, 240)
+		main.challenge_draft_ui.present("", "", a, b, {"card_id": "sai", "uid": 1}, {"card_id": "helmet", "uid": 2})
+		if main.has_method("_sync_loot_pips"):
+			main._sync_loot_pips()
+		await _wait(0.15)
+		await _capture("sp13_draft_loot.png", "SP-13 six loot sacks under the draft pair")
+		main.challenge_draft_ui.hide_draft()
+
+
 func _prep_play(phase_name: String) -> void:
 	_reset_between()
 	_stow_cabin()
@@ -1329,6 +1388,9 @@ func _ensure_registry() -> void:
 		"01_four", "02_full8", "02b_full6", "02c_n4", "02d_n5", "02e_n7",
 		"03_hover", "04_breathe_a", "05_breathe_b", "06_facing", "07_threads", "08_reveal",
 	], _shot_anim_wheel_monsters)
+	_bind_many([
+		"sp06_monster_hover", "sp10_dialogue_next", "sp12_tutorial_wheel", "sp13_draft_loot",
+	], _shot_playtest_ux)
 
 
 func _bind_many(stems: Array, fn: Callable) -> void:

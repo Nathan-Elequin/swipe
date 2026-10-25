@@ -515,7 +515,9 @@ func hide_plate() -> void:
 	edit_id = ""
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_pin_always = false
-	if _kw_tip != null and _kw_tip.has_method("hide_def"):
+	if _kw_tip != null and _kw_tip.has_method("unpin"):
+		_kw_tip.unpin()
+	elif _kw_tip != null and _kw_tip.has_method("hide_def"):
 		_kw_tip.hide_def()
 	_apply_look({})
 

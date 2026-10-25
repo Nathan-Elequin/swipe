@@ -119,6 +119,7 @@ var slices: Array = []
 var facing_index: int = -1
 var selected_index: int = -1
 var hover_index: int = -1
+var closed_empties: bool = false
 var spinning: bool = false
 var highlight: String = "none"
 var preview: Dictionary = {}
@@ -2094,15 +2095,22 @@ func _draw_across_aim() -> void:
 
 
 func _draw_pointer(c: Vector2, radius: float) -> void:
-	var bob: float = 2.0 + absf(sin(_glow_t * 8.0)) * 4.0
-	var tip := Vector2(c.x, c.y + radius + 2.0)
-	var left := Vector2(c.x - 14.0, c.y + radius + 20.0 + bob)
-	var right := Vector2(c.x + 14.0, c.y + radius + 20.0 + bob)
-	draw_colored_polygon(PackedVector2Array([tip, left, right]), FACE_RIM)
+	var bob: float = 3.0 + absf(sin(_glow_t * 8.0)) * 6.0
+	var tip := Vector2(c.x, c.y + radius - 4.0)
+	var left := Vector2(c.x - 22.0, c.y + radius + 28.0 + bob)
+	var right := Vector2(c.x + 22.0, c.y + radius + 28.0 + bob)
+	var pulse: float = 0.45 + 0.55 * absf(sin(_glow_t * 7.0))
+	draw_arc(c, radius + 8.0, SIX - 0.18, SIX + 0.18, 12, Color(1.0, 0.85, 0.29, 0.35 + 0.4 * pulse), 7.0, true)
+	draw_colored_polygon(PackedVector2Array([tip, left, right]), Color("100e0c"))
 	draw_colored_polygon(PackedVector2Array([
-		tip + Vector2(0.0, 3.0),
-		left + Vector2(3.0, -2.0),
-		right + Vector2(-3.0, -2.0),
+		tip + Vector2(0.0, 6.0),
+		left + Vector2(5.0, -3.0),
+		right + Vector2(-5.0, -3.0),
+	]), FACE_RIM)
+	draw_colored_polygon(PackedVector2Array([
+		tip + Vector2(0.0, 10.0),
+		left + Vector2(8.0, -6.0),
+		right + Vector2(-8.0, -6.0),
 	]), Color("f0e6d8"))
 
 
@@ -2245,7 +2253,9 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	if facing_index >= 0 and not spinning and not is_face and not is_hover:
 		dim = 0.84
 	if str(s.get("kind", "")) != "monster":
-		if tex_plus != null:
+		if closed_empties:
+			_draw_closed_empty(origin, dir, r)
+		elif tex_plus != null:
 			var p: Vector2 = origin + dir * r * 0.58
 			var a: float = 0.88 if highlight == "place" else 0.42
 			draw_texture_rect(tex_plus, Rect2(p - Vector2(16, 16), Vector2(32, 32)), false, Color(1, 1, 1, a))
@@ -2278,8 +2288,8 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_texture_rect(st, Rect2(port_pos - Vector2(9, 9), Vector2(18, 18)), false, Color(dim, dim, dim, dim))
 	var big: bool = true
 	_draw_name_tag(font, sp, s, is_face, dim, is_hover or i == _chrome_hover, i)
-	_draw_heart_stat(font, sp["hp"], s, pv, big, i)
-	_draw_atk_stat(font, sp["atk"], s, pv, big, i)
+	_draw_heart_stat(font, sp["hp"], s, pv, big, i, is_hover)
+	_draw_atk_stat(font, sp["atk"], s, pv, big, i, is_hover)
 	var would_die: bool = int(s.get("hp", 0)) + int(pv.get("hp", 0)) <= 0 and int(pv.get("hp", 0)) < 0
 	if would_die or bool(pv.get("kill", false)):
 		var xa: float = 0.55 + 0.25 * sin(_glow_t * 12.0)
@@ -3195,7 +3205,21 @@ func _draw_atk_variant(pos: Vector2, kind: String, punch: float, fill: Color) ->
 	return top_left + Vector2(draw_sz.x, 0.0)
 
 
-func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1) -> void:
+func _draw_closed_empty(origin: Vector2, dir: Vector2, r: float) -> void:
+	var mid: Vector2 = origin + dir * r * 0.62
+	var plank := Color("2a2218")
+	var rim := Color("6a5a48")
+	var w := 34.0
+	var h := 42.0
+	draw_rect(Rect2(mid - Vector2(w * 0.5, h * 0.5), Vector2(w, h)), plank, true)
+	draw_rect(Rect2(mid - Vector2(w * 0.5, h * 0.5), Vector2(w, h)), rim, false, 2.0)
+	draw_line(mid + Vector2(-w * 0.42, -h * 0.38), mid + Vector2(w * 0.42, h * 0.38), Color("100e0c"), 5.0, true)
+	draw_line(mid + Vector2(w * 0.42, -h * 0.38), mid + Vector2(-w * 0.42, h * 0.38), Color("100e0c"), 5.0, true)
+	draw_line(mid + Vector2(-w * 0.42, -h * 0.38), mid + Vector2(w * 0.42, h * 0.38), Color("8a7a62"), 2.2, true)
+	draw_line(mid + Vector2(w * 0.42, -h * 0.38), mid + Vector2(-w * 0.42, h * 0.38), Color("8a7a62"), 2.2, true)
+
+
+func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1, is_hover: bool = false) -> void:
 	var atk: int = int(s.get("atk", 0))
 	if i >= 0 and _atk_disp.has(i):
 		atk = int(_atk_disp[i])
@@ -3218,6 +3242,9 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 		atk_kind = "single"
 	var atk_n: int = int(s.get("atk_n", 1))
 	_draw_stat_plate(pos, icon_sz)
+	if is_hover:
+		var glow: float = 0.40 + 0.45 * absf(sin(_glow_t * 8.0))
+		_d().draw_arc(pos, icon_sz * 0.72, 0.0, TAU, 22, Color(1.0, 0.85, 0.29, glow), 3.2, true)
 	var drawn: Vector2 = _draw_atk_variant(pos, atk_kind, punch, fill)
 	var ci := _d()
 	if bool(s.get("cmd_buff", false)):
@@ -3253,7 +3280,7 @@ func _fill_star(c: Vector2, outer: float, inner: float, col: Color, n: int = 8) 
 		ci.draw_colored_polygon(PackedVector2Array([c, pts[i], pts[(i + 1) % count]]), col)
 
 
-func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1) -> void:
+func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1, is_hover: bool = false) -> void:
 	var hp: int = int(s.get("hp", 0))
 	if i >= 0 and _hp_disp.has(i):
 		hp = int(_hp_disp[i])
@@ -3273,6 +3300,9 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	var hs: float = 36.0 + punch * 4.0
 	var heart_tex: Texture2D = tex_heart_full if tex_heart_full != null else tex_heart
 	_draw_stat_plate(pos, hs)
+	if is_hover:
+		var glow: float = 0.40 + 0.45 * absf(sin(_glow_t * 8.0))
+		_d().draw_arc(pos, hs * 0.72, 0.0, TAU, 22, Color(1.0, 0.85, 0.29, glow), 3.2, true)
 	_draw_stat_icon(pos, heart_tex, hs, fill, true, true)
 	var ci := _d()
 	if punch > 0.35:

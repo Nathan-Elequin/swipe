@@ -7039,6 +7039,26 @@
 	},
 	"rulings": [
 		{
+			"chat": "2026-10-25",
+			"id": "sp06_monster_hover",
+			"rule": "SP-06: Hovering any monster on the wheel (face, slice, or card) shows its stats and ability during ready, draft, fighting, and slaying. Keyword tooltips have a readable minimum size and open on click or tap as well as hover."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "sp10_dialogue_ltr",
+			"rule": "SP-10: Dialogue types left to right. Click-to-continue shows a blinking next cue; autoplay does not. Space or Enter advances. The talk box reserves choice-button height so it does not jump when options appear."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "sp12_tutorial_wheel",
+			"rule": "SP-12: Tutorial empty slices draw as closed placeholders. The landing marker stays at the bottom and is larger. The tutorial dim lifts while a combat effect plays. Move arrows sit farther from the rim and hearts. Slice hover highlights the whole seat including hearts. After a neighbor hole, the facing monster stays at the landing point."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "sp13_draft_loot_pips",
+			"rule": "SP-13: Draft item hover floats below the draft box and never covers the other choice. Opening loot shows remaining sack icons, one per monster that still grants a pick (six on a six-seat adventure open)."
+		},
+		{
 			"chat": "2026-10-04",
 			"id": "blk_floor",
 			"rule": "When resolving enemy ATK vs BLK, leftover damage floors at 0. Sheet does not say. POC uses max(0, enemy_atk - blk)."
