@@ -181,7 +181,7 @@
 			"cat": "Title",
 			"key": "title.win",
 			"locked_at": "2026-10-07",
-			"text": "Successfully Swiped",
+			"text": "Victory! You made it out - now time to check out Grandpa's trophy collection back at the Cabin.",
 			"where": "Victory headline"
 		},
 		{
@@ -991,6 +991,13 @@
 			"locked_at": "2026-10-07",
 			"text": "SLAIN",
 			"where": "Flash on the slice when they leave"
+		},
+		{
+			"author_lock": false,
+			"cat": "Combat",
+			"key": "combat.escaped",
+			"text": "Escaped",
+			"where": "Flash on the slice when you take the hit and live"
 		},
 		{
 			"author_lock": true,
@@ -3801,7 +3808,7 @@
 		{
 			"cat": "Playtest",
 			"key": "playtest.intro.01",
-			"text": "Hey friends — thanks for playtesting my game, Swipe.\nJust a few notes before you jump in.",
+			"text": "Hey friends — thanks for playtesting my game, Spinheritance.\nJust a few notes before you jump in.",
 			"author_lock": true,
 			"locked_at": "2026-10-19",
 			"where": "Playtest intro beat 01"

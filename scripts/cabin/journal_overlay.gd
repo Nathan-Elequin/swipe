@@ -281,9 +281,18 @@ func close() -> void:
 
 
 func _ids(kind: String) -> Array:
-	if kind == "bestiary":
-		return catalog.get("monsters", []) if typeof(catalog.get("monsters", [])) == TYPE_ARRAY else []
 	var out: Array = []
+	if kind == "bestiary":
+		var mons: Variant = catalog.get("monsters", [])
+		if typeof(mons) != TYPE_ARRAY:
+			return out
+		for raw in mons:
+			if typeof(raw) != TYPE_DICTIONARY:
+				continue
+			var mid: String = str((raw as Dictionary).get("id", ""))
+			if cabin != null and bool(cabin.met_monsters.get(mid, false)):
+				out.append(raw)
+		return out
 	for it in catalog.get("items", []):
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
@@ -291,7 +300,9 @@ func _ids(kind: String) -> Array:
 			continue
 		if int(it.get("bucket", 0)) == -1:
 			continue
-		out.append(it)
+		var iid: String = str(it.get("id", ""))
+		if cabin != null and (bool(cabin.seen.get(iid, false)) or cabin.is_swiped(iid)):
+			out.append(it)
 	return out
 
 
@@ -335,6 +346,18 @@ func _refresh() -> void:
 		return
 	var rows: Array = _ids("bestiary" if tab == "bestiary" else "items")
 	if rows.is_empty():
+		_left_name.text = ""
+		_left_grade.text = ""
+		_left_ability.text = ""
+		_right.text = ""
+		_portrait.texture = null
+		if _scribble:
+			_scribble.visible = false
+		if tab == "bestiary":
+			_footer.text = KIT.fill_text("journal.met_count", {"n": 0, "total": 0})
+		elif cabin:
+			var empty_p: Vector2i = cabin.cabinet_progress()
+			_footer.text = KIT.fill_text("cabin.hall.gauge", {"n": empty_p.x, "total": empty_p.y})
 		return
 	if tab == "bestiary":
 		page = clampi(page, 0, rows.size() - 1)
@@ -399,15 +422,19 @@ func _refresh() -> void:
 func _on_book(ev: InputEvent) -> void:
 	if ev is InputEventMouseButton and ev.pressed:
 		if ev.button_index == MOUSE_BUTTON_WHEEL_UP:
-			_turn(-1)
+			_turn(-1 if not _scroll_inverted() else 1)
 		elif ev.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_turn(1)
+			_turn(1 if not _scroll_inverted() else -1)
 		elif ev.button_index == MOUSE_BUTTON_LEFT:
 			var local: Vector2 = ev.position - _book.position
 			if local.x > _book.size.x * 0.55:
 				_turn(1)
 			elif local.x < _book.size.x * 0.2:
 				_turn(-1)
+
+
+func _scroll_inverted() -> bool:
+	return cabin != null and bool(cabin.get("invert_scroll"))
 
 
 func _turn(delta: int) -> void:

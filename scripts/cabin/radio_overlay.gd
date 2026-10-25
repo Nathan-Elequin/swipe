@@ -266,10 +266,11 @@ func _place_needle() -> void:
 
 func _knob_input(i: int, ev: InputEvent) -> void:
 	if ev is InputEventMouseButton:
-		if ev.button_index == MOUSE_BUTTON_WHEEL_UP:
-			_nudge(i, 1.0)
-		elif ev.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_nudge(i, -1.0)
+		var dir: float = 1.0 if ev.button_index == MOUSE_BUTTON_WHEEL_UP else (-1.0 if ev.button_index == MOUSE_BUTTON_WHEEL_DOWN else 0.0)
+		if cabin != null and bool(cabin.get("invert_scroll")):
+			dir = -dir
+		if dir != 0.0:
+			_nudge(i, dir)
 
 
 func _hum_static(db: float, fade_s: float) -> void:

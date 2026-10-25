@@ -12,6 +12,7 @@ signal fresh_save_pressed
 signal complete_save_pressed
 signal bucket_progress_pressed
 signal sparkles_toggled(on: bool)
+signal invert_scroll_toggled(on: bool)
 
 const COPY := preload("res://scripts/player_copy.gd")
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
@@ -38,6 +39,8 @@ var _btn_complete: Button
 var _btn_buckets: Button
 var _btn_sparkles: Button
 var sparkles_on: bool = true
+var invert_scroll: bool = false
+var _btn_invert: Button
 var _btn_dev_back: Button
 var _confirm: Control
 var _in_run: bool = true
@@ -103,6 +106,12 @@ func setup(audio) -> void:
 	_btn_sparkles.pressed.connect(_on_sparkles)
 	_board.add_child(_btn_sparkles)
 	_hook_hover(_btn_sparkles)
+
+	_btn_invert = KIT.choice_tag("pause.resume", Vector2(128, 16))
+	_btn_invert.text = "Invert scroll: off"
+	_btn_invert.pressed.connect(_on_invert_scroll)
+	_board.add_child(_btn_invert)
+	_hook_hover(_btn_invert)
 
 	_btn_quit = KIT.choice_tag("pause.quit", Vector2(128, 16))
 	_btn_quit.pressed.connect(_on_quit)
@@ -231,6 +240,9 @@ func _layout_buttons() -> void:
 	if _btn_sparkles:
 		_btn_sparkles.visible = not on_dev
 		_btn_sparkles.text = "Item sparkles: on" if sparkles_on else "Item sparkles: off"
+	if _btn_invert:
+		_btn_invert.visible = not on_dev
+		_btn_invert.text = "Invert scroll: on" if invert_scroll else "Invert scroll: off"
 	if _btn_quit:
 		_btn_quit.visible = (not on_dev) and not OS.has_feature("web")
 	if _btn_dev:
@@ -246,7 +258,7 @@ func _layout_buttons() -> void:
 	if _sl_wrap:
 		_sl_wrap.visible = not on_dev
 	var shown: Array = []
-	var buttons: Array = [_btn_resume, _btn_sparkles, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_complete, _btn_buckets, _btn_dev_back]
+	var buttons: Array = [_btn_resume, _btn_sparkles, _btn_invert, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_complete, _btn_buckets, _btn_dev_back]
 	for b in buttons:
 		if b == null or not b.visible or b.get_parent() != _board:
 			continue
@@ -382,6 +394,13 @@ func _on_sparkles() -> void:
 	if _btn_sparkles:
 		_btn_sparkles.text = "Item sparkles: on" if sparkles_on else "Item sparkles: off"
 	sparkles_toggled.emit(sparkles_on)
+
+
+func _on_invert_scroll() -> void:
+	invert_scroll = not invert_scroll
+	if _btn_invert:
+		_btn_invert.text = "Invert scroll: on" if invert_scroll else "Invert scroll: off"
+	invert_scroll_toggled.emit(invert_scroll)
 
 
 func _on_resume() -> void:

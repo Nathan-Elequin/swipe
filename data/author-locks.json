@@ -3170,7 +3170,7 @@
 		"playtest.intro.01": {
 			"cat": "Playtest",
 			"locked_at": "2026-10-19",
-			"text": "Hey friends — thanks for playtesting my game, Swipe.\nJust a few notes before you jump in.",
+			"text": "Hey friends — thanks for playtesting my game, Spinheritance.\nJust a few notes before you jump in.",
 			"where": "Playtest intro beat 01"
 		},
 		"playtest.intro.02": {
@@ -4076,7 +4076,7 @@
 		"title.win": {
 			"cat": "Title",
 			"locked_at": "2026-10-07",
-			"text": "Successfully Swiped",
+			"text": "Victory! You made it out - now time to check out Grandpa's trophy collection back at the Cabin.",
 			"where": "Victory headline"
 		},
 		"title.win_sub": {

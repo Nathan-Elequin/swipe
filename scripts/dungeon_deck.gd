@@ -27,8 +27,8 @@ const STACK_STEP := Vector2(3, 3)               # 1 native px down-right per car
 # Native-pixel rects on card_front.png (see design/visual/sizes/new-content-batch12-deck.sizes.json).
 const WINDOW_N := Rect2i(7, 7, 18, 17)          # monster window interior
 const LOWER_N := Rect2i(5, 28, 22, 11)          # plain lower third: name + Weak/Tough/Deadly plate
-const PLATE_FILL := [Color("3a2a1a"), Color("172636"), Color("3a1014")]
-const PLATE_RIM := [Color("a8784a"), Color("5a8ac4"), Color("c43a3a")]
+const PLATE_FILL := [Color("24160e"), Color("14161a"), Color("2a1c08")]
+const PLATE_RIM := [Color("c08050"), Color("c5cdd8"), Color("e8c36a")]
 
 const SLIDE_S := 0.25
 const FLIP_HALF_S := 0.08

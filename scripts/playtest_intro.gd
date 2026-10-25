@@ -96,7 +96,7 @@ func showing_fab() -> bool:
 
 func _beats_of() -> Array:
 	return [
-		{"key": "playtest.intro.01", "fallback": "Hey friends — thanks for playtesting my game, Swipe.\nJust a few notes before you jump in."},
+		{"key": "playtest.intro.01", "fallback": "Hey friends — thanks for playtesting my game, Spinheritance.\nJust a few notes before you jump in."},
 		{"key": "playtest.intro.02", "fallback": "First. This game is in early prototype mode. The things I most want to hear from your feedback are about what is fun, what is boring, what is confusing, and what things you think I should add to the game."},
 		{"key": "playtest.intro.03", "fallback": "Second. Be honest and picky! You don't need to consider anyone else's perspective. I just want to hear yours."},
 		{"key": "playtest.intro.04", "fallback": "And finally, have fun! Break the game, find cool combos, test the limits. And don't be afraid to dream big with your requests."},

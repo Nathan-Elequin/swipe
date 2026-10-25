@@ -272,7 +272,7 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "Defeat an enemy with less HP than you.",
+			"ability": "Defeat an enemy with fewer HP than you (not equal).",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -281,7 +281,7 @@
 			"card_color": "defeat",
 			"contradiction_ids": [],
 			"count": 2.0,
-			"explainer": "(ENEMY HP < YOUR HP)",
+			"explainer": "(ENEMY HP < YOUR HP, not equal)",
 			"flow": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
 			"hp_base": null,
 			"hp_formula": "",
@@ -4355,7 +4355,7 @@
 			"tier": 3.0
 		},
 		{
-			"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee.",
+			"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee and the wheel Spins at random.",
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -4508,7 +4508,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "I make you feed me one of two items.",
+			"ability": "When you Spin me, feed me one of two items.",
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,

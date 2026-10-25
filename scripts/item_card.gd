@@ -64,6 +64,8 @@ var _used: Label
 var _danger: bool = false
 var _bag_stamp: TextureRect
 var _or: RichTextLabel
+var _choice_badge: Label
+var _cabinet_badge: Label
 var _sai_fx: AnimatedSprite2D
 var _marble_fx: AnimatedSprite2D
 var _sparkle: AnimatedSprite2D
@@ -760,6 +762,61 @@ func set_rank(text: String) -> void:
 		return
 	_rank.text = text
 	_rank.visible = false
+
+
+func set_choice_badge(text: String) -> void:
+	var shown: String = text.strip_edges()
+	if shown == "":
+		if _choice_badge:
+			_choice_badge.visible = false
+		return
+	var lab: Label = _ensure_corner_badge(true)
+	lab.text = shown
+	lab.visible = true
+	var font: Font = lab.get_theme_font("font")
+	if font == null:
+		font = ThemeDB.fallback_font
+	var w: float = 36.0
+	if font:
+		w = font.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+	var face_w: float = SHOW_W if _showcase else CARD_W
+	lab.position = Vector2(maxf(4.0, face_w - w - 8.0), 2.0)
+
+
+func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
+	if not on:
+		if _cabinet_badge:
+			_cabinet_badge.visible = false
+		return
+	var lab: Label = _ensure_corner_badge(false)
+	lab.text = label
+	lab.tooltip_text = tip
+	lab.visible = true
+	lab.position = Vector2(4.0, (SHOW_H if _showcase else CARD_H) - 16.0)
+
+
+func _ensure_corner_badge(choice: bool) -> Label:
+	var existing: Label = _choice_badge if choice else _cabinet_badge
+	if existing != null:
+		return existing
+	var lab := Label.new()
+	lab.mouse_filter = Control.MOUSE_FILTER_STOP
+	lab.add_theme_font_size_override("font_size", 11)
+	lab.add_theme_color_override("font_color", Color("f8f2ea"))
+	lab.add_theme_color_override("font_outline_color", Color("100e0c"))
+	lab.add_theme_constant_override("outline_size", 4)
+	lab.z_index = 8
+	lab.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT and _playable:
+			picked.emit()
+			lab.accept_event()
+	)
+	add_child(lab)
+	if choice:
+		_choice_badge = lab
+	else:
+		_cabinet_badge = lab
+	return lab
 
 
 func set_palette(fill: Color, metal: Color, tier: int = 1) -> void:
