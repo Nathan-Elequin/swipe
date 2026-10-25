@@ -75,6 +75,14 @@ func format_plain(payload: Dictionary) -> String:
 		lines.append("")
 		lines.append("Log:")
 		lines.append(fight_log)
+	var slog: Variant = payload.get("session_log", null)
+	if typeof(slog) == TYPE_ARRAY and not (slog as Array).is_empty():
+		lines.append("")
+		lines.append("Session:")
+		for ev in slog:
+			if typeof(ev) != TYPE_DICTIONARY:
+				continue
+			lines.append("%s %s %s" % [ev.get("t", 0), ev.get("kind", ""), ev.get("msg", "")])
 	var ranks: Variant = payload.get("ranks", null)
 	if typeof(ranks) == TYPE_DICTIONARY and not (ranks as Dictionary).is_empty():
 		lines.append("")

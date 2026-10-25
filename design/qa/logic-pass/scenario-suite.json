@@ -528,7 +528,7 @@
 					"id": "ale_flagon",
 					"kind": "item",
 					"name": "Ale Flagon",
-					"ability": "Heal 5. Gain 3 Poison.",
+					"ability": "Heal 5. Gain 2 Poison.",
 					"sprite": "assets/dungeon/items/ale_flagon.png"
 				},
 				{
@@ -1077,7 +1077,7 @@
 					"id": "medallion",
 					"kind": "item",
 					"name": "Medallion",
-					"ability": "Block equal to the HP you are missing.",
+					"ability": "+1 Block for each HP you are missing.",
 					"sprite": "assets/dungeon/items/medallion.png"
 				},
 				{
@@ -1630,7 +1630,7 @@
 					"kind": "monster",
 					"name": "Spider Queen",
 					"ability": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
-					"sprite": "assets/dungeon/extra/spider.png"
+					"sprite": "assets/dungeon/extra/spider_queen.png"
 				}
 			]
 		},
@@ -1777,6 +1777,179 @@
 					"name": "Echo Bell",
 					"ability": "Becomes a copy of the last item you used.",
 					"sprite": "assets/dungeon/items/echo_bell.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "sp-07-quiet-bell-one-wolf",
+			"title": "Quiet Bell silences only the facing Dire Wolf",
+			"family": "collide",
+			"items": [
+				"quiet_bell"
+			],
+			"monsters": [
+				"dire_wolf",
+				"dire_wolf"
+			],
+			"face": "dire_wolf",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "quiet_bell",
+					"auto": true
+				}
+			],
+			"expected_text": "Two Dire Wolves. Quiet Bell on the facing one. That wolf is silenced and uses printed Attack. The other wolf still matches your HP.",
+			"expected": {
+				"log_has": [
+					"Quiet Bell",
+					"silen"
+				],
+				"face_silenced": true,
+				"neighbor_silenced": false,
+				"face_atk": 0,
+				"neighbor_atk": 6
+			},
+			"cards": [
+				{
+					"id": "quiet_bell",
+					"kind": "item",
+					"name": "Quiet Bell",
+					"ability": "Remove your Enemy's unique ability",
+					"sprite": "assets/dungeon/items/quiet_bell.png"
+				},
+				{
+					"id": "dire_wolf",
+					"kind": "monster",
+					"name": "Dire Wolf",
+					"ability": "My Attack always equals your HP.",
+					"sprite": "assets/dungeon/extra/dire_wolf.png"
+				},
+				{
+					"id": "dire_wolf",
+					"kind": "monster",
+					"name": "Dire Wolf",
+					"ability": "My Attack always equals your HP.",
+					"sprite": "assets/dungeon/extra/dire_wolf.png"
+				}
+			]
+		},
+		{
+			"id": "sp-08-echo-keep-knife",
+			"title": "Echo Bell copies Throwing Knife after Keep",
+			"family": "collide",
+			"items": [
+				"throwing_knife",
+				"echo_bell"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "throwing_knife",
+					"auto": false
+				},
+				{
+					"op": "choose",
+					"id": "nick",
+					"atk": 1,
+					"keep": true
+				}
+			],
+			"expected_text": "Nick with Throwing Knife (Keep). Echo Bell now copies Throwing Knife.",
+			"expected": {
+				"last_item": "throwing_knife",
+				"echo_playable": true,
+				"face_hp": 6
+			},
+			"cards": [
+				{
+					"id": "throwing_knife",
+					"kind": "item",
+					"name": "Throwing Knife",
+					"ability": "Atk 3, or Atk 1 and Keep this item",
+					"sprite": "assets/dungeon/items/throwing_knife.png"
+				},
+				{
+					"id": "echo_bell",
+					"kind": "item",
+					"name": "Echo Bell",
+					"ability": "Becomes a copy of the last item you used.",
+					"sprite": "assets/dungeon/items/echo_bell.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "sp-03-undo-then-item",
+			"title": "Undo after a use leaves the fight playable",
+			"family": "collide",
+			"items": [
+				"shield",
+				"net"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				},
+				{
+					"op": "telegraph_undo"
+				},
+				{
+					"op": "use",
+					"item": "net",
+					"auto": true
+				}
+			],
+			"expected_text": "Use Shield, Undo while the wheel recenter is running, then Net. The fight stays playable.",
+			"expected": {
+				"busy": false,
+				"log_has": [
+					"Net"
+				],
+				"session_has": [
+					"undo"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "net",
+					"kind": "item",
+					"name": "Net",
+					"ability": "Choose to reduce the facing owner's Attack by 1, 2, or 3.",
+					"sprite": "assets/dungeon/items/net.png"
 				},
 				{
 					"id": "golem",
@@ -2493,7 +2666,7 @@
 					"id": "vampire",
 					"kind": "monster",
 					"name": "Vampire",
-					"ability": "Every time you lose HP, I gain +1 HP and +1 ATK.",
+					"ability": "Every time you lose HP, I gain +1 HP and +1 Attack.",
 					"sprite": "assets/dungeon/extra/vampire.png"
 				}
 			]
@@ -3166,7 +3339,7 @@
 					"id": "shuriken",
 					"kind": "item",
 					"name": "Shuriken",
-					"ability": "2 Attack. If the Enemy lives, you Flee and Keep this.",
+					"ability": "Move →, then Attack 3.",
 					"sprite": "assets/dungeon/items/shuriken.png"
 				},
 				{
@@ -3318,7 +3491,7 @@
 					"id": "longbow",
 					"kind": "item",
 					"name": "Longbow",
-					"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
+					"ability": "Deal 5 Attack to the monster across from you (only works if even # of monsters remaining)",
 					"sprite": "assets/dungeon/items/longbow.png"
 				},
 				{
@@ -3767,7 +3940,7 @@
 					"id": "counting_beads",
 					"kind": "item",
 					"name": "Counting Beads",
-					"ability": "(1), (2), (3), or (4) Atk",
+					"ability": "(1), (2), (3), or (4) Atk. Changes on Item use",
 					"sprite": "assets/dungeon/items/counting_beads.png"
 				},
 				{
@@ -3809,7 +3982,7 @@
 					"id": "sai",
 					"kind": "item",
 					"name": "Sai",
-					"ability": "Flips 2 ↔ 4 after any Item is used.",
+					"ability": "Flips 2 ↔ 4 after each Item used.",
 					"sprite": "assets/dungeon/items/sai.png"
 				},
 				{
@@ -3912,7 +4085,7 @@
 					"id": "sai",
 					"kind": "item",
 					"name": "Sai",
-					"ability": "Flips 2 ↔ 4 after any Item is used.",
+					"ability": "Flips 2 ↔ 4 after each Item used.",
 					"sprite": "assets/dungeon/items/sai.png"
 				},
 				{
@@ -3976,7 +4149,7 @@
 					"id": "sai",
 					"kind": "item",
 					"name": "Sai",
-					"ability": "Flips 2 ↔ 4 after any Item is used.",
+					"ability": "Flips 2 ↔ 4 after each Item used.",
 					"sprite": "assets/dungeon/items/sai.png"
 				},
 				{

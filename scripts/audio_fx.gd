@@ -34,6 +34,7 @@ var _beds: Dictionary = {}
 var _bed_pos: Dictionary = {}
 var _current_bed: StringName = &""
 var _last_hover_ms: int = 0
+var session_log
 var _last_tick_ms: int = 0
 var _unlocked: bool = false
 var _duck_tw: Tween
@@ -305,7 +306,13 @@ func _load_stream(path: String) -> AudioStream:
 	return null
 
 
+func set_session_log(log) -> void:
+	session_log = log
+
+
 func play(id: String, db: float = -6.0, pitch: float = 1.0) -> void:
+	if session_log:
+		session_log.push("audio", "start %s" % id)
 	if not _streams.has(id) or _pool.is_empty():
 		return
 	var p := _acquire_voice(&"legacy", 1, 8)
@@ -336,6 +343,8 @@ func hover() -> void:
 
 
 func play_event(cue_id: StringName, ctx: Dictionary = {}) -> void:
+	if session_log:
+		session_log.push("audio", "start %s" % String(cue_id))
 	_play_event_inner(cue_id, ctx, 0)
 
 
@@ -668,6 +677,8 @@ func loop_stop_all(fade_s: float) -> void:
 
 
 func stop_cue_voices(cue_id: StringName) -> void:
+	if session_log:
+		session_log.push("audio", "stop %s" % String(cue_id))
 	var id: String = String(cue_id)
 	for i in _pool.size():
 		if str(_voice_meta[i].get("cue_id", "")) != id:
@@ -827,6 +838,8 @@ func unduck(release: float) -> void:
 
 
 func stop_music() -> void:
+	if session_log:
+		session_log.push("audio", "stop music")
 	for p in [_music_a, _music_b]:
 		if p != null and p.playing:
 			var tw := create_tween()

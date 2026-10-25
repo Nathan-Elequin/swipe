@@ -22,6 +22,7 @@ var art
 var cascade_ticker
 var _q: Array = []
 var _draining: bool = false
+var _aborted: bool = false
 var _tw: Tween
 var _life: float = 0.0:
 	set(v):
@@ -103,25 +104,38 @@ func set_fast_holds(on: bool) -> void:
 	_ff_holds = on
 
 
+func abort_all() -> void:
+	_aborted = true
+	_q.clear()
+	_draining = false
+	if _tw != null and is_instance_valid(_tw):
+		_tw.kill()
+	_tw = null
+	visible = false
+
+
 func play(payload: Dictionary) -> void:
+	_aborted = false
 	var ticket := {"payload": payload, "done": false}
 	_q.append(ticket)
 	if not _draining:
 		await _drain()
 	else:
-		while is_instance_valid(self) and not bool(ticket.get("done", false)):
+		while is_instance_valid(self) and not bool(ticket.get("done", false)) and not _aborted:
 			await get_tree().process_frame
 
 
 func _drain() -> void:
 	_draining = true
 	FX_BUDGET.begin_heavy()
-	while not _q.is_empty():
+	while not _q.is_empty() and not _aborted:
 		var t: Dictionary = _q.pop_front()
 		await _show(t.get("payload", {}))
 		t["done"] = true
 	FX_BUDGET.end_heavy()
 	_draining = false
+	if _aborted:
+		_q.clear()
 
 
 func _dur(ms: float, fast: bool) -> float:
@@ -191,7 +205,8 @@ func _show_item(fast: bool) -> void:
 	var hold: float = 0.55 if _call == "Can't Flee" else (0.19 if fast else 0.38)
 	_tw.tween_interval(hold)
 	_tw.tween_property(self, "_life", 0.0, 0.08 if fast else 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	await _tw.finished
+	while _tw != null and _tw.is_valid() and _tw.is_running() and not _aborted:
+		await get_tree().process_frame
 
 
 func _show_cutin(fast: bool) -> void:
@@ -285,7 +300,8 @@ func _show_cutin(fast: bool) -> void:
 	_tw.tween_property(_cut, "modulate:a", 0.0, _dur(OUT_MS * 0.6, fast))
 	if _band_mat != null:
 		_tw.tween_method(func(v: float) -> void: _band_mat.set_shader_parameter("split", v), 0.0, 1.0, _dur(OUT_MS, fast))
-	await _tw.finished
+	while _tw != null and _tw.is_valid() and _tw.is_running() and not _aborted:
+		await get_tree().process_frame
 
 
 func _punch_shake(fast: bool) -> void:

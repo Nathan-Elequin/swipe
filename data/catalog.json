@@ -1795,7 +1795,7 @@
 			"call_name": "",
 			"card_color": "chaos",
 			"count": 1.0,
-			"defined": "In hand this looks like the last item you used this dungeon (faint Echo icon). Click it to use that copy, then Echo is used up even if the original had Keep. If you have not used an item this dungeon, it is Unplayable.",
+			"defined": "In hand this looks like the last item you used this dungeon (faint Echo icon), including items that stayed in your hand (Keep). Click it to use that copy, then Echo is used up even if the original had Keep. If you have not used an item this dungeon, it is Unplayable.",
 			"exceptions": "Updates when you use an item. Cube feed is not an item use. First fight of a run: Unplayable.",
 			"explainer": "(Copy last Item)",
 			"flags": {
@@ -1845,7 +1845,7 @@
 			"call_name": "",
 			"card_color": "utility",
 			"count": 1.0,
-			"defined": "Click during a fight. That owner id loses its unique ability and formulas for the rest of this dungeon. They show printed ATK/HP like Golem. If they have no unique ability, the click does nothing and the card stays. Used up otherwise.",
+			"defined": "Click during a fight. The facing enemy loses its unique ability and formulas for the rest of this dungeon. Other copies of the same card are unchanged. They show printed ATK/HP like Golem. If they have no unique ability, the click does nothing and the card stays. Used up otherwise.",
 			"exceptions": "Golem: cannot click. Bandit and other formulas fall back to the ATK/HP columns.",
 			"explainer": "Silence",
 			"flags": {
@@ -7082,6 +7082,21 @@
 			"chat": "2026-10-05",
 			"id": "double_hit_spends_block",
 			"rule": "Hornet Swarm and Spider Queen resolve two separate swings. Block is spent on the first swing (ATK 2 vs BLK 2 blocks the first and leaves BLK 0; the second swing deals 2)."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "sp-03-undo-never-freezes",
+			"rule": "SP-03: Undo must kill wheel recenter and slash tweens without leaving a hung await. Busy flags (_walker_busy, _move_busy, wheel_view.busy, _flushing_holes) clear on restore. Default: in-flight item/move coroutines check _undo_stale and stop. A 500-event session log (spin, item use, undo, scene, audio start/stop, errors) is attached to every F2 / playtest_inbox payload."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "sp-07-quiet-bell-facing-only",
+			"rule": "SP-07: Quiet Bell silences only the facing seat (seat_uid), not every copy of that card id. Silence lasts the rest of this dungeon on that seat. A later Dire Wolf is not silenced. Locked flow still says owner id; this ruling overrides it. Default: printed ATK/HP after silence, same as before."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "sp-08-echo-copies-keep",
+			"rule": "SP-08: Echo Bell copies the last item you used this dungeon, including Keep uses (Throwing Knife nick). Record last-used on use, not on discard. Echo is still used up even if the original had Keep. Default: Echo looks like the card (Throwing Knife), not only the nick number."
 		}
 	],
 	"source_file": "source/01_Boss_Rush_Content.xlsx",
