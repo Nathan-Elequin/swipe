@@ -22,6 +22,8 @@ const DUNGEON_BG := preload("res://scripts/dungeon_bg.gd")
 const COMBAT_STAGE := preload("res://scripts/combat_stage.gd")
 const PLAYER_STAGE := preload("res://scripts/player_stage.gd")
 const MOVE_ARROW := preload("res://scripts/ui/move_arrow.gd")
+const VIEW_FRAME := preload("res://scripts/ui/view_frame.gd")
+const ARROW_GLYPHS := preload("res://scripts/ui/arrow_glyphs.gd")
 const BUCKET_REVEAL := preload("res://scripts/bucket_reveal.gd")
 const BUCKET_PROGRESS_PATH := "user://bucket_progress.json"
 const TROPHY_MOUNT := preload("res://scripts/trophy_mount.gd")
@@ -1445,6 +1447,7 @@ func _build_ui() -> void:
 	if sfx.has_method("set_session_log"):
 		sfx.set_session_log(session_log)
 	_session("scene", "boot")
+	ARROW_GLYPHS.ensure()
 	settings_ui = SETTINGS_MENU.new()
 	add_child(settings_ui)
 	settings_ui.setup(sfx)
@@ -16600,9 +16603,11 @@ func _layout_floor_pair() -> void:
 			card_x = clampf(rim_c.x - rim_r - 2.0 - card_w, 8.0, maxf(8.0, view.x - card_w - 8.0))
 	face_box.size = Vector2(card_w, card_h)
 	var cx: float = card_x + card_w * 0.5
-	combat_stage.global_position = Vector2(round(cx - foot.x), round(FLOOR_Y - foot.y))
+	var stage_x: float = VIEW_FRAME.clamp_x(cx - foot.x, combat_stage.size.x, view)
+	combat_stage.global_position = Vector2(round(stage_x), round(FLOOR_Y - foot.y))
 	face_box.global_position = Vector2(round(card_x), round(card_top))
-	_sprout_home_x = _sprout_x_for(STAGE_MIRROR_X - cx)
+	var sprout_w: float = player_stage.size.x if player_stage else 280.0
+	_sprout_home_x = VIEW_FRAME.sprout_home_x(cx, sprout_w, view)
 	_apply_sprout_floor()
 
 
@@ -17052,7 +17057,8 @@ func _place_fight_art() -> void:
 		if not combat_stage.busy:
 			combat_stage.size = port_sz
 			combat_stage.custom_minimum_size = port_sz
-			combat_stage.global_position = Vector2(right_x, y)
+			var view_sz: Vector2 = get_viewport_rect().size
+			combat_stage.global_position = Vector2(VIEW_FRAME.clamp_x(right_x, port_sz.x, view_sz), y)
 			if face_box != null and face_box.visible:
 				face_box.global_position = Vector2(right_x, y + port_sz.y + 12.0)
 			if combat_stage.has_method("_place_sprite"):
