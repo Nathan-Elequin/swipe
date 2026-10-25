@@ -274,11 +274,11 @@ const UNPLAYABLE := "#C8C2BA"
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
 static func call_color(special_id: String) -> Color:
 	match special_id:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "cats_eye", "toxic_skin", "rust":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "rust", "decay":
 			return GOLD
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return CALL_ATK
-		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator":
+		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator", "lifelink":
 			return CALL_HP
 		"kill_scale", "atk_eq_hp":
 			return CALL_VAR
@@ -340,6 +340,8 @@ static func def_id_of(piece: String) -> String:
 		return "unplayable"
 	if low == "rust":
 		return "rust"
+	if low == "decay" or low.begins_with("decayed"):
+		return "decay"
 	return ""
 
 
@@ -369,6 +371,8 @@ static func def_of(id: String) -> String:
 			return "You cannot click this."
 		"rust":
 			return "Item that makes all Monsters ignore your Block for 3 Spins"
+		"decay":
+			return "Decayed Items are linked. When you use one, Keep it and discard the other."
 		_:
 			return ""
 
@@ -812,6 +816,8 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low == "unplayable":
 		return UNPLAYABLE
 	if low == "rust":
+		return gold
+	if low == "decay" or low == "decayed":
 		return gold
 	return ""
 

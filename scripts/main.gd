@@ -17,6 +17,7 @@ const SCRIPT_EDITOR := preload("res://scripts/script_editor.gd")
 const PLAYER_COPY := preload("res://scripts/player_copy.gd")
 const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
 const MONSTER_LINES := preload("res://scripts/monster_lines.gd")
+const P1 := preload("res://scripts/spinheritance_p1.gd")
 const DUNGEON_BG := preload("res://scripts/dungeon_bg.gd")
 const COMBAT_STAGE := preload("res://scripts/combat_stage.gd")
 const PLAYER_STAGE := preload("res://scripts/player_stage.gd")
@@ -152,7 +153,8 @@ const ITEM_OPS := {
 	"bag_of_marbles": {"kind": "bag_marbles"},
 	"marble": {"kind": "marble"},
 	"hex": {"kind": "hex"},
-	"ale_flagon": {"kind": "heal_poison", "heal": 5, "poison": 2},
+	"ale_flagon": {"kind": "heal_both_draw", "heal": 3},
+	"fairy_in_a_bottle": {"kind": "heal", "n": 2},
 	"napalm": {"kind": "napalm"},
 	"lucky_nickel": {"kind": "blk_even_keep", "n": 1},
 	"double_buckler": {"kind": "passive"},
@@ -173,13 +175,13 @@ const MONSTER_SPECIAL := {
 	"hornet_swarm": {"id": "double_hit", "text": "Attacks twice. Block is spent on the first swing."},
 	"lich": {"id": "buff_hp", "text": "+1 HP to neighbors after other modifiers."},
 	"ogre": {"id": "hp_spin", "text": "When you lose HP, I lose equal HP."},
-	"berserker": {"id": "kill_scale", "text": "When Spun, I have a 50% chance to gain +4 Atk"},
+	"berserker": {"id": "kill_scale", "text": "When Spun, 50%: gain +4 Attack. Otherwise: lose 3 Attack."},
 	"dire_wolf": {"id": "atk_spin", "text": "ATK always equals your HP. Updates whenever your HP changes."},
 	"bandit": {"id": "item_atk", "text": "I Gain +1 Atk for each Item you hold."},
 	"two_headed_serpent": {"id": "two_items", "text": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP."},
 	"slime_boss": {"id": "atk_eq_hp", "text": "ATK always equals current HP."},
 	"leech_league": {"id": "leech_lowest", "text": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster."},
-	"wraith": {"id": "copy_atk", "text": "Copies the higher neighboring attack, then Commander."},
+	"wraith": {"id": "lifelink", "text": "When I am Defeated, set your HP to my most recent HP."},
 	"mimic": {"id": "gift", "text": "If I go down before I swing, you gain an item."},
 	"spider_queen": {"id": "queen_hits", "text": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each."},
 	"commander": {"id": "buff_atk", "text": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee."},
@@ -191,7 +193,7 @@ const MONSTER_SPECIAL := {
 	"kobold_trapper": {"id": "item_swings", "text": "I attack an extra time for each item you use this fight."},
 	"clockwork_knight": {"id": "split_t2", "text": "If I live, I leave two Tough monsters in my place."},
 	"basilisk": {"id": "petrify_gaze", "text": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins."},
-	"zombie": {"id": "no_keep", "text": "While facing me, you cannot Gain or Keep any Items."},
+	"zombie": {"id": "decay", "text": "When you Spin me, I Decay two of your Items."},
 	"hollow": {"id": "even_twice", "text": "Even Attack and even Block happen twice against me."},
 	"beggar": {"id": "left_atk", "text": "I gain Atk equal to your leftmost Atk Item"},
 	"wick": {"id": "last_hp", "text": "I Lose 2 HP each time a Neighbor is Defeated"},
@@ -210,9 +212,9 @@ const MONSTER_SPECIAL := {
 	"three_seeker": {"id": "triple_threat", "text": "If you have 3, 6, or 9 Items, you Always Spin me next"},
 	"triclops": {"id": "three_hp", "text": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee."},
 	"phoenix_egg": {"id": "hatch", "text": "When I am Defeated, I Flee and hatch into a Phoenix."},
-	"phoenix": {"id": "rebirth", "text": "If I am Defeated or Slain before I Attack, I Flee and turn into a Phoenix Egg."},
+	"phoenix": {"id": "rebirth", "text": "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck."},
 	"amalgam": {"id": "adaptation", "text": "After any Item you Use, double my remaining HP and ATK."},
-	"fairy": {"id": "fairy_dust", "text": "I Heal you and my Neighbors for 2 HP."},
+	"fairy": {"id": "fairy_bottle", "text": "If I am Defeated without losing HP, gain a Fairy in a Bottle."},
 	"eel": {"id": "conductive", "text": "When facing me, I take Attack damage equal to Block you gain."},
 	"druid": {"id": "cultivator", "text": "If I Attack, I Heal you for double the HP I cause you to lose."},
 	"shambling_mound": {"id": "self_deconstruct", "text": "I Attack repeatedly until I die. I lose 1 HP each time I Attack."},
@@ -235,13 +237,13 @@ const MONSTER_CALL := {
 	"hornet_swarm": "Twice",
 	"lich": "Soul Tithe",
 	"ogre": "Your Measure",
-	"berserker": "Outburst",
+	"berserker": "Hot and Cold",
 	"dire_wolf": "Kill Shot",
 	"bandit": "Cutpurse",
 	"two_headed_serpent": "Guarded by Monsters",
 	"slime_boss": "One Flesh",
 	"leech_league": "Lowest HP",
-	"wraith": "Borrowed Edge",
+	"wraith": "Lifelink",
 	"mimic": "False Gift",
 	"spider_queen": "Egg Layer",
 	"commander": "War Cry",
@@ -264,7 +266,7 @@ const MONSTER_CALL := {
 	"phoenix_egg": "Hatch",
 	"phoenix": "Rebirth",
 	"amalgam": "Adaptation",
-	"fairy": "Fairy Dust",
+	"fairy": "",
 	"eel": "Conductive",
 	"druid": "Cultivator",
 	"shambling_mound": "Self Deconstruct",
@@ -287,13 +289,13 @@ const MONSTER_REMINDER := {
 	"hornet_swarm": "attacks twice",
 	"lich": "neighbors +1 HP",
 	"ogre": "HP is yours",
-	"berserker": "50% +4 Attack when Spun",
+	"berserker": "50% +4 Attack, otherwise lose 3 Attack",
 	"dire_wolf": "Attack always equals your HP",
 	"bandit": "attack is items",
 	"two_headed_serpent": "Neighbors attack, then Heal 3",
 	"slime_boss": "attack equals HP",
 	"leech_league": "Lowest HP Monster +1 until tied with another",
-	"wraith": "copies neighbor attack",
+	"wraith": "Defeated: set your HP to my most recent HP",
 	"mimic": "item if I never swing",
 	"spider_queen": "Egg on Spin. Spinning me eats eggs for +2 HP +2 Attack each.",
 	"commander": "neighbors +2 attack",
@@ -305,7 +307,7 @@ const MONSTER_REMINDER := {
 	"kobold_trapper": "extra swing per item used",
 	"clockwork_knight": "if I live, two Tier 2 owners",
 	"basilisk": "first Spin: Flee, petrify 2nd, 4th, … for 3",
-	"zombie": "items discard on use",
+	"zombie": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 	"hollow": "even Attack or Block twice",
 	"beggar": "leftmost Attack, or 3",
 	"wick": "-2 HP per Neighbor Defeated.",
@@ -314,9 +316,9 @@ const MONSTER_REMINDER := {
 	"three_seeker": "3, 6, or 9 items: Always Spin me next",
 	"triclops": "3 HP: Defeated. Else Defeat: −2 HP and Flee",
 	"phoenix_egg": "Defeated: Flee, become Phoenix",
-	"phoenix": "Defeated or Slain before Attack: Flee, become Egg",
+	"phoenix": "Defeated before I Attack: add a Phoenix Egg to the Dungeon Deck",
 	"amalgam": "Each Use: remaining HP and ATK ×2",
-	"fairy": "On Spin: Heal you and Neighbors 2",
+	"fairy": "Defeated without losing HP: gain a Fairy in a Bottle",
 	"eel": "Facing: takes Attack = Block you Gain",
 	"druid": "Attack: Heal you 2× HP lost, after death check",
 	"shambling_mound": "Attacks until it dies; loses 1 HP per Attack",
@@ -339,13 +341,13 @@ const MONSTER_SPEECH := {
 	"hornet_swarm": "I attack twice. Your block is spent on each swing.",
 	"lich": "I give my neighbors +1 HP.",
 	"ogre": "My HP is your HP.",
-	"berserker": "When Spun, I have a 50% chance to gain +4 Atk",
+	"berserker": "When Spun, 50%: gain +4 Attack. Otherwise: lose 3 Attack.",
 	"dire_wolf": "My Attack always equals your HP.",
 	"bandit": "I Gain +1 Atk for each Item you hold.",
 	"two_headed_serpent": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.",
 	"slime_boss": "My attack always equals my HP.",
 	"leech_league": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
-	"wraith": "I copy the higher neighbor's attack.",
+	"wraith": "When I am Defeated, set your HP to my most recent HP.",
 	"mimic": "If I go down before I attack, you gain an item.",
 	"spider_queen": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
 	"commander": "I give my neighbors +2 attack.",
@@ -357,7 +359,7 @@ const MONSTER_SPEECH := {
 	"kobold_trapper": "I attack an extra time for each item you use this fight.",
 	"clockwork_knight": "If I live, I leave two random Tier 2 monsters in my place.",
 	"basilisk": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
-	"zombie": "I discard all items you use immediately while you face me.",
+	"zombie": "When you Spin me, I Decay two of your Items.",
 	"hollow": "Even Attack and even Block happen twice against me.",
 	"beggar": "My Attack copies the Attack number on your leftmost Attack item. If you have none, my Attack is 3.",
 	"wick": "I Lose 2 HP each time a Neighbor is Defeated",
@@ -365,9 +367,9 @@ const MONSTER_SPEECH := {
 	"three_seeker": "If you have 3, 6, or 9 Items, you Always Spin me next",
 	"triclops": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
 	"phoenix_egg": "When I am Defeated, I Flee and hatch into a Phoenix.",
-	"phoenix": "If I am Defeated or Slain before I Attack, I Flee and turn into a Phoenix Egg.",
+	"phoenix": "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck.",
 	"amalgam": "After any Item you Use, double my remaining HP and ATK.",
-	"fairy": "I Heal you and my Neighbors for 2 HP.",
+	"fairy": "If I am Defeated without losing HP, gain a Fairy in a Bottle.",
 	"eel": "When facing me, I take Attack damage equal to Block you gain.",
 	"druid": "If I Attack, I Heal you for double the HP I cause you to lose.",
 	"shambling_mound": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
@@ -424,6 +426,7 @@ var _bell_wait: bool = false
 var _toll_death_armed: bool = false
 var skip_swing_this_fight: bool = false
 var keep_blocked_this_fight: bool = false
+var _decay_busy: bool = false
 var _wick_collapsing: bool = false
 var _share_seq: int = 0
 var num_items_at_combat: int = 0
@@ -911,6 +914,7 @@ func _load_textures() -> void:
 		"pack_hp": _tex("res://assets/icons/users.svg"),
 		"leech_lowest": tex_heart,
 		"copy_atk": _tex("res://assets/icons/copy.svg"),
+		"lifelink": _tex("res://assets/icons/heart.svg"),
 		"gift": _tex("res://assets/icons/layers.svg"),
 		"queen_hits": _tex("res://assets/icons/plus.svg"),
 		"buff_atk": _tex("res://assets/icons/trending.svg"),
@@ -923,6 +927,7 @@ func _load_textures() -> void:
 		"item_swings": _tex("res://assets/icons/footprints.svg"),
 		"split_t2": _tex("res://assets/icons/rotate.svg"),
 		"no_keep": _tex("res://assets/icons/ban.svg"),
+		"decay": _tex("res://assets/icons/link.svg"),
 		"even_twice": _tex("res://assets/icons/users.svg"),
 		"zero_toll": _tex("res://assets/icons/skull.svg"),
 		"left_atk": _tex("res://assets/icons/layers.svg"),
@@ -952,6 +957,7 @@ func _load_textures() -> void:
 		"rebirth": _tex("res://assets/icons/sparkles.svg"),
 		"adaptation": _tex("res://assets/icons/rotate.svg"),
 		"fairy_dust": _tex("res://assets/icons/heart.svg"),
+		"fairy_bottle": _tex("res://assets/icons/heart.svg"),
 		"cats_eye": _tex("res://assets/icons/sparkles.svg"),
 		"toxic_skin": _tex("res://assets/icons/droplet.svg"),
 		"rust": _tex("res://assets/icons/ban.svg"),
@@ -4143,6 +4149,9 @@ func _challenge_refill_or_collapse(index: int) -> void:
 func _challenge_after_fight() -> void:
 	var start: int = facing_index
 	if facing_index >= 0 and facing_index < wheel.size() and str(wheel[facing_index].get("kind", "")) == "monster":
+		await _on_owner_defeated(facing_index)
+		if hp <= 0:
+			return
 		await _wick_on_defeated(facing_index)
 		_challenge_vacate(facing_index)
 	for i in range(wheel.size()):
@@ -4151,6 +4160,9 @@ func _challenge_after_fight() -> void:
 			continue
 		if int(s.get("hp", 0)) > 0 and not bool(s.get("crossbowed", false)):
 			continue
+		await _on_owner_defeated(i)
+		if hp <= 0:
+			return
 		await _wick_on_defeated(i)
 		if wheel_view:
 			await wheel_view.play_slay(i)
@@ -4266,7 +4278,7 @@ func _utility_fill(ops_kind: String, family: String) -> Color:
 		return FILL_YELLOW
 	if ops_kind == "hook_swap":
 		return FILL_YELLOW
-	if ops_kind == "heal_kills" or ops_kind == "heal_keep" or ops_kind == "heal_full" or ops_kind == "heal_poison" or ops_kind == "heal_swap_keep":
+	if ops_kind == "heal" or ops_kind == "heal_both_draw" or ops_kind == "heal_kills" or ops_kind == "heal_keep" or ops_kind == "heal_full" or ops_kind == "heal_poison" or ops_kind == "heal_swap_keep":
 		return Color("243a22")
 	if ops_kind == "chaos_reroll":
 		return Color("3a1460")
@@ -5274,28 +5286,8 @@ func _paint_late_auras() -> void:
 
 
 func _apply_wraith_pass() -> void:
-	var n: int = wheel.size()
-	for i in n:
-		if str(wheel[i].get("card_id", "")) != "wraith":
-			continue
-		if _is_silenced(wheel[i]):
-			continue
-		if bool(wheel[i].get("spin_locked", false)):
-			continue
-		var best: int = int(wheel[i].get("atk", 0))
-		var src: int = -1
-		for off in [n - 1, 1]:
-			var j: int = (i + off) % n
-			if str(wheel[j].get("kind", "")) != "monster":
-				continue
-			var their: int = int(wheel[j].get("atk", 0))
-			if bool(wheel[j].get("spin_locked", false)) and wheel[j].has("atk_before_late"):
-				their = int(wheel[j]["atk_before_late"])
-			if their > best:
-				best = their
-				src = j
-		wheel[i]["atk"] = best
-		wheel[i]["copy_from"] = src
+	## SP-26: Raven no longer copies a neighbor's Attack.
+	pass
 
 
 func _mark_vars() -> void:
@@ -5314,12 +5306,11 @@ func _mark_vars() -> void:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
 		var id: String = str(wheel[i].get("card_id", ""))
-		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "wraith" or id == "beggar" or id == "vampire" or cmd_touch.has(i)
+		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "beggar" or id == "vampire" or cmd_touch.has(i)
 		wheel[i]["hp_variable"] = id == "ogre" or id == "skeleton" or id == "leech_league" or id == "wick" or lich_touch.has(i)
 		wheel[i]["cmd_buff"] = cmd_touch.has(i)
 		wheel[i]["lich_buff"] = lich_touch.has(i)
-		if id != "wraith":
-			wheel[i]["copy_from"] = -1
+		wheel[i]["copy_from"] = -1
 
 
 func _on_place_mode() -> void:
@@ -6528,7 +6519,6 @@ func _on_spin() -> void:
 	m["spin_locked"] = true
 	m["polymorphed_this_fight"] = false
 	wheel[facing_index] = m
-	keep_blocked_this_fight = str(m.get("card_id", "")) == "zombie" and not _is_silenced(m)
 	last_mob_hp = int(m.get("hp", 3))
 	phase = "fighting"
 	_walker_busy = true
@@ -6624,6 +6614,8 @@ func _on_spin() -> void:
 		await _apply_leech_on_spin()
 	if phase == "fighting":
 		await _cleric_after_spin()
+	if phase == "fighting":
+		await _zombie_decay_on_spin()
 	if phase == "fighting":
 		await _fairy_after_spin()
 	if phase == "fighting" and _facing_can_act():
@@ -6737,6 +6729,9 @@ func _on_done() -> void:
 func _begin_slay(_killed: bool = true) -> void:
 	if _tut_hold_slay:
 		return
+	await _on_owner_defeated(facing_index)
+	if hp <= 0:
+		return
 	await _flush_poison_sides()
 	await _maybe_bell_defeat_tax()
 	if await _resolve_toll_death():
@@ -6814,6 +6809,9 @@ func _resolve_then_continue(skip_attack: bool) -> void:
 		return
 	_trace_resolve("continue skip=%s" % skip_attack)
 	if skip_attack or (facing_index >= 0 and int(wheel[facing_index].get("hp", 0)) <= 0):
+		await _on_owner_defeated(facing_index)
+		if hp <= 0:
+			return
 		await _maybe_bell_defeat_tax()
 		if await _try_phoenix_cycle(facing_index):
 			return
@@ -7052,7 +7050,10 @@ func _clear_after_fight(clockwork_split: bool = false) -> void:
 		if left_id == "mimic" and not enemy_attacked:
 			_draw_unseen_item()
 			_log("on_remove_slice", "Mimic gift")
-		_remove_facing()
+		if _install_laid_egg(facing_index):
+			facing_index = -1
+		else:
+			_remove_facing()
 	_trace_resolve("clear after remove n=%s" % wheel.size())
 	if clockwork_split and left_id == "clockwork_knight" and not _is_silenced(left_id):
 		await _spawn_clockwork_heirs()
@@ -7127,6 +7128,7 @@ func _remove_facing() -> void:
 
 
 func _discard_spent_items() -> void:
+	_discard_unused_decay()
 	var kept: Array = []
 	var failed_keep: Array = []
 	for it in hotbar:
@@ -7919,6 +7921,18 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("on_item_use", str(it["name"]))
 			await _heal(int(ops.get("heal", 5)))
 			_gain_player_poison(int(ops.get("poison", 2)))
+		"heal":
+			_log("on_item_use", str(it["name"]))
+			await _heal(int(ops.get("n", 2)))
+		"heal_both_draw":
+			_log("on_item_use", str(it["name"]))
+			var both_n: int = int(ops.get("heal", 3))
+			await _heal(both_n)
+			if facing_index >= 0 and facing_index < wheel.size():
+				var ale_face: Dictionary = wheel[facing_index]
+				if str(ale_face.get("kind", "")) == "monster" and int(ale_face.get("hp", 0)) > 0:
+					_heal_monster(facing_index, both_n)
+			_draw_unseen_item()
 		"heal_kills":
 			var flask_n: int = 1 + mobs_defeated
 			_log("on_item_use", str(it["name"]))
@@ -8047,6 +8061,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			silenced[qid] = true
 			if qid == "zombie":
 				keep_blocked_this_fight = false
+				_decay_clear_all()
 			_sync_wheel_stats()
 			_log("on_item_use", str(it["name"]))
 			_log("on_resolve", "silenced %s" % qid)
@@ -8267,7 +8282,218 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			await _begin_slay()
 
 
+func _on_owner_defeated(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var m: Dictionary = wheel[index]
+	if str(m.get("kind", "")) != "monster":
+		return
+	if bool(m.get("defeat_rewards_done", false)):
+		return
+	m["defeat_rewards_done"] = true
+	wheel[index] = m
+	var cid: String = str(m.get("card_id", ""))
+	var quiet: bool = _is_silenced(m)
+	if cid == "phoenix" and P1.phoenix_lays_egg(bool(m.get("has_attacked", false)), quiet):
+		if not bool(m.get("egg_laid", false)):
+			m["egg_laid"] = true
+			wheel[index] = m
+			_lay_phoenix_egg()
+	elif cid == "wraith" and not quiet:
+		await _apply_lifelink(m)
+		if hp <= 0:
+			return
+	elif cid == "fairy" and P1.fairy_grants_bottle(int(m.get("hp", 0)), quiet):
+		_gain_token_item("fairy_in_a_bottle")
+
+
+func _lay_phoenix_egg() -> void:
+	if not monsters_by_id.has("phoenix_egg"):
+		return
+	challenge_deck.push_front("phoenix_egg")
+	if dungeon_deck_ui:
+		dungeon_deck_ui.visible = true
+		dungeon_deck_ui.set_count(challenge_deck.size())
+	_log("on_resolve", "Phoenix Egg on top of the Dungeon Deck")
+
+
+## Mill has no hole fill. Pop the egg we just put on top and seat it here.
+## Challenge and Adventure leave it for the normal draw.
+func _install_laid_egg(index: int) -> bool:
+	if adventure:
+		return false
+	if index < 0 or index >= wheel.size():
+		return false
+	if not bool(wheel[index].get("egg_laid", false)):
+		return false
+	if challenge_deck.is_empty() or _deck_card_id(challenge_deck[0]) != "phoenix_egg":
+		return false
+	challenge_deck.pop_front()
+	if dungeon_deck_ui:
+		dungeon_deck_ui.set_count(challenge_deck.size())
+	var egg: Dictionary = _make_monster("phoenix_egg")
+	egg["slot"] = str(wheel[index].get("slot", ""))
+	wheel[index] = egg
+	_reseat_slots()
+	_log("on_resolve", "Phoenix Egg")
+	return true
+
+
+func _apply_lifelink(m: Dictionary) -> void:
+	var cur: int = int(m.get("hp", 0))
+	var has_pre: bool = m.has("hp_pre_hit")
+	var died: bool = cur <= 0 and has_pre
+	var pre: int = int(m.get("hp_pre_hit", cur))
+	var source: int = P1.lifelink_hp(cur, pre, died)
+	var change: Dictionary = P1.lifelink_change(hp, source, HP_MAX)
+	_log("on_resolve", "Lifelink %s" % source)
+	var kind: String = str(change.get("kind", "none"))
+	if kind == "heal":
+		await _heal(int(change.get("n", 0)))
+	elif kind == "bleed":
+		await _bleed(int(change.get("n", 0)))
+
+
+func _gain_token_item(id: String) -> void:
+	if not items_by_id.has(id):
+		return
+	var it: Dictionary = _make_item(id)
+	if adventure and _hand_full():
+		_challenge_pending_gain = it.duplicate(true)
+		_challenge_loot_wait = true
+		_flash_banner(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."))
+		_refresh()
+		return
+	hotbar.append(it)
+	_sort_hotbar()
+	_log("on_draft", "gain %s" % it.get("name", id))
+	if sfx:
+		sfx.play("open", -10.0)
+	_hotbar_sig = ""
+	_refresh()
+
+
+func _item_has_keep(it: Dictionary) -> bool:
+	var id: String = str(it.get("card_id", ""))
+	if id == "throwing_knife" or id == "iron_chain":
+		return true
+	var kind: String = str(_ops_of(it).get("kind", ""))
+	if kind == "heal_swap_keep":
+		return false
+	if kind.find("keep") >= 0:
+		return true
+	if str(it.get("ability", "")).to_lower().find("keep") >= 0:
+		return true
+	return false
+
+
+func _decay_clear_mark(it: Dictionary) -> void:
+	it["decay_marked"] = false
+	it["decay_partner"] = -1
+	it["decay_solo"] = false
+
+
+func _decay_clear_all() -> void:
+	for it in hotbar:
+		if typeof(it) == TYPE_DICTIONARY:
+			_decay_clear_mark(it)
+
+
+func _discard_unused_decay() -> void:
+	var unused: Array = []
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if bool(it.get("decay_marked", false)) and not bool(it.get("spent", false)):
+			unused.append(int(it.get("uid", -1)))
+	if unused.is_empty():
+		return
+	for it2 in hotbar:
+		if typeof(it2) == TYPE_DICTIONARY and int(it2.get("uid", -1)) in unused:
+			_decay_clear_mark(it2)
+			_log("discard", "Decay %s" % it2.get("name", "?"))
+	_decay_busy = true
+	for uid in unused:
+		_discard_from_hand(int(uid))
+	_decay_busy = false
+
+
+func _decay_claim_use(uid: int) -> bool:
+	var it: Dictionary = _find_item(uid)
+	if it.is_empty() or not bool(it.get("decay_marked", false)):
+		return false
+	var partner: int = int(it.get("decay_partner", -1))
+	_decay_clear_mark(it)
+	it["keep_after"] = true
+	if partner >= 0:
+		var other: Dictionary = _find_item(partner)
+		if not other.is_empty():
+			_decay_clear_mark(other)
+		_decay_busy = true
+		_discard_from_hand(partner)
+		_decay_busy = false
+	return true
+
+
+func _zombie_decay_on_spin() -> void:
+	if facing_index < 0 or facing_index >= wheel.size():
+		return
+	var m: Dictionary = wheel[facing_index]
+	if str(m.get("card_id", "")) != "zombie" or _is_silenced(m) or int(m.get("hp", 0)) <= 0:
+		return
+	var eligible: Array = []
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if bool(it.get("spent", false)) or _item_stoned(it) or _item_has_keep(it):
+			continue
+		eligible.append(int(it.get("uid", -1)))
+	var picked: Array = []
+	if has_meta("qa_decay_uids"):
+		var want: Variant = get_meta("qa_decay_uids")
+		if typeof(want) == TYPE_ARRAY:
+			for raw in want:
+				var uid: int = int(raw)
+				if uid in eligible and picked.size() < 2 and not picked.has(uid):
+					picked.append(uid)
+	else:
+		var bag: Array = eligible.duplicate()
+		for i in range(bag.size() - 1, 0, -1):
+			var j: int = rng.randi_range(0, i)
+			var tmp: int = int(bag[i])
+			bag[i] = bag[j]
+			bag[j] = tmp
+		var n_pick: int = mini(2, bag.size())
+		for k in n_pick:
+			picked.append(int(bag[k]))
+	if picked.is_empty():
+		_log("on_spin", "Decay — nothing to link")
+		return
+	if picked.size() == 1:
+		var solo: Dictionary = _find_item(int(picked[0]))
+		if solo.is_empty():
+			return
+		solo["decay_marked"] = true
+		solo["decay_solo"] = true
+		solo["decay_partner"] = -1
+		_log("on_spin", "Decay %s" % solo.get("name", "?"))
+		return
+	var a: Dictionary = _find_item(int(picked[0]))
+	var b: Dictionary = _find_item(int(picked[1]))
+	if a.is_empty() or b.is_empty():
+		return
+	a["decay_marked"] = true
+	a["decay_solo"] = false
+	a["decay_partner"] = int(b.get("uid", -1))
+	b["decay_marked"] = true
+	b["decay_solo"] = false
+	b["decay_partner"] = int(a.get("uid", -1))
+	_log("on_spin", "Decay %s + %s" % [a.get("name", "?"), b.get("name", "?")])
+
+
 func _toss_item(uid: int, keep: bool, slow: bool = false) -> void:
+	if not _decay_busy and _decay_claim_use(uid):
+		keep = true
 	if keep and _keep_blocked_now():
 		keep = false
 	for c in hotbar_box.get_children():
@@ -8465,6 +8691,9 @@ func _find_loaded_bag() -> Dictionary:
 func _bag_remove_facing() -> void:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return
+	await _on_owner_defeated(facing_index)
+	if hp <= 0:
+		return
 	if adventure:
 		var start: int = facing_index
 		_challenge_vacate(facing_index)
@@ -8484,7 +8713,10 @@ func _bag_remove_facing() -> void:
 		if left_id == "mimic" and not enemy_attacked:
 			_draw_unseen_item()
 			_log("on_remove_slice", "Mimic gift")
-		_remove_facing()
+		if _install_laid_egg(facing_index):
+			facing_index = -1
+		else:
+			_remove_facing()
 		_discard_spent_items()
 		_bank_stone_wall()
 		blk = 0
@@ -10237,18 +10469,8 @@ func _eel_take_atk(n: int) -> void:
 
 
 func _fairy_after_spin() -> void:
-	if hp <= 0 or phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
-		return
-	var s: Dictionary = wheel[facing_index]
-	if str(s.get("card_id", "")) != "fairy":
-		return
-	if _is_silenced(s) or int(s.get("hp", 0)) <= 0:
-		return
-	await _announce_slice(facing_index, _hub_hp_pos())
-	await _heal(2)
-	for i in _neighbor_indices():
-		_grant_fairy_hp(i)
-	_refresh()
+	## SP-23: Fairy no longer heals on Spin. The bottle is granted on a clean Defeat.
+	return
 
 
 func _grant_fairy_hp(index: int) -> void:
@@ -10280,9 +10502,8 @@ func _try_phoenix_cycle(index: int) -> bool:
 	var to_id := ""
 	if id == "phoenix_egg":
 		to_id = "phoenix"
-	elif id == "phoenix" and not bool(s.get("has_attacked", false)):
-		to_id = "phoenix_egg"
 	else:
+		## SP-21: Phoenix lays the egg onto the deck in _on_owner_defeated, then leaves normally.
 		return false
 	if not monsters_by_id.has(to_id):
 		return false
@@ -10661,29 +10882,42 @@ func _grant_leech_hp(index: int) -> void:
 
 
 func _step_berserkers() -> void:
-	if facing_index < 0 or facing_index >= wheel.size():
-		return
-	var s: Dictionary = wheel[facing_index]
-	if str(s.get("card_id", "")) != "berserker":
-		return
-	if int(s.get("hp", 0)) <= 0:
-		return
-	if _is_silenced(s):
-		return
-	if rng.randf() >= 0.5:
-		_log("on_spin", "Outburst miss")
-		return
-	s["outburst"] = int(s.get("outburst", 0)) + 4
-	wheel[facing_index] = s
-	_log("var", "Berserker +4 ATK  →  %s" % (_card_base_atk("berserker") + int(s.get("outburst", 0))))
-	if sfx:
-		sfx.play("error_big", -10.0, 0.55)
-		sfx.play("chop", -8.0, 0.55)
-		sfx.play("whoosh", -12.0, 1.4)
-	if combat_stage:
-		_tune_combat_stage()
-		if combat_stage.has_method("play_rage_up"):
-			combat_stage.play_rage_up()
+	var base_n: int = _card_base_atk("berserker")
+	var any := false
+	for i in range(wheel.size()):
+		var s: Dictionary = wheel[i]
+		if str(s.get("card_id", "")) != "berserker":
+			continue
+		if int(s.get("hp", 0)) <= 0 or str(s.get("kind", "")) != "monster":
+			continue
+		if _is_silenced(s):
+			continue
+		var hot := rng.randf() < 0.5
+		if has_meta("qa_berserker_hot"):
+			hot = bool(get_meta("qa_berserker_hot"))
+		var intrinsic: int = base_n + int(s.get("outburst", 0))
+		var nxt: int = P1.next_intrinsic_atk(intrinsic, hot)
+		s["outburst"] = nxt - base_n
+		wheel[i] = s
+		any = true
+		var delta: int = nxt - intrinsic
+		_log("var", "Hot and Cold %s%d  →  %s" % ["+" if delta >= 0 else "−", absi(delta), nxt])
+		if i == facing_index and combat_stage:
+			_tune_combat_stage()
+			if hot and combat_stage.has_method("play_rage_up"):
+				combat_stage.play_rage_up()
+			elif not hot and combat_stage.has_method("play_rage_down"):
+				combat_stage.play_rage_down()
+		elif wheel_view:
+			wheel_view.hit_feedback(i, 0, delta)
+		if sfx:
+			if hot:
+				sfx.play("error_big", -10.0, 0.55)
+				sfx.play("chop", -8.0, 0.55)
+			else:
+				sfx.play("cloth", -10.0, 0.8)
+	if any:
+		_sync_wheel_stats()
 
 
 func _step_hexs() -> bool:
@@ -11506,12 +11740,7 @@ func _item_card_global_by_id(card_id: String) -> Vector2:
 
 
 func _keep_blocked_now() -> bool:
-	if keep_blocked_this_fight:
-		return true
-	if facing_index < 0 or facing_index >= wheel.size():
-		return false
-	var id: String = str(wheel[facing_index].get("card_id", ""))
-	return id == "zombie" and not _is_silenced(id)
+	return keep_blocked_this_fight
 
 
 func _is_silenced(who) -> bool:
@@ -13900,6 +14129,9 @@ func _kill_neighbor(index: int) -> void:
 		return
 	if index == facing_index:
 		return
+	await _on_owner_defeated(index)
+	if hp <= 0:
+		return
 	var pin: int = facing_index
 	var m: Dictionary = wheel[index]
 	if str(m.get("card_id", "")) == "death_bell":
@@ -13927,6 +14159,18 @@ func _kill_neighbor(index: int) -> void:
 		return
 	if wheel_view:
 		await wheel_view.collapse_slice(index, pin)
+	if _install_laid_egg(index):
+		mobs_defeated += 1
+		_sync_wheel_stats()
+		if wheel_view:
+			_stamp_atk_variants()
+			wheel_view.set_slices(wheel, facing_index, "none")
+			await wheel_view.recenter_on(facing_index)
+		_refresh()
+		if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
+			if not _wick_waiting(facing_index):
+				await _maybe_slay_down(facing_index)
+		return
 	_log("on_remove_slice", str(m.get("name", "?")))
 	wheel.remove_at(index)
 	mobs_defeated += 1
@@ -13948,14 +14192,20 @@ func _remove_crossbowed() -> void:
 	var i: int = wheel.size() - 1
 	while i >= 0:
 		if i != facing_index and bool(wheel[i].get("crossbowed", false)) and str(wheel[i].get("kind", "")) == "monster":
+			await _on_owner_defeated(i)
+			if hp <= 0:
+				return
 			if str(wheel[i].get("card_id", "")) == "death_bell":
 				await _maybe_bell_defeat_tax(i)
 			await _wick_on_defeated(i)
-			_log("on_remove_slice", str(wheel[i]["name"]))
-			wheel.remove_at(i)
-			mobs_defeated += 1
-			if i < facing_index:
-				facing_index -= 1
+			if _install_laid_egg(i):
+				mobs_defeated += 1
+			else:
+				_log("on_remove_slice", str(wheel[i]["name"]))
+				wheel.remove_at(i)
+				mobs_defeated += 1
+				if i < facing_index:
+					facing_index -= 1
 		i -= 1
 	_reseat_slots()
 
@@ -14540,6 +14790,18 @@ func _item_view(it: Dictionary) -> Dictionary:
 		"heal_poison":
 			out["kind"] = "HEAL"
 			out["n"] = int(ops.get("heal", 5))
+			out["number"] = str(out["n"])
+			out["note"] = ""
+			out["can_use"] = fighting
+		"heal":
+			out["kind"] = "HEAL"
+			out["n"] = int(ops.get("n", 2))
+			out["number"] = str(out["n"])
+			out["note"] = ""
+			out["can_use"] = fighting
+		"heal_both_draw":
+			out["kind"] = "HEAL"
+			out["n"] = int(ops.get("heal", 3))
 			out["number"] = str(out["n"])
 			out["note"] = ""
 			out["can_use"] = fighting
@@ -15509,7 +15771,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 	var gold := "#E8C36A"
 	var blk_c := "#6BB3D9"
 	var num_c: String = blk_c if kind.begins_with("blk") else atk_c
-	if kind == "heal_kills" or kind == "heal_keep" or kind == "heal_swap_keep" or kind == "heal_full" or kind == "heal_poison" or kind == "napalm" or kind == "blood_pact":
+	if kind == "heal" or kind == "heal_both_draw" or kind == "heal_kills" or kind == "heal_keep" or kind == "heal_swap_keep" or kind == "heal_full" or kind == "heal_poison" or kind == "napalm" or kind == "blood_pact":
 		num_c = hp_c
 	elif kind == "smoke" or kind == "hook_swap":
 		num_c = gold
@@ -15770,6 +16032,12 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["value"] = _value_bb("Toll", str(int(it.get("toll_n", 6))), var_c)
 			out["equation"] = "−1 / Item Use  Die at 0"
 			out["body"] = str(it.get("ability", "Unplayable. On Item Use, decrease this by 1. When this reaches 0, Die."))
+		"heal":
+			out["value"] = _value_bb("Heal", str(live), hp_c)
+			out["body"] = str(it.get("ability", "Heal 2."))
+		"heal_both_draw":
+			out["value"] = _value_bb("Heal", str(live), hp_c)
+			out["body"] = str(it.get("ability", "Heal yourself and the Enemy for 3 HP. Then draw an Item."))
 		"heal_poison":
 			var pois_n: int = int(_ops_of(it).get("poison", 2))
 			out["value"] = _value_bb("Heal", str(live), hp_c)

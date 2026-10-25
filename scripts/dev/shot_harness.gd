@@ -1692,12 +1692,14 @@ func _shot_anim_poison_pop() -> void:
 		"01_ale_burst", "02_ale_hearts", "03_miasma_drip", "04_miasma_one_burst",
 		"05_poison_ff", "06_six_seats", "07_plague_lock",
 	])
-	# Ale Flagon needs fighting. Spin once, drink, Spin again so player poison ticks.
+	# Ale Flagon needs fighting. Spin once, drink, then force Poison so the burst still has a subject.
 	await _anim_ready_seat(["goblin", "skeleton", "bandit", "ogre"], ["ale_flagon", "shield"], 8, 0, 0)
 	await _anim_spin_face(0)
 	var uid: int = _uid_of_item("ale_flagon")
 	if uid >= 0:
 		await main._use_item(uid)
+	# SP-29: Ale Flagon no longer applies Poison. This shot still needs a poison tick.
+	main.player_poison = 2
 	await _wait(0.10)
 	main.set_meta("qa_spin_idx", 1)
 	main._on_spin()
@@ -1742,6 +1744,8 @@ func _shot_anim_poison_pop() -> void:
 	uid = _uid_of_item("ale_flagon")
 	if uid >= 0:
 		await main._use_item(uid)
+	# SP-29: Ale Flagon no longer applies Poison. This shot still needs a poison tick.
+	main.player_poison = 2
 	main.set_meta("qa_force_shift", true)
 	main.set_meta("qa_spin_idx", 1)
 	_log_progress("poison_ff_start time_scale=%s want=%s" % [Engine.time_scale, main.ANIM_TIME_SCALE * 3.0])

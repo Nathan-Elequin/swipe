@@ -2607,15 +2607,15 @@
 			"type": "I"
 		},
 		{
-			"ability": "Heal 5. Gain 2 Poison.",
+			"ability": "Heal yourself and the Enemy for 3 HP. Then draw an Item.",
 			"author_lock": true,
 			"bucket": 4.0,
 			"call_name": "",
 			"card_color": "heal",
 			"count": 1.0,
-			"defined": "Click during a fight. Used up. Heal 5 (cap 6). Gain 2 Poison; amounts add. Droplet with the number sits next to your HP. Next Spin: facing monster’s poison ticks first and clears, then you lose HP equal to your poison and it clears. Block does not stop it. If that Spin already finished the last monster, skip your tick (victory). Healing Potion still saves a 0; poison is already gone. New dungeon wipes leftover poison. Any Spin counts.",
-			"exceptions": "Bucket 6. Same droplet as monster poison.",
-			"explainer": "(HEAL 5) + Gain 2 Poison",
+			"defined": "SP-29 (2026-10-25). Click during a fight. Used up. Heal yourself 3 (cap 6) and Heal the Enemy 3 (cap at their max HP). Then draw one random Item from the current loot pool, the same draw Catapult and Grappling Hook use. No Poison.",
+			"exceptions": "SP-29. Replaces Heal 5 and Poison.",
+			"explainer": "Heal 3 (you and the Enemy), then draw an Item",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -2643,14 +2643,13 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Heal 5, Gain 2 Poison",
+			"log_hint": "Heal 3 each, then draw an Item",
 			"mode_pool": "all",
 			"name": "Ale Flagon",
-			"notes": "Bucket 6. Same droplet as monster poison.",
+			"notes": "SP-29. Shared heal. Draw is a random loot-pool Item. No Poison.",
 			"ops": {
-				"heal": 5.0,
-				"kind": "heal_poison",
-				"poison": 2.0
+				"kind": "heal_both_draw",
+				"heal": 3.0
 			},
 			"poc": false,
 			"priority": 3.0,
@@ -3642,6 +3641,40 @@
 			"status": "live",
 			"tier": 0.0,
 			"type": "I"
+		},
+		{
+			"ability": "Heal 2.",
+			"author_lock": false,
+			"bucket": -1.0,
+			"call_name": "",
+			"card_color": "heal",
+			"count": 0.0,
+			"defined": "SP-23 token. Not drafted. Fairy creates it when Defeated without losing HP. Click during a fight. Heal 2 (cap 6). Used up.",
+			"exceptions": "Token. Not drafted. Fairy creates it. Needs art.",
+			"explainer": "Heal 2",
+			"flags": {
+				"art": false,
+				"dev": true,
+				"hide": true
+			},
+			"id": "fairy_in_a_bottle",
+			"log_hint": "Heal 2",
+			"mode_pool": "all",
+			"name": "Fairy in a Bottle",
+			"notes": "Token. Not drafted. Fairy creates it. Needs art.",
+			"ops": {
+				"kind": "heal",
+				"n": 2.0
+			},
+			"poc": false,
+			"priority": 9.0,
+			"rarity": "uncommon",
+			"reminder": "",
+			"review": "rough",
+			"review_note": "",
+			"status": "live",
+			"tier": 0.0,
+			"type": "I"
 		}
 	],
 	"keywords": {
@@ -3650,6 +3683,7 @@
 		"defeat": "Remove the enemy without that ATK-to-0 path (Da Boot, Sledgehammer, Fangs, Poison Flask).",
 		"eject": "remove them from the dungeon immediately, placing them on the bottom of the Dungeon Deck",
 		"enemy_attacks": "Sheet: always, no exceptions among monsters. Items can prevent the attack by killing/defeating first (not by blocking).",
+		"decay": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 		"flee": "If you are facing them, Spin the wheel at random.",
 		"kill": "Reduce HP to 0 with ATK damage.",
 		"spin": "The wheel lands on a random living monster."
@@ -4098,17 +4132,17 @@
 			"type": "M"
 		},
 		{
-			"ability": "When Spun, I have a 50% chance to gain +4 Atk",
+			"ability": "When Spun, 50%: gain +4 Attack. Otherwise: lose 3 Attack.",
 			"atk": {
-				"base": 3.0
+				"base": 5.0
 			},
 			"author_lock": true,
 			"bucket": 5.0,
-			"call_name": "Outburst",
+			"call_name": "Hot and Cold",
 			"count": 1.0,
-			"defined": "When you Spin this Berserker, 50% chance they permanently gain +4 Attack. Hits stack on later Spins of the same copy. Rage fire plays on a hit. Commander War Cry still adds on top.",
+			"defined": "SP-22 (2026-10-25). Every Spin, each living unsilenced Berserker rolls. 50%: that copy's Attack gains +4. Otherwise it loses 3 Attack. The change stacks. Attack clamps at 0 (further losses do not go negative; the next gain starts from 0). Commander still adds after this. Separate + and − animations.",
 			"exceptions": "",
-			"explainer": "50% +4 Attack when Spun",
+			"explainer": "50% +4 Attack, otherwise lose 3 Attack",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -4139,7 +4173,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Chance to Gain +4 Atk",
+			"log_hint": "Every Spin: 50% +4 Attack, otherwise −3",
 			"mode_pool": "all",
 			"name": "Berserker",
 			"poc": false,
@@ -4151,7 +4185,8 @@
 			"status": "live",
 			"tier": 2.0,
 			"type": "M",
-			"updated": "2022-04-28"
+			"updated": "2022-04-28",
+			"notes": "SP-22. Every Spin. Stacks. Attack clamps at 0."
 		},
 		{
 			"ability": "My Attack always equals your HP.",
@@ -4326,27 +4361,27 @@
 			"when_updated": "On Spin"
 		},
 		{
-			"ability": "I copy the higher ATK of my Neighbors",
+			"ability": "When I am Defeated, set your HP to my most recent HP.",
 			"atk": {
-				"base": 3.0
+				"base": 4.0
 			},
 			"author_lock": true,
 			"bucket": 3.0,
-			"call_name": "Neighbor's Wrath",
+			"call_name": "Lifelink",
 			"contradiction_ids": [
 				"wraith_captain"
 			],
 			"count": 2.0,
-			"defined": "Resolve order: the only function whose order of operations matters. Match higher neighbor ATK (with their complete modifiers), then receive the ATK increase from Captain.",
-			"exceptions": "",
-			"explainer": "copies Neighbor Attack",
+			"defined": "SP-26 (2026-10-25). Display name Raven. Id stays wraith. 2 HP / 4 Attack, tier 2. When I am Defeated, set your HP to my HP just before the defeating event. One killing hit from 2 uses 2. Several hits use the HP before the last hit. A defeat item or blocking then leaving uses the HP I still have. Lower HP is losing HP (Bleed). Higher HP is a heal. Equal does nothing. Cap at 6. Quiet Bell turns this off.",
+			"exceptions": "SP-26. Sprite is still the old wraith picture until Raven art lands.",
+			"explainer": "Defeated: set your HP to my most recent HP",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0
+				"base": 2.0
 			},
 			"id": "wraith",
 			"locked_at": "2026-10-17",
@@ -4369,19 +4404,20 @@
 				"reminder",
 				"card_color"
 			],
-			"log_hint": "Copies higher neighbor Attack",
+			"log_hint": "Defeated: your HP becomes my last HP",
 			"mode_pool": "all",
-			"name": "Wraith",
+			"name": "Raven",
 			"poc": false,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
-			"status": "todo",
+			"status": "live",
 			"tier": 2.0,
 			"type": "M",
-			"updated": "2022-04-24"
+			"updated": "2022-04-24",
+			"notes": "SP-26. Display name Raven. Id stays wraith. No id migration."
 		},
 		{
 			"ability": "If I go down before I Attack, you gain an Item.",
@@ -5859,7 +5895,7 @@
 			"type": "M"
 		},
 		{
-			"ability": "While facing me, you cannot Gain or Keep any Items.",
+			"ability": "When you Spin me, I Decay two of your Items.",
 			"atk": {
 				"base": 4.0
 			},
@@ -5868,9 +5904,9 @@
 			"call_name": "Decay",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "While you fight me, Keep does not work. Every item you use is discarded immediately. Knife nick, Lantern, and Breastplate leave your hand. Quiet Bell strips this.",
-			"exceptions": "Keep after the fight is already over does not apply — the toss happens when you click. Renamed from Basilisk. New zombie art. Decay is the old Famine rule.",
-			"explainer": "Items discard on use",
+			"defined": "SP-25 (2026-10-25). When you Spin me, I Decay up to two random Items that do not already have Keep. Decayed Items are linked. When you use one, Keep it and discard the other. The discarded Item counts as a discard (Recycler and the same discard path as Hired Hand). If only one eligible Item, Decay that one: using it Keeps it, and there is no partner. If a Decayed Item is not used this combat, discard it. Other Items work normally. Quiet Bell turns this off.",
+			"exceptions": "SP-25. Replaces the old no-Keep rule.",
+			"explainer": "Decay two of your Items",
 			"flags": {
 				"art": true,
 				"dev": true
@@ -5900,15 +5936,15 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "You cannot Gain or Keep",
+			"log_hint": "Decay two Items",
 			"mode_pool": "all",
 			"name": "Zombie",
-			"notes": "Keep after the fight is already over does not apply — the toss happens when you click. Renamed from Basilisk. New zombie art. Decay is the old Famine rule.",
+			"notes": "SP-25. Keyword Decay. Unused Decayed Items are discarded.",
 			"ops": {},
 			"poc": false,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "",
+			"reminder": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
@@ -6438,7 +6474,7 @@
 			"type": "M"
 		},
 		{
-			"ability": "If I am Defeated or Slain before I Attack, I Flee and turn into a Phoenix Egg.",
+			"ability": "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck.",
 			"atk": {
 				"base": 6.0
 			},
@@ -6447,9 +6483,9 @@
 			"call_name": "Rebirth",
 			"card_color": "",
 			"count": 0.0,
-			"defined": "Token. If Defeated or Slain before I Attack, Flee (if you are facing me) and this seat becomes Phoenix Egg at 2 HP / 2 ATK. After I Attack, Defeat and Slay are real. Quiet Bell turns this off.",
-			"exceptions": "Token. Not drafted. Phoenix Egg creates it. Needs art.",
-			"explainer": "Defeated or Slain before Attack: Flee, become Egg",
+			"defined": "SP-21 (2026-10-25). If Defeated before I Attack (has_attacked is still false: Attack damage or a defeat item, and also a skip that never lets me Attack), add a Phoenix Egg to the top of the Dungeon Deck. Block-then-I-Attack does not lay an egg. The egg goes on top of the Dungeon Deck. Challenge and Adventure seat it with normal hole fill and loot. The mill does not draw that deck, so the egg is installed into the vacated seat. Phoenix Egg still hatches into a Phoenix. Quiet Bell turns this off.",
+			"exceptions": "Token. Not drafted. Phoenix Egg creates it. SP-21.",
+			"explainer": "Defeated before I Attack: add a Phoenix Egg to the Dungeon Deck",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -6480,10 +6516,10 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Before Attack: Flee, become Egg",
+			"log_hint": "Before Attack: Phoenix Egg on top of the deck",
 			"mode_pool": "all",
 			"name": "Phoenix",
-			"notes": "Token. Not drafted. Phoenix Egg creates it. Needs art.",
+			"notes": "Token. Not drafted. Phoenix Egg creates it. SP-21: egg goes on the deck, not into this seat.",
 			"ops": {},
 			"poc": false,
 			"priority": 3.0,
@@ -6554,18 +6590,18 @@
 			"type": "M"
 		},
 		{
-			"ability": "When you Spin me, I Heal you and my Neighbors for 2 HP.",
+			"ability": "If I am Defeated without losing HP, gain a Fairy in a Bottle.",
 			"atk": {
-				"base": 3.0
+				"base": 4.0
 			},
 			"author_lock": true,
 			"bucket": 3.0,
-			"call_name": "Fairy Dust",
+			"call_name": "",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "On Spin onto me, if I am not silenced, Heal you 2 and Heal each Neighbor 2, then the fight happens. Quiet Bell turns this off.",
-			"exceptions": "Bucket 3. Needs art.",
-			"explainer": "On Spin: Heal you and Neighbors 2",
+			"defined": "SP-23 (2026-10-25). 1 HP / 4 Attack. If I am Defeated while I still have HP (Block, a defeat item, or a skip — not an Attack that drops me to 0), you gain a Fairy in a Bottle. The bottle is a normal use item: Heal 2. It is a token (not drafted). Quiet Bell turns this off.",
+			"exceptions": "Bucket 3. Bottle art still needed.",
+			"explainer": "Defeated without losing HP: gain a Fairy in a Bottle",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -6596,10 +6632,10 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "On Spin: Heal you and Neighbors 2",
+			"log_hint": "Clean Defeat: gain a Fairy in a Bottle",
 			"mode_pool": "all",
 			"name": "Fairy",
-			"notes": "Bucket 3. Needs art.",
+			"notes": "SP-23. No ability name was specified, so the old Fairy Dust call name is cleared.",
 			"ops": {},
 			"poc": false,
 			"priority": 3.0,
@@ -7082,6 +7118,36 @@
 			"chat": "2026-10-05",
 			"id": "double_hit_spends_block",
 			"rule": "Hornet Swarm and Spider Queen resolve two separate swings. Block is spent on the first swing (ATK 2 vs BLK 2 blocks the first and leaves BLK 0; the second swing deals 2)."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "SP-21",
+			"rule": "Phoenix lays a Phoenix Egg onto the top of the Dungeon Deck when Defeated before it Attacks (including Net or Skip; not after it has Attacked, including Block). Challenge and Adventure draw that egg as the next hole fill and offer loot. The mill has no hole fill, so the egg is installed into the vacated seat. Phoenix Egg's hatch ability stays. Author-lock override: phoenix ability, explainer, defined, log_hint, notes."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "SP-22",
+			"rule": "Berserker is 4 HP / 5 Attack. Hot and Cold rolls on every Spin, not only when you land on that copy. +4 Attack or −3 Attack, stacking, clamped at 0. Author-lock override: berserker ability, call_name, explainer, defined, log_hint, notes, atk base."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "SP-23",
+			"rule": "Fairy is 1 HP / 4 Attack. Defeated without losing HP (still has HP) grants Fairy in a Bottle, a normal use item that Heals 2. No new call name was specified; Fairy Dust was cleared. Author-lock override: fairy ability, call_name, explainer, defined, log_hint, notes, atk base."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "SP-25",
+			"rule": "Zombie Decay links up to two Items that do not already have Keep. Using one Keeps it and discards the other immediately. Unused Decayed Items are discarded at the end of the combat. Fewer than two eligible Items: Decay what is there. Keyword name is Decay. Author-lock override: zombie ability, explainer, defined, reminder, log_hint, notes."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "SP-26",
+			"rule": "Wraith displays as Raven and keeps the id wraith. 2 HP / 4 Attack, tier 2. Lifelink sets your HP to Raven's HP just before the defeating event (before the last hit if several hits kill it). Lower is Bleed, higher is a heal, equal does nothing, cap 6. Author-lock override: wraith name, ability, call_name, explainer, defined, log_hint, notes, atk base, hp base."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "SP-29",
+			"rule": "Ale Flagon heals you and the Enemy for 3, then draws one random Item from the current loot pool. No Poison. Author-lock override: ale_flagon ability, explainer, defined, log_hint, notes, ops."
 		}
 	],
 	"source_file": "source/01_Boss_Rush_Content.xlsx",
