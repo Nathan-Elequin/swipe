@@ -17,13 +17,7 @@ const COPY := preload("res://scripts/player_copy.gd")
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const PX := 4.0
 
-var _master: HSlider
-var _music: HSlider
-var _ambience: HSlider
-var _sfx: HSlider
-var _ui_vol: HSlider
-var _lab_ambience: Label
-var _lab_ui: Label
+var _master: VolumeSlider
 var _audio
 var _sfx_ready: bool = false
 var _title
@@ -150,8 +144,8 @@ func setup(audio) -> void:
 		_hook_hover(_btn_dev_back)
 
 	_sl_wrap = VBoxContainer.new()
-	_sl_wrap.position = Vector2(24, 148) * PX
-	_sl_wrap.size = Vector2(152, 28) * PX
+	_sl_wrap.position = Vector2(24, 132) * PX
+	_sl_wrap.size = Vector2(152, 44) * PX
 	_board.add_child(_sl_wrap)
 	_master = _add_slider(_sl_wrap, "Master", COPY.text("pause.master", ""))
 
@@ -265,7 +259,7 @@ func _layout_buttons() -> void:
 		b2.position = Vector2(24.0 if wide else 36.0, y) * PX
 		y += row_h
 	if _sl_wrap and _sl_wrap.visible:
-		_sl_wrap.position = Vector2(24, 148) * PX
+		_sl_wrap.position = Vector2(24, 132) * PX
 
 
 func _set_page(page: String) -> void:
@@ -274,33 +268,14 @@ func _set_page(page: String) -> void:
 	_layout_buttons()
 
 
-func _add_slider(host: VBoxContainer, which: String, label: String) -> HSlider:
-	var wrap := VBoxContainer.new()
-	wrap.add_theme_constant_override("separation", 4)
-	var lab := Label.new()
-	lab.text = label
-	lab.add_theme_font_size_override("font_size", 16)
-	lab.add_theme_color_override("font_color", Color("f0e6d8"))
-	wrap.add_child(lab)
-	var sl := HSlider.new()
-	sl.min_value = 0
-	sl.max_value = 100
-	sl.step = 1
-	sl.custom_minimum_size = Vector2(152.0 * PX, 28)
-	KIT.apply_hslider(sl)
+func _add_slider(host: VBoxContainer, which: String, label: String) -> VolumeSlider:
+	var sl := VolumeSlider.new()
+	sl.setup(which, label)
+	if sl.slider:
+		KIT.apply_hslider(sl.slider)
 	sl.value_changed.connect(_on_slider.bind(which))
-	wrap.add_child(sl)
-	host.add_child(wrap)
+	host.add_child(sl)
 	return sl
-
-
-func _slider_label(sl: HSlider) -> Label:
-	if sl == null or sl.get_parent() == null:
-		return null
-	for c in sl.get_parent().get_children():
-		if c is Label:
-			return c
-	return null
 
 
 func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float = 140) -> Button:
@@ -347,15 +322,7 @@ func open_menu(in_run: bool = true) -> void:
 	if _audio:
 		_sfx_ready = false
 		if _master:
-			_master.value = _audio.master_lin * 100.0
-		if _music:
-			_music.value = _audio.music_lin * 100.0
-		if _ambience:
-			_ambience.value = _audio.ambience_lin * 100.0
-		if _sfx:
-			_sfx.value = _audio.sfx_lin * 100.0
-		if _ui_vol:
-			_ui_vol.value = _audio.ui_lin * 100.0
+			_master.set_linear(_audio.master_lin)
 		_sfx_ready = true
 		if _audio.has_method("on_pause"):
 			_audio.on_pause(true)
@@ -508,6 +475,9 @@ func _on_buckets() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
+	if _master != null and _master.slider != null and _master.slider.has_focus():
+		if event is InputEventKey and event.pressed:
+			return
 	if event.is_action_pressed("ui_cancel"):
 		if _confirm and _confirm.visible:
 			_confirm.visible = false

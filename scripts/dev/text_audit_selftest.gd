@@ -1,8 +1,13 @@
 extends SceneTree
 ## Headless proof for text_audit wrap checks. Does not boot main.gd or touch user://.
 
-func _init() -> void:
-	var audit = load("res://scripts/dev/text_audit.gd").new()
+func _initialize() -> void:
+	var audit_script = load("res://scripts/dev/text_audit.gd")
+	if audit_script == null:
+		push_error("text_audit.gd failed to load")
+		quit(1)
+		return
+	var audit = audit_script.new()
 	var font: Font = ThemeDB.fallback_font
 	var hello_w: float = font.get_string_size("hello", HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
 	var both_w: float = font.get_string_size("hello world", HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
@@ -49,6 +54,17 @@ func _init() -> void:
 	if space_lines < 2:
 		failed = true
 		push_error("space wrap did not break onto two lines")
+	var arrows := load("res://scripts/ui/arrow_glyphs.gd")
+	var empty_font := FontFile.new()
+	var miss: PackedStringArray = arrows.missing_from(empty_font, "Flips 2 ↔ 4 Move →", false)
+	print("GLYPH_MISS count=%s" % miss.size())
+	if miss.size() < 2:
+		failed = true
+		push_error("text_audit did not flag missing arrow glyphs")
+	var bundled: FontFile = arrows.ensure()
+	if bundled == null or not arrows.covers(0x2194):
+		failed = true
+		push_error("bundled arrow font missing ↔")
 	if failed:
 		push_error("text_audit self-test failed")
 		_free_all(audit, cases)

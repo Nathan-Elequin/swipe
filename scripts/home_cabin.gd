@@ -18,6 +18,8 @@ const PX := 4.0
 const ARRIVE_WALK_SPEED := 32.0
 const ARRIVE_INT_SPEED := 51.2
 const ROOM_W := 1680.0
+const ROOM_H := 1040.0
+const VIEW_FRAME := preload("res://scripts/ui/view_frame.gd")
 const ROOM_ORDER: Array[String] = ["main", "hall", "study", "workshop", "loft"]
 const STATION_BEDS := ["cabin", "station_inn", "station_rag", "station_harp"]
 const RUG_SECRET_ID := "poison_flask"
@@ -178,6 +180,8 @@ func setup(p_art = null, p_sfx = null, p_lore: Dictionary = {}, p_layout: Dictio
 	_rng.randomize()
 	_load_save()
 	_build()
+	_apply_view_frame()
+	resized.connect(_apply_view_frame)
 
 
 func note_seen(id: String) -> void:
@@ -339,6 +343,7 @@ func show_menu(room: String = "main") -> void:
 	_ext_root.visible = false
 	_int_root.visible = true
 	_current_room = room if is_room_unlocked(room) else "main"
+	_apply_view_frame()
 	_snap_to(_current_room)
 	_start_interior_loops()
 	_rebuild_shelves()
@@ -689,7 +694,9 @@ func _build() -> void:
 
 	_rooms_clip = Control.new()
 	_rooms_clip.name = "RoomsClip"
-	_rooms_clip.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_rooms_clip.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
+	_rooms_clip.position = Vector2.ZERO
+	_rooms_clip.size = Vector2(ROOM_W, ROOM_H)
 	_rooms_clip.clip_contents = true
 	_rooms_clip.mouse_filter = Control.MOUSE_FILTER_STOP
 	_rooms_clip.visible = false
@@ -2882,12 +2889,30 @@ func _play_station() -> void:
 		sfx.music_cabin()
 
 
+func _apply_view_frame() -> void:
+	if _rooms_clip == null:
+		return
+	var view: Vector2 = size
+	if view.x < 8.0 or view.y < 8.0:
+		view = get_viewport_rect().size
+	var fr: Rect2 = VIEW_FRAME.frame_rect(view)
+	_rooms_clip.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
+	_rooms_clip.position = fr.position
+	_rooms_clip.size = fr.size
+	_rooms_clip.clip_contents = true
+	if _rooms_host:
+		_rooms_host.size = Vector2(ROOM_W * 5.0, ROOM_H)
+	_snap_to(_current_room)
+
+
 func _snap_to(room: String) -> void:
 	_current_room = room
 	var i: int = ROOM_ORDER.find(room)
 	if i < 0:
 		i = 0
-	_rooms_host.position.x = -float(i) * ROOM_W
+	if _rooms_host:
+		_rooms_host.position.x = -float(i) * ROOM_W
+		_rooms_host.position.y = 0
 	var r = _rooms.get(room)
 	if r and r.has_method("ensure_bg"):
 		r.ensure_bg()

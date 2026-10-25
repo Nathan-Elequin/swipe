@@ -1007,6 +1007,83 @@ func _restore_all() -> void:
 	main._refresh()
 
 
+func _shot_wide_monitors() -> void:
+	status = "wide-monitors"
+	var sizes: Array[Vector2i] = [
+		Vector2i(1280, 800),
+		Vector2i(1920, 1080),
+		Vector2i(2560, 1080),
+		Vector2i(3440, 1440),
+	]
+	var prev: Vector2i = DisplayServer.window_get_size()
+	for sz in sizes:
+		await _set_shot_size(sz)
+		var cabin = main.home_cabin
+		if cabin == null:
+			_skip("wide_%dx%d_cabin.png" % [sz.x, sz.y], "home_cabin missing")
+		else:
+			_hide_chrome(false)
+			cabin.intro_seen = true
+			cabin.nib_first_done = true
+			cabin.tutorial_done = true
+			cabin.visible = true
+			cabin.show_menu("main")
+			if cabin.has_method("_apply_view_frame"):
+				cabin._apply_view_frame()
+			await _wait(0.2)
+			await _capture_native("wide_%dx%d_cabin.png" % [sz.x, sz.y], "cabin framed at %dx%d" % [sz.x, sz.y])
+		_stow_cabin()
+		_prep_play("fighting")
+		_seat_ids(["goblin", "skeleton", "bandit", "hornet_swarm"])
+		_hand_ids(["throwing_knife", "shield"])
+		main.facing_index = 0
+		main.hp = 5
+		main.blk = 2
+		main._refresh()
+		main._layout_play_field()
+		if main.home_cabin:
+			main.home_cabin.visible = false
+		await _wait(0.25)
+		await _capture_native("wide_%dx%d_combat.png" % [sz.x, sz.y], "combat framed at %dx%d" % [sz.x, sz.y])
+	await _set_shot_size(prev if prev.x > 0 else Vector2i(W, H))
+
+
+func _set_shot_size(sz: Vector2i) -> void:
+	if sz.x < 8 or sz.y < 8:
+		return
+	DisplayServer.window_set_size(sz)
+	var vp: Viewport = main.get_viewport() if main else get_viewport()
+	if vp:
+		vp.size = sz
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+
+
+func _capture_native(filename: String, how: String) -> void:
+	if not _wants_file(filename):
+		return
+	TEXT_RESERVE.settle(main)
+	if main.text_audit:
+		main.text_audit.visible = false
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	var tex: ViewportTexture = main.get_viewport().get_texture()
+	if tex == null:
+		_skip(filename, "viewport texture missing")
+		return
+	var img: Image = tex.get_image()
+	if img == null or img.is_empty():
+		_skip(filename, "viewport image empty")
+		return
+	var abs_path: String = ProjectSettings.globalize_path(out_dir).path_join(filename)
+	var err: Error = img.save_png(abs_path)
+	if err != OK:
+		_skip(filename, "save_png failed (%s)" % err)
+		return
+	notes.append({"file": filename, "status": "ok", "how": how, "px": [img.get_width(), img.get_height()]})
+	_audit_shot(filename)
+
+
 func _capture(filename: String, how: String, layout_id: String = "") -> void:
 	if not _wants_file(filename):
 		return
@@ -1329,6 +1406,12 @@ func _ensure_registry() -> void:
 		"01_four", "02_full8", "02b_full6", "02c_n4", "02d_n5", "02e_n7",
 		"03_hover", "04_breathe_a", "05_breathe_b", "06_facing", "07_threads", "08_reveal",
 	], _shot_anim_wheel_monsters)
+	_bind_many([
+		"wide_1280x800_cabin", "wide_1280x800_combat",
+		"wide_1920x1080_cabin", "wide_1920x1080_combat",
+		"wide_2560x1080_cabin", "wide_2560x1080_combat",
+		"wide_3440x1440_cabin", "wide_3440x1440_combat",
+	], _shot_wide_monitors)
 
 
 func _bind_many(stems: Array, fn: Callable) -> void:

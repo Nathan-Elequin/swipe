@@ -24,6 +24,7 @@ var cabin
 var _hit: Control
 var _pressing: bool = false
 var _hovering: bool = false
+var _pulse: Tween
 
 
 func setup(entry: Dictionary, p_cabin, p_tag: String) -> void:
@@ -62,6 +63,16 @@ func setup(entry: Dictionary, p_cabin, p_tag: String) -> void:
 	_hit.mouse_entered.connect(_on_enter)
 	_hit.mouse_exited.connect(_on_exit)
 	_hit.gui_input.connect(_on_gui)
+
+
+func start_idle_pulse() -> void:
+	if _pulse != null:
+		_pulse.kill()
+	_pulse = create_tween()
+	_pulse.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	_pulse.set_loops()
+	_pulse.tween_property(self, "modulate", Color(1.15, 1.08, 0.88, 1.0), 0.7)
+	_pulse.tween_property(self, "modulate", Color.WHITE, 0.7)
 
 
 func _place_idle() -> void:

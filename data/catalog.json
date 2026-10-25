@@ -7039,6 +7039,21 @@
 	},
 	"rulings": [
 		{
+			"chat": "2026-10-25",
+			"id": "SP-02",
+			"rule": "Web music must keep playing for the current bed. First gesture, focus, visibility, device change, stream finished, and a 0.45s silence watchdog all resume the AudioContext and restart that bed. Pause Master is the umbrella bus; keyboard steps are 5, page steps are 10. Cabin radio stays the per-bus control. No card text change."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "SP-04",
+			"rule": "Gameplay arrows ← → ↔ are bundled glyphs. Catalog and board copy stay locked as Nathan saved them. The text audit flags a missing_glyph when the font stack cannot draw those characters."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "SP-05",
+			"rule": "Cabin rooms clip to the designed 1680×1040 frame, centered, so a wide window does not show the next room. Combat mirrors Sprout around the live viewport width and clamps both actors on screen. Shot sizes: 1280×800, 1920×1080, 2560×1080, 3440×1440."
+		},
+		{
 			"chat": "2026-10-04",
 			"id": "blk_floor",
 			"rule": "When resolving enemy ATK vs BLK, leftover damage floors at 0. Sheet does not say. POC uses max(0, enemy_atk - blk)."

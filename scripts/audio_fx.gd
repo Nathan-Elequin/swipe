@@ -4,7 +4,8 @@ extends Node
 const SAVE_PATH := "user://audio.json"
 const MAP_PATH := "res://data/sfx-map.json"
 const LEGACY_UI_IDS := ["hover", "click", "click2", "select", "question", "error", "switch", "confirm", "confirm_big"]
-const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music"]
+const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp"]
+const AUDIO_LOG_CAP := 80
 
 var music: AudioStreamPlayer
 var master_lin: float = 1.0
@@ -54,11 +55,15 @@ var _deadly_pitch: Dictionary = {}
 var _wheel_ticks: Dictionary = {}
 var _speech_rules: Dictionary = {}
 var _music_cfg: Dictionary = {}
+var audio_log: Array = []
+var _watch_s: float = 0.0
+var _last_logged_playing: bool = false
 
 
 func setup() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_process_input(true)
+	set_process(true)
 	_ensure_layout()
 	_load_map()
 	_load_save()
@@ -66,6 +71,9 @@ func setup() -> void:
 	_bind_legacy()
 	_load_beds()
 	apply_levels()
+	_hook_music_finished()
+	_hook_web_audio()
+	log_audio("setup", "boot")
 
 
 func _ensure_layout() -> void:
@@ -223,10 +231,12 @@ func _build_players() -> void:
 	_sting.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_sting)
 	_music_a = AudioStreamPlayer.new()
+	_music_a.name = "MusicA"
 	_music_a.bus = "Music"
 	_music_a.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_music_a)
 	_music_b = AudioStreamPlayer.new()
+	_music_b.name = "MusicB"
 	_music_b.bus = "Music"
 	_music_b.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_music_b)
@@ -681,9 +691,11 @@ func music_to(bed: StringName, fade_s: float) -> void:
 	if id in ["combat", "title", "deadly", "intro"]:
 		loop_stop(&"amb.radio_static", 0.25)
 	if not _beds.has(id):
+		log_audio("skip", "missing_bed", {"bed": id})
 		return
 	if _current_bed == bed and music != null and music.playing:
 		return
+	log_audio("start", "music_to", {"bed": id, "fade": fade_s})
 	var out_gain: float = 0.0
 	if _current_bed != &"" and _beds.has(String(_current_bed)):
 		var old_spec: Dictionary = _beds[String(_current_bed)]
@@ -827,6 +839,8 @@ func unduck(release: float) -> void:
 
 
 func stop_music() -> void:
+	log_audio("stop", "stop_music")
+	_current_bed = &""
 	for p in [_music_a, _music_b]:
 		if p != null and p.playing:
 			var tw := create_tween()
@@ -945,15 +959,7 @@ func _input(event: InputEvent) -> void:
 	if not press:
 		return
 	_unlocked = true
-	if not OS.has_feature("web"):
-		return
-	if music != null and music.stream != null:
-		var pos: float = music.get_playback_position()
-		music.play(pos)
-	for id in _loop_players.keys():
-		var lp: AudioStreamPlayer = _loop_players[id]
-		if lp.playing and lp.stream != null:
-			lp.play(lp.get_playback_position())
+	resume_intended("first_gesture")
 
 
 func _after_ms(ms: float, cb: Callable) -> void:
@@ -962,6 +968,136 @@ func _after_ms(ms: float, cb: Callable) -> void:
 		return
 	var t: SceneTreeTimer = get_tree().create_timer(ms / 1000.0, true, true, false)
 	t.timeout.connect(cb)
+
+
+func _process(delta: float) -> void:
+	if _current_bed == &"" or music == null:
+		_watch_s = 0.0
+		return
+	if music.playing:
+		if not _last_logged_playing:
+			_last_logged_playing = true
+		_watch_s = 0.0
+		return
+	_watch_s += delta
+	if _watch_s >= 0.45:
+		_watch_s = 0.0
+		_last_logged_playing = false
+		resume_intended("watchdog_silence")
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_IN or what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
+		resume_intended("focus_in")
+	elif what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+		log_audio("focus_out", "os")
+	elif what == NOTIFICATION_APPLICATION_RESUMED:
+		resume_intended("app_resumed")
+	elif what == NOTIFICATION_WM_SIZE_CHANGED:
+		resume_web_context("size_changed")
+
+
+func _hook_music_finished() -> void:
+	for p in [_music_a, _music_b]:
+		if p != null and not p.finished.is_connected(_on_music_finished):
+			p.finished.connect(_on_music_finished.bind(p))
+
+
+func _on_music_finished(player: AudioStreamPlayer) -> void:
+	log_audio("stop", "finished", {"player": player.name if player else ""})
+	if _current_bed == &"" or music != player:
+		return
+	resume_intended("stream_finished")
+
+
+func _hook_web_audio() -> void:
+	if not OS.has_feature("web"):
+		return
+	if not ClassDB.class_exists("JavaScriptBridge"):
+		return
+	JavaScriptBridge.eval("""
+(function(){
+  if (window._swipeAudioHooked) return;
+  window._swipeAudioHooked = true;
+  window._swipeAudioResume = function(){
+    var c = null;
+    try {
+      if (typeof GodotAudio !== 'undefined') {
+        c = GodotAudio.ctx || GodotAudio.context || null;
+      }
+    } catch (e) {}
+    if (!c && window.Godot && window.Godot.audioContext) c = window.Godot.audioContext;
+    if (c && c.state !== 'running' && c.resume) c.resume();
+    return c ? String(c.state) : 'missing';
+  };
+  var resume = function(){ window._swipeAudioResume(); };
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) resume(); });
+  window.addEventListener('focus', resume);
+  window.addEventListener('pageshow', resume);
+  ['pointerdown','keydown','touchstart'].forEach(function(ev){
+    window.addEventListener(ev, resume, true);
+  });
+  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+    navigator.mediaDevices.addEventListener('devicechange', resume);
+  }
+})();
+""", true)
+	log_audio("hook", "web_audiocontext")
+
+
+func resume_web_context(reason: String) -> String:
+	if not OS.has_feature("web"):
+		return "native"
+	if not ClassDB.class_exists("JavaScriptBridge"):
+		return "no_js"
+	var state: String = str(JavaScriptBridge.eval("window._swipeAudioResume ? window._swipeAudioResume() : 'nohook'", true))
+	log_audio("resume_ctx", reason, {"state": state})
+	return state
+
+
+func resume_intended(reason: String) -> void:
+	resume_web_context(reason)
+	if _current_bed == &"" or not _beds.has(String(_current_bed)):
+		return
+	if music != null and music.playing:
+		return
+	var spec: Dictionary = _beds[String(_current_bed)]
+	if music == null:
+		music = _music_a
+	var stream: AudioStream = spec.get("stream", null)
+	if stream == null:
+		return
+	_maybe_loop(stream, str(spec.get("file", "")), true)
+	music.stream = stream
+	music.bus = "Music"
+	music.volume_db = float(spec.get("gain_db", 0.0))
+	var pos: float = 0.0
+	if bool(spec.get("resume", false)):
+		pos = float(_bed_pos.get(String(_current_bed), 0.0))
+	music.play(pos)
+	log_audio("start", reason)
+
+
+func log_audio(op: String, reason: String, extra: Dictionary = {}) -> void:
+	var row: Dictionary = {
+		"t": Time.get_ticks_msec(),
+		"op": op,
+		"reason": reason,
+		"bed": String(_current_bed),
+		"playing": music != null and music.playing,
+	}
+	var mi: int = AudioServer.get_bus_index("Master")
+	var mu: int = AudioServer.get_bus_index("Music")
+	if mi >= 0:
+		row["master_mute"] = AudioServer.is_bus_mute(mi)
+	if mu >= 0:
+		row["music_mute"] = AudioServer.is_bus_mute(mu)
+	for k in extra.keys():
+		row[str(k)] = extra[k]
+	audio_log.append(row)
+	while audio_log.size() > AUDIO_LOG_CAP:
+		audio_log.pop_front()
+	print("[audio] %s reason=%s bed=%s playing=%s" % [op, reason, _current_bed, row["playing"]])
 
 
 func set_master(lin: float) -> void:
