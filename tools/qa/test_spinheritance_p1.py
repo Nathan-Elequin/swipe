@@ -98,16 +98,18 @@ def main() -> int:
     expect(zombie["author_lock"] is True, "zombie lock", fails)
     expect(catalog["keywords"]["decay"] == zombie["reminder"], "decay keyword", fails)
 
-    raven = monsters["wraith"]
-    expect(raven["name"] == "Raven", "raven name", fails)
-    expect(raven["id"] == "wraith", "raven id", fails)
-    expect(raven["ability"] == "When I am Defeated, set your HP to my most recent HP.", "raven ability", fails)
-    expect(raven["call_name"] == "Lifelink", "raven call", fails)
-    expect(raven["atk"]["base"] == 4, "raven atk", fails)
-    expect(raven["hp"]["base"] == 2, "raven hp", fails)
-    expect(raven["status"] == "live", "raven live", fails)
-    expect(raven["author_lock"] is True, "raven lock", fails)
-    expect(board_m["wraith"]["name"] == "Raven", "raven board name", fails)
+    wraith = monsters["wraith"]
+    expect(wraith["name"] == "Wraith", "wraith name", fails)
+    expect(wraith["id"] == "wraith", "wraith id", fails)
+    expect(wraith["ability"] == "When I am Defeated, set your HP to my most recent HP.", "wraith ability", fails)
+    expect(wraith["call_name"] == "Lifelink", "wraith call", fails)
+    expect(wraith["atk"]["base"] == 4, "wraith atk", fails)
+    expect(wraith["hp"]["base"] == 2, "wraith hp", fails)
+    expect(wraith["status"] == "live", "wraith live", fails)
+    expect(wraith["author_lock"] is True, "wraith lock", fails)
+    expect("Raven" not in wraith["defined"] and "Raven" not in wraith["notes"] and "Raven" not in wraith["exceptions"], "wraith card text", fails)
+    expect(board_m["wraith"]["name"] == "Wraith", "wraith board name", fails)
+    expect("Raven" not in board_m["wraith"]["flow"] and "Raven" not in board_m["wraith"]["notes"], "wraith board text", fails)
     expect("wraith" in runtime.get("monsters", []), "wraith stays in runtime", fails)
     expect("phoenix" not in runtime.get("monsters", []), "phoenix token stays out", fails)
 
@@ -126,7 +128,8 @@ def main() -> int:
     expect("every Spin" in rulings["SP-22"]["rule"], "SP-22 every spin", fails)
     expect("Heals 2" in rulings["SP-23"]["rule"], "SP-23 heal 2", fails)
     expect("Unused Decayed Items are discarded" in rulings["SP-25"]["rule"], "SP-25 unused", fails)
-    expect("keeps the id wraith" in rulings["SP-26"]["rule"], "SP-26 id", fails)
+    expect("the id wraith" in rulings["SP-26"]["rule"], "SP-26 id", fails)
+    expect("Raven" not in rulings["SP-26"]["rule"], "SP-26 no rename", fails)
     expect("loot pool" in rulings["SP-29"]["rule"], "SP-29 loot", fails)
 
     expect(next_intrinsic_atk(5, True) == 9, "hot 5", fails)

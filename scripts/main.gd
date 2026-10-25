@@ -5286,7 +5286,7 @@ func _paint_late_auras() -> void:
 
 
 func _apply_wraith_pass() -> void:
-	## SP-26: Raven no longer copies a neighbor's Attack.
+	## SP-26: Wraith no longer copies a neighbor's Attack.
 	pass
 
 

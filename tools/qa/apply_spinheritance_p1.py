@@ -14,7 +14,7 @@ PHOENIX_ABILITY = "If I am Defeated before I Attack, add a Phoenix Egg to the Du
 BERSERKER_ABILITY = "When Spun, 50%: gain +4 Attack. Otherwise: lose 3 Attack."
 FAIRY_ABILITY = "If I am Defeated without losing HP, gain a Fairy in a Bottle."
 ZOMBIE_ABILITY = "When you Spin me, I Decay two of your Items."
-RAVEN_ABILITY = "When I am Defeated, set your HP to my most recent HP."
+WRAITH_ABILITY = "When I am Defeated, set your HP to my most recent HP."
 ALE_ABILITY = "Heal yourself and the Enemy for 3 HP. Then draw an Item."
 BOTTLE_ABILITY = "Heal 2."
 
@@ -45,8 +45,8 @@ ZOMBIE_DEFINED = (
     "If only one eligible Item, Decay that one: using it Keeps it, and there is no partner. "
     "If a Decayed Item is not used this combat, discard it. Other Items work normally. Quiet Bell turns this off."
 )
-RAVEN_DEFINED = (
-    "SP-26 (2026-10-25). Display name Raven. Id stays wraith. 2 HP / 4 Attack, tier 2. "
+WRAITH_DEFINED = (
+    "SP-26 (2026-10-25). Display name stays Wraith. Id stays wraith. 2 HP / 4 Attack, tier 2. "
     "When I am Defeated, set your HP to my HP just before the defeating event. "
     "One killing hit from 2 uses 2. Several hits use the HP before the last hit. "
     "A defeat item or blocking then leaving uses the HP I still have. "
@@ -187,31 +187,31 @@ def main() -> None:
         notes="SP-25. Keyword Decay. Unused Decayed Items are discarded.",
     )
 
-    raven = cat_m["wraith"]
-    set_monster_stats(raven, 4, 2, False)
+    wraith = cat_m["wraith"]
+    set_monster_stats(wraith, 4, 2, False)
     patch_shared(
-        raven,
-        name="Raven",
-        ability=RAVEN_ABILITY,
+        wraith,
+        name="Wraith",
+        ability=WRAITH_ABILITY,
         call_name="Lifelink",
         explainer="Defeated: set your HP to my most recent HP",
-        defined=RAVEN_DEFINED,
+        defined=WRAITH_DEFINED,
         log_hint="Defeated: your HP becomes my last HP",
-        notes="SP-26. Display name Raven. Id stays wraith. No id migration.",
-        exceptions="SP-26. Sprite is still the old wraith picture until Raven art lands.",
+        notes="SP-26. Display name stays Wraith. Id stays wraith. No id migration.",
+        exceptions="SP-26. Sprite stays the existing wraith picture.",
         status="live",
     )
     board_w = board_m["wraith"]
     set_monster_stats(board_w, 4, 2, True)
     patch_shared(
         board_w,
-        name="Raven",
-        ability=RAVEN_ABILITY,
+        name="Wraith",
+        ability=WRAITH_ABILITY,
         call_name="Lifelink",
         explainer="Defeated: set your HP to my most recent HP",
-        flow=RAVEN_DEFINED,
+        flow=WRAITH_DEFINED,
         log_hint="Defeated: your HP becomes my last HP",
-        notes="SP-26. Display name Raven. Id stays wraith. No id migration.",
+        notes="SP-26. Display name stays Wraith. Id stays wraith. No id migration.",
         status="live",
     )
 
@@ -376,10 +376,11 @@ def _rulings() -> list:
             "chat": "2026-10-25",
             "id": "SP-26",
             "rule": (
-                "Wraith displays as Raven and keeps the id wraith. 2 HP / 4 Attack, tier 2. "
-                "Lifelink sets your HP to Raven's HP just before the defeating event (before the last hit if several hits kill it). "
+                "Wraith keeps its display name and the id wraith. 2 HP / 4 Attack, tier 2. "
+                "Lifelink sets your HP to Wraith's HP just before the defeating event (before the last hit if several hits kill it). "
                 "Lower is Bleed, higher is a heal, equal does nothing, cap 6. "
-                "Author-lock override: wraith name, ability, call_name, explainer, defined, log_hint, notes, atk base, hp base."
+                "Author-lock override: wraith ability, call_name, explainer, defined, log_hint, notes, atk base, hp base. "
+                "Display name stays Wraith."
             ),
         },
         {

@@ -4372,8 +4372,8 @@
 				"wraith_captain"
 			],
 			"count": 2.0,
-			"defined": "SP-26 (2026-10-25). Display name Raven. Id stays wraith. 2 HP / 4 Attack, tier 2. When I am Defeated, set your HP to my HP just before the defeating event. One killing hit from 2 uses 2. Several hits use the HP before the last hit. A defeat item or blocking then leaving uses the HP I still have. Lower HP is losing HP (Bleed). Higher HP is a heal. Equal does nothing. Cap at 6. Quiet Bell turns this off.",
-			"exceptions": "SP-26. Sprite is still the old wraith picture until Raven art lands.",
+			"defined": "SP-26 (2026-10-25). Display name stays Wraith. Id stays wraith. 2 HP / 4 Attack, tier 2. When I am Defeated, set your HP to my HP just before the defeating event. One killing hit from 2 uses 2. Several hits use the HP before the last hit. A defeat item or blocking then leaving uses the HP I still have. Lower HP is losing HP (Bleed). Higher HP is a heal. Equal does nothing. Cap at 6. Quiet Bell turns this off.",
+			"exceptions": "SP-26. Sprite stays the existing wraith picture.",
 			"explainer": "Defeated: set your HP to my most recent HP",
 			"flags": {
 				"art": true,
@@ -4406,7 +4406,7 @@
 			],
 			"log_hint": "Defeated: your HP becomes my last HP",
 			"mode_pool": "all",
-			"name": "Raven",
+			"name": "Wraith",
 			"poc": false,
 			"priority": 3.0,
 			"rarity": "uncommon",
@@ -4417,7 +4417,7 @@
 			"tier": 2.0,
 			"type": "M",
 			"updated": "2022-04-24",
-			"notes": "SP-26. Display name Raven. Id stays wraith. No id migration."
+			"notes": "SP-26. Display name stays Wraith. Id stays wraith. No id migration."
 		},
 		{
 			"ability": "If I go down before I Attack, you gain an Item.",
@@ -7142,7 +7142,7 @@
 		{
 			"chat": "2026-10-25",
 			"id": "SP-26",
-			"rule": "Wraith displays as Raven and keeps the id wraith. 2 HP / 4 Attack, tier 2. Lifelink sets your HP to Raven's HP just before the defeating event (before the last hit if several hits kill it). Lower is Bleed, higher is a heal, equal does nothing, cap 6. Author-lock override: wraith name, ability, call_name, explainer, defined, log_hint, notes, atk base, hp base."
+			"rule": "Wraith keeps its display name and the id wraith. 2 HP / 4 Attack, tier 2. Lifelink sets your HP to Wraith's HP just before the defeating event (before the last hit if several hits kill it). Lower is Bleed, higher is a heal, equal does nothing, cap 6. Author-lock override: wraith ability, call_name, explainer, defined, log_hint, notes, atk base, hp base. Display name stays Wraith."
 		},
 		{
 			"chat": "2026-10-25",
