@@ -152,6 +152,7 @@ var _chrome_hover: int = -1
 var ability_suppressed: bool = false
 
 var _spin_tween: Tween
+var _recenter_tween: Tween
 var _tick_seg: int = -1
 var _tick_last_rot: float = 0.0
 var _peak_omega: float = 0.0
@@ -1014,13 +1015,17 @@ func recenter_on(index: int, dur: float = 0.28) -> void:
 	if absf(delta) < 0.01:
 		rot = fposmod(target, TAU)
 		return
+	_kill_recenter()
 	busy = true
-	var tw := create_tween()
-	tw.set_trans(Tween.TRANS_CUBIC)
-	tw.set_ease(Tween.EASE_OUT)
-	tw.tween_property(self, "rot", rot + delta, dur)
-	await tw.finished
-	rot = fposmod(rot, TAU)
+	_recenter_tween = create_tween()
+	_recenter_tween.set_trans(Tween.TRANS_CUBIC)
+	_recenter_tween.set_ease(Tween.EASE_OUT)
+	_recenter_tween.tween_property(self, "rot", rot + delta, dur)
+	while _recenter_tween != null and _recenter_tween.is_valid() and _recenter_tween.is_running():
+		await get_tree().process_frame
+	if _recenter_tween != null and _recenter_tween.is_valid():
+		rot = fposmod(rot, TAU)
+	_recenter_tween = null
 	busy = false
 	queue_redraw()
 
@@ -1063,11 +1068,19 @@ func spin_to(index: int) -> void:
 	queue_redraw()
 
 
+func _kill_recenter() -> void:
+	if _recenter_tween != null:
+		_recenter_tween.kill()
+		_recenter_tween = null
+	busy = false
+
+
 func kill_spin() -> void:
 	if _spin_tween != null:
 		_spin_tween.kill()
 		_spin_tween = null
 	spinning = false
+	_kill_recenter()
 
 
 func _n() -> int:

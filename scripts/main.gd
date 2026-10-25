@@ -69,6 +69,7 @@ const PLAYTEST_HUB := preload("res://scripts/playtest_hub.gd")
 const PLAYTEST_FEEDBACK := preload("res://scripts/playtest_feedback.gd")
 const PLAYTEST_TIER := preload("res://scripts/playtest_tier_list.gd")
 const PLAYTEST_INBOX := preload("res://scripts/playtest_inbox.gd")
+const SESSION_LOG := preload("res://scripts/session_log.gd")
 const PLAYTEST_INTRO := preload("res://scripts/playtest_intro.gd")
 const TITLE_TEASER := preload("res://scripts/title_teaser.gd")
 const PLAYTEST_META_PATH := "user://playtest_meta.json"
@@ -419,6 +420,7 @@ var _stone_saved: int = 0
 var _stone_armed: bool = false
 var last_item_copy: Dictionary = {}
 var silenced: Dictionary = {}
+var session_log = SESSION_LOG.new()
 var pending_feed: Dictionary = {}
 var _bell_wait: bool = false
 var _toll_death_armed: bool = false
@@ -708,13 +710,16 @@ func _ready() -> void:
 	phase = "title"
 	_load_playtest_preset()
 	var covering_ids := _covering_cli_ids()
-	if PLAYTEST_FLAG.on() and not SHOT_CLI.enabled(OS.get_cmdline_user_args()) and covering_ids == "":
+	var scenario_ids := _scenarios_cli_ids()
+	if PLAYTEST_FLAG.on() and not SHOT_CLI.enabled(OS.get_cmdline_user_args()) and covering_ids == "" and scenario_ids == "":
 		_playtest_boot = true
 	_refresh()
 	if sfx and (home_cabin == null or not home_cabin.visible):
 		sfx.start_music()
 	if covering_ids != "" and logic_qa != null:
 		call_deferred("_kick_covering", covering_ids)
+	elif scenario_ids != "" and logic_qa != null:
+		call_deferred("_kick_scenarios", scenario_ids)
 	elif SHOT_CLI.enabled(OS.get_cmdline_user_args()) and shot_harness:
 		call_deferred("_kick_shots")
 	elif PLAYTEST_FLAG.on():
@@ -727,6 +732,32 @@ func _covering_cli_ids() -> String:
 		if text.begins_with("--covering="):
 			return text.substr(11).strip_edges()
 	return ""
+
+
+func _scenarios_cli_ids() -> String:
+	for arg in OS.get_cmdline_user_args():
+		var text := str(arg)
+		if text == "--scenarios":
+			return "*"
+		if text.begins_with("--scenarios="):
+			var raw := text.substr(12).strip_edges()
+			return "*" if raw == "" else raw
+	return ""
+
+
+func _kick_scenarios(ids: String) -> void:
+	if logic_qa == null:
+		get_tree().quit(2)
+		return
+	var started: String = logic_qa.run_scenarios("" if ids == "*" else ids)
+	print("SCENARIOS: ", started)
+	if not started.begins_with("started"):
+		get_tree().quit(2)
+		return
+	while logic_qa != null and bool(logic_qa.busy):
+		await get_tree().process_frame
+	print("SCENARIOS: ", logic_qa.dump_json() if logic_qa else "{}")
+	get_tree().quit(0 if logic_qa != null and str(logic_qa.last_error) == "" else 1)
 
 
 func _kick_covering(ids: String) -> void:
@@ -759,7 +790,7 @@ func _tex(path: String) -> Texture2D:
 
 
 func _authoring() -> bool:
-	return DevFlag.on() or SHOT_CLI.enabled(OS.get_cmdline_user_args()) or _covering_cli_ids() != ""
+	return DevFlag.on() or SHOT_CLI.enabled(OS.get_cmdline_user_args()) or _covering_cli_ids() != "" or _scenarios_cli_ids() != ""
 
 
 func _prefer_pixel_art() -> void:
@@ -1409,6 +1440,9 @@ func _build_ui() -> void:
 	sfx = AUDIO_FX.new()
 	add_child(sfx)
 	sfx.setup()
+	if sfx.has_method("set_session_log"):
+		sfx.set_session_log(session_log)
+	_session("scene", "boot")
 	settings_ui = SETTINGS_MENU.new()
 	add_child(settings_ui)
 	settings_ui.setup(sfx)
@@ -2192,6 +2226,7 @@ func _begin_run() -> void:
 
 
 func _begin_adventure() -> void:
+	_session("scene", "adventure")
 	await _begin_six_seat_run(false)
 
 
@@ -3983,7 +4018,10 @@ func _ensure_face_at_six() -> void:
 		return
 	wheel_view.facing_index = facing_index
 	wheel_view.selected_index = -1
+	var token: int = _undo_gen
 	await wheel_view.recenter_on(facing_index)
+	if _undo_stale(token):
+		return
 	wheel_view.snap_to_index(facing_index)
 	_stamp_atk_variants()
 	wheel_view.set_slices(wheel, facing_index, "none")
@@ -3997,6 +4035,7 @@ func _flush_midfight_holes() -> void:
 	if _hold_holes > 0 or _flushing_holes:
 		return
 	_flushing_holes = true
+	var token: int = _undo_gen
 	var spin_after: bool = _spin_after_holes
 	_spin_after_holes = false
 	var keep_uid: int = -1
@@ -4008,6 +4047,10 @@ func _flush_midfight_holes() -> void:
 	_sync_buttons()
 	if adventure and _has_challenge_holes():
 		await _challenge_resolve_holes(0)
+	if _undo_stale(token):
+		_flushing_holes = false
+		_walker_busy = false
+		return
 	if keep_uid >= 0 and phase == "fighting":
 		var back: int = _index_of_seat(keep_uid)
 		if back >= 0:
@@ -4015,6 +4058,10 @@ func _flush_midfight_holes() -> void:
 			await _ensure_face_at_six()
 	elif phase == "fighting":
 		await _ensure_face_at_six()
+	if _undo_stale(token):
+		_flushing_holes = false
+		_walker_busy = false
+		return
 	_flushing_holes = false
 	_refresh()
 	if spin_after and phase == "ready" and facing_index < 0:
@@ -5129,6 +5176,8 @@ func _atk_is_always(who) -> bool:
 
 
 func _refresh_live_atk(s: Dictionary) -> void:
+	if _is_silenced(s):
+		return
 	var id: String = str(s.get("card_id", ""))
 	match id:
 		"beggar":
@@ -5637,6 +5686,7 @@ func _build_playtest() -> void:
 
 
 func _open_playtest_hub() -> void:
+	_session("scene", "hub")
 	if playtest_hub == null:
 		return
 	_playtest_boot = false
@@ -5873,6 +5923,8 @@ func _playtest_payload(extra: Dictionary) -> Dictionary:
 		"when": Time.get_datetime_string_from_system(true, true),
 		"build": "%s %s" % [OS.get_name(), Engine.get_architecture_name()],
 	}
+	if session_log:
+		out["session_log"] = session_log.dump()
 	for k in extra.keys():
 		out[k] = extra[k]
 	return out
@@ -6399,6 +6451,7 @@ func _reseat_slots() -> void:
 
 func _on_spin() -> void:
 	_trace_resolve("spin start phase=%s" % phase)
+	_session("spin", "spin")
 	if phase != "ready":
 		return
 	if in_tutorial and (tut == null or (tut.wait != "spin" and tut.wait != "auto_spin" and tut.wait != "face")):
@@ -7041,6 +7094,7 @@ func _clear_after_fight(clockwork_split: bool = false) -> void:
 		return
 	var m: Dictionary = wheel[facing_index]
 	var left_id: String = str(m.get("card_id", ""))
+	var left_silenced: bool = _is_silenced(m)
 	_trace_resolve("clear start left=%s n=%s" % [left_id, wheel.size()])
 	if _tutorial_keeps_seat():
 		await _tutorial_replace_with_deck(facing_index, "bandit")
@@ -7054,7 +7108,7 @@ func _clear_after_fight(clockwork_split: bool = false) -> void:
 			_log("on_remove_slice", "Mimic gift")
 		_remove_facing()
 	_trace_resolve("clear after remove n=%s" % wheel.size())
-	if clockwork_split and left_id == "clockwork_knight" and not _is_silenced(left_id):
+	if clockwork_split and left_id == "clockwork_knight" and not left_silenced:
 		await _spawn_clockwork_heirs()
 		_trace_resolve("clear after heirs n=%s" % wheel.size())
 	_discard_spent_items()
@@ -7330,12 +7384,16 @@ func _undo_finish_item() -> void:
 func _undo_kill_motion() -> void:
 	_walker_busy = false
 	_adventure_busy = false
+	_move_busy = false
+	_flushing_holes = false
 	if wheel_view != null:
 		if wheel_view.has_method("kill_spin"):
 			wheel_view.kill_spin()
 		wheel_view.busy = false
 	if combat_stage != null:
 		combat_stage.busy = false
+	if ability_slash != null and ability_slash.has_method("abort_all"):
+		ability_slash.abort_all()
 	if _courier:
 		_courier.visible = false
 		_clear_courier_gear()
@@ -7474,6 +7532,7 @@ func _on_undo() -> void:
 	if in_tutorial or _undo_busy:
 		return
 	_undo_busy = true
+	_session("undo", "Undo")
 	if _undo_inflight:
 		if _undo_live.is_empty():
 			_undo_abort()
@@ -7504,6 +7563,7 @@ func _on_redo() -> void:
 			sfx.play("error", -12.0, 1.2)
 		return
 	_undo_busy = true
+	_session("undo", "Redo")
 	_log("on_click", "Redo")
 	if not _undo_live.is_empty():
 		_undo_stack.append(_undo_live)
@@ -7579,7 +7639,7 @@ func _use_item(uid: int) -> void:
 		_log("on_item_use", "no effect")
 		if facing_index >= 0 and facing_index < wheel.size():
 			var hid: String = str(wheel[facing_index].get("card_id", ""))
-			if hid == "harpy" and not _is_silenced(hid):
+			if hid == "harpy" and facing_index >= 0 and facing_index < wheel.size() and not _is_silenced(wheel[facing_index]):
 				await _harpy_poke()
 		if _undo_stale(dummy_token):
 			return
@@ -7730,9 +7790,9 @@ func _choose_option(opt: Dictionary) -> void:
 
 func _ops_of(it: Dictionary) -> Dictionary:
 	if str(it.get("card_id", "")) == "echo_bell":
-		var copy: Variant = it.get("echo_copy", last_item_copy)
-		if typeof(copy) == TYPE_DICTIONARY and not (copy as Dictionary).is_empty():
-			var cops: Variant = (copy as Dictionary).get("ops", {})
+		var copy: Dictionary = _echo_face(it)
+		if not copy.is_empty():
+			var cops: Variant = copy.get("ops", {})
 			if typeof(cops) == TYPE_DICTIONARY and not (cops as Dictionary).is_empty():
 				return (cops as Dictionary).duplicate(true)
 	var ops: Dictionary = it.get("ops", {})
@@ -8039,12 +8099,13 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("blk", "+%s  →  %s" % [last_blk_gain, blk])
 		"quiet":
 			var qid: String = str(m.get("card_id", ""))
-			if not _has_unique_ability(qid) or _is_silenced(qid):
+			if not _has_unique_ability(qid) or _is_silenced(m):
 				_log("on_item_use", "cannot")
 				if sfx:
 					sfx.play("error", -10.0)
 				return
-			silenced[qid] = true
+			_mark_silenced(m, true)
+			wheel[facing_index] = m
 			if qid == "zombie":
 				keep_blocked_this_fight = false
 			_sync_wheel_stats()
@@ -8383,7 +8444,7 @@ func _defeat_blocked(m: Dictionary) -> bool:
 	if bool(m.get("polymorphed_this_fight", false)):
 		return false
 	var id: String = str(m.get("card_id", ""))
-	return id == "gargoyle" and not _is_silenced(id)
+	return id == "gargoyle" and not _is_silenced(m)
 
 
 func _bag_threshold(it: Dictionary) -> int:
@@ -8591,7 +8652,7 @@ func _wick_on_defeated(index: int) -> void:
 func _twins_facing() -> bool:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return false
-	return str(wheel[facing_index].get("card_id", "")) == "hollow" and not _is_silenced("hollow")
+	return str(wheel[facing_index].get("card_id", "")) == "hollow" and not _is_silenced(wheel[facing_index])
 
 
 func _twins_double_atk(index: int, n: int) -> bool:
@@ -8599,7 +8660,7 @@ func _twins_double_atk(index: int, n: int) -> bool:
 		return false
 	if index < 0 or index >= wheel.size():
 		return false
-	return str(wheel[index].get("card_id", "")) == "hollow" and not _is_silenced("hollow")
+	return str(wheel[index].get("card_id", "")) == "hollow" and not _is_silenced(wheel[index])
 
 
 func _twins_double_blk(n: int) -> bool:
@@ -8612,7 +8673,7 @@ func _chip_hp(index: int, n: int) -> bool:
 	var m: Dictionary = wheel[index]
 	var drop: int = n
 	var cut_chip: bool = false
-	if str(m.get("card_id", "")) == "anvil" and not _is_silenced("anvil"):
+	if str(m.get("card_id", "")) == "anvil" and not _is_silenced(m):
 		if n > 1:
 			cut_chip = true
 		drop = 1
@@ -8939,7 +9000,7 @@ func _hired_living_neighbors(index: int) -> Array[int]:
 
 
 func _hired_ask_bribe() -> void:
-	if _is_silenced("hired_hand"):
+	if facing_index < 0 or facing_index >= wheel.size() or str(wheel[facing_index].get("card_id", "")) != "hired_hand" or _is_silenced(wheel[facing_index]):
 		return
 	var nbs: Array[int] = _hired_living_neighbors(facing_index)
 	var uids: Array = []
@@ -11510,8 +11571,25 @@ func _keep_blocked_now() -> bool:
 		return true
 	if facing_index < 0 or facing_index >= wheel.size():
 		return false
-	var id: String = str(wheel[facing_index].get("card_id", ""))
-	return id == "zombie" and not _is_silenced(id)
+	return str(wheel[facing_index].get("card_id", "")) == "zombie" and not _is_silenced(wheel[facing_index])
+
+
+func _silence_key(s: Dictionary) -> String:
+	var uid: int = int(s.get("seat_uid", -1))
+	if uid >= 0:
+		return "seat:%s" % uid
+	return ""
+
+
+func _mark_silenced(s: Dictionary, on: bool = true) -> void:
+	s["silenced"] = on
+	var key: String = _silence_key(s)
+	if key == "":
+		return
+	if on:
+		silenced[key] = true
+	else:
+		silenced.erase(key)
 
 
 func _is_silenced(who) -> bool:
@@ -11519,8 +11597,24 @@ func _is_silenced(who) -> bool:
 		var s: Dictionary = who
 		if bool(s.get("silenced", false)):
 			return true
-		return bool(silenced.get(str(s.get("card_id", "")), false))
-	return bool(silenced.get(str(who), false))
+		var key: String = _silence_key(s)
+		if key != "":
+			return bool(silenced.get(key, false))
+		return false
+	if typeof(who) == TYPE_INT:
+		var idx: int = int(who)
+		if idx >= 0 and idx < wheel.size():
+			return _is_silenced(wheel[idx])
+		return bool(silenced.get("seat:%s" % idx, false))
+	var key := str(who)
+	if key.begins_with("seat:"):
+		return bool(silenced.get(key, false))
+	# Leftover card-id strings mean the facing copy only. Never every copy.
+	if facing_index >= 0 and facing_index < wheel.size():
+		var face: Dictionary = wheel[facing_index]
+		if str(face.get("card_id", "")) == key:
+			return _is_silenced(face)
+	return false
 
 
 func _has_unique_ability(id: String) -> bool:
@@ -11707,9 +11801,11 @@ func _item_snapshot(it: Dictionary) -> Dictionary:
 func _echo_face(it: Dictionary) -> Dictionary:
 	if str(it.get("card_id", "")) != "echo_bell":
 		return it
-	var copy: Variant = it.get("echo_copy", last_item_copy)
+	var copy: Variant = it.get("echo_copy", {})
 	if typeof(copy) == TYPE_DICTIONARY and not (copy as Dictionary).is_empty():
 		return copy
+	if typeof(last_item_copy) == TYPE_DICTIONARY and not last_item_copy.is_empty():
+		return last_item_copy
 	return {}
 
 
@@ -11738,9 +11834,12 @@ func _clicked_item_counts_as_use(it: Dictionary) -> bool:
 
 
 func _after_item_resolved(it: Dictionary) -> void:
-	if it.is_empty() or not bool(it.get("spent", false)):
+	if it.is_empty():
 		return
-	_remember_item_use(it)
+	if _clicked_item_counts_as_use(it):
+		_remember_item_use(it)
+	if not bool(it.get("spent", false)):
+		return
 	if phase != "fighting":
 		return
 	if facing_index < 0 or facing_index >= wheel.size():
@@ -11753,7 +11852,7 @@ func _after_item_resolved(it: Dictionary) -> void:
 	if int(wheel[facing_index].get("hp", 0)) <= 0:
 		return
 	var hid: String = str(wheel[facing_index].get("card_id", ""))
-	if hid == "harpy" and not _is_silenced(hid) and _clicked_item_counts_as_use(it):
+	if hid == "harpy" and facing_index >= 0 and facing_index < wheel.size() and not _is_silenced(wheel[facing_index]) and _clicked_item_counts_as_use(it):
 		await _harpy_poke()
 	if _pending_item_flee:
 		_pending_item_flee = false
@@ -11766,7 +11865,7 @@ func _harpy_poke() -> void:
 	if phase != "fighting" or facing_index < 0:
 		return
 	var m: Dictionary = wheel[facing_index]
-	if str(m.get("card_id", "")) != "harpy" or _is_silenced("harpy"):
+	if str(m.get("card_id", "")) != "harpy" or _is_silenced(m):
 		return
 	if int(m.get("hp", 0)) <= 0:
 		return
@@ -11973,7 +12072,7 @@ func _item_atk_score(it: Dictionary) -> int:
 
 
 func _petrify_best_atk() -> void:
-	if _is_silenced("gargoyle"):
+	if facing_index < 0 or facing_index >= wheel.size() or str(wheel[facing_index].get("card_id", "")) != "gargoyle" or _is_silenced(wheel[facing_index]):
 		return
 	var best: int = -1
 	var picks: Array = []
@@ -12044,11 +12143,9 @@ func _hydra_live_n(it: Dictionary) -> int:
 
 
 func _hydra_even_killer() -> void:
-	if _is_silenced("hydra"):
-		return
 	if facing_index < 0 or facing_index >= wheel.size():
 		return
-	if str(wheel[facing_index].get("card_id", "")) != "hydra":
+	if str(wheel[facing_index].get("card_id", "")) != "hydra" or _is_silenced(wheel[facing_index]):
 		return
 	var hits: Array = []
 	for it in hotbar:
@@ -12143,7 +12240,7 @@ func _hydra_even_killer() -> void:
 
 
 func _cube_ask_feed() -> void:
-	if _is_silenced("gelatinous_cube"):
+	if facing_index < 0 or facing_index >= wheel.size() or str(wheel[facing_index].get("card_id", "")) != "gelatinous_cube" or _is_silenced(wheel[facing_index]):
 		return
 	if hotbar.is_empty():
 		_log("on_spin", "cube ate nothing")
@@ -12749,11 +12846,11 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	_poison_frog_on_hit(index)
 	var hit_n: int = n
 	var cut_chip: bool = false
-	if str(m.get("card_id", "")) == "anvil" and not _is_silenced("anvil") and hit_n > 0:
+	if str(m.get("card_id", "")) == "anvil" and not _is_silenced(m) and hit_n > 0:
 		if hit_n > 1:
 			cut_chip = true
 		hit_n = 1
-	var immune: bool = str(m.get("card_id", "")) == "goblin" and not _is_silenced("goblin")
+	var immune: bool = str(m.get("card_id", "")) == "goblin" and not _is_silenced(m)
 	last_atk_index = index
 	if cut_chip:
 		await _announce_slice(index, _slice_hp_pos(index))
@@ -12799,7 +12896,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 			return true
 	if await _check_triclops_three(index):
 		return true
-	if str(m.get("card_id", "")) == "needleback" and not _is_silenced("needleback") and before_hp > 0:
+	if str(m.get("card_id", "")) == "needleback" and not _is_silenced(m) and before_hp > 0:
 		if _watch_skip_thorns:
 			pass
 		elif _watch_thorns_seat >= 0:
@@ -14054,7 +14151,7 @@ func _swing(m: Dictionary, block_left: int) -> Dictionary:
 	var atk_n: int = int(m.get("atk", 0))
 	var cid: String = str(m.get("card_id", ""))
 	var pierce: bool = false
-	if cid == "dragon" and not _is_silenced("dragon"):
+	if cid == "dragon" and not _is_silenced(m):
 		pierce = true
 	elif cid != "spider_egg" and _hand_pierce():
 		pierce = true
@@ -14112,7 +14209,7 @@ func _hit_count(index: int) -> int:
 	if index < 0 or index >= wheel.size():
 		return 1
 	var id: String = str(wheel[index].get("card_id", ""))
-	if _is_silenced(id):
+	if _is_silenced(wheel[index]):
 		return 1
 	if bool(wheel[index].get("swing_muted", false)):
 		return 1
@@ -14490,7 +14587,7 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["kind"] = "SKIP"
 			out["number"] = ""
 			out["note"] = ""
-			out["can_use"] = fighting and _has_unique_ability(str(m.get("card_id", ""))) and not _is_silenced(str(m.get("card_id", "")))
+			out["can_use"] = fighting and _has_unique_ability(str(m.get("card_id", ""))) and not _is_silenced(m)
 		"atk_spend_blk":
 			out["n"] = blk if fighting else 0
 			out["number"] = str(out["n"])
@@ -14805,7 +14902,13 @@ func _log_flush() -> void:
 		log_label.flush()
 
 
+func _session(kind: String, msg: String, extra: Dictionary = {}) -> void:
+	if session_log:
+		session_log.push(kind, msg, extra)
+
+
 func _log(kind: String, msg: String, highlight: Dictionary = {}) -> void:
+	_session(kind, msg, highlight)
 	if log_label == null:
 		return
 	if kind == "on_place":
@@ -15028,12 +15131,12 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				var ctotal: int = 0
 				for _cp in range(cprocs):
 					var chit: int = cdmg
-					if str(wheel[facing_index].get("card_id", "")) == "anvil" and not _is_silenced("anvil"):
+					if str(wheel[facing_index].get("card_id", "")) == "anvil" and not _is_silenced(wheel[facing_index]):
 						chit = mini(chit, 1)
 					ctotal += chit
 				p[facing_index] = {"hp": -ctotal}
 				if int(wheel[facing_index].get("hp", 0)) - ctotal <= 0:
-					if str(wheel[facing_index].get("card_id", "")) != "wick" or _is_silenced("wick"):
+					if str(wheel[facing_index].get("card_id", "")) != "wick" or _is_silenced(wheel[facing_index]):
 						p[facing_index]["kill"] = true
 				if str(wheel[facing_index].get("card_id", "")) == "slime_boss":
 					p[facing_index]["atk"] = -ctotal
@@ -15062,12 +15165,12 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				var total: int = 0
 				for _p in range(procs):
 					var hitn: int = dmg
-					if str(wheel[facing_index].get("card_id", "")) == "anvil" and not _is_silenced("anvil"):
+					if str(wheel[facing_index].get("card_id", "")) == "anvil" and not _is_silenced(wheel[facing_index]):
 						hitn = mini(hitn, 1)
 					total += hitn
 				p[facing_index] = {"hp": -total}
 				if int(wheel[facing_index].get("hp", 0)) - total <= 0:
-					if str(wheel[facing_index].get("card_id", "")) != "wick" or _is_silenced("wick"):
+					if str(wheel[facing_index].get("card_id", "")) != "wick" or _is_silenced(wheel[facing_index]):
 						p[facing_index]["kill"] = true
 				if str(wheel[facing_index].get("card_id", "")) == "slime_boss":
 					p[facing_index]["atk"] = -total
@@ -15081,7 +15184,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 					var hitn: int = 0
 					for _pc in range(procs_c):
 						var one: int = cn
-						if str(wheel[ci].get("card_id", "")) == "anvil" and not _is_silenced("anvil"):
+						if str(wheel[ci].get("card_id", "")) == "anvil" and not _is_silenced(wheel[ci]):
 							one = mini(cn, 1)
 						hitn += one
 					var slot: Dictionary = p.get(ci, {})
@@ -15099,7 +15202,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				var od_total: int = 0
 				for _po in range(procs_o):
 					var one_o: int = od
-					if str(wheel[oi].get("card_id", "")) == "anvil" and not _is_silenced("anvil"):
+					if str(wheel[oi].get("card_id", "")) == "anvil" and not _is_silenced(wheel[oi]):
 						one_o = mini(od, 1)
 					od_total += one_o
 				od = od_total
@@ -15939,7 +16042,7 @@ func _monster_rule(s: Dictionary) -> Dictionary:
 	out["reminder"] = reminder
 	var call_n: String = str(s.get("call_name", "")).strip_edges()
 	out["call"] = call_n
-	if _is_silenced(id):
+	if _is_silenced(s):
 		var sil: String = PLAYER_COPY.text("status.silenced", "Silenced")
 		out["speech"] = ""
 		out["equation"] = ""
@@ -18065,16 +18168,26 @@ func _try_move(dir: int) -> void:
 			sfx.play("error", -12.0)
 		return
 	_undo_begin()
+	var token: int = _undo_gen
 	_move_busy = true
 	_sync_move_ui()
 	if await _shift_facing(dir, true):
+		if _undo_stale(token):
+			_move_busy = false
+			return
 		if _jar_in_hand():
 			await _shift_facing(dir, false)
+		if _undo_stale(token):
+			_move_busy = false
+			return
 		_undo_commit()
 		if in_tutorial and tut != null and tut.wait == "move":
 			tut.advance()
 			_tut_after_advance()
 	else:
+		if _undo_stale(token):
+			_move_busy = false
+			return
 		_undo_commit()
 	_move_busy = false
 	_refresh()

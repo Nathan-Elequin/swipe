@@ -526,6 +526,21 @@ func _do_click(click: Dictionary) -> void:
 	elif op == "undo":
 		if main.has_method("_on_undo"):
 			await main._on_undo()
+	elif op == "telegraph_undo":
+		await _telegraph_then_undo()
+
+
+func _telegraph_then_undo() -> void:
+	if main.wheel_view != null:
+		main.wheel_view.remove_meta("qa_instant")
+		main.wheel_view.busy = true
+		main._move_busy = true
+		if main.facing_index >= 0:
+			main.wheel_view.recenter_on(main.facing_index, 0.45)
+	await _wait_frames(2)
+	if main.has_method("_on_undo"):
+		await main._on_undo()
+	await _wait_frames(2)
 
 
 func _auto_resolve() -> void:
@@ -624,6 +639,7 @@ func _snapshot(with_surfaces: bool = true) -> Dictionary:
 			"atk": int(m.get("atk", 0)),
 			"hp": int(m.get("hp", 0)),
 			"ability": str(m.get("ability", "")),
+			"silenced": bool(main._is_silenced(m)),
 		}
 		var nwheel: int = main.wheel.size()
 		if nwheel >= 2:
@@ -636,12 +652,23 @@ func _snapshot(with_surfaces: bool = true) -> Dictionary:
 						"name": str(nm.get("name", "")),
 						"atk": int(nm.get("atk", 0)),
 						"hp": int(nm.get("hp", 0)),
+						"silenced": bool(main._is_silenced(nm)),
 					})
 	var log := ""
 	if main.log_label and main.log_label.has_method("dump_plain"):
 		log = str(main.log_label.dump_plain())
 	var cap: int = 10 if bool(main.adventure) else 50
 	var surfaces: Dictionary = _surface_dump() if with_surfaces else {}
+	var echo_ok := false
+	if not main.last_item_copy.is_empty():
+		echo_ok = true
+	for it2 in main.hotbar:
+		if str(it2.get("card_id", "")) != "echo_bell":
+			continue
+		echo_ok = not main._echo_face(it2).is_empty()
+	var session_txt := ""
+	if main.session_log and main.session_log.has_method("dump_text"):
+		session_txt = str(main.session_log.dump_text())
 	return {
 		"phase": str(main.phase),
 		"hp": int(main.hp),
@@ -656,6 +683,10 @@ func _snapshot(with_surfaces: bool = true) -> Dictionary:
 		"wheel_n": main.wheel.size(),
 		"surfaces": surfaces,
 		"items_this_combat": int(main.items_used_this_combat),
+		"last_item": str(main.last_item_copy.get("card_id", "")),
+		"echo_playable": echo_ok,
+		"busy": bool(main._walker_busy) or bool(main._move_busy) or main._wheel_busy(),
+		"session": session_txt,
 	}
 
 
@@ -818,6 +849,34 @@ func _judge_reason(expected: Dictionary, snap: Dictionary, after_spin: Dictionar
 		return "Facing HP should be %s. The plate showed %s." % [expected.get("face_hp"), face.get("hp")]
 	if expected.has("face_atk") and int(face.get("atk", -1)) != int(expected.get("face_atk", -1)):
 		return "Facing Attack should be %s. The plate showed %s." % [expected.get("face_atk"), face.get("atk")]
+	if expected.has("face_silenced") and bool(face.get("silenced", false)) != bool(expected.get("face_silenced")):
+		return "Facing silenced should be %s." % expected.get("face_silenced")
+	if expected.has("neighbor_silenced"):
+		var any_sil := false
+		for nb in snap.get("neighbors", []):
+			if bool(nb.get("silenced", false)):
+				any_sil = true
+		if any_sil != bool(expected.get("neighbor_silenced")):
+			return "A neighbor's silence was %s." % any_sil
+	if expected.has("neighbor_atk"):
+		var got_atk := -999
+		for nb2 in snap.get("neighbors", []):
+			got_atk = int(nb2.get("atk", -1))
+			if str(nb2.get("id", "")) == "dire_wolf":
+				break
+		if got_atk != int(expected.get("neighbor_atk")):
+			return "Neighbor Attack should be %s. It was %s." % [expected.get("neighbor_atk"), got_atk]
+	if expected.has("last_item") and str(snap.get("last_item", "")) != str(expected.get("last_item")):
+		return "Last used item should be %s. It was %s." % [expected.get("last_item"), snap.get("last_item")]
+	if expected.has("echo_playable") and bool(snap.get("echo_playable", false)) != bool(expected.get("echo_playable")):
+		return "Echo Bell should be playable after a Keep use."
+	if expected.has("busy") and bool(snap.get("busy", false)) != bool(expected.get("busy")):
+		return "The fight should be idle after Undo. A busy flag was still on."
+	if expected.has("session_has"):
+		var sl: String = str(snap.get("session", "")).to_lower()
+		for piece in expected.get("session_has", []):
+			if sl.find(str(piece).to_lower()) < 0:
+				return "Session log should mention %s." % piece
 	var want_hand: Dictionary = expected.get("in_hand", expected.get("spent", {}))
 	var hand_is_spent: bool = expected.has("spent") and not expected.has("in_hand")
 	for k in want_hand.keys():
@@ -847,6 +906,10 @@ func _judge_reason(expected: Dictionary, snap: Dictionary, after_spin: Dictionar
 			if log_l.find("cannot") >= 0:
 				return ""
 			return "Player clicked the card. The plates and the hand did not change."
+	if expected.has("log_has"):
+		for piece in expected.get("log_has", []):
+			if log_l.find(str(piece).to_lower()) < 0:
+				return "Combat log should mention %s." % piece
 	return ""
 
 
