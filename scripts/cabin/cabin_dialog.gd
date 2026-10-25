@@ -36,6 +36,7 @@ var _picked: int = -1
 var _sfx
 var _talk_cb: Callable
 var _fallbacks: Dictionary = {}
+var _vars: Dictionary = {}
 
 
 func setup(p_cabin) -> void:
@@ -113,6 +114,7 @@ func say(keys: Array, choices: Array = [], vars: Dictionary = {}, fallbacks: Dic
 	_keys = keys.duplicate()
 	_choice_keys = choices.duplicate()
 	_fallbacks = fallbacks.duplicate()
+	_vars = vars.duplicate()
 	_line_i = 0
 	_picked = -1
 	_open = true
@@ -138,7 +140,7 @@ func say(keys: Array, choices: Array = [], vars: Dictionary = {}, fallbacks: Dic
 		else:
 			_close(-1)
 		return
-	_show_line(vars)
+	_show_line()
 
 
 func say_bubble(key: String, at_native: Vector2 = Vector2(216, 150), vars: Dictionary = {}) -> void:
@@ -187,7 +189,7 @@ func advance() -> void:
 			return
 		_close(-1)
 		return
-	_show_line({})
+	_show_line()
 
 
 func pick(i: int) -> void:
@@ -237,10 +239,10 @@ func _layout_talk(with_choices: bool) -> void:
 	_text.fit()
 
 
-func _show_line(_vars: Dictionary) -> void:
+func _show_line() -> void:
 	var key: String = str(_keys[_line_i])
-	_full = KIT.copy_text(key)
-	if _full == "" and _fallbacks.has(key):
+	_full = KIT.fill_text(key, _vars)
+	if _full.strip_edges() == "" and _fallbacks.has(key):
 		_full = str(_fallbacks[key])
 	_shown = 0
 	_acc = 0.0

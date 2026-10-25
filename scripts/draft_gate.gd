@@ -182,10 +182,10 @@ func setup(p_art, p_sfx = null) -> void:
 
 func _wash(tier: int) -> Color:
 	if tier >= 3:
-		return Color(0.42, 0.06, 0.05, 0.98)
+		return Color("2a1c08")
 	if tier == 2:
-		return Color(0.12, 0.15, 0.22, 0.98)
-	return Color(0.32, 0.12, 0.05, 0.98)
+		return Color("14161a")
+	return Color("24160e")
 
 
 func _skin_panel(tier: int) -> void:
@@ -242,11 +242,7 @@ func _tex_sb(tex: Texture2D) -> StyleBoxTexture:
 
 
 func _metal(tier: int) -> Color:
-	if tier >= 3:
-		return Color("e8c36a")
-	if tier == 2:
-		return Color("8a96a8")
-	return Color("c08050")
+	return UxStyle.metal(tier)
 
 
 func _show_copy(value_bb: String, body: String) -> void:
@@ -639,11 +635,11 @@ class TierStamp extends Control:
 		var breathe: float = 1.0 + sin(bob * speed * 0.65) * (0.03 + float(tier) * 0.025)
 		var sc: float = breathe * (0.92 + float(mini(tier, 3) - 1) * 0.16)
 		var c := Vector2(size.x * 0.5 + sway, size.y * 0.58)
-		var ink := Color(0.04, 0.015, 0.01, 0.98)
+		var ink := Color(0.05, 0.03, 0.02, 0.98)
 		if tier == 2:
-			ink = Color(0.02, 0.03, 0.06, 0.98)
+			ink = Color(0.04, 0.045, 0.05, 0.98)
 		elif tier >= 3:
-			ink = Color(0.08, 0.01, 0.01, 0.98)
+			ink = Color(0.07, 0.05, 0.02, 0.98)
 		var glow := Color(metal.r, metal.g, metal.b, 0.16 + pulse * 0.28)
 		draw_circle(Vector2(c.x, c.y - 18.0 * sc), 54.0 * sc, glow)
 		var shoulder: float = 70.0 * sc

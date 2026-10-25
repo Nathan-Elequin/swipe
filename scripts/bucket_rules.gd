@@ -13,7 +13,7 @@ const LATER_PER_ROW := 5
 const ZERO_TIERS: PackedInt32Array = [5, 3, 2]
 const LATER_TIERS: PackedInt32Array = [2, 2, 1]
 const TIER_BRONZE := Color("c08050")
-const TIER_SILVER := Color("6e7f96")
+const TIER_SILVER := Color("c5cdd8")
 const TIER_GOLD := Color("e8c36a")
 
 

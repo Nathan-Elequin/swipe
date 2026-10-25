@@ -182,10 +182,10 @@ const MONSTER_SPECIAL := {
 	"wraith": {"id": "copy_atk", "text": "Copies the higher neighboring attack, then Commander."},
 	"mimic": {"id": "gift", "text": "If I go down before I swing, you gain an item."},
 	"spider_queen": {"id": "queen_hits", "text": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each."},
-	"commander": {"id": "buff_atk", "text": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee."},
+	"commander": {"id": "buff_atk", "text": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee and the wheel Spins at random."},
 	"dragon": {"id": "pierce", "text": "My attack ignores block."},
 	"needleback": {"id": "thorns", "text": "Whenever I take attack damage, you take 2 attack. Block can stop that 2."},
-	"gelatinous_cube": {"id": "eat_item", "text": "I make you feed me one of two items."},
+	"gelatinous_cube": {"id": "eat_item", "text": "When you Spin me, feed me one of two items."},
 	"gargoyle": {"id": "petrify", "text": "I petrify your highest Attack item until the next Spin."},
 	"harpy": {"id": "interrupt", "text": "I attack you when we meet, and after each item you use."},
 	"kobold_trapper": {"id": "item_swings", "text": "I attack an extra time for each item you use this fight."},
@@ -348,10 +348,10 @@ const MONSTER_SPEECH := {
 	"wraith": "I copy the higher neighbor's attack.",
 	"mimic": "If I go down before I attack, you gain an item.",
 	"spider_queen": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
-	"commander": "I give my neighbors +2 attack.",
+	"commander": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee and the wheel Spins at random.",
 	"dragon": "My attack ignores block.",
 	"needleback": "I stick you for 2 attack whenever you cut me. Your block still works.",
-	"gelatinous_cube": "I make you feed me one of two items.",
+	"gelatinous_cube": "When you Spin me, feed me one of two items.",
 	"gargoyle": "I petrify your highest Attack item until you Spin again.",
 	"harpy": "I attack you when we meet, and after each item you use.",
 	"kobold_trapper": "I attack an extra time for each item you use this fight.",
@@ -562,6 +562,9 @@ var script_ed
 var overlay_script: Button
 var _offer_card: Control
 var fx_flash: ColorRect
+var _screen_shake: Tween
+var _shake_base: Vector2 = Vector2.ZERO
+var _shaking: bool = false
 var _cue_shown: String = ""
 var _face_atk_shown: String = ""
 var _face_hp_shown: String = ""
@@ -1414,6 +1417,7 @@ func _build_ui() -> void:
 	settings_ui.setup(sfx)
 	settings_ui.mode_picked.connect(_on_pause_mode)
 	settings_ui.sparkles_toggled.connect(_on_sparkles_toggled)
+	settings_ui.invert_scroll_toggled.connect(_on_invert_scroll_toggled)
 	settings_ui.quit_pressed.connect(_quit_game)
 	home_cabin = HOME_CABIN.new()
 	add_child(home_cabin)
@@ -5511,6 +5515,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if script_ed != null and script_ed.visible:
 		return
 	var in_run: bool = phase != "title"
+	if home_cabin:
+		settings_ui.invert_scroll = bool(home_cabin.invert_scroll)
 	settings_ui.open_menu(in_run)
 	if sfx:
 		sfx.play("open", -12.0)
@@ -5524,6 +5530,13 @@ func _quit_game() -> void:
 
 func _on_sparkles_toggled(on: bool) -> void:
 	RankShimmer.shown = on
+
+
+func _on_invert_scroll_toggled(on: bool) -> void:
+	if home_cabin == null:
+		return
+	home_cabin.invert_scroll = on
+	home_cabin._save()
 
 
 func _on_pause_mode(mode: String) -> void:
@@ -6734,7 +6747,7 @@ func _on_done() -> void:
 	await _resolve_then_continue(false)
 
 
-func _begin_slay(_killed: bool = true) -> void:
+func _begin_slay(banner: String = "slay") -> void:
 	if _tut_hold_slay:
 		return
 	await _flush_poison_sides()
@@ -6747,15 +6760,15 @@ func _begin_slay(_killed: bool = true) -> void:
 		return
 	if await _try_commander_flee(facing_index):
 		return
-	await _exit_ended(false)
+	await _exit_ended(false, banner)
 
 
-func _exit_ended(clockwork_split: bool = false) -> void:
+func _exit_ended(clockwork_split: bool = false, banner: String = "slay") -> void:
 	if phase != "fighting" and phase != "slaying":
 		return
 	if facing_index < 0:
 		return
-	await _play_ended_visuals()
+	await _play_ended_visuals(banner)
 	await _clear_after_fight(clockwork_split)
 	await _maybe_auto_spin()
 
@@ -6770,7 +6783,7 @@ func _exit_leave(clockwork_split: bool = true) -> void:
 	await _maybe_auto_spin()
 
 
-func _play_ended_visuals() -> void:
+func _play_ended_visuals(banner: String = "slay") -> void:
 	phase = "slaying"
 	pending_choice.clear()
 	pending_feed = {}
@@ -6779,15 +6792,19 @@ func _play_ended_visuals() -> void:
 	_refresh()
 	if OS.has_feature("editor") and logic_qa != null and bool(logic_qa.busy):
 		return
-	_flash_screen(Color("e8c36a"), 0.32)
-	if sfx:
-		var dead: Dictionary = wheel[facing_index] if facing_index >= 0 and facing_index < wheel.size() else {}
-		var dctx := {"tier": _tier_of(dead) if not dead.is_empty() else 1, "monster_id": str(dead.get("card_id", ""))}
-		sfx.play_event(sfx.resolve(&"death", dctx), dctx)
-	if combat_stage:
-		combat_stage.take_hit()
-	if wheel_view and facing_index >= 0:
-		await wheel_view.play_slay(facing_index)
+	if banner == "slay":
+		_flash_screen(Color("e8c36a"), 0.32)
+		if sfx:
+			var dead: Dictionary = wheel[facing_index] if facing_index >= 0 and facing_index < wheel.size() else {}
+			var dctx := {"tier": _tier_of(dead) if not dead.is_empty() else 1, "monster_id": str(dead.get("card_id", ""))}
+			sfx.play_event(sfx.resolve(&"death", dctx), dctx)
+		if combat_stage:
+			combat_stage.take_hit()
+		if wheel_view and facing_index >= 0:
+			await wheel_view.play_slay(facing_index)
+	elif banner == "escape":
+		if wheel_view and facing_index >= 0:
+			await wheel_view.play_escape(facing_index)
 	if combat_stage:
 		await combat_stage.vanish()
 	if wheel_view and facing_index >= 0 and not adventure and not _tutorial_keeps_seat():
@@ -6841,7 +6858,11 @@ func _resolve_then_continue(skip_attack: bool) -> void:
 	if hp <= 0:
 		_player_down()
 		return
-	await _begin_slay()
+	var still_up: bool = facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) > 0
+	var banner := "slay"
+	if still_up:
+		banner = "escape" if _taken > 0 else "none"
+	await _begin_slay(banner)
 
 
 func _apply_resolve_hits() -> int:
@@ -10186,6 +10207,7 @@ func _note_hp_lost(n: int) -> void:
 		return
 	last_hp_lost = n
 	bled.emit(n)
+	_shake_screen()
 	if n != 2:
 		return
 	var has_pace: bool = false
@@ -15605,7 +15627,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 		"defeat_hp":
 			out["value"] = _value_bb("Defeat", "", var_c)
 			out["equation"] = "(%s < %s)" % [_bb(hp_c, "Enemy HP"), _bb(hp_c, "Your HP")]
-			out["body"] = "Defeat an enemy with less HP than you. Combat ends immediately."
+			out["body"] = "Defeat an enemy with fewer HP than you (not equal). Combat ends immediately."
 			if fighting and _defeat_blocked(m if fighting else {}):
 				out["warn"] = "Can't — this enemy cannot be Defeated."
 			elif fighting and not bool(view.get("can_use", false)):
@@ -17171,6 +17193,25 @@ func _punch_label(lab: Label) -> void:
 	tw.tween_property(lab, "scale", Vector2.ONE, 0.14)
 
 
+func _shake_screen() -> void:
+	if not _shaking:
+		_shake_base = position
+		_shaking = true
+	if _screen_shake:
+		_screen_shake.kill()
+	var base: Vector2 = _shake_base
+	position = base
+	_screen_shake = create_tween()
+	_screen_shake.tween_property(self, "position", base + Vector2(8, 2), 0.028)
+	_screen_shake.tween_property(self, "position", base + Vector2(-7, -3), 0.028)
+	_screen_shake.tween_property(self, "position", base + Vector2(5, 2), 0.028)
+	_screen_shake.tween_property(self, "position", base, 0.04)
+	_screen_shake.finished.connect(func() -> void:
+		position = base
+		_shaking = false
+	, CONNECT_ONE_SHOT)
+
+
 func _flash_screen(col: Color, a: float = 0.3) -> void:
 	if fx_flash == null:
 		return
@@ -18339,6 +18380,12 @@ func _sync_hotbar() -> void:
 		if pn > 0:
 			shown_n = str(pn)
 		card.set_live(shown_n, str(view["note"]), can_click)
+		if card.has_method("set_choice_badge"):
+			card.set_choice_badge(_choice_badge_text(it))
+		if card.has_method("set_cabinet_badge"):
+			var cid: String = str(it.get("card_id", ""))
+			var fresh: bool = home_cabin != null and cid != "" and not home_cabin.is_swiped(cid) and not BucketRules.is_token(items_by_id.get(cid, {}).get("bucket", 0))
+			card.set_cabinet_badge(fresh, PLAYER_COPY.text("cabin.tip.new", "New!"), PLAYER_COPY.text("cabin.tip.seen", "Seen in {the_grumble}. Not home yet."))
 		if card.has_method("set_atk_pip"):
 			card.set_atk_pip(_number_is_atk(view, pn))
 		if card.has_method("set_danger"):
@@ -18447,44 +18494,28 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 		card.edit_wanted.connect(_on_item_right_click.bind(str(it.get("card_id", ""))))
 	if usable:
 		card.picked.connect(_use_item.bind(int(it.get("uid", 0))))
-		_attach_hand_glint(card, str(it.get("card_id", "")))
 	return card
 
 
-func _attach_hand_glint(card: Control, card_id: String) -> void:
-	if home_cabin == null or card_id == "" or home_cabin.is_swiped(card_id):
-		return
-	if BucketRules.is_token(items_by_id.get(card_id, {}).get("bucket", 0)):
-		return
-	var glint := AnimatedSprite2D.new()
-	glint.centered = true
-	glint.position = card.size * 0.5
-	glint.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	var mat := CanvasItemMaterial.new()
-	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-	glint.material = mat
-	var sf := SpriteFrames.new()
-	sf.add_animation("g")
-	sf.set_animation_speed("g", 12.0)
-	sf.set_animation_loop("g", false)
-	for i in 5:
-		var tex: Texture2D = load("res://assets/dungeon/home/fx/hand_glint_f%d.png" % i) if ResourceLoader.exists("res://assets/dungeon/home/fx/hand_glint_f%d.png" % i) else null
-		if tex:
-			sf.add_frame("g", tex)
-	glint.sprite_frames = sf
-	card.add_child(glint)
-	var timer := Timer.new()
-	timer.wait_time = randf_range(4.0, 7.0)
-	timer.one_shot = true
-	timer.autostart = true
-	timer.timeout.connect(func() -> void:
-		if is_instance_valid(glint) and glint.sprite_frames:
-			glint.play("g")
-		if is_instance_valid(timer) and timer.is_inside_tree():
-			timer.wait_time = randf_range(4.0, 7.0)
-			timer.start()
-	)
-	card.add_child(timer)
+func _choice_badge_text(it: Dictionary) -> String:
+	var ops: Dictionary = _ops_of(it)
+	if str(ops.get("kind", "")) != "choose":
+		return ""
+	var opts: Variant = ops.get("options", [])
+	if typeof(opts) != TYPE_ARRAY:
+		return ""
+	var bits: PackedStringArray = PackedStringArray()
+	for ov in opts:
+		if typeof(ov) != TYPE_DICTIONARY:
+			continue
+		var o: Dictionary = ov
+		if o.has("atk"):
+			bits.append(str(int(o["atk"])))
+		elif o.has("atk_drop"):
+			bits.append(str(int(o["atk_drop"])))
+	if bits.size() < 2:
+		return ""
+	return " / ".join(bits)
 
 
 func _on_item_hovered(it: Dictionary, card: Control = null) -> void:

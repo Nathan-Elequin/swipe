@@ -856,6 +856,17 @@ func play_slay(index: int) -> void:
 	busy = false
 
 
+func play_escape(index: int) -> void:
+	busy = true
+	slay_kind = "escape"
+	slay_index = index
+	slay_t = 0.0
+	var tw := create_tween()
+	tw.tween_property(self, "slay_t", 1.0, 0.5)
+	await tw.finished
+	busy = false
+
+
 func play_block(index: int) -> void:
 	busy = true
 	slay_kind = "block"
@@ -1305,6 +1316,15 @@ func _spoke_rest(i: int) -> Dictionary:
 	var tag_w: float = _tag_width_px(i)
 	var tag_h: float = _tag_height_px(i)
 	var tag_rect := Rect2(Vector2(feet.x - tag_w * 0.5, feet.y + 10.0), Vector2(tag_w, tag_h))
+	var icon_px := 36.0
+	var atk_rect := Rect2(atk - Vector2(icon_px * 0.5, icon_px * 0.5), Vector2(icon_px, icon_px))
+	var hp_rect := Rect2(hp - Vector2(icon_px * 0.5, icon_px * 0.5), Vector2(icon_px, icon_px))
+	var shell := tag_rect.grow_individual(18.0, 2.0, 4.0, 2.0)
+	var steps := 0
+	while steps < 16 and (shell.intersects(atk_rect.grow(4.0)) or shell.intersects(hp_rect.grow(4.0))):
+		tag_rect.position.y += 4.0
+		shell.position.y += 4.0
+		steps += 1
 	var medal := Vector2(tag_rect.position.x - 2.0, tag_rect.position.y + tag_h * 0.5)
 	var sprite_rect := Rect2(Vector2(feet.x - w * 0.5, feet.y - h), Vector2(w, h))
 	return {
@@ -3682,7 +3702,8 @@ func _draw_slay(font: Font, c: Vector2, radius: float) -> void:
 	var pos: Vector2 = c + dir * radius * 0.52 + _slay_push(slay_index)
 	var a: float = clampf(slay_t * 1.4, 0.0, 1.0)
 	var blocked: bool = slay_kind == "block"
-	var ink: Color = Color("5aa8e8") if blocked else DOWN_COL
+	var escaped: bool = slay_kind == "escape"
+	var ink: Color = Color("5aa8e8") if blocked else (Color("e8c36a") if escaped else DOWN_COL)
 	var xcol := Color(ink.r, ink.g, ink.b, a)
 	var arm: float = lerpf(10.0, 54.0, a)
 	if blocked:
@@ -3694,11 +3715,14 @@ func _draw_slay(font: Font, c: Vector2, radius: float) -> void:
 			var inner: Vector2 = pos + Vector2.from_angle(ang) * burst * 0.18
 			var outer: Vector2 = pos + Vector2.from_angle(ang) * burst
 			draw_line(inner, outer, xcol, 5.0, true)
+	elif escaped:
+		var arc_r: float = lerpf(14.0, 42.0, a)
+		draw_arc(pos, arc_r, -0.6, 0.9, 18, xcol, 6.0, true)
 	else:
 		draw_line(pos + Vector2(-arm, -arm), pos + Vector2(arm, arm), xcol, 8.0, true)
 		draw_line(pos + Vector2(arm, -arm), pos + Vector2(-arm, arm), xcol, 8.0, true)
 	if slay_t > 0.18:
-		var word: String = COPY.text("combat.blocked", "BLOCKED") if blocked else COPY.text("combat.slain", "SLAIN")
+		var word: String = COPY.text("combat.blocked", "BLOCKED") if blocked else (COPY.text("combat.escaped", "Escaped") if escaped else COPY.text("combat.slain", "SLAIN"))
 		var ta: float = clampf((slay_t - 0.18) / 0.45, 0.0, 1.0)
 		var fs: int = 32
 		var sz: Vector2 = font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)

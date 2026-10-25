@@ -360,7 +360,7 @@
 			"updated": "2022-04-24"
 		},
 		{
-			"ability": "Defeat an enemy with less HP than you.",
+			"ability": "Defeat an enemy with fewer HP than you (not equal).",
 			"author_lock": true,
 			"bucket": 0.0,
 			"call_name": "",
@@ -368,7 +368,7 @@
 			"count": 2.0,
 			"defined": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
 			"exceptions": "",
-			"explainer": "(ENEMY HP < YOUR HP)",
+			"explainer": "(ENEMY HP < YOUR HP, not equal)",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -4602,7 +4602,7 @@
 			"updated": "2022-04-24"
 		},
 		{
-			"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee.",
+			"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee and the wheel Spins at random.",
 			"atk": {
 				"base": 3.0
 			},
@@ -4776,7 +4776,7 @@
 			"type": "M"
 		},
 		{
-			"ability": "I make you feed me one of two items.",
+			"ability": "When you Spin me, feed me one of two items.",
 			"atk": {
 				"base": 3.0
 			},
@@ -7082,6 +7082,31 @@
 			"chat": "2026-10-05",
 			"id": "double_hit_spends_block",
 			"rule": "Hornet Swarm and Spider Queen resolve two separate swings. Block is spent on the first swing (ATK 2 vs BLK 2 blocks the first and leaves BLK 0; the second swing deals 2)."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "sp01_title_spinheritance",
+			"rule": "SP-01. Player-facing title is Spinheritance. title.win is exactly: Victory! You made it out - now time to check out Grandpa's trophy collection back at the Cabin. Repo name, X-Swipe-Playtest headers, and internal ids stay."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "sp09_cabin_progress",
+			"rule": "SP-09. The menu shows the rocking hero so worn gear is visible. A haul, or a key ring already seen, unlocks every cabin room in the live save. Sleep on the web build shows the existing cannot-sleep line and a click dismisses it. The journal lists only monsters met and items seen in this save. The cat idle bobs. The telescope opens a dialog. Invert scroll defaults off."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "sp14_escaped_banner",
+			"rule": "SP-14. If this resolve costs the player HP and the monster is still up, the banner reads Escaped. A kill still reads SLAIN. A full block does not read SLAIN. The card keyword stays Defeated. Losing HP flashes, shakes the screen, and plays the existing hurt sound."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "sp15_tier_badges",
+			"rule": "SP-15. Item and monster tier metals are bronze, silver, and gold. Choice items show a corner badge of the option numbers (Throwing Knife 3 / 1, Net 1 / 2 / 3). A card not yet in the trophy cabinet shows a New! corner badge instead of a center glimmer."
+		},
+		{
+			"chat": "2026-10-25",
+			"id": "sp16_card_text",
+			"rule": "SP-16. Gelatinous Cube: When you Spin me, feed me one of two items. The Boot: Defeat an enemy with fewer HP than you (not equal). The comparison stays strict less-than. Commander: the first time they are Defeated they Flee and the wheel Spins at random; Flee does not remove them. Wheel name tags clear the stat icons."
 		}
 	],
 	"source_file": "source/01_Boss_Rush_Content.xlsx",

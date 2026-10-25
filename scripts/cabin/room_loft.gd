@@ -7,6 +7,8 @@ var new_tag: TextureRect
 const CAT_SLEEP := Vector2(176, 196)
 const CAT_RUB := Vector2(180, 196)
 
+var _cat_bob: float = 0.0
+
 
 func _build_special() -> void:
 	var flames: Array = extra.get("anchors", {}).get("loft", {}).get("flame", [])
@@ -35,6 +37,14 @@ func _build_special() -> void:
 	new_tag = KIT.tex_rect("fx/new_tag.png", Vector2(126, 182), Vector2(16, 10), 5)
 	new_tag.visible = false
 	add_child(new_tag)
+
+
+func _process(delta: float) -> void:
+	if cat_sleep == null or cat_sleep.animation != "z":
+		return
+	_cat_bob += delta
+	var bob: float = sin(_cat_bob * 1.7) * 4.0
+	cat_sleep.position = CAT_SLEEP * KIT.PX + Vector2(bob * 0.35, bob)
 
 
 func play_rub() -> bool:

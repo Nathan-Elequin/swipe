@@ -617,7 +617,7 @@
    "cat": "Cabin",
    "key": "cabin.credits.body",
    "where": "Patents (credits) card body (Jam/Nathan to confirm names)",
-   "text": "Swipe, by Nathan Elequin.\nArt: 0x72, Kenney, Shade, HomoHikka, Jetrel, Flare/AntumDeluge (all CC0).\nSounds: Kenney, Mjorlaja, Aureolus_Omicron, iamoneabe, Eldritch Grim, Trex0n, PagDev, Kerzoven, and yd (all CC0).\nPatent No. 1: The Self-Buttering Biscuit (pending).",
+   "text": "{game_title}, by Nathan Elequin.\nArt: 0x72, Kenney, Shade, HomoHikka, Jetrel, Flare/AntumDeluge (all CC0).\nSounds: Kenney, Mjorlaja, Aureolus_Omicron, iamoneabe, Eldritch Grim, Trex0n, PagDev, Kerzoven, and yd (all CC0).\nPatent No. 1: The Self-Buttering Biscuit (pending).",
    "draft": true
   },
   {

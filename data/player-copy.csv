@@ -1,5 +1,5 @@
 ﻿category,key,where,text
-Title,title.overlay,Title parchment headline,Swipe
+Title,title.overlay,Title parchment headline,{game_title}
 Title,title.sub,Title parchment subtitle,"You just couldn't keep your grubby hands off their loot, could ya?"
 Title,title.how_to_play,Title + pause button,How to Play
 Title,title.dive_in,Title + pause button,Quick Start
@@ -12,7 +12,7 @@ Title,title.leave,Between-dungeon Leave,Exit
 Title,title.adventure_win,Adventure victory headline,Victory
 Title,title.dungeons_cleared,Adventure tally,{n} Dungeons Cleared!
 Title,adventure.scarier,Opening-owner transform line,The dungeon gets more dangerous...
-Title,title.win,Victory headline,Successfully Swiped
+Title,title.win,Victory headline,Victory! You made it out - now time to check out Grandpa's trophy collection back at the Cabin.
 Title,title.win_sub,Victory subtitle,Now I just need a place to store this stuff.
 Title,title.lose,Defeat headline,Defeated
 Title,title.lose_sub,Defeat subtitle,"Thievery never pays. Or rather, it pays in trouble."
@@ -250,6 +250,7 @@ Combat,combat.safe,Done button when incoming hit is 0,Safe
 Combat,combat.take_hit,Done button when you will lose hearts. {n} = incoming,Take {n}
 Combat,combat.blocked,Flash on the slice when you pillow it,BLOCKED
 Combat,combat.slain,Flash on the slice when they leave,SLAIN
+Combat,combat.escaped,Flash on the slice when you take the hit and live,Escaped
 Combat,combat.knife_throw,Throwing Knife choice A,"ATK 3, discard"
 Combat,combat.knife_nick,Throwing Knife choice B,"ATK 1, keep"
 Inspect,inspect.title,Idle inspect headline,Inspect
@@ -381,8 +382,8 @@ Cards,card.item.helmet.name,Roster · item name (live),Helmet
 Cards,card.item.helmet.ability,Roster · item player text (Helmet),Block equal to whoever has less HP — you or the enemy.
 Cards,card.item.helmet.explainer,Roster · item Shift math (Helmet),(the lower of YOUR HP and ENEMY HP)
 Cards,card.item.da_boot.name,Roster · item name (live),The Boot
-Cards,card.item.da_boot.ability,Roster · item player text (The Boot),Defeat an enemy with less HP than you. Combat ends immediately.
-Cards,card.item.da_boot.explainer,Roster · item Shift math (The Boot),(ENEMY HP < YOUR HP)
+Cards,card.item.da_boot.ability,Roster · item player text (The Boot),Defeat an enemy with fewer HP than you (not equal).
+Cards,card.item.da_boot.explainer,Roster · item Shift math (The Boot),"(ENEMY HP < YOUR HP, not equal)"
 Cards,card.item.grimoire.name,Roster · item name (todo),Grimoire
 Cards,card.item.grimoire.ability,Roster · item player text (Grimoire),Attack equal to the Attack of the last monster you faced.
 Cards,card.item.grimoire.explainer,Roster · item Shift math (Grimoire),(LAST ENEMY ATK)
@@ -492,7 +493,7 @@ Cards,card.monster.spider_queen.name,Roster · monster name (todo),Spider Queen
 Cards,card.monster.spider_queen.ability,Roster · monster player text (Spider Queen),I Attack twice if a Neighbor has less HP than I do.
 Cards,card.monster.spider_queen.explainer,Roster · monster Shift math (Spider Queen),double hit if a Neighbor is weaker
 Cards,card.monster.commander.name,Roster · monster name (todo),Commander
-Cards,card.monster.commander.ability,Roster · monster player text (Commander),I give my Neighbors +2 Attack.
+Cards,card.monster.commander.ability,Roster · monster player text (Commander),"I give my Neighbors +2 Attack. The first time I am Defeated, I Flee and the wheel Spins at random."
 Cards,card.monster.commander.explainer,Roster · monster Shift math (Commander),Neighbors +2 Attack
 Cards,card.monster.dragon.name,Roster · monster name (todo),Dragon
 Cards,card.monster.dragon.ability,Roster · monster player text (Dragon),My Attack ignores Block.

@@ -354,7 +354,7 @@ static func def_of(id: String) -> String:
 		"move":
 			return "shift to a Neighbor without Spinning"
 		"flee":
-			return "If you are facing them, Spin the wheel at random."
+			return "If you are facing them, Spin the wheel at random. They are not removed."
 		"poison":
 			return "On a Spin, a monster with this loses that much HP immediately, wherever they sit, before their spin ability. Then it clears."
 		"spin":

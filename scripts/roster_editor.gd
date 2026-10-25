@@ -703,7 +703,7 @@ func _make_row(card: Dictionary, cols: Array, zebra: int, grid_w: float) -> HBox
 	var stripe := ColorRect.new()
 	stripe.custom_minimum_size = Vector2(STRIPE_W, ROW_H)
 	stripe.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	stripe.color = Color("c08050") if tier_n <= 1 else (Color("8a96a8") if tier_n == 2 else Color("e8c36a"))
+	stripe.color = Color("c08050") if tier_n <= 1 else (Color("c5cdd8") if tier_n == 2 else Color("e8c36a"))
 	row.add_child(stripe)
 	var lock_mark := ColorRect.new()
 	lock_mark.custom_minimum_size = Vector2(STRIPE_W, ROW_H)

@@ -39,6 +39,7 @@ var tutorial_done: bool = false
 var tutorial_declined: bool = false
 var rooms_unlocked: Array = ["main"]
 var key_ring_seen: bool = false
+var invert_scroll: bool = false
 var ending_seen: bool = false
 var deepest_belly: int = 0
 var met_monsters: Dictionary = {}
@@ -345,10 +346,11 @@ func show_menu(room: String = "main") -> void:
 	_refresh_rooms()
 	_beat = "idle"
 	_play_station()
-	_stop_rock()
-	_hero.visible = false
-	_show_empty_chair(true)
-	_set_idle_hero_visible(false)
+	_sync_progress_doors()
+	_start_rock()
+	if _chair_hit:
+		_chair_hit.visible = true
+		_chair_hit.mouse_filter = Control.MOUSE_FILTER_STOP
 	_hide_limp_sack()
 	if not nib_first_done and _dialog:
 		nib_first_done = true
@@ -531,6 +533,20 @@ func play_ending() -> void:
 		_save()
 		_refresh_rooms()
 	_apply_gate()
+
+
+func _sync_progress_doors() -> void:
+	var hauls: int = int(counters.get("hauls", 0))
+	if not key_ring_seen and hauls < 1:
+		return
+	var changed := false
+	for id in ROOM_ORDER:
+		if not rooms_unlocked.has(id):
+			rooms_unlocked.append(id)
+			changed = true
+	if changed:
+		_save()
+		_refresh_rooms()
 
 
 func _grant_all_rooms() -> void:
@@ -979,6 +995,7 @@ func _play_arrive() -> void:
 			counters.losses = int(counters.get("losses", 0)) + 1
 		else:
 			counters.hauls = int(counters.get("hauls", 0)) + 1
+		_sync_progress_doors()
 		_save()
 		_beat = "idle"
 		_play_station()
@@ -990,6 +1007,7 @@ func _play_arrive() -> void:
 		counters.losses = int(counters.get("losses", 0)) + 1
 	else:
 		counters.hauls = int(counters.get("hauls", 0)) + 1
+		_sync_progress_doors()
 		var p: Vector2i = cabinet_progress()
 		if p.y > 0:
 			var pct: int = int(round(100.0 * float(p.x) / float(p.y)))
@@ -2147,6 +2165,7 @@ func _read_v2(parsed: Dictionary) -> void:
 	if rooms_unlocked.is_empty():
 		rooms_unlocked = ["main"]
 	key_ring_seen = bool(parsed.get("key_ring_seen", false))
+	invert_scroll = bool(parsed.get("invert_scroll", false))
 	ending_seen = bool(parsed.get("ending_seen", false))
 	deepest_belly = int(parsed.get("deepest_belly", 0))
 	for m in parsed.get("met_monsters", []):
@@ -2180,6 +2199,7 @@ func _read_v2(parsed: Dictionary) -> void:
 			"hauls": int(c.get("hauls", 0)),
 			"losses": int(c.get("losses", 0)),
 		}
+	_sync_progress_doors()
 
 
 func _save() -> void:
@@ -2195,6 +2215,7 @@ func _save() -> void:
 	data["tutorial_declined"] = tutorial_declined
 	data["rooms_unlocked"] = rooms_unlocked
 	data["key_ring_seen"] = key_ring_seen
+	data["invert_scroll"] = invert_scroll
 	data["ending_seen"] = ending_seen
 	data["deepest_belly"] = deepest_belly
 	data["met_monsters"] = met_monsters.keys()
@@ -2583,6 +2604,7 @@ func fill_middle_save() -> void:
 			if mid != "":
 				met_monsters[mid] = true
 	_save()
+	_sync_progress_doors()
 	_rebuild_shelves()
 	_refresh_rooms()
 	_apply_gate()
@@ -2894,6 +2916,7 @@ func _snap_to(room: String) -> void:
 
 
 func pan_to(room: String) -> void:
+	_sync_progress_doors()
 	if _pan_busy or not is_room_unlocked(room):
 		if not is_room_unlocked(room):
 			_bump()
@@ -3144,6 +3167,9 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 			_arrive_skip = maxi(_arrive_skip, 2)
 			_kill_arrive_motion()
 			return
+	if _dialog and _dialog.is_open() and not _dialog.has_choices():
+		_dialog.advance()
+		return
 	if _busy() and node_name != "Nib" and not (node_name == "RunDoor" and _gate_on()):
 		return
 	match node_name:
@@ -3203,11 +3229,14 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 			_on_bed()
 		"Telescope":
 			var tk: String = "cabin.telescope.none" if deepest_belly <= 0 else "cabin.telescope.line"
-			if deepest_belly <= 0:
-				if _dialog:
-					_dialog.say([tk])
-			else:
-				say_bubble(tk, {"n": deepest_belly})
+			var tvars: Dictionary = {} if deepest_belly <= 0 else {"n": deepest_belly}
+			if _dialog:
+				_dialog.z_index = 40
+				var line: String = KIT.fill_text(tk, tvars)
+				if line.strip_edges() == "":
+					_dialog.say([tk], [], tvars, {tk: "Not yet."})
+				else:
+					_dialog.say([tk], [], tvars)
 			KIT.cue(sfx, &"cabin.telescope")
 		"Trunk":
 			_on_trunk()
@@ -3714,15 +3743,20 @@ func _open_patents() -> void:
 
 func _on_bed() -> void:
 	KIT.cue(sfx, &"cabin.bed")
-	if OS.has_feature("web"):
-		if _dialog:
-			_dialog.say(["cabin.bed.web"])
+	if _dialog == null:
 		return
-	if _dialog:
-		_dialog.say(["cabin.bed.ask"], ["cabin.bed.yes", "cabin.bed.no"])
-		var ch: int = await _dialog.finished
-		if ch == 0:
-			quit_wanted.emit()
+	if _dialog.is_open() and not _dialog.has_choices():
+		_dialog.advance()
+		return
+	_dialog.z_index = 40
+	if OS.has_feature("web"):
+		_dialog.say(["cabin.bed.web"])
+		await _dialog.finished
+		return
+	_dialog.say(["cabin.bed.ask"], ["cabin.bed.yes", "cabin.bed.no"])
+	var ch: int = await _dialog.finished
+	if ch == 0:
+		quit_wanted.emit()
 
 
 func _on_trunk() -> void:
