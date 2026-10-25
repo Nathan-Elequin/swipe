@@ -10,6 +10,7 @@ signal passed_swipe
 const COPY := preload("res://scripts/player_copy.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const RANK_SHIMMER := preload("res://scripts/rank_shimmer.gd")
+const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 const CARD_W := 147.5
 const CARD_H := 120.0
 const SHOW_W := 236.0
@@ -918,6 +919,8 @@ func set_playable(on: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy:
+		return
 	_shimmer_clock += delta
 	if _glow or _aura or _log_focus or _danger or _hot:
 		_glow_t += delta

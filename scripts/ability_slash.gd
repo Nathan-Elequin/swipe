@@ -4,6 +4,7 @@ extends Control
 const FX_RAYS := preload("res://scripts/fx_rays.gd")
 const SLASH_SHADER := preload("res://shaders/slash_lines.gdshader")
 const CIRCLE_TEX := preload("res://assets/dungeon/vfx/circle.png")
+const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 
 const VIEW_W := 1680.0
 const VIEW_H := 1040.0
@@ -114,10 +115,12 @@ func play(payload: Dictionary) -> void:
 
 func _drain() -> void:
 	_draining = true
+	FX_BUDGET.begin_heavy()
 	while not _q.is_empty():
 		var t: Dictionary = _q.pop_front()
 		await _show(t.get("payload", {}))
 		t["done"] = true
+	FX_BUDGET.end_heavy()
 	_draining = false
 
 

@@ -16,6 +16,7 @@ var show_shift: bool = false
 const COPY := preload("res://scripts/player_copy.gd")
 const FX_RAYS := preload("res://scripts/fx_rays.gd")
 const ABILITY_CARD := preload("res://scripts/ui/ability_card.gd")
+const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 const INK_ON_DARK := Color("f0e6d8")
 const TAG_GOLD := Color("FFD84A")
 const SHADOW_COL := Color(0.039, 0.024, 0.016, 0.47)
@@ -257,6 +258,7 @@ var threat_t: float = 0.0:
 var _threat_tween: Tween
 var draft_glow: bool = false
 var _glow_t: float = 0.0
+var _decor_wait: float = 0.0
 var hub_pierce: bool = false
 signal death_floor
 
@@ -470,6 +472,8 @@ func _hero_tick(delta: float) -> void:
 	if _blk_punch_t > 0.0:
 		_blk_punch_t = maxf(0.0, _blk_punch_t - delta)
 	if _hero_frozen or _hero_hold:
+		return
+	if FX_BUDGET.hold_low_priority_idles() and _hero_is_loop(hero_anim):
 		return
 	if _hero_is_loop(hero_anim) and (hero_anim == "idle" or hero_anim == "lowhp"):
 		var want: String = "lowhp" if _hero_is_low() else "idle"
@@ -1168,6 +1172,42 @@ func _process(delta: float) -> void:
 	_hero_tick(delta)
 	_sync_chrome_hover()
 	_sync_ability_cards()
+	if spinning:
+		queue_redraw()
+	elif _wheel_wants_live_draw():
+		_queue_decor_redraw(delta)
+
+
+func _wheel_wants_live_draw() -> bool:
+	if facing_index < 0 and (selected_index >= 0 or not threat_indices.is_empty()):
+		return true
+	if hover_index >= 0:
+		return true
+	if hurt_preview or draft_glow or hub_poison > 0:
+		return true
+	if not _floaters.is_empty() or not _pt_ghosts.is_empty():
+		return true
+	if not _flash.is_empty() or not _hp_punch.is_empty() or not _atk_punch.is_empty():
+		return true
+	if not _bond_anim.is_empty():
+		return true
+	if absf(_hint_ang) > 0.0004:
+		return true
+	for s in slices:
+		if bool(s.get("rage_fire", false)):
+			return true
+	return false
+
+
+func _queue_decor_redraw(delta: float) -> void:
+	var step: float = FX_BUDGET.decor_step()
+	if step <= 0.0:
+		queue_redraw()
+		return
+	_decor_wait -= delta
+	if _decor_wait > 0.0:
+		return
+	_decor_wait = step
 	queue_redraw()
 
 
@@ -1619,6 +1659,8 @@ func _wheel_idle_held(i: int) -> bool:
 		return true
 	# Same seats _draw_slice_contents draws dimmed while a fight is facing someone else.
 	if facing_index >= 0 and not spinning and i != facing_index and i != hover_index:
+		return true
+	if FX_BUDGET.hold_low_priority_idles() and not spinning:
 		return true
 	return false
 
