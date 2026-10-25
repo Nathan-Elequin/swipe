@@ -57,6 +57,7 @@ var _held: bool = false
 ## Optional looping panel frames (PixelLab candle / wax-seal loops). Empty = the still.
 var _panel_anim: Array = []
 var _panel_anim_t: float = 0.0
+var _next_blink: float = 0.0
 const PANEL_ANIM_FPS := 8.0
 
 
@@ -289,7 +290,8 @@ func _layout_dialog() -> void:
 		text_w = inner.size.x - bust_sz.x - gap
 		_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	else:
-		_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		# Center-aligned typewriter grows from the middle. Always type left-to-right (SP-10).
+		_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	var text_h := inner.size.y - prompt_h - gap
 	_caption.position = Vector2(text_x, inner.position.y)
 	_caption.size = Vector2(text_w, maxf(8.0, text_h))
@@ -479,7 +481,7 @@ func _advance() -> void:
 		_shown = _full.length()
 		_caption.visible_characters = _shown
 		_typing = false
-		_next.visible = true
+		_next.visible = not _autoplay_on()
 		return
 	var spec: Dictionary = _panels[panel_index]
 	var lines: Array = spec.get("lines", [])
@@ -501,6 +503,7 @@ func _process(delta: float) -> void:
 	_tick_fx(delta)
 	_tick_bust(delta)
 	_tick_panel_anim(delta)
+	_tick_next_cue(delta)
 
 
 func _set_panel_anim(spec: Dictionary) -> void:
@@ -540,7 +543,7 @@ func _tick_typing(delta: float) -> void:
 	_caption.visible_characters = _shown
 	if _shown >= _full.length():
 		_typing = false
-		_next.visible = true
+		_next.visible = not _autoplay_on()
 
 
 func _autoplay_on() -> bool:
@@ -701,13 +704,29 @@ func _notification(what: int) -> void:
 		_layout_dialog()
 
 
+func _tick_next_cue(delta: float) -> void:
+	if _next == null:
+		return
+	var waiting: bool = _next.visible and not _typing and not _autoplay_on()
+	if not waiting:
+		_next.modulate = Color.WHITE if _next.visible else Color(1, 1, 1, 0)
+		return
+	_next_blink += delta
+	var pulse: float = 0.35 + 0.65 * absf(sin(_next_blink * 5.0))
+	_next.modulate = Color(1, 1, 1, pulse)
+
+
 func _on_gui(event: InputEvent) -> void:
 	if not playing or _busy_fade:
 		return
+	var key_ok: bool = event.is_action_pressed("ui_accept")
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_SPACE or event.physical_keycode == KEY_SPACE or event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+			key_ok = true
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_advance()
 		accept_event()
-	elif event.is_action_pressed("ui_accept"):
+	elif key_ok:
 		_advance()
 		accept_event()
 

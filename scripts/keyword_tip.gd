@@ -3,6 +3,8 @@ extends PanelContainer
 
 const COPY := preload("res://scripts/player_copy.gd")
 
+const PlaytestUx := preload("res://scripts/playtest_ux.gd")
+
 var _title
 var _lab
 var _col: VBoxContainer
@@ -10,6 +12,7 @@ var _mini: PanelContainer
 var _anchor: Control = null
 var _kind: String = ""
 var _gold_sb: StyleBox
+var _pinned: bool = false
 
 
 func setup() -> void:
@@ -22,39 +25,43 @@ func setup() -> void:
 	hsb.border_color = Color("e8c36a")
 	hsb.set_border_width_all(2)
 	hsb.set_corner_radius_all(12)
-	hsb.content_margin_left = 10
-	hsb.content_margin_right = 10
-	hsb.content_margin_top = 5
-	hsb.content_margin_bottom = 5
+	hsb.content_margin_left = 14
+	hsb.content_margin_right = 14
+	hsb.content_margin_top = 10
+	hsb.content_margin_bottom = 10
 	hsb.shadow_color = Color(0.06, 0.04, 0.03, 0.45)
 	hsb.shadow_size = 4
 	_gold_sb = hsb
 	add_theme_stylebox_override("panel", hsb)
 	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 1)
+	col.add_theme_constant_override("separation", 4)
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(col)
 	_col = col
+	var title_fs: Vector2i = PlaytestUx.keyword_tip_title_font()
+	var body_fs: Vector2i = PlaytestUx.keyword_tip_body_font()
+	var min_sz: Vector2 = PlaytestUx.keyword_tip_min_size()
 	_title = FitLabelBox.make()
 	_title.show_frame = false
 	_title.padding = 0
-	_title.max_font_size = 12
-	_title.min_font_size = 10
+	_title.max_font_size = title_fs.x
+	_title.min_font_size = title_fs.y
 	_title.font_color = Color("e8c36a")
 	_title.set_outline(Color("100e0c"), 2)
-	_title.custom_minimum_size = Vector2(160, 16)
+	_title.custom_minimum_size = Vector2(min_sz.x - 28.0, 22)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_title)
 	_lab = FitLabelBox.make()
 	_lab.show_frame = false
 	_lab.padding = 0
-	_lab.max_font_size = 11
-	_lab.min_font_size = 9
+	_lab.max_font_size = body_fs.x
+	_lab.min_font_size = body_fs.y
 	_lab.font_color = Color("f0e6d8")
 	_lab.set_outline(Color("100e0c"), 2)
-	_lab.custom_minimum_size = Vector2(160, 18)
+	_lab.custom_minimum_size = Vector2(min_sz.x - 28.0, 36)
 	_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_lab)
+	custom_minimum_size = min_sz
 	set_process(false)
 
 
@@ -70,8 +77,8 @@ func show_def(msg: String, anchor: Control = null, id: String = "") -> void:
 		add_theme_stylebox_override("panel", _gold_sb)
 	_anchor = anchor
 	_kind = id.strip_edges().to_lower()
-	_title.visible = false
-	_title.text = ""
+	_title.visible = _kind != ""
+	_title.text = _kind.capitalize() if _kind != "" else ""
 	if _kind == "always":
 		_lab.text = COPY.text("keyword.always_body", "cannot be changed in any other way")
 	elif _kind == "swap":
@@ -89,6 +96,12 @@ func show_def(msg: String, anchor: Control = null, id: String = "") -> void:
 	reset_size()
 	set_process(true)
 	_place()
+
+
+func pin_def(msg: String, anchor: Control = null, id: String = "") -> void:
+	_pinned = true
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	show_def(msg, anchor, id)
 
 
 func show_callout(pack: Dictionary, anchor: Control = null, id: String = "") -> void:
@@ -143,6 +156,8 @@ func _hide_mini() -> void:
 
 
 func hide_def() -> void:
+	if _pinned:
+		return
 	visible = false
 	_anchor = null
 	_kind = ""
@@ -150,6 +165,12 @@ func hide_def() -> void:
 	if _gold_sb:
 		add_theme_stylebox_override("panel", _gold_sb)
 	set_process(false)
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func unpin() -> void:
+	_pinned = false
+	hide_def()
 
 
 func _process(_delta: float) -> void:
@@ -162,7 +183,9 @@ func _process(_delta: float) -> void:
 func _place() -> void:
 	reset_size()
 	var sz: Vector2 = get_combined_minimum_size()
-	sz.x = maxf(sz.x, 168.0)
+	var floor_sz: Vector2 = PlaytestUx.keyword_tip_min_size()
+	sz.x = maxf(sz.x, floor_sz.x)
+	sz.y = maxf(sz.y, floor_sz.y)
 	var vp: Vector2 = get_viewport_rect().size
 	var anchor := Rect2()
 	if _anchor != null and is_instance_valid(_anchor) and _anchor.visible:

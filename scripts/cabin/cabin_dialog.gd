@@ -5,6 +5,7 @@ signal finished(choice: int)
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
+const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 const PX := 4.0
 
 var cabin
@@ -200,7 +201,8 @@ func _layout_talk(with_choices: bool) -> void:
 	var view := Vector2(KIT.ROOM_W, KIT.ROOM_H)
 	if is_inside_tree():
 		view = get_viewport_rect().size
-	var extra: float = 18.0 * PX if with_choices else 0.0
+	# Always reserve the choice row so the box does not jump when buttons appear (SP-10).
+	var extra: float = PlaytestUx.dialog_choice_reserve_px()
 	var L: Dictionary = KIT.dialog_bar(view, extra, KIT.DIALOG_SAFE_CABIN)
 	var bar: Rect2 = L["bar"]
 	var inner: Rect2 = L["inner"]
@@ -344,7 +346,11 @@ func _notification(what: int) -> void:
 func _gui_input(event: InputEvent) -> void:
 	if not _open:
 		return
-	if event.is_action_pressed("ui_accept") or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
+	var key_ok: bool = event.is_action_pressed("ui_accept")
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_SPACE or event.physical_keycode == KEY_SPACE or event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+			key_ok = true
+	if key_ok or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
 		if _choices.visible:
 			return
 		advance()
