@@ -5,6 +5,7 @@ signal edit_wanted(card_id: String)
 
 const OUTLINE_SHADER := preload("res://shaders/tier_outline.gdshader")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
+const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 
 var art
 var card_id: String = ""
@@ -40,6 +41,9 @@ var _fx: Control
 var _body_center: Vector2 = Vector2.ZERO
 var _plinth_foot: Vector2 = Vector2.ZERO
 var _plinth_w: float = 0.0
+var _shown_fi: int = -1
+var _shown_bob: int = -1
+var _placed_sig: String = ""
 
 
 func setup(p_art) -> void:
@@ -91,6 +95,9 @@ func show_monster(id: String, p_tier: int = 1) -> void:
 	_run = art.monster_run(id) if art else []
 	_mode = "idle"
 	_fi = 0.0
+	_shown_fi = -1
+	_shown_bob = -1
+	_placed_sig = ""
 	_flash = 0.0
 	_blood.clear()
 	_bursts.clear()
@@ -137,6 +144,9 @@ func hide_stage() -> void:
 	_run.clear()
 	_watch_tex = null
 	_watch_t = 0.0
+	_shown_fi = -1
+	_shown_bob = -1
+	_placed_sig = ""
 
 
 func take_hit() -> void:
@@ -154,6 +164,7 @@ func take_hit() -> void:
 func lunge(fast: bool = false) -> void:
 	if OS.has_feature("editor"):
 		print("[resolve] stage.lunge id=", card_id, " frames=", _idle.size(), "/", _run.size())
+	FX_BUDGET.begin_heavy()
 	busy = true
 	_mode = "run"
 	var go: float = 0.05 if fast else 0.1
@@ -164,6 +175,7 @@ func lunge(fast: bool = false) -> void:
 	await tw.finished
 	_mode = "idle"
 	busy = false
+	FX_BUDGET.end_heavy()
 
 
 func play_hypnotize(watch: Texture2D) -> void:
@@ -253,13 +265,15 @@ func vanish() -> void:
 func _process(delta: float) -> void:
 	if not visible:
 		return
-	if _mode == "run":
-		_fi += delta * 10.0
-	elif _idle.size() >= 4:
-		_fi += delta / 0.140
-	else:
-		_fi += delta * 6.0
-	_bob += delta
+	var hold_idle: bool = FX_BUDGET.hold_low_priority_idles() and _mode == "idle"
+	if not hold_idle:
+		if _mode == "run":
+			_fi += delta * 10.0
+		elif _idle.size() >= 4:
+			_fi += delta / 0.140
+		else:
+			_fi += delta * 6.0
+		_bob += delta
 	if _flash > 0.0:
 		_flash = maxf(0.0, _flash - delta * 4.2)
 	if _watch_t > 0.0:
@@ -276,16 +290,38 @@ func _process(delta: float) -> void:
 		if float(u["t"]) < float(u["life"]):
 			keep2.append(u)
 	_bursts = keep2
-	if _rage:
+	if _rage and not hold_idle:
 		_rage_cd -= delta
 		if _rage_cd <= 0.0:
 			_rage_cd = 0.18
 			_burst("flame", Color("ff6a20"), 0.85)
 			_burst("spark", Color("ffd070"), 0.55)
+	if not _portrait_dirty():
+		return
 	_place_sprite()
 	queue_redraw()
 	if _fx:
 		_fx.queue_redraw()
+
+
+func _portrait_dirty() -> bool:
+	var frames: Array = _run if _mode == "run" and not _run.is_empty() else _idle
+	var fi: int = 0
+	if not frames.is_empty():
+		fi = int(_fi) % frames.size()
+	if fi != _shown_fi:
+		_shown_fi = fi
+		return true
+	if _flash > 0.0 or _watch_t > 0.0 or not _blood.is_empty() or not _bursts.is_empty():
+		return true
+	if _lunge_x != 0.0:
+		return true
+	if _mode == "idle" and _idle.size() < 4 and not FX_BUDGET.hold_low_priority_idles():
+		var bob_i: int = int(_bob * 12.0)
+		if bob_i != _shown_bob:
+			_shown_bob = bob_i
+			return true
+	return false
 
 
 func _splatter(col: Color) -> void:
@@ -313,7 +349,10 @@ func _burst(kind: String, col: Color, sc: float) -> void:
 
 
 func _opaque_rect(tex: Texture2D) -> Rect2:
-	var key: String = "%s:%s" % [tex.resource_path, tex.get_size()]
+	var path: String = str(tex.resource_path)
+	if path == "":
+		path = str(tex.get_instance_id())
+	var key: String = "%s:%s" % [path, tex.get_size()]
 	if _opaque.has(key):
 		return _opaque[key]
 	var region := Rect2(Vector2.ZERO, tex.get_size())
@@ -341,6 +380,7 @@ func _place_sprite() -> void:
 	if frames.is_empty():
 		_sprite.texture = null
 		_sprite.material = null
+		_placed_sig = ""
 		return
 	var tex: Texture2D = frames[int(_fi) % frames.size()]
 	if tex == null or not is_instance_valid(tex):

@@ -1,10 +1,14 @@
 extends Control
 ## Layered dungeon hall: dark floor, wall band, sparse props, dais under the wheel.
 
+const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
+const FLICKER_STEP := 0.125
+
 var art
 var _t: float = 0.0
 var hall: int = 0
 var _pan: float = 0.0
+var _flick_wait: float = 0.0
 var pan: float:
 	get:
 		return _pan
@@ -35,6 +39,12 @@ func reset_hall() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
+	if FX_BUDGET.hold_low_priority_idles():
+		return
+	_flick_wait -= delta
+	if _flick_wait > 0.0:
+		return
+	_flick_wait = FLICKER_STEP
 	queue_redraw()
 
 

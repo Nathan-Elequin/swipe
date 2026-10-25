@@ -462,6 +462,7 @@ var player_stage
 var _sprout_mode: String = "hub"
 var _sprout_tw: Tween
 var _sprout_home_x: float = 80.0
+var _fight_art_sig: String = ""
 var trophy
 var play_field: Control
 
@@ -16792,6 +16793,30 @@ func qa_staging_spin_return() -> String:
 func _place_fight_art() -> void:
 	if wheel_view == null:
 		return
+	if player_stage != null and player_stage.traveling:
+		_apply_sprout_floor()
+	var wr_now: Rect2 = wheel_view.get_global_rect()
+	var log_r := Rect2()
+	if log_label != null and log_label.visible:
+		log_r = log_label.get_global_rect()
+	var sig := "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [
+		phase,
+		facing_index,
+		wr_now,
+		get_viewport_rect().size,
+		_choice_covering(),
+		combat_stage != null and combat_stage.visible,
+		combat_stage != null and combat_stage.busy,
+		player_stage != null and player_stage.visible,
+		_sprout_mode,
+		face_box != null and face_box.visible,
+		hypno_stage != null and hypno_stage.visible,
+		log_r,
+		hp,
+	]
+	if sig == _fight_art_sig:
+		return
+	_fight_art_sig = sig
 	if _choice_covering():
 		if face_box:
 			face_box.hide_plate()

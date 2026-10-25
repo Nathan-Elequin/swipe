@@ -1,9 +1,12 @@
 extends Control
 ## Big Sprout on the left of the wheel. Faces right, toward the monster portrait.
 
+const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
+
 var art
 var hp: int = 6
 var hp_max: int = 6
+var _heavy_token: bool = false
 
 var _state: String = ""
 var _frames: Array = []
@@ -38,7 +41,22 @@ func setup(p_art) -> void:
 	set_process(true)
 
 
+func _exit_tree() -> void:
+	_set_heavy(false)
+
+
+func _set_heavy(on: bool) -> void:
+	if on == _heavy_token:
+		return
+	_heavy_token = on
+	if on:
+		FX_BUDGET.begin_heavy()
+	else:
+		FX_BUDGET.end_heavy()
+
+
 func play(state: String, loops: int = 1) -> void:
+	_set_heavy(FX_BUDGET.is_heavy_state(state))
 	_pending_hide = false
 	_blinking = false
 	_hold = false
@@ -63,6 +81,7 @@ func note_hp() -> void:
 
 
 func idle() -> void:
+	_set_heavy(false)
 	var nxt := "lowhp" if _is_low() else "idle"
 	_pending_hide = false
 	_blinking = false
@@ -91,6 +110,7 @@ func hide_stage() -> void:
 
 
 func _finish_hide() -> void:
+	_set_heavy(false)
 	visible = false
 	_state = ""
 	_frames = []
@@ -203,7 +223,10 @@ func foot_y() -> float:
 
 
 func _opaque_rect(tex: Texture2D) -> Rect2:
-	var key: String = "%s:%s" % [tex.resource_path, tex.get_size()]
+	var path: String = str(tex.resource_path)
+	if path == "":
+		path = str(tex.get_instance_id())
+	var key: String = "%s:%s" % [path, tex.get_size()]
 	if _opaque.has(key):
 		return _opaque[key]
 	var region := Rect2(Vector2.ZERO, tex.get_size())
