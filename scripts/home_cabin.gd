@@ -144,7 +144,11 @@ var _max_bucket: int = 0
 var _room_busy: bool = false
 var _by_bucket: Dictionary = {}
 var _campaign_rules: Dictionary = {}
+## CampaignShell instance from main. Cabinet counts and shelved trophies read banked.
+var _campaign_shell = null
 var _bank_hold: Dictionary = {}
+## Skip map-piece ceremony for this homecoming (Push interrupt under 5/5).
+var _bank_from_push_block: bool = false
 var _bank_fresh: String = ""
 var _bank_busy: bool = false
 var _bank_played: bool = false
@@ -206,6 +210,64 @@ func note_seen(id: String) -> void:
 	_save()
 
 
+func bind_campaign(shell) -> void:
+	_campaign_shell = shell
+	# Prefer banked as the ledger, then absorb any classic-only swipes so both agree.
+	sync_swiped_from_banked()
+	mirror_swiped_into_banked()
+
+
+func sync_swiped_from_banked() -> void:
+	if _campaign_shell == null:
+		return
+	var banked: Dictionary = _campaign_shell.state.get("banked", {})
+	if typeof(banked) != TYPE_DICTIONARY:
+		return
+	var changed := false
+	for id in banked.keys():
+		var sid := str(id)
+		if sid == "":
+			continue
+		if not bool(swiped.get(sid, false)):
+			swiped[sid] = true
+			changed = true
+		seen[sid] = true
+	if changed:
+		_save()
+
+
+## Mirror classic cabin swipes into CampaignShell.banked so both ledgers agree.
+func mirror_swiped_into_banked() -> void:
+	if _campaign_shell == null:
+		return
+	var pools := {}
+	var ids: Array = []
+	for id in swiped.keys():
+		var sid := str(id)
+		var pool := _live_pool(items_by_id.get(sid, {}))
+		if pool == "":
+			continue
+		ids.append(sid)
+		pools[sid] = pool
+	if ids.is_empty():
+		return
+	CampaignShell.bank(_campaign_shell.rules, _campaign_shell.state, ids, pools)
+	if _campaign_shell.has_method("write"):
+		_campaign_shell.write()
+
+
+func _is_shelved(id: String) -> bool:
+	var sid := str(id)
+	if _bank_hold.has(sid):
+		return false
+	if _campaign_shell != null:
+		var banked: Dictionary = _campaign_shell.state.get("banked", {})
+		if typeof(banked) == TYPE_DICTIONARY and banked.has(sid):
+			return true
+		# Fall through so a classic swipe that has not mirrored yet still shows.
+	return bool(swiped.get(sid, false))
+
+
 func swipe_ids(ids: Array) -> Array:
 	var changed := false
 	_just_mounted.clear()
@@ -227,6 +289,7 @@ func swipe_ids(ids: Array) -> Array:
 	if changed:
 		_bank_played = false
 		_save()
+		mirror_swiped_into_banked()
 		call_deferred("_offer_bank_sequence")
 	return news
 
@@ -259,8 +322,10 @@ func cabinet_progress() -> Vector2i:
 		if BucketRules.is_token(card.get("bucket", 0)):
 			continue
 		total += 1
-		if bool(swiped.get(str(id), false)):
+		if _is_shelved(str(id)) or bool(swiped.get(str(id), false)):
 			home_n += 1
+	if _campaign_shell != null:
+		home_n = CampaignShell.total_uniques(_campaign_shell.state)
 	return Vector2i(home_n, total)
 
 
@@ -393,6 +458,41 @@ func play_homecoming(kind: String, new_ids: Array, held_ids: Array) -> void:
 	_new_ids = new_ids.duplicate()
 	_held_ids = held_ids.duplicate()
 	open_cabin(items_by_id, tex_by_item, buckets_open, true, kind, new_ids, held_ids)
+
+
+## Push-block interrupt: dissolve already played; land in the hall at that biome's case.
+## No map piece on this path (S3 listens to cabinet_gate_crossed; we suppress it).
+func open_hall_after_push_block(pool_id: String, biome_name: String, new_ids: Array = [], held_ids: Array = []) -> void:
+	_bank_from_push_block = true
+	sync_swiped_from_banked()
+	_homecoming_kind = "win"
+	_new_ids = new_ids.duplicate()
+	_held_ids = held_ids.duplicate()
+	visible = true
+	_arriving = false
+	_door_busy = false
+	_room_busy = false
+	_menu_on = true
+	var room := "hall" if is_room_unlocked("hall") else "main"
+	await show_menu(room)
+	focus_biome_case(pool_id)
+	if _dialog:
+		if _dialog.has_method("dismiss"):
+			_dialog.dismiss()
+		_dialog.say(["nib.homecoming"], [], {"biome": biome_name})
+		await _dialog.finished
+
+
+func focus_biome_case(pool_id: String) -> void:
+	if _shelf_host == null:
+		return
+	var root := _shelf_host.get_node_or_null("Case_%s" % pool_id) as Control
+	if root == null:
+		return
+	root.modulate = Color(1.35, 1.2, 0.75, 1.0)
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_property(root, "modulate", Color.WHITE, 0.55)
 
 
 func play_intro(is_replay: bool = false) -> void:
@@ -1702,15 +1802,24 @@ func _group_cards_by_pool() -> Dictionary:
 
 
 func _shown_count(pool_id: String) -> int:
-	var n := 0
+	# One ledger with Push gating: CampaignShell.cabinet_count (banked).
+	if _campaign_shell != null:
+		var n: int = CampaignShell.cabinet_count(_campaign_shell.state, pool_id)
+		# Items still in the bank reveal hold are counted in banked but not shown yet.
+		for raw in _bank_hold.keys():
+			var hid := str(raw)
+			if _live_pool(items_by_id.get(hid, {})) == pool_id:
+				n = maxi(0, n - 1)
+		return n
+	var n2 := 0
 	for id in items_by_id.keys():
 		var card: Dictionary = items_by_id[id]
 		if _live_pool(card) != pool_id:
 			continue
 		var sid := str(card.get("id", id))
 		if bool(swiped.get(sid, false)) and not _bank_hold.has(sid):
-			n += 1
-	return n
+			n2 += 1
+	return n2
 
 
 func _biome_progress_lines() -> Array:
@@ -1775,11 +1884,7 @@ func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, cas
 		case_art.set_anchors_preset(Control.PRESET_FULL_RECT)
 		case_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		root.add_child(case_art)
-	var shown := 0
-	for raw in cards:
-		var shown_id := str((raw as Dictionary).get("id", ""))
-		if bool(swiped.get(shown_id, false)) and not _bank_hold.has(shown_id):
-			shown += 1
+	var shown := _shown_count(pool_id)
 	var name_lab := KIT.raw_label(str(spec.get("name", pool_id)), 22, KIT.TITLE_CREAM, true)
 	name_lab.max_lines = 2
 	name_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1841,7 +1946,7 @@ func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, cas
 		column.add_child(slot)
 		y += msize.y
 		var sid := str(card.get("id", ""))
-		if bool(swiped.get(sid, false)) and not _bank_hold.has(sid):
+		if _is_shelved(sid):
 			collected_slots += 1
 			if collected_slots == quota:
 				var gate := ColorRect.new()
@@ -1947,11 +2052,12 @@ func _play_bank_sequence() -> void:
 		_bank_hold.erase(step_id)
 		_bank_fresh = step_id
 		_rebuild_shelves()
-		if BiomeCabinets.crossed_gate(before, _shown_count(pool), quota):
+		if not _bank_from_push_block and BiomeCabinets.crossed_gate(before, _shown_count(pool), quota):
 			cabinet_gate_crossed.emit(pool)
 		await _wait(0.34, true)
 	_bank_fresh = ""
 	_bank_busy = false
+	_bank_from_push_block = false
 	if is_inside_tree():
 		_rebuild_shelves()
 
@@ -1961,6 +2067,7 @@ func _clear_bank_anim() -> void:
 	_bank_fresh = ""
 	_bank_busy = false
 	_bank_played = false
+	_bank_from_push_block = false
 	_case_scroll.clear()
 
 
@@ -2004,8 +2111,8 @@ func _mount_slot(card: Dictionary, pos: Vector2, msize: Vector2, room_locked: bo
 	wrap.mouse_filter = Control.MOUSE_FILTER_STOP
 	var id: String = str(card.get("id", ""))
 	wrap.name = "Mount_%s" % id
-	var is_swiped: bool = bool(swiped.get(id, false)) and not room_locked and not _bank_hold.has(id)
-	var is_seen: bool = (bool(seen.get(id, false)) or is_swiped or _bank_hold.has(id)) and not room_locked
+	var is_swiped: bool = (not room_locked) and _is_shelved(id)
+	var is_seen: bool = (bool(seen.get(id, false)) or is_swiped or _bank_hold.has(id) or (_campaign_shell != null and (_campaign_shell.state.get("banked", {}) as Dictionary).has(id))) and not room_locked
 	var fresh: bool = false
 	if is_swiped and _bank_fresh == id:
 		fresh = true
@@ -2566,6 +2673,7 @@ func debug_seed(owned: int, seen_only: int, buckets: int) -> void:
 		n += 1
 	buckets_open = buckets
 	_clear_bank_anim()
+	mirror_swiped_into_banked()
 	_rebuild_shelves()
 
 
