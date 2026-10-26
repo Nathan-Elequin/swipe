@@ -11,6 +11,7 @@ build/
 *.pck
 
 .godot-check.txt
+data/build_stamp.txt
 data/*.backup*.json
 data/*.proposed*.json
 *.xlsx

@@ -37,6 +37,7 @@ const DUNGEON_DECK := preload("res://scripts/dungeon_deck.gd")
 const CHALLENGE_DRAFT := preload("res://scripts/challenge_draft.gd")
 const HOME_CABIN := preload("res://scripts/home_cabin.gd")
 const SHOT_CLI := preload("res://scripts/shot_cli.gd")
+const BUILD_STAMP := preload("res://scripts/build_stamp.gd")
 const HOT_EMPTY := preload("res://scripts/hot_empty_slot.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 const RECENT_EDITS := preload("res://scripts/recent_edits.gd")
@@ -701,6 +702,7 @@ func _attach_dev_branch_tag() -> void:
 
 
 func _ready() -> void:
+	BUILD_STAMP.attach(self)
 	_attach_dev_branch_tag()
 	if not SHOT_CLI.enabled(OS.get_cmdline_user_args()):
 		SHOT_CLI.recover_if_marked()
