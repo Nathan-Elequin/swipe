@@ -47,13 +47,14 @@ static func hold_low_priority_idles() -> bool:
 	return _heavy > 0
 
 
-## Decorative redraws per second. 0 = uncapped (desktop, no heavy FX).
+## Decorative redraws per second. Heavy FX is slower. Desktop used to be uncapped,
+## which redrew the whole wheel every frame whenever a fight preview was up.
 static func decorative_fps() -> float:
 	if _heavy > 0:
 		return 8.0
 	if is_web():
 		return 12.0
-	return 0.0
+	return 15.0
 
 
 ## Seconds between decorative redraws. 0 = draw every process frame.

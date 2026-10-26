@@ -40,6 +40,7 @@ var _formula: String = ""
 var _formula_on: bool = false
 var _glow: bool = false
 var _glow_t: float = 0.0
+var _style_wait: float = 0.0
 var _rim_glow: bool = true
 var _hot: bool = false
 var _showcase: bool = false
@@ -981,7 +982,10 @@ func _process(delta: float) -> void:
 	_shimmer_clock += delta
 	if _glow or _aura or _log_focus or _danger or _hot:
 		_glow_t += delta
-		_apply_style(_hot)
+		_style_wait -= delta
+		if _style_wait <= 0.0:
+			_style_wait = 0.05
+			_apply_style(_hot)
 	_tick_shimmer()
 	_tick_breathe()
 	_tick_sparkle(delta)
@@ -1446,6 +1450,9 @@ func _tick_breathe() -> void:
 		return
 	pivot_offset = size * 0.5
 	var s: float = 1.0 + 0.015 * sin(_shimmer_clock * TAU * 0.5)
+	s = snappedf(s, 0.005)
+	if is_equal_approx(scale.x, s):
+		return
 	scale = Vector2(s, s)
 
 
