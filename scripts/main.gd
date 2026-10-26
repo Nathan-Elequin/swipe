@@ -40,6 +40,7 @@ const CAMPAIGN_MAP := preload("res://scripts/campaign_map.gd")
 const HOME_CABIN := preload("res://scripts/home_cabin.gd")
 const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 const BUILD_STAMP := preload("res://scripts/build_stamp.gd")
+const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
 const HOT_EMPTY := preload("res://scripts/hot_empty_slot.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 const RECENT_EDITS := preload("res://scripts/recent_edits.gd")
@@ -717,6 +718,8 @@ func _attach_dev_branch_tag() -> void:
 
 func _ready() -> void:
 	BUILD_STAMP.attach(self)
+	if PLAYTEST_FLAG.on():
+		FRAME_METRICS.attach(self)
 	_attach_dev_branch_tag()
 	if not SHOT_CLI.enabled(OS.get_cmdline_user_args()):
 		SHOT_CLI.recover_if_marked()
@@ -17780,7 +17783,9 @@ func qa_staging_spin_return() -> String:
 
 
 func _place_fight_art() -> void:
+	var _place_t0 := Time.get_ticks_usec()
 	if wheel_view == null:
+		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
 		return
 	if player_stage != null and player_stage.visible:
 		player_stage.hide_stage()
@@ -17803,6 +17808,7 @@ func _place_fight_art() -> void:
 		wheel_view.hub_sprout_on if wheel_view else true,
 	]
 	if sig == _fight_art_sig:
+		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
 		return
 	_fight_art_sig = sig
 	if _choice_covering():
@@ -17901,6 +17907,7 @@ func _place_fight_art() -> void:
 			ability_slash.global_position = Vector2(left_x, port_y)
 	if intent_plate != null and intent_plate.has_method("reanchor"):
 		intent_plate.reanchor()
+	FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, false)
 
 
 func _speech_gutter() -> Rect2:

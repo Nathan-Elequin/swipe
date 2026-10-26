@@ -6,6 +6,7 @@ signal edit_wanted(card_id: String)
 const OUTLINE_SHADER := preload("res://shaders/tier_outline.gdshader")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
+const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
 
 var art
 var card_id: String = ""
@@ -311,6 +312,7 @@ func _process(delta: float) -> void:
 		return
 	_place_sprite()
 	queue_redraw()
+	FRAME_METRICS.note_stage()
 	if _fx:
 		_fx.queue_redraw()
 
