@@ -24,7 +24,8 @@ const ARRIVE_INT_SPEED := 51.2
 const ROOM_W := 1680.0
 const ROOM_H := 1040.0
 const VIEW_FRAME := preload("res://scripts/ui/view_frame.gd")
-const ROOM_ORDER: Array[String] = ["main", "hall", "study", "workshop", "loft"]
+const ROOM_ORDER: Array[String] = ["mudroom", "main", "hall", "study", "workshop", "loft"]
+const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const STATION_BEDS := ["cabin", "station_inn", "station_rag", "station_harp"]
 const RUG_SECRET_ID := "poison_flask"
 const RUG_COPY := {
@@ -43,7 +44,8 @@ var intro_pack: int = 1
 var nib_first_done: bool = false
 var tutorial_done: bool = false
 var tutorial_declined: bool = false
-var rooms_unlocked: Array = ["main"]
+var rooms_unlocked: Array = ["mudroom", "main"]
+var mudroom_loadout: Array = []
 var key_ring_seen: bool = false
 var invert_scroll: bool = false
 var ending_seen: bool = false
@@ -432,6 +434,8 @@ func show_menu(room: String = "main") -> void:
 	_start_interior_loops()
 	_rebuild_shelves()
 	_refresh_rooms()
+	if _current_room == "mudroom":
+		_refresh_mudroom()
 	_beat = "idle"
 	_play_station()
 	_sync_progress_doors()
@@ -844,7 +848,7 @@ func _build() -> void:
 	_rooms_host = Control.new()
 	_rooms_host.name = "RoomsHost"
 	_rooms_host.position = Vector2.ZERO
-	_rooms_host.size = Vector2(ROOM_W * 5.0, 1040.0)
+	_rooms_host.size = Vector2(ROOM_W * float(ROOM_ORDER.size()), 1040.0)
 	_rooms_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_rooms_clip.add_child(_rooms_host)
 	_build_rooms()
@@ -2904,10 +2908,11 @@ func _apply_defaults() -> void:
 	nib_first_done = false
 	tutorial_done = false
 	tutorial_declined = false
-	rooms_unlocked = ["main"]
+	rooms_unlocked = ["mudroom", "main"]
 	key_ring_seen = false
 	ending_seen = false
 	deepest_belly = 0
+	mudroom_loadout = []
 	last_route = ""
 	radio_station = 0
 	gear_worn = {"head": "", "eyes": "", "belt": ""}
@@ -2947,10 +2952,17 @@ func _read_v2(parsed: Dictionary) -> void:
 	tutorial_done = bool(parsed.get("tutorial_done", false))
 	tutorial_declined = bool(parsed.get("tutorial_declined", false))
 	rooms_unlocked = []
-	for r in parsed.get("rooms_unlocked", ["main"]):
+	for r in parsed.get("rooms_unlocked", ["mudroom", "main"]):
 		rooms_unlocked.append(str(r))
 	if rooms_unlocked.is_empty():
-		rooms_unlocked = ["main"]
+		rooms_unlocked = ["mudroom", "main"]
+	if rooms_unlocked.has("main") and not rooms_unlocked.has("mudroom"):
+		rooms_unlocked.insert(0, "mudroom")
+	mudroom_loadout = []
+	for raw_load in parsed.get("mudroom_loadout", []):
+		var lid := str(raw_load)
+		if lid != "":
+			mudroom_loadout.append(lid)
 	key_ring_seen = bool(parsed.get("key_ring_seen", false))
 	invert_scroll = bool(parsed.get("invert_scroll", false))
 	ending_seen = bool(parsed.get("ending_seen", false))
@@ -3001,6 +3013,7 @@ func _save() -> void:
 	data["tutorial_done"] = tutorial_done
 	data["tutorial_declined"] = tutorial_declined
 	data["rooms_unlocked"] = rooms_unlocked
+	data["mudroom_loadout"] = mudroom_loadout
 	data["key_ring_seen"] = key_ring_seen
 	data["invert_scroll"] = invert_scroll
 	data["ending_seen"] = ending_seen
@@ -3162,7 +3175,7 @@ func debug_pose(beat: String) -> void:
 			show_menu("main")
 		"keyring", "key_ring":
 			key_ring_seen = false
-			rooms_unlocked = ["main"]
+			rooms_unlocked = ["mudroom", "main"]
 			_refresh_rooms()
 			play_key_ring()
 		"hall", "trophy":
@@ -3185,6 +3198,13 @@ func debug_pose(beat: String) -> void:
 			if not is_room_unlocked("loft"):
 				_grant_all_rooms()
 			show_menu("loft")
+		"mudroom":
+			if not is_room_unlocked("mudroom"):
+				rooms_unlocked.insert(0, "mudroom")
+				_save()
+				_refresh_rooms()
+			show_menu("mudroom")
+			_refresh_mudroom()
 		"ending":
 			ending_seen = false
 			play_ending()
@@ -3272,6 +3292,8 @@ func _input(event: InputEvent) -> void:
 				_dialog.say(["map.first_only"])
 			get_viewport().set_input_as_handled()
 			return
+		if _current_room == "mudroom":
+			_commit_mudroom_loadout()
 		_ask_held_map()
 		get_viewport().set_input_as_handled()
 		return
@@ -3502,6 +3524,7 @@ func _arrow(delta: int) -> void:
 
 func _build_rooms() -> void:
 	var scripts := {
+		"mudroom": preload("res://scripts/cabin/room_mudroom.gd"),
 		"main": preload("res://scripts/cabin/room_main.gd"),
 		"hall": preload("res://scripts/cabin/room_hall.gd"),
 		"study": preload("res://scripts/cabin/room_study.gd"),
@@ -3732,7 +3755,7 @@ func _apply_view_frame() -> void:
 	_rooms_clip.size = fr.size
 	_rooms_clip.clip_contents = true
 	if _rooms_host:
-		_rooms_host.size = Vector2(ROOM_W * 5.0, ROOM_H)
+		_rooms_host.size = Vector2(ROOM_W * float(ROOM_ORDER.size()), ROOM_H)
 	_snap_to(_current_room)
 
 
@@ -3778,7 +3801,11 @@ func pan_to(room: String) -> void:
 	_current_room = room
 	_pan_busy = false
 	_rooms_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_show_toast("cabin.room.%s" % room)
+	if room == "mudroom":
+		_show_toast("room.mudroom.name")
+		_refresh_mudroom()
+	else:
+		_show_toast("cabin.room.%s" % room)
 	if room == "hall":
 		call_deferred("_offer_bank_sequence")
 
@@ -3808,7 +3835,11 @@ func _pan_unlocked(room: String) -> void:
 		return
 	_current_room = room
 	_pan_busy = false
-	_show_toast("cabin.room.%s" % room)
+	if room == "mudroom":
+		_show_toast("room.mudroom.name")
+		_refresh_mudroom()
+	else:
+		_show_toast("cabin.room.%s" % room)
 	if room == "hall":
 		call_deferred("_offer_bank_sequence")
 
@@ -4013,6 +4044,11 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 	match node_name:
 		"RunDoor":
 			_on_run_door()
+		"OutDoor":
+			_commit_mudroom_loadout()
+			_ask_held_map()
+		"RerollJar":
+			_reroll_mudroom_hooks()
 		"SideDoor":
 			_on_side_door(room)
 		"BackDoor":
@@ -4096,6 +4132,9 @@ func _on_run_door() -> void:
 	if _gate_on():
 		_interrupt()
 		return
+	if is_room_unlocked("mudroom"):
+		pan_to("mudroom")
+		return
 	_ask_held_map()
 
 
@@ -4139,6 +4178,91 @@ func _open_map() -> void:
 
 func _ask_held_map() -> void:
 	held_map_wanted.emit()
+
+
+func _campaign_ref():
+	var host = get_parent()
+	if host != null and host.get("_campaign") != null:
+		return host._campaign
+	return null
+
+
+func _mudroom_item_rows() -> Array:
+	var out: Array = []
+	for id in items_by_id.keys():
+		var card: Dictionary = items_by_id[id]
+		var st := str(card.get("status", "live"))
+		if st == "hold" or st == "retired":
+			continue
+		if BucketRules.is_token(card.get("bucket", 0)):
+			continue
+		if BucketRules.is_always_starter_id(str(id)):
+			continue
+		out.append({"id": str(id), "tier": int(card.get("tier", 1))})
+	return out
+
+
+func _refresh_mudroom() -> void:
+	var room = _rooms.get("mudroom")
+	if room == null or not room.has_method("set_hooks"):
+		return
+	var camp = _campaign_ref()
+	var rules: Dictionary = camp.rules if camp != null else CAMPAIGN_SHELL.read_json("res://data/campaign.json")
+	var state: Dictionary = camp.state if camp != null else CAMPAIGN_SHELL.fresh_state()
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var ids: Array = mudroom_loadout.duplicate()
+	if ids.is_empty() and camp != null:
+		ids = CAMPAIGN_SHELL.mudroom_loadout_of(state)
+	var need: int = CAMPAIGN_SHELL.starter_hook_count(rules)
+	if ids.size() != need:
+		ids = CAMPAIGN_SHELL.roll_mudroom_hooks(rules, rng, _mudroom_item_rows(), [])
+	var names := {}
+	for id in ids:
+		names[str(id)] = str(items_by_id.get(str(id), {}).get("name", id))
+	room.set_hooks(ids, tex_by_item, names)
+	var jar_n: int = CAMPAIGN_SHELL.preview_rerolls(rules, state)
+	if bool(state.get("run", {}).get("active", false)):
+		jar_n = int(state.get("run", {}).get("rerolls", jar_n))
+	if room.has_method("set_jar_count"):
+		room.set_jar_count(jar_n)
+
+
+func _commit_mudroom_loadout() -> void:
+	var room = _rooms.get("mudroom")
+	var ids: Array = []
+	if room != null and room.has_method("selected_ids"):
+		ids = room.selected_ids()
+	elif room != null and room.has_method("hook_ids"):
+		ids = room.hook_ids()
+	if ids.is_empty():
+		ids = mudroom_loadout.duplicate()
+	mudroom_loadout = ids.duplicate()
+	var camp = _campaign_ref()
+	if camp != null:
+		CAMPAIGN_SHELL.set_mudroom_loadout(camp.state, ids)
+		if camp.has_method("write"):
+			camp.write()
+	_save()
+
+
+func _reroll_mudroom_hooks() -> void:
+	var camp = _campaign_ref()
+	var rules: Dictionary = camp.rules if camp != null else CAMPAIGN_SHELL.read_json("res://data/campaign.json")
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var keep: Array = []
+	var room = _rooms.get("mudroom")
+	if room != null and room.has_method("hook_ids"):
+		keep = room.hook_ids()
+	var ids: Array = CAMPAIGN_SHELL.roll_mudroom_hooks(rules, rng, _mudroom_item_rows(), keep)
+	mudroom_loadout = ids.duplicate()
+	if camp != null:
+		CAMPAIGN_SHELL.set_mudroom_loadout(camp.state, ids)
+		if camp.has_method("write"):
+			camp.write()
+	_refresh_mudroom()
+	KIT.cue(sfx, &"cabin.scroll")
 
 
 func _picker_open() -> bool:
@@ -4289,6 +4413,9 @@ func _flash_side_door_open(room: String) -> void:
 
 func _on_back_door(room: String) -> void:
 	match room:
+		"mudroom":
+			_commit_mudroom_loadout()
+			pan_to("main")
 		"hall":
 			pan_to("main")
 		"study":

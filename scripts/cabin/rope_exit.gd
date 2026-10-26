@@ -505,7 +505,7 @@ func _build_hotspots() -> void:
 
 ## campaign: always show Push. push_interrupt: Nib on hover when this cabinet is under quota.
 ## chip: {biome, n, quota, projected, show_proj, next, show_next}. can_push: whether deeper is allowed.
-func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = false, chip: Dictionary = {}) -> void:
+func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = false, chip: Dictionary = {}, endless: bool = false) -> void:
 	_campaign_mode = campaign
 	_can_push = (not campaign) or can_push
 	_push_interrupt = campaign and push_interrupt
@@ -534,7 +534,10 @@ func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = fals
 			_deeper_lab.set_copy("rope.deeper")
 	if _deeper_sub:
 		if campaign:
-			_deeper_sub.set_copy("rope.campaign.push_eyebrow")
+			if endless:
+				_deeper_sub.set_plain(preload("res://scripts/player_copy.gd").text("rope.endless.push_sub", "Keep going. The deep does not end."))
+			else:
+				_deeper_sub.set_copy("rope.campaign.push_eyebrow")
 		elif not campaign:
 			_deeper_sub.set_copy("rope.deeper_sub", {"n": _cleared + 1})
 	# Campaign always shows Push (even when can_push is false). Challenge also shows both doors.

@@ -135,9 +135,26 @@ func show_drawer() -> void:
 	_kind = "drawer"
 	_show_text()
 	_clear()
-	_add_label("The drawer opens.", 42, Color("e8c36a"))
-	_add_label("Every cabinet is full. Endless is unlocked.", 24, Color("f4ede3"))
-	_add_button("Continue", func() -> void:
+	var COPY := preload("res://scripts/player_copy.gd")
+	var eyebrow := COPY.text("endless.complete.eyebrow", "Campaign complete")
+	var headline := COPY.text("endless.complete.headline", "Every cabinet is full.")
+	var body := COPY.text("endless.complete.body", "Twenty-five uniques on the shelves. Something below them clicks.")
+	var unlocked := COPY.text("endless.complete.unlocked", "Endless unlocked")
+	var toast := COPY.text("endless.unlock_toast", "The deep opens.")
+	var cta := COPY.text("endless.complete.enter", "Enter Endless")
+	var cont := COPY.text("campaign.drawer.continue", "Continue")
+	_add_label(eyebrow, 22, Color("c4a574"))
+	_add_label(headline, 42, Color("e8c36a"))
+	_add_label(body, 24, Color("f4ede3"))
+	_add_label(unlocked, 26, Color("e8c36a"))
+	_add_label(toast, 22, Color("c4a574"))
+	## Bank path awaits `continued` then returns to the cabin; Endless starts from the map.
+	_add_button(cta, func() -> void:
+		if _waiting:
+			_waiting = false
+			continued.emit()
+	)
+	_add_button(cont, func() -> void:
 		if _waiting:
 			_waiting = false
 			continued.emit()

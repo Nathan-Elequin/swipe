@@ -171,6 +171,28 @@ func _init() -> void:
 	failed = _check(failed, "win", bool(full.get("won", false)) and bool(full.get("endless_unlocked", false))) or failed
 	var again: Dictionary = Shell.bank(rules, full, ["extra"], {"extra": "b1"})
 	failed = _check(failed, "drawer once", bool(again.get("show_drawer", true)) == false) or failed
+	## S8 / R5: Endless Push chains and deepest record updates.
+	Shell.begin_run(full, 0, false, true)
+	failed = _check(failed, "endless can push", Shell.can_push(rules, full)) or failed
+	failed = _check(failed, "endless best starts at 1", int(full.get("endless_best", 0)) >= 1) or failed
+	failed = _check(failed, "endless push", Shell.push_deeper(rules, full)) or failed
+	failed = _check(failed, "endless still pushable", Shell.can_push(rules, full)) or failed
+	failed = _check(failed, "endless best grew", int(full.get("endless_best", 0)) >= 2) or failed
+	Shell.end_run(full)
+	failed = _check(failed, "endless best kept at home", int(full.get("endless_best", 0)) >= 2) or failed
+	## Map pieces add delve rerolls when rerolls_per_map_piece is set.
+	var piece_state: Dictionary = Shell.fresh_state()
+	piece_state["map_pieces"] = ["b2", "b3"]
+	Shell.begin_run(piece_state, 0, false, false)
+	Shell.grant_delve_reroll(rules, piece_state)
+	var want_rolls: int = 1 + int(rules.get("rerolls_per_map_piece", 1)) * 2
+	failed = _check(failed, "map piece rerolls", int(piece_state["run"]["rerolls"]) == want_rolls) or failed
+	var hooks: Array = Shell.roll_mudroom_hooks(rules, rng, [
+		{"id": "a", "tier": 1}, {"id": "b", "tier": 1}, {"id": "c", "tier": 1}, {"id": "d", "tier": 1},
+		{"id": "e", "tier": 2}, {"id": "f", "tier": 2}, {"id": "g", "tier": 2},
+		{"id": "h", "tier": 3}, {"id": "i", "tier": 3},
+	])
+	failed = _check(failed, "mudroom hooks match mix", hooks.size() == 6) or failed
 	if failed:
 		print("CAMPAIGN_SHELL_FAIL")
 		quit(1)

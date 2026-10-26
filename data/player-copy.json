@@ -4208,6 +4208,198 @@
 			"where": "Clickable stamped biome",
 			"text": "click to set off",
 			"owner": "Spin"
+		},
+		{
+			"cat": "Campaign",
+			"key": "room.mudroom.name",
+			"where": "Mudroom room-name toast",
+			"text": "The Mudroom",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "cabin.room.mudroom",
+			"where": "Mudroom room-name toast alias",
+			"text": "The Mudroom",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.hook.hover",
+			"where": "Mudroom peg hover",
+			"text": "{item}",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.jar",
+			"where": "Mudroom reroll jar title",
+			"text": "Reroll jar · {n}",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.jar.sub",
+			"where": "Mudroom reroll jar sub",
+			"text": "+1 each time Nib stamps a new biome",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.exit.cabin",
+			"where": "Mudroom back door hover",
+			"text": "Back to cabin",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.exit.out",
+			"where": "Mudroom out door hover",
+			"text": "Out the door",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.space",
+			"where": "Mudroom Space helper",
+			"text": "pull out the map",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "map.endless.sealed",
+			"where": "Held map Endless sealed label",
+			"text": "ENDLESS · SEALED",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "map.endless.sealed_sub",
+			"where": "Held map Endless sealed sub",
+			"text": "Opens when all five cabinets are full",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "map.endless.open",
+			"where": "Held map Endless open tip",
+			"text": "Endless",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.unlock_toast",
+			"where": "Campaign complete toast",
+			"text": "The deep opens.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.complete.eyebrow",
+			"where": "Campaign-complete panel eyebrow",
+			"text": "Campaign complete",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.complete.headline",
+			"where": "Campaign-complete panel headline",
+			"text": "Every cabinet is full.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.complete.body",
+			"where": "Campaign-complete panel body",
+			"text": "Twenty-five uniques on the shelves. Something below them clicks.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.complete.unlocked",
+			"where": "Campaign-complete Endless row",
+			"text": "Endless unlocked",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.complete.enter",
+			"where": "Campaign-complete CTA",
+			"text": "Enter Endless",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.best",
+			"where": "Endless deepest record",
+			"text": "Deepest: {n}",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "rope.endless.push_sub",
+			"where": "Extract Push sub in Endless",
+			"text": "Keep going. The deep does not end.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "rope.campaign.bank_sub",
+			"where": "Extract Bank home sub",
+			"text": "End the run and keep what you extracted.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "rope.campaign.push_sub",
+			"where": "Extract Push deeper sub",
+			"text": "Carry this hand into the next delve.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "campaign.drawer.title",
+			"where": "Win drawer soft line",
+			"text": "A drawer you never noticed slides open.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "campaign.drawer.body",
+			"where": "Win drawer body (legacy)",
+			"text": "Every cabinet is full. Endless is unlocked.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "campaign.drawer.continue",
+			"where": "Win drawer continue",
+			"text": "Continue",
+			"owner": "Spin",
+			"stub": true
 		}
 	],
 	"updated": "2026-10-26"
