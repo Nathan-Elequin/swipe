@@ -1,5 +1,6 @@
 extends Control
-## Big Sprout on the left of the wheel. Faces right, toward the monster portrait.
+## Left-stage Sprout (retired for combat). Fight anims play in the wheel hub.
+## Kept for legacy callers / hide paths; stays invisible during fights.
 
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 
@@ -38,7 +39,7 @@ func setup(p_art) -> void:
 	top_level = true
 	z_index = 15
 	visible = false
-	set_process(true)
+	set_process(false)
 
 
 func _exit_tree() -> void:
@@ -69,6 +70,7 @@ func play(state: String, loops: int = 1) -> void:
 	if state == "defeat":
 		_loops_left = 1
 	visible = true
+	set_process(true)
 	queue_redraw()
 
 
@@ -93,6 +95,7 @@ func idle() -> void:
 	_loops_left = 0
 	_blink_t = randf_range(4.0, 6.0)
 	visible = true
+	set_process(true)
 	queue_redraw()
 
 
@@ -119,6 +122,7 @@ func _finish_hide() -> void:
 	_blinking = false
 	_pending_hide = false
 	_blue = 0.0
+	set_process(false)
 	queue_redraw()
 
 

@@ -27,6 +27,8 @@ HOOKS = {
         "combat_fx_budget.gd",
         "_queue_decor_redraw",
         "_wheel_wants_live_draw",
+        "begin_heavy",
+        "_set_hero_heavy",
     ],
     "scripts/player_stage.gd": [
         "combat_fx_budget.gd",
