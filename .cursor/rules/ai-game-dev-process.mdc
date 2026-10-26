@@ -1,0 +1,26 @@
+---
+description: Fleet AI game-dev process (Shared Prefs) — always on
+alwaysApply: true
+---
+
+# AI game-dev process
+
+Cross-game rules from Affine Shared Prefs (Nathan Games). Apply on every chat/agent job in this repo.
+
+## Hard rules
+1. Nathan is director — do not invent design taste; surface choices as questions when ambiguous.
+2. Plan the slice before coding: name the player verb, goal, and out-of-scope.
+3. One feature / one PR / verify before the next. No whole-game or multi-feature dumps.
+4. Playable before pretty — placeholders OK until the loop works; Pixel owns UI polish.
+5. Done means the player path was run (F5 / godot-check / QA screenshots as appropriate), not just that code compiles.
+6. Every change prompt must state: Godot 4 + GDScript (unless the task says otherwise), existing systems touched, desired behaviour, and **do not rewrite** listed systems/files.
+7. Commit after a verified change. Commit or stash before major rewrites.
+8. Keep the itch.io-scale loop first — do not stack new systems before the current slice ships.
+
+## Notebook
+Durable design notes live in Affine (Spinheritance hub), not only chat. If you change behaviour or ship a slice, leave a one-line note for Spin to append to the hub (date + what + PR link).
+
+## Do not
+- Expand scope mid-task
+- Bypass pre-commit hooks (`--no-verify`)
+- Touch Pixel art/UI ownership without a Pixel brief
