@@ -91,7 +91,7 @@ func show_map(rules: Dictionary, state: Dictionary) -> void:
 	if DEV.on():
 		_add_label("Editor checks", 18, Color("c4a574"))
 		_add_button("Grant 3 uniques", func() -> void: cheat_asked.emit("grant3"))
-		_add_button("Fill the Cellar cabinet", func() -> void: cheat_asked.emit("fill_b1"))
+		_add_button("Fill the Verdant Hollow cabinet", func() -> void: cheat_asked.emit("fill_b1"))
 		_add_button("Fill every cabinet", func() -> void: cheat_asked.emit("win"))
 		_add_button("Fresh campaign", func() -> void: cheat_asked.emit("fresh"))
 	visible = true
