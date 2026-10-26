@@ -3995,6 +3995,41 @@
 			"where": "After Push-block dissolve into that biome's case hall",
 			"text": "Five from the {biome}. Then we talk about going deeper.",
 			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.squint",
+			"where": "Map-piece ceremony beat 1 — Nib notices scrap on haul",
+			"text": "Hold on. What's that stuck to the haul?",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Sprout",
+			"key": "sprout.piece.huh",
+			"where": "Map-piece ceremony beat 2 — Sprout confused",
+			"text": "…?",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.grandpa",
+			"where": "Map-piece ceremony beat 3 — Nib claims Grandpa's scrap",
+			"text": "That's Grandpa's! Next belly of the mountain — onto the map with you.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.stamped",
+			"where": "Map-piece ceremony beat 4 — after THUNK stamp",
+			"text": "There. Official now. {next} is stamped — open the map and peel it when you're ready.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.stamped_short",
+			"where": "Map-piece ceremony one-liner toast alternate",
+			"text": "There. Official now.",
+			"owner": "Spin"
 		}
 	],
 	"updated": "2026-10-26"

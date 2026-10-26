@@ -10,7 +10,8 @@ signal held_map_wanted
 signal tutorial_wanted
 signal quit_wanted
 signal comment_wanted(card_id: String)
-## Fires when a case's shown collection crosses the quota (5). Map stamp is Slice C.
+## Fires when a case's shown collection crosses the quota (5) on an extract bank.
+## Never from cheats, death, or the Push/Nib interrupt path. S3 map-piece ceremony.
 signal cabinet_gate_crossed(pool_id: String)
 
 const SAVE_PATH := "user://home_cabin.json"
@@ -97,6 +98,7 @@ var _hover_tag
 var _overlays: Control
 var _dialog
 var _cutscene
+var _map_piece_beat
 var _story_seq: int = 0
 var _map
 var _radio
@@ -212,6 +214,8 @@ func note_seen(id: String) -> void:
 
 func bind_campaign(shell) -> void:
 	_campaign_shell = shell
+	if shell != null and typeof(shell.rules) == TYPE_DICTIONARY:
+		_campaign_rules = shell.rules
 	# Prefer banked as the ledger, then absorb any classic-only swipes so both agree.
 	sync_swiped_from_banked()
 	mirror_swiped_into_banked()
@@ -460,8 +464,13 @@ func play_homecoming(kind: String, new_ids: Array, held_ids: Array) -> void:
 	open_cabin(items_by_id, tex_by_item, buckets_open, true, kind, new_ids, held_ids)
 
 
+## Call before swipe_ids on the Push-block path so a deferred bank cannot stamp a piece.
+func begin_push_block_bank() -> void:
+	_bank_from_push_block = true
+
+
 ## Push-block interrupt: dissolve already played; land in the hall at that biome's case.
-## No map piece on this path (S3 listens to cabinet_gate_crossed; we suppress it).
+## No map piece on this path (S3 ceremony suppressed via _bank_from_push_block).
 func open_hall_after_push_block(pool_id: String, biome_name: String, new_ids: Array = [], held_ids: Array = []) -> void:
 	_bank_from_push_block = true
 	sync_swiped_from_banked()
@@ -2030,8 +2039,9 @@ func _offer_bank_sequence() -> void:
 
 
 func _play_bank_sequence() -> void:
-	# TODO Slice C4: bag-open smoke and a trajectory into the matching case.
+	# TODO Slice C4 / S7: bag-open smoke and a trajectory into the matching case.
 	# This stub reveals one newly banked item at a time, in arrival order.
+	# Map-piece ceremony (S3) plays after the reveal, only on extract bank across 5/5.
 	var quota := BiomeCabinets.quota_of(_biome_rules())
 	var pending: Array = []
 	var pools := {}
@@ -2041,9 +2051,12 @@ func _play_bank_sequence() -> void:
 		pools[held_id] = _live_pool(items_by_id.get(held_id, {}))
 	var seq: Array = BiomeCabinets.bank_sequence(pending, pools)
 	_bank_played = true
+	var crossed: Array = []
+	var from_push_block := _bank_from_push_block
 	for raw_step in seq:
 		if not is_inside_tree():
 			_bank_busy = false
+			_bank_from_push_block = false
 			return
 		var step: Dictionary = raw_step
 		var step_id := str(step.get("id", ""))
@@ -2052,14 +2065,22 @@ func _play_bank_sequence() -> void:
 		_bank_hold.erase(step_id)
 		_bank_fresh = step_id
 		_rebuild_shelves()
-		if not _bank_from_push_block and BiomeCabinets.crossed_gate(before, _shown_count(pool), quota):
-			cabinet_gate_crossed.emit(pool)
+		# Guard: Push interrupt, cheats, and death never queue a map piece.
+		if not from_push_block and _campaign_shell != null \
+				and BiomeCabinets.crossed_gate(before, _shown_count(pool), quota) \
+				and not crossed.has(pool):
+			crossed.append(pool)
 		await _wait(0.34, true)
 	_bank_fresh = ""
-	_bank_busy = false
 	_bank_from_push_block = false
 	if is_inside_tree():
 		_rebuild_shelves()
+	if not from_push_block and not crossed.is_empty() and _campaign_shell != null:
+		for pool_id in crossed:
+			cabinet_gate_crossed.emit(str(pool_id))
+			if _map_piece_beat:
+				await _map_piece_beat.play(str(pool_id))
+	_bank_busy = false
 
 
 func _clear_bank_anim() -> void:
@@ -3269,6 +3290,9 @@ func _build_overlays() -> void:
 	_cutscene = preload("res://scripts/cabin/cutscene_player.gd").new()
 	_cutscene.setup(self)
 	add_child(_cutscene)
+	_map_piece_beat = preload("res://scripts/cabin/map_piece_beat.gd").new()
+	_map_piece_beat.setup(self)
+	add_child(_map_piece_beat)
 
 
 func attach_editor(main) -> void:

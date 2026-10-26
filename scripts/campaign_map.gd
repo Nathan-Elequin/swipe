@@ -78,6 +78,7 @@ func show_map(rules: Dictionary, state: Dictionary) -> void:
 	_waiting = false
 	_kind = "map"
 	_clear()
+	# Held parchment is the real map (#118 wire). Text VBox stays for bosses/drawer.
 	if _margin:
 		_margin.visible = false
 	if _held and _held.has_method("present"):

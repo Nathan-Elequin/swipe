@@ -46,6 +46,8 @@ static func fresh_state() -> Dictionary:
 		"endless_unlocked": false,
 		"won": false,
 		"drawer_seen": false,
+		"map_pieces": [],
+		"pencil_fresh": [],
 		"run": _idle_run(),
 	}
 
@@ -64,6 +66,8 @@ static func normalize(state: Dictionary) -> void:
 	state["endless_unlocked"] = bool(state.get("endless_unlocked", false))
 	state["won"] = bool(state.get("won", false))
 	state["drawer_seen"] = bool(state.get("drawer_seen", false))
+	state["map_pieces"] = _clean_id_list(state.get("map_pieces", []))
+	state["pencil_fresh"] = _clean_id_list(state.get("pencil_fresh", []))
 	var run: Dictionary = state.get("run", {})
 	if typeof(run) != TYPE_DICTIONARY:
 		run = {}
@@ -229,12 +233,70 @@ static func begin_run(state: Dictionary, biome_index: int, shortcut: bool, endle
 	}
 
 
+static func map_piece_count(state: Dictionary) -> int:
+	normalize(state)
+	return (state.get("map_pieces", []) as Array).size()
+
+
+## Next biome unlocked when filled_pool's cabinet crosses quota. Endless after b5.
+static func next_after_pool(rules: Dictionary, filled_pool: String) -> Dictionary:
+	var biomes := biomes_of(rules)
+	for i in biomes.size():
+		var b: Dictionary = biomes[i]
+		if str(b.get("id", "")) != filled_pool:
+			continue
+		if i + 1 < biomes.size():
+			var nxt: Dictionary = biomes[i + 1]
+			return {
+				"id": str(nxt.get("id", "")),
+				"name": str(nxt.get("name", "")),
+				"index": i + 1,
+				"endless": false,
+			}
+		var endless: Dictionary = rules.get("endless", {})
+		return {
+			"id": str(endless.get("id", "endless")),
+			"name": str(endless.get("name", "Endless")),
+			"index": biomes.size(),
+			"endless": true,
+		}
+	return {}
+
+
+## Persist a map piece + fresh pencil toward the next biome. Idempotent per next id.
+## Only call from the extract bank 5/5 ceremony — never cheats, death, or Push interrupt.
+static func stamp_map_piece(rules: Dictionary, state: Dictionary, filled_pool: String) -> Dictionary:
+	normalize(state)
+	var nxt := next_after_pool(rules, filled_pool)
+	var next_id := str(nxt.get("id", ""))
+	if next_id == "":
+		return {}
+	var pieces: Array = state["map_pieces"]
+	var fresh: Array = state["pencil_fresh"]
+	var first := not pieces.has(next_id)
+	if first:
+		pieces.append(next_id)
+	if not fresh.has(next_id):
+		fresh.append(next_id)
+	nxt["first"] = first
+	nxt["filled"] = filled_pool
+	return nxt
+
+
+static func clear_pencil_fresh(state: Dictionary) -> void:
+	normalize(state)
+	state["pencil_fresh"] = []
+
+
 static func grant_delve_reroll(rules: Dictionary, state: Dictionary) -> void:
 	normalize(state)
 	var run: Dictionary = state["run"]
 	if bool(run.get("delve_granted", false)):
 		return
 	var add: int = maxi(1, int(rules.get("rerolls_per_delve", 1)))
+	# +1 reroll perk per stamped map piece (Doop H). Rules key defaults to 1.
+	var per_piece: int = maxi(0, int(rules.get("rerolls_per_map_piece", 1)))
+	add += map_piece_count(state) * per_piece
 	run["rerolls"] = int(run.get("rerolls", 0)) + add
 	run["delve_granted"] = true
 
@@ -422,8 +484,21 @@ func _copy_state(disk: Dictionary) -> void:
 	state["endless_unlocked"] = bool(disk.get("endless_unlocked", false))
 	state["won"] = bool(disk.get("won", false))
 	state["drawer_seen"] = bool(disk.get("drawer_seen", false))
+	state["map_pieces"] = _clean_id_list(disk.get("map_pieces", []))
+	state["pencil_fresh"] = _clean_id_list(disk.get("pencil_fresh", []))
 	if typeof(disk.get("run", {})) == TYPE_DICTIONARY:
 		state["run"] = (disk["run"] as Dictionary).duplicate(true)
+
+
+static func _clean_id_list(raw: Variant) -> Array:
+	var clean: Array = []
+	if typeof(raw) != TYPE_ARRAY and typeof(raw) != TYPE_PACKED_STRING_ARRAY:
+		return clean
+	for item in raw:
+		var sid := str(item)
+		if sid != "" and not clean.has(sid):
+			clean.append(sid)
+	return clean
 
 
 static func _idle_run() -> Dictionary:
