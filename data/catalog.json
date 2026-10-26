@@ -2049,15 +2049,15 @@
 			"type": "I"
 		},
 		{
-			"ability": "If you have zero items that deal Atk damage, Defeat the enemy.",
+			"ability": "If you have no playable items that Attack, Defeat the enemy.",
 			"author_lock": true,
 			"bucket": 4.0,
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 1.0,
-			"defined": "Click during a fight. If you hold no items that deal Attack, Defeat them. This card is not an Attack item. Unplayable if any other card in hand deals Attack. Used up when it works. Counts as an item use. Gargoyle cannot be Defeated.",
+			"defined": "Click during a fight. If you hold no playable items that Attack, Defeat them. Chakram counts while its Attack half is live. Petrified and spent items do not count. This card is not an Attack item. Unplayable if any other playable card in hand deals Attack. Used up when it works. Counts as an item use. Gargoyle cannot be Defeated.",
 			"exceptions": "Holding only this works. Echo copying an Attack item counts as an Attack item. Shield alone is enough.",
-			"explainer": "0 ATK Items → Defeat",
+			"explainer": "No playable Attack items → Defeat",
 			"flags": {
 				"art": true,
 				"dev": true,

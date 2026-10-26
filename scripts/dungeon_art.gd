@@ -456,16 +456,39 @@ func wheel_frames_all() -> Dictionary:
 	# Seat art is the 24px full-body wheel base, one frame. The breathe pair is a
 	# different crop of the same canvas, so it does not play here. The fight
 	# callout still uses monster_portrait_frames (the closer facing idle).
+	# A wheel base that is a byte copy of an earlier monster is skipped. Phoenix
+	# shipped the egg's wheel file, so the seat uses the phoenix facing frame.
 	var d := {}
+	var seen := {}
 	for id in MONSTER_PNG.keys():
-		var base: Texture2D = _load_tex("res://assets/dungeon/anim/wheel/%s_wheel_base.png" % str(id))
-		if base != null:
+		var path := "res://assets/dungeon/anim/wheel/%s_wheel_base.png" % str(id)
+		var sig := _file_sig(path)
+		var base: Texture2D = _load_tex(path) if sig != "" else null
+		if base != null and sig != "" and not seen.has(sig):
+			seen[sig] = str(id)
 			d[str(id)] = [base]
+			continue
+		var face: Texture2D = _load_tex("res://assets/dungeon/anim/facing/%s_facing_idle_f0.png" % str(id))
+		if face != null:
+			d[str(id)] = [face]
 			continue
 		var frames: Array = monster_wheel_frames(str(id))
 		if not frames.is_empty():
 			d[str(id)] = [frames[0]]
 	return d
+
+
+func _file_sig(path: String) -> String:
+	if not FileAccess.file_exists(path):
+		return ""
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return ""
+	var buf: PackedByteArray = f.get_buffer(int(f.get_length()))
+	f.close()
+	if buf.is_empty():
+		return ""
+	return "%s:%s" % [buf.size(), buf.hex_encode()]
 
 
 var _portrait_cache: Dictionary = {}

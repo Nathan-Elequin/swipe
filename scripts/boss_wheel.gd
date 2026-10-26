@@ -161,6 +161,8 @@ var _peak_omega: float = 0.0
 var _lift: Dictionary = {}
 var _floaters: Array = []
 var _flash: Dictionary = {}
+var _burn: Dictionary = {}
+var _tex_fire: Texture2D
 var _hp_disp: Dictionary = {}
 var _hp_punch: Dictionary = {}
 var _atk_disp: Dictionary = {}
@@ -1202,6 +1204,12 @@ func _process(delta: float) -> void:
 		if t > 0.0:
 			flash_keep[k] = t
 	_flash = flash_keep
+	var burn_keep := {}
+	for bk in _burn.keys():
+		var bv: float = float(_burn[bk]) - delta * 1.6
+		if bv > 0.02:
+			burn_keep[bk] = bv
+	_burn = burn_keep
 	var punch_keep := {}
 	for pk in _hp_punch.keys():
 		var pv: float = float(_hp_punch[pk]) - delta * 3.4
@@ -1232,7 +1240,7 @@ func _wheel_wants_live_draw() -> bool:
 		return true
 	if not _floaters.is_empty() or not _pt_ghosts.is_empty():
 		return true
-	if not _flash.is_empty() or not _hp_punch.is_empty() or not _atk_punch.is_empty():
+	if not _flash.is_empty() or not _hp_punch.is_empty() or not _atk_punch.is_empty() or not _burn.is_empty():
 		return true
 	if not _bond_anim.is_empty():
 		return true
@@ -1504,6 +1512,22 @@ func hub_blk_global() -> Vector2:
 	var local: Rect2 = _badge_rect_from_c("blk")
 	var vis: Vector2 = _badge_xy("blk", "visual_centre_from_c", local.position + local.size * 0.5)
 	return get_global_transform() * (c + vis)
+
+
+func play_burn(index: int) -> void:
+	if index < 0 or index >= slices.size():
+		return
+	_burn[index] = 1.0
+	_flash[index] = 0.7
+	queue_redraw()
+	if get_tree():
+		await get_tree().create_timer(0.34).timeout
+
+
+func _fire_tex() -> Texture2D:
+	if _tex_fire == null and ResourceLoader.exists("res://assets/dungeon/vfx/fire.png"):
+		_tex_fire = load("res://assets/dungeon/vfx/fire.png") as Texture2D
+	return _tex_fire
 
 
 func punch_hp(index: int) -> void:
@@ -2319,6 +2343,14 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_arc(port_pos, plate_r + 20.0, 0.0, TAU, 28, Color(1.0, 0.90, 0.35, 0.45 + 0.35 * absf(sin(_glow_t * 9.0))), 3.5, true)
 	if i != portrait_away and not hide_portraits.has(i):
 		_draw_wheel_sprite(i, sp, s, dim)
+	var burn: float = float(_burn.get(i, 0.0))
+	if burn > 0.02:
+		var fire: Texture2D = _fire_tex()
+		var bob := Vector2(0, -6.0 * sin(_glow_t * 18.0))
+		var fr := Rect2(port_pos + bob - Vector2(28, 36), Vector2(56, 56))
+		if fire != null:
+			draw_texture_rect(fire, fr, false, Color(1, 1, 1, clampf(burn, 0.35, 1.0)))
+		draw_circle(port_pos + bob, 18.0 + 8.0 * burn, Color(1.0, 0.42, 0.08, 0.35 * burn))
 	if bool(s.get("rage_fire", false)):
 		var flicker: float = 0.45 + 0.35 * absf(sin(_glow_t * 11.0))
 		draw_circle(port_pos, plate_r + 10.0, Color(1.0, 0.35, 0.08, flicker * 0.55))

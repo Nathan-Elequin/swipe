@@ -66,6 +66,7 @@ var _bag_stamp: TextureRect
 var _or: RichTextLabel
 var _choice_badge: Label
 var _cabinet_badge: Label
+var _hp_cost: HBoxContainer
 var _sai_fx: AnimatedSprite2D
 var _marble_fx: AnimatedSprite2D
 var _sparkle: AnimatedSprite2D
@@ -741,7 +742,7 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 		_used.visible = spent
 	_sync_lock_shade()
 	if _mark != null and not _formula_on:
-		var beside: bool = kind == "DEFEAT" and number_text.is_valid_int()
+		var beside: bool = _mark_sits_beside(number_text)
 		_mark.visible = _mark.texture != null and (number_text == "" or beside)
 		_mark.modulate.a = 0.95
 		_layout_mark(number_text)
@@ -762,6 +763,44 @@ func set_rank(text: String) -> void:
 		return
 	_rank.text = text
 	_rank.visible = false
+
+
+func set_hp_cost(text: String) -> void:
+	var shown: String = text.strip_edges()
+	if shown == "":
+		if _hp_cost:
+			_hp_cost.visible = false
+		return
+	if _hp_cost == null:
+		_hp_cost = HBoxContainer.new()
+		_hp_cost.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hp_cost.add_theme_constant_override("separation", 2)
+		_hp_cost.z_index = 6
+		var heart := TextureRect.new()
+		heart.custom_minimum_size = Vector2(16, 16)
+		heart.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		heart.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		heart.texture_filter = TEXTURE_FILTER_NEAREST
+		heart.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if ResourceLoader.exists("res://assets/icons/heart.svg"):
+			heart.texture = load("res://assets/icons/heart.svg")
+		_hp_cost.add_child(heart)
+		var lab := Label.new()
+		lab.name = "Cost"
+		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		lab.add_theme_font_size_override("font_size", 16)
+		lab.add_theme_color_override("font_color", Color("e8a0a0"))
+		lab.add_theme_color_override("font_outline_color", Color("100e0c"))
+		lab.add_theme_constant_override("outline_size", 4)
+		_hp_cost.add_child(lab)
+		add_child(_hp_cost)
+	var cost: Label = _hp_cost.get_node_or_null("Cost") as Label
+	if cost:
+		cost.text = shown
+	_hp_cost.visible = true
+	var face_w: float = SHOW_W if _showcase else CARD_W
+	var face_h: float = SHOW_H if _showcase else CARD_H
+	_hp_cost.position = Vector2(maxf(4.0, face_w - 58.0), face_h - 34.0)
 
 
 func set_choice_badge(text: String) -> void:
@@ -887,10 +926,17 @@ func _layout_atk_pip() -> void:
 	_num.z_index = 1
 
 
+func _mark_sits_beside(number_text: String) -> bool:
+	var shown: String = number_text.strip_edges()
+	if shown == "" or shown == "—" or shown == "-":
+		return false
+	return kind == "DEFEAT" or kind == "HP" or kind == "BLK" or kind == "FLEE"
+
+
 func _layout_mark(number_text: String) -> void:
 	if _mark == null:
 		return
-	var beside: bool = kind == "DEFEAT" and number_text.is_valid_int()
+	var beside: bool = _mark_sits_beside(number_text)
 	if beside:
 		_mark.offset_left = -40
 		_mark.offset_top = -16
