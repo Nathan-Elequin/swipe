@@ -146,8 +146,23 @@ func _rebuild() -> void:
 	var endless_name := str(_rules.get("endless", {}).get("name", "Endless"))
 	if bool(_state.get("endless_unlocked", false)):
 		_add_stamp(ENDLESS_AT, endless_name, WAX["endless"], 0, true)
+		var best: int = int(_state.get("endless_best", 0))
+		if best > 0:
+			var best_txt: String = KIT.fill_text("endless.best", {"n": best})
+			if best_txt.strip_edges() == "":
+				best_txt = "Deepest: %s" % best
+			_add_name(ENDLESS_AT + Vector2(-90, 56), best_txt, true)
+		var open_tip: String = KIT.copy_text("map.endless.open")
+		if open_tip.strip_edges() != "":
+			_add_name(ENDLESS_AT + Vector2(-110, -56), open_tip, true)
 	else:
-		_add_locked(ENDLESS_AT, endless_name)
+		var sealed: String = KIT.copy_text("map.endless.sealed")
+		if sealed.strip_edges() == "":
+			sealed = "ENDLESS · SEALED"
+		_add_locked(ENDLESS_AT, sealed)
+		var sealed_sub: String = KIT.copy_text("map.endless.sealed_sub")
+		if sealed_sub.strip_edges() != "":
+			_add_name(ENDLESS_AT + Vector2(-110, 28), sealed_sub, false)
 
 
 func _add_start(spot: Vector2, biome_name: String, open: bool) -> void:

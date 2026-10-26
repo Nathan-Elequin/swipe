@@ -339,25 +339,29 @@ func _build_hotspots() -> void:
 	_hole_hit = hole_hit
 
 
-func apply_exit_mode(campaign: bool, can_push: bool) -> void:
+func apply_exit_mode(campaign: bool, can_push: bool, endless: bool = false) -> void:
 	_push_on = (not campaign) or can_push
+	var COPY := preload("res://scripts/player_copy.gd")
 	if _climb_lab:
 		if campaign:
-			_climb_lab.set_plain("Bank home")
+			_climb_lab.set_plain(COPY.text("rope.campaign.bank", "Bank home"))
 		else:
 			_climb_lab.set_copy("rope.climb")
 	if _climb_sub:
 		if campaign:
-			_climb_sub.set_plain("End the run and keep what you extracted.")
+			_climb_sub.set_plain(COPY.text("rope.campaign.bank_sub", "End the run and keep what you extracted."))
 		else:
 			_climb_sub.set_copy("rope.climb_sub")
 	if _deeper_lab:
 		if campaign:
-			_deeper_lab.set_plain("Push deeper")
+			_deeper_lab.set_plain(COPY.text("rope.campaign.push", "Push deeper"))
 		else:
 			_deeper_lab.set_copy("rope.deeper")
 	if _deeper_sub and campaign:
-		_deeper_sub.set_plain("Carry this hand into the next delve.")
+		if endless:
+			_deeper_sub.set_plain(COPY.text("rope.endless.push_sub", "Keep going. The deep does not end."))
+		else:
+			_deeper_sub.set_plain(COPY.text("rope.campaign.push_sub", "Carry this hand into the next delve."))
 	for raw_n in [_deeper_btn, _deeper_lab, _deeper_sub, _hole, _hole_hit]:
 		var n := raw_n as CanvasItem
 		if n:

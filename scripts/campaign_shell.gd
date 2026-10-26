@@ -43,9 +43,12 @@ static func fresh_state() -> Dictionary:
 	return {
 		"banked": {},
 		"seen_deadly": [],
+		"map_pieces": [],
 		"endless_unlocked": false,
+		"endless_best": 0,
 		"won": false,
 		"drawer_seen": false,
+		"mudroom_loadout": [],
 		"run": _idle_run(),
 	}
 
@@ -62,8 +65,25 @@ static func normalize(state: Dictionary) -> void:
 				clean.append(seen_id)
 	state["seen_deadly"] = clean
 	state["endless_unlocked"] = bool(state.get("endless_unlocked", false))
+	state["endless_best"] = maxi(0, int(state.get("endless_best", 0)))
 	state["won"] = bool(state.get("won", false))
 	state["drawer_seen"] = bool(state.get("drawer_seen", false))
+	var pieces: Variant = state.get("map_pieces", [])
+	var piece_clean: Array = []
+	if typeof(pieces) == TYPE_ARRAY or typeof(pieces) == TYPE_PACKED_STRING_ARRAY:
+		for raw_piece in pieces:
+			var pid := str(raw_piece)
+			if pid != "" and not piece_clean.has(pid):
+				piece_clean.append(pid)
+	state["map_pieces"] = piece_clean
+	var loadout: Variant = state.get("mudroom_loadout", [])
+	var load_clean: Array = []
+	if typeof(loadout) == TYPE_ARRAY or typeof(loadout) == TYPE_PACKED_STRING_ARRAY:
+		for raw_load in loadout:
+			var lid := str(raw_load)
+			if lid != "":
+				load_clean.append(lid)
+	state["mudroom_loadout"] = load_clean
 	var run: Dictionary = state.get("run", {})
 	if typeof(run) != TYPE_DICTIONARY:
 		run = {}
@@ -78,6 +98,9 @@ static func normalize(state: Dictionary) -> void:
 	run["rerolls"] = maxi(0, int(run.get("rerolls", 0)))
 	run["delve_granted"] = bool(run.get("delve_granted", false))
 	state["run"] = run
+	if bool(run.get("endless", false)) and bool(run.get("active", false)):
+		var depth: int = maxi(1, int(run.get("biome_index", 0)) + 1)
+		state["endless_best"] = maxi(int(state.get("endless_best", 0)), depth)
 
 
 static func pool_for_bucket(rules: Dictionary, bucket: int) -> String:
@@ -165,8 +188,11 @@ static func can_start(rules: Dictionary, state: Dictionary, index: int) -> bool:
 
 static func can_push(rules: Dictionary, state: Dictionary) -> bool:
 	var run: Dictionary = state.get("run", {})
-	if not bool(run.get("active", false)) or bool(run.get("endless", false)):
+	if not bool(run.get("active", false)):
 		return false
+	## Endless chains forever: Push is never Nib-gated there.
+	if bool(run.get("endless", false)):
+		return true
 	var nxt: int = int(run.get("biome_index", 0)) + 1
 	if not map_unlocked(rules, state):
 		return false
@@ -209,14 +235,17 @@ static func mix_for(rules: Dictionary, biome_id: String) -> Dictionary:
 
 static func begin_run(state: Dictionary, biome_index: int, shortcut: bool, endless: bool) -> void:
 	normalize(state)
+	var idx: int = 0 if endless else biome_index
 	state["run"] = {
 		"active": true,
-		"biome_index": biome_index,
+		"biome_index": idx,
 		"endless": endless,
 		"shortcut": shortcut,
 		"rerolls": 0,
 		"delve_granted": false,
 	}
+	if endless:
+		state["endless_best"] = maxi(int(state.get("endless_best", 0)), 1)
 
 
 static func grant_delve_reroll(rules: Dictionary, state: Dictionary) -> void:
@@ -225,6 +254,11 @@ static func grant_delve_reroll(rules: Dictionary, state: Dictionary) -> void:
 	if bool(run.get("delve_granted", false)):
 		return
 	var add: int = maxi(1, int(rules.get("rerolls_per_delve", 1)))
+	## Map pieces grant extra delve rerolls when the rules key is present (default 1 each).
+	var per_piece: int = maxi(0, int(rules.get("rerolls_per_map_piece", 1)))
+	var pieces: Array = state.get("map_pieces", [])
+	if per_piece > 0 and typeof(pieces) == TYPE_ARRAY:
+		add += per_piece * pieces.size()
 	run["rerolls"] = int(run.get("rerolls", 0)) + add
 	run["delve_granted"] = true
 
@@ -245,6 +279,9 @@ static func push_deeper(rules: Dictionary, state: Dictionary) -> bool:
 	run["biome_index"] = int(run.get("biome_index", 0)) + 1
 	run["shortcut"] = false
 	run["delve_granted"] = false
+	if bool(run.get("endless", false)):
+		var depth: int = maxi(1, int(run.get("biome_index", 0)) + 1)
+		state["endless_best"] = maxi(int(state.get("endless_best", 0)), depth)
 	return true
 
 
@@ -323,6 +360,62 @@ static func starter_tiers(rules: Dictionary, rng: RandomNumberGenerator) -> Arra
 		tier += 1
 	_shuffle(rng, out)
 	return out
+
+
+static func starter_hook_count(rules: Dictionary) -> int:
+	var mix: Variant = rules.get("starter_item_mix", [3, 2, 1])
+	var counts: Array = mix if typeof(mix) == TYPE_ARRAY else [3, 2, 1]
+	var n := 0
+	for raw in counts:
+		n += int(raw)
+	return maxi(1, n)
+
+
+static func roll_mudroom_hooks(rules: Dictionary, rng: RandomNumberGenerator, items: Array, exclude: Array = []) -> Array:
+	## One item id per starter_item_mix slot (tier totals unchanged).
+	var tiers: Array = starter_tiers(rules, rng)
+	var out: Array = []
+	var used: Array = exclude.duplicate()
+	for raw_t in tiers:
+		var tier: int = int(raw_t)
+		var pick: Array = _pick_n(rng, items, tier, used, 1)
+		if pick.is_empty():
+			pick = _pick_n(rng, items, tier, [], 1)
+		if pick.is_empty():
+			pick = _pick_n(rng, items, 0, used, 1)
+		if pick.is_empty():
+			pick = _pick_n(rng, items, 0, [], 1)
+		if pick.is_empty():
+			continue
+		var id := str(pick[0])
+		out.append(id)
+		used.append(id)
+	return out
+
+
+static func set_mudroom_loadout(state: Dictionary, ids: Array) -> void:
+	normalize(state)
+	var clean: Array = []
+	for raw in ids:
+		var id := str(raw)
+		if id != "":
+			clean.append(id)
+	state["mudroom_loadout"] = clean
+
+
+static func mudroom_loadout_of(state: Dictionary) -> Array:
+	normalize(state)
+	return state.get("mudroom_loadout", [])
+
+
+static func preview_rerolls(rules: Dictionary, state: Dictionary) -> int:
+	## What the jar shows before a delve starts: base + map-piece perk.
+	var add: int = maxi(1, int(rules.get("rerolls_per_delve", 1)))
+	var per_piece: int = maxi(0, int(rules.get("rerolls_per_map_piece", 1)))
+	var pieces: Array = state.get("map_pieces", [])
+	if per_piece > 0 and typeof(pieces) == TYPE_ARRAY:
+		add += per_piece * pieces.size()
+	return add
 
 
 static func take_pair(rng: RandomNumberGenerator, items: Array, tier: int, exclude: Array) -> Array:
@@ -409,7 +502,12 @@ func _copy_state(disk: Dictionary) -> void:
 		state["banked"] = (disk["banked"] as Dictionary).duplicate(true)
 	if typeof(disk.get("seen_deadly", [])) == TYPE_ARRAY:
 		state["seen_deadly"] = (disk["seen_deadly"] as Array).duplicate()
+	if typeof(disk.get("map_pieces", [])) == TYPE_ARRAY:
+		state["map_pieces"] = (disk["map_pieces"] as Array).duplicate()
+	if typeof(disk.get("mudroom_loadout", [])) == TYPE_ARRAY:
+		state["mudroom_loadout"] = (disk["mudroom_loadout"] as Array).duplicate()
 	state["endless_unlocked"] = bool(disk.get("endless_unlocked", false))
+	state["endless_best"] = maxi(0, int(disk.get("endless_best", 0)))
 	state["won"] = bool(disk.get("won", false))
 	state["drawer_seen"] = bool(disk.get("drawer_seen", false))
 	if typeof(disk.get("run", {})) == TYPE_DICTIONARY:

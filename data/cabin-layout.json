@@ -1,5 +1,70 @@
 {
  "rooms": {
+  "mudroom": [
+   {
+    "node": "BackDoor",
+    "file": "doors/side_door_closed.png",
+    "origin": [
+     6,
+     132
+    ],
+    "size": [
+     32,
+     63
+    ],
+    "hotspot": [
+     2,
+     126,
+     40,
+     69
+    ],
+    "hover": "doors/doorway_hover.png",
+    "z": 2,
+    "note": "back to cabin front room"
+   },
+   {
+    "node": "OutDoor",
+    "file": "doors/run_door_closed.png",
+    "origin": [
+     250,
+     130
+    ],
+    "size": [
+     44,
+     66
+    ],
+    "hotspot": [
+     246,
+     122,
+     52,
+     74
+    ],
+    "hover": "doors/run_door_hover.png",
+    "z": 2,
+    "note": "out the door / opens held map"
+   },
+   {
+    "node": "RerollJar",
+    "file": "props/lucky_geode.png",
+    "origin": [
+     352,
+     150
+    ],
+    "size": [
+     16,
+     13
+    ],
+    "hotspot": [
+     348,
+     144,
+     24,
+     24
+    ],
+    "hover": "props/lucky_geode_hover.png",
+    "z": 4,
+    "note": "reroll jar stand-in (shows delve reroll count; click reshuffles pegs)"
+   }
+  ],
   "main": [
    {
     "node": "room_main_fire_glow",
@@ -1140,6 +1205,7 @@
  },
  "extra": {
   "room_order": [
+   "mudroom",
    "main",
    "hall",
    "study",
@@ -1546,6 +1612,26 @@
     "cat": [
      176,
      196
+    ]
+   },
+   "mudroom": {
+    "back_door": [
+     6,
+     132,
+     32,
+     63
+    ],
+    "out_door": [
+     250,
+     130,
+     44,
+     66
+    ],
+    "jar": [
+     352,
+     150,
+     16,
+     13
     ]
    }
   },

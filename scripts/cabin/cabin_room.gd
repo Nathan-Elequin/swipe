@@ -64,6 +64,10 @@ func request_bg() -> void:
 
 func _apply_bg() -> void:
 	bg.texture = KIT.load_tex(_bg_rel)
+	if bg.texture == null and room_id == "mudroom":
+		bg.texture = KIT.load_tex("rooms/room_workshop.png")
+		if bg.texture == null:
+			bg.texture = KIT.load_tex("rooms/room_main.png")
 	_loaded_bg = bg.texture != null
 
 
@@ -168,7 +172,11 @@ func _tag_for(node_name: String) -> String:
 		"Trunk": "cabin.hot.trunk",
 		"Cat": "cabin.hot.cat",
 		"Hatch": "cabin.hot.hatch",
+		"OutDoor": "mudroom.exit.out",
+		"RerollJar": "mudroom.jar",
 	}
+	if room_id == "mudroom" and node_name == "BackDoor":
+		return "mudroom.exit.cabin"
 	return str(table.get(node_name, "cabin.hot." + node_name.to_snake_case()))
 
 

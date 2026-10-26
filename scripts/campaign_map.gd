@@ -109,9 +109,17 @@ func show_map(rules: Dictionary, state: Dictionary) -> void:
 			var idx := i
 			_add_button(label, func() -> void: start_asked.emit(idx, shortcut, false))
 		i += 1
-	if bool(state.get("endless_unlocked", false)):
-		_add_label(str(rules.get("endless", {}).get("name", "Endless")), 26, Color("e8c36a"))
-		_add_button("Enter Endless", func() -> void: start_asked.emit(0, false, true))
+	if open_map:
+		var COPY := preload("res://scripts/player_copy.gd")
+		if bool(state.get("endless_unlocked", false)):
+			_add_label(str(rules.get("endless", {}).get("name", "Endless")), 26, Color("e8c36a"))
+			var best: int = int(state.get("endless_best", 0))
+			if best > 0:
+				_add_label(COPY.fill("endless.best", {"n": best}, "Deepest: %s" % best), 20, Color("c4a574"))
+			_add_button(COPY.text("endless.complete.enter", "Enter Endless"), func() -> void: start_asked.emit(0, false, true))
+		else:
+			_add_label(COPY.text("map.endless.sealed", "ENDLESS · SEALED"), 22, Color("8a7d70"))
+			_add_label(COPY.text("map.endless.sealed_sub", "Opens when all five cabinets are full"), 18, Color("8a7d70"))
 	_add_button("Back", func() -> void: closed.emit())
 	if DEV.on():
 		_add_label("Editor checks", 18, Color("c4a574"))
@@ -170,9 +178,26 @@ func show_drawer() -> void:
 	_kind = "drawer"
 	_show_text()
 	_clear()
-	_add_label("The drawer opens.", 42, Color("e8c36a"))
-	_add_label("Every cabinet is full. Endless is unlocked.", 24, Color("f4ede3"))
-	_add_button("Continue", func() -> void:
+	var COPY := preload("res://scripts/player_copy.gd")
+	var eyebrow := COPY.text("endless.complete.eyebrow", "Campaign complete")
+	var headline := COPY.text("endless.complete.headline", "Every cabinet is full.")
+	var body := COPY.text("endless.complete.body", "Twenty-five uniques on the shelves. Something below them clicks.")
+	var unlocked := COPY.text("endless.complete.unlocked", "Endless unlocked")
+	var toast := COPY.text("endless.unlock_toast", "The deep opens.")
+	var cta := COPY.text("endless.complete.enter", "Enter Endless")
+	var cont := COPY.text("campaign.drawer.continue", "Continue")
+	_add_label(eyebrow, 22, Color("c4a574"))
+	_add_label(headline, 42, Color("e8c36a"))
+	_add_label(body, 24, Color("f4ede3"))
+	_add_label(unlocked, 26, Color("e8c36a"))
+	_add_label(toast, 22, Color("c4a574"))
+	## Bank path awaits `continued` then returns to the cabin; Endless starts from the map.
+	_add_button(cta, func() -> void:
+		if _waiting:
+			_waiting = false
+			continued.emit()
+	)
+	_add_button(cont, func() -> void:
 		if _waiting:
 			_waiting = false
 			continued.emit()

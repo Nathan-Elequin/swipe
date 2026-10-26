@@ -2705,6 +2705,8 @@ func _rope_deeper() -> void:
 	_adventure_continue()
 	if home_cabin:
 		home_cabin.note_belly(dungeon_index + 1)
+	if _campaign_on and _campaign != null and bool(_campaign.state.get("run", {}).get("endless", false)):
+		_campaign.write()
 
 
 func _rope_loot_rows() -> Array:
@@ -4044,6 +4046,11 @@ func _challenge_run_opening_drafts() -> void:
 	var seq: int = _mill_seq
 	draft_action = "challenge_pick"
 	phase = "draft"
+	var mud_load: Array = []
+	if _campaign_on and _campaign != null:
+		mud_load = CAMPAIGN_SHELL.mudroom_loadout_of(_campaign.state)
+	if mud_load.is_empty() and home_cabin != null:
+		mud_load = home_cabin.mudroom_loadout.duplicate()
 	for i in challenge_draft_plan.size():
 		if seq != _mill_seq:
 			return
@@ -4054,6 +4061,15 @@ func _challenge_run_opening_drafts() -> void:
 		var t: int = int(row.get("tier", 1))
 		if _campaign_on and not _campaign_starter_left.is_empty():
 			t = int(_campaign_starter_left.pop_front())
+		## Mudroom peg picks seat the opening hand; skip the pair offer for those.
+		if not mud_load.is_empty():
+			var mid := str(mud_load.pop_front())
+			if mid != "":
+				item_pool.erase(mid)
+				var seated: Dictionary = _make_item(mid)
+				_stamp_pack(seated, _pack_tier_for(mid, items_by_id, t), "draft")
+				await _challenge_commit_item(seated, true)
+				continue
 		var who: String = str(row.get("name", "Monster"))
 		await _challenge_offer_pick(
 			PLAYER_COPY.text("challenge.pick_open", "Choose your loot"),
@@ -19090,9 +19106,11 @@ func _sync_overlay() -> void:
 				rope_exit.open_exit(dungeons_cleared)
 			if rope_exit.has_method("apply_exit_mode"):
 				var can_push := false
+				var endless_run := false
 				if _campaign_on and _campaign != null:
 					can_push = CAMPAIGN_SHELL.can_push(_campaign.rules, _campaign.state)
-				rope_exit.apply_exit_mode(_campaign_on, can_push)
+					endless_run = bool(_campaign.state.get("run", {}).get("endless", false))
+				rope_exit.apply_exit_mode(_campaign_on, can_push, endless_run)
 		return
 	if phase == "victory":
 		overlay.visible = false
