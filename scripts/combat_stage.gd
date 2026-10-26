@@ -19,9 +19,20 @@ var _bursts: Array = []
 var _bob: float = 0.0
 var _lunge_x: float = 0.0:
 	set(v):
+		if is_equal_approx(_lunge_x, v):
+			return
 		_lunge_x = v
-		_place_sprite()
-		queue_redraw()
+		# Lunge tween used to rebuild the full atlas crop every process tick.
+		# Nudge the already-placed sprite instead; frame changes still go through
+		# `_place_sprite` from `_process` when `_portrait_dirty`.
+		if _sprite != null and _sprite.texture != null:
+			_sprite.position.x = size.x * 0.5 - _sprite.size.x * 0.5 + _lunge_x
+			queue_redraw()
+			if _fx:
+				_fx.queue_redraw()
+		else:
+			_place_sprite()
+			queue_redraw()
 var flip_h: bool = false
 var face_want := "L"
 var lunge_dir := -1.0

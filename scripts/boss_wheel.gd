@@ -301,6 +301,7 @@ var _sprout_gear_warned: bool = false
 var _hero_hold: bool = false
 var _hero_loops: int = 1
 var _hero_frozen: bool = false
+var _hero_heavy_token: bool = false
 var _pierce_float_t: float = -1.0
 var _hp_punch_t: float = 0.0
 var _blk_punch_t: float = 0.0
@@ -374,12 +375,27 @@ func setup_run_hero(art) -> void:
 	reset_hero()
 
 
+func _exit_tree() -> void:
+	_set_hero_heavy(false)
+
+
+func _set_hero_heavy(on: bool) -> void:
+	if on == _hero_heavy_token:
+		return
+	_hero_heavy_token = on
+	if on:
+		FX_BUDGET.begin_heavy()
+	else:
+		FX_BUDGET.end_heavy()
+
+
 func reset_hero() -> void:
 	hub_death_dim = false
 	_pierce_float_t = -1.0
 	_hp_punch_t = 0.0
 	_blk_punch_t = 0.0
 	_hero_frozen = false
+	_set_hero_heavy(false)
 	play_hero("idle", 1, true)
 	queue_redraw()
 
@@ -398,6 +414,9 @@ func play_hero(anim: String, loops: int = 1, force: bool = false) -> void:
 	_hero_hold = false
 	_hero_frozen = false
 	_hero_loops = maxi(1, loops)
+	# Hub now owns combat Sprout FX (face-off left stage retired). Mark heavy so
+	# SP-30 still pauses portrait / hall / card idles during swipe / grab / hit.
+	_set_hero_heavy(FX_BUDGET.is_heavy_state(anim))
 	_on_hero_frame()
 
 
@@ -449,6 +468,7 @@ func _hero_spec(anim: String) -> Dictionary:
 
 
 func _hero_return_idle() -> void:
+	_set_hero_heavy(false)
 	var nxt: String = "lowhp" if _hero_is_low() else "idle"
 	play_hero(nxt, 1, true)
 
@@ -1217,6 +1237,11 @@ func _wheel_wants_live_draw() -> bool:
 	if not _bond_anim.is_empty():
 		return true
 	if absf(_hint_ang) > 0.0004:
+		return true
+	# Non-loop hub combat anims (swipe / grab / hit) need paced redraws when the
+	# rest of the wheel is quiet — `_on_hero_frame` already queues, but decor
+	# capping still applies between advances when heavy FX is up.
+	if hub_sprout_on and not _hero_is_loop(hero_anim) and not _hero_hold and not _hero_frozen:
 		return true
 	for s in slices:
 		if bool(s.get("rage_fire", false)):

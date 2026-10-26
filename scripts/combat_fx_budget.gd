@@ -4,8 +4,10 @@ class_name CombatFxBudget
 ## The web export freezes when Sprout's item-use frames overlap a facing
 ## portrait idle, a full-wheel redraw, and the tiled hall — all of those
 ## were `queue_redraw()` every process tick. Heavy FX (item use, slash,
-## lunge, hit) pauses low-priority idles; web also caps decorative redraws.
-## Not an AnimationPlayer / Tween bug. SP-03 (Undo freeze) is separate.
+## lunge, hit, hub swipe/grab) pauses low-priority idles; web also caps
+## decorative redraws. Hub `play_hero` owns combat Sprout FX after the
+## left face-off strip; player_stage stays dark. Not an AnimationPlayer /
+## Tween bug. SP-03 (Undo freeze) is separate.
 
 static var _heavy: int = 0
 
