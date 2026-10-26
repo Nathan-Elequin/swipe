@@ -2512,7 +2512,11 @@ func _campaign_arm_delve() -> void:
 				contra.append(str(c))
 		rows.append({"id": str(id), "tier": int(card.get("tier", 1)), "contra": contra})
 	var biome := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
-	var deal: Dictionary = CAMPAIGN_SHELL.compose(_campaign.rules, rng, rows, biome)
+	CAMPAIGN_SHELL.normalize(_campaign.state)
+	var used_deadly: Array = _campaign.state["seen_deadly"]
+	var deal: Dictionary = CAMPAIGN_SHELL.compose(_campaign.rules, rng, rows, biome, used_deadly)
+	_campaign.state["seen_deadly"] = used_deadly
+	_campaign.write()
 	_campaign_queue = deal.get("ids", [])
 	_campaign_telegraph = deal.get("telegraph", [])
 	_campaign_starter_left = CAMPAIGN_SHELL.starter_tiers(_campaign.rules, rng)
@@ -2548,8 +2552,7 @@ func _campaign_card_ok(card: Dictionary) -> bool:
 		return false
 	if not ModePool.allows(card, ModePool.ADVENTURE):
 		return false
-	var pool := CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.parse(card.get("bucket", 0)))
-	return pool != "" and CAMPAIGN_SHELL.pool_unlocked(_campaign.rules, _campaign.state, pool)
+	return CAMPAIGN_SHELL.pool_open_for_bucket(_campaign.rules, _campaign.state, BucketRules.parse(card.get("bucket", 0)))
 
 
 func _campaign_item_entries() -> Array:
