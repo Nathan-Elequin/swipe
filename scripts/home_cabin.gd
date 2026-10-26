@@ -2041,6 +2041,7 @@ func _play_bank_sequence() -> void:
 		pools[held_id] = _live_pool(items_by_id.get(held_id, {}))
 	var seq: Array = BiomeCabinets.bank_sequence(pending, pools)
 	_bank_played = true
+	var crossed_gate := false
 	for raw_step in seq:
 		if not is_inside_tree():
 			_bank_busy = false
@@ -2054,12 +2055,17 @@ func _play_bank_sequence() -> void:
 		_rebuild_shelves()
 		if not _bank_from_push_block and BiomeCabinets.crossed_gate(before, _shown_count(pool), quota):
 			cabinet_gate_crossed.emit(pool)
+			crossed_gate = true
 		await _wait(0.34, true)
 	_bank_fresh = ""
 	_bank_busy = false
+	var from_push_block := _bank_from_push_block
 	_bank_from_push_block = false
 	if is_inside_tree():
 		_rebuild_shelves()
+	# Post-G only: never after the Push interrupt (F).
+	if crossed_gate and not from_push_block:
+		_show_toast("extract.delving_improves")
 
 
 func _clear_bank_anim() -> void:

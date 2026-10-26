@@ -3995,6 +3995,195 @@
 			"where": "After Push-block dissolve into that biome's case hall",
 			"text": "Five from the {biome}. Then we talk about going deeper.",
 			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.banner",
+			"where": "Campaign two-door extract banner",
+			"text": "Extracted · {biome}",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.push_block.title",
+			"where": "Extract headline when Push under 5/5 (with Nib)",
+			"text": "Whoa. Not down there.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.next_carry",
+			"where": "Extract carry-forward when next stamp already live",
+			"text": "Next: {next}. Your hand and 1 reroll come with you.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.delving_improves",
+			"where": "Toast after map-piece ceremony (G), never after Push interrupt (F)",
+			"text": "Dungeon delving improves",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.new_unique",
+			"where": "Haul chip marker for an item not yet banked",
+			"text": "NEW UNIQUE",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.case_proj",
+			"where": "Cabinet chip count when banking would fill the quota",
+			"text": "{n}/5 → 5/5",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.haul",
+			"where": "Haul list header on extract",
+			"text": "Your haul · {n} on the wheel",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "rank.weak",
+			"where": "Haul / rank chip for internal tier 1. Never say Tier.",
+			"text": "Weak",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "rank.tough",
+			"where": "Haul / rank chip for internal tier 2. Never say Tier.",
+			"text": "Tough",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "rank.deadly",
+			"where": "Haul / rank chip for internal tier 3. Never say Tier.",
+			"text": "Deadly",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.squint",
+			"where": "Map-piece ceremony beat 1",
+			"text": "Hold on. What's that stuck to the haul?",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Sprout",
+			"key": "sprout.piece.huh",
+			"where": "Map-piece ceremony beat 2",
+			"text": "…?",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.grandpa",
+			"where": "Map-piece ceremony beat 3",
+			"text": "That's Grandpa's! Next belly of the mountain — onto the map with you.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.stamped",
+			"where": "Map-piece ceremony beat 4 after THUNK",
+			"text": "There. Official now. {next} is stamped — open the map and peel it when you're ready.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.stamped_short",
+			"where": "Map-piece ceremony one-liner alternate",
+			"text": "There. Official now.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.title.spin",
+			"where": "Held map title (Spin lock)",
+			"text": "Grandpa's Map of Mount Grumblegut",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.subtitle",
+			"where": "Held map subtitle",
+			"text": "(Mostly Accurate.) Five bellies, each meaner than the last.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.start.pin",
+			"where": "Start badge title",
+			"text": "START HERE",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.start.sub",
+			"where": "Start badge sub",
+			"text": "Gatehouse → Verdant Hollow · a normal run",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.legend.down",
+			"where": "Depth cue on held map",
+			"text": "down is deeper",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.fog",
+			"where": "Fog / missing pieces note",
+			"text": "here the map gets… hazy. (pieces missing)",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.scribble.x",
+			"where": "Margin scribble",
+			"text": "X = treasure (probably).",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.scribble.snacks",
+			"where": "Margin scribble",
+			"text": "Snacks: bring them.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.node.locked",
+			"where": "Unmapped biome label",
+			"text": "{biome} · unmapped",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.stamp.full",
+			"where": "Full cabinet stamp hint",
+			"text": "cabinet full.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.stamp.pencil",
+			"where": "Full cabinet stamp hint line 2",
+			"text": "Nib's pencil →",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.hint.click",
+			"where": "Clickable stamped biome",
+			"text": "click to set off",
+			"owner": "Spin"
 		}
 	],
 	"updated": "2026-10-26"

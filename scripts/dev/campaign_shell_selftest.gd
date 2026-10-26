@@ -58,6 +58,12 @@ func _init() -> void:
 	Shell.begin_run(under, 0, false, false)
 	failed = _check(failed, "nib under 5/5", Shell.push_needs_nib(rules, under)) or failed
 	failed = _check(failed, "cabinet_count is the ledger", Shell.cabinet_count(under, "b1") == 2) or failed
+	var proj_n: int = Shell.project_cabinet_count(
+		under, "b1", ["u1", "u3", "u4", "other"], {"u1": "b1", "u3": "b1", "u4": "b1", "other": "b2"}
+	)
+	failed = _check(failed, "project cabinet adds new pool uniques", proj_n == 4) or failed
+	failed = _check(failed, "project skips other pools", proj_n == 4) or failed
+	failed = _check(failed, "next biome named", Shell.next_biome_name(rules, state) == "Sunken Mire") or failed
 	Shell.begin_run(under, 0, false, true)
 	failed = _check(failed, "no nib in endless", Shell.push_needs_nib(rules, under) == false) or failed
 	Shell.begin_run(state, 0, false, false)

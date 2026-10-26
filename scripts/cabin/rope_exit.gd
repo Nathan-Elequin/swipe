@@ -43,6 +43,10 @@ var _chip_biome: FitLabelBox
 var _chip_count: FitLabelBox
 var _chip_biome_name: String = ""
 var _chip_n: int = 0
+var _chip_show_proj: bool = false
+var _next_carry: FitLabelBox
+var _next_name: String = ""
+var _show_next_carry: bool = false
 var _nib: Sprite2D
 var _dialog
 var _plank_normal: StyleBox
@@ -50,6 +54,7 @@ var _plank_hover: StyleBox
 var _busy: bool = false
 var _chrome: Array = []
 var _loot_host: Control
+var _loot_count: int = 0
 
 
 func setup(p_cabin, p_extra: Dictionary) -> void:
@@ -137,15 +142,16 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 	_busy = false
 	_interrupt_fired = false
 	_interrupt_open = false
-	_headline.set_copy("rope.cleared", {"n": cleared})
-	if _sub:
-		_sub.set_copy("rope.loot_tip")
+	_loot_count = loot.size()
+	_apply_banner()
+	_apply_sub_line()
 	if not _campaign_mode and _deeper_sub:
 		_deeper_sub.set_copy("rope.deeper_sub", {"n": cleared + 1})
 	set_chrome_visible(true)
 	if _peek_btn:
 		_peek_btn.visible = false
 	_show_loot(loot)
+	_refresh_next_carry()
 	_hide_nib()
 	if visible:
 		return
@@ -154,6 +160,42 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 	var tw := create_tween()
 	tw.tween_property(self, "modulate:a", 1.0, 0.3)
 	KIT.cue(cabin.sfx if cabin else null, &"amb.rope_creak")
+
+
+func _apply_banner() -> void:
+	if _headline == null:
+		return
+	if _campaign_mode and _chip_biome_name != "":
+		_headline.set_copy("extract.banner", {"biome": _chip_biome_name})
+	else:
+		_headline.set_copy("rope.cleared", {"n": _cleared})
+
+
+func _apply_sub_line() -> void:
+	if _sub == null:
+		return
+	if _campaign_mode:
+		_sub.set_copy("extract.haul", {"n": _loot_count})
+	else:
+		_sub.set_copy("rope.loot_tip")
+
+
+func _rank_key(tier: int) -> String:
+	var t: int = clampi(tier, 1, 3)
+	if t >= 3:
+		return "rank.deadly"
+	if t == 2:
+		return "rank.tough"
+	return "rank.weak"
+
+
+func _rank_color(tier: int) -> Color:
+	var t: int = clampi(tier, 1, 3)
+	if t >= 3:
+		return Color("e8c36a")
+	if t == 2:
+		return Color("c5cdd8")
+	return Color("c08050")
 
 
 func hide_exit() -> void:
@@ -185,6 +227,30 @@ func _show_loot(loot: Array) -> void:
 		var tex: Texture2D = row.get("tex", null)
 		if tex == null:
 			continue
+		var col: int = i % 6
+		var rw: int = int(i / 6)
+		var origin := Vector2(520.0 + float(col) * 72.0, 240.0 + float(rw) * 96.0)
+		var is_new: bool = bool(row.get("is_new", false))
+		var tier: int = int(row.get("tier", 1))
+		var cell := Control.new()
+		cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		cell.position = origin
+		cell.size = Vector2(64, 92)
+		_loot_host.add_child(cell)
+		if is_new:
+			var nu: FitLabelBox = KIT.fit_label(
+				"extract.new_unique",
+				Rect2(origin.x - 12.0, origin.y - 18.0, 88, 16),
+				14,
+				10,
+				1,
+				Color("ffd84a"),
+				HORIZONTAL_ALIGNMENT_CENTER,
+				VERTICAL_ALIGNMENT_CENTER,
+				13
+			)
+			nu.set_outline(Color("100e0c"), 3)
+			_loot_host.add_child(nu)
 		var spr := TextureRect.new()
 		spr.texture = tex
 		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -192,11 +258,22 @@ func _show_loot(loot: Array) -> void:
 		spr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		spr.size = Vector2(64, 64)
 		spr.pivot_offset = Vector2(32, 32)
-		var col: int = i % 6
-		var rw: int = int(i / 6)
-		spr.position = Vector2(520.0 + float(col) * 72.0, 240.0 + float(rw) * 80.0)
-		spr.modulate = Color("fff3d6") if bool(row.get("is_new", false)) else Color("c4a574")
-		_loot_host.add_child(spr)
+		spr.position = Vector2.ZERO
+		spr.modulate = Color("fff3d6") if is_new else Color("c4a574")
+		cell.add_child(spr)
+		var rank: FitLabelBox = KIT.fit_label(
+			_rank_key(tier),
+			Rect2(origin.x - 4.0, origin.y + 64.0, 72, 18),
+			16,
+			11,
+			1,
+			_rank_color(tier),
+			HORIZONTAL_ALIGNMENT_CENTER,
+			VERTICAL_ALIGNMENT_CENTER,
+			13
+		)
+		rank.set_outline(Color("100e0c"), 3)
+		_loot_host.add_child(rank)
 		var tw := create_tween()
 		tw.set_loops(4)
 		tw.tween_property(spr, "modulate:a", 0.55, 0.45)
@@ -293,6 +370,20 @@ func _build_chrome() -> void:
 	_chip_count.visible = false
 	add_child(_chip_count)
 	_chrome.append(_chip_count)
+	_next_carry = KIT.fit_label(
+		"extract.next_carry",
+		Rect2(240, 148, 1200, 36),
+		24,
+		14,
+		2,
+		Color("e2d0b0"),
+		HORIZONTAL_ALIGNMENT_CENTER,
+		VERTICAL_ALIGNMENT_CENTER,
+		12
+	)
+	_next_carry.visible = false
+	add_child(_next_carry)
+	_chrome.append(_next_carry)
 	var sign_el: Dictionary = KIT.layout_el(_lay, "Sign")
 	var ns: Dictionary = sign_el.get("nine_slice_4x", {"l": 24, "t": 24, "r": 24, "b": 28})
 	_sign = KIT.ui_nine(
@@ -413,7 +504,7 @@ func _build_hotspots() -> void:
 
 
 ## campaign: always show Push. push_interrupt: Nib on hover when this cabinet is under quota.
-## chip: {biome, n, quota} for the run chip. can_push: whether deeper is allowed.
+## chip: {biome, n, quota, projected, show_proj, next, show_next}. can_push: whether deeper is allowed.
 func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = false, chip: Dictionary = {}) -> void:
 	_campaign_mode = campaign
 	_can_push = (not campaign) or can_push
@@ -421,6 +512,11 @@ func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = fals
 	_interrupt_fired = false
 	_chip_biome_name = str(chip.get("biome", ""))
 	_chip_n = int(chip.get("n", 0))
+	_chip_show_proj = bool(chip.get("show_proj", false))
+	_next_name = str(chip.get("next", ""))
+	_show_next_carry = bool(chip.get("show_next", false)) and _next_name != ""
+	_apply_banner()
+	_apply_sub_line()
 	if _climb_lab:
 		if campaign:
 			_climb_lab.set_copy("rope.campaign.bank")
@@ -456,7 +552,20 @@ func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = fals
 	if _chip_count:
 		_chip_count.visible = show_chip
 		if show_chip:
-			_chip_count.set_copy("rope.campaign.chip_count", {"n": _chip_n})
+			if _chip_show_proj:
+				_chip_count.set_copy("extract.case_proj", {"n": _chip_n})
+			else:
+				_chip_count.set_copy("rope.campaign.chip_count", {"n": _chip_n})
+	_refresh_next_carry()
+
+
+func _refresh_next_carry() -> void:
+	if _next_carry == null:
+		return
+	var show := _campaign_mode and _show_next_carry and _next_name != ""
+	_next_carry.visible = show
+	if show:
+		_next_carry.set_copy("extract.next_carry", {"next": _next_name})
 
 
 func _on_push_focus() -> void:
@@ -517,6 +626,8 @@ func _show_nib_interrupt() -> void:
 				_nib.texture = KIT.load_tex("nib/nib_point.png")
 		)
 	KIT.cue(cabin.sfx if cabin else null, &"speech.nib_gasp")
+	if _headline:
+		_headline.set_copy("extract.push_block.title")
 	if _dialog == null:
 		push_home.emit()
 		return

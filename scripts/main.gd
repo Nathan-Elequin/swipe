@@ -19175,7 +19175,31 @@ func _sync_overlay() -> void:
 					var quota: int = CAMPAIGN_SHELL.quota_of(_campaign.rules)
 					var n: int = CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool)
 					var biome := CAMPAIGN_SHELL.biome_name(_campaign.rules, pool)
-					chip = {"biome": biome, "n": n, "quota": quota}
+					var haul_ids: Array = []
+					var haul_pools := {}
+					for it in hotbar:
+						if typeof(it) != TYPE_DICTIONARY:
+							continue
+						var hid := str(it.get("card_id", ""))
+						if hid == "":
+							continue
+						haul_ids.append(hid)
+						haul_pools[hid] = _campaign_pool_of_item(hid)
+					var projected: int = CAMPAIGN_SHELL.project_cabinet_count(
+						_campaign.state, pool, haul_ids, haul_pools
+					)
+					var next_name := ""
+					if can_push:
+						next_name = CAMPAIGN_SHELL.next_biome_name(_campaign.rules, _campaign.state)
+					chip = {
+						"biome": biome,
+						"n": n,
+						"quota": quota,
+						"projected": projected,
+						"show_proj": n < quota and projected >= quota,
+						"next": next_name,
+						"show_next": can_push and next_name != "",
+					}
 					push_interrupt = CAMPAIGN_SHELL.push_needs_nib(_campaign.rules, _campaign.state)
 				rope_exit.apply_exit_mode(_campaign_on, can_push, push_interrupt, chip)
 		return

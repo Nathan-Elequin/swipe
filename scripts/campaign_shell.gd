@@ -204,6 +204,34 @@ static func biome_name(rules: Dictionary, biome_id: String) -> String:
 	return biome_id
 
 
+## How many uniques this pool would hold if the haul were banked now.
+static func project_cabinet_count(state: Dictionary, pool: String, ids: Array, pools_by_id: Dictionary) -> int:
+	var n := cabinet_count(state, pool)
+	var banked: Dictionary = state.get("banked", {})
+	var seen := {}
+	for raw in ids:
+		var id := str(raw)
+		if id == "" or banked.has(id) or seen.has(id):
+			continue
+		if str(pools_by_id.get(id, "")) != pool:
+			continue
+		seen[id] = true
+		n += 1
+	return n
+
+
+## Display name of the biome after the active run's current index, or "".
+static func next_biome_name(rules: Dictionary, state: Dictionary) -> String:
+	var run: Dictionary = state.get("run", {})
+	if bool(run.get("endless", false)):
+		return ""
+	var biomes := biomes_of(rules)
+	var i: int = int(run.get("biome_index", 0)) + 1
+	if i < 0 or i >= biomes.size():
+		return ""
+	return str((biomes[i] as Dictionary).get("name", ""))
+
+
 static func mix_for(rules: Dictionary, biome_id: String) -> Dictionary:
 	if biome_id == str(rules.get("endless", {}).get("id", "endless")):
 		var endless: Dictionary = rules.get("endless", {})
