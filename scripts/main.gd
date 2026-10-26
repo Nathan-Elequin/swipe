@@ -1488,6 +1488,7 @@ func _build_ui() -> void:
 	home_cabin.item_hovered.connect(_on_cabin_item_hovered)
 	home_cabin.item_unhovered.connect(_on_cabin_item_unhovered)
 	home_cabin.route_chosen.connect(_start_route)
+	home_cabin.held_map_wanted.connect(_toggle_held_map)
 	home_cabin.tutorial_wanted.connect(_start_tutorial)
 	home_cabin.quit_wanted.connect(_quit_game)
 	home_cabin.comment_wanted.connect(func(id: String) -> void: _open_playtest_comment("item", id))
@@ -2416,6 +2417,14 @@ func _start_route(route: String) -> void:
 			_quick_start()
 		_:
 			_begin_adventure()
+
+
+func _toggle_held_map() -> void:
+	if campaign_map and campaign_map.visible:
+		if campaign_map.has_method("is_picker_open") and campaign_map.is_picker_open():
+			_close_campaign_map()
+		return
+	_open_campaign_map()
 
 
 func _open_campaign_map() -> void:
@@ -6205,7 +6214,7 @@ func _playtest_middle() -> void:
 		home_cabin.buckets_open = _buckets_revealed
 		home_cabin.fill_middle_save()
 		_open_home_cabin(false)
-		home_cabin._open_map()
+		_open_campaign_map()
 	_sync_playtest_chrome()
 	_refresh()
 

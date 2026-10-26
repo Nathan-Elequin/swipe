@@ -94,7 +94,7 @@
     ],
     "hover": "props/map_wall_hover.png",
     "z": 3,
-    "note": "Grandpa's map: pick mode/route (opens overlays/map_close)"
+    "note": "Grandpa's map on the wall. Click or Space opens the held map (biome stamps), not a zoom of this prop."
    },
    {
     "node": "Radio",
