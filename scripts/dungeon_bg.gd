@@ -2,6 +2,7 @@ extends Control
 ## Layered dungeon hall: dark floor, wall band, sparse props, dais under the wheel.
 
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
+const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
 const FLICKER_STEP := 0.125
 
 var art
@@ -46,6 +47,7 @@ func _process(delta: float) -> void:
 		return
 	_flick_wait = FLICKER_STEP
 	queue_redraw()
+	FRAME_METRICS.note_hall()
 
 
 func _draw() -> void:
