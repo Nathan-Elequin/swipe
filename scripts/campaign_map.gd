@@ -78,11 +78,47 @@ func show_map(rules: Dictionary, state: Dictionary) -> void:
 	_waiting = false
 	_kind = "map"
 	_clear()
-	if _margin:
-		_margin.visible = false
-	if _held and _held.has_method("present"):
-		_held.present(rules, state)
-	_cue_scroll()
+	var Shell = load("res://scripts/campaign_shell.gd")
+	var open_map: bool = Shell.map_unlocked(rules, state)
+	var gate: int = int(rules.get("start_gate_uniques", 3))
+	var have: int = Shell.total_uniques(state)
+	_add_label("Campaign", 42, Color("e8c36a"))
+	if not open_map:
+		_add_label("Banked uniques %s/%s. The rest of the map stays shut until then." % [have, gate], 22, Color("f4ede3"))
+	else:
+		_add_label("Pick a delve. Cabinets remember what you banked at home.", 22, Color("f4ede3"))
+	var q: int = Shell.quota_of(rules)
+	var i := 0
+	for raw in Shell.biomes_of(rules):
+		var b: Dictionary = raw
+		var pool := str(b.get("id", ""))
+		var count: int = Shell.cabinet_count(state, pool)
+		var unlocked: bool = Shell.biome_unlocked(rules, state, i)
+		if not open_map and i > 0:
+			i += 1
+			continue
+		var line := "%s    cabinet %s/%s" % [str(b.get("name", pool)), count, q]
+		if not unlocked:
+			line += "    locked"
+		elif i > 0 and not Shell.shortcut_open(rules, state, i):
+			line += "    reach it by pushing deeper"
+		_add_label(line, 26, Color("f4ede3") if unlocked else Color("8a7d70"))
+		if Shell.can_start(rules, state, i):
+			var shortcut: bool = i > 0
+			var label := "Skip to %s" % str(b.get("name", pool)) if shortcut else "Enter %s" % str(b.get("name", pool))
+			var idx := i
+			_add_button(label, func() -> void: start_asked.emit(idx, shortcut, false))
+		i += 1
+	if bool(state.get("endless_unlocked", false)):
+		_add_label(str(rules.get("endless", {}).get("name", "Endless")), 26, Color("e8c36a"))
+		_add_button("Enter Endless", func() -> void: start_asked.emit(0, false, true))
+	_add_button("Back", func() -> void: closed.emit())
+	if DEV.on():
+		_add_label("Editor checks", 18, Color("c4a574"))
+		_add_button("Grant 3 uniques", func() -> void: cheat_asked.emit("grant3"))
+		_add_button("Fill the Verdant Hollow cabinet", func() -> void: cheat_asked.emit("fill_b1"))
+		_add_button("Fill every cabinet", func() -> void: cheat_asked.emit("win"))
+		_add_button("Fresh campaign", func() -> void: cheat_asked.emit("fresh"))
 	visible = true
 	move_to_front()
 

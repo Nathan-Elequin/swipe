@@ -10,6 +10,8 @@ signal held_map_wanted
 signal tutorial_wanted
 signal quit_wanted
 signal comment_wanted(card_id: String)
+## Fires when a case's shown collection crosses the quota (5). Map stamp is Slice C.
+signal cabinet_gate_crossed(pool_id: String)
 
 const SAVE_PATH := "user://home_cabin.json"
 const COPY := preload("res://scripts/player_copy.gd")
@@ -141,6 +143,14 @@ var _max_room: int = 0
 var _max_bucket: int = 0
 var _room_busy: bool = false
 var _by_bucket: Dictionary = {}
+var _campaign_rules: Dictionary = {}
+var _bank_hold: Dictionary = {}
+var _bank_fresh: String = ""
+var _bank_busy: bool = false
+var _bank_played: bool = false
+var _case_scroll: Dictionary = {}
+var _case_columns: Dictionary = {}
+var _case_clips: Dictionary = {}
 const ROOM_WALK := 1.5
 const ROOM_WIPE_AT := 1.0
 var _window_glow: TextureRect
@@ -210,11 +220,14 @@ func swipe_ids(ids: Array) -> Array:
 		if not bool(swiped.get(sid, false)):
 			swiped[sid] = true
 			_just_mounted.append(sid)
+			_bank_hold[sid] = true
 			new_unseen[sid] = true
 			news.append(sid)
 			changed = true
 	if changed:
+		_bank_played = false
 		_save()
+		call_deferred("_offer_bank_sequence")
 	return news
 
 
@@ -1319,13 +1332,6 @@ func _screen_of_bucket(b: int) -> int:
 	return 1 + int((b - 1) / 3)
 
 
-func _buckets_on_screen(screen: int) -> Array:
-	if screen <= 0:
-		return [0]
-	var start: int = 1 + (screen - 1) * 3
-	return [start, start + 1, start + 2]
-
-
 func _start_room() -> int:
 	for id in _just_mounted:
 		var card: Dictionary = items_by_id.get(str(id), {})
@@ -1455,8 +1461,9 @@ func _collect_buckets() -> void:
 		(_by_bucket[b] as Array).append(card)
 	for b2 in _by_bucket.keys():
 		(_by_bucket[b2] as Array).sort_custom(func(a, c): return str(a.get("name", "")).to_lower() < str(c.get("name", "")).to_lower())
-	_max_room = _screen_of_bucket(_max_bucket)
-	_room = clampi(_room, 0, _max_room)
+	# One wall of five biome cases. Bucket pages used to walk this room.
+	_max_room = 0
+	_room = 0
 
 
 func _mount_cell() -> Vector2:
@@ -1651,73 +1658,310 @@ func _rebuild_shelves() -> void:
 		_shelf_host.remove_child(c)
 		c.queue_free()
 	_glints.clear()
+	_case_columns.clear()
+	_case_clips.clear()
 	_collect_buckets()
 	_shelf_host.size = _hole.size if _hole else _pt(260, 160)
 	if _cordon:
 		_cordon.visible = false
-	var hole: Vector2 = _shelf_host.size
-	var row_h: float = hole.y / 3.0
-	var cell: Vector2 = _mount_cell()
-	if _room <= 0:
-		_fill_starter_wall(hole, row_h, cell)
-	else:
-		var buckets: Array = _buckets_on_screen(_room)
-		for i in 3:
-			var b: int = int(buckets[i])
-			var cards: Array = _by_bucket.get(b, [])
-			var locked: bool = b > buckets_open
-			_fill_bucket_row(cards, float(i) * row_h, row_h, hole.x, cell, locked)
+	_fill_biome_cases()
 	_rebuild_pips()
 	_place_nav()
+	if not _bank_busy:
+		call_deferred("_offer_bank_sequence")
 
 
-func _fill_starter_wall(hole: Vector2, row_h: float, cell: Vector2) -> void:
-	var cards: Array = _by_bucket.get(0, [])
-	var n: int = cards.size()
-	var per: int = int(ceil(float(maxi(1, n)) / 3.0))
-	for r in 3:
-		var a: int = r * per
-		var slice: Array = cards.slice(a, mini(a + per, n)) if a < n else []
-		_fill_bucket_row(slice, float(r) * row_h, row_h, hole.x, cell, false)
+func _biome_rules() -> Dictionary:
+	if _campaign_rules.is_empty():
+		_campaign_rules = CampaignShell.read_json(CampaignShell.DATA_PATH)
+	return _campaign_rules
 
 
-func _fill_bucket_row(cards: Array, y: float, row_h: float, hole_w: float, cell: Vector2, locked: bool) -> void:
-	var n: int = cards.size()
-	if n <= 0:
-		if locked:
-			_add_row_cordon(y, row_h, hole_w)
-		return
-	var s: float = minf(row_h * 0.9 / cell.y, hole_w * 0.92 / (cell.x * float(n)))
-	s = maxf(0.45, s)
+func _live_pool(card: Dictionary) -> String:
+	if str(card.get("status", "live")) in ["retired", "hold"]:
+		return ""
+	if BucketRules.is_token(card.get("bucket", 0)):
+		return ""
+	var b: int = BucketRules.parse(card.get("bucket", 0))
+	if b < 0:
+		return ""
+	return BiomeCabinets.pool_for_bucket(_biome_rules(), b)
+
+
+func _group_cards_by_pool() -> Dictionary:
+	var grouped := {}
+	for id in items_by_id.keys():
+		var card: Dictionary = items_by_id[id]
+		var pool := _live_pool(card)
+		if pool == "":
+			continue
+		if not grouped.has(pool):
+			grouped[pool] = []
+		(grouped[pool] as Array).append(card)
+	return grouped
+
+
+func _shown_count(pool_id: String) -> int:
+	var n := 0
+	for id in items_by_id.keys():
+		var card: Dictionary = items_by_id[id]
+		if _live_pool(card) != pool_id:
+			continue
+		var sid := str(card.get("id", id))
+		if bool(swiped.get(sid, false)) and not _bank_hold.has(sid):
+			n += 1
+	return n
+
+
+func _biome_progress_lines() -> Array:
+	var rules := _biome_rules()
+	var quota := BiomeCabinets.quota_of(rules)
+	var grouped := _group_cards_by_pool()
+	var lines: Array = []
+	for raw in BiomeCabinets.resolved_cases(rules):
+		var spec: Dictionary = raw
+		var pool := str(spec.get("id", ""))
+		var cards: Array = grouped.get(pool, [])
+		lines.append(BiomeCabinets.progress_text(_shown_count(pool), cards.size(), quota))
+	return lines
+
+
+func _fill_biome_cases() -> void:
+	var rules := _biome_rules()
+	var cases: Array = BiomeCabinets.resolved_cases(rules)
+	var quota := BiomeCabinets.quota_of(rules)
+	var hole: Vector2 = _shelf_host.size
+	var n: int = maxi(1, cases.size())
+	var gap := 8.0
+	var case_w: float = (hole.x - gap * float(n - 1)) / float(n)
+	var grouped := _group_cards_by_pool()
+	var order: Array = swiped.keys()
+	for i in cases.size():
+		var spec: Dictionary = cases[i]
+		var pool_id := str(spec.get("id", ""))
+		var cards: Array = grouped.get(pool_id, [])
+		var mounted: Array = BiomeCabinets.order_mounts(cards, order)
+		_build_biome_case(spec, mounted, quota, float(i) * (case_w + gap), case_w, hole.y)
+
+
+func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, case_w: float, case_h: float) -> void:
+	var pool_id := str(spec.get("id", ""))
+	var root := Control.new()
+	root.name = "Case_%s" % pool_id
+	root.position = Vector2(x, 0)
+	root.size = Vector2(case_w, case_h)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var tint := Color(str(spec.get("tint", "241812")))
+	var accent := Color(str(spec.get("accent", "e8c36a")))
+	var style := StyleBoxFlat.new()
+	style.bg_color = tint
+	style.border_color = accent
+	style.set_border_width_all(6)
+	style.set_corner_radius_all(0)
+	var frame := Panel.new()
+	frame.name = "Frame"
+	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_theme_stylebox_override("panel", style)
+	root.add_child(frame)
+	var frame_tex: Texture2D = _home(str(spec.get("frame", "")))
+	if frame_tex:
+		var case_art := TextureRect.new()
+		case_art.name = "CaseArt"
+		case_art.texture = frame_tex
+		case_art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		case_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		case_art.stretch_mode = TextureRect.STRETCH_SCALE
+		case_art.set_anchors_preset(Control.PRESET_FULL_RECT)
+		case_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root.add_child(case_art)
+	var shown := 0
+	for raw in cards:
+		var shown_id := str((raw as Dictionary).get("id", ""))
+		if bool(swiped.get(shown_id, false)) and not _bank_hold.has(shown_id):
+			shown += 1
+	var name_lab := KIT.raw_label(str(spec.get("name", pool_id)), 22, KIT.TITLE_CREAM, true)
+	name_lab.max_lines = 2
+	name_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_lab.position = Vector2(8, 8)
+	name_lab.size = Vector2(case_w - 16.0, 56)
+	name_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(name_lab)
+	name_lab.fit()
+	var count_text := BiomeCabinets.progress_text(shown, cards.size(), quota)
+	var count_col := Color("ffd84a") if shown >= quota else KIT.TITLE_CREAM
+	var count_lab := KIT.raw_label(count_text, 22, count_col, false)
+	count_lab.max_lines = 1
+	count_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	count_lab.position = Vector2(8, 64)
+	count_lab.size = Vector2(case_w - 16.0, 28)
+	count_lab.mouse_filter = Control.MOUSE_FILTER_STOP
+	count_lab.mouse_entered.connect(_on_case_hover.bind(pool_id, count_lab))
+	count_lab.mouse_exited.connect(hide_hover_tag)
+	root.add_child(count_lab)
+	count_lab.fit()
+	var pip := ColorRect.new()
+	pip.name = "GatePip"
+	pip.color = Color("ffd84a")
+	pip.position = Vector2(16, 96)
+	pip.size = Vector2(case_w - 32.0, 4)
+	pip.visible = shown >= quota
+	pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(pip)
+	var clip := Control.new()
+	clip.name = "Clip"
+	clip.position = Vector2(4, 108)
+	clip.size = Vector2(case_w - 8.0, maxf(40.0, case_h - 116.0))
+	clip.clip_contents = true
+	clip.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.add_child(clip)
+	root.mouse_filter = Control.MOUSE_FILTER_STOP
+	_bind_case_scroll(root, pool_id)
+	_bind_case_scroll(clip, pool_id)
+	_bind_case_scroll(count_lab, pool_id)
+	var column := Control.new()
+	column.name = "Column"
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	clip.add_child(column)
+	_case_clips[pool_id] = clip
+	_case_columns[pool_id] = column
+	var cell: Vector2 = _mount_cell()
+	var s: float = 0.62
+	if cell.x > 1.0:
+		s = minf(0.62, (clip.size.x - 8.0) / cell.x)
 	var msize: Vector2 = cell * s
-	var gap: float = 10.0
-	var total: float = msize.x * float(n) + gap * float(n - 1)
-	var x0: float = (hole_w - total) * 0.5
-	var y0: float = y + (row_h - msize.y) * 0.5
-	for i in n:
-		var pos := Vector2(x0 + float(i) * (msize.x + gap), y0)
-		_shelf_host.add_child(_mount_slot(cards[i], pos, msize, locked))
-	if locked:
-		_add_row_cordon(y, row_h, hole_w)
+	var gap_y := 6.0
+	var y := 4.0
+	var x0: float = maxf(0.0, (clip.size.x - msize.x) * 0.5)
+	var collected_slots := 0
+	for i in cards.size():
+		var card: Dictionary = cards[i]
+		var slot := _mount_slot(card, Vector2(x0, y), msize, false)
+		_bind_case_scroll(slot, pool_id)
+		column.add_child(slot)
+		y += msize.y
+		var sid := str(card.get("id", ""))
+		if bool(swiped.get(sid, false)) and not _bank_hold.has(sid):
+			collected_slots += 1
+			if collected_slots == quota:
+				var gate := ColorRect.new()
+				gate.name = "GateLine"
+				gate.color = Color("ffd84a")
+				gate.position = Vector2(8, y + 2)
+				gate.size = Vector2(clip.size.x - 16.0, 3)
+				gate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				column.add_child(gate)
+				y += 8.0
+		y += gap_y
+	column.size = Vector2(clip.size.x, maxf(y, clip.size.y))
+	column.custom_minimum_size = column.size
+	var view: float = clip.size.y
+	var max_s: float = maxf(0.0, column.size.y - view)
+	var cur: float = clampf(float(_case_scroll.get(pool_id, 0.0)), 0.0, max_s)
+	if _bank_fresh != "":
+		var fresh_node := column.find_child("Mount_%s" % _bank_fresh, false, false)
+		if fresh_node is Control:
+			var fy: float = (fresh_node as Control).position.y
+			var fh: float = (fresh_node as Control).size.y
+			if fy < cur:
+				cur = fy
+			elif fy + fh > cur + view:
+				cur = fy + fh - view
+			cur = clampf(cur, 0.0, max_s)
+	_case_scroll[pool_id] = cur
+	column.position = Vector2(0, -cur)
+	_shelf_host.add_child(root)
 
 
-func _add_row_cordon(y: float, row_h: float, hole_w: float) -> void:
-	var cover: Texture2D = _home("gallery_cordon")
-	if cover == null:
-		cover = _home("shelf_locked")
-	if cover == null:
+func _bind_case_scroll(node: Control, pool_id: String) -> void:
+	node.gui_input.connect(_on_case_wheel.bind(node, pool_id))
+
+
+func _on_case_wheel(event: InputEvent, node: Control, pool_id: String) -> void:
+	if not (event is InputEventMouseButton) or not (event as InputEventMouseButton).pressed:
 		return
-	var tr := TextureRect.new()
-	tr.texture = cover
-	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tr.modulate = Color(1, 1, 1, 0.88)
-	var h: float = minf(row_h * 0.42, 88.0)
-	tr.size = Vector2(hole_w * 0.9, h)
-	tr.position = Vector2(hole_w * 0.05, y + row_h * 0.52)
-	_shelf_host.add_child(tr)
+	var btn := event as InputEventMouseButton
+	var dir := 0
+	if btn.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		dir = 1
+	elif btn.button_index == MOUSE_BUTTON_WHEEL_UP:
+		dir = -1
+	else:
+		return
+	_scroll_case(pool_id, dir)
+	node.accept_event()
+
+
+func _scroll_case(pool_id: String, dir: int) -> void:
+	var clip_v: Variant = _case_clips.get(pool_id, null)
+	var col_v: Variant = _case_columns.get(pool_id, null)
+	if not (clip_v is Control) or not (col_v is Control):
+		return
+	var clip := clip_v as Control
+	var col := col_v as Control
+	var max_s: float = maxf(0.0, col.size.y - clip.size.y)
+	var cur: float = clampf(float(_case_scroll.get(pool_id, 0.0)) + float(dir) * 72.0, 0.0, max_s)
+	_case_scroll[pool_id] = cur
+	col.position.y = -cur
+
+
+func _on_case_hover(pool_id: String, hit: Control) -> void:
+	var total := 0
+	var got := _shown_count(pool_id)
+	for id in items_by_id.keys():
+		if _live_pool(items_by_id[id]) == pool_id:
+			total += 1
+	var key := "cabin.hall.full" if got >= total and total > 0 else "cabin.hall.gauge"
+	show_hover_tag(key, hit, {"n": got, "total": total})
+
+
+func _offer_bank_sequence() -> void:
+	if _bank_busy or _bank_hold.is_empty():
+		return
+	if _current_room != "hall" or _int_root == null or not _int_root.visible:
+		return
+	_bank_busy = true
+	_play_bank_sequence()
+
+
+func _play_bank_sequence() -> void:
+	# TODO Slice C4: bag-open smoke and a trajectory into the matching case.
+	# This stub reveals one newly banked item at a time, in arrival order.
+	var quota := BiomeCabinets.quota_of(_biome_rules())
+	var pending: Array = []
+	var pools := {}
+	for raw in _bank_hold.keys():
+		var held_id := str(raw)
+		pending.append(held_id)
+		pools[held_id] = _live_pool(items_by_id.get(held_id, {}))
+	var seq: Array = BiomeCabinets.bank_sequence(pending, pools)
+	_bank_played = true
+	for raw_step in seq:
+		if not is_inside_tree():
+			_bank_busy = false
+			return
+		var step: Dictionary = raw_step
+		var step_id := str(step.get("id", ""))
+		var pool := str(step.get("pool", ""))
+		var before := _shown_count(pool)
+		_bank_hold.erase(step_id)
+		_bank_fresh = step_id
+		_rebuild_shelves()
+		if BiomeCabinets.crossed_gate(before, _shown_count(pool), quota):
+			cabinet_gate_crossed.emit(pool)
+		await _wait(0.34, true)
+	_bank_fresh = ""
+	_bank_busy = false
+	if is_inside_tree():
+		_rebuild_shelves()
+
+
+func _clear_bank_anim() -> void:
+	_bank_hold.clear()
+	_bank_fresh = ""
+	_bank_busy = false
+	_bank_played = false
+	_case_scroll.clear()
 
 
 func _paint_cordon(locked: bool, origin: Vector2, grid: Vector2) -> void:
@@ -1759,9 +2003,14 @@ func _mount_slot(card: Dictionary, pos: Vector2, msize: Vector2, room_locked: bo
 	wrap.size = msize
 	wrap.mouse_filter = Control.MOUSE_FILTER_STOP
 	var id: String = str(card.get("id", ""))
-	var is_swiped: bool = bool(swiped.get(id, false)) and not room_locked
-	var is_seen: bool = (bool(seen.get(id, false)) or is_swiped) and not room_locked
-	var fresh: bool = _just_mounted.has(id) and is_swiped
+	wrap.name = "Mount_%s" % id
+	var is_swiped: bool = bool(swiped.get(id, false)) and not room_locked and not _bank_hold.has(id)
+	var is_seen: bool = (bool(seen.get(id, false)) or is_swiped or _bank_hold.has(id)) and not room_locked
+	var fresh: bool = false
+	if is_swiped and _bank_fresh == id:
+		fresh = true
+	elif is_swiped and _bank_fresh == "" and _bank_hold.is_empty() and not _bank_played and _just_mounted.has(id):
+		fresh = true
 	var stem: String = _mount_stem(is_swiped, is_seen)
 	var rest_tex: Texture2D = _home(stem)
 	if rest_tex == null:
@@ -2098,6 +2347,7 @@ func _load_save() -> void:
 	swiped.clear()
 	new_unseen.clear()
 	met_monsters.clear()
+	_clear_bank_anim()
 	_raw_save.clear()
 	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
 	if f == null:
@@ -2273,6 +2523,8 @@ func _mcp_state() -> Dictionary:
 		"sack_vis": _sack.visible if _sack else false,
 		"just_n": _just_mounted.size(),
 		"swiped_n": swiped.size(),
+		"biome_cases": BiomeCabinets.case_names(_biome_rules()),
+		"biome_progress": _biome_progress_lines(),
 		"buckets": buckets_open,
 		"room": _current_room,
 		"shelf_page": _room,
@@ -2313,6 +2565,7 @@ func debug_seed(owned: int, seen_only: int, buckets: int) -> void:
 			seen[str(id)] = true
 		n += 1
 	buckets_open = buckets
+	_clear_bank_anim()
 	_rebuild_shelves()
 
 
@@ -2570,6 +2823,7 @@ func clear_to_fresh_save() -> void:
 	new_unseen.clear()
 	met_monsters.clear()
 	_just_mounted.clear()
+	_clear_bank_anim()
 	_raw_save.clear()
 	_apply_defaults()
 	_save()
@@ -2589,6 +2843,7 @@ func fill_middle_save() -> void:
 	new_unseen.clear()
 	met_monsters.clear()
 	_just_mounted.clear()
+	_clear_bank_anim()
 	_apply_defaults()
 	intro_seen = true
 	nib_first_done = true
@@ -2648,6 +2903,7 @@ func fill_complete_save() -> void:
 	new_unseen.clear()
 	met_monsters.clear()
 	_just_mounted.clear()
+	_clear_bank_anim()
 	_apply_defaults()
 	intro_seen = true
 	nib_first_done = true
@@ -2990,6 +3246,8 @@ func pan_to(room: String) -> void:
 	_pan_busy = false
 	_rooms_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_show_toast("cabin.room.%s" % room)
+	if room == "hall":
+		call_deferred("_offer_bank_sequence")
 
 
 func _pan_unlocked(room: String) -> void:
@@ -3018,6 +3276,8 @@ func _pan_unlocked(room: String) -> void:
 	_current_room = room
 	_pan_busy = false
 	_show_toast("cabin.room.%s" % room)
+	if room == "hall":
+		call_deferred("_offer_bank_sequence")
 
 
 func _move_nib_x(x_native: float, dur: float) -> void:
