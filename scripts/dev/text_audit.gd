@@ -75,6 +75,9 @@ func _is_fit(n: Node) -> bool:
 func _walk(n: Node, out: Array) -> void:
 	if n is CanvasLayer and n == self:
 		return
+	# The git SHA watermark is supposed to stay small. It is not player copy.
+	if str(n.name) == "BuildStamp":
+		return
 	if _is_fit(n) or n is Label or n is RichTextLabel or n is Button:
 		if n is Label and _is_fit(n.get_parent()):
 			pass

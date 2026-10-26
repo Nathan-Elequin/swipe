@@ -10,6 +10,15 @@ Scripts for the steps that are the same every time. Agents call these instead of
 | `godot-check.ps1 [path]` | Runs headless `--import` (retried once on a crash), then `--quit`, at BelowNormal priority. Prints `Godot: N errors` (real `SCRIPT ERROR` / `Parse Error` lines only). | 0 clean, 1 errors, 2 import crashed twice |
 | `clean-import-churn.ps1` | Restores tracked `*.import` files whose only diff is the uid rewrite and/or LF/CRLF. Leaves new `.import` files and non-`.import` files alone. | 0 ok, 1 error |
 | `install-hooks.ps1` | Runs `git config core.hooksPath tools/hooks` so `tools/hooks/pre-commit` runs on every commit. | 0 ok, 1 error |
+| `write-build-stamp.ps1` | Writes `data/build_stamp.txt` (`git rev-parse --short HEAD`, plus `*` if the worktree is dirty). **F5 does not need this** — editor play reads git at startup. The editor export plugin bakes the same string into exports. Run this only for a build that cannot see `.git` and is not using that plugin. | 0 ok, 1 git failed |
+
+## Build stamp (corner SHA)
+
+While the game is running, the top-right corner shows the short git commit (for example `404f41f`, or `404f41f*` if the worktree had changes). It is always on, including exported builds and screenshots. It does not take clicks.
+
+After a pull: press F5 (reload if the game is already running). The label reads the checkout when the run starts. Confirm it matches `git rev-parse --short HEAD`. The hex is that command's exact output. A trailing `*` means `git status --porcelain` saw changes other than `data/build_stamp.txt`.
+
+Editor export (Web or Web Playtest) bakes the same string through `addons/build_stamp`. You do not hand-edit the SHA.
 
 ## Pre-commit guard (`tools/hooks/pre-commit`)
 
