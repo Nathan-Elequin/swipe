@@ -53,6 +53,11 @@ const STUB_NAMES := {
 	"The Chapel": "Ashen Crypt",
 	"The Vault": "Cinder Forge",
 	"The Throat": "Shadow Abyss",
+	"Torch Burrow": "Verdant Hollow",
+	"Slime Pits": "Sunken Mire",
+	"Bone Gallery": "Ashen Crypt",
+	"Bog Mother": "Cinder Forge",
+	"Gulp King": "Shadow Abyss",
 }
 
 

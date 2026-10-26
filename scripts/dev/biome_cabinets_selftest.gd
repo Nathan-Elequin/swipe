@@ -23,6 +23,16 @@ func _init() -> void:
 	}
 	var rewritten: Array = Cases.case_names(stubs)
 	failed = _check(failed, "stubs become locked names", rewritten == want) or failed
+	var old_board := {
+		"biomes": [
+			{"id": "b1", "name": "Torch Burrow"},
+			{"id": "b2", "name": "Slime Pits"},
+			{"id": "b3", "name": "Bone Gallery"},
+			{"id": "b4", "name": "Bog Mother"},
+			{"id": "b5", "name": "Gulp King"},
+		],
+	}
+	failed = _check(failed, "board stubs become locked names", Cases.case_names(old_board) == want) or failed
 	var custom := {"biomes": [{"id": "b1", "name": "Moss Hall"}]}
 	failed = _check(failed, "non-stub name kept", str(Cases.case_names(custom)[0]) == "Moss Hall") or failed
 	failed = _check(failed, "quota 5", Cases.quota_of(rules) == 5) or failed

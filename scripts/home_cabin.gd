@@ -2080,6 +2080,8 @@ func _play_bank_sequence() -> void:
 			cabinet_gate_crossed.emit(str(pool_id))
 			if _map_piece_beat:
 				await _map_piece_beat.play(str(pool_id))
+		# Post-G only: never after the Push interrupt (F).
+		_show_toast("extract.delving_improves")
 	_bank_busy = false
 
 
