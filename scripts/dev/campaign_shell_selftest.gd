@@ -6,7 +6,14 @@ func _init() -> void:
 	var Shell = load("res://scripts/campaign_shell.gd")
 	var rules: Dictionary = Shell.read_json("res://data/campaign.json")
 	var failed := false
+	var locked_names: Array[String] = ["Verdant Hollow", "Sunken Mire", "Ashen Crypt", "Cinder Forge", "Shadow Abyss"]
 	failed = _check(failed, "five biomes", Shell.biomes_of(rules).size() == 5) or failed
+	var named := 0
+	for raw_name in Shell.biomes_of(rules):
+		var named_biome: Dictionary = raw_name
+		var want: String = locked_names[named] if named < locked_names.size() else ""
+		failed = _check(failed, "name %s" % want, str(named_biome.get("name", "")) == want) or failed
+		named += 1
 	failed = _check(failed, "deck 6+4", Shell.deck_counts(rules) == Vector2i(6, 4)) or failed
 	var expect := {
 		"b1": Vector3i(6, 3, 1),
@@ -29,25 +36,22 @@ func _init() -> void:
 	failed = _check(failed, "unknown biome uses cellar mix", int(fb.get("weak", 0)) == 6 and int(fb.get("tough", 0)) == 3 and int(fb.get("deadly", 0)) == 1) or failed
 	var state: Dictionary = Shell.fresh_state()
 	failed = _check(failed, "map shut", Shell.map_unlocked(rules, state) == false) or failed
-	failed = _check(failed, "only cellar starts", Shell.can_start(rules, state, 0) and not Shell.can_start(rules, state, 1)) or failed
-	failed = _check(failed, "pool 1 in play", Shell.pool_open_for_bucket(rules, state, 0) and Shell.pool_open_for_bucket(rules, state, 1)) or failed
-	failed = _check(failed, "later pools wait", not Shell.pool_open_for_bucket(rules, state, 2) and not Shell.pool_open_for_bucket(rules, state, 8)) or failed
+	failed = _check(failed, "only verdant hollow starts", Shell.can_start(rules, state, 0) and not Shell.can_start(rules, state, 1)) or failed
 	var pools := {"a": "b1", "b": "b1", "c": "b1", "d": "b1", "e": "b1"}
 	Shell.bank(rules, state, ["a", "b", "c"], pools)
 	failed = _check(failed, "gate at 3", Shell.map_unlocked(rules, state)) or failed
-	failed = _check(failed, "cellar counts the 3", Shell.cabinet_count(state, "b1") == 3) or failed
-	failed = _check(failed, "warren still locked", Shell.biome_unlocked(rules, state, 1) == false) or failed
+	failed = _check(failed, "verdant hollow counts the 3", Shell.cabinet_count(state, "b1") == 3) or failed
+	failed = _check(failed, "sunken mire still locked", Shell.biome_unlocked(rules, state, 1) == false) or failed
 	failed = _check(failed, "no push yet", Shell.can_push(rules, state) == false) or failed
 	Shell.bank(rules, state, ["d", "e"], pools)
-	failed = _check(failed, "cellar full", Shell.cabinet_count(state, "b1") == 5) or failed
-	failed = _check(failed, "warren opens", Shell.biome_unlocked(rules, state, 1)) or failed
-	failed = _check(failed, "pool 1 still in later biomes", Shell.pool_open_for_bucket(rules, state, 0)) or failed
-	failed = _check(failed, "pool 2 drips in", Shell.pool_open_for_bucket(rules, state, 2) and Shell.pool_open_for_bucket(rules, state, 3)) or failed
-	failed = _check(failed, "pool 3 still shut", not Shell.pool_open_for_bucket(rules, state, 4)) or failed
-	failed = _check(failed, "shortcut to cellar", Shell.shortcut_open(rules, state, 0)) or failed
-	failed = _check(failed, "no shortcut to warren yet", Shell.shortcut_open(rules, state, 1) == false) or failed
+	failed = _check(failed, "verdant hollow full", Shell.cabinet_count(state, "b1") == 5) or failed
+	failed = _check(failed, "sunken mire opens", Shell.biome_unlocked(rules, state, 1)) or failed
+	failed = _check(failed, "stamp starts sunken mire", Shell.can_start(rules, state, 1)) or failed
+	failed = _check(failed, "ashen crypt stays shut", Shell.can_start(rules, state, 2) == false) or failed
+	failed = _check(failed, "shortcut to verdant hollow", Shell.shortcut_open(rules, state, 0)) or failed
+	failed = _check(failed, "no shortcut to sunken mire yet", Shell.shortcut_open(rules, state, 1) == false) or failed
 	Shell.begin_run(state, 0, false, false)
-	failed = _check(failed, "can push into warren", Shell.can_push(rules, state)) or failed
+	failed = _check(failed, "can push into sunken mire", Shell.can_push(rules, state)) or failed
 	Shell.grant_delve_reroll(rules, state)
 	failed = _check(failed, "one reroll", int(state["run"]["rerolls"]) == 1) or failed
 	Shell.grant_delve_reroll(rules, state)

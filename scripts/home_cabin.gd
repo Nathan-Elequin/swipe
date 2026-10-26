@@ -6,6 +6,7 @@ signal inspect_wanted(card_id: String)
 signal item_hovered(card_id: String, slot: Control)
 signal item_unhovered
 signal route_chosen(route: String)
+signal held_map_wanted
 signal tutorial_wanted
 signal quit_wanted
 signal comment_wanted(card_id: String)
@@ -2476,7 +2477,26 @@ func _input(event: InputEvent) -> void:
 			_cutscene.request_advance()
 			get_viewport().set_input_as_handled()
 		return
+	if _space_key(event):
+		if _picker_open():
+			_ask_held_map()
+			get_viewport().set_input_as_handled()
+			return
+		if _busy():
+			return
+		if _gate_on():
+			if _dialog:
+				_dialog.say(["map.first_only"])
+			get_viewport().set_input_as_handled()
+			return
+		_ask_held_map()
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("ui_cancel"):
+		if _picker_open():
+			_ask_held_map()
+			get_viewport().set_input_as_handled()
+			return
 		_escape()
 		get_viewport().set_input_as_handled()
 		return
@@ -3283,7 +3303,7 @@ func _on_run_door() -> void:
 	if _gate_on():
 		_interrupt()
 		return
-	_open_map()
+	_ask_held_map()
 
 
 func _play_run_door_open() -> void:
@@ -3316,12 +3336,33 @@ func _on_map() -> void:
 		if _dialog:
 			_dialog.say(["map.first_only"])
 		return
-	_open_map()
+	_ask_held_map()
 
 
 func _open_map() -> void:
 	_overlay_name = "map"
 	_map.open_map(last_route)
+
+
+func _ask_held_map() -> void:
+	held_map_wanted.emit()
+
+
+func _picker_open() -> bool:
+	var host: Node = get_parent()
+	if host == null:
+		return false
+	var picker = host.get("campaign_map")
+	return picker != null and picker.has_method("is_picker_open") and bool(picker.is_picker_open())
+
+
+func _space_key(event: InputEvent) -> bool:
+	if not event is InputEventKey:
+		return false
+	var key := event as InputEventKey
+	if not key.pressed or key.echo:
+		return false
+	return key.keycode == KEY_SPACE or key.physical_keycode == KEY_SPACE
 
 
 func _open_radio() -> void:
@@ -3367,7 +3408,7 @@ func _interrupt() -> void:
 		tutorial_declined = true
 		_save()
 		_apply_gate()
-		_open_map()
+		_ask_held_map()
 		return
 	if _dialog.has_method("dismiss"):
 		_dialog.dismiss()
@@ -3381,7 +3422,7 @@ func _interrupt() -> void:
 		_dialog.say(["nib.interrupt.no_reply"])
 		await _dialog.finished
 		_apply_gate()
-		_open_map()
+		_ask_held_map()
 
 
 func _on_nib() -> void:
@@ -3404,7 +3445,7 @@ func _on_locked_door() -> void:
 	_dialog.say(["cabin.locked.first"], ["cabin.locked.try", "cabin.locked.wait"])
 	var ch: int = await _dialog.finished
 	if ch == 0:
-		_open_map()
+		_ask_held_map()
 
 
 func _on_cat() -> void:

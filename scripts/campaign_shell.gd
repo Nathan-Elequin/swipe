@@ -150,6 +150,9 @@ static func shortcut_open(rules: Dictionary, state: Dictionary, index: int) -> b
 	return biome_unlocked(rules, state, index + 1)
 
 
+## Index 0 is the normal run from the first biome. A later index can start once
+## that biome is unlocked (the previous cabinet hit the quota and the path is
+## penciled). The held map treats that click as a stamp shortcut: empty carry-in.
 static func can_start(rules: Dictionary, state: Dictionary, index: int) -> bool:
 	if not biome_unlocked(rules, state, index):
 		return false
@@ -157,7 +160,7 @@ static func can_start(rules: Dictionary, state: Dictionary, index: int) -> bool:
 		return true
 	if not map_unlocked(rules, state):
 		return false
-	return shortcut_open(rules, state, index)
+	return true
 
 
 static func can_push(rules: Dictionary, state: Dictionary) -> bool:
