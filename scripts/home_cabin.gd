@@ -1925,8 +1925,8 @@ func _offer_bank_sequence() -> void:
 
 
 func _play_bank_sequence() -> void:
-	# TODO Slice C4: bag-open smoke and a trajectory into the matching case.
-	# This stub reveals one newly banked item at a time, in arrival order.
+	# S7 / C4: bag smoke → rays → per-item arcs, then S3 map-piece handoff if present.
+	# FX only on the extract bank path — never Push/Nib interrupt, cheats, or death.
 	var quota := BiomeCabinets.quota_of(_biome_rules())
 	var pending: Array = []
 	var pools := {}
@@ -1936,6 +1936,19 @@ func _play_bank_sequence() -> void:
 		pools[held_id] = _live_pool(items_by_id.get(held_id, {}))
 	var seq: Array = BiomeCabinets.bank_sequence(pending, pools)
 	_bank_played = true
+	var from_push_block := _bank_is_push_block()
+	var play_fx := (not from_push_block) and (not seq.is_empty())
+	var pool_adds: Dictionary = {}
+	var crossed: Array = []
+	if play_fx:
+		await _bank_fx_bag_smoke()
+		if not is_inside_tree():
+			_bank_busy = false
+			return
+		await _bank_fx_rays()
+		if not is_inside_tree():
+			_bank_busy = false
+			return
 	for raw_step in seq:
 		if not is_inside_tree():
 			_bank_busy = false
@@ -1944,16 +1957,277 @@ func _play_bank_sequence() -> void:
 		var step_id := str(step.get("id", ""))
 		var pool := str(step.get("pool", ""))
 		var before := _shown_count(pool)
+		if play_fx:
+			await _bank_fx_arc_to_mount(step_id, pool)
+			if not is_inside_tree():
+				_bank_busy = false
+				return
 		_bank_hold.erase(step_id)
 		_bank_fresh = step_id
 		_rebuild_shelves()
-		if BiomeCabinets.crossed_gate(before, _shown_count(pool), quota):
-			cabinet_gate_crossed.emit(pool)
-		await _wait(0.34, true)
+		pool_adds[pool] = int(pool_adds.get(pool, 0)) + 1
+		if not from_push_block and BiomeCabinets.crossed_gate(before, _shown_count(pool), quota) \
+				and not crossed.has(pool):
+			crossed.append(pool)
+		await _wait(0.25 if play_fx else 0.34, true)
 	_bank_fresh = ""
-	_bank_busy = false
 	if is_inside_tree():
 		_rebuild_shelves()
+	if play_fx and is_inside_tree():
+		await _bank_fx_loud_count(pool_adds, quota)
+	# S3 handoff: ceremony after FX when a cabinet crosses 5/5 (no Nib in this slice).
+	if not from_push_block and not crossed.is_empty() and is_inside_tree():
+		for pool_id in crossed:
+			cabinet_gate_crossed.emit(str(pool_id))
+			var beat: Variant = _bank_map_piece_beat()
+			if beat != null and beat.has_method("play"):
+				await beat.play(str(pool_id))
+	_bank_busy = false
+
+
+func _bank_is_push_block() -> bool:
+	# S2/S3 set this before interrupt banks; absent on tips without that wire.
+	if "_bank_from_push_block" in self:
+		return bool(get("_bank_from_push_block"))
+	return false
+
+
+func _bank_map_piece_beat() -> Variant:
+	if "_map_piece_beat" in self:
+		return get("_map_piece_beat")
+	return null
+
+
+func _bank_fx_host() -> Control:
+	if _hole != null and is_instance_valid(_hole):
+		return _hole
+	if _shelf_host != null and is_instance_valid(_shelf_host):
+		return _shelf_host
+	return self
+
+
+func _bank_bag_origin_local(host: Control) -> Vector2:
+	if host == null:
+		return Vector2.ZERO
+	return Vector2(host.size.x * 0.5, host.size.y * 0.78)
+
+
+func _bank_fx_bag_smoke() -> void:
+	var host: Control = _bank_fx_host()
+	var origin: Vector2 = _bank_bag_origin_local(host)
+	KIT.cue(sfx, &"cabin.sack")
+	var smoke_sf := _frames(
+		"bag_smoke",
+		["smoke_puff_f0", "smoke_puff_f1", "smoke_puff_f2"],
+		1000.0 / 140.0,
+		false
+	)
+	if smoke_sf.get_frame_count("bag_smoke") == 0:
+		var dust := ["fx/dust_puff_f0.png", "fx/dust_puff_f1.png", "fx/dust_puff_f2.png"]
+		if KIT.load_tex(dust[0]) != null:
+			var puff: AnimatedSprite2D = KIT.anim_sprite(dust, "dust", 1000.0 / 90.0, false, Vector2.ZERO)
+			puff.centered = true
+			puff.position = origin
+			puff.z_index = 12
+			host.add_child(puff)
+			if puff.sprite_frames and puff.sprite_frames.get_frame_count("dust") > 0:
+				puff.play("dust")
+				await puff.animation_finished
+			if is_instance_valid(puff):
+				puff.queue_free()
+			return
+		# Code-only fallback when no puff art is available.
+		var blob := ColorRect.new()
+		blob.color = Color("c8b89a", 0.55)
+		blob.size = Vector2(96, 72)
+		blob.pivot_offset = blob.size * 0.5
+		blob.position = origin - blob.pivot_offset
+		blob.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		blob.z_index = 12
+		host.add_child(blob)
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.set_parallel(true)
+		tw.tween_property(blob, "scale", Vector2(1.6, 1.6), 0.28)
+		tw.tween_property(blob, "modulate:a", 0.0, 0.28)
+		await tw.finished
+		if is_instance_valid(blob):
+			blob.queue_free()
+		return
+	var smoke := AnimatedSprite2D.new()
+	smoke.centered = true
+	smoke.position = origin
+	smoke.scale = Vector2(1.35, 1.35)
+	smoke.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	smoke.sprite_frames = smoke_sf
+	smoke.z_index = 12
+	host.add_child(smoke)
+	smoke.play("bag_smoke")
+	await smoke.animation_finished
+	if is_instance_valid(smoke):
+		smoke.queue_free()
+
+
+func _bank_fx_rays() -> void:
+	var host: Control = _bank_fx_host()
+	var origin: Vector2 = _bank_bag_origin_local(host)
+	KIT.cue(sfx, &"cabin.item_burst")
+	var rays: Array = []
+	var n := 8
+	for i in n:
+		var ray := ColorRect.new()
+		ray.color = Color("ffd84a", 0.72)
+		ray.size = Vector2(5.0, 140.0)
+		ray.pivot_offset = Vector2(2.5, 0.0)
+		ray.position = origin - ray.pivot_offset
+		ray.rotation = TAU * float(i) / float(n) + 0.12
+		ray.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ray.z_index = 11
+		var mat := CanvasItemMaterial.new()
+		mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		ray.material = mat
+		host.add_child(ray)
+		rays.append(ray)
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.set_parallel(true)
+		tw.tween_property(ray, "size:y", 220.0, 0.22)
+		tw.tween_property(ray, "modulate:a", 0.0, 0.32).set_delay(0.08)
+	# Soft gold flash behind the rays.
+	var flash := ColorRect.new()
+	flash.color = Color("fff3d6", 0.35)
+	flash.size = Vector2(160, 160)
+	flash.pivot_offset = flash.size * 0.5
+	flash.position = origin - flash.pivot_offset
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flash.z_index = 10
+	host.add_child(flash)
+	var ftw := create_tween()
+	ftw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	ftw.set_parallel(true)
+	ftw.tween_property(flash, "scale", Vector2(1.8, 1.8), 0.3)
+	ftw.tween_property(flash, "modulate:a", 0.0, 0.3)
+	await _wait(0.34, true)
+	for r in rays:
+		if is_instance_valid(r):
+			(r as Node).queue_free()
+	if is_instance_valid(flash):
+		flash.queue_free()
+
+
+func _bank_mount_global_center(item_id: String, pool_id: String) -> Vector2:
+	var col_v: Variant = _case_columns.get(pool_id, null)
+	if col_v is Control:
+		var mount: Node = (col_v as Control).find_child("Mount_%s" % item_id, false, false)
+		if mount is Control:
+			var gr: Rect2 = (mount as Control).get_global_rect()
+			return gr.position + gr.size * 0.45
+	if _shelf_host != null:
+		var case_n: Node = _shelf_host.get_node_or_null("Case_%s" % pool_id)
+		if case_n is Control:
+			var cr: Rect2 = (case_n as Control).get_global_rect()
+			return cr.position + Vector2(cr.size.x * 0.5, cr.size.y * 0.55)
+	var host: Control = _bank_fx_host()
+	var hr: Rect2 = host.get_global_rect()
+	return hr.position + hr.size * 0.5
+
+
+func _bank_fx_arc_to_mount(item_id: String, pool_id: String) -> void:
+	var host: Control = _bank_fx_host()
+	var from_local: Vector2 = _bank_bag_origin_local(host)
+	var to_global: Vector2 = _bank_mount_global_center(item_id, pool_id)
+	var to_local: Vector2 = host.get_global_transform_with_canvas().affine_inverse() * to_global
+	var tex: Texture2D = tex_by_item.get(item_id, null)
+	if tex == null and art != null:
+		tex = art.item_tex(item_id)
+	var spr := Sprite2D.new()
+	spr.centered = true
+	spr.position = from_local
+	spr.z_index = 14
+	spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if tex != null:
+		spr.texture = tex
+		spr.scale = _item_spr_scale(tex, 0.85)
+	else:
+		# Tiny stand-in chip when the item texture is missing.
+		var chip := ColorRect.new()
+		chip.color = Color("ffd84a")
+		chip.size = Vector2(28, 28)
+		chip.position = Vector2(-14, -14)
+		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		spr.add_child(chip)
+	host.add_child(spr)
+	_attach_fly_fx(spr)
+	KIT.cue(sfx, &"cabin.item_whoosh")
+	var peak: Vector2 = Vector2(
+		(from_local.x + to_local.x) * 0.5,
+		minf(from_local.y, to_local.y) - 64.0
+	)
+	var start_scale: Vector2 = spr.scale
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_method(func(t: float) -> void:
+		if is_instance_valid(spr):
+			spr.position = _quad_bez(from_local, peak, to_local, t)
+	, 0.0, 1.0, 0.38)
+	tw.parallel().tween_property(spr, "scale", start_scale * 1.2, 0.2)
+	tw.parallel().tween_property(spr, "scale", start_scale * 0.95, 0.18).set_delay(0.2)
+	await tw.finished
+	KIT.cue(sfx, &"cabin.item_pop")
+	if is_instance_valid(spr):
+		spr.queue_free()
+
+
+func _bank_fx_loud_count(pool_adds: Dictionary, quota: int) -> void:
+	if pool_adds.is_empty() or _shelf_host == null:
+		return
+	var best_pool := ""
+	var best_n := 0
+	for raw_pool in pool_adds.keys():
+		var p := str(raw_pool)
+		var n: int = int(pool_adds[p])
+		if n > best_n:
+			best_n = n
+			best_pool = p
+	if best_pool == "" or best_n <= 0:
+		return
+	var case_n: Node = _shelf_host.get_node_or_null("Case_%s" % best_pool)
+	if not (case_n is Control):
+		return
+	var case_c := case_n as Control
+	var shown := _shown_count(best_pool)
+	var total := 0
+	for id in items_by_id.keys():
+		if _live_pool(items_by_id[id]) == best_pool:
+			total += 1
+	var gauge := BiomeCabinets.progress_text(shown, total, quota)
+	var lab := Label.new()
+	lab.text = "+%d  %s" % [best_n, gauge]
+	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lab.add_theme_font_size_override("font_size", 36)
+	lab.add_theme_color_override("font_color", Color("ffd84a"))
+	lab.add_theme_color_override("font_outline_color", Color("1c120c"))
+	lab.add_theme_constant_override("outline_size", 6)
+	lab.size = Vector2(case_c.size.x, 48)
+	lab.position = Vector2(0, case_c.size.y * 0.28)
+	lab.pivot_offset = lab.size * 0.5
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lab.z_index = 16
+	lab.scale = Vector2(0.4, 0.4)
+	case_c.add_child(lab)
+	KIT.cue(sfx, &"cabin.shelf_chime")
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_trans(Tween.TRANS_BACK)
+	tw.set_ease(Tween.EASE_OUT)
+	tw.tween_property(lab, "scale", Vector2(1.15, 1.15), 0.22)
+	tw.tween_property(lab, "scale", Vector2.ONE, 0.12)
+	tw.tween_interval(0.55)
+	tw.tween_property(lab, "modulate:a", 0.0, 0.2)
+	await tw.finished
+	if is_instance_valid(lab):
+		lab.queue_free()
 
 
 func _clear_bank_anim() -> void:
