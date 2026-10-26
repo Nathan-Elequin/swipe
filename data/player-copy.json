@@ -3932,7 +3932,70 @@
 			"author_lock": true,
 			"locked_at": "2026-10-19",
 			"where": "Playtest intro beat 16"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.bank_eyebrow",
+			"where": "Campaign extract left door eyebrow",
+			"text": "Climb Grandpa's rope",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.bank",
+			"where": "Campaign extract left door title",
+			"text": "Bank home",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.push_eyebrow",
+			"where": "Campaign extract right door eyebrow",
+			"text": "Into the dark",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.push",
+			"where": "Campaign extract right door title",
+			"text": "Push deeper",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.chip_biome",
+			"where": "Campaign extract run chip biome line",
+			"text": "{biome} cabinet",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.chip_count",
+			"where": "Campaign extract run chip count",
+			"text": "{n}/5",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.push_block.1",
+			"where": "Hover Push deeper while biome cabinet under 5/5",
+			"text": "Whoa, whoa. Not down there. Your {biome} cabinet's only at {n} of 5. You're not ready for what's below. Let me take you home?",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.push_block.yes",
+			"where": "Push-block interrupt CTA (only choice)",
+			"text": "Yes, take me home",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.homecoming",
+			"where": "After Push-block dissolve into that biome's case hall",
+			"text": "Five from the {biome}. Then we talk about going deeper.",
+			"owner": "Spin"
 		}
 	],
-	"updated": "2026-10-19"
+	"updated": "2026-10-26"
 }

@@ -173,6 +173,16 @@ static func can_push(rules: Dictionary, state: Dictionary) -> bool:
 	return biome_unlocked(rules, state, nxt)
 
 
+## Hovering Push deeper shows Nib when this biome's cabinet is under quota.
+## Never in Endless. Never at/above quota (even on the last biome where can_push is false).
+static func push_needs_nib(rules: Dictionary, state: Dictionary) -> bool:
+	var run: Dictionary = state.get("run", {})
+	if not bool(run.get("active", false)) or bool(run.get("endless", false)):
+		return false
+	var pool := current_biome_id(rules, state)
+	return cabinet_count(state, pool) < quota_of(rules)
+
+
 static func current_biome_id(rules: Dictionary, state: Dictionary) -> String:
 	var run: Dictionary = state.get("run", {})
 	if bool(run.get("endless", false)):

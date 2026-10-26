@@ -4,6 +4,10 @@ extends Control
 signal climb
 signal deeper
 signal peek
+## Campaign: hover/focus Push while this biome's cabinet is under quota.
+signal push_blocked
+## Campaign: player accepted Nib's "take me home" on the Push interrupt.
+signal push_home
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const PX := 4.0
@@ -30,7 +34,17 @@ var _climb_lab: FitLabelBox
 var _climb_sub: FitLabelBox
 var _deeper_lab: FitLabelBox
 var _hole_hit: Control
-var _push_on: bool = true
+var _campaign_mode: bool = false
+var _can_push: bool = true
+var _push_interrupt: bool = false
+var _interrupt_fired: bool = false
+var _interrupt_open: bool = false
+var _chip_biome: FitLabelBox
+var _chip_count: FitLabelBox
+var _chip_biome_name: String = ""
+var _chip_n: int = 0
+var _nib: Sprite2D
+var _dialog
 var _plank_normal: StyleBox
 var _plank_hover: StyleBox
 var _busy: bool = false
@@ -44,6 +58,7 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	_lay = KIT.load_layout(LAYOUT_PATH)
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	z_index = 80
 	visible = false
 	_plank_normal = KIT.tex_style("button/btn_plank_normal.png", 16, 16, 16, 20)
@@ -94,25 +109,44 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	_hero.texture = KIT.load_tex("hero/hero_idle_loot_f0.png")
 	_hero.z_index = 4
 	add_child(_hero)
+	_nib = Sprite2D.new()
+	_nib.name = "PushNib"
+	_nib.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_nib.centered = false
+	_nib.position = KIT.pt(282, 168)
+	_nib.texture = KIT.load_tex("nib/nib_gasp.png")
+	_nib.z_index = 6
+	_nib.visible = false
+	_nib.modulate.a = 0.0
+	add_child(_nib)
 	_loot_host = Control.new()
 	_loot_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_loot_host.z_index = 12
 	add_child(_loot_host)
 	_build_chrome()
 	_build_hotspots()
+	_dialog = preload("res://scripts/cabin/cabin_dialog.gd").new()
+	_dialog.setup(cabin)
+	_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+	_dialog.z_index = 90
+	add_child(_dialog)
 
 
 func open_exit(cleared: int, loot: Array = []) -> void:
 	_cleared = cleared
 	_busy = false
+	_interrupt_fired = false
+	_interrupt_open = false
 	_headline.set_copy("rope.cleared", {"n": cleared})
 	if _sub:
 		_sub.set_copy("rope.loot_tip")
-	_deeper_sub.set_copy("rope.deeper_sub", {"n": cleared + 1})
+	if not _campaign_mode and _deeper_sub:
+		_deeper_sub.set_copy("rope.deeper_sub", {"n": cleared + 1})
 	set_chrome_visible(true)
 	if _peek_btn:
 		_peek_btn.visible = false
 	_show_loot(loot)
+	_hide_nib()
 	if visible:
 		return
 	visible = true
@@ -125,6 +159,10 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 func hide_exit() -> void:
 	visible = false
 	_clear_loot()
+	_hide_nib()
+	_interrupt_open = false
+	if _dialog and _dialog.has_method("dismiss"):
+		_dialog.dismiss()
 	if cabin and cabin.sfx and cabin.sfx.has_method("loop_stop"):
 		cabin.sfx.loop_stop(&"amb.rope_creak", 0.3)
 
@@ -173,13 +211,18 @@ func set_chrome_visible(on: bool) -> void:
 
 
 func _on_climb() -> void:
-	if not _busy:
-		_do_climb()
+	if _interrupt_open or _busy:
+		return
+	_do_climb()
 
 
 func _on_deeper() -> void:
-	if not _busy:
-		_do_deeper()
+	if _interrupt_open or _busy:
+		return
+	if _campaign_mode and not _can_push:
+		_try_push_interrupt()
+		return
+	_do_deeper()
 
 
 func _build_chrome() -> void:
@@ -222,6 +265,34 @@ func _build_chrome() -> void:
 	)
 	add_child(_sub)
 	_chrome.append(_sub)
+	_chip_biome = KIT.fit_label(
+		"rope.campaign.chip_biome",
+		Rect2(1200, 40, 420, 32),
+		22,
+		14,
+		1,
+		Color("e2d0b0"),
+		HORIZONTAL_ALIGNMENT_RIGHT,
+		VERTICAL_ALIGNMENT_CENTER,
+		12
+	)
+	_chip_biome.visible = false
+	add_child(_chip_biome)
+	_chrome.append(_chip_biome)
+	_chip_count = KIT.fit_label(
+		"rope.campaign.chip_count",
+		Rect2(1200, 72, 420, 36),
+		28,
+		18,
+		1,
+		Color("ffd84a"),
+		HORIZONTAL_ALIGNMENT_RIGHT,
+		VERTICAL_ALIGNMENT_CENTER,
+		12
+	)
+	_chip_count.visible = false
+	add_child(_chip_count)
+	_chrome.append(_chip_count)
 	var sign_el: Dictionary = KIT.layout_el(_lay, "Sign")
 	var ns: Dictionary = sign_el.get("nine_slice_4x", {"l": 24, "t": 24, "r": 24, "b": 28})
 	_sign = KIT.ui_nine(
@@ -251,6 +322,8 @@ func _build_chrome() -> void:
 	_chrome.append(sign_lab)
 	_climb_btn = _plank_choice("Climb", "rope.climb", "rope.climb_sub", {}, _on_climb)
 	_deeper_btn = _plank_choice("Delve", "rope.deeper", "rope.deeper_sub", {"n": 1}, _on_deeper)
+	if _deeper_btn:
+		_deeper_btn.focus_entered.connect(_on_push_focus)
 	_peek_btn = null
 
 
@@ -316,7 +389,7 @@ func _build_hotspots() -> void:
 		_set_climb_hot(false)
 	)
 	lad.gui_input.connect(func(ev: InputEvent) -> void:
-		if ev is InputEventMouseButton and ev.pressed and not _busy:
+		if ev is InputEventMouseButton and ev.pressed and not _busy and not _interrupt_open:
 			_on_climb()
 	)
 	add_child(lad)
@@ -332,41 +405,68 @@ func _build_hotspots() -> void:
 		_set_delve_hot(false)
 	)
 	hole_hit.gui_input.connect(func(ev: InputEvent) -> void:
-		if ev is InputEventMouseButton and ev.pressed and not _busy:
+		if ev is InputEventMouseButton and ev.pressed and not _busy and not _interrupt_open:
 			_on_deeper()
 	)
 	add_child(hole_hit)
 	_hole_hit = hole_hit
 
 
-func apply_exit_mode(campaign: bool, can_push: bool) -> void:
-	_push_on = (not campaign) or can_push
+## campaign: always show Push. push_interrupt: Nib on hover when this cabinet is under quota.
+## chip: {biome, n, quota} for the run chip. can_push: whether deeper is allowed.
+func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = false, chip: Dictionary = {}) -> void:
+	_campaign_mode = campaign
+	_can_push = (not campaign) or can_push
+	_push_interrupt = campaign and push_interrupt
+	_interrupt_fired = false
+	_chip_biome_name = str(chip.get("biome", ""))
+	_chip_n = int(chip.get("n", 0))
 	if _climb_lab:
 		if campaign:
-			_climb_lab.set_plain("Bank home")
+			_climb_lab.set_copy("rope.campaign.bank")
 		else:
 			_climb_lab.set_copy("rope.climb")
 	if _climb_sub:
 		if campaign:
-			_climb_sub.set_plain("End the run and keep what you extracted.")
+			_climb_sub.set_copy("rope.campaign.bank_eyebrow")
 		else:
 			_climb_sub.set_copy("rope.climb_sub")
 	if _deeper_lab:
 		if campaign:
-			_deeper_lab.set_plain("Push deeper")
+			_deeper_lab.set_copy("rope.campaign.push")
 		else:
 			_deeper_lab.set_copy("rope.deeper")
-	if _deeper_sub and campaign:
-		_deeper_sub.set_plain("Carry this hand into the next delve.")
+	if _deeper_sub:
+		if campaign:
+			_deeper_sub.set_copy("rope.campaign.push_eyebrow")
+		elif not campaign:
+			_deeper_sub.set_copy("rope.deeper_sub", {"n": _cleared + 1})
+	# Campaign always shows Push (even when can_push is false). Challenge also shows both doors.
 	for raw_n in [_deeper_btn, _deeper_lab, _deeper_sub, _hole, _hole_hit]:
 		var n := raw_n as CanvasItem
 		if n:
-			n.visible = _push_on
+			n.visible = true
 	if _hole_glow:
-		_hole_glow.visible = _push_on and _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
+		_hole_glow.visible = _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
+	var show_chip := campaign and _chip_biome_name != ""
+	if _chip_biome:
+		_chip_biome.visible = show_chip
+		if show_chip:
+			_chip_biome.set_copy("rope.campaign.chip_biome", {"biome": _chip_biome_name})
+	if _chip_count:
+		_chip_count.visible = show_chip
+		if show_chip:
+			_chip_count.set_copy("rope.campaign.chip_count", {"n": _chip_n})
+
+
+func _on_push_focus() -> void:
+	if _push_interrupt:
+		_try_push_interrupt()
 
 
 func _set_climb_hot(on: bool) -> void:
+	if _interrupt_open:
+		return
 	_ladder_hover.visible = on
 	if _ladder.sprite_frames:
 		_ladder.sprite_frames.set_animation_speed("l", 1000.0 / (110.0 if on else 220.0))
@@ -378,7 +478,7 @@ func _set_climb_hot(on: bool) -> void:
 
 
 func _set_delve_hot(on: bool) -> void:
-	if not _push_on:
+	if _interrupt_open:
 		return
 	_hole.texture = KIT.load_tex("overlays/deeper_hole_hover.png" if on else "overlays/deeper_hole_idle.png")
 	if _hole_glow:
@@ -389,6 +489,54 @@ func _set_delve_hot(on: bool) -> void:
 		_deeper_btn.add_theme_stylebox_override("normal", _plank_hover if on else _plank_normal)
 	if on:
 		KIT.cue(cabin.sfx if cabin else null, &"cabin.hover")
+		if _push_interrupt:
+			_try_push_interrupt()
+
+
+func _try_push_interrupt() -> void:
+	if not _push_interrupt or _interrupt_fired or _interrupt_open or _busy:
+		return
+	_interrupt_fired = true
+	_interrupt_open = true
+	push_blocked.emit()
+	_show_nib_interrupt()
+
+
+func _show_nib_interrupt() -> void:
+	if _nib:
+		_nib.visible = true
+		_nib.texture = KIT.load_tex("nib/nib_gasp.png")
+		_nib.modulate.a = 0.0
+		_nib.position = KIT.pt(282, 188)
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.tween_property(_nib, "modulate:a", 1.0, 0.18)
+		tw.parallel().tween_property(_nib, "position:y", KIT.pt(282, 168).y, 0.22)
+		tw.tween_callback(func() -> void:
+			if _nib:
+				_nib.texture = KIT.load_tex("nib/nib_point.png")
+		)
+	KIT.cue(cabin.sfx if cabin else null, &"speech.nib_gasp")
+	if _dialog == null:
+		push_home.emit()
+		return
+	var vars := {
+		"biome": _chip_biome_name,
+		"n": _chip_n,
+	}
+	_dialog.say(["nib.push_block.1"], ["nib.push_block.yes"], vars)
+	var ch: int = await _dialog.finished
+	if ch == 0 or ch == -1:
+		# Only CTA is Yes; treat empty choice close the same.
+		if _nib:
+			_nib.texture = KIT.load_tex("nib/nib_talk_f0.png")
+		push_home.emit()
+
+
+func _hide_nib() -> void:
+	if _nib:
+		_nib.visible = false
+		_nib.modulate.a = 0.0
 
 
 func _do_climb() -> void:
@@ -411,7 +559,7 @@ func _do_climb() -> void:
 
 
 func _do_deeper() -> void:
-	if not _push_on:
+	if _campaign_mode and not _can_push:
 		return
 	_busy = true
 	KIT.cue(cabin.sfx if cabin else null, &"cabin.hole_rumble")

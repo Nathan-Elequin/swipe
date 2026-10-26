@@ -52,6 +52,15 @@ func _init() -> void:
 	failed = _check(failed, "no shortcut to sunken mire yet", Shell.shortcut_open(rules, state, 1) == false) or failed
 	Shell.begin_run(state, 0, false, false)
 	failed = _check(failed, "can push into sunken mire", Shell.can_push(rules, state)) or failed
+	failed = _check(failed, "no nib at 5/5", Shell.push_needs_nib(rules, state) == false) or failed
+	var under: Dictionary = Shell.fresh_state()
+	Shell.bank(rules, under, ["u1", "u2"], {"u1": "b1", "u2": "b1"})
+	Shell.begin_run(under, 0, false, false)
+	failed = _check(failed, "nib under 5/5", Shell.push_needs_nib(rules, under)) or failed
+	failed = _check(failed, "cabinet_count is the ledger", Shell.cabinet_count(under, "b1") == 2) or failed
+	Shell.begin_run(under, 0, false, true)
+	failed = _check(failed, "no nib in endless", Shell.push_needs_nib(rules, under) == false) or failed
+	Shell.begin_run(state, 0, false, false)
 	Shell.grant_delve_reroll(rules, state)
 	failed = _check(failed, "one reroll", int(state["run"]["rerolls"]) == 1) or failed
 	Shell.grant_delve_reroll(rules, state)

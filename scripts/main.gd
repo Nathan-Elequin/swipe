@@ -1507,8 +1507,12 @@ func _build_ui() -> void:
 	rope_exit.climb.connect(_adventure_leave)
 	rope_exit.deeper.connect(_rope_deeper)
 	rope_exit.peek.connect(_open_sack_peek)
+	if rope_exit.has_signal("push_home"):
+		rope_exit.push_home.connect(_push_interrupt_home)
 	_campaign = CAMPAIGN_SHELL.new()
 	_campaign.load_all()
+	if home_cabin and home_cabin.has_method("bind_campaign"):
+		home_cabin.bind_campaign(_campaign)
 	campaign_map = CAMPAIGN_MAP.new()
 	add_child(campaign_map)
 	campaign_map.setup()
@@ -2369,6 +2373,75 @@ func _adventure_leave() -> void:
 	_adventure_busy = false
 
 
+## Nib blocked Push under 5/5: bank the haul, dissolve home to that biome's case. No map piece.
+func _push_interrupt_home() -> void:
+	if not adventure or phase != "rest" or _adventure_busy:
+		return
+	_adventure_busy = true
+	var pool := ""
+	var biome_name := ""
+	if _campaign_on and _campaign != null:
+		pool = CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+		biome_name = CAMPAIGN_SHELL.biome_name(_campaign.rules, pool)
+	var ids: Array = []
+	for it in hotbar:
+		var cid: String = str(it.get("card_id", ""))
+		if cid != "":
+			ids.append(cid)
+	var news: Array = []
+	if home_cabin:
+		news = home_cabin.swipe_ids(ids)
+	if overlay:
+		overlay.visible = false
+	if rope_exit:
+		rope_exit.hide_exit()
+	_log("end", "push_block_home")
+	if sfx:
+		sfx.play("whoosh", -10.0, 0.9)
+	await _dissolve_to_black(0.6)
+	if _campaign_on:
+		await _campaign_bank_from_hand()
+	_cabin_from_leave = true
+	_reset_run()
+	phase = "title"
+	if home_cabin and home_cabin.has_method("open_hall_after_push_block"):
+		_hide_fight_hover()
+		home_cabin.items_by_id = items_by_id
+		home_cabin.tex_by_item = tex_by_item
+		home_cabin.buckets_open = _buckets_revealed
+		await home_cabin.open_hall_after_push_block(pool, biome_name, news, ids)
+		if overlay:
+			overlay.visible = false
+		get_tree().paused = true
+		_hide_fight_hover()
+	else:
+		_open_home_cabin(true, "win", news, ids)
+	await _fade_from_black(0.35)
+	_adventure_busy = false
+
+
+func _dissolve_to_black(seconds: float = 0.6) -> void:
+	if _hall_wipe == null:
+		await get_tree().create_timer(seconds).timeout
+		return
+	_hall_wipe.visible = true
+	_hall_wipe.mouse_filter = Control.MOUSE_FILTER_STOP
+	_hall_wipe.modulate.a = 0.0
+	var tw := create_tween()
+	tw.tween_property(_hall_wipe, "modulate:a", 1.0, seconds)
+	await tw.finished
+
+
+func _fade_from_black(seconds: float = 0.35) -> void:
+	if _hall_wipe == null:
+		return
+	var tw := create_tween()
+	tw.tween_property(_hall_wipe, "modulate:a", 0.0, seconds)
+	await tw.finished
+	_hall_wipe.visible = false
+	_hall_wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
 func _classic_swipe_home() -> void:
 	var ids: Array = []
 	for it in hotbar:
@@ -2473,6 +2546,8 @@ func _on_campaign_cheat(action: String) -> void:
 			var need2: int = CAMPAIGN_SHELL.quota_of(_campaign.rules) - CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool)
 			CAMPAIGN_SHELL.debug_bank_matching(_campaign.rules, _campaign.state, _campaign_item_entries(), maxi(0, need2), pool)
 	_campaign.write()
+	if home_cabin and home_cabin.has_method("sync_swiped_from_banked"):
+		home_cabin.sync_swiped_from_banked()
 	_open_campaign_map()
 
 
@@ -2629,6 +2704,8 @@ func _campaign_bank_from_hand() -> void:
 	var result: Dictionary = CAMPAIGN_SHELL.bank(_campaign.rules, _campaign.state, ids, pools)
 	CAMPAIGN_SHELL.end_run(_campaign.state)
 	_campaign.write()
+	if home_cabin and home_cabin.has_method("sync_swiped_from_banked"):
+		home_cabin.sync_swiped_from_banked()
 	if bool(result.get("show_drawer", false)) and campaign_map != null:
 		campaign_map.show_drawer()
 		await campaign_map.continued
@@ -19090,9 +19167,17 @@ func _sync_overlay() -> void:
 				rope_exit.open_exit(dungeons_cleared)
 			if rope_exit.has_method("apply_exit_mode"):
 				var can_push := false
+				var push_interrupt := false
+				var chip := {}
 				if _campaign_on and _campaign != null:
 					can_push = CAMPAIGN_SHELL.can_push(_campaign.rules, _campaign.state)
-				rope_exit.apply_exit_mode(_campaign_on, can_push)
+					var pool := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+					var quota: int = CAMPAIGN_SHELL.quota_of(_campaign.rules)
+					var n: int = CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool)
+					var biome := CAMPAIGN_SHELL.biome_name(_campaign.rules, pool)
+					chip = {"biome": biome, "n": n, "quota": quota}
+					push_interrupt = CAMPAIGN_SHELL.push_needs_nib(_campaign.rules, _campaign.state)
+				rope_exit.apply_exit_mode(_campaign_on, can_push, push_interrupt, chip)
 		return
 	if phase == "victory":
 		overlay.visible = false
