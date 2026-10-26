@@ -2289,11 +2289,11 @@
 		},
 		{
 			"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
-			"author_lock": false,
-			"bucket": 4.0,
+			"author_lock": true,
+			"bucket": 4,
 			"call_name": "",
 			"card_color": "utility",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click at Ready or during a fight. Three pills: Highest Attack, Lowest Attack, Off. Highest or Lowest arms this copy. Off clears the arm. Attack numbers are read at Spin after formulas. Ties pick at random among those Attack values. The next Spin (button, auto-spin after a fight, Smoke Bomb, Commander flee, Wick, Vampire shuffle) lands on that monster, then this copy is discarded. Tutorial scripted landings ignore it and do not discard it. Two copies: the most recently set Highest or Lowest wins; copies armed that way are discarded; the other mode stays. Quiet Bell does not turn this off. Not in the tutorial kit.",
 			"exceptions": "Bucket 4. Count 1. No Attack. Petrified still steers if already armed.",
 			"explainer": "HIGH or LOW or Off",
@@ -2303,8 +2303,27 @@
 				"hide": false
 			},
 			"id": "danger_magnet",
-			"locked_at": "",
-			"locked_fields": [],
+			"locked_at": "2026-10-25",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
 			"log_hint": "Steer the next Spin",
 			"mode_pool": "adventure",
 			"name": "Danger Magnet",
@@ -2326,13 +2345,13 @@
 				]
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
-			"status": "live",
-			"tier": 2.0,
+			"status": "hold",
+			"tier": 2,
 			"type": "I"
 		},
 		{
@@ -2648,8 +2667,8 @@
 			"name": "Ale Flagon",
 			"notes": "SP-29. Shared heal. Draw is a random loot-pool Item. No Poison.",
 			"ops": {
-				"kind": "heal_both_draw",
-				"heal": 3.0
+				"heal": 3.0,
+				"kind": "heal_both_draw"
 			},
 			"poc": false,
 			"priority": 3.0,
@@ -2894,6 +2913,7 @@
 				"dev": true,
 				"hide": false
 			},
+			"flow": "Click during a fight. Heal 2 (cap 6). The Jar is used up. While it is still in your hand, one Move spends 1 move and slides two seats in that direction. If the second seat has no living monster, you only slide one.",
 			"id": "jar_o_grease",
 			"locked_at": "2026-10-22",
 			"locked_fields": [
@@ -2932,8 +2952,7 @@
 			"review_note": "",
 			"status": "live",
 			"tier": 2.0,
-			"type": "I",
-			"flow": "Click during a fight. Heal 2 (cap 6). The Jar is used up. While it is still in your hand, one Move spends 1 move and slides two seats in that direction. If the second seat has no living monster, you only slide one."
+			"type": "I"
 		},
 		{
 			"ability": "Unplayable. On Item Use, decrease this by 1. When this reaches 0, Die.",
@@ -3046,10 +3065,10 @@
 		{
 			"ability": "Eject your Enemy. Draw an Item.",
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Challenge only. Click during a fight. Used up. The facing enemy leaves with no loot and Wick does not chip. They go to the bottom of the dungeon deck with permanent HP/ATK/poison. The empty seat fills from the deck; that arrival still gives you an item. War Cry-style passives do not stay as a number.",
 			"exceptions": "Challenge only. Needs art.",
 			"explainer": "Eject them. Draw 1.",
@@ -3059,7 +3078,7 @@
 				"hide": false
 			},
 			"id": "catapult",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-25",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3081,20 +3100,20 @@
 				"log_hint"
 			],
 			"log_hint": "Eject facing enemy, draw an Item",
-			"mode_pool": "challenge",
+			"mode_pool": "all",
 			"name": "Catapult",
 			"notes": "Challenge only. Needs art.",
 			"ops": {
 				"kind": "eject_draw"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 2,
 			"type": "I"
 		},
 		{
@@ -3680,10 +3699,10 @@
 	"keywords": {
 		"any": "select any Monster on the wheel",
 		"atk_dmg": "HP loss from ATK. Goblin ignores this.",
+		"decay": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 		"defeat": "Remove the enemy without that ATK-to-0 path (Da Boot, Sledgehammer, Fangs, Poison Flask).",
 		"eject": "remove them from the dungeon immediately, placing them on the bottom of the Dungeon Deck",
 		"enemy_attacks": "Sheet: always, no exceptions among monsters. Items can prevent the attack by killing/defeating first (not by blocking).",
-		"decay": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 		"flee": "If you are facing them, Spin the wheel at random.",
 		"kill": "Reduce HP to 0 with ATK damage.",
 		"spin": "The wheel lands on a random living monster."
@@ -3964,12 +3983,12 @@
 		{
 			"ability": "I give my Neighbors +1 HP.",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "Siphon",
-			"count": 2.0,
+			"count": 2,
 			"defined": "Set each neighbor's HP to its (Max HP + 1).",
 			"exceptions": "",
 			"explainer": "Neighbors +1 HP",
@@ -3980,10 +3999,10 @@
 			},
 			"function_flow": "Set each neighbor's HP to its (Max HP + 1).",
 			"hp": {
-				"base": 1.0
+				"base": 1
 			},
 			"id": "lich",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-25",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4001,19 +4020,20 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Neighbors gain 1 HP",
-			"mode_pool": "adventure",
+			"mode_pool": "all",
 			"name": "Lich",
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "starter",
 			"reminder": "neighbors +1 HP",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "M",
 			"updates": "Neighboring HP",
 			"when_updates": "On Remove Slice"
@@ -4176,6 +4196,7 @@
 			"log_hint": "Every Spin: 50% +4 Attack, otherwise −3",
 			"mode_pool": "all",
 			"name": "Berserker",
+			"notes": "SP-22. Every Spin. Stacks. Attack clamps at 0.",
 			"poc": false,
 			"priority": 2.0,
 			"rarity": "uncommon",
@@ -4185,8 +4206,7 @@
 			"status": "live",
 			"tier": 2.0,
 			"type": "M",
-			"updated": "2022-04-28",
-			"notes": "SP-22. Every Spin. Stacks. Attack clamps at 0."
+			"updated": "2022-04-28"
 		},
 		{
 			"ability": "My Attack always equals your HP.",
@@ -4407,6 +4427,7 @@
 			"log_hint": "Defeated: your HP becomes my last HP",
 			"mode_pool": "all",
 			"name": "Wraith",
+			"notes": "SP-26. Display name stays Wraith. Id stays wraith. No id migration.",
 			"poc": false,
 			"priority": 3.0,
 			"rarity": "uncommon",
@@ -4416,8 +4437,7 @@
 			"status": "live",
 			"tier": 2.0,
 			"type": "M",
-			"updated": "2022-04-24",
-			"notes": "SP-26. Display name stays Wraith. Id stays wraith. No id migration."
+			"updated": "2022-04-24"
 		},
 		{
 			"ability": "If I go down before I Attack, you gain an Item.",
@@ -4923,12 +4943,12 @@
 		{
 			"ability": "I attack you when your Spin lands on me, and after each item you use.",
 			"atk": {
-				"base": 2.0
+				"base": 2
 			},
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "Impatient",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On spin, one swing of my current Attack (Block works). After each item fully resolves, if I am still alive, one more swing. Ceases when you click Done or I am Defeated/Slain. Done still takes the normal hit. Not Attack = Block.",
 			"exceptions": "One swing, fight stays open. If an item already killed me, no extra swing.",
 			"explainer": "Interrupt 1 swing",
@@ -4938,10 +4958,10 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 5.0
+				"base": 5
 			},
 			"id": "harpy",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-25",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4963,16 +4983,16 @@
 				"card_color"
 			],
 			"log_hint": "Hits on meet and after items",
-			"mode_pool": "challenge",
+			"mode_pool": "all",
 			"name": "Harpy",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 2,
 			"type": "M"
 		},
 		{

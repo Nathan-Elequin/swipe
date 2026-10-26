@@ -687,11 +687,11 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 8,
+			"bucket": 8.0,
 			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "(BLK 2) Keep if Bleed",
 			"flow": "Tap on use. Discard on resolve unless HP dropped vs On Spin. Healing Potion this combat makes Did Lose HP always True.",
 			"hp_base": null,
@@ -724,13 +724,13 @@
 			"name": "Breastplate",
 			"notes": "",
 			"ops": {},
-			"priority": 2,
+			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "Spin again and gain a Random Item.",
@@ -1875,20 +1875,39 @@
 			"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
 			"atk_base": null,
 			"atk_formula": "",
-			"author_lock": false,
-			"bucket": 4.0,
+			"author_lock": true,
+			"bucket": 4,
 			"call_name": "",
 			"card_color": "utility",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "HIGH or LOW or Off",
 			"flow": "Click at Ready or during a fight. Three pills: Highest Attack, Lowest Attack, Off. Highest or Lowest arms this copy. Off clears the arm. Attack numbers are read at Spin after formulas. Ties pick at random among those Attack values. The next Spin (button, auto-spin after a fight, Smoke Bomb, Commander flee, Wick, Vampire shuffle) lands on that monster, then this copy is discarded. Tutorial scripted landings ignore it and do not discard it. Two copies: the most recently set Highest or Lowest wins; copies armed that way are discarded; the other mode stays. Quiet Bell does not turn this off. Not in the tutorial kit.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "danger_magnet",
 			"kind": "item",
-			"locked_at": "",
-			"locked_fields": [],
+			"locked_at": "2026-10-25",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
 			"log_hint": "Steer the next Spin",
 			"mode_pool": "adventure",
 			"name": "Danger Magnet",
@@ -1910,13 +1929,13 @@
 					}
 				]
 			},
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
-			"status": "live",
-			"tier": 2.0
+			"status": "hold",
+			"tier": 2
 		},
 		{
 			"ability": "Take 2 Attack. If you still hold this when you Spin Spider Queen, discard it; she gains +2 HP and +2 Attack.",
@@ -2492,8 +2511,8 @@
 			"name": "Ale Flagon",
 			"notes": "SP-29. Shared heal. Draw is a random loot-pool Item. No Poison.",
 			"ops": {
-				"kind": "heal_both_draw",
-				"heal": 3.0
+				"heal": 3.0,
+				"kind": "heal_both_draw"
 			},
 			"priority": 3.0,
 			"rarity": "uncommon",
@@ -2906,17 +2925,12 @@
 			"contradiction_ids": [],
 			"count": 1.0,
 			"explainer": "Eject them. Draw 1.",
-			"flags": {
-				"art": true,
-				"dev": true,
-				"hide": false
-			},
 			"flow": "Challenge only. Click during a fight. Used up. The facing enemy leaves with no loot and Wick does not chip. They go to the bottom of the dungeon deck with permanent HP/ATK/poison. The empty seat fills from the deck; that arrival still gives you an item. War Cry-style passives do not stay as a number.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "catapult",
 			"kind": "item",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-25",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2938,7 +2952,7 @@
 				"log_hint"
 			],
 			"log_hint": "Eject facing enemy, draw an Item",
-			"mode_pool": "challenge",
+			"mode_pool": "all",
 			"name": "Catapult",
 			"notes": "Challenge only. Needs art.",
 			"ops": {
@@ -3809,7 +3823,7 @@
 			"hp_formula": "",
 			"id": "lich",
 			"kind": "monster",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-25",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3827,10 +3841,11 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Neighbors gain 1 HP",
-			"mode_pool": "adventure",
+			"mode_pool": "all",
 			"name": "Lich",
 			"notes": "",
 			"ops": {},
@@ -4653,7 +4668,7 @@
 			"hp_formula": "",
 			"id": "harpy",
 			"kind": "monster",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-25",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4675,7 +4690,7 @@
 				"card_color"
 			],
 			"log_hint": "Hits on meet and after items",
-			"mode_pool": "challenge",
+			"mode_pool": "all",
 			"name": "Harpy",
 			"notes": "One swing, fight stays open. If an item already killed me, no extra swing.",
 			"ops": {},
@@ -6519,5 +6534,5 @@
 			"tier": 2.0
 		}
 	],
-	"updated": "2026-10-22"
+	"updated": "2026-10-25"
 }
