@@ -47,8 +47,10 @@ func _init() -> void:
 	failed = _check(failed, "scatter stable", ids == ids2) or failed
 	failed = _check(failed, "uncollected after", ids[2] != "b" and ids[3] != "a") or failed
 	failed = _check(failed, "toward gate", Cases.progress_text(3, 12, 5) == "3/5") or failed
-	failed = _check(failed, "past gate", Cases.progress_text(7, 12, 5) == "7/12") or failed
-	failed = _check(failed, "at gate", Cases.progress_text(5, 12, 5) == "5/12") or failed
+	failed = _check(failed, "past gate crown", Cases.progress_text(7, 12, 5) == "5/5") or failed
+	failed = _check(failed, "at gate crown", Cases.progress_text(5, 12, 5) == "5/5") or failed
+	failed = _check(failed, "past_gate helper", Cases.past_gate(5, 5) and Cases.past_gate(7, 5) and not Cases.past_gate(4, 5)) or failed
+	failed = _check(failed, "next_piece need", Cases.next_piece_need(3, 5) == 2 and Cases.next_piece_need(5, 5) == 0) or failed
 	failed = _check(failed, "crosses", Cases.crossed_gate(4, 5, 5) and not Cases.crossed_gate(5, 6, 5)) or failed
 	var seq: Array = Cases.bank_sequence(["net", "boot", "hex"], {"net": "b1", "boot": "b2", "hex": "b1"})
 	failed = _check(failed, "sequence length", seq.size() == 3) or failed

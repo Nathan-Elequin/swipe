@@ -419,6 +419,30 @@
   },
   {
    "cat": "Cabin",
+   "key": "cabin.hall.past_gate",
+   "where": "Biome case crown sub-line after the 5/5 gate",
+   "text": "{n} of {total} found",
+   "owner": "Spin",
+   "stub": true
+  },
+  {
+   "cat": "Cabin",
+   "key": "cabin.hall.locked",
+   "where": "Biome case when the pool is still locked",
+   "text": "pool locked",
+   "owner": "Spin",
+   "stub": true
+  },
+  {
+   "cat": "Cabin",
+   "key": "cabin.hall.next_piece",
+   "where": "Biome case hover while under the 5/5 map-piece gate",
+   "text": "{n} more for the next map piece",
+   "owner": "Spin",
+   "stub": true
+  },
+  {
+   "cat": "Cabin",
    "key": "cabin.tip.journal",
    "where": "Trophy tooltip, header above Grandpa's entry",
    "text": "From Grandpa's journal:",

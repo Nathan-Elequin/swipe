@@ -1713,6 +1713,24 @@ func _shown_count(pool_id: String) -> int:
 	return n
 
 
+func _campaign_shell_state() -> Dictionary:
+	var disk: Dictionary = CampaignShell.read_json(CampaignShell.SAVE_PATH)
+	if disk.is_empty():
+		return CampaignShell.fresh_state()
+	CampaignShell.normalize(disk)
+	return disk
+
+
+## Campaign bank ledger when present; hall swipes otherwise. max so neither ledger hides progress.
+func _case_collected(pool_id: String) -> int:
+	var state := _campaign_shell_state()
+	var banked: Variant = state.get("banked", {})
+	var from_swipe := _shown_count(pool_id)
+	if typeof(banked) != TYPE_DICTIONARY or (banked as Dictionary).is_empty():
+		return from_swipe
+	return maxi(CampaignShell.cabinet_count(state, pool_id), from_swipe)
+
+
 func _biome_progress_lines() -> Array:
 	var rules := _biome_rules()
 	var quota := BiomeCabinets.quota_of(rules)
@@ -1722,7 +1740,7 @@ func _biome_progress_lines() -> Array:
 		var spec: Dictionary = raw
 		var pool := str(spec.get("id", ""))
 		var cards: Array = grouped.get(pool, [])
-		lines.append(BiomeCabinets.progress_text(_shown_count(pool), cards.size(), quota))
+		lines.append(BiomeCabinets.progress_text(_case_collected(pool), cards.size(), quota))
 	return lines
 
 
@@ -1730,6 +1748,7 @@ func _fill_biome_cases() -> void:
 	var rules := _biome_rules()
 	var cases: Array = BiomeCabinets.resolved_cases(rules)
 	var quota := BiomeCabinets.quota_of(rules)
+	var state := _campaign_shell_state()
 	var hole: Vector2 = _shelf_host.size
 	var n: int = maxi(1, cases.size())
 	var gap := 8.0
@@ -1741,10 +1760,11 @@ func _fill_biome_cases() -> void:
 		var pool_id := str(spec.get("id", ""))
 		var cards: Array = grouped.get(pool_id, [])
 		var mounted: Array = BiomeCabinets.order_mounts(cards, order)
-		_build_biome_case(spec, mounted, quota, float(i) * (case_w + gap), case_w, hole.y)
+		var unlocked := CampaignShell.pool_unlocked(rules, state, pool_id)
+		_build_biome_case(spec, mounted, quota, float(i) * (case_w + gap), case_w, hole.y, unlocked)
 
 
-func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, case_w: float, case_h: float) -> void:
+func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, case_w: float, case_h: float, unlocked: bool = true) -> void:
 	var pool_id := str(spec.get("id", ""))
 	var root := Control.new()
 	root.name = "Case_%s" % pool_id
@@ -1753,6 +1773,9 @@ func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, cas
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var tint := Color(str(spec.get("tint", "241812")))
 	var accent := Color(str(spec.get("accent", "e8c36a")))
+	if not unlocked:
+		tint = tint.darkened(0.35)
+		accent = accent.darkened(0.45)
 	var style := StyleBoxFlat.new()
 	style.bg_color = tint
 	style.border_color = accent
@@ -1774,12 +1797,11 @@ func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, cas
 		case_art.stretch_mode = TextureRect.STRETCH_SCALE
 		case_art.set_anchors_preset(Control.PRESET_FULL_RECT)
 		case_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if not unlocked:
+			case_art.modulate = Color(0.55, 0.55, 0.58, 1.0)
 		root.add_child(case_art)
-	var shown := 0
-	for raw in cards:
-		var shown_id := str((raw as Dictionary).get("id", ""))
-		if bool(swiped.get(shown_id, false)) and not _bank_hold.has(shown_id):
-			shown += 1
+	var shown := _case_collected(pool_id) if unlocked else 0
+	var total := cards.size()
 	var name_lab := KIT.raw_label(str(spec.get("name", pool_id)), 22, KIT.TITLE_CREAM, true)
 	name_lab.max_lines = 2
 	name_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1788,30 +1810,60 @@ func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, cas
 	name_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(name_lab)
 	name_lab.fit()
-	var count_text := BiomeCabinets.progress_text(shown, cards.size(), quota)
-	var count_col := Color("ffd84a") if shown >= quota else KIT.TITLE_CREAM
+	var count_text := "?" if not unlocked else BiomeCabinets.progress_text(shown, total, quota)
+	var count_col := Color("ffd84a") if unlocked and shown >= quota else KIT.TITLE_CREAM
+	if not unlocked:
+		count_col = Color(0.62, 0.58, 0.52)
 	var count_lab := KIT.raw_label(count_text, 22, count_col, false)
+	count_lab.name = "Count"
 	count_lab.max_lines = 1
 	count_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	count_lab.position = Vector2(8, 64)
 	count_lab.size = Vector2(case_w - 16.0, 28)
 	count_lab.mouse_filter = Control.MOUSE_FILTER_STOP
-	count_lab.mouse_entered.connect(_on_case_hover.bind(pool_id, count_lab))
+	count_lab.mouse_entered.connect(_on_case_hover.bind(pool_id, count_lab, unlocked))
 	count_lab.mouse_exited.connect(hide_hover_tag)
 	root.add_child(count_lab)
 	count_lab.fit()
+	if unlocked and BiomeCabinets.past_gate(shown, quota):
+		var sub := KIT.raw_label(
+			KIT.fill_text("cabin.hall.past_gate", {"n": shown, "total": maxi(total, shown)}),
+			14,
+			Color("c8b896"),
+			false
+		)
+		sub.name = "PastGate"
+		sub.max_lines = 1
+		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		sub.position = Vector2(6, 88)
+		sub.size = Vector2(case_w - 12.0, 18)
+		sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root.add_child(sub)
+		sub.fit()
+	elif not unlocked:
+		var locked_sub := KIT.raw_label(KIT.copy_text("cabin.hall.locked"), 14, Color(0.7, 0.66, 0.6), false)
+		locked_sub.name = "LockedSub"
+		locked_sub.max_lines = 1
+		locked_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		locked_sub.position = Vector2(6, 88)
+		locked_sub.size = Vector2(case_w - 12.0, 18)
+		locked_sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root.add_child(locked_sub)
+		locked_sub.fit()
+	var has_sub := (not unlocked) or (unlocked and BiomeCabinets.past_gate(shown, quota))
 	var pip := ColorRect.new()
 	pip.name = "GatePip"
 	pip.color = Color("ffd84a")
-	pip.position = Vector2(16, 96)
+	pip.position = Vector2(16, 106.0 if has_sub else 96.0)
 	pip.size = Vector2(case_w - 32.0, 4)
-	pip.visible = shown >= quota
+	pip.visible = unlocked and shown >= quota
 	pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(pip)
+	var clip_y := 116.0 if has_sub else 108.0
 	var clip := Control.new()
 	clip.name = "Clip"
-	clip.position = Vector2(4, 108)
-	clip.size = Vector2(case_w - 8.0, maxf(40.0, case_h - 116.0))
+	clip.position = Vector2(4, clip_y)
+	clip.size = Vector2(case_w - 8.0, maxf(40.0, case_h - clip_y - 8.0))
 	clip.clip_contents = true
 	clip.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(clip)
@@ -1825,6 +1877,16 @@ func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, cas
 	clip.add_child(column)
 	_case_clips[pool_id] = clip
 	_case_columns[pool_id] = column
+	if not unlocked:
+		_paint_locked_pool(column, clip.size, accent)
+		column.size = clip.size
+		column.custom_minimum_size = column.size
+		_case_scroll[pool_id] = 0.0
+		column.position = Vector2.ZERO
+		clip.mouse_entered.connect(_on_case_hover.bind(pool_id, clip, false))
+		clip.mouse_exited.connect(hide_hover_tag)
+		_shelf_host.add_child(root)
+		return
 	var cell: Vector2 = _mount_cell()
 	var s: float = 0.62
 	if cell.x > 1.0:
@@ -1873,6 +1935,64 @@ func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, cas
 	_shelf_host.add_child(root)
 
 
+## Locked biome: chain + "?" and no item silhouettes (Doop D). Optional chain PNG; else drawn bars.
+func _paint_locked_pool(host: Control, area: Vector2, accent: Color) -> void:
+	var veil := ColorRect.new()
+	veil.name = "LockedVeil"
+	veil.color = Color(0.05, 0.04, 0.06, 0.72)
+	veil.position = Vector2.ZERO
+	veil.size = area
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.add_child(veil)
+	var chain_tex: Texture2D = _home("cabinets/case_locked_chain")
+	if chain_tex == null:
+		chain_tex = _home("shelf_locked")
+	if chain_tex:
+		var chain := TextureRect.new()
+		chain.name = "LockedChain"
+		chain.texture = chain_tex
+		chain.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		chain.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		chain.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		chain.modulate = Color(0.85, 0.82, 0.78, 0.9)
+		var ch: float = minf(area.y * 0.55, area.x * 1.6)
+		var cw: float = minf(area.x - 12.0, ch * (chain_tex.get_size().x / maxf(1.0, chain_tex.get_size().y)))
+		chain.size = Vector2(cw, ch)
+		chain.position = Vector2((area.x - cw) * 0.5, (area.y - ch) * 0.42)
+		chain.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		host.add_child(chain)
+	else:
+		var bar_col := Color(accent.r * 0.45 + 0.2, accent.g * 0.45 + 0.18, accent.b * 0.45 + 0.16, 0.95)
+		for i in 5:
+			var bar := ColorRect.new()
+			bar.name = "ChainBar_%d" % i
+			bar.color = bar_col
+			bar.size = Vector2(area.x * 0.78, 5.0)
+			bar.position = Vector2(area.x * 0.11, area.y * 0.22 + float(i) * (area.y * 0.1))
+			bar.rotation = 0.22 if i % 2 == 0 else -0.22
+			bar.pivot_offset = bar.size * 0.5
+			bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			host.add_child(bar)
+		for i in 3:
+			var link := ColorRect.new()
+			link.name = "ChainLink_%d" % i
+			link.color = Color(0.55, 0.5, 0.42, 0.85)
+			link.size = Vector2(14, 22)
+			link.position = Vector2(area.x * 0.5 - 7.0, area.y * 0.28 + float(i) * 48.0)
+			link.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			host.add_child(link)
+	var q := KIT.raw_label("?", 72, Color("e8dcc0"), false)
+	q.name = "LockedMark"
+	q.max_lines = 1
+	q.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	q.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	q.size = Vector2(area.x, 90)
+	q.position = Vector2(0, area.y * 0.38)
+	q.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.add_child(q)
+	q.fit()
+
+
 func _bind_case_scroll(node: Control, pool_id: String) -> void:
 	node.gui_input.connect(_on_case_wheel.bind(node, pool_id))
 
@@ -1905,12 +2025,23 @@ func _scroll_case(pool_id: String, dir: int) -> void:
 	col.position.y = -cur
 
 
-func _on_case_hover(pool_id: String, hit: Control) -> void:
+func _on_case_hover(pool_id: String, hit: Control, unlocked: bool = true) -> void:
+	if not unlocked:
+		show_hover_tag("cabin.hall.locked", hit)
+		return
 	var total := 0
-	var got := _shown_count(pool_id)
+	var got := _case_collected(pool_id)
 	for id in items_by_id.keys():
 		if _live_pool(items_by_id[id]) == pool_id:
 			total += 1
+	var quota := BiomeCabinets.quota_of(_biome_rules())
+	if BiomeCabinets.past_gate(got, quota):
+		show_hover_tag("cabin.hall.past_gate", hit, {"n": got, "total": maxi(total, got)})
+		return
+	var need := BiomeCabinets.next_piece_need(got, quota)
+	if need > 0:
+		show_hover_tag("cabin.hall.next_piece", hit, {"n": need})
+		return
 	var key := "cabin.hall.full" if got >= total and total > 0 else "cabin.hall.gauge"
 	show_hover_tag(key, hit, {"n": got, "total": total})
 

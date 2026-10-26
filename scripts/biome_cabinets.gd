@@ -143,11 +143,21 @@ static func order_mounts(cards: Array, swiped_order: Array) -> Array:
 	return out
 
 
-## Under the gate the line is collected/5. After it, collected/pool so the case keeps filling.
+## Crown over the case: n/5 while climbing the gate, then locked at 5/5.
+## Past the gate the sub-line (cabin.hall.past_gate) carries the real found count.
 static func progress_text(collected: int, total: int, quota: int = 5) -> String:
 	if collected < quota:
 		return "%d/%d" % [collected, quota]
-	return "%d/%d" % [collected, maxi(total, collected)]
+	return "%d/%d" % [quota, quota]
+
+
+static func past_gate(collected: int, quota: int = 5) -> bool:
+	return collected >= quota
+
+
+## Remaining uniques needed to cross the 5/5 map-piece gate (0 once past it).
+static func next_piece_need(collected: int, quota: int = 5) -> int:
+	return maxi(0, quota - collected)
 
 
 static func crossed_gate(before: int, after: int, quota: int = 5) -> bool:
