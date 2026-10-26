@@ -4,6 +4,7 @@ extends PanelContainer
 signal chosen(uid: int)
 signal hovered_item(it: Dictionary, card: Control)
 signal unhovered_item
+signal reroll_wanted
 
 const UX := preload("res://scripts/ux_style.gd")
 const COPY := preload("res://scripts/player_copy.gd")
@@ -23,6 +24,7 @@ var _sack: Texture2D
 var left_it: Dictionary = {}
 var right_it: Dictionary = {}
 var _busy: bool = false
+var _reroll: Button
 
 
 func setup() -> void:
@@ -92,6 +94,15 @@ func setup() -> void:
 	_hint.set_copy("challenge.pick_hover")
 	_hint.custom_minimum_size = Vector2(480, 20)
 	col.add_child(_hint)
+	_reroll = Button.new()
+	_reroll.visible = false
+	_reroll.text = "Reroll"
+	_reroll.custom_minimum_size = Vector2(220, 36)
+	_reroll.pressed.connect(func() -> void:
+		if not _busy:
+			reroll_wanted.emit()
+	)
+	col.add_child(_reroll)
 	_skin_panel(1)
 
 
@@ -148,6 +159,13 @@ func set_loot_pips(remaining: int, total: int) -> void:
 		if i >= _loot_left:
 			pic.modulate = Color(0.35, 0.32, 0.28, 0.55)
 		_pips.add_child(pic)
+
+
+func set_reroll(on: bool, label: String) -> void:
+	if _reroll == null:
+		return
+	_reroll.visible = on
+	_reroll.text = label
 
 
 func set_final_item(on: bool) -> void:
@@ -237,6 +255,7 @@ func hide_draft() -> void:
 	scale = Vector2.ONE
 	left_it = {}
 	right_it = {}
+	set_reroll(false, "")
 	set_final_item(false)
 	set_loot_pips(0, 0)
 	set_process(false)
