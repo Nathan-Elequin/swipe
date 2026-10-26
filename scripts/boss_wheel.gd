@@ -17,6 +17,7 @@ const COPY := preload("res://scripts/player_copy.gd")
 const FX_RAYS := preload("res://scripts/fx_rays.gd")
 const ABILITY_CARD := preload("res://scripts/ui/ability_card.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
+const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
 const INK_ON_DARK := Color("f0e6d8")
 const TAG_GOLD := Color("FFD84A")
 const SHADOW_COL := Color(0.039, 0.024, 0.016, 0.47)
@@ -1227,6 +1228,7 @@ func _process(delta: float) -> void:
 	_sync_ability_cards()
 	if spinning:
 		queue_redraw()
+		FRAME_METRICS.note_wheel()
 	elif _wheel_wants_live_draw():
 		_queue_decor_redraw(delta)
 
@@ -1261,12 +1263,14 @@ func _queue_decor_redraw(delta: float) -> void:
 	var step: float = FX_BUDGET.decor_step()
 	if step <= 0.0:
 		queue_redraw()
+		FRAME_METRICS.note_wheel()
 		return
 	_decor_wait -= delta
 	if _decor_wait > 0.0:
 		return
 	_decor_wait = step
 	queue_redraw()
+	FRAME_METRICS.note_wheel()
 
 
 func slice_at(local: Vector2) -> int:

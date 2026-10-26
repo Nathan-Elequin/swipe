@@ -5,6 +5,7 @@ const FX_RAYS := preload("res://scripts/fx_rays.gd")
 const SLASH_SHADER := preload("res://shaders/slash_lines.gdshader")
 const CIRCLE_TEX := preload("res://assets/dungeon/vfx/circle.png")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
+const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
 
 const VIEW_W := 1680.0
 const VIEW_H := 1040.0
@@ -586,6 +587,7 @@ func _process(delta: float) -> void:
 	_clock += delta
 	if not _cutin_active:
 		queue_redraw()
+		FRAME_METRICS.note_slash()
 
 
 func _draw() -> void:
