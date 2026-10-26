@@ -30,13 +30,30 @@ const WAX := {
 	"b5": Color("3c3488"),
 	"endless": Color("2a2048"),
 }
+## Pool id → stamp filename slug (assets/ui/map/stamps/stamp_<slug>_<state>.png).
+const POOL_SLUG := {
+	"b1": "verdant_hollow",
+	"b2": "sunken_mire",
+	"b3": "ashen_crypt",
+	"b4": "cinder_forge",
+	"b5": "shadow_abyss",
+	"endless": "endless",
+}
+## Spin COPY-FINALS map chrome (verbatim stubs until Jam keys land).
+const TIP_CLICK := "click to set off"
+const TIP_START := "START HERE"
+const TIP_ENDLESS_SEALED := "ENDLESS · SEALED"
+const TIP_ENDLESS_SEALED_SUB := "Opens when all five cabinets are full"
+const LABEL_UNMAPPED := "%s · unmapped"
 
 var _sheet: Control
 var _ink: RouteInk
 var _pins: Control
 var _hands: Hands
+var _tip: Label
 var _rules: Dictionary = {}
 var _state: Dictionary = {}
+var _going: bool = false
 
 
 func setup() -> void:
@@ -96,6 +113,17 @@ func setup() -> void:
 		4
 	)
 	_sheet.add_child(title)
+	_tip = Label.new()
+	_tip.name = "StampTip"
+	_tip.visible = false
+	_tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tip.z_index = 12
+	_tip.add_theme_font_size_override("font_size", 22)
+	_tip.add_theme_color_override("font_color", KIT.INK)
+	_tip.add_theme_color_override("font_outline_color", Color("f0e6d8"))
+	_tip.add_theme_constant_override("outline_size", 4)
+	_tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_sheet.add_child(_tip)
 	_build_close()
 	_hands = Hands.new()
 	_hands.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
@@ -109,6 +137,8 @@ func setup() -> void:
 func present(rules: Dictionary, state: Dictionary) -> void:
 	_rules = rules
 	_state = state
+	_going = false
+	_hide_tip()
 	_rebuild()
 	visible = true
 	_hands.queue_redraw()
@@ -156,14 +186,14 @@ func _rebuild() -> void:
 		if i == 0:
 			_add_start(spot, str(b.get("name", pool)), open)
 		elif open:
-			_add_stamp(spot, str(b.get("name", pool)), WAX.get(pool, KIT.INK), i, false)
+			_add_stamp(spot, str(b.get("name", pool)), pool, WAX.get(pool, KIT.INK), i, false)
 		else:
-			_add_locked(spot, str(b.get("name", pool)))
+			_add_locked(spot, str(b.get("name", pool)), pool)
 	var endless_name := str(_rules.get("endless", {}).get("name", "Endless"))
 	if bool(_state.get("endless_unlocked", false)):
-		_add_stamp(ENDLESS_AT, endless_name, WAX["endless"], 0, true)
+		_add_stamp(ENDLESS_AT, endless_name, "endless", WAX["endless"], 0, true)
 	else:
-		_add_locked(ENDLESS_AT, endless_name)
+		_add_locked(ENDLESS_AT, endless_name, "endless")
 
 
 func _add_start(spot: Vector2, biome_name: String, open: bool) -> void:
@@ -186,16 +216,23 @@ func _add_start(spot: Vector2, biome_name: String, open: bool) -> void:
 	if not open:
 		return
 	var hit := _hit_button(Rect2(spot + Vector2(-150, -90), Vector2(280, 170)))
+	hit.mouse_entered.connect(func() -> void:
+		_show_tip_at(spot + Vector2(0, -100), TIP_START)
+	)
+	hit.mouse_exited.connect(func() -> void:
+		_hide_tip()
+	)
 	hit.pressed.connect(func() -> void:
-		_cue(&"cabin.map_pin")
-		start_asked.emit(0, false, false)
+		_start_from_pin(0, false, false)
 	)
 	_pins.add_child(hit)
 
 
-func _add_stamp(spot: Vector2, biome_name: String, wax: Color, index: int, endless: bool) -> void:
+func _add_stamp(spot: Vector2, biome_name: String, pool: String, wax: Color, index: int, endless: bool) -> void:
 	var seal := WaxStamp.new()
 	seal.wax = wax
+	seal.pool_slug = str(POOL_SLUG.get(pool, pool))
+	seal.set_stamp_state("idle")
 	seal.position = spot + Vector2(-28, -28)
 	seal.size = Vector2(56, 56)
 	seal.pivot_offset = Vector2(28, 56)
@@ -209,28 +246,46 @@ func _add_stamp(spot: Vector2, biome_name: String, wax: Color, index: int, endle
 	var hit := _hit_button(hit_rect)
 	hit.mouse_entered.connect(func() -> void:
 		_peel(seal, true)
+		seal.set_stamp_state("hover")
+		_show_tip_at(spot + Vector2(0, -48), TIP_CLICK)
 	)
 	hit.mouse_exited.connect(func() -> void:
 		_peel(seal, false)
+		if not _going:
+			seal.set_stamp_state("idle")
+		_hide_tip()
 	)
 	hit.pressed.connect(func() -> void:
-		_cue(&"cabin.map_pin")
-		if endless:
-			start_asked.emit(0, false, true)
-		else:
-			start_asked.emit(index, true, false)
+		_start_from_stamp(seal, index, endless)
 	)
 	_pins.add_child(hit)
 
 
-func _add_locked(spot: Vector2, biome_name: String) -> void:
-	var ring := NodeDot.new()
-	ring.hollow = true
-	ring.position = spot + Vector2(-12, -12)
-	ring.size = Vector2(24, 24)
-	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_pins.add_child(ring)
-	_add_name(spot + Vector2(28, -8), biome_name, false)
+func _add_locked(spot: Vector2, biome_name: String, pool: String) -> void:
+	var endless := pool == "endless"
+	var seal := WaxStamp.new()
+	seal.wax = WAX.get(pool, Color("8a7d70"))
+	seal.pool_slug = str(POOL_SLUG.get(pool, pool))
+	seal.sealed = true
+	seal.set_stamp_state("idle")
+	seal.position = spot + Vector2(-28, -28)
+	seal.size = Vector2(56, 56)
+	seal.pivot_offset = Vector2(28, 28)
+	seal.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pins.add_child(seal)
+	var label := LABEL_UNMAPPED % biome_name
+	if endless:
+		label = TIP_ENDLESS_SEALED
+	_add_name(spot + Vector2(28, -8) if not endless else spot + Vector2(-90, 36), label, false)
+	if endless:
+		var hit := _hit_button(Rect2(spot + Vector2(-100, -40), Vector2(220, 130)))
+		hit.mouse_entered.connect(func() -> void:
+			_show_tip_at(spot + Vector2(0, -48), TIP_ENDLESS_SEALED_SUB)
+		)
+		hit.mouse_exited.connect(func() -> void:
+			_hide_tip()
+		)
+		_pins.add_child(hit)
 
 
 func _add_name(at: Vector2, biome_name: String, ink: bool) -> void:
@@ -280,6 +335,64 @@ func _peel(seal: Control, up: bool) -> void:
 	tw.set_ease(Tween.EASE_OUT)
 	tw.tween_property(seal, "rotation", deg_to_rad(-16.0 if up else 0.0), 0.12)
 	tw.parallel().tween_property(seal, "position:y", rest - (12.0 if up else 0.0), 0.12)
+
+
+func _start_from_pin(index: int, shortcut: bool, endless: bool) -> void:
+	if _going:
+		return
+	_going = true
+	_hide_tip()
+	_cue(&"cabin.map_pin")
+	start_asked.emit(index, shortcut, endless)
+
+
+func _start_from_stamp(seal: WaxStamp, index: int, endless: bool) -> void:
+	if _going:
+		return
+	_going = true
+	_hide_tip()
+	await _press_flat(seal)
+	_cue(&"cabin.map_pin")
+	if endless:
+		start_asked.emit(0, false, true)
+	else:
+		start_asked.emit(index, true, false)
+
+
+func _press_flat(seal: WaxStamp) -> void:
+	if seal == null or not is_instance_valid(seal):
+		return
+	var prev: Variant = seal.get_meta("peel_tw", null)
+	if prev is Tween:
+		(prev as Tween).kill()
+	if not seal.has_meta("rest_y"):
+		seal.set_meta("rest_y", seal.position.y)
+	var rest: float = float(seal.get_meta("rest_y"))
+	seal.set_stamp_state("press")
+	var tw := create_tween()
+	seal.set_meta("peel_tw", tw)
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_trans(Tween.TRANS_QUAD)
+	tw.set_ease(Tween.EASE_IN)
+	tw.tween_property(seal, "rotation", 0.0, 0.06)
+	tw.parallel().tween_property(seal, "position:y", rest + 2.0, 0.06)
+	tw.parallel().tween_property(seal, "scale", Vector2(1.0, 0.88), 0.06)
+	await tw.finished
+	await get_tree().create_timer(0.05).timeout
+
+
+func _show_tip_at(at: Vector2, text: String) -> void:
+	if _tip == null or text.strip_edges() == "":
+		return
+	_tip.text = text
+	_tip.reset_size()
+	_tip.position = at - Vector2(_tip.size.x * 0.5, _tip.size.y)
+	_tip.visible = true
+
+
+func _hide_tip() -> void:
+	if _tip:
+		_tip.visible = false
 
 
 func _build_close() -> void:
@@ -378,9 +491,53 @@ class RouteInk extends Control:
 
 
 class WaxStamp extends Control:
+	const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 	var wax: Color = Color("5f8f3c")
+	var pool_slug: String = ""
+	## idle | hover | press — picks stamp_<slug>_<state>.png when present.
+	var state: String = "idle"
+	## Hollow / sealed node: stamp_locked.png or stamp_endless_sealed.png.
+	var sealed: bool = false
+	var _tex: Texture2D = null
+
+	func _ready() -> void:
+		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+
+
+	func set_stamp_state(next: String) -> void:
+		var want := next if next in ["idle", "hover", "press"] else "idle"
+		if state == want and _tex != null:
+			return
+		state = want
+		_reload_tex()
+		queue_redraw()
+
+
+	func _reload_tex() -> void:
+		_tex = null
+		if sealed:
+			var sealed_rel := "map/stamps/stamp_endless_sealed.png" if pool_slug == "endless" else "map/stamps/stamp_locked.png"
+			_tex = KIT.ui_tex(sealed_rel)
+			return
+		if pool_slug == "":
+			return
+		_tex = KIT.ui_tex("map/stamps/stamp_%s_%s.png" % [pool_slug, state])
+		if _tex == null and state != "idle":
+			_tex = KIT.ui_tex("map/stamps/stamp_%s_idle.png" % pool_slug)
+
 
 	func _draw() -> void:
+		if _tex == null:
+			_reload_tex()
+		if _tex:
+			## 112×112 source drawn into the 56×56 control (0.5 scale), Nearest.
+			draw_texture_rect(_tex, Rect2(Vector2.ZERO, size), false)
+			return
+		if sealed:
+			var c0 := size * 0.5
+			var rad0: float = minf(size.x, size.y) * 0.42
+			draw_arc(c0, rad0, 0, TAU, 20, Color("8a7d70"), 3.0, true)
+			return
 		var c := size * 0.5
 		var rad: float = minf(size.x, size.y) * 0.46
 		draw_circle(c + Vector2(3, 4), rad, Color(0, 0, 0, 0.35))
