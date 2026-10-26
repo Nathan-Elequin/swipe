@@ -112,6 +112,8 @@ func present(rules: Dictionary, state: Dictionary) -> void:
 	_rebuild()
 	visible = true
 	_hands.queue_redraw()
+	# Fresh pencil shows on this open, then clears so the next view is inked solid.
+	SHELL.clear_pencil_fresh(_state)
 
 
 func _rebuild() -> void:
@@ -128,8 +130,22 @@ func _rebuild() -> void:
 			solid += 1
 		else:
 			break
+	var fresh_segs: Array = []
+	var fresh_raw: Variant = _state.get("pencil_fresh", [])
+	if typeof(fresh_raw) == TYPE_ARRAY or typeof(fresh_raw) == TYPE_PACKED_STRING_ARRAY:
+		var biomes_for_fresh: Array = SHELL.biomes_of(_rules)
+		for raw_fresh in fresh_raw:
+			var fid := str(raw_fresh)
+			if fid == "" or fid == str(_rules.get("endless", {}).get("id", "endless")):
+				continue
+			for bi in biomes_for_fresh.size():
+				if str((biomes_for_fresh[bi] as Dictionary).get("id", "")) == fid:
+					# Segment bi connects TRAIL[bi] → TRAIL[bi+1] (cabin→b1 is 0).
+					fresh_segs.append(bi)
+					break
 	_ink.pts = PackedVector2Array(TRAIL)
 	_ink.solid = solid
+	_ink.fresh = fresh_segs
 	_ink.queue_redraw()
 	var biomes: Array = SHELL.biomes_of(_rules)
 	for i in mini(5, biomes.size()):
@@ -318,6 +334,8 @@ func _cue(id: StringName) -> void:
 class RouteInk extends Control:
 	var pts: PackedVector2Array = PackedVector2Array()
 	var solid: int = 1
+	## Trail segment indices drawn as grey pencil (just stamped) instead of solid ink.
+	var fresh: Array = []
 
 	func _draw() -> void:
 		if pts.size() < 2:
@@ -325,7 +343,9 @@ class RouteInk extends Control:
 		for i in pts.size() - 1:
 			var a: Vector2 = pts[i]
 			var b: Vector2 = pts[i + 1]
-			if i < solid:
+			if fresh.has(i):
+				_pencil(a, b)
+			elif i < solid:
 				draw_line(a, b, Color("3a2414"), 8.0, false)
 			else:
 				_dash(a, b)
@@ -342,6 +362,19 @@ class RouteInk extends Control:
 			var t2: float = minf(t + 14.0, dist)
 			draw_line(a + dir * t, a + dir * t2, Color("8a7048"), 5.0, false)
 			t += 26.0
+
+
+	func _pencil(a: Vector2, b: Vector2) -> void:
+		var dir := b - a
+		var dist := dir.length()
+		if dist < 1.0:
+			return
+		dir /= dist
+		var t := 0.0
+		while t < dist:
+			var t2: float = minf(t + 10.0, dist)
+			draw_line(a + dir * t, a + dir * t2, Color("6a6a6a"), 4.0, false)
+			t += 16.0
 
 
 class WaxStamp extends Control:

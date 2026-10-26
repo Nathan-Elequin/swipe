@@ -2390,6 +2390,9 @@ func _push_interrupt_home() -> void:
 			ids.append(cid)
 	var news: Array = []
 	if home_cabin:
+		# Flag before swipe_ids — deferred bank can run during the dissolve.
+		if home_cabin.has_method("begin_push_block_bank"):
+			home_cabin.begin_push_block_bank()
 		news = home_cabin.swipe_ids(ids)
 	if overlay:
 		overlay.visible = false
@@ -2510,6 +2513,8 @@ func _open_campaign_map() -> void:
 		CAMPAIGN_SHELL.mark_drawer_seen(_campaign.state)
 		_campaign.write()
 	campaign_map.show_map(_campaign.rules, _campaign.state)
+	# held_map may clear pencil_fresh on present — persist that.
+	_campaign.write()
 
 
 func _close_campaign_map() -> void:

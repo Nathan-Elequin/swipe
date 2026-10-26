@@ -50,6 +50,17 @@ func _init() -> void:
 	failed = _check(failed, "ashen crypt stays shut", Shell.can_start(rules, state, 2) == false) or failed
 	failed = _check(failed, "shortcut to verdant hollow", Shell.shortcut_open(rules, state, 0)) or failed
 	failed = _check(failed, "no shortcut to sunken mire yet", Shell.shortcut_open(rules, state, 1) == false) or failed
+	# S3: map piece + pencil only via stamp_map_piece (ceremony), never bank() alone.
+	failed = _check(failed, "bank alone grants no piece", Shell.map_piece_count(state) == 0) or failed
+	var stamped: Dictionary = Shell.stamp_map_piece(rules, state, "b1")
+	failed = _check(failed, "piece stamps sunken mire", str(stamped.get("id", "")) == "b2") or failed
+	failed = _check(failed, "piece name locked", str(stamped.get("name", "")) == "Sunken Mire") or failed
+	failed = _check(failed, "map_pieces has b2", (state["map_pieces"] as Array).has("b2")) or failed
+	failed = _check(failed, "pencil_fresh has b2", (state["pencil_fresh"] as Array).has("b2")) or failed
+	var again: Dictionary = Shell.stamp_map_piece(rules, state, "b1")
+	failed = _check(failed, "stamp idempotent", Shell.map_piece_count(state) == 1 and not bool(again.get("first", true))) or failed
+	Shell.clear_pencil_fresh(state)
+	failed = _check(failed, "pencil clears after map open", (state["pencil_fresh"] as Array).is_empty()) or failed
 	Shell.begin_run(state, 0, false, false)
 	failed = _check(failed, "can push into sunken mire", Shell.can_push(rules, state)) or failed
 	failed = _check(failed, "no nib at 5/5", Shell.push_needs_nib(rules, state) == false) or failed
@@ -61,18 +72,20 @@ func _init() -> void:
 	Shell.begin_run(under, 0, false, true)
 	failed = _check(failed, "no nib in endless", Shell.push_needs_nib(rules, under) == false) or failed
 	Shell.begin_run(state, 0, false, false)
+	# One piece stamped → base 1 + rerolls_per_map_piece 1.
 	Shell.grant_delve_reroll(rules, state)
-	failed = _check(failed, "one reroll", int(state["run"]["rerolls"]) == 1) or failed
+	failed = _check(failed, "reroll plus map piece", int(state["run"]["rerolls"]) == 2) or failed
 	Shell.grant_delve_reroll(rules, state)
-	failed = _check(failed, "grant once", int(state["run"]["rerolls"]) == 1) or failed
+	failed = _check(failed, "grant once", int(state["run"]["rerolls"]) == 2) or failed
 	failed = _check(failed, "push", Shell.push_deeper(rules, state)) or failed
-	failed = _check(failed, "carried the reroll", int(state["run"]["rerolls"]) == 1) or failed
+	failed = _check(failed, "carried the reroll", int(state["run"]["rerolls"]) == 2) or failed
 	Shell.grant_delve_reroll(rules, state)
-	failed = _check(failed, "next delve adds one", int(state["run"]["rerolls"]) == 2) or failed
+	failed = _check(failed, "next delve adds with piece", int(state["run"]["rerolls"]) == 4) or failed
 	Shell.begin_run(state, 1, true, false)
 	failed = _check(failed, "shortcut starts empty", int(state["run"]["rerolls"]) == 0 and bool(state["run"]["shortcut"])) or failed
 	Shell.end_run(state)
 	failed = _check(failed, "home clears rerolls", int(state["run"]["rerolls"]) == 0 and not bool(state["run"]["active"])) or failed
+	failed = _check(failed, "rules key rerolls_per_map_piece", int(rules.get("rerolls_per_map_piece", -1)) == 1) or failed
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7
 	var tiers: Array = Shell.starter_tiers(rules, rng)

@@ -3,7 +3,8 @@
   "start_gate_uniques": 3,
   "cabinet_quota": 5,
   "starter_item_mix": [3, 2, 1],
-  "rerolls_per_delve": 1,
+	"rerolls_per_delve": 1,
+	"rerolls_per_map_piece": 1,
   "deck": {"wheel": 6, "reserve": 4},
   "bucket_pools": {
     "0": "b1",
