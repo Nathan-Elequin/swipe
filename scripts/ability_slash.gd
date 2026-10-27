@@ -135,7 +135,9 @@ func play(payload: Dictionary) -> void:
 	var ticket := {"payload": payload, "done": false}
 	_q.append(ticket)
 	# Always wait on this ticket. Item banners may mark done after snap-in
-	# (release_early) so resolve can overlap hold/fade; cut-ins still full-wait.
+	# (release_early) so resolve can overlap hold/fade. Monster cut-ins may
+	# also release_early after the portrait tell (punch/frames) so passive
+	# damage overlaps hold/slash-out.
 	if not _draining:
 		_drain()
 	while is_instance_valid(self) and not bool(ticket.get("done", false)) and not _aborted:
@@ -193,7 +195,7 @@ func _show(payload: Dictionary, ticket: Dictionary = {}) -> void:
 	if _is_item:
 		await _show_item(fast, release_early, ticket)
 	else:
-		await _show_cutin(fast)
+		await _show_cutin(fast, release_early, ticket)
 	visible = false
 	_cutin_active = false
 	_set_cutin_visible(false)
@@ -242,7 +244,7 @@ func _show_item(fast: bool, release_early: bool = false, ticket: Dictionary = {}
 		await get_tree().process_frame
 
 
-func _show_cutin(fast: bool) -> void:
+func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {}) -> void:
 	_cutin_active = true
 	size = Vector2(VIEW_W, VIEW_H)
 	global_position = Vector2.ZERO
@@ -306,6 +308,10 @@ func _show_cutin(fast: bool) -> void:
 			await get_tree().create_timer(_dur(FRAME_MS, fast), false).timeout
 	else:
 		await _punch_shake(fast)
+	# Portrait tell is up — let passives apply damage during hold/slash-out
+	# (same wall-clock idea as item gutter release_early after snap-in).
+	if release_early and not ticket.is_empty():
+		ticket["done"] = true
 	var hold_ms: float = HOLD_MS + (FIRST_HOLD_BONUS_MS if first else 0.0)
 	await get_tree().create_timer(_dur(hold_ms, fast), false).timeout
 	# Slash out.

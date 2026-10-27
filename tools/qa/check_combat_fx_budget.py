@@ -60,12 +60,17 @@ HOOKS = {
         "FRAME_METRICS.note_slash",
         "decor_step",
         "_slash_dirty",
+        "release_early",
+        "func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {})",
+        "Portrait tell is up",
     ],
     "scripts/main.gd": [
         "_fight_art_sig",
         "_fight_art_dirty",
         "_fight_art_frame",
         "_spin_holds_fight_art",
+        '"release_early": true',
+        "func _announce_slice",
     ],
 }
 
