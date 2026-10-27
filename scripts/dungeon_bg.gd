@@ -46,12 +46,19 @@ func _process(delta: float) -> void:
 	_flick_wait -= delta
 	if _flick_wait > 0.0:
 		return
-	_flick_wait = FLICKER_STEP
+	# Stay at most ~8 fps torch flicker; also respect decorative ceiling (#131)
+	# so heavy frames do not queue a second hall redraw via a shorter step.
+	var step: float = FLICKER_STEP
+	var decor: float = FX_BUDGET.decor_step()
+	if decor > step:
+		step = decor
+	_flick_wait = step
 	queue_redraw()
-	FRAME_METRICS.note_hall()
 
 
 func _draw() -> void:
+	# Count real draws — queue_redraw in _process was inflating hall spike tags.
+	FRAME_METRICS.note_hall()
 	if art == null or not art.ready_ok:
 		draw_rect(Rect2(Vector2.ZERO, size), Color("0a0807"), true)
 		return

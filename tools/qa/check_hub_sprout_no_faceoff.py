@@ -51,7 +51,9 @@ def main() -> int:
             failed += _fail("_player_play should keep player_stage hidden")
 
     # Live fight layout must not rebuild the retired FLOOR_Y face-off pair.
-    place_i = MAIN.find("func _place_fight_art() -> void:")
+    place_i = MAIN.find("func _place_fight_art(force: bool = false) -> void:")
+    if place_i < 0:
+        place_i = MAIN.find("func _place_fight_art(")
     if place_i < 0:
         failed += _fail("missing _place_fight_art")
     else:

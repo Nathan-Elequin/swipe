@@ -14,6 +14,8 @@ NEEDLES = {
         "func _record_spike",
         "func note_tag",
         "static var last_tag",
+        "place_full_usec",
+        "d_place_full",
         "over_50",
         "STAMP.text()",
         "_cap_sha",
@@ -61,11 +63,18 @@ def main() -> int:
         if keep not in metrics:
             print(f"FAIL frame_metrics.gd missing {keep!r}")
             failed += 1
+    # Early-out place floods must not win spike tags; clear sticky last_tag.
+    if "d_place_full" not in metrics or "place_full_usec" not in metrics:
+        print("FAIL spike markers must expose place_full_usec / d_place_full")
+        failed += 1
+    if "last_tag = \"\"" not in metrics and "last_tag = ''" not in metrics:
+        print("FAIL capture frames must clear last_tag after recording")
+        failed += 1
     stamp = (ROOT / "scripts" / "frame_metrics_stamp.gd").read_text(encoding="utf-8")
     if "CACHE_USEC" not in stamp:
         print("FAIL stamp cache missing")
         failed += 1
-    # Measurement PR must not rewrite combat rules.
+    # Measurement helpers must not embed combat place / decor policy.
     for banned in ("func _place_fight_art", "decorative_fps", "begin_heavy"):
         if banned in metrics:
             print(f"FAIL measurement PR must not embed {banned!r} in frame_metrics")
