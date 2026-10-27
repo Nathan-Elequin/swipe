@@ -1,6 +1,9 @@
 extends CanvasLayer
 class_name FrameMetrics
 ## Dev frame-time overlay (F8). Hidden until opened. Does not change combat.
+## Frames over SPIKE_MS leave a cheap breadcrumb in capture JSON
+## (`spike_markers`) so a shared ~100 ms hitch can be hunted without
+## speculative rewrites.
 
 const STAMP := preload("res://scripts/frame_metrics_stamp.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
@@ -14,6 +17,11 @@ const SCENARIOS: Array[String] = [
 	"transition_x3",
 ]
 
+## Scorecard shared hitch sits ~98–101 ms; 50 ms catches that band without
+## flooding every 16.7 ms spike into the JSON.
+const SPIKE_MS := 50.0
+const SPIKE_KEEP := 12
+
 static var wheel_redraws: int = 0
 static var stage_redraws: int = 0
 static var hall_redraws: int = 0
@@ -21,6 +29,9 @@ static var slash_redraws: int = 0
 static var place_calls: int = 0
 static var place_early: int = 0
 static var place_usec: int = 0
+## Optional last-known tag from a hot path (`note_tag("spin")`). Cleared
+## never — overwritten only. Cheap; no stack, no alloc beyond the string.
+static var last_tag: String = ""
 
 var _open: bool = false
 var _capturing: bool = false
@@ -36,11 +47,20 @@ var _base_early: int = 0
 var _base_usec: int = 0
 var _spike_16: int = 0
 var _spike_33: int = 0
+var _spike_50: int = 0
 var _heavy_frames: int = 0
 var _heavy_max: int = 0
 var _samples := PackedFloat32Array()
 var _proc := PackedFloat32Array()
 var _draws := PackedFloat32Array()
+var _spike_markers: Array = []
+var _prev_wheel: int = 0
+var _prev_stage: int = 0
+var _prev_hall: int = 0
+var _prev_slash: int = 0
+var _prev_place: int = 0
+var _cap_sha: String = ""
+var _cap_dirty: bool = false
 var _last_summary: String = ""
 var _panel: PanelContainer
 var _label: Label
@@ -78,6 +98,12 @@ static func note_place(usec: int, early: bool) -> void:
 	place_usec += usec
 	if early:
 		place_early += 1
+
+
+static func note_tag(tag: String) -> void:
+	if tag == "":
+		return
+	last_tag = tag
 
 
 func _ready() -> void:
@@ -183,6 +209,10 @@ func _toggle() -> void:
 	_panel.visible = _open
 	if _open:
 		_ui_wait = 0.0
+		# Warm the stamp cache before any capture. BuildStamp.from_repo()
+		# shells out to `git status`; paying that on key 1–6 was the shared
+		# ~100 ms first-frame hitch on every Scorecard scenario.
+		STAMP.text()
 		_refresh_label()
 	set_process(_open or _capturing)
 
@@ -195,6 +225,10 @@ func _arm(scenario: String) -> void:
 		_stop()
 	_scenario = scenario
 	_capturing = true
+	# Snapshot stamp before _t0 so a cold cache refresh cannot land inside
+	# the first captured frame (Scorecard shared ~100 ms hitch).
+	_cap_sha = STAMP.sha_hex()
+	_cap_dirty = STAMP.dirty()
 	_t0 = Time.get_ticks_usec()
 	_base_wheel = wheel_redraws
 	_base_stage = stage_redraws
@@ -205,11 +239,18 @@ func _arm(scenario: String) -> void:
 	_base_usec = place_usec
 	_spike_16 = 0
 	_spike_33 = 0
+	_spike_50 = 0
 	_heavy_frames = 0
 	_heavy_max = 0
 	_samples = PackedFloat32Array()
 	_proc = PackedFloat32Array()
 	_draws = PackedFloat32Array()
+	_spike_markers = []
+	_prev_wheel = wheel_redraws
+	_prev_stage = stage_redraws
+	_prev_hall = hall_redraws
+	_prev_slash = slash_redraws
+	_prev_place = place_calls
 	_last_summary = "capturing " + scenario
 	set_process(true)
 	_refresh_label()
@@ -221,8 +262,13 @@ func _stop_pressed() -> void:
 
 
 func _process(delta: float) -> void:
+	var ms := delta * 1000.0
+	# While the overlay is open (idle) or a capture is armed, watch for
+	# frames over SPIKE_MS. Only an armed capture appends into the JSON.
 	if _capturing:
-		var ms := delta * 1000.0
+		if ms > SPIKE_MS:
+			_spike_50 += 1
+			_record_spike(ms)
 		_samples.push_back(ms)
 		if ms > 16.7:
 			_spike_16 += 1
@@ -235,6 +281,7 @@ func _process(delta: float) -> void:
 			_heavy_frames += 1
 		if heavy > _heavy_max:
 			_heavy_max = heavy
+		_bump_prev_counters()
 	if not _open:
 		return
 	_ui_wait -= delta
@@ -244,11 +291,90 @@ func _process(delta: float) -> void:
 	_refresh_label()
 
 
+func _bump_prev_counters() -> void:
+	_prev_wheel = wheel_redraws
+	_prev_stage = stage_redraws
+	_prev_hall = hall_redraws
+	_prev_slash = slash_redraws
+	_prev_place = place_calls
+
+
+func _record_spike(ms: float) -> void:
+	var d_wheel := wheel_redraws - _prev_wheel
+	var d_stage := stage_redraws - _prev_stage
+	var d_hall := hall_redraws - _prev_hall
+	var d_slash := slash_redraws - _prev_slash
+	var d_place := place_calls - _prev_place
+	var heavy := FX_BUDGET.heavy_count()
+	var marker := {
+		"frame_ms": ms,
+		"frame_i": _samples.size(),
+		"heavy": heavy,
+		"scenario": _scenario,
+		"tag": _spike_tag(d_wheel, d_stage, d_hall, d_slash, d_place, heavy),
+		"last_tag": last_tag,
+		"dirty": _cap_dirty,
+		"baked_sha": STAMP.GIT_SHA,
+		"sha": _cap_sha,
+		"ticks_msec": Time.get_ticks_msec(),
+		"os": OS.get_name(),
+		"d_wheel": d_wheel,
+		"d_stage": d_stage,
+		"d_hall": d_hall,
+		"d_slash": d_slash,
+		"d_place": d_place,
+		"process_ms": Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
+		"draw_calls": Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+	}
+	_spike_markers.append(marker)
+	while _spike_markers.size() > SPIKE_KEEP:
+		_spike_markers.remove_at(0)
+
+
+func _spike_tag(
+	d_wheel: int,
+	d_stage: int,
+	d_hall: int,
+	d_slash: int,
+	d_place: int,
+	heavy: int
+) -> String:
+	# Prefer an explicit hot-path tag when present.
+	if last_tag != "":
+		return last_tag
+	var best := "unknown"
+	var best_n := 0
+	if d_place > best_n:
+		best = "place_fight_art"
+		best_n = d_place
+	if d_slash > best_n:
+		best = "slash"
+		best_n = d_slash
+	if d_wheel > best_n:
+		best = "wheel"
+		best_n = d_wheel
+	if d_stage > best_n:
+		best = "stage"
+		best_n = d_stage
+	if d_hall > best_n:
+		best = "hall"
+		best_n = d_hall
+	if best_n <= 0 and heavy > 0:
+		return "heavy"
+	return best
+
+
 func _refresh_label() -> void:
 	if _label == null:
 		return
-	var sha := STAMP.sha_hex()
-	var dirty := " dirty" if STAMP.dirty() else ""
+	# During a capture, reuse the arm snapshot — never refresh git status
+	# on the 0.25s label tick (that was the shared ~100 ms hitch).
+	var sha := _cap_sha if _capturing and _cap_sha != "" else STAMP.sha_hex()
+	var dirty := ""
+	if _capturing:
+		dirty = " dirty" if _cap_dirty else ""
+	elif STAMP.dirty():
+		dirty = " dirty"
 	var live := ""
 	if not _samples.is_empty():
 		live = "  %.1f ms" % _samples[_samples.size() - 1]
@@ -257,7 +383,14 @@ func _refresh_label() -> void:
 	var cap := "idle"
 	if _capturing:
 		var sec := float(Time.get_ticks_usec() - _t0) / 1000000.0
-		cap = "REC %s  %.1fs  spikes %d/%d" % [_scenario, sec, _spike_16, _spike_33]
+		cap = "REC %s  %.1fs  spikes %d/%d  >%.0f %d" % [
+			_scenario,
+			sec,
+			_spike_16,
+			_spike_33,
+			SPIKE_MS,
+			_spike_50,
+		]
 	elif _last_summary != "":
 		cap = _last_summary
 	var heavy_now := FX_BUDGET.heavy_count()
@@ -295,16 +428,32 @@ func _report(dur: float) -> Dictionary:
 	var hall_n := hall_redraws - _base_hall
 	var slash_n := slash_redraws - _base_slash
 	var usec := place_usec - _base_usec
+	var markers: Array = _spike_markers.duplicate()
+	var note := ""
+	if _spike_50 <= 0:
+		note = "no frames over %.0f ms" % SPIKE_MS
+	else:
+		var last: Dictionary = markers[markers.size() - 1] if not markers.is_empty() else {}
+		note = "spike_markers: %d frame(s) over %.0f ms (kept last %d); last tag=%s heavy=%s frame_ms=%.1f" % [
+			_spike_50,
+			SPIKE_MS,
+			SPIKE_KEEP,
+			str(last.get("tag", "")),
+			str(last.get("heavy", 0)),
+			float(last.get("frame_ms", 0.0)),
+		]
 	return {
-		"sha": STAMP.sha_hex(),
+		"sha": _cap_sha if _cap_sha != "" else STAMP.sha_hex(),
 		"baked_sha": STAMP.GIT_SHA,
-		"dirty": STAMP.dirty(),
+		"dirty": _cap_dirty if _cap_sha != "" else STAMP.dirty(),
 		"godot": godot,
 		"platform": OS.get_name(),
 		"web": OS.has_feature("web"),
 		"viewport": [int(vp.x), int(vp.y)],
 		"scenario": _scenario,
-		"note": "",
+		"note": note,
+		"spike_ms_threshold": SPIKE_MS,
+		"spike_markers": markers,
 		"duration_sec": dur,
 		"frames": frames,
 		"fps": float(frames) / dur,
@@ -316,6 +465,7 @@ func _report(dur: float) -> Dictionary:
 		"spikes": {
 			"over_16_7": _spike_16,
 			"over_33_3": _spike_33,
+			"over_50": _spike_50,
 		},
 		"process_ms": {
 			"avg": _avg(_proc),
