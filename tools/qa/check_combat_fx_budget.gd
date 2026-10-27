@@ -50,8 +50,17 @@ func _init() -> void:
 		push_error("decorative_fps must not be negative")
 		quit(1)
 		return
+	# Desktop fight-idle rest must not be uncapped (0). Same spirit as web rest.
+	if budget.decorative_fps() <= 0.0 or budget.decor_step() <= 0.0:
+		push_error("rest decorative_fps must be capped (desktop fight-idle)")
+		quit(1)
+		return
+	if budget.decorative_fps() > 12.0 + 0.01:
+		push_error("rest decorative_fps should stay at the 12fps ceiling")
+		quit(1)
+		return
 	var hooks := {
-		"res://scripts/combat_stage.gd": ["hold_low_priority_idles", "_portrait_dirty"],
+		"res://scripts/combat_stage.gd": ["hold_low_priority_idles", "_portrait_dirty", "_decor_is_immediate", "decor_step"],
 		"res://scripts/dungeon_bg.gd": ["hold_low_priority_idles", "FLICKER_STEP"],
 		"res://scripts/boss_wheel.gd": ["_queue_decor_redraw", "hold_low_priority_idles", "_set_hero_heavy", "begin_heavy"],
 		"res://scripts/player_stage.gd": ["is_heavy_state", "begin_heavy"],
