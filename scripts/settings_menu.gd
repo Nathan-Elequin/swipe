@@ -48,7 +48,17 @@ var _board: Control
 var _keep_paused: bool = false
 var _board_y: float = 40.0 * PX
 var _page: String = "main"
-var _sl_wrap: VBoxContainer
+
+## Board art is 800x720. The cream plaque is the top-center strip (x 240–563, y 0–58).
+const _TITLE_POS := Vector2(240, 2)
+const _TITLE_SIZE := Vector2(324, 54)
+## Inner wood, inside the frame. Buttons and the Master bar stay in this band.
+const _CONTENT_TOP := 88.0
+const _CONTENT_BOTTOM := 664.0
+const _ROW_H := 64.0
+const _ROW_GAP := 12.0
+const _BTN_X := 144.0
+const _BOARD_W := 800.0
 
 
 func setup(audio) -> void:
@@ -75,11 +85,12 @@ func setup(audio) -> void:
 	_board.z_index = 1
 	add_child(_board)
 
-	_title = KIT.label("pause.settings", 36, KIT.INK)
+	_title = KIT.label("pause.settings", 32, KIT.INK)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_title.position = Vector2(0, 6) * PX
-	_title.size = Vector2(200, 20) * PX
-	_title.set_outline(Color("fff3d6"), 5)
+	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_title.max_lines = 1
+	_title.position = _TITLE_POS
+	_title.size = _TITLE_SIZE
 	_board.add_child(_title)
 
 	_hint = Label.new()
@@ -152,11 +163,7 @@ func setup(audio) -> void:
 		_board.add_child(_btn_dev_back)
 		_hook_hover(_btn_dev_back)
 
-	_sl_wrap = VBoxContainer.new()
-	_sl_wrap.position = Vector2(24, 132) * PX
-	_sl_wrap.size = Vector2(152, 44) * PX
-	_board.add_child(_sl_wrap)
-	_master = _add_slider(_sl_wrap, "Master", COPY.text("pause.master", ""))
+	_master = _add_slider(_board, "Master", COPY.text("pause.master", "Master"))
 
 	_confirm = PanelContainer.new()
 	_confirm.visible = false
@@ -255,23 +262,35 @@ func _layout_buttons() -> void:
 		_btn_buckets.visible = on_dev
 	if _btn_dev_back:
 		_btn_dev_back.visible = on_dev
-	if _sl_wrap:
-		_sl_wrap.visible = not on_dev
+	if _master:
+		_master.visible = not on_dev
 	var shown: Array = []
 	var buttons: Array = [_btn_resume, _btn_sparkles, _btn_invert, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_complete, _btn_buckets, _btn_dev_back]
 	for b in buttons:
 		if b == null or not b.visible or b.get_parent() != _board:
 			continue
 		shown.append(b)
-	var row_h: float = 26.0
-	var block: float = float(shown.size()) * row_h
-	var y: float = 46.0 + maxf(0.0, (88.0 - block) * 0.5)
+	var slider_on: bool = _master != null and _master.visible
+	var row_count: int = shown.size() + (1 if slider_on else 0)
+	var gap: float = _ROW_GAP
+	var rows_h: float = float(shown.size()) * _ROW_H + (_ROW_H if slider_on else 0.0)
+	var block: float = rows_h + (float(row_count - 1) * gap if row_count > 1 else 0.0)
+	var avail: float = _CONTENT_BOTTOM - _CONTENT_TOP
+	if row_count > 1 and block > avail:
+		gap = maxf(4.0, (avail - rows_h) / float(row_count - 1))
+		block = rows_h + float(row_count - 1) * gap
+	var y: float = _CONTENT_TOP + maxf(0.0, (avail - block) * 0.5)
 	for b2 in shown:
+		var w: float = b2.size.x
+		if w < 8.0:
+			w = b2.custom_minimum_size.x
 		var wide: bool = on_dev and b2 != _btn_dev_back
-		b2.position = Vector2(24.0 if wide else 36.0, y) * PX
-		y += row_h
-	if _sl_wrap and _sl_wrap.visible:
-		_sl_wrap.position = Vector2(24, 132) * PX
+		var x: float = ( _BOARD_W - w) * 0.5 if wide else _BTN_X
+		b2.position = Vector2(x, y)
+		y += _ROW_H + gap
+	if slider_on:
+		_master.position = Vector2(_BTN_X, y)
+		_master.size = Vector2(512, _ROW_H)
 
 
 func _set_page(page: String) -> void:
@@ -280,11 +299,9 @@ func _set_page(page: String) -> void:
 	_layout_buttons()
 
 
-func _add_slider(host: VBoxContainer, which: String, label: String) -> VolumeSlider:
+func _add_slider(host: Node, which: String, label: String) -> VolumeSlider:
 	var sl := VolumeSlider.new()
 	sl.setup(which, label)
-	if sl.slider:
-		KIT.apply_hslider(sl.slider)
 	sl.value_changed.connect(_on_slider.bind(which))
 	host.add_child(sl)
 	return sl
