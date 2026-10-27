@@ -481,6 +481,15 @@ var _fight_art_sig: String = ""
 var _fight_art_dirty: bool = false
 ## Process-frame id of the last full `_place_fight_art` (stops resized cascades).
 var _fight_art_frame: int = -1
+## One deferred flush queued for `_fight_art_dirty` (not a per-frame poll).
+var _fight_art_flush_queued: bool = false
+## Bumped when face plate content changes; full place skips reset_size when equal.
+var _face_plate_rev: int = 0
+var _fight_art_plaque_rev: int = -1
+var _fight_art_plaque_h: float = 0.0
+## Last applied combat_stage rect — skip `_place_sprite` when unchanged.
+var _fight_art_stage_pos: Vector2 = Vector2.INF
+var _fight_art_stage_sz: Vector2 = Vector2.ZERO
 var trophy
 var play_field: Control
 
@@ -5926,7 +5935,8 @@ func _process(delta: float) -> void:
 			else:
 				_hide_fight_hover()
 		return
-	_place_fight_art()
+	# Fight portrait/gutter place is dirty/deferred only — not every process frame.
+	# (Per-frame calls flooded place_calls and mis-tagged Scorecard spikes as place.)
 	_sync_move_hint()
 	var sh: bool = Input.is_key_pressed(KEY_SHIFT)
 	if sh != _shift_held:
@@ -17798,11 +17808,35 @@ func _spin_holds_fight_art() -> bool:
 	return false
 
 
+## Mark gutter layout dirty and schedule one deferred flush (idle), not a poll.
+func _mark_fight_art_dirty() -> void:
+	_fight_art_dirty = true
+	_queue_fight_art_flush()
+
+
+func _queue_fight_art_flush() -> void:
+	if _fight_art_flush_queued:
+		return
+	_fight_art_flush_queued = true
+	call_deferred("_flush_fight_art")
+
+
+## Runs once after dirty is set. Mid-spin: keep dirty; land/`_refresh_face` forces.
+func _flush_fight_art() -> void:
+	_fight_art_flush_queued = false
+	if not _fight_art_dirty:
+		return
+	if _spin_holds_fight_art():
+		return
+	_place_fight_art(false)
+
+
 ## Lay out fight portrait / callout / slash park beside the wheel.
 ## Pass force=true for structural layout (resize) or an explicit seat reveal.
 ## During spin, ALL full work is deferred (force included) — #132 only skipped
 ## non-force, so `_layout_play_field` / resized still paid full gutter math and
 ## cascaded (spin_x5 spike d_place up to 24). Seat reveal runs after land.
+## Not called from `_process` — dirty/deferred + structural callers only.
 func _place_fight_art(force: bool = false) -> void:
 	var _place_t0 := Time.get_ticks_usec()
 	if wheel_view == null:
@@ -17810,21 +17844,27 @@ func _place_fight_art(force: bool = false) -> void:
 		return
 	# Spin path: defer every full layout, including force from resized/layout.
 	if _spin_holds_fight_art():
-		_fight_art_dirty = true
 		_fight_art_sig = ""
+		_mark_fight_art_dirty()
 		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
 		return
 	# One full place per process frame — play_field.resized → layout → place loops.
 	var frame_i: int = Engine.get_process_frames()
 	if frame_i == _fight_art_frame:
 		if force or _fight_art_dirty:
-			_fight_art_dirty = true
-			_fight_art_sig = ""
+			# Keep sig: deferred flush early-outs when geometry is unchanged.
+			_mark_fight_art_dirty()
 		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
 		return
 	if force or _fight_art_dirty:
-		_fight_art_sig = ""
+		# Consume dirty. Do not blank `_fight_art_sig` here — unchanged wheel /
+		# viewport / phase still early-out. Spin start and spin-hold clear sig
+		# so land always pays one full place.
 		_fight_art_dirty = false
+	elif not force:
+		# Non-force with no dirty: nothing structural asked for a place.
+		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
+		return
 	if player_stage != null and player_stage.visible:
 		player_stage.hide_stage()
 	var wr_now: Rect2 = wheel_view.get_global_rect()
@@ -17872,8 +17912,13 @@ func _place_fight_art(force: bool = false) -> void:
 	var overlap := 0.0
 	var plaque_h := 0.0
 	if face_box != null and face_box.visible:
-		face_box.reset_size()
-		plaque_h = face_box.get_combined_minimum_size().y
+		# reset_size / min-size are Control thrash — only remeasure when the
+		# plate content revision changed (show_rule / hide in `_refresh_face`).
+		if _fight_art_plaque_rev != _face_plate_rev or _fight_art_plaque_h <= 0.0:
+			face_box.reset_size()
+			_fight_art_plaque_h = face_box.get_combined_minimum_size().y
+			_fight_art_plaque_rev = _face_plate_rev
+		plaque_h = _fight_art_plaque_h
 	var room_h: float = maxf(96.0, wr.size.y - 24.0)
 	if plaque_h + 96.0 > room_h:
 		sprite_h = 96.0
@@ -17911,20 +17956,28 @@ func _place_fight_art(force: bool = false) -> void:
 			left_x = flip.x
 			on_left = false
 	if face_box != null and face_box.visible:
-		var psz: Vector2 = face_box.get_combined_minimum_size()
-		psz.x = stack_w
-		face_box.size = psz
+		face_box.size = Vector2(stack_w, plaque_h)
 		face_box.global_position = Vector2(right_x, y + hang)
 	if combat_stage != null and combat_stage.visible:
 		if not combat_stage.busy:
-			combat_stage.size = port_sz
-			combat_stage.custom_minimum_size = port_sz
 			var view_sz: Vector2 = get_viewport_rect().size
-			combat_stage.global_position = Vector2(VIEW_FRAME.clamp_x(right_x, port_sz.x, view_sz), y)
+			var stage_pos := Vector2(VIEW_FRAME.clamp_x(right_x, port_sz.x, view_sz), y)
+			var stage_moved: bool = (
+				combat_stage.size != port_sz
+				or combat_stage.global_position != stage_pos
+				or _fight_art_stage_sz != port_sz
+				or _fight_art_stage_pos != stage_pos
+			)
+			if stage_moved:
+				combat_stage.size = port_sz
+				combat_stage.custom_minimum_size = port_sz
+				combat_stage.global_position = stage_pos
+				_fight_art_stage_sz = port_sz
+				_fight_art_stage_pos = stage_pos
+				if combat_stage.has_method("_place_sprite"):
+					combat_stage._place_sprite()
 			if face_box != null and face_box.visible:
 				face_box.global_position = Vector2(right_x, y + port_sz.y + 12.0)
-			if combat_stage.has_method("_place_sprite"):
-				combat_stage._place_sprite()
 		if player_stage != null:
 			player_stage.hide_stage()
 	if (phase == "fighting" or phase == "slaying") and facing_index >= 0 and not wheel_view.hub_sprout_on:
@@ -18434,6 +18487,9 @@ func _refresh_face() -> void:
 		return
 	var show_plate: bool = (phase == "fighting" or phase == "slaying") and facing_index >= 0 and facing_index < wheel.size() and not _choice_covering()
 	if not show_plate:
+		if face_box.visible:
+			_face_plate_rev += 1
+			_fight_art_sig = ""
 		face_box.hide_plate()
 		var keep_anim: bool = combat_stage != null and combat_stage.busy and not _choice_covering()
 		if combat_stage and not keep_anim and (phase != "slaying" and phase != "fighting" or facing_index < 0 or _choice_covering()):
@@ -18453,6 +18509,8 @@ func _refresh_face() -> void:
 	face_look["slice"] = m
 	face_look["stage_pad"] = _fight_sprite_pad()
 	face_box.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule.get("speech", "")), str(rule.get("warn", "")), null, "monster", str(m.get("card_id", "")), face_look)
+	_face_plate_rev += 1
+	_fight_art_sig = ""
 	var atk_s: String = str(m.get("atk", 0))
 	var hp_s: String = str(m.get("hp", 0))
 	if (atk_s != _face_atk_shown and _face_atk_shown != "") or (hp_s != _face_hp_shown and _face_hp_shown != ""):

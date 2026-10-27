@@ -16,6 +16,9 @@ HOOKS = {
         "note_slash",
         "note_place",
         "note_tag",
+        "place_full_usec",
+        "place_full",
+        "d_place_full",
         "over_16_7",
         "over_33_3",
         "over_50",
@@ -47,6 +50,8 @@ HOOKS = {
         "_spin_holds_fight_art",
         "_fight_art_dirty",
         "_fight_art_frame",
+        "_flush_fight_art",
+        "_mark_fight_art_dirty",
     ],
 
     "scripts/boss_wheel.gd": [

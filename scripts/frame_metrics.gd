@@ -29,8 +29,11 @@ static var slash_redraws: int = 0
 static var place_calls: int = 0
 static var place_early: int = 0
 static var place_usec: int = 0
-## Optional last-known tag from a hot path (`note_tag("spin")`). Cleared
-## never — overwritten only. Cheap; no stack, no alloc beyond the string.
+## Full (non-early-out) place cost — spike tags use these, not place_calls.
+static var place_full: int = 0
+static var place_full_usec: int = 0
+## Optional last-known tag from a hot path (`note_tag("spin")`).
+## Cleared each capture frame after spike recording so a stale tag cannot stick.
 static var last_tag: String = ""
 
 var _open: bool = false
@@ -45,6 +48,8 @@ var _base_slash: int = 0
 var _base_place: int = 0
 var _base_early: int = 0
 var _base_usec: int = 0
+var _base_full: int = 0
+var _base_full_usec: int = 0
 var _spike_16: int = 0
 var _spike_33: int = 0
 var _spike_50: int = 0
@@ -59,6 +64,8 @@ var _prev_stage: int = 0
 var _prev_hall: int = 0
 var _prev_slash: int = 0
 var _prev_place: int = 0
+var _prev_place_full: int = 0
+var _prev_place_full_usec: int = 0
 var _cap_sha: String = ""
 var _cap_dirty: bool = false
 var _last_summary: String = ""
@@ -98,6 +105,9 @@ static func note_place(usec: int, early: bool) -> void:
 	place_usec += usec
 	if early:
 		place_early += 1
+	else:
+		place_full += 1
+		place_full_usec += maxi(0, usec)
 
 
 static func note_tag(tag: String) -> void:
@@ -237,6 +247,8 @@ func _arm(scenario: String) -> void:
 	_base_place = place_calls
 	_base_early = place_early
 	_base_usec = place_usec
+	_base_full = place_full
+	_base_full_usec = place_full_usec
 	_spike_16 = 0
 	_spike_33 = 0
 	_spike_50 = 0
@@ -251,6 +263,9 @@ func _arm(scenario: String) -> void:
 	_prev_hall = hall_redraws
 	_prev_slash = slash_redraws
 	_prev_place = place_calls
+	_prev_place_full = place_full
+	_prev_place_full_usec = place_full_usec
+	last_tag = ""
 	_last_summary = "capturing " + scenario
 	set_process(true)
 	_refresh_label()
@@ -282,6 +297,9 @@ func _process(delta: float) -> void:
 		if heavy > _heavy_max:
 			_heavy_max = heavy
 		_bump_prev_counters()
+		# Drop sticky hot-path tag after the frame is booked — next frame
+		# must re-assert (early-out place floods used to pin last_tag).
+		last_tag = ""
 	if not _open:
 		return
 	_ui_wait -= delta
@@ -297,6 +315,8 @@ func _bump_prev_counters() -> void:
 	_prev_hall = hall_redraws
 	_prev_slash = slash_redraws
 	_prev_place = place_calls
+	_prev_place_full = place_full
+	_prev_place_full_usec = place_full_usec
 
 
 func _record_spike(ms: float) -> void:
@@ -305,13 +325,15 @@ func _record_spike(ms: float) -> void:
 	var d_hall := hall_redraws - _prev_hall
 	var d_slash := slash_redraws - _prev_slash
 	var d_place := place_calls - _prev_place
+	var d_place_full := place_full - _prev_place_full
+	var place_full_delta := place_full_usec - _prev_place_full_usec
 	var heavy := FX_BUDGET.heavy_count()
 	var marker := {
 		"frame_ms": ms,
 		"frame_i": _samples.size(),
 		"heavy": heavy,
 		"scenario": _scenario,
-		"tag": _spike_tag(d_wheel, d_stage, d_hall, d_slash, d_place, heavy),
+		"tag": _spike_tag(d_wheel, d_stage, d_hall, d_slash, d_place_full, place_full_delta, heavy),
 		"last_tag": last_tag,
 		"dirty": _cap_dirty,
 		"baked_sha": STAMP.GIT_SHA,
@@ -323,6 +345,8 @@ func _record_spike(ms: float) -> void:
 		"d_hall": d_hall,
 		"d_slash": d_slash,
 		"d_place": d_place,
+		"d_place_full": d_place_full,
+		"place_full_usec": place_full_delta,
 		"process_ms": Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
 		"draw_calls": Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
 	}
@@ -336,17 +360,23 @@ func _spike_tag(
 	d_stage: int,
 	d_hall: int,
 	d_slash: int,
-	d_place: int,
+	d_place_full: int,
+	place_full_delta: int,
 	heavy: int
 ) -> String:
-	# Prefer an explicit hot-path tag when present.
+	# Prefer an explicit hot-path tag when present (cleared each frame).
 	if last_tag != "":
 		return last_tag
+	# Early-out place_calls must not win the tag — only real full places.
 	var best := "unknown"
 	var best_n := 0
-	if d_place > best_n:
+	var place_score := d_place_full
+	if place_full_delta > 0:
+		# usec beats a bare count of 1 when comparing to redraw tallies.
+		place_score = maxi(place_score, 1 + place_full_delta / 1000)
+	if place_score > best_n:
 		best = "place_fight_art"
-		best_n = d_place
+		best_n = place_score
 	if d_slash > best_n:
 		best = "slash"
 		best_n = d_slash
@@ -488,8 +518,13 @@ func _report(dur: float) -> Dictionary:
 		"place_fight_art": {
 			"calls_per_sec": float(place_n) / dur,
 			"early_outs_per_sec": float(place_early - _base_early) / dur,
+			"full_per_sec": float(place_full - _base_full) / dur,
 			"usec_total": usec,
 			"usec_avg": (float(usec) / float(place_n)) if place_n > 0 else 0.0,
+			"full_usec_total": place_full_usec - _base_full_usec,
+			"full_usec_avg": (
+				float(place_full_usec - _base_full_usec) / float(place_full - _base_full)
+			) if (place_full - _base_full) > 0 else 0.0,
 		},
 	}
 

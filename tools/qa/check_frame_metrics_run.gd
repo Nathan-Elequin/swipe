@@ -17,10 +17,11 @@ func _init() -> void:
 	metrics.note_slash()
 	metrics.note_place(30, true)
 	metrics.note_place(70, false)
-	metrics.note_tag("qa_spike")
 	for _i in 20:
 		node._process(0.020)
 	node._process(0.040)
+	# last_tag clears each capture frame — assert on the spike frame only.
+	metrics.note_tag("qa_spike")
 	node._process(0.098)
 	node._stop()
 	var path := "user://perf/last_capture.json"
@@ -81,6 +82,14 @@ func _init() -> void:
 	var place: Dictionary = report.get("place_fight_art", {})
 	if float(place.get("usec_total", 0.0)) != 100.0:
 		push_error("place usec %s" % str(place))
+		quit(1)
+		return
+	if float(place.get("full_usec_total", 0.0)) != 70.0:
+		push_error("full place usec %s" % str(place))
+		quit(1)
+		return
+	if not first.has("place_full_usec"):
+		push_error("spike missing place_full_usec")
 		quit(1)
 		return
 	print("FRAME_METRICS_RUN_OK")
