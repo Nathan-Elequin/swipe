@@ -115,6 +115,8 @@ const HP_FILL := Color("c4282a")
 const DOWN_COL := Color("c45c5c")
 const UP_COL := Color("7dba7d")
 const SPIN_COL := Color("e8c36a")
+# Total spin_to tween length. Was 1.2 s; ~30% longer after #138 mid-spin feel.
+const SPIN_DURATION := 1.56
 
 var slices: Array = []
 var facing_index: int = -1
@@ -1105,7 +1107,7 @@ func spin_to(index: int) -> void:
 	_tick_seg = -1
 	_tick_last_rot = rot
 	_peak_omega = 0.0
-	_spin_tween.tween_property(self, "rot", rot + delta, 1.2)
+	_spin_tween.tween_property(self, "rot", rot + delta, SPIN_DURATION)
 	await _spin_tween.finished
 	rot = fposmod(rot, TAU)
 	spinning = false

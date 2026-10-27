@@ -12,6 +12,7 @@ Locks:
 - note_wheel counted in `_draw` (truthful)
 - mid-spin skips ability-card tree walk / hall flicker / seat breathe
 - do not put `_place_fight_art` back into `_process` (#136/#137)
+- spin_to total duration is SPIN_DURATION (1.56 s ≈ 1.2 × 1.3)
 
 No Godot needed.
 """
@@ -129,6 +130,17 @@ def main() -> int:
         failed += 1
     if "FX_BUDGET.set_spinning(false)" not in wheel:
         print("FAIL spin end / kill_spin must FX_BUDGET.set_spinning(false)")
+        failed += 1
+
+    if "const SPIN_DURATION := 1.56" not in wheel:
+        print("FAIL SPIN_DURATION must stay 1.56 (~30% slower than old 1.2 s)")
+        failed += 1
+    spin_to = _func_body(wheel, "spin_to")
+    if "SPIN_DURATION" not in spin_to:
+        print("FAIL spin_to must tween with SPIN_DURATION")
+        failed += 1
+    if re.search(r"tween_property\(self,\s*\"rot\".*,\s*1\.2\)", spin_to):
+        print("FAIL spin_to must not hardcode old 1.2 s duration")
         failed += 1
 
     if "is_spinning()" not in hall:
