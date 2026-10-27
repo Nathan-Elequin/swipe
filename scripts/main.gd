@@ -485,6 +485,8 @@ var _fight_art_frame: int = -1
 var _fight_art_flush_queued: bool = false
 ## Bumped when face plate content changes; full place skips reset_size when equal.
 var _face_plate_rev: int = 0
+## Last plate content key — avoid bumping rev / blanking gutter sig on no-op refresh.
+var _face_plate_content_sig: String = ""
 var _fight_art_plaque_rev: int = -1
 var _fight_art_plaque_h: float = 0.0
 ## Last applied combat_stage rect — skip `_place_sprite` when unchanged.
@@ -17836,12 +17838,15 @@ func _queue_fight_art_flush_next_frame() -> void:
 	tree.process_frame.connect(_flush_fight_art, CONNECT_ONE_SHOT)
 
 
-## Runs once after dirty is set. Mid-spin: keep dirty; land/`_refresh_face` forces.
+## Runs once after dirty is set. Mid-spin: keep dirty and retry next process
+## frame (not call_deferred — #137). Land/`_layout_play_field` may still force.
 func _flush_fight_art() -> void:
 	_fight_art_flush_queued = false
 	if not _fight_art_dirty:
 		return
 	if _spin_holds_fight_art():
+		# Dirty stays set; do not drop the retry or land waits on a sync force.
+		_queue_fight_art_flush_next_frame()
 		return
 	# Defense: a flush scheduled for this idle after a full place already ran
 	# this process frame must wait for the next process tick — never re-enter
@@ -17890,13 +17895,18 @@ func _place_fight_art(force: bool = false) -> void:
 		return
 	if player_stage != null and player_stage.visible:
 		player_stage.hide_stage()
+	# Enforce hub Sprout before the geometry sig — mutating hub_sprout_on after
+	# recording the sig made the next place (same land) pay a second full layout.
+	if (phase == "fighting" or phase == "slaying") and facing_index >= 0 and not wheel_view.hub_sprout_on:
+		_hub_set(false, 1.0, Color.WHITE, true)
 	var wr_now: Rect2 = wheel_view.get_global_rect()
 	var log_r := Rect2()
 	if log_label != null and log_label.visible:
 		log_r = log_label.get_global_rect()
 	# Omit combat_stage.busy: lunge/attack toggles it, but the busy branch skips
 	# size/pos work — keeping it in sig forced full gutter math every swing.
-	var sig := "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [
+	# Plate rev replaces blanking `_fight_art_sig` on every `_refresh_face`.
+	var sig := "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [
 		phase,
 		facing_index,
 		wr_now,
@@ -17908,6 +17918,7 @@ func _place_fight_art(force: bool = false) -> void:
 		log_r,
 		hp,
 		wheel_view.hub_sprout_on if wheel_view else true,
+		_face_plate_rev,
 	]
 	if sig == _fight_art_sig:
 		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
@@ -17923,11 +17934,11 @@ func _place_fight_art(force: bool = false) -> void:
 			player_stage.hide_stage()
 	elif player_stage:
 		player_stage.hide_stage()
-	var wr: Rect2 = wheel_view.get_global_rect()
+	var wr: Rect2 = wr_now
 	var stack_w := 280.0
 	var log_left: float = get_viewport_rect().size.x - 8.0
-	if log_label != null and log_label.visible:
-		log_left = minf(log_left, log_label.get_global_rect().position.x - 8.0)
+	if log_label != null and log_label.visible and log_r.size.x > 0.0:
+		log_left = minf(log_left, log_r.position.x - 8.0)
 	stack_w = minf(stack_w, maxf(140.0, log_left - (wr.end.x + 16.0)))
 	var sprite_h := 216.0
 	var port_sz := Vector2(stack_w, sprite_h)
@@ -17937,6 +17948,7 @@ func _place_fight_art(force: bool = false) -> void:
 	if face_box != null and face_box.visible:
 		# reset_size / min-size are Control thrash — only remeasure when the
 		# plate content revision changed (show_rule / hide in `_refresh_face`).
+		# `_refresh_face` warms this cache after show_rule so land skips a second measure.
 		if _fight_art_plaque_rev != _face_plate_rev or _fight_art_plaque_h <= 0.0:
 			face_box.reset_size()
 			_fight_art_plaque_h = face_box.get_combined_minimum_size().y
@@ -18003,8 +18015,6 @@ func _place_fight_art(force: bool = false) -> void:
 				face_box.global_position = Vector2(right_x, y + port_sz.y + 12.0)
 		if player_stage != null:
 			player_stage.hide_stage()
-	if (phase == "fighting" or phase == "slaying") and facing_index >= 0 and not wheel_view.hub_sprout_on:
-		_hub_set(false, 1.0, Color.WHITE, true)
 	if hypno_stage != null and hypno_stage.visible:
 		hypno_stage.size = port_sz
 		hypno_stage.global_position = Vector2(left_x + (stack_w - port_sz.x) * 0.5, port_y)
@@ -18512,7 +18522,9 @@ func _refresh_face() -> void:
 	if not show_plate:
 		if face_box.visible:
 			_face_plate_rev += 1
-			_fight_art_sig = ""
+			_face_plate_content_sig = ""
+			_fight_art_plaque_rev = -1
+			_fight_art_plaque_h = 0.0
 		face_box.hide_plate()
 		var keep_anim: bool = combat_stage != null and combat_stage.busy and not _choice_covering()
 		if combat_stage and not keep_anim and (phase != "slaying" and phase != "fighting" or facing_index < 0 or _choice_covering()):
@@ -18522,6 +18534,8 @@ func _refresh_face() -> void:
 		if phase != "slaying" and phase != "fighting":
 			_hide_hypno()
 		_refresh_hypno_box()
+		# Coalesce gutter place — do not sync-force (land was paying 2× full place).
+		_mark_fight_art_dirty()
 		return
 	if combat_stage and not combat_stage.visible and not combat_stage.busy:
 		_show_fight_portrait()
@@ -18531,11 +18545,25 @@ func _refresh_face() -> void:
 	face_look["stage_card"] = true
 	face_look["slice"] = m
 	face_look["stage_pad"] = _fight_sprite_pad()
-	face_box.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule.get("speech", "")), str(rule.get("warn", "")), null, "monster", str(m.get("card_id", "")), face_look)
-	_face_plate_rev += 1
-	_fight_art_sig = ""
+	var title_s: String = str(rule["title"])
+	var value_s: String = str(rule["value"])
+	var eq_s: String = str(rule["equation"])
+	var speech_s: String = str(rule.get("speech", ""))
+	var warn_s: String = str(rule.get("warn", ""))
+	var card_s: String = str(m.get("card_id", ""))
 	var atk_s: String = str(m.get("atk", 0))
 	var hp_s: String = str(m.get("hp", 0))
+	var content_sig := "%s|%s|%s|%s|%s|%s|%s|%s|%s" % [
+		card_s, title_s, value_s, eq_s, speech_s, warn_s, atk_s, hp_s, str(face_look.get("call_chip", "")),
+	]
+	var plate_changed: bool = content_sig != _face_plate_content_sig
+	face_box.show_rule(title_s, value_s, eq_s, speech_s, warn_s, null, "monster", card_s, face_look)
+	if plate_changed:
+		_face_plate_content_sig = content_sig
+		_face_plate_rev += 1
+		# show_rule already reset_size — warm plaque cache so full place skips remeasure.
+		_fight_art_plaque_h = maxf(face_box.get_combined_minimum_size().y, face_box.size.y)
+		_fight_art_plaque_rev = _face_plate_rev
 	if (atk_s != _face_atk_shown and _face_atk_shown != "") or (hp_s != _face_hp_shown and _face_hp_shown != ""):
 		face_box.pivot_offset = face_box.size * 0.5
 		var tw := create_tween()
@@ -18544,8 +18572,10 @@ func _refresh_face() -> void:
 	_face_atk_shown = atk_s
 	_face_hp_shown = hp_s
 	_refresh_hypno_box()
-	# Seat / plate reveal — always place (including the first frame after spin).
-	_place_fight_art(true)
+	# Seat / plate reveal after spin: dirty + deferred flush (idle, before draw).
+	# Sync `_place_fight_art(true)` here stacked with land's second `_refresh` and
+	# cleared the gutter sig, so Mac spin_x5 paid two ~77 ms full places (~154 ms).
+	_mark_fight_art_dirty()
 	# Keep hub Sprout visible during fights (no left face-off entrance).
 	if _sprout_mode != "hub" or (wheel_view != null and not wheel_view.hub_sprout_on):
 		_sprout_stay_hub()
