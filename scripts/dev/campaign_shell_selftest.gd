@@ -193,6 +193,47 @@ func _init() -> void:
 		{"id": "h", "tier": 3}, {"id": "i", "tier": 3},
 	])
 	failed = _check(failed, "mudroom hooks match mix", hooks.size() == 6) or failed
+	## Older campaign_save.json (no map_pieces / mudroom_loadout / …) must load.
+	var shell_old = Shell.new()
+	var old_disk := {
+		"banked": {"goblin": "b1", "boot": "b1"},
+		"drawer_seen": true,
+		"endless_unlocked": false,
+		"run": {"active": false},
+		"seen_deadly": ["dragon"],
+		"won": false,
+	}
+	shell_old._copy_state(old_disk)
+	Shell.normalize(shell_old.state)
+	failed = _check(failed, "old save keeps banked", (shell_old.state["banked"] as Dictionary).has("goblin")) or failed
+	failed = _check(failed, "old save keeps seen_deadly", (shell_old.state["seen_deadly"] as Array).has("dragon")) or failed
+	failed = _check(failed, "old save map_pieces default", (shell_old.state["map_pieces"] as Array).is_empty()) or failed
+	failed = _check(failed, "old save mudroom_loadout default", (shell_old.state["mudroom_loadout"] as Array).is_empty()) or failed
+	failed = _check(failed, "old save pencil_fresh default", (shell_old.state["pencil_fresh"] as Array).is_empty()) or failed
+	failed = _check(failed, "old save endless_best default", int(shell_old.state.get("endless_best", -1)) == 0) or failed
+	failed = _check(failed, "old save drawer_seen", bool(shell_old.state.get("drawer_seen", false))) or failed
+	## Present keys still copy through.
+	var shell_new = Shell.new()
+	var new_disk := {
+		"banked": {"net": "b1"},
+		"seen_deadly": ["hydra"],
+		"map_pieces": ["b2", "b3"],
+		"mudroom_loadout": ["smoke_bomb", "boot"],
+		"pencil_fresh": ["b2"],
+		"endless_unlocked": true,
+		"endless_best": 4,
+		"won": true,
+		"drawer_seen": true,
+		"run": {"active": false, "biome_index": 2},
+	}
+	shell_new._copy_state(new_disk)
+	Shell.normalize(shell_new.state)
+	failed = _check(failed, "new save copies map_pieces", (shell_new.state["map_pieces"] as Array) == ["b2", "b3"]) or failed
+	failed = _check(failed, "new save copies mudroom_loadout", (shell_new.state["mudroom_loadout"] as Array) == ["smoke_bomb", "boot"]) or failed
+	failed = _check(failed, "new save copies pencil_fresh", (shell_new.state["pencil_fresh"] as Array).has("b2")) or failed
+	failed = _check(failed, "new save copies endless_best", int(shell_new.state.get("endless_best", 0)) == 4) or failed
+	failed = _check(failed, "new save copies banked", (shell_new.state["banked"] as Dictionary).has("net")) or failed
+	failed = _check(failed, "new save copies run biome", int((shell_new.state["run"] as Dictionary).get("biome_index", -1)) == 2) or failed
 	if failed:
 		print("CAMPAIGN_SHELL_FAIL")
 		quit(1)

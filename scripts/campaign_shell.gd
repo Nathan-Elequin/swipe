@@ -591,22 +591,24 @@ static func compose(rules: Dictionary, rng: RandomNumberGenerator, monsters: Arr
 
 
 func _copy_state(disk: Dictionary) -> void:
+	## Older user://campaign_save.json files omit keys added later (map_pieces,
+	## mudroom_loadout, pencil_fresh, endless_best, …). Never hard-index a key
+	## after disk.get(key, default): the default makes typeof pass even when
+	## the key is absent, then disk[key] crashes.
 	state = fresh_state()
-	if typeof(disk.get("banked", {})) == TYPE_DICTIONARY:
+	if disk.has("banked") and typeof(disk["banked"]) == TYPE_DICTIONARY:
 		state["banked"] = (disk["banked"] as Dictionary).duplicate(true)
-	if typeof(disk.get("seen_deadly", [])) == TYPE_ARRAY:
+	if disk.has("seen_deadly") and typeof(disk["seen_deadly"]) == TYPE_ARRAY:
 		state["seen_deadly"] = (disk["seen_deadly"] as Array).duplicate()
-	if typeof(disk.get("map_pieces", [])) == TYPE_ARRAY:
-		state["map_pieces"] = (disk["map_pieces"] as Array).duplicate()
-	if typeof(disk.get("mudroom_loadout", [])) == TYPE_ARRAY:
+	state["map_pieces"] = _clean_id_list(disk.get("map_pieces", []))
+	state["pencil_fresh"] = _clean_id_list(disk.get("pencil_fresh", []))
+	if disk.has("mudroom_loadout") and typeof(disk["mudroom_loadout"]) == TYPE_ARRAY:
 		state["mudroom_loadout"] = (disk["mudroom_loadout"] as Array).duplicate()
 	state["endless_unlocked"] = bool(disk.get("endless_unlocked", false))
 	state["endless_best"] = maxi(0, int(disk.get("endless_best", 0)))
 	state["won"] = bool(disk.get("won", false))
 	state["drawer_seen"] = bool(disk.get("drawer_seen", false))
-	state["map_pieces"] = _clean_id_list(disk.get("map_pieces", []))
-	state["pencil_fresh"] = _clean_id_list(disk.get("pencil_fresh", []))
-	if typeof(disk.get("run", {})) == TYPE_DICTIONARY:
+	if disk.has("run") and typeof(disk["run"]) == TYPE_DICTIONARY:
 		state["run"] = (disk["run"] as Dictionary).duplicate(true)
 
 
