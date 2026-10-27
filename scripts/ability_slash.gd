@@ -27,8 +27,12 @@ var _aborted: bool = false
 var _tw: Tween
 var _life: float = 0.0:
 	set(v):
+		if is_equal_approx(_life, v):
+			return
 		_life = v
-		queue_redraw()
+		# Item gutter: mark dirty; paced `_process` redraws (avoid every-tween
+		# + every-process double churn during attack_x5 slash banners).
+		_slash_dirty = true
 var _clock: float = 0.0
 var _tex: Texture2D
 var _title: String = ""
@@ -44,6 +48,8 @@ var _frame_texs: Array = []
 var _frame_i: int = 0
 var _shake: Vector2 = Vector2.ZERO
 var _ff_holds: bool = false
+var _slash_dirty: bool = false
+var _slash_wait: float = 0.0
 
 var _dim: ColorRect
 var _band_host: Node2D
@@ -96,7 +102,7 @@ func park_gutter(sz: Vector2, pos: Vector2) -> void:
 
 func set_log_glow(on: bool) -> void:
 	log_glow = on
-	queue_redraw()
+	_slash_dirty = true
 
 
 func set_fast_holds(on: bool) -> void:
@@ -166,6 +172,8 @@ func _show(payload: Dictionary) -> void:
 		_tw.kill()
 	visible = true
 	_life = 0.0
+	_slash_dirty = true
+	_slash_wait = 0.0
 	_clock = 0.0
 	log_glow = false
 	_shake = Vector2.ZERO
@@ -184,6 +192,8 @@ func _show(payload: Dictionary) -> void:
 	_title = ""
 	_call = ""
 	_frame_texs.clear()
+	_slash_dirty = false
+	_slash_wait = 0.0
 	queue_redraw()
 
 
@@ -585,9 +595,26 @@ func _process(delta: float) -> void:
 	if not visible:
 		return
 	_clock += delta
-	if not _cutin_active:
+	# Cut-in uses Node2D/Tween children — no Control redraw path.
+	if _cutin_active:
+		return
+	# Item gutter: life tween (banner in/out) paints immediately; hold bob /
+	# rays / Can't-Flee flash share CombatFxBudget.decor_step (heavy→4fps)
+	# so attack_x5 does not queue_redraw every process tick.
+	var step: float = FX_BUDGET.decor_step()
+	if _slash_dirty:
+		_slash_dirty = false
+		_slash_wait = step
 		queue_redraw()
 		FRAME_METRICS.note_slash()
+		return
+	if step > 0.0:
+		_slash_wait -= delta
+		if _slash_wait > 0.0:
+			return
+		_slash_wait = step
+	queue_redraw()
+	FRAME_METRICS.note_slash()
 
 
 func _draw() -> void:

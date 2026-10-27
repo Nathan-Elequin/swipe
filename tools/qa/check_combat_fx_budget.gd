@@ -30,6 +30,11 @@ func _init() -> void:
 		push_error("heavy FX must cap decorative redraws")
 		quit(1)
 		return
+	# Attack/slash widen: heavy decorative ceiling is stricter than rest (4fps).
+	if budget.decorative_fps() > 4.0 + 0.01 or budget.decorative_fps() < 4.0 - 0.01:
+		push_error("heavy decorative_fps should be 4fps during attack/slash")
+		quit(1)
+		return
 	budget.begin_heavy()
 	if budget.heavy_count() != 2:
 		push_error("heavy tokens must stack")
@@ -62,10 +67,10 @@ func _init() -> void:
 	var hooks := {
 		"res://scripts/combat_stage.gd": ["hold_low_priority_idles", "_portrait_dirty", "_decor_is_immediate", "decor_step"],
 		"res://scripts/dungeon_bg.gd": ["hold_low_priority_idles", "FLICKER_STEP"],
-		"res://scripts/boss_wheel.gd": ["_queue_decor_redraw", "hold_low_priority_idles", "_set_hero_heavy", "begin_heavy"],
+		"res://scripts/boss_wheel.gd": ["_queue_decor_redraw", "hold_low_priority_idles", "_set_hero_heavy", "begin_heavy", "_wheel_wants_live_draw"],
 		"res://scripts/player_stage.gd": ["is_heavy_state", "begin_heavy"],
 		"res://scripts/item_card.gd": ["hold_low_priority_idles"],
-		"res://scripts/ability_slash.gd": ["begin_heavy", "end_heavy"],
+		"res://scripts/ability_slash.gd": ["begin_heavy", "end_heavy", "FRAME_METRICS.note_slash", "decor_step", "_slash_dirty"],
 		"res://scripts/main.gd": ["_fight_art_sig", "_spin_holds_fight_art"],
 	}
 	for path in hooks.keys():

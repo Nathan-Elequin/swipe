@@ -314,8 +314,9 @@ func _process(delta: float) -> void:
 		_decor_pending = true
 	if not _decor_pending:
 		return
-	# Idle bob / frame paints share the decorative FPS cap. Hit flash, blood,
-	# bursts, watch, and lunge stay immediate so attack reads don't hitch late.
+	# Idle bob / frame paints share the decorative FPS cap. Hit flash, watch,
+	# and lunge stay immediate so attack reads don't hitch late. Residual
+	# blood/bursts throttle under heavy (see `_decor_is_immediate`).
 	if _decor_is_immediate():
 		_decor_wait = 0.0
 	else:
@@ -336,11 +337,16 @@ func _process(delta: float) -> void:
 func _decor_is_immediate() -> bool:
 	if _mode != "idle":
 		return true
+	# Hit flash, watch tell, and lunge always paint now — attack read.
 	if _flash > 0.0 or _watch_t > 0.0:
 		return true
-	if not _blood.is_empty() or not _bursts.is_empty():
-		return true
 	if _lunge_x != 0.0:
+		return true
+	# Residual blood / burst splatters during heavy (slash banner overlap)
+	# share the decorative FPS cap instead of fighting the attack frame.
+	if FX_BUDGET.hold_low_priority_idles():
+		return false
+	if not _blood.is_empty() or not _bursts.is_empty():
 		return true
 	return false
 

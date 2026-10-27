@@ -13,7 +13,9 @@ HOOKS = {
         "func decorative_fps",
         "func decor_step",
         "return 12.0",
+        "return 4.0",
         "SP-30",
+        "attack_x5",
     ],
     "scripts/combat_stage.gd": [
         "combat_fx_budget.gd",
@@ -34,6 +36,7 @@ HOOKS = {
         "begin_heavy",
         "_set_hero_heavy",
         "FRAME_METRICS.note_wheel",
+        "hold_low_priority_idles",
     ],
     "scripts/player_stage.gd": [
         "combat_fx_budget.gd",
@@ -48,6 +51,9 @@ HOOKS = {
         "combat_fx_budget.gd",
         "begin_heavy",
         "end_heavy",
+        "FRAME_METRICS.note_slash",
+        "decor_step",
+        "_slash_dirty",
     ],
     "scripts/main.gd": [
         "_fight_art_sig",

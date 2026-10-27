@@ -1022,6 +1022,8 @@ func set_playable(on: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	# Attack/slash heavy: pause shimmer, breathe, and sparkle so the hotbar
+	# does not compete with the banner. Active sai/marble item FX still tick.
 	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy:
 		return
 	_shimmer_clock += delta
