@@ -477,6 +477,10 @@ var _sprout_mode: String = "hub"
 var _sprout_tw: Tween
 var _sprout_home_x: float = 80.0
 var _fight_art_sig: String = ""
+## Set while spin defers full gutter layout, or when a same-frame place is coalesced.
+var _fight_art_dirty: bool = false
+## Process-frame id of the last full `_place_fight_art` (stops resized cascades).
+var _fight_art_frame: int = -1
 var trophy
 var play_field: Control
 
@@ -17796,31 +17800,46 @@ func _spin_holds_fight_art() -> bool:
 
 ## Lay out fight portrait / callout / slash park beside the wheel.
 ## Pass force=true for structural layout (resize) or an explicit seat reveal.
-## During spin, _process skips full work — wheel motion stays uncapped elsewhere.
+## During spin, ALL full work is deferred (force included) — #132 only skipped
+## non-force, so `_layout_play_field` / resized still paid full gutter math and
+## cascaded (spin_x5 spike d_place up to 24). Seat reveal runs after land.
 func _place_fight_art(force: bool = false) -> void:
 	var _place_t0 := Time.get_ticks_usec()
 	if wheel_view == null:
 		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
 		return
-	# Spin path: avoid full gutter math every tick (spin_x5 place usec_avg ~1418).
-	# Seat reveal / post-spin _refresh_face runs after spinning ends.
-	if not force and _spin_holds_fight_art():
+	# Spin path: defer every full layout, including force from resized/layout.
+	if _spin_holds_fight_art():
+		_fight_art_dirty = true
+		_fight_art_sig = ""
 		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
 		return
+	# One full place per process frame — play_field.resized → layout → place loops.
+	var frame_i: int = Engine.get_process_frames()
+	if frame_i == _fight_art_frame:
+		if force or _fight_art_dirty:
+			_fight_art_dirty = true
+			_fight_art_sig = ""
+		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
+		return
+	if force or _fight_art_dirty:
+		_fight_art_sig = ""
+		_fight_art_dirty = false
 	if player_stage != null and player_stage.visible:
 		player_stage.hide_stage()
 	var wr_now: Rect2 = wheel_view.get_global_rect()
 	var log_r := Rect2()
 	if log_label != null and log_label.visible:
 		log_r = log_label.get_global_rect()
-	var sig := "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [
+	# Omit combat_stage.busy: lunge/attack toggles it, but the busy branch skips
+	# size/pos work — keeping it in sig forced full gutter math every swing.
+	var sig := "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [
 		phase,
 		facing_index,
 		wr_now,
 		get_viewport_rect().size,
 		_choice_covering(),
 		combat_stage != null and combat_stage.visible,
-		combat_stage != null and combat_stage.busy,
 		face_box != null and face_box.visible,
 		hypno_stage != null and hypno_stage.visible,
 		log_r,
@@ -17831,6 +17850,7 @@ func _place_fight_art(force: bool = false) -> void:
 		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
 		return
 	_fight_art_sig = sig
+	_fight_art_frame = frame_i
 	if _choice_covering():
 		if face_box:
 			face_box.hide_plate()
@@ -18391,7 +18411,7 @@ func _layout_play_field() -> void:
 	_sync_move_ui()
 	_place_log_overlay()
 	_recenter_hotbar()
-	# Structural layout (resize / field rebuild) must place even mid-spin.
+	# Structural layout. Mid-spin this only dirties — full place waits for land.
 	_place_fight_art(true)
 	if wheel_view and wheel_view.has_method("set_ability_avoids"):
 		wheel_view.set_ability_avoids(_ability_avoid_rects())
