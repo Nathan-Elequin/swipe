@@ -11010,6 +11010,8 @@ func _announce_item_use(it: Dictionary, to: Vector2 = Vector2.INF) -> void:
 			"is_item": true,
 			"card_id": iid,
 			"ticket": ticket_i,
+			# Release after gutter snap-in so ATK/BLK/etc. land during hold/fade.
+			"release_early": true,
 		})
 	_log_begin_item(it)
 

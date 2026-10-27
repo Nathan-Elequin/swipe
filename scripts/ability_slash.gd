@@ -15,6 +15,15 @@ const HOLD_MS := 120.0
 const FIRST_HOLD_BONUS_MS := 250.0
 const OUT_MS := 160.0
 const PORTRAIT_TRAIL_MS := 40.0
+## Item gutter banner (seconds). Shorter than the old 0.12/0.38/0.16 chain so
+## use→resolve does not sit on a padded hold before numbers change.
+const ITEM_IN_S := 0.09
+const ITEM_HOLD_S := 0.22
+const ITEM_OUT_S := 0.11
+const ITEM_FAST_IN_S := 0.05
+const ITEM_FAST_HOLD_S := 0.14
+const ITEM_FAST_OUT_S := 0.07
+const ITEM_CANT_FLEE_HOLD_S := 0.45
 ## Native canvases are 32/48/64/80. Show at 4x unless that exceeds 64px@4x (band fit).
 const PORTRAIT_SCALE := 4.0
 const PORTRAIT_MAX_DISPLAY := 256.0
@@ -125,11 +134,12 @@ func play(payload: Dictionary) -> void:
 	_aborted = false
 	var ticket := {"payload": payload, "done": false}
 	_q.append(ticket)
+	# Always wait on this ticket. Item banners may mark done after snap-in
+	# (release_early) so resolve can overlap hold/fade; cut-ins still full-wait.
 	if not _draining:
-		await _drain()
-	else:
-		while is_instance_valid(self) and not bool(ticket.get("done", false)) and not _aborted:
-			await get_tree().process_frame
+		_drain()
+	while is_instance_valid(self) and not bool(ticket.get("done", false)) and not _aborted:
+		await get_tree().process_frame
 
 
 func _drain() -> void:
@@ -137,7 +147,7 @@ func _drain() -> void:
 	FX_BUDGET.begin_heavy()
 	while not _q.is_empty() and not _aborted:
 		var t: Dictionary = _q.pop_front()
-		await _show(t.get("payload", {}))
+		await _show(t.get("payload", {}), t)
 		t["done"] = true
 	FX_BUDGET.end_heavy()
 	_draining = false
@@ -152,7 +162,7 @@ func _dur(ms: float, fast: bool) -> float:
 	return sec
 
 
-func _show(payload: Dictionary) -> void:
+func _show(payload: Dictionary, ticket: Dictionary = {}) -> void:
 	if OS.has_feature("editor"):
 		print("[resolve] slash.show ", payload.get("card_id", ""), " tex=", payload.get("tex", null) != null)
 	_tex = payload.get("tex", null)
@@ -179,8 +189,9 @@ func _show(payload: Dictionary) -> void:
 	_shake = Vector2.ZERO
 	# time_scale already speeds the cascade; do not also divide holds by 3 while FF.
 	var fast: bool = bool(payload.get("fast", false)) and not _ff_holds
+	var release_early: bool = bool(payload.get("release_early", false))
 	if _is_item:
-		await _show_item(fast)
+		await _show_item(fast, release_early, ticket)
 	else:
 		await _show_cutin(fast)
 	visible = false
@@ -204,18 +215,29 @@ func _ticker_stamp(ticket_i: int) -> void:
 		cascade_ticker.stamp(ticket_i)
 
 
-func _show_item(fast: bool) -> void:
+func _show_item(fast: bool, release_early: bool = false, ticket: Dictionary = {}) -> void:
 	_cutin_active = false
 	_set_cutin_visible(false)
 	size = _gutter_size if _gutter_size.x >= 32.0 else Vector2(252, 200)
 	global_position = _gutter_pos
 	if size.x < 32.0 or size.y < 32.0:
 		size = Vector2(252, 200)
+	var snap: float = ITEM_FAST_IN_S if fast else ITEM_IN_S
+	var hold: float = ITEM_CANT_FLEE_HOLD_S if _call == "Can't Flee" else (ITEM_FAST_HOLD_S if fast else ITEM_HOLD_S)
+	var fade: float = ITEM_FAST_OUT_S if fast else ITEM_OUT_S
+	# Snap in first so callers with release_early can apply the item effect
+	# while the banner still holds/fades (use→resolve wall-clock).
 	_tw = create_tween()
-	_tw.tween_property(self, "_life", 1.0, 0.06 if fast else 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	var hold: float = 0.55 if _call == "Can't Flee" else (0.19 if fast else 0.38)
+	_tw.tween_property(self, "_life", 1.0, snap).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	while _tw != null and _tw.is_valid() and _tw.is_running() and not _aborted:
+		await get_tree().process_frame
+	if _aborted:
+		return
+	if release_early and not ticket.is_empty():
+		ticket["done"] = true
+	_tw = create_tween()
 	_tw.tween_interval(hold)
-	_tw.tween_property(self, "_life", 0.0, 0.08 if fast else 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_tw.tween_property(self, "_life", 0.0, fade).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	while _tw != null and _tw.is_valid() and _tw.is_running() and not _aborted:
 		await get_tree().process_frame
 
