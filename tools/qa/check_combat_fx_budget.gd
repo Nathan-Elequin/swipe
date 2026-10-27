@@ -70,7 +70,7 @@ func _init() -> void:
 		"res://scripts/boss_wheel.gd": ["_queue_decor_redraw", "hold_low_priority_idles", "_set_hero_heavy", "begin_heavy", "_wheel_wants_live_draw", "set_spinning", "_wedge_starts(0.0)"],
 		"res://scripts/player_stage.gd": ["is_heavy_state", "begin_heavy"],
 		"res://scripts/item_card.gd": ["hold_low_priority_idles"],
-		"res://scripts/ability_slash.gd": ["begin_heavy", "end_heavy", "FRAME_METRICS.note_slash", "decor_step", "_slash_dirty"],
+		"res://scripts/ability_slash.gd": ["begin_heavy", "end_heavy", "FRAME_METRICS.note_slash", "decor_step", "_slash_dirty", "release_early"],
 		"res://scripts/main.gd": ["_fight_art_sig", "_fight_art_dirty", "_fight_art_frame", "_spin_holds_fight_art"],
 	}
 	for path in hooks.keys():
