@@ -4588,6 +4588,8 @@ func _flush_midfight_holes() -> void:
 		_walker_busy = false
 		return
 	_flushing_holes = false
+	_walker_busy = false
+	_sync_buttons()
 	_refresh()
 	if spin_after and phase == "ready" and facing_index < 0:
 		await _maybe_auto_spin()
@@ -20572,6 +20574,8 @@ func _sync_card_pass5(card: Control, it: Dictionary, _can_click: bool, in_fight:
 			card.set_icon(_item_icon_tex(it))
 	if cid == "marble" and card.has_method("start_marble_idle") and not marble_busy:
 		card.start_marble_idle(bool(it.get("cats_eye", false)))
+	elif cid != "marble" and card.has_method("stop_marble_idle"):
+		card.stop_marble_idle()
 	if card.has_method("set_armed"):
 		var sling_on: bool = cid == "sling" and _sling_is_loaded(it)
 		var armed: bool = sling_on

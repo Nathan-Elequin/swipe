@@ -1368,6 +1368,15 @@ func play_sai(old_n: int, new_n: int) -> void:
 	bounce()
 
 
+func stop_marble_idle() -> void:
+	if _marble_fx == null or not _marble_fx.visible:
+		return
+	_marble_fx.visible = false
+	_marble_fx.stop()
+	if _icon:
+		_icon.modulate.a = 1.0
+
+
 func start_marble_idle(cats_eye: bool = false) -> void:
 	if _marble_busy:
 		return
@@ -1431,28 +1440,32 @@ func marble_grow(_n: int) -> void:
 func marble_roll_in(from_global: Vector2, delay: float) -> void:
 	if from_global == Vector2.ZERO:
 		return
-	var dest: Vector2 = global_position
-	var host: Node = get_parent()
-	var idx: int = get_index()
-	reparent(get_tree().root, true)
-	global_position = from_global - size * 0.5
-	rotation = 0.85
-	modulate.a = 0.25
+	# Fly a ghost. Pulling this card out of the grid and dropping it back
+	# landed marble art on top of the items that were already in hand.
+	var dest: Vector2 = global_position + size * 0.5
+	var ghost := AnimatedSprite2D.new()
+	ghost.name = "MarbleRoll"
+	ghost.centered = true
+	ghost.texture_filter = TEXTURE_FILTER_NEAREST
+	ghost.scale = Vector2(2, 2)
+	ghost.z_index = 40
+	ghost.sprite_frames = _marble_frames()
+	if ghost.sprite_frames.has_animation("idle"):
+		ghost.play("idle")
+	var root := get_tree().root
+	root.add_child(ghost)
+	ghost.global_position = from_global
+	ghost.rotation = 0.85
+	ghost.modulate.a = 0.25
 	var tw := create_tween()
 	if delay > 0.0:
 		tw.tween_interval(delay)
-	tw.tween_property(self, "global_position", dest, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.parallel().tween_property(self, "rotation", 0.0, 0.22)
-	tw.parallel().tween_property(self, "modulate:a", 1.0, 0.18)
+	tw.tween_property(ghost, "global_position", dest, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(ghost, "rotation", 0.0, 0.22)
+	tw.parallel().tween_property(ghost, "modulate:a", 1.0, 0.18)
 	await tw.finished
-	if not is_instance_valid(self):
-		return
-	if host != null and is_instance_valid(host):
-		reparent(host, true)
-		if idx >= 0 and idx < host.get_child_count():
-			host.move_child(self, idx)
-	rotation = 0.0
-	modulate.a = 1.0
+	if is_instance_valid(ghost):
+		ghost.queue_free()
 
 
 func set_armed(on: bool, label_key: String = "") -> void:
