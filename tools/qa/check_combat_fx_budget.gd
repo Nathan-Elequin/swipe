@@ -70,8 +70,8 @@ func _init() -> void:
 		"res://scripts/boss_wheel.gd": ["_queue_decor_redraw", "hold_low_priority_idles", "_set_hero_heavy", "begin_heavy", "_wheel_wants_live_draw", "set_spinning", "_wedge_starts(0.0)"],
 		"res://scripts/player_stage.gd": ["is_heavy_state", "begin_heavy"],
 		"res://scripts/item_card.gd": ["hold_low_priority_idles"],
-		"res://scripts/ability_slash.gd": ["begin_heavy", "end_heavy", "FRAME_METRICS.note_slash", "decor_step", "_slash_dirty", "release_early"],
-		"res://scripts/main.gd": ["_fight_art_sig", "_fight_art_dirty", "_fight_art_frame", "_spin_holds_fight_art"],
+		"res://scripts/ability_slash.gd": ["begin_heavy", "end_heavy", "FRAME_METRICS.note_slash", "decor_step", "_slash_dirty", "release_early", "func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {})"],
+		"res://scripts/main.gd": ["_fight_art_sig", "_fight_art_dirty", "_fight_art_frame", "_spin_holds_fight_art", '"release_early": true'],
 	}
 	for path in hooks.keys():
 		var src: String = FileAccess.get_file_as_string(path)

@@ -10980,6 +10980,10 @@ func _announce_slice(index: int, to: Vector2 = Vector2.INF, fast: bool = false) 
 			"card_id": mid,
 			"fast": fast,
 			"ticket": ticket_i,
+			# Release after portrait punch/frames so HP/ATK tells land during
+			# hold/slash-out (passive → resolve wall-clock). Deck seat cut-ins
+			# call play() directly and still full-wait.
+			"release_early": true,
 		})
 	_log_begin_monster(index)
 
