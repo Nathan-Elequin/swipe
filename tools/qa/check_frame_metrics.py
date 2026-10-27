@@ -15,8 +15,12 @@ HOOKS = {
         "note_hall",
         "note_slash",
         "note_place",
+        "note_tag",
         "over_16_7",
         "over_33_3",
+        "over_50",
+        "spike_markers",
+        "SPIKE_MS",
         "heavy_count",
         "TIME_PROCESS",
         "RENDER_TOTAL_DRAW_CALLS_IN_FRAME",
@@ -32,7 +36,9 @@ HOOKS = {
     "scripts/frame_metrics_stamp.gd": [
         "class_name FrameMetricsStamp",
         "const GIT_SHA",
+        "const CACHE_USEC",
         "func sha_hex",
+        "func invalidate",
     ],
     "scripts/main.gd": [
         "frame_metrics.gd",
