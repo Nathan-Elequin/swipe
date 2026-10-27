@@ -498,6 +498,9 @@ func _hero_tick(delta: float) -> void:
 		_blk_punch_t = maxf(0.0, _blk_punch_t - delta)
 	if _hero_frozen or _hero_hold:
 		return
+	# Mid-spin: freeze hub idle/lowhp loops — rot redraw already paints.
+	if spinning and _hero_is_loop(hero_anim):
+		return
 	if FX_BUDGET.hold_low_priority_idles() and _hero_is_loop(hero_anim):
 		return
 	if _hero_is_loop(hero_anim) and (hero_anim == "idle" or hero_anim == "lowhp"):
@@ -1075,15 +1078,19 @@ func spin_to(index: int) -> void:
 	if slay_index >= 0:
 		clear_slay()
 	spinning = true
+	FX_BUDGET.set_spinning(true)
 	facing_index = -1
 	hover_index = -1
 	preview.clear()
+	for card in _ability_cards:
+		card.visible = false
 	queue_redraw()
 	var target: float = rotation_for_index(index)
 	var instant: bool = OS.has_feature("editor") and bool(get_meta("qa_instant", false))
 	if instant:
 		rot = fposmod(target, TAU)
 		spinning = false
+		FX_BUDGET.set_spinning(false)
 		facing_index = index
 		queue_redraw()
 		return
@@ -1102,6 +1109,7 @@ func spin_to(index: int) -> void:
 	await _spin_tween.finished
 	rot = fposmod(rot, TAU)
 	spinning = false
+	FX_BUDGET.set_spinning(false)
 	facing_index = index
 	_play_threat()
 	queue_redraw()
@@ -1119,6 +1127,7 @@ func kill_spin() -> void:
 		_spin_tween.kill()
 		_spin_tween = null
 	spinning = false
+	FX_BUDGET.set_spinning(false)
 	_kill_recenter()
 
 
@@ -1224,13 +1233,13 @@ func _process(delta: float) -> void:
 			atk_punch_keep[ak] = av
 	_atk_punch = atk_punch_keep
 	_hero_tick(delta)
-	_sync_chrome_hover()
-	_sync_ability_cards()
-	if spinning:
-		queue_redraw()
-		FRAME_METRICS.note_wheel()
-	elif _wheel_wants_live_draw():
-		_queue_decor_redraw(delta)
+	if not spinning:
+		_sync_chrome_hover()
+		_sync_ability_cards()
+		# Mid-spin: `rot` setter already queue_redraws each tween tick.
+		# note_wheel lives in `_draw` (truthful, same as hall).
+		if _wheel_wants_live_draw():
+			_queue_decor_redraw(delta)
 
 
 func _wheel_wants_live_draw() -> bool:
@@ -1267,18 +1276,17 @@ func _wheel_wants_live_draw() -> bool:
 
 func _queue_decor_redraw(delta: float) -> void:
 	# Uses CombatFxBudget.decor_step(): heavy→4fps, else→12fps (web + desktop
-	# fight-idle). Spinning bypasses this via direct queue_redraw above.
+	# fight-idle). Spin redraws come from the `rot` setter, not this path.
+	# note_wheel is counted in `_draw`.
 	var step: float = FX_BUDGET.decor_step()
 	if step <= 0.0:
 		queue_redraw()
-		FRAME_METRICS.note_wheel()
 		return
 	_decor_wait -= delta
 	if _decor_wait > 0.0:
 		return
 	_decor_wait = step
 	queue_redraw()
-	FRAME_METRICS.note_wheel()
 
 
 func slice_at(local: Vector2) -> int:
@@ -1382,19 +1390,26 @@ func _bezel_pos(i: int) -> Vector2:
 
 
 func _spoke(i: int) -> Dictionary:
+	# Fit + seat chrome live in base (rot=0) space; spin the whole spoke by
+	# live wheel angle + move-hint. Keeps pass6 fit cached across a Spin.
 	var built: Dictionary = _spoke_rest(i)
-	return _spin_spoke(built, _move_hint_angle())
+	return _spin_spoke(built, rot + _move_hint_angle())
 
 
 func _spoke_rest(i: int) -> Dictionary:
 	var c: Vector2 = _center()
-	var starts: PackedFloat32Array = _wedge_starts(rot)
+	# Base-space geometry (rot=0). `_spoke` applies live rot + hint.
+	var starts: PackedFloat32Array = _wedge_starts(0.0)
 	var dir: Vector2 = Vector2.DOWN
 	if i >= 0 and i < starts.size():
 		dir = Vector2.from_angle(starts[i] + _span(i) * 0.5)
 	var tan: Vector2 = Vector2(-dir.y, dir.x)
 	var lift: float = _lift_of(i)
-	var origin: Vector2 = c + dir * (lift * 8.0) + _slay_push(i)
+	# Slay push must use base dir here — `_dir_of` is live (rot+hint).
+	var push: Vector2 = Vector2.ZERO
+	if i == slay_index and collapse > 0.0:
+		push = dir * collapse * _radius() * 0.42
+	var origin: Vector2 = c + dir * (lift * 8.0) + push
 	var r: float = _radius() + lift * 12.0
 	var sz: Vector2 = _seat_sprite_size(i)
 	var w: float = sz.x
@@ -1402,7 +1417,7 @@ func _spoke_rest(i: int) -> Dictionary:
 	var feet: Vector2 = origin
 	var table: Array = _fit_table(slices.size())
 	if i >= 0 and i < table.size():
-		feet = table[i] + dir * (lift * 8.0) + _slay_push(i)
+		feet = table[i] + dir * (lift * 8.0) + push
 	else:
 		feet = origin + dir * (r * 0.60)
 	if _breathe_bob(i):
@@ -1752,10 +1767,13 @@ func _wheel_idle_held(i: int) -> bool:
 		return true
 	if bool(s.get("petrified", false)) or int(s.get("petrify_n", 0)) > 0:
 		return true
-	# Same seats _draw_slice_contents draws dimmed while a fight is facing someone else.
-	if facing_index >= 0 and not spinning and i != facing_index and i != hover_index:
+	# Mid-spin: freeze seat breathe frames — spin paints rotation, not idles.
+	if spinning:
 		return true
-	if FX_BUDGET.hold_low_priority_idles() and not spinning:
+	# Same seats _draw_slice_contents draws dimmed while a fight is facing someone else.
+	if facing_index >= 0 and i != facing_index and i != hover_index:
+		return true
+	if FX_BUDGET.hold_low_priority_idles():
 		return true
 	return false
 
@@ -1854,9 +1872,11 @@ func _tag_width_px(i: int) -> float:
 
 
 func _fit_sig_of(n: int) -> String:
+	# Do NOT key on `rot`. Pass6 fit is base-space; `_spoke` spins it.
+	# Mac spin_x5 @ c208e866: rot in the sig rebuilt `_search_feet` every
+	# ~0.02 rad (~80–100 ms frames, process_ms ≈ 433 on wheel spikes).
 	var bits: PackedStringArray = PackedStringArray()
 	bits.append(str(n))
-	bits.append(str(snappedf(rot, 0.02)))
 	bits.append(str(int(_radius())))
 	for i in n:
 		var sz: Vector2 = _seat_sprite_size(i)
@@ -1876,9 +1896,9 @@ func _fit_table(n: int) -> Array:
 	var c: Vector2 = _center()
 	var R: float = _radius()
 	var hub_r: float = R * HUB_FRAC
-	# Fit on the settled wheel, then spin that layout by the live hover angle.
-	# Re-fitting every frame picked a new screen nudge and made the sprites hitch.
-	var starts: PackedFloat32Array = _wedge_starts(rot)
+	# Fit once in base space (rot=0). Live Spin / move-hint rotate via `_spoke`.
+	# Re-fitting every rot tick was the Mac spin hitch (search_feet × N seats).
+	var starts: PackedFloat32Array = _wedge_starts(0.0)
 	var feet_out: Array = []
 	_fit_clearance.clear()
 	_tag_fs.clear()
@@ -2054,7 +2074,8 @@ func _sync_ability_cards() -> void:
 	_ensure_ability_cards()
 	for card in _ability_cards:
 		card.visible = false
-	if _item_held() or not show_shift:
+	# `_item_held` walks the scene tree — skip entirely mid-spin.
+	if spinning or busy or _item_held() or not show_shift:
 		return
 	var hub_g: Vector2 = get_global_transform() * _center()
 	var used := 0
@@ -2099,6 +2120,8 @@ func _slay_push(i: int) -> Vector2:
 
 
 func _draw() -> void:
+	# Count real draws — queue_redraw in _process inflated wheel spike tags.
+	FRAME_METRICS.note_wheel()
 	var c: Vector2 = _center()
 	var radius: float = _radius()
 	if slices.is_empty():
@@ -2125,12 +2148,15 @@ func _draw() -> void:
 		font = ThemeDB.fallback_font
 	for i in n:
 		_draw_slice_contents(font, c, radius, starts[i], _span(i), i)
-	_draw_bonds(c, radius)
-	_draw_move_hint(c, radius)
-	_draw_across_aim()
+	# Mid-spin: skip bond/hint/threat chrome — rotation is the read.
+	if not spinning:
+		_draw_bonds(c, radius)
+		_draw_move_hint(c, radius)
+		_draw_across_aim()
 	_draw_hub_block(c, radius)
-	_draw_threat(c, radius)
-	_draw_floaters(font)
+	if not spinning:
+		_draw_threat(c, radius)
+		_draw_floaters(font)
 	if slay_index >= 0 and slay_t > 0.0:
 		_draw_slay(font, c, radius)
 

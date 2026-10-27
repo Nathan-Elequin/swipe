@@ -43,6 +43,10 @@ func _process(delta: float) -> void:
 	# Attack/slash heavy: freeze hall torch flicker (already gated; keep it).
 	if FX_BUDGET.hold_low_priority_idles():
 		return
+	# Mid-spin: freeze hall flicker so tiled hall redraw does not couple with
+	# wheel spin frames (Mac spin_x5 spikes often showed d_hall+d_wheel).
+	if FX_BUDGET.is_spinning():
+		return
 	_flick_wait -= delta
 	if _flick_wait > 0.0:
 		return

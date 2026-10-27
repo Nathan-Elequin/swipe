@@ -58,6 +58,7 @@ HOOKS = {
         "frame_metrics.gd",
         "FRAME_METRICS.note_wheel",
         "_queue_decor_redraw",
+        "func _draw",
     ],
     "scripts/combat_stage.gd": [
         "frame_metrics.gd",

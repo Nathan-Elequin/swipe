@@ -66,8 +66,8 @@ func _init() -> void:
 		return
 	var hooks := {
 		"res://scripts/combat_stage.gd": ["hold_low_priority_idles", "_portrait_dirty", "_decor_is_immediate", "decor_step"],
-		"res://scripts/dungeon_bg.gd": ["hold_low_priority_idles", "FLICKER_STEP"],
-		"res://scripts/boss_wheel.gd": ["_queue_decor_redraw", "hold_low_priority_idles", "_set_hero_heavy", "begin_heavy", "_wheel_wants_live_draw"],
+		"res://scripts/dungeon_bg.gd": ["hold_low_priority_idles", "FLICKER_STEP", "is_spinning"],
+		"res://scripts/boss_wheel.gd": ["_queue_decor_redraw", "hold_low_priority_idles", "_set_hero_heavy", "begin_heavy", "_wheel_wants_live_draw", "set_spinning", "_wedge_starts(0.0)"],
 		"res://scripts/player_stage.gd": ["is_heavy_state", "begin_heavy"],
 		"res://scripts/item_card.gd": ["hold_low_priority_idles"],
 		"res://scripts/ability_slash.gd": ["begin_heavy", "end_heavy", "FRAME_METRICS.note_slash", "decor_step", "_slash_dirty"],

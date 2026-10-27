@@ -15,6 +15,9 @@ class_name CombatFxBudget
 ## Not an AnimationPlayer / Tween bug. SP-03 (Undo freeze) is separate.
 
 static var _heavy: int = 0
+## Wheel mid-spin. Hall torch flicker and other low-priority decor back off
+## so they do not compete with spin redraws (Mac spin_x5 hall+wheel coupling).
+static var _spinning: bool = false
 
 
 static func is_web() -> bool:
@@ -29,8 +32,17 @@ static func end_heavy() -> void:
 	_heavy = maxi(0, _heavy - 1)
 
 
+static func set_spinning(v: bool) -> void:
+	_spinning = v
+
+
+static func is_spinning() -> bool:
+	return _spinning
+
+
 static func reset() -> void:
 	_heavy = 0
+	_spinning = false
 
 
 static func heavy_count() -> int:
@@ -66,8 +78,8 @@ static func decorative_fps() -> float:
 		# wheel/stage decor competing. 4fps is enough for seat freeze /
 		# shimmer hold to read as paused, not as hitch.
 		return 4.0
-	# Web rest + desktop fight-idle rest. Spin / one-shot paths bypass this
-	# via direct queue_redraw in boss_wheel when `spinning`.
+	# Web rest + desktop fight-idle rest. Spin redraws come from boss_wheel's
+	# `rot` setter (fit cached in base space); not from this decorative path.
 	return 12.0
 
 

@@ -12,6 +12,8 @@ HOOKS = {
         "func is_heavy_state",
         "func decorative_fps",
         "func decor_step",
+        "func set_spinning",
+        "func is_spinning",
         "return 12.0",
         "return 4.0",
         "SP-30",
@@ -28,6 +30,7 @@ HOOKS = {
         "combat_fx_budget.gd",
         "FLICKER_STEP",
         "hold_low_priority_idles",
+        "is_spinning",
     ],
     "scripts/boss_wheel.gd": [
         "combat_fx_budget.gd",
@@ -37,6 +40,9 @@ HOOKS = {
         "_set_hero_heavy",
         "FRAME_METRICS.note_wheel",
         "hold_low_priority_idles",
+        "set_spinning",
+        "_wedge_starts(0.0)",
+        "rot + _move_hint_angle()",
     ],
     "scripts/player_stage.gd": [
         "combat_fx_budget.gd",
