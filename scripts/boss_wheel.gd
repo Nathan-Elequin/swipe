@@ -1234,24 +1234,30 @@ func _process(delta: float) -> void:
 
 
 func _wheel_wants_live_draw() -> bool:
-	if facing_index < 0 and (selected_index >= 0 or not threat_indices.is_empty()):
-		return true
-	if hover_index >= 0:
-		return true
-	if hurt_preview or draft_glow or hub_poison > 0:
-		return true
+	# Hit / punch / burn / floater reads always paint — attack must stay readable.
 	if not _floaters.is_empty() or not _pt_ghosts.is_empty():
 		return true
 	if not _flash.is_empty() or not _hp_punch.is_empty() or not _atk_punch.is_empty() or not _burn.is_empty():
 		return true
 	if not _bond_anim.is_empty():
 		return true
-	if absf(_hint_ang) > 0.0004:
-		return true
-	# Non-loop hub combat anims (swipe / grab / hit) need paced redraws when the
-	# rest of the wheel is quiet — `_on_hero_frame` already queues, but decor
-	# capping still applies between advances when heavy FX is up.
+	# Non-loop hub combat anims (swipe / grab / hit / attack) need paced
+	# redraws — `_on_hero_frame` already queues, but decor capping still
+	# applies between advances when heavy FX is up.
 	if hub_sprout_on and not _hero_is_loop(hero_anim) and not _hero_hold and not _hero_frozen:
+		return true
+	# During attack/slash heavy, pause decorative-only live draws (hover,
+	# selected/threat pulse, draft glow, hall-adjacent poison bob, rage
+	# seat fire, hint arc). Seat idles already freeze via `_wheel_idle_held`.
+	if FX_BUDGET.hold_low_priority_idles():
+		return false
+	if facing_index < 0 and (selected_index >= 0 or not threat_indices.is_empty()):
+		return true
+	if hover_index >= 0:
+		return true
+	if hurt_preview or draft_glow or hub_poison > 0:
+		return true
+	if absf(_hint_ang) > 0.0004:
 		return true
 	for s in slices:
 		if bool(s.get("rage_fire", false)):
@@ -1260,7 +1266,7 @@ func _wheel_wants_live_draw() -> bool:
 
 
 func _queue_decor_redraw(delta: float) -> void:
-	# Uses CombatFxBudget.decor_step(): heavy→8fps, else→12fps (web + desktop
+	# Uses CombatFxBudget.decor_step(): heavy→4fps, else→12fps (web + desktop
 	# fight-idle). Spinning bypasses this via direct queue_redraw above.
 	var step: float = FX_BUDGET.decor_step()
 	if step <= 0.0:

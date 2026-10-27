@@ -40,6 +40,7 @@ func reset_hall() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
+	# Attack/slash heavy: freeze hall torch flicker (already gated; keep it).
 	if FX_BUDGET.hold_low_priority_idles():
 		return
 	_flick_wait -= delta

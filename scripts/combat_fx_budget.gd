@@ -7,9 +7,12 @@ class_name CombatFxBudget
 ## lunge, hit, hub swipe/grab) pauses low-priority idles; decorative
 ## redraws are capped on web and on desktop fight-idle (Mac fight_idle
 ## was ~31 FPS / ~937 draws / wheel every frame when desktop rest was
-## uncapped). Hub `play_hero` owns combat Sprout FX after the left
-## face-off strip; player_stage stays dark. Not an AnimationPlayer /
-## Tween bug. SP-03 (Undo freeze) is separate.
+## uncapped). Attack path (Mac attack_x5 @ 77610e7c: heavy ~80%, p95
+## ~87 ms) widens that pause set and uses a stricter decorative ceiling
+## so hall / hotbar shimmer / seat idles / residual stage bob do not
+## compete with the slash banner + hit read. Hub `play_hero` owns combat
+## Sprout FX after the left face-off strip; player_stage stays dark.
+## Not an AnimationPlayer / Tween bug. SP-03 (Undo freeze) is separate.
 
 static var _heavy: int = 0
 
@@ -47,15 +50,22 @@ static func is_heavy_state(state: String) -> bool:
 
 
 ## Pause off-facing / low-priority loops while a heavy combat FX is playing.
+## Attack + slash banner widen this: hall flicker, hotbar shimmer, seat
+## idles, non-essential stage bob / residual splatters, and decorative-only
+## wheel live-draws all consult this (or `decorative_fps`) and back off.
 static func hold_low_priority_idles() -> bool:
 	return _heavy > 0
 
 
-## Decorative redraws per second. Heavy FX is stricter; otherwise the
-## same rest ceiling as web (desktop fight-idle used to return 0 = uncapped).
+## Decorative redraws per second. Heavy FX (attack/slash) is stricter so
+## the banner + hit stay readable; rest uses the same 12fps ceiling as web
+## (desktop fight-idle used to return 0 = uncapped).
 static func decorative_fps() -> float:
 	if _heavy > 0:
-		return 8.0
+		# Was 8; attack_x5 still spent ~80% of frames heavy with residual
+		# wheel/stage decor competing. 4fps is enough for seat freeze /
+		# shimmer hold to read as paused, not as hitch.
+		return 4.0
 	# Web rest + desktop fight-idle rest. Spin / one-shot paths bypass this
 	# via direct queue_redraw in boss_wheel when `spinning`.
 	return 12.0
