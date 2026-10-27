@@ -7064,6 +7064,8 @@ func _on_spin() -> void:
 		_undo_wall()
 		_unspin_armed = false
 	phase = "spinning"
+	# Drop cached gutter layout — next place after land must run full work.
+	_fight_art_sig = ""
 	_sprout_begin_exit()
 	pending_choice.clear()
 	_refresh()
@@ -14549,7 +14551,7 @@ func _show_hypno(index: int) -> void:
 	if hypno_stage:
 		hypno_stage.show_monster(str(wheel[index].get("card_id", "")), int(wheel[index].get("tier", 1)))
 	_refresh_hypno_box()
-	_place_fight_art()
+	_place_fight_art(true)
 
 
 func _heal_monster(index: int, n: int) -> void:
@@ -17776,15 +17778,33 @@ func qa_staging_spin_return() -> String:
 	qa_staging_fight(["dire_wolf", "goblin", "ogre", "bandit"], "dire_wolf", ["spiked_flail", "bag_of_marbles"], false)
 	_sprout_stay_hub()
 	phase = "spinning"
+	_fight_art_sig = ""
 	if wheel_view != null:
 		wheel_view.queue_redraw()
 	_refresh()
 	return "spin_return"
 
 
-func _place_fight_art() -> void:
+## Wheel is mid-spin. Portrait/gutter layout can wait; spin paints itself.
+func _spin_holds_fight_art() -> bool:
+	if phase == "spinning":
+		return true
+	if wheel_view != null and bool(wheel_view.spinning):
+		return true
+	return false
+
+
+## Lay out fight portrait / callout / slash park beside the wheel.
+## Pass force=true for structural layout (resize) or an explicit seat reveal.
+## During spin, _process skips full work — wheel motion stays uncapped elsewhere.
+func _place_fight_art(force: bool = false) -> void:
 	var _place_t0 := Time.get_ticks_usec()
 	if wheel_view == null:
+		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
+		return
+	# Spin path: avoid full gutter math every tick (spin_x5 place usec_avg ~1418).
+	# Seat reveal / post-spin _refresh_face runs after spinning ends.
+	if not force and _spin_holds_fight_art():
 		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
 		return
 	if player_stage != null and player_stage.visible:
@@ -18371,7 +18391,8 @@ func _layout_play_field() -> void:
 	_sync_move_ui()
 	_place_log_overlay()
 	_recenter_hotbar()
-	_place_fight_art()
+	# Structural layout (resize / field rebuild) must place even mid-spin.
+	_place_fight_art(true)
 	if wheel_view and wheel_view.has_method("set_ability_avoids"):
 		wheel_view.set_ability_avoids(_ability_avoid_rects())
 
@@ -18422,7 +18443,8 @@ func _refresh_face() -> void:
 	_face_atk_shown = atk_s
 	_face_hp_shown = hp_s
 	_refresh_hypno_box()
-	_place_fight_art()
+	# Seat / plate reveal — always place (including the first frame after spin).
+	_place_fight_art(true)
 	# Keep hub Sprout visible during fights (no left face-off entrance).
 	if _sprout_mode != "hub" or (wheel_view != null and not wheel_view.hub_sprout_on):
 		_sprout_stay_hub()
