@@ -57,6 +57,8 @@ HOOKS = {
     ],
     "scripts/main.gd": [
         "_fight_art_sig",
+        "_fight_art_dirty",
+        "_fight_art_frame",
         "_spin_holds_fight_art",
     ],
 }

@@ -45,7 +45,10 @@ HOOKS = {
         "FRAME_METRICS.attach",
         "FRAME_METRICS.note_place",
         "_spin_holds_fight_art",
+        "_fight_art_dirty",
+        "_fight_art_frame",
     ],
+
     "scripts/boss_wheel.gd": [
         "frame_metrics.gd",
         "FRAME_METRICS.note_wheel",
