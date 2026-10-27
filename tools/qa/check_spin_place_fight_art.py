@@ -5,7 +5,11 @@
 frame. Mac spin_x5 @ d497ed18: ~42 place_calls/s (~41 early-outs/s) so
 spike tags preferred place_fight_art; one cascade hit d_place=28. This lever
 removes the process call and drives place from dirty/deferred + structural
-callers only. No Godot needed.
+callers only.
+
+Also locks the #136 Mac F5 fix: same-frame early-out must schedule the next
+process_frame flush, never call_deferred (MessageQueue ping-pong → signal 11).
+No Godot needed.
 """
 
 from pathlib import Path
@@ -19,6 +23,7 @@ NEEDLES = [
     "func _place_fight_art(force: bool = false)",
     "func _mark_fight_art_dirty",
     "func _flush_fight_art",
+    "func _queue_fight_art_flush_next_frame",
     "FRAME_METRICS.note_place",
     '_fight_art_sig = ""',
     "_place_fight_art(true)",
@@ -28,6 +33,7 @@ NEEDLES = [
     "call_deferred(\"_flush_fight_art\")",
     "Engine.get_process_frames()",
     "_face_plate_rev",
+    "CONNECT_ONE_SHOT",
 ]
 
 
@@ -76,6 +82,31 @@ def main() -> int:
         failed += 1
     elif "_place_fight_art(" in proc:
         print("FAIL _process must not call _place_fight_art (dirty/deferred only)")
+        failed += 1
+    # Same-frame early-out must NOT re-queue via _mark_fight_art_dirty /
+    # call_deferred — that ping-pongs in one MessageQueue flush (Mac F5 #136).
+    same_frame = place_fn.split("frame_i == _fight_art_frame", 1)
+    if len(same_frame) < 2:
+        print("FAIL place must keep same-frame early-out (frame_i == _fight_art_frame)")
+        failed += 1
+    else:
+        same_body = same_frame[1].split("\nif ", 1)[0]
+        if "_mark_fight_art_dirty()" in same_body:
+            print("FAIL same-frame early-out must not call _mark_fight_art_dirty (use next-frame flush)")
+            failed += 1
+        if "_queue_fight_art_flush_next_frame()" not in same_body:
+            print("FAIL same-frame early-out must call _queue_fight_art_flush_next_frame()")
+            failed += 1
+    flush_fn = text.split("func _flush_fight_art", 1)[-1].split("\nfunc ", 1)[0]
+    if "_queue_fight_art_flush_next_frame()" not in flush_fn:
+        print("FAIL _flush_fight_art must defense-schedule next-frame when already placed this frame")
+        failed += 1
+    next_fn = text.split("func _queue_fight_art_flush_next_frame", 1)[-1].split("\nfunc ", 1)[0]
+    if "call_deferred" in next_fn:
+        print("FAIL _queue_fight_art_flush_next_frame must not use call_deferred")
+        failed += 1
+    if "process_frame" not in next_fn:
+        print("FAIL _queue_fight_art_flush_next_frame must wait on SceneTree.process_frame")
         failed += 1
     # Full place must skip unconditional reset_size when plaque rev matches.
     if "face_box.reset_size()" not in place_fn:
