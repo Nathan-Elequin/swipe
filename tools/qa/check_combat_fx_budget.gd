@@ -66,7 +66,7 @@ func _init() -> void:
 		"res://scripts/player_stage.gd": ["is_heavy_state", "begin_heavy"],
 		"res://scripts/item_card.gd": ["hold_low_priority_idles"],
 		"res://scripts/ability_slash.gd": ["begin_heavy", "end_heavy"],
-		"res://scripts/main.gd": ["_fight_art_sig"],
+		"res://scripts/main.gd": ["_fight_art_sig", "_spin_holds_fight_art"],
 	}
 	for path in hooks.keys():
 		var src: String = FileAccess.get_file_as_string(path)
