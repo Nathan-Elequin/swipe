@@ -67,6 +67,8 @@ var _or: RichTextLabel
 var _choice_badge: Label
 var _cabinet_badge: Label
 var _hp_cost: HBoxContainer
+var _face: Control
+var _glyph_rows: Array = []
 var _sai_fx: AnimatedSprite2D
 var _marble_fx: AnimatedSprite2D
 var _sparkle: AnimatedSprite2D
@@ -316,6 +318,12 @@ func setup(
 	_used.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_used.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_used)
+	_face = preload("res://scripts/item_face.gd").new()
+	_face.name = "Face"
+	_face.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_face.visible = false
+	num_host.add_child(_face)
 	set_live(number_text, "", true)
 	_sync_hatch()
 	_sync_lock_shade()
@@ -747,6 +755,32 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 		_mark.modulate.a = 0.95
 		_layout_mark(number_text)
 	_layout_atk_pip()
+	_apply_glyph_vis()
+
+
+func set_glyphs(rows: Array) -> void:
+	_glyph_rows = rows
+	if _face != null and _face.has_method("set_rows"):
+		_face.set_rows(rows)
+	_apply_glyph_vis()
+
+
+func _apply_glyph_vis() -> void:
+	var on := not _glyph_rows.is_empty() and not _formula_on
+	if _face != null:
+		_face.visible = on
+	if not on:
+		return
+	if _num:
+		_num.visible = false
+	if _or:
+		_or.visible = false
+	if _ghost:
+		_ghost.visible = false
+	if _atk_pip:
+		_atk_pip.visible = false
+	if _mark:
+		_mark.visible = false
 
 
 func _or_parts(number_text: String) -> PackedStringArray:
@@ -1059,6 +1093,7 @@ func show_formula(on: bool) -> void:
 		var beside: bool = kind == "DEFEAT" and _shown.is_valid_int()
 		_mark.visible = (not _formula_on) and _mark.texture != null and (_shown == "" or beside)
 	_layout_atk_pip()
+	_apply_glyph_vis()
 
 
 func _dissolve(old_s: String, new_s: String) -> void:

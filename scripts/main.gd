@@ -6788,6 +6788,9 @@ func _dress_showcase_card(card: Control, it: Dictionary, can_pass: bool, guard_t
 	if card.has_method("set_formula"):
 		card.set_formula(str(rule.get("equation", "")))
 		card.show_formula(_shift_held)
+	if card.has_method("set_glyphs"):
+		var pn_offer: int = int(it.get("petrify_n", 0))
+		card.set_glyphs([] if pn_offer > 0 else _face_rows(it, view))
 
 
 func _write_catalog() -> bool:
@@ -15381,6 +15384,121 @@ func _apply_item_stone_look(card, it: Dictionary) -> void:
 		card.set_petrified(false, false, 0, false)
 
 
+func _fg(k: String, t: String = "", tint: String = "", border: String = "", sup: String = "", icon: String = "") -> Dictionary:
+	return {"k": k, "t": t, "tint": tint, "border": border, "sup": sup, "id": icon}
+
+
+## What the hotbar shows before a hover. One row of marks.
+func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
+	var id := str(it.get("card_id", ""))
+	if id == "echo_bell" and depth < 2:
+		var copied: Dictionary = _echo_face(it)
+		if copied.is_empty() or str(copied.get("card_id", "")) == "" or str(copied.get("card_id", "")) == "echo_bell":
+			return [[_fg("icon", "", "", "", "", "bagq")]]
+		return _face_rows(copied, _item_view(copied), depth + 1)
+	var n := str(view.get("number", ""))
+	match id:
+		"crossbow":
+			return [[_fg("icon", "", "", "", "", "nw"), _fg("impact", n), _fg("icon", "", "", "", "", "ne")]]
+		"double_axe":
+			return [[_fg("impact", n), _fg("icon", "", "", "", "", "cleave")]]
+		"longbow":
+			return [[_fg("impact", n), _fg("icon", "", "", "", "", "far")]]
+		"spiked_flail":
+			return [[_fg("impact", n, "", "", "bleed")]]
+		"ball_and_chain":
+			return [[_fg("impact", n), _fg("icon", "", "", "", "", "noflee")]]
+		"spider_egg":
+			return [[_fg("impact", n, "", "self")]]
+		"left_bracer":
+			return [[_fg("shield", n), _fg("icon", "", "", "", "", "nw")]]
+		"bracers":
+			return [[_fg("shield", n), _fg("icon", "", "", "", "", "ne")]]
+		"stone_wall":
+			return [[_fg("shield", n), _fg("icon", "", "", "", "", "retain")]]
+		"net":
+			return [[_fg("impact", "−1–3", "blue")]]
+		"throwing_knife":
+			return [[_fg("impact", "3"), _fg("icon", "", "", "", "", "slash"), _fg("impact", "1"), _fg("icon", "", "", "", "", "hand")]]
+		"arrow_head":
+			return [[_fg("impact", "6"), _fg("heart", "−2")]]
+		"ale_flagon":
+			return [[_fg("heart", "3"), _fg("icon", "", "", "", "", "bag")]]
+		"healing_potion":
+			return [[_fg("skull"), _fg("icon", "", "", "", "", "east"), _fg("heart", "3")]]
+		"cursed_scroll":
+			return [[_fg("heart", "6"), _fg("icon", "", "", "", "", "bar"), _fg("icon", "", "", "", "", "spin"), _fg("heart", "−1")]]
+		"grief_jar":
+			return [[_fg("shield", n), _fg("icon", "", "", "", "", "bar"), _fg("icon", "", "", "", "", "spin"), _fg("heart", "−1")]]
+		"signpost":
+			return [[_fg("shield", "7"), _fg("icon", "", "", "", "", "nw"), _fg("icon", "", "", "", "", "ne"), _fg("impact", "", "", "self")]]
+		"poison_flask":
+			return [[_fg("drop", "5")]]
+		"miasma":
+			return [[_fg("drop", n if n != "" else "0")]]
+		"fangs":
+			var hit := _incoming_hit()
+			var ehp := 0
+			if facing_index >= 0 and facing_index < wheel.size():
+				ehp = int(wheel[facing_index].get("hp", 0))
+			return [[_fg("impact", str(hit), "", "self"), _fg("skull"), _fg("heart", str(ehp))]]
+		"smoke_bomb":
+			return [[_fg("icon", "", "", "", "", "spin"), _fg("icon", "", "", "", "", "bag")]]
+		"mute_stone":
+			return [[_fg("icon", "", "", "", "", "swap")]]
+		"polymorph":
+			return [[_fg("icon", "", "", "", "", "nw"), _fg("icon", "", "", "", "", "question"), _fg("icon", "", "", "", "", "ne")]]
+		"da_boot", "sledgehammer", "last_match", "measuring_tape":
+			return [[_fg("skull")]]
+		"napalm":
+			return [[_fg("heart", "=1")]]
+		"double_buckler":
+			return [[_fg("shield", "½")]]
+		"rust":
+			return [[_fg("shield", n if n != "" else "3"), _fg("icon", "", "", "", "", "ban")]]
+		"quiet_bell":
+			return [[_fg("icon", "", "", "", "", "ban")]]
+		"hex", "toll":
+			return [[_fg("skull", n)]]
+		"marble":
+			var mn := str(int(it.get("marble_n", 0)))
+			return [[_fg("impact", mn), _fg("shield", mn)]]
+		"recycler":
+			if int(it.get("recycle_n", 5)) <= 1:
+				return [[_fg("icon", "", "", "", "", "copy")]]
+			return [[_fg("text", n if n != "" else str(int(it.get("recycle_n", 5))))]]
+		"pocketwatch":
+			return [[_fg("text", "Across")]]
+		"grappling_hook":
+			return [[_fg("text", "Pull")]]
+		"bag_of_marbles":
+			return [[_fg("text", "Fill")]]
+		"catapult":
+			return [[_fg("text", "Eject")]]
+		"bag_of_holding":
+			if n != "" and n != "Bag" and n != "—":
+				return [[_fg("text", n)]]
+			return [[_fg("text", "Bag")]]
+		"sling":
+			return [[_fg("text", n if n != "" else "Any")]]
+	if n == "—" or n == "-":
+		return [[_fg("text", "—")]]
+	var kind := str(view.get("kind", ""))
+	if kind == "ATK":
+		return [[_fg("impact", n)]]
+	if kind == "BLK":
+		return [[_fg("shield", n)]]
+	if kind == "HEAL" or kind == "HP":
+		return [[_fg("heart", n)]]
+	if kind == "DEFEAT":
+		if n.is_valid_int():
+			return [[_fg("skull", n)]]
+		return [[_fg("skull")]]
+	if n != "":
+		return [[_fg("text", n)]]
+	return []
+
+
 func _item_view(it: Dictionary) -> Dictionary:
 	var ops: Dictionary = _ops_of(it)
 	var kind: String = str(ops.get("kind", ""))
@@ -19589,6 +19707,8 @@ func _sync_hotbar() -> void:
 			card.set_atk_pip(_number_is_atk(view, pn))
 		if card.has_method("set_hp_cost"):
 			card.set_hp_cost(str(view.get("hp_cost", "")))
+		if card.has_method("set_glyphs"):
+			card.set_glyphs([] if pn > 0 else _face_rows(it, view))
 		if card.has_method("set_danger"):
 			card.set_danger(
 			(str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1)
@@ -19684,6 +19804,8 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if card.has_method("set_hp_cost"):
 		card.set_hp_cost(str(view.get("hp_cost", "")))
 	card.show_formula(_shift_held)
+	if card.has_method("set_glyphs"):
+		card.set_glyphs([] if pn > 0 else _face_rows(it, view))
 	if card.has_method("set_danger"):
 		card.set_danger(
 			(str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1)
