@@ -17821,12 +17821,33 @@ func _queue_fight_art_flush() -> void:
 	call_deferred("_flush_fight_art")
 
 
+## Retry after the next process tick. Do NOT use call_deferred here: deferred
+## callbacks drain in the same MessageQueue flush while get_process_frames() is
+## unchanged, so same-frame early-out → mark dirty → deferred flush loops until
+## segfault (Mac F5 boot after #136).
+func _queue_fight_art_flush_next_frame() -> void:
+	if _fight_art_flush_queued:
+		return
+	_fight_art_flush_queued = true
+	var tree := get_tree()
+	if tree == null:
+		_fight_art_flush_queued = false
+		return
+	tree.process_frame.connect(_flush_fight_art, CONNECT_ONE_SHOT)
+
+
 ## Runs once after dirty is set. Mid-spin: keep dirty; land/`_refresh_face` forces.
 func _flush_fight_art() -> void:
 	_fight_art_flush_queued = false
 	if not _fight_art_dirty:
 		return
 	if _spin_holds_fight_art():
+		return
+	# Defense: a flush scheduled for this idle after a full place already ran
+	# this process frame must wait for the next process tick — never re-enter
+	# via call_deferred in the same MessageQueue drain.
+	if Engine.get_process_frames() == _fight_art_frame:
+		_queue_fight_art_flush_next_frame()
 		return
 	_place_fight_art(false)
 
@@ -17852,8 +17873,10 @@ func _place_fight_art(force: bool = false) -> void:
 	var frame_i: int = Engine.get_process_frames()
 	if frame_i == _fight_art_frame:
 		if force or _fight_art_dirty:
-			# Keep sig: deferred flush early-outs when geometry is unchanged.
-			_mark_fight_art_dirty()
+			# Keep dirty + retry next process frame. call_deferred would re-enter
+			# the same MessageQueue flush and ping-pong forever (F5 signal 11).
+			_fight_art_dirty = true
+			_queue_fight_art_flush_next_frame()
 		FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, true)
 		return
 	if force or _fight_art_dirty:
