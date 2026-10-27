@@ -4,9 +4,11 @@ class_name CombatFxBudget
 ## The web export freezes when Sprout's item-use frames overlap a facing
 ## portrait idle, a full-wheel redraw, and the tiled hall — all of those
 ## were `queue_redraw()` every process tick. Heavy FX (item use, slash,
-## lunge, hit, hub swipe/grab) pauses low-priority idles; web also caps
-## decorative redraws. Hub `play_hero` owns combat Sprout FX after the
-## left face-off strip; player_stage stays dark. Not an AnimationPlayer /
+## lunge, hit, hub swipe/grab) pauses low-priority idles; decorative
+## redraws are capped on web and on desktop fight-idle (Mac fight_idle
+## was ~31 FPS / ~937 draws / wheel every frame when desktop rest was
+## uncapped). Hub `play_hero` owns combat Sprout FX after the left
+## face-off strip; player_stage stays dark. Not an AnimationPlayer /
 ## Tween bug. SP-03 (Undo freeze) is separate.
 
 static var _heavy: int = 0
@@ -49,13 +51,14 @@ static func hold_low_priority_idles() -> bool:
 	return _heavy > 0
 
 
-## Decorative redraws per second. 0 = uncapped (desktop, no heavy FX).
+## Decorative redraws per second. Heavy FX is stricter; otherwise the
+## same rest ceiling as web (desktop fight-idle used to return 0 = uncapped).
 static func decorative_fps() -> float:
 	if _heavy > 0:
 		return 8.0
-	if is_web():
-		return 12.0
-	return 0.0
+	# Web rest + desktop fight-idle rest. Spin / one-shot paths bypass this
+	# via direct queue_redraw in boss_wheel when `spinning`.
+	return 12.0
 
 
 ## Seconds between decorative redraws. 0 = draw every process frame.

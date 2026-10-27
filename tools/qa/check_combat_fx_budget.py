@@ -10,13 +10,17 @@ HOOKS = {
         "class_name CombatFxBudget",
         "func hold_low_priority_idles",
         "func is_heavy_state",
+        "func decorative_fps",
         "func decor_step",
+        "return 12.0",
         "SP-30",
     ],
     "scripts/combat_stage.gd": [
         "combat_fx_budget.gd",
         "hold_low_priority_idles",
         "_portrait_dirty",
+        "_decor_is_immediate",
+        "decor_step",
     ],
     "scripts/dungeon_bg.gd": [
         "combat_fx_budget.gd",
@@ -29,6 +33,7 @@ HOOKS = {
         "_wheel_wants_live_draw",
         "begin_heavy",
         "_set_hero_heavy",
+        "FRAME_METRICS.note_wheel",
     ],
     "scripts/player_stage.gd": [
         "combat_fx_budget.gd",

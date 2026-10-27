@@ -1260,6 +1260,8 @@ func _wheel_wants_live_draw() -> bool:
 
 
 func _queue_decor_redraw(delta: float) -> void:
+	# Uses CombatFxBudget.decor_step(): heavy→8fps, else→12fps (web + desktop
+	# fight-idle). Spinning bypasses this via direct queue_redraw above.
 	var step: float = FX_BUDGET.decor_step()
 	if step <= 0.0:
 		queue_redraw()

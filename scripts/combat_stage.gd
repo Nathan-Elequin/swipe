@@ -56,6 +56,8 @@ var _plinth_w: float = 0.0
 var _shown_fi: int = -1
 var _shown_bob: int = -1
 var _placed_sig: String = ""
+var _decor_wait: float = 0.0
+var _decor_pending: bool = false
 
 
 func setup(p_art) -> void:
@@ -308,13 +310,39 @@ func _process(delta: float) -> void:
 			_rage_cd = 0.18
 			_burst("flame", Color("ff6a20"), 0.85)
 			_burst("spark", Color("ffd070"), 0.55)
-	if not _portrait_dirty():
+	if _portrait_dirty():
+		_decor_pending = true
+	if not _decor_pending:
 		return
+	# Idle bob / frame paints share the decorative FPS cap. Hit flash, blood,
+	# bursts, watch, and lunge stay immediate so attack reads don't hitch late.
+	if _decor_is_immediate():
+		_decor_wait = 0.0
+	else:
+		var step: float = FX_BUDGET.decor_step()
+		if step > 0.0:
+			_decor_wait -= delta
+			if _decor_wait > 0.0:
+				return
+			_decor_wait = step
+	_decor_pending = false
 	_place_sprite()
 	queue_redraw()
 	FRAME_METRICS.note_stage()
 	if _fx:
 		_fx.queue_redraw()
+
+
+func _decor_is_immediate() -> bool:
+	if _mode != "idle":
+		return true
+	if _flash > 0.0 or _watch_t > 0.0:
+		return true
+	if not _blood.is_empty() or not _bursts.is_empty():
+		return true
+	if _lunge_x != 0.0:
+		return true
+	return false
 
 
 func _portrait_dirty() -> bool:
