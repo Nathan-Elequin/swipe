@@ -70,7 +70,7 @@ const MEDAL_OF := {
 	"shambling_mound": "swords",
 	"almighty_worm": "layers",
 	"cultist": "droplet",
-	"bushido": "ban",
+	"bushido": "rotate",
 	"shark": "swords",
 	"mouse": "footprints",
 	"magicat": "sparkles",
@@ -3205,7 +3205,7 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 
 func _ability_icon_color(sid: String) -> Color:
 	match sid:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "decay":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "decay":
 			return Color("e8c36a")
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return Color("e07040")
