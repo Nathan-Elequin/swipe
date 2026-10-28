@@ -35,6 +35,8 @@ const DRAFT_GATE := preload("res://scripts/draft_gate.gd")
 const DRAFT_LINES := preload("res://scripts/draft_lines.gd")
 const DUNGEON_DECK := preload("res://scripts/dungeon_deck.gd")
 const CHALLENGE_DRAFT := preload("res://scripts/challenge_draft.gd")
+const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
+const CAMPAIGN_MAP := preload("res://scripts/campaign_map.gd")
 const HOME_CABIN := preload("res://scripts/home_cabin.gd")
 const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 const BUILD_STAMP := preload("res://scripts/build_stamp.gd")
@@ -170,6 +172,7 @@ const ITEM_OPS := {
 	"signpost": {"kind": "signpost", "n": 7},
 	"sling": {"kind": "sling"},
 	"ball_and_chain": {"kind": "atk", "n": 2},
+	"energy_drink": {"kind": "player_flee_keep"},
 	"recycler": {"kind": "recycle_watch"},
 	"rust": {"kind": "rust_watch"},
 }
@@ -232,6 +235,7 @@ const MONSTER_SPECIAL := {
 	"magicat": {"id": "cats_eye", "text": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value"},
 	"poison_frog": {"id": "toxic_skin", "text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison"},
 	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust"},
+	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
 }
 
 const MONSTER_CALL := {
@@ -622,6 +626,8 @@ var _sling_aim: int = -1
 var _skip_item_use_count: bool = false
 var _flee_random_spin: bool = false
 var _pending_item_flee: bool = false
+var _fungal_stop_fight: bool = false
+var _drink_hp_due: bool = false
 var _gate_line: String = ""
 var _cube_line: String = ""
 var _cleric_line: String = ""
@@ -633,6 +639,13 @@ var _copy_stamp
 var adventure: bool = false
 ## True only for archived Long Drop (click-to-pick spin, rope, more dungeons).
 var challenge_route: bool = false
+var _campaign = null
+var campaign_map = null
+var _campaign_on: bool = false
+var _campaign_queue: Array = []
+var _campaign_starter_left: Array = []
+var _campaign_exclude: Array = []
+var _campaign_telegraph: Array = []
 ## Play Latest asks for the live mode, then the next draws prefer recent cards.
 var _latest_rig_request: bool = false
 var _latest_rig: bool = false
@@ -1492,6 +1505,14 @@ func _build_ui() -> void:
 	rope_exit.climb.connect(_adventure_leave)
 	rope_exit.deeper.connect(_rope_deeper)
 	rope_exit.peek.connect(_open_sack_peek)
+	_campaign = CAMPAIGN_SHELL.new()
+	_campaign.load_all()
+	campaign_map = CAMPAIGN_MAP.new()
+	add_child(campaign_map)
+	campaign_map.setup()
+	campaign_map.start_asked.connect(_on_campaign_start)
+	campaign_map.closed.connect(_close_campaign_map)
+	campaign_map.cheat_asked.connect(_on_campaign_cheat)
 	sack_peek = preload("res://scripts/cabin/sack_peek.gd").new()
 	add_child(sack_peek)
 	sack_peek.setup(home_cabin, cabin_layout.get("extra", {}), art, self)
@@ -2104,6 +2125,11 @@ func _reset_run() -> void:
 	_mill_beat = ""
 	adventure = false
 	challenge_route = false
+	_campaign_on = false
+	_campaign_queue.clear()
+	_campaign_starter_left.clear()
+	_campaign_exclude.clear()
+	_campaign_telegraph.clear()
 	_latest_rig = false
 	_latest_monster_ids = PackedStringArray()
 	_latest_item_ids = PackedStringArray()
@@ -2204,6 +2230,7 @@ func _reset_run() -> void:
 	pending_mark.clear()
 	pending_chaos.clear()
 	_pending_item_flee = false
+	_drink_hp_due = false
 	_magnet_seq = 0
 	_magnet_pending_consume = ""
 	beads_step = 1
@@ -2243,8 +2270,7 @@ func _begin_run() -> void:
 
 
 func _begin_adventure() -> void:
-	_session("scene", "adventure")
-	await _begin_six_seat_run(false)
+	_open_campaign_map()
 
 
 func _begin_long_drop() -> void:
@@ -2332,6 +2358,8 @@ func _adventure_leave() -> void:
 	if sfx:
 		sfx.play("whoosh", -10.0, 0.9)
 	await get_tree().create_timer(0.45).timeout
+	if _campaign_on:
+		await _campaign_bank_from_hand()
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
@@ -2367,6 +2395,9 @@ func _hide_cabin_for_run() -> void:
 
 
 func _start_route(route: String) -> void:
+	if route == "gatehouse":
+		_open_campaign_map()
+		return
 	_hide_cabin_for_run()
 	if home_cabin:
 		home_cabin.note_belly(1)
@@ -2387,13 +2418,263 @@ func _start_route(route: String) -> void:
 			_begin_adventure()
 
 
+func _open_campaign_map() -> void:
+	if _campaign == null or campaign_map == null:
+		return
+	if bool(_campaign.state.get("won", false)) and not bool(_campaign.state.get("drawer_seen", false)):
+		campaign_map.show_drawer()
+		await campaign_map.continued
+		CAMPAIGN_SHELL.mark_drawer_seen(_campaign.state)
+		_campaign.write()
+	campaign_map.show_map(_campaign.rules, _campaign.state)
+
+
+func _close_campaign_map() -> void:
+	if campaign_map:
+		campaign_map.hide_map()
+	if phase == "title" and home_cabin != null and home_cabin.visible:
+		return
+	if _campaign_on:
+		_campaign_abort()
+	_reset_run()
+	phase = "title"
+	_open_home_cabin(false)
+
+
+func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
+	if campaign_map:
+		campaign_map.hide_map()
+	await _begin_campaign_delve(index, shortcut, endless)
+
+
+func _on_campaign_cheat(action: String) -> void:
+	if _campaign == null or not DevFlag.on():
+		return
+	if action == "fresh":
+		_campaign.state = CAMPAIGN_SHELL.fresh_state()
+	elif action == "grant3":
+		CAMPAIGN_SHELL.debug_bank_matching(_campaign.rules, _campaign.state, _campaign_item_entries(), 3, "")
+	elif action == "fill_b1":
+		var need: int = CAMPAIGN_SHELL.quota_of(_campaign.rules) - CAMPAIGN_SHELL.cabinet_count(_campaign.state, "b1")
+		CAMPAIGN_SHELL.debug_bank_matching(_campaign.rules, _campaign.state, _campaign_item_entries(), maxi(0, need), "b1")
+	elif action == "win":
+		for raw in CAMPAIGN_SHELL.biomes_of(_campaign.rules):
+			var pool := str((raw as Dictionary).get("id", ""))
+			var need2: int = CAMPAIGN_SHELL.quota_of(_campaign.rules) - CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool)
+			CAMPAIGN_SHELL.debug_bank_matching(_campaign.rules, _campaign.state, _campaign_item_entries(), maxi(0, need2), pool)
+	_campaign.write()
+	_open_campaign_map()
+
+
+func _begin_campaign_delve(index: int, shortcut: bool, endless: bool) -> void:
+	_session("scene", "campaign")
+	_hide_cabin_for_run()
+	_reset_run()
+	if _campaign == null:
+		return
+	_campaign_on = true
+	adventure = true
+	challenge_route = false
+	CAMPAIGN_SHELL.begin_run(_campaign.state, index, shortcut, endless)
+	CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
+	_campaign.write()
+	_reset_moves()
+	dungeon_index = 1 if endless else index + 1
+	dungeons_cleared = 0
+	adventure_seat_tiers = [1, 1, 1, 1, 1, 1]
+	phase = "draft"
+	draft_action = "busy"
+	_log("on_click", "Campaign")
+	_log("var", "HP %s" % hp)
+	_refresh()
+	await _reveal_new_buckets()
+	_fill_challenge_pools()
+	_empty_wheel(CHALLENGE_SEATS)
+	await _campaign_arm_delve()
+	await _run_challenge_setup()
+	if draft_action == "challenge_begin":
+		_challenge_begin_play()
+		await _maybe_auto_spin()
+
+
+func _campaign_arm_delve() -> void:
+	if _campaign == null:
+		return
+	var rows: Array = []
+	for id in monsters_by_id.keys():
+		var card: Dictionary = monsters_by_id[id]
+		if not _campaign_card_ok(card):
+			continue
+		var contra: Array = []
+		var raw: Variant = card.get("contradiction_ids", [])
+		if typeof(raw) == TYPE_ARRAY:
+			for c in raw:
+				contra.append(str(c))
+		rows.append({"id": str(id), "tier": int(card.get("tier", 1)), "contra": contra})
+	var biome := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	var deal: Dictionary = CAMPAIGN_SHELL.compose(_campaign.rules, rng, rows, biome)
+	_campaign_queue = deal.get("ids", [])
+	_campaign_telegraph = deal.get("telegraph", [])
+	_campaign_starter_left = CAMPAIGN_SHELL.starter_tiers(_campaign.rules, rng)
+	for queued in _campaign_queue:
+		monster_pool.erase(queued)
+	await _campaign_show_telegraph()
+
+
+func _campaign_show_telegraph() -> void:
+	if campaign_map == null or _campaign == null:
+		return
+	var names: Array = []
+	for id in _campaign_telegraph:
+		var card: Dictionary = monsters_by_id.get(str(id), {})
+		names.append(str(card.get("name", id)))
+	var biome := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	campaign_map.show_bosses(CAMPAIGN_SHELL.biome_name(_campaign.rules, biome), names)
+	await campaign_map.continued
+	campaign_map.hide_map()
+
+
+func _campaign_take_queued() -> String:
+	if not _campaign_on or _campaign_queue.is_empty():
+		return ""
+	return str(_campaign_queue.pop_front())
+
+
+func _campaign_card_ok(card: Dictionary) -> bool:
+	if card.is_empty() or _campaign == null:
+		return false
+	var st := str(card.get("status", "live"))
+	if st == "retired" or st == "hold":
+		return false
+	if not ModePool.allows(card, ModePool.ADVENTURE):
+		return false
+	var pool := CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.parse(card.get("bucket", 0)))
+	return pool != "" and CAMPAIGN_SHELL.pool_unlocked(_campaign.rules, _campaign.state, pool)
+
+
+func _campaign_item_entries() -> Array:
+	var out: Array = []
+	if _campaign == null:
+		return out
+	for id in items_by_id.keys():
+		var card: Dictionary = items_by_id[id]
+		var st := str(card.get("status", "live"))
+		if st == "hold" or st == "retired":
+			continue
+		var pool := CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.parse(card.get("bucket", 0)))
+		if pool == "":
+			continue
+		out.append({"id": str(id), "pool": pool})
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return str(a.get("id", "")) < str(b.get("id", ""))
+	)
+	return out
+
+
+func _campaign_pool_of_item(id: String) -> String:
+	if _campaign == null:
+		return ""
+	var card: Dictionary = items_by_id.get(id, {})
+	return CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.parse(card.get("bucket", 0)))
+
+
+func _campaign_rerolls() -> int:
+	if not _campaign_on or _campaign == null:
+		return 0
+	return int(_campaign.state.get("run", {}).get("rerolls", 0))
+
+
+func _campaign_spend_reroll() -> bool:
+	if _campaign == null:
+		return false
+	var ok: bool = CAMPAIGN_SHELL.spend_reroll(_campaign.state)
+	if ok:
+		_campaign.write()
+	return ok
+
+
+func _campaign_abort() -> void:
+	if not _campaign_on or _campaign == null:
+		return
+	CAMPAIGN_SHELL.end_run(_campaign.state)
+	_campaign.write()
+
+
+func _campaign_bank_from_hand() -> void:
+	if _campaign == null:
+		return
+	var ids: Array = []
+	var pools := {}
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		var id := str(it.get("card_id", ""))
+		if id == "":
+			continue
+		ids.append(id)
+		pools[id] = _campaign_pool_of_item(id)
+	var result: Dictionary = CAMPAIGN_SHELL.bank(_campaign.rules, _campaign.state, ids, pools)
+	CAMPAIGN_SHELL.end_run(_campaign.state)
+	_campaign.write()
+	if bool(result.get("show_drawer", false)) and campaign_map != null:
+		campaign_map.show_drawer()
+		await campaign_map.continued
+		CAMPAIGN_SHELL.mark_drawer_seen(_campaign.state)
+		_campaign.write()
+		campaign_map.hide_map()
+
+
+func _campaign_draw_pair(tier: int) -> Array:
+	var entries: Array = []
+	for id in item_pool:
+		var card: Dictionary = items_by_id.get(str(id), {})
+		entries.append({"id": str(id), "tier": int(card.get("tier", 1))})
+	var picked: Array = CAMPAIGN_SHELL.take_pair(rng, entries, tier, _campaign_exclude)
+	_campaign_exclude.clear()
+	var out: Array = []
+	for raw in picked:
+		var iid := str(raw)
+		if iid == "":
+			continue
+		item_pool.erase(iid)
+		var made: Dictionary = _make_item(iid)
+		_stamp_pack(made, _pack_tier_for(iid, items_by_id, tier), "draft")
+		out.append(made)
+	return out
+
+
+func _campaign_draft_decision() -> Dictionary:
+	var box := {"kind": "", "uid": 0}
+	var on_pick := func(uid: int) -> void:
+		if str(box["kind"]) == "":
+			box["kind"] = "pick"
+			box["uid"] = uid
+	var on_roll := func() -> void:
+		if str(box["kind"]) == "":
+			box["kind"] = "reroll"
+	if challenge_draft_ui == null:
+		return box
+	challenge_draft_ui.chosen.connect(on_pick)
+	if challenge_draft_ui.has_signal("reroll_wanted"):
+		challenge_draft_ui.reroll_wanted.connect(on_roll)
+	while str(box["kind"]) == "" and is_instance_valid(self):
+		await get_tree().process_frame
+	if challenge_draft_ui.chosen.is_connected(on_pick):
+		challenge_draft_ui.chosen.disconnect(on_pick)
+	if challenge_draft_ui.has_signal("reroll_wanted") and challenge_draft_ui.reroll_wanted.is_connected(on_roll):
+		challenge_draft_ui.reroll_wanted.disconnect(on_roll)
+	return box
+
+
 func _go_home_loss() -> void:
+	_campaign_abort()
 	_reset_run()
 	phase = "title"
 	_open_home_cabin(true, "loss", [], [])
 
 
 func _give_up() -> void:
+	_campaign_abort()
 	_reset_run()
 	phase = "title"
 	_open_home_cabin(true, "loss", [], [])
@@ -2402,6 +2683,8 @@ func _give_up() -> void:
 
 
 func _rope_deeper() -> void:
+	if _campaign_on and _campaign != null and not CAMPAIGN_SHELL.can_push(_campaign.rules, _campaign.state):
+		return
 	_adventure_continue()
 	if home_cabin:
 		home_cabin.note_belly(dungeon_index + 1)
@@ -2544,7 +2827,13 @@ func _on_cabin_item_unhovered() -> void:
 func _adventure_continue() -> void:
 	if not adventure or phase != "rest" or _adventure_busy:
 		return
+	if _campaign_on and _campaign != null and not CAMPAIGN_SHELL.can_push(_campaign.rules, _campaign.state):
+		return
 	_adventure_busy = true
+	if _campaign_on and _campaign != null:
+		CAMPAIGN_SHELL.push_deeper(_campaign.rules, _campaign.state)
+		CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
+		_campaign.write()
 	_undo_clear()
 	overlay.visible = false
 	dungeon_index += 1
@@ -2564,6 +2853,8 @@ func _adventure_continue() -> void:
 	_reset_moves()
 	_fill_challenge_pools()
 	_empty_wheel(CHALLENGE_SEATS)
+	if _campaign_on:
+		await _campaign_arm_delve()
 	await _run_challenge_setup()
 	if not challenge_route and draft_action == "challenge_begin":
 		_challenge_begin_play()
@@ -2634,6 +2925,7 @@ func _prep_next_dungeon() -> void:
 	pending_mark.clear()
 	pending_chaos.clear()
 	_pending_item_flee = false
+	_drink_hp_due = false
 	_magnet_seq = 0
 	_magnet_pending_consume = ""
 	beads_step = 1
@@ -2924,6 +3216,9 @@ func _on_settings_closed() -> void:
 
 
 func _dev_fresh_save() -> void:
+	if _campaign != null:
+		_campaign.state = CAMPAIGN_SHELL.fresh_state()
+		_campaign.write()
 	if home_cabin:
 		home_cabin.stop_story()
 	if settings_ui:
@@ -3390,10 +3685,15 @@ func _fill_challenge_pools() -> void:
 	item_pool.clear()
 	for id in runtime.get("monsters", []):
 		var mid: String = str(id)
-		if _challenge_monster_banned(mid):
+		if _campaign_on:
+			if not _campaign_card_ok(monsters_by_id.get(mid, {})):
+				continue
+		elif _challenge_monster_banned(mid):
 			continue
 		var card: Dictionary = monsters_by_id.get(mid, {})
-		if card.is_empty() or not _bucket_open(card):
+		if card.is_empty():
+			continue
+		if not _campaign_on and not _bucket_open(card):
 			continue
 		if str(card.get("status", "live")) == "retired" or str(card.get("status", "live")) == "hold":
 			continue
@@ -3466,10 +3766,15 @@ func _challenge_reshuffle_items() -> void:
 	var held: Dictionary = _challenge_held_counts()
 	for id in runtime.get("items", []):
 		var iid: String = str(id)
-		if _challenge_item_banned(iid):
+		if _campaign_on:
+			if not _campaign_card_ok(items_by_id.get(iid, {})):
+				continue
+		elif _challenge_item_banned(iid):
 			continue
 		var card2: Dictionary = items_by_id.get(iid, {})
-		if card2.is_empty() or not _bucket_open(card2):
+		if card2.is_empty():
+			continue
+		if not _campaign_on and not _bucket_open(card2):
 			continue
 		if BucketRules.is_always_starter_id(iid):
 			continue
@@ -3626,7 +3931,7 @@ func _run_challenge_setup() -> void:
 	draft_action = "busy"
 	phase = "draft"
 	_refresh()
-	await _challenge_seat_dungeon(dungeon_index > 1)
+	await _challenge_seat_dungeon(dungeon_index > 1 and not _campaign_on)
 	if seq != _mill_seq:
 		return
 	if _qa_busy():
@@ -3652,10 +3957,15 @@ func _challenge_seat_dungeon(upgrade: bool) -> void:
 		dungeon_deck_ui.visible = true
 		dungeon_deck_ui.set_count(0)
 	_layout_play_field()
+	var deck_n := CHALLENGE_DECK_N
+	if _campaign_on and _campaign != null:
+		deck_n = CAMPAIGN_SHELL.deck_counts(_campaign.rules).y
 	for i in CHALLENGE_SEATS:
 		if seq != _mill_seq:
 			return
-		var mid: String = _challenge_take_monster()
+		var mid: String = _campaign_take_queued()
+		if mid == "":
+			mid = _challenge_take_monster()
 		if mid == "":
 			break
 		await _seat_opener(i, mid, "starter")
@@ -3674,10 +3984,12 @@ func _challenge_seat_dungeon(upgrade: bool) -> void:
 		if sfx:
 			sfx.play_event(&"chal.seat_dungeon", {"pitch_mul": 1.0 + float(i) * 0.03})
 		await get_tree().create_timer(0.08).timeout
-	for _d in CHALLENGE_DECK_N:
+	for _d in deck_n:
 		if seq != _mill_seq:
 			return
-		var did: String = _challenge_take_monster()
+		var did: String = _campaign_take_queued()
+		if did == "":
+			did = _challenge_take_monster()
 		if did == "":
 			break
 		challenge_deck.append(did)
@@ -3723,12 +4035,15 @@ func _challenge_run_opening_drafts() -> void:
 		challenge_pick_i = i
 		var row: Dictionary = challenge_draft_plan[i]
 		var t: int = int(row.get("tier", 1))
+		if _campaign_on and not _campaign_starter_left.is_empty():
+			t = int(_campaign_starter_left.pop_front())
 		var who: String = str(row.get("name", "Monster"))
 		await _challenge_offer_pick(
 			PLAYER_COPY.text("challenge.pick_open", "Choose your loot"),
 			"%s  ·  %s" % [who, PLAYER_COPY.tier_name(t)],
 			t,
-			true
+			true,
+			_campaign_on
 		)
 		if in_tutorial and i == 0:
 			if tut:
@@ -3809,58 +4124,73 @@ func _challenge_begin_play() -> void:
 	_layout_play_field()
 
 
-func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_full: bool) -> void:
+func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_full: bool, allow_reroll: bool = false) -> void:
 	if not replace_if_full and hotbar.size() >= CHALLENGE_HAND:
 		return
-	var pair: Array = _challenge_draw_pair(tier)
-	if pair.is_empty():
-		_challenge_reshuffle_items()
-		pair = _challenge_draw_pair(tier)
-	if pair.is_empty():
-		return
-	_challenge_pair = pair
-	if challenge_draft_ui == null:
-		return
-	var a: Control = _challenge_draft_card(pair[0])
-	var b: Control = Control.new()
-	var ib: Dictionary = pair[0]
-	if pair.size() > 1:
-		b = _challenge_draft_card(pair[1])
-		ib = pair[1]
-	else:
-		b.custom_minimum_size = Vector2(236, 340)
-		b.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	challenge_draft_ui.present(title, sub, a, b, pair[0], ib)
-	_sync_loot_pips()
-	var last_loot: bool = challenge_deck.is_empty() and draft_action != "challenge_pick"
-	if draft_action == "challenge_pick":
-		last_loot = challenge_pick_i >= challenge_draft_plan.size() - 1 and challenge_deck.is_empty()
-	if challenge_draft_ui.has_method("set_final_item"):
-		challenge_draft_ui.set_final_item(last_loot)
-	if last_loot:
-		_flash_banner(PLAYER_COPY.text("challenge.final_item", "Final Item"))
-	var seq: int = _mill_seq
-	if is_inside_tree():
-		await get_tree().process_frame
-	if seq != _mill_seq:
-		return
-	_layout_play_field()
-	_refresh()
-	if sfx:
-		sfx.play("book", -10.0)
-		sfx.play("open", -14.0)
-	var uid: int = await challenge_draft_ui.chosen
-	var pair_snap: Array = _challenge_pair.duplicate()
-	_challenge_pair.clear()
-	challenge_draft_ui.hide_draft()
-	_layout_play_field()
 	var picked: Dictionary = {}
-	for it in pair_snap:
-		if int(it.get("uid", 0)) == uid:
-			picked = it
-			break
-	if picked.is_empty() and not pair_snap.is_empty():
-		picked = pair_snap[0]
+	while true:
+		var pair: Array = _campaign_draw_pair(tier) if allow_reroll else _challenge_draw_pair(tier)
+		if pair.is_empty():
+			_challenge_reshuffle_items()
+			pair = _campaign_draw_pair(tier) if allow_reroll else _challenge_draw_pair(tier)
+		if pair.is_empty():
+			return
+		_challenge_pair = pair
+		if challenge_draft_ui == null:
+			return
+		var a: Control = _challenge_draft_card(pair[0])
+		var b: Control = Control.new()
+		var ib: Dictionary = pair[0]
+		if pair.size() > 1:
+			b = _challenge_draft_card(pair[1])
+			ib = pair[1]
+		else:
+			b.custom_minimum_size = Vector2(236, 340)
+			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		challenge_draft_ui.present(title, sub, a, b, pair[0], ib)
+		var charges := _campaign_rerolls() if allow_reroll else 0
+		if challenge_draft_ui.has_method("set_reroll"):
+			challenge_draft_ui.set_reroll(charges > 0, "Reroll (%s left)" % charges)
+		_sync_loot_pips()
+		var last_loot: bool = challenge_deck.is_empty() and draft_action != "challenge_pick"
+		if draft_action == "challenge_pick":
+			last_loot = challenge_pick_i >= challenge_draft_plan.size() - 1 and challenge_deck.is_empty()
+		if challenge_draft_ui.has_method("set_final_item"):
+			challenge_draft_ui.set_final_item(last_loot)
+		if last_loot:
+			_flash_banner(PLAYER_COPY.text("challenge.final_item", "Final Item"))
+		var seq: int = _mill_seq
+		if is_inside_tree():
+			await get_tree().process_frame
+		if seq != _mill_seq:
+			return
+		_layout_play_field()
+		_refresh()
+		if sfx:
+			sfx.play("book", -10.0)
+			sfx.play("open", -14.0)
+		var decision: Dictionary = await _campaign_draft_decision()
+		var pair_snap: Array = _challenge_pair.duplicate()
+		_challenge_pair.clear()
+		if str(decision.get("kind", "")) == "reroll" and allow_reroll and _campaign_spend_reroll():
+			_campaign_exclude.clear()
+			for it in pair_snap:
+				var back := str(it.get("card_id", ""))
+				if back != "":
+					_campaign_exclude.append(back)
+					item_pool.append(back)
+			challenge_draft_ui.hide_draft()
+			continue
+		challenge_draft_ui.hide_draft()
+		_layout_play_field()
+		var uid: int = int(decision.get("uid", 0))
+		for it2 in pair_snap:
+			if int(it2.get("uid", 0)) == uid:
+				picked = it2
+				break
+		if picked.is_empty() and not pair_snap.is_empty():
+			picked = pair_snap[0]
+		break
 	await _challenge_commit_item(picked, replace_if_full)
 
 
@@ -5572,6 +5902,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		await _play_latest()
 		get_viewport().set_input_as_handled()
 		return
+	if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F7:
+		_open_campaign_map()
+		get_viewport().set_input_as_handled()
+		return
 	if not event.is_action_pressed("ui_cancel"):
 		return
 	if playtest_tier != null and playtest_tier.visible:
@@ -6949,6 +7283,11 @@ func _resolve_then_continue(skip_attack: bool) -> void:
 	_trace_resolve("hits done taken=%s hp=%s" % [_taken, hp])
 	await _bleed_end()
 	enemy_attacked = true
+	if _fungal_stop_fight:
+		_fungal_stop_fight = false
+		if hp <= 0:
+			_player_down()
+		return
 	if hp <= 0:
 		_player_down()
 		return
@@ -6977,7 +7316,7 @@ func _apply_resolve_hits() -> int:
 		if facing_index >= 0 and facing_index < wheel.size():
 			m = wheel[facing_index]
 		total += incoming
-		if hp <= 0:
+		if _fungal_stop_fight or hp <= 0:
 			break
 		if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 			break
@@ -7052,6 +7391,8 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 			await _cleric_maybe_flush()
 	if hp > 0 and incoming > 0 and str(m.get("card_id", "")) == "druid" and not _is_silenced(m):
 		await _heal(incoming * 2)
+	if incoming > 0 and str(m.get("card_id", "")) == "fungal_colony":
+		await _fungal_on_damage(at, m)
 	return incoming
 
 
@@ -7220,6 +7561,12 @@ func _maybe_auto_spin() -> void:
 		return
 	if phase != "ready":
 		return
+	if _drink_hp_due:
+		_drink_hp_due = false
+		if await _bleed(1):
+			return
+		if phase != "ready":
+			return
 	if _monsters_left() <= 0:
 		return
 	_trace_resolve("auto-spin wait n=%s" % _monsters_left())
@@ -7699,9 +8046,10 @@ func _use_item(uid: int) -> void:
 			return
 		_undo_begin()
 		var dummy_token: int = _undo_gen
-		it["spent"] = true
+		var dummy_keep: bool = str(it.get("card_id", "")) == "energy_drink"
+		it["spent"] = not dummy_keep
 		await _count_item_use()
-		_toss_item(uid, false)
+		_toss_item(uid, dummy_keep)
 		_log("on_item_use", "no effect")
 		if facing_index >= 0 and facing_index < wheel.size():
 			var hid: String = str(wheel[facing_index].get("card_id", ""))
@@ -7962,6 +8310,37 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_toss_item(int(it["uid"]), true)
 			if last_atk_index == facing_index or _sling_aim < 0:
 				_pending_item_flee = true
+			return
+		"player_flee_keep":
+			if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
+				_log_begin_item(it)
+				_log("on_item_use", "%s — cannot" % str(it.get("name", "?")))
+				if sfx:
+					sfx.play("error", -10.0)
+				return
+			_log("on_item_use", str(it["name"]))
+			it["spent"] = true
+			it["keep_after"] = true
+			await _count_item_use()
+			_toss_item(int(it["uid"]), true)
+			var fled: bool = await _flee_spin()
+			if not fled:
+				_drink_hp_due = false
+				it["spent"] = false
+				it["keep_after"] = false
+				phase = "fighting"
+				_walker_busy = false
+				if await _bleed(1):
+					return
+				_refresh()
+				return
+			if in_tutorial:
+				_drink_hp_due = false
+				if await _bleed(1):
+					return
+			else:
+				_drink_hp_due = true
+			_refresh()
 			return
 		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "atk_wheel", "atk_echo":
 			var n2: int = int(ops["n"]) if ops.has("n") else int(view.get("n", 0))
@@ -10702,6 +11081,108 @@ func _sweep_triclops_three() -> void:
 			return
 
 
+func _fungal_host(except_i: int) -> int:
+	var best := 99
+	var cands: Array[int] = []
+	for i in range(wheel.size()):
+		if i == except_i:
+			continue
+		var s: Dictionary = wheel[i]
+		if str(s.get("kind", "")) != "monster":
+			continue
+		if int(s.get("hp", 0)) <= 0:
+			continue
+		if str(s.get("card_id", "")) == "fungal_colony":
+			continue
+		var tier: int = _tier_of(s)
+		if tier >= 3:
+			continue
+		if tier < best:
+			best = tier
+			cands = [i]
+		elif tier == best:
+			cands.append(i)
+	if cands.is_empty():
+		return -1
+	return cands[rng.randi_range(0, cands.size() - 1)]
+
+
+func _fungal_infect(src_i: int, dst_i: int) -> void:
+	var src: Dictionary = wheel[src_i]
+	var nid := "fungal_colony"
+	if not monsters_by_id.has(nid):
+		return
+	var copy: Dictionary = _make_monster(nid)
+	copy["slot"] = str(wheel[dst_i].get("slot", ""))
+	copy["hp"] = int(src.get("hp", copy.get("hp", 0)))
+	copy["hp_max"] = int(src.get("hp_max", copy.get("hp_max", 0)))
+	copy["atk"] = maxi(0, int(src.get("atk", 0)) - int(src.get("aura_atk", 0)))
+	copy["poison"] = _poison_of(src)
+	copy["poisoned"] = int(copy["poison"]) > 0
+	copy["spin_locked"] = true
+	copy["pack_tier"] = int(src.get("pack_tier", copy.get("pack_tier", 2)))
+	copy["pack_kind"] = str(src.get("pack_kind", copy.get("pack_kind", "draft")))
+	var old_name: String = str(wheel[dst_i].get("name", "?"))
+	wheel[dst_i] = copy
+	_sync_wheel_stats()
+	_log("on_resolve", "Cordycepticide %s → %s" % [old_name, str(wheel[dst_i].get("name", nid))])
+	_refresh()
+	if wheel_view and wheel_view.has_method("pulse_infect"):
+		wheel_view.pulse_infect(dst_i)
+	_flash_screen(Color("c77dff"), 0.5)
+	if sfx:
+		sfx.play("whoosh", -4.0, 0.72)
+		sfx.play("pluck", -6.0, 0.65)
+	if ability_slash:
+		var tex: Texture2D = tex_by_monster.get(nid, null)
+		await ability_slash.play({
+			"title": str(src.get("name", "Fungal Colony")),
+			"call": str(src.get("call_name", "Cordycepticide")),
+			"tex": tex,
+			"is_item": false,
+			"card_id": nid,
+		})
+	if get_tree():
+		await get_tree().create_timer(0.4).timeout
+
+
+func _fungal_on_damage(seat: int, attacker: Dictionary) -> void:
+	if str(attacker.get("card_id", "")) != "fungal_colony":
+		return
+	if seat < 0 or seat >= wheel.size():
+		return
+	if _is_silenced(wheel[seat]):
+		return
+	var body: Dictionary = wheel[seat]
+	if str(body.get("card_id", "")) != "fungal_colony":
+		return
+	if int(body.get("hp", 0)) <= 0:
+		var keep_hp: int = int(body.get("hp_pre_hit", 0))
+		if keep_hp <= 0:
+			keep_hp = int(body.get("hp_max", _card_base_hp("fungal_colony")))
+		if keep_hp <= 0:
+			keep_hp = 1
+		body["hp"] = keep_hp
+		body.erase("hp_pre_hit")
+		wheel[seat] = body
+		if wheel_view and wheel_view.slay_index == seat:
+			wheel_view.clear_slay()
+		_refresh()
+	var host: int = _fungal_host(seat)
+	if host >= 0:
+		await _fungal_infect(seat, host)
+	else:
+		_log("on_resolve", "Cordycepticide — no host")
+	if seat != facing_index:
+		return
+	_fungal_stop_fight = true
+	if await _flee_spin():
+		return
+	phase = "fighting"
+	_walker_busy = false
+	_refresh()
+
+
 func _apply_polymorph(index: int, it: Dictionary) -> void:
 	if facing_index < 0 or facing_index >= wheel.size() or index < 0 or index >= wheel.size():
 		_undo_abort()
@@ -10887,7 +11368,7 @@ func _damsel_resolve() -> void:
 		for h in range(hits):
 			if hp <= 0:
 				break
-			await _owner_attack(nm, h + 1, hits)
+			await _owner_attack(nm, h + 1, hits, j)
 			await _after_self_deconstruct(j)
 			if j >= 0 and j < wheel.size():
 				nm = wheel[j]
@@ -13304,6 +13785,7 @@ func _flee_spin(_shuffle: bool = false) -> bool:
 	pending_chaos.clear()
 	pending_feed = {}
 	_pending_item_flee = false
+	_drink_hp_due = false
 	_hide_hypno()
 	if wheel_view:
 		wheel_view.clear_slay()
@@ -14904,6 +15386,12 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = ""
 			out["note"] = ""
 			out["can_use"] = fighting and _has_unique_ability(str(m.get("card_id", ""))) and not _is_silenced(m)
+		"player_flee_keep":
+			out["kind"] = "FLEE"
+			out["number"] = "−1"
+			out["note"] = ""
+			out["fill"] = Color("4a3d14")
+			out["can_use"] = fighting and hp > 0
 		"atk_spend_blk":
 			out["n"] = blk if fighting else 0
 			out["number"] = str(out["n"])
@@ -16275,6 +16763,10 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = "Remove the facing owner's unique ability for the rest of this dungeon. They use their printed Attack and HP."
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = "Can't — they have no unique ability."
+		"player_flee_keep":
+			out["value"] = _value_bb("Flee", "−1", hp_c)
+			out["equation"] = "You Flee, then lose 1 HP. This stays."
+			out["body"] = str(it.get("ability", "Flee. Lose 1 HP. Keep this."))
 		"echo":
 			out["value"] = ""
 			out["body"] = "Becomes a copy of the last item you used this dungeon."
@@ -18670,6 +19162,11 @@ func _sync_overlay() -> void:
 				rope_exit.open_exit(dungeons_cleared, _rope_loot_rows())
 			else:
 				rope_exit.open_exit(dungeons_cleared)
+			if rope_exit.has_method("apply_exit_mode"):
+				var can_push := false
+				if _campaign_on and _campaign != null:
+					can_push = CAMPAIGN_SHELL.can_push(_campaign.rules, _campaign.state)
+				rope_exit.apply_exit_mode(_campaign_on, can_push)
 		return
 	if phase == "victory":
 		overlay.visible = false

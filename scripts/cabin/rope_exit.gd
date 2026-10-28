@@ -26,6 +26,11 @@ var _climb_btn: FitButton
 var _deeper_btn: FitButton
 var _peek_btn: FitButton
 var _deeper_sub: FitLabelBox
+var _climb_lab: FitLabelBox
+var _climb_sub: FitLabelBox
+var _deeper_lab: FitLabelBox
+var _hole_hit: Control
+var _push_on: bool = true
 var _plank_normal: StyleBox
 var _plank_hover: StyleBox
 var _busy: bool = false
@@ -289,7 +294,11 @@ func _plank_choice(el_id: String, label_key: String, sub_key: String, vars: Dict
 		sub.set_copy(sub_key, vars)
 	add_child(sub)
 	_chrome.append(sub)
-	if el_id == "Delve":
+	if el_id == "Climb":
+		_climb_lab = lab
+		_climb_sub = sub
+	elif el_id == "Delve":
+		_deeper_lab = lab
 		_deeper_sub = sub
 	return b
 
@@ -327,6 +336,34 @@ func _build_hotspots() -> void:
 			_on_deeper()
 	)
 	add_child(hole_hit)
+	_hole_hit = hole_hit
+
+
+func apply_exit_mode(campaign: bool, can_push: bool) -> void:
+	_push_on = (not campaign) or can_push
+	if _climb_lab:
+		if campaign:
+			_climb_lab.set_plain("Bank home")
+		else:
+			_climb_lab.set_copy("rope.climb")
+	if _climb_sub:
+		if campaign:
+			_climb_sub.set_plain("End the run and keep what you extracted.")
+		else:
+			_climb_sub.set_copy("rope.climb_sub")
+	if _deeper_lab:
+		if campaign:
+			_deeper_lab.set_plain("Push deeper")
+		else:
+			_deeper_lab.set_copy("rope.deeper")
+	if _deeper_sub and campaign:
+		_deeper_sub.set_plain("Carry this hand into the next delve.")
+	for raw_n in [_deeper_btn, _deeper_lab, _deeper_sub, _hole, _hole_hit]:
+		var n := raw_n as CanvasItem
+		if n:
+			n.visible = _push_on
+	if _hole_glow:
+		_hole_glow.visible = _push_on and _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
 
 
 func _set_climb_hot(on: bool) -> void:
@@ -341,6 +378,8 @@ func _set_climb_hot(on: bool) -> void:
 
 
 func _set_delve_hot(on: bool) -> void:
+	if not _push_on:
+		return
 	_hole.texture = KIT.load_tex("overlays/deeper_hole_hover.png" if on else "overlays/deeper_hole_idle.png")
 	if _hole_glow:
 		_hole_glow.visible = not on and _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
@@ -372,6 +411,8 @@ func _do_climb() -> void:
 
 
 func _do_deeper() -> void:
+	if not _push_on:
+		return
 	_busy = true
 	KIT.cue(cabin.sfx if cabin else null, &"cabin.hole_rumble")
 	var tw := create_tween()
