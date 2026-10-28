@@ -19,6 +19,7 @@ const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
 const MONSTER_LINES := preload("res://scripts/monster_lines.gd")
 const P1 := preload("res://scripts/spinheritance_p1.gd")
+const SP_DALLAS := preload("res://scripts/sp_dallas_pack.gd")
 const DUNGEON_BG := preload("res://scripts/dungeon_bg.gd")
 const COMBAT_STAGE := preload("res://scripts/combat_stage.gd")
 const PLAYER_STAGE := preload("res://scripts/player_stage.gd")
@@ -213,7 +214,7 @@ const MONSTER_SPECIAL := {
 	"merchant": {"id": "fair_trade", "text": "When you Spin me, choose an Item and I will upgrade it."},
 	"juggernaut": {"id": "gift_shield", "text": "When you face me, Gain a Shield."},
 	"cleric": {"id": "insure", "text": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item"},
-	"martyr": {"id": "noble_death", "text": "When I Attack, I die. Neighbors gain my HP."},
+	"martyr": {"id": "noble_death", "text": "When I lose HP or Attack, I die. Neighbors gain my remaining HP."},
 	"prism": {"id": "refract", "text": "Attack at me hits both neighbors instead."},
 	"plague_doctor": {"id": "time_bomb", "text": "On Spin, my Neighbors Gain 2 Poison and Heal 2. While I live, Poison does not activate."},
 	"hired_hand": {"id": "bribe", "text": "Discard an item: I Attack a Neighbor and Flee."},
@@ -229,7 +230,7 @@ const MONSTER_SPECIAL := {
 	"shambling_mound": {"id": "self_deconstruct", "text": "I Attack repeatedly until I die. I lose 1 HP each time I Attack."},
 	"almighty_worm": {"id": "hunger_pains", "text": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3."},
 	"cultist": {"id": "blood_pact", "text": "When you Spin me or my Neighbor, Gain 1 Blood Pact"},
-	"bushido": {"id": "patient_disarm", "text": "When facing me, your second Item used has no effect"},
+	"bushido": {"id": "dance_swap", "text": "After each Item you use while facing me, swap my HP and Attack."},
 	"shark": {"id": "blood_thresh", "text": "I Attack until you lose HP"},
 	"death_bell": {"id": "toll_dead", "text": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item."},
 	"mouse": {"id": "scurry", "text": "When you Spin me, if you have more HP than me I lose 2 HP and Flee"},
@@ -282,7 +283,7 @@ const MONSTER_CALL := {
 	"shambling_mound": "Self Deconstruct",
 	"almighty_worm": "Hunger Pains",
 	"cultist": "Blood Pact",
-	"bushido": "Patient Disarm",
+	"bushido": "Dance Swap",
 	"shark": "Blood Thresh",
 	"death_bell": "Toll Of The Dead",
 	"mouse": "Scurry",
@@ -335,7 +336,7 @@ const MONSTER_REMINDER := {
 	"shambling_mound": "Attacks until it dies; loses 1 HP per Attack",
 	"almighty_worm": "Discard items: I lose 3 Attack and 3 HP each",
 	"cultist": "Spin me or my neighbor: Gain Blood Pact",
-	"bushido": "Second item this fight does nothing",
+	"bushido": "After each item: swap HP and Attack",
 	"shark": "Attacks until you lose HP",
 	"death_bell": "Spawn Toll. Spin −2 HP. Defeat: Discard 1 Item.",
 	"mouse": "On Spin: if your HP is higher, I lose 2 HP and Flee",
@@ -387,7 +388,7 @@ const MONSTER_SPEECH := {
 	"shambling_mound": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
 	"almighty_worm": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3.",
 	"cultist": "When you Spin me or my Neighbor, Gain 1 Blood Pact",
-	"bushido": "When facing me, your second Item used has no effect",
+	"bushido": "After each Item you use while facing me, swap my HP and Attack.",
 	"shark": "I Attack until you lose HP",
 	"death_bell": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
 	"mouse": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
@@ -913,7 +914,7 @@ func _load_textures() -> void:
 		"shambling_mound": _tex("res://assets/icons/swords.svg"),
 		"almighty_worm": _tex("res://assets/icons/layers.svg"),
 		"cultist": _tex("res://assets/icons/droplet.svg"),
-		"bushido": _tex("res://assets/icons/ban.svg"),
+		"bushido": _tex("res://assets/icons/rotate.svg"),
 		"shark": _tex("res://assets/icons/swords.svg"),
 		"mouse": _tex("res://assets/icons/footprints.svg"),
 		"magicat": _tex("res://assets/icons/sparkles.svg"),
@@ -1020,7 +1021,7 @@ func _load_textures() -> void:
 		"self_deconstruct": _tex("res://assets/icons/swords.svg"),
 		"hunger_pains": _tex("res://assets/icons/layers.svg"),
 		"blood_pact": _tex("res://assets/icons/droplet.svg"),
-		"patient_disarm": _tex("res://assets/icons/ban.svg"),
+		"dance_swap": _tex("res://assets/icons/rotate.svg"),
 		"blood_thresh": _tex("res://assets/icons/swords.svg"),
 		"toll_dead": _tex("res://assets/icons/skull.svg"),
 		"no_defeat": _tex("res://assets/icons/ban.svg"),
@@ -5763,7 +5764,7 @@ func _apply_formulas_to(s: Dictionary) -> void:
 	s["log_hint"] = str(card.get("log_hint", ""))
 	if hp_locked:
 		s["hp"] = hold_hp
-		if id == "vampire" or id == "amalgam":
+		if id == "vampire" or id == "amalgam" or id == "bushido":
 			s["hp_max"] = maxi(hold_max, hold_hp)
 		if id == "slime_boss":
 			s["atk"] = hold_hp
@@ -8313,27 +8314,6 @@ func _use_item(uid: int) -> void:
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
-	if _bushido_dummy_now():
-		if not bool(_item_view(it).get("can_use", false)):
-			if sfx:
-				sfx.play("error", -12.0, 1.2)
-			return
-		_undo_begin()
-		var dummy_token: int = _undo_gen
-		var dummy_keep: bool = str(it.get("card_id", "")) == "energy_drink"
-		it["spent"] = not dummy_keep
-		await _count_item_use()
-		_toss_item(uid, dummy_keep)
-		_log("on_item_use", "no effect")
-		if facing_index >= 0 and facing_index < wheel.size():
-			var hid: String = str(wheel[facing_index].get("card_id", ""))
-			if hid == "harpy" and facing_index >= 0 and facing_index < wheel.size() and not _is_silenced(wheel[facing_index]):
-				await _harpy_poke()
-		if _undo_stale(dummy_token):
-			return
-		_undo_wall()
-		call_deferred("_refresh")
-		return
 	_undo_begin()
 	var token: int = _undo_gen
 	if kind == "sling":
@@ -9083,6 +9063,11 @@ func _on_owner_defeated(index: int) -> void:
 			return
 	elif cid == "fairy" and P1.fairy_grants_bottle(int(m.get("hp", 0)), quiet):
 		_gain_token_item("fairy_in_a_bottle")
+	elif cid == "martyr" and SP_DALLAS.martyr_dies_on_defeat(
+		int(m.get("hp", 0)), quiet, bool(m.get("noble_death_done", false))
+	):
+		## SP-24: Defeat while still holding HP gifts remaining HP to neighbors.
+		await _martyr_gift_neighbors(index)
 
 
 func _lay_phoenix_egg() -> void:
@@ -9640,6 +9625,9 @@ func _chip_hp(index: int, n: int) -> bool:
 			await wheel_view.play_hp_ticks(index, before, int(m["hp"]))
 		else:
 			wheel_view.punch_hp(index)
+	if before > int(m["hp"]):
+		if await _martyr_after_hp_loss(index, before, int(m["hp"])):
+			return true
 	if before > int(m["hp"]) and int(m["hp"]) > 0:
 		return await _coward_after_hp_loss(index)
 	return false
@@ -11984,8 +11972,6 @@ func _item_verb_muted(it: Dictionary) -> bool:
 		return true
 	if _item_stoned(it):
 		return true
-	if _bushido_dummy_now():
-		return true
 	return false
 
 
@@ -12969,6 +12955,8 @@ func _after_item_resolved(it: Dictionary) -> void:
 	var hid: String = str(wheel[facing_index].get("card_id", ""))
 	if hid == "harpy" and facing_index >= 0 and facing_index < wheel.size() and not _is_silenced(wheel[facing_index]) and _clicked_item_counts_as_use(it):
 		await _harpy_poke()
+	if hid == "bushido" and _clicked_item_counts_as_use(it):
+		await _bushido_dance_swap(facing_index)
 	if _pending_item_flee:
 		_pending_item_flee = false
 		if hp > 0 and phase == "fighting" and facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) > 0:
@@ -14011,6 +13999,9 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 		else:
 			wheel_view.hit_feedback(index, before_hp - int(m["hp"]), int(m["atk"]) - before_atk)
 	_flash_hit_portrait(index)
+	if before_hp > int(m["hp"]):
+		if await _martyr_after_hp_loss(index, before_hp, int(m["hp"])):
+			return true
 	if before_hp > int(m["hp"]) and int(m["hp"]) > 0:
 		if await _coward_after_hp_loss(index):
 			return true
@@ -15381,24 +15372,23 @@ func _after_self_deconstruct(index: int) -> void:
 	await _chip_hp(index, 1)
 
 
-## Martyr (Noble Death): when it Attacks, it dies, and each live neighbor
-## gains the HP Martyr had when it died.
-func _martyr_noble_death(index: int) -> void:
+## SP-24 Martyr (Noble Death): gift remaining HP to living neighbors (max grows).
+func _martyr_gift_neighbors(index: int) -> int:
 	if index < 0 or index >= wheel.size():
-		return
+		return 0
 	var s: Dictionary = wheel[index]
 	if str(s.get("card_id", "")) != "martyr":
-		return
+		return 0
 	if _is_silenced(s) or bool(s.get("swing_muted", false)):
-		return
-	if not bool(s.get("has_attacked", false)):
-		return
-	var gift: int = int(s.get("hp", 0))
+		return 0
+	if bool(s.get("noble_death_done", false)):
+		return 0
+	var gift: int = SP_DALLAS.martyr_gift_after_loss(int(s.get("hp", 0)))
+	s["noble_death_done"] = true
+	wheel[index] = s
 	if gift <= 0:
-		return
-	# Slash portrait first, then the death, so the call and the HP tell line up.
+		return 0
 	await _announce_slice(index, _hub_hp_pos())
-	await _chip_hp(index, gift)
 	for j in _neighbors_of(index):
 		if j < 0 or j >= wheel.size():
 			continue
@@ -15411,6 +15401,62 @@ func _martyr_noble_death(index: int) -> void:
 		wheel[j] = n
 	_log("on_resolve", "Martyr gives %s HP to its neighbors" % gift)
 	_refresh()
+	return gift
+
+
+## Attack half: after Martyr Attacks, gift remaining HP and die.
+func _martyr_noble_death(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var s: Dictionary = wheel[index]
+	if str(s.get("card_id", "")) != "martyr":
+		return
+	if _is_silenced(s) or bool(s.get("swing_muted", false)):
+		return
+	if not bool(s.get("has_attacked", false)):
+		return
+	if bool(s.get("noble_death_done", false)):
+		return
+	var gift: int = await _martyr_gift_neighbors(index)
+	var left: int = int(wheel[index].get("hp", 0)) if index < wheel.size() else 0
+	if left > 0:
+		## Skip re-entry into martyr HP-loss while we finish the self-kill.
+		wheel[index]["noble_death_done"] = true
+		await _chip_hp(index, left)
+	elif gift <= 0 and left <= 0:
+		pass
+
+
+## SP-24: any HP loss kills Martyr; neighbors gain HP after that loss.
+func _martyr_after_hp_loss(index: int, before: int, after: int) -> bool:
+	if index < 0 or index >= wheel.size():
+		return false
+	var s: Dictionary = wheel[index]
+	if str(s.get("card_id", "")) != "martyr":
+		return false
+	if not SP_DALLAS.martyr_dies_on_hp_loss(
+		before, after, _is_silenced(s) or bool(s.get("swing_muted", false)), bool(s.get("noble_death_done", false))
+	):
+		return false
+	if after <= 0:
+		## Lethal chip already dropped him; remaining HP is 0 so gift is 0.
+		s["noble_death_done"] = true
+		wheel[index] = s
+		return false
+	await _martyr_gift_neighbors(index)
+	var left: int = int(wheel[index].get("hp", 0)) if index < wheel.size() else 0
+	if left > 0:
+		wheel[index]["noble_death_done"] = true
+		## Direct zero so _chip_hp does not re-enter martyr death.
+		var m: Dictionary = wheel[index]
+		m["hp_pre_hit"] = left
+		m["hp"] = 0
+		_note_death(m)
+		m["hp_locked"] = true
+		wheel[index] = m
+		if wheel_view:
+			wheel_view.punch_hp(index)
+	return true
 
 
 func _blood_threshes(index: int) -> bool:
@@ -15457,15 +15503,30 @@ func _shark_net_death(index: int) -> void:
 	_cube_line = ""
 
 
-func _bushido_dummy_now() -> bool:
-	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
-		return false
-	var m: Dictionary = wheel[facing_index]
+## SP-20 Dance Swap: after a counted item use while facing Bushido, swap HP/Attack if he still lives.
+func _bushido_dance_swap(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var m: Dictionary = wheel[index]
 	if str(m.get("card_id", "")) != "bushido":
-		return false
-	if _is_silenced(m):
-		return false
-	return items_used_this_combat == 1
+		return
+	var hp_now: int = int(m.get("hp", 0))
+	if not SP_DALLAS.bushido_should_swap(true, _is_silenced(m), hp_now):
+		return
+	var pair: Dictionary = SP_DALLAS.bushido_swap_pair(hp_now, int(m.get("atk", 0)))
+	m["hp"] = int(pair["hp"])
+	m["atk"] = int(pair["atk"])
+	m["hp_max"] = maxi(int(m.get("hp_max", 0)), int(m["hp"]))
+	m["hp_locked"] = true
+	m["atk_locked"] = true
+	m["atk_innate"] = int(m["atk"])
+	wheel[index] = m
+	_log("on_resolve", "Bushido Dance Swap  →  HP %s  ATK %s" % [m["hp"], m["atk"]])
+	if sfx:
+		sfx.play("whoosh", -12.0, 1.1)
+	if wheel_view:
+		wheel_view.hit_feedback(index, 0, 0)
+	_refresh()
 
 
 func _apply_bag_look(card, it: Dictionary) -> void:
@@ -15509,8 +15570,6 @@ func _apply_item_stone_look(card, it: Dictionary) -> void:
 	var pn: int = int(it.get("petrify_n", 0))
 	if _item_stoned(it):
 		card.set_petrified(true, false, pn, false)
-	elif _bushido_dummy_now():
-		card.set_petrified(true, true, 0, false)
 	else:
 		card.set_petrified(false, false, 0, false)
 
@@ -20763,15 +20822,6 @@ func _run_hover_preview(it: Dictionary, card: Control) -> void:
 	var view: Dictionary = _item_view(it)
 	var ops: Dictionary = _ops_of(it)
 	var kind: String = str(ops.get("kind", ""))
-	var bushido_dummy: bool = fid == "bushido" and not silenced and items_used_this_combat == 1
-	if bushido_dummy:
-		if card != null and card.has_method("set_no_effect"):
-			card.set_no_effect(true)
-		if intent_plate:
-			intent_plate.ghost(hits)
-		_apply_preview(p)
-		_refresh_blk(false)
-		return
 	if fid == "kobold_trapper" and not silenced:
 		var extra: Dictionary = {}
 		if not hits.is_empty():

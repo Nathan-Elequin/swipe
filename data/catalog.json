@@ -5628,7 +5628,7 @@
 			"type": "M"
 		},
 		{
-			"ability": "When I Attack, I die. My Neighbors each gain HP equal to my current HP",
+			"ability": "When I lose HP or Attack, I die. My Neighbors each gain HP equal to my remaining HP.",
 			"atk": {
 				"base": 0.0
 			},
@@ -5637,9 +5637,9 @@
 			"call_name": "Noble Death",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "0 Attack still Attacks. Snapshot HP, then I die as a Defeat. Each living neighbor gains that much current HP and max HP (like Vampire). Empty seats skipped. Killing me with items before Done skips this. Quiet Bell turns this off.",
-			"exceptions": "Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
-			"explainer": "On Attack: I die. Neighbors gain my HP",
+			"defined": "SP-24 (2026-10-28). 7 HP / 0 Attack. I die on any HP loss (including poison ticks), when I would be Defeated, or when I Attack (0 Attack still Attacks). On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Attack / Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
+			"exceptions": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
+			"explainer": "On HP loss or Attack: I die. Neighbors gain my remaining HP",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -5649,7 +5649,7 @@
 				"base": 7.0
 			},
 			"id": "martyr",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5670,15 +5670,15 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Dies on Attack, neighbors gain that HP",
+			"log_hint": "Dies on HP loss or Attack; neighbors gain remaining HP",
 			"mode_pool": "all",
 			"name": "Martyr",
-			"notes": "Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
+			"notes": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
 			"ops": {},
 			"poc": false,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "When I Attack, I die. Neighbors gain my HP.",
+			"reminder": "On HP loss or Attack: I die. Neighbors gain my remaining HP.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
@@ -6100,8 +6100,8 @@
 			"call_name": "Self Deconstruct",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "On any Attack this monster makes (Done, Damsel neighbor, Pocketwatch), it swings, then loses 1 of its own HP, then swings again until that HP is 0. Swing count is remaining HP. ATK stays 1 (Commander still adds). Block leftover carries like Hornet. Quiet Bell: one swing, no HP loss. Flee skips the Attack, so they do not fall apart. Self HP loss is not your Attack (no Needleback, Twins, Prism). Hitting 0 is a normal Defeat with loot. Plate badge is ∞; Shift uses remaining HP.",
-			"exceptions": "Bucket 4. Walking moss heap. Like Hornet with ∞ swings. Any Attack, then Defeat with loot.",
+			"defined": "On any Attack this monster makes (Done, Damsel neighbor, Pocketwatch), it swings, then loses 1 of its own HP, then swings again until that HP is 0. Swing count is remaining HP. ATK stays 1 (Commander still adds). Block leftover carries like Hornet. Quiet Bell: one swing, no HP loss. Flee skips the Attack, so they do not fall apart. Self HP loss is not your Attack (no Needleback, Twins, Prism). Hitting 0 is a normal Defeat with loot. Plate badge is ∞; Shift uses remaining HP. SP-27 (2026-10-28). HP is 6 (was 4). Behavior otherwise unchanged.",
+			"exceptions": "SP-27. Bucket 4. Walking moss heap. Like Hornet with ∞ swings. Any Attack, then Defeat with loot. HP 6.",
 			"explainer": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
 			"flags": {
 				"art": true,
@@ -6109,10 +6109,10 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 6.0
 			},
 			"id": "shambling_mound",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6136,7 +6136,7 @@
 			"log_hint": "Attacks until it dies; loses 1 HP per Attack",
 			"mode_pool": "all",
 			"name": "Shambling Mound",
-			"notes": "Bucket 4. Walking moss heap. Like Hornet with ∞ swings. Any Attack, then Defeat with loot.",
+			"notes": "SP-27. Bucket 4. Walking moss heap. Like Hornet with ∞ swings. Any Attack, then Defeat with loot. HP 6 (babySlime Boss).",
 			"ops": {},
 			"poc": false,
 			"priority": 3.0,
@@ -6265,28 +6265,28 @@
 			"type": "M"
 		},
 		{
-			"ability": "When facing me, your second Item used has no effect",
+			"ability": "After each Item you use while facing me, swap my HP and Attack.",
 			"atk": {
-				"base": 4.0
+				"base": 5.0
 			},
 			"author_lock": true,
 			"bucket": 4.0,
-			"call_name": "Patient Disarm",
+			"call_name": "Dance Swap",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "After your first item click this fight resolves, every card looks overlaid like Petrify, but you can still click any card you could already click. That second click discards the card immediately: no Attack, Block, Heal, targeting menu, or Keep. Counting Beads and Sai still tick. Hex and Double-Buckler stay Unplayable. Petrified cards stay unclickable. Healing Potion and Double-Buckler auto do not count. Done after one item is legal. Quiet Bell: no overlay. Grappling Hook and Damsel neighbors are not this fight.",
-			"exceptions": "Bucket 3. Samurai unsheathing. Overlay like petrify; dummy still clickable.",
-			"explainer": "When facing me, your second Item used has no effect",
+			"defined": "SP-20 (2026-10-28). 6 HP / 5 Attack. After each Item you use while facing me (the same uses that increment items_used_this_combat), swap my current HP and Attack. If that item drops me to 0 HP, I die and do NOT swap. Quiet Bell: no swap. Replaces Patient Disarm (second-item dummy).",
+			"exceptions": "SP-20. Replaces Patient Disarm. Quiet Bell turns this off.",
+			"explainer": "After each Item while facing me: swap my HP and Attack",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
 			"hp": {
-				"base": 5.0
+				"base": 6.0
 			},
 			"id": "bushido",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6307,15 +6307,15 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Second item this fight does nothing",
+			"log_hint": "After each item: swap HP and Attack",
 			"mode_pool": "all",
 			"name": "Bushido",
-			"notes": "Bucket 3. Samurai unsheathing. Overlay like petrify; dummy still clickable.",
+			"notes": "SP-20. Bucket 3. After each counted item use while facing me unsilenced, swap current HP and Attack. If that item drops me to 0 HP I die and do not swap. Quiet Bell turns this off.",
 			"ops": {},
 			"poc": false,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "",
+			"reminder": "After each Item while facing me: swap my HP and Attack.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
@@ -7246,6 +7246,21 @@
 			"chat": "2026-10-25",
 			"id": "SP-29",
 			"rule": "Ale Flagon heals you and the Enemy for 3, then draws one random Item from the current loot pool. No Poison. Author-lock override: ale_flagon ability, explainer, defined, log_hint, notes, ops."
+		},
+		{
+			"chat": "2026-10-28",
+			"id": "SP-20",
+			"rule": "Bushido is 6 HP / 5 Attack. Dance Swap: after each Item used while facing him, swap current HP and Attack. An item that drops him to 0 HP kills him with no swap. Replaces Patient Disarm. Author-lock override 2026-10-28."
+		},
+		{
+			"chat": "2026-10-28",
+			"id": "SP-24",
+			"rule": "Martyr dies on any HP loss (including poison), when he would be Defeated, or when he Attacks. Neighbors gain his remaining HP measured after the loss that killed him (grow max like Vampire). Author-lock override 2026-10-28."
+		},
+		{
+			"chat": "2026-10-28",
+			"id": "SP-27",
+			"rule": "Shambling Mound HP is 6 (was 4). Self Deconstruct behavior unchanged. Author-lock override 2026-10-28."
 		}
 	],
 	"source_file": "source/01_Boss_Rush_Content.xlsx",

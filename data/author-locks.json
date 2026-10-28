@@ -1692,7 +1692,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-28",
 			"name": "Bushido"
 		},
 		"monster:cleric": {
@@ -2277,7 +2277,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"name": "Martyr"
 		},
 		"monster:merchant": {
@@ -2561,7 +2561,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-28",
 			"name": "Shambling Mound"
 		},
 		"monster:shark": {
@@ -4495,5 +4495,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-10-25"
+	"updated": "2026-10-28"
 }
