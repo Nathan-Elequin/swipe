@@ -326,6 +326,8 @@ static func def_id_of(piece: String) -> String:
 		return "move"
 	if low.begins_with("flee"):
 		return "flee"
+	if low.begins_with("defeat"):
+		return "defeated"
 	if low.find("poison") >= 0:
 		return "poison"
 	if low.begins_with("spin") or low == "spun":
@@ -357,6 +359,8 @@ static func def_of(id: String) -> String:
 			return "shift to a Neighbor without Spinning"
 		"flee":
 			return "If you are facing them, Spin the wheel at random. They are not removed."
+		"defeated":
+			return "They leave the wheel. Flee is different — they stay. Escaped means you took the hit and lived."
 		"poison":
 			return "On a Spin, a monster with this loses that much HP immediately, wherever they sit, before their spin ability. Then it clears."
 		"spin":

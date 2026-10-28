@@ -208,7 +208,7 @@
 				"reminder",
 				"card_color"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"name": "Bloody Wraps"
 		},
 		"item:bracers": {
@@ -616,7 +616,7 @@
 				"reminder",
 				"log_hint"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"name": "Grimoire"
 		},
 		"item:healing_potion": {
