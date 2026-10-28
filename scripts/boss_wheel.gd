@@ -271,6 +271,7 @@ const HERO_PRI := {
 	"heal": 3,
 	"swipe": 4,
 	"grab": 5,
+	"use": 5,
 	"victory": 6,
 	"lowhp": 7,
 	"idle": 8,
@@ -301,6 +302,7 @@ var _sprout_gear_warned: bool = false
 var _hero_hold: bool = false
 var _hero_loops: int = 1
 var _hero_frozen: bool = false
+var _hero_heavy: bool = false
 var _pierce_float_t: float = -1.0
 var _hp_punch_t: float = 0.0
 var _blk_punch_t: float = 0.0
@@ -349,6 +351,10 @@ func setup_run_hero(art) -> void:
 			_hero_frames["death"] = art.sprout_anim("defeat")
 			_hero_frames["victory"] = art.sprout_anim("victory")
 			_hero_frames["grab"] = art.sprout_anim("grab")
+			var use_frames: Array = art.sprout_anim("use")
+			if use_frames.is_empty():
+				use_frames = _hero_frames["grab"]
+			_hero_frames["use"] = use_frames
 			_hero_frames["walkoff"] = art.sprout_anim("run")
 			_hero_frames["blink"] = art.sprout_anim("blink")
 			_sprout_blink_t = 0.0
@@ -372,6 +378,20 @@ func setup_run_hero(art) -> void:
 		for stem in ["badge_hp", "badge_hp_flash", "badge_hp_low", "badge_hp_empty", "badge_blk", "badge_blk_empty", "badge_blk_up", "badge_blk_pierced"]:
 			_badge_tex[stem] = art.hero_run_badge(stem)
 	reset_hero()
+
+
+func _exit_tree() -> void:
+	_set_hero_heavy(false)
+
+
+func _set_hero_heavy(on: bool) -> void:
+	if on == _hero_heavy:
+		return
+	_hero_heavy = on
+	if on:
+		FX_BUDGET.begin_heavy()
+	else:
+		FX_BUDGET.end_heavy()
 
 
 func reset_hero() -> void:
@@ -398,6 +418,7 @@ func play_hero(anim: String, loops: int = 1, force: bool = false) -> void:
 	_hero_hold = false
 	_hero_frozen = false
 	_hero_loops = maxi(1, loops)
+	_set_hero_heavy(FX_BUDGET.is_heavy_state(anim))
 	_on_hero_frame()
 
 

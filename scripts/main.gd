@@ -17254,11 +17254,26 @@ func _ability_avoid_rects() -> Array:
 
 
 func _player_play(state: String, loops: int = 1) -> void:
-	if player_stage == null:
+	if player_stage:
+		player_stage.hide_stage()
+	if wheel_view == null or not wheel_view.has_method("play_hero"):
 		return
-	player_stage.hp = hp
-	player_stage.hp_max = HP_MAX
-	player_stage.play(state, loops)
+	var hub_anim := {
+		"use": "use",
+		"attack": "swipe",
+		"heal": "heal",
+		"hit": "hit",
+		"block": "block",
+		"victory": "victory",
+		"defeat": "death",
+		"grab": "grab",
+	}
+	var anim: String = str(hub_anim.get(state, state))
+	if anim == "":
+		return
+	if wheel_view.hero_anim == anim and not wheel_view._hero_is_loop(anim):
+		return
+	wheel_view.play_hero(anim, loops)
 
 
 # Goblin and Bandit facing sheets: the solid body is 46 pixels tall.
@@ -17286,11 +17301,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _sprout_keeps_stage() -> bool:
-	if player_stage == null:
-		return false
-	if _sprout_mode != "stage" and _sprout_mode != "entering" and _sprout_mode != "returning":
-		return false
-	return phase == "ready" or phase == "fighting" or phase == "slaying" or phase == "spinning"
+	return false
 
 
 func _fight_sprite_pad() -> int:
@@ -17360,18 +17371,18 @@ func _layout_floor_pair() -> void:
 	if log_label != null and log_label.visible:
 		right_lim = minf(right_lim, log_label.get_global_rect().position.x - 8.0)
 	var card_w := 340.0
-	var card_x := 8.0
+	var card_x := rim_c.x + rim_r + 2.0
 	var placed := false
-	# Prefer a side gutter that clears the wheel. Shrink the card (down to 300) only when 340 will not fit.
+	# Monster callout and portrait stay on the right. Sprout stays in the hub.
 	while card_w >= 300.0 and not placed:
 		var candidates: Array[float] = [
-			right_lim - card_w,
 			rim_c.x + rim_r + 2.0,
-			rim_c.x - rim_r - 2.0 - card_w,
-			8.0,
+			right_lim - card_w,
 		]
 		for raw_x in candidates:
 			var try_x: float = clampf(raw_x, 8.0, maxf(8.0, view.x - card_w - 8.0))
+			if try_x + card_w * 0.35 < rim_c.x:
+				continue
 			if _floor_pair_clear(try_x, card_top, card_w, card_h, foot, rim_c, rim_r):
 				card_x = try_x
 				placed = true
@@ -17380,12 +17391,7 @@ func _layout_floor_pair() -> void:
 			card_w -= 8.0
 	if not placed:
 		card_w = 300.0
-		var left_gap: float = (rim_c.x - rim_r) - 8.0
-		var right_gap: float = right_lim - (rim_c.x + rim_r)
-		if right_gap >= left_gap:
-			card_x = clampf(rim_c.x + rim_r + 2.0, 8.0, maxf(8.0, view.x - card_w - 8.0))
-		else:
-			card_x = clampf(rim_c.x - rim_r - 2.0 - card_w, 8.0, maxf(8.0, view.x - card_w - 8.0))
+		card_x = clampf(maxf(rim_c.x + rim_r + 2.0, right_lim - card_w), 8.0, maxf(8.0, view.x - card_w - 8.0))
 	face_box.size = Vector2(card_w, card_h)
 	var cx: float = card_x + card_w * 0.5
 	var stage_x: float = VIEW_FRAME.clamp_x(cx - foot.x, combat_stage.size.x, view)
@@ -17419,25 +17425,8 @@ func _sprout_x_for(center_x: float) -> float:
 func _apply_sprout_floor() -> void:
 	if player_stage == null:
 		return
-	var show: bool = _sprout_mode == "stage" or _sprout_mode == "entering" or _sprout_mode == "returning"
-	if not show:
-		if _sprout_mode == "hub" or _sprout_mode == "leaving" or _sprout_mode == "hub_in":
-			player_stage.hide_stage()
-		return
-	player_stage.size = Vector2(280, 240)
-	player_stage.custom_minimum_size = player_stage.size
-	player_stage.scale = Vector2.ONE
-	player_stage.set_body_px(_medium_monster_px(player_stage.size))
-	var y: float = FLOOR_Y - player_stage.foot_y()
-	if player_stage.traveling:
-		player_stage.global_position.y = round(y)
-		return
-	player_stage.global_position = Vector2(round(_sprout_home_x), round(y))
-	if not player_stage.visible:
-		player_stage.idle()
-	else:
-		player_stage.visible = true
-		player_stage.note_hp()
+	player_stage.traveling = false
+	player_stage.hide_stage()
 
 
 func _hold_sprout_on_floor() -> void:
@@ -17483,175 +17472,41 @@ func _hub_set(flip: bool, sy: float, mod: Color, on: bool) -> void:
 	wheel_view.queue_redraw()
 
 
-func _sprout_begin_entrance() -> void:
-	if _sprout_mode != "hub" or wheel_view == null or player_stage == null:
-		return
+func _sprout_stay_hub() -> void:
 	_sprout_kill()
-	_sprout_mode = "leaving"
-	player_stage.hide_stage()
-	_hub_set(true, 1.0, Color.WHITE, true)
-	var tw := create_tween()
-	_sprout_tw = tw
-	tw.tween_method(_hub_darken, 0.0, 1.0, 0.12)
-	tw.tween_method(_hub_fade_out, 1.0, 0.0, 0.10)
-	tw.tween_callback(_sprout_run_in)
+	_sprout_mode = "hub"
+	if player_stage:
+		player_stage.traveling = false
+		player_stage.face_left = false
+		player_stage.modulate = Color.WHITE
+		player_stage.hide_stage()
+	_hub_set(false, 1.0, Color.WHITE, true)
 
 
-func _hub_darken(t: float) -> void:
-	_hub_set(true, lerpf(1.0, 0.85, t), Color.WHITE.lerp(Color(0, 0, 0, 1), t), true)
-
-
-func _hub_fade_out(a: float) -> void:
-	_hub_set(true, 0.85, Color(0, 0, 0, a), true)
-
-
-func _sprout_run_in() -> void:
-	if player_stage == null:
-		return
-	_hub_set(false, 1.0, Color.WHITE, false)
-	_sprout_mode = "entering"
-	player_stage.face_left = false
-	player_stage.modulate = Color(0, 0, 0, 1)
-	player_stage.traveling = true
-	player_stage.size = Vector2(280, 240)
-	player_stage.set_body_px(_medium_monster_px(player_stage.size))
-	var y: float = FLOOR_Y - player_stage.foot_y()
-	player_stage.global_position = Vector2(-80.0, round(y))
-	player_stage.play("run", 99)
-	var tw := create_tween()
-	_sprout_tw = tw
-	tw.tween_property(player_stage, "global_position:x", _sprout_home_x, 0.45)
-	tw.parallel().tween_property(player_stage, "modulate", Color.WHITE, 0.45)
-	tw.tween_callback(_sprout_arrived)
-
-
-func _sprout_arrived() -> void:
-	_sprout_mode = "stage"
-	if player_stage == null:
-		return
-	player_stage.traveling = false
-	player_stage.face_left = false
-	player_stage.modulate = Color.WHITE
-	player_stage.idle()
-	_apply_sprout_floor()
+func _sprout_begin_entrance() -> void:
+	_sprout_stay_hub()
 
 
 func _sprout_begin_exit() -> void:
-	if player_stage == null or wheel_view == null:
-		return
-	if _sprout_mode != "stage" and _sprout_mode != "entering":
-		return
-	_sprout_kill()
-	_sprout_mode = "returning"
-	_hub_set(false, 1.0, Color.WHITE, false)
-	player_stage.face_left = true
-	player_stage.traveling = true
-	player_stage.play("run", 99)
-	var tw := create_tween()
-	_sprout_tw = tw
-	tw.tween_property(player_stage, "global_position:x", -80.0, 0.35)
-	tw.parallel().tween_property(player_stage, "modulate", Color(0, 0, 0, 1), 0.35)
-	tw.tween_callback(_sprout_hub_back)
-
-
-func _sprout_hub_back() -> void:
-	if player_stage:
-		player_stage.traveling = false
-		player_stage.face_left = false
-		player_stage.modulate = Color.WHITE
-		player_stage.hide_stage()
-	_sprout_mode = "hub_in"
-	_hub_set(false, 1.0, Color(0, 0, 0, 1), true)
-	var tw := create_tween()
-	_sprout_tw = tw
-	tw.tween_method(_hub_from_black, 0.0, 1.0, 0.20)
-	tw.tween_callback(_sprout_hub_idle)
-
-
-func _hub_from_black(t: float) -> void:
-	_hub_set(false, 1.0, Color(0, 0, 0, 1).lerp(Color.WHITE, t), true)
-
-
-func _sprout_hub_idle() -> void:
-	_sprout_mode = "hub"
-	_hub_set(false, 1.0, Color.WHITE, true)
-	if (phase == "fighting" or phase == "slaying") and facing_index >= 0:
-		_sprout_begin_entrance()
+	_sprout_stay_hub()
 
 
 func _sprout_snap() -> void:
-	var entering: bool = _sprout_mode == "leaving" or _sprout_mode == "entering"
-	var returning: bool = _sprout_mode == "returning" or _sprout_mode == "hub_in"
-	if not entering and not returning:
+	if _sprout_mode == "hub":
 		return
-	_sprout_kill()
-	if entering:
-		_sprout_mode = "stage"
-		_hub_set(false, 1.0, Color.WHITE, false)
-		if player_stage:
-			player_stage.traveling = false
-			player_stage.face_left = false
-			player_stage.modulate = Color.WHITE
-			player_stage.visible = true
-			player_stage.idle()
-			_apply_sprout_floor()
-		return
-	_sprout_mode = "hub"
-	if player_stage:
-		player_stage.traveling = false
-		player_stage.face_left = false
-		player_stage.modulate = Color.WHITE
-		player_stage.hide_stage()
-	_hub_set(false, 1.0, Color.WHITE, true)
+	_sprout_stay_hub()
 
 
 func qa_pose_sprout(step: int) -> void:
-	_sprout_kill()
-	if player_stage == null or wheel_view == null:
+	_sprout_stay_hub()
+	if wheel_view == null or not wheel_view.has_method("play_hero"):
 		return
-	player_stage.size = Vector2(280, 240)
-	player_stage.set_body_px(_medium_monster_px(player_stage.size))
-	var y: float = FLOOR_Y - player_stage.foot_y()
-	var mid_x: float = lerpf(-80.0, _sprout_home_x, 0.45)
-	if step <= 0:
-		_sprout_mode = "leaving"
-		player_stage.hide_stage()
-		_hub_set(true, lerpf(1.0, 0.85, 0.5), Color.WHITE.lerp(Color(0, 0, 0, 1), 0.5), true)
-	elif step == 1:
-		_sprout_mode = "leaving"
-		player_stage.hide_stage()
-		_hub_set(true, 0.85, Color(0, 0, 0, 0.4), true)
-	elif step == 2:
-		_sprout_mode = "entering"
-		_hub_set(false, 1.0, Color.WHITE, false)
-		player_stage.face_left = false
-		player_stage.modulate = Color(0, 0, 0, 1)
-		player_stage.global_position = Vector2(-80.0, y)
-		player_stage.play("run", 99)
-	elif step == 3:
-		_sprout_mode = "entering"
-		_hub_set(false, 1.0, Color.WHITE, false)
-		player_stage.face_left = false
-		player_stage.modulate = Color(0.5, 0.5, 0.5, 1)
-		player_stage.global_position = Vector2(mid_x, y)
-		player_stage.play("run", 99)
-		player_stage._frame = 2
-	elif step == 4:
-		_sprout_mode = "stage"
-		_hub_set(false, 1.0, Color.WHITE, false)
-		player_stage.face_left = false
-		player_stage.modulate = Color.WHITE
-		player_stage.traveling = false
-		player_stage.global_position = Vector2(_sprout_home_x, y)
-		player_stage.idle()
+	if step <= 1:
+		wheel_view.play_hero("idle", 1, true)
+	elif step <= 3:
+		wheel_view.play_hero("use", 1, true)
 	else:
-		_sprout_mode = "returning"
-		_hub_set(false, 1.0, Color(0.35, 0.35, 0.35, 1), true)
-		player_stage.face_left = true
-		player_stage.modulate = Color(0.2, 0.2, 0.2, 1)
-		player_stage.global_position = Vector2(lerpf(_sprout_home_x, -80.0, 0.55), y)
-		player_stage.play("run", 99)
-		player_stage._frame = 1
+		wheel_view.play_hero("swipe", 1, true)
 
 
 ## Staging QA: seat monsters, fill the item bar, face one id, optional log panel.
@@ -17697,8 +17552,7 @@ func qa_staging_fight(monsters: Array, face_id: String, items: Array, log_open: 
 	phase = "fighting"
 	hp = 6
 	blk = 2
-	_sprout_mode = "stage"
-	_hub_set(false, 1.0, Color.WHITE, false)
+	_sprout_stay_hub()
 	_sync_wheel_stats()
 	_show_fight_portrait()
 	_refresh_face()
@@ -17712,17 +17566,7 @@ func qa_staging_fight(monsters: Array, face_id: String, items: Array, log_open: 
 	if log_label != null:
 		log_label.visible = log_open
 	_layout_floor_pair()
-	_sprout_kill()
-	_sprout_mode = "stage"
-	_hub_set(false, 1.0, Color.WHITE, false)
-	if player_stage != null:
-		player_stage.traveling = false
-		player_stage.face_left = false
-		player_stage.modulate = Color.WHITE
-		player_stage.hp = hp
-		player_stage.hp_max = HP_MAX
-		player_stage.idle()
-		_apply_sprout_floor()
+	_sprout_stay_hub()
 	_sync_playtest_chrome()
 	return "ok face=%s seats=%d items=%d" % [face_id, wheel.size(), hotbar.size()]
 
@@ -17825,8 +17669,7 @@ func _place_fight_art() -> void:
 	var left_x: float = wr.end.x + gap_side if on_left else wr.position.x - gap_side - stack_w
 	var port_y: float = stack_pos.y
 	y = stack_pos.y
-	# The log often wins the right gutter, so the portrait lands on the left and a
-	# mirror would sit on the log. Sprout stays on the left; the portrait takes the right.
+	# If the log pushes the portrait into the left gutter, put it back on the right.
 	if combat_stage != null and combat_stage.visible and (hypno_stage == null or not hypno_stage.visible):
 		var mirror_x: float = 2.0 * wr.get_center().x - (right_x + port_sz.x)
 		if mirror_x >= wr.get_center().x:
@@ -17849,15 +17692,7 @@ func _place_fight_art() -> void:
 			if combat_stage.has_method("_place_sprite"):
 				combat_stage._place_sprite()
 		if player_stage != null:
-			var show_sprout: bool = facing_index >= 0 and (phase == "fighting" or phase == "slaying") and not _choice_covering() and (hypno_stage == null or not hypno_stage.visible)
-			if not show_sprout:
-				if not _sprout_keeps_stage():
-					player_stage.hide_stage()
-			else:
-				# Feet sit on FLOOR_Y; _layout_floor_pair mirrors x around screen centre.
-				player_stage.hp = hp
-				player_stage.hp_max = HP_MAX
-				_apply_sprout_floor()
+			player_stage.hide_stage()
 	if hypno_stage != null and hypno_stage.visible:
 		hypno_stage.size = port_sz
 		hypno_stage.global_position = Vector2(left_x + (stack_w - port_sz.x) * 0.5, port_y)
