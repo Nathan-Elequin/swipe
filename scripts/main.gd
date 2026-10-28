@@ -7223,6 +7223,11 @@ func _on_spin() -> void:
 		combat_stage.show_monster(str(m.get("card_id", "")), int(m.get("tier", 1)))
 		_tune_combat_stage()
 	_refresh()
+	# Land callout: one sync place now so portrait + plate appear with the seat.
+	# Later refreshes still coalesce via dirty flush (#141) — this does not blank
+	# the gutter sig, so the deferred flush from `_refresh_face` early-outs.
+	if not _spin_holds_fight_art():
+		_place_fight_art(true)
 	_bleed_begin()
 	if cascade_ticker != null:
 		cascade_ticker.begin()
@@ -7628,7 +7633,8 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 		var capturer: Callable = Callable()
 		if shot_name != "" and has_meta("qa_anim_capture") and get_meta("qa_anim_capture") is Callable:
 			capturer = get_meta("qa_anim_capture") as Callable
-		await intent_plate.fire(fire_i, blocked_hit, pierce, shot_name, capturer)
+		# release_early: HP/BLK tell overlaps badge burst (same idea as #142/#143).
+		await intent_plate.fire(fire_i, blocked_hit, pierce, shot_name, capturer, true)
 	blk = int(swing["blk"])
 	hp = maxi(0, hp - incoming)
 	if incoming > 0:
@@ -7689,7 +7695,7 @@ func _apply_egg_hurt(n: int) -> void:
 		if sfx:
 			sfx.play_event(&"egg.hurt")
 		if wheel_view:
-			await wheel_view.play_hub_sting("hurt", incoming)
+			await wheel_view.play_hub_sting("hurt", incoming, true)
 		_player_play("hit")
 		await _hurt_ogres(incoming)
 		await _grow_vampires()
@@ -7704,7 +7710,7 @@ func _apply_egg_hurt(n: int) -> void:
 			sfx.play("bong", -8.0, 1.12)
 			sfx.play("glass", -12.0, 1.3)
 		if wheel_view:
-			await wheel_view.play_hub_sting("block", 0)
+			await wheel_view.play_hub_sting("block", 0, true)
 		_player_play("block")
 	if hp <= 0:
 		_try_potion()
@@ -7733,7 +7739,8 @@ func _play_attack_blocked() -> void:
 		combat_stage.play_block()
 	_player_play("block")
 	if facing_index >= 0 and wheel_view:
-		await wheel_view.play_block(facing_index)
+		# Stamp snaps readable (~0.2s); hold/fade overlaps the next resolve beat.
+		await wheel_view.play_block(facing_index, true)
 
 
 func _player_down() -> void:
@@ -7846,10 +7853,12 @@ func _maybe_auto_spin() -> void:
 	if _monsters_left() <= 0:
 		return
 	_trace_resolve("auto-spin wait n=%s" % _monsters_left())
-	await get_tree().create_timer(0.15).timeout
+	# One process frame so hotbar/layout from the draft commit paints; no 0.15s
+	# dead air between draft confirm and Spin (feel D).
+	await get_tree().process_frame
 	if _qa_busy() and not _is_adventure_mode():
 		return
-	_trace_resolve("auto-spin after timer phase=%s" % phase)
+	_trace_resolve("auto-spin after settle phase=%s" % phase)
 	if ability_slash != null:
 		var guard := 0
 		while ability_slash.visible and guard < 90:

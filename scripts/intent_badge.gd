@@ -157,12 +157,13 @@ func set_next(on: bool) -> void:
 	_pulse_tw.tween_property(self, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_SINE)
 
 
-func fire(blocked: bool, pierce_hit: bool) -> void:
-	await fire_with_shot(blocked, pierce_hit, "", Callable())
+func fire(blocked: bool, pierce_hit: bool, release_early: bool = false) -> void:
+	await fire_with_shot(blocked, pierce_hit, "", Callable(), release_early)
 
 
 ## Same as fire(), but optionally captures a screenshot +60ms into lit/blue flash.
-func fire_with_shot(blocked: bool, pierce_hit: bool, shot_name: String, capturer: Callable) -> void:
+## release_early: after the lit/blue tell, return so Take HP overlaps the burst.
+func fire_with_shot(blocked: bool, pierce_hit: bool, shot_name: String, capturer: Callable, release_early: bool = false) -> void:
 	set_next(false)
 	spent = true
 	var full_soak: bool = blocked and soaked
@@ -175,8 +176,16 @@ func fire_with_shot(blocked: bool, pierce_hit: bool, shot_name: String, capturer
 		if full_soak and int(n_raw) > 0 and not pierce_hit:
 			_mark_spent()
 			return
+		if release_early:
+			_mark_spent()
+			return
 	if pierce_hit:
 		pierce = true
+	if release_early and not (blocked or soaked):
+		await _play_lit_snap(pierce_hit, shot_name, capturer)
+		_finish_burst_async(pierce_hit)
+		_mark_spent()
+		return
 	if shot_name != "" and capturer.is_valid() and not (blocked or soaked):
 		await _play_lit_burst_with_shot(pierce_hit, shot_name, capturer)
 	else:
@@ -245,6 +254,41 @@ func _play_lit_burst(flame: bool) -> void:
 		_burst.play(burst_anim)
 		await get_tree().create_timer(FRAME_MS * 4.0).timeout
 		_burst.visible = false
+
+
+## Lit tell only — used by release_early so Take HP can land during burst.
+func _play_lit_snap(flame: bool, shot_name: String = "", capturer: Callable = Callable()) -> void:
+	if _face == null:
+		return
+	var lit_anim := "flame_lit" if flame else "lit"
+	if _face.sprite_frames.has_animation(lit_anim):
+		_face.play(lit_anim)
+		if shot_name != "" and capturer.is_valid():
+			await get_tree().create_timer(0.06).timeout
+			await capturer.call(shot_name)
+			await get_tree().create_timer(maxf(0.0, FRAME_MS * 2.0 - 0.06)).timeout
+		else:
+			await get_tree().create_timer(FRAME_MS * 2.0).timeout
+	elif shot_name != "" and capturer.is_valid():
+		await capturer.call(shot_name)
+
+
+func _finish_burst_async(flame: bool) -> void:
+	if _burst == null or not is_instance_valid(_burst):
+		return
+	var burst_anim := "flame_burst" if flame else "burst"
+	if not _burst.sprite_frames.has_animation(burst_anim):
+		return
+	_burst.visible = true
+	_burst.play(burst_anim)
+	var tree := get_tree()
+	if tree == null:
+		_burst.visible = false
+		return
+	tree.create_timer(FRAME_MS * 4.0).timeout.connect(func() -> void:
+		if is_instance_valid(_burst):
+			_burst.visible = false
+	, CONNECT_ONE_SHOT)
 
 
 func _play_lit_burst_with_shot(flame: bool, shot_name: String, capturer: Callable) -> void:
