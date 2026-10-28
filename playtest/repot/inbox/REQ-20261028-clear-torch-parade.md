@@ -2,8 +2,8 @@
 id: REQ-20261028-clear-torch-parade
 status: open
 priority: high
-pr:
-tip_sha:
+pr: 173
+tip_sha: a8f2abf5
 branch: cursor/clear-torch-parade
 base: playtest/latest
 created: 2026-10-28T17:20:00-05:00
