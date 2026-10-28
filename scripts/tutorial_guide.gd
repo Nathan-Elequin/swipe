@@ -441,9 +441,11 @@ func _process(delta: float) -> void:
 		if want != lift_dim:
 			set_lift(want)
 	if _space_hint != null:
-		var want: float = 1.0 if _idle >= 5.0 else 0.0
-		var step_a: float = delta / 0.45
-		_space_hint.modulate.a = move_toward(_space_hint.modulate.a, want, step_a)
+		## Always show the Space line while waiting on continue (SP-10 blink alone is not enough).
+		var waiting_space: bool = wait == "continue" and not _typing
+		var pulse: float = 0.72 + 0.28 * absf(sin(_idle * 4.5)) if waiting_space else 0.0
+		var step_a: float = delta / 0.28
+		_space_hint.modulate.a = move_toward(_space_hint.modulate.a, pulse, step_a)
 	if not _frames.is_empty() and _face != null:
 		_fi += delta * 5.0
 		var n: int = _frames.size()

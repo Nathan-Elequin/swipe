@@ -4695,8 +4695,7 @@ func _fill_challenge_hole(i: int) -> void:
 		return
 	var hole: Dictionary = wheel[i]
 	if bool(hole.get("mimic_gift", false)):
-		_draw_unseen_item()
-		_log("on_remove_slice", "Mimic gift")
+		await _grant_mimic_gift()
 	var collapsing: bool = challenge_deck.is_empty()
 	await _challenge_refill_or_collapse(i)
 	if collapsing:
@@ -6978,7 +6977,11 @@ func _on_slice_hovered(index: int) -> void:
 	_hover_slice = index
 	_fill_inspect_from_slice(index)
 	if not pending_mark.is_empty() and phase == "fighting":
-		_apply_preview(_preview_bribe(index))
+		var mk: String = str(pending_mark.get("kind", ""))
+		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "hypnotize" or mk == "defeat_double_hp" or mk == "sling_any":
+			_apply_preview(_preview_mark_aim(mk, index))
+		else:
+			_apply_preview(_preview_bribe(index))
 	_tutorial_on_slice_hover(index)
 
 
@@ -7418,6 +7421,8 @@ func _on_done() -> void:
 
 func _begin_slay(banner: String = "slay") -> void:
 	if _tut_hold_slay:
+		## Cube→Shuriken beat: clear the dead Cube, keep Bandit for the next item.
+		await _tutorial_clear_held_dead()
 		return
 	var token: int = _undo_gen
 	await _on_owner_defeated(facing_index)
@@ -7771,8 +7776,7 @@ func _clear_after_fight(clockwork_split: bool = false) -> void:
 		await _remove_crossbowed()
 		_trace_resolve("clear after crossbow n=%s" % wheel.size())
 		if left_id == "mimic" and not enemy_attacked:
-			_draw_unseen_item()
-			_log("on_remove_slice", "Mimic gift")
+			await _grant_mimic_gift()
 		if _install_laid_egg(facing_index):
 			facing_index = -1
 		else:
@@ -8385,8 +8389,7 @@ func _use_item(uid: int) -> void:
 			_log("blk", "+%s  →  %s" % [7, blk])
 		pending_mark = {"uid": uid, "kind": kind}
 		_log("on_item_use", "pick who attacks across" if kind == "hypnotize" else ("pick a monster" if kind == "defeat_double_hp" or kind == "sling_any" else "pick a neighbor"))
-		if sfx:
-			sfx.play("question", -10.0)
+		_loud_mark_prompt(kind)
 		call_deferred("_refresh")
 		return
 	if kind == "chaos_reroll":
@@ -9487,8 +9490,7 @@ func _bag_remove_facing() -> void:
 		var m: Dictionary = wheel[facing_index]
 		var left_id: String = str(m.get("card_id", ""))
 		if left_id == "mimic" and not enemy_attacked:
-			_draw_unseen_item()
-			_log("on_remove_slice", "Mimic gift")
+			await _grant_mimic_gift()
 		if _install_laid_egg(facing_index):
 			facing_index = -1
 		else:
@@ -10487,6 +10489,7 @@ func _collapse_dead_wicks() -> void:
 
 func _run_dead_sweep() -> void:
 	if _tut_hold_slay:
+		await _tutorial_clear_held_dead()
 		return
 	if false:
 		await _maybe_slay_down(-1)
@@ -10509,6 +10512,60 @@ func _run_dead_sweep() -> void:
 		await _maybe_slay_down(victim)
 		if phase != "fighting" and phase != "slaying":
 			return
+
+
+func _tutorial_clear_held_dead() -> void:
+	## Hold keeps Bandit until Shuriken resolves, but a dead Cube must leave the wheel.
+	if not in_tutorial or not _tut_hold_slay:
+		return
+	var i: int = 0
+	while i < wheel.size():
+		if str(wheel[i].get("kind", "")) != "monster":
+			i += 1
+			continue
+		if int(wheel[i].get("hp", 0)) > 0:
+			i += 1
+			continue
+		if _wick_waiting(i):
+			i += 1
+			continue
+		var cid: String = str(wheel[i].get("card_id", ""))
+		if cid == "bandit":
+			i += 1
+			continue
+		await _tutorial_vacate_dead(i)
+		i += 1
+
+
+func _tutorial_vacate_dead(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	if str(wheel[index].get("kind", "")) != "monster":
+		return
+	if int(wheel[index].get("hp", 0)) > 0:
+		return
+	var m: Dictionary = wheel[index]
+	_log("on_remove_slice", str(m.get("name", "?")))
+	if sfx:
+		var nctx := {"tier": _tier_of(m), "monster_id": str(m.get("card_id", ""))}
+		sfx.play_event(sfx.resolve(&"death", nctx), nctx)
+	if wheel_view:
+		await wheel_view.play_slay(index)
+	var slot: String = str(m.get("slot", SLOT_ORDER[index] if index < SLOT_ORDER.size() else str(index)))
+	wheel[index] = {
+		"kind": "empty",
+		"slot": slot,
+	}
+	mobs_defeated += 1
+	if int(m.get("died_seq", 0)) <= 0:
+		_note_death(m)
+	_sync_wheel_stats()
+	if wheel_view:
+		if wheel_view.slay_index == index and wheel_view.has_method("clear_slay"):
+			wheel_view.clear_slay()
+		_stamp_atk_variants()
+		wheel_view.set_slices(wheel, facing_index, "none")
+	_refresh()
 
 
 func _maybe_slay_down(index: int) -> void:
@@ -15127,8 +15184,7 @@ func _kill_neighbor(index: int) -> void:
 		await _maybe_bell_defeat_tax(index)
 	await _wick_on_defeated(index)
 	if str(m.get("card_id", "")) == "mimic" and not adventure:
-		_draw_unseen_item()
-		_log("on_remove_slice", "Mimic gift")
+		await _grant_mimic_gift()
 	_flash_screen(Color("e8c36a"), 0.32)
 	if sfx:
 		var nctx := {"tier": _tier_of(m), "monster_id": str(m.get("card_id", ""))}
@@ -15223,6 +15279,33 @@ func _draw_unseen_item() -> void:
 	_log("on_draft", "gain %s" % it.get("name", id))
 	if sfx:
 		sfx.play("open", -10.0)
+
+
+func _grant_mimic_gift() -> void:
+	## Louder tell: banner + coins + card pop so the Mimic payout reads clearly.
+	var before_n: int = hotbar.size()
+	_draw_unseen_item()
+	_log("on_remove_slice", "Mimic gift")
+	if hotbar.size() <= before_n:
+		return
+	var gained: Dictionary = hotbar[hotbar.size() - 1]
+	var who: String = str(gained.get("name", "Item"))
+	_flash_banner(PLAYER_COPY.fill("challenge.loot", {"name": who}, "Loot from %s" % who))
+	_flash_screen(Color("e8c36a"), 0.42)
+	if sfx:
+		sfx.play_event(&"hand.gain", {"card_id": str(gained.get("card_id", ""))})
+		sfx.play_event(&"loot.coins")
+		sfx.play("open", -6.0)
+		sfx.play("bong", -10.0, 1.15)
+	_refresh()
+	var gained_card = _hotbar_card_by_uid(int(gained.get("uid", -1)))
+	if gained_card != null:
+		if gained_card.has_method("play_transform"):
+			gained_card.play_transform()
+		elif gained_card.has_method("bounce"):
+			gained_card.bounce()
+	if get_tree():
+		await get_tree().create_timer(0.42).timeout
 
 
 func _try_potion() -> bool:
@@ -16414,6 +16497,58 @@ func _preview_bribe(index: int) -> Dictionary:
 	return p
 
 
+func _loud_mark_prompt(kind: String) -> void:
+	var line: String = PLAYER_COPY.text("cue.mark", "Pick a neighbor.")
+	if kind == "hypnotize" or kind == "defeat_double_hp" or kind == "sling_any":
+		line = "Click any monster."
+	_flash_banner(line)
+	if sfx:
+		sfx.play("question", -4.0)
+		sfx.play("select", -10.0, 1.12)
+	if wheel_view != null:
+		_apply_preview(_preview_mark_aim(kind, -1))
+
+
+func _preview_mark_aim(kind: String, hover: int) -> Dictionary:
+	var p: Dictionary = {}
+	var dmg: int = 0
+	var it: Dictionary = {}
+	if not pending_mark.is_empty():
+		it = _find_item(int(pending_mark.get("uid", -1)))
+	if kind == "atk_neighbor" or kind == "mark_crossbow":
+		dmg = 4
+		if not it.is_empty():
+			dmg = int(_ops_of(it).get("n", dmg))
+		dmg = _atk_with_head(dmg)
+	for i in _mark_targets(kind):
+		if str(wheel[i].get("card_id", "")) == "goblin" and (kind == "atk_neighbor" or kind == "mark_crossbow"):
+			continue
+		var slot: Dictionary = p.get(i, {})
+		if dmg > 0:
+			slot["hp"] = -dmg
+			if int(wheel[i].get("hp", 0)) - dmg <= 0:
+				slot["kill"] = true
+		else:
+			slot["mark"] = true
+		if hover == i:
+			slot["aim"] = true
+		p[i] = slot
+	return p
+
+
+func _kind_previews_facing_kill(kind: String) -> bool:
+	## Neighbor / mark / opposite / cleave items must not ghost-kill the facing owner.
+	if kind == "atk_neighbor" or kind == "mark_crossbow" or kind == "mark_poison":
+		return false
+	if kind == "hook_swap" or kind == "hypnotize" or kind == "polymorph" or kind == "signpost":
+		return false
+	if kind == "atk_opposite" or kind == "atk_cleave" or kind == "defeat_double_hp" or kind == "sling_any":
+		return false
+	if kind == "atk_move":
+		return false
+	return _kind_deals_atk(kind)
+
+
 func _preview_from_item(it: Dictionary) -> Dictionary:
 	_ghost_blk = -1
 	var p: Dictionary = {}
@@ -16530,6 +16665,19 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 			if bool(view.get("can_use", false)):
 				for si in _mark_targets("defeat_double_hp"):
 					p[si] = {"hp": -int(wheel[si].get("hp", 0)), "kill": true}
+		"atk_neighbor", "mark_crossbow":
+			if bool(view.get("can_use", false)):
+				var nd: int = _atk_with_head(int(view.get("n", 4)))
+				for ni in _mark_targets("atk_neighbor"):
+					if str(wheel[ni].get("card_id", "")) == "goblin":
+						continue
+					var nslot: Dictionary = p.get(ni, {})
+					nslot["hp"] = int(nslot.get("hp", 0)) - nd
+					if int(wheel[ni].get("hp", 0)) + int(nslot.get("hp", 0)) <= 0:
+						nslot["kill"] = true
+					if str(wheel[ni].get("card_id", "")) == "slime_boss":
+						nslot["atk"] = int(nslot.get("atk", 0)) - nd
+					p[ni] = nslot
 		"atk_zero", "atk_drop":
 			if bool(view.get("can_use", false)) and not _atk_is_always(wheel[facing_index]):
 				var curz: Dictionary = p.get(facing_index, {})
@@ -18991,6 +19139,9 @@ func _refresh() -> void:
 				wheel[i]["across"] = _across_index(i)
 			else:
 				wheel[i]["across"] = -1
+		## Keep neighbor aim ghosts on while picking (never the facing kill ghost).
+		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost":
+			_apply_preview(_preview_mark_aim(mk, _hover_slice))
 	else:
 		for i2 in wheel.size():
 			wheel[i2]["markable"] = false
@@ -20822,7 +20973,7 @@ func _run_hover_preview(it: Dictionary, card: Control) -> void:
 			h["range_hi"] = maxi(0, raw - 1)
 			h["ghost_mode"] = true
 	var kill: bool = false
-	if bool(view.get("can_use", false)) and _kind_deals_atk(kind) and fid != "goblin":
+	if bool(view.get("can_use", false)) and _kind_previews_facing_kill(kind) and fid != "goblin":
 		var dmg: int = int(view.get("n", 0))
 		if int(face.get("hp", 0)) > 0 and dmg >= int(face.get("hp", 0)):
 			kill = true
@@ -20835,6 +20986,12 @@ func _run_hover_preview(it: Dictionary, card: Control) -> void:
 		var kslot: Dictionary = p.get(facing_index, {})
 		kslot["kill"] = true
 		p[facing_index] = kslot
+	## Neighbor items never dim the facing intent as a kill.
+	if kind == "atk_neighbor" or kind == "mark_crossbow":
+		if p.has(facing_index):
+			p[facing_index].erase("kill")
+			if int(p[facing_index].get("hp", 0)) >= 0:
+				p.erase(facing_index)
 	for h2 in hits:
 		if typeof(h2) == TYPE_DICTIONARY:
 			h2["ghost_mode"] = true

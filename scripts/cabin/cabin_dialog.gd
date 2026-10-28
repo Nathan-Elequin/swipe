@@ -16,6 +16,8 @@ var _plate_lab
 var _bust: TextureRect
 var _text
 var _next: AnimatedSprite2D
+var _space_hint: Label
+var _space_t: float = 0.0
 var _tail: TextureRect
 var _choices: HBoxContainer
 var _bubble: NinePatchRect
@@ -87,6 +89,20 @@ func setup(p_cabin) -> void:
 	_box.add_child(_text)
 	_next = KIT.anim_sprite(["ui/dialog_next_f0.png", "ui/dialog_next_f1.png"], "n", 1000.0 / 300.0, true, Vector2(0, 0))
 	_box.add_child(_next)
+	_space_hint = Label.new()
+	_space_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_space_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_space_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_space_hint.text = KIT.copy_text("tutorial.space_hint")
+	if _space_hint.text.strip_edges() == "":
+		_space_hint.text = "Press Space to continue."
+	_space_hint.add_theme_font_size_override("font_size", 18)
+	_space_hint.add_theme_color_override("font_color", Color("fff6df"))
+	_space_hint.add_theme_color_override("font_outline_color", Color("100e0c"))
+	_space_hint.add_theme_constant_override("outline_size", 6)
+	_space_hint.modulate = Color(1, 1, 1, 0)
+	_space_hint.z_index = 9
+	add_child(_space_hint)
 	_choices = HBoxContainer.new()
 	_choices.add_theme_constant_override("separation", int(12 * PX))
 	_choices.visible = false
@@ -228,6 +244,10 @@ func _layout_talk(with_choices: bool) -> void:
 	_text.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_text.fit()
 	_next.position = Vector2(inner.end.x - 18.0 * PX, inner.end.y - 16.0 * PX)
+	if _space_hint != null:
+		var view_sz: Vector2 = get_viewport_rect().size if is_inside_tree() else Vector2(KIT.ROOM_W, KIT.ROOM_H)
+		_space_hint.position = Vector2(24.0, maxf(8.0, view_sz.y - 44.0))
+		_space_hint.size = Vector2(maxf(120.0, view_sz.x - 48.0), 32.0)
 	_choices.position = Vector2(text_x, inner.end.y - prompt_h)
 	_choices.size = Vector2(text_w, prompt_h)
 	if _tail and _tail.texture:
@@ -333,6 +353,11 @@ func _process(delta: float) -> void:
 	if _blink_t <= 0.0 and _open and not _typing:
 		_bust.texture = KIT.load_tex("nib/nib_bust_blink.png")
 		_blink_t = randf_range(3.0, 5.0)
+	_space_t += delta
+	if _space_hint != null:
+		var waiting_space: bool = _open and not _typing and _next.visible and not _choices.visible
+		var pulse: float = 0.72 + 0.28 * absf(sin(_space_t * 4.5)) if waiting_space else 0.0
+		_space_hint.modulate.a = move_toward(_space_hint.modulate.a, pulse, delta / 0.28)
 
 
 func _refresh_gate() -> void:

@@ -30,6 +30,7 @@ func _init() -> void:
 	failed = _check("draft_below", UX.draft_tip_prefer_below()) or failed
 	failed = _check("closed_empty", UX.closed_empty_in_tutorial()) or failed
 	failed = _check("lift_lt_dim", UX.spotlight_lift_alpha() < UX.spotlight_dim_alpha()) or failed
+	failed = _check("space_hint_always", UX.space_hint_always_when_waiting()) or failed
 	var open_pips: Dictionary = UX.loot_remaining(true, 0, 6, 6, 6, true)
 	failed = _check("loot_open_six", int(open_pips.get("remaining", 0)) == 6 and int(open_pips.get("total", 0)) == 6) or failed
 	var mid_pips: Dictionary = UX.loot_remaining(true, 2, 6, 6, 6, true)

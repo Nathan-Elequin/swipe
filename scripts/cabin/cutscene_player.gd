@@ -228,10 +228,11 @@ func _build() -> void:
 	_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_caption.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	_bar.add_child(_caption)
-	_next = KIT.label("intro.next", 24, KIT.MUTED)
+	## Floating Space prompt (existing tutorial.space_hint). Blink alone is not enough.
+	_next = KIT.label("tutorial.space_hint", 22, Color("fff6df"))
 	_next.max_lines = 1
 	_next.min_font_size = 16
-	_next.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_next.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_next.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_next.visible = false
 	_bar.add_child(_next)
@@ -298,10 +299,13 @@ func _layout_dialog() -> void:
 	_caption.max_lines = 3
 	_caption.max_font_size = KIT.DIALOG_FONT
 	_caption.fit()
-	var next_w := minf(420.0, text_w)
+	var next_w := minf(520.0, maxf(220.0, text_w))
 	_next.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_caption.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_next.position = Vector2(inner.end.x - next_w, inner.end.y - prompt_h)
+	var next_x: float = text_x
+	if text_w > next_w:
+		next_x = inner.position.x + (text_w - next_w) * 0.5
+	_next.position = Vector2(next_x, inner.end.y - prompt_h)
 	_next.size = Vector2(next_w, prompt_h)
 	_next.fit()
 	TEXT_RESERVE.settle(_bar)
