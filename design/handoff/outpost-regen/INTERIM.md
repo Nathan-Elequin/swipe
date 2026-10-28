@@ -1,12 +1,19 @@
-# Interim PixelLab pack (v3)
+# Outpost regen — hybrid pipeline (Nathan lock 2026-10-28)
 
-**Status:** plumbing / F5 interim only.
+## Pipeline
+- **Doop frames** are the fidelity north star (nearly shippable alone). Canvas: https://doop.design/c/K5t2l_veMo — frame D cabinets wall + map-in-hands frames.
+- **PixelLab** is only for individual sprites / reusable tiles woven into those designs (mount trophies, stamps, peg gear) — not a from-scratch redesign that ignores Doop.
 
-Nathan locked a hybrid visual pipeline (2026-10-28):
+## This PR
+- Lands **wire only**: Outpost (`mudroom`) wall hotspot + Space → same held-map open path. Spin Outpost copy keys unchanged (`mudroom.*` / `room.mudroom.name`).
+- Does **not** install PixelLab cases / room layers / held parchment into live `assets/` paths.
+- PixelLab pack v3 is parked under `interim-pixellab/` for reference only.
 
-- **Doop frames** are the fidelity north star (nearly shippable alone). Canvas: https://doop.design/c/K5t2l_veMo — frame D cabinets + map-in-hands frames.
-- **PixelLab** is for individual sprites / reusable tiles woven *into* those designs — not a from-scratch redesign that ignores Doop.
+## Follow-up (Pixel)
+Expect cleaned **Doop ship-strip plates** (1680×1040) for:
+1. Cabinets wall
+2. Map-in-hands
 
-This folder’s contact sheets + the PNGs installed under `assets/dungeon/home/mudroom/`, `assets/dungeon/home/cabinets/case_*`, and `assets/ui/map/held/` are **interim** so wall/Space → held-map wiring works on `playtest/latest`.
+Install those as the real live art at stable paths (`cabinets/case_*`, mudroom layers, `assets/ui/map/held/…`). Hold claiming F5-ready visuals until those plates land.
 
-Do **not** treat PixelLab cases or room layers as final look. Keep Godot load paths stable so the next PR can swap textures to Doop-matched plates/crops without rewiring.
+PixelLab after that: trophies, stamps, peg gear only.
