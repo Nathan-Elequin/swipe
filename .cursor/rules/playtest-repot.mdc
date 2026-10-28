@@ -1,0 +1,45 @@
+---
+description: Drain playtest/repot inbox with Godot MCP screenshots whenever this workspace is open — same weight as gold boxes / playtest Issues.
+alwaysApply: true
+---
+
+# Playtest repot (cloud → local Godot bridge)
+
+Cloud agents cannot F5 or use godot-mcp. They write verify requests under `playtest/repot/inbox/`. **You** (local Cursor on Cherry) fulfill them with in-game screenshots and push the outbox so Pixel can review without Nathan pasting images.
+
+This rule has the same weight as `content-board.mdc` and `playtest-inbox.mdc`. Do not skip it because the chat is about something else.
+
+## Every chat in this repo (before or interleaved with the user’s ask)
+
+1. `git fetch` + ensure checkout is on the request’s `branch` tip (default `playtest/latest`). Prefer `./tools/playtest-sync.sh` when on Mac Documents/swipe; on Cherry use the existing load/sync scripts — do not trash Nathan’s dirty WIP (`agent-runtime.mdc` stash dance).
+2. List `playtest/repot/inbox/*.md` whose frontmatter `status` is `open` or `needs_fix` (skip `claimed` by another agent unless stale >30 min with no outbox progress; skip `done`).
+3. If **none** open: say nothing about repot unless Nathan asked. Continue his ask.
+4. If **any** open: **drain them before or alongside** his ask. Tell him in one line you’re fulfilling N repot request(s), then do the work. His ask still gets answered in the same turn when possible.
+
+## Fulfill one request
+
+1. Set inbox frontmatter `status: claimed` and commit that alone only if a long shoot; otherwise claim + fulfill in one commit.
+2. Open / use the **already running** Godot on this PC. Do not launch a second editor unless he asked. Do not kill processes you didn’t start.
+3. F5 playtest hub → reach `entry` from the request (usually cabin main / fireplace).
+4. For each row in **Screenshots required**: set up the room, take a **godot-mcp in-game screenshot** (not editor FS), save as `playtest/repot/outbox/<id>/shots/<filename>`.
+5. Write `playtest/repot/outbox/<id>/RESULT.md` per `playtest/repot/SCHEMA.md` (pass/fail per id).
+6. Set inbox `status: done`.
+7. Commit + push to `playtest/latest` (or the request’s `branch`) with message: `[repot] fulfill <id>`.
+8. One-line chat note: which request, tip SHA, pass/fail counts. Do **not** ask Nathan to look at GitHub unless something blocked Godot.
+
+## If Godot / MCP is blocked
+
+- Leave inbox `status: open` (or revert claim).
+- Write `playtest/repot/outbox/<id>/RESULT.md` with `status: blocked` and the exact blocker.
+- Tell Nathan the one thing only he can do (e.g. unlock the editor). Do not invent screenshots.
+
+## Cloud / Pixel writers (when you are shipping without Godot)
+
+If this chat is a cloud agent or otherwise cannot shoot: you still **must** add/update an inbox request for every visual ship (see `SCHEMA.md`). Never mark your own request `done`.
+
+## Do not
+
+- Do not skip open inbox items because the user asked about something else.
+- Do not paste huge PNGs into chat as the only deliverable — files in outbox + push are the source of truth (chat thumbnails optional).
+- Do not change game code while fulfilling unless the request’s pass criteria fail and the fix is trivial + in scope; prefer fail the row and let Pixel open a fix loop.
+- Do not rewrite player-facing copy (Spin / Jam).
