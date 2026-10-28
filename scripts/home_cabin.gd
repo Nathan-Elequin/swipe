@@ -1880,7 +1880,7 @@ func _fill_biome_cases() -> void:
 		_build_biome_case(spec, mounted, quota, rel, unlocked)
 
 
-func _build_biome_case(spec: Dictionary, cards: Array, quota: int, glass: Rect2, unlocked: bool = true) -> void:
+func _build_biome_case(spec: Dictionary, cards: Array, _quota: int, glass: Rect2, unlocked: bool = true) -> void:
 	## Hit-only overlay on the Doop plate case. No frame / name / locked chrome redraw.
 	var pool_id := str(spec.get("id", ""))
 	var root := Control.new()
@@ -1922,25 +1922,12 @@ func _build_biome_case(spec: Dictionary, cards: Array, quota: int, glass: Rect2,
 	var gap_y := 4.0
 	var y := 4.0
 	var x0: float = maxf(0.0, (clip.size.x - msize.x) * 0.5)
-	var collected_slots := 0
 	for i in cards.size():
 		var card: Dictionary = cards[i]
 		var slot := _mount_slot(card, Vector2(x0, y), msize, false)
 		_bind_case_scroll(slot, pool_id)
 		column.add_child(slot)
 		y += msize.y
-		var sid := str(card.get("id", ""))
-		if _is_shelved(sid):
-			collected_slots += 1
-			if collected_slots == quota:
-				var gate := ColorRect.new()
-				gate.name = "GateLine"
-				gate.color = Color("ffd84a")
-				gate.position = Vector2(6, y + 2)
-				gate.size = Vector2(clip.size.x - 12.0, 3)
-				gate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				column.add_child(gate)
-				y += 8.0
 		y += gap_y
 	column.size = Vector2(clip.size.x, maxf(y, clip.size.y))
 	column.custom_minimum_size = column.size
@@ -2523,59 +2510,28 @@ func _mount_slot(card: Dictionary, pos: Vector2, msize: Vector2, room_locked: bo
 		if bool(new_unseen.get(id, false)):
 			_play_new_burst(wrap)
 	if is_seen:
-		var plate: Rect2 = _plate_rect(msize)
-		var font_n: int = clampi(int(msize.x * 0.13), 17, 24)
-		var lab: FitLabelBox = FitLabelBox.make()
-		lab.show_frame = false
-		lab.padding = 0
-		lab.max_font_size = font_n
-		lab.min_font_size = 12
-		lab.set_plain(str(card.get("name", id)))
-		lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lab.size = Vector2(msize.x - 8.0, maxf(plate.size.y + 10.0, float(font_n) * 2.2))
-		lab.position = Vector2(4.0, msize.y - lab.size.y + 2.0)
-		lab.font_color = Color("1c120c")
-		lab.set_outline(Color("f3e6d0"), 2)
-		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Hall mounts: icon + trophy_mount plate only — no FitLabelBox name plaques,
+		# no plaque glint, no yellow GateLine (stripped with biome case build).
+		# Hover highlights the mount texture; left-click opens inspect (not hover).
 		wrap.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		var glint := AnimatedSprite2D.new()
-		glint.centered = false
-		glint.position = Vector2((msize.x - 64.0) * 0.5, plate.position.y)
-		glint.scale = Vector2(msize.x / _mount_cell().x, msize.x / _mount_cell().x)
-		glint.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		var mat := CanvasItemMaterial.new()
-		mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-		glint.material = mat
-		glint.sprite_frames = _frames("glint", ["plaque_glint_f0", "plaque_glint_f1", "plaque_glint_f2", "plaque_glint_f3"], 4.0 / 1.2, true)
-		wrap.add_child(glint)
-		wrap.add_child(lab)
-		if is_swiped:
-			glint.play("glint")
-		else:
-			glint.visible = false
-		_glints.append({"id": id, "node": glint, "swiped": is_swiped})
 		wrap.mouse_entered.connect(func() -> void:
 			_hover_id = id
 			if hover_tex:
 				mount.texture = hover_tex
-			if is_swiped:
-				_set_glint(id, true)
-			item_hovered.emit(id, wrap)
 		)
 		wrap.mouse_exited.connect(func() -> void:
 			if _hover_id == id:
 				_hover_id = ""
 			mount.texture = rest_tex
-			_set_glint(id, false)
-			item_unhovered.emit()
 		)
 		wrap.gui_input.connect(func(event: InputEvent) -> void:
-			if not PLAYTEST_FLAG.on():
-				return
-			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-				comment_wanted.emit(id)
-				wrap.accept_event()
+			if event is InputEventMouseButton and event.pressed:
+				if event.button_index == MOUSE_BUTTON_LEFT:
+					inspect_wanted.emit(id)
+					wrap.accept_event()
+				elif event.button_index == MOUSE_BUTTON_RIGHT and PLAYTEST_FLAG.on():
+					comment_wanted.emit(id)
+					wrap.accept_event()
 		)
 	else:
 		wrap.mouse_entered.connect(func() -> void:
