@@ -4493,6 +4493,24 @@
 			"locked_at": "2026-10-25",
 			"text": "Already spent this scrap.",
 			"where": "Used item this fight"
+		},
+		"cabin.hot.run_door": {
+			"cat": "Cabin",
+			"where": "Hover label for the painted main-room run door (hall path)",
+			"text": "Toward the Outpost",
+			"locked_at": "2026-10-28"
+		},
+		"cabin.hot.door_outpost": {
+			"cat": "Cabin",
+			"where": "Hover label for Hall → Outpost right door",
+			"text": "Outpost",
+			"locked_at": "2026-10-28"
+		},
+		"cabin.hot.back_hall": {
+			"cat": "Playtest",
+			"where": "Outpost back door hover → Trophy Hall",
+			"text": "Trophy Hall",
+			"locked_at": "2026-10-28"
 		}
 	},
 	"updated": "2026-10-28"

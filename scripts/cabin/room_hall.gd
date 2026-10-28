@@ -49,7 +49,7 @@ func _refresh_doors() -> void:
 	## Right door → Outpost (mudroom). Unlocks with the hall.
 	var side = spots.get("SideDoor", null)
 	if side is CabinHotspot:
-		side.tag_key = "room.mudroom.name" if mud_open else "cabin.hot.door_locked"
+		side.tag_key = "cabin.hot.door_outpost" if mud_open else "cabin.hot.door_locked"
 		side.set_locked(not mud_open, KIT.load_tex("doors/side_door_locked.png"))
 		if mud_open:
 			side.locked_tex = null
