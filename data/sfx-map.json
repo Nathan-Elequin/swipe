@@ -74,6 +74,10 @@
       "caltrops": {
         "use": "util.caltrops"
       },
+      "bag_of_holding": {
+        "use": "defeat.use",
+        "release": "item.bag_release"
+      },
       "pocketwatch": {
         "use": "status.hypnotize"
       },
@@ -2811,6 +2815,79 @@
         "attack_s": 0.1,
         "release_s": "hold"
       }
+    },
+    "item.bag_release": {
+      "files": [
+        "cloth"
+      ],
+      "bus": "SFX",
+      "db": -4,
+      "pitch": [
+        0.70,
+        0.76
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 3,
+      "layers": [
+        {
+          "cue": "item.bag_untie_open",
+          "db_offset": 0,
+          "delay_ms": 50
+        },
+        {
+          "cue": "item.bag_untie_creak",
+          "db_offset": -1,
+          "delay_ms": 110
+        },
+        {
+          "cue": "item.bag_untie_whoosh",
+          "db_offset": 0,
+          "delay_ms": 180
+        }
+      ]
+    },
+    "item.bag_untie_open": {
+      "files": [
+        "open"
+      ],
+      "bus": "SFX",
+      "db": -5,
+      "pitch": [
+        0.80,
+        0.88
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 2
+    },
+    "item.bag_untie_creak": {
+      "files": [
+        "creak"
+      ],
+      "bus": "SFX",
+      "db": -6,
+      "pitch": [
+        0.68,
+        0.76
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 2
+    },
+    "item.bag_untie_whoosh": {
+      "files": [
+        "whoosh"
+      ],
+      "bus": "SFX",
+      "db": -5,
+      "pitch": [
+        0.58,
+        0.66
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 2
     },
     "sting.clear": {
       "files": [

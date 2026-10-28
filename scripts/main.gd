@@ -36,6 +36,7 @@ const DRAFT_GATE := preload("res://scripts/draft_gate.gd")
 const DRAFT_LINES := preload("res://scripts/draft_lines.gd")
 const DUNGEON_DECK := preload("res://scripts/dungeon_deck.gd")
 const CHALLENGE_DRAFT := preload("res://scripts/challenge_draft.gd")
+const HUB_CUE_CAPSULE := preload("res://scripts/ui/hub_cue_capsule.gd")
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const CAMPAIGN_MAP := preload("res://scripts/campaign_map.gd")
 const HOME_CABIN := preload("res://scripts/home_cabin.gd")
@@ -119,7 +120,7 @@ const ITEM_OPS := {
 	"breastplate": {"kind": "blk_keep", "n": 2},
 	"smoke_bomb": {"kind": "smoke"},
 	"fangs": {"kind": "fangs"},
-	"poison_flask": {"kind": "mark_poison"},
+	"poison_flask": {"kind": "mark_poison", "n": 4},
 	"healing_potion": {"kind": "passive"},
 	"crossbow": {"kind": "atk_neighbor", "n": 4},
 	"pocketwatch": {"kind": "hypnotize"},
@@ -531,6 +532,8 @@ var hearts_box: HBoxContainer
 var blk_hud: PanelContainer
 var blk_value: Label
 var cue_label
+var hub_cue
+var _draft_final_item: bool = false
 var tray: HBoxContainer
 var overlay: ColorRect
 var _ui_root: Control
@@ -1321,6 +1324,12 @@ func _build_ui() -> void:
 	hotbar_box.add_theme_constant_override("h_separation", 8)
 	hotbar_box.add_theme_constant_override("v_separation", 4)
 	hotbar_panel.add_child(hotbar_box)
+
+	hub_cue = HUB_CUE_CAPSULE.new()
+	hub_cue.name = "HubCueCapsule"
+	btn_wrap.add_child(hub_cue)
+	if hub_cue.has_signal("finished"):
+		hub_cue.finished.connect(_sync_hub_cue)
 
 	var right := VBoxContainer.new()
 	right.custom_minimum_size = Vector2(0, 0)
@@ -2336,6 +2345,8 @@ func _begin_six_seat_run(long_drop: bool) -> void:
 
 
 func _enter_dungeon_clear() -> void:
+	if not _find_loaded_bag().is_empty():
+		return
 	if wheel_view and wheel_view.has_method("play_hero"):
 		wheel_view.play_hero("victory", 2)
 	_player_play("victory", 2)
@@ -3828,6 +3839,7 @@ func _abort_full_hand_gain(it: Dictionary) -> void:
 	_challenge_loot_wait = false
 	_challenge_pending_gain = {}
 	_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
+	_sync_hub_cue()
 	_log("discard", str(it.get("name", "?")))
 	if sfx:
 		sfx.play("error", -10.0)
@@ -3843,7 +3855,6 @@ func _start_full_hand_replace(it: Dictionary) -> bool:
 		return false
 	_challenge_pending_gain = it.duplicate(true)
 	_challenge_loot_wait = true
-	_flash_banner(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."))
 	_refresh()
 	return true
 
@@ -4345,10 +4356,10 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 		var last_loot: bool = challenge_deck.is_empty() and draft_action != "challenge_pick"
 		if draft_action == "challenge_pick":
 			last_loot = challenge_pick_i >= challenge_draft_plan.size() - 1 and challenge_deck.is_empty()
+		_draft_final_item = last_loot
 		if challenge_draft_ui.has_method("set_final_item"):
-			challenge_draft_ui.set_final_item(last_loot)
-		if last_loot:
-			_flash_banner(PLAYER_COPY.text("challenge.final_item", "Final Item"))
+			challenge_draft_ui.set_final_item(false)
+		_sync_hub_cue()
 		var seq: int = _mill_seq
 		if is_inside_tree():
 			await get_tree().process_frame
@@ -4711,7 +4722,6 @@ func _fill_challenge_hole(i: int) -> void:
 		return
 	var t: int = _tier_of(arriver)
 	var who: String = str(arriver.get("name", "Monster"))
-	_flash_banner(PLAYER_COPY.fill("challenge.loot", {"name": who}, "Loot from %s" % who))
 	if sfx:
 		sfx.play("open", -8.0)
 		sfx.play("bong", -14.0, 1.1)
@@ -7089,6 +7099,9 @@ func _bribe_at(index: int) -> void:
 		_sort_hotbar()
 		_log("on_draft", "enter")
 	if _monsters_left() == 0 and phase == "ready":
+		if await _try_release_bag():
+			_refresh()
+			return
 		_enter_dungeon_clear()
 	_refresh()
 
@@ -7120,9 +7133,16 @@ func _on_spin() -> void:
 		if str(wheel[i].get("kind", "")) == "monster" and int(wheel[i].get("hp", 0)) > 0:
 			live.append(i)
 	if live.is_empty():
-		_enter_dungeon_clear()
+		await _try_release_bag()
 		_refresh()
-		return
+		live.clear()
+		for i in range(wheel.size()):
+			if str(wheel[i].get("kind", "")) == "monster" and int(wheel[i].get("hp", 0)) > 0:
+				live.append(i)
+		if live.is_empty():
+			_enter_dungeon_clear()
+			_refresh()
+			return
 	var pool: Array[int] = live.duplicate()
 	if _reroll_skip >= 0 and pool.size() > 1:
 		var filtered: Array[int] = []
@@ -7164,7 +7184,6 @@ func _on_spin() -> void:
 		else:
 			if sfx:
 				sfx.play("error", -12.0)
-			_flash_banner(PLAYER_COPY.text("challenge.click_target", "Click who you fight."))
 			return
 	elif tut_forced < 0 and adventure:
 		_challenge_force_spin = false
@@ -7378,9 +7397,6 @@ func _on_spin() -> void:
 	_store_last_faced_hp()
 	_undo_arm()
 	await _unlock_if_fighting()
-	if _is_adventure_mode() and not _howto_move_shown and phase == "fighting":
-		_howto_move_shown = true
-		_flash_banner(PLAYER_COPY.text("howto.move", "Spend a Move to walk to a neighboring monster before you press Done."))
 	# Layout is often deferred one frame after Spin lands; re-sync so the
 	# intent plate is not left at the pre-layout stage rect (missing on the
 	# first fight until a later refresh).
@@ -9506,15 +9522,32 @@ func _empty_bag(it: Dictionary) -> Dictionary:
 	return snap
 
 
+func _bag_is_loaded(it: Dictionary) -> bool:
+	if str(it.get("card_id", "")) != "bag_of_holding":
+		return false
+	if int(it.get("bagged_hp", 0)) <= 0:
+		return false
+	if typeof(it.get("bagged", null)) != TYPE_DICTIONARY:
+		return false
+	return not (it["bagged"] as Dictionary).is_empty()
+
+
 func _find_loaded_bag() -> Dictionary:
+	var best: Dictionary = {}
+	var best_x: float = INF
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
-		if str(it.get("card_id", "")) != "bag_of_holding":
+		if not _bag_is_loaded(it):
 			continue
-		if int(it.get("bagged_hp", 0)) > 0 and typeof(it.get("bagged", null)) == TYPE_DICTIONARY and not (it["bagged"] as Dictionary).is_empty():
-			return it
-	return {}
+		var x: float = 0.0
+		var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
+		if card != null:
+			x = card.global_position.x
+		if best.is_empty() or x < best_x:
+			best = it
+			best_x = x
+	return best
 
 
 func _bag_remove_facing() -> void:
@@ -9595,26 +9628,45 @@ func _try_release_bag() -> bool:
 		it["keep_after"] = false
 		_discard_from_hand(int(it.get("uid", -1)))
 		_discard_spent_items()
-		return false
+		return await _try_release_bag()
 	_log("on_resolve", "bag opens")
+	var token: int = _undo_gen
+	_hotbar_sig = ""
+	_refresh()
+	var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
+	if card != null:
+		_apply_bag_look(card, it)
+		if card.has_method("play_transform"):
+			card.play_transform()
 	if sfx:
-		sfx.play("confirm_big", -6.0)
-		sfx.play("whoosh", -6.0, 0.7)
-		sfx.play_event(&"sting.clear")
-	_flash_screen(Color("c4a574"), 0.34)
+		sfx.play_event(&"item.bag_release")
+	_flash_screen(Color("6d4c9a"), 0.38)
+	if combat_stage:
+		combat_stage.hide_stage()
+	if player_stage:
+		player_stage.hide_stage()
+	if get_tree():
+		await get_tree().create_timer(0.42).timeout
+	if _undo_stale(token):
+		return false
 	it["spent"] = true
 	it["keep_after"] = false
 	_discard_from_hand(int(it.get("uid", -1)))
 	_discard_spent_items()
-	_seat_released_bag(snap)
+	var seat: int = _seat_released_bag(snap)
 	_hotbar_sig = ""
 	phase = "ready"
+	if wheel_view and seat >= 0:
+		_stamp_atk_variants()
+		wheel_view.set_slices(wheel, -1, "none")
+		wheel_view.pulse_arrive(seat)
 	if sfx:
 		sfx.set_combat_music(false)
+	_refresh()
 	return true
 
 
-func _seat_released_bag(snap: Dictionary) -> void:
+func _seat_released_bag(snap: Dictionary) -> int:
 	var m: Dictionary = snap.duplicate(true)
 	m["kind"] = "monster"
 	m["slot"] = str(m.get("slot", ""))
@@ -9629,9 +9681,11 @@ func _seat_released_bag(snap: Dictionary) -> void:
 		wheel[hole] = m
 	else:
 		wheel.append(m)
+		hole = wheel.size() - 1
 	_reseat_slots()
 	_sync_wheel_stats()
 	_log("on_place", "%s left the bag" % str(m.get("name", "Monster")))
+	return hole
 
 
 func _wick_waiting(_index: int) -> bool:
@@ -9804,7 +9858,7 @@ func _play_plague_poison_blocked_fx() -> void:
 		return
 	var pd: int = idxs[0]
 	var s: Dictionary = wheel[pd]
-	_flash_banner("Poison does not activate")
+	_flash_banner("Poison. Stalled by Plague Doctor.")
 	if ability_slash:
 		var tex: Texture2D = null
 		if art != null:
@@ -11031,17 +11085,6 @@ func _slay_ogre_at(index: int) -> void:
 	var s: Dictionary = wheel[index]
 	if str(s.get("card_id", "")) != "ogre":
 		return
-	var title: String = str(s.get("call_name", "")).strip_edges()
-	if title == "":
-		title = str(s.get("ability", "")).strip_edges()
-	if title != "":
-		var at: Vector2 = Vector2.ZERO
-		if wheel_view:
-			at = wheel_view.slice_portrait_global(index)
-		if at != Vector2.ZERO:
-			_flash_banner_at(title, at)
-		else:
-			_flash_banner(title)
 	_log("on_remove_slice", str(s.get("name", "Ogre")))
 	if sfx:
 		sfx.play("whoosh", -8.0, 1.1)
@@ -11066,7 +11109,7 @@ func _slay_ogre_at(index: int) -> void:
 
 
 func _flash_banner(msg: String, ticker_id: String = "", ticker_tex: Texture2D = null) -> void:
-	if play_field == null or msg.strip_edges() == "":
+	if msg.strip_edges() == "":
 		return
 	# Item triggers that flash a banner (no slash) still stamp the cascade ticker.
 	if ticker_id != "" and cascade_ticker != null and cascade_ticker.active:
@@ -11074,59 +11117,50 @@ func _flash_banner(msg: String, ticker_id: String = "", ticker_tex: Texture2D = 
 		if ticket_i >= 0:
 			cascade_ticker.light(ticket_i)
 			cascade_ticker.stamp(ticket_i)
-	var lab: FitLabelBox = FitLabelBox.make()
-	lab.show_frame = false
-	lab.padding = 0
-	var long_line: bool = msg.length() > 28
-	lab.max_font_size = 22 if long_line else 28
-	lab.min_font_size = 16
-	lab.set_plain(msg)
-	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lab.font_color = Color("f0e6d8")
-	lab.set_outline(Color("100e0c"), 6)
-	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	lab.z_index = 40
-	lab.set_meta("fx_banner", true)
-	play_field.add_child(lab)
-	lab.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	lab.offset_left = -340.0 if long_line else -220.0
-	lab.offset_right = 340.0 if long_line else 220.0
-	lab.offset_top = -56.0 if long_line else -24.0
-	lab.offset_bottom = 56.0 if long_line else 24.0
-	lab.modulate.a = 0.0
-	var tw := lab.create_tween()
-	tw.tween_property(lab, "modulate:a", 1.0, 0.12)
-	tw.tween_interval(0.7)
-	tw.tween_property(lab, "modulate:a", 0.0, 0.35)
-	tw.finished.connect(lab.queue_free)
+	_place_hub_cue()
+	if hub_cue != null:
+		hub_cue.show_brief(msg)
 
 
-func _flash_banner_at(msg: String, at: Vector2) -> void:
-	if play_field == null or msg.strip_edges() == "":
+func _sync_hub_cue() -> void:
+	_place_hub_cue()
+	if hub_cue == null:
 		return
-	var lab: FitLabelBox = FitLabelBox.make()
-	lab.show_frame = false
-	lab.padding = 0
-	lab.max_font_size = 20
-	lab.min_font_size = 16
-	lab.set_plain(msg)
-	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lab.font_color = Color("f0e6d8")
-	lab.set_outline(Color("100e0c"), 6)
-	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	lab.z_index = 45
-	lab.set_meta("fx_banner", true)
-	play_field.add_child(lab)
-	lab.size = Vector2(240, 36)
-	lab.global_position = at - Vector2(120, 18)
-	lab.modulate.a = 0.0
-	var tw := lab.create_tween()
-	tw.tween_property(lab, "modulate:a", 1.0, 0.12)
-	tw.tween_interval(0.7)
-	tw.tween_property(lab, "modulate:a", 0.0, 0.4)
-	tw.finished.connect(lab.queue_free)
+	if hub_cue.brief_active():
+		return
+	if overlay != null and overlay.visible:
+		hub_cue.clear_hold()
+		return
+	if _challenge_loot_wait:
+		hub_cue.show_hold(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."), "full_hand")
+		return
+	if not pending_mark.is_empty() and phase == "fighting":
+		var mk: String = str(pending_mark.get("kind", ""))
+		var line: String = PLAYER_COPY.text("cue.mark", "Pick a neighbor.")
+		if mk == "hypnotize" or mk == "defeat_double_hp" or mk == "sling_any":
+			line = "Click any monster."
+		hub_cue.show_hold(line, "mark")
+		return
+	if challenge_draft_ui != null and challenge_draft_ui.visible and _draft_final_item:
+		hub_cue.show_hold(PLAYER_COPY.text("challenge.final_item", "Final Item"), "final_item")
+		return
+	hub_cue.clear_hold()
+
+
+func _place_hub_cue() -> void:
+	if hub_cue == null:
+		return
+	var bar: Control = hotbar_panel if hotbar_panel != null else hotbar_wrap
+	if bar == null:
+		return
+	var br: Rect2 = bar.get_global_rect()
+	var h: float = 64.0
+	var w: float = maxf(br.size.x, 420.0)
+	# Sit in the Take/Spin row: just above the hotbar, same width as the cards.
+	hub_cue.global_position = Vector2(br.position.x, br.position.y - h - 6.0)
+	hub_cue.size = Vector2(w, h)
+	if hub_cue.has_method("apply_pill"):
+		hub_cue.apply_pill()
 
 
 func _tune_combat_stage() -> void:
@@ -11741,7 +11775,11 @@ func _apply_catapult() -> void:
 	_sync_wheel_stats()
 	_refresh()
 	if _monsters_left() == 0 and challenge_deck.is_empty():
-		_enter_dungeon_clear()
+		if await _try_release_bag():
+			_refresh()
+			_spin_after_holes = true
+		else:
+			_enter_dungeon_clear()
 	else:
 		if sfx:
 			sfx.set_combat_music(false)
@@ -14287,7 +14325,10 @@ func _flee_spin(_shuffle: bool = false) -> bool:
 	phase = "ready"
 	_walker_busy = false
 	if _monsters_left() == 0:
-		_enter_dungeon_clear()
+		if await _try_release_bag():
+			_refresh()
+		else:
+			_enter_dungeon_clear()
 	elif sfx:
 		sfx.set_combat_music(false)
 	_refresh()
@@ -14727,7 +14768,7 @@ func _apply_mark_inner(index: int) -> void:
 		call_deferred("_refresh")
 		return
 	if kind == "mark_poison":
-		_add_monster_poison(index, 5)
+		_add_monster_poison(index, int(_ops_of(it).get("n", 4)))
 		_log("on_item_use", "poisoned %s (%s)" % [wheel[index].get("name", "?"), _poison_of(wheel[index])])
 		it["spent"] = true
 		await _count_item_use()
@@ -15362,8 +15403,6 @@ func _grant_mimic_gift() -> void:
 	if hotbar.size() <= before_n:
 		return
 	var gained: Dictionary = hotbar[hotbar.size() - 1]
-	var who: String = str(gained.get("name", "Item"))
-	_flash_banner(PLAYER_COPY.fill("challenge.loot", {"name": who}, "Loot from %s" % who))
 	_flash_screen(Color("e8c36a"), 0.42)
 	if sfx:
 		sfx.play_event(&"hand.gain", {"card_id": str(gained.get("card_id", ""))})
@@ -16640,10 +16679,7 @@ func _preview_bribe(index: int) -> Dictionary:
 
 
 func _loud_mark_prompt(kind: String) -> void:
-	var line: String = PLAYER_COPY.text("cue.mark", "Pick a neighbor.")
-	if kind == "hypnotize" or kind == "defeat_double_hp" or kind == "sling_any":
-		line = "Click any monster."
-	_flash_banner(line)
+	_sync_hub_cue()
 	if sfx:
 		sfx.play("question", -4.0)
 		sfx.play("select", -10.0, 1.12)
@@ -19048,6 +19084,7 @@ func _layout_play_field() -> void:
 	_place_fight_art(true)
 	if wheel_view and wheel_view.has_method("set_ability_avoids"):
 		wheel_view.set_ability_avoids(_ability_avoid_rects())
+	_place_hub_cue()
 
 
 func _set_cue(_t: String) -> void:
@@ -19301,6 +19338,7 @@ func _refresh() -> void:
 		tut.set_lift(in_tutorial and tut.visible and (_walker_busy or slash_up))
 
 	_set_cue(_cue_text())
+	_sync_hub_cue()
 	_rebuild_tray()
 	_sync_hotbar()
 	_rebuild_choice()
@@ -20459,7 +20497,9 @@ func _tutorial_offer_shuriken() -> void:
 	var sub: String = "Bandit · %s" % PLAYER_COPY.tier_name(1)
 	while in_tutorial and tut != null and tut.wait == "draft:shuriken":
 		challenge_draft_ui.present("Loot", sub, _challenge_draft_card(shuriken), _challenge_draft_card(decoy), shuriken, decoy)
-		challenge_draft_ui.set_final_item(true)
+		_draft_final_item = true
+		challenge_draft_ui.set_final_item(false)
+		_sync_hub_cue()
 		if challenge_draft_ui.get("_sub") != null:
 			challenge_draft_ui._sub.visible = true
 			challenge_draft_ui._sub.text = sub

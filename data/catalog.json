@@ -784,15 +784,15 @@
 			"type": "I"
 		},
 		{
-			"ability": "Mark a Neighbor with 5 Poison.",
+			"ability": "Mark a Neighbor with 4 Poison.",
 			"author_lock": true,
 			"bucket": 2.0,
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 2.0,
-			"defined": "Click during a fight, then click a living Neighbor. Used up. They gain 5 Poison. Amounts add. Plague Doctor neighbors stay at 2. On the next Spin, every monster with Poison loses that much HP immediately, wherever they sit, then the mark clears. This is before their spin ability. If it kills them, that ability does not happen. They stay in the seat until the other spin abilities finish. A dead monster who is not the one you landed on then leaves and the seat fills. If the one you landed on died, the fight ends after those abilities. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
+			"defined": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. Plague Doctor neighbors stay at 2. On the next Spin, every monster with Poison loses that much HP immediately, wherever they sit, then the mark clears. This is before their spin ability. If it kills them, that ability does not happen. They stay in the seat until the other spin abilities finish. A dead monster who is not the one you landed on then leaves and the seat fills. If the one you landed on died, the fight ends after those abilities. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
 			"exceptions": "",
-			"explainer": "Neighbor gets 5 Poison",
+			"explainer": "Neighbor gets 4 Poison",
 			"flags": {
 				"art": true,
 				"dev": false,
@@ -819,10 +819,13 @@
 				"reminder",
 				"card_color"
 			],
-			"log_hint": "Mark a neighbor for 5",
+			"log_hint": "Mark a neighbor for 4",
 			"mode_pool": "all",
 			"name": "Poison Flask",
-			"ops": {},
+			"ops": {
+				"kind": "mark_poison",
+				"n": 4
+			},
 			"poc": false,
 			"priority": 4.0,
 			"rarity": "uncommon",
