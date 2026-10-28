@@ -239,6 +239,7 @@ const MONSTER_SPECIAL := {
 	"poison_frog": {"id": "toxic_skin", "text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison"},
 	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust"},
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
+	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 1 Attack"},
 }
 
 const MONSTER_CALL := {
@@ -926,6 +927,7 @@ func _load_textures() -> void:
 		"magicat": _tex("res://assets/icons/sparkles.svg"),
 		"poison_frog": _tex("res://assets/icons/droplet.svg"),
 		"rust_bucket": _tex("res://assets/icons/ban.svg"),
+		"sandbag": _tex("res://assets/icons/footprints.svg"),
 	}
 	tex_by_item = {
 		"shield": tex_shield,
@@ -5772,6 +5774,8 @@ func _apply_formulas_to(s: Dictionary) -> void:
 					s["hp_max"] = int(s["hp_max"]) + dust
 					s["hp"] = int(s["hp"]) + dust
 			_apply_hunger_penalty(s, not bool(s.get("atk_locked", false)), not bool(s.get("hp_locked", false)))
+		if not bool(s.get("atk_locked", false)):
+			_apply_sandbag_cut(s)
 		s["ability"] = ""
 		s["explainer"] = ""
 		s["special_id"] = ""
@@ -5816,6 +5820,17 @@ func _apply_formulas_to(s: Dictionary) -> void:
 		s["atk"] = _card_base_atk(id) + int(s.get("bloodlust", 0))
 	elif atk_locked and id != "slime_boss":
 		s["atk"] = hold_atk
+	if not atk_locked:
+		_apply_sandbag_cut(s)
+
+
+func _apply_sandbag_cut(s: Dictionary) -> void:
+	if str(s.get("card_id", "")) != "sandbag":
+		return
+	var n: int = int(s.get("sandbag_cut", 0))
+	if n <= 0:
+		return
+	s["atk"] = maxi(0, int(s.get("atk", 0)) - n)
 
 
 func _atk_is_always(who) -> bool:
@@ -7389,6 +7404,8 @@ func _on_spin() -> void:
 			_worm_ask_hunger()
 			_refresh()
 	await _flush_poison_sides()
+	if phase == "fighting" and await _sandbag_after_spin():
+		return
 	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0 and not _wick_waiting(facing_index):
 		_undo_stack.append(_capture_run())
 		_redo_stack.clear()
@@ -14331,6 +14348,48 @@ func _play_chain_cancel() -> bool:
 					c.bounce()
 					break
 	return true
+
+
+func _sandbag_would_kill() -> bool:
+	if hp <= 0 or phase != "fighting":
+		return false
+	if facing_index < 0 or facing_index >= wheel.size():
+		return false
+	var m: Dictionary = wheel[facing_index]
+	if str(m.get("card_id", "")) != "sandbag":
+		return false
+	if _is_silenced(m) or int(m.get("hp", 0)) <= 0:
+		return false
+	# Same number as Take. Does not spend Double Buckler. Ignores Healing Potion.
+	return _incoming_hit() >= hp
+
+
+func _sandbag_lose_atk() -> void:
+	if facing_index < 0 or facing_index >= wheel.size():
+		return
+	var m: Dictionary = wheel[facing_index]
+	m["sandbag_cut"] = int(m.get("sandbag_cut", 0)) + 1
+	var shown: int = maxi(0, int(m.get("atk", 0)) - 1)
+	m["atk"] = shown
+	m["atk_innate"] = shown
+	wheel[facing_index] = m
+	_sync_wheel_stats()
+	_log("on_spin", "Sandbag loses 1 Attack  →  %s" % int(wheel[facing_index].get("atk", 0)))
+	if wheel_view:
+		wheel_view.punch_atk(facing_index)
+
+
+func _sandbag_after_spin() -> bool:
+	if not _sandbag_would_kill():
+		return false
+	_sandbag_lose_atk()
+	_refresh()
+	if await _flee_spin():
+		_undo_arm()
+		return true
+	# Ball and Chain stopped the Flee. The Attack loss stays. The fight stays open.
+	_refresh()
+	return false
 
 
 func _flee_spin(_shuffle: bool = false) -> bool:

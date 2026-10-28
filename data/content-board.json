@@ -4910,7 +4910,7 @@
 			"atk_base": 4,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3,
+			"bucket": 9,
 			"call_name": "Tough Blood",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -4958,7 +4958,7 @@
 			"atk_base": 3,
 			"atk_formula": "",
 			"author_lock": false,
-			"bucket": 4,
+			"bucket": 3,
 			"call_name": "Protector",
 			"card_color": "",
 			"contradiction_ids": [],
@@ -4973,7 +4973,7 @@
 			"log_hint": "Takes hits for neighbors",
 			"mode_pool": "all",
 			"name": "Bodyguard",
-			"notes": "Bucket 2. Right is counterclockwise when a King is also passing. Goblin still shows Immune to Attack Damage when the hit actually lands on Goblin.",
+			"notes": "Bucket 3. Right is counterclockwise when a King is also passing. Goblin still shows Immune to Attack Damage when the hit actually lands on Goblin.",
 			"ops": {},
 			"priority": 3,
 			"rarity": "uncommon",
@@ -6431,7 +6431,50 @@
 			"review_note": "",
 			"status": "live",
 			"tier": 2
+		},
+		{
+			"ability": "When you Spin me, if my Attack would kill you, I Flee and lose 1 Attack",
+			"atk_base": 6,
+			"atk_formula": "",
+			"author_lock": true,
+			"bucket": 4,
+			"call_name": "Sandbag",
+			"card_color": "",
+			"contradiction_ids": [],
+			"count": 1,
+			"explainer": "If Take would drop you to 0 HP, I lose 1 Attack and Flee instead of hitting you.",
+			"flags": {
+				"art": false,
+				"dev": true,
+				"hide": false
+			},
+			"flow": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 1, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 1 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost.",
+			"hp_base": 4,
+			"hp_formula": "",
+			"id": "sandbag",
+			"locked_at": "2026-10-28",
+			"locked_fields": [
+				"name",
+				"ability",
+				"call_name",
+				"atk_base",
+				"hp_base",
+				"tier"
+			],
+			"log_hint": "Lethal Take: lose 1 Attack and Flee",
+			"mode_pool": "all",
+			"name": "Sandbag",
+			"notes": "Pool 4, tier 1. Upright sandbag with eyes, Smash home-run contest. Art missing. Bodyguard moved to pool 3. Anvil moved to pool 9.",
+			"ops": {},
+			"priority": 3,
+			"rarity": "uncommon",
+			"reminder": "If Take would drop you to 0 HP, I lose 1 Attack and Flee instead of hitting you.",
+			"review": "rough",
+			"review_note": "",
+			"status": "live",
+			"tier": 1
 		}
+
 	],
-	"updated": "2026-10-25"
+	"updated": "2026-10-28"
 }

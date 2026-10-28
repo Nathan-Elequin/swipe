@@ -5947,7 +5947,7 @@
 				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 3,
+			"bucket": 9,
 			"call_name": "Tough Blood",
 			"count": 1,
 			"defined": "I cannot lose more than 1 HP from one source. Attack, Poison Flask, and other HP loss each chip 1. Defeat still works. Two separate Attacks chip 1 twice. Quiet Bell strips this, so full Attack lands.",
@@ -6009,11 +6009,11 @@
 				"base": 3
 			},
 			"author_lock": false,
-			"bucket": 4,
+			"bucket": 3,
 			"call_name": "Protector",
 			"count": 1,
 			"defined": "When a neighbor would take Attack damage, I take that hit instead. Each Bodyguard does this once per hit, so a line of them passes it to the last Bodyguard. The pass is shown before HP changes. Double Axe adds my own hit and each neighbor's hit onto that end. If the hit was aimed at the Twins, the number doubles first. A hit aimed at Goblin still comes to me. If I die while I am not the one you are facing, I leave like a Crossbow kill. Quiet Bell turns this off.",
-			"exceptions": "Bucket 2. Right is counterclockwise when a King is also passing. Goblin still shows Immune to Attack Damage when the hit actually lands on Goblin.",
+			"exceptions": "Bucket 3. Right is counterclockwise when a King is also passing. Goblin still shows Immune to Attack Damage when the hit actually lands on Goblin.",
 			"explainer": "Takes Neighbors' Attack damage",
 			"flags": {
 				"art": true,
@@ -6029,7 +6029,7 @@
 			"log_hint": "Takes hits for neighbors",
 			"mode_pool": "all",
 			"name": "Bodyguard",
-			"notes": "Bucket 2. Right is counterclockwise when a King is also passing. Goblin still shows Immune to Attack Damage when the hit actually lands on Goblin.",
+			"notes": "Bucket 3. Right is counterclockwise when a King is also passing. Goblin still shows Immune to Attack Damage when the hit actually lands on Goblin.",
 			"ops": {},
 			"poc": false,
 			"priority": 3,
@@ -7807,7 +7807,59 @@
 			"atk_formula": "",
 			"hp_formula": "",
 			"flow": "On a real Spin onto me, if I am not silenced: you Gain 2 player Poison. Whenever an Attack lands on this slice from any path (Boot, Crossbow, Prism bounce, Pocketwatch, Hired Hand, Cleave), you Gain 2 Poison even if the hit is 0. Two hits pay twice. Quiet Bell before the Spin: I am a 4 HP / 2 ATK golem. Quiet Bell after the Spin: you already got the Spin +2; further hits do not poison. Grappling Hook and Damsel neighbors do not pay the Spin trigger."
+		},
+		{
+			"ability": "When you Spin me, if my Attack would kill you, I Flee and lose 1 Attack",
+			"atk": {
+				"base": 6
+			},
+			"author_lock": true,
+			"bucket": 4,
+			"call_name": "Sandbag",
+			"count": 1,
+			"defined": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 1, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 1 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost.",
+			"exceptions": "Pool 4 tier 1. Art missing.",
+			"explainer": "If Take would drop you to 0 HP, I lose 1 Attack and Flee instead of hitting you.",
+			"flags": {
+				"art": false,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 4
+			},
+			"id": "sandbag",
+			"locked_at": "2026-10-28",
+			"locked_fields": [
+				"name",
+				"ability",
+				"call_name",
+				"atk_base",
+				"hp_base",
+				"tier"
+			],
+			"log_hint": "Lethal Take: lose 1 Attack and Flee",
+			"mode_pool": "all",
+			"name": "Sandbag",
+			"notes": "Pool 4, tier 1. Upright sandbag with eyes, Smash home-run contest. Art missing. Bodyguard moved to pool 3. Anvil moved to pool 9.",
+			"ops": {},
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"reminder": "If Take would drop you to 0 HP, I lose 1 Attack and Flee instead of hitting you.",
+			"review": "rough",
+			"review_note": "",
+			"status": "live",
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 6,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 1, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 1 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost."
 		}
+
 	],
 	"named_variables": [
 		{
