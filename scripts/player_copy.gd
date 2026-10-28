@@ -183,27 +183,27 @@ static func _is_word_char(ch: String) -> bool:
 	return c == "_"
 
 
-static func _replace_word(text: String, needle: String, repl: String) -> String:
-	if needle == "" or text == "":
-		return text
+static func _replace_word(src: String, needle: String, repl: String) -> String:
+	if needle == "" or src == "":
+		return src
 	var bits: PackedStringArray = PackedStringArray()
 	var i: int = 0
 	var nlen: int = needle.length()
-	while i < text.length():
-		var at: int = text.find(needle, i)
+	while i < src.length():
+		var at: int = src.find(needle, i)
 		if at < 0:
-			bits.append(text.substr(i))
+			bits.append(src.substr(i))
 			break
 		if at > i:
-			bits.append(text.substr(i, at - i))
-		var before_ok: bool = at == 0 or not _is_word_char(text.substr(at - 1, 1))
+			bits.append(src.substr(i, at - i))
+		var before_ok: bool = at == 0 or not _is_word_char(src.substr(at - 1, 1))
 		var after_i: int = at + nlen
-		var after_ok: bool = after_i >= text.length() or not _is_word_char(text.substr(after_i, 1))
+		var after_ok: bool = after_i >= src.length() or not _is_word_char(src.substr(after_i, 1))
 		if before_ok and after_ok:
 			bits.append(repl)
 			i = after_i
 		else:
-			bits.append(text.substr(at, 1))
+			bits.append(src.substr(at, 1))
 			i = at + 1
 		if i <= at:
 			i = at + 1
@@ -389,7 +389,10 @@ static func save_all(rows: Array, names: Array) -> String:
 		return ""
 	if not _save_cards(rows):
 		return ""
-	AUTHOR_LOCK.rebuild_ledger(last_board if not last_board.is_empty() else null, pack, names_pack)
+	var board_arg: Variant = null
+	if not last_board.is_empty():
+		board_arg = last_board
+	AUTHOR_LOCK.rebuild_ledger(board_arg, pack, names_pack)
 	return ProjectSettings.globalize_path(PATH)
 
 

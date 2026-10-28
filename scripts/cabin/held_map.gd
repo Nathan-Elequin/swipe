@@ -148,10 +148,7 @@ func present(rules: Dictionary, state: Dictionary) -> void:
 
 func _rebuild() -> void:
 	for c in _pins.get_children():
-		if c.has_meta("peel_tw"):
-			var prev: Variant = c.get_meta("peel_tw")
-			if prev is Tween:
-				(prev as Tween).kill()
+		_kill_peel_tween(c)
 		_pins.remove_child(c)
 		c.queue_free()
 	var solid := 1
@@ -336,12 +333,20 @@ func _hit_button(r: Rect2) -> Button:
 	return hit
 
 
+func _kill_peel_tween(seal: Object) -> void:
+	if seal == null or not is_instance_valid(seal):
+		return
+	if not seal.has_meta("peel_tw"):
+		return
+	var prev: Variant = seal.get_meta("peel_tw")
+	if prev is Tween:
+		(prev as Tween).kill()
+
+
 func _peel(seal: Control, up: bool) -> void:
 	if not seal.has_meta("rest_y"):
 		seal.set_meta("rest_y", seal.position.y)
-	var prev: Variant = seal.get_meta("peel_tw", null)
-	if prev is Tween:
-		(prev as Tween).kill()
+	_kill_peel_tween(seal)
 	var rest: float = float(seal.get_meta("rest_y"))
 	var tw := create_tween()
 	seal.set_meta("peel_tw", tw)
@@ -377,9 +382,7 @@ func _start_from_stamp(seal: WaxStamp, index: int, endless: bool) -> void:
 func _press_flat(seal: WaxStamp) -> void:
 	if seal == null or not is_instance_valid(seal):
 		return
-	var prev: Variant = seal.get_meta("peel_tw", null)
-	if prev is Tween:
-		(prev as Tween).kill()
+	_kill_peel_tween(seal)
 	if not seal.has_meta("rest_y"):
 		seal.set_meta("rest_y", seal.position.y)
 	var rest: float = float(seal.get_meta("rest_y"))
