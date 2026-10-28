@@ -81,6 +81,14 @@ def main() -> int:
         print("FAIL _spoke must call _spin_spoke")
         failed += 1
 
+    spin_spoke = _func_body(wheel, "_spin_spoke")
+    if "_spin_rect" in spin_spoke:
+        print("FAIL _spin_spoke must rebuild upright sprite/tag from spun feet, not _spin_rect")
+        failed += 1
+    if "sprite_rect" not in spin_spoke or "tag_rect" not in spin_spoke:
+        print("FAIL _spin_spoke must rebuild sprite_rect and tag_rect after spinning feet")
+        failed += 1
+
     draw = _func_body(wheel, "_draw")
     if "FRAME_METRICS.note_wheel()" not in draw:
         print("FAIL note_wheel must live in _draw (truthful redraw count)")

@@ -1964,21 +1964,38 @@ func _spin_pt(p: Vector2, c: Vector2, ang: float) -> Vector2:
 	return c + Vector2(d.x * cs - d.y * sn, d.x * sn + d.y * cs)
 
 
-func _spin_rect(r: Rect2, c: Vector2, ang: float) -> Rect2:
-	var mid: Vector2 = _spin_pt(r.get_center(), c, ang)
-	return Rect2(mid - r.size * 0.5, r.size)
-
-
 func _spin_spoke(sp: Dictionary, ang: float) -> Dictionary:
 	if absf(ang) < 0.00001:
 		return sp
 	var c: Vector2 = sp["c"]
-	for k in ["origin", "port", "feet", "name", "atk", "hp", "medal"]:
-		sp[k] = _spin_pt(sp[k] as Vector2, c, ang)
-	sp["dir"] = (sp["dir"] as Vector2).rotated(ang)
-	sp["tan"] = Vector2(-(sp["dir"] as Vector2).y, (sp["dir"] as Vector2).x)
-	sp["tag_rect"] = _spin_rect(sp["tag_rect"], c, ang)
-	sp["sprite_rect"] = _spin_rect(sp["sprite_rect"], c, ang)
+	# Spin the seat's feet around the hub, then rebuild upright chrome from that
+	# point. Spinning the tag/sprite AABBs by their centers (#138, 5d91ca4b) left
+	# sprites standing on-screen-down while name tags and medallions orbited,
+	# so the top seats had tags on the rim and medals beside the monster.
+	var rest_feet: Vector2 = sp["feet"]
+	var feet: Vector2 = _spin_pt(rest_feet, c, ang)
+	var origin: Vector2 = _spin_pt(sp["origin"] as Vector2, c, ang)
+	var dir: Vector2 = (sp["dir"] as Vector2).rotated(ang)
+	var sprite: Rect2 = sp["sprite_rect"]
+	var tag: Rect2 = sp["tag_rect"]
+	var w: float = sprite.size.x
+	var h: float = sprite.size.y
+	var tag_w: float = tag.size.x
+	var tag_h: float = tag.size.y
+	var extra_y: float = tag.position.y - (rest_feet.y + 10.0)
+	var dx: float = clampf(w * 0.5 - 4.0, 30.0, 40.0)
+	var tag_rect := Rect2(Vector2(feet.x - tag_w * 0.5, feet.y + 10.0 + extra_y), Vector2(tag_w, tag_h))
+	sp["origin"] = origin
+	sp["dir"] = dir
+	sp["tan"] = Vector2(-dir.y, dir.x)
+	sp["feet"] = feet
+	sp["port"] = feet - Vector2(0, h * 0.5)
+	sp["name"] = Vector2(feet.x, feet.y + 60.0)
+	sp["hp"] = feet + Vector2(-dx, -8.0)
+	sp["atk"] = feet + Vector2(dx, -8.0)
+	sp["tag_rect"] = tag_rect
+	sp["medal"] = Vector2(tag_rect.position.x - 2.0, tag_rect.position.y + tag_h * 0.5)
+	sp["sprite_rect"] = Rect2(Vector2(feet.x - w * 0.5, feet.y - h), Vector2(w, h))
 	return sp
 
 
