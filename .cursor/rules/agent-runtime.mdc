@@ -6,12 +6,12 @@ alwaysApply: true
 # Agent runtime
 
 ## 1. Local first
-- Every agent job for this game runs on Cherry: local Cursor, Cursor CLI, or Pixel driving Cherry.
-- Use Cursor cloud agents only when:
+- Prefer Cherry: local Cursor, Cursor CLI, or Pixel driving Cherry — those already have the repo, Godot, and godot-mcp.
+- Cursor cloud agents are OK when Pixel / Grok Bot orchestrates them, or when:
   - Cherry is off or asleep and the job can't wait, or
   - Nathan asks for a cloud agent by name, or
   - more than about 3 big jobs must run in parallel.
-- Why: the token rate is the same, but local agents already have the repo, Godot and godot-mcp. Less setup, fewer retries, and they can check their own work.
+- Cloud ships still cannot F5 or godot-mcp. Every visual / cabin / UI ship from cloud must leave a `playtest/repot/inbox/` request so local Cursor can verify (see §11 and `playtest-repot.mdc`).
 
 ## 2. Work in the playtest folder
 - Default: all work happens in `C:\Users\Natha\Documents\boss-rush` (the primary worktree), so Nathan can press F5 and test right away.
@@ -62,3 +62,8 @@ alwaysApply: true
 
 ## 10. Keep automatic check-ins rare
 - No scheduled or recurring agent runs for this game. Nathan starts things.
+
+## 11. Cloud agents must write a repot request
+- Whenever a cloud agent (or any agent without godot-mcp) ships a visual / cabin / UI change, it MUST add or update `playtest/repot/inbox/REQ-*.md` in the same PR per `playtest/repot/SCHEMA.md` before claiming done.
+- Local Cursor drains inbox via `playtest-repot.mdc`.
+- Never mark your own request `done`.
