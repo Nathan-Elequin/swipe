@@ -4190,7 +4190,7 @@
 			"cat": "Tutorial",
 			"key": "tutorial.space_hint",
 			"text": "Press Space to continue.",
-			"where": "Floating white Space hint whenever a talk beat waits on Space"}
+			"where": "Floating white Space hint whenever a talk beat waits on Space"
 		},
 		{
 			"cat": "Title",
@@ -4914,6 +4914,281 @@
 			"text": "Continue",
 			"where": "Win drawer continue"
 		}
+,
+		{
+			"cat": "Playtest",
+			"key": "cabin.hot.back_workshop",
+			"text": "Workshop",
+			"draft": true,
+			"where": ""
+		},
+		{
+			"cat": "Campaign",
+			"key": "campaign.drawer.body",
+			"where": "Win drawer body (legacy)",
+			"text": "Every cabinet is full. Endless is unlocked.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "campaign.drawer.title",
+			"where": "Win drawer soft line",
+			"text": "A drawer you never noticed slides open.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"author_lock": true,
+			"cat": "Cues",
+			"key": "cue.seat",
+			"locked_at": "2026-10-07",
+			"text": "A monster approaches. Select their location.",
+			"where": "After steal, pick an alcove"
+		},
+		{
+			"author_lock": true,
+			"cat": "Cues",
+			"key": "cue.starters",
+			"locked_at": "2026-10-07",
+			"text": "Four freeloaders already claimed north, east, south, and west.",
+			"where": "Begin: four starters land NESW"
+		},
+		{
+			"author_lock": true,
+			"cat": "Door",
+			"key": "door.hook",
+			"locked_at": "2026-10-10",
+			"text": "Take {item} and its monster kicks through that door.",
+			"where": "Gate before Take. {item} = loot name"
+		},
+		{
+			"author_lock": true,
+			"cat": "Door",
+			"key": "door.owner",
+			"locked_at": "2026-10-10",
+			"text": "THE MONSTER",
+			"where": "Gate chrome over the silhouette"
+		},
+		{
+			"author_lock": true,
+			"cat": "Door",
+			"key": "door.seat",
+			"locked_at": "2026-10-07",
+			"text": "A monster approaches. Select their location.",
+			"where": "After reveal, before you click a +"
+		},
+		{
+			"author_lock": true,
+			"cat": "Door",
+			"key": "door.shiny",
+			"locked_at": "2026-10-10",
+			"text": "THE LOOT",
+			"where": "Gate chrome over the item"
+		},
+		{
+			"author_lock": true,
+			"cat": "Door",
+			"key": "door.title",
+			"locked_at": "2026-10-07",
+			"text": "THE DOOR",
+			"where": "Gate chrome top"
+		},
+		{
+			"author_lock": true,
+			"cat": "Inspect",
+			"key": "inspect.empty_place",
+			"locked_at": "2026-10-07",
+			"text": "Empty alcove",
+			"where": "Empty alcove while seating"
+		},
+		{
+			"author_lock": true,
+			"cat": "Inspect",
+			"key": "inspect.shift",
+			"locked_at": "2026-10-07",
+			"text": "hold Shift to explain",
+			"where": "Monster inspect, Shift hint"
+		},
+		{
+			"cat": "Map",
+			"key": "map.fog",
+			"where": "Fog / missing pieces note",
+			"text": "here the map gets… hazy. (pieces missing)",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.hint.click",
+			"where": "Clickable stamped biome",
+			"text": "click to set off",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.legend.down",
+			"where": "Depth cue on held map",
+			"text": "down is deeper",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.node.locked",
+			"where": "Unmapped biome label",
+			"text": "{biome} · unmapped",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.route.shortcut.desc",
+			"where": "Map pin description (hover / selected)",
+			"text": "Skip the setup and jump straight in. {grandpa} swore it was faster.",
+			"draft": true
+		},
+		{
+			"cat": "Map",
+			"key": "map.scribble.snacks",
+			"where": "Margin scribble",
+			"text": "Snacks: bring them.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.scribble.x",
+			"where": "Margin scribble",
+			"text": "X = treasure (probably).",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.stamp.full",
+			"where": "Full cabinet stamp hint",
+			"text": "cabinet full.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.stamp.pencil",
+			"where": "Full cabinet stamp hint line 2",
+			"text": "Nib's pencil →",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.start.pin",
+			"where": "Start badge title",
+			"text": "START HERE",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.start.sub",
+			"where": "Start badge sub",
+			"text": "Gatehouse → Verdant Hollow · a normal run",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.subtitle",
+			"where": "Held map subtitle",
+			"text": "(Mostly Accurate.) Five bellies, each meaner than the last.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.title.spin",
+			"where": "Held map title (Spin lock)",
+			"text": "Grandpa's Map of Mount Grumblegut",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.stamped_short",
+			"where": "Map-piece ceremony one-liner alternate",
+			"text": "There. Official now.",
+			"owner": "Spin"
+		},
+		{
+			"author_lock": true,
+			"cat": "Pause",
+			"key": "pause.start_over",
+			"locked_at": "2026-10-07",
+			"text": "Start over",
+			"where": "Escape menu label"
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.voice_chip",
+			"text": "Keep a phone voice memo running. Talk out loud at every interaction.",
+			"author_lock": true,
+			"locked_at": "2026-10-19",
+			"where": "Playtest chip"
+		},
+		{
+			"cat": "Campaign",
+			"key": "rope.campaign.bank_sub",
+			"where": "Extract Bank home sub",
+			"text": "End the run and keep what you extracted.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "rope.campaign.push_sub",
+			"where": "Extract Push deeper sub",
+			"text": "Carry this hand into the next delve.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"author_lock": true,
+			"cat": "Title",
+			"key": "title.adventure_win",
+			"locked_at": "2026-10-07",
+			"text": "Victory",
+			"where": "Adventure victory headline"
+		},
+		{
+			"author_lock": true,
+			"cat": "Title",
+			"key": "title.again",
+			"locked_at": "2026-10-07",
+			"text": "Again",
+			"where": "Victory / defeat button"
+		},
+		{
+			"author_lock": true,
+			"cat": "Title",
+			"key": "title.lose_sub",
+			"locked_at": "2026-10-07",
+			"text": "Thievery never pays. Or rather, it pays in trouble.",
+			"where": "Defeat subtitle"
+		},
+		{
+			"author_lock": true,
+			"cat": "Title",
+			"key": "title.sub",
+			"locked_at": "2026-10-20",
+			"text": "Use it, Lose it, or Lose your head",
+			"where": "Title parchment subtitle"
+		},
+		{
+			"author_lock": true,
+			"cat": "Title",
+			"key": "title.win_sub",
+			"locked_at": "2026-10-10",
+			"text": "Now I just need a place to store this stuff.",
+			"where": "Victory subtitle"
+		},
+		{
+			"author_lock": true,
+			"cat": "Warns",
+			"key": "warn.crossbow",
+			"locked_at": "2026-10-07",
+			"text": "Can't — no soft neighbor who can take a bolt.",
+			"where": "Crossbow cannot fire"
+		}
+	
 	],
 	"updated": "2026-10-28"
 }

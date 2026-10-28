@@ -62,6 +62,7 @@ static func _read_dict(path: String) -> Dictionary:
 	f.close()
 	var parsed: Variant = JSON.parse_string(raw)
 	if typeof(parsed) != TYPE_DICTIONARY:
+		push_error("Failed to parse %s — player-facing copy will be blank until the JSON is valid." % path)
 		return {}
 	return parsed
 
