@@ -33,8 +33,8 @@ func _apply_bg() -> void:
 
 func _hide_retired_chrome() -> void:
 	## Shelf page arrows + gauge retired (five fixed plate cases).
-	## SignStudy is wrong for the right door (now Outpost) — hide until Spin/Pixel replace it.
-	for hide_name in ["ShelfPrev", "ShelfNext", "Gauge", "SignStudy"]:
+	## SignOutpost (right door → Outpost) stays visible — do not hide it here.
+	for hide_name in ["ShelfPrev", "ShelfNext", "Gauge"]:
 		var n = spots.get(hide_name, null)
 		if n is CanvasItem:
 			(n as CanvasItem).visible = false

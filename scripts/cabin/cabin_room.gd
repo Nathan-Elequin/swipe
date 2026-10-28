@@ -188,6 +188,7 @@ func _tag_for(node_name: String) -> String:
 		"ShelfPrev": "cabin.hot.cabinet",
 		"ShelfNext": "cabin.hot.cabinet",
 		"Gauge": "cabin.hot.gauge",
+		"SignOutpost": "cabin.hall.sign_outpost",
 		"PortraitBig": "cabin.hot.portrait_big",
 		"Journal": "cabin.hot.journal",
 		"Will": "cabin.hot.will",
