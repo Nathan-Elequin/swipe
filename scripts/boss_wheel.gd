@@ -854,7 +854,8 @@ func punch_hub() -> void:
 
 
 ## Small player-hub hit / block tell. Not the faced-slice BLOCKED stamp.
-func play_hub_sting(kind: String, amount: int = 0) -> void:
+## release_early: return after the knock snap so resolve overlaps the settle.
+func play_hub_sting(kind: String, amount: int = 0, release_early: bool = false) -> void:
 	hub_sting_kind = kind
 	hub_sting = 1.0
 	var c: Vector2 = _center()
@@ -881,6 +882,10 @@ func play_hub_sting(kind: String, amount: int = 0) -> void:
 	tw.tween_property(self, "hub_nudge", Vector2.ZERO, dur - 0.05).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	var fade := create_tween()
 	fade.tween_property(self, "hub_sting", 0.0, dur)
+	if release_early:
+		# Knock snap is the tell; settle continues while resolve moves on.
+		await get_tree().create_timer(0.06).timeout
+		return
 	await tw.finished
 
 
@@ -906,13 +911,19 @@ func play_escape(index: int) -> void:
 	busy = false
 
 
-func play_block(index: int) -> void:
+## Faced-slice BLOCKED stamp. release_early returns once the word is readable
+## (slay_t > 0.18) so Take/resolve does not wait out the full 0.5s hold.
+func play_block(index: int, release_early: bool = false) -> void:
 	busy = true
 	slay_kind = "block"
 	slay_index = index
 	slay_t = 0.0
 	var tw := create_tween()
 	tw.tween_property(self, "slay_t", 1.0, 0.5)
+	if release_early:
+		await get_tree().create_timer(0.20).timeout
+		busy = false
+		return
 	await tw.finished
 	busy = false
 

@@ -169,10 +169,11 @@ func take_hit() -> void:
 	_burst("star", Color("f0e6d8"), 1.0)
 	_burst("spark", Color("e07a7a"), 0.85)
 	pivot_offset = size * 0.5
+	# Snappy punch — residual blood particles no longer stretch the feel hold.
 	var tw := create_tween()
-	tw.tween_property(self, "rotation", 0.08, 0.05)
-	tw.tween_property(self, "rotation", -0.06, 0.06)
-	tw.tween_property(self, "rotation", 0.0, 0.08)
+	tw.tween_property(self, "rotation", 0.08, 0.04)
+	tw.tween_property(self, "rotation", -0.05, 0.05)
+	tw.tween_property(self, "rotation", 0.0, 0.06)
 
 
 func lunge(fast: bool = false) -> void:
@@ -264,7 +265,7 @@ func play_bleed() -> void:
 			"rot": randf_range(-0.2, 0.2),
 			"col": Color("7b2d9b") if randf() > 0.4 else Color("3a1048"),
 			"t": 0.0,
-			"life": randf_range(0.45, 0.85),
+			"life": randf_range(0.28, 0.48),
 		})
 
 
@@ -380,7 +381,8 @@ func _splatter(col: Color) -> void:
 			"rot": randf_range(0.0, TAU),
 			"col": col,
 			"t": 0.0,
-			"life": randf_range(0.35, 0.7),
+			# Shorter hold so hit feedback does not linger past the HP tell (feel C).
+			"life": randf_range(0.22, 0.42),
 		})
 
 
@@ -389,7 +391,7 @@ func _burst(kind: String, col: Color, sc: float) -> void:
 		"kind": kind,
 		"col": col,
 		"t": 0.0,
-		"life": 0.42,
+		"life": 0.28,
 		"sc": sc,
 		"p": size * 0.5 + Vector2(randf_range(-12.0, 12.0), randf_range(-8.0, 8.0)),
 	})
