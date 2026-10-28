@@ -2,8 +2,8 @@
 id: REQ-20261028-hall-chrome-strip
 status: open
 priority: high
-pr:
-tip_sha:
+pr: 169
+tip_sha: ab262eef
 branch: playtest/latest
 created: 2026-10-28T20:30:00Z
 created_by: cursor-cloud
