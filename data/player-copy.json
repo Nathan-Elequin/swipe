@@ -2794,11 +2794,12 @@
 			"where": "Room-name sign that drops in on room change"
 		},
 		{
+			"author_lock": true,
 			"cat": "Cabin",
-			"draft": true,
 			"key": "cabin.hot.run_door",
-			"text": "Into {the_grumble}",
-			"where": "Hover label for the run_door hotspot"
+			"locked_at": "2026-10-28",
+			"text": "Toward the Outpost",
+			"where": "Hover label for the painted main-room run door (hall path)"
 		},
 		{
 			"cat": "Cabin",
@@ -2960,6 +2961,14 @@
 			"key": "cabin.hot.door_hall",
 			"text": "Trophy Hall",
 			"where": "Hover label on an unlocked door"
+		},
+		{
+			"author_lock": true,
+			"cat": "Cabin",
+			"key": "cabin.hot.door_outpost",
+			"locked_at": "2026-10-28",
+			"text": "Outpost",
+			"where": "Hover label for Hall → Outpost right door"
 		},
 		{
 			"cat": "Cabin",
@@ -4213,11 +4222,12 @@
 			"where": ""
 		},
 		{
+			"author_lock": true,
 			"cat": "Playtest",
-			"draft": true,
 			"key": "cabin.hot.back_hall",
+			"locked_at": "2026-10-28",
 			"text": "Trophy Hall",
-			"where": ""
+			"where": "Outpost back door hover → Trophy Hall"
 		},
 		{
 			"cat": "Playtest",
@@ -4913,8 +4923,7 @@
 			"key": "campaign.drawer.continue",
 			"text": "Continue",
 			"where": "Win drawer continue"
-		}
-,
+		},
 		{
 			"cat": "Playtest",
 			"key": "cabin.hot.back_workshop",
@@ -5188,7 +5197,6 @@
 			"text": "Can't — no soft neighbor who can take a bolt.",
 			"where": "Crossbow cannot fire"
 		}
-	
 	],
 	"updated": "2026-10-28"
 }

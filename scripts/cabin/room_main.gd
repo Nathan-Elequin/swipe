@@ -141,10 +141,10 @@ func _refresh_doors() -> void:
 			if left.hover_tex == null:
 				left.hover_tex = closed_l
 			left.set_idle_tex(closed_l)
-	## Painted run door starts the rightward hall path (does not skip to Outpost).
+	## Painted run door starts the rightward hall path (does not skip to Outpost / delve).
 	var run = spots.get("RunDoor", null)
 	if run is CabinHotspot:
-		run.tag_key = "cabin.hot.door_hall" if hall_open else "cabin.hot.door_locked"
+		run.tag_key = "cabin.hot.run_door" if hall_open else "cabin.hot.door_locked"
 		run.set_locked(not hall_open, KIT.load_tex("doors/run_door_closed.png"))
 	_refresh_gear()
 
