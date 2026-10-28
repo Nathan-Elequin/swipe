@@ -6473,6 +6473,48 @@
 			"review_note": "",
 			"status": "live",
 			"tier": 1
+		},
+		{
+			"ability": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value",
+			"atk_base": 4,
+			"atk_formula": "",
+			"author_lock": true,
+			"bucket": 2,
+			"call_name": "Venom Sac",
+			"card_color": "",
+			"contradiction_ids": [],
+			"count": 1,
+			"explainer": "On Spin: one Attack or Block Item becomes a Poison Flask of that number",
+			"flags": {
+				"art": false,
+				"dev": true,
+				"hide": false
+			},
+			"flow": "On a real Spin onto me, after Cleric and the other On Spin changes, if I am not silenced and poison did not already drop me to 0: pick one Attack or Block item still in hand at random. Chakram counts once and its number is 3. Chain uses Block already restored this Spin, including Stone Wall, and is 0 when Block is 0. Arrow Head is 6 and does not copy the HP loss. Helmet and Spiked Shield use the hand after Cleric's take. The number is copied once. Change that card in place into a Poison Flask with that poison number. Not an item use. Recycler does not tick. You can click a flask of 0: pick a living neighbor, add 0 Poison, and the card is used up. A higher flask is the same click. Plague Doctor uses the live poison rules.",
+			"hp_base": 2,
+			"hp_formula": "",
+			"id": "scorpion",
+			"locked_at": "2026-10-28",
+			"locked_fields": [
+				"name",
+				"ability",
+				"call_name",
+				"atk_base",
+				"hp_base",
+				"tier"
+			],
+			"log_hint": "On Spin: one Attack or Block Item becomes a Poison Flask",
+			"mode_pool": "all",
+			"name": "Scorpion",
+			"notes": "Pool 2, tier 1. Needs a scorpion sprite. Pool 2 already had Beggar, Eel, and Lich at tier 1; no other card was moved.",
+			"ops": {},
+			"priority": 3,
+			"rarity": "uncommon",
+			"reminder": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value",
+			"review": "rough",
+			"review_note": "",
+			"status": "live",
+			"tier": 1
 		}
 
 	],

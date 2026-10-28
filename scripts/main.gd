@@ -236,6 +236,7 @@ const MONSTER_SPECIAL := {
 	"death_bell": {"id": "toll_dead", "text": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item."},
 	"mouse": {"id": "scurry", "text": "When you Spin me, if you have more HP than me I lose 2 HP and Flee"},
 	"magicat": {"id": "cats_eye", "text": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value"},
+	"scorpion": {"id": "venom_sac", "text": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value"},
 	"poison_frog": {"id": "toxic_skin", "text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison"},
 	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust"},
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
@@ -7404,6 +7405,8 @@ func _on_spin() -> void:
 			_worm_ask_hunger()
 			_refresh()
 	await _flush_poison_sides()
+	if phase == "fighting":
+		await _apply_scorpion_on_spin()
 	if phase == "fighting" and await _sandbag_after_spin():
 		return
 	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0 and not _wick_waiting(facing_index):
@@ -12476,6 +12479,96 @@ func _magicat_morph(it: Dictionary) -> void:
 	it["cats_eye"] = true
 
 
+func _poison_dose(it: Dictionary) -> int:
+	if it.has("poison_n"):
+		return maxi(int(it.get("poison_n", 0)), 0)
+	return maxi(int(_ops_of(it).get("n", 4)), 0)
+
+
+func _scorpion_is_target(it: Dictionary) -> bool:
+	if typeof(it) != TYPE_DICTIONARY or bool(it.get("spent", false)):
+		return false
+	if _item_is_chakram(it):
+		return true
+	return _item_grants_block(it) or _item_deals_attack(it)
+
+
+func _scorpion_value(it: Dictionary) -> int:
+	if _item_is_chakram(it):
+		return 3
+	return maxi(int(_item_view(it).get("n", 0)), 0)
+
+
+func _scorpion_morph(it: Dictionary) -> void:
+	var n: int = _scorpion_value(it)
+	var keep_uid: int = int(it.get("uid", -1))
+	var fresh: Dictionary = _make_item("poison_flask")
+	it.clear()
+	for k in fresh.keys():
+		it[k] = fresh[k]
+	it["uid"] = keep_uid
+	it["poison_n"] = n
+	var ops: Dictionary = it.get("ops", {})
+	ops["kind"] = "mark_poison"
+	ops["n"] = n
+	it["ops"] = ops
+	it["ability"] = "Mark a Neighbor with %d Poison." % n
+	it["explainer"] = "Neighbor gets %d Poison" % n
+
+
+func _apply_scorpion_on_spin() -> void:
+	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
+		return
+	var m: Dictionary = wheel[facing_index]
+	if str(m.get("card_id", "")) != "scorpion":
+		return
+	if int(m.get("hp", 0)) <= 0 or _is_silenced(m):
+		return
+	var pool: Array = []
+	for it in hotbar:
+		if not _scorpion_is_target(it):
+			continue
+		var uid: int = int(it.get("uid", -1))
+		if uid >= 0:
+			pool.append(uid)
+	if pool.is_empty():
+		_log("on_spin", "Venom Sac — nothing")
+		return
+	var pick: int = int(pool[rng.randi() % pool.size()])
+	_walker_busy = true
+	_sync_buttons()
+	var dest: Vector2 = _item_card_global(pick)
+	if dest == Vector2.ZERO:
+		dest = _hub_hp_pos()
+	await _announce_slice(facing_index, dest)
+	if wheel_view:
+		wheel_view.aura_index = facing_index
+	if sfx:
+		sfx.play_event(&"mon.cleric_tax")
+	if get_tree():
+		await get_tree().create_timer(0.55).timeout
+	if wheel_view:
+		wheel_view.aura_index = -1
+	if phase != "fighting":
+		_walker_busy = false
+		return
+	var chosen: Dictionary = _find_item(pick)
+	if chosen.is_empty() or not _scorpion_is_target(chosen):
+		_walker_busy = false
+		_refresh()
+		return
+	var shown: int = _scorpion_value(chosen)
+	_scorpion_morph(chosen)
+	_log("on_spin", "Venom Sac  →  Poison Flask %s" % shown)
+	_hotbar_sig = ""
+	_refresh()
+	await _play_item_transform(pick)
+	_sort_hotbar()
+	_hotbar_sig = ""
+	_walker_busy = false
+	_refresh()
+
+
 func _apply_magicat_on_spin() -> void:
 	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
 		return
@@ -14873,8 +14966,9 @@ func _apply_mark_inner(index: int) -> void:
 		call_deferred("_refresh")
 		return
 	if kind == "mark_poison":
-		_add_monster_poison(index, int(_ops_of(it).get("n", 4)))
-		_log("on_item_use", "poisoned %s (%s)" % [wheel[index].get("name", "?"), _poison_of(wheel[index])])
+		var dose: int = _poison_dose(it)
+		_add_monster_poison(index, dose)
+		_log("on_item_use", "poisoned %s (+%s → %s)" % [wheel[index].get("name", "?"), dose, _poison_of(wheel[index])])
 		it["spent"] = true
 		await _count_item_use()
 		_toss_item(int(it["uid"]), false)
@@ -16176,7 +16270,8 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["can_use"] = fighting and not _defeat_blocked(m)
 		"mark_poison":
 			out["kind"] = "MARK"
-			out["number"] = ""
+			out["n"] = _poison_dose(it)
+			out["number"] = str(out["n"])
 			out["note"] = ""
 			out["can_use"] = fighting and not _mark_targets("mark_poison").is_empty()
 		"atk_neighbor", "mark_crossbow":
@@ -17529,8 +17624,9 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			if fighting and _defeat_blocked(m):
 				out["warn"] = "Can't — this enemy cannot be Defeated."
 		"mark_poison":
-			out["value"] = _value_bb("Mark", "", gold)
-			out["body"] = "Mark a Neighbor with 5 Poison."
+			var poison_n: int = int(view.get("n", _poison_dose(it)))
+			out["value"] = _value_bb("Poison", str(poison_n), gold)
+			out["body"] = "Mark a Neighbor with %d Poison." % poison_n
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = PLAYER_COPY.text("warn.poison", "Can't — no neighbor you can poison.")
 		"atk_neighbor", "mark_crossbow":

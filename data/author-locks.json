@@ -2881,6 +2881,18 @@
 			],
 			"locked_at": "2026-10-28",
 			"name": "Sandbag"
+		},
+		"monster:scorpion": {
+			"fields": [
+				"name",
+				"ability",
+				"call_name",
+				"atk_base",
+				"hp_base",
+				"tier"
+			],
+			"locked_at": "2026-10-28",
+			"name": "Scorpion"
 		}
 	},
 	"id": "boss-rush-author-locks",

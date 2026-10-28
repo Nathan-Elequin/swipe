@@ -7858,6 +7858,57 @@
 			"atk_formula": "",
 			"hp_formula": "",
 			"flow": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 1, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 1 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost."
+		},
+		{
+			"ability": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value",
+			"atk": {
+				"base": 4
+			},
+			"author_lock": true,
+			"bucket": 2,
+			"call_name": "Venom Sac",
+			"count": 1,
+			"defined": "On a real Spin onto me, after Cleric and the other On Spin changes, if I am not silenced and poison did not already drop me to 0: pick one Attack or Block item still in hand at random. Chakram counts once and its number is 3. Chain uses Block already restored this Spin, including Stone Wall, and is 0 when Block is 0. Arrow Head is 6 and does not copy the HP loss. Helmet and Spiked Shield use the hand after Cleric's take. The number is copied once. Change that card in place into a Poison Flask with that poison number. Not an item use. Recycler does not tick. You can click a flask of 0: pick a living neighbor, add 0 Poison, and the card is used up. A higher flask is the same click. Plague Doctor uses the live poison rules.",
+			"exceptions": "Pool 2 tier 1. Art missing. No other Pool 2 card was moved.",
+			"explainer": "On Spin: one Attack or Block Item becomes a Poison Flask of that number",
+			"flags": {
+				"art": false,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 2
+			},
+			"id": "scorpion",
+			"locked_at": "2026-10-28",
+			"locked_fields": [
+				"name",
+				"ability",
+				"call_name",
+				"atk_base",
+				"hp_base",
+				"tier"
+			],
+			"log_hint": "On Spin: one Attack or Block Item becomes a Poison Flask",
+			"mode_pool": "all",
+			"name": "Scorpion",
+			"notes": "Pool 2, tier 1. Needs a scorpion sprite. Pool 2 already had Beggar, Eel, and Lich at tier 1; no other card was moved.",
+			"ops": {},
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"reminder": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value",
+			"review": "rough",
+			"review_note": "",
+			"status": "live",
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 4,
+			"hp_base": 2,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On a real Spin onto me, after Cleric and the other On Spin changes, if I am not silenced and poison did not already drop me to 0: pick one Attack or Block item still in hand at random. Chakram counts once and its number is 3. Chain uses Block already restored this Spin, including Stone Wall, and is 0 when Block is 0. Arrow Head is 6 and does not copy the HP loss. Helmet and Spiked Shield use the hand after Cleric's take. The number is copied once. Change that card in place into a Poison Flask with that poison number. Not an item use. Recycler does not tick. You can click a flask of 0: pick a living neighbor, add 0 Poison, and the card is used up. A higher flask is the same click. Plague Doctor uses the live poison rules."
 		}
 
 	],
