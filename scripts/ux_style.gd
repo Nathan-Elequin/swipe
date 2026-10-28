@@ -278,7 +278,7 @@ static func call_color(special_id: String) -> Color:
 			return GOLD
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return CALL_ATK
-		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator", "lifelink":
+		"last_hp", "buff_hp", "undying", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator", "lifelink":
 			return CALL_HP
 		"kill_scale", "atk_eq_hp":
 			return CALL_VAR

@@ -3767,7 +3767,7 @@
 				"hide": false
 			},
 			"id": "sling",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3786,7 +3786,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"review"
 			],
 			"log_hint": "Next Attack can target Any",
 			"mode_pool": "all",
@@ -3799,7 +3800,7 @@
 			"priority": 2,
 			"rarity": "starter",
 			"reminder": "",
-			"review": "rough",
+			"review": "change",
 			"review_note": "",
 			"status": "live",
 			"tier": 1,
@@ -4055,7 +4056,7 @@
 			"call_name": "",
 			"card_color": "heal",
 			"count": 0,
-			"defined": "SP-23 token. Not drafted. Fairy creates it when Defeated without losing HP. Click during a fight. Heal 2 (cap 6). Used up.",
+			"defined": "Archived token. Fairy no longer creates this. If a hand already holds one, click during a fight to Heal 2 (cap 6). Used up. Not drafted.",
 			"exceptions": "Token. Not drafted. Fairy creates it. Needs art.",
 			"explainer": "Heal 2",
 			"flags": {
@@ -4413,25 +4414,25 @@
 			"notes": ""
 		},
 		{
-			"ability": "I give my Neighbors +1 HP.",
+			"ability": "When you use Defeat Items against me, they fail, reduce my HP by 1, and are Kept. I cannot lose HP in any other way.",
 			"atk": {
-				"base": 3
+				"base": 5
 			},
 			"author_lock": true,
-			"bucket": 2,
-			"call_name": "Siphon",
+			"bucket": 3,
+			"call_name": "Undying",
 			"count": 2,
-			"defined": "Set each neighbor's HP to its (Max HP + 1).",
+			"defined": "Pool 3, tier 2, 2 HP, 5 Attack. Legal Defeat items (The Boot, Sledgehammer, Fangs, Paci-Fist, Scythe, Hex) chip 1 HP and are Kept. Fangs still attacks, then Heals the HP from before the chip. Two Hexes each chip 1 and reset to 6. Nothing else lowers HP. Quiet Bell turns this off. End-of-combat attack still defeats me.",
 			"exceptions": "",
-			"explainer": "Neighbors +1 HP",
+			"explainer": "Legal Defeat items chip 1 HP and stay Kept. Nothing else lowers my HP.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"function_flow": "Set each neighbor's HP to its (Max HP + 1).",
+			"function_flow": "Legal Defeat items chip 1 HP and are Kept. Nothing else lowers HP. End-of-combat attack still defeats me.",
 			"hp": {
-				"base": 1
+				"base": 2
 			},
 			"id": "lich",
 			"locked_at": "2026-10-25",
@@ -4455,28 +4456,28 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Neighbors gain 1 HP",
+			"log_hint": "Defeat items chip 1 and stay",
 			"mode_pool": "all",
 			"name": "Lich",
 			"poc": false,
 			"priority": 4,
 			"rarity": "starter",
-			"reminder": "neighbors +1 HP",
+			"reminder": "Defeat chips 1. No other HP loss.",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1,
+			"tier": 2,
 			"type": "M",
-			"updates": "Neighboring HP",
-			"when_updates": "On Remove Slice",
+			"updates": "HP on Defeat item use",
+			"when_updates": "On Item Use",
 			"card_color": "",
 			"ops": {},
-			"atk_base": 3,
-			"hp_base": 1,
+			"atk_base": 5,
+			"hp_base": 2,
 			"atk_formula": "",
 			"hp_formula": "",
-			"flow": "Set each neighbor's HP to its (Max HP + 1).",
-			"notes": ""
+			"flow": "Pool 3, tier 2, 2 HP, 5 Attack. A Defeat item must already be legally usable (Paci-Fist still needs no Attack items; Sledgehammer still needs 6 or more Attack). The Boot, Sledgehammer, Fangs, Paci-Fist, Scythe, and Hex are the Defeat items. On use against me the Defeat does not happen: I lose 1 HP and that item is Kept and tapped until the fight ends. Echo Bell's copy is still used up. Fangs still makes me attack, then chips 1, and Heals you for the HP I had before that chip. Two Hexes at 0 each chip 1 and both reset to 6 and stay. I cannot lose HP any other way. Quiet Bell turns this off. If I still have HP, I attack at the end of combat and I am defeated as normal.",
+			"notes": "Neighbor aura moved to Fairy."
 		},
 		{
 			"ability": "When you lose HP, I lose equal HP.",
@@ -5815,28 +5816,27 @@
 			"notes": "Anvil would take 1 from each of those two Attacks. Poison Flask is not an Attack."
 		},
 		{
-			"ability": "I gain Atk equal to your leftmost Atk Item",
+			"ability": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me",
 			"atk": {
-				"base": 1,
-				"formula": "Base Atk (0) + Leftmost Item with an Atk value"
+				"base": 2
 			},
 			"author_lock": true,
 			"bucket": 2,
-			"call_name": "Leftie",
+			"call_name": "Finders Keepers",
 			"count": 1,
-			"defined": "My Attack is the live Attack number on your leftmost item that has an Attack number, after the usual hand sort, skipping cards with no Attack number. It updates on Spin and when you use an item. If you have no such item, my Attack is 3. Quiet Bell: printed Attack.",
-			"exceptions": "Spent cards are skipped. Petrified cards have no Attack number for this.",
-			"explainer": "Leftmost Attack, or 3",
+			"defined": "While this Beggar is alive in the dungeon, one item in your hand is marked, including curses, petrified cards, and Keep items. The mark is chosen when the fight can be played, after the slash, before the first Spin. Using that item moves the mark. A Spin that lands on this Beggar discards the marked item, then marks another if this Beggar is still alive. Removing this Beggar without that Spin clears the mark and discards nothing. Quiet Bell clears the mark until the silence ends.",
+			"exceptions": "Keep does not save the item from this discard. Decay on that item does not also discard its partner.",
+			"explainer": "Marks a random item. Spin this Beggar: that item is discarded.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
 			"hp": {
-				"base": 4
+				"base": 2
 			},
 			"id": "beggar",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -5857,7 +5857,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Attack from your leftmost item",
+			"log_hint": "Marked item is discarded",
 			"mode_pool": "all",
 			"name": "Beggar",
 			"poc": false,
@@ -5871,12 +5871,12 @@
 			"type": "M",
 			"card_color": "",
 			"ops": {},
-			"atk_base": 1,
-			"hp_base": 4,
-			"atk_formula": "Base Atk (0) + Leftmost Item with an Atk value",
+			"atk_base": 2,
+			"hp_base": 2,
+			"atk_formula": "",
 			"hp_formula": "",
-			"flow": "My Attack is the live Attack number on your leftmost item that has an Attack number, after the usual hand sort, skipping cards with no Attack number. It updates on Spin and when you use an item. If you have no such item, my Attack is 3. Quiet Bell: printed Attack.",
-			"notes": "Spent cards are skipped. Petrified cards have no Attack number for this."
+			"flow": "While I am alive in the dungeon I mark one random item, including curses, petrified cards, and Keep items. The slash and the mark happen when the fight can be played, before the first Spin, and again when I enter later. Using the marked item moves the mark. A Spin that lands on me discards that item even if it has Keep, then I mark another if I am still alive. If I leave without that Spin, the mark goes away and nothing is discarded. Quiet Bell clears the mark until the silence ends.",
+			"notes": "Keep does not save the item. Curses and unplayable items can be marked. A Decay link on the discarded item does not also discard the partner."
 		},
 		{
 			"ability": "I Lose 2 HP each time a Neighbor is Defeated",
@@ -7369,18 +7369,18 @@
 			"flow": "While you face me and I am not silenced, after each Item Use, my current HP, max HP, and ATK each double."
 		},
 		{
-			"ability": "If I am Defeated without losing HP, gain a Fairy in a Bottle.",
+			"ability": "I give my Neighbors +1 HP.",
 			"atk": {
-				"base": 4
+				"base": 3
 			},
 			"author_lock": true,
 			"bucket": 3,
-			"call_name": "",
+			"call_name": "Fairy Dust",
 			"card_color": "",
-			"count": 1,
-			"defined": "SP-23 (2026-10-25). 1 HP / 4 Attack. If I am Defeated while I still have HP (Block, a defeat item, or a skip — not an Attack that drops me to 0), you gain a Fairy in a Bottle. The bottle is a normal use item: Heal 2. It is a token (not drafted). Quiet Bell turns this off.",
-			"exceptions": "Bucket 3. Bottle art still needed.",
-			"explainer": "Defeated without losing HP: gain a Fairy in a Bottle",
+			"count": 2,
+			"defined": "1 HP / 3 Attack. Count 2. Call name Fairy Dust. While I am alive and not silenced, each living neighbor has +1 current HP and +1 max HP. The bottle is no longer created.",
+			"exceptions": "Bucket 3.",
+			"explainer": "Neighbors +1 HP",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -7411,10 +7411,10 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Clean Defeat: gain a Fairy in a Bottle",
+			"log_hint": "Neighbors gain 1 HP",
 			"mode_pool": "all",
 			"name": "Fairy",
-			"notes": "SP-23. No ability name was specified, so the old Fairy Dust call name is cleared.",
+			"notes": "Bottle is no longer created. Neighbor aura moved here from Lich.",
 			"ops": {},
 			"poc": false,
 			"priority": 3,
@@ -7425,11 +7425,11 @@
 			"status": "live",
 			"tier": 1,
 			"type": "M",
-			"atk_base": 4,
+			"atk_base": 3,
 			"hp_base": 1,
 			"atk_formula": "",
 			"hp_formula": "",
-			"flow": "SP-23 (2026-10-25). 1 HP / 4 Attack. If I am Defeated while I still have HP (Block, a defeat item, or a skip — not an Attack that drops me to 0), you gain a Fairy in a Bottle. The bottle is a normal use item: Heal 2. It is a token (not drafted). Quiet Bell turns this off."
+			"flow": "While I am alive and not silenced, each living neighbor has +1 current HP and +1 max HP. Quiet Bell turns this off. I do not create a Fairy in a Bottle."
 		},
 		{
 			"ability": "When facing me, I take Attack damage equal to Block you gain.",
@@ -7909,8 +7909,50 @@
 			"atk_formula": "",
 			"hp_formula": "",
 			"flow": "On a real Spin onto me, after Cleric and the other On Spin changes, if I am not silenced and poison did not already drop me to 0: pick one Attack or Block item still in hand at random. Chakram counts once and its number is 3. Chain uses Block already restored this Spin, including Stone Wall, and is 0 when Block is 0. Arrow Head is 6 and does not copy the HP loss. Helmet and Spiked Shield use the hand after Cleric's take. The number is copied once. Change that card in place into a Poison Flask with that poison number. Not an item use. Recycler does not tick. You can click a flask of 0: pick a living neighbor, add 0 Poison, and the card is used up. A higher flask is the same click. Plague Doctor uses the live poison rules."
+		},
+		{
+			"ability": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
+			"atk": {
+				"base": 5
+			},
+			"bucket": -1,
+			"call_name": "Wealth Tax",
+			"count": 1,
+			"defined": "",
+			"exceptions": "Tier 2. Bucket not placed. Status todo until the Paper Fight is coded.",
+			"explainer": "On entry: Gain 2 Items. On every Spin: one playable Item is used",
+			"flags": {
+				"art": false,
+				"dev": true,
+				"hide": false
+			},
+			"hp": {
+				"base": 6
+			},
+			"id": "oligarch",
+			"locked_at": "",
+			"locked_fields": [],
+			"log_hint": "Gives 2 Items, then forces one Item on every Spin",
+			"mode_pool": "all",
+			"name": "Oligarch",
+			"notes": "Tier 2. Bucket waits on the Paper Fight. Entry line: Here, I bought you something nice. Art: female high elf merchant, black hair, fancy purple clothes.",
+			"ops": {},
+			"poc": false,
+			"priority": 3,
+			"rarity": "uncommon",
+			"reminder": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
+			"review": "rough",
+			"review_note": "",
+			"status": "todo",
+			"tier": 2,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 5,
+			"hp_base": 6,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Paper Fight is open. Not coded. Entry line: Here, I bought you something nice. Slash after setup if she is already seated, then place the items like Juggernaut. On every Spin, after other On Spin effects, if she is alive and not silenced, use one playable item."
 		}
-
 	],
 	"named_variables": [
 		{

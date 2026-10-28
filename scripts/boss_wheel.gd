@@ -3226,7 +3226,7 @@ func _ability_icon_color(sid: String) -> Color:
 			return Color("e8c36a")
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return Color("e07040")
-		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator", "lifelink":
+		"last_hp", "buff_hp", "undying", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator", "lifelink":
 			return Color("e8a0a0")
 		"kill_scale", "atk_eq_hp":
 			return Color("c9a0ff")

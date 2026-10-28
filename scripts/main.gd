@@ -184,7 +184,7 @@ const MONSTER_SPECIAL := {
 	"goblin": {"id": "no_atk_dmg", "text": "Cannot receive ATK damage. Defeat still works."},
 	"skeleton": {"id": "last_hp", "text": "HP = last enemy's HP when you spun them. First fight: 3."},
 	"hornet_swarm": {"id": "double_hit", "text": "Attacks twice. Block is spent on the first swing."},
-	"lich": {"id": "buff_hp", "text": "+1 HP to neighbors after other modifiers."},
+	"lich": {"id": "undying", "text": "Defeat items chip 1 HP and are Kept. Nothing else lowers HP."},
 	"ogre": {"id": "hp_spin", "text": "When you lose HP, I lose equal HP."},
 	"berserker": {"id": "kill_scale", "text": "On Spin, 50%: gain +4 Attack. Otherwise: lose 3 Attack."},
 	"dire_wolf": {"id": "atk_spin", "text": "ATK always equals your HP. Updates whenever your HP changes."},
@@ -206,7 +206,7 @@ const MONSTER_SPECIAL := {
 	"basilisk": {"id": "petrify_gaze", "text": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins."},
 	"zombie": {"id": "decay", "text": "When you Spin me, I Decay two of your Items."},
 	"hollow": {"id": "even_twice", "text": "Even Attack and even Block happen twice against me."},
-	"beggar": {"id": "left_atk", "text": "I gain Atk equal to your leftmost Atk Item"},
+	"beggar": {"id": "finders_keepers", "text": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me"},
 	"wick": {"id": "last_hp", "text": "I Lose 2 HP each time a Neighbor is Defeated"},
 	"anvil": {"id": "one_chip", "text": "I cannot lose more than 1 HP from one source."},
 	"vampire": {"id": "bloodlust", "text": "Every time you lose HP, I gain +1 HP and +1 Attack."},
@@ -225,7 +225,7 @@ const MONSTER_SPECIAL := {
 	"phoenix_egg": {"id": "hatch", "text": "When I am Defeated, I Flee and hatch into a Phoenix."},
 	"phoenix": {"id": "rebirth", "text": "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck."},
 	"amalgam": {"id": "adaptation", "text": "After any Item you Use, double my remaining HP and ATK."},
-	"fairy": {"id": "fairy_bottle", "text": "If I am Defeated without losing HP, gain a Fairy in a Bottle."},
+	"fairy": {"id": "buff_hp", "text": "I give my Neighbors +1 HP."},
 	"eel": {"id": "conductive", "text": "When facing me, I take Attack damage equal to Block you gain."},
 	"druid": {"id": "cultivator", "text": "If I Attack, I Heal you for double the HP I cause you to lose."},
 	"shambling_mound": {"id": "self_deconstruct", "text": "I Attack repeatedly until I die. I lose 1 HP each time I Attack."},
@@ -249,7 +249,7 @@ const MONSTER_CALL := {
 	"goblin": "No Attack",
 	"skeleton": "Grave Echo",
 	"hornet_swarm": "Twice",
-	"lich": "Soul Tithe",
+	"lich": "Undying",
 	"ogre": "Your Measure",
 	"berserker": "Hot and Cold",
 	"dire_wolf": "Kill Shot",
@@ -271,7 +271,7 @@ const MONSTER_CALL := {
 	"basilisk": "Petrifying Gaze",
 	"zombie": "Decay",
 	"hollow": "Even twice",
-	"beggar": "Left Attack",
+	"beggar": "Finders Keepers",
 	"wick": "Death Toll",
 	"anvil": "One HP",
 	"cowardly_king": "Vindictive",
@@ -280,7 +280,7 @@ const MONSTER_CALL := {
 	"phoenix_egg": "Hatch",
 	"phoenix": "Rebirth",
 	"amalgam": "Adaptation",
-	"fairy": "",
+	"fairy": "Fairy Dust",
 	"eel": "Conductive",
 	"druid": "Cultivator",
 	"shambling_mound": "Self Deconstruct",
@@ -302,7 +302,7 @@ const MONSTER_REMINDER := {
 	"goblin": "no attack damage",
 	"skeleton": "last enemy HP",
 	"hornet_swarm": "attacks twice",
-	"lich": "neighbors +1 HP",
+	"lich": "Defeat chips 1. No other HP loss.",
 	"ogre": "HP is yours",
 	"berserker": "50% +4 Attack, otherwise lose 3 Attack",
 	"dire_wolf": "Attack always equals your HP",
@@ -324,7 +324,7 @@ const MONSTER_REMINDER := {
 	"basilisk": "first Spin: Flee, petrify 2nd, 4th, … for 3",
 	"zombie": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 	"hollow": "even Attack or Block twice",
-	"beggar": "leftmost Attack, or 3",
+	"beggar": "Marks a random item. Spin this Beggar: that item is discarded.",
 	"wick": "-2 HP per Neighbor Defeated.",
 	"anvil": "max 1 HP per source",
 	"cowardly_king": "when I lose HP, the monster on my right Attacks you",
@@ -333,7 +333,7 @@ const MONSTER_REMINDER := {
 	"phoenix_egg": "Defeated: Flee, become Phoenix",
 	"phoenix": "Defeated before I Attack: add a Phoenix Egg to the Dungeon Deck",
 	"amalgam": "Each Use: remaining HP and ATK ×2",
-	"fairy": "Defeated without losing HP: gain a Fairy in a Bottle",
+	"fairy": "Neighbors +1 HP",
 	"eel": "Facing: takes Attack = Block you Gain",
 	"druid": "Attack: Heal you 2× HP lost, after death check",
 	"shambling_mound": "Attacks until it dies; loses 1 HP per Attack",
@@ -355,7 +355,7 @@ const MONSTER_SPEECH := {
 	"goblin": "I cannot take attack damage.",
 	"skeleton": "I copy the HP of the last enemy you faced.",
 	"hornet_swarm": "I attack twice. Your block is spent on each swing.",
-	"lich": "I give my neighbors +1 HP.",
+	"lich": "When you use Defeat Items against me, they fail, reduce my HP by 1, and are Kept. I cannot lose HP in any other way.",
 	"ogre": "My HP is your HP.",
 	"berserker": "On Spin, 50%: gain +4 Attack. Otherwise: lose 3 Attack.",
 	"dire_wolf": "My Attack always equals your HP.",
@@ -377,7 +377,7 @@ const MONSTER_SPEECH := {
 	"basilisk": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
 	"zombie": "When you Spin me, I Decay two of your Items.",
 	"hollow": "Even Attack and even Block happen twice against me.",
-	"beggar": "My Attack copies the Attack number on your leftmost Attack item. If you have none, my Attack is 3.",
+	"beggar": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me",
 	"wick": "I Lose 2 HP each time a Neighbor is Defeated",
 	"anvil": "I cannot lose more than 1 HP from one source.",
 	"cowardly_king": "Any time I lose HP, I command the monster to my right to Attack you immediately",
@@ -386,7 +386,7 @@ const MONSTER_SPEECH := {
 	"phoenix_egg": "When I am Defeated, I Flee and hatch into a Phoenix.",
 	"phoenix": "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck.",
 	"amalgam": "After any Item you Use, double my remaining HP and ATK.",
-	"fairy": "If I am Defeated without losing HP, gain a Fairy in a Bottle.",
+	"fairy": "I give my Neighbors +1 HP.",
 	"eel": "When facing me, I take Attack damage equal to Block you gain.",
 	"druid": "If I Attack, I Heal you for double the HP I cause you to lose.",
 	"shambling_mound": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
@@ -445,7 +445,11 @@ var _bell_wait: bool = false
 var _toll_death_armed: bool = false
 var skip_swing_this_fight: bool = false
 var keep_blocked_this_fight: bool = false
+var _lich_chip_open: bool = false
 var _decay_busy: bool = false
+var _beggar_hold: bool = false
+var _beggar_intro_running: bool = false
+var _beggar_fill_running: bool = false
 var _wick_collapsing: bool = false
 var _share_seq: int = 0
 var num_items_at_combat: int = 0
@@ -990,6 +994,7 @@ func _load_textures() -> void:
 		"last_hp": _tex("res://assets/icons/copy.svg"),
 		"double_hit": _tex("res://assets/icons/swords.svg"),
 		"buff_hp": _tex("res://assets/icons/users.svg"),
+		"undying": _tex("res://assets/icons/ban.svg"),
 		"hp_spin": tex_heart,
 		"kill_scale": _tex("res://assets/icons/trending.svg"),
 		"atk_spin": tex_sword,
@@ -5852,8 +5857,6 @@ func _refresh_live_atk(s: Dictionary) -> void:
 		return
 	var id: String = str(s.get("card_id", ""))
 	match id:
-		"beggar":
-			s["atk"] = _leftmost_atk_n()
 		"bandit":
 			s["atk"] = _live_item_count()
 		"vampire":
@@ -5957,7 +5960,7 @@ func _paint_late_auras() -> void:
 	atk_bonus.fill(0)
 	for i in n:
 		var id: String = str(wheel[i].get("card_id", ""))
-		if id != "lich" and id != "commander":
+		if id != "fairy" and id != "commander":
 			continue
 		if _is_silenced(wheel[i]):
 			continue
@@ -5971,7 +5974,7 @@ func _paint_late_auras() -> void:
 				continue
 			if str(wheel[j].get("kind", "")) != "monster":
 				continue
-			if id == "lich":
+			if id == "fairy":
 				hp_bonus[j] += 1
 			else:
 				atk_bonus[j] += 2
@@ -6008,7 +6011,7 @@ func _mark_vars() -> void:
 	var cmd_touch: Dictionary = {}
 	for i in n:
 		var cid: String = str(wheel[i].get("card_id", ""))
-		if cid == "lich":
+		if cid == "fairy":
 			var ll: int = (i - 1 + n) % n
 			var lr: int = (i + 1) % n
 			if ll != i:
@@ -6026,7 +6029,7 @@ func _mark_vars() -> void:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
 		var id: String = str(wheel[i].get("card_id", ""))
-		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "beggar" or id == "vampire" or cmd_touch.has(i)
+		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "vampire" or cmd_touch.has(i)
 		wheel[i]["hp_variable"] = id == "ogre" or id == "skeleton" or id == "leech_league" or id == "wick" or lich_touch.has(i)
 		wheel[i]["cmd_buff"] = cmd_touch.has(i)
 		wheel[i]["lich_buff"] = lich_touch.has(i)
@@ -6983,6 +6986,9 @@ func _stamp_live_item(it: Dictionary, board_card: Dictionary, ops: Dictionary) -
 
 
 func _on_slice_clicked(index: int) -> void:
+	if _beggar_pending_intro() or _beggar_intro_running:
+		_kick_beggar_intro()
+		return
 	if index < 0 or index >= wheel.size():
 		return
 	if _wheel_busy():
@@ -7136,6 +7142,9 @@ func _reseat_slots() -> void:
 
 
 func _on_spin() -> void:
+	if _beggar_pending_intro() or _beggar_intro_running:
+		_kick_beggar_intro()
+		return
 	_trace_resolve("spin start phase=%s" % phase)
 	_session("spin", "spin")
 	if phase != "ready":
@@ -7305,6 +7314,13 @@ func _on_spin() -> void:
 	_bleed_begin()
 	if cascade_ticker != null:
 		cascade_ticker.begin()
+	var beggar_spin: int = -1
+	if facing_index >= 0 and facing_index < wheel.size():
+		var face_now: Dictionary = wheel[facing_index]
+		if str(face_now.get("card_id", "")) == "beggar" and not _is_silenced(face_now) and int(face_now.get("hp", 0)) > 0:
+			beggar_spin = facing_index
+			_beggar_hold = true
+			_beggar_force_discard(facing_index)
 	# Poison pays on every living monster before any spin ability. A kill stays
 	# in the seat until the other abilities finish. SP-28: while any living
 	# unsilenced Plague Doctor is on the wheel, ALL poison (monster + player)
@@ -7315,8 +7331,12 @@ func _on_spin() -> void:
 		if poison_would_tick:
 			await _play_plague_poison_blocked_fx()
 	elif await _tick_all_monster_poison():
+		_beggar_hold = false
 		_undo_arm()
 		return
+	_beggar_hold = false
+	if beggar_spin >= 0 and beggar_spin < wheel.size() and str(wheel[beggar_spin].get("card_id", "")) == "beggar" and int(wheel[beggar_spin].get("hp", 0)) > 0 and not _is_silenced(wheel[beggar_spin]):
+		await _beggar_assign(beggar_spin, true)
 	_sync_plague_poison()
 	if _facing_can_act():
 		if await _apply_basilisk_gaze():
@@ -8483,8 +8503,10 @@ func _use_item(uid: int) -> void:
 	_bleed_begin()
 	_lock_item_fx()
 	_arm_item_hold()
+	_beggar_hold = true
 	await _apply_ops(it, ops, {})
 	if _undo_stale(token):
+		_beggar_hold = false
 		await _unlock_if_fighting()
 		return
 	await _after_item_resolved(it)
@@ -8926,6 +8948,9 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			if qid == "zombie":
 				keep_blocked_this_fight = false
 				_decay_clear_all()
+			if qid == "beggar":
+				m["beggar_mark"] = -1
+				wheel[facing_index] = m
 			_sync_wheel_stats()
 			_log("on_item_use", str(it["name"]))
 			_log("on_resolve", "silenced %s" % qid)
@@ -8971,6 +8996,13 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if sfx:
 					sfx.play("error", -10.0)
 				return
+			if _undying(m):
+				_log("on_item_use", str(it["name"]))
+				_log("on_resolve", "undying")
+				await _lich_keep_defeat_item(it)
+				if await _lich_chip_defeat(facing_index):
+					await _begin_slay()
+				return
 			it["spent"] = true
 			await _count_item_use()
 			_log("on_item_use", str(it["name"]))
@@ -8996,6 +9028,21 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				return
 			var stored: int = int(m.get("hp", 0))
 			_log("on_item_use", str(it["name"]))
+			if _undying(m):
+				await _owner_attack(m)
+				if hp <= 0:
+					it["spent"] = true
+					await _count_item_use()
+					_toss_item(int(it["uid"]), false)
+					_player_down()
+					return
+				_log("on_resolve", "undying")
+				await _lich_keep_defeat_item(it)
+				var lich_down: bool = await _lich_chip_defeat(facing_index)
+				await _heal(stored)
+				if lich_down:
+					await _begin_slay()
+				return
 			await _owner_attack(m)
 			if hp <= 0:
 				it["spent"] = true
@@ -9023,6 +9070,13 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if sfx:
 					sfx.play("error", -10.0)
 				return
+			if _undying(m):
+				_log("on_item_use", str(it["name"]))
+				_log("on_resolve", "undying")
+				await _lich_keep_defeat_item(it)
+				if await _lich_chip_defeat(facing_index):
+					await _begin_slay()
+				return
 			it["spent"] = true
 			await _count_item_use()
 			_log("on_item_use", str(it["name"]))
@@ -9046,6 +9100,13 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				_log("on_item_use", "cannot")
 				if sfx:
 					sfx.play("error", -10.0)
+				return
+			if _undying(m):
+				_log("on_item_use", str(it["name"]))
+				_log("on_resolve", "undying")
+				await _lich_keep_defeat_item(it)
+				if await _lich_chip_defeat(facing_index):
+					await _begin_slay()
 				return
 			it["spent"] = true
 			await _count_item_use()
@@ -9167,8 +9228,6 @@ func _on_owner_defeated(index: int) -> void:
 		await _apply_lifelink(m)
 		if hp <= 0:
 			return
-	elif cid == "fairy" and P1.fairy_grants_bottle(int(m.get("hp", 0)), quiet):
-		_gain_token_item("fairy_in_a_bottle")
 	elif cid == "martyr" and SP_DALLAS.martyr_dies_on_defeat(
 		int(m.get("hp", 0)), quiet, bool(m.get("noble_death_done", false))
 	):
@@ -9389,6 +9448,8 @@ func _discard_from_hand(uid: int, slow: bool = false, recycle: bool = true) -> v
 	_toss_item(uid, false, slow)
 	if recycle:
 		_recycle_after_gone(snap)
+	if not _beggar_hold and not _decay_busy:
+		_kick_beggar_fill()
 
 
 func _recycle_insert_copy(snap: Dictionary) -> void:
@@ -9760,6 +9821,37 @@ func _twins_double_blk(n: int) -> bool:
 	return n > 0 and n % 2 == 0 and _twins_facing()
 
 
+func _undying(m: Dictionary) -> bool:
+	return str(m.get("card_id", "")) == "lich" and not _is_silenced(m)
+
+
+func _lich_keep_defeat_item(it: Dictionary) -> void:
+	it["spent"] = true
+	var echo: bool = str(it.get("card_id", "")) == "echo_bell"
+	it["keep_after"] = not echo
+	await _count_item_use()
+	if echo:
+		_log("discard", str(it.get("name", "Echo Bell")))
+	else:
+		_log("keep", str(it.get("name", "?")))
+	_toss_item(int(it.get("uid", -1)), not echo)
+
+
+## True when the 1 HP chip dropped them to 0.
+func _lich_chip_defeat(index: int) -> bool:
+	if index < 0 or index >= wheel.size():
+		return false
+	_lich_chip_open = true
+	await _chip_hp(index, 1)
+	_lich_chip_open = false
+	if index < 0 or index >= wheel.size():
+		return true
+	if str(wheel[index].get("card_id", "")) != "lich":
+		return true
+	_log("hp", "Undying −1  →  %s" % wheel[index].get("hp", 0))
+	return int(wheel[index].get("hp", 0)) <= 0
+
+
 func _chip_hp(index: int, n: int) -> bool:
 	if index < 0 or index >= wheel.size() or n <= 0:
 		return false
@@ -9772,6 +9864,14 @@ func _chip_hp(index: int, n: int) -> bool:
 		drop = 1
 	var before: int = int(m.get("hp", 0))
 	m["hp_pre_hit"] = before
+	if _undying(m):
+		if not _lich_chip_open:
+			_log("var", "no HP loss")
+			if wheel_view:
+				wheel_view.hit_feedback(index, 0, 0)
+			return false
+		drop = 1
+		cut_chip = false
 	if cut_chip:
 		await _announce_slice(index, _slice_hp_pos(index))
 	m["hp"] = maxi(0, before - drop)
@@ -10168,6 +10268,268 @@ func _maybe_enter_gains(index: int) -> void:
 	await _maybe_rust_bucket_spawn(index)
 
 
+func _item_uid_in_hand(uid: int) -> bool:
+	if uid < 0:
+		return false
+	return not _find_item(uid).is_empty()
+
+
+func _beggar_phase_ok() -> bool:
+	return phase == "ready" or phase == "fighting" or phase == "devtest"
+
+
+func _beggar_drop_invalid_owners() -> void:
+	for i in wheel.size():
+		if typeof(wheel[i]) != TYPE_DICTIONARY:
+			continue
+		if int(wheel[i].get("beggar_mark", -1)) < 0:
+			continue
+		var alive: bool = str(wheel[i].get("card_id", "")) == "beggar" and str(wheel[i].get("kind", "")) == "monster" and int(wheel[i].get("hp", 0)) > 0 and not _is_silenced(wheel[i])
+		if not alive:
+			wheel[i]["beggar_mark"] = -1
+
+
+func _beggar_pending_intro() -> bool:
+	if not _beggar_phase_ok():
+		return false
+	for i in wheel.size():
+		if typeof(wheel[i]) != TYPE_DICTIONARY:
+			continue
+		if str(wheel[i].get("card_id", "")) != "beggar":
+			continue
+		if int(wheel[i].get("hp", 0)) <= 0 or _is_silenced(wheel[i]):
+			continue
+		if not bool(wheel[i].get("beggar_seen", false)):
+			return true
+	return false
+
+
+func _beggar_has_gap() -> bool:
+	if not _beggar_phase_ok():
+		return false
+	var any_item: bool = false
+	for it in hotbar:
+		if typeof(it) == TYPE_DICTIONARY and int(it.get("uid", -1)) >= 0:
+			any_item = true
+			break
+	if not any_item:
+		return false
+	for i in wheel.size():
+		if typeof(wheel[i]) != TYPE_DICTIONARY:
+			continue
+		if str(wheel[i].get("card_id", "")) != "beggar":
+			continue
+		if int(wheel[i].get("hp", 0)) <= 0 or _is_silenced(wheel[i]):
+			continue
+		if not bool(wheel[i].get("beggar_seen", false)):
+			continue
+		if not _item_uid_in_hand(int(wheel[i].get("beggar_mark", -1))):
+			return true
+	return false
+
+
+func _beggar_marked(uid: int) -> bool:
+	if uid < 0:
+		return false
+	for i in wheel.size():
+		if typeof(wheel[i]) != TYPE_DICTIONARY:
+			continue
+		if str(wheel[i].get("card_id", "")) != "beggar":
+			continue
+		if int(wheel[i].get("hp", 0)) <= 0 or _is_silenced(wheel[i]):
+			continue
+		if int(wheel[i].get("beggar_mark", -1)) == uid:
+			return true
+	return false
+
+
+func _beggar_pick_uid(owner: int) -> int:
+	var taken: Dictionary = {}
+	for i in wheel.size():
+		if i == owner:
+			continue
+		if typeof(wheel[i]) != TYPE_DICTIONARY:
+			continue
+		if str(wheel[i].get("card_id", "")) != "beggar":
+			continue
+		if int(wheel[i].get("hp", 0)) <= 0 or _is_silenced(wheel[i]):
+			continue
+		var held: int = int(wheel[i].get("beggar_mark", -1))
+		if _item_uid_in_hand(held):
+			taken[held] = true
+	var preferred: Array = []
+	var any: Array = []
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		var uid: int = int(it.get("uid", -1))
+		if uid < 0:
+			continue
+		any.append(uid)
+		if not taken.has(uid):
+			preferred.append(uid)
+	var bag: Array = preferred if not preferred.is_empty() else any
+	if bag.is_empty():
+		return -1
+	if OS.has_feature("editor") and has_meta("qa_beggar_uid"):
+		var forced: int = int(get_meta("qa_beggar_uid"))
+		remove_meta("qa_beggar_uid")
+		if bag.has(forced):
+			return forced
+	return int(bag[rng.randi_range(0, bag.size() - 1)])
+
+
+func _beggar_assign(index: int, anim: bool) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var m: Dictionary = wheel[index]
+	if str(m.get("card_id", "")) != "beggar" or int(m.get("hp", 0)) <= 0 or _is_silenced(m):
+		m["beggar_mark"] = -1
+		wheel[index] = m
+		return
+	if _item_uid_in_hand(int(m.get("beggar_mark", -1))):
+		return
+	var uid: int = _beggar_pick_uid(index)
+	m["beggar_mark"] = uid
+	wheel[index] = m
+	if uid < 0:
+		_log("on_spin", "Beggar — nothing to mark")
+		_refresh()
+		return
+	var named: Dictionary = _find_item(uid)
+	_log("on_spin", "Beggar marks %s" % named.get("name", "?"))
+	_refresh()
+	if anim:
+		await _beggar_flash(uid)
+
+
+func _beggar_flash(uid: int) -> void:
+	var card: Control = _hotbar_card_by_uid(uid)
+	if card != null and card.has_method("play_beggar_pick"):
+		card.play_beggar_pick()
+	if sfx:
+		sfx.play("whoosh", -8.0, 1.15)
+		sfx.play("pluck", -6.0, 1.2)
+	if get_tree():
+		await get_tree().create_timer(0.28).timeout
+
+
+func _beggar_force_discard(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var m: Dictionary = wheel[index]
+	if str(m.get("card_id", "")) != "beggar" or _is_silenced(m) or int(m.get("hp", 0)) <= 0:
+		return
+	var uid: int = int(m.get("beggar_mark", -1))
+	m["beggar_mark"] = -1
+	wheel[index] = m
+	if not _item_uid_in_hand(uid):
+		return
+	var it: Dictionary = _find_item(uid)
+	var partner: int = int(it.get("decay_partner", -1))
+	_decay_clear_mark(it)
+	if partner >= 0:
+		var other: Dictionary = _find_item(partner)
+		if not other.is_empty():
+			_decay_clear_mark(other)
+	it["keep_after"] = false
+	_log("discard", "Beggar %s" % it.get("name", "?"))
+	_decay_busy = true
+	_discard_from_hand(uid)
+	_decay_busy = false
+
+
+func _beggar_note_use(uid: int) -> void:
+	for i in wheel.size():
+		if typeof(wheel[i]) != TYPE_DICTIONARY:
+			continue
+		if int(wheel[i].get("beggar_mark", -1)) == uid:
+			wheel[i]["beggar_mark"] = -1
+
+
+func _kick_beggar_intro() -> void:
+	if _beggar_intro_running or _beggar_hold:
+		return
+	if not _beggar_pending_intro():
+		return
+	_beggar_intro_running = true
+	_run_beggar_intros()
+
+
+func _run_beggar_intros() -> void:
+	_beggar_hold = true
+	while _beggar_pending_intro():
+		var index: int = -1
+		for i in wheel.size():
+			if typeof(wheel[i]) != TYPE_DICTIONARY:
+				continue
+			if str(wheel[i].get("card_id", "")) != "beggar":
+				continue
+			if int(wheel[i].get("hp", 0)) <= 0 or _is_silenced(wheel[i]):
+				continue
+			if bool(wheel[i].get("beggar_seen", false)):
+				continue
+			index = i
+			break
+		if index < 0:
+			break
+		wheel[index]["beggar_seen"] = true
+		var who: Dictionary = wheel[index]
+		if ability_slash:
+			var tex: Texture2D = null
+			if art != null:
+				tex = art.monster_still("beggar")
+			await ability_slash.play({
+				"title": str(who.get("name", "Beggar")),
+				"call": str(who.get("call_name", "Finders Keepers")),
+				"tex": tex,
+				"is_item": false,
+				"card_id": "beggar",
+			})
+		if index < wheel.size() and str(wheel[index].get("card_id", "")) == "beggar" and int(wheel[index].get("hp", 0)) > 0 and not _is_silenced(wheel[index]):
+			await _beggar_assign(index, true)
+	_beggar_hold = false
+	_beggar_intro_running = false
+	_refresh()
+	_kick_beggar_fill()
+
+
+func _kick_beggar_fill() -> void:
+	if _beggar_hold or _beggar_intro_running or _beggar_fill_running:
+		return
+	if _beggar_pending_intro():
+		return
+	_beggar_drop_invalid_owners()
+	if not _beggar_has_gap():
+		return
+	_beggar_fill_running = true
+	_run_beggar_fill()
+
+
+func _run_beggar_fill() -> void:
+	var guard: int = 0
+	while _beggar_has_gap() and guard < 12:
+		guard += 1
+		var index: int = -1
+		for i in wheel.size():
+			if typeof(wheel[i]) != TYPE_DICTIONARY:
+				continue
+			if str(wheel[i].get("card_id", "")) != "beggar":
+				continue
+			if int(wheel[i].get("hp", 0)) <= 0 or _is_silenced(wheel[i]):
+				continue
+			if not bool(wheel[i].get("beggar_seen", false)):
+				continue
+			if not _item_uid_in_hand(int(wheel[i].get("beggar_mark", -1))):
+				index = i
+				break
+		if index < 0:
+			break
+		await _beggar_assign(index, true)
+	_beggar_fill_running = false
+	_refresh()
+
+
 func _maybe_death_bell_spawn(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
@@ -10497,9 +10859,12 @@ func _feed_worm(uid: int) -> void:
 		var before_atk: int = int(m.get("atk", 0))
 		var before_innate: int = int(m.get("atk_innate", before_atk))
 		m["atk"] = maxi(0, before_atk - 3)
-		m["hp"] = maxi(0, int(m.get("hp", 0)) - 3)
-		m["hp_max"] = maxi(int(m.get("hp_max", 0)) - 3, int(m.get("hp", 0)))
 		m["atk_innate"] = maxi(0, before_innate - 3)
+		if not _undying(m):
+			m["hp"] = maxi(0, int(m.get("hp", 0)) - 3)
+			m["hp_max"] = maxi(int(m.get("hp_max", 0)) - 3, int(m.get("hp", 0)))
+		else:
+			_log("var", "no HP loss")
 		wheel[facing_index] = m
 	_sync_wheel_stats()
 	if wheel_view and facing_index >= 0:
@@ -12077,6 +12442,32 @@ func _step_hexs() -> bool:
 			fired.append(int(it.get("uid", -1)))
 	if fired.is_empty():
 		return false
+	if facing_index >= 0 and facing_index < wheel.size() and _undying(wheel[facing_index]):
+		for uid in fired:
+			var kept_hex: Dictionary = _find_item(int(uid))
+			if kept_hex.is_empty():
+				continue
+			kept_hex["hex_n"] = 6
+			kept_hex["spent"] = true
+			kept_hex["keep_after"] = true
+			_log("keep", str(kept_hex.get("name", "Hex")))
+			_toss_item(int(uid), true)
+		var lich_down: bool = false
+		for _uid in fired:
+			if facing_index < 0 or facing_index >= wheel.size():
+				break
+			if int(wheel[facing_index].get("hp", 0)) <= 0:
+				break
+			if await _lich_chip_defeat(facing_index):
+				lich_down = true
+				break
+		if lich_down:
+			_log("on_resolve", "undying")
+			if sfx:
+				sfx.play_event(&"defeat.use")
+			await _begin_slay()
+			return true
+		return false
 	for uid in fired:
 		var hex: Dictionary = _find_item(int(uid))
 		if hex.is_empty():
@@ -13128,6 +13519,9 @@ func _napalm_set_monster(index: int) -> int:
 		return 0
 	if before <= 1:
 		return 0
+	if _undying(m):
+		_log("var", "no HP loss")
+		return 0
 	m["hp"] = 1
 	m["hp_locked"] = true
 	if str(m.get("card_id", "")) == "slime_boss":
@@ -13219,6 +13613,10 @@ func _clicked_item_counts_as_use(it: Dictionary) -> bool:
 
 
 func _after_item_resolved(it: Dictionary) -> void:
+	if not it.is_empty():
+		_beggar_note_use(int(it.get("uid", -1)))
+	_beggar_hold = false
+	_kick_beggar_fill()
 	if it.is_empty():
 		return
 	if await _flush_vindictive():
@@ -14244,15 +14642,20 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 		if hit_n > 1:
 			cut_chip = true
 		hit_n = 1
-	var immune: bool = str(m.get("card_id", "")) == "goblin" and not _is_silenced(m)
+	var immune_goblin: bool = str(m.get("card_id", "")) == "goblin" and not _is_silenced(m)
+	var immune_lich: bool = _undying(m)
+	var immune: bool = immune_goblin or immune_lich
 	last_atk_index = index
 	if cut_chip:
 		await _announce_slice(index, _slice_hp_pos(index))
 	if immune or hit_n <= 0:
 		if immune:
-			_log("var", "no ATK dmg")
+			_log("var", "no HP loss" if immune_lich else "no ATK dmg")
 			await _announce_slice(index, _slice_hp_pos(index))
-			last_atk_line = "0  →  %s immune" % m.get("name", "Goblin")
+			if immune_lich:
+				last_atk_line = "0  →  %s HP %s" % [m.get("name", "Lich"), m.get("hp", 0)]
+			else:
+				last_atk_line = "0  →  %s immune" % m.get("name", "Goblin")
 		else:
 			last_atk_line = "0  →  %s HP %s" % [m.get("name", "?"), m.get("hp", 0)]
 			_log("atk", last_atk_line)
@@ -15084,6 +15487,28 @@ func _apply_scythe(index: int, it: Dictionary, token: int) -> void:
 		_undo_abort()
 		call_deferred("_refresh")
 		return
+	if _undying(m):
+		_log("on_item_use", str(it["name"]))
+		_log("on_resolve", "undying")
+		if sfx:
+			sfx.play("draw", -8.0)
+		await _lich_keep_defeat_item(it)
+		var lich_down: bool = await _lich_chip_defeat(index)
+		if lich_down:
+			if index == facing_index:
+				await _begin_slay()
+			elif await _try_commander_flee(index):
+				pass
+			else:
+				await _kill_neighbor(index)
+		if _undo_stale(token):
+			return
+		await _after_item_resolved(it)
+		if _undo_stale(token):
+			return
+		_undo_finish_item()
+		call_deferred("_refresh")
+		return
 	it["spent"] = true
 	await _count_item_use()
 	_log("on_item_use", str(it["name"]))
@@ -15477,6 +15902,8 @@ func _slay_dead_after_watch() -> void:
 
 func _wheel_busy() -> bool:
 	if _challenge_loot_wait:
+		return true
+	if _beggar_intro_running:
 		return true
 	if challenge_draft_ui != null and challenge_draft_ui.visible:
 		return true
@@ -16853,7 +17280,7 @@ func _preview_bribe(index: int) -> Dictionary:
 	var n: int = wheel.size()
 	if index < 0 or index >= n:
 		return p
-	if str(wheel[index].get("card_id", "")) == "lich":
+	if str(wheel[index].get("card_id", "")) == "fairy":
 		for off in [n - 1, 1]:
 			var j: int = (index + off) % n
 			if str(wheel[j].get("kind", "")) == "monster":
@@ -16867,7 +17294,7 @@ func _preview_bribe(index: int) -> Dictionary:
 				p[jc] = curc
 	for off2 in [n - 1, 1]:
 		var k: int = (index + off2) % n
-		if str(wheel[k].get("card_id", "")) == "lich" and str(wheel[index].get("kind", "")) == "monster":
+		if str(wheel[k].get("card_id", "")) == "fairy" and str(wheel[index].get("kind", "")) == "monster":
 			var cur: Dictionary = p.get(index, {})
 			cur["hp"] = int(cur.get("hp", 0)) - 1
 			p[index] = cur
@@ -19546,6 +19973,9 @@ func _refresh() -> void:
 	_sync_buttons()
 	_sync_overlay()
 	_sync_dev_panel()
+	_beggar_drop_invalid_owners()
+	_kick_beggar_intro()
+	_kick_beggar_fill()
 	if adventure:
 		call_deferred("_layout_play_field")
 
@@ -19786,6 +20216,8 @@ func _sync_buttons() -> void:
 	var enemy_up: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size() and (int(wheel[facing_index].get("hp", 0)) > 0 or _wick_waiting(facing_index))
 	var need_aim: bool = _click_choose_fight() and challenge_aim < 0 and not _challenge_force_spin
 	btn_spin.disabled = busy or phase != "ready" or need_aim
+	if _beggar_pending_intro() or _beggar_intro_running:
+		btn_spin.disabled = true
 	if in_tutorial and tut != null and tut.wait != "spin" and tut.wait != "auto_spin":
 		btn_spin.disabled = true
 	var feed_kind: String = str(pending_feed.get("kind", "")) if not pending_feed.is_empty() else ""
@@ -20368,6 +20800,8 @@ func _sync_hotbar() -> void:
 			var cid: String = str(it.get("card_id", ""))
 			var fresh: bool = home_cabin != null and cid != "" and not home_cabin.is_swiped(cid) and not BucketRules.is_token(items_by_id.get(cid, {}).get("bucket", 0))
 			card.set_cabinet_badge(fresh, PLAYER_COPY.text("cabin.tip.new", "New!"), PLAYER_COPY.text("cabin.tip.seen", "Seen in {the_grumble}. Not home yet."))
+		if card.has_method("set_beggar_mark"):
+			card.set_beggar_mark(_beggar_marked(uid_n))
 		if card.has_method("set_atk_pip"):
 			card.set_atk_pip(_number_is_atk(view, pn))
 		if card.has_method("set_hp_cost"):
