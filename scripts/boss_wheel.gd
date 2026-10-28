@@ -276,6 +276,7 @@ const HERO_PRI := {
 	"heal": 3,
 	"swipe": 4,
 	"grab": 5,
+	"use": 5,
 	"victory": 6,
 	"lowhp": 7,
 	"idle": 8,
@@ -355,6 +356,10 @@ func setup_run_hero(art) -> void:
 			_hero_frames["death"] = art.sprout_anim("defeat")
 			_hero_frames["victory"] = art.sprout_anim("victory")
 			_hero_frames["grab"] = art.sprout_anim("grab")
+			var use_frames: Array = art.sprout_anim("use")
+			if use_frames.is_empty():
+				use_frames = _hero_frames["grab"]
+			_hero_frames["use"] = use_frames
 			_hero_frames["walkoff"] = art.sprout_anim("run")
 			_hero_frames["blink"] = art.sprout_anim("blink")
 			_sprout_blink_t = 0.0

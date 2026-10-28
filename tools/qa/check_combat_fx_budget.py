@@ -74,6 +74,10 @@ HOOKS = {
     ],
 }
 
+FORBIDDEN = {
+    "scripts/main.gd": ["_sprout_run_in", "Vector2(-80.0"],
+}
+
 
 def main() -> int:
     failed = 0
@@ -83,6 +87,12 @@ def main() -> int:
         for needle in needles:
             if needle not in text:
                 print(f"FAIL {rel} missing {needle!r}")
+                failed += 1
+    for rel, needles in FORBIDDEN.items():
+        text = (ROOT / rel).read_text(encoding="utf-8")
+        for needle in needles:
+            if needle in text:
+                print(f"FAIL {rel} still has {needle!r}")
                 failed += 1
     if failed:
         return 1
