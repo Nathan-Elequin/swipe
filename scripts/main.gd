@@ -3791,6 +3791,59 @@ func _hand_full() -> bool:
 	return hotbar.size() >= _hand_limit()
 
 
+func _item_is_curse(it: Dictionary) -> bool:
+	var id: String = str(it.get("card_id", ""))
+	var card: Dictionary = items_by_id.get(id, {})
+	if bool(card.get("curse", false)):
+		return true
+	return id == "spider_egg" or id == "toll" or id == "rust"
+
+
+func _filter_toss_uids(uids: Array) -> Array:
+	var out: Array = []
+	for uidv in uids:
+		var uid: int = int(uidv)
+		var it: Dictionary = _find_item(uid)
+		if it.is_empty():
+			continue
+		if _item_is_curse(it):
+			continue
+		out.append(uid)
+	return out
+
+
+func _toss_pick_mode() -> bool:
+	if _challenge_loot_wait:
+		return true
+	if pending_feed.is_empty():
+		return false
+	return str(pending_feed.get("kind", "")) != "upgrade"
+
+
+func _abort_full_hand_gain(it: Dictionary) -> void:
+	_challenge_loot_wait = false
+	_challenge_pending_gain = {}
+	_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
+	_log("discard", str(it.get("name", "?")))
+	if sfx:
+		sfx.play("error", -10.0)
+		sfx.play("cloth", -12.0)
+	_refresh()
+
+
+func _start_full_hand_replace(it: Dictionary) -> bool:
+	if it.is_empty():
+		return false
+	if _filter_toss_uids(_hand_all_uids()).is_empty():
+		_abort_full_hand_gain(it)
+		return false
+	_challenge_pending_gain = it.duplicate(true)
+	_challenge_loot_wait = true
+	_flash_banner(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."))
+	_refresh()
+	return true
+
+
 func _challenge_item_banned(id: String) -> bool:
 	return not ModePool.allows(items_by_id.get(id, {}), ModePool.CHALLENGE)
 
@@ -4357,10 +4410,8 @@ func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
 		return
 	if not replace_if_full:
 		return
-	_challenge_pending_gain = it.duplicate(true)
-	_challenge_loot_wait = true
-	_flash_banner(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."))
-	_refresh()
+	if not _start_full_hand_replace(it):
+		return
 	while _challenge_loot_wait and is_instance_valid(self):
 		if epoch != _loot_epoch or _undo_stale(token):
 			_challenge_loot_wait = false
@@ -4375,7 +4426,11 @@ func _challenge_discard_one(uid: int) -> void:
 	var have: Dictionary = _find_item(uid)
 	if have.is_empty():
 		return
-	_discard_from_hand(uid, true)
+	if _item_is_curse(have):
+		if sfx:
+			sfx.play("error", -12.0, 1.2)
+		return
+	_discard_from_hand(uid, true, false)
 	if not _challenge_pending_gain.is_empty():
 		hotbar.append(_challenge_pending_gain.duplicate(true))
 		_sort_hotbar()
@@ -9072,10 +9127,7 @@ func _gain_token_item(id: String) -> void:
 		return
 	var it: Dictionary = _make_item(id)
 	if adventure and _hand_full():
-		_challenge_pending_gain = it.duplicate(true)
-		_challenge_loot_wait = true
-		_flash_banner(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."))
-		_refresh()
+		_start_full_hand_replace(it)
 		return
 	hotbar.append(it)
 	_sort_hotbar()
@@ -9228,13 +9280,14 @@ func _toss_item(uid: int, keep: bool, slow: bool = false) -> void:
 		_sync_wheel_stats()
 
 
-func _discard_from_hand(uid: int, slow: bool = false) -> void:
+func _discard_from_hand(uid: int, slow: bool = false, recycle: bool = true) -> void:
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
 		return
 	var snap: Dictionary = it.duplicate(true)
 	_toss_item(uid, false, slow)
-	_recycle_after_gone(snap)
+	if recycle:
+		_recycle_after_gone(snap)
 
 
 func _recycle_insert_copy(snap: Dictionary) -> void:
@@ -9889,14 +9942,7 @@ func _hired_ask_bribe() -> void:
 	var nbs: Array[int] = _hired_living_neighbors(facing_index)
 	var uids: Array = []
 	if not nbs.is_empty():
-		for it in hotbar:
-			if typeof(it) != TYPE_DICTIONARY:
-				continue
-			if bool(it.get("spent", false)):
-				continue
-			var uid: int = int(it.get("uid", -1))
-			if uid >= 0:
-				uids.append(uid)
+		uids = _filter_toss_uids(_hand_discard_uids())
 	pending_feed = {"uids": uids, "kind": "hired_bribe"}
 	if nbs.is_empty():
 		_cube_line = "Nobody next to me. Decline — we fight."
@@ -9916,6 +9962,8 @@ func _hand_discard_uids() -> Array:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
 		if bool(it.get("spent", false)):
+			continue
+		if _item_is_curse(it):
 			continue
 		var uid: int = int(it.get("uid", -1))
 		if uid >= 0:
@@ -9967,12 +10015,17 @@ func _maybe_rust_bucket_spawn(index: int) -> void:
 
 func _force_gain_rust() -> void:
 	if _hand_full():
-		var uids: Array = _hand_all_uids()
-		if not uids.is_empty():
-			pending_feed = {"uids": uids, "kind": "rust_spawn"}
-			_cube_line = "When I enter the Dungeon, Gain 1 Rust."
-			_refresh()
-			await _wait_bell_pick()
+		var uids: Array = _filter_toss_uids(_hand_all_uids())
+		if uids.is_empty():
+			_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
+			_log("discard", "Rust")
+			if sfx:
+				sfx.play("error", -10.0)
+			return
+		pending_feed = {"uids": uids, "kind": "rust_spawn"}
+		_cube_line = "When I enter the Dungeon, Gain 1 Rust."
+		_refresh()
+		await _wait_bell_pick()
 	var it: Dictionary = _make_item("rust")
 	it["rust_n"] = 3
 	it["rust_seen"] = false
@@ -9986,12 +10039,17 @@ func _force_gain_rust() -> void:
 
 func _force_gain_toll() -> void:
 	if _hand_full():
-		var uids: Array = _hand_all_uids()
-		if not uids.is_empty():
-			pending_feed = {"uids": uids, "kind": "bell_spawn"}
-			_cube_line = "When I Spawn, Gain 1 Toll."
-			_refresh()
-			await _wait_bell_pick()
+		var uids: Array = _filter_toss_uids(_hand_all_uids())
+		if uids.is_empty():
+			_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
+			_log("discard", "Toll")
+			if sfx:
+				sfx.play("error", -10.0)
+			return
+		pending_feed = {"uids": uids, "kind": "bell_spawn"}
+		_cube_line = "When I Spawn, Gain 1 Toll."
+		_refresh()
+		await _wait_bell_pick()
 	var it: Dictionary = _make_item("toll")
 	it["toll_n"] = 6
 	hotbar.append(it)
@@ -10029,6 +10087,10 @@ func _feed_bell_overlay(uid: int) -> void:
 		return
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
+		return
+	if _item_is_curse(it):
+		if sfx:
+			sfx.play("error", -12.0)
 		return
 	_log("on_spin", "discard %s" % str(it.get("name", "?")))
 	_discard_from_hand(uid)
@@ -10127,7 +10189,11 @@ func _maybe_bell_defeat_tax(index: int = -1) -> void:
 	if hotbar.is_empty():
 		await _play_bell_ring()
 		return
-	pending_feed = {"uids": _hand_all_uids(), "kind": "bell_defeat"}
+	var toss_uids: Array = _filter_toss_uids(_hand_all_uids())
+	if toss_uids.is_empty():
+		await _play_bell_ring()
+		return
+	pending_feed = {"uids": toss_uids, "kind": "bell_defeat"}
 	_cube_line = "When I am Defeated, Discard 1 Item."
 	_refresh()
 	await _wait_bell_pick()
@@ -13266,9 +13332,10 @@ func _cube_ask_feed() -> void:
 	if hotbar.is_empty():
 		_log("on_spin", "cube ate nothing")
 		return
-	var ids: Array = []
-	for it in hotbar:
-		ids.append(int(it.get("uid", -1)))
+	var ids: Array = _filter_toss_uids(_hand_all_uids())
+	if ids.is_empty():
+		_log("on_spin", "cube ate nothing")
+		return
 	ids.shuffle()
 	var offer: Array = []
 	offer.append(ids[0])
@@ -13408,7 +13475,7 @@ func _feed_cube(uid: int) -> void:
 	if str(pending_feed.get("kind", "")) == "worm_hunger":
 		await _feed_worm(uid)
 		return
-	if str(pending_feed.get("kind", "")) == "bell_spawn" or str(pending_feed.get("kind", "")) == "bell_defeat":
+	if str(pending_feed.get("kind", "")) == "bell_spawn" or str(pending_feed.get("kind", "")) == "bell_defeat" or str(pending_feed.get("kind", "")) == "rust_spawn":
 		_feed_bell_overlay(uid)
 		return
 	var allowed: Array = pending_feed.get("uids", [])
@@ -15117,10 +15184,7 @@ func _draw_unseen_item() -> void:
 		return
 	var it: Dictionary = _make_item(id)
 	if adventure and _hand_full():
-		_challenge_pending_gain = it.duplicate(true)
-		_challenge_loot_wait = true
-		_flash_banner(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."))
-		_refresh()
+		_start_full_hand_replace(it)
 		return
 	hotbar.append(it)
 	_sort_hotbar()
@@ -15993,9 +16057,6 @@ func _item_view(it: Dictionary) -> Dictionary:
 		out["can_use"] = false
 	if _item_stoned(it):
 		out["can_use"] = false
-	if not pending_feed.is_empty():
-		var feed_uids: Array = pending_feed.get("uids", [])
-		out["can_use"] = feed_uids.has(int(it.get("uid", -1))) and not bool(it.get("spent", false))
 	if str(it.get("card_id", "")) == "echo_bell":
 		var face: Dictionary = _echo_face(it)
 		if face.is_empty():
@@ -16011,6 +16072,11 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["can_use"] = true
 		else:
 			out["can_use"] = _chaos_candidates(stone_uid).has(my_uid)
+	if _challenge_loot_wait:
+		out["can_use"] = not _item_is_curse(it)
+	elif not pending_feed.is_empty():
+		var feed_uids: Array = pending_feed.get("uids", [])
+		out["can_use"] = feed_uids.has(int(it.get("uid", -1))) and not bool(it.get("spent", false))
 	return out
 
 
@@ -19720,7 +19786,7 @@ func _sync_hotbar() -> void:
 		var magnet_ready: bool = phase == "ready" and _is_magnet(it)
 		var can_click: bool = false
 		if _challenge_loot_wait:
-			can_click = true
+			can_click = not _item_is_curse(it)
 		elif not pending_feed.is_empty():
 			can_click = is_snack
 		else:
@@ -19760,7 +19826,10 @@ func _sync_hotbar() -> void:
 		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
 		if card.has_method("set_aura"):
 			var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
-			card.set_aura(is_snack or rec_ready or (mag_on and (phase == "fighting" or phase == "ready")))
+			var snack_aura: bool = is_snack and not _toss_pick_mode()
+			card.set_aura(snack_aura or rec_ready or (mag_on and (phase == "fighting" or phase == "ready")))
+		if card.has_method("set_toss_pick"):
+			card.set_toss_pick(_toss_pick_mode() and can_click)
 		if card.has_method("set_passive_icons"):
 			card.set_passive_icons(null, null, false)
 		_sync_card_pass5(card, it, can_click, in_fight)

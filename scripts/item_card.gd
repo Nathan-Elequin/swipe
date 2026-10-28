@@ -57,6 +57,7 @@ var _guarding: bool = false
 var _hatch: Control
 var _lock_shade: Control
 var _aura: bool = false
+var _toss_pick: bool = false
 var _log_focus: bool = false
 var _plus: TextureRect
 var _ban: TextureRect
@@ -1011,7 +1012,19 @@ func set_log_focus(on: bool) -> void:
 func set_aura(on: bool) -> void:
 	_aura = on
 	set_process(_want_process())
-	if not on and not _glow and not _playable and not _log_focus and not _danger:
+	if not on and not _glow and not _playable and not _log_focus and not _danger and not _toss_pick:
+		_glow_t = 0.0
+		if not spent:
+			modulate = Color.WHITE
+	_apply_style(_hot)
+
+
+func set_toss_pick(on: bool) -> void:
+	_toss_pick = on
+	if on:
+		_playable = true
+	set_process(_want_process())
+	if not on and not _glow and not _playable and not _aura and not _log_focus and not _danger:
 		_glow_t = 0.0
 		if not spent:
 			modulate = Color.WHITE
@@ -1047,7 +1060,7 @@ func set_guarding(on: bool) -> void:
 
 
 func set_playable(on: bool) -> void:
-	_playable = on and not spent
+	_playable = on and (not spent or _toss_pick)
 	set_process(true)
 	_sync_lock_shade()
 	_apply_style(_hot)
@@ -1061,7 +1074,7 @@ func _process(delta: float) -> void:
 	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy:
 		return
 	_shimmer_clock += delta
-	if _glow or _aura or _log_focus or _danger or _hot:
+	if _glow or _aura or _log_focus or _danger or _hot or _toss_pick:
 		_glow_t += delta
 		_apply_style(_hot)
 	_tick_shimmer()
@@ -1161,6 +1174,12 @@ func _apply_style(hot: bool) -> void:
 		metal = _rim.lerp(_tier_shine(), 0.20 + pulse * 0.55)
 		sb.bg_color = _fill.lightened(0.04 if hot else 0.0)
 		modulate = Color.WHITE
+	elif _toss_pick and hot and not spent:
+		pulse = 0.55 + 0.45 * absf(sin(_glow_t * TAU / 0.7))
+		var warn := Color("e8c36a")
+		metal = metal.lerp(warn, 0.65 + pulse * 0.35)
+		sb.bg_color = sb.bg_color.lerp(warn.darkened(0.35), pulse * 0.28)
+		modulate = Color.WHITE.lerp(Color("ffe6a8"), pulse * 0.38)
 	elif _danger and not spent:
 		pulse = 0.40 + 0.60 * absf(sin(_glow_t * TAU / 0.45))
 		var blood := Color("c41e1e")
@@ -1197,7 +1216,7 @@ func _apply_style(hot: bool) -> void:
 		bw += 1
 	if _glow:
 		bw += int(pulse * float(_tier))
-	elif _aura or _log_focus or _danger:
+	elif _aura or _log_focus or _danger or (_toss_pick and hot):
 		bw += int(pulse * 2.0)
 	sb.set_border_width_all(bw)
 	sb.set_corner_radius_all(8 if _showcase else 6)
@@ -1243,6 +1262,20 @@ func _draw() -> void:
 		ring.shadow_size = 4 + _tier * 5 + int(pulse * (3 + _tier * 3))
 		ring.shadow_offset = Vector2.ZERO
 		ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
+	elif _toss_pick and _hot and not spent:
+		var pulse: float = 0.55 + 0.45 * absf(sin(_glow_t * TAU / 0.7))
+		var pad: float = 4.0 + pulse * 4.0
+		var ring_col := Color("e8c36a")
+		var ring := StyleBoxFlat.new()
+		ring.draw_center = false
+		ring.bg_color = Color(0, 0, 0, 0)
+		ring.border_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.75 + pulse * 0.25)
+		ring.set_border_width_all(3)
+		ring.set_corner_radius_all(10 if _showcase else 8)
+		ring.shadow_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.45 + pulse * 0.30)
+		ring.shadow_size = 8 + int(pulse * 8.0)
+		ring.shadow_offset = Vector2.ZERO
+		ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
 	# Basilisk gaze countdown pips (top-right, 12px each).
 	if _petrified and not _petrify_dummy and _petrify_spins > 0:
 		var base := Vector2(size.x - 14.0, 10.0)
@@ -1266,7 +1299,7 @@ func _on_in() -> void:
 	_apply_style(true)
 	_force_glint()
 	pivot_offset = size * 0.5
-	if spent:
+	if spent and not _toss_pick:
 		return
 	if _lift != null:
 		_lift.kill()
@@ -1296,7 +1329,7 @@ func _on_gui(event: InputEvent) -> void:
 			if OS.has_feature("editor") or PLAYTEST_FLAG.on():
 				edit_wanted.emit()
 			return
-		if spent:
+		if spent and not _toss_pick:
 			return
 		if event.button_index != MOUSE_BUTTON_LEFT:
 			return
@@ -1526,7 +1559,7 @@ func _tween_sink(sink: bool) -> void:
 	var target: Color = Color(0.70, 0.70, 0.70, 1.0) if sink else Color.WHITE
 	if spent:
 		target = Color(0.86, 0.84, 0.80, 1.0)
-	if _glow or _aura or _log_focus or _danger:
+	if _glow or _aura or _log_focus or _danger or _toss_pick:
 		return
 	if _stone != null and _stone.visible:
 		return
