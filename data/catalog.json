@@ -79,10 +79,10 @@
 		{
 			"ability": "Atk 3, or Atk 1 and Keep this item",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 2.0,
+			"count": 2,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "(3) or (1 and Keep)",
@@ -117,13 +117,13 @@
 				"kind": "choose",
 				"options": [
 					{
-						"atk": 3.0,
+						"atk": 3,
 						"id": "throw",
 						"keep": false,
 						"label": "ATK 3, discard"
 					},
 					{
-						"atk": 1.0,
+						"atk": 1,
 						"id": "nick",
 						"keep": true,
 						"label": "ATK 1, keep"
@@ -131,23 +131,29 @@
 				]
 			},
 			"poc": true,
-			"priority": 1.0,
+			"priority": 1,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "I",
-			"updated": "2022-04-20"
+			"updated": "2022-04-20",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "Gain 4 Block.",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "(BLK 4)",
@@ -180,25 +186,31 @@
 			"name": "Shield",
 			"ops": {
 				"kind": "blk",
-				"n": 4.0
+				"n": 4
 			},
 			"poc": true,
-			"priority": 1.0,
+			"priority": 1,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "Flips 2 ↔ 4 after each Item used.",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 2.0,
+			"count": 2,
 			"defined": "",
 			"exceptions": "This should NOT start at 2 each fight, it should carry over its value between combats (not between dungeons eg adventure mode)",
 			"explainer": "(2) then (4) then (2)…",
@@ -236,25 +248,31 @@
 				"kind": "atk_alt_24"
 			},
 			"poc": true,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "I",
 			"when_updated": [
 				"On Item Use"
-			]
+			],
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": "This should NOT start at 2 each fight, it should carry over its value between combats (not between dungeons eg adventure mode)"
 		},
 		{
 			"ability": "+1 Block for each HP you are missing.",
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 1,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "(7 − HP)",
@@ -292,26 +310,32 @@
 				"kind": "blk_from_hp"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "I",
 			"when_updated": [
 				"On Spin",
 				"On HP Change"
-			]
+			],
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "Block equal to the lower HP between you and the Enemy.",
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 2.0,
+			"count": 2,
 			"defined": "Lower HP wins; player value if tied. Recheck on HP change either side.",
 			"exceptions": "",
 			"explainer": "(Lower of YOUR HP or ENEMY HP)",
@@ -349,23 +373,29 @@
 				"kind": "blk_min_hp"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "I",
-			"updated": "2022-04-24"
+			"updated": "2022-04-24",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Lower HP wins; player value if tied. Recheck on HP change either side.",
+			"notes": ""
 		},
 		{
 			"ability": "Defeat an enemy with fewer HP than you (not equal).",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 2.0,
+			"count": 2,
 			"defined": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
 			"exceptions": "",
 			"explainer": "(ENEMY HP < YOUR HP, not equal)",
@@ -403,23 +433,29 @@
 				"kind": "defeat_hp"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "I",
-			"usable_when": "enemy_hp < player_hp"
+			"usable_when": "enemy_hp < player_hp",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
+			"notes": ""
 		},
 		{
 			"ability": "Attack equal to the Attack of the last monster you spun.",
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On Spin, store enemy ATK. Initial value is always 0.",
 			"exceptions": "",
 			"explainer": "(LAST SPUN ATK)",
@@ -455,22 +491,28 @@
 			"name": "Grimoire",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On Spin, store enemy ATK. Initial value is always 0.",
+			"notes": ""
 		},
 		{
 			"ability": "1 Attack, plus 1 for each HP you are missing.",
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 3,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "(1 + missing HP)",
@@ -507,26 +549,32 @@
 				"kind": "atk_7_hp"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "I",
 			"when_updated": [
 				"On Spin",
 				"On HP Change"
-			]
+			],
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Tap on use. Discard on resolve unless HP dropped vs On Spin. Healing Potion this combat makes Did Lose HP always True.",
 			"exceptions": "",
 			"explainer": "(BLK 2) Keep if Bleed",
@@ -562,25 +610,31 @@
 			"name": "Breastplate",
 			"ops": {},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "I"
+			"tier": 3,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Tap on use. Discard on resolve unless HP dropped vs On Spin. Healing Potion this combat makes Did Lose HP always True.",
+			"notes": ""
 		},
 		{
 			"ability": "Block equal to the Neighboring enemy's Attack on the Right.",
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 6,
 			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [
 				"bracers_listed_as_atk"
 			],
-			"count": 1.0,
+			"count": 1,
 			"defined": "On use, gain Block equal to the Attack of the neighboring enemy on your right. Unusable with no neighbor there.",
 			"exceptions": "Final enemy: unusable.",
 			"explainer": "(Right Neighbor ATK)",
@@ -614,23 +668,29 @@
 				"kind": "blk_neighbor"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "I",
-			"updated": "2022-04-24"
+			"updated": "2022-04-24",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On use, gain Block equal to the Attack of the neighboring enemy on your right. Unusable with no neighbor there.",
+			"notes": "Final enemy: unusable."
 		},
 		{
 			"ability": "Spin again and gain a Random Item.",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "smoke",
-			"count": 1.0,
+			"count": 1,
 			"defined": "End combat without resolving. Spin again, not the same slice. Draw 1 unseen item, tier-agnostic.",
 			"exceptions": "",
 			"explainer": "Spin + 1 Item",
@@ -666,25 +726,31 @@
 			"name": "Smoke Bomb",
 			"ops": {},
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "todo",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "End combat without resolving. Spin again, not the same slice. Draw 1 unseen item, tier-agnostic.",
+			"notes": ""
 		},
 		{
 			"ability": "Attack equal to 8 minus the Items still in your hand.",
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 3,
 			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [
 				"knucklers"
 			],
-			"count": 2.0,
+			"count": 2,
 			"defined": "Also describes HP Delta (absolute difference of player vs enemy HP).",
 			"exceptions": "",
 			"explainer": "(8 − Items)",
@@ -719,26 +785,32 @@
 				"kind": "atk_7_items"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "I",
 			"updated": "2022-05-02",
 			"when_updated": [
 				"On Item Use"
-			]
+			],
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Also describes HP Delta (absolute difference of player vs enemy HP).",
+			"notes": ""
 		},
 		{
 			"ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 1,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 2.0,
+			"count": 2,
 			"defined": "Store enemy HP on use. Fangs DMG can be blocked like Resolve Combat. Then heal stored HP. Player HP never exceeds 6. If this would kill you: Healing Potion, then Fangs Healing.",
 			"exceptions": "",
 			"explainer": "Take ATK → Defeat → Heal HP",
@@ -774,22 +846,28 @@
 			"name": "Fangs",
 			"ops": {},
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Store enemy HP on use. Fangs DMG can be blocked like Resolve Combat. Then heal stored HP. Player HP never exceeds 6. If this would kill you: Healing Potion, then Fangs Healing.",
+			"notes": ""
 		},
 		{
 			"ability": "Mark a Neighbor with 4 Poison.",
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 2.0,
+			"count": 2,
 			"defined": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. Plague Doctor neighbors stay at 2. On the next Spin, every monster with Poison loses that much HP immediately, wherever they sit, then the mark clears. This is before their spin ability. If it kills them, that ability does not happen. They stay in the seat until the other spin abilities finish. A dead monster who is not the one you landed on then leaves and the seat fills. If the one you landed on died, the fight ends after those abilities. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
 			"exceptions": "",
 			"explainer": "Neighbor gets 4 Poison",
@@ -827,23 +905,29 @@
 				"n": 4
 			},
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 2,
 			"type": "I",
-			"updated": "2022-05-02"
+			"updated": "2022-05-02",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. Plague Doctor neighbors stay at 2. On the next Spin, every monster with Poison loses that much HP immediately, wherever they sit, then the mark clears. This is before their spin ability. If it kills them, that ability does not happen. They stay in the seat until the other spin abilities finish. A dead monster who is not the one you landed on then leaves and the seat fills. If the one you landed on died, the fight ends after those abilities. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
+			"notes": ""
 		},
 		{
 			"ability": "Heal 6. On Spin, lose 1 HP.",
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 9,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1.0,
+			"count": 1,
 			"defined": "While in inventory unused, Lose 1 HP On Spin after combat has begun. Counts as Did Lose HP for Breastplate.",
 			"exceptions": "",
 			"explainer": "(HEAL 6)  Spin: −1 HP",
@@ -880,22 +964,28 @@
 				"kind": "heal_full"
 			},
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "While in inventory unused, Lose 1 HP On Spin after combat has begun. Counts as Did Lose HP for Breastplate.",
+			"notes": ""
 		},
 		{
 			"ability": "Take 2 Attack. If you still hold this when you Spin Spider Queen, discard it; she gains +2 HP and +2 Attack.",
 			"author_lock": false,
-			"bucket": -1.0,
+			"bucket": -1,
 			"call_name": "",
 			"card_color": "egg",
-			"count": 0.0,
+			"count": 0,
 			"defined": "Click during a fight. Take 2 Attack; Block works. Used up. If this is in hand when the wheel lands on Spider Queen, discard it and she gains +2 HP and +2 Attack. Queen does not create an Egg on the Spin that lands on her. Always created on other Spins while Queen is alive, up to 50 cards in hand.",
 			"exceptions": "Not drafted. Queen creates it. Tier 0 so Merchant can turn it into a Tier 1 item.",
 			"explainer": "(Take ATK 2)",
@@ -914,29 +1004,33 @@
 			"notes": "Not drafted. Queen creates it. Tier 0 so Merchant can turn it into a Tier 1 item.",
 			"ops": {
 				"kind": "egg_hurt",
-				"n": 2.0
+				"n": 2
 			},
 			"poc": false,
-			"priority": 9.0,
+			"priority": 9,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
+			"tier": 0,
 			"type": "I",
-			"curse": true
+			"curse": true,
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": ""
 		},
 		{
 			"ability": "This gains +2 Attack each time you lose any HP.",
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 1,
 			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [
 				"spiked_flail"
 			],
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "Change to Base 0 ATK",
 			"explainer": "(2 × Bleeds)",
@@ -974,26 +1068,32 @@
 				"kind": "atk_hp_loss"
 			},
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "I",
-			"updated": "2022-04-24"
+			"updated": "2022-04-24",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": "Change to Base 0 ATK"
 		},
 		{
 			"ability": "Unplayable. If you would die, discard this and Heal 3.",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "heal",
 			"contradiction_ids": [
 				"healing_potion"
 			],
-			"count": 1.0,
+			"count": 1,
 			"defined": "If player HP ever equals 0, immediately Discard this item and set the player's HP to 4.",
 			"exceptions": "",
 			"explainer": "Lethal → Heal 3",
@@ -1026,22 +1126,28 @@
 			"name": "Healing Potion",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "todo",
-			"tier": 3.0,
-			"type": "I"
+			"tier": 3,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "If player HP ever equals 0, immediately Discard this item and set the player's HP to 4.",
+			"notes": ""
 		},
 		{
 			"ability": "Deal 4 Attack to a Neighboring enemy.",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On use, choose a neighboring enemy. Deal 4 attack damage to them. If their HP reaches 0, they are defeated immediately. Unusable with 0 eligible neighbors.",
 			"exceptions": "",
 			"explainer": "(ATK 4) Neighbor",
@@ -1076,25 +1182,31 @@
 			"name": "Crossbow",
 			"ops": {
 				"kind": "atk_neighbor",
-				"n": 4.0
+				"n": 4
 			},
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On use, choose a neighboring enemy. Deal 4 attack damage to them. If their HP reaches 0, they are defeated immediately. Unusable with 0 eligible neighbors.",
+			"notes": ""
 		},
 		{
 			"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
 			"exceptions": "",
 			"explainer": "(ENEMY ATK ≥ 6)",
@@ -1131,23 +1243,29 @@
 				"kind": "defeat_atk"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "I",
-			"usable_when": "enemy_atk >= 6"
+			"usable_when": "enemy_atk >= 6",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
+			"notes": ""
 		},
 		{
 			"ability": "Target any enemy. That enemy attacks the monster that is Across from them.",
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Odd living-monster count: cannot use. Click any living monster, including the one you face. They use their current Pocket Watch attack on the living monster halfway around the living circle. Empty corridors are skipped. Used up.",
 			"exceptions": "Odd number of living monsters: unusable.",
 			"explainer": "Pick any monster. They Attack the monster Across from them. Unplayable when the number of monsters is odd.",
@@ -1183,22 +1301,28 @@
 			"name": "Pocketwatch",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "I"
+			"tier": 3,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": "Odd living-monster count: unusable. Across skips empty corridors and walks the living monsters."
 		},
 		{
 			"ability": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once.",
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 5,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On use, deal 2 ATK to the facing owner and each unique living neighbor. Two owners left: the other takes 2 once. Goblin ignores ATK. Used up.",
 			"exceptions": "",
 			"explainer": "(ATK 2) facing + Neighbors",
@@ -1231,25 +1355,31 @@
 			"name": "Great Axe",
 			"ops": {
 				"kind": "atk_cleave",
-				"n": 2.0
+				"n": 2
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On use, deal 2 ATK to the facing owner and each unique living neighbor. Two owners left: the other takes 2 once. Goblin ignores ATK. Used up.",
+			"notes": ""
 		},
 		{
 			"ability": "Heal 1, plus 1 for each monster Defeated",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On use in a fight, heal 1 + mobs_defeated, cap at 6 HP. Used up. Healing Potion still revives on death.",
 			"exceptions": "",
 			"explainer": "(1 + Defeats)",
@@ -1284,22 +1414,28 @@
 				"kind": "heal_kills"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On use in a fight, heal 1 + mobs_defeated, cap at 6 HP. Used up. Healing Potion still revives on death.",
+			"notes": ""
 		},
 		{
 			"ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 5,
 			"call_name": "",
 			"card_color": "utility",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On use, pick a living neighbor. Swap that owner with the facing owner. Keep current block, items-used, and snapshots. Draw one item from the remaining pool if any. Used up.",
 			"exceptions": "",
 			"explainer": "Swap Neighbor + 1 Item",
@@ -1336,22 +1472,28 @@
 				"kind": "hook_swap"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On use, pick a living neighbor. Swap that owner with the facing owner. Keep current block, items-used, and snapshots. Draw one item from the remaining pool if any. Used up.",
+			"notes": ""
 		},
 		{
 			"ability": "Gain Block equal to your highest Attack Item",
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 7,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Gain Block equal to the highest Attack number among items in your hand. Used up. Unplayable if no Attack item.",
 			"exceptions": "Art is a stand-in until a spiked shield tile exists.",
 			"explainer": "(BLK = highest Attack Item)",
@@ -1388,22 +1530,28 @@
 				"kind": "blk_from_highest_atk"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Gain Block equal to the highest Attack number among items in your hand. Used up. Unplayable if no Attack item.",
+			"notes": "Art is a stand-in until a spiked shield tile exists."
 		},
 		{
 			"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 9,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "While in hand and not spent: at combat start, player loses 1 HP (counts as a bleed for Spiked Flail) and this card's block number +2. On use, gain that much block, then used up. Starts at 0.",
 			"exceptions": "",
 			"explainer": "Spin: −1 HP, +2 BLK",
@@ -1438,32 +1586,38 @@
 				"kind": "blk_siphon"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "While in hand and not spent: at combat start, player loses 1 HP (counts as a bleed for Spiked Flail) and this card's block number +2. On use, gain that much block, then used up. Starts at 0.",
+			"notes": ""
 		},
 		{
-			"ability": "Deal 5 Attack to the monster across from you (only works if even # of monsters remaining)",
+			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 6,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 2.0,
+			"count": 2,
 			"defined": "Usable in a fight only when living slice count is even. Deal 5 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
 			"exceptions": "",
-			"explainer": "(ATK 5) opposite",
+			"explainer": "(ATK 4) opposite",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
 			"id": "longbow",
-			"locked_at": "2026-10-21",
+			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1481,30 +1635,36 @@
 				"hp_formula",
 				"card_color"
 			],
-			"log_hint": "5 damage across the wheel",
+			"log_hint": "4 damage across the wheel",
 			"mode_pool": "all",
 			"name": "Longbow",
 			"ops": {
 				"kind": "atk_opposite",
-				"n": 5.0
+				"n": 4
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Usable in a fight only when living slice count is even. Deal 4 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
+			"notes": ""
 		},
 		{
 			"ability": "(ATK 2), then return to your hand.",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Do not discard on use; Tap. Untap always occurs On Resolve Combat.",
 			"exceptions": "",
 			"explainer": "(Neighbor ATK)",
@@ -1536,22 +1696,28 @@
 			"name": "Dagger",
 			"ops": {},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "retired",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Do not discard on use; Tap. Untap always occurs On Resolve Combat.",
+			"notes": ""
 		},
 		{
 			"ability": "(BLK X), where X is the lowest HP between you and the enemy.",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "",
-			"count": 2.0,
+			"count": 2,
 			"defined": "Older check: only enemy HP change, not player HP. Hidden/retired.",
 			"exceptions": "",
 			"explainer": "",
@@ -1583,22 +1749,28 @@
 			"name": "Helmet",
 			"ops": {},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "retired",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Older check: only enemy HP change, not player HP. Hidden/retired.",
+			"notes": ""
 		},
 		{
 			"ability": "At the start of each combat, lose 1 HP.",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "",
@@ -1630,22 +1802,28 @@
 			"name": "Bandana",
 			"ops": {},
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "retired",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "Heal 2. Keep this if you are still missing HP.",
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 3,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Heal 2, cap 6. If HP is still below 6, keep the card. If you are already at 6, heal 0 and the card is used up. Counts as an item use.",
 			"exceptions": "Breastplate keeps if you bled. This keeps if you are still hurt after the heal.",
 			"explainer": "(HEAL 2) Keep if HP < 6",
@@ -1681,25 +1859,31 @@
 			"name": "Lantern",
 			"ops": {
 				"kind": "heal_keep",
-				"n": 2.0
+				"n": 2
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "I"
+			"tier": 3,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Heal 2, cap 6. If HP is still below 6, keep the card. If you are already at 6, heal 0 and the card is used up. Counts as an item use.",
+			"notes": "Breastplate keeps if you bled. This keeps if you are still hurt after the heal."
 		},
 		{
 			"ability": "Gain Block equal to the last Block you gained.",
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 9,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Gain Block equal to the last Block you gained this dungeon. If you have not gained Block yet this dungeon, the click does nothing and the card stays. Used up. Counts as an item use.",
 			"exceptions": "Last Block is the amount from the last time you gained Block, not your current Block total.",
 			"explainer": "(Last BLK)",
@@ -1734,22 +1918,28 @@
 				"kind": "blk_last"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Gain Block equal to the last Block you gained this dungeon. If you have not gained Block yet this dungeon, the click does nothing and the card stays. Used up. Counts as an item use.",
+			"notes": "Last Block is the amount from the last time you gained Block, not your current Block total."
 		},
 		{
 			"ability": "The facing owner's Attack becomes 0 this fight.",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Set facing Attack to 0 and lock it for the rest of this fight, including after Commander and Harpy formulas. They still leave after Done. Used up.",
 			"exceptions": "Dragon pierce of 0 is 0. Kobold still swings twice for 0.",
 			"explainer": "ATK 0",
@@ -1783,22 +1973,28 @@
 				"kind": "atk_zero"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "retired",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Set facing Attack to 0 and lock it for the rest of this fight, including after Commander and Harpy formulas. They still leave after Done. Used up.",
+			"notes": "Dragon pierce of 0 is 0. Kobold still swings twice for 0."
 		},
 		{
 			"ability": "Becomes a copy of the last item you used.",
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 3,
 			"call_name": "",
 			"card_color": "chaos",
-			"count": 1.0,
+			"count": 1,
 			"defined": "In hand this looks like the last item you used this dungeon (faint Echo icon), including items that stayed in your hand (Keep). Click it to use that copy, then Echo is used up even if the original had Keep. If you have not used an item this dungeon, it is Unplayable.",
 			"exceptions": "Updates when you use an item. Cube feed is not an item use. First fight of a run: Unplayable.",
 			"explainer": "(Copy last Item)",
@@ -1833,22 +2029,28 @@
 				"kind": "echo"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "I"
+			"tier": 3,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "In hand this looks like the last item you used this dungeon (faint Echo icon). Click it to use that copy, then Echo is used up even if the original had Keep. If you have not used an item this dungeon, it is Unplayable.",
+			"notes": "Updates when you use an item. Cube feed is not an item use. First fight of a run: Unplayable."
 		},
 		{
 			"ability": "Remove your Enemy's unique ability",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "utility",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. The facing enemy loses its unique ability and formulas for the rest of this dungeon. Other copies of the same card are unchanged. They show printed ATK/HP like Golem. If they have no unique ability, the click does nothing and the card stays. Used up otherwise.",
 			"exceptions": "Golem: cannot click. Bandit and other formulas fall back to the ATK/HP columns.",
 			"explainer": "Silence",
@@ -1885,22 +2087,28 @@
 				"kind": "quiet"
 			},
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. That owner id loses its unique ability and formulas for the rest of this dungeon. They show printed ATK/HP like Golem. If they have no unique ability, the click does nothing and the card stays. Used up otherwise.",
+			"notes": "Golem: cannot click. Bandit and other formulas fall back to the ATK/HP columns."
 		},
 		{
 			"ability": "Choose to reduce the facing owner's Attack by 1, 2, or 3.",
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
 			"card_color": "utility",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight, then click 1, 2, or 3. Facing Attack drops by that much after every other formula including Commander, floors at 0, then locks for the rest of this fight. Used up.",
 			"exceptions": "Caltrops is retired. This is the milder version, last in calc.",
 			"explainer": "(−1) or (−2) or (−3)",
@@ -1935,38 +2143,44 @@
 				"kind": "choose",
 				"options": [
 					{
-						"atk_drop": 1.0,
+						"atk_drop": 1,
 						"id": "drop1",
 						"label": "−1 Attack"
 					},
 					{
-						"atk_drop": 2.0,
+						"atk_drop": 2,
 						"id": "drop2",
 						"label": "−2 Attack"
 					},
 					{
-						"atk_drop": 3.0,
+						"atk_drop": 3,
 						"id": "drop3",
 						"label": "−3 Attack"
 					}
 				]
 			},
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight, then click 1, 2, or 3. Facing Attack drops by that much after every other formula including Commander, floors at 0, then locks for the rest of this fight. Used up.",
+			"notes": "Caltrops is retired. This is the milder version, last in calc."
 		},
 		{
 			"ability": "Deal Attack equal to Block you hold. Keep this item.",
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 5,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Deal Attack equal to Block you hold. You keep that Block. This item Keeps. Unplayable at 0 Block. Counts as an item use. Goblin cannot take Attack damage.",
 			"exceptions": "Hornet and Queen still Attack after. You still hold the Block for those swings.",
 			"explainer": "(ATK = BLK) Keep",
@@ -1990,22 +2204,28 @@
 				"kind": "atk_spend_blk"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Deal Attack equal to Block you hold. You keep that Block. This item Keeps. Unplayable at 0 Block. Counts as an item use. Goblin cannot take Attack damage.",
+			"notes": "Hornet and Queen still Attack after. You still hold the Block for those swings."
 		},
 		{
 			"ability": "(1), (2), (3), or (4) Atk. Changes on Item use",
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 1,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 2.0,
+			"count": 2,
 			"defined": "Click during a fight. Deal Attack equal to the dungeon cycle number (1, then 2, then 3, then 4, then 1). Every item use this dungeon advances that number, including this click. The cycle carries across fights and resets on the next dungeon. Two Beads share one number. Used up. Counts as an item use. Goblin cannot take Attack damage.",
 			"exceptions": "Cube feed is not an item use, so the cycle does not advance. Anvil takes 1 from this Attack.",
 			"explainer": "(1) then (2) then (3) then (4)",
@@ -2043,22 +2263,28 @@
 				"kind": "atk_empty"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Deal Attack equal to the dungeon cycle number (1, then 2, then 3, then 4, then 1). Every item use this dungeon advances that number, including this click. The cycle carries across fights and resets on the next dungeon. Two Beads share one number. Used up. Counts as an item use. Goblin cannot take Attack damage.",
+			"notes": "Cube feed is not an item use, so the cycle does not advance. Anvil takes 1 from this Attack."
 		},
 		{
 			"ability": "If you have no playable items that Attack, Defeat the enemy.",
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. If you hold no playable items that Attack, Defeat them. Chakram counts while its Attack half is live. Petrified and spent items do not count. This card is not an Attack item. Unplayable if any other playable card in hand deals Attack. Used up when it works. Counts as an item use. Gargoyle cannot be Defeated.",
 			"exceptions": "Holding only this works. Echo copying an Attack item counts as an Attack item. Shield alone is enough.",
 			"explainer": "No playable Attack items → Defeat",
@@ -2083,22 +2309,28 @@
 				"kind": "defeat_only_item"
 			},
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. If you hold no playable items that Attack, Defeat them. Chakram counts while its Attack half is live. Petrified and spent items do not count. This card is not an Attack item. Unplayable if any other playable card in hand deals Attack. Used up when it works. Counts as an item use. Gargoyle cannot be Defeated.",
+			"notes": "Holding only this works. Echo copying an Attack item counts as an Attack item. Shield alone is enough."
 		},
 		{
 			"ability": "Defeat Any Monster with exactly double your HP",
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 5,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight, then click any monster on the wheel (including the one you are facing). If that monster's HP is exactly twice yours, Defeat them. If they are not the one you are fighting, they leave and this fight keeps going. Grey if nobody matches. Same animation as The Boot and Sledgehammer. Used up.",
 			"exceptions": "",
 			"explainer": "(ENEMY HP = 2 × YOUR HP)",
@@ -2136,22 +2368,28 @@
 				"kind": "defeat_double_hp"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "I"
+			"tier": 3,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight, then click any monster on the wheel (including the one you are facing). If that monster's HP is exactly twice yours, Defeat them. If they are not the one you are fighting, they leave and this fight keeps going. Grey if nobody matches. Same animation as The Boot and Sledgehammer. Used up.",
+			"notes": ""
 		},
 		{
 			"ability": "Choose 2 Items and Swap them.",
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "",
 			"card_color": "chaos",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight, then click other items in your hand. If you hold only one other item that can Swap, Swap that one. If you hold two or more that can Swap, pick two. Each Swap exchanges that card for a random leftover copy of the same rank from the draft pile and returns the old card to the pile. You cannot Swap into a card with no remaining count. This card cannot target itself. Unplayable if nothing can Swap. Used up. Counts as an item use.",
 			"exceptions": "Does not deal Attack. Gargoyle petrify does not pick this. Cube feed is not this.",
 			"explainer": "Swap 1–2 Items",
@@ -2175,22 +2413,28 @@
 				"kind": "chaos_reroll"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight, then click other items in your hand. If you hold only one other item, reroll that one. If you hold two or more, pick two. Each becomes a random item of that item's tier, with the same motion as Adventure Mode starter upgrades. This card cannot target itself. Unplayable if this is the only item in your hand. Used up. Counts as an item use.",
+			"notes": "Does not deal Attack. Gargoyle petrify does not pick this. Cube feed is not this."
 		},
 		{
 			"ability": "Block equal to the Neighboring enemy's Attack on the Left.",
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 6,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On use, gain Block equal to the Attack of the neighboring enemy on your left. Unusable with no neighbor there.",
 			"exceptions": "Final enemy: unusable.",
 			"explainer": "(Left Neighbor ATK)",
@@ -2228,22 +2472,28 @@
 				"side": "left"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On use, gain Block equal to the Attack of the neighboring enemy on your left. Unusable with no neighbor there.",
+			"notes": "Final enemy: unusable."
 		},
 		{
 			"ability": "6 Atk and Lose 2 HP.",
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 7,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Deal 6 Attack to the owner you spun. Then Lose 2 HP (Block does not stop it; Spiked Flail and Pacemaker see it). You still Lose 2 if that Attack Defeats them. Goblin takes 0 and you still Lose 2. Used up. Counts as an item use. No pierce aura. Tutorial does not seat it.",
 			"exceptions": "",
 			"explainer": "(ATK 6) Lose 2 HP",
@@ -2279,17 +2529,23 @@
 			"name": "Arrow Head",
 			"ops": {
 				"kind": "atk",
-				"n": 6.0
+				"n": 6
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Deal 6 Attack to the owner you spun. Then Lose 2 HP (Block does not stop it; Spiked Flail and Pacemaker see it). You still Lose 2 if that Attack Defeats them. Goblin takes 0 and you still Lose 2. Used up. Counts as an item use. No pierce aura. Tutorial does not seat it.",
+			"notes": ""
 		},
 		{
 			"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
@@ -2356,15 +2612,21 @@
 			"review_note": "",
 			"status": "hold",
 			"tier": 2,
-			"type": "I"
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click at Ready or during a fight. Three pills: Highest Attack, Lowest Attack, Off. Highest or Lowest arms this copy. Off clears the arm. Attack numbers are read at Spin after formulas. Ties pick at random among those Attack values. The next Spin (button, auto-spin after a fight, Smoke Bomb, Commander flee, Wick, Vampire shuffle) lands on that monster, then this copy is discarded. Tutorial scripted landings ignore it and do not discard it. Two copies: the most recently set Highest or Lowest wins; copies armed that way are discarded; the other mode stays. Quiet Bell does not turn this off. Not in the tutorial kit.",
+			"notes": "Bucket 4. Count 1. No Attack. Petrified still steers if already armed."
 		},
 		{
 			"ability": "Move →, then Attack 3.",
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Used up. If another living monster is on the wheel, shift to the neighbor up and to the right (counter-clockwise, the same way as the Move-right button) without Spinning. This does not spend an adventure Move. Then deal 3 Attack to whoever you are facing. If they are the only living monster, skip the shift and deal 3 to them. No Keep. Goblin ignores Attack. Needleback, Harpy, Anvil, and Prism apply to whoever takes the hit.",
 			"exceptions": "Move up-right, then 3 Attack. One living monster: no Move, the 3 still hits. No Keep.",
 			"explainer": "Move →, then (ATK 3).",
@@ -2401,25 +2663,30 @@
 			"notes": "Move up-right, then 3 Attack. One living monster: no Move, the 3 still hits. No Keep.",
 			"ops": {
 				"kind": "atk_move",
-				"n": 3.0
+				"n": 3
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Used up. If another living monster is on the wheel, shift to the neighbor up and to the right (counter-clockwise, the same way as the Move-right button) without Spinning. This does not spend an adventure Move. Then deal 3 Attack to whoever you are facing. If they are the only living monster, skip the shift and deal 3 to them. No Keep. Goblin ignores Attack. Needleback, Harpy, Anvil, and Prism apply to whoever takes the hit."
 		},
 		{
 			"ability": "Apply Poison to all Monsters equal to the lowest HP on any Monster",
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "",
 			"card_color": "utility",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Plague Doctor neighbors stay at 2. Nothing is paid when you play this. On the next Spin, every monster with Poison loses that much HP, wherever they sit, then the mark clears. Fight only. Used up.",
 			"exceptions": "Bucket 4. Poison sources add. Flask is +5 on a neighbor.",
 			"explainer": "Poison all = min HP",
@@ -2458,22 +2725,27 @@
 				"kind": "miasma"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "I"
+			"tier": 3,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Plague Doctor neighbors stay at 2. Nothing is paid when you play this. On the next Spin, every monster with Poison loses that much HP, wherever they sit, then the mark clears. Fight only. Used up."
 		},
 		{
 			"ability": "Fill your inventory with Marbles",
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "",
 			"card_color": "utility",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Used up. Then fill empty seats with Marble tokens until the hand has 10 cards, even in the 50-seat dungeon. Fight only.",
 			"exceptions": "Bucket 3. Marble is a Token, not drafted.",
 			"explainer": "Fill hand with 10 Marbles",
@@ -2506,28 +2778,33 @@
 			],
 			"log_hint": "Fill to 10 Marbles",
 			"mode_pool": "all",
-			"name": "Bag Of Marbles",
+			"name": "Bag of Marbles",
 			"notes": "Bucket 3. Marble is a Token, not drafted.",
 			"ops": {
 				"kind": "bag_marbles"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "I"
+			"tier": 3,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Used up. Then fill empty seats with Marble tokens until the hand has 10 cards, even in the 50-seat dungeon. Fight only."
 		},
 		{
 			"ability": "Gain 0 Atk or 0 Block randomly. On Spin, increase these numbers by 1",
 			"author_lock": true,
-			"bucket": -1.0,
+			"bucket": -1,
 			"call_name": "",
-			"card_color": "yellow",
-			"count": 0.0,
+			"card_color": "",
+			"count": 0,
 			"defined": "Token. Not an Attack item until it declares Attack. Click during a fight: a callout names Attack or Block at random, then that number fires. 0 can be clicked and is used up. Each Marble has its own number starting at 0. Every Spin each Marble in hand +1. New dungeon resets to 0. Used up on click.",
 			"exceptions": "Created by Bag of Marbles. Merchant treats Tier 0 like Egg.",
 			"explainer": "(N ATK or N BLK)",
@@ -2566,22 +2843,27 @@
 				"kind": "marble"
 			},
 			"poc": false,
-			"priority": 9.0,
+			"priority": 9,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
-			"type": "I"
+			"tier": 0,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Token. Not an Attack item until it declares Attack. Click during a fight: a callout names Attack or Block at random, then that number fires. 0 can be clicked and is used up. Each Marble has its own number starting at 0. Every Spin each Marble in hand +1. New dungeon resets to 0. Used up on click."
 		},
 		{
 			"ability": "Unplayable. Defeats the Monster 6 Spins from now.",
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 3,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Poison is paid before Hex. If that poison already killed the monster you landed on, Hex does not count down and does not Defeat. New dungeon resets to 6. Used up when it fires.",
 			"exceptions": "Bucket 6. Skull + number on the card.",
 			"explainer": "Defeat at Spin 0",
@@ -2620,22 +2902,27 @@
 				"kind": "hex"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Poison is paid before Hex. If that poison already killed the monster you landed on, Hex does not count down and does not Defeat. New dungeon resets to 6. Used up when it fires."
 		},
 		{
 			"ability": "Heal yourself and the Enemy for 3 HP. Then draw an Item.",
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1.0,
+			"count": 1,
 			"defined": "SP-29 (2026-10-25). Click during a fight. Used up. Heal yourself 3 (cap 6) and Heal the Enemy 3 (cap at their max HP). Then draw one random Item from the current loot pool, the same draw Catapult and Grappling Hook use. No Poison.",
 			"exceptions": "SP-29. Replaces Heal 5 and Poison.",
 			"explainer": "Heal 3 (you and the Enemy), then draw an Item",
@@ -2671,26 +2958,31 @@
 			"name": "Ale Flagon",
 			"notes": "SP-29. Shared heal. Draw is a random loot-pool Item. No Poison.",
 			"ops": {
-				"heal": 3.0,
+				"heal": 3,
 				"kind": "heal_both_draw"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "SP-29 (2026-10-25). Click during a fight. Used up. Heal yourself 3 (cap 6) and Heal the Enemy 3 (cap at their max HP). Then draw one random Item from the current loot pool, the same draw Catapult and Grappling Hook use. No Poison."
 		},
 		{
 			"ability": "Set the HP of the Enemy, its Neighbors, and yourself to 1 HP",
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 7,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Used up. Not Attack. Block does not apply. Bleed each target for (current HP − 1) in one loss event, stopping at 1. Order: facing Enemy, then left neighbor (clockwise), then right neighbor (counter-clockwise), then you. Skip a neighbor at 0 HP (no revive). Already at 1 loses 0. Anvil goes to 1 anyway. Losing HP still triggers Ogre, Vampire, Spiked Flail, Cowardly King. Coward Attacks when they lose HP (you still have HP and Block); Flee waits until this item finishes. Fight only.",
 			"exceptions": "Bucket 6. Fire storm art. Same Bleed as Cursed Scroll, not Attack.",
 			"explainer": "HP → 1 (you + Enemy + Neighbors)",
@@ -2729,22 +3021,27 @@
 				"kind": "napalm"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "I"
+			"tier": 3,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Used up. Not Attack. Block does not apply. Bleed each target for (current HP − 1) in one loss event, stopping at 1. Order: facing Enemy, then left neighbor (clockwise), then right neighbor (counter-clockwise), then you. Skip a neighbor at 0 HP (no revive). Already at 1 loses 0. Anvil goes to 1 anyway. Losing HP still triggers Ogre, Vampire, Spiked Flail, Cowardly King. Coward Attacks when they lose HP (you still have HP and Block); Flee waits until this item finishes. Fight only."
 		},
 		{
 			"ability": "Block 1. If your Block is now Even, Keep this.",
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 5,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Gain 1 Block. Then if your Block total is even, Keep (spent this fight, still in your hand for later fights, same as Lantern). If odd, used up. Twins only doubles even Block gains, so this 1 is not doubled. Basilisk still blocks Keep. Block resets to 0 each fight, so a first click at 0 becomes 1 (odd) and is used up unless you already held odd Block. Fight only. Not Attack.",
 			"exceptions": "Bucket 7. Coin with Grandpa goblin's face. Not Attack.",
 			"explainer": "(BLK 1) Keep if even",
@@ -2781,25 +3078,30 @@
 			"notes": "Bucket 7. Coin with Grandpa goblin's face. Not Attack.",
 			"ops": {
 				"kind": "blk_even_keep",
-				"n": 1.0
+				"n": 1
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Gain 1 Block. Then if your Block total is even, Keep (spent this fight, still in your hand for later fights, same as Lantern). If odd, used up. Twins only doubles even Block gains, so this 1 is not doubled. Basilisk still blocks Keep. Block resets to 0 each fight, so a first click at 0 becomes 1 (odd) and is used up unless you already held odd Block. Fight only. Not Attack."
 		},
 		{
 			"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Never click this. Listens like Healing Potion. The next enemy Attack whose ATK number is even (2, 4, 6…) and would deal more than 0 after Block/pierce: mid-swing, cut that ATK in half (floor), then apply Block. Discard. 0 ATK and fully blocked even ATK do not fire. Spider Egg is not an enemy. Hornet/Damsel/Kobold/Shambling Mound: waits for the first even swing in that burst, then later swings are full. Two copies: first even spends one. Petrify still listens. Potion can still save if the halved hit kills you.",
 			"exceptions": "Bucket 2. Two round bucklers. Unplayable. Not Egg, not Poison.",
 			"explainer": "Halve next even ATK",
@@ -2838,22 +3140,27 @@
 				"kind": "passive"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Never click this. Listens like Healing Potion. The next enemy Attack whose ATK number is even (2, 4, 6…) and would deal more than 0 after Block/pierce: mid-swing, cut that ATK in half (floor), then apply Block. Discard. 0 ATK and fully blocked even ATK do not fire. Spider Egg is not an enemy. Hornet/Damsel/Kobold/Shambling Mound: waits for the first even swing in that burst, then later swings are full. Two copies: first even spends one. Petrify still listens. Potion can still save if the halved hit kills you."
 		},
 		{
 			"ability": "You and your Enemy lose 2 HP",
 			"author_lock": true,
-			"bucket": -1.0,
+			"bucket": -1,
 			"call_name": "",
 			"card_color": "egg",
-			"count": 0.0,
+			"count": 0,
 			"defined": "Click during a fight. Used up. You lose 2 HP and the facing enemy loses 2 HP. Not Attack: Block does not stop it, Goblin takes it, Flail ticks. Anvil still max 1. Both chips happen even if you would hit 0; Healing Potion can save you. If they hit 0, they are Defeated. If you hit 0 and Potion does not save, you die. Not drafted. Cultist creates it. Tier 0 so Merchant can turn it into a Tier 1 item.",
 			"exceptions": "Token. Not drafted. Cultist creates it. Black card like Egg. HP chip, not Attack.",
 			"explainer": "−2 HP you and Enemy",
@@ -2890,25 +3197,30 @@
 			"notes": "Token. Not drafted. Cultist creates it. Black card like Egg. HP chip, not Attack.",
 			"ops": {
 				"kind": "blood_pact",
-				"n": 2.0
+				"n": 2
 			},
 			"poc": false,
-			"priority": 9.0,
+			"priority": 9,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
-			"type": "I"
+			"tier": 0,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Used up. You lose 2 HP and the facing enemy loses 2 HP. Not Attack: Block does not stop it, Goblin takes it, Flail ticks. Anvil still max 1. Both chips happen even if you would hit 0; Healing Potion can save you. If they hit 0, they are Defeated. If you hit 0 and Potion does not save, you die. Not drafted. Cultist creates it. Tier 0 so Merchant can turn it into a Tier 1 item."
 		},
 		{
 			"ability": "Heal 2. Whenever you Move, you Move an additional space in that direction.",
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Heal 1 (cap 6). Then one other unspent item in your hand Swaps: it is exchanged for a random leftover copy of the same rank from the draft pile, and the old card goes back into that pile. You cannot Swap into a card with no remaining count. Never Swaps the Jar itself. If there is no legal other item (only the Jar, or no leftover copy of that item's Tier), the click is illegal. Keep this unless facing Zombie. Counts as an item use. Swap keyword: exchange for a random Item of the same rank.",
 			"exceptions": "Bucket 0. Jar of grease. Swap uses leftover draft counts.",
 			"explainer": "Heal 2. One Move slides two seats.",
@@ -2946,25 +3258,29 @@
 			"notes": "Bucket 2. On use Heal 2. Passive extra seat on Move while held. Swap and Keep are gone.",
 			"ops": {
 				"kind": "heal_swap_keep",
-				"n": 2.0
+				"n": 2
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": ""
 		},
 		{
 			"ability": "Unplayable. On Item Use, decrease this by 1. When this reaches 0, Die.",
 			"author_lock": true,
-			"bucket": -1.0,
+			"bucket": -1,
 			"call_name": "",
 			"card_color": "egg",
-			"count": 0.0,
+			"count": 0,
 			"defined": "Unplayable token. Starts at 6. Each item use that increments the Beads counter lowers the number by 1. At 1 it pulses. At 0: Die, Healing Potion can save. Overlay picks (Cube, Worm, Merchant, Bell spawn/defeat) do not tick. Bushido dummy throw does tick. Potion auto and Buckler auto do not. Stays between fights until dumped or it hits 0. Curse: Cube, Worm, Bell, Hired Hand, and a full-hand replace cannot dump it. Merchant can still upgrade it.",
 			"exceptions": "Token. Not drafted. Death Bell creates it. Black card like Egg. Starts at 6.",
 			"explainer": "−1 / Item Use  Die at 0",
@@ -3003,23 +3319,28 @@
 				"kind": "toll"
 			},
 			"poc": false,
-			"priority": 9.0,
+			"priority": 9,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
+			"tier": 0,
 			"type": "I",
-			"curse": true
+			"curse": true,
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Unplayable token. Starts at 6. Each item use that increments the Beads counter lowers the number by 1. At 1 it pulses. At 0: Die, Healing Potion can save. Overlay picks (Cube, Worm, Merchant, Bell spawn/defeat) do not tick. Bushido dummy throw does tick. Potion auto and Buckler auto do not. Stays between fights until dumped or it hits 0. Curse: Cube, Worm, Bell, Hired Hand, and a full-hand replace cannot dump it. Merchant can still upgrade it."
 		},
 		{
 			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 9,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1.0,
+			"count": 1,
 			"defined": "While this is in your hand unspent, each time you lose exactly 2 HP in one event, Heal 1. Click during a fight: Lose 2 HP (that also Heals 1), then this is used up. Fight only.",
 			"exceptions": "Needs art.",
 			"explainer": "(HEAL 1 on exact-2 loss) Use: Lose 2",
@@ -3058,14 +3379,19 @@
 				"kind": "pacemaker_use"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "While this is in your hand unspent, each time you lose exactly 2 HP in one event, Heal 1. Click during a fight: Lose 2 HP (that also Heals 1), then this is used up. Fight only."
 		},
 		{
 			"ability": "Eject your Enemy. Draw an Item.",
@@ -3119,15 +3445,20 @@
 			"review_note": "",
 			"status": "live",
 			"tier": 2,
-			"type": "I"
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Challenge only. Click during a fight. Used up. The facing enemy leaves with no loot and Wick does not chip. They go to the bottom of the dungeon deck with permanent HP/ATK/poison. The empty seat fills from the deck; that arrival still gives you an item. War Cry-style passives do not stay as a number."
 		},
 		{
 			"ability": "Turn your opponent into an exact copy of a Neighbor of your choice.",
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 6,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight, then click a living Neighbor. Used up. The facing enemy becomes that Neighbor’s card (name, art, ability) with that Neighbor’s current HP, max HP, ATK minus Commander aura, and marked poison. Seat auras recalculate. No Neighbor: unplayable.",
 			"exceptions": "Spell scroll depicting a fluffy sheep. Needs art.",
 			"explainer": "Copy a Neighbor onto the enemy you face.",
@@ -3166,22 +3497,27 @@
 				"kind": "polymorph"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "I"
+			"tier": 3,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight, then click a living Neighbor. Used up. The facing enemy becomes that Neighbor’s card (name, art, ability) with that Neighbor’s current HP, max HP, ATK minus Commander aura, and marked poison. Seat auras recalculate. No Neighbor: unplayable."
 		},
 		{
 			"ability": "Block 10. Retain leftover block from this combat.",
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 9,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Gain 10 Block. Used up. Leftover Block after this fight stays for the next fight only, then clears.",
 			"exceptions": "Needs art.",
 			"explainer": "(BLK 10) leftover stays for the next fight",
@@ -3218,25 +3554,30 @@
 			"notes": "Needs art.",
 			"ops": {
 				"kind": "blk",
-				"n": 10.0
+				"n": 10
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "I"
+			"tier": 3,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Gain 10 Block. Used up. Leftover Block after this fight stays for the next fight only, then clears."
 		},
 		{
 			"ability": "Heal equal to the amount of HP you most recently lose.",
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 6,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Used up. Heal equal to the last HP-loss event this dungeon. If you have not lost HP yet, unplayable.",
 			"exceptions": "Needs art.",
 			"explainer": "(HEAL = last HP lost)",
@@ -3275,22 +3616,27 @@
 				"kind": "heal_last_loss"
 			},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Used up. Heal equal to the last HP-loss event this dungeon. If you have not lost HP yet, unplayable."
 		},
 		{
 			"ability": "Block 3 if you have no Items that Block. Atk 3 if you have no Items that Attack.",
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 6,
 			"call_name": "",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Used up. Realtime check of the rest of the hotbar: if no other item Grants Block, Gain 3 Block. If no other item deals Attack, deal 3 Attack. One click can do one or both. Other Chakrams do not count. Petrified items and Bushido dummy (or similar silencing) do not count. Marble counts as both, including at 0. Double-Buckler does not count (it does not Grant Block). An item that would Block or Attack for 0 still counts. Grey / unplayable only when both a Block item and an Attack item are sitting unmuted in the hotbar.",
 			"exceptions": "Tier 2. Circular throwing blade. Needs unique art at assets/dungeon/items/chakram.png.",
 			"explainer": "(BLK 3 if no Block Items)  (ATK 3 if no Attack Items)",
@@ -3326,27 +3672,32 @@
 			"name": "Chakram",
 			"notes": "Tier 2. Circular throwing blade. Needs unique art at assets/dungeon/items/chakram.png.",
 			"ops": {
-				"atk": 3.0,
-				"blk": 3.0,
+				"atk": 3,
+				"blk": 3,
 				"kind": "chakram"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Used up. Realtime check of the rest of the hotbar: if no other item Grants Block, Gain 3 Block. If no other item deals Attack, deal 3 Attack. One click can do one or both. Other Chakrams do not count. Petrified items and Bushido dummy (or similar silencing) do not count. Marble counts as both, including at 0. Double-Buckler does not count (it does not Grant Block). An item that would Block or Attack for 0 still counts. Grey / unplayable only when both a Block item and an Attack item are sitting unmuted in the hotbar."
 		},
 		{
 			"ability": "Block 7, then choose a Neighbor to Attack you",
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "Tier 1. Wooden road sign. Paper Fight before ops.",
 			"explainer": "(BLK 7) then a Neighbor Attacks you",
@@ -3383,25 +3734,30 @@
 			"notes": "Tier 1. Wooden road sign. Paper Fight before ops.",
 			"ops": {
 				"kind": "signpost",
-				"n": 7.0
+				"n": 7
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": ""
 		},
 		{
 			"ability": "Your next attack this fight can target Any monster.",
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 7,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Unplayable if no other item in the hotbar deals Attack. Pick one Attack item. That attack can target Any living monster. Great Axe hits that monster and that monster Neighbors. Bag of Marbles is bucket 5, so this is bucket 6. Paper Fight: when the Attack item fires.",
 			"exceptions": "Tier 1. Leather sling. Bucket 6 (after Bag of Marbles). Paper Fight before ops.",
 			"explainer": "Next Attack this fight can target Any monster.",
@@ -3440,22 +3796,27 @@
 				"kind": "sling"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight. Unplayable if no other item in the hotbar deals Attack. Pick one Attack item. That attack can target Any living monster. Great Axe hits that monster and that monster Neighbors. Bag of Marbles is bucket 5, so this is bucket 6. Paper Fight: when the Attack item fires."
 		},
 		{
 			"ability": "Bag an enemy with less HP than you.",
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 7,
 			"call_name": "",
 			"card_color": "utility",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight, on the owner you spun, like The Boot. Empty bag: if their current HP is less than yours, they leave the wheel (no Phoenix / Gargoyle / Commander / Triclops / Wick / Death Bell on this capture) and this card stays, renamed Bag of that monster, with their sprite and the HP they had. Later uses: if the new owner has less HP than the number on the bag, they replace whoever was inside. Bagged counts as Defeated for Mimic gift and kill counters. When the wheel has 0 owners, before a clear, the bag is discarded and the latest captive sits back down as they were. You no longer have the bag, so you cannot bag them with this card again. Unused bag does nothing at a clear.",
 			"exceptions": "Bucket 7 Tier 2 Utility hole. Plays like Cheese; Napalm stays the Cheese of this bucket. Needs unique art.",
 			"explainer": "(ENEMY HP < YOUR HP). They go in the bag.",
@@ -3494,22 +3855,27 @@
 				"kind": "bag_hold"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Click during a fight, on the owner you spun, like The Boot. Empty bag: if their current HP is less than yours, they leave the wheel (no Phoenix / Gargoyle / Commander / Triclops / Wick / Death Bell on this capture) and this card stays, renamed Bag of that monster, with their sprite and the HP they had. Later uses: if the new owner has less HP than the number on the bag, they replace whoever was inside. Bagged counts as Defeated for Mimic gift and kill counters. When the wheel has 0 owners, before a clear, the bag is discarded and the latest captive sits back down as they were. You no longer have the bag, so you cannot bag them with this card again. Unused bag does nothing at a clear."
 		},
 		{
 			"ability": "2 Atk. The next time you or an Enemy would Flee, cancel it and this gains +2 Atk.",
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Sits at Attack 2. Click during a fight to deal its current Attack to the owner you spun, then it is discarded. Whenever you or an Enemy would Flee, that Flee does not happen, a Can't Flee banner shows this card, and its Attack goes up by 2. That can happen again on a later Flee. A petrified copy does not interrupt. Two copies both gain +2. Commander cancelled Flee: they are not Defeated, they do not go to full HP, they stay at the HP they had before that Attack. Phoenix / Egg still transform in this seat. Triclops still lose 2 HP and stay. Basilisk still Petrifies, then stays if this is not petrified.",
 			"exceptions": "Shopping-list hole 02. Bucket 8 Tier 1 Attack. Needs unique black-iron ball and chain art.",
 			"explainer": "(ATK 2. Whenever you or an Enemy would Flee, cancel it. This gains +2 Attack.)",
@@ -3546,25 +3912,30 @@
 			"notes": "Shopping-list hole 02. Pixel: prison ball and chain, black iron.",
 			"ops": {
 				"kind": "atk",
-				"n": 2.0
+				"n": 2
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "I"
+			"tier": 1,
+			"type": "I",
+			"atk_base": 2,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Sits at Attack 2. Click during a fight to deal its current Attack to the owner you spun, then it is discarded. Whenever you or an Enemy would Flee, that Flee does not happen, a Can't Flee banner shows this card, and its Attack goes up by 2. That can happen again on a later Flee. A petrified copy does not interrupt. Two copies both gain +2. Commander cancelled Flee: they are not Defeated, they do not go to full HP, they stay at the HP they had before that Attack. Phoenix / Egg still transform in this seat. Triclops still lose 2 HP and stay. Basilisk still Petrifies, then stays if this is not petrified."
 		},
 		{
 			"ability": "Every 5th Item Discarded is copied into your Hand",
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "",
 			"card_color": "utility",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Unplayable watcher. Drafts at 5. Each real Discard ticks it down. Use and successful Keep do not tick. Bell, Cube, Worm, bribe, failed Keep, and the bag emptying do. A full-hand replace (click a card to make room) does not. At 1 it flashes: the next Discard is copied into the hand as that same card (Grief Jar keeps its stored Block). Recycler stays and resets to 5. If Recycler itself is discarded at 1, it comes back at 5. Two Recyclers at 1 make two copies. Extra copies that will not fit the hand are lost (Can't Gain). Recycler still resets.",
 			"exceptions": "Shopping-list hole 03. Bucket 8 Tier 2 Utility. Needs unique recycle-icon-on-steel-plate art.",
 			"explainer": "(Every 5th Discard copies that Item into your Hand.)",
@@ -3603,22 +3974,27 @@
 				"kind": "recycle_watch"
 			},
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "I"
+			"tier": 2,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Unplayable watcher. Drafts at 5. Each real Discard ticks it down. Use and successful Keep do not tick. Bell, Cube, Worm, bribe, failed Keep, and the bag emptying do. A full-hand replace (click a card to make room) does not. At 1 it flashes: the next Discard is copied into the hand as that same card (Grief Jar keeps its stored Block). Recycler stays and resets to 5. If Recycler itself is discarded at 1, it comes back at 5. Two Recyclers at 1 make two copies. Extra copies that will not fit the hand are lost (Can't Gain). Recycler still resets."
 		},
 		{
 			"ability": "Enemies ignore your Block for 3 Spins",
 			"author_lock": true,
-			"bucket": -1.0,
+			"bucket": -1,
 			"call_name": "",
 			"card_color": "egg",
-			"count": 0.0,
+			"count": 0,
 			"defined": "Unplayable token. Starts at 3. While it sits, all monsters ignore your Block (same pierce as Arrow Head). Each Spin, including the first after it enters your hand: 3 → 2 → 1 → Discard after the third fight. Curse: Cube, Worm, Bell, Hired Hand, and a full-hand replace cannot dump it. Recycler ticks Discards that still happen.",
 			"exceptions": "Token. Not drafted. Rust Bucket creates it. Broken shield + countdown.",
 			"explainer": "Ignore Block. Discard after 3 Spins.",
@@ -3657,23 +4033,28 @@
 				"kind": "rust_watch"
 			},
 			"poc": false,
-			"priority": 9.0,
+			"priority": 9,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
+			"tier": 0,
 			"type": "I",
-			"curse": true
+			"curse": true,
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Unplayable token. Starts at 3. While it sits, all monsters ignore your Block (same pierce as Arrow Head). Each Spin, including the first after it enters your hand: 3 → 2 → 1 → Discard after the third fight. Curse: Cube, Worm, Bell, Hired Hand, and a full-hand replace cannot dump it. Recycler ticks Discards that still happen."
 		},
 		{
 			"ability": "Heal 2.",
 			"author_lock": false,
-			"bucket": -1.0,
+			"bucket": -1,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 0.0,
+			"count": 0,
 			"defined": "SP-23 token. Not drafted. Fairy creates it when Defeated without losing HP. Click during a fight. Heal 2 (cap 6). Used up.",
 			"exceptions": "Token. Not drafted. Fairy creates it. Needs art.",
 			"explainer": "Heal 2",
@@ -3689,17 +4070,22 @@
 			"notes": "Token. Not drafted. Fairy creates it. Needs art.",
 			"ops": {
 				"kind": "heal",
-				"n": 2.0
+				"n": 2
 			},
 			"poc": false,
-			"priority": 9.0,
+			"priority": 9,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
-			"type": "I"
+			"tier": 0,
+			"type": "I",
+			"atk_base": null,
+			"hp_base": null,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "SP-23 token. Not drafted. Fairy creates it when Defeated without losing HP. Click during a fight. Heal 2 (cap 6). Used up."
 		}
 	],
 	"keywords": {
@@ -3717,12 +4103,12 @@
 		{
 			"ability": "",
 			"atk": {
-				"base": 5.0
+				"base": 5
 			},
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
-			"count": 2.0,
+			"count": 2,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "",
@@ -3732,7 +4118,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 2.0
+				"base": 2
 			},
 			"id": "wizard",
 			"locked_at": "2026-10-10",
@@ -3759,24 +4145,32 @@
 			"mode_pool": "all",
 			"name": "Wizard",
 			"poc": true,
-			"priority": 1.0,
+			"priority": 1,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 5,
+			"hp_base": 2,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "",
-			"count": 2.0,
+			"count": 2,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "plain ATK/HP Owner",
@@ -3786,7 +4180,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 7.0
+				"base": 7
 			},
 			"id": "golem",
 			"locked_at": "2026-10-10",
@@ -3810,25 +4204,33 @@
 			"mode_pool": "all",
 			"name": "Golem",
 			"poc": true,
-			"priority": 1.0,
+			"priority": 1,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "M",
-			"updated": "2022-04-20"
+			"updated": "2022-04-20",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 3,
+			"hp_base": 7,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "I cannot take Attack damage.",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "Evasive",
-			"count": 2.0,
+			"count": 2,
 			"defined": "This unit's HP can never be reduced. Note that this unit can be defeated through all other means.",
 			"exceptions": "",
 			"explainer": "",
@@ -3838,7 +4240,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 1.0
+				"base": 1
 			},
 			"id": "goblin",
 			"locked_at": "2026-10-10",
@@ -3865,25 +4267,33 @@
 			"mode_pool": "all",
 			"name": "Goblin",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "starter",
 			"reminder": "Immune to Attacks",
 			"review": "polish",
 			"review_note": "",
 			"special_function": "(No ATK Dmg)",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 3,
+			"hp_base": 1,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "This unit's HP can never be reduced. Note that this unit can be defeated through all other means.",
+			"notes": ""
 		},
 		{
 			"ability": "I copy the HP of the last enemy you faced.",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 1,
 			"call_name": "HP Echo",
-			"count": 2.0,
+			"count": 2,
 			"defined": "On Spin (and after On Spin effects, especially Spider Queen's Egg effect or Ogre's Empath updates), immediately store the enemy's HP in this value. Overwrite each On Spin.",
 			"exceptions": "If this is the first unit faced, set HP to 3.",
 			"explainer": "last enemy HP",
@@ -3893,8 +4303,8 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0,
-				"first_fight_fallback": 3.0,
+				"base": 3,
+				"first_fight_fallback": 3,
 				"formula": "last_mob_hp",
 				"on": "on_spin"
 			},
@@ -3923,24 +4333,32 @@
 			"mode_pool": "all",
 			"name": "Skeleton",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "starter",
 			"reminder": "last enemy HP",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 3,
+			"hp_base": 3,
+			"atk_formula": "",
+			"hp_formula": "last_mob_hp",
+			"flow": "On Spin (and after On Spin effects, especially Spider Queen's Egg effect or Ogre's Empath updates), immediately store the enemy's HP in this value. Overwrite each On Spin.",
+			"notes": "If this is the first unit faced, set HP to 3."
 		},
 		{
 			"ability": "I Attack twice.",
 			"atk": {
-				"base": 2.0
+				"base": 2
 			},
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "Double Strike",
-			"count": 2.0,
+			"count": 2,
 			"defined": "On Resolve Combat, takes its current ATK and deals dmg to the player two times. There should be no special or unique interaction with BLK, this should attack in a logically consistent way to if two enemies simply attacked the player, one after the other. For example, the player may actually BLEED twice if both attacks cause the player to lose health.",
 			"exceptions": "",
 			"explainer": "Attacks twice",
@@ -3950,7 +4368,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"id": "hornet_swarm",
 			"locked_at": "2026-10-10",
@@ -3977,14 +4395,22 @@
 			"mode_pool": "all",
 			"name": "Hornet Swarm",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "starter",
 			"reminder": "Attacks twice",
 			"review": "polish",
 			"review_note": "",
 			"status": "todo",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 2,
+			"hp_base": 3,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On Resolve Combat, takes its current ATK and deals dmg to the player two times. There should be no special or unique interaction with BLK, this should attack in a logically consistent way to if two enemies simply attacked the player, one after the other. For example, the player may actually BLEED twice if both attacks cause the player to lose health.",
+			"notes": ""
 		},
 		{
 			"ability": "I give my Neighbors +1 HP.",
@@ -4042,17 +4468,25 @@
 			"tier": 1,
 			"type": "M",
 			"updates": "Neighboring HP",
-			"when_updates": "On Remove Slice"
+			"when_updates": "On Remove Slice",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 3,
+			"hp_base": 1,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Set each neighbor's HP to its (Max HP + 1).",
+			"notes": ""
 		},
 		{
 			"ability": "When you lose HP, I lose equal HP.",
 			"atk": {
-				"base": 5.0
+				"base": 5
 			},
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 1,
 			"call_name": "Empath",
-			"count": 2.0,
+			"count": 2,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "HP is yours",
@@ -4062,7 +4496,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 10.0
+				"base": 10
 			},
 			"id": "ogre",
 			"locked_at": "2026-10-16",
@@ -4090,26 +4524,34 @@
 			"mode_pool": "all",
 			"name": "Ogre",
 			"poc": false,
-			"priority": 1.0,
+			"priority": 1,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 2,
 			"type": "M",
 			"updated": "2022-04-24",
-			"when_updated": "On Spin"
+			"when_updated": "On Spin",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 5,
+			"hp_base": 10,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "Every time you lose HP, I gain +1 HP and +1 Attack.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 1,
 			"call_name": "Bloodlust",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Each time the player's HP number goes down, every living Vampire on the wheel gains +1 current HP, +1 max HP, and +1 Attack. A 4-heart hit is still +1/+1. A fully blocked hit does nothing. Healing does not remove the bonus. The bonus stays until that Vampire dies or leaves. Quiet Bell stops further gains and keeps the HP and Attack already gained. The new Attack is for the next swing.",
 			"exceptions": "Once per hit or bleed, not once per heart. Every copy on the wheel.",
 			"explainer": "+1 HP and +1 Attack each time you lose HP",
@@ -4119,7 +4561,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "vampire",
 			"locked_at": "2026-10-13",
@@ -4148,24 +4590,30 @@
 			"notes": "Once per hit or bleed, not once per heart. Every copy on the wheel.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "+1/+1 each time you lose HP",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "M"
+			"tier": 3,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 4,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Each time the player's HP number goes down, every living Vampire on the wheel gains +1 current HP, +1 max HP, and +1 Attack. A 4-heart hit is still +1/+1. A fully blocked hit does nothing. Healing does not remove the bonus. The bonus stays until that Vampire dies or leaves. Quiet Bell stops further gains and keeps the HP and Attack already gained. The new Attack is for the next swing."
 		},
 		{
 			"ability": "On Spin, 50%: gain +4 Attack. Otherwise: lose 3 Attack.",
 			"atk": {
-				"base": 5.0
+				"base": 5
 			},
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 5,
 			"call_name": "Hot and Cold",
-			"count": 1.0,
+			"count": 1,
 			"defined": "SP-22 (2026-10-25). Every Spin, each living unsilenced Berserker rolls. 50%: that copy's Attack gains +4. Otherwise it loses 3 Attack. The change stacks. Attack clamps at 0 (further losses do not go negative; the next gain starts from 0). Commander still adds after this. Separate + and − animations.",
 			"exceptions": "",
 			"explainer": "50% +4 Attack, otherwise lose 3 Attack",
@@ -4175,7 +4623,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "berserker",
 			"locked_at": "2026-10-19",
@@ -4204,26 +4652,33 @@
 			"name": "Berserker",
 			"notes": "SP-22. Every Spin. Stacks. Attack clamps at 0.",
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 2,
 			"type": "M",
-			"updated": "2022-04-28"
+			"updated": "2022-04-28",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 5,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "SP-22 (2026-10-25). Every Spin, each living unsilenced Berserker rolls. 50%: that copy's Attack gains +4. Otherwise it loses 3 Attack. The change stacks. Attack clamps at 0 (further losses do not go negative; the next gain starts from 0). Commander still adds after this. Separate + and − animations."
 		},
 		{
 			"ability": "My Attack always equals your HP.",
 			"atk": {
-				"base": 0.0,
+				"base": 0,
 				"formula": "player_hp"
 			},
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "Kill Shot",
-			"count": 2.0,
+			"count": 2,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "Attack always equals your HP",
@@ -4233,7 +4688,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "dire_wolf",
 			"locked_at": "2026-10-17",
@@ -4260,26 +4715,34 @@
 			"mode_pool": "all",
 			"name": "Dire Wolf",
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "Attack always equals your HP",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 2,
 			"type": "M",
-			"when_updated": "On HP Change"
+			"when_updated": "On HP Change",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 0,
+			"hp_base": 4,
+			"atk_formula": "player_hp",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "+1 Atk for each Item you hold.",
 			"atk": {
-				"base": 0.0,
+				"base": 0,
 				"formula": "num_items_at_combat_start"
 			},
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "Hoarder",
-			"count": 2.0,
+			"count": 2,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "Attack = Your Items",
@@ -4289,7 +4752,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"id": "bandit",
 			"locked_at": "2026-10-12",
@@ -4316,28 +4779,36 @@
 			"mode_pool": "all",
 			"name": "Bandit",
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "M",
 			"when_updated": [
 				"On Draft",
 				"On Spin"
-			]
+			],
+			"card_color": "",
+			"ops": {},
+			"atk_base": 0,
+			"hp_base": 3,
+			"atk_formula": "num_items_at_combat_start",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 5,
 			"call_name": "Blood Rise",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "Lowest HP Monster +1 until tied with another",
@@ -4347,7 +4818,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 1.0
+				"base": 1
 			},
 			"id": "leech_league",
 			"locked_at": "2026-10-14",
@@ -4375,29 +4846,37 @@
 			"mode_pool": "all",
 			"name": "Leech League",
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "Lowest HP Monster = 2nd Lowest HP Monster",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "M",
 			"updated": "2026-10-12",
-			"when_updated": "On Spin"
+			"when_updated": "On Spin",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 4,
+			"hp_base": 1,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "When I am Defeated, set your HP to my most recent HP.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 3,
 			"call_name": "Lifelink",
 			"contradiction_ids": [
 				"wraith_captain"
 			],
-			"count": 2.0,
+			"count": 2,
 			"defined": "SP-26 (2026-10-25). Display name stays Wraith. Id stays wraith. 2 HP / 4 Attack, tier 2. When I am Defeated, set your HP to my HP just before the defeating event. One killing hit from 2 uses 2. Several hits use the HP before the last hit. A defeat item or blocking then leaving uses the HP I still have. Lower HP is losing HP (Bleed). Higher HP is a heal. Equal does nothing. Cap at 6. Quiet Bell turns this off.",
 			"exceptions": "SP-26. Sprite stays the existing wraith picture.",
 			"explainer": "Defeated: set your HP to my most recent HP",
@@ -4407,7 +4886,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 2.0
+				"base": 2
 			},
 			"id": "wraith",
 			"locked_at": "2026-10-17",
@@ -4435,25 +4914,32 @@
 			"name": "Wraith",
 			"notes": "SP-26. Display name stays Wraith. Id stays wraith. No id migration.",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 2,
 			"type": "M",
-			"updated": "2022-04-24"
+			"updated": "2022-04-24",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 4,
+			"hp_base": 2,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "SP-26 (2026-10-25). Display name stays Wraith. Id stays wraith. 2 HP / 4 Attack, tier 2. When I am Defeated, set your HP to my HP just before the defeating event. One killing hit from 2 uses 2. Several hits use the HP before the last hit. A defeat item or blocking then leaving uses the HP I still have. Lower HP is losing HP (Bleed). Higher HP is a heal. Equal does nothing. Cap at 6. Quiet Bell turns this off."
 		},
 		{
 			"ability": "If I go down before I Attack, you gain an Item.",
 			"atk": {
-				"base": 5.0
+				"base": 5
 			},
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "Treasure",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Did It Attack? starts False. Set True if the enemy ever attacks. Prevent by killing or defeating with items (not blocking). Draw 1 unseen item, tier-agnostic. If pool empty, draw nothing.",
 			"exceptions": "",
 			"explainer": "Item if I never swing",
@@ -4463,7 +4949,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 6.0
+				"base": 6
 			},
 			"id": "mimic",
 			"locked_at": "2026-10-10",
@@ -4488,25 +4974,33 @@
 			"mode_pool": "all",
 			"name": "Mimic",
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "todo",
-			"tier": 2.0,
+			"tier": 2,
 			"type": "M",
-			"updated": "2022-04-20"
+			"updated": "2022-04-20",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 5,
+			"hp_base": 6,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Did It Attack? starts False. Set True if the enemy ever attacks. Prevent by killing or defeating with items (not blocking). Draw 1 unseen item, tier-agnostic. If pool empty, draw nothing.",
+			"notes": ""
 		},
 		{
 			"ability": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.",
 			"atk": {
-				"base": 0.0
+				"base": 0
 			},
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 9,
 			"call_name": "Guarded by Monsters",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "Neighbors attack, then Heal 3",
@@ -4516,7 +5010,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 9.0
+				"base": 9
 			},
 			"id": "two_headed_serpent",
 			"locked_at": "2026-10-17",
@@ -4541,16 +5035,24 @@
 			],
 			"log_hint": "Neighbors hit, then it heals",
 			"mode_pool": "all",
-			"name": "Damsel In Distress",
+			"name": "Damsel in Distress",
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "M"
+			"tier": 3,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 0,
+			"hp_base": 9,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "My Attack always equals my HP.",
@@ -4558,9 +5060,9 @@
 				"formula": "own_hp"
 			},
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "Body Slam",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer.",
 			"explainer": "Attack equals HP",
@@ -4570,7 +5072,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 9.0
+				"base": 9
 			},
 			"id": "slime_boss",
 			"locked_at": "2026-10-10",
@@ -4597,25 +5099,33 @@
 			"mode_pool": "all",
 			"name": "Slime Boss",
 			"poc": false,
-			"priority": 2.0,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "M",
-			"when_updated": "On Enemy HP Change"
+			"when_updated": "On Enemy HP Change",
+			"card_color": "",
+			"ops": {},
+			"atk_base": null,
+			"hp_base": 9,
+			"atk_formula": "own_hp",
+			"hp_formula": "",
+			"flow": "",
+			"notes": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer."
 		},
 		{
 			"ability": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 6,
 			"call_name": "Egg Layer",
-			"count": 1.0,
+			"count": 1,
 			"defined": "(Changed) Only attacks once, no more double attack.",
 			"exceptions": "",
 			"explainer": "Spider Egg: an Item that on use deals you 2 Atk, or is devoured by the Queen to give her +2 HP and +2 ATK",
@@ -4625,7 +5135,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"id": "spider_queen",
 			"locked_at": "2026-10-17",
@@ -4653,28 +5163,36 @@
 			"mode_pool": "adventure",
 			"name": "Spider Queen",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "M",
-			"updated": "2022-04-24"
+			"updated": "2022-04-24",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 3,
+			"hp_base": 3,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "(Changed) Only attacks once, no more double attack.",
+			"notes": ""
 		},
 		{
 			"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee and the wheel Spins at random.",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "War Cry",
 			"contradiction_ids": [
 				"commander"
 			],
-			"count": 2.0,
+			"count": 2,
 			"defined": "Set each neighbor ATK to Base ATK + 1.",
 			"exceptions": "",
 			"explainer": "Neighbors +2 Attack",
@@ -4685,7 +5203,7 @@
 			},
 			"function_flow": "Set each neighbor ATK to Base ATK + 1.",
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"id": "commander",
 			"locked_at": "2026-10-17",
@@ -4713,28 +5231,36 @@
 			"mode_pool": "all",
 			"name": "Commander",
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "M",
-			"updated": "2022-04-24"
+			"updated": "2022-04-24",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 3,
+			"hp_base": 3,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Set each neighbor ATK to Base ATK + 1.",
+			"notes": ""
 		},
 		{
 			"ability": "My Attack ignores Block.",
 			"atk": {
-				"base": 6.0
+				"base": 6
 			},
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "Firebreather",
 			"contradiction_ids": [
 				"dragon"
 			],
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "ignores Block",
@@ -4744,7 +5270,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 6.0
+				"base": 6
 			},
 			"id": "dragon",
 			"locked_at": "2026-10-10",
@@ -4771,26 +5297,34 @@
 			"mode_pool": "all",
 			"name": "Dragon",
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"special_function": "On Spin, double the first BLK the player gains or ATK they deal, then remove trigger.",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "M",
-			"updated": "2022-04-24"
+			"updated": "2022-04-24",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 6,
+			"hp_base": 6,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "",
+			"notes": ""
 		},
 		{
 			"ability": "I Attack you for 2 Damage each time I take ATK Damage.",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 0.0,
+			"bucket": 0,
 			"call_name": "Spiky",
-			"count": 1.0,
+			"count": 1,
 			"defined": "ATK 3, HP 5. Each time this owner receives ATK damage (including a killing blow), the player takes 2 ATK; block applies. Defeat and poison do not poke. Goblin-style immunity does not apply to this owner.",
 			"exceptions": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
 			"explainer": "2 Thorns",
@@ -4800,7 +5334,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 5.0
+				"base": 5
 			},
 			"id": "needleback",
 			"locked_at": "2026-10-19",
@@ -4828,24 +5362,32 @@
 			"mode_pool": "all",
 			"name": "Needleback",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 3,
+			"hp_base": 5,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "ATK 3, HP 5. Each time this owner receives ATK damage (including a killing blow), the player takes 2 ATK; block applies. Defeat and poison do not poke. Goblin-style immunity does not apply to this owner.",
+			"notes": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists."
 		},
 		{
 			"ability": "When you Spin me, feed me one of two items.",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "Devour Item",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On spin, if you have 0 items, nothing. If 1, you must feed that one. If 2 or more, two random items are offered and you must feed one. The discard is not an item use. ATK/HP unchanged.",
 			"exceptions": "Not an item use: no Kobold extra, no Echo update, no Harpy after the feed.",
 			"explainer": "Feed me one",
@@ -4855,7 +5397,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "gelatinous_cube",
 			"locked_at": "2026-10-17",
@@ -4883,24 +5425,32 @@
 			"mode_pool": "all",
 			"name": "Gelatinous Cube",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "feed me one of two items",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 3,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On spin, if you have 0 items, nothing. If 1, you must feed that one. If 2 or more, two random items are offered and you must feed one. The discard is not an item use. ATK/HP unchanged.",
+			"notes": "Not an item use: no Kobold extra, no Echo update, no Harpy after the feed."
 		},
 		{
 			"ability": "I petrify your highest Attack item until you Spin again.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "Petrify",
-			"count": 1.0,
+			"count": 1,
 			"defined": "After spin numbers, the highest Attack item in hand becomes Unplayable until the next Spin. Tie is random. No Attack items: nothing. Longbow and Spiked Shield count. Boot and Poison Flask do not. Smoke is a new Spin, so it clears. Attack still works. Cannot be Defeated unless Quiet Bell has silenced me.",
 			"exceptions": "Petrify tooltip: Unplayable until your next Spin.",
 			"explainer": "Petrify highest ATK",
@@ -4910,7 +5460,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 5.0
+				"base": 5
 			},
 			"id": "gargoyle",
 			"locked_at": "2026-10-17",
@@ -4937,14 +5487,22 @@
 			"mode_pool": "all",
 			"name": "Gargoyle",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 4,
+			"hp_base": 5,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "After spin numbers, the highest Attack item in hand becomes Unplayable until the next Spin. Tie is random. No Attack items: nothing. Longbow and Spiked Shield count. Boot and Poison Flask do not. Smoke is a new Spin, so it clears. Attack still works. Cannot be Defeated unless Quiet Bell has silenced me.",
+			"notes": "Petrify tooltip: Unplayable until your next Spin."
 		},
 		{
 			"ability": "I attack you when your Spin lands on me, and after each item you use.",
@@ -4999,17 +5557,25 @@
 			"review_note": "",
 			"status": "live",
 			"tier": 2,
-			"type": "M"
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 2,
+			"hp_base": 5,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On spin, one swing of my current Attack (Block works). After each item fully resolves, if I am still alive, one more swing. Ceases when you click Done or I am Defeated/Slain. Done still takes the normal hit. Not Attack = Block.",
+			"notes": "One swing, fight stays open. If an item already killed me, no extra swing."
 		},
 		{
 			"ability": "I attack an extra time for each item you use this fight.",
 			"atk": {
-				"base": 2.0
+				"base": 2
 			},
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 6,
 			"call_name": "Trap Card",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On Done, swing count is 1 plus items used this fight. Cube feed does not count. Block is spent per swing.",
 			"exceptions": "0 items = 1 swing. 2 items = 3 swings.",
 			"explainer": "(1 + items used)",
@@ -5019,10 +5585,10 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 6.0
+				"base": 6
 			},
 			"id": "kobold_trapper",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5038,30 +5604,39 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"call_name"
+				"call_name",
+				"review"
 			],
 			"log_hint": "Extra hits per item used",
 			"mode_pool": "all",
 			"name": "Kobold Trapper",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
-			"review": "refined",
+			"review": "change",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 2,
+			"hp_base": 6,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On Done, swing count is 1 plus items used this fight. Cube feed does not count. Block is spent per swing.",
+			"notes": "0 items = 1 swing. 2 items = 3 swings."
 		},
 		{
 			"ability": "If I live, I leave two Tough Monsters in my place.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 7,
 			"call_name": "Disassemble",
-			"count": 1.0,
+			"count": 1,
 			"defined": "If you do not Defeat or Slay me, I leave and two random Tough monsters sit immediately, even if that grows the wheel past 8. You are not in a new fight yet.",
 			"exceptions": "Quiet Bell strips this: I leave like anyone else, no heirs.",
 			"explainer": "Two Tough monsters if I live",
@@ -5071,7 +5646,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 7.0
+				"base": 7
 			},
 			"id": "clockwork_knight",
 			"locked_at": "2026-10-17",
@@ -5098,25 +5673,32 @@
 			"mode_pool": "adventure",
 			"name": "Clockwork Knight",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "M"
+			"tier": 3,
+			"type": "M",
+			"ops": {},
+			"atk_base": 4,
+			"hp_base": 7,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "If you do not Defeat or Slay me, I leave and two random Tough monsters sit immediately, even if that grows the wheel past 8. You are not in a new fight yet.",
+			"notes": "Quiet Bell strips this: I leave like anyone else, no heirs."
 		},
 		{
 			"ability": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 9,
 			"call_name": "Petrifying Gaze",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "First Spin only. If Quiet Bell is on, I am a plain 4 ATK / 4 HP and the first time is spent. Otherwise Petrify every even-numbered item in the full hand, counting from the first position (2nd, 4th, 6th, …), with overlay and grey 3, then Flee (random Spin, I stay on the wheel). The follow-up Spin ticks 3 → 2. If that Spin lands me again, I stay and fight; first time is already used. Each Spin ticks petrify counts; at 0 they are clickable during that Spin before Gargoyle / Hydra. Later landings are a 4 / 4 fight. Fight only for the gaze. Decay (Zombie) is the old Famine rule.",
 			"exceptions": "Bucket 7. Uses the old Basilisk sprite. Flee Shift line. Grey countdown on petrified items.",
 			"explainer": "First Spin: Flee, petrify 2nd, 4th, … for 3 Spins",
@@ -5126,7 +5708,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "basilisk",
 			"locked_at": "2026-10-19",
@@ -5156,24 +5738,29 @@
 			"notes": "Bucket 7. Uses the old Basilisk sprite. Flee Shift line. Grey countdown on petrified items.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "M"
+			"tier": 3,
+			"type": "M",
+			"atk_base": 4,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "First Spin only. If Quiet Bell is on, I am a plain 4 ATK / 4 HP and the first time is spent. Otherwise Petrify every even-numbered item in the full hand, counting from the first position (2nd, 4th, 6th, …), with overlay and grey 3, then Flee (random Spin, I stay on the wheel). The follow-up Spin ticks 3 → 2. If that Spin lands me again, I stay and fight; first time is already used. Each Spin ticks petrify counts; at 0 they are clickable during that Spin before Gargoyle / Hydra. Later landings are a 4 / 4 fight. Fight only for the gaze. Decay (Zombie) is the old Famine rule."
 		},
 		{
 			"ability": "Attack or Block values that are Even happen twice against me.",
 			"atk": {
-				"base": 6.0
+				"base": 6
 			},
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 5,
 			"call_name": "Doubly Troubled",
-			"count": 1.0,
+			"count": 1,
 			"defined": "While you fight me, an even Attack number hits me twice as two separate Attacks of that number. An even Block you gain while facing me is gained twice. Odd numbers happen once. Quiet Bell strips this.",
 			"exceptions": "Anvil would take 1 from each of those two Attacks. Poison Flask is not an Attack.",
 			"explainer": "Even Attack or Block: twice",
@@ -5183,7 +5770,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 6.0
+				"base": 6
 			},
 			"id": "hollow",
 			"locked_at": "2026-10-17",
@@ -5210,25 +5797,33 @@
 			"mode_pool": "all",
 			"name": "Twins",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 6,
+			"hp_base": 6,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "While you fight me, an even Attack number hits me twice as two separate Attacks of that number. An even Block you gain while facing me is gained twice. Odd numbers happen once. Quiet Bell strips this.",
+			"notes": "Anvil would take 1 from each of those two Attacks. Poison Flask is not an Attack."
 		},
 		{
 			"ability": "I gain Atk equal to your leftmost Atk Item",
 			"atk": {
-				"base": 1.0,
+				"base": 1,
 				"formula": "Base Atk (0) + Leftmost Item with an Atk value"
 			},
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "Leftie",
-			"count": 1.0,
+			"count": 1,
 			"defined": "My Attack is the live Attack number on your leftmost item that has an Attack number, after the usual hand sort, skipping cards with no Attack number. It updates on Spin and when you use an item. If you have no such item, my Attack is 3. Quiet Bell: printed Attack.",
 			"exceptions": "Spent cards are skipped. Petrified cards have no Attack number for this.",
 			"explainer": "Leftmost Attack, or 3",
@@ -5238,7 +5833,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "beggar",
 			"locked_at": "2026-10-17",
@@ -5266,24 +5861,32 @@
 			"mode_pool": "all",
 			"name": "Beggar",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 1,
+			"hp_base": 4,
+			"atk_formula": "Base Atk (0) + Leftmost Item with an Atk value",
+			"hp_formula": "",
+			"flow": "My Attack is the live Attack number on your leftmost item that has an Attack number, after the usual hand sort, skipping cards with no Attack number. It updates on Spin and when you use an item. If you have no such item, my Attack is 3. Quiet Bell: printed Attack.",
+			"notes": "Spent cards are skipped. Petrified cards have no Attack number for this."
 		},
 		{
 			"ability": "I Lose 2 HP each time a Neighbor is Defeated",
 			"atk": {
-				"base": 6.0
+				"base": 6
 			},
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 3,
 			"call_name": "Death Toll",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When a Neighbor's fight ends as Defeated, Slain, or Blocked, I lose 2 HP. Flee (Cowardly King, Commander) does not count. If this drops me to 0 HP, I am Defeated.",
 			"exceptions": "",
 			"explainer": "-2 HP per Neighbor Defeated.",
@@ -5293,7 +5896,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 10.0
+				"base": 10
 			},
 			"id": "wick",
 			"locked_at": "2026-10-22",
@@ -5321,24 +5924,32 @@
 			"mode_pool": "all",
 			"name": "Wick",
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 6,
+			"hp_base": 10,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "When a Neighbor's fight ends as Defeated, Slain, or Blocked, I lose 2 HP. Flee (Cowardly King, Commander) does not count. If this drops me to 0 HP, I am Defeated.",
+			"notes": ""
 		},
 		{
 			"ability": "I cannot lose more than 1 HP at a time.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 3,
 			"call_name": "Tough Blood",
-			"count": 1.0,
+			"count": 1,
 			"defined": "I cannot lose more than 1 HP from one source. Attack, Poison Flask, and other HP loss each chip 1. Defeat still works. Two separate Attacks chip 1 twice. Quiet Bell strips this, so full Attack lands.",
 			"exceptions": "Needleback poke is not an Item hitting me. Poison Flask is not an Attack. Extra Attacks each chip 1.",
 			"explainer": "Max 1 HP per source",
@@ -5348,7 +5959,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"id": "anvil",
 			"locked_at": "2026-10-17",
@@ -5375,24 +5986,32 @@
 			"mode_pool": "all",
 			"name": "Anvil",
 			"poc": false,
-			"priority": 4.0,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 4,
+			"hp_base": 3,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "I cannot lose more than 1 HP from one source. Attack, Poison Flask, and other HP loss each chip 1. Defeat still works. Two separate Attacks chip 1 twice. Quiet Bell strips this, so full Attack lands.",
+			"notes": "Needleback poke is not an Item hitting me. Poison Flask is not an Attack. Extra Attacks each chip 1."
 		},
 		{
 			"ability": "When my Neighbors would take Attack Damage, I take it instead",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": false,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "Protector",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When a neighbor would take Attack damage, I take that hit instead. Each Bodyguard does this once per hit, so a line of them passes it to the last Bodyguard. The pass is shown before HP changes. Double Axe adds my own hit and each neighbor's hit onto that end. If the hit was aimed at the Twins, the number doubles first. A hit aimed at Goblin still comes to me. If I die while I am not the one you are facing, I leave like a Crossbow kill. Quiet Bell turns this off.",
 			"exceptions": "Bucket 2. Right is counterclockwise when a King is also passing. Goblin still shows Immune to Attack Damage when the hit actually lands on Goblin.",
 			"explainer": "Takes Neighbors' Attack damage",
@@ -5402,7 +6021,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"id": "bodyguard",
 			"locked_at": "",
@@ -5410,65 +6029,97 @@
 			"log_hint": "Takes hits for neighbors",
 			"mode_pool": "all",
 			"name": "Bodyguard",
-			"notes": "Bucket 2.",
+			"notes": "Bucket 2. Right is counterclockwise when a King is also passing. Goblin still shows Immune to Attack Damage when the hit actually lands on Goblin.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 3,
+			"hp_base": 3,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "When a neighbor would take Attack damage, I take that hit instead. Each Bodyguard does this once per hit, so a line of them passes it to the last Bodyguard. The pass is shown before HP changes. Double Axe adds my own hit and each neighbor's hit onto that end. If the hit was aimed at the Twins, the number doubles first. A hit aimed at Goblin still comes to me. If I die while I am not the one you are facing, I leave like a Crossbow kill. Quiet Bell turns this off."
 		},
 		{
-			"ability": "When you Attack me, my Neighbor to the Right takes it instead. When I attack, I Flee before being Defeated.",
+			"ability": "Any time I lose HP, I command the monster to my right to Attack you immediately",
 			"atk": {
-				"base": 2.0
+				"base": 2
 			},
-			"author_lock": false,
-			"bucket": 6.0,
-			"call_name": "Guards!",
-			"count": 1.0,
-			"defined": "Attack damage aimed at me goes to the next living monster on my right, counterclockwise. Other Kings pass it on. Each King does this once per hit. A loop means nobody takes that damage. If I am the only monster, I take it. If the walk ends on Goblin, Goblin takes 0 and shows Immune to Attack Damage, unless a Bodyguard then takes the hit. Bodyguards pass once each to the end of their line. The walk is shown before HP changes. Double Axe's own hit and my passed hit both land. Poison Flask, defeat items, and Net still hit me. After I attack from Take or Safe, I stay on the wheel, I am not counted as defeated, and the wheel spins again. Damsel's neighbors already stay, so that does not stack. Quiet Bell turns this off.",
-			"exceptions": "Bucket 9. One Poison Flask deals 5, so a fresh King is left at 1 HP. Flee here means he stays after his own attack. It is not Commander's shuffle.",
-			"explainer": "Right Neighbor takes the hit. I stay after I attack.",
+			"author_lock": true,
+			"bucket": 6,
+			"call_name": "Vindictive",
+			"count": 1,
+			"defined": "Whenever I lose HP (Attack, Poison Flask, Napalm, poison ticks), after the current item finishes, the living monster in the one seat counter-clockwise Attacks you the same way a Damsel neighbor Attacks. One loss event is one command, including a killing blow. Empty or dead right seat: nobody. Defeat items do not command. Hornet extra swings, Shambling falling apart, pierce, and current Attack all count. Spiked Flail or Needleback chipping me again commands again. Quiet Bell on me turns this off.",
+			"exceptions": "Bucket 6, tier 3. Id stays cowardly_king. Right is one seat counter-clockwise like Right Bracer. Any is plain English, not the Any-monster keyword.",
+			"explainer": "When I lose HP, the monster on my right Attacks you.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
 			"hp": {
-				"base": 6.0
+				"base": 8
 			},
 			"id": "cowardly_king",
-			"locked_at": "",
-			"locked_fields": [],
-			"log_hint": "Hits you and flees if hurt",
+			"locked_at": "2026-10-28",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color",
+				"review"
+			],
+			"log_hint": "Right monster Attacks when I lose HP",
 			"mode_pool": "all",
-			"name": "Cowardly King",
-			"notes": "Bucket 9. One Poison Flask leaves him at 1 HP.",
+			"name": "Petty King",
+			"notes": "Bucket 6, tier 3. Id stays cowardly_king. Right is one seat counter-clockwise like Right Bracer. Any is plain English, not the Any-monster keyword.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
-			"reminder": "",
-			"review": "rough",
+			"reminder": "When I lose HP, the monster on my right Attacks you.",
+			"review": "change",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "M"
+			"tier": 3,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 2,
+			"hp_base": 8,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Whenever I lose HP (Attack, Poison Flask, Napalm, poison ticks), after the current item finishes, the living monster in the one seat counter-clockwise Attacks you the same way a Damsel neighbor Attacks. One loss event is one command, including a killing blow. Empty or dead right seat: nobody. Defeat items do not command. Hornet extra swings, Shambling falling apart, pierce, and current Attack all count. Spiked Flail or Needleback chipping me again commands again. Quiet Bell on me turns this off."
 		},
 		{
 			"ability": "When you Spin me, choose an Item and I will upgrade it",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 5,
 			"call_name": "Fair Trade",
-			"count": 1.0,
+			"count": 1,
 			"defined": "After Spin, and after Spider Queen lays an egg, every item in hand that still has a remaining copy in this dungeon’s item pile of the next tier gets a button. That copy is used up. Tier 0 becomes Tier 1, Tier 1 becomes Tier 2, Tier 2 becomes Tier 3, Tier 3 stays Tier 3. You cannot go over a card’s copy count. You must pick one of those buttons before using items or Done. Clicking an item with nothing legal left leaves it as it is; you still pick a different item. If no item has a legal upgrade, nothing. Quiet Bell turns this off.",
 			"exceptions": "Bucket 4. Remaining dungeon pile, that copy is used up. Two Sais is legal. A third is not. A new Spider Egg laid on this spin can be picked if a Tier 1 copy is still in the pile.",
 			"explainer": "Choose an item. I upgrade it.",
@@ -5478,7 +6129,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "merchant",
 			"locked_at": "2026-10-17",
@@ -5508,24 +6159,30 @@
 			"notes": "Bucket 4. Remaining dungeon pile, that copy is used up. Two Sais is legal. A third is not. A new Spider Egg laid on this spin can be picked if a Tier 1 copy is still in the pile.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "Choose an item. I upgrade it.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 4,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "After Spin, and after Spider Queen lays an egg, every item in hand that still has a remaining copy in this dungeon’s item pile of the next tier gets a button. That copy is used up. Tier 0 becomes Tier 1, Tier 1 becomes Tier 2, Tier 2 becomes Tier 3, Tier 3 stays Tier 3. You cannot go over a card’s copy count. You must pick one of those buttons before using items or Done. Clicking an item with nothing legal left leaves it as it is; you still pick a different item. If no item has a legal upgrade, nothing. Quiet Bell turns this off."
 		},
 		{
 			"ability": "When you Spin me, Gain a Shield",
 			"atk": {
-				"base": 7.0
+				"base": 7
 			},
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 1,
 			"call_name": "Blockhead",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Only a real Spin onto me. I walk to the closest empty hotbar slot, you Gain a Shield (a fresh extra copy), then the bar re-sorts into the Block group. Grappling Hook and Damsel neighbors do not pay. Quiet Bell turns this off. Hand at 50: skip.",
 			"exceptions": "Bucket 8. The Shield is the live Shield card. You can click it this fight.",
 			"explainer": "Gain a Shield",
@@ -5535,7 +6192,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"id": "juggernaut",
 			"locked_at": "2026-10-19",
@@ -5565,24 +6222,30 @@
 			"notes": "Bucket 8. The Shield is the live Shield card. You can click it this fight.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "When you Spin me, Gain a Shield.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 7,
+			"hp_base": 3,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "Only a real Spin onto me. I walk to the closest empty hotbar slot, you Gain a Shield (a fresh extra copy), then the bar re-sorts into the Block group. Grappling Hook and Damsel neighbors do not pay. Quiet Bell turns this off. Hand at 50: skip."
 		},
 		{
 			"ability": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 7,
 			"call_name": "Health Insurance",
-			"count": 1.0,
+			"count": 1,
 			"defined": "After every Spin while a living unsilenced Cleric is on the wheel. Automatic On Spin first (Cursed Scroll, Grief Jar, Harpy, poison, leech, Queen eggs, Juggernaut). Then if you are still alive and missing at least 3 HP, each Cleric in seat order: if still missing 3, Heal 3 and delete the lowest-tier item (ties random, Egg tier 0). Empty hand still Heals 3. Then Merchant or Cube may ask. Take, Done, and fight chips do not trigger this. Quiet Bell turns this off.",
 			"exceptions": "Bucket 6. Spider Egg is Tier 0. Missing 3 HP means 3 hearts or fewer. Two Clerics: the second only pays if you are still missing 3 after the first Heal 3.",
 			"explainer": "After Spin: if missing 3 HP, Heal 3 and take worst item",
@@ -5592,7 +6255,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 5.0
+				"base": 5
 			},
 			"id": "cleric",
 			"locked_at": "2026-10-17",
@@ -5618,28 +6281,34 @@
 			"log_hint": "Heals 3, or takes an item",
 			"mode_pool": "all",
 			"name": "Cleric",
-			"notes": "Bucket 6. Spider Egg is Tier 0.",
+			"notes": "Bucket 6. Spider Egg is Tier 0. Missing 3 HP means 3 hearts or fewer. Two Clerics: the second only pays if you are still missing 3 after the first Heal 3.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "After you Spin, if missing 3 HP, Heal 3 and I take your worst item.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 4,
+			"hp_base": 5,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "After every Spin while a living unsilenced Cleric is on the wheel. Automatic On Spin first (Cursed Scroll, Grief Jar, Harpy, poison, leech, Queen eggs, Juggernaut). Then if you are still alive and missing at least 3 HP, each Cleric in seat order: if still missing 3, Heal 3 and delete the lowest-tier item (ties random, Egg tier 0). Empty hand still Heals 3. Then Merchant or Cube may ask. Take, Done, and fight chips do not trigger this. Quiet Bell turns this off."
 		},
 		{
 			"ability": "When I lose HP or Attack, I die. My Neighbors each gain HP equal to my remaining HP.",
 			"atk": {
-				"base": 0.0
+				"base": 0
 			},
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 6,
 			"call_name": "Noble Death",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "SP-24 (2026-10-28). 7 HP / 0 Attack. I die on any HP loss (including poison ticks), when I would be Defeated, or when I Attack (0 Attack still Attacks). On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Attack / Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
 			"exceptions": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
 			"explainer": "On HP loss or Attack: I die. Neighbors gain my remaining HP",
@@ -5649,7 +6318,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 7.0
+				"base": 7
 			},
 			"id": "martyr",
 			"locked_at": "2026-10-28",
@@ -5679,25 +6348,30 @@
 			"notes": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "On HP loss or Attack: I die. Neighbors gain my remaining HP.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"atk_base": 0,
+			"hp_base": 7,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "SP-24 (2026-10-28). 7 HP / 0 Attack. I die on any HP loss (including poison ticks), when I would be Defeated, or when I Attack (0 Attack still Attacks). On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Attack / Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off."
 		},
 		{
 			"ability": "When I would take Attack damage, both of my Neighbors take it instead.",
 			"atk": {
-				"base": 8.0
+				"base": 8
 			},
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 3,
 			"call_name": "Refract Damage",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When Attack would hit me, I take 0. Living neighbors take that Attack as if you attacked them, left (clockwise) first, then right. One living neighbor takes the full hit once. Zero living neighbors: I take it. A loop (two Prisms) fizzles that share. Needleback, Twins, Bodyguard, Goblin, Anvil apply on the one who actually takes it. Poison, Boot, Sledgehammer still hit me. Quiet Bell turns this off.",
 			"exceptions": "Bucket 4. Double Axe and bows still refract the share aimed at me.",
 			"explainer": "Neighbors take my Attack damage",
@@ -5707,7 +6381,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 6.0
+				"base": 6
 			},
 			"id": "prism",
 			"locked_at": "2026-10-22",
@@ -5737,25 +6411,30 @@
 			"notes": "Bucket 4. Double Axe and bows still refract the share aimed at me.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "Attack at me hits both neighbors instead.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "M"
+			"tier": 3,
+			"type": "M",
+			"atk_base": 8,
+			"hp_base": 6,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "When Attack would hit me, I take 0. Living neighbors take that Attack as if you attacked them, left (clockwise) first, then right. One living neighbor takes the full hit once. Zero living neighbors: I take it. A loop (two Prisms) fizzles that share. Needleback, Twins, Bodyguard, Goblin, Anvil apply on the one who actually takes it. Poison, Boot, Sledgehammer still hit me. Quiet Bell turns this off."
 		},
 		{
 			"ability": "On Spin, my Neighbors Gain 2 Poison and Heal 2. While I live, Poison does not activate.",
 			"atk": {
-				"base": 2.0
+				"base": 2
 			},
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 6,
 			"call_name": "Outbreak",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "SP-28 (2026-10-28). On every Spin while I live unsilenced: each living Neighbor Gains 2 Poison and Heals 2 (cap at their max HP). Poison stacks keep growing. While I live unsilenced, Poison NEVER activates — monster poison and the player's poison both stay frozen. On the first Spin after I die (or Quiet Bell silences every living Plague Doctor), stored Poison activates normally. When Poison would activate but is blocked, show my slash portrait and the dissolving line 'Poison does not activate'.",
 			"exceptions": "SP-28. Bucket 5. Freeze-all poison while alive (player + monsters). Quiet Bell turns this off.",
 			"explainer": "Spin: Neighbors +2 Poison and Heal 2. Poison frozen while I live.",
@@ -5765,7 +6444,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"id": "plague_doctor",
 			"locked_at": "2026-10-28",
@@ -5795,25 +6474,30 @@
 			"notes": "SP-28. Bucket 5. Freeze-all poison while alive (player + monsters). Quiet Bell turns this off.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "On Spin: Neighbors Gain 2 Poison and Heal 2. Poison does not activate while I live.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"atk_base": 2,
+			"hp_base": 3,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "SP-28 (2026-10-28). On every Spin while I live unsilenced: each living Neighbor Gains 2 Poison and Heals 2 (cap at their max HP). Poison stacks keep growing. While I live unsilenced, Poison NEVER activates — monster poison and the player's poison both stay frozen. On the first Spin after I die (or Quiet Bell silences every living Plague Doctor), stored Poison activates normally. When Poison would activate but is blocked, show my slash portrait and the dissolving line 'Poison does not activate'."
 		},
 		{
 			"ability": "If you Discard an item when facing me, I will Attack one of my Neighbors and Flee.",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 7,
 			"call_name": "Bribe",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "After Spin, overlay. Click any card in hand (Hex, Potion, Egg, Marble, petrified) to Discard it. That is not an item use. I deal my Attack to one living Neighbor at random (Pocketwatch rules: Needleback hits me). Then I Flee. No living Neighbors: Decline only, I do not Flee. Empty hand: overlay, Decline only, then a snarky line and we fight. Quiet Bell turns this off. Decline: snark, then ordinary combat.",
 			"exceptions": "Bucket 6. Flee keeps the live tooltip.",
 			"explainer": "Discard an item: I Attack a Neighbor and Flee.",
@@ -5823,7 +6507,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "hired_hand",
 			"locked_at": "2026-10-18",
@@ -5853,25 +6537,30 @@
 			"notes": "Bucket 6. Flee keeps the live tooltip.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "Discard an item: I Attack a Neighbor and Flee.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"atk_base": 3,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "After Spin, overlay. Click any card in hand (Hex, Potion, Egg, Marble, petrified) to Discard it. That is not an item use. I deal my Attack to one living Neighbor at random (Pocketwatch rules: Needleback hits me). Then I Flee. No living Neighbors: Decline only, I do not Flee. Empty hand: overlay, Decline only, then a snarky line and we fight. Quiet Bell turns this off. Decline: snark, then ordinary combat."
 		},
 		{
 			"ability": "When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 7,
 			"call_name": "Even Killer",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When you Spin me (same moment as Gargoyle, before Queen eggs and Juggernaut Shield): look at the live Attack or Block number on each item in hand. Egg counts. 0 is even. Heal, Defeat, Poison, Hex, Potion, Bag, Magnet, and Smoke do not. Even numbers are Petrified (Unplayable until your next Spin, same overlay as Gargoyle). Then I Gain +2 Attack for each item petrified this landing. That Attack stays on me for the dungeon and stacks if you Spin me again. Quiet Bell after I fired: I keep the Attack; I will not Petrify or Gain on a later landing. Quiet Bell before I fire: this landing does nothing.",
 			"exceptions": "Bucket 7. Petrify tooltip is Gargoyle’s: Unplayable until your next Spin.",
 			"explainer": "Petrify even Attack and Block. +2 Attack each.",
@@ -5881,7 +6570,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 5.0
+				"base": 5
 			},
 			"id": "hydra",
 			"locked_at": "2026-10-19",
@@ -5911,25 +6600,30 @@
 			"notes": "Bucket 7. Petrify tooltip is Gargoyle’s: Unplayable until your next Spin.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "Petrify even Attack and Block. +2 Attack each.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "M"
+			"tier": 3,
+			"type": "M",
+			"atk_base": 3,
+			"hp_base": 5,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "When you Spin me (same moment as Gargoyle, before Queen eggs and Juggernaut Shield): look at the live Attack or Block number on each item in hand. Egg counts. 0 is even. Heal, Defeat, Poison, Hex, Potion, Bag, Magnet, and Smoke do not. Even numbers are Petrified (Unplayable until your next Spin, same overlay as Gargoyle). Then I Gain +2 Attack for each item petrified this landing. That Attack stays on me for the dungeon and stacks if you Spin me again. Quiet Bell after I fired: I keep the Attack; I will not Petrify or Gain on a later landing. Quiet Bell before I fire: this landing does nothing."
 		},
 		{
 			"ability": "When you Spin me, I Decay two of your Items.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "Decay",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "SP-25 (2026-10-25). When you Spin me, I Decay up to two random Items that do not already have Keep. Decayed Items are linked. When you use one, Keep it and discard the other. The discarded Item counts as a discard (Recycler and the same discard path as Hired Hand). If only one eligible Item, Decay that one: using it Keeps it, and there is no partner. If a Decayed Item is not used this combat, discard it. Other Items work normally. Quiet Bell turns this off.",
 			"exceptions": "SP-25. Replaces the old no-Keep rule.",
 			"explainer": "Decay two of your Items",
@@ -5938,29 +6632,28 @@
 				"dev": true
 			},
 			"hp": {
-				"base": 5.0
+				"base": 5
 			},
 			"id": "zombie",
 			"locked_at": "2026-10-18",
 			"locked_fields": [
-				"name",
-				"ability",
-				"explainer",
-				"flow",
-				"notes",
-				"ops",
-				"rarity",
 				"tier",
 				"count",
 				"priority",
 				"atk_base",
 				"hp_base",
-				"atk_formula",
-				"hp_formula",
+				"name",
+				"ability",
+				"explainer",
 				"call_name",
 				"reminder",
-				"card_color",
-				"log_hint"
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
 			],
 			"log_hint": "Decay two Items",
 			"mode_pool": "all",
@@ -5968,25 +6661,30 @@
 			"notes": "SP-25. Keyword Decay. Unused Decayed Items are discarded.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"atk_base": 4,
+			"hp_base": 5,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "SP-25 (2026-10-25). When you Spin me, I Decay up to two random Items that do not already have Keep. Decayed Items are linked. When you use one, Keep it and discard the other. The discarded Item counts as a discard (Recycler and the same discard path as Hired Hand). If only one eligible Item, Decay that one: using it Keeps it, and there is no partner. If a Decayed Item is not used this combat, discard it. Other Items work normally. Quiet Bell turns this off."
 		},
 		{
 			"ability": "If you have 3, 6, or 9 Items, you Always Spin me next",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "Triple Threat",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On any Spin (mill random, Challenge click, Flee, Magnet, Smoke), if a living unsilenced 3-Seeker is on the wheel and your hand has exactly 3, 6, or 9 items, land on a random living 3-Seeker. Smoke’s skip loses. Quiet Bell: no steal. Tutorial forced Spin still wins. Glow those slices while you are ready to Spin. Challenge: if you clicked a non-3-Seeker, 3-Seeker says “Sorry, this fight is mine now” then you fight them.",
 			"exceptions": "Archived Triclops. Triple Threat. Uses the Triclops sprite.",
 			"explainer": "If you have 3, 6, or 9 Items, you Always Spin me next",
@@ -5996,7 +6694,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"id": "three_seeker",
 			"locked_at": "2026-10-19",
@@ -6026,25 +6724,30 @@
 			"notes": "Archived Triclops. Triple Threat. Uses the Triclops sprite.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "retired",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"atk_base": 3,
+			"hp_base": 3,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On any Spin (mill random, Challenge click, Flee, Magnet, Smoke), if a living unsilenced 3-Seeker is on the wheel and your hand has exactly 3, 6, or 9 items, land on a random living 3-Seeker. Smoke’s skip loses. Quiet Bell: no steal. Tutorial forced Spin still wins. Glow those slices while you are ready to Spin. Challenge: if you clicked a non-3-Seeker, 3-Seeker says “Sorry, this fight is mine now” then you fight them."
 		},
 		{
 			"ability": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 7,
 			"call_name": "Cut And Run",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "If my HP is exactly 3, I am Defeated (loot). If something else would Defeat or Slay me (0 HP, Boot, Hex), I instead lose 2 HP from the HP I had before that Defeat and Flee. After that Flee, if I have 3 HP, I am Defeated. Quiet Bell turns this off.",
 			"exceptions": "Bucket 5. New Triclops. Needs new art. 3-Seeker keeps Triple Threat.",
 			"explainer": "3 HP: Defeated. Else Defeat: −2 HP and Flee",
@@ -6054,7 +6757,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 7.0
+				"base": 7
 			},
 			"id": "triclops",
 			"locked_at": "2026-10-18",
@@ -6084,25 +6787,30 @@
 			"notes": "Bucket 5. New Triclops. Needs new art. 3-Seeker keeps Triple Threat.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"atk_base": 4,
+			"hp_base": 7,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "If my HP is exactly 3, I am Defeated (loot). If something else would Defeat or Slay me (0 HP, Boot, Hex), I instead lose 2 HP from the HP I had before that Defeat and Flee. After that Flee, if I have 3 HP, I am Defeated. Quiet Bell turns this off."
 		},
 		{
 			"ability": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
 			"atk": {
-				"base": 1.0
+				"base": 1
 			},
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "Self Deconstruct",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On any Attack this monster makes (Done, Damsel neighbor, Pocketwatch), it swings, then loses 1 of its own HP, then swings again until that HP is 0. Swing count is remaining HP. ATK stays 1 (Commander still adds). Block leftover carries like Hornet. Quiet Bell: one swing, no HP loss. Flee skips the Attack, so they do not fall apart. Self HP loss is not your Attack (no Needleback, Twins, Prism). Hitting 0 is a normal Defeat with loot. Plate badge is ∞; Shift uses remaining HP. SP-27 (2026-10-28). HP is 6 (was 4). Behavior otherwise unchanged.",
 			"exceptions": "SP-27. Bucket 4. Walking moss heap. Like Hornet with ∞ swings. Any Attack, then Defeat with loot. HP 6.",
 			"explainer": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
@@ -6112,7 +6820,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 6.0
+				"base": 6
 			},
 			"id": "shambling_mound",
 			"locked_at": "2026-10-28",
@@ -6142,25 +6850,30 @@
 			"notes": "SP-27. Bucket 4. Walking moss heap. Like Hornet with ∞ swings. Any Attack, then Defeat with loot. HP 6 (babySlime Boss).",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"atk_base": 1,
+			"hp_base": 6,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On any Attack this monster makes (Done, Damsel neighbor, Pocketwatch), it swings, then loses 1 of its own HP, then swings again until that HP is 0. Swing count is remaining HP. ATK stays 1 (Commander still adds). Block leftover carries like Hornet. Quiet Bell: one swing, no HP loss. Flee skips the Attack, so they do not fall apart. Self HP loss is not your Attack (no Needleback, Twins, Prism). Hitting 0 is a normal Defeat with loot. Plate badge is ∞; Shift uses remaining HP. SP-27 (2026-10-28). HP is 6 (was 4). Behavior otherwise unchanged."
 		},
 		{
 			"ability": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3.",
 			"atk": {
-				"base": 9.0
+				"base": 9
 			},
 			"author_lock": true,
-			"bucket": 9.0,
+			"bucket": 9,
 			"call_name": "Hunger Pains",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "After Spin, overlay like Hired Hand. Click any card in hand (Hex, Potion, Egg, Marble, petrified) one at a time to Discard it; that is not an item use. Each Discard: I lose 3 Attack and 3 HP, and those numbers stay on this slice for later Spins. Continue ends the overlay and you fight at the numbers left. If HP hits 0 from a Discard, I am Defeated (loot, empty seat) and combat ends. Empty hand: Continue only, then 9/9. Quiet Bell: no overlay. Grappling Hook and Damsel neighbors are not a Spin. Commander +2 still applies after the −3.",
 			"exceptions": "Bucket 3. Sand worm. Overlay + Continue. Stats stay reduced.",
 			"explainer": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3.",
@@ -6170,7 +6883,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 9.0
+				"base": 9
 			},
 			"id": "almighty_worm",
 			"locked_at": "2026-10-18",
@@ -6200,25 +6913,30 @@
 			"notes": "Bucket 3. Sand worm. Overlay + Continue. Stats stay reduced.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "M"
+			"tier": 3,
+			"type": "M",
+			"atk_base": 9,
+			"hp_base": 9,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "After Spin, overlay like Hired Hand. Click any card in hand (Hex, Potion, Egg, Marble, petrified) one at a time to Discard it; that is not an item use. Each Discard: I lose 3 Attack and 3 HP, and those numbers stay on this slice for later Spins. Continue ends the overlay and you fight at the numbers left. If HP hits 0 from a Discard, I am Defeated (loot, empty seat) and combat ends. Empty hand: Continue only, then 9/9. Quiet Bell: no overlay. Grappling Hook and Damsel neighbors are not a Spin. Commander +2 still applies after the −3."
 		},
 		{
 			"ability": "When you Spin me or my Neighbor, Gain 1 Blood Pact",
 			"atk": {
-				"base": 2.0
+				"base": 2
 			},
 			"author_lock": true,
-			"bucket": 7.0,
+			"bucket": 7,
 			"call_name": "Blood Pact",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "After Spin, each living Cultist who is not silenced grants 1 Blood Pact if you landed on them or on a monster sitting next to them. Two Cultists who both qualify grant two. Full hand: skip. Quiet Bell on the Cultist: that Cultist does not grant. Quiet Bell on their neighbor: they still grant. Grappling Hook and Damsel neighbors are not a Spin. Token is not loot. Then the fight happens as usual.",
 			"exceptions": "Bucket 8. Hooded robe. One pact per qualifying Cultist.",
 			"explainer": "When you Spin me or my Neighbor, Gain 1 Blood Pact",
@@ -6228,7 +6946,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 2.0
+				"base": 2
 			},
 			"id": "cultist",
 			"locked_at": "2026-10-18",
@@ -6258,25 +6976,30 @@
 			"notes": "Bucket 8. Hooded robe. One pact per qualifying Cultist.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"atk_base": 2,
+			"hp_base": 2,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "After Spin, each living Cultist who is not silenced grants 1 Blood Pact if you landed on them or on a monster sitting next to them. Two Cultists who both qualify grant two. Full hand: skip. Quiet Bell on the Cultist: that Cultist does not grant. Quiet Bell on their neighbor: they still grant. Grappling Hook and Damsel neighbors are not a Spin. Token is not loot. Then the fight happens as usual."
 		},
 		{
 			"ability": "After each Item you use while facing me, swap my HP and Attack.",
 			"atk": {
-				"base": 5.0
+				"base": 5
 			},
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "Dance Swap",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "SP-20 (2026-10-28). 6 HP / 5 Attack. After each Item you use while facing me (the same uses that increment items_used_this_combat), swap my current HP and Attack. If that item drops me to 0 HP, I die and do NOT swap. Quiet Bell: no swap. Replaces Patient Disarm (second-item dummy).",
 			"exceptions": "SP-20. Replaces Patient Disarm. Quiet Bell turns this off.",
 			"explainer": "After each Item while facing me: swap my HP and Attack",
@@ -6286,7 +7009,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 6.0
+				"base": 6
 			},
 			"id": "bushido",
 			"locked_at": "2026-10-28",
@@ -6316,25 +7039,30 @@
 			"notes": "SP-20. Bucket 3. After each counted item use while facing me unsilenced, swap current HP and Attack. If that item drops me to 0 HP I die and do not swap. Quiet Bell turns this off.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "After each Item while facing me: swap my HP and Attack.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"atk_base": 5,
+			"hp_base": 6,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "SP-20 (2026-10-28). 6 HP / 5 Attack. After each Item you use while facing me (the same uses that increment items_used_this_combat), swap my current HP and Attack. If that item drops me to 0 HP, I die and do NOT swap. Quiet Bell: no swap. Replaces Patient Disarm (second-item dummy)."
 		},
 		{
 			"ability": "I Attack until you lose HP",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 1,
 			"call_name": "Blood Thresh",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On any Attack this monster makes (Done, Damsel neighbor, Pocketwatch), it keeps swinging until you lose any HP this Attack. Prior HP loss this fight does not count. Quiet Bell: one swing even if leftover is 0. Net leftover 0: Attack 5 times for 0, then unique dialogue 'Oh, so it's gonna be like that, huh? Wow. What a way to die.' then SLAIN (not BLOCKED), with loot. Pocketwatch: keep hitting the facing enemy until that enemy loses HP; Goblin and unhittable: one swing and stop, Shark is not slain. Plate badge is a loop mark, not ∞.",
 			"exceptions": "Bucket 4. Shark. Loop until you bleed; Net 5 zeros then slain.",
 			"explainer": "I Attack until you lose HP",
@@ -6344,7 +7072,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 6.0
+				"base": 6
 			},
 			"id": "shark",
 			"locked_at": "2026-10-18",
@@ -6374,25 +7102,30 @@
 			"notes": "Bucket 4. Shark. Loop until you bleed; Net 5 zeros then slain.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"atk_base": 3,
+			"hp_base": 6,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On any Attack this monster makes (Done, Damsel neighbor, Pocketwatch), it keeps swinging until you lose any HP this Attack. Prior HP loss this fight does not count. Quiet Bell: one swing even if leftover is 0. Net leftover 0: Attack 5 times for 0, then unique dialogue 'Oh, so it's gonna be like that, huh? Wow. What a way to die.' then SLAIN (not BLOCKED), with loot. Pocketwatch: keep hitting the facing enemy until that enemy loses HP; Goblin and unhittable: one swing and stop, Shark is not slain. Plate badge is a loop mark, not ∞."
 		},
 		{
 			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
 			"atk": {
-				"base": 8.0
+				"base": 8
 			},
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "Death Knell",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test), Gain 1 Toll at 6 even if Zombie would block Gain. If the hand is full, the player clicks one item to throw away, then Toll lands. A second Death Bell grants a second Toll at 6. On Spin of this monster, if it is not silenced, it loses 2 HP (Anvil still max 1). Quiet Bell: skip the -2 HP and skip the Defeat discard; Tolls already in hand still tick. Item uses that already increment Beads (including Bushido's dummy throw) tick every Toll by 1. Potion auto, Buckler auto, and Cube/Worm/overlay picks do not tick. At Toll 1 the card pulses. At 0 they Die; Healing Potion can save. If the killing item ticks Toll from 1 to 0 while this Bell is the one being Defeated, the Defeat discard overlay happens first so they can throw Toll away and live. Defeat overlay: must click one item (Ability as the line), then the Bell rings and leaves with loot. Empty hand: skip discard, still ring. Toll is T0, black like Egg, Unplayable, not drafted.",
 			"exceptions": "Bucket 9. Giant evil church bell. 12 HP 8 ATK.",
 			"explainer": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
@@ -6402,7 +7135,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 12.0
+				"base": 12
 			},
 			"id": "death_bell",
 			"locked_at": "2026-10-20",
@@ -6432,25 +7165,30 @@
 			"notes": "Bucket 9. Giant evil church bell. 12 HP 8 ATK.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "M"
+			"tier": 3,
+			"type": "M",
+			"atk_base": 8,
+			"hp_base": 12,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test), Gain 1 Toll at 6 even if Zombie would block Gain. If the hand is full, the player clicks one item to throw away, then Toll lands. A second Death Bell grants a second Toll at 6. On Spin of this monster, if it is not silenced, it loses 2 HP (Anvil still max 1). Quiet Bell: skip the -2 HP and skip the Defeat discard; Tolls already in hand still tick. Item uses that already increment Beads (including Bushido's dummy throw) tick every Toll by 1. Potion auto, Buckler auto, and Cube/Worm/overlay picks do not tick. At Toll 1 the card pulses. At 0 they Die; Healing Potion can save. If the killing item ticks Toll from 1 to 0 while this Bell is the one being Defeated, the Defeat discard overlay happens first so they can throw Toll away and live. Defeat overlay: must click one item (Ability as the line), then the Bell rings and leaves with loot. Empty hand: skip discard, still ring. Toll is T0, black like Egg, Unplayable, not drafted."
 		},
 		{
 			"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
 			"atk": {
-				"base": 2.0
+				"base": 2
 			},
 			"author_lock": true,
-			"bucket": 6.0,
+			"bucket": 6,
 			"call_name": "Hatch",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When Defeated or Slain, Flee (if you are facing me) and this seat becomes Phoenix at 4 HP / 6 ATK. Quiet Bell turns this off.",
 			"exceptions": "Bucket 4. Needs art. Hatches into Phoenix.",
 			"explainer": "Defeated: Flee, become Phoenix",
@@ -6460,7 +7198,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 2.0
+				"base": 2
 			},
 			"id": "phoenix_egg",
 			"locked_at": "2026-10-18",
@@ -6490,25 +7228,30 @@
 			"notes": "Bucket 4. Needs art. Hatches into Phoenix.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"atk_base": 2,
+			"hp_base": 2,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "When Defeated or Slain, Flee (if you are facing me) and this seat becomes Phoenix at 4 HP / 6 ATK. Quiet Bell turns this off."
 		},
 		{
 			"ability": "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck.",
 			"atk": {
-				"base": 6.0
+				"base": 6
 			},
 			"author_lock": true,
-			"bucket": -1.0,
+			"bucket": -1,
 			"call_name": "Rebirth",
 			"card_color": "",
-			"count": 0.0,
+			"count": 0,
 			"defined": "SP-21 (2026-10-25). If Defeated before I Attack (has_attacked is still false: Attack damage or a defeat item, and also a skip that never lets me Attack), add a Phoenix Egg to the top of the Dungeon Deck. Block-then-I-Attack does not lay an egg. The egg goes on top of the Dungeon Deck. Challenge and Adventure seat it with normal hole fill and loot. The mill does not draw that deck, so the egg is installed into the vacated seat. Phoenix Egg still hatches into a Phoenix. Quiet Bell turns this off.",
 			"exceptions": "Token. Not drafted. Phoenix Egg creates it. SP-21.",
 			"explainer": "Defeated before I Attack: add a Phoenix Egg to the Dungeon Deck",
@@ -6518,7 +7261,7 @@
 				"hide": true
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "phoenix",
 			"locked_at": "2026-10-18",
@@ -6548,25 +7291,30 @@
 			"notes": "Token. Not drafted. Phoenix Egg creates it. SP-21: egg goes on the deck, not into this seat.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "M"
+			"tier": 3,
+			"type": "M",
+			"atk_base": 6,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "SP-21 (2026-10-25). If Defeated before I Attack (has_attacked is still false: Attack damage or a defeat item, and also a skip that never lets me Attack), add a Phoenix Egg to the top of the Dungeon Deck. Block-then-I-Attack does not lay an egg. The egg goes on top of the Dungeon Deck. Challenge and Adventure seat it with normal hole fill and loot. The mill does not draw that deck, so the egg is installed into the vacated seat. Phoenix Egg still hatches into a Phoenix. Quiet Bell turns this off."
 		},
 		{
 			"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
 			"atk": {
-				"base": 5.0
+				"base": 5
 			},
 			"author_lock": true,
-			"bucket": 4.0,
+			"bucket": 4,
 			"call_name": "Adaptation",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "While you face me and I am not silenced, after each Item Use, my current HP, max HP, and ATK each double.",
 			"exceptions": "Bucket 6. Plasmoid science experiment, distinct from Gelatinous Cube. Needs art.",
 			"explainer": "Each Use: remaining HP and ATK ×2",
@@ -6576,7 +7324,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 6.0
+				"base": 6
 			},
 			"id": "amalgam",
 			"locked_at": "2026-10-19",
@@ -6606,25 +7354,30 @@
 			"notes": "Bucket 6. Plasmoid science experiment, distinct from Gelatinous Cube. Needs art.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"type": "M"
+			"tier": 3,
+			"type": "M",
+			"atk_base": 5,
+			"hp_base": 6,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "While you face me and I am not silenced, after each Item Use, my current HP, max HP, and ATK each double."
 		},
 		{
 			"ability": "If I am Defeated without losing HP, gain a Fairy in a Bottle.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"author_lock": true,
-			"bucket": 3.0,
+			"bucket": 3,
 			"call_name": "",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "SP-23 (2026-10-25). 1 HP / 4 Attack. If I am Defeated while I still have HP (Block, a defeat item, or a skip — not an Attack that drops me to 0), you gain a Fairy in a Bottle. The bottle is a normal use item: Heal 2. It is a token (not drafted). Quiet Bell turns this off.",
 			"exceptions": "Bucket 3. Bottle art still needed.",
 			"explainer": "Defeated without losing HP: gain a Fairy in a Bottle",
@@ -6634,7 +7387,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 1.0
+				"base": 1
 			},
 			"id": "fairy",
 			"locked_at": "2026-10-19",
@@ -6664,25 +7417,30 @@
 			"notes": "SP-23. No ability name was specified, so the old Fairy Dust call name is cleared.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"atk_base": 4,
+			"hp_base": 1,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "SP-23 (2026-10-25). 1 HP / 4 Attack. If I am Defeated while I still have HP (Block, a defeat item, or a skip — not an Attack that drops me to 0), you gain a Fairy in a Bottle. The bottle is a normal use item: Heal 2. It is a token (not drafted). Quiet Bell turns this off."
 		},
 		{
 			"ability": "When facing me, I take Attack damage equal to Block you gain.",
 			"atk": {
-				"base": 6.0
+				"base": 6
 			},
 			"author_lock": true,
-			"bucket": 2.0,
+			"bucket": 2,
 			"call_name": "Conductive",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "While you face me and I am not silenced, each time you Gain Block, I take that much Attack damage (Needleback and Harpy still apply). Quiet Bell turns this off.",
 			"exceptions": "Tier 1. No numbered bucket named. Needs art.",
 			"explainer": "Facing: takes Attack = Block you Gain",
@@ -6692,7 +7450,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "eel",
 			"locked_at": "2026-10-18",
@@ -6722,25 +7480,30 @@
 			"notes": "Tier 1. No numbered bucket named. Needs art.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"atk_base": 6,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "While you face me and I am not silenced, each time you Gain Block, I take that much Attack damage (Needleback and Harpy still apply). Quiet Bell turns this off."
 		},
 		{
 			"ability": "After I Attack, I Heal you for double the HP I cause you to lose.",
 			"atk": {
-				"base": 7.0
+				"base": 7
 			},
 			"author_lock": true,
-			"bucket": 5.0,
+			"bucket": 5,
 			"call_name": "Cultivator",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When I Attack, death is checked first. If you still live, Heal twice the HP you actually lost from that Attack. Fully blocked: Heal 0. Quiet Bell turns this off.",
 			"exceptions": "Bucket 3. Needs art.",
 			"explainer": "Attack: Heal you 2× HP lost, after death check",
@@ -6750,7 +7513,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "druid",
 			"locked_at": "2026-10-19",
@@ -6780,24 +7543,29 @@
 			"notes": "Bucket 3. Needs art.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"atk_base": 7,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "When I Attack, death is checked first. If you still live, Heal twice the HP you actually lost from that Attack. Fully blocked: Heal 0. Quiet Bell turns this off."
 		},
 		{
 			"ability": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
 			"atk": {
-				"base": 2.0
+				"base": 2
 			},
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "Scurry",
-			"count": 2.0,
+			"count": 2,
 			"defined": "On Spin, before the fight: if the player current HP is greater than this unit current HP, this unit loses 2 HP and Flee. Quiet Bell skips Scurry. Paper Fight: what happens if the -2 drops them to 0.",
 			"exceptions": "Tier 1. Small mouse. Paper Fight before special.",
 			"explainer": "On Spin: if your HP is higher, I lose 2 HP and Flee",
@@ -6807,7 +7575,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "mouse",
 			"locked_at": "2026-10-19",
@@ -6835,24 +7603,31 @@
 			"name": "Mouse",
 			"notes": "Tier 1. Small mouse. Paper Fight before special.",
 			"poc": false,
-			"priority": 1.0,
+			"priority": 1,
 			"rarity": "starter",
 			"reminder": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"ops": {},
+			"atk_base": 2,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On Spin, before the fight: if the player current HP is greater than this unit current HP, this unit loses 2 HP and Flee. Quiet Bell skips Scurry. Paper Fight: what happens if the -2 drops them to 0."
 		},
 		{
 			"ability": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "Cat's Eye",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On a real Spin onto me (not Grappling Hook / Damsel neighbors). Quiet Bell skips this. Snapshot items Chakram would count as Atk or Blk: unspent, not petrified, grants Block or deals Attack (Marbles count, Heal does not). Chakram itself can be picked. Pick up to two at random. Each changes in place into a Marble named Marble with the number showing on that card; Recycler does not tick. Cat's-eye sprite. New Marbles do not +1 until a later Spin. Then fight.",
 			"exceptions": "Bucket 8. Cat with celestial sparkles and a wizard hat. In-place morph. Chakram Atk/Blk pool. Unique cat's-eye marble sprite.",
 			"explainer": "On Spin: 2 Atk or Blk Items become Marbles with that number",
@@ -6862,7 +7637,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"id": "magicat",
 			"locked_at": "2026-10-19",
@@ -6892,24 +7667,30 @@
 			"notes": "Bucket 8. Cat with celestial sparkles and a wizard hat. In-place morph. Chakram Atk/Blk pool. Unique cat's-eye marble sprite.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"type": "M"
+			"tier": 1,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 3,
+			"hp_base": 3,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On a real Spin onto me (not Grappling Hook / Damsel neighbors). Quiet Bell skips this. Snapshot items Chakram would count as Atk or Blk: unspent, not petrified, grants Block or deals Attack (Marbles count, Heal does not). Chakram itself can be picked. Pick up to two at random. Each changes in place into a Marble named Marble with the number showing on that card; Recycler does not tick. Cat's-eye sprite. New Marbles do not +1 until a later Spin. Then fight."
 		},
 		{
 			"ability": "When I enter the Dungeon, Gain 1 Rust",
 			"atk": {
-				"base": 3.0
+				"base": 3
 			},
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "Rust",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test): Gain 1 Rust. Same overlay as Death Bell if the hand is full. Quiet Bell does not skip the Gain. Two Rust Buckets grant two Rusts.",
 			"exceptions": "Bucket 8 T2. D&D rust monster as a bucket. Token Rust is extra. Art missing.",
 			"explainer": "When I enter the Dungeon, Gain 1 Rust",
@@ -6919,7 +7700,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"id": "rust_bucket",
 			"locked_at": "2026-10-20",
@@ -6949,24 +7730,30 @@
 			"notes": "Bucket 8 T2. D&D rust monster as a bucket. Token Rust is extra. Art missing.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "When I enter the Dungeon, Gain 1 Rust",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 3,
+			"hp_base": 3,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test): Gain 1 Rust. Same overlay as Death Bell if the hand is full. Quiet Bell does not skip the Gain. Two Rust Buckets grant two Rusts."
 		},
 		{
 			"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
 			"atk": {
-				"base": 2.0
+				"base": 2
 			},
 			"author_lock": true,
-			"bucket": 8.0,
+			"bucket": 8,
 			"call_name": "Toxic Skin",
-			"count": 1.0,
+			"count": 1,
 			"defined": "On a real Spin onto me, if I am not silenced: you Gain 2 player Poison. Whenever an Attack lands on this slice from any path (Boot, Crossbow, Prism bounce, Pocketwatch, Hired Hand, Cleave), you Gain 2 Poison even if the hit is 0. Two hits pay twice. Quiet Bell before the Spin: I am a 4 HP / 2 ATK golem. Quiet Bell after the Spin: you already got the Spin +2; further hits do not poison. Grappling Hook and Damsel neighbors do not pay the Spin trigger.",
 			"exceptions": "Bucket 8 T2. Poison frog. Art missing.",
 			"explainer": "On Spin and when I take Attack damage: you Gain 2 Poison",
@@ -6976,7 +7763,7 @@
 				"hide": false
 			},
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"id": "poison_frog",
 			"locked_at": "2026-10-19",
@@ -7006,14 +7793,20 @@
 			"notes": "Bucket 8 T2. Poison frog. Art missing.",
 			"ops": {},
 			"poc": false,
-			"priority": 3.0,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"type": "M"
+			"tier": 2,
+			"type": "M",
+			"card_color": "",
+			"atk_base": 2,
+			"hp_base": 4,
+			"atk_formula": "",
+			"hp_formula": "",
+			"flow": "On a real Spin onto me, if I am not silenced: you Gain 2 player Poison. Whenever an Attack lands on this slice from any path (Boot, Crossbow, Prism bounce, Pocketwatch, Hired Hand, Cleave), you Gain 2 Poison even if the hit is 0. Two hits pay twice. Quiet Bell before the Spin: I am a 4 HP / 2 ATK golem. Quiet Bell after the Spin: you already got the Spin +2; further hits do not poison. Grappling Hook and Damsel neighbors do not pay the Spin trigger."
 		}
 	],
 	"named_variables": [
@@ -7084,8 +7877,8 @@
 		}
 	],
 	"player": {
-		"hp_max": 6.0,
-		"hp_start": 6.0
+		"hp_max": 6,
+		"hp_start": 6
 	},
 	"poc": {
 		"item_ids": [
@@ -7228,7 +8021,7 @@
 		{
 			"chat": "2026-10-25",
 			"id": "SP-22",
-			"rule": "Berserker is 4 HP / 5 Attack. Hot and Cold rolls on every Spin, not only when you land on that copy. +4 Attack or −3 Attack, stacking, clamped at 0. Author-lock override: berserker ability, call_name, explainer, defined, log_hint, notes, atk base."
+			"rule": "Berserker is 4 HP / 5 Attack. Ability starts On Spin (not When you Spin me). Hot and Cold rolls on every Spin, including Flee auto-spins, while a living unsilenced copy sits anywhere on the wheel. +4 Attack or −3 Attack, stacking, clamped at 0."
 		},
 		{
 			"chat": "2026-10-25",
@@ -7270,32 +8063,32 @@
 	"source_written": "2022-05-03T11:54:22",
 	"tier_count_targets": {
 		"item_starter": {
-			"1": 10.0,
-			"2": 6.0,
-			"3": 1.0
+			"1": 10,
+			"2": 6,
+			"3": 1
 		},
 		"item_uncommon": {
-			"1": 2.0,
-			"2": 6.0,
-			"3": 4.0
+			"1": 2,
+			"2": 6,
+			"3": 4
 		},
 		"monster_starter": {
-			"1": 10.0,
-			"2": 6.0,
-			"3": 1.0
+			"1": 10,
+			"2": 6,
+			"3": 1
 		},
 		"monster_uncommon": {
-			"1": 2.0,
-			"2": 6.0,
-			"3": 4.0
+			"1": 2,
+			"2": 6,
+			"3": 4
 		}
 	},
 	"wheel": {
 		"draft_fills_until": "starter_count + 4",
 		"empty_between_starters": true,
-		"slots": 8.0,
-		"starter_count_default": 4.0,
-		"starter_count_hard": 5.0,
+		"slots": 8,
+		"starter_count_default": 4,
+		"starter_count_hard": 5,
 		"starter_order": [
 			"N",
 			"E",

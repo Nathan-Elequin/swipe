@@ -726,6 +726,10 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		var a2: int = int(span["a"])
 		var b2: int = int(span["b"])
 		var piece: String = t.substr(a2, b2 - a2)
+		if piece.strip_edges().to_lower() == "any":
+			var after: String = t.substr(b2).strip_edges().to_lower()
+			if after.begins_with("time"):
+				continue
 		var shown: String = _format_keyword(piece)
 		if colored:
 			var hex: String = _paint_hex(piece, t, a2, b2, num_hex, gold, hp_c, atk_c, var_c, blk_c, phrases, out_k)

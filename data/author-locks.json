@@ -2844,6 +2844,31 @@
 			],
 			"locked_at": "2026-10-18",
 			"name": "Zombie"
+		},
+		"monster:cowardly_king": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color",
+				"review"
+			],
+			"locked_at": "2026-10-28",
+			"name": "Petty King"
 		}
 	},
 	"id": "boss-rush-author-locks",

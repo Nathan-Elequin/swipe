@@ -211,7 +211,7 @@ const MONSTER_SPECIAL := {
 	"anvil": {"id": "one_chip", "text": "I cannot lose more than 1 HP from one source."},
 	"vampire": {"id": "bloodlust", "text": "Every time you lose HP, I gain +1 HP and +1 Attack."},
 	"bodyguard": {"id": "take_instead", "text": "When my Neighbors would take Attack Damage, I take it instead."},
-	"cowardly_king": {"id": "coward", "text": "Whenever I lose HP, I Attack you and Flee."},
+	"cowardly_king": {"id": "vindictive", "text": "Any time I lose HP, I command the monster to my right to Attack you immediately"},
 	"merchant": {"id": "fair_trade", "text": "When you Spin me, choose an Item and I will upgrade it."},
 	"juggernaut": {"id": "gift_shield", "text": "When you face me, Gain a Shield."},
 	"cleric": {"id": "insure", "text": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item"},
@@ -272,7 +272,7 @@ const MONSTER_CALL := {
 	"beggar": "Left Attack",
 	"wick": "Death Toll",
 	"anvil": "One HP",
-	"cowardly_king": "Coward",
+	"cowardly_king": "Vindictive",
 	"hydra": "Even Killer",
 	"three_seeker": "Triple Threat",
 	"phoenix_egg": "Hatch",
@@ -325,7 +325,7 @@ const MONSTER_REMINDER := {
 	"beggar": "leftmost Attack, or 3",
 	"wick": "-2 HP per Neighbor Defeated.",
 	"anvil": "max 1 HP per source",
-	"cowardly_king": "when I lose HP, Attack then Flee",
+	"cowardly_king": "when I lose HP, the monster on my right Attacks you",
 	"three_seeker": "3, 6, or 9 items: Always Spin me next",
 	"triclops": "3 HP: Defeated. Else Defeat: −2 HP and Flee",
 	"phoenix_egg": "Defeated: Flee, become Phoenix",
@@ -378,6 +378,7 @@ const MONSTER_SPEECH := {
 	"beggar": "My Attack copies the Attack number on your leftmost Attack item. If you have none, my Attack is 3.",
 	"wick": "I Lose 2 HP each time a Neighbor is Defeated",
 	"anvil": "I cannot lose more than 1 HP from one source.",
+	"cowardly_king": "Any time I lose HP, I command the monster to my right to Attack you immediately",
 	"three_seeker": "If you have 3, 6, or 9 Items, you Always Spin me next",
 	"triclops": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
 	"phoenix_egg": "When I am Defeated, I Flee and hatch into a Phoenix.",
@@ -638,6 +639,8 @@ var _courier_gear: Dictionary = {}
 var _walker_busy: bool = false
 var _hold_holes: int = 0
 var _item_hold: bool = false
+var _vindictive_queue: Array = []
+var _vindictive_flushing: bool = false
 var _flushing_holes: bool = false
 var _spin_after_holes: bool = false
 var _death_seq: int = 0
@@ -7418,6 +7421,8 @@ func _trace_resolve(msg: String) -> void:
 
 func _unlock_if_fighting() -> void:
 	_release_item_hold()
+	if await _flush_vindictive():
+		return
 	await _flush_midfight_holes()
 	if cascade_ticker != null and cascade_ticker.has_method("end"):
 		cascade_ticker.end()
@@ -9764,8 +9769,8 @@ func _chip_hp(index: int, n: int) -> bool:
 	if before > int(m["hp"]):
 		if await _martyr_after_hp_loss(index, before, int(m["hp"])):
 			return true
-	if before > int(m["hp"]) and int(m["hp"]) > 0:
-		return await _coward_after_hp_loss(index)
+		if await _vindictive_after_hp_loss(index):
+			return true
 	return false
 
 
@@ -13029,37 +13034,24 @@ func _apply_napalm() -> bool:
 		return false
 	var face: int = facing_index
 	var nbs: Array[int] = _napalm_neighbor_seats()
-	var coward_flee := false
 	var lost: int = _napalm_set_monster(face)
 	if lost > 0:
 		if wheel_view and wheel_view.has_method("play_burn"):
 			await wheel_view.play_burn(face)
-		var face_m: Dictionary = wheel[face] if face >= 0 and face < wheel.size() else {}
-		if str(face_m.get("card_id", "")) == "cowardly_king" and not _is_silenced(face_m):
-			await _owner_attack(face_m)
-			if hp <= 0:
-				_try_potion()
-				if hp <= 0:
-					_player_down()
-					return true
-			coward_flee = true
+		_vindictive_note(face)
 	for j in nbs:
 		var n_lost: int = _napalm_set_monster(j)
 		if n_lost <= 0:
 			continue
 		if wheel_view and wheel_view.has_method("play_burn"):
 			await wheel_view.play_burn(j)
-		if await _coward_after_hp_loss(j):
-			return true
+		_vindictive_note(j)
 		if hp <= 0:
 			return true
 	var drop: int = maxi(0, hp - 1)
 	if drop > 0:
 		if await _bleed(drop):
 			return true
-	if coward_flee and phase == "fighting" and facing_index == face:
-		if face >= 0 and face < wheel.size() and str(wheel[face].get("card_id", "")) == "cowardly_king":
-			await _flee_spin()
 	return false
 
 
@@ -13118,6 +13110,8 @@ func _clicked_item_counts_as_use(it: Dictionary) -> bool:
 
 func _after_item_resolved(it: Dictionary) -> void:
 	if it.is_empty():
+		return
+	if await _flush_vindictive():
 		return
 	if _clicked_item_counts_as_use(it):
 		_remember_item_use(it)
@@ -14181,14 +14175,6 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 		else:
 			wheel_view.hit_feedback(index, before_hp - int(m["hp"]), int(m["atk"]) - before_atk)
 	_flash_hit_portrait(index)
-	if before_hp > int(m["hp"]):
-		if await _martyr_after_hp_loss(index, before_hp, int(m["hp"])):
-			return true
-	if before_hp > int(m["hp"]) and int(m["hp"]) > 0:
-		if await _coward_after_hp_loss(index):
-			return true
-	if await _check_triclops_three(index):
-		return true
 	if str(m.get("card_id", "")) == "needleback" and not _is_silenced(m) and before_hp > 0:
 		if _watch_skip_thorns:
 			pass
@@ -14204,31 +14190,86 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 			await _announce_slice(index, _hub_hp_pos())
 			if await _player_take_atk(2):
 				return true
+	if before_hp > int(m["hp"]):
+		if await _martyr_after_hp_loss(index, before_hp, int(m["hp"])):
+			return true
+		if await _vindictive_after_hp_loss(index):
+			return true
+	if await _check_triclops_three(index):
+		return true
 	return false
 
 
-func _coward_after_hp_loss(index: int) -> bool:
+func _vindictive_note(index: int) -> void:
 	if index < 0 or index >= wheel.size():
-		return false
+		return
 	var s: Dictionary = wheel[index]
 	if str(s.get("card_id", "")) != "cowardly_king":
-		return false
+		return
 	if _is_silenced(s):
+		return
+	var right: int = _right_monster(index)
+	if right < 0:
+		return
+	_vindictive_queue.append(right)
+
+
+func _vindictive_after_hp_loss(index: int) -> bool:
+	_vindictive_note(index)
+	if _item_hold or _vindictive_flushing:
 		return false
-	if int(s.get("hp", 0)) <= 0:
+	return await _flush_vindictive()
+
+
+func _flush_vindictive() -> bool:
+	if _vindictive_flushing:
 		return false
-	await _announce_slice(index, _hub_hp_pos())
-	var atk_n: int = int(s.get("atk", 0))
-	if index == facing_index:
-		await _owner_attack(s)
+	_vindictive_flushing = true
+	var died := false
+	while not _vindictive_queue.is_empty() and hp > 0:
+		var j: int = int(_vindictive_queue.pop_front())
+		if await _commanded_neighbor_attack(j):
+			died = true
+			break
+	if died:
+		_vindictive_queue.clear()
+	_vindictive_flushing = false
+	return died
+
+
+func _commanded_neighbor_attack(j: int) -> bool:
+	if j < 0 or j >= wheel.size():
+		return false
+	if str(wheel[j].get("kind", "")) != "monster":
+		return false
+	if int(wheel[j].get("hp", 0)) <= 0:
+		return false
+	var nm: Dictionary = wheel[j]
+	await _announce_slice(j, _hub_hp_pos())
+	if combat_stage:
+		combat_stage.show_monster(str(nm.get("card_id", "")), int(nm.get("tier", 1)))
+	if _blood_threshes(j):
+		await _shark_attack_player(j)
 		if hp <= 0:
 			_player_down()
 			return true
-	elif await _player_take_atk(atk_n):
-		return true
-	if index != facing_index:
 		return false
-	if await _flee_spin():
+	var hits: int = _hit_count(j)
+	for h in range(hits):
+		if hp <= 0:
+			break
+		await _owner_attack(nm, h + 1, hits, j)
+		await _after_self_deconstruct(j)
+		if j >= 0 and j < wheel.size():
+			nm = wheel[j]
+		if hp <= 0:
+			break
+		if j >= 0 and j < wheel.size() and int(wheel[j].get("hp", 0)) <= 0:
+			break
+		if hits > 1 and h < hits - 1:
+			await get_tree().create_timer(0.08).timeout
+	if hp <= 0:
+		_player_down()
 		return true
 	return false
 
@@ -16541,7 +16582,7 @@ func _log_begin_monster(index: int) -> void:
 	if hint == "":
 		hint = _log_hint_of(monsters_by_id.get(str(s.get("card_id", "")), {}))
 	var cid: String = str(s.get("card_id", ""))
-	if cid == "commander" or cid == "cowardly_king":
+	if cid == "commander":
 		var flee_def: String = UxStyle.def_of("flee")
 		if hint == "":
 			hint = flee_def

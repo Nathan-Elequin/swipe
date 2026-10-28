@@ -7,7 +7,7 @@ const STAGES := ["rough", "refined", "polish", "finished"]
 
 static func of_card(card: Dictionary) -> String:
 	var s: String = str(card.get("review", "")).strip_edges().to_lower()
-	if STAGES.has(s):
+	if s == "change" or STAGES.has(s):
 		return s
 	return "polish"
 
