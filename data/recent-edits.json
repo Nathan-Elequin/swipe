@@ -44,7 +44,7 @@
 		"item:pocketwatch": 1792700700.0,
 		"item:polymorph": 1792470000.0,
 		"item:quiet_bell": 1792136735.68746,
-		"item:recycler": 1792458268.58983,
+		"item:recycler": 1793210000.0,
 		"item:rust": 1792515000.0,
 		"item:sai": 1792689859.0,
 		"item:shuriken": 1792692178.0,
@@ -93,7 +93,7 @@
 		"monster:ogre": 1792207050.0,
 		"monster:phoenix": 1792470000.0,
 		"monster:phoenix_egg": 1792508400.0,
-		"monster:plague_doctor": 1792320000.0,
+		"monster:plague_doctor": 1793211183.5889459,
 		"monster:poison_frog": 1792507800.0,
 		"monster:prism": 1792690697.16532,
 		"monster:rust_bucket": 1792514135.0,
@@ -113,5 +113,6 @@
 	"item:signpost": 1792450564.02935,
 	"item:sling": 1792450564.02935,
 	"monster:mouse": 1792450564.02935,
-	"updated": "2026-10-26T01:07:36"
+	"updated": "2026-10-26T01:07:36",
+	"monster:plague_doctor": 1793211183.5889459
 }
