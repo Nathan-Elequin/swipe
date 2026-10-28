@@ -3270,6 +3270,8 @@ func debug_pose(beat: String) -> void:
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
+	if _authoring_desk_open():
+		return
 	if settings_ui and settings_ui.visible:
 		return
 	if _cutscene and _cutscene.is_playing():
@@ -4271,6 +4273,15 @@ func _picker_open() -> bool:
 		return false
 	var picker = host.get("campaign_map")
 	return picker != null and picker.has_method("is_picker_open") and bool(picker.is_picker_open())
+
+
+func _authoring_desk_open() -> bool:
+	if not is_inside_tree():
+		return false
+	for n in get_tree().get_nodes_in_group("authoring_overlay"):
+		if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+			return true
+	return false
 
 
 func _space_key(event: InputEvent) -> bool:

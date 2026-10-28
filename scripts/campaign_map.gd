@@ -89,11 +89,22 @@ func show_map(rules: Dictionary, state: Dictionary) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if _authoring_desk_open():
+		return
 	if not is_picker_open():
 		return
 	if _space(event) or event.is_action_pressed("ui_cancel"):
 		closed.emit()
 		get_viewport().set_input_as_handled()
+
+
+func _authoring_desk_open() -> bool:
+	if not is_inside_tree():
+		return false
+	for n in get_tree().get_nodes_in_group("authoring_overlay"):
+		if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+			return true
+	return false
 
 
 func _space(event: InputEvent) -> bool:

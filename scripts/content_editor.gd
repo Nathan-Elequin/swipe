@@ -105,12 +105,13 @@ var _was_paused: bool = false
 
 func setup() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group("authoring_overlay")
 	visible = false
 	top_level = true
 	set_anchors_preset(PRESET_FULL_RECT)
 	color = Color("100e0ce8")
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	focus_mode = Control.FOCUS_ALL
+	focus_mode = Control.FOCUS_NONE
 	z_index = 200
 
 	var center := CenterContainer.new()
@@ -149,7 +150,7 @@ func setup() -> void:
 	head.add_child(_btn("Save", Color("3a2820"), Color("c4a574"), _on_save, 110))
 
 	var hint := Label.new()
-	hint.text = "Save writes the board and catalog, and locks this card. Typed fields update inspect immediately. A gold-box note is also a real overwrite — Cursor writes it into Ability, numbers, and code on the next message. Ctrl+S saves."
+	hint.text = "Save writes the board and catalog, and locks this card. Typed fields update inspect immediately. A gold-box note is also a real overwrite — Cursor writes it into Ability, numbers, and code on the next message. Arrows move between boxes. Space types. Enter saves. Esc closes without saving."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color("6b4a10"))
@@ -199,7 +200,7 @@ func open_card(kind: String, card_id: String, catalog_card: Dictionary = {}) -> 
 	if vp:
 		vp.gui_cancel_drag()
 		vp.gui_release_focus()
-	grab_focus()
+	call_deferred("_focus_first_field")
 
 
 func close_editor() -> void:
@@ -380,6 +381,7 @@ func _rebuild(card: Dictionary) -> void:
 	if ops_s == "null":
 		ops_s = "{}"
 	_add_area(_sheet, "Ops JSON", "ops_text", ops_s, 120, true)
+	_wire_field_nav()
 
 
 func _label_head(text: String) -> void:
@@ -678,6 +680,7 @@ func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float) -> 
 	var b := Button.new()
 	b.text = text
 	b.custom_minimum_size = Vector2(width, 40)
+	b.focus_mode = Control.FOCUS_NONE
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	b.add_theme_color_override("font_color", Color("f0e6d8"))
 	var n := StyleBoxFlat.new()
@@ -693,20 +696,97 @@ func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float) -> 
 	return b
 
 
+func _field_chain() -> Array:
+	var chain: Array = []
+	for k in _fields:
+		var n: Variant = _fields[k]
+		if n is LineEdit or n is TextEdit:
+			chain.append(n)
+	return chain
+
+
+func _wire_field_nav() -> void:
+	var chain: Array = _field_chain()
+	if chain.is_empty():
+		return
+	for i in chain.size():
+		var cur: Control = chain[i]
+		var nxt: Control = chain[(i + 1) % chain.size()]
+		var prv: Control = chain[(i - 1 + chain.size()) % chain.size()]
+		cur.focus_next = nxt.get_path()
+		cur.focus_previous = prv.get_path()
+		cur.focus_neighbor_bottom = nxt.get_path()
+		cur.focus_neighbor_top = prv.get_path()
+		if not cur.has_meta("nav_hook"):
+			cur.set_meta("nav_hook", true)
+			cur.gui_input.connect(_on_field_nav.bind(cur))
+
+
+func _on_field_nav(event: InputEvent, e: Control) -> void:
+	if not event is InputEventKey:
+		return
+	var key := event as InputEventKey
+	if not key.pressed or key.echo or key.ctrl_pressed or key.alt_pressed:
+		return
+	var chain: Array = _field_chain()
+	var i: int = chain.find(e)
+	if i < 0:
+		return
+	if key.keycode == KEY_UP:
+		if e is LineEdit or (e is TextEdit and (e as TextEdit).get_caret_line() <= 0):
+			_focus_field_at(chain, i - 1)
+			e.accept_event()
+	elif key.keycode == KEY_DOWN:
+		if e is LineEdit or (e is TextEdit and (e as TextEdit).get_caret_line() >= (e as TextEdit).get_line_count() - 1):
+			_focus_field_at(chain, i + 1)
+			e.accept_event()
+
+
+func _focus_field_at(chain: Array, i: int) -> void:
+	if chain.is_empty():
+		return
+	i = (i + chain.size()) % chain.size()
+	var e: Control = chain[i]
+	e.grab_focus()
+	if _scroll:
+		_scroll.ensure_control_visible(e)
+
+
+func _focus_first_field() -> void:
+	var chain: Array = _field_chain()
+	if chain.is_empty():
+		return
+	_focus_field_at(chain, 0)
+
+
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
-	if event.is_action_pressed("ui_cancel"):
+	if not event is InputEventKey:
+		return
+	var key := event as InputEventKey
+	if not key.pressed or key.echo:
+		return
+	if key.keycode == KEY_ESCAPE:
 		close_editor()
 		get_viewport().set_input_as_handled()
 		return
-	if event.is_action_pressed("ui_accept"):
-		var focus := get_viewport().gui_get_focus_owner() if get_viewport() else null
-		if focus is TextEdit:
+	if key.keycode == KEY_ENTER or key.keycode == KEY_KP_ENTER:
+		if key.ctrl_pressed or key.alt_pressed or key.meta_pressed:
 			return
 		_on_save()
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and not event.echo and event.ctrl_pressed and event.keycode == KEY_S:
+	if key.ctrl_pressed and key.keycode == KEY_S:
 		_on_save()
+		get_viewport().set_input_as_handled()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if not event is InputEventKey:
+		return
+	var key := event as InputEventKey
+	if key.keycode == KEY_LEFT or key.keycode == KEY_RIGHT or key.keycode == KEY_UP or key.keycode == KEY_DOWN or key.keycode == KEY_SPACE:
 		get_viewport().set_input_as_handled()

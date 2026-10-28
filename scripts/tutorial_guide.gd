@@ -375,6 +375,10 @@ func _finish_type() -> void:
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
+	if is_inside_tree():
+		for n in get_tree().get_nodes_in_group("authoring_overlay"):
+			if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+				return
 	_idle = 0.0
 	var key_ok: bool = event.is_action_pressed("ui_accept")
 	if event is InputEventKey and event.pressed and not event.echo:

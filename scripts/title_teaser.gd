@@ -601,6 +601,10 @@ func _on_gui(ev: InputEvent) -> void:
 func _input(ev: InputEvent) -> void:
 	if not visible:
 		return
+	if is_inside_tree():
+		for n in get_tree().get_nodes_in_group("authoring_overlay"):
+			if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+				return
 	if ev is InputEventKey and ev.pressed and not ev.echo:
 		if ev.keycode == KEY_M and holding_still:
 			music_dip = not music_dip

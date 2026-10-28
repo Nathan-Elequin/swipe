@@ -14,7 +14,7 @@ const AUTHOR_LOCK := preload("res://scripts/author_lock.gd")
 const RECENT_EDITS := preload("res://scripts/recent_edits.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 
-const LEGEND := "Attack and HP sit next to the name (orange / red). Copies and Priority are further right, grey, and are pool size / draw order — not combat stats. Headers stay lined up with the cells; scroll sideways if you need the later columns. Ctrl+F filter · Ctrl+S save · Ctrl+D duplicate · Esc discard."
+const LEGEND := "Attack and HP sit next to the name (orange / red). Copies and Priority are further right, grey, and are pool size / draw order — not combat stats. Headers stay lined up with the cells; scroll sideways if you need the later columns. Arrows move between boxes. Space types. Enter saves. Esc closes without saving. Ctrl+F filter · Ctrl+D duplicate."
 const COL_SEP := 4
 const STRIPE_W := 8.0
 const ROW_H := 64.0
@@ -127,6 +127,7 @@ func setup(p_art, p_sfx) -> void:
 	art = p_art
 	sfx = p_sfx
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group("authoring_overlay")
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	z_index = 125
@@ -292,14 +293,8 @@ func open_roster() -> void:
 
 
 func close_editor() -> void:
-	if _dirty and not _esc_armed:
-		_esc_armed = true
-		_status.text = "Unsaved edits. Esc again to discard, or Ctrl+S to save."
-		_status.add_theme_color_override("font_color", Color("8b1e1e"))
-		if sfx:
-			sfx.play("question", -10.0)
-		return
 	_esc_armed = false
+	_dirty = false
 	visible = false
 	get_tree().paused = false
 	if sfx:
@@ -887,11 +882,23 @@ func _area_cell(value: String, w: float, help: String, row: HBoxContainer, key: 
 	e.focus_entered.connect(_on_cell_focus.bind(row, help))
 	e.focus_exited.connect(_on_cell_blur)
 	e.gui_input.connect(func(event: InputEvent) -> void:
-		if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_TAB:
-			if event.shift_pressed:
+		if not event is InputEventKey:
+			return
+		var evk := event as InputEventKey
+		if not evk.pressed or evk.echo:
+			return
+		if evk.keycode == KEY_TAB:
+			if evk.shift_pressed:
 				_focus_before(e)
 			else:
 				_focus_after(e)
+			e.accept_event()
+			return
+		if evk.keycode == KEY_UP and e.get_caret_line() <= 0:
+			_focus_before(e)
+			e.accept_event()
+		elif evk.keycode == KEY_DOWN and e.get_caret_line() >= e.get_line_count() - 1:
+			_focus_after(e)
 			e.accept_event()
 	)
 	return e
@@ -1089,6 +1096,8 @@ func _wire_tabs() -> void:
 		cur.focus_previous = prv.get_path()
 		cur.focus_neighbor_right = nxt.get_path()
 		cur.focus_neighbor_left = prv.get_path()
+		cur.focus_neighbor_bottom = nxt.get_path()
+		cur.focus_neighbor_top = prv.get_path()
 
 
 func _focus_first() -> void:
@@ -1642,6 +1651,7 @@ func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float) -> 
 	var b := Button.new()
 	b.text = text
 	b.custom_minimum_size = Vector2(width, 40)
+	b.focus_mode = Control.FOCUS_NONE
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	b.add_theme_color_override("font_color", Color("f0e6d8"))
 	var n := StyleBoxFlat.new()
@@ -1660,14 +1670,23 @@ func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float) -> 
 func _input(event: InputEvent) -> void:
 	if not visible or _higher_overlay_open():
 		return
-	if event.is_action_pressed("ui_cancel"):
+	if not event is InputEventKey:
+		return
+	var key := event as InputEventKey
+	if not key.pressed or key.echo:
+		return
+	if key.keycode == KEY_ESCAPE:
 		close_editor()
 		get_viewport().set_input_as_handled()
 		return
-	if event.is_action_pressed("ui_accept"):
+	if key.keycode == KEY_ENTER or key.keycode == KEY_KP_ENTER:
+		if key.ctrl_pressed or key.alt_pressed or key.meta_pressed:
+			return
+		_on_save()
+		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and not event.echo and event.ctrl_pressed:
-		match event.keycode:
+	if key.ctrl_pressed:
+		match key.keycode:
 			KEY_S:
 				_on_save()
 				get_viewport().set_input_as_handled()
@@ -1679,3 +1698,13 @@ func _input(event: InputEvent) -> void:
 			KEY_D:
 				_on_duplicate()
 				get_viewport().set_input_as_handled()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible or _higher_overlay_open():
+		return
+	if not event is InputEventKey:
+		return
+	var key := event as InputEventKey
+	if key.keycode == KEY_LEFT or key.keycode == KEY_RIGHT or key.keycode == KEY_UP or key.keycode == KEY_DOWN or key.keycode == KEY_SPACE:
+		get_viewport().set_input_as_handled()

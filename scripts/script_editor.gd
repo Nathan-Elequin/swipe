@@ -5,7 +5,7 @@ signal saved(items: Array, monsters: Array)
 signal closed
 
 const COPY := preload("res://scripts/player_copy.gd")
-const LEGEND := "Every player-facing line. Header buttons jump the outline. Gold words are shared names — change them under Names. Save locks what you change. {item} {n} {k} stay as braces. Ctrl+F filter · Ctrl+S save · Esc discard."
+const LEGEND := "Every player-facing line. Header buttons jump the outline. Gold words are shared names — change them under Names. Save locks what you change. {item} {n} {k} stay as braces. Arrows move between boxes. Space types. Enter saves. Esc closes without saving. Ctrl+F filter."
 
 const SECTIONS: Array = [
 	{"id": "intro", "label": "Intro"},
@@ -46,11 +46,13 @@ var _focus_edit: TextEdit
 var _hl: NameHL
 var _names_mode: bool = false
 var _fitting: bool = false
+var _nav: Array = []
 
 
 func setup(p_sfx) -> void:
 	sfx = p_sfx
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group("authoring_overlay")
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	z_index = 125
@@ -250,16 +252,13 @@ func open_script() -> void:
 	_status.text = "%s lines · Save writes copy, lore, names, and card wording" % _rows.size()
 	_status.add_theme_color_override("font_color", Color("3d6b3d"))
 	call_deferred("_fit")
+	call_deferred("_focus_nav", 1 if _nav.size() > 1 else 0)
 
 
 func close_editor() -> void:
-	if _dirty and not _esc_armed:
-		_esc_armed = true
-		_status.text = "Unsaved edits. Esc again to discard, or Ctrl+S to save."
-		_status.add_theme_color_override("font_color", Color("8b1e1e"))
-		return
 	visible = false
 	_dirty = false
+	_esc_armed = false
 	get_tree().paused = _was_paused
 	closed.emit()
 
@@ -296,6 +295,7 @@ func _set_outline(oid: String) -> void:
 func _rebuild() -> void:
 	_fields.clear()
 	_name_fields.clear()
+	_nav.clear()
 	for c in _list.get_children():
 		_list.remove_child(c)
 		c.queue_free()
@@ -334,6 +334,7 @@ func _rebuild() -> void:
 		var title: String = gname if room == "" or room == gname else "%s · %s" % [room, gname]
 		head.text = ("%s  %s" % ["▸" if collapsed else "▾", title])
 		head.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		head.focus_mode = Control.FOCUS_NONE
 		head.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_skin_group(head)
 		var sec_id: String = str(bits[0]) if bits.size() > 0 else ""
@@ -345,6 +346,7 @@ func _rebuild() -> void:
 			_list.add_child(_make_row(row2))
 			shown += 1
 	_status.text = "%s shown · %s total" % [shown, _rows.size()]
+	_wire_nav()
 
 
 func _rebuild_names() -> void:
@@ -357,6 +359,7 @@ func _rebuild_names() -> void:
 	for row in _names:
 		_list.add_child(_make_name_row(row))
 	_status.text = "%s names · stored as {id} and {id|poss}" % _names.size()
+	_wire_nav()
 	var nav := Label.new()
 	nav.text = "Names"
 	nav.add_theme_font_size_override("font_size", 16)
@@ -390,6 +393,7 @@ func _fill_outline(q: String) -> void:
 		var b := Button.new()
 		b.text = oid
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.focus_mode = Control.FOCUS_NONE
 		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_paint_chip(b, oid == _outline or (_outline == "" and oid == rooms[0]))
 		b.pressed.connect(_set_outline.bind(oid))
@@ -565,6 +569,7 @@ func _make_row(row: Dictionary) -> PanelContainer:
 	e.focus_entered.connect(func() -> void:
 		_focus_edit = e
 	)
+	_register_nav(e)
 	var stored := Label.new()
 	stored.text = "Stored as  %s" % str(row.get("text", ""))
 	stored.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -621,6 +626,8 @@ func _make_name_row(row: Dictionary) -> PanelContainer:
 		_esc_armed = false
 	)
 	col.add_child(note)
+	_register_nav(display)
+	_register_nav(note)
 	_name_fields[nid] = {"display": display, "note": note}
 	return p
 
@@ -709,6 +716,7 @@ func _skin_edit(e: Control) -> void:
 func _chip(label: String, on: bool) -> Button:
 	var b := Button.new()
 	b.text = label
+	b.focus_mode = Control.FOCUS_NONE
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_paint_chip(b, on)
 	return b
@@ -733,6 +741,7 @@ func _btn(label: String, fill: Color, rim: Color, cb: Callable, width: float) ->
 	var b := Button.new()
 	b.text = label
 	b.custom_minimum_size = Vector2(width, 36)
+	b.focus_mode = Control.FOCUS_NONE
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	b.add_theme_color_override("font_color", Color("f0e6d8"))
 	var n := StyleBoxFlat.new()
@@ -750,15 +759,83 @@ func _btn(label: String, fill: Color, rim: Color, cb: Callable, width: float) ->
 	return b
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _register_nav(e: Control) -> void:
+	_nav.append(e)
+	if not e.has_meta("nav_hook"):
+		e.set_meta("nav_hook", true)
+		e.gui_input.connect(_on_edit_nav.bind(e))
+
+
+func _wire_nav() -> void:
+	if _search != null and _nav.find(_search) < 0:
+		_nav.insert(0, _search)
+		if not _search.has_meta("nav_hook"):
+			_search.set_meta("nav_hook", true)
+			_search.gui_input.connect(_on_edit_nav.bind(_search))
+	if _nav.is_empty():
+		return
+	for i in _nav.size():
+		var cur: Control = _nav[i]
+		var nxt: Control = _nav[(i + 1) % _nav.size()]
+		var prv: Control = _nav[(i - 1 + _nav.size()) % _nav.size()]
+		cur.focus_next = nxt.get_path()
+		cur.focus_previous = prv.get_path()
+		cur.focus_neighbor_bottom = nxt.get_path()
+		cur.focus_neighbor_top = prv.get_path()
+
+
+func _on_edit_nav(event: InputEvent, e: Control) -> void:
+	if not event is InputEventKey:
+		return
+	var key := event as InputEventKey
+	if not key.pressed or key.echo or key.ctrl_pressed or key.alt_pressed or key.meta_pressed:
+		return
+	var i: int = _nav.find(e)
+	if i < 0:
+		return
+	if key.keycode == KEY_UP:
+		if e is LineEdit or (e is TextEdit and (e as TextEdit).get_caret_line() <= 0):
+			_focus_nav(i - 1)
+			e.accept_event()
+	elif key.keycode == KEY_DOWN:
+		if e is LineEdit or (e is TextEdit and (e as TextEdit).get_caret_line() >= (e as TextEdit).get_line_count() - 1):
+			_focus_nav(i + 1)
+			e.accept_event()
+
+
+func _focus_nav(i: int) -> void:
+	if _nav.is_empty():
+		return
+	var n: int = _nav.size()
+	i = (i + n) % n
+	var e: Control = _nav[i]
+	e.grab_focus()
+	if e is LineEdit:
+		(e as LineEdit).caret_column = (e as LineEdit).text.length()
+	if _scroll:
+		_scroll.ensure_control_visible(e)
+
+
+func _input(event: InputEvent) -> void:
 	if not visible:
 		return
-	if event.is_action_pressed("ui_cancel"):
+	if not event is InputEventKey:
+		return
+	var key := event as InputEventKey
+	if not key.pressed or key.echo:
+		return
+	if key.keycode == KEY_ESCAPE:
 		close_editor()
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and not event.echo and event.ctrl_pressed:
-		match event.keycode:
+	if key.keycode == KEY_ENTER or key.keycode == KEY_KP_ENTER:
+		if key.ctrl_pressed or key.alt_pressed or key.meta_pressed:
+			return
+		_on_save()
+		get_viewport().set_input_as_handled()
+		return
+	if key.ctrl_pressed:
+		match key.keycode:
 			KEY_S:
 				_on_save()
 				get_viewport().set_input_as_handled()
@@ -767,6 +844,16 @@ func _unhandled_input(event: InputEvent) -> void:
 					_search.grab_focus()
 					_search.select_all()
 				get_viewport().set_input_as_handled()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if not event is InputEventKey:
+		return
+	var key := event as InputEventKey
+	if key.keycode == KEY_LEFT or key.keycode == KEY_RIGHT or key.keycode == KEY_UP or key.keycode == KEY_DOWN or key.keycode == KEY_SPACE:
+		get_viewport().set_input_as_handled()
 
 
 class NameHL extends SyntaxHighlighter:
