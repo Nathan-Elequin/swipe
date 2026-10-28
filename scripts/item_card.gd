@@ -68,6 +68,10 @@ var _bag_stamp: TextureRect
 var _or: RichTextLabel
 var _choice_badge: Label
 var _cabinet_badge: Label
+var _beggar_on: bool = false
+var _beggar_lab: Label
+var _beggar_flash: float = 0.0
+var _beggar_punch: Tween
 var _hp_cost: HBoxContainer
 var _face: Control
 var _glyph_rows: Array = []
@@ -858,6 +862,62 @@ func set_choice_badge(text: String) -> void:
 	lab.position = Vector2(maxf(4.0, face_w - w - 8.0), 2.0)
 
 
+func set_beggar_mark(on: bool) -> void:
+	_beggar_on = on
+	if on:
+		var lab := _ensure_beggar_label()
+		lab.visible = true
+	elif _beggar_lab != null:
+		_beggar_lab.visible = false
+	queue_redraw()
+
+
+func play_beggar_pick() -> void:
+	set_beggar_mark(true)
+	_beggar_flash = 1.0
+	pivot_offset = size * 0.5
+	scale = Vector2(1.2, 1.2)
+	if _beggar_punch != null:
+		_beggar_punch.kill()
+	_beggar_punch = create_tween()
+	_beggar_punch.tween_property(self, "scale", Vector2.ONE, 0.42).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	queue_redraw()
+
+
+func _ensure_beggar_label() -> Label:
+	if _beggar_lab != null:
+		return _beggar_lab
+	var lab := Label.new()
+	lab.name = "BeggarMark"
+	lab.text = "Beggar"
+	lab.tooltip_text = "When you Spin the Beggar, this Item will be Discarded"
+	lab.mouse_filter = Control.MOUSE_FILTER_STOP
+	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lab.add_theme_font_size_override("font_size", 11)
+	lab.add_theme_color_override("font_color", Color("e8c36a"))
+	lab.add_theme_color_override("font_outline_color", Color("100e0c"))
+	lab.add_theme_constant_override("outline_size", 4)
+	lab.z_index = 8
+	lab.custom_minimum_size = Vector2(72, 16)
+	lab.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT and _playable:
+			picked.emit()
+			lab.accept_event()
+	)
+	add_child(lab)
+	_beggar_lab = lab
+	_place_beggar_label()
+	return lab
+
+
+func _place_beggar_label() -> void:
+	if _beggar_lab == null:
+		return
+	var face_w: float = size.x if size.x > 8.0 else (SHOW_W if _showcase else CARD_W)
+	var face_h: float = size.y if size.y > 8.0 else (SHOW_H if _showcase else CARD_H)
+	_beggar_lab.position = Vector2((face_w - 72.0) * 0.5, face_h - 18.0)
+
+
 func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
 	if not on:
 		if _cabinet_badge:
@@ -1070,9 +1130,12 @@ func set_playable(on: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	if _beggar_flash > 0.0:
+		_beggar_flash = maxf(0.0, _beggar_flash - delta * 1.6)
+		queue_redraw()
 	# Attack/slash heavy: pause shimmer, breathe, and sparkle so the hotbar
 	# does not compete with the banner. Active sai/marble item FX still tick.
-	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy:
+	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy and _beggar_flash <= 0.0:
 		return
 	_shimmer_clock += delta
 	if _glow or _aura or _log_focus or _danger or _hot or _toss_pick:
@@ -1251,6 +1314,13 @@ func _apply_style(hot: bool) -> void:
 
 
 func _draw() -> void:
+	if _beggar_on:
+		var flash: float = clampf(_beggar_flash, 0.0, 1.0)
+		var col: Color = Color("8d7344").lerp(Color("ffe08a"), flash)
+		var width: float = 2.0 + flash * 3.0
+		var alpha: float = 0.78 + flash * 0.22
+		draw_rect(Rect2(Vector2(1, 1), size - Vector2(2, 2)), Color(col.r, col.g, col.b, alpha), false, width)
+		_place_beggar_label()
 	if _glow:
 		var period: float = 1.45 if _tier <= 1 else (1.05 if _tier == 2 else 0.72)
 		var pulse: float = 0.50 + 0.50 * absf(sin(_glow_t * TAU / period))
