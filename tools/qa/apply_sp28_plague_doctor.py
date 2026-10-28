@@ -13,7 +13,7 @@ ABILITY = (
 	"On Spin, my Neighbors Gain 2 Poison and Heal 2. "
 	"While I live, Poison does not activate."
 )
-CALL = "Time Bomb"
+CALL = "Outbreak"
 EXPLAINER = "Spin: Neighbors +2 Poison and Heal 2. Poison frozen while I live."
 REMINDER = "On Spin: Neighbors Gain 2 Poison and Heal 2. Poison does not activate while I live."
 LOG_HINT = "Neighbors +2 Poison and Heal 2; Poison frozen while alive"

@@ -5750,7 +5750,7 @@
 			},
 			"author_lock": true,
 			"bucket": 6.0,
-			"call_name": "Time Bomb",
+			"call_name": "Outbreak",
 			"card_color": "",
 			"count": 1.0,
 			"defined": "SP-28 (2026-10-28). On every Spin while I live unsilenced: each living Neighbor Gains 2 Poison and Heals 2 (cap at their max HP). Poison stacks keep growing. While I live unsilenced, Poison NEVER activates — monster poison and the player's poison both stay frozen. On the first Spin after I die (or Quiet Bell silences every living Plague Doctor), stored Poison activates normally. When Poison would activate but is blocked, show my slash portrait and the dissolving line 'Poison does not activate'.",

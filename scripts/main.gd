@@ -288,7 +288,7 @@ const MONSTER_CALL := {
 	"mouse": "Scurry",
 	"magicat": "Cat's Eye",
 	"poison_frog": "Toxic Skin",
-	"plague_doctor": "Time Bomb",
+	"plague_doctor": "Outbreak",
 	"rust_bucket": "Rust",
 }
 
