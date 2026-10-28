@@ -1,5 +1,5 @@
 extends "res://scripts/cabin/cabin_room.gd"
-## Mudroom: pegboard starting loot + reroll jar. Out door / Space → held map.
+## Outpost (room id mudroom): pegboard starting loot + reroll jar. Wall / Space → map in hands.
 
 signal peg_changed
 signal out_wanted
@@ -32,7 +32,7 @@ func _build_special() -> void:
 	_title_lab.name = "MudroomTitle"
 	_title_lab.text = KIT.copy_text("room.mudroom.name")
 	if _title_lab.text.strip_edges() == "":
-		_title_lab.text = "The Mudroom"
+		_title_lab.text = "Outpost"
 	_title_lab.add_theme_font_size_override("font_size", 42)
 	_title_lab.add_theme_color_override("font_color", KIT.TITLE_CREAM)
 	_title_lab.position = KIT.pt(12, 10)
@@ -50,7 +50,7 @@ func _build_special() -> void:
 	_hint_lab.z_index = 8
 	_hint_lab.text = KIT.copy_text("mudroom.space")
 	if _hint_lab.text.strip_edges() == "":
-		_hint_lab.text = "pull out the map"
+		_hint_lab.text = "Space or wall — map in hands"
 	add_child(_hint_lab)
 	_peg_host = Control.new()
 	_peg_host.name = "PegBoard"
