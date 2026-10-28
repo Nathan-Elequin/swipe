@@ -3,7 +3,7 @@ id: REQ-20261028-hall-sign-outpost
 status: open
 priority: medium
 pr: 172
-tip_sha: 5c54c29d
+tip_sha: dc86ed13
 branch: cursor/hall-sign-outpost-3173
 base: playtest/latest
 created: 2026-10-28T20:40:00Z
