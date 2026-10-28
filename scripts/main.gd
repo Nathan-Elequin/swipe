@@ -215,7 +215,7 @@ const MONSTER_SPECIAL := {
 	"cleric": {"id": "insure", "text": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item"},
 	"martyr": {"id": "noble_death", "text": "When I Attack, I die. Neighbors gain my HP."},
 	"prism": {"id": "refract", "text": "Attack at me hits both neighbors instead."},
-	"plague_doctor": {"id": "always_plague", "text": "Neighbors Always have 2 Poison. On Spin I heal them 2."},
+	"plague_doctor": {"id": "time_bomb", "text": "On Spin, my Neighbors Gain 2 Poison and Heal 2. While I live, Poison does not activate."},
 	"hired_hand": {"id": "bribe", "text": "Discard an item: I Attack a Neighbor and Flee."},
 	"hydra": {"id": "even_killer", "text": "I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each"},
 	"three_seeker": {"id": "triple_threat", "text": "If you have 3, 6, or 9 Items, you Always Spin me next"},
@@ -288,6 +288,7 @@ const MONSTER_CALL := {
 	"mouse": "Scurry",
 	"magicat": "Cat's Eye",
 	"poison_frog": "Toxic Skin",
+	"plague_doctor": "Time Bomb",
 	"rust_bucket": "Rust",
 }
 
@@ -340,6 +341,7 @@ const MONSTER_REMINDER := {
 	"mouse": "On Spin: if your HP is higher, I lose 2 HP and Flee",
 	"magicat": "On Spin: 2 Atk or Blk Items become Marbles with that number",
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
+	"plague_doctor": "Spin: Neighbors +2 Poison and Heal 2; Poison frozen while I live",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
 }
 
@@ -391,6 +393,7 @@ const MONSTER_SPEECH := {
 	"mouse": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
 	"magicat": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
 	"poison_frog": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
+	"plague_doctor": "On Spin, my Neighbors Gain 2 Poison and Heal 2. While I live, Poison does not activate.",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
 }
 
@@ -7157,8 +7160,15 @@ func _on_spin() -> void:
 	if cascade_ticker != null:
 		cascade_ticker.begin()
 	# Poison pays on every living monster before any spin ability. A kill stays
-	# in the seat until the other abilities finish.
-	if await _tick_all_monster_poison():
+	# in the seat until the other abilities finish. SP-28: while any living
+	# unsilenced Plague Doctor is on the wheel, ALL poison (monster + player)
+	# stays frozen and does not activate.
+	var plague_freeze: bool = _plague_freezes_poison()
+	var poison_would_tick: bool = _any_monster_poison_pending() or (player_poison > 0 and _living_monster_count() > 0)
+	if plague_freeze:
+		if poison_would_tick:
+			await _play_plague_poison_blocked_fx()
+	elif await _tick_all_monster_poison():
 		_undo_arm()
 		return
 	_sync_plague_poison()
@@ -7207,8 +7217,8 @@ func _on_spin() -> void:
 		if await _step_hexs():
 			await _bleed_end()
 			return
-	_apply_plague_heals_on_spin()
-	if _living_monster_count() > 0:
+	_apply_plague_doctor_on_spin()
+	if not plague_freeze and _living_monster_count() > 0:
 		if await _tick_player_poison():
 			_undo_arm()
 			return
@@ -9598,23 +9608,12 @@ func _add_monster_poison(index: int, n: int) -> void:
 	wheel[index] = m
 	if wheel_view != null and wheel_view.has_method("poison_badge_gain"):
 		wheel_view.poison_badge_gain(index)
+	_sync_plague_poison()
 
 
-func _plague_locks_poison(index: int) -> bool:
-	if index < 0 or index >= wheel.size():
-		return false
-	for ni in _neighbors_of(index):
-		if ni < 0 or ni >= wheel.size():
-			continue
-		var n: Dictionary = wheel[ni]
-		if str(n.get("card_id", "")) != "plague_doctor":
-			continue
-		if int(n.get("hp", 0)) <= 0:
-			continue
-		if _is_silenced(n):
-			continue
-		return true
-	return false
+## SP-28: living unsilenced Plague Doctor freezes ALL poison activation.
+func _plague_freezes_poison() -> bool:
+	return not _plague_doctor_indices().is_empty()
 
 
 func _plague_doctor_indices() -> Array[int]:
@@ -9631,29 +9630,32 @@ func _plague_doctor_indices() -> Array[int]:
 	return out
 
 
-func _sync_plague_poison() -> void:
-	var locked := {}
-	for pd in _plague_doctor_indices():
-		for ni in _neighbors_of(pd):
-			if ni < 0 or ni >= wheel.size():
-				continue
-			if int(wheel[ni].get("hp", 0)) <= 0:
-				continue
-			locked[ni] = true
+func _any_monster_poison_pending() -> bool:
 	for i in wheel.size():
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
-		if bool(locked.get(i, false)):
-			wheel[i]["poison"] = 2
-			wheel[i]["poisoned"] = true
-			wheel[i]["plague_held"] = true
-		elif bool(wheel[i].get("plague_held", false)):
-			wheel[i]["poison"] = 0
-			wheel[i]["poisoned"] = false
-			wheel[i]["plague_held"] = false
+		if int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		if _poison_of(wheel[i]) > 0:
+			return true
+	return false
 
 
-func _apply_plague_heals_on_spin() -> void:
+## Padlock badges while freeze is on: stacks keep growing, poison does not pay.
+func _sync_plague_poison() -> void:
+	var freeze: bool = _plague_freezes_poison()
+	for i in wheel.size():
+		if str(wheel[i].get("kind", "")) != "monster":
+			continue
+		var dose: int = _poison_of(wheel[i])
+		wheel[i]["poisoned"] = dose > 0
+		wheel[i]["plague_held"] = freeze and dose > 0
+	if wheel_view != null:
+		wheel_view.hub_poison_locked = freeze and player_poison > 0
+
+
+## SP-28 On Spin: each living neighbor Gains 2 Poison and Heals 2.
+func _apply_plague_doctor_on_spin() -> void:
 	var any: bool = false
 	for pd in _plague_doctor_indices():
 		for ni in _neighbors_of(pd):
@@ -9662,14 +9664,43 @@ func _apply_plague_heals_on_spin() -> void:
 			var m: Dictionary = wheel[ni]
 			if int(m.get("hp", 0)) <= 0:
 				continue
-			m["hp_max"] = int(m.get("hp_max", m.get("hp", 0))) + 2
-			m["hp"] = int(m.get("hp", 0)) + 2
-			m["hp_locked"] = true
-			wheel[ni] = m
+			if str(m.get("kind", "")) != "monster":
+				continue
+			_add_monster_poison(ni, 2)
+			_heal_monster(ni, 2)
 			any = true
-			_log("on_spin", "Plague Doctor heal +2  →  %s HP" % m["hp"])
+			_log("on_spin", "Plague Doctor poison +2 heal +2  →  %s HP, poison %s" % [
+				wheel[ni].get("hp", 0), _poison_of(wheel[ni])
+			])
 	if any:
+		_sync_plague_poison()
 		_refresh()
+
+
+func _play_plague_poison_blocked_fx() -> void:
+	var idxs: Array[int] = _plague_doctor_indices()
+	if idxs.is_empty():
+		return
+	var pd: int = idxs[0]
+	var s: Dictionary = wheel[pd]
+	_flash_banner("Poison does not activate")
+	if ability_slash:
+		var tex: Texture2D = null
+		if art != null:
+			tex = art.monster_still("plague_doctor")
+		var ticket_i: int = -1
+		if cascade_ticker != null and cascade_ticker.active:
+			ticket_i = cascade_ticker.push("plague_doctor", tex)
+		await ability_slash.play({
+			"title": str(s.get("name", "Plague Doctor")),
+			"call": "Poison does not activate",
+			"tex": tex,
+			"is_item": false,
+			"card_id": "plague_doctor",
+			"ticket": ticket_i,
+			"release_early": true,
+		})
+	_log("on_spin", "Poison does not activate")
 
 
 func _miasma_min_hp() -> int:
@@ -9712,11 +9743,9 @@ func _use_miasma(it: Dictionary) -> void:
 			continue
 		if int(wheel[i].get("hp", 0)) <= 0:
 			continue
-		if _plague_locks_poison(i):
-			wheel[i]["poison"] = 2
-			wheel[i]["poisoned"] = true
-		else:
-			_add_monster_poison(i, n)
+		# SP-28: stacks add normally even beside Plague Doctor; freeze blocks activation, not gain.
+		_add_monster_poison(i, n)
+	_sync_plague_poison()
 	_refresh()
 	if sfx:
 		sfx.play_event(&"status.poison")
@@ -9731,8 +9760,10 @@ func _clear_monster_poison(index: int) -> void:
 		return
 	wheel[index]["poison"] = 0
 	wheel[index]["poisoned"] = false
+	wheel[index]["plague_held"] = false
 	if wheel_view != null and wheel_view.has_method("poison_badge_clear"):
 		wheel_view.poison_badge_clear(index)
+	_sync_plague_poison()
 
 
 func _living_monster_count() -> int:
@@ -9827,6 +9858,7 @@ func _gain_player_poison(n: int) -> void:
 		return
 	player_poison = maxi(0, player_poison) + n
 	_log("on_item_use", "poison %s" % player_poison)
+	_sync_plague_poison()
 	_refresh()
 	if sfx:
 		sfx.play_event(&"status.poison")
