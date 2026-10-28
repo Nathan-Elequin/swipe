@@ -5,13 +5,14 @@ var drawer_glint: AnimatedSprite2D
 
 
 func _build_special() -> void:
+	## Room art is H-flipped (cabin left chain). Mirror native X: 420 - x - w.
 	var flames: Array = extra.get("anchors", {}).get("study", {}).get("flame", [])
 	for f in flames:
 		if f is Array and f.size() >= 2:
-			_candle(Vector2(float(f[0]), float(f[1])))
+			_candle(Vector2(420.0 - float(f[0]) - 6.0, float(f[1])))
 	drawer_glint = KIT.anim_sprite(
 		["fx/drawer_glint_f0.png", "fx/drawer_glint_f1.png", "fx/drawer_glint_f2.png", "fx/drawer_glint_f3.png", "fx/drawer_glint_f4.png"],
-		"g", 1000.0 / 70.0, false, Vector2(211, 163)
+		"g", 1000.0 / 70.0, false, Vector2(420.0 - 211.0 - 12.0, 163)
 	)
 	var mat := CanvasItemMaterial.new()
 	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
@@ -34,10 +35,12 @@ func _glint_wait() -> void:
 
 func _refresh_doors() -> void:
 	var shop_open: bool = cabin != null and cabin.is_room_unlocked("workshop")
+	## After cabin flip: SideDoor is on the LEFT (further into the study chain).
 	var side = spots.get("SideDoor", null)
 	if side is CabinHotspot:
 		side.tag_key = "cabin.hot.door_workshop" if shop_open else "cabin.hot.door_locked"
 		side.set_locked(not shop_open, KIT.load_tex("doors/side_door_locked.png"))
+		side.flip_h = true
 		if shop_open:
 			side.locked_tex = null
 			side.hover_tex = KIT.load_tex("doors/side_door_hover.png")
@@ -47,7 +50,7 @@ func _refresh_doors() -> void:
 			side.set_idle_tex(closed)
 	var back = spots.get("BackDoor", null)
 	if back is CabinHotspot:
-		back.tag_key = "cabin.hot.back_hall"
+		back.tag_key = "cabin.hot.back_main"
 	var dr = spots.get("Drawer", null)
 	if dr is CabinHotspot and cabin:
 		if not cabin.ending_seen:

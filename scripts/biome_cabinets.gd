@@ -1,13 +1,27 @@
 class_name BiomeCabinets
 extends RefCounted
 ## Five vertical trophy cases, one per biome pool.
-## Art drop (Nearest, lossless, no mipmaps). Missing files use a tinted frame:
+## Visual source of truth is the Doop plate `rooms/cabinets_wall.png` (1680×1040).
+## Live overlays are hit-only + slot icons aligned to CASE_GLASS — do not redraw case frames.
+## Legacy frame PNGs kept on disk for reference / tooling; hall no longer paints them:
 ##   res://assets/dungeon/home/cabinets/case_verdant_hollow.png
 ##   res://assets/dungeon/home/cabinets/case_sunken_mire.png
 ##   res://assets/dungeon/home/cabinets/case_ashen_crypt.png
 ##   res://assets/dungeon/home/cabinets/case_cinder_forge.png
 ##   res://assets/dungeon/home/cabinets/case_shadow_abyss.png
 
+
+## Native (420×260) rect covering all five plate cases. Hall `_hole` uses this.
+const CASES_BOUNDS: Array = [76, 56, 298, 160]
+
+## Native glass interiors per pool (inset inside each plate case). Order = CASES.
+const CASE_GLASS: Array = [
+	[82, 68, 48, 138],
+	[142, 68, 48, 138],
+	[202, 68, 48, 138],
+	[262, 68, 48, 138],
+	[322, 68, 48, 138],
+]
 
 const CASES: Array = [
 	{
@@ -46,6 +60,22 @@ const CASES: Array = [
 		"frame": "cabinets/case_shadow_abyss",
 	},
 ]
+
+
+static func cases_bounds_rect() -> Rect2:
+	return Rect2(
+		float(CASES_BOUNDS[0]),
+		float(CASES_BOUNDS[1]),
+		float(CASES_BOUNDS[2]),
+		float(CASES_BOUNDS[3])
+	)
+
+
+static func glass_rect(index: int) -> Rect2:
+	if index < 0 or index >= CASE_GLASS.size():
+		return Rect2()
+	var g: Array = CASE_GLASS[index]
+	return Rect2(float(g[0]), float(g[1]), float(g[2]), float(g[3]))
 
 const STUB_NAMES := {
 	"The Cellar": "Verdant Hollow",

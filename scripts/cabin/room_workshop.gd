@@ -5,9 +5,10 @@ var brag_gear: AnimatedSprite2D
 
 
 func _build_special() -> void:
+	## Room art is H-flipped (cabin left chain). Mirror native X for the gear pip.
 	brag_gear = KIT.anim_sprite(
 		["props/brag_gear_f0.png", "props/brag_gear_f1.png", "props/brag_gear_f2.png", "props/brag_gear_f3.png"],
-		"g", 1000.0 / 120.0, true, Vector2(220, 116)
+		"g", 1000.0 / 120.0, true, Vector2(420.0 - 220.0 - 12.0, 116)
 	)
 	brag_gear.z_index = 4
 	add_child(brag_gear)
@@ -27,10 +28,12 @@ func _build_special() -> void:
 
 func _refresh_doors() -> void:
 	var loft_open: bool = cabin != null and cabin.is_room_unlocked("loft")
+	## Ladder sits on the LEFT after the cabin flip.
 	var lad = spots.get("Ladder", null)
 	if lad is CabinHotspot:
 		lad.tag_key = "cabin.hot.door_loft" if loft_open else "cabin.hot.door_locked"
 		lad.set_locked(not loft_open, KIT.load_tex("doors/ladder_locked.png"))
+		lad.flip_h = true
 		if loft_open:
 			lad.locked_tex = null
 			lad.hover_tex = KIT.load_tex("doors/ladder_hover.png")

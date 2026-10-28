@@ -147,7 +147,8 @@ func _build_mudroom_layers() -> void:
 func _refresh_doors() -> void:
 	var back = spots.get("BackDoor", null)
 	if back is CabinHotspot:
-		back.tag_key = "mudroom.exit.cabin"
+		## Left/back → trophy hall (cabin path in).
+		back.tag_key = "cabin.hot.back_hall"
 		back.set_locked(false)
 		var closed: Texture2D = KIT.load_tex("doors/side_door_closed.png")
 		if closed:
@@ -155,7 +156,7 @@ func _refresh_doors() -> void:
 		back.hover_tex = KIT.load_tex("doors/doorway_hover.png")
 	var out = spots.get("OutDoor", null)
 	if out is CabinHotspot:
-		## Wall parchment hotspot (not a run door). Same open path as Space.
+		## Rightmost leave-cabin exit (map in hands / delve). Same path as Space.
 		out.tag_key = "mudroom.exit.out"
 		out.set_locked(false)
 		var wall_map: Texture2D = KIT.load_tex("props/map_wall.png")
@@ -163,6 +164,14 @@ func _refresh_doors() -> void:
 			out.set_idle_tex(wall_map)
 		out.hover_tex = KIT.load_tex("props/map_wall_hover.png")
 		out.press_tex = KIT.load_tex("props/map_wall_press.png")
+	var leave = spots.get("LeaveDoor", null)
+	if leave is CabinHotspot:
+		leave.tag_key = "mudroom.exit.out"
+		leave.set_locked(false)
+		var run_closed: Texture2D = KIT.load_tex("doors/run_door_closed.png")
+		if run_closed:
+			leave.set_idle_tex(run_closed)
+		leave.hover_tex = KIT.load_tex("doors/run_door_hover.png")
 	## Backup hit over the prep table if the layout wall hotspot is missing.
 	_ensure_wall_map_hit()
 	var jar = spots.get("RerollJar", null)
