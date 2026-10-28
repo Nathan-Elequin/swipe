@@ -4694,12 +4694,15 @@ func _fill_challenge_hole(i: int) -> void:
 		return
 	if not bool(wheel[i].get("challenge_hole", false)):
 		return
+	var token: int = _undo_gen
 	var hole: Dictionary = wheel[i]
 	if bool(hole.get("mimic_gift", false)):
 		await _grant_mimic_gift()
+		if _undo_stale(token):
+			return
 	var collapsing: bool = challenge_deck.is_empty()
 	await _challenge_refill_or_collapse(i)
-	if collapsing:
+	if _undo_stale(token) or collapsing:
 		return
 	if i < 0 or i >= wheel.size():
 		return
@@ -4723,11 +4726,18 @@ func _fill_challenge_hole(i: int) -> void:
 func _challenge_refill_or_collapse(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
+	var token: int = _undo_gen
 	if not challenge_deck.is_empty():
 		if dungeon_deck_ui:
 			if wheel_view:
 				dungeon_deck_ui.entry_global = wheel_view.slice_portrait_global(index)
 			await dungeon_deck_ui.play_draw()
+			if _undo_stale(token):
+				return
+		if challenge_deck.is_empty() or index < 0 or index >= wheel.size():
+			return
+		if not bool(wheel[index].get("challenge_hole", false)):
+			return
 		var raw: Variant = challenge_deck.pop_front()
 		var nid: String = _deck_card_id(raw)
 		if dungeon_deck_ui and not dungeon_deck_ui.is_busy():
@@ -4737,6 +4747,8 @@ func _challenge_refill_or_collapse(index: int) -> void:
 				await wheel_view.recenter_on(_live_facing_seat(), 0.28)
 			else:
 				await wheel_view.rotate_index_to_top(index, 0.42)
+			if _undo_stale(token):
+				return
 		if ability_slash:
 			var tex: Texture2D = null
 			if art != null:
@@ -4748,7 +4760,13 @@ func _challenge_refill_or_collapse(index: int) -> void:
 				"is_item": false,
 				"card_id": nid,
 			})
+			if _undo_stale(token):
+				return
+		if index < 0 or index >= wheel.size() or not bool(wheel[index].get("challenge_hole", false)):
+			return
 		await _seat_opener(index, nid, "draft")
+		if _undo_stale(token):
+			return
 		if typeof(raw) == TYPE_DICTIONARY:
 			_apply_deck_scars(index, raw)
 		if wheel_view:
@@ -4761,6 +4779,8 @@ func _challenge_refill_or_collapse(index: int) -> void:
 				await wheel_view.recenter_on(keep_face, 0.22)
 			else:
 				wheel_view.set_slices(wheel, -1, "none")
+			if _undo_stale(token):
+				return
 			wheel_view.pulse_arrive(index)
 		if sfx:
 			sfx.play("drop", -8.0)
@@ -4769,6 +4789,10 @@ func _challenge_refill_or_collapse(index: int) -> void:
 		return
 	if wheel_view:
 		await wheel_view.collapse_slice(index)
+		if _undo_stale(token):
+			return
+	if index < 0 or index >= wheel.size():
+		return
 	wheel.remove_at(index)
 	if challenge_aim == index:
 		challenge_aim = -1
@@ -5218,6 +5242,8 @@ func _seat_night_watch(upgrade: bool = true) -> void:
 
 
 func _seat_opener(si: int, mid: String, pack_kind: String) -> void:
+	if pack_kind == "draft" and (si < 0 or si >= wheel.size() or not bool(wheel[si].get("challenge_hole", false))):
+		return
 	var m: Dictionary = _make_monster(mid)
 	m["slot"] = SLOT_ORDER[si]
 	m["spin_locked"] = false
@@ -7149,7 +7175,11 @@ func _on_spin() -> void:
 	challenge_aim = -1
 	if wheel_view:
 		wheel_view.selected_index = -1
-	if _click_choose_fight() and adventure and not in_tutorial:
+	if _undo_inflight:
+		# Keep the item snapshot (Bag of Holding, Boot, …). Spinning the next
+		# owner is still that same click — Undo must rewind all of it.
+		_unspin_armed = false
+	elif _click_choose_fight() and adventure and not in_tutorial:
 		_undo_stack.append(_capture_run())
 		_redo_stack.clear()
 		_unspin_armed = true
@@ -8128,12 +8158,21 @@ func _abort_open_loot() -> void:
 		challenge_draft_ui.hide_draft()
 
 
+func _clear_fx_banners() -> void:
+	if play_field == null:
+		return
+	for child in play_field.get_children():
+		if child != null and child.has_meta("fx_banner"):
+			child.queue_free()
+
+
 func _restore_run(snap: Dictionary) -> void:
 	if snap.is_empty():
 		return
 	_undo_gen += 1
 	_abort_open_loot()
 	_undo_kill_motion()
+	_clear_fx_banners()
 	hp = int(snap.get("hp", hp))
 	player_poison = int(snap.get("player_poison", player_poison))
 	blk = int(snap.get("blk", blk))
@@ -9422,6 +9461,9 @@ func _use_bag_hold(it: Dictionary) -> void:
 			sfx.play("error", -10.0)
 		return
 	await _count_item_use()
+	var token: int = _undo_gen
+	if _undo_stale(token):
+		return
 	_log("on_item_use", str(it["name"]))
 	_log("on_resolve", "bag")
 	_fill_bag(it, m)
@@ -9432,6 +9474,8 @@ func _use_bag_hold(it: Dictionary) -> void:
 	_hotbar_sig = ""
 	_refresh()
 	await _bag_remove_facing()
+	if _undo_stale(token):
+		return
 
 
 func _fill_bag(it: Dictionary, m: Dictionary) -> void:
@@ -9476,8 +9520,9 @@ func _find_loaded_bag() -> Dictionary:
 func _bag_remove_facing() -> void:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return
+	var token: int = _undo_gen
 	await _on_owner_defeated(facing_index)
-	if hp <= 0:
+	if _undo_stale(token) or hp <= 0:
 		return
 	if adventure:
 		var start: int = facing_index
@@ -9491,12 +9536,16 @@ func _bag_remove_facing() -> void:
 		blk = 0
 		_log("var", "BLK 0")
 		await _challenge_resolve_holes(start)
+		if _undo_stale(token):
+			return
 		_sync_wheel_stats()
 	else:
 		var m: Dictionary = wheel[facing_index]
 		var left_id: String = str(m.get("card_id", ""))
 		if left_id == "mimic" and not enemy_attacked:
 			await _grant_mimic_gift()
+			if _undo_stale(token):
+				return
 		if _install_laid_egg(facing_index):
 			facing_index = -1
 		else:
@@ -9508,14 +9557,22 @@ func _bag_remove_facing() -> void:
 		_log("var", "BLK 0")
 		_log("var", "defeated %s" % mobs_defeated)
 		await _collapse_dead_wicks()
+		if _undo_stale(token):
+			return
 		_sync_wheel_stats()
 		await _slay_pending_ogres()
+		if _undo_stale(token):
+			return
 	phase = "ready"
 	if _monsters_left() == 0:
 		if await _try_release_bag():
+			if _undo_stale(token):
+				return
 			_refresh()
 			_walker_busy = false
 			await _maybe_auto_spin()
+			return
+		if _undo_stale(token):
 			return
 		_enter_dungeon_clear()
 		_refresh()
@@ -11030,6 +11087,7 @@ func _flash_banner(msg: String, ticker_id: String = "", ticker_tex: Texture2D = 
 	lab.set_outline(Color("100e0c"), 6)
 	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	lab.z_index = 40
+	lab.set_meta("fx_banner", true)
 	play_field.add_child(lab)
 	lab.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	lab.offset_left = -340.0 if long_line else -220.0
@@ -11059,6 +11117,7 @@ func _flash_banner_at(msg: String, at: Vector2) -> void:
 	lab.set_outline(Color("100e0c"), 6)
 	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	lab.z_index = 45
+	lab.set_meta("fx_banner", true)
 	play_field.add_child(lab)
 	lab.size = Vector2(240, 36)
 	lab.global_position = at - Vector2(120, 18)
