@@ -83,3 +83,8 @@ static func spotlight_lift_alpha() -> float:
 
 static func spotlight_dim_alpha() -> float:
 	return 0.72
+
+
+static func space_hint_always_when_waiting() -> bool:
+	## SP-10 blink alone is not enough — show floating Space copy whenever a beat waits on Space.
+	return true

@@ -4190,7 +4190,7 @@
 			"cat": "Tutorial",
 			"key": "tutorial.space_hint",
 			"text": "Press Space to continue.",
-			"where": "Bottom of How to Play, after five seconds idle"
+			"where": "Floating white Space hint whenever a talk beat waits on Space"}
 		},
 		{
 			"cat": "Title",

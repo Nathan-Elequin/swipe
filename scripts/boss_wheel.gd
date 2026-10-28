@@ -1204,6 +1204,8 @@ func _process(delta: float) -> void:
 				want = 0.62 + 0.28 * sin(_glow_t * 5.0)
 			elif threat_indices.has(i) and facing_index < 0:
 				want = 0.72 + 0.28 * sin(_glow_t * 7.0)
+			elif highlight == "mark" and i < slices.size() and bool(slices[i].get("markable", false)):
+				want = 0.78 + 0.22 * absf(sin(_glow_t * 6.5))
 			elif i == hover_index:
 				want = 0.7
 			elif i == facing_index:
@@ -2331,12 +2333,17 @@ func _draw_slice(c: Vector2, radius: float, a0: float, a1: float, i: int) -> voi
 		rim = BRIBE_RIM
 		rw = 3.0
 	elif highlight == "mark" and bool(s.get("markable", false)):
+		var mark_pulse: float = 0.55 + 0.45 * absf(sin(_glow_t * 7.0))
 		if is_hover and int(s.get("across", -1)) >= 0:
 			rim = Color("ffd84a")
-			rw = 4.2
+			rw = 4.2 + mark_pulse * 1.6
+		elif is_hover:
+			rim = Color("ffd84a")
+			rw = 4.6 + mark_pulse * 1.8
 		else:
-			rim = Color("8dcb8d")
-			rw = 3.2
+			rim = Color("e8c36a").lerp(Color("8dcb8d"), 0.35)
+			rw = 4.0 + mark_pulse * 2.2
+		draw_arc(origin, r + 8.0 + mark_pulse * 4.0, a0, a1, 26, Color(1.0, 0.90, 0.40, 0.28 + 0.42 * mark_pulse), 3.5 + mark_pulse * 2.0, true)
 	elif str(s.get("kind", "")) == "monster":
 		var t: int = _plate_tier(s)
 		rim = Color("c08050")
