@@ -8,8 +8,17 @@ signal jar_reroll_wanted
 const PEG_EMPTY := "props/gear_peg_empty.png"
 const HOOK_W := 18.0
 const HOOK_H := 18.0
+const MUD_WALL := "mudroom/mudroom_wall_96"
+const MUD_FLOOR := "mudroom/mudroom_floor_96x32"
+const MUD_PEGS := "mudroom/mudroom_pegs_96x32"
+const MUD_BOOTS := "mudroom/mudroom_boots_32x32"
+const MUD_PREP := "mudroom/mudroom_prep_table_96x48"
+const ROOM_W_NATIVE := 420.0
+const FLOOR_Y_NATIVE := 228.0
+const FLOOR_H_NATIVE := 32.0
 
 var _hooks: Array = []
+var _mudroom_bg_built: bool = false
 var _hook_ids: Array = []
 var _selected: Dictionary = {}
 var _jar_lab: Label
@@ -72,14 +81,67 @@ func _ensure_jar_label() -> void:
 	add_child(_jar_lab)
 
 
+func request_bg() -> void:
+	_apply_bg()
+
+
+func ensure_bg() -> void:
+	_apply_bg()
+
+
 func _apply_bg() -> void:
-	bg.texture = KIT.load_tex(_bg_rel)
-	if bg.texture == null:
-		## No dedicated mudroom plate yet — reuse workshop with the room label.
-		bg.texture = KIT.load_tex("rooms/room_workshop.png")
-		if bg.texture == null:
-			bg.texture = KIT.load_tex("rooms/room_main.png")
-	_loaded_bg = bg.texture != null
+	if _loaded_bg:
+		return
+	bg.texture = null
+	_build_mudroom_layers()
+	_loaded_bg = true
+
+
+func _build_mudroom_layers() -> void:
+	if _mudroom_bg_built:
+		return
+	_mudroom_bg_built = true
+	var host := Control.new()
+	host.name = "MudroomLayers"
+	host.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.z_index = 0
+	var wall_h: float = FLOOR_Y_NATIVE
+	var wall: NinePatchRect = KIT.nine(MUD_WALL, Vector2(12, 12))
+	wall.name = "BackWall"
+	wall.position = Vector2.ZERO
+	wall.size = Vector2(ROOM_W_NATIVE, wall_h) * PX
+	wall.z_index = 0
+	host.add_child(wall)
+	var floor_tex: Texture2D = KIT.load_tex(MUD_FLOOR)
+	if floor_tex:
+		var x: float = 0.0
+		var idx := 0
+		while x < ROOM_W_NATIVE:
+			var tile := TextureRect.new()
+			tile.name = "Floor_%d" % idx
+			tile.texture = floor_tex
+			tile.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			tile.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			tile.stretch_mode = TextureRect.STRETCH_KEEP
+			tile.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			tile.position = Vector2(x, FLOOR_Y_NATIVE) * PX
+			tile.size = Vector2(96.0, FLOOR_H_NATIVE) * PX
+			tile.z_index = 1
+			host.add_child(tile)
+			x += 96.0
+			idx += 1
+	var pegs: TextureRect = KIT.tex_rect(MUD_PEGS, Vector2(160, 36), Vector2(96, 32), 2)
+	pegs.name = "PegRail"
+	host.add_child(pegs)
+	var boots: TextureRect = KIT.tex_rect(MUD_BOOTS, Vector2(48, 232), Vector2(32, 32), 2)
+	boots.name = "Boots"
+	host.add_child(boots)
+	var prep: TextureRect = KIT.tex_rect(MUD_PREP, Vector2(308, 96), Vector2(96, 48), 3)
+	prep.name = "PrepTable"
+	host.add_child(prep)
+	add_child(host)
+	move_child(host, 1)
 
 
 func _refresh_doors() -> void:
