@@ -15300,6 +15300,8 @@ func _martyr_noble_death(index: int) -> void:
 	var gift: int = int(s.get("hp", 0))
 	if gift <= 0:
 		return
+	# Slash portrait first, then the death, so the call and the HP tell line up.
+	await _announce_slice(index, _hub_hp_pos())
 	await _chip_hp(index, gift)
 	for j in _neighbors_of(index):
 		if j < 0 or j >= wheel.size():
