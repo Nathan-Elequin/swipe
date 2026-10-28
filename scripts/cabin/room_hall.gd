@@ -1,12 +1,32 @@
 extends "res://scripts/cabin/cabin_room.gd"
 ## Trophy hall. Cabin reparents _hole / _shelf_host here.
+## Doop ship-strip cabinets wall (1680×1040) is the room plate north star.
+
+
+const CABINETS_WALL := "rooms/cabinets_wall.png"
 
 
 func _build_special() -> void:
+	## Prefer Doop cabinets wall plate when present; else classic room_hall.
+	if ResourceLoader.exists(KIT.HOME + CABINETS_WALL):
+		_bg_rel = CABINETS_WALL
+		_loaded_bg = false
 	var flames: Array = extra.get("anchors", {}).get("hall", {}).get("flame", [])
 	for f in flames:
 		if f is Array and f.size() >= 2:
 			_candle(Vector2(float(f[0]), float(f[1])))
+
+
+func _apply_bg() -> void:
+	var plate: Texture2D = KIT.load_tex(CABINETS_WALL)
+	if plate:
+		bg.texture = plate
+		_bg_rel = CABINETS_WALL
+		_loaded_bg = true
+		return
+	bg.texture = KIT.load_tex("rooms/room_hall.png")
+	_bg_rel = "rooms/room_hall.png"
+	_loaded_bg = bg.texture != null
 
 
 func _refresh_doors() -> void:

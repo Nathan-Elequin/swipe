@@ -11,17 +11,20 @@ const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const DEV := preload("res://scripts/dev_flag.gd")
 const SHELL := preload("res://scripts/campaign_shell.gd")
 
-const SHEET := Vector2(1440, 928)
-## Cabin mark on the parchment, then the five biomes walking up the mountain.
+## Doop ship-strip map-in-hands plate (1680×1040). Hands + parchment baked in.
+const HELD_PLATE := "map/held/map_in_hands.png"
+const SHEET := Vector2(1680, 1040)
+## Stamp hit centres aligned to the Doop mid-campaign plate (approx).
+## Cabin → Verdant → Sunken → Ashen → Cinder → Shadow.
 const TRAIL: Array[Vector2] = [
-	Vector2(78, 808),
-	Vector2(168, 736),
-	Vector2(360, 676),
-	Vector2(456, 572),
-	Vector2(408, 452),
-	Vector2(496, 292),
+	Vector2(840, 220),
+	Vector2(900, 340),
+	Vector2(520, 480),
+	Vector2(1180, 520),
+	Vector2(780, 720),
+	Vector2(1280, 780),
 ]
-const ENDLESS_AT := Vector2(1120, 488)
+const ENDLESS_AT := Vector2(280, 860)
 const WAX := {
 	"b1": Color("5f8f3c"),
 	"b2": Color("6e5a30"),
@@ -70,21 +73,19 @@ func setup() -> void:
 	add_child(scrim)
 	_sheet = Control.new()
 	_sheet.name = "Sheet"
-	_sheet.position = Vector2(300, 36)
+	## Doop map-in-hands plate is already full 1680×1040 POV (hands baked in).
+	_sheet.position = Vector2.ZERO
 	_sheet.size = SHEET
 	_sheet.pivot_offset = SHEET * 0.5
-	_sheet.scale = Vector2(0.72, 0.72)
-	_sheet.rotation = deg_to_rad(-6.0)
+	_sheet.scale = Vector2.ONE
+	_sheet.rotation = 0.0
 	_sheet.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_sheet)
-	var shadow := ColorRect.new()
-	shadow.color = Color(0, 0, 0, 0.45)
-	shadow.position = Vector2(22, 28)
-	shadow.size = SHEET
-	shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_sheet.add_child(shadow)
 	var paper := TextureRect.new()
-	paper.texture = KIT.ui_tex("map/map_close_v2.png")
+	paper.name = "HeldPlate"
+	paper.texture = KIT.ui_tex(HELD_PLATE)
+	if paper.texture == null:
+		paper.texture = KIT.ui_tex("map/map_close_v2.png")
 	paper.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	paper.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	paper.stretch_mode = TextureRect.STRETCH_KEEP
@@ -92,27 +93,17 @@ func setup() -> void:
 	paper.position = Vector2.ZERO
 	paper.size = SHEET
 	_sheet.add_child(paper)
+	## Route ink stays for pencil-fresh segments; plate already has printed trails.
 	_ink = RouteInk.new()
 	_ink.size = SHEET
 	_ink.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ink.modulate = Color(1, 1, 1, 0.35)
 	_sheet.add_child(_ink)
 	_pins = Control.new()
 	_pins.name = "Pins"
 	_pins.size = SHEET
 	_pins.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sheet.add_child(_pins)
-	var title: FitLabelBox = KIT.fit_label(
-		"map.title",
-		Rect2(220, 28, 980, 70),
-		34,
-		18,
-		2,
-		KIT.INK,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		VERTICAL_ALIGNMENT_CENTER,
-		4
-	)
-	_sheet.add_child(title)
 	_tip = Label.new()
 	_tip.name = "StampTip"
 	_tip.visible = false
@@ -125,10 +116,10 @@ func setup() -> void:
 	_tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_sheet.add_child(_tip)
 	_build_close()
+	## Plate already draws Sprout's hands — skip procedural mitts.
 	_hands = Hands.new()
-	_hands.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_hands.visible = false
 	_hands.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hands.z_index = 8
 	add_child(_hands)
 	if DEV.on():
 		_build_cheats()
@@ -423,7 +414,7 @@ func _build_close() -> void:
 	b.texture_pressed = KIT.ui_tex("map/map_close_x_pressed.png")
 	b.focus_mode = Control.FOCUS_NONE
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	KIT.apply_rect(b, Rect2(1328, 36, 64, 64), 7)
+	KIT.apply_rect(b, Rect2(1580, 24, 64, 64), 7)
 	b.pressed.connect(func() -> void:
 		closed.emit()
 	)
