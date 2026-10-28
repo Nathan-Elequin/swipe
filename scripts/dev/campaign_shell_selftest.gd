@@ -15,13 +15,14 @@ func _init() -> void:
 		failed = _check(failed, "name %s" % want, str(named_biome.get("name", "")) == want) or failed
 		named += 1
 	failed = _check(failed, "deck 6+4", Shell.deck_counts(rules) == Vector2i(6, 4)) or failed
-	# Nathan's Weak/Tough/Deadly lock (exactly 10 each biome). Never show "Tier" to players.
+	# SP-17 Weak/Tough/Deadly ladder (exactly 10 each biome; Deadlies sum to 10 across the save).
+	# Never show "Tier" to players.
 	var expect := {
 		"b1": Vector3i(6, 3, 1),
 		"b2": Vector3i(5, 3, 2),
-		"b3": Vector3i(4, 4, 2),
-		"b4": Vector3i(3, 5, 2),
-		"b5": Vector3i(3, 4, 3),
+		"b3": Vector3i(5, 3, 2),
+		"b4": Vector3i(4, 4, 2),
+		"b5": Vector3i(4, 3, 3),
 	}
 	for raw in Shell.biomes_of(rules):
 		var b: Dictionary = raw
