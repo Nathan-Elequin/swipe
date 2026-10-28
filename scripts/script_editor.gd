@@ -5,7 +5,7 @@ signal saved(items: Array, monsters: Array)
 signal closed
 
 const COPY := preload("res://scripts/player_copy.gd")
-const LEGEND := "Every player-facing line. Header buttons jump the outline. Gold words are shared names — change them under Names. Save locks what you change. {item} {n} {k} stay as braces. Arrows move between boxes. Space types. Enter saves. Esc closes without saving. Ctrl+F filter."
+const LEGEND := "Every player-facing line. Header chips are colored by where that copy lives in the game. Tutorial lines split at each click. The + between boxes adds a Nib line. Gold words are shared names. Arrows move between boxes. Space types. Enter saves. Esc closes without saving."
 
 const SECTIONS: Array = [
 	{"id": "intro", "label": "Intro"},
@@ -23,6 +23,23 @@ const SECTIONS: Array = [
 	{"id": "radio", "label": "Radio"},
 	{"id": "drawer", "label": "Drawer"},
 ]
+
+const SECTION_RIM := {
+	"intro": Color("c4a574"),
+	"ending": Color("8b1e1e"),
+	"nib": Color("8a5a10"),
+	"cabin": Color("3d6b3d"),
+	"journal": Color("6b4a10"),
+	"will": Color("3a2820"),
+	"titles": Color("3a2820"),
+	"tutorial": Color("e8c36a"),
+	"combat": Color("6b1008"),
+	"taunts": Color("6b4a10"),
+	"cards": Color("3a3220"),
+	"map": Color("3d6b3d"),
+	"radio": Color("6a5f52"),
+	"drawer": Color("8b1e1e"),
+}
 
 var sfx
 var _rows: Array = []
@@ -128,7 +145,7 @@ func setup(p_sfx) -> void:
 	col.add_child(_chips)
 	for spec in SECTIONS:
 		var id: String = str(spec["id"])
-		var chip := _chip(str(spec["label"]), id == "intro")
+		var chip := _chip(str(spec["label"]), id == "intro", id)
 		chip.pressed.connect(_set_section.bind(id))
 		chip.set_meta("sec", id)
 		_chips.add_child(chip)
@@ -342,8 +359,16 @@ func _rebuild() -> void:
 		_list.add_child(head)
 		if collapsed:
 			continue
+		var first_line := true
 		for row2 in grouped[gid]:
-			_list.add_child(_make_row(row2))
+			if _is_tutorial_line(row2):
+				if first_line:
+					_list.add_child(_plus_bar("", str(row2.get("key", ""))))
+					first_line = false
+				_list.add_child(_make_row(row2))
+				_list.add_child(_plus_bar(str(row2.get("key", "")), ""))
+			else:
+				_list.add_child(_make_row(row2))
 			shown += 1
 	_status.text = "%s shown · %s total" % [shown, _rows.size()]
 	_wire_nav()
@@ -394,6 +419,7 @@ func _fill_outline(q: String) -> void:
 		b.text = oid
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.focus_mode = Control.FOCUS_NONE
+		b.set_meta("sec", _section)
 		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_paint_chip(b, oid == _outline or (_outline == "" and oid == rooms[0]))
 		b.pressed.connect(_set_outline.bind(oid))
@@ -475,6 +501,11 @@ func _outline_id(row: Dictionary) -> String:
 	if sec == "taunts":
 		var bits: PackedStringArray = key.split(".")
 		return bits[1] if bits.size() > 1 else "Taunts"
+	if sec == "tutorial":
+		if str(row.get("key", "")).begins_with("tutorial.line."):
+			var w: String = str(row.get("where", "How to Play"))
+			return w.split(" · ")[0] if w.contains(" · ") else "How to Play"
+		return "Chrome"
 	if sec == "combat":
 		return str(row.get("cat", "Combat"))
 	if sec == "intro":
@@ -502,6 +533,8 @@ func _cabin_room(key: String, cat: String) -> String:
 
 func _group_of(row: Dictionary) -> String:
 	var key: String = str(row.get("key", ""))
+	if key.begins_with("tutorial.line."):
+		return "Nib says"
 	var where: String = str(row.get("where", "")).to_lower()
 	if key.contains(".hot.") or key.contains(".room."):
 		return "Hover labels"
@@ -531,13 +564,25 @@ func _toggle_group(gid: String, sec_id: String) -> void:
 	_rebuild()
 
 
+func _section_fill(sec: String) -> Color:
+	var rim: Color = SECTION_RIM.get(sec, Color("c4a574"))
+	return rim.lerp(Color("fff6e8"), 0.84)
+
+
+func _is_tutorial_line(row: Dictionary) -> bool:
+	return str(row.get("key", "")).begins_with("tutorial.line.")
+
+
 func _make_row(row: Dictionary) -> PanelContainer:
+	if _is_tutorial_line(row):
+		return _make_tutorial_card(row)
 	var p := PanelContainer.new()
 	p.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var author: bool = bool(row.get("author_lock", false))
+	var sec: String = _section_of(row)
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("f7ead4") if author else Color("fff6e8")
-	sb.border_color = Color("6b1008") if author else Color("c4a574")
+	sb.bg_color = _section_fill(sec)
+	sb.border_color = Color("6b1008") if author else SECTION_RIM.get(sec, Color("c4a574"))
 	sb.set_border_width_all(2 if author else 1)
 	sb.set_corner_radius_all(6)
 	sb.content_margin_left = 8
@@ -632,12 +677,155 @@ func _make_name_row(row: Dictionary) -> PanelContainer:
 	return p
 
 
+func _make_tutorial_card(row: Dictionary) -> PanelContainer:
+	var p := PanelContainer.new()
+	p.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = _section_fill("tutorial")
+	sb.border_color = Color("6b1008") if bool(row.get("author_lock", false)) else Color("e8c36a")
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(6)
+	sb.content_margin_left = 8
+	sb.content_margin_right = 8
+	sb.content_margin_top = 6
+	sb.content_margin_bottom = 6
+	p.add_theme_stylebox_override("panel", sb)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 4)
+	p.add_child(col)
+	var cap := Label.new()
+	cap.text = str(row.get("where", "How to Play · Nib line"))
+	cap.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cap.add_theme_font_size_override("font_size", 12)
+	cap.add_theme_color_override("font_color", Color("6b1008"))
+	col.add_child(cap)
+	var e := TextEdit.new()
+	e.text = COPY.apply_names(str(row.get("text", "")))
+	e.placeholder_text = "What Nib says"
+	e.custom_minimum_size = Vector2(0, 64)
+	e.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+	e.scroll_fit_content_height = true
+	_skin_edit(e)
+	var hl := NameHL.new()
+	hl.needles = _hl.needles
+	e.syntax_highlighter = hl
+	e.focus_entered.connect(func() -> void:
+		_focus_edit = e
+	)
+	_register_nav(e)
+	e.text_changed.connect(func() -> void:
+		_dirty = true
+		_esc_armed = false
+	)
+	col.add_child(e)
+	var dir := LineEdit.new()
+	dir.text = str(row.get("dir", ""))
+	dir.placeholder_text = "Direction: highlight, hover, click, wait"
+	_skin_edit(dir)
+	dir.add_theme_font_size_override("font_size", 12)
+	dir.text_changed.connect(func(_t: String) -> void:
+		_dirty = true
+		_esc_armed = false
+	)
+	_register_nav(dir)
+	col.add_child(dir)
+	_fields[str(row.get("key", ""))] = {"body": e, "dir": dir}
+	return p
+
+
+func _plus_bar(after_key: String, _before_key: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 8)
+	var line_l := ColorRect.new()
+	line_l.color = Color("e8c36a")
+	line_l.custom_minimum_size = Vector2(24, 2)
+	line_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line_l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(line_l)
+	var b := Button.new()
+	b.text = "+"
+	b.tooltip_text = "Add a Nib line here"
+	b.focus_mode = Control.FOCUS_NONE
+	b.custom_minimum_size = Vector2(36, 28)
+	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	var n := StyleBoxFlat.new()
+	n.bg_color = Color("3a2820")
+	n.border_color = Color("e8c36a")
+	n.set_border_width_all(2)
+	n.set_corner_radius_all(999)
+	b.add_theme_stylebox_override("normal", n)
+	b.add_theme_color_override("font_color", Color("f0e6d8"))
+	b.pressed.connect(_insert_tutorial.bind(after_key))
+	row.add_child(b)
+	var line_r := line_l.duplicate() as ColorRect
+	row.add_child(line_r)
+	return row
+
+
+func _insert_tutorial(after_key: String) -> void:
+	_flush()
+	var at := 0
+	if after_key == "":
+		for i in _rows.size():
+			if _is_tutorial_line(_rows[i]):
+				at = i
+				break
+	else:
+		for i in _rows.size():
+			if str(_rows[i].get("key", "")) == after_key:
+				at = i + 1
+				break
+	var prev: Dictionary = {}
+	if at > 0 and at - 1 < _rows.size() and _is_tutorial_line(_rows[at - 1]):
+		prev = _rows[at - 1]
+	var row := {
+		"src": "copy",
+		"cat": "Tutorial",
+		"key": "tutorial.line.tmp",
+		"text": "",
+		"dir": "(Click 'next' to continue)",
+		"where": str(prev.get("where", "Opening · continue / (none) · Nib line")),
+		"wait": str(prev.get("wait", "continue")),
+		"focus": str(prev.get("focus", "")),
+		"hint": "",
+		"go": "Next",
+		"branch": str(prev.get("branch", "")),
+		"force": "",
+		"then_focus": "",
+		"nib": 0.0,
+		"tiny": false,
+		"draft": true,
+	}
+	_rows.insert(at, row)
+	_renumber_tutorial()
+	_dirty = true
+	_rebuild()
+
+
+func _renumber_tutorial() -> void:
+	var n := 1
+	for row in _rows:
+		if not _is_tutorial_line(row):
+			continue
+		row["key"] = "tutorial.line.%03d" % n
+		n += 1
+
+
 func _flush() -> void:
 	for row in _rows:
 		var k: String = str(row.get("key", ""))
 		var e: Variant = _fields.get(k, null)
 		if e is TextEdit:
 			row["text"] = COPY.tokenize((e as TextEdit).text)
+		elif typeof(e) == TYPE_DICTIONARY:
+			var body: Variant = e.get("body", null)
+			var dir: Variant = e.get("dir", null)
+			if body is TextEdit:
+				row["text"] = COPY.tokenize((body as TextEdit).text)
+			if dir is LineEdit:
+				row["dir"] = (dir as LineEdit).text.strip_edges()
+	_renumber_tutorial()
 	for row2 in _names:
 		var nid: String = str(row2.get("id", ""))
 		var pair: Variant = _name_fields.get(nid, null)
@@ -713,20 +901,23 @@ func _skin_edit(e: Control) -> void:
 	e.add_theme_stylebox_override("read_only", sb)
 
 
-func _chip(label: String, on: bool) -> Button:
+func _chip(label: String, on: bool, sec: String = "") -> Button:
 	var b := Button.new()
 	b.text = label
 	b.focus_mode = Control.FOCUS_NONE
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	b.set_meta("sec", sec)
 	_paint_chip(b, on)
 	return b
 
 
 func _paint_chip(b: Button, on: bool) -> void:
+	var sec: String = str(b.get_meta("sec", ""))
+	var rim: Color = SECTION_RIM.get(sec, Color("c4a574"))
 	b.add_theme_color_override("font_color", Color("f0e6d8") if on else Color("1c120c"))
 	var s := StyleBoxFlat.new()
-	s.bg_color = Color("3a2820") if on else Color("efe4d4")
-	s.border_color = Color("e8c36a") if on else Color("c4a574")
+	s.bg_color = rim if on else _section_fill(sec)
+	s.border_color = Color("e8c36a") if on else rim
 	s.set_border_width_all(2)
 	s.set_corner_radius_all(999)
 	s.content_margin_left = 10

@@ -557,6 +557,9 @@ func _place_dims(hole: Rect2, vp: Vector2) -> void:
 
 
 func _load_beats() -> Array:
+	var lines: Array = COPY.tutorial_lines()
+	if not lines.is_empty():
+		return lines
 	var raw: String = COPY.text("tutorial.beat.01.body", "")
 	if raw.find("(Click") >= 0 or raw.find("(Highlight") >= 0:
 		var scripted: Array = _parse_nib_script(raw)

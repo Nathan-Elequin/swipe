@@ -244,6 +244,33 @@ static func tier_name(tier: int) -> String:
 	return text("tier.%d.name" % t, fallback)
 
 
+static func tutorial_lines() -> Array:
+	if pack.is_empty():
+		reload()
+	var found: Array = []
+	for row in pack.get("rows", []):
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		if str(row.get("key", "")).begins_with("tutorial.line."):
+			found.append(row)
+	found.sort_custom(func(a, b) -> bool: return str(a.get("key", "")) < str(b.get("key", "")))
+	var out: Array = []
+	for row in found:
+		out.append({
+			"text": str(row.get("text", "")),
+			"hint": str(row.get("hint", "")),
+			"focus": str(row.get("focus", "")),
+			"wait": str(row.get("wait", "continue")),
+			"go": str(row.get("go", "Next")),
+			"force": str(row.get("force", "")),
+			"then_focus": str(row.get("then_focus", "")),
+			"branch": str(row.get("branch", "")),
+			"nib": float(row.get("nib", 0.0)),
+			"tiny": bool(row.get("tiny", false)),
+		})
+	return out
+
+
 static func taunts(id: String) -> Array:
 	if by_key.is_empty():
 		reload()
@@ -456,6 +483,11 @@ static func _save_copy(rows: Array) -> bool:
 			"where": str(row.get("where", previous.get("where", ""))),
 			"text": str(row.get("text", "")),
 		}
+		for extra in ["dir", "wait", "focus", "hint", "go", "branch", "force", "then_focus", "nib", "tiny"]:
+			if row.has(extra):
+				entry[extra] = row[extra]
+			elif previous.has(extra):
+				entry[extra] = previous[extra]
 		if bool(row.get("draft", false)) or bool(previous.get("draft", false)):
 			entry["draft"] = true
 		if bool(row.get("author_lock", false)):
