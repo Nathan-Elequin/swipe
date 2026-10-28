@@ -2358,15 +2358,11 @@ func _begin_six_seat_run(long_drop: bool) -> void:
 func _enter_dungeon_clear() -> void:
 	if not _find_loaded_bag().is_empty():
 		return
-	if wheel_view and wheel_view.has_method("play_hero"):
-		wheel_view.play_hero("victory", 2)
-	_player_play("victory", 2)
 	if sfx:
 		sfx.set_combat_music(false)
 		sfx.play("confirm_big", -6.0)
 		sfx.play_event(&"sting.clear")
 		sfx.music_title()
-	_flash_screen(Color("e8c36a"), 0.28)
 	if combat_stage:
 		combat_stage.hide_stage()
 	if player_stage:
@@ -2374,18 +2370,47 @@ func _enter_dungeon_clear() -> void:
 	_hide_hypno()
 	_undo_wall()
 	if in_tutorial:
+		if wheel_view and wheel_view.has_method("play_hero"):
+			wheel_view.play_hero("victory", 2)
+		_player_play("victory", 2)
+		_flash_screen(Color("e8c36a"), 0.28)
 		phase = "victory"
 		_log("end", "cleared")
 		return
 	if not adventure:
+		if wheel_view and wheel_view.has_method("play_hero"):
+			wheel_view.play_hero("victory", 2)
+		_player_play("victory", 2)
+		_flash_screen(Color("e8c36a"), 0.28)
 		_log("end", "cleared")
 		_classic_swipe_home()
 		return
+	# Rope stays shut until the parade finishes (~2.7s). No wax seal.
+	await _play_clear_parade()
 	dungeons_cleared += 1
 	_advance_bucket_counter()
 	phase = "rest"
 	_log("end", "dungeon %s" % dungeons_cleared)
 	facing_index = -1
+
+
+func _play_clear_parade() -> void:
+	var saved := true
+	if wheel_view:
+		saved = wheel_view.hub_sprout_on
+		wheel_view.hub_sprout_on = false
+		wheel_view.hub_flip = false
+		wheel_view.queue_redraw()
+	var parade := preload("res://scripts/cabin/clear_parade.gd").new()
+	parade.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(parade)
+	await parade.run(wheel_view, art)
+	if is_instance_valid(parade):
+		parade.queue_free()
+	if wheel_view:
+		wheel_view.hub_sprout_on = saved
+		wheel_view.hub_flip = false
+		wheel_view.queue_redraw()
 
 
 func _adventure_leave() -> void:
