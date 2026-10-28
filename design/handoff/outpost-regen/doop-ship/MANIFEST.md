@@ -1,27 +1,17 @@
-# Doop ship plates (hybrid lock 2026-10-28)
+# Doop ship plates (hybrid lock 2026-10-28) — FIXED
 
 Nathan: Doop ship-strip for cabinets wall + map-in-hands; PixelLab only for mount trophies, stamps, peg gear.
 
-## Clean frames (no pink callouts, no foot bar, no item-states legend)
+## Canonical clean frames (full legend/callouts/foot removed)
 
-| Plate | Doop frame id | 1680×1040 | 2× |
+| Plate | Doop frame id | 1680×1040 | notes |
 |---|---|---|---|
-| Cabinets wall | `rH8lfOM0GR` | `SHIP-D-cabinets-wall.png` | `SHIP-D-cabinets-wall_2x.png` |
-| Map-in-hands mid | `O64xs1KB6E` | `SHIP-B-map-in-hands.png` | `SHIP-B-map-in-hands_2x.png` |
+| Cabinets wall | `sSXqYUHvO2` | `SHIP-D-cabinets-wall.png` | legend fully gone |
+| Map-in-hands mid | `oYWAbgs2oF` | `SHIP-B-map-in-hands.png` | no SPACE chrome hint |
 
-Canvas: https://doop.design (Spinheritance — Diegetic cabin & map `K5t2l_veMo`)
+Supersedes earlier Pixel frames `rH8lfOM0GR` / `O64xs1KB6E` (cabinets still had legend scrap).
 
-Source annotated frames kept: D=`S8bypVS_Dk`, B=`LbdFBZyXCk`
+Canvas: `K5t2l_veMo`
 
-## Install targets (Godot)
-
-- Cabinets wall plate → Outpost cabinet room background / wall plate (not individual case sprites)
-- Map-in-hands → map overlay held-map texture (diegetic)
-
-Exact asset paths: CloudAgent wires per INSTALL-OUTPOST-DIEGETIC.md + current cabin code.
-
-## Still PixelLab (sprites only)
-
-- Mount trophies (case slot icons)
-- Map stamps (idle/hover/press)
-- Peg gear props
+## PixelLab sprites-only (see SPRITES-ONLY.md)
+Stamps + peg gear: keep tip. Missing: per-biome slot trophies (~10 gens).
