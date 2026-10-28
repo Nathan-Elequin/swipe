@@ -4511,6 +4511,12 @@
 			"where": "Outpost back door hover → Trophy Hall",
 			"text": "Trophy Hall",
 			"locked_at": "2026-10-28"
+		},
+		"cabin.hall.sign_outpost": {
+			"cat": "Cabin",
+			"where": "Hall Outpost door sign (replaces hidden SignStudy art)",
+			"text": "To the Outpost",
+			"locked_at": "2026-10-28"
 		}
 	},
 	"updated": "2026-10-28"

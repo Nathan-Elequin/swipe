@@ -450,6 +450,14 @@
   },
   {
    "cat": "Cabin",
+   "key": "cabin.hall.sign_outpost",
+   "where": "Hall Outpost door sign (replaces hidden SignStudy art)",
+   "text": "To the Outpost",
+   "author_lock": true,
+   "locked_at": "2026-10-28"
+  },
+  {
+   "cat": "Cabin",
    "key": "cabin.tip.journal",
    "where": "Trophy tooltip, header above Grandpa's entry",
    "text": "From Grandpa's journal:",
