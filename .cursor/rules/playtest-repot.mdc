@@ -21,10 +21,10 @@ This rule has the same weight as `content-board.mdc` and `playtest-inbox.mdc`. D
 1. Set inbox frontmatter `status: claimed` and commit that alone only if a long shoot; otherwise claim + fulfill in one commit.
 2. Open / use the **already running** Godot on this PC. Do not launch a second editor unless he asked. Do not kill processes you didn’t start.
 3. F5 playtest hub → reach `entry` from the request (usually cabin main / fireplace).
-4. For each row in **Screenshots required**: set up the room, take a **godot-mcp in-game screenshot** (not editor FS), save as `playtest/repot/outbox/<id>/shots/<filename>`.
+4. For each row in **Screenshots required**: set up the room, take a **godot-mcp in-game screenshot** (not editor FS), save as `playtest/repot/outbox/<id>/shots/<filename>`. Prefer godot-mcp; if MCP is unavailable, `scripts/dev/shot_harness.gd` / `scripts/shot_cli.gd` is an OK fallback for scripted 1680×1040 captures. **Never** write repot shots into `design/audit-shots/cursor/` (harness overwrite zone) — only `playtest/repot/outbox/<id>/shots/`.
 5. Write `playtest/repot/outbox/<id>/RESULT.md` per `playtest/repot/SCHEMA.md` (pass/fail per id).
 6. Set inbox `status: done`.
-7. Commit + push to `playtest/latest` (or the request’s `branch`) with message: `[repot] fulfill <id>`.
+7. **Commit + push immediately** to `playtest/latest` (or the request’s `branch`) with message: `[repot] fulfill <id>`. Outbox `RESULT.md` + shots MUST NOT stay untracked — `tools/playtest-sync.sh` runs `git stash push -u`, which would stash those PNGs on the next sync.
 8. One-line chat note: which request, tip SHA, pass/fail counts. Do **not** ask Nathan to look at GitHub unless something blocked Godot.
 
 ## If Godot / MCP is blocked
@@ -40,6 +40,8 @@ If this chat is a cloud agent or otherwise cannot shoot: you still **must** add/
 ## Do not
 
 - Do not skip open inbox items because the user asked about something else.
+- Do not leave outbox results untracked after a shoot — commit + push before the next sync.
+- Do not write repot shots into `design/audit-shots/cursor/`.
 - Do not paste huge PNGs into chat as the only deliverable — files in outbox + push are the source of truth (chat thumbnails optional).
 - Do not change game code while fulfilling unless the request’s pass criteria fail and the fix is trivial + in scope; prefer fail the row and let Pixel open a fix loop.
 - Do not rewrite player-facing copy (Spin / Jam).
