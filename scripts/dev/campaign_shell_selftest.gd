@@ -8,23 +8,30 @@ func _init() -> void:
 	var failed := false
 	failed = _check(failed, "five biomes", Shell.biomes_of(rules).size() == 5) or failed
 	failed = _check(failed, "deck 6+4", Shell.deck_counts(rules) == Vector2i(6, 4)) or failed
-	var prev_weak := 99
-	var prev_tough := -1
+	var expect := {
+		"b1": Vector3i(6, 3, 1),
+		"b2": Vector3i(5, 3, 2),
+		"b3": Vector3i(4, 4, 2),
+		"b4": Vector3i(3, 5, 2),
+		"b5": Vector3i(3, 4, 3),
+	}
 	for raw in Shell.biomes_of(rules):
 		var b: Dictionary = raw
-		var mix: Dictionary = b.get("mix", {})
+		var id := str(b.get("id", ""))
+		var mix: Dictionary = Shell.mix_for(rules, id)
 		var w := int(mix.get("weak", 0))
 		var t := int(mix.get("tough", 0))
 		var d := int(mix.get("deadly", 0))
-		failed = _check(failed, "%s totals 10" % b.get("id", ""), w + t + d == 10) or failed
-		failed = _check(failed, "%s two deadly" % b.get("id", ""), d == 2) or failed
-		failed = _check(failed, "%s weak falls" % b.get("id", ""), w < prev_weak) or failed
-		failed = _check(failed, "%s tough rises" % b.get("id", ""), t > prev_tough) or failed
-		prev_weak = w
-		prev_tough = t
+		var want: Vector3i = expect.get(id, Vector3i(-1, -1, -1))
+		failed = _check(failed, "%s totals 10" % id, w + t + d == 10) or failed
+		failed = _check(failed, "%s locked mix" % id, want == Vector3i(w, t, d)) or failed
+	var fb: Dictionary = Shell.mix_for(rules, "missing")
+	failed = _check(failed, "unknown biome uses cellar mix", int(fb.get("weak", 0)) == 6 and int(fb.get("tough", 0)) == 3 and int(fb.get("deadly", 0)) == 1) or failed
 	var state: Dictionary = Shell.fresh_state()
 	failed = _check(failed, "map shut", Shell.map_unlocked(rules, state) == false) or failed
 	failed = _check(failed, "only cellar starts", Shell.can_start(rules, state, 0) and not Shell.can_start(rules, state, 1)) or failed
+	failed = _check(failed, "pool 1 in play", Shell.pool_open_for_bucket(rules, state, 0) and Shell.pool_open_for_bucket(rules, state, 1)) or failed
+	failed = _check(failed, "later pools wait", not Shell.pool_open_for_bucket(rules, state, 2) and not Shell.pool_open_for_bucket(rules, state, 8)) or failed
 	var pools := {"a": "b1", "b": "b1", "c": "b1", "d": "b1", "e": "b1"}
 	Shell.bank(rules, state, ["a", "b", "c"], pools)
 	failed = _check(failed, "gate at 3", Shell.map_unlocked(rules, state)) or failed
@@ -34,6 +41,9 @@ func _init() -> void:
 	Shell.bank(rules, state, ["d", "e"], pools)
 	failed = _check(failed, "cellar full", Shell.cabinet_count(state, "b1") == 5) or failed
 	failed = _check(failed, "warren opens", Shell.biome_unlocked(rules, state, 1)) or failed
+	failed = _check(failed, "pool 1 still in later biomes", Shell.pool_open_for_bucket(rules, state, 0)) or failed
+	failed = _check(failed, "pool 2 drips in", Shell.pool_open_for_bucket(rules, state, 2) and Shell.pool_open_for_bucket(rules, state, 3)) or failed
+	failed = _check(failed, "pool 3 still shut", not Shell.pool_open_for_bucket(rules, state, 4)) or failed
 	failed = _check(failed, "shortcut to cellar", Shell.shortcut_open(rules, state, 0)) or failed
 	failed = _check(failed, "no shortcut to warren yet", Shell.shortcut_open(rules, state, 1) == false) or failed
 	Shell.begin_run(state, 0, false, false)
@@ -64,28 +74,62 @@ func _init() -> void:
 	failed = _check(failed, "reroll skips discards", kept.size() == 2 and not kept.has("w1") and not kept.has("w2")) or failed
 	var fallback: Array = Shell.take_pair(rng, [{"id": "only", "tier": 1}, {"id": "only", "tier": 1}], 1, ["only"])
 	failed = _check(failed, "reroll cannot soft-lock", fallback.size() == 2) or failed
-	var mons: Array = []
-	for n in 8:
-		mons.append({"id": "w%d" % n, "tier": 1, "contra": []})
-	for n2 in 8:
-		mons.append({"id": "t%d" % n2, "tier": 2, "contra": []})
-	mons.append({"id": "d0", "tier": 3, "contra": ["d1"]})
-	mons.append({"id": "d1", "tier": 3, "contra": []})
-	mons.append({"id": "d2", "tier": 3, "contra": []})
-	mons.append({"id": "d3", "tier": 3, "contra": []})
-	var deal: Dictionary = Shell.compose(rules, rng, mons, "b1")
+	var mons: Array = _roster(8, 8, 4, true)
+	var deal: Dictionary = Shell.compose(rules, rng, mons, "b2")
 	var ids: Array = deal["ids"]
 	var telegraph: Array = deal["telegraph"]
 	failed = _check(failed, "ten monsters", ids.size() == 10) or failed
-	failed = _check(failed, "two telegraphed", telegraph.size() == 2) or failed
-	var deadly_n := 0
-	for id in ids:
-		if str(id).begins_with("d"):
-			deadly_n += 1
+	failed = _check(failed, "b2 two telegraphed", telegraph.size() == 2) or failed
+	failed = _check(failed, "b2 weak", _count_ids(ids, mons, 1) == 5) or failed
+	failed = _check(failed, "b2 tough", _count_ids(ids, mons, 2) == 3) or failed
+	failed = _check(failed, "b2 deadly", _count_ids(ids, mons, 3) == 2) or failed
 	for boss in telegraph:
 		failed = _check(failed, "boss present %s" % boss, ids.has(boss)) or failed
-	failed = _check(failed, "exactly two deadly", deadly_n == 2) or failed
 	failed = _check(failed, "conflict respected", not (ids.has("d0") and ids.has("d1"))) or failed
+	var roster: Array = _roster(8, 8, 10, true)
+	var used: Array = []
+	var seen := {}
+	var deal_rng := RandomNumberGenerator.new()
+	deal_rng.seed = 11
+	for biome_id in ["b1", "b2", "b3", "b4", "b5"]:
+		var one: Dictionary = Shell.compose(rules, deal_rng, roster, str(biome_id), used)
+		var one_ids: Array = one["ids"]
+		var one_tel: Array = one["telegraph"]
+		var want2: Vector3i = expect[str(biome_id)]
+		failed = _check(failed, "%s deck 10" % biome_id, one_ids.size() == 10) or failed
+		failed = _check(failed, "%s deck weak" % biome_id, _count_ids(one_ids, roster, 1) == want2.x) or failed
+		failed = _check(failed, "%s deck tough" % biome_id, _count_ids(one_ids, roster, 2) == want2.y) or failed
+		failed = _check(failed, "%s deck deadly" % biome_id, _count_ids(one_ids, roster, 3) == want2.z) or failed
+		failed = _check(failed, "%s telegraph" % biome_id, one_tel.size() == want2.z) or failed
+		for tel_id in one_tel:
+			var sid := str(tel_id)
+			failed = _check(failed, "deadly once %s" % sid, not seen.has(sid)) or failed
+			seen[sid] = true
+			failed = _check(failed, "deadly dealt %s" % sid, one_ids.has(sid)) or failed
+	failed = _check(failed, "ten deadly across the save", seen.size() == 10 and used.size() == 10) or failed
+	var replay: Dictionary = Shell.compose(rules, deal_rng, roster, "b1", used)
+	var replay_ids: Array = replay["ids"]
+	failed = _check(failed, "replay still fills 10", replay_ids.size() == 10) or failed
+	failed = _check(failed, "replay adds no deadly", replay["telegraph"].size() == 0 and _count_ids(replay_ids, roster, 3) == 0) or failed
+	var short_roster: Array = _roster(8, 8, 2, false)
+	var short_used: Array = []
+	var short_rng := RandomNumberGenerator.new()
+	short_rng.seed = 3
+	var first: Dictionary = Shell.compose(rules, short_rng, short_roster, "b1", short_used)
+	var second: Dictionary = Shell.compose(rules, short_rng, short_roster, "b2", short_used)
+	var first_deadly := ""
+	for fid in first["telegraph"]:
+		first_deadly = str(fid)
+	failed = _check(failed, "short b1 one deadly", _count_ids(first["ids"], short_roster, 3) == 1 and first["ids"].size() == 10) or failed
+	failed = _check(failed, "short b2 does not repeat", _count_ids(second["ids"], short_roster, 3) == 1 and second["ids"].size() == 10) or failed
+	failed = _check(failed, "short b2 different deadly", first_deadly != "" and not second["ids"].has(first_deadly)) or failed
+	var memory: Dictionary = Shell.fresh_state()
+	var memory_rng := RandomNumberGenerator.new()
+	memory_rng.seed = 5
+	Shell.compose(rules, memory_rng, roster, "b5", memory["seen_deadly"])
+	failed = _check(failed, "save remembers deadly", memory["seen_deadly"].size() == 3) or failed
+	Shell.end_run(memory)
+	failed = _check(failed, "home keeps seen deadly", memory["seen_deadly"].size() == 3) or failed
 	var full: Dictionary = Shell.fresh_state()
 	for bi in Shell.biomes_of(rules):
 		var pool := str((bi as Dictionary).get("id", ""))
@@ -100,6 +144,30 @@ func _init() -> void:
 		return
 	print("CAMPAIGN_SHELL_OK")
 	quit(0)
+
+
+func _roster(weak_n: int, tough_n: int, deadly_n: int, contra: bool) -> Array:
+	var mons: Array = []
+	for n in weak_n:
+		mons.append({"id": "w%d" % n, "tier": 1, "contra": []})
+	for n2 in tough_n:
+		mons.append({"id": "t%d" % n2, "tier": 2, "contra": []})
+	for n3 in deadly_n:
+		var contra_ids: Array = ["d1"] if contra and n3 == 0 else []
+		mons.append({"id": "d%d" % n3, "tier": 3, "contra": contra_ids})
+	return mons
+
+
+func _count_ids(ids: Array, monsters: Array, tier: int) -> int:
+	var n := 0
+	for raw_id in ids:
+		var id := str(raw_id)
+		for raw in monsters:
+			var m: Dictionary = raw
+			if str(m.get("id", "")) == id and int(m.get("tier", 0)) == tier:
+				n += 1
+				break
+	return n
 
 
 func _count(arr: Array, want: int) -> int:

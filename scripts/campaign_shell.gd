@@ -42,6 +42,7 @@ static func read_json(path: String) -> Dictionary:
 static func fresh_state() -> Dictionary:
 	return {
 		"banked": {},
+		"seen_deadly": [],
 		"endless_unlocked": false,
 		"won": false,
 		"drawer_seen": false,
@@ -52,6 +53,14 @@ static func fresh_state() -> Dictionary:
 static func normalize(state: Dictionary) -> void:
 	if typeof(state.get("banked", {})) != TYPE_DICTIONARY:
 		state["banked"] = {}
+	var seen: Variant = state.get("seen_deadly", [])
+	var clean: Array = []
+	if typeof(seen) == TYPE_ARRAY or typeof(seen) == TYPE_PACKED_STRING_ARRAY:
+		for raw_seen in seen:
+			var seen_id := str(raw_seen)
+			if seen_id != "" and not clean.has(seen_id):
+				clean.append(seen_id)
+	state["seen_deadly"] = clean
 	state["endless_unlocked"] = bool(state.get("endless_unlocked", false))
 	state["won"] = bool(state.get("won", false))
 	state["drawer_seen"] = bool(state.get("drawer_seen", false))
@@ -129,6 +138,11 @@ static func pool_unlocked(rules: Dictionary, state: Dictionary, pool: String) ->
 	return false
 
 
+static func pool_open_for_bucket(rules: Dictionary, state: Dictionary, bucket: int) -> bool:
+	var pool := pool_for_bucket(rules, bucket)
+	return pool != "" and pool_unlocked(rules, state, pool)
+
+
 static func shortcut_open(rules: Dictionary, state: Dictionary, index: int) -> bool:
 	var biomes := biomes_of(rules)
 	if index < 0 or index >= biomes.size():
@@ -187,7 +201,7 @@ static func mix_for(rules: Dictionary, biome_id: String) -> Dictionary:
 		if str(b.get("id", "")) == biome_id:
 			var mix: Dictionary = b.get("mix", {})
 			return mix
-	return {"weak": 6, "tough": 2, "deadly": 2}
+	return {"weak": 6, "tough": 3, "deadly": 1}
 
 
 static func begin_run(state: Dictionary, biome_index: int, shortcut: bool, endless: bool) -> void:
@@ -317,7 +331,24 @@ static func take_pair(rng: RandomNumberGenerator, items: Array, tier: int, exclu
 	return picked
 
 
-static func compose(rules: Dictionary, rng: RandomNumberGenerator, monsters: Array, biome_id: String) -> Dictionary:
+static func compose(rules: Dictionary, rng: RandomNumberGenerator, monsters: Array, biome_id: String, used_deadly: Variant = null) -> Dictionary:
+	var banned := {}
+	if typeof(used_deadly) == TYPE_ARRAY:
+		for raw_used in used_deadly:
+			var uid := str(raw_used)
+			if uid != "":
+				banned[uid] = true
+	var open: Array = []
+	for raw_m in monsters:
+		if typeof(raw_m) != TYPE_DICTIONARY:
+			continue
+		var m: Dictionary = raw_m
+		var mid := str(m.get("id", ""))
+		if mid == "":
+			continue
+		if int(m.get("tier", 0)) == 3 and banned.has(mid):
+			continue
+		open.append(m)
 	var mix := mix_for(rules, biome_id)
 	var counts := deck_counts(rules)
 	var need: int = counts.x + counts.y
@@ -330,36 +361,42 @@ static func compose(rules: Dictionary, rng: RandomNumberGenerator, monsters: Arr
 	for tier in [3, 1, 2]:
 		var left: int = int(want.get(tier, 0))
 		while left > 0:
-			var id := _pull(rng, monsters, chosen, tier, false)
+			var id := _pull(rng, open, chosen, tier, false)
 			if id == "":
 				break
 			chosen.append(id)
 			left -= 1
 	while chosen.size() < need:
-		var filler := _pull(rng, monsters, chosen, 0, true)
+		var filler := _pull(rng, open, chosen, 0, true)
 		if filler == "":
 			break
-		var ft := _tier_of_id(monsters, filler)
-		if ft == 3 and _count_tier(monsters, chosen, 3) >= int(want.get(3, 0)):
-			var other := _pull(rng, monsters, chosen, -3, true)
+		var ft := _tier_of_id(open, filler)
+		if ft == 3 and _count_tier(open, chosen, 3) >= int(want.get(3, 0)):
+			var other := _pull(rng, open, chosen, -3, true)
 			if other != "":
 				filler = other
 		chosen.append(filler)
-	if chosen.size() < need and not monsters.is_empty():
+	if chosen.size() < need and not open.is_empty():
 		var guard := 0
 		while chosen.size() < need and guard < need * 4:
 			guard += 1
-			var any: Dictionary = monsters[rng.randi_range(0, monsters.size() - 1)]
+			var any: Dictionary = open[rng.randi_range(0, open.size() - 1)]
 			var aid := str(any.get("id", ""))
-			if aid != "":
-				chosen.append(aid)
+			if aid == "":
+				continue
+			if int(any.get("tier", 0)) == 3 and (chosen.has(aid) or _count_tier(open, chosen, 3) >= int(want.get(3, 0))):
+				continue
+			chosen.append(aid)
 	if chosen.size() > need:
 		chosen = chosen.slice(0, need)
 	_shuffle(rng, chosen)
 	var telegraph: Array = []
 	for id2 in chosen:
-		if _tier_of_id(monsters, str(id2)) == 3:
-			telegraph.append(str(id2))
+		if _tier_of_id(open, str(id2)) == 3:
+			var boss := str(id2)
+			telegraph.append(boss)
+			if typeof(used_deadly) == TYPE_ARRAY and not used_deadly.has(boss):
+				used_deadly.append(boss)
 	return {"ids": chosen, "telegraph": telegraph, "short": chosen.size() < need}
 
 
@@ -367,6 +404,8 @@ func _copy_state(disk: Dictionary) -> void:
 	state = fresh_state()
 	if typeof(disk.get("banked", {})) == TYPE_DICTIONARY:
 		state["banked"] = (disk["banked"] as Dictionary).duplicate(true)
+	if typeof(disk.get("seen_deadly", [])) == TYPE_ARRAY:
+		state["seen_deadly"] = (disk["seen_deadly"] as Array).duplicate()
 	state["endless_unlocked"] = bool(disk.get("endless_unlocked", false))
 	state["won"] = bool(disk.get("won", false))
 	state["drawer_seen"] = bool(disk.get("drawer_seen", false))

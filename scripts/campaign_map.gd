@@ -102,10 +102,14 @@ func show_bosses(biome_name: String, names: Array) -> void:
 	_waiting = true
 	_clear()
 	_add_label(biome_name, 42, Color("e8c36a"))
-	_add_label("Two Deadly bosses are in this delve.", 24, Color("f4ede3"))
 	if names.is_empty():
 		_add_label("None could be dealt.", 22, Color("e07040"))
 	else:
+		var n := names.size()
+		if n == 1:
+			_add_label("One Deadly boss is in this delve.", 24, Color("f4ede3"))
+		else:
+			_add_label("%d Deadly bosses are in this delve." % n, 24, Color("f4ede3"))
 		for raw in names:
 			_add_label(str(raw), 28, Color("e8c36a"))
 	_add_button("Enter", func() -> void:
