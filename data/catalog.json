@@ -414,7 +414,7 @@
 			"usable_when": "enemy_hp < player_hp"
 		},
 		{
-			"ability": "Attack equal to the Attack of the last monster you faced.",
+			"ability": "Attack equal to the Attack of the last monster you spun.",
 			"author_lock": true,
 			"bucket": 4.0,
 			"call_name": "",
@@ -422,14 +422,14 @@
 			"count": 1.0,
 			"defined": "On Spin, store enemy ATK. Initial value is always 0.",
 			"exceptions": "",
-			"explainer": "(LAST ENEMY ATK)",
+			"explainer": "(LAST SPUN ATK)",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
 			"id": "grimoire",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -450,7 +450,7 @@
 				"reminder",
 				"log_hint"
 			],
-			"log_hint": "Copy last enemy Attack",
+			"log_hint": "Copy last spun Attack",
 			"mode_pool": "all",
 			"name": "Grimoire",
 			"ops": {},
@@ -465,7 +465,7 @@
 			"type": "I"
 		},
 		{
-			"ability": "+1 ATK for each HP you are missing.",
+			"ability": "1 Attack, plus 1 for each HP you are missing.",
 			"author_lock": true,
 			"bucket": 3.0,
 			"call_name": "",
@@ -473,14 +473,14 @@
 			"count": 1.0,
 			"defined": "",
 			"exceptions": "",
-			"explainer": "(7 − HP)",
+			"explainer": "(1 + missing HP)",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
 			"id": "bloody_gauntlets",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -500,7 +500,7 @@
 				"reminder",
 				"card_color"
 			],
-			"log_hint": "+1 Attack per missing HP",
+			"log_hint": "1 Attack + 1 per missing HP",
 			"mode_pool": "all",
 			"name": "Bloody Wraps",
 			"ops": {
@@ -2145,7 +2145,7 @@
 		{
 			"ability": "Choose 2 Items and Swap them.",
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 4.0,
 			"call_name": "",
 			"card_color": "chaos",
 			"count": 1.0,

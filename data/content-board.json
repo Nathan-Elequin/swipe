@@ -324,7 +324,7 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "+1 ATK for each HP you are missing.",
+			"ability": "1 Attack, plus 1 for each HP you are missing.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -333,13 +333,13 @@
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "(7 − HP)",
+			"explainer": "(1 + missing HP)",
 			"flow": "",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "bloody_gauntlets",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -359,7 +359,7 @@
 				"reminder",
 				"card_color"
 			],
-			"log_hint": "+1 Attack per missing HP",
+			"log_hint": "1 Attack + 1 per missing HP",
 			"mode_pool": "all",
 			"name": "Bloody Wraps",
 			"notes": "",
@@ -633,7 +633,7 @@
 			"tier": 3.0
 		},
 		{
-			"ability": "Attack equal to the Attack of the last monster you faced.",
+			"ability": "Attack equal to the Attack of the last monster you spun.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -642,13 +642,13 @@
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "(LAST ENEMY ATK)",
+			"explainer": "(LAST SPUN ATK)",
 			"flow": "On Spin, store enemy ATK. Initial value is always 0.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "grimoire",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -669,7 +669,7 @@
 				"reminder",
 				"log_hint"
 			],
-			"log_hint": "Copy last enemy Attack",
+			"log_hint": "Copy last spun Attack",
 			"mode_pool": "all",
 			"name": "Grimoire",
 			"notes": "",
@@ -1786,7 +1786,7 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 1.0,
+			"bucket": 4.0,
 			"call_name": "",
 			"card_color": "chaos",
 			"contradiction_ids": [],

@@ -5911,6 +5911,9 @@ func _paint_late_auras() -> void:
 		var left_i: int = (i - 1 + n) % n
 		var right_i: int = (i + 1) % n
 		for j in [left_i, right_i]:
+			# Alone on the wheel, left/right wrap to this seat — skip self.
+			if j == i:
+				continue
 			if str(wheel[j].get("kind", "")) != "monster":
 				continue
 			if id == "lich":
@@ -5951,11 +5954,19 @@ func _mark_vars() -> void:
 	for i in n:
 		var cid: String = str(wheel[i].get("card_id", ""))
 		if cid == "lich":
-			lich_touch[(i - 1 + n) % n] = true
-			lich_touch[(i + 1) % n] = true
+			var ll: int = (i - 1 + n) % n
+			var lr: int = (i + 1) % n
+			if ll != i:
+				lich_touch[ll] = true
+			if lr != i:
+				lich_touch[lr] = true
 		elif cid == "commander":
-			cmd_touch[(i - 1 + n) % n] = true
-			cmd_touch[(i + 1) % n] = true
+			var cl: int = (i - 1 + n) % n
+			var cr: int = (i + 1) % n
+			if cl != i:
+				cmd_touch[cl] = true
+			if cr != i:
+				cmd_touch[cr] = true
 	for i in n:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
@@ -7195,6 +7206,7 @@ func _on_spin() -> void:
 	m["polymorphed_this_fight"] = false
 	wheel[facing_index] = m
 	last_mob_hp = int(m.get("hp", 3))
+	last_mob_atk = maxi(int(m.get("atk", 0)), 0)
 	phase = "fighting"
 	_walker_busy = true
 	_sync_buttons()
@@ -10725,6 +10737,8 @@ func _store_last_faced_hp() -> void:
 	if str(face.get("kind", "")) != "monster":
 		return
 	last_mob_hp = maxi(int(face.get("hp", 3)), 0)
+	# Grimoire: Attack of the last monster you spun (stored on Spin).
+	last_mob_atk = maxi(int(face.get("atk", 0)), 0)
 
 
 
@@ -15743,7 +15757,8 @@ func _item_view(it: Dictionary) -> Dictionary:
 				out["can_use"] = fighting and int(m.get("hp", 99)) < hp
 			out["note"] = ""
 		"atk_7_hp":
-			out["n"] = _missing_hp()
+			# Bloody Wraps: 1 base Attack + 1 per missing HP (full HP = 1).
+			out["n"] = 1 + _missing_hp()
 			out["number"] = str(out["n"])
 			out["note"] = ""
 		"blk_neighbor":
@@ -17039,8 +17054,8 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["warn"] = PLAYER_COPY.text("warn.boot", "Can't — this enemy has as much HP as you, or more.")
 		"atk_7_hp":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
-			out["equation"] = "(%s − %s)" % [_bb(cream, "max HP"), _bb(hp_c, "HP")]
-			out["body"] = "Attack equal to the HP you are missing."
+			out["equation"] = "(%s + %s)" % [_bb(cream, "1"), _bb(hp_c, "missing HP")]
+			out["body"] = "1 Attack, plus 1 for each HP you are missing."
 		"blk_neighbor":
 			out["value"] = _value_bb("Block", str(live) if live >= 0 else "—", blk_c)
 			var side_word: String = "Left" if str(_ops_of(it).get("side", "")) == "left" else "Right"
@@ -17055,7 +17070,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 		"atk_2_kills":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
 			out["equation"] = "(%s + %s)" % [_bb(cream, "2"), _bb(var_c, "Defeat")]
-			out["body"] = "Get stronger. +1 attack for each monster defeated."
+			out["body"] = "Get stronger. +1 Attack for each monster Defeated."
 		"atk_hp_loss":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
 			out["equation"] = "(%s × %s)" % [_bb(cream, "2"), _bb(hp_c, "Times you Bled")]
@@ -17070,8 +17085,8 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["warn"] = PLAYER_COPY.text("warn.sledge", "Can't — they don't hit hard enough.")
 		"atk_last":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
-			out["equation"] = "(%s)" % _bb(atk_c, "Last Enemy ATK")
-			out["body"] = "Attack equal to the attack of the last monster you faced."
+			out["equation"] = "(%s)" % _bb(atk_c, "Last Spun ATK")
+			out["body"] = "Attack equal to the Attack of the last monster you spun."
 			if fighting and last_mob_atk <= 0:
 				out["warn"] = "Can't — no last monster yet."
 		"atk_strong_neighbor":
@@ -17094,7 +17109,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 		"fangs":
 			out["value"] = _value_bb("Defeat", "", var_c)
 			out["equation"] = "(%s) then %s then %s" % [_bb(hp_c, "Take their ATK"), _bb(var_c, "Defeat"), _bb(hp_c, "Heal their HP")]
-			out["body"] = "Take their hit (block still works), defeat them, then heal equal to the HP they had."
+			out["body"] = "Take their hit (Block still works). They are Defeated. Then Heal equal to the HP they had."
 			if fighting and _defeat_blocked(m):
 				out["warn"] = "Can't — this enemy cannot be Defeated."
 		"mark_poison":
@@ -17121,7 +17136,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 		"heal_kills":
 			out["value"] = _value_bb("Heal", str(live), hp_c)
 			out["equation"] = "(%s + %s)" % [_bb(cream, "1"), _bb(var_c, "Defeat")]
-			out["body"] = "Heal 1, plus 1 for each owner you have already defeated."
+			out["body"] = "Heal 1, plus 1 for each owner you have already Defeated."
 		"heal_full":
 			out["value"] = _value_bb("Heal", "6", hp_c)
 			out["equation"] = "(%s)" % _bb(hp_c, "6")
