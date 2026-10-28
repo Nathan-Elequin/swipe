@@ -6034,6 +6034,8 @@ func _on_bribe_mode() -> void:
 
 func _process(delta: float) -> void:
 	_anim_t += delta
+	if hub_cue != null and hub_cue.visible:
+		_place_hub_cue()
 	if _unlock_screen:
 		_hide_board_for_unlock()
 		return
@@ -11148,16 +11150,19 @@ func _sync_hub_cue() -> void:
 
 
 func _place_hub_cue() -> void:
-	if hub_cue == null:
+	if hub_cue == null or btn_wrap == null:
 		return
 	var bar: Control = hotbar_panel if hotbar_panel != null else hotbar_wrap
-	if bar == null:
-		return
-	var br: Rect2 = bar.get_global_rect()
-	var h: float = 64.0
+	var wr: Rect2 = btn_wrap.get_global_rect()
+	var br: Rect2 = wr
+	if bar != null:
+		br = bar.get_global_rect()
+	var h: float = maxf(wr.size.y, 56.0)
 	var w: float = maxf(br.size.x, 420.0)
-	# Sit in the Take/Spin row: just above the hotbar, same width as the cards.
-	hub_cue.global_position = Vector2(br.position.x, br.position.y - h - 6.0)
+	var x: float = br.position.x - wr.position.x
+	if wr.size.x <= 1.0:
+		return
+	hub_cue.position = Vector2(x, (wr.size.y - h) * 0.5)
 	hub_cue.size = Vector2(w, h)
 	if hub_cue.has_method("apply_pill"):
 		hub_cue.apply_pill()
