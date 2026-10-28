@@ -24,24 +24,24 @@
    },
    {
     "node": "OutDoor",
-    "file": "doors/run_door_closed.png",
+    "file": "props/map_wall.png",
     "origin": [
-     250,
-     130
+     176,
+     72
     ],
     "size": [
-     44,
-     66
+     68,
+     52
     ],
     "hotspot": [
-     246,
-     122,
-     52,
-     74
+     176,
+     72,
+     68,
+     52
     ],
-    "hover": "doors/run_door_hover.png",
-    "z": 2,
-    "note": "out the door / opens held map"
+    "hover": "props/map_wall_hover.png",
+    "z": 3,
+    "note": "Outpost wall map — click opens held map (same path as Space)"
    },
    {
     "node": "RerollJar",

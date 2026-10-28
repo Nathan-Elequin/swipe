@@ -11,17 +11,21 @@ const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const DEV := preload("res://scripts/dev_flag.gd")
 const SHELL := preload("res://scripts/campaign_shell.gd")
 
-const SHEET := Vector2(1440, 928)
-## Cabin mark on the parchment, then the five biomes walking up the mountain.
+## Held parchment + hands overlay (Outpost pack v3), 420×260 native ×4.
+const SHEET := Vector2(1680, 1040)
+const PARCHMENT := "map/held/map_held_parchment.png"
+const HANDS_OVERLAY := "map/held/map_hands_overlay.png"
+## Cabin mark, then five biome stamp centres from the parchment art
+## (native ≈70,186 / 140,106 / 215,176 / 290,91 / 355,166 ×4).
 const TRAIL: Array[Vector2] = [
-	Vector2(78, 808),
-	Vector2(168, 736),
-	Vector2(360, 676),
-	Vector2(456, 572),
-	Vector2(408, 452),
-	Vector2(496, 292),
+	Vector2(140, 900),
+	Vector2(280, 744),
+	Vector2(560, 424),
+	Vector2(860, 704),
+	Vector2(1160, 364),
+	Vector2(1420, 664),
 ]
-const ENDLESS_AT := Vector2(1120, 488)
+const ENDLESS_AT := Vector2(1307, 547)
 const WAX := {
 	"b1": Color("5f8f3c"),
 	"b2": Color("6e5a30"),
@@ -70,11 +74,12 @@ func setup() -> void:
 	add_child(scrim)
 	_sheet = Control.new()
 	_sheet.name = "Sheet"
-	_sheet.position = Vector2(300, 36)
+	## Fit 1680×1040 parchment on the 1680×1040 cabin view with a slight tilt.
+	_sheet.position = Vector2(80, 24)
 	_sheet.size = SHEET
 	_sheet.pivot_offset = SHEET * 0.5
-	_sheet.scale = Vector2(0.72, 0.72)
-	_sheet.rotation = deg_to_rad(-6.0)
+	_sheet.scale = Vector2(0.90, 0.90)
+	_sheet.rotation = deg_to_rad(-4.0)
 	_sheet.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_sheet)
 	var shadow := ColorRect.new()
@@ -84,7 +89,10 @@ func setup() -> void:
 	shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sheet.add_child(shadow)
 	var paper := TextureRect.new()
-	paper.texture = KIT.ui_tex("map/map_close_v2.png")
+	paper.name = "Parchment"
+	paper.texture = KIT.ui_tex(PARCHMENT)
+	if paper.texture == null:
+		paper.texture = KIT.ui_tex("map/map_close_v2.png")
 	paper.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	paper.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	paper.stretch_mode = TextureRect.STRETCH_KEEP
@@ -103,7 +111,7 @@ func setup() -> void:
 	_sheet.add_child(_pins)
 	var title: FitLabelBox = KIT.fit_label(
 		"map.title",
-		Rect2(220, 28, 980, 70),
+		Rect2(280, 36, 1120, 70),
 		34,
 		18,
 		2,
@@ -125,11 +133,14 @@ func setup() -> void:
 	_tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_sheet.add_child(_tip)
 	_build_close()
+	## Hands overlay matches the parchment canvas (1680×1040) at (0,0) on the sheet.
 	_hands = Hands.new()
-	_hands.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_hands.name = "Hands"
+	_hands.position = Vector2.ZERO
+	_hands.size = SHEET
 	_hands.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hands.z_index = 8
-	add_child(_hands)
+	_sheet.add_child(_hands)
 	if DEV.on():
 		_build_cheats()
 
@@ -423,7 +434,7 @@ func _build_close() -> void:
 	b.texture_pressed = KIT.ui_tex("map/map_close_x_pressed.png")
 	b.focus_mode = Control.FOCUS_NONE
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	KIT.apply_rect(b, Rect2(1328, 36, 64, 64), 7)
+	KIT.apply_rect(b, Rect2(1560, 48, 64, 64), 7)
 	b.pressed.connect(func() -> void:
 		closed.emit()
 	)
@@ -580,53 +591,20 @@ class NodeDot extends Control:
 
 class Hands extends Control:
 	const KIT := preload("res://scripts/cabin/cabin_kit.gd")
-	var _frame: int = 0
-	var _acc: float = 0.0
+	## Same canvas as the parchment; drawn at (0,0) on the tilted sheet.
+	var _overlay: TextureRect
 
-	func _process(delta: float) -> void:
-		if not is_visible_in_tree():
-			return
-		_acc += delta
-		if _acc < 0.45:
-			return
-		_acc = 0.0
-		_frame = 1 - _frame
-		queue_redraw()
-
-
-	func _draw() -> void:
-		_mitt(Vector2(36, 760), false)
-		_mitt(Vector2(1320, 790), true)
-		var tex: Texture2D = KIT.load_tex("overlays/map_hero_f%d.png" % _frame)
-		if tex:
-			draw_texture_rect(tex, Rect2(760, 860, 160, 160), false)
-
-
-	func _mitt(origin: Vector2, flip: bool) -> void:
-		var skin := Color("e4b48a")
-		var leaf := Color("3d6b32")
-		var ink := Color("100e0c")
-		var cells: Array = [
-			[1, 5, leaf], [2, 5, leaf], [3, 5, leaf], [4, 5, leaf], [5, 5, leaf],
-			[1, 4, leaf], [2, 4, leaf], [3, 4, leaf], [4, 4, leaf], [5, 4, leaf],
-			[2, 3, skin], [3, 3, skin], [4, 3, skin], [5, 3, skin], [6, 3, skin],
-			[0, 2, skin], [1, 2, skin], [2, 2, skin], [3, 2, skin], [4, 2, skin], [5, 2, skin], [6, 2, skin],
-			[2, 1, skin], [3, 1, skin], [4, 1, skin], [5, 1, skin],
-			[2, 0, skin], [3, 0, skin], [5, 0, skin],
-		]
-		var s := 18.0
-		for raw in cells:
-			var cell: Array = raw
-			var x := int(cell[0])
-			if flip:
-				x = 6 - x
-			var y := int(cell[1])
-			var p := origin + Vector2(float(x) * s, float(y) * s)
-			draw_rect(Rect2(p - Vector2(2, 2), Vector2(s + 2, s + 2)), ink)
-		for raw2 in cells:
-			var cell2: Array = raw2
-			var x2 := int(cell2[0])
-			if flip:
-				x2 = 6 - x2
-			var p2 := origin + Vector2(float(x2) * s, float(cell2[1]) * s)
-			draw_rect(Rect2(p2, Vector2(s - 2, s - 2)), cell2[2])
+	func _ready() -> void:
+		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_overlay = TextureRect.new()
+		_overlay.name = "HandsOverlay"
+		_overlay.texture = KIT.ui_tex("map/held/map_hands_overlay.png")
+		_overlay.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_overlay.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_overlay.stretch_mode = TextureRect.STRETCH_KEEP
+		_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_overlay.position = Vector2.ZERO
+		_overlay.size = Vector2(1680, 1040)
+		add_child(_overlay)
+		## If the overlay is missing, leave empty rather than inventing mitt art.

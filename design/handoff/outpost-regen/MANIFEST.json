@@ -1,0 +1,257 @@
+{
+ "pack": "Spinheritance Outpost (Torchlit Burrow) v3",
+ "created": "2026-10-28 13:08 CT",
+ "repo": "Nathan-Elequin/swipe",
+ "gens_spent": 51.0,
+ "balance_start": 1135,
+ "balance_end": 1084.0,
+ "files": [
+  {
+   "file": "/workspace/outpost-regen/pack/final/case_ashen_crypt.png",
+   "target": "assets/dungeon/home/cabinets/case_ashen_crypt.png",
+   "size": [
+    124,
+    400
+   ],
+   "sha256": "ec7e3f7ce57816d9b67143f6c159ad3c0ea66ae253fd2ea1263e236e5b724c30",
+   "source_raw": "raw/case_ashen_crypt_s33.png",
+   "note": "open-frame trophy case, interior void #0B0706 at x16..107 y44..366"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/case_cinder_forge.png",
+   "target": "assets/dungeon/home/cabinets/case_cinder_forge.png",
+   "size": [
+    124,
+    400
+   ],
+   "sha256": "7dc644634a9ffa9c27cf811c7c9c318e3d1529211461d0dfe3f8fb4286b27d46",
+   "source_raw": "raw/case_cinder_forge_s34.png",
+   "note": "open-frame trophy case, interior void #0B0706 at x16..107 y44..366"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/case_shadow_abyss.png",
+   "target": "assets/dungeon/home/cabinets/case_shadow_abyss.png",
+   "size": [
+    124,
+    400
+   ],
+   "sha256": "48ffa005017e01a5c0eab8d527a4f4e5cbea8a131ba337e2d23c939da969e9f9",
+   "source_raw": "raw/case_shadow_abyss_s33.png",
+   "note": "open-frame trophy case, interior void #0B0706 at x16..107 y44..366"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/case_sunken_mire.png",
+   "target": "assets/dungeon/home/cabinets/case_sunken_mire.png",
+   "size": [
+    124,
+    400
+   ],
+   "sha256": "a57dadd7f71f986ff678f8ae81dc76cb7e70b73cf7b46bc03be149be5c20e2f4",
+   "source_raw": "raw/case_sunken_mire_s33.png",
+   "note": "open-frame trophy case, interior void #0B0706 at x16..107 y44..366"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/case_verdant_hollow.png",
+   "target": "assets/dungeon/home/cabinets/case_verdant_hollow.png",
+   "size": [
+    124,
+    400
+   ],
+   "sha256": "600b9a284d871ca1c121d8e0bd93e7650c75989ad16616ab02b78b3e15b35788",
+   "source_raw": "raw/case_verdant_hollow_s33.png",
+   "note": "open-frame trophy case, interior void #0B0706 at x16..107 y44..366"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/map_hands_overlay_1680x1040.png",
+   "target": "assets/ui/map/held/map_hands_overlay.png",
+   "size": [
+    1680,
+    1040
+   ],
+   "sha256": "731a64e2cd7710f5ffe2bbe694b69a942f66a13f1e6c151ee6914f91dedf5a84",
+   "source_raw": "raw/hands_pair_s58.png",
+   "note": "hands overlay x4"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/map_hands_overlay_420x260.png",
+   "target": "assets/ui/map/held/map_hands_overlay_420x260.png",
+   "size": [
+    420,
+    260
+   ],
+   "sha256": "86187531bec7b3b1aa8d189f3b7881196eca3aebe1206b25fb14c326debbde7a",
+   "source_raw": "raw/hands_pair_s58.png",
+   "note": "hands overlay native, aligned to parchment canvas"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/map_hands_overlay_left.png",
+   "target": "assets/ui/map/held/map_hands_overlay_left.png",
+   "size": [
+    135,
+    112
+   ],
+   "sha256": "f2bf2664459f8807a5c7a2da956850adaf634c0341c6a9974596036403621647",
+   "source_raw": "raw/hands_pair_s58.png",
+   "note": "left hand crop"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/map_hands_overlay_right.png",
+   "target": "assets/ui/map/held/map_hands_overlay_right.png",
+   "size": [
+    108,
+    101
+   ],
+   "sha256": "0ebdb93a925c6775743c9acb82c93c830d3b0f97530179a7da7ad03327cb4fd8",
+   "source_raw": "raw/hands_pair_s58.png",
+   "note": "right hand crop"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/map_held_parchment_1680x1040.png",
+   "target": "assets/ui/map/held/map_held_parchment.png",
+   "size": [
+    1680,
+    1040
+   ],
+   "sha256": "5fea9b5653966fde185715976b93a7079a3a305c4fa11aea9e2eac038fa8d502",
+   "source_raw": "raw/map_s44.png",
+   "note": "held map x4"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/map_held_parchment_420x260.png",
+   "target": "assets/ui/map/held/map_held_parchment_420x260.png",
+   "size": [
+    420,
+    260
+   ],
+   "sha256": "e53715198f0ef3461ad8ef437549eb3f10dd949fd9270c8e3984110c91e561b7",
+   "source_raw": "raw/map_s44.png",
+   "note": "held map native"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/mudroom_boots_32x32.png",
+   "target": "assets/dungeon/home/mudroom/mudroom_boots_32x32.png",
+   "size": [
+    32,
+    32
+   ],
+   "sha256": "19e9ea0bd3daa49cd46e8d825fc8774a1d79b17d3303a5a703d65d68cd1404e6",
+   "source_raw": "raw/boots_s11.png",
+   "note": "boots"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/mudroom_floor_96x32.png",
+   "target": "assets/dungeon/home/mudroom/mudroom_floor_96x32.png",
+   "size": [
+    96,
+    32
+   ],
+   "sha256": "58db589f41ba86668b7e3c1137cd0f7c252a0c52e4824b7cf55be9d204279976",
+   "source_raw": "raw/floor_s15.png",
+   "note": "floor strip, tiles horizontally"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/mudroom_pegs_96x32.png",
+   "target": "assets/dungeon/home/mudroom/mudroom_pegs_96x32.png",
+   "size": [
+    96,
+    32
+   ],
+   "sha256": "e1f14322250cebda8e7400fe2296f6e7f2fa9f4f8673382be03e5c05e8680674",
+   "source_raw": "raw/pegs_s11.png",
+   "note": "peg rail: packs, rope, lantern, satchel"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/mudroom_prep_table_96x48.png",
+   "target": "assets/dungeon/home/mudroom/mudroom_prep_table_96x48.png",
+   "size": [
+    96,
+    48
+   ],
+   "sha256": "2454864ccfb01f7a952d60d998d6a8d0780321778d948f3847618c6d1b6e9bed",
+   "source_raw": "raw/prep_s12.png",
+   "note": "map/gear prep table"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/mudroom_wall_96.png",
+   "target": "assets/dungeon/home/mudroom/mudroom_wall_96.png",
+   "size": [
+    96,
+    96
+   ],
+   "sha256": "fda7c2b196ead575f54f4c29de874e55a7f0fdbdae654c84280473864d6912c3",
+   "source_raw": "raw/wall_s14.png",
+   "note": "nine-slice wall tile (12px native beam border)"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/mudroom_wall_96_x4_384.png",
+   "target": "assets/dungeon/home/mudroom/mudroom_wall_96_x4_384.png (optional)",
+   "size": [
+    384,
+    384
+   ],
+   "sha256": "ff6919c7ae217cadc88a7f84ac306a16cff0c840534c48ec15dd5863150780bf",
+   "source_raw": "raw/wall_s14.png",
+   "note": "4x nearest copy for NinePatch margins of 48 tex-px"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/outpost_room_plate_1680x1040.png",
+   "target": "assets/dungeon/home/rooms/outpost_room_plate.png (optional bg)",
+   "size": [
+    1680,
+    1040
+   ],
+   "sha256": "6961cc9aa894eb3af96f0be3563054e8f07d5eb21eb0cb119f263c358a76539e",
+   "source_raw": "raw/plate_s25.png",
+   "note": "concept plate x4"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/outpost_room_plate_420x260.png",
+   "target": "assets/dungeon/home/rooms/outpost_room_plate_420x260.png (reference)",
+   "size": [
+    420,
+    260
+   ],
+   "sha256": "ee1cb30a643c3d908dafcb446aaf446d3898eb6a1aa6604ad6f7509a000f99d6",
+   "source_raw": "raw/plate_s25.png",
+   "note": "concept plate native"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/final/outpost_room_plate_alt_420x260.png",
+   "target": "reference only (not for repo)",
+   "size": [
+    420,
+    260
+   ],
+   "sha256": "55b8545cfba5fa3e76393e6a2a65ecf74e102a186cc0c4cd1f31ccf1a7081d2a",
+   "source_raw": "raw/plate_s24.png",
+   "note": "alt plate"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/CONTACT_outpost_layers.png",
+   "target": "review only",
+   "size": [
+    1744,
+    1488
+   ],
+   "sha256": "b966b72b4c0c20eb91f48ab6877c8ea2c2b847c47f2ae111ed2be4ceeac050cd"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/CONTACT_cases_v3.png",
+   "target": "review only",
+   "size": [
+    1336,
+    832
+   ],
+   "sha256": "2420b6078ec03a9aa8817c05823be93126ae46f342e3fc423010eaee5a7bf6ec"
+  },
+  {
+   "file": "/workspace/outpost-regen/pack/CONTACT_map_hands.png",
+   "target": "review only",
+   "size": [
+    1728,
+    828
+   ],
+   "sha256": "96452f3a6cfdc5d134526a07c585ff662e8b563e0b719ff468a913a923348bcf"
+  }
+ ]
+}

@@ -155,15 +155,47 @@ func _refresh_doors() -> void:
 		back.hover_tex = KIT.load_tex("doors/doorway_hover.png")
 	var out = spots.get("OutDoor", null)
 	if out is CabinHotspot:
+		## Wall parchment hotspot (not a run door). Same open path as Space.
 		out.tag_key = "mudroom.exit.out"
 		out.set_locked(false)
-		var run_closed: Texture2D = KIT.load_tex("doors/run_door_closed.png")
-		if run_closed:
-			out.set_idle_tex(run_closed)
-		out.hover_tex = KIT.load_tex("doors/run_door_hover.png")
+		var wall_map: Texture2D = KIT.load_tex("props/map_wall.png")
+		if wall_map:
+			out.set_idle_tex(wall_map)
+		out.hover_tex = KIT.load_tex("props/map_wall_hover.png")
+		out.press_tex = KIT.load_tex("props/map_wall_press.png")
+	## Backup hit over the prep table if the layout wall hotspot is missing.
+	_ensure_wall_map_hit()
 	var jar = spots.get("RerollJar", null)
 	if jar is CabinHotspot:
 		jar.tag_key = "mudroom.jar"
+
+
+func _ensure_wall_map_hit() -> void:
+	if spots.has("OutDoor") and spots["OutDoor"] is CabinHotspot:
+		return
+	if spots.has("WallMapHit"):
+		return
+	var hit := Control.new()
+	hit.name = "WallMapHit"
+	## Prep-table / mid-wall parchment region (native coords).
+	hit.position = Vector2(168, 64) * PX
+	hit.size = Vector2(96, 72) * PX
+	hit.mouse_filter = Control.MOUSE_FILTER_STOP
+	hit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	hit.z_index = 4
+	hit.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+			hotspot_activated.emit("OutDoor")
+			accept_event()
+	)
+	hit.mouse_entered.connect(func() -> void:
+		hotspot_hovered.emit("OutDoor", "mudroom.exit.out", hit)
+	)
+	hit.mouse_exited.connect(func() -> void:
+		hotspot_unhovered.emit("OutDoor")
+	)
+	add_child(hit)
+	spots["WallMapHit"] = hit
 
 
 func set_jar_count(n: int) -> void:
