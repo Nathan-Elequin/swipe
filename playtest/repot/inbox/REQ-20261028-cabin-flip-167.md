@@ -1,6 +1,6 @@
 ---
 id: REQ-20261028-cabin-flip-167
-status: open
+status: done
 priority: high
 pr: 167
 tip_sha: 2b92c62e

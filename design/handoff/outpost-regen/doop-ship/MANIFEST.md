@@ -6,7 +6,8 @@ Nathan: Doop ship-strip for cabinets wall + map-in-hands; PixelLab only for moun
 
 | Plate | Doop frame id | 1680×1040 | notes |
 |---|---|---|---|
-| Cabinets wall | `sSXqYUHvO2` | `SHIP-D-cabinets-wall.png` | legend fully gone |
+| Cabinets wall (EMPTY scrub) | `sSXqYUHvO2` | `SHIP-D-cabinets-wall-EMPTY.png` → live `assets/dungeon/home/rooms/cabinets_wall.png` | 2026-10-28 EMPTY scrub: five open empty cases; no titles / POOL LOCKED / fake icons / gate bars / X locks |
+| Cabinets wall (prior) | `sSXqYUHvO2` | `SHIP-D-cabinets-wall.png` | earlier ship; still had baked titles / locked chrome — superseded by EMPTY |
 | Map-in-hands mid | `oYWAbgs2oF` | `SHIP-B-map-in-hands.png` | no SPACE chrome hint |
 
 Supersedes earlier Pixel frames `rH8lfOM0GR` / `O64xs1KB6E` (cabinets still had legend scrap).
