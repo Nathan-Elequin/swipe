@@ -3963,7 +3963,7 @@
 			"tier": 3.0
 		},
 		{
-			"ability": "When Spun, 50%: gain +4 Attack. Otherwise: lose 3 Attack.",
+			"ability": "On Spin, 50%: gain +4 Attack. Otherwise: lose 3 Attack.",
 			"atk_base": 5.0,
 			"atk_formula": "",
 			"author_lock": true,

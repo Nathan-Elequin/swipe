@@ -63,7 +63,7 @@ def main() -> int:
     expect(egg["call_name"] == "Hatch", "egg call", fails)
 
     berserker = monsters["berserker"]
-    expect(berserker["ability"] == "When Spun, 50%: gain +4 Attack. Otherwise: lose 3 Attack.", "berserker ability", fails)
+    expect(berserker["ability"] == "On Spin, 50%: gain +4 Attack. Otherwise: lose 3 Attack.", "berserker ability", fails)
     expect(berserker["call_name"] == "Hot and Cold", "berserker call", fails)
     expect(berserker["atk"]["base"] == 5, "berserker atk", fails)
     expect(berserker["hp"]["base"] == 4, "berserker hp", fails)
