@@ -15280,8 +15280,39 @@ func _self_deconstructs(index: int) -> bool:
 
 func _after_self_deconstruct(index: int) -> void:
 	if not _self_deconstructs(index):
+		await _martyr_noble_death(index)
 		return
 	await _chip_hp(index, 1)
+
+
+## Martyr (Noble Death): when it Attacks, it dies, and each live neighbor
+## gains the HP Martyr had when it died.
+func _martyr_noble_death(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var s: Dictionary = wheel[index]
+	if str(s.get("card_id", "")) != "martyr":
+		return
+	if _is_silenced(s) or bool(s.get("swing_muted", false)):
+		return
+	if not bool(s.get("has_attacked", false)):
+		return
+	var gift: int = int(s.get("hp", 0))
+	if gift <= 0:
+		return
+	await _chip_hp(index, gift)
+	for j in _neighbors_of(index):
+		if j < 0 or j >= wheel.size():
+			continue
+		var n: Dictionary = wheel[j]
+		if int(n.get("hp", 0)) <= 0:
+			continue
+		n["hp"] = int(n.get("hp", 0)) + gift
+		n["hp_max"] = maxi(int(n.get("hp_max", 0)), int(n["hp"]))
+		n["hp_locked"] = true
+		wheel[j] = n
+	_log("on_resolve", "Martyr gives %s HP to its neighbors" % gift)
+	_refresh()
 
 
 func _blood_threshes(index: int) -> bool:
