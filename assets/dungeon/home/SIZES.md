@@ -164,6 +164,7 @@ Room layout data, including every hotspot, is in `_pixel_extras/layout.json`. Th
 |---|---|---|---|---|
 | doors/door_sign_hall.png | 1 | 18x14 | 72x56 | little painted sign nailed above each locked door; also the key-ring tags |
 | doors/door_sign_loft.png | 1 | 18x14 | 72x56 | little painted sign nailed above each locked door; also the key-ring tags |
+| doors/door_sign_outpost.png | 1 | 18x14 | 72x56 | hall right-door plaque (backpack); hover key cabin.hall.sign_outpost |
 | doors/door_sign_study.png | 1 | 18x14 | 72x56 | little painted sign nailed above each locked door; also the key-ring tags |
 | doors/door_sign_workshop.png | 1 | 18x14 | 72x56 | little painted sign nailed above each locked door; also the key-ring tags |
 | doors/doorway_hover.png | 1 | 40x70 | 160x280 | gold rim for the open doorway back (rooms 1-4), place at BACK_DOOR origin-(4,6) |

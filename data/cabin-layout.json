@@ -544,8 +544,8 @@
     "note": "to Outpost (mudroom)"
    },
    {
-    "node": "SignStudy",
-    "file": "doors/door_sign_study.png",
+    "node": "SignOutpost",
+    "file": "doors/door_sign_outpost.png",
     "origin": [
      385,
      110
@@ -554,10 +554,15 @@
      18,
      14
     ],
-    "hotspot": null,
+    "hotspot": [
+     383,
+     108,
+     22,
+     18
+    ],
     "hover": null,
     "z": 2,
-    "note": "TODO Spin/Pixel: was study sign; right door now Outpost \u2014 hide or replace art"
+    "note": "hall right door \u2192 Outpost; hover key cabin.hall.sign_outpost"
    },
    {
     "node": "Flame0",
