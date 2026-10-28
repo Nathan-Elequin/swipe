@@ -78,6 +78,11 @@ func _init() -> void:
 		"cabinets/case_cinder_forge",
 		"cabinets/case_shadow_abyss",
 	]) or failed
+	var bounds: Rect2 = Cases.cases_bounds_rect()
+	failed = _check(failed, "cases bounds", bounds.position == Vector2(76, 56) and bounds.size == Vector2(298, 160)) or failed
+	failed = _check(failed, "five glass", Cases.CASE_GLASS.size() == 5) or failed
+	var g0: Rect2 = Cases.glass_rect(0)
+	failed = _check(failed, "glass0 inside bounds", bounds.encloses(g0)) or failed
 	if failed:
 		print("BIOME_CABINETS_FAIL")
 		quit(1)
