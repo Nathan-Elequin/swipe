@@ -4795,14 +4795,14 @@
 		{
 			"cat": "Campaign",
 			"key": "room.mudroom.name",
-			"text": "The Mudroom",
-			"where": "Mudroom room-name toast"
+			"text": "Outpost",
+			"where": "Outpost room-name toast"
 		},
 		{
 			"cat": "Campaign",
 			"key": "cabin.room.mudroom",
-			"text": "The Mudroom",
-			"where": "Mudroom room-name toast alias"
+			"text": "Outpost",
+			"where": "Outpost room-name toast alias"
 		},
 		{
 			"cat": "Campaign",
@@ -4833,14 +4833,14 @@
 		{
 			"cat": "Campaign",
 			"key": "mudroom.exit.out",
-			"text": "Out the door",
-			"where": "Mudroom out door hover"
+			"text": "Map in hands",
+			"where": "Outpost wall map hotspot"
 		},
 		{
 			"cat": "Campaign",
 			"key": "mudroom.space",
-			"text": "pull out the map",
-			"where": "Mudroom Space helper"
+			"text": "Space or wall — map in hands",
+			"where": "Outpost Space / wall helper"
 		},
 		{
 			"cat": "Campaign",
