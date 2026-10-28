@@ -1969,7 +1969,8 @@
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0
+			"tier": 0.0,
+			"curse": true
 		},
 		{
 			"ability": "The facing owner's Attack becomes 0 this fight.",
@@ -2816,7 +2817,7 @@
 				"dev": true,
 				"hide": true
 			},
-			"flow": "Unplayable token. Starts at 6. Each item use that increments the Beads counter lowers the number by 1. At 1 it pulses. At 0: Die, Healing Potion can save. Overlay picks (Cube, Worm, Merchant, Bell spawn/defeat) do not tick. Bushido dummy throw does tick. Potion auto and Buckler auto do not. Stays between fights until dumped or it hits 0. Cube can eat it. Merchant can upgrade it.",
+			"flow": "Unplayable token. Starts at 6. Each item use that increments the Beads counter lowers the number by 1. At 1 it pulses. At 0: Die, Healing Potion can save. Overlay picks (Cube, Worm, Merchant, Bell spawn/defeat) do not tick. Bushido dummy throw does tick. Potion auto and Buckler auto do not. Stays between fights until dumped or it hits 0. Curse: Cube, Worm, Bell, Hired Hand, and a full-hand replace cannot dump it. Merchant can still upgrade it.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "toll",
@@ -2855,7 +2856,8 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0
+			"tier": 0.0,
+			"curse": true
 		},
 		{
 			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
@@ -3438,7 +3440,7 @@
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Unplayable watcher. Drafts at 5. Each real Discard ticks it down. Use and successful Keep do not tick. Bell, Cube, Worm, bribe, Challenge throw-away, failed Keep, and the bag emptying do. At 1 it flashes: the next Discard is copied into the hand as that same card (Grief Jar keeps its stored Block). Recycler stays and resets to 5. If Recycler itself is discarded at 1, it comes back at 5. Two Recyclers at 1 make two copies. Extra copies that will not fit the hand are lost (Can't Gain). Recycler still resets.",
+			"flow": "Unplayable watcher. Drafts at 5. Each real Discard ticks it down. Use and successful Keep do not tick. Bell, Cube, Worm, bribe, failed Keep, and the bag emptying do. A full-hand replace (click a card to make room) does not. At 1 it flashes: the next Discard is copied into the hand as that same card (Grief Jar keeps its stored Block). Recycler stays and resets to 5. If Recycler itself is discarded at 1, it comes back at 5. Two Recyclers at 1 make two copies. Extra copies that will not fit the hand are lost (Can't Gain). Recycler still resets.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "recycler",
@@ -3490,7 +3492,7 @@
 			"contradiction_ids": [],
 			"count": 0.0,
 			"explainer": "Ignore Block. Discard after 3 Spins.",
-			"flow": "Unplayable token. Starts at 3. While it sits, all monsters ignore your Block (same pierce as Arrow Head). Each Spin, including the first after it enters your hand: 3 → 2 → 1 → Discard after the third fight. Bell, Cube, Worm, and other Discards can remove it earlier. Recycler ticks those Discards.",
+			"flow": "Unplayable token. Starts at 3. While it sits, all monsters ignore your Block (same pierce as Arrow Head). Each Spin, including the first after it enters your hand: 3 → 2 → 1 → Discard after the third fight. Curse: Cube, Worm, Bell, Hired Hand, and a full-hand replace cannot dump it. Recycler ticks Discards that still happen.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "rust",
@@ -3529,7 +3531,8 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0
+			"tier": 0.0,
+			"curse": true
 		},
 		{
 			"ability": "Heal 2.",
