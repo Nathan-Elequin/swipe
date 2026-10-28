@@ -158,7 +158,7 @@ func show_rule(
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	add_child(col)
 	if bool(look.get("stage_card", false)):
-		_fill_stage_card(col, title, body, ink, look)
+		_fill_stage_card(col, title, body, look)
 		visible = true
 		custom_minimum_size = Vector2(340, 0)
 		reset_size()
@@ -515,7 +515,9 @@ func hide_plate() -> void:
 	edit_id = ""
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_pin_always = false
-	if _kw_tip != null and _kw_tip.has_method("hide_def"):
+	if _kw_tip != null and _kw_tip.has_method("unpin"):
+		_kw_tip.unpin()
+	elif _kw_tip != null and _kw_tip.has_method("hide_def"):
 		_kw_tip.hide_def()
 	_apply_look({})
 
@@ -574,10 +576,11 @@ func _apply_look(look: Dictionary) -> void:
 		sb.shadow_size = 8 if tier >= 3 else (5 if tier == 2 else 3)
 	sb.shadow_offset = Vector2.ZERO
 	var stage: bool = bool(look.get("stage_card", false))
-	var pad: int = int(look.get("stage_pad", 0))
 	sb.content_margin_left = 16 if stage else 18
 	sb.content_margin_right = 16 if stage else 18
-	sb.content_margin_top = (8 + pad) if stage else 14
+	# Fight plate sits under the portrait; keep a tight top so HP/ATK sit
+	# directly under the sprite (stage_pad used to shove that row down).
+	sb.content_margin_top = 8 if stage else 14
 	sb.content_margin_bottom = 12 if stage else 14
 	add_theme_stylebox_override("panel", sb)
 
@@ -590,12 +593,14 @@ func _wipe() -> void:
 		c.queue_free()
 
 
-func _fill_stage_card(col: VBoxContainer, title: String, body: String, ink: Color, look: Dictionary) -> void:
+## Fight callout: sprite (combat_stage) → HP left / ATK right → text capsule.
+func _fill_stage_card(col: VBoxContainer, title: String, body: String, look: Dictionary) -> void:
 	col.add_theme_constant_override("separation", 8)
 	var slice: Dictionary = look.get("slice", {})
 	if typeof(slice) != TYPE_DICTIONARY:
 		slice = {}
-	col.add_child(_stage_top_row(title, str(look.get("rank", "")), slice, ink))
+	col.add_child(_stage_stat_row(slice))
+	col.add_child(_stage_name_block(title, str(look.get("rank", ""))))
 	var call_chip: String = str(look.get("call_chip", "")).strip_edges()
 	if call_chip == "":
 		return
@@ -627,13 +632,23 @@ func _fill_stage_card(col: VBoxContainer, title: String, body: String, ink: Colo
 	col.add_child(b)
 
 
-func _stage_top_row(title: String, rank: String, slice: Dictionary, ink: Color) -> Control:
+## HP on the left, attack on the right — under the portrait, above the capsule.
+func _stage_stat_row(slice: Dictionary) -> Control:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 6)
+	row.add_theme_constant_override("separation", 0)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_stage_badge(true, slice))
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(spacer)
+	row.add_child(_stage_badge(false, slice))
+	return row
+
+
+func _stage_name_block(title: String, rank: String) -> Control:
 	var mid := VBoxContainer.new()
 	mid.alignment = BoxContainer.ALIGNMENT_CENTER
 	mid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -662,9 +677,7 @@ func _stage_top_row(title: String, rank: String, slice: Dictionary, ink: Color) 
 		rk.add_theme_constant_override("outline_size", 3)
 		rk.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		mid.add_child(rk)
-	row.add_child(mid)
-	row.add_child(_stage_badge(false, slice))
-	return row
+	return mid
 
 
 func _stage_badge(heart: bool, slice: Dictionary) -> Control:

@@ -3,6 +3,7 @@ extends CanvasLayer
 
 const OUT_PATH := "user://text_audit.json"
 const COPY_PATH := "res://design/audit-shots/cursor/text_audit.json"
+const FIT_LABEL := preload("res://scripts/ui/fit_label_box.gd")
 
 var copy_dir: String = "res://design/audit-shots/cursor"
 const MIN_DEFAULT := 16
@@ -67,11 +68,18 @@ func _collect() -> Array:
 	return out
 
 
+func _is_fit(n: Node) -> bool:
+	return n != null and FIT_LABEL != null and n.get_script() == FIT_LABEL
+
+
 func _walk(n: Node, out: Array) -> void:
 	if n is CanvasLayer and n == self:
 		return
-	if n is FitLabelBox or n is Label or n is RichTextLabel or n is Button:
-		if n is Label and n.get_parent() is FitLabelBox:
+	# The git SHA watermark is supposed to stay small. It is not player copy.
+	if str(n.name) == "BuildStamp":
+		return
+	if _is_fit(n) or n is Label or n is RichTextLabel or n is Button:
+		if n is Label and _is_fit(n.get_parent()):
 			pass
 		else:
 			var c: Control = n
@@ -97,7 +105,7 @@ func _sprite_hits() -> Array:
 			var tr: TextureRect = n
 			if tr.texture == null:
 				continue
-			if tr.name == "Frame" and tr.get_parent() is FitLabelBox:
+			if tr.name == "Frame" and _is_fit(tr.get_parent()):
 				continue
 			rect = tr.get_global_rect()
 			kind = "TextureRect"
@@ -105,7 +113,7 @@ func _sprite_hits() -> Array:
 			var np: NinePatchRect = n
 			if np.texture == null or not np.visible:
 				continue
-			if np.name == "Frame" and np.get_parent() is FitLabelBox:
+			if np.name == "Frame" and _is_fit(np.get_parent()):
 				continue
 			rect = np.get_global_rect()
 			kind = "NinePatchRect"
@@ -370,8 +378,8 @@ func _text_of(c: Control) -> String:
 		return (c as RichTextLabel).get_parsed_text()
 	if c is Label:
 		return (c as Label).text
-	if c is FitLabelBox:
-		return (c as FitLabelBox).text
+	if _is_fit(c):
+		return str(c.get("text"))
 	return ""
 
 
@@ -400,6 +408,9 @@ func _flag(hits: Array, screen: String, shot: String) -> Array:
 			reasons.append("contrast")
 		for wrap_reason in _wrap_reasons(node):
 			reasons.append(wrap_reason)
+		var glyph_font: Font = _font_of(node)
+		for missing in preload("res://scripts/ui/arrow_glyphs.gd").missing_from(glyph_font, _text_of(node)):
+			reasons.append("missing_glyph:%s" % missing)
 		var overlapped := false
 		for j in hits.size():
 			if j <= i:
@@ -507,8 +518,8 @@ func _ellipsis(node: Control) -> bool:
 			return true
 		if lab.max_lines_visible > 0 and lab.get_line_count() > lab.max_lines_visible:
 			return true
-	if node is FitLabelBox:
-		return bool((node as FitLabelBox).last_fit.get("ellipsis", false))
+	if _is_fit(node):
+		return bool(node.get("last_fit").get("ellipsis", false))
 	return false
 
 
@@ -517,7 +528,7 @@ func _overflow_parent(node: Control, rect: Rect2) -> bool:
 	if not (p is Control):
 		return false
 	var pc: Control = p
-	if pc is FitLabelBox:
+	if _is_fit(pc):
 		return false
 	var pr: Rect2 = pc.get_global_rect()
 	if pr.size.x < 2.0 or pr.size.y < 2.0:
@@ -582,7 +593,7 @@ func _font_size(node: Control) -> int:
 		return (node as Button).get_theme_font_size("font_size")
 	if node is RichTextLabel:
 		return (node as RichTextLabel).get_theme_font_size("normal_font_size")
-	if node is FitLabelBox:
+	if _is_fit(node):
 		var lab: Label = node.get_node_or_null("Label")
 		if lab:
 			return lab.get_theme_font_size("font_size")
@@ -604,7 +615,7 @@ func _wrap_reasons(node: Control) -> PackedStringArray:
 
 
 func _measured_text_control(node: Control) -> Control:
-	if node is FitLabelBox:
+	if _is_fit(node):
 		var inner: Label = node.get_node_or_null("Label")
 		if inner:
 			return inner
@@ -776,7 +787,7 @@ func _contrast_ok(node: Control, rect: Rect2, img: Image) -> bool:
 		var sb: StyleBox = (node as Button).get_theme_stylebox("normal")
 		if sb is StyleBoxTexture:
 			return true
-	if node is FitLabelBox:
+	if _is_fit(node):
 		var lab: Label = node.get_node_or_null("Label")
 		if lab and lab.get_theme_constant("outline_size") >= 2:
 			return true
@@ -794,8 +805,8 @@ func _ink_of(node: Control) -> Color:
 		return (node as Button).get_theme_color("font_color")
 	if node is RichTextLabel:
 		return (node as RichTextLabel).get_theme_color("default_color")
-	if node is FitLabelBox:
-		return (node as FitLabelBox).font_color
+	if _is_fit(node):
+		return node.get("font_color")
 	return Color.WHITE
 
 

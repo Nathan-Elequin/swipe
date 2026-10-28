@@ -1,43 +1,187 @@
 {
 	"id": "swipe-script-names-v1",
-	"updated": "2026-10-17",
 	"instructions": "Shared proper names. Lines store {id} and {id|poss}. Script editor Save locks a changed display. Chat may not restyle locked names unless Nathan overrides.",
 	"names": [
-		{"id": "game_title", "display": "Spinheritance", "note": "Title parchment"},
-		{"id": "nib", "display": "Nib", "note": "Imp, executor"},
-		{"id": "hero", "display": "Sprout", "note": "Nib's name for the grandchild"},
-		{"id": "grandpa_esq", "display": "Bartleby \"Lucky\" Snatchwick, Esq.", "note": "Full legal name with Esq."},
-		{"id": "grandpa_full", "display": "Bartleby \"Lucky\" Snatchwick", "note": "Full name"},
-		{"id": "lucky_snatchwick", "display": "Lucky Snatchwick", "note": "Nickname plus family name"},
-		{"id": "bartleby", "display": "Bartleby", "note": "Grandpa's given name"},
-		{"id": "snatchwick", "display": "Snatchwick", "note": "Family name"},
-		{"id": "lucky", "display": "Lucky", "note": "Grandpa's nickname. Do not use for the adjective lucky."},
-		{"id": "grandpa", "display": "Grandpa", "note": "How the letters sign off"},
-		{"id": "mountain", "display": "Mount Grumblegut", "note": "The dungeon mountain"},
-		{"id": "the_grumble", "display": "the Grumble", "note": "Short name with the article"},
-		{"id": "bellyvault", "display": "Bellyvault", "note": "Deepest level"},
-		{"id": "village", "display": "Muddlecombe", "note": "Home village"},
-		{"id": "hill", "display": "Kettle Hill", "note": "Where the cabin stands"},
-		{"id": "cabinet", "display": "Snatchwick Cabinet of Considerable Curiosities", "note": "Trophy hall"},
-		{"id": "radio", "display": "Snatchwick Melodeon", "note": "The cabin radio"},
-		{"id": "prudence", "display": "Dame Prudence Vexley", "note": "Rival explorer"},
-		{"id": "prudence_short", "display": "Prudence", "note": "Short"},
-		{"id": "oswin", "display": "Brother Oswin Plunk", "note": "The Cleric"},
-		{"id": "oswin_short", "display": "Oswin", "note": "Short"},
-		{"id": "hobnail", "display": "Mrs. Hobnail", "note": "Pawnbroker"},
-		{"id": "hob", "display": "Hob", "note": "The Merchant"},
-		{"id": "gorm", "display": "Gorm", "note": "The Golem"},
-		{"id": "pettifog_full", "display": "King Pettifog the Cowardly", "note": "Cowardly King"},
-		{"id": "pettifog", "display": "Pettifog", "note": "Short"},
-		{"id": "gloria", "display": "Gloria", "note": "Firefly in the radio"},
-		{"id": "fenwick_full", "display": "Old Fenwick", "note": "The Wizard"},
-		{"id": "fenwick", "display": "Fenwick", "note": "Short"},
-		{"id": "varnish_full", "display": "Count Varnish", "note": "The Vampire"},
-		{"id": "varnish", "display": "Varnish", "note": "Short"},
-		{"id": "smoulder_full", "display": "Old Smoulder", "note": "The Dragon"},
-		{"id": "smoulder", "display": "Smoulder", "note": "Short"},
-		{"id": "arachnelda_full", "display": "Queen Arachnelda", "note": "Spider Queen"},
-		{"id": "arachnelda", "display": "Arachnelda", "note": "Short"},
-		{"id": "brunhilda", "display": "Brunhilda", "note": "The Berserker"}
-	]
+		{
+			"display": "Spinheritance",
+			"id": "game_title",
+			"note": "Title parchment"
+		},
+		{
+			"display": "Nib",
+			"id": "nib",
+			"note": "Imp, executor"
+		},
+		{
+			"display": "Sprout",
+			"id": "hero",
+			"note": "Nib's name for the grandchild"
+		},
+		{
+			"display": "Bartleby \"Lucky\" Snatchwick, Esq.",
+			"id": "grandpa_esq",
+			"note": "Full legal name with Esq."
+		},
+		{
+			"display": "Bartleby \"Lucky\" Snatchwick",
+			"id": "grandpa_full",
+			"note": "Full name"
+		},
+		{
+			"display": "Lucky Snatchwick",
+			"id": "lucky_snatchwick",
+			"note": "Nickname plus family name"
+		},
+		{
+			"display": "Bartleby",
+			"id": "bartleby",
+			"note": "Grandpa's given name"
+		},
+		{
+			"display": "Snatchwick",
+			"id": "snatchwick",
+			"note": "Family name"
+		},
+		{
+			"display": "Lucky",
+			"id": "lucky",
+			"note": "Grandpa's nickname. Do not use for the adjective lucky."
+		},
+		{
+			"display": "Grandpa",
+			"id": "grandpa",
+			"note": "How the letters sign off"
+		},
+		{
+			"display": "Mount Grumblegut",
+			"id": "mountain",
+			"note": "The dungeon mountain"
+		},
+		{
+			"display": "the Grumble",
+			"id": "the_grumble",
+			"note": "Short name with the article"
+		},
+		{
+			"display": "Bellyvault",
+			"id": "bellyvault",
+			"note": "Deepest level"
+		},
+		{
+			"display": "Muddlecombe",
+			"id": "village",
+			"note": "Home village"
+		},
+		{
+			"display": "Kettle Hill",
+			"id": "hill",
+			"note": "Where the cabin stands"
+		},
+		{
+			"display": "Snatchwick Cabinet of Considerable Curiosities",
+			"id": "cabinet",
+			"note": "Trophy hall"
+		},
+		{
+			"display": "Snatchwick Melodeon",
+			"id": "radio",
+			"note": "The cabin radio"
+		},
+		{
+			"display": "Dame Prudence Vexley",
+			"id": "prudence",
+			"note": "Rival explorer"
+		},
+		{
+			"display": "Prudence",
+			"id": "prudence_short",
+			"note": "Short"
+		},
+		{
+			"display": "Brother Oswin Plunk",
+			"id": "oswin",
+			"note": "The Cleric"
+		},
+		{
+			"display": "Oswin",
+			"id": "oswin_short",
+			"note": "Short"
+		},
+		{
+			"display": "Mrs. Hobnail",
+			"id": "hobnail",
+			"note": "Pawnbroker"
+		},
+		{
+			"display": "Hob",
+			"id": "hob",
+			"note": "The Merchant"
+		},
+		{
+			"display": "Gorm",
+			"id": "gorm",
+			"note": "The Golem"
+		},
+		{
+			"display": "King Pettifog the Cowardly",
+			"id": "pettifog_full",
+			"note": "Cowardly King"
+		},
+		{
+			"display": "Pettifog",
+			"id": "pettifog",
+			"note": "Short"
+		},
+		{
+			"display": "Gloria",
+			"id": "gloria",
+			"note": "Firefly in the radio"
+		},
+		{
+			"display": "Old Fenwick",
+			"id": "fenwick_full",
+			"note": "The Wizard"
+		},
+		{
+			"display": "Fenwick",
+			"id": "fenwick",
+			"note": "Short"
+		},
+		{
+			"display": "Count Varnish",
+			"id": "varnish_full",
+			"note": "The Vampire"
+		},
+		{
+			"display": "Varnish",
+			"id": "varnish",
+			"note": "Short"
+		},
+		{
+			"display": "Old Smoulder",
+			"id": "smoulder_full",
+			"note": "The Dragon"
+		},
+		{
+			"display": "Smoulder",
+			"id": "smoulder",
+			"note": "Short"
+		},
+		{
+			"display": "Queen Arachnelda",
+			"id": "arachnelda_full",
+			"note": "Spider Queen"
+		},
+		{
+			"display": "Arachnelda",
+			"id": "arachnelda",
+			"note": "Short"
+		},
+		{
+			"display": "Brunhilda",
+			"id": "brunhilda",
+			"note": "The Berserker"
+		}
+	],
+	"updated": "2026-10-25"
 }

@@ -1,10 +1,15 @@
 extends Control
 ## Layered dungeon hall: dark floor, wall band, sparse props, dais under the wheel.
 
+const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
+const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
+const FLICKER_STEP := 0.125
+
 var art
 var _t: float = 0.0
 var hall: int = 0
 var _pan: float = 0.0
+var _flick_wait: float = 0.0
 var pan: float:
 	get:
 		return _pan
@@ -35,10 +40,29 @@ func reset_hall() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
+	# Attack/slash heavy: freeze hall torch flicker (already gated; keep it).
+	if FX_BUDGET.hold_low_priority_idles():
+		return
+	# Mid-spin: freeze hall flicker so tiled hall redraw does not couple with
+	# wheel spin frames (Mac spin_x5 spikes often showed d_hall+d_wheel).
+	if FX_BUDGET.is_spinning():
+		return
+	_flick_wait -= delta
+	if _flick_wait > 0.0:
+		return
+	# Stay at most ~8 fps torch flicker; also respect decorative ceiling (#131)
+	# so heavy frames do not queue a second hall redraw via a shorter step.
+	var step: float = FLICKER_STEP
+	var decor: float = FX_BUDGET.decor_step()
+	if decor > step:
+		step = decor
+	_flick_wait = step
 	queue_redraw()
 
 
 func _draw() -> void:
+	# Count real draws — queue_redraw in _process was inflating hall spike tags.
+	FRAME_METRICS.note_hall()
 	if art == null or not art.ready_ok:
 		draw_rect(Rect2(Vector2.ZERO, size), Color("0a0807"), true)
 		return

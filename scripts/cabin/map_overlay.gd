@@ -1,5 +1,7 @@
 extends Control
-## Two equal-weight courses on Grandpa's map. Click a route to pick; confirm starts it.
+## Archived route sheet (Gatehouse / Long Drop) for the shot harness.
+## The player-facing biome map is scripts/cabin/held_map.gd: Sprout holds this
+## parchment, and Space toggles that view. Do not send a normal run through here.
 
 signal closed
 signal go(route: String)

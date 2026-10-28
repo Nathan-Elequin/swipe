@@ -274,11 +274,11 @@ const UNPLAYABLE := "#C8C2BA"
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
 static func call_color(special_id: String) -> Color:
 	match special_id:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "cats_eye", "toxic_skin", "rust":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "rust", "decay":
 			return GOLD
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return CALL_ATK
-		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator":
+		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator", "lifelink":
 			return CALL_HP
 		"kill_scale", "atk_eq_hp":
 			return CALL_VAR
@@ -340,6 +340,8 @@ static func def_id_of(piece: String) -> String:
 		return "unplayable"
 	if low == "rust":
 		return "rust"
+	if low == "decay" or low.begins_with("decayed"):
+		return "decay"
 	return ""
 
 
@@ -354,7 +356,7 @@ static func def_of(id: String) -> String:
 		"move":
 			return "shift to a Neighbor without Spinning"
 		"flee":
-			return "If you are facing them, Spin the wheel at random."
+			return "If you are facing them, Spin the wheel at random. They are not removed."
 		"poison":
 			return "On a Spin, a monster with this loses that much HP immediately, wherever they sit, before their spin ability. Then it clears."
 		"spin":
@@ -369,6 +371,8 @@ static func def_of(id: String) -> String:
 			return "You cannot click this."
 		"rust":
 			return "Item that makes all Monsters ignore your Block for 3 Spins"
+		"decay":
+			return "Decayed Items are linked. When you use one, Keep it and discard the other."
 		_:
 			return ""
 
@@ -389,6 +393,8 @@ static func wire_def_hover(rtl: RichTextLabel, tip: Node, anchor: Control = null
 		rtl.meta_hover_started.connect(_on_def_hover.bind(tip, anchor))
 	if not rtl.meta_hover_ended.is_connected(_on_def_unhover.bind(tip, anchor)):
 		rtl.meta_hover_ended.connect(_on_def_unhover.bind(tip, anchor))
+	if not rtl.meta_clicked.is_connected(_on_def_click.bind(tip, anchor)):
+		rtl.meta_clicked.connect(_on_def_click.bind(tip, anchor))
 
 
 static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> void:
@@ -410,11 +416,24 @@ static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> v
 
 
 static func _on_def_unhover(_meta: Variant, tip: Node, anchor: Control = null) -> void:
+	if tip != null and bool(tip.get("_pinned")):
+		return
 	if anchor != null and bool(anchor.get("_pin_always")) and anchor.has_method("pin_always_def"):
 		anchor.pin_always_def()
 		return
 	if tip != null and tip.has_method("hide_def"):
 		tip.hide_def()
+
+
+static func _on_def_click(meta: Variant, tip: Node, anchor: Control = null) -> void:
+	if tip == null:
+		return
+	var id: String = str(meta).trim_prefix("kw:")
+	if tip.has_method("pin_def"):
+		tip.pin_def(def_of(id), anchor, id)
+		return
+	if tip.has_method("show_def"):
+		tip.show_def(def_of(id), anchor, id)
 
 
 ## Hairline outline + tiny drop shadow on cream talk paper. Keep this thin — 15px blobs at 3+.
@@ -812,6 +831,8 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low == "unplayable":
 		return UNPLAYABLE
 	if low == "rust":
+		return gold
+	if low == "decay" or low == "decayed":
 		return gold
 	return ""
 

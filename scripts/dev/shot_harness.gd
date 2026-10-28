@@ -701,6 +701,65 @@ func _shot_tutorial_nib() -> void:
 	main.in_tutorial = false
 
 
+func _shot_playtest_ux() -> void:
+	status = "playtest-ux"
+	_prep_play("fighting")
+	main.adventure = false
+	main.in_tutorial = false
+	main.phase = "fighting"
+	main.hp = 6
+	main.blk = 2
+	main.wheel = []
+	for id in ["wizard", "golem", "goblin", "bandit", "commander"]:
+		if main.monsters_by_id.has(id):
+			main.wheel.append(main._make_monster(id))
+	while main.wheel.size() < 5:
+		main.wheel.append(main._make_monster("goblin"))
+	main.facing_index = 2
+	main._refresh()
+	await _wait(0.15)
+	if main.has_method("_fill_inspect_from_slice"):
+		main._fill_inspect_from_slice(0)
+	await _wait(0.1)
+	await _capture("sp06_monster_hover.png", "SP-06 fighting hover on Wizard face")
+	_prep_play("ready")
+	if main.tut:
+		main.in_tutorial = true
+		main.tut.visible = true
+		main.tut.open()
+		await _wait(0.45)
+		await _capture("sp10_dialogue_next.png", "SP-10 tutorial types LTR; next cue after the line")
+		main.wheel = []
+		for i in 8:
+			if i == 0 or i == 2 or i == 4:
+				main.wheel.append(main._make_monster(["wizard", "golem", "goblin"][i / 2]))
+			else:
+				main.wheel.append({"kind": "empty", "slot": str(i)})
+		if main.wheel_view:
+			main.wheel_view.closed_empties = true
+		main._refresh()
+		await _wait(0.15)
+		await _capture("sp12_tutorial_wheel.png", "SP-12 closed empties + landing marker at six")
+		main.tut.close()
+		main.in_tutorial = false
+	_prep_play("draft")
+	main.adventure = true
+	main.draft_action = "challenge_pick"
+	main.challenge_pick_i = 0
+	main.challenge_draft_plan = [{}, {}, {}, {}, {}, {}]
+	if main.challenge_draft_ui:
+		var a := Control.new()
+		a.custom_minimum_size = Vector2(200, 240)
+		var b := Control.new()
+		b.custom_minimum_size = Vector2(200, 240)
+		main.challenge_draft_ui.present("", "", a, b, {"card_id": "sai", "uid": 1}, {"card_id": "helmet", "uid": 2})
+		if main.has_method("_sync_loot_pips"):
+			main._sync_loot_pips()
+		await _wait(0.15)
+		await _capture("sp13_draft_loot.png", "SP-13 six loot sacks under the draft pair")
+		main.challenge_draft_ui.hide_draft()
+
+
 func _prep_play(phase_name: String) -> void:
 	_reset_between()
 	_stow_cabin()
@@ -1005,6 +1064,83 @@ func _restore_all() -> void:
 	if main.home_cabin and main.home_cabin._editor_strip and main._authoring():
 		main.home_cabin._editor_strip.visible = true
 	main._refresh()
+
+
+func _shot_wide_monitors() -> void:
+	status = "wide-monitors"
+	var sizes: Array[Vector2i] = [
+		Vector2i(1280, 800),
+		Vector2i(1920, 1080),
+		Vector2i(2560, 1080),
+		Vector2i(3440, 1440),
+	]
+	var prev: Vector2i = DisplayServer.window_get_size()
+	for sz in sizes:
+		await _set_shot_size(sz)
+		var cabin = main.home_cabin
+		if cabin == null:
+			_skip("wide_%dx%d_cabin.png" % [sz.x, sz.y], "home_cabin missing")
+		else:
+			_hide_chrome(false)
+			cabin.intro_seen = true
+			cabin.nib_first_done = true
+			cabin.tutorial_done = true
+			cabin.visible = true
+			cabin.show_menu("main")
+			if cabin.has_method("_apply_view_frame"):
+				cabin._apply_view_frame()
+			await _wait(0.2)
+			await _capture_native("wide_%dx%d_cabin.png" % [sz.x, sz.y], "cabin framed at %dx%d" % [sz.x, sz.y])
+		_stow_cabin()
+		_prep_play("fighting")
+		_seat_ids(["goblin", "skeleton", "bandit", "hornet_swarm"])
+		_hand_ids(["throwing_knife", "shield"])
+		main.facing_index = 0
+		main.hp = 5
+		main.blk = 2
+		main._refresh()
+		main._layout_play_field()
+		if main.home_cabin:
+			main.home_cabin.visible = false
+		await _wait(0.25)
+		await _capture_native("wide_%dx%d_combat.png" % [sz.x, sz.y], "combat framed at %dx%d" % [sz.x, sz.y])
+	await _set_shot_size(prev if prev.x > 0 else Vector2i(W, H))
+
+
+func _set_shot_size(sz: Vector2i) -> void:
+	if sz.x < 8 or sz.y < 8:
+		return
+	DisplayServer.window_set_size(sz)
+	var vp: Viewport = main.get_viewport() if main else get_viewport()
+	if vp:
+		vp.size = sz
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+
+
+func _capture_native(filename: String, how: String) -> void:
+	if not _wants_file(filename):
+		return
+	TEXT_RESERVE.settle(main)
+	if main.text_audit:
+		main.text_audit.visible = false
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	var tex: ViewportTexture = main.get_viewport().get_texture()
+	if tex == null:
+		_skip(filename, "viewport texture missing")
+		return
+	var img: Image = tex.get_image()
+	if img == null or img.is_empty():
+		_skip(filename, "viewport image empty")
+		return
+	var abs_path: String = ProjectSettings.globalize_path(out_dir).path_join(filename)
+	var err: Error = img.save_png(abs_path)
+	if err != OK:
+		_skip(filename, "save_png failed (%s)" % err)
+		return
+	notes.append({"file": filename, "status": "ok", "how": how, "px": [img.get_width(), img.get_height()]})
+	_audit_shot(filename)
 
 
 func _capture(filename: String, how: String, layout_id: String = "") -> void:
@@ -1329,6 +1465,15 @@ func _ensure_registry() -> void:
 		"01_four", "02_full8", "02b_full6", "02c_n4", "02d_n5", "02e_n7",
 		"03_hover", "04_breathe_a", "05_breathe_b", "06_facing", "07_threads", "08_reveal",
 	], _shot_anim_wheel_monsters)
+	_bind_many([
+		"sp06_monster_hover", "sp10_dialogue_next", "sp12_tutorial_wheel", "sp13_draft_loot",
+	], _shot_playtest_ux)
+	_bind_many([
+		"wide_1280x800_cabin", "wide_1280x800_combat",
+		"wide_1920x1080_cabin", "wide_1920x1080_combat",
+		"wide_2560x1080_cabin", "wide_2560x1080_combat",
+		"wide_3440x1440_cabin", "wide_3440x1440_combat",
+	], _shot_wide_monitors)
 
 
 func _bind_many(stems: Array, fn: Callable) -> void:
@@ -1692,12 +1837,14 @@ func _shot_anim_poison_pop() -> void:
 		"01_ale_burst", "02_ale_hearts", "03_miasma_drip", "04_miasma_one_burst",
 		"05_poison_ff", "06_six_seats", "07_plague_lock",
 	])
-	# Ale Flagon needs fighting. Spin once, drink, Spin again so player poison ticks.
+	# Ale Flagon needs fighting. Spin once, drink, then force Poison so the burst still has a subject.
 	await _anim_ready_seat(["goblin", "skeleton", "bandit", "ogre"], ["ale_flagon", "shield"], 8, 0, 0)
 	await _anim_spin_face(0)
 	var uid: int = _uid_of_item("ale_flagon")
 	if uid >= 0:
 		await main._use_item(uid)
+	# SP-29: Ale Flagon no longer applies Poison. This shot still needs a poison tick.
+	main.player_poison = 2
 	await _wait(0.10)
 	main.set_meta("qa_spin_idx", 1)
 	main._on_spin()
@@ -1742,6 +1889,8 @@ func _shot_anim_poison_pop() -> void:
 	uid = _uid_of_item("ale_flagon")
 	if uid >= 0:
 		await main._use_item(uid)
+	# SP-29: Ale Flagon no longer applies Poison. This shot still needs a poison tick.
+	main.player_poison = 2
 	main.set_meta("qa_force_shift", true)
 	main.set_meta("qa_spin_idx", 1)
 	_log_progress("poison_ff_start time_scale=%s want=%s" % [Engine.time_scale, main.ANIM_TIME_SCALE * 3.0])

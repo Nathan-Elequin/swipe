@@ -6,9 +6,13 @@ signal inspect_wanted(card_id: String)
 signal item_hovered(card_id: String, slot: Control)
 signal item_unhovered
 signal route_chosen(route: String)
+signal held_map_wanted
 signal tutorial_wanted
 signal quit_wanted
 signal comment_wanted(card_id: String)
+## Fires when a case's shown collection crosses the quota (5) on an extract bank.
+## Never from cheats, death, or the Push/Nib interrupt path. S3 map-piece ceremony.
+signal cabinet_gate_crossed(pool_id: String)
 
 const SAVE_PATH := "user://home_cabin.json"
 const COPY := preload("res://scripts/player_copy.gd")
@@ -18,7 +22,10 @@ const PX := 4.0
 const ARRIVE_WALK_SPEED := 32.0
 const ARRIVE_INT_SPEED := 51.2
 const ROOM_W := 1680.0
-const ROOM_ORDER: Array[String] = ["main", "hall", "study", "workshop", "loft"]
+const ROOM_H := 1040.0
+const VIEW_FRAME := preload("res://scripts/ui/view_frame.gd")
+const ROOM_ORDER: Array[String] = ["mudroom", "main", "hall", "study", "workshop", "loft"]
+const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const STATION_BEDS := ["cabin", "station_inn", "station_rag", "station_harp"]
 const RUG_SECRET_ID := "poison_flask"
 const RUG_COPY := {
@@ -37,8 +44,10 @@ var intro_pack: int = 1
 var nib_first_done: bool = false
 var tutorial_done: bool = false
 var tutorial_declined: bool = false
-var rooms_unlocked: Array = ["main"]
+var rooms_unlocked: Array = ["mudroom", "main"]
+var mudroom_loadout: Array = []
 var key_ring_seen: bool = false
+var invert_scroll: bool = false
 var ending_seen: bool = false
 var deepest_belly: int = 0
 var met_monsters: Dictionary = {}
@@ -91,6 +100,7 @@ var _hover_tag
 var _overlays: Control
 var _dialog
 var _cutscene
+var _map_piece_beat
 var _story_seq: int = 0
 var _map
 var _radio
@@ -137,6 +147,18 @@ var _max_room: int = 0
 var _max_bucket: int = 0
 var _room_busy: bool = false
 var _by_bucket: Dictionary = {}
+var _campaign_rules: Dictionary = {}
+## CampaignShell instance from main. Cabinet counts and shelved trophies read banked.
+var _campaign_shell = null
+var _bank_hold: Dictionary = {}
+## Skip map-piece ceremony for this homecoming (Push interrupt under 5/5).
+var _bank_from_push_block: bool = false
+var _bank_fresh: String = ""
+var _bank_busy: bool = false
+var _bank_played: bool = false
+var _case_scroll: Dictionary = {}
+var _case_columns: Dictionary = {}
+var _case_clips: Dictionary = {}
 const ROOM_WALK := 1.5
 const ROOM_WIPE_AT := 1.0
 var _window_glow: TextureRect
@@ -178,6 +200,8 @@ func setup(p_art = null, p_sfx = null, p_lore: Dictionary = {}, p_layout: Dictio
 	_rng.randomize()
 	_load_save()
 	_build()
+	_apply_view_frame()
+	resized.connect(_apply_view_frame)
 
 
 func note_seen(id: String) -> void:
@@ -188,6 +212,66 @@ func note_seen(id: String) -> void:
 		return
 	seen[sid] = true
 	_save()
+
+
+func bind_campaign(shell) -> void:
+	_campaign_shell = shell
+	if shell != null and typeof(shell.rules) == TYPE_DICTIONARY:
+		_campaign_rules = shell.rules
+	# Prefer banked as the ledger, then absorb any classic-only swipes so both agree.
+	sync_swiped_from_banked()
+	mirror_swiped_into_banked()
+
+
+func sync_swiped_from_banked() -> void:
+	if _campaign_shell == null:
+		return
+	var banked: Dictionary = _campaign_shell.state.get("banked", {})
+	if typeof(banked) != TYPE_DICTIONARY:
+		return
+	var changed := false
+	for id in banked.keys():
+		var sid := str(id)
+		if sid == "":
+			continue
+		if not bool(swiped.get(sid, false)):
+			swiped[sid] = true
+			changed = true
+		seen[sid] = true
+	if changed:
+		_save()
+
+
+## Mirror classic cabin swipes into CampaignShell.banked so both ledgers agree.
+func mirror_swiped_into_banked() -> void:
+	if _campaign_shell == null:
+		return
+	var pools := {}
+	var ids: Array = []
+	for id in swiped.keys():
+		var sid := str(id)
+		var pool := _live_pool(items_by_id.get(sid, {}))
+		if pool == "":
+			continue
+		ids.append(sid)
+		pools[sid] = pool
+	if ids.is_empty():
+		return
+	CampaignShell.bank(_campaign_shell.rules, _campaign_shell.state, ids, pools)
+	if _campaign_shell.has_method("write"):
+		_campaign_shell.write()
+
+
+func _is_shelved(id: String) -> bool:
+	var sid := str(id)
+	if _bank_hold.has(sid):
+		return false
+	if _campaign_shell != null:
+		var banked: Dictionary = _campaign_shell.state.get("banked", {})
+		if typeof(banked) == TYPE_DICTIONARY and banked.has(sid):
+			return true
+		# Fall through so a classic swipe that has not mirrored yet still shows.
+	return bool(swiped.get(sid, false))
 
 
 func swipe_ids(ids: Array) -> Array:
@@ -204,11 +288,15 @@ func swipe_ids(ids: Array) -> Array:
 		if not bool(swiped.get(sid, false)):
 			swiped[sid] = true
 			_just_mounted.append(sid)
+			_bank_hold[sid] = true
 			new_unseen[sid] = true
 			news.append(sid)
 			changed = true
 	if changed:
+		_bank_played = false
 		_save()
+		mirror_swiped_into_banked()
+		call_deferred("_offer_bank_sequence")
 	return news
 
 
@@ -240,8 +328,10 @@ func cabinet_progress() -> Vector2i:
 		if BucketRules.is_token(card.get("bucket", 0)):
 			continue
 		total += 1
-		if bool(swiped.get(str(id), false)):
+		if _is_shelved(str(id)) or bool(swiped.get(str(id), false)):
 			home_n += 1
+	if _campaign_shell != null:
+		home_n = CampaignShell.total_uniques(_campaign_shell.state)
 	return Vector2i(home_n, total)
 
 
@@ -339,16 +429,20 @@ func show_menu(room: String = "main") -> void:
 	_ext_root.visible = false
 	_int_root.visible = true
 	_current_room = room if is_room_unlocked(room) else "main"
+	_apply_view_frame()
 	_snap_to(_current_room)
 	_start_interior_loops()
 	_rebuild_shelves()
 	_refresh_rooms()
+	if _current_room == "mudroom":
+		_refresh_mudroom()
 	_beat = "idle"
 	_play_station()
-	_stop_rock()
-	_hero.visible = false
-	_show_empty_chair(true)
-	_set_idle_hero_visible(false)
+	_sync_progress_doors()
+	_start_rock()
+	if _chair_hit:
+		_chair_hit.visible = true
+		_chair_hit.mouse_filter = Control.MOUSE_FILTER_STOP
 	_hide_limp_sack()
 	if not nib_first_done and _dialog:
 		nib_first_done = true
@@ -372,6 +466,46 @@ func play_homecoming(kind: String, new_ids: Array, held_ids: Array) -> void:
 	_new_ids = new_ids.duplicate()
 	_held_ids = held_ids.duplicate()
 	open_cabin(items_by_id, tex_by_item, buckets_open, true, kind, new_ids, held_ids)
+
+
+## Call before swipe_ids on the Push-block path so a deferred bank cannot stamp a piece.
+func begin_push_block_bank() -> void:
+	_bank_from_push_block = true
+
+
+## Push-block interrupt: dissolve already played; land in the hall at that biome's case.
+## No map piece on this path (S3 ceremony suppressed via _bank_from_push_block).
+func open_hall_after_push_block(pool_id: String, biome_name: String, new_ids: Array = [], held_ids: Array = []) -> void:
+	_bank_from_push_block = true
+	sync_swiped_from_banked()
+	_homecoming_kind = "win"
+	_new_ids = new_ids.duplicate()
+	_held_ids = held_ids.duplicate()
+	visible = true
+	_arriving = false
+	_door_busy = false
+	_room_busy = false
+	_menu_on = true
+	var room := "hall" if is_room_unlocked("hall") else "main"
+	await show_menu(room)
+	focus_biome_case(pool_id)
+	if _dialog:
+		if _dialog.has_method("dismiss"):
+			_dialog.dismiss()
+		_dialog.say(["nib.homecoming"], [], {"biome": biome_name})
+		await _dialog.finished
+
+
+func focus_biome_case(pool_id: String) -> void:
+	if _shelf_host == null:
+		return
+	var root := _shelf_host.get_node_or_null("Case_%s" % pool_id) as Control
+	if root == null:
+		return
+	root.modulate = Color(1.35, 1.2, 0.75, 1.0)
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_property(root, "modulate", Color.WHITE, 0.55)
 
 
 func play_intro(is_replay: bool = false) -> void:
@@ -533,6 +667,20 @@ func play_ending() -> void:
 	_apply_gate()
 
 
+func _sync_progress_doors() -> void:
+	var hauls: int = int(counters.get("hauls", 0))
+	if not key_ring_seen and hauls < 1:
+		return
+	var changed := false
+	for id in ROOM_ORDER:
+		if not rooms_unlocked.has(id):
+			rooms_unlocked.append(id)
+			changed = true
+	if changed:
+		_save()
+		_refresh_rooms()
+
+
 func _grant_all_rooms() -> void:
 	for id in ROOM_ORDER:
 		if not rooms_unlocked.has(id):
@@ -689,7 +837,9 @@ func _build() -> void:
 
 	_rooms_clip = Control.new()
 	_rooms_clip.name = "RoomsClip"
-	_rooms_clip.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_rooms_clip.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
+	_rooms_clip.position = Vector2.ZERO
+	_rooms_clip.size = Vector2(ROOM_W, ROOM_H)
 	_rooms_clip.clip_contents = true
 	_rooms_clip.mouse_filter = Control.MOUSE_FILTER_STOP
 	_rooms_clip.visible = false
@@ -698,7 +848,7 @@ func _build() -> void:
 	_rooms_host = Control.new()
 	_rooms_host.name = "RoomsHost"
 	_rooms_host.position = Vector2.ZERO
-	_rooms_host.size = Vector2(ROOM_W * 5.0, 1040.0)
+	_rooms_host.size = Vector2(ROOM_W * float(ROOM_ORDER.size()), 1040.0)
 	_rooms_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_rooms_clip.add_child(_rooms_host)
 	_build_rooms()
@@ -979,6 +1129,7 @@ func _play_arrive() -> void:
 			counters.losses = int(counters.get("losses", 0)) + 1
 		else:
 			counters.hauls = int(counters.get("hauls", 0)) + 1
+		_sync_progress_doors()
 		_save()
 		_beat = "idle"
 		_play_station()
@@ -990,6 +1141,7 @@ func _play_arrive() -> void:
 		counters.losses = int(counters.get("losses", 0)) + 1
 	else:
 		counters.hauls = int(counters.get("hauls", 0)) + 1
+		_sync_progress_doors()
 		var p: Vector2i = cabinet_progress()
 		if p.y > 0:
 			var pct: int = int(round(100.0 * float(p.x) / float(p.y)))
@@ -1293,13 +1445,6 @@ func _screen_of_bucket(b: int) -> int:
 	return 1 + int((b - 1) / 3)
 
 
-func _buckets_on_screen(screen: int) -> Array:
-	if screen <= 0:
-		return [0]
-	var start: int = 1 + (screen - 1) * 3
-	return [start, start + 1, start + 2]
-
-
 func _start_room() -> int:
 	for id in _just_mounted:
 		var card: Dictionary = items_by_id.get(str(id), {})
@@ -1429,8 +1574,9 @@ func _collect_buckets() -> void:
 		(_by_bucket[b] as Array).append(card)
 	for b2 in _by_bucket.keys():
 		(_by_bucket[b2] as Array).sort_custom(func(a, c): return str(a.get("name", "")).to_lower() < str(c.get("name", "")).to_lower())
-	_max_room = _screen_of_bucket(_max_bucket)
-	_room = clampi(_room, 0, _max_room)
+	# One wall of five biome cases. Bucket pages used to walk this room.
+	_max_room = 0
+	_room = 0
 
 
 func _mount_cell() -> Vector2:
@@ -1625,73 +1771,730 @@ func _rebuild_shelves() -> void:
 		_shelf_host.remove_child(c)
 		c.queue_free()
 	_glints.clear()
+	_case_columns.clear()
+	_case_clips.clear()
 	_collect_buckets()
 	_shelf_host.size = _hole.size if _hole else _pt(260, 160)
 	if _cordon:
 		_cordon.visible = false
-	var hole: Vector2 = _shelf_host.size
-	var row_h: float = hole.y / 3.0
-	var cell: Vector2 = _mount_cell()
-	if _room <= 0:
-		_fill_starter_wall(hole, row_h, cell)
-	else:
-		var buckets: Array = _buckets_on_screen(_room)
-		for i in 3:
-			var b: int = int(buckets[i])
-			var cards: Array = _by_bucket.get(b, [])
-			var locked: bool = b > buckets_open
-			_fill_bucket_row(cards, float(i) * row_h, row_h, hole.x, cell, locked)
+	_fill_biome_cases()
 	_rebuild_pips()
 	_place_nav()
+	if not _bank_busy:
+		call_deferred("_offer_bank_sequence")
 
 
-func _fill_starter_wall(hole: Vector2, row_h: float, cell: Vector2) -> void:
-	var cards: Array = _by_bucket.get(0, [])
-	var n: int = cards.size()
-	var per: int = int(ceil(float(maxi(1, n)) / 3.0))
-	for r in 3:
-		var a: int = r * per
-		var slice: Array = cards.slice(a, mini(a + per, n)) if a < n else []
-		_fill_bucket_row(slice, float(r) * row_h, row_h, hole.x, cell, false)
+func _biome_rules() -> Dictionary:
+	if _campaign_rules.is_empty():
+		_campaign_rules = CampaignShell.read_json(CampaignShell.DATA_PATH)
+	return _campaign_rules
 
 
-func _fill_bucket_row(cards: Array, y: float, row_h: float, hole_w: float, cell: Vector2, locked: bool) -> void:
-	var n: int = cards.size()
-	if n <= 0:
-		if locked:
-			_add_row_cordon(y, row_h, hole_w)
+func _live_pool(card: Dictionary) -> String:
+	if str(card.get("status", "live")) in ["retired", "hold"]:
+		return ""
+	if BucketRules.is_token(card.get("bucket", 0)):
+		return ""
+	var b: int = BucketRules.parse(card.get("bucket", 0))
+	if b < 0:
+		return ""
+	return BiomeCabinets.pool_for_bucket(_biome_rules(), b)
+
+
+func _group_cards_by_pool() -> Dictionary:
+	var grouped := {}
+	for id in items_by_id.keys():
+		var card: Dictionary = items_by_id[id]
+		var pool := _live_pool(card)
+		if pool == "":
+			continue
+		if not grouped.has(pool):
+			grouped[pool] = []
+		(grouped[pool] as Array).append(card)
+	return grouped
+
+
+func _shown_count(pool_id: String) -> int:
+	# One ledger with Push gating: CampaignShell.cabinet_count (banked).
+	if _campaign_shell != null:
+		var n: int = CampaignShell.cabinet_count(_campaign_shell.state, pool_id)
+		# Items still in the bank reveal hold are counted in banked but not shown yet.
+		for raw in _bank_hold.keys():
+			var hid := str(raw)
+			if _live_pool(items_by_id.get(hid, {})) == pool_id:
+				n = maxi(0, n - 1)
+		return n
+	var n2 := 0
+	for id in items_by_id.keys():
+		var card: Dictionary = items_by_id[id]
+		if _live_pool(card) != pool_id:
+			continue
+		var sid := str(card.get("id", id))
+		if bool(swiped.get(sid, false)) and not _bank_hold.has(sid):
+			n2 += 1
+	return n2
+
+
+func _campaign_shell_state() -> Dictionary:
+	var disk: Dictionary = CampaignShell.read_json(CampaignShell.SAVE_PATH)
+	if disk.is_empty():
+		return CampaignShell.fresh_state()
+	CampaignShell.normalize(disk)
+	return disk
+
+
+## Campaign bank ledger when present; hall swipes otherwise. max so neither ledger hides progress.
+func _case_collected(pool_id: String) -> int:
+	var state := _campaign_shell_state()
+	var banked: Variant = state.get("banked", {})
+	var from_swipe := _shown_count(pool_id)
+	if typeof(banked) != TYPE_DICTIONARY or (banked as Dictionary).is_empty():
+		return from_swipe
+	return maxi(CampaignShell.cabinet_count(state, pool_id), from_swipe)
+
+
+func _biome_progress_lines() -> Array:
+	var rules := _biome_rules()
+	var quota := BiomeCabinets.quota_of(rules)
+	var grouped := _group_cards_by_pool()
+	var lines: Array = []
+	for raw in BiomeCabinets.resolved_cases(rules):
+		var spec: Dictionary = raw
+		var pool := str(spec.get("id", ""))
+		var cards: Array = grouped.get(pool, [])
+		lines.append(BiomeCabinets.progress_text(_case_collected(pool), cards.size(), quota))
+	return lines
+
+
+func _fill_biome_cases() -> void:
+	var rules := _biome_rules()
+	var cases: Array = BiomeCabinets.resolved_cases(rules)
+	var quota := BiomeCabinets.quota_of(rules)
+	var state := _campaign_shell_state()
+	var hole: Vector2 = _shelf_host.size
+	var n: int = maxi(1, cases.size())
+	var gap := 8.0
+	var case_w: float = (hole.x - gap * float(n - 1)) / float(n)
+	var grouped := _group_cards_by_pool()
+	var order: Array = swiped.keys()
+	for i in cases.size():
+		var spec: Dictionary = cases[i]
+		var pool_id := str(spec.get("id", ""))
+		var cards: Array = grouped.get(pool_id, [])
+		var mounted: Array = BiomeCabinets.order_mounts(cards, order)
+		var unlocked := CampaignShell.pool_unlocked(rules, state, pool_id)
+		_build_biome_case(spec, mounted, quota, float(i) * (case_w + gap), case_w, hole.y, unlocked)
+
+
+func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, case_w: float, case_h: float, unlocked: bool = true) -> void:
+	var pool_id := str(spec.get("id", ""))
+	var root := Control.new()
+	root.name = "Case_%s" % pool_id
+	root.position = Vector2(x, 0)
+	root.size = Vector2(case_w, case_h)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var tint := Color(str(spec.get("tint", "241812")))
+	var accent := Color(str(spec.get("accent", "e8c36a")))
+	if not unlocked:
+		tint = tint.darkened(0.35)
+		accent = accent.darkened(0.45)
+	var style := StyleBoxFlat.new()
+	style.bg_color = tint
+	style.border_color = accent
+	style.set_border_width_all(6)
+	style.set_corner_radius_all(0)
+	var frame := Panel.new()
+	frame.name = "Frame"
+	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_theme_stylebox_override("panel", style)
+	root.add_child(frame)
+	var frame_tex: Texture2D = _home(str(spec.get("frame", "")))
+	if frame_tex:
+		var case_art := TextureRect.new()
+		case_art.name = "CaseArt"
+		case_art.texture = frame_tex
+		case_art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		case_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		case_art.stretch_mode = TextureRect.STRETCH_SCALE
+		case_art.set_anchors_preset(Control.PRESET_FULL_RECT)
+		case_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if not unlocked:
+			case_art.modulate = Color(0.55, 0.55, 0.58, 1.0)
+		root.add_child(case_art)
+	var shown := _case_collected(pool_id) if unlocked else 0
+	var total := cards.size()
+	var name_lab := KIT.raw_label(str(spec.get("name", pool_id)), 22, KIT.TITLE_CREAM, true)
+	name_lab.max_lines = 2
+	name_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_lab.position = Vector2(8, 8)
+	name_lab.size = Vector2(case_w - 16.0, 56)
+	name_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(name_lab)
+	name_lab.fit()
+	var count_text := "?" if not unlocked else BiomeCabinets.progress_text(shown, total, quota)
+	var count_col := Color("ffd84a") if unlocked and shown >= quota else KIT.TITLE_CREAM
+	if not unlocked:
+		count_col = Color(0.62, 0.58, 0.52)
+	var count_lab := KIT.raw_label(count_text, 22, count_col, false)
+	count_lab.name = "Count"
+	count_lab.max_lines = 1
+	count_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	count_lab.position = Vector2(8, 64)
+	count_lab.size = Vector2(case_w - 16.0, 28)
+	count_lab.mouse_filter = Control.MOUSE_FILTER_STOP
+	count_lab.mouse_entered.connect(_on_case_hover.bind(pool_id, count_lab, unlocked))
+	count_lab.mouse_exited.connect(hide_hover_tag)
+	root.add_child(count_lab)
+	count_lab.fit()
+	if unlocked and BiomeCabinets.past_gate(shown, quota):
+		var sub := KIT.raw_label(
+			KIT.fill_text("cabin.hall.past_gate", {"n": shown, "total": maxi(total, shown)}),
+			14,
+			Color("c8b896"),
+			false
+		)
+		sub.name = "PastGate"
+		sub.max_lines = 1
+		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		sub.position = Vector2(6, 88)
+		sub.size = Vector2(case_w - 12.0, 18)
+		sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root.add_child(sub)
+		sub.fit()
+	elif not unlocked:
+		var locked_sub := KIT.raw_label(KIT.copy_text("cabin.hall.locked"), 14, Color(0.7, 0.66, 0.6), false)
+		locked_sub.name = "LockedSub"
+		locked_sub.max_lines = 1
+		locked_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		locked_sub.position = Vector2(6, 88)
+		locked_sub.size = Vector2(case_w - 12.0, 18)
+		locked_sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root.add_child(locked_sub)
+		locked_sub.fit()
+	var has_sub := (not unlocked) or (unlocked and BiomeCabinets.past_gate(shown, quota))
+	var pip := ColorRect.new()
+	pip.name = "GatePip"
+	pip.color = Color("ffd84a")
+	pip.position = Vector2(16, 106.0 if has_sub else 96.0)
+	pip.size = Vector2(case_w - 32.0, 4)
+	pip.visible = unlocked and shown >= quota
+	pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(pip)
+	var clip_y := 116.0 if has_sub else 108.0
+	var clip := Control.new()
+	clip.name = "Clip"
+	clip.position = Vector2(4, clip_y)
+	clip.size = Vector2(case_w - 8.0, maxf(40.0, case_h - clip_y - 8.0))
+	clip.clip_contents = true
+	clip.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.add_child(clip)
+	root.mouse_filter = Control.MOUSE_FILTER_STOP
+	_bind_case_scroll(root, pool_id)
+	_bind_case_scroll(clip, pool_id)
+	_bind_case_scroll(count_lab, pool_id)
+	var column := Control.new()
+	column.name = "Column"
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	clip.add_child(column)
+	_case_clips[pool_id] = clip
+	_case_columns[pool_id] = column
+	if not unlocked:
+		_paint_locked_pool(column, clip.size, accent)
+		column.size = clip.size
+		column.custom_minimum_size = column.size
+		_case_scroll[pool_id] = 0.0
+		column.position = Vector2.ZERO
+		clip.mouse_entered.connect(_on_case_hover.bind(pool_id, clip, false))
+		clip.mouse_exited.connect(hide_hover_tag)
+		_shelf_host.add_child(root)
 		return
-	var s: float = minf(row_h * 0.9 / cell.y, hole_w * 0.92 / (cell.x * float(n)))
-	s = maxf(0.45, s)
+	var cell: Vector2 = _mount_cell()
+	var s: float = 0.62
+	if cell.x > 1.0:
+		s = minf(0.62, (clip.size.x - 8.0) / cell.x)
 	var msize: Vector2 = cell * s
-	var gap: float = 10.0
-	var total: float = msize.x * float(n) + gap * float(n - 1)
-	var x0: float = (hole_w - total) * 0.5
-	var y0: float = y + (row_h - msize.y) * 0.5
-	for i in n:
-		var pos := Vector2(x0 + float(i) * (msize.x + gap), y0)
-		_shelf_host.add_child(_mount_slot(cards[i], pos, msize, locked))
-	if locked:
-		_add_row_cordon(y, row_h, hole_w)
+	var gap_y := 6.0
+	var y := 4.0
+	var x0: float = maxf(0.0, (clip.size.x - msize.x) * 0.5)
+	var collected_slots := 0
+	for i in cards.size():
+		var card: Dictionary = cards[i]
+		var slot := _mount_slot(card, Vector2(x0, y), msize, false)
+		_bind_case_scroll(slot, pool_id)
+		column.add_child(slot)
+		y += msize.y
+		var sid := str(card.get("id", ""))
+		if _is_shelved(sid):
+			collected_slots += 1
+			if collected_slots == quota:
+				var gate := ColorRect.new()
+				gate.name = "GateLine"
+				gate.color = Color("ffd84a")
+				gate.position = Vector2(8, y + 2)
+				gate.size = Vector2(clip.size.x - 16.0, 3)
+				gate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				column.add_child(gate)
+				y += 8.0
+		y += gap_y
+	column.size = Vector2(clip.size.x, maxf(y, clip.size.y))
+	column.custom_minimum_size = column.size
+	var view: float = clip.size.y
+	var max_s: float = maxf(0.0, column.size.y - view)
+	var cur: float = clampf(float(_case_scroll.get(pool_id, 0.0)), 0.0, max_s)
+	if _bank_fresh != "":
+		var fresh_node := column.find_child("Mount_%s" % _bank_fresh, false, false)
+		if fresh_node is Control:
+			var fy: float = (fresh_node as Control).position.y
+			var fh: float = (fresh_node as Control).size.y
+			if fy < cur:
+				cur = fy
+			elif fy + fh > cur + view:
+				cur = fy + fh - view
+			cur = clampf(cur, 0.0, max_s)
+	_case_scroll[pool_id] = cur
+	column.position = Vector2(0, -cur)
+	_shelf_host.add_child(root)
 
 
-func _add_row_cordon(y: float, row_h: float, hole_w: float) -> void:
-	var cover: Texture2D = _home("gallery_cordon")
-	if cover == null:
-		cover = _home("shelf_locked")
-	if cover == null:
+## Locked biome: chain + "?" and no item silhouettes (Doop D). Optional chain PNG; else drawn bars.
+func _paint_locked_pool(host: Control, area: Vector2, accent: Color) -> void:
+	var veil := ColorRect.new()
+	veil.name = "LockedVeil"
+	veil.color = Color(0.05, 0.04, 0.06, 0.72)
+	veil.position = Vector2.ZERO
+	veil.size = area
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.add_child(veil)
+	var chain_tex: Texture2D = _home("cabinets/case_locked_chain")
+	if chain_tex == null:
+		chain_tex = _home("shelf_locked")
+	if chain_tex:
+		var chain := TextureRect.new()
+		chain.name = "LockedChain"
+		chain.texture = chain_tex
+		chain.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		chain.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		chain.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		chain.modulate = Color(0.85, 0.82, 0.78, 0.9)
+		var ch: float = minf(area.y * 0.55, area.x * 1.6)
+		var cw: float = minf(area.x - 12.0, ch * (chain_tex.get_size().x / maxf(1.0, chain_tex.get_size().y)))
+		chain.size = Vector2(cw, ch)
+		chain.position = Vector2((area.x - cw) * 0.5, (area.y - ch) * 0.42)
+		chain.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		host.add_child(chain)
+	else:
+		var bar_col := Color(accent.r * 0.45 + 0.2, accent.g * 0.45 + 0.18, accent.b * 0.45 + 0.16, 0.95)
+		for i in 5:
+			var bar := ColorRect.new()
+			bar.name = "ChainBar_%d" % i
+			bar.color = bar_col
+			bar.size = Vector2(area.x * 0.78, 5.0)
+			bar.position = Vector2(area.x * 0.11, area.y * 0.22 + float(i) * (area.y * 0.1))
+			bar.rotation = 0.22 if i % 2 == 0 else -0.22
+			bar.pivot_offset = bar.size * 0.5
+			bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			host.add_child(bar)
+		for i in 3:
+			var link := ColorRect.new()
+			link.name = "ChainLink_%d" % i
+			link.color = Color(0.55, 0.5, 0.42, 0.85)
+			link.size = Vector2(14, 22)
+			link.position = Vector2(area.x * 0.5 - 7.0, area.y * 0.28 + float(i) * 48.0)
+			link.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			host.add_child(link)
+	var q := KIT.raw_label("?", 72, Color("e8dcc0"), false)
+	q.name = "LockedMark"
+	q.max_lines = 1
+	q.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	q.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	q.size = Vector2(area.x, 90)
+	q.position = Vector2(0, area.y * 0.38)
+	q.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.add_child(q)
+	q.fit()
+
+
+func _bind_case_scroll(node: Control, pool_id: String) -> void:
+	node.gui_input.connect(_on_case_wheel.bind(node, pool_id))
+
+
+func _on_case_wheel(event: InputEvent, node: Control, pool_id: String) -> void:
+	if not (event is InputEventMouseButton) or not (event as InputEventMouseButton).pressed:
 		return
-	var tr := TextureRect.new()
-	tr.texture = cover
-	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tr.modulate = Color(1, 1, 1, 0.88)
-	var h: float = minf(row_h * 0.42, 88.0)
-	tr.size = Vector2(hole_w * 0.9, h)
-	tr.position = Vector2(hole_w * 0.05, y + row_h * 0.52)
-	_shelf_host.add_child(tr)
+	var btn := event as InputEventMouseButton
+	var dir := 0
+	if btn.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		dir = 1
+	elif btn.button_index == MOUSE_BUTTON_WHEEL_UP:
+		dir = -1
+	else:
+		return
+	_scroll_case(pool_id, dir)
+	node.accept_event()
+
+
+func _scroll_case(pool_id: String, dir: int) -> void:
+	var clip_v: Variant = _case_clips.get(pool_id, null)
+	var col_v: Variant = _case_columns.get(pool_id, null)
+	if not (clip_v is Control) or not (col_v is Control):
+		return
+	var clip := clip_v as Control
+	var col := col_v as Control
+	var max_s: float = maxf(0.0, col.size.y - clip.size.y)
+	var cur: float = clampf(float(_case_scroll.get(pool_id, 0.0)) + float(dir) * 72.0, 0.0, max_s)
+	_case_scroll[pool_id] = cur
+	col.position.y = -cur
+
+
+func _on_case_hover(pool_id: String, hit: Control, unlocked: bool = true) -> void:
+	if not unlocked:
+		show_hover_tag("cabin.hall.locked", hit)
+		return
+	var total := 0
+	var got := _case_collected(pool_id)
+	for id in items_by_id.keys():
+		if _live_pool(items_by_id[id]) == pool_id:
+			total += 1
+	var quota := BiomeCabinets.quota_of(_biome_rules())
+	if BiomeCabinets.past_gate(got, quota):
+		show_hover_tag("cabin.hall.past_gate", hit, {"n": got, "total": maxi(total, got)})
+		return
+	var need := BiomeCabinets.next_piece_need(got, quota)
+	if need > 0:
+		show_hover_tag("cabin.hall.next_piece", hit, {"n": need})
+		return
+	var key := "cabin.hall.full" if got >= total and total > 0 else "cabin.hall.gauge"
+	show_hover_tag(key, hit, {"n": got, "total": total})
+
+
+func _offer_bank_sequence() -> void:
+	if _bank_busy or _bank_hold.is_empty():
+		return
+	if _current_room != "hall" or _int_root == null or not _int_root.visible:
+		return
+	_bank_busy = true
+	_play_bank_sequence()
+
+
+func _play_bank_sequence() -> void:
+	# S7 / C4: bag smoke -> rays -> per-item arcs -> loud count, then S3 map-piece handoff.
+	# FX only on the extract bank path — never Push/Nib interrupt, cheats, or death.
+	var quota := BiomeCabinets.quota_of(_biome_rules())
+	var pending: Array = []
+	var pools := {}
+	for raw in _bank_hold.keys():
+		var held_id := str(raw)
+		pending.append(held_id)
+		pools[held_id] = _live_pool(items_by_id.get(held_id, {}))
+	var seq: Array = BiomeCabinets.bank_sequence(pending, pools)
+	_bank_played = true
+	var from_push_block := _bank_from_push_block
+	var play_fx := (not from_push_block) and (not seq.is_empty())
+	var pool_adds: Dictionary = {}
+	var crossed: Array = []
+	if play_fx:
+		await _bank_fx_bag_smoke()
+		if not is_inside_tree():
+			_bank_busy = false
+			return
+		await _bank_fx_rays()
+		if not is_inside_tree():
+			_bank_busy = false
+			return
+	for raw_step in seq:
+		if not is_inside_tree():
+			_bank_busy = false
+			_bank_from_push_block = false
+			return
+		var step: Dictionary = raw_step
+		var step_id := str(step.get("id", ""))
+		var pool := str(step.get("pool", ""))
+		var before := _shown_count(pool)
+		if play_fx:
+			await _bank_fx_arc_to_mount(step_id, pool)
+			if not is_inside_tree():
+				_bank_busy = false
+				return
+		_bank_hold.erase(step_id)
+		_bank_fresh = step_id
+		_rebuild_shelves()
+		pool_adds[pool] = int(pool_adds.get(pool, 0)) + 1
+		# Guard: Push interrupt, cheats, and death never queue a map piece.
+		if not from_push_block and _campaign_shell != null \
+				and BiomeCabinets.crossed_gate(before, _shown_count(pool), quota) \
+				and not crossed.has(pool):
+			crossed.append(pool)
+		await _wait(0.25 if play_fx else 0.34, true)
+	_bank_fresh = ""
+	_bank_from_push_block = false
+	if is_inside_tree():
+		_rebuild_shelves()
+	if play_fx and is_inside_tree():
+		await _bank_fx_loud_count(pool_adds, quota)
+	# S3 handoff: ceremony after S7 FX when a cabinet crosses 5/5.
+	if not from_push_block and not crossed.is_empty() and _campaign_shell != null:
+		for pool_id in crossed:
+			cabinet_gate_crossed.emit(str(pool_id))
+			if _map_piece_beat:
+				await _map_piece_beat.play(str(pool_id))
+		# Post-G only: never after the Push interrupt (F).
+		_show_toast("extract.delving_improves")
+	_bank_busy = false
+
+
+func _bank_is_push_block() -> bool:
+	# S2/S3 set this before interrupt banks; absent on tips without that wire.
+	if "_bank_from_push_block" in self:
+		return bool(get("_bank_from_push_block"))
+	return false
+
+
+func _bank_map_piece_beat() -> Variant:
+	if "_map_piece_beat" in self:
+		return get("_map_piece_beat")
+	return null
+
+
+func _bank_fx_host() -> Control:
+	if _hole != null and is_instance_valid(_hole):
+		return _hole
+	if _shelf_host != null and is_instance_valid(_shelf_host):
+		return _shelf_host
+	return self
+
+
+func _bank_bag_origin_local(host: Control) -> Vector2:
+	if host == null:
+		return Vector2.ZERO
+	return Vector2(host.size.x * 0.5, host.size.y * 0.78)
+
+
+func _bank_fx_bag_smoke() -> void:
+	var host: Control = _bank_fx_host()
+	var origin: Vector2 = _bank_bag_origin_local(host)
+	KIT.cue(sfx, &"cabin.sack")
+	var smoke_sf := _frames(
+		"bag_smoke",
+		["smoke_puff_f0", "smoke_puff_f1", "smoke_puff_f2"],
+		1000.0 / 140.0,
+		false
+	)
+	if smoke_sf.get_frame_count("bag_smoke") == 0:
+		var dust := ["fx/dust_puff_f0.png", "fx/dust_puff_f1.png", "fx/dust_puff_f2.png"]
+		if KIT.load_tex(dust[0]) != null:
+			var puff: AnimatedSprite2D = KIT.anim_sprite(dust, "dust", 1000.0 / 90.0, false, Vector2.ZERO)
+			puff.centered = true
+			puff.position = origin
+			puff.z_index = 12
+			host.add_child(puff)
+			if puff.sprite_frames and puff.sprite_frames.get_frame_count("dust") > 0:
+				puff.play("dust")
+				await puff.animation_finished
+			if is_instance_valid(puff):
+				puff.queue_free()
+			return
+		# Code-only fallback when no puff art is available.
+		var blob := ColorRect.new()
+		blob.color = Color("c8b89a", 0.55)
+		blob.size = Vector2(96, 72)
+		blob.pivot_offset = blob.size * 0.5
+		blob.position = origin - blob.pivot_offset
+		blob.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		blob.z_index = 12
+		host.add_child(blob)
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.set_parallel(true)
+		tw.tween_property(blob, "scale", Vector2(1.6, 1.6), 0.28)
+		tw.tween_property(blob, "modulate:a", 0.0, 0.28)
+		await tw.finished
+		if is_instance_valid(blob):
+			blob.queue_free()
+		return
+	var smoke := AnimatedSprite2D.new()
+	smoke.centered = true
+	smoke.position = origin
+	smoke.scale = Vector2(1.35, 1.35)
+	smoke.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	smoke.sprite_frames = smoke_sf
+	smoke.z_index = 12
+	host.add_child(smoke)
+	smoke.play("bag_smoke")
+	await smoke.animation_finished
+	if is_instance_valid(smoke):
+		smoke.queue_free()
+
+
+func _bank_fx_rays() -> void:
+	var host: Control = _bank_fx_host()
+	var origin: Vector2 = _bank_bag_origin_local(host)
+	KIT.cue(sfx, &"cabin.item_burst")
+	var rays: Array = []
+	var n := 8
+	for i in n:
+		var ray := ColorRect.new()
+		ray.color = Color("ffd84a", 0.72)
+		ray.size = Vector2(5.0, 140.0)
+		ray.pivot_offset = Vector2(2.5, 0.0)
+		ray.position = origin - ray.pivot_offset
+		ray.rotation = TAU * float(i) / float(n) + 0.12
+		ray.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ray.z_index = 11
+		var mat := CanvasItemMaterial.new()
+		mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		ray.material = mat
+		host.add_child(ray)
+		rays.append(ray)
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.set_parallel(true)
+		tw.tween_property(ray, "size:y", 220.0, 0.22)
+		tw.tween_property(ray, "modulate:a", 0.0, 0.32).set_delay(0.08)
+	# Soft gold flash behind the rays.
+	var flash := ColorRect.new()
+	flash.color = Color("fff3d6", 0.35)
+	flash.size = Vector2(160, 160)
+	flash.pivot_offset = flash.size * 0.5
+	flash.position = origin - flash.pivot_offset
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flash.z_index = 10
+	host.add_child(flash)
+	var ftw := create_tween()
+	ftw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	ftw.set_parallel(true)
+	ftw.tween_property(flash, "scale", Vector2(1.8, 1.8), 0.3)
+	ftw.tween_property(flash, "modulate:a", 0.0, 0.3)
+	await _wait(0.34, true)
+	for r in rays:
+		if is_instance_valid(r):
+			(r as Node).queue_free()
+	if is_instance_valid(flash):
+		flash.queue_free()
+
+
+func _bank_mount_global_center(item_id: String, pool_id: String) -> Vector2:
+	var col_v: Variant = _case_columns.get(pool_id, null)
+	if col_v is Control:
+		var mount: Node = (col_v as Control).find_child("Mount_%s" % item_id, false, false)
+		if mount is Control:
+			var gr: Rect2 = (mount as Control).get_global_rect()
+			return gr.position + gr.size * 0.45
+	if _shelf_host != null:
+		var case_n: Node = _shelf_host.get_node_or_null("Case_%s" % pool_id)
+		if case_n is Control:
+			var cr: Rect2 = (case_n as Control).get_global_rect()
+			return cr.position + Vector2(cr.size.x * 0.5, cr.size.y * 0.55)
+	var host: Control = _bank_fx_host()
+	var hr: Rect2 = host.get_global_rect()
+	return hr.position + hr.size * 0.5
+
+
+func _bank_fx_arc_to_mount(item_id: String, pool_id: String) -> void:
+	var host: Control = _bank_fx_host()
+	var from_local: Vector2 = _bank_bag_origin_local(host)
+	var to_global: Vector2 = _bank_mount_global_center(item_id, pool_id)
+	var to_local: Vector2 = host.get_global_transform_with_canvas().affine_inverse() * to_global
+	var tex: Texture2D = tex_by_item.get(item_id, null)
+	if tex == null and art != null:
+		tex = art.item_tex(item_id)
+	var spr := Sprite2D.new()
+	spr.centered = true
+	spr.position = from_local
+	spr.z_index = 14
+	spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if tex != null:
+		spr.texture = tex
+		spr.scale = _item_spr_scale(tex, 0.85)
+	else:
+		# Tiny stand-in chip when the item texture is missing.
+		var chip := ColorRect.new()
+		chip.color = Color("ffd84a")
+		chip.size = Vector2(28, 28)
+		chip.position = Vector2(-14, -14)
+		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		spr.add_child(chip)
+	host.add_child(spr)
+	_attach_fly_fx(spr)
+	KIT.cue(sfx, &"cabin.item_whoosh")
+	var peak: Vector2 = Vector2(
+		(from_local.x + to_local.x) * 0.5,
+		minf(from_local.y, to_local.y) - 64.0
+	)
+	var start_scale: Vector2 = spr.scale
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_method(func(t: float) -> void:
+		if is_instance_valid(spr):
+			spr.position = _quad_bez(from_local, peak, to_local, t)
+	, 0.0, 1.0, 0.38)
+	tw.parallel().tween_property(spr, "scale", start_scale * 1.2, 0.2)
+	tw.parallel().tween_property(spr, "scale", start_scale * 0.95, 0.18).set_delay(0.2)
+	await tw.finished
+	KIT.cue(sfx, &"cabin.item_pop")
+	if is_instance_valid(spr):
+		spr.queue_free()
+
+
+func _bank_fx_loud_count(pool_adds: Dictionary, quota: int) -> void:
+	if pool_adds.is_empty() or _shelf_host == null:
+		return
+	var best_pool := ""
+	var best_n := 0
+	for raw_pool in pool_adds.keys():
+		var p := str(raw_pool)
+		var n: int = int(pool_adds[p])
+		if n > best_n:
+			best_n = n
+			best_pool = p
+	if best_pool == "" or best_n <= 0:
+		return
+	var case_n: Node = _shelf_host.get_node_or_null("Case_%s" % best_pool)
+	if not (case_n is Control):
+		return
+	var case_c := case_n as Control
+	var shown := _shown_count(best_pool)
+	var total := 0
+	for id in items_by_id.keys():
+		if _live_pool(items_by_id[id]) == best_pool:
+			total += 1
+	var gauge := BiomeCabinets.progress_text(shown, total, quota)
+	var lab := Label.new()
+	lab.text = "+%d  %s" % [best_n, gauge]
+	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lab.add_theme_font_size_override("font_size", 36)
+	lab.add_theme_color_override("font_color", Color("ffd84a"))
+	lab.add_theme_color_override("font_outline_color", Color("1c120c"))
+	lab.add_theme_constant_override("outline_size", 6)
+	lab.size = Vector2(case_c.size.x, 48)
+	lab.position = Vector2(0, case_c.size.y * 0.28)
+	lab.pivot_offset = lab.size * 0.5
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lab.z_index = 16
+	lab.scale = Vector2(0.4, 0.4)
+	case_c.add_child(lab)
+	KIT.cue(sfx, &"cabin.shelf_chime")
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_trans(Tween.TRANS_BACK)
+	tw.set_ease(Tween.EASE_OUT)
+	tw.tween_property(lab, "scale", Vector2(1.15, 1.15), 0.22)
+	tw.tween_property(lab, "scale", Vector2.ONE, 0.12)
+	tw.tween_interval(0.55)
+	tw.tween_property(lab, "modulate:a", 0.0, 0.2)
+	await tw.finished
+	if is_instance_valid(lab):
+		lab.queue_free()
+
+
+func _clear_bank_anim() -> void:
+	_bank_hold.clear()
+	_bank_fresh = ""
+	_bank_busy = false
+	_bank_played = false
+	_bank_from_push_block = false
+	_case_scroll.clear()
 
 
 func _paint_cordon(locked: bool, origin: Vector2, grid: Vector2) -> void:
@@ -1733,9 +2536,14 @@ func _mount_slot(card: Dictionary, pos: Vector2, msize: Vector2, room_locked: bo
 	wrap.size = msize
 	wrap.mouse_filter = Control.MOUSE_FILTER_STOP
 	var id: String = str(card.get("id", ""))
-	var is_swiped: bool = bool(swiped.get(id, false)) and not room_locked
-	var is_seen: bool = (bool(seen.get(id, false)) or is_swiped) and not room_locked
-	var fresh: bool = _just_mounted.has(id) and is_swiped
+	wrap.name = "Mount_%s" % id
+	var is_swiped: bool = (not room_locked) and _is_shelved(id)
+	var is_seen: bool = (bool(seen.get(id, false)) or is_swiped or _bank_hold.has(id) or (_campaign_shell != null and (_campaign_shell.state.get("banked", {}) as Dictionary).has(id))) and not room_locked
+	var fresh: bool = false
+	if is_swiped and _bank_fresh == id:
+		fresh = true
+	elif is_swiped and _bank_fresh == "" and _bank_hold.is_empty() and not _bank_played and _just_mounted.has(id):
+		fresh = true
 	var stem: String = _mount_stem(is_swiped, is_seen)
 	var rest_tex: Texture2D = _home(stem)
 	if rest_tex == null:
@@ -2072,6 +2880,7 @@ func _load_save() -> void:
 	swiped.clear()
 	new_unseen.clear()
 	met_monsters.clear()
+	_clear_bank_anim()
 	_raw_save.clear()
 	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
 	if f == null:
@@ -2099,10 +2908,11 @@ func _apply_defaults() -> void:
 	nib_first_done = false
 	tutorial_done = false
 	tutorial_declined = false
-	rooms_unlocked = ["main"]
+	rooms_unlocked = ["mudroom", "main"]
 	key_ring_seen = false
 	ending_seen = false
 	deepest_belly = 0
+	mudroom_loadout = []
 	last_route = ""
 	radio_station = 0
 	gear_worn = {"head": "", "eyes": "", "belt": ""}
@@ -2142,11 +2952,19 @@ func _read_v2(parsed: Dictionary) -> void:
 	tutorial_done = bool(parsed.get("tutorial_done", false))
 	tutorial_declined = bool(parsed.get("tutorial_declined", false))
 	rooms_unlocked = []
-	for r in parsed.get("rooms_unlocked", ["main"]):
+	for r in parsed.get("rooms_unlocked", ["mudroom", "main"]):
 		rooms_unlocked.append(str(r))
 	if rooms_unlocked.is_empty():
-		rooms_unlocked = ["main"]
+		rooms_unlocked = ["mudroom", "main"]
+	if rooms_unlocked.has("main") and not rooms_unlocked.has("mudroom"):
+		rooms_unlocked.insert(0, "mudroom")
+	mudroom_loadout = []
+	for raw_load in parsed.get("mudroom_loadout", []):
+		var lid := str(raw_load)
+		if lid != "":
+			mudroom_loadout.append(lid)
 	key_ring_seen = bool(parsed.get("key_ring_seen", false))
+	invert_scroll = bool(parsed.get("invert_scroll", false))
 	ending_seen = bool(parsed.get("ending_seen", false))
 	deepest_belly = int(parsed.get("deepest_belly", 0))
 	for m in parsed.get("met_monsters", []):
@@ -2180,6 +2998,7 @@ func _read_v2(parsed: Dictionary) -> void:
 			"hauls": int(c.get("hauls", 0)),
 			"losses": int(c.get("losses", 0)),
 		}
+	_sync_progress_doors()
 
 
 func _save() -> void:
@@ -2194,7 +3013,9 @@ func _save() -> void:
 	data["tutorial_done"] = tutorial_done
 	data["tutorial_declined"] = tutorial_declined
 	data["rooms_unlocked"] = rooms_unlocked
+	data["mudroom_loadout"] = mudroom_loadout
 	data["key_ring_seen"] = key_ring_seen
+	data["invert_scroll"] = invert_scroll
 	data["ending_seen"] = ending_seen
 	data["deepest_belly"] = deepest_belly
 	data["met_monsters"] = met_monsters.keys()
@@ -2244,6 +3065,8 @@ func _mcp_state() -> Dictionary:
 		"sack_vis": _sack.visible if _sack else false,
 		"just_n": _just_mounted.size(),
 		"swiped_n": swiped.size(),
+		"biome_cases": BiomeCabinets.case_names(_biome_rules()),
+		"biome_progress": _biome_progress_lines(),
 		"buckets": buckets_open,
 		"room": _current_room,
 		"shelf_page": _room,
@@ -2284,6 +3107,8 @@ func debug_seed(owned: int, seen_only: int, buckets: int) -> void:
 			seen[str(id)] = true
 		n += 1
 	buckets_open = buckets
+	_clear_bank_anim()
+	mirror_swiped_into_banked()
 	_rebuild_shelves()
 
 
@@ -2350,7 +3175,7 @@ func debug_pose(beat: String) -> void:
 			show_menu("main")
 		"keyring", "key_ring":
 			key_ring_seen = false
-			rooms_unlocked = ["main"]
+			rooms_unlocked = ["mudroom", "main"]
 			_refresh_rooms()
 			play_key_ring()
 		"hall", "trophy":
@@ -2373,6 +3198,13 @@ func debug_pose(beat: String) -> void:
 			if not is_room_unlocked("loft"):
 				_grant_all_rooms()
 			show_menu("loft")
+		"mudroom":
+			if not is_room_unlocked("mudroom"):
+				rooms_unlocked.insert(0, "mudroom")
+				_save()
+				_refresh_rooms()
+			show_menu("mudroom")
+			_refresh_mudroom()
 		"ending":
 			ending_seen = false
 			play_ending()
@@ -2448,7 +3280,28 @@ func _input(event: InputEvent) -> void:
 			_cutscene.request_advance()
 			get_viewport().set_input_as_handled()
 		return
+	if _space_key(event):
+		if _picker_open():
+			_ask_held_map()
+			get_viewport().set_input_as_handled()
+			return
+		if _busy():
+			return
+		if _gate_on():
+			if _dialog:
+				_dialog.say(["map.first_only"])
+			get_viewport().set_input_as_handled()
+			return
+		if _current_room == "mudroom":
+			_commit_mudroom_loadout()
+		_ask_held_map()
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("ui_cancel"):
+		if _picker_open():
+			_ask_held_map()
+			get_viewport().set_input_as_handled()
+			return
 		_escape()
 		get_viewport().set_input_as_handled()
 		return
@@ -2522,6 +3375,7 @@ func clear_to_fresh_save() -> void:
 	new_unseen.clear()
 	met_monsters.clear()
 	_just_mounted.clear()
+	_clear_bank_anim()
 	_raw_save.clear()
 	_apply_defaults()
 	_save()
@@ -2541,6 +3395,7 @@ func fill_middle_save() -> void:
 	new_unseen.clear()
 	met_monsters.clear()
 	_just_mounted.clear()
+	_clear_bank_anim()
 	_apply_defaults()
 	intro_seen = true
 	nib_first_done = true
@@ -2583,6 +3438,7 @@ func fill_middle_save() -> void:
 			if mid != "":
 				met_monsters[mid] = true
 	_save()
+	_sync_progress_doors()
 	_rebuild_shelves()
 	_refresh_rooms()
 	_apply_gate()
@@ -2599,6 +3455,7 @@ func fill_complete_save() -> void:
 	new_unseen.clear()
 	met_monsters.clear()
 	_just_mounted.clear()
+	_clear_bank_anim()
 	_apply_defaults()
 	intro_seen = true
 	nib_first_done = true
@@ -2667,6 +3524,7 @@ func _arrow(delta: int) -> void:
 
 func _build_rooms() -> void:
 	var scripts := {
+		"mudroom": preload("res://scripts/cabin/room_mudroom.gd"),
 		"main": preload("res://scripts/cabin/room_main.gd"),
 		"hall": preload("res://scripts/cabin/room_hall.gd"),
 		"study": preload("res://scripts/cabin/room_study.gd"),
@@ -2856,6 +3714,9 @@ func _build_overlays() -> void:
 	_cutscene = preload("res://scripts/cabin/cutscene_player.gd").new()
 	_cutscene.setup(self)
 	add_child(_cutscene)
+	_map_piece_beat = preload("res://scripts/cabin/map_piece_beat.gd").new()
+	_map_piece_beat.setup(self)
+	add_child(_map_piece_beat)
 
 
 func attach_editor(main) -> void:
@@ -2882,18 +3743,37 @@ func _play_station() -> void:
 		sfx.music_cabin()
 
 
+func _apply_view_frame() -> void:
+	if _rooms_clip == null:
+		return
+	var view: Vector2 = size
+	if view.x < 8.0 or view.y < 8.0:
+		view = get_viewport_rect().size
+	var fr: Rect2 = VIEW_FRAME.frame_rect(view)
+	_rooms_clip.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
+	_rooms_clip.position = fr.position
+	_rooms_clip.size = fr.size
+	_rooms_clip.clip_contents = true
+	if _rooms_host:
+		_rooms_host.size = Vector2(ROOM_W * float(ROOM_ORDER.size()), ROOM_H)
+	_snap_to(_current_room)
+
+
 func _snap_to(room: String) -> void:
 	_current_room = room
 	var i: int = ROOM_ORDER.find(room)
 	if i < 0:
 		i = 0
-	_rooms_host.position.x = -float(i) * ROOM_W
+	if _rooms_host:
+		_rooms_host.position.x = -float(i) * ROOM_W
+		_rooms_host.position.y = 0
 	var r = _rooms.get(room)
 	if r and r.has_method("ensure_bg"):
 		r.ensure_bg()
 
 
 func pan_to(room: String) -> void:
+	_sync_progress_doors()
 	if _pan_busy or not is_room_unlocked(room):
 		if not is_room_unlocked(room):
 			_bump()
@@ -2921,7 +3801,13 @@ func pan_to(room: String) -> void:
 	_current_room = room
 	_pan_busy = false
 	_rooms_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_show_toast("cabin.room.%s" % room)
+	if room == "mudroom":
+		_show_toast("room.mudroom.name")
+		_refresh_mudroom()
+	else:
+		_show_toast("cabin.room.%s" % room)
+	if room == "hall":
+		call_deferred("_offer_bank_sequence")
 
 
 func _pan_unlocked(room: String) -> void:
@@ -2949,7 +3835,13 @@ func _pan_unlocked(room: String) -> void:
 		return
 	_current_room = room
 	_pan_busy = false
-	_show_toast("cabin.room.%s" % room)
+	if room == "mudroom":
+		_show_toast("room.mudroom.name")
+		_refresh_mudroom()
+	else:
+		_show_toast("cabin.room.%s" % room)
+	if room == "hall":
+		call_deferred("_offer_bank_sequence")
 
 
 func _move_nib_x(x_native: float, dur: float) -> void:
@@ -3144,11 +4036,19 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 			_arrive_skip = maxi(_arrive_skip, 2)
 			_kill_arrive_motion()
 			return
+	if _dialog and _dialog.is_open() and not _dialog.has_choices():
+		_dialog.advance()
+		return
 	if _busy() and node_name != "Nib" and not (node_name == "RunDoor" and _gate_on()):
 		return
 	match node_name:
 		"RunDoor":
 			_on_run_door()
+		"OutDoor":
+			_commit_mudroom_loadout()
+			_ask_held_map()
+		"RerollJar":
+			_reroll_mudroom_hooks()
 		"SideDoor":
 			_on_side_door(room)
 		"BackDoor":
@@ -3203,11 +4103,14 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 			_on_bed()
 		"Telescope":
 			var tk: String = "cabin.telescope.none" if deepest_belly <= 0 else "cabin.telescope.line"
-			if deepest_belly <= 0:
-				if _dialog:
-					_dialog.say([tk])
-			else:
-				say_bubble(tk, {"n": deepest_belly})
+			var tvars: Dictionary = {} if deepest_belly <= 0 else {"n": deepest_belly}
+			if _dialog:
+				_dialog.z_index = 40
+				var line: String = KIT.fill_text(tk, tvars)
+				if line.strip_edges() == "":
+					_dialog.say([tk], [], tvars, {tk: "Not yet."})
+				else:
+					_dialog.say([tk], [], tvars)
 			KIT.cue(sfx, &"cabin.telescope")
 		"Trunk":
 			_on_trunk()
@@ -3229,7 +4132,10 @@ func _on_run_door() -> void:
 	if _gate_on():
 		_interrupt()
 		return
-	_open_map()
+	if is_room_unlocked("mudroom"):
+		pan_to("mudroom")
+		return
+	_ask_held_map()
 
 
 func _play_run_door_open() -> void:
@@ -3262,12 +4168,118 @@ func _on_map() -> void:
 		if _dialog:
 			_dialog.say(["map.first_only"])
 		return
-	_open_map()
+	_ask_held_map()
 
 
 func _open_map() -> void:
 	_overlay_name = "map"
 	_map.open_map(last_route)
+
+
+func _ask_held_map() -> void:
+	held_map_wanted.emit()
+
+
+func _campaign_ref():
+	var host = get_parent()
+	if host != null and host.get("_campaign") != null:
+		return host._campaign
+	return null
+
+
+func _mudroom_item_rows() -> Array:
+	var out: Array = []
+	for id in items_by_id.keys():
+		var card: Dictionary = items_by_id[id]
+		var st := str(card.get("status", "live"))
+		if st == "hold" or st == "retired":
+			continue
+		if BucketRules.is_token(card.get("bucket", 0)):
+			continue
+		if BucketRules.is_always_starter_id(str(id)):
+			continue
+		out.append({"id": str(id), "tier": int(card.get("tier", 1))})
+	return out
+
+
+func _refresh_mudroom() -> void:
+	var room = _rooms.get("mudroom")
+	if room == null or not room.has_method("set_hooks"):
+		return
+	var camp = _campaign_ref()
+	var rules: Dictionary = camp.rules if camp != null else CAMPAIGN_SHELL.read_json("res://data/campaign.json")
+	var state: Dictionary = camp.state if camp != null else CAMPAIGN_SHELL.fresh_state()
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var ids: Array = mudroom_loadout.duplicate()
+	if ids.is_empty() and camp != null:
+		ids = CAMPAIGN_SHELL.mudroom_loadout_of(state)
+	var need: int = CAMPAIGN_SHELL.starter_hook_count(rules)
+	if ids.size() != need:
+		ids = CAMPAIGN_SHELL.roll_mudroom_hooks(rules, rng, _mudroom_item_rows(), [])
+	var names := {}
+	for id in ids:
+		names[str(id)] = str(items_by_id.get(str(id), {}).get("name", id))
+	room.set_hooks(ids, tex_by_item, names)
+	var jar_n: int = CAMPAIGN_SHELL.preview_rerolls(rules, state)
+	if bool(state.get("run", {}).get("active", false)):
+		jar_n = int(state.get("run", {}).get("rerolls", jar_n))
+	if room.has_method("set_jar_count"):
+		room.set_jar_count(jar_n)
+
+
+func _commit_mudroom_loadout() -> void:
+	var room = _rooms.get("mudroom")
+	var ids: Array = []
+	if room != null and room.has_method("selected_ids"):
+		ids = room.selected_ids()
+	elif room != null and room.has_method("hook_ids"):
+		ids = room.hook_ids()
+	if ids.is_empty():
+		ids = mudroom_loadout.duplicate()
+	mudroom_loadout = ids.duplicate()
+	var camp = _campaign_ref()
+	if camp != null:
+		CAMPAIGN_SHELL.set_mudroom_loadout(camp.state, ids)
+		if camp.has_method("write"):
+			camp.write()
+	_save()
+
+
+func _reroll_mudroom_hooks() -> void:
+	var camp = _campaign_ref()
+	var rules: Dictionary = camp.rules if camp != null else CAMPAIGN_SHELL.read_json("res://data/campaign.json")
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var keep: Array = []
+	var room = _rooms.get("mudroom")
+	if room != null and room.has_method("hook_ids"):
+		keep = room.hook_ids()
+	var ids: Array = CAMPAIGN_SHELL.roll_mudroom_hooks(rules, rng, _mudroom_item_rows(), keep)
+	mudroom_loadout = ids.duplicate()
+	if camp != null:
+		CAMPAIGN_SHELL.set_mudroom_loadout(camp.state, ids)
+		if camp.has_method("write"):
+			camp.write()
+	_refresh_mudroom()
+	KIT.cue(sfx, &"cabin.scroll")
+
+
+func _picker_open() -> bool:
+	var host: Node = get_parent()
+	if host == null:
+		return false
+	var picker = host.get("campaign_map")
+	return picker != null and picker.has_method("is_picker_open") and bool(picker.is_picker_open())
+
+
+func _space_key(event: InputEvent) -> bool:
+	if not event is InputEventKey:
+		return false
+	var key := event as InputEventKey
+	if not key.pressed or key.echo:
+		return false
+	return key.keycode == KEY_SPACE or key.physical_keycode == KEY_SPACE
 
 
 func _open_radio() -> void:
@@ -3313,7 +4325,7 @@ func _interrupt() -> void:
 		tutorial_declined = true
 		_save()
 		_apply_gate()
-		_open_map()
+		_ask_held_map()
 		return
 	if _dialog.has_method("dismiss"):
 		_dialog.dismiss()
@@ -3327,7 +4339,7 @@ func _interrupt() -> void:
 		_dialog.say(["nib.interrupt.no_reply"])
 		await _dialog.finished
 		_apply_gate()
-		_open_map()
+		_ask_held_map()
 
 
 func _on_nib() -> void:
@@ -3350,7 +4362,7 @@ func _on_locked_door() -> void:
 	_dialog.say(["cabin.locked.first"], ["cabin.locked.try", "cabin.locked.wait"])
 	var ch: int = await _dialog.finished
 	if ch == 0:
-		_open_map()
+		_ask_held_map()
 
 
 func _on_cat() -> void:
@@ -3401,6 +4413,9 @@ func _flash_side_door_open(room: String) -> void:
 
 func _on_back_door(room: String) -> void:
 	match room:
+		"mudroom":
+			_commit_mudroom_loadout()
+			pan_to("main")
 		"hall":
 			pan_to("main")
 		"study":
@@ -3714,15 +4729,20 @@ func _open_patents() -> void:
 
 func _on_bed() -> void:
 	KIT.cue(sfx, &"cabin.bed")
-	if OS.has_feature("web"):
-		if _dialog:
-			_dialog.say(["cabin.bed.web"])
+	if _dialog == null:
 		return
-	if _dialog:
-		_dialog.say(["cabin.bed.ask"], ["cabin.bed.yes", "cabin.bed.no"])
-		var ch: int = await _dialog.finished
-		if ch == 0:
-			quit_wanted.emit()
+	if _dialog.is_open() and not _dialog.has_choices():
+		_dialog.advance()
+		return
+	_dialog.z_index = 40
+	if OS.has_feature("web"):
+		_dialog.say(["cabin.bed.web"])
+		await _dialog.finished
+		return
+	_dialog.say(["cabin.bed.ask"], ["cabin.bed.yes", "cabin.bed.no"])
+	var ch: int = await _dialog.finished
+	if ch == 0:
+		quit_wanted.emit()
 
 
 func _on_trunk() -> void:

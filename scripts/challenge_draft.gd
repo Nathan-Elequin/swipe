@@ -4,6 +4,7 @@ extends PanelContainer
 signal chosen(uid: int)
 signal hovered_item(it: Dictionary, card: Control)
 signal unhovered_item
+signal reroll_wanted
 
 const UX := preload("res://scripts/ux_style.gd")
 const COPY := preload("res://scripts/player_copy.gd")
@@ -12,13 +13,18 @@ var _title
 var _sub
 var _final
 var _row: HBoxContainer
+var _pips: HBoxContainer
 var _hint
 var _final_t: float = 0.0
 var _aura_t: float = 0.0
 var _tier: int = 1
+var _loot_left: int = 0
+var _loot_total: int = 0
+var _sack: Texture2D
 var left_it: Dictionary = {}
 var right_it: Dictionary = {}
 var _busy: bool = false
+var _reroll: Button
 
 
 func setup() -> void:
@@ -69,6 +75,15 @@ func setup() -> void:
 	_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_row.add_theme_constant_override("separation", 10)
 	col.add_child(_row)
+	_pips = HBoxContainer.new()
+	_pips.alignment = BoxContainer.ALIGNMENT_CENTER
+	_pips.add_theme_constant_override("separation", 6)
+	_pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(_pips)
+	if ResourceLoader.exists("res://assets/dungeon/home/loot_sack_dropped.png"):
+		_sack = load("res://assets/dungeon/home/loot_sack_dropped.png") as Texture2D
+	elif ResourceLoader.exists("res://assets/dungeon/items/bag_of_holding.png"):
+		_sack = load("res://assets/dungeon/items/bag_of_holding.png") as Texture2D
 	_hint = FitLabelBox.make()
 	_hint.show_frame = false
 	_hint.padding = 0
@@ -79,6 +94,15 @@ func setup() -> void:
 	_hint.set_copy("challenge.pick_hover")
 	_hint.custom_minimum_size = Vector2(480, 20)
 	col.add_child(_hint)
+	_reroll = Button.new()
+	_reroll.visible = false
+	_reroll.text = "Reroll"
+	_reroll.custom_minimum_size = Vector2(220, 36)
+	_reroll.pressed.connect(func() -> void:
+		if not _busy:
+			reroll_wanted.emit()
+	)
+	col.add_child(_reroll)
 	_skin_panel(1)
 
 
@@ -109,6 +133,39 @@ func present(_title_text: String, _sub_text: String, a: Control, b: Control, ia:
 	visible = true
 	_aura_t = 0.0
 	set_process(true)
+
+
+func set_loot_pips(remaining: int, total: int) -> void:
+	_loot_left = maxi(0, remaining)
+	_loot_total = maxi(_loot_left, total)
+	if _pips == null:
+		return
+	for c in _pips.get_children():
+		_pips.remove_child(c)
+		c.queue_free()
+	if _loot_total <= 0:
+		_pips.visible = false
+		return
+	_pips.visible = true
+	var show_n: int = mini(_loot_total, 12)
+	for i in show_n:
+		var pic := TextureRect.new()
+		pic.custom_minimum_size = Vector2(28, 28)
+		pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		pic.texture_filter = TEXTURE_FILTER_NEAREST
+		pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pic.texture = _sack
+		if i >= _loot_left:
+			pic.modulate = Color(0.35, 0.32, 0.28, 0.55)
+		_pips.add_child(pic)
+
+
+func set_reroll(on: bool, label: String) -> void:
+	if _reroll == null:
+		return
+	_reroll.visible = on
+	_reroll.text = label
 
 
 func set_final_item(on: bool) -> void:
@@ -198,7 +255,9 @@ func hide_draft() -> void:
 	scale = Vector2.ONE
 	left_it = {}
 	right_it = {}
+	set_reroll(false, "")
 	set_final_item(false)
+	set_loot_pips(0, 0)
 	set_process(false)
 	for c in _row.get_children():
 		_row.remove_child(c)

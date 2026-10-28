@@ -181,7 +181,7 @@
 			"cat": "Title",
 			"key": "title.win",
 			"locked_at": "2026-10-07",
-			"text": "Successfully Swiped",
+			"text": "Victory! You made it out - now time to check out Grandpa's trophy collection back at the Cabin.",
 			"where": "Victory headline"
 		},
 		{
@@ -991,6 +991,13 @@
 			"locked_at": "2026-10-07",
 			"text": "SLAIN",
 			"where": "Flash on the slice when they leave"
+		},
+		{
+			"author_lock": false,
+			"cat": "Combat",
+			"key": "combat.escaped",
+			"text": "Escaped",
+			"where": "Flash on the slice when you take the hit and live"
 		},
 		{
 			"author_lock": true,
@@ -2324,6 +2331,30 @@
 			"where": "Trophy hall gauge tooltip when complete",
 			"text": "Every shelf full!",
 			"draft": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.past_gate",
+			"where": "Biome case crown sub-line after the 5/5 gate",
+			"text": "{n} of {total} found",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.locked",
+			"where": "Biome case when the pool is still locked",
+			"text": "pool locked",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.next_piece",
+			"where": "Biome case hover while under the 5/5 map-piece gate",
+			"text": "{n} more for the next map piece",
+			"owner": "Spin",
+			"stub": true
 		},
 		{
 			"cat": "Cabin",
@@ -3801,7 +3832,7 @@
 		{
 			"cat": "Playtest",
 			"key": "playtest.intro.01",
-			"text": "Hey friends — thanks for playtesting my game, Swipe.\nJust a few notes before you jump in.",
+			"text": "Hey friends — thanks for playtesting my game, Spinheritance.\nJust a few notes before you jump in.",
 			"author_lock": true,
 			"locked_at": "2026-10-19",
 			"where": "Playtest intro beat 01"
@@ -3925,7 +3956,451 @@
 			"author_lock": true,
 			"locked_at": "2026-10-19",
 			"where": "Playtest intro beat 16"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.bank_eyebrow",
+			"where": "Campaign extract left door eyebrow",
+			"text": "Climb Grandpa's rope",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.bank",
+			"where": "Campaign extract left door title",
+			"text": "Bank home",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.push_eyebrow",
+			"where": "Campaign extract right door eyebrow",
+			"text": "Into the dark",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.push",
+			"where": "Campaign extract right door title",
+			"text": "Push deeper",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.chip_biome",
+			"where": "Campaign extract run chip biome line",
+			"text": "{biome} cabinet",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Rope",
+			"key": "rope.campaign.chip_count",
+			"where": "Campaign extract run chip count",
+			"text": "{n}/5",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.push_block.1",
+			"where": "Hover Push deeper while biome cabinet under 5/5",
+			"text": "Whoa, whoa. Not down there. Your {biome} cabinet's only at {n} of 5. You're not ready for what's below. Let me take you home?",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.push_block.yes",
+			"where": "Push-block interrupt CTA (only choice)",
+			"text": "Yes, take me home",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.homecoming",
+			"where": "After Push-block dissolve into that biome's case hall",
+			"text": "Five from the {biome}. Then we talk about going deeper.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.banner",
+			"where": "Campaign two-door extract banner",
+			"text": "Extracted · {biome}",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.push_block.title",
+			"where": "Extract headline when Push under 5/5 (with Nib)",
+			"text": "Whoa. Not down there.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.next_carry",
+			"where": "Extract carry-forward when next stamp already live",
+			"text": "Next: {next}. Your hand and 1 reroll come with you.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.delving_improves",
+			"where": "Toast after map-piece ceremony (G), never after Push interrupt (F)",
+			"text": "Dungeon delving improves",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.new_unique",
+			"where": "Haul chip marker for an item not yet banked",
+			"text": "NEW UNIQUE",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.case_proj",
+			"where": "Cabinet chip count when banking would fill the quota",
+			"text": "{n}/5 → 5/5",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "extract.haul",
+			"where": "Haul list header on extract",
+			"text": "Your haul · {n} on the wheel",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "rank.weak",
+			"where": "Haul / rank chip for internal tier 1. Never say Tier.",
+			"text": "Weak",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "rank.tough",
+			"where": "Haul / rank chip for internal tier 2. Never say Tier.",
+			"text": "Tough",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Extract",
+			"key": "rank.deadly",
+			"where": "Haul / rank chip for internal tier 3. Never say Tier.",
+			"text": "Deadly",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.squint",
+			"where": "Map-piece ceremony beat 1",
+			"text": "Hold on. What's that stuck to the haul?",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Sprout",
+			"key": "sprout.piece.huh",
+			"where": "Map-piece ceremony beat 2",
+			"text": "…?",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.grandpa",
+			"where": "Map-piece ceremony beat 3",
+			"text": "That's Grandpa's! Next belly of the mountain — onto the map with you.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.stamped",
+			"where": "Map-piece ceremony beat 4 after THUNK",
+			"text": "There. Official now. {next} is stamped — open the map and peel it when you're ready.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.piece.stamped_short",
+			"where": "Map-piece ceremony one-liner alternate",
+			"text": "There. Official now.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.title.spin",
+			"where": "Held map title (Spin lock)",
+			"text": "Grandpa's Map of Mount Grumblegut",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.subtitle",
+			"where": "Held map subtitle",
+			"text": "(Mostly Accurate.) Five bellies, each meaner than the last.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.start.pin",
+			"where": "Start badge title",
+			"text": "START HERE",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.start.sub",
+			"where": "Start badge sub",
+			"text": "Gatehouse → Verdant Hollow · a normal run",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.legend.down",
+			"where": "Depth cue on held map",
+			"text": "down is deeper",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.fog",
+			"where": "Fog / missing pieces note",
+			"text": "here the map gets… hazy. (pieces missing)",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.scribble.x",
+			"where": "Margin scribble",
+			"text": "X = treasure (probably).",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.scribble.snacks",
+			"where": "Margin scribble",
+			"text": "Snacks: bring them.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.node.locked",
+			"where": "Unmapped biome label",
+			"text": "{biome} · unmapped",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.stamp.full",
+			"where": "Full cabinet stamp hint",
+			"text": "cabinet full.",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.stamp.pencil",
+			"where": "Full cabinet stamp hint line 2",
+			"text": "Nib's pencil →",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Map",
+			"key": "map.hint.click",
+			"where": "Clickable stamped biome",
+			"text": "click to set off",
+			"owner": "Spin"
+		},
+		{
+			"cat": "Campaign",
+			"key": "room.mudroom.name",
+			"where": "Mudroom room-name toast",
+			"text": "The Mudroom",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "cabin.room.mudroom",
+			"where": "Mudroom room-name toast alias",
+			"text": "The Mudroom",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.hook.hover",
+			"where": "Mudroom peg hover",
+			"text": "{item}",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.jar",
+			"where": "Mudroom reroll jar title",
+			"text": "Reroll jar · {n}",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.jar.sub",
+			"where": "Mudroom reroll jar sub",
+			"text": "+1 each time Nib stamps a new biome",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.exit.cabin",
+			"where": "Mudroom back door hover",
+			"text": "Back to cabin",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.exit.out",
+			"where": "Mudroom out door hover",
+			"text": "Out the door",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "mudroom.space",
+			"where": "Mudroom Space helper",
+			"text": "pull out the map",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "map.endless.sealed",
+			"where": "Held map Endless sealed label",
+			"text": "ENDLESS · SEALED",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "map.endless.sealed_sub",
+			"where": "Held map Endless sealed sub",
+			"text": "Opens when all five cabinets are full",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "map.endless.open",
+			"where": "Held map Endless open tip",
+			"text": "Endless",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.unlock_toast",
+			"where": "Campaign complete toast",
+			"text": "The deep opens.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.complete.eyebrow",
+			"where": "Campaign-complete panel eyebrow",
+			"text": "Campaign complete",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.complete.headline",
+			"where": "Campaign-complete panel headline",
+			"text": "Every cabinet is full.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.complete.body",
+			"where": "Campaign-complete panel body",
+			"text": "Twenty-five uniques on the shelves. Something below them clicks.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.complete.unlocked",
+			"where": "Campaign-complete Endless row",
+			"text": "Endless unlocked",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.complete.enter",
+			"where": "Campaign-complete CTA",
+			"text": "Enter Endless",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.best",
+			"where": "Endless deepest record",
+			"text": "Deepest: {n}",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "rope.endless.push_sub",
+			"where": "Extract Push sub in Endless",
+			"text": "Keep going. The deep does not end.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "rope.campaign.bank_sub",
+			"where": "Extract Bank home sub",
+			"text": "End the run and keep what you extracted.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "rope.campaign.push_sub",
+			"where": "Extract Push deeper sub",
+			"text": "Carry this hand into the next delve.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "campaign.drawer.title",
+			"where": "Win drawer soft line",
+			"text": "A drawer you never noticed slides open.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "campaign.drawer.body",
+			"where": "Win drawer body (legacy)",
+			"text": "Every cabinet is full. Endless is unlocked.",
+			"owner": "Spin",
+			"stub": true
+		},
+		{
+			"cat": "Campaign",
+			"key": "campaign.drawer.continue",
+			"where": "Win drawer continue",
+			"text": "Continue",
+			"owner": "Spin",
+			"stub": true
 		}
 	],
-	"updated": "2026-10-19"
+	"updated": "2026-10-26"
 }

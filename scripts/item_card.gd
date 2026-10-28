@@ -10,6 +10,7 @@ signal passed_swipe
 const COPY := preload("res://scripts/player_copy.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const RANK_SHIMMER := preload("res://scripts/rank_shimmer.gd")
+const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 const CARD_W := 147.5
 const CARD_H := 120.0
 const SHOW_W := 236.0
@@ -63,6 +64,11 @@ var _used: Label
 var _danger: bool = false
 var _bag_stamp: TextureRect
 var _or: RichTextLabel
+var _choice_badge: Label
+var _cabinet_badge: Label
+var _hp_cost: HBoxContainer
+var _face: Control
+var _glyph_rows: Array = []
 var _sai_fx: AnimatedSprite2D
 var _marble_fx: AnimatedSprite2D
 var _sparkle: AnimatedSprite2D
@@ -312,6 +318,12 @@ func setup(
 	_used.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_used.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_used)
+	_face = preload("res://scripts/item_face.gd").new()
+	_face.name = "Face"
+	_face.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_face.visible = false
+	num_host.add_child(_face)
 	set_live(number_text, "", true)
 	_sync_hatch()
 	_sync_lock_shade()
@@ -738,11 +750,37 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 		_used.visible = spent
 	_sync_lock_shade()
 	if _mark != null and not _formula_on:
-		var beside: bool = kind == "DEFEAT" and number_text.is_valid_int()
+		var beside: bool = _mark_sits_beside(number_text)
 		_mark.visible = _mark.texture != null and (number_text == "" or beside)
 		_mark.modulate.a = 0.95
 		_layout_mark(number_text)
 	_layout_atk_pip()
+	_apply_glyph_vis()
+
+
+func set_glyphs(rows: Array) -> void:
+	_glyph_rows = rows
+	if _face != null and _face.has_method("set_rows"):
+		_face.set_rows(rows)
+	_apply_glyph_vis()
+
+
+func _apply_glyph_vis() -> void:
+	var on := not _glyph_rows.is_empty() and not _formula_on
+	if _face != null:
+		_face.visible = on
+	if not on:
+		return
+	if _num:
+		_num.visible = false
+	if _or:
+		_or.visible = false
+	if _ghost:
+		_ghost.visible = false
+	if _atk_pip:
+		_atk_pip.visible = false
+	if _mark:
+		_mark.visible = false
 
 
 func _or_parts(number_text: String) -> PackedStringArray:
@@ -759,6 +797,99 @@ func set_rank(text: String) -> void:
 		return
 	_rank.text = text
 	_rank.visible = false
+
+
+func set_hp_cost(text: String) -> void:
+	var shown: String = text.strip_edges()
+	if shown == "":
+		if _hp_cost:
+			_hp_cost.visible = false
+		return
+	if _hp_cost == null:
+		_hp_cost = HBoxContainer.new()
+		_hp_cost.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hp_cost.add_theme_constant_override("separation", 2)
+		_hp_cost.z_index = 6
+		var heart := TextureRect.new()
+		heart.custom_minimum_size = Vector2(16, 16)
+		heart.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		heart.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		heart.texture_filter = TEXTURE_FILTER_NEAREST
+		heart.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if ResourceLoader.exists("res://assets/icons/heart.svg"):
+			heart.texture = load("res://assets/icons/heart.svg")
+		_hp_cost.add_child(heart)
+		var lab := Label.new()
+		lab.name = "Cost"
+		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		lab.add_theme_font_size_override("font_size", 16)
+		lab.add_theme_color_override("font_color", Color("e8a0a0"))
+		lab.add_theme_color_override("font_outline_color", Color("100e0c"))
+		lab.add_theme_constant_override("outline_size", 4)
+		_hp_cost.add_child(lab)
+		add_child(_hp_cost)
+	var cost: Label = _hp_cost.get_node_or_null("Cost") as Label
+	if cost:
+		cost.text = shown
+	_hp_cost.visible = true
+	var face_w: float = SHOW_W if _showcase else CARD_W
+	var face_h: float = SHOW_H if _showcase else CARD_H
+	_hp_cost.position = Vector2(maxf(4.0, face_w - 58.0), face_h - 34.0)
+
+
+func set_choice_badge(text: String) -> void:
+	var shown: String = text.strip_edges()
+	if shown == "":
+		if _choice_badge:
+			_choice_badge.visible = false
+		return
+	var lab: Label = _ensure_corner_badge(true)
+	lab.text = shown
+	lab.visible = true
+	var font: Font = lab.get_theme_font("font")
+	if font == null:
+		font = ThemeDB.fallback_font
+	var w: float = 36.0
+	if font:
+		w = font.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+	var face_w: float = SHOW_W if _showcase else CARD_W
+	lab.position = Vector2(maxf(4.0, face_w - w - 8.0), 2.0)
+
+
+func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
+	if not on:
+		if _cabinet_badge:
+			_cabinet_badge.visible = false
+		return
+	var lab: Label = _ensure_corner_badge(false)
+	lab.text = label
+	lab.tooltip_text = tip
+	lab.visible = true
+	lab.position = Vector2(4.0, (SHOW_H if _showcase else CARD_H) - 16.0)
+
+
+func _ensure_corner_badge(choice: bool) -> Label:
+	var existing: Label = _choice_badge if choice else _cabinet_badge
+	if existing != null:
+		return existing
+	var lab := Label.new()
+	lab.mouse_filter = Control.MOUSE_FILTER_STOP
+	lab.add_theme_font_size_override("font_size", 11)
+	lab.add_theme_color_override("font_color", Color("f8f2ea"))
+	lab.add_theme_color_override("font_outline_color", Color("100e0c"))
+	lab.add_theme_constant_override("outline_size", 4)
+	lab.z_index = 8
+	lab.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT and _playable:
+			picked.emit()
+			lab.accept_event()
+	)
+	add_child(lab)
+	if choice:
+		_choice_badge = lab
+	else:
+		_cabinet_badge = lab
+	return lab
 
 
 func set_palette(fill: Color, metal: Color, tier: int = 1) -> void:
@@ -829,10 +960,17 @@ func _layout_atk_pip() -> void:
 	_num.z_index = 1
 
 
+func _mark_sits_beside(number_text: String) -> bool:
+	var shown: String = number_text.strip_edges()
+	if shown == "" or shown == "—" or shown == "-":
+		return false
+	return kind == "DEFEAT" or kind == "HP" or kind == "BLK" or kind == "FLEE"
+
+
 func _layout_mark(number_text: String) -> void:
 	if _mark == null:
 		return
-	var beside: bool = kind == "DEFEAT" and number_text.is_valid_int()
+	var beside: bool = _mark_sits_beside(number_text)
 	if beside:
 		_mark.offset_left = -40
 		_mark.offset_top = -16
@@ -918,6 +1056,10 @@ func set_playable(on: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	# Attack/slash heavy: pause shimmer, breathe, and sparkle so the hotbar
+	# does not compete with the banner. Active sai/marble item FX still tick.
+	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy:
+		return
 	_shimmer_clock += delta
 	if _glow or _aura or _log_focus or _danger or _hot:
 		_glow_t += delta
@@ -951,6 +1093,7 @@ func show_formula(on: bool) -> void:
 		var beside: bool = kind == "DEFEAT" and _shown.is_valid_int()
 		_mark.visible = (not _formula_on) and _mark.texture != null and (_shown == "" or beside)
 	_layout_atk_pip()
+	_apply_glyph_vis()
 
 
 func _dissolve(old_s: String, new_s: String) -> void:

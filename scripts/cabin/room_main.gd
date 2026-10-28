@@ -19,6 +19,9 @@ func _build_special() -> void:
 	add_child(firefly)
 	if firefly.sprite_frames:
 		firefly.play("fly")
+	var radio = spots.get("Radio", null)
+	if radio is CabinHotspot and radio.has_method("start_idle_pulse"):
+		radio.start_idle_pulse()
 	nib = AnimatedSprite2D.new()
 	nib.name = "NibSprite"
 	nib.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST

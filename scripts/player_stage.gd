@@ -1,9 +1,13 @@
 extends Control
-## Big Sprout on the left of the wheel. Faces right, toward the monster portrait.
+## Left-stage Sprout (retired for combat). Fight anims play in the wheel hub.
+## Kept for legacy callers / hide paths; stays invisible during fights.
+
+const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 
 var art
 var hp: int = 6
 var hp_max: int = 6
+var _heavy_token: bool = false
 
 var _state: String = ""
 var _frames: Array = []
@@ -35,10 +39,25 @@ func setup(p_art) -> void:
 	top_level = true
 	z_index = 15
 	visible = false
-	set_process(true)
+	set_process(false)
+
+
+func _exit_tree() -> void:
+	_set_heavy(false)
+
+
+func _set_heavy(on: bool) -> void:
+	if on == _heavy_token:
+		return
+	_heavy_token = on
+	if on:
+		FX_BUDGET.begin_heavy()
+	else:
+		FX_BUDGET.end_heavy()
 
 
 func play(state: String, loops: int = 1) -> void:
+	_set_heavy(FX_BUDGET.is_heavy_state(state))
 	_pending_hide = false
 	_blinking = false
 	_hold = false
@@ -51,6 +70,7 @@ func play(state: String, loops: int = 1) -> void:
 	if state == "defeat":
 		_loops_left = 1
 	visible = true
+	set_process(true)
 	queue_redraw()
 
 
@@ -63,6 +83,7 @@ func note_hp() -> void:
 
 
 func idle() -> void:
+	_set_heavy(false)
 	var nxt := "lowhp" if _is_low() else "idle"
 	_pending_hide = false
 	_blinking = false
@@ -74,6 +95,7 @@ func idle() -> void:
 	_loops_left = 0
 	_blink_t = randf_range(4.0, 6.0)
 	visible = true
+	set_process(true)
 	queue_redraw()
 
 
@@ -91,6 +113,7 @@ func hide_stage() -> void:
 
 
 func _finish_hide() -> void:
+	_set_heavy(false)
 	visible = false
 	_state = ""
 	_frames = []
@@ -99,6 +122,7 @@ func _finish_hide() -> void:
 	_blinking = false
 	_pending_hide = false
 	_blue = 0.0
+	set_process(false)
 	queue_redraw()
 
 
@@ -203,7 +227,10 @@ func foot_y() -> float:
 
 
 func _opaque_rect(tex: Texture2D) -> Rect2:
-	var key: String = "%s:%s" % [tex.resource_path, tex.get_size()]
+	var path: String = str(tex.resource_path)
+	if path == "":
+		path = str(tex.get_instance_id())
+	var key: String = "%s:%s" % [path, tex.get_size()]
 	if _opaque.has(key):
 		return _opaque[key]
 	var region := Rect2(Vector2.ZERO, tex.get_size())

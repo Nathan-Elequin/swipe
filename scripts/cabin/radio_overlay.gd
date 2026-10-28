@@ -19,6 +19,7 @@ var _needle: TextureRect
 var _station_lab
 var _static_gen: int = 0
 var _knob_hover: Dictionary = {}
+var _knob_vals: Array = []
 
 
 func setup(p_cabin, p_extra: Dictionary, p_audio) -> void:
@@ -113,6 +114,15 @@ func setup(p_cabin, p_extra: Dictionary, p_audio) -> void:
 		lab.clip_contents = false
 		add_child(lab)
 		lab.fit()
+		var num := Label.new()
+		num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		num.position = Vector2(mid_x - 24.0, kn.position.y - 10.0 * PX)
+		num.size = Vector2(48, 24)
+		num.z_index = 4
+		num.add_theme_font_size_override("font_size", 16)
+		num.add_theme_color_override("font_color", KIT.TITLE_CREAM)
+		add_child(num)
+		_knob_vals.append(num)
 	_needle = KIT.tex_rect("overlays/radio_needle.png", Vector2.ZERO, Vector2(4, 16), 2)
 	add_child(_needle)
 	_station_lab = KIT.label("radio.station.0", 28, KIT.TITLE_CREAM)
@@ -234,6 +244,8 @@ func _refresh_knob(i: int) -> void:
 		tex = KIT.load_tex("overlays/radio_knob_f%d.png" % frame)
 	(_knobs[i] as TextureRect).texture = tex
 	var v: float = _vol(i)
+	if i < _knob_vals.size() and _knob_vals[i] is Label:
+		(_knob_vals[i] as Label).text = str(int(round(v * 100.0)))
 	if i < _minus.size():
 		(_minus[i] as Button).disabled = v <= 0.001
 	if i < _plus.size():
@@ -254,10 +266,11 @@ func _place_needle() -> void:
 
 func _knob_input(i: int, ev: InputEvent) -> void:
 	if ev is InputEventMouseButton:
-		if ev.button_index == MOUSE_BUTTON_WHEEL_UP:
-			_nudge(i, 1.0)
-		elif ev.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_nudge(i, -1.0)
+		var dir: float = 1.0 if ev.button_index == MOUSE_BUTTON_WHEEL_UP else (-1.0 if ev.button_index == MOUSE_BUTTON_WHEEL_DOWN else 0.0)
+		if cabin != null and bool(cabin.get("invert_scroll")):
+			dir = -dir
+		if dir != 0.0:
+			_nudge(i, dir)
 
 
 func _hum_static(db: float, fade_s: float) -> void:

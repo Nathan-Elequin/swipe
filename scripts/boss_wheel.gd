@@ -16,6 +16,8 @@ var show_shift: bool = false
 const COPY := preload("res://scripts/player_copy.gd")
 const FX_RAYS := preload("res://scripts/fx_rays.gd")
 const ABILITY_CARD := preload("res://scripts/ui/ability_card.gd")
+const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
+const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
 const INK_ON_DARK := Color("f0e6d8")
 const TAG_GOLD := Color("FFD84A")
 const SHADOW_COL := Color(0.039, 0.024, 0.016, 0.47)
@@ -113,11 +115,14 @@ const HP_FILL := Color("c4282a")
 const DOWN_COL := Color("c45c5c")
 const UP_COL := Color("7dba7d")
 const SPIN_COL := Color("e8c36a")
+# Total spin_to tween length. Was 1.2 s; ~30% longer after #138 mid-spin feel.
+const SPIN_DURATION := 1.56
 
 var slices: Array = []
 var facing_index: int = -1
 var selected_index: int = -1
 var hover_index: int = -1
+var closed_empties: bool = false
 var spinning: bool = false
 var highlight: String = "none"
 var preview: Dictionary = {}
@@ -152,12 +157,15 @@ var _chrome_hover: int = -1
 var ability_suppressed: bool = false
 
 var _spin_tween: Tween
+var _recenter_tween: Tween
 var _tick_seg: int = -1
 var _tick_last_rot: float = 0.0
 var _peak_omega: float = 0.0
 var _lift: Dictionary = {}
 var _floaters: Array = []
 var _flash: Dictionary = {}
+var _burn: Dictionary = {}
+var _tex_fire: Texture2D
 var _hp_disp: Dictionary = {}
 var _hp_punch: Dictionary = {}
 var _atk_disp: Dictionary = {}
@@ -257,6 +265,7 @@ var threat_t: float = 0.0:
 var _threat_tween: Tween
 var draft_glow: bool = false
 var _glow_t: float = 0.0
+var _decor_wait: float = 0.0
 var hub_pierce: bool = false
 signal death_floor
 
@@ -297,6 +306,7 @@ var _sprout_gear_warned: bool = false
 var _hero_hold: bool = false
 var _hero_loops: int = 1
 var _hero_frozen: bool = false
+var _hero_heavy_token: bool = false
 var _pierce_float_t: float = -1.0
 var _hp_punch_t: float = 0.0
 var _blk_punch_t: float = 0.0
@@ -370,12 +380,27 @@ func setup_run_hero(art) -> void:
 	reset_hero()
 
 
+func _exit_tree() -> void:
+	_set_hero_heavy(false)
+
+
+func _set_hero_heavy(on: bool) -> void:
+	if on == _hero_heavy_token:
+		return
+	_hero_heavy_token = on
+	if on:
+		FX_BUDGET.begin_heavy()
+	else:
+		FX_BUDGET.end_heavy()
+
+
 func reset_hero() -> void:
 	hub_death_dim = false
 	_pierce_float_t = -1.0
 	_hp_punch_t = 0.0
 	_blk_punch_t = 0.0
 	_hero_frozen = false
+	_set_hero_heavy(false)
 	play_hero("idle", 1, true)
 	queue_redraw()
 
@@ -394,6 +419,9 @@ func play_hero(anim: String, loops: int = 1, force: bool = false) -> void:
 	_hero_hold = false
 	_hero_frozen = false
 	_hero_loops = maxi(1, loops)
+	# Hub now owns combat Sprout FX (face-off left stage retired). Mark heavy so
+	# SP-30 still pauses portrait / hall / card idles during swipe / grab / hit.
+	_set_hero_heavy(FX_BUDGET.is_heavy_state(anim))
 	_on_hero_frame()
 
 
@@ -445,6 +473,7 @@ func _hero_spec(anim: String) -> Dictionary:
 
 
 func _hero_return_idle() -> void:
+	_set_hero_heavy(false)
 	var nxt: String = "lowhp" if _hero_is_low() else "idle"
 	play_hero(nxt, 1, true)
 
@@ -470,6 +499,11 @@ func _hero_tick(delta: float) -> void:
 	if _blk_punch_t > 0.0:
 		_blk_punch_t = maxf(0.0, _blk_punch_t - delta)
 	if _hero_frozen or _hero_hold:
+		return
+	# Mid-spin: freeze hub idle/lowhp loops — rot redraw already paints.
+	if spinning and _hero_is_loop(hero_anim):
+		return
+	if FX_BUDGET.hold_low_priority_idles() and _hero_is_loop(hero_anim):
 		return
 	if _hero_is_loop(hero_anim) and (hero_anim == "idle" or hero_anim == "lowhp"):
 		var want: String = "lowhp" if _hero_is_low() else "idle"
@@ -856,6 +890,17 @@ func play_slay(index: int) -> void:
 	busy = false
 
 
+func play_escape(index: int) -> void:
+	busy = true
+	slay_kind = "escape"
+	slay_index = index
+	slay_t = 0.0
+	var tw := create_tween()
+	tw.tween_property(self, "slay_t", 1.0, 0.5)
+	await tw.finished
+	busy = false
+
+
 func play_block(index: int) -> void:
 	busy = true
 	slay_kind = "block"
@@ -1014,13 +1059,17 @@ func recenter_on(index: int, dur: float = 0.28) -> void:
 	if absf(delta) < 0.01:
 		rot = fposmod(target, TAU)
 		return
+	_kill_recenter()
 	busy = true
-	var tw := create_tween()
-	tw.set_trans(Tween.TRANS_CUBIC)
-	tw.set_ease(Tween.EASE_OUT)
-	tw.tween_property(self, "rot", rot + delta, dur)
-	await tw.finished
-	rot = fposmod(rot, TAU)
+	_recenter_tween = create_tween()
+	_recenter_tween.set_trans(Tween.TRANS_CUBIC)
+	_recenter_tween.set_ease(Tween.EASE_OUT)
+	_recenter_tween.tween_property(self, "rot", rot + delta, dur)
+	while _recenter_tween != null and _recenter_tween.is_valid() and _recenter_tween.is_running():
+		await get_tree().process_frame
+	if _recenter_tween != null and _recenter_tween.is_valid():
+		rot = fposmod(rot, TAU)
+	_recenter_tween = null
 	busy = false
 	queue_redraw()
 
@@ -1031,15 +1080,19 @@ func spin_to(index: int) -> void:
 	if slay_index >= 0:
 		clear_slay()
 	spinning = true
+	FX_BUDGET.set_spinning(true)
 	facing_index = -1
 	hover_index = -1
 	preview.clear()
+	for card in _ability_cards:
+		card.visible = false
 	queue_redraw()
 	var target: float = rotation_for_index(index)
 	var instant: bool = OS.has_feature("editor") and bool(get_meta("qa_instant", false))
 	if instant:
 		rot = fposmod(target, TAU)
 		spinning = false
+		FX_BUDGET.set_spinning(false)
 		facing_index = index
 		queue_redraw()
 		return
@@ -1054,13 +1107,21 @@ func spin_to(index: int) -> void:
 	_tick_seg = -1
 	_tick_last_rot = rot
 	_peak_omega = 0.0
-	_spin_tween.tween_property(self, "rot", rot + delta, 1.2)
+	_spin_tween.tween_property(self, "rot", rot + delta, SPIN_DURATION)
 	await _spin_tween.finished
 	rot = fposmod(rot, TAU)
 	spinning = false
+	FX_BUDGET.set_spinning(false)
 	facing_index = index
 	_play_threat()
 	queue_redraw()
+
+
+func _kill_recenter() -> void:
+	if _recenter_tween != null:
+		_recenter_tween.kill()
+		_recenter_tween = null
+	busy = false
 
 
 func kill_spin() -> void:
@@ -1068,6 +1129,8 @@ func kill_spin() -> void:
 		_spin_tween.kill()
 		_spin_tween = null
 	spinning = false
+	FX_BUDGET.set_spinning(false)
+	_kill_recenter()
 
 
 func _n() -> int:
@@ -1153,6 +1216,12 @@ func _process(delta: float) -> void:
 		if t > 0.0:
 			flash_keep[k] = t
 	_flash = flash_keep
+	var burn_keep := {}
+	for bk in _burn.keys():
+		var bv: float = float(_burn[bk]) - delta * 1.6
+		if bv > 0.02:
+			burn_keep[bk] = bv
+	_burn = burn_keep
 	var punch_keep := {}
 	for pk in _hp_punch.keys():
 		var pv: float = float(_hp_punch[pk]) - delta * 3.4
@@ -1166,8 +1235,59 @@ func _process(delta: float) -> void:
 			atk_punch_keep[ak] = av
 	_atk_punch = atk_punch_keep
 	_hero_tick(delta)
-	_sync_chrome_hover()
-	_sync_ability_cards()
+	if not spinning:
+		_sync_chrome_hover()
+		_sync_ability_cards()
+		# Mid-spin: `rot` setter already queue_redraws each tween tick.
+		# note_wheel lives in `_draw` (truthful, same as hall).
+		if _wheel_wants_live_draw():
+			_queue_decor_redraw(delta)
+
+
+func _wheel_wants_live_draw() -> bool:
+	# Hit / punch / burn / floater reads always paint — attack must stay readable.
+	if not _floaters.is_empty() or not _pt_ghosts.is_empty():
+		return true
+	if not _flash.is_empty() or not _hp_punch.is_empty() or not _atk_punch.is_empty() or not _burn.is_empty():
+		return true
+	if not _bond_anim.is_empty():
+		return true
+	# Non-loop hub combat anims (swipe / grab / hit / attack) need paced
+	# redraws — `_on_hero_frame` already queues, but decor capping still
+	# applies between advances when heavy FX is up.
+	if hub_sprout_on and not _hero_is_loop(hero_anim) and not _hero_hold and not _hero_frozen:
+		return true
+	# During attack/slash heavy, pause decorative-only live draws (hover,
+	# selected/threat pulse, draft glow, hall-adjacent poison bob, rage
+	# seat fire, hint arc). Seat idles already freeze via `_wheel_idle_held`.
+	if FX_BUDGET.hold_low_priority_idles():
+		return false
+	if facing_index < 0 and (selected_index >= 0 or not threat_indices.is_empty()):
+		return true
+	if hover_index >= 0:
+		return true
+	if hurt_preview or draft_glow or hub_poison > 0:
+		return true
+	if absf(_hint_ang) > 0.0004:
+		return true
+	for s in slices:
+		if bool(s.get("rage_fire", false)):
+			return true
+	return false
+
+
+func _queue_decor_redraw(delta: float) -> void:
+	# Uses CombatFxBudget.decor_step(): heavy→4fps, else→12fps (web + desktop
+	# fight-idle). Spin redraws come from the `rot` setter, not this path.
+	# note_wheel is counted in `_draw`.
+	var step: float = FX_BUDGET.decor_step()
+	if step <= 0.0:
+		queue_redraw()
+		return
+	_decor_wait -= delta
+	if _decor_wait > 0.0:
+		return
+	_decor_wait = step
 	queue_redraw()
 
 
@@ -1272,19 +1392,26 @@ func _bezel_pos(i: int) -> Vector2:
 
 
 func _spoke(i: int) -> Dictionary:
+	# Fit + seat chrome live in base (rot=0) space; spin the whole spoke by
+	# live wheel angle + move-hint. Keeps pass6 fit cached across a Spin.
 	var built: Dictionary = _spoke_rest(i)
-	return _spin_spoke(built, _move_hint_angle())
+	return _spin_spoke(built, rot + _move_hint_angle())
 
 
 func _spoke_rest(i: int) -> Dictionary:
 	var c: Vector2 = _center()
-	var starts: PackedFloat32Array = _wedge_starts(rot)
+	# Base-space geometry (rot=0). `_spoke` applies live rot + hint.
+	var starts: PackedFloat32Array = _wedge_starts(0.0)
 	var dir: Vector2 = Vector2.DOWN
 	if i >= 0 and i < starts.size():
 		dir = Vector2.from_angle(starts[i] + _span(i) * 0.5)
 	var tan: Vector2 = Vector2(-dir.y, dir.x)
 	var lift: float = _lift_of(i)
-	var origin: Vector2 = c + dir * (lift * 8.0) + _slay_push(i)
+	# Slay push must use base dir here — `_dir_of` is live (rot+hint).
+	var push: Vector2 = Vector2.ZERO
+	if i == slay_index and collapse > 0.0:
+		push = dir * collapse * _radius() * 0.42
+	var origin: Vector2 = c + dir * (lift * 8.0) + push
 	var r: float = _radius() + lift * 12.0
 	var sz: Vector2 = _seat_sprite_size(i)
 	var w: float = sz.x
@@ -1292,7 +1419,7 @@ func _spoke_rest(i: int) -> Dictionary:
 	var feet: Vector2 = origin
 	var table: Array = _fit_table(slices.size())
 	if i >= 0 and i < table.size():
-		feet = table[i] + dir * (lift * 8.0) + _slay_push(i)
+		feet = table[i] + dir * (lift * 8.0) + push
 	else:
 		feet = origin + dir * (r * 0.60)
 	if _breathe_bob(i):
@@ -1305,6 +1432,15 @@ func _spoke_rest(i: int) -> Dictionary:
 	var tag_w: float = _tag_width_px(i)
 	var tag_h: float = _tag_height_px(i)
 	var tag_rect := Rect2(Vector2(feet.x - tag_w * 0.5, feet.y + 10.0), Vector2(tag_w, tag_h))
+	var icon_px := 36.0
+	var atk_rect := Rect2(atk - Vector2(icon_px * 0.5, icon_px * 0.5), Vector2(icon_px, icon_px))
+	var hp_rect := Rect2(hp - Vector2(icon_px * 0.5, icon_px * 0.5), Vector2(icon_px, icon_px))
+	var shell := tag_rect.grow_individual(18.0, 2.0, 4.0, 2.0)
+	var steps := 0
+	while steps < 16 and (shell.intersects(atk_rect.grow(4.0)) or shell.intersects(hp_rect.grow(4.0))):
+		tag_rect.position.y += 4.0
+		shell.position.y += 4.0
+		steps += 1
 	var medal := Vector2(tag_rect.position.x - 2.0, tag_rect.position.y + tag_h * 0.5)
 	var sprite_rect := Rect2(Vector2(feet.x - w * 0.5, feet.y - h), Vector2(w, h))
 	return {
@@ -1405,6 +1541,22 @@ func hub_blk_global() -> Vector2:
 	var local: Rect2 = _badge_rect_from_c("blk")
 	var vis: Vector2 = _badge_xy("blk", "visual_centre_from_c", local.position + local.size * 0.5)
 	return get_global_transform() * (c + vis)
+
+
+func play_burn(index: int) -> void:
+	if index < 0 or index >= slices.size():
+		return
+	_burn[index] = 1.0
+	_flash[index] = 0.7
+	queue_redraw()
+	if get_tree():
+		await get_tree().create_timer(0.34).timeout
+
+
+func _fire_tex() -> Texture2D:
+	if _tex_fire == null and ResourceLoader.exists("res://assets/dungeon/vfx/fire.png"):
+		_tex_fire = load("res://assets/dungeon/vfx/fire.png") as Texture2D
+	return _tex_fire
 
 
 func punch_hp(index: int) -> void:
@@ -1617,8 +1769,13 @@ func _wheel_idle_held(i: int) -> bool:
 		return true
 	if bool(s.get("petrified", false)) or int(s.get("petrify_n", 0)) > 0:
 		return true
+	# Mid-spin: freeze seat breathe frames — spin paints rotation, not idles.
+	if spinning:
+		return true
 	# Same seats _draw_slice_contents draws dimmed while a fight is facing someone else.
-	if facing_index >= 0 and not spinning and i != facing_index and i != hover_index:
+	if facing_index >= 0 and i != facing_index and i != hover_index:
+		return true
+	if FX_BUDGET.hold_low_priority_idles():
 		return true
 	return false
 
@@ -1717,9 +1874,11 @@ func _tag_width_px(i: int) -> float:
 
 
 func _fit_sig_of(n: int) -> String:
+	# Do NOT key on `rot`. Pass6 fit is base-space; `_spoke` spins it.
+	# Mac spin_x5 @ c208e866: rot in the sig rebuilt `_search_feet` every
+	# ~0.02 rad (~80–100 ms frames, process_ms ≈ 433 on wheel spikes).
 	var bits: PackedStringArray = PackedStringArray()
 	bits.append(str(n))
-	bits.append(str(snappedf(rot, 0.02)))
 	bits.append(str(int(_radius())))
 	for i in n:
 		var sz: Vector2 = _seat_sprite_size(i)
@@ -1739,9 +1898,9 @@ func _fit_table(n: int) -> Array:
 	var c: Vector2 = _center()
 	var R: float = _radius()
 	var hub_r: float = R * HUB_FRAC
-	# Fit on the settled wheel, then spin that layout by the live hover angle.
-	# Re-fitting every frame picked a new screen nudge and made the sprites hitch.
-	var starts: PackedFloat32Array = _wedge_starts(rot)
+	# Fit once in base space (rot=0). Live Spin / move-hint rotate via `_spoke`.
+	# Re-fitting every rot tick was the Mac spin hitch (search_feet × N seats).
+	var starts: PackedFloat32Array = _wedge_starts(0.0)
 	var feet_out: Array = []
 	_fit_clearance.clear()
 	_tag_fs.clear()
@@ -1917,7 +2076,8 @@ func _sync_ability_cards() -> void:
 	_ensure_ability_cards()
 	for card in _ability_cards:
 		card.visible = false
-	if _item_held() or not show_shift:
+	# `_item_held` walks the scene tree — skip entirely mid-spin.
+	if spinning or busy or _item_held() or not show_shift:
 		return
 	var hub_g: Vector2 = get_global_transform() * _center()
 	var used := 0
@@ -1962,6 +2122,8 @@ func _slay_push(i: int) -> Vector2:
 
 
 func _draw() -> void:
+	# Count real draws — queue_redraw in _process inflated wheel spike tags.
+	FRAME_METRICS.note_wheel()
 	var c: Vector2 = _center()
 	var radius: float = _radius()
 	if slices.is_empty():
@@ -1988,12 +2150,15 @@ func _draw() -> void:
 		font = ThemeDB.fallback_font
 	for i in n:
 		_draw_slice_contents(font, c, radius, starts[i], _span(i), i)
-	_draw_bonds(c, radius)
-	_draw_move_hint(c, radius)
-	_draw_across_aim()
+	# Mid-spin: skip bond/hint/threat chrome — rotation is the read.
+	if not spinning:
+		_draw_bonds(c, radius)
+		_draw_move_hint(c, radius)
+		_draw_across_aim()
 	_draw_hub_block(c, radius)
-	_draw_threat(c, radius)
-	_draw_floaters(font)
+	if not spinning:
+		_draw_threat(c, radius)
+		_draw_floaters(font)
 	if slay_index >= 0 and slay_t > 0.0:
 		_draw_slay(font, c, radius)
 
@@ -2039,15 +2204,22 @@ func _draw_across_aim() -> void:
 
 
 func _draw_pointer(c: Vector2, radius: float) -> void:
-	var bob: float = 2.0 + absf(sin(_glow_t * 8.0)) * 4.0
-	var tip := Vector2(c.x, c.y + radius + 2.0)
-	var left := Vector2(c.x - 14.0, c.y + radius + 20.0 + bob)
-	var right := Vector2(c.x + 14.0, c.y + radius + 20.0 + bob)
-	draw_colored_polygon(PackedVector2Array([tip, left, right]), FACE_RIM)
+	var bob: float = 3.0 + absf(sin(_glow_t * 8.0)) * 6.0
+	var tip := Vector2(c.x, c.y + radius - 4.0)
+	var left := Vector2(c.x - 22.0, c.y + radius + 28.0 + bob)
+	var right := Vector2(c.x + 22.0, c.y + radius + 28.0 + bob)
+	var pulse: float = 0.45 + 0.55 * absf(sin(_glow_t * 7.0))
+	draw_arc(c, radius + 8.0, SIX - 0.18, SIX + 0.18, 12, Color(1.0, 0.85, 0.29, 0.35 + 0.4 * pulse), 7.0, true)
+	draw_colored_polygon(PackedVector2Array([tip, left, right]), Color("100e0c"))
 	draw_colored_polygon(PackedVector2Array([
-		tip + Vector2(0.0, 3.0),
-		left + Vector2(3.0, -2.0),
-		right + Vector2(-3.0, -2.0),
+		tip + Vector2(0.0, 6.0),
+		left + Vector2(5.0, -3.0),
+		right + Vector2(-5.0, -3.0),
+	]), FACE_RIM)
+	draw_colored_polygon(PackedVector2Array([
+		tip + Vector2(0.0, 10.0),
+		left + Vector2(8.0, -6.0),
+		right + Vector2(-8.0, -6.0),
 	]), Color("f0e6d8"))
 
 
@@ -2190,7 +2362,9 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	if facing_index >= 0 and not spinning and not is_face and not is_hover:
 		dim = 0.84
 	if str(s.get("kind", "")) != "monster":
-		if tex_plus != null:
+		if closed_empties:
+			_draw_closed_empty(origin, dir, r)
+		elif tex_plus != null:
 			var p: Vector2 = origin + dir * r * 0.58
 			var a: float = 0.88 if highlight == "place" else 0.42
 			draw_texture_rect(tex_plus, Rect2(p - Vector2(16, 16), Vector2(32, 32)), false, Color(1, 1, 1, a))
@@ -2209,6 +2383,14 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_arc(port_pos, plate_r + 20.0, 0.0, TAU, 28, Color(1.0, 0.90, 0.35, 0.45 + 0.35 * absf(sin(_glow_t * 9.0))), 3.5, true)
 	if i != portrait_away and not hide_portraits.has(i):
 		_draw_wheel_sprite(i, sp, s, dim)
+	var burn: float = float(_burn.get(i, 0.0))
+	if burn > 0.02:
+		var fire: Texture2D = _fire_tex()
+		var bob := Vector2(0, -6.0 * sin(_glow_t * 18.0))
+		var fr := Rect2(port_pos + bob - Vector2(28, 36), Vector2(56, 56))
+		if fire != null:
+			draw_texture_rect(fire, fr, false, Color(1, 1, 1, clampf(burn, 0.35, 1.0)))
+		draw_circle(port_pos + bob, 18.0 + 8.0 * burn, Color(1.0, 0.42, 0.08, 0.35 * burn))
 	if bool(s.get("rage_fire", false)):
 		var flicker: float = 0.45 + 0.35 * absf(sin(_glow_t * 11.0))
 		draw_circle(port_pos, plate_r + 10.0, Color(1.0, 0.35, 0.08, flicker * 0.55))
@@ -2223,8 +2405,8 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_texture_rect(st, Rect2(port_pos - Vector2(9, 9), Vector2(18, 18)), false, Color(dim, dim, dim, dim))
 	var big: bool = true
 	_draw_name_tag(font, sp, s, is_face, dim, is_hover or i == _chrome_hover, i)
-	_draw_heart_stat(font, sp["hp"], s, pv, big, i)
-	_draw_atk_stat(font, sp["atk"], s, pv, big, i)
+	_draw_heart_stat(font, sp["hp"], s, pv, big, i, is_hover)
+	_draw_atk_stat(font, sp["atk"], s, pv, big, i, is_hover)
 	var would_die: bool = int(s.get("hp", 0)) + int(pv.get("hp", 0)) <= 0 and int(pv.get("hp", 0)) < 0
 	if would_die or bool(pv.get("kill", false)):
 		var xa: float = 0.55 + 0.25 * sin(_glow_t * 12.0)
@@ -3000,11 +3182,11 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 
 func _ability_icon_color(sid: String) -> Color:
 	match sid:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "cats_eye", "toxic_skin":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "decay":
 			return Color("e8c36a")
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return Color("e07040")
-		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator":
+		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator", "lifelink":
 			return Color("e8a0a0")
 		"kill_scale", "atk_eq_hp":
 			return Color("c9a0ff")
@@ -3140,7 +3322,21 @@ func _draw_atk_variant(pos: Vector2, kind: String, punch: float, fill: Color) ->
 	return top_left + Vector2(draw_sz.x, 0.0)
 
 
-func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1) -> void:
+func _draw_closed_empty(origin: Vector2, dir: Vector2, r: float) -> void:
+	var mid: Vector2 = origin + dir * r * 0.62
+	var plank := Color("2a2218")
+	var rim := Color("6a5a48")
+	var w := 34.0
+	var h := 42.0
+	draw_rect(Rect2(mid - Vector2(w * 0.5, h * 0.5), Vector2(w, h)), plank, true)
+	draw_rect(Rect2(mid - Vector2(w * 0.5, h * 0.5), Vector2(w, h)), rim, false, 2.0)
+	draw_line(mid + Vector2(-w * 0.42, -h * 0.38), mid + Vector2(w * 0.42, h * 0.38), Color("100e0c"), 5.0, true)
+	draw_line(mid + Vector2(w * 0.42, -h * 0.38), mid + Vector2(-w * 0.42, h * 0.38), Color("100e0c"), 5.0, true)
+	draw_line(mid + Vector2(-w * 0.42, -h * 0.38), mid + Vector2(w * 0.42, h * 0.38), Color("8a7a62"), 2.2, true)
+	draw_line(mid + Vector2(w * 0.42, -h * 0.38), mid + Vector2(-w * 0.42, h * 0.38), Color("8a7a62"), 2.2, true)
+
+
+func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1, is_hover: bool = false) -> void:
 	var atk: int = int(s.get("atk", 0))
 	if i >= 0 and _atk_disp.has(i):
 		atk = int(_atk_disp[i])
@@ -3163,6 +3359,9 @@ func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big
 		atk_kind = "single"
 	var atk_n: int = int(s.get("atk_n", 1))
 	_draw_stat_plate(pos, icon_sz)
+	if is_hover:
+		var glow: float = 0.40 + 0.45 * absf(sin(_glow_t * 8.0))
+		_d().draw_arc(pos, icon_sz * 0.72, 0.0, TAU, 22, Color(1.0, 0.85, 0.29, glow), 3.2, true)
 	var drawn: Vector2 = _draw_atk_variant(pos, atk_kind, punch, fill)
 	var ci := _d()
 	if bool(s.get("cmd_buff", false)):
@@ -3198,7 +3397,7 @@ func _fill_star(c: Vector2, outer: float, inner: float, col: Color, n: int = 8) 
 		ci.draw_colored_polygon(PackedVector2Array([c, pts[i], pts[(i + 1) % count]]), col)
 
 
-func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1) -> void:
+func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1, is_hover: bool = false) -> void:
 	var hp: int = int(s.get("hp", 0))
 	if i >= 0 and _hp_disp.has(i):
 		hp = int(_hp_disp[i])
@@ -3218,6 +3417,9 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	var hs: float = 36.0 + punch * 4.0
 	var heart_tex: Texture2D = tex_heart_full if tex_heart_full != null else tex_heart
 	_draw_stat_plate(pos, hs)
+	if is_hover:
+		var glow: float = 0.40 + 0.45 * absf(sin(_glow_t * 8.0))
+		_d().draw_arc(pos, hs * 0.72, 0.0, TAU, 22, Color(1.0, 0.85, 0.29, glow), 3.2, true)
 	_draw_stat_icon(pos, heart_tex, hs, fill, true, true)
 	var ci := _d()
 	if punch > 0.35:
@@ -3682,7 +3884,8 @@ func _draw_slay(font: Font, c: Vector2, radius: float) -> void:
 	var pos: Vector2 = c + dir * radius * 0.52 + _slay_push(slay_index)
 	var a: float = clampf(slay_t * 1.4, 0.0, 1.0)
 	var blocked: bool = slay_kind == "block"
-	var ink: Color = Color("5aa8e8") if blocked else DOWN_COL
+	var escaped: bool = slay_kind == "escape"
+	var ink: Color = Color("5aa8e8") if blocked else (Color("e8c36a") if escaped else DOWN_COL)
 	var xcol := Color(ink.r, ink.g, ink.b, a)
 	var arm: float = lerpf(10.0, 54.0, a)
 	if blocked:
@@ -3694,11 +3897,14 @@ func _draw_slay(font: Font, c: Vector2, radius: float) -> void:
 			var inner: Vector2 = pos + Vector2.from_angle(ang) * burst * 0.18
 			var outer: Vector2 = pos + Vector2.from_angle(ang) * burst
 			draw_line(inner, outer, xcol, 5.0, true)
+	elif escaped:
+		var arc_r: float = lerpf(14.0, 42.0, a)
+		draw_arc(pos, arc_r, -0.6, 0.9, 18, xcol, 6.0, true)
 	else:
 		draw_line(pos + Vector2(-arm, -arm), pos + Vector2(arm, arm), xcol, 8.0, true)
 		draw_line(pos + Vector2(arm, -arm), pos + Vector2(-arm, arm), xcol, 8.0, true)
 	if slay_t > 0.18:
-		var word: String = COPY.text("combat.blocked", "BLOCKED") if blocked else COPY.text("combat.slain", "SLAIN")
+		var word: String = COPY.text("combat.blocked", "BLOCKED") if blocked else (COPY.text("combat.escaped", "Escaped") if escaped else COPY.text("combat.slain", "SLAIN"))
 		var ta: float = clampf((slay_t - 0.18) / 0.45, 0.0, 1.0)
 		var fs: int = 32
 		var sz: Vector2 = font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)

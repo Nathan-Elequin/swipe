@@ -4,6 +4,7 @@ extends Button
 ## The moves count sits in a foot outline at the bottom of the pair, not on Take.
 
 const BODY_W := 30.0
+const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 
 var pointing: int = 1
 var guide_c: Vector2 = Vector2.ZERO
@@ -45,8 +46,9 @@ func set_guide(c_local: Vector2, radius: float, n: int, show_n: bool) -> void:
 
 
 func _arc_span() -> Vector2:
-	var a0: float = PI * 0.5 - float(pointing) * 0.2
-	var sweep: float = -float(pointing) * (PI * 0.25)
+	var off: float = PlaytestUx.move_arrow_start_offset()
+	var a0: float = PI * 0.5 - float(pointing) * off
+	var sweep: float = -float(pointing) * (PI * 0.28)
 	return Vector2(a0, sweep)
 
 
@@ -70,7 +72,7 @@ func arc_global_rect() -> Rect2:
 
 func _arc_pts() -> PackedVector2Array:
 	var span: Vector2 = _arc_span()
-	var rad: float = guide_r + 36.0
+	var rad: float = guide_r + PlaytestUx.move_arrow_outer_pad()
 	var pts := PackedVector2Array()
 	for i in 28:
 		var t: float = float(i) / 27.0
@@ -115,7 +117,7 @@ func _draw() -> void:
 	_draw_shaft(pts, live, hot)
 	_draw_head(pts, live, hot)
 	if show_count and pointing < 0:
-		var foot_at: Vector2 = guide_c + Vector2.from_angle(PI * 0.5 + 0.46) * (guide_r - 18.0)
+		var foot_at: Vector2 = guide_c + Vector2.from_angle(PI * 0.5 + 0.72) * (guide_r + PlaytestUx.move_arrow_outer_pad() + 8.0)
 		_draw_foot_count(foot_at, live)
 
 
@@ -225,7 +227,7 @@ func _draw_tail(tip: Vector2, nxt: Vector2, live: bool, hot: bool) -> void:
 	_disk(tip, half + 2.0, pal["ink"])
 	_disk(tip, half - 1.0, pal["wood"])
 	_disk(tip, half - 4.0, pal["face"])
-	draw_arc(tip, half - 2.0, away.angle() - 0.7, away.angle() + 0.7, 10, pal["hi"], 2.0, true)
+	draw_arc(tip, half - 2.0, away.angle() - 0.7, away.angle() + 0.7, 10, pal["hi"], 2.0, not OS.has_feature("web"))
 	draw_circle(tip + back * (half * 0.35), 3.0, pal["trim"])
 	draw_circle(tip + back * (half * 0.35), 1.5, pal["hi"])
 
@@ -271,10 +273,11 @@ func _draw_head(pts: PackedVector2Array, live: bool, hot: bool) -> void:
 	var face_in: Vector2 = tip - dir * (back * 0.2) - away * (flare - 4.0)
 	var face_nose: Vector2 = tip + dir * (BODY_W * 0.72)
 	draw_colored_polygon(PackedVector2Array([face_out, face_nose, face_in]), pal["face"])
-	draw_line(face_out, face_nose, pal["hi"], 2.0, true)
-	draw_line(face_nose, face_in, pal["deep"], 3.0, true)
-	draw_line(face_out.lerp(face_nose, 0.18), face_in.lerp(face_nose, 0.18), pal["trim"], 2.0, true)
-	draw_line(base_out, nose, pal["wood"], 2.0, true)
+	var aa: bool = not OS.has_feature("web")
+	draw_line(face_out, face_nose, pal["hi"], 2.0, aa)
+	draw_line(face_nose, face_in, pal["deep"], 3.0, aa)
+	draw_line(face_out.lerp(face_nose, 0.18), face_in.lerp(face_nose, 0.18), pal["trim"], 2.0, aa)
+	draw_line(base_out, nose, pal["wood"], 2.0, aa)
 
 
 func _tri(a: Vector2, b: Vector2, c: Vector2, col: Color, grow: float) -> void:
@@ -295,7 +298,7 @@ func _draw_foot_count(pos: Vector2, live: bool) -> void:
 	draw_circle(pos, r + 3.0, ink)
 	draw_circle(pos, r, gold)
 	draw_circle(pos, r - 5.0, Color("1a120e"))
-	draw_arc(pos, r - 1.0, 0.0, TAU, 32, Color("fff3d6") if live else Color("8a7d6a"), 2.0, true)
+	draw_arc(pos, r - 1.0, 0.0, TAU, 32, Color("fff3d6") if live else Color("8a7d6a"), 2.0, not OS.has_feature("web"))
 	var font: Font = get_theme_default_font()
 	if font == null:
 		font = ThemeDB.fallback_font

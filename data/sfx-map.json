@@ -3604,6 +3604,20 @@
       "max_voices": 1,
       "priority": 3
     },
+    "cabin.stamp_thunk": {
+      "files": [
+        "cab_seal_stamp"
+      ],
+      "bus": "SFX",
+      "db": -4,
+      "pitch": [
+        0.92,
+        1.0
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 3
+    },
     "cabin.sack_shake": {
       "files": [
         "cab_sack_shake"

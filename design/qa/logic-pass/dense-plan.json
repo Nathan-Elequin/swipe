@@ -1,5 +1,5 @@
 {
-  "count": 101,
+  "count": 104,
   "tests": [
     {
       "id": "shield-gains-4",
@@ -246,6 +246,24 @@
       "title": "Echo Bell copies the last item (Shield)",
       "family": "collide",
       "expected_text": "Use Shield (BLK +4), then Echo Bell. Echo becomes a copy of Shield and grants Block again."
+    },
+    {
+      "id": "sp-07-quiet-bell-one-wolf",
+      "title": "Quiet Bell silences only the facing Dire Wolf",
+      "family": "collide",
+      "expected_text": "Two Dire Wolves. Quiet Bell on the facing one. That wolf is silenced and uses printed Attack. The other wolf still matches your HP."
+    },
+    {
+      "id": "sp-08-echo-keep-knife",
+      "title": "Echo Bell copies Throwing Knife after Keep",
+      "family": "collide",
+      "expected_text": "Nick with Throwing Knife (Keep). Echo Bell now copies Throwing Knife."
+    },
+    {
+      "id": "sp-03-undo-then-item",
+      "title": "Undo after a use leaves the fight playable",
+      "family": "collide",
+      "expected_text": "Use Shield, Undo while the wheel recenter is running, then Net. The fight stays playable."
     },
     {
       "id": "mirror-after-shield",
