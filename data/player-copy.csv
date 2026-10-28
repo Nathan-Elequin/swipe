@@ -504,3 +504,4 @@ Cards,card.monster.needleback.explainer,Roster · monster Shift math (Needleback
 Cabin,cabin.hot.run_door,Hover label for the painted main-room run door (hall path),Toward the Outpost
 Cabin,cabin.hot.door_outpost,Hover label for Hall → Outpost right door,Outpost
 Playtest,cabin.hot.back_hall,Outpost back door hover → Trophy Hall,Trophy Hall
+Cabin,cabin.hall.sign_outpost,Hall Outpost door sign (replaces hidden SignStudy art),To the Outpost

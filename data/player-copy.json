@@ -3075,6 +3075,14 @@
 			"where": "Biome case hover while under the 5/5 map-piece gate"
 		},
 		{
+			"author_lock": true,
+			"cat": "Cabin",
+			"key": "cabin.hall.sign_outpost",
+			"locked_at": "2026-10-28",
+			"text": "To the Outpost",
+			"where": "Hall Outpost door sign (replaces hidden SignStudy art)"
+		},
+		{
 			"cat": "Cabin",
 			"draft": true,
 			"key": "cabin.tip.journal",
