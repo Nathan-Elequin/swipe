@@ -1,8 +1,9 @@
 extends Control
-## Readable stand-in for the campaign map, the boss telegraph, and the win drawer.
+## Held map + win drawer. Living Deadlies patrol on the parchment; no telegraph screen.
 
 signal start_asked(index: int, shortcut: bool, endless: bool)
 signal closed
+signal peek_closed
 signal cheat_asked(action: String)
 signal continued
 
@@ -11,6 +12,7 @@ var _margin: Control
 var _held: Control
 var _waiting: bool = false
 var _kind: String = ""
+var _read_only: bool = false
 
 
 func setup() -> void:
@@ -63,26 +65,37 @@ func is_picker_open() -> bool:
 	return visible and _kind == "map"
 
 
+func is_read_only() -> bool:
+	return _read_only
+
+
 func hide_map() -> void:
 	var was_map := _kind == "map"
 	visible = false
 	_waiting = false
 	_kind = ""
+	_read_only = false
 	if _held:
 		_held.visible = false
 	if was_map:
 		_cue_scroll()
 
 
-func show_map(rules: Dictionary, state: Dictionary) -> void:
+func show_map(
+	rules: Dictionary,
+	state: Dictionary,
+	monsters_by_id: Dictionary = {},
+	opts: Dictionary = {}
+) -> void:
 	_waiting = false
 	_kind = "map"
+	_read_only = bool(opts.get("read_only", false))
 	_clear()
-	# Held parchment is the real map (#118 wire). Text VBox stays for bosses/drawer.
+	# Held parchment is the real map (#118 wire). Text VBox stays for the drawer.
 	if _margin:
 		_margin.visible = false
 	if _held and _held.has_method("present"):
-		_held.present(rules, state)
+		_held.present(rules, state, monsters_by_id, opts)
 	_cue_scroll()
 	visible = true
 	move_to_front()
@@ -93,8 +106,11 @@ func _input(event: InputEvent) -> void:
 		return
 	if not is_picker_open():
 		return
-	if _space(event) or event.is_action_pressed("ui_cancel"):
-		closed.emit()
+	if _space(event) or event.is_action_pressed("ui_cancel") or _m_key(event):
+		if _read_only:
+			peek_closed.emit()
+		else:
+			closed.emit()
 		get_viewport().set_input_as_handled()
 
 
@@ -116,34 +132,19 @@ func _space(event: InputEvent) -> bool:
 	return key.keycode == KEY_SPACE or key.physical_keycode == KEY_SPACE
 
 
-func show_bosses(biome_name: String, names: Array) -> void:
-	_waiting = true
-	_kind = "bosses"
-	_show_text()
-	_clear()
-	_add_label(biome_name, 42, Color("e8c36a"))
-	if names.is_empty():
-		_add_label("None could be dealt.", 22, Color("e07040"))
-	else:
-		var n := names.size()
-		if n == 1:
-			_add_label("One Deadly boss is in this delve.", 24, Color("f4ede3"))
-		else:
-			_add_label("%d Deadly bosses are in this delve." % n, 24, Color("f4ede3"))
-		for raw in names:
-			_add_label(str(raw), 28, Color("e8c36a"))
-	_add_button("Enter", func() -> void:
-		if _waiting:
-			_waiting = false
-			continued.emit()
-	)
-	visible = true
-	move_to_front()
+func _m_key(event: InputEvent) -> bool:
+	if not event is InputEventKey:
+		return false
+	var key := event as InputEventKey
+	if not key.pressed or key.echo:
+		return false
+	return key.keycode == KEY_M or key.physical_keycode == KEY_M
 
 
 func show_drawer() -> void:
 	_waiting = true
 	_kind = "drawer"
+	_read_only = false
 	_show_text()
 	_clear()
 	var COPY := preload("res://scripts/player_copy.gd")

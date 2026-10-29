@@ -50,6 +50,7 @@ static func fresh_state() -> Dictionary:
 		"drawer_seen": false,
 		"pencil_fresh": [],
 		"mudroom_loadout": [],
+		"next_run": {},
 		"run": _idle_run(),
 	}
 
@@ -87,6 +88,11 @@ static func normalize(state: Dictionary) -> void:
 			if lid != "":
 				load_clean.append(lid)
 	state["mudroom_loadout"] = load_clean
+	var next_run: Variant = state.get("next_run", {})
+	if typeof(next_run) != TYPE_DICTIONARY:
+		state["next_run"] = {}
+	else:
+		state["next_run"] = next_run
 	var run: Dictionary = state.get("run", {})
 	if typeof(run) != TYPE_DICTIONARY:
 		run = {}
@@ -588,6 +594,95 @@ static func compose(rules: Dictionary, rng: RandomNumberGenerator, monsters: Arr
 	return {"ids": chosen, "telegraph": telegraph, "short": chosen.size() < need}
 
 
+## Seed every biome's next-run deck once, with Deadlies unique across b1..b5.
+## Does not touch state.seen_deadly — that stays a per-run memory.
+static func seed_next_run(rules: Dictionary, state: Dictionary, rows: Array, seed: int) -> void:
+	normalize(state)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed if seed != 0 else 1
+	var used: Array = []
+	var deals: Dictionary = {}
+	for n in range(1, 6):
+		var pool := "b%d" % n
+		var deal: Dictionary = compose(rules, rng, rows, pool, used)
+		deals[pool] = {
+			"ids": (deal.get("ids", []) as Array).duplicate(),
+			"telegraph": (deal.get("telegraph", []) as Array).duplicate(),
+		}
+	state["next_run"] = {
+		"seed": seed,
+		"deals": deals,
+	}
+
+
+## Consume a seeded biome deal for arm_delve. Filters against seen_deadly, refills
+## via compose when short, then appends the final telegraph to seen_deadly.
+static func consume_next_run_deal(
+	rules: Dictionary,
+	state: Dictionary,
+	rows: Array,
+	biome_id: String,
+	rng: RandomNumberGenerator
+) -> Dictionary:
+	normalize(state)
+	var used: Array = state["seen_deadly"]
+	var nr: Variant = state.get("next_run", {})
+	var deals: Dictionary = {}
+	if typeof(nr) == TYPE_DICTIONARY:
+		var raw_deals: Variant = (nr as Dictionary).get("deals", {})
+		if typeof(raw_deals) == TYPE_DICTIONARY:
+			deals = raw_deals
+	if not deals.has(biome_id):
+		var fallback: Dictionary = compose(rules, rng, rows, biome_id, used)
+		state["seen_deadly"] = used
+		return fallback
+	var seeded: Dictionary = deals[biome_id]
+	var ids: Array = []
+	var telegraph: Array = []
+	for raw_id in seeded.get("ids", []):
+		var sid := str(raw_id)
+		if sid != "" and not used.has(sid):
+			ids.append(sid)
+	for raw_tel in seeded.get("telegraph", []):
+		var tid := str(raw_tel)
+		if tid != "" and not used.has(tid):
+			telegraph.append(tid)
+	var mix := mix_for(rules, biome_id)
+	var want_deadly: int = int(mix.get("deadly", 0))
+	var counts := deck_counts(rules)
+	var need: int = counts.x + counts.y
+	if telegraph.size() < want_deadly or ids.size() < need:
+		var banned: Array = used.duplicate()
+		for keep_t in telegraph:
+			if not banned.has(keep_t):
+				banned.append(keep_t)
+		var refill: Dictionary = compose(rules, rng, rows, biome_id, banned)
+		for add_t in refill.get("telegraph", []):
+			var ats := str(add_t)
+			if telegraph.size() >= want_deadly:
+				break
+			if ats == "" or telegraph.has(ats):
+				continue
+			telegraph.append(ats)
+			if not ids.has(ats):
+				ids.append(ats)
+		for add_id in refill.get("ids", []):
+			if ids.size() >= need:
+				break
+			var aid := str(add_id)
+			if aid == "" or ids.has(aid) or used.has(aid):
+				continue
+			ids.append(aid)
+		if ids.size() > need:
+			ids = ids.slice(0, need)
+	for boss in telegraph:
+		var bid := str(boss)
+		if bid != "" and not used.has(bid):
+			used.append(bid)
+	state["seen_deadly"] = used
+	return {"ids": ids, "telegraph": telegraph, "short": ids.size() < need}
+
+
 func _copy_state(disk: Dictionary) -> void:
 	## Older user://campaign_save.json files omit keys added later (map_pieces,
 	## mudroom_loadout, pencil_fresh, endless_best, …). Never hard-index a key
@@ -602,6 +697,11 @@ func _copy_state(disk: Dictionary) -> void:
 	state["pencil_fresh"] = _clean_id_list(disk.get("pencil_fresh", []))
 	if disk.has("mudroom_loadout") and typeof(disk["mudroom_loadout"]) == TYPE_ARRAY:
 		state["mudroom_loadout"] = (disk["mudroom_loadout"] as Array).duplicate()
+	## Older saves omit next_run — default {} (never hard-index a missing key).
+	if disk.has("next_run") and typeof(disk["next_run"]) == TYPE_DICTIONARY:
+		state["next_run"] = (disk["next_run"] as Dictionary).duplicate(true)
+	else:
+		state["next_run"] = {}
 	state["endless_unlocked"] = bool(disk.get("endless_unlocked", false))
 	state["endless_best"] = maxi(0, int(disk.get("endless_best", 0)))
 	state["won"] = bool(disk.get("won", false))

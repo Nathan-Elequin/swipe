@@ -1563,6 +1563,7 @@ func _build_ui() -> void:
 		rope_exit.push_home.connect(_push_interrupt_home)
 	_campaign = CAMPAIGN_SHELL.new()
 	_campaign.load_all()
+	_campaign_seed_next_run_if_needed(false)
 	if home_cabin and home_cabin.has_method("bind_campaign"):
 		home_cabin.bind_campaign(_campaign)
 	campaign_map = CAMPAIGN_MAP.new()
@@ -1570,6 +1571,7 @@ func _build_ui() -> void:
 	campaign_map.setup()
 	campaign_map.start_asked.connect(_on_campaign_start)
 	campaign_map.closed.connect(_close_campaign_map)
+	campaign_map.peek_closed.connect(_on_map_peek_closed)
 	campaign_map.cheat_asked.connect(_on_campaign_cheat)
 	sack_peek = preload("res://scripts/cabin/sack_peek.gd").new()
 	add_child(sack_peek)
@@ -2618,7 +2620,10 @@ func _start_route(route: String) -> void:
 func _toggle_held_map() -> void:
 	if campaign_map and campaign_map.visible:
 		if campaign_map.has_method("is_picker_open") and campaign_map.is_picker_open():
-			_close_campaign_map()
+			if campaign_map.has_method("is_read_only") and campaign_map.is_read_only():
+				_on_map_peek_closed()
+			else:
+				_close_campaign_map()
 		return
 	_open_campaign_map()
 
@@ -2626,12 +2631,13 @@ func _toggle_held_map() -> void:
 func _open_campaign_map() -> void:
 	if _campaign == null or campaign_map == null:
 		return
+	_campaign_seed_next_run_if_needed(false)
 	if bool(_campaign.state.get("won", false)) and not bool(_campaign.state.get("drawer_seen", false)):
 		campaign_map.show_drawer()
 		await campaign_map.continued
 		CAMPAIGN_SHELL.mark_drawer_seen(_campaign.state)
 		_campaign.write()
-	campaign_map.show_map(_campaign.rules, _campaign.state)
+	campaign_map.show_map(_campaign.rules, _campaign.state, monsters_by_id, {})
 	# held_map may clear pencil_fresh on present — persist that.
 	_campaign.write()
 
@@ -2646,6 +2652,53 @@ func _close_campaign_map() -> void:
 	_reset_run()
 	phase = "title"
 	_open_home_cabin(false)
+
+
+func _can_peek_campaign_map() -> bool:
+	if not _campaign_on or _campaign == null or campaign_map == null:
+		return false
+	if campaign_map.visible:
+		return false
+	if phase == "title" or phase == "devtest":
+		return false
+	if home_cabin != null and home_cabin.visible:
+		return false
+	if settings_ui != null and settings_ui.visible:
+		return false
+	if sack_peek != null and sack_peek.visible:
+		return false
+	if playtest_feedback != null and playtest_feedback.visible:
+		return false
+	if playtest_tier != null and playtest_tier.visible:
+		return false
+	if playtest_hub != null and playtest_hub.visible:
+		return false
+	if playtest_intro != null and playtest_intro.visible:
+		return false
+	if roster_ed != null and roster_ed.visible:
+		return false
+	if script_ed != null and script_ed.visible:
+		return false
+	if content_ed != null and content_ed.visible:
+		return false
+	for n in get_tree().get_nodes_in_group("authoring_overlay"):
+		if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+			return false
+	return true
+
+
+func _peek_campaign_map() -> void:
+	if not _can_peek_campaign_map():
+		return
+	_campaign_seed_next_run_if_needed(false)
+	get_tree().paused = true
+	campaign_map.show_map(_campaign.rules, _campaign.state, monsters_by_id, {"read_only": true})
+
+
+func _on_map_peek_closed() -> void:
+	if campaign_map:
+		campaign_map.hide_map()
+	get_tree().paused = false
 
 
 func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
@@ -2669,6 +2722,7 @@ func _on_campaign_cheat(action: String) -> void:
 			var pool := str((raw as Dictionary).get("id", ""))
 			var need2: int = CAMPAIGN_SHELL.quota_of(_campaign.rules) - CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool)
 			CAMPAIGN_SHELL.debug_bank_matching(_campaign.rules, _campaign.state, _campaign_item_entries(), maxi(0, need2), pool)
+	_campaign_seed_next_run_if_needed(true)
 	_campaign.write()
 	if home_cabin and home_cabin.has_method("sync_swiped_from_banked"):
 		home_cabin.sync_swiped_from_banked()
@@ -2706,13 +2760,16 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool) -> void:
 		_challenge_begin_play()
 
 
-func _campaign_arm_delve() -> void:
-	if _campaign == null:
-		return
+func _campaign_rows(for_seed: bool = false) -> Array:
+	## Arm-delve uses open pools only. Seeding the full next-run chain needs every
+	## adventure-ok monster so later biomes can draw their own Deadlies.
 	var rows: Array = []
 	for id in monsters_by_id.keys():
 		var card: Dictionary = monsters_by_id[id]
-		if not _campaign_card_ok(card):
+		if for_seed:
+			if not _campaign_card_seed_ok(card):
+				continue
+		elif not _campaign_card_ok(card):
 			continue
 		var contra: Array = []
 		var raw: Variant = card.get("contradiction_ids", [])
@@ -2720,23 +2777,44 @@ func _campaign_arm_delve() -> void:
 			for c in raw:
 				contra.append(str(c))
 		rows.append({"id": str(id), "tier": int(card.get("tier", 1)), "contra": contra})
+	return rows
+
+
+func _campaign_seed_next_run_if_needed(force: bool = false) -> void:
+	if _campaign == null:
+		return
+	CAMPAIGN_SHELL.normalize(_campaign.state)
+	var nr: Variant = _campaign.state.get("next_run", {})
+	var deals: Dictionary = {}
+	if typeof(nr) == TYPE_DICTIONARY:
+		var raw_deals: Variant = (nr as Dictionary).get("deals", {})
+		if typeof(raw_deals) == TYPE_DICTIONARY:
+			deals = raw_deals
+	if not force and not deals.is_empty():
+		return
+	var seed: int = int(Time.get_unix_time_from_system()) ^ rng.randi()
+	if seed == 0:
+		seed = 1
+	CAMPAIGN_SHELL.seed_next_run(_campaign.rules, _campaign.state, _campaign_rows(true), seed)
+	_campaign.write()
+
+
+func _campaign_arm_delve() -> void:
+	if _campaign == null:
+		return
+	var rows: Array = _campaign_rows(false)
 	var biome := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
 	_sync_dungeon_biome(biome)
 	CAMPAIGN_SHELL.normalize(_campaign.state)
-	var used_deadly: Array = _campaign.state["seen_deadly"]
-	var deal: Dictionary = CAMPAIGN_SHELL.compose(_campaign.rules, rng, rows, biome, used_deadly)
-	_campaign.state["seen_deadly"] = used_deadly
+	var deal: Dictionary = CAMPAIGN_SHELL.consume_next_run_deal(
+		_campaign.rules, _campaign.state, rows, biome, rng
+	)
 	_campaign.write()
 	_campaign_queue = deal.get("ids", [])
 	_campaign_telegraph = deal.get("telegraph", [])
 	_campaign_starter_left = CAMPAIGN_SHELL.starter_tiers(_campaign.rules, rng)
 	for queued in _campaign_queue:
 		monster_pool.erase(queued)
-	await _campaign_show_telegraph()
-
-
-func _campaign_show_telegraph() -> void:
-	## Deadly names move onto the map itself in a later pass. No overlay.
 	if campaign_map:
 		campaign_map.hide_map()
 
@@ -2747,7 +2825,7 @@ func _campaign_take_queued() -> String:
 	return str(_campaign_queue.pop_front())
 
 
-func _campaign_card_ok(card: Dictionary) -> bool:
+func _campaign_card_base_ok(card: Dictionary) -> bool:
 	if card.is_empty() or _campaign == null:
 		return false
 	var st := str(card.get("status", "live"))
@@ -2759,6 +2837,19 @@ func _campaign_card_ok(card: Dictionary) -> bool:
 	if cid == "smoke_bomb" or BucketRules.is_always_starter_id(cid):
 		return false
 	if BucketRules.is_token(card):
+		return false
+	return true
+
+
+func _campaign_card_seed_ok(card: Dictionary) -> bool:
+	if not _campaign_card_base_ok(card):
+		return false
+	## Any mapped pool is fine for seeding — locked biomes still need their Deadlies.
+	return CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.of_card(card)) != ""
+
+
+func _campaign_card_ok(card: Dictionary) -> bool:
+	if not _campaign_card_base_ok(card):
 		return false
 	return CAMPAIGN_SHELL.pool_open_for_bucket(_campaign.rules, _campaign.state, BucketRules.of_card(card))
 
@@ -2826,6 +2917,8 @@ func _campaign_bank_from_hand() -> void:
 		pools[id] = _campaign_pool_of_item(id)
 	var result: Dictionary = CAMPAIGN_SHELL.bank(_campaign.rules, _campaign.state, ids, pools)
 	CAMPAIGN_SHELL.end_run(_campaign.state)
+	## Next run's Deadlies are seeded as soon as the haul banks home.
+	_campaign_seed_next_run_if_needed(true)
 	_campaign.write()
 	if home_cabin and home_cabin.has_method("sync_swiped_from_banked"):
 		home_cabin.sync_swiped_from_banked()
@@ -6294,6 +6387,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		_dev_enter()
 		get_viewport().set_input_as_handled()
 		return
+	if event is InputEventKey and event.pressed and not event.echo:
+		var key := event as InputEventKey
+		if (key.keycode == KEY_M or key.physical_keycode == KEY_M) and _can_peek_campaign_map():
+			_peek_campaign_map()
+			get_viewport().set_input_as_handled()
+			return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F2 and PLAYTEST_FLAG.tools():
 		if playtest_intro != null and playtest_intro.visible:
 			get_viewport().set_input_as_handled()
