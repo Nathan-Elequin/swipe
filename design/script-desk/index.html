@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Script desk — every player-facing line</title>
+  <style>
+    :root {
+      --bg: #100e0c;
+      --ink: #1c120c;
+      --cream: #f3e6d0;
+      --muted: #6b4a10;
+      --gold: #c4a574;
+      --wood: #3a2820;
+      --paper: #fffaf2;
+      --lock: #8a5a10;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.45 Georgia, "Times New Roman", serif;
+    }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      background: #14110f;
+      border-bottom: 2px solid var(--gold);
+      padding: 10px 16px 8px;
+      color: var(--cream);
+    }
+    header h1 { margin: 0 12px 0 0; font-size: 22px; color: var(--gold); display: inline; }
+    header .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    header p { margin: 6px 0 0; color: #9a8b78; font-size: 13px; max-width: 1100px; }
+    button {
+      font: inherit; cursor: pointer; border-radius: 999px;
+      border: 2px solid var(--gold); background: var(--wood); color: var(--cream);
+      padding: 7px 14px;
+    }
+    button.gold { color: var(--gold); }
+    button:hover { filter: brightness(1.12); }
+    #status { font-size: 13px; color: #8dcb8d; min-width: 180px; }
+    #status.err { color: #e07a7a; }
+    #status.dirty { color: #e8c36a; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .chips a {
+      color: #1c120c; background: #efe4d4; border: 2px solid var(--gold);
+      border-radius: 999px; padding: 3px 10px; text-decoration: none; font-size: 13px;
+    }
+    .chips a:hover, .chips a:focus { background: var(--gold); }
+    main { max-width: 980px; margin: 0 auto; padding: 16px 18px 80px; }
+    h2 {
+      margin: 28px 0 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      color: #f0e6d8;
+      font-size: 18px;
+      scroll-margin-top: 120px;
+    }
+    .row {
+      background: var(--cream);
+      border: 1px solid var(--gold);
+      border-radius: 10px;
+      padding: 8px 10px 10px;
+      margin: 0 0 8px;
+    }
+    .row .meta { font-size: 12px; color: var(--muted); margin: 0 0 4px; }
+    .row .key { font-family: Consolas, "Courier New", monospace; font-size: 12px; color: #3a3220; }
+    .lock { color: var(--lock); font-weight: 700; margin-left: 6px; }
+    textarea, input[type=text] {
+      width: 100%; font: inherit; background: var(--paper); color: var(--ink);
+      border: 1px solid var(--gold); border-radius: 6px; padding: 6px 8px;
+    }
+    textarea { min-height: 52px; resize: vertical; }
+    textarea.tall { min-height: 110px; }
+    .extras { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px; margin-top: 6px; }
+    .extras label { font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); display: block; }
+    .names-grid { display: grid; grid-template-columns: 140px 1fr 1fr; gap: 6px; align-items: center; }
+    .names-grid .lab { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    #errbox { background: #3a1010; color: #f0c0c0; padding: 16px; border-radius: 8px; display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="row">
+      <h1>Script desk</h1>
+      <span id="status">Loading…</span>
+      <button class="gold" id="btnSave" type="button">Save</button>
+      <button id="btnReload" type="button">Reload from disk</button>
+    </div>
+    <p>Every line the player can read. Sections are jump links only — nothing is hidden, so Ctrl+F finds any phrase. Save writes the game JSON on this PC. Then stop Play and press F5. You do not need to tell chat; later chats read those files.</p>
+    <nav class="chips" id="chips"></nav>
+  </header>
+  <main>
+    <div id="errbox"></div>
+    <div id="desk"></div>
+  </main>
+  <script>
+    const SECTION_ORDER = [
+      ["names", "Names"],
+      ["intro", "Intro"],
+      ["ending", "Ending"],
+      ["nib", "Nib"],
+      ["cabin", "Cabin"],
+      ["journal", "Journal"],
+      ["will", "Will"],
+      ["titles", "Titles"],
+      ["tutorial", "Tutorial"],
+      ["combat", "Combat"],
+      ["taunts", "Taunts"],
+      ["cards", "Cards"],
+      ["map", "Map"],
+      ["radio", "Radio"],
+      ["drawer", "Drawer"],
+      ["playtest", "Playtest"],
+      ["campaign", "Campaign"],
+      ["extract", "Extract"],
+      ["how to play", "How to Play"],
+      ["sprout", "Sprout"],
+    ];
+    const SECTION_COLOR = {
+      intro: "#c4a574", ending: "#8b1e1e", nib: "#8a5a10", cabin: "#3d6b3d",
+      journal: "#6b4a10", will: "#3a2820", titles: "#3a2820", tutorial: "#8a6a20",
+      combat: "#6b1008", taunts: "#6b4a10", cards: "#3a3220", map: "#3d6b3d",
+      radio: "#6a5f52", drawer: "#8b1e1e", names: "#8a5a10", playtest: "#3a2820",
+      campaign: "#3d6b3d", extract: "#6b1008",
+    };
+    const TUTORIAL_EXTRAS = ["hint", "wait", "focus", "go", "branch", "force", "then_focus", "dir", "nib", "tiny"];
+
+    let pack = { names: [], rows: [] };
+    let dirty = false;
+
+    const $ = (id) => document.getElementById(id);
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (ch) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[ch]));
+    }
+    function sectionOf(row) {
+      const cat = String(row.cat || "");
+      const key = String(row.key || "");
+      if (key.startsWith("lore.drawer") || cat === "Drawer") return "drawer";
+      if (key.startsWith("lore.") || cat === "Journal") return "journal";
+      switch (cat) {
+        case "Intro": return "intro";
+        case "Ending":
+        case "Defeat": return "ending";
+        case "Nib": return "nib";
+        case "Cabin":
+        case "Keyring":
+        case "Rope":
+        case "Sack": return "cabin";
+        case "Will": return "will";
+        case "Title":
+        case "Pause": return "titles";
+        case "Tutorial": return "tutorial";
+        case "Cues":
+        case "Combat":
+        case "Inspect":
+        case "Warns":
+        case "Door": return "combat";
+        case "Taunts": return "taunts";
+        case "Cards": return "cards";
+        case "Map": return "map";
+        case "Radio": return "radio";
+        default: return cat.toLowerCase();
+      }
+    }
+    function markDirty() {
+      dirty = true;
+      $("status").className = "dirty";
+      $("status").textContent = "Unsaved";
+    }
+    function markClean(msg) {
+      dirty = false;
+      $("status").className = "";
+      $("status").textContent = msg || "Saved";
+    }
+    function fail(msg) {
+      $("status").className = "err";
+      $("status").textContent = msg;
+      const box = $("errbox");
+      box.style.display = "block";
+      box.textContent = msg;
+    }
+
+    function render() {
+      const desk = $("desk");
+      const chips = $("chips");
+      desk.innerHTML = "";
+      chips.innerHTML = "";
+      const groups = new Map();
+      groups.set("names", []);
+      for (const row of pack.rows) {
+        const sec = sectionOf(row);
+        if (!groups.has(sec)) groups.set(sec, []);
+        groups.get(sec).push(row);
+      }
+      const seen = new Set();
+      const labels = [];
+      for (const [id, label] of SECTION_ORDER) {
+        if (id === "names" || groups.has(id)) {
+          labels.push([id, label]);
+          seen.add(id);
+        }
+      }
+      for (const id of groups.keys()) {
+        if (!seen.has(id) && id !== "names") labels.push([id, id.replace(/\b\w/g, (c) => c.toUpperCase())]);
+      }
+
+      labels.forEach(([id, label]) => {
+        const a = document.createElement("a");
+        a.href = "#sec-" + id;
+        a.textContent = label;
+        chips.appendChild(a);
+      });
+
+      const namesHead = document.createElement("h2");
+      namesHead.id = "sec-names";
+      namesHead.textContent = "Names";
+      namesHead.style.background = SECTION_COLOR.names;
+      desk.appendChild(namesHead);
+      pack.names.forEach((n, i) => {
+        const wrap = document.createElement("div");
+        wrap.className = "row";
+        wrap.innerHTML = `<div class="meta"><span class="key">${esc(n.id)}</span>${n.author_lock ? '<span class="lock">locked</span>' : ""}</div>
+          <div class="names-grid">
+            <span class="lab">On screen</span>
+            <input type="text" data-name="${i}" data-field="display" value="${esc(n.display || "")}" />
+            <input type="text" data-name="${i}" data-field="note" value="${esc(n.note || "")}" placeholder="Where this name shows" />
+          </div>`;
+        desk.appendChild(wrap);
+      });
+
+      for (const [id, label] of labels) {
+        if (id === "names") continue;
+        const rows = groups.get(id) || [];
+        const h = document.createElement("h2");
+        h.id = "sec-" + id;
+        h.textContent = label + " · " + rows.length;
+        h.style.background = SECTION_COLOR[id] || "#3a2820";
+        desk.appendChild(h);
+        rows.forEach((row) => {
+          const wrap = document.createElement("div");
+          wrap.className = "row";
+          const tall = (row.shown || row.text || "").length > 80 || String(row.key).includes("body") || String(row.key).includes("letter");
+          let extras = "";
+          if (sectionOf(row) === "tutorial") {
+            extras = `<div class="extras">` + TUTORIAL_EXTRAS.map((k) => {
+              const v = row[k];
+              if (v === undefined || v === "") return "";
+              return `<div><label>${esc(k)}</label><input type="text" data-key="${esc(row.key)}" data-extra="${esc(k)}" value="${esc(v)}" /></div>`;
+            }).join("") + `</div>`;
+          }
+          wrap.innerHTML = `<div class="meta"><span class="key">${esc(row.key)}</span>
+            · ${esc(row.where || "")}${row.author_lock ? '<span class="lock">locked</span>' : ""}${row.draft ? '<span class="lock">draft</span>' : ""}</div>
+            <textarea data-key="${esc(row.key)}" class="${tall ? "tall" : ""}">${esc(row.shown != null ? row.shown : row.text)}</textarea>${extras}`;
+          desk.appendChild(wrap);
+        });
+      }
+
+      desk.querySelectorAll("textarea, input").forEach((el) => {
+        el.addEventListener("input", markDirty);
+      });
+    }
+
+    function collect() {
+      const texts = {};
+      const extras = {};
+      document.querySelectorAll("textarea[data-key]").forEach((el) => {
+        texts[el.dataset.key] = el.value;
+      });
+      document.querySelectorAll("input[data-key][data-extra]").forEach((el) => {
+        extras[el.dataset.key] = extras[el.dataset.key] || {};
+        extras[el.dataset.key][el.dataset.extra] = el.value;
+      });
+      const rows = pack.rows.map((row) => {
+        const next = { ...row };
+        if (Object.prototype.hasOwnProperty.call(texts, row.key)) next.text = texts[row.key];
+        if (extras[row.key]) Object.assign(next, extras[row.key]);
+        delete next.shown;
+        return next;
+      });
+      const names = pack.names.map((n, i) => {
+        const next = { ...n };
+        document.querySelectorAll(`input[data-name="${i}"]`).forEach((el) => {
+          next[el.dataset.field] = el.value;
+        });
+        return next;
+      });
+      return { rows, names };
+    }
+
+    async function load() {
+      $("errbox").style.display = "none";
+      try {
+        const r = await fetch("/api/pack", { cache: "no-store" });
+        if (!r.ok) throw new Error("Could not load /api/pack (" + r.status + ")");
+        pack = await r.json();
+        render();
+        markClean((pack.rows || []).length + " lines · " + (pack.updated || ""));
+      } catch (e) {
+        fail("Open this page from the Script desk server (tools/dev/open-script-desk.ps1), not as a file. " + e.message);
+      }
+    }
+
+    async function save() {
+      const body = collect();
+      try {
+        const r = await fetch("/api/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const j = await r.json();
+        if (!r.ok || !j.ok) throw new Error(j.error || ("HTTP " + r.status));
+        markClean("Saved " + j.copy_rows + " lines · stop Play, then F5");
+        await load();
+        markClean("Saved " + j.copy_rows + " lines · stop Play, then F5");
+      } catch (e) {
+        fail("Save failed: " + e.message);
+      }
+    }
+
+    $("btnSave").onclick = save;
+    $("btnReload").onclick = load;
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        save();
+      }
+    });
+    window.addEventListener("beforeunload", (e) => {
+      if (!dirty) return;
+      e.preventDefault();
+      e.returnValue = "";
+    });
+    load();
+  </script>
+</body>
+</html>

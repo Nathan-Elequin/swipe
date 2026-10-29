@@ -1,0 +1,31 @@
+---
+description: Script desk Save is live player-facing copy. Read it every chat; Nathan does not need to ping after Save.
+alwaysApply: true
+---
+
+# Script desk
+
+Nathan edits every player-facing line in the Script desk web page (`design/script-desk/index.html`), opened with `tools/dev/open-script-desk.ps1` or the in-game **Script** button. Save writes the files the game already reads. He does **not** need to tell chat after Save.
+
+## Files Save writes
+
+- `data/player-copy.json` — buttons, tutorial, cabin, combat, playtest hub, …
+- `data/lore.json` — journal, letters, drawer, engraving
+- `data/script-names.json` — shared names (`{nib}`, `{game_title}`, …)
+- `data/author-locks.json` — lock ledger
+- `data/player-copy.csv` — export twin
+- `data/content-board.json` and `data/catalog.json` — only when a card name / Ability / Shift / Call name / log hover changed
+- `data/script-desk-last-save.json` — timestamp of the last desk Save
+
+## Every chat in this repo (with gold boxes and playtest issues)
+
+1. Read `data/script-desk-last-save.json` if it exists. If `saved_at` is new, treat that Save as a finished Jam/Nathan Script Save.
+2. Treat current `data/player-copy.json`, `data/lore.json`, and `data/script-names.json` as live. Inspect and UI read these (and the catalog for card Ability).
+3. Honor `author_lock` on rows, names, and cards. Do not restyle locked copy unless he overrides or a gold box replaces that field.
+4. After a desk Save, the running F5 session still has old strings until he **stops Play and presses F5**. Do not ask him to paste the JSON or to “check for copy updates.”
+
+## Do not
+
+- Do not skip these files because the message is about a bug, art, or a different card.
+- Do not invent player-facing words (`player-copy.json` is Jam/Nathan).
+- Do not tell him he must ping chat after Save.
