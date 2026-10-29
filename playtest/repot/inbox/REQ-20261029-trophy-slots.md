@@ -3,7 +3,7 @@ id: REQ-20261029-trophy-slots
 status: open
 priority: high
 pr: 179
-tip_sha: bab4c720
+tip_sha: 06ae25cd
 branch: cursor/trophy-slots-bcaf
 created: 2026-10-29T09:15:00Z
 created_by: cursor-cloud
