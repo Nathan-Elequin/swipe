@@ -320,7 +320,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"name": "Chakram"
 		},
 		"item:counting_beads": {
@@ -503,7 +503,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-22",
+			"locked_at": "2026-10-28",
 			"name": "Double-Buckler"
 		},
 		"item:echo_bell": {
@@ -571,7 +571,7 @@
 				"reminder",
 				"card_color"
 			],
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-28",
 			"name": "Grappling Hook"
 		},
 		"item:grief_jar": {
@@ -2181,8 +2181,8 @@
 				"hp_formula",
 				"call_name"
 			],
-			"locked_at": "2026-10-17",
-			"name": "Kobold Trapper"
+			"locked_at": "2026-10-28",
+			"name": "Trapper"
 		},
 		"monster:leech_league": {
 			"fields": [
