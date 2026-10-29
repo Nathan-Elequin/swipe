@@ -640,36 +640,53 @@ class MapMonster extends Control:
 		_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_tag.z_index = 8
 		var sb := StyleBoxFlat.new()
-		sb.bg_color = Color("EFE0B6")
+		## Slightly cooler cream than the parchment so the plank reads as a panel,
+		## not another ink blot on Grandpa's map.
+		sb.bg_color = Color("FFF6DE")
 		sb.border_color = Color("1A120E")
 		sb.set_border_width_all(3)
-		sb.shadow_size = 0
+		## Hard drop shadow. shadow_size 0 draws nothing even with an offset, so the
+		## cream plank used to dissolve into the parchment behind it.
+		sb.shadow_size = 4
 		sb.shadow_offset = Vector2(0, 4)
-		sb.shadow_color = Color("1A120E")
-		sb.content_margin_left = 8
-		sb.content_margin_right = 8
-		sb.content_margin_top = 4
-		sb.content_margin_bottom = 4
+		sb.shadow_color = Color(0.102, 0.071, 0.055, 0.85)
+		sb.content_margin_left = 10
+		sb.content_margin_right = 10
+		sb.content_margin_top = 6
+		sb.content_margin_bottom = 6
 		sb.set_corner_radius_all(0)
 		_tag.add_theme_stylebox_override("panel", sb)
 		var row := HBoxContainer.new()
+		row.name = "Row"
 		row.add_theme_constant_override("separation", 8)
 		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
 		_tag.add_child(row)
+		## FitLabelBox inside PanelContainer/HBox ignores apply_rect size and collapses
+		## to 0×0 unless grow_to_text sets custom_minimum_size from the catalog name.
+		## That is why DEADLY stayed readable (plain Label + gold chip) while the name
+		## vanished into a thin cream sliver on the parchment.
 		var lab: FitLabelBox = KIT.fit_label(
 			"",
 			Rect2(0, 0, 200, 28),
 			18,
 			12,
 			1,
-			KIT.INK,
+			Color("1A120E"),
 			HORIZONTAL_ALIGNMENT_CENTER
 		)
+		lab.name = "Name"
+		lab.grow_to_text = true
+		lab.max_width = 240
+		lab.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		lab.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		lab.set_plain(display_name)
 		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(lab)
 		var chip := PanelContainer.new()
+		chip.name = "DeadlyChip"
 		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		var chip_sb := StyleBoxFlat.new()
 		chip_sb.bg_color = UX.metal(3)
 		chip_sb.border_color = Color("1A120E")
@@ -687,27 +704,43 @@ class MapMonster extends Control:
 		chip_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		chip.add_child(chip_lab)
 		row.add_child(chip)
-		## Ink pointer under the plank.
+		## Ink pointer under the plank (Node2D — not a Control, so PanelContainer
+		## ignores it for min-size; we place it after layout in _place_tag).
 		var tip := Polygon2D.new()
+		tip.name = "Pointer"
 		tip.color = Color("1A120E")
 		tip.polygon = PackedVector2Array([
 			Vector2(0, 0), Vector2(12, 0), Vector2(6, 6),
 		])
 		tip.position = Vector2(0, 0)
-		_tag.add_child(tip)
 		tip.set_meta("is_pointer", true)
+		_tag.add_child(tip)
 		add_child(_tag)
-		## Defer layout so content sizes settle before we place the tag.
+		## Defer layout so grow_to_text min-size settles before we place the tag.
 		call_deferred("_place_tag")
 
 
 	func _place_tag() -> void:
 		if _tag == null:
 			return
+		## Refit the name in case theme font was unavailable before enter-tree.
+		var name_lab := _tag.get_node_or_null("Row/Name") as FitLabelBox
+		if name_lab:
+			name_lab.fit()
 		_tag.reset_size()
 		var tag_sz: Vector2 = _tag.get_combined_minimum_size()
-		if tag_sz.x < 8.0:
+		if tag_sz.x < 8.0 or tag_sz.y < 8.0:
 			tag_sz = _tag.size
+		if tag_sz.x < 8.0 or tag_sz.y < 8.0:
+			## Last resort: measure name + chip by hand so we never hover an empty plank.
+			var fallback := Vector2(120, 32)
+			if name_lab:
+				fallback.x = maxf(fallback.x, name_lab.get_combined_minimum_size().x + 80.0)
+				fallback.y = maxf(fallback.y, name_lab.get_combined_minimum_size().y + 16.0)
+			tag_sz = fallback
+			_tag.size = tag_sz
+		else:
+			_tag.size = tag_sz
 		var foot_local := Vector2(HIT.x * 0.5, HIT.y - 8.0)
 		var at := foot_local + Vector2(-tag_sz.x * 0.5, -64.0 - 14.0 - tag_sz.y - 10.0)
 		## Clamp to the sheet in parent space.
