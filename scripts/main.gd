@@ -2130,6 +2130,9 @@ func _is_adventure_mode() -> bool:
 
 
 func _click_choose_fight() -> bool:
+	## Campaign has no auto-Spin and no old Adventure mill button. Click a wheel seat.
+	if _campaign_on:
+		return true
 	return _is_long_drop()
 
 
@@ -20887,7 +20890,7 @@ func _sync_buttons() -> void:
 	btn_start.disabled = busy
 	btn_place.visible = false
 	btn_bribe.visible = false
-	btn_spin.visible = phase == "ready" and not _is_adventure_mode()
+	btn_spin.visible = phase == "ready" and (not _is_adventure_mode() or _click_choose_fight())
 	btn_done.visible = enemy_up
 	btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
 	if tex_rotate != null:
