@@ -237,6 +237,48 @@ func _init() -> void:
 	failed = _check(failed, "new save copies endless_best", int(shell_new.state.get("endless_best", 0)) == 4) or failed
 	failed = _check(failed, "new save copies banked", (shell_new.state["banked"] as Dictionary).has("net")) or failed
 	failed = _check(failed, "new save copies run biome", int((shell_new.state["run"] as Dictionary).get("biome_index", -1)) == 2) or failed
+	failed = _check(failed, "old save next_run default", typeof(shell_old.state.get("next_run", null)) == TYPE_DICTIONARY and (shell_old.state["next_run"] as Dictionary).is_empty()) or failed
+	## Living map: seed_next_run gives 1/2/2/2/3 unique Deadlies; seen_deadly untouched.
+	var seed_state: Dictionary = Shell.fresh_state()
+	var seen_before: Array = (seed_state["seen_deadly"] as Array).duplicate()
+	var seed_roster: Array = _roster(8, 8, 12, false)
+	Shell.seed_next_run(rules, seed_state, seed_roster, 99)
+	var next_run: Dictionary = seed_state.get("next_run", {})
+	var deals: Dictionary = next_run.get("deals", {})
+	failed = _check(failed, "seed stores seed", int(next_run.get("seed", 0)) == 99) or failed
+	failed = _check(failed, "seed leaves seen_deadly", (seed_state["seen_deadly"] as Array) == seen_before) or failed
+	var all_tel: Array = []
+	var expect_deadly := {"b1": 1, "b2": 2, "b3": 2, "b4": 2, "b5": 3}
+	for biome_id2 in ["b1", "b2", "b3", "b4", "b5"]:
+		var one_deal: Dictionary = deals.get(biome_id2, {})
+		var one_tel2: Array = one_deal.get("telegraph", [])
+		var want_n: int = int(expect_deadly[biome_id2])
+		failed = _check(failed, "seed %s deadly count" % biome_id2, one_tel2.size() == want_n) or failed
+		failed = _check(failed, "seed %s deck 10" % biome_id2, (one_deal.get("ids", []) as Array).size() == 10) or failed
+		for tid2 in one_tel2:
+			var sid2 := str(tid2)
+			failed = _check(failed, "seed unique %s" % sid2, not all_tel.has(sid2)) or failed
+			all_tel.append(sid2)
+	failed = _check(failed, "seed ten deadly across chain", all_tel.size() == 10) or failed
+	## Arm-delve consumption matches the seeded telegraph for each biome in order.
+	var consume_rng := RandomNumberGenerator.new()
+	consume_rng.seed = 123
+	Shell.begin_run(seed_state, 0, false, false)
+	failed = _check(failed, "begin_run clears seen for consume", (seed_state["seen_deadly"] as Array).is_empty()) or failed
+	for biome_id3 in ["b1", "b2", "b3", "b4", "b5"]:
+		var seeded_tel: Array = ((deals.get(biome_id3, {}) as Dictionary).get("telegraph", []) as Array).duplicate()
+		var got: Dictionary = Shell.consume_next_run_deal(rules, seed_state, seed_roster, str(biome_id3), consume_rng)
+		var got_tel: Array = got.get("telegraph", [])
+		failed = _check(failed, "consume %s telegraph size" % biome_id3, got_tel.size() == seeded_tel.size()) or failed
+		for i_tel in seeded_tel.size():
+			failed = _check(
+				failed,
+				"consume %s telegraph[%s]" % [biome_id3, i_tel],
+				str(got_tel[i_tel]) == str(seeded_tel[i_tel])
+			) or failed
+		for tid3 in seeded_tel:
+			failed = _check(failed, "consume marks seen %s" % tid3, (seed_state["seen_deadly"] as Array).has(str(tid3))) or failed
+	failed = _check(failed, "consume saw all ten", (seed_state["seen_deadly"] as Array).size() == 10) or failed
 	if failed:
 		print("CAMPAIGN_SHELL_FAIL")
 		quit(1)

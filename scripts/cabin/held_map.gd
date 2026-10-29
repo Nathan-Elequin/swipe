@@ -11,19 +11,32 @@ const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const DEV := preload("res://scripts/dev_flag.gd")
 const SHELL := preload("res://scripts/campaign_shell.gd")
 
-## Doop ship-strip map-in-hands plate (1680×1040). Hands + parchment baked in.
-const HELD_PLATE := "map/held/map_in_hands.png"
+## Loom-free held plate (Doop w8wF4MIkv8). Fall back to the older inked plate.
+const HELD_PLATE := "map/held/map_in_hands_living.png"
+const HELD_PLATE_FALLBACK := "map/held/map_in_hands.png"
 const SHEET := Vector2(1680, 1040)
-## Stamp hit centres aligned to the Doop mid-campaign plate (approx).
+## Stamp hit centres measured on the Doop plate (1680×1040 screen space).
 ## Cabin → Verdant → Sunken → Ashen → Cinder → Shadow.
 const TRAIL: Array[Vector2] = [
-	Vector2(840, 220),
-	Vector2(900, 340),
-	Vector2(520, 480),
-	Vector2(1180, 520),
-	Vector2(780, 720),
-	Vector2(1280, 780),
+	Vector2(816, 236),
+	Vector2(962, 363),
+	Vector2(648, 473),
+	Vector2(998, 567),
+	Vector2(659, 672),
+	Vector2(985, 759),
 ]
+## Per-biome Deadly patrol lanes (offsets from TRAIL[i+1]). Slot k = k-th telegraph id.
+const LANES := {
+	"b1": [{"at": Vector2(90, 100), "dx": -50.0}],
+	"b2": [{"at": Vector2(-130, -55), "dx": -48.0}, {"at": Vector2(-200, 55), "dx": 56.0}],
+	"b3": [{"at": Vector2(150, 40), "dx": 50.0}, {"at": Vector2(-150, 30), "dx": -48.0}],
+	"b4": [{"at": Vector2(-150, -10), "dx": -50.0}, {"at": Vector2(140, 40), "dx": 48.0}],
+	"b5": [
+		{"at": Vector2(-160, 10), "dx": -50.0},
+		{"at": Vector2(150, -20), "dx": 50.0},
+		{"at": Vector2(40, 95), "dx": 40.0},
+	],
+}
 const ENDLESS_AT := Vector2(280, 860)
 const WAX := {
 	"b1": Color("5f8f3c"),
@@ -51,12 +64,16 @@ const LABEL_UNMAPPED := "%s · unmapped"
 
 var _sheet: Control
 var _ink: RouteInk
+var _monsters: Control
 var _pins: Control
 var _hands: Hands
 var _tip: Label
 var _rules: Dictionary = {}
 var _state: Dictionary = {}
+var _monsters_by_id: Dictionary = {}
+var _read_only: bool = false
 var _going: bool = false
+var _lane_rng := RandomNumberGenerator.new()
 
 
 func setup() -> void:
@@ -85,6 +102,8 @@ func setup() -> void:
 	paper.name = "HeldPlate"
 	paper.texture = KIT.ui_tex(HELD_PLATE)
 	if paper.texture == null:
+		paper.texture = KIT.ui_tex(HELD_PLATE_FALLBACK)
+	if paper.texture == null:
 		paper.texture = KIT.ui_tex("map/map_close_v2.png")
 	paper.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	paper.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -99,10 +118,19 @@ func setup() -> void:
 	_ink.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ink.modulate = Color(1, 1, 1, 0.35)
 	_sheet.add_child(_ink)
+	## Living Deadlies sit above route ink. Higher z than pins so monster hover
+	## wins when a lane overlaps a stamp hit rect; tip stays above both.
+	_monsters = Control.new()
+	_monsters.name = "Monsters"
+	_monsters.size = SHEET
+	_monsters.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_monsters.z_index = 7
+	_sheet.add_child(_monsters)
 	_pins = Control.new()
 	_pins.name = "Pins"
 	_pins.size = SHEET
 	_pins.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pins.z_index = 5
 	_sheet.add_child(_pins)
 	_tip = Label.new()
 	_tip.name = "StampTip"
@@ -125,16 +153,19 @@ func setup() -> void:
 		_build_cheats()
 
 
-func present(rules: Dictionary, state: Dictionary) -> void:
+func present(rules: Dictionary, state: Dictionary, monsters_by_id: Dictionary = {}, opts: Dictionary = {}) -> void:
 	_rules = rules
 	_state = state
+	_monsters_by_id = monsters_by_id
+	_read_only = bool(opts.get("read_only", false))
 	_going = false
 	_hide_tip()
 	_rebuild()
 	visible = true
 	_hands.queue_redraw()
 	# Fresh pencil shows on this open, then clears so the next view is inked solid.
-	SHELL.clear_pencil_fresh(_state)
+	if not _read_only:
+		SHELL.clear_pencil_fresh(_state)
 
 
 func _rebuild() -> void:
@@ -142,6 +173,7 @@ func _rebuild() -> void:
 		_kill_peel_tween(c)
 		_pins.remove_child(c)
 		c.queue_free()
+	_clear_monsters()
 	var solid := 1
 	for i in range(1, 5):
 		if SHELL.biome_unlocked(_rules, _state, i):
@@ -177,6 +209,8 @@ func _rebuild() -> void:
 			_add_stamp(spot, str(b.get("name", pool)), pool, WAX.get(pool, KIT.INK), i, false)
 		else:
 			_add_locked(spot, str(b.get("name", pool)), pool)
+		if open:
+			_spawn_pool_monsters(pool, spot)
 	var endless_name := str(_rules.get("endless", {}).get("name", "Endless"))
 	if bool(_state.get("endless_unlocked", false)):
 		_add_stamp(ENDLESS_AT, endless_name, "endless", WAX["endless"], 0, true)
@@ -216,7 +250,7 @@ func _add_start(spot: Vector2, biome_name: String, open: bool) -> void:
 	dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_pins.add_child(dot)
 	_add_name(spot + Vector2(-130, 18), biome_name, true)
-	if not open:
+	if not open or _read_only:
 		return
 	var hit := _hit_button(Rect2(spot + Vector2(-150, -90), Vector2(280, 170)))
 	hit.mouse_entered.connect(func() -> void:
@@ -245,6 +279,8 @@ func _add_stamp(spot: Vector2, biome_name: String, pool: String, wax: Color, ind
 	if endless:
 		name_at = spot + Vector2(-90, 36)
 	_add_name(name_at, biome_name, true)
+	if _read_only:
+		return
 	var hit_rect := Rect2(spot + Vector2(-100, -40), Vector2(220, 130)) if endless else Rect2(spot + Vector2(-40, -40), Vector2(280, 110))
 	var hit := _hit_button(hit_rect)
 	hit.mouse_entered.connect(func() -> void:
@@ -276,7 +312,7 @@ func _add_locked(spot: Vector2, biome_name: String, pool: String) -> void:
 	if endless:
 		label = TIP_ENDLESS_SEALED
 	_add_name(spot + Vector2(28, -8) if not endless else spot + Vector2(-90, 36), label, false)
-	if endless:
+	if endless and not _read_only:
 		var hit := _hit_button(Rect2(spot + Vector2(-100, -40), Vector2(220, 130)))
 		hit.mouse_entered.connect(func() -> void:
 			_show_tip_at(spot + Vector2(0, -48), TIP_ENDLESS_SEALED_SUB)
@@ -285,6 +321,66 @@ func _add_locked(spot: Vector2, biome_name: String, pool: String) -> void:
 			_hide_tip()
 		)
 		_pins.add_child(hit)
+
+
+func _clear_monsters() -> void:
+	if _monsters == null:
+		return
+	for c in _monsters.get_children():
+		_monsters.remove_child(c)
+		c.queue_free()
+
+
+func _spawn_pool_monsters(pool: String, spot: Vector2) -> void:
+	## Locked/unmapped biomes never spawn. Endless has no living monsters this pass.
+	if pool == "endless" or pool == "":
+		return
+	var nr: Variant = _state.get("next_run", {})
+	if typeof(nr) != TYPE_DICTIONARY:
+		return
+	var deals: Variant = (nr as Dictionary).get("deals", {})
+	if typeof(deals) != TYPE_DICTIONARY:
+		return
+	var deal: Variant = (deals as Dictionary).get(pool, {})
+	if typeof(deal) != TYPE_DICTIONARY:
+		return
+	var telegraph: Variant = (deal as Dictionary).get("telegraph", [])
+	if typeof(telegraph) != TYPE_ARRAY and typeof(telegraph) != TYPE_PACKED_STRING_ARRAY:
+		return
+	var seen: Array = []
+	if _read_only:
+		var raw_seen: Variant = _state.get("seen_deadly", [])
+		if typeof(raw_seen) == TYPE_ARRAY or typeof(raw_seen) == TYPE_PACKED_STRING_ARRAY:
+			for s in raw_seen:
+				seen.append(str(s))
+	var lanes: Array = LANES.get(pool, [])
+	var slot := 0
+	for raw_id in telegraph:
+		var mid := str(raw_id)
+		if mid == "":
+			continue
+		if _read_only and seen.has(mid):
+			continue
+		var lane: Dictionary = {}
+		if slot < lanes.size():
+			lane = lanes[slot]
+		elif not lanes.is_empty():
+			var base: Dictionary = lanes[lanes.size() - 1]
+			var overflow: int = slot - (lanes.size() - 1)
+			lane = {
+				"at": (base.get("at", Vector2.ZERO) as Vector2) + Vector2(0, 26.0 * float(overflow)),
+				"dx": float(base.get("dx", 40.0)),
+			}
+		else:
+			lane = {"at": Vector2(40, 40), "dx": 40.0}
+		var display := mid
+		var card: Dictionary = _monsters_by_id.get(mid, {})
+		if not card.is_empty():
+			display = str(card.get("name", mid))
+		var monster := MapMonster.new()
+		monster.setup(mid, display, spot + (lane.get("at", Vector2.ZERO) as Vector2), float(lane.get("dx", 40.0)), _lane_rng)
+		_monsters.add_child(monster)
+		slot += 1
 
 
 func _add_name(at: Vector2, biome_name: String, ink: bool) -> void:
@@ -447,6 +543,257 @@ func _cue(id: StringName) -> void:
 			KIT.cue(bank, id)
 			return
 		n = n.get_parent()
+
+
+## Tiny full-color Deadly on the parchment. Hover lifts + name tag; click does nothing.
+class MapMonster extends Control:
+	const KIT := preload("res://scripts/cabin/cabin_kit.gd")
+	const PLAYER_COPY := preload("res://scripts/player_copy.gd")
+	const UX := preload("res://scripts/ux_style.gd")
+	const FACING := "res://assets/dungeon/anim/facing/%s_facing_idle_f%d.png"
+	const HIT := Vector2(56, 56)
+	const SHADOW_IDLE := Vector2(32, 6)
+	const SHADOW_HOVER := Vector2(40, 6)
+
+	var monster_id: String = ""
+	var display_name: String = ""
+	var _anchor: Vector2 = Vector2.ZERO
+	var _dx: float = 40.0
+	var _body: AnimatedSprite2D
+	var _shadow: ColorRect
+	var _tag: PanelContainer
+	var _patrol: Tween
+	var _lift: Tween
+	var _bob_acc: float = 0.0
+	var _bob_on: bool = false
+	var _hovered: bool = false
+	var _body_base_y: float = -32.0
+
+
+	func setup(id: String, name_text: String, foot: Vector2, dx: float, rng: RandomNumberGenerator) -> void:
+		monster_id = id
+		display_name = name_text if name_text != "" else id
+		_anchor = foot
+		_dx = dx
+		name = "MapMonster_%s" % id
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		focus_mode = Control.FOCUS_NONE
+		size = HIT
+		## Foot sits 8px above the bottom of the hit rect.
+		position = foot - Vector2(HIT.x * 0.5, HIT.y - 8.0)
+		_anchor = position
+		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_shadow = ColorRect.new()
+		_shadow.name = "Shadow"
+		_shadow.color = Color(0.227, 0.141, 0.078, 0.32)
+		_shadow.size = SHADOW_IDLE
+		_shadow.position = Vector2((HIT.x - SHADOW_IDLE.x) * 0.5, HIT.y - 10.0)
+		_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_shadow)
+		_body = AnimatedSprite2D.new()
+		_body.name = "Body"
+		_body.centered = true
+		_body.offset = Vector2(0, -32)
+		_body.position = Vector2(HIT.x * 0.5, HIT.y - 8.0)
+		_body_base_y = _body.position.y
+		_body.scale = Vector2(0.75, 0.75)
+		_body.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		var frames := _build_frames(id)
+		if frames == null:
+			push_warning("living map: missing facing_idle frames for %s" % id)
+			mouse_filter = Control.MOUSE_FILTER_IGNORE
+			return
+		_body.sprite_frames = frames
+		_body.play("idle")
+		add_child(_body)
+		_build_tag()
+		mouse_entered.connect(_on_hover.bind(true))
+		mouse_exited.connect(_on_hover.bind(false))
+		gui_input.connect(_on_gui_input)
+		_start_patrol(rng)
+
+
+	func _build_frames(id: String) -> SpriteFrames:
+		var sf := SpriteFrames.new()
+		sf.add_animation("idle")
+		sf.set_animation_speed("idle", 4.0)
+		sf.set_animation_loop("idle", true)
+		var got := 0
+		for i in 4:
+			var path := FACING % [id, i]
+			if not ResourceLoader.exists(path):
+				return null
+			var tex: Texture2D = load(path) as Texture2D
+			if tex == null:
+				return null
+			sf.add_frame("idle", tex)
+			got += 1
+		if got < 4:
+			return null
+		return sf
+
+
+	func _build_tag() -> void:
+		_tag = PanelContainer.new()
+		_tag.name = "Tag"
+		_tag.visible = false
+		_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_tag.z_index = 8
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color("EFE0B6")
+		sb.border_color = Color("1A120E")
+		sb.set_border_width_all(3)
+		sb.shadow_size = 0
+		sb.shadow_offset = Vector2(0, 4)
+		sb.shadow_color = Color("1A120E")
+		sb.content_margin_left = 8
+		sb.content_margin_right = 8
+		sb.content_margin_top = 4
+		sb.content_margin_bottom = 4
+		sb.set_corner_radius_all(0)
+		_tag.add_theme_stylebox_override("panel", sb)
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_tag.add_child(row)
+		var lab: FitLabelBox = KIT.fit_label(
+			"",
+			Rect2(0, 0, 200, 28),
+			18,
+			12,
+			1,
+			KIT.INK,
+			HORIZONTAL_ALIGNMENT_CENTER
+		)
+		lab.set_plain(display_name)
+		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(lab)
+		var chip := PanelContainer.new()
+		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var chip_sb := StyleBoxFlat.new()
+		chip_sb.bg_color = UX.metal(3)
+		chip_sb.border_color = Color("1A120E")
+		chip_sb.set_border_width_all(2)
+		chip_sb.content_margin_left = 6
+		chip_sb.content_margin_right = 6
+		chip_sb.content_margin_top = 2
+		chip_sb.content_margin_bottom = 2
+		chip_sb.set_corner_radius_all(0)
+		chip.add_theme_stylebox_override("panel", chip_sb)
+		var chip_lab := Label.new()
+		chip_lab.text = PLAYER_COPY.tier_name(3).to_upper()
+		chip_lab.add_theme_font_size_override("font_size", 12)
+		chip_lab.add_theme_color_override("font_color", Color("1A120E"))
+		chip_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		chip.add_child(chip_lab)
+		row.add_child(chip)
+		## Ink pointer under the plank.
+		var tip := Polygon2D.new()
+		tip.color = Color("1A120E")
+		tip.polygon = PackedVector2Array([
+			Vector2(0, 0), Vector2(12, 0), Vector2(6, 6),
+		])
+		tip.position = Vector2(0, 0)
+		_tag.add_child(tip)
+		tip.set_meta("is_pointer", true)
+		add_child(_tag)
+		## Defer layout so content sizes settle before we place the tag.
+		call_deferred("_place_tag")
+
+
+	func _place_tag() -> void:
+		if _tag == null:
+			return
+		_tag.reset_size()
+		var tag_sz: Vector2 = _tag.get_combined_minimum_size()
+		if tag_sz.x < 8.0:
+			tag_sz = _tag.size
+		var foot_local := Vector2(HIT.x * 0.5, HIT.y - 8.0)
+		var at := foot_local + Vector2(-tag_sz.x * 0.5, -64.0 - 14.0 - tag_sz.y - 10.0)
+		## Clamp to the sheet in parent space.
+		var parent_sz := Vector2(1680, 1040)
+		if get_parent() is Control:
+			var psz: Vector2 = (get_parent() as Control).size
+			if psz.x > 1.0 and psz.y > 1.0:
+				parent_sz = psz
+		var world := position + at
+		world.x = clampf(world.x, 8.0, maxf(8.0, parent_sz.x - tag_sz.x - 8.0))
+		world.y = clampf(world.y, 8.0, maxf(8.0, parent_sz.y - tag_sz.y - 8.0))
+		_tag.position = world - position
+		for child in _tag.get_children():
+			if child is Polygon2D and child.has_meta("is_pointer"):
+				(child as Polygon2D).position = Vector2(tag_sz.x * 0.5 - 6.0, tag_sz.y)
+
+
+	func _start_patrol(rng: RandomNumberGenerator) -> void:
+		if _body == null:
+			return
+		var period: float = rng.randf_range(4.0, 6.0)
+		var pause: float = rng.randf_range(1.0, 2.0)
+		_patrol = create_tween()
+		_patrol.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		_patrol.set_loops()
+		_patrol.set_trans(Tween.TRANS_SINE)
+		_patrol.set_ease(Tween.EASE_IN_OUT)
+		_patrol.tween_property(self, "position:x", _anchor.x + _dx, period)
+		_patrol.tween_interval(pause)
+		_patrol.tween_property(self, "position:x", _anchor.x, period)
+		_patrol.tween_interval(pause)
+		## Random phase so monsters sharing a biome stay out of step.
+		var cycle: float = period * 2.0 + pause * 2.0
+		var seek_t: float = rng.randf() * cycle
+		_patrol.custom_step(seek_t)
+
+
+	func _process(delta: float) -> void:
+		if _body == null or _hovered:
+			return
+		_bob_acc += delta
+		if _bob_acc < 0.45:
+			return
+		_bob_acc = 0.0
+		_bob_on = not _bob_on
+		_body.position.y = _body_base_y + (-3.0 if _bob_on else 0.0)
+
+
+	func _on_hover(on: bool) -> void:
+		if _body == null:
+			return
+		_hovered = on
+		if _patrol:
+			if on:
+				_patrol.pause()
+			else:
+				_patrol.play()
+		if _lift:
+			_lift.kill()
+		_lift = create_tween()
+		_lift.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		_lift.set_trans(Tween.TRANS_QUAD)
+		_lift.set_ease(Tween.EASE_OUT)
+		if on:
+			_bob_on = false
+			_bob_acc = 0.0
+			_lift.tween_property(_body, "position:y", _body_base_y - 14.0, 0.12)
+			_lift.parallel().tween_property(_body, "scale", Vector2.ONE, 0.12)
+			_shadow.size = SHADOW_HOVER
+			_shadow.position = Vector2((HIT.x - SHADOW_HOVER.x) * 0.5, HIT.y - 10.0)
+			_shadow.color.a = 0.45
+			_place_tag()
+			_tag.visible = true
+		else:
+			_lift.tween_property(_body, "position:y", _body_base_y, 0.10)
+			_lift.parallel().tween_property(_body, "scale", Vector2(0.75, 0.75), 0.10)
+			_shadow.size = SHADOW_IDLE
+			_shadow.position = Vector2((HIT.x - SHADOW_IDLE.x) * 0.5, HIT.y - 10.0)
+			_shadow.color.a = 0.32
+			_tag.visible = false
+
+
+	func _on_gui_input(event: InputEvent) -> void:
+		## Clicking a monster does nothing (no start, no cue).
+		if event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
+			accept_event()
 
 
 class RouteInk extends Control:
