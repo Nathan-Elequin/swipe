@@ -1,3 +1,14 @@
+---
+id: REQ-20261029-living-map
+status: done
+priority: high
+branch: playtest/latest
+created: 2026-10-29T12:00:00Z
+created_by: cursor-cloud
+viewport: 1680x1040
+entry: F5 playtest hub → Brand New / DEV Fill Verdant Hollow cabinet → cabin map
+---
+
 # REQ-20261029-living-map
 
 **Screen:** Living map (seeded Deadly sprites on the held map)  
