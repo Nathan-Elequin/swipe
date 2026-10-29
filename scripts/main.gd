@@ -202,7 +202,7 @@ const MONSTER_SPECIAL := {
 	"needleback": {"id": "thorns", "text": "Whenever I take attack damage, you take 2 attack. Block can stop that 2."},
 	"gelatinous_cube": {"id": "eat_item", "text": "When you Spin me, feed me one of two items."},
 	"gargoyle": {"id": "petrify", "text": "I petrify your highest Attack item until the next Spin."},
-	"harpy": {"id": "interrupt", "text": "I attack you when we meet, and after each item you use."},
+	"harpy": {"id": "interrupt", "text": "I attack you when you Spin me, and after each item you use when facing me."},
 	"kobold_trapper": {"id": "hunter_mark", "text": "When I enter the Dungeon I Mark 2 other Monsters. Each time a Marked monster is Defeated, I gain +2 HP and ATK"},
 	"clockwork_knight": {"id": "split_t2", "text": "If I live, I leave two Tough monsters in my place."},
 	"basilisk": {"id": "petrify_gaze", "text": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins."},
@@ -322,7 +322,7 @@ const MONSTER_REMINDER := {
 	"needleback": "poke 2 when hit by ATK",
 	"gelatinous_cube": "feed me one of two items",
 	"gargoyle": "petrifies highest Attack item",
-	"harpy": "attacks on meet and after items",
+	"harpy": "attacks when you Spin her, and after items while facing her",
 	"kobold_trapper": "Marked Defeat: +2 HP and ATK",
 	"clockwork_knight": "if I live, two Tier 2 owners",
 	"basilisk": "first Spin: Flee, petrify 2nd, 4th, … for 3",
@@ -376,7 +376,7 @@ const MONSTER_SPEECH := {
 	"needleback": "I stick you for 2 attack whenever you cut me. Your block still works.",
 	"gelatinous_cube": "When you Spin me, feed me one of two items.",
 	"gargoyle": "I petrify your highest Attack item until you Spin again.",
-	"harpy": "I attack you when we meet, and after each item you use.",
+	"harpy": "I attack you when you Spin me, and after each item you use when facing me.",
 	"kobold_trapper": "When I enter the Dungeon I Mark 2 other Monsters. Each time a Marked monster is Defeated, I gain +2 HP and ATK",
 	"clockwork_knight": "If I live, I leave two random Tier 2 monsters in my place.",
 	"basilisk": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
@@ -670,8 +670,11 @@ var _fungal_stop_fight: bool = false
 var _drink_hp_due: bool = false
 var _gate_line: String = ""
 var _cube_line: String = ""
+var _speech_from_index: int = -1
 var _cleric_line: String = ""
 var _cleric_talk_index: int = -1
+var _berserk_line: String = ""
+var _berserk_talk_index: int = -1
 var _mill_seq: int = 0
 var _mill_beat: String = ""
 var refusals_left: int = REFUSALS_MAX
@@ -2181,8 +2184,11 @@ func _reset_run() -> void:
 	_rug_secret_in_run = false
 	_gate_line = ""
 	_cube_line = ""
+	_speech_from_index = -1
 	_cleric_line = ""
 	_cleric_talk_index = -1
+	_berserk_line = ""
+	_berserk_talk_index = -1
 	_mill_beat = ""
 	adventure = false
 	challenge_route = false
@@ -3200,6 +3206,8 @@ func _prep_next_dungeon() -> void:
 	_cube_line = ""
 	_cleric_line = ""
 	_cleric_talk_index = -1
+	_berserk_line = ""
+	_berserk_talk_index = -1
 	_mill_beat = ""
 	refusals_left = REFUSALS_MAX
 	if draft_gate:
@@ -7509,8 +7517,11 @@ func _on_spin() -> void:
 	pending_feed = {}
 	_bell_wait = false
 	_cube_line = ""
+	_speech_from_index = -1
 	_cleric_line = ""
 	_cleric_talk_index = -1
+	_berserk_line = ""
+	_berserk_talk_index = -1
 	await _clear_petrify()
 	await _tick_gaze_petrify()
 	num_items_at_combat = hotbar.size()
@@ -7626,7 +7637,7 @@ func _on_spin() -> void:
 			_undo_arm()
 			return
 	_refresh()
-	_step_berserkers()
+	await _step_berserkers()
 	_step_marbles()
 	_step_rusts()
 	_sync_wheel_stats()
@@ -8314,6 +8325,7 @@ func _capture_run() -> Dictionary:
 		"hypno_src": _hypno_src,
 		"watch_portrait": _watch_portrait,
 		"cube_line": _cube_line,
+		"speech_from_index": _speech_from_index,
 		"dungeons_ended": _dungeons_ended,
 		"buckets_revealed": _buckets_revealed,
 		"guarantee_bucket": _guarantee_bucket,
@@ -8544,6 +8556,7 @@ func _restore_run(snap: Dictionary) -> void:
 	_hypno_src = int(snap.get("hypno_src", -1))
 	_watch_portrait = int(snap.get("watch_portrait", -1))
 	_cube_line = str(snap.get("cube_line", ""))
+	_speech_from_index = int(snap.get("speech_from_index", -1))
 	_dungeons_ended = int(snap.get("dungeons_ended", _dungeons_ended))
 	_buckets_revealed = int(snap.get("buckets_revealed", _buckets_revealed))
 	_guarantee_bucket = int(snap.get("guarantee_bucket", _guarantee_bucket))
@@ -11111,6 +11124,10 @@ func _oligarch_gift_pool() -> Array:
 	return ids
 
 
+func _oligarch_hand_cap() -> int:
+	return CHALLENGE_HAND
+
+
 func _maybe_oligarch_spawn(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
@@ -11123,24 +11140,74 @@ func _maybe_oligarch_spawn(index: int) -> void:
 		return
 	m["oligarch_gifted"] = true
 	wheel[index] = m
-	if ability_slash:
-		var tex: Texture2D = null
-		if art != null:
-			tex = art.monster_still("oligarch")
-		await ability_slash.play({
-			"title": "Oligarch",
-			"call": "Here, I bought you something nice",
-			"tex": tex,
-			"is_item": false,
-			"card_id": "oligarch",
-		})
+	_speech_from_index = index
+	_cube_line = "Here, I bought you something nice"
+	_refresh()
 	var pool: Array = _oligarch_gift_pool()
 	pool.shuffle()
 	var n: int = mini(2, pool.size())
 	for i in range(n):
-		if _hand_full() and adventure:
-			break
-		await _try_gain_item(str(pool[i]))
+		await _oligarch_deliver_item(str(pool[i]), index)
+	_cube_line = ""
+	_speech_from_index = -1
+	if speech_box:
+		speech_box.hide_speech()
+	_refresh()
+
+
+func _oligarch_deliver_item(id: String, from_i: int) -> void:
+	if id == "":
+		return
+	var it: Dictionary = _make_item(id)
+	var from: Vector2 = Vector2.ZERO
+	if wheel_view and from_i >= 0:
+		from = wheel_view.slice_portrait_global(from_i)
+	var to: Vector2 = _hotbar_empty_slot_global()
+	var tex: Texture2D = null
+	if art != null:
+		tex = art.item_tex(id)
+	if tex == null:
+		tex = tex_by_item.get(id, tex_sword)
+	if tex != null and from != Vector2.ZERO and to != Vector2.ZERO:
+		await _fly_courier(tex, from, to, 0.42)
+	hotbar.append(it)
+	_sort_hotbar()
+	_log("on_draft", "gain %s" % it.get("name", id))
+	if sfx:
+		sfx.play_event(&"hand.gain", {"card_id": id})
+	_refresh()
+	var planted: Node = null
+	if hotbar_box:
+		for c in hotbar_box.get_children():
+			if _control_uid(c) == int(it.get("uid", -1)) and c.has_method("bounce"):
+				c.bounce()
+				planted = c
+				break
+	if planted == null and hotbar_box:
+		for c2 in hotbar_box.get_children():
+			if str(c2.get("card_id")) == id and c2.has_method("bounce"):
+				c2.bounce()
+				break
+	if hotbar.size() > _oligarch_hand_cap():
+		await _oligarch_tax_one(from_i)
+
+
+func _oligarch_tax_one(from_i: int) -> void:
+	var uids: Array = _filter_toss_uids(_hand_all_uids())
+	if uids.is_empty():
+		var last: Dictionary = hotbar[hotbar.size() - 1] if not hotbar.is_empty() else {}
+		if not last.is_empty():
+			_toss_item(int(last.get("uid", -1)), false)
+		_refresh()
+		return
+	pending_feed = {"uids": uids, "kind": "oligarch_gift"}
+	_speech_from_index = from_i
+	_cube_line = "Here, I bought you something nice"
+	_refresh()
+	await _wait_bell_pick()
+	_speech_from_index = from_i
+	_cube_line = "Here, I bought you something nice"
+	_refresh()
 
 
 func _oligarch_playable_uids() -> Array:
@@ -11256,7 +11323,7 @@ func _feed_bell_overlay(uid: int) -> void:
 	if pending_feed.is_empty():
 		return
 	var kind: String = str(pending_feed.get("kind", ""))
-	if kind != "bell_spawn" and kind != "bell_defeat" and kind != "rust_spawn":
+	if kind != "bell_spawn" and kind != "bell_defeat" and kind != "rust_spawn" and kind != "oligarch_gift":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
 	if not allowed.has(uid):
@@ -12193,7 +12260,7 @@ func _sync_hub_cue() -> void:
 	if overlay != null and overlay.visible:
 		hub_cue.clear_hold()
 		return
-	if _challenge_loot_wait:
+	if _challenge_loot_wait or (not pending_feed.is_empty() and str(pending_feed.get("kind", "")) == "oligarch_gift"):
 		hub_cue.show_hold(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."), "full_hand")
 		return
 	if not pending_mark.is_empty() and phase == "fighting":
@@ -13060,6 +13127,7 @@ func _grant_leech_hp(index: int) -> void:
 func _step_berserkers() -> void:
 	var base_n: int = _card_base_atk("berserker")
 	var any := false
+	var angry: Array[int] = []
 	for i in range(wheel.size()):
 		var s: Dictionary = wheel[i]
 		if str(s.get("card_id", "")) != "berserker":
@@ -13092,8 +13160,42 @@ func _step_berserkers() -> void:
 				sfx.play("chop", -8.0, 0.55)
 			else:
 				sfx.play("cloth", -10.0, 0.8)
+		if delta > 0:
+			angry.append(i)
 	if any:
 		_sync_wheel_stats()
+	for ai in angry:
+		if phase != "fighting":
+			break
+		await _berserker_angry_tell(int(ai))
+
+
+func _berserker_angry_tell(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	if str(wheel[index].get("card_id", "")) != "berserker":
+		return
+	await _announce_slice(index, _slice_atk_pos(index))
+	if ability_slash != null:
+		var guard := 0
+		while ability_slash.visible and guard < 90:
+			await get_tree().process_frame
+			guard += 1
+	if phase != "fighting":
+		return
+	_berserk_line = "I'm getting angry!"
+	_berserk_talk_index = index
+	_place_speech()
+	if get_tree():
+		await get_tree().create_timer(1.15).timeout
+	if _berserk_talk_index != index:
+		return
+	_berserk_line = ""
+	_berserk_talk_index = -1
+	if _spoken_key.begins_with("berserker|"):
+		_spoken_key = ""
+	if speech_box:
+		speech_box.hide_speech()
 
 
 func _step_hexs() -> bool:
@@ -14349,6 +14451,8 @@ func _after_item_resolved(it: Dictionary) -> void:
 func _harpy_poke() -> void:
 	if phase != "fighting" or facing_index < 0:
 		return
+	if not _facing_can_act():
+		return
 	var m: Dictionary = wheel[facing_index]
 	if str(m.get("card_id", "")) != "harpy" or _is_silenced(m):
 		return
@@ -14881,7 +14985,7 @@ func _feed_cube(uid: int) -> void:
 	if str(pending_feed.get("kind", "")) == "worm_hunger":
 		await _feed_worm(uid)
 		return
-	if str(pending_feed.get("kind", "")) == "bell_spawn" or str(pending_feed.get("kind", "")) == "bell_defeat" or str(pending_feed.get("kind", "")) == "rust_spawn":
+	if str(pending_feed.get("kind", "")) == "bell_spawn" or str(pending_feed.get("kind", "")) == "bell_defeat" or str(pending_feed.get("kind", "")) == "rust_spawn" or str(pending_feed.get("kind", "")) == "oligarch_gift":
 		_feed_bell_overlay(uid)
 		return
 	var allowed: Array = pending_feed.get("uids", [])
@@ -15118,7 +15222,8 @@ func _right_monster(index: int) -> int:
 	var n: int = wheel.size()
 	if n < 2 or index < 0 or index >= n:
 		return -1
-	var j: int = posmod(index + 1, n)
+	# Right = counter-clockwise = previous index. Left Bracer is clockwise (+1).
+	var j: int = posmod(index - 1, n)
 	if j == index:
 		return -1
 	if str(wheel[j].get("kind", "")) != "monster":
@@ -15424,10 +15529,7 @@ func _vindictive_note(index: int) -> void:
 		return
 	if _is_silenced(s):
 		return
-	var right: int = _right_monster(index)
-	if right < 0:
-		return
-	_vindictive_queue.append(right)
+	_vindictive_queue.append(index)
 
 
 func _vindictive_after_hp_loss(index: int) -> bool:
@@ -15441,9 +15543,18 @@ func _flush_vindictive() -> bool:
 	if _vindictive_flushing:
 		return false
 	_vindictive_flushing = true
+	_sync_wheel_stats()
 	var died := false
 	while not _vindictive_queue.is_empty() and hp > 0:
-		var j: int = int(_vindictive_queue.pop_front())
+		var king: int = int(_vindictive_queue.pop_front())
+		if king < 0 or king >= wheel.size():
+			continue
+		if str(wheel[king].get("card_id", "")) != "cowardly_king":
+			continue
+		if _is_silenced(wheel[king]):
+			continue
+		await _announce_slice(king)
+		var j: int = _right_monster(king)
 		if await _commanded_neighbor_attack(j):
 			died = true
 			break
@@ -19133,13 +19244,6 @@ func _monster_rule(s: Dictionary) -> Dictionary:
 		speech = str(s.get("special_text", "")).strip_edges()
 	if speech != "":
 		out["speech"] = _rewrite_keywords(speech, true, "#E8C36A")
-	if bool(s.get("hunter_mark", false)):
-		var mark_line := UxStyle.with_def_link("Marked", "Marked") + ": upon Defeat, Trapper gains +2 HP and ATK"
-		if str(out.get("speech", "")) == "":
-			out["speech"] = mark_line
-		else:
-			out["speech"] = str(out["speech"]) + "\n" + mark_line
-		out["body"] = out["speech"]
 	return out
 
 
@@ -19431,13 +19535,16 @@ func _place_speech() -> void:
 			cube_look = _monster_look(wheel[facing_index])
 			cube_mon = wheel[facing_index]
 		var mouth: Vector2 = Vector2.ZERO
-		if combat_stage != null and combat_stage.visible:
+		var talk_i: int = _speech_from_index if _speech_from_index >= 0 and _speech_from_index < wheel.size() else facing_index
+		if talk_i >= 0 and talk_i < wheel.size():
+			cube_look = _monster_look(wheel[talk_i])
+			cube_mon = wheel[talk_i]
+		if combat_stage != null and combat_stage.visible and talk_i == facing_index:
 			mouth = combat_stage.mouth_global()
 		elif wheel_view:
-			var talk_i: int = facing_index
 			if talk_i < 0:
 				for i in range(wheel.size()):
-					if str(wheel[i].get("card_id", "")) == "death_bell":
+					if str(wheel[i].get("card_id", "")) == "death_bell" or str(wheel[i].get("card_id", "")) == "oligarch":
 						talk_i = i
 						cube_look = _monster_look(wheel[i])
 						cube_mon = wheel[i]
@@ -19460,6 +19567,22 @@ func _place_speech() -> void:
 		if cleric_mouth != Vector2.ZERO:
 			speech_box.present(cleric_mouth, _cleric_line, _monster_look(cleric_talk))
 			_maybe_speak_monster(_cleric_line, cleric_talk)
+			return
+		speech_box.hide_speech()
+		return
+	if _berserk_line != "":
+		var rage_talk := {}
+		var rage_mouth := Vector2.ZERO
+		var ri: int = _berserk_talk_index
+		if ri >= 0 and ri < wheel.size():
+			rage_talk = wheel[ri]
+			if wheel_view:
+				rage_mouth = wheel_view.slice_portrait_global(ri)
+			if ri == facing_index and combat_stage != null and combat_stage.visible:
+				rage_mouth = combat_stage.mouth_global()
+		if rage_mouth != Vector2.ZERO:
+			speech_box.present(rage_mouth, _berserk_line, _monster_look(rage_talk))
+			_maybe_speak_monster(_berserk_line, rage_talk)
 			return
 		speech_box.hide_speech()
 		return
