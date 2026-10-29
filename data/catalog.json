@@ -630,7 +630,7 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 4,
+			"bucket": 1,
 			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [
@@ -4194,7 +4194,7 @@
 			"atk_base": 5,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 2,
+			"bucket": 1,
 			"call_name": "",
 			"card_color": "",
 			"count": 2,
@@ -4213,7 +4213,7 @@
 			"hp_base": 2,
 			"hp_formula": "",
 			"id": "wizard",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4231,7 +4231,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
 			"log_hint": "No special",
 			"mode_pool": "all",
@@ -4506,7 +4507,7 @@
 			"atk_base": 5,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 2,
+			"bucket": 3,
 			"call_name": "Undying",
 			"card_color": "",
 			"count": 2,
@@ -4526,7 +4527,7 @@
 			"hp_base": 2,
 			"hp_formula": "",
 			"id": "lich",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4545,7 +4546,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"log_hint": "Defeat items chip 1 and stay",
 			"mode_pool": "all",
@@ -4637,7 +4639,7 @@
 			"atk_base": 4,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 2,
+			"bucket": 1,
 			"call_name": "Bloodlust",
 			"card_color": "",
 			"count": 1,
@@ -4656,7 +4658,7 @@
 			"hp_base": 4,
 			"hp_formula": "",
 			"id": "vampire",
-			"locked_at": "2026-10-13",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4674,7 +4676,8 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
 			"log_hint": "You lost HP. Vampire grew.",
 			"mode_pool": "all",
@@ -4699,7 +4702,7 @@
 			"atk_base": 5,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3,
+			"bucket": 2,
 			"call_name": "Hot and Cold",
 			"card_color": "",
 			"count": 1,
@@ -4718,7 +4721,7 @@
 			"hp_base": 4,
 			"hp_formula": "",
 			"id": "berserker",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4737,7 +4740,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"log_hint": "Every Spin: 50% +4 Attack, otherwise −3",
 			"mode_pool": "all",
@@ -5473,7 +5477,7 @@
 			"atk_base": 3,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 2,
+			"bucket": 3,
 			"call_name": "Devour Item",
 			"card_color": "",
 			"count": 1,
@@ -5492,7 +5496,7 @@
 			"hp_base": 4,
 			"hp_formula": "",
 			"id": "gelatinous_cube",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5511,7 +5515,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"log_hint": "Makes you feed it an item",
 			"mode_pool": "all",
@@ -5536,7 +5541,7 @@
 			"atk_base": 4,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3,
+			"bucket": 2,
 			"call_name": "Petrify",
 			"card_color": "",
 			"count": 1,
@@ -5555,7 +5560,7 @@
 			"hp_base": 5,
 			"hp_formula": "",
 			"id": "gargoyle",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5573,7 +5578,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
 			"log_hint": "Petrifies your best Attack",
 			"mode_pool": "all",
@@ -5661,7 +5667,7 @@
 			"atk_base": 3,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 4,
+			"bucket": 5,
 			"call_name": "Hunter's Mark",
 			"card_color": "",
 			"count": 1,
@@ -5697,7 +5703,8 @@
 				"atk_formula",
 				"hp_formula",
 				"call_name",
-				"review"
+				"review",
+				"bucket"
 			],
 			"log_hint": "Extra hits per item used",
 			"mode_pool": "all",
@@ -5722,7 +5729,7 @@
 			"atk_base": 4,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 4,
+			"bucket": 5,
 			"call_name": "Disassemble",
 			"count": 1,
 			"defined": "If you do not Defeat or Slay me, I leave and two random Tough monsters sit immediately, even if that grows the wheel past 8. You are not in a new fight yet.",
@@ -5740,7 +5747,7 @@
 			"hp_base": 7,
 			"hp_formula": "",
 			"id": "clockwork_knight",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5758,7 +5765,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
 			"log_hint": "Splits into two monsters",
 			"mode_pool": "adventure",
@@ -6034,7 +6042,7 @@
 			"atk_base": 4,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 2,
+			"bucket": 5,
 			"call_name": "Tough Blood",
 			"card_color": "",
 			"count": 1,
@@ -6053,7 +6061,7 @@
 			"hp_base": 3,
 			"hp_formula": "",
 			"id": "anvil",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -6071,7 +6079,8 @@
 				"rarity",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
 			"log_hint": "Loses only 1 HP at a time",
 			"mode_pool": "all",
@@ -6190,7 +6199,7 @@
 			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "When I lose HP, the monster on my right Attacks you.",
-			"review": "change",
+			"review": "rough",
 			"review_note": "",
 			"status": "live",
 			"tier": 3,
@@ -6267,7 +6276,7 @@
 			"atk_base": 7,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 1,
+			"bucket": 2,
 			"call_name": "Blockhead",
 			"card_color": "",
 			"count": 1,
@@ -6286,7 +6295,7 @@
 			"hp_base": 3,
 			"hp_formula": "",
 			"id": "juggernaut",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6305,7 +6314,8 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
 			"log_hint": "Gives you a Shield",
 			"mode_pool": "all",
@@ -6455,7 +6465,7 @@
 			"atk_base": 8,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3,
+			"bucket": 4,
 			"call_name": "Refract Damage",
 			"card_color": "",
 			"count": 1,
@@ -6474,7 +6484,7 @@
 			"hp_base": 6,
 			"hp_formula": "",
 			"id": "prism",
-			"locked_at": "2026-10-22",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6493,7 +6503,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"log_hint": "Dumps Attack onto both neighbors",
 			"mode_pool": "all",
@@ -6663,7 +6674,7 @@
 			"hp_base": 5,
 			"hp_formula": "",
 			"id": "hydra",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6682,7 +6693,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"review"
 			],
 			"log_hint": "Petrify even ATK/BLK, +2 ATK each",
 			"mode_pool": "all",
@@ -6693,7 +6705,7 @@
 			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "Petrify even Attack and Block. +2 Attack each.",
-			"review": "rough",
+			"review": "change",
 			"review_note": "",
 			"status": "live",
 			"tier": 3,
@@ -6894,7 +6906,7 @@
 			"atk_base": 1,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 5,
+			"bucket": 2,
 			"call_name": "Self Deconstruct",
 			"card_color": "",
 			"count": 1,
@@ -6932,7 +6944,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"log_hint": "Attacks until it dies; loses 1 HP per Attack",
 			"mode_pool": "all",
@@ -7083,7 +7096,7 @@
 			"atk_base": 5,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 5,
+			"bucket": 4,
 			"call_name": "Stance Swap",
 			"card_color": "",
 			"count": 1,
@@ -7121,7 +7134,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"log_hint": "After each item: swap HP and Attack",
 			"mode_pool": "all",
@@ -7272,9 +7286,9 @@
 			"atk_base": 2,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 4,
+			"bucket": 3,
 			"call_name": "Hatch",
-			"card_color": "",
+			"card_color": "auto",
 			"count": 1,
 			"defined": "When Defeated or Slain, Flee (if you are facing me) and this seat becomes Phoenix at 4 HP / 6 ATK. Quiet Bell turns this off.",
 			"exceptions": "Bucket 4. Needs art. Hatches into Phoenix.",
@@ -7291,7 +7305,7 @@
 			"hp_base": 2,
 			"hp_formula": "",
 			"id": "phoenix_egg",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -7310,7 +7324,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"log_hint": "Defeated: Flee, become Phoenix",
 			"mode_pool": "all",
@@ -7324,7 +7339,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
+			"tier": 3,
 			"type": "M"
 		},
 		{
@@ -7524,7 +7539,7 @@
 			"atk_base": 6,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3,
+			"bucket": 2,
 			"call_name": "Conductive",
 			"card_color": "",
 			"count": 1,
@@ -7543,7 +7558,7 @@
 			"hp_base": 4,
 			"hp_formula": "",
 			"id": "eel",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -7562,7 +7577,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"log_hint": "Facing: takes Attack = Block you Gain",
 			"mode_pool": "all",
@@ -7587,7 +7603,7 @@
 			"atk_base": 7,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3,
+			"bucket": 2,
 			"call_name": "Cultivator",
 			"card_color": "",
 			"count": 1,
@@ -7606,7 +7622,7 @@
 			"hp_base": 4,
 			"hp_formula": "",
 			"id": "druid",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -7625,7 +7641,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"log_hint": "Attack: Heal you 2× HP you lost",
 			"mode_pool": "all",
@@ -7838,7 +7855,7 @@
 			"atk_base": 2,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 5,
+			"bucket": 3,
 			"call_name": "Toxic Skin",
 			"card_color": "",
 			"count": 1,
@@ -7857,7 +7874,7 @@
 			"hp_base": 4,
 			"hp_formula": "",
 			"id": "poison_frog",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -7876,7 +7893,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"log_hint": "Spin and Attack damage: you Gain 2 Poison",
 			"mode_pool": "all",
@@ -8002,7 +8020,7 @@
 			},
 			"atk_base": 5,
 			"atk_formula": "",
-			"bucket": 9,
+			"bucket": 4,
 			"call_name": "Wealth Tax",
 			"card_color": "",
 			"count": 1,
@@ -8021,8 +8039,10 @@
 			"hp_base": 6,
 			"hp_formula": "",
 			"id": "oligarch",
-			"locked_at": "",
-			"locked_fields": [],
+			"locked_at": "2026-10-28",
+			"locked_fields": [
+				"bucket"
+			],
 			"log_hint": "Gives 2 Items, then forces one Item on every Spin",
 			"mode_pool": "all",
 			"name": "Oligarch",
@@ -8036,7 +8056,8 @@
 			"review_note": "",
 			"status": "live",
 			"tier": 2,
-			"type": "M"
+			"type": "M",
+			"author_lock": true
 		}
 	],
 	"named_variables": [
