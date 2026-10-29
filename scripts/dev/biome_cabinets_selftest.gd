@@ -69,8 +69,11 @@ func _init() -> void:
 	var step2: Dictionary = seq[2]
 	failed = _check(failed, "sequence order", str(step0.get("id", "")) == "net" and str(step1.get("pool", "")) == "b2" and str(step2.get("id", "")) == "hex") or failed
 	var frames: Array = []
+	var trophies: Array = []
 	for raw_case in Cases.resolved_cases(rules):
-		frames.append(str((raw_case as Dictionary).get("frame", "")))
+		var c: Dictionary = raw_case
+		frames.append(str(c.get("frame", "")))
+		trophies.append(str(c.get("trophy", "")))
 	failed = _check(failed, "frame paths", frames == [
 		"cabinets/case_verdant_hollow",
 		"cabinets/case_sunken_mire",
@@ -78,11 +81,34 @@ func _init() -> void:
 		"cabinets/case_cinder_forge",
 		"cabinets/case_shadow_abyss",
 	]) or failed
+	failed = _check(failed, "trophy paths", trophies == [
+		"cabinets/trophy_verdant_hollow",
+		"cabinets/trophy_sunken_mire",
+		"cabinets/trophy_ashen_crypt",
+		"cabinets/trophy_cinder_forge",
+		"cabinets/trophy_shadow_abyss",
+	]) or failed
+	for raw_case2 in Cases.resolved_cases(rules):
+		var spec: Dictionary = raw_case2
+		var idle: Texture2D = Cases.trophy_texture(spec, false)
+		var hov: Texture2D = Cases.trophy_texture(spec, true)
+		failed = _check(failed, "trophy_texture %s" % str(spec.get("id", "")), idle != null) or failed
+		failed = _check(failed, "trophy_texture_hover %s" % str(spec.get("id", "")), hov != null) or failed
+	failed = _check(failed, "trophy_texture missing null", Cases.trophy_texture({}, false) == null) or failed
 	var bounds: Rect2 = Cases.cases_bounds_rect()
 	failed = _check(failed, "cases bounds", bounds.position == Vector2(76, 56) and bounds.size == Vector2(298, 160)) or failed
 	failed = _check(failed, "five glass", Cases.CASE_GLASS.size() == 5) or failed
 	var g0: Rect2 = Cases.glass_rect(0)
 	failed = _check(failed, "glass0 inside bounds", bounds.encloses(g0)) or failed
+	## Pitch vs Doop SHIP-D: glass centers step 60 native; Doop cab pitch 244 screen (~61 native).
+	var pitch_ok := true
+	for gi in range(1, Cases.CASE_GLASS.size()):
+		var a: Array = Cases.CASE_GLASS[gi - 1]
+		var b: Array = Cases.CASE_GLASS[gi]
+		if int(b[0]) - int(a[0]) != 60:
+			pitch_ok = false
+			break
+	failed = _check(failed, "glass pitch 60", pitch_ok) or failed
 	if failed:
 		print("BIOME_CABINETS_FAIL")
 		quit(1)

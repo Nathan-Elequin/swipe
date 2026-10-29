@@ -15,6 +15,8 @@ extends RefCounted
 const CASES_BOUNDS: Array = [76, 56, 298, 160]
 
 ## Native glass interiors per pool (inset inside each plate case). Order = CASES.
+## Slot pitch: centers 60 native apart (240px at ×4). Doop SHIP-D cabs sit at
+## left 300/544/788/1032/1276 (pitch 244) — within 4px; overlays keep CASE_GLASS.
 const CASE_GLASS: Array = [
 	[82, 68, 48, 138],
 	[142, 68, 48, 138],
@@ -30,6 +32,7 @@ const CASES: Array = [
 		"tint": "1c3320",
 		"accent": "7dae62",
 		"frame": "cabinets/case_verdant_hollow",
+		"trophy": "cabinets/trophy_verdant_hollow",
 	},
 	{
 		"id": "b2",
@@ -37,6 +40,7 @@ const CASES: Array = [
 		"tint": "2a2916",
 		"accent": "8a7a3e",
 		"frame": "cabinets/case_sunken_mire",
+		"trophy": "cabinets/trophy_sunken_mire",
 	},
 	{
 		"id": "b3",
@@ -44,6 +48,7 @@ const CASES: Array = [
 		"tint": "2c2828",
 		"accent": "8d3d3d",
 		"frame": "cabinets/case_ashen_crypt",
+		"trophy": "cabinets/trophy_ashen_crypt",
 	},
 	{
 		"id": "b4",
@@ -51,6 +56,7 @@ const CASES: Array = [
 		"tint": "241812",
 		"accent": "d06a28",
 		"frame": "cabinets/case_cinder_forge",
+		"trophy": "cabinets/trophy_cinder_forge",
 	},
 	{
 		"id": "b5",
@@ -58,8 +64,24 @@ const CASES: Array = [
 		"tint": "100e18",
 		"accent": "4c4588",
 		"frame": "cabinets/case_shadow_abyss",
+		"trophy": "cabinets/trophy_shadow_abyss",
 	},
 ]
+
+
+## Null-safe biome trophy for a filled case slot. PNGs are 96×96 (24 native ×4);
+## draw at Vector2(24, 24) * case_scale — never the full 96px at 1× case scale.
+static func trophy_texture(case: Dictionary, hover := false) -> Texture2D:
+	var stem := str(case.get("trophy", ""))
+	if stem == "":
+		return null
+	var path := "res://assets/dungeon/home/%s%s.png" % [stem, "_hover" if hover else ""]
+	if not ResourceLoader.exists(path):
+		return null
+	var tex: Variant = load(path)
+	if tex is Texture2D:
+		return tex as Texture2D
+	return null
 
 
 static func cases_bounds_rect() -> Rect2:

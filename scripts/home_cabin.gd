@@ -1907,6 +1907,10 @@ func _build_biome_case(spec: Dictionary, cards: Array, _quota: int, glass: Rect2
 	clip.add_child(column)
 	_case_clips[pool_id] = clip
 	_case_columns[pool_id] = column
+	## Filled case: biome trophy in the glass (24×24 × case_scale). Empty stays empty.
+	var filled := unlocked and _case_collected(pool_id) > 0
+	if filled:
+		_place_biome_trophy(root, spec, glass.size)
 	if not unlocked:
 		column.size = clip.size
 		column.custom_minimum_size = column.size
@@ -1947,6 +1951,47 @@ func _build_biome_case(spec: Dictionary, cards: Array, _quota: int, glass: Rect2
 	_case_scroll[pool_id] = cur
 	column.position = Vector2(0, -cur)
 	_shelf_host.add_child(root)
+
+
+## Biome pedestal trophy for a filled case slot. Art is 96×96 (24 native ×4);
+## size with case_scale (= PX) so a 1× case never gets a full 96px icon in a 92px void.
+func _place_biome_trophy(host: Control, spec: Dictionary, area: Vector2) -> void:
+	var idle: Texture2D = BiomeCabinets.trophy_texture(spec, false)
+	if idle == null:
+		return
+	var hover: Texture2D = BiomeCabinets.trophy_texture(spec, true)
+	if hover == null:
+		hover = idle
+	var case_scale: float = PX
+	var tsize: Vector2 = Vector2(24, 24) * case_scale
+	var icon := TextureRect.new()
+	icon.name = "BiomeTrophy"
+	icon.texture = idle
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_SCALE
+	icon.custom_minimum_size = tsize
+	icon.size = tsize
+	## Sit on the case floor (pedestal reads bottom-up, matching Doop slot stack).
+	icon.position = Vector2((area.x - tsize.x) * 0.5, maxf(0.0, area.y - tsize.y - 8.0))
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.z_index = 2
+	icon.set_meta("trophy_idle", idle)
+	icon.set_meta("trophy_hover", hover)
+	host.add_child(icon)
+	## Clip + root both receive hover; swap rim-light on either.
+	var apply_hover := func() -> void:
+		if is_instance_valid(icon):
+			icon.texture = hover
+	var apply_idle := func() -> void:
+		if is_instance_valid(icon):
+			icon.texture = idle
+	host.mouse_entered.connect(apply_hover)
+	host.mouse_exited.connect(apply_idle)
+	var clip_n := host.get_node_or_null("Clip")
+	if clip_n is Control:
+		(clip_n as Control).mouse_entered.connect(apply_hover)
+		(clip_n as Control).mouse_exited.connect(apply_idle)
 
 
 ## Locked biome: chain + "?" and no item silhouettes (Doop D). Optional chain PNG; else drawn bars.
