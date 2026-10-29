@@ -473,20 +473,26 @@
         "resume_position": true,
         "note": "Verdant Hollow dungeon loop after intro"
       },
-      "cinder_forge_intro": {
-        "file": "music_cinder_forge_intro",
-        "gain_db": -4.0,
-        "loop": false,
-        "resume_position": false,
-        "next": "cinder_forge",
-        "note": "Cinder Forge (b4) one-shot intro; finished → cinder_forge loop"
-      },
       "cinder_forge": {
-        "file": "music_cinder_forge_loop",
+        "file": "music_cinder_forge_a",
         "gain_db": -4.0,
         "loop": true,
         "resume_position": true,
-        "note": "Cinder Forge dungeon loop after intro"
+        "note": "Cinder Forge (b4) Approach F layer A (Lead+Bass+Keyboard+Synth+Other+Woodwinds). Always on during the delve."
+      },
+      "cinder_forge_b": {
+        "file": "music_cinder_forge_b",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Forge intensity B (drums). Synced to A; fade in on combat, mute between fights."
+      },
+      "cinder_forge_c": {
+        "file": "music_cinder_forge_c",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Forge intensity C (percussion+brass heat). Synced to A; fade in on Tier-3/boss only."
       },
       "intro": {
         "file": "music_intro",
@@ -536,7 +542,7 @@
       "rope_exit": "combat(ducked)",
       "homecoming": "cabin",
       "verdant_hollow": "verdant_hollow_intro then verdant_hollow",
-      "cinder_forge": "cinder_forge_intro then cinder_forge"
+      "cinder_forge": "cinder_forge A always; B combat; C Tier-3; no between-fight bed duck"
     },
     "biome_beds": {
       "b1": "verdant_hollow",

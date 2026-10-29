@@ -102,6 +102,10 @@ add("sting_defeat", "sting", L("jingles", "Sax jingles/jingles_SAX01.ogg"))
 add("music_combat", "music", L("oga_rbl", "rbl_0.mp3"), trim=(1011, 2605292), edge_fade_ms=4)  # 32 bars @130 BPM; micro-fade masks the wrap
 add("music_deadly", "music", L("oga_deep", "dungeon_deep.mp3"), trim=(0, 1142158))
 add("music_cabin", "music", L("oga_fire_m", "a_small_fire_will_do.wav"), trim=(0, 2822400), lufs=-22)
+# Suno biome beds are drop-in files in assets/audio/ (not encoded here):
+#   Verdant Hollow: music_verdant_hollow_intro.ogg, music_verdant_hollow_loop.ogg
+#   Cinder Forge Approach F: music_cinder_forge_a.ogg (bed), music_cinder_forge_b.ogg (drums),
+#     music_cinder_forge_c.ogg (heat). Credits: write_credits.py trailer + assets/audio/CREDITS.txt.
 
 TARGET_RMS = {"ui": -20.0, "sfx": -16.0, "sting": -16.0, "amb": -22.0}
 

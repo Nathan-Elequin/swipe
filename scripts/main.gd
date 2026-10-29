@@ -2398,7 +2398,10 @@ func _enter_dungeon_clear() -> void:
 		sfx.set_combat_music(false)
 		sfx.play("confirm_big", -6.0)
 		sfx.play_event(&"sting.clear")
-		sfx.music_title()
+		if sfx.has_method("music_after_dungeon_clear"):
+			sfx.music_after_dungeon_clear()
+		else:
+			sfx.music_title()
 	if combat_stage:
 		combat_stage.hide_stage()
 	if player_stage:

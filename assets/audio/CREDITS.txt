@@ -396,7 +396,9 @@ Verdant Hollow theme (2026-10-29)
 music_verdant_hollow_intro.ogg (~10.1 s) — Verdant Hollow theme intro (one-shot) — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29
 music_verdant_hollow_loop.ogg (~1:47) — Verdant Hollow theme loop — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29
 
-Cinder Forge theme (2026-10-29)
--------------------------------
-music_cinder_forge_intro.ogg (~26.3 s) — Cinder Forge theme intro (one-shot) — Suno instrumental by Nathan (Dungeon Quest / refinedpolonaise473), 2026-10-29
-music_cinder_forge_loop.ogg (~2:27) — Cinder Forge theme loop — Suno instrumental by Nathan (Dungeon Quest / refinedpolonaise473), 2026-10-29
+Cinder Forge theme — Approach F hybrid (2026-10-29)
+---------------------------------------------------
+Source: Suno Forge Motif https://suno.com/s/mhvMHyfv72JqOpjX — loop trim 8.169s→73.629s (65.460s, 121 BPM). Instrumental by Nathan (refinedpolonaise473).
+music_cinder_forge_a.ogg (~65.46 s) — layer A bed (Lead+Bass+Keyboard+Synth+Other+Woodwinds, no drums)
+music_cinder_forge_b.ogg (~65.46 s) — layer B drums (combat intensity, synced to A)
+music_cinder_forge_c.ogg (~65.46 s) — layer C heat (Percussion+Brass; Tier-3/boss intensity, synced to A)
