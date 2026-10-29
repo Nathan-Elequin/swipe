@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"ability": "Heal 1, then increase this number by 1. Keep this if you are still missing HP.",
 			"id": "lantern",
 			"kind": "item",
 			"name": "Lantern",
@@ -30,7 +30,7 @@
 		],
 		"slots": "0 / 50"
 	},
-	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Cleric — After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item Challenge hand. Wheel cleric. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Lantern — Heal 1, then increase this number by 1. Keep this if you are still missing HP. Monster: Cleric — After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item Challenge hand. Wheel cleric. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-lantern-cleric",
 	"log": "Draft enter\nYou Spin\nSpin Cleric\nenemy ATK 4   HP 5\nBLK 0\nitems this combat 0\nCleric - Health Insurance\nHP heal +3  now 6\nSpin Health Insurance Heal 3  to  6\nSpin Cleric took worst item",

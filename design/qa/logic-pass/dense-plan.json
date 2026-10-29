@@ -497,7 +497,7 @@
       "id": "hook-swaps-neighbor",
       "title": "Grappling Hook swaps a Neighbor in",
       "family": "collide",
-      "expected_text": "Swap a Neighboring Owner into this fight. Draw a Random Item."
+      "expected_text": "Move to Any Monster, then Draw 1 Item"
     },
     {
       "id": "pacemaker-on-use",

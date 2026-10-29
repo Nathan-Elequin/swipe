@@ -6,6 +6,7 @@ Open: http://127.0.0.1:8767/buckets.html
 from __future__ import annotations
 
 import json
+import re
 import sys
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
@@ -15,6 +16,45 @@ DESIGN = ROOT / "design"
 DATA = ROOT / "data"
 HOST = "127.0.0.1"
 PORT = 8767
+_art_cache: dict = {"mtime": None, "body": b""}
+
+
+def live_art_bytes() -> bytes:
+    """Build the sprite map from dungeon_art.gd so new cards are not stuck on an old snapshot."""
+    gd = ROOT / "scripts" / "dungeon_art.gd"
+    mtime = gd.stat().st_mtime
+    if _art_cache["mtime"] == mtime and _art_cache["body"]:
+        return _art_cache["body"]
+    text = gd.read_text(encoding="utf-8")
+
+    def extract(name: str) -> dict:
+        m = re.search(rf"const {name} := \{{", text)
+        if not m:
+            return {}
+        start = m.end()
+        depth = 1
+        i = start
+        while i < len(text) and depth:
+            if text[i] == "{":
+                depth += 1
+            elif text[i] == "}":
+                depth -= 1
+            i += 1
+        out = {}
+        for line in text[start : i - 1].splitlines():
+            mm = re.match(r'\s*"([^"]+)":\s*"res://([^"]+)"', line)
+            if not mm:
+                continue
+            rel = mm.group(2).replace("\\", "/").lstrip("/")
+            if rel.startswith("assets/"):
+                rel = rel[len("assets/") :]
+            out[mm.group(1)] = "/assets/" + rel
+        return out
+
+    body = (json.dumps({"items": extract("ITEM_PNG"), "monsters": extract("MONSTER_PNG")}) + "\n").encode("utf-8")
+    _art_cache["mtime"] = mtime
+    _art_cache["body"] = body
+    return body
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -79,7 +119,13 @@ class Handler(SimpleHTTPRequestHandler):
             self._serve_data_file(DATA / "catalog.json")
             return
         if self.path == "/data/buckets-art.json":
-            self._serve_data_file(DESIGN / "buckets-art.json")
+            body = live_art_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
             return
         super().do_GET()
 
@@ -105,6 +151,7 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(data)
 

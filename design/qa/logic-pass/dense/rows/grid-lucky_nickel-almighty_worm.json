@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"ability": "Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep.",
 			"id": "lucky_nickel",
 			"kind": "item",
 			"name": "Lucky Nickel",
@@ -32,7 +32,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Almighty Worm — When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3. Challenge hand. Wheel almighty_worm. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Lucky Nickel — Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep. Monster: Almighty Worm — When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3. Challenge hand. Wheel almighty_worm. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-lucky_nickel-almighty_worm",
 	"log": "Draft enter\nYou Spin\nSpin Almighty Worm\nenemy ATK 9   HP 9\nBLK 0\nitems this combat 0\nSpin almighty worm hunger\nSpin worm ate Lucky Nickel\nSpin worm hunger done",
