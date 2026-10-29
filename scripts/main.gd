@@ -2430,15 +2430,25 @@ func _play_clear_parade() -> void:
 	if wheel_view:
 		saved = wheel_view.hub_sprout_on
 		wheel_view.hub_sprout_on = false
+		wheel_view.hub_parade_hide = true
 		wheel_view.hub_flip = false
 		wheel_view.queue_redraw()
 	var parade := preload("res://scripts/cabin/clear_parade.gd").new()
 	parade.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(parade)
+	# Clear hub_parade_hide even if the parade node is freed mid-await.
+	var _parade_exiting := func() -> void:
+		if wheel_view != null and is_instance_valid(wheel_view):
+			wheel_view.hub_parade_hide = false
+	if not parade.tree_exiting.is_connected(_parade_exiting):
+		parade.tree_exiting.connect(_parade_exiting)
 	await parade.run(wheel_view, art)
 	if is_instance_valid(parade):
+		if parade.tree_exiting.is_connected(_parade_exiting):
+			parade.tree_exiting.disconnect(_parade_exiting)
 		parade.queue_free()
 	if wheel_view:
+		wheel_view.hub_parade_hide = false
 		wheel_view.hub_sprout_on = saved
 		wheel_view.hub_flip = false
 		wheel_view.queue_redraw()
@@ -19505,6 +19515,9 @@ func _sprout_kill() -> void:
 func _hub_set(flip: bool, sy: float, mod: Color, on: bool) -> void:
 	if wheel_view == null:
 		return
+	# Parade overlay owns the hub hero; don't let fight enforcers re-show it.
+	if wheel_view.hub_parade_hide:
+		on = false
 	wheel_view.hub_flip = flip
 	wheel_view.hub_sy = sy
 	wheel_view.hub_mod = mod

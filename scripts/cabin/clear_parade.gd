@@ -9,6 +9,12 @@ const HOP_START := 1.04
 const HOP_END := 1.60
 const WIPE_END := 2.10
 const ARRIVE_END := 2.58
+## hero_arrive f2 onset ≈ midpoint of arrive span (landing contact).
+const DUST_START := WIPE_END + 0.5 * (ARRIVE_END - WIPE_END)
+const DUST_PLAY := 0.24
+
+## When >= 0, run() advances to that t and holds (deterministic Repot shots).
+var freeze_at: float = -1.0
 
 var _layer: CanvasLayer
 var _hero: Sprite2D
@@ -42,6 +48,7 @@ func run(wheel, art) -> void:
 	var burst_sp := _make(_first(burst), feet + Vector2(-16, -24), 6)
 	var ember_sp := _make(_first(embers), feet + Vector2(8, -8), 5)
 	var mound_sp := _make(mound, feet + Vector2(132, 36), 2)
+	mound_sp.visible = false
 	var mouth_sp := _make(_first(mouth), feet + Vector2(128, 8), 3)
 	mouth_sp.visible = false
 	var curtain_sp := _make(curtain, feet, 8)
@@ -49,18 +56,26 @@ func run(wheel, art) -> void:
 	var curtain_w := 0.0
 	if curtain != null:
 		curtain_w = float(curtain.get_width()) * curtain_sp.scale.x
-	var dust_sp := _make(_first(dust), feet + Vector2(188, 64), 7)
+	# Dust above the hero (z 7 > hero 4); brighten so it reads on the dark wheel.
+	var dust_sp := _make(_first(dust), feet, 7)
 	dust_sp.visible = false
+	dust_sp.modulate = Color(1.15, 1.1, 1.0, 1.0)
 	_hero = _make(_first(victory), feet, 4)
 	_pin_gear(feet, gear_victory)
 	var hop := 140.0
 	var t := 0.0
-	while t < PARADE_SEC - 0.001:
+	var hold_at := freeze_at
+	var end_t := PARADE_SEC - 0.001
+	if hold_at >= 0.0:
+		end_t = hold_at
+	while t < end_t:
 		_hero.flip_h = false
 		if t < HOP_START:
 			_frame_at(_hero, victory, CHEER_MARKS, t, gear_victory)
 			_frame_span(burst_sp, burst, 0.0, 0.40, t)
 			burst_sp.visible = t < 0.40 and not burst.is_empty()
+			mound_sp.visible = false
+			dust_sp.visible = false
 		elif t < HOP_END:
 			burst_sp.visible = false
 			var u := (t - HOP_START) / (HOP_END - HOP_START)
@@ -71,12 +86,14 @@ func run(wheel, art) -> void:
 			mouth_sp.visible = not mouth.is_empty()
 			_frame_span(mouth_sp, mouth, HOP_START + 0.28, HOP_END, t)
 			mound_sp.visible = mound != null
+			dust_sp.visible = false
 		elif t < WIPE_END:
 			_hero.visible = false
 			for g in _gear:
 				g.visible = false
 			mouth_sp.visible = false
 			mound_sp.visible = mound != null
+			dust_sp.visible = false
 			if curtain != null and curtain_w > 1.0:
 				var u2 := (t - HOP_END) / (WIPE_END - HOP_END)
 				curtain_sp.visible = true
@@ -95,22 +112,97 @@ func run(wheel, art) -> void:
 			_frame_span(_hero, arrive, WIPE_END, ARRIVE_END, t)
 			for g in _gear:
 				g.visible = false
-			if t >= ARRIVE_END - 0.24 and not dust.is_empty():
-				dust_sp.visible = true
-				dust_sp.position = land + Vector2(12.0, 70.0)
-				_frame_span(dust_sp, dust, ARRIVE_END - 0.24, ARRIVE_END, t)
+			_update_land_dust(dust_sp, dust, t)
 		if not embers.is_empty():
 			ember_sp.visible = t < WIPE_END
 			var ei := int(t / 0.09) % embers.size()
 			ember_sp.texture = embers[ei]
 			ember_sp.flip_h = false
+		if hold_at >= 0.0 and t + 0.02 >= hold_at:
+			t = hold_at
+			# Exact-beat re-paint, then hold for Repot.
+			_hero.flip_h = false
+			if t < HOP_START:
+				_frame_at(_hero, victory, CHEER_MARKS, t, gear_victory)
+				_frame_span(burst_sp, burst, 0.0, 0.40, t)
+				burst_sp.visible = t < 0.40 and not burst.is_empty()
+				mound_sp.visible = false
+				dust_sp.visible = false
+			elif t < HOP_END:
+				burst_sp.visible = false
+				var uf := (t - HOP_START) / (HOP_END - HOP_START)
+				_hero.position.x = feet.x + hop * uf
+				_frame_span(_hero, walkoff, HOP_START, HOP_END, t)
+				_sync_gear(gear_walk, _walk_index(t), _hero.position, _hero.scale)
+				mouth_sp.visible = not mouth.is_empty()
+				_frame_span(mouth_sp, mouth, HOP_START + 0.28, HOP_END, t)
+				mound_sp.visible = mound != null
+				dust_sp.visible = false
+			elif t < WIPE_END:
+				_hero.visible = false
+				for g in _gear:
+					g.visible = false
+				mouth_sp.visible = false
+				mound_sp.visible = mound != null
+				dust_sp.visible = false
+				if curtain != null and curtain_w > 1.0:
+					var u2f := (t - HOP_END) / (WIPE_END - HOP_END)
+					curtain_sp.visible = true
+					curtain_sp.flip_h = false
+					curtain_sp.position = Vector2(mouth_sp.position.x - curtain_w + (curtain_w * 1.35) * u2f, mouth_sp.position.y - 16.0)
+				else:
+					curtain_sp.visible = false
+			else:
+				curtain_sp.visible = false
+				mouth_sp.visible = false
+				mound_sp.visible = false
+				var land_f := feet + Vector2(hop + 36.0, 0.0)
+				var u3f := clampf((t - WIPE_END) / (ARRIVE_END - WIPE_END), 0.0, 1.0)
+				_hero.visible = not arrive.is_empty()
+				_hero.position = land_f + Vector2(56.0 * u3f, 0.0)
+				_frame_span(_hero, arrive, WIPE_END, ARRIVE_END, t)
+				for g in _gear:
+					g.visible = false
+				_update_land_dust(dust_sp, dust, t)
+			if not embers.is_empty():
+				ember_sp.visible = t < WIPE_END
+				var eif := int(t / 0.09) % embers.size()
+				ember_sp.texture = embers[eif]
+				ember_sp.flip_h = false
+			await _wait(3600.0)
+			break
 		await _wait(0.02)
 		t += 0.02
-	var left := PARADE_SEC - float(Time.get_ticks_msec() - t0) / 1000.0
-	if left > 0.02:
-		await _wait(left)
-	if is_instance_valid(_layer):
-		_layer.queue_free()
+	if hold_at < 0.0:
+		var left := PARADE_SEC - float(Time.get_ticks_msec() - t0) / 1000.0
+		if left > 0.02:
+			await _wait(left)
+		if is_instance_valid(_layer):
+			_layer.queue_free()
+
+
+func _update_land_dust(dust_sp: Sprite2D, dust: Array, t: float) -> void:
+	if dust_sp == null or dust.is_empty() or _hero == null:
+		return
+	if t < DUST_START:
+		dust_sp.visible = false
+		return
+	dust_sp.visible = true
+	# Arrive art is 128×128 at scale 1; feet near y≈115–128. Dust is 32×16 ×4 = 128×64.
+	var dust_h := 64.0
+	if dust_sp.texture != null:
+		dust_h = float(dust_sp.texture.get_height()) * dust_sp.scale.y
+	dust_sp.position = _hero.position + Vector2(0.0, 128.0 - dust_h)
+	var play_end := DUST_START + DUST_PLAY
+	if t < play_end:
+		_frame_span(dust_sp, dust, DUST_START, play_end, t)
+		dust_sp.modulate = Color(1.15, 1.1, 1.0, 1.0)
+	else:
+		dust_sp.texture = dust[dust.size() - 1]
+		var fade_u := 0.0
+		if PARADE_SEC > play_end:
+			fade_u = clampf((t - play_end) / (PARADE_SEC - play_end), 0.0, 1.0)
+		dust_sp.modulate = Color(1.15, 1.1, 1.0, 1.0 - fade_u)
 
 
 func _run_frames(art, anim: String) -> Array:
