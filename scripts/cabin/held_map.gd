@@ -26,15 +26,17 @@ const TRAIL: Array[Vector2] = [
 	Vector2(985, 759),
 ]
 ## Per-biome Deadly patrol lanes (offsets from TRAIL[i+1]). Slot k = k-th telegraph id.
+## Feet sit just left of the wax stamp (names live to the right). Short dx so
+## they stay hugging the clickable node instead of wandering the fog.
 const LANES := {
-	"b1": [{"at": Vector2(90, 100), "dx": -50.0}],
-	"b2": [{"at": Vector2(-130, -55), "dx": -48.0}, {"at": Vector2(-200, 55), "dx": 56.0}],
-	"b3": [{"at": Vector2(150, 40), "dx": 50.0}, {"at": Vector2(-150, 30), "dx": -48.0}],
-	"b4": [{"at": Vector2(-150, -10), "dx": -50.0}, {"at": Vector2(140, 40), "dx": 48.0}],
+	"b1": [{"at": Vector2(-52, 16), "dx": 18.0}],
+	"b2": [{"at": Vector2(-54, 8), "dx": 20.0}, {"at": Vector2(-42, 44), "dx": 18.0}],
+	"b3": [{"at": Vector2(-54, 8), "dx": 20.0}, {"at": Vector2(-42, 44), "dx": 18.0}],
+	"b4": [{"at": Vector2(-54, 8), "dx": 20.0}, {"at": Vector2(-42, 44), "dx": 18.0}],
 	"b5": [
-		{"at": Vector2(-160, 10), "dx": -50.0},
-		{"at": Vector2(150, -20), "dx": 50.0},
-		{"at": Vector2(40, 95), "dx": 40.0},
+		{"at": Vector2(-54, 4), "dx": 20.0},
+		{"at": Vector2(-68, 38), "dx": 18.0},
+		{"at": Vector2(-24, 50), "dx": 16.0},
 	],
 }
 const ENDLESS_AT := Vector2(280, 860)
