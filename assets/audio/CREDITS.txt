@@ -390,3 +390,8 @@ cab_drawer_open.ogg (0.97 s)
 cab_geode_chime.ogg (0.59 s)
     <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_geode_chime.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
     <- Kenney — Impact Sounds / Audio/impactGlass_light_002.ogg (pitch x0.9, -8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+
+Verdant Hollow theme (2026-10-29)
+---------------------------------
+music_verdant_hollow_intro.ogg (~10.1 s) — Verdant Hollow theme intro (one-shot) — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29
+music_verdant_hollow_loop.ogg (~1:47) — Verdant Hollow theme loop — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29

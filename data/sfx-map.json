@@ -458,6 +458,21 @@
         "loop": true,
         "resume_position": true
       },
+      "verdant_hollow_intro": {
+        "file": "music_verdant_hollow_intro",
+        "gain_db": -4.0,
+        "loop": false,
+        "resume_position": false,
+        "next": "verdant_hollow",
+        "note": "Verdant Hollow (b1) one-shot intro; finished → verdant_hollow loop"
+      },
+      "verdant_hollow": {
+        "file": "music_verdant_hollow_loop",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": true,
+        "note": "Verdant Hollow dungeon loop after intro"
+      },
       "intro": {
         "file": "music_intro",
         "gain_db": 0.0,
@@ -504,7 +519,12 @@
       "ending": "ending",
       "keyring": "cabin(ducked)",
       "rope_exit": "combat(ducked)",
-      "homecoming": "cabin"
+      "homecoming": "cabin",
+      "verdant_hollow": "verdant_hollow_intro then verdant_hollow"
+    },
+    "biome_beds": {
+      "b1": "verdant_hollow",
+      "verdant_hollow": "verdant_hollow"
     }
   },
   "cues": {

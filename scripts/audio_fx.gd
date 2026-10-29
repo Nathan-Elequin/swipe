@@ -4,7 +4,7 @@ extends Node
 const SAVE_PATH := "user://audio.json"
 const MAP_PATH := "res://data/sfx-map.json"
 const LEGACY_UI_IDS := ["hover", "click", "click2", "select", "question", "error", "switch", "confirm", "confirm_big"]
-const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp"]
+const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp", "music_verdant_hollow_loop"]
 const AUDIO_LOG_CAP := 80
 
 var music: AudioStreamPlayer
@@ -34,6 +34,8 @@ var _loop_players: Dictionary = {}
 var _beds: Dictionary = {}
 var _bed_pos: Dictionary = {}
 var _current_bed: StringName = &""
+## Biome dungeon bed (e.g. verdant_hollow). Combat music routes here while set.
+var _dungeon_bed: StringName = &""
 var _last_hover_ms: int = 0
 var session_log
 var _last_tick_ms: int = 0
@@ -295,8 +297,18 @@ func _load_beds() -> void:
 		if stream == null:
 			push_warning("AudioFx: missing music bed %s" % str(bed_id))
 			continue
-		_maybe_loop(stream, str(spec.get("file", "")), true)
-		_beds[str(bed_id)] = {"stream": stream, "gain_db": float(spec.get("gain_db", 0.0)), "resume": bool(spec.get("resume_position", false))}
+		var do_loop: bool = bool(spec.get("loop", true))
+		_maybe_loop(stream, str(spec.get("file", "")), do_loop)
+		if stream is AudioStreamOggVorbis and not do_loop:
+			(stream as AudioStreamOggVorbis).loop = false
+		_beds[str(bed_id)] = {
+			"stream": stream,
+			"gain_db": float(spec.get("gain_db", 0.0)),
+			"resume": bool(spec.get("resume_position", false)),
+			"file": str(spec.get("file", "")),
+			"next": str(spec.get("next", "")),
+			"loop": do_loop,
+		}
 	if _beds.has("title"):
 		_music_a.stream = _beds["title"]["stream"]
 		_music_a.volume_db = float(_beds["title"]["gain_db"])
@@ -699,8 +711,11 @@ func stop_cue_voices(cue_id: StringName) -> void:
 
 func music_to(bed: StringName, fade_s: float) -> void:
 	var id: String = String(bed)
-	if id in ["combat", "title", "deadly", "intro"]:
+	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro"]:
 		loop_stop(&"amb.radio_static", 0.25)
+	# Leaving the dungeon for cabin / title / radio stations drops the biome bed.
+	if id == "cabin" or id == "title" or id == "intro" or id == "ending" or id.begins_with("station_"):
+		_dungeon_bed = &""
 	if not _beds.has(id):
 		log_audio("skip", "missing_bed", {"bed": id})
 		return
@@ -722,13 +737,20 @@ func music_to(bed: StringName, fade_s: float) -> void:
 	var start_pos: float = 0.0
 	if bool(spec.get("resume", false)):
 		start_pos = float(_bed_pos.get(id, 0.0))
-	incoming.volume_db = -80.0
-	incoming.play(start_pos)
 	_music_front = 1 - _music_front
 	music = incoming
 	_current_bed = bed
 	if _xfade_tw != null:
 		_xfade_tw.kill()
+	# fade_s <= 0: hard cut (intro → loop handoff).
+	if fade_s <= 0.0:
+		incoming.volume_db = gain
+		incoming.play(start_pos)
+		if outgoing != incoming:
+			outgoing.stop()
+		return
+	incoming.volume_db = -80.0
+	incoming.play(start_pos)
 	var dur: float = maxf(fade_s, 0.01)
 	_xfade_tw = create_tween()
 	_xfade_tw.set_ignore_time_scale(true)
@@ -752,6 +774,7 @@ func _set_out_lin(t: float, player: AudioStreamPlayer, start_db: float) -> void:
 
 
 func music_title() -> void:
+	_clear_dungeon_bed()
 	music_state = &"title"
 	_between_duck = 0.0
 	_mix_duck(0.3)
@@ -768,11 +791,62 @@ func music_deadly() -> void:
 
 
 func music_cabin() -> void:
+	_clear_dungeon_bed()
 	music_state = &"cabin"
 	_between_duck = 0.0
 	_mix_duck(0.3)
 	var fades: Dictionary = _music_cfg.get("crossfade_s", {})
 	music_to(&"cabin", float(fades.get("to_cabin", 1.5)))
+
+
+func _clear_dungeon_bed() -> void:
+	_dungeon_bed = &""
+
+
+## Map biome id (b1 / verdant_hollow) → dungeon bed key, or "" if none.
+func dungeon_bed_for_biome(biome_id: String) -> StringName:
+	var map: Dictionary = _music_cfg.get("biome_beds", {})
+	var key: String = str(map.get(str(biome_id).strip_edges(), "")).strip_edges()
+	if key == "" or not _beds.has(key):
+		return &""
+	return StringName(key)
+
+
+## Enter a biome dungeon: play intro once (if registered) then loop. Cabin return clears this.
+func music_biome_dungeon(biome_id: String) -> void:
+	var bed: StringName = dungeon_bed_for_biome(biome_id)
+	_dungeon_bed = bed
+	if bed == &"":
+		return
+	music_state = &"dungeon"
+	_between_duck = 0.0
+	_mix_duck(0.3)
+	var fades: Dictionary = _music_cfg.get("crossfade_s", {})
+	var fade_s: float = float(fades.get("default", 0.8))
+	var intro_id: String = "%s_intro" % String(bed)
+	if _beds.has(intro_id):
+		# Already mid-dungeon on this bed or its intro — do not restart the intro.
+		if _current_bed == bed or _current_bed == StringName(intro_id):
+			if music != null and music.playing:
+				return
+		music_to(StringName(intro_id), fade_s)
+		return
+	music_to(bed, fade_s)
+
+
+func _combat_or_dungeon_bed() -> StringName:
+	if _dungeon_bed != &"" and _beds.has(String(_dungeon_bed)):
+		return _dungeon_bed
+	return &"combat"
+
+
+func _on_dungeon_or_intro_bed() -> bool:
+	if _dungeon_bed == &"":
+		return false
+	if _current_bed == _dungeon_bed:
+		return true
+	var intro_id: String = "%s_intro" % String(_dungeon_bed)
+	return _current_bed == StringName(intro_id)
 
 
 func music_victory() -> void:
@@ -812,16 +886,20 @@ func set_combat_music(on: bool) -> void:
 		music_state = &"combat"
 		_between_duck = 0.0
 		_mix_duck(0.3)
+		# Verdant Hollow (and future biome beds): keep intro→loop; do not swap to combat.
+		if _on_dungeon_or_intro_bed() and music != null and music.playing:
+			return
 		var fades: Dictionary = _music_cfg.get("crossfade_s", {})
-		music_to(&"combat", float(fades.get("default", 0.8)))
+		music_to(_combat_or_dungeon_bed(), float(fades.get("default", 0.8)))
 	else:
-		if music_state == &"title" or music_state == &"cabin" or music_state == &"victory" or music_state == &"defeat":
+		if music_state == &"title" or music_state == &"cabin" or music_state == &"victory" or music_state == &"defeat" or music_state == &"dungeon":
 			return
 		music_state = &"between"
 		_between_duck = float(_music_cfg.get("between_fights_duck_db", -4))
 		_mix_duck(0.3)
-		if _current_bed != &"combat":
-			music_to(&"combat", float(_music_cfg.get("crossfade_s", {}).get("default", 0.8)))
+		var want: StringName = _combat_or_dungeon_bed()
+		if _current_bed != want and not _on_dungeon_or_intro_bed():
+			music_to(want, float(_music_cfg.get("crossfade_s", {}).get("default", 0.8)))
 
 
 func duck_music(db: float) -> void:
@@ -894,7 +972,7 @@ func _apply_cue_music(cue_id: String, bed: String) -> void:
 				music_state = &"combat"
 				_between_duck = 0.0
 				_mix_duck(0.3)
-				music_to(&"combat", float(fades.get("from_deadly", 1.2)))
+				music_to(_combat_or_dungeon_bed(), float(fades.get("from_deadly", 1.2)))
 			else:
 				set_combat_music(true)
 		"cabin":
@@ -912,6 +990,8 @@ func _apply_cue_music(cue_id: String, bed: String) -> void:
 		"ending":
 			music_state = &"ending"
 			music_to(&"ending", float(_music_cfg.get("crossfade_s", {}).get("default", 0.8)))
+		"verdant_hollow":
+			music_biome_dungeon("b1")
 
 
 func _mix_duck(attack: float) -> void:
@@ -1020,6 +1100,13 @@ func _on_music_finished(player: AudioStreamPlayer) -> void:
 	log_audio("stop", "finished", {"player": player.name if player else ""})
 	if _current_bed == &"" or music != player:
 		return
+	# One-shot intro beds: crossfade (or hard cut at 0s) into their `next` loop.
+	if _beds.has(String(_current_bed)):
+		var next_id: String = str(_beds[String(_current_bed)].get("next", "")).strip_edges()
+		if next_id != "" and _beds.has(next_id):
+			log_audio("start", "intro_to_loop", {"from": String(_current_bed), "to": next_id})
+			music_to(StringName(next_id), 0.0)
+			return
 	resume_intended("stream_finished")
 
 
