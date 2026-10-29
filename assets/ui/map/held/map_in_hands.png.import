@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://df6cc399a14b50a9"
-path="res://.godot/imported/map_in_hands.png-f6cc399a14b50a9883168e7d86981ff7.ctex"
+uid="uid://dj4rsfsmrj30m"
+path="res://.godot/imported/map_in_hands.png-5c7a6c0399c749c7d55635514e7c8cb6.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/map/held/map_in_hands.png"
-dest_files=["res://.godot/imported/map_in_hands.png-f6cc399a14b50a9883168e7d86981ff7.ctex"]
+dest_files=["res://.godot/imported/map_in_hands.png-5c7a6c0399c749c7d55635514e7c8cb6.ctex"]
 
 [params]
 

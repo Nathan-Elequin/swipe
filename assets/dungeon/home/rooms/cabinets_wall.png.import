@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d789117b466bc91b"
-path="res://.godot/imported/cabinets_wall.png-789117b466bc91bb1cb28789c83e29cc.ctex"
+uid="uid://ciulixsqyfa50"
+path="res://.godot/imported/cabinets_wall.png-352651ab85fd1dec028d4bc835f424ff.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/home/rooms/cabinets_wall.png"
-dest_files=["res://.godot/imported/cabinets_wall.png-789117b466bc91bb1cb28789c83e29cc.ctex"]
+dest_files=["res://.godot/imported/cabinets_wall.png-352651ab85fd1dec028d4bc835f424ff.ctex"]
 
 [params]
 
