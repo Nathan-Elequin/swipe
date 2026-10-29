@@ -717,6 +717,7 @@ var challenge_armed: bool = false
 var challenge_draft_plan: Array = []
 var challenge_pick_i: int = 0
 var _challenge_force_spin: bool = false
+var _await_first_spin: bool = false
 var _challenge_pending_gain: Dictionary = {}
 var _challenge_loot_wait: bool = false
 var _loot_epoch: int = 0
@@ -2130,10 +2131,8 @@ func _is_adventure_mode() -> bool:
 
 
 func _click_choose_fight() -> bool:
-	## Campaign / Challenge: pause for a Spin button (no auto-Spin). The wheel is not the start.
-	if _campaign_on:
-		return true
-	return _is_long_drop()
+	## Click-a-monster start is retired. Opening Spin is `_await_first_spin`; later Spins auto-fire.
+	return false
 
 
 func _qa_busy() -> bool:
@@ -2209,6 +2208,7 @@ func _reset_run() -> void:
 	challenge_draft_plan.clear()
 	challenge_pick_i = 0
 	_challenge_force_spin = false
+	_await_first_spin = false
 	_challenge_pending_gain = {}
 	_challenge_loot_wait = false
 	_challenge_pair.clear()
@@ -4429,6 +4429,7 @@ func _challenge_begin_play() -> void:
 		challenge_draft_ui.hide_draft()
 	draft_action = ""
 	phase = "ready"
+	_await_first_spin = true
 	challenge_aim = -1
 	if wheel_view:
 		wheel_view.selected_index = -1
@@ -7337,6 +7338,7 @@ func _on_spin() -> void:
 	else:
 		_undo_wall()
 		_unspin_armed = false
+	_await_first_spin = false
 	phase = "spinning"
 	# Drop cached gutter layout — next place after land must run full work.
 	_fight_art_sig = ""
@@ -8058,7 +8060,7 @@ func _maybe_auto_spin() -> void:
 		return
 	if _qa_busy() and not _is_adventure_mode():
 		return
-	if _click_choose_fight() and not _challenge_force_spin:
+	if _await_first_spin:
 		return
 	if phase != "ready":
 		return
@@ -8189,6 +8191,7 @@ func _capture_run() -> Dictionary:
 		"dungeon_index": dungeon_index,
 		"challenge_deck": challenge_deck.duplicate(true),
 		"challenge_aim": challenge_aim,
+		"await_first_spin": _await_first_spin,
 		"adventure_seat_tiers": adventure_seat_tiers.duplicate(true),
 		"moves_left": moves_left,
 	}
@@ -8418,6 +8421,7 @@ func _restore_run(snap: Dictionary) -> void:
 	dungeon_index = int(snap.get("dungeon_index", dungeon_index))
 	challenge_deck = _undo_dup(snap.get("challenge_deck", challenge_deck))
 	challenge_aim = int(snap.get("challenge_aim", challenge_aim))
+	_await_first_spin = bool(snap.get("await_first_spin", _await_first_spin))
 	adventure_seat_tiers = _undo_dup(snap.get("adventure_seat_tiers", adventure_seat_tiers))
 	moves_left = int(snap.get("moves_left", moves_left))
 	if wheel_view:
@@ -20654,7 +20658,7 @@ func _cue_text() -> String:
 		"ready":
 			if not pending_choice.is_empty():
 				return "Highest Attack, Lowest Attack, or Off."
-			if _click_choose_fight() and adventure:
+			if _await_first_spin:
 				return ""
 			if _is_adventure_mode():
 				return ""
@@ -20868,7 +20872,7 @@ func _sync_buttons() -> void:
 	btn_start.disabled = busy
 	btn_place.visible = false
 	btn_bribe.visible = false
-	btn_spin.visible = phase == "ready" and (not _is_adventure_mode() or _click_choose_fight())
+	btn_spin.visible = phase == "ready" and (not adventure or _await_first_spin)
 	btn_done.visible = enemy_up
 	btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
 	btn_spin.icon = null
