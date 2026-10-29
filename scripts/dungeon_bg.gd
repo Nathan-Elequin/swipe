@@ -4,12 +4,17 @@ extends Control
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
 const FLICKER_STEP := 0.125
+## Quiet biome tint behind floor tiles (Pixel lock 2026-10-29).
+const BIOME_BG_ALPHA := 0.60
+const BIOME_BG_DIR := "res://assets/ui/biome_bg/%s.png"
 
 var art
 var _t: float = 0.0
 var hall: int = 0
 var _pan: float = 0.0
 var _flick_wait: float = 0.0
+var _biome_id: String = ""
+var _biome_tex: Texture2D = null
 var pan: float:
 	get:
 		return _pan
@@ -25,6 +30,19 @@ func setup(p_art) -> void:
 	z_index = -8
 	texture_filter = TEXTURE_FILTER_NEAREST
 	set_process(true)
+
+
+func set_biome(id: String) -> void:
+	var want := str(id).strip_edges()
+	if want == _biome_id and (_biome_tex != null or want == ""):
+		return
+	_biome_id = want
+	_biome_tex = null
+	if want != "" and ResourceLoader.exists(BIOME_BG_DIR % want):
+		var loaded: Variant = load(BIOME_BG_DIR % want)
+		if loaded is Texture2D:
+			_biome_tex = loaded
+	queue_redraw()
 
 
 func bump_hall() -> void:
@@ -65,8 +83,10 @@ func _draw() -> void:
 	FRAME_METRICS.note_hall()
 	if art == null or not art.ready_ok:
 		draw_rect(Rect2(Vector2.ZERO, size), Color("0a0807"), true)
+		_draw_biome_tint()
 		return
 	draw_rect(Rect2(Vector2.ZERO, size), Color("0a0807"), true)
+	_draw_biome_tint()
 	var ts: float = 48.0
 	var cols: int = int(ceil(size.x / ts)) + 2
 	var rows: int = int(ceil(size.y / ts)) + 1
@@ -110,6 +130,17 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2(0.0, size.y - 150.0), Vector2(size.x, 150.0)), Color(0.03, 0.02, 0.015, 0.62), true)
 	draw_rect(Rect2(Vector2.ZERO, Vector2(110.0, size.y)), Color(0.03, 0.02, 0.015, 0.58), true)
 	draw_rect(Rect2(Vector2(size.x - 110.0, 0.0), Vector2(110.0, size.y)), Color(0.03, 0.02, 0.015, 0.58), true)
+
+
+func _draw_biome_tint() -> void:
+	if _biome_tex == null:
+		return
+	draw_texture_rect(
+		_biome_tex,
+		Rect2(Vector2.ZERO, size),
+		false,
+		Color(1.0, 1.0, 1.0, BIOME_BG_ALPHA)
+	)
 
 
 func _blit(name: String, pos: Vector2, sz: Vector2, modulate: Color = Color.WHITE) -> void:
