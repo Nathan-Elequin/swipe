@@ -1923,13 +1923,13 @@ func _build_biome_case(spec: Dictionary, cards: Array, _quota: int, glass: Rect2
 		_shelf_host.add_child(root)
 		return
 	var cell: Vector2 = _mount_cell()
-	var s: float = 0.55
-	if cell.x > 1.0:
-		s = minf(0.55, (clip.size.x - 6.0) / cell.x)
-	var msize: Vector2 = cell * s
-	var gap_y := 4.0
-	var y := 4.0
-	var x0: float = maxf(0.0, (clip.size.x - msize.x) * 0.5)
+	## Integer-pixel peg step that keeps PEG_FIT_MAX shields inside the glass
+	## (above the case base), with or without the trophy band reserved above.
+	var layout: Dictionary = BiomeCabinets.peg_column_layout(clip.size, cell, cards.size())
+	var msize: Vector2 = layout.get("msize", cell * 0.5)
+	var gap_y: float = float(layout.get("gap_y", 0.0))
+	var y: float = float(layout.get("pad_top", 0.0))
+	var x0: float = float(layout.get("x0", 0.0))
 	for i in cards.size():
 		var card: Dictionary = cards[i]
 		var slot := _mount_slot(card, Vector2(x0, y), msize, false)
@@ -1937,6 +1937,9 @@ func _build_biome_case(spec: Dictionary, cards: Array, _quota: int, glass: Rect2
 		column.add_child(slot)
 		y += msize.y
 		y += gap_y
+	## Drop the trailing gap so column height matches the last peg bottom.
+	if cards.size() > 0:
+		y -= gap_y
 	column.size = Vector2(clip.size.x, maxf(y, clip.size.y))
 	column.custom_minimum_size = column.size
 	var view: float = clip.size.y
