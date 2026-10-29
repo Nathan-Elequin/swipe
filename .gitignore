@@ -12,6 +12,7 @@ build/
 
 .godot-check.txt
 data/build_stamp.txt
+data/script-desk-last-save.json
 data/*.backup*.json
 data/*.proposed*.json
 *.xlsx

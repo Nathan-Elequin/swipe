@@ -11,6 +11,7 @@ Scripts for the steps that are the same every time. Agents call these instead of
 | `clean-import-churn.ps1` | Restores tracked `*.import` files whose only diff is the uid rewrite and/or LF/CRLF. Leaves new `.import` files and non-`.import` files alone. | 0 ok, 1 error |
 | `install-hooks.ps1` | Runs `git config core.hooksPath tools/hooks` so `tools/hooks/pre-commit` runs on every commit. | 0 ok, 1 error |
 | `write-build-stamp.ps1` | Writes `data/build_stamp.txt` (`git rev-parse --short HEAD`, plus `*` if the worktree is dirty). **F5 does not need this** — editor play reads git at startup. The editor export plugin bakes the same string into exports. Run this only for a build that cannot see `.git` and is not using that plugin. | 0 ok, 1 git failed |
+| `open-script-desk.ps1` | Starts `tools/script-desk-server.py` on http://127.0.0.1:8765/ if needed, then opens the Script desk in Zen. Save writes `data/player-copy.json` (and lore, names, board/catalog when card wording changed). | 0 ok, 1 server did not start |
 
 ## Build stamp (corner SHA)
 
