@@ -1,6 +1,6 @@
 ---
 id: REQ-20261028-hall-sign-outpost
-status: open
+status: done
 priority: medium
 pr: 172
 tip_sha: dc86ed13

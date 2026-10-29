@@ -1,6 +1,6 @@
 ---
 id: REQ-20261028-hall-chrome-strip
-status: open
+status: done
 priority: high
 pr: 169
 tip_sha: ab262eef
