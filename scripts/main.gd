@@ -2524,6 +2524,8 @@ func _push_interrupt_home() -> void:
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
+	if pool != "":
+		_sync_dungeon_biome(pool)
 	if home_cabin and home_cabin.has_method("open_hall_after_push_block"):
 		_hide_fight_hover()
 		home_cabin.items_by_id = items_by_id
@@ -2685,6 +2687,7 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool) -> void:
 	CAMPAIGN_SHELL.begin_run(_campaign.state, index, shortcut, endless)
 	CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
 	_campaign.write()
+	_sync_dungeon_biome()
 	_reset_moves()
 	dungeon_index = 1 if endless else index + 1
 	dungeons_cleared = 0
@@ -2718,6 +2721,7 @@ func _campaign_arm_delve() -> void:
 				contra.append(str(c))
 		rows.append({"id": str(id), "tier": int(card.get("tier", 1)), "contra": contra})
 	var biome := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	_sync_dungeon_biome(biome)
 	CAMPAIGN_SHELL.normalize(_campaign.state)
 	var used_deadly: Array = _campaign.state["seen_deadly"]
 	var deal: Dictionary = CAMPAIGN_SHELL.compose(_campaign.rules, rng, rows, biome, used_deadly)
@@ -2957,10 +2961,21 @@ func _hide_fight_hover() -> void:
 		speech_box.hide_speech()
 
 
+func _sync_dungeon_biome(biome_id: String = "") -> void:
+	if dungeon_bg == null or not dungeon_bg.has_method("set_biome"):
+		return
+	var id := str(biome_id).strip_edges()
+	if id == "" and _campaign_on and _campaign != null:
+		id = CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	dungeon_bg.set_biome(id)
+
+
 func _open_home_cabin(walk_in: bool, kind: String = "win", new_ids: Array = [], held_ids: Array = []) -> void:
 	if home_cabin == null:
 		return
 	_hide_fight_hover()
+	if _campaign != null:
+		_sync_dungeon_biome()
 	home_cabin.open_cabin(items_by_id, tex_by_item, _buckets_revealed, walk_in, kind, new_ids, held_ids)
 	if overlay:
 		overlay.visible = false
