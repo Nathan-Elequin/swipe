@@ -297,6 +297,8 @@ var hub_death_dim: bool = false
 var _sprout_hub: bool = false
 ## Hub Sprout can leave the wheel. Hearts and Block stay.
 var hub_sprout_on: bool = true
+## Clear-parade overlay owns the hub Sprout; keep the drawn hub hero off.
+var hub_parade_hide: bool = false
 var hub_flip: bool = false
 var hub_sy: float = 1.0
 var hub_mod: Color = Color.WHITE
@@ -1274,7 +1276,7 @@ func _wheel_wants_live_draw() -> bool:
 	# Non-loop hub combat anims (swipe / grab / hit / attack) need paced
 	# redraws — `_on_hero_frame` already queues, but decor capping still
 	# applies between advances when heavy FX is up.
-	if hub_sprout_on and not _hero_is_loop(hero_anim) and not _hero_hold and not _hero_frozen:
+	if hub_sprout_on and not hub_parade_hide and not _hero_is_loop(hero_anim) and not _hero_hold and not _hero_frozen:
 		return true
 	# During attack/slash heavy, pause decorative-only live draws (hover,
 	# selected/threat pulse, draft glow, hall-adjacent poison bob, rage
@@ -3616,7 +3618,7 @@ func _draw_hub_block(c: Vector2, _radius: float) -> void:
 	if typeof(frames) == TYPE_ARRAY and not frames.is_empty():
 		var fi: int = clampi(hero_frame, 0, frames.size() - 1)
 		tex = frames[fi]
-	if tex and hub_sprout_on and hub_mod.a > 0.01:
+	if tex and hub_sprout_on and not hub_parade_hide and hub_mod.a > 0.01:
 		var tint: Color = sting_tint * hub_mod
 		var pivot := Vector2(hero_rect.get_center().x, hero_rect.end.y)
 		var scx: float = -1.0 if hub_flip else 1.0
@@ -3625,7 +3627,7 @@ func _draw_hub_block(c: Vector2, _radius: float) -> void:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		if not hub_flip and is_equal_approx(hub_sy, 1.0):
 			_draw_hub_gear(hero_rect, tint)
-	elif tex == null:
+	elif tex == null and not hub_parade_hide:
 		draw_circle(c + Vector2(0, 8) + hub_nudge, 16.0, Color("c4a574") * sting_tint)
 	var font: Font = get_theme_default_font()
 	if font == null:
