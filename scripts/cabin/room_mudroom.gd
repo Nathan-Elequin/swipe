@@ -1,30 +1,26 @@
 extends "res://scripts/cabin/cabin_room.gd"
-## Outpost (room id mudroom): pegboard starting loot + reroll jar. Wall / Space → map in hands.
+## Outpost: large labeled wall map is the only run control. Back door → trophy hall.
 
-signal peg_changed
 signal out_wanted
-signal jar_reroll_wanted
 
-const PEG_EMPTY := "props/gear_peg_empty.png"
-const HOOK_W := 18.0
-const HOOK_H := 18.0
-const MUD_WALL := "mudroom/mudroom_wall_96"
-const MUD_FLOOR := "mudroom/mudroom_floor_96x32"
-const MUD_PEGS := "mudroom/mudroom_pegs_96x32"
-const MUD_BOOTS := "mudroom/mudroom_boots_32x32"
-const MUD_PREP := "mudroom/mudroom_prep_table_96x48"
 const ROOM_W_NATIVE := 420.0
+const ROOM_H_NATIVE := 260.0
 const FLOOR_Y_NATIVE := 228.0
-const FLOOR_H_NATIVE := 32.0
+const MAP_ORIGIN := Vector2(110, 36)
+const MAP_SIZE := Vector2(200, 148)
+const POOL_SLUG := {
+	"b1": "verdant_hollow",
+	"b2": "sunken_mire",
+	"b3": "ashen_crypt",
+	"b4": "cinder_forge",
+	"b5": "shadow_abyss",
+}
 
-var _hooks: Array = []
-var _mudroom_bg_built: bool = false
-var _hook_ids: Array = []
-var _selected: Dictionary = {}
-var _jar_lab: Label
 var _title_lab: Label
 var _hint_lab: Label
-var _peg_host: Control
+var _map_host: Control
+var _map_pins: Control
+var _mudroom_bg_built: bool = false
 
 
 func _build_special() -> void:
@@ -45,40 +41,74 @@ func _build_special() -> void:
 	_hint_lab.add_theme_font_size_override("font_size", 22)
 	_hint_lab.add_theme_color_override("font_color", KIT.CREAM)
 	_hint_lab.position = KIT.pt(12, 34)
-	_hint_lab.size = KIT.pt(220, 16)
+	_hint_lab.size = KIT.pt(280, 16)
 	_hint_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hint_lab.z_index = 8
 	_hint_lab.text = KIT.copy_text("mudroom.space")
 	if _hint_lab.text.strip_edges() == "":
 		_hint_lab.text = "Space or wall — map in hands"
 	add_child(_hint_lab)
-	_peg_host = Control.new()
-	_peg_host.name = "PegBoard"
-	_peg_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_peg_host.z_index = 5
-	add_child(_peg_host)
-	_ensure_jar_label()
+	_build_wall_map()
 
 
-func _ensure_jar_label() -> void:
-	if _jar_lab != null:
-		return
-	var jar = spots.get("RerollJar", null)
-	_jar_lab = Label.new()
-	_jar_lab.name = "JarLabel"
-	_jar_lab.add_theme_font_size_override("font_size", 20)
-	_jar_lab.add_theme_color_override("font_color", KIT.TITLE_CREAM)
-	_jar_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_jar_lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_jar_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_jar_lab.z_index = 6
-	if jar is Control:
-		_jar_lab.position = jar.position + Vector2(0, jar.size.y + 4.0)
-		_jar_lab.size = Vector2(maxi(120.0, jar.size.x), 56.0)
-	else:
-		_jar_lab.position = KIT.pt(340, 180)
-		_jar_lab.size = KIT.pt(60, 28)
-	add_child(_jar_lab)
+func _build_wall_map() -> void:
+	_map_host = Control.new()
+	_map_host.name = "WallMap"
+	_map_host.position = MAP_ORIGIN * PX
+	_map_host.size = MAP_SIZE * PX
+	_map_host.mouse_filter = Control.MOUSE_FILTER_STOP
+	_map_host.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_map_host.z_index = 4
+	var paper := ColorRect.new()
+	paper.name = "Parchment"
+	paper.color = Color("e8d4a8")
+	paper.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	paper.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map_host.add_child(paper)
+	## 1px native outline drawn as four bars.
+	var top := ColorRect.new()
+	top.color = Color("100e0c")
+	top.position = Vector2.ZERO
+	top.size = Vector2(_map_host.size.x, PX)
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map_host.add_child(top)
+	var bot := ColorRect.new()
+	bot.color = Color("100e0c")
+	bot.position = Vector2(0, _map_host.size.y - PX)
+	bot.size = Vector2(_map_host.size.x, PX)
+	bot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map_host.add_child(bot)
+	var left := ColorRect.new()
+	left.color = Color("100e0c")
+	left.position = Vector2.ZERO
+	left.size = Vector2(PX, _map_host.size.y)
+	left.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map_host.add_child(left)
+	var right := ColorRect.new()
+	right.color = Color("100e0c")
+	right.position = Vector2(_map_host.size.x - PX, 0)
+	right.size = Vector2(PX, _map_host.size.y)
+	right.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map_host.add_child(right)
+	_map_pins = Control.new()
+	_map_pins.name = "Pins"
+	_map_pins.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_map_pins.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map_host.add_child(_map_pins)
+	_map_host.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+			hotspot_activated.emit("OutDoor")
+			accept_event()
+	)
+	_map_host.mouse_entered.connect(func() -> void:
+		hotspot_hovered.emit("OutDoor", "mudroom.exit.out", _map_host)
+	)
+	_map_host.mouse_exited.connect(func() -> void:
+		hotspot_unhovered.emit("OutDoor")
+	)
+	add_child(_map_host)
+	spots["WallMap"] = _map_host
+	spots["OutDoor"] = _map_host
 
 
 func request_bg() -> void:
@@ -106,40 +136,20 @@ func _build_mudroom_layers() -> void:
 	host.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	host.z_index = 0
-	var wall_h: float = FLOOR_Y_NATIVE
-	var wall: NinePatchRect = KIT.nine(MUD_WALL, Vector2(12, 12))
+	var wall := ColorRect.new()
 	wall.name = "BackWall"
+	wall.color = Color("5a3a24")
 	wall.position = Vector2.ZERO
-	wall.size = Vector2(ROOM_W_NATIVE, wall_h) * PX
-	wall.z_index = 0
+	wall.size = Vector2(ROOM_W_NATIVE, FLOOR_Y_NATIVE) * PX
+	wall.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	host.add_child(wall)
-	var floor_tex: Texture2D = KIT.load_tex(MUD_FLOOR)
-	if floor_tex:
-		var x: float = 0.0
-		var idx := 0
-		while x < ROOM_W_NATIVE:
-			var tile := TextureRect.new()
-			tile.name = "Floor_%d" % idx
-			tile.texture = floor_tex
-			tile.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-			tile.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			tile.stretch_mode = TextureRect.STRETCH_KEEP
-			tile.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			tile.position = Vector2(x, FLOOR_Y_NATIVE) * PX
-			tile.size = Vector2(96.0, FLOOR_H_NATIVE) * PX
-			tile.z_index = 1
-			host.add_child(tile)
-			x += 96.0
-			idx += 1
-	var pegs: TextureRect = KIT.tex_rect(MUD_PEGS, Vector2(160, 36), Vector2(96, 32), 2)
-	pegs.name = "PegRail"
-	host.add_child(pegs)
-	var boots: TextureRect = KIT.tex_rect(MUD_BOOTS, Vector2(48, 232), Vector2(32, 32), 2)
-	boots.name = "Boots"
-	host.add_child(boots)
-	var prep: TextureRect = KIT.tex_rect(MUD_PREP, Vector2(308, 96), Vector2(96, 48), 3)
-	prep.name = "PrepTable"
-	host.add_child(prep)
+	var floor := ColorRect.new()
+	floor.name = "Floor"
+	floor.color = Color("3a2414")
+	floor.position = Vector2(0, FLOOR_Y_NATIVE) * PX
+	floor.size = Vector2(ROOM_W_NATIVE, ROOM_H_NATIVE - FLOOR_Y_NATIVE) * PX
+	floor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.add_child(floor)
 	add_child(host)
 	move_child(host, 1)
 
@@ -147,199 +157,94 @@ func _build_mudroom_layers() -> void:
 func _refresh_doors() -> void:
 	var back = spots.get("BackDoor", null)
 	if back is CabinHotspot:
-		## Left/back → trophy hall (cabin path in).
 		back.tag_key = "cabin.hot.back_hall"
 		back.set_locked(false)
 		var closed: Texture2D = KIT.load_tex("doors/side_door_closed.png")
 		if closed:
 			back.set_idle_tex(closed)
 		back.hover_tex = KIT.load_tex("doors/doorway_hover.png")
-	var out = spots.get("OutDoor", null)
-	if out is CabinHotspot:
-		## Rightmost leave-cabin exit (map in hands / delve). Same path as Space.
-		out.tag_key = "mudroom.exit.out"
-		out.set_locked(false)
-		var wall_map: Texture2D = KIT.load_tex("props/map_wall.png")
-		if wall_map:
-			out.set_idle_tex(wall_map)
-		out.hover_tex = KIT.load_tex("props/map_wall_hover.png")
-		out.press_tex = KIT.load_tex("props/map_wall_press.png")
-	var leave = spots.get("LeaveDoor", null)
-	if leave is CabinHotspot:
-		leave.tag_key = "mudroom.exit.out"
-		leave.set_locked(false)
-		var run_closed: Texture2D = KIT.load_tex("doors/run_door_closed.png")
-		if run_closed:
-			leave.set_idle_tex(run_closed)
-		leave.hover_tex = KIT.load_tex("doors/run_door_hover.png")
-	## Backup hit over the prep table if the layout wall hotspot is missing.
-	_ensure_wall_map_hit()
-	var jar = spots.get("RerollJar", null)
-	if jar is CabinHotspot:
-		jar.tag_key = "mudroom.jar"
+	for hide_name in ["LeaveDoor", "RerollJar"]:
+		var n = spots.get(hide_name, null)
+		if n is CanvasItem:
+			(n as CanvasItem).visible = false
+		if n is CabinHotspot:
+			(n as CabinHotspot).mouse_filter = Control.MOUSE_FILTER_IGNORE
+			if (n as CabinHotspot)._hit:
+				(n as CabinHotspot)._hit.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var laid = get_node_or_null("OutDoor")
+	if laid is CanvasItem and laid != _map_host:
+		(laid as CanvasItem).visible = false
+		if laid is CabinHotspot:
+			(laid as CabinHotspot).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var jar_lab = get_node_or_null("JarLabel")
+	if jar_lab:
+		jar_lab.queue_free()
 
 
-func _ensure_wall_map_hit() -> void:
-	if spots.has("OutDoor") and spots["OutDoor"] is CabinHotspot:
+func refresh_map_board(rules: Dictionary, state: Dictionary) -> void:
+	if _map_pins == null:
 		return
-	if spots.has("WallMapHit"):
-		return
-	var hit := Control.new()
-	hit.name = "WallMapHit"
-	## Prep-table / mid-wall parchment region (native coords).
-	hit.position = Vector2(168, 64) * PX
-	hit.size = Vector2(96, 72) * PX
-	hit.mouse_filter = Control.MOUSE_FILTER_STOP
-	hit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	hit.z_index = 4
-	hit.gui_input.connect(func(ev: InputEvent) -> void:
-		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-			hotspot_activated.emit("OutDoor")
-			accept_event()
-	)
-	hit.mouse_entered.connect(func() -> void:
-		hotspot_hovered.emit("OutDoor", "mudroom.exit.out", hit)
-	)
-	hit.mouse_exited.connect(func() -> void:
-		hotspot_unhovered.emit("OutDoor")
-	)
-	add_child(hit)
-	spots["WallMapHit"] = hit
-
-
-func set_jar_count(n: int) -> void:
-	_ensure_jar_label()
-	if _jar_lab == null:
-		return
-	var title: String = KIT.fill_text("mudroom.jar", {"n": n})
-	if title.strip_edges() == "":
-		title = "Reroll jar · %s" % n
-	var sub: String = KIT.copy_text("mudroom.jar.sub")
-	if sub.strip_edges() == "":
-		sub = "+1 each time Nib stamps a new biome"
-	_jar_lab.text = "%s\n%s" % [title, sub]
-
-
-func hook_ids() -> Array:
-	return _hook_ids.duplicate()
-
-
-func selected_ids() -> Array:
-	var out: Array = []
-	for id in _hook_ids:
-		if bool(_selected.get(str(id), true)):
-			out.append(str(id))
-	return out
-
-
-func set_hooks(ids: Array, tex_by_item: Dictionary, names_by_id: Dictionary = {}) -> void:
-	_hook_ids.clear()
-	_selected.clear()
-	for c in _peg_host.get_children():
+	for c in _map_pins.get_children():
 		c.queue_free()
-	_hooks.clear()
-	var n: int = ids.size()
+	var biomes: Array = CampaignShell.biomes_of(rules)
+	var n: int = mini(5, biomes.size())
 	if n <= 0:
 		return
-	var cols := mini(3, n)
-	var rows := int(ceil(float(n) / float(cols)))
-	var start := Vector2(120.0, 90.0)
-	var gap := Vector2(36.0, 40.0)
+	var gap: float = _map_host.size.x / float(n + 1)
+	var y: float = _map_host.size.y * 0.38
 	for i in n:
-		var id := str(ids[i])
-		_hook_ids.append(id)
-		_selected[id] = true
-		var col: int = i % cols
-		var row: int = int(i / cols)
-		var origin := start + Vector2(col * gap.x, row * gap.y)
-		var peg := _make_peg(i, id, origin, tex_by_item.get(id, null), str(names_by_id.get(id, id)))
-		_peg_host.add_child(peg)
-		_hooks.append(peg)
-	## Keep layout row count unused warning quiet when n is small.
-	if rows < 0:
-		pass
+		var b: Dictionary = biomes[i]
+		var pool := str(b.get("id", "b%d" % (i + 1)))
+		var name := str(b.get("name", pool))
+		var open: bool = CampaignShell.can_start(rules, state, i)
+		var x: float = gap * float(i + 1)
+		_add_wall_node(Vector2(x, y), name, pool, open)
 
 
-func _make_peg(index: int, item_id: String, origin_native: Vector2, item_tex: Texture2D, item_name: String) -> Control:
-	var root := Control.new()
-	root.name = "PegHook_%d" % index
-	root.position = origin_native * PX
-	root.size = Vector2(HOOK_W, HOOK_H) * PX
-	root.mouse_filter = Control.MOUSE_FILTER_STOP
-	root.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	root.set_meta("item_id", item_id)
-	var peg := TextureRect.new()
-	peg.name = "Peg"
-	peg.texture = KIT.load_tex(PEG_EMPTY)
-	peg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	peg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	peg.stretch_mode = TextureRect.STRETCH_KEEP
-	peg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	peg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	root.add_child(peg)
+func _add_wall_node(at: Vector2, biome_name: String, pool: String, open: bool) -> void:
+	var slug := str(POOL_SLUG.get(pool, pool))
 	var icon := TextureRect.new()
-	icon.name = "Item"
-	icon.texture = item_tex
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.position = Vector2(2, 2) * PX
-	icon.size = Vector2(HOOK_W - 4.0, HOOK_H - 4.0) * PX
-	root.add_child(icon)
-	var ring := ColorRect.new()
-	ring.name = "Sel"
-	ring.color = Color("e8c36a")
-	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ring.position = Vector2(-2, -2) * PX
-	ring.size = root.size + Vector2(4, 4) * PX
-	ring.z_index = -1
-	root.add_child(ring)
-	root.gui_input.connect(func(ev: InputEvent) -> void:
-		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-			_toggle_peg(item_id, root)
-			accept_event()
-	)
-	root.mouse_entered.connect(func() -> void:
-		## Avoid hotspot_hovered here — cabin hover has no {item} vars.
-		if cabin and cabin.has_method("show_hover_tag"):
-			cabin.show_hover_tag("mudroom.hook.hover", root, {"item": item_name})
-	)
-	root.mouse_exited.connect(func() -> void:
-		if cabin and cabin.has_method("hide_hover_tag"):
-			cabin.hide_hover_tag()
-	)
-	_paint_peg(root, true)
-	return root
+	icon.size = Vector2(28, 28) * PX
+	icon.position = at - icon.size * 0.5
+	if open:
+		icon.texture = KIT.ui_tex("map/stamps/stamp_%s_idle.png" % slug)
+	else:
+		var blob := ColorRect.new()
+		blob.color = Color("2a2218")
+		blob.size = Vector2(16, 12) * PX
+		blob.position = at - blob.size * 0.5
+		blob.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_map_pins.add_child(blob)
+	if icon.texture:
+		_map_pins.add_child(icon)
+	var lab := Label.new()
+	lab.text = biome_name
+	lab.add_theme_font_size_override("font_size", 16)
+	lab.add_theme_color_override("font_color", Color("3a2414") if open else Color("6e5434"))
+	lab.add_theme_color_override("font_outline_color", Color("f0e6d8"))
+	lab.add_theme_constant_override("outline_size", 3)
+	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lab.position = at + Vector2(-70, 18 * PX)
+	lab.size = Vector2(140, 22)
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map_pins.add_child(lab)
 
 
-func _toggle_peg(item_id: String, root: Control) -> void:
-	var on: bool = not bool(_selected.get(item_id, true))
-	## Keep at least one hook seated so the loadout never empties.
-	if not on:
-		var kept := 0
-		for id in _hook_ids:
-			if bool(_selected.get(str(id), true)):
-				kept += 1
-		if kept <= 1:
-			return
-	_selected[item_id] = on
-	_paint_peg(root, on)
-	peg_changed.emit()
+func set_jar_count(_n: int) -> void:
+	pass
 
 
-func _paint_peg(root: Control, on: bool) -> void:
-	var icon = root.get_node_or_null("Item")
-	var ring = root.get_node_or_null("Sel")
-	if icon is CanvasItem:
-		icon.modulate = Color.WHITE if on else Color(0.35, 0.35, 0.4, 0.7)
-	if ring is CanvasItem:
-		ring.visible = on
+func hook_ids() -> Array:
+	return []
 
 
-func refresh_selection_paint() -> void:
-	for root in _hooks:
-		if not (root is Control):
-			continue
-		var id := str(root.get_meta("item_id", ""))
-		_paint_peg(root, bool(_selected.get(id, true)))
+func selected_ids() -> Array:
+	return []
+
+
+func set_hooks(_ids: Array, _tex_by_item: Dictionary, _names_by_id: Dictionary = {}) -> void:
+	pass

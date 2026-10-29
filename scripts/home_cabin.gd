@@ -3160,8 +3160,6 @@ func _input(event: InputEvent) -> void:
 				_dialog.say(["map.first_only"])
 			get_viewport().set_input_as_handled()
 			return
-		if _current_room == "mudroom":
-			_commit_mudroom_loadout()
 		_ask_held_map()
 		get_viewport().set_input_as_handled()
 		return
@@ -3901,10 +3899,9 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 		"RunDoor":
 			_on_run_door()
 		"OutDoor", "LeaveDoor":
-			_commit_mudroom_loadout()
 			_ask_held_map()
 		"RerollJar":
-			_reroll_mudroom_hooks()
+			pass
 		"SideDoor":
 			_on_side_door(room)
 		"LeftDoor":
@@ -4066,28 +4063,13 @@ func _mudroom_item_rows() -> Array:
 
 func _refresh_mudroom() -> void:
 	var room = _rooms.get("mudroom")
-	if room == null or not room.has_method("set_hooks"):
+	if room == null:
 		return
 	var camp = _campaign_ref()
 	var rules: Dictionary = camp.rules if camp != null else CAMPAIGN_SHELL.read_json("res://data/campaign.json")
 	var state: Dictionary = camp.state if camp != null else CAMPAIGN_SHELL.fresh_state()
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-	var ids: Array = mudroom_loadout.duplicate()
-	if ids.is_empty() and camp != null:
-		ids = CAMPAIGN_SHELL.mudroom_loadout_of(state)
-	var need: int = CAMPAIGN_SHELL.starter_hook_count(rules)
-	if ids.size() != need:
-		ids = CAMPAIGN_SHELL.roll_mudroom_hooks(rules, rng, _mudroom_item_rows(), [])
-	var names := {}
-	for id in ids:
-		names[str(id)] = str(items_by_id.get(str(id), {}).get("name", id))
-	room.set_hooks(ids, tex_by_item, names)
-	var jar_n: int = CAMPAIGN_SHELL.preview_rerolls(rules, state)
-	if bool(state.get("run", {}).get("active", false)):
-		jar_n = int(state.get("run", {}).get("rerolls", jar_n))
-	if room.has_method("set_jar_count"):
-		room.set_jar_count(jar_n)
+	if room.has_method("refresh_map_board"):
+		room.refresh_map_board(rules, state)
 
 
 func _commit_mudroom_loadout() -> void:
@@ -4306,7 +4288,6 @@ func _unlock_mudroom_with_hall() -> void:
 func _on_back_door(room: String) -> void:
 	match room:
 		"mudroom":
-			_commit_mudroom_loadout()
 			pan_to("hall")
 		"hall":
 			pan_to("main")

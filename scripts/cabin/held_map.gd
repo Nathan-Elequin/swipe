@@ -266,17 +266,13 @@ func _add_stamp(spot: Vector2, biome_name: String, pool: String, wax: Color, ind
 
 func _add_locked(spot: Vector2, biome_name: String, pool: String) -> void:
 	var endless := pool == "endless"
-	var seal := WaxStamp.new()
-	seal.wax = WAX.get(pool, Color("8a7d70"))
-	seal.pool_slug = str(POOL_SLUG.get(pool, pool))
-	seal.sealed = true
-	seal.set_stamp_state("idle")
-	seal.position = spot + Vector2(-28, -28)
-	seal.size = Vector2(56, 56)
-	seal.pivot_offset = Vector2(28, 28)
-	seal.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_pins.add_child(seal)
-	var label := LABEL_UNMAPPED % biome_name
+	var blob := ColorRect.new()
+	blob.color = Color("2a2218")
+	blob.size = Vector2(36, 28)
+	blob.position = spot + Vector2(-18, -14)
+	blob.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pins.add_child(blob)
+	var label := biome_name
 	if endless:
 		label = TIP_ENDLESS_SEALED
 	_add_name(spot + Vector2(28, -8) if not endless else spot + Vector2(-90, 36), label, false)

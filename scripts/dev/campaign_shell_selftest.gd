@@ -37,11 +37,11 @@ func _init() -> void:
 	var fb: Dictionary = Shell.mix_for(rules, "missing")
 	failed = _check(failed, "unknown biome uses cellar mix", int(fb.get("weak", 0)) == 6 and int(fb.get("tough", 0)) == 3 and int(fb.get("deadly", 0)) == 1) or failed
 	var state: Dictionary = Shell.fresh_state()
-	failed = _check(failed, "map shut", Shell.map_unlocked(rules, state) == false) or failed
+	failed = _check(failed, "map open on first visit", Shell.map_unlocked(rules, state)) or failed
 	failed = _check(failed, "only verdant hollow starts", Shell.can_start(rules, state, 0) and not Shell.can_start(rules, state, 1)) or failed
 	var pools := {"a": "b1", "b": "b1", "c": "b1", "d": "b1", "e": "b1"}
 	Shell.bank(rules, state, ["a", "b", "c"], pools)
-	failed = _check(failed, "gate at 3", Shell.map_unlocked(rules, state)) or failed
+	failed = _check(failed, "map still open after 3", Shell.map_unlocked(rules, state)) or failed
 	failed = _check(failed, "verdant hollow counts the 3", Shell.cabinet_count(state, "b1") == 3) or failed
 	failed = _check(failed, "sunken mire still locked", Shell.biome_unlocked(rules, state, 1) == false) or failed
 	failed = _check(failed, "no push yet", Shell.can_push(rules, state) == false) or failed
@@ -161,17 +161,19 @@ func _init() -> void:
 	var memory_rng := RandomNumberGenerator.new()
 	memory_rng.seed = 5
 	Shell.compose(rules, memory_rng, roster, "b5", memory["seen_deadly"])
-	failed = _check(failed, "save remembers deadly", memory["seen_deadly"].size() == 3) or failed
+	failed = _check(failed, "run remembers deadly", memory["seen_deadly"].size() == 3) or failed
+	Shell.begin_run(memory, 0, false, false)
+	failed = _check(failed, "new run forgets deadly", (memory["seen_deadly"] as Array).is_empty()) or failed
 	Shell.end_run(memory)
-	failed = _check(failed, "home keeps seen deadly", memory["seen_deadly"].size() == 3) or failed
+	failed = _check(failed, "home stays empty deadly", (memory["seen_deadly"] as Array).is_empty()) or failed
 	var full: Dictionary = Shell.fresh_state()
 	for bi in Shell.biomes_of(rules):
 		var pool := str((bi as Dictionary).get("id", ""))
 		for k in 5:
 			Shell.bank(rules, full, ["%s_%s" % [pool, k]], {"%s_%s" % [pool, k]: pool})
 	failed = _check(failed, "win", bool(full.get("won", false)) and bool(full.get("endless_unlocked", false))) or failed
-	var again: Dictionary = Shell.bank(rules, full, ["extra"], {"extra": "b1"})
-	failed = _check(failed, "drawer once", bool(again.get("show_drawer", true)) == false) or failed
+	var bank_again: Dictionary = Shell.bank(rules, full, ["extra"], {"extra": "b1"})
+	failed = _check(failed, "drawer once", bool(bank_again.get("show_drawer", true)) == false) or failed
 	## S8 / R5: Endless Push chains and deepest record updates.
 	Shell.begin_run(full, 0, false, true)
 	failed = _check(failed, "endless can push", Shell.can_push(rules, full)) or failed

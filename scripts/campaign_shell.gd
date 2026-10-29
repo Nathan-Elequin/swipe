@@ -143,8 +143,9 @@ static func cabinet_count(state: Dictionary, pool: String) -> int:
 	return n
 
 
-static func map_unlocked(rules: Dictionary, state: Dictionary) -> bool:
-	return total_uniques(state) >= int(rules.get("start_gate_uniques", 3))
+static func map_unlocked(rules: Dictionary, _state: Dictionary = {}) -> bool:
+	## start_gate_uniques 0: the held map works on the first Outpost visit.
+	return total_uniques(_state) >= int(rules.get("start_gate_uniques", 0))
 
 
 static func biome_unlocked(rules: Dictionary, state: Dictionary, index: int) -> bool:
@@ -183,13 +184,7 @@ static func shortcut_open(rules: Dictionary, state: Dictionary, index: int) -> b
 ## that biome is unlocked (the previous cabinet hit the quota and the path is
 ## penciled). The held map treats that click as a stamp shortcut: empty carry-in.
 static func can_start(rules: Dictionary, state: Dictionary, index: int) -> bool:
-	if not biome_unlocked(rules, state, index):
-		return false
-	if index <= 0:
-		return true
-	if not map_unlocked(rules, state):
-		return false
-	return true
+	return biome_unlocked(rules, state, index)
 
 
 static func can_push(rules: Dictionary, state: Dictionary) -> bool:
@@ -200,8 +195,6 @@ static func can_push(rules: Dictionary, state: Dictionary) -> bool:
 	if bool(run.get("endless", false)):
 		return true
 	var nxt: int = int(run.get("biome_index", 0)) + 1
-	if not map_unlocked(rules, state):
-		return false
 	return biome_unlocked(rules, state, nxt)
 
 
@@ -288,6 +281,8 @@ static func begin_run(state: Dictionary, biome_index: int, shortcut: bool, endle
 		"rerolls": 0,
 		"delve_granted": false,
 	}
+	## Deadlies unique inside this run only, not across the save.
+	state["seen_deadly"] = []
 	if endless:
 		state["endless_best"] = maxi(int(state.get("endless_best", 0)), 1)
 

@@ -1682,9 +1682,9 @@ func _build_overlay() -> void:
 	modes.alignment = BoxContainer.ALIGNMENT_CENTER
 	modes.add_theme_constant_override("separation", 14)
 	col.add_child(modes)
-	modes.add_child(overlay_btn)
-	modes.add_child(overlay_adventure)
 	modes.add_child(overlay_home)
+	overlay_btn.visible = false
+	overlay_adventure.visible = false
 	modes.add_child(overlay_undo)
 	overlay_rest_row = HBoxContainer.new()
 	overlay_rest_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -2694,7 +2694,6 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool) -> void:
 	await _run_challenge_setup()
 	if draft_action == "challenge_begin":
 		_challenge_begin_play()
-		await _maybe_auto_spin()
 
 
 func _campaign_arm_delve() -> void:
@@ -2726,16 +2725,9 @@ func _campaign_arm_delve() -> void:
 
 
 func _campaign_show_telegraph() -> void:
-	if campaign_map == null or _campaign == null:
-		return
-	var names: Array = []
-	for id in _campaign_telegraph:
-		var card: Dictionary = monsters_by_id.get(str(id), {})
-		names.append(str(card.get("name", id)))
-	var biome := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
-	campaign_map.show_bosses(CAMPAIGN_SHELL.biome_name(_campaign.rules, biome), names)
-	await campaign_map.continued
-	campaign_map.hide_map()
+	## Deadly names move onto the map itself in a later pass. No overlay.
+	if campaign_map:
+		campaign_map.hide_map()
 
 
 func _campaign_take_queued() -> String:
@@ -2751,6 +2743,11 @@ func _campaign_card_ok(card: Dictionary) -> bool:
 	if st == "retired" or st == "hold":
 		return false
 	if not ModePool.allows(card, ModePool.ADVENTURE):
+		return false
+	var cid := str(card.get("id", ""))
+	if cid == "smoke_bomb" or BucketRules.is_always_starter_id(cid):
+		return false
+	if BucketRules.is_token(card):
 		return false
 	return CAMPAIGN_SHELL.pool_open_for_bucket(_campaign.rules, _campaign.state, BucketRules.of_card(card))
 
@@ -3069,7 +3066,8 @@ func _adventure_continue() -> void:
 	await _run_challenge_setup()
 	if not challenge_route and draft_action == "challenge_begin":
 		_challenge_begin_play()
-		await _maybe_auto_spin()
+		if not _campaign_on:
+			await _maybe_auto_spin()
 	_adventure_busy = false
 	_refresh()
 
@@ -3344,42 +3342,7 @@ func _walk_knight_off() -> void:
 
 
 func _quick_start() -> void:
-	_hide_cabin_for_run()
-	_reset_run()
-	_arm_rug_secret_for_run()
-	adventure = true
-	challenge_route = false
-	_reset_moves()
-	dungeon_index = 1
-	dungeons_cleared = 0
-	adventure_seat_tiers = [1, 1, 1, 1, 1, 1]
-	phase = "draft"
-	draft_action = "busy"
-	_log("on_click", "Quick Start")
-	_log("var", "HP %s" % hp)
-	_log("on_draft", "Dungeon 1")
-	_fill_challenge_pools()
-	_empty_wheel(CHALLENGE_SEATS)
-	_refresh()
-	await _challenge_seat_dungeon(false)
-	_challenge_auto_opening_loot()
-	if challenge_draft_ui:
-		challenge_draft_ui.hide_draft()
-	draft_action = ""
-	phase = "ready"
-	challenge_aim = -1
-	if wheel_view:
-		wheel_view.selected_index = -1
-	_sort_hotbar()
-	_sync_wheel_stats()
-	_log("on_draft", "enter")
-	if sfx:
-		sfx.play("confirm", -10.0)
-		sfx.play("door_open", -12.0)
-	_undo_arm()
-	_refresh()
-	_layout_play_field()
-	await _maybe_auto_spin()
+	_open_home_from_title()
 
 
 func _first_mill_bucket() -> int:
@@ -3909,6 +3872,8 @@ func _empty_wheel(n: int = 8) -> void:
 func _hand_limit() -> int:
 	if OS.has_feature("editor") and has_meta("qa_hand_cap"):
 		return int(get_meta("qa_hand_cap"))
+	if _campaign_on:
+		return HAND_MAX
 	return CHALLENGE_HAND if adventure else HAND_MAX
 
 
@@ -4231,6 +4196,16 @@ func _run_challenge_setup() -> void:
 	await _challenge_seat_dungeon(dungeon_index > 1 and not _campaign_on)
 	if seq != _mill_seq:
 		return
+	if _campaign_on:
+		_campaign_grant_starter_six()
+		if challenge_draft_ui:
+			challenge_draft_ui.hide_draft()
+		draft_action = "challenge_begin"
+		phase = "draft"
+		_sort_hotbar()
+		_refresh()
+		_layout_play_field()
+		return
 	if _qa_busy():
 		_challenge_auto_opening_loot()
 		if challenge_draft_ui:
@@ -4242,6 +4217,30 @@ func _run_challenge_setup() -> void:
 		_layout_play_field()
 		return
 	await _challenge_run_opening_drafts()
+
+
+func _campaign_grant_starter_six() -> void:
+	if _campaign == null:
+		return
+	_challenge_reshuffle_items()
+	var tiers: Array = CAMPAIGN_SHELL.starter_tiers(_campaign.rules, rng)
+	for raw_t in tiers:
+		if hotbar.size() >= _hand_limit():
+			break
+		var t: int = int(raw_t)
+		var iid: String = _challenge_take_item(t, "")
+		if iid == "" or iid == "smoke_bomb":
+			_challenge_reshuffle_items()
+			iid = _challenge_take_item(t, "")
+		if iid == "" or iid == "smoke_bomb":
+			iid = _challenge_take_item(0, "")
+		if iid == "" or iid == "smoke_bomb":
+			continue
+		var seated: Dictionary = _make_item(iid)
+		_stamp_pack(seated, _pack_tier_for(iid, items_by_id, t), "draft")
+		hotbar.append(seated.duplicate(true))
+		_log("on_draft", "gain %s" % seated.get("name", "?"))
+	_sort_hotbar()
 
 
 func _challenge_seat_dungeon(upgrade: bool) -> void:
