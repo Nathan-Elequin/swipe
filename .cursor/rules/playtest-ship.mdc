@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Playtest is the browser build
 
-Friends and Nathan play https://nathan-elequin.itch.io/swipe-playtest
+Friends and Nathan play https://nathan-elequin.itch.io/spinheritance-playtest
 
 F5 in Godot on this repo **is** that same playtest game (`PlaytestFlag.on()` is true in the editor and in the Web Playtest export). Roster stays F6 in the editor.
 
@@ -16,7 +16,7 @@ Locked **2026-10-19**. Nathan does not quality-test before the playtest page upd
 After any change that friends would play (bug, overlay, card behavior, hub, Feedback, copy wiring, this checkout's game):
 
 1. Export **Web Playtest** only (`build/web-playtest/index.html`).
-2. `butler push` only to `nathan-elequin/swipe-playtest` (channel `html5`).
+2. `butler push` only to `nathan-elequin/spinheritance-playtest` (channel `html5`). The old `swipe-playtest` butler project is gone (itch page rename 2026-10-29).
 3. Do it **in the same turn as the fix**. Do not wait for him to say ship, verify, F5, or “update itch.”
 
 Worked examples of “ship immediately”: unplayable hotbar overlay, Bodyguard dying at 0 HP, Bushido dummy only on the second item.

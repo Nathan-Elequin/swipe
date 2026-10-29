@@ -28,7 +28,7 @@ Locked 2026-10-20 night: covering design, not a 57×54 grid. Oracle is what happ
 | When fixers spawn | As soon as a finding is isolated and does not need a ruling — **after** the Bucket 0 method demo is approved. |
 | `main.gd` contention | Before parallel combat fixers, extract the contested rules into smaller scripts so packets do not share `scripts/main.gd`. Do not do a giant rewrite on day one; extract only the slices the open packets need. |
 | Where it runs | This chat is the conductor. After the demo is approved, verb-family tester agents are started from here. They share one Godot process, so **Godot input is serialized**. Checklist writing and later patches may run in parallel. |
-| Itch | **Unfrozen 2026-10-20.** Export Web Playtest and `butler push` to `nathan-elequin/swipe-playtest` (`html5`) after playable changes (`playtest-ship.mdc`). |
+| Itch | **Unfrozen 2026-10-20.** Export Web Playtest and `butler push` to `nathan-elequin/spinheritance-playtest` (`html5`) after playable changes (`playtest-ship.mdc`). |
 | UI / art / copy found while testing | Side log for Pixel/Jam. Not a logic FAIL. **Exception:** FAIL if the player cannot tell what happened (inspect, Shift, or combat log hides or miscredits the number). |
 | Retest | The fixer agent must re-run the same constructed fight and paste the new combat log into its `REPORT.md`. |
 | Modes | Constructed card fights in **Challenge**. After that, only Adventure-only edges (Smoke Bomb opening, map, cabin, Keep-from-loot, and anything Ability marks Adventure). |
@@ -261,7 +261,7 @@ Cursor subagents started from this chat are the “chats in concert.” They pic
 
 ## Itch freeze (lifted)
 
-Lifted **2026-10-20**. Export Web Playtest and `butler push` to `nathan-elequin/swipe-playtest` (`html5`) after playable changes. Do not push the public `nathan-elequin/swipe` page unless Nathan says **promote**.
+Lifted **2026-10-20**. Export Web Playtest and `butler push` to `nathan-elequin/spinheritance-playtest` (`html5`) after playable changes. Do not push the public `nathan-elequin/swipe` page unless Nathan says **promote**.
 
 ## Open playtest Issues already in scope
 
