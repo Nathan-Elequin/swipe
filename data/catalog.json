@@ -1490,7 +1490,7 @@
 		{
 			"ability": "3 Attack or 3 Block. Alternates on Item Use",
 			"author_lock": true,
-			"bucket": 5,
+			"bucket": 3,
 			"call_name": "",
 			"card_color": "atk",
 			"count": 1,

@@ -1167,7 +1167,7 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 5,
+			"bucket": 3,
 			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
