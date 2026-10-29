@@ -325,17 +325,16 @@ func _rebuild(card: Dictionary) -> void:
 	var bucket_opts: Array = []
 	for bucket_label in BucketRules.options():
 		bucket_opts.append(bucket_label)
-	_add_pick(row2, "Bucket", "bucket", BucketRules.label_of(card.get("bucket", 0)), bucket_opts)
+	_add_pick(row2, "Pool", "pool", BucketRules.label_of(BucketRules.of_card(card)), bucket_opts)
 	_sheet.add_child(row2)
 	var row_mode := _grid(2)
 	_add_pick(row_mode, "Modes", "mode_pool", ModePool.label_of(card.get("mode_pool", "all")), ["All", "Adventure-Only", "Challenge-Only"])
 	_sheet.add_child(row_mode)
-	if _fields.has("bucket") and _fields["bucket"] is OptionButton:
-		var bucket_pick: OptionButton = _fields["bucket"]
+	if _fields.has("pool") and _fields["pool"] is OptionButton:
+		var bucket_pick: OptionButton = _fields["pool"]
 		BucketRules.paint(bucket_pick)
 		bucket_pick.item_selected.connect(func(_i: int) -> void:
 			BucketRules.paint(bucket_pick)
-			_refresh_bucket_warn()
 		)
 	_refresh_bucket_warn()
 	var row_tier := _grid(3)
@@ -594,7 +593,7 @@ func _gather() -> Dictionary:
 		"kind": _kind,
 		"status": _text_of("status"),
 		"rarity": _text_of("rarity"),
-		"bucket": BucketRules.parse(_text_of("bucket")),
+		"pool": BucketRules.parse(_text_of("pool")),
 		"mode_pool": ModePool.parse(_text_of("mode_pool")) if _fields.has("mode_pool") else ModePool.parse(_original.get("mode_pool", "all")),
 		"tier": _int_of("tier", 1),
 		"count": _int_of("count", 1),
@@ -639,7 +638,7 @@ func _refresh_bucket_warn() -> void:
 	var live: Array = items if _kind == "item" else monsters
 	for card3 in live:
 		if str(card3.get("id", "")) == _id:
-			card3["bucket"] = BucketRules.parse(_text_of("bucket"))
+			card3["pool"] = BucketRules.parse(_text_of("pool"))
 			break
 	var msg: String = BucketRules.counts_warning(items, monsters)
 	_bucket_warn.set_message(msg)

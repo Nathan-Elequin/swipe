@@ -66,7 +66,7 @@
 		"monster:basilisk": 1792446259.0,
 		"monster:beggar": 1761681600.0,
 		"monster:berserker": 1793222400.0,
-		"monster:bushido": 1793238694,
+		"monster:bushido": 1793238694.0,
 		"monster:cleric": 1791944780.0,
 		"monster:clockwork_knight": 1792136735.68746,
 		"monster:commander": 1792136735.68746,
@@ -106,7 +106,7 @@
 		"monster:skeleton": 1791957591.0,
 		"monster:spider_queen": 1792143600.0,
 		"monster:three_seeker": 1792461402.0,
-		"monster:triclops": 1792470000.0,
+		"monster:triclops": 1793244402,
 		"monster:two_headed_serpent": 1792136735.68746,
 		"monster:vampire": 1792470000.0,
 		"monster:wick": 1792689329.0,
@@ -118,5 +118,5 @@
 	"item:sling": 1793236000.0,
 	"monster:mouse": 1792450564.02935,
 	"monster:plague_doctor": 1793211183.58895,
-	"updated": "2026-10-29T01:51:34"
+	"updated": "2026-10-29T03:26:42"
 }

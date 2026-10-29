@@ -1,7 +1,7 @@
-"""Serve design/buckets.html and write saves into data/*.json (repo root).
+"""Serve design/pools.html and write saves into data/*.json (repo root).
 
 Run: py -3 tools/buckets_editor_server.py
-Open: http://127.0.0.1:8767/buckets.html
+Open: http://127.0.0.1:8767/pools.html
 """
 from __future__ import annotations
 

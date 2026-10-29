@@ -1,5 +1,5 @@
 extends ColorRect
-## Bucket editor. Drag cards between columns. Click a header to set this save’s unlock.
+## Pool editor. Drag cards between pyramids. Click a header to set this save’s unlock.
 
 signal revealed_changed(n: int)
 signal card_hovered(kind: String, card_id: String, slot: Control)
@@ -55,7 +55,7 @@ func open_overlay(p_art, p_items: Dictionary, p_monsters: Dictionary, p_revealed
 	art = p_art
 	items_by_id = p_items
 	monsters_by_id = p_monsters
-	revealed = clampi(p_revealed, 0, BucketRules.MAX_BUCKET)
+	revealed = clampi(p_revealed, 1, BucketRules.MAX_BUCKET)
 	_pending.clear()
 	_show_token = false
 	if _token_btn:
@@ -103,10 +103,13 @@ func rebuild() -> void:
 		child.queue_free()
 	_columns.clear()
 	var groups: Dictionary = _group_cards()
-	for b in range(0, BucketRules.MAX_BUCKET + 1):
+	for b in range(1, BucketRules.MAX_BUCKET + 1):
 		var col := _make_column(b, groups.get(b, {"item": [], "monster": []}))
 		_row.add_child(col)
 		_columns[b] = col
+	var aside := _make_column(0, groups.get(0, {"item": [], "monster": []}))
+	_row.add_child(aside)
+	_columns[0] = aside
 	if _show_token:
 		var tok := _make_column(-1, groups.get(-1, {"item": [], "monster": []}))
 		_row.add_child(tok)
@@ -130,7 +133,7 @@ func _build_chrome() -> void:
 	_back.position = Vector2(16, 10) * PX
 	add_child(_back)
 
-	_title = KIT.raw_label("Buckets", 32, KIT.CREAM)
+	_title = KIT.raw_label("Pools", 32, KIT.CREAM)
 	_title.position = Vector2(96, 10) * PX
 	_title.size = Vector2(140, 16) * PX
 	add_child(_title)
@@ -146,7 +149,7 @@ func _build_chrome() -> void:
 	add_child(_token_btn)
 
 	_hint = KIT.raw_label(
-		"Bucket 0 is 10 and 10 (5 / 3 / 2). Later buckets are 5 and 5 (2 / 2 / 1). Counted cards on top. Smoke, pair extras, and mode-only sit dim in Extra and do not fill the count. Item tiles are Attack, Defense, Cheese, or Utility. Rows stay Bronze / Silver / Gold. Empty wells are holes. Wheel scrolls; Shift+wheel pans. Right-click edits. Click a header to set this save’s unlock.",
+		"Gold on top, then silver, then bronze. Hover a card: 1–5 moves it, 0 puts it Aside (hold), T is Token. Drag works too. Smoke, pair extras, and mode-only sit in Aside. Finished is green, Change is red. Click a Pool header to set this save’s unlock. Save writes the card files.",
 		18,
 		KIT.MUTED,
 		true
@@ -200,7 +203,7 @@ func _build_chrome() -> void:
 	var ask := VBoxContainer.new()
 	ask.add_theme_constant_override("separation", 10)
 	_confirm.add_child(ask)
-	var ask_l := KIT.raw_label("Leave without saving these bucket moves?", 18, KIT.CREAM, true)
+	var ask_l := KIT.raw_label("Leave without saving these pool moves?", 18, KIT.CREAM, true)
 	ask.add_child(ask_l)
 	var yes := _chrome_btn("Leave", Vector2(100, 16), _leave_unsaved)
 	ask.add_child(yes)
@@ -239,10 +242,14 @@ func _group_cards() -> Dictionary:
 		for kind in ["item", "monster"]:
 			var arr: Array = out[b][kind]
 			arr.sort_custom(func(a, c) -> bool:
+				var ra: int = _readiness(a)
+				var rc: int = _readiness(c)
+				if ra != rc:
+					return ra < rc
 				var ta: int = BucketRules.tier_of(a)
 				var tc: int = BucketRules.tier_of(c)
 				if ta != tc:
-					return ta < tc
+					return ta > tc
 				return str(a.get("name", "")).to_lower() < str(c.get("name", "")).to_lower()
 			)
 	return out
@@ -252,9 +259,6 @@ func _collect(out: Dictionary, kind: String) -> void:
 	var key: String = "items" if kind == "item" else "monsters"
 	for card in _board.get(key, []):
 		if typeof(card) != TYPE_DICTIONARY:
-			continue
-		var st: String = str(card.get("status", "live"))
-		if st == "retired" or st == "hold":
 			continue
 		var id: String = str(card.get("id", ""))
 		if id == "":
@@ -273,16 +277,30 @@ func _eff_bucket(kind: String, id: String, card: Dictionary) -> int:
 	var k: String = _pkey(kind, id)
 	if _pending.has(k):
 		return int(_pending[k])
-	return BucketRules.parse(card.get("bucket", 0))
+	return BucketRules.display_pool(card)
 
 
 func _pkey(kind: String, id: String) -> String:
 	return "%s:%s" % [kind, id]
 
 
+func _readiness(card: Dictionary) -> int:
+	match ReviewStage.of_card(card):
+		"finished":
+			return 0
+		"polish":
+			return 1
+		"refined":
+			return 2
+		"change":
+			return 4
+		_:
+			return 3
+
+
 func _make_column(bucket: int, group: Dictionary) -> BucketColumn:
-	var open: bool = bucket >= 0 and bucket <= revealed
-	var accent: Color = BucketRules.TOKEN_COLOR if bucket < 0 else BucketRules.color_of(bucket)
+	var open: bool = bucket < 1 or (bucket >= 1 and bucket <= revealed)
+	var accent: Color = BucketRules.TOKEN_COLOR if bucket < 1 else BucketRules.color_of(bucket)
 	var col := BucketColumn.new()
 	col.bucket = bucket
 	col.drop_cb = _on_drop
@@ -306,7 +324,8 @@ func _make_column(bucket: int, group: Dictionary) -> BucketColumn:
 
 	var head := Button.new()
 	head.text = _header_text(bucket, group)
-	head.custom_minimum_size = Vector2(0, 36)
+	head.custom_minimum_size = Vector2(0, 52)
+	head.clip_text = false
 	head.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	head.add_theme_font_size_override("font_size", 15)
 	head.add_theme_color_override("font_color", BucketRules.ink_for(accent) if open or bucket < 0 else KIT.MUTED)
@@ -324,7 +343,7 @@ func _make_column(bucket: int, group: Dictionary) -> BucketColumn:
 	head.add_theme_stylebox_override("pressed", hov)
 	head.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	head.focus_mode = Control.FOCUS_NONE
-	if bucket >= 0:
+	if bucket >= 1:
 		head.pressed.connect(func() -> void:
 			_pick_unlock(bucket)
 		)
@@ -339,71 +358,40 @@ func _make_column(bucket: int, group: Dictionary) -> BucketColumn:
 	return col
 
 
-func _header_text(bucket: int, _group: Dictionary) -> String:
+func _header_text(bucket: int, group: Dictionary) -> String:
 	if bucket < 0:
 		return "Token"
+	if bucket == 0:
+		return "Aside"
 	var lock_word := "Unlocked" if bucket <= revealed else "Locked"
 	if bucket == revealed:
 		lock_word = "Highest unlocked"
-	return "Bucket %s  ·  %s" % [bucket, lock_word]
+	var mix: String = BucketRules.mix_line(group.get("item", []), group.get("monster", []))
+	return "Pool %s  ·  %s\n%s" % [bucket, lock_word, mix]
 
 
 func _kind_block(kind: String, cards: Array, bucket: int) -> VBoxContainer:
 	var wrap := VBoxContainer.new()
 	wrap.add_theme_constant_override("separation", 6)
 	wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var counted: Array = []
-	var extras: Array = []
-	for card in cards:
-		if typeof(card) != TYPE_DICTIONARY:
-			continue
-		if BucketRules.counts_for_mill(card):
-			counted.append(card)
-		else:
-			extras.append(card)
-	var want: int = 0 if bucket < 0 else BucketRules.want_items(bucket)
-	var have: int = counted.size()
 	var lab := Label.new()
-	if kind == "item":
-		lab.text = "Items  %s / %s" % [have, want] if want > 0 else "Items  %s" % cards.size()
-	else:
-		lab.text = "Monsters  %s / %s" % [have, want] if want > 0 else "Monsters  %s" % cards.size()
+	lab.text = "Items" if kind == "item" else "Monsters"
 	lab.add_theme_font_size_override("font_size", 14)
 	lab.add_theme_color_override("font_color", KIT.CREAM)
 	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	wrap.add_child(lab)
 	var by_tier := {1: [], 2: [], 3: []}
-	for card2 in counted:
-		(by_tier[BucketRules.tier_of(card2)] as Array).append(card2)
-	var empties: int = 0
-	for t in range(1, 4):
-		var row_cards: Array = by_tier[t]
-		var need_hole: bool = bucket >= 0 and row_cards.is_empty()
-		if bucket < 0 and row_cards.is_empty():
+	for card2 in cards:
+		if typeof(card2) != TYPE_DICTIONARY:
 			continue
-		wrap.add_child(_tier_row(t, row_cards, kind, bucket, need_hole))
-		if need_hole:
-			empties += 1
-	if bucket >= 0:
-		var short: int = maxi(0, want - have - empties)
-		if short > 0:
-			wrap.add_child(_extra_holes(short))
-	if not extras.is_empty():
-		var ex_lab := Label.new()
-		ex_lab.text = "Extra"
-		ex_lab.add_theme_font_size_override("font_size", 12)
-		ex_lab.add_theme_color_override("font_color", Color("8a7d6c"))
-		ex_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		wrap.add_child(ex_lab)
-		var flow := HFlowContainer.new()
-		flow.add_theme_constant_override("h_separation", 8)
-		flow.add_theme_constant_override("v_separation", 8)
-		flow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		for extra in extras:
-			var tile := _make_tile(extra, kind, bucket)
-			tile.modulate = Color(0.62, 0.62, 0.62, 1)
-			flow.add_child(tile)
-		wrap.add_child(flow)
+		(by_tier[BucketRules.tier_of(card2)] as Array).append(card2)
+	for t in [3, 2, 1]:
+		var row_cards: Array = by_tier[t]
+		if row_cards.is_empty() and bucket != 0 and bucket >= 1:
+			continue
+		if row_cards.is_empty():
+			continue
+		wrap.add_child(_tier_row(t, row_cards, kind, bucket, false))
 	return wrap
 
 
@@ -502,6 +490,13 @@ func _make_tile(card: Dictionary, kind: String, bucket: int) -> BucketTile:
 	stripe.custom_minimum_size = Vector2(0, 10)
 	stripe.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(stripe)
+	var badge := Label.new()
+	badge.text = BucketRules.review_letter(card)
+	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	badge.add_theme_font_size_override("font_size", 13)
+	badge.add_theme_color_override("font_color", BucketRules.review_color(card))
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(badge)
 	var pic := TextureRect.new()
 	pic.custom_minimum_size = Vector2(SPRITE, SPRITE)
 	pic.texture_filter = TEXTURE_FILTER_NEAREST
@@ -553,7 +548,7 @@ func _on_drop(data: Variant, dest: int) -> void:
 	var card := _find_card(kind, id)
 	if card.is_empty():
 		return
-	var orig: int = BucketRules.parse(card.get("bucket", 0))
+	var orig: int = BucketRules.display_pool(card)
 	var key: String = _pkey(kind, id)
 	if dest == orig:
 		_pending.erase(key)
@@ -574,7 +569,7 @@ func _find_card(kind: String, id: String) -> Dictionary:
 
 
 func _pick_unlock(bucket: int) -> void:
-	revealed = clampi(bucket, 0, BucketRules.MAX_BUCKET)
+	revealed = clampi(bucket, 1, BucketRules.MAX_BUCKET)
 	revealed_changed.emit(revealed)
 	rebuild()
 
@@ -592,9 +587,10 @@ func _paint_tabs() -> void:
 		_tabs.remove_child(child)
 		child.queue_free()
 	var pages: Array = [
-		{"label": "0–3", "at": 0},
-		{"label": "4–7", "at": 4},
-		{"label": "8–12", "at": 8},
+		{"label": "1–2", "at": 1},
+		{"label": "3–4", "at": 3},
+		{"label": "5", "at": 5},
+		{"label": "Aside", "at": 0},
 	]
 	if _show_token:
 		pages.append({"label": "Token", "at": -1})
@@ -665,7 +661,15 @@ func _on_save() -> void:
 		if card.is_empty():
 			continue
 		var prev: Dictionary = card.duplicate(true)
-		card["bucket"] = dest
+		card["pool"] = dest
+		card.erase("bucket")
+		if dest == 0:
+			var st: String = str(card.get("status", "live"))
+			if st == "live" or st == "todo":
+				card["status"] = "hold"
+		elif dest >= 1 or dest < 0:
+			if str(card.get("status", "live")) == "hold":
+				card["status"] = "live"
 		AUTHOR_LOCK.stamp_card(card, prev, true)
 	_board["updated"] = Time.get_date_string_from_system()
 	if not AUTHOR_LOCK.write_json(BOARD_PATH, _board):
@@ -679,7 +683,7 @@ func _on_save() -> void:
 	if _sfx and _sfx.has_method("play"):
 		_sfx.play("book", -8.0)
 	assignments_saved.emit(_board.get("items", []), _board.get("monsters", []))
-	_status.text = "Saved bucket moves."
+	_status.text = "Saved pool moves."
 	_status.add_theme_color_override("font_color", Color("8dcb8d"))
 
 
@@ -749,6 +753,69 @@ func _higher_overlay_open() -> bool:
 	return false
 
 
+func _hovered_payload() -> Dictionary:
+	if _hover_slot == null or not is_instance_valid(_hover_slot):
+		return {}
+	if _hover_slot is BucketTile:
+		return (_hover_slot as BucketTile).payload
+	return {}
+
+
+func _handle_pool_hotkey(event: InputEventKey) -> bool:
+	var code: int = event.keycode
+	if code == KEY_T:
+		var payload: Dictionary = _hovered_payload()
+		if not payload.is_empty():
+			_show_token = true
+			if _token_btn:
+				_token_btn.text = "Hide Token"
+			_on_drop(payload, -1)
+		else:
+			_toggle_token()
+		return true
+	if code == KEY_0:
+		var held: Dictionary = _hovered_payload()
+		if held.is_empty():
+			return false
+		_on_drop(held, 0)
+		return true
+	if code >= KEY_1 and code <= KEY_5:
+		var move: Dictionary = _hovered_payload()
+		if move.is_empty():
+			return false
+		_on_drop(move, code - KEY_0)
+		return true
+	var review := ""
+	match code:
+		KEY_N:
+			review = "rough"
+		KEY_R:
+			review = "refined"
+		KEY_P:
+			review = "polish"
+		KEY_F:
+			review = "finished"
+		KEY_C:
+			review = "change"
+	if review == "":
+		return false
+	var rev_pay: Dictionary = _hovered_payload()
+	if rev_pay.is_empty():
+		return false
+	var card := _find_card(str(rev_pay.get("kind", "")), str(rev_pay.get("id", "")))
+	if card.is_empty():
+		return false
+	var prev: Dictionary = card.duplicate(true)
+	card["review"] = review
+	AUTHOR_LOCK.stamp_card(card, prev, true)
+	_board["updated"] = Time.get_date_string_from_system()
+	AUTHOR_LOCK.write_json(BOARD_PATH, _board)
+	AUTHOR_LOCK.rebuild_ledger(_board, null)
+	assignments_saved.emit(_board.get("items", []), _board.get("monsters", []))
+	rebuild()
+	return true
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible or _higher_overlay_open():
 		return
@@ -756,6 +823,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_on_save()
 		get_viewport().set_input_as_handled()
 		return
+	if event is InputEventKey and event.pressed and not event.echo and not event.ctrl_pressed and not event.alt_pressed and not event.meta_pressed:
+		if _handle_pool_hotkey(event):
+			get_viewport().set_input_as_handled()
+			return
 	if event.is_action_pressed("ui_cancel"):
 		if _confirm and _confirm.visible:
 			_show_confirm(false)

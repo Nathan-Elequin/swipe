@@ -117,7 +117,7 @@ func open_list(p_items: Dictionary, p_mons: Dictionary, p_art, revealed: int) ->
 	items_by_id = p_items
 	monsters_by_id = p_mons
 	art = p_art
-	buckets_open = clampi(revealed, 0, BucketRules.MAX_BUCKET)
+	buckets_open = clampi(revealed, 1, BucketRules.MAX_BUCKET)
 	_kind = "item"
 	_tier = 1
 	_bucket_on.clear()
@@ -144,7 +144,7 @@ func show_result(ok: bool, detail: String) -> void:
 func export_ranks() -> Dictionary:
 	var cap: int = _bucket_cap()
 	var buckets: Array = []
-	for b in range(0, cap + 1):
+	for b in range(1, cap + 1):
 		buckets.append(b)
 	return {
 		"kind": _kind,
@@ -176,7 +176,7 @@ func _paint_tabs() -> void:
 func _rebuild_bucket_toggles() -> void:
 	for c in _bucket_row.get_children():
 		c.queue_free()
-	for b in range(0, BucketRules.MAX_BUCKET + 1):
+	for b in range(1, BucketRules.MAX_BUCKET + 1):
 		var n: int = b
 		var btn := Button.new()
 		btn.toggle_mode = true
@@ -309,7 +309,7 @@ func _visible_card(id: String) -> bool:
 		return false
 	if int(card.get("tier", 1)) != _tier:
 		return false
-	var b: int = BucketRules.parse(card.get("bucket", 0))
+	var b: int = BucketRules.of_card(card)
 	if b < 0:
 		return false
 	return b <= _bucket_cap()

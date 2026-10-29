@@ -87,8 +87,8 @@ const MODES = [
   { id: "adventure", label: "Adventure-Only" },
   { id: "challenge", label: "Challenge-Only" }
 ];
-const SYNC = ["bucket", "name", "ability", "explainer", "call_name", "reminder", "log_hint", "tier", "status", "rarity", "review", "review_note", "mode_pool", "card_color", "count", "priority", "ops", "atk_base", "hp_base", "atk_formula", "hp_formula", "flow", "notes", "author_lock", "locked_fields", "locked_at"];
-const LOCKABLE = ["name", "ability", "explainer", "call_name", "reminder", "log_hint", "tier", "status", "rarity", "review", "review_note", "mode_pool", "card_color", "count", "priority", "ops", "atk_base", "hp_base", "atk_formula", "hp_formula", "flow", "notes", "bucket"];
+const SYNC = ["pool", "name", "ability", "explainer", "call_name", "reminder", "log_hint", "tier", "status", "rarity", "review", "review_note", "mode_pool", "card_color", "count", "priority", "ops", "atk_base", "hp_base", "atk_formula", "hp_formula", "flow", "notes", "author_lock", "locked_fields", "locked_at"];
+const LOCKABLE = ["name", "ability", "explainer", "call_name", "reminder", "log_hint", "tier", "status", "rarity", "review", "review_note", "mode_pool", "card_color", "count", "priority", "ops", "atk_base", "hp_base", "atk_formula", "hp_formula", "flow", "notes", "pool"];
 
 let boardDoc = null;
 let catalogDoc = null;
@@ -145,18 +145,18 @@ function tierOf(card) {
 function isAside(card) {
   const st = card.status || "live";
   if (st === "hold" || st === "retired") return true;
-  const b = Number(card.bucket);
-  return !(b >= 0);
+  const b = Number(card.pool != null ? card.pool : card.bucket);
+  return !(b >= 1 && b <= 5);
 }
 function usesStoredPools(cards) {
   return cards.length > 0 && cards.every(c => {
-    const b = Number(c.bucket);
+    const b = Number(c.pool != null ? c.pool : c.bucket);
     return b >= 1 && b <= 5;
   });
 }
 function sortWalk(cards) {
   return cards.slice().sort((a, b) => {
-    const d = Number(a.bucket) - Number(b.bucket);
+    const d = Number(a.pool != null ? a.pool : a.bucket) - Number(b.pool != null ? b.pool : b.bucket);
     if (d) return d;
     return String(a.id).localeCompare(String(b.id));
   });
@@ -281,7 +281,7 @@ function assignPools() {
   const walkI = items.filter(c => !isAside(c));
   const walkM = monsters.filter(c => !isAside(c));
   if (usesStoredPools(walkI) && usesStoredPools(walkM)) {
-    for (const c of walkI.concat(walkM)) poolOf.set(keyOf(c), String(Number(c.bucket)));
+    for (const c of walkI.concat(walkM)) poolOf.set(keyOf(c), String(Number(c.pool != null ? c.pool : c.bucket)));
     splitMode = "stored";
     return;
   }
@@ -543,7 +543,7 @@ function saveSoon() {
 }
 async function saveFields() {
   if (!boardDoc || !catalogDoc) return;
-  for (const c of boardDoc.items.concat(boardDoc.monsters)) copyToCatalog(c, SYNC.filter(k => k !== "bucket"));
+  for (const c of boardDoc.items.concat(boardDoc.monsters)) copyToCatalog(c, SYNC.filter(k => k !== "pool"));
   try {
     const res = await fetch("/api/save-both", {
       method: "POST",
@@ -562,8 +562,9 @@ async function savePools() {
     const p = poolKey(c);
     if (p === "aside" || p === "bank") continue;
     const n = Number(p);
-    if (Number(c.bucket) !== n) stamp(c, "bucket", n);
-    c.bucket = n;
+    if (Number(c.pool) !== n) stamp(c, "pool", n);
+    c.pool = n;
+    delete c.bucket;
     copyToCatalog(c, SYNC);
   }
   try {
@@ -574,7 +575,7 @@ async function savePools() {
     });
     if (!res.ok) throw new Error("save failed");
     splitMode = "stored";
-    statusEl.textContent = "Saved. Card files now use Pools 1–5. The fight still reads the old bucket numbers, so leave F5 until that is updated.";
+    statusEl.textContent = "Saved. Card files now use Pools 1–5.";
   } catch (err) {
     statusEl.textContent = "Could not save pools.";
   }
@@ -716,7 +717,7 @@ function closeEditor(save) {
     }
     poolOf.set(keyOf(card), data.pool === "aside" ? "aside" : String(data.pool));
     rememberBank();
-    copyToCatalog(card, SYNC.filter(k => k !== "bucket"));
+    copyToCatalog(card, SYNC.filter(k => k !== "pool"));
     saveSoon();
     statusEl.textContent = "Saved " + (card.name || card.id) + ".";
   }
@@ -785,7 +786,7 @@ window.addEventListener("blur", hideBank);
 document.getElementById("save-pools").onclick = savePools;
 document.getElementById("reload").onclick = () => load(true);
 function cardStamp(doc) {
-  const pack = (list) => (list || []).map(c => [c.id, c.name, c.ability, c.explainer, c.call_name, c.tier, c.hp, c.atk, c.hp_base, c.atk_base, c.bucket, c.review, c.status, c.card_color, c.mode_pool]);
+  const pack = (list) => (list || []).map(c => [c.id, c.name, c.ability, c.explainer, c.call_name, c.tier, c.hp, c.atk, c.hp_base, c.atk_base, c.pool, c.review, c.status, c.card_color, c.mode_pool]);
   return JSON.stringify([pack(doc.items), pack(doc.monsters)]);
 }
 let seenStamp = "";
@@ -822,7 +823,7 @@ async function load(manual) {
   if (first || manual) {
     statusEl.textContent = splitMode === "stored"
       ? "Loaded pools from the card files. This page re-reads them while it stays open."
-      : "Loaded buckets 0–9 and split them into Pools 1–5 on this page. Save pools writes those numbers into the card files.";
+      : "Loaded cards without stored pools and split them into Pools 1–5 on this page. Save pools writes those numbers into the card files.";
   } else {
     statusEl.textContent = "Updated from the card files.";
   }

@@ -107,9 +107,12 @@ static func normalize(state: Dictionary) -> void:
 
 
 static func pool_for_bucket(rules: Dictionary, bucket: int) -> String:
-	if bucket < 0:
+	if bucket < 1:
 		return ""
-	return str(rules.get("bucket_pools", {}).get(str(bucket), ""))
+	var map: Variant = rules.get("card_pools", rules.get("bucket_pools", {}))
+	if typeof(map) != TYPE_DICTIONARY:
+		return ""
+	return str((map as Dictionary).get(str(bucket), ""))
 
 
 static func biomes_of(rules: Dictionary) -> Array:

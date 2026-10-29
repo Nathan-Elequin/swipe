@@ -2372,7 +2372,7 @@ func _drop_dungeon_tokens() -> void:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
 		var card: Dictionary = items_by_id.get(str(it.get("card_id", "")), {})
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			n += 1
 			continue
 		kept.append(it)
@@ -2742,7 +2742,7 @@ func _campaign_card_ok(card: Dictionary) -> bool:
 		return false
 	if not ModePool.allows(card, ModePool.ADVENTURE):
 		return false
-	return CAMPAIGN_SHELL.pool_open_for_bucket(_campaign.rules, _campaign.state, BucketRules.parse(card.get("bucket", 0)))
+	return CAMPAIGN_SHELL.pool_open_for_bucket(_campaign.rules, _campaign.state, BucketRules.of_card(card))
 
 
 func _campaign_item_entries() -> Array:
@@ -2754,7 +2754,7 @@ func _campaign_item_entries() -> Array:
 		var st := str(card.get("status", "live"))
 		if st == "hold" or st == "retired":
 			continue
-		var pool := CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.parse(card.get("bucket", 0)))
+		var pool := CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.of_card(card))
 		if pool == "":
 			continue
 		out.append({"id": str(id), "pool": pool})
@@ -2768,7 +2768,7 @@ func _campaign_pool_of_item(id: String) -> String:
 	if _campaign == null:
 		return ""
 	var card: Dictionary = items_by_id.get(id, {})
-	return CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.parse(card.get("bucket", 0)))
+	return CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.of_card(card))
 
 
 func _campaign_rerolls() -> int:
@@ -3379,19 +3379,19 @@ func _first_mill_bucket() -> int:
 			continue
 		if not BucketRules.counts_for_mill(card):
 			continue
-		var b: int = BucketRules.parse(card.get("bucket", 0))
-		if b >= 0 and b < first:
+		var b: int = BucketRules.of_card(card)
+		if b >= 1 and b < first:
 			first = b
 	for card2 in monsters_by_id.values():
 		if typeof(card2) != TYPE_DICTIONARY:
 			continue
 		if not BucketRules.counts_for_mill(card2):
 			continue
-		var b2: int = BucketRules.parse(card2.get("bucket", 0))
-		if b2 >= 0 and b2 < first:
+		var b2: int = BucketRules.of_card(card2)
+		if b2 >= 1 and b2 < first:
 			first = b2
 	if first > BucketRules.MAX_BUCKET:
-		return 0
+		return 1
 	return first
 
 
@@ -3431,7 +3431,7 @@ func reset_bucket_progress() -> void:
 func _dev_set_buckets(n: int) -> void:
 	if n <= 0:
 		n = _first_mill_bucket()
-	_buckets_revealed = clampi(n, 0, BucketRules.MAX_BUCKET)
+	_buckets_revealed = clampi(n, 1, BucketRules.MAX_BUCKET)
 	_dungeons_ended = _buckets_revealed
 	_save_bucket_progress()
 	_fill_pools()
@@ -3606,7 +3606,7 @@ func _advance_bucket_counter() -> void:
 
 
 func _bucket_open(card: Dictionary) -> bool:
-	var n: int = BucketRules.parse(card.get("bucket", 0))
+	var n: int = BucketRules.of_card(card)
 	return n >= 0 and n <= _buckets_revealed
 
 
@@ -3618,19 +3618,21 @@ func _bucket_over_quota(bucket: int) -> bool:
 			continue
 		if not BucketRules.counts_for_mill(card):
 			continue
-		if BucketRules.parse(card.get("bucket", 0)) == bucket:
+		if BucketRules.of_card(card) == bucket:
 			ni += 1
 	for card2 in monsters_by_id.values():
 		if typeof(card2) != TYPE_DICTIONARY:
 			continue
 		if not BucketRules.counts_for_mill(card2):
 			continue
-		if BucketRules.parse(card2.get("bucket", 0)) == bucket:
+		if BucketRules.of_card(card2) == bucket:
 			nm += 1
 	return ni > BucketRules.want_items(bucket) or nm > BucketRules.want_monsters(bucket)
 
 
 func _reveal_new_buckets() -> void:
+	if _campaign_on:
+		return
 	if _dungeons_ended <= _buckets_revealed:
 		return
 	var newest: int = _buckets_revealed
@@ -3666,11 +3668,11 @@ func _bucket_entries(bucket_n: int) -> Array:
 	var foe_extra: Array = []
 	for id in items_by_id.keys():
 		var card: Dictionary = items_by_id[id]
-		if BucketRules.parse(card.get("bucket", 0)) != bucket_n:
+		if BucketRules.of_card(card) != bucket_n:
 			continue
 		if str(card.get("status", "live")) == "retired" or str(card.get("status", "live")) == "hold":
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
 		if BucketRules.is_always_starter(card):
 			continue
@@ -3685,11 +3687,11 @@ func _bucket_entries(bucket_n: int) -> Array:
 			loot.append(entry)
 	for id2 in monsters_by_id.keys():
 		var card2: Dictionary = monsters_by_id[id2]
-		if BucketRules.parse(card2.get("bucket", 0)) != bucket_n:
+		if BucketRules.of_card(card2) != bucket_n:
 			continue
 		if str(card2.get("status", "live")) == "retired" or str(card2.get("status", "live")) == "hold":
 			continue
-		if BucketRules.is_token(card2.get("bucket", 0)):
+		if BucketRules.is_token(card2):
 			continue
 		var entry2: Dictionary = _bucket_entry(card2, "Foe", tex_by_monster.get(id2, null))
 		entry2["extra"] = not BucketRules.counts_for_mill(card2)
@@ -3755,7 +3757,7 @@ func _pull_bucket(pool: Array, by_id: Dictionary, bucket_n: int) -> String:
 	var matches: Array = []
 	for id in pool:
 		var card: Dictionary = by_id.get(str(id), {})
-		if int(card.get("bucket", 0)) == bucket_n:
+		if BucketRules.of_card(card) == bucket_n:
 			matches.append(str(id))
 	if matches.is_empty():
 		return ""
@@ -3771,7 +3773,7 @@ func _force_guarantee_monster() -> void:
 		if str(s.get("kind", "")) != "monster":
 			continue
 		var have: String = str(s.get("card_id", ""))
-		if int(monsters_by_id.get(have, {}).get("bucket", 0)) == _guarantee_bucket:
+		if BucketRules.of_card(monsters_by_id.get(have, {})) == _guarantee_bucket:
 			return
 	var id: String = _pull_bucket(monster_pool, monsters_by_id, _guarantee_bucket)
 	if id == "":
@@ -3826,7 +3828,7 @@ func _force_guarantee_item(gifted: Array[int]) -> void:
 		if idx < 0 or idx >= hotbar.size():
 			continue
 		var have: String = str(hotbar[idx].get("card_id", ""))
-		if int(items_by_id.get(have, {}).get("bucket", 0)) == _guarantee_bucket:
+		if BucketRules.of_card(items_by_id.get(have, {})) == _guarantee_bucket:
 			_guarantee_bucket = 0
 			return
 	var id: String = _pull_bucket(item_pool, items_by_id, _guarantee_bucket)
@@ -6856,7 +6858,8 @@ func _merge_catalog_card(kind: String, board_card: Dictionary) -> void:
 		catalog["monsters" if kind == "monster" else "items"] = arr
 	dst["name"] = _title_case(str(board_card.get("name", id)))
 	dst["rarity"] = str(board_card.get("rarity", "starter"))
-	dst["bucket"] = _as_int(board_card.get("bucket", 0), 0)
+	dst["pool"] = BucketRules.of_card(board_card)
+	dst.erase("bucket")
 	dst["mode_pool"] = ModePool.parse(board_card.get("mode_pool", "all"))
 	dst["tier"] = _as_int(board_card.get("tier", 1), 1)
 	dst["count"] = _as_int(board_card.get("count", 1), 1)
@@ -10951,7 +10954,7 @@ func _oligarch_gift_pool() -> Array:
 		var card: Dictionary = items_by_id.get(iid, {})
 		if card.is_empty():
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
 		var st: String = str(card.get("status", "live"))
 		if st == "retired" or st == "hold":
@@ -11680,7 +11683,7 @@ func _swap_pool_ids(tier: int) -> Array:
 	for raw in item_pool:
 		var iid: String = str(raw)
 		var card: Dictionary = items_by_id.get(iid, {})
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
 		if _rug_secret_gated(iid):
 			continue
@@ -11695,7 +11698,7 @@ func _swap_pool_ids(tier: int) -> Array:
 		var card2: Dictionary = items_by_id[id]
 		if str(card2.get("status", "live")) == "retired" or str(card2.get("status", "live")) == "hold":
 			continue
-		if BucketRules.is_token(card2.get("bucket", 0)):
+		if BucketRules.is_token(card2):
 			continue
 		var flags: Variant = card2.get("flags", {})
 		if typeof(flags) == TYPE_DICTIONARY and bool((flags as Dictionary).get("hide", false)):
@@ -21522,7 +21525,7 @@ func _sync_hotbar() -> void:
 			card.set_choice_badge(_choice_badge_text(it))
 		if card.has_method("set_cabinet_badge"):
 			var cid: String = str(it.get("card_id", ""))
-			var fresh: bool = home_cabin != null and cid != "" and not home_cabin.is_swiped(cid) and not BucketRules.is_token(items_by_id.get(cid, {}).get("bucket", 0))
+			var fresh: bool = home_cabin != null and cid != "" and not home_cabin.is_swiped(cid) and not BucketRules.is_token(items_by_id.get(cid, {}))
 			card.set_cabinet_badge(fresh, PLAYER_COPY.text("cabin.tip.new", "New!"), PLAYER_COPY.text("cabin.tip.seen", "Seen in {the_grumble}. Not home yet."))
 		if card.has_method("set_beggar_mark"):
 			card.set_beggar_mark(_beggar_marked(uid_n))
@@ -21919,11 +21922,11 @@ func _tutorial_unlock_entries() -> Array:
 		if skip.has(str(id)):
 			continue
 		var card: Dictionary = items_by_id[id]
-		if BucketRules.parse(card.get("bucket", 0)) != 0:
+		if BucketRules.of_card(card) != 1:
 			continue
 		if str(card.get("status", "live")) == "retired" or str(card.get("status", "live")) == "hold":
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)) or BucketRules.is_always_starter(card):
+		if BucketRules.is_token(card) or BucketRules.is_always_starter(card):
 			continue
 		var loot_tex: Texture2D = tex_by_item.get(id, null)
 		if loot_tex == null and art != null:
@@ -21937,11 +21940,11 @@ func _tutorial_unlock_entries() -> Array:
 		if skip.has(str(id2)):
 			continue
 		var card2: Dictionary = monsters_by_id[id2]
-		if BucketRules.parse(card2.get("bucket", 0)) != 0:
+		if BucketRules.of_card(card2) != 1:
 			continue
 		if str(card2.get("status", "live")) == "retired" or str(card2.get("status", "live")) == "hold":
 			continue
-		if BucketRules.is_token(card2.get("bucket", 0)):
+		if BucketRules.is_token(card2):
 			continue
 		var entry2: Dictionary = _bucket_entry(card2, "Foe", tex_by_monster.get(id2, null))
 		if BucketRules.counts_for_mill(card2):

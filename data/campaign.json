@@ -1,21 +1,23 @@
 {
-  "notes": "Bucket numbers stay on the cards. bucket_pools is the biome tag: cabinets credit the item's pool, not the delve you found it in. Each biome mix totals 10 (Weak/Tough/Deadly): b1 6/3/1, b2 5/3/2, b3 5/3/2, b4 4/4/2, b5 4/3/3 (SP-17). Deadly counts across the five biomes sum to 10 so each Deadly is unique for the save. The pre-delve telegraph lists that biome's Deadly count. Later monster-entry loot still follows that monster's rank; only the opening six offers use starter_item_mix (unchanged). The 3-unique start gate counts toward the Verdant Hollow cabinet of 5.",
+  "notes": "Card pool 1–5 is the biome tag: cabinets credit the item's pool, not the delve you found it in. Returning with 5 unique items for that cabinet unlocks the next dungeon. Each biome mix totals 10 (Weak/Tough/Deadly): b1 6/3/1, b2 5/3/2, b3 5/3/2, b4 4/4/2, b5 4/3/3 (SP-17). Deadly counts across the five biomes sum to 10 so each Deadly is unique for the save. The pre-delve telegraph lists that biome's Deadly count. Later monster-entry loot still follows that monster's rank; only the opening six offers use starter_item_mix (unchanged). The 3-unique start gate counts toward the Verdant Hollow cabinet of 5.",
   "start_gate_uniques": 3,
   "cabinet_quota": 5,
   "starter_item_mix": [3, 2, 1],
   "rerolls_per_delve": 1,
   "deck": {"wheel": 6, "reserve": 4},
-  "bucket_pools": {
-    "0": "b1",
+  "card_pools": {
     "1": "b1",
     "2": "b2",
-    "3": "b2",
-    "4": "b3",
-    "5": "b3",
-    "6": "b4",
-    "7": "b4",
-    "8": "b5",
-    "9": "b5"
+    "3": "b3",
+    "4": "b4",
+    "5": "b5"
+  },
+  "bucket_pools": {
+    "1": "b1",
+    "2": "b2",
+    "3": "b3",
+    "4": "b4",
+    "5": "b5"
   },
   "biomes": [
     {"id": "b1", "name": "Verdant Hollow", "mix": {"weak": 6, "tough": 3, "deadly": 1}},

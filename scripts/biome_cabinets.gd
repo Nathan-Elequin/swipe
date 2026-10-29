@@ -134,17 +134,15 @@ static func quota_of(rules: Dictionary) -> int:
 
 
 static func pool_for_bucket(rules: Dictionary, bucket: int) -> String:
-	if bucket < 0:
+	if bucket < 1:
 		return ""
-	var mapped := str(rules.get("bucket_pools", {}).get(str(bucket), ""))
-	if mapped != "":
-		return mapped
-	var idx := int(bucket / 2)
-	if idx < 0:
-		return ""
-	if idx > 4:
-		idx = 4
-	return "b%d" % [idx + 1]
+	var map: Variant = rules.get("card_pools", rules.get("bucket_pools", {}))
+	if typeof(map) == TYPE_DICTIONARY:
+		var mapped := str((map as Dictionary).get(str(bucket), ""))
+		if mapped != "":
+			return mapped
+	var n: int = mini(5, bucket)
+	return "b%d" % n
 
 
 ## Collected ids stay in swipe order. Everything else fills the remaining slots

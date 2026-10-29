@@ -45,11 +45,11 @@ const COL_ITEM := [
 	{"key": "explainer", "label": "Shift Text", "sub": "hold Shift", "help": "The short formula that appears when you hold Shift.", "w": 180.0, "kind": "area", "group": "copy"},
 	{"key": "log_hint", "label": "Log hover", "sub": "on the name in the fight log", "help": "Under 6 words. Shown when the mouse is on this item's name in the fight log.", "w": 180.0, "kind": "area", "group": "copy"},
 	{"key": "card_color", "label": "Card color", "sub": "hand tint", "help": "atk / blk / heal / defeat / utility / chaos / smoke / egg, or blank for auto.", "w": 100.0, "kind": "line", "group": "copy"},
-	{"key": "review", "label": "Review", "sub": "rough → finished", "help": "rough = first pass. refined = mechanics changed after your notes. polish = art, copy, dialogue. finished = done.", "w": 108.0, "kind": "pick", "opts": ["rough", "refined", "polish", "finished"], "group": "review"},
+	{"key": "review", "label": "Review", "sub": "rough → finished", "help": "rough = first pass. refined = mechanics changed after your notes. polish = art, copy, dialogue. finished = done. change = needs a pass.", "w": 108.0, "kind": "pick", "opts": ["rough", "refined", "polish", "finished", "change"], "group": "review"},
 	{"key": "review_note", "label": "Your notes", "sub": "for Cursor", "help": "Type what to change. Save is a real overwrite. The next Cursor message writes this into Ability, numbers, and code.", "w": 200.0, "kind": "area", "group": "review"},
 	{"key": "status", "label": "Status", "sub": "live / todo / hold", "help": "live = in the dungeon. todo = needs a code pass. hold = skip. retired = hidden.", "w": 92.0, "kind": "pick", "opts": ["live", "todo", "hold", "retired"], "group": "meta"},
-	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "Left over from the old night-watch flag. The bucket decides which dungeon can deal this card.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
-	{"key": "bucket", "label": "Bucket", "sub": "when it unlocks", "help": "0 is in the first dungeon. 1 opens after the first dungeon ending in Challenge Mode, 2 after the second, and so on. A clear or a death counts. Bucket 0 should be 10 items and 10 monsters (5 tier 1, 3 tier 2, 2 tier 3). Each later bucket should be 5 and 5 (2 tier 1, 2 tier 2, 1 tier 3). The last used bucket may be short. Smoke Bomb is always one of the four opening items and does not count. Phoenix does not count (it hatches from Phoenix Egg). Right Bracer sits with Left Bracer and does not count. Challenge-only and Adventure-only cards sit extra in their bucket and do not count toward the 10/5. Token is never drafted.", "w": 108.0, "kind": "pick", "opts": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "Token"], "group": "meta"},
+	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "Left over from the old night-watch flag. The pool decides which dungeon can deal this card.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
+	{"key": "pool", "label": "Pool", "sub": "1–5 · Token · Aside", "help": "Pool 1 is Verdant Hollow. Pool 5 is the last biome. Returning with 5 unique items from that cabinet unlocks the next dungeon. Token is never drafted. Aside is hold. Smoke, pair extras, and mode-only sit in Aside.", "w": 108.0, "kind": "pick", "opts": ["1", "2", "3", "4", "5", "Token", "Aside"], "group": "meta"},
 	{"key": "mode_pool", "label": "Modes", "sub": "which dungeons", "help": "All = both modes. Adventure-Only = mill and spin, never Challenge. Challenge-Only = pick-your-foe, never Adventure.", "w": 148.0, "kind": "pick", "opts": ["All", "Adventure-Only", "Challenge-Only"], "group": "meta"},
 	{"key": "id", "label": "Id", "sub": "internal code", "help": "Internal code id. Change this only when adding a brand-new card.", "w": 118.0, "kind": "line", "group": "meta"},
 	{"key": "tier", "label": "Tier", "sub": "1 bronze · 3 gold", "help": "1 bronze, 2 silver, 3 gold. A mill pack's relic and monster share this metal.", "w": 56.0, "kind": "line", "group": "pool"},
@@ -72,11 +72,11 @@ const COL_MONSTER := [
 	{"key": "call_name", "label": "Call name", "sub": "under the title", "help": "Short name under the monster title.", "w": 140.0, "kind": "line", "group": "copy"},
 	{"key": "log_hint", "label": "Log hover", "sub": "on the Call name in the fight log", "help": "Under 6 words. Shown when the mouse is on this Call name in the fight log.", "w": 180.0, "kind": "area", "group": "copy"},
 	{"key": "reminder", "label": "Shift Text", "sub": "hold Shift", "help": "The short formula that appears when you hold Shift.", "w": 160.0, "kind": "area", "group": "copy"},
-	{"key": "review", "label": "Review", "sub": "rough → finished", "help": "rough = first pass. refined = mechanics changed after your notes. polish = art, copy, dialogue. finished = done.", "w": 108.0, "kind": "pick", "opts": ["rough", "refined", "polish", "finished"], "group": "review"},
+	{"key": "review", "label": "Review", "sub": "rough → finished", "help": "rough = first pass. refined = mechanics changed after your notes. polish = art, copy, dialogue. finished = done. change = needs a pass.", "w": 108.0, "kind": "pick", "opts": ["rough", "refined", "polish", "finished", "change"], "group": "review"},
 	{"key": "review_note", "label": "Your notes", "sub": "for Cursor", "help": "Type what to change. Save is a real overwrite. The next Cursor message writes this into Ability, numbers, and code.", "w": 200.0, "kind": "area", "group": "review"},
 	{"key": "status", "label": "Status", "sub": "live / todo / hold", "help": "live = in the dungeon. todo = needs a code pass. hold = skip. retired = hidden.", "w": 92.0, "kind": "pick", "opts": ["live", "todo", "hold", "retired"], "group": "meta"},
-	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "Left over from the old night-watch flag. The bucket decides which dungeon can deal this card.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
-	{"key": "bucket", "label": "Bucket", "sub": "when it unlocks", "help": "0 is in the first dungeon. 1 opens after the first dungeon ending in Challenge Mode, 2 after the second, and so on. A clear or a death counts. Bucket 0 should be 10 items and 10 monsters (5 tier 1, 3 tier 2, 2 tier 3). Each later bucket should be 5 and 5 (2 tier 1, 2 tier 2, 1 tier 3). The last used bucket may be short. Smoke Bomb is always one of the four opening items and does not count. Phoenix does not count (it hatches from Phoenix Egg). Right Bracer sits with Left Bracer and does not count. Challenge-only and Adventure-only cards sit extra in their bucket and do not count toward the 10/5. Token is never drafted.", "w": 108.0, "kind": "pick", "opts": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "Token"], "group": "meta"},
+	{"key": "rarity", "label": "Rarity", "sub": "starter or mill", "help": "Left over from the old night-watch flag. The pool decides which dungeon can deal this card.", "w": 100.0, "kind": "pick", "opts": ["starter", "uncommon"], "group": "meta"},
+	{"key": "pool", "label": "Pool", "sub": "1–5 · Token · Aside", "help": "Pool 1 is Verdant Hollow. Pool 5 is the last biome. Returning with 5 unique items from that cabinet unlocks the next dungeon. Token is never drafted. Aside is hold. Smoke, pair extras, and mode-only sit in Aside.", "w": 108.0, "kind": "pick", "opts": ["1", "2", "3", "4", "5", "Token", "Aside"], "group": "meta"},
 	{"key": "mode_pool", "label": "Modes", "sub": "which dungeons", "help": "All = both modes. Adventure-Only = mill and spin, never Challenge. Challenge-Only = pick-your-foe, never Adventure.", "w": 148.0, "kind": "pick", "opts": ["All", "Adventure-Only", "Challenge-Only"], "group": "meta"},
 	{"key": "id", "label": "Id", "sub": "internal code", "help": "Internal code id. Change this only when adding a brand-new card.", "w": 118.0, "kind": "line", "group": "meta"},
 	{"key": "tier", "label": "Tier", "sub": "1 bronze · 3 gold", "help": "1 bronze, 2 silver, 3 gold. Matches the relic in its mill pack.", "w": 56.0, "kind": "line", "group": "pool"},
@@ -197,7 +197,7 @@ func setup(p_art, p_sfx) -> void:
 	_dup_btn = _btn("Duplicate", Color("3a3220"), Color("c4a574"), _on_duplicate, 120)
 	head.add_child(_dup_btn)
 	head.add_child(_btn("Reset unlocks", Color("3a2420"), Color("c47a5c"), _on_reset_unlocks, 140))
-	head.add_child(_btn("Buckets", Color("2a3340"), Color("8eb4d4"), _on_open_buckets, 110))
+	head.add_child(_btn("Pools", Color("2a3340"), Color("8eb4d4"), _on_open_buckets, 110))
 	head.add_child(_btn("Save all", Color("3a2820"), Color("c4a574"), _on_save, 110))
 	head.add_child(_btn("Close", Color("3a3220"), Color("9a8b78"), close_editor, 90))
 	col.add_child(_build_review_bar())
@@ -438,7 +438,7 @@ func _cards() -> Array:
 
 
 func _sort_card(a: Dictionary, b: Dictionary) -> bool:
-	if _sort_mode == "bucket":
+	if _sort_mode == "pool":
 		var sa: int = _sort_bucket_key(a)
 		var sb: int = _sort_bucket_key(b)
 		if sa != sb:
@@ -464,7 +464,7 @@ func _sort_card(a: Dictionary, b: Dictionary) -> bool:
 
 
 func _sort_bucket_key(card: Dictionary) -> int:
-	var n: int = BucketRules.parse(card.get("bucket", 0))
+	var n: int = BucketRules.of_card(card)
 	if n < 0:
 		return 1000
 	return n
@@ -630,8 +630,8 @@ func _header_cell(spec: Dictionary) -> Control:
 			sb.bg_color = Color("e8e4dc")
 			sb.border_color = Color("a09888")
 			sb.set_border_width_all(1)
-		"bucket":
-			if _sort_mode == "bucket":
+		"pool":
+			if _sort_mode == "pool":
 				sb.bg_color = Color("dce8f4")
 				sb.border_color = Color("2f6f9f")
 				sb.set_border_width_all(2)
@@ -648,12 +648,12 @@ func _header_cell(spec: Dictionary) -> Control:
 	wrap.add_theme_constant_override("separation", 0)
 	wrap.mouse_filter = Control.MOUSE_FILTER_STOP
 	wrap.tooltip_text = str(spec.get("help", ""))
-	if key == "bucket":
+	if key == "pool":
 		wrap.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		wrap.tooltip_text = str(spec.get("help", "")) + " Click to sort the roster by bucket."
+		wrap.tooltip_text = str(spec.get("help", "")) + " Click to sort the roster by pool."
 		wrap.gui_input.connect(func(event: InputEvent) -> void:
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-				_set_sort_mode("bucket")
+				_set_sort_mode("pool")
 		)
 	var title := Label.new()
 	title.text = str(spec["label"])
@@ -724,20 +724,19 @@ func _make_row(card: Dictionary, cols: Array, zebra: int, grid_w: float) -> HBox
 			var pick_v: String = str(card.get(key, ""))
 			if key == "review":
 				pick_v = REVIEW_STAGE.of_card(card)
-			if key == "bucket":
-				pick_v = BucketRules.label_of(card.get("bucket", 0))
+			if key == "pool":
+				pick_v = BucketRules.label_of(BucketRules.of_card(card))
 			if key == "mode_pool":
 				pick_v = ModePool.label_of(card.get("mode_pool", "all"))
 			var pick := _pick_cell(pick_v, spec.get("opts", []), w, help, row)
 			fields[key] = pick
 			_focusables.append(pick)
-			if key == "bucket":
+			if key == "pool":
 				if pick_v == "":
 					pick.select(0)
 				BucketRules.paint(pick)
 				pick.item_selected.connect(func(_i: int) -> void:
 					BucketRules.paint(pick)
-					_refresh_bucket_warn()
 				)
 			row.add_child(_lock_cell(pick, w, ROW_H, key))
 			continue
@@ -1216,7 +1215,7 @@ func _gather_row(row: HBoxContainer, strict: bool = true) -> Dictionary:
 		"kind": kind,
 		"status": _text_of(fields["status"]),
 		"rarity": _text_of(fields["rarity"]),
-		"bucket": BucketRules.parse(_text_of(fields["bucket"])) if fields.has("bucket") else BucketRules.parse(orig.get("bucket", 0)),
+		"pool": BucketRules.parse(_text_of(fields["pool"])) if fields.has("pool") else BucketRules.of_card(orig),
 		"mode_pool": ModePool.parse(_text_of(fields["mode_pool"])) if fields.has("mode_pool") else ModePool.parse(orig.get("mode_pool", "all")),
 		"tier": _int_of(_text_of(fields["tier"]), 1),
 		"count": _int_of(_text_of(fields["count"]), 1),
@@ -1332,7 +1331,7 @@ func _on_add() -> void:
 		"kind": _kind,
 		"status": "todo",
 		"rarity": "uncommon",
-		"bucket": 0,
+		"pool": 1,
 		"mode_pool": "all",
 		"tier": 1,
 		"count": 1,
@@ -1371,7 +1370,7 @@ func _on_add() -> void:
 
 func _on_reset_unlocks() -> void:
 	unlocks_reset.emit()
-	_status.text = "Dungeon unlocks reset. Bucket 0 is all they can meet until the next Adventure ending."
+	_status.text = "Dungeon unlocks reset. Pool 1 is all they can meet until the next cabinet fill."
 	_status.add_theme_color_override("font_color", Color("6b4a10"))
 	if sfx:
 		sfx.play("confirm", -10.0)
@@ -1443,10 +1442,10 @@ func _refresh_bucket_warn() -> void:
 		var orig: Dictionary = row.get_meta("orig")
 		var fields: Dictionary = row.get_meta("fields")
 		var id: String = str(orig.get("id", ""))
-		if not by_id.has(id) or not fields.has("bucket"):
+		if not by_id.has(id) or not fields.has("pool"):
 			continue
 		var copy: Dictionary = (live[by_id[id]] as Dictionary).duplicate(true)
-		copy["bucket"] = BucketRules.parse(_text_of(fields["bucket"]))
+		copy["pool"] = BucketRules.parse(_text_of(fields["pool"]))
 		live[by_id[id]] = copy
 	var msg: String = BucketRules.counts_warning(items, monsters)
 	_bucket_warn.set_message(msg)
@@ -1540,7 +1539,7 @@ func _build_review_bar() -> VBoxContainer:
 	sort_row.add_child(scap)
 	var modes: Array = [
 		["review", "Review"],
-		["bucket", "Bucket"],
+		["pool", "Pool"],
 		["name", "Name"],
 	]
 	for pair in modes:

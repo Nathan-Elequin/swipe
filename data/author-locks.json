@@ -226,9 +226,10 @@
 				"atk_base",
 				"hp_base",
 				"atk_formula",
-				"hp_formula"
+				"hp_formula",
+				"bucket"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"name": "Right Bracer"
 		},
 		"item:breastplate": {
@@ -1411,9 +1412,10 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-28",
 			"name": "Spiked Shield"
 		},
 		"item:stone_wall": {
@@ -1572,9 +1574,10 @@
 				"rarity",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"name": "Anvil"
 		},
 		"monster:bandit": {
@@ -1667,9 +1670,10 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"name": "Berserker"
 		},
 		"monster:bushido": {
@@ -1691,7 +1695,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Bushido"
@@ -1737,9 +1742,10 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"name": "Clockwork Knight"
 		},
 		"monster:commander": {
@@ -1904,9 +1910,10 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"name": "Druid"
 		},
 		"monster:eel": {
@@ -1928,9 +1935,10 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-28",
 			"name": "Eel"
 		},
 		"monster:fairy": {
@@ -1975,9 +1983,10 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"name": "Gargoyle"
 		},
 		"monster:gelatinous_cube": {
@@ -1999,9 +2008,10 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"name": "Gelatinous Cube"
 		},
 		"monster:goblin": {
@@ -2160,9 +2170,10 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"review"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"name": "Hydra"
 		},
 		"monster:juggernaut": {
@@ -2184,9 +2195,10 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"name": "Juggernaut"
 		},
 		"monster:kobold_trapper": {
@@ -2206,7 +2218,8 @@
 				"atk_formula",
 				"hp_formula",
 				"call_name",
-				"review"
+				"review",
+				"bucket"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Trapper"
@@ -2254,9 +2267,10 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"name": "Lich"
 		},
 		"monster:magicat": {
@@ -2423,6 +2437,13 @@
 			"locked_at": "2026-10-16",
 			"name": "Ogre"
 		},
+		"monster:oligarch": {
+			"fields": [
+				"bucket"
+			],
+			"locked_at": "2026-10-28",
+			"name": "Oligarch"
+		},
 		"monster:phoenix": {
 			"fields": [
 				"name",
@@ -2466,9 +2487,10 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-28",
 			"name": "Phoenix Egg"
 		},
 		"monster:plague_doctor": {
@@ -2514,9 +2536,10 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-10-28",
 			"name": "Poison Frog"
 		},
 		"monster:prism": {
@@ -2538,9 +2561,10 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
-			"locked_at": "2026-10-22",
+			"locked_at": "2026-10-28",
 			"name": "Prism"
 		},
 		"monster:rust_bucket": {
@@ -2610,7 +2634,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"bucket"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Shambling Mound"
@@ -2754,7 +2779,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-28",
 			"name": "Triclops"
 		},
 		"monster:two_headed_serpent": {
@@ -2798,9 +2823,10 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
-			"locked_at": "2026-10-13",
+			"locked_at": "2026-10-28",
 			"name": "Vampire"
 		},
 		"monster:wick": {
@@ -2845,9 +2871,10 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-10-28",
 			"name": "Wizard"
 		},
 		"monster:wraith": {

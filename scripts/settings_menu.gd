@@ -259,13 +259,13 @@ func _layout_buttons() -> void:
 	if _btn_complete:
 		_btn_complete.visible = on_dev
 	if _btn_buckets:
-		_btn_buckets.visible = on_dev
+		_btn_buckets.visible = false
 	if _btn_dev_back:
 		_btn_dev_back.visible = on_dev
 	if _master:
 		_master.visible = not on_dev
 	var shown: Array = []
-	var buttons: Array = [_btn_resume, _btn_sparkles, _btn_invert, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_complete, _btn_buckets, _btn_dev_back]
+	var buttons: Array = [_btn_resume, _btn_sparkles, _btn_invert, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_complete, _btn_dev_back]
 	for b in buttons:
 		if b == null or not b.visible or b.get_parent() != _board:
 			continue

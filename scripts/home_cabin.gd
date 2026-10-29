@@ -284,7 +284,7 @@ func swipe_ids(ids: Array) -> Array:
 		var sid: String = str(raw)
 		if sid == "" or sid == "spider_egg":
 			continue
-		if BucketRules.is_token(items_by_id.get(sid, {}).get("bucket", 0)):
+		if BucketRules.is_token(items_by_id.get(sid, {})):
 			continue
 		seen[sid] = true
 		if not bool(swiped.get(sid, false)):
@@ -327,7 +327,7 @@ func cabinet_progress() -> Vector2i:
 		var card: Dictionary = items_by_id[id]
 		if str(card.get("status", "live")) in ["retired", "hold"]:
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
 		total += 1
 		if _is_shelved(str(id)) or bool(swiped.get(str(id), false)):
@@ -1454,7 +1454,7 @@ func _screen_of_bucket(b: int) -> int:
 func _start_room() -> int:
 	for id in _just_mounted:
 		var card: Dictionary = items_by_id.get(str(id), {})
-		var b: int = BucketRules.parse(card.get("bucket", 0))
+		var b: int = BucketRules.of_card(card)
 		if b >= 0:
 			return _screen_of_bucket(b)
 	return 0
@@ -1569,9 +1569,9 @@ func _collect_buckets() -> void:
 		var card: Dictionary = items_by_id[id]
 		if str(card.get("status", "live")) == "retired" or str(card.get("status", "live")) == "hold":
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
-		var b: int = BucketRules.parse(card.get("bucket", 0))
+		var b: int = BucketRules.of_card(card)
 		if b < 0:
 			continue
 		_max_bucket = maxi(_max_bucket, b)
@@ -1786,9 +1786,9 @@ func _biome_rules() -> Dictionary:
 func _live_pool(card: Dictionary) -> String:
 	if str(card.get("status", "live")) in ["retired", "hold"]:
 		return ""
-	if BucketRules.is_token(card.get("bucket", 0)):
+	if BucketRules.is_token(card):
 		return ""
-	var b: int = BucketRules.parse(card.get("bucket", 0))
+	var b: int = BucketRules.of_card(card)
 	if b < 0:
 		return ""
 	return BiomeCabinets.pool_for_bucket(_biome_rules(), b)
@@ -2960,7 +2960,7 @@ func debug_seed(owned: int, seen_only: int, buckets: int) -> void:
 		var card: Dictionary = items_by_id[id]
 		if str(card.get("status", "live")) == "retired" or str(card.get("status", "live")) == "hold":
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
 		if n < owned:
 			swiped[str(id)] = true
@@ -3281,9 +3281,9 @@ func fill_middle_save() -> void:
 		var card: Dictionary = items_by_id[id]
 		if str(card.get("status", "live")) in ["retired", "hold"]:
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
-		if BucketRules.parse(card.get("bucket", 0)) > 3:
+		if BucketRules.of_card(card) > 3:
 			continue
 		var sid: String = str(id)
 		if sid == "spider_egg":
@@ -3300,7 +3300,7 @@ func fill_middle_save() -> void:
 			var st: String = str(raw.get("status", "live"))
 			if st == "retired" or st == "hold":
 				continue
-			if BucketRules.parse(raw.get("bucket", 0)) > 3:
+			if BucketRules.of_card(raw) > 3:
 				continue
 			var mid: String = str(raw.get("id", ""))
 			if mid != "":
@@ -3344,7 +3344,7 @@ func fill_complete_save() -> void:
 		var card: Dictionary = items_by_id[id2]
 		if str(card.get("status", "live")) in ["retired", "hold"]:
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
 		var sid: String = str(id2)
 		if sid == "spider_egg":
@@ -4056,7 +4056,7 @@ func _mudroom_item_rows() -> Array:
 		var st := str(card.get("status", "live"))
 		if st == "hold" or st == "retired":
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
 		if BucketRules.is_always_starter_id(str(id)):
 			continue

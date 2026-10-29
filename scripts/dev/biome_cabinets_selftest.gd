@@ -36,9 +36,9 @@ func _init() -> void:
 	var custom := {"biomes": [{"id": "b1", "name": "Moss Hall"}]}
 	failed = _check(failed, "non-stub name kept", str(Cases.case_names(custom)[0]) == "Moss Hall") or failed
 	failed = _check(failed, "quota 5", Cases.quota_of(rules) == 5) or failed
-	failed = _check(failed, "pool b1", Cases.pool_for_bucket(rules, 0) == "b1" and Cases.pool_for_bucket(rules, 1) == "b1") or failed
-	failed = _check(failed, "pool b5", Cases.pool_for_bucket(rules, 8) == "b5" and Cases.pool_for_bucket(rules, 9) == "b5") or failed
-	failed = _check(failed, "fallback pair", Cases.pool_for_bucket({}, 4) == "b3") or failed
+	failed = _check(failed, "pool b1", Cases.pool_for_bucket(rules, 1) == "b1") or failed
+	failed = _check(failed, "pool b5", Cases.pool_for_bucket(rules, 5) == "b5") or failed
+	failed = _check(failed, "fallback pair", Cases.pool_for_bucket({}, 4) == "b4") or failed
 	var cards: Array = [
 		{"id": "c"},
 		{"id": "a"},
