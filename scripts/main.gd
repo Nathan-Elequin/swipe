@@ -11131,8 +11131,23 @@ func _oligarch_gift_pool() -> Array:
 	return ids
 
 
-func _oligarch_hand_cap() -> int:
+func _forced_hand_cap() -> int:
 	return CHALLENGE_HAND
+
+
+func _is_forced_gain_feed(kind: String) -> bool:
+	return kind == "forced_gain" or kind == "oligarch_gift" or kind == "rust_spawn" or kind == "bell_spawn"
+
+
+func _forced_gain_tax() -> void:
+	var uids: Array = _hand_all_uids()
+	if uids.is_empty():
+		return
+	pending_feed = {"uids": uids, "kind": "forced_gain"}
+	_refresh()
+	_sync_hub_cue()
+	await _wait_bell_pick()
+	_refresh()
 
 
 func _maybe_oligarch_spawn(index: int) -> void:
@@ -11195,26 +11210,11 @@ func _oligarch_deliver_item(id: String, from_i: int) -> void:
 			if str(c2.get("card_id")) == id and c2.has_method("bounce"):
 				c2.bounce()
 				break
-	if hotbar.size() > _oligarch_hand_cap():
-		await _oligarch_tax_one(from_i)
-
-
-func _oligarch_tax_one(from_i: int) -> void:
-	var uids: Array = _filter_toss_uids(_hand_all_uids())
-	if uids.is_empty():
-		var last: Dictionary = hotbar[hotbar.size() - 1] if not hotbar.is_empty() else {}
-		if not last.is_empty():
-			_toss_item(int(last.get("uid", -1)), false)
+	if hotbar.size() > _forced_hand_cap():
+		await _forced_gain_tax()
+		_speech_from_index = from_i
+		_cube_line = "Here, I bought you something nice"
 		_refresh()
-		return
-	pending_feed = {"uids": uids, "kind": "oligarch_gift"}
-	_speech_from_index = from_i
-	_cube_line = "Here, I bought you something nice"
-	_refresh()
-	await _wait_bell_pick()
-	_speech_from_index = from_i
-	_cube_line = "Here, I bought you something nice"
-	_refresh()
 
 
 func _oligarch_playable_uids() -> Array:
@@ -11266,18 +11266,6 @@ func _apply_oligarch_on_spin() -> void:
 
 
 func _force_gain_rust() -> void:
-	if _hand_full():
-		var uids: Array = _filter_toss_uids(_hand_all_uids())
-		if uids.is_empty():
-			_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
-			_log("discard", "Rust")
-			if sfx:
-				sfx.play("error", -10.0)
-			return
-		pending_feed = {"uids": uids, "kind": "rust_spawn"}
-		_cube_line = "When I enter the Dungeon, Gain 1 Rust."
-		_refresh()
-		await _wait_bell_pick()
 	var it: Dictionary = _make_item("rust")
 	it["rust_n"] = 3
 	it["rust_seen"] = false
@@ -11287,21 +11275,11 @@ func _force_gain_rust() -> void:
 	if sfx:
 		sfx.play("drop", -10.0)
 	_refresh()
+	if hotbar.size() > _forced_hand_cap():
+		await _forced_gain_tax()
 
 
 func _force_gain_toll() -> void:
-	if _hand_full():
-		var uids: Array = _filter_toss_uids(_hand_all_uids())
-		if uids.is_empty():
-			_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
-			_log("discard", "Toll")
-			if sfx:
-				sfx.play("error", -10.0)
-			return
-		pending_feed = {"uids": uids, "kind": "bell_spawn"}
-		_cube_line = "When I Spawn, Gain 1 Toll."
-		_refresh()
-		await _wait_bell_pick()
 	var it: Dictionary = _make_item("toll")
 	it["toll_n"] = 6
 	hotbar.append(it)
@@ -11311,6 +11289,8 @@ func _force_gain_toll() -> void:
 		sfx.play("bong", -8.0, 0.85)
 		sfx.play("drop", -10.0)
 	_refresh()
+	if hotbar.size() > _forced_hand_cap():
+		await _forced_gain_tax()
 
 
 func _wait_bell_pick() -> void:
@@ -11330,7 +11310,7 @@ func _feed_bell_overlay(uid: int) -> void:
 	if pending_feed.is_empty():
 		return
 	var kind: String = str(pending_feed.get("kind", ""))
-	if kind != "bell_spawn" and kind != "bell_defeat" and kind != "rust_spawn" and kind != "oligarch_gift":
+	if kind != "bell_spawn" and kind != "bell_defeat" and kind != "rust_spawn" and kind != "oligarch_gift" and kind != "forced_gain":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
 	if not allowed.has(uid):
@@ -11340,11 +11320,11 @@ func _feed_bell_overlay(uid: int) -> void:
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
 		return
-	if str(it.get("card_id", "")) == "rust":
+	if kind != "bell_defeat" and kind != "forced_gain" and str(it.get("card_id", "")) == "rust":
 		if sfx:
 			sfx.play("error", -12.0)
 		return
-	if kind != "bell_defeat" and _item_is_curse(it):
+	if kind != "bell_defeat" and kind != "forced_gain" and _item_is_curse(it):
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -12267,7 +12247,7 @@ func _sync_hub_cue() -> void:
 	if overlay != null and overlay.visible:
 		hub_cue.clear_hold()
 		return
-	if _challenge_loot_wait or (not pending_feed.is_empty() and str(pending_feed.get("kind", "")) == "oligarch_gift"):
+	if _challenge_loot_wait or (not pending_feed.is_empty() and _is_forced_gain_feed(str(pending_feed.get("kind", "")))):
 		hub_cue.show_hold(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."), "full_hand")
 		return
 	if not pending_mark.is_empty() and phase == "fighting":
@@ -12460,26 +12440,26 @@ func _gain_blocked_now() -> bool:
 func _try_gain_item(id: String) -> void:
 	if id == "":
 		return
-	if adventure and _hand_full():
-		return
 	var it: Dictionary = _make_item(id)
 	hotbar.append(it)
 	_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", id))
 	_refresh()
-	if not _gain_blocked_now():
+	if _gain_blocked_now():
+		_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
+		_log("discard", str(it.get("name", id)))
 		if sfx:
-			sfx.play_event(&"hand.gain", {"card_id": id})
+			sfx.play("error", -10.0)
+			sfx.play("cloth", -12.0)
+		if get_tree():
+			await get_tree().create_timer(0.45).timeout
+		_toss_item(int(it.get("uid", -1)), false)
+		_refresh()
 		return
-	_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
-	_log("discard", str(it.get("name", id)))
 	if sfx:
-		sfx.play("error", -10.0)
-		sfx.play("cloth", -12.0)
-	if get_tree():
-		await get_tree().create_timer(0.45).timeout
-	_toss_item(int(it.get("uid", -1)), false)
-	_refresh()
+		sfx.play_event(&"hand.gain", {"card_id": id})
+	if hotbar.size() > _forced_hand_cap():
+		await _forced_gain_tax()
 
 
 
@@ -13475,8 +13455,6 @@ func _apply_queen_eggs_on_spin() -> void:
 			continue
 		if int(wheel[i].get("hp", 0)) <= 0:
 			continue
-		if _hand_full():
-			break
 		await _lay_spider_egg(i)
 	_refresh()
 	var face_id: String = str(wheel[facing_index].get("card_id", ""))
@@ -13506,8 +13484,6 @@ func _apply_queen_eggs_on_spin() -> void:
 
 
 func _lay_spider_egg(index: int) -> void:
-	if _hand_full():
-		return
 	var tex: Texture2D = null
 	if art != null:
 		tex = art.item_tex("spider_egg")
@@ -13555,15 +13531,11 @@ func _apply_cultist_pacts_on_spin() -> void:
 			continue
 		if int(wheel[i].get("hp", 0)) <= 0:
 			continue
-		if _hand_full():
-			break
 		await _grant_blood_pact(i)
 	_refresh()
 
 
 func _grant_blood_pact(index: int) -> void:
-	if _hand_full():
-		return
 	var tex: Texture2D = null
 	if art != null:
 		tex = art.item_tex("blood_pact")
@@ -13590,8 +13562,6 @@ func _apply_juggernaut_on_spin() -> void:
 	if int(m.get("hp", 0)) <= 0:
 		return
 	if _is_silenced(m):
-		return
-	if _hand_full():
 		return
 	await _juggernaut_hand_shield()
 
@@ -14992,7 +14962,7 @@ func _feed_cube(uid: int) -> void:
 	if str(pending_feed.get("kind", "")) == "worm_hunger":
 		await _feed_worm(uid)
 		return
-	if str(pending_feed.get("kind", "")) == "bell_spawn" or str(pending_feed.get("kind", "")) == "bell_defeat" or str(pending_feed.get("kind", "")) == "rust_spawn" or str(pending_feed.get("kind", "")) == "oligarch_gift":
+	if str(pending_feed.get("kind", "")) == "bell_spawn" or str(pending_feed.get("kind", "")) == "bell_defeat" or str(pending_feed.get("kind", "")) == "rust_spawn" or str(pending_feed.get("kind", "")) == "oligarch_gift" or str(pending_feed.get("kind", "")) == "forced_gain":
 		_feed_bell_overlay(uid)
 		return
 	var allowed: Array = pending_feed.get("uids", [])
@@ -16813,7 +16783,7 @@ func _remove_crossbowed() -> void:
 	_reseat_slots()
 
 
-func _draw_unseen_item() -> void:
+func _draw_unseen_item(force_over: bool = false) -> void:
 	if adventure and item_pool.is_empty():
 		_challenge_reshuffle_items()
 	if item_pool.is_empty():
@@ -16829,7 +16799,7 @@ func _draw_unseen_item() -> void:
 	if id == "":
 		return
 	var it: Dictionary = _make_item(id)
-	if adventure and _hand_full():
+	if not force_over and adventure and _hand_full():
 		_start_full_hand_replace(it)
 		return
 	hotbar.append(it)
@@ -16841,12 +16811,21 @@ func _draw_unseen_item() -> void:
 
 func _grant_mimic_gift() -> void:
 	## Louder tell: banner + coins + card pop so the Mimic payout reads clearly.
-	var before_n: int = hotbar.size()
-	_draw_unseen_item()
+	var before_uids: Dictionary = {}
+	for held in hotbar:
+		if typeof(held) == TYPE_DICTIONARY:
+			before_uids[int(held.get("uid", -1))] = true
+	await _draw_unseen_item(true)
 	_log("on_remove_slice", "Mimic gift")
-	if hotbar.size() <= before_n:
+	var gained: Dictionary = {}
+	for held in hotbar:
+		if typeof(held) != TYPE_DICTIONARY:
+			continue
+		if not before_uids.has(int(held.get("uid", -1))):
+			gained = held
+			break
+	if gained.is_empty():
 		return
-	var gained: Dictionary = hotbar[hotbar.size() - 1]
 	_flash_screen(Color("e8c36a"), 0.42)
 	if sfx:
 		sfx.play_event(&"hand.gain", {"card_id": str(gained.get("card_id", ""))})
@@ -16862,6 +16841,8 @@ func _grant_mimic_gift() -> void:
 			gained_card.bounce()
 	if get_tree():
 		await get_tree().create_timer(0.42).timeout
+	if hotbar.size() > _forced_hand_cap():
+		await _forced_gain_tax()
 
 
 func _try_potion() -> bool:
