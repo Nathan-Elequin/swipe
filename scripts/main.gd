@@ -6213,13 +6213,21 @@ func _open_roster() -> void:
 
 
 func _open_script() -> void:
-	if not _authoring() or in_tutorial or script_ed == null:
+	if not _authoring() or in_tutorial:
 		return
 	if fly_tip:
 		fly_tip.hide_plate()
 	if speech_box:
 		speech_box.hide_speech()
-	script_ed.open_script()
+	var ps1: String = ProjectSettings.globalize_path("res://tools/dev/open-script-desk.ps1")
+	var err: int = OS.create_process("powershell.exe", PackedStringArray([
+		"-NoProfile",
+		"-ExecutionPolicy", "Bypass",
+		"-File", ps1,
+	]))
+	if err == -1:
+		OS.shell_open("http://127.0.0.1:8765/")
+	_log("on_click", "Script desk")
 
 
 func _build_playtest() -> void:
