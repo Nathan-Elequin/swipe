@@ -2130,7 +2130,7 @@ func _is_adventure_mode() -> bool:
 
 
 func _click_choose_fight() -> bool:
-	## Campaign has no auto-Spin and no old Adventure mill button. Click a wheel seat.
+	## Campaign / Challenge: pause for a Spin button (no auto-Spin). The wheel is not the start.
 	if _campaign_on:
 		return true
 	return _is_long_drop()
@@ -7128,20 +7128,6 @@ func _on_slice_clicked(index: int) -> void:
 			if sfx:
 				sfx.play("error", -12.0)
 		return
-	if _click_choose_fight() and adventure and phase == "ready" and facing_index < 0:
-		if str(wheel[index].get("kind", "")) != "monster":
-			return
-		if int(wheel[index].get("hp", 0)) <= 0:
-			return
-		if not pending_choice.is_empty():
-			return
-		challenge_aim = index
-		if wheel_view:
-			wheel_view.selected_index = index
-		if sfx:
-			sfx.play("select", -10.0)
-		await _on_spin()
-		return
 
 
 func _on_slice_right_clicked(index: int) -> void:
@@ -7327,14 +7313,9 @@ func _on_spin() -> void:
 	elif tut_forced < 0 and flee_rand:
 		_challenge_force_spin = false
 	elif tut_forced < 0 and _click_choose_fight():
-		if _challenge_force_spin:
-			_challenge_force_spin = false
-		elif challenge_aim >= 0 and pool.find(challenge_aim) >= 0:
+		_challenge_force_spin = false
+		if challenge_aim >= 0 and pool.find(challenge_aim) >= 0:
 			idx = challenge_aim
-		else:
-			if sfx:
-				sfx.play("error", -12.0)
-			return
 	elif tut_forced < 0 and adventure:
 		_challenge_force_spin = false
 	var mag_mode: String = _armed_magnet_mode()
@@ -20674,9 +20655,7 @@ func _cue_text() -> String:
 			if not pending_choice.is_empty():
 				return "Highest Attack, Lowest Attack, or Off."
 			if _click_choose_fight() and adventure:
-				if challenge_aim < 0:
-					return PLAYER_COPY.text("challenge.click_target", "Click who you fight.")
-				return PLAYER_COPY.text("challenge.spin_confirm", "Click a monster on the wheel.")
+				return ""
 			if _is_adventure_mode():
 				return ""
 			return PLAYER_COPY.text("cue.ready", "Spin — the nest turns.")
@@ -20878,8 +20857,7 @@ class TakeBurst extends Control:
 func _sync_buttons() -> void:
 	var busy: bool = phase == "spinning" or phase == "slaying" or (phase == "draft" and draft_action == "busy") or _wheel_busy() or _adventure_busy
 	var enemy_up: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size() and (int(wheel[facing_index].get("hp", 0)) > 0 or _wick_waiting(facing_index))
-	var need_aim: bool = _click_choose_fight() and challenge_aim < 0 and not _challenge_force_spin
-	btn_spin.disabled = busy or phase != "ready" or need_aim
+	btn_spin.disabled = busy or phase != "ready"
 	if _beggar_pending_intro() or _beggar_intro_running:
 		btn_spin.disabled = true
 	if in_tutorial and tut != null and tut.wait != "spin" and tut.wait != "auto_spin":
@@ -20893,17 +20871,14 @@ func _sync_buttons() -> void:
 	btn_spin.visible = phase == "ready" and (not _is_adventure_mode() or _click_choose_fight())
 	btn_done.visible = enemy_up
 	btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
-	if tex_rotate != null:
-		btn_spin.icon = tex_rotate
-	if _click_choose_fight() and phase == "ready" and pending_choice.is_empty():
-		btn_spin.disabled = true
-		btn_spin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		btn_spin.icon = null
-		btn_spin.text = PLAYER_COPY.text("challenge.spin_confirm", "Click a monster on the wheel.")
-		btn_spin.mouse_default_cursor_shape = Control.CURSOR_ARROW
-	else:
-		btn_spin.mouse_filter = Control.MOUSE_FILTER_STOP
-		btn_spin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	btn_spin.icon = null
+	btn_spin.custom_minimum_size = Vector2(260, 64)
+	btn_spin.add_theme_font_size_override("font_size", 32)
+	btn_spin.add_theme_color_override("font_color", Color("1c120c"))
+	btn_spin.add_theme_color_override("font_hover_color", Color("100e0c"))
+	btn_spin.add_theme_color_override("font_pressed_color", Color("4a0808"))
+	btn_spin.mouse_filter = Control.MOUSE_FILTER_STOP
+	btn_spin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	if btn_challenge_begin:
 		btn_challenge_begin.visible = _is_long_drop() and phase == "draft" and draft_action == "challenge_begin"
 		btn_challenge_begin.disabled = busy
@@ -20932,8 +20907,7 @@ func _sync_buttons() -> void:
 		btn_spin.mouse_filter = Control.MOUSE_FILTER_STOP
 		btn_spin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
-		if tex_rotate != null:
-			btn_spin.icon = tex_rotate
+		btn_spin.icon = null
 		btn_done.disabled = busy or not enemy_up or tut == null or (tut.wait != "done" and tut.wait != "choice")
 	_hide_take_burst()
 	if enemy_up:
