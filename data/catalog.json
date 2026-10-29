@@ -3752,15 +3752,15 @@
 			"flow": ""
 		},
 		{
-			"ability": "Your next attack this fight can target Any monster.",
+			"ability": "Select an Attack. It can target Any monster. Draw 1 Item",
 			"author_lock": true,
 			"bucket": 7,
 			"call_name": "",
 			"card_color": "atk",
 			"count": 1,
-			"defined": "Click during a fight. Unplayable if no other item in the hotbar deals Attack. Pick one Attack item. That attack can target Any living monster. Great Axe hits that monster and that monster Neighbors. Bag of Marbles is bucket 5, so this is bucket 6. Paper Fight: when the Attack item fires.",
+			"defined": "Click during a fight. Unplayable if no other item in the hotbar deals Attack. Pick one Attack item. That attack can target Any living monster. Great Axe hits that monster and that monster Neighbors. After that Attack resolves, draw 1 Item from the item deck into the hotbar (same draw as Catapult). No draw if you cancel or if there is no Attack to select.",
 			"exceptions": "Tier 1. Leather sling. Bucket 6 (after Bag of Marbles). Paper Fight before ops.",
-			"explainer": "Next Attack this fight can target Any monster.",
+			"explainer": "Select an Attack. It can target Any monster. Draw 1 Item",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -3789,10 +3789,10 @@
 				"log_hint",
 				"review"
 			],
-			"log_hint": "Next Attack can target Any",
+			"log_hint": "Any monster. Draw 1 Item",
 			"mode_pool": "all",
 			"name": "Sling",
-			"notes": "Tier 1. Leather sling. Bucket 6 (after Bag of Marbles). Paper Fight before ops.",
+			"notes": "Tier 1. Leather sling. Bucket 6 (after Bag of Marbles). Draws 1 Item after the chosen Attack resolves.",
 			"ops": {
 				"kind": "sling"
 			},
@@ -3809,7 +3809,7 @@
 			"hp_base": null,
 			"atk_formula": "",
 			"hp_formula": "",
-			"flow": "Click during a fight. Unplayable if no other item in the hotbar deals Attack. Pick one Attack item. That attack can target Any living monster. Great Axe hits that monster and that monster Neighbors. Bag of Marbles is bucket 5, so this is bucket 6. Paper Fight: when the Attack item fires."
+			"flow": "Click during a fight. Unplayable if no other item in the hotbar deals Attack. Pick one Attack item. That attack can target Any living monster. Great Axe hits that monster and that monster Neighbors. After that Attack resolves, draw 1 Item from the item deck into the hotbar (same draw as Catapult). No draw if you cancel or if there is no Attack to select."
 		},
 		{
 			"ability": "Bag an enemy with less HP than you.",

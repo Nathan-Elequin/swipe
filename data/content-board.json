@@ -3198,7 +3198,7 @@
 			"tier": 1
 		},
 		{
-			"ability": "Your next attack this fight can target Any monster.",
+			"ability": "Select an Attack. It can target Any monster. Draw 1 Item",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -3207,8 +3207,8 @@
 			"card_color": "atk",
 			"contradiction_ids": [],
 			"count": 1,
-			"explainer": "Next Attack this fight can target Any monster.",
-			"flow": "Click during a fight. Unplayable if no other item in the hotbar deals Attack. Pick one Attack item. That attack can target Any living monster. Great Axe hits that monster and that monster Neighbors. Bag of Marbles is bucket 5, so this is bucket 6. Paper Fight: when the Attack item fires.",
+			"explainer": "Select an Attack. It can target Any monster. Draw 1 Item",
+			"flow": "Click during a fight. Unplayable if no other item in the hotbar deals Attack. Pick one Attack item. That attack can target Any living monster. Great Axe hits that monster and that monster Neighbors. After that Attack resolves, draw 1 Item from the item deck into the hotbar (same draw as Catapult). No draw if you cancel or if there is no Attack to select.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "sling",
@@ -3234,10 +3234,10 @@
 				"log_hint",
 				"review"
 			],
-			"log_hint": "Next Attack can target Any",
+			"log_hint": "Any monster. Draw 1 Item",
 			"mode_pool": "all",
 			"name": "Sling",
-			"notes": "Tier 1. Leather sling. Bucket 6 (after Bag of Marbles). Paper Fight before ops.",
+			"notes": "Tier 1. Leather sling. Bucket 6 (after Bag of Marbles). Draws 1 Item after the chosen Attack resolves.",
 			"ops": {
 				"kind": "sling"
 			},

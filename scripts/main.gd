@@ -15749,6 +15749,22 @@ func _apply_sling(aim: int, sling: Dictionary, atk_uid: int) -> void:
 	_skip_item_use_count = false
 	_sling_aim = -1
 	_sync_wheel_stats()
+	var before_uids: Dictionary = {}
+	for held in hotbar:
+		if typeof(held) == TYPE_DICTIONARY:
+			before_uids[int(held.get("uid", -1))] = true
+	_draw_unseen_item()
+	_refresh()
+	for held in hotbar:
+		if typeof(held) != TYPE_DICTIONARY:
+			continue
+		var drawn_uid: int = int(held.get("uid", -1))
+		if before_uids.has(drawn_uid):
+			continue
+		var drawn_card = _hotbar_card_by_uid(drawn_uid)
+		if drawn_card != null and drawn_card.has_method("play_transform"):
+			drawn_card.play_transform()
+		break
 	await _after_item_resolved(sling)
 	await _bleed_end()
 	if hp <= 0:
@@ -18211,7 +18227,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["value"] = UxStyle.with_def_link(_value_bb(PLAYER_COPY.text("status.sling_loaded", "Loaded"), "", gold), "Loaded")
 			else:
 				out["value"] = _value_bb("Any", "", gold)
-			out["body"] = str(it.get("ability", "Your next attack this fight can target Any monster."))
+			out["body"] = str(it.get("ability", "Select an Attack. It can target Any monster. Draw 1 Item"))
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = "Can't — you need an Attack item."
 		"hex":

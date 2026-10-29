@@ -1197,7 +1197,7 @@
 				"sling"
 			],
 			"face": "golem",
-			"expected_text": "Your next attack this fight can target Any monster.",
+			"expected_text": "Select an Attack. It can target Any monster. Draw 1 Item",
 			"clicks": [
 				{
 					"op": "use",
