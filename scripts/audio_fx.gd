@@ -7,8 +7,11 @@ const LEGACY_UI_IDS := ["hover", "click", "click2", "select", "question", "error
 const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp", "music_verdant_hollow_loop", "music_cinder_forge_a", "music_cinder_forge_b", "music_cinder_forge_c"]
 const FORGE_BED := "cinder_forge"
 const FORGE_MUTE_DB := -80.0
-const FORGE_COMBAT_FADE_S := 0.5
+const FORGE_COMBAT_FADE_S := 0.33
 const FORGE_BOSS_FADE_S := 1.2
+const FORGE_A_BOSS_LIN := 0.5
+## Applied on the Music bus under the user slider (0.8 = 20% quieter).
+const MUSIC_PRE_SLIDER_LIN := 0.8
 const AUDIO_LOG_CAP := 80
 
 var music: AudioStreamPlayer
@@ -37,6 +40,7 @@ var _forge_b: AudioStreamPlayer
 var _forge_c: AudioStreamPlayer
 var _forge_b_tw: Tween
 var _forge_c_tw: Tween
+var _forge_a_tw: Tween
 var _forge_drums: bool = false
 var _forge_heat: bool = false
 var _music_front: int = 0
@@ -914,6 +918,7 @@ func _start_forge_layers(start_pos: float) -> void:
 func _stop_forge_layers(fade_s: float) -> void:
 	_forge_drums = false
 	_forge_heat = false
+	_forge_set_bed_lin(1.0, fade_s)
 	_fade_forge_player(_forge_b, FORGE_MUTE_DB, fade_s, true)
 	_fade_forge_player(_forge_c, FORGE_MUTE_DB, fade_s, true)
 
@@ -960,19 +965,45 @@ func _forge_set_drums(on: bool, fade_s: float) -> void:
 	_fade_forge_player(_forge_b, db, fade_s, false)
 
 
+func forge_boss_spin() -> void:
+	if not _is_forge_adaptive():
+		return
+	_forge_set_drums(true, FORGE_COMBAT_FADE_S)
+	_forge_set_heat(true, FORGE_COMBAT_FADE_S)
+
+
 func _forge_set_heat(on: bool, fade_s: float) -> void:
 	_forge_heat = on
 	_forge_seek_to_bed()
 	var db: float = _forge_layer_gain("cinder_forge_c") if on else FORGE_MUTE_DB
 	_fade_forge_player(_forge_c, db, fade_s, false)
+	_forge_set_bed_lin(FORGE_A_BOSS_LIN if on else 1.0, fade_s)
+
+
+func _forge_bed_db(lin: float) -> float:
+	var base: float = _forge_layer_gain(FORGE_BED)
+	return base + linear_to_db(clampf(lin, 0.0001, 1.0))
+
+
+func _forge_set_bed_lin(lin: float, fade_s: float) -> void:
+	if music == null:
+		return
+	if _forge_a_tw != null:
+		_forge_a_tw.kill()
+	var tw := create_tween()
+	tw.set_ignore_time_scale(true)
+	tw.tween_property(music, "volume_db", _forge_bed_db(lin), maxf(fade_s, 0.01))
+	_forge_a_tw = tw
 
 
 func _forge_exit_combat() -> void:
 	if not _forge_drums and not _forge_heat:
+		_forge_set_bed_lin(1.0, FORGE_COMBAT_FADE_S)
 		return
 	var boss: bool = _forge_heat
 	_forge_drums = false
 	_forge_heat = false
+	_forge_set_bed_lin(1.0, FORGE_BOSS_FADE_S if boss else FORGE_COMBAT_FADE_S)
 	if boss:
 		_fade_forge_player(_forge_c, FORGE_MUTE_DB, FORGE_BOSS_FADE_S, false)
 		var tw := create_tween()
@@ -1399,7 +1430,7 @@ func set_ui(lin: float) -> void:
 
 func apply_levels() -> void:
 	_set_bus("Master", master_lin)
-	_set_bus("Music", music_lin)
+	_set_bus("Music", music_lin * MUSIC_PRE_SLIDER_LIN)
 	_set_bus("Stings", music_lin)
 	_set_bus("Ambience", ambience_lin)
 	_set_bus("SFX", sfx_lin)

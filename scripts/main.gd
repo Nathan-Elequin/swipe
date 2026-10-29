@@ -7477,6 +7477,9 @@ func _on_spin() -> void:
 	_log("on_click", "Spin")
 	if sfx:
 		sfx.set_combat_music(true)
+		var spin_m: Dictionary = wheel[idx] if idx >= 0 and idx < wheel.size() else {}
+		if not spin_m.is_empty() and _tier_of(spin_m) >= 3 and sfx.has_method("forge_boss_spin"):
+			sfx.forge_boss_spin()
 		sfx.play("door_open", -10.0)
 		sfx.play("whoosh", -12.0, 0.9)
 	await wheel_view.spin_to(idx)
