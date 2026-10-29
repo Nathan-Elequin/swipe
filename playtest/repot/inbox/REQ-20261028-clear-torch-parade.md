@@ -1,6 +1,6 @@
 ---
 id: REQ-20261028-clear-torch-parade
-status: open
+status: done
 priority: high
 pr: 173
 tip_sha: a8f2abf5
