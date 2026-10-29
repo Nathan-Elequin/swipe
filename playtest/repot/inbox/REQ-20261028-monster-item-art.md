@@ -1,6 +1,6 @@
 ---
 id: REQ-20261028-monster-item-art
-status: open
+status: done
 priority: normal
 pr: 174
 tip_sha: 3a453021d4acb152241c50e9eee9dd5122006f5e
