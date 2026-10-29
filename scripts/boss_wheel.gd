@@ -57,6 +57,7 @@ const MEDAL_OF := {
 	"bodyguard": "shield",
 	"cowardly_king": "users",
 	"merchant": "layers",
+	"oligarch": "layers",
 	"juggernaut": "shield",
 	"cleric": "heart",
 	"hydra": "users",
@@ -2423,6 +2424,8 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_arc(port_pos, plate_r + 20.0, 0.0, TAU, 28, Color(1.0, 0.90, 0.35, 0.45 + 0.35 * absf(sin(_glow_t * 9.0))), 3.5, true)
 	if i != portrait_away and not hide_portraits.has(i):
 		_draw_wheel_sprite(i, sp, s, dim)
+	if bool(s.get("hunter_mark", false)):
+		_draw_hunter_mark(Rect2(port_pos - Vector2(34, 42), Vector2(68, 76)), dim)
 	var burn: float = float(_burn.get(i, 0.0))
 	if burn > 0.02:
 		var fire: Texture2D = _fire_tex()
@@ -2515,6 +2518,35 @@ func _draw_tier_num(_font: Font, _pos: Vector2, _s: Dictionary, _is_face: bool, 
 
 func _draw_tier_rim(_center: Vector2, _rad: float, _s: Dictionary) -> void:
 	pass
+
+
+func _draw_hunter_mark(rect: Rect2, dim: float) -> void:
+	var pulse: float = 0.55 + 0.45 * absf(sin(_glow_t * 5.0))
+	var inset: float = 5.0 + 2.0 * sin(_glow_t * 3.2)
+	var arm: float = 12.0
+	var x: float = rect.position.x + inset
+	var y: float = rect.position.y + inset
+	var w: float = maxf(8.0, rect.size.x - inset * 2.0)
+	var h: float = maxf(8.0, rect.size.y - inset * 2.0)
+	var ink := Color("100e0c")
+	ink.a = 0.85 * dim
+	var gold := Color("ffd84a")
+	gold.a = (0.72 + 0.28 * pulse) * dim
+	var corners: Array = [
+		[Vector2(x, y), Vector2(1, 0), Vector2(0, 1)],
+		[Vector2(x + w, y), Vector2(-1, 0), Vector2(0, 1)],
+		[Vector2(x + w, y + h), Vector2(-1, 0), Vector2(0, -1)],
+		[Vector2(x, y + h), Vector2(1, 0), Vector2(0, -1)],
+	]
+	for c in corners:
+		var row: Array = c
+		var origin: Vector2 = row[0] as Vector2
+		var a: Vector2 = row[1] as Vector2
+		var b: Vector2 = row[2] as Vector2
+		draw_line(origin, origin + a * arm, ink, 3.4, true)
+		draw_line(origin, origin + b * arm, ink, 3.4, true)
+		draw_line(origin, origin + a * arm, gold, 1.8, true)
+		draw_line(origin, origin + b * arm, gold, 1.8, true)
 
 
 func _draw_portrait_window(center: Vector2, rad: float, s: Dictionary, tex: Texture2D, face_ang: float, dim: float = 1.0) -> void:
@@ -3222,7 +3254,7 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 
 func _ability_icon_color(sid: String) -> Color:
 	match sid:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "decay":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "hunter_mark", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "decay":
 			return Color("e8c36a")
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return Color("e07040")

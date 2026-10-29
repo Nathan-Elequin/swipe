@@ -243,6 +243,7 @@ const MONSTER_SPECIAL := {
 	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust"},
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
 	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 1 Attack"},
+	"oligarch": {"id": "wealth_tax", "text": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item"},
 }
 
 const MONSTER_CALL := {
@@ -296,6 +297,7 @@ const MONSTER_CALL := {
 	"poison_frog": "Toxic Skin",
 	"plague_doctor": "Outbreak",
 	"rust_bucket": "Rust",
+	"oligarch": "Wealth Tax",
 }
 
 const MONSTER_REMINDER := {
@@ -349,6 +351,7 @@ const MONSTER_REMINDER := {
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
 	"plague_doctor": "Spin: Neighbors +2 Poison and Heal 2; Poison frozen while I live",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
+	"oligarch": "On entry: Gain 2 Items. After each Spin's choices: one playable Item is used",
 }
 
 const MONSTER_SPEECH := {
@@ -402,6 +405,7 @@ const MONSTER_SPEECH := {
 	"poison_frog": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
 	"plague_doctor": "On Spin, my Neighbors Gain 2 Poison and Heal 2. While I live, Poison does not activate.",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
+	"oligarch": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
 }
 
 var catalog: Dictionary = {}
@@ -414,6 +418,7 @@ var _rug_secret_in_run: bool = false
 
 var hp: int = HP_MAX
 var player_poison: int = 0
+var _plague_blocked_fx_this_spin: bool = false
 var _flushing_poison_sides: bool = false
 var blk: int = 0
 var phase: String = "title"
@@ -936,6 +941,7 @@ func _load_textures() -> void:
 		"poison_frog": _tex("res://assets/icons/droplet.svg"),
 		"rust_bucket": _tex("res://assets/icons/ban.svg"),
 		"sandbag": _tex("res://assets/icons/footprints.svg"),
+		"oligarch": _tex("res://assets/icons/layers.svg"),
 	}
 	tex_by_item = {
 		"shield": tex_shield,
@@ -7422,9 +7428,11 @@ func _on_spin() -> void:
 	# stays frozen and does not activate.
 	var plague_freeze: bool = _plague_freezes_poison()
 	var poison_would_tick: bool = _any_monster_poison_pending() or (player_poison > 0 and _living_monster_count() > 0)
+	_plague_blocked_fx_this_spin = false
 	if plague_freeze:
 		if poison_would_tick:
 			await _play_plague_poison_blocked_fx()
+			_plague_blocked_fx_this_spin = true
 	elif await _tick_all_monster_poison():
 		_beggar_hold = false
 		_undo_arm()
@@ -7478,7 +7486,7 @@ func _on_spin() -> void:
 		if await _step_hexs():
 			await _bleed_end()
 			return
-	_apply_plague_doctor_on_spin()
+	await _apply_plague_doctor_on_spin()
 	if not plague_freeze and _living_monster_count() > 0:
 		if await _tick_player_poison():
 			_undo_arm()
@@ -7524,6 +7532,8 @@ func _on_spin() -> void:
 		await _apply_scorpion_on_spin()
 	if phase == "fighting" and await _sandbag_after_spin():
 		return
+	if phase == "fighting":
+		await _apply_oligarch_on_spin()
 	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0 and not _wick_waiting(facing_index):
 		_undo_stack.append(_capture_run())
 		_redo_stack.clear()
@@ -10324,7 +10334,10 @@ func _sync_plague_poison() -> void:
 ## SP-28 On Spin: each living neighbor Gains 2 Poison and Heals 2.
 func _apply_plague_doctor_on_spin() -> void:
 	var any: bool = false
+	var first_pd: int = -1
 	for pd in _plague_doctor_indices():
+		if first_pd < 0:
+			first_pd = pd
 		for ni in _neighbors_of(pd):
 			if ni < 0 or ni >= wheel.size():
 				continue
@@ -10340,6 +10353,8 @@ func _apply_plague_doctor_on_spin() -> void:
 				wheel[ni].get("hp", 0), _poison_of(wheel[ni])
 			])
 	if any:
+		if not _plague_blocked_fx_this_spin and first_pd >= 0:
+			await _announce_slice(first_pd, _slice_hp_pos(first_pd))
 		_sync_plague_poison()
 		_refresh()
 
@@ -10350,7 +10365,11 @@ func _play_plague_poison_blocked_fx() -> void:
 		return
 	var pd: int = idxs[0]
 	var s: Dictionary = wheel[pd]
-	_flash_banner("Poison. Stalled by Plague Doctor.")
+	var call_n: String = str(s.get("call_name", "")).strip_edges()
+	if call_n == "":
+		call_n = MONSTER_LINES.call_of("plague_doctor", monsters_by_id.get("plague_doctor", {}))
+	if call_n == "":
+		call_n = "Outbreak"
 	if ability_slash:
 		var tex: Texture2D = null
 		if art != null:
@@ -10360,7 +10379,8 @@ func _play_plague_poison_blocked_fx() -> void:
 			ticket_i = cascade_ticker.push("plague_doctor", tex)
 		await ability_slash.play({
 			"title": str(s.get("name", "Plague Doctor")),
-			"call": "Poison does not activate",
+			"call": call_n,
+			"line": "Poison does not activate",
 			"tex": tex,
 			"is_item": false,
 			"card_id": "plague_doctor",
@@ -10631,6 +10651,7 @@ func _hand_all_uids() -> Array:
 func _maybe_enter_gains(index: int) -> void:
 	await _maybe_death_bell_spawn(index)
 	await _maybe_rust_bucket_spawn(index)
+	await _maybe_oligarch_spawn(index)
 
 
 func _item_uid_in_hand(uid: int) -> bool:
@@ -10919,6 +10940,106 @@ func _maybe_rust_bucket_spawn(index: int) -> void:
 	m["rust_granted"] = true
 	wheel[index] = m
 	await _force_gain_rust()
+
+
+func _oligarch_gift_pool() -> Array:
+	var ids: Array = []
+	for idv in item_pool:
+		var iid: String = str(idv)
+		if BucketRules.is_always_starter_id(iid):
+			continue
+		var card: Dictionary = items_by_id.get(iid, {})
+		if card.is_empty():
+			continue
+		if BucketRules.is_token(card.get("bucket", 0)):
+			continue
+		var st: String = str(card.get("status", "live"))
+		if st == "retired" or st == "hold":
+			continue
+		if bool(card.get("curse", false)):
+			continue
+		ids.append(iid)
+	return ids
+
+
+func _maybe_oligarch_spawn(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var m: Dictionary = wheel[index]
+	if str(m.get("card_id", "")) != "oligarch":
+		return
+	if _is_silenced(m):
+		return
+	if bool(m.get("oligarch_gifted", false)):
+		return
+	m["oligarch_gifted"] = true
+	wheel[index] = m
+	if ability_slash:
+		var tex: Texture2D = null
+		if art != null:
+			tex = art.monster_still("oligarch")
+		await ability_slash.play({
+			"title": "Oligarch",
+			"call": "Here, I bought you something nice",
+			"tex": tex,
+			"is_item": false,
+			"card_id": "oligarch",
+		})
+	var pool: Array = _oligarch_gift_pool()
+	pool.shuffle()
+	var n: int = mini(2, pool.size())
+	for i in range(n):
+		if _hand_full() and adventure:
+			break
+		await _try_gain_item(str(pool[i]))
+
+
+func _oligarch_playable_uids() -> Array:
+	var out: Array = []
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if bool(it.get("spent", false)):
+			continue
+		if _item_stoned(it):
+			continue
+		var iid: String = str(it.get("card_id", ""))
+		if BucketRules.is_always_starter_id(iid):
+			continue
+		if not bool(_item_view(it).get("can_use", false)):
+			continue
+		var uid: int = int(it.get("uid", -1))
+		if uid >= 0:
+			out.append(uid)
+	return out
+
+
+func _apply_oligarch_on_spin() -> void:
+	if phase != "fighting":
+		return
+	if not pending_feed.is_empty() or not pending_chaos.is_empty():
+		return
+	var seats: Array = []
+	for i in range(wheel.size()):
+		var s: Dictionary = wheel[i]
+		if str(s.get("kind", "")) != "monster":
+			continue
+		if str(s.get("card_id", "")) != "oligarch":
+			continue
+		if int(s.get("hp", 0)) <= 0:
+			continue
+		if _is_silenced(s):
+			continue
+		seats.append(i)
+	for _seat in seats:
+		var uids: Array = _oligarch_playable_uids()
+		if uids.is_empty():
+			continue
+		var pick: int = int(uids[rng.randi_range(0, uids.size() - 1)])
+		_log("on_spin", "Oligarch uses a random Item")
+		await _use_item(pick)
+		if phase != "fighting":
+			return
 
 
 func _force_gain_rust() -> void:
@@ -16726,7 +16847,7 @@ func _shark_net_death(index: int) -> void:
 	_cube_line = ""
 
 
-## SP-20 Dance Swap: after a counted item use while facing Bushido, swap HP/Attack if he still lives.
+## SP-20 Stance Swap: after a counted item use while facing Bushido, slash then swap HP/Attack if he still lives.
 func _bushido_dance_swap(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
@@ -16736,6 +16857,19 @@ func _bushido_dance_swap(index: int) -> void:
 	var hp_now: int = int(m.get("hp", 0))
 	if not SP_DALLAS.bushido_should_swap(true, _is_silenced(m), hp_now):
 		return
+	_walker_busy = true
+	_sync_buttons()
+	await _announce_slice(index)
+	if index < 0 or index >= wheel.size() or str(wheel[index].get("card_id", "")) != "bushido":
+		_walker_busy = false
+		_sync_buttons()
+		return
+	m = wheel[index]
+	hp_now = int(m.get("hp", 0))
+	if not SP_DALLAS.bushido_should_swap(true, _is_silenced(m), hp_now):
+		_walker_busy = false
+		_sync_buttons()
+		return
 	var pair: Dictionary = SP_DALLAS.bushido_swap_pair(hp_now, int(m.get("atk", 0)))
 	m["hp"] = int(pair["hp"])
 	m["atk"] = int(pair["atk"])
@@ -16744,12 +16878,14 @@ func _bushido_dance_swap(index: int) -> void:
 	m["atk_locked"] = true
 	m["atk_innate"] = int(m["atk"])
 	wheel[index] = m
-	_log("on_resolve", "Bushido Dance Swap  →  HP %s  ATK %s" % [m["hp"], m["atk"]])
+	_log("on_resolve", "Bushido Stance Swap  →  HP %s  ATK %s" % [m["hp"], m["atk"]])
 	if sfx:
 		sfx.play("whoosh", -12.0, 1.1)
 	if wheel_view:
 		wheel_view.hit_feedback(index, 0, 0)
 	_refresh()
+	_walker_busy = false
+	_sync_buttons()
 
 
 func _apply_marble_stamp(card, it: Dictionary) -> void:

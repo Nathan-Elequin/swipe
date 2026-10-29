@@ -266,6 +266,7 @@ const MONSTER_PNG := {
 	"magicat": "res://assets/dungeon/extra/magicat.png",
 	"rust_bucket": "res://assets/dungeon/extra/rust_bucket.png",
 	"poison_frog": "res://assets/dungeon/extra/poison_frog.png",
+	"oligarch": "res://assets/dungeon/extra/oligarch.png",
 }
 
 var atlas: Texture2D

@@ -372,7 +372,7 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 1,
+			"bucket": 4,
 			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [
@@ -384,7 +384,7 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "bracers",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -399,7 +399,8 @@
 				"atk_base",
 				"hp_base",
 				"atk_formula",
-				"hp_formula"
+				"hp_formula",
+				"bucket"
 			],
 			"log_hint": "Block from right neighbor",
 			"mode_pool": "all",
@@ -1167,7 +1168,7 @@
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
-			"bucket": 3,
+			"bucket": 5,
 			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
@@ -1177,7 +1178,7 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "spiked_shield",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1195,7 +1196,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"bucket"
 			],
 			"log_hint": "Attack 3 or Block 3, flips after each Item",
 			"mode_pool": "all",
@@ -1912,6 +1914,7 @@
 			"card_color": "egg",
 			"contradiction_ids": [],
 			"count": 0,
+			"curse": true,
 			"explainer": "(Take ATK 2)",
 			"flow": "Click during a fight. Take 2 Attack; Block works. Used up. If this is in hand when the wheel lands on Spider Queen, discard it and she gains +2 HP and +2 Attack. Queen does not create an Egg on the Spin that lands on her. Always created on other Spins while Queen is alive, up to 50 cards in hand.",
 			"hp_base": null,
@@ -1933,8 +1936,7 @@
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 0,
-			"curse": true
+			"tier": 0
 		},
 		{
 			"ability": "The facing owner's Attack becomes 0 this fight.",
@@ -2578,10 +2580,10 @@
 			"name": "Lucky Nickel",
 			"notes": "Bucket 7. Coin with Grandpa goblin's face. Not Attack.",
 			"ops": {
-				"kind": "blk_coin_keep",
-				"lo": 2,
 				"hi": 6,
-				"hp": 2
+				"hp": 2,
+				"kind": "blk_coin_keep",
+				"lo": 2
 			},
 			"priority": 3,
 			"rarity": "uncommon",
@@ -2761,6 +2763,7 @@
 			"card_color": "egg",
 			"contradiction_ids": [],
 			"count": 0,
+			"curse": true,
 			"explainer": "−1 / Item Use  Die at 0",
 			"flags": {
 				"art": true,
@@ -2805,8 +2808,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0,
-			"curse": true
+			"tier": 0
 		},
 		{
 			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
@@ -3430,6 +3432,7 @@
 			"card_color": "egg",
 			"contradiction_ids": [],
 			"count": 0,
+			"curse": true,
 			"explainer": "Ignore Block. Discard after 3 Spins.",
 			"flow": "Unplayable token. Starts at 3. While it sits, all monsters ignore your Block (same pierce as Arrow Head). Each Spin, including the first after it enters your hand: 3 → 2 → 1 → Discard after the third fight. Curse: Cube, Worm, Bell, Hired Hand, and a full-hand replace cannot dump it. Recycler ticks Discards that still happen.",
 			"hp_base": null,
@@ -3469,8 +3472,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0,
-			"curse": true
+			"tier": 0
 		},
 		{
 			"ability": "Heal 2.",
@@ -5781,16 +5783,11 @@
 			"atk_formula": "",
 			"author_lock": true,
 			"bucket": 5,
-			"call_name": "Dance Swap",
+			"call_name": "Stance Swap",
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1,
 			"explainer": "After each Item while facing me: swap my HP and Attack",
-			"flags": {
-				"art": true,
-				"dev": true,
-				"hide": false
-			},
 			"flow": "SP-20 (2026-10-28). 6 HP / 5 Attack. After each Item you use while facing me (the same uses that increment items_used_this_combat), swap my current HP and Attack. If that item drops me to 0 HP, I die and do NOT swap. Quiet Bell: no swap. Replaces Patient Disarm (second-item dummy).",
 			"hp_base": 6,
 			"hp_formula": "",
@@ -6593,13 +6590,14 @@
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1,
+			"exceptions": "Bucket 9, tier 2. No other card moved.",
 			"explainer": "On entry: Gain 2 Items. After each Spin's choices: one playable Item is used",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Paper Fight is open. Not coded. Entry line: Here, I bought you something nice. Slash after setup if she is already seated, then place the items like Juggernaut. On every Spin, after other On Spin effects, if she is alive and not silenced, use one playable item. Open questions are in design/paper-fight/CURRENT.md.",
+			"flow": "When she enters (setup or later), if not silenced: slash Here, I bought you something nice, and place up to 2 items from the remaining mill into empty hotbar seats. No Smoke Bomb, no tokens, no curses. A full Adventure bar stops. On every Spin, after other On Spin effects, if she is alive and not silenced and no other pick is open: use one random playable item. Smoke Bomb is not a legal pick.",
 			"hp_base": 6,
 			"hp_formula": "",
 			"id": "oligarch",
@@ -6614,8 +6612,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
-			"exceptions": "Bucket 9, tier 2. No other card moved."
+			"tier": 2
 		}
 	],
 	"updated": "2026-10-28"
