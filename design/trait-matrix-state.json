@@ -2,6 +2,22 @@
   "about": "Drag order is the order of these lists. marks only includes traits that are tuned. Plus is +, minus is −.",
   "monsters": [
     {
+      "id": "new-monster-1793220868202",
+      "name": "New monster",
+      "kind": "monster",
+      "tier": 1,
+      "bucket": 0,
+      "status": "custom",
+      "ability": "",
+      "attack": null,
+      "hp": null,
+      "sprite": {
+        "mode": "none"
+      },
+      "marks": {},
+      "custom": true
+    },
+    {
       "id": "new-monster-1791869625628",
       "name": "New monster",
       "kind": "monster",
@@ -406,14 +422,14 @@
     },
     {
       "id": "kobold_trapper",
-      "name": "Kobold Trapper",
+      "name": "Trapper",
       "kind": "monster",
       "tier": 2,
       "bucket": 6,
       "status": "live",
-      "ability": "I attack an extra time for each item you use this fight.",
-      "attack": 2,
-      "hp": 6,
+      "ability": "When I enter the Dungeon I Mark 2 other Monsters. Each time a Marked monster is Defeated, I gain +2 HP and ATK",
+      "attack": 3,
+      "hp": 3,
       "sprite": {
         "mode": "img",
         "src": "../assets/dungeon/extra/kobold_trapper.png"
@@ -761,7 +777,7 @@
       "tier": 1,
       "bucket": 2,
       "status": "live",
-      "ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+      "ability": "Move to Any Monster, then Draw 1 Item",
       "attack": null,
       "hp": null,
       "sprite": {
@@ -1158,7 +1174,7 @@
       "tier": 3,
       "bucket": 4,
       "status": "live",
-      "ability": "Heal 2. Keep this if you are still missing HP.",
+      "ability": "Heal 1, then increase this number by 1. Keep this if you are still missing HP.",
       "attack": null,
       "hp": null,
       "sprite": {

@@ -274,7 +274,7 @@ const UNPLAYABLE := "#C8C2BA"
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
 static func call_color(special_id: String) -> Color:
 	match special_id:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "rust", "decay":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "hunter_mark", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "rust", "decay":
 			return GOLD
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return CALL_ATK
@@ -328,6 +328,8 @@ static func def_id_of(piece: String) -> String:
 		return "flee"
 	if low.begins_with("defeat"):
 		return "defeated"
+	if low.begins_with("mark"):
+		return "marked"
 	if low.find("poison") >= 0:
 		return "poison"
 	if low.begins_with("spin") or low == "spun":
@@ -361,6 +363,8 @@ static func def_of(id: String) -> String:
 			return "If you are facing them, Spin the wheel at random. They are not removed."
 		"defeated":
 			return "They leave the wheel. Flee is different — they stay. Escaped means you took the hit and lived."
+		"marked":
+			return "upon Defeat, Trapper gains +2 HP and ATK"
 		"poison":
 			return "On a Spin, a monster with this loses that much HP immediately, wherever they sit, before their spin ability. Then it clears."
 		"spin":
@@ -673,6 +677,7 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 	]
 	var stems := PackedStringArray([
 		"defeated", "defeats", "defeating", "defeat",
+		"marked", "marks", "mark",
 		"attacks", "attacking", "attacked", "attack",
 		"blocked", "blocking", "blocks", "block",
 		"defending", "defends", "defend",
@@ -802,6 +807,8 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 		return ALWAYS
 	if low.begins_with("defeat"):
 		return var_c
+	if low.begins_with("mark"):
+		return gold
 	if low.begins_with("attack") or low == "atk":
 		return atk_c
 	if low.begins_with("block") or low == "blk":

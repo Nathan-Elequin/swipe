@@ -1152,7 +1152,7 @@
 					"id": "grappling_hook",
 					"kind": "item",
 					"name": "Grappling Hook",
-					"ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+					"ability": "Move to Any Monster, then Draw 1 Item",
 					"sprite": "assets/dungeon/items/grappling_hook.png"
 				},
 				{
@@ -1375,7 +1375,7 @@
 					"id": "lantern",
 					"kind": "item",
 					"name": "Lantern",
-					"ability": "Heal 2. Keep this if you are still missing HP.",
+					"ability": "Heal 1, then increase this number by 1. Keep this if you are still missing HP.",
 					"sprite": "assets/dungeon/items/lantern.png"
 				},
 				{
@@ -1416,7 +1416,7 @@
 					"id": "lantern",
 					"kind": "item",
 					"name": "Lantern",
-					"ability": "Heal 2. Keep this if you are still missing HP.",
+					"ability": "Heal 1, then increase this number by 1. Keep this if you are still missing HP.",
 					"sprite": "assets/dungeon/items/lantern.png"
 				},
 				{
@@ -2398,7 +2398,7 @@
 					"id": "lucky_nickel",
 					"kind": "item",
 					"name": "Lucky Nickel",
-					"ability": "Block 1. If your Block is now Even, Keep this.",
+					"ability": "Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep.",
 					"sprite": "assets/dungeon/items/lucky_nickel.png"
 				},
 				{

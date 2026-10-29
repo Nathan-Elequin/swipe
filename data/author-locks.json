@@ -320,7 +320,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-10-19",
 			"name": "Chakram"
 		},
 		"item:counting_beads": {
@@ -503,7 +503,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-10-22",
 			"name": "Double-Buckler"
 		},
 		"item:echo_bell": {
@@ -571,7 +571,7 @@
 				"reminder",
 				"card_color"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-10-11",
 			"name": "Grappling Hook"
 		},
 		"item:grief_jar": {
@@ -1339,7 +1339,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"log_hint"
+				"log_hint",
+				"review"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Sling"
@@ -1765,6 +1766,31 @@
 			"locked_at": "2026-10-17",
 			"name": "Commander"
 		},
+		"monster:cowardly_king": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color",
+				"review"
+			],
+			"locked_at": "2026-10-28",
+			"name": "Petty King"
+		},
 		"monster:cultist": {
 			"fields": [
 				"name",
@@ -2179,7 +2205,8 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"call_name"
+				"call_name",
+				"review"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Trapper"
@@ -2540,6 +2567,30 @@
 			"locked_at": "2026-10-20",
 			"name": "Rust Bucket"
 		},
+		"monster:sandbag": {
+			"fields": [
+				"name",
+				"ability",
+				"call_name",
+				"atk_base",
+				"hp_base",
+				"tier"
+			],
+			"locked_at": "2026-10-28",
+			"name": "Sandbag"
+		},
+		"monster:scorpion": {
+			"fields": [
+				"name",
+				"ability",
+				"call_name",
+				"atk_base",
+				"hp_base",
+				"tier"
+			],
+			"locked_at": "2026-10-28",
+			"name": "Scorpion"
+		},
 		"monster:shambling_mound": {
 			"fields": [
 				"name",
@@ -2844,55 +2895,6 @@
 			],
 			"locked_at": "2026-10-18",
 			"name": "Zombie"
-		},
-		"monster:cowardly_king": {
-			"fields": [
-				"name",
-				"ability",
-				"explainer",
-				"call_name",
-				"reminder",
-				"log_hint",
-				"flow",
-				"notes",
-				"ops",
-				"rarity",
-				"tier",
-				"count",
-				"priority",
-				"atk_base",
-				"hp_base",
-				"atk_formula",
-				"hp_formula",
-				"card_color",
-				"review"
-			],
-			"locked_at": "2026-10-28",
-			"name": "Petty King"
-		},
-		"monster:sandbag": {
-			"fields": [
-				"name",
-				"ability",
-				"call_name",
-				"atk_base",
-				"hp_base",
-				"tier"
-			],
-			"locked_at": "2026-10-28",
-			"name": "Sandbag"
-		},
-		"monster:scorpion": {
-			"fields": [
-				"name",
-				"ability",
-				"call_name",
-				"atk_base",
-				"hp_base",
-				"tier"
-			],
-			"locked_at": "2026-10-28",
-			"name": "Scorpion"
 		}
 	},
 	"id": "boss-rush-author-locks",
@@ -2901,1671 +2903,1833 @@
 	"script": {
 		"adventure.scarier": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "The dungeon gets more dangerous...",
 			"where": "Opening-owner transform line"
 		},
+		"cabin.dummy.no": {
+			"cat": "Cabin",
+			"locked_at": "2026-10-28",
+			"text": "No Thanks",
+			"where": "Training dummy choice"
+		},
+		"cabin.dummy.yes": {
+			"cat": "Cabin",
+			"locked_at": "2026-10-28",
+			"text": "Sure (Start Tutorial)",
+			"where": "Training dummy choice"
+		},
+		"cabin.gear.cap": {
+			"cat": "Cabin",
+			"locked_at": "2026-10-28",
+			"text": "{lucky} Cap",
+			"where": "Gear rack piece hover label"
+		},
+		"cabin.hall.sign_outpost": {
+			"cat": "Cabin",
+			"locked_at": "2026-10-28",
+			"text": "To the Outpost",
+			"where": "Hall Outpost door sign (replaces hidden SignStudy art)"
+		},
+		"cabin.hot.back_hall": {
+			"cat": "Playtest",
+			"locked_at": "2026-10-28",
+			"text": "Trophy Hall",
+			"where": "Outpost back door hover → Trophy Hall"
+		},
+		"cabin.hot.door_outpost": {
+			"cat": "Cabin",
+			"locked_at": "2026-10-28",
+			"text": "Outpost",
+			"where": "Hover label for Hall → Outpost right door"
+		},
+		"cabin.hot.run_door": {
+			"cat": "Cabin",
+			"locked_at": "2026-10-28",
+			"text": "Toward the Outpost",
+			"where": "Hover label for the painted main-room run door (hall path)"
+		},
 		"challenge.begin": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Begin",
 			"where": "Challenge after opening picks"
 		},
 		"challenge.begin_cue": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Begin when you're ready.",
 			"where": "Challenge Begin cue"
 		},
 		"challenge.click_target": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Click who you fight.",
 			"where": "Challenge ready cue"
 		},
 		"challenge.full_hand": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Hand is full. Click an item to throw away.",
 			"where": "Challenge loot at 10"
 		},
 		"challenge.pick_loot": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Loot",
 			"where": "Challenge kill pick-two title"
 		},
 		"challenge.pick_open": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Choose your loot",
 			"where": "Challenge opening pick-two title"
 		},
 		"challenge.spin_confirm": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Click a monster on the wheel.",
 			"where": "Challenge ready cue after click"
 		},
 		"combat.blocked": {
 			"cat": "Combat",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "BLOCKED",
 			"where": "Flash on the slice when you pillow it"
 		},
 		"combat.knife_nick": {
 			"cat": "Combat",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "ATK 1, keep",
 			"where": "Throwing Knife choice B"
 		},
 		"combat.knife_throw": {
 			"cat": "Combat",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "ATK 3, discard",
 			"where": "Throwing Knife choice A"
 		},
 		"combat.safe": {
 			"cat": "Combat",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Safe",
 			"where": "Done button when incoming hit is 0"
 		},
 		"combat.slain": {
 			"cat": "Combat",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "SLAIN",
 			"where": "Flash on the slice when they leave"
 		},
 		"combat.spin": {
 			"cat": "Combat",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Spin",
 			"where": "Spin button"
 		},
 		"combat.take_hit": {
 			"cat": "Combat",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Take {n}",
 			"where": "Done button when you will lose hearts. {n} = incoming"
 		},
 		"cue.ask": {
 			"cat": "Cues",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Take it or leave it?",
 			"where": "Draft choice, passes remaining"
 		},
 		"cue.devtest": {
 			"cat": "Cues",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Click a monster to seat it, an item to add it to your hand. Play when you have at least one monster.",
 			"where": "Developer Test (leave unless you want it player-facing)"
 		},
 		"cue.fighting": {
 			"cat": "Cues",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Spend loot, or eat the hit.",
 			"where": "During a fight"
 		},
 		"cue.filling": {
 			"cat": "Cues",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "More monsters. Less floor.",
 			"where": "Between door packs"
 		},
 		"cue.force": {
 			"cat": "Cues",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "No passes left",
 			"where": "No passes left — auto fill"
 		},
 		"cue.mark": {
 			"cat": "Cues",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Pick a neighbor.",
 			"where": "Poison / Crossbow neighbor pick"
 		},
 		"cue.ready": {
 			"cat": "Cues",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Spin — somebody wants their stuff.",
 			"where": "Wheel full, combat"
 		},
 		"cue.seat": {
 			"cat": "Cues",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-07",
 			"text": "A monster approaches. Select their location.",
 			"where": "After steal, pick an alcove"
 		},
 		"cue.starters": {
 			"cat": "Cues",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-07",
 			"text": "Four freeloaders already claimed north, east, south, and west.",
 			"where": "Begin: four starters land NESW"
 		},
 		"cue.steal": {
 			"cat": "Cues",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "No passes left",
 			"where": "Draft choice, no passes left"
 		},
 		"door.help": {
 			"cat": "Door",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "The finer the loot, the fiercer its monster.",
 			"where": "Gate under the metal stamp"
 		},
 		"door.hook": {
 			"cat": "Door",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-10",
 			"text": "Take {item} and its monster kicks through that door.",
 			"where": "Gate before Take. {item} = loot name"
 		},
 		"door.owner": {
 			"cat": "Door",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-10",
 			"text": "THE MONSTER",
 			"where": "Gate chrome over the silhouette"
 		},
 		"door.pass": {
 			"cat": "Door",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Leave it",
 			"where": "Pass button while passes remain. {n} = passes left"
 		},
 		"door.pass_none": {
 			"cat": "Door",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Out of time",
 			"where": "Pass button at 0 remaining"
 		},
 		"door.seat": {
 			"cat": "Door",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-07",
 			"text": "A monster approaches. Select their location.",
 			"where": "After reveal, before you click a +"
 		},
 		"door.shiny": {
 			"cat": "Door",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-10",
 			"text": "THE LOOT",
 			"where": "Gate chrome over the item"
 		},
 		"door.take": {
 			"cat": "Door",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Take it",
 			"where": "Take button. {n} = pack tier"
 		},
 		"door.title": {
 			"cat": "Door",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-07",
 			"text": "THE DOOR",
 			"where": "Gate chrome top"
 		},
 		"inspect.empty": {
 			"cat": "Inspect",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Nobody home. Yet.",
 			"where": "Empty alcove otherwise"
 		},
 		"inspect.empty_place": {
 			"cat": "Inspect",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-07",
 			"text": "Empty alcove",
 			"where": "Empty alcove while seating"
 		},
 		"inspect.empty_title": {
 			"cat": "Inspect",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Empty",
 			"where": "Empty alcove headline"
 		},
 		"inspect.idle": {
 			"cat": "Inspect",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Hover a monster on the ring, or loot in your hand.",
 			"where": "Idle inspect body"
 		},
 		"inspect.placeholder": {
 			"cat": "Inspect",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "—",
 			"where": "Editor inspect fallback"
 		},
 		"inspect.shift": {
 			"cat": "Inspect",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-07",
 			"text": "hold Shift to explain",
 			"where": "Monster inspect, Shift hint"
 		},
 		"inspect.title": {
 			"cat": "Inspect",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Inspect",
 			"where": "Idle inspect headline"
 		},
 		"keyword.swap": {
 			"cat": "Inspect",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Swap",
 			"where": "Keyword tip title for Swap"
 		},
 		"keyword.swap_body": {
 			"cat": "Inspect",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Swap: trade it for a random item of the same rank (Weak, Tough or Deadly).",
 			"where": "Keyword tip body for Swap"
 		},
+		"mudroom.jar.sub": {
+			"cat": "Campaign",
+			"locked_at": "2026-10-28",
+			"text": "+1 each time {nib} stamps a new biome",
+			"where": "Mudroom reroll jar sub"
+		},
+		"nib.piece.grandpa": {
+			"cat": "Nib",
+			"locked_at": "2026-10-28",
+			"text": "That's {grandpa|poss}! Next belly of the mountain — onto the map with you.",
+			"where": "Map-piece ceremony beat 3"
+		},
+		"pause.give_up_ask": {
+			"cat": "Pause",
+			"locked_at": "2026-10-28",
+			"text": "Give up?",
+			"where": "Pause: confirm abandon"
+		},
 		"pause.hint": {
 			"cat": "Pause",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "",
 			"where": "Escape menu"
 		},
+		"pause.peek": {
+			"cat": "Pause",
+			"locked_at": "2026-10-28",
+			"text": "",
+			"where": "Pause: open the sack peek"
+		},
 		"pause.quit": {
 			"cat": "Pause",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Quit",
 			"where": "Escape menu button"
 		},
 		"pause.resume": {
 			"cat": "Pause",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Resume",
 			"where": "Escape menu button"
 		},
 		"pause.settings": {
 			"cat": "Pause",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Settings",
 			"where": "Escape menu title"
 		},
 		"pause.start_over": {
 			"cat": "Pause",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-07",
 			"text": "Start over",
 			"where": "Escape menu label"
 		},
 		"playtest.brand_new": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Brand New",
 			"where": "Playtest hub button"
 		},
 		"playtest.brand_new_blurb": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Start from scratch.",
 			"where": "Playtest hub"
 		},
 		"playtest.close": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Close",
 			"where": "Feedback and tier list"
 		},
 		"playtest.comment_placeholder": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "What happened?",
 			"where": "Feedback text box"
 		},
 		"playtest.continue": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Continue",
 			"where": "Playtest hub"
 		},
 		"playtest.continue_blurb": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Last save.",
 			"where": "Playtest hub"
 		},
 		"playtest.f2_hint": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "F2 also opens this.",
 			"where": "Feedback overlay"
 		},
 		"playtest.feedback": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Feedback",
 			"where": "Playtest hub, F2, bottom-right"
 		},
 		"playtest.hub_title": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Playtest",
 			"where": "Playtest hub headline"
 		},
 		"playtest.intro.01": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
-			"text": "Hey friends — thanks for playtesting my game, Spinheritance.\nJust a few notes before you jump in.",
+			"locked_at": "2026-10-28",
+			"text": "Hey friends — thanks for playtesting my game, {game_title}.\nJust a few notes before you jump in.",
 			"where": "Playtest intro beat 01"
 		},
 		"playtest.intro.02": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "First. This game is in early prototype mode. The things I most want to hear from your feedback are about what is fun, what is boring, what is confusing, and what things you think I should add to the game.",
 			"where": "Playtest intro beat 02"
 		},
 		"playtest.intro.03": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Second. Be honest and picky! You don't need to consider anyone else's perspective. I just want to hear yours.",
 			"where": "Playtest intro beat 03"
 		},
 		"playtest.intro.04": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "And finally, have fun! Break the game, find cool combos, test the limits. And don't be afraid to dream big with your requests.",
 			"where": "Playtest intro beat 04"
 		},
 		"playtest.intro.05": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "This is the menu you'll land on.",
 			"where": "Playtest intro beat 05"
 		},
 		"playtest.intro.06": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "**Brand New** starts from the beginning, as if you had never played.",
 			"where": "Playtest intro beat 06"
 		},
 		"playtest.intro.07": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "**Middle Progress** puts you a few dungeons in, with some items already unlocked.",
 			"where": "Playtest intro beat 07"
 		},
 		"playtest.intro.08": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "**Continue** picks up your last playtest save.",
 			"where": "Playtest intro beat 08"
 		},
 		"playtest.intro.09": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "**Feedback** opens a note to me. Use it for anything that is not tied to one card.",
 			"where": "Playtest intro beat 09"
 		},
 		"playtest.intro.10": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You can right-click any item or monster in the game and leave feedback. That is useful for bugs, confusion, or balance issues.",
 			"where": "Playtest intro beat 10"
 		},
 		"playtest.intro.11": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "For general comments while you play, click **Feedback** in the bottom right, or press **F2**.",
 			"where": "Playtest intro beat 11"
 		},
 		"playtest.intro.12": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "This is the F2 screen. Type a note, click Send, and it goes to my game development console. Next time I sit down to work, I will see it and can make the fix or the change.",
 			"where": "Playtest intro beat 12"
 		},
 		"playtest.intro.13": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "However — for those who want to give the best kind of feedback, I would love to actually HEAR your experience.",
 			"where": "Playtest intro beat 13"
 		},
 		"playtest.intro.14": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Consider taking your phone, setting it to a voice memo or recorder, and just letting it run while you play. Talk out loud about your thought process, your first impressions, your feedback, anything at all.",
 			"where": "Playtest intro beat 14"
 		},
 		"playtest.intro.15": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Then send me the entire file when you are done, because I can turn that into a much more detailed look at your player experience. If you are interested in doing that, you can email the files to me at nathan.elequin@gmail.com.",
 			"where": "Playtest intro beat 15"
 		},
 		"playtest.intro.16": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "So thank you again for playtesting. If you have any questions, you can always reach out to me. Now enjoy!",
 			"where": "Playtest intro beat 16"
 		},
 		"playtest.intro.back": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Back",
 			"where": "Playtest intro back button"
 		},
 		"playtest.intro.done": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Continue",
 			"where": "Playtest intro last button"
 		},
 		"playtest.intro.speaker": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Nathan",
 			"where": "Playtest intro talk-box name"
 		},
 		"playtest.items": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Items",
 			"where": "Tier list tab"
 		},
 		"playtest.middle": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Middle Progress",
 			"where": "Playtest hub button"
 		},
 		"playtest.middle_blurb": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "A few dungeons in.",
 			"where": "Playtest hub"
 		},
 		"playtest.monsters": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Monsters",
 			"where": "Tier list tab"
 		},
 		"playtest.play_chip": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Right-click a Monster/Item, or press F2, to send a note.",
 			"where": "Playtest bottom-left during play"
 		},
 		"playtest.right_click_hint": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Right-click any item or monster to leave a comment.",
 			"where": "Playtest hub and inspect"
 		},
 		"playtest.screenshot": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You can screenshot this screen and send it.",
 			"where": "Tier list footer"
 		},
 		"playtest.send": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Send",
 			"where": "Feedback and tier list"
 		},
 		"playtest.send_failed": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Could not send. Copied to the clipboard instead.",
 			"where": "Feedback overlay"
 		},
 		"playtest.sent": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Sent. Thank you.",
 			"where": "Feedback overlay"
 		},
 		"playtest.tier_blurb": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Rank cards of the same strength against each other. Drag a card onto a row.",
 			"where": "Tier list"
 		},
 		"playtest.tier_list": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Tier List",
 			"where": "Feedback submenu"
 		},
 		"playtest.unranked": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Unranked",
 			"where": "Tier list pool"
 		},
 		"playtest.voice_chip": {
 			"cat": "Playtest",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-19",
 			"text": "Keep a phone voice memo running. Talk out loud at every interaction.",
 			"where": "Playtest chip"
 		},
+		"radio.station.2": {
+			"cat": "Radio",
+			"locked_at": "2026-10-28",
+			"text": "{snatchwick} Rag",
+			"where": "Station name under the dial"
+		},
+		"radio.station.3": {
+			"cat": "Radio",
+			"locked_at": "2026-10-28",
+			"text": "{gloria|poss} Lullaby",
+			"where": "Station name under the dial"
+		},
+		"rope.campaign.bank_eyebrow": {
+			"cat": "Rope",
+			"locked_at": "2026-10-28",
+			"text": "Climb {grandpa|poss} rope",
+			"where": "Campaign extract left door eyebrow"
+		},
 		"status.silenced": {
 			"cat": "Combat",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Silenced",
 			"where": "Silenced status on a monster plate"
 		},
 		"status.sling_loaded": {
 			"cat": "Combat",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Loaded",
 			"where": "Sling armed-state label"
 		},
 		"status.sling_loaded_tip": {
 			"cat": "Combat",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Loaded: your next Attack can hit any monster.",
 			"where": "Sling Loaded tooltip"
 		},
 		"taunt.bloody_gauntlets.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Those gloves were already my color!",
 			"where": "Door balloon after taking bloody_gauntlets · line 1 of 5"
 		},
 		"taunt.bloody_gauntlets.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You put them on. I put on teeth.",
 			"where": "Door balloon after taking bloody_gauntlets · line 2 of 5"
 		},
 		"taunt.bloody_gauntlets.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Red looks busy on you. It'll look better elsewhere.",
 			"where": "Door balloon after taking bloody_gauntlets · line 3 of 5"
 		},
 		"taunt.bloody_gauntlets.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Sticky red fingers. Adorable. Temporary.",
 			"where": "Door balloon after taking bloody_gauntlets · line 4 of 5"
 		},
 		"taunt.bloody_gauntlets.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Gauntlets: mine. Blood: negotiable.",
 			"where": "Door balloon after taking bloody_gauntlets · line 5 of 5"
 		},
 		"taunt.bracers.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Wrist jewelry. Mine.",
 			"where": "Door balloon after taking bracers · line 1 of 5"
 		},
 		"taunt.bracers.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Snap them off after I win.",
 			"where": "Door balloon after taking bracers · line 2 of 5"
 		},
 		"taunt.bracers.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You grabbed bracers. I grabbed a chair.",
 			"where": "Door balloon after taking bracers · line 3 of 5"
 		},
 		"taunt.bracers.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Cute armor. Wrong monster now.",
 			"where": "Door balloon after taking bracers · line 4 of 5"
 		},
 		"taunt.bracers.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Leave them on. Better portrait when I reclaim.",
 			"where": "Door balloon after taking bracers · line 5 of 5"
 		},
 		"taunt.breastplate.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My plate — on a pest?!",
 			"where": "Door balloon after taking breastplate · line 1 of 5"
 		},
 		"taunt.breastplate.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "I'll dent it. Then I'll keep it.",
 			"where": "Door balloon after taking breastplate · line 2 of 5"
 		},
 		"taunt.breastplate.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Tin thief. Ribs can commute.",
 			"where": "Door balloon after taking breastplate · line 3 of 5"
 		},
 		"taunt.breastplate.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Armor stolen. Teeth not.",
 			"where": "Door balloon after taking breastplate · line 4 of 5"
 		},
 		"taunt.breastplate.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Polish it. I collect shiny trophies.",
 			"where": "Door balloon after taking breastplate · line 5 of 5"
 		},
 		"taunt.crossbow.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My crossbow! Point it elsewhere, then give it!",
 			"where": "Door balloon after taking crossbow · line 1 of 5"
 		},
 		"taunt.crossbow.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Bolt thief. Bow stays. Holes optional.",
 			"where": "Door balloon after taking crossbow · line 2 of 5"
 		},
 		"taunt.crossbow.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You aimed MY bow in MY room. Rude.",
 			"where": "Door balloon after taking crossbow · line 3 of 5"
 		},
 		"taunt.crossbow.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Don't scratch the stock. Reclaiming soon.",
 			"where": "Door balloon after taking crossbow · line 4 of 5"
 		},
 		"taunt.crossbow.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Range on a pest. I brought more range.",
 			"where": "Door balloon after taking crossbow · line 5 of 5"
 		},
 		"taunt.da_boot.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "MY BOOT — give it!",
 			"where": "Door balloon after taking da_boot · line 1 of 5"
 		},
 		"taunt.da_boot.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You stole a boot. I stole a seat. Guess who wins.",
 			"where": "Door balloon after taking da_boot · line 2 of 5"
 		},
 		"taunt.da_boot.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "That's my size. Your foot's a suggestion.",
 			"where": "Door balloon after taking da_boot · line 3 of 5"
 		},
 		"taunt.da_boot.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Boot thief. I'm laughing. Then I'm not.",
 			"where": "Door balloon after taking da_boot · line 4 of 5"
 		},
 		"taunt.da_boot.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Keep it laced. I reclaim clean.",
 			"where": "Door balloon after taking da_boot · line 5 of 5"
 		},
 		"taunt.default.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Hey! That {item} was in MY bag!",
 			"where": "Door balloon fallback 1 of 5. {item} = loot name"
 		},
 		"taunt.default.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Put the {item} down before I make you.",
 			"where": "Door balloon fallback 2 of 5. {item} = loot name"
 		},
 		"taunt.default.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You nicked the {item}. I noticed. Bad day for you.",
 			"where": "Door balloon fallback 3 of 5. {item} = loot name"
 		},
 		"taunt.default.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Cute fingers. The {item} still has my name on it.",
 			"where": "Door balloon fallback 4 of 5. {item} = loot name"
 		},
 		"taunt.default.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Keep the {item} warm. I'm taking it off you warm.",
 			"where": "Door balloon fallback 5 of 5. {item} = loot name"
 		},
 		"taunt.fangs.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Fake teeth. Cute. I have the real set.",
 			"where": "Door balloon after taking fangs · line 1 of 5"
 		},
 		"taunt.fangs.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Teeth thief at a teeth fight. Brave. Stupid.",
 			"where": "Door balloon after taking fangs · line 2 of 5"
 		},
 		"taunt.fangs.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Those fangs are extras. I want them back.",
 			"where": "Door balloon after taking fangs · line 3 of 5"
 		},
 		"taunt.fangs.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Bite toys. Guess the target.",
 			"where": "Door balloon after taking fangs · line 4 of 5"
 		},
 		"taunt.fangs.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Hold them ready. Matching pair incoming.",
 			"where": "Door balloon after taking fangs · line 5 of 5"
 		},
 		"taunt.grimoire.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My book! Close it!",
 			"where": "Door balloon after taking grimoire · line 1 of 5"
 		},
 		"taunt.grimoire.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Homework's over, thief. Fight's on.",
 			"where": "Door balloon after taking grimoire · line 2 of 5"
 		},
 		"taunt.grimoire.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Magic pages. Sticky paws. Bad combo — for you.",
 			"where": "Door balloon after taking grimoire · line 3 of 5"
 		},
 		"taunt.grimoire.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Don't crease it. I'll still fold you.",
 			"where": "Door balloon after taking grimoire · line 4 of 5"
 		},
 		"taunt.grimoire.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "That grimoire called me. You just grabbed.",
 			"where": "Door balloon after taking grimoire · line 5 of 5"
 		},
 		"taunt.healing_potion.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My juice? Planning to live with MY juice?",
 			"where": "Door balloon after taking healing_potion · line 1 of 5"
 		},
 		"taunt.healing_potion.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Second chance stolen. I'm reclaiming it full.",
 			"where": "Door balloon after taking healing_potion · line 2 of 5"
 		},
 		"taunt.healing_potion.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Red flask. Red ending. Brand consistent.",
 			"where": "Door balloon after taking healing_potion · line 3 of 5"
 		},
 		"taunt.healing_potion.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Don't sip. I want it sealed.",
 			"where": "Door balloon after taking healing_potion · line 4 of 5"
 		},
 		"taunt.healing_potion.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Sweet steal. I'll take it off the quiet body.",
 			"where": "Door balloon after taking healing_potion · line 5 of 5"
 		},
 		"taunt.helmet.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My helmet! Wrong head!",
 			"where": "Door balloon after taking helmet · line 1 of 5"
 		},
 		"taunt.helmet.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Cover up. I'll aim anyway.",
 			"where": "Door balloon after taking helmet · line 2 of 5"
 		},
 		"taunt.helmet.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You swiped my lid. Bold. Dumb.",
 			"where": "Door balloon after taking helmet · line 3 of 5"
 		},
 		"taunt.helmet.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "That metal's mine. Your thoughts can stay.",
 			"where": "Door balloon after taking helmet · line 4 of 5"
 		},
 		"taunt.helmet.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Wear it. I'll take the rest separately.",
 			"where": "Door balloon after taking helmet · line 5 of 5"
 		},
 		"taunt.knucklers.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My brass — on YOUR fists?!",
 			"where": "Door balloon after taking knucklers · line 1 of 5"
 		},
 		"taunt.knucklers.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You want to punch me with my knuckles. Precious.",
 			"where": "Door balloon after taking knucklers · line 2 of 5"
 		},
 		"taunt.knucklers.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Those are mine. Your plan is napkin math.",
 			"where": "Door balloon after taking knucklers · line 3 of 5"
 		},
 		"taunt.knucklers.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Packed for a brawl with stolen gear. Rude.",
 			"where": "Door balloon after taking knucklers · line 4 of 5"
 		},
 		"taunt.knucklers.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Keep them warm. Reclaiming a pair.",
 			"where": "Door balloon after taking knucklers · line 5 of 5"
 		},
 		"taunt.medallion.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My luck charm — on YOU?!",
 			"where": "Door balloon after taking medallion · line 1 of 5"
 		},
 		"taunt.medallion.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Shiny thief. Short career.",
 			"where": "Door balloon after taking medallion · line 2 of 5"
 		},
 		"taunt.medallion.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "That medallion hums for me. You're noise.",
 			"where": "Door balloon after taking medallion · line 3 of 5"
 		},
 		"taunt.medallion.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Hand it over. I'll be almost polite.",
 			"where": "Door balloon after taking medallion · line 4 of 5"
 		},
 		"taunt.medallion.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Jewelry on a pest. Classic last mistake.",
 			"where": "Door balloon after taking medallion · line 5 of 5"
 		},
 		"taunt.pocketwatch.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My watch! Time's up — not poetry.",
 			"where": "Door balloon after taking pocketwatch · line 1 of 5"
 		},
 		"taunt.pocketwatch.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Tick. That's me walking. Tock. That's you not.",
 			"where": "Door balloon after taking pocketwatch · line 2 of 5"
 		},
 		"taunt.pocketwatch.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Nice steal. Time of death: pending.",
 			"where": "Door balloon after taking pocketwatch · line 3 of 5"
 		},
 		"taunt.pocketwatch.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You grabbed a clock. I grabbed a seat.",
 			"where": "Door balloon after taking pocketwatch · line 4 of 5"
 		},
 		"taunt.pocketwatch.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Stop winding. I'll stop you.",
 			"where": "Door balloon after taking pocketwatch · line 5 of 5"
 		},
 		"taunt.poison_flask.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My green vintage — spit it!",
 			"where": "Door balloon after taking poison_flask · line 1 of 5"
 		},
 		"taunt.poison_flask.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Poison thief. You first.",
 			"where": "Door balloon after taking poison_flask · line 2 of 5"
 		},
 		"taunt.poison_flask.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Don't spill. I want every drop home.",
 			"where": "Door balloon after taking poison_flask · line 3 of 5"
 		},
 		"taunt.poison_flask.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You packed my flask. I packed appetite.",
 			"where": "Door balloon after taking poison_flask · line 4 of 5"
 		},
 		"taunt.poison_flask.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Keep the symptoms. Return the bottle.",
 			"where": "Door balloon after taking poison_flask · line 5 of 5"
 		},
 		"taunt.sai.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Those prongs are mine!",
 			"where": "Door balloon after taking sai · line 1 of 5"
 		},
 		"taunt.sai.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You grabbed my Sai. Now we dance ugly.",
 			"where": "Door balloon after taking sai · line 2 of 5"
 		},
 		"taunt.sai.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Pokey thief. Pokey ending.",
 			"where": "Door balloon after taking sai · line 3 of 5"
 		},
 		"taunt.sai.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Put them down. I asked nice once.",
 			"where": "Door balloon after taking sai · line 4 of 5"
 		},
 		"taunt.sai.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Fancy steal. Still mine.",
 			"where": "Door balloon after taking sai · line 5 of 5"
 		},
 		"taunt.shield.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "That's MY shield, you little raccoon!",
 			"where": "Door balloon after taking shield · line 1 of 5"
 		},
 		"taunt.shield.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Hide behind it. I'll wait. I've waited worse.",
 			"where": "Door balloon after taking shield · line 2 of 5"
 		},
 		"taunt.shield.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Stolen wood won't save sticky fingers.",
 			"where": "Door balloon after taking shield · line 3 of 5"
 		},
 		"taunt.shield.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Nice grab. Terrible future.",
 			"where": "Door balloon after taking shield · line 4 of 5"
 		},
 		"taunt.shield.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Keep it up. Makes the pry job easier.",
 			"where": "Door balloon after taking shield · line 5 of 5"
 		},
 		"taunt.sledgehammer.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "MY hammer! Overkill theft. I approve the overkill.",
 			"where": "Door balloon after taking sledgehammer · line 1 of 5"
 		},
 		"taunt.sledgehammer.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Big tool. Small thief. Short story.",
 			"where": "Door balloon after taking sledgehammer · line 2 of 5"
 		},
 		"taunt.sledgehammer.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You dragged my sledge into my nest. Fun. Fatal.",
 			"where": "Door balloon after taking sledgehammer · line 3 of 5"
 		},
 		"taunt.sledgehammer.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Wall can keep the hole. Hammer comes home.",
 			"where": "Door balloon after taking sledgehammer · line 4 of 5"
 		},
 		"taunt.sledgehammer.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "I'll take it. Keep the headache.",
 			"where": "Door balloon after taking sledgehammer · line 5 of 5"
 		},
 		"taunt.smoke_bomb.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My smoke?! Hiding already?",
 			"where": "Door balloon after taking smoke_bomb · line 1 of 5"
 		},
 		"taunt.smoke_bomb.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Puff. Me. You — briefly.",
 			"where": "Door balloon after taking smoke_bomb · line 2 of 5"
 		},
 		"taunt.smoke_bomb.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You stole my exit. Cute. Cancelled.",
 			"where": "Door balloon after taking smoke_bomb · line 3 of 5"
 		},
 		"taunt.smoke_bomb.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "I live in the dark. Your trick's a candle.",
 			"where": "Door balloon after taking smoke_bomb · line 4 of 5"
 		},
 		"taunt.smoke_bomb.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Take the bomb. I'll find the smell.",
 			"where": "Door balloon after taking smoke_bomb · line 5 of 5"
 		},
 		"taunt.spiked_flail.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My flail! Spikes AND theft? Respect. Briefly.",
 			"where": "Door balloon after taking spiked_flail · line 1 of 5"
 		},
 		"taunt.spiked_flail.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "That goes back on my wall. You go on the floor.",
 			"where": "Door balloon after taking spiked_flail · line 2 of 5"
 		},
 		"taunt.spiked_flail.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Finally a thief with taste. Still a thief.",
 			"where": "Door balloon after taking spiked_flail · line 3 of 5"
 		},
 		"taunt.spiked_flail.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You picked the mean one. I noticed.",
 			"where": "Door balloon after taking spiked_flail · line 4 of 5"
 		},
 		"taunt.spiked_flail.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Don't name it. I already did.",
 			"where": "Door balloon after taking spiked_flail · line 5 of 5"
 		},
 		"taunt.throwing_knife.1": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "My knife?! Spit it out!",
 			"where": "Door balloon after taking throwing_knife · line 1 of 5"
 		},
 		"taunt.throwing_knife.2": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "You steal a blade and smile? I'm smiling next.",
 			"where": "Door balloon after taking throwing_knife · line 2 of 5"
 		},
 		"taunt.throwing_knife.3": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "That knife leaves with me. Fingers optional.",
 			"where": "Door balloon after taking throwing_knife · line 3 of 5"
 		},
 		"taunt.throwing_knife.4": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "One knife. Two claimants. Do the math, pest.",
 			"where": "Door balloon after taking throwing_knife · line 4 of 5"
 		},
 		"taunt.throwing_knife.5": {
 			"cat": "Taunts",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Don't throw it. I want it back unbent.",
 			"where": "Door balloon after taking throwing_knife · line 5 of 5"
 		},
 		"title.adventure": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Challenge Mode",
 			"where": "Title + pause button"
 		},
 		"title.adventure_win": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-07",
 			"text": "Victory",
 			"where": "Adventure victory headline"
 		},
 		"title.again": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-07",
 			"text": "Again",
 			"where": "Victory / defeat button"
 		},
 		"title.begin": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Adventure Mode",
 			"where": "Title + pause button"
 		},
 		"title.continue": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Delve Deeper",
 			"where": "Between-dungeon Continue"
 		},
 		"title.dive_in": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Quick Start",
 			"where": "Title + pause button"
 		},
 		"title.dungeons_cleared": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "{n} Dungeons Cleared!",
 			"where": "Adventure tally"
 		},
 		"title.how_to_play": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "How to Play",
 			"where": "Title + pause button"
 		},
 		"title.leave": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Exit",
 			"where": "Between-dungeon Leave"
 		},
 		"title.lose": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Defeated",
 			"where": "Defeat headline"
 		},
 		"title.lose_sub": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-07",
 			"text": "Thievery never pays. Or rather, it pays in trouble.",
 			"where": "Defeat subtitle"
 		},
 		"title.overlay": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "{game_title}",
 			"where": "Title parchment headline"
 		},
 		"title.rest": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "On to the next haul.",
 			"where": "Between-dungeon headline"
 		},
 		"title.rest_sub": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "So you've cleared {n} Dungeons. Better hold on to that loot — you'll need it in the next one.",
 			"where": "Between-dungeon subtitle"
 		},
 		"title.sub": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-20",
 			"text": "Use it, Lose it, or Lose your head",
 			"where": "Title parchment subtitle"
 		},
 		"title.win": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
-			"text": "Victory! You made it out - now time to check out Grandpa's trophy collection back at the Cabin.",
+			"locked_at": "2026-10-28",
+			"text": "Victory! You made it out - now time to check out {grandpa|poss} trophy collection back at the Cabin.",
 			"where": "Victory headline"
 		},
 		"title.win_sub": {
 			"cat": "Title",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-10",
 			"text": "Now I just need a place to store this stuff.",
 			"where": "Victory subtitle"
 		},
-		"tutorial.beat.01.body": {
+		"tutorial.line.001": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Hey there, greedy goblin. I'm {nib}. I was just in the middle of enjoying my nap when you had to barge into this dungeon and start swiping loot left n' right!\n(Click 'next' to continue)\nWell, now you've gone and done it — the monsters are coming to claim their stuff, and you're going to have to defend yourself with that loot or else die in this strange catacomb.\n(Click 'next' to continue)\n(Highlights dungeon wheel)\nWelcome to the Merry Go' Round of doom — a series of circular catacombs that rotate around this particular spot. Don't ask me why, the architect of this dungeon doesn't like answering questions.\n(Click 'next' to continue)\n(Highlights single empty slice of dungeon wheel)\nThis is a Corridor — there are 8 in total. Monsters will pop into these slots as they line up to clean your clock and take your junk.\n(Click 'next' to continue)\n(Highlights player hotbar)\nThis is your loot. Looks like you started off with some basic loot for this tutorial, but you'll find lots of fancy weapons and armor out here.\n(Click 'next' to continue)\n(Sprite of {nib} comes very close to the player, nearly covering 80% of the screen)\nYour mission...\n(Click to continue)\n(Comes closer)\n...is to get out of the dungeon with as much loot as possible.\n(Returns to his original position)\n...Got it?\n(Click 'Got It' to continue)\nOkay, let me show you how things work a'ROUND these parts.\n(Click 'next' to continue)\n(in very tiny text, in italics parentheses) — (y'know, cause of the round dungeon...)\n(Click to continue)\n(Highlight the healthbar)\nYou have 6 health (HP). You can never have more than 6. If it reaches 0 at any point, you're dead.\n(Click to continue)\nWhen you complete a Dungeon (clear out this wheel), you will heal back to full HP. Spend your HP wisely.\n(Click to continue)\nAlright, that's enough. Let's learn the rest as we go. Click Spin. The wheel picks a monster at random. You don't choose who stops in front of you. I'll show you Moves in a minute — that's how you walk to someone. Until then, Spin is a roll.\n(Click Spin)\n---(If the wheel landed on the Wizard)---\nAhh, a crotchety ol' wizard, eh?\n(Click to continue)\n(Highlights Wizard's Attack icon)\nHe looks pretty scary — 5 Attack would nearly kill you in one strike.\n(Click to continue)\n(Highlights Wizard's HP icon)\n...but he's also super frail. Most weapons will kill him before he gets to strike.\n(Click to continue)\n(Highlights the Sai)\nUse the Sai. It will kill him and end the fight.\n(Click the Sai to use it, resolving combat as normal)\n---(If the wheel landed on the Golem)---\nThis Golem is much harder to kill, so block him.\n(Click to continue)\n(Highlights Block icon on the character)\nBlock is temporary for the current fight. It goes away whenever you Spin the Dungeon. If you Block an enemy, they are also Defeated.\n(Click to continue)\n(Highlights the Helmet)\nOkay, let's use the Helmet and Block this incoming attack.\n(Click the Helmet)\n(Highlights the 'Safe' button)\nSince you are safe, you can click 'Safe' to end the fight.\n(Click 'Safe' and resolve the combat)\n---(If the wheel landed on the Goblin)---\nAww, look at this little guy! He is so cute...but he also has an ability.\n(Click to continue)\n(Highlight on the Monster card)\nHover any monster to learn their ability, just like items.\n(When the user hovers)\nAw, Goblins are 'Evasive', so they cannot take Attack damage!\n(Click to continue)\n(Highlight 'The Boot' in the hotbar)\nThe Boot Defeats him if you have more HP than he does. Or take the hit and keep the Boot.\n(The player will click on either The Boot or 'Take 3'. Either will resolve the combat)\n---JOINS TOGETHER---\nThe dungeon deck had one card left, and it just walked into that seat. Say hello to the Bandit.\n(Highlights the dungeon deck)\n(Click to continue)\nLoot matches the monster who walked in, not the one you dropped. He was the last card in the deck, so this payout is the last one. The next death pays nothing.\n(Take the Shuriken)\n---(If the Golem is still waiting)---\nThe Spin you pressed was random. This next one I turn myself, and I stop it on the Golem so you can see Block.\n(Click to continue)\n(Only NOW does the wheel Spin, and will now land on Golem)\nInteresting...this Golem is much harder to kill, so you'd usually want to block this.\n(Click to continue)\n(Highlights Block icon on the character)\nBlock is temporary for the current fight. It goes away whenever you Spin the Dungeon.\n(Click to continue)\nBut I've got good news — if you Block an enemy, they are also Defeated.\n(Click to continue)\n({nib} gets 50% closer to the viewer, 'leaning' in)\nI guess they just...run out of time to kill you, I guess? Not sure, this Dungeon is kinda weird.\n(Click to continue)\n({nib} returns to his position)\n(Highlights the Helmet item in the hotbar)\nAnyway, look at the Helmet, since this item has a unique ability.\n(Click to continue)\nHover any item to see its details at a glance.\n(Click to continue)\n(Highlights the detail view panel to the right)\nLooks like the Helmet's Block is based on whichever HP is lower between you and your Enemy.\n(Click to continue)\n(Highlight both player HP and the Golem's HP)\nIn this case, the lower number is your HP.\n(Click to continue)\nIf your HP were the lower number, this Helmet would pillow less. That's the whole trick.\n(Click to continue)\nItems change all the time based on circumstances. Your job is to juggle your loot to maximize their effectiveness against the unique enemies in the dungeon.\n(Click to continue)\n(Highlights the Helmet again)\nOkay, let's use the Helmet and Block this incoming attack.\n(Click the Helmet)\n(Highlights the 'Safe' button)\nThis button will always show you how much HP you are going to lose if you end the fight now.\n(Click to continue)\nSince you are safe, you can click 'Safe' to end the fight.\n(Click 'Safe' and resolve the combat)\n---JOINS TOGETHER---\nThe deck was already empty, so that seat just closed. No new monster. No loot. You finish a dungeon like that on whatever you are still holding.\n(Highlights the dungeon deck)\n(Click to continue)\nYou get three Moves for a dungeon. The feet on the wheel. A Move walks you to the next living monster. It does not Spin.\n(Click to continue)\nHold on. I'll turn you to the Bandit so you can try a Move. That turn is not a Spin you pressed.\n(Turn to the Bandit)\nThe Cube is beside him. Spin onto that Cube and it eats one of your items. This arrow walks you there. Your items stay in your hand.\n(Click that Move arrow)\nIt did not eat a thing. That spent one Move. Two are left, and they do not come back this dungeon.\n(Click to continue)\nThis Sai is already showing 4. That drops the Cube.\n(Click the Sai)\nCube's down. The Shuriken walks you without spending a Move, then it hits.\n(Click the Shuriken)\nThat walk was free. The Bandit had 3 health, so he dropped.\n(Click to continue)\n---(If the Goblin is still waiting)---\nThere's one final type of item. Click Spin. I'll park this one on the Goblin so you can read his ability.\n(Click Spin onto the Goblin)\nAww, look at this little guy! He is so cute...but he also has an ability.\n(Click to continue)\n(Highlight on the Monster card)\nHover any monster to learn their ability, just like items.\n(When the user hovers)\nAw, Goblins are 'Evasive', so they cannot take Attack damage! Looks like our Knucklers would be wasted here.\n(Click to continue)\n(Highlight 'The Boot' in the hotbar)\nBut wait...this item is a Special Item. It doesn't Attack or Block. Take a look.\n(When the user hovers)\nThis item allows you to instantly Defeat an Enemy if you have more HP than them!\n(Click to continue)\nThat's a good item...\n(Click to continue)\n({nib} moves close to the viewer)\n...but are you sure you want to use it?\n(Click to continue)\n({nib} returns)\nSo far you've lost zero HP in this dungeon, but remember — each time you clear a Dungeon, you heal back to full.\n(Click to continue)\nAND you get to keep all of the Loot that you didn't use in this dungeon. Pretty sweet, huh?\n(Click to continue)\nSo I'll give you a choice. You can use The Boot and get the sweet satisfaction of stomping this Goblin into the dirt...\n(Click to continue)\n...Orrrr you can let him slice you up, and keep it. The choice is yours.\n(The player will click on either The Boot or 'Take 3'. Either will resolve the combat)\n\n---(If the player chose 'The Boot', after combat resolves)---\nHonestly, I respect it. Those Goblins are super annoying, so here's a tip:\n(Click to continue)\nIf you see one in your upcoming Dungeon, you should always hold onto a Block or Defeat item to avoid that damage.\n(Click to continue)\nYou won't always have a Boot, after all.\n(Click to continue — joins back with standard dialogue)\n---(If the player chose to 'Take 3')---\nOuch — hurts, doesn't it?\n(Click to continue)\nWell the next time that Boot saves you from death in a future Dungeon, you'll be glad you let that little rascal nick you for 3.\n(Click to continue)\nI'm sure you can tell, but I'll give you a tip straight from the source:\n(Click to continue)\nSpend your HP like it was made of gold. Sometimes it will be correct to drop to 1 HP — you'll find Items that reward you for losing HP — we call that Bleeding.\n(Click to continue — joins back with standard dialogue)\n---JOINS TOGETHER\nYou made it through the practice wheel.\n(Click to continue)\nDeeper in, a death pulls the next monster out of the deck, and the loot matches whoever walked in. The monster who uses the last card still pays you. Once the deck is empty, the seat closes and you get no more loot. You live on what you are holding.\n(Click to continue)\nCome back. Each dungeon you finish, new monsters and new loot join in. The deeper you go, the stranger they get.\n(Click to continue)\n(Animates {nib} 'walking off' to the right)\n(vignette background, only buttons below are 'Main Menu' and 'Play')",
-			"where": "How to Play step 1 · continue / (none) · main line"
+			"locked_at": "2026-10-28",
+			"text": "Hey there, greedy goblin. I'm {nib}. I was just in the middle of enjoying my nap when you had to barge into this dungeon and start swiping loot left n' right!",
+			"where": "Opening · continue / (none) · Nib line"
 		},
-		"tutorial.beat.01.go": {
+		"tutorial.line.002": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "I'm in",
-			"where": "How to Play step 1 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "Well, now you've gone and done it — the monsters are coming to claim their stuff, and you're going to have to defend yourself with that loot or else die in this strange catacomb.",
+			"where": "Opening · continue / (none) · Nib line"
 		},
-		"tutorial.beat.01.hint": {
+		"tutorial.line.003": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
+			"text": "Welcome to the Merry Go' Round of doom — a series of circular catacombs that rotate around this particular spot. Don't ask me why, the architect of this dungeon doesn't like answering questions.",
+			"where": "Opening · continue / wheel · Nib line"
+		},
+		"tutorial.line.004": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "This is a Corridor — there are 8 in total. Monsters will pop into these slots as they line up to clean your clock and take your junk.",
+			"where": "Opening · continue / empty · Nib line"
+		},
+		"tutorial.line.005": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "This is your loot. Looks like you started off with some basic loot for this tutorial, but you'll find lots of fancy weapons and armor out here.",
+			"where": "Opening · continue / hotbar · Nib line"
+		},
+		"tutorial.line.006": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Your mission...",
+			"where": "Opening · continue / (none) · Nib line"
+		},
+		"tutorial.line.007": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "...is to get out of the dungeon with as much loot as possible.\n...Got it?",
+			"where": "Opening · continue / (none) · Nib line"
+		},
+		"tutorial.line.008": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Okay, let me show you how things work a'ROUND these parts.",
+			"where": "Opening · continue / (none) · Nib line"
+		},
+		"tutorial.line.009": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "(y'know, cause of the round dungeon...)",
+			"where": "Opening · continue / (none) · Nib line"
+		},
+		"tutorial.line.010": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "You have 6 health (HP). You can never have more than 6. If it reaches 0 at any point, you're dead.",
+			"where": "Opening · continue / hearts · Nib line"
+		},
+		"tutorial.line.011": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "When you complete a Dungeon (clear out this wheel), you will heal back to full HP. Spend your HP wisely.",
+			"where": "Opening · continue / (none) · Nib line"
+		},
+		"tutorial.line.012": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Alright, that's enough. Let's learn the rest as we go. Click Spin. The wheel picks a monster at random. You don't choose who stops in front of you. I'll show you Moves in a minute — that's how you walk to someone. Until then, Spin is a roll.",
+			"where": "Opening · spin / spin · Nib line"
+		},
+		"tutorial.line.013": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Ahh, a crotchety ol' wizard, eh?",
+			"where": "If the wheel landed on Wizard · continue / (none) · Nib line"
+		},
+		"tutorial.line.014": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "He looks pretty scary — 5 Attack would nearly kill you in one strike.",
+			"where": "If the wheel landed on Wizard · continue / atk · Nib line"
+		},
+		"tutorial.line.015": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "...but he's also super frail. Most weapons will kill him before he gets to strike.",
+			"where": "If the wheel landed on Wizard · continue / hp · Nib line"
+		},
+		"tutorial.line.016": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Use the Sai. It will kill him and end the fight.",
+			"where": "If the wheel landed on Wizard · item:sai / item:sai · Nib line"
+		},
+		"tutorial.line.017": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "This Golem is much harder to kill, so block him.",
+			"where": "If the wheel landed on Golem · continue / (none) · Nib line"
+		},
+		"tutorial.line.018": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Block is temporary for the current fight. It goes away whenever you Spin the Dungeon. If you Block an enemy, they are also Defeated.",
+			"where": "If the wheel landed on Golem · continue / block · Nib line"
+		},
+		"tutorial.line.019": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Okay, let's use the Helmet and Block this incoming attack.",
+			"where": "If the wheel landed on Golem · item:helmet / item:helmet · Nib line"
+		},
+		"tutorial.line.020": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Since you are safe, you can click 'Safe' to end the fight.",
+			"where": "If the wheel landed on Golem · done / done · Nib line"
+		},
+		"tutorial.line.021": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Aww, look at this little guy! He is so cute...but he also has an ability.",
+			"where": "If the wheel landed on Goblin · continue / (none) · Nib line"
+		},
+		"tutorial.line.022": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Hover any monster to learn their ability, just like items.",
+			"where": "If the wheel landed on Goblin · hover_shift / wheel · Nib line"
+		},
+		"tutorial.line.023": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Aw, Goblins are 'Evasive', so they cannot take Attack damage!",
+			"where": "If the wheel landed on Goblin · continue / (none) · Nib line"
+		},
+		"tutorial.line.024": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "The Boot Defeats him if you have more HP than he does. Or take the hit and keep the Boot.",
+			"where": "If the wheel landed on Goblin · choice / item:da_boot · Nib line"
+		},
+		"tutorial.line.025": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "The dungeon deck had one card left, and it just walked into that seat. Say hello to the Bandit.",
+			"where": "After the fight · continue / deck · Nib line"
+		},
+		"tutorial.line.026": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "Loot matches the monster who walked in, not the one you dropped. He was the last card in the deck, so this payout is the last one. The next death pays nothing.",
+			"where": "After the fight · draft:shuriken / draft · Nib line"
+		},
+		"tutorial.line.027": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
+			"text": "The Spin you pressed was random. This next one I turn myself, and I stop it on the Golem so you can see Block.",
+			"where": "If Golem is still waiting · continue / (none) · Nib line"
+		},
+		"tutorial.line.028": {
+			"cat": "Tutorial",
+			"locked_at": "2026-10-28",
 			"text": "",
-			"where": "How to Play step 1 · gold hint"
+			"where": "If Golem is still waiting · auto_spin / spin · Nib line"
 		},
-		"tutorial.beat.02.body": {
+		"tutorial.line.029": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Round room. Eight alcoves. The floor turns — whoever stops in front of you gets a swing. I parked a Golem, a Wizard, and a Berserker. Follow my finger.",
-			"where": "How to Play step 2 · continue / wheel · main line"
+			"locked_at": "2026-10-28",
+			"text": "Interesting...this Golem is much harder to kill, so you'd usually want to block this.",
+			"where": "If Golem is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.02.go": {
+		"tutorial.line.030": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Show me",
-			"where": "How to Play step 2 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "Block is temporary for the current fight. It goes away whenever you Spin the Dungeon.",
+			"where": "If Golem is still waiting · continue / block · Nib line"
 		},
-		"tutorial.beat.02.hint": {
+		"tutorial.line.031": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 2 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "But I've got good news — if you Block an enemy, they are also Defeated.",
+			"where": "If Golem is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.03.body": {
+		"tutorial.line.032": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Those hearts are your pulse. Zero means they pry the loot off you. One heart left still counts. Pretty leftovers don't.",
-			"where": "How to Play step 3 · continue / hearts · main line"
+			"locked_at": "2026-10-28",
+			"text": "I guess they just...run out of time to kill you, I guess? Not sure, this Dungeon is kinda weird.",
+			"where": "If Golem is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.03.go": {
+		"tutorial.line.033": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Got it",
-			"where": "How to Play step 3 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "Anyway, look at the Helmet, since this item has a unique ability.",
+			"where": "If Golem is still waiting · continue / item:helmet · Nib line"
 		},
-		"tutorial.beat.03.hint": {
+		"tutorial.line.034": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 3 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "Hover any item to see its details at a glance.",
+			"where": "If Golem is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.04.body": {
+		"tutorial.line.035": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Stolen goods sit along the bottom. Hover a card. Hold Shift if you want the ugly math instead of the big number.",
-			"where": "How to Play step 4 · hover_item / hotbar · main line"
+			"locked_at": "2026-10-28",
+			"text": "Looks like the Helmet's Block is based on whichever HP is lower between you and your Enemy.",
+			"where": "If Golem is still waiting · continue / inspect · Nib line"
 		},
-		"tutorial.beat.04.go": {
+		"tutorial.line.036": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 4 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "In this case, the lower number is your HP.",
+			"where": "If Golem is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.04.hint": {
+		"tutorial.line.037": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "(hover any item)",
-			"where": "How to Play step 4 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "If your HP were the lower number, this Helmet would pillow less. That's the whole trick.",
+			"where": "If Golem is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.05.body": {
+		"tutorial.line.038": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Helmet's number breathes with your health — ignore it for now. Shield is the soft landing. Flail gets hungrier if you bleed. Boot's the dirty trick. Don't ask how I got it.",
-			"where": "How to Play step 5 · continue / item:helmet · main line"
+			"locked_at": "2026-10-28",
+			"text": "Items change all the time based on circumstances. Your job is to juggle your loot to maximize their effectiveness against the unique enemies in the dungeon.",
+			"where": "If Golem is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.05.go": {
+		"tutorial.line.039": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Fine",
-			"where": "How to Play step 5 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "Okay, let's use the Helmet and Block this incoming attack.",
+			"where": "If Golem is still waiting · item:helmet / item:helmet · Nib line"
 		},
-		"tutorial.beat.05.hint": {
+		"tutorial.line.040": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 5 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "This button will always show you how much HP you are going to lose if you end the fight now.",
+			"where": "If Golem is still waiting · continue / done · Nib line"
 		},
-		"tutorial.beat.06.body": {
+		"tutorial.line.041": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Hit Spin. I'll cheat the Golem into place. Big. Slow. Hits for three.",
-			"where": "How to Play step 6 · spin / spin · main line"
+			"locked_at": "2026-10-28",
+			"text": "Since you are safe, you can click 'Safe' to end the fight.",
+			"where": "If Golem is still waiting · done / done · Nib line"
 		},
-		"tutorial.beat.06.go": {
+		"tutorial.line.042": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 6 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "The deck was already empty, so that seat just closed. No new monster. No loot. You finish a dungeon like that on whatever you are still holding.",
+			"where": "After the fight · continue / deck · Nib line"
 		},
-		"tutorial.beat.06.hint": {
+		"tutorial.line.043": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "(click Spin)",
-			"where": "How to Play step 6 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "You get three Moves for a dungeon. The feet on the wheel. A Move walks you to the next living monster. It does not Spin.",
+			"where": "After the fight · continue / (none) · Nib line"
 		},
-		"tutorial.beat.07.body": {
+		"tutorial.line.044": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Three coming in. Shield gives four. Tap the Shield before you eat the knuckles.",
-			"where": "How to Play step 7 · item:shield / item:shield · main line"
+			"locked_at": "2026-10-28",
+			"text": "Hold on. I'll turn you to the Bandit so you can try a Move. That turn is not a Spin you pressed.",
+			"where": "After the fight · face / wheel · Nib line"
 		},
-		"tutorial.beat.07.go": {
+		"tutorial.line.045": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 7 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "The Cube is beside him. Spin onto that Cube and it eats one of your items. This arrow walks you there. Your items stay in your hand.",
+			"where": "After the fight · move / move_arrow · Nib line"
 		},
-		"tutorial.beat.07.hint": {
+		"tutorial.line.046": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "(click Shield)",
-			"where": "How to Play step 7 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "It did not eat a thing. That spent one Move. Two are left, and they do not come back this dungeon.",
+			"where": "After the fight · continue / (none) · Nib line"
 		},
-		"tutorial.beat.08.body": {
+		"tutorial.line.047": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Gold in the middle is Block — a pillow for this scrap only. Fight ends, pillow vanishes. Hearts stick around. That's the deal.",
-			"where": "How to Play step 8 · continue / wheel · main line"
+			"locked_at": "2026-10-28",
+			"text": "This Sai is already showing 4. That drops the Cube.",
+			"where": "After the fight · item:sai / item:sai · Nib line"
 		},
-		"tutorial.beat.08.go": {
+		"tutorial.line.048": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "OK",
-			"where": "How to Play step 8 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "Cube's down. The Shuriken walks you without spending a Move, then it hits.",
+			"where": "After the fight · item:shuriken / item:shuriken · Nib line"
 		},
-		"tutorial.beat.08.hint": {
+		"tutorial.line.049": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 8 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "That walk was free. The Bandit had 3 health, so he dropped.",
+			"where": "After the fight · continue / (none) · Nib line"
 		},
-		"tutorial.beat.09.body": {
+		"tutorial.line.050": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Button says Safe because you covered it. Click it. If a heart had cracked, we'd still walk — breathing is the scoreboard.",
-			"where": "How to Play step 9 · done / done · main line"
+			"locked_at": "2026-10-28",
+			"text": "There's one final type of item. Click Spin. I'll park this one on the Goblin so you can read his ability.",
+			"where": "If Goblin is still waiting · spin / spin · Nib line"
 		},
-		"tutorial.beat.09.go": {
+		"tutorial.line.051": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 9 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "Aww, look at this little guy! He is so cute...but he also has an ability.",
+			"where": "If Goblin is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.09.hint": {
+		"tutorial.line.052": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "(click Safe)",
-			"where": "How to Play step 9 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "Hover any monster to learn their ability, just like items.",
+			"where": "If Goblin is still waiting · hover_shift / wheel · Nib line"
 		},
-		"tutorial.beat.10.body": {
+		"tutorial.line.053": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Pillow's gone. You're not. That skull plaque is your tally — Flail's watching it too. Two monsters left who want their stuff.",
-			"where": "How to Play step 10 · continue / trophy · main line"
+			"locked_at": "2026-10-28",
+			"text": "Aw, Goblins are 'Evasive', so they cannot take Attack damage! Looks like our Knucklers would be wasted here.",
+			"where": "If Goblin is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.10.go": {
+		"tutorial.line.054": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Spin when ready",
-			"where": "How to Play step 10 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "But wait...this item is a Special Item. It doesn't Attack or Block. Take a look.",
+			"where": "If Goblin is still waiting · hover_shift / wheel · Nib line"
 		},
-		"tutorial.beat.10.hint": {
+		"tutorial.line.055": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 10 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "This item allows you to instantly Defeat an Enemy if you have more HP than them!",
+			"where": "If Goblin is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.11.body": {
+		"tutorial.line.056": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Spin. Wizard this time. Don't open your mouth for whatever they're cooking.",
-			"where": "How to Play step 11 · spin / spin · main line"
+			"locked_at": "2026-10-28",
+			"text": "That's a good item...",
+			"where": "If Goblin is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.11.go": {
+		"tutorial.line.057": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 11 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "...but are you sure you want to use it?",
+			"where": "If Goblin is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.11.hint": {
+		"tutorial.line.058": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "(click Spin)",
-			"where": "How to Play step 11 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "So far you've lost zero HP in this dungeon, but remember — each time you clear a Dungeon, you heal back to full.",
+			"where": "If Goblin is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.12.body": {
+		"tutorial.line.059": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Five attack, two health. You could pillow up and still get nicked — or end it. Click the Boot. Less health than you? Fight's over. They don't get a speech.",
-			"where": "How to Play step 12 · item:da_boot / item:da_boot · main line"
+			"locked_at": "2026-10-28",
+			"text": "AND you get to keep all of the Loot that you didn't use in this dungeon. Pretty sweet, huh?",
+			"where": "If Goblin is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.12.go": {
+		"tutorial.line.060": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 12 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "So I'll give you a choice. You can use The Boot and get the sweet satisfaction of stomping this Goblin into the dirt...",
+			"where": "If Goblin is still waiting · continue / (none) · Nib line"
 		},
-		"tutorial.beat.12.hint": {
+		"tutorial.line.061": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "(click the Boot)",
-			"where": "How to Play step 12 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "...Orrrr you can let him slice you up, and keep it. The choice is yours.",
+			"where": "If Goblin is still waiting · choice / item:da_boot · Nib line"
 		},
-		"tutorial.beat.13.body": {
+		"tutorial.line.062": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "That's the other door out of a fight: finish the fragile ones. Flail only fattens when you bleed — you didn't, so it's still a 2. Helmet pillows the last brat.",
-			"where": "How to Play step 13 · continue / item:helmet · main line"
+			"locked_at": "2026-10-28",
+			"text": "Honestly, I respect it. Those Goblins are super annoying, so here's a tip:",
+			"where": "If they used The Boot · continue / (none) · Nib line"
 		},
-		"tutorial.beat.13.go": {
+		"tutorial.line.063": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Got it",
-			"where": "How to Play step 13 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "If you see one in your upcoming Dungeon, you should always hold onto a Block or Defeat item to avoid that damage.",
+			"where": "If they used The Boot · continue / (none) · Nib line"
 		},
-		"tutorial.beat.13.hint": {
+		"tutorial.line.064": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 13 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "You won't always have a Boot, after all.",
+			"where": "If they used The Boot · continue / (none) · Nib line"
 		},
-		"tutorial.beat.14.body": {
+		"tutorial.line.065": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Last alcove. Hover them. Monsters brag if you listen. This one gets louder every time you win. Charming.",
-			"where": "How to Play step 14 · hover_slice:berserker / wheel · main line"
+			"locked_at": "2026-10-28",
+			"text": "Ouch — hurts, doesn't it?",
+			"where": "If they took the hit · continue / (none) · Nib line"
 		},
-		"tutorial.beat.14.go": {
+		"tutorial.line.066": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 14 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "Well the next time that Boot saves you from death in a future Dungeon, you'll be glad you let that little rascal nick you for 3.",
+			"where": "If they took the hit · continue / (none) · Nib line"
 		},
-		"tutorial.beat.14.hint": {
+		"tutorial.line.067": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "(hover the Berserker)",
-			"where": "How to Play step 14 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "I'm sure you can tell, but I'll give you a tip straight from the source:",
+			"where": "If they took the hit · continue / (none) · Nib line"
 		},
-		"tutorial.beat.15.body": {
+		"tutorial.line.068": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Spin. Berserker hits three. Helmet matches the smaller health bar — yours or theirs.",
-			"where": "How to Play step 15 · spin / spin · main line"
+			"locked_at": "2026-10-28",
+			"text": "Spend your HP like it was made of gold. Sometimes it will be correct to drop to 1 HP — you'll find Items that reward you for losing HP — we call that Bleeding.",
+			"where": "If they took the hit · continue / (none) · Nib line"
 		},
-		"tutorial.beat.15.go": {
+		"tutorial.line.069": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 15 · continue button"
+			"locked_at": "2026-10-28",
+			"text": "You made it through the practice wheel.",
+			"where": "After the fight · continue / (none) · Nib line"
 		},
-		"tutorial.beat.15.hint": {
+		"tutorial.line.070": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "(click Spin)",
-			"where": "How to Play step 15 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "Deeper in, a death pulls the next monster out of the deck, and the loot matches whoever walked in. The monster who uses the last card still pays you. Once the deck is empty, the seat closes and you get no more loot. You live on what you are holding.",
+			"where": "After the fight · continue / (none) · Nib line"
 		},
-		"tutorial.beat.16.body": {
+		"tutorial.line.071": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Helmet. Now. Four block into three attack. Do the math with your fingers if you have to.",
-			"where": "How to Play step 16 · item:helmet / item:helmet · main line"
-		},
-		"tutorial.beat.16.go": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 16 · continue button"
-		},
-		"tutorial.beat.16.hint": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "(click Helmet)",
-			"where": "How to Play step 16 · gold hint"
-		},
-		"tutorial.beat.17.body": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "Safe. Pillow dumps. Hearts stay. That's how a thief keeps a pile.",
-			"where": "How to Play step 17 · done / done · main line"
-		},
-		"tutorial.beat.17.go": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 17 · continue button"
-		},
-		"tutorial.beat.17.hint": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "(click Safe)",
-			"where": "How to Play step 17 · gold hint"
-		},
-		"tutorial.beat.18.body": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "You're still breathing. I still want my cut. Quick Start is the real room — I don't steer, and eight monsters show up hungry. Try not to scream for me.",
-			"where": "How to Play step 18 · continue / (none) · main line"
-		},
-		"tutorial.beat.18.go": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "I'm good",
-			"where": "How to Play step 18 · continue button"
-		},
-		"tutorial.beat.18.hint": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
-			"text": "",
-			"where": "How to Play step 18 · gold hint"
+			"locked_at": "2026-10-28",
+			"text": "Come back. Each dungeon you finish, new monsters and new loot join in. The deeper you go, the stranger they get.",
+			"where": "After the fight · continue / (none) · Nib line"
 		},
 		"tutorial.nudge_item": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Click the highlighted thing — not that one.",
 			"where": "Wrong item during How to Play"
 		},
 		"tutorial.nudge_wait": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Hey — finish this first.",
 			"where": "Wrong click during How to Play"
 		},
 		"tutorial.skip": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Skip",
 			"where": "How to Play skip button"
 		},
 		"tutorial.speaker": {
 			"cat": "Tutorial",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "{nib}",
 			"where": "Talk box name"
 		},
 		"warn.boot": {
 			"cat": "Warns",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Can't — they're as healthy as you, or healthier.",
 			"where": "the Boot cannot fire"
 		},
 		"warn.crossbow": {
 			"cat": "Warns",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-07",
 			"text": "Can't — no soft neighbor who can take a bolt.",
 			"where": "Crossbow cannot fire"
 		},
 		"warn.neighbor": {
 			"cat": "Warns",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Can't — nobody next door.",
 			"where": "Bracers / Pocketwatch no neighbor"
 		},
 		"warn.poison": {
 			"cat": "Warns",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Can't — no neighbor to spike.",
 			"where": "Poison Flask cannot fire"
 		},
 		"warn.sledge": {
 			"cat": "Warns",
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-10-28",
 			"text": "Can't — they don't hit hard enough.",
 			"where": "Sledgehammer cannot fire"
 		},
 		"warn.spent": {
 			"cat": "Warns",
-			"locked_at": "2026-10-25",
-			"text": "Already spent this scrap.",
+			"locked_at": "2026-10-28",
+			"text": "Already used until.",
 			"where": "Used item this fight"
-		},
-		"cabin.hot.run_door": {
-			"cat": "Cabin",
-			"where": "Hover label for the painted main-room run door (hall path)",
-			"text": "Toward the Outpost",
-			"locked_at": "2026-10-28"
-		},
-		"cabin.hot.door_outpost": {
-			"cat": "Cabin",
-			"where": "Hover label for Hall → Outpost right door",
-			"text": "Outpost",
-			"locked_at": "2026-10-28"
-		},
-		"cabin.hot.back_hall": {
-			"cat": "Playtest",
-			"where": "Outpost back door hover → Trophy Hall",
-			"text": "Trophy Hall",
-			"locked_at": "2026-10-28"
-		},
-		"cabin.hall.sign_outpost": {
-			"cat": "Cabin",
-			"where": "Hall Outpost door sign (replaces hidden SignStudy art)",
-			"text": "To the Outpost",
-			"locked_at": "2026-10-28"
 		}
 	},
 	"updated": "2026-10-28"
