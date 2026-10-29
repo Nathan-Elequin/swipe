@@ -1,6 +1,6 @@
 ---
 id: REQ-20261029-living-map-fix
-status: open
+status: done
 priority: high
 pr: 184
 tip_sha: abdd0724

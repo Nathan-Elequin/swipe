@@ -1,6 +1,6 @@
 ---
 id: REQ-20261029-biome-quiet-bg-fix
-status: open
+status: done
 priority: high
 branch: cursor/biome-quiet-bg-fix-94e8
 base: playtest/latest

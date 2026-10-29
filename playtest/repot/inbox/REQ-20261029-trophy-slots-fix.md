@@ -1,6 +1,6 @@
 ---
 id: REQ-20261029-trophy-slots-fix
-status: open
+status: done
 priority: high
 pr: 182
 tip_sha: 71aa010d
