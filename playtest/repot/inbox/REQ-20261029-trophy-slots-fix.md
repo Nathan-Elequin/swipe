@@ -3,7 +3,7 @@ id: REQ-20261029-trophy-slots-fix
 status: open
 priority: high
 pr: 182
-tip_sha: 308f7e4f
+tip_sha: 26e1b1e5
 branch: cursor/trophy-slots-fix-fb86
 created: 2026-10-29T17:45:00Z
 created_by: cursor-cloud
