@@ -75,6 +75,8 @@ var _music_cfg: Dictionary = {}
 var audio_log: Array = []
 var _watch_s: float = 0.0
 var _last_logged_playing: bool = false
+var _music_hold: Dictionary = {}
+var _music_seq: int = 0
 
 
 func setup() -> void:
@@ -1038,11 +1040,69 @@ func music_victory() -> void:
 	)
 
 
+func music_hold_for_undo() -> void:
+	_music_hold = {
+		"bed": String(_current_bed),
+		"pos": music.get_playback_position() if music != null else 0.0,
+		"dungeon_bed": String(_dungeon_bed),
+		"state": String(music_state),
+		"drums": _forge_drums,
+		"heat": _forge_heat,
+	}
+
+
+func music_resume_held(want_combat: bool = true) -> void:
+	_music_seq += 1
+	_cue_duck = 0.0
+	_between_duck = 0.0
+	_mix_duck(0.2)
+	if _music_hold.is_empty():
+		set_combat_music(want_combat)
+		return
+	var bed_id: String = str(_music_hold.get("bed", ""))
+	var pos: float = float(_music_hold.get("pos", 0.0))
+	_dungeon_bed = StringName(str(_music_hold.get("dungeon_bed", "")))
+	var same_bed: bool = _current_bed == StringName(bed_id) and music != null and music.playing and bed_id != "" and bed_id != "title"
+	if same_bed:
+		music_state = StringName(str(_music_hold.get("state", "combat")))
+		_restore_held_layers(want_combat, pos)
+		log_audio("start", "resume_held_same", {"bed": bed_id})
+		return
+	if bed_id != "" and _beds.has(bed_id):
+		_bed_pos[bed_id] = pos
+		_current_bed = &""
+		music_state = StringName(str(_music_hold.get("state", "combat")))
+		music_to(StringName(bed_id), 0.35)
+		_restore_held_layers(want_combat, pos)
+		log_audio("start", "resume_held", {"bed": bed_id, "pos": pos})
+		return
+	set_combat_music(want_combat)
+
+
+func _restore_held_layers(want_combat: bool, pos: float) -> void:
+	if _is_forge_adaptive():
+		_forge_drums = want_combat
+		_forge_heat = want_combat and bool(_music_hold.get("heat", false))
+		_start_forge_layers(pos)
+		_forge_set_bed_lin(FORGE_A_BOSS_LIN if _forge_heat else 1.0, 0.15)
+		return
+	if want_combat:
+		set_combat_music(true)
+	elif music_state != &"dungeon":
+		set_combat_music(false)
+
+
 func music_defeat() -> void:
+	if _music_hold.is_empty():
+		music_hold_for_undo()
 	music_state = &"defeat"
 	_cue_duck = -30.0
 	_mix_duck(0.1)
+	_music_seq += 1
+	var token: int = _music_seq
 	_after_ms(3000.0, func() -> void:
+		if token != _music_seq:
+			return
 		_cue_duck = 0.0
 		music_title()
 		_mix_duck(2.0)

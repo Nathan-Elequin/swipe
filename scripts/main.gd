@@ -8118,6 +8118,8 @@ func _player_down() -> void:
 	_log("end", "dead")
 	_flash_screen(Color("c45c5c"), 0.28)
 	if sfx:
+		if sfx.has_method("music_hold_for_undo"):
+			sfx.music_hold_for_undo()
 		sfx.set_combat_music(false)
 		sfx.play("error_big", -6.0)
 		sfx.play_event(&"sting.defeat")
@@ -8500,6 +8502,7 @@ func _clear_fx_banners() -> void:
 func _restore_run(snap: Dictionary) -> void:
 	if snap.is_empty():
 		return
+	var undoing_defeat: bool = phase == "defeat"
 	_undo_gen += 1
 	_abort_open_loot()
 	_undo_kill_motion()
@@ -8602,7 +8605,11 @@ func _restore_run(snap: Dictionary) -> void:
 	if wheel_view and wheel_view.has_method("snap_to_index") and facing_index >= 0:
 		wheel_view.snap_to_index(facing_index)
 	if sfx:
-		sfx.set_combat_music(phase == "fighting" or phase == "slaying")
+		var want_combat: bool = phase == "fighting" or phase == "slaying"
+		if undoing_defeat and sfx.has_method("music_resume_held"):
+			sfx.music_resume_held(want_combat)
+		else:
+			sfx.set_combat_music(want_combat)
 	_refresh()
 
 
