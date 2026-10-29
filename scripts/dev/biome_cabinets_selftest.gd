@@ -109,6 +109,20 @@ func _init() -> void:
 			pitch_ok = false
 			break
 	failed = _check(failed, "glass pitch 60", pitch_ok) or failed
+	## Trophy sits in the glass top, fully inside, clear of peg floor / case base.
+	var gsize: Vector2 = g0.size * 4.0
+	var tslot: Rect2 = Cases.trophy_local_rect(gsize, 4.0)
+	failed = _check(failed, "trophy size 96", tslot.size == Vector2(96, 96)) or failed
+	failed = _check(failed, "trophy inside glass", Rect2(Vector2.ZERO, gsize).encloses(tslot)) or failed
+	failed = _check(failed, "trophy top band", tslot.position.y < gsize.y * 0.35) or failed
+	var reserved: float = Cases.trophy_reserved_height(gsize, 4.0)
+	failed = _check(failed, "reserved clears trophy", reserved >= tslot.position.y + tslot.size.y) or failed
+	failed = _check(failed, "reserved leaves peg room", reserved < gsize.y) or failed
+	for gi2 in range(Cases.CASE_GLASS.size()):
+		var gi_rect: Rect2 = Cases.glass_rect(gi2)
+		var gi_px: Vector2 = gi_rect.size * 4.0
+		var gi_slot: Rect2 = Cases.trophy_local_rect(gi_px, 4.0)
+		failed = _check(failed, "trophy inside glass %d" % gi2, Rect2(Vector2.ZERO, gi_px).encloses(gi_slot)) or failed
 	if failed:
 		print("BIOME_CABINETS_FAIL")
 		quit(1)

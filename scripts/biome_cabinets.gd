@@ -84,6 +84,35 @@ static func trophy_texture(case: Dictionary, hover := false) -> Texture2D:
 	return null
 
 
+## Native trophy face size (art is 24×24; PNG ships at 96 = 24×4).
+const TROPHY_NATIVE := 24.0
+## Inset from the glass top so the pedestal clears the painted frame rim.
+const TROPHY_PAD_TOP_NATIVE := 2.0
+## Gap under the trophy before peg mounts begin (keeps shields clear).
+const TROPHY_GAP_BELOW_NATIVE := 2.0
+
+
+## Local rect for the pedestal trophy inside a glass Control (case pixels).
+## Top-centered so it stays inside every CASE_GLASS shape (incl. arched b3)
+## and never sits on the case base / peg column floor.
+static func trophy_local_rect(glass_size: Vector2, case_scale: float) -> Rect2:
+	var s: float = maxf(case_scale, 0.001)
+	var tsize := Vector2(TROPHY_NATIVE, TROPHY_NATIVE) * s
+	var pad_top: float = TROPHY_PAD_TOP_NATIVE * s
+	var x: float = (glass_size.x - tsize.x) * 0.5
+	var y: float = pad_top
+	if y + tsize.y > glass_size.y:
+		y = maxf(0.0, glass_size.y - tsize.y)
+	return Rect2(Vector2(x, y), tsize)
+
+
+## Peg-clip top inset when a trophy is shown: trophy band + gap, clamped to glass.
+static func trophy_reserved_height(glass_size: Vector2, case_scale: float) -> float:
+	var r := trophy_local_rect(glass_size, case_scale)
+	var gap: float = TROPHY_GAP_BELOW_NATIVE * maxf(case_scale, 0.001)
+	return minf(glass_size.y, r.position.y + r.size.y + gap)
+
+
 static func cases_bounds_rect() -> Rect2:
 	return Rect2(
 		float(CASES_BOUNDS[0]),
