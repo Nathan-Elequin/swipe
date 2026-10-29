@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b8oligarchsprite01"
-path="res://.godot/imported/oligarch.png-oligarch01.ctex"
+uid="uid://d2mwy22ln2wn1"
+path="res://.godot/imported/oligarch.png-002244eccda30d929bb945ed1db6a721.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/extra/oligarch.png"
-dest_files=["res://.godot/imported/oligarch.png-oligarch01.ctex"]
+dest_files=["res://.godot/imported/oligarch.png-002244eccda30d929bb945ed1db6a721.ctex"]
 
 [params]
 
