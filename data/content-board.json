@@ -4644,7 +4644,7 @@
 			"pool": 2
 		},
 		{
-			"ability": "I attack you when your Spin lands on me, and after each item you use.",
+			"ability": "I attack you when you Spin me, and after each item you use when facing me.",
 			"atk_base": 2.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -4652,8 +4652,8 @@
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "Interrupt 1 swing",
-			"flow": "On spin, one swing of my current Attack (Block works). After each item fully resolves, if I am still alive, one more swing. Ceases when you click Done or I am Defeated/Slain. Done still takes the normal hit. Not Attack = Block.",
+			"explainer": "When you Spin this Harpy she attacks. After each item while facing her, she attacks again.",
+			"flow": "When your Spin lands on me, one swing of my current Attack (Block works). After each item fully resolves, if you are still facing me and I am alive, one more swing. If you are facing someone else, I do nothing. Ceases when you click Done or I am Defeated/Slain. Done still takes the normal hit. Not Attack = Block.",
 			"hp_base": 5.0,
 			"hp_formula": "",
 			"id": "harpy",
@@ -4678,7 +4678,7 @@
 				"log_hint",
 				"card_color"
 			],
-			"log_hint": "Hits on meet and after items",
+			"log_hint": "Hits when you Spin her, and after items while facing her",
 			"mode_pool": "all",
 			"name": "Harpy",
 			"notes": "One swing, fight stays open. If an item already killed me, no extra swing.",
@@ -6611,7 +6611,7 @@
 				"dev": true,
 				"hide": false
 			},
-			"flow": "When she enters (setup or later), if not silenced: slash Here, I bought you something nice, and place up to 2 items from the remaining mill into empty hotbar seats. No Smoke Bomb, no tokens, no curses. A full Adventure bar stops. On every Spin, after other On Spin effects, if she is alive and not silenced and no other pick is open: use one random playable item. Smoke Bomb is not a legal pick.",
+			"flow": "When she enters (setup or later), if not silenced: speech bubble Here, I bought you something nice. Call name stays Wealth Tax. Fly in up to 2 mill items one by one (no Smoke Bomb, no tokens, no curses). Hand cap is 10. If the bar is full, the new item still lands, then click any hotbar item including the new one to discard. On every Spin, after other On Spin effects, if she is alive and not silenced and no other pick is open: use one random playable item. Smoke Bomb is not a legal pick.",
 			"hp_base": 6.0,
 			"hp_formula": "",
 			"id": "oligarch",
