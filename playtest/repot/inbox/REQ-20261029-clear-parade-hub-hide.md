@@ -2,7 +2,7 @@
 id: REQ-20261029-clear-parade-hub-hide
 status: open
 priority: high
-pr: pending
+pr: 177
 tip_sha: 3aea8396
 branch: playtest/latest
 base: playtest/latest
