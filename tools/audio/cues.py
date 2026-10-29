@@ -289,9 +289,13 @@ def sfx_map():
        "beds": {"title": {"file": "music", "gain_db": 14.0, "loop": True, "note": "yd Dungeon Ambience file is ~-40 LUFS; +14 dB puts it ~-26"},
                 "combat": {"file": "music_combat", "gain_db": -4.0, "loop": True, "resume_position": True},
                 "deadly": {"file": "music_deadly", "gain_db": -3.0, "loop": True, "resume_position": False},
-                "cabin": {"file": "music_cabin", "gain_db": -2.0, "loop": True, "resume_position": True}},
+                "cabin": {"file": "music_cabin", "gain_db": -2.0, "loop": True, "resume_position": True},
+                "verdant_hollow_intro": {"file": "music_verdant_hollow_intro", "gain_db": -4.0, "loop": False, "resume_position": False, "next": "verdant_hollow"},
+                "verdant_hollow": {"file": "music_verdant_hollow_loop", "gain_db": -4.0, "loop": True, "resume_position": True}},
+       "biome_beds": {"b1": "verdant_hollow", "verdant_hollow": "verdant_hollow"},
        "states": {"title": "title", "draft": "title", "tutorial": "title", "challenge_setup": "title", "combat": "combat", "between_fights": "combat(ducked)",
-                  "deadly": "deadly", "cabin": "cabin", "victory": "sting then title", "defeat": "sting then title"}},
+                  "deadly": "deadly", "cabin": "cabin", "victory": "sting then title", "defeat": "sting then title",
+                  "verdant_hollow": "verdant_hollow_intro then verdant_hollow"}},
      "cues": cues}
 
 if __name__ == "__main__":

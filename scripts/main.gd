@@ -2750,6 +2750,10 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool) -> void:
 	draft_action = "busy"
 	_log("on_click", "Campaign")
 	_log("var", "HP %s" % hp)
+	# Verdant Hollow (b1): intro once, then loop for the delve. Other biomes keep combat bed.
+	if sfx and sfx.has_method("music_biome_dungeon") and not endless:
+		var biome_id := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+		sfx.music_biome_dungeon(biome_id)
 	_refresh()
 	await _reveal_new_buckets()
 	_fill_challenge_pools()
