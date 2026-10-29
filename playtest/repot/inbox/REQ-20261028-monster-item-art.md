@@ -2,7 +2,7 @@
 id: REQ-20261028-monster-item-art
 status: open
 priority: normal
-pr: 0
+pr: 174
 tip_sha: 3a453021d4acb152241c50e9eee9dd5122006f5e
 branch: playtest/latest
 created: 2026-10-28T22:05:00-05:00
