@@ -1891,10 +1891,16 @@ func _build_biome_case(spec: Dictionary, cards: Array, _quota: int, glass: Rect2
 	root.mouse_entered.connect(_on_case_hover.bind(pool_id, root, unlocked))
 	root.mouse_exited.connect(hide_hover_tag)
 	_bind_case_scroll(root, pool_id)
+	## Filled case: biome trophy in the glass top (24×24 × case_scale). Empty stays empty.
+	## Peg Clip sits below the trophy band so mounts never cover it or the case floor.
+	var filled := unlocked and _case_collected(pool_id) > 0
+	var reserved := 0.0
+	if filled:
+		reserved = BiomeCabinets.trophy_reserved_height(glass.size, PX)
 	var clip := Control.new()
 	clip.name = "Clip"
-	clip.position = Vector2.ZERO
-	clip.size = glass.size
+	clip.position = Vector2(0.0, reserved)
+	clip.size = Vector2(glass.size.x, maxf(0.0, glass.size.y - reserved))
 	clip.clip_contents = true
 	clip.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(clip)
@@ -1907,8 +1913,6 @@ func _build_biome_case(spec: Dictionary, cards: Array, _quota: int, glass: Rect2
 	clip.add_child(column)
 	_case_clips[pool_id] = clip
 	_case_columns[pool_id] = column
-	## Filled case: biome trophy in the glass (24×24 × case_scale). Empty stays empty.
-	var filled := unlocked and _case_collected(pool_id) > 0
 	if filled:
 		_place_biome_trophy(root, spec, glass.size)
 	if not unlocked:
@@ -1955,6 +1959,7 @@ func _build_biome_case(spec: Dictionary, cards: Array, _quota: int, glass: Rect2
 
 ## Biome pedestal trophy for a filled case slot. Art is 96×96 (24 native ×4);
 ## size with case_scale (= PX) so a 1× case never gets a full 96px icon in a 92px void.
+## Sits in the glass top (BiomeCabinets.trophy_local_rect) — not on the peg floor.
 func _place_biome_trophy(host: Control, spec: Dictionary, area: Vector2) -> void:
 	var idle: Texture2D = BiomeCabinets.trophy_texture(spec, false)
 	if idle == null:
@@ -1963,7 +1968,8 @@ func _place_biome_trophy(host: Control, spec: Dictionary, area: Vector2) -> void
 	if hover == null:
 		hover = idle
 	var case_scale: float = PX
-	var tsize: Vector2 = Vector2(24, 24) * case_scale
+	var slot := BiomeCabinets.trophy_local_rect(area, case_scale)
+	var tsize: Vector2 = slot.size
 	var icon := TextureRect.new()
 	icon.name = "BiomeTrophy"
 	icon.texture = idle
@@ -1972,14 +1978,13 @@ func _place_biome_trophy(host: Control, spec: Dictionary, area: Vector2) -> void
 	icon.stretch_mode = TextureRect.STRETCH_SCALE
 	icon.custom_minimum_size = tsize
 	icon.size = tsize
-	## Sit on the case floor (pedestal reads bottom-up, matching Doop slot stack).
-	icon.position = Vector2((area.x - tsize.x) * 0.5, maxf(0.0, area.y - tsize.y - 8.0))
+	icon.position = slot.position
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon.z_index = 2
 	icon.set_meta("trophy_idle", idle)
 	icon.set_meta("trophy_hover", hover)
 	host.add_child(icon)
-	## Clip + root both receive hover; swap rim-light on either.
+	## Clip + root both receive hover; swap rim-light on either (same size → no jitter).
 	var apply_hover := func() -> void:
 		if is_instance_valid(icon):
 			icon.texture = hover
