@@ -13,6 +13,7 @@ var _anchor: Control = null
 var _kind: String = ""
 var _gold_sb: StyleBox
 var _pinned: bool = false
+var _follow_mouse: bool = false
 
 
 func setup() -> void:
@@ -63,6 +64,11 @@ func setup() -> void:
 	col.add_child(_lab)
 	custom_minimum_size = min_sz
 	set_process(false)
+
+
+func show_def_at_cursor(msg: String, id: String = "") -> void:
+	_follow_mouse = true
+	show_def(msg, null, id)
 
 
 func show_def(msg: String, anchor: Control = null, id: String = "") -> void:
@@ -161,6 +167,7 @@ func hide_def() -> void:
 	visible = false
 	_anchor = null
 	_kind = ""
+	_follow_mouse = false
 	_hide_mini()
 	if _gold_sb:
 		add_theme_stylebox_override("panel", _gold_sb)
@@ -188,7 +195,10 @@ func _place() -> void:
 	sz.y = maxf(sz.y, floor_sz.y)
 	var vp: Vector2 = get_viewport_rect().size
 	var anchor := Rect2()
-	if _anchor != null and is_instance_valid(_anchor) and _anchor.visible:
+	if _follow_mouse:
+		var mouse: Vector2 = get_global_mouse_position()
+		anchor = Rect2(mouse + Vector2(14, 10), Vector2(12, 12))
+	elif _anchor != null and is_instance_valid(_anchor) and _anchor.visible:
 		anchor = _anchor.get_global_rect()
 		if anchor.size.x < 8.0:
 			var asz: Vector2 = _anchor.get_combined_minimum_size()

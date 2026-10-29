@@ -17,6 +17,7 @@ const COPY := preload("res://scripts/player_copy.gd")
 const FX_RAYS := preload("res://scripts/fx_rays.gd")
 const ABILITY_CARD := preload("res://scripts/ui/ability_card.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
+const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
 const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
 const INK_ON_DARK := Color("f0e6d8")
 const TAG_GOLD := Color("FFD84A")
@@ -107,6 +108,8 @@ const TAG_H := 48.0
 const TAG_H_CALL := 70.0
 const FACE_RIM := Color("e8c36a")
 const PLACE_RIM := Color("8dcb8d")
+const MARK_GREEN := Color("8FD18F")
+const MARK_GREEN_HOT := Color("7BC950")
 const BRIBE_RIM := Color("d19a66")
 const ATK_COL := Color("e8dcc8")
 const ATK_FILL := Color("c45a14")
@@ -155,6 +158,8 @@ var _fit_clearance: Array = []
 var _tag_fs: Dictionary = {}
 var _ability_cards: Array = []
 var _chrome_hover: int = -1
+var _mark_hover: bool = false
+var _mark_tip: PanelContainer = null
 var ability_suppressed: bool = false
 
 var _spin_tween: Tween
@@ -697,6 +702,12 @@ func _ready() -> void:
 	resized.connect(queue_redraw)
 	mouse_exited.connect(_on_mouse_out)
 	set_process(true)
+	_mark_tip = KEYWORD_TIP.new()
+	add_child(_mark_tip)
+	_mark_tip.setup()
+	_mark_tip.z_index = 160
+	_mark_tip.top_level = true
+	call_deferred("_mount_mark_tip")
 	# Dev cycle for where the numbers sit. Off unless this is turned on here.
 	if SHOW_STAT_LAYOUT:
 		var numbers := Button.new()
@@ -707,6 +718,27 @@ func _ready() -> void:
 		numbers.text = "Numbers: inside"
 		numbers.pressed.connect(_cycle_stat_style)
 		add_child(numbers)
+
+
+func _mount_mark_tip() -> void:
+	if _mark_tip == null:
+		return
+	var host: Node = get_tree().root.get_node_or_null("Main")
+	if host == null:
+		host = get_tree().root
+	var layer: CanvasLayer = host.get_node_or_null("MarkTipLayer") as CanvasLayer
+	if layer == null:
+		layer = CanvasLayer.new()
+		layer.name = "MarkTipLayer"
+		layer.layer = 90
+		host.add_child(layer)
+	if _mark_tip.get_parent() != layer:
+		if _mark_tip.get_parent() != null:
+			_mark_tip.get_parent().remove_child(_mark_tip)
+		layer.add_child(_mark_tip)
+	_mark_tip.top_level = false
+	_mark_tip.z_index = 1
+	_mark_tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _cycle_stat_style() -> void:
@@ -1258,6 +1290,7 @@ func _process(delta: float) -> void:
 	_hero_tick(delta)
 	if not spinning:
 		_sync_chrome_hover()
+		_sync_mark_hover()
 		_sync_ability_cards()
 		# Mid-spin: `rot` setter already queue_redraws each tween tick.
 		# note_wheel lives in `_draw` (truthful, same as hall).
@@ -1287,6 +1320,11 @@ func _wheel_wants_live_draw() -> bool:
 		return true
 	if hover_index >= 0:
 		return true
+	if _mark_hover:
+		return true
+	for marked in slices:
+		if bool(marked.get("hunter_mark", false)):
+			return true
 	if hurt_preview or draft_glow or hub_poison > 0:
 		return true
 	if absf(_hint_ang) > 0.0004:
@@ -1358,6 +1396,7 @@ func _on_mouse_out() -> void:
 		hover_index = -1
 		slice_hovered.emit(-1)
 		queue_redraw()
+	_set_mark_hover(false)
 
 
 func _lift_of(i: int) -> float:
@@ -2085,6 +2124,91 @@ func _sync_chrome_hover() -> void:
 			_chrome_hover = hover_index
 
 
+func _mark_chip_rect(sp: Dictionary, font: Font) -> Rect2:
+	var tag: Rect2 = sp.get("tag_rect", Rect2())
+	if tag.size.x < 4.0:
+		return Rect2()
+	var label := "Marked"
+	var fs := 11
+	var tsz: Vector2 = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+	var pad_x := 10.0
+	var h := 20.0
+	var w: float = maxf(56.0, tsz.x + pad_x * 2.0)
+	var x: float = tag.position.x + (tag.size.x - w) * 0.5
+	var y: float = tag.position.y + tag.size.y - 1.0
+	return Rect2(Vector2(x, y), Vector2(w, h))
+
+
+func _draw_mark_chip(font: Font, sp: Dictionary, dim: float, _i: int) -> void:
+	var chip: Rect2 = _mark_chip_rect(sp, font)
+	if chip.size.x < 4.0:
+		return
+	var pulse: float = 0.55 + 0.45 * absf(sin(_glow_t * 5.0))
+	var fill := Color("100e0c")
+	fill.a = 0.92 * dim
+	var edge := MARK_GREEN_HOT
+	edge.a = (0.82 + 0.18 * pulse) * dim
+	_draw_capsule(chip, fill, edge)
+	var tag: Rect2 = sp.get("tag_rect", Rect2())
+	if tag.size.x > 4.0:
+		var neck_x: float = chip.position.x + chip.size.x * 0.5
+		var neck_y0: float = tag.position.y + tag.size.y - 1.0
+		var neck_y1: float = chip.position.y + 2.0
+		draw_line(Vector2(neck_x - 10.0, neck_y0), Vector2(neck_x + 10.0, neck_y0), edge, 3.0, true)
+		draw_line(Vector2(neck_x, neck_y0), Vector2(neck_x, neck_y1), edge, 2.0, true)
+	var fs := 11
+	var label := "Marked"
+	var tsz: Vector2 = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+	var p := Vector2(chip.position.x + (chip.size.x - tsz.x) * 0.5, chip.position.y + 4.0 + font.get_ascent(fs))
+	var ink := Color("100e0c")
+	ink.a = dim
+	var col := MARK_GREEN
+	col.a = dim
+	if _mark_hover:
+		col = MARK_GREEN_HOT
+		col.a = dim
+	for ox in range(-2, 3):
+		for oy in range(-2, 3):
+			if ox == 0 and oy == 0:
+				continue
+			draw_string(font, p + Vector2(ox, oy), label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
+	draw_string(font, p, label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+
+
+func _sync_mark_hover() -> void:
+	if spinning or busy:
+		_set_mark_hover(false)
+		return
+	var local: Vector2 = get_local_mouse_position()
+	var font: Font = ThemeDB.fallback_font
+	var hit := false
+	for i in slices.size():
+		if str(slices[i].get("kind", "")) != "monster":
+			continue
+		if not bool(slices[i].get("hunter_mark", false)):
+			continue
+		var sp: Dictionary = _spoke(i)
+		var sprite: Rect2 = sp.get("sprite_rect", Rect2()).grow(10.0)
+		var chip: Rect2 = _mark_chip_rect(sp, font)
+		if sprite.has_point(local) or chip.has_point(local):
+			hit = true
+			break
+	_set_mark_hover(hit)
+
+
+func _set_mark_hover(on: bool) -> void:
+	if on == _mark_hover:
+		return
+	_mark_hover = on
+	queue_redraw()
+	if _mark_tip == null:
+		return
+	if on:
+		_mark_tip.show_def_at_cursor(UxStyle.def_of("marked"), "marked")
+	elif _mark_tip.has_method("hide_def"):
+		_mark_tip.hide_def()
+
+
 func _item_held() -> bool:
 	if ability_suppressed:
 		return true
@@ -2424,10 +2548,16 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		glow.a = 0.50 + 0.28 * absf(sin(_glow_t * 9.0))
 		draw_circle(port_pos, plate_r + 16.0, glow)
 		draw_arc(port_pos, plate_r + 20.0, 0.0, TAU, 28, Color(1.0, 0.90, 0.35, 0.45 + 0.35 * absf(sin(_glow_t * 9.0))), 3.5, true)
+	if _mark_hover and str(s.get("card_id", "")) == "kobold_trapper":
+		var trap_pulse: float = 0.55 + 0.45 * absf(sin(_glow_t * 8.0))
+		var trap_fill := MARK_GREEN_HOT
+		trap_fill.a = 0.38 + 0.28 * trap_pulse
+		draw_circle(port_pos, plate_r + 18.0, trap_fill)
+		draw_arc(port_pos, plate_r + 22.0, 0.0, TAU, 32, Color(MARK_GREEN_HOT.r, MARK_GREEN_HOT.g, MARK_GREEN_HOT.b, 0.75 + 0.25 * trap_pulse), 4.2, true)
 	if i != portrait_away and not hide_portraits.has(i):
 		_draw_wheel_sprite(i, sp, s, dim)
 	if bool(s.get("hunter_mark", false)):
-		_draw_hunter_mark(Rect2(port_pos - Vector2(34, 42), Vector2(68, 76)), dim)
+		_draw_hunter_mark(sprite_rect.grow(8.0), dim)
 	var burn: float = float(_burn.get(i, 0.0))
 	if burn > 0.02:
 		var fire: Texture2D = _fire_tex()
@@ -2450,6 +2580,8 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_texture_rect(st, Rect2(port_pos - Vector2(9, 9), Vector2(18, 18)), false, Color(dim, dim, dim, dim))
 	var big: bool = true
 	_draw_name_tag(font, sp, s, is_face, dim, is_hover or i == _chrome_hover, i)
+	if bool(s.get("hunter_mark", false)):
+		_draw_mark_chip(font, sp, dim, i)
 	_draw_heart_stat(font, sp["hp"], s, pv, big, i, is_hover)
 	_draw_atk_stat(font, sp["atk"], s, pv, big, i, is_hover)
 	var would_die: bool = int(s.get("hp", 0)) + int(pv.get("hp", 0)) <= 0 and int(pv.get("hp", 0)) < 0
@@ -2524,16 +2656,19 @@ func _draw_tier_rim(_center: Vector2, _rad: float, _s: Dictionary) -> void:
 
 func _draw_hunter_mark(rect: Rect2, dim: float) -> void:
 	var pulse: float = 0.55 + 0.45 * absf(sin(_glow_t * 5.0))
-	var inset: float = 5.0 + 2.0 * sin(_glow_t * 3.2)
-	var arm: float = 12.0
+	var inset: float = 2.0 + 1.5 * sin(_glow_t * 3.2)
+	var arm: float = 18.0
 	var x: float = rect.position.x + inset
 	var y: float = rect.position.y + inset
-	var w: float = maxf(8.0, rect.size.x - inset * 2.0)
-	var h: float = maxf(8.0, rect.size.y - inset * 2.0)
+	var w: float = maxf(12.0, rect.size.x - inset * 2.0)
+	var h: float = maxf(12.0, rect.size.y - inset * 2.0)
+	var wash := MARK_GREEN
+	wash.a = (0.22 + 0.16 * pulse) * dim
+	draw_rect(Rect2(x, y, w, h), wash, false, 3.0)
 	var ink := Color("100e0c")
-	ink.a = 0.85 * dim
-	var gold := Color("ffd84a")
-	gold.a = (0.72 + 0.28 * pulse) * dim
+	ink.a = 0.92 * dim
+	var green := MARK_GREEN_HOT
+	green.a = (0.82 + 0.18 * pulse) * dim
 	var corners: Array = [
 		[Vector2(x, y), Vector2(1, 0), Vector2(0, 1)],
 		[Vector2(x + w, y), Vector2(-1, 0), Vector2(0, 1)],
@@ -2545,10 +2680,10 @@ func _draw_hunter_mark(rect: Rect2, dim: float) -> void:
 		var origin: Vector2 = row[0] as Vector2
 		var a: Vector2 = row[1] as Vector2
 		var b: Vector2 = row[2] as Vector2
-		draw_line(origin, origin + a * arm, ink, 3.4, true)
-		draw_line(origin, origin + b * arm, ink, 3.4, true)
-		draw_line(origin, origin + a * arm, gold, 1.8, true)
-		draw_line(origin, origin + b * arm, gold, 1.8, true)
+		draw_line(origin, origin + a * arm, ink, 5.2, true)
+		draw_line(origin, origin + b * arm, ink, 5.2, true)
+		draw_line(origin, origin + a * arm, green, 3.2, true)
+		draw_line(origin, origin + b * arm, green, 3.2, true)
 
 
 func _draw_portrait_window(center: Vector2, rad: float, s: Dictionary, tex: Texture2D, face_ang: float, dim: float = 1.0) -> void:
