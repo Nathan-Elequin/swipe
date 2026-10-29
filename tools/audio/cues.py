@@ -291,11 +291,14 @@ def sfx_map():
                 "deadly": {"file": "music_deadly", "gain_db": -3.0, "loop": True, "resume_position": False},
                 "cabin": {"file": "music_cabin", "gain_db": -2.0, "loop": True, "resume_position": True},
                 "verdant_hollow_intro": {"file": "music_verdant_hollow_intro", "gain_db": -4.0, "loop": False, "resume_position": False, "next": "verdant_hollow"},
-                "verdant_hollow": {"file": "music_verdant_hollow_loop", "gain_db": -4.0, "loop": True, "resume_position": True}},
-       "biome_beds": {"b1": "verdant_hollow", "verdant_hollow": "verdant_hollow"},
+                "verdant_hollow": {"file": "music_verdant_hollow_loop", "gain_db": -4.0, "loop": True, "resume_position": True},
+                "cinder_forge_intro": {"file": "music_cinder_forge_intro", "gain_db": -4.0, "loop": False, "resume_position": False, "next": "cinder_forge"},
+                "cinder_forge": {"file": "music_cinder_forge_loop", "gain_db": -4.0, "loop": True, "resume_position": True}},
+       "biome_beds": {"b1": "verdant_hollow", "verdant_hollow": "verdant_hollow", "b4": "cinder_forge", "cinder_forge": "cinder_forge"},
        "states": {"title": "title", "draft": "title", "tutorial": "title", "challenge_setup": "title", "combat": "combat", "between_fights": "combat(ducked)",
                   "deadly": "deadly", "cabin": "cabin", "victory": "sting then title", "defeat": "sting then title",
-                  "verdant_hollow": "verdant_hollow_intro then verdant_hollow"}},
+                  "verdant_hollow": "verdant_hollow_intro then verdant_hollow",
+                  "cinder_forge": "cinder_forge_intro then cinder_forge"}},
      "cues": cues}
 
 if __name__ == "__main__":
