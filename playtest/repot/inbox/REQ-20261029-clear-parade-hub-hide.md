@@ -1,6 +1,6 @@
 ---
 id: REQ-20261029-clear-parade-hub-hide
-status: open
+status: done
 priority: high
 pr: 177
 tip_sha: caeefa50
