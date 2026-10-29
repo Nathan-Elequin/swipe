@@ -3,7 +3,7 @@ id: REQ-20261029-trophy-pegs-fit
 status: open
 priority: high
 pr: 185
-tip_sha: a74bf856
+tip_sha: d088c92e
 branch: cursor/trophy-pegs-fit-d9d7
 created: 2026-10-29T18:45:00Z
 created_by: cursor-cloud
