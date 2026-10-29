@@ -17,12 +17,14 @@ const CASES_BOUNDS: Array = [76, 56, 298, 160]
 ## Native glass interiors per pool (inset inside each plate case). Order = CASES.
 ## Slot pitch: centers 60 native apart (240px at ×4). Doop SHIP-D cabs sit at
 ## left 300/544/788/1032/1276 (pitch 244) — within 4px; overlays keep CASE_GLASS.
+## Height 121 (not 138): painted glass ends above the case accent/base on
+## cabinets_wall.png; the old 138 spilled pegs onto the base and floor planks.
 const CASE_GLASS: Array = [
-	[82, 68, 48, 138],
-	[142, 68, 48, 138],
-	[202, 68, 48, 138],
-	[262, 68, 48, 138],
-	[322, 68, 48, 138],
+	[82, 68, 48, 121],
+	[142, 68, 48, 121],
+	[202, 68, 48, 121],
+	[262, 68, 48, 121],
+	[322, 68, 48, 121],
 ]
 
 const CASES: Array = [
@@ -111,6 +113,71 @@ static func trophy_reserved_height(glass_size: Vector2, case_scale: float) -> fl
 	var r := trophy_local_rect(glass_size, case_scale)
 	var gap: float = TROPHY_GAP_BELOW_NATIVE * maxf(case_scale, 0.001)
 	return minf(glass_size.y, r.position.y + r.size.y + gap)
+
+
+## How many peg shields must fully fit in the glass column (more scroll).
+## Live pools hold more items; cabinets scroll past this. Six matches a filled
+## Middle Progress / fill_b1 column and the painted glass capacity.
+const PEG_FIT_MAX := 6
+## Preferred max scale for trophy_mount (128×160) inside a case clip.
+const PEG_SCALE_MAX := 0.55
+
+
+## Column height for n pegs at the given size / gap / top pad.
+static func peg_column_height(n: int, msize_y: float, gap_y: float, pad_top: float) -> float:
+	var count: int = maxi(0, n)
+	if count <= 0:
+		return pad_top
+	return pad_top + float(count) * msize_y + float(count - 1) * gap_y
+
+
+## Vertical peg column layout inside a glass Clip.
+## Returns { msize, gap_y, pad_top, x0 } with integer-pixel msize (Nearest-safe).
+## Fits up to PEG_FIT_MAX pegs fully inside clip_size.y; extra pegs scroll.
+## Prefers gap/pad of 2 with a slightly smaller integer step; falls back to
+## tighter spacing or larger pegs. Does not change art.
+static func peg_column_layout(clip_size: Vector2, cell: Vector2, peg_count: int) -> Dictionary:
+	var cw: float = maxf(1.0, clip_size.x)
+	var ch: float = maxf(1.0, clip_size.y)
+	var cell_x: float = maxf(1.0, cell.x)
+	var cell_y: float = maxf(1.0, cell.y)
+	var n_fit: int = clampi(maxi(peg_count, 1), 1, PEG_FIT_MAX)
+	var max_s: float = PEG_SCALE_MAX
+	max_s = minf(max_s, maxf(0.05, (cw - 6.0) / cell_x))
+	var max_w: int = maxi(8, int(floor(cell_x * max_s)))
+	## Prefer a little spacing (gap/pad 2) with a slightly smaller integer step,
+	## then allow tighter / larger pegs. Never use a non-integer pixel size.
+	var gap_order: Array = [2, 3, 4, 1, 0]
+	var pad_order: Array = [2, 3, 4, 1, 0]
+	for gap_v in gap_order:
+		var gap: int = int(gap_v)
+		for pad_v in pad_order:
+			var pad: int = int(pad_v)
+			for w in range(max_w, 7, -1):
+				var h: int = maxi(1, int(round(cell_y * float(w) / cell_x)))
+				var need: float = peg_column_height(n_fit, float(h), float(gap), float(pad))
+				if need > ch + 0.01:
+					continue
+				return {
+					"msize": Vector2(float(w), float(h)),
+					"gap_y": float(gap),
+					"pad_top": float(pad),
+					"x0": maxf(0.0, floor((cw - float(w)) * 0.5)),
+				}
+	## Fallback: shrink until PEG_FIT_MAX fits with zero gap/pad.
+	var h_fallback: int = maxi(8, int(floor(ch / float(n_fit))))
+	var w_fallback: int = maxi(8, int(round(float(h_fallback) * cell_x / cell_y)))
+	w_fallback = mini(w_fallback, maxi(8, int(floor(cw - 6.0))))
+	h_fallback = maxi(8, int(round(float(w_fallback) * cell_y / cell_x)))
+	while peg_column_height(n_fit, float(h_fallback), 0.0, 0.0) > ch and h_fallback > 8:
+		h_fallback -= 1
+		w_fallback = maxi(8, int(round(float(h_fallback) * cell_x / cell_y)))
+	return {
+		"msize": Vector2(float(w_fallback), float(h_fallback)),
+		"gap_y": 0.0,
+		"pad_top": 0.0,
+		"x0": maxf(0.0, floor((cw - float(w_fallback)) * 0.5)),
+	}
 
 
 static func cases_bounds_rect() -> Rect2:

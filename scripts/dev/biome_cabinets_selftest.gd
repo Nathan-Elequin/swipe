@@ -111,6 +111,8 @@ func _init() -> void:
 	failed = _check(failed, "glass pitch 60", pitch_ok) or failed
 	## Trophy sits in the glass top, fully inside, clear of peg floor / case base.
 	var gsize: Vector2 = g0.size * 4.0
+	failed = _check(failed, "glass height 121 native", g0.size.y == 121.0) or failed
+	failed = _check(failed, "glass px height 484", gsize.y == 484.0) or failed
 	var tslot: Rect2 = Cases.trophy_local_rect(gsize, 4.0)
 	failed = _check(failed, "trophy size 96", tslot.size == Vector2(96, 96)) or failed
 	failed = _check(failed, "trophy inside glass", Rect2(Vector2.ZERO, gsize).encloses(tslot)) or failed
@@ -118,11 +120,34 @@ func _init() -> void:
 	var reserved: float = Cases.trophy_reserved_height(gsize, 4.0)
 	failed = _check(failed, "reserved clears trophy", reserved >= tslot.position.y + tslot.size.y) or failed
 	failed = _check(failed, "reserved leaves peg room", reserved < gsize.y) or failed
+	## Peg shields: PEG_FIT_MAX must sit fully inside the clip, above the case base,
+	## with and without the trophy band reserved. msize stays integer pixels.
+	var cell := Vector2(128, 160)
 	for gi2 in range(Cases.CASE_GLASS.size()):
 		var gi_rect: Rect2 = Cases.glass_rect(gi2)
 		var gi_px: Vector2 = gi_rect.size * 4.0
 		var gi_slot: Rect2 = Cases.trophy_local_rect(gi_px, 4.0)
 		failed = _check(failed, "trophy inside glass %d" % gi2, Rect2(Vector2.ZERO, gi_px).encloses(gi_slot)) or failed
+		var res_i: float = Cases.trophy_reserved_height(gi_px, 4.0)
+		var clip_trophy := Vector2(gi_px.x, maxf(0.0, gi_px.y - res_i))
+		var clip_empty := gi_px
+		for pair in [
+			["trophy", clip_trophy],
+			["empty", clip_empty],
+		]:
+			var label: String = str(pair[0])
+			var clip: Vector2 = pair[1]
+			var lay: Dictionary = Cases.peg_column_layout(clip, cell, Cases.PEG_FIT_MAX)
+			var msize: Vector2 = lay.get("msize", Vector2.ZERO)
+			var gap_y: float = float(lay.get("gap_y", 0.0))
+			var pad_top: float = float(lay.get("pad_top", 0.0))
+			failed = _check(failed, "peg int %s %d" % [label, gi2], msize.x == floor(msize.x) and msize.y == floor(msize.y)) or failed
+			var col_h: float = Cases.peg_column_height(Cases.PEG_FIT_MAX, msize.y, gap_y, pad_top)
+			failed = _check(failed, "pegs fit %s %d" % [label, gi2], col_h <= clip.y + 0.01) or failed
+			## Clip sits at y=reserved inside glass; peg bottoms must stay < glass bottom.
+			var clip_top: float = res_i if label == "trophy" else 0.0
+			var peg_bottom: float = clip_top + col_h
+			failed = _check(failed, "peg above base %s %d" % [label, gi2], peg_bottom <= gi_px.y + 0.01) or failed
 	if failed:
 		print("BIOME_CABINETS_FAIL")
 		quit(1)
