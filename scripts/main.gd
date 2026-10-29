@@ -8644,8 +8644,6 @@ func _use_item(uid: int) -> void:
 	if _challenge_loot_wait:
 		_challenge_discard_one(uid)
 		return
-	if _walker_busy:
-		return
 	if not pending_feed.is_empty():
 		var allowed: Array = pending_feed.get("uids", [])
 		if not allowed.has(uid):
@@ -8654,6 +8652,8 @@ func _use_item(uid: int) -> void:
 			return
 		await _feed_cube(uid)
 		_undo_arm()
+		return
+	if _walker_busy:
 		return
 	var it_pre: Dictionary = _find_item(uid)
 	var magnet_ready: bool = phase == "ready" and _is_magnet(it_pre)
@@ -10774,6 +10774,19 @@ func _hand_all_uids() -> Array:
 	return uids
 
 
+func _hand_bell_defeat_uids() -> Array:
+	var uids: Array = []
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) == "rust":
+			continue
+		var uid: int = int(it.get("uid", -1))
+		if uid >= 0:
+			uids.append(uid)
+	return uids
+
+
 func _maybe_enter_gains(index: int) -> void:
 	await _maybe_death_bell_spawn(index)
 	await _maybe_rust_bucket_spawn(index)
@@ -11243,7 +11256,11 @@ func _feed_bell_overlay(uid: int) -> void:
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
 		return
-	if _item_is_curse(it):
+	if str(it.get("card_id", "")) == "rust":
+		if sfx:
+			sfx.play("error", -12.0)
+		return
+	if kind != "bell_defeat" and _item_is_curse(it):
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -11344,7 +11361,7 @@ func _maybe_bell_defeat_tax(index: int = -1) -> void:
 	if hotbar.is_empty():
 		await _play_bell_ring()
 		return
-	var toss_uids: Array = _filter_toss_uids(_hand_all_uids())
+	var toss_uids: Array = _hand_bell_defeat_uids()
 	if toss_uids.is_empty():
 		await _play_bell_ring()
 		return
@@ -21837,18 +21854,6 @@ func _clear_box(box: Node) -> void:
 func _rebuild_choice() -> void:
 	_clear_box(choice_box)
 	if not pending_feed.is_empty():
-		for uid in pending_feed.get("uids", []):
-			var it: Dictionary = _find_item(int(uid))
-			if it.is_empty():
-				continue
-			var feed_kind: String = str(pending_feed.get("kind", ""))
-			var lab: String = "Feed  %s" % _title_case(str(it.get("name", "?")))
-			if feed_kind == "upgrade":
-				lab = "Upgrade  %s" % _title_case(str(it.get("name", "?")))
-			elif feed_kind == "bell_spawn" or feed_kind == "bell_defeat":
-				lab = "Discard  %s" % _title_case(str(it.get("name", "?")))
-			var ob: Button = _pill(lab, Color("3a1c14"), Color("e8c36a"), _feed_cube.bind(int(uid)))
-			choice_box.add_child(ob)
 		return
 	if pending_choice.is_empty():
 		return
