@@ -3,7 +3,7 @@ id: REQ-20261029-living-map-fix
 status: open
 priority: high
 pr: 184
-tip_sha: abe8b9b9
+tip_sha: e694061a
 branch: cursor/living-map-hover-name-7e62
 created: 2026-10-29T17:50:00Z
 created_by: cursor-cloud
