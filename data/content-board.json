@@ -6509,7 +6509,7 @@
 			"count": 1,
 			"explainer": "If Take would drop you to 0 HP, I lose 1 Attack and Flee instead of hitting you.",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -6529,7 +6529,7 @@
 			"log_hint": "Lethal Take: lose 1 Attack and Flee",
 			"mode_pool": "all",
 			"name": "Sandbag",
-			"notes": "Pool 4, tier 1. Upright sandbag with eyes, Smash home-run contest. Art missing. Bodyguard moved to pool 3. Anvil moved to pool 9.",
+			"notes": "Pool 4, tier 1. Upright sandbag with eyes, Smash home-run contest. Bodyguard moved to pool 3. Anvil moved to pool 9.",
 			"ops": {},
 			"priority": 3,
 			"rarity": "uncommon",
@@ -6551,7 +6551,7 @@
 			"count": 1,
 			"explainer": "On Spin: one Attack or Block Item becomes a Poison Flask of that number",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
@@ -6571,7 +6571,7 @@
 			"log_hint": "On Spin: one Attack or Block Item becomes a Poison Flask",
 			"mode_pool": "all",
 			"name": "Scorpion",
-			"notes": "Pool 2, tier 1. Needs a scorpion sprite. Pool 2 already had Beggar, Eel, and Lich at tier 1; no other card was moved.",
+			"notes": "Pool 2, tier 1. Pool 2 already had Beggar, Eel, and Lich at tier 1; no other card was moved.",
 			"ops": {},
 			"priority": 3,
 			"rarity": "uncommon",
@@ -6604,7 +6604,7 @@
 			"log_hint": "Gives 2 Items, then forces one Item on every Spin",
 			"mode_pool": "all",
 			"name": "Oligarch",
-			"notes": "Bucket 9, tier 2. Bucket 9 had one tier-2 monster and four cards, so she fills the open tier-2 seat. No other card was moved. Art missing: female high elf merchant, black hair, fancy purple clothes. assets/dungeon/extra/oligarch.png.",
+			"notes": "Bucket 9, tier 2. Bucket 9 had one tier-2 monster and four cards, so she fills the open tier-2 seat. No other card was moved. assets/dungeon/extra/oligarch.png.",
 			"ops": {},
 			"priority": 3,
 			"rarity": "uncommon",

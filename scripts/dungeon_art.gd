@@ -146,6 +146,8 @@ const ITEM_PNG := {
 	"bag_of_holding_closed": "res://assets/dungeon/items/bag_of_holding_closed.png",
 	"ball_and_chain": "res://assets/dungeon/items/ball_and_chain.png",
 	"recycler": "res://assets/dungeon/items/recycler.png",
+	"orb": "res://assets/dungeon/items/orb.png",
+	"flying_saucer": "res://assets/dungeon/items/flying_saucer.png",
 }
 
 ## Art facing before any mirror. R = drawn looking right, L = drawn looking left.
@@ -156,7 +158,10 @@ const MONSTER_FACES := {
 	"ogre": "R",
 	"dragon": "R",
 	"shark": "L",
-	"harpy": "R",
+	"harpy": "L",
+	"sandbag": "L",
+	"scorpion": "L",
+	"oligarch": "L",
 	"bandit": "R",
 	"vampire": "R",
 	"berserker": "R",
@@ -267,6 +272,8 @@ const MONSTER_PNG := {
 	"rust_bucket": "res://assets/dungeon/extra/rust_bucket.png",
 	"poison_frog": "res://assets/dungeon/extra/poison_frog.png",
 	"oligarch": "res://assets/dungeon/extra/oligarch.png",
+	"sandbag": "res://assets/dungeon/extra/sandbag.png",
+	"scorpion": "res://assets/dungeon/extra/scorpion.png",
 }
 
 var atlas: Texture2D

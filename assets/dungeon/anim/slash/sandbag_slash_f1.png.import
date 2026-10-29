@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c10qij6311iyr"
-path="res://.godot/imported/harpy_slash_f4.png-8461e2be8f00e75154277cb9d7672ad0.ctex"
+uid="uid://d3n0qwr0biiip"
+path="res://.godot/imported/sandbag_slash_f1.png-eba9a18615edf797b85b7fe2633b2ee2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/slash/harpy_slash_f4.png"
-dest_files=["res://.godot/imported/harpy_slash_f4.png-8461e2be8f00e75154277cb9d7672ad0.ctex"]
+source_file="res://assets/dungeon/anim/slash/sandbag_slash_f1.png"
+dest_files=["res://.godot/imported/sandbag_slash_f1.png-eba9a18615edf797b85b7fe2633b2ee2.ctex"]
 
 [params]
 
