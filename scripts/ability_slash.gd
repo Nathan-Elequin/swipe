@@ -313,10 +313,22 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 		_tw.tween_property(_portrait, "scale", _portrait_scale_vec(target_scale), _dur(SNAP_MS + 80.0, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await get_tree().create_timer(_dur(SNAP_MS, fast), false).timeout
 	# Action: frames or still shake (band is already in).
+	# Copy the list first. Awaits yield, and a later slash / script reload
+	# can shrink `_frame_texs` while this loop still has the old count.
 	if use_frames:
-		for i in range(_frame_texs.size()):
+		var frames: Array = _frame_texs.duplicate()
+		if _portrait:
+			_portrait.hframes = 1
+			_portrait.vframes = 1
+			_portrait.frame = 0
+		for i in range(frames.size()):
+			if i < 0 or i >= frames.size():
+				break
+			var tex: Variant = frames[i]
+			if not (tex is Texture2D) or tex == null:
+				continue
 			_frame_i = i
-			_portrait.texture = _frame_texs[i]
+			_portrait.texture = tex
 			await get_tree().create_timer(_dur(FRAME_MS, fast), false).timeout
 	else:
 		await _punch_shake(fast)
@@ -666,7 +678,11 @@ func _prepare_portrait() -> void:
 	var still: Texture2D = _tex
 	if still == null and art != null and card_id != "" and art.has_method("monster_still"):
 		still = art.monster_still(card_id)
-	if not _frame_texs.is_empty():
+	if _portrait:
+		_portrait.hframes = 1
+		_portrait.vframes = 1
+		_portrait.frame = 0
+	if not _frame_texs.is_empty() and _frame_texs[0] is Texture2D and _frame_texs[0] != null:
 		_portrait.texture = _frame_texs[0]
 	else:
 		_portrait.texture = still
