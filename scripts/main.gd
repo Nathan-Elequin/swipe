@@ -2417,12 +2417,15 @@ func _enter_dungeon_clear() -> void:
 		_classic_swipe_home()
 		return
 	# Rope stays shut until the parade finishes (~2.7s). No wax seal.
+	# Callers start this without await, then _refresh() while still in ready —
+	# so we must refresh again after rest, or the rope never opens (itch soft-lock).
 	await _play_clear_parade()
 	dungeons_cleared += 1
 	_advance_bucket_counter()
 	phase = "rest"
 	_log("end", "dungeon %s" % dungeons_cleared)
 	facing_index = -1
+	_refresh()
 
 
 func _play_clear_parade() -> void:
@@ -2442,7 +2445,8 @@ func _play_clear_parade() -> void:
 			wheel_view.hub_parade_hide = false
 	if not parade.tree_exiting.is_connected(_parade_exiting):
 		parade.tree_exiting.connect(_parade_exiting)
-	await parade.run(wheel_view, art)
+	if get_tree() != null:
+		await parade.run(wheel_view, art)
 	if is_instance_valid(parade):
 		if parade.tree_exiting.is_connected(_parade_exiting):
 			parade.tree_exiting.disconnect(_parade_exiting)

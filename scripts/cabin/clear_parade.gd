@@ -69,6 +69,9 @@ func run(wheel, art) -> void:
 	if hold_at >= 0.0:
 		end_t = hold_at
 	while t < end_t:
+		t = float(Time.get_ticks_msec() - t0) / 1000.0
+		if t >= end_t:
+			break
 		_hero.flip_h = false
 		if t < HOP_START:
 			_frame_at(_hero, victory, CHEER_MARKS, t, gear_victory)
@@ -172,7 +175,6 @@ func run(wheel, art) -> void:
 			await _wait(3600.0)
 			break
 		await _wait(0.02)
-		t += 0.02
 	if hold_at < 0.0:
 		var left := PARADE_SEC - float(Time.get_ticks_msec() - t0) / 1000.0
 		if left > 0.02:
@@ -326,4 +328,15 @@ func _pixel_scale(tex: Texture2D) -> Vector2:
 func _wait(seconds: float) -> void:
 	if seconds <= 0.0:
 		return
-	await get_tree().create_timer(seconds, true, true, false).timeout
+	var tree := get_tree()
+	if tree == null:
+		return
+	# Idle frames, not physics. HTML5 physics timers can stall and never fire,
+	# which left the dungeon clear waiting forever on an empty wheel.
+	var left := seconds
+	while left > 0.0:
+		await tree.process_frame
+		var dt := get_process_delta_time()
+		if dt <= 0.0:
+			dt = 0.016
+		left -= dt
