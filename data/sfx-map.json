@@ -473,6 +473,21 @@
         "resume_position": true,
         "note": "Verdant Hollow dungeon loop after intro"
       },
+      "cinder_forge_intro": {
+        "file": "music_cinder_forge_intro",
+        "gain_db": -4.0,
+        "loop": false,
+        "resume_position": false,
+        "next": "cinder_forge",
+        "note": "Cinder Forge (b4) one-shot intro; finished → cinder_forge loop"
+      },
+      "cinder_forge": {
+        "file": "music_cinder_forge_loop",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": true,
+        "note": "Cinder Forge dungeon loop after intro"
+      },
       "intro": {
         "file": "music_intro",
         "gain_db": 0.0,
@@ -520,11 +535,14 @@
       "keyring": "cabin(ducked)",
       "rope_exit": "combat(ducked)",
       "homecoming": "cabin",
-      "verdant_hollow": "verdant_hollow_intro then verdant_hollow"
+      "verdant_hollow": "verdant_hollow_intro then verdant_hollow",
+      "cinder_forge": "cinder_forge_intro then cinder_forge"
     },
     "biome_beds": {
       "b1": "verdant_hollow",
-      "verdant_hollow": "verdant_hollow"
+      "verdant_hollow": "verdant_hollow",
+      "b4": "cinder_forge",
+      "cinder_forge": "cinder_forge"
     }
   },
   "cues": {

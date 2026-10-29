@@ -4,7 +4,7 @@ extends Node
 const SAVE_PATH := "user://audio.json"
 const MAP_PATH := "res://data/sfx-map.json"
 const LEGACY_UI_IDS := ["hover", "click", "click2", "select", "question", "error", "switch", "confirm", "confirm_big"]
-const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp", "music_verdant_hollow_loop"]
+const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp", "music_verdant_hollow_loop", "music_cinder_forge_loop"]
 const AUDIO_LOG_CAP := 80
 
 var music: AudioStreamPlayer
@@ -711,7 +711,7 @@ func stop_cue_voices(cue_id: StringName) -> void:
 
 func music_to(bed: StringName, fade_s: float) -> void:
 	var id: String = String(bed)
-	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro"]:
+	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "cinder_forge", "cinder_forge_intro"]:
 		loop_stop(&"amb.radio_static", 0.25)
 	# Leaving the dungeon for cabin / title / radio stations drops the biome bed.
 	if id == "cabin" or id == "title" or id == "intro" or id == "ending" or id.begins_with("station_"):
@@ -992,6 +992,8 @@ func _apply_cue_music(cue_id: String, bed: String) -> void:
 			music_to(&"ending", float(_music_cfg.get("crossfade_s", {}).get("default", 0.8)))
 		"verdant_hollow":
 			music_biome_dungeon("b1")
+		"cinder_forge":
+			music_biome_dungeon("b4")
 
 
 func _mix_duck(attack: float) -> void:
