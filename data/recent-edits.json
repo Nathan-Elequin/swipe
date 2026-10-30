@@ -27,7 +27,7 @@
 		"item:helmet": 1792446156.0,
 		"item:hex": 1793347200.0,
 		"item:iron_chain": 1792136735.68746,
-		"item:jar_o_grease": 1793344567,
+		"item:jar_o_grease": 1793344567.0,
 		"item:knucklers": 1791957461.0,
 		"item:lantern": 1792694472.0,
 		"item:last_match": 1793043200.0,
@@ -97,7 +97,7 @@
 		"monster:oligarch": 1793319300.0,
 		"monster:phoenix": 1792470000.0,
 		"monster:phoenix_egg": 1792508400.0,
-		"monster:plague_doctor": 1793347800.0,
+		"monster:plague_doctor": 1793382580,
 		"monster:poison_frog": 1792507800.0,
 		"monster:prism": 1792690697.16532,
 		"monster:rust_bucket": 1792514135.0,
@@ -119,5 +119,5 @@
 	"item:sling": 1793236000.0,
 	"monster:mouse": 1792450564.02935,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-10-30T07:16:07"
+	"updated": "2026-10-30T17:49:40"
 }

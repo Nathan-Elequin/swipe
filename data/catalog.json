@@ -3225,7 +3225,7 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1,
+			"count": 1.0,
 			"defined": "Click during a fight. Heal 2 (cap 6). The Jar is used up. While it is still in your hand, one Move spends 1 move and slides two seats in that direction. If the second seat has no living monster, you only slide one.",
 			"exceptions": "Bucket 2. On use Heal 2. Passive extra seat on Move while held. Swap and Keep are gone.",
 			"explainer": "Move 2 and Keep",
@@ -3268,14 +3268,14 @@
 				"n": 2.0
 			},
 			"poc": false,
-			"pool": 4,
-			"priority": 3,
+			"pool": 4.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "I"
 		},
 		{
@@ -3582,7 +3582,7 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1,
+			"count": 1.0,
 			"defined": "Click during a fight. Used up. Heal equal to the last HP-loss event this dungeon. If you have not lost HP yet, unplayable.",
 			"exceptions": "Needs art.",
 			"explainer": "(HEAL = last HP lost)",
@@ -3624,14 +3624,14 @@
 				"kind": "heal_last_loss"
 			},
 			"poc": false,
-			"pool": 4,
-			"priority": 3,
+			"pool": 4.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1,
+			"tier": 1.0,
 			"type": "I"
 		},
 		{
@@ -6541,19 +6541,19 @@
 			"type": "M"
 		},
 		{
-			"ability": "On Spin, my Neighbors Gain 2 Poison and Heal 2. While I live, Poison does not activate.",
+			"ability": "On each Spin, I give all You and all Monsters 1 Poison",
 			"atk": {
-				"base": 2.0
+				"base": 1
 			},
 			"atk_base": 2.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Outbreak",
 			"card_color": "",
-			"count": 1.0,
-			"defined": "SP-28 (2026-10-28). On every Spin while I live unsilenced: each living Neighbor Gains 2 Poison and Heals 2 (cap at their max HP). Poison stacks keep growing. While I live unsilenced, Poison NEVER activates — monster poison and the player's poison both stay frozen. On the first Spin after I die (or Quiet Bell silences every living Plague Doctor), stored Poison activates normally. When Poison would activate but is blocked, show my slash portrait and the dissolving line 'Poison does not activate'.",
-			"exceptions": "SP-28. Bucket 5. Freeze-all poison while alive (player + monsters). Quiet Bell turns this off.",
-			"explainer": "Spin: Neighbors +2 Poison and Heal 2. Poison frozen while I live.",
+			"count": 1,
+			"defined": "SP-30 (2026-10-30). On every real Spin (Smoke, Flee, auto-spin, landing — not Grappling Hook or Damsel) while I live unsilenced: after player Poison and the landed monster's Poison pay, you Gain 1 Poison and every living monster Gains 1 Poison, including me. Amounts add. Two of me each give +1. The new 1s do not pay on this Spin. Quiet Bell turns this off. No freeze. No Heal.",
+			"exceptions": "SP-30. Pool 4 T1. Every Spin +1 you and every living monster including me. Each copy. Freeze gone. ATK 1.",
+			"explainer": "Each Spin: you and every monster Gain 1 Poison",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -6561,12 +6561,12 @@
 			},
 			"flow": "SP-28 (2026-10-28). On every Spin while I live unsilenced: each living Neighbor Gains 2 Poison and Heals 2 (cap at their max HP). Poison stacks keep growing. While I live unsilenced, Poison NEVER activates — monster poison and the player's poison both stay frozen. On the first Spin after I die (or Quiet Bell silences every living Plague Doctor), stored Poison activates normally. When Poison would activate but is blocked, show my slash portrait and the dissolving line 'Poison does not activate'.",
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
 			"hp_base": 3.0,
 			"hp_formula": "",
 			"id": "plague_doctor",
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-10-30",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6587,20 +6587,20 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Neighbors +2 Poison and Heal 2; Poison frozen while alive",
+			"log_hint": "Each Spin: +1 Poison to you and every monster",
 			"mode_pool": "all",
 			"name": "Plague Doctor",
 			"notes": "SP-28. Bucket 5. Freeze-all poison while alive (player + monsters). Quiet Bell turns this off.",
 			"ops": {},
 			"poc": false,
-			"pool": 4.0,
-			"priority": 3.0,
+			"pool": 4,
+			"priority": 3,
 			"rarity": "uncommon",
-			"reminder": "On Spin: Neighbors Gain 2 Poison and Heal 2. Poison does not activate while I live.",
+			"reminder": "On each Spin, I give all You and all Monsters 1 Poison",
 			"review": "rough",
-			"review_note": "",
-			"status": "live",
-			"tier": 1.0,
+			"review_note": "Ability should say: \"On each Spin, I give all You and all Monsters 1 Poison.\"",
+			"status": "todo",
+			"tier": 1,
 			"type": "M"
 		},
 		{
