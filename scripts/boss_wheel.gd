@@ -3404,7 +3404,7 @@ func _ability_icon_color(sid: String) -> Color:
 			return Color("c9a0ff")
 		"wickrise":
 			return Color("e8c36a")
-		"split_t2":
+		"split_t2", "synchronize":
 			return Color("c5cdd8")
 		"refract":
 			return Color("7eb6d6")

@@ -282,7 +282,7 @@ static func call_color(special_id: String) -> Color:
 			return CALL_HP
 		"kill_scale", "atk_eq_hp":
 			return CALL_VAR
-		"split_t2":
+		"split_t2", "synchronize":
 			return CALL_STEEL
 		_:
 			return CALL_INK
