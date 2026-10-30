@@ -4,7 +4,7 @@ extends Node
 const SAVE_PATH := "user://audio.json"
 const MAP_PATH := "res://data/sfx-map.json"
 const LEGACY_UI_IDS := ["hover", "click", "click2", "select", "question", "error", "switch", "confirm", "confirm_big"]
-const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp", "music_verdant_hollow_loop", "music_cinder_forge_a", "music_cinder_forge_b", "music_cinder_forge_c"]
+const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp", "music_verdant_hollow_loop", "music_cinder_forge_a", "music_cinder_forge_b", "music_cinder_forge_c", "music_crystal_cavern_a", "music_crystal_cavern_b", "music_crystal_cavern_c"]
 const FORGE_BED := "cinder_forge"
 const FORGE_MUTE_DB := -80.0
 const FORGE_COMBAT_FADE_S := 0.33
@@ -737,7 +737,7 @@ func stop_cue_voices(cue_id: StringName) -> void:
 
 func music_to(bed: StringName, fade_s: float) -> void:
 	var id: String = String(bed)
-	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "cinder_forge"]:
+	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "cinder_forge", "crystal_cavern"]:
 		loop_stop(&"amb.radio_static", 0.25)
 	# Leaving the dungeon for cabin / title / radio stations drops the biome bed.
 	if id == "cabin" or id == "title" or id == "intro" or id == "ending" or id.begins_with("station_"):
@@ -813,7 +813,7 @@ func music_title() -> void:
 
 func music_deadly() -> void:
 	if _is_forge_adaptive():
-		# Cinder Forge: heat layer only. Never swap A off the Forge bed.
+		# Layered biome (Forge / Crystal Cavern): heat only. Never swap A off the bed.
 		_forge_set_heat(true, FORGE_COMBAT_FADE_S)
 		return
 	music_state = &"deadly"
@@ -882,8 +882,19 @@ func _on_dungeon_or_intro_bed() -> bool:
 	return _current_bed == StringName(intro_id)
 
 
+func _layered_bed_id() -> String:
+	for candidate in [String(_dungeon_bed), String(_current_bed)]:
+		if _is_layered_bed(candidate):
+			return candidate
+	return ""
+
+
+func _is_layered_bed(bed_id: String) -> bool:
+	return bed_id != "" and _beds.has(bed_id) and _beds.has(bed_id + "_b") and _beds.has(bed_id + "_c")
+
+
 func _is_forge_adaptive() -> bool:
-	return _dungeon_bed == StringName(FORGE_BED) or _current_bed == StringName(FORGE_BED)
+	return _layered_bed_id() != ""
 
 
 func _forge_layer_gain(bed_id: String) -> float:
@@ -893,14 +904,17 @@ func _forge_layer_gain(bed_id: String) -> float:
 
 
 func _bind_forge_layers(bed_id: String, start_pos: float) -> void:
-	if bed_id != FORGE_BED:
+	if not _is_layered_bed(bed_id):
 		_stop_forge_layers(0.4)
 		return
-	_start_forge_layers(start_pos)
+	_start_forge_layers(start_pos, bed_id)
 
 
-func _start_forge_layers(start_pos: float) -> void:
-	for pair in [["cinder_forge_b", _forge_b], ["cinder_forge_c", _forge_c]]:
+func _start_forge_layers(start_pos: float, bed_id: String = "") -> void:
+	var bed: String = bed_id if bed_id != "" else _layered_bed_id()
+	if bed == "" or not _is_layered_bed(bed):
+		return
+	for pair in [[bed + "_b", _forge_b], [bed + "_c", _forge_c]]:
 		var key: String = str(pair[0])
 		var player: AudioStreamPlayer = pair[1]
 		if player == null or not _beds.has(key):
@@ -963,7 +977,8 @@ func _fade_forge_player(player: AudioStreamPlayer, target_db: float, fade_s: flo
 func _forge_set_drums(on: bool, fade_s: float) -> void:
 	_forge_drums = on
 	_forge_seek_to_bed()
-	var db: float = _forge_layer_gain("cinder_forge_b") if on else FORGE_MUTE_DB
+	var bed: String = _layered_bed_id()
+	var db: float = _forge_layer_gain(bed + "_b") if on and bed != "" else FORGE_MUTE_DB
 	_fade_forge_player(_forge_b, db, fade_s, false)
 
 
@@ -977,13 +992,15 @@ func forge_boss_spin() -> void:
 func _forge_set_heat(on: bool, fade_s: float) -> void:
 	_forge_heat = on
 	_forge_seek_to_bed()
-	var db: float = _forge_layer_gain("cinder_forge_c") if on else FORGE_MUTE_DB
+	var bed: String = _layered_bed_id()
+	var db: float = _forge_layer_gain(bed + "_c") if on and bed != "" else FORGE_MUTE_DB
 	_fade_forge_player(_forge_c, db, fade_s, false)
 	_forge_set_bed_lin(FORGE_A_BOSS_LIN if on else 1.0, fade_s)
 
 
 func _forge_bed_db(lin: float) -> float:
-	var base: float = _forge_layer_gain(FORGE_BED)
+	var bed: String = _layered_bed_id()
+	var base: float = _forge_layer_gain(bed if bed != "" else FORGE_BED)
 	return base + linear_to_db(clampf(lin, 0.0001, 1.0))
 
 
@@ -1243,6 +1260,8 @@ func _apply_cue_music(cue_id: String, bed: String) -> void:
 			music_biome_dungeon("b1")
 		"cinder_forge":
 			music_biome_dungeon("b4")
+		"crystal_cavern":
+			music_biome_dungeon("b2")
 
 
 func _mix_duck(attack: float) -> void:
