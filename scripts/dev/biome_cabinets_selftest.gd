@@ -193,6 +193,54 @@ func _init() -> void:
 		var lay: Dictionary = Cases.peg_column_layout(gi_px, cell, Cases.PEG_FIT_MAX)
 		var msize: Vector2 = lay.get("msize", Vector2.ZERO)
 		failed = _check(failed, "peg int empty %d" % gi2, msize.x == floor(msize.x) and msize.y == floor(msize.y)) or failed
+	## Hall zoom must keep the focused case inside the 1680×1040 viewport even when
+	## RoomHall sits at layout x=6720 (4th room after loft/workshop/study/main).
+	var hall_layout := Vector2(6720, 0)
+	var verdant_outer: Rect2 = Cases.outer_rect(0)
+	var verdant_px := Rect2(verdant_outer.position * 4.0, verdant_outer.size * 4.0)
+	var zoom_target: Vector2 = Cases.hall_zoom_target(hall_layout, verdant_px.position + verdant_px.size * 0.5)
+	failed = _check(failed, "zoom target keeps layout seat", zoom_target.x > 5000.0) or failed
+	failed = _check(
+		failed,
+		"zoom case in viewport from layout 6720",
+		Cases.hall_zoom_case_in_viewport(hall_layout, verdant_px)
+	) or failed
+	## Broken absolute clamp (old bug) would land near 0 and leave a black frame.
+	var broken := Vector2(840, 520) - (verdant_px.position + verdant_px.size * 0.5) * 2.0
+	broken.x = clampf(broken.x, -1680.0, 0.0)
+	failed = _check(failed, "old absolute clamp != layout-aware target", broken != zoom_target) or failed
+	## Bank-flip pool: spiked_flail is Crystal Cavern (b2) page index 1 (2nd page).
+	var catalog: Dictionary = Shell.read_json("res://data/catalog.json")
+	var cat_items: Array = catalog.get("items", [])
+	var b2_cards: Array = []
+	var flail_pool := ""
+	for raw_it in cat_items:
+		if typeof(raw_it) != TYPE_DICTIONARY:
+			continue
+		var it: Dictionary = raw_it
+		var st := str(it.get("status", "live"))
+		if st in ["retired", "hold"]:
+			continue
+		var bucket := int(it.get("pool", it.get("bucket", 0)))
+		if str(it.get("id", "")) == "spiked_flail":
+			flail_pool = Cases.pool_for_bucket(rules, bucket)
+		if bucket == 2:
+			b2_cards.append(it)
+	var b2_slots: Array = Cases.fixed_slots(b2_cards)
+	var flail_idx := -1
+	for i in b2_slots.size():
+		if str((b2_slots[i] as Dictionary).get("id", "")) == "spiked_flail":
+			flail_idx = i
+			break
+	failed = _check(failed, "spiked_flail pool b2", flail_pool == "b2") or failed
+	failed = _check(failed, "spiked_flail in Crystal slots", flail_idx >= 0) or failed
+	failed = _check(failed, "spiked_flail page index 1", flail_idx >= 0 and Cases.slot_page(flail_idx) == 1) or failed
+	var flail_seq: Array = Cases.bank_sequence(["spiked_flail"], {"spiked_flail": "b2"})
+	failed = _check(
+		failed,
+		"bank_sequence targets b2 for flail",
+		flail_seq.size() == 1 and str((flail_seq[0] as Dictionary).get("pool", "")) == "b2"
+	) or failed
 	if failed:
 		print("BIOME_CABINETS_FAIL")
 		quit(1)

@@ -2101,20 +2101,36 @@ func _on_dumbwaiter_stop(pool: String) -> void:
 
 
 func _hall_flip_to_item(pool: String, item_id: String) -> void:
-	var tc = _trophy_cases.get(pool, null)
+	## Always resolve the cabinet from the card's pool tag so a page-2 Crystal
+	## item never flips Verdant (or a stale session page) by mistake.
+	var card: Dictionary = items_by_id.get(item_id, {})
+	var resolved := _live_pool(card)
+	if resolved == "":
+		resolved = pool
+	var tc = _trophy_cases.get(resolved, null)
+	if tc == null and pool != "" and pool != resolved:
+		tc = _trophy_cases.get(pool, null)
+		if tc != null:
+			resolved = pool
 	if tc == null:
 		return
-	var grouped := _group_cards_by_pool()
-	var slots: Array = BiomeCabinets.fixed_slots(grouped.get(pool, []))
 	var idx := -1
-	for i in slots.size():
-		if str((slots[i] as Dictionary).get("id", "")) == item_id:
+	## Prefer the live TrophyCase slot list (same order as fixed_slots).
+	var slot_ids: Array = []
+	if "_slot_ids" in tc:
+		slot_ids = tc._slot_ids
+	if slot_ids.is_empty():
+		var grouped := _group_cards_by_pool()
+		for raw in BiomeCabinets.fixed_slots(grouped.get(resolved, [])):
+			slot_ids.append(str((raw as Dictionary).get("id", "")))
+	for i in slot_ids.size():
+		if str(slot_ids[i]) == item_id:
 			idx = i
 			break
 	if idx < 0:
 		return
 	var page := BiomeCabinets.slot_page(idx)
-	_case_page[pool] = page
+	_case_page[resolved] = page
 	if tc.has_method("flip_to_page"):
 		await tc.flip_to_page(page, true)
 
@@ -2183,11 +2199,14 @@ func _open_hall_zoom(pool_id: String) -> void:
 	_hall_zoom_pool = pool_id
 	_hall_pre_zoom_pos = hall.position
 	_hall_pre_zoom_scale = hall.scale
+	## Pivot at room origin so 2× scale matches the locked Camera2D framing.
+	hall.pivot_offset = Vector2.ZERO
 	var case_center: Vector2 = tc.position + tc.size * 0.5
-	## Target: viewport centre 840,520 minus 2 * case_center, clamped.
-	var target := Vector2(840, 520) - case_center * 2.0
-	target.x = clampf(target.x, -ROOM_W, 0.0)
-	target.y = clampf(target.y, -ROOM_H, 0.0)
+	## Offset is relative to the hall's layout seat (e.g. x=6720). Clamping the
+	## absolute position to [-ROOM_W,0] used to yank the room off-screen.
+	var target: Vector2 = BiomeCabinets.hall_zoom_target(
+		_hall_pre_zoom_pos, case_center, Vector2(ROOM_W * 0.5, ROOM_H * 0.5), Vector2(ROOM_W, ROOM_H)
+	)
 	if _hall_zoom_dim:
 		_hall_zoom_dim.visible = true
 		_hall_zoom_dim.color.a = 0.0
