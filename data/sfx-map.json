@@ -494,6 +494,27 @@
         "resume_position": false,
         "note": "Forge intensity C (percussion+brass heat). Synced to A; fade in on Tier-3/boss only."
       },
+      "crystal_cavern": {
+        "file": "music_crystal_cavern_a",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": true,
+        "note": "Crystal Cavern (b2, was sunken_mire) Approach F layer A bed. Always on during the delve."
+      },
+      "crystal_cavern_b": {
+        "file": "music_crystal_cavern_b",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Crystal Cavern intensity B (drums). Synced to A; fade in on combat, mute between fights."
+      },
+      "crystal_cavern_c": {
+        "file": "music_crystal_cavern_c",
+        "gain_db": 10.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Crystal Cavern intensity C (heat). Quiet stem; +10 dB. Synced to A; fade in on Tier-3/boss only."
+      },
       "intro": {
         "file": "music_intro",
         "gain_db": 0.0,
@@ -542,11 +563,15 @@
       "rope_exit": "combat(ducked)",
       "homecoming": "cabin",
       "verdant_hollow": "verdant_hollow_intro then verdant_hollow",
-      "cinder_forge": "cinder_forge A always; B combat; C Tier-3; no between-fight bed duck"
+      "cinder_forge": "cinder_forge A always; B combat; C Tier-3; no between-fight bed duck",
+      "crystal_cavern": "crystal_cavern A always; B combat; C Tier-3; no between-fight bed duck"
     },
     "biome_beds": {
       "b1": "verdant_hollow",
       "verdant_hollow": "verdant_hollow",
+      "b2": "crystal_cavern",
+      "sunken_mire": "crystal_cavern",
+      "crystal_cavern": "crystal_cavern",
       "b4": "cinder_forge",
       "cinder_forge": "cinder_forge"
     }

@@ -204,7 +204,7 @@ const MONSTER_SPECIAL := {
 	"gargoyle": {"id": "petrify", "text": "I petrify your highest Attack item until the next Spin."},
 	"harpy": {"id": "interrupt", "text": "I attack you when you Spin me, and after each item you use when facing me."},
 	"kobold_trapper": {"id": "hunter_mark", "text": "When I enter the Dungeon I Mark 2 other Monsters. Each time a Marked monster is Defeated, I gain +2 HP and ATK"},
-	"clockwork_knight": {"id": "split_t2", "text": "If I live, I leave two Tough monsters in my place."},
+	"clockwork_knight": {"id": "synchronize", "text": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal."},
 	"basilisk": {"id": "petrify_gaze", "text": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins."},
 	"zombie": {"id": "decay", "text": "When you Spin me, I Decay two of your Items."},
 	"hollow": {"id": "even_twice", "text": "Even Attack and even Block happen twice against me."},
@@ -270,7 +270,7 @@ const MONSTER_CALL := {
 	"gargoyle": "Petrify",
 	"harpy": "Interrupt",
 	"kobold_trapper": "Hunter's Mark",
-	"clockwork_knight": "Two Gears",
+	"clockwork_knight": "Synchronize",
 	"basilisk": "Petrifying Gaze",
 	"zombie": "Decay",
 	"hollow": "Even twice",
@@ -324,7 +324,7 @@ const MONSTER_REMINDER := {
 	"gargoyle": "petrifies highest Attack item",
 	"harpy": "attacks when you Spin her, and after items while facing her",
 	"kobold_trapper": "Marked Defeat: +2 HP and ATK",
-	"clockwork_knight": "if I live, two Tier 2 owners",
+	"clockwork_knight": "Defeated: neighbors match HP, then Attack",
 	"basilisk": "first Spin: Flee, petrify 2nd, 4th, … for 3",
 	"zombie": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 	"hollow": "even Attack or Block twice",
@@ -378,7 +378,7 @@ const MONSTER_SPEECH := {
 	"gargoyle": "I petrify your highest Attack item until you Spin again.",
 	"harpy": "I attack you when you Spin me, and after each item you use when facing me.",
 	"kobold_trapper": "When I enter the Dungeon I Mark 2 other Monsters. Each time a Marked monster is Defeated, I gain +2 HP and ATK",
-	"clockwork_knight": "If I live, I leave two random Tier 2 monsters in my place.",
+	"clockwork_knight": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
 	"basilisk": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
 	"zombie": "When you Spin me, I Decay two of your Items.",
 	"hollow": "Even Attack and even Block happen twice against me.",
@@ -1030,6 +1030,7 @@ func _load_textures() -> void:
 		"interrupt": _tex("res://assets/icons/sparkles.svg"),
 		"item_swings": _tex("res://assets/icons/footprints.svg"),
 		"split_t2": _tex("res://assets/icons/rotate.svg"),
+		"synchronize": _tex("res://assets/icons/rotate.svg"),
 		"no_keep": _tex("res://assets/icons/ban.svg"),
 		"decay": _tex("res://assets/icons/link.svg"),
 		"even_twice": _tex("res://assets/icons/users.svg"),
@@ -6077,7 +6078,7 @@ func _apply_formulas_to(s: Dictionary) -> void:
 		if id == "slime_boss":
 			s["atk"] = hold_hp
 	else:
-		var bonus: int = int(s.get("leech_bonus", 0)) + int(s.get("fairy_dust", 0)) + int(s.get("trapper_growth", 0))
+		var bonus: int = int(s.get("leech_bonus", 0)) + int(s.get("fairy_dust", 0)) + int(s.get("trapper_growth", 0)) + int(s.get("sync_hp", 0))
 		if bonus > 0:
 			var missing: int = maxi(0, hold_max - hold_hp)
 			s["hp_max"] = int(s["hp_max"]) + bonus
@@ -6086,6 +6087,12 @@ func _apply_formulas_to(s: Dictionary) -> void:
 		s["atk"] = _card_base_atk(id) + int(s.get("bloodlust", 0))
 	elif atk_locked and id != "slime_boss":
 		s["atk"] = hold_atk
+	if not _atk_is_always(s):
+		var held_atk: bool = atk_locked and id != "slime_boss" and id != "vampire"
+		if not held_atk:
+			var extra_atk: int = int(s.get("sync_atk", 0))
+			if extra_atk != 0:
+				s["atk"] = int(s.get("atk", 0)) + extra_atk
 	if not atk_locked:
 		_apply_sandbag_cut(s)
 
@@ -6131,6 +6138,10 @@ func _refresh_live_atk(s: Dictionary) -> void:
 			s["atk"] = int(s.get("hp", 0))
 		_:
 			pass
+	if not _atk_is_always(s):
+		var live_extra: int = int(s.get("sync_atk", 0))
+		if live_extra != 0:
+			s["atk"] = int(s.get("atk", 0)) + live_extra
 
 
 func _apply_always_atk() -> void:
@@ -6145,7 +6156,10 @@ func _apply_always_atk() -> void:
 			wheel[i]["atk"] = int(wheel[i].get("hp", 0))
 		elif id == "dire_wolf":
 			wheel[i]["atk"] = hp
-		wheel[i]["atk_innate"] = int(wheel[i].get("atk", 0))
+		var innate: int = int(wheel[i].get("atk", 0))
+		if not _atk_is_always(wheel[i]):
+			innate = maxi(0, innate - int(wheel[i].get("sync_atk", 0)))
+		wheel[i]["atk_innate"] = innate
 
 
 func _apply_atk_mods() -> void:
@@ -8152,7 +8166,7 @@ func _player_down(skip_pose: bool = false) -> void:
 	_refresh()
 
 
-func _clear_after_fight(clockwork_split: bool = false) -> void:
+func _clear_after_fight(_clockwork_split: bool = false) -> void:
 	var token: int = _undo_gen
 	if adventure:
 		await _challenge_after_fight()
@@ -8164,7 +8178,6 @@ func _clear_after_fight(clockwork_split: bool = false) -> void:
 		return
 	var m: Dictionary = wheel[facing_index]
 	var left_id: String = str(m.get("card_id", ""))
-	var left_silenced: bool = _is_silenced(m)
 	_trace_resolve("clear start left=%s n=%s" % [left_id, wheel.size()])
 	if _tutorial_keeps_seat():
 		await _tutorial_replace_with_deck(facing_index, "bandit")
@@ -8180,9 +8193,6 @@ func _clear_after_fight(clockwork_split: bool = false) -> void:
 		else:
 			_remove_facing()
 	_trace_resolve("clear after remove n=%s" % wheel.size())
-	if clockwork_split and left_id == "clockwork_knight" and not left_silenced:
-		await _spawn_clockwork_heirs()
-		_trace_resolve("clear after heirs n=%s" % wheel.size())
 	_discard_spent_items()
 	_bank_stone_wall()
 	blk = 0
@@ -10344,11 +10354,165 @@ func _seat_released_bag(snap: Dictionary) -> int:
 	return hole
 
 
+func _clockwork_synchronize(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var m: Dictionary = wheel[index]
+	if str(m.get("card_id", "")) != "clockwork_knight":
+		return
+	if bool(m.get("synchronized", false)):
+		return
+	m["synchronized"] = true
+	wheel[index] = m
+	if _is_silenced(m):
+		return
+	var nbs: Array[int] = []
+	for j in _damsel_neighbors(index):
+		if int(wheel[j].get("hp", 0)) <= 0:
+			continue
+		if str(wheel[j].get("kind", "")) != "monster":
+			continue
+		nbs.append(j)
+	if nbs.size() < 2:
+		return
+	await _announce_slice(index, _slice_hp_pos(nbs[0]))
+	await _sync_pair_stat(index, nbs[0], nbs[1], true)
+	await _sync_pair_stat(index, nbs[0], nbs[1], false)
+	var before: Dictionary = {}
+	for j2 in nbs:
+		if j2 < 0 or j2 >= wheel.size():
+			continue
+		if _atk_is_always(wheel[j2]):
+			before[j2] = int(wheel[j2].get("atk", 0))
+	_sync_wheel_stats()
+	if wheel_view:
+		wheel_view.set_slices(wheel, facing_index, "none")
+	for j3 in before.keys():
+		var ji: int = int(j3)
+		if ji < 0 or ji >= wheel.size():
+			continue
+		if not _atk_is_always(wheel[ji]):
+			continue
+		var now_atk: int = int(wheel[ji].get("atk", 0))
+		if now_atk == int(before[j3]):
+			continue
+		_log("on_resolve", "Reset due to ability")
+		_flash_reset_line(ji)
+		if wheel_view:
+			wheel_view.punch_atk(ji)
+		if get_tree():
+			await get_tree().create_timer(0.45).timeout
+
+
+func _sync_pair_stat(src: int, a: int, b: int, hp_stat: bool) -> void:
+	var key: String = "hp" if hp_stat else "atk"
+	var guard: int = 0
+	while guard < 48:
+		guard += 1
+		if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
+			return
+		if int(wheel[a].get("hp", 0)) <= 0 or int(wheel[b].get("hp", 0)) <= 0:
+			return
+		var av: int = int(wheel[a].get(key, 0))
+		var bv: int = int(wheel[b].get(key, 0))
+		if av == bv:
+			return
+		var low: int = a if av < bv else b
+		await _sync_grant_one(src, low, hp_stat)
+	if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
+		return
+	var av2: int = int(wheel[a].get(key, 0))
+	var bv2: int = int(wheel[b].get(key, 0))
+	if av2 == bv2:
+		return
+	var low2: int = a if av2 < bv2 else b
+	var goal: int = bv2 if av2 < bv2 else av2
+	var cur: int = av2 if av2 < bv2 else bv2
+	while cur < goal:
+		_sync_grant_instant(low2, hp_stat)
+		cur += 1
+	_show_sync_slice(low2, hp_stat)
+
+
+func _sync_grant_one(src: int, low: int, hp_stat: bool) -> void:
+	var from: Vector2 = _slice_from(src)
+	var to: Vector2 = _slice_hp_pos(low) if hp_stat else _slice_atk_pos(low)
+	var tex: Texture2D = tex_heart if hp_stat else tex_sword
+	if tex != null and from != Vector2.ZERO:
+		await _fly_courier(tex, from, to if to != Vector2.ZERO else from, 0.16)
+	_sync_grant_instant(low, hp_stat)
+	_show_sync_slice(low, hp_stat)
+	if sfx:
+		sfx.play_event(&"mon.leech_pulse", {"pitch_mul": 1.08 if hp_stat else 0.92})
+	var stat_name: String = "HP" if hp_stat else "Attack"
+	_log("on_resolve", "Synchronize +1 %s → %s" % [stat_name, str(wheel[low].get("name", "?"))])
+
+
+func _sync_grant_instant(low: int, hp_stat: bool) -> void:
+	if low < 0 or low >= wheel.size():
+		return
+	var s: Dictionary = wheel[low]
+	if hp_stat:
+		s["hp"] = int(s.get("hp", 0)) + 1
+		s["hp_max"] = int(s.get("hp_max", s["hp"])) + 1
+		s["sync_hp"] = int(s.get("sync_hp", 0)) + 1
+	else:
+		s["atk"] = int(s.get("atk", 0)) + 1
+		if not _atk_is_always(s):
+			s["sync_atk"] = int(s.get("sync_atk", 0)) + 1
+	wheel[low] = s
+
+
+func _show_sync_slice(index: int, hp_stat: bool) -> void:
+	if wheel_view == null:
+		return
+	wheel_view.set_slices(wheel, facing_index, "none")
+	if hp_stat:
+		wheel_view.punch_hp(index)
+	else:
+		wheel_view.punch_atk(index)
+
+
+func _flash_reset_line(index: int) -> void:
+	if play_field == null:
+		return
+	var at: Vector2 = _slice_from(index)
+	if at == Vector2.ZERO:
+		at = _slice_hp_pos(index)
+	var lab: FitLabelBox = FitLabelBox.make()
+	lab.show_frame = false
+	lab.padding = 0
+	lab.max_font_size = 15
+	lab.min_font_size = 12
+	lab.set_plain("Reset due to ability")
+	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lab.font_color = Color("f0e6d8")
+	lab.set_outline(Color("100e0c"), 4)
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lab.z_index = 46
+	play_field.add_child(lab)
+	lab.size = Vector2(220, 28)
+	lab.global_position = at - Vector2(110, 36)
+	lab.modulate.a = 0.0
+	var tw := lab.create_tween()
+	tw.tween_property(lab, "modulate:a", 1.0, 0.1)
+	tw.parallel().tween_property(lab, "global_position", lab.global_position + Vector2(0, -22), 0.7)
+	tw.chain().tween_interval(0.35)
+	tw.tween_property(lab, "modulate:a", 0.0, 0.3)
+	tw.finished.connect(lab.queue_free)
+
+
 func _wick_waiting(_index: int) -> bool:
 	return false
 
 
 func _wick_on_defeated(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	if str(wheel[index].get("kind", "")) != "monster":
+		return
+	await _clockwork_synchronize(index)
 	if index < 0 or index >= wheel.size():
 		return
 	if str(wheel[index].get("kind", "")) != "monster":
@@ -15155,37 +15319,6 @@ func _feed_cube(uid: int) -> void:
 		_walker_busy = false
 	_undo_arm()
 	_refresh()
-
-
-func _spawn_clockwork_heirs() -> void:
-	var pool: Array = []
-	for id in runtime.get("monsters", []):
-		var card: Dictionary = monsters_by_id.get(str(id), {})
-		if card.is_empty():
-			continue
-		if _as_int(card.get("tier", 1), 1) != 2:
-			continue
-		if str(card.get("status", "live")) == "retired" or str(card.get("status", "live")) == "hold":
-			continue
-		pool.append(str(id))
-	if pool.is_empty():
-		for id2 in monsters_by_id.keys():
-			var c2: Dictionary = monsters_by_id[id2]
-			if _as_int(c2.get("tier", 1), 1) == 2:
-				pool.append(str(id2))
-	if pool.is_empty():
-		return
-	for _i in 2:
-		var pick: String = str(pool[rng.randi() % pool.size()])
-		var heir: Dictionary = _make_monster(pick)
-		heir["slot"] = ""
-		wheel.append(heir)
-		_log("on_place", "Clockwork left %s" % heir.get("name", pick))
-	_reseat_slots()
-	if sfx:
-		sfx.play_event(&"mon.clockwork_spawn")
-	for i in range(wheel.size()):
-		await _maybe_enter_gains(i)
 
 
 func _count_item_use() -> void:

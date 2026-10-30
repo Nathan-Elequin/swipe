@@ -402,3 +402,10 @@ Source: Suno Forge Motif https://suno.com/s/mhvMHyfv72JqOpjX — loop trim 8.169
 music_cinder_forge_a.ogg (~65.46 s) — layer A bed (Lead+Bass+Keyboard+Synth+Other+Woodwinds, no drums)
 music_cinder_forge_b.ogg (~65.46 s) — layer B drums (combat intensity, synced to A)
 music_cinder_forge_c.ogg (~65.46 s) — layer C heat (Percussion+Brass; Tier-3/boss intensity, synced to A)
+
+Crystal Cavern theme — Approach F hybrid (2026-10-30)
+----------------------------------------------------
+Source: Crystal Cavern Stems (119 BPM). Instrumental by Nathan (refinedpolonaise473). Replaces sunken_mire music keys (b2).
+music_crystal_cavern_a.ogg — layer A bed (always on during the delve)
+music_crystal_cavern_b.ogg — layer B drums (combat intensity, synced to A)
+music_crystal_cavern_c.ogg — layer C heat (Tier-3/boss; quiet stem, map gain_db +10)
