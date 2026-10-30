@@ -713,6 +713,7 @@ var btn_challenge_begin: Button
 var hotbar_wrap: MarginContainer
 var btn_wrap: MarginContainer
 var hotbar_panel: PanelContainer
+var hotbar_overflow: Control
 var challenge_deck: Array = []
 var challenge_aim: int = -1
 var _unspin_armed: bool = false
@@ -1326,7 +1327,15 @@ func _build_ui() -> void:
 	var hot_align := HBoxContainer.new()
 	hot_align.alignment = BoxContainer.ALIGNMENT_CENTER
 	hot_align.add_theme_constant_override("separation", 0)
+	hotbar_wrap.clip_contents = false
 	hotbar_wrap.add_child(hot_align)
+	hotbar_overflow = Control.new()
+	hotbar_overflow.name = "HotbarOverflow"
+	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hotbar_overflow.clip_contents = false
+	hotbar_overflow.z_index = 8
+	hotbar_overflow.draw.connect(_draw_hotbar_overflow)
+	hotbar_wrap.add_child(hotbar_overflow)
 	hotbar_panel = PanelContainer.new()
 	hotbar_panel.visible = true
 	hotbar_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -4026,6 +4035,18 @@ func _item_is_curse(it: Dictionary) -> bool:
 	return id == "spider_egg" or id == "toll" or id == "rust"
 
 
+func _item_blocks_hand_tax(it: Dictionary) -> bool:
+	if it.is_empty():
+		return false
+	if _item_is_curse(it):
+		return true
+	var id: String = str(it.get("card_id", ""))
+	var card: Dictionary = items_by_id.get(id, {})
+	if str(card.get("card_color", "")) == "egg":
+		return true
+	return id == "blood_pact"
+
+
 func _filter_toss_uids(uids: Array) -> Array:
 	var out: Array = []
 	for uidv in uids:
@@ -4033,7 +4054,7 @@ func _filter_toss_uids(uids: Array) -> Array:
 		var it: Dictionary = _find_item(uid)
 		if it.is_empty():
 			continue
-		if _item_is_curse(it):
+		if _item_blocks_hand_tax(it):
 			continue
 		out.append(uid)
 	return out
@@ -4689,7 +4710,7 @@ func _challenge_discard_one(uid: int) -> void:
 	var have: Dictionary = _find_item(uid)
 	if have.is_empty():
 		return
-	if _item_is_curse(have):
+	if _item_blocks_hand_tax(have):
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
@@ -9938,7 +9959,7 @@ func _toss_item(uid: int, keep: bool, slow: bool = false) -> void:
 		keep = true
 	if keep and _keep_blocked_now():
 		keep = false
-	for c in hotbar_box.get_children():
+	for c in _hotbar_all_cards():
 		if not c.has_method("toss"):
 			continue
 		if int(c.uid) != uid:
@@ -10890,7 +10911,7 @@ func _hired_ask_bribe() -> void:
 	var nbs: Array[int] = _hired_living_neighbors(facing_index)
 	var uids: Array = []
 	if not nbs.is_empty():
-		uids = _filter_toss_uids(_hand_discard_uids())
+		uids = _hand_discard_uids()
 	pending_feed = {"uids": uids, "kind": "hired_bribe"}
 	if nbs.is_empty():
 		_cube_line = "Nobody next to me. Decline — we fight."
@@ -10910,8 +10931,6 @@ func _hand_discard_uids() -> Array:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
 		if bool(it.get("spent", false)):
-			continue
-		if _item_is_curse(it):
 			continue
 		var uid: int = int(it.get("uid", -1))
 		if uid >= 0:
@@ -11279,13 +11298,20 @@ func _is_toss_feed(kind: String) -> bool:
 func _forced_gain_tax() -> void:
 	if hotbar.size() <= _forced_hand_cap():
 		return
-	var uids: Array = _hand_all_uids()
+	var uids: Array = _filter_toss_uids(_hand_all_uids())
 	if uids.is_empty():
+		while hotbar.size() > _forced_hand_cap():
+			var extra: Dictionary = hotbar.pop_back()
+			if typeof(extra) == TYPE_DICTIONARY:
+				_abort_full_hand_gain(extra)
+		_sort_hotbar()
 		return
 	pending_feed = {"uids": uids, "kind": "forced_gain"}
 	_refresh()
 	_sync_hub_cue()
 	await _wait_bell_pick()
+	if hotbar.size() <= _forced_hand_cap():
+		_sort_hotbar()
 	_refresh()
 
 
@@ -11459,26 +11485,35 @@ func _feed_bell_overlay(uid: int) -> void:
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
 		return
-	if kind != "bell_defeat" and kind != "forced_gain" and str(it.get("card_id", "")) == "rust":
-		if sfx:
-			sfx.play("error", -12.0)
-		return
-	if kind != "bell_defeat" and kind != "forced_gain" and _item_is_curse(it):
+	if _is_forced_gain_feed(kind) and _item_blocks_hand_tax(it):
 		if sfx:
 			sfx.play("error", -12.0)
 		return
 	_log("on_spin", "discard %s" % str(it.get("name", "?")))
 	_discard_from_hand(uid)
 	if kind == "forced_gain" and hotbar.size() > _forced_hand_cap():
-		pending_feed = {"uids": _hand_all_uids(), "kind": "forced_gain"}
-		if sfx:
-			sfx.play_event(&"hand.toss")
-		_refresh()
-		_sync_hub_cue()
-		return
+		var next_uids: Array = _filter_toss_uids(_hand_all_uids())
+		if next_uids.is_empty():
+			while hotbar.size() > _forced_hand_cap():
+				var extra: Dictionary = hotbar.pop_back()
+				if typeof(extra) == TYPE_DICTIONARY:
+					_abort_full_hand_gain(extra)
+			pending_feed = {}
+			_cube_line = ""
+			_bell_wait = false
+			_sort_hotbar()
+		else:
+			pending_feed = {"uids": next_uids, "kind": "forced_gain"}
+			if sfx:
+				sfx.play_event(&"hand.toss")
+			_refresh()
+			_sync_hub_cue()
+			return
 	pending_feed = {}
 	_cube_line = ""
 	_bell_wait = false
+	if hotbar.size() <= _forced_hand_cap():
+		_sort_hotbar()
 	if speech_box:
 		speech_box.hide_speech()
 	if sfx:
@@ -13819,6 +13854,14 @@ func _apply_juggernaut_on_spin() -> void:
 
 
 func _hotbar_empty_slot_global() -> Vector2:
+	if _hotbar_park_overflow() and hotbar_overflow != null:
+		var parked: Array = hotbar_overflow.get_children()
+		if not parked.is_empty():
+			var last_park: Control = parked[parked.size() - 1]
+			return last_park.global_position + last_park.size * 0.5
+		if hotbar_panel != null:
+			var pr: Rect2 = hotbar_panel.get_global_rect()
+			return Vector2(pr.position.x + pr.size.x * 0.5, pr.position.y - 64.0)
 	if hotbar_box == null:
 		return Vector2.ZERO
 	var kids: Array = hotbar_box.get_children()
@@ -15071,7 +15114,7 @@ func _cube_ask_feed() -> void:
 	if hotbar.is_empty():
 		_log("on_spin", "cube ate nothing")
 		return
-	var ids: Array = _filter_toss_uids(_hand_all_uids())
+	var ids: Array = _hand_all_uids()
 	if ids.is_empty():
 		_log("on_spin", "cube ate nothing")
 		return
@@ -18288,6 +18331,9 @@ func _log_begin_item(it: Dictionary) -> void:
 
 
 func _sort_hotbar() -> void:
+	if hotbar.size() > _forced_hand_cap():
+		_hotbar_sig = ""
+		return
 	hotbar.sort_custom(func(a, b) -> bool:
 		return _item_rank(a) < _item_rank(b)
 	)
@@ -20796,12 +20842,12 @@ func _kind_mark(kind: String) -> Texture2D:
 
 
 func _sync_hotbar_formulas() -> void:
-	if hotbar_box == null:
-		return
-	for c in hotbar_box.get_children():
+	for c in _hotbar_all_cards():
 		if not c.has_method("show_formula"):
 			continue
 		var it: Dictionary = _find_item(int(c.uid))
+		if it.is_empty() and _challenge_loot_wait and not _challenge_pending_gain.is_empty() and int(c.uid) == int(_challenge_pending_gain.get("uid", -1)):
+			it = _challenge_pending_gain
 		if it.is_empty():
 			continue
 		var rule: Dictionary = _item_rule(it)
@@ -22035,29 +22081,51 @@ func _sync_hotbar() -> void:
 		var chain_n: int = int(_ops_of(it).get("n", 0)) if str(it.get("card_id", "")) == "ball_and_chain" else 0
 		# marble_n is omitted so grow / swirl can play on the live card.
 		sig.append("%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s" % [it.get("uid", 0), it.get("card_id", ""), echo_id, it.get("petrified", false), it.get("toll_n", 0), it.get("bagged_hp", 0), it.get("bagged_name", ""), chain_n, it.get("recycle_n", 0), it.get("cats_eye", false), 0, it.get("rust_n", 0), it.get("hex_n", 0)])
-	var empties: int = (CHALLENGE_HAND - hotbar.size()) if adventure else 0
-	var joined: String = ",".join(sig) + "|e%s|d%s" % [empties, 1 if _challenge_loot_wait else 0]
+	var cap_n: int = CHALLENGE_HAND if adventure else 9999
+	var seated_n: int = mini(hotbar.size(), cap_n)
+	var empties: int = (cap_n - seated_n) if adventure else 0
+	var pending_uid: int = int(_challenge_pending_gain.get("uid", 0)) if _challenge_loot_wait and not _challenge_pending_gain.is_empty() else 0
+	var joined: String = ",".join(sig) + "|e%s|d%s|s%s|p%s" % [empties, 1 if _challenge_loot_wait else 0, seated_n, pending_uid]
 	if joined != _hotbar_sig:
 		_hotbar_sig = joined
 		for c in hotbar_box.get_children():
 			hotbar_box.remove_child(c)
 			c.queue_free()
-		for it in hotbar:
-			if typeof(it) != TYPE_DICTIONARY:
+		_clear_hotbar_overflow()
+		for i in range(seated_n):
+			var it_seat: Dictionary = hotbar[i]
+			if typeof(it_seat) != TYPE_DICTIONARY:
 				continue
-			var spawned: Control = _spawn_item_card(it, true)
+			var spawned: Control = _spawn_item_card(it_seat, true)
 			if spawned:
 				hotbar_box.add_child(spawned)
 		if adventure:
 			for _e in range(maxi(0, empties)):
 				hotbar_box.add_child(_make_hot_empty())
-	for c in hotbar_box.get_children():
+		if hotbar_overflow != null:
+			for j in range(seated_n, hotbar.size()):
+				var it_wait: Dictionary = hotbar[j]
+				if typeof(it_wait) != TYPE_DICTIONARY:
+					continue
+				var parked: Control = _spawn_item_card(it_wait, true)
+				if parked:
+					hotbar_overflow.add_child(parked)
+			if pending_uid != 0:
+				var pending_card: Control = _spawn_item_card(_challenge_pending_gain, false)
+				if pending_card:
+					hotbar_overflow.add_child(pending_card)
+		_place_hotbar_overflow()
+		call_deferred("_place_hotbar_overflow")
+	for c in _hotbar_all_cards():
 		var card = c
 		if not card.has_method("set_live"):
 			continue
 		var it: Dictionary = _find_item(int(card.uid))
+		if it.is_empty() and pending_uid != 0 and int(card.uid) == pending_uid:
+			it = _challenge_pending_gain
 		if it.is_empty():
 			continue
+		var waiting: bool = hotbar_overflow != null and card.get_parent() == hotbar_overflow
 		var view: Dictionary = _item_view(it)
 		var uid_n: int = int(it.get("uid", -1))
 		var spent_n: bool = bool(it.get("spent", false))
@@ -22067,7 +22135,7 @@ func _sync_hotbar() -> void:
 		var magnet_ready: bool = phase == "ready" and _is_magnet(it)
 		var can_click: bool = false
 		if _challenge_loot_wait:
-			can_click = not _item_is_curse(it)
+			can_click = (not waiting) and (not _item_blocks_hand_tax(it))
 		elif not pending_feed.is_empty():
 			can_click = is_snack
 		else:
@@ -22113,6 +22181,8 @@ func _sync_hotbar() -> void:
 			card.set_aura(snack_aura or rec_ready or (mag_on and (phase == "fighting" or phase == "ready")))
 		if card.has_method("set_toss_pick"):
 			card.set_toss_pick(_toss_pick_mode() and can_click)
+		if card.has_method("set_waiting_entry"):
+			card.set_waiting_entry(waiting)
 		if card.has_method("set_passive_icons"):
 			card.set_passive_icons(null, null, false)
 		_sync_card_pass5(card, it, can_click, in_fight)
@@ -22121,6 +22191,87 @@ func _sync_hotbar() -> void:
 
 func _make_hot_empty() -> Control:
 	return HOT_EMPTY.new()
+
+
+func _hotbar_park_overflow() -> bool:
+	if not adventure:
+		return false
+	if hotbar.size() > _forced_hand_cap():
+		return true
+	return _challenge_loot_wait and not _challenge_pending_gain.is_empty()
+
+
+func _hotbar_all_cards() -> Array:
+	var out: Array = []
+	if hotbar_box != null:
+		out.append_array(hotbar_box.get_children())
+	if hotbar_overflow != null:
+		out.append_array(hotbar_overflow.get_children())
+	return out
+
+
+func _clear_hotbar_overflow() -> void:
+	if hotbar_overflow == null:
+		return
+	for c in hotbar_overflow.get_children():
+		hotbar_overflow.remove_child(c)
+		c.queue_free()
+
+
+func _place_hotbar_overflow() -> void:
+	if hotbar_overflow == null:
+		return
+	hotbar_overflow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var kids: Array = hotbar_overflow.get_children()
+	if kids.is_empty():
+		hotbar_overflow.queue_redraw()
+		return
+	var gap: float = 8.0
+	var cw: float = 147.5
+	var ch: float = 120.0
+	var first: Control = kids[0] as Control
+	if first != null:
+		var sz: Vector2 = first.get_combined_minimum_size()
+		if sz.x > 8.0:
+			cw = sz.x
+		if sz.y > 8.0:
+			ch = sz.y
+	var n: int = kids.size()
+	var total: float = float(n) * cw + float(maxi(0, n - 1)) * gap
+	var host_w: float = hotbar_overflow.size.x
+	if host_w < 8.0 and hotbar_panel != null:
+		host_w = hotbar_panel.size.x
+	var start_x: float = (host_w - total) * 0.5
+	var y: float = -ch - 16.0
+	for i in range(n):
+		var card: Control = kids[i] as Control
+		if card == null:
+			continue
+		card.position = Vector2(start_x + float(i) * (cw + gap), y)
+		if card.has_method("set_waiting_entry"):
+			card.set_waiting_entry(false)
+			card.set_waiting_entry(true)
+	hotbar_overflow.queue_redraw()
+
+
+func _draw_hotbar_overflow() -> void:
+	if hotbar_overflow == null:
+		return
+	for c in hotbar_overflow.get_children():
+		if not (c is Control):
+			continue
+		var card: Control = c
+		var y: float = card.position.y + card.size.y + 4.0
+		var x0: float = card.position.x
+		var x_end: float = x0 + card.size.x
+		var col := Color("c4a574", 0.72)
+		var dash: float = 7.0
+		var gap: float = 5.0
+		var x: float = x0
+		while x < x_end:
+			var x1: float = minf(x + dash, x_end)
+			hotbar_overflow.draw_line(Vector2(x, y), Vector2(x1, y), col, 2.0)
+			x += dash + gap
 
 
 func _item_icon_tex(it: Dictionary, show_id: String = "") -> Texture2D:
@@ -22912,9 +23063,9 @@ func _control_uid(c: Object) -> int:
 
 
 func _hotbar_card_by_uid(uid: int) -> Control:
-	if hotbar_box == null or uid < 0:
+	if uid < 0:
 		return null
-	for c in hotbar_box.get_children():
+	for c in _hotbar_all_cards():
 		if _control_uid(c) == uid:
 			return c
 	return null
