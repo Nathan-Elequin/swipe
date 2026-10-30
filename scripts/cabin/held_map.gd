@@ -11,7 +11,8 @@ const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const DEV := preload("res://scripts/dev_flag.gd")
 const SHELL := preload("res://scripts/campaign_shell.gd")
 
-## Loom-free held plate (Doop w8wF4MIkv8). Fall back to the older inked plate.
+## Loom-free held plate (Doop w8wF4MIkv8 → ChatGPT Grandpa plate 2026-10-30).
+## Fall back to the older inked plate.
 const HELD_PLATE := "map/held/map_in_hands_living.png"
 const HELD_PLATE_FALLBACK := "map/held/map_in_hands.png"
 const SHEET := Vector2(1680, 1040)
@@ -78,6 +79,9 @@ var _monsters_by_id: Dictionary = {}
 var _read_only: bool = false
 var _going: bool = false
 var _lane_rng := RandomNumberGenerator.new()
+## Living/ChatGPT plate already paints biome names, START HERE, and Endless sealed.
+## Skip always-on code name Labels that would smear over that paint.
+var _plate_paints_names: bool = false
 
 
 func setup() -> void:
@@ -104,7 +108,11 @@ func setup() -> void:
 	add_child(_sheet)
 	var paper := TextureRect.new()
 	paper.name = "HeldPlate"
-	paper.texture = KIT.ui_tex(HELD_PLATE)
+	var living_tex: Texture2D = KIT.ui_tex(HELD_PLATE)
+	paper.texture = living_tex
+	## Living plate (ChatGPT Grandpa art) paints title, badge names, START HERE,
+	## and Endless sealed note — hide duplicate always-on code Labels.
+	_plate_paints_names = living_tex != null
 	if paper.texture == null:
 		paper.texture = KIT.ui_tex(HELD_PLATE_FALLBACK)
 	if paper.texture == null:
@@ -226,17 +234,20 @@ func _rebuild() -> void:
 			var best_txt: String = KIT.fill_text("endless.best", {"n": best})
 			if best_txt.strip_edges() == "":
 				best_txt = "Deepest: %s" % best
-			_add_name(ENDLESS_AT + Vector2(-90, 56), best_txt, true)
+			## Depth record is not painted on the plate — keep as always-on.
+			_add_name(ENDLESS_AT + Vector2(-90, 56), best_txt, true, true)
 		var open_tip: String = KIT.copy_text("map.endless.open")
 		if open_tip.strip_edges() != "":
-			_add_name(ENDLESS_AT + Vector2(-110, -56), open_tip, true)
+			## Open/unlocked status is not painted — keep as always-on.
+			_add_name(ENDLESS_AT + Vector2(-110, -56), open_tip, true, true)
 	else:
 		var sealed: String = KIT.copy_text("map.endless.sealed")
 		if sealed.strip_edges() == "":
 			sealed = "ENDLESS · SEALED"
 		_add_locked(ENDLESS_AT, sealed, "endless")
+		## Plate paints "ENDLESS - SEALED / opens when…"; skip duplicate always-on.
 		var sealed_sub: String = KIT.copy_text("map.endless.sealed_sub")
-		if sealed_sub.strip_edges() != "":
+		if sealed_sub.strip_edges() != "" and not _plate_paints_names:
 			_add_name(ENDLESS_AT + Vector2(-110, 28), sealed_sub, false)
 
 
@@ -339,11 +350,14 @@ func _add_locked(spot: Vector2, biome_name: String, pool: String) -> void:
 	var label := biome_name
 	if endless:
 		label = TIP_ENDLESS_SEALED
+	## Biome / Endless sealed names are painted on the living plate — skip always-on.
 	_add_name(spot + Vector2(28, -8) if not endless else spot + Vector2(-90, 36), label, false)
 	if endless and not _read_only:
 		var hit := _hit_button(Rect2(spot + Vector2(-100, -40), Vector2(220, 130)))
+		## Sealed status was always-on; keep it on hover when the plate paints it.
+		var sealed_tip := TIP_ENDLESS_SEALED if _plate_paints_names else TIP_ENDLESS_SEALED_SUB
 		hit.mouse_entered.connect(func() -> void:
-			_show_tip_at(spot + Vector2(0, -48), TIP_ENDLESS_SEALED_SUB)
+			_show_tip_at(spot + Vector2(0, -48), sealed_tip)
 		)
 		hit.mouse_exited.connect(func() -> void:
 			_hide_tip()
@@ -411,7 +425,11 @@ func _spawn_pool_monsters(pool: String, spot: Vector2) -> void:
 		slot += 1
 
 
-func _add_name(at: Vector2, biome_name: String, ink: bool) -> void:
+func _add_name(at: Vector2, biome_name: String, ink: bool, keep_on_painted: bool = false) -> void:
+	## Living/ChatGPT plate already paints biome names + Endless sealed note.
+	## State-only lines (depth record, open tip) pass keep_on_painted=true.
+	if _plate_paints_names and not keep_on_painted:
+		return
 	var lab: FitLabelBox = KIT.fit_label(
 		"",
 		Rect2(at, Vector2(200, 44)),
