@@ -22035,51 +22035,29 @@ func _sync_hotbar() -> void:
 		var chain_n: int = int(_ops_of(it).get("n", 0)) if str(it.get("card_id", "")) == "ball_and_chain" else 0
 		# marble_n is omitted so grow / swirl can play on the live card.
 		sig.append("%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s" % [it.get("uid", 0), it.get("card_id", ""), echo_id, it.get("petrified", false), it.get("toll_n", 0), it.get("bagged_hp", 0), it.get("bagged_name", ""), chain_n, it.get("recycle_n", 0), it.get("cats_eye", false), 0, it.get("rust_n", 0), it.get("hex_n", 0)])
-	var cap_n: int = CHALLENGE_HAND if adventure else 9999
-	var seated_n: int = mini(hotbar.size(), cap_n)
-	var empties: int = (cap_n - seated_n) if adventure else 0
-	var pending_uid: int = int(_challenge_pending_gain.get("uid", 0)) if _challenge_loot_wait and not _challenge_pending_gain.is_empty() else 0
-	var joined: String = ",".join(sig) + "|e%s|d%s|s%s|p%s" % [empties, 1 if _challenge_loot_wait else 0, seated_n, pending_uid]
+	var empties: int = (CHALLENGE_HAND - hotbar.size()) if adventure else 0
+	var joined: String = ",".join(sig) + "|e%s|d%s" % [empties, 1 if _challenge_loot_wait else 0]
 	if joined != _hotbar_sig:
 		_hotbar_sig = joined
 		for c in hotbar_box.get_children():
 			hotbar_box.remove_child(c)
 			c.queue_free()
-		_clear_hotbar_overflow()
-		for i in range(seated_n):
-			var it_seat: Dictionary = hotbar[i]
-			if typeof(it_seat) != TYPE_DICTIONARY:
+		for it in hotbar:
+			if typeof(it) != TYPE_DICTIONARY:
 				continue
-			var spawned: Control = _spawn_item_card(it_seat, true)
+			var spawned: Control = _spawn_item_card(it, true)
 			if spawned:
 				hotbar_box.add_child(spawned)
 		if adventure:
 			for _e in range(maxi(0, empties)):
 				hotbar_box.add_child(_make_hot_empty())
-		if hotbar_overflow != null:
-			for j in range(seated_n, hotbar.size()):
-				var it_wait: Dictionary = hotbar[j]
-				if typeof(it_wait) != TYPE_DICTIONARY:
-					continue
-				var parked: Control = _spawn_item_card(it_wait, true)
-				if parked:
-					hotbar_overflow.add_child(parked)
-			if pending_uid != 0:
-				var pending_card: Control = _spawn_item_card(_challenge_pending_gain, false)
-				if pending_card:
-					hotbar_overflow.add_child(pending_card)
-		call_deferred("_place_hotbar_overflow")
-	_place_hotbar_overflow()
-	for c in _hotbar_all_cards():
+	for c in hotbar_box.get_children():
 		var card = c
 		if not card.has_method("set_live"):
 			continue
 		var it: Dictionary = _find_item(int(card.uid))
-		if it.is_empty() and pending_uid != 0 and int(card.uid) == pending_uid:
-			it = _challenge_pending_gain
 		if it.is_empty():
 			continue
-		var waiting: bool = hotbar_overflow != null and card.get_parent() == hotbar_overflow
 		var view: Dictionary = _item_view(it)
 		var uid_n: int = int(it.get("uid", -1))
 		var spent_n: bool = bool(it.get("spent", false))
@@ -22089,7 +22067,7 @@ func _sync_hotbar() -> void:
 		var magnet_ready: bool = phase == "ready" and _is_magnet(it)
 		var can_click: bool = false
 		if _challenge_loot_wait:
-			can_click = (not waiting) and (not _item_blocks_hand_tax(it))
+			can_click = not _item_is_curse(it)
 		elif not pending_feed.is_empty():
 			can_click = is_snack
 		else:
@@ -22135,8 +22113,6 @@ func _sync_hotbar() -> void:
 			card.set_aura(snack_aura or rec_ready or (mag_on and (phase == "fighting" or phase == "ready")))
 		if card.has_method("set_toss_pick"):
 			card.set_toss_pick(_toss_pick_mode() and can_click)
-		if card.has_method("set_waiting_entry"):
-			card.set_waiting_entry(waiting)
 		if card.has_method("set_passive_icons"):
 			card.set_passive_icons(null, null, false)
 		_sync_card_pass5(card, it, can_click, in_fight)
