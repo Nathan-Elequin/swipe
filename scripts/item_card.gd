@@ -100,6 +100,8 @@ var _petrify_creep: float = 0.0:
 var _shatter: AnimatedSprite2D
 var _petrify_mat: ShaderMaterial
 var _pip_flash: float = 0.0
+var _waiting_entry: bool = false
+var _wait_base_y: float = 0.0
 
 
 func _apply_petrify_creep_uniform() -> void:
@@ -1092,6 +1094,25 @@ func set_toss_pick(on: bool) -> void:
 	_apply_style(_hot)
 
 
+func set_waiting_entry(on: bool) -> void:
+	if on:
+		if not _waiting_entry:
+			_wait_base_y = position.y
+		_waiting_entry = true
+		z_index = 22
+		pivot_offset = size * 0.5
+	else:
+		if _waiting_entry:
+			position.y = _wait_base_y
+			rotation = 0.0
+		_waiting_entry = false
+		z_index = 0
+		if not _hot and not _playable:
+			scale = Vector2.ONE
+	set_process(_want_process())
+	queue_redraw()
+
+
 func set_danger(on: bool) -> void:
 	_danger = on
 	set_process(_want_process())
@@ -1133,11 +1154,13 @@ func _process(delta: float) -> void:
 	if _beggar_flash > 0.0:
 		_beggar_flash = maxf(0.0, _beggar_flash - delta * 1.6)
 		queue_redraw()
+	_shimmer_clock += delta
+	if _waiting_entry:
+		_tick_waiting_hover()
 	# Attack/slash heavy: pause shimmer, breathe, and sparkle so the hotbar
 	# does not compete with the banner. Active sai/marble item FX still tick.
-	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy and _beggar_flash <= 0.0:
+	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy and _beggar_flash <= 0.0 and not _waiting_entry:
 		return
-	_shimmer_clock += delta
 	if _glow or _aura or _log_focus or _danger or _hot or _toss_pick:
 		_glow_t += delta
 		_style_wait -= delta
@@ -1706,8 +1729,17 @@ func _tween_sink(sink: bool) -> void:
 	_desat = 0.6 if sink else 0.0
 
 
+func _tick_waiting_hover() -> void:
+	pivot_offset = size * 0.5
+	var bob: float = sin(_shimmer_clock * TAU * 0.85) * 7.0
+	position.y = _wait_base_y + bob
+	rotation = sin(_shimmer_clock * TAU * 0.42) * 0.05
+	var s: float = 1.06 + 0.02 * sin(_shimmer_clock * TAU * 0.85)
+	scale = Vector2(s, s)
+
+
 func _tick_breathe() -> void:
-	if _showcase or _hot or spent or not _playable or _sai_busy or _marble_busy:
+	if _waiting_entry or _showcase or _hot or spent or not _playable or _sai_busy or _marble_busy:
 		return
 	pivot_offset = size * 0.5
 	var s: float = 1.0 + 0.015 * sin(_shimmer_clock * TAU * 0.5)

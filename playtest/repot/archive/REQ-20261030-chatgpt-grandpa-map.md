@@ -1,6 +1,7 @@
 ---
 id: REQ-20261030-chatgpt-grandpa-map
-status: open
+status: superseded
+superseded_by: REQ-20261030-held-map-label-clean
 priority: high
 branch: playtest/latest
 created: 2026-10-30T19:10:00Z
@@ -10,6 +11,8 @@ entry: F5 playtest hub → Continue / Brand New → cabin → open Grandpa's map
 ---
 
 # REQ-20261030-chatgpt-grandpa-map
+
+**Superseded** by [REQ-20261030-held-map-label-clean](../inbox/REQ-20261030-held-map-label-clean.md) (hide duplicate code Labels over painted ChatGPT plate). Do not drain this REQ; shoot the new label-clean rows instead.
 
 **Screen:** Held Grandpa map (ChatGPT plate feel-test)  
 **What shipped:** Replaced `assets/ui/map/held/map_in_hands_living.png` with Nathan's ChatGPT 1680×1040 plate. WaxStamp peel overlays unchanged. TRAIL Shadow + ENDLESS_AT nudged to painted badges; other Doop centres kept.  

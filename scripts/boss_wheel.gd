@@ -121,6 +121,12 @@ const UP_COL := Color("7dba7d")
 const SPIN_COL := Color("e8c36a")
 # Total spin_to tween length. Was 1.2 s; ~30% longer after #138 mid-spin feel.
 const SPIN_DURATION := 1.56
+## Wedge close after a kill. Was 0.48 s.
+const COLLAPSE_DURATION := 0.336
+## Slay stamp. Was 0.55 s.
+const SLAY_DURATION := 0.38
+## Neighbor kills start the wedge close once the stamp is readable.
+const SLAY_RELEASE := 0.16
 
 var slices: Array = []
 var facing_index: int = -1
@@ -841,7 +847,16 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 		slay_key = "%s:%s" % [held.get("kind", ""), held.get("card_id", "")]
 	var bonds_before: Dictionary = _bond_prev if _bond_hold_diff else _bond_pair_map()
 	_bond_hold_diff = false
+	var held_close: bool = collapse > 0.001
 	slices = next
+	if held_close:
+		# Keep the closed layout until the seat is actually gone, then drop
+		# collapse on the new n-1 equal wedges so the wheel does not pop
+		# back to n equal slices for a frame.
+		collapse = 0.0
+		slay_index = -1
+		slay_t = 0.0
+		slay_kind = "slay"
 	facing_index = face
 	_facing_for_bonds = face
 	highlight = mode
@@ -929,13 +944,17 @@ func play_hub_sting(kind: String, amount: int = 0, release_early: bool = false) 
 	await tw.finished
 
 
-func play_slay(index: int) -> void:
+func play_slay(index: int, release_early: bool = false) -> void:
 	busy = true
 	slay_kind = "slay"
 	slay_index = index
 	slay_t = 0.0
 	var tw := create_tween()
-	tw.tween_property(self, "slay_t", 1.0, 0.55)
+	tw.tween_property(self, "slay_t", 1.0, SLAY_DURATION)
+	if release_early:
+		await get_tree().create_timer(SLAY_RELEASE).timeout
+		busy = false
+		return
 	await tw.finished
 	busy = false
 
@@ -975,8 +994,8 @@ func collapse_slice(index: int, pin: int = -1) -> void:
 	_bond_prev = _bond_pair_map()
 	_bond_hold_diff = true
 	var tw := create_tween()
-	tw.set_trans(Tween.TRANS_BACK)
-	tw.set_ease(Tween.EASE_IN)
+	tw.set_trans(Tween.TRANS_CUBIC)
+	tw.set_ease(Tween.EASE_IN_OUT)
 	if pin >= 0 and pin != index:
 		tw.tween_method(
 			func(v: float) -> void:
@@ -985,25 +1004,24 @@ func collapse_slice(index: int, pin: int = -1) -> void:
 				queue_redraw(),
 			0.0,
 			1.0,
-			0.48
+			COLLAPSE_DURATION
 		)
 	else:
-		tw.tween_property(self, "collapse", 1.0, 0.48)
+		tw.tween_property(self, "collapse", 1.0, COLLAPSE_DURATION)
 	await tw.finished
 	if pin >= 0 and pin != index:
 		rot = rot_to_center(pin)
 	else:
 		var base: float = rot
 		var jostle := create_tween()
-		jostle.tween_property(self, "rot", base + 0.055, 0.07)
-		jostle.tween_property(self, "rot", base - 0.035, 0.08)
-		jostle.tween_property(self, "rot", base, 0.08)
+		jostle.tween_property(self, "rot", base + 0.04, 0.05)
+		jostle.tween_property(self, "rot", base - 0.024, 0.055)
+		jostle.tween_property(self, "rot", base, 0.055)
 		await jostle.finished
+	# Leave collapse at 1 so remaining sprites stay on the closed wedges until
+	# set_slices receives the shorter wheel. Resetting here popped n equal slices
+	# back open, then shoved the portraits onto n-1 seats in one frame.
 	busy = false
-	slay_index = -1
-	slay_kind = "slay"
-	collapse = 0.0
-	slay_t = 0.0
 	_bond_hold_diff = true
 	queue_redraw()
 
@@ -1409,8 +1427,8 @@ func _lift_of(i: int) -> float:
 
 
 func _weight(i: int) -> float:
-	if i == slay_index:
-		return maxf(1.0 - collapse, 0.02)
+	if i == slay_index and collapse > 0.0:
+		return maxf(1.0 - collapse, 0.0)
 	return 1.0
 
 
@@ -1484,7 +1502,13 @@ func _spoke_rest(i: int) -> Dictionary:
 	var feet: Vector2 = origin
 	var table: Array = _fit_table(slices.size())
 	if i >= 0 and i < table.size():
-		feet = table[i] + dir * (lift * 8.0) + push
+		if collapse > 0.001 and slay_index >= 0:
+			# Fit table is the equal-n rest pose. During close, keep each
+			# sprite on the live wedge ray so portraits ride the growing seats.
+			var rad: float = ((table[i] as Vector2) - c).length()
+			feet = c + dir * rad + dir * (lift * 8.0) + push
+		else:
+			feet = table[i] + dir * (lift * 8.0) + push
 	else:
 		feet = origin + dir * (r * 0.60)
 	if _breathe_bob(i):
@@ -1960,6 +1984,13 @@ func _fit_table(n: int) -> Array:
 	var sig: String = _fit_sig_of(n)
 	if _fit_sig == sig and _fit_cache.has(n) and (_fit_cache[n] as Array).size() == n:
 		return _fit_cache[n]
+	if collapse > 0.001 and _fit_cache.has(n) and (_fit_cache[n] as Array).size() == n:
+		# Never bake collapsing spans into the equal-n cache.
+		return _fit_cache[n]
+	var saved_collapse: float = collapse
+	var saved_slay: int = slay_index
+	collapse = 0.0
+	slay_index = -1
 	var c: Vector2 = _center()
 	var R: float = _radius()
 	var hub_r: float = R * HUB_FRAC
@@ -1999,6 +2030,8 @@ func _fit_table(n: int) -> Array:
 		_fit_clearance.append(best_cl)
 	_fit_cache[n] = feet_out
 	_fit_sig = sig
+	collapse = saved_collapse
+	slay_index = saved_slay
 	if not spinning:
 		print("[pass6-fit] n=%s clearances=%s" % [n, _fit_clearance])
 	return feet_out
@@ -2558,7 +2591,10 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_circle(port_pos, plate_r + 18.0, trap_fill)
 		draw_arc(port_pos, plate_r + 22.0, 0.0, TAU, 32, Color(MARK_GREEN_HOT.r, MARK_GREEN_HOT.g, MARK_GREEN_HOT.b, 0.75 + 0.25 * trap_pulse), 4.2, true)
 	if i != portrait_away and not hide_portraits.has(i):
-		_draw_wheel_sprite(i, sp, s, dim)
+		if i == slay_index and collapse > 0.0:
+			dim *= maxf(0.0, 1.0 - collapse)
+		if dim > 0.04:
+			_draw_wheel_sprite(i, sp, s, dim)
 	if bool(s.get("hunter_mark", false)):
 		_draw_hunter_mark(sprite_rect.grow(8.0), dim)
 	var burn: float = float(_burn.get(i, 0.0))
@@ -2581,6 +2617,8 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	if sid != "" and tex_special.has(sid) and _wheel_tex(i) == null:
 		var st: Texture2D = tex_special[sid]
 		draw_texture_rect(st, Rect2(port_pos - Vector2(9, 9), Vector2(18, 18)), false, Color(dim, dim, dim, dim))
+	if i == slay_index and collapse > 0.4:
+		return
 	var big: bool = true
 	_draw_name_tag(font, sp, s, is_face, dim, is_hover or i == _chrome_hover, i)
 	if bool(s.get("hunter_mark", false)):
