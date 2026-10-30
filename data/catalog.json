@@ -882,7 +882,7 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "poison_flask",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-30",
 			"locked_fields": [
 				"name",
 				"ability",

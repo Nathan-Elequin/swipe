@@ -818,7 +818,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "Mark a Neighbor with 5 Poison.",
+			"ability": "Mark a Neighbor with 4 Poison.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -826,12 +826,12 @@
 			"card_color": "defeat",
 			"contradiction_ids": [],
 			"count": 2.0,
-			"explainer": "Neighbor gets 5 Poison",
-			"flow": "Click during a fight, then click a living Neighbor. Used up. They gain 5 Poison. Amounts add. The mark stays until you Spin that monster (Smoke, Flee, auto-spin, landing — not Grappling Hook or a Damsel neighbor). On that Spin, player Poison pays first if you have any, then they lose that much HP and the mark clears. Other marked monsters keep their stacks. This is before Hex and every other on-spin. Quiet Bell does not stop it. If it kills them, their spin ability does not happen. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
+			"explainer": "Neighbor gets 4 Poison",
+			"flow": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. The mark stays until you Spin that monster (Smoke, Flee, auto-spin, landing — not Grappling Hook or a Damsel neighbor). On that Spin, player Poison pays first if you have any, then they lose that much HP and the mark clears. Other marked monsters keep their stacks. This is before Hex and every other on-spin. Quiet Bell does not stop it. If it kills them, their spin ability does not happen. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "poison_flask",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-30",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -851,13 +851,13 @@
 				"reminder",
 				"card_color"
 			],
-			"log_hint": "Mark a neighbor for 5",
+			"log_hint": "Mark a neighbor for 4",
 			"mode_pool": "all",
 			"name": "Poison Flask",
 			"notes": "",
 			"ops": {
 				"kind": "mark_poison",
-				"n": 5.0
+				"n": 4.0
 			},
 			"pool": 1.0,
 			"priority": 4.0,
@@ -3028,7 +3028,7 @@
 			"tier": 3.0
 		},
 		{
-			"ability": "Heal equal to the amount of HP you most recently lose.",
+			"ability": "Heal equal to the amount of HP you most recently lost.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -3046,7 +3046,7 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "blood_chalice",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-30",
 			"locked_fields": [
 				"name",
 				"ability",

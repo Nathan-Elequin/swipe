@@ -121,7 +121,7 @@ const ITEM_OPS := {
 	"breastplate": {"kind": "blk_keep", "n": 2},
 	"smoke_bomb": {"kind": "smoke"},
 	"fangs": {"kind": "fangs"},
-	"poison_flask": {"kind": "mark_poison", "n": 5},
+	"poison_flask": {"kind": "mark_poison", "n": 4},
 	"healing_potion": {"kind": "passive"},
 	"crossbow": {"kind": "atk_neighbor", "n": 4},
 	"pocketwatch": {"kind": "hypnotize"},
@@ -13932,7 +13932,7 @@ func _magicat_morph(it: Dictionary) -> void:
 func _poison_dose(it: Dictionary) -> int:
 	if it.has("poison_n"):
 		return maxi(int(it.get("poison_n", 0)), 0)
-	return maxi(int(_ops_of(it).get("n", 5)), 0)
+	return maxi(int(_ops_of(it).get("n", 4)), 0)
 
 
 func _scorpion_is_target(it: Dictionary) -> bool:
