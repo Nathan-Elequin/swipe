@@ -8107,11 +8107,12 @@ func _play_attack_blocked() -> void:
 		await wheel_view.play_block(facing_index, true)
 
 
-func _player_down() -> void:
+func _player_down(skip_pose: bool = false) -> void:
 	hp = 0
-	if wheel_view and wheel_view.has_method("play_hero"):
-		wheel_view.play_hero("death")
-	_player_play("defeat")
+	if not skip_pose:
+		if wheel_view and wheel_view.has_method("play_hero"):
+			wheel_view.play_hero("death")
+		_player_play("defeat")
 	if adventure and not in_tutorial:
 		_advance_bucket_counter()
 	phase = "defeat"
@@ -11456,12 +11457,13 @@ func _tick_tolls() -> void:
 		var n: int = int(it.get("toll_n", 6))
 		if n <= 0:
 			continue
-		it["toll_n"] = n - 1
-		_log("var", "Toll %s" % it["toll_n"])
-		if sfx:
-			sfx.play("bong", -8.0, 0.65 + 0.07 * float(it["toll_n"]))
-		if int(it["toll_n"]) <= 0:
+		var next_n: int = n - 1
+		it["toll_n"] = next_n
+		_log("var", "Toll %s" % next_n)
+		if next_n <= 0:
 			_toll_death_armed = true
+		elif sfx:
+			sfx.play("bong", -8.0, 0.65 + 0.07 * float(next_n))
 	_hotbar_sig = ""
 
 
@@ -11490,14 +11492,89 @@ func _resolve_toll_death() -> bool:
 			zeros.append(int(it.get("uid", -1)))
 	if zeros.is_empty():
 		return false
-	var saved: bool = _try_potion()
+	await _play_toll_zero_sequence(zeros)
+	hp = 0
+	if wheel_view:
+		wheel_view.hub_hp = 0
+	_refresh_hearts()
+	_log("hp", "Toll set HP to 0")
+	if wheel_view and wheel_view.has_method("play_hero"):
+		wheel_view.play_hero("death", 1, true)
+	_player_play("defeat")
+	if wheel_view and wheel_view.has_method("wait_hero_frame"):
+		await wheel_view.wait_hero_frame("death", 2)
+	if get_tree():
+		await get_tree().create_timer(0.28).timeout
+	var saved: bool = false
+	for it in hotbar:
+		if str(it.get("card_id", "")) != "healing_potion":
+			continue
+		if bool(it.get("spent", false)):
+			continue
+		it["spent"] = true
+		it["keep_after"] = false
+		_log_begin_item(it)
+		if wheel_view and wheel_view.has_method("reset_hero"):
+			wheel_view.reset_hero()
+		await _heal(3)
+		_toss_item(int(it["uid"]), false)
+		saved = true
+		break
 	for uid in zeros:
 		_toss_item(int(uid), false)
+	_cube_line = ""
+	_speech_from_index = -1
+	if speech_box:
+		speech_box.hide_speech()
 	if saved:
 		_refresh()
 		return false
-	_player_down()
+	_player_down(true)
 	return true
+
+
+func _toll_speaker_index() -> int:
+	var dead_i: int = -1
+	if facing_index >= 0 and facing_index < wheel.size():
+		if str(wheel[facing_index].get("card_id", "")) == "death_bell":
+			if int(wheel[facing_index].get("hp", 0)) > 0:
+				return facing_index
+			dead_i = facing_index
+	for i in range(wheel.size()):
+		if str(wheel[i].get("card_id", "")) != "death_bell":
+			continue
+		if int(wheel[i].get("hp", 0)) > 0:
+			return i
+		if dead_i < 0:
+			dead_i = i
+	return dead_i
+
+
+func _play_toll_zero_sequence(zeros: Array) -> void:
+	var talk_i: int = _toll_speaker_index()
+	if talk_i >= 0:
+		_speech_from_index = talk_i
+		_cube_line = "The bell toll..."
+		_place_speech()
+	if sfx:
+		sfx.play("bong", -2.0, 0.42)
+		sfx.play("whoosh", -6.0, 0.62)
+		sfx.play("error_big", -10.0, 0.8)
+	_flash_screen(Color("5a1a8a"), 0.62)
+	var first: Control = null
+	for uid in zeros:
+		var card: Control = _hotbar_card_by_uid(int(uid))
+		if card == null or not card.has_method("play_toll_zero"):
+			continue
+		if first == null:
+			first = card
+		else:
+			card.play_toll_zero()
+	if first != null:
+		await first.play_toll_zero()
+	elif get_tree():
+		await get_tree().create_timer(0.45).timeout
+	_flash_screen(Color("7a28c4"), 0.48)
 
 
 func _worm_ask_hunger() -> void:
@@ -15037,7 +15114,8 @@ func _count_item_use() -> void:
 	_flip_shield_faces()
 	_tick_tolls()
 	if _toll_death_armed and not _bell_kill_this_use():
-		_resolve_toll_death()
+		if await _resolve_toll_death():
+			return
 	_amalgam_after_use()
 	_sync_wheel_stats()
 	_sync_intent_plate()

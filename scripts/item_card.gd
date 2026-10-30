@@ -1219,6 +1219,68 @@ func bounce() -> void:
 	tw.tween_property(self, "scale", Vector2.ONE, 0.12)
 
 
+func play_toll_zero() -> void:
+	pivot_offset = size * 0.5
+	z_index = 90
+	if _num:
+		_num.visible = true
+		_num.modulate = Color.WHITE
+		_num.text = "1"
+		_shown = "1"
+		_num.add_theme_font_size_override("font_size", 56)
+		_num.add_theme_color_override("font_color", Color("f3e6ff"))
+		_num.add_theme_color_override("font_outline_color", Color("3a1460"))
+		_num.add_theme_constant_override("outline_size", 6)
+	var tw := create_tween()
+	tw.tween_property(self, "scale", Vector2(1.42, 1.42), 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await tw.finished
+	if _num:
+		_dissolve("1", "0")
+		_num.add_theme_font_size_override("font_size", 64)
+		_num.add_theme_color_override("font_color", Color("d4a0ff"))
+	_spawn_toll_burst()
+	tw = create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(self, "modulate", Color(0.78, 0.42, 1.0), 0.10)
+	tw.tween_property(self, "scale", Vector2(1.55, 1.55), 0.16)
+	await tw.finished
+	tw = create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(self, "modulate", Color.WHITE, 0.22)
+	tw.tween_property(self, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await tw.finished
+	z_index = 0
+	if _num:
+		_num.add_theme_font_size_override("font_size", 26)
+		_num.add_theme_color_override("font_color", _num_col)
+		_num.add_theme_color_override("font_outline_color", Color("100e0c"))
+		_num.add_theme_constant_override("outline_size", 3)
+
+
+func _spawn_toll_burst() -> void:
+	var host: Control = Control.new()
+	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	host.z_index = 20
+	add_child(host)
+	for i in range(3):
+		var ring := ColorRect.new()
+		ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ring.color = Color(0.55, 0.18, 0.92, 0.55 - i * 0.12)
+		var pad := 8.0 + float(i) * 10.0
+		ring.size = size + Vector2(pad * 2.0, pad * 2.0)
+		ring.position = Vector2(-pad, -pad)
+		ring.pivot_offset = ring.size * 0.5
+		host.add_child(ring)
+		var tw := ring.create_tween()
+		tw.set_parallel(true)
+		tw.tween_property(ring, "scale", Vector2(2.4 + i * 0.35, 2.4 + i * 0.35), 0.42).set_delay(i * 0.05)
+		tw.tween_property(ring, "modulate:a", 0.0, 0.42).set_delay(i * 0.05)
+	var fade := host.create_tween()
+	fade.tween_interval(0.55)
+	fade.tween_callback(host.queue_free)
+
+
 func play_transform() -> void:
 	pivot_offset = size * 0.5
 	var tw := create_tween()
