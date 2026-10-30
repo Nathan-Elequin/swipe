@@ -870,7 +870,7 @@
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 2.0,
-			"defined": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. Plague Doctor neighbors stay at 2. On the next Spin, every monster with Poison loses that much HP immediately, wherever they sit, then the mark clears. This is before their spin ability. If it kills them, that ability does not happen. They stay in the seat until the other spin abilities finish. A dead monster who is not the one you landed on then leaves and the seat fills. If the one you landed on died, the fight ends after those abilities. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
+			"defined": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. The mark stays until you Spin that monster (Smoke, Flee, auto-spin, landing — not Grappling Hook or a Damsel neighbor). On that Spin, player Poison pays first if you have any, then they lose that much HP and the mark clears. Other marked monsters keep their stacks. This is before Hex and every other on-spin. Quiet Bell does not stop it. If it kills them, their spin ability does not happen. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
 			"exceptions": "",
 			"explainer": "Neighbor gets 4 Poison",
 			"flags": {
@@ -878,7 +878,7 @@
 				"dev": false,
 				"hide": false
 			},
-			"flow": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. Plague Doctor neighbors stay at 2. On the next Spin, every monster with Poison loses that much HP immediately, wherever they sit, then the mark clears. This is before their spin ability. If it kills them, that ability does not happen. They stay in the seat until the other spin abilities finish. A dead monster who is not the one you landed on then leaves and the seat fills. If the one you landed on died, the fight ends after those abilities. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
+			"flow": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. The mark stays until you Spin that monster (Smoke, Flee, auto-spin, landing — not Grappling Hook or a Damsel neighbor). On that Spin, player Poison pays first if you have any, then they lose that much HP and the mark clears. Other marked monsters keep their stacks. This is before Hex and every other on-spin. Quiet Bell does not stop it. If it kills them, their spin ability does not happen. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "poison_flask",

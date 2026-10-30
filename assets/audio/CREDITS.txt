@@ -395,6 +395,7 @@ Verdant Hollow theme (2026-10-29)
 ---------------------------------
 music_verdant_hollow_intro.ogg (~10.1 s) — Verdant Hollow theme intro (one-shot) — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29
 music_verdant_hollow_loop.ogg (~1:47) — Verdant Hollow theme loop — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29
+music_verdant_hollow_victory.ogg (6.313 s) — Verdant Hollow — Victory outro (cut from Extend @40.247s, 6.3s) — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-30
 
 Cinder Forge theme — Approach F hybrid (2026-10-29)
 ---------------------------------------------------
