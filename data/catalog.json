@@ -863,22 +863,22 @@
 			"type": "I"
 		},
 		{
-			"ability": "Mark a Neighbor with 4 Poison.",
+			"ability": "Mark a Neighbor with 5 Poison.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 2.0,
-			"defined": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. Plague Doctor neighbors stay at 2. On the next Spin, every monster with Poison loses that much HP immediately, wherever they sit, then the mark clears. This is before their spin ability. If it kills them, that ability does not happen. They stay in the seat until the other spin abilities finish. A dead monster who is not the one you landed on then leaves and the seat fills. If the one you landed on died, the fight ends after those abilities. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
+			"defined": "Click during a fight, then click a living Neighbor. Used up. They gain 5 Poison. Amounts add. The mark stays until you Spin that monster (Smoke, Flee, auto-spin, landing — not Grappling Hook or a Damsel neighbor). On that Spin, player Poison pays first if you have any, then they lose that much HP and the mark clears. Other marked monsters keep their stacks. This is before Hex and every other on-spin. Quiet Bell does not stop it. If it kills them, their spin ability does not happen. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
 			"exceptions": "",
-			"explainer": "Neighbor gets 4 Poison",
+			"explainer": "Neighbor gets 5 Poison",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. Plague Doctor neighbors stay at 2. On the next Spin, every monster with Poison loses that much HP immediately, wherever they sit, then the mark clears. This is before their spin ability. If it kills them, that ability does not happen. They stay in the seat until the other spin abilities finish. A dead monster who is not the one you landed on then leaves and the seat fills. If the one you landed on died, the fight ends after those abilities. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
+			"flow": "Click during a fight, then click a living Neighbor. Used up. They gain 5 Poison. Amounts add. The mark stays until you Spin that monster (Smoke, Flee, auto-spin, landing — not Grappling Hook or a Damsel neighbor). On that Spin, player Poison pays first if you have any, then they lose that much HP and the mark clears. Other marked monsters keep their stacks. This is before Hex and every other on-spin. Quiet Bell does not stop it. If it kills them, their spin ability does not happen. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "poison_flask",
@@ -902,13 +902,13 @@
 				"reminder",
 				"card_color"
 			],
-			"log_hint": "Mark a neighbor for 4",
+			"log_hint": "Mark a neighbor for 5",
 			"mode_pool": "all",
 			"name": "Poison Flask",
 			"notes": "",
 			"ops": {
 				"kind": "mark_poison",
-				"n": 4.0
+				"n": 5.0
 			},
 			"poc": false,
 			"pool": 1.0,
@@ -2690,7 +2690,7 @@
 			"call_name": "",
 			"card_color": "utility",
 			"count": 1.0,
-			"defined": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Plague Doctor neighbors stay at 2. Nothing is paid when you play this. On the next Spin, every monster with Poison loses that much HP, wherever they sit, then the mark clears. Fight only. Used up.",
+			"defined": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Nothing is paid when you play this. Each mark stays until you Spin that monster, then they lose that much HP and the mark clears. Player Poison pays first. Other marked monsters keep their stacks. Fight only. Used up.",
 			"exceptions": "Bucket 4. Poison sources add. Flask is +5 on a neighbor.",
 			"explainer": "Poison all = min HP",
 			"flags": {
@@ -2698,7 +2698,7 @@
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Plague Doctor neighbors stay at 2. Nothing is paid when you play this. On the next Spin, every monster with Poison loses that much HP, wherever they sit, then the mark clears. Fight only. Used up.",
+			"flow": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Nothing is paid when you play this. Each mark stays until you Spin that monster, then they lose that much HP and the mark clears. Player Poison pays first. Other marked monsters keep their stacks. Fight only. Used up.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "miasma",
@@ -2867,7 +2867,7 @@
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 1.0,
-			"defined": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Poison is paid before Hex. If that poison already killed the monster you landed on, Hex does not count down and does not Defeat. New dungeon resets to 6. Used up when it fires.",
+			"defined": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Player Poison, then the landed monster's Poison, then Hex. If that poison already killed the monster you landed on, Hex does not count down and does not Defeat. New dungeon resets to 6. Used up when it fires.",
 			"exceptions": "Bucket 6. Skull + number on the card.",
 			"explainer": "Defeat at Spin 0",
 			"flags": {
@@ -2875,7 +2875,7 @@
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Poison is paid before Hex. If that poison already killed the monster you landed on, Hex does not count down and does not Defeat. New dungeon resets to 6. Used up when it fires.",
+			"flow": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Player Poison, then the landed monster's Poison, then Hex. If that poison already killed the monster you landed on, Hex does not count down and does not Defeat. New dungeon resets to 6. Used up when it fires.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "hex",
@@ -6541,25 +6541,25 @@
 			"type": "M"
 		},
 		{
-			"ability": "On Spin, my Neighbors Gain 2 Poison and Heal 2. While I live, Poison does not activate.",
+			"ability": "On each Spin, I give all You and all Monsters 1 Poison",
 			"atk": {
-				"base": 2.0
+				"base": 1.0
 			},
-			"atk_base": 2.0,
+			"atk_base": 1.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Outbreak",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "SP-28 (2026-10-28). On every Spin while I live unsilenced: each living Neighbor Gains 2 Poison and Heals 2 (cap at their max HP). Poison stacks keep growing. While I live unsilenced, Poison NEVER activates — monster poison and the player's poison both stay frozen. On the first Spin after I die (or Quiet Bell silences every living Plague Doctor), stored Poison activates normally. When Poison would activate but is blocked, show my slash portrait and the dissolving line 'Poison does not activate'.",
-			"exceptions": "SP-28. Bucket 5. Freeze-all poison while alive (player + monsters). Quiet Bell turns this off.",
-			"explainer": "Spin: Neighbors +2 Poison and Heal 2. Poison frozen while I live.",
+			"defined": "SP-30 (2026-10-30). On every real Spin (Smoke, Flee, auto-spin, landing — not Grappling Hook or Damsel) while I live unsilenced: after player Poison and the landed monster's Poison pay, you Gain 1 Poison and every living monster Gains 1 Poison, including me. Amounts add. Two of me each give +1. The new 1s do not pay on this Spin. Quiet Bell turns this off. No freeze. No Heal.",
+			"exceptions": "SP-30. Pool 4 T1. Each copy +1. Freeze gone.",
+			"explainer": "Each Spin: you and every monster Gain 1 Poison",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "SP-28 (2026-10-28). On every Spin while I live unsilenced: each living Neighbor Gains 2 Poison and Heals 2 (cap at their max HP). Poison stacks keep growing. While I live unsilenced, Poison NEVER activates — monster poison and the player's poison both stay frozen. On the first Spin after I die (or Quiet Bell silences every living Plague Doctor), stored Poison activates normally. When Poison would activate but is blocked, show my slash portrait and the dissolving line 'Poison does not activate'.",
+			"flow": "SP-30 (2026-10-30). On every real Spin (Smoke, Flee, auto-spin, landing — not Grappling Hook or Damsel) while I live unsilenced: after player Poison and the landed monster's Poison pay, you Gain 1 Poison and every living monster Gains 1 Poison, including me. Amounts add. Two of me each give +1. The new 1s do not pay on this Spin. Quiet Bell turns this off. No freeze. No Heal.",
 			"hp": {
 				"base": 3.0
 			},
@@ -6587,16 +6587,16 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Neighbors +2 Poison and Heal 2; Poison frozen while alive",
+			"log_hint": "Each Spin: +1 Poison to you and every monster",
 			"mode_pool": "all",
 			"name": "Plague Doctor",
-			"notes": "SP-28. Bucket 5. Freeze-all poison while alive (player + monsters). Quiet Bell turns this off.",
+			"notes": "SP-30. Pool 4 T1. Every Spin +1 you and every living monster including me. Each copy. Freeze gone. ATK 1.",
 			"ops": {},
 			"poc": false,
 			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "On Spin: Neighbors Gain 2 Poison and Heal 2. Poison does not activate while I live.",
+			"reminder": "On each Spin, I give all You and all Monsters 1 Poison",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",

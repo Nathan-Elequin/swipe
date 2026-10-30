@@ -121,7 +121,7 @@ const ITEM_OPS := {
 	"breastplate": {"kind": "blk_keep", "n": 2},
 	"smoke_bomb": {"kind": "smoke"},
 	"fangs": {"kind": "fangs"},
-	"poison_flask": {"kind": "mark_poison", "n": 4},
+	"poison_flask": {"kind": "mark_poison", "n": 5},
 	"healing_potion": {"kind": "passive"},
 	"crossbow": {"kind": "atk_neighbor", "n": 4},
 	"pocketwatch": {"kind": "hypnotize"},
@@ -219,7 +219,7 @@ const MONSTER_SPECIAL := {
 	"cleric": {"id": "insure", "text": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item"},
 	"martyr": {"id": "noble_death", "text": "When I lose HP or Attack, I die. Neighbors gain my remaining HP."},
 	"prism": {"id": "refract", "text": "Attack at me hits both neighbors instead."},
-	"plague_doctor": {"id": "time_bomb", "text": "On Spin, my Neighbors Gain 2 Poison and Heal 2. While I live, Poison does not activate."},
+	"plague_doctor": {"id": "time_bomb", "text": "On each Spin, I give all You and all Monsters 1 Poison"},
 	"hired_hand": {"id": "bribe", "text": "Discard an item: I Attack a Neighbor and Flee."},
 	"hydra": {"id": "even_killer", "text": "I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each"},
 	"three_seeker": {"id": "triple_threat", "text": "If you have 3, 6, or 9 Items, you Always Spin me next"},
@@ -349,7 +349,7 @@ const MONSTER_REMINDER := {
 	"mouse": "On Spin: if your HP is higher, I lose 2 HP and Flee",
 	"magicat": "On Spin: 2 Atk or Blk Items become Marbles with that number",
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
-	"plague_doctor": "Spin: Neighbors +2 Poison and Heal 2; Poison frozen while I live",
+	"plague_doctor": "Each Spin: you and every monster Gain 1 Poison",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
 	"oligarch": "On entry: Gain 2 Items. After each Spin's choices: one playable Item is used",
 }
@@ -403,7 +403,7 @@ const MONSTER_SPEECH := {
 	"mouse": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
 	"magicat": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
 	"poison_frog": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
-	"plague_doctor": "On Spin, my Neighbors Gain 2 Poison and Heal 2. While I live, Poison does not activate.",
+	"plague_doctor": "On each Spin, I give all You and all Monsters 1 Poison",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
 	"oligarch": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
 }
@@ -418,7 +418,6 @@ var _rug_secret_in_run: bool = false
 
 var hp: int = HP_MAX
 var player_poison: int = 0
-var _plague_blocked_fx_this_spin: bool = false
 var _flushing_poison_sides: bool = false
 var blk: int = 0
 var phase: String = "title"
@@ -7591,6 +7590,16 @@ func _on_spin() -> void:
 	_bleed_begin()
 	if cascade_ticker != null:
 		cascade_ticker.begin()
+	# Player Poison, then this landing's Poison, then Outbreak +1s, then Hex
+	# and every other on-spin. Other seats keep their stacks.
+	if _living_monster_count() > 0:
+		if await _tick_player_poison():
+			_undo_arm()
+			return
+	if await _tick_facing_monster_poison():
+		_undo_arm()
+		return
+	await _apply_plague_doctor_on_spin()
 	var beggar_spin: int = -1
 	if facing_index >= 0 and facing_index < wheel.size():
 		var face_now: Dictionary = wheel[facing_index]
@@ -7598,21 +7607,6 @@ func _on_spin() -> void:
 			beggar_spin = facing_index
 			_beggar_hold = true
 			_beggar_force_discard(facing_index)
-	# Poison pays on every living monster before any spin ability. A kill stays
-	# in the seat until the other abilities finish. SP-28: while any living
-	# unsilenced Plague Doctor is on the wheel, ALL poison (monster + player)
-	# stays frozen and does not activate.
-	var plague_freeze: bool = _plague_freezes_poison()
-	var poison_would_tick: bool = _any_monster_poison_pending() or (player_poison > 0 and _living_monster_count() > 0)
-	_plague_blocked_fx_this_spin = false
-	if plague_freeze:
-		if poison_would_tick:
-			await _play_plague_poison_blocked_fx()
-			_plague_blocked_fx_this_spin = true
-	elif await _tick_all_monster_poison():
-		_beggar_hold = false
-		_undo_arm()
-		return
 	_beggar_hold = false
 	if beggar_spin >= 0 and beggar_spin < wheel.size() and str(wheel[beggar_spin].get("card_id", "")) == "beggar" and int(wheel[beggar_spin].get("hp", 0)) > 0 and not _is_silenced(wheel[beggar_spin]):
 		await _beggar_assign(beggar_spin, true)
@@ -7661,11 +7655,6 @@ func _on_spin() -> void:
 			return
 		if await _step_hexs():
 			await _bleed_end()
-			return
-	await _apply_plague_doctor_on_spin()
-	if not plague_freeze and _living_monster_count() > 0:
-		if await _tick_player_poison():
-			_undo_arm()
 			return
 	_refresh()
 	await _step_berserkers()
@@ -10645,11 +10634,6 @@ func _add_monster_poison(index: int, n: int) -> void:
 	_sync_plague_poison()
 
 
-## SP-28: living unsilenced Plague Doctor freezes ALL poison activation.
-func _plague_freezes_poison() -> bool:
-	return not _plague_doctor_indices().is_empty()
-
-
 func _plague_doctor_indices() -> Array[int]:
 	var out: Array[int] = []
 	for i in wheel.size():
@@ -10664,87 +10648,36 @@ func _plague_doctor_indices() -> Array[int]:
 	return out
 
 
-func _any_monster_poison_pending() -> bool:
-	for i in wheel.size():
-		if str(wheel[i].get("kind", "")) != "monster":
-			continue
-		if int(wheel[i].get("hp", 0)) <= 0:
-			continue
-		if _poison_of(wheel[i]) > 0:
-			return true
-	return false
-
-
-## Padlock badges while freeze is on: stacks keep growing, poison does not pay.
 func _sync_plague_poison() -> void:
-	var freeze: bool = _plague_freezes_poison()
 	for i in wheel.size():
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
 		var dose: int = _poison_of(wheel[i])
 		wheel[i]["poisoned"] = dose > 0
-		wheel[i]["plague_held"] = freeze and dose > 0
+		wheel[i]["plague_held"] = false
 	if wheel_view != null:
-		wheel_view.hub_poison_locked = freeze and player_poison > 0
+		wheel_view.hub_poison_locked = false
 
 
-## SP-28 On Spin: each living neighbor Gains 2 Poison and Heals 2.
 func _apply_plague_doctor_on_spin() -> void:
-	var any: bool = false
-	var first_pd: int = -1
 	for pd in _plague_doctor_indices():
-		if first_pd < 0:
-			first_pd = pd
-		for ni in _neighbors_of(pd):
-			if ni < 0 or ni >= wheel.size():
+		if pd < 0 or pd >= wheel.size():
+			continue
+		if int(wheel[pd].get("hp", 0)) <= 0:
+			continue
+		if _is_silenced(wheel[pd]):
+			continue
+		_gain_player_poison(1)
+		for i in wheel.size():
+			if str(wheel[i].get("kind", "")) != "monster":
 				continue
-			var m: Dictionary = wheel[ni]
-			if int(m.get("hp", 0)) <= 0:
+			if int(wheel[i].get("hp", 0)) <= 0:
 				continue
-			if str(m.get("kind", "")) != "monster":
-				continue
-			_add_monster_poison(ni, 2)
-			_heal_monster(ni, 2)
-			any = true
-			_log("on_spin", "Plague Doctor poison +2 heal +2  →  %s HP, poison %s" % [
-				wheel[ni].get("hp", 0), _poison_of(wheel[ni])
-			])
-	if any:
-		if not _plague_blocked_fx_this_spin and first_pd >= 0:
-			await _announce_slice(first_pd, _slice_hp_pos(first_pd))
-		_sync_plague_poison()
-		_refresh()
-
-
-func _play_plague_poison_blocked_fx() -> void:
-	var idxs: Array[int] = _plague_doctor_indices()
-	if idxs.is_empty():
-		return
-	var pd: int = idxs[0]
-	var s: Dictionary = wheel[pd]
-	var call_n: String = str(s.get("call_name", "")).strip_edges()
-	if call_n == "":
-		call_n = MONSTER_LINES.call_of("plague_doctor", monsters_by_id.get("plague_doctor", {}))
-	if call_n == "":
-		call_n = "Outbreak"
-	if ability_slash:
-		var tex: Texture2D = null
-		if art != null:
-			tex = art.monster_still("plague_doctor")
-		var ticket_i: int = -1
-		if cascade_ticker != null and cascade_ticker.active:
-			ticket_i = cascade_ticker.push("plague_doctor", tex)
-		await ability_slash.play({
-			"title": str(s.get("name", "Plague Doctor")),
-			"call": call_n,
-			"line": "Poison does not activate",
-			"tex": tex,
-			"is_item": false,
-			"card_id": "plague_doctor",
-			"ticket": ticket_i,
-			"release_early": true,
-		})
-	_log("on_spin", "Poison does not activate")
+			_add_monster_poison(i, 1)
+		_log("on_spin", "Outbreak  →  you and every monster +1")
+		await _announce_slice(pd, _slice_hp_pos(pd))
+	_sync_plague_poison()
+	_refresh()
 
 
 func _miasma_min_hp() -> int:
@@ -10787,7 +10720,6 @@ func _use_miasma(it: Dictionary) -> void:
 			continue
 		if int(wheel[i].get("hp", 0)) <= 0:
 			continue
-		# SP-28: stacks add normally even beside Plague Doctor; freeze blocks activation, not gain.
 		_add_monster_poison(i, n)
 	_sync_plague_poison()
 	_refresh()
@@ -10838,48 +10770,36 @@ func _facing_can_act() -> bool:
 	return int(wheel[facing_index].get("hp", 0)) > 0
 
 
-func _poison_pay_order() -> Array[int]:
-	var out: Array[int] = []
-	var n: int = wheel.size()
-	if n <= 0:
-		return out
-	var start: int = facing_index if facing_index >= 0 and facing_index < n else 0
-	for off in range(1, n):
-		out.append((start + off) % n)
-	out.append(start)
-	return out
-
-
-func _tick_all_monster_poison() -> bool:
-	for i in _poison_pay_order():
-		if i < 0 or i >= wheel.size():
-			continue
-		if str(wheel[i].get("kind", "")) != "monster":
-			continue
-		if int(wheel[i].get("hp", 0)) <= 0:
-			continue
-		var dose: int = _poison_of(wheel[i])
-		if dose <= 0:
-			continue
-		_ticker_push_poison("monster_poison")
-		if poison_pop != null and poison_pop.has_method("burst_slice"):
-			await poison_pop.burst_slice(i, dose)
-		if i < 0 or i >= wheel.size():
-			return false
-		var stopped: bool = await _chip_hp(i, dose)
-		if i < 0 or i >= wheel.size():
-			return false
-		_clear_monster_poison(i)
-		if int(wheel[i].get("hp", 0)) <= 0 and not _wick_waiting(i):
-			wheel[i]["poison_down"] = true
-		var m: Dictionary = wheel[i]
-		_log("on_spin", "poison  →  %s HP" % m.get("hp", 0))
-		_refresh()
-		if stopped:
-			_store_last_faced_hp()
-			_undo_arm()
-			await _unlock_if_fighting()
-			return true
+func _tick_facing_monster_poison() -> bool:
+	var i: int = facing_index
+	if i < 0 or i >= wheel.size():
+		return false
+	if str(wheel[i].get("kind", "")) != "monster":
+		return false
+	if int(wheel[i].get("hp", 0)) <= 0:
+		return false
+	var dose: int = _poison_of(wheel[i])
+	if dose <= 0:
+		return false
+	_ticker_push_poison("monster_poison")
+	if poison_pop != null and poison_pop.has_method("burst_slice"):
+		await poison_pop.burst_slice(i, dose)
+	if i < 0 or i >= wheel.size() or i != facing_index:
+		return false
+	var stopped: bool = await _chip_hp(i, dose)
+	if i < 0 or i >= wheel.size():
+		return false
+	_clear_monster_poison(i)
+	if int(wheel[i].get("hp", 0)) <= 0 and not _wick_waiting(i):
+		wheel[i]["poison_down"] = true
+	var m: Dictionary = wheel[i]
+	_log("on_spin", "poison  →  %s HP" % m.get("hp", 0))
+	_refresh()
+	if stopped:
+		_store_last_faced_hp()
+		_undo_arm()
+		await _unlock_if_fighting()
+		return true
 	return false
 
 
@@ -13955,7 +13875,7 @@ func _magicat_morph(it: Dictionary) -> void:
 func _poison_dose(it: Dictionary) -> int:
 	if it.has("poison_n"):
 		return maxi(int(it.get("poison_n", 0)), 0)
-	return maxi(int(_ops_of(it).get("n", 4)), 0)
+	return maxi(int(_ops_of(it).get("n", 5)), 0)
 
 
 func _scorpion_is_target(it: Dictionary) -> bool:

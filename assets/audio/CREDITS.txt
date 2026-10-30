@@ -409,3 +409,10 @@ Source: Crystal Cavern Stems (119 BPM). Instrumental by Nathan (refinedpolonaise
 music_crystal_cavern_a.ogg — layer A bed (always on during the delve)
 music_crystal_cavern_b.ogg — layer B drums (combat intensity, synced to A)
 music_crystal_cavern_c.ogg — layer C heat (Tier-3/boss; quiet stem, map gain_db +10)
+
+Ashen Crypt theme — Approach F hybrid (2026-10-30)
+-------------------------------------------------
+Source: Ashen Crypt Stems (113 BPM). Instrumental by Nathan (refinedpolonaise473). b3.
+music_ashen_crypt_a.ogg — layer A bed (always on during the delve)
+music_ashen_crypt_b.ogg — layer B drums (combat intensity, synced to A)
+music_ashen_crypt_c.ogg — layer C heat (percussion+brass; Tier-3/boss). Map gain_db -2 on A/B/C so the stack leaves ~1.5 dB Music-bus headroom.

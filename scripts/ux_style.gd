@@ -366,7 +366,7 @@ static func def_of(id: String) -> String:
 		"marked":
 			return "upon Defeat, Trapper gains +2 HP and ATK"
 		"poison":
-			return "On a Spin, a monster with this loses that much HP immediately, wherever they sit, before their spin ability. Then it clears."
+			return "When you Spin that monster, they lose that much HP immediately, then the mark clears. Other marked monsters keep theirs. Your Poison pays first on a Spin. Not Attack."
 		"spin":
 			return "The wheel lands on a random living monster."
 		"always":
