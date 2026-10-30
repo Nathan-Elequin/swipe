@@ -2,7 +2,9 @@
 id: REQ-20261030-trophy-hall-zoom-fix
 status: open
 priority: high
-branch: playtest/latest
+pr: 210
+tip_sha: cc9bcf36
+branch: cursor/trophy-hall-zoom-fix-f92a
 created: 2026-10-30T18:15:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
