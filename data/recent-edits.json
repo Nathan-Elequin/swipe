@@ -20,7 +20,7 @@
 		"item:double_buckler": 1792977000.0,
 		"item:echo_bell": 1792136735.68746,
 		"item:fangs": 1792282200.0,
-		"item:flying_saucer": 1792710000.0,
+		"item:flying_saucer": 1793342400.0,
 		"item:grappling_hook": 1793411200.0,
 		"item:grief_jar": 1792035889.34183,
 		"item:grimoire": 1792282200.0,
@@ -33,7 +33,7 @@
 		"item:last_match": 1793043200.0,
 		"item:left_bracer": 1792136735.68746,
 		"item:longbow": 1792282200.0,
-		"item:lucky_nickel": 1793317084,
+		"item:lucky_nickel": 1793338027.0,
 		"item:marble": 1792479900.0,
 		"item:measuring_tape": 1792135714.63887,
 		"item:medallion": 1792694227.0,
@@ -87,7 +87,7 @@
 		"monster:juggernaut": 1792507200.0,
 		"monster:kobold_trapper": 1792136735.68746,
 		"monster:leech_league": 1792136735.68746,
-		"monster:lich": 1792976845.0,
+		"monster:lich": 1793342400,
 		"monster:magicat": 1792507200.0,
 		"monster:martyr": 1793212800.0,
 		"monster:merchant": 1792272500.0,
@@ -119,5 +119,5 @@
 	"item:sling": 1793236000.0,
 	"monster:mouse": 1792450564.02935,
 	"monster:plague_doctor": 1793211183.58895,
-	"updated": "2026-10-29T23:38:04"
+	"updated": "2026-10-30T05:59:00"
 }

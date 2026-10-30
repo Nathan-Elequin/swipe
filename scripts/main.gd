@@ -666,6 +666,7 @@ var _sling_aim: int = -1
 var _skip_item_use_count: bool = false
 var _flee_random_spin: bool = false
 var _pending_item_flee: bool = false
+var _chakram_halves_busy: bool = false
 var _fungal_stop_fight: bool = false
 var _drink_hp_due: bool = false
 var _gate_line: String = ""
@@ -13478,6 +13479,12 @@ func _item_deals_attack(it: Dictionary) -> bool:
 
 
 func _chakram_halves(self_it: Dictionary) -> Dictionary:
+	# Scanning the hand calls _item_view / _item_deals_attack, and those call
+	# back into this for Chakram (Sling, highest-Attack Block, Paci-Fist). Treat
+	# Chakram as providing neither verb while the scan is already running.
+	if _chakram_halves_busy:
+		return {"blk": false, "atk": false}
+	_chakram_halves_busy = true
 	var uid: int = int(self_it.get("uid", -1))
 	var has_blk := false
 	var has_atk := false
@@ -13496,6 +13503,7 @@ func _chakram_halves(self_it: Dictionary) -> Dictionary:
 			has_blk = true
 		if _item_deals_attack(it):
 			has_atk = true
+	_chakram_halves_busy = false
 	return {"blk": not has_blk, "atk": not has_atk}
 
 
@@ -17875,6 +17883,12 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = str(out["n"])
 			out["note"] = ""
 			out["can_use"] = false
+		"flee_then_blk":
+			out["kind"] = "BLK"
+			out["n"] = int(ops.get("n", 5))
+			out["number"] = str(out["n"])
+			out["note"] = ""
+			out["can_use"] = fighting
 		"chakram":
 			var halves_v: Dictionary = _chakram_halves(it)
 			var do_blk_v: bool = bool(halves_v.get("blk", false))
@@ -18666,6 +18680,10 @@ func _rewrite_keywords(raw: String, colored: bool, num_hex: String) -> String:
 	for i in range(hits.size() - 1, -1, -1):
 		var m: RegExMatch = hits[i]
 		var piece: String = m.get_string()
+		if piece.strip_edges().to_lower() == "any":
+			var after_m: String = t.substr(m.get_end()).strip_edges().to_lower()
+			if not after_m.begins_with("monster") and not after_m.begins_with("enemy"):
+				continue
 		var shown: String = _format_keyword(piece)
 		if colored:
 			var hex: String = _paint_hex(piece, t, m.get_start(), m.get_end(), num_hex, gold, hp_c, atk_c, var_c, blk_c, phrases)

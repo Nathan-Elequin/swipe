@@ -55,14 +55,14 @@
 					}
 				]
 			},
+			"pool": 1.0,
 			"priority": 1.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "Gain 4 Block.",
@@ -104,14 +104,14 @@
 				"kind": "blk",
 				"n": 4.0
 			},
+			"pool": 1.0,
 			"priority": 1.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "Flips 2 ↔ 4 after each Item used.",
@@ -155,14 +155,14 @@
 			"ops": {
 				"kind": "atk_alt_24"
 			},
+			"pool": 1.0,
 			"priority": 2.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "+1 Block for each HP you are missing.",
@@ -206,14 +206,14 @@
 			"ops": {
 				"kind": "blk_from_hp"
 			},
+			"pool": 2.0,
 			"priority": 2.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 2
+			"tier": 1.0
 		},
 		{
 			"ability": "Block equal to the lower HP between you and the Enemy.",
@@ -257,14 +257,14 @@
 			"ops": {
 				"kind": "blk_min_hp"
 			},
+			"pool": 2.0,
 			"priority": 2.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 2
+			"tier": 1.0
 		},
 		{
 			"ability": "Defeat an enemy with fewer HP than you (not equal).",
@@ -308,14 +308,14 @@
 			"ops": {
 				"kind": "defeat_hp"
 			},
+			"pool": 5.0,
 			"priority": 2.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 5
+			"tier": 1.0
 		},
 		{
 			"ability": "1 Attack, plus 1 for each HP you are missing.",
@@ -358,14 +358,14 @@
 			"ops": {
 				"kind": "atk_7_hp"
 			},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 2
+			"tier": 1.0
 		},
 		{
 			"ability": "Block equal to the Neighboring enemy's Attack on the Right.",
@@ -408,14 +408,14 @@
 			"ops": {
 				"kind": "blk_neighbor"
 			},
+			"pool": 1.0,
 			"priority": 3.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "Block equal to the Neighboring enemy's Attack on the Left.",
@@ -459,14 +459,14 @@
 				"kind": "blk_neighbor",
 				"side": "left"
 			},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 4
+			"tier": 1.0
 		},
 		{
 			"ability": "Attack equal to 8 minus the Items still in your hand.",
@@ -509,14 +509,14 @@
 			"ops": {
 				"kind": "atk_7_items"
 			},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 4
+			"tier": 1.0
 		},
 		{
 			"ability": "This gains +2 Attack each time you lose any HP.",
@@ -562,14 +562,14 @@
 			"ops": {
 				"kind": "atk_hp_loss"
 			},
+			"pool": 2.0,
 			"priority": 4.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 2
+			"tier": 3.0
 		},
 		{
 			"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
@@ -612,14 +612,14 @@
 			"ops": {
 				"kind": "defeat_atk"
 			},
+			"pool": 1.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 1
+			"tier": 3.0
 		},
 		{
 			"ability": "Attack equal to the Attack of the last monster you spun.",
@@ -661,14 +661,14 @@
 			"name": "Grimoire",
 			"notes": "",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "Gain 2 Block. If you lose HP this combat, Keep this Item.",
@@ -710,14 +710,14 @@
 			"name": "Breastplate",
 			"notes": "",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 2
+			"tier": 3.0
 		},
 		{
 			"ability": "Spin again and gain a Random Item.",
@@ -759,14 +759,14 @@
 			"name": "Smoke Bomb",
 			"notes": "",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "todo",
-			"tier": 2.0,
-			"pool": 1
+			"tier": 2.0
 		},
 		{
 			"ability": "Let the Enemy Attack, then Defeat them and Heal equal to their current HP.",
@@ -808,14 +808,14 @@
 			"name": "Fangs",
 			"notes": "",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "Mark a Neighbor with 4 Poison.",
@@ -859,14 +859,14 @@
 				"kind": "mark_poison",
 				"n": 4.0
 			},
+			"pool": 1.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 1
+			"tier": 2.0
 		},
 		{
 			"ability": "Unplayable. If you would die, discard this and Heal 3.",
@@ -907,14 +907,14 @@
 			"name": "Healing Potion",
 			"notes": "",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "todo",
-			"tier": 3.0,
-			"pool": 1
+			"tier": 3.0
 		},
 		{
 			"ability": "Deal 4 Attack to a Neighboring enemy.",
@@ -958,14 +958,14 @@
 				"kind": "atk_neighbor",
 				"n": 4.0
 			},
+			"pool": 1.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 1
+			"tier": 2.0
 		},
 		{
 			"ability": "Target any enemy. That enemy attacks the monster that is Across from them.",
@@ -1007,14 +1007,14 @@
 			"name": "Pocketwatch",
 			"notes": "Odd living-monster count: unusable. Across skips empty corridors and walks the living monsters.",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 4
+			"tier": 3.0
 		},
 		{
 			"ability": "Deal 2 Attack to the enemy you are facing and each Neighboring enemy. The same enemy is only hit once.",
@@ -1056,14 +1056,14 @@
 				"kind": "atk_cleave",
 				"n": 2.0
 			},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "Heal 1, plus 1 for each monster Defeated",
@@ -1104,14 +1104,14 @@
 			"ops": {
 				"kind": "heal_kills"
 			},
+			"pool": 1.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 1
+			"tier": 2.0
 		},
 		{
 			"ability": "Move to Any Monster, then Draw 1 Item",
@@ -1154,14 +1154,14 @@
 			"ops": {
 				"kind": "hook_swap"
 			},
+			"pool": 5.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 5
+			"tier": 1.0
 		},
 		{
 			"ability": "3 Attack or 3 Block. Alternates on Item Use",
@@ -1205,14 +1205,14 @@
 			"ops": {
 				"kind": "shield_alt"
 			},
+			"pool": 5.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 5
+			"tier": 1.0
 		},
 		{
 			"ability": "Each time you Spin, Lose 1 HP and this item gains +2 Block",
@@ -1253,14 +1253,14 @@
 			"ops": {
 				"kind": "blk_siphon"
 			},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 5
+			"tier": 2.0
 		},
 		{
 			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
@@ -1302,14 +1302,14 @@
 				"kind": "atk_opposite",
 				"n": 4.0
 			},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 5
+			"tier": 2.0
 		},
 		{
 			"ability": "Heal 1, then increase this number by 1. Keep this if you are still missing HP.",
@@ -1354,14 +1354,14 @@
 				"kind": "heal_keep",
 				"n": 1.0
 			},
+			"pool": 2.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 2
+			"tier": 3.0
 		},
 		{
 			"ability": "Gain Block equal to the last Block you gained.",
@@ -1402,14 +1402,14 @@
 			"ops": {
 				"kind": "blk_last"
 			},
+			"pool": 4.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 4
+			"tier": 2.0
 		},
 		{
 			"ability": "Becomes a copy of the last item you used.",
@@ -1450,14 +1450,14 @@
 			"ops": {
 				"kind": "echo"
 			},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "Remove your Enemy's unique ability",
@@ -1500,14 +1500,14 @@
 			"ops": {
 				"kind": "quiet"
 			},
+			"pool": 4.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 4
+			"tier": 2.0
 		},
 		{
 			"ability": "Choose to reduce the facing owner's Attack by 1, 2, or 3.",
@@ -1565,14 +1565,14 @@
 					}
 				]
 			},
+			"pool": 1.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "Deal Attack equal to Block you hold. Keep this item.",
@@ -1602,14 +1602,14 @@
 			"ops": {
 				"kind": "atk_spend_blk"
 			},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 4
+			"tier": 1.0
 		},
 		{
 			"ability": "(1), (2), (3), or (4) Atk. Changes on Item use",
@@ -1653,14 +1653,14 @@
 			"ops": {
 				"kind": "atk_empty"
 			},
+			"pool": 3.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 3
+			"tier": 1.0
 		},
 		{
 			"ability": "If you have no playable items that Attack, Defeat the enemy.",
@@ -1691,14 +1691,14 @@
 			"ops": {
 				"kind": "defeat_only_item"
 			},
+			"pool": 3.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 3
+			"tier": 2.0
 		},
 		{
 			"ability": "Defeat Any Monster with exactly double your HP",
@@ -1742,14 +1742,14 @@
 			"ops": {
 				"kind": "defeat_double_hp"
 			},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 4
+			"tier": 3.0
 		},
 		{
 			"ability": "Choose 2 Items and Swap them.",
@@ -1780,14 +1780,14 @@
 			"ops": {
 				"kind": "chaos_reroll"
 			},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 5
+			"tier": 2.0
 		},
 		{
 			"ability": "Heal 6. On Spin, lose 1 HP.",
@@ -1830,14 +1830,14 @@
 			"ops": {
 				"kind": "heal_full"
 			},
+			"pool": 3.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 3
+			"tier": 1.0
 		},
 		{
 			"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
@@ -1895,14 +1895,14 @@
 					}
 				]
 			},
+			"pool": 4.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "hold",
-			"tier": 2.0,
-			"pool": 4
+			"tier": 2.0
 		},
 		{
 			"ability": "Take 2 Attack. If you still hold this when you Spin Spider Queen, discard it; she gains +2 HP and +2 Attack.",
@@ -1929,14 +1929,14 @@
 				"kind": "egg_hurt",
 				"n": 2.0
 			},
+			"pool": -1.0,
 			"priority": 9.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
-			"pool": -1
+			"tier": 0.0
 		},
 		{
 			"ability": "The facing owner's Attack becomes 0 this fight.",
@@ -1977,13 +1977,13 @@
 			"ops": {
 				"kind": "atk_zero"
 			},
+			"pool": 0.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"review": "rough",
 			"review_note": "",
 			"status": "retired",
-			"tier": 1.0,
-			"pool": 0
+			"tier": 1.0
 		},
 		{
 			"ability": "(ATK 2), then return to your hand.",
@@ -2018,13 +2018,13 @@
 			"name": "Dagger",
 			"notes": "",
 			"ops": {},
+			"pool": 0.0,
 			"priority": 2.0,
 			"rarity": "starter",
 			"review": "polish",
 			"review_note": "",
 			"status": "retired",
-			"tier": 1.0,
-			"pool": 0
+			"tier": 1.0
 		},
 		{
 			"ability": "(BLK X), where X is the lowest HP between you and the enemy.",
@@ -2059,13 +2059,13 @@
 			"name": "Helmet",
 			"notes": "",
 			"ops": {},
+			"pool": 0.0,
 			"priority": 2.0,
 			"rarity": "starter",
 			"review": "polish",
 			"review_note": "",
 			"status": "retired",
-			"tier": 1.0,
-			"pool": 0
+			"tier": 1.0
 		},
 		{
 			"ability": "At the start of each combat, lose 1 HP.",
@@ -2100,13 +2100,13 @@
 			"name": "Bandana",
 			"notes": "",
 			"ops": {},
+			"pool": 0.0,
 			"priority": 4.0,
 			"rarity": "starter",
 			"review": "polish",
 			"review_note": "",
 			"status": "retired",
-			"tier": 1.0,
-			"pool": 0
+			"tier": 1.0
 		},
 		{
 			"ability": "6 Atk and Lose 2 HP.",
@@ -2151,14 +2151,14 @@
 				"kind": "atk",
 				"n": 6.0
 			},
+			"pool": 3.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 3
+			"tier": 2.0
 		},
 		{
 			"ability": "Move →, then Attack 3.",
@@ -2203,14 +2203,14 @@
 				"kind": "atk_move",
 				"n": 3.0
 			},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 3
+			"tier": 1.0
 		},
 		{
 			"ability": "Apply Poison to all Monsters equal to the lowest HP on any Monster",
@@ -2259,14 +2259,14 @@
 			"ops": {
 				"kind": "miasma"
 			},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 4
+			"tier": 3.0
 		},
 		{
 			"ability": "Fill your inventory with Marbles",
@@ -2310,14 +2310,14 @@
 			"ops": {
 				"kind": "bag_marbles"
 			},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "Gain 0 Atk or 0 Block randomly. On Spin, increase these numbers by 1",
@@ -2361,14 +2361,14 @@
 			"ops": {
 				"kind": "marble"
 			},
+			"pool": -1.0,
 			"priority": 9.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
-			"pool": -1
+			"tier": 0.0
 		},
 		{
 			"ability": "Unplayable. Defeats the Monster 6 Spins from now.",
@@ -2417,14 +2417,14 @@
 			"ops": {
 				"kind": "hex"
 			},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "Heal yourself and the Enemy for 3 HP. Then draw an Item.",
@@ -2469,14 +2469,14 @@
 				"heal": 3.0,
 				"kind": "heal_both_draw"
 			},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 3
+			"tier": 1.0
 		},
 		{
 			"ability": "Set the HP of the Enemy, its Neighbors, and yourself to 1 HP",
@@ -2525,14 +2525,14 @@
 			"ops": {
 				"kind": "napalm"
 			},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep.",
@@ -2543,17 +2543,13 @@
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "50% each. Always Keep.",
-			"flags": {
-				"art": true,
-				"dev": true,
-				"hide": false
-			},
+			"explainer": "+2 BLK OR +6 BLK -2 HP",
 			"flow": "Click during a fight. Gain 1 Block. Then if your Block total is even, Keep (spent this fight, still in your hand for later fights, same as Lantern). If odd, used up. Twins only doubles even Block gains, so this 1 is not doubled. Basilisk still blocks Keep. Block resets to 0 each fight, so a first click at 0 becomes 1 (odd) and is used up unless you already held odd Block. Fight only. Not Attack.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "lucky_nickel",
-			"locked_at": "2026-10-18",
+			"kind": "item",
+			"locked_at": "2026-10-30",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2584,14 +2580,14 @@
 				"kind": "blk_coin_keep",
 				"lo": 2.0
 			},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 3
+			"tier": 2.0
 		},
 		{
 			"ability": "If enemy Attack is Even, this Blocks for half of it.",
@@ -2635,14 +2631,14 @@
 			"ops": {
 				"kind": "blk_half_atk"
 			},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 3
+			"tier": 1.0
 		},
 		{
 			"ability": "You and your Enemy lose 2 HP",
@@ -2692,14 +2688,14 @@
 				"kind": "blood_pact",
 				"n": 2.0
 			},
+			"pool": -1.0,
 			"priority": 9.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
-			"pool": -1
+			"tier": 0.0
 		},
 		{
 			"ability": "Move 2 in a random direction, and Keep this.",
@@ -2744,14 +2740,14 @@
 				"kind": "heal_swap_keep",
 				"n": 2.0
 			},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 4
+			"tier": 2.0
 		},
 		{
 			"ability": "Unplayable. On Item Use, decrease this by 1. When this reaches 0, Die.",
@@ -2801,14 +2797,14 @@
 			"ops": {
 				"kind": "toll"
 			},
+			"pool": -1.0,
 			"priority": 9.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
-			"pool": -1
+			"tier": 0.0
 		},
 		{
 			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
@@ -2857,14 +2853,14 @@
 			"ops": {
 				"kind": "pacemaker_use"
 			},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 3
+			"tier": 2.0
 		},
 		{
 			"ability": "Eject your Enemy. Draw an Item.",
@@ -2908,14 +2904,14 @@
 			"ops": {
 				"kind": "eject_draw"
 			},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 4
+			"tier": 2.0
 		},
 		{
 			"ability": "Turn your opponent into an exact copy of a Neighbor of your choice.",
@@ -2964,14 +2960,14 @@
 			"ops": {
 				"kind": "polymorph"
 			},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 5
+			"tier": 3.0
 		},
 		{
 			"ability": "Block 10. Retain leftover block from this combat.",
@@ -3021,14 +3017,14 @@
 				"kind": "blk",
 				"n": 10.0
 			},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 5
+			"tier": 3.0
 		},
 		{
 			"ability": "Heal equal to the amount of HP you most recently lose.",
@@ -3077,14 +3073,14 @@
 			"ops": {
 				"kind": "heal_last_loss"
 			},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 4
+			"tier": 1.0
 		},
 		{
 			"ability": "Block 3 if you have no playable Items that Block. Attack 3 if you have no playable Items that Attack.",
@@ -3135,14 +3131,14 @@
 				"blk": 3.0,
 				"kind": "chakram"
 			},
+			"pool": 3.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 3
+			"tier": 2.0
 		},
 		{
 			"ability": "Block 7, then choose a Neighbor to Attack you",
@@ -3192,14 +3188,14 @@
 				"kind": "signpost",
 				"n": 7.0
 			},
+			"pool": 2.0,
 			"priority": 2.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 2
+			"tier": 1.0
 		},
 		{
 			"ability": "Select an Attack. It can target Any monster. Draw 1 Item",
@@ -3244,14 +3240,14 @@
 			"ops": {
 				"kind": "sling"
 			},
+			"pool": 4.0,
 			"priority": 2.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "change",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 4
+			"tier": 1.0
 		},
 		{
 			"ability": "Bag an enemy with less HP than you.",
@@ -3300,14 +3296,14 @@
 			"ops": {
 				"kind": "bag_hold"
 			},
+			"pool": 4.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 4
+			"tier": 2.0
 		},
 		{
 			"ability": "2 Atk. The next time you or an Enemy would Flee, cancel it and this gains +2 Atk.",
@@ -3357,14 +3353,14 @@
 				"kind": "atk",
 				"n": 2.0
 			},
+			"pool": 5.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 5
+			"tier": 1.0
 		},
 		{
 			"ability": "Every 5th Item Discarded is copied into your Hand",
@@ -3413,14 +3409,14 @@
 			"ops": {
 				"kind": "recycle_watch"
 			},
+			"pool": 5.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 5
+			"tier": 2.0
 		},
 		{
 			"ability": "Enemies ignore your Block for 3 Spins",
@@ -3465,14 +3461,14 @@
 			"ops": {
 				"kind": "rust_watch"
 			},
+			"pool": -1.0,
 			"priority": 9.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
-			"pool": -1
+			"tier": 0.0
 		},
 		{
 			"ability": "Heal 2.",
@@ -3496,14 +3492,14 @@
 				"kind": "heal",
 				"n": 2.0
 			},
+			"pool": -1.0,
 			"priority": 9.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
-			"pool": -1
+			"tier": 0.0
 		},
 		{
 			"ability": "Defeat your enemy if you are perfectly Blocking them, and Gain a Marble equal to their Attack",
@@ -3528,20 +3524,20 @@
 			"ops": {
 				"kind": "orb"
 			},
+			"pool": 4.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 4
+			"tier": 2.0
 		},
 		{
 			"ability": "Flee, then Gain 5 Block",
 			"atk_base": null,
 			"atk_formula": "",
-			"author_lock": false,
+			"author_lock": true,
 			"call_name": "",
 			"card_color": "blk",
 			"contradiction_ids": [],
@@ -3551,8 +3547,28 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "flying_saucer",
-			"locked_at": "",
-			"locked_fields": [],
+			"kind": "item",
+			"locked_at": "2026-10-30",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
 			"log_hint": "Gain 5 Block and Flee",
 			"mode_pool": "all",
 			"name": "Flying Saucer",
@@ -3561,14 +3577,14 @@
 				"kind": "flee_then_blk",
 				"n": 5.0
 			},
+			"pool": 1.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 1
+			"tier": 2.0
 		}
 	],
 	"monsters": [
@@ -3612,14 +3628,14 @@
 			"name": "Wizard",
 			"notes": "",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 1.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "",
@@ -3657,14 +3673,14 @@
 			"name": "Golem",
 			"notes": "",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 1.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "I cannot take Attack damage.",
@@ -3705,14 +3721,14 @@
 			"name": "Goblin",
 			"notes": "",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 3.0,
 			"rarity": "starter",
 			"reminder": "Immune to Attacks",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "I copy the HP of the last enemy you faced.",
@@ -3753,14 +3769,14 @@
 			"name": "Skeleton",
 			"notes": "If this is the first unit faced, set HP to 3.",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "starter",
 			"reminder": "last enemy HP",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 2
+			"tier": 1.0
 		},
 		{
 			"ability": "I Attack twice.",
@@ -3801,30 +3817,31 @@
 			"name": "Hornet Swarm",
 			"notes": "",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 3.0,
 			"rarity": "starter",
 			"reminder": "Attacks twice",
 			"review": "polish",
 			"review_note": "",
 			"status": "todo",
-			"tier": 1.0,
-			"pool": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "When you use Defeat Items against me, they fail, reduce my HP by 1, and are Kept. I cannot lose HP in any other way.",
-			"atk_base": 5.0,
+			"atk_base": 5,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Undying",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 2.0,
+			"count": 2,
 			"explainer": "Legal Defeat items chip 1 HP and stay Kept. Nothing else lowers my HP.",
 			"flow": "Pool 3, tier 2, 2 HP, 5 Attack. A Defeat item must already be legally usable (Paci-Fist still needs no Attack items; Sledgehammer still needs 6 or more Attack). The Boot, Sledgehammer, Fangs, Paci-Fist, Scythe, and Hex are the Defeat items. On use against me the Defeat does not happen: I lose 1 HP and that item is Kept and tapped until the fight ends. Echo Bell's copy is still used up. Fangs still makes me attack, then chips 1, and Heals you for the HP I had before that chip. Two Hexes at 0 each chip 1 and both reset to 6 and stay. I cannot lose HP any other way. Quiet Bell turns this off. If I still have HP, I attack at the end of combat and I am defeated as normal.",
-			"hp_base": 2.0,
+			"hp_base": 2,
 			"hp_formula": "",
 			"id": "lich",
-			"locked_at": "2026-10-28",
+			"kind": "monster",
+			"locked_at": "2026-10-30",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3851,14 +3868,14 @@
 			"name": "Lich",
 			"notes": "Neighbor aura moved to Fairy.",
 			"ops": {},
-			"priority": 4.0,
+			"pool": 3,
+			"priority": 4,
 			"rarity": "starter",
 			"reminder": "Defeat chips 1. No other HP loss.",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 3
+			"tier": 2
 		},
 		{
 			"ability": "When you lose HP, I lose equal HP.",
@@ -3900,14 +3917,14 @@
 			"name": "Ogre",
 			"notes": "",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 1.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 1
+			"tier": 2.0
 		},
 		{
 			"ability": "Every time you lose HP, I gain +1 HP and +1 Attack.",
@@ -3949,14 +3966,14 @@
 			"name": "Vampire",
 			"notes": "Once per hit or bleed, not once per heart. Every copy on the wheel.",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "+1/+1 each time you lose HP",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 1
+			"tier": 3.0
 		},
 		{
 			"ability": "On Spin, 50%: gain +4 Attack. Otherwise: lose 3 Attack.",
@@ -3999,14 +4016,14 @@
 			"name": "Berserker",
 			"notes": "SP-22. Every Spin. Stacks. Attack clamps at 0.",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "My Attack always equals your HP.",
@@ -4047,14 +4064,14 @@
 			"name": "Dire Wolf",
 			"notes": "",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "Attack always equals your HP",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 1
+			"tier": 2.0
 		},
 		{
 			"ability": "+1 Atk for each Item you hold.",
@@ -4095,14 +4112,14 @@
 			"name": "Bandit",
 			"notes": "",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.",
@@ -4143,14 +4160,14 @@
 			"name": "Damsel in Distress",
 			"notes": "",
 			"ops": {},
+			"pool": 3.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "My Attack always equals my HP.",
@@ -4191,14 +4208,14 @@
 			"name": "Slime Boss",
 			"notes": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer.",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 1
+			"tier": 3.0
 		},
 		{
 			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
@@ -4240,14 +4257,14 @@
 			"name": "Leech League",
 			"notes": "",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "Lowest HP Monster = 2nd Lowest HP Monster",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 4
+			"tier": 3.0
 		},
 		{
 			"ability": "When I am Defeated, set your HP to my most recent HP.",
@@ -4290,14 +4307,14 @@
 			"name": "Wraith",
 			"notes": "SP-26. Display name stays Wraith. Id stays wraith. No id migration.",
 			"ops": {},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 3
+			"tier": 2.0
 		},
 		{
 			"ability": "If I go down before I Attack, you gain an Item.",
@@ -4336,14 +4353,14 @@
 			"name": "Mimic",
 			"notes": "",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "todo",
-			"tier": 2.0,
-			"pool": 1
+			"tier": 2.0
 		},
 		{
 			"ability": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
@@ -4385,14 +4402,14 @@
 			"name": "Spider Queen",
 			"notes": "",
 			"ops": {},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee and the wheel Spins at random.",
@@ -4436,14 +4453,14 @@
 			"name": "Commander",
 			"notes": "",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 2
+			"tier": 3.0
 		},
 		{
 			"ability": "My Attack ignores Block.",
@@ -4486,14 +4503,14 @@
 			"name": "Dragon",
 			"notes": "",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 1
+			"tier": 3.0
 		},
 		{
 			"ability": "I Attack you for 2 Damage each time I take ATK Damage.",
@@ -4535,14 +4552,14 @@
 			"name": "Needleback",
 			"notes": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 1
+			"tier": 2.0
 		},
 		{
 			"ability": "When you Spin me, feed me one of two items.",
@@ -4585,14 +4602,14 @@
 			"name": "Gelatinous Cube",
 			"notes": "Not an item use: no Kobold extra, no Echo update, no Harpy after the feed.",
 			"ops": {},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "feed me one of two items",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 3
+			"tier": 2.0
 		},
 		{
 			"ability": "I petrify your highest Attack item until you Spin again.",
@@ -4634,14 +4651,14 @@
 			"name": "Gargoyle",
 			"notes": "Petrify tooltip: Unplayable until your next Spin.",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "I attack you when you Spin me, and after each item you use when facing me.",
@@ -4683,14 +4700,14 @@
 			"name": "Harpy",
 			"notes": "One swing, fight stays open. If an item already killed me, no extra swing.",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "When I enter the Dungeon I Mark 2 other Monsters. Each time a Marked monster is Defeated, I gain +2 HP and ATK",
@@ -4731,14 +4748,14 @@
 			"name": "Trapper",
 			"notes": "0 items = 1 swing. 2 items = 3 swings.",
 			"ops": {},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "change",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 5
+			"tier": 2.0
 		},
 		{
 			"ability": "If I live, I leave two Tough Monsters in my place.",
@@ -4779,14 +4796,14 @@
 			"name": "Clockwork Knight",
 			"notes": "Quiet Bell strips this: I leave like anyone else, no heirs.",
 			"ops": {},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 5
+			"tier": 3.0
 		},
 		{
 			"ability": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
@@ -4828,14 +4845,14 @@
 			"name": "Basilisk",
 			"notes": "Bucket 7. Uses the old Basilisk sprite. Flee Shift line. Grey countdown on petrified items.",
 			"ops": {},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 5
+			"tier": 3.0
 		},
 		{
 			"ability": "Attack or Block values that are Even happen twice against me.",
@@ -4876,14 +4893,14 @@
 			"name": "Twins",
 			"notes": "Anvil would take 1 from each of those two Attacks. Poison Flask is not an Attack.",
 			"ops": {},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 3
+			"tier": 1.0
 		},
 		{
 			"ability": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me",
@@ -4925,14 +4942,14 @@
 			"name": "Beggar",
 			"notes": "Keep does not save the item. Curses and unplayable items can be marked. A Decay link on the discarded item does not also discard the partner.",
 			"ops": {},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 3
+			"tier": 1.0
 		},
 		{
 			"ability": "I Lose 2 HP each time a Neighbor is Defeated",
@@ -4974,14 +4991,14 @@
 			"name": "Wick",
 			"notes": "",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 4
+			"tier": 2.0
 		},
 		{
 			"ability": "I cannot lose more than 1 HP at a time.",
@@ -5023,14 +5040,14 @@
 			"name": "Anvil",
 			"notes": "Needleback poke is not an Item hitting me. Poison Flask is not an Attack. Extra Attacks each chip 1.",
 			"ops": {},
+			"pool": 5.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 5
+			"tier": 2.0
 		},
 		{
 			"ability": "When my Neighbors would take Attack Damage, I take it instead",
@@ -5053,14 +5070,14 @@
 			"name": "Bodyguard",
 			"notes": "Bucket 3. Right is counterclockwise when a King is also passing. Goblin still shows Immune to Attack Damage when the hit actually lands on Goblin.",
 			"ops": {},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 3
+			"tier": 1.0
 		},
 		{
 			"ability": "Any time I lose HP, I command the monster to my right to Attack you immediately",
@@ -5103,14 +5120,14 @@
 			"name": "Petty King",
 			"notes": "Bucket 6, tier 3. Id stays cowardly_king. Right is one seat counter-clockwise like Right Bracer. Any is plain English, not the Any-monster keyword.",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "When I lose HP, the monster on my right Attacks you.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 4
+			"tier": 3.0
 		},
 		{
 			"ability": "When you Spin me, choose an Item and I will upgrade it",
@@ -5152,14 +5169,14 @@
 			"name": "Merchant",
 			"notes": "Bucket 4. Remaining dungeon pile, that copy is used up. Two Sais is legal. A third is not. A new Spider Egg laid on this spin can be picked if a Tier 1 copy is still in the pile.",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "Choose an item. I upgrade it.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 4
+			"tier": 1.0
 		},
 		{
 			"ability": "When you Spin me, Gain a Shield",
@@ -5202,14 +5219,14 @@
 			"name": "Juggernaut",
 			"notes": "Bucket 8. The Shield is the live Shield card. You can click it this fight.",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "When you Spin me, Gain a Shield.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 2
+			"tier": 1.0
 		},
 		{
 			"ability": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item",
@@ -5250,14 +5267,14 @@
 			"name": "Cleric",
 			"notes": "Bucket 6. Spider Egg is Tier 0. Missing 3 HP means 3 hearts or fewer. Two Clerics: the second only pays if you are still missing 3 after the first Heal 3.",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "After you Spin, if missing 3 HP, Heal 3 and I take your worst item.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 4
+			"tier": 2.0
 		},
 		{
 			"ability": "When I lose HP or Attack, I die. My Neighbors each gain HP equal to my remaining HP.",
@@ -5304,14 +5321,14 @@
 			"name": "Martyr",
 			"notes": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "On HP loss or Attack: I die. Neighbors gain my remaining HP.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 4
+			"tier": 1.0
 		},
 		{
 			"ability": "When I would take Attack damage, both of my Neighbors take it instead.",
@@ -5354,14 +5371,14 @@
 			"name": "Prism",
 			"notes": "Bucket 4. Double Axe and bows still refract the share aimed at me.",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "Attack at me hits both neighbors instead.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 4
+			"tier": 3.0
 		},
 		{
 			"ability": "On Spin, my Neighbors Gain 2 Poison and Heal 2. While I live, Poison does not activate.",
@@ -5408,14 +5425,14 @@
 			"name": "Plague Doctor",
 			"notes": "SP-28. Bucket 5. Freeze-all poison while alive (player + monsters). Quiet Bell turns this off.",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "On Spin: Neighbors Gain 2 Poison and Heal 2. Poison does not activate while I live.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 4
+			"tier": 1.0
 		},
 		{
 			"ability": "If you Discard an item when facing me, I will Attack one of my Neighbors and Flee.",
@@ -5462,14 +5479,14 @@
 			"name": "Hired Hand",
 			"notes": "Bucket 6. Flee keeps the live tooltip.",
 			"ops": {},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "Discard an item: I Attack a Neighbor and Flee.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 5
+			"tier": 1.0
 		},
 		{
 			"ability": "When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each",
@@ -5512,14 +5529,14 @@
 			"name": "Hydra",
 			"notes": "Bucket 7. Petrify tooltip is Gargoyle’s: Unplayable until your next Spin.",
 			"ops": {},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "Petrify even Attack and Block. +2 Attack each.",
 			"review": "change",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 5
+			"tier": 3.0
 		},
 		{
 			"ability": "When you Spin me, I Decay two of your Items.",
@@ -5564,27 +5581,27 @@
 			"name": "Zombie",
 			"notes": "SP-25. Keyword Decay. Unused Decayed Items are discarded.",
 			"ops": {},
+			"pool": 1.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 1
+			"tier": 2.0
 		},
 		{
 			"ability": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
-			"atk_base": 4,
+			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Cut And Run",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "3 HP: Defeated. Else Defeat: −2 HP and Flee",
 			"flow": "If my HP is exactly 3, I am Defeated (loot). If something else would Defeat or Slay me (0 HP, Boot, Hex), I instead lose 2 HP from the HP I had before that Defeat and Flee. After that Flee, if I have 3 HP, I am Defeated. Quiet Bell turns this off.",
-			"hp_base": 7,
+			"hp_base": 7.0,
 			"hp_formula": "",
 			"id": "triclops",
 			"kind": "monster",
@@ -5614,14 +5631,14 @@
 			"name": "Triclops",
 			"notes": "Bucket 5. New Triclops. Needs new art. 3-Seeker keeps Triple Threat.",
 			"ops": {},
-			"priority": 3,
+			"pool": 5.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "retired",
-			"tier": 2,
-			"pool": 5
+			"tier": 2.0
 		},
 		{
 			"ability": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
@@ -5669,14 +5686,14 @@
 			"name": "Shambling Mound",
 			"notes": "SP-27. Bucket 4. Walking moss heap. Like Hornet with ∞ swings. Any Attack, then Defeat with loot. HP 6 (babySlime Boss).",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 2
+			"tier": 1.0
 		},
 		{
 			"ability": "When you Spin me, you may Discard Items. Each sacrifice reduces my Atk and HP by 3.",
@@ -5723,14 +5740,14 @@
 			"name": "Almighty Worm",
 			"notes": "Bucket 3. Sand worm. Overlay + Continue. Stats stay reduced.",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 2
+			"tier": 3.0
 		},
 		{
 			"ability": "When you Spin me or my Neighbor, Gain 1 Blood Pact",
@@ -5777,14 +5794,14 @@
 			"name": "Cultist",
 			"notes": "Bucket 8. Hooded robe. One pact per qualifying Cultist.",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 4
+			"tier": 1.0
 		},
 		{
 			"ability": "After each Item you use while facing me, swap my HP and Attack.",
@@ -5827,14 +5844,14 @@
 			"name": "Bushido",
 			"notes": "SP-20. Bucket 3. After each counted item use while facing me unsilenced, swap current HP and Attack. If that item drops me to 0 HP I die and do not swap. Quiet Bell turns this off.",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "After each Item while facing me: swap my HP and Attack.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 4
+			"tier": 2.0
 		},
 		{
 			"ability": "I Attack until you lose HP",
@@ -5881,14 +5898,14 @@
 			"name": "Shark",
 			"notes": "Bucket 4. Shark. Loop until you bleed; Net 5 zeros then slain.",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
@@ -5930,14 +5947,14 @@
 			"name": "Death Bell",
 			"notes": "Bucket 9. Giant evil church bell. 12 HP 8 ATK.",
 			"ops": {},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 5
+			"tier": 3.0
 		},
 		{
 			"ability": "If you have 3, 6, or 9 Items, you Always Spin me next",
@@ -5979,14 +5996,14 @@
 			"name": "3-Seeker",
 			"notes": "Archived Triclops. Triple Threat. Uses the Triclops sprite.",
 			"ops": {},
+			"pool": 0.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "retired",
-			"tier": 1.0,
-			"pool": 0
+			"tier": 1.0
 		},
 		{
 			"ability": "When I am Defeated, I Flee and hatch into a Phoenix.",
@@ -6034,14 +6051,14 @@
 			"name": "Phoenix Egg",
 			"notes": "Bucket 4. Needs art. Hatches into Phoenix.",
 			"ops": {},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck.",
@@ -6088,14 +6105,14 @@
 			"name": "Phoenix",
 			"notes": "Token. Not drafted. Phoenix Egg creates it. SP-21: egg goes on the deck, not into this seat.",
 			"ops": {},
+			"pool": -1.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": -1
+			"tier": 3.0
 		},
 		{
 			"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
@@ -6137,14 +6154,14 @@
 			"name": "Amalgam",
 			"notes": "Bucket 6. Plasmoid science experiment, distinct from Gelatinous Cube. Needs art.",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"pool": 2
+			"tier": 3.0
 		},
 		{
 			"ability": "I give my Neighbors +1 HP.",
@@ -6186,14 +6203,14 @@
 			"name": "Fairy",
 			"notes": "Bottle is no longer created. Neighbor aura moved here from Lich.",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 2
+			"tier": 1.0
 		},
 		{
 			"ability": "When facing me, I take Attack damage equal to Block you gain.",
@@ -6241,14 +6258,14 @@
 			"name": "Eel",
 			"notes": "Tier 1. No numbered bucket named. Needs art.",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 2
+			"tier": 1.0
 		},
 		{
 			"ability": "After I Attack, I Heal you for double the HP I cause you to lose.",
@@ -6291,14 +6308,14 @@
 			"name": "Druid",
 			"notes": "Bucket 3. Needs art.",
 			"ops": {},
+			"pool": 2.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
@@ -6344,14 +6361,14 @@
 			"name": "Mouse",
 			"notes": "Tier 1. Small mouse. Paper Fight before special.",
 			"ops": {},
+			"pool": 5.0,
 			"priority": 1.0,
 			"rarity": "starter",
 			"reminder": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 5
+			"tier": 1.0
 		},
 		{
 			"ability": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
@@ -6398,14 +6415,14 @@
 			"name": "Magicat",
 			"notes": "Bucket 8. Cat with celestial sparkles and a wizard hat. In-place morph. Chakram Atk/Blk pool. Unique cat's-eye marble sprite.",
 			"ops": {},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 5
+			"tier": 1.0
 		},
 		{
 			"ability": "When I enter the Dungeon, Gain 1 Rust",
@@ -6447,14 +6464,14 @@
 			"name": "Rust Bucket",
 			"notes": "Bucket 8 T2. D&D rust monster as a bucket. Token Rust is extra. Art missing.",
 			"ops": {},
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "When I enter the Dungeon, Gain 1 Rust",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 5
+			"tier": 2.0
 		},
 		{
 			"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
@@ -6502,14 +6519,14 @@
 			"name": "Poison Frog",
 			"notes": "Bucket 8 T2. Poison frog. Art missing.",
 			"ops": {},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 3
+			"tier": 2.0
 		},
 		{
 			"ability": "When you Spin me, if my Attack would kill you, I Flee and lose 1 Attack",
@@ -6544,14 +6561,14 @@
 			"name": "Sandbag",
 			"notes": "Pool 4, tier 1. Upright sandbag with eyes, Smash home-run contest. Bodyguard moved to pool 3. Anvil moved to pool 9.",
 			"ops": {},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "If Take would drop you to 0 HP, I lose 1 Attack and Flee instead of hitting you.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 3
+			"tier": 1.0
 		},
 		{
 			"ability": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value",
@@ -6586,14 +6603,14 @@
 			"name": "Scorpion",
 			"notes": "Pool 2, tier 1. Pool 2 already had Beggar, Eel, and Lich at tier 1; no other card was moved.",
 			"ops": {},
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"pool": 3
+			"tier": 1.0
 		},
 		{
 			"ability": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
@@ -6624,15 +6641,15 @@
 			"name": "Oligarch",
 			"notes": "Bucket 9, tier 2. Bucket 9 had one tier-2 monster and four cards, so she fills the open tier-2 seat. No other card was moved. assets/dungeon/extra/oligarch.png.",
 			"ops": {},
+			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"pool": 4
+			"tier": 2.0
 		}
 	],
-	"updated": "2026-10-28"
+	"updated": "2026-10-30"
 }
