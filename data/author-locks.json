@@ -161,7 +161,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-30",
 			"name": "Blood Chalice"
 		},
 		"item:blood_pact": {
@@ -1131,7 +1131,7 @@
 				"reminder",
 				"card_color"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-10-30",
 			"name": "Poison Flask"
 		},
 		"item:polymorph": {
