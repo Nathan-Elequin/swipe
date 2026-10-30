@@ -1591,35 +1591,24 @@ func _style_review_row(row: HBoxContainer) -> void:
 	if row == null or not is_instance_valid(row):
 		return
 	var fields: Dictionary = row.get_meta("fields")
-	var stage: String = "polish"
-	if fields.has("review"):
-		stage = _text_of(fields["review"])
 	var note: Variant = fields.get("review_note", null)
 	if note is TextEdit:
-		_skin_review_note(note as TextEdit, stage)
+		_skin_review_note(note as TextEdit)
 
 
-func _skin_review_note(e: TextEdit, stage: String) -> void:
+func _skin_review_note(e: TextEdit) -> void:
 	var sb := StyleBoxFlat.new()
 	sb.set_corner_radius_all(6)
 	sb.content_margin_left = 8
 	sb.content_margin_right = 8
 	sb.content_margin_top = 6
 	sb.content_margin_bottom = 6
-	if stage == "rough":
-		sb.bg_color = Color("ffe08a")
-		sb.border_color = Color("8b1e1e")
-		sb.set_border_width_all(3)
-		e.add_theme_color_override("font_color", Color("6b1008"))
-		e.add_theme_color_override("font_placeholder_color", Color("8b1e1e"))
-		e.add_theme_font_size_override("font_size", 15)
-	else:
-		sb.bg_color = Color("fffaf2")
-		sb.border_color = Color("c4a574")
-		sb.set_border_width_all(1)
-		e.add_theme_color_override("font_color", Color("1c120c"))
-		e.add_theme_color_override("font_placeholder_color", Color("8a6a3a"))
-		e.add_theme_font_size_override("font_size", 14)
+	sb.bg_color = Color("ffe08a")
+	sb.border_color = Color("8b1e1e")
+	sb.set_border_width_all(3)
+	e.add_theme_color_override("font_color", Color("6b1008"))
+	e.add_theme_color_override("font_placeholder_color", Color("8b1e1e"))
+	e.add_theme_font_size_override("font_size", 15)
 	e.add_theme_stylebox_override("normal", sb)
 	e.add_theme_stylebox_override("focus", sb)
 	e.add_theme_stylebox_override("read_only", sb)

@@ -20,7 +20,7 @@ Read `data/author-locks.json` (and the flags on the board / script). Treat locke
 
 If he typed into an official field (Ability, Call name, numbers, Flow, and so on) and clicked Save, that text is the new locked text. Chat may not restyle it.
 
-If he typed into **Your notes for Cursor** and clicked Save, that note is also a real overwrite for the fields it replaces (Ability, Call name, ATK, HP, and so on). Write the new text into those official fields. Delete the old sentences. Keep the lock flags.
+If he typed into **Your notes for Cursor** and clicked Save, that note is also a real overwrite for the fields it replaces (Ability, Call name, ATK, HP, and so on), on any Review setting. Write the new text into those official fields. Delete the old sentences. Keep the lock flags.
 
 Only stop to ask when the note is confusing, or you cannot tell which locked field it replaces.
 

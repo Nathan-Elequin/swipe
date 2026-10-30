@@ -150,7 +150,7 @@ func setup() -> void:
 	head.add_child(_btn("Save", Color("3a2820"), Color("c4a574"), _on_save, 110))
 
 	var hint := Label.new()
-	hint.text = "Save writes the board and catalog, and locks this card. Typed fields update inspect immediately. A gold-box note is also a real overwrite — Cursor writes it into Ability, numbers, and code on the next message. Arrows move between boxes. Space types. Enter saves. Esc closes without saving."
+	hint.text = "Save writes the board and catalog, and locks this card. Typed fields update inspect immediately. The gold notes box always counts, on any Review setting — Cursor writes it into Ability, numbers, and code on the next message. Arrows move between boxes. Space types. Enter saves. Esc closes without saving."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color("6b4a10"))
@@ -302,17 +302,16 @@ func _rebuild(card: Dictionary) -> void:
 		lock_n.add_theme_color_override("font_color", Color("6b1008"))
 		_sheet.add_child(lock_n)
 	var stage: String = REVIEW_STAGE.of_card(card)
-	if stage == "rough":
-		var banner := Label.new()
-		banner.text = "ROUGH — type what to change in the gold box. Save is a real overwrite. The next Cursor message writes this into Ability, numbers, and code."
-		banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		banner.add_theme_font_size_override("font_size", 18)
-		banner.add_theme_color_override("font_color", Color("8b1e1e"))
-		_sheet.add_child(banner)
+	var banner := Label.new()
+	banner.text = "Type what to change in the gold box. It always counts, on any Review setting. Save is a real overwrite. The next Cursor message writes this into Ability, numbers, and code."
+	banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	banner.add_theme_font_size_override("font_size", 18)
+	banner.add_theme_color_override("font_color", Color("8b1e1e"))
+	_sheet.add_child(banner)
 	var rev_row := _grid(2)
 	_add_pick(rev_row, "Review", "review", stage, REVIEW_STAGE.STAGES)
 	_sheet.add_child(rev_row)
-	_add_review_note(_sheet, str(card.get("review_note", "")), stage)
+	_add_review_note(_sheet, str(card.get("review_note", "")))
 	if _fields.has("review") and _fields["review"] is OptionButton:
 		(_fields["review"] as OptionButton).item_selected.connect(_on_review_pick)
 	var row1 := _grid(2)
@@ -437,55 +436,45 @@ func _skin_edit(e: Control) -> void:
 
 
 func _on_review_pick(_i: int) -> void:
-	var stage: String = _text_of("review")
 	if _fields.has("review_note") and _fields["review_note"] is TextEdit:
-		_skin_review_note(_fields["review_note"] as TextEdit, stage)
+		_skin_review_note(_fields["review_note"] as TextEdit)
 
 
-func _add_review_note(host: Control, value: String, stage: String) -> void:
+func _add_review_note(host: Control, value: String) -> void:
 	var wrap := VBoxContainer.new()
 	wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	wrap.add_theme_constant_override("separation", 4)
 	var l := Label.new()
 	l.text = "Your notes for Cursor"
 	l.add_theme_font_size_override("font_size", 16)
-	l.add_theme_color_override("font_color", Color("8b1e1e") if stage == "rough" else Color("6b4a10"))
+	l.add_theme_color_override("font_color", Color("8b1e1e"))
 	wrap.add_child(l)
 	var e := TextEdit.new()
 	e.text = value
 	e.placeholder_text = "Type what to change. Save. The next Cursor message writes this into Ability, numbers, and code."
-	e.custom_minimum_size = Vector2(0, 140 if stage == "rough" else 80)
+	e.custom_minimum_size = Vector2(0, 140)
 	e.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
 	e.scroll_fit_content_height = false
-	_skin_review_note(e, stage)
+	_skin_review_note(e)
 	wrap.add_child(e)
 	host.add_child(wrap)
 	_fields["review_note"] = e
 
 
-func _skin_review_note(e: TextEdit, stage: String) -> void:
+func _skin_review_note(e: TextEdit) -> void:
 	var sb := StyleBoxFlat.new()
 	sb.set_corner_radius_all(8)
 	sb.content_margin_left = 10
 	sb.content_margin_right = 10
 	sb.content_margin_top = 8
 	sb.content_margin_bottom = 8
-	if stage == "rough":
-		sb.bg_color = Color("ffe08a")
-		sb.border_color = Color("8b1e1e")
-		sb.set_border_width_all(4)
-		e.add_theme_color_override("font_color", Color("6b1008"))
-		e.add_theme_color_override("font_placeholder_color", Color("8b1e1e"))
-		e.add_theme_font_size_override("font_size", 16)
-		e.custom_minimum_size.y = 140
-	else:
-		sb.bg_color = Color("fffaf2")
-		sb.border_color = Color("c4a574")
-		sb.set_border_width_all(2)
-		e.add_theme_color_override("font_color", Color("1c120c"))
-		e.add_theme_color_override("font_placeholder_color", Color("8a6a3a"))
-		e.add_theme_font_size_override("font_size", 14)
-		e.custom_minimum_size.y = 80
+	sb.bg_color = Color("ffe08a")
+	sb.border_color = Color("8b1e1e")
+	sb.set_border_width_all(4)
+	e.add_theme_color_override("font_color", Color("6b1008"))
+	e.add_theme_color_override("font_placeholder_color", Color("8b1e1e"))
+	e.add_theme_font_size_override("font_size", 16)
+	e.custom_minimum_size.y = 140
 	e.add_theme_stylebox_override("normal", sb)
 	e.add_theme_stylebox_override("focus", sb)
 	e.add_theme_stylebox_override("read_only", sb)
