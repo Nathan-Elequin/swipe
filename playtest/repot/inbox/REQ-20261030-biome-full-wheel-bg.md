@@ -2,6 +2,7 @@
 id: REQ-20261030-biome-full-wheel-bg
 status: open
 priority: high
+pr: 213
 tip_sha: 98b01aca
 branch: cursor/biome-full-wheel-bg-5c40
 base: playtest/latest
