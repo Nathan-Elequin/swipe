@@ -297,13 +297,17 @@ def sfx_map():
                 "cinder_forge_c": {"file": "music_cinder_forge_c", "gain_db": -4.0, "loop": True, "resume_position": False},
                 "crystal_cavern": {"file": "music_crystal_cavern_a", "gain_db": -4.0, "loop": True, "resume_position": True},
                 "crystal_cavern_b": {"file": "music_crystal_cavern_b", "gain_db": -4.0, "loop": True, "resume_position": False},
-                "crystal_cavern_c": {"file": "music_crystal_cavern_c", "gain_db": 10.0, "loop": True, "resume_position": False}},
-       "biome_beds": {"b1": "verdant_hollow", "verdant_hollow": "verdant_hollow", "b2": "crystal_cavern", "sunken_mire": "crystal_cavern", "crystal_cavern": "crystal_cavern", "b4": "cinder_forge", "cinder_forge": "cinder_forge"},
+                "crystal_cavern_c": {"file": "music_crystal_cavern_c", "gain_db": 10.0, "loop": True, "resume_position": False},
+                "ashen_crypt": {"file": "music_ashen_crypt_a", "gain_db": -2.0, "loop": True, "resume_position": True},
+                "ashen_crypt_b": {"file": "music_ashen_crypt_b", "gain_db": -2.0, "loop": True, "resume_position": False},
+                "ashen_crypt_c": {"file": "music_ashen_crypt_c", "gain_db": -2.0, "loop": True, "resume_position": False}},
+       "biome_beds": {"b1": "verdant_hollow", "verdant_hollow": "verdant_hollow", "b2": "crystal_cavern", "sunken_mire": "crystal_cavern", "crystal_cavern": "crystal_cavern", "b3": "ashen_crypt", "ashen_crypt": "ashen_crypt", "b4": "cinder_forge", "cinder_forge": "cinder_forge"},
        "states": {"title": "title", "draft": "title", "tutorial": "title", "challenge_setup": "title", "combat": "combat", "between_fights": "combat(ducked)",
                   "deadly": "deadly", "cabin": "cabin", "victory": "sting then title", "defeat": "sting then title",
                   "verdant_hollow": "verdant_hollow_intro then verdant_hollow",
                   "cinder_forge": "cinder_forge A always; B combat; C Tier-3",
-                  "crystal_cavern": "crystal_cavern A always; B combat; C Tier-3"}},
+                  "crystal_cavern": "crystal_cavern A always; B combat; C Tier-3",
+                  "ashen_crypt": "ashen_crypt A always; B combat; C Tier-3"}},
      "cues": cues}
 
 if __name__ == "__main__":

@@ -107,7 +107,10 @@ add("music_cabin", "music", L("oga_fire_m", "a_small_fire_will_do.wav"), trim=(0
 #   Cinder Forge Approach F: music_cinder_forge_a.ogg (bed), music_cinder_forge_b.ogg (drums),
 #     music_cinder_forge_c.ogg (heat).
 #   Crystal Cavern Approach F: music_crystal_cavern_a.ogg (bed), music_crystal_cavern_b.ogg (drums),
-#     music_crystal_cavern_c.ogg (heat, map +10 dB). Credits: write_credits.py trailer + assets/audio/CREDITS.txt.
+#     music_crystal_cavern_c.ogg (heat, map +10 dB).
+#   Ashen Crypt Approach F: music_ashen_crypt_a.ogg (bed), music_ashen_crypt_b.ogg (drums),
+#     music_ashen_crypt_c.ogg (heat, map -2 dB so A+B+C leave ~1.5 dB Music-bus headroom).
+#   Credits: write_credits.py trailer + assets/audio/CREDITS.txt.
 
 TARGET_RMS = {"ui": -20.0, "sfx": -16.0, "sting": -16.0, "amb": -22.0}
 

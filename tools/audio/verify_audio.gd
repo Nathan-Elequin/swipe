@@ -2,7 +2,7 @@ extends SceneTree
 ## Headless check: sfx-map files, layers, lookup, buses, loop flags.
 
 const MAP_PATH := "res://data/sfx-map.json"
-const LOOP_STEMS := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp", "music_verdant_hollow_loop", "music_cinder_forge_a", "music_cinder_forge_b", "music_cinder_forge_c", "music_crystal_cavern_a", "music_crystal_cavern_b", "music_crystal_cavern_c"]
+const LOOP_STEMS := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp", "music_verdant_hollow_loop", "music_cinder_forge_a", "music_cinder_forge_b", "music_cinder_forge_c", "music_crystal_cavern_a", "music_crystal_cavern_b", "music_crystal_cavern_c", "music_ashen_crypt_a", "music_ashen_crypt_b", "music_ashen_crypt_c"]
 const BUS_ORDER := ["Master", "Music", "Stings", "Ambience", "SFX", "UI"]
 
 var _fails: int = 0

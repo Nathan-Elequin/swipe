@@ -515,6 +515,27 @@
         "resume_position": false,
         "note": "Crystal Cavern intensity C (heat). Quiet stem; +10 dB. Synced to A; fade in on Tier-3/boss only."
       },
+      "ashen_crypt": {
+        "file": "music_ashen_crypt_a",
+        "gain_db": -2.0,
+        "loop": true,
+        "resume_position": true,
+        "note": "Ashen Crypt (b3) Approach F layer A bed. Always on during the delve. Map -2 dB so A+B+C leave ~1.5 dB Music-bus headroom."
+      },
+      "ashen_crypt_b": {
+        "file": "music_ashen_crypt_b",
+        "gain_db": -2.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Ashen Crypt intensity B (drums). Synced to A; fade in on combat, mute between fights."
+      },
+      "ashen_crypt_c": {
+        "file": "music_ashen_crypt_c",
+        "gain_db": -2.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Ashen Crypt intensity C (percussion+brass heat). Synced to A; fade in on Tier-3/boss only."
+      },
       "intro": {
         "file": "music_intro",
         "gain_db": 0.0,
@@ -564,7 +585,8 @@
       "homecoming": "cabin",
       "verdant_hollow": "verdant_hollow_intro then verdant_hollow",
       "cinder_forge": "cinder_forge A always; B combat; C Tier-3; no between-fight bed duck",
-      "crystal_cavern": "crystal_cavern A always; B combat; C Tier-3; no between-fight bed duck"
+      "crystal_cavern": "crystal_cavern A always; B combat; C Tier-3; no between-fight bed duck",
+      "ashen_crypt": "ashen_crypt A always; B combat; C Tier-3; no between-fight bed duck"
     },
     "biome_beds": {
       "b1": "verdant_hollow",
@@ -572,6 +594,8 @@
       "b2": "crystal_cavern",
       "sunken_mire": "crystal_cavern",
       "crystal_cavern": "crystal_cavern",
+      "b3": "ashen_crypt",
+      "ashen_crypt": "ashen_crypt",
       "b4": "cinder_forge",
       "cinder_forge": "cinder_forge"
     }
