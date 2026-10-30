@@ -2648,7 +2648,12 @@ func _open_campaign_map() -> void:
 		await campaign_map.continued
 		CAMPAIGN_SHELL.mark_drawer_seen(_campaign.state)
 		_campaign.write()
-	campaign_map.show_map(_campaign.rules, _campaign.state, monsters_by_id, {})
+	var map_opts := {}
+	if home_cabin != null and home_cabin.has_method("consume_map_focus_pool"):
+		var focus_pool: String = str(home_cabin.consume_map_focus_pool())
+		if focus_pool != "":
+			map_opts["focus_pool"] = focus_pool
+	campaign_map.show_map(_campaign.rules, _campaign.state, monsters_by_id, map_opts)
 	# held_map may clear pencil_fresh on present — persist that.
 	_campaign.write()
 

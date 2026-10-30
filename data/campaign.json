@@ -2,10 +2,17 @@
   "notes": "Card pool 1–5 is the biome tag: cabinets credit the item's pool, not the delve you found it in. Returning with 5 unique items for that cabinet unlocks the next dungeon. Each biome mix totals 10 (Weak/Tough/Deadly): b1 6/3/1, b2 5/3/2, b3 5/3/2, b4 4/4/2, b5 4/3/3 (SP-17). Deadlies are unique inside one run. Opening six items always use starter_item_mix [3,2,1] from every unlocked pool. The map has no 3-unique gate.",
   "start_gate_uniques": 0,
   "cabinet_quota": 5,
-  "starter_item_mix": [3, 2, 1],
+  "starter_item_mix": [
+    3,
+    2,
+    1
+  ],
   "rerolls_per_delve": 1,
   "rerolls_per_map_piece": 1,
-  "deck": {"wheel": 6, "reserve": 4},
+  "deck": {
+    "wheel": 6,
+    "reserve": 4
+  },
   "card_pools": {
     "1": "b1",
     "2": "b2",
@@ -21,15 +28,59 @@
     "5": "b5"
   },
   "biomes": [
-    {"id": "b1", "name": "Verdant Hollow", "mix": {"weak": 6, "tough": 3, "deadly": 1}},
-    {"id": "b2", "name": "Sunken Mire", "mix": {"weak": 5, "tough": 3, "deadly": 2}},
-    {"id": "b3", "name": "Ashen Crypt", "mix": {"weak": 5, "tough": 3, "deadly": 2}},
-    {"id": "b4", "name": "Cinder Forge", "mix": {"weak": 4, "tough": 4, "deadly": 2}},
-    {"id": "b5", "name": "Shadow Abyss", "mix": {"weak": 4, "tough": 3, "deadly": 3}}
+    {
+      "id": "b1",
+      "name": "Verdant Hollow",
+      "mix": {
+        "weak": 6,
+        "tough": 3,
+        "deadly": 1
+      }
+    },
+    {
+      "id": "b2",
+      "name": "Crystal Cavern",
+      "mix": {
+        "weak": 5,
+        "tough": 3,
+        "deadly": 2
+      }
+    },
+    {
+      "id": "b3",
+      "name": "Ashen Crypt",
+      "mix": {
+        "weak": 5,
+        "tough": 3,
+        "deadly": 2
+      }
+    },
+    {
+      "id": "b4",
+      "name": "Cinder Forge",
+      "mix": {
+        "weak": 4,
+        "tough": 4,
+        "deadly": 2
+      }
+    },
+    {
+      "id": "b5",
+      "name": "Shadow Abyss",
+      "mix": {
+        "weak": 4,
+        "tough": 3,
+        "deadly": 3
+      }
+    }
   ],
   "endless": {
     "id": "endless",
     "name": "Endless",
-    "mix": {"weak": 1, "tough": 7, "deadly": 2}
+    "mix": {
+      "weak": 1,
+      "tough": 7,
+      "deadly": 2
+    }
   }
 }

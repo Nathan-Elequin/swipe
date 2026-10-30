@@ -13,6 +13,8 @@ signal comment_wanted(card_id: String)
 ## Fires when a case's shown collection crosses the quota (5) on an extract bank.
 ## Never from cheats, death, or the Push/Nib interrupt path. S3 map-piece ceremony.
 signal cabinet_gate_crossed(pool_id: String)
+## Hook for Spelunky-style shortcut scene after unlocking biome index 2..4. Nothing connects yet.
+signal shortcut_scene_wanted(pool_id: String)
 
 const SAVE_PATH := "user://home_cabin.json"
 const COPY := preload("res://scripts/player_copy.gd")
@@ -161,6 +163,17 @@ var _bank_played: bool = false
 var _case_scroll: Dictionary = {}
 var _case_columns: Dictionary = {}
 var _case_clips: Dictionary = {}
+## Session-only trophy hall page memory + map pulse target.
+var _case_page: Dictionary = {}
+var _map_focus_pool: String = ""
+var _trophy_cases: Dictionary = {}
+var _dumbwaiter = null
+var _hall_zoom_pool: String = ""
+var _hall_zoom_dim: ColorRect = null
+var _hall_pre_zoom_pos: Vector2 = Vector2.ZERO
+var _hall_pre_zoom_scale: Vector2 = Vector2.ONE
+var _hall_zooming: bool = false
+var _lore_panel: Control = null
 const ROOM_WALK := 1.5
 const ROOM_WIPE_AT := 1.0
 var _window_glow: TextureRect
@@ -1860,104 +1873,518 @@ func _biome_progress_lines() -> Array:
 
 
 func _fill_biome_cases() -> void:
+	_trophy_cases.clear()
 	var rules := _biome_rules()
 	var cases: Array = BiomeCabinets.resolved_cases(rules)
 	var quota := BiomeCabinets.quota_of(rules)
 	var state := _campaign_shell_state()
-	var bounds := BiomeCabinets.cases_bounds_rect()
-	var hole_origin := bounds.position
 	var grouped := _group_cards_by_pool()
-	var order: Array = swiped.keys()
+	var banked := _hall_banked_dict()
+	var seen_map := _hall_seen_dict()
 	for i in cases.size():
 		var spec: Dictionary = cases[i]
 		var pool_id := str(spec.get("id", ""))
-		var cards: Array = grouped.get(pool_id, [])
-		var mounted: Array = BiomeCabinets.order_mounts(cards, order)
-		var unlocked := CampaignShell.pool_unlocked(rules, state, pool_id)
-		var glass := BiomeCabinets.glass_rect(i)
-		## Relative to `_hole`, which matches CASES_BOUNDS.
-		var rel := Rect2((glass.position - hole_origin) * PX, glass.size * PX)
-		_build_biome_case(spec, mounted, quota, rel, unlocked)
+		var cards: Array = BiomeCabinets.fixed_slots(grouped.get(pool_id, []))
+		var slot_ids: Array = []
+		for raw in cards:
+			slot_ids.append(str((raw as Dictionary).get("id", "")))
+		var claimed := _case_collected(pool_id)
+		var cst: int = BiomeCabinets.case_state(rules, state, pool_id, slot_ids, _claimed_subset(slot_ids, banked))
+		var page := int(_case_page.get(pool_id, -1))
+		if page < 0:
+			page = BiomeCabinets.default_page(slot_ids, banked)
+		_case_page[pool_id] = page
+		var tc = preload("res://scripts/cabin/trophy_case.gd").new()
+		tc.setup(self, i, spec, cards, banked, seen_map, cst, claimed, quota, page)
+		tc.case_hovered.connect(_on_trophy_case_hover)
+		tc.case_unhovered.connect(hide_hover_tag)
+		tc.case_clicked.connect(_on_trophy_case_clicked)
+		tc.peg_hovered.connect(_on_trophy_peg_hover)
+		tc.peg_unhovered.connect(_on_trophy_peg_unhover)
+		tc.peg_clicked.connect(_on_trophy_peg_clicked)
+		tc.page_changed.connect(func(p: String, pg: int) -> void:
+			_case_page[p] = pg
+		)
+		_shelf_host.add_child(tc)
+		_trophy_cases[pool_id] = tc
+		## Keep legacy dicts loosely for bank FX lookup.
+		_case_columns[pool_id] = tc
+		_case_clips[pool_id] = tc
+	_refresh_dumbwaiter()
 
 
-func _build_biome_case(spec: Dictionary, cards: Array, _quota: int, glass: Rect2, unlocked: bool = true) -> void:
-	## Hit-only overlay on the Doop plate case. No frame / name / locked chrome redraw.
-	var pool_id := str(spec.get("id", ""))
-	var root := Control.new()
-	root.name = "Case_%s" % pool_id
-	root.position = glass.position
-	root.size = glass.size
-	root.mouse_filter = Control.MOUSE_FILTER_STOP
-	root.mouse_entered.connect(_on_case_hover.bind(pool_id, root, unlocked))
-	root.mouse_exited.connect(hide_hover_tag)
-	_bind_case_scroll(root, pool_id)
-	## Filled case: biome trophy in the glass top (24×24 × case_scale). Empty stays empty.
-	## Peg Clip sits below the trophy band so mounts never cover it or the case floor.
-	var filled := unlocked and _case_collected(pool_id) > 0
-	var reserved := 0.0
-	if filled:
-		reserved = BiomeCabinets.trophy_reserved_height(glass.size, PX)
-	var clip := Control.new()
-	clip.name = "Clip"
-	clip.position = Vector2(0.0, reserved)
-	clip.size = Vector2(glass.size.x, maxf(0.0, glass.size.y - reserved))
-	clip.clip_contents = true
-	clip.mouse_filter = Control.MOUSE_FILTER_STOP
-	root.add_child(clip)
-	_bind_case_scroll(clip, pool_id)
-	clip.mouse_entered.connect(_on_case_hover.bind(pool_id, clip, unlocked))
-	clip.mouse_exited.connect(hide_hover_tag)
-	var column := Control.new()
-	column.name = "Column"
-	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	clip.add_child(column)
-	_case_clips[pool_id] = clip
-	_case_columns[pool_id] = column
-	if filled:
-		_place_biome_trophy(root, spec, glass.size)
-	if not unlocked:
-		column.size = clip.size
-		column.custom_minimum_size = column.size
-		_case_scroll[pool_id] = 0.0
-		column.position = Vector2.ZERO
-		_shelf_host.add_child(root)
+func _claimed_subset(slot_ids: Array, banked: Dictionary) -> Dictionary:
+	var out := {}
+	for raw in slot_ids:
+		var id := str(raw)
+		if banked.has(id):
+			out[id] = true
+	return out
+
+
+func _hall_banked_dict() -> Dictionary:
+	var out := {}
+	if _campaign_shell != null:
+		var banked: Variant = _campaign_shell.state.get("banked", {})
+		if typeof(banked) == TYPE_DICTIONARY:
+			for id in (banked as Dictionary).keys():
+				if not _bank_hold.has(str(id)):
+					out[str(id)] = true
+	for id in swiped.keys():
+		if bool(swiped[id]) and not _bank_hold.has(str(id)):
+			out[str(id)] = true
+	return out
+
+
+func _hall_seen_dict() -> Dictionary:
+	var out := {}
+	for id in seen.keys():
+		if bool(seen[id]):
+			out[str(id)] = true
+	for id in _hall_banked_dict().keys():
+		out[str(id)] = true
+	for id in _bank_hold.keys():
+		out[str(id)] = true
+	return out
+
+
+func _refresh_dumbwaiter() -> void:
+	if _dumbwaiter == null:
 		return
-	var cell: Vector2 = _mount_cell()
-	## Integer-pixel peg step that keeps PEG_FIT_MAX shields inside the glass
-	## (above the case base), with or without the trophy band reserved above.
-	var layout: Dictionary = BiomeCabinets.peg_column_layout(clip.size, cell, cards.size())
-	var msize: Vector2 = layout.get("msize", cell * 0.5)
-	var gap_y: float = float(layout.get("gap_y", 0.0))
-	var y: float = float(layout.get("pad_top", 0.0))
-	var x0: float = float(layout.get("x0", 0.0))
-	for i in cards.size():
-		var card: Dictionary = cards[i]
-		var slot := _mount_slot(card, Vector2(x0, y), msize, false)
-		_bind_case_scroll(slot, pool_id)
-		column.add_child(slot)
-		y += msize.y
-		y += gap_y
-	## Drop the trailing gap so column height matches the last peg bottom.
-	if cards.size() > 0:
-		y -= gap_y
-	column.size = Vector2(clip.size.x, maxf(y, clip.size.y))
-	column.custom_minimum_size = column.size
-	var view: float = clip.size.y
-	var max_s: float = maxf(0.0, column.size.y - view)
-	var cur: float = clampf(float(_case_scroll.get(pool_id, 0.0)), 0.0, max_s)
-	if _bank_fresh != "":
-		var fresh_node := column.find_child("Mount_%s" % _bank_fresh, false, false)
-		if fresh_node is Control:
-			var fy: float = (fresh_node as Control).position.y
-			var fh: float = (fresh_node as Control).size.y
-			if fy < cur:
-				cur = fy
-			elif fy + fh > cur + view:
-				cur = fy + fh - view
-			cur = clampf(cur, 0.0, max_s)
-	_case_scroll[pool_id] = cur
-	column.position = Vector2(0, -cur)
-	_shelf_host.add_child(root)
+	var rules := _biome_rules()
+	var state := _campaign_shell_state()
+	var lit: Array = []
+	for i in 5:
+		lit.append(CampaignShell.pool_unlocked(rules, state, "b%d" % (i + 1)))
+	var park := 1
+	for i in range(5, 0, -1):
+		if lit[i - 1]:
+			park = i
+			break
+	_dumbwaiter.refresh(lit, park)
+
+
+func _on_trophy_case_hover(pool_id: String, unlocked: bool) -> void:
+	var hit: Control = _trophy_cases.get(pool_id, null)
+	_on_case_hover(pool_id, hit if hit else self, unlocked)
+
+
+func _on_trophy_case_clicked(pool_id: String) -> void:
+	if _hall_zooming or _bank_busy:
+		return
+	var rules := _biome_rules()
+	var state := _campaign_shell_state()
+	if not CampaignShell.pool_unlocked(rules, state, pool_id):
+		KIT.cue(sfx, &"cabin.locked")
+		return
+	_open_hall_zoom(pool_id)
+
+
+func _on_trophy_peg_hover(item_id: String, peg: Control, peg_state: int) -> void:
+	_show_lore_panel(item_id, peg, peg_state)
+
+
+func _on_trophy_peg_unhover() -> void:
+	_hide_lore_panel()
+
+
+func _on_trophy_peg_clicked(item_id: String) -> void:
+	inspect_wanted.emit(item_id)
+
+
+func _build_biome_case(_spec: Dictionary, _cards: Array, _quota: int, _glass: Rect2, _unlocked: bool = true) -> void:
+	## Retired — hall builds TrophyCase via _fill_biome_cases.
+	pass
+
+
+func consume_map_focus_pool() -> String:
+	var p := _map_focus_pool
+	_map_focus_pool = ""
+	return p
+
+
+func _ensure_dumbwaiter(hall: Node) -> void:
+	if hall == null:
+		return
+	if _dumbwaiter != null and is_instance_valid(_dumbwaiter):
+		return
+	var accents: Array = []
+	for raw in BiomeCabinets.CASES:
+		accents.append(str((raw as Dictionary).get("accent", "7dae62")))
+	_dumbwaiter = preload("res://scripts/cabin/dumbwaiter.gd").new()
+	_dumbwaiter.setup(self, accents)
+	_dumbwaiter.stop_chosen.connect(_on_dumbwaiter_stop)
+	_dumbwaiter.stop_hovered.connect(_on_dumbwaiter_hover)
+	_dumbwaiter.stop_unhovered.connect(hide_hover_tag)
+	_dumbwaiter.lever_hovered.connect(func() -> void:
+		show_hover_tag("cabin.hall.lift_lever", _dumbwaiter)
+	)
+	_dumbwaiter.map_focus_wanted.connect(func(pool: String) -> void:
+		_map_focus_pool = pool
+	)
+	## Sign uses STUB copy key.
+	if _dumbwaiter._sign:
+		_dumbwaiter._sign.text = COPY.text("cabin.hall.lift_sign", "LIFT")
+	hall.add_child(_dumbwaiter)
+
+
+func _ensure_hall_zoom_dim(hall: Node) -> void:
+	## Dim lives under `_hole` so TrophyCase z_index can sit above it.
+	if _hall_zoom_dim != null or _hole == null:
+		return
+	_hall_zoom_dim = ColorRect.new()
+	_hall_zoom_dim.name = "ZoomDim"
+	_hall_zoom_dim.color = Color("0b0706", 0.0)
+	_hall_zoom_dim.position = Vector2.ZERO
+	_hall_zoom_dim.size = _hole.size
+	_hall_zoom_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hall_zoom_dim.z_index = 10
+	_hall_zoom_dim.visible = false
+	_hall_zoom_dim.gui_input.connect(_on_zoom_dim_input)
+	_hole.add_child(_hall_zoom_dim)
+
+
+func _on_dumbwaiter_hover(pool: String, lit: bool) -> void:
+	if not lit:
+		show_hover_tag("cabin.hall.locked", _dumbwaiter)
+		return
+	var rules := _biome_rules()
+	var biome_name := pool
+	for raw in BiomeCabinets.resolved_cases(rules):
+		if str((raw as Dictionary).get("id", "")) == pool:
+			biome_name = str((raw as Dictionary).get("name", pool))
+			break
+	## Biome display name from data — no new copy key.
+	if _hover_tag == null:
+		return
+	if _hover_tag.has_method("set_raw"):
+		_hover_tag.set_raw(biome_name)
+	elif _hover_tag.has_method("set_text"):
+		_hover_tag.set_text(biome_name)
+	_hover_tag.visible = true
+	if _dumbwaiter:
+		_hover_tag.global_position = _dumbwaiter.get_global_rect().position + Vector2(8, -36)
+
+
+func _on_dumbwaiter_stop(pool: String) -> void:
+	_map_focus_pool = pool
+	var tc = _trophy_cases.get(pool, null)
+	if tc != null and tc.has_method("flare_lamp"):
+		tc.flare_lamp()
+	focus_biome_case(pool)
+	## Tray silhouette = first unclaimed in fixed order.
+	var grouped := _group_cards_by_pool()
+	var slots: Array = BiomeCabinets.fixed_slots(grouped.get(pool, []))
+	var banked := _hall_banked_dict()
+	var tray_id := ""
+	for raw in slots:
+		var id := str((raw as Dictionary).get("id", ""))
+		if id != "" and not banked.has(id):
+			tray_id = id
+			break
+	if _dumbwaiter == null:
+		return
+	if tray_id == "":
+		## Complete — show crest at 0.5.
+		var rules := _biome_rules()
+		for raw2 in BiomeCabinets.resolved_cases(rules):
+			if str((raw2 as Dictionary).get("id", "")) == pool:
+				var crest: Texture2D = BiomeCabinets.trophy_texture(raw2 as Dictionary, false)
+				_dumbwaiter.set_tray_tex(crest, false)
+				if _dumbwaiter._tray:
+					_dumbwaiter._tray.modulate = Color(1, 1, 1, 0.5)
+				return
+	var tex: Texture2D = tex_by_item.get(tray_id, null)
+	if tex == null and art != null:
+		tex = art.item_tex(tray_id)
+	_dumbwaiter.set_tray_tex(tex, true)
+
+
+func _hall_flip_to_item(pool: String, item_id: String) -> void:
+	var tc = _trophy_cases.get(pool, null)
+	if tc == null:
+		return
+	var grouped := _group_cards_by_pool()
+	var slots: Array = BiomeCabinets.fixed_slots(grouped.get(pool, []))
+	var idx := -1
+	for i in slots.size():
+		if str((slots[i] as Dictionary).get("id", "")) == item_id:
+			idx = i
+			break
+	if idx < 0:
+		return
+	var page := BiomeCabinets.slot_page(idx)
+	_case_page[pool] = page
+	if tc.has_method("flip_to_page"):
+		await tc.flip_to_page(page, true)
+
+
+func _case_opened_beat(pool_id: String) -> void:
+	var tc = _trophy_cases.get(pool_id, null)
+	if tc == null:
+		_rebuild_shelves()
+		return
+	## Door swing + lamp on, crest stays grey briefly.
+	if tc.has_method("play_open_door"):
+		tc.play_open_door()
+	if tc.has_method("set_crest_grey"):
+		tc.set_crest_grey(true)
+	if tc._lamp:
+		tc._lamp.play("on")
+		tc._lamp.visible = true
+		## flicker
+		tc._lamp.modulate = Color(1.4, 1.4, 1.4)
+		await _wait(0.06, true)
+		tc._lamp.modulate = Color(0.4, 0.4, 0.4)
+		await _wait(0.06, true)
+		tc._lamp.modulate = Color.WHITE
+	if tc._lamp_glow:
+		tc._lamp_glow.visible = true
+		tc._lamp_glow.modulate.a = 0.0
+		var gtw := create_tween()
+		gtw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		gtw.tween_property(tc._lamp_glow, "modulate:a", 0.5, 0.15)
+	await _wait(0.15, true)
+	## Crest colour + glint
+	if tc.has_method("set_crest_grey"):
+		tc.set_crest_grey(false)
+	KIT.cue(sfx, &"cabin.glint")
+	## Next case sheet slides off.
+	var bi := BiomeCabinets.case_index(pool_id)
+	var next_pool := "b%d" % (bi + 2)
+	var next_tc = _trophy_cases.get(next_pool, null)
+	if next_tc != null and next_tc.has_method("slide_sheet_off"):
+		next_tc.slide_sheet_off()
+		KIT.cue(sfx, &"cabin.glint")
+	if _dumbwaiter != null:
+		_dumbwaiter.light_stop(bi + 2, true)
+		_dumbwaiter._park = bi + 2
+	await _wait(0.35, true)
+	_rebuild_shelves()
+	if _dumbwaiter != null:
+		await _dumbwaiter.ride_to(bi + 2)
+
+
+func _on_zoom_dim_input(event: InputEvent) -> void:
+	if not _hall_zooming:
+		return
+	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
+			and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
+		_close_hall_zoom()
+		accept_event()
+
+
+func _open_hall_zoom(pool_id: String) -> void:
+	var hall = _rooms.get("hall")
+	var tc = _trophy_cases.get(pool_id, null)
+	if hall == null or tc == null or _hall_zooming:
+		return
+	_hall_zooming = true
+	_hall_zoom_pool = pool_id
+	_hall_pre_zoom_pos = hall.position
+	_hall_pre_zoom_scale = hall.scale
+	var case_center: Vector2 = tc.position + tc.size * 0.5
+	## Target: viewport centre 840,520 minus 2 * case_center, clamped.
+	var target := Vector2(840, 520) - case_center * 2.0
+	target.x = clampf(target.x, -ROOM_W, 0.0)
+	target.y = clampf(target.y, -ROOM_H, 0.0)
+	if _hall_zoom_dim:
+		_hall_zoom_dim.visible = true
+		_hall_zoom_dim.color.a = 0.0
+		_hall_zoom_dim.z_index = 10
+		_hall_zoom_dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	tc.z_index = 12
+	if tc.has_method("set_zoomed"):
+		tc.set_zoomed(true)
+	if _dumbwaiter and _dumbwaiter.has_method("set_input_enabled"):
+		_dumbwaiter.set_input_enabled(false)
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_trans(Tween.TRANS_QUAD)
+	tw.set_ease(Tween.EASE_OUT)
+	tw.tween_property(hall, "scale", Vector2(2, 2), 0.35)
+	tw.parallel().tween_property(hall, "position", target, 0.35)
+	if _hall_zoom_dim:
+		tw.parallel().tween_property(_hall_zoom_dim, "color:a", 0.25, 0.35)
+	await tw.finished
+
+
+func _close_hall_zoom() -> void:
+	if not _hall_zooming:
+		return
+	var hall = _rooms.get("hall")
+	if hall == null:
+		_hall_zooming = false
+		return
+	_hide_lore_panel()
+	var tc = _trophy_cases.get(_hall_zoom_pool, null)
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_trans(Tween.TRANS_QUAD)
+	tw.set_ease(Tween.EASE_OUT)
+	tw.tween_property(hall, "scale", _hall_pre_zoom_scale, 0.25)
+	tw.parallel().tween_property(hall, "position", _hall_pre_zoom_pos, 0.25)
+	if _hall_zoom_dim:
+		tw.parallel().tween_property(_hall_zoom_dim, "color:a", 0.0, 0.25)
+	await tw.finished
+	if _hall_zoom_dim:
+		_hall_zoom_dim.visible = false
+		_hall_zoom_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if tc:
+		tc.z_index = 0
+		if tc.has_method("set_zoomed"):
+			tc.set_zoomed(false)
+	if _dumbwaiter and _dumbwaiter.has_method("set_input_enabled"):
+		_dumbwaiter.set_input_enabled(true)
+	_hall_zoom_pool = ""
+	_hall_zooming = false
+
+
+func _show_lore_panel(item_id: String, peg: Control, peg_state: int) -> void:
+	_hide_lore_panel()
+	var card: Dictionary = items_by_id.get(item_id, {})
+	_lore_panel = Control.new()
+	_lore_panel.name = "LorePanel"
+	_lore_panel.z_index = 110
+	_lore_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_lore_panel)
+	var panel := Panel.new()
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("efe0b6")
+	sb.border_color = Color("1a120e")
+	sb.set_border_width_all(4)
+	sb.content_margin_left = 20
+	sb.content_margin_right = 20
+	sb.content_margin_top = 16
+	sb.content_margin_bottom = 16
+	sb.shadow_color = Color("0b0706")
+	sb.shadow_offset = Vector2(0, 6)
+	sb.shadow_size = 0
+	panel.add_theme_stylebox_override("panel", sb)
+	panel.size = Vector2(520, 200)
+	_lore_panel.add_child(panel)
+	## Brass corners
+	for corner in [
+		[Vector2(0, 0), false, false],
+		[Vector2(520 - 24, 0), true, false],
+		[Vector2(0, 200 - 24), false, true],
+		[Vector2(520 - 24, 200 - 24), true, true],
+	]:
+		var c := TextureRect.new()
+		c.texture = KIT.load_tex("hall/lore_corner_brass")
+		c.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		c.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		c.stretch_mode = TextureRect.STRETCH_SCALE
+		c.size = Vector2(24, 24)
+		c.position = corner[0]
+		c.flip_h = corner[1]
+		c.flip_v = corner[2]
+		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		panel.add_child(c)
+	var vbox := VBoxContainer.new()
+	vbox.position = Vector2(24, 20)
+	vbox.size = Vector2(472, 160)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(vbox)
+	if peg_state == BiomeCabinets.PegState.UNSEEN:
+		var locked := Label.new()
+		locked.text = COPY.text("cabin.tip.locked", "???")
+		locked.add_theme_font_size_override("font_size", 24)
+		locked.add_theme_color_override("font_color", Color("4a3020"))
+		locked.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		vbox.add_child(locked)
+		panel.size.y = 80
+	else:
+		var title := Label.new()
+		title.text = str(card.get("name", item_id))
+		title.add_theme_font_size_override("font_size", 28)
+		title.add_theme_color_override("font_color", Color("1e120c"))
+		title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		vbox.add_child(title)
+		var rules := _biome_rules()
+		var biome_name := ""
+		var pool := _live_pool(card)
+		for raw in BiomeCabinets.resolved_cases(rules):
+			if str((raw as Dictionary).get("id", "")) == pool:
+				biome_name = str((raw as Dictionary).get("name", ""))
+				break
+		var depth := BiomeCabinets.case_index(pool) + 1
+		var ordinal := COPY.fill("cabin.hall.ordinal_%d" % maxi(1, depth), {}, ["1st","2nd","3rd","4th","5th"][clampi(depth-1,0,4)])
+		var plaque := COPY.fill("cabin.hall.plaque", {"ordinal": ordinal}, "Wares of the %s Depth and below" % ordinal)
+		var sub := Label.new()
+		sub.text = "%s - %s" % [biome_name, plaque]
+		sub.add_theme_font_size_override("font_size", 12)
+		sub.add_theme_color_override("font_color", Color("6e5434"))
+		sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		vbox.add_child(sub)
+		if peg_state == BiomeCabinets.PegState.CLAIMED:
+			var journal := ""
+			var lore_items: Variant = COPY.lore_pack.get("items", {}) if COPY.lore_pack else {}
+			if typeof(lore_items) == TYPE_DICTIONARY:
+				var entry: Variant = (lore_items as Dictionary).get(item_id, {})
+				if typeof(entry) == TYPE_DICTIONARY:
+					journal = str((entry as Dictionary).get("journal", ""))
+			if journal != "":
+				var body := Label.new()
+				body.text = journal
+				body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				body.add_theme_font_size_override("font_size", 24)
+				body.add_theme_color_override("font_color", Color("4a3020"))
+				body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				vbox.add_child(body)
+		var foot := HBoxContainer.new()
+		foot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		vbox.add_child(foot)
+		var state_lab := Label.new()
+		if peg_state == BiomeCabinets.PegState.CLAIMED:
+			state_lab.text = COPY.text("cabin.hall.lore_claimed", "Claimed")
+		else:
+			state_lab.text = COPY.text("cabin.tip.seen", "Seen")
+		state_lab.add_theme_font_size_override("font_size", 16)
+		state_lab.add_theme_color_override("font_color", Color("4a3020"))
+		state_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		foot.add_child(state_lab)
+		var spacer := Control.new()
+		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		foot.add_child(spacer)
+		var chip := Panel.new()
+		chip.custom_minimum_size = Vector2(80, 28)
+		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var tier := int(card.get("tier", 1))
+		var chip_sb := StyleBoxFlat.new()
+		chip_sb.bg_color = UxStyle.metal(tier)
+		chip_sb.border_color = Color("1a120e")
+		chip_sb.set_border_width_all(3)
+		chip.add_theme_stylebox_override("panel", chip_sb)
+		var chip_lab := Label.new()
+		chip_lab.text = COPY.tier_name(tier).to_upper()
+		chip_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		chip_lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		chip_lab.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+		chip_lab.add_theme_font_size_override("font_size", 14)
+		chip_lab.add_theme_color_override("font_color", Color("1e120c"))
+		chip_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		chip.add_child(chip_lab)
+		foot.add_child(chip)
+	## Place right of focused case if fits.
+	var peg_c: Vector2 = peg.get_global_rect().get_center() if peg else Vector2(840, 520)
+	var tc = _trophy_cases.get(_hall_zoom_pool, null)
+	var right_x := 840.0
+	if tc:
+		right_x = tc.get_global_rect().end.x + 24.0
+	var x := right_x
+	if x + 520.0 > 1680.0 - 24.0:
+		x = (tc.get_global_rect().position.x if tc else peg_c.x) - 520.0 - 24.0
+	var y := clampf(peg_c.y - panel.size.y * 0.5, 24.0, 1016.0 - panel.size.y)
+	_lore_panel.global_position = Vector2(x, y)
+
+
+func _hide_lore_panel() -> void:
+	if _lore_panel != null and is_instance_valid(_lore_panel):
+		_lore_panel.queue_free()
+	_lore_panel = null
 
 
 ## Biome pedestal trophy for a filled case slot. Art is 96×96 (24 native ×4);
@@ -2157,6 +2584,7 @@ func _play_bank_sequence() -> void:
 		var pool := str(step.get("pool", ""))
 		var before := _shown_count(pool)
 		if play_fx:
+			await _hall_flip_to_item(pool, step_id)
 			await _bank_fx_arc_to_mount(step_id, pool)
 			if not is_inside_tree():
 				_bank_busy = false
@@ -2177,13 +2605,20 @@ func _play_bank_sequence() -> void:
 		_rebuild_shelves()
 	if play_fx and is_inside_tree():
 		await _bank_fx_loud_count(pool_adds, quota)
-	# S3 handoff: ceremony after S7 FX when a cabinet crosses 5/5.
+	# Unlock beat then S3 map-piece ceremony when a cabinet crosses 5/5.
 	if not from_push_block and not crossed.is_empty() and _campaign_shell != null:
-		for pool_id in crossed:
-			cabinet_gate_crossed.emit(str(pool_id))
+		if play_fx:
+			for pool_id in crossed:
+				await _case_opened_beat(str(pool_id))
+		for pool_id2 in crossed:
+			cabinet_gate_crossed.emit(str(pool_id2))
 			if _map_piece_beat:
-				await _map_piece_beat.play(str(pool_id))
-		# Post-G only: never after the Push interrupt (F).
+				await _map_piece_beat.play(str(pool_id2))
+			var bi := BiomeCabinets.case_index(str(pool_id2))
+			## Newly unlocked biome index is bi+1; emit for 2..4 (3rd–5th dungeon).
+			var unlocked_i := bi + 1
+			if unlocked_i >= 2 and unlocked_i <= 4:
+				shortcut_scene_wanted.emit("b%d" % (unlocked_i + 1))
 		_show_toast("extract.delving_improves")
 	_bank_busy = false
 
@@ -2319,12 +2754,20 @@ func _bank_fx_rays() -> void:
 
 
 func _bank_mount_global_center(item_id: String, pool_id: String) -> Vector2:
+	var tc_v: Variant = _trophy_cases.get(pool_id, null)
+	if tc_v != null and tc_v.has_method("peg_node"):
+		var peg: Control = tc_v.peg_node(item_id)
+		if peg != null:
+			var gr: Rect2 = peg.get_global_rect()
+			return gr.position + gr.size * 0.45
 	var col_v: Variant = _case_columns.get(pool_id, null)
 	if col_v is Control:
-		var mount: Node = (col_v as Control).find_child("Mount_%s" % item_id, false, false)
+		var mount: Node = (col_v as Control).find_child("Peg_%s" % item_id, true, false)
+		if mount == null:
+			mount = (col_v as Control).find_child("Mount_%s" % item_id, true, false)
 		if mount is Control:
-			var gr: Rect2 = (mount as Control).get_global_rect()
-			return gr.position + gr.size * 0.45
+			var gr2: Rect2 = (mount as Control).get_global_rect()
+			return gr2.position + gr2.size * 0.45
 	if _shelf_host != null:
 		var case_n: Node = _shelf_host.get_node_or_null("Case_%s" % pool_id)
 		if case_n is Control:
@@ -3217,6 +3660,10 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_cancel"):
+		if _hall_zooming:
+			_close_hall_zoom()
+			get_viewport().set_input_as_handled()
+			return
 		if _picker_open():
 			_ask_held_map()
 			get_viewport().set_input_as_handled()
@@ -3224,8 +3671,21 @@ func _input(event: InputEvent) -> void:
 		_escape()
 		get_viewport().set_input_as_handled()
 		return
+	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
+			and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_RIGHT \
+			and _hall_zooming:
+		_close_hall_zoom()
+		get_viewport().set_input_as_handled()
+		return
 	if _journal and _journal.visible and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
 		_journal.handle_page(-1 if event.is_action_pressed("ui_left") else 1)
+		get_viewport().set_input_as_handled()
+		return
+	if _hall_zooming and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
+		var tc = _trophy_cases.get(_hall_zoom_pool, null)
+		if tc != null and tc.has_method("flip_to_page"):
+			var dir := -1 if event.is_action_pressed("ui_left") else 1
+			tc.flip_to_page(int(tc.current_page()) + dir)
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_left") and _int_root.visible:
@@ -3239,6 +3699,9 @@ func _input(event: InputEvent) -> void:
 
 
 func _escape() -> void:
+	if _hall_zooming:
+		_close_hall_zoom()
+		return
 	if _arriving:
 		_arrive_skip = 2
 		_kill_arrive_motion()
@@ -3505,10 +3968,12 @@ func _build_rooms() -> void:
 	_hole = Control.new()
 	_hole.position = _pt(bounds.position.x, bounds.position.y)
 	_hole.size = _pt(bounds.size.x, bounds.size.y)
-	_hole.clip_contents = true
+	_hole.clip_contents = false
 	_hole.mouse_filter = Control.MOUSE_FILTER_STOP
 	_hole.z_index = 3
 	hall.add_child(_hole)
+	_ensure_dumbwaiter(hall)
+	_ensure_hall_zoom_dim(hall)
 	_shelf_host = Control.new()
 	_shelf_host.position = Vector2.ZERO
 	_shelf_host.size = _hole.size

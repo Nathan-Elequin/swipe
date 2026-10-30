@@ -5204,6 +5204,87 @@
 			"locked_at": "2026-10-07",
 			"text": "Can't — no soft neighbor who can take a bolt.",
 			"where": "Crossbow cannot fire"
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.plaque",
+			"where": "Trophy Hall brass plaque + lore sub-line",
+			"text": "Wares of the {ordinal} Depth and below",
+			"status": "STUB",
+			"note": "Trophy Hall - Pixel owns for now",
+			"owner": "Pixel"
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.ordinal_1",
+			"where": "Trophy Hall plaque ordinal",
+			"text": "1st",
+			"status": "STUB",
+			"note": "Trophy Hall - Pixel owns for now",
+			"owner": "Pixel"
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.ordinal_2",
+			"where": "Trophy Hall plaque ordinal",
+			"text": "2nd",
+			"status": "STUB",
+			"note": "Trophy Hall - Pixel owns for now",
+			"owner": "Pixel"
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.ordinal_3",
+			"where": "Trophy Hall plaque ordinal",
+			"text": "3rd",
+			"status": "STUB",
+			"note": "Trophy Hall - Pixel owns for now",
+			"owner": "Pixel"
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.ordinal_4",
+			"where": "Trophy Hall plaque ordinal",
+			"text": "4th",
+			"status": "STUB",
+			"note": "Trophy Hall - Pixel owns for now",
+			"owner": "Pixel"
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.ordinal_5",
+			"where": "Trophy Hall plaque ordinal",
+			"text": "5th",
+			"status": "STUB",
+			"note": "Trophy Hall - Pixel owns for now",
+			"owner": "Pixel"
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.lift_sign",
+			"where": "Dumbwaiter header",
+			"text": "LIFT",
+			"status": "STUB",
+			"note": "Trophy Hall - Pixel owns for now",
+			"owner": "Pixel"
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.lift_lever",
+			"where": "Dumbwaiter lever hover",
+			"text": "Pull",
+			"status": "STUB",
+			"note": "Trophy Hall - Pixel owns for now",
+			"owner": "Pixel"
+		},
+		{
+			"cat": "Cabin",
+			"key": "cabin.hall.lore_claimed",
+			"where": "Lore panel footer when claimed",
+			"text": "Claimed",
+			"status": "STUB",
+			"note": "Trophy Hall - Pixel owns for now",
+			"owner": "Pixel"
 		}
 	],
 	"updated": "2026-10-28"
