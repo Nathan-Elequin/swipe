@@ -121,7 +121,7 @@ const ITEM_OPS := {
 	"breastplate": {"kind": "blk_keep", "n": 2},
 	"smoke_bomb": {"kind": "smoke"},
 	"fangs": {"kind": "fangs"},
-	"poison_flask": {"kind": "mark_poison", "n": 4},
+	"poison_flask": {"kind": "mark_poison", "n": 5},
 	"healing_potion": {"kind": "passive"},
 	"crossbow": {"kind": "atk_neighbor", "n": 4},
 	"pocketwatch": {"kind": "hypnotize"},
@@ -7591,6 +7591,24 @@ func _on_spin() -> void:
 	_bleed_begin()
 	if cascade_ticker != null:
 		cascade_ticker.begin()
+	# Player Poison, then this landing's Poison, before every other on-spin
+	# (including Hex). Other seats keep their stacks. SP-28: a living unsilenced
+	# Plague Doctor freezes ALL activation (player + monster).
+	var plague_freeze: bool = _plague_freezes_poison()
+	var poison_would_tick: bool = _poison_would_pay_this_spin()
+	_plague_blocked_fx_this_spin = false
+	if plague_freeze:
+		if poison_would_tick:
+			await _play_plague_poison_blocked_fx()
+			_plague_blocked_fx_this_spin = true
+	else:
+		if _living_monster_count() > 0:
+			if await _tick_player_poison():
+				_undo_arm()
+				return
+		if await _tick_facing_monster_poison():
+			_undo_arm()
+			return
 	var beggar_spin: int = -1
 	if facing_index >= 0 and facing_index < wheel.size():
 		var face_now: Dictionary = wheel[facing_index]
@@ -7598,21 +7616,6 @@ func _on_spin() -> void:
 			beggar_spin = facing_index
 			_beggar_hold = true
 			_beggar_force_discard(facing_index)
-	# Poison pays on every living monster before any spin ability. A kill stays
-	# in the seat until the other abilities finish. SP-28: while any living
-	# unsilenced Plague Doctor is on the wheel, ALL poison (monster + player)
-	# stays frozen and does not activate.
-	var plague_freeze: bool = _plague_freezes_poison()
-	var poison_would_tick: bool = _any_monster_poison_pending() or (player_poison > 0 and _living_monster_count() > 0)
-	_plague_blocked_fx_this_spin = false
-	if plague_freeze:
-		if poison_would_tick:
-			await _play_plague_poison_blocked_fx()
-			_plague_blocked_fx_this_spin = true
-	elif await _tick_all_monster_poison():
-		_beggar_hold = false
-		_undo_arm()
-		return
 	_beggar_hold = false
 	if beggar_spin >= 0 and beggar_spin < wheel.size() and str(wheel[beggar_spin].get("card_id", "")) == "beggar" and int(wheel[beggar_spin].get("hp", 0)) > 0 and not _is_silenced(wheel[beggar_spin]):
 		await _beggar_assign(beggar_spin, true)
@@ -7663,10 +7666,6 @@ func _on_spin() -> void:
 			await _bleed_end()
 			return
 	await _apply_plague_doctor_on_spin()
-	if not plague_freeze and _living_monster_count() > 0:
-		if await _tick_player_poison():
-			_undo_arm()
-			return
 	_refresh()
 	await _step_berserkers()
 	_step_marbles()
@@ -10664,15 +10663,21 @@ func _plague_doctor_indices() -> Array[int]:
 	return out
 
 
-func _any_monster_poison_pending() -> bool:
-	for i in wheel.size():
-		if str(wheel[i].get("kind", "")) != "monster":
-			continue
-		if int(wheel[i].get("hp", 0)) <= 0:
-			continue
-		if _poison_of(wheel[i]) > 0:
-			return true
-	return false
+func _facing_has_poison() -> bool:
+	if facing_index < 0 or facing_index >= wheel.size():
+		return false
+	var m: Dictionary = wheel[facing_index]
+	if str(m.get("kind", "")) != "monster":
+		return false
+	if int(m.get("hp", 0)) <= 0:
+		return false
+	return _poison_of(m) > 0
+
+
+func _poison_would_pay_this_spin() -> bool:
+	if player_poison > 0 and _living_monster_count() > 0:
+		return true
+	return _facing_has_poison()
 
 
 ## Padlock badges while freeze is on: stacks keep growing, poison does not pay.
@@ -10838,48 +10843,36 @@ func _facing_can_act() -> bool:
 	return int(wheel[facing_index].get("hp", 0)) > 0
 
 
-func _poison_pay_order() -> Array[int]:
-	var out: Array[int] = []
-	var n: int = wheel.size()
-	if n <= 0:
-		return out
-	var start: int = facing_index if facing_index >= 0 and facing_index < n else 0
-	for off in range(1, n):
-		out.append((start + off) % n)
-	out.append(start)
-	return out
-
-
-func _tick_all_monster_poison() -> bool:
-	for i in _poison_pay_order():
-		if i < 0 or i >= wheel.size():
-			continue
-		if str(wheel[i].get("kind", "")) != "monster":
-			continue
-		if int(wheel[i].get("hp", 0)) <= 0:
-			continue
-		var dose: int = _poison_of(wheel[i])
-		if dose <= 0:
-			continue
-		_ticker_push_poison("monster_poison")
-		if poison_pop != null and poison_pop.has_method("burst_slice"):
-			await poison_pop.burst_slice(i, dose)
-		if i < 0 or i >= wheel.size():
-			return false
-		var stopped: bool = await _chip_hp(i, dose)
-		if i < 0 or i >= wheel.size():
-			return false
-		_clear_monster_poison(i)
-		if int(wheel[i].get("hp", 0)) <= 0 and not _wick_waiting(i):
-			wheel[i]["poison_down"] = true
-		var m: Dictionary = wheel[i]
-		_log("on_spin", "poison  →  %s HP" % m.get("hp", 0))
-		_refresh()
-		if stopped:
-			_store_last_faced_hp()
-			_undo_arm()
-			await _unlock_if_fighting()
-			return true
+func _tick_facing_monster_poison() -> bool:
+	var i: int = facing_index
+	if i < 0 or i >= wheel.size():
+		return false
+	if str(wheel[i].get("kind", "")) != "monster":
+		return false
+	if int(wheel[i].get("hp", 0)) <= 0:
+		return false
+	var dose: int = _poison_of(wheel[i])
+	if dose <= 0:
+		return false
+	_ticker_push_poison("monster_poison")
+	if poison_pop != null and poison_pop.has_method("burst_slice"):
+		await poison_pop.burst_slice(i, dose)
+	if i < 0 or i >= wheel.size() or i != facing_index:
+		return false
+	var stopped: bool = await _chip_hp(i, dose)
+	if i < 0 or i >= wheel.size():
+		return false
+	_clear_monster_poison(i)
+	if int(wheel[i].get("hp", 0)) <= 0 and not _wick_waiting(i):
+		wheel[i]["poison_down"] = true
+	var m: Dictionary = wheel[i]
+	_log("on_spin", "poison  →  %s HP" % m.get("hp", 0))
+	_refresh()
+	if stopped:
+		_store_last_faced_hp()
+		_undo_arm()
+		await _unlock_if_fighting()
+		return true
 	return false
 
 
@@ -13955,7 +13948,7 @@ func _magicat_morph(it: Dictionary) -> void:
 func _poison_dose(it: Dictionary) -> int:
 	if it.has("poison_n"):
 		return maxi(int(it.get("poison_n", 0)), 0)
-	return maxi(int(_ops_of(it).get("n", 4)), 0)
+	return maxi(int(_ops_of(it).get("n", 5)), 0)
 
 
 func _scorpion_is_target(it: Dictionary) -> bool:
