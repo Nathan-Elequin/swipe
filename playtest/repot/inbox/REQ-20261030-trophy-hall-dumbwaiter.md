@@ -2,7 +2,7 @@
 id: REQ-20261030-trophy-hall-dumbwaiter
 status: open
 priority: high
-pr: pending
+pr: 208
 tip_sha: c6c4fd3fe025
 branch: cursor/trophy-hall-dumbwaiter-b735
 created: 2026-10-30T00:00:00Z

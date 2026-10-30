@@ -1,6 +1,7 @@
 # RESULT — REQ-20261030-trophy-hall-dumbwaiter
 
 - **tip_sha:** c6c4fd3fe025211e071932fcd6507b3be1bb0f05
+- **pr:** [#208](https://github.com/Nathan-Elequin/swipe/pull/208)
 - **branch:** `cursor/trophy-hall-dumbwaiter-b735`
 - **base:** `playtest/latest`
 - **selftests:** `biome_cabinets_selftest` → `BIOME_CABINETS_OK`; `campaign_shell_selftest` → `CAMPAIGN_SHELL_OK` (Godot 4.3 headless in cloud; target editor is 4.7)
