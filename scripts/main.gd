@@ -1692,6 +1692,7 @@ func _build_overlay() -> void:
 	modes.add_child(overlay_home)
 	overlay_btn.visible = false
 	overlay_adventure.visible = false
+	modes.add_child(overlay_btn)
 	modes.add_child(overlay_undo)
 	overlay_rest_row = HBoxContainer.new()
 	overlay_rest_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -4329,6 +4330,7 @@ func _run_challenge_setup() -> void:
 		return
 	if _campaign_on:
 		_campaign_grant_starter_six()
+		await _enforce_hand_cap()
 		if challenge_draft_ui:
 			challenge_draft_ui.hide_draft()
 		draft_action = "challenge_begin"
@@ -11170,11 +11172,24 @@ func _forced_hand_cap() -> int:
 	return CHALLENGE_HAND
 
 
+func _enforce_hand_cap() -> void:
+	while hotbar.size() > _forced_hand_cap() and is_instance_valid(self):
+		await _forced_gain_tax()
+		if pending_feed.is_empty() and hotbar.size() > _forced_hand_cap():
+			break
+
+
 func _is_forced_gain_feed(kind: String) -> bool:
 	return kind == "forced_gain" or kind == "oligarch_gift" or kind == "rust_spawn" or kind == "bell_spawn"
 
 
+func _is_toss_feed(kind: String) -> bool:
+	return _is_forced_gain_feed(kind) or kind == "bell_defeat"
+
+
 func _forced_gain_tax() -> void:
+	if hotbar.size() <= _forced_hand_cap():
+		return
 	var uids: Array = _hand_all_uids()
 	if uids.is_empty():
 		return
@@ -11246,7 +11261,7 @@ func _oligarch_deliver_item(id: String, from_i: int) -> void:
 				c2.bounce()
 				break
 	if hotbar.size() > _forced_hand_cap():
-		await _forced_gain_tax()
+		await _enforce_hand_cap()
 		_speech_from_index = from_i
 		_cube_line = "Here, I bought you something nice"
 		_refresh()
@@ -11311,7 +11326,7 @@ func _force_gain_rust() -> void:
 		sfx.play("drop", -10.0)
 	_refresh()
 	if hotbar.size() > _forced_hand_cap():
-		await _forced_gain_tax()
+		await _enforce_hand_cap()
 
 
 func _force_gain_toll() -> void:
@@ -11325,7 +11340,7 @@ func _force_gain_toll() -> void:
 		sfx.play("drop", -10.0)
 	_refresh()
 	if hotbar.size() > _forced_hand_cap():
-		await _forced_gain_tax()
+		await _enforce_hand_cap()
 
 
 func _wait_bell_pick() -> void:
@@ -11365,6 +11380,13 @@ func _feed_bell_overlay(uid: int) -> void:
 		return
 	_log("on_spin", "discard %s" % str(it.get("name", "?")))
 	_discard_from_hand(uid)
+	if kind == "forced_gain" and hotbar.size() > _forced_hand_cap():
+		pending_feed = {"uids": _hand_all_uids(), "kind": "forced_gain"}
+		if sfx:
+			sfx.play_event(&"hand.toss")
+		_refresh()
+		_sync_hub_cue()
+		return
 	pending_feed = {}
 	_cube_line = ""
 	_bell_wait = false
@@ -11465,8 +11487,19 @@ func _maybe_bell_defeat_tax(index: int = -1) -> void:
 		await _play_bell_ring()
 		return
 	pending_feed = {"uids": toss_uids, "kind": "bell_defeat"}
-	_cube_line = "When I am Defeated, Discard 1 Item."
+	_cube_line = ""
 	_refresh()
+	if ability_slash:
+		var tex: Texture2D = null
+		if art != null:
+			tex = art.monster_still("death_bell")
+		await ability_slash.play({
+			"title": str(m.get("name", "Death Bell")),
+			"call": MONSTER_LINES.call_of("death_bell", monsters_by_id.get("death_bell", {})),
+			"tex": tex,
+			"is_item": false,
+			"card_id": "death_bell",
+		})
 	await _wait_bell_pick()
 	await _play_bell_ring()
 
@@ -12358,7 +12391,7 @@ func _sync_hub_cue() -> void:
 	if overlay != null and overlay.visible:
 		hub_cue.clear_hold()
 		return
-	if _challenge_loot_wait or (not pending_feed.is_empty() and _is_forced_gain_feed(str(pending_feed.get("kind", "")))):
+	if _challenge_loot_wait or (not pending_feed.is_empty() and _is_toss_feed(str(pending_feed.get("kind", "")))):
 		hub_cue.show_hold(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."), "full_hand")
 		return
 	if not pending_mark.is_empty() and phase == "fighting":
@@ -12571,7 +12604,7 @@ func _try_gain_item(id: String) -> void:
 	if sfx:
 		sfx.play_event(&"hand.gain", {"card_id": id})
 	if hotbar.size() > _forced_hand_cap():
-		await _forced_gain_tax()
+		await _enforce_hand_cap()
 
 
 
@@ -12588,6 +12621,16 @@ func _shuffle_dungeon() -> void:
 	wheel = kept
 	_reseat_slots()
 
+
+
+func _resume_facing_fight() -> void:
+	phase = "fighting"
+	_walker_busy = false
+	if wheel_view:
+		wheel_view.clear_slay()
+	_show_fight_portrait()
+	_tune_combat_stage()
+	_refresh()
 
 
 func _try_commander_flee(index: int) -> bool:
@@ -12607,13 +12650,12 @@ func _try_commander_flee(index: int) -> bool:
 		if keep <= 0:
 			keep = 1
 		s["hp"] = keep
-		s["hp_locked"] = true
+		s["hp_locked"] = false
 		s["spin_locked"] = index == facing_index
 		s.erase("hp_pre_hit")
 		wheel[index] = s
-		if wheel_view and wheel_view.slay_index == index:
-			wheel_view.clear_slay()
-		_refresh()
+		facing_index = index
+		_resume_facing_fight()
 		return true
 	s["fled_once"] = true
 	s["crossbowed"] = false
@@ -16966,7 +17008,7 @@ func _grant_mimic_gift() -> void:
 	if get_tree():
 		await get_tree().create_timer(0.42).timeout
 	if hotbar.size() > _forced_hand_cap():
-		await _forced_gain_tax()
+		await _enforce_hand_cap()
 
 
 func _try_potion() -> bool:
@@ -17378,7 +17420,7 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"signpost":
 			return [[_fg("shield", "7"), _fg("icon", "", "", "", "", "nw"), _fg("icon", "", "", "", "", "ne"), _fg("impact", "", "", "self")]]
 		"poison_flask":
-			return [[_fg("drop", "5")]]
+			return [[_fg("drop", n if n != "" else str(_poison_dose(it)))]]
 		"miasma":
 			return [[_fg("drop", n if n != "" else "0")]]
 		"fangs":
@@ -21057,6 +21099,7 @@ func _refresh() -> void:
 		wheel_view.set_slices(wheel, facing_index, mode)
 		wheel_view.draft_glow = phase == "draft"
 		wheel_view.closed_empties = in_tutorial and PlaytestUx.closed_empty_in_tutorial() and mode != "place"
+		wheel_view.modulate = Color(0.42, 0.40, 0.38, 1.0) if _toss_pick_mode() else Color.WHITE
 	_sync_loot_pips()
 	if tut != null and tut.has_method("set_lift"):
 		var slash_up: bool = ability_slash != null and ability_slash.visible
@@ -21802,7 +21845,7 @@ func _sync_overlay() -> void:
 	if overlay_sub:
 		overlay_sub.visible = false
 	if overlay_btn:
-		overlay_btn.visible = true
+		overlay_btn.visible = show_defeat
 	if overlay_undo:
 		overlay_undo.visible = _undo_can_undo() and phase == "defeat"
 	if overlay_score:
@@ -21811,7 +21854,7 @@ func _sync_overlay() -> void:
 			overlay_score.text = PLAYER_COPY.fill("title.dungeons_cleared", {"n": dungeons_cleared}, "Dungeons cleared: %s" % dungeons_cleared)
 	if phase == "defeat":
 		overlay_title.text = PLAYER_COPY.text("title.lose", "Caught")
-		overlay_btn.text = PLAYER_COPY.text("defeat.home", "")
+		overlay_btn.text = PLAYER_COPY.text("defeat.home", "Limp home")
 
 
 func _rebuild_tray() -> void:
