@@ -6,7 +6,7 @@ func _init() -> void:
 	var Shell = load("res://scripts/campaign_shell.gd")
 	var rules: Dictionary = Shell.read_json("res://data/campaign.json")
 	var failed := false
-	var locked_names: Array[String] = ["Verdant Hollow", "Sunken Mire", "Ashen Crypt", "Cinder Forge", "Shadow Abyss"]
+	var locked_names: Array[String] = ["Verdant Hollow", "Crystal Cavern", "Ashen Crypt", "Cinder Forge", "Shadow Abyss"]
 	failed = _check(failed, "five biomes", Shell.biomes_of(rules).size() == 5) or failed
 	var named := 0
 	for raw_name in Shell.biomes_of(rules):
@@ -43,20 +43,20 @@ func _init() -> void:
 	Shell.bank(rules, state, ["a", "b", "c"], pools)
 	failed = _check(failed, "map still open after 3", Shell.map_unlocked(rules, state)) or failed
 	failed = _check(failed, "verdant hollow counts the 3", Shell.cabinet_count(state, "b1") == 3) or failed
-	failed = _check(failed, "sunken mire still locked", Shell.biome_unlocked(rules, state, 1) == false) or failed
+	failed = _check(failed, "crystal cavern still locked", Shell.biome_unlocked(rules, state, 1) == false) or failed
 	failed = _check(failed, "no push yet", Shell.can_push(rules, state) == false) or failed
 	Shell.bank(rules, state, ["d", "e"], pools)
 	failed = _check(failed, "verdant hollow full", Shell.cabinet_count(state, "b1") == 5) or failed
-	failed = _check(failed, "sunken mire opens", Shell.biome_unlocked(rules, state, 1)) or failed
-	failed = _check(failed, "stamp starts sunken mire", Shell.can_start(rules, state, 1)) or failed
+	failed = _check(failed, "crystal cavern opens", Shell.biome_unlocked(rules, state, 1)) or failed
+	failed = _check(failed, "stamp starts crystal cavern", Shell.can_start(rules, state, 1)) or failed
 	failed = _check(failed, "ashen crypt stays shut", Shell.can_start(rules, state, 2) == false) or failed
 	failed = _check(failed, "shortcut to verdant hollow", Shell.shortcut_open(rules, state, 0)) or failed
-	failed = _check(failed, "no shortcut to sunken mire yet", Shell.shortcut_open(rules, state, 1) == false) or failed
+	failed = _check(failed, "no shortcut to crystal cavern yet", Shell.shortcut_open(rules, state, 1) == false) or failed
 	# S3: map piece + pencil only via stamp_map_piece (ceremony), never bank() alone.
 	failed = _check(failed, "bank alone grants no piece", Shell.map_piece_count(state) == 0) or failed
 	var stamped: Dictionary = Shell.stamp_map_piece(rules, state, "b1")
-	failed = _check(failed, "piece stamps sunken mire", str(stamped.get("id", "")) == "b2") or failed
-	failed = _check(failed, "piece name locked", str(stamped.get("name", "")) == "Sunken Mire") or failed
+	failed = _check(failed, "piece stamps crystal cavern", str(stamped.get("id", "")) == "b2") or failed
+	failed = _check(failed, "piece name locked", str(stamped.get("name", "")) == "Crystal Cavern") or failed
 	failed = _check(failed, "map_pieces has b2", (state["map_pieces"] as Array).has("b2")) or failed
 	failed = _check(failed, "pencil_fresh has b2", (state["pencil_fresh"] as Array).has("b2")) or failed
 	var again: Dictionary = Shell.stamp_map_piece(rules, state, "b1")
@@ -64,7 +64,7 @@ func _init() -> void:
 	Shell.clear_pencil_fresh(state)
 	failed = _check(failed, "pencil clears after map open", (state["pencil_fresh"] as Array).is_empty()) or failed
 	Shell.begin_run(state, 0, false, false)
-	failed = _check(failed, "can push into sunken mire", Shell.can_push(rules, state)) or failed
+	failed = _check(failed, "can push into crystal cavern", Shell.can_push(rules, state)) or failed
 	failed = _check(failed, "no nib at 5/5", Shell.push_needs_nib(rules, state) == false) or failed
 	var under: Dictionary = Shell.fresh_state()
 	Shell.bank(rules, under, ["u1", "u2"], {"u1": "b1", "u2": "b1"})
@@ -76,7 +76,7 @@ func _init() -> void:
 	)
 	failed = _check(failed, "project cabinet adds new pool uniques", proj_n == 4) or failed
 	failed = _check(failed, "project skips other pools", proj_n == 4) or failed
-	failed = _check(failed, "next biome named", Shell.next_biome_name(rules, state) == "Sunken Mire") or failed
+	failed = _check(failed, "next biome named", Shell.next_biome_name(rules, state) == "Crystal Cavern") or failed
 	Shell.begin_run(under, 0, false, true)
 	failed = _check(failed, "no nib in endless", Shell.push_needs_nib(rules, under) == false) or failed
 	Shell.begin_run(state, 0, false, false)

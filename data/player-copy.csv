@@ -505,3 +505,12 @@ Cabin,cabin.hot.run_door,Hover label for the painted main-room run door (hall pa
 Cabin,cabin.hot.door_outpost,Hover label for Hall → Outpost right door,Outpost
 Playtest,cabin.hot.back_hall,Outpost back door hover → Trophy Hall,Trophy Hall
 Cabin,cabin.hall.sign_outpost,Hall Outpost door sign (replaces hidden SignStudy art),To the Outpost
+Cabin,cabin.hall.plaque,Trophy Hall brass plaque + lore sub-line,Wares of the {ordinal} Depth and below
+Cabin,cabin.hall.ordinal_1,Trophy Hall plaque ordinal,1st
+Cabin,cabin.hall.ordinal_2,Trophy Hall plaque ordinal,2nd
+Cabin,cabin.hall.ordinal_3,Trophy Hall plaque ordinal,3rd
+Cabin,cabin.hall.ordinal_4,Trophy Hall plaque ordinal,4th
+Cabin,cabin.hall.ordinal_5,Trophy Hall plaque ordinal,5th
+Cabin,cabin.hall.lift_sign,Dumbwaiter header,LIFT
+Cabin,cabin.hall.lift_lever,Dumbwaiter lever hover,Pull
+Cabin,cabin.hall.lore_claimed,Lore panel footer when claimed,Claimed

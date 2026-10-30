@@ -16,7 +16,7 @@ const HELD_PLATE := "map/held/map_in_hands_living.png"
 const HELD_PLATE_FALLBACK := "map/held/map_in_hands.png"
 const SHEET := Vector2(1680, 1040)
 ## Stamp hit centres measured on the Doop plate (1680×1040 screen space).
-## Cabin → Verdant → Sunken → Ashen → Cinder → Shadow.
+## Cabin → Verdant → Crystal Cavern → Ashen → Cinder → Shadow.
 const TRAIL: Array[Vector2] = [
 	Vector2(816, 236),
 	Vector2(962, 363),
@@ -42,7 +42,7 @@ const LANES := {
 const ENDLESS_AT := Vector2(280, 860)
 const WAX := {
 	"b1": Color("5f8f3c"),
-	"b2": Color("6e5a30"),
+	"b2": Color("7fa9c4"),
 	"b3": Color("7a463c"),
 	"b4": Color("d06828"),
 	"b5": Color("3c3488"),
@@ -168,6 +168,9 @@ func present(rules: Dictionary, state: Dictionary, monsters_by_id: Dictionary = 
 	# Fresh pencil shows on this open, then clears so the next view is inked solid.
 	if not _read_only:
 		SHELL.clear_pencil_fresh(_state)
+	var focus_pool := str(opts.get("focus_pool", ""))
+	if focus_pool != "":
+		call_deferred("_pulse_focus_stamp", focus_pool)
 
 
 func _rebuild() -> void:
@@ -267,6 +270,26 @@ func _add_start(spot: Vector2, biome_name: String, open: bool) -> void:
 	_pins.add_child(hit)
 
 
+func _pulse_focus_stamp(pool: String) -> void:
+	if pool == "" or _pins == null:
+		return
+	for child in _pins.get_children():
+		if not (child is CanvasItem):
+			continue
+		if str(child.get_meta("pool_id", "")) != pool:
+			continue
+		var node := child as Control
+		var base := node.scale
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.set_trans(Tween.TRANS_QUAD)
+		tw.set_ease(Tween.EASE_IN_OUT)
+		for _i in 2:
+			tw.tween_property(node, "scale", base * 1.12, 0.18)
+			tw.tween_property(node, "scale", base, 0.18)
+		return
+
+
 func _add_stamp(spot: Vector2, biome_name: String, pool: String, wax: Color, index: int, endless: bool) -> void:
 	var seal := WaxStamp.new()
 	seal.wax = wax
@@ -276,6 +299,7 @@ func _add_stamp(spot: Vector2, biome_name: String, pool: String, wax: Color, ind
 	seal.size = Vector2(56, 56)
 	seal.pivot_offset = Vector2(28, 56)
 	seal.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	seal.set_meta("pool_id", pool)
 	_pins.add_child(seal)
 	var name_at := spot + Vector2(36, 8)
 	if endless:
