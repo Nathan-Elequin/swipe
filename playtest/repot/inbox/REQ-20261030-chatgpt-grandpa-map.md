@@ -1,6 +1,6 @@
 ---
 id: REQ-20261030-chatgpt-grandpa-map
-status: open
+status: done
 priority: high
 branch: playtest/latest
 created: 2026-10-30T19:10:00Z
