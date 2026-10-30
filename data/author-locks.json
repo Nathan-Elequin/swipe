@@ -227,7 +227,7 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Right Bracer"
@@ -552,6 +552,30 @@
 			"locked_at": "2026-10-17",
 			"name": "Fangs"
 		},
+		"item:flying_saucer": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
+			"locked_at": "2026-10-30",
+			"name": "Flying Saucer"
+		},
 		"item:grappling_hook": {
 			"fields": [
 				"name",
@@ -740,7 +764,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-22",
+			"locked_at": "2026-10-30",
 			"name": "Jar O' Grease"
 		},
 		"item:knucklers": {
@@ -864,7 +888,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-30",
 			"name": "Lucky Nickel"
 		},
 		"item:marble": {
@@ -1413,7 +1437,7 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Spiked Shield"
@@ -1575,7 +1599,7 @@
 				"atk_formula",
 				"hp_formula",
 				"card_color",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Anvil"
@@ -1671,7 +1695,7 @@
 				"reminder",
 				"card_color",
 				"log_hint",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Berserker"
@@ -1696,7 +1720,7 @@
 				"reminder",
 				"card_color",
 				"log_hint",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Bushido"
@@ -1743,7 +1767,7 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-30",
 			"name": "Clockwork Knight"
@@ -1911,7 +1935,7 @@
 				"reminder",
 				"card_color",
 				"log_hint",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Druid"
@@ -1936,7 +1960,7 @@
 				"reminder",
 				"card_color",
 				"log_hint",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Eel"
@@ -1984,7 +2008,7 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Gargoyle"
@@ -2009,7 +2033,7 @@
 				"reminder",
 				"card_color",
 				"log_hint",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Gelatinous Cube"
@@ -2196,7 +2220,7 @@
 				"atk_formula",
 				"hp_formula",
 				"card_color",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Juggernaut"
@@ -2219,7 +2243,7 @@
 				"hp_formula",
 				"call_name",
 				"review",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Trapper"
@@ -2268,9 +2292,9 @@
 				"reminder",
 				"card_color",
 				"log_hint",
-				"bucket"
+				"pool"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-10-30",
 			"name": "Lich"
 		},
 		"monster:magicat": {
@@ -2439,7 +2463,7 @@
 		},
 		"monster:oligarch": {
 			"fields": [
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Oligarch"
@@ -2488,7 +2512,7 @@
 				"reminder",
 				"card_color",
 				"log_hint",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Phoenix Egg"
@@ -2537,7 +2561,7 @@
 				"reminder",
 				"card_color",
 				"log_hint",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Poison Frog"
@@ -2562,7 +2586,7 @@
 				"reminder",
 				"card_color",
 				"log_hint",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Prism"
@@ -2635,7 +2659,7 @@
 				"reminder",
 				"card_color",
 				"log_hint",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Shambling Mound"
@@ -2824,7 +2848,7 @@
 				"atk_formula",
 				"hp_formula",
 				"card_color",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Vampire"
@@ -2872,7 +2896,7 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"bucket"
+				"pool"
 			],
 			"locked_at": "2026-10-28",
 			"name": "Wizard"
@@ -4759,5 +4783,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-10-28"
+	"updated": "2026-10-30"
 }

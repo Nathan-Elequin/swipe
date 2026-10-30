@@ -27,7 +27,7 @@
 		"item:helmet": 1792446156.0,
 		"item:hex": 1793347200.0,
 		"item:iron_chain": 1792136735.68746,
-		"item:jar_o_grease": 1793212800.0,
+		"item:jar_o_grease": 1793344567,
 		"item:knucklers": 1791957461.0,
 		"item:lantern": 1792694472.0,
 		"item:last_match": 1793043200.0,
@@ -87,7 +87,7 @@
 		"monster:juggernaut": 1792507200.0,
 		"monster:kobold_trapper": 1792136735.68746,
 		"monster:leech_league": 1792136735.68746,
-		"monster:lich": 1793342400,
+		"monster:lich": 1793342400.0,
 		"monster:magicat": 1792507200.0,
 		"monster:martyr": 1793212800.0,
 		"monster:merchant": 1792272500.0,
@@ -119,5 +119,5 @@
 	"item:sling": 1793236000.0,
 	"monster:mouse": 1792450564.02935,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-10-30T06:55:00"
+	"updated": "2026-10-30T07:16:07"
 }

@@ -863,22 +863,22 @@
 			"type": "I"
 		},
 		{
-			"ability": "Mark a Neighbor with 5 Poison.",
+			"ability": "Mark a Neighbor with 4 Poison.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 2.0,
-			"defined": "Click during a fight, then click a living Neighbor. Used up. They gain 5 Poison. Amounts add. The mark stays until you Spin that monster (Smoke, Flee, auto-spin, landing — not Grappling Hook or a Damsel neighbor). On that Spin, player Poison pays first if you have any, then they lose that much HP and the mark clears. Other marked monsters keep their stacks. This is before Hex and every other on-spin. Quiet Bell does not stop it. If it kills them, their spin ability does not happen. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
+			"defined": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. Plague Doctor neighbors stay at 2. On the next Spin, every monster with Poison loses that much HP immediately, wherever they sit, then the mark clears. This is before their spin ability. If it kills them, that ability does not happen. They stay in the seat until the other spin abilities finish. A dead monster who is not the one you landed on then leaves and the seat fills. If the one you landed on died, the fight ends after those abilities. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
 			"exceptions": "",
-			"explainer": "Neighbor gets 5 Poison",
+			"explainer": "Neighbor gets 4 Poison",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "Click during a fight, then click a living Neighbor. Used up. They gain 5 Poison. Amounts add. The mark stays until you Spin that monster (Smoke, Flee, auto-spin, landing — not Grappling Hook or a Damsel neighbor). On that Spin, player Poison pays first if you have any, then they lose that much HP and the mark clears. Other marked monsters keep their stacks. This is before Hex and every other on-spin. Quiet Bell does not stop it. If it kills them, their spin ability does not happen. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
+			"flow": "Click during a fight, then click a living Neighbor. Used up. They gain 4 Poison. Amounts add. Plague Doctor neighbors stay at 2. On the next Spin, every monster with Poison loses that much HP immediately, wherever they sit, then the mark clears. This is before their spin ability. If it kills them, that ability does not happen. They stay in the seat until the other spin abilities finish. A dead monster who is not the one you landed on then leaves and the seat fills. If the one you landed on died, the fight ends after those abilities. Lose HP is not Attack (can kill Goblin). Anvil loses only 1 from this one source. Unusable with 0 neighbors. Crossbow-marked neighbors are not choosable.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "poison_flask",
@@ -902,13 +902,13 @@
 				"reminder",
 				"card_color"
 			],
-			"log_hint": "Mark a neighbor for 5",
+			"log_hint": "Mark a neighbor for 4",
 			"mode_pool": "all",
 			"name": "Poison Flask",
 			"notes": "",
 			"ops": {
 				"kind": "mark_poison",
-				"n": 5.0
+				"n": 4.0
 			},
 			"poc": false,
 			"pool": 1.0,
@@ -2690,7 +2690,7 @@
 			"call_name": "",
 			"card_color": "utility",
 			"count": 1.0,
-			"defined": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Nothing is paid when you play this. Each mark stays until you Spin that monster, then they lose that much HP and the mark clears. Player Poison pays first. Other marked monsters keep their stacks. Fight only. Used up.",
+			"defined": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Plague Doctor neighbors stay at 2. Nothing is paid when you play this. On the next Spin, every monster with Poison loses that much HP, wherever they sit, then the mark clears. Fight only. Used up.",
 			"exceptions": "Bucket 4. Poison sources add. Flask is +5 on a neighbor.",
 			"explainer": "Poison all = min HP",
 			"flags": {
@@ -2698,7 +2698,7 @@
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Nothing is paid when you play this. Each mark stays until you Spin that monster, then they lose that much HP and the mark clears. Player Poison pays first. Other marked monsters keep their stacks. Fight only. Used up.",
+			"flow": "Click during a fight. Read current HP of every living monster, take the lowest, add that much Poison to every living monster. Plague Doctor neighbors stay at 2. Nothing is paid when you play this. On the next Spin, every monster with Poison loses that much HP, wherever they sit, then the mark clears. Fight only. Used up.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "miasma",
@@ -2867,7 +2867,7 @@
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 1.0,
-			"defined": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Player Poison, then the landed monster's Poison, then Hex. If that poison already killed the monster you landed on, Hex does not count down and does not Defeat. New dungeon resets to 6. Used up when it fires.",
+			"defined": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Poison is paid before Hex. If that poison already killed the monster you landed on, Hex does not count down and does not Defeat. New dungeon resets to 6. Used up when it fires.",
 			"exceptions": "Bucket 6. Skull + number on the card.",
 			"explainer": "Defeat at Spin 0",
 			"flags": {
@@ -2875,7 +2875,7 @@
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Player Poison, then the landed monster's Poison, then Hex. If that poison already killed the monster you landed on, Hex does not count down and does not Defeat. New dungeon resets to 6. Used up when it fires.",
+			"flow": "Unplayable. Starts at 6. Every Spin (Smoke, Flee, auto-spin, landing) the number drops by 1. At 1 it flashes red. On the Spin that hits 0, Defeat the landed enemy with no HP chip (like The Boot). Gargoyle is Defeated. Commander can still Flee. Two Hexes at 0 both spend, one Defeat. Poison is paid before Hex. If that poison already killed the monster you landed on, Hex does not count down and does not Defeat. New dungeon resets to 6. Used up when it fires.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "hex",
@@ -3225,10 +3225,10 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1.0,
-			"defined": "Click during a fight. Heal 1 (cap 6). Then one other unspent item in your hand Swaps: it is exchanged for a random leftover copy of the same rank from the draft pile, and the old card goes back into that pile. You cannot Swap into a card with no remaining count. Never Swaps the Jar itself. If there is no legal other item (only the Jar, or no leftover copy of that item's Tier), the click is illegal. Keep this unless facing Zombie. Counts as an item use. Swap keyword: exchange for a random Item of the same rank.",
-			"exceptions": "Bucket 0. Jar of grease. Swap uses leftover draft counts.",
-			"explainer": "Two steps in one random direction. Your Moves stay. Tapped until you Spin.",
+			"count": 1,
+			"defined": "Click during a fight. Heal 2 (cap 6). The Jar is used up. While it is still in your hand, one Move spends 1 move and slides two seats in that direction. If the second seat has no living monster, you only slide one.",
+			"exceptions": "Bucket 2. On use Heal 2. Passive extra seat on Move while held. Swap and Keep are gone.",
+			"explainer": "Move 2 and Keep",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -3238,7 +3238,7 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "jar_o_grease",
-			"locked_at": "2026-10-22",
+			"locked_at": "2026-10-30",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3268,14 +3268,14 @@
 				"n": 2.0
 			},
 			"poc": false,
-			"pool": 4.0,
-			"priority": 3.0,
+			"pool": 4,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 2,
 			"type": "I"
 		},
 		{
@@ -3576,13 +3576,13 @@
 			"type": "I"
 		},
 		{
-			"ability": "Heal equal to the amount of HP you most recently lose.",
+			"ability": "Heal equal to the amount of HP you most recently lost.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1.0,
+			"count": 1,
 			"defined": "Click during a fight. Used up. Heal equal to the last HP-loss event this dungeon. If you have not lost HP yet, unplayable.",
 			"exceptions": "Needs art.",
 			"explainer": "(HEAL = last HP lost)",
@@ -3595,7 +3595,7 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "blood_chalice",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-10-30",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3624,14 +3624,14 @@
 				"kind": "heal_last_loss"
 			},
 			"poc": false,
-			"pool": 4.0,
-			"priority": 3.0,
+			"pool": 4,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "I"
 		},
 		{
@@ -4139,7 +4139,7 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1,
+			"count": 1.0,
 			"defined": "Click during a fight. No target. Used up. The monster you are facing stays, and the wheel spins. On Spin effects for the monster you land on happen next. Then Gain 5 Block. Block you already had clears on the Flee. Ball and Chain stops the Flee: Gain 5 Block, the card is discarded, and this fight stays open.",
 			"exceptions": "Tier 2. Defense. Art: a dinner saucer turned into a flying UFO.",
 			"explainer": "Flee, then (BLK 5)",
@@ -4182,14 +4182,14 @@
 				"n": 5.0
 			},
 			"poc": false,
-			"pool": 1,
-			"priority": 2,
+			"pool": 1.0,
+			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "I"
 		}
 	],
@@ -4521,14 +4521,14 @@
 		{
 			"ability": "When you use Defeat Items against me, they fail, reduce my HP by 1, and are Kept. I cannot lose HP in any other way.",
 			"atk": {
-				"base": 5
+				"base": 5.0
 			},
 			"atk_base": 5.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Undying",
 			"card_color": "",
-			"count": 2,
+			"count": 2.0,
 			"defined": "Pool 3, tier 2, 2 HP, 5 Attack. A Defeat item must already be legally usable (Paci-Fist still needs no Attack items; Sledgehammer still needs 6 or more Attack). The Boot, Sledgehammer, Fangs, Paci-Fist, Scythe, and Hex are the Defeat items. On use against me the Defeat does not happen: I lose 1 HP and that item is Kept and tapped until the fight ends. Echo Bell's copy is still used up. Fangs still makes me attack, then chips 1, and Heals you for the HP I had before that chip. Two Hexes at 0 each chip 1 and both reset to 6 and stay. I cannot lose HP any other way. Quiet Bell turns this off. If I still have HP, I attack at the end of combat and I am defeated as normal.",
 			"exceptions": "Neighbor aura moved to Fairy.",
 			"explainer": "Legal Defeat items chip 1 HP and stay Kept. Nothing else lowers my HP.",
@@ -4540,7 +4540,7 @@
 			"flow": "Pool 3, tier 2, 2 HP, 5 Attack. A Defeat item must already be legally usable (Paci-Fist still needs no Attack items; Sledgehammer still needs 6 or more Attack). The Boot, Sledgehammer, Fangs, Paci-Fist, Scythe, and Hex are the Defeat items. On use against me the Defeat does not happen: I lose 1 HP and that item is Kept and tapped until the fight ends. Echo Bell's copy is still used up. Fangs still makes me attack, then chips 1, and Heals you for the HP I had before that chip. Two Hexes at 0 each chip 1 and both reset to 6 and stay. I cannot lose HP any other way. Quiet Bell turns this off. If I still have HP, I attack at the end of combat and I am defeated as normal.",
 			"function_flow": "Legal Defeat items chip 1 HP and are Kept. Nothing else lowers HP. End-of-combat attack still defeats me.",
 			"hp": {
-				"base": 2
+				"base": 2.0
 			},
 			"hp_base": 2.0,
 			"hp_formula": "",
@@ -4573,14 +4573,14 @@
 			"notes": "Neighbor aura moved to Fairy.",
 			"ops": {},
 			"poc": false,
-			"pool": 3,
-			"priority": 4,
+			"pool": 3.0,
+			"priority": 4.0,
 			"rarity": "starter",
 			"reminder": "Defeat chips 1. No other HP loss.",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "M",
 			"updates": "HP on Defeat item use",
 			"when_updates": "On Item Use"
@@ -5741,31 +5741,31 @@
 			"type": "M"
 		},
 		{
-			"ability": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
+			"ability": "If I live, I leave two Tough Monsters in my place.",
 			"atk": {
 				"base": 4.0
 			},
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"call_name": "Synchronize",
+			"call_name": "Disassemble",
 			"count": 1.0,
-			"defined": "5 HP and 4 Attack. When I am Defeated (HP to 0, a defeat item, or Block), the two living neighbors match. The lower HP is healed 1 at a time up to the higher, and that max stays. Then the lower Attack is raised 1 at a time up to the higher. One pass on the numbers showing at that moment. Lich and Commander may change them again on the usual refresh. Dire Wolf's Attack then returns to your HP. Slime Boss's Attack then becomes its HP, even if that raises it. If that changes the number, \"Reset due to ability\" shows over that monster. Wick loses 2 HP after this match. Quiet Bell turns this off. Eject, Polymorph, and Flee do not count. If I live, nothing replaces me.",
-			"exceptions": "Quiet Bell turns Synchronize off. Eject, Polymorph, and Flee do not count.",
-			"explainer": "Defeated: neighbors match HP, then Attack",
+			"defined": "If you do not Defeat or Slay me, I leave and two random Tough monsters sit immediately, even if that grows the wheel past 8. You are not in a new fight yet.",
+			"exceptions": "Quiet Bell strips this: I leave like anyone else, no heirs.",
+			"explainer": "Two Tough monsters if I live",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "5 HP and 4 Attack. When I am Defeated (HP to 0, a defeat item, or Block), the two living neighbors match. The lower HP is healed 1 at a time up to the higher, and that max stays. Then the lower Attack is raised 1 at a time up to the higher. One pass on the numbers showing at that moment. Lich and Commander may change them again on the usual refresh. Dire Wolf's Attack then returns to your HP. Slime Boss's Attack then becomes its HP, even if that raises it. If that changes the number, \"Reset due to ability\" shows over that monster. Wick loses 2 HP after this match. Quiet Bell turns this off. Eject, Polymorph, and Flee do not count. If I live, nothing replaces me.",
+			"flow": "If you do not Defeat or Slay me, I leave and two random Tough monsters sit immediately, even if that grows the wheel past 8. You are not in a new fight yet.",
 			"hp": {
-				"base": 5.0
+				"base": 7.0
 			},
-			"hp_base": 5.0,
+			"hp_base": 7.0,
 			"hp_formula": "",
 			"id": "clockwork_knight",
-			"locked_at": "2026-10-30",
+			"locked_at": "2026-10-28",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5786,10 +5786,10 @@
 				"card_color",
 				"pool"
 			],
-			"log_hint": "Neighbors match HP, then Attack",
+			"log_hint": "Splits into two monsters",
 			"mode_pool": "adventure",
 			"name": "Clockwork Knight",
-			"notes": "Quiet Bell turns Synchronize off. Eject, Polymorph, and Flee do not count.",
+			"notes": "Quiet Bell strips this: I leave like anyone else, no heirs.",
 			"ops": {},
 			"poc": false,
 			"pool": 5.0,
@@ -6541,25 +6541,25 @@
 			"type": "M"
 		},
 		{
-			"ability": "On each Spin, I give all You and all Monsters 1 Poison",
+			"ability": "On Spin, my Neighbors Gain 2 Poison and Heal 2. While I live, Poison does not activate.",
 			"atk": {
-				"base": 1.0
+				"base": 2.0
 			},
-			"atk_base": 1.0,
+			"atk_base": 2.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Outbreak",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "SP-30 (2026-10-30). On every real Spin (Smoke, Flee, auto-spin, landing — not Grappling Hook or Damsel) while I live unsilenced: after player Poison and the landed monster's Poison pay, you Gain 1 Poison and every living monster Gains 1 Poison, including me. Amounts add. Two of me each give +1. The new 1s do not pay on this Spin. Quiet Bell turns this off. No freeze. No Heal.",
-			"exceptions": "SP-30. Pool 4 T1. Each copy +1. Freeze gone.",
-			"explainer": "Each Spin: you and every monster Gain 1 Poison",
+			"defined": "SP-28 (2026-10-28). On every Spin while I live unsilenced: each living Neighbor Gains 2 Poison and Heals 2 (cap at their max HP). Poison stacks keep growing. While I live unsilenced, Poison NEVER activates — monster poison and the player's poison both stay frozen. On the first Spin after I die (or Quiet Bell silences every living Plague Doctor), stored Poison activates normally. When Poison would activate but is blocked, show my slash portrait and the dissolving line 'Poison does not activate'.",
+			"exceptions": "SP-28. Bucket 5. Freeze-all poison while alive (player + monsters). Quiet Bell turns this off.",
+			"explainer": "Spin: Neighbors +2 Poison and Heal 2. Poison frozen while I live.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "SP-30 (2026-10-30). On every real Spin (Smoke, Flee, auto-spin, landing — not Grappling Hook or Damsel) while I live unsilenced: after player Poison and the landed monster's Poison pay, you Gain 1 Poison and every living monster Gains 1 Poison, including me. Amounts add. Two of me each give +1. The new 1s do not pay on this Spin. Quiet Bell turns this off. No freeze. No Heal.",
+			"flow": "SP-28 (2026-10-28). On every Spin while I live unsilenced: each living Neighbor Gains 2 Poison and Heals 2 (cap at their max HP). Poison stacks keep growing. While I live unsilenced, Poison NEVER activates — monster poison and the player's poison both stay frozen. On the first Spin after I die (or Quiet Bell silences every living Plague Doctor), stored Poison activates normally. When Poison would activate but is blocked, show my slash portrait and the dissolving line 'Poison does not activate'.",
 			"hp": {
 				"base": 3.0
 			},
@@ -6587,16 +6587,16 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Each Spin: +1 Poison to you and every monster",
+			"log_hint": "Neighbors +2 Poison and Heal 2; Poison frozen while alive",
 			"mode_pool": "all",
 			"name": "Plague Doctor",
-			"notes": "SP-30. Pool 4 T1. Every Spin +1 you and every living monster including me. Each copy. Freeze gone. ATK 1.",
+			"notes": "SP-28. Bucket 5. Freeze-all poison while alive (player + monsters). Quiet Bell turns this off.",
 			"ops": {},
 			"poc": false,
 			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "On each Spin, I give all You and all Monsters 1 Poison",
+			"reminder": "On Spin: Neighbors Gain 2 Poison and Heal 2. Poison does not activate while I live.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
