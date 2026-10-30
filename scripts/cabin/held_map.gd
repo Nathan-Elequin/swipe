@@ -15,15 +15,17 @@ const SHELL := preload("res://scripts/campaign_shell.gd")
 const HELD_PLATE := "map/held/map_in_hands_living.png"
 const HELD_PLATE_FALLBACK := "map/held/map_in_hands.png"
 const SHEET := Vector2(1680, 1040)
-## Stamp hit centres measured on the Doop plate (1680×1040 screen space).
+## Stamp hit centres on the held plate (1680×1040 screen space).
 ## Cabin → Verdant → Crystal Cavern → Ashen → Cinder → Shadow.
+## ChatGPT plate feel-test 2026-10-30: kept Doop centres for b1–b4 / START;
+## nudged Shadow + Endless only (>~40px miss vs painted badges).
 const TRAIL: Array[Vector2] = [
 	Vector2(816, 236),
 	Vector2(962, 363),
 	Vector2(648, 473),
 	Vector2(998, 567),
 	Vector2(659, 672),
-	Vector2(985, 759),
+	Vector2(1020, 798),
 ]
 ## Per-biome Deadly patrol lanes (offsets from TRAIL[i+1]). Slot k = k-th telegraph id.
 ## Feet sit just left of the wax stamp (names live to the right). Short dx so
@@ -39,7 +41,7 @@ const LANES := {
 		{"at": Vector2(-24, 50), "dx": 16.0},
 	],
 }
-const ENDLESS_AT := Vector2(280, 860)
+const ENDLESS_AT := Vector2(410, 856)
 const WAX := {
 	"b1": Color("5f8f3c"),
 	"b2": Color("7fa9c4"),
