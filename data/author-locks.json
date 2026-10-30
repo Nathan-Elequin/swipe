@@ -1767,7 +1767,8 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"pool"
+				"pool",
+				"log_hint"
 			],
 			"locked_at": "2026-10-30",
 			"name": "Clockwork Knight"
