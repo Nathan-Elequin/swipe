@@ -4,7 +4,7 @@ extends Node
 const SAVE_PATH := "user://audio.json"
 const MAP_PATH := "res://data/sfx-map.json"
 const LEGACY_UI_IDS := ["hover", "click", "click2", "select", "question", "error", "switch", "confirm", "confirm_big"]
-const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp", "music_verdant_hollow_loop", "music_cinder_forge_a", "music_cinder_forge_b", "music_cinder_forge_c", "music_crystal_cavern_a", "music_crystal_cavern_b", "music_crystal_cavern_c", "music_ashen_crypt_a", "music_ashen_crypt_b", "music_ashen_crypt_c"]
+const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp", "music_verdant_hollow_loop", "music_cinder_forge_a", "music_cinder_forge_b", "music_cinder_forge_c", "music_crystal_cavern_a", "music_crystal_cavern_b", "music_crystal_cavern_c", "music_ashen_crypt_a", "music_ashen_crypt_b", "music_ashen_crypt_c", "music_shadow_abyss_a", "music_shadow_abyss_b", "music_shadow_abyss_c"]
 const FORGE_BED := "cinder_forge"
 const FORGE_MUTE_DB := -80.0
 const FORGE_COMBAT_FADE_S := 0.33
@@ -737,7 +737,7 @@ func stop_cue_voices(cue_id: StringName) -> void:
 
 func music_to(bed: StringName, fade_s: float) -> void:
 	var id: String = String(bed)
-	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "cinder_forge", "crystal_cavern", "ashen_crypt"]:
+	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "cinder_forge", "crystal_cavern", "ashen_crypt", "shadow_abyss"]:
 		loop_stop(&"amb.radio_static", 0.25)
 	# Leaving the dungeon for cabin / title / radio stations drops the biome bed.
 	if id == "cabin" or id == "title" or id == "intro" or id == "ending" or id.begins_with("station_"):
@@ -1264,6 +1264,8 @@ func _apply_cue_music(cue_id: String, bed: String) -> void:
 			music_biome_dungeon("b2")
 		"ashen_crypt":
 			music_biome_dungeon("b3")
+		"shadow_abyss":
+			music_biome_dungeon("b5")
 
 
 func _mix_duck(attack: float) -> void:

@@ -5382,7 +5382,7 @@
 			"tier": 3.0
 		},
 		{
-			"ability": "On each Spin, I give all You and all Monsters 1 Poison",
+			"ability": "On each Spin, I give all You and all Monsters 1 Poison.",
 			"atk_base": 1,
 			"atk_formula": "",
 			"author_lock": true,
@@ -5427,7 +5427,7 @@
 			"rarity": "uncommon",
 			"reminder": "On each Spin, I give all You and all Monsters 1 Poison",
 			"review": "rough",
-			"review_note": "Ability should say: \"On each Spin, I give all You and all Monsters 1 Poison.\"",
+			"review_note": "",
 			"status": "todo",
 			"tier": 1
 		},

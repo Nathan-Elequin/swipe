@@ -10,8 +10,12 @@ const FLICKER_STEP := 0.125
 ## Choice: TextureRect child + CanvasItemMaterial ADD at low alpha, after the
 ## parent's floor/wall/_draw (children paint on top). Wheel/Sprout/cards are
 ## separate higher-z nodes and stay untouched. Strips re-baked brighter, Nearest.
+## Full-art plates (2026-10-30): prefer biome_full/bg_wheel_bN.png when present.
+## Those use MIX @ ~1.0 (ADD washes poster art). Quiet strips stay ADD @ 0.50.
 const BIOME_BG_ALPHA := 0.50
+const BIOME_FULL_ALPHA := 1.0
 const BIOME_BG_DIR := "res://assets/ui/biome_bg/%s.png"
+const BIOME_FULL_DIR := "res://assets/ui/biome_full/bg_wheel_%s.png"
 
 var art
 var _t: float = 0.0
@@ -20,6 +24,7 @@ var _pan: float = 0.0
 var _flick_wait: float = 0.0
 var _biome_id: String = ""
 var _biome_tex: Texture2D = null
+var _biome_full: bool = false
 var _biome_rect: TextureRect = null
 var pan: float:
 	get:
@@ -64,10 +69,18 @@ func set_biome(id: String) -> void:
 		return
 	_biome_id = want
 	_biome_tex = null
-	if want != "" and ResourceLoader.exists(BIOME_BG_DIR % want):
-		var loaded: Variant = load(BIOME_BG_DIR % want)
-		if loaded is Texture2D:
-			_biome_tex = loaded
+	_biome_full = false
+	if want != "":
+		var full_path := BIOME_FULL_DIR % want
+		if ResourceLoader.exists(full_path):
+			var full_loaded: Variant = load(full_path)
+			if full_loaded is Texture2D:
+				_biome_tex = full_loaded
+				_biome_full = true
+		if _biome_tex == null and ResourceLoader.exists(BIOME_BG_DIR % want):
+			var quiet_loaded: Variant = load(BIOME_BG_DIR % want)
+			if quiet_loaded is Texture2D:
+				_biome_tex = quiet_loaded
 	_apply_biome_rect()
 	queue_redraw()
 
@@ -78,6 +91,16 @@ func _apply_biome_rect() -> void:
 		return
 	_biome_rect.texture = _biome_tex
 	_biome_rect.visible = _biome_tex != null
+	var mat: CanvasItemMaterial = _biome_rect.material as CanvasItemMaterial
+	if mat == null:
+		mat = CanvasItemMaterial.new()
+		_biome_rect.material = mat
+	if _biome_full:
+		mat.blend_mode = CanvasItemMaterial.BLEND_MODE_MIX
+		_biome_rect.modulate = Color(1.0, 1.0, 1.0, BIOME_FULL_ALPHA)
+	else:
+		mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		_biome_rect.modulate = Color(1.0, 1.0, 1.0, BIOME_BG_ALPHA)
 
 
 func bump_hall() -> void:
@@ -116,12 +139,16 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	# Count real draws — queue_redraw in _process was inflating hall spike tags.
 	FRAME_METRICS.note_hall()
-	# Biome glow is a child TextureRect (ADD) painted after this _draw, so it
-	# tints floor/walls without being buried under opaque tiles.
+	# Biome plate is a child TextureRect painted after this _draw (ADD quiet tint
+	# or MIX full-art). Wheel/Sprout sit on higher-z nodes above this Control.
 	if art == null or not art.ready_ok:
 		draw_rect(Rect2(Vector2.ZERO, size), Color("0a0807"), true)
 		return
 	draw_rect(Rect2(Vector2.ZERO, size), Color("0a0807"), true)
+	# Full-art plates already carry floor/wall/dais scenery — skip opaque blit
+	# so the plate reads (quiet center under the wheel is fine).
+	if _biome_full:
+		return
 	var ts: float = 48.0
 	var cols: int = int(ceil(size.x / ts)) + 2
 	var rows: int = int(ceil(size.y / ts)) + 1
