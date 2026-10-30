@@ -3186,6 +3186,11 @@ func _adventure_continue() -> void:
 		CAMPAIGN_SHELL.push_deeper(_campaign.rules, _campaign.state)
 		CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
 		_campaign.write()
+		var endless_run := bool(_campaign.state.get("run", {}).get("endless", false))
+		if sfx and sfx.has_method("music_biome_dungeon") and not endless_run:
+			sfx.music_biome_dungeon(CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state))
+	elif sfx:
+		sfx.set_combat_music(true)
 	_undo_clear()
 	overlay.visible = false
 	dungeon_index += 1
@@ -3318,6 +3323,8 @@ func _prep_next_dungeon() -> void:
 
 
 func _play_hall_wipe() -> void:
+	if _campaign_on:
+		_sync_dungeon_biome()
 	if _hall_wipe:
 		_hall_wipe.visible = true
 		_hall_wipe.mouse_filter = Control.MOUSE_FILTER_STOP

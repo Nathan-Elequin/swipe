@@ -430,7 +430,8 @@
       "to_deadly": 0.5,
       "from_deadly": 1.2,
       "to_cabin": 1.5,
-      "to_title": 1.2
+      "to_title": 1.2,
+      "to_rest": 1.2
     },
     "between_fights_duck_db": -4,
     "beds": {
