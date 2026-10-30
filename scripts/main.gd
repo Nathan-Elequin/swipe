@@ -5241,6 +5241,20 @@ func _item_look(it: Dictionary) -> Dictionary:
 	if kind == "sling":
 		if phase == "fighting" and _sling_attack_options(int(it.get("uid", -1))).is_empty():
 			unplayable = true
+	if str(pending_mark.get("kind", "")) == "sling_any":
+		unplayable = true
+	elif not pending_choice.is_empty():
+		var chooser: Dictionary = _find_item(int(pending_choice.get("uid", -1)))
+		if str(_ops_of(chooser).get("kind", "")) == "sling" or str(chooser.get("card_id", "")) == "sling":
+			var pick_uid: int = int(it.get("uid", -1))
+			var listed := pick_uid == int(chooser.get("uid", -1))
+			if not listed:
+				for opt_v2 in pending_choice.get("options", []):
+					if typeof(opt_v2) == TYPE_DICTIONARY and int((opt_v2 as Dictionary).get("atk_uid", -1)) == pick_uid:
+						listed = true
+						break
+			if not listed:
+				unplayable = true
 	if kind == "signpost":
 		if phase == "fighting" and _mark_targets("signpost").is_empty():
 			unplayable = true
@@ -8711,6 +8725,26 @@ func _use_item(uid: int) -> void:
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
+	if str(pending_mark.get("kind", "")) == "sling_any":
+		## Sling is waiting for a monster. Do not let Longbow / Great Axe fire their native aim.
+		if sfx:
+			sfx.play("error", -12.0, 1.2)
+		return
+	if not pending_choice.is_empty():
+		var chooser: Dictionary = _find_item(int(pending_choice.get("uid", -1)))
+		if str(_ops_of(chooser).get("kind", "")) == "sling" or str(chooser.get("card_id", "")) == "sling":
+			if uid == int(chooser.get("uid", -1)):
+				return
+			for opt_v in pending_choice.get("options", []):
+				if typeof(opt_v) != TYPE_DICTIONARY:
+					continue
+				var opt: Dictionary = opt_v
+				if int(opt.get("atk_uid", -1)) == uid:
+					await _choose_option(opt)
+					return
+			if sfx:
+				sfx.play("error", -12.0, 1.2)
+			return
 	if sfx:
 		sfx.play("select", -10.0)
 	pending_mark.clear()
@@ -8823,8 +8857,7 @@ func _choose_option(opt: Dictionary) -> void:
 			return
 		pending_mark = {"uid": int(it.get("uid", -1)), "kind": "sling_any", "atk_uid": atk_uid}
 		_log("on_item_use", "pick a monster")
-		if sfx:
-			sfx.play("question", -10.0)
+		_loud_mark_prompt("sling_any")
 		call_deferred("_refresh")
 		return
 	if oid == "high" or oid == "low" or oid == "off" or str(_ops_of(it).get("kind", "")) == "magnet":
@@ -12498,7 +12531,8 @@ func _ticker_push_poison(id: String) -> void:
 
 func _item_fx_dest(kind: String) -> Vector2:
 	if kind.begins_with("atk") or kind == "egg_hurt" or kind == "choose":
-		return _slice_hp_pos(facing_index)
+		var at: int = _sling_aim if _sling_aim >= 0 else facing_index
+		return _slice_hp_pos(at)
 	if kind.begins_with("blk"):
 		return _hub_blk_pos()
 	if kind.begins_with("heal") or kind == "napalm":
@@ -15926,9 +15960,13 @@ func _neighbors_of(index: int) -> Array[int]:
 
 
 func _cleave_targets() -> Array[int]:
+	var pivot: int = _sling_aim if _sling_aim >= 0 else facing_index
+	return _cleave_targets_from(pivot)
+
+
+func _cleave_targets_from(pivot: int) -> Array[int]:
 	var seen := {}
 	var out: Array[int] = []
-	var pivot: int = _sling_aim if _sling_aim >= 0 else facing_index
 	if pivot >= 0:
 		seen[pivot] = true
 		out.append(pivot)
@@ -18224,6 +18262,8 @@ func _loud_mark_prompt(kind: String) -> void:
 
 
 func _preview_mark_aim(kind: String, hover: int) -> Dictionary:
+	if kind == "sling_any":
+		return _preview_sling_payload(hover)
 	var p: Dictionary = {}
 	var dmg: int = 0
 	var it: Dictionary = {}
@@ -18241,6 +18281,58 @@ func _preview_mark_aim(kind: String, hover: int) -> Dictionary:
 		if dmg > 0:
 			slot["hp"] = -dmg
 			if int(wheel[i].get("hp", 0)) - dmg <= 0:
+				slot["kill"] = true
+		else:
+			slot["mark"] = true
+		if hover == i:
+			slot["aim"] = true
+		p[i] = slot
+	return p
+
+
+func _sling_payload_preview_n(payload: Dictionary) -> int:
+	if payload.is_empty():
+		return 0
+	if _item_is_chakram(payload):
+		if bool(_chakram_halves(payload).get("atk", false)):
+			return _atk_with_head(3)
+		return 0
+	var view: Dictionary = _item_view(payload)
+	var n: int = int(view.get("n", 0))
+	if n <= 0:
+		n = int(_ops_of(payload).get("n", 0))
+	var pk: String = str(_ops_of(payload).get("kind", ""))
+	if pk == "choose" and n <= 0:
+		n = 3
+	if n <= 0:
+		return 0
+	if pk == "choose" or _kind_deals_atk(pk) or pk == "marble":
+		return _atk_with_head(n)
+	return n
+
+
+func _preview_sling_payload(hover: int) -> Dictionary:
+	var p: Dictionary = {}
+	var payload: Dictionary = _find_item(int(pending_mark.get("atk_uid", -1)))
+	var dmg: int = _sling_payload_preview_n(payload)
+	var pk: String = str(_ops_of(payload).get("kind", ""))
+	var hits: Dictionary = {}
+	if hover >= 0 and hover < wheel.size() and dmg > 0:
+		var aimed: Array[int] = []
+		if pk == "atk_cleave":
+			aimed = _cleave_targets_from(hover)
+		else:
+			aimed.append(hover)
+		for h in aimed:
+			hits[h] = true
+	for i in _mark_targets("sling_any"):
+		var slot: Dictionary = p.get(i, {})
+		if hits.has(i) and str(wheel[i].get("card_id", "")) != "goblin":
+			var one: int = dmg
+			if str(wheel[i].get("card_id", "")) == "anvil" and not _is_silenced(wheel[i]):
+				one = mini(one, 1)
+			slot["hp"] = -one
+			if int(wheel[i].get("hp", 0)) - one <= 0:
 				slot["kill"] = true
 		else:
 			slot["mark"] = true
@@ -20933,7 +21025,7 @@ func _refresh() -> void:
 			else:
 				wheel[i]["across"] = -1
 		## Keep neighbor aim ghosts on while picking (never the facing kill ghost).
-		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost":
+		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "sling_any":
 			_apply_preview(_preview_mark_aim(mk, _hover_slice))
 	else:
 		for i2 in wheel.size():
