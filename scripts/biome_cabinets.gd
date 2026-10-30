@@ -515,6 +515,44 @@ static func bank_sequence(ids: Array, pools_by_id: Dictionary) -> Array:
 	return out
 
 
+## Hall zoom target: RoomHall sits at layout x = room_index * ROOM_W (e.g. 6720).
+## Spec clamps the *offset* from the room origin, not absolute position — otherwise
+## the tween drives the hall toward 0 and leaves a black viewport.
+static func hall_zoom_offset(
+	case_center: Vector2,
+	vp_center: Vector2 = Vector2(840, 520),
+	room_size: Vector2 = Vector2(1680, 1040)
+) -> Vector2:
+	var offset := vp_center - case_center * 2.0
+	offset.x = clampf(offset.x, -room_size.x, 0.0)
+	offset.y = clampf(offset.y, -room_size.y, 0.0)
+	return offset
+
+
+static func hall_zoom_target(
+	pre_pos: Vector2,
+	case_center: Vector2,
+	vp_center: Vector2 = Vector2(840, 520),
+	room_size: Vector2 = Vector2(1680, 1040)
+) -> Vector2:
+	return pre_pos + hall_zoom_offset(case_center, vp_center, room_size)
+
+
+## Clip-space rect of a case after 2× zoom, when rooms_host is snapped to pre_pos
+## (rooms_host.position = -pre_pos). True when it intersects the 1680×1040 viewport.
+static func hall_zoom_case_in_viewport(
+	pre_pos: Vector2,
+	case_rect: Rect2,
+	vp_size: Vector2 = Vector2(1680, 1040),
+	vp_center: Vector2 = Vector2(840, 520)
+) -> bool:
+	var target := hall_zoom_target(pre_pos, case_rect.position + case_rect.size * 0.5, vp_center, vp_size)
+	## visible = rooms_host + hall_pos + local * scale = -pre + target + local * 2
+	var origin := target - pre_pos + case_rect.position * 2.0
+	var zoomed := Rect2(origin, case_rect.size * 2.0)
+	return zoomed.intersects(Rect2(Vector2.ZERO, vp_size))
+
+
 ## First page index that still has an unclaimed item, or 0 if Complete / empty.
 static func default_page(slot_ids: Array, banked: Dictionary) -> int:
 	for i in slot_ids.size():

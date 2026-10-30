@@ -1,6 +1,7 @@
 ---
 id: REQ-20261029-trophy-pegs-fit
-status: open
+status: superseded
+superseded_by: REQ-20261030-trophy-hall-zoom-fix
 priority: high
 pr: 185
 tip_sha: 6208d841
@@ -12,6 +13,8 @@ entry: F5 playtest hub → Middle Progress → cabin main → right SideDoor int
 ---
 
 # Trophy Hall peg shields fit inside case glass
+
+**Superseded** by [REQ-20261030-trophy-hall-zoom-fix](REQ-20261030-trophy-hall-zoom-fix.md) (rows 09–10 fold in the all-five-full hall + Nearest peg crop). Do not drain this REQ; shoot those rows on the new one.
 
 Follow-up to [REQ-20261029-trophy-slots-fix](REQ-20261029-trophy-slots-fix.md) / PR #182. That pass seated the pedestal trophy in the glass top and reserved a peg Clip below it. Local shots then showed the bottom peg shield (5th with a trophy, 6th without) hanging past the painted case base onto the floor planks — `CASE_GLASS` height 138 native included the accent/base band.
 
