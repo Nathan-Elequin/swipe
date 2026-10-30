@@ -536,6 +536,27 @@
         "resume_position": false,
         "note": "Ashen Crypt intensity C (percussion+brass heat). Synced to A; fade in on Tier-3/boss only."
       },
+      "shadow_abyss": {
+        "file": "music_shadow_abyss_a",
+        "gain_db": -2.0,
+        "loop": true,
+        "resume_position": true,
+        "note": "Shadow Abyss (b5) Approach F layer A bed. Always on during the delve."
+      },
+      "shadow_abyss_b": {
+        "file": "music_shadow_abyss_b",
+        "gain_db": -2.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Abyss intensity B (drums). Synced to A; fade in on combat, mute between fights."
+      },
+      "shadow_abyss_c": {
+        "file": "music_shadow_abyss_c",
+        "gain_db": 6.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Abyss intensity C (perc+brass heat). Quiet stem; +6 dB. Synced to A; fade in on Tier-3/boss only."
+      },
       "intro": {
         "file": "music_intro",
         "gain_db": 0.0,
@@ -586,7 +607,8 @@
       "verdant_hollow": "verdant_hollow_intro then verdant_hollow",
       "cinder_forge": "cinder_forge A always; B combat; C Tier-3; no between-fight bed duck",
       "crystal_cavern": "crystal_cavern A always; B combat; C Tier-3; no between-fight bed duck",
-      "ashen_crypt": "ashen_crypt A always; B combat; C Tier-3; no between-fight bed duck"
+      "ashen_crypt": "ashen_crypt A always; B combat; C Tier-3; no between-fight bed duck",
+      "shadow_abyss": "shadow_abyss A always; B combat; C Tier-3; no between-fight bed duck"
     },
     "biome_beds": {
       "b1": "verdant_hollow",
@@ -597,7 +619,9 @@
       "b3": "ashen_crypt",
       "ashen_crypt": "ashen_crypt",
       "b4": "cinder_forge",
-      "cinder_forge": "cinder_forge"
+      "cinder_forge": "cinder_forge",
+      "b5": "shadow_abyss",
+      "shadow_abyss": "shadow_abyss"
     }
   },
   "cues": {

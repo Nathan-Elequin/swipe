@@ -110,6 +110,8 @@ add("music_cabin", "music", L("oga_fire_m", "a_small_fire_will_do.wav"), trim=(0
 #     music_crystal_cavern_c.ogg (heat, map +10 dB).
 #   Ashen Crypt Approach F: music_ashen_crypt_a.ogg (bed), music_ashen_crypt_b.ogg (drums),
 #     music_ashen_crypt_c.ogg (heat, map -2 dB so A+B+C leave ~1.5 dB Music-bus headroom).
+#   Shadow Abyss Approach F: music_shadow_abyss_a.ogg (bed), music_shadow_abyss_b.ogg (drums),
+#     music_shadow_abyss_c.ogg (heat, map A/B -2 dB, C +6 dB). 200 BPM full-file loops.
 #   Credits: write_credits.py trailer + assets/audio/CREDITS.txt.
 
 TARGET_RMS = {"ui": -20.0, "sfx": -16.0, "sting": -16.0, "amb": -22.0}
