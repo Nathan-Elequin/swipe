@@ -3186,6 +3186,11 @@ func _adventure_continue() -> void:
 		CAMPAIGN_SHELL.push_deeper(_campaign.rules, _campaign.state)
 		CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
 		_campaign.write()
+		var endless_run := bool(_campaign.state.get("run", {}).get("endless", false))
+		if sfx and sfx.has_method("music_biome_dungeon") and not endless_run:
+			sfx.music_biome_dungeon(CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state))
+	elif sfx:
+		sfx.set_combat_music(true)
 	_undo_clear()
 	overlay.visible = false
 	dungeon_index += 1
@@ -3318,6 +3323,8 @@ func _prep_next_dungeon() -> void:
 
 
 func _play_hall_wipe() -> void:
+	if _campaign_on:
+		_sync_dungeon_biome()
 	if _hall_wipe:
 		_hall_wipe.visible = true
 		_hall_wipe.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -20917,7 +20924,9 @@ func _layout_play_field() -> void:
 	if tray != null and tray.visible:
 		top_need = maxf(top_need, tray.position.y + tray.size.y + 8.0)
 	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - top_need - 8.0))
-	var x: float = (sz.x - side - extra) * 0.5
+	# #199: shift wheel (+ hotbar via _recenter_hotbar, + arrows via rim guide) ~5% left.
+	var x: float = (sz.x - side - extra) * 0.5 - VIEW_FRAME.combat_cluster_left_nudge(sz.x)
+	x = VIEW_FRAME.clamp_x(x, side, sz)
 	var wheel_y: float = maxf(top_need, (sz.y - side) * 0.5)
 	if tray != null and tray.visible:
 		wheel_y = maxf(wheel_y, tray.position.y + tray.size.y + 8.0)
@@ -21006,8 +21015,13 @@ func _refresh_face() -> void:
 	if combat_stage and not combat_stage.visible and not combat_stage.busy:
 		_show_fight_portrait()
 	var m: Dictionary = wheel[_fight_portrait_index()]
+	# #199: Shift must not change the active combatant callout (size / position / content).
+	# Hotbar formulas, cascade FF, and wheel wedge Shift inspect stay on `_shift_held`.
+	var held_shift: bool = _shift_held
+	_shift_held = false
 	var rule: Dictionary = _monster_rule(m)
 	var face_look: Dictionary = _monster_plate_look(m, rule)
+	_shift_held = held_shift
 	face_look["stage_card"] = true
 	face_look["slice"] = m
 	face_look["stage_pad"] = _fight_sprite_pad()

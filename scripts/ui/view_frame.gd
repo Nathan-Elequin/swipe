@@ -4,6 +4,8 @@ class_name ViewFrame
 
 const DESIGN := Vector2(1680, 1040)
 const MARGIN := 8.0
+## Issue #199: nudge wheel + hotbar + move arrows left so the right callout clears the right arrow (~84px at 1680).
+const COMBAT_CLUSTER_LEFT_FRAC := 0.05
 const SHOT_SIZES: Array[Vector2i] = [
 	Vector2i(1280, 800),
 	Vector2i(1920, 1080),
@@ -14,6 +16,11 @@ const SHOT_SIZES: Array[Vector2i] = [
 
 static func design_size() -> Vector2:
 	return DESIGN
+
+
+static func combat_cluster_left_nudge(view_w: float = 0.0) -> float:
+	var w: float = view_w if view_w > 1.0 else DESIGN.x
+	return w * COMBAT_CLUSTER_LEFT_FRAC
 
 
 static func frame_rect(view: Vector2) -> Rect2:

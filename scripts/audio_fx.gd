@@ -56,6 +56,7 @@ var _last_tick_ms: int = 0
 var _unlocked: bool = false
 var _duck_tw: Tween
 var _xfade_tw: Tween
+var _music_stop_tws: Array = []
 var _lpf_tw: Tween
 var _pause_duck: float = 0.0
 var _between_duck: float = 0.0
@@ -767,6 +768,7 @@ func music_to(bed: StringName, fade_s: float) -> void:
 	_music_front = 1 - _music_front
 	music = incoming
 	_current_bed = bed
+	_kill_music_stop_tweens()
 	if _xfade_tw != null:
 		_xfade_tw.kill()
 	# fade_s <= 0: hard cut (intro → loop handoff).
@@ -1037,13 +1039,18 @@ func _forge_exit_combat() -> void:
 
 
 func music_after_dungeon_clear() -> void:
-	if _is_forge_adaptive():
-		music_state = &"dungeon"
-		_between_duck = 0.0
-		_mix_duck(0.3)
-		log_audio("start", "forge_clear_keep_a")
-		return
-	music_title()
+	# Biome victory → rest/transition: fade the dungeon bed out and stay silent
+	# until the next delve starts. Do not keep Forge A, and do not jump to title.
+	music_state = &"rest"
+	_between_duck = 0.0
+	_cue_duck = 0.0
+	_mix_duck(0.3)
+	_music_seq += 1
+	_clear_dungeon_bed()
+	var fades: Dictionary = _music_cfg.get("crossfade_s", {})
+	var fade_s: float = float(fades.get("to_rest", fades.get("to_title", 1.2)))
+	log_audio("stop", "dungeon_clear_fade", {"fade": fade_s})
+	_fade_music_out(fade_s)
 
 
 func music_victory() -> void:
@@ -1150,7 +1157,7 @@ func set_combat_music(on: bool) -> void:
 		var fades: Dictionary = _music_cfg.get("crossfade_s", {})
 		music_to(_combat_or_dungeon_bed(), float(fades.get("default", 0.8)))
 	else:
-		if music_state == &"title" or music_state == &"cabin" or music_state == &"victory" or music_state == &"defeat" or music_state == &"dungeon":
+		if music_state == &"title" or music_state == &"cabin" or music_state == &"victory" or music_state == &"defeat" or music_state == &"dungeon" or music_state == &"rest":
 			if _is_forge_adaptive():
 				_forge_exit_combat()
 			return
@@ -1196,13 +1203,33 @@ func stop_music() -> void:
 	log_audio("stop", "stop_music")
 	if session_log:
 		session_log.push("audio", "stop music")
+	_clear_dungeon_bed()
+	_fade_music_out(0.5)
+
+
+func _kill_music_stop_tweens() -> void:
+	for tw in _music_stop_tws:
+		if tw != null:
+			(tw as Tween).kill()
+	_music_stop_tws.clear()
+
+
+func _fade_music_out(fade_s: float) -> void:
 	_current_bed = &""
-	_stop_forge_layers(0.5)
+	_stop_forge_layers(fade_s)
+	_kill_music_stop_tweens()
+	if _xfade_tw != null:
+		_xfade_tw.kill()
+		_xfade_tw = null
+	var dur: float = maxf(fade_s, 0.01)
 	for p in [_music_a, _music_b]:
-		if p != null and p.playing:
-			var tw := create_tween()
-			tw.tween_property(p, "volume_db", -40.0, 0.5)
-			tw.tween_callback(p.stop)
+		if p == null or not p.playing:
+			continue
+		var tw := create_tween()
+		tw.set_ignore_time_scale(true)
+		tw.tween_property(p, "volume_db", -80.0, dur)
+		tw.tween_callback(p.stop)
+		_music_stop_tws.append(tw)
 
 
 func on_pause(open: bool) -> void:
