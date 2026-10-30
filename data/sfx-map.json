@@ -431,7 +431,8 @@
       "from_deadly": 1.2,
       "to_cabin": 1.5,
       "to_title": 1.2,
-      "to_rest": 1.2
+      "to_rest": 1.2,
+      "to_victory_outro": 0.35
     },
     "between_fights_duck_db": -4,
     "beds": {
@@ -472,7 +473,15 @@
         "gain_db": -4.0,
         "loop": true,
         "resume_position": true,
-        "note": "Verdant Hollow dungeon loop after intro"
+        "bar_period_s": 2.440,
+        "note": "Verdant Hollow dungeon loop after intro; bar_period_s is 4/4 at ~98.4 BPM"
+      },
+      "verdant_hollow_victory": {
+        "file": "music_verdant_hollow_victory",
+        "gain_db": -4.0,
+        "loop": false,
+        "resume_position": false,
+        "note": "Verdant Hollow (b1) dungeon-clear one-shot; finished → rest silence (no next)"
       },
       "cinder_forge": {
         "file": "music_cinder_forge_a",

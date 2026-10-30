@@ -738,7 +738,7 @@ func stop_cue_voices(cue_id: StringName) -> void:
 
 func music_to(bed: StringName, fade_s: float) -> void:
 	var id: String = String(bed)
-	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "cinder_forge", "crystal_cavern", "ashen_crypt", "shadow_abyss"]:
+	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "verdant_hollow_victory", "cinder_forge", "crystal_cavern", "ashen_crypt", "shadow_abyss"]:
 		loop_stop(&"amb.radio_static", 0.25)
 	# Leaving the dungeon for cabin / title / radio stations drops the biome bed.
 	if id == "cabin" or id == "title" or id == "intro" or id == "ending" or id.begins_with("station_"):
@@ -1041,12 +1041,32 @@ func _forge_exit_combat() -> void:
 func music_after_dungeon_clear() -> void:
 	# Biome victory → rest/transition: fade the dungeon bed out and stay silent
 	# until the next delve starts. Do not keep Forge A, and do not jump to title.
+	# Verdant Hollow: wait for the next bar, then one-shot outro → rest silence.
+	var was_bed: StringName = _current_bed
 	music_state = &"rest"
 	_between_duck = 0.0
 	_cue_duck = 0.0
 	_mix_duck(0.3)
 	_music_seq += 1
 	_clear_dungeon_bed()
+	if was_bed == &"verdant_hollow" and _beds.has("verdant_hollow_victory") and music != null and music.playing:
+		var verdant_spec: Dictionary = _music_cfg.get("beds", {}).get("verdant_hollow", {})
+		var bar: float = float(verdant_spec.get("bar_period_s", 2.440))
+		if bar <= 0.0:
+			bar = 2.440
+		var pos: float = music.get_playback_position()
+		var wait: float = bar - fmod(pos, bar)
+		if wait < 0.05:
+			wait += bar
+		var seq: int = _music_seq
+		var fades: Dictionary = _music_cfg.get("crossfade_s", {})
+		var xfade: float = float(fades.get("to_victory_outro", 0.35))
+		_after_ms(wait * 1000.0, func() -> void:
+			if _music_seq == seq and music_state == &"rest":
+				music_to(&"verdant_hollow_victory", xfade)
+		)
+		log_audio("start", "verdant_victory_scheduled", {"wait": wait, "pos": pos})
+		return
 	var fades: Dictionary = _music_cfg.get("crossfade_s", {})
 	var fade_s: float = float(fades.get("to_rest", fades.get("to_title", 1.2)))
 	log_audio("stop", "dungeon_clear_fade", {"fade": fade_s})
@@ -1400,6 +1420,11 @@ func _hook_music_finished() -> void:
 func _on_music_finished(player: AudioStreamPlayer) -> void:
 	log_audio("stop", "finished", {"player": player.name if player else ""})
 	if _current_bed == &"" or music != player:
+		return
+	# Verdant clear outro: end into rest silence. resume_intended would restart the bed.
+	if _current_bed == &"verdant_hollow_victory":
+		_current_bed = &""
+		log_audio("stop", "verdant_victory_done", {})
 		return
 	# One-shot intro beds: crossfade (or hard cut at 0s) into their `next` loop.
 	if _beds.has(String(_current_bed)):
