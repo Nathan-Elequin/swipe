@@ -26,7 +26,7 @@ func _init() -> void:
 	failed = _eq(failed, "no egg after attack", rules.phoenix_lays_egg(true, false), false) or failed
 	failed = _eq(failed, "egg before attack", rules.phoenix_lays_egg(false, false), true) or failed
 	failed = _eq(failed, "no egg if quiet", rules.phoenix_lays_egg(false, true), false) or failed
-	failed = _eq(failed, "bottle while up", rules.fairy_grants_bottle(1, false), true) or failed
+	failed = _eq(failed, "bottle archived", rules.fairy_grants_bottle(1, false), false) or failed
 	failed = _eq(failed, "no bottle at 0", rules.fairy_grants_bottle(0, false), false) or failed
 	failed = _eq(failed, "no bottle if quiet", rules.fairy_grants_bottle(1, true), false) or failed
 	var used: Dictionary = rules.decay_resolve([11, 22], 22)

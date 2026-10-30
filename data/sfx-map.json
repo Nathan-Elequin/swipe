@@ -74,6 +74,10 @@
       "caltrops": {
         "use": "util.caltrops"
       },
+      "bag_of_holding": {
+        "use": "defeat.use",
+        "release": "item.bag_release"
+      },
       "pocketwatch": {
         "use": "status.hypnotize"
       },
@@ -454,6 +458,84 @@
         "loop": true,
         "resume_position": true
       },
+      "verdant_hollow_intro": {
+        "file": "music_verdant_hollow_intro",
+        "gain_db": -4.0,
+        "loop": false,
+        "resume_position": false,
+        "next": "verdant_hollow",
+        "note": "Verdant Hollow (b1) one-shot intro; finished → verdant_hollow loop"
+      },
+      "verdant_hollow": {
+        "file": "music_verdant_hollow_loop",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": true,
+        "note": "Verdant Hollow dungeon loop after intro"
+      },
+      "cinder_forge": {
+        "file": "music_cinder_forge_a",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": true,
+        "note": "Cinder Forge (b4) Approach F layer A (Lead+Bass+Keyboard+Synth+Other+Woodwinds). Always on during the delve."
+      },
+      "cinder_forge_b": {
+        "file": "music_cinder_forge_b",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Forge intensity B (drums). Synced to A; fade in on combat, mute between fights."
+      },
+      "cinder_forge_c": {
+        "file": "music_cinder_forge_c",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Forge intensity C (percussion+brass heat). Synced to A; fade in on Tier-3/boss only."
+      },
+      "crystal_cavern": {
+        "file": "music_crystal_cavern_a",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": true,
+        "note": "Crystal Cavern (b2, was sunken_mire) Approach F layer A bed. Always on during the delve."
+      },
+      "crystal_cavern_b": {
+        "file": "music_crystal_cavern_b",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Crystal Cavern intensity B (drums). Synced to A; fade in on combat, mute between fights."
+      },
+      "crystal_cavern_c": {
+        "file": "music_crystal_cavern_c",
+        "gain_db": 10.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Crystal Cavern intensity C (heat). Quiet stem; +10 dB. Synced to A; fade in on Tier-3/boss only."
+      },
+      "ashen_crypt": {
+        "file": "music_ashen_crypt_a",
+        "gain_db": -2.0,
+        "loop": true,
+        "resume_position": true,
+        "note": "Ashen Crypt (b3) Approach F layer A bed. Always on during the delve. Map -2 dB so A+B+C leave ~1.5 dB Music-bus headroom."
+      },
+      "ashen_crypt_b": {
+        "file": "music_ashen_crypt_b",
+        "gain_db": -2.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Ashen Crypt intensity B (drums). Synced to A; fade in on combat, mute between fights."
+      },
+      "ashen_crypt_c": {
+        "file": "music_ashen_crypt_c",
+        "gain_db": -2.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Ashen Crypt intensity C (percussion+brass heat). Synced to A; fade in on Tier-3/boss only."
+      },
       "intro": {
         "file": "music_intro",
         "gain_db": 0.0,
@@ -500,7 +582,22 @@
       "ending": "ending",
       "keyring": "cabin(ducked)",
       "rope_exit": "combat(ducked)",
-      "homecoming": "cabin"
+      "homecoming": "cabin",
+      "verdant_hollow": "verdant_hollow_intro then verdant_hollow",
+      "cinder_forge": "cinder_forge A always; B combat; C Tier-3; no between-fight bed duck",
+      "crystal_cavern": "crystal_cavern A always; B combat; C Tier-3; no between-fight bed duck",
+      "ashen_crypt": "ashen_crypt A always; B combat; C Tier-3; no between-fight bed duck"
+    },
+    "biome_beds": {
+      "b1": "verdant_hollow",
+      "verdant_hollow": "verdant_hollow",
+      "b2": "crystal_cavern",
+      "sunken_mire": "crystal_cavern",
+      "crystal_cavern": "crystal_cavern",
+      "b3": "ashen_crypt",
+      "ashen_crypt": "ashen_crypt",
+      "b4": "cinder_forge",
+      "cinder_forge": "cinder_forge"
     }
   },
   "cues": {
@@ -2811,6 +2908,79 @@
         "attack_s": 0.1,
         "release_s": "hold"
       }
+    },
+    "item.bag_release": {
+      "files": [
+        "cloth"
+      ],
+      "bus": "SFX",
+      "db": -4,
+      "pitch": [
+        0.70,
+        0.76
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 3,
+      "layers": [
+        {
+          "cue": "item.bag_untie_open",
+          "db_offset": 0,
+          "delay_ms": 50
+        },
+        {
+          "cue": "item.bag_untie_creak",
+          "db_offset": -1,
+          "delay_ms": 110
+        },
+        {
+          "cue": "item.bag_untie_whoosh",
+          "db_offset": 0,
+          "delay_ms": 180
+        }
+      ]
+    },
+    "item.bag_untie_open": {
+      "files": [
+        "open"
+      ],
+      "bus": "SFX",
+      "db": -5,
+      "pitch": [
+        0.80,
+        0.88
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 2
+    },
+    "item.bag_untie_creak": {
+      "files": [
+        "creak"
+      ],
+      "bus": "SFX",
+      "db": -6,
+      "pitch": [
+        0.68,
+        0.76
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 2
+    },
+    "item.bag_untie_whoosh": {
+      "files": [
+        "whoosh"
+      ],
+      "bus": "SFX",
+      "db": -5,
+      "pitch": [
+        0.58,
+        0.66
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 2
     },
     "sting.clear": {
       "files": [

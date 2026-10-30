@@ -21,9 +21,10 @@ RoomHall (Control, at host x 1680)          scripts/cabin/room_hall.gd
 ├── ShelfNext   cabin_hotspot ui/shelf_arrow_right.png   → _on_nav(+1)
 ├── Gauge       TextureProgressBar under ui/gauge_under.png, progress ui/gauge_fill.png (+ hotspot)
 ├── BackDoor    cabin_hotspot (open doorway baked in bg; hover doors/doorway_hover.png)
-├── SideDoor    cabin_hotspot doors/side_door_locked.png | side_door_closed.png → Study
-└── SignStudy   doors/door_sign_study.png
+├── SideDoor    cabin_hotspot doors/side_door_locked.png | side_door_closed.png → Outpost
+└── SignOutpost doors/door_sign_outpost.png (hover cabin.hall.sign_outpost)
 ```
+
 The old `_prev_btn`, `_next_btn` and `_pips` gallery doors are deleted. `_back` is deleted.
 
 ## Placements and hotspots
@@ -31,8 +32,8 @@ The old `_prev_btn`, `_next_btn` and `_pips` gallery doors are deleted. `_back` 
 |---|---|---|---|---|---|---|---|---|
 | room_hall_glow | `rooms/room_hall_glow.png` | (20,40,91,175) | (80,160,364,700) | - | - | - | 1 | light overlay |
 | BackDoor | `None` | (6,132,32,63) | (24,528,128,252) | (2,126,40,69) | (8,504,160,276) | `doors/doorway_hover.png` | 2 | back (always open) |
-| SideDoor | `doors/side_door_locked.png` | (378,132,32,63) | (1512,528,128,252) | (374,124,40,71) | (1496,496,160,284) | `doors/side_door_hover.png` | 2 | to study |
-| SignStudy | `doors/door_sign_study.png` | (385,110,18,14) | (1540,440,72,56) | - | - | - | 2 |  |
+| SideDoor | `doors/side_door_locked.png` | (378,132,32,63) | (1512,528,128,252) | (374,124,40,71) | (1496,496,160,284) | `doors/side_door_hover.png` | 2 | to Outpost |
+| SignOutpost | `doors/door_sign_outpost.png` | (385,110,18,14) | (1540,440,72,56) | (383,108,22,18) | (1532,432,88,72) | - | 2 | hover key cabin.hall.sign_outpost |
 | Flame0 | `props/candle_flame_f0.png` | (61,62,6,9) | (244,248,24,36) | - | - | - | 4 |  |
 | Gauge | `ui/gauge_under.png` | (148,188,164,5) | (592,752,656,20) | (148,186,164,9) | (592,744,656,36) | - | 3 | cabinet completion (TextureProgressBar); hover = "x of y" tooltip |
 | ShelfPrev | `ui/shelf_arrow_left.png` | (124,185,16,12) | (496,740,64,48) | (122,183,20,16) | (488,732,80,64) | `ui/shelf_arrow_left_hover.png` | 4 | shelf page prev |

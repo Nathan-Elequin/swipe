@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"ability": "Heal 1, then increase this number by 1. Keep this if you are still missing HP.",
 			"id": "lantern",
 			"kind": "item",
 			"name": "Lantern",
@@ -33,7 +33,7 @@
 		],
 		"slots": "2 / 50"
 	},
-	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Lantern — Heal 1, then increase this number by 1. Keep this if you are still missing HP. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-lantern-rust_bucket",
 	"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3\nLantern\nHP heal +2  now 5\nitems this combat 1",

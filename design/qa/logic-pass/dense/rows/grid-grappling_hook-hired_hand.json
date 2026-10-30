@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+			"ability": "Move to Any Monster, then Draw 1 Item",
 			"id": "grappling_hook",
 			"kind": "item",
 			"name": "Grappling Hook",
@@ -46,7 +46,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Grappling Hook — Swap a Neighboring Owner into this fight. Draw a Random Item. Monster: Hired Hand — If you Discard an item when facing me, I will Attack one of my Neighbors and Flee. Challenge hand. Wheel hired_hand, wizard, golem. Click Grappling Hook, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Grappling Hook — Move to Any Monster, then Draw 1 Item. Monster: Hired Hand — If you Discard an item when facing me, I will Attack one of my Neighbors and Flee. Challenge hand. Wheel hired_hand, wizard, golem. Click Grappling Hook, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-grappling_hook-hired_hand",
 	"log": "Draft enter\nYou Spin\nSpin Hired Hand\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin hired hand bribe\nSpin bribe Grappling Hook\nHired Hand - Bribe\nFight Hired Hand Flees\nBLK 0\nYou Spin\nSpin Hired Hand\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin hired hand bribe",

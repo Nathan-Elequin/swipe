@@ -2406,6 +2406,12 @@ func _send_exec_response(msg_type: String, result: Dictionary, params: Dictionar
 
 func _ensure_exec_holder() -> Node:
 	if _exec_holder != null and is_instance_valid(_exec_holder):
+		if _exec_holder.get_parent() == null:
+			_attach_exec_holder()
+		return _exec_holder
+	var existing := get_tree().root.get_node_or_null("MCPExecHolder")
+	if existing != null:
+		_exec_holder = existing
 		return _exec_holder
 	_exec_holder = Node.new()
 	_exec_holder.name = "MCPExecHolder"
@@ -2413,8 +2419,32 @@ func _ensure_exec_holder() -> Node:
 	# age without trusting the script to record one.
 	_exec_holder.child_entered_tree.connect(func(child: Node) -> void:
 		child.set_meta("mcp_exec_attached_ms", Time.get_ticks_msec()))
-	get_tree().root.add_child(_exec_holder)
+	_attach_exec_holder()
 	return _exec_holder
+
+
+# Viewport root is blocked while a scene is still adding children (Main._ready).
+# This autoload is already in-tree by then, so parent here first. Move to /root
+# on the next idle frame so root.get_node("MCPExecHolder") still works.
+func _attach_exec_holder() -> void:
+	if _exec_holder == null or not is_instance_valid(_exec_holder):
+		return
+	if _exec_holder.get_parent() != null:
+		return
+	add_child(_exec_holder)
+	call_deferred("_reparent_exec_holder_to_root")
+
+
+func _reparent_exec_holder_to_root() -> void:
+	if _exec_holder == null or not is_instance_valid(_exec_holder):
+		return
+	var root := get_tree().root
+	if _exec_holder.get_parent() == root:
+		return
+	var parent := _exec_holder.get_parent()
+	if parent != null:
+		parent.remove_child(_exec_holder)
+	root.add_child.call_deferred(_exec_holder)
 
 
 # A stable position in the logger stream (survives ring-buffer trims): lines

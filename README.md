@@ -6,7 +6,7 @@ A shrinking-wheel dungeon. Friends play the itch.io page. This repo is the sourc
 
 ## Play
 
-**Play (playtest):** https://nathan-elequin.itch.io/swipe-playtest
+**Play (playtest):** https://nathan-elequin.itch.io/spinheritance-playtest
 
 The public page https://nathan-elequin.itch.io/swipe is frozen. Do not push builds there.
 
@@ -30,4 +30,4 @@ Godot: **Project → Export → Web Playtest → Export Project** to `build/web-
 Godot_v4.7.2-stable_win64.exe --headless --path . --export-release "Web Playtest" build/web-playtest/index.html
 ```
 
-After a playable fix, export and `butler push` in that same turn to `nathan-elequin/swipe-playtest` (channel `html5`). Do not wait. Do not push `nathan-elequin/swipe`. Worker setup: `tools/playtest-inbox/README.md`.
+After a playable fix, export and `butler push` in that same turn to `nathan-elequin/spinheritance-playtest` (channel `html5`). Do not wait. Do not push `nathan-elequin/swipe`. Worker setup: `tools/playtest-inbox/README.md`.

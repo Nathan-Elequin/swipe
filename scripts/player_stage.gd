@@ -57,6 +57,7 @@ func _set_heavy(on: bool) -> void:
 
 
 func play(state: String, loops: int = 1) -> void:
+	set_process(true)
 	_set_heavy(FX_BUDGET.is_heavy_state(state))
 	_pending_hide = false
 	_blinking = false
@@ -83,6 +84,7 @@ func note_hp() -> void:
 
 
 func idle() -> void:
+	set_process(true)
 	_set_heavy(false)
 	var nxt := "lowhp" if _is_low() else "idle"
 	_pending_hide = false
@@ -115,6 +117,7 @@ func hide_stage() -> void:
 func _finish_hide() -> void:
 	_set_heavy(false)
 	visible = false
+	set_process(false)
 	_state = ""
 	_frames = []
 	_frame = 0

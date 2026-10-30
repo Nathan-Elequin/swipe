@@ -15,7 +15,7 @@ Inspect, the wheel, Shift, and the draft gate read **Ability**, **Call name**, *
 
 ## Every run in this repo
 
-Before the requested work, read `data/content-board.json` (or the HTML board if the JSON is missing). Collect **every** non-empty `review_note` (the gold box) on items and monsters, plus any official field he typed and Saved.
+Before the requested work, read `data/content-board.json` (or the HTML board if the JSON is missing). Collect **every** non-empty `review_note` (the gold box) on items and monsters, plus any official field he typed and Saved. The gold box always counts. Do not skip a note because `review` is polish, refined, finished, change, or anything other than rough.
 
 - **In a handoff task run** (`design/handoff/<task-id>/TASK.md` exists): do only what TASK.md allows. List every pending gold box that is outside the task's "Files you may touch" list in REPORT.md under `## Gold boxes pending` (card id, field, the note text), and leave them for Nathan to schedule.
 - **In a direct chat with Nathan, with no TASK.md**: work the gold boxes in that turn, as below.
@@ -31,6 +31,6 @@ Before the requested work, read `data/content-board.json` (or the HTML board if 
 ## Do not
 
 - Do not skip the gold-box read because the message is about UI, keys, buckets, art, a bug, or a different card.
-- Do not skip a filled gold box because it is old, leftover, from the HTML board, or because a different version of the card already shipped.
+- Do not skip a filled gold box because it is old, leftover, from the HTML board, because a different version of the card already shipped, or because Review is not set to rough.
 - Do not "implement" a rewrite only in `MONSTER_SPECIAL` or hardcoded fallbacks while catalog Ability and Call name still show the old text. Inspect reads the catalog.
 - Do not edit `data/player-copy.json` (Jam), invent card or UI wording, or put "Tier" or "owner" into new UI text.

@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"ability": "Heal 1, then increase this number by 1. Keep this if you are still missing HP.",
 			"id": "lantern",
 			"kind": "item",
 			"name": "Lantern",
@@ -32,7 +32,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Needleback — I Attack you for 2 Damage each time I take ATK Damage. Challenge hand. Wheel needleback. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Lantern — Heal 1, then increase this number by 1. Keep this if you are still missing HP. Monster: Needleback — I Attack you for 2 Damage each time I take ATK Damage. Challenge hand. Wheel needleback. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-lantern-needleback",
 	"log": "Draft enter\nYou Spin\nSpin Needleback\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0\nLantern\nHP heal +2  now 5\nitems this combat 1",

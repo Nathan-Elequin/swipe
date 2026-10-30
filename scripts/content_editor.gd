@@ -33,12 +33,12 @@ const DEFAULT_EXPLAINER := {
 	"da_boot": "(ENEMY HP < YOUR HP)",
 	"bag_of_holding": "(ENEMY HP < YOUR HP). They go in the bag.",
 	"measuring_tape": "(ENEMY HP = 2 × YOUR HP)",
-	"bloody_gauntlets": "(7 − HP)",
+	"bloody_gauntlets": "(1 + missing HP)",
 	"bracers": "(Right Neighbor ATK)",
 	"knucklers": "(8 − Items)",
 	"spiked_flail": "(2 × Bleeds)",
 	"sledgehammer": "(ENEMY ATK ≥ 6)",
-	"grimoire": "(LAST ENEMY ATK)",
+	"grimoire": "(LAST SPUN ATK)",
 	"breastplate": "(BLK 2) Keep if Bleed",
 	"fangs": "Take ATK → Defeat → Heal HP",
 	"crossbow": "(ATK 4) Neighbor",
@@ -51,11 +51,11 @@ const DEFAULT_EXPLAINER := {
 	"left_bracer": "(Left Neighbor ATK)",
 	"double_axe": "(ATK 2) facing + Neighbors",
 	"victory_flask": "(1 + Defeats)",
-	"grappling_hook": "Swap Neighbor + 1 Item",
-	"spiked_shield": "(ATK 2) or (BLK 2)",
+	"grappling_hook": "Walk the short way. Draw 1 Item. Does not spend a Move.",
+	"spiked_shield": "(Attack 3) or (Block 3), then the other after each Item",
 	"grief_jar": "Spin: −1 HP, +2 BLK",
 	"longbow": "(ATK 4) opposite",
-	"lantern": "(HEAL 2) Keep if HP < 6",
+	"lantern": "(HEAL 1 → 2) Keep if still missing HP",
 	"mirror_shard": "(Last BLK)",
 	"echo_bell": "(Copy last Item)",
 	"quiet_bell": "Silence",
@@ -73,8 +73,8 @@ const DEFAULT_EXPLAINER := {
 	"hex": "Defeat at Spin 0",
 	"ale_flagon": "Heal 3, heal the Enemy 3, draw an Item",
 	"napalm": "HP → 1 (you + Enemy + Neighbors)",
-	"lucky_nickel": "(BLK 1) Keep if even",
-	"double_buckler": "Halve next even ATK",
+	"lucky_nickel": "50% each. Always Keep.",
+	"double_buckler": "Block half of an even Attack.",
 	"chakram": "(BLK 3 if no Block Items)  (ATK 3 if no Attack Items)",
 	"signpost": "(BLK 7) then a Neighbor Attacks you",
 	"sling": "Next Attack this fight can target Any",
@@ -86,7 +86,7 @@ const DEFAULT_EXPLAINER := {
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
 	"mouse": "On Spin: if your HP is higher, I lose 2 HP and Flee",
 	"blood_pact": "−2 HP you and Enemy",
-	"jar_o_grease": "(HEAL 1) Swap 1  Keep",
+	"jar_o_grease": "Move 2 in a random direction, and Keep this.",
 	"toll": "−1 / Item Use  Die at 0",
 	"cleric": "Spin: if −3 HP, Heal 3 + worst Item",
 }
@@ -105,12 +105,13 @@ var _was_paused: bool = false
 
 func setup() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group("authoring_overlay")
 	visible = false
 	top_level = true
 	set_anchors_preset(PRESET_FULL_RECT)
 	color = Color("100e0ce8")
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	focus_mode = Control.FOCUS_ALL
+	focus_mode = Control.FOCUS_NONE
 	z_index = 200
 
 	var center := CenterContainer.new()
@@ -149,7 +150,7 @@ func setup() -> void:
 	head.add_child(_btn("Save", Color("3a2820"), Color("c4a574"), _on_save, 110))
 
 	var hint := Label.new()
-	hint.text = "Save writes the board and catalog, and locks this card. Typed fields update inspect immediately. A gold-box note is also a real overwrite — Cursor writes it into Ability, numbers, and code on the next message. Ctrl+S saves."
+	hint.text = "Save writes the board and catalog, and locks this card. Typed fields update inspect immediately. The gold notes box always counts, on any Review setting — Cursor writes it into Ability, numbers, and code on the next message. Arrows move between boxes. Space types. Enter saves. Esc closes without saving."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color("6b4a10"))
@@ -199,7 +200,7 @@ func open_card(kind: String, card_id: String, catalog_card: Dictionary = {}) -> 
 	if vp:
 		vp.gui_cancel_drag()
 		vp.gui_release_focus()
-	grab_focus()
+	call_deferred("_focus_first_field")
 
 
 func close_editor() -> void:
@@ -301,17 +302,16 @@ func _rebuild(card: Dictionary) -> void:
 		lock_n.add_theme_color_override("font_color", Color("6b1008"))
 		_sheet.add_child(lock_n)
 	var stage: String = REVIEW_STAGE.of_card(card)
-	if stage == "rough":
-		var banner := Label.new()
-		banner.text = "ROUGH — type what to change in the gold box. Save is a real overwrite. The next Cursor message writes this into Ability, numbers, and code."
-		banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		banner.add_theme_font_size_override("font_size", 18)
-		banner.add_theme_color_override("font_color", Color("8b1e1e"))
-		_sheet.add_child(banner)
+	var banner := Label.new()
+	banner.text = "Type what to change in the gold box. It always counts, on any Review setting. Save is a real overwrite. The next Cursor message writes this into Ability, numbers, and code."
+	banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	banner.add_theme_font_size_override("font_size", 18)
+	banner.add_theme_color_override("font_color", Color("8b1e1e"))
+	_sheet.add_child(banner)
 	var rev_row := _grid(2)
 	_add_pick(rev_row, "Review", "review", stage, REVIEW_STAGE.STAGES)
 	_sheet.add_child(rev_row)
-	_add_review_note(_sheet, str(card.get("review_note", "")), stage)
+	_add_review_note(_sheet, str(card.get("review_note", "")))
 	if _fields.has("review") and _fields["review"] is OptionButton:
 		(_fields["review"] as OptionButton).item_selected.connect(_on_review_pick)
 	var row1 := _grid(2)
@@ -324,17 +324,16 @@ func _rebuild(card: Dictionary) -> void:
 	var bucket_opts: Array = []
 	for bucket_label in BucketRules.options():
 		bucket_opts.append(bucket_label)
-	_add_pick(row2, "Bucket", "bucket", BucketRules.label_of(card.get("bucket", 0)), bucket_opts)
+	_add_pick(row2, "Pool", "pool", BucketRules.label_of(BucketRules.of_card(card)), bucket_opts)
 	_sheet.add_child(row2)
 	var row_mode := _grid(2)
 	_add_pick(row_mode, "Modes", "mode_pool", ModePool.label_of(card.get("mode_pool", "all")), ["All", "Adventure-Only", "Challenge-Only"])
 	_sheet.add_child(row_mode)
-	if _fields.has("bucket") and _fields["bucket"] is OptionButton:
-		var bucket_pick: OptionButton = _fields["bucket"]
+	if _fields.has("pool") and _fields["pool"] is OptionButton:
+		var bucket_pick: OptionButton = _fields["pool"]
 		BucketRules.paint(bucket_pick)
 		bucket_pick.item_selected.connect(func(_i: int) -> void:
 			BucketRules.paint(bucket_pick)
-			_refresh_bucket_warn()
 		)
 	_refresh_bucket_warn()
 	var row_tier := _grid(3)
@@ -380,6 +379,7 @@ func _rebuild(card: Dictionary) -> void:
 	if ops_s == "null":
 		ops_s = "{}"
 	_add_area(_sheet, "Ops JSON", "ops_text", ops_s, 120, true)
+	_wire_field_nav()
 
 
 func _label_head(text: String) -> void:
@@ -436,55 +436,45 @@ func _skin_edit(e: Control) -> void:
 
 
 func _on_review_pick(_i: int) -> void:
-	var stage: String = _text_of("review")
 	if _fields.has("review_note") and _fields["review_note"] is TextEdit:
-		_skin_review_note(_fields["review_note"] as TextEdit, stage)
+		_skin_review_note(_fields["review_note"] as TextEdit)
 
 
-func _add_review_note(host: Control, value: String, stage: String) -> void:
+func _add_review_note(host: Control, value: String) -> void:
 	var wrap := VBoxContainer.new()
 	wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	wrap.add_theme_constant_override("separation", 4)
 	var l := Label.new()
 	l.text = "Your notes for Cursor"
 	l.add_theme_font_size_override("font_size", 16)
-	l.add_theme_color_override("font_color", Color("8b1e1e") if stage == "rough" else Color("6b4a10"))
+	l.add_theme_color_override("font_color", Color("8b1e1e"))
 	wrap.add_child(l)
 	var e := TextEdit.new()
 	e.text = value
 	e.placeholder_text = "Type what to change. Save. The next Cursor message writes this into Ability, numbers, and code."
-	e.custom_minimum_size = Vector2(0, 140 if stage == "rough" else 80)
+	e.custom_minimum_size = Vector2(0, 140)
 	e.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
 	e.scroll_fit_content_height = false
-	_skin_review_note(e, stage)
+	_skin_review_note(e)
 	wrap.add_child(e)
 	host.add_child(wrap)
 	_fields["review_note"] = e
 
 
-func _skin_review_note(e: TextEdit, stage: String) -> void:
+func _skin_review_note(e: TextEdit) -> void:
 	var sb := StyleBoxFlat.new()
 	sb.set_corner_radius_all(8)
 	sb.content_margin_left = 10
 	sb.content_margin_right = 10
 	sb.content_margin_top = 8
 	sb.content_margin_bottom = 8
-	if stage == "rough":
-		sb.bg_color = Color("ffe08a")
-		sb.border_color = Color("8b1e1e")
-		sb.set_border_width_all(4)
-		e.add_theme_color_override("font_color", Color("6b1008"))
-		e.add_theme_color_override("font_placeholder_color", Color("8b1e1e"))
-		e.add_theme_font_size_override("font_size", 16)
-		e.custom_minimum_size.y = 140
-	else:
-		sb.bg_color = Color("fffaf2")
-		sb.border_color = Color("c4a574")
-		sb.set_border_width_all(2)
-		e.add_theme_color_override("font_color", Color("1c120c"))
-		e.add_theme_color_override("font_placeholder_color", Color("8a6a3a"))
-		e.add_theme_font_size_override("font_size", 14)
-		e.custom_minimum_size.y = 80
+	sb.bg_color = Color("ffe08a")
+	sb.border_color = Color("8b1e1e")
+	sb.set_border_width_all(4)
+	e.add_theme_color_override("font_color", Color("6b1008"))
+	e.add_theme_color_override("font_placeholder_color", Color("8b1e1e"))
+	e.add_theme_font_size_override("font_size", 16)
+	e.custom_minimum_size.y = 140
 	e.add_theme_stylebox_override("normal", sb)
 	e.add_theme_stylebox_override("focus", sb)
 	e.add_theme_stylebox_override("read_only", sb)
@@ -592,7 +582,7 @@ func _gather() -> Dictionary:
 		"kind": _kind,
 		"status": _text_of("status"),
 		"rarity": _text_of("rarity"),
-		"bucket": BucketRules.parse(_text_of("bucket")),
+		"pool": BucketRules.parse(_text_of("pool")),
 		"mode_pool": ModePool.parse(_text_of("mode_pool")) if _fields.has("mode_pool") else ModePool.parse(_original.get("mode_pool", "all")),
 		"tier": _int_of("tier", 1),
 		"count": _int_of("count", 1),
@@ -637,7 +627,7 @@ func _refresh_bucket_warn() -> void:
 	var live: Array = items if _kind == "item" else monsters
 	for card3 in live:
 		if str(card3.get("id", "")) == _id:
-			card3["bucket"] = BucketRules.parse(_text_of("bucket"))
+			card3["pool"] = BucketRules.parse(_text_of("pool"))
 			break
 	var msg: String = BucketRules.counts_warning(items, monsters)
 	_bucket_warn.set_message(msg)
@@ -678,6 +668,7 @@ func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float) -> 
 	var b := Button.new()
 	b.text = text
 	b.custom_minimum_size = Vector2(width, 40)
+	b.focus_mode = Control.FOCUS_NONE
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	b.add_theme_color_override("font_color", Color("f0e6d8"))
 	var n := StyleBoxFlat.new()
@@ -693,20 +684,97 @@ func _btn(text: String, fill: Color, rim: Color, cb: Callable, width: float) -> 
 	return b
 
 
+func _field_chain() -> Array:
+	var chain: Array = []
+	for k in _fields:
+		var n: Variant = _fields[k]
+		if n is LineEdit or n is TextEdit:
+			chain.append(n)
+	return chain
+
+
+func _wire_field_nav() -> void:
+	var chain: Array = _field_chain()
+	if chain.is_empty():
+		return
+	for i in chain.size():
+		var cur: Control = chain[i]
+		var nxt: Control = chain[(i + 1) % chain.size()]
+		var prv: Control = chain[(i - 1 + chain.size()) % chain.size()]
+		cur.focus_next = nxt.get_path()
+		cur.focus_previous = prv.get_path()
+		cur.focus_neighbor_bottom = nxt.get_path()
+		cur.focus_neighbor_top = prv.get_path()
+		if not cur.has_meta("nav_hook"):
+			cur.set_meta("nav_hook", true)
+			cur.gui_input.connect(_on_field_nav.bind(cur))
+
+
+func _on_field_nav(event: InputEvent, e: Control) -> void:
+	if not event is InputEventKey:
+		return
+	var key := event as InputEventKey
+	if not key.pressed or key.echo or key.ctrl_pressed or key.alt_pressed:
+		return
+	var chain: Array = _field_chain()
+	var i: int = chain.find(e)
+	if i < 0:
+		return
+	if key.keycode == KEY_UP:
+		if e is LineEdit or (e is TextEdit and (e as TextEdit).get_caret_line() <= 0):
+			_focus_field_at(chain, i - 1)
+			e.accept_event()
+	elif key.keycode == KEY_DOWN:
+		if e is LineEdit or (e is TextEdit and (e as TextEdit).get_caret_line() >= (e as TextEdit).get_line_count() - 1):
+			_focus_field_at(chain, i + 1)
+			e.accept_event()
+
+
+func _focus_field_at(chain: Array, i: int) -> void:
+	if chain.is_empty():
+		return
+	i = (i + chain.size()) % chain.size()
+	var e: Control = chain[i]
+	e.grab_focus()
+	if _scroll:
+		_scroll.ensure_control_visible(e)
+
+
+func _focus_first_field() -> void:
+	var chain: Array = _field_chain()
+	if chain.is_empty():
+		return
+	_focus_field_at(chain, 0)
+
+
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
-	if event.is_action_pressed("ui_cancel"):
+	if not event is InputEventKey:
+		return
+	var key := event as InputEventKey
+	if not key.pressed or key.echo:
+		return
+	if key.keycode == KEY_ESCAPE:
 		close_editor()
 		get_viewport().set_input_as_handled()
 		return
-	if event.is_action_pressed("ui_accept"):
-		var focus := get_viewport().gui_get_focus_owner() if get_viewport() else null
-		if focus is TextEdit:
+	if key.keycode == KEY_ENTER or key.keycode == KEY_KP_ENTER:
+		if key.ctrl_pressed or key.alt_pressed or key.meta_pressed:
 			return
 		_on_save()
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and not event.echo and event.ctrl_pressed and event.keycode == KEY_S:
+	if key.ctrl_pressed and key.keycode == KEY_S:
 		_on_save()
+		get_viewport().set_input_as_handled()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if not event is InputEventKey:
+		return
+	var key := event as InputEventKey
+	if key.keycode == KEY_LEFT or key.keycode == KEY_RIGHT or key.keycode == KEY_UP or key.keycode == KEY_DOWN or key.keycode == KEY_SPACE:
 		get_viewport().set_input_as_handled()

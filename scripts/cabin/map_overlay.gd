@@ -151,8 +151,19 @@ func debug_hover(route: String) -> void:
 	_refresh_all(false)
 
 
+func _authoring_desk_open() -> bool:
+	if not is_inside_tree():
+		return false
+	for n in get_tree().get_nodes_in_group("authoring_overlay"):
+		if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+			return true
+	return false
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
+		return
+	if _authoring_desk_open():
 		return
 	if event.is_action_pressed("ui_accept"):
 		_go()

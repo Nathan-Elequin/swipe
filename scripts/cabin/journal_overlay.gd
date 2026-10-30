@@ -298,7 +298,7 @@ func _ids(kind: String) -> Array:
 			continue
 		if str(it.get("status", "live")) != "live":
 			continue
-		if int(it.get("bucket", 0)) == -1:
+		if BucketRules.of_card(it) == -1:
 			continue
 		var iid: String = str(it.get("id", ""))
 		if cabin != null and (bool(cabin.seen.get(iid, false)) or cabin.is_swiped(iid)):

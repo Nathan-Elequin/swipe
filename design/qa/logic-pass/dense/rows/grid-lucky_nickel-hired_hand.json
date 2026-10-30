@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"ability": "Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep.",
 			"id": "lucky_nickel",
 			"kind": "item",
 			"name": "Lucky Nickel",
@@ -46,7 +46,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Hired Hand — If you Discard an item when facing me, I will Attack one of my Neighbors and Flee. Challenge hand. Wheel hired_hand, wizard, golem. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Lucky Nickel — Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep. Monster: Hired Hand — If you Discard an item when facing me, I will Attack one of my Neighbors and Flee. Challenge hand. Wheel hired_hand, wizard, golem. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-lucky_nickel-hired_hand",
 	"log": "Draft enter\nYou Spin\nSpin Hired Hand\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin hired hand bribe\nSpin bribe Lucky Nickel\nHired Hand - Bribe\nFight Hired Hand Flees\nBLK 0\nYou Spin\nSpin Golem\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0",

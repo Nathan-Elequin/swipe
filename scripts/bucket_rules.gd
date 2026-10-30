@@ -1,8 +1,10 @@
 class_name BucketRules
 extends RefCounted
 
-const MAX_BUCKET := 9
+const MAX_BUCKET := 5
+const ASIDE := 0
 const TOKEN := "Token"
+const ASIDE_LABEL := "Aside"
 const TOKEN_COLOR := Color("6e675c")
 const ALWAYS_STARTER_ITEMS: PackedStringArray = ["smoke_bomb"]
 ## Second card of a pair. Same bucket as its partner; does not fill the 10/5.
@@ -19,37 +21,130 @@ const TIER_GOLD := Color("e8c36a")
 
 static func options() -> PackedStringArray:
 	var out := PackedStringArray()
-	for i in range(MAX_BUCKET + 1):
+	for i in range(1, MAX_BUCKET + 1):
 		out.append(str(i))
 	out.append(TOKEN)
+	out.append(ASIDE_LABEL)
 	return out
+
+
+static func of_card(card: Variant) -> int:
+	if typeof(card) != TYPE_DICTIONARY:
+		return ASIDE
+	var d: Dictionary = card
+	if d.has("pool"):
+		return parse(d.get("pool"))
+	return parse(d.get("bucket", 0))
 
 
 static func parse(v: Variant) -> int:
 	if v == null:
-		return 0
+		return ASIDE
 	if typeof(v) == TYPE_STRING:
 		var s: String = str(v).strip_edges()
 		if s == "":
-			return 0
-		if s.to_lower() == "token":
+			return ASIDE
+		var low := s.to_lower()
+		if low == "token":
 			return -1
+		if low == "aside" or low == "hold":
+			return ASIDE
 		if s.is_valid_int():
-			return int(s)
+			return _clamp_pool(int(s))
 		if s.is_valid_float():
-			return int(float(s))
-		return 0
-	return int(v)
+			return _clamp_pool(int(float(s)))
+		return ASIDE
+	return _clamp_pool(int(v))
+
+
+static func _clamp_pool(n: int) -> int:
+	if n < 0:
+		return -1
+	if n == 0:
+		return ASIDE
+	if n > MAX_BUCKET:
+		return ASIDE
+	return n
 
 
 static func label_of(v: Variant) -> String:
-	if parse(v) < 0:
+	var n: int = parse(v)
+	if n < 0:
 		return TOKEN
-	return str(parse(v))
+	if n == ASIDE:
+		return ASIDE_LABEL
+	return str(n)
 
 
 static func is_token(v: Variant) -> bool:
+	if typeof(v) == TYPE_DICTIONARY:
+		return of_card(v) < 0
 	return parse(v) < 0
+
+
+static func is_aside_status(card: Variant) -> bool:
+	if typeof(card) != TYPE_DICTIONARY:
+		return true
+	var st: String = str(card.get("status", "live"))
+	return st == "retired" or st == "hold"
+
+
+static func display_pool(card: Variant) -> int:
+	if typeof(card) != TYPE_DICTIONARY:
+		return ASIDE
+	if is_token(card):
+		return -1
+	if is_aside_status(card):
+		return ASIDE
+	if _skip(card):
+		return ASIDE
+	var n: int = of_card(card)
+	if n < 1 or n > MAX_BUCKET:
+		return ASIDE
+	return n
+
+
+static func mix_line(items: Array, monsters: Array) -> String:
+	return "Items %s  ·  Monsters %s" % [_mix_side(items, true), _mix_side(monsters, false)]
+
+
+static func _mix_side(cards: Array, as_item: bool) -> String:
+	var t := [0, 0, 0]
+	var fam := {"A": 0, "D": 0, "C": 0, "U": 0}
+	for card in cards:
+		if typeof(card) != TYPE_DICTIONARY:
+			continue
+		t[tier_of(card) - 1] += 1
+		if as_item:
+			fam[item_family(card)] = int(fam[item_family(card)]) + 1
+	var line := "T1 %s · T2 %s · T3 %s" % [t[0], t[1], t[2]]
+	if as_item:
+		line += " · A%s D%s C%s U%s" % [fam["A"], fam["D"], fam["C"], fam["U"]]
+	return line
+
+
+static func review_letter(card: Variant) -> String:
+	var id: String = ReviewStage.of_card(card) if typeof(card) == TYPE_DICTIONARY else "polish"
+	match id:
+		"finished":
+			return "F"
+		"polish":
+			return "P"
+		"refined":
+			return "R"
+		"change":
+			return "C"
+		_:
+			return "N"
+
+
+static func review_color(card: Variant) -> Color:
+	var id: String = ReviewStage.of_card(card) if typeof(card) == TYPE_DICTIONARY else "polish"
+	if id == "finished":
+		return Color("3ddc6a")
+	if id == "change":
+		return Color("ff2a2a")
+	return Color("ffd84a")
 
 
 static func color_of(n: int) -> Color:
@@ -78,7 +173,7 @@ static func paint(e: OptionButton) -> void:
 	if e == null or e.selected < 0:
 		return
 	var label: String = e.get_item_text(e.selected)
-	var col: Color = TOKEN_COLOR if label == TOKEN else color_of(int(label))
+	var col: Color = TOKEN_COLOR if label == TOKEN or label == ASIDE_LABEL else color_of(parse(label))
 	var ink: Color = ink_for(col)
 	e.add_theme_color_override("font_color", ink)
 	e.add_theme_color_override("font_hover_color", ink)
@@ -206,7 +301,11 @@ static func is_unbalanced(bucket: int, item_n: int, monster_n: int, last_used: i
 	return item_n != want or monster_n != want_monsters(bucket)
 
 
-static func counts_warning(items: Array, monsters: Array) -> String:
+static func counts_warning(_items: Array, _monsters: Array) -> String:
+	return ""
+
+
+static func _counts_warning_legacy(items: Array, monsters: Array) -> String:
 	var tallied: Dictionary = tally(items, monsters)
 	var nums: Array = tallied.keys()
 	nums.sort()
@@ -263,7 +362,7 @@ static func tier_warning_lines(items: Array, monsters: Array) -> PackedStringArr
 		var st: String = str(card.get("status", "live"))
 		if st == "retired" or st == "hold":
 			continue
-		var b: int = parse(card.get("bucket", 0))
+		var b: int = of_card(card)
 		if b < 0:
 			continue
 		if not by_b.has(b):
@@ -275,7 +374,7 @@ static func tier_warning_lines(items: Array, monsters: Array) -> PackedStringArr
 		var st2: String = str(card2.get("status", "live"))
 		if st2 == "retired" or st2 == "hold":
 			continue
-		var b2: int = parse(card2.get("bucket", 0))
+		var b2: int = of_card(card2)
 		if b2 < 0:
 			continue
 		if not by_b.has(b2):
@@ -307,14 +406,14 @@ static func tally(items: Array, monsters: Array) -> Dictionary:
 	for card in items:
 		if _skip(card):
 			continue
-		var b: int = parse(card.get("bucket", 0))
+		var b: int = of_card(card)
 		if not out.has(b):
 			out[b] = {"items": 0, "monsters": 0}
 		out[b]["items"] = int(out[b]["items"]) + 1
 	for card2 in monsters:
 		if _skip(card2):
 			continue
-		var b2: int = parse(card2.get("bucket", 0))
+		var b2: int = of_card(card2)
 		if not out.has(b2):
 			out[b2] = {"items": 0, "monsters": 0}
 		out[b2]["monsters"] = int(out[b2]["monsters"]) + 1
@@ -336,7 +435,7 @@ static func _skip(card: Variant) -> bool:
 	var st: String = str(card.get("status", "live"))
 	if st == "retired" or st == "hold":
 		return true
-	if is_token(card.get("bucket", 0)):
+	if is_token(card):
 		return true
 	if is_always_starter(card):
 		return true

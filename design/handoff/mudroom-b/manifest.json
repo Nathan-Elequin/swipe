@@ -1,0 +1,14 @@
+{
+  "batch": "mudroom-b",
+  "owner": "Pixel (OpenBot)",
+  "style": "Torchlit Burrow",
+  "files": [
+    {"file": "mudroom_wall_96.png", "target": "assets/dungeon/home/mudroom/mudroom_wall_96.png", "size": "96x96", "use": "9-slice back wall", "filter": "nearest", "mipmaps": false, "sha256": "f14f66efeab78903232c9878211f87376a885bea83dd13a10cf3edee3805fe77"},
+    {"file": "mudroom_floor_96x32.png", "target": "assets/dungeon/home/mudroom/mudroom_floor_96x32.png", "size": "96x32", "use": "floor, tile horizontally", "filter": "nearest", "mipmaps": false, "sha256": "2ab7edfa9872b0e0a5268001d9a31a0458f89c7defe2c509bc5a029189c78a12"},
+    {"file": "mudroom_pegs_96x32.png", "target": "assets/dungeon/home/mudroom/mudroom_pegs_96x32.png", "size": "96x32", "use": "peg rail with coats, transparent", "filter": "nearest", "mipmaps": false, "sha256": "bf0d369df6e599bcbe35a187897a5ad1ce22dd6cc40adbae23c18bf328a3316c"},
+    {"file": "mudroom_boots_32x32.png", "target": "assets/dungeon/home/mudroom/mudroom_boots_32x32.png", "size": "32x32", "use": "boots pair, transparent", "filter": "nearest", "mipmaps": false, "sha256": "031b3f6a271509267a29be3833a5a651c6a210f8dcf9fab7a3feea76203ac0d9"},
+    {"file": "mudroom_prep_table_96x48.png", "target": "assets/dungeon/home/mudroom/mudroom_prep_table_96x48.png", "size": "96x48", "use": "prep table with jar and bowl, transparent", "filter": "nearest", "mipmaps": false, "sha256": "a945392981f8455c7af23f5e13b3c60189a96076209c956de411fe4a00af9d4c"}
+  ],
+  "godot_import": {"filter": "nearest", "mipmaps": false, "compress": "lossless"},
+  "copy": "none. No player-facing text in any file."
+}

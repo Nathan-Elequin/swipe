@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"ability": "Heal 1, then increase this number by 1. Keep this if you are still missing HP.",
 			"id": "lantern",
 			"kind": "item",
 			"name": "Lantern",
@@ -46,7 +46,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Hired Hand — If you Discard an item when facing me, I will Attack one of my Neighbors and Flee. Challenge hand. Wheel hired_hand, wizard, golem. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Lantern — Heal 1, then increase this number by 1. Keep this if you are still missing HP. Monster: Hired Hand — If you Discard an item when facing me, I will Attack one of my Neighbors and Flee. Challenge hand. Wheel hired_hand, wizard, golem. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-lantern-hired_hand",
 	"log": "Draft enter\nYou Spin\nSpin Hired Hand\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nSpin hired hand bribe\nSpin bribe Lantern\nHired Hand - Bribe\nDefeated Wizard\nFight Hired Hand Flees\nBLK 0\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",

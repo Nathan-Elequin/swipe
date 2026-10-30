@@ -134,16 +134,16 @@ func unghost() -> void:
 	)
 
 
-func fire(i: int, blocked: bool = false, pierce: bool = false, shot_name: String = "", capturer: Callable = Callable()) -> void:
+func fire(i: int, blocked: bool = false, pierce: bool = false, shot_name: String = "", capturer: Callable = Callable(), release_early: bool = false) -> void:
 	if i < 0 or i >= _badges.size():
 		return
 	var b = _badges[i]
 	if b == null or not is_instance_valid(b):
 		return
 	if shot_name != "" and capturer.is_valid() and b.has_method("fire_with_shot"):
-		await b.fire_with_shot(blocked, pierce, shot_name, capturer)
+		await b.fire_with_shot(blocked, pierce, shot_name, capturer, release_early)
 	else:
-		await b.fire(blocked, pierce)
+		await b.fire(blocked, pierce, release_early)
 	_next_i = i + 1
 	_mark_next()
 

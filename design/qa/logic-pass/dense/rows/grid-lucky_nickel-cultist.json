@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"ability": "Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep.",
 			"id": "lucky_nickel",
 			"kind": "item",
 			"name": "Lucky Nickel",
@@ -47,7 +47,7 @@
 		],
 		"slots": "2 / 50"
 	},
-	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Cultist — When you Spin me or my Neighbor, Gain 1 Blood Pact Challenge hand. Wheel cultist, wizard, golem. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Lucky Nickel — Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep. Monster: Cultist — When you Spin me or my Neighbor, Gain 1 Blood Pact Challenge hand. Wheel cultist, wizard, golem. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-lucky_nickel-cultist",
 	"log": "Draft enter\nYou Spin\nSpin Cultist\nenemy ATK 2   HP 2\nBLK 0\nitems this combat 0\nCultist - Blood Pact\nDraft gain Blood Pact\nLucky Nickel\nBLK +1  to  1\nitems this combat 1\nYou Done\nFight hit 1  ATK 2 - BLK\nBLK 0\nHP take -1  now 5\nDefeated Cultist\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",

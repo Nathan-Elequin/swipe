@@ -24,6 +24,8 @@ const ITEM_FAST_IN_S := 0.05
 const ITEM_FAST_HOLD_S := 0.14
 const ITEM_FAST_OUT_S := 0.07
 const ITEM_CANT_FLEE_HOLD_S := 0.45
+## Extra cut-in line (Plague Doctor freeze tell): white on black, 1s dissolve.
+const LINE_DISSOLVE_MS := 1000.0
 ## Native canvases are 32/48/64/80. Show at 4x unless that exceeds 64px@4x (band fit).
 const PORTRAIT_SCALE := 4.0
 const PORTRAIT_MAX_DISPLAY := 256.0
@@ -46,6 +48,7 @@ var _clock: float = 0.0
 var _tex: Texture2D
 var _title: String = ""
 var _call: String = ""
+var _line: String = ""
 var _is_item: bool = false
 var log_glow: bool = false
 var card_id: String = ""
@@ -70,6 +73,9 @@ var _flash: Sprite2D
 var _portrait: Sprite2D
 var _name_lbl: Label
 var _call_lbl: Label
+var _line_host: Control
+var _line_bg: ColorRect
+var _line_lbl: Label
 var _cut: Line2D
 var _band_mat: ShaderMaterial
 ## Portrait+band cluster used to sit at (750, 610). Shift so that point lands on the wheel.
@@ -170,6 +176,7 @@ func _show(payload: Dictionary, ticket: Dictionary = {}) -> void:
 	_tex = payload.get("tex", null)
 	_title = str(payload.get("title", "")).strip_edges()
 	_call = str(payload.get("call", "")).strip_edges()
+	_line = str(payload.get("line", "")).strip_edges()
 	_is_item = bool(payload.get("is_item", false))
 	card_id = str(payload.get("card_id", ""))
 	var ticket_i: int = int(payload.get("ticket", -1))
@@ -204,6 +211,7 @@ func _show(payload: Dictionary, ticket: Dictionary = {}) -> void:
 	_tex = null
 	_title = ""
 	_call = ""
+	_line = ""
 	_frame_texs.clear()
 	_slash_dirty = false
 	_slash_wait = 0.0
@@ -276,6 +284,8 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 	_portrait.position = _portrait_center() + start_off
 	_name_lbl.modulate.a = 0.0
 	_call_lbl.modulate.a = 0.0
+	if _line_host:
+		_line_host.modulate.a = 0.0
 	if _band_mat != null:
 		_band_mat.set_shader_parameter("split", 0.0)
 		_band_mat.set_shader_parameter("alpha", 1.0)
@@ -294,6 +304,8 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 	_tw.tween_property(_flash, "modulate:a", 0.55, _dur(SNAP_MS, fast))
 	_tw.tween_property(_name_lbl, "modulate:a", 1.0, _dur(SNAP_MS, fast))
 	_tw.tween_property(_call_lbl, "modulate:a", 1.0, _dur(SNAP_MS, fast))
+	if _line != "" and _line_host:
+		_tw.tween_property(_line_host, "modulate:a", 1.0, _dur(SNAP_MS, fast))
 	# Portrait trails the band by 40ms; action frames still start at SNAP_MS.
 	_tw.tween_property(_portrait, "position", _portrait_center(), _dur(SNAP_MS, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	_tw.tween_property(_portrait, "modulate:a", 1.0, _dur(SNAP_MS, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast))
@@ -301,10 +313,22 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 		_tw.tween_property(_portrait, "scale", _portrait_scale_vec(target_scale), _dur(SNAP_MS + 80.0, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await get_tree().create_timer(_dur(SNAP_MS, fast), false).timeout
 	# Action: frames or still shake (band is already in).
+	# Copy the list first. Awaits yield, and a later slash / script reload
+	# can shrink `_frame_texs` while this loop still has the old count.
 	if use_frames:
-		for i in range(_frame_texs.size()):
+		var frames: Array = _frame_texs.duplicate()
+		if _portrait:
+			_portrait.hframes = 1
+			_portrait.vframes = 1
+			_portrait.frame = 0
+		for i in range(frames.size()):
+			if i < 0 or i >= frames.size():
+				break
+			var tex: Variant = frames[i]
+			if not (tex is Texture2D) or tex == null:
+				continue
 			_frame_i = i
-			_portrait.texture = _frame_texs[i]
+			_portrait.texture = tex
 			await get_tree().create_timer(_dur(FRAME_MS, fast), false).timeout
 	else:
 		await _punch_shake(fast)
@@ -313,6 +337,10 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 	if release_early and not ticket.is_empty():
 		ticket["done"] = true
 	var hold_ms: float = HOLD_MS + (FIRST_HOLD_BONUS_MS if first else 0.0)
+	if _line != "" and _line_host:
+		hold_ms = maxf(hold_ms, LINE_DISSOLVE_MS)
+		var line_tw := create_tween()
+		line_tw.tween_property(_line_host, "modulate:a", 0.0, _dur(LINE_DISSOLVE_MS, fast)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await get_tree().create_timer(_dur(hold_ms, fast), false).timeout
 	# Slash out.
 	_prepare_cut_line()
@@ -336,6 +364,8 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 	_tw.tween_property(_portrait, "modulate:a", 0.0, _dur(OUT_MS, fast))
 	_tw.tween_property(_name_lbl, "modulate:a", 0.0, _dur(OUT_MS, fast))
 	_tw.tween_property(_call_lbl, "modulate:a", 0.0, _dur(OUT_MS, fast))
+	if _line_host:
+		_tw.tween_property(_line_host, "modulate:a", 0.0, _dur(OUT_MS, fast))
 	_tw.tween_property(_cut, "modulate:a", 0.0, _dur(OUT_MS * 0.6, fast))
 	if _band_mat != null:
 		_tw.tween_method(func(v: float) -> void: _band_mat.set_shader_parameter("split", v), 0.0, 1.0, _dur(OUT_MS, fast))
@@ -458,6 +488,30 @@ func _build_cutin_nodes() -> void:
 	_call_lbl.position = Vector2(1000, 598)
 	_call_lbl.z_index = 3
 	add_child(_call_lbl)
+	_line_host = Control.new()
+	_line_host.name = "Line"
+	_line_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_line_host.z_index = 3
+	_line_host.visible = false
+	add_child(_line_host)
+	_line_bg = ColorRect.new()
+	_line_bg.name = "LineBg"
+	_line_bg.color = Color(0, 0, 0, 1)
+	_line_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_line_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_line_host.add_child(_line_bg)
+	_line_lbl = Label.new()
+	_line_lbl.name = "LineText"
+	_line_lbl.add_theme_font_size_override("font_size", 22)
+	_line_lbl.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+	_line_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_line_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_line_lbl.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_line_lbl.offset_left = 10.0
+	_line_lbl.offset_top = 6.0
+	_line_lbl.offset_right = -10.0
+	_line_lbl.offset_bottom = -6.0
+	_line_host.add_child(_line_lbl)
 	_cut = Line2D.new()
 	_cut.name = "Cut"
 	_cut.width = 8.0
@@ -481,6 +535,8 @@ func _set_cutin_visible(on: bool) -> void:
 		_name_lbl.visible = on
 	if _call_lbl:
 		_call_lbl.visible = on
+	if _line_host:
+		_line_host.visible = on and _line != ""
 	if _cut and not on:
 		_cut.visible = false
 
@@ -597,6 +653,18 @@ func _prepare_labels() -> void:
 	var s: Vector2 = _cutin_shift()
 	_name_lbl.position = Vector2(1000, 555) + s
 	_call_lbl.position = Vector2(1000, 598) + s
+	if _line_host == null or _line_lbl == null:
+		return
+	_line_lbl.text = _line
+	_line_host.visible = _line != ""
+	if _line == "":
+		return
+	var font: Font = _line_lbl.get_theme_default_font()
+	if font == null:
+		font = ThemeDB.fallback_font
+	var text_sz: Vector2 = font.get_string_size(_line, HORIZONTAL_ALIGNMENT_LEFT, -1, 22)
+	_line_host.size = Vector2(ceili(text_sz.x) + 20.0, ceili(text_sz.y) + 12.0)
+	_line_host.position = Vector2(1000, 654) + s
 
 
 func _prepare_portrait() -> void:
@@ -610,7 +678,11 @@ func _prepare_portrait() -> void:
 	var still: Texture2D = _tex
 	if still == null and art != null and card_id != "" and art.has_method("monster_still"):
 		still = art.monster_still(card_id)
-	if not _frame_texs.is_empty():
+	if _portrait:
+		_portrait.hframes = 1
+		_portrait.vframes = 1
+		_portrait.frame = 0
+	if not _frame_texs.is_empty() and _frame_texs[0] is Texture2D and _frame_texs[0] != null:
 		_portrait.texture = _frame_texs[0]
 	else:
 		_portrait.texture = still

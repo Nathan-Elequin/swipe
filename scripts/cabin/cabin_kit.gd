@@ -17,7 +17,8 @@ const ROOM_W := 1680.0
 const ROOM_H := 1040.0
 const HOME := "res://assets/dungeon/home/"
 const UI := "res://assets/ui/"
-const ROOM_ORDER: Array[String] = ["mudroom", "main", "hall", "study", "workshop", "loft"]
+## Left of fireplace: study → workshop → loft. Right: trophy hall → Outpost (mudroom).
+const ROOM_ORDER: Array[String] = ["loft", "workshop", "study", "main", "hall", "mudroom"]
 ## Shared talk-bar metrics. Intro captions and cabin Nib lines use the same numbers.
 const DIALOG_SAFE := 32.0
 ## Cabin talk sits above the playtest Feedback pill (16px margin + ~48px button).

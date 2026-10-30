@@ -24,7 +24,10 @@ var _bg_rel: String = ""
 func setup(p_cabin, p_id: String, p_layout: Array, p_extra: Dictionary) -> void:
 	cabin = p_cabin
 	room_id = p_id
-	layout = p_layout
+	## Study + workshop sit on the LEFT of main after the cabin flip — H-flip art
+	## so doorways / ladder face the correct neighbor without new PNGs.
+	var flip_x: bool = p_id == "study" or p_id == "workshop"
+	layout = _mirror_layout(p_layout) if flip_x else p_layout
 	extra = p_extra
 	custom_minimum_size = Vector2(KIT.ROOM_W, KIT.ROOM_H)
 	size = Vector2(KIT.ROOM_W, KIT.ROOM_H)
@@ -38,12 +41,37 @@ func setup(p_cabin, p_id: String, p_layout: Array, p_extra: Dictionary) -> void:
 	bg.stretch_mode = TextureRect.STRETCH_KEEP
 	bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bg.flip_h = flip_x
 	add_child(bg)
 	if room_id == "main":
 		_apply_bg()
 	_build_entries()
 	_build_special()
 	refresh_locks()
+
+
+const ROOM_NATIVE_W := 420.0
+
+
+func _mirror_layout(src: Array) -> Array:
+	var out: Array = []
+	for entry in src:
+		if typeof(entry) != TYPE_DICTIONARY:
+			out.append(entry)
+			continue
+		var e: Dictionary = (entry as Dictionary).duplicate(true)
+		var origin: Array = e.get("origin", [0, 0])
+		var sz: Array = e.get("size", [1, 1])
+		if origin is Array and origin.size() >= 2 and sz is Array and sz.size() >= 2:
+			var w: float = float(sz[0])
+			e["origin"] = [ROOM_NATIVE_W - float(origin[0]) - w, float(origin[1])]
+		var hs: Variant = e.get("hotspot", null)
+		if hs is Array and (hs as Array).size() >= 4:
+			var ha: Array = hs
+			var hw: float = float(ha[2])
+			e["hotspot"] = [ROOM_NATIVE_W - float(ha[0]) - hw, float(ha[1]), hw, float(ha[3])]
+		out.append(e)
+	return out
 
 
 func ensure_bg() -> void:
@@ -141,6 +169,8 @@ func _tag_for(node_name: String) -> String:
 	var table := {
 		"RunDoor": "cabin.hot.run_door",
 		"SideDoor": "cabin.hot.door_hall",
+		"LeftDoor": "cabin.hot.door_study",
+		"LeaveDoor": "mudroom.exit.out",
 		"Map": "cabin.hot.map",
 		"Radio": "cabin.hot.radio",
 		"RadioFirefly": "radio.gloria",
@@ -158,6 +188,7 @@ func _tag_for(node_name: String) -> String:
 		"ShelfPrev": "cabin.hot.cabinet",
 		"ShelfNext": "cabin.hot.cabinet",
 		"Gauge": "cabin.hot.gauge",
+		"SignOutpost": "cabin.hall.sign_outpost",
 		"PortraitBig": "cabin.hot.portrait_big",
 		"Journal": "cabin.hot.journal",
 		"Will": "cabin.hot.will",

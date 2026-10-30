@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+			"ability": "Move to Any Monster, then Draw 1 Item",
 			"id": "grappling_hook",
 			"kind": "item",
 			"name": "Grappling Hook",
@@ -47,7 +47,7 @@
 		],
 		"slots": "2 / 50"
 	},
-	"expected": "Item: Grappling Hook — Swap a Neighboring Owner into this fight. Draw a Random Item. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket, wizard, golem. Click Grappling Hook, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Grappling Hook — Move to Any Monster, then Draw 1 Item. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket, wizard, golem. Click Grappling Hook, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-grappling_hook-rust_bucket",
 	"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3\nUsed pick a neighbor\nGrappling Hook\nitems this combat 1\nUsed hook Wizard\nDraft gain Victory Flask\nYou Done\nFight hit 1  ATK 5  (ignores BLK)\nWizard - Wizard\nHP take -5  now 1\nDefeated Wizard\nBLK 0\ndefeated 1\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0\nRust\nRust 2",

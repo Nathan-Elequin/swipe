@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"ability": "Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep.",
 			"id": "lucky_nickel",
 			"kind": "item",
 			"name": "Lucky Nickel",
@@ -33,7 +33,7 @@
 		],
 		"slots": "2 / 50"
 	},
-	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Lucky Nickel — Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep. Monster: Rust Bucket — When I enter the Dungeon, Gain 1 Rust Challenge hand. Wheel rust_bucket. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-lucky_nickel-rust_bucket",
 	"log": "Draft gain Rust\nDraft enter\nYou Spin\nSpin Rust Bucket\nenemy ATK 3   HP 4\nBLK 0\nitems this combat 0\nRust\nRust 3\nLucky Nickel\nBLK +1  to  1\nitems this combat 1",

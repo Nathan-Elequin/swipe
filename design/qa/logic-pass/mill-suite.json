@@ -347,7 +347,7 @@
 				"grappling_hook"
 			],
 			"face": "golem",
-			"expected_text": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+			"expected_text": "Move to Any Monster, then Draw 1 Item",
 			"clicks": [
 				{
 					"op": "use",
@@ -459,7 +459,7 @@
 				"lantern"
 			],
 			"face": "golem",
-			"expected_text": "Heal 2. Keep this if you are still missing HP. You start at 3 HP. After the click you must be at 4 or more.",
+			"expected_text": "Heal 1, then increase this number by 1. Keep this if you are still missing HP. You start at 3 HP. After the click you must be at 4 or more.",
 			"clicks": [
 				{
 					"op": "use",
@@ -925,7 +925,7 @@
 				"lucky_nickel"
 			],
 			"face": "golem",
-			"expected_text": "Block 1. If your Block is now Even, Keep this. Using it vs Golem must raise Block above 0.",
+			"expected_text": "Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep. Using it vs Golem must raise Block above 0.",
 			"clicks": [
 				{
 					"op": "use",
@@ -1197,7 +1197,7 @@
 				"sling"
 			],
 			"face": "golem",
-			"expected_text": "Your next attack this fight can target Any monster.",
+			"expected_text": "Select an Attack. It can target Any monster. Draw 1 Item",
 			"clicks": [
 				{
 					"op": "use",

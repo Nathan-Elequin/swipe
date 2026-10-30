@@ -11,7 +11,7 @@ BOARD = ROOT / "data" / "content-board.json"
 DECAY_DEF = "Decayed Items are linked. When you use one, Keep it and discard the other."
 
 PHOENIX_ABILITY = "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck."
-BERSERKER_ABILITY = "When Spun, 50%: gain +4 Attack. Otherwise: lose 3 Attack."
+BERSERKER_ABILITY = "On Spin, 50%: gain +4 Attack. Otherwise: lose 3 Attack."
 FAIRY_ABILITY = "If I am Defeated without losing HP, gain a Fairy in a Bottle."
 ZOMBIE_ABILITY = "When you Spin me, I Decay two of your Items."
 WRAITH_ABILITY = "When I am Defeated, set your HP to my most recent HP."

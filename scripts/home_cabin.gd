@@ -24,7 +24,8 @@ const ARRIVE_INT_SPEED := 51.2
 const ROOM_W := 1680.0
 const ROOM_H := 1040.0
 const VIEW_FRAME := preload("res://scripts/ui/view_frame.gd")
-const ROOM_ORDER: Array[String] = ["mudroom", "main", "hall", "study", "workshop", "loft"]
+## Left of fireplace: study → workshop → loft. Right: trophy hall → Outpost (mudroom).
+const ROOM_ORDER: Array[String] = ["loft", "workshop", "study", "main", "hall", "mudroom"]
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const STATION_BEDS := ["cabin", "station_inn", "station_rag", "station_harp"]
 const RUG_SECRET_ID := "poison_flask"
@@ -44,7 +45,8 @@ var intro_pack: int = 1
 var nib_first_done: bool = false
 var tutorial_done: bool = false
 var tutorial_declined: bool = false
-var rooms_unlocked: Array = ["mudroom", "main"]
+## Hall + Outpost unlock together on the right path; start at the fireplace.
+var rooms_unlocked: Array = ["main"]
 var mudroom_loadout: Array = []
 var key_ring_seen: bool = false
 var invert_scroll: bool = false
@@ -282,7 +284,7 @@ func swipe_ids(ids: Array) -> Array:
 		var sid: String = str(raw)
 		if sid == "" or sid == "spider_egg":
 			continue
-		if BucketRules.is_token(items_by_id.get(sid, {}).get("bucket", 0)):
+		if BucketRules.is_token(items_by_id.get(sid, {})):
 			continue
 		seen[sid] = true
 		if not bool(swiped.get(sid, false)):
@@ -325,7 +327,7 @@ func cabinet_progress() -> Vector2i:
 		var card: Dictionary = items_by_id[id]
 		if str(card.get("status", "live")) in ["retired", "hold"]:
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
 		total += 1
 		if _is_shelved(str(id)) or bool(swiped.get(str(id), false)):
@@ -590,10 +592,14 @@ func play_key_ring() -> void:
 	await _move_nib_x(352.0, 1.0)
 	if nib and nib.sprite_frames:
 		nib.play("idle")
+	## Right path first: hall (+ Outpost), then left study chain.
 	await _unlock_spot("main", "SideDoor", "hall", "", false)
+	if not rooms_unlocked.has("mudroom"):
+		rooms_unlocked.append("mudroom")
 	await _pan_unlocked("hall")
 	await _say_key("keyring.door.hall")
-	await _unlock_spot("hall", "SideDoor", "study", "", false)
+	await _pan_unlocked("main")
+	await _unlock_spot("main", "LeftDoor", "study", "", false)
 	await _pan_unlocked("study")
 	await _say_key("keyring.door.study")
 	await _unlock_spot("study", "SideDoor", "workshop", "", false)
@@ -1448,7 +1454,7 @@ func _screen_of_bucket(b: int) -> int:
 func _start_room() -> int:
 	for id in _just_mounted:
 		var card: Dictionary = items_by_id.get(str(id), {})
-		var b: int = BucketRules.parse(card.get("bucket", 0))
+		var b: int = BucketRules.of_card(card)
 		if b >= 0:
 			return _screen_of_bucket(b)
 	return 0
@@ -1563,9 +1569,9 @@ func _collect_buckets() -> void:
 		var card: Dictionary = items_by_id[id]
 		if str(card.get("status", "live")) == "retired" or str(card.get("status", "live")) == "hold":
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
-		var b: int = BucketRules.parse(card.get("bucket", 0))
+		var b: int = BucketRules.of_card(card)
 		if b < 0:
 			continue
 		_max_bucket = maxi(_max_bucket, b)
@@ -1636,23 +1642,10 @@ func _on_pip(dest: int) -> void:
 
 
 func _on_nav(delta: int) -> void:
+	## Shelf paging retired — five fixed plate cases. Arrows walk room neighbors.
 	if delta == 0 or _room_busy or _arriving or _door_busy or _pan_busy:
 		return
-	if _current_room != "hall" or not _int_root.visible:
-		return
-	var nxt: int = _room + delta
-	if nxt < 0:
-		pan_to("main")
-		return
-	if nxt > _max_room:
-		if is_room_unlocked("study"):
-			pan_to("study")
-		else:
-			_bump()
-			KIT.cue(sfx, &"cabin.locked")
-			say_bubble("cabin.locked")
-		return
-	_change_room(nxt)
+	_arrow(delta)
 
 
 func _change_room(nxt: int) -> void:
@@ -1793,9 +1786,9 @@ func _biome_rules() -> Dictionary:
 func _live_pool(card: Dictionary) -> String:
 	if str(card.get("status", "live")) in ["retired", "hold"]:
 		return ""
-	if BucketRules.is_token(card.get("bucket", 0)):
+	if BucketRules.is_token(card):
 		return ""
-	var b: int = BucketRules.parse(card.get("bucket", 0))
+	var b: int = BucketRules.of_card(card)
 	if b < 0:
 		return ""
 	return BiomeCabinets.pool_for_bucket(_biome_rules(), b)
@@ -1871,10 +1864,8 @@ func _fill_biome_cases() -> void:
 	var cases: Array = BiomeCabinets.resolved_cases(rules)
 	var quota := BiomeCabinets.quota_of(rules)
 	var state := _campaign_shell_state()
-	var hole: Vector2 = _shelf_host.size
-	var n: int = maxi(1, cases.size())
-	var gap := 8.0
-	var case_w: float = (hole.x - gap * float(n - 1)) / float(n)
+	var bounds := BiomeCabinets.cases_bounds_rect()
+	var hole_origin := bounds.position
 	var grouped := _group_cards_by_pool()
 	var order: Array = swiped.keys()
 	for i in cases.size():
@@ -1883,160 +1874,72 @@ func _fill_biome_cases() -> void:
 		var cards: Array = grouped.get(pool_id, [])
 		var mounted: Array = BiomeCabinets.order_mounts(cards, order)
 		var unlocked := CampaignShell.pool_unlocked(rules, state, pool_id)
-		_build_biome_case(spec, mounted, quota, float(i) * (case_w + gap), case_w, hole.y, unlocked)
+		var glass := BiomeCabinets.glass_rect(i)
+		## Relative to `_hole`, which matches CASES_BOUNDS.
+		var rel := Rect2((glass.position - hole_origin) * PX, glass.size * PX)
+		_build_biome_case(spec, mounted, quota, rel, unlocked)
 
 
-func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, case_w: float, case_h: float, unlocked: bool = true) -> void:
+func _build_biome_case(spec: Dictionary, cards: Array, _quota: int, glass: Rect2, unlocked: bool = true) -> void:
+	## Hit-only overlay on the Doop plate case. No frame / name / locked chrome redraw.
 	var pool_id := str(spec.get("id", ""))
 	var root := Control.new()
 	root.name = "Case_%s" % pool_id
-	root.position = Vector2(x, 0)
-	root.size = Vector2(case_w, case_h)
-	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var tint := Color(str(spec.get("tint", "241812")))
-	var accent := Color(str(spec.get("accent", "e8c36a")))
-	if not unlocked:
-		tint = tint.darkened(0.35)
-		accent = accent.darkened(0.45)
-	var style := StyleBoxFlat.new()
-	style.bg_color = tint
-	style.border_color = accent
-	style.set_border_width_all(6)
-	style.set_corner_radius_all(0)
-	var frame := Panel.new()
-	frame.name = "Frame"
-	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
-	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	frame.add_theme_stylebox_override("panel", style)
-	root.add_child(frame)
-	var frame_tex: Texture2D = _home(str(spec.get("frame", "")))
-	if frame_tex:
-		var case_art := TextureRect.new()
-		case_art.name = "CaseArt"
-		case_art.texture = frame_tex
-		case_art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		case_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		case_art.stretch_mode = TextureRect.STRETCH_SCALE
-		case_art.set_anchors_preset(Control.PRESET_FULL_RECT)
-		case_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		if not unlocked:
-			case_art.modulate = Color(0.55, 0.55, 0.58, 1.0)
-		root.add_child(case_art)
-	var shown := _case_collected(pool_id) if unlocked else 0
-	var total := cards.size()
-	var name_lab := KIT.raw_label(str(spec.get("name", pool_id)), 22, KIT.TITLE_CREAM, true)
-	name_lab.max_lines = 2
-	name_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_lab.position = Vector2(8, 8)
-	name_lab.size = Vector2(case_w - 16.0, 56)
-	name_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(name_lab)
-	name_lab.fit()
-	var count_text := "?" if not unlocked else BiomeCabinets.progress_text(shown, total, quota)
-	var count_col := Color("ffd84a") if unlocked and shown >= quota else KIT.TITLE_CREAM
-	if not unlocked:
-		count_col = Color(0.62, 0.58, 0.52)
-	var count_lab := KIT.raw_label(count_text, 22, count_col, false)
-	count_lab.name = "Count"
-	count_lab.max_lines = 1
-	count_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	count_lab.position = Vector2(8, 64)
-	count_lab.size = Vector2(case_w - 16.0, 28)
-	count_lab.mouse_filter = Control.MOUSE_FILTER_STOP
-	count_lab.mouse_entered.connect(_on_case_hover.bind(pool_id, count_lab, unlocked))
-	count_lab.mouse_exited.connect(hide_hover_tag)
-	root.add_child(count_lab)
-	count_lab.fit()
-	if unlocked and BiomeCabinets.past_gate(shown, quota):
-		var sub := KIT.raw_label(
-			KIT.fill_text("cabin.hall.past_gate", {"n": shown, "total": maxi(total, shown)}),
-			14,
-			Color("c8b896"),
-			false
-		)
-		sub.name = "PastGate"
-		sub.max_lines = 1
-		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		sub.position = Vector2(6, 88)
-		sub.size = Vector2(case_w - 12.0, 18)
-		sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		root.add_child(sub)
-		sub.fit()
-	elif not unlocked:
-		var locked_sub := KIT.raw_label(KIT.copy_text("cabin.hall.locked"), 14, Color(0.7, 0.66, 0.6), false)
-		locked_sub.name = "LockedSub"
-		locked_sub.max_lines = 1
-		locked_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		locked_sub.position = Vector2(6, 88)
-		locked_sub.size = Vector2(case_w - 12.0, 18)
-		locked_sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		root.add_child(locked_sub)
-		locked_sub.fit()
-	var has_sub := (not unlocked) or (unlocked and BiomeCabinets.past_gate(shown, quota))
-	var pip := ColorRect.new()
-	pip.name = "GatePip"
-	pip.color = Color("ffd84a")
-	pip.position = Vector2(16, 106.0 if has_sub else 96.0)
-	pip.size = Vector2(case_w - 32.0, 4)
-	pip.visible = unlocked and shown >= quota
-	pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(pip)
-	var clip_y := 116.0 if has_sub else 108.0
+	root.position = glass.position
+	root.size = glass.size
+	root.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.mouse_entered.connect(_on_case_hover.bind(pool_id, root, unlocked))
+	root.mouse_exited.connect(hide_hover_tag)
+	_bind_case_scroll(root, pool_id)
+	## Filled case: biome trophy in the glass top (24×24 × case_scale). Empty stays empty.
+	## Peg Clip sits below the trophy band so mounts never cover it or the case floor.
+	var filled := unlocked and _case_collected(pool_id) > 0
+	var reserved := 0.0
+	if filled:
+		reserved = BiomeCabinets.trophy_reserved_height(glass.size, PX)
 	var clip := Control.new()
 	clip.name = "Clip"
-	clip.position = Vector2(4, clip_y)
-	clip.size = Vector2(case_w - 8.0, maxf(40.0, case_h - clip_y - 8.0))
+	clip.position = Vector2(0.0, reserved)
+	clip.size = Vector2(glass.size.x, maxf(0.0, glass.size.y - reserved))
 	clip.clip_contents = true
 	clip.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(clip)
-	root.mouse_filter = Control.MOUSE_FILTER_STOP
-	_bind_case_scroll(root, pool_id)
 	_bind_case_scroll(clip, pool_id)
-	_bind_case_scroll(count_lab, pool_id)
+	clip.mouse_entered.connect(_on_case_hover.bind(pool_id, clip, unlocked))
+	clip.mouse_exited.connect(hide_hover_tag)
 	var column := Control.new()
 	column.name = "Column"
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clip.add_child(column)
 	_case_clips[pool_id] = clip
 	_case_columns[pool_id] = column
+	if filled:
+		_place_biome_trophy(root, spec, glass.size)
 	if not unlocked:
-		_paint_locked_pool(column, clip.size, accent)
 		column.size = clip.size
 		column.custom_minimum_size = column.size
 		_case_scroll[pool_id] = 0.0
 		column.position = Vector2.ZERO
-		clip.mouse_entered.connect(_on_case_hover.bind(pool_id, clip, false))
-		clip.mouse_exited.connect(hide_hover_tag)
 		_shelf_host.add_child(root)
 		return
 	var cell: Vector2 = _mount_cell()
-	var s: float = 0.62
-	if cell.x > 1.0:
-		s = minf(0.62, (clip.size.x - 8.0) / cell.x)
-	var msize: Vector2 = cell * s
-	var gap_y := 6.0
-	var y := 4.0
-	var x0: float = maxf(0.0, (clip.size.x - msize.x) * 0.5)
-	var collected_slots := 0
+	## Integer-pixel peg step that keeps PEG_FIT_MAX shields inside the glass
+	## (above the case base), with or without the trophy band reserved above.
+	var layout: Dictionary = BiomeCabinets.peg_column_layout(clip.size, cell, cards.size())
+	var msize: Vector2 = layout.get("msize", cell * 0.5)
+	var gap_y: float = float(layout.get("gap_y", 0.0))
+	var y: float = float(layout.get("pad_top", 0.0))
+	var x0: float = float(layout.get("x0", 0.0))
 	for i in cards.size():
 		var card: Dictionary = cards[i]
 		var slot := _mount_slot(card, Vector2(x0, y), msize, false)
 		_bind_case_scroll(slot, pool_id)
 		column.add_child(slot)
 		y += msize.y
-		var sid := str(card.get("id", ""))
-		if _is_shelved(sid):
-			collected_slots += 1
-			if collected_slots == quota:
-				var gate := ColorRect.new()
-				gate.name = "GateLine"
-				gate.color = Color("ffd84a")
-				gate.position = Vector2(8, y + 2)
-				gate.size = Vector2(clip.size.x - 16.0, 3)
-				gate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				column.add_child(gate)
-				y += 8.0
 		y += gap_y
+	## Drop the trailing gap so column height matches the last peg bottom.
+	if cards.size() > 0:
+		y -= gap_y
 	column.size = Vector2(clip.size.x, maxf(y, clip.size.y))
 	column.custom_minimum_size = column.size
 	var view: float = clip.size.y
@@ -2055,6 +1958,48 @@ func _build_biome_case(spec: Dictionary, cards: Array, quota: int, x: float, cas
 	_case_scroll[pool_id] = cur
 	column.position = Vector2(0, -cur)
 	_shelf_host.add_child(root)
+
+
+## Biome pedestal trophy for a filled case slot. Art is 96×96 (24 native ×4);
+## size with case_scale (= PX) so a 1× case never gets a full 96px icon in a 92px void.
+## Sits in the glass top (BiomeCabinets.trophy_local_rect) — not on the peg floor.
+func _place_biome_trophy(host: Control, spec: Dictionary, area: Vector2) -> void:
+	var idle: Texture2D = BiomeCabinets.trophy_texture(spec, false)
+	if idle == null:
+		return
+	var hover: Texture2D = BiomeCabinets.trophy_texture(spec, true)
+	if hover == null:
+		hover = idle
+	var case_scale: float = PX
+	var slot := BiomeCabinets.trophy_local_rect(area, case_scale)
+	var tsize: Vector2 = slot.size
+	var icon := TextureRect.new()
+	icon.name = "BiomeTrophy"
+	icon.texture = idle
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_SCALE
+	icon.custom_minimum_size = tsize
+	icon.size = tsize
+	icon.position = slot.position
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.z_index = 2
+	icon.set_meta("trophy_idle", idle)
+	icon.set_meta("trophy_hover", hover)
+	host.add_child(icon)
+	## Clip + root both receive hover; swap rim-light on either (same size → no jitter).
+	var apply_hover := func() -> void:
+		if is_instance_valid(icon):
+			icon.texture = hover
+	var apply_idle := func() -> void:
+		if is_instance_valid(icon):
+			icon.texture = idle
+	host.mouse_entered.connect(apply_hover)
+	host.mouse_exited.connect(apply_idle)
+	var clip_n := host.get_node_or_null("Clip")
+	if clip_n is Control:
+		(clip_n as Control).mouse_entered.connect(apply_hover)
+		(clip_n as Control).mouse_exited.connect(apply_idle)
 
 
 ## Locked biome: chain + "?" and no item silhouettes (Doop D). Optional chain PNG; else drawn bars.
@@ -2618,59 +2563,28 @@ func _mount_slot(card: Dictionary, pos: Vector2, msize: Vector2, room_locked: bo
 		if bool(new_unseen.get(id, false)):
 			_play_new_burst(wrap)
 	if is_seen:
-		var plate: Rect2 = _plate_rect(msize)
-		var font_n: int = clampi(int(msize.x * 0.13), 17, 24)
-		var lab: FitLabelBox = FitLabelBox.make()
-		lab.show_frame = false
-		lab.padding = 0
-		lab.max_font_size = font_n
-		lab.min_font_size = 12
-		lab.set_plain(str(card.get("name", id)))
-		lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lab.size = Vector2(msize.x - 8.0, maxf(plate.size.y + 10.0, float(font_n) * 2.2))
-		lab.position = Vector2(4.0, msize.y - lab.size.y + 2.0)
-		lab.font_color = Color("1c120c")
-		lab.set_outline(Color("f3e6d0"), 2)
-		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Hall mounts: icon + trophy_mount plate only — no FitLabelBox name plaques,
+		# no plaque glint, no yellow GateLine (stripped with biome case build).
+		# Hover highlights the mount texture; left-click opens inspect (not hover).
 		wrap.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		var glint := AnimatedSprite2D.new()
-		glint.centered = false
-		glint.position = Vector2((msize.x - 64.0) * 0.5, plate.position.y)
-		glint.scale = Vector2(msize.x / _mount_cell().x, msize.x / _mount_cell().x)
-		glint.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		var mat := CanvasItemMaterial.new()
-		mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-		glint.material = mat
-		glint.sprite_frames = _frames("glint", ["plaque_glint_f0", "plaque_glint_f1", "plaque_glint_f2", "plaque_glint_f3"], 4.0 / 1.2, true)
-		wrap.add_child(glint)
-		wrap.add_child(lab)
-		if is_swiped:
-			glint.play("glint")
-		else:
-			glint.visible = false
-		_glints.append({"id": id, "node": glint, "swiped": is_swiped})
 		wrap.mouse_entered.connect(func() -> void:
 			_hover_id = id
 			if hover_tex:
 				mount.texture = hover_tex
-			if is_swiped:
-				_set_glint(id, true)
-			item_hovered.emit(id, wrap)
 		)
 		wrap.mouse_exited.connect(func() -> void:
 			if _hover_id == id:
 				_hover_id = ""
 			mount.texture = rest_tex
-			_set_glint(id, false)
-			item_unhovered.emit()
 		)
 		wrap.gui_input.connect(func(event: InputEvent) -> void:
-			if not PLAYTEST_FLAG.on():
-				return
-			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-				comment_wanted.emit(id)
-				wrap.accept_event()
+			if event is InputEventMouseButton and event.pressed:
+				if event.button_index == MOUSE_BUTTON_LEFT:
+					inspect_wanted.emit(id)
+					wrap.accept_event()
+				elif event.button_index == MOUSE_BUTTON_RIGHT and PLAYTEST_FLAG.on():
+					comment_wanted.emit(id)
+					wrap.accept_event()
 		)
 	else:
 		wrap.mouse_entered.connect(func() -> void:
@@ -2908,7 +2822,7 @@ func _apply_defaults() -> void:
 	nib_first_done = false
 	tutorial_done = false
 	tutorial_declined = false
-	rooms_unlocked = ["mudroom", "main"]
+	rooms_unlocked = ["main"]
 	key_ring_seen = false
 	ending_seen = false
 	deepest_belly = 0
@@ -2952,12 +2866,15 @@ func _read_v2(parsed: Dictionary) -> void:
 	tutorial_done = bool(parsed.get("tutorial_done", false))
 	tutorial_declined = bool(parsed.get("tutorial_declined", false))
 	rooms_unlocked = []
-	for r in parsed.get("rooms_unlocked", ["mudroom", "main"]):
+	for r in parsed.get("rooms_unlocked", ["main"]):
 		rooms_unlocked.append(str(r))
 	if rooms_unlocked.is_empty():
-		rooms_unlocked = ["mudroom", "main"]
-	if rooms_unlocked.has("main") and not rooms_unlocked.has("mudroom"):
-		rooms_unlocked.insert(0, "mudroom")
+		rooms_unlocked = ["main"]
+	## Outpost is right of hall — keep them unlocked as a pair.
+	if rooms_unlocked.has("mudroom") and not rooms_unlocked.has("hall"):
+		rooms_unlocked.append("hall")
+	if rooms_unlocked.has("hall") and not rooms_unlocked.has("mudroom"):
+		rooms_unlocked.append("mudroom")
 	mudroom_loadout = []
 	for raw_load in parsed.get("mudroom_loadout", []):
 		var lid := str(raw_load)
@@ -3096,7 +3013,7 @@ func debug_seed(owned: int, seen_only: int, buckets: int) -> void:
 		var card: Dictionary = items_by_id[id]
 		if str(card.get("status", "live")) == "retired" or str(card.get("status", "live")) == "hold":
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
 		if n < owned:
 			swiped[str(id)] = true
@@ -3175,7 +3092,7 @@ func debug_pose(beat: String) -> void:
 			show_menu("main")
 		"keyring", "key_ring":
 			key_ring_seen = false
-			rooms_unlocked = ["mudroom", "main"]
+			rooms_unlocked = ["main"]
 			_refresh_rooms()
 			play_key_ring()
 		"hall", "trophy":
@@ -3200,7 +3117,9 @@ func debug_pose(beat: String) -> void:
 			show_menu("loft")
 		"mudroom":
 			if not is_room_unlocked("mudroom"):
-				rooms_unlocked.insert(0, "mudroom")
+				if not rooms_unlocked.has("hall"):
+					rooms_unlocked.append("hall")
+				rooms_unlocked.append("mudroom")
 				_save()
 				_refresh_rooms()
 			show_menu("mudroom")
@@ -3270,6 +3189,8 @@ func debug_pose(beat: String) -> void:
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
+	if _authoring_desk_open():
+		return
 	if settings_ui and settings_ui.visible:
 		return
 	if _cutscene and _cutscene.is_playing():
@@ -3292,8 +3213,6 @@ func _input(event: InputEvent) -> void:
 				_dialog.say(["map.first_only"])
 			get_viewport().set_input_as_handled()
 			return
-		if _current_room == "mudroom":
-			_commit_mudroom_loadout()
 		_ask_held_map()
 		get_viewport().set_input_as_handled()
 		return
@@ -3413,9 +3332,9 @@ func fill_middle_save() -> void:
 		var card: Dictionary = items_by_id[id]
 		if str(card.get("status", "live")) in ["retired", "hold"]:
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
-		if BucketRules.parse(card.get("bucket", 0)) > 3:
+		if BucketRules.of_card(card) > 3:
 			continue
 		var sid: String = str(id)
 		if sid == "spider_egg":
@@ -3432,7 +3351,7 @@ func fill_middle_save() -> void:
 			var st: String = str(raw.get("status", "live"))
 			if st == "retired" or st == "hold":
 				continue
-			if BucketRules.parse(raw.get("bucket", 0)) > 3:
+			if BucketRules.of_card(raw) > 3:
 				continue
 			var mid: String = str(raw.get("id", ""))
 			if mid != "":
@@ -3476,7 +3395,7 @@ func fill_complete_save() -> void:
 		var card: Dictionary = items_by_id[id2]
 		if str(card.get("status", "live")) in ["retired", "hold"]:
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
 		var sid: String = str(id2)
 		if sid == "spider_egg":
@@ -3505,9 +3424,6 @@ func fill_complete_save() -> void:
 
 
 func _arrow(delta: int) -> void:
-	if _current_room == "hall":
-		_on_nav(delta)
-		return
 	var i: int = ROOM_ORDER.find(_current_room)
 	var nxt: int = i + delta
 	if nxt < 0 or nxt >= ROOM_ORDER.size():
@@ -3585,9 +3501,10 @@ func _build_rooms() -> void:
 	_chair_hit.gui_input.connect(_on_empty_chair_input)
 	main_room.add_child(_chair_hit)
 	var hall = _rooms.get("hall")
+	var bounds := BiomeCabinets.cases_bounds_rect()
 	_hole = Control.new()
-	_hole.position = _pt(100, 24)
-	_hole.size = _pt(260, 160)
+	_hole.position = _pt(bounds.position.x, bounds.position.y)
+	_hole.size = _pt(bounds.size.x, bounds.size.y)
 	_hole.clip_contents = true
 	_hole.mouse_filter = Control.MOUSE_FILTER_STOP
 	_hole.z_index = 3
@@ -3611,23 +3528,10 @@ func _build_rooms() -> void:
 	_shelf_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_shelf_fade.visible = false
 	_hole.add_child(_shelf_fade)
+	## Gauge + shelf page arrows retired — plate cases are fixed; progress is hover-only.
 	_gauge = TextureProgressBar.new()
-	_gauge.texture_under = KIT.load_tex("ui/gauge_under.png")
-	_gauge.texture_progress = KIT.load_tex("ui/gauge_fill.png")
-	_gauge.min_value = 0
-	_gauge.max_value = 1
-	_gauge.value = 0
-	_gauge.nine_patch_stretch = false
-	_gauge.position = _pt(148, 188)
-	_gauge.size = _pt(164, 5)
-	_gauge.z_index = 3
-	_gauge.mouse_filter = Control.MOUSE_FILTER_STOP
-	_gauge.mouse_entered.connect(func() -> void:
-		var p: Vector2i = cabinet_progress()
-		var key: String = "cabin.hall.full" if p.x >= p.y and p.y > 0 else "cabin.hall.gauge"
-		show_hover_tag(key, _gauge, {"n": p.x, "total": p.y})
-	)
-	_gauge.mouse_exited.connect(hide_hover_tag)
+	_gauge.visible = false
+	_gauge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hall.add_child(_gauge)
 
 
@@ -3901,6 +3805,9 @@ func _unlock_spot(room_id: String, node_name: String, unlock_room: String, line_
 		spark.queue_free()
 	if not rooms_unlocked.has(unlock_room):
 		rooms_unlocked.append(unlock_room)
+	## Trophy hall and Outpost unlock as a pair on the right path.
+	if unlock_room == "hall" and not rooms_unlocked.has("mudroom"):
+		rooms_unlocked.append("mudroom")
 	_save()
 	_refresh_rooms()
 	if hs:
@@ -4030,7 +3937,7 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 			_arrive_skip = maxi(_arrive_skip, 2)
 			_kill_arrive_motion()
 			return
-		if node_name == "RunDoor" or node_name == "SideDoor" or node_name == "BackDoor":
+		if node_name in ["RunDoor", "SideDoor", "LeftDoor", "BackDoor", "LeaveDoor", "OutDoor"]:
 			_arrive_pending_name = node_name
 			_arrive_pending_room = room
 			_arrive_skip = maxi(_arrive_skip, 2)
@@ -4044,13 +3951,14 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 	match node_name:
 		"RunDoor":
 			_on_run_door()
-		"OutDoor":
-			_commit_mudroom_loadout()
+		"OutDoor", "LeaveDoor":
 			_ask_held_map()
 		"RerollJar":
-			_reroll_mudroom_hooks()
+			pass
 		"SideDoor":
 			_on_side_door(room)
+		"LeftDoor":
+			_on_left_door(room)
 		"BackDoor":
 			_on_back_door(room)
 		"Map":
@@ -4129,13 +4037,17 @@ func _on_spot_unhover(_n: String) -> void:
 
 
 func _on_run_door() -> void:
+	## Main's painted run door starts the rightward path (hall → Outpost → delve).
+	## Delve itself is the Outpost right/out exit — never skip the trophy hall.
 	if _gate_on():
 		_interrupt()
 		return
-	if is_room_unlocked("mudroom"):
-		pan_to("mudroom")
+	if is_room_unlocked("hall"):
+		pan_to("hall")
 		return
-	_ask_held_map()
+	_bump()
+	KIT.cue(sfx, &"cabin.locked")
+	say_bubble("cabin.locked")
 
 
 func _play_run_door_open() -> void:
@@ -4194,7 +4106,7 @@ func _mudroom_item_rows() -> Array:
 		var st := str(card.get("status", "live"))
 		if st == "hold" or st == "retired":
 			continue
-		if BucketRules.is_token(card.get("bucket", 0)):
+		if BucketRules.is_token(card):
 			continue
 		if BucketRules.is_always_starter_id(str(id)):
 			continue
@@ -4204,28 +4116,13 @@ func _mudroom_item_rows() -> Array:
 
 func _refresh_mudroom() -> void:
 	var room = _rooms.get("mudroom")
-	if room == null or not room.has_method("set_hooks"):
+	if room == null:
 		return
 	var camp = _campaign_ref()
 	var rules: Dictionary = camp.rules if camp != null else CAMPAIGN_SHELL.read_json("res://data/campaign.json")
 	var state: Dictionary = camp.state if camp != null else CAMPAIGN_SHELL.fresh_state()
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-	var ids: Array = mudroom_loadout.duplicate()
-	if ids.is_empty() and camp != null:
-		ids = CAMPAIGN_SHELL.mudroom_loadout_of(state)
-	var need: int = CAMPAIGN_SHELL.starter_hook_count(rules)
-	if ids.size() != need:
-		ids = CAMPAIGN_SHELL.roll_mudroom_hooks(rules, rng, _mudroom_item_rows(), [])
-	var names := {}
-	for id in ids:
-		names[str(id)] = str(items_by_id.get(str(id), {}).get("name", id))
-	room.set_hooks(ids, tex_by_item, names)
-	var jar_n: int = CAMPAIGN_SHELL.preview_rerolls(rules, state)
-	if bool(state.get("run", {}).get("active", false)):
-		jar_n = int(state.get("run", {}).get("rerolls", jar_n))
-	if room.has_method("set_jar_count"):
-		room.set_jar_count(jar_n)
+	if room.has_method("refresh_map_board"):
+		room.refresh_map_board(rules, state)
 
 
 func _commit_mudroom_loadout() -> void:
@@ -4271,6 +4168,15 @@ func _picker_open() -> bool:
 		return false
 	var picker = host.get("campaign_map")
 	return picker != null and picker.has_method("is_picker_open") and bool(picker.is_picker_open())
+
+
+func _authoring_desk_open() -> bool:
+	if not is_inside_tree():
+		return false
+	for n in get_tree().get_nodes_in_group("authoring_overlay"):
+		if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+			return true
+	return false
 
 
 func _space_key(event: InputEvent) -> bool:
@@ -4382,21 +4288,33 @@ func _on_cat() -> void:
 
 
 func _on_side_door(room: String) -> void:
-	await _flash_side_door_open(room)
+	await _flash_side_door_open(room, "SideDoor")
 	match room:
 		"main":
+			## Right door → trophy hall (then Outpost).
 			pan_to("hall")
 		"hall":
-			pan_to("study")
+			## Right door → Outpost.
+			_unlock_mudroom_with_hall()
+			pan_to("mudroom")
 		"study":
+			## After H-flip: SideDoor faces workshop (further left).
 			pan_to("workshop")
 
 
-func _flash_side_door_open(room: String) -> void:
+func _on_left_door(room: String) -> void:
+	await _flash_side_door_open(room, "LeftDoor")
+	match room:
+		"main":
+			## Left door → study chain.
+			pan_to("study")
+
+
+func _flash_side_door_open(room: String, node_name: String = "SideDoor") -> void:
 	var r = _rooms.get(room)
 	if r == null:
 		return
-	var hs = r.spots.get("SideDoor", null)
+	var hs = r.spots.get(node_name, null)
 	if hs == null or not (hs is CabinHotspot) or hs.locked:
 		return
 	var open_tex: Texture2D = KIT.load_tex("doors/side_door_open.png")
@@ -4411,15 +4329,24 @@ func _flash_side_door_open(room: String) -> void:
 		hs.set_idle_tex(closed)
 
 
+func _unlock_mudroom_with_hall() -> void:
+	if not is_room_unlocked("hall"):
+		return
+	if not rooms_unlocked.has("mudroom"):
+		rooms_unlocked.append("mudroom")
+		_save()
+		_refresh_rooms()
+
+
 func _on_back_door(room: String) -> void:
 	match room:
 		"mudroom":
-			_commit_mudroom_loadout()
-			pan_to("main")
+			pan_to("hall")
 		"hall":
 			pan_to("main")
 		"study":
-			pan_to("hall")
+			## After H-flip: back faces main (right).
+			pan_to("main")
 		"workshop":
 			pan_to("study")
 

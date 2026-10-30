@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c10qij6311iyr"
-path="res://.godot/imported/harpy_slash_f4.png-8461e2be8f00e75154277cb9d7672ad0.ctex"
+uid="uid://d2mwy22ln2wn1"
+path="res://.godot/imported/oligarch.png-002244eccda30d929bb945ed1db6a721.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/slash/harpy_slash_f4.png"
-dest_files=["res://.godot/imported/harpy_slash_f4.png-8461e2be8f00e75154277cb9d7672ad0.ctex"]
+source_file="res://assets/dungeon/extra/oligarch.png"
+dest_files=["res://.godot/imported/oligarch.png-002244eccda30d929bb945ed1db6a721.ctex"]
 
 [params]
 

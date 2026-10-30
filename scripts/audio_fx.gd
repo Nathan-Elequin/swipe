@@ -4,7 +4,14 @@ extends Node
 const SAVE_PATH := "user://audio.json"
 const MAP_PATH := "res://data/sfx-map.json"
 const LEGACY_UI_IDS := ["hover", "click", "click2", "select", "question", "error", "switch", "confirm", "confirm_big"]
-const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp"]
+const LOOP_FILES := ["music_combat", "music_deadly", "music_cabin", "cabin_fire_loop", "cabin_cat_purr_loop", "music", "music_intro", "music_ending", "music_station_inn", "music_station_rag", "music_station_harp", "music_verdant_hollow_loop", "music_cinder_forge_a", "music_cinder_forge_b", "music_cinder_forge_c", "music_crystal_cavern_a", "music_crystal_cavern_b", "music_crystal_cavern_c", "music_ashen_crypt_a", "music_ashen_crypt_b", "music_ashen_crypt_c"]
+const FORGE_BED := "cinder_forge"
+const FORGE_MUTE_DB := -80.0
+const FORGE_COMBAT_FADE_S := 0.33
+const FORGE_BOSS_FADE_S := 1.2
+const FORGE_A_BOSS_LIN := 0.5
+## Applied on the Music bus under the user slider (0.8 = 20% quieter).
+const MUSIC_PRE_SLIDER_LIN := 0.8
 const AUDIO_LOG_CAP := 80
 
 var music: AudioStreamPlayer
@@ -29,11 +36,20 @@ var _speech: AudioStreamPlayer
 var _sting: AudioStreamPlayer
 var _music_a: AudioStreamPlayer
 var _music_b: AudioStreamPlayer
+var _forge_b: AudioStreamPlayer
+var _forge_c: AudioStreamPlayer
+var _forge_b_tw: Tween
+var _forge_c_tw: Tween
+var _forge_a_tw: Tween
+var _forge_drums: bool = false
+var _forge_heat: bool = false
 var _music_front: int = 0
 var _loop_players: Dictionary = {}
 var _beds: Dictionary = {}
 var _bed_pos: Dictionary = {}
 var _current_bed: StringName = &""
+## Biome dungeon bed (e.g. verdant_hollow). Combat music routes here while set.
+var _dungeon_bed: StringName = &""
 var _last_hover_ms: int = 0
 var session_log
 var _last_tick_ms: int = 0
@@ -59,6 +75,8 @@ var _music_cfg: Dictionary = {}
 var audio_log: Array = []
 var _watch_s: float = 0.0
 var _last_logged_playing: bool = false
+var _music_hold: Dictionary = {}
+var _music_seq: int = 0
 
 
 func setup() -> void:
@@ -241,6 +259,16 @@ func _build_players() -> void:
 	_music_b.bus = "Music"
 	_music_b.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_music_b)
+	_forge_b = AudioStreamPlayer.new()
+	_forge_b.name = "MusicForgeB"
+	_forge_b.bus = "Music"
+	_forge_b.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_forge_b)
+	_forge_c = AudioStreamPlayer.new()
+	_forge_c.name = "MusicForgeC"
+	_forge_c.bus = "Music"
+	_forge_c.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_forge_c)
 	music = _music_a
 	for cue_id in ["amb.fire", "amb.cat_purr", "amb.radio_static"]:
 		var lp := AudioStreamPlayer.new()
@@ -295,8 +323,18 @@ func _load_beds() -> void:
 		if stream == null:
 			push_warning("AudioFx: missing music bed %s" % str(bed_id))
 			continue
-		_maybe_loop(stream, str(spec.get("file", "")), true)
-		_beds[str(bed_id)] = {"stream": stream, "gain_db": float(spec.get("gain_db", 0.0)), "resume": bool(spec.get("resume_position", false))}
+		var do_loop: bool = bool(spec.get("loop", true))
+		_maybe_loop(stream, str(spec.get("file", "")), do_loop)
+		if stream is AudioStreamOggVorbis and not do_loop:
+			(stream as AudioStreamOggVorbis).loop = false
+		_beds[str(bed_id)] = {
+			"stream": stream,
+			"gain_db": float(spec.get("gain_db", 0.0)),
+			"resume": bool(spec.get("resume_position", false)),
+			"file": str(spec.get("file", "")),
+			"next": str(spec.get("next", "")),
+			"loop": do_loop,
+		}
 	if _beds.has("title"):
 		_music_a.stream = _beds["title"]["stream"]
 		_music_a.volume_db = float(_beds["title"]["gain_db"])
@@ -699,8 +737,12 @@ func stop_cue_voices(cue_id: StringName) -> void:
 
 func music_to(bed: StringName, fade_s: float) -> void:
 	var id: String = String(bed)
-	if id in ["combat", "title", "deadly", "intro"]:
+	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "cinder_forge", "crystal_cavern", "ashen_crypt"]:
 		loop_stop(&"amb.radio_static", 0.25)
+	# Leaving the dungeon for cabin / title / radio stations drops the biome bed.
+	if id == "cabin" or id == "title" or id == "intro" or id == "ending" or id.begins_with("station_"):
+		_dungeon_bed = &""
+		_stop_forge_layers(0.4)
 	if not _beds.has(id):
 		log_audio("skip", "missing_bed", {"bed": id})
 		return
@@ -722,13 +764,22 @@ func music_to(bed: StringName, fade_s: float) -> void:
 	var start_pos: float = 0.0
 	if bool(spec.get("resume", false)):
 		start_pos = float(_bed_pos.get(id, 0.0))
-	incoming.volume_db = -80.0
-	incoming.play(start_pos)
 	_music_front = 1 - _music_front
 	music = incoming
 	_current_bed = bed
 	if _xfade_tw != null:
 		_xfade_tw.kill()
+	# fade_s <= 0: hard cut (intro → loop handoff).
+	if fade_s <= 0.0:
+		incoming.volume_db = gain
+		incoming.play(start_pos)
+		if outgoing != incoming:
+			outgoing.stop()
+		_bind_forge_layers(id, start_pos)
+		return
+	incoming.volume_db = -80.0
+	incoming.play(start_pos)
+	_bind_forge_layers(id, start_pos)
 	var dur: float = maxf(fade_s, 0.01)
 	_xfade_tw = create_tween()
 	_xfade_tw.set_ignore_time_scale(true)
@@ -752,6 +803,7 @@ func _set_out_lin(t: float, player: AudioStreamPlayer, start_db: float) -> void:
 
 
 func music_title() -> void:
+	_clear_dungeon_bed()
 	music_state = &"title"
 	_between_duck = 0.0
 	_mix_duck(0.3)
@@ -760,6 +812,10 @@ func music_title() -> void:
 
 
 func music_deadly() -> void:
+	if _is_forge_adaptive():
+		# Layered biome (Forge / Crystal Cavern): heat only. Never swap A off the bed.
+		_forge_set_heat(true, FORGE_COMBAT_FADE_S)
+		return
 	music_state = &"deadly"
 	_between_duck = 0.0
 	_mix_duck(0.3)
@@ -768,11 +824,226 @@ func music_deadly() -> void:
 
 
 func music_cabin() -> void:
+	_clear_dungeon_bed()
 	music_state = &"cabin"
 	_between_duck = 0.0
 	_mix_duck(0.3)
 	var fades: Dictionary = _music_cfg.get("crossfade_s", {})
 	music_to(&"cabin", float(fades.get("to_cabin", 1.5)))
+
+
+func _clear_dungeon_bed() -> void:
+	_dungeon_bed = &""
+
+
+## Map biome id (b1 / verdant_hollow) → dungeon bed key, or "" if none.
+func dungeon_bed_for_biome(biome_id: String) -> StringName:
+	var map: Dictionary = _music_cfg.get("biome_beds", {})
+	var key: String = str(map.get(str(biome_id).strip_edges(), "")).strip_edges()
+	if key == "" or not _beds.has(key):
+		return &""
+	return StringName(key)
+
+
+## Enter a biome dungeon: play intro once (if registered) then loop. Cabin return clears this.
+func music_biome_dungeon(biome_id: String) -> void:
+	var bed: StringName = dungeon_bed_for_biome(biome_id)
+	_dungeon_bed = bed
+	if bed == &"":
+		return
+	music_state = &"dungeon"
+	_between_duck = 0.0
+	_mix_duck(0.3)
+	var fades: Dictionary = _music_cfg.get("crossfade_s", {})
+	var fade_s: float = float(fades.get("default", 0.8))
+	var intro_id: String = "%s_intro" % String(bed)
+	if _beds.has(intro_id):
+		# Already mid-dungeon on this bed or its intro — do not restart the intro.
+		if _current_bed == bed or _current_bed == StringName(intro_id):
+			if music != null and music.playing:
+				return
+		music_to(StringName(intro_id), fade_s)
+		return
+	music_to(bed, fade_s)
+
+
+func _combat_or_dungeon_bed() -> StringName:
+	if _dungeon_bed != &"" and _beds.has(String(_dungeon_bed)):
+		return _dungeon_bed
+	return &"combat"
+
+
+func _on_dungeon_or_intro_bed() -> bool:
+	if _dungeon_bed == &"":
+		return false
+	if _current_bed == _dungeon_bed:
+		return true
+	var intro_id: String = "%s_intro" % String(_dungeon_bed)
+	return _current_bed == StringName(intro_id)
+
+
+func _layered_bed_id() -> String:
+	for candidate in [String(_dungeon_bed), String(_current_bed)]:
+		if _is_layered_bed(candidate):
+			return candidate
+	return ""
+
+
+func _is_layered_bed(bed_id: String) -> bool:
+	return bed_id != "" and _beds.has(bed_id) and _beds.has(bed_id + "_b") and _beds.has(bed_id + "_c")
+
+
+func _is_forge_adaptive() -> bool:
+	return _layered_bed_id() != ""
+
+
+func _forge_layer_gain(bed_id: String) -> float:
+	if _beds.has(bed_id):
+		return float(_beds[bed_id].get("gain_db", -4.0))
+	return -4.0
+
+
+func _bind_forge_layers(bed_id: String, start_pos: float) -> void:
+	if not _is_layered_bed(bed_id):
+		_stop_forge_layers(0.4)
+		return
+	_start_forge_layers(start_pos, bed_id)
+
+
+func _start_forge_layers(start_pos: float, bed_id: String = "") -> void:
+	var bed: String = bed_id if bed_id != "" else _layered_bed_id()
+	if bed == "" or not _is_layered_bed(bed):
+		return
+	for pair in [[bed + "_b", _forge_b], [bed + "_c", _forge_c]]:
+		var key: String = str(pair[0])
+		var player: AudioStreamPlayer = pair[1]
+		if player == null or not _beds.has(key):
+			continue
+		var spec: Dictionary = _beds[key]
+		var stream: AudioStream = spec.get("stream", null)
+		if stream == null:
+			continue
+		_maybe_loop(stream, str(spec.get("file", "")), true)
+		player.stream = stream
+		player.bus = "Music"
+		var want_on: bool = (player == _forge_b and _forge_drums) or (player == _forge_c and _forge_heat)
+		player.volume_db = _forge_layer_gain(key) if want_on else FORGE_MUTE_DB
+		player.play(start_pos)
+
+
+func _stop_forge_layers(fade_s: float) -> void:
+	_forge_drums = false
+	_forge_heat = false
+	_forge_set_bed_lin(1.0, fade_s)
+	_fade_forge_player(_forge_b, FORGE_MUTE_DB, fade_s, true)
+	_fade_forge_player(_forge_c, FORGE_MUTE_DB, fade_s, true)
+
+
+func _forge_seek_to_bed() -> void:
+	if music == null or not music.playing:
+		return
+	var pos: float = music.get_playback_position()
+	for p in [_forge_b, _forge_c]:
+		if p == null:
+			continue
+		if not p.playing:
+			if p.stream != null:
+				p.play(pos)
+		else:
+			if absf(p.get_playback_position() - pos) > 0.08:
+				p.seek(pos)
+
+
+func _fade_forge_player(player: AudioStreamPlayer, target_db: float, fade_s: float, stop_after: bool = false) -> void:
+	if player == null:
+		return
+	if player == _forge_b and _forge_b_tw != null:
+		_forge_b_tw.kill()
+	if player == _forge_c and _forge_c_tw != null:
+		_forge_c_tw.kill()
+	if not player.playing and player.stream != null and target_db > FORGE_MUTE_DB + 1.0:
+		_forge_seek_to_bed()
+	var tw := create_tween()
+	tw.set_ignore_time_scale(true)
+	tw.tween_property(player, "volume_db", target_db, maxf(fade_s, 0.01))
+	if stop_after:
+		tw.tween_callback(player.stop)
+	if player == _forge_b:
+		_forge_b_tw = tw
+	else:
+		_forge_c_tw = tw
+
+
+func _forge_set_drums(on: bool, fade_s: float) -> void:
+	_forge_drums = on
+	_forge_seek_to_bed()
+	var bed: String = _layered_bed_id()
+	var db: float = _forge_layer_gain(bed + "_b") if on and bed != "" else FORGE_MUTE_DB
+	_fade_forge_player(_forge_b, db, fade_s, false)
+
+
+func forge_boss_spin() -> void:
+	if not _is_forge_adaptive():
+		return
+	_forge_set_drums(true, FORGE_COMBAT_FADE_S)
+	_forge_set_heat(true, FORGE_COMBAT_FADE_S)
+
+
+func _forge_set_heat(on: bool, fade_s: float) -> void:
+	_forge_heat = on
+	_forge_seek_to_bed()
+	var bed: String = _layered_bed_id()
+	var db: float = _forge_layer_gain(bed + "_c") if on and bed != "" else FORGE_MUTE_DB
+	_fade_forge_player(_forge_c, db, fade_s, false)
+	_forge_set_bed_lin(FORGE_A_BOSS_LIN if on else 1.0, fade_s)
+
+
+func _forge_bed_db(lin: float) -> float:
+	var bed: String = _layered_bed_id()
+	var base: float = _forge_layer_gain(bed if bed != "" else FORGE_BED)
+	return base + linear_to_db(clampf(lin, 0.0001, 1.0))
+
+
+func _forge_set_bed_lin(lin: float, fade_s: float) -> void:
+	if music == null:
+		return
+	if _forge_a_tw != null:
+		_forge_a_tw.kill()
+	var tw := create_tween()
+	tw.set_ignore_time_scale(true)
+	tw.tween_property(music, "volume_db", _forge_bed_db(lin), maxf(fade_s, 0.01))
+	_forge_a_tw = tw
+
+
+func _forge_exit_combat() -> void:
+	if not _forge_drums and not _forge_heat:
+		_forge_set_bed_lin(1.0, FORGE_COMBAT_FADE_S)
+		return
+	var boss: bool = _forge_heat
+	_forge_drums = false
+	_forge_heat = false
+	_forge_set_bed_lin(1.0, FORGE_BOSS_FADE_S if boss else FORGE_COMBAT_FADE_S)
+	if boss:
+		_fade_forge_player(_forge_c, FORGE_MUTE_DB, FORGE_BOSS_FADE_S, false)
+		var tw := create_tween()
+		tw.set_ignore_time_scale(true)
+		tw.tween_interval(FORGE_BOSS_FADE_S)
+		tw.tween_callback(func() -> void:
+			_fade_forge_player(_forge_b, FORGE_MUTE_DB, FORGE_BOSS_FADE_S, false)
+		)
+	else:
+		_fade_forge_player(_forge_b, FORGE_MUTE_DB, FORGE_COMBAT_FADE_S, false)
+		_fade_forge_player(_forge_c, FORGE_MUTE_DB, FORGE_COMBAT_FADE_S, false)
+
+
+func music_after_dungeon_clear() -> void:
+	if _is_forge_adaptive():
+		music_state = &"dungeon"
+		_between_duck = 0.0
+		_mix_duck(0.3)
+		log_audio("start", "forge_clear_keep_a")
+		return
+	music_title()
 
 
 func music_victory() -> void:
@@ -786,11 +1057,69 @@ func music_victory() -> void:
 	)
 
 
+func music_hold_for_undo() -> void:
+	_music_hold = {
+		"bed": String(_current_bed),
+		"pos": music.get_playback_position() if music != null else 0.0,
+		"dungeon_bed": String(_dungeon_bed),
+		"state": String(music_state),
+		"drums": _forge_drums,
+		"heat": _forge_heat,
+	}
+
+
+func music_resume_held(want_combat: bool = true) -> void:
+	_music_seq += 1
+	_cue_duck = 0.0
+	_between_duck = 0.0
+	_mix_duck(0.2)
+	if _music_hold.is_empty():
+		set_combat_music(want_combat)
+		return
+	var bed_id: String = str(_music_hold.get("bed", ""))
+	var pos: float = float(_music_hold.get("pos", 0.0))
+	_dungeon_bed = StringName(str(_music_hold.get("dungeon_bed", "")))
+	var same_bed: bool = _current_bed == StringName(bed_id) and music != null and music.playing and bed_id != "" and bed_id != "title"
+	if same_bed:
+		music_state = StringName(str(_music_hold.get("state", "combat")))
+		_restore_held_layers(want_combat, pos)
+		log_audio("start", "resume_held_same", {"bed": bed_id})
+		return
+	if bed_id != "" and _beds.has(bed_id):
+		_bed_pos[bed_id] = pos
+		_current_bed = &""
+		music_state = StringName(str(_music_hold.get("state", "combat")))
+		music_to(StringName(bed_id), 0.35)
+		_restore_held_layers(want_combat, pos)
+		log_audio("start", "resume_held", {"bed": bed_id, "pos": pos})
+		return
+	set_combat_music(want_combat)
+
+
+func _restore_held_layers(want_combat: bool, pos: float) -> void:
+	if _is_forge_adaptive():
+		_forge_drums = want_combat
+		_forge_heat = want_combat and bool(_music_hold.get("heat", false))
+		_start_forge_layers(pos)
+		_forge_set_bed_lin(FORGE_A_BOSS_LIN if _forge_heat else 1.0, 0.15)
+		return
+	if want_combat:
+		set_combat_music(true)
+	elif music_state != &"dungeon":
+		set_combat_music(false)
+
+
 func music_defeat() -> void:
+	if _music_hold.is_empty():
+		music_hold_for_undo()
 	music_state = &"defeat"
 	_cue_duck = -30.0
 	_mix_duck(0.1)
+	_music_seq += 1
+	var token: int = _music_seq
 	_after_ms(3000.0, func() -> void:
+		if token != _music_seq:
+			return
 		_cue_duck = 0.0
 		music_title()
 		_mix_duck(2.0)
@@ -812,16 +1141,30 @@ func set_combat_music(on: bool) -> void:
 		music_state = &"combat"
 		_between_duck = 0.0
 		_mix_duck(0.3)
+		if _is_forge_adaptive():
+			_forge_set_drums(true, FORGE_COMBAT_FADE_S)
+			return
+		# Verdant Hollow (and future biome beds): keep intro→loop; do not swap to combat.
+		if _on_dungeon_or_intro_bed() and music != null and music.playing:
+			return
 		var fades: Dictionary = _music_cfg.get("crossfade_s", {})
-		music_to(&"combat", float(fades.get("default", 0.8)))
+		music_to(_combat_or_dungeon_bed(), float(fades.get("default", 0.8)))
 	else:
-		if music_state == &"title" or music_state == &"cabin" or music_state == &"victory" or music_state == &"defeat":
+		if music_state == &"title" or music_state == &"cabin" or music_state == &"victory" or music_state == &"defeat" or music_state == &"dungeon":
+			if _is_forge_adaptive():
+				_forge_exit_combat()
 			return
 		music_state = &"between"
+		if _is_forge_adaptive():
+			_between_duck = 0.0
+			_mix_duck(0.3)
+			_forge_exit_combat()
+			return
 		_between_duck = float(_music_cfg.get("between_fights_duck_db", -4))
 		_mix_duck(0.3)
-		if _current_bed != &"combat":
-			music_to(&"combat", float(_music_cfg.get("crossfade_s", {}).get("default", 0.8)))
+		var want: StringName = _combat_or_dungeon_bed()
+		if _current_bed != want and not _on_dungeon_or_intro_bed():
+			music_to(want, float(_music_cfg.get("crossfade_s", {}).get("default", 0.8)))
 
 
 func duck_music(db: float) -> void:
@@ -854,6 +1197,7 @@ func stop_music() -> void:
 	if session_log:
 		session_log.push("audio", "stop music")
 	_current_bed = &""
+	_stop_forge_layers(0.5)
 	for p in [_music_a, _music_b]:
 		if p != null and p.playing:
 			var tw := create_tween()
@@ -894,7 +1238,7 @@ func _apply_cue_music(cue_id: String, bed: String) -> void:
 				music_state = &"combat"
 				_between_duck = 0.0
 				_mix_duck(0.3)
-				music_to(&"combat", float(fades.get("from_deadly", 1.2)))
+				music_to(_combat_or_dungeon_bed(), float(fades.get("from_deadly", 1.2)))
 			else:
 				set_combat_music(true)
 		"cabin":
@@ -912,6 +1256,14 @@ func _apply_cue_music(cue_id: String, bed: String) -> void:
 		"ending":
 			music_state = &"ending"
 			music_to(&"ending", float(_music_cfg.get("crossfade_s", {}).get("default", 0.8)))
+		"verdant_hollow":
+			music_biome_dungeon("b1")
+		"cinder_forge":
+			music_biome_dungeon("b4")
+		"crystal_cavern":
+			music_biome_dungeon("b2")
+		"ashen_crypt":
+			music_biome_dungeon("b3")
 
 
 func _mix_duck(attack: float) -> void:
@@ -1020,6 +1372,13 @@ func _on_music_finished(player: AudioStreamPlayer) -> void:
 	log_audio("stop", "finished", {"player": player.name if player else ""})
 	if _current_bed == &"" or music != player:
 		return
+	# One-shot intro beds: crossfade (or hard cut at 0s) into their `next` loop.
+	if _beds.has(String(_current_bed)):
+		var next_id: String = str(_beds[String(_current_bed)].get("next", "")).strip_edges()
+		if next_id != "" and _beds.has(next_id):
+			log_audio("start", "intro_to_loop", {"from": String(_current_bed), "to": next_id})
+			music_to(StringName(next_id), 0.0)
+			return
 	resume_intended("stream_finished")
 
 
@@ -1088,6 +1447,8 @@ func resume_intended(reason: String) -> void:
 	if bool(spec.get("resume", false)):
 		pos = float(_bed_pos.get(String(_current_bed), 0.0))
 	music.play(pos)
+	if _is_forge_adaptive():
+		_start_forge_layers(pos)
 	log_audio("start", reason)
 
 
@@ -1150,7 +1511,7 @@ func set_ui(lin: float) -> void:
 
 func apply_levels() -> void:
 	_set_bus("Master", master_lin)
-	_set_bus("Music", music_lin)
+	_set_bus("Music", music_lin * MUSIC_PRE_SLIDER_LIN)
 	_set_bus("Stings", music_lin)
 	_set_bus("Ambience", ambience_lin)
 	_set_bus("SFX", sfx_lin)

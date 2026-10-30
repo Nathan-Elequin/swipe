@@ -4,12 +4,23 @@ extends Control
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
 const FLICKER_STEP := 0.125
+## Quiet biome glow ABOVE floor tiles (fix 2026-10-29).
+## Root cause of invisible tint: opaque floor blit hid anything drawn under it,
+## and the strips were near-clear-colour so even gaps read as black.
+## Choice: TextureRect child + CanvasItemMaterial ADD at low alpha, after the
+## parent's floor/wall/_draw (children paint on top). Wheel/Sprout/cards are
+## separate higher-z nodes and stay untouched. Strips re-baked brighter, Nearest.
+const BIOME_BG_ALPHA := 0.50
+const BIOME_BG_DIR := "res://assets/ui/biome_bg/%s.png"
 
 var art
 var _t: float = 0.0
 var hall: int = 0
 var _pan: float = 0.0
 var _flick_wait: float = 0.0
+var _biome_id: String = ""
+var _biome_tex: Texture2D = null
+var _biome_rect: TextureRect = null
 var pan: float:
 	get:
 		return _pan
@@ -24,7 +35,49 @@ func setup(p_art) -> void:
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	z_index = -8
 	texture_filter = TEXTURE_FILTER_NEAREST
+	_ensure_biome_rect()
 	set_process(true)
+
+
+func _ensure_biome_rect() -> void:
+	if _biome_rect != null and is_instance_valid(_biome_rect):
+		return
+	_biome_rect = TextureRect.new()
+	_biome_rect.name = "BiomeTint"
+	_biome_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_biome_rect.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_biome_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_biome_rect.stretch_mode = TextureRect.STRETCH_SCALE
+	_biome_rect.texture_filter = TEXTURE_FILTER_NEAREST
+	var mat := CanvasItemMaterial.new()
+	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_biome_rect.material = mat
+	_biome_rect.modulate = Color(1.0, 1.0, 1.0, BIOME_BG_ALPHA)
+	_biome_rect.visible = false
+	add_child(_biome_rect)
+
+
+func set_biome(id: String) -> void:
+	var want := str(id).strip_edges()
+	if want == _biome_id and (_biome_tex != null or want == ""):
+		_apply_biome_rect()
+		return
+	_biome_id = want
+	_biome_tex = null
+	if want != "" and ResourceLoader.exists(BIOME_BG_DIR % want):
+		var loaded: Variant = load(BIOME_BG_DIR % want)
+		if loaded is Texture2D:
+			_biome_tex = loaded
+	_apply_biome_rect()
+	queue_redraw()
+
+
+func _apply_biome_rect() -> void:
+	_ensure_biome_rect()
+	if _biome_rect == null:
+		return
+	_biome_rect.texture = _biome_tex
+	_biome_rect.visible = _biome_tex != null
 
 
 func bump_hall() -> void:
@@ -63,6 +116,8 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	# Count real draws — queue_redraw in _process was inflating hall spike tags.
 	FRAME_METRICS.note_hall()
+	# Biome glow is a child TextureRect (ADD) painted after this _draw, so it
+	# tints floor/walls without being buried under opaque tiles.
 	if art == null or not art.ready_ok:
 		draw_rect(Rect2(Vector2.ZERO, size), Color("0a0807"), true)
 		return

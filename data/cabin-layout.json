@@ -20,28 +20,28 @@
     ],
     "hover": "doors/doorway_hover.png",
     "z": 2,
-    "note": "back to cabin front room"
+    "note": "back to Trophy Hall"
    },
    {
     "node": "OutDoor",
-    "file": "doors/run_door_closed.png",
+    "file": "props/map_wall.png",
     "origin": [
-     250,
-     130
+     176,
+     72
     ],
     "size": [
-     44,
-     66
+     68,
+     52
     ],
     "hotspot": [
-     246,
-     122,
-     52,
-     74
+     176,
+     72,
+     68,
+     52
     ],
-    "hover": "doors/run_door_hover.png",
-    "z": 2,
-    "note": "out the door / opens held map"
+    "hover": "props/map_wall_hover.png",
+    "z": 3,
+    "note": "Outpost wall map \u2014 click opens held map (same path as Space). LeaveDoor on right is the physical exit."
    },
    {
     "node": "RerollJar",
@@ -63,6 +63,27 @@
     "hover": "props/lucky_geode_hover.png",
     "z": 4,
     "note": "reroll jar stand-in (shows delve reroll count; click reshuffles pegs)"
+   },
+   {
+    "node": "LeaveDoor",
+    "file": "doors/run_door_closed.png",
+    "origin": [
+     370,
+     130
+    ],
+    "size": [
+     44,
+     66
+    ],
+    "hotspot": [
+     366,
+     122,
+     52,
+     74
+    ],
+    "hover": "doors/run_door_hover.png",
+    "z": 2,
+    "note": "rightmost leave-cabin exit toward dungeon (map-in-hands / delve)"
    }
   ],
   "main": [
@@ -83,6 +104,43 @@
     "note": "light overlay"
    },
    {
+    "node": "LeftDoor",
+    "file": "doors/side_door_locked.png",
+    "origin": [
+     6,
+     132
+    ],
+    "size": [
+     32,
+     63
+    ],
+    "hotspot": [
+     2,
+     126,
+     40,
+     69
+    ],
+    "hover": "doors/side_door_hover.png",
+    "z": 2,
+    "note": "to Study (left chain); flip_h at runtime"
+   },
+   {
+    "node": "SignStudy",
+    "file": "doors/door_sign_study.png",
+    "origin": [
+     12,
+     110
+    ],
+    "size": [
+     18,
+     14
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 2,
+    "note": "study sign by left door"
+   },
+   {
     "node": "RunDoor",
     "file": "doors/run_door_closed.png",
     "origin": [
@@ -101,7 +159,7 @@
     ],
     "hover": "doors/run_door_hover.png",
     "z": 2,
-    "note": ""
+    "note": "painted run door \u2014 starts rightward path into Trophy Hall (does not skip to Outpost)"
    },
    {
     "node": "SideDoor",
@@ -122,7 +180,7 @@
     ],
     "hover": "doors/side_door_hover.png",
     "z": 2,
-    "note": "to Trophy Hall"
+    "note": "to Trophy Hall (right path)"
    },
    {
     "node": "SignHall",
@@ -138,7 +196,7 @@
     "hotspot": null,
     "hover": null,
     "z": 2,
-    "note": ""
+    "note": "hall sign by right door"
    },
    {
     "node": "Map",
@@ -462,7 +520,7 @@
     ],
     "hover": "doors/doorway_hover.png",
     "z": 2,
-    "note": "back (always open)"
+    "note": "back to main (left)"
    },
    {
     "node": "SideDoor",
@@ -483,11 +541,11 @@
     ],
     "hover": "doors/side_door_hover.png",
     "z": 2,
-    "note": "to study"
+    "note": "to Outpost (mudroom)"
    },
    {
-    "node": "SignStudy",
-    "file": "doors/door_sign_study.png",
+    "node": "SignOutpost",
+    "file": "doors/door_sign_outpost.png",
     "origin": [
      385,
      110
@@ -496,10 +554,15 @@
      18,
      14
     ],
-    "hotspot": null,
+    "hotspot": [
+     383,
+     108,
+     22,
+     18
+    ],
     "hover": null,
     "z": 2,
-    "note": ""
+    "note": "hall right door \u2192 Outpost; hover key cabin.hall.sign_outpost"
    },
    {
     "node": "Flame0",
@@ -536,7 +599,7 @@
     ],
     "hover": null,
     "z": 3,
-    "note": "cabinet completion (TextureProgressBar); hover = \"x of y\" tooltip"
+    "note": "cabinet completion (TextureProgressBar); hover = \"x of y\" tooltip (retired \u2014 five fixed plate cases)"
    },
    {
     "node": "ShelfPrev",
@@ -557,7 +620,7 @@
     ],
     "hover": "ui/shelf_arrow_left_hover.png",
     "z": 4,
-    "note": "shelf page prev"
+    "note": "shelf page prev (retired \u2014 five fixed plate cases)"
    },
    {
     "node": "ShelfNext",
@@ -578,28 +641,28 @@
     ],
     "hover": "ui/shelf_arrow_right_hover.png",
     "z": 4,
-    "note": "shelf page next"
+    "note": "shelf page next (retired \u2014 five fixed plate cases)"
    },
    {
     "node": "Shelf",
     "file": null,
     "origin": [
-     100,
-     24
+     76,
+     56
     ],
     "size": [
-     260,
+     298,
      160
     ],
     "hotspot": [
-     100,
-     24,
-     260,
+     76,
+     56,
+     298,
      160
     ],
     "hover": null,
     "z": 3,
-    "note": "existing _shelf_host goes here (hole moved from (140,20) to (100,24), same 260x160)"
+    "note": "_shelf_host / hole aligned to Doop plate case bounds"
    }
   ],
   "study": [
@@ -638,7 +701,7 @@
     ],
     "hover": "doors/doorway_hover.png",
     "z": 2,
-    "note": "back (always open)"
+    "note": "to main (mirrored to right at runtime)"
    },
    {
     "node": "SideDoor",
@@ -659,7 +722,7 @@
     ],
     "hover": "doors/side_door_hover.png",
     "z": 2,
-    "note": "to workshop"
+    "note": "to workshop (mirrored to left at runtime)"
    },
    {
     "node": "SignWorkshop",
@@ -675,7 +738,7 @@
     "hotspot": null,
     "hover": null,
     "z": 2,
-    "note": ""
+    "note": "workshop sign (mirrored with door)"
    },
    {
     "node": "PortraitBig",
@@ -852,7 +915,7 @@
     ],
     "hover": "doors/doorway_hover.png",
     "z": 2,
-    "note": "back"
+    "note": "to study (mirrored to right at runtime)"
    },
    {
     "node": "Ladder",
@@ -873,7 +936,7 @@
     ],
     "hover": "doors/ladder_hover.png",
     "z": 2,
-    "note": "to loft"
+    "note": "to loft \u2014 sits on LEFT after H-flip"
    },
    {
     "node": "SignLoft",
@@ -889,7 +952,7 @@
     "hotspot": null,
     "hover": null,
     "z": 2,
-    "note": ""
+    "note": "loft sign near left ladder after flip"
    },
    {
     "node": "Dummy",
@@ -1205,12 +1268,12 @@
  },
  "extra": {
   "room_order": [
-   "mudroom",
+   "loft",
+   "workshop",
+   "study",
    "main",
    "hall",
-   "study",
-   "workshop",
-   "loft"
+   "mudroom"
   ],
   "room_px": 1680,
   "map_pins": {
@@ -1512,6 +1575,12 @@
      32,
      63
     ],
+    "left_door": [
+     6,
+     132,
+     32,
+     63
+    ],
     "chair": [
      10,
      205
@@ -1527,9 +1596,9 @@
    },
    "hall": {
     "hole": [
-     100,
-     24,
-     260,
+     76,
+     56,
+     298,
      160
     ],
     "back_door": [
@@ -1544,11 +1613,43 @@
      32,
      63
     ],
-    "gauge": [
-     148,
-     188,
-     164,
-     5
+    "cases_bounds": [
+     76,
+     56,
+     298,
+     160
+    ],
+    "case_glass": [
+     [
+      82,
+      68,
+      48,
+      138
+     ],
+     [
+      142,
+      68,
+      48,
+      138
+     ],
+     [
+      202,
+      68,
+      48,
+      138
+     ],
+     [
+      262,
+      68,
+      48,
+      138
+     ],
+     [
+      322,
+      68,
+      48,
+      138
+     ]
     ],
     "flame": [
      [
@@ -1575,7 +1676,8 @@
       298,
       133
      ]
-    ]
+    ],
+    "note": "coords pre-flip; room H-flips at runtime"
    },
    "workshop": {
     "back_door": [
@@ -1589,7 +1691,8 @@
      0,
      30,
      197
-    ]
+    ],
+    "note": "coords pre-flip; room H-flips at runtime so ladder reads on the left"
    },
    "loft": {
     "hatch": [
@@ -1622,7 +1725,13 @@
      63
     ],
     "out_door": [
-     250,
+     176,
+     72,
+     68,
+     52
+    ],
+    "leave_door": [
+     370,
      130,
      44,
      66

@@ -1926,7 +1926,7 @@ func _shot_anim_poison_pop() -> void:
 	await _wait(0.15)
 	_log_progress("poison six_seats wheel=%s" % main.wheel.size())
 	await _capture("06_six_seats.png", "Poison drip badges on a 6-seat wheel")
-	# Plague Doctor Always padlock on neighbour badges.
+	# SP-28 Plague Doctor freezes poison: padlock on neighbour stacks after Spin.
 	await _anim_ready_seat(
 		["plague_doctor", "goblin", "skeleton", "bandit"],
 		["shield"],
@@ -1934,7 +1934,7 @@ func _shot_anim_poison_pop() -> void:
 	)
 	await _anim_spin_face(0)
 	await _wait(0.25)
-	await _capture("07_plague_lock.png", "Plague Doctor: Always padlock on neighbour poison")
+	await _capture("07_plague_lock.png", "Plague Doctor: freeze padlock on neighbour poison")
 
 
 func _shot_anim_petrify() -> void:
@@ -2454,14 +2454,16 @@ func _shot_anim_hover_preview() -> void:
 	main._on_item_unhovered()
 	await _anim_ready_seat(["bushido", "goblin"], ["shield", "net"], 6, 0)
 	await _anim_spin_face(0)
-	main.items_used_this_combat = 1
+	# SP-20 Dance Swap: plate shows HP/Attack after a counted item use.
+	if main.wheel.size() > 0:
+		main.wheel[0]["hp"] = 5
+		main.wheel[0]["atk"] = 6
+		main.wheel[0]["hp_max"] = 6
+		main.wheel[0]["hp_locked"] = true
+		main.wheel[0]["atk_locked"] = true
 	main._refresh()
-	var sh3: Control = _hot_card("shield")
-	if sh3 != null:
-		main._on_item_hovered(_item_in_hand("shield"), sh3)
 	await _game_wait(0.22)
-	await _capture("04_bushido.png", "Bushido 2nd use: no-effect overlay")
-	main._on_item_unhovered()
+	await _capture("04_bushido.png", "Bushido Dance Swap: HP/ATK swapped after item")
 	await _anim_ready_seat(["skeleton", "goblin"], ["sai"], 6, 0)
 	if main.wheel.size() > 0:
 		main.wheel[0]["hp"] = 1

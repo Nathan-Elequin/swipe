@@ -15,13 +15,14 @@ func _init() -> void:
 		failed = _check(failed, "name %s" % want, str(named_biome.get("name", "")) == want) or failed
 		named += 1
 	failed = _check(failed, "deck 6+4", Shell.deck_counts(rules) == Vector2i(6, 4)) or failed
-	# Nathan's Weak/Tough/Deadly lock (exactly 10 each biome). Never show "Tier" to players.
+	# SP-17 Weak/Tough/Deadly ladder (exactly 10 each biome; Deadlies sum to 10 across the save).
+	# Never show "Tier" to players.
 	var expect := {
 		"b1": Vector3i(6, 3, 1),
 		"b2": Vector3i(5, 3, 2),
-		"b3": Vector3i(4, 4, 2),
-		"b4": Vector3i(3, 5, 2),
-		"b5": Vector3i(3, 4, 3),
+		"b3": Vector3i(5, 3, 2),
+		"b4": Vector3i(4, 4, 2),
+		"b5": Vector3i(4, 3, 3),
 	}
 	for raw in Shell.biomes_of(rules):
 		var b: Dictionary = raw
@@ -36,11 +37,11 @@ func _init() -> void:
 	var fb: Dictionary = Shell.mix_for(rules, "missing")
 	failed = _check(failed, "unknown biome uses cellar mix", int(fb.get("weak", 0)) == 6 and int(fb.get("tough", 0)) == 3 and int(fb.get("deadly", 0)) == 1) or failed
 	var state: Dictionary = Shell.fresh_state()
-	failed = _check(failed, "map shut", Shell.map_unlocked(rules, state) == false) or failed
+	failed = _check(failed, "map open on first visit", Shell.map_unlocked(rules, state)) or failed
 	failed = _check(failed, "only verdant hollow starts", Shell.can_start(rules, state, 0) and not Shell.can_start(rules, state, 1)) or failed
 	var pools := {"a": "b1", "b": "b1", "c": "b1", "d": "b1", "e": "b1"}
 	Shell.bank(rules, state, ["a", "b", "c"], pools)
-	failed = _check(failed, "gate at 3", Shell.map_unlocked(rules, state)) or failed
+	failed = _check(failed, "map still open after 3", Shell.map_unlocked(rules, state)) or failed
 	failed = _check(failed, "verdant hollow counts the 3", Shell.cabinet_count(state, "b1") == 3) or failed
 	failed = _check(failed, "sunken mire still locked", Shell.biome_unlocked(rules, state, 1) == false) or failed
 	failed = _check(failed, "no push yet", Shell.can_push(rules, state) == false) or failed
@@ -160,17 +161,19 @@ func _init() -> void:
 	var memory_rng := RandomNumberGenerator.new()
 	memory_rng.seed = 5
 	Shell.compose(rules, memory_rng, roster, "b5", memory["seen_deadly"])
-	failed = _check(failed, "save remembers deadly", memory["seen_deadly"].size() == 3) or failed
+	failed = _check(failed, "run remembers deadly", memory["seen_deadly"].size() == 3) or failed
+	Shell.begin_run(memory, 0, false, false)
+	failed = _check(failed, "new run forgets deadly", (memory["seen_deadly"] as Array).is_empty()) or failed
 	Shell.end_run(memory)
-	failed = _check(failed, "home keeps seen deadly", memory["seen_deadly"].size() == 3) or failed
+	failed = _check(failed, "home stays empty deadly", (memory["seen_deadly"] as Array).is_empty()) or failed
 	var full: Dictionary = Shell.fresh_state()
 	for bi in Shell.biomes_of(rules):
 		var pool := str((bi as Dictionary).get("id", ""))
 		for k in 5:
 			Shell.bank(rules, full, ["%s_%s" % [pool, k]], {"%s_%s" % [pool, k]: pool})
 	failed = _check(failed, "win", bool(full.get("won", false)) and bool(full.get("endless_unlocked", false))) or failed
-	var again: Dictionary = Shell.bank(rules, full, ["extra"], {"extra": "b1"})
-	failed = _check(failed, "drawer once", bool(again.get("show_drawer", true)) == false) or failed
+	var bank_again: Dictionary = Shell.bank(rules, full, ["extra"], {"extra": "b1"})
+	failed = _check(failed, "drawer once", bool(bank_again.get("show_drawer", true)) == false) or failed
 	## S8 / R5: Endless Push chains and deepest record updates.
 	Shell.begin_run(full, 0, false, true)
 	failed = _check(failed, "endless can push", Shell.can_push(rules, full)) or failed
@@ -234,6 +237,48 @@ func _init() -> void:
 	failed = _check(failed, "new save copies endless_best", int(shell_new.state.get("endless_best", 0)) == 4) or failed
 	failed = _check(failed, "new save copies banked", (shell_new.state["banked"] as Dictionary).has("net")) or failed
 	failed = _check(failed, "new save copies run biome", int((shell_new.state["run"] as Dictionary).get("biome_index", -1)) == 2) or failed
+	failed = _check(failed, "old save next_run default", typeof(shell_old.state.get("next_run", null)) == TYPE_DICTIONARY and (shell_old.state["next_run"] as Dictionary).is_empty()) or failed
+	## Living map: seed_next_run gives 1/2/2/2/3 unique Deadlies; seen_deadly untouched.
+	var seed_state: Dictionary = Shell.fresh_state()
+	var seen_before: Array = (seed_state["seen_deadly"] as Array).duplicate()
+	var seed_roster: Array = _roster(8, 8, 12, false)
+	Shell.seed_next_run(rules, seed_state, seed_roster, 99)
+	var next_run: Dictionary = seed_state.get("next_run", {})
+	var deals: Dictionary = next_run.get("deals", {})
+	failed = _check(failed, "seed stores seed", int(next_run.get("seed", 0)) == 99) or failed
+	failed = _check(failed, "seed leaves seen_deadly", (seed_state["seen_deadly"] as Array) == seen_before) or failed
+	var all_tel: Array = []
+	var expect_deadly := {"b1": 1, "b2": 2, "b3": 2, "b4": 2, "b5": 3}
+	for biome_id2 in ["b1", "b2", "b3", "b4", "b5"]:
+		var one_deal: Dictionary = deals.get(biome_id2, {})
+		var one_tel2: Array = one_deal.get("telegraph", [])
+		var want_n: int = int(expect_deadly[biome_id2])
+		failed = _check(failed, "seed %s deadly count" % biome_id2, one_tel2.size() == want_n) or failed
+		failed = _check(failed, "seed %s deck 10" % biome_id2, (one_deal.get("ids", []) as Array).size() == 10) or failed
+		for tid2 in one_tel2:
+			var sid2 := str(tid2)
+			failed = _check(failed, "seed unique %s" % sid2, not all_tel.has(sid2)) or failed
+			all_tel.append(sid2)
+	failed = _check(failed, "seed ten deadly across chain", all_tel.size() == 10) or failed
+	## Arm-delve consumption matches the seeded telegraph for each biome in order.
+	var consume_rng := RandomNumberGenerator.new()
+	consume_rng.seed = 123
+	Shell.begin_run(seed_state, 0, false, false)
+	failed = _check(failed, "begin_run clears seen for consume", (seed_state["seen_deadly"] as Array).is_empty()) or failed
+	for biome_id3 in ["b1", "b2", "b3", "b4", "b5"]:
+		var seeded_tel: Array = ((deals.get(biome_id3, {}) as Dictionary).get("telegraph", []) as Array).duplicate()
+		var got: Dictionary = Shell.consume_next_run_deal(rules, seed_state, seed_roster, str(biome_id3), consume_rng)
+		var got_tel: Array = got.get("telegraph", [])
+		failed = _check(failed, "consume %s telegraph size" % biome_id3, got_tel.size() == seeded_tel.size()) or failed
+		for i_tel in seeded_tel.size():
+			failed = _check(
+				failed,
+				"consume %s telegraph[%s]" % [biome_id3, i_tel],
+				str(got_tel[i_tel]) == str(seeded_tel[i_tel])
+			) or failed
+		for tid3 in seeded_tel:
+			failed = _check(failed, "consume marks seen %s" % tid3, (seed_state["seen_deadly"] as Array).has(str(tid3))) or failed
+	failed = _check(failed, "consume saw all ten", (seed_state["seen_deadly"] as Array).size() == 10) or failed
 	if failed:
 		print("CAMPAIGN_SHELL_FAIL")
 		quit(1)

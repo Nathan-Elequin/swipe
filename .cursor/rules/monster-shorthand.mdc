@@ -1,13 +1,13 @@
 ---
-description: How Nathan writes new items and monsters in chat, and how Cursor places them in buckets without being told the number
+description: How Nathan writes new items and monsters in chat, and how Cursor places them in pools 1–5 without being told the number
 alwaysApply: true
 ---
 
-# Card shorthand and bucket placement
+# Card shorthand and pool placement
 
-Boss Rush / Swipe only. Nathan does not name a bucket. Cursor reads the live mill, places the new card, and moves whatever it displaces the way he would drag in Roster.
+Boss Rush / Swipe only. Nathan does not name a pool. Cursor reads the live mill, places the new card, and moves whatever it displaces the way he would drag on the pool pyramids.
 
-When he pastes a monster or an item in the shapes below, that block is the spec. Do not wait for a second format. Do not ask which bucket it goes in.
+When he pastes a monster or an item in the shapes below, that block is the spec. Do not wait for a second format. Do not ask which pool it goes in.
 
 ## Monster paste
 
@@ -67,19 +67,17 @@ If he omits tier, pick it after you know the bucket (see mix, below).
 - Pair extras: **Right Bracer** (`bracers`) sits in the same bucket as Left Bracer and does not count. The pair is one unlock. Add future pairs the same way (second card extra, same bucket).
 - Hold / retired.
 
-**Bucket 0:** 10 items and 10 monsters. Tiers 5 / 3 / 2. Item types 3 Attack / 3 Defense / 2 Cheese / 2 Utility.
+**Five pools** (pyramids): gold on top, then silver, then bronze. Smoke Bomb, pair extras, mode-only, Token, Hold, and retired sit in Aside or Token and do not sit in Pools 1–5.
 
-**Later buckets:** 5 items and 5 monsters. Tiers 2 / 2 / 1. Item types 2–1–1–1, rotating whether Attack or Defense gets the extra 2. Last used bucket may be short. Fill bucket N completely before N+1.
+Place by mix line (T1 / T2 / T3 and Attack / Defense / Cheese / Utility) and complexity climb. Pool 1 is the first dungeon / Verdant Hollow.
 
-`3/2/1` for five cards is six slots. Do not use it. Later mix is **2/2/1**.
+## Per-pool priority
 
-## Per-bucket priority
+When a card could go in more than one pool, rank the pool by:
 
-When a card could go in more than one bucket, rank the bucket by:
-
-1. **Tier mix** (5/3/2 in 0, 2/2/1 later)
+1. **Tier mix** (bronze wider than silver, silver wider than gold)
 2. **Type mix** (items only: Attack / Defense / Cheese / Utility)
-3. **Complexity climb** (later buckets denser than earlier ones)
+3. **Complexity climb** (later pools denser than earlier ones)
 
 ## Complexity
 
@@ -90,38 +88,38 @@ Weigh all of these. None of them wins alone:
 - Length of Ability + Shift
 - How many other live cards you must already understand
 
-Short text and a trap idea count equally. **Goblin** stays in Bucket 0 because it is in the tutorial, even though “cannot take Attack damage” is a trap. Keep Boot and Net (or equal Cheese / Utility) in 0 with it.
+Short text and a trap idea count equally. **Goblin** stays in Pool 1 because it is in the tutorial, even though “cannot take Attack damage” is a trap. Keep Boot and Net (or equal Cheese / Utility) in Pool 1 with it.
 
-**Bucket 0 must teach:** Attack, Block, Defeat, Neighbor, Spin, Keep. Smoke Bomb may be the Spin teacher in Adventure. Challenge has no Smoke — a mill card in 0 must cover Spin there, or Smoke must be allowed in Challenge too. Do not leave Challenge 0 with no Spin.
+**Pool 1 must teach:** Attack, Block, Defeat, Neighbor, Spin, Keep. Smoke Bomb may be the Spin teacher in Adventure. Challenge has no Smoke — a mill card in Pool 1 must cover Spin there, or Smoke must be allowed in Challenge too. Do not leave Pool 1 in Challenge with no Spin.
 
-**New unique keyword:** first appearance is the earliest bucket whose *other* cards do not also introduce a new verb. One new word per unlock. At most **two** new verbs in a 5-card unlock, and one of those two must already have shown in the previous bucket. Three is too many. If the candidate needs two brand-new words, it waits or something else is bumped out.
+**New unique keyword:** first appearance is the earliest pool whose *other* cards do not also introduce a new verb. One new word per unlock. At most **two** new verbs in one pool unlock, and one of those two must already have shown in the previous pool. Three is too many. If the candidate needs two brand-new words, it waits or something else is bumped out.
 
-**Tracking:** any bucket may have at most one tracking card (Hex-style delay, Pacemaker “exactly 2”, Grief Jar per-Spin growth). A second tracker waits.
+**Tracking:** any pool may have at most one tracking card (Hex-style delay, Pacemaker “exactly 2”, Grief Jar per-Spin growth). A second tracker waits.
 
-**Copy / “uses another card’s number”:** a bit more complex. Spread these across buckets. No hard ban on Bucket 0 for self-formulas (missing HP, items in hand).
+**Copy / “uses another card’s number”:** a bit more complex. Spread these across pools. No hard ban on Pool 1 for self-formulas (missing HP, items in hand).
 
 **Click then pick a target** (Throwing Knife, Crossbow) is not extra complexity. Place by type and tier.
 
-**Cheese climb:** exactly one Cheese per bucket from 0 onward. Read-then-plan: compare one plate number first (Boot, then Sledgehammer), then exact match, delay, or rewrite the owner (Scythe, Hex, Polymorph, Napalm). Extra Cheese after every bucket already has one starts at the last bucket and walks backward.
+**Cheese climb:** exactly one Cheese per pool from 1 onward. Read-then-plan: compare one plate number first (Boot, then Sledgehammer), then exact match, delay, or rewrite the owner (Scythe, Hex, Polymorph, Napalm). Extra Cheese after every pool already has one starts at the last pool and walks backward.
 
 **T3 slot:** the prize of that unlock. Scary numbers with a short rule (Dragon) and the densest rule are both allowed.
 
-**Pairs:** same bucket, always. The second card does not count toward 5.
+**Pairs:** same pool, always. The second card sits in Aside with the pair and does not go on the pyramid.
 
-## Where it goes (do this instead of asking for a bucket)
+## Where it goes (do this instead of asking for a pool)
 
-1. Read live mill from `data/catalog.json` / `data/content-board.json` (skip Token, Smoke, mode-only, pair extras, Hold, retired).
-2. Score the new card’s complexity against cards already in each bucket (verbs, tracking, length, cards-you-must-know).
-3. Pick the earliest bucket that still wants that **tier** and, for items, that **type**, without breaking the one-new-keyword / one-tracker / one-Cheese rules.
-4. If that bucket is full, **displace** like Roster drag-and-drop:
-   - Items: bump the card already there with the **same type and same tier** that is least at-home in that bucket (too simple for it, or the type is overweight).
-   - Monsters: bump the **same tier** that is least at-home.
-   - Re-place the bumped card with this same procedure.
-5. If the new card is simpler than everything in the bucket it landed in, walk it earlier: bump the most complex card in the earlier bucket later, put the new one as early as it deserves.
+1. Read live mill from `data/catalog.json` / `data/content-board.json` (skip Token, Smoke, mode-only, pair extras, Hold, retired — those are Aside / Token).
+2. Score the new card’s complexity against cards already in each pool (verbs, tracking, length, cards-you-must-know).
+3. Pick the earliest pool that still wants that **tier** and, for items, that **type**, without breaking the one-new-keyword / one-tracker / one-Cheese rules.
+4. If that pool is full, **displace** like pyramid drag-and-drop:
+ - Items: bump the card already there with the **same type and same tier** that is least at-home in that pool (too simple for it, or the type is overweight).
+ - Monsters: bump the **same tier** that is least at-home.
+ - Re-place the bumped card with this same procedure.
+5. If the new card is simpler than everything in the pool it landed in, walk it earlier: bump the most complex card in the earlier pool later, put the new one as early as it deserves.
 6. **Stop and ask** (talk through the proposal, then wait) if placing it correctly would move **more than two** existing mill cards. Two or fewer: just move them and say what you dragged.
-7. Write `bucket` and `tier` on the board, the catalog, and any hardcoded fallback. Do not leave the card in an overflow hole when an earlier hole of the right mix exists.
+7. Write `pool` and `tier` on the board, the catalog, and any hardcoded fallback.
 
-Mode-only: still assign a bucket number. Pair a Challenge-only extra with an Adventure-only extra in the same bucket so both modes see one extra.
+Mode-only cards sit in Aside. Do not park them on a numbered pyramid.
 
 ## Paper Fight
 
@@ -129,13 +127,13 @@ A new or changed item/monster rule still Paper Fights (`paper-fight.mdc`). Fill 
 
 Skip Paper Fight only if he said **skip the Paper Fight** / **just ship it** / **F5 this**.
 
-Quoted Ability / Call name / HP / ATK / type still go onto the official fields in the same turn. Wait only on collision questions. Bucket placement runs after those answers (or immediately if Paper Fight was skipped).
+Quoted Ability / Call name / HP / ATK / type still go onto the official fields in the same turn. Wait only on collision questions. Pool placement runs after those answers (or immediately if Paper Fight was skipped).
 
 ## Do not
 
-- Do not ask Nathan which bucket to use.
+- Do not ask Nathan which pool to use.
 - Do not invent player-facing Ability or a new keyword’s definition.
 - Do not leave `|pipes|` in inspect, the balloon, or Shift.
 - Do not skip this parse because the rest of the chat was about UI, keys, or a different card.
 - Do not draw or replace PNG bytes.
-- Do not break Bucket 0’s tutorial needs (Goblin, Boot, Net, Attack / Block / Defeat / Neighbor / Spin / Keep).
+- Do not break Pool 1’s tutorial needs (Goblin, Boot, Net, Attack / Block / Defeat / Neighbor / Spin / Keep).

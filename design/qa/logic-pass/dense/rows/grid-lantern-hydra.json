@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Heal 2. Keep this if you are still missing HP.",
+			"ability": "Heal 1, then increase this number by 1. Keep this if you are still missing HP.",
 			"id": "lantern",
 			"kind": "item",
 			"name": "Lantern",
@@ -32,7 +32,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Lantern — Heal 2. Keep this if you are still missing HP. Monster: Hydra — When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each Challenge hand. Wheel hydra. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Lantern — Heal 1, then increase this number by 1. Keep this if you are still missing HP. Monster: Hydra — When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each Challenge hand. Wheel hydra. Click Lantern, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-lantern-hydra",
 	"log": "Draft enter\nYou Spin\nSpin Hydra\nenemy ATK 3   HP 5\nBLK 0\nitems this combat 0\nSpin hydra petrify none\nLantern\nHP heal +2  now 5\nitems this combat 1",

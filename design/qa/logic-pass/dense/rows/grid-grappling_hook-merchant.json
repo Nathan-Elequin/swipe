@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+			"ability": "Move to Any Monster, then Draw 1 Item",
 			"id": "grappling_hook",
 			"kind": "item",
 			"name": "Grappling Hook",
@@ -46,7 +46,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Grappling Hook — Swap a Neighboring Owner into this fight. Draw a Random Item. Monster: Merchant — When you Spin me, choose an Item and I will upgrade it Challenge hand. Wheel merchant, wizard, golem. Click Grappling Hook, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Grappling Hook — Move to Any Monster, then Draw 1 Item. Monster: Merchant — When you Spin me, choose an Item and I will upgrade it Challenge hand. Wheel merchant, wizard, golem. Click Grappling Hook, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-grappling_hook-merchant",
 	"log": "Draft enter\nYou Spin\nSpin Merchant\nenemy ATK 4   HP 4\nBLK 0\nitems this combat 0\nSpin merchant offers an upgrade\nSpin upgrade Grappling Hook to Hex\nYou Done\nFight hit 1  ATK 4 - BLK\nBLK 0\nHP take -4  now 2\nDefeated Merchant\nBLK 0\ndefeated 1\nYou Spin\nSpin Wizard\nenemy ATK 5   HP 2\nBLK 0\nitems this combat 0\nHex\nHex 5",

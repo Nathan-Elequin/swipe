@@ -182,7 +182,7 @@ func _new_ids() -> Array:
 		var id: String = str(it.get("card_id", ""))
 		if id == "" or seen_ids.has(id):
 			continue
-		if BucketRules.is_token(it.get("bucket", 0)):
+		if BucketRules.is_token(it):
 			continue
 		if cabin and cabin.is_swiped(id):
 			continue

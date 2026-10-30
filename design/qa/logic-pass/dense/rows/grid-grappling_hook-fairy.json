@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Swap a Neighboring Owner into this fight. Draw a Random Item.",
+			"ability": "Move to Any Monster, then Draw 1 Item",
 			"id": "grappling_hook",
 			"kind": "item",
 			"name": "Grappling Hook",
@@ -46,7 +46,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Grappling Hook — Swap a Neighboring Owner into this fight. Draw a Random Item. Monster: Fairy — When you Spin me, I Heal you and my Neighbors for 2 HP. Challenge hand. Wheel fairy, wizard, golem. Click Grappling Hook, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Grappling Hook — Move to Any Monster, then Draw 1 Item. Monster: Fairy — When you Spin me, I Heal you and my Neighbors for 2 HP. Challenge hand. Wheel fairy, wizard, golem. Click Grappling Hook, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-grappling_hook-fairy",
 	"log": "Draft enter\nYou Spin\nSpin Fairy\nenemy ATK 3   HP 1\nBLK 0\nitems this combat 0\nFairy - Fairy Dust\nHP heal +0  now 6\nUsed pick a neighbor\nGrappling Hook\nitems this combat 1\nUsed hook Wizard\nDraft gain Victory Flask\nYou Done\nFight hit 1  ATK 5 - BLK\nBLK 0\nHP take -5  now 1\nDefeated Wizard\nBLK 0\ndefeated 1\nYou Spin\nSpin Fairy\nenemy ATK 3   HP 1\nBLK 0\nitems this combat 0\nFairy - Fairy Dust\nHP heal +2  now 3",

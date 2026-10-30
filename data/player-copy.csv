@@ -501,3 +501,7 @@ Cards,card.monster.dragon.explainer,Roster · monster Shift math (Dragon),ignore
 Cards,card.monster.needleback.name,Roster · monster name (live),Needleback
 Cards,card.monster.needleback.ability,Roster · monster player text (Needleback),I Attack you for 1 each time I take ATK damage.
 Cards,card.monster.needleback.explainer,Roster · monster Shift math (Needleback),1 Thorns
+Cabin,cabin.hot.run_door,Hover label for the painted main-room run door (hall path),Toward the Outpost
+Cabin,cabin.hot.door_outpost,Hover label for Hall → Outpost right door,Outpost
+Playtest,cabin.hot.back_hall,Outpost back door hover → Trophy Hall,Trophy Hall
+Cabin,cabin.hall.sign_outpost,Hall Outpost door sign (replaces hidden SignStudy art),To the Outpost

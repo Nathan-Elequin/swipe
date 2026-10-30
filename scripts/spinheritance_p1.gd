@@ -32,8 +32,8 @@ static func phoenix_lays_egg(has_attacked: bool, silenced: bool) -> bool:
 	return not silenced and not has_attacked
 
 
-static func fairy_grants_bottle(hp_now: int, silenced: bool) -> bool:
-	return not silenced and hp_now > 0
+static func fairy_grants_bottle(_hp_now: int, _silenced: bool) -> bool:
+	return false
 
 
 ## used_uid < 0 means the combat ended with the link unused.

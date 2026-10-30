@@ -74,7 +74,7 @@ If Issues already let you type a new label when creating one, you can skip this.
 
 ## 6. itch: a second, unlisted page
 
-Do **not** upload to https://nathan-elequin.itch.io/swipe. Push only https://nathan-elequin.itch.io/swipe-playtest
+Do **not** upload to https://nathan-elequin.itch.io/swipe. Push only https://nathan-elequin.itch.io/spinheritance-playtest
 
 1. [https://itch.io/game/new](https://itch.io/game/new)
 2. Title: `Swipe Playtest` (or similar)

@@ -62,6 +62,7 @@ static func _read_dict(path: String) -> Dictionary:
 	f.close()
 	var parsed: Variant = JSON.parse_string(raw)
 	if typeof(parsed) != TYPE_DICTIONARY:
+		push_error("Failed to parse %s — player-facing copy will be blank until the JSON is valid." % path)
 		return {}
 	return parsed
 
@@ -183,27 +184,27 @@ static func _is_word_char(ch: String) -> bool:
 	return c == "_"
 
 
-static func _replace_word(text: String, needle: String, repl: String) -> String:
-	if needle == "" or text == "":
-		return text
+static func _replace_word(src: String, needle: String, repl: String) -> String:
+	if needle == "" or src == "":
+		return src
 	var bits: PackedStringArray = PackedStringArray()
 	var i: int = 0
 	var nlen: int = needle.length()
-	while i < text.length():
-		var at: int = text.find(needle, i)
+	while i < src.length():
+		var at: int = src.find(needle, i)
 		if at < 0:
-			bits.append(text.substr(i))
+			bits.append(src.substr(i))
 			break
 		if at > i:
-			bits.append(text.substr(i, at - i))
-		var before_ok: bool = at == 0 or not _is_word_char(text.substr(at - 1, 1))
+			bits.append(src.substr(i, at - i))
+		var before_ok: bool = at == 0 or not _is_word_char(src.substr(at - 1, 1))
 		var after_i: int = at + nlen
-		var after_ok: bool = after_i >= text.length() or not _is_word_char(text.substr(after_i, 1))
+		var after_ok: bool = after_i >= src.length() or not _is_word_char(src.substr(after_i, 1))
 		if before_ok and after_ok:
 			bits.append(repl)
 			i = after_i
 		else:
-			bits.append(text.substr(at, 1))
+			bits.append(src.substr(at, 1))
 			i = at + 1
 		if i <= at:
 			i = at + 1
@@ -242,6 +243,33 @@ static func tier_name(tier: int) -> String:
 	elif t == 3:
 		fallback = "Deadly"
 	return text("tier.%d.name" % t, fallback)
+
+
+static func tutorial_lines() -> Array:
+	if pack.is_empty():
+		reload()
+	var found: Array = []
+	for row in pack.get("rows", []):
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		if str(row.get("key", "")).begins_with("tutorial.line."):
+			found.append(row)
+	found.sort_custom(func(a, b) -> bool: return str(a.get("key", "")) < str(b.get("key", "")))
+	var out: Array = []
+	for row in found:
+		out.append({
+			"text": str(row.get("text", "")),
+			"hint": str(row.get("hint", "")),
+			"focus": str(row.get("focus", "")),
+			"wait": str(row.get("wait", "continue")),
+			"go": str(row.get("go", "Next")),
+			"force": str(row.get("force", "")),
+			"then_focus": str(row.get("then_focus", "")),
+			"branch": str(row.get("branch", "")),
+			"nib": float(row.get("nib", 0.0)),
+			"tiny": bool(row.get("tiny", false)),
+		})
+	return out
 
 
 static func taunts(id: String) -> Array:
@@ -389,7 +417,10 @@ static func save_all(rows: Array, names: Array) -> String:
 		return ""
 	if not _save_cards(rows):
 		return ""
-	AUTHOR_LOCK.rebuild_ledger(last_board if not last_board.is_empty() else null, pack, names_pack)
+	var board_arg: Variant = null
+	if not last_board.is_empty():
+		board_arg = last_board
+	AUTHOR_LOCK.rebuild_ledger(board_arg, pack, names_pack)
 	return ProjectSettings.globalize_path(PATH)
 
 
@@ -453,6 +484,11 @@ static func _save_copy(rows: Array) -> bool:
 			"where": str(row.get("where", previous.get("where", ""))),
 			"text": str(row.get("text", "")),
 		}
+		for extra in ["dir", "wait", "focus", "hint", "go", "branch", "force", "then_focus", "nib", "tiny"]:
+			if row.has(extra):
+				entry[extra] = row[extra]
+			elif previous.has(extra):
+				entry[extra] = previous[extra]
 		if bool(row.get("draft", false)) or bool(previous.get("draft", false)):
 			entry["draft"] = true
 		if bool(row.get("author_lock", false)):

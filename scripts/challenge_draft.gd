@@ -171,13 +171,12 @@ func set_reroll(on: bool, label: String) -> void:
 func set_final_item(on: bool) -> void:
 	if _final == null:
 		return
-	_final.visible = on
+	# Final Item lives on the Take-row capsule, not on this overlay.
+	_final.visible = false
+	_final.modulate = Color.WHITE
 	if on:
-		_final.text = COPY.text("challenge.final_item", "Final Item")
 		_final_t = 0.0
-		set_process(true)
-	else:
-		_final.modulate = Color.WHITE
+		set_process(false)
 
 
 func _process(delta: float) -> void:

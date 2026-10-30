@@ -13,7 +13,7 @@ Inbox source: Issues created by the playtest build's feedback paths (right-click
 
 This rule fires only in this repo.
 
-Public playtest: https://nathan-elequin.itch.io/swipe-playtest (`playtest-ship.mdc`). Local F5 is the same game on this PC. It does **not** count as deployed.
+Public playtest: https://nathan-elequin.itch.io/spinheritance-playtest (`playtest-ship.mdc`). Local F5 is the same game on this PC. It does **not** count as deployed.
 
 ## Every chat in this repo
 
@@ -24,7 +24,7 @@ Before the requested work, do **both** (order between them does not matter):
 
 Keep tracking **every still-open Issue** in every reply, including ones already summarized, until it belongs in **Closed issues** (below) or Nathan **verbally describes that ticket as closed**. Then close it on GitHub in that same turn. Do not hide, table, or drop an open Issue because he replied about something else. A finished local fix is not Closed until the itch playtest has it — so push that build in the same turn (`playtest-ship.mdc`).
 
-Linear bugs (one reading, no new rule, no number change): start the fix in that same turn, export **Web Playtest**, `butler push` to `nathan-elequin/swipe-playtest` (`playtest-ship.mdc`), then close the Issue and put it in **Closed issues**. Do not wait for him to say ship. Crashes / cannot-play: same auto-fix.
+Linear bugs (one reading, no new rule, no number change): start the fix in that same turn, export **Web Playtest**, `butler push` to `nathan-elequin/spinheritance-playtest` (`playtest-ship.mdc`), then close the Issue and put it in **Closed issues**. Do not wait for him to say ship. Crashes / cannot-play: same auto-fix.
 
 If a report has two readings that would change the code, Paper Fight. Ask. Do not patch it as a bug.
 
@@ -63,7 +63,7 @@ Example: `1. ⬜ [#22](url) — Unplayable items (Sledgehammer) should show a gr
 
 ### ✅ Closed issues
 
-Only Issues whose fix you are **confident** is fully deployed: merged, and playable on https://nathan-elequin.itch.io/swipe-playtest. Local code, F5, or an unpushed commit is not enough.
+Only Issues whose fix you are **confident** is fully deployed: merged, and playable on https://nathan-elequin.itch.io/spinheritance-playtest. Local code, F5, or an unpushed commit is not enough.
 
 Each closed item:
 

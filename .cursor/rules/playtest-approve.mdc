@@ -50,7 +50,7 @@ alwaysApply: true
 ## itch
 - Only when Nathan says "publish to itch".
 - boss-rush must be on `main`, clean, pushed and in sync with origin.
-- Run `tools/dev/godot-check.ps1`. Export the "Web Playtest" preset and `butler push` to `swipe-playtest:html5`. Report the build version.
+- Run `tools/dev/godot-check.ps1`. Export the "Web Playtest" preset and `butler push` to `spinheritance-playtest:html5`. Report the build version.
 - Never publish from a feature branch or a dirty folder.
 
 ## Pixel's branches

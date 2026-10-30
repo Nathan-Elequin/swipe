@@ -1,7 +1,7 @@
 {
 	"cards": [
 		{
-			"ability": "Block 1. If your Block is now Even, Keep this.",
+			"ability": "Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep.",
 			"id": "lucky_nickel",
 			"kind": "item",
 			"name": "Lucky Nickel",
@@ -32,7 +32,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Lucky Nickel — Block 1. If your Block is now Even, Keep this. Monster: Spider Queen — Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each. Challenge hand. Wheel spider_queen. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Lucky Nickel — Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep. Monster: Spider Queen — Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each. Challenge hand. Wheel spider_queen. Click Lucky Nickel, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-lucky_nickel-spider_queen",
 	"log": "Draft enter\nYou Spin\nSpin Spider Queen\nenemy ATK 3   HP 3\nBLK 0\nitems this combat 0\nSpider Queen - Egg Layer\nDraft gain Spider Egg\nGone Spider Egg\nSpider Queen - Egg Layer\nQueen +2 HP +2 ATK\nLucky Nickel\nBLK +1  to  1\nitems this combat 1",

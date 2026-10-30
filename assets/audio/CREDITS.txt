@@ -390,3 +390,29 @@ cab_drawer_open.ogg (0.97 s)
 cab_geode_chime.ogg (0.59 s)
     <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_geode_chime.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
     <- Kenney — Impact Sounds / Audio/impactGlass_light_002.ogg (pitch x0.9, -8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+
+Verdant Hollow theme (2026-10-29)
+---------------------------------
+music_verdant_hollow_intro.ogg (~10.1 s) — Verdant Hollow theme intro (one-shot) — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29
+music_verdant_hollow_loop.ogg (~1:47) — Verdant Hollow theme loop — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29
+
+Cinder Forge theme — Approach F hybrid (2026-10-29)
+---------------------------------------------------
+Source: Suno Forge Motif https://suno.com/s/mhvMHyfv72JqOpjX — loop trim 8.169s→73.629s (65.460s, 121 BPM). Instrumental by Nathan (refinedpolonaise473).
+music_cinder_forge_a.ogg (~65.46 s) — layer A bed (Lead+Bass+Keyboard+Synth+Other+Woodwinds, no drums)
+music_cinder_forge_b.ogg (~65.46 s) — layer B drums (combat intensity, synced to A)
+music_cinder_forge_c.ogg (~65.46 s) — layer C heat (Percussion+Brass; Tier-3/boss intensity, synced to A)
+
+Crystal Cavern theme — Approach F hybrid (2026-10-30)
+----------------------------------------------------
+Source: Crystal Cavern Stems (119 BPM). Instrumental by Nathan (refinedpolonaise473). Replaces sunken_mire music keys (b2).
+music_crystal_cavern_a.ogg — layer A bed (always on during the delve)
+music_crystal_cavern_b.ogg — layer B drums (combat intensity, synced to A)
+music_crystal_cavern_c.ogg — layer C heat (Tier-3/boss; quiet stem, map gain_db +10)
+
+Ashen Crypt theme — Approach F hybrid (2026-10-30)
+-------------------------------------------------
+Source: Ashen Crypt Stems (113 BPM). Instrumental by Nathan (refinedpolonaise473). b3.
+music_ashen_crypt_a.ogg — layer A bed (always on during the delve)
+music_ashen_crypt_b.ogg — layer B drums (combat intensity, synced to A)
+music_ashen_crypt_c.ogg — layer C heat (percussion+brass; Tier-3/boss). Map gain_db -2 on A/B/C so the stack leaves ~1.5 dB Music-bus headroom.

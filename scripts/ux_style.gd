@@ -274,15 +274,15 @@ const UNPLAYABLE := "#C8C2BA"
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
 static func call_color(special_id: String) -> Color:
 	match special_id:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "patient_disarm", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "rust", "decay":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "hunter_mark", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "rust", "decay":
 			return GOLD
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return CALL_ATK
-		"last_hp", "buff_hp", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator", "lifelink":
+		"last_hp", "buff_hp", "undying", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "take_instead", "blood_pact", "three_hp", "cultivator", "lifelink":
 			return CALL_HP
 		"kill_scale", "atk_eq_hp":
 			return CALL_VAR
-		"split_t2":
+		"split_t2", "synchronize":
 			return CALL_STEEL
 		_:
 			return CALL_INK
@@ -326,6 +326,10 @@ static func def_id_of(piece: String) -> String:
 		return "move"
 	if low.begins_with("flee"):
 		return "flee"
+	if low.begins_with("defeat"):
+		return "defeated"
+	if low.begins_with("mark"):
+		return "marked"
 	if low.find("poison") >= 0:
 		return "poison"
 	if low.begins_with("spin") or low == "spun":
@@ -357,8 +361,12 @@ static func def_of(id: String) -> String:
 			return "shift to a Neighbor without Spinning"
 		"flee":
 			return "If you are facing them, Spin the wheel at random. They are not removed."
+		"defeated":
+			return "They leave the wheel. Flee is different — they stay. Escaped means you took the hit and lived."
+		"marked":
+			return "upon Defeat, Trapper gains +2 HP and ATK"
 		"poison":
-			return "On a Spin, a monster with this loses that much HP immediately, wherever they sit, before their spin ability. Then it clears."
+			return "When you Spin that monster, they lose that much HP immediately, then the mark clears. Other marked monsters keep theirs. Your Poison pays first on a Spin. Not Attack."
 		"spin":
 			return "The wheel lands on a random living monster."
 		"always":
@@ -669,6 +677,7 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 	]
 	var stems := PackedStringArray([
 		"defeated", "defeats", "defeating", "defeat",
+		"marked", "marks", "mark",
 		"attacks", "attacking", "attacked", "attack",
 		"blocked", "blocking", "blocks", "block",
 		"defending", "defends", "defend",
@@ -722,6 +731,10 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		var a2: int = int(span["a"])
 		var b2: int = int(span["b"])
 		var piece: String = t.substr(a2, b2 - a2)
+		if piece.strip_edges().to_lower() == "any":
+			var after: String = t.substr(b2).strip_edges().to_lower()
+			if not after.begins_with("monster") and not after.begins_with("enemy"):
+				continue
 		var shown: String = _format_keyword(piece)
 		if colored:
 			var hex: String = _paint_hex(piece, t, a2, b2, num_hex, gold, hp_c, atk_c, var_c, blk_c, phrases, out_k)
@@ -794,6 +807,8 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 		return ALWAYS
 	if low.begins_with("defeat"):
 		return var_c
+	if low.begins_with("mark"):
+		return gold
 	if low.begins_with("attack") or low == "atk":
 		return atk_c
 	if low.begins_with("block") or low == "blk":

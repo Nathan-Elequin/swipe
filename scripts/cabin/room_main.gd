@@ -1,5 +1,6 @@
 extends "res://scripts/cabin/cabin_room.gd"
 ## Front room. Fire / hero / Nib live here; cabin reparents the existing nodes in.
+## Left door → study chain. Right door → trophy hall → Outpost.
 
 var firefly: AnimatedSprite2D
 var nib: AnimatedSprite2D
@@ -116,6 +117,7 @@ func _on_prompt_input(event: InputEvent) -> void:
 
 func _refresh_doors() -> void:
 	var hall_open: bool = cabin != null and cabin.is_room_unlocked("hall")
+	var study_open: bool = cabin != null and cabin.is_room_unlocked("study")
 	var side = spots.get("SideDoor", null)
 	if side is CabinHotspot:
 		side.tag_key = "cabin.hot.door_hall" if hall_open else "cabin.hot.door_locked"
@@ -127,6 +129,23 @@ func _refresh_doors() -> void:
 			if side.hover_tex == null:
 				side.hover_tex = closed
 			side.set_idle_tex(closed)
+	var left = spots.get("LeftDoor", null)
+	if left is CabinHotspot:
+		left.tag_key = "cabin.hot.door_study" if study_open else "cabin.hot.door_locked"
+		left.set_locked(not study_open, KIT.load_tex("doors/side_door_locked.png"))
+		left.flip_h = true
+		if study_open:
+			var closed_l: Texture2D = KIT.load_tex("doors/side_door_closed.png")
+			left.locked_tex = null
+			left.hover_tex = KIT.load_tex("doors/side_door_hover.png")
+			if left.hover_tex == null:
+				left.hover_tex = closed_l
+			left.set_idle_tex(closed_l)
+	## Painted run door starts the rightward hall path (does not skip to Outpost / delve).
+	var run = spots.get("RunDoor", null)
+	if run is CabinHotspot:
+		run.tag_key = "cabin.hot.run_door" if hall_open else "cabin.hot.door_locked"
+		run.set_locked(not hall_open, KIT.load_tex("doors/run_door_closed.png"))
 	_refresh_gear()
 
 
