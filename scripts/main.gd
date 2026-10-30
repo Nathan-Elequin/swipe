@@ -66,6 +66,9 @@ const MARBLE_FILL := 10
 ## 1.0 = original speed. Wheel spin ignores this.
 ## 0.675 = 35% faster than the previous 0.5 setting.
 const ANIM_TIME_SCALE := 0.675
+## Spin / Take / Safe sit in this row. Keep the height even when those buttons
+## hide mid-spin so the wheel does not grow, then shrink, to make room.
+const COMBAT_ACTION_SLOT_H := 64.0
 
 const COMBAT_LOG := preload("res://scripts/combat_log.gd")
 const ABILITY_SLASH := preload("res://scripts/ability_slash.gd")
@@ -20899,20 +20902,36 @@ func _wheel_side_gutter() -> float:
 	return 110.0
 
 
+func _combat_holds_action_slot() -> bool:
+	match phase:
+		"ready", "spinning", "fighting", "slaying", "draft", "devtest":
+			return true
+		_:
+			return false
+
+
+func _hold_combat_action_slot() -> void:
+	if btn_wrap == null:
+		return
+	if _combat_holds_action_slot():
+		btn_wrap.custom_minimum_size = Vector2(0.0, COMBAT_ACTION_SLOT_H)
+	else:
+		btn_wrap.custom_minimum_size = Vector2.ZERO
+
+
 func _layout_play_field() -> void:
 	if play_field == null or wheel_view == null:
 		return
+	_hold_combat_action_slot()
 	var sz: Vector2 = play_field.size
 	if sz.x < 8.0 or sz.y < 8.0:
 		return
-	var trophy_h := 0.0
 	if trophy:
 		trophy.visible = mobs_defeated > 0
 		if trophy.visible:
 			var ts: Vector2 = trophy.get_combined_minimum_size()
 			trophy.size = ts
 			trophy.position = Vector2(0.0, 4.0)
-			trophy_h = ts.y + 6.0
 	if hearts_box:
 		hearts_box.visible = false
 	if tray != null and tray.visible:
@@ -20920,14 +20939,16 @@ func _layout_play_field() -> void:
 		tray.position = Vector2((sz.x - tmin.x) * 0.5, 6.0)
 		tray.size = tmin
 	var extra: float = _wheel_side_gutter()
-	var top_need: float = trophy_h + 8.0
+	# Skull plaque sits in the empty corner of the square; it must not resize the wheel.
+	var top_need := 8.0
 	if tray != null and tray.visible:
 		top_need = maxf(top_need, tray.position.y + tray.size.y + 8.0)
 	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - top_need - 8.0))
 	# #199: shift wheel (+ hotbar via _recenter_hotbar, + arrows via rim guide) ~5% left.
 	var x: float = (sz.x - side - extra) * 0.5 - VIEW_FRAME.combat_cluster_left_nudge(sz.x)
 	x = VIEW_FRAME.clamp_x(x, side, sz)
-	var wheel_y: float = maxf(top_need, (sz.y - side) * 0.5)
+	# Pin to the top of the play field. Slack stays under the wheel, above Take.
+	var wheel_y: float = top_need
 	if tray != null and tray.visible:
 		wheel_y = maxf(wheel_y, tray.position.y + tray.size.y + 8.0)
 	wheel_view.custom_minimum_size = Vector2(side, side)
@@ -21480,6 +21501,7 @@ class TakeBurst extends Control:
 
 
 func _sync_buttons() -> void:
+	_hold_combat_action_slot()
 	var busy: bool = phase == "spinning" or phase == "slaying" or (phase == "draft" and draft_action == "busy") or _wheel_busy() or _adventure_busy
 	var enemy_up: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size() and (int(wheel[facing_index].get("hp", 0)) > 0 or _wick_waiting(facing_index))
 	btn_spin.disabled = busy or phase != "ready"
