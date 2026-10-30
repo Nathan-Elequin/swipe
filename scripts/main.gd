@@ -219,7 +219,7 @@ const MONSTER_SPECIAL := {
 	"cleric": {"id": "insure", "text": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item"},
 	"martyr": {"id": "noble_death", "text": "When I lose HP or Attack, I die. Neighbors gain my remaining HP."},
 	"prism": {"id": "refract", "text": "Attack at me hits both neighbors instead."},
-	"plague_doctor": {"id": "time_bomb", "text": "On each Spin, I give all You and all Monsters 1 Poison"},
+	"plague_doctor": {"id": "time_bomb", "text": "On each Spin, I give all You and all Monsters 1 Poison."},
 	"hired_hand": {"id": "bribe", "text": "Discard an item: I Attack a Neighbor and Flee."},
 	"hydra": {"id": "even_killer", "text": "I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each"},
 	"three_seeker": {"id": "triple_threat", "text": "If you have 3, 6, or 9 Items, you Always Spin me next"},
@@ -403,7 +403,7 @@ const MONSTER_SPEECH := {
 	"mouse": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
 	"magicat": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
 	"poison_frog": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
-	"plague_doctor": "On each Spin, I give all You and all Monsters 1 Poison",
+	"plague_doctor": "On each Spin, I give all You and all Monsters 1 Poison.",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
 	"oligarch": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
 }
