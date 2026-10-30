@@ -416,3 +416,8 @@ Source: Ashen Crypt Stems (113 BPM). Instrumental by Nathan (refinedpolonaise473
 music_ashen_crypt_a.ogg — layer A bed (always on during the delve)
 music_ashen_crypt_b.ogg — layer B drums (combat intensity, synced to A)
 music_ashen_crypt_c.ogg — layer C heat (percussion+brass; Tier-3/boss). Map gain_db -2 on A/B/C so the stack leaves ~1.5 dB Music-bus headroom.
+
+Shadow Abyss theme — Approach F hybrid (2026-10-30)
+--------------------------------------------------
+Source: Abyss Stems (200 BPM). Instrumental by Nathan (refinedpolonaise473). b5.
+music_shadow_abyss_a.ogg / _b / _c — Shadow Abyss Approach F (b5) — 200 BPM — A/B -2 dB, C +6 dB — Nathan (refinedpolonaise473), 2026-10-30
