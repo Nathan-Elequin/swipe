@@ -1,6 +1,6 @@
 # RESULT — REQ-20261030-trophy-hall-dumbwaiter
 
-- **tip_sha: fa19526e311b
+- **tip_sha: 86d5aae8fc47
 - **pr:** [#208](https://github.com/Nathan-Elequin/swipe/pull/208)
 - **branch:** `cursor/trophy-hall-dumbwaiter-b735`
 - **base:** `playtest/latest`

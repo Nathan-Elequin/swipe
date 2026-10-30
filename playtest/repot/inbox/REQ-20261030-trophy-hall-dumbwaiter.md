@@ -3,7 +3,7 @@ id: REQ-20261030-trophy-hall-dumbwaiter
 status: open
 priority: high
 pr: 208
-tip_sha: fa19526e311b
+tip_sha: 86d5aae8fc47
 branch: cursor/trophy-hall-dumbwaiter-b735
 created: 2026-10-30T00:00:00Z
 created_by: cursor-cloud
