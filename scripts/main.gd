@@ -12604,7 +12604,7 @@ func _announce_slice(index: int, to: Vector2 = Vector2.INF, fast: bool = false) 
 	_log_begin_monster(index)
 
 
-func _announce_item_use(it: Dictionary, to: Vector2 = Vector2.INF) -> void:
+func _announce_item_use(it: Dictionary, to: Vector2 = Vector2.INF, release_early: bool = true) -> void:
 	if it.is_empty():
 		return
 	var title: String = str(it.get("name", "")).strip_edges()
@@ -12630,8 +12630,10 @@ func _announce_item_use(it: Dictionary, to: Vector2 = Vector2.INF) -> void:
 			"is_item": true,
 			"card_id": iid,
 			"ticket": ticket_i,
-			# Release after gutter snap-in so ATK/BLK/etc. land during hold/fade.
-			"release_early": true,
+			# Default: release after gutter snap-in so ATK/BLK land during hold/fade.
+			# Signpost / Hypnotize must wait the full banner — overlapping it with
+			# an owner lunge freezes (item banner + run frames + hall redraw).
+			"release_early": release_early,
 		})
 	_log_begin_item(it)
 
@@ -16296,7 +16298,9 @@ func _apply_mark_inner(index: int) -> void:
 	# Hook FX must play before the item banner — otherwise the rope is buried under the slash.
 	var defer_announce: bool = kind == "hook_swap"
 	if not defer_announce:
-		await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos())
+		## Signpost / Hypnotize then make a monster lunge. Finish the banner first.
+		var overlap_ok: bool = kind != "signpost" and kind != "hypnotize"
+		await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos(), overlap_ok)
 	var token: int = _undo_gen
 	if kind == "defeat_double_hp":
 		await _apply_scythe(index, it, token)
@@ -16625,9 +16629,17 @@ func _apply_signpost(index: int, it: Dictionary) -> void:
 	call_deferred("_refresh")
 
 
+func _await_slash_idle() -> void:
+	if ability_slash == null or not ability_slash.is_busy():
+		return
+	while ability_slash != null and ability_slash.is_busy():
+		await get_tree().process_frame
+
+
 func _neighbor_full_attack(src: int) -> int:
 	if src < 0 or src >= wheel.size():
 		return 0
+	await _await_slash_idle()
 	var m: Dictionary = wheel[src]
 	var pin_id: String = str(wheel[facing_index].get("card_id", "")) if facing_index >= 0 and facing_index < wheel.size() else ""
 	var pin_tier: int = int(wheel[facing_index].get("tier", 1)) if facing_index >= 0 and facing_index < wheel.size() else 1
