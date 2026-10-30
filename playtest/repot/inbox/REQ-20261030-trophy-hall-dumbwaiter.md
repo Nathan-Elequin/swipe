@@ -1,6 +1,6 @@
 ---
 id: REQ-20261030-trophy-hall-dumbwaiter
-status: open
+status: done
 priority: high
 pr: 208
 tip_sha: 86d5aae8fc47

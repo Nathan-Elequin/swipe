@@ -2705,7 +2705,7 @@
 			"call_name": "",
 			"card_color": "heal",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "Move 2 and Keep",
 			"flow": "Click during a fight. Heal 2 (cap 6). The Jar is used up. While it is still in your hand, one Move spends 1 move and slides two seats in that direction. If the second seat has no living monster, you only slide one.",
 			"hp_base": null,
@@ -2741,14 +2741,14 @@
 				"kind": "heal_swap_keep",
 				"n": 2.0
 			},
-			"pool": 4,
-			"priority": 3,
+			"pool": 4.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "Unplayable. On Item Use, decrease this by 1. When this reaches 0, Die.",
@@ -5383,24 +5383,20 @@
 		},
 		{
 			"ability": "On each Spin, I give all You and all Monsters 1 Poison",
-			"atk_base": 1.0,
+			"atk_base": 1,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Outbreak",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "Each Spin: you and every monster Gain 1 Poison",
-			"flags": {
-				"art": true,
-				"dev": true,
-				"hide": false
-			},
 			"flow": "SP-30 (2026-10-30). On every real Spin (Smoke, Flee, auto-spin, landing — not Grappling Hook or Damsel) while I live unsilenced: after player Poison and the landed monster's Poison pay, you Gain 1 Poison and every living monster Gains 1 Poison, including me. Amounts add. Two of me each give +1. The new 1s do not pay on this Spin. Quiet Bell turns this off. No freeze. No Heal.",
-			"hp_base": 3.0,
+			"hp_base": 3,
 			"hp_formula": "",
 			"id": "plague_doctor",
-			"locked_at": "2026-10-28",
+			"kind": "monster",
+			"locked_at": "2026-10-30",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5426,14 +5422,14 @@
 			"name": "Plague Doctor",
 			"notes": "SP-30. Pool 4 T1. Every Spin +1 you and every living monster including me. Each copy. Freeze gone. ATK 1.",
 			"ops": {},
-			"pool": 4.0,
-			"priority": 3.0,
+			"pool": 4,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "On each Spin, I give all You and all Monsters 1 Poison",
 			"review": "rough",
-			"review_note": "",
-			"status": "live",
-			"tier": 1.0
+			"review_note": "Ability should say: \"On each Spin, I give all You and all Monsters 1 Poison.\"",
+			"status": "todo",
+			"tier": 1
 		},
 		{
 			"ability": "If you Discard an item when facing me, I will Attack one of my Neighbors and Flee.",
