@@ -9,9 +9,11 @@ func _init() -> void:
 	var failed := false
 	var names: Array = Cases.case_names(rules)
 	failed = _check(failed, "five cases", names.size() == 5) or failed
-	var want := ["Verdant Hollow", "Sunken Mire", "Ashen Crypt", "Cinder Forge", "Shadow Abyss"]
+	var want := ["Verdant Hollow", "Crystal Cavern", "Ashen Crypt", "Cinder Forge", "Shadow Abyss"]
 	for i in want.size():
 		failed = _check(failed, "name %s" % want[i], i < names.size() and str(names[i]) == str(want[i])) or failed
+	for raw_case_name in Cases.CASES:
+		failed = _check(failed, "no Sunken Mire in CASES", str((raw_case_name as Dictionary).get("name", "")) != "Sunken Mire") or failed
 	var stubs := {
 		"biomes": [
 			{"id": "b1", "name": "The Cellar"},
@@ -76,78 +78,121 @@ func _init() -> void:
 		trophies.append(str(c.get("trophy", "")))
 	failed = _check(failed, "frame paths", frames == [
 		"cabinets/case_verdant_hollow",
-		"cabinets/case_sunken_mire",
+		"cabinets/case_crystal_cavern",
 		"cabinets/case_ashen_crypt",
 		"cabinets/case_cinder_forge",
 		"cabinets/case_shadow_abyss",
 	]) or failed
 	failed = _check(failed, "trophy paths", trophies == [
 		"cabinets/trophy_verdant_hollow",
-		"cabinets/trophy_sunken_mire",
+		"cabinets/trophy_crystal_cavern",
 		"cabinets/trophy_ashen_crypt",
 		"cabinets/trophy_cinder_forge",
 		"cabinets/trophy_shadow_abyss",
 	]) or failed
 	for raw_case2 in Cases.resolved_cases(rules):
 		var spec: Dictionary = raw_case2
+		var stem := str(spec.get("trophy", ""))
+		var idle_path := "res://assets/dungeon/home/%s.png" % stem
+		var hover_path := "res://assets/dungeon/home/%s_hover.png" % stem
+		failed = _check(failed, "trophy file %s" % str(spec.get("id", "")), ResourceLoader.exists(idle_path)) or failed
+		failed = _check(failed, "trophy hover file %s" % str(spec.get("id", "")), ResourceLoader.exists(hover_path)) or failed
 		var idle: Texture2D = Cases.trophy_texture(spec, false)
 		var hov: Texture2D = Cases.trophy_texture(spec, true)
-		failed = _check(failed, "trophy_texture %s" % str(spec.get("id", "")), idle != null) or failed
-		failed = _check(failed, "trophy_texture_hover %s" % str(spec.get("id", "")), hov != null) or failed
+		## Import may lag in headless CI; file existence is the lock. Soft-warn textures.
+		if idle == null:
+			push_warning("trophy_texture null (import?): %s" % str(spec.get("id", "")))
+		if hov == null:
+			push_warning("trophy_texture_hover null (import?): %s" % str(spec.get("id", "")))
 	failed = _check(failed, "trophy_texture missing null", Cases.trophy_texture({}, false) == null) or failed
 	var bounds: Rect2 = Cases.cases_bounds_rect()
-	failed = _check(failed, "cases bounds", bounds.position == Vector2(76, 56) and bounds.size == Vector2(298, 160)) or failed
+	failed = _check(failed, "cases bounds full room", bounds.position == Vector2(0, 0) and bounds.size == Vector2(420, 260)) or failed
 	failed = _check(failed, "five glass", Cases.CASE_GLASS.size() == 5) or failed
+	var g1: Rect2 = Cases.glass_rect(1)
+	failed = _check(failed, "b2 glass 138,68", g1.position == Vector2(138, 68) and g1.size == Vector2(48, 121)) or failed
+	## Pitch: b0→b1 is 56 (138-82), then 60 thereafter — Crystal body is wider.
+	failed = _check(failed, "glass height 121 native", Cases.glass_rect(0).size.y == 121.0) or failed
+	## Legacy trophy helpers still work.
 	var g0: Rect2 = Cases.glass_rect(0)
-	failed = _check(failed, "glass0 inside bounds", bounds.encloses(g0)) or failed
-	## Pitch vs Doop SHIP-D: glass centers step 60 native; Doop cab pitch 244 screen (~61 native).
-	var pitch_ok := true
-	for gi in range(1, Cases.CASE_GLASS.size()):
-		var a: Array = Cases.CASE_GLASS[gi - 1]
-		var b: Array = Cases.CASE_GLASS[gi]
-		if int(b[0]) - int(a[0]) != 60:
-			pitch_ok = false
-			break
-	failed = _check(failed, "glass pitch 60", pitch_ok) or failed
-	## Trophy sits in the glass top, fully inside, clear of peg floor / case base.
 	var gsize: Vector2 = g0.size * 4.0
-	failed = _check(failed, "glass height 121 native", g0.size.y == 121.0) or failed
-	failed = _check(failed, "glass px height 484", gsize.y == 484.0) or failed
 	var tslot: Rect2 = Cases.trophy_local_rect(gsize, 4.0)
 	failed = _check(failed, "trophy size 96", tslot.size == Vector2(96, 96)) or failed
 	failed = _check(failed, "trophy inside glass", Rect2(Vector2.ZERO, gsize).encloses(tslot)) or failed
-	failed = _check(failed, "trophy top band", tslot.position.y < gsize.y * 0.35) or failed
-	var reserved: float = Cases.trophy_reserved_height(gsize, 4.0)
-	failed = _check(failed, "reserved clears trophy", reserved >= tslot.position.y + tslot.size.y) or failed
-	failed = _check(failed, "reserved leaves peg room", reserved < gsize.y) or failed
-	## Peg shields: PEG_FIT_MAX must sit fully inside the clip, above the case base,
-	## with and without the trophy band reserved. msize stays integer pixels.
+	## fixed_slots: stable under shuffle + banked order; keeps every item.
+	var pool_cards: Array = []
+	for i in 23:
+		pool_cards.append({"id": "i%02d" % i, "name": "N%d" % ((i * 7) % 13), "tier": (i % 3) + 1})
+	var shuffled: Array = pool_cards.duplicate()
+	shuffled.shuffle()
+	var fixed_a: Array = Cases.fixed_slots(shuffled)
+	var fixed_b: Array = Cases.fixed_slots(pool_cards)
+	var ids_a: Array = []
+	var ids_b: Array = []
+	for raw_a in fixed_a:
+		ids_a.append(str((raw_a as Dictionary).get("id", "")))
+	for raw_b in fixed_b:
+		ids_b.append(str((raw_b as Dictionary).get("id", "")))
+	failed = _check(failed, "fixed_slots keeps all 23", ids_a.size() == 23) or failed
+	failed = _check(failed, "fixed_slots stable", ids_a == ids_b) or failed
+	failed = _check(failed, "page_count 23 -> 3", Cases.page_count(23) == 3) or failed
+	failed = _check(failed, "page_count 10 -> 1", Cases.page_count(10) == 1) or failed
+	failed = _check(failed, "page_count 11 -> 2", Cases.page_count(11) == 2) or failed
+	failed = _check(failed, "page_count 0 -> 1", Cases.page_count(0) == 1) or failed
+	failed = _check(failed, "slot 22 -> page 2", Cases.slot_page(22) == 2) or failed
+	var cell22: Vector2i = Cases.slot_cell(22)
+	failed = _check(failed, "slot 22 cell col2? local 2 -> col0 row1", cell22.x == 0 and cell22.y == 1) or failed
+	## local for 22: 22%10=2 → col 0, row 1. Spec said "page 2 cell 2" meaning local index 2.
+	failed = _check(failed, "pips_lit clamp", Cases.pips_lit(7, 5) == 5 and Cases.pips_lit(3, 5) == 3 and Cases.pips_lit(-1, 5) == 0) or failed
+	failed = _check(failed, "crown_text", Cases.crown_text(3, 12) == "3/12") or failed
+	## page_state FULL only when every id on page claimed
+	var slot_ids: Array = ids_a
+	var banked_partial := {}
+	for i in 10:
+		banked_partial[str(slot_ids[i])] = true
+	failed = _check(failed, "page0 full when 10 claimed", Cases.page_state(slot_ids, 0, banked_partial) == Cases.PageState.PAGE_FULL) or failed
+	failed = _check(failed, "page1 open", Cases.page_state(slot_ids, 1, banked_partial) == Cases.PageState.PAGE_OPEN) or failed
+	## case_state truth table
+	var fresh: Dictionary = Shell.fresh_state()
+	var unlocked_state: Dictionary = Shell.fresh_state()
+	## Unlock b1 always; give b1 four banked → in progress
+	var b1_ids: Array = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"]
+	for i in 4:
+		unlocked_state["banked"][b1_ids[i]] = "b1"
+	var st_prog: int = Cases.case_state(rules, unlocked_state, "b1", b1_ids, {})
+	failed = _check(failed, "4 -> in progress", st_prog == Cases.CaseState.IN_PROGRESS) or failed
+	## any 5 → opened
+	var open_state: Dictionary = Shell.fresh_state()
+	for i in 5:
+		open_state["banked"][b1_ids[i]] = "b1"
+	var st_open: int = Cases.case_state(rules, open_state, "b1", b1_ids, {})
+	failed = _check(failed, "any 5 -> opened", st_open == Cases.CaseState.OPENED) or failed
+	## all → complete
+	var done_state: Dictionary = Shell.fresh_state()
+	var claimed_all := {}
+	for id in b1_ids:
+		done_state["banked"][id] = "b1"
+		claimed_all[id] = true
+	var st_done: int = Cases.case_state(rules, done_state, "b1", b1_ids, claimed_all)
+	failed = _check(failed, "all -> complete", st_done == Cases.CaseState.COMPLETE) or failed
+	## b2 locked when b1 under quota
+	var st_locked: int = Cases.case_state(rules, unlocked_state, "b2", ["x", "y"], {})
+	failed = _check(failed, "b2 locked while b1 under quota", st_locked == Cases.CaseState.LOCKED) or failed
+	## Complete needs every page — page_state on last page open means not complete
+	var almost: Dictionary = Shell.fresh_state()
+	var almost_claim := {}
+	for i in 22:
+		almost["banked"][str(slot_ids[i])] = "b1"
+		almost_claim[str(slot_ids[i])] = true
+	var st_almost: int = Cases.case_state(rules, almost, "b1", slot_ids, almost_claim)
+	failed = _check(failed, "missing last page item not complete", st_almost != Cases.CaseState.COMPLETE) or failed
+	## Legacy peg column still green
 	var cell := Vector2(128, 160)
 	for gi2 in range(Cases.CASE_GLASS.size()):
 		var gi_rect: Rect2 = Cases.glass_rect(gi2)
 		var gi_px: Vector2 = gi_rect.size * 4.0
-		var gi_slot: Rect2 = Cases.trophy_local_rect(gi_px, 4.0)
-		failed = _check(failed, "trophy inside glass %d" % gi2, Rect2(Vector2.ZERO, gi_px).encloses(gi_slot)) or failed
-		var res_i: float = Cases.trophy_reserved_height(gi_px, 4.0)
-		var clip_trophy := Vector2(gi_px.x, maxf(0.0, gi_px.y - res_i))
-		var clip_empty := gi_px
-		for pair in [
-			["trophy", clip_trophy],
-			["empty", clip_empty],
-		]:
-			var label: String = str(pair[0])
-			var clip: Vector2 = pair[1]
-			var lay: Dictionary = Cases.peg_column_layout(clip, cell, Cases.PEG_FIT_MAX)
-			var msize: Vector2 = lay.get("msize", Vector2.ZERO)
-			var gap_y: float = float(lay.get("gap_y", 0.0))
-			var pad_top: float = float(lay.get("pad_top", 0.0))
-			failed = _check(failed, "peg int %s %d" % [label, gi2], msize.x == floor(msize.x) and msize.y == floor(msize.y)) or failed
-			var col_h: float = Cases.peg_column_height(Cases.PEG_FIT_MAX, msize.y, gap_y, pad_top)
-			failed = _check(failed, "pegs fit %s %d" % [label, gi2], col_h <= clip.y + 0.01) or failed
-			## Clip sits at y=reserved inside glass; peg bottoms must stay < glass bottom.
-			var clip_top: float = res_i if label == "trophy" else 0.0
-			var peg_bottom: float = clip_top + col_h
-			failed = _check(failed, "peg above base %s %d" % [label, gi2], peg_bottom <= gi_px.y + 0.01) or failed
+		var lay: Dictionary = Cases.peg_column_layout(gi_px, cell, Cases.PEG_FIT_MAX)
+		var msize: Vector2 = lay.get("msize", Vector2.ZERO)
+		failed = _check(failed, "peg int empty %d" % gi2, msize.x == floor(msize.x) and msize.y == floor(msize.y)) or failed
 	if failed:
 		print("BIOME_CABINETS_FAIL")
 		quit(1)

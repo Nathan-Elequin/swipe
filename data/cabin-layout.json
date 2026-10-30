@@ -41,7 +41,7 @@
     ],
     "hover": "props/map_wall_hover.png",
     "z": 3,
-    "note": "Outpost wall map \u2014 click opens held map (same path as Space). LeaveDoor on right is the physical exit."
+    "note": "Outpost wall map — click opens held map (same path as Space). LeaveDoor on right is the physical exit."
    },
    {
     "node": "RerollJar",
@@ -159,7 +159,7 @@
     ],
     "hover": "doors/run_door_hover.png",
     "z": 2,
-    "note": "painted run door \u2014 starts rightward path into Trophy Hall (does not skip to Outpost)"
+    "note": "painted run door — starts rightward path into Trophy Hall (does not skip to Outpost)"
    },
    {
     "node": "SideDoor",
@@ -562,23 +562,7 @@
     ],
     "hover": null,
     "z": 2,
-    "note": "hall right door \u2192 Outpost; hover key cabin.hall.sign_outpost"
-   },
-   {
-    "node": "Flame0",
-    "file": "props/candle_flame_f0.png",
-    "origin": [
-     61,
-     62
-    ],
-    "size": [
-     6,
-     9
-    ],
-    "hotspot": null,
-    "hover": null,
-    "z": 4,
-    "note": ""
+    "note": "hall right door → Outpost; hover key cabin.hall.sign_outpost"
    },
    {
     "node": "Gauge",
@@ -599,7 +583,7 @@
     ],
     "hover": null,
     "z": 3,
-    "note": "cabinet completion (TextureProgressBar); hover = \"x of y\" tooltip (retired \u2014 five fixed plate cases)"
+    "note": "cabinet completion (TextureProgressBar); hover = \"x of y\" tooltip (retired — five fixed plate cases)"
    },
    {
     "node": "ShelfPrev",
@@ -620,7 +604,7 @@
     ],
     "hover": "ui/shelf_arrow_left_hover.png",
     "z": 4,
-    "note": "shelf page prev (retired \u2014 five fixed plate cases)"
+    "note": "shelf page prev (retired — five fixed plate cases)"
    },
    {
     "node": "ShelfNext",
@@ -641,7 +625,7 @@
     ],
     "hover": "ui/shelf_arrow_right_hover.png",
     "z": 4,
-    "note": "shelf page next (retired \u2014 five fixed plate cases)"
+    "note": "shelf page next (retired — five fixed plate cases)"
    },
    {
     "node": "Shelf",
@@ -936,7 +920,7 @@
     ],
     "hover": "doors/ladder_hover.png",
     "z": 2,
-    "note": "to loft \u2014 sits on LEFT after H-flip"
+    "note": "to loft — sits on LEFT after H-flip"
    },
    {
     "node": "SignLoft",
@@ -1596,10 +1580,10 @@
    },
    "hall": {
     "hole": [
-     76,
-     56,
-     298,
-     160
+     0,
+     0,
+     420,
+     260
     ],
     "back_door": [
      6,
@@ -1614,49 +1598,44 @@
      63
     ],
     "cases_bounds": [
-     76,
-     56,
-     298,
-     160
+     0,
+     0,
+     420,
+     260
     ],
     "case_glass": [
      [
       82,
       68,
       48,
-      138
+      121
      ],
      [
-      142,
+      138,
       68,
       48,
-      138
+      121
      ],
      [
       202,
       68,
       48,
-      138
+      121
      ],
      [
       262,
       68,
       48,
-      138
+      121
      ],
      [
       322,
       68,
       48,
-      138
+      121
      ]
     ],
-    "flame": [
-     [
-      61,
-      62
-     ]
-    ]
+    "flame": []
    },
    "study": {
     "back_door": [
