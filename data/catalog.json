@@ -2327,26 +2327,26 @@
 			"type": "I"
 		},
 		{
-			"ability": "Defeat Any Monster with exactly double your HP",
+			"ability": "Defeat Any Monster with HP equal to yours",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 1.0,
-			"defined": "Click during a fight, then click any monster on the wheel (including the one you are facing). If that monster's HP is exactly twice yours, Defeat them. If they are not the one you are fighting, they leave and this fight keeps going. Grey if nobody matches. Same animation as The Boot and Sledgehammer. Used up.",
+			"defined": "Click during a fight, then click any monster on the wheel (including the one you are facing). If that monster's current HP equals yours, Defeat them. If they are not the one you are fighting, they leave and this fight keeps going. Grey if nobody matches. Same animation as The Boot and Sledgehammer. Used up. Any is a keyword: not only the one you face.",
 			"exceptions": "",
-			"explainer": "(ENEMY HP = 2 × YOUR HP)",
+			"explainer": "(ENEMY HP = YOUR HP)",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Click during a fight, then click any monster on the wheel (including the one you are facing). If that monster's HP is exactly twice yours, Defeat them. If they are not the one you are fighting, they leave and this fight keeps going. Grey if nobody matches. Same animation as The Boot and Sledgehammer. Used up.",
+			"flow": "Click during a fight, then click any monster on the wheel (including the one you are facing). If that monster's current HP equals yours, Defeat them. If they are not the one you are fighting, they leave and this fight keeps going. Grey if nobody matches. Same animation as The Boot and Sledgehammer. Used up. Any is a keyword: not only the one you face.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "measuring_tape",
-			"locked_at": "2026-10-15",
+			"locked_at": "2026-10-30",
 			"locked_fields": [
 				"ability",
 				"name",
@@ -2367,7 +2367,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Kill at exactly double HP",
+			"log_hint": "Kill at equal HP",
 			"mode_pool": "all",
 			"name": "Scythe",
 			"notes": "",

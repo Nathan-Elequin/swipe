@@ -16494,7 +16494,7 @@ func _can_mark(index: int, kind: String) -> bool:
 			return false
 		if _defeat_blocked(wheel[index]):
 			return false
-		return int(wheel[index].get("hp", 0)) == hp * 2
+		return int(wheel[index].get("hp", 0)) == hp
 	if index == facing_index:
 		return false
 	if not _neighbor_indices().has(index):
@@ -16739,7 +16739,7 @@ func _apply_scythe(index: int, it: Dictionary, token: int) -> void:
 		call_deferred("_refresh")
 		return
 	var m: Dictionary = wheel[index]
-	if _defeat_blocked(m) or int(m.get("hp", 0)) != hp * 2 or int(m.get("hp", 0)) <= 0:
+	if _defeat_blocked(m) or int(m.get("hp", 0)) != hp or int(m.get("hp", 0)) <= 0:
 		_log("on_item_use", "cannot")
 		if sfx:
 			sfx.play("error", -10.0)
@@ -19688,10 +19688,10 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = "Deal Attack 1, then 2, then 3, then 4. Every item use this dungeon advances the cycle."
 		"defeat_double_hp":
 			out["value"] = _value_bb("Defeat", "", var_c)
-			out["equation"] = "(%s = %s × 2)" % [_bb(hp_c, "Enemy HP"), _bb(hp_c, "Your HP")]
-			out["body"] = "Defeat any Monster with exactly double your HP"
+			out["equation"] = "(%s = %s)" % [_bb(hp_c, "Enemy HP"), _bb(hp_c, "Your HP")]
+			out["body"] = str(it.get("ability", "Defeat Any Monster with HP equal to yours"))
 			if fighting and not bool(view.get("can_use", false)):
-				out["warn"] = "Can't — no monster has exactly double your HP."
+				out["warn"] = "Can't — no monster has HP equal to yours."
 		"defeat_only_item":
 			out["value"] = _value_bb("Defeat", "", var_c)
 			out["body"] = "If you have no playable items that Attack, Defeat the enemy."

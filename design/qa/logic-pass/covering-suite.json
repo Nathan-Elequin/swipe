@@ -1854,7 +1854,7 @@
 					"id": "measuring_tape",
 					"kind": "item",
 					"name": "Scythe",
-					"ability": "Defeat Any Monster with exactly double your HP",
+					"ability": "Defeat Any Monster with HP equal to yours",
 					"sprite": "assets/dungeon/items/measuring_tape.png"
 				},
 				{

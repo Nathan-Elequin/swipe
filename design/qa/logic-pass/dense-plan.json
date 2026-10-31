@@ -177,9 +177,9 @@
     },
     {
       "id": "measuring-tape-not-double",
-      "title": "Measuring Tape does not Defeat Golem (not exactly double HP)",
+      "title": "Scythe does not Defeat Golem (HP not equal)",
       "family": "miss",
-      "expected_text": "You have 6 HP. Double is 12. Golem has 7. Not exactly double, so Golem stays."
+      "expected_text": "You have 6 HP. Golem has 7. Not equal, so Golem stays."
     },
     {
       "id": "cube-eats-shield",

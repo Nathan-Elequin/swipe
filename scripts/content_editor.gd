@@ -32,7 +32,7 @@ const DEFAULT_EXPLAINER := {
 	"helmet": "min(YOUR HP, ENEMY HP)",
 	"da_boot": "(ENEMY HP < YOUR HP)",
 	"bag_of_holding": "(ENEMY HP < YOUR HP). They go in the bag.",
-	"measuring_tape": "(ENEMY HP = 2 × YOUR HP)",
+	"measuring_tape": "(ENEMY HP = YOUR HP)",
 	"bloody_gauntlets": "(1 + missing HP)",
 	"bracers": "(Right Neighbor ATK)",
 	"knucklers": "(8 − Items)",

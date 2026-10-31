@@ -936,7 +936,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-15",
+			"locked_at": "2026-10-30",
 			"name": "Scythe"
 		},
 		"item:medallion": {
@@ -2248,6 +2248,18 @@
 			],
 			"locked_at": "2026-10-28",
 			"name": "Juggernaut"
+		},
+		"monster:bear_trap": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"atk_base",
+				"hp_base"
+			],
+			"locked_at": "2026-10-30",
+			"name": "Bear Trap"
 		},
 		"monster:kobold_trapper": {
 			"fields": [

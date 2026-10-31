@@ -1259,7 +1259,7 @@
 		},
 		{
 			"id": "measuring-tape-not-double",
-			"title": "Measuring Tape does not Defeat Golem (not exactly double HP)",
+			"title": "Scythe does not Defeat Golem (HP not equal)",
 			"family": "miss",
 			"items": [
 				"measuring_tape"
@@ -1276,7 +1276,7 @@
 					"auto": true
 				}
 			],
-			"expected_text": "You have 6 HP. Double is 12. Golem has 7. Not exactly double, so Golem stays.",
+			"expected_text": "You have 6 HP. Golem has 7. Not equal, so Golem stays.",
 			"expected": {
 				"face_hp": 7
 			},
@@ -1285,7 +1285,7 @@
 					"id": "measuring_tape",
 					"kind": "item",
 					"name": "Scythe",
-					"ability": "Defeat Any Monster with exactly double your HP",
+					"ability": "Defeat Any Monster with HP equal to yours",
 					"sprite": "assets/dungeon/items/measuring_tape.png"
 				},
 				{

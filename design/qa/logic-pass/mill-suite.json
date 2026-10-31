@@ -619,13 +619,13 @@
 				"unique"
 			],
 			"monsters": [
-				"wizard"
+				"mimic"
 			],
 			"items": [
 				"measuring_tape"
 			],
-			"face": "wizard",
-			"expected_text": "Defeat Any Monster with exactly double your HP Wizard 2 HP < your 6, so this must Defeat.",
+			"face": "mimic",
+			"expected_text": "Defeat Any Monster with HP equal to yours. Mimic 6 HP equals your 6, so this must Defeat.",
 			"clicks": [
 				{
 					"op": "use",

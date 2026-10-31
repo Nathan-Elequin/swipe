@@ -352,7 +352,7 @@ static func def_id_of(piece: String) -> String:
 static func def_of(id: String) -> String:
 	match id:
 		"any":
-			return "select any Monster on the wheel"
+			return "You may choose any Monster on the wheel, not only the one you are facing."
 		"eject":
 			return "remove them from the dungeon immediately, placing them on the bottom of the Dungeon Deck"
 		"across":
