@@ -450,6 +450,8 @@ var last_item_atk: int = 0
 var last_blk_gain: int = 0
 var _rust_spawn_queue: int = 0
 var _rust_listen_lock: bool = false
+var _rust_block_hint: bool = false
+var _incoming_gain_uids: Array = []
 var last_hp_lost: int = 0
 var _stone_saved: int = 0
 var _stone_armed: bool = false
@@ -9077,6 +9079,12 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("on_item_use", str(it["name"]))
 			var shown_blk: int = gained if kind == "blk_coin_keep" else maxi(0, n)
 			_log("blk", "+%s  →  %s" % [shown_blk, blk])
+			if str(it.get("card_id", "")) == "rust":
+				if await _bleed(1):
+					it["spent"] = true
+					await _count_item_use()
+					_toss_item(int(it["uid"]), false)
+					return
 		"atk_move":
 			await _shift_facing(-1, false)
 			var n_mv: int = int(ops.get("n", 3))
@@ -9927,7 +9935,11 @@ func _gain_token_item(id: String) -> void:
 	if adventure and _hand_full():
 		_start_full_hand_replace(it)
 		return
+	if _hand_cannot_admit():
+		_abort_full_hand_gain(it)
+		return
 	hotbar.append(it)
+	_note_incoming_gain(it)
 	_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", id))
 	if sfx:
@@ -11379,11 +11391,42 @@ func _forced_hand_cap() -> int:
 	return CHALLENGE_HAND
 
 
+func _hand_cannot_admit() -> bool:
+	if hotbar.size() < _forced_hand_cap():
+		return false
+	return _filter_toss_uids(_hand_all_uids(), true).is_empty()
+
+
+func _note_incoming_gain(it: Dictionary) -> void:
+	_incoming_gain_uids.append(int(it.get("uid", -1)))
+
+
+func _dump_incoming_over_cap() -> void:
+	var cap: int = _forced_hand_cap()
+	var i: int = _incoming_gain_uids.size() - 1
+	while hotbar.size() > cap and i >= 0:
+		_discard_from_hand(int(_incoming_gain_uids[i]), false, false)
+		i -= 1
+	var guard: int = 0
+	while hotbar.size() > cap and guard < 32:
+		guard += 1
+		var last: Dictionary = hotbar[hotbar.size() - 1]
+		var last_uid: int = int(last.get("uid", -1))
+		_log("discard", str(last.get("name", "?")))
+		_discard_from_hand(last_uid, false, false)
+		if not _find_item(last_uid).is_empty():
+			hotbar.remove_at(hotbar.size() - 1)
+	_incoming_gain_uids.clear()
+	_refresh()
+
+
 func _enforce_hand_cap() -> void:
 	while hotbar.size() > _forced_hand_cap() and is_instance_valid(self):
 		await _forced_gain_tax()
 		if pending_feed.is_empty() and hotbar.size() > _forced_hand_cap():
+			_dump_incoming_over_cap()
 			break
+	_incoming_gain_uids.clear()
 
 
 func _is_forced_gain_feed(kind: String) -> bool:
@@ -11399,7 +11442,7 @@ func _forced_gain_tax() -> void:
 		return
 	var uids: Array = _filter_toss_uids(_hand_all_uids(), true)
 	if uids.is_empty():
-		# Rust must stay, like Spider Egg. If nothing else can be tossed, the hand stays over cap.
+		_dump_incoming_over_cap()
 		return
 	pending_feed = {"uids": uids, "kind": "forced_gain"}
 	_refresh()
@@ -11429,6 +11472,9 @@ func _maybe_oligarch_spawn(index: int) -> void:
 	pool.shuffle()
 	var n: int = mini(2, pool.size())
 	for i in range(n):
+		if _hand_cannot_admit():
+			_log("discard", "gift — hand full")
+			break
 		await _oligarch_deliver_item(str(pool[i]), index)
 	_cube_line = ""
 	_speech_from_index = -1
@@ -11452,7 +11498,11 @@ func _oligarch_deliver_item(id: String, from_i: int) -> void:
 		tex = tex_by_item.get(id, tex_sword)
 	if tex != null and from != Vector2.ZERO and to != Vector2.ZERO:
 		await _fly_courier(tex, from, to, 0.42)
+	if _hand_cannot_admit():
+		_abort_full_hand_gain(it)
+		return
 	hotbar.append(it)
+	_note_incoming_gain(it)
 	_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", id))
 	if sfx:
@@ -11527,7 +11577,11 @@ func _apply_oligarch_on_spin() -> void:
 
 func _force_gain_rust() -> void:
 	var it: Dictionary = _make_item("rust")
+	if _hand_cannot_admit():
+		_abort_full_hand_gain(it)
+		return
 	hotbar.append(it)
+	_note_incoming_gain(it)
 	_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", "Rust"))
 	if sfx:
@@ -11540,7 +11594,11 @@ func _force_gain_rust() -> void:
 func _force_gain_toll() -> void:
 	var it: Dictionary = _make_item("toll")
 	it["toll_n"] = 6
+	if _hand_cannot_admit():
+		_abort_full_hand_gain(it)
+		return
 	hotbar.append(it)
+	_note_incoming_gain(it)
 	_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", "Toll"))
 	if sfx:
@@ -12802,7 +12860,11 @@ func _try_gain_item(id: String) -> void:
 	if id == "":
 		return
 	var it: Dictionary = _make_item(id)
+	if _hand_cannot_admit():
+		_abort_full_hand_gain(it)
+		return
 	hotbar.append(it)
+	_note_incoming_gain(it)
 	_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", id))
 	_refresh()
@@ -13632,18 +13694,27 @@ func _queue_rust_on_gain_block() -> void:
 	var copies: int = _count_hand_rust()
 	if copies <= 0:
 		return
-	_rust_spawn_queue += copies * 2
-	_log("var", "Rust wave +%s" % (copies * 2))
+	_rust_spawn_queue += copies
+	_log("var", "Rust wave +%s" % copies)
 
 
 func _flush_rust_from_block() -> void:
 	if _rust_spawn_queue <= 0:
 		return
+	if hp <= 0:
+		_rust_spawn_queue = 0
+		return
 	_rust_listen_lock = true
 	var n: int = _rust_spawn_queue
 	_rust_spawn_queue = 0
+	var leftover: int = 0
 	for _i in n:
+		if _hand_cannot_admit():
+			leftover = n - _i
+			break
 		await _force_gain_rust()
+	if leftover > 0:
+		_log("discard", "Rust ×%s — hand full" % leftover)
 	_rust_listen_lock = false
 
 
@@ -17450,7 +17521,11 @@ func _draw_unseen_item(force_over: bool = false) -> void:
 	if not force_over and adventure and _hand_full():
 		_start_full_hand_replace(it)
 		return
+	if _hand_cannot_admit():
+		_abort_full_hand_gain(it)
+		return
 	hotbar.append(it)
+	_note_incoming_gain(it)
 	_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", id))
 	if sfx:
@@ -17924,7 +17999,7 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"napalm":
 			return [[_fg("heart", "=1")]]
 		"rust":
-			return [[_fg("shield", n if n != "" else "2")]]
+			return [[_fg("shield", n if n != "" else "2"), _fg("heart", "−1")]]
 		"quiet_bell":
 			return [[_fg("icon", "", "", "", "", "ban")]]
 		"hex", "toll":
@@ -18460,6 +18535,8 @@ func _item_view(it: Dictionary) -> Dictionary:
 		out["number"] = "6"
 		out["hp_cost"] = "−2"
 	if str(it.get("card_id", "")) == "cursed_scroll":
+		out["hp_cost"] = "−1"
+	if str(it.get("card_id", "")) == "rust":
 		out["hp_cost"] = "−1"
 	var authored: String = str(it.get("card_color", ""))
 	if UxStyle.card_color_id(authored) != "auto":
@@ -19797,7 +19874,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = str(it.get("ability", "Every 5th Item Discarded is copied into your Hand"))
 		"rust_watch":
 			out["value"] = _value_bb("Block", "2", blk_c)
-			out["body"] = str(it.get("ability", "Gain 2 Block. Whenever you Gain Block, Gain 2 Rust."))
+			out["body"] = str(it.get("ability", "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust."))
 		"blk_last":
 			out["value"] = _value_bb("Block", str(last_blk_gain), blk_c)
 			out["equation"] = "(%s)" % _bb(blk_c, "Last Block gained")
@@ -22618,7 +22695,8 @@ func _sync_hotbar() -> void:
 		if card.has_method("set_aura"):
 			var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
 			var snack_aura: bool = is_snack and not _toss_pick_mode()
-			card.set_aura(snack_aura or rec_ready or (mag_on and (phase == "fighting" or phase == "ready")))
+			var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
+			card.set_aura(snack_aura or rec_ready or rust_hint or (mag_on and (phase == "fighting" or phase == "ready")))
 		if card.has_method("set_toss_pick"):
 			card.set_toss_pick(_toss_pick_mode() and can_click)
 		if card.has_method("set_waiting_entry"):
@@ -22837,6 +22915,9 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 		card.show_formula(true)
 	if fly_tip:
 		fly_tip.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule["body"]), str(rule["warn"]), null, "item", str(it.get("card_id", "")), _item_look(it))
+	var fighting_now: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size()
+	var hint: bool = fighting_now and _item_grants_block(it) and bool(_item_view(it).get("can_use", false))
+	_set_rust_block_hint(hint)
 		_place_fly(card)
 	_apply_preview(_preview_from_item(it))
 	_refresh_blk(false)
@@ -22844,7 +22925,28 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 	_queue_hover_preview(it, card)
 
 
+func _set_rust_block_hint(on: bool) -> void:
+	if _rust_block_hint == on:
+		return
+	_rust_block_hint = on
+	if hotbar_box == null:
+		return
+	for node in hotbar_box.get_children():
+		if not (node is Control):
+			continue
+		var card: Control = node
+		if str(card.get("card_id", "")) != "rust":
+			continue
+		if not card.has_method("set_aura"):
+			continue
+		var uid_n: int = _control_uid(card)
+		var it: Dictionary = _find_item(uid_n)
+		var spent_n: bool = bool(it.get("spent", false))
+		card.set_aura(_rust_block_hint and not spent_n)
+
+
 func _on_item_unhovered() -> void:
+	_set_rust_block_hint(false)
 	_fly_card = null
 	_ghost_blk = -1
 	_clear_hover_preview()

@@ -3994,7 +3994,7 @@
 			"type": "I"
 		},
 		{
-			"ability": "Gain 2 Block. Whenever you Gain Block, Gain 2 Rust.",
+			"ability": "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -4002,15 +4002,15 @@
 			"card_color": "egg",
 			"count": 0.0,
 			"curse": true,
-			"defined": "Click during a fight. Gain 2 Block. Used up. Whenever you Gain Block from any source (including this card), each Rust already in your hand Gains you 2 more Rust. New Rusts from that wave do not fire on that same Gain. One wave per Gain Block, not per point of Block. New copies force into the hand like Spider Egg; if the hand is over cap, toss overlay (you cannot toss Rust in that overlay). Cube, Worm, Bell, Hired Hand, and a full-hand replace can dump Rust. Stone Wall leftover Block is not a Gain. Quiet Bell does not skip the Bucket grant. Two Buckets grant two Rusts.",
+			"defined": "Click during a fight. Gain 2 Block, Lose 1 HP. Used up. Whenever you Gain Block from any source (including this card), each Rust already in your hand Gains you 1 more Rust. New Rusts from that wave do not fire on that same Gain. One wave per Gain Block, not per point of Block. New copies force into the hand like Spider Egg; if the hand is over cap, toss overlay (you cannot toss Rust or Spider Egg in that overlay). If the ten slots are all curses, leftover incoming cards are discarded instead of staying over cap. Cube, Worm, Bell, Hired Hand, and a full-hand replace can dump Rust. Stone Wall leftover Block is not a Gain. Quiet Bell does not skip the Bucket grant. Two Buckets grant two Rusts.",
 			"exceptions": "Token. Curse (black card). Clickable. Rust Bucket creates it. Used up. Stacks per copy.",
-			"explainer": "Gain 2 Block. Whenever you Gain Block, Gain 2 Rust.",
+			"explainer": "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": true
 			},
-			"flow": "Click during a fight. Gain 2 Block. Used up. Whenever you Gain Block from any source (including this card), each Rust already in your hand Gains you 2 more Rust. New Rusts from that wave do not fire on that same Gain. One wave per Gain Block, not per point of Block. New copies force into the hand like Spider Egg; if the hand is over cap, toss overlay (you cannot toss Rust in that overlay). Cube, Worm, Bell, Hired Hand, and a full-hand replace can dump Rust. Stone Wall leftover Block is not a Gain. Quiet Bell does not skip the Bucket grant. Two Buckets grant two Rusts.",
+			"flow": "Click during a fight. Gain 2 Block, Lose 1 HP. Used up. Whenever you Gain Block from any source (including this card), each Rust already in your hand Gains you 1 more Rust. New Rusts from that wave do not fire on that same Gain. One wave per Gain Block, not per point of Block. New copies force into the hand like Spider Egg; if the hand is over cap, toss overlay (you cannot toss Rust or Spider Egg in that overlay). If the ten slots are all curses, leftover incoming cards are discarded instead of staying over cap. Cube, Worm, Bell, Hired Hand, and a full-hand replace can dump Rust. Stone Wall leftover Block is not a Gain. Quiet Bell does not skip the Bucket grant. Two Buckets grant two Rusts.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "rust",
@@ -4035,7 +4035,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Gain 2 Block. Whenever you Gain Block, Gain 2 Rust.",
+			"log_hint": "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust.",
 			"mode_pool": "all",
 			"name": "Rust",
 			"notes": "Token. Curse (black card). Clickable. Rust Bucket creates it. Used up. Stacks per copy.",
