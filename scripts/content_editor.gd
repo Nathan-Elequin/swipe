@@ -65,7 +65,7 @@ const DEFAULT_EXPLAINER := {
 	"last_match": "0 ATK Items → Defeat",
 	"mute_stone": "Swap 1–2 Items",
 	"cursed_scroll": "(HEAL 6)  Spin: −1 HP",
-	"spider_egg": "(Take ATK 2)",
+	"spider_egg": "(Take ATK 1)",
 	"shuriken": "Move →, then (ATK 3).",
 	"miasma": "Poison all = min HP",
 	"bag_of_marbles": "Fill to 10 Marbles",

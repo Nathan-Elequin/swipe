@@ -1,3 +1,132 @@
 {
-	"issues": {}
+	"updated_at": "2026-10-30T23:30:00-05:00",
+	"branch": "playtest/latest",
+	"issues": {
+		"190": {
+			"status": "f5",
+			"title": "Poison icon larger; do not recolor the wheel slice",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/190",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"198": {
+			"status": "f5",
+			"title": "Spider Egg Take 2 \u2192 Take 1",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/198",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"201": {
+			"status": "f5",
+			"title": "Damsel neighbor attacks one at a time, full animation",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/201",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"202": {
+			"status": "f5",
+			"title": "Jar of Grease hotbar movement cue like Shuriken",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/202",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"203": {
+			"status": "f5",
+			"title": "Sandbag slash on lethal trigger; speed up repeats",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/203",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"204": {
+			"status": "f5",
+			"title": "Beggar slash when the steal actually happens",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/204",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"219": {
+			"status": "f5",
+			"title": "Commander: first lethal is a Flee attempt; next lethal kills",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/219",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"220": {
+			"status": "f5",
+			"title": "Lich HP pip is the defeat skull",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/220",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"221": {
+			"status": "f5",
+			"title": "Wealth Tax slash then force-use a playable item",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/221",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"222": {
+			"status": "f5",
+			"title": "Ale Flagon heals you and the current enemy +3",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/222",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"223": {
+			"status": "f5",
+			"title": "Harpy should hit once on Spin unless Wealth Tax",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/223",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"232": {
+			"status": "f5",
+			"title": "Fairy neighbor +1 HP must show on the plate",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/232",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"233": {
+			"status": "f5",
+			"title": "Leech League must not fire when remaining HP is already tied",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/233",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"234": {
+			"status": "f5",
+			"title": "Recycler countdown on every discard",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/234",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"236": {
+			"status": "f5",
+			"title": "Medallion Block is 7 \u2212 HP, not 6 \u2212 HP",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/236",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"237": {
+			"status": "f5",
+			"title": "Beggar hotbar mark bigger, orange glow",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/237",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"238": {
+			"status": "f5",
+			"title": "Echo Bell replays a kept item, then discards itself",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/238",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"239": {
+			"status": "f5",
+			"title": "Beggar steal: slash, pull off hotbar, thank-you line",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/239",
+			"sha": "",
+			"f5_note": "On playtest/latest. Stop Play, F5."
+		}
+	}
 }

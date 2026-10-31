@@ -72,6 +72,7 @@ var _choice_badge: Label
 var _cabinet_badge: Label
 var _beggar_on: bool = false
 var _beggar_lab: Label
+var _beggar_icon: TextureRect
 var _beggar_flash: float = 0.0
 var _beggar_punch: Tween
 var _hp_cost: HBoxContainer
@@ -191,7 +192,7 @@ func setup(
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_icon)
-	if p_id == "shuriken":
+	if p_id == "shuriken" or p_id == "jar_o_grease":
 		var arc := preload("res://scripts/move_arc_icon.gd").new()
 		arc.name = "MoveArc"
 		_icon.add_child(arc)
@@ -899,8 +900,12 @@ func set_beggar_mark(on: bool) -> void:
 	if on:
 		var lab := _ensure_beggar_label()
 		lab.visible = true
+		if _beggar_icon:
+			_beggar_icon.visible = true
 	elif _beggar_lab != null:
 		_beggar_lab.visible = false
+		if _beggar_icon:
+			_beggar_icon.visible = false
 	queue_redraw()
 
 
@@ -919,18 +924,30 @@ func play_beggar_pick() -> void:
 func _ensure_beggar_label() -> Label:
 	if _beggar_lab != null:
 		return _beggar_lab
+	if _beggar_icon == null:
+		_beggar_icon = TextureRect.new()
+		_beggar_icon.name = "BeggarIcon"
+		_beggar_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_beggar_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_beggar_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_beggar_icon.texture_filter = TEXTURE_FILTER_NEAREST
+		_beggar_icon.z_index = 9
+		_beggar_icon.custom_minimum_size = Vector2(36, 36)
+		if ResourceLoader.exists("res://assets/dungeon/extra/beggar.png"):
+			_beggar_icon.texture = load("res://assets/dungeon/extra/beggar.png") as Texture2D
+		add_child(_beggar_icon)
 	var lab := Label.new()
 	lab.name = "BeggarMark"
 	lab.text = "Beggar"
 	lab.tooltip_text = "When you Spin the Beggar, this Item will be Discarded"
 	lab.mouse_filter = Control.MOUSE_FILTER_STOP
 	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lab.add_theme_font_size_override("font_size", 11)
-	lab.add_theme_color_override("font_color", Color("e8c36a"))
+	lab.add_theme_font_size_override("font_size", 13)
+	lab.add_theme_color_override("font_color", Color("ffb24a"))
 	lab.add_theme_color_override("font_outline_color", Color("100e0c"))
-	lab.add_theme_constant_override("outline_size", 4)
+	lab.add_theme_constant_override("outline_size", 5)
 	lab.z_index = 8
-	lab.custom_minimum_size = Vector2(72, 16)
+	lab.custom_minimum_size = Vector2(80, 18)
 	lab.gui_input.connect(func(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT and _playable:
 			picked.emit()
@@ -943,11 +960,13 @@ func _ensure_beggar_label() -> Label:
 
 
 func _place_beggar_label() -> void:
+	var face_w: float = size.x if size.x > 8.0 else (SHOW_W if _showcase else CARD_W)
+	if _beggar_icon != null:
+		_beggar_icon.position = Vector2(face_w - 40.0, 2.0)
+		_beggar_icon.size = Vector2(36, 36)
 	if _beggar_lab == null:
 		return
-	var face_w: float = size.x if size.x > 8.0 else (SHOW_W if _showcase else CARD_W)
-	var face_h: float = size.y if size.y > 8.0 else (SHOW_H if _showcase else CARD_H)
-	_beggar_lab.position = Vector2((face_w - 72.0) * 0.5, face_h - 18.0)
+	_beggar_lab.position = Vector2(face_w - 84.0, 36.0)
 
 
 func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
@@ -1431,10 +1450,12 @@ func _apply_style(hot: bool) -> void:
 func _draw() -> void:
 	if _beggar_on:
 		var flash: float = clampf(_beggar_flash, 0.0, 1.0)
-		var col: Color = Color("8d7344").lerp(Color("ffe08a"), flash)
-		var width: float = 2.0 + flash * 3.0
-		var alpha: float = 0.78 + flash * 0.22
+		var col: Color = Color("ff7a18").lerp(Color("ffe08a"), flash)
+		var width: float = 4.0 + flash * 4.0
+		var alpha: float = 0.90 + flash * 0.10
 		draw_rect(Rect2(Vector2(1, 1), size - Vector2(2, 2)), Color(col.r, col.g, col.b, alpha), false, width)
+		var glow := Color(1.0, 0.45, 0.08, 0.22 + flash * 0.28)
+		draw_rect(Rect2(Vector2(-3, -3), size + Vector2(6, 6)), glow, false, 6.0)
 		_place_beggar_label()
 	if _glow:
 		var period: float = 1.45 if _tier <= 1 else (1.05 if _tier == 2 else 0.72)

@@ -655,7 +655,7 @@ func _draw_hub_poison_badge(font: Font, dim: float) -> void:
 		anchor = pts[int(pts.size() / 2)] + Vector2(54, 0)
 	var bob: float = 0.0 if hub_poison_locked else (2.0 * sin(_glow_t * 4.0))
 	anchor.y += bob
-	var sz := Vector2(64, 64)
+	var sz := Vector2(80, 80)
 	# PixelLab drip/burst art already has its purple ramp — draw unmodulated.
 	var art_col := Color(1, 1, 1, dim)
 	var legacy_col := Color("7dba7d", dim)
@@ -2460,6 +2460,7 @@ func _fill_for(s: Dictionary, is_face: bool, is_hover: bool) -> Color:
 		fill = fill.darkened(0.18)
 	if bool(s.get("crossbowed", false)):
 		fill = fill.lerp(Color("5a4a18"), 0.45)
+	# Poison must never recolor the wedge. Badge only.
 	if highlight == "mark" and bool(s.get("markable", false)):
 		fill = fill.lightened(0.16)
 	return fill
@@ -3676,6 +3677,11 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		fill = fill.lerp(Color("ffd0a0"), punch * 0.55)
 	var hs: float = 36.0 + punch * 4.0
 	var heart_tex: Texture2D = tex_heart_full if tex_heart_full != null else tex_heart
+	if str(s.get("card_id", "")) == "lich":
+		if ResourceLoader.exists("res://assets/dungeon/tiles/skull.png"):
+			heart_tex = load("res://assets/dungeon/tiles/skull.png") as Texture2D
+		elif ResourceLoader.exists("res://assets/icons/skull.svg"):
+			heart_tex = load("res://assets/icons/skull.svg") as Texture2D
 	_draw_stat_plate(pos, hs)
 	if is_hover:
 		var glow: float = 0.40 + 0.45 * absf(sin(_glow_t * 8.0))
@@ -3737,7 +3743,7 @@ func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool, idx:
 	var sc: float = float(_poison_badge_scale.get(idx, 1.0)) if idx >= 0 else 1.0
 	if clear_t > 0.01:
 		sc *= clear_t
-	var base_sz := Vector2(48, 48) if big else Vector2(42, 42)
+	var base_sz := Vector2(64, 64) if big else Vector2(56, 56)
 	var sz: Vector2 = base_sz * sc
 	var art_col := Color.WHITE
 	var legacy_col := Color("7dba7d")
@@ -3748,7 +3754,7 @@ func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool, idx:
 	var ci := _d()
 	if drip_tex != null:
 		var ink := Color("100e0c", art_col.a)
-		var rim: Vector2 = sz + Vector2(6, 6)
+		var rim: Vector2 = sz + Vector2(10, 10)
 		ci.draw_texture_rect(drip_tex, Rect2(drop_pos - rim * 0.5, rim), false, ink)
 		ci.draw_texture_rect(drip_tex, Rect2(drop_pos - sz * 0.5, sz), false, art_col)
 	else:
