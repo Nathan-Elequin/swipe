@@ -214,7 +214,7 @@ const MONSTER_SPECIAL := {
 	"hollow": {"id": "even_twice", "text": "Even Attack and even Block happen twice against me."},
 	"beggar": {"id": "finders_keepers", "text": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me"},
 	"wick": {"id": "last_hp", "text": "I Lose 2 HP each time a Neighbor is Defeated"},
-	"anvil": {"id": "one_chip", "text": "I cannot lose more than 1 HP from one source."},
+	"anvil": {"id": "one_chip", "text": "Whenever I lose HP, I lose a minimum of 3 HP."},
 	"vampire": {"id": "bloodlust", "text": "Every time you lose HP, I gain +1 HP and +1 Attack."},
 	"bodyguard": {"id": "take_instead", "text": "When my Neighbors would take Attack Damage, I take it instead."},
 	"cowardly_king": {"id": "vindictive", "text": "Any time I lose HP, I command the monster to my right to Attack you immediately"},
@@ -280,7 +280,7 @@ const MONSTER_CALL := {
 	"hollow": "Even twice",
 	"beggar": "Finders Keepers",
 	"wick": "Death Toll",
-	"anvil": "One HP",
+	"anvil": "Steady Steel",
 	"cowardly_king": "Vindictive",
 	"hydra": "Even Killer",
 	"three_seeker": "Triple Threat",
@@ -334,7 +334,7 @@ const MONSTER_REMINDER := {
 	"hollow": "even Attack or Block twice",
 	"beggar": "Marks a random item. Spin this Beggar: that item is discarded.",
 	"wick": "-2 HP per Neighbor Defeated.",
-	"anvil": "max 1 HP per source",
+	"anvil": "1 or 2 HP lost becomes 3",
 	"cowardly_king": "when I lose HP, the monster on my right Attacks you",
 	"three_seeker": "3, 6, or 9 items: Always Spin me next",
 	"triclops": "3 HP: Defeated. Else Defeat: −2 HP and Flee",
@@ -388,7 +388,7 @@ const MONSTER_SPEECH := {
 	"hollow": "Even Attack and even Block happen twice against me.",
 	"beggar": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me",
 	"wick": "I Lose 2 HP each time a Neighbor is Defeated",
-	"anvil": "I cannot lose more than 1 HP from one source.",
+	"anvil": "Whenever I lose HP, I lose a minimum of 3 HP.",
 	"cowardly_king": "Any time I lose HP, I command the monster to my right to Attack you immediately",
 	"three_seeker": "If you have 3, 6, or 9 Items, you Always Spin me next",
 	"triclops": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
@@ -10620,12 +10620,7 @@ func _chip_hp(index: int, n: int) -> bool:
 	if index < 0 or index >= wheel.size() or n <= 0:
 		return false
 	var m: Dictionary = wheel[index]
-	var drop: int = n
-	var cut_chip: bool = false
-	if str(m.get("card_id", "")) == "anvil" and not _is_silenced(m):
-		if n > 1:
-			cut_chip = true
-		drop = 1
+	var drop: int = _anvil_floor(m, n)
 	var before: int = int(m.get("hp", 0))
 	m["hp_pre_hit"] = before
 	if _undying(m):
@@ -10635,9 +10630,6 @@ func _chip_hp(index: int, n: int) -> bool:
 				wheel_view.hit_feedback(index, 0, 0)
 			return false
 		drop = 1
-		cut_chip = false
-	if cut_chip:
-		await _announce_slice(index, _slice_hp_pos(index))
 	m["hp"] = maxi(0, before - drop)
 	if before > 0 and int(m["hp"]) <= 0:
 		_note_death(m)
@@ -10646,16 +10638,23 @@ func _chip_hp(index: int, n: int) -> bool:
 		m["atk"] = int(m["hp"])
 	wheel[index] = m
 	if wheel_view:
-		if cut_chip:
-			await wheel_view.play_hp_ticks(index, before, int(m["hp"]))
-		else:
-			wheel_view.punch_hp(index)
+		wheel_view.punch_hp(index)
 	if before > int(m["hp"]):
 		if await _martyr_after_hp_loss(index, before, int(m["hp"])):
 			return true
 		if await _vindictive_after_hp_loss(index):
 			return true
 	return false
+
+
+func _anvil_floor(m: Dictionary, n: int) -> int:
+	if n <= 0:
+		return n
+	if str(m.get("card_id", "")) != "anvil" or _is_silenced(m):
+		return n
+	if n < 3:
+		return 3
+	return n
 
 
 func _poison_of(m: Dictionary) -> int:
@@ -15742,18 +15741,11 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 		return await _deal_atk_at(index, n, true, true, true)
 	var m: Dictionary = wheel[index]
 	_poison_frog_on_hit(index)
-	var hit_n: int = n
-	var cut_chip: bool = false
-	if str(m.get("card_id", "")) == "anvil" and not _is_silenced(m) and hit_n > 0:
-		if hit_n > 1:
-			cut_chip = true
-		hit_n = 1
+	var hit_n: int = _anvil_floor(m, n)
 	var immune_goblin: bool = str(m.get("card_id", "")) == "goblin" and not _is_silenced(m)
 	var immune_lich: bool = _undying(m)
 	var immune: bool = immune_goblin or immune_lich
 	last_atk_index = index
-	if cut_chip:
-		await _announce_slice(index, _slice_hp_pos(index))
 	if immune or hit_n <= 0:
 		if immune:
 			_log("var", "no HP loss" if immune_lich else "no ATK dmg")
@@ -15789,10 +15781,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 		sfx.play_event(sfx.resolve(&"hit", hit_ctx), hit_ctx)
 		sfx.play_event(sfx.resolve(&"hurt", hit_ctx), hit_ctx)
 	if wheel_view:
-		if cut_chip:
-			await wheel_view.play_hp_ticks(index, before_hp, int(m["hp"]))
-		else:
-			wheel_view.hit_feedback(index, before_hp - int(m["hp"]), int(m["atk"]) - before_atk)
+		wheel_view.hit_feedback(index, before_hp - int(m["hp"]), int(m["atk"]) - before_atk)
 	_flash_hit_portrait(index)
 	if str(m.get("card_id", "")) == "needleback" and not _is_silenced(m) and before_hp > 0:
 		if _watch_skip_thorns:
@@ -18569,9 +18558,7 @@ func _preview_sling_payload(hover: int) -> Dictionary:
 	for i in _mark_targets("sling_any"):
 		var slot: Dictionary = p.get(i, {})
 		if hits.has(i) and str(wheel[i].get("card_id", "")) != "goblin":
-			var one: int = dmg
-			if str(wheel[i].get("card_id", "")) == "anvil" and not _is_silenced(wheel[i]):
-				one = mini(one, 1)
+			var one: int = _anvil_floor(wheel[i], dmg)
 			slot["hp"] = -one
 			if int(wheel[i].get("hp", 0)) - one <= 0:
 				slot["kill"] = true
@@ -18624,10 +18611,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				var cprocs: int = 2 if _twins_double_atk(facing_index, cdmg) else 1
 				var ctotal: int = 0
 				for _cp in range(cprocs):
-					var chit: int = cdmg
-					if str(wheel[facing_index].get("card_id", "")) == "anvil" and not _is_silenced(wheel[facing_index]):
-						chit = mini(chit, 1)
-					ctotal += chit
+					ctotal += _anvil_floor(wheel[facing_index], cdmg)
 				p[facing_index] = {"hp": -ctotal}
 				if int(wheel[facing_index].get("hp", 0)) - ctotal <= 0:
 					if str(wheel[facing_index].get("card_id", "")) != "wick" or _is_silenced(wheel[facing_index]):
@@ -18651,10 +18635,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				var sprocs: int = 2 if _twins_double_atk(facing_index, sdmg) else 1
 				var stotal: int = 0
 				for _sp in range(sprocs):
-					var shit: int = sdmg
-					if str(wheel[facing_index].get("card_id", "")) == "anvil" and not _is_silenced(wheel[facing_index]):
-						shit = mini(shit, 1)
-					stotal += shit
+					stotal += _anvil_floor(wheel[facing_index], sdmg)
 				p[facing_index] = {"hp": -stotal}
 				if int(wheel[facing_index].get("hp", 0)) - stotal <= 0:
 					if str(wheel[facing_index].get("card_id", "")) != "wick" or _is_silenced(wheel[facing_index]):
@@ -18677,10 +18658,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				var procs: int = 2 if _twins_double_atk(facing_index, dmg) else 1
 				var total: int = 0
 				for _p in range(procs):
-					var hitn: int = dmg
-					if str(wheel[facing_index].get("card_id", "")) == "anvil" and not _is_silenced(wheel[facing_index]):
-						hitn = mini(hitn, 1)
-					total += hitn
+					total += _anvil_floor(wheel[facing_index], dmg)
 				p[facing_index] = {"hp": -total}
 				if int(wheel[facing_index].get("hp", 0)) - total <= 0:
 					if str(wheel[facing_index].get("card_id", "")) != "wick" or _is_silenced(wheel[facing_index]):
@@ -18696,10 +18674,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 					var procs_c: int = 2 if _twins_double_atk(ci, cn) else 1
 					var hitn: int = 0
 					for _pc in range(procs_c):
-						var one: int = cn
-						if str(wheel[ci].get("card_id", "")) == "anvil" and not _is_silenced(wheel[ci]):
-							one = mini(cn, 1)
-						hitn += one
+						hitn += _anvil_floor(wheel[ci], cn)
 					var slot: Dictionary = p.get(ci, {})
 					slot["hp"] = int(slot.get("hp", 0)) - hitn
 					if int(wheel[ci].get("hp", 0)) + int(slot.get("hp", 0)) <= 0:
@@ -18714,10 +18689,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				var procs_o: int = 2 if _twins_double_atk(oi, od) else 1
 				var od_total: int = 0
 				for _po in range(procs_o):
-					var one_o: int = od
-					if str(wheel[oi].get("card_id", "")) == "anvil" and not _is_silenced(wheel[oi]):
-						one_o = mini(od, 1)
-					od_total += one_o
+					od_total += _anvil_floor(wheel[oi], od)
 				od = od_total
 				p[oi] = {"hp": -od}
 				if int(wheel[oi].get("hp", 0)) - od <= 0:
