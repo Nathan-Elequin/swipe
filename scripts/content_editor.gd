@@ -83,7 +83,7 @@ const DEFAULT_EXPLAINER := {
 	"spinning_top": "ATK = 1 + Spins. Discard at 7",
 	"magicat": "On Spin: 2 Atk or Blk Items become Marbles with that number",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
-	"rust": "Ignore Block. Discard after 3 Spins.",
+	"rust": "Gain 2 Block. Whenever you Gain Block, Gain 2 Rust.",
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
 	"mouse": "On Spin: if your HP is higher, I lose 2 HP and Flee",
 	"blood_pact": "−2 HP you and Enemy",

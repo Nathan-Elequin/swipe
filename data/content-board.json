@@ -3420,17 +3420,17 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "Enemies ignore your Block for 3 Spins",
+			"ability": "Gain 2 Block. Whenever you Gain Block, Gain 2 Rust.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
-			"card_color": "egg",
+			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 0.0,
-			"curse": true,
-			"explainer": "Ignore Block. Discard after 3 Spins.",
-			"flow": "Unplayable token. Starts at 3. While it sits, all monsters ignore your Block (same pierce as Arrow Head). Each Spin, including the first after it enters your hand: 3 → 2 → 1 → Discard after the third fight. Curse: Cube, Worm, Bell, Hired Hand, and a full-hand replace cannot dump it. Recycler ticks Discards that still happen.",
+			"curse": false,
+			"explainer": "Gain 2 Block. Whenever you Gain Block, Gain 2 Rust.",
+			"flow": "Click during a fight. Gain 2 Block. Used up. Whenever you Gain Block from any source (including this card), each Rust already in your hand Gains you 2 more Rust. New Rusts from that wave do not fire on that same Gain. One wave per Gain Block, not per point of Block. New copies force into the hand like Spider Egg; if the hand is over cap, toss overlay (you cannot toss Rust in that overlay). Cube, Worm, Bell, Hired Hand, and a full-hand replace can dump Rust. Stone Wall leftover Block is not a Gain. Quiet Bell does not skip the Bucket grant. Two Buckets grant two Rusts.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "rust",
@@ -3455,12 +3455,13 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Unplayable. Ignore Block for 3 Spins, then Discard.",
+			"log_hint": "Gain 2 Block. Whenever you Gain Block, Gain 2 Rust.",
 			"mode_pool": "all",
 			"name": "Rust",
-			"notes": "Token. Not drafted. Rust Bucket creates it. Broken shield + countdown.",
+			"notes": "Token. Not drafted. Rust Bucket creates it. Used up. Stacks per copy.",
 			"ops": {
-				"kind": "rust_watch"
+				"kind": "blk",
+				"n": 2
 			},
 			"pool": -1.0,
 			"priority": 9.0,
@@ -6520,7 +6521,7 @@
 			"count": 1.0,
 			"explainer": "When I enter the Dungeon, Gain 1 Rust",
 			"flow": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test): Gain 1 Rust. Same overlay as Death Bell if the hand is full. Quiet Bell does not skip the Gain. Two Rust Buckets grant two Rusts.",
-			"hp_base": 3.0,
+			"hp_base": 4.0,
 			"hp_formula": "",
 			"id": "rust_bucket",
 			"locked_at": "2026-10-20",

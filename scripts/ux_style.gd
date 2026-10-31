@@ -382,7 +382,7 @@ static func def_of(id: String) -> String:
 		"unplayable":
 			return "You cannot click this."
 		"rust":
-			return "Item that makes all Monsters ignore your Block for 3 Spins"
+			return "Gain 2 Block. Whenever you Gain Block, Gain 2 Rust."
 		"decay":
 			return "Decayed Items are linked. When you use one, Keep it and discard the other."
 		_:

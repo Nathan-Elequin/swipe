@@ -182,7 +182,7 @@ const ITEM_OPS := {
 	"ball_and_chain": {"kind": "atk", "n": 2},
 	"energy_drink": {"kind": "player_flee_keep"},
 	"recycler": {"kind": "recycle_watch"},
-	"rust": {"kind": "rust_watch"},
+	"rust": {"kind": "blk", "n": 2},
 	"spinning_top": {"kind": "atk_spins"},
 }
 
@@ -448,6 +448,8 @@ var last_mob_atk: int = 0
 var items_used_this_combat: int = 0
 var last_item_atk: int = 0
 var last_blk_gain: int = 0
+var _rust_spawn_queue: int = 0
+var _rust_listen_lock: bool = false
 var last_hp_lost: int = 0
 var _stone_saved: int = 0
 var _stone_armed: bool = false
@@ -4053,7 +4055,7 @@ func _item_is_curse(it: Dictionary) -> bool:
 	var card: Dictionary = items_by_id.get(id, {})
 	if bool(card.get("curse", false)):
 		return true
-	return id == "spider_egg" or id == "toll" or id == "rust"
+	return id == "spider_egg" or id == "toll"
 
 
 func _item_blocks_hand_tax(it: Dictionary) -> bool:
@@ -4068,7 +4070,7 @@ func _item_blocks_hand_tax(it: Dictionary) -> bool:
 	return id == "blood_pact"
 
 
-func _filter_toss_uids(uids: Array) -> Array:
+func _filter_toss_uids(uids: Array, keep_rust: bool = false) -> Array:
 	var out: Array = []
 	for uidv in uids:
 		var uid: int = int(uidv)
@@ -4076,6 +4078,8 @@ func _filter_toss_uids(uids: Array) -> Array:
 		if it.is_empty():
 			continue
 		if _item_blocks_hand_tax(it):
+			continue
+		if keep_rust and str(it.get("card_id", "")) == "rust":
 			continue
 		out.append(uid)
 	return out
@@ -5962,7 +5966,7 @@ func _make_item(id: String) -> Dictionary:
 		"cats_eye": false,
 		"toll_n": 6 if id == "toll" else 0,
 		"recycle_n": 5 if id == "recycler" else 0,
-		"rust_n": 3 if id == "rust" else 0,
+		"rust_n": 0,
 		"rust_seen": false,
 		"bagged": {},
 		"bagged_hp": 0,
@@ -7706,7 +7710,6 @@ func _on_spin() -> void:
 	await _step_berserkers()
 	_step_marbles()
 	_step_spinning_tops()
-	_step_rusts()
 	_sync_wheel_stats()
 	await _apply_queen_eggs_on_spin()
 	if phase == "fighting":
@@ -7793,7 +7796,9 @@ func _grant_saucer_block() -> bool:
 
 func _unlock_if_fighting() -> void:
 	if await _grant_saucer_block():
+		await _flush_rust_from_block()
 		return
+	await _flush_rust_from_block()
 	_release_item_hold()
 	if await _flush_vindictive():
 		return
@@ -8835,7 +8840,7 @@ func _use_item(uid: int) -> void:
 	pending_mark.clear()
 	var ops: Dictionary = _ops_of(it)
 	var kind: String = str(ops.get("kind", ""))
-	if kind == "passive" or kind == "toll" or kind == "hex" or kind == "recycle_watch" or kind == "rust_watch":
+	if kind == "passive" or kind == "toll" or kind == "hex" or kind == "recycle_watch":
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
@@ -8888,6 +8893,7 @@ func _use_item(uid: int) -> void:
 			_gain_blk(7)
 			_log("on_item_use", str(it.get("name", "Signpost")))
 			_log("blk", "+%s  →  %s" % [7, blk])
+			await _flush_rust_from_block()
 		pending_mark = {"uid": uid, "kind": kind}
 		_log("on_item_use", "pick who attacks across" if kind == "hypnotize" else ("pick a monster" if kind == "defeat_double_hp" or kind == "sling_any" or kind == "hook_swap" else "pick a neighbor"))
 		_loud_mark_prompt(kind)
@@ -11054,8 +11060,6 @@ func _hand_bell_defeat_uids() -> Array:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
-		if str(it.get("card_id", "")) == "rust":
-			continue
 		var uid: int = int(it.get("uid", -1))
 		if uid >= 0:
 			uids.append(uid)
@@ -11398,13 +11402,9 @@ func _is_toss_feed(kind: String) -> bool:
 func _forced_gain_tax() -> void:
 	if hotbar.size() <= _forced_hand_cap():
 		return
-	var uids: Array = _filter_toss_uids(_hand_all_uids())
+	var uids: Array = _filter_toss_uids(_hand_all_uids(), true)
 	if uids.is_empty():
-		while hotbar.size() > _forced_hand_cap():
-			var extra: Dictionary = hotbar.pop_back()
-			if typeof(extra) == TYPE_DICTIONARY:
-				_abort_full_hand_gain(extra)
-		_sort_hotbar()
+		# Rust must stay, like Spider Egg. If nothing else can be tossed, the hand stays over cap.
 		return
 	pending_feed = {"uids": uids, "kind": "forced_gain"}
 	_refresh()
@@ -11532,8 +11532,6 @@ func _apply_oligarch_on_spin() -> void:
 
 func _force_gain_rust() -> void:
 	var it: Dictionary = _make_item("rust")
-	it["rust_n"] = 3
-	it["rust_seen"] = false
 	hotbar.append(it)
 	_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", "Rust"))
@@ -11592,12 +11590,8 @@ func _feed_bell_overlay(uid: int) -> void:
 	_log("on_spin", "discard %s" % str(it.get("name", "?")))
 	_discard_from_hand(uid)
 	if kind == "forced_gain" and hotbar.size() > _forced_hand_cap():
-		var next_uids: Array = _filter_toss_uids(_hand_all_uids())
+		var next_uids: Array = _filter_toss_uids(_hand_all_uids(), true)
 		if next_uids.is_empty():
-			while hotbar.size() > _forced_hand_cap():
-				var extra: Dictionary = hotbar.pop_back()
-				if typeof(extra) == TYPE_DICTIONARY:
-					_abort_full_hand_gain(extra)
 			pending_feed = {}
 			_cube_line = ""
 			_bell_wait = false
@@ -13624,8 +13618,8 @@ func _step_hexs() -> bool:
 	return true
 
 
-func _step_rusts() -> void:
-	var gone: Array = []
+func _count_hand_rust() -> int:
+	var n: int = 0
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
@@ -13633,15 +13627,29 @@ func _step_rusts() -> void:
 			continue
 		if bool(it.get("spent", false)):
 			continue
-		it["rust_n"] = int(it.get("rust_n", 3)) - 1
-		it["rust_seen"] = true
-		_log("var", "Rust %s" % it["rust_n"])
-		if int(it.get("rust_n", 0)) <= 0:
-			gone.append(int(it.get("uid", -1)))
-	for uid in gone:
-		_discard_from_hand(int(uid))
-	if not gone.is_empty():
-		_hotbar_sig = ""
+		n += 1
+	return n
+
+
+func _queue_rust_on_gain_block() -> void:
+	if _rust_listen_lock:
+		return
+	var copies: int = _count_hand_rust()
+	if copies <= 0:
+		return
+	_rust_spawn_queue += copies * 2
+	_log("var", "Rust wave +%s" % (copies * 2))
+
+
+func _flush_rust_from_block() -> void:
+	if _rust_spawn_queue <= 0:
+		return
+	_rust_listen_lock = true
+	var n: int = _rust_spawn_queue
+	_rust_spawn_queue = 0
+	for _i in n:
+		await _force_gain_rust()
+	_rust_listen_lock = false
 
 
 func _spinning_top_atk(it: Dictionary) -> int:
@@ -14616,6 +14624,7 @@ func _gain_blk(n: int, skip_twins: bool = false) -> int:
 		return a + b
 	last_blk_gain = n
 	blk += n
+	_queue_rust_on_gain_block()
 	_refresh_blk(true)
 	_punch_blk()
 	if sfx:
@@ -15605,15 +15614,6 @@ func _arrow_head_bonus() -> int:
 func _hand_pierce() -> bool:
 	if _arrow_head_bonus() > 0:
 		return true
-	for it in hotbar:
-		if typeof(it) != TYPE_DICTIONARY:
-			continue
-		if str(it.get("card_id", "")) != "rust":
-			continue
-		if bool(it.get("spent", false)):
-			continue
-		if int(it.get("rust_n", 0)) > 0:
-			return true
 	return false
 
 
@@ -17899,7 +17899,7 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"napalm":
 			return [[_fg("heart", "=1")]]
 		"rust":
-			return [[_fg("shield", n if n != "" else "3"), _fg("icon", "", "", "", "", "ban")]]
+			return [[_fg("shield", n if n != "" else "2")]]
 		"quiet_bell":
 			return [[_fg("icon", "", "", "", "", "ban")]]
 		"hex", "toll":
@@ -18383,12 +18383,11 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["note"] = ""
 			out["can_use"] = false
 		"rust_watch":
-			out["kind"] = "SKIP"
-			out["fill"] = Color("3a2a14")
-			out["n"] = int(it.get("rust_n", 3))
-			out["number"] = str(out["n"])
+			out["kind"] = "BLK"
+			out["n"] = 2
+			out["number"] = "2"
 			out["note"] = ""
-			out["can_use"] = false
+			out["can_use"] = fighting
 		"flee_then_blk":
 			out["kind"] = "BLK"
 			out["n"] = int(ops.get("n", 5))
@@ -19370,7 +19369,7 @@ func _value_bb(word: String, n: String, hex: String) -> String:
 
 
 func _kind_always_unplayable(kind: String) -> bool:
-	return kind == "passive" or kind == "hex" or kind == "toll" or kind == "recycle_watch" or kind == "rust_watch"
+	return kind == "passive" or kind == "hex" or kind == "toll" or kind == "recycle_watch"
 
 
 func _strip_unplayable_lead(s: String) -> String:
@@ -19772,9 +19771,8 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["equation"] = "(%s) then copy that Item" % _bb(gold, "5 Discards")
 			out["body"] = str(it.get("ability", "Every 5th Item Discarded is copied into your Hand"))
 		"rust_watch":
-			out["value"] = _value_bb("Rust", str(int(it.get("rust_n", 3))), gold)
-			out["equation"] = "Ignore Block. Discard after 3 Spins."
-			out["body"] = str(it.get("ability", "Enemies ignore your Block for 3 Spins"))
+			out["value"] = _value_bb("Block", "2", blk_c)
+			out["body"] = str(it.get("ability", "Gain 2 Block. Whenever you Gain Block, Gain 2 Rust."))
 		"blk_last":
 			out["value"] = _value_bb("Block", str(last_blk_gain), blk_c)
 			out["equation"] = "(%s)" % _bb(blk_c, "Last Block gained")
