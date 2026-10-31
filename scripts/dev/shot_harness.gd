@@ -2402,10 +2402,13 @@ func _shot_anim_hotbar_shimmer() -> void:
 				sling = it
 				break
 		if not sling.is_empty():
-			main.pending_mark = {"kind": "sling_any", "uid": int(sling.get("uid", -1))}
+			main.pending_choice = {
+				"uid": int(sling.get("uid", -1)),
+				"options": main._sling_convert_options(int(sling.get("uid", -1))),
+			}
 	main._refresh()
 	await _wait(0.15)
-	await _capture("06_sling_loaded.png", "Sling Loaded chip; tooltip from PLAYER_COPY")
+	await _capture("06_sling_loaded.png", "Sling waiting for a hand pick")
 	await _anim_ready_seat(
 		["goblin", "skeleton", "bandit", "ogre", "lich", "wizard"],
 		["net", "shield", "sledgehammer"], 6, 0, 6
