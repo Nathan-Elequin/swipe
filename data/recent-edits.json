@@ -54,7 +54,7 @@
 		"item:shuriken": 1792692178.0,
 		"item:signpost": 1792449835.18609,
 		"item:sledgehammer": 1792470000.0,
-		"item:sling": 1793236000.0,
+		"item:sling": 1793416800.0,
 		"item:smoke_bomb": 1792277000.0,
 		"item:spiked_flail": 1792194900.0,
 		"item:spiked_shield": 1793300400.0,
@@ -119,7 +119,7 @@
 	},
 	"id": "boss-rush-recent-edits",
 	"item:signpost": 1792450564.02935,
-	"item:sling": 1793236000.0,
+	"item:sling": 1793416800.0,
 	"monster:mouse": 1792450564.02935,
 	"monster:plague_doctor": 1793347200.0,
 	"updated": "2026-10-30T20:30:00"

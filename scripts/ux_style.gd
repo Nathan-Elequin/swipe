@@ -274,7 +274,7 @@ const UNPLAYABLE := "#C8C2BA"
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
 static func call_color(special_id: String) -> Color:
 	match special_id:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "hunter_mark", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "rust", "decay":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "hunter_mark", "bear_trap", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "rust", "decay":
 			return GOLD
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return CALL_ATK
@@ -320,6 +320,8 @@ static func def_id_of(piece: String) -> String:
 		return "phoenix_egg"
 	if low == "phoenix":
 		return "phoenix"
+	if low == "bear trap":
+		return "bear_trap"
 	if low == "across":
 		return "across"
 	if low == "move":
@@ -357,6 +359,8 @@ static func def_of(id: String) -> String:
 			return "remove them from the dungeon immediately, placing them on the bottom of the Dungeon Deck"
 		"across":
 			return "across on the opposite side of the wheel."
+		"bear_trap":
+			return "a 2 HP 4 ATK monster that Attacks you when you Move or Spin onto it"
 		"move":
 			return "shift to a Neighbor without Spinning"
 		"flee":
@@ -674,6 +678,7 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		["any monster", gold],
 		["phoenix egg", gold],
 		["phoenix", gold],
+		["bear trap", gold],
 	]
 	var stems := PackedStringArray([
 		"defeated", "defeats", "defeating", "defeat",

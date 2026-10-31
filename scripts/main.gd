@@ -207,7 +207,8 @@ const MONSTER_SPECIAL := {
 	"gelatinous_cube": {"id": "eat_item", "text": "When you Spin me, feed me one of two items."},
 	"gargoyle": {"id": "petrify", "text": "I petrify your highest Attack item until the next Spin."},
 	"harpy": {"id": "interrupt", "text": "I attack you when you Spin me, and after each item you use when facing me."},
-	"kobold_trapper": {"id": "hunter_mark", "text": "When I enter the Dungeon I Mark 2 other Monsters. Each time a Marked monster is Defeated, I gain +2 HP and ATK"},
+	"kobold_trapper": {"id": "hunter_mark", "text": "When I arrive, I place a Bear Trap on top of the Dungeon Deck"},
+	"bear_trap": {"id": "bear_trap", "text": "When you Spin me or Move onto me, I immediately Attack you and then I am Defeated"},
 	"clockwork_knight": {"id": "synchronize", "text": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal."},
 	"basilisk": {"id": "petrify_gaze", "text": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins."},
 	"zombie": {"id": "decay", "text": "When you Spin me, I Decay two of your Items."},
@@ -273,7 +274,8 @@ const MONSTER_CALL := {
 	"gelatinous_cube": "Devour",
 	"gargoyle": "Petrify",
 	"harpy": "Interrupt",
-	"kobold_trapper": "Hunter's Mark",
+	"kobold_trapper": "Bear Trap",
+	"bear_trap": "Bear Trap",
 	"clockwork_knight": "Synchronize",
 	"basilisk": "Petrifying Gaze",
 	"zombie": "Decay",
@@ -327,7 +329,8 @@ const MONSTER_REMINDER := {
 	"gelatinous_cube": "feed me one of two items",
 	"gargoyle": "petrifies highest Attack item",
 	"harpy": "attacks when you Spin her, and after items while facing her",
-	"kobold_trapper": "Marked Defeat: +2 HP and ATK",
+	"kobold_trapper": "When I arrive, I put a Bear Trap on top of the Dungeon Deck",
+	"bear_trap": "Spin or Move onto me: I Attack you, then I am Defeated",
 	"clockwork_knight": "Defeated: neighbors match HP, then Attack",
 	"basilisk": "first Spin: Flee, petrify 2nd, 4th, … for 3",
 	"zombie": "Decayed Items are linked. When you use one, Keep it and discard the other.",
@@ -381,7 +384,8 @@ const MONSTER_SPEECH := {
 	"gelatinous_cube": "When you Spin me, feed me one of two items.",
 	"gargoyle": "I petrify your highest Attack item until you Spin again.",
 	"harpy": "I attack you when you Spin me, and after each item you use when facing me.",
-	"kobold_trapper": "When I enter the Dungeon I Mark 2 other Monsters. Each time a Marked monster is Defeated, I gain +2 HP and ATK",
+	"kobold_trapper": "When I arrive, I place a Bear Trap on top of the Dungeon Deck",
+	"bear_trap": "When you Spin me or Move onto me, I immediately Attack you and then I am Defeated",
 	"clockwork_knight": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
 	"basilisk": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
 	"zombie": "When you Spin me, I Decay two of your Items.",
@@ -5285,22 +5289,16 @@ func _item_look(it: Dictionary) -> Dictionary:
 		if not bool(halves.get("blk", false)) and not bool(halves.get("atk", false)):
 			unplayable = true
 	if kind == "sling":
-		if phase == "fighting" and _sling_attack_options(int(it.get("uid", -1))).is_empty():
+		if phase == "fighting" and _sling_convert_options(int(it.get("uid", -1))).is_empty():
 			unplayable = true
-	if str(pending_mark.get("kind", "")) == "sling_any":
-		unplayable = true
-	elif not pending_choice.is_empty():
+	if _sling_pick_open():
 		var chooser: Dictionary = _find_item(int(pending_choice.get("uid", -1)))
-		if str(_ops_of(chooser).get("kind", "")) == "sling" or str(chooser.get("card_id", "")) == "sling":
-			var pick_uid: int = int(it.get("uid", -1))
-			var listed := pick_uid == int(chooser.get("uid", -1))
-			if not listed:
-				for opt_v2 in pending_choice.get("options", []):
-					if typeof(opt_v2) == TYPE_DICTIONARY and int((opt_v2 as Dictionary).get("atk_uid", -1)) == pick_uid:
-						listed = true
-						break
-			if not listed:
-				unplayable = true
+		var pick_uid: int = int(it.get("uid", -1))
+		var listed := pick_uid == int(chooser.get("uid", -1)) or _sling_option_has(pick_uid)
+		if listed:
+			unplayable = false
+		else:
+			unplayable = true
 	if kind == "signpost":
 		if phase == "fighting" and _mark_targets("signpost").is_empty():
 			unplayable = true
@@ -7686,6 +7684,12 @@ func _on_spin() -> void:
 			_walker_busy = true
 			_sync_buttons()
 			m = wheel[facing_index] if facing_index >= 0 and facing_index < wheel.size() else m
+		if await _bear_trap_snap():
+			await _bleed_end()
+			_store_last_faced_hp()
+			_undo_arm()
+			await _unlock_if_fighting()
+			return
 		if str(m.get("card_id", "")) == "gargoyle":
 			await _petrify_best_atk()
 		await _apply_death_bell_on_spin()
@@ -8794,6 +8798,23 @@ func _use_item(uid: int) -> void:
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
+	if _sling_pick_open():
+		var chooser: Dictionary = _find_item(int(pending_choice.get("uid", -1)))
+		if uid == int(chooser.get("uid", -1)):
+			pending_choice.clear()
+			_undo_abort()
+			call_deferred("_refresh")
+			return
+		for opt_v in pending_choice.get("options", []):
+			if typeof(opt_v) != TYPE_DICTIONARY:
+				continue
+			var opt: Dictionary = opt_v
+			if int(opt.get("target_uid", -1)) == uid:
+				await _choose_option(opt)
+				return
+		if sfx:
+			sfx.play("error", -12.0, 1.2)
+		return
 	if _item_stoned(it):
 		_log("on_item_use", "petrified")
 		if sfx:
@@ -8806,25 +8827,9 @@ func _use_item(uid: int) -> void:
 			sfx.play("error", -12.0, 1.2)
 		return
 	if str(pending_mark.get("kind", "")) == "sling_any":
-		## Sling is waiting for a monster. Do not let Longbow / Great Axe fire their native aim.
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
-	if not pending_choice.is_empty():
-		var chooser: Dictionary = _find_item(int(pending_choice.get("uid", -1)))
-		if str(_ops_of(chooser).get("kind", "")) == "sling" or str(chooser.get("card_id", "")) == "sling":
-			if uid == int(chooser.get("uid", -1)):
-				return
-			for opt_v in pending_choice.get("options", []):
-				if typeof(opt_v) != TYPE_DICTIONARY:
-					continue
-				var opt: Dictionary = opt_v
-				if int(opt.get("atk_uid", -1)) == uid:
-					await _choose_option(opt)
-					return
-			if sfx:
-				sfx.play("error", -12.0, 1.2)
-			return
 	if sfx:
 		sfx.play("select", -10.0)
 	pending_mark.clear()
@@ -8837,7 +8842,7 @@ func _use_item(uid: int) -> void:
 	_undo_begin()
 	var token: int = _undo_gen
 	if kind == "sling":
-		var sling_opts: Array = _sling_attack_options(uid)
+		var sling_opts: Array = _sling_convert_options(uid)
 		if sling_opts.is_empty():
 			_log("on_item_use", "cannot")
 			if sfx:
@@ -8927,18 +8932,7 @@ func _choose_option(opt: Dictionary) -> void:
 	var token: int = _undo_gen
 	var oid: String = str(opt.get("id", ""))
 	if str(_ops_of(it).get("kind", "")) == "sling" or str(it.get("card_id", "")) == "sling":
-		var atk_uid: int = int(opt.get("atk_uid", -1))
-		if _mark_targets("sling_any").is_empty():
-			_log("on_item_use", "cannot")
-			if sfx:
-				sfx.play("error", -10.0)
-			_undo_abort()
-			call_deferred("_refresh")
-			return
-		pending_mark = {"uid": int(it.get("uid", -1)), "kind": "sling_any", "atk_uid": atk_uid}
-		_log("on_item_use", "pick a monster")
-		_loud_mark_prompt("sling_any")
-		call_deferred("_refresh")
+		await _apply_sling_convert(it, int(opt.get("target_uid", -1)))
 		return
 	if oid == "high" or oid == "low" or oid == "off" or str(_ops_of(it).get("kind", "")) == "magnet":
 		await _set_magnet_mode(it, oid)
@@ -9103,6 +9097,8 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 				if not _wick_waiting(facing_index):
 					await _begin_slay()
+			elif hp > 0 and phase == "fighting":
+				await _bear_trap_snap()
 			return
 		"atk_flee_keep":
 			var n_shuri: int = int(ops["n"]) if ops.has("n") else int(view.get("n", 2))
@@ -9706,6 +9702,8 @@ func _trapper_phase_ok() -> bool:
 func _trapper_mark_newcomers() -> void:
 	if not _trapper_phase_ok():
 		return
+	if not monsters_by_id.has("bear_trap"):
+		return
 	var changed := false
 	for i in wheel.size():
 		if typeof(wheel[i]) != TYPE_DICTIONARY:
@@ -9714,37 +9712,22 @@ func _trapper_mark_newcomers() -> void:
 			continue
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
-		if int(wheel[i].get("hp", 0)) <= 0 or _is_silenced(wheel[i]):
+		if int(wheel[i].get("hp", 0)) <= 0:
 			continue
-		if bool(wheel[i].get("trapper_entered", false)):
+		if bool(wheel[i].get("trapper_laid", false)):
 			continue
+		wheel[i]["trapper_laid"] = true
 		wheel[i]["trapper_entered"] = true
+		challenge_deck.push_front("bear_trap")
 		changed = true
-		var pool: Array = []
-		for j in wheel.size():
-			if j == i:
-				continue
-			if typeof(wheel[j]) != TYPE_DICTIONARY:
-				continue
-			if str(wheel[j].get("kind", "")) != "monster":
-				continue
-			if int(wheel[j].get("hp", 0)) <= 0:
-				continue
-			if bool(wheel[j].get("hunter_mark", false)):
-				continue
-			pool.append(j)
-		var take: int = mini(2, pool.size())
-		for _n in take:
-			if pool.is_empty():
-				break
-			var pick: int = rng.randi_range(0, pool.size() - 1)
-			var j2: int = int(pool[pick])
-			pool.remove_at(pick)
-			wheel[j2]["hunter_mark"] = true
-			wheel[j2]["marked_by"] = int(wheel[i].get("seat_uid", -1))
-			_log("on_resolve", "Marked %s" % str(wheel[j2].get("name", "?")))
-	if changed and wheel_view:
-		wheel_view.queue_redraw()
+		_log("on_resolve", "Bear Trap on top of the Dungeon Deck")
+	if changed:
+		if dungeon_deck_ui:
+			dungeon_deck_ui.visible = true
+			dungeon_deck_ui.set_count(challenge_deck.size())
+		if wheel_view:
+			wheel_view.queue_redraw()
+		_sync_challenge_peek()
 
 
 func _trapper_clear_marks(seat_uid: int) -> void:
@@ -9842,6 +9825,8 @@ func _install_laid_egg(index: int) -> bool:
 		return false
 	if index < 0 or index >= wheel.size():
 		return false
+	if _install_mill_bear_trap(index):
+		return true
 	if not bool(wheel[index].get("egg_laid", false)):
 		return false
 	if challenge_deck.is_empty() or _deck_card_id(challenge_deck[0]) != "phoenix_egg":
@@ -9854,6 +9839,68 @@ func _install_laid_egg(index: int) -> bool:
 	wheel[index] = egg
 	_reseat_slots()
 	_log("on_resolve", "Phoenix Egg")
+	return true
+
+
+func _install_mill_bear_trap(index: int) -> bool:
+	if adventure:
+		return false
+	if index < 0 or index >= wheel.size():
+		return false
+	if challenge_deck.is_empty() or _deck_card_id(challenge_deck[0]) != "bear_trap":
+		return false
+	if not monsters_by_id.has("bear_trap"):
+		return false
+	challenge_deck.pop_front()
+	if dungeon_deck_ui:
+		dungeon_deck_ui.set_count(challenge_deck.size())
+	var trap: Dictionary = _make_monster("bear_trap")
+	trap["slot"] = str(wheel[index].get("slot", ""))
+	wheel[index] = trap
+	_reseat_slots()
+	_log("on_resolve", "Bear Trap")
+	_sync_challenge_peek()
+	return true
+
+
+func _facing_live_bear_trap() -> bool:
+	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
+		return false
+	var m: Dictionary = wheel[facing_index]
+	if str(m.get("card_id", "")) != "bear_trap":
+		return false
+	if str(m.get("kind", "")) != "monster":
+		return false
+	return int(m.get("hp", 0)) > 0
+
+
+func _bear_trap_snap() -> bool:
+	if not _facing_live_bear_trap():
+		return false
+	if bool(wheel[facing_index].get("bear_trap_snapped", false)):
+		return false
+	wheel[facing_index]["bear_trap_snapped"] = true
+	_walker_busy = true
+	_sync_buttons()
+	_trace_resolve("bear trap snap")
+	await _announce_slice(facing_index, _hub_hp_pos())
+	if not _facing_live_bear_trap():
+		_walker_busy = false
+		_sync_buttons()
+		return true
+	var m: Dictionary = wheel[facing_index]
+	await _owner_attack(m)
+	_walker_busy = false
+	_sync_buttons()
+	if hp <= 0:
+		_player_down()
+		return true
+	if phase != "fighting":
+		return true
+	if not _facing_live_bear_trap():
+		return true
+	if not _wick_waiting(facing_index):
+		await _begin_slay()
 	return true
 
 
@@ -10231,6 +10278,7 @@ func _fill_bag(it: Dictionary, m: Dictionary) -> void:
 	it["bagged"]["hunter_mark"] = false
 	it["bagged"]["marked_by"] = -1
 	it["bagged"]["trapper_entered"] = false
+	it["bagged"]["trapper_laid"] = bool(m.get("trapper_laid", false))
 	it["bagged_hp"] = cap
 	it["bagged_name"] = who
 	it["name"] = "Bag of %s" % who
@@ -13156,6 +13204,7 @@ func _apply_polymorph(index: int, it: Dictionary) -> void:
 	copy["pack_kind"] = str(src.get("pack_kind", copy.get("pack_kind", "draft")))
 	if nid == "kobold_trapper":
 		copy["trapper_growth"] = int(src.get("trapper_growth", 0))
+		copy["trapper_laid"] = bool(src.get("trapper_laid", false))
 	wheel[facing_index] = copy
 	it["spent"] = true
 	await _count_item_use()
@@ -16594,6 +16643,11 @@ func _apply_mark_inner(index: int) -> void:
 					break
 				if not await _shift_facing(dir, false):
 					break
+				if _facing_live_bear_trap():
+					await _bear_trap_snap()
+					moves_left = moves_snap
+					await _bleed_end()
+					return
 			moves_left = moves_snap
 		if _undo_stale(token):
 			moves_left = moves_snap
@@ -16838,15 +16892,25 @@ func _apply_hypnotize(src: int, it: Dictionary) -> void:
 	call_deferred("_refresh")
 
 
-func _sling_is_loaded(it: Dictionary) -> bool:
-	if pending_mark.is_empty():
+func _sling_pick_open() -> bool:
+	if pending_choice.is_empty():
 		return false
-	if str(pending_mark.get("kind", "")) != "sling_any":
+	var chooser: Dictionary = _find_item(int(pending_choice.get("uid", -1)))
+	if chooser.is_empty():
 		return false
-	return int(pending_mark.get("uid", -1)) == int(it.get("uid", -1))
+	return str(_ops_of(chooser).get("kind", "")) == "sling" or str(chooser.get("card_id", "")) == "sling"
 
 
-func _sling_attack_options(skip_uid: int) -> Array:
+func _sling_option_has(uid: int) -> bool:
+	for opt_v in pending_choice.get("options", []):
+		if typeof(opt_v) != TYPE_DICTIONARY:
+			continue
+		if int((opt_v as Dictionary).get("target_uid", -1)) == uid:
+			return true
+	return false
+
+
+func _sling_convert_options(skip_uid: int) -> Array:
 	var out: Array = []
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
@@ -16855,16 +16919,78 @@ func _sling_attack_options(skip_uid: int) -> Array:
 			continue
 		if bool(it.get("spent", false)):
 			continue
-		if _item_stoned(it):
-			continue
-		if not _item_deals_attack(it):
-			continue
 		out.append({
-			"id": "atk_%s" % int(it.get("uid", -1)),
+			"id": "marble_%s" % int(it.get("uid", -1)),
 			"label": _title_case(str(it.get("name", "?"))),
-			"atk_uid": int(it.get("uid", -1)),
+			"target_uid": int(it.get("uid", -1)),
 		})
 	return out
+
+
+func _sling_morph_into_marble(it: Dictionary) -> void:
+	if _bag_is_loaded(it):
+		var snap: Dictionary = _empty_bag(it)
+		if not snap.is_empty() and str(snap.get("kind", "monster")) != "empty":
+			_seat_released_bag(snap)
+	var keep_uid: int = int(it.get("uid", -1))
+	var fresh: Dictionary = _make_item("marble")
+	it.clear()
+	for k in fresh.keys():
+		it[k] = fresh[k]
+	it["uid"] = keep_uid
+	it["marble_n"] = 0
+	it["marble_monster"] = ""
+	it["cats_eye"] = false
+	it["petrified"] = false
+	it["petrify_n"] = 0
+	it["keep_after"] = false
+	it["spent"] = false
+
+
+func _apply_sling_convert(sling: Dictionary, target_uid: int) -> void:
+	var target: Dictionary = _find_item(target_uid)
+	if target.is_empty() or bool(target.get("spent", false)) or target_uid == int(sling.get("uid", -1)):
+		_log("on_item_use", "cannot")
+		if sfx:
+			sfx.play("error", -10.0)
+		_undo_abort()
+		call_deferred("_refresh")
+		return
+	_log("on_item_use", "sling %s → Marble 0" % str(target.get("name", "?")))
+	_sling_morph_into_marble(target)
+	sling["spent"] = true
+	await _count_item_use()
+	_toss_item(int(sling.get("uid", -1)), false)
+	_hotbar_sig = ""
+	var before_uids: Dictionary = {}
+	for held in hotbar:
+		if typeof(held) == TYPE_DICTIONARY:
+			before_uids[int(held.get("uid", -1))] = true
+	_draw_unseen_item()
+	_refresh()
+	if _challenge_loot_wait:
+		await _after_item_resolved(sling)
+		_undo_finish_item()
+		call_deferred("_refresh")
+		return
+	for held in hotbar:
+		if typeof(held) != TYPE_DICTIONARY:
+			continue
+		var drawn_uid: int = int(held.get("uid", -1))
+		if before_uids.has(drawn_uid):
+			continue
+		var drawn_card = _hotbar_card_by_uid(drawn_uid)
+		if drawn_card != null and drawn_card.has_method("play_transform"):
+			drawn_card.play_transform()
+		break
+	var marble_card = _hotbar_card_by_uid(target_uid)
+	if marble_card != null and marble_card.has_method("play_transform"):
+		marble_card.play_transform()
+	if hotbar.size() > _forced_hand_cap():
+		await _enforce_hand_cap()
+	await _after_item_resolved(sling)
+	_undo_finish_item()
+	call_deferred("_refresh")
 
 
 func _apply_signpost(index: int, it: Dictionary) -> void:
@@ -16972,6 +17098,8 @@ func _neighbor_full_attack(src: int) -> int:
 
 
 func _apply_sling(aim: int, sling: Dictionary, atk_uid: int) -> void:
+	await _apply_sling_convert(sling, atk_uid)
+	return
 	var payload: Dictionary = _find_item(atk_uid)
 	if payload.is_empty() or bool(payload.get("spent", false)) or not _item_deals_attack(payload):
 		_log("on_item_use", "cannot")
@@ -17796,7 +17924,7 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 				return [[_fg("text", n)]]
 			return [[_fg("text", "Bag")]]
 		"sling":
-			return [[_fg("text", n if n != "" else "Any")]]
+			return [[_fg("text", n)]]
 	if n == "—" or n == "-":
 		return [[_fg("text", "—")]]
 	var kind := str(view.get("kind", ""))
@@ -18292,10 +18420,10 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["note"] = ""
 			out["can_use"] = fighting and not _mark_targets("signpost").is_empty()
 		"sling":
-			out["kind"] = "ATK"
-			out["number"] = PLAYER_COPY.text("status.sling_loaded", "Loaded") if _sling_is_loaded(it) else "Any"
+			out["kind"] = "SKIP"
+			out["number"] = ""
 			out["note"] = ""
-			out["can_use"] = fighting and not _sling_attack_options(int(it.get("uid", -1))).is_empty()
+			out["can_use"] = fighting and not _sling_convert_options(int(it.get("uid", -1))).is_empty()
 		_:
 			out["can_use"] = false
 	if _kind_deals_atk(kind):
@@ -19008,6 +19136,7 @@ func _rewrite_keywords(raw: String, colored: bool, num_hex: String) -> String:
 		["any monster", gold],
 		["phoenix egg", gold],
 		["phoenix", gold],
+		["bear trap", gold],
 	]
 	var stems := PackedStringArray([
 		"defeated", "defeats", "defeating", "defeat",
@@ -19631,13 +19760,8 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = PLAYER_COPY.text("warn.neighbor", "Can't — no neighboring enemy.")
 		"sling":
-			if _sling_is_loaded(it):
-				out["value"] = UxStyle.with_def_link(_value_bb(PLAYER_COPY.text("status.sling_loaded", "Loaded"), "", gold), "Loaded")
-			else:
-				out["value"] = _value_bb("Any", "", gold)
-			out["body"] = str(it.get("ability", "Select an Attack. It can target Any monster. Draw 1 Item"))
-			if fighting and not bool(view.get("can_use", false)):
-				out["warn"] = "Can't — you need an Attack item."
+			out["value"] = _value_bb("Marble", "0", gold)
+			out["body"] = str(it.get("ability", "Turn any Item in your hand into a Marble, then Draw 1 Item"))
 		"hex":
 			out["value"] = _value_bb("Defeat", str(int(it.get("hex_n", 6))), var_c)
 			out["equation"] = "Defeat at Spin 0"
@@ -22043,6 +22167,8 @@ func _try_move(dir: int) -> void:
 		if _undo_stale(token):
 			_move_busy = false
 			return
+		if _facing_live_bear_trap():
+			await _bear_trap_snap()
 		_undo_commit()
 		if in_tutorial and tut != null and tut.wait == "move":
 			tut.advance()
@@ -22098,11 +22224,20 @@ func _jar_slide_two(it: Dictionary) -> bool:
 	_sync_move_ui()
 	var first_ok: bool = await _shift_facing(dir, false)
 	var second_ok: bool = false
-	if first_ok and not _undo_stale(token):
+	var trap_cut := false
+	if first_ok and not _undo_stale(token) and _facing_live_bear_trap():
+		trap_cut = true
+		await _bear_trap_snap()
+	elif first_ok and not _undo_stale(token):
 		second_ok = await _shift_facing(dir, false)
+		if second_ok and not _undo_stale(token) and _facing_live_bear_trap():
+			await _bear_trap_snap()
 	_move_busy = false
 	if _undo_stale(token):
 		return true
+	if trap_cut:
+		first_ok = true
+		second_ok = true
 	if not first_ok or not second_ok:
 		_log_begin_item(it)
 		_log("on_item_use", "%s — cannot" % str(it.get("name", "?")))
@@ -22418,6 +22553,8 @@ func _sync_hotbar() -> void:
 			can_click = (not waiting) and (not _item_blocks_hand_tax(it))
 		elif not pending_feed.is_empty():
 			can_click = is_snack
+		elif _sling_pick_open():
+			can_click = (not spent_n) and (uid_n == int(pending_choice.get("uid", -1)) or _sling_option_has(uid_n))
 		else:
 			can_click = (in_fight or magnet_ready) and bool(view["can_use"]) and not spent_n and not _item_stoned(it)
 		card.spent = spent_n
@@ -23387,7 +23524,7 @@ func _sync_card_pass5(card: Control, it: Dictionary, _can_click: bool, in_fight:
 	elif cid != "marble" and card.has_method("stop_marble_idle"):
 		card.stop_marble_idle()
 	if card.has_method("set_armed"):
-		var sling_on: bool = cid == "sling" and _sling_is_loaded(it)
+		var sling_on: bool = cid == "sling" and _sling_pick_open() and int(pending_choice.get("uid", -1)) == int(it.get("uid", -1))
 		var armed: bool = sling_on
 		if in_fight and not bool(it.get("spent", false)):
 			if cid == "pacemaker" or cid == "healing_potion":

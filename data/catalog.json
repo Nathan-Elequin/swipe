@@ -3756,22 +3756,22 @@
 			"type": "I"
 		},
 		{
-			"ability": "Select an Attack. It can target Any monster. Draw 1 Item",
+			"ability": "Turn any Item in your hand into a Marble, then Draw 1 Item",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
-			"card_color": "atk",
+			"card_color": "utility",
 			"count": 1.0,
-			"defined": "Click during a fight. Unplayable if no other item in the hotbar deals Attack. Pick one Attack item. That attack can target Any living monster. Great Axe hits that monster and that monster Neighbors. After that Attack resolves, draw 1 Item from the item deck into the hotbar (same draw as Catapult). No draw if you cancel or if there is no Attack to select.",
-			"exceptions": "Tier 1. Leather sling. Bucket 6 (after Bag of Marbles). Paper Fight before ops.",
-			"explainer": "Select an Attack. It can target Any monster. Draw 1 Item",
+			"defined": "Click during a fight, then click a different Item in your hand (Keep, Smoke Bomb, tokens, petrified, grown Marbles, filled Bag of Holding, curses). That card becomes a Marble at 0 in place; same uid so a Beggar mark stays. Not a Discard (Recycler does not tick). Sling is used up. Then Draw 1 Item (same as Catapult). If the hand is full, the new Item lands and you click one card to throw away. Click Sling again to cancel: Sling stays, no Marble, no draw. Sling itself is not a legal second click. A filled Bag of Holding seats its captive back on the wheel, then that card becomes the Marble. Petrify clears on the new Marble.",
+			"exceptions": "Tier 1. Leather sling. Pool 4. Creates a 0 Marble. Works on curse cards.",
+			"explainer": "(any Item → Marble 0), then Draw 1",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Click during a fight. Unplayable if no other item in the hotbar deals Attack. Pick one Attack item. That attack can target Any living monster. Great Axe hits that monster and that monster Neighbors. After that Attack resolves, draw 1 Item from the item deck into the hotbar (same draw as Catapult). No draw if you cancel or if there is no Attack to select.",
+			"flow": "Click during a fight, then click a different Item in your hand (Keep, Smoke Bomb, tokens, petrified, grown Marbles, filled Bag of Holding, curses). That card becomes a Marble at 0 in place; same uid so a Beggar mark stays. Not a Discard (Recycler does not tick). Sling is used up. Then Draw 1 Item (same as Catapult). If the hand is full, the new Item lands and you click one card to throw away. Click Sling again to cancel: Sling stays, no Marble, no draw. Sling itself is not a legal second click. A filled Bag of Holding seats its captive back on the wheel, then that card becomes the Marble. Petrify clears on the new Marble.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "sling",
@@ -3797,10 +3797,10 @@
 				"log_hint",
 				"review"
 			],
-			"log_hint": "Any monster. Draw 1 Item",
+			"log_hint": "Item → Marble 0, then Draw 1",
 			"mode_pool": "all",
 			"name": "Sling",
-			"notes": "Tier 1. Leather sling. Bucket 6 (after Bag of Marbles). Draws 1 Item after the chosen Attack resolves.",
+			"notes": "Tier 1. Leather sling. Pool 4. Creates a 0 Marble. Works on curse cards. Paper Fight 2026-10-30.",
 			"ops": {
 				"kind": "sling"
 			},
@@ -4259,7 +4259,8 @@
 		"enemy_attacks": "Sheet: always, no exceptions among monsters. Items can prevent the attack by killing/defeating first (not by blocking).",
 		"flee": "If you are facing them, Spin the wheel at random.",
 		"kill": "Reduce HP to 0 with ATK damage.",
-		"spin": "The wheel lands on a random living monster."
+		"spin": "The wheel lands on a random living monster.",
+		"bear_trap": "a 2 HP 4 ATK monster that Attacks you when you Move or Spin onto it"
 	},
 	"monsters": [
 		{
@@ -5736,29 +5737,29 @@
 			"type": "M"
 		},
 		{
-			"ability": "When I enter the Dungeon I Mark 2 other Monsters. Each time a Marked monster is Defeated, I gain +2 HP and ATK",
+			"ability": "When I arrive, I place a Bear Trap on top of the Dungeon Deck",
 			"atk": {
 				"base": 3.0
 			},
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"call_name": "Hunter's Mark",
+			"call_name": "Bear Trap",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "On Done, swing count is 1 plus items used this fight. Cube feed does not count. Block is spent per swing.",
+			"defined": "When I sit on the wheel, put a Bear Trap token on top of the Dungeon Deck. I stay as a 2 HP / 3 Attack fight. Challenge and Adventure draw the trap as the next hole fill. Mill seats it into the next vacated seat. The trap is never part of the opening wheel.",
 			"exceptions": "0 items = 1 swing. 2 items = 3 swings.",
-			"explainer": "On enter, Mark 2 other monsters. When one is Defeated, +2 HP and +2 ATK.",
+			"explainer": "When I arrive, I put a Bear Trap on top of the Dungeon Deck.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "On Done, swing count is 1 plus items used this fight. Cube feed does not count. Block is spent per swing.",
+			"flow": "When I sit on the wheel, put a Bear Trap token on top of the Dungeon Deck. I stay as a 2 HP / 3 Attack fight. Challenge and Adventure draw the trap as the next hole fill. Mill seats it into the next vacated seat. The trap is never part of the opening wheel.",
 			"hp": {
-				"base": 3.0
+				"base": 2.0
 			},
-			"hp_base": 3.0,
+			"hp_base": 2.0,
 			"hp_formula": "",
 			"id": "kobold_trapper",
 			"locked_at": "2026-10-28",
@@ -5781,10 +5782,10 @@
 				"review",
 				"pool"
 			],
-			"log_hint": "Extra hits per item used",
+			"log_hint": "Arrive: Bear Trap on top of the Dungeon Deck",
 			"mode_pool": "all",
 			"name": "Trapper",
-			"notes": "0 items = 1 swing. 2 items = 3 swings.",
+			"notes": "Rework 2026-10-30. Places Bear Trap token. Hunter's Mark is gone.",
 			"ops": {},
 			"poc": false,
 			"pool": 5.0,
@@ -5792,6 +5793,42 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "change",
+			"review_note": "",
+			"status": "live",
+			"tier": 2.0,
+			"type": "M"
+		},
+		{
+			"ability": "When you Spin me or Move onto me, I immediately Attack you and then I am Defeated",
+			"atk": {"base": 4.0},
+			"atk_base": 4.0,
+			"atk_formula": "",
+			"author_lock": true,
+			"call_name": "Bear Trap",
+			"card_color": "",
+			"count": 0.0,
+			"defined": "When your Spin lands on me, or any Move/slide lands on me, I Attack you once (Block works) and then I am Defeated like any other monster. Shuriken finishes its 3 Attack first; if that Defeats me I do not Attack. Jar: if the first slide lands on me, I snap and the second slide does not happen. I am never on the opening wheel.",
+			"exceptions": "Token. Not drafted. Trapper places this on top of the Dungeon Deck.",
+			"explainer": "Spin or Move onto me: I Attack you, then I am Defeated",
+			"flags": {"art": false, "dev": true, "hide": true},
+			"flow": "When your Spin lands on me, or any Move/slide lands on me, I Attack you once (Block works) and then I am Defeated like any other monster. Shuriken finishes its 3 Attack first; if that Defeats me I do not Attack. Jar: if the first slide lands on me, I snap and the second slide does not happen. I am never on the opening wheel.",
+			"hp": {"base": 2.0},
+			"hp_base": 2.0,
+			"hp_formula": "",
+			"id": "bear_trap",
+			"locked_at": "2026-10-30",
+			"locked_fields": ["name", "ability", "explainer", "call_name", "atk_base", "hp_base"],
+			"log_hint": "Spin or Move onto me: Attack, then Defeated",
+			"mode_pool": "all",
+			"name": "Bear Trap",
+			"notes": "Token. Trapper creates it. Paper Fight 2026-10-30.",
+			"ops": {},
+			"poc": false,
+			"pool": -1.0,
+			"priority": 3.0,
+			"rarity": "uncommon",
+			"reminder": "",
+			"review": "rough",
 			"review_note": "",
 			"status": "live",
 			"tier": 2.0,
