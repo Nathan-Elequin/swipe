@@ -209,7 +209,7 @@
       "id": "basilisk-flees-on-spin",
       "title": "Basilisk Stone Gaze on Spin, then fight",
       "family": "collide",
-      "expected_text": "Spin Basilisk. Stone Gaze Petrifies items. Then you fight 5 Attack / 5 HP. It does not Flee."
+      "expected_text": "Basilisk Gazes items on enter. Spin it: fight 6 HP / 5 Attack. It does not Flee."
     },
     {
       "id": "mouse-flees-on-spin",

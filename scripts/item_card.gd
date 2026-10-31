@@ -65,6 +65,8 @@ var _ban: TextureRect
 var _used: Label
 var _danger: bool = false
 var _bag_stamp: TextureRect
+var _gaze_mark: TextureRect
+var _gaze_warn: bool = false
 var _or: RichTextLabel
 var _choice_badge: Label
 var _cabinet_badge: Label
@@ -426,6 +428,34 @@ func set_icon(tex: Texture2D) -> void:
 	if _sai_busy or _marble_busy:
 		return
 	_icon.texture = tex
+
+
+func set_gaze_mark(tex: Texture2D, on: bool) -> void:
+	if not on or tex == null:
+		if _gaze_mark:
+			_gaze_mark.visible = false
+		return
+	if _gaze_mark == null:
+		_gaze_mark = TextureRect.new()
+		_gaze_mark.name = "BasiliskGaze"
+		_gaze_mark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_gaze_mark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_gaze_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_gaze_mark.texture_filter = TEXTURE_FILTER_NEAREST
+		_gaze_mark.z_index = 8
+		_gaze_mark.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		_gaze_mark.offset_left = 2
+		_gaze_mark.offset_top = 2
+		_gaze_mark.offset_right = 34
+		_gaze_mark.offset_bottom = 34
+		add_child(_gaze_mark)
+	_gaze_mark.texture = tex
+	_gaze_mark.visible = true
+
+
+func set_gaze_warn(on: bool) -> void:
+	_gaze_warn = on
+	queue_redraw()
 
 
 func set_bag_stamp(tex: Texture2D) -> void:
@@ -1161,7 +1191,7 @@ func _process(delta: float) -> void:
 	# does not compete with the banner. Active sai/marble item FX still tick.
 	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy and _beggar_flash <= 0.0 and not _waiting_entry:
 		return
-	if _glow or _aura or _log_focus or _danger or _hot or _toss_pick:
+	if _glow or _aura or _log_focus or _danger or _hot or _toss_pick or _gaze_warn:
 		_glow_t += delta
 		_style_wait -= delta
 		if _style_wait <= 0.0:
@@ -1419,6 +1449,20 @@ func _draw() -> void:
 		ring.set_corner_radius_all(12 if _showcase else 9)
 		ring.shadow_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.40 + pulse * 0.28)
 		ring.shadow_size = 4 + _tier * 5 + int(pulse * (3 + _tier * 3))
+		ring.shadow_offset = Vector2.ZERO
+		ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
+	if _gaze_warn and not spent:
+		var pulse: float = 0.55 + 0.45 * absf(sin(_glow_t * TAU / 0.55))
+		var pad: float = 5.0 + pulse * 4.0
+		var ring_col := Color("c9b9a8")
+		var ring := StyleBoxFlat.new()
+		ring.draw_center = false
+		ring.bg_color = Color(0, 0, 0, 0)
+		ring.border_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.80 + pulse * 0.20)
+		ring.set_border_width_all(3)
+		ring.set_corner_radius_all(10 if _showcase else 8)
+		ring.shadow_color = Color("e07a7a", 0.40 + pulse * 0.25)
+		ring.shadow_size = 10 + int(pulse * 8.0)
 		ring.shadow_offset = Vector2.ZERO
 		ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
 	elif _toss_pick and _hot and not spent:

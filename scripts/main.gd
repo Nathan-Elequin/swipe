@@ -210,7 +210,7 @@ const MONSTER_SPECIAL := {
 	"kobold_trapper": {"id": "hunter_mark", "text": "When I arrive, I place a Bear Trap on top of the Dungeon Deck"},
 	"bear_trap": {"id": "bear_trap", "text": "When you Spin me or Move onto me, I immediately Attack you and then I am Defeated"},
 	"clockwork_knight": {"id": "synchronize", "text": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal."},
-	"basilisk": {"id": "petrify_gaze", "text": "Every time you Spin, I Petrify the next two items in your inventory"},
+	"basilisk": {"id": "petrify_gaze", "text": "When I enter the Dungeon, I Gaze at 3 of your Items. As soon as you Use 1, the other 2 are Petrified until I am Defeated."},
 	"zombie": {"id": "decay", "text": "When you Spin me, I Decay two of your Items."},
 	"hollow": {"id": "even_twice", "text": "Even Attack and even Block happen twice against me."},
 	"beggar": {"id": "finders_keepers", "text": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me"},
@@ -332,7 +332,7 @@ const MONSTER_REMINDER := {
 	"kobold_trapper": "When I arrive, I put a Bear Trap on top of the Dungeon Deck",
 	"bear_trap": "Spin or Move onto me: I Attack you, then I am Defeated",
 	"clockwork_knight": "Defeated: neighbors match HP, then Attack",
-	"basilisk": "Each Spin: Petrify the next two items until you Spin again",
+	"basilisk": "Enter: Gaze 3 items. Use 1: the other Gazed items Petrify until Basilisk is Defeated",
 	"zombie": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 	"hollow": "even Attack or Block twice",
 	"beggar": "Marks a random item. Spin this Beggar: that item is discarded.",
@@ -387,7 +387,7 @@ const MONSTER_SPEECH := {
 	"kobold_trapper": "When I arrive, I place a Bear Trap on top of the Dungeon Deck",
 	"bear_trap": "When you Spin me or Move onto me, I immediately Attack you and then I am Defeated",
 	"clockwork_knight": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
-	"basilisk": "Every time you Spin, I Petrify the next two items in your inventory",
+	"basilisk": "When I enter the Dungeon, I Gaze at 3 of your Items. As soon as you Use 1, the other 2 are Petrified until I am Defeated.",
 	"zombie": "When you Spin me, I Decay two of your Items.",
 	"hollow": "Even Attack and even Block happen twice against me.",
 	"beggar": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me",
@@ -4759,6 +4759,7 @@ func _challenge_vacate(index: int) -> void:
 	var m: Dictionary = wheel[index]
 	if str(m.get("kind", "")) != "monster":
 		return
+	_basilisk_release_monster(m)
 	if wheel_view != null and wheel_view.slay_index == index:
 		wheel_view.clear_slay()
 	var slot: String = str(m.get("slot", SLOT_ORDER[index] if index < SLOT_ORDER.size() else str(index)))
@@ -5919,12 +5920,16 @@ func _make_monster(id: String) -> Dictionary:
 		"hydra_bonus": 0,
 		"gaze_done": false,
 		"gaze_i": 0,
+		"gaze_id": 0,
+		"gaze_granted": false,
 		"hunger_n": 0,
 		"has_attacked": false,
 		"polymorphed_this_fight": false,
 	}
 	uid_seq += 1
 	s["seat_uid"] = uid_seq
+	if id == "basilisk":
+		s["gaze_id"] = uid_seq
 	_apply_formulas_to(s)
 	if home_cabin and not in_tutorial:
 		home_cabin.note_met(id)
@@ -5957,6 +5962,8 @@ func _make_item(id: String) -> Dictionary:
 		"pack_kind": "starter" if str(card.get("rarity", "starter")) == "starter" else "draft",
 		"petrified": false,
 		"petrify_n": 0,
+		"gaze_ids": [],
+		"basilisk_stone": false,
 		"echo_copy": last_item_copy.duplicate(true) if id == "echo_bell" and not last_item_copy.is_empty() else {},
 		"alt_n": 2 if str(ops.get("kind", "")) == "atk_alt_24" else 0,
 		"shield_face": "atk" if str(ops.get("kind", "")) == "shield_alt" else "",
@@ -7660,7 +7667,6 @@ func _on_spin() -> void:
 	if beggar_spin >= 0 and beggar_spin < wheel.size() and str(wheel[beggar_spin].get("card_id", "")) == "beggar" and int(wheel[beggar_spin].get("hp", 0)) > 0 and not _is_silenced(wheel[beggar_spin]):
 		await _beggar_assign(beggar_spin, true)
 	_sync_plague_poison()
-	await _apply_basilisk_gazes()
 	if await _apply_siphon_jars():
 		await _bleed_end()
 		_store_last_faced_hp()
@@ -11077,6 +11083,7 @@ func _maybe_enter_gains(index: int) -> void:
 	await _maybe_death_bell_spawn(index)
 	await _maybe_rust_bucket_spawn(index)
 	await _maybe_oligarch_spawn(index)
+	await _maybe_basilisk_spawn(index)
 
 
 func _item_uid_in_hand(uid: int) -> bool:
@@ -12165,6 +12172,7 @@ func _tutorial_vacate_dead(index: int) -> void:
 	if int(wheel[index].get("hp", 0)) > 0:
 		return
 	var m: Dictionary = wheel[index]
+	_basilisk_release_monster(m)
 	_log("on_remove_slice", str(m.get("name", "?")))
 	if sfx:
 		var nctx := {"tier": _tier_of(m), "monster_id": str(m.get("card_id", ""))}
@@ -13236,6 +13244,7 @@ func _apply_polymorph(index: int, it: Dictionary) -> void:
 	if facing_index < 0 or facing_index >= wheel.size() or index < 0 or index >= wheel.size():
 		_undo_abort()
 		return
+	_basilisk_release_monster(wheel[facing_index])
 	var src: Dictionary = wheel[index]
 	var dst_slot: String = str(wheel[facing_index].get("slot", ""))
 	var nid: String = str(src.get("card_id", ""))
@@ -13287,6 +13296,8 @@ func _apply_catapult() -> void:
 		"hp_max": int(s.get("hp_max", 0)),
 		"atk": maxi(0, int(s.get("atk", 0)) - int(s.get("aura_atk", 0))),
 		"poison": _poison_of(s),
+		"gaze_id": int(s.get("gaze_id", 0)),
+		"gaze_granted": true,
 	}
 	challenge_deck.append(ejected)
 	if dungeon_deck_ui:
@@ -13364,6 +13375,9 @@ func _apply_deck_scars(index: int, snap: Dictionary) -> void:
 	if snap.has("poison"):
 		s["poison"] = int(snap.get("poison", 0))
 		s["poisoned"] = int(s["poison"]) > 0
+	if snap.has("gaze_id"):
+		s["gaze_id"] = int(snap.get("gaze_id", 0))
+		s["gaze_granted"] = true
 	wheel[index] = s
 
 
@@ -14911,6 +14925,7 @@ func _after_item_resolved(it: Dictionary) -> void:
 		return
 	if _clicked_item_counts_as_use(it):
 		_remember_item_use(it)
+		await _basilisk_on_gazed_use(it)
 	if not bool(it.get("spent", false)):
 		return
 	if phase != "fighting":
@@ -14964,6 +14979,8 @@ func _harpy_poke() -> void:
 
 func _clear_petrify() -> void:
 	for it in hotbar:
+		if bool(it.get("basilisk_stone", false)):
+			continue
 		if not bool(it.get("petrified", false)):
 			continue
 		var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
@@ -14974,7 +14991,7 @@ func _clear_petrify() -> void:
 
 
 func _item_stoned(it: Dictionary) -> bool:
-	return bool(it.get("petrified", false)) or int(it.get("petrify_n", 0)) > 0
+	return bool(it.get("petrified", false)) or int(it.get("petrify_n", 0)) > 0 or bool(it.get("basilisk_stone", false))
 
 
 func _tick_gaze_petrify() -> void:
@@ -15085,20 +15102,26 @@ func _count_petrify_beams() -> int:
 	return n
 
 
-func _apply_basilisk_gazes() -> void:
-	var seats: Array = []
-	for i in range(wheel.size()):
-		var s: Dictionary = wheel[i]
-		if str(s.get("card_id", "")) != "basilisk":
-			continue
-		if int(s.get("hp", 0)) <= 0:
-			continue
-		seats.append(i)
-	for si in seats:
-		await _apply_one_basilisk_gaze(int(si))
+func _item_gaze_ids(it: Dictionary) -> Array:
+	var raw: Variant = it.get("gaze_ids", [])
+	if typeof(raw) != TYPE_ARRAY:
+		return []
+	return raw
 
 
-func _apply_one_basilisk_gaze(index: int) -> void:
+func _item_is_gazed(it: Dictionary) -> bool:
+	return not _item_gaze_ids(it).is_empty()
+
+
+func _basilisk_tex() -> Texture2D:
+	if art != null and art.has_method("monster_still"):
+		var tex: Texture2D = art.monster_still("basilisk")
+		if tex != null:
+			return tex
+	return tex_by_monster.get("basilisk", null)
+
+
+func _maybe_basilisk_spawn(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
 	var m: Dictionary = wheel[index]
@@ -15106,38 +15129,69 @@ func _apply_one_basilisk_gaze(index: int) -> void:
 		return
 	if int(m.get("hp", 0)) <= 0:
 		return
-	if _is_silenced(m):
-		_log("on_spin", "Basilisk silenced")
+	if bool(m.get("gaze_granted", false)):
 		return
-	var n: int = hotbar.size()
-	if n <= 0:
-		_log("on_spin", "Stone Gaze none")
-		return
-	var cursor: int = int(m.get("gaze_i", 0))
-	if cursor < 0:
-		cursor = 0
-	cursor = cursor % n
-	var targets: Array = []
-	var last_i: int = cursor
-	var i: int = cursor
-	for _step in n:
-		if not _item_stoned(hotbar[i]):
-			targets.append(i)
-			last_i = i
-			if targets.size() >= 2:
-				break
-		i = (i + 1) % n
-	if targets.is_empty():
-		_log("on_spin", "Stone Gaze none")
-		return
-	m["gaze_i"] = (last_i + 1) % n
+	m["gaze_granted"] = true
+	if int(m.get("gaze_id", 0)) <= 0:
+		uid_seq += 1
+		m["gaze_id"] = uid_seq
 	wheel[index] = m
-	_log("on_spin", "Stone Gaze petrify %s items" % targets.size())
-	var from: Vector2 = Vector2.INF
-	if wheel_view != null:
-		from = wheel_view.slice_portrait_global(index)
+	if _is_silenced(m):
+		_log("on_place", "Basilisk silenced")
+		return
+	var gid: int = int(m.get("gaze_id", 0))
+	var unmarked: Array = []
+	var marked: Array = []
+	for i in hotbar.size():
+		if _item_is_gazed(hotbar[i]):
+			marked.append(i)
+		else:
+			unmarked.append(i)
+	unmarked.shuffle()
+	marked.shuffle()
+	var picks: Array = []
+	for i in unmarked:
+		if picks.size() >= 3:
+			break
+		picks.append(int(i))
+	for i in marked:
+		if picks.size() >= 3:
+			break
+		picks.append(int(i))
+	if picks.is_empty():
+		_log("on_place", "Stone Gaze none")
+		return
+	for pi in picks:
+		var ids: Array = _item_gaze_ids(hotbar[int(pi)]).duplicate()
+		if not ids.has(gid):
+			ids.append(gid)
+		hotbar[int(pi)]["gaze_ids"] = ids
+	_log("on_place", "Stone Gaze %s items" % picks.size())
+	if facing_index == index or phase == "ready" or phase == "devtest":
+		if wheel_view == null or not bool(wheel_view.get_meta("qa_instant", false)):
+			await _announce_slice(index)
+	_refresh()
+
+
+func _basilisk_on_gazed_use(it: Dictionary) -> void:
+	if it.is_empty() or not _item_is_gazed(it):
+		return
+	var used_uid: int = int(it.get("uid", -1))
+	var targets: Array = []
+	for j in hotbar.size():
+		if int(hotbar[j].get("uid", -1)) == used_uid:
+			continue
+		if _item_is_gazed(hotbar[j]) and not bool(hotbar[j].get("basilisk_stone", false)):
+			targets.append(j)
+	it["gaze_ids"] = []
+	if targets.is_empty():
+		_refresh()
+		return
+	_log("on_item_use", "Stone Gaze petrify %s items" % targets.size())
+	var from: Vector2 = _petrify_beam_from()
 	for ti in targets:
 		var slot: int = int(ti)
+		hotbar[slot]["basilisk_stone"] = true
 		hotbar[slot]["petrified"] = true
 		hotbar[slot]["petrify_n"] = 0
 		var dest: Vector2 = _item_card_global(int(hotbar[slot].get("uid", -1)))
@@ -15145,11 +15199,40 @@ func _apply_one_basilisk_gaze(index: int) -> void:
 		var card = _hotbar_card_by_uid(int(hotbar[slot].get("uid", -1)))
 		if card != null and card.has_method("set_petrified"):
 			await card.set_petrified(true, false, 0, true)
-	_refresh()
+		if card != null and card.has_method("set_gaze_mark"):
+			card.set_gaze_mark(_basilisk_tex(), true)
 	if sfx:
 		sfx.play_event(&"status.petrify")
-	var slash_to: Vector2 = _item_card_global(int(hotbar[int(targets[0])].get("uid", -1)))
-	await _announce_slice(index, slash_to)
+	var basilisk_i: int = -1
+	for wi in wheel.size():
+		if str(wheel[wi].get("card_id", "")) == "basilisk" and int(wheel[wi].get("hp", 0)) > 0:
+			basilisk_i = wi
+			break
+	if basilisk_i >= 0:
+		await _announce_slice(basilisk_i, _item_card_global(int(hotbar[int(targets[0])].get("uid", -1))))
+	_refresh()
+
+
+func _basilisk_release(gaze_id: int) -> void:
+	if gaze_id <= 0:
+		return
+	for it in hotbar:
+		var ids: Array = _item_gaze_ids(it).duplicate()
+		ids.erase(gaze_id)
+		it["gaze_ids"] = ids
+		if ids.is_empty() and bool(it.get("basilisk_stone", false)):
+			it["basilisk_stone"] = false
+			it["petrified"] = false
+			var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
+			if card != null and card.has_method("petrify_shatter"):
+				card.petrify_shatter()
+	_refresh()
+
+
+func _basilisk_release_monster(m: Dictionary) -> void:
+	if str(m.get("card_id", "")) != "basilisk":
+		return
+	_basilisk_release(int(m.get("gaze_id", 0)))
 
 
 func _item_atk_score(it: Dictionary) -> int:
@@ -17923,6 +18006,9 @@ func _apply_item_stone_look(card, it: Dictionary) -> void:
 		card.set_petrified(true, false, pn, false)
 	else:
 		card.set_petrified(false, false, 0, false)
+	if card.has_method("set_gaze_mark"):
+		var show_gaze: bool = _item_is_gazed(it) or bool(it.get("basilisk_stone", false))
+		card.set_gaze_mark(_basilisk_tex(), show_gaze)
 
 
 func _fg(k: String, t: String = "", tint: String = "", border: String = "", sup: String = "", icon: String = "") -> Dictionary:
@@ -19254,6 +19340,7 @@ func _rewrite_keywords(raw: String, colored: bool, num_hex: String) -> String:
 		"poisoned", "poisons", "poison",
 		"any",
 		"petrifies", "petrified", "petrify",
+		"gaze", "gazed",
 		"spinning", "spins", "spun", "spin",
 		"random",
 		"always",
@@ -19938,7 +20025,9 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = str(it.get("ability", ""))
 	if it.get("spent", false):
 		out["warn"] = PLAYER_COPY.text("warn.spent", "Already used this fight.")
-	if int(it.get("petrify_n", 0)) > 0:
+	if bool(it.get("basilisk_stone", false)):
+		out["warn"] = "Petrified while the Basilisk remains"
+	elif int(it.get("petrify_n", 0)) > 0:
 		out["warn"] = "Petrify — Unplayable."
 	elif bool(it.get("petrified", false)):
 		out["warn"] = "Petrify — Unplayable until your next Spin."
@@ -22922,6 +23011,22 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 	_refresh_blk(false)
 	_tutorial_on_item_hover()
 	_queue_hover_preview(it, card)
+	_set_gaze_use_warn(int(it.get("uid", -1)) if _item_is_gazed(it) and not bool(it.get("basilisk_stone", false)) else -1)
+
+
+func _set_gaze_use_warn(from_uid: int) -> void:
+	if hotbar_box == null:
+		return
+	for node in hotbar_box.get_children():
+		if not (node is Control):
+			continue
+		var card: Control = node
+		if not card.has_method("set_gaze_warn"):
+			continue
+		var uid_n: int = _control_uid(card)
+		var other: Dictionary = _find_item(uid_n)
+		var warn: bool = from_uid >= 0 and uid_n != from_uid and _item_is_gazed(other) and not bool(other.get("basilisk_stone", false))
+		card.set_gaze_warn(warn)
 
 
 func _set_rust_block_hint(on: bool) -> void:
@@ -22945,6 +23050,7 @@ func _set_rust_block_hint(on: bool) -> void:
 
 
 func _on_item_unhovered() -> void:
+	_set_gaze_use_warn(-1)
 	_set_rust_block_hint(false)
 	_fly_card = null
 	_ghost_blk = -1

@@ -1992,39 +1992,41 @@ func _shot_anim_petrify() -> void:
 	])
 	await _capture("04_hydra_beams.png", "Hydra: three beams to three even items")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
-	# Basilisk: next two seats stone until the next Spin — shoot after creep, before slash.
+	# Basilisk: Gaze 3 on enter. Hover one; Use one; the others petrify.
 	await _anim_ready_seat(
 		["basilisk", "goblin", "skeleton", "bandit"],
 		["shield", "net", "da_boot", "longbow"],
 		8, 0, 0
 	)
+	for bi in main.wheel.size():
+		if str(main.wheel[bi].get("card_id", "")) == "basilisk":
+			await main._maybe_basilisk_spawn(bi)
+	await _wait(0.12)
+	var gazed: Array = []
+	for itg in main.hotbar:
+		if not main._item_gaze_ids(itg).is_empty():
+			gazed.append(itg)
+	if gazed.size() >= 1:
+		var gcard: Control = main._hotbar_card_by_uid(int(gazed[0].get("uid", -1)))
+		if gcard != null:
+			main._on_item_hovered(gazed[0], gcard)
+	await _wait(0.08)
+	await _capture("05_basilisk_pips.png", "Basilisk enter: Gaze marks on 3 items, hover warns the others")
+	main._on_item_unhovered()
 	main.set_meta("qa_spin_idx", 0)
-	main._on_spin()
+	await main._on_spin()
+	await _until(func() -> bool: return main.phase == "fighting" and not bool(main._walker_busy), 20.0)
+	if gazed.size() >= 1:
+		await main._use_item(int(gazed[0].get("uid", -1)))
 	await _until(func() -> bool:
-		var any_stone := false
-		for c in main.hotbar_box.get_children() if main.hotbar_box else []:
-			if bool(c.get("_petrified")) and float(c.get("_petrify_creep")) >= 0.99:
-				any_stone = true
-				break
-		return any_stone and not _slash_visible()
+		var n_stone := 0
+		for it2 in main.hotbar:
+			if bool(it2.get("basilisk_stone", false)):
+				n_stone += 1
+		return n_stone >= 1 and not bool(main._walker_busy)
 	, 18.0)
 	await _wait(0.08)
-	await _capture("05_basilisk_pips.png", "Basilisk: first two seats stone until next Spin")
-	await _until(func() -> bool: return not bool(main._walker_busy), 25.0)
-	# Next Spin: previous two shatter, walk takes seats 3 and 4.
-	main.set_meta("qa_spin_idx", 1)
-	main._on_spin()
-	await _until(func() -> bool:
-		if main.hotbar.size() < 4:
-			return false
-		var a: bool = bool(main.hotbar[0].get("petrified", false))
-		var b: bool = bool(main.hotbar[1].get("petrified", false))
-		var c: bool = bool(main.hotbar[2].get("petrified", false))
-		var d: bool = bool(main.hotbar[3].get("petrified", false))
-		return (not a) and (not b) and c and d and not bool(main._walker_busy)
-	, 25.0)
-	await _wait(0.08)
-	await _capture("06_basilisk_tick.png", "Basilisk next Spin: seats 3–4 stone, 1–2 free")
+	await _capture("06_basilisk_tick.png", "Basilisk: used one Gazed item, the others Petrified")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
 	# 6-seat wheel: beam still aims at a hotbar card, not a fixed seat index.
 	await _anim_ready_seat(

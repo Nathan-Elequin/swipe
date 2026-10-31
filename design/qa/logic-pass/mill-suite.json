@@ -1627,7 +1627,7 @@
 				"shield"
 			],
 			"face": "basilisk",
-			"expected_text": "Every time you Spin, I Petrify the next two items in your inventory. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"expected_text": "When I enter the Dungeon, I Gaze at 3 of your Items. As soon as you Use 1, the other 2 are Petrified until I am Defeated. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
 			"clicks": [],
 			"expected": {
 				"log_has": [

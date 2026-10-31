@@ -348,6 +348,8 @@ static func def_id_of(piece: String) -> String:
 		return "rust"
 	if low == "decay" or low.begins_with("decayed"):
 		return "decay"
+	if low == "gaze" or low.begins_with("gaze"):
+		return "gaze"
 	return ""
 
 
@@ -385,6 +387,8 @@ static func def_of(id: String) -> String:
 			return "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust."
 		"decay":
 			return "Decayed Items are linked. When you use one, Keep it and discard the other."
+		"gaze":
+			return "when one Item with Gaze is used, all others are Petrified until the Basilisk is Defeated"
 		_:
 			return ""
 
