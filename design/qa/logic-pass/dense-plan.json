@@ -207,9 +207,9 @@
     },
     {
       "id": "basilisk-flees-on-spin",
-      "title": "Basilisk Flees on the first Spin",
+      "title": "Basilisk Stone Gaze on Spin, then fight",
       "family": "collide",
-      "expected_text": "The first time you Spin Basilisk, it Flees (and Petrifies). There is no fight to click Shield. That is Basilisk working."
+      "expected_text": "Spin Basilisk. Stone Gaze Petrifies items. Then you fight 5 Attack / 5 HP. It does not Flee."
     },
     {
       "id": "mouse-flees-on-spin",

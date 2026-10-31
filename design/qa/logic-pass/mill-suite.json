@@ -1627,11 +1627,11 @@
 				"shield"
 			],
 			"face": "basilisk",
-			"expected_text": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"expected_text": "Every time you Spin, I Petrify the next two items in your inventory. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
 			"clicks": [],
 			"expected": {
 				"log_has": [
-					"petrifying"
+					"stone gaze"
 				]
 			}
 		},

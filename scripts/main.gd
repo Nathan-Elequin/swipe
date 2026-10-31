@@ -210,7 +210,7 @@ const MONSTER_SPECIAL := {
 	"kobold_trapper": {"id": "hunter_mark", "text": "When I arrive, I place a Bear Trap on top of the Dungeon Deck"},
 	"bear_trap": {"id": "bear_trap", "text": "When you Spin me or Move onto me, I immediately Attack you and then I am Defeated"},
 	"clockwork_knight": {"id": "synchronize", "text": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal."},
-	"basilisk": {"id": "petrify_gaze", "text": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins."},
+	"basilisk": {"id": "petrify_gaze", "text": "Every time you Spin, I Petrify the next two items in your inventory"},
 	"zombie": {"id": "decay", "text": "When you Spin me, I Decay two of your Items."},
 	"hollow": {"id": "even_twice", "text": "Even Attack and even Block happen twice against me."},
 	"beggar": {"id": "finders_keepers", "text": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me"},
@@ -277,7 +277,7 @@ const MONSTER_CALL := {
 	"kobold_trapper": "Bear Trap",
 	"bear_trap": "Bear Trap",
 	"clockwork_knight": "Synchronize",
-	"basilisk": "Petrifying Gaze",
+	"basilisk": "Stone Gaze",
 	"zombie": "Decay",
 	"hollow": "Even twice",
 	"beggar": "Finders Keepers",
@@ -332,7 +332,7 @@ const MONSTER_REMINDER := {
 	"kobold_trapper": "When I arrive, I put a Bear Trap on top of the Dungeon Deck",
 	"bear_trap": "Spin or Move onto me: I Attack you, then I am Defeated",
 	"clockwork_knight": "Defeated: neighbors match HP, then Attack",
-	"basilisk": "first Spin: Flee, petrify 2nd, 4th, … for 3",
+	"basilisk": "Each Spin: Petrify the next two items until you Spin again",
 	"zombie": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 	"hollow": "even Attack or Block twice",
 	"beggar": "Marks a random item. Spin this Beggar: that item is discarded.",
@@ -387,7 +387,7 @@ const MONSTER_SPEECH := {
 	"kobold_trapper": "When I arrive, I place a Bear Trap on top of the Dungeon Deck",
 	"bear_trap": "When you Spin me or Move onto me, I immediately Attack you and then I am Defeated",
 	"clockwork_knight": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
-	"basilisk": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
+	"basilisk": "Every time you Spin, I Petrify the next two items in your inventory",
 	"zombie": "When you Spin me, I Decay two of your Items.",
 	"hollow": "Even Attack and even Block happen twice against me.",
 	"beggar": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me",
@@ -5916,6 +5916,7 @@ func _make_monster(id: String) -> Dictionary:
 		"atk_zeroed": false,
 		"hydra_bonus": 0,
 		"gaze_done": false,
+		"gaze_i": 0,
 		"hunger_n": 0,
 		"has_attacked": false,
 		"polymorphed_this_fight": false,
@@ -7657,13 +7658,7 @@ func _on_spin() -> void:
 	if beggar_spin >= 0 and beggar_spin < wheel.size() and str(wheel[beggar_spin].get("card_id", "")) == "beggar" and int(wheel[beggar_spin].get("hp", 0)) > 0 and not _is_silenced(wheel[beggar_spin]):
 		await _beggar_assign(beggar_spin, true)
 	_sync_plague_poison()
-	if _facing_can_act():
-		if await _apply_basilisk_gaze():
-			await _bleed_end()
-			_store_last_faced_hp()
-			_undo_arm()
-			await _unlock_if_fighting()
-			return
+	await _apply_basilisk_gazes()
 	if await _apply_siphon_jars():
 		await _bleed_end()
 		_store_last_faced_hp()
@@ -14947,9 +14942,11 @@ func _petrify_beam_from() -> Vector2:
 	return Vector2.ZERO
 
 
-func _petrify_beam(to_card: Vector2, linger: float = 0.22) -> Array:
+func _petrify_beam(to_card: Vector2, linger: float = 0.22, from_override: Vector2 = Vector2.INF) -> Array:
 	## Returns [beam, core] Line2Ds. linger keeps them visible after hit for QA / read.
-	var from: Vector2 = _petrify_beam_from()
+	var from: Vector2 = from_override
+	if from == Vector2.INF or from == Vector2.ZERO:
+		from = _petrify_beam_from()
 	if from == Vector2.ZERO:
 		from = to_card + Vector2(0, -80)
 	var host: Node2D = _petrify_fx_host()
@@ -15017,43 +15014,71 @@ func _count_petrify_beams() -> int:
 	return n
 
 
-func _apply_basilisk_gaze() -> bool:
-	if facing_index < 0 or facing_index >= wheel.size():
-		return false
-	var m: Dictionary = wheel[facing_index]
+func _apply_basilisk_gazes() -> void:
+	var seats: Array = []
+	for i in range(wheel.size()):
+		var s: Dictionary = wheel[i]
+		if str(s.get("card_id", "")) != "basilisk":
+			continue
+		if int(s.get("hp", 0)) <= 0:
+			continue
+		seats.append(i)
+	for si in seats:
+		await _apply_one_basilisk_gaze(int(si))
+
+
+func _apply_one_basilisk_gaze(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var m: Dictionary = wheel[index]
 	if str(m.get("card_id", "")) != "basilisk":
-		return false
+		return
 	if int(m.get("hp", 0)) <= 0:
-		return false
-	if bool(m.get("gaze_done", false)):
-		return false
-	m["gaze_done"] = true
-	wheel[facing_index] = m
+		return
 	if _is_silenced(m):
 		_log("on_spin", "Basilisk silenced")
-		return false
-	var cap: int = 0
+		return
+	var n: int = hotbar.size()
+	if n <= 0:
+		_log("on_spin", "Stone Gaze none")
+		return
+	var cursor: int = int(m.get("gaze_i", 0))
+	if cursor < 0:
+		cursor = 0
+	cursor = cursor % n
 	var targets: Array = []
-	for i in hotbar.size():
-		if (i + 1) % 2 == 0:
-			hotbar[i]["petrify_n"] = 3
-			targets.append(hotbar[i])
-			cap += 1
-	_log("on_spin", "Petrifying Gaze  %s items" % cap)
-	# Sweep left→right across the hotbar. Creep finishes before the slash so pips read.
-	for it in targets:
-		var dest: Vector2 = _item_card_global(int(it.get("uid", -1)))
-		await _petrify_beam(dest, 0.06)
-		var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
+	var last_i: int = cursor
+	var i: int = cursor
+	for _step in n:
+		if not _item_stoned(hotbar[i]):
+			targets.append(i)
+			last_i = i
+			if targets.size() >= 2:
+				break
+		i = (i + 1) % n
+	if targets.is_empty():
+		_log("on_spin", "Stone Gaze none")
+		return
+	m["gaze_i"] = (last_i + 1) % n
+	wheel[index] = m
+	_log("on_spin", "Stone Gaze petrify %s items" % targets.size())
+	var from: Vector2 = Vector2.INF
+	if wheel_view != null:
+		from = wheel_view.slice_portrait_global(index)
+	for ti in targets:
+		var slot: int = int(ti)
+		hotbar[slot]["petrified"] = true
+		hotbar[slot]["petrify_n"] = 0
+		var dest: Vector2 = _item_card_global(int(hotbar[slot].get("uid", -1)))
+		await _petrify_beam(dest, 0.12, from)
+		var card = _hotbar_card_by_uid(int(hotbar[slot].get("uid", -1)))
 		if card != null and card.has_method("set_petrified"):
-			await card.set_petrified(true, false, 3, true)
+			await card.set_petrified(true, false, 0, true)
 	_refresh()
 	if sfx:
 		sfx.play_event(&"status.petrify")
-	if facing_index >= 0 and cap > 0:
-		await _announce_slice(facing_index, _item_card_global(int(hotbar[0].get("uid", -1))))
-	_log("on_resolve", "Basilisk Flees")
-	return await _flee_spin()
+	var slash_to: Vector2 = _item_card_global(int(hotbar[int(targets[0])].get("uid", -1)))
+	await _announce_slice(index, slash_to)
 
 
 func _item_atk_score(it: Dictionary) -> int:

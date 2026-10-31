@@ -4025,9 +4025,13 @@
 			"face": "basilisk",
 			"challenge": true,
 			"clicks": [],
-			"expected_text": "Spin Basilisk. It Flees. No fight to play an item. That is the monster working.",
+			"expected_text": "Spin Basilisk. Stone Gaze Petrifies the first items. Then you fight 5 Attack / 5 HP. It does not Flee.",
 			"expected": {
-				"outcome": "fled"
+				"log_has": [
+					"stone gaze"
+				],
+				"face_atk": 5,
+				"face_hp": 5
 			},
 			"cards": [
 				{
@@ -4041,7 +4045,7 @@
 					"id": "basilisk",
 					"kind": "monster",
 					"name": "Basilisk",
-					"ability": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
+					"ability": "Every time you Spin, I Petrify the next two items in your inventory",
 					"sprite": "assets/dungeon/extra/basilisk.png"
 				}
 			]

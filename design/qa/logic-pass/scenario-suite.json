@@ -1483,7 +1483,7 @@
 		},
 		{
 			"id": "basilisk-flees-on-spin",
-			"title": "Basilisk Flees on the first Spin",
+			"title": "Basilisk Stone Gaze on Spin, then fight",
 			"family": "collide",
 			"items": [
 				"shield"
@@ -1494,12 +1494,13 @@
 			"face": "basilisk",
 			"challenge": true,
 			"clicks": [],
-			"expected_text": "The first time you Spin Basilisk, it Flees (and Petrifies). There is no fight to click Shield. That is Basilisk working.",
+			"expected_text": "Spin Basilisk. Stone Gaze Petrifies items. Then you fight 5 Attack / 5 HP. It does not Flee.",
 			"expected": {
-				"outcome": "fled",
 				"log_has": [
-					"Flee"
-				]
+					"stone gaze"
+				],
+				"face_atk": 5,
+				"face_hp": 5
 			},
 			"cards": [
 				{
@@ -1513,7 +1514,7 @@
 					"id": "basilisk",
 					"kind": "monster",
 					"name": "Basilisk",
-					"ability": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
+					"ability": "Every time you Spin, I Petrify the next two items in your inventory",
 					"sprite": "assets/dungeon/extra/basilisk.png"
 				}
 			]

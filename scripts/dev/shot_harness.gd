@@ -1992,7 +1992,7 @@ func _shot_anim_petrify() -> void:
 	])
 	await _capture("04_hydra_beams.png", "Hydra: three beams to three even items")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
-	# Basilisk: every other card, 3 pips — shoot after creep, before slash.
+	# Basilisk: next two seats stone until the next Spin — shoot after creep, before slash.
 	await _anim_ready_seat(
 		["basilisk", "goblin", "skeleton", "bandit"],
 		["shield", "net", "da_boot", "longbow"],
@@ -2001,35 +2001,30 @@ func _shot_anim_petrify() -> void:
 	main.set_meta("qa_spin_idx", 0)
 	main._on_spin()
 	await _until(func() -> bool:
-		var any_pips := false
+		var any_stone := false
 		for c in main.hotbar_box.get_children() if main.hotbar_box else []:
-			if int(c.get("_petrify_spins")) >= 3 and float(c.get("_petrify_creep")) >= 0.99:
-				any_pips = true
+			if bool(c.get("_petrified")) and float(c.get("_petrify_creep")) >= 0.99:
+				any_stone = true
 				break
-		return any_pips and not _slash_visible()
+		return any_stone and not _slash_visible()
 	, 18.0)
 	await _wait(0.08)
-	await _capture("05_basilisk_pips.png", "Basilisk: every other card stone with 3 pips")
+	await _capture("05_basilisk_pips.png", "Basilisk: first two seats stone until next Spin")
 	await _until(func() -> bool: return not bool(main._walker_busy), 25.0)
-	# Countdown across Spins: seat petrify_n=3, tick to 2, then show pips→shatter path.
-	await _anim_ready_seat(
-		["goblin", "skeleton", "bandit", "ogre"],
-		["shield", "net", "da_boot", "longbow"],
-		8, 0, 0
-	)
-	await _anim_spin_face(0)
-	for i in main.hotbar.size():
-		if (i + 1) % 2 == 0:
-			main.hotbar[i]["petrify_n"] = 3
-			main.hotbar[i]["petrified"] = true
-			var card = main._hotbar_card_by_uid(int(main.hotbar[i].get("uid", -1)))
-			if card != null and card.has_method("set_petrified"):
-				await card.set_petrified(true, false, 3, false)
-	main._refresh()
+	# Next Spin: previous two shatter, walk takes seats 3 and 4.
+	main.set_meta("qa_spin_idx", 1)
+	main._on_spin()
+	await _until(func() -> bool:
+		if main.hotbar.size() < 4:
+			return false
+		var a: bool = bool(main.hotbar[0].get("petrified", false))
+		var b: bool = bool(main.hotbar[1].get("petrified", false))
+		var c: bool = bool(main.hotbar[2].get("petrified", false))
+		var d: bool = bool(main.hotbar[3].get("petrified", false))
+		return (not a) and (not b) and c and d and not bool(main._walker_busy)
+	, 25.0)
 	await _wait(0.08)
-	await main._tick_gaze_petrify()
-	await _wait_game(0.12)
-	await _capture("06_basilisk_tick.png", "Basilisk countdown: pip cracked (3→2)")
+	await _capture("06_basilisk_tick.png", "Basilisk next Spin: seats 3–4 stone, 1–2 free")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
 	# 6-seat wheel: beam still aims at a hotbar card, not a fixed seat index.
 	await _anim_ready_seat(
