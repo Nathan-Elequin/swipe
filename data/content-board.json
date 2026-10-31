@@ -661,7 +661,7 @@
 			"name": "Grimoire",
 			"notes": "",
 			"ops": {},
-			"pool": 2.0,
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
@@ -958,7 +958,7 @@
 				"kind": "atk_neighbor",
 				"n": 4.0
 			},
-			"pool": 1.0,
+			"pool": 2.0,
 			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
@@ -3606,6 +3606,44 @@
 			"review_note": "",
 			"status": "live",
 			"tier": 2.0
+		},
+		{
+			"ability": "+1 ATK for each Spin. When this reaches 7 ATK, Discard this.",
+			"atk_base": 1.0,
+			"atk_formula": "",
+			"author_lock": false,
+			"call_name": "",
+			"card_color": "atk",
+			"count": 1.0,
+			"defined": "Starts at Attack 1. Each Spin while this copy is in the hotbar (Smoke, Flee, auto-spin, landing) adds +1 Attack. Click during a fight to deal that Attack to the owner you spun, then the card is used up (Recycler does not tick). After all on-spin effects, including Oligarch, any copy still at 7 Attack is Discarded, even if Petrified. Oligarch can force-use a playable 7 before that Discard. Copies count separately. New dungeon resets to 1. The number carries between fights in the same dungeon.",
+			"exceptions": "",
+			"explainer": "ATK = 1 + Spins. Discard at 7",
+			"flags": {
+				"art": false,
+				"dev": true,
+				"hide": false
+			},
+			"flow": "Starts at Attack 1. Each Spin while this copy is in the hotbar (Smoke, Flee, auto-spin, landing) adds +1 Attack. Click during a fight to deal that Attack to the owner you spun, then the card is used up (Recycler does not tick). After all on-spin effects, including Oligarch, any copy still at 7 Attack is Discarded, even if Petrified. Oligarch can force-use a playable 7 before that Discard. Copies count separately. New dungeon resets to 1. The number carries between fights in the same dungeon.",
+			"hp_base": null,
+			"hp_formula": "",
+			"id": "spinning_top",
+			"log_hint": "Attack grows on Spin; Discard at 7",
+			"mode_pool": "all",
+			"name": "Spinning Top",
+			"notes": "Pool 1 T1 Attack. Dragged Crossbow 1->2, Grimoire 2->3. Counts Flee. Auto-Discard after Oligarch. Petrified still Discards at 7.",
+			"ops": {
+				"kind": "atk_spins"
+			},
+			"poc": false,
+			"pool": 1.0,
+			"priority": 2.0,
+			"rarity": "starter",
+			"reminder": "",
+			"review": "rough",
+			"review_note": "",
+			"status": "live",
+			"tier": 1.0,
+			"type": "I"
 		}
 	],
 	"monsters": [

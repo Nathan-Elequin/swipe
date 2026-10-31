@@ -80,6 +80,7 @@ const DEFAULT_EXPLAINER := {
 	"sling": "Next Attack this fight can target Any",
 	"ball_and_chain": "(ATK 2. Whenever you or an Enemy would Flee, cancel it. This gains +2 Attack.)",
 	"recycler": "(Every 5th Discard copies that Item into your Hand.)",
+	"spinning_top": "ATK = 1 + Spins. Discard at 7",
 	"magicat": "On Spin: 2 Atk or Blk Items become Marbles with that number",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
 	"rust": "Ignore Block. Discard after 3 Spins.",

@@ -183,6 +183,7 @@ const ITEM_OPS := {
 	"energy_drink": {"kind": "player_flee_keep"},
 	"recycler": {"kind": "recycle_watch"},
 	"rust": {"kind": "rust_watch"},
+	"spinning_top": {"kind": "atk_spins"},
 }
 
 const MONSTER_SPECIAL := {
@@ -1005,6 +1006,7 @@ func _load_textures() -> void:
 		"chakram": _tex("res://assets/icons/swords.svg"),
 		"signpost": tex_shield,
 		"sling": _tex("res://assets/icons/swords.svg"),
+		"spinning_top": _tex("res://assets/icons/rotate.svg"),
 	}
 	tex_special = {
 		"no_atk_dmg": _tex("res://assets/icons/ban.svg"),
@@ -3311,6 +3313,8 @@ func _prep_next_dungeon() -> void:
 			_set_shield_face(it, "atk")
 		if str(it.get("card_id", "")) == "hex":
 			it["hex_n"] = 6
+		if str(it.get("card_id", "")) == "spinning_top":
+			it["spinning_top_n"] = 0
 	_drop_dungeon_tokens()
 	if combat_stage:
 		combat_stage.hide_stage()
@@ -5951,6 +5955,7 @@ func _make_item(id: String) -> Dictionary:
 		"magnet_mode": "off",
 		"magnet_seq": 0,
 		"hex_n": 6 if id == "hex" else 0,
+		"spinning_top_n": 0,
 		"marble_n": 0,
 		"marble_monster": "",
 		"cats_eye": false,
@@ -7695,6 +7700,7 @@ func _on_spin() -> void:
 	_refresh()
 	await _step_berserkers()
 	_step_marbles()
+	_step_spinning_tops()
 	_step_rusts()
 	_sync_wheel_stats()
 	await _apply_queen_eggs_on_spin()
@@ -7735,6 +7741,7 @@ func _on_spin() -> void:
 		return
 	if phase == "fighting":
 		await _apply_oligarch_on_spin()
+	await _discard_maxed_spinning_tops()
 	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0 and not _wick_waiting(facing_index):
 		_undo_stack.append(_capture_run())
 		_redo_stack.clear()
@@ -9153,7 +9160,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				_drink_hp_due = true
 			_refresh()
 			return
-		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "atk_wheel", "atk_echo":
+		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "atk_wheel", "atk_echo", "atk_spins":
 			var n2: int = int(ops["n"]) if ops.has("n") else int(view.get("n", 0))
 			if kind == "atk_echo" and n2 <= 0:
 				_log_begin_item(it)
@@ -13552,6 +13559,45 @@ func _step_rusts() -> void:
 		_hotbar_sig = ""
 
 
+func _spinning_top_atk(it: Dictionary) -> int:
+	return 1 + mini(6, int(it.get("spinning_top_n", 0)))
+
+
+func _step_spinning_tops() -> void:
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) != "spinning_top":
+			continue
+		if bool(it.get("spent", false)):
+			continue
+		it["spinning_top_n"] = mini(6, int(it.get("spinning_top_n", 0)) + 1)
+		if cascade_ticker != null and cascade_ticker.active:
+			var tex: Texture2D = _item_icon_tex(it)
+			var ticket_i: int = cascade_ticker.push("spinning_top", tex)
+			if ticket_i >= 0:
+				cascade_ticker.light(ticket_i)
+				cascade_ticker.stamp(ticket_i)
+
+
+func _discard_maxed_spinning_tops() -> void:
+	var gone: Array = []
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) != "spinning_top":
+			continue
+		if bool(it.get("spent", false)):
+			continue
+		if _spinning_top_atk(it) < 7:
+			continue
+		gone.append(int(it.get("uid", -1)))
+	for uid in gone:
+		if uid < 0:
+			continue
+		_discard_from_hand(uid, true, true)
+
+
 func _step_marbles() -> void:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
@@ -17540,6 +17586,8 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 			return [[_fg("heart", "6"), _fg("icon", "", "", "", "", "bar"), _fg("icon", "", "", "", "", "spin"), _fg("heart", "−1")]]
 		"grief_jar":
 			return [[_fg("shield", n), _fg("icon", "", "", "", "", "bar"), _fg("icon", "", "", "", "", "spin"), _fg("heart", "−1")]]
+		"spinning_top":
+			return [[_fg("impact", n), _fg("icon", "", "", "", "", "spin")]]
 		"signpost":
 			return [[_fg("shield", "7"), _fg("icon", "", "", "", "", "nw"), _fg("icon", "", "", "", "", "ne"), _fg("impact", "", "", "self")]]
 		"poison_flask":
@@ -17635,6 +17683,11 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["n"] = int(ops.get("n", 0))
 			if str(it.get("card_id", "")) == "arrow_head" or _is_arrow_head(it):
 				out["n"] = 6
+			out["number"] = str(out["n"])
+			out["note"] = ""
+			out["can_use"] = fighting
+		"atk_spins":
+			out["n"] = _spinning_top_atk(it)
 			out["number"] = str(out["n"])
 			out["note"] = ""
 			out["can_use"] = fighting
@@ -18606,7 +18659,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				if int(wheel[facing_index].get("hp", 0)) - stotal <= 0:
 					if str(wheel[facing_index].get("card_id", "")) != "wick" or _is_silenced(wheel[facing_index]):
 						p[facing_index]["kill"] = true
-		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "choose", "atk_wheel", "atk_echo", "atk_spend_blk", "atk_empty":
+		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "choose", "atk_wheel", "atk_echo", "atk_spend_blk", "atk_empty", "atk_spins":
 			var drop_prev := false
 			if kind == "choose":
 				var popts: Variant = _ops_of(it).get("options", [])
@@ -19153,6 +19206,10 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			else:
 				out["equation"] = "(%s)" % _bb(atk_c, str(live))
 			out["body"] = str(it.get("ability", "Deal Attack."))
+		"atk_spins":
+			out["value"] = _value_bb("Attack", str(live), atk_c)
+			out["equation"] = "(%s) +1 per Spin. Discard at 7" % _bb(atk_c, "1")
+			out["body"] = str(it.get("ability", "+1 ATK for each Spin. When this reaches 7 ATK, Discard this."))
 		"atk_if_enemy_atk_even":
 			out["value"] = _value_bb("Attack", str(live if fighting else 4), atk_c)
 			out["equation"] = "(%s) or (%s if %s)" % [_bb(cream, "2"), _bb(atk_c, "4"), _bb(gold, "Even ATK")]

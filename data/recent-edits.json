@@ -113,12 +113,13 @@
 		"monster:vampire": 1792470000.0,
 		"monster:wick": 1792689329.0,
 		"monster:wizard": 1792790558.82853,
-		"monster:zombie": 1792430000.0
+		"monster:zombie": 1792430000.0,
+		"item:spinning_top": 1793410142.8070083
 	},
 	"id": "boss-rush-recent-edits",
 	"item:signpost": 1792450564.02935,
 	"item:sling": 1793236000.0,
 	"monster:mouse": 1792450564.02935,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-10-30T23:11:52"
+	"updated": "2026-10-30T20:30:00"
 }
