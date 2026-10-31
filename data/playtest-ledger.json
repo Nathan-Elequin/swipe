@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-10-30T23:30:00-05:00",
+	"updated_at": "2026-10-30T22:55:00-05:00",
 	"branch": "playtest/latest",
 	"issues": {
 		"190": {
@@ -69,14 +69,14 @@
 			"status": "f5",
 			"title": "Ale Flagon heals you and the current enemy +3",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/222",
-			"sha": "19f5e038",
+			"sha": "9763c1f4",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"223": {
 			"status": "f5",
 			"title": "Harpy should hit once on Spin unless Wealth Tax",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/223",
-			"sha": "19f5e038",
+			"sha": "9763c1f4",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"232": {
@@ -97,7 +97,7 @@
 			"status": "f5",
 			"title": "Recycler countdown on every discard",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/234",
-			"sha": "19f5e038",
+			"sha": "9763c1f4",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"236": {
@@ -118,7 +118,7 @@
 			"status": "f5",
 			"title": "Echo Bell replays a kept item, then discards itself",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/238",
-			"sha": "19f5e038",
+			"sha": "9763c1f4",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"239": {
