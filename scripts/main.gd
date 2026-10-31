@@ -225,7 +225,7 @@ const MONSTER_SPECIAL := {
 	"prism": {"id": "refract", "text": "Attack at me hits both neighbors instead."},
 	"plague_doctor": {"id": "time_bomb", "text": "On each Spin, I give all You and all Monsters 1 Poison."},
 	"hired_hand": {"id": "bribe", "text": "Discard an item: I Attack a Neighbor and Flee."},
-	"hydra": {"id": "even_killer", "text": "I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each"},
+	"hydra": {"id": "devour", "text": "If any other Monster has its HP reduced to 3 or less and survives, I Defeat them and Gain their ATK"},
 	"three_seeker": {"id": "triple_threat", "text": "If you have 3, 6, or 9 Items, you Always Spin me next"},
 	"triclops": {"id": "three_hp", "text": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee."},
 	"phoenix_egg": {"id": "hatch", "text": "When I am Defeated, I Flee and hatch into a Phoenix."},
@@ -282,7 +282,7 @@ const MONSTER_CALL := {
 	"wick": "Death Toll",
 	"anvil": "Steady Steel",
 	"cowardly_king": "Vindictive",
-	"hydra": "Even Killer",
+	"hydra": "Devour",
 	"three_seeker": "Triple Threat",
 	"phoenix_egg": "Hatch",
 	"phoenix": "Rebirth",
@@ -457,6 +457,9 @@ var _toll_death_armed: bool = false
 var skip_swing_this_fight: bool = false
 var keep_blocked_this_fight: bool = false
 var _lich_chip_open: bool = false
+var _hydra_hurt_uids: Dictionary = {}
+var _hydra_devouring: bool = false
+var _slay_busy: bool = false
 var _decay_busy: bool = false
 var _beggar_hold: bool = false
 var _beggar_intro_running: bool = false
@@ -7685,8 +7688,6 @@ func _on_spin() -> void:
 			m = wheel[facing_index] if facing_index >= 0 and facing_index < wheel.size() else m
 		if str(m.get("card_id", "")) == "gargoyle":
 			await _petrify_best_atk()
-		elif str(m.get("card_id", "")) == "hydra":
-			await _hydra_even_killer()
 		await _apply_death_bell_on_spin()
 		if await _apply_mouse_scurry():
 			await _bleed_end()
@@ -7792,6 +7793,7 @@ func _unlock_if_fighting() -> void:
 	_release_item_hold()
 	if await _flush_vindictive():
 		return
+	await _flush_hydra_devour()
 	await _flush_midfight_holes()
 	if cascade_ticker != null and cascade_ticker.has_method("end"):
 		cascade_ticker.end()
@@ -7865,28 +7867,61 @@ func _begin_slay(banner: String = "slay") -> void:
 		await _tutorial_clear_held_dead()
 		return
 	var token: int = _undo_gen
+	var owned_slay: bool = not _slay_busy
+	_slay_busy = true
+	if owned_slay:
+		await _flush_hydra_devour()
+		if _undo_stale(token) or hp <= 0:
+			_slay_busy = false
+			return
+		if phase != "fighting" and phase != "slaying":
+			_slay_busy = false
+			return
+		if facing_index < 0 or facing_index >= wheel.size():
+			_slay_busy = false
+			return
 	await _on_owner_defeated(facing_index)
 	if _undo_stale(token) or hp <= 0:
+		if owned_slay:
+			_slay_busy = false
 		return
 	await _flush_poison_sides()
 	if _undo_stale(token):
+		if owned_slay:
+			_slay_busy = false
 		return
 	await _maybe_bell_defeat_tax()
 	if _undo_stale(token):
+		if owned_slay:
+			_slay_busy = false
 		return
 	if await _resolve_toll_death():
+		if owned_slay:
+			_slay_busy = false
 		return
 	if await _try_phoenix_cycle(facing_index):
+		if owned_slay:
+			_slay_busy = false
 		return
 	if _undo_stale(token):
+		if owned_slay:
+			_slay_busy = false
 		return
 	if await _try_triclops_bail(facing_index):
+		if owned_slay:
+			_slay_busy = false
 		return
 	if await _try_commander_flee(facing_index):
+		if owned_slay:
+			_slay_busy = false
 		return
 	if _undo_stale(token):
+		if owned_slay:
+			_slay_busy = false
 		return
 	await _exit_ended(false, banner)
+	if owned_slay:
+		_slay_busy = false
 
 
 func _exit_ended(clockwork_split: bool = false, banner: String = "slay") -> void:
@@ -10631,6 +10666,7 @@ func _chip_hp(index: int, n: int) -> bool:
 			return false
 		drop = 1
 	m["hp"] = maxi(0, before - drop)
+	_note_hydra_survive_loss(index, before, int(m["hp"]))
 	if before > 0 and int(m["hp"]) <= 0:
 		_note_death(m)
 	m["hp_locked"] = true
@@ -12415,6 +12451,7 @@ func _hurt_ogres(lost: int) -> void:
 			continue
 		var before: int = int(s.get("hp", 0))
 		s["hp"] = maxi(0, before - lost)
+		_note_hydra_survive_loss(i, before, int(s["hp"]))
 		if before > 0 and int(s["hp"]) <= 0:
 			_note_death(s)
 		s["hp_locked"] = true
@@ -15028,6 +15065,139 @@ func _petrify_best_atk() -> void:
 	_refresh()
 
 
+func _note_hydra_survive_loss(index: int, before: int, after: int) -> void:
+	if before <= after or after <= 0:
+		return
+	if index < 0 or index >= wheel.size():
+		return
+	if str(wheel[index].get("kind", "")) != "monster":
+		return
+	var uid: int = int(wheel[index].get("seat_uid", -1))
+	if uid < 0:
+		return
+	_hydra_hurt_uids[uid] = true
+
+
+func _hydra_listener_uids() -> Array[int]:
+	var out: Array[int] = []
+	for i in range(wheel.size()):
+		var s: Dictionary = wheel[i]
+		if str(s.get("card_id", "")) != "hydra":
+			continue
+		if str(s.get("kind", "")) != "monster":
+			continue
+		if int(s.get("hp", 0)) <= 0:
+			continue
+		if _is_silenced(s):
+			continue
+		out.append(int(s.get("seat_uid", -1)))
+	return out
+
+
+func _hydra_victim_order() -> Array[int]:
+	var n: int = wheel.size()
+	var out: Array[int] = []
+	if n <= 0:
+		return out
+	var start: int = facing_index if facing_index >= 0 else 0
+	for step in range(1, n + 1):
+		out.append((start + step) % n)
+	return out
+
+
+func _hydra_defeat_as_item(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var m: Dictionary = wheel[index]
+	if _undying(m):
+		var dead: bool = await _lich_chip_defeat(index)
+		if dead:
+			await _maybe_slay_down(index)
+		return
+	if index == facing_index:
+		if _slay_busy:
+			return
+		await _begin_slay()
+		return
+	await _on_owner_defeated(index)
+	if hp <= 0:
+		return
+	if await _try_phoenix_cycle(index):
+		return
+	if await _try_triclops_bail(index):
+		return
+	if await _try_commander_flee(index):
+		return
+	if index < 0 or index >= wheel.size():
+		return
+	if int(wheel[index].get("hp", 0)) > 0:
+		wheel[index]["hp"] = 0
+		_note_death(wheel[index])
+	await _kill_neighbor(index)
+
+
+func _flush_hydra_devour() -> void:
+	if _hydra_devouring:
+		return
+	if _hydra_hurt_uids.is_empty():
+		return
+	if _hydra_listener_uids().is_empty():
+		_hydra_hurt_uids.clear()
+		return
+	_hydra_devouring = true
+	var waves: int = 0
+	while waves < 12 and not _hydra_hurt_uids.is_empty():
+		waves += 1
+		var hydra_uids: Array[int] = _hydra_listener_uids()
+		if hydra_uids.is_empty():
+			break
+		var meals: int = 0
+		for h_uid in hydra_uids:
+			var h_i: int = _index_of_seat(h_uid)
+			if h_i < 0:
+				continue
+			if str(wheel[h_i].get("card_id", "")) != "hydra":
+				continue
+			if int(wheel[h_i].get("hp", 0)) <= 0 or _is_silenced(wheel[h_i]):
+				continue
+			for v_i in _hydra_victim_order():
+				if v_i < 0 or v_i >= wheel.size() or v_i == h_i:
+					continue
+				if _slay_busy and v_i == facing_index:
+					continue
+				var v: Dictionary = wheel[v_i]
+				if str(v.get("kind", "")) != "monster":
+					continue
+				var v_uid: int = int(v.get("seat_uid", -1))
+				if not _hydra_hurt_uids.has(v_uid):
+					continue
+				var vhp: int = int(v.get("hp", 0))
+				if vhp <= 0 or vhp > 3:
+					continue
+				await _announce_slice(h_i)
+				h_i = _index_of_seat(h_uid)
+				v_i = _index_of_seat(v_uid)
+				if h_i < 0 or v_i < 0:
+					continue
+				if int(wheel[v_i].get("hp", 0)) <= 0 or int(wheel[v_i].get("hp", 0)) > 3:
+					continue
+				var plate: int = int(wheel[v_i].get("atk", 0))
+				_log("on_resolve", "Devour %s  Gain %s ATK" % [wheel[v_i].get("name", "?"), plate])
+				await _hydra_defeat_as_item(v_i)
+				h_i = _index_of_seat(h_uid)
+				if h_i >= 0:
+					wheel[h_i]["hydra_bonus"] = int(wheel[h_i].get("hydra_bonus", 0)) + plate
+					_sync_wheel_stats()
+					if wheel_view != null and wheel_view.has_method("punch_atk"):
+						wheel_view.punch_atk(h_i)
+					_refresh()
+				meals += 1
+		if meals == 0:
+			break
+	_hydra_hurt_uids.clear()
+	_hydra_devouring = false
+
+
 func _hydra_live_n(it: Dictionary) -> int:
 	if it.is_empty() or bool(it.get("spent", false)) or _item_stoned(it):
 		return -1
@@ -15767,6 +15937,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	var before_atk: int = int(m.get("atk", 0))
 	m["hp_pre_hit"] = before_hp
 	m["hp"] = maxi(0, before_hp - hit_n)
+	_note_hydra_survive_loss(index, before_hp, int(m["hp"]))
 	if before_hp > 0 and int(m["hp"]) <= 0:
 		_note_death(m)
 	m["hp_locked"] = true
@@ -19605,7 +19776,7 @@ func _monster_rule(s: Dictionary) -> Dictionary:
 		out["hint"] = ""
 		out["call"] = sil
 		return out
-	if (id == "gargoyle" or id == "hydra") and _shift_held:
+	if id == "gargoyle" and _shift_held:
 		out["warn"] = "Petrify — becomes Unplayable until your next Spin."
 	var hide_owner_math: bool = id == "golem" or id == "wizard"
 	if hide_owner_math:
