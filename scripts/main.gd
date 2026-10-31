@@ -6260,6 +6260,7 @@ func _sync_wheel_stats() -> void:
 				_refresh_live_atk(s)
 				wheel[i] = s
 			continue
+		_peel_auras(s)
 		_apply_formulas_to(s)
 		wheel[i] = s
 	_apply_wraith_pass()
@@ -8055,7 +8056,11 @@ func _resolve_then_continue(skip_attack: bool) -> void:
 	var still_up: bool = facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) > 0
 	var banner := "slay"
 	if still_up:
-		banner = "escape" if _taken > 0 else "none"
+		var face_now: String = str(wheel[facing_index].get("card_id", "")) if facing_index >= 0 and facing_index < wheel.size() else ""
+		if face_now == "harpy":
+			banner = "escape"
+		else:
+			banner = "escape" if _taken > 0 else "none"
 	await _begin_slay(banner)
 
 
@@ -8065,6 +8070,8 @@ func _apply_resolve_hits() -> int:
 	if _blood_threshes(facing_index):
 		return await _shark_attack_player(facing_index)
 	var m: Dictionary = wheel[facing_index]
+	if str(m.get("card_id", "")) == "harpy" and not _is_silenced(m):
+		return 0
 	var hits: int = _hit_count(facing_index)
 	var total: int = 0
 	for h in range(hits):
@@ -9194,9 +9201,10 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				return
 			_log("on_item_use", str(it["name"]))
 			it["spent"] = true
-			it["keep_after"] = true
+			var keep_echo: bool = str(it.get("card_id", "")) != "echo_bell"
+			it["keep_after"] = keep_echo
 			await _count_item_use()
-			_toss_item(int(it["uid"]), true)
+			_toss_item(int(it["uid"]), keep_echo)
 			var fled: bool = await _flee_spin()
 			if not fled:
 				_drink_hp_due = false
@@ -9309,7 +9317,6 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				var ale_face: Dictionary = wheel[facing_index]
 				if str(ale_face.get("kind", "")) == "monster" and int(ale_face.get("hp", 0)) > 0:
 					_heal_monster(facing_index, both_n, true)
-			_log("on_item_use", "Ale Flagon also heals the enemy +%s" % both_n)
 			_draw_unseen_item()
 		"heal_kills":
 			var flask_n: int = 1 + mobs_defeated
@@ -10088,6 +10095,7 @@ func _toss_item(uid: int, keep: bool, slow: bool = false) -> void:
 		keep = true
 	if keep and _keep_blocked_now():
 		keep = false
+	var snap: Dictionary = _find_item(uid).duplicate(true) if not keep else {}
 	for c in _hotbar_all_cards():
 		if not c.has_method("toss"):
 			continue
@@ -10104,17 +10112,16 @@ func _toss_item(uid: int, keep: bool, slow: bool = false) -> void:
 		break
 	if not keep:
 		_remove_item_now(uid)
+		if not snap.is_empty():
+			_recycle_after_gone(snap)
 		_sync_wheel_stats()
 
 
-func _discard_from_hand(uid: int, slow: bool = false, recycle: bool = true) -> void:
+func _discard_from_hand(uid: int, slow: bool = false, _recycle: bool = true) -> void:
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
 		return
-	var snap: Dictionary = it.duplicate(true)
 	_toss_item(uid, false, slow)
-	if recycle:
-		_recycle_after_gone(snap)
 	if not _beggar_hold and not _decay_busy:
 		_kick_beggar_fill()
 
@@ -14939,9 +14946,9 @@ func _echo_face(it: Dictionary) -> Dictionary:
 		return it
 	var copy: Variant = it.get("echo_copy", {})
 	if typeof(copy) == TYPE_DICTIONARY and not (copy as Dictionary).is_empty():
-		return copy
+		return (copy as Dictionary).duplicate(true)
 	if typeof(last_item_copy) == TYPE_DICTIONARY and not last_item_copy.is_empty():
-		return last_item_copy
+		return last_item_copy.duplicate(true)
 	return {}
 
 
@@ -17033,8 +17040,10 @@ func _heal_monster(index: int, n: int, grow_max: bool = false) -> void:
 	if str(m.get("card_id", "")) == "slime_boss":
 		m["atk"] = int(m["hp"])
 	wheel[index] = m
-	if int(m["hp"]) > before and sfx:
-		sfx.play("pluck", -10.0)
+	if int(m["hp"]) > before:
+		if sfx:
+			sfx.play("pluck", -10.0)
+		_log("hp", "heal +%s  →  %s HP %s" % [int(m["hp"]) - before, m.get("name", "?"), m["hp"]])
 	if wheel_view:
 		wheel_view.hit_feedback(index, before - int(m["hp"]), 0)
 	_refresh_face()
@@ -22508,12 +22517,14 @@ func _jar_slide_two(it: Dictionary) -> bool:
 		_undo_abort()
 		_refresh()
 		return true
+	var keep_echo: bool = str(it.get("card_id", "")) != "echo_bell"
 	_log("on_item_use", str(it.get("name", "?")))
-	_log("keep", str(it.get("name", "?")))
+	if keep_echo:
+		_log("keep", str(it.get("name", "?")))
 	it["spent"] = true
-	it["keep_after"] = true
+	it["keep_after"] = keep_echo
 	await _count_item_use()
-	_toss_item(int(it.get("uid", -1)), true)
+	_toss_item(int(it.get("uid", -1)), keep_echo)
 	return true
 
 
