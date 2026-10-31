@@ -11,6 +11,8 @@ var guide_c: Vector2 = Vector2.ZERO
 var guide_r: float = 180.0
 var moves_n: int = 0
 var show_count: bool = false
+var outer_pad: float = 72.0
+var sweep_rad: float = PI * 0.28
 var _down: bool = false
 
 
@@ -37,18 +39,20 @@ func _set_down(on: bool) -> void:
 	queue_redraw()
 
 
-func set_guide(c_local: Vector2, radius: float, n: int, show_n: bool) -> void:
+func set_guide(c_local: Vector2, radius: float, n: int, show_n: bool, pad: float = -1.0, sweep: float = -1.0) -> void:
 	guide_c = c_local
 	guide_r = radius
 	moves_n = n
 	show_count = show_n
+	outer_pad = pad if pad >= 0.0 else PlaytestUx.move_arrow_outer_pad()
+	sweep_rad = sweep if sweep >= 0.0 else PI * 0.28
 	queue_redraw()
 
 
 func _arc_span() -> Vector2:
 	var off: float = PlaytestUx.move_arrow_start_offset()
 	var a0: float = PI * 0.5 - float(pointing) * off
-	var sweep: float = -float(pointing) * (PI * 0.28)
+	var sweep: float = -float(pointing) * sweep_rad
 	return Vector2(a0, sweep)
 
 
@@ -72,7 +76,7 @@ func arc_global_rect() -> Rect2:
 
 func _arc_pts() -> PackedVector2Array:
 	var span: Vector2 = _arc_span()
-	var rad: float = guide_r + PlaytestUx.move_arrow_outer_pad()
+	var rad: float = guide_r + outer_pad
 	var pts := PackedVector2Array()
 	for i in 28:
 		var t: float = float(i) / 27.0
@@ -117,7 +121,7 @@ func _draw() -> void:
 	_draw_shaft(pts, live, hot)
 	_draw_head(pts, live, hot)
 	if show_count and pointing < 0:
-		var foot_at: Vector2 = guide_c + Vector2.from_angle(PI * 0.5 + 0.72) * (guide_r + PlaytestUx.move_arrow_outer_pad() + 8.0)
+		var foot_at: Vector2 = guide_c + Vector2.from_angle(PI * 0.5 + 0.72) * (guide_r + outer_pad + 8.0)
 		_draw_foot_count(foot_at, live)
 
 

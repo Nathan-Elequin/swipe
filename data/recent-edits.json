@@ -42,6 +42,7 @@
 		"item:mute_stone": 1792452000.0,
 		"item:napalm": 1792420000.0,
 		"item:net": 1792230000.0,
+		"item:orb": 1793410000,
 		"item:pacemaker": 1792470000.0,
 		"item:pocketwatch": 1792700700.0,
 		"item:poison_flask": 1793347200.0,
@@ -68,7 +69,7 @@
 		"monster:berserker": 1793222400.0,
 		"monster:bushido": 1793238694.0,
 		"monster:cleric": 1791944780.0,
-		"monster:clockwork_knight": 1793397885.3250191,
+		"monster:clockwork_knight": 1793397885.32502,
 		"monster:commander": 1792136735.68746,
 		"monster:cowardly_king": 1793319300.0,
 		"monster:cultist": 1792438800.0,
@@ -97,7 +98,7 @@
 		"monster:oligarch": 1793319300.0,
 		"monster:phoenix": 1792470000.0,
 		"monster:phoenix_egg": 1792508400.0,
-		"monster:plague_doctor": 1793382580,
+		"monster:plague_doctor": 1793382580.0,
 		"monster:poison_frog": 1792507800.0,
 		"monster:prism": 1792690697.16532,
 		"monster:rust_bucket": 1792514135.0,
@@ -119,5 +120,5 @@
 	"item:sling": 1793236000.0,
 	"monster:mouse": 1792450564.02935,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-10-30T17:49:40"
+	"updated": "2026-10-30T23:11:52"
 }

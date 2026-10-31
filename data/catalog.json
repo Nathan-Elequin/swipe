@@ -4093,15 +4093,15 @@
 			"type": "I"
 		},
 		{
-			"ability": "Defeat your enemy if you are perfectly Blocking them, and Gain a Marble equal to their Attack",
+			"ability": "Defeat your enemy if you are fully Blocking them, and Gain a Marble equal to their Attack",
 			"atk_base": null,
 			"atk_formula": "",
-			"author_lock": false,
+			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1.0,
-			"defined": "",
-			"exceptions": "Pool 4 already has Paci-Fist and Catapult. No other card was moved.",
+			"count": 1,
+			"defined": "Click during a fight on the enemy you are facing, like The Boot. Grey unless incoming damage after Block is 0, the same total the Safe button uses.",
+			"exceptions": "Pool 4, tier 2, Cheese. Crystal magic focus orb. Grey unless Safe. Marble number is their Attack, copied once. All tokens leave the hand when the dungeon ends.",
 			"explainer": "If Safe, Defeat them. Gain a Marble of their Attack.",
 			"flags": {
 				"art": true,
@@ -4112,8 +4112,27 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "orb",
-			"locked_at": "",
-			"locked_fields": [],
+			"locked_at": "2026-10-30",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
 			"log_hint": "Safe: Defeat them. Marble of their Attack.",
 			"mode_pool": "all",
 			"name": "Orb",
@@ -4122,14 +4141,14 @@
 				"kind": "orb"
 			},
 			"poc": false,
-			"pool": 4.0,
-			"priority": 2.0,
+			"pool": 4,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 2,
 			"type": "I"
 		},
 		{
@@ -6544,14 +6563,14 @@
 		{
 			"ability": "On each Spin, I give all You and all Monsters 1 Poison.",
 			"atk": {
-				"base": 1
+				"base": 1.0
 			},
 			"atk_base": 2.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Outbreak",
 			"card_color": "",
-			"count": 1,
+			"count": 1.0,
 			"defined": "SP-30 (2026-10-30). On every real Spin (Smoke, Flee, auto-spin, landing — not Grappling Hook or Damsel) while I live unsilenced: after player Poison and the landed monster's Poison pay, you Gain 1 Poison and every living monster Gains 1 Poison, including me. Amounts add. Two of me each give +1. The new 1s do not pay on this Spin. Quiet Bell turns this off. No freeze. No Heal.",
 			"exceptions": "SP-30. Pool 4 T1. Every Spin +1 you and every living monster including me. Each copy. Freeze gone. ATK 1.",
 			"explainer": "Each Spin: you and every monster Gain 1 Poison",
@@ -6562,7 +6581,7 @@
 			},
 			"flow": "SP-28 (2026-10-28). On every Spin while I live unsilenced: each living Neighbor Gains 2 Poison and Heals 2 (cap at their max HP). Poison stacks keep growing. While I live unsilenced, Poison NEVER activates — monster poison and the player's poison both stay frozen. On the first Spin after I die (or Quiet Bell silences every living Plague Doctor), stored Poison activates normally. When Poison would activate but is blocked, show my slash portrait and the dissolving line 'Poison does not activate'.",
 			"hp": {
-				"base": 3
+				"base": 3.0
 			},
 			"hp_base": 3.0,
 			"hp_formula": "",
@@ -6594,14 +6613,14 @@
 			"notes": "SP-28. Bucket 5. Freeze-all poison while alive (player + monsters). Quiet Bell turns this off.",
 			"ops": {},
 			"poc": false,
-			"pool": 4,
-			"priority": 3,
+			"pool": 4.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "On each Spin, I give all You and all Monsters 1 Poison",
 			"review": "rough",
 			"review_note": "",
 			"status": "todo",
-			"tier": 1,
+			"tier": 1.0,
 			"type": "M"
 		},
 		{

@@ -1396,7 +1396,7 @@ func _build_ui() -> void:
 
 	log_btn = _pill("Log", Color("2a2622"), Color("6a5f52"), _toggle_log)
 	log_btn.custom_minimum_size = Vector2(88, 34)
-	log_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	log_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	log_btn.z_index = 8
 	play_field.add_child(log_btn)
 	log_label = COMBAT_LOG.new()
@@ -18214,16 +18214,22 @@ func _place_log_overlay() -> void:
 	if play_field == null or log_btn == null:
 		return
 	var sz: Vector2 = play_field.size
-	var w := 240.0
+	var w: float = VIEW_FRAME.LOG_W
 	log_btn.reset_size()
 	var bsz: Vector2 = log_btn.get_combined_minimum_size()
 	bsz.x = maxf(bsz.x, 88.0)
-	log_btn.position = Vector2(sz.x - bsz.x - 8.0, 6.0)
+	var btn_x: float = VIEW_FRAME.LOG_BTN_GAP
+	if trophy != null and trophy.visible:
+		btn_x = maxf(btn_x, trophy.position.x + trophy.size.x + VIEW_FRAME.LOG_BTN_GAP)
+	log_btn.position = Vector2(btn_x, 6.0)
 	log_btn.size = bsz
 	if log_label == null:
 		return
-	log_label.position = Vector2(sz.x - w - 6.0, 44.0)
-	log_label.size = Vector2(w, maxf(120.0, sz.y - 52.0))
+	var log_y: float = 44.0
+	if trophy != null and trophy.visible:
+		log_y = maxf(log_y, trophy.position.y + trophy.size.y + 4.0)
+	log_label.position = Vector2(VIEW_FRAME.LOG_BTN_GAP, log_y)
+	log_label.size = Vector2(w, maxf(120.0, sz.y - log_y - 8.0))
 
 
 func _log_flush() -> void:
@@ -20410,11 +20416,12 @@ func _place_fight_art(force: bool = false) -> void:
 	elif player_stage:
 		player_stage.hide_stage()
 	var wr: Rect2 = wr_now
+	var view_sz: Vector2 = get_viewport_rect().size
 	var stack_w := 280.0
-	var log_left: float = get_viewport_rect().size.x - 8.0
-	if log_label != null and log_label.visible and log_r.size.x > 0.0:
-		log_left = minf(log_left, log_r.position.x - 8.0)
-	stack_w = minf(stack_w, maxf(140.0, log_left - (wr.end.x + 16.0)))
+	if face_box != null and face_box.visible:
+		stack_w = maxf(stack_w, face_box.get_combined_minimum_size().x)
+	# Callout lives in the right gutter. Log is on the left and must not shrink this.
+	stack_w = minf(stack_w, maxf(140.0, view_sz.x - wr.end.x - VIEW_FRAME.CALLOUT_RIGHT_MARGIN - 8.0))
 	var sprite_h := 216.0
 	var port_sz := Vector2(stack_w, sprite_h)
 	# The portrait frame sits fully above the inspect plate. The body is scaled to that frame.
@@ -20448,29 +20455,33 @@ func _place_fight_art(force: bool = false) -> void:
 	if y + total > wr.end.y + 8.0:
 		y = wr.position.y + maxf(8.0, wr.size.y - total)
 	var stack_sz := Vector2(stack_w, maxf(total, 8.0))
-	var prefer := Vector2(wr.end.x + gap_side, y)
+	var prefer := Vector2(view_sz.x - stack_w - VIEW_FRAME.CALLOUT_RIGHT_MARGIN, y)
+	prefer.x = maxf(prefer.x, wr.end.x + gap_side)
 	var flip := Vector2(wr.position.x - gap_side - stack_w, y)
 	var blocks: Array = _log_block_rects()
+	if dungeon_deck_ui != null and dungeon_deck_ui.visible:
+		blocks.append(dungeon_deck_ui.get_global_rect())
 	if wheel_view.has_method("slice_avoid_global") and facing_index >= 0:
 		blocks.append(wheel_view.slice_avoid_global(facing_index))
-	var stack_pos: Vector2 = preload("res://scripts/ui/tooltip_clamp.gd").place(get_viewport_rect().size, stack_sz, [prefer, flip, Vector2(prefer.x, wr.position.y), Vector2(flip.x, wr.position.y)], blocks)
+	var stack_pos: Vector2 = preload("res://scripts/ui/tooltip_clamp.gd").place(view_sz, stack_sz, [prefer, Vector2(prefer.x, wr.position.y), flip, Vector2(flip.x, wr.position.y)], blocks)
 	var on_left: bool = stack_pos.x < wr.get_center().x
 	var right_x: float = stack_pos.x
 	var left_x: float = wr.end.x + gap_side if on_left else wr.position.x - gap_side - stack_w
 	var port_y: float = stack_pos.y
 	y = stack_pos.y
-	# Prefer the right gutter for monster idle + callout. Hub Sprout owns the center.
+	# Callout + portrait stay in the right gutter. Hub Sprout owns the center.
 	if combat_stage != null and combat_stage.visible and (hypno_stage == null or not hypno_stage.visible):
-		if on_left:
-			right_x = prefer.x
-			left_x = flip.x
-			on_left = false
+		right_x = prefer.x
+		left_x = flip.x
+		on_left = false
+	elif face_box != null and face_box.visible:
+		right_x = prefer.x
+		on_left = false
 	if face_box != null and face_box.visible:
 		face_box.size = Vector2(stack_w, plaque_h)
 		face_box.global_position = Vector2(right_x, y + hang)
 	if combat_stage != null and combat_stage.visible:
 		if not combat_stage.busy:
-			var view_sz: Vector2 = get_viewport_rect().size
 			var stage_pos := Vector2(VIEW_FRAME.clamp_x(right_x, port_sz.x, view_sz), y)
 			var stage_moved: bool = (
 				combat_stage.size != port_sz
@@ -20508,6 +20519,12 @@ func _place_fight_art(force: bool = false) -> void:
 			ability_slash.global_position = Vector2(left_x, port_y)
 	if intent_plate != null and intent_plate.has_method("reanchor"):
 		intent_plate.reanchor()
+	if face_box != null and face_box.visible:
+		var fx: float = minf(face_box.global_position.x, view_sz.x - face_box.size.x - VIEW_FRAME.CALLOUT_RIGHT_MARGIN)
+		fx = maxf(fx, wr.end.x + gap_side)
+		face_box.global_position.x = fx
+		if combat_stage != null and combat_stage.visible and not combat_stage.busy:
+			combat_stage.global_position.x = VIEW_FRAME.clamp_x(fx, combat_stage.size.x, view_sz)
 	FRAME_METRICS.note_place(Time.get_ticks_usec() - _place_t0, false)
 
 
@@ -20944,8 +20961,8 @@ func _layout_play_field() -> void:
 	if tray != null and tray.visible:
 		top_need = maxf(top_need, tray.position.y + tray.size.y + 8.0)
 	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - top_need - 8.0))
-	# #199: shift wheel (+ hotbar via _recenter_hotbar, + arrows via rim guide) ~5% left.
-	var x: float = (sz.x - side - extra) * 0.5 - VIEW_FRAME.combat_cluster_left_nudge(sz.x)
+	# Dead-center the wheel. Deck still sits to its right; callout uses the far right gutter.
+	var x: float = (sz.x - side) * 0.5
 	x = VIEW_FRAME.clamp_x(x, side, sz)
 	# Pin to the top of the play field. Slack stays under the wheel, above Take.
 	var wheel_y: float = top_need
@@ -20954,11 +20971,11 @@ func _layout_play_field() -> void:
 	wheel_view.custom_minimum_size = Vector2(side, side)
 	wheel_view.position = Vector2(x, wheel_y)
 	wheel_view.size = Vector2(side, side)
-	var gutter_px: int = int(round(extra if adventure else 0.0))
 	if hotbar_wrap:
-		hotbar_wrap.add_theme_constant_override("margin_right", gutter_px)
+		hotbar_wrap.add_theme_constant_override("margin_right", 0)
 	if btn_wrap:
-		btn_wrap.add_theme_constant_override("margin_right", gutter_px)
+		btn_wrap.add_theme_constant_override("margin_left", 0)
+		btn_wrap.add_theme_constant_override("margin_right", 0)
 	if dungeon_deck_ui:
 		var show_deck: bool = (adventure or (in_tutorial and _tut_show_deck)) and phase != "title" and phase != "victory" and phase != "defeat" and phase != "rest"
 		dungeon_deck_ui.visible = show_deck
@@ -20994,6 +21011,7 @@ func _layout_play_field() -> void:
 	_recenter_hotbar()
 	# Structural layout. Mid-spin this only dirties — full place waits for land.
 	_place_fight_art(true)
+	_place_move_arrows()
 	if wheel_view and wheel_view.has_method("set_ability_avoids"):
 		wheel_view.set_ability_avoids(_ability_avoid_rects())
 	_place_hub_cue()
@@ -21765,10 +21783,36 @@ func _place_move_arrows() -> void:
 	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
 	btn_move_left.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	btn_move_right.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var pad: float = PlaytestUx.move_arrow_outer_pad()
+	var sweep: float = PI * 0.28
+	var face_left: float = 1.0e9
+	if face_box != null and face_box.visible:
+		face_left = minf(face_left, face_box.global_position.x)
+	if combat_stage != null and combat_stage.visible:
+		face_left = minf(face_left, combat_stage.global_position.x)
+	if face_left < 1.0e8:
+		var max_outer: float = face_left - VIEW_FRAME.ARROW_CALLOUT_GAP - c.x
+		var head: float = MOVE_ARROW.BODY_W
+		if rad + pad + head > max_outer:
+			pad = maxf(20.0, max_outer - rad - head)
+		if rad + pad + head > max_outer:
+			var reach: float = maxf(8.0, max_outer - rad)
+			sweep = clampf(sweep * (reach / maxf(reach, pad + head)), 0.12, sweep)
 	var local_c: Vector2 = btn_move_left.get_global_transform().affine_inverse() * c
-	btn_move_left.set_guide(local_c, rad, moves_left, true)
+	btn_move_left.set_guide(local_c, rad, moves_left, true, pad, sweep)
 	var local_r: Vector2 = btn_move_right.get_global_transform().affine_inverse() * c
-	btn_move_right.set_guide(local_r, rad, moves_left, false)
+	btn_move_right.set_guide(local_r, rad, moves_left, false, pad, sweep)
+	if face_left < 1.0e8:
+		var tries := 0
+		while tries < 8:
+			var hit: Rect2 = btn_move_right.arc_global_rect()
+			if hit.size.x <= 0.0 or hit.end.x <= face_left - VIEW_FRAME.ARROW_CALLOUT_GAP:
+				break
+			pad = maxf(16.0, pad - 8.0)
+			sweep = maxf(0.12, sweep - 0.03)
+			btn_move_left.set_guide(local_c, rad, moves_left, true, pad, sweep)
+			btn_move_right.set_guide(local_r, rad, moves_left, false, pad, sweep)
+			tries += 1
 
 
 func _sync_move_hint() -> void:
@@ -22104,11 +22148,11 @@ func _sync_hotbar() -> void:
 			hotbar_panel.add_theme_stylebox_override("panel", hsb)
 		else:
 			hotbar_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	var gutter_px: int = int(round(_wheel_side_gutter() if adventure else 0.0))
 	if hotbar_wrap:
-		hotbar_wrap.add_theme_constant_override("margin_right", gutter_px)
+		hotbar_wrap.add_theme_constant_override("margin_right", 0)
 	if btn_wrap:
-		btn_wrap.add_theme_constant_override("margin_right", gutter_px)
+		btn_wrap.add_theme_constant_override("margin_left", 0)
+		btn_wrap.add_theme_constant_override("margin_right", 0)
 	var sig := PackedStringArray()
 	for it in hotbar:
 		var echo_id: String = ""
@@ -22223,6 +22267,10 @@ func _sync_hotbar() -> void:
 			card.set_passive_icons(null, null, false)
 		_sync_card_pass5(card, it, can_click, in_fight)
 	_sync_hotbar_formulas()
+	if hotbar_panel:
+		hotbar_panel.reset_size()
+	_recenter_hotbar()
+	call_deferred("_recenter_hotbar")
 
 
 func _make_hot_empty() -> Control:

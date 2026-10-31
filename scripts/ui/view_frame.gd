@@ -4,8 +4,13 @@ class_name ViewFrame
 
 const DESIGN := Vector2(1680, 1040)
 const MARGIN := 8.0
-## Issue #199: nudge wheel + hotbar + move arrows left so the right callout clears the right arrow (~84px at 1680).
-const COMBAT_CLUSTER_LEFT_FRAC := 0.05
+## Combat log overlay (left gutter). Callout uses the matching right gutter.
+const LOG_W := 240.0
+const LOG_BTN_GAP := 8.0
+const CALLOUT_RIGHT_MARGIN := 12.0
+const ARROW_CALLOUT_GAP := 16.0
+## Retired #199 left-nudge. Wheel / arrows / hotbar are dead-centered now.
+const COMBAT_CLUSTER_LEFT_FRAC := 0.0
 const SHOT_SIZES: Array[Vector2i] = [
 	Vector2i(1280, 800),
 	Vector2i(1920, 1080),

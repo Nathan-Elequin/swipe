@@ -1063,6 +1063,30 @@
 			"locked_at": "2026-10-16",
 			"name": "Net"
 		},
+		"item:orb": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
+			"locked_at": "2026-10-30",
+			"name": "Orb"
+		},
 		"item:pacemaker": {
 			"fields": [
 				"name",
@@ -1767,8 +1791,7 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"pool",
-				"log_hint"
+				"pool"
 			],
 			"locked_at": "2026-10-30",
 			"name": "Clockwork Knight"
