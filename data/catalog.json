@@ -6055,32 +6055,32 @@
 			"type": "M"
 		},
 		{
-			"ability": "I cannot lose more than 1 HP at a time.",
+			"ability": "Whenever I lose HP, I lose a minimum of 3 HP.",
 			"atk": {
 				"base": 4.0
 			},
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"call_name": "Tough Blood",
+			"call_name": "Steady Steel",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "I cannot lose more than 1 HP from one source. Attack, Poison Flask, and other HP loss each chip 1. Defeat still works. Two separate Attacks chip 1 twice. Quiet Bell strips this, so full Attack lands.",
-			"exceptions": "Needleback poke is not an Item hitting me. Poison Flask is not an Attack. Extra Attacks each chip 1.",
-			"explainer": "Max 1 HP per source",
+			"defined": "Each HP loss of 1 or 2 becomes 3. A loss of 3 or more stays. A loss of 0 stays. The Boot, Hex, and Sledgehammer still Defeat. Quiet Bell strips this. Bodyguard and Prism use the monster who actually loses the HP. Poison is one loss of the poison number. Two separate losses each get this floor.",
+			"exceptions": "Blood Pact's 2 becomes 3 on me. The player still loses 2. Needleback's poke aims at the player. If that 2 is redirected onto me, I lose 3.",
+			"explainer": "1 or 2 HP lost becomes 3",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "I cannot lose more than 1 HP from one source. Attack, Poison Flask, and other HP loss each chip 1. Defeat still works. Two separate Attacks chip 1 twice. Quiet Bell strips this, so full Attack lands.",
+			"flow": "Each HP loss of 1 or 2 becomes 3. A loss of 3 or more stays. A loss of 0 stays. The Boot, Hex, and Sledgehammer still Defeat. Quiet Bell strips this. Bodyguard and Prism use the monster who actually loses the HP. Poison is one loss of the poison number. Two separate losses each get this floor.",
 			"hp": {
-				"base": 3.0
+				"base": 9.0
 			},
-			"hp_base": 3.0,
+			"hp_base": 9.0,
 			"hp_formula": "",
 			"id": "anvil",
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-10-30",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -6101,10 +6101,10 @@
 				"card_color",
 				"pool"
 			],
-			"log_hint": "Loses only 1 HP at a time",
+			"log_hint": "1 or 2 HP becomes 3",
 			"mode_pool": "all",
 			"name": "Anvil",
-			"notes": "Needleback poke is not an Item hitting me. Poison Flask is not an Attack. Extra Attacks each chip 1.",
+			"notes": "Blood Pact's 2 becomes 3 on me. The player still loses 2. Needleback's poke aims at the player. If that 2 is redirected onto me, I lose 3.",
 			"ops": {},
 			"poc": false,
 			"pool": 5.0,
