@@ -16702,8 +16702,8 @@ func _apply_mark_inner(index: int) -> void:
 	# Hook FX must play before the item banner — otherwise the rope is buried under the slash.
 	var defer_announce: bool = kind == "hook_swap"
 	if not defer_announce:
-		## Signpost / Hypnotize then make a monster lunge. Finish the banner first.
-		var overlap_ok: bool = kind != "signpost" and kind != "hypnotize"
+		## Signpost / Hypnotize / Scythe then move the wheel. Finish the banner first.
+		var overlap_ok: bool = kind != "signpost" and kind != "hypnotize" and kind != "defeat_double_hp"
 		await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos(), overlap_ok)
 	var token: int = _undo_gen
 	if kind == "defeat_double_hp":
@@ -16904,12 +16904,7 @@ func _apply_scythe(index: int, it: Dictionary, token: int) -> void:
 		await _lich_keep_defeat_item(it)
 		var lich_down: bool = await _lich_chip_defeat(index)
 		if lich_down:
-			if index == facing_index:
-				await _begin_slay()
-			elif await _try_commander_flee(index):
-				pass
-			else:
-				await _kill_neighbor(index)
+			await _maybe_slay_down(index)
 		if _undo_stale(token):
 			return
 		await _after_item_resolved(it)
@@ -16925,12 +16920,11 @@ func _apply_scythe(index: int, it: Dictionary, token: int) -> void:
 	if sfx:
 		sfx.play("draw", -8.0)
 	_toss_item(int(it["uid"]), false)
+	await _await_slash_idle()
 	if index == facing_index:
 		await _begin_slay()
-	elif await _try_commander_flee(index):
-		pass
 	else:
-		await _kill_neighbor(index)
+		await _hydra_defeat_as_item(index)
 	if _undo_stale(token):
 		return
 	await _after_item_resolved(it)
@@ -17421,6 +17415,11 @@ func _kill_neighbor(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
 	if index == facing_index:
+		return
+	await _await_slash_idle()
+	if await _try_phoenix_cycle(index):
+		return
+	if await _try_triclops_bail(index):
 		return
 	await _on_owner_defeated(index)
 	if hp <= 0:
@@ -22918,7 +22917,7 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 	var fighting_now: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size()
 	var hint: bool = fighting_now and _item_grants_block(it) and bool(_item_view(it).get("can_use", false))
 	_set_rust_block_hint(hint)
-		_place_fly(card)
+	_place_fly(card)
 	_apply_preview(_preview_from_item(it))
 	_refresh_blk(false)
 	_tutorial_on_item_hover()
@@ -22935,7 +22934,7 @@ func _set_rust_block_hint(on: bool) -> void:
 		if not (node is Control):
 			continue
 		var card: Control = node
-		if str(card.get("card_id", "")) != "rust":
+		if str(card.get("card_id")) != "rust":
 			continue
 		if not card.has_method("set_aura"):
 			continue

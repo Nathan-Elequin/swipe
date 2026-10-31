@@ -941,7 +941,17 @@ func play_hub_sting(kind: String, amount: int = 0, release_early: bool = false) 
 		# Knock snap is the tell; settle continues while resolve moves on.
 		await get_tree().create_timer(0.06).timeout
 		return
-	await tw.finished
+	await _await_bound_tween(tw)
+
+
+func _await_bound_tween(tw: Tween) -> void:
+	## `await tw.finished` never resumes if the tween is killed mid-flight
+	## (a later create_tween / set_slices / recenter). That left Scythe's
+	## off-facing collapse with `_walker_busy` stuck on.
+	if tw == null:
+		return
+	while is_instance_valid(tw) and tw.is_valid() and tw.is_running():
+		await get_tree().process_frame
 
 
 func play_slay(index: int, release_early: bool = false) -> void:
@@ -955,7 +965,7 @@ func play_slay(index: int, release_early: bool = false) -> void:
 		await get_tree().create_timer(SLAY_RELEASE).timeout
 		busy = false
 		return
-	await tw.finished
+	await _await_bound_tween(tw)
 	busy = false
 
 
@@ -966,7 +976,7 @@ func play_escape(index: int) -> void:
 	slay_t = 0.0
 	var tw := create_tween()
 	tw.tween_property(self, "slay_t", 1.0, 0.5)
-	await tw.finished
+	await _await_bound_tween(tw)
 	busy = false
 
 
@@ -983,7 +993,7 @@ func play_block(index: int, release_early: bool = false) -> void:
 		await get_tree().create_timer(0.20).timeout
 		busy = false
 		return
-	await tw.finished
+	await _await_bound_tween(tw)
 	busy = false
 
 
@@ -1008,7 +1018,7 @@ func collapse_slice(index: int, pin: int = -1) -> void:
 		)
 	else:
 		tw.tween_property(self, "collapse", 1.0, COLLAPSE_DURATION)
-	await tw.finished
+	await _await_bound_tween(tw)
 	if pin >= 0 and pin != index:
 		rot = rot_to_center(pin)
 	else:
@@ -1017,7 +1027,7 @@ func collapse_slice(index: int, pin: int = -1) -> void:
 		jostle.tween_property(self, "rot", base + 0.04, 0.05)
 		jostle.tween_property(self, "rot", base - 0.024, 0.055)
 		jostle.tween_property(self, "rot", base, 0.055)
-		await jostle.finished
+		await _await_bound_tween(jostle)
 	# Leave collapse at 1 so remaining sprites stay on the closed wedges until
 	# set_slices receives the shorter wheel. Resetting here popped n equal slices
 	# back open, then shoved the portraits onto n-1 seats in one frame.
@@ -1091,7 +1101,7 @@ func rotate_index_to_top(index: int, dur: float = 0.42) -> void:
 	tw.set_trans(Tween.TRANS_CUBIC)
 	tw.set_ease(Tween.EASE_IN_OUT)
 	tw.tween_property(self, "rot", rot + delta, dur)
-	await tw.finished
+	await _await_bound_tween(tw)
 	rot = fposmod(rot, TAU)
 	busy = false
 	queue_redraw()
