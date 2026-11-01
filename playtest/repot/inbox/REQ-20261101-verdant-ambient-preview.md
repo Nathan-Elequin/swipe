@@ -1,6 +1,6 @@
 ---
 id: REQ-20261101-verdant-ambient-preview
-status: open
+status: done
 priority: high
 branch: cursor/verdant-ambient-preview-0417
 base: playtest/latest

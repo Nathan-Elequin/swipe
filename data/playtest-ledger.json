@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-01T21:45:00Z",
+	"updated_at": "2026-11-01T21:55:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"190": {
@@ -147,6 +147,11 @@
 			"status": "todo",
 			"title": "[playtest] The 'Beggar' icon is: (1) the wrong simple sprite (doesn't match wha\u2026",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/243"
+		},
+		"249": {
+			"status": "todo",
+			"title": "[playtest] Lantern's scaling number (heal 1, then 2) should reset when taken in\u2026",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/249"
 		}
 	}
 }
