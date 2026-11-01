@@ -57,6 +57,8 @@ var _playable: bool = false
 var _guarding: bool = false
 var _hatch: Control
 var _lock_shade: Control
+var _choice_dim: Control
+var _choice_dim_on: bool = false
 ## Direction A aura kit (design/visual/SCREEN-hotbar-aura-kit.md).
 ## Priority when painting rings: Petrify/Unplayable > WARN > CHOICE > READY.
 const AURA_OFF := ""
@@ -389,9 +391,10 @@ func _sync_hatch() -> void:
 		_hatch.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		_hatch.draw.connect(_draw_card_hatch)
 		_hatch.resized.connect(_hatch.queue_redraw)
+		_hatch.z_index = 6
 		add_child(_hatch)
-		move_child(_hatch, 0)
 	_hatch.visible = true
+	_hatch.z_index = 6
 	_hatch.queue_redraw()
 
 
@@ -1035,6 +1038,8 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 			_or.visible = false
 	if _glow or _aura or _log_focus or _danger:
 		pass
+	elif _petrified and not _petrify_dummy:
+		modulate = Color(0.58, 0.56, 0.52, 1.0)
 	elif spent:
 		modulate = Color(0.86, 0.84, 0.80, 1.0)
 	else:
@@ -1497,8 +1502,53 @@ func set_playable(on: bool) -> void:
 	set_process(true)
 	_sync_lock_shade()
 	_apply_style(_hot)
-	_tween_sink(not _playable and not spent and not _guarding)
+	_tween_sink(not _playable and not spent and not _guarding and not _choice_dim_on)
 	_tick_shimmer()
+
+
+func set_choice_dim(on: bool) -> void:
+	## Black wash over cards that are not in the Cube's two-item offer.
+	if _choice_dim_on == on:
+		if on and _choice_dim != null:
+			_choice_dim.visible = true
+			_choice_dim.queue_redraw()
+		return
+	_choice_dim_on = on
+	if not on:
+		if _choice_dim != null:
+			_choice_dim.visible = false
+		_tween_sink(not _playable and not spent and not _guarding)
+		return
+	if _choice_dim == null:
+		_choice_dim = Control.new()
+		_choice_dim.name = "ChoiceDim"
+		_choice_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_choice_dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_choice_dim.z_index = 24
+		_choice_dim.draw.connect(_draw_choice_dim)
+		_choice_dim.resized.connect(func() -> void:
+			if _choice_dim != null:
+				_choice_dim.queue_redraw()
+		)
+		add_child(_choice_dim)
+	_choice_dim.visible = true
+	move_child(_choice_dim, get_child_count() - 1)
+	_choice_dim.queue_redraw()
+
+
+func _draw_choice_dim() -> void:
+	if _choice_dim == null:
+		return
+	var w: float = _choice_dim.size.x
+	var h: float = _choice_dim.size.y
+	if w < 2.0 or h < 2.0:
+		return
+	_choice_dim.draw_rect(Rect2(0, 0, w, h), Color(0.02, 0.015, 0.01, 0.72))
+	var edge := Color(0.0, 0.0, 0.0, 0.38)
+	_choice_dim.draw_rect(Rect2(0, 0, w, 14), edge)
+	_choice_dim.draw_rect(Rect2(0, h - 14, w, 14), edge)
+	_choice_dim.draw_rect(Rect2(0, 0, 12, h), edge)
+	_choice_dim.draw_rect(Rect2(w - 12, 0, 12, h), edge)
 
 
 func _process(delta: float) -> void:
@@ -1720,6 +1770,8 @@ func _apply_style(hot: bool) -> void:
 		pulse = 0.35 + 0.35 * absf(sin(_glow_t * TAU / 1.6))
 		metal = metal.lerp(Color("e8c36a"), pulse * 0.45)
 		sb.bg_color = sb.bg_color.lightened(pulse * 0.08)
+	if _petrified and not _petrify_dummy:
+		modulate = Color(0.58, 0.56, 0.52, 1.0)
 	sb.border_color = metal
 	var bw: int = 3
 	if _tier == 2:
@@ -2054,9 +2106,15 @@ func set_armed(on: bool, label_key: String = "") -> void:
 
 func set_no_effect(on: bool) -> void:
 	_no_effect = on
-	set_petrified(on, true)
-	if _stone != null and on:
-		_stone.modulate = Color(0.82, 0.78, 0.70, 0.6)
+	# Bushido "no effect" used the dummy stone overlay. Never clear Gargoyle / Basilisk.
+	if _petrified and not _petrify_dummy:
+		return
+	if on:
+		set_petrified(true, true)
+		if _stone != null:
+			_stone.modulate = Color(0.82, 0.78, 0.70, 0.6)
+	elif _petrify_dummy:
+		set_petrified(false, false)
 
 
 func _bind_rank_fx() -> void:
@@ -2084,6 +2142,8 @@ func _tween_sink(sink: bool) -> void:
 	if spent:
 		target = Color(0.86, 0.84, 0.80, 1.0)
 	if _glow or _aura or _log_focus or _danger or _toss_pick:
+		return
+	if _petrified and not _petrify_dummy:
 		return
 	if _stone != null and _stone.visible:
 		return

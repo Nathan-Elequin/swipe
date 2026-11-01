@@ -4041,7 +4041,7 @@
 			"notes": "Token. Curse (black card). Clickable. Rust Bucket creates it. Used up. Stacks per copy.",
 			"ops": {
 				"kind": "blk",
-				"n": 2
+				"n": 2.0
 			},
 			"poc": false,
 			"pool": -1.0,
@@ -4100,7 +4100,7 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1,
+			"count": 1.0,
 			"defined": "Click during a fight on the enemy you are facing, like The Boot. Grey unless incoming damage after Block is 0, the same total the Safe button uses.",
 			"exceptions": "Pool 4, tier 2, Cheese. Crystal magic focus orb. Grey unless Safe. Marble number is their Attack, copied once. All tokens leave the hand when the dungeon ends.",
 			"explainer": "If Safe, Defeat them. Gain a Marble of their Attack.",
@@ -4142,14 +4142,14 @@
 				"kind": "orb"
 			},
 			"poc": false,
-			"pool": 4,
-			"priority": 2,
+			"pool": 4.0,
+			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "I"
 		},
 		{
@@ -4254,6 +4254,7 @@
 	"keywords": {
 		"any": "select any Monster on the wheel",
 		"atk_dmg": "HP loss from ATK. Goblin ignores this.",
+		"bear_trap": "a 2 HP 4 ATK monster that Attacks you when you Move or Spin onto it",
 		"beggar": "Marks a random Item. Spinning this Beggar discards it.",
 		"curse": "A harmful Item forced into your hand.",
 		"decay": "Decayed Items are linked. When you use one, Keep it and discard the other.",
@@ -4266,8 +4267,7 @@
 		"kill": "Reduce HP to 0 with ATK damage.",
 		"petrify": "Makes an Item Unplayable until its source ends.",
 		"spin": "The wheel lands on a random living monster.",
-		"toll": "Unplayable. −1 on each Item Use. At 0, you Die.",
-		"bear_trap": "a 2 HP 4 ATK monster that Attacks you when you Move or Spin onto it"
+		"toll": "Unplayable. −1 on each Item Use. At 0, you Die."
 	},
 	"monsters": [
 		{
@@ -5807,7 +5807,9 @@
 		},
 		{
 			"ability": "When you Spin me or Move onto me, I immediately Attack you and then I am Defeated",
-			"atk": {"base": 4.0},
+			"atk": {
+				"base": 4.0
+			},
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -5817,14 +5819,27 @@
 			"defined": "When your Spin lands on me, or any Move/slide lands on me, I Attack you once (Block works) and then I am Defeated like any other monster. Shuriken finishes its 3 Attack first; if that Defeats me I do not Attack. Jar: if the first slide lands on me, I snap and the second slide does not happen. I am never on the opening wheel.",
 			"exceptions": "Token. Not drafted. Trapper places this on top of the Dungeon Deck.",
 			"explainer": "Spin or Move onto me: I Attack you, then I am Defeated",
-			"flags": {"art": false, "dev": true, "hide": true},
+			"flags": {
+				"art": false,
+				"dev": true,
+				"hide": true
+			},
 			"flow": "When your Spin lands on me, or any Move/slide lands on me, I Attack you once (Block works) and then I am Defeated like any other monster. Shuriken finishes its 3 Attack first; if that Defeats me I do not Attack. Jar: if the first slide lands on me, I snap and the second slide does not happen. I am never on the opening wheel.",
-			"hp": {"base": 2.0},
+			"hp": {
+				"base": 2.0
+			},
 			"hp_base": 2.0,
 			"hp_formula": "",
 			"id": "bear_trap",
 			"locked_at": "2026-10-30",
-			"locked_fields": ["name", "ability", "explainer", "call_name", "atk_base", "hp_base"],
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"atk_base",
+				"hp_base"
+			],
 			"log_hint": "Spin or Move onto me: Attack, then Defeated",
 			"mode_pool": "all",
 			"name": "Bear Trap",
@@ -8033,54 +8048,66 @@
 			"type": "M"
 		},
 		{
-			"ability": "When you Spin me, if my Attack would kill you, I Flee and lose 1 Attack",
+			"ability": "When you Spin me, if my Attack would kill you, I Flee and lose 2 Attack",
 			"atk": {
-				"base": 6.0
+				"base": 6
 			},
 			"atk_base": 6.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Sandbag",
 			"card_color": "",
-			"count": 1.0,
-			"defined": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 1, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 1 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost.",
-			"exceptions": "Pool 4 tier 1.",
-			"explainer": "If Take would drop you to 0 HP, I lose 1 Attack and Flee instead of hitting you.",
+			"count": 1,
+			"defined": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 2, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 2 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost.",
+			"exceptions": "Pool 4, tier 1. Upright sandbag with eyes, Smash home-run contest. Bodyguard moved to pool 3. Anvil moved to pool 9.",
+			"explainer": "If Take would drop you to 0 HP, I lose 2 Attack and Flee instead of hitting you.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 1, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 1 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost.",
+			"flow": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 2, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 2 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost.",
 			"hp": {
-				"base": 4.0
+				"base": 4
 			},
 			"hp_base": 4.0,
 			"hp_formula": "",
 			"id": "sandbag",
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-01",
 			"locked_fields": [
 				"name",
 				"ability",
 				"call_name",
 				"atk_base",
 				"hp_base",
-				"tier"
+				"tier",
+				"explainer",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"count",
+				"priority",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
 			],
-			"log_hint": "Lethal Take: lose 1 Attack and Flee",
+			"log_hint": "Lethal Take: lose 2 Attack and Flee",
 			"mode_pool": "all",
 			"name": "Sandbag",
 			"notes": "Pool 4, tier 1. Upright sandbag with eyes, Smash home-run contest. Bodyguard moved to pool 3. Anvil moved to pool 9.",
 			"ops": {},
 			"poc": false,
-			"pool": 3.0,
-			"priority": 3.0,
+			"pool": 3,
+			"priority": 3,
 			"rarity": "uncommon",
-			"reminder": "If Take would drop you to 0 HP, I lose 1 Attack and Flee instead of hitting you.",
+			"reminder": "If Take would drop you to 0 HP, I lose 2 Attack and Flee instead of hitting you.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "M"
 		},
 		{

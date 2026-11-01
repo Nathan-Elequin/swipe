@@ -247,7 +247,7 @@ const MONSTER_SPECIAL := {
 	"poison_frog": {"id": "toxic_skin", "text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison"},
 	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust"},
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
-	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 1 Attack"},
+	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 2 Attack"},
 	"oligarch": {"id": "wealth_tax", "text": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item"},
 }
 
@@ -15650,6 +15650,10 @@ func _hydra_even_killer() -> void:
 	_refresh()
 
 
+func _cube_feed_open() -> bool:
+	return not pending_feed.is_empty() and str(pending_feed.get("kind", "")) == ""
+
+
 func _cube_ask_feed() -> void:
 	if facing_index < 0 or facing_index >= wheel.size() or str(wheel[facing_index].get("card_id", "")) != "gelatinous_cube" or _is_silenced(wheel[facing_index]):
 		return
@@ -16446,13 +16450,13 @@ func _sandbag_lose_atk() -> void:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return
 	var m: Dictionary = wheel[facing_index]
-	m["sandbag_cut"] = int(m.get("sandbag_cut", 0)) + 1
-	var shown: int = maxi(0, int(m.get("atk", 0)) - 1)
+	m["sandbag_cut"] = int(m.get("sandbag_cut", 0)) + 2
+	var shown: int = maxi(0, int(m.get("atk", 0)) - 2)
 	m["atk"] = shown
 	m["atk_innate"] = shown
 	wheel[facing_index] = m
 	_sync_wheel_stats()
-	_log("on_spin", "Sandbag loses 1 Attack  →  %s" % int(wheel[facing_index].get("atk", 0)))
+	_log("on_spin", "Sandbag loses 2 Attack  →  %s" % int(wheel[facing_index].get("atk", 0)))
 	if wheel_view:
 		wheel_view.punch_atk(facing_index)
 
@@ -22857,6 +22861,7 @@ func _sync_hotbar() -> void:
 		var spent_n: bool = bool(it.get("spent", false))
 		var feed_uids: Array = pending_feed.get("uids", []) if not pending_feed.is_empty() else []
 		var is_snack: bool = feed_uids.has(uid_n)
+		var cube_feed: bool = _cube_feed_open()
 		var in_fight: bool = phase == "fighting"
 		var magnet_ready: bool = phase == "ready" and _is_magnet(it)
 		var can_click: bool = false
@@ -22906,6 +22911,12 @@ func _sync_hotbar() -> void:
 				card.set_num_color(_num_color(str(view.get("kind", "ATK"))))
 		if card.has_method("set_playable"):
 			card.set_playable(can_click)
+		if card.has_method("set_choice_dim"):
+			card.set_choice_dim(cube_feed and not is_snack)
+		if cube_feed and is_snack:
+			card.z_index = 6
+		elif card.z_index == 6:
+			card.z_index = 0
 		if card.has_method("set_guarding"):
 			card.set_guarding(false)
 		_apply_item_stone_look(card, it)
@@ -23264,7 +23275,7 @@ func _reapply_hotbar_aura_roles() -> void:
 		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
 		var in_fight: bool = phase == "fighting"
 		var armed_ready: bool = in_fight and not spent_n and (str(it.get("card_id", "")) == "pacemaker" or str(it.get("card_id", "")) == "healing_potion")
-		var can_click_toss: bool = _toss_pick_mode() and not spent_n and not stoned_n
+		var can_click_toss: bool = _toss_pick_mode() and not spent_n and not stoned_n and (pending_feed.is_empty() or is_snack)
 		var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
 		var role := ""
 		if stoned_n or spent_n:
@@ -23976,6 +23987,7 @@ func _sync_card_pass5(card: Control, it: Dictionary, _can_click: bool, in_fight:
 		card.set_armed(armed, key)
 	if card.has_method("set_no_effect") and not _hover_ghost_on:
 		card.set_no_effect(false)
+	_apply_item_stone_look(card, it)
 
 
 func _queue_hover_preview(it: Dictionary, card: Control) -> void:
