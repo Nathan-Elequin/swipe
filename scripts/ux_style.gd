@@ -348,12 +348,23 @@ static func def_id_of(piece: String) -> String:
 		return "rust"
 	if low == "decay" or low.begins_with("decayed"):
 		return "decay"
-	if low == "gaze" or low.begins_with("gaze"):
+	if low == "gaze" or low.begins_with("gaze") or low == "gazed":
 		return "gaze"
+	if low.begins_with("petrif"):
+		return "petrify"
+	if low == "curse" or low.begins_with("cursed"):
+		return "curse"
+	if low == "toll":
+		return "toll"
+	if low == "hex":
+		return "hex"
+	if low == "beggar" or low.begins_with("beggar"):
+		return "beggar"
 	return ""
 
 
 static func def_of(id: String) -> String:
+	## Spin-locked keyword bodies (Direction A aura kit) — exact strings, no rewrites.
 	match id:
 		"any":
 			return "You may choose any Monster on the wheel, not only the one you are facing."
@@ -388,7 +399,17 @@ static func def_of(id: String) -> String:
 		"decay":
 			return "Decayed Items are linked. When you use one, Keep it and discard the other."
 		"gaze":
-			return "when one Item with Gaze is used, all others are Petrified until the Basilisk is Defeated"
+			return "Marks up to three Items. Using one Petrifies the others while the Basilisk remains."
+		"petrify":
+			return "Makes an Item Unplayable until its source ends."
+		"curse":
+			return "A harmful Item forced into your hand."
+		"toll":
+			return "Unplayable. −1 on each Item Use. At 0, you Die."
+		"hex":
+			return "Unplayable. −1 each Spin. At 0, Defeat the landed enemy."
+		"beggar":
+			return "Marks a random Item. Spinning this Beggar discards it."
 		_:
 			return ""
 
@@ -698,6 +719,10 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"fleeing", "flees", "fled", "flee",
 		"poisoned", "poisons", "poison",
 		"any",
+		"petrifies", "petrified", "petrify",
+		"gaze", "gazed",
+		"decayed", "decay",
+		"hex", "toll", "curse", "beggar",
 		"spinning", "spins", "spun", "spin",
 		"losing", "loses", "lost", "lose",
 		"always",
@@ -857,6 +882,12 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low == "rust":
 		return gold
 	if low == "decay" or low == "decayed":
+		return gold
+	if low == "gaze" or low == "gazed" or low.begins_with("gaze"):
+		return gold
+	if low.begins_with("petrif"):
+		return gold
+	if low == "hex" or low == "toll" or low == "curse" or low.begins_with("beggar"):
 		return gold
 	return ""
 
