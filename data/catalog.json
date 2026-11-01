@@ -4254,13 +4254,19 @@
 	"keywords": {
 		"any": "select any Monster on the wheel",
 		"atk_dmg": "HP loss from ATK. Goblin ignores this.",
+		"beggar": "Marks a random Item. Spinning this Beggar discards it.",
+		"curse": "A harmful Item forced into your hand.",
 		"decay": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 		"defeat": "Remove the enemy without that ATK-to-0 path (Da Boot, Sledgehammer, Fangs, Poison Flask).",
 		"eject": "remove them from the dungeon immediately, placing them on the bottom of the Dungeon Deck",
 		"enemy_attacks": "Sheet: always, no exceptions among monsters. Items can prevent the attack by killing/defeating first (not by blocking).",
 		"flee": "If you are facing them, Spin the wheel at random.",
+		"gaze": "Marks up to three Items. Using one Petrifies the others while the Basilisk remains.",
+		"hex": "Unplayable. −1 each Spin. At 0, Defeat the landed enemy.",
 		"kill": "Reduce HP to 0 with ATK damage.",
+		"petrify": "Makes an Item Unplayable until its source ends.",
 		"spin": "The wheel lands on a random living monster.",
+		"toll": "Unplayable. −1 on each Item Use. At 0, you Die.",
 		"bear_trap": "a 2 HP 4 ATK monster that Attacks you when you Move or Spin onto it"
 	},
 	"monsters": [
