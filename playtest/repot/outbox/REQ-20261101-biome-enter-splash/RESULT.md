@@ -1,26 +1,29 @@
 ---
 id: REQ-20261101-biome-enter-splash
-status: blocked
-fulfilled_by: cloud-agent
-fulfilled_at: 2026-11-01T21:30:00Z
-machine: cursor-cloud
-tip_sha: a2a55e83
-godot: headless compose (no F5 / no viewport texture)
+status: done
+fulfilled_by: local-cursor
+fulfilled_at: 2026-11-01T16:20:00-05:00
+machine: Cherry
+tip_sha: dda565ce
+godot: F5 playtest (godot-mcp) on playtest/latest (includes dda565ce)
+viewport: 1680x1040
 ---
 
 # Result
 
 | id | verdict | note |
 |----|---------|------|
-| 01 | pass (compose) | Cloud composed 1680×1040 from `bg_verdant_placeholder.png` + Sprout ×5 + locked chrome/narration/cue. Not a live F5 godot-mcp shot. |
-| 02 | blocked | Headless dummy renderer cannot capture the live wheel nest. Local Cherry must F5 map→Verdant, click through, shoot nest rest. |
+| 01 | pass | Live F5 map→Verdant hold. Chrome Verdant Hollow / Dungeon 1 / Delves: 3, Sprout ×5, narration bar, leaf + `click anytime`. No Tier. No "Click to continue". 1680×1040. |
+| 02 | pass | After skip + nest settle. Splash gone; wheel at rest in the hall. 1680×1040. |
+| music | pass | After `_reset_run` no longer calls `start_music()` while `_splash_busy`. Re-enter audio_log: one `music_to` `verdant_hollow_intro` at splash; skip/nest did not re-fire; intro→loop later is the bed handoff, not a second enter. |
+| mid-dissolve skip | pass | Skipper clicked at alpha ≈0.12; splash play_out; nest locked then cleared. |
+| leave | pass | `_give_up` / dissolve: `BiomeWipe` only, no `BiomeSplash`. |
 
 ## Blockers
 
-- Cloud agent has no godot-mcp / live viewport (`texture_2d_get` null under headless dummy).
-- Local Cursor on Cherry: drain this inbox — F5 playtest → map → Verdant → hold splash shot + post-nest shot; rewrite RESULT to `done`.
+None.
 
 ## Shots
 
-- `shots/01-verdant-splash.png` (composed preview)
-- `shots/02-wheel-after-nest.png` (stand-in; replace on Cherry)
+- `shots/01-verdant-splash.png`
+- `shots/02-wheel-after-nest.png`

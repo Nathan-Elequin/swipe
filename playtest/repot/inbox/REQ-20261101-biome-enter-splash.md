@@ -1,6 +1,6 @@
 ---
 id: REQ-20261101-biome-enter-splash
-status: open
+status: done
 priority: high
 tip_sha: a2a55e83
 branch: cursor/biome-enter-splash-cfe4

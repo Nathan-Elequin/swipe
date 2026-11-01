@@ -2342,7 +2342,10 @@ func _reset_run() -> void:
 			wheel_view.reset_hero()
 	if sfx:
 		sfx.play("confirm_big", -8.0)
-		sfx.start_music()
+		# Map→biome already started dungeon music in `_on_campaign_start`.
+		# `start_music()` is `music_title()` and would wipe that one shot.
+		if not _splash_busy:
+			sfx.start_music()
 	rng.randomize()
 	hp = HP_MAX
 	player_poison = 0
