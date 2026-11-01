@@ -1,7 +1,27 @@
 {
-	"updated_at": "2026-10-30T22:55:00-05:00",
+	"updated_at": "2026-11-01T15:45:00-06:00",
 	"branch": "playtest/latest",
 	"issues": {
+		"246": {
+			"status": "todo",
+			"title": "Plague Doctor should be Tier 2, same ability/stats",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/246"
+		},
+		"245": {
+			"status": "todo",
+			"title": "Poison droplet 50% smaller; center the number",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/245"
+		},
+		"244": {
+			"status": "todo",
+			"title": "Echo Bell copies silenced snapshot of last item, including final numbers",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/244"
+		},
+		"243": {
+			"status": "todo",
+			"title": "Beggar mark uses the wheel sprite and must not flicker over the item",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/243"
+		},
 		"190": {
 			"status": "f5",
 			"title": "Poison icon larger; do not recolor the wheel slice",
