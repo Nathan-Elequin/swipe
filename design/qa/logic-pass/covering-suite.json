@@ -1854,7 +1854,7 @@
 					"id": "measuring_tape",
 					"kind": "item",
 					"name": "Scythe",
-					"ability": "Defeat Any Monster with exactly double your HP",
+					"ability": "Defeat Any Monster with HP equal to yours",
 					"sprite": "assets/dungeon/items/measuring_tape.png"
 				},
 				{
@@ -4025,9 +4025,13 @@
 			"face": "basilisk",
 			"challenge": true,
 			"clicks": [],
-			"expected_text": "Spin Basilisk. It Flees. No fight to play an item. That is the monster working.",
+			"expected_text": "Basilisk enters and Gazes items. Spin it: fight 6 HP / 5 Attack. It does not Flee.",
 			"expected": {
-				"outcome": "fled"
+				"log_has": [
+					"stone gaze"
+				],
+				"face_atk": 5,
+				"face_hp": 6
 			},
 			"cards": [
 				{
@@ -4041,7 +4045,7 @@
 					"id": "basilisk",
 					"kind": "monster",
 					"name": "Basilisk",
-					"ability": "The first time you Spin me, I Flee and Petrify every other Item for 3 Spins.",
+					"ability": "When I enter the Dungeon, I Gaze at 3 of your Items. As soon as you Use 1, the other 2 are Petrified until I am Defeated.",
 					"sprite": "assets/dungeon/extra/basilisk.png"
 				}
 			]

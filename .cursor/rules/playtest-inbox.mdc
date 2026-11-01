@@ -1,5 +1,5 @@
 ---
-description: Same weight as gold boxes. Every chat reads playtest GitHub Issues, lists Open issues, then Closed issues for fixes live on the itch playtest.
+description: Same weight as gold boxes. Every chat reads playtest GitHub Issues and lists them in three columns: still broken in F5, ready in F5, on itch.
 alwaysApply: true
 ---
 
@@ -13,38 +13,51 @@ Inbox source: Issues created by the playtest build's feedback paths (right-click
 
 This rule fires only in this repo.
 
-Public playtest: https://nathan-elequin.itch.io/spinheritance-playtest (`playtest-ship.mdc`). Local F5 is the same game on this PC. It does **not** count as deployed.
+Public playtest: https://nathan-elequin.itch.io/spinheritance-playtest (`playtest-ship.mdc`). Local F5 is Godot Play in `C:\Users\Natha\Documents\boss-rush` on branch `playtest/latest`. F5 is **not** itch.
+
+Ledger: `data/playtest-ledger.json`. Board: `playtest/inbox-board.html`. Update both when a ticket changes column.
+
+## Status (three columns)
+
+A ticket has one status. GitHub staying open is not the same as “still broken.”
+
+| Status | What it means | GitHub | Chat section |
+|---|---|---|---|
+| `todo` | The reported change is **not** on `playtest/latest` in this folder. F5 will still show the old behavior. | Open | **Still broken in F5** |
+| `f5` | The change is committed **and** on `playtest/latest` (this checkout). Stop Play, F5, he can try it. Not on itch yet. | Stay open | **Ready in F5** |
+| `itch` | The change is on https://nathan-elequin.itch.io/spinheritance-playtest. | Close in that turn | **On itch.io** (once) |
+
+Do not put a ticket in **Ready in F5** because similar code exists, or because a card is in the mill. Only when the *reported* change is in this checkout on `playtest/latest`. Uncommitted WIP does not count. A commit that is only on another branch does not count until it is on `playtest/latest` here.
 
 ## Every chat in this repo
 
-Before the requested work, do **both** (order between them does not matter):
+Before the requested work, do **all** of:
 
 1. Gold boxes (`content-board.mdc`).
-2. Issues with label `playtest` (`gh issue list --label playtest`, open and recently closed, or GitHub MCP).
+2. Issues with label `playtest` (`gh issue list --label playtest`, open and recently closed).
+3. Read `data/playtest-ledger.json`. Reconcile: any open Issue missing from the ledger starts as `todo`. Any ledger `f5` whose SHA is not in this checkout goes back to `todo`. Any ledger `itch` whose GitHub Issue is still open: close GitHub.
 
-Keep tracking **every still-open Issue** in every reply, including ones already summarized, until it belongs in **Closed issues** (below) or Nathan **verbally describes that ticket as closed**. Then close it on GitHub in that same turn. Do not hide, table, or drop an open Issue because he replied about something else. A finished local fix is not Closed until the itch playtest has it — so push that build in the same turn (`playtest-ship.mdc`).
+Keep tracking **every still-open Issue** in every reply until it is in **On itch.io** or Nathan **verbally describes that ticket as closed**. Then close it on GitHub in that same turn. Do not hide, table, or drop an open Issue because he replied about something else.
 
-Linear bugs (one reading, no new rule, no number change): start the fix in that same turn, export **Web Playtest**, `butler push` to `nathan-elequin/spinheritance-playtest` (`playtest-ship.mdc`), then close the Issue and put it in **Closed issues**. Do not wait for him to say ship. Crashes / cannot-play: same auto-fix.
+Linear bugs (one reading, no new rule, no number change): start the fix in that same turn, commit onto `playtest/latest`, push that branch, set ledger `status` to `f5` with the SHA, and list it under **Ready in F5**. Do not wait for him to say ship. Do **not** butler-push unless he asked (`playtest-ship` wait: uploads are on request). Crashes / cannot-play: same auto-fix.
 
 If a report has two readings that would change the code, Paper Fight. Ask. Do not patch it as a bug.
 
-Balance / “this felt strong”: list it. Do not change numbers or rules unless he says so in that chat.
+Balance / “this felt strong”: list it under **Still broken in F5** (Content). Do not change numbers or rules unless he says so in that chat.
 
-Empty open list: **Open issues** still appears, with one line that none are open.
+Empty **Still broken in F5**: still print the heading, with one line that none are waiting on a local fix.
 
-Empty closed list: **Closed issues** still appears, with one line that none are new to show. That includes the case where every live-on-itch close has already been listed in a chat Nathan saw.
+Empty **Ready in F5**: still print the heading, with one line that nothing new is in this F5 checkout.
 
-In a handoff task (`design/handoff/<task-id>/TASK.md`): only auto-fix if the files are on that task's "Files you may touch" list. Otherwise still list the Issues in **Open issues**.
+Empty **On itch.io**: still print the heading, with one line that none are new to show. That includes the case where every itch close has already been listed in a chat Nathan saw.
+
+In a handoff task (`design/handoff/<task-id>/TASK.md`): only auto-fix if the files are on that task's "Files you may touch" list. Otherwise still list the Issues in the matching column.
 
 ## Reply shape in this repo
 
-After the headline, use Next steps (if any), then Notes (if any), then **Open issues**, then **Closed issues**. Those last two are equal sections. Neither is Next steps. Neither is Notes. Friend-voice's two-section default still applies above them; this repo always adds these two sections at the end, in that order.
+After the headline, use Next steps (if any), then Notes (if any), then these three sections in this order. They are equal. Neither is Next steps. Neither is Notes.
 
-### ⬜ Open issues
-
-GitHub Issues labeled `playtest` that are still open **and** whose fix is not yet playable on the itch playtest.
-
-Categorize them into whichever of these buckets have items (omit empty buckets):
+Topic buckets (use inside **Still broken in F5** and **Ready in F5** when that column has more than a handful; omit empty buckets):
 
 1. **Overall thoughts and core gameplay** — including Challenge, Adventure, the map, and the cabin.
 2. **Confusion** — uncertainty, wrong or missing information, inconsistency.
@@ -54,18 +67,35 @@ Categorize them into whichever of these buckets have items (omit empty buckets):
 6. **Playtest tooling** — hub, Feedback, tier list, Send, right-click comment.
 7. **Content** — item and monster balance, numbered card strength.
 
-Each open item:
+### ⬜ Still broken in F5
+
+GitHub Issues labeled `playtest` that are still open **and** whose reported change is not on `playtest/latest` in this folder.
+
+Each item:
 
 - Starts with ⬜
 - Issue number, one short line of what they reported, link
 
 Example: `1. ⬜ [#22](url) — Unplayable items (Sledgehammer) should show a grey overlay on the hotbar.`
 
-### ✅ Closed issues
+### 🟩 Ready in F5
 
-Only Issues whose fix you are **confident** is fully deployed: merged, and playable on https://nathan-elequin.itch.io/spinheritance-playtest. Local code, F5, or an unpushed commit is not enough.
+Open GitHub Issues whose reported change **is** on `playtest/latest` here. He can Stop Play and F5. Friends on itch will not see it yet. **Do not close GitHub.**
 
-Each closed item:
+Each item:
+
+- Starts with 🟩
+- Issue number, one short line of what to try in F5, link, and the short SHA
+
+Example: `1. 🟩 [#22](url) — Hotbar unplayable overlay. Stop Play, F5. \`abc1234\`.`
+
+Keep listing these every reply until they move to **On itch.io**.
+
+### ✅ On itch.io
+
+Only Issues whose fix you are **confident** is playable on https://nathan-elequin.itch.io/spinheritance-playtest. Local code, F5, or GitHub-only is not enough.
+
+Each item:
 
 - Starts with ✅
 - **Bold short phrase** naming the change (not a restatement of the report)
@@ -74,16 +104,18 @@ Each closed item:
 
 Example: `1. ✅ **Unplayable hatch** — Hotbar cards you cannot use get a stripe overlay you can still read through ([#22](url)).`
 
-When that itch bar is met in a chat, close the GitHub Issue in that same turn if it is still open, and put it here instead of Open issues. **Closed issues in the reply and closing GitHub are the same action.** If it is in this section, GitHub must already be closed, or you close it before you send the reply.
+When that itch bar is met in a chat, close the GitHub Issue in that same turn if it is still open, set ledger `status` to `itch`, and put it here instead of the other two columns. **On itch.io in the reply and closing GitHub are the same action.** If it is in this section, GitHub must already be closed, or you close it before you send the reply.
 
-List a Closed issue **once**. After it has appeared under **Closed issues** in a chat message Nathan saw (this chat or an earlier one), do not list it again in later replies or later chats. Open issues still stay in **Open issues** every reply until they qualify for this section. Worked example: [#22](https://github.com/Nathan-Elequin/swipe/issues/22) was shown as closed; do not bring it up again.
+List an On-itch item **once**. After it has appeared under **On itch.io** (or the old **Closed issues** heading) in a chat message Nathan saw, do not list it again. **Still broken in F5** and **Ready in F5** stay every reply until that ticket qualifies here. Worked example: [#22](https://github.com/Nathan-Elequin/swipe/issues/22) was shown as closed; do not bring it up again.
 
 ## Close
 
 Close a GitHub Issue when **either**:
 
 1. Nathan clearly says that ticket is closed / done / finished / live on itch, or
-2. The fix is playable on the itch playtest (the bar for **Closed issues**).
+2. The fix is playable on the itch playtest (the bar for **On itch.io**).
+
+Do **not** close GitHub just because F5 works.
 
 Close it yourself in that turn. Do not wait for him to confirm.
 
@@ -93,15 +125,18 @@ If Auto-review blocks `gh`, retry that same command with `request_smart_mode_app
 
 Do not invent copy to “fix” confusion unless he gave the words. Jam owns `data/player-copy.json`. Unique art still applies.
 
+After a local fix lands on `playtest/latest`, rewrite `playtest/inbox-board.html` from the ledger (three columns) so the board matches chat.
+
 ## Do not
 
 - Do not skip this read because the chat is about something else.
 - Do not ask Nathan to paste playtest notes.
 - Do not stop listing an open Issue until it is live on the itch playtest, or he says to close it.
-- Do not move an Issue into **Closed issues** because the code exists locally, or because F5 works on this PC.
-- Do not list an Issue under **Closed issues** while it is still open on GitHub.
+- Do not mix “fixed in F5” into **Still broken in F5** or into **On itch.io**.
+- Do not move an Issue into **On itch.io** because the code exists locally, or because F5 works on this PC.
+- Do not list an Issue under **On itch.io** while it is still open on GitHub.
 - Do not ask Nathan to close, Submit, or confirm a GitHub Issue. That is your job.
 - Do not close a GitHub Issue because he ignored a summary.
 - Do not change balance numbers from Content reports unless he says so in that chat.
 - Do not treat a gray bug/rule report as a linear bug.
-- Do not re-list a Closed issue in a later reply or later chat after it has already appeared under **Closed issues** in a message Nathan saw.
+- Do not re-list an On-itch item in a later reply or later chat after it has already appeared under **On itch.io** or **Closed issues** in a message Nathan saw.

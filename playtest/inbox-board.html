@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Playtest tickets — F5 vs itch</title>
+<style>
+  :root {
+    --bg: #1a1612;
+    --ink: #f3e6c8;
+    --muted: #b9a88a;
+    --card: #241e18;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.4 Georgia, "Times New Roman", serif; background: var(--bg); color: var(--ink); }
+  header { padding: 20px 24px 8px; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  p { margin: 0; color: var(--muted); max-width: 52em; }
+  .board { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; padding: 16px 24px 32px; align-items: start; }
+  .col { background: var(--card); border-radius: 10px; min-height: 40vh; padding: 12px; }
+  .col h2 { margin: 0 0 10px; font-size: 15px; }
+  .col.todo h2 { color: #f0b4a8; }
+  .col.f5 h2 { color: #b6e0c0; }
+  .col.itch h2 { color: #b8c8ef; }
+  .count { font-weight: normal; color: var(--muted); }
+  a.card { display: block; text-decoration: none; color: inherit; background: #2c251e; border-left: 4px solid #888; border-radius: 6px; padding: 8px 10px; margin: 0 0 8px; }
+  .todo a.card { border-left-color: #c56b5c; }
+  .f5 a.card { border-left-color: #6fbf80; }
+  .itch a.card { border-left-color: #7b93d6; }
+  .num { font-weight: bold; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Playtest tickets</h1>
+  <p>Left: F5 still shows the old behavior. Middle: committed on <code>playtest/latest</code> — Stop Play, F5. Right: live on itch.io. Source: <code>data/playtest-ledger.json</code>.</p>
+</header>
+<div class="board">
+<section class="col todo"><h2>Still broken in F5 <span class="count">(0)</span></h2><p class="empty">None.</p></section><section class="col f5"><h2>Ready in F5 <span class="count">(18)</span></h2><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/239"><span class="num">#239</span> — Beggar steal: slash, pull off hotbar, thank-you line</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/238"><span class="num">#238</span> — Echo Bell replays a kept item, then discards itself</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/237"><span class="num">#237</span> — Beggar hotbar mark bigger, orange glow</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/236"><span class="num">#236</span> — Medallion Block is 7 − HP, not 6 − HP</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/234"><span class="num">#234</span> — Recycler countdown on every discard</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/233"><span class="num">#233</span> — Leech League must not fire when remaining HP is already tied</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/232"><span class="num">#232</span> — Fairy neighbor +1 HP must show on the plate</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/223"><span class="num">#223</span> — Harpy should hit once on Spin unless Wealth Tax</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/222"><span class="num">#222</span> — Ale Flagon heals you and the current enemy +3</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/221"><span class="num">#221</span> — Wealth Tax slash then force-use a playable item</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/220"><span class="num">#220</span> — Lich HP pip is the defeat skull</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/219"><span class="num">#219</span> — Commander: first lethal is a Flee attempt; next lethal kills</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/204"><span class="num">#204</span> — Beggar slash when the steal actually happens</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/203"><span class="num">#203</span> — Sandbag slash on lethal trigger; speed up repeats</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/202"><span class="num">#202</span> — Jar of Grease hotbar movement cue like Shuriken</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/201"><span class="num">#201</span> — Damsel neighbor attacks one at a time, full animation</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/198"><span class="num">#198</span> — Spider Egg Take 2 → Take 1</a><a class="card" href="https://github.com/Nathan-Elequin/swipe/issues/190"><span class="num">#190</span> — Poison icon larger; do not recolor the wheel slice</a></section><section class="col itch"><h2>On itch.io <span class="count">(0)</span></h2><p class="empty">None new.</p></section>
+</div>
+</body>
+</html>

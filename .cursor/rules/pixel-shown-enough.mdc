@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Pixel items leave the chat after three shows
 
-Locked **2026-10-23**. This covers the `### 🎨 Ready to test from Pixel` section only. Playtest inbox issues stay listed until they are live on itch or Nathan says that ticket is closed (`playtest-inbox.mdc`).
+Locked **2026-10-23**. This covers the `### 🎨 Ready to test from Pixel` section only. Playtest inbox issues stay in **Still broken in F5** or **Ready in F5** until they are on itch or Nathan says that ticket is closed (`playtest-inbox.mdc`).
 
 ## Do
 

@@ -1992,44 +1992,41 @@ func _shot_anim_petrify() -> void:
 	])
 	await _capture("04_hydra_beams.png", "Hydra: three beams to three even items")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
-	# Basilisk: every other card, 3 pips — shoot after creep, before slash.
+	# Basilisk: Gaze 3 on enter. Hover one; Use one; the others petrify.
 	await _anim_ready_seat(
 		["basilisk", "goblin", "skeleton", "bandit"],
 		["shield", "net", "da_boot", "longbow"],
 		8, 0, 0
 	)
+	for bi in main.wheel.size():
+		if str(main.wheel[bi].get("card_id", "")) == "basilisk":
+			await main._maybe_basilisk_spawn(bi)
+	await _wait(0.12)
+	var gazed: Array = []
+	for itg in main.hotbar:
+		if not main._item_gaze_ids(itg).is_empty():
+			gazed.append(itg)
+	if gazed.size() >= 1:
+		var gcard: Control = main._hotbar_card_by_uid(int(gazed[0].get("uid", -1)))
+		if gcard != null:
+			main._on_item_hovered(gazed[0], gcard)
+	await _wait(0.08)
+	await _capture("05_basilisk_pips.png", "Basilisk enter: Gaze marks on 3 items, hover warns the others")
+	main._on_item_unhovered()
 	main.set_meta("qa_spin_idx", 0)
-	main._on_spin()
+	await main._on_spin()
+	await _until(func() -> bool: return main.phase == "fighting" and not bool(main._walker_busy), 20.0)
+	if gazed.size() >= 1:
+		await main._use_item(int(gazed[0].get("uid", -1)))
 	await _until(func() -> bool:
-		var any_pips := false
-		for c in main.hotbar_box.get_children() if main.hotbar_box else []:
-			if int(c.get("_petrify_spins")) >= 3 and float(c.get("_petrify_creep")) >= 0.99:
-				any_pips = true
-				break
-		return any_pips and not _slash_visible()
+		var n_stone := 0
+		for it2 in main.hotbar:
+			if bool(it2.get("basilisk_stone", false)):
+				n_stone += 1
+		return n_stone >= 1 and not bool(main._walker_busy)
 	, 18.0)
 	await _wait(0.08)
-	await _capture("05_basilisk_pips.png", "Basilisk: every other card stone with 3 pips")
-	await _until(func() -> bool: return not bool(main._walker_busy), 25.0)
-	# Countdown across Spins: seat petrify_n=3, tick to 2, then show pips→shatter path.
-	await _anim_ready_seat(
-		["goblin", "skeleton", "bandit", "ogre"],
-		["shield", "net", "da_boot", "longbow"],
-		8, 0, 0
-	)
-	await _anim_spin_face(0)
-	for i in main.hotbar.size():
-		if (i + 1) % 2 == 0:
-			main.hotbar[i]["petrify_n"] = 3
-			main.hotbar[i]["petrified"] = true
-			var card = main._hotbar_card_by_uid(int(main.hotbar[i].get("uid", -1)))
-			if card != null and card.has_method("set_petrified"):
-				await card.set_petrified(true, false, 3, false)
-	main._refresh()
-	await _wait(0.08)
-	await main._tick_gaze_petrify()
-	await _wait_game(0.12)
-	await _capture("06_basilisk_tick.png", "Basilisk countdown: pip cracked (3→2)")
+	await _capture("06_basilisk_tick.png", "Basilisk: used one Gazed item, the others Petrified")
 	await _until(func() -> bool: return not bool(main._walker_busy), 20.0)
 	# 6-seat wheel: beam still aims at a hotbar card, not a fixed seat index.
 	await _anim_ready_seat(
@@ -2402,10 +2399,13 @@ func _shot_anim_hotbar_shimmer() -> void:
 				sling = it
 				break
 		if not sling.is_empty():
-			main.pending_mark = {"kind": "sling_any", "uid": int(sling.get("uid", -1))}
+			main.pending_choice = {
+				"uid": int(sling.get("uid", -1)),
+				"options": main._sling_convert_options(int(sling.get("uid", -1))),
+			}
 	main._refresh()
 	await _wait(0.15)
-	await _capture("06_sling_loaded.png", "Sling Loaded chip; tooltip from PLAYER_COPY")
+	await _capture("06_sling_loaded.png", "Sling waiting for a hand pick")
 	await _anim_ready_seat(
 		["goblin", "skeleton", "bandit", "ogre", "lich", "wizard"],
 		["net", "shield", "sledgehammer"], 6, 0, 6

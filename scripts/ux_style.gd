@@ -274,7 +274,7 @@ const UNPLAYABLE := "#C8C2BA"
 ## Same color the wheel uses for a monster's call name (the subtitle under the name).
 static func call_color(special_id: String) -> Color:
 	match special_id:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "hunter_mark", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "rust", "decay":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "hunter_mark", "bear_trap", "wickrise", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "rust", "decay":
 			return GOLD
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return CALL_ATK
@@ -320,6 +320,8 @@ static func def_id_of(piece: String) -> String:
 		return "phoenix_egg"
 	if low == "phoenix":
 		return "phoenix"
+	if low == "bear trap":
+		return "bear_trap"
 	if low == "across":
 		return "across"
 	if low == "move":
@@ -346,17 +348,32 @@ static func def_id_of(piece: String) -> String:
 		return "rust"
 	if low == "decay" or low.begins_with("decayed"):
 		return "decay"
+	if low == "gaze" or low.begins_with("gaze") or low == "gazed":
+		return "gaze"
+	if low.begins_with("petrif"):
+		return "petrify"
+	if low == "curse" or low.begins_with("cursed"):
+		return "curse"
+	if low == "toll":
+		return "toll"
+	if low == "hex":
+		return "hex"
+	if low == "beggar" or low.begins_with("beggar"):
+		return "beggar"
 	return ""
 
 
 static func def_of(id: String) -> String:
+	## Spin-locked keyword bodies (Direction A aura kit) — exact strings, no rewrites.
 	match id:
 		"any":
-			return "select any Monster on the wheel"
+			return "You may choose any Monster on the wheel, not only the one you are facing."
 		"eject":
 			return "remove them from the dungeon immediately, placing them on the bottom of the Dungeon Deck"
 		"across":
 			return "across on the opposite side of the wheel."
+		"bear_trap":
+			return "a 2 HP 4 ATK monster that Attacks you when you Move or Spin onto it"
 		"move":
 			return "shift to a Neighbor without Spinning"
 		"flee":
@@ -378,9 +395,21 @@ static func def_of(id: String) -> String:
 		"unplayable":
 			return "You cannot click this."
 		"rust":
-			return "Item that makes all Monsters ignore your Block for 3 Spins"
+			return "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust."
 		"decay":
 			return "Decayed Items are linked. When you use one, Keep it and discard the other."
+		"gaze":
+			return "Marks up to three Items. Using one Petrifies the others while the Basilisk remains."
+		"petrify":
+			return "Makes an Item Unplayable until its source ends."
+		"curse":
+			return "A harmful Item forced into your hand."
+		"toll":
+			return "Unplayable. −1 on each Item Use. At 0, you Die."
+		"hex":
+			return "Unplayable. −1 each Spin. At 0, Defeat the landed enemy."
+		"beggar":
+			return "Marks a random Item. Spinning this Beggar discards it."
 		_:
 			return ""
 
@@ -674,6 +703,7 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		["any monster", gold],
 		["phoenix egg", gold],
 		["phoenix", gold],
+		["bear trap", gold],
 	]
 	var stems := PackedStringArray([
 		"defeated", "defeats", "defeating", "defeat",
@@ -689,6 +719,10 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"fleeing", "flees", "fled", "flee",
 		"poisoned", "poisons", "poison",
 		"any",
+		"petrifies", "petrified", "petrify",
+		"gaze", "gazed",
+		"decayed", "decay",
+		"hex", "toll", "curse", "beggar",
 		"spinning", "spins", "spun", "spin",
 		"losing", "loses", "lost", "lose",
 		"always",
@@ -848,6 +882,12 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low == "rust":
 		return gold
 	if low == "decay" or low == "decayed":
+		return gold
+	if low == "gaze" or low == "gazed" or low.begins_with("gaze"):
+		return gold
+	if low.begins_with("petrif"):
+		return gold
+	if low == "hex" or low == "toll" or low == "curse" or low.begins_with("beggar"):
 		return gold
 	return ""
 

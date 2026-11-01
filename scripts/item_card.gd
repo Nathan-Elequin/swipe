@@ -57,19 +57,48 @@ var _playable: bool = false
 var _guarding: bool = false
 var _hatch: Control
 var _lock_shade: Control
+## Direction A aura kit (design/visual/SCREEN-hotbar-aura-kit.md).
+## Priority when painting rings: Petrify/Unplayable > WARN > CHOICE > READY.
+const AURA_OFF := ""
+const AURA_READY := "ready"
+const AURA_WARN := "warn"
+const AURA_CHOICE := "choice"
+const COL_READY := Color("F2A93B")
+const COL_WARN := Color("E8553E")
+const COL_CHOICE := Color("7CC8F0")
+const COL_LINK := Color("8E72F2")
+const COL_HEX_GOOD := Color("5FD3A0")
+const COL_TOLL_LETHAL := Color("C41E1E")
+const COL_GARGOYLE := Color("B9A58A")
+const COL_BASILISK := Color("9DB86E")
+const COL_UNPLAYABLE := Color("8A8F96")
 var _aura: bool = false
+var _aura_role: String = AURA_OFF
 var _toss_pick: bool = false
 var _log_focus: bool = false
 var _plus: TextureRect
 var _ban: TextureRect
 var _used: Label
 var _danger: bool = false
+var _hex_good: bool = false
 var _bag_stamp: TextureRect
+var _source_stamp: TextureRect
+var _duration_band: TextureRect
+var _decay_pip: TextureRect
+var _warn_chip: Label
+var _gaze_mark: TextureRect
+var _gaze_warn: bool = false
+var _decay_link: bool = false
+var _decay_warn: bool = false
+var _gaze_entry: bool = false
+var _petrify_source: String = "" # "" | "gargoyle" | "basilisk"
+var _aura_pulse_tw: Tween
 var _or: RichTextLabel
 var _choice_badge: Label
 var _cabinet_badge: Label
 var _beggar_on: bool = false
 var _beggar_lab: Label
+var _beggar_icon: TextureRect
 var _beggar_flash: float = 0.0
 var _beggar_punch: Tween
 var _hp_cost: HBoxContainer
@@ -189,7 +218,7 @@ func setup(
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_icon)
-	if p_id == "shuriken":
+	if p_id == "shuriken" or p_id == "jar_o_grease":
 		var arc := preload("res://scripts/move_arc_icon.gd").new()
 		arc.name = "MoveArc"
 		_icon.add_child(arc)
@@ -340,7 +369,14 @@ func setup(
 
 
 func _sync_hatch() -> void:
-	var on: bool = card_id == "spider_egg"
+	# Spider Egg keeps its soft hatch; Unplayable / Petrify use the shared 8px diagonal.
+	var egg: bool = card_id == "spider_egg"
+	var unplayable_hatch: bool = (not _showcase) and (
+		spent
+		or (_petrified and not _petrify_dummy)
+		or ((not _playable) and not _guarding and not _petrify_dummy)
+	)
+	var on: bool = egg or unplayable_hatch
 	if not on:
 		if _hatch != null:
 			_hatch.visible = false
@@ -351,7 +387,7 @@ func _sync_hatch() -> void:
 		_hatch.clip_contents = true
 		_hatch.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
 		_hatch.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		_hatch.draw.connect(_draw_egg_hatch)
+		_hatch.draw.connect(_draw_card_hatch)
 		_hatch.resized.connect(_hatch.queue_redraw)
 		add_child(_hatch)
 		move_child(_hatch, 0)
@@ -359,25 +395,35 @@ func _sync_hatch() -> void:
 	_hatch.queue_redraw()
 
 
-func _draw_egg_hatch() -> void:
+func _draw_card_hatch() -> void:
 	if _hatch == null:
 		return
 	var w: float = _hatch.size.x
 	var h: float = _hatch.size.y
 	if w < 2.0 or h < 2.0:
 		return
-	_hatch.draw_rect(Rect2(0, 0, w, h * 0.42), Color(1, 1, 1, 0.06))
-	_hatch.draw_rect(Rect2(0, h * 0.58, w, h * 0.42), Color(0, 0, 0, 0.28))
-	var ink := Color(0.92, 0.78, 0.72, 0.18)
+	if card_id == "spider_egg" and not (_petrified and not _petrify_dummy) and not spent:
+		_hatch.draw_rect(Rect2(0, 0, w, h * 0.42), Color(1, 1, 1, 0.06))
+		_hatch.draw_rect(Rect2(0, h * 0.58, w, h * 0.42), Color(0, 0, 0, 0.28))
+		var egg_ink := Color(0.92, 0.78, 0.72, 0.18)
+		var ex: float = -h
+		while ex < w + h:
+			_hatch.draw_line(Vector2(ex, h), Vector2(ex + h * 0.65, 0.0), egg_ink, 1.0)
+			ex += 6.0
+		return
+	# Direction A Unplayable / Petrify: grey wash + 8px diagonal hatch.
+	_hatch.draw_rect(Rect2(0, 0, w, h), Color(COL_UNPLAYABLE.r, COL_UNPLAYABLE.g, COL_UNPLAYABLE.b, 0.22))
+	var ink := Color(0.10, 0.08, 0.07, 0.36)
 	var x: float = -h
 	while x < w + h:
-		_hatch.draw_line(Vector2(x, h), Vector2(x + h * 0.65, 0.0), ink, 1.0)
-		x += 6.0
+		_hatch.draw_line(Vector2(x, h), Vector2(x + h * 0.58, 0.0), ink, 1.5)
+		x += 8.0
 
 
 func _sync_lock_shade() -> void:
-	# Petrify uses its own stone look; keep the hatch off so creep/shatter read.
+	# Hatch covers Unplayable + Petrify now; lock shade stays as a light wash for spent/grey only.
 	var locked: bool = (not _showcase) and (spent or not _playable) and not _guarding and not (_petrified and not _petrify_dummy)
+	_sync_hatch()
 	if not locked:
 		if _lock_shade != null:
 			_lock_shade.visible = false
@@ -407,17 +453,8 @@ func _draw_lock_shade() -> void:
 	var h: float = _lock_shade.size.y
 	if w < 2.0 or h < 2.0:
 		return
-	_lock_shade.draw_rect(Rect2(0, 0, w, h), Color(0.07, 0.05, 0.04, 0.16))
-	var ink := Color(0.10, 0.08, 0.07, 0.32)
-	var x: float = -h
-	while x < w + h:
-		_lock_shade.draw_line(Vector2(x, h), Vector2(x + h * 0.58, 0.0), ink, 1.5)
-		x += 8.0
-	var dust := Color(0.96, 0.90, 0.80, 0.08)
-	x = -h
-	while x < w + h:
-		_lock_shade.draw_line(Vector2(x, 0.0), Vector2(x + h * 0.58, h), dust, 1.0)
-		x += 12.0
+	# Soft wash only — diagonal hatch lives on `_hatch` so Petrify shares Unplayable language.
+	_lock_shade.draw_rect(Rect2(0, 0, w, h), Color(0.07, 0.05, 0.04, 0.12))
 
 
 func set_icon(tex: Texture2D) -> void:
@@ -426,6 +463,64 @@ func set_icon(tex: Texture2D) -> void:
 	if _sai_busy or _marble_busy:
 		return
 	_icon.texture = tex
+
+
+func set_gaze_mark(tex: Texture2D, on: bool) -> void:
+	## Entry Gaze eye glyph — centered on the top edge (Phase A).
+	_gaze_entry = on and not (_petrified and _petrify_source == "basilisk")
+	if not on or tex == null:
+		if _gaze_mark:
+			_gaze_mark.visible = false
+		queue_redraw()
+		return
+	if _gaze_mark == null:
+		_gaze_mark = TextureRect.new()
+		_gaze_mark.name = "BasiliskGaze"
+		_gaze_mark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_gaze_mark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_gaze_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_gaze_mark.texture_filter = TEXTURE_FILTER_NEAREST
+		_gaze_mark.z_index = 8
+		_gaze_mark.set_anchors_preset(Control.PRESET_CENTER_TOP)
+		_gaze_mark.offset_left = -12
+		_gaze_mark.offset_top = -6
+		_gaze_mark.offset_right = 12
+		_gaze_mark.offset_bottom = 18
+		add_child(_gaze_mark)
+	_gaze_mark.texture = tex
+	_gaze_mark.visible = _gaze_entry
+	queue_redraw()
+
+
+func set_gaze_warn(on: bool) -> void:
+	_gaze_warn = on
+	if on:
+		set_aura_role(AURA_WARN)
+		_set_warn_chip("Will be Petrified.")
+	else:
+		_clear_warn_chip_if("Will be Petrified.")
+		if _aura_role == AURA_WARN and not _decay_warn and not _beggar_on:
+			# Caller re-applies READY/CHOICE/off after clearing.
+			pass
+	queue_redraw()
+
+
+func set_decay_link(on: bool) -> void:
+	_decay_link = on
+	_ensure_decay_pip()
+	if _decay_pip != null:
+		_decay_pip.visible = on
+	queue_redraw()
+
+
+func set_decay_warn(on: bool) -> void:
+	_decay_warn = on
+	if on:
+		set_aura_role(AURA_WARN)
+		_set_warn_chip("Will be discarded.")
+	else:
+		_clear_warn_chip_if("Will be discarded.")
+	queue_redraw()
 
 
 func set_bag_stamp(tex: Texture2D) -> void:
@@ -450,6 +545,120 @@ func set_bag_stamp(tex: Texture2D) -> void:
 			add_child(_bag_stamp)
 	_bag_stamp.texture = tex
 	_bag_stamp.visible = true
+
+
+func set_source_stamp(source: String) -> void:
+	## BR 34px Gargoyle / Basilisk stamp. Cleared when source is empty.
+	_petrify_source = source
+	_ensure_source_stamp()
+	_ensure_duration_band()
+	var path := ""
+	if source == "gargoyle":
+		path = "res://assets/ui/stamps/stamp_gargoyle.png"
+	elif source == "basilisk":
+		path = "res://assets/ui/stamps/stamp_basilisk.png"
+	if path == "" or not ResourceLoader.exists(path):
+		if _source_stamp:
+			_source_stamp.visible = false
+		if _duration_band:
+			_duration_band.visible = false
+		queue_redraw()
+		return
+	_source_stamp.texture = load(path) as Texture2D
+	_source_stamp.visible = true
+	if source == "gargoyle" and _duration_band != null:
+		if ResourceLoader.exists("res://assets/ui/aura/duration_band_gargoyle.png"):
+			_duration_band.texture = load("res://assets/ui/aura/duration_band_gargoyle.png") as Texture2D
+		_duration_band.visible = true
+	elif _duration_band != null:
+		_duration_band.visible = false
+	if source == "basilisk" and _gaze_mark != null:
+		_gaze_mark.visible = false
+		_gaze_entry = false
+	queue_redraw()
+
+
+func _ensure_source_stamp() -> void:
+	if _source_stamp != null:
+		return
+	_source_stamp = TextureRect.new()
+	_source_stamp.name = "SourceStamp"
+	_source_stamp.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_source_stamp.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_source_stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_source_stamp.texture_filter = TEXTURE_FILTER_NEAREST
+	_source_stamp.z_index = 10
+	_source_stamp.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_source_stamp.offset_left = -36
+	_source_stamp.offset_top = -36
+	_source_stamp.offset_right = -2
+	_source_stamp.offset_bottom = -2
+	add_child(_source_stamp)
+
+
+func _ensure_duration_band() -> void:
+	if _duration_band != null:
+		return
+	_duration_band = TextureRect.new()
+	_duration_band.name = "DurationBand"
+	_duration_band.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_duration_band.stretch_mode = TextureRect.STRETCH_SCALE
+	_duration_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_duration_band.texture_filter = TEXTURE_FILTER_NEAREST
+	_duration_band.z_index = 7
+	_duration_band.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_duration_band.offset_left = 4
+	_duration_band.offset_top = 2
+	_duration_band.offset_right = -4
+	_duration_band.offset_bottom = 10
+	_duration_band.visible = false
+	add_child(_duration_band)
+
+
+func _ensure_decay_pip() -> void:
+	if _decay_pip != null:
+		return
+	_decay_pip = TextureRect.new()
+	_decay_pip.name = "DecayPip"
+	_decay_pip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_decay_pip.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_decay_pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_decay_pip.texture_filter = TEXTURE_FILTER_NEAREST
+	_decay_pip.z_index = 9
+	_decay_pip.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_decay_pip.offset_left = 2
+	_decay_pip.offset_top = 2
+	_decay_pip.offset_right = 14
+	_decay_pip.offset_bottom = 14
+	if ResourceLoader.exists("res://assets/ui/aura/decay_pip.png"):
+		_decay_pip.texture = load("res://assets/ui/aura/decay_pip.png") as Texture2D
+	_decay_pip.visible = false
+	add_child(_decay_pip)
+
+
+func _set_warn_chip(text: String) -> void:
+	if _warn_chip == null:
+		_warn_chip = Label.new()
+		_warn_chip.name = "WarnChip"
+		_warn_chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_warn_chip.add_theme_font_size_override("font_size", 10)
+		_warn_chip.add_theme_color_override("font_color", Color("f0e6d8"))
+		_warn_chip.add_theme_color_override("font_outline_color", Color("100e0c"))
+		_warn_chip.add_theme_constant_override("outline_size", 3)
+		_warn_chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_warn_chip.z_index = 12
+		_warn_chip.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+		_warn_chip.offset_top = -18
+		_warn_chip.offset_bottom = -2
+		add_child(_warn_chip)
+	_warn_chip.text = text
+	_warn_chip.visible = text != ""
+
+
+func _clear_warn_chip_if(text: String) -> void:
+	if _warn_chip != null and _warn_chip.text == text:
+		_warn_chip.visible = false
+		_warn_chip.text = ""
 
 
 func set_echo_mark(tex: Texture2D) -> void:
@@ -479,7 +688,7 @@ func set_num_color(c: Color) -> void:
 		_ghost.add_theme_color_override("font_color", c)
 
 
-func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: bool = true) -> void:
+func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: bool = true, source: String = "") -> void:
 	_ensure_stone()
 	_ensure_petrify_shader()
 	_petrified = on
@@ -494,6 +703,7 @@ func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: 
 		_petrify_creep = 0.0
 		if not _petrify_dummy:
 			modulate = Color.WHITE
+		set_source_stamp("")
 		_sync_lock_shade()
 		queue_redraw()
 		return
@@ -506,12 +716,18 @@ func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: 
 		_stone.modulate = Color(0.82, 0.78, 0.70, 0.55)
 		modulate = Color.WHITE
 		_petrify_creep = 1.0
+		set_source_stamp("")
 		_sync_lock_shade()
 		queue_redraw()
 		return
-	# Real petrify: creep shader on the icon; stone TextureRect only over the icon.
+	# Real petrify: creep + Unplayable hatch + source stamp (Gargoyle / Basilisk).
 	_stone.visible = false
 	material = null
+	var src: String = source
+	if src == "":
+		src = _petrify_source if _petrify_source != "" else "gargoyle"
+	set_source_stamp(src)
+	set_aura_role(AURA_OFF)
 	if animate:
 		if _icon != null and _petrify_mat != null:
 			_icon.material = _petrify_mat
@@ -572,6 +788,7 @@ func petrify_shatter() -> void:
 	material = null
 	if _icon != null:
 		_icon.material = null
+	set_source_stamp("")
 	_shatter.visible = true
 	_shatter.position = size * 0.5
 	if _shatter.sprite_frames != null and _shatter.sprite_frames.get_frame_count("shatter") > 0:
@@ -583,13 +800,82 @@ func petrify_shatter() -> void:
 	fade.tween_property(self, "modulate", Color.WHITE, 0.15)
 	if _icon != null:
 		fade.parallel().tween_property(_icon, "modulate", Color.WHITE, 0.15)
+	# Brief READY flash on free (Direction A Phase D).
+	set_aura_role(AURA_READY)
 	await fall.finished
 	_shatter.visible = false
 	_shatter.modulate.a = 1.0
 	_petrified = false
 	_petrify_spins = 0
 	_petrify_creep = 0.0
+	set_aura_role(AURA_OFF)
+	_sync_lock_shade()
 	queue_redraw()
+
+
+func _draw_solid_ring(col: Color, width: float, pulse: float) -> void:
+	var pad: float = 4.0 + pulse * 3.0
+	var ring := StyleBoxFlat.new()
+	ring.draw_center = false
+	ring.bg_color = Color(0, 0, 0, 0)
+	ring.border_color = Color(col.r, col.g, col.b, 0.82 + pulse * 0.18)
+	ring.set_border_width_all(int(round(width)))
+	ring.set_corner_radius_all(10 if _showcase else 8)
+	ring.shadow_color = Color(col.r, col.g, col.b, 0.35 + pulse * 0.30)
+	ring.shadow_size = 6 + int(pulse * 10.0)
+	ring.shadow_offset = Vector2.ZERO
+	ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
+
+
+func _draw_double_ring(col: Color) -> void:
+	var pad_outer: float = 5.0
+	var outer := StyleBoxFlat.new()
+	outer.draw_center = false
+	outer.bg_color = Color(0, 0, 0, 0)
+	outer.border_color = Color(col.r, col.g, col.b, 0.92)
+	outer.set_border_width_all(2)
+	outer.set_corner_radius_all(10 if _showcase else 8)
+	outer.shadow_size = 0
+	outer.draw(get_canvas_item(), Rect2(Vector2(-pad_outer, -pad_outer), size + Vector2(pad_outer, pad_outer) * 2.0))
+	var pad_inner: float = 1.0
+	var inner := StyleBoxFlat.new()
+	inner.draw_center = false
+	inner.bg_color = Color(0, 0, 0, 0)
+	inner.border_color = Color(col.r, col.g, col.b, 0.75)
+	inner.set_border_width_all(1)
+	inner.set_corner_radius_all(8 if _showcase else 6)
+	inner.shadow_size = 0
+	inner.draw(get_canvas_item(), Rect2(Vector2(-pad_inner, -pad_inner), size + Vector2(pad_inner, pad_inner) * 2.0))
+
+
+func _draw_dashed_ring(col: Color, width: float, _pulse: float) -> void:
+	## Static dashed WARNING / Basilisk scale rim — no pulse.
+	var pad: float = 4.0
+	var rect := Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0)
+	var dash: float = 7.0
+	var gap: float = 5.0
+	var pts: PackedVector2Array = PackedVector2Array([
+		rect.position,
+		Vector2(rect.end.x, rect.position.y),
+		rect.end,
+		Vector2(rect.position.x, rect.end.y),
+		rect.position,
+	])
+	for i in range(pts.size() - 1):
+		var a: Vector2 = pts[i]
+		var b: Vector2 = pts[i + 1]
+		var length: float = a.distance_to(b)
+		if length < 1.0:
+			continue
+		var dir: Vector2 = (b - a) / length
+		var t: float = 0.0
+		var draw_on: bool = true
+		while t < length:
+			var seg: float = minf(dash if draw_on else gap, length - t)
+			if draw_on:
+				draw_line(a + dir * t, a + dir * (t + seg), col, width)
+			t += seg
+			draw_on = not draw_on
 
 
 func _ensure_stone() -> void:
@@ -869,8 +1155,15 @@ func set_beggar_mark(on: bool) -> void:
 	if on:
 		var lab := _ensure_beggar_label()
 		lab.visible = true
+		if _beggar_icon:
+			_beggar_icon.visible = true
+		# Direction A: thin WARNING outline (not the old overloaded ember).
+		if _aura_role != AURA_WARN:
+			set_aura_role(AURA_WARN)
 	elif _beggar_lab != null:
 		_beggar_lab.visible = false
+		if _beggar_icon:
+			_beggar_icon.visible = false
 	queue_redraw()
 
 
@@ -889,18 +1182,30 @@ func play_beggar_pick() -> void:
 func _ensure_beggar_label() -> Label:
 	if _beggar_lab != null:
 		return _beggar_lab
+	if _beggar_icon == null:
+		_beggar_icon = TextureRect.new()
+		_beggar_icon.name = "BeggarIcon"
+		_beggar_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_beggar_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_beggar_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_beggar_icon.texture_filter = TEXTURE_FILTER_NEAREST
+		_beggar_icon.z_index = 9
+		_beggar_icon.custom_minimum_size = Vector2(36, 36)
+		if ResourceLoader.exists("res://assets/dungeon/extra/beggar.png"):
+			_beggar_icon.texture = load("res://assets/dungeon/extra/beggar.png") as Texture2D
+		add_child(_beggar_icon)
 	var lab := Label.new()
 	lab.name = "BeggarMark"
 	lab.text = "Beggar"
 	lab.tooltip_text = "When you Spin the Beggar, this Item will be Discarded"
 	lab.mouse_filter = Control.MOUSE_FILTER_STOP
 	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lab.add_theme_font_size_override("font_size", 11)
-	lab.add_theme_color_override("font_color", Color("e8c36a"))
+	lab.add_theme_font_size_override("font_size", 13)
+	lab.add_theme_color_override("font_color", Color("ffb24a"))
 	lab.add_theme_color_override("font_outline_color", Color("100e0c"))
-	lab.add_theme_constant_override("outline_size", 4)
+	lab.add_theme_constant_override("outline_size", 5)
 	lab.z_index = 8
-	lab.custom_minimum_size = Vector2(72, 16)
+	lab.custom_minimum_size = Vector2(80, 18)
 	lab.gui_input.connect(func(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT and _playable:
 			picked.emit()
@@ -913,11 +1218,13 @@ func _ensure_beggar_label() -> Label:
 
 
 func _place_beggar_label() -> void:
+	var face_w: float = size.x if size.x > 8.0 else (SHOW_W if _showcase else CARD_W)
+	if _beggar_icon != null:
+		_beggar_icon.position = Vector2(face_w - 40.0, 2.0)
+		_beggar_icon.size = Vector2(36, 36)
 	if _beggar_lab == null:
 		return
-	var face_w: float = size.x if size.x > 8.0 else (SHOW_W if _showcase else CARD_W)
-	var face_h: float = size.y if size.y > 8.0 else (SHOW_H if _showcase else CARD_H)
-	_beggar_lab.position = Vector2((face_w - 72.0) * 0.5, face_h - 18.0)
+	_beggar_lab.position = Vector2(face_w - 84.0, 36.0)
 
 
 func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
@@ -1073,19 +1380,49 @@ func set_log_focus(on: bool) -> void:
 
 
 func set_aura(on: bool) -> void:
-	_aura = on
+	## Compat shim — overloaded ember becomes READY role.
+	set_aura_role(AURA_READY if on else AURA_OFF)
+
+
+func set_aura_role(role: String) -> void:
+	## READY / WARN / CHOICE / "" — one aura at a time (caller applies priority).
+	var next: String = role.strip_edges().to_lower()
+	if next != AURA_READY and next != AURA_WARN and next != AURA_CHOICE:
+		next = AURA_OFF
+	_aura_role = next
+	_aura = next == AURA_READY
+	if next == AURA_READY:
+		_start_ready_pulse()
+	else:
+		_stop_ready_pulse()
 	set_process(_want_process())
-	if not on and not _glow and not _playable and not _log_focus and not _danger and not _toss_pick:
+	if next == AURA_OFF and not _glow and not _playable and not _log_focus and not _danger and not _toss_pick:
 		_glow_t = 0.0
-		if not spent:
+		if not spent and not _petrified:
 			modulate = Color.WHITE
 	_apply_style(_hot)
+	queue_redraw()
+
+
+func _start_ready_pulse() -> void:
+	if _aura_pulse_tw != null and is_instance_valid(_aura_pulse_tw):
+		return
+	_glow_t = 0.0
+
+
+func _stop_ready_pulse() -> void:
+	if _aura_pulse_tw != null and is_instance_valid(_aura_pulse_tw):
+		_aura_pulse_tw.kill()
+		_aura_pulse_tw = null
 
 
 func set_toss_pick(on: bool) -> void:
 	_toss_pick = on
 	if on:
 		_playable = true
+		# Migrate toss-pick toward CHOICE language (Direction A).
+		if _aura_role != AURA_WARN:
+			set_aura_role(AURA_CHOICE)
 	set_process(_want_process())
 	if not on and not _glow and not _playable and not _aura and not _log_focus and not _danger:
 		_glow_t = 0.0
@@ -1114,13 +1451,27 @@ func set_waiting_entry(on: bool) -> void:
 
 
 func set_danger(on: bool) -> void:
+	## Toll@1 lethal only — Hex@1 uses set_hex_good / mint face instead.
 	_danger = on
+	if on:
+		_hex_good = false
 	set_process(_want_process())
 	if not on and not _glow and not _playable and not _aura and not _log_focus:
 		_glow_t = 0.0
 		if not spent:
 			modulate = Color.WHITE
 	_apply_style(_hot)
+
+
+func set_hex_good(on: bool) -> void:
+	## Hex@1 mint payoff — never shares Toll's crimson.
+	_hex_good = on
+	if on:
+		_danger = false
+		set_num_color(COL_HEX_GOOD)
+	set_process(_want_process())
+	_apply_style(_hot)
+	queue_redraw()
 
 
 func set_passive_icons(plus_tex: Texture2D, ban_tex: Texture2D, on: bool) -> void:
@@ -1161,7 +1512,7 @@ func _process(delta: float) -> void:
 	# does not compete with the banner. Active sai/marble item FX still tick.
 	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy and _beggar_flash <= 0.0 and not _waiting_entry:
 		return
-	if _glow or _aura or _log_focus or _danger or _hot or _toss_pick:
+	if _glow or _aura or _aura_role != AURA_OFF or _log_focus or _danger or _hex_good or _hot or _toss_pick or _gaze_warn or _decay_warn or _decay_link or _gaze_entry:
 		_glow_t += delta
 		_style_wait -= delta
 		if _style_wait <= 0.0:
@@ -1326,28 +1677,39 @@ func _apply_style(hot: bool) -> void:
 		metal = _rim.lerp(_tier_shine(), 0.20 + pulse * 0.55)
 		sb.bg_color = _fill.lightened(0.04 if hot else 0.0)
 		modulate = Color.WHITE
+	elif _hex_good and not spent:
+		# Hex@1 mint face — good countdown, never red.
+		pulse = 0.35 + 0.25 * absf(sin(_glow_t * TAU / 1.6))
+		metal = metal.lerp(COL_HEX_GOOD, 0.55 + pulse * 0.35)
+		sb.bg_color = sb.bg_color.lerp(COL_HEX_GOOD.darkened(0.45), pulse * 0.22)
+		modulate = Color.WHITE
 	elif _toss_pick and hot and not spent:
-		pulse = 0.55 + 0.45 * absf(sin(_glow_t * TAU / 0.7))
-		var warn := Color("e8c36a")
-		metal = metal.lerp(warn, 0.65 + pulse * 0.35)
-		sb.bg_color = sb.bg_color.lerp(warn.darkened(0.35), pulse * 0.28)
-		modulate = Color.WHITE.lerp(Color("ffe6a8"), pulse * 0.38)
+		# CHOICE language (was gold toss glow).
+		pulse = 0.0
+		metal = metal.lerp(COL_CHOICE, 0.72)
+		sb.bg_color = sb.bg_color.lerp(COL_CHOICE.darkened(0.45), 0.12)
+		modulate = Color.WHITE
 	elif _danger and not spent:
+		# Toll@1 lethal crimson only.
 		pulse = 0.40 + 0.60 * absf(sin(_glow_t * TAU / 0.45))
-		var blood := Color("c41e1e")
+		var blood := COL_TOLL_LETHAL
 		metal = metal.lerp(blood, 0.55 + pulse * 0.45)
 		sb.bg_color = sb.bg_color.lerp(blood.darkened(0.15), pulse * 0.42)
 		modulate = Color.WHITE.lerp(Color("ff6a4a"), pulse * 0.55)
-	elif _aura and not spent:
-		pulse = 0.45 + 0.55 * absf(sin(_glow_t * TAU / 0.9))
-		var ember := Color("e07a3d")
-		metal = metal.lerp(ember, 0.50 + pulse * 0.50)
-		sb.bg_color = sb.bg_color.lerp(ember.darkened(0.25), pulse * 0.28)
-		modulate = Color.WHITE.lerp(Color("ffc48a"), pulse * 0.32)
+	elif _aura_role == AURA_READY and not spent:
+		# READY #F2A93B solid pulse (~1.6s).
+		pulse = 0.45 + 0.55 * absf(sin(_glow_t * TAU / 1.6))
+		metal = metal.lerp(COL_READY, 0.50 + pulse * 0.50)
+		sb.bg_color = sb.bg_color.lerp(COL_READY.darkened(0.25), pulse * 0.22)
+		modulate = Color.WHITE.lerp(Color("ffd89a"), pulse * 0.28)
 		if _plus != null and _plus.visible:
 			_plus.modulate = Color("e07a7a").lerp(Color.WHITE, pulse * 0.55)
 		if _ban != null and _ban.visible:
 			_ban.modulate = Color("e8c36a").lerp(Color.WHITE, pulse * 0.55)
+	elif _decay_link and not spent and _aura_role != AURA_WARN:
+		metal = metal.lerp(COL_LINK, 0.85)
+		sb.bg_color = sb.bg_color.lerp(COL_LINK.darkened(0.55), 0.10)
+		modulate = Color.WHITE
 	elif _log_focus:
 		pulse = 0.55 + 0.45 * absf(sin(_glow_t * TAU / 0.8))
 		var gold := Color("fff0c0")
@@ -1368,8 +1730,10 @@ func _apply_style(hot: bool) -> void:
 		bw += 1
 	if _glow:
 		bw += int(pulse * float(_tier))
-	elif _aura or _log_focus or _danger or (_toss_pick and hot):
+	elif _aura_role == AURA_READY or _log_focus or _danger or (_toss_pick and hot) or _hex_good:
 		bw += int(pulse * 2.0)
+	elif _decay_link and _aura_role != AURA_WARN:
+		bw = maxi(bw, 4)
 	sb.set_border_width_all(bw)
 	sb.set_corner_radius_all(8 if _showcase else 6)
 	if _showcase:
@@ -1400,11 +1764,9 @@ func _apply_style(hot: bool) -> void:
 
 func _draw() -> void:
 	if _beggar_on:
+		# Thin WARNING dashed outline (Direction A) — flash still punches the mark.
 		var flash: float = clampf(_beggar_flash, 0.0, 1.0)
-		var col: Color = Color("8d7344").lerp(Color("ffe08a"), flash)
-		var width: float = 2.0 + flash * 3.0
-		var alpha: float = 0.78 + flash * 0.22
-		draw_rect(Rect2(Vector2(1, 1), size - Vector2(2, 2)), Color(col.r, col.g, col.b, alpha), false, width)
+		_draw_dashed_ring(COL_WARN.lerp(Color("ffe08a"), flash * 0.35), 2.0 + flash * 1.5, 0.0)
 		_place_beggar_label()
 	if _glow:
 		var period: float = 1.45 if _tier <= 1 else (1.05 if _tier == 2 else 0.72)
@@ -1421,21 +1783,24 @@ func _draw() -> void:
 		ring.shadow_size = 4 + _tier * 5 + int(pulse * (3 + _tier * 3))
 		ring.shadow_offset = Vector2.ZERO
 		ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
-	elif _toss_pick and _hot and not spent:
-		var pulse: float = 0.55 + 0.45 * absf(sin(_glow_t * TAU / 0.7))
-		var pad: float = 4.0 + pulse * 4.0
-		var ring_col := Color("e8c36a")
-		var ring := StyleBoxFlat.new()
-		ring.draw_center = false
-		ring.bg_color = Color(0, 0, 0, 0)
-		ring.border_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.75 + pulse * 0.25)
-		ring.set_border_width_all(3)
-		ring.set_corner_radius_all(10 if _showcase else 8)
-		ring.shadow_color = Color(ring_col.r, ring_col.g, ring_col.b, 0.45 + pulse * 0.30)
-		ring.shadow_size = 8 + int(pulse * 8.0)
-		ring.shadow_offset = Vector2.ZERO
-		ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
-	# Basilisk gaze countdown pips (top-right, 12px each).
+	# Aura kit rings — Petrify/Unplayable suppress outer roles.
+	var show_aura: bool = not spent and not (_petrified and not _petrify_dummy)
+	if show_aura and (_gaze_warn or _decay_warn or _aura_role == AURA_WARN):
+		_draw_dashed_ring(COL_WARN, 3.0, 0.0)
+	elif show_aura and (_aura_role == AURA_CHOICE or (_toss_pick and _hot)):
+		_draw_double_ring(COL_CHOICE)
+	elif show_aura and _aura_role == AURA_READY:
+		var pulse_r: float = 0.45 + 0.55 * absf(sin(_glow_t * TAU / 1.6))
+		_draw_solid_ring(COL_READY, 3.0, pulse_r)
+	elif show_aura and _decay_link:
+		_draw_solid_ring(COL_LINK, 3.0, 0.0)
+	elif show_aura and _gaze_entry:
+		# Phase A: thin Basilisk rim on gazed eligible items.
+		_draw_solid_ring(COL_BASILISK, 2.0, 0.0)
+	if _petrified and not _petrify_dummy and _petrify_source == "basilisk":
+		# Dotted scale rim while Basilisk stone holds.
+		_draw_dashed_ring(COL_BASILISK, 2.5, 1.0)
+	# Legacy Basilisk spin countdown pips (petrify_n) — kept for hydra/legacy callers.
 	if _petrified and not _petrify_dummy and _petrify_spins > 0:
 		var base := Vector2(size.x - 14.0, 10.0)
 		for i in 3:

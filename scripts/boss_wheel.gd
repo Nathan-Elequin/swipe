@@ -655,7 +655,7 @@ func _draw_hub_poison_badge(font: Font, dim: float) -> void:
 		anchor = pts[int(pts.size() / 2)] + Vector2(54, 0)
 	var bob: float = 0.0 if hub_poison_locked else (2.0 * sin(_glow_t * 4.0))
 	anchor.y += bob
-	var sz := Vector2(64, 64)
+	var sz := Vector2(80, 80)
 	# PixelLab drip/burst art already has its purple ramp — draw unmodulated.
 	var art_col := Color(1, 1, 1, dim)
 	var legacy_col := Color("7dba7d", dim)
@@ -941,7 +941,17 @@ func play_hub_sting(kind: String, amount: int = 0, release_early: bool = false) 
 		# Knock snap is the tell; settle continues while resolve moves on.
 		await get_tree().create_timer(0.06).timeout
 		return
-	await tw.finished
+	await _await_bound_tween(tw)
+
+
+func _await_bound_tween(tw: Tween) -> void:
+	## `await tw.finished` never resumes if the tween is killed mid-flight
+	## (a later create_tween / set_slices / recenter). That left Scythe's
+	## off-facing collapse with `_walker_busy` stuck on.
+	if tw == null:
+		return
+	while is_instance_valid(tw) and tw.is_valid() and tw.is_running():
+		await get_tree().process_frame
 
 
 func play_slay(index: int, release_early: bool = false) -> void:
@@ -955,7 +965,7 @@ func play_slay(index: int, release_early: bool = false) -> void:
 		await get_tree().create_timer(SLAY_RELEASE).timeout
 		busy = false
 		return
-	await tw.finished
+	await _await_bound_tween(tw)
 	busy = false
 
 
@@ -966,7 +976,7 @@ func play_escape(index: int) -> void:
 	slay_t = 0.0
 	var tw := create_tween()
 	tw.tween_property(self, "slay_t", 1.0, 0.5)
-	await tw.finished
+	await _await_bound_tween(tw)
 	busy = false
 
 
@@ -983,7 +993,7 @@ func play_block(index: int, release_early: bool = false) -> void:
 		await get_tree().create_timer(0.20).timeout
 		busy = false
 		return
-	await tw.finished
+	await _await_bound_tween(tw)
 	busy = false
 
 
@@ -1008,7 +1018,7 @@ func collapse_slice(index: int, pin: int = -1) -> void:
 		)
 	else:
 		tw.tween_property(self, "collapse", 1.0, COLLAPSE_DURATION)
-	await tw.finished
+	await _await_bound_tween(tw)
 	if pin >= 0 and pin != index:
 		rot = rot_to_center(pin)
 	else:
@@ -1017,7 +1027,7 @@ func collapse_slice(index: int, pin: int = -1) -> void:
 		jostle.tween_property(self, "rot", base + 0.04, 0.05)
 		jostle.tween_property(self, "rot", base - 0.024, 0.055)
 		jostle.tween_property(self, "rot", base, 0.055)
-		await jostle.finished
+		await _await_bound_tween(jostle)
 	# Leave collapse at 1 so remaining sprites stay on the closed wedges until
 	# set_slices receives the shorter wheel. Resetting here popped n equal slices
 	# back open, then shoved the portraits onto n-1 seats in one frame.
@@ -1091,7 +1101,7 @@ func rotate_index_to_top(index: int, dur: float = 0.42) -> void:
 	tw.set_trans(Tween.TRANS_CUBIC)
 	tw.set_ease(Tween.EASE_IN_OUT)
 	tw.tween_property(self, "rot", rot + delta, dur)
-	await tw.finished
+	await _await_bound_tween(tw)
 	rot = fposmod(rot, TAU)
 	busy = false
 	queue_redraw()
@@ -2450,6 +2460,7 @@ func _fill_for(s: Dictionary, is_face: bool, is_hover: bool) -> Color:
 		fill = fill.darkened(0.18)
 	if bool(s.get("crossbowed", false)):
 		fill = fill.lerp(Color("5a4a18"), 0.45)
+	# Poison must never recolor the wedge. Badge only.
 	if highlight == "mark" and bool(s.get("markable", false)):
 		fill = fill.lightened(0.16)
 	return fill
@@ -3432,7 +3443,7 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 
 func _ability_icon_color(sid: String) -> Color:
 	match sid:
-		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "hunter_mark", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "decay":
+		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "hunter_mark", "bear_trap", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "decay":
 			return Color("e8c36a")
 		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
 			return Color("e07040")
@@ -3666,6 +3677,11 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		fill = fill.lerp(Color("ffd0a0"), punch * 0.55)
 	var hs: float = 36.0 + punch * 4.0
 	var heart_tex: Texture2D = tex_heart_full if tex_heart_full != null else tex_heart
+	if str(s.get("card_id", "")) == "lich":
+		if ResourceLoader.exists("res://assets/dungeon/tiles/skull.png"):
+			heart_tex = load("res://assets/dungeon/tiles/skull.png") as Texture2D
+		elif ResourceLoader.exists("res://assets/icons/skull.svg"):
+			heart_tex = load("res://assets/icons/skull.svg") as Texture2D
 	_draw_stat_plate(pos, hs)
 	if is_hover:
 		var glow: float = 0.40 + 0.45 * absf(sin(_glow_t * 8.0))
@@ -3727,7 +3743,7 @@ func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool, idx:
 	var sc: float = float(_poison_badge_scale.get(idx, 1.0)) if idx >= 0 else 1.0
 	if clear_t > 0.01:
 		sc *= clear_t
-	var base_sz := Vector2(48, 48) if big else Vector2(42, 42)
+	var base_sz := Vector2(64, 64) if big else Vector2(56, 56)
 	var sz: Vector2 = base_sz * sc
 	var art_col := Color.WHITE
 	var legacy_col := Color("7dba7d")
@@ -3738,7 +3754,7 @@ func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool, idx:
 	var ci := _d()
 	if drip_tex != null:
 		var ink := Color("100e0c", art_col.a)
-		var rim: Vector2 = sz + Vector2(6, 6)
+		var rim: Vector2 = sz + Vector2(10, 10)
 		ci.draw_texture_rect(drip_tex, Rect2(drop_pos - rim * 0.5, rim), false, ink)
 		ci.draw_texture_rect(drip_tex, Rect2(drop_pos - sz * 0.5, sz), false, art_col)
 	else:

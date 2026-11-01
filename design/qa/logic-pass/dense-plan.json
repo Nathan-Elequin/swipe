@@ -177,9 +177,9 @@
     },
     {
       "id": "measuring-tape-not-double",
-      "title": "Measuring Tape does not Defeat Golem (not exactly double HP)",
+      "title": "Scythe does not Defeat Golem (HP not equal)",
       "family": "miss",
-      "expected_text": "You have 6 HP. Double is 12. Golem has 7. Not exactly double, so Golem stays."
+      "expected_text": "You have 6 HP. Golem has 7. Not equal, so Golem stays."
     },
     {
       "id": "cube-eats-shield",
@@ -207,9 +207,9 @@
     },
     {
       "id": "basilisk-flees-on-spin",
-      "title": "Basilisk Flees on the first Spin",
+      "title": "Basilisk Stone Gaze on Spin, then fight",
       "family": "collide",
-      "expected_text": "The first time you Spin Basilisk, it Flees (and Petrifies). There is no fight to click Shield. That is Basilisk working."
+      "expected_text": "Basilisk Gazes items on enter. Spin it: fight 6 HP / 5 Attack. It does not Flee."
     },
     {
       "id": "mouse-flees-on-spin",

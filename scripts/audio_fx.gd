@@ -864,6 +864,7 @@ func music_biome_dungeon(biome_id: String) -> void:
 		if _current_bed == bed or _current_bed == StringName(intro_id):
 			if music != null and music.playing:
 				return
+		_bed_pos.erase(String(bed))
 		music_to(StringName(intro_id), fade_s)
 		return
 	music_to(bed, fade_s)
@@ -1431,6 +1432,7 @@ func _on_music_finished(player: AudioStreamPlayer) -> void:
 		var next_id: String = str(_beds[String(_current_bed)].get("next", "")).strip_edges()
 		if next_id != "" and _beds.has(next_id):
 			log_audio("start", "intro_to_loop", {"from": String(_current_bed), "to": next_id})
+			_bed_pos.erase(next_id)
 			music_to(StringName(next_id), 0.0)
 			return
 	resume_intended("stream_finished")
@@ -1493,7 +1495,7 @@ func resume_intended(reason: String) -> void:
 	var stream: AudioStream = spec.get("stream", null)
 	if stream == null:
 		return
-	_maybe_loop(stream, str(spec.get("file", "")), true)
+	_maybe_loop(stream, str(spec.get("file", "")), bool(spec.get("loop", true)))
 	music.stream = stream
 	music.bus = "Music"
 	music.volume_db = float(spec.get("gain_db", 0.0))

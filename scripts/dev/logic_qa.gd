@@ -345,16 +345,16 @@ func _run_fight(spec: Dictionary, row: Dictionary) -> Dictionary:
 	if main.log_label and main.log_label.has_method("clear_all"):
 		main.log_label.clear_all()
 	var missing: PackedStringArray = PackedStringArray()
-	for mid in spec.get("monsters", []):
-		if not main.monsters_by_id.has(str(mid)):
-			missing.append("monster:%s" % str(mid))
-			continue
-		await main._dev_add_monster(str(mid), false)
 	for iid in spec.get("items", []):
 		if not main.items_by_id.has(str(iid)):
 			missing.append("item:%s" % str(iid))
 			continue
 		main._dev_add_item(str(iid), false)
+	for mid in spec.get("monsters", []):
+		if not main.monsters_by_id.has(str(mid)):
+			missing.append("monster:%s" % str(mid))
+			continue
+		await main._dev_add_monster(str(mid), false)
 	if not missing.is_empty():
 		row["result"] = "blocked"
 		row["observed"] = "cannot spawn %s" % ", ".join(missing)
