@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-10-30T22:55:00-05:00",
+	"updated_at": "2026-11-01T21:45:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"190": {
@@ -127,6 +127,26 @@
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/239",
 			"sha": "19f5e038",
 			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"246": {
+			"status": "todo",
+			"title": "[playtest] Plague Doctor should be Tier 2, same ability/stats",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/246"
+		},
+		"245": {
+			"status": "todo",
+			"title": "[playtest] The poison droplet is way too big, and the number inside the poison \u2026",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/245"
+		},
+		"244": {
+			"status": "todo",
+			"title": "[playtest] When 'Echo Bell' is updated to 'copy' the most recently played item,\u2026",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/244"
+		},
+		"243": {
+			"status": "todo",
+			"title": "[playtest] The 'Beggar' icon is: (1) the wrong simple sprite (doesn't match wha\u2026",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/243"
 		}
 	}
 }

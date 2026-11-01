@@ -97,6 +97,9 @@ func _sprite_hits() -> Array:
 			continue
 		if not (n is CanvasItem) or not (n as CanvasItem).is_visible_in_tree():
 			continue
+		## Verdant ambient edge bands are designed clear of text; skip the group.
+		if _in_ambient_fx(n):
+			continue
 		if _faded(n):
 			continue
 		var rect := Rect2()
@@ -194,6 +197,15 @@ func _drawn_in_front(a: Node, b: Node) -> bool:
 		if za != zb:
 			return za > zb
 	return child_a.get_index() > child_b.get_index()
+
+
+func _in_ambient_fx(n: Node) -> bool:
+	var cur: Node = n
+	while cur:
+		if cur.is_in_group("ambient_fx"):
+			return true
+		cur = cur.get_parent()
+	return false
 
 
 func _is_fx_draw(n: Node) -> bool:
