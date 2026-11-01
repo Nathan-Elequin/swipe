@@ -2,7 +2,7 @@
 id: REQ-20261101-biome-enter-splash
 status: open
 priority: high
-tip_sha: pending
+tip_sha: a2a55e83
 branch: cursor/biome-enter-splash-cfe4
 created: 2026-11-01T21:00:00Z
 created_by: cloud-agent

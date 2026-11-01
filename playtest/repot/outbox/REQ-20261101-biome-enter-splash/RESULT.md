@@ -4,7 +4,7 @@ status: blocked
 fulfilled_by: cloud-agent
 fulfilled_at: 2026-11-01T21:30:00Z
 machine: cursor-cloud
-tip_sha: pending
+tip_sha: a2a55e83
 godot: headless compose (no F5 / no viewport texture)
 ---
 
