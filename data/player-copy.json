@@ -5285,7 +5285,37 @@
 			"status": "STUB",
 			"note": "Trophy Hall - Pixel owns for now",
 			"owner": "Pixel"
+		},
+		{
+			"cat": "Splash",
+			"key": "splash.chrome.biome",
+			"where": "Biome-enter splash · top-left plate (biome name)",
+			"text": "{name}"
+		},
+		{
+			"cat": "Splash",
+			"key": "splash.chrome.dungeon",
+			"where": "Biome-enter splash · top-left stat",
+			"text": "Dungeon {n}"
+		},
+		{
+			"cat": "Splash",
+			"key": "splash.chrome.delves",
+			"where": "Biome-enter splash · top-left stat",
+			"text": "Delves: {n}"
+		},
+		{
+			"cat": "Splash",
+			"key": "splash.chrome.continue",
+			"where": "Biome-enter splash · leaf cue",
+			"text": "click anytime"
+		},
+		{
+			"cat": "Splash",
+			"key": "splash.biome.verdant_hollow",
+			"where": "Biome-enter splash · narration · Verdant Hollow",
+			"text": "The Hollow breathes green under Mount Grumblegut. Moss drinks what little light sneaks in. The path ahead is soft, damp, and already listening."
 		}
 	],
-	"updated": "2026-10-28"
+	"updated": "2026-11-01"
 }
