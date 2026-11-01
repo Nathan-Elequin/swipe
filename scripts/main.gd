@@ -458,6 +458,7 @@ var _stone_saved: int = 0
 var _stone_armed: bool = false
 var _saucer_blk_due: int = 0
 var last_item_copy: Dictionary = {}
+var _pending_echo_snap: Dictionary = {}
 var silenced: Dictionary = {}
 var session_log = SESSION_LOG.new()
 var pending_feed: Dictionary = {}
@@ -3526,6 +3527,10 @@ func _prep_next_dungeon() -> void:
 		it["spent"] = false
 		it["keep_after"] = false
 		it["siphon_blk"] = 0
+		if str(it.get("card_id", "")) == "lantern":
+			_lantern_set_n(it, 1)
+		if str(it.get("card_id", "")) == "echo_bell":
+			continue
 		if str(_ops_of(it).get("kind", "")) == "atk_alt_24":
 			it["alt_n"] = 2
 		if str(_ops_of(it).get("kind", "")) == "shield_alt":
@@ -9227,6 +9232,8 @@ func _ops_of(it: Dictionary) -> Dictionary:
 func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 	last_atk_index = -1
 	last_atk_line = ""
+	if str(it.get("card_id", "")) != "echo_bell":
+		_pending_echo_snap = _item_echo_snapshot(it)
 	var m: Dictionary = wheel[facing_index]
 	var kind: String = str(ops.get("kind", ""))
 	if kind == "move2_keep" and not _jar_can_move():
@@ -11322,6 +11329,14 @@ func _item_uid_in_hand(uid: int) -> bool:
 	return not _find_item(uid).is_empty()
 
 
+func _beggar_stamp_tex() -> Texture2D:
+	if art != null and art.has_method("monster_still"):
+		var tex: Texture2D = art.monster_still("beggar")
+		if tex != null:
+			return tex
+	return tex_by_monster.get("beggar", null)
+
+
 func _beggar_phase_ok() -> bool:
 	return phase == "ready" or phase == "fighting" or phase == "devtest"
 
@@ -12696,6 +12711,8 @@ func _flip_alt_sais() -> void:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
+		if str(it.get("card_id", "")) == "echo_bell":
+			continue
 		if str(_ops_of(it).get("kind", "")) != "atk_alt_24":
 			continue
 		var old_n: int = int(it.get("alt_n", 2))
@@ -12730,6 +12747,8 @@ func _set_shield_face(it: Dictionary, face: String) -> void:
 func _flip_shield_faces() -> void:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) == "echo_bell":
 			continue
 		if str(_ops_of(it).get("kind", "")) != "shield_alt":
 			continue
@@ -15134,6 +15153,23 @@ func _apply_napalm() -> bool:
 
 
 func _item_snapshot(it: Dictionary) -> Dictionary:
+	return _item_echo_snapshot(it)
+
+
+func _echo_flatten_kind(kind: String, shield_face: String) -> String:
+	match kind:
+		"atk_hp_loss", "atk_spins", "atk_alt_24", "atk_echo":
+			return "atk"
+		"blk_siphon", "blk_from_hp", "blk_from_highest_atk", "blk_half_atk", "blk_from_atk", "blk_keep", "blk_even_keep", "blk_min_hp", "blk_neighbor":
+			return "blk"
+		"heal_keep", "heal_kills", "heal_swap_keep":
+			return "heal"
+		"shield_alt":
+			return "atk" if shield_face == "atk" else "blk"
+	return ""
+
+
+func _item_echo_snapshot(it: Dictionary) -> Dictionary:
 	var ops: Dictionary = {}
 	var raw: Variant = it.get("ops", {})
 	if typeof(raw) == TYPE_DICTIONARY and not (raw as Dictionary).is_empty():
@@ -15142,6 +15178,14 @@ func _item_snapshot(it: Dictionary) -> Dictionary:
 		var oid: String = str(it.get("card_id", ""))
 		if ITEM_OPS.has(oid):
 			ops = (ITEM_OPS[oid] as Dictionary).duplicate(true)
+	var view: Dictionary = _item_view(it)
+	var frozen_n: int = int(view.get("n", 0))
+	var kind: String = str(ops.get("kind", ""))
+	var flat: String = _echo_flatten_kind(kind, str(it.get("shield_face", "")))
+	if flat != "":
+		ops = {"kind": flat, "n": frozen_n}
+	elif frozen_n > 0 and ops.has("n"):
+		ops["n"] = frozen_n
 	return {
 		"card_id": str(it.get("card_id", "")),
 		"name": str(it.get("name", "")),
@@ -15149,6 +15193,9 @@ func _item_snapshot(it: Dictionary) -> Dictionary:
 		"explainer": str(it.get("explainer", "")),
 		"ops": ops,
 		"shield_face": str(it.get("shield_face", "")),
+		"siphon_blk": frozen_n if kind == "blk_siphon" else int(it.get("siphon_blk", 0)),
+		"echo_silent": true,
+		"echo_frozen_n": frozen_n,
 	}
 
 
@@ -15164,13 +15211,16 @@ func _echo_face(it: Dictionary) -> Dictionary:
 
 
 func _remember_item_use(it: Dictionary) -> void:
-	var snap: Dictionary = _item_snapshot(it)
+	var snap: Dictionary = {}
 	if str(it.get("card_id", "")) == "echo_bell":
 		var face: Dictionary = _echo_face(it)
 		if not face.is_empty():
-			snap = _item_snapshot(face) if face.has("uid") else face.duplicate(true)
-			if not snap.has("ops"):
-				snap = face.duplicate(true)
+			snap = face.duplicate(true)
+	elif not _pending_echo_snap.is_empty():
+		snap = _pending_echo_snap.duplicate(true)
+	else:
+		snap = _item_echo_snapshot(it)
+	_pending_echo_snap.clear()
 	if str(snap.get("card_id", "")) == "echo_bell" or snap.is_empty():
 		return
 	last_item_copy = snap.duplicate(true)
@@ -23102,7 +23152,7 @@ func _sync_hotbar() -> void:
 			var fresh: bool = home_cabin != null and cid != "" and not home_cabin.is_swiped(cid) and not BucketRules.is_token(items_by_id.get(cid, {}))
 			card.set_cabinet_badge(fresh, PLAYER_COPY.text("cabin.tip.new", "New!"), PLAYER_COPY.text("cabin.tip.seen", "Seen in {the_grumble}. Not home yet."))
 		if card.has_method("set_beggar_mark"):
-			card.set_beggar_mark(_beggar_marked(uid_n))
+			card.set_beggar_mark(_beggar_marked(uid_n), _beggar_stamp_tex())
 		if card.has_method("set_atk_pip"):
 			card.set_atk_pip(_number_is_atk(view, pn))
 		if card.has_method("set_hp_cost"):

@@ -655,7 +655,7 @@ func _draw_hub_poison_badge(font: Font, dim: float) -> void:
 		anchor = pts[int(pts.size() / 2)] + Vector2(54, 0)
 	var bob: float = 0.0 if hub_poison_locked else (2.0 * sin(_glow_t * 4.0))
 	anchor.y += bob
-	var sz := Vector2(80, 80)
+	var sz := Vector2(40, 40)
 	# PixelLab drip/burst art already has its purple ramp — draw unmodulated.
 	var art_col := Color(1, 1, 1, dim)
 	var legacy_col := Color("7dba7d", dim)
@@ -665,18 +665,18 @@ func _draw_hub_poison_badge(font: Font, dim: float) -> void:
 		drip_tex = _poison_drip[fi]
 	if drip_tex != null:
 		var ink := Color("100e0c", dim)
-		var rim: Vector2 = sz + Vector2(8, 8)
+		var rim: Vector2 = sz + Vector2(4, 4)
 		draw_texture_rect(drip_tex, Rect2(anchor - rim * 0.5, rim), false, ink)
 		draw_texture_rect(drip_tex, Rect2(anchor - sz * 0.5, sz), false, art_col)
 	else:
 		var tex: Texture2D = _poison_tex()
 		if tex != null:
-			draw_texture_rect(tex, Rect2(anchor - Vector2(20, 20), Vector2(40, 40)), false, Color("100e0c", dim))
-			draw_texture_rect(tex, Rect2(anchor - Vector2(16, 16), Vector2(32, 32)), false, legacy_col)
+			draw_texture_rect(tex, Rect2(anchor - Vector2(12, 12), Vector2(24, 24)), false, Color("100e0c", dim))
+			draw_texture_rect(tex, Rect2(anchor - Vector2(10, 10), Vector2(20, 20)), false, legacy_col)
 		else:
-			draw_circle(anchor, 14.0, Color("100e0c", dim))
-			draw_circle(anchor, 10.0, legacy_col)
-	_draw_bold_num(font, anchor + Vector2(22, 4), str(hub_poison), 18, Color("d8f0d0", dim))
+			draw_circle(anchor, 8.0, Color("100e0c", dim))
+			draw_circle(anchor, 6.0, legacy_col)
+	_draw_bold_num(font, anchor, str(hub_poison), 14, Color("d8f0d0", dim))
 	if hub_poison_locked and _poison_lock_tex != null:
 		draw_texture_rect(_poison_lock_tex, Rect2(anchor + Vector2(10, 8), Vector2(12, 12)), false, Color(1, 1, 1, dim))
 
@@ -3743,7 +3743,7 @@ func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool, idx:
 	var sc: float = float(_poison_badge_scale.get(idx, 1.0)) if idx >= 0 else 1.0
 	if clear_t > 0.01:
 		sc *= clear_t
-	var base_sz := Vector2(64, 64) if big else Vector2(56, 56)
+	var base_sz := Vector2(32, 32) if big else Vector2(28, 28)
 	var sz: Vector2 = base_sz * sc
 	var art_col := Color.WHITE
 	var legacy_col := Color("7dba7d")
@@ -3754,7 +3754,7 @@ func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool, idx:
 	var ci := _d()
 	if drip_tex != null:
 		var ink := Color("100e0c", art_col.a)
-		var rim: Vector2 = sz + Vector2(10, 10)
+		var rim: Vector2 = sz + Vector2(5, 5)
 		ci.draw_texture_rect(drip_tex, Rect2(drop_pos - rim * 0.5, rim), false, ink)
 		ci.draw_texture_rect(drip_tex, Rect2(drop_pos - sz * 0.5, sz), false, art_col)
 	else:
@@ -3766,7 +3766,7 @@ func _draw_poison_badge(font: Font, pos: Vector2, s: Dictionary, big: bool, idx:
 			ci.draw_circle(drop_pos, 8.0 * sc if big else 7.0 * sc, Color("100e0c"))
 			ci.draw_circle(drop_pos, 6.0 * sc if big else 5.0 * sc, legacy_col)
 	if n > 0:
-		_draw_bold_num(font, drop_pos + Vector2(16.0 * sc, 2.0), str(n), 16 if big else 14, Color("d8f0d0"))
+		_draw_bold_num(font, drop_pos, str(n), 12 if big else 11, Color("d8f0d0"))
 	if locked and _poison_lock_tex != null:
 		var lz := Vector2(12, 12) if big else Vector2(10, 10)
 		ci.draw_texture_rect(_poison_lock_tex, Rect2(drop_pos + Vector2(6, 4) - lz * 0.5, lz), false, Color.WHITE)

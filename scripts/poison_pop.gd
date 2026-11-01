@@ -35,7 +35,7 @@ func setup(main: Node) -> void:
 	_burst.texture_filter = TEXTURE_FILTER_NEAREST
 	_burst.centered = true
 	_burst.visible = false
-	_burst.scale = Vector2(4, 4)
+	_burst.scale = Vector2(2, 2)
 	var frames := SpriteFrames.new()
 	frames.add_animation("burst")
 	frames.set_animation_speed("burst", 20.0)
@@ -65,7 +65,7 @@ func setup(main: Node) -> void:
 		drip.texture_filter = TEXTURE_FILTER_NEAREST
 		drip.centered = true
 		drip.visible = false
-		drip.scale = Vector2(4, 4)
+		drip.scale = Vector2(2, 2)
 		var df := SpriteFrames.new()
 		df.add_animation("drip")
 		df.set_animation_speed("drip", 12.5)
@@ -109,10 +109,10 @@ func _play_burst(from: Vector2, to: Vector2, n: int, heart_drips: bool) -> void:
 	# Swell is drawn on the wheel badge via meta; local burst sprite carries the pop.
 	global_position = Vector2.ZERO
 	_burst.global_position = from
-	_burst.scale = Vector2(4, 4)
+	_burst.scale = Vector2(2, 2)
 	_burst.visible = true
 	var swell := create_tween()
-	swell.tween_property(_burst, "scale", Vector2(5.6, 5.6), 0.10)
+	swell.tween_property(_burst, "scale", Vector2(2.8, 2.8), 0.10)
 	await swell.finished
 	if _burst.sprite_frames != null and _burst.sprite_frames.get_frame_count("burst") > 0:
 		_burst.play("burst")

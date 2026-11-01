@@ -1150,16 +1150,20 @@ func set_choice_badge(text: String) -> void:
 	lab.position = Vector2(maxf(4.0, face_w - w - 8.0), 2.0)
 
 
-func set_beggar_mark(on: bool) -> void:
+func set_beggar_mark(on: bool, tex: Texture2D = null) -> void:
 	_beggar_on = on
 	if on:
 		var lab := _ensure_beggar_label()
-		lab.visible = true
+		lab.visible = false
+		if tex != null and _beggar_icon != null:
+			_beggar_icon.texture = tex
 		if _beggar_icon:
 			_beggar_icon.visible = true
+			_beggar_icon.tooltip_text = "When you Spin the Beggar, this Item will be Discarded"
 		# Direction A: thin WARNING outline (not the old overloaded ember).
 		if _aura_role != AURA_WARN:
 			set_aura_role(AURA_WARN)
+		_place_beggar_label()
 	elif _beggar_lab != null:
 		_beggar_lab.visible = false
 		if _beggar_icon:
@@ -1190,10 +1194,12 @@ func _ensure_beggar_label() -> Label:
 		_beggar_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		_beggar_icon.texture_filter = TEXTURE_FILTER_NEAREST
 		_beggar_icon.z_index = 9
-		_beggar_icon.custom_minimum_size = Vector2(36, 36)
+		_beggar_icon.custom_minimum_size = Vector2(28, 28)
 		if ResourceLoader.exists("res://assets/dungeon/extra/beggar.png"):
 			_beggar_icon.texture = load("res://assets/dungeon/extra/beggar.png") as Texture2D
 		add_child(_beggar_icon)
+		if not resized.is_connected(_place_beggar_label):
+			resized.connect(_place_beggar_label)
 	var lab := Label.new()
 	lab.name = "BeggarMark"
 	lab.text = "Beggar"
@@ -1220,11 +1226,12 @@ func _ensure_beggar_label() -> Label:
 func _place_beggar_label() -> void:
 	var face_w: float = size.x if size.x > 8.0 else (SHOW_W if _showcase else CARD_W)
 	if _beggar_icon != null:
-		_beggar_icon.position = Vector2(face_w - 40.0, 2.0)
-		_beggar_icon.size = Vector2(36, 36)
+		_beggar_icon.position = Vector2(face_w - 30.0, 2.0)
+		_beggar_icon.size = Vector2(28, 28)
 	if _beggar_lab == null:
 		return
-	_beggar_lab.position = Vector2(face_w - 84.0, 36.0)
+	_beggar_lab.visible = false
+	_beggar_lab.position = Vector2(face_w - 84.0, 32.0)
 
 
 func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
@@ -1767,7 +1774,6 @@ func _draw() -> void:
 		# Thin WARNING dashed outline (Direction A) — flash still punches the mark.
 		var flash: float = clampf(_beggar_flash, 0.0, 1.0)
 		_draw_dashed_ring(COL_WARN.lerp(Color("ffe08a"), flash * 0.35), 2.0 + flash * 1.5, 0.0)
-		_place_beggar_label()
 	if _glow:
 		var period: float = 1.45 if _tier <= 1 else (1.05 if _tier == 2 else 0.72)
 		var pulse: float = 0.50 + 0.50 * absf(sin(_glow_t * TAU / period))

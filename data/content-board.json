@@ -5509,7 +5509,7 @@
 			"log_hint": "Each Spin: +1 Poison to you and every monster",
 			"mode_pool": "all",
 			"name": "Plague Doctor",
-			"notes": "SP-30. Pool 4 T1. Every Spin +1 you and every living monster including me. Each copy. Freeze gone. ATK 1.",
+			"notes": "SP-30. Pool 4 T2. Every Spin +1 you and every living monster including me. Each copy. Freeze gone. ATK 1.",
 			"ops": {},
 			"pool": 4.0,
 			"priority": 3.0,
@@ -5518,7 +5518,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "todo",
-			"tier": 1.0
+			"tier": 2.0
 		},
 		{
 			"ability": "If you Discard an item when facing me, I will Attack one of my Neighbors and Flee.",
