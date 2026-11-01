@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-01T21:55:00Z",
+	"updated_at": "2026-11-01T22:15:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"190": {
@@ -128,30 +128,40 @@
 			"sha": "19f5e038",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
-		"246": {
-			"status": "todo",
-			"title": "[playtest] Plague Doctor should be Tier 2, same ability/stats",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/246"
-		},
-		"245": {
-			"status": "todo",
-			"title": "[playtest] The poison droplet is way too big, and the number inside the poison \u2026",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/245"
+		"243": {
+			"status": "closed",
+			"title": "Beggar stamp uses wheel sprite; no idle flicker overlay",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/243",
+			"sha": "f5cd9cc1",
+			"closed_note": "Nathan asked to close after implement."
 		},
 		"244": {
-			"status": "todo",
-			"title": "[playtest] When 'Echo Bell' is updated to 'copy' the most recently played item,\u2026",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/244"
+			"status": "closed",
+			"title": "Echo Bell copies silenced snapshot of last play",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/244",
+			"sha": "f5cd9cc1",
+			"closed_note": "Nathan asked to close after implement."
 		},
-		"243": {
-			"status": "todo",
-			"title": "[playtest] The 'Beggar' icon is: (1) the wrong simple sprite (doesn't match wha\u2026",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/243"
+		"245": {
+			"status": "closed",
+			"title": "Poison droplet 50% smaller; number centered",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/245",
+			"sha": "f5cd9cc1",
+			"closed_note": "Nathan asked to close after implement."
+		},
+		"246": {
+			"status": "closed",
+			"title": "Plague Doctor Tier 2",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/246",
+			"sha": "f5cd9cc1",
+			"closed_note": "Nathan asked to close after implement."
 		},
 		"249": {
-			"status": "todo",
-			"title": "[playtest] Lantern's scaling number (heal 1, then 2) should reset when taken in\u2026",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/249"
+			"status": "closed",
+			"title": "Lantern heal scaling resets next dungeon",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/249",
+			"sha": "f5cd9cc1",
+			"closed_note": "Nathan asked to close after implement."
 		}
 	}
 }
