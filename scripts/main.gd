@@ -728,6 +728,11 @@ var btn_move_left: Button
 var btn_move_right: Button
 var adventure_seat_tiers: Array = [1, 1, 1, 1, 1, 1]
 var _adventure_busy: bool = false
+## Biome-enter splash: blocks double map clicks while dissolve / nest runs.
+var _splash_busy: bool = false
+## Wheel nest drop offset (px). `_layout_play_field` adds this to wheel_y; do not tween position directly.
+var _wheel_nest_offset: float = 0.0
+var _biome_wipe: ColorRect
 var dungeon_deck_ui
 var challenge_draft_ui
 var btn_challenge_begin: Button
@@ -2577,13 +2582,15 @@ func _adventure_leave() -> void:
 	_log("end", "leave")
 	if sfx:
 		sfx.play("whoosh", -10.0, 0.9)
-	await get_tree().create_timer(0.45).timeout
+	# Soft dissolve out matching enter. No splash. Music calls unchanged.
+	await _biome_dissolve_out()
 	if _campaign_on:
 		await _campaign_bank_from_hand()
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
 	_open_home_cabin(true, "win", news, ids)
+	await _biome_dissolve_reveal()
 	_adventure_busy = false
 
 
@@ -2616,7 +2623,8 @@ func _push_interrupt_home() -> void:
 	_log("end", "push_block_home")
 	if sfx:
 		sfx.play("whoosh", -10.0, 0.9)
-	await _dissolve_to_black(0.6)
+	# Soft dissolve out matching enter (0.35s #0B0706). No splash.
+	await _biome_dissolve_out()
 	if _campaign_on:
 		await _campaign_bank_from_hand()
 	_cabin_from_leave = true
@@ -2636,7 +2644,7 @@ func _push_interrupt_home() -> void:
 		_hide_fight_hover()
 	else:
 		_open_home_cabin(true, "win", news, ids)
-	await _fade_from_black(0.35)
+	await _biome_dissolve_reveal()
 	_adventure_busy = false
 
 
@@ -2804,9 +2812,130 @@ func _on_map_peek_closed() -> void:
 
 
 func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
+	if _splash_busy:
+		return
+	_splash_busy = true
+	if campaign_map:
+		campaign_map.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var splash = null
+	var biome_id := _campaign_biome_id_for_start(index, endless)
+	var biome_name := ""
+	if _campaign != null:
+		biome_name = CAMPAIGN_SHELL.biome_name(_campaign.rules, biome_id)
+	var dungeon_n: int = 1 if endless else index + 1
+	var delves_n: int = 0
+	if home_cabin != null:
+		delves_n = int(home_cabin.counters.get("delves", 0))
+	var ctx := {
+		"biome_id": biome_id,
+		"biome_name": biome_name,
+		"dungeon_index": dungeon_n,
+		"delves": delves_n,
+	}
+	var BiomeSplash = load("res://scripts/ui/biome_splash.gd")
+	var want_splash: bool = (not endless) and BiomeSplash != null and BiomeSplash.has_narration(biome_name)
+	var used_map_wipe := false
+	if want_splash:
+		splash = BiomeSplash.new()
+		add_child(splash)
+		# Music exactly once at splash appear. Native music_to only. Never re-fire on skip/nest.
+		if sfx and sfx.has_method("music_biome_dungeon"):
+			sfx.music_biome_dungeon(biome_id)
+		await splash.play_in(biome_id, ctx)
+	else:
+		if not endless and sfx and sfx.has_method("music_biome_dungeon"):
+			sfx.music_biome_dungeon(biome_id)
+		# Soft dissolve of the map (no splash). Stay covered until setup + reveal.
+		await _biome_dissolve_out(0.35)
+		used_map_wipe = true
 	if campaign_map:
 		campaign_map.hide_map()
-	await _begin_campaign_delve(index, shortcut, endless)
+		campaign_map.mouse_filter = Control.MOUSE_FILTER_STOP
+	await _begin_campaign_delve(index, shortcut, endless, splash, used_map_wipe)
+	_splash_busy = false
+
+
+func _campaign_biome_id_for_start(index: int, endless: bool) -> String:
+	if _campaign == null:
+		return "b1"
+	if endless:
+		return str(_campaign.rules.get("endless", {}).get("id", "endless"))
+	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_campaign.rules)
+	if index < 0 or index >= biomes.size():
+		return "b1"
+	return str((biomes[index] as Dictionary).get("id", "b1"))
+
+
+func _ensure_biome_wipe() -> ColorRect:
+	if _biome_wipe != null and is_instance_valid(_biome_wipe):
+		return _biome_wipe
+	_biome_wipe = ColorRect.new()
+	_biome_wipe.name = "BiomeWipe"
+	_biome_wipe.color = Color("0B0706")
+	_biome_wipe.modulate.a = 0.0
+	_biome_wipe.visible = false
+	_biome_wipe.set_anchors_preset(PRESET_FULL_RECT)
+	_biome_wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_biome_wipe.z_index = 85
+	add_child(_biome_wipe)
+	return _biome_wipe
+
+
+## Leave-biome soft dissolve (no splash). Fade to #0B0706 over 0.35s TRANS_SINE.
+## Caller swaps the scene, then calls `_biome_dissolve_reveal()`.
+func _biome_dissolve_out(seconds: float = 0.35) -> void:
+	var wipe := _ensure_biome_wipe()
+	wipe.visible = true
+	wipe.mouse_filter = Control.MOUSE_FILTER_STOP
+	wipe.modulate.a = 0.0
+	var tw := create_tween()
+	tw.set_trans(Tween.TRANS_SINE)
+	tw.set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(wipe, "modulate:a", 1.0, seconds)
+	await tw.finished
+
+
+func _biome_dissolve_reveal(seconds: float = 0.35) -> void:
+	var wipe := _ensure_biome_wipe()
+	if not wipe.visible:
+		return
+	var tw := create_tween()
+	tw.set_trans(Tween.TRANS_SINE)
+	tw.set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(wipe, "modulate:a", 0.0, seconds)
+	await tw.finished
+	wipe.visible = false
+	wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+## Wheel nests from one wheel-height above rest. Input locked until settle.
+func _nest_wheel() -> void:
+	if wheel_view == null:
+		return
+	_layout_play_field()
+	var side: float = maxf(120.0, wheel_view.size.y)
+	var lock := Control.new()
+	lock.name = "NestInputLock"
+	lock.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	lock.mouse_filter = Control.MOUSE_FILTER_STOP
+	lock.z_index = 80
+	add_child(lock)
+	_wheel_nest_offset = -side
+	_layout_play_field()
+	var tw := create_tween()
+	tw.set_trans(Tween.TRANS_BACK)
+	tw.set_ease(Tween.EASE_OUT)
+	tw.tween_method(_set_wheel_nest_offset, -side, 0.0, 0.45)
+	await tw.finished
+	_wheel_nest_offset = 0.0
+	_layout_play_field()
+	if is_instance_valid(lock):
+		lock.queue_free()
+
+
+func _set_wheel_nest_offset(v: float) -> void:
+	_wheel_nest_offset = v
+	_layout_play_field()
 
 
 func _on_campaign_cheat(action: String) -> void:
@@ -2831,7 +2960,7 @@ func _on_campaign_cheat(action: String) -> void:
 	_open_campaign_map()
 
 
-func _begin_campaign_delve(index: int, shortcut: bool, endless: bool) -> void:
+func _begin_campaign_delve(index: int, shortcut: bool, endless: bool, splash = null, used_map_wipe: bool = false) -> void:
 	_session("scene", "campaign")
 	_hide_cabin_for_run()
 	_reset_run()
@@ -2854,14 +2983,18 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool) -> void:
 	draft_action = "busy"
 	_log("on_click", "Campaign")
 	_log("var", "HP %s" % hp)
-	# Verdant Hollow (b1): intro once, then loop for the delve. Other biomes keep combat bed.
-	if sfx and sfx.has_method("music_biome_dungeon") and not endless:
-		var biome_id := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
-		sfx.music_biome_dungeon(biome_id)
+	# music_biome_dungeon moved to splash appear in `_on_campaign_start` (exactly once per map enter).
+	# Leave `_adventure_continue` music alone — push-deeper is not a map enter.
 	_refresh()
 	await _reveal_new_buckets()
 	_fill_challenge_pools()
 	_empty_wheel(CHALLENGE_SEATS)
+	if splash != null and is_instance_valid(splash):
+		await splash.wait_dismissed()
+		await splash.play_out()
+	elif used_map_wipe:
+		await _biome_dissolve_reveal(0.20)
+	await _nest_wheel()
 	await _campaign_arm_delve()
 	await _run_challenge_setup()
 	if draft_action == "challenge_begin":
@@ -3086,21 +3219,26 @@ func _campaign_draft_decision() -> Dictionary:
 
 
 func _go_home_loss() -> void:
+	# Tip #247: clear Verdant ambient. Splash: soft dissolve out, no splash.
 	_sync_biome_ambient("", true)
+	await _biome_dissolve_out()
 	_campaign_abort()
 	_reset_run()
 	phase = "title"
 	_open_home_cabin(true, "loss", [], [])
+	await _biome_dissolve_reveal()
 
 
 func _give_up() -> void:
 	_sync_biome_ambient("", true)
+	await _biome_dissolve_out()
 	_campaign_abort()
 	_reset_run()
 	phase = "title"
 	_open_home_cabin(true, "loss", [], [])
 	if home_cabin:
 		home_cabin._arrive_skip = 2
+	await _biome_dissolve_reveal()
 
 
 func _rope_deeper() -> void:
@@ -21678,6 +21816,8 @@ func _layout_play_field() -> void:
 	var wheel_y: float = top_need
 	if tray != null and tray.visible:
 		wheel_y = maxf(wheel_y, tray.position.y + tray.size.y + 8.0)
+	# Biome-enter nest: offset is tweened; never tween wheel_view.position directly.
+	wheel_y += _wheel_nest_offset
 	wheel_view.custom_minimum_size = Vector2(side, side)
 	wheel_view.position = Vector2(x, wheel_y)
 	wheel_view.size = Vector2(side, side)
