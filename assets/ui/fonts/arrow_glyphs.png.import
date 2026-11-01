@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b7arrowglyphs01"
-path="res://.godot/imported/arrow_glyphs.png-sp020405.ctex"
+uid="uid://c35wrphu466ii"
+path="res://.godot/imported/arrow_glyphs.png-2f9e122dad9f38fc5e652f679a6c3942.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/fonts/arrow_glyphs.png"
-dest_files=["res://.godot/imported/arrow_glyphs.png-sp020405.ctex"]
+dest_files=["res://.godot/imported/arrow_glyphs.png-2f9e122dad9f38fc5e652f679a6c3942.ctex"]
 
 [params]
 

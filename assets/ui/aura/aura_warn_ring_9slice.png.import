@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c83359afa7e87f"
-path="res://.godot/imported/aura_warn_ring_9slice.png-83359afa7e87f.ctex"
+uid="uid://bmijwsiqi5iij"
+path="res://.godot/imported/aura_warn_ring_9slice.png-baa4c66e79f437af4cacc2e23bf8e0ec.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/aura/aura_warn_ring_9slice.png"
-dest_files=["res://.godot/imported/aura_warn_ring_9slice.png-83359afa7e87f.ctex"]
+dest_files=["res://.godot/imported/aura_warn_ring_9slice.png-baa4c66e79f437af4cacc2e23bf8e0ec.ctex"]
 
 [params]
 

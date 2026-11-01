@@ -2,13 +2,13 @@
 
 importer="oggvorbisstr"
 type="AudioStreamOggVorbis"
-uid="uid://cvhvictoryoutro1"
-path="res://.godot/imported/music_verdant_hollow_victory.ogg-a8f3c2d91b0e47f1a6c5d4e3b2a19087.oggvorbisstr"
+uid="uid://dpr8qgwdelff3"
+path="res://.godot/imported/music_verdant_hollow_victory.ogg-3a6188adf16c090851fc2aa05b012fd4.oggvorbisstr"
 
 [deps]
 
 source_file="res://assets/audio/music_verdant_hollow_victory.ogg"
-dest_files=["res://.godot/imported/music_verdant_hollow_victory.ogg-a8f3c2d91b0e47f1a6c5d4e3b2a19087.oggvorbisstr"]
+dest_files=["res://.godot/imported/music_verdant_hollow_victory.ogg-3a6188adf16c090851fc2aa05b012fd4.oggvorbisstr"]
 
 [params]
 

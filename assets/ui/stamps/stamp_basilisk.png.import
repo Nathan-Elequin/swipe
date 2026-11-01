@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://caff24d9fe5962"
-path="res://.godot/imported/stamp_basilisk.png-aff24d9fe5962.ctex"
+uid="uid://cpia3fm4sqfb2"
+path="res://.godot/imported/stamp_basilisk.png-e58cfc9a4dc8827435f9cd6cbc718dbe.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/stamps/stamp_basilisk.png"
-dest_files=["res://.godot/imported/stamp_basilisk.png-aff24d9fe5962.ctex"]
+dest_files=["res://.godot/imported/stamp_basilisk.png-e58cfc9a4dc8827435f9cd6cbc718dbe.ctex"]
 
 [params]
 

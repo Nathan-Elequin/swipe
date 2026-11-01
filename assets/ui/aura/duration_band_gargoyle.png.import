@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c9b52f9d320d99"
-path="res://.godot/imported/duration_band_gargoyle.png-9b52f9d320d99.ctex"
+uid="uid://btkf3shkeqmle"
+path="res://.godot/imported/duration_band_gargoyle.png-dc56ebbbf92f8098a81708f2f5251510.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/aura/duration_band_gargoyle.png"
-dest_files=["res://.godot/imported/duration_band_gargoyle.png-9b52f9d320d99.ctex"]
+dest_files=["res://.godot/imported/duration_band_gargoyle.png-dc56ebbbf92f8098a81708f2f5251510.ctex"]
 
 [params]
 

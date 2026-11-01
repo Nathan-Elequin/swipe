@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7ea9f0ff8978a"
-path="res://.godot/imported/hatch_diag_8px.png-7ea9f0ff8978a.ctex"
+uid="uid://dq3iolf448da5"
+path="res://.godot/imported/hatch_diag_8px.png-4756277a78b31b6d0990a63c99e13d16.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/aura/hatch_diag_8px.png"
-dest_files=["res://.godot/imported/hatch_diag_8px.png-7ea9f0ff8978a.ctex"]
+dest_files=["res://.godot/imported/hatch_diag_8px.png-4756277a78b31b6d0990a63c99e13d16.ctex"]
 
 [params]
 
