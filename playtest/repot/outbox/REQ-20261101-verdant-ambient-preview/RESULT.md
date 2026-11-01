@@ -4,7 +4,7 @@ status: blocked
 fulfilled_by: cursor-cloud
 fulfilled_at: 2026-11-01T21:40:00Z
 machine: cursor-cloud
-tip_sha: 6026b947
+tip_sha: b1d9b90a
 godot: unavailable in this cloud image
 ---
 

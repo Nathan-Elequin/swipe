@@ -4,7 +4,7 @@ status: open
 priority: high
 branch: cursor/verdant-ambient-preview-0417
 base: playtest/latest
-tip_sha: 6026b947
+tip_sha: b1d9b90a
 created: 2026-11-01T21:40:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
