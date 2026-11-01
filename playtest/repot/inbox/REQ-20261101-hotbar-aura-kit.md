@@ -3,6 +3,7 @@ id: REQ-20261101-hotbar-aura-kit
 status: open
 priority: high
 branch: cursor/hotbar-aura-kit-9c33
+tip_sha: 8b8a0598
 base: playtest/latest
 created: 2026-11-01T20:30:00Z
 created_by: cursor-cloud
