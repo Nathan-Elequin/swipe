@@ -21,6 +21,7 @@ const MONSTER_LINES := preload("res://scripts/monster_lines.gd")
 const P1 := preload("res://scripts/spinheritance_p1.gd")
 const SP_DALLAS := preload("res://scripts/sp_dallas_pack.gd")
 const DUNGEON_BG := preload("res://scripts/dungeon_bg.gd")
+const BIOME_AMBIENT := preload("res://scripts/fx/biome_ambient.gd")
 const COMBAT_STAGE := preload("res://scripts/combat_stage.gd")
 const PLAYER_STAGE := preload("res://scripts/player_stage.gd")
 const MOVE_ARROW := preload("res://scripts/ui/move_arrow.gd")
@@ -508,6 +509,7 @@ var tex_by_item: Dictionary = {}
 var tex_special: Dictionary = {}
 var art
 var dungeon_bg
+var biome_ambient
 var combat_stage
 var player_stage
 ## hub, leaving, entering, stage, returning, hub_in
@@ -826,6 +828,53 @@ func _covering_cli_ids() -> String:
 	return ""
 
 
+func _ambient_cli_default() -> bool:
+	## --ambient=on|off overrides AMBIENT_DEFAULT_ON for paired off/on shots.
+	for arg in OS.get_cmdline_user_args():
+		var text := str(arg).strip_edges().to_lower()
+		if text == "--ambient=off" or text == "--ambient=0" or text == "--ambient=false":
+			return false
+		if text == "--ambient=on" or text == "--ambient=1" or text == "--ambient=true":
+			return true
+	return BIOME_AMBIENT.AMBIENT_DEFAULT_ON
+
+
+func _sync_biome_ambient(biome_id: String = "", force_off: bool = false) -> void:
+	if biome_ambient == null:
+		return
+	if force_off:
+		biome_ambient.clear()
+		return
+	var endless := _campaign_on and _campaign != null and bool(_campaign.state.get("run", {}).get("endless", false))
+	if endless or not _campaign_on:
+		biome_ambient.clear()
+		return
+	var id := str(biome_id).strip_edges()
+	if id == "" and _campaign != null:
+		id = CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	biome_ambient.set_biome(id)
+	_forward_ambient_avoids()
+
+
+func _forward_ambient_avoids() -> void:
+	if biome_ambient == null:
+		return
+	var rects: Array = []
+	if wheel_view != null and wheel_view.is_inside_tree():
+		rects.append(wheel_view.get_global_rect())
+	if hotbar_wrap != null and hotbar_wrap.is_inside_tree() and hotbar_wrap.visible:
+		rects.append(hotbar_wrap.get_global_rect())
+	if choice_box != null and choice_box.is_inside_tree() and choice_box.visible:
+		rects.append(choice_box.get_global_rect())
+	if cue_label != null and cue_label.is_inside_tree() and cue_label.visible:
+		rects.append(cue_label.get_global_rect())
+	if challenge_draft_ui != null and challenge_draft_ui.is_inside_tree() and challenge_draft_ui.visible:
+		rects.append(challenge_draft_ui.get_global_rect())
+	if tray != null and tray.is_inside_tree() and tray.visible:
+		rects.append(tray.get_global_rect())
+	biome_ambient.set_avoid_rects(rects)
+
+
 func _scenarios_cli_ids() -> String:
 	for arg in OS.get_cmdline_user_args():
 		var text := str(arg)
@@ -1137,6 +1186,12 @@ func _build_ui() -> void:
 	dungeon_bg = DUNGEON_BG.new()
 	add_child(dungeon_bg)
 	dungeon_bg.setup(art)
+	## Verdant Hollow ambient kit (b1 only). Same parent as dungeon_bg so z
+	## compares directly with hall (-8) and wheel (0). Off = pixel-identical.
+	biome_ambient = BIOME_AMBIENT.new()
+	add_child(biome_ambient)
+	biome_ambient.setup(Vector2(1680, 1040))
+	biome_ambient.set_enabled(_ambient_cli_default())
 
 	var root := MarginContainer.new()
 	_ui_root = root
@@ -2537,6 +2592,7 @@ func _push_interrupt_home() -> void:
 	if not adventure or phase != "rest" or _adventure_busy:
 		return
 	_adventure_busy = true
+	_sync_biome_ambient("", true)
 	var pool := ""
 	var biome_name := ""
 	if _campaign_on and _campaign != null:
@@ -2671,6 +2727,7 @@ func _toggle_held_map() -> void:
 func _open_campaign_map() -> void:
 	if _campaign == null or campaign_map == null:
 		return
+	_sync_biome_ambient("", true)
 	_campaign_seed_next_run_if_needed(false)
 	if bool(_campaign.state.get("won", false)) and not bool(_campaign.state.get("drawer_seen", false)):
 		campaign_map.show_drawer()
@@ -2787,6 +2844,8 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool) -> void:
 	CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
 	_campaign.write()
 	_sync_dungeon_biome()
+	## Ambient on for b1 campaign delves only (Endless / non-b1 clear themselves).
+	_sync_biome_ambient()
 	_reset_moves()
 	dungeon_index = 1 if endless else index + 1
 	dungeons_cleared = 0
@@ -2854,6 +2913,7 @@ func _campaign_arm_delve() -> void:
 	var rows: Array = _campaign_rows(false)
 	var biome := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
 	_sync_dungeon_biome(biome)
+	_sync_biome_ambient(biome)
 	CAMPAIGN_SHELL.normalize(_campaign.state)
 	var deal: Dictionary = CAMPAIGN_SHELL.consume_next_run_deal(
 		_campaign.rules, _campaign.state, rows, biome, rng
@@ -3026,6 +3086,7 @@ func _campaign_draft_decision() -> Dictionary:
 
 
 func _go_home_loss() -> void:
+	_sync_biome_ambient("", true)
 	_campaign_abort()
 	_reset_run()
 	phase = "title"
@@ -3033,6 +3094,7 @@ func _go_home_loss() -> void:
 
 
 func _give_up() -> void:
+	_sync_biome_ambient("", true)
 	_campaign_abort()
 	_reset_run()
 	phase = "title"
@@ -3116,6 +3178,7 @@ func _open_home_cabin(walk_in: bool, kind: String = "win", new_ids: Array = [], 
 	if home_cabin == null:
 		return
 	_hide_fight_hover()
+	_sync_biome_ambient("", true)
 	if _campaign != null:
 		_sync_dungeon_biome()
 	home_cabin.open_cabin(items_by_id, tex_by_item, _buckets_revealed, walk_in, kind, new_ids, held_ids)
@@ -6541,6 +6604,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F7:
 		_open_campaign_map()
+		get_viewport().set_input_as_handled()
+		return
+	## F10: Verdant ambient on/off (dev). Tip-confirmed free vs F2–F9 / F8 metrics.
+	if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F10:
+		if biome_ambient != null:
+			biome_ambient.toggle()
+			print("ambient_fx ", "on" if biome_ambient.is_enabled() else "off")
 		get_viewport().set_input_as_handled()
 		return
 	if not event.is_action_pressed("ui_cancel"):
@@ -21576,6 +21646,13 @@ func _layout_play_field() -> void:
 	var sz: Vector2 = play_field.size
 	if sz.x < 8.0 or sz.y < 8.0:
 		return
+	if biome_ambient != null:
+		## Full viewport field for haze/spores; FG bands follow width + avoid rects.
+		var vp: Vector2 = get_viewport_rect().size
+		if vp.x < 8.0 or vp.y < 8.0:
+			vp = Vector2(1680, 1040)
+		biome_ambient.setup(vp)
+		_forward_ambient_avoids()
 	if trophy:
 		trophy.visible = mobs_defeated > 0
 		if trophy.visible:
