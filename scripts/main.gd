@@ -15208,10 +15208,19 @@ func _maybe_basilisk_spawn(index: int) -> void:
 		_log("on_place", "Basilisk silenced")
 		return
 	var gid: int = int(m.get("gaze_id", 0))
+	# Eligible = Decay-style: not spent. Prefer unmarked so two Basilisks can cover six.
+	# TODO(Gaze edges — Nathan): what counts as Use; <3 eligible copy; Quiet Bell duration; Ejected duration.
 	var unmarked: Array = []
 	var marked: Array = []
 	for i in hotbar.size():
-		if _item_is_gazed(hotbar[i]):
+		var slot_it: Dictionary = hotbar[i]
+		if typeof(slot_it) != TYPE_DICTIONARY:
+			continue
+		if bool(slot_it.get("spent", false)):
+			continue
+		if bool(slot_it.get("basilisk_stone", false)):
+			continue
+		if _item_is_gazed(slot_it):
 			marked.append(i)
 		else:
 			unmarked.append(i)
@@ -15242,6 +15251,9 @@ func _maybe_basilisk_spawn(index: int) -> void:
 
 
 func _basilisk_on_gazed_use(it: Dictionary) -> void:
+	# TODO(Gaze Use edge): currently any `_clicked_item_counts_as_use` after resolve.
+	# Oligarch-forced uses count; Echo Bell copying a Gazed card without being Gazed itself does not
+	# (Echo is a separate card). Nathan may lock a narrower Use definition later.
 	if it.is_empty() or not _item_is_gazed(it):
 		return
 	var used_uid: int = int(it.get("uid", -1))
@@ -15266,9 +15278,9 @@ func _basilisk_on_gazed_use(it: Dictionary) -> void:
 		await _petrify_beam(dest, 0.12, from)
 		var card = _hotbar_card_by_uid(int(hotbar[slot].get("uid", -1)))
 		if card != null and card.has_method("set_petrified"):
-			await card.set_petrified(true, false, 0, true)
+			await card.set_petrified(true, false, 0, true, "basilisk")
 		if card != null and card.has_method("set_gaze_mark"):
-			card.set_gaze_mark(_basilisk_tex(), true)
+			card.set_gaze_mark(_basilisk_tex(), false)
 	if sfx:
 		sfx.play_event(&"status.petrify")
 	var basilisk_i: int = -1
@@ -15362,7 +15374,7 @@ func _petrify_best_atk() -> void:
 	await _petrify_beam(dest, 0.40)
 	var card = _hotbar_card_by_uid(int(pick.get("uid", -1)))
 	if card != null and card.has_method("set_petrified"):
-		await card.set_petrified(true, false, 0, true)
+		await card.set_petrified(true, false, 0, true, "gargoyle")
 	if facing_index >= 0 and facing_index < wheel.size():
 		await _announce_slice(facing_index, dest)
 	if sfx:
@@ -15609,7 +15621,7 @@ func _hydra_even_killer() -> void:
 			dt.finished.connect(dust.queue_free, CONNECT_ONE_SHOT)
 		var card = _hotbar_card_by_uid(int(it.get("uid", -1)))
 		if card != null and card.has_method("set_petrified"):
-			await card.set_petrified(true, false, 0, true)
+			await card.set_petrified(true, false, 0, true, "gargoyle")
 		await get_tree().create_timer(0.12).timeout
 	set_meta("qa_hydra_beams_ready", true)
 	set_meta("qa_petrify_beams", _count_petrify_beams())
@@ -15977,7 +15989,9 @@ func _pulse_arrow_heads() -> void:
 		var it: Dictionary = _find_item(int(c.uid))
 		if _is_arrow_head(it):
 			c.bounce()
-			if c.has_method("set_aura"):
+			if c.has_method("set_aura_role"):
+				c.set_aura_role("ready")
+			elif c.has_method("set_aura"):
 				c.set_aura(true)
 
 
@@ -18085,12 +18099,20 @@ func _apply_item_stone_look(card, it: Dictionary) -> void:
 	if card == null or not card.has_method("set_petrified"):
 		return
 	var pn: int = int(it.get("petrify_n", 0))
+	var basilisk_stone: bool = bool(it.get("basilisk_stone", false))
+	var gargoyle_stone: bool = bool(it.get("petrified", false)) and not basilisk_stone and pn <= 0
 	if _item_stoned(it):
-		card.set_petrified(true, false, pn, false)
+		var source := ""
+		if basilisk_stone:
+			source = "basilisk"
+		elif gargoyle_stone or bool(it.get("petrified", false)):
+			source = "gargoyle"
+		card.set_petrified(true, false, pn, false, source)
 	else:
-		card.set_petrified(false, false, 0, false)
+		card.set_petrified(false, false, 0, false, "")
 	if card.has_method("set_gaze_mark"):
-		var show_gaze: bool = _item_is_gazed(it) or bool(it.get("basilisk_stone", false))
+		# Entry Gaze eye only while marked and not yet Basilisk-stoned.
+		var show_gaze: bool = _item_is_gazed(it) and not basilisk_stone
 		card.set_gaze_mark(_basilisk_tex(), show_gaze)
 
 
@@ -19424,6 +19446,8 @@ func _rewrite_keywords(raw: String, colored: bool, num_hex: String) -> String:
 		"any",
 		"petrifies", "petrified", "petrify",
 		"gaze", "gazed",
+		"decayed", "decay",
+		"hex", "toll", "curse", "beggar",
 		"spinning", "spins", "spun", "spin",
 		"random",
 		"always",
@@ -19556,6 +19580,12 @@ func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, var_c: St
 	if low == "unplayable":
 		return UxStyle.UNPLAYABLE
 	if low == "rust":
+		return gold
+	if low == "decay" or low == "decayed" or low.begins_with("decay"):
+		return gold
+	if low == "gaze" or low == "gazed" or low.begins_with("gaze"):
+		return gold
+	if low == "hex" or low == "toll" or low == "curse" or low.begins_with("beggar"):
 		return gold
 	return ""
 
@@ -20108,12 +20138,20 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = str(it.get("ability", ""))
 	if it.get("spent", false):
 		out["warn"] = PLAYER_COPY.text("warn.spent", "Already used this fight.")
+	# Spin-locked hotbar strings (Direction A aura kit) — exact; do not rewrite.
 	if bool(it.get("basilisk_stone", false)):
 		out["warn"] = "Petrified while the Basilisk remains"
 	elif int(it.get("petrify_n", 0)) > 0:
 		out["warn"] = "Petrify — Unplayable."
 	elif bool(it.get("petrified", false)):
 		out["warn"] = "Petrify — Unplayable until your next Spin."
+	elif _item_is_gazed(it):
+		out["warn"] = "Gazed. Using this Petrifies the others."
+	elif bool(it.get("decay_marked", false)):
+		if bool(it.get("decay_solo", false)):
+			out["warn"] = "Unused — discarded at end of combat."
+		else:
+			out["warn"] = "Linked by Decay. Use one to Keep it — discard the other."
 	var ab: String = str(it.get("ability", ""))
 	if str(it.get("card_id", "")) == "echo_bell":
 		var face: Dictionary = _echo_face(it)
@@ -22851,13 +22889,21 @@ func _sync_hotbar() -> void:
 			card.set_hp_cost(str(view.get("hp_cost", "")))
 		if card.has_method("set_glyphs"):
 			card.set_glyphs([] if pn > 0 else _face_rows(it, view))
+		var toll_lethal: bool = str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1
+		var hex_good: bool = str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1
 		if card.has_method("set_danger"):
-			card.set_danger(
-			(str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1)
-			or (str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1)
-		)
+			card.set_danger(toll_lethal)
+		if card.has_method("set_hex_good"):
+			card.set_hex_good(hex_good)
 		if card.has_method("set_num_color"):
-			card.set_num_color(Color("9a9a9a") if pn > 0 else _num_color(str(view.get("kind", "ATK"))))
+			if pn > 0:
+				card.set_num_color(Color("9a9a9a"))
+			elif hex_good:
+				card.set_num_color(Color("5FD3A0"))
+			elif toll_lethal:
+				card.set_num_color(Color("C41E1E"))
+			else:
+				card.set_num_color(_num_color(str(view.get("kind", "ATK"))))
 		if card.has_method("set_playable"):
 			card.set_playable(can_click)
 		if card.has_method("set_guarding"):
@@ -22865,11 +22911,29 @@ func _sync_hotbar() -> void:
 		_apply_item_stone_look(card, it)
 		_apply_bag_look(card, it)
 		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
-		if card.has_method("set_aura"):
-			var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
-			var snack_aura: bool = is_snack and not _toss_pick_mode()
-			var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
-			card.set_aura(snack_aura or rec_ready or rust_hint or (mag_on and (phase == "fighting" or phase == "ready")))
+		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
+		var upgrade_choice: bool = is_snack and str(pending_feed.get("kind", "")) == "upgrade"
+		var snack_ready: bool = is_snack and not _toss_pick_mode() and not upgrade_choice
+		var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
+		var armed_ready: bool = in_fight and not spent_n and (str(it.get("card_id", "")) == "pacemaker" or str(it.get("card_id", "")) == "healing_potion")
+		var decay_on: bool = bool(it.get("decay_marked", false)) and not spent_n
+		if card.has_method("set_decay_link"):
+			card.set_decay_link(decay_on and not bool(it.get("decay_solo", false)))
+		# Priority: Petrify/Unplayable > WARN > CHOICE > READY (petrify handled in stone look).
+		var stoned_n: bool = _item_stoned(it)
+		if card.has_method("set_aura_role"):
+			var role := ""
+			if stoned_n or spent_n:
+				role = ""
+			elif rust_hint or _beggar_marked(uid_n):
+				role = "warn"
+			elif upgrade_choice or (_toss_pick_mode() and can_click):
+				role = "choice"
+			elif snack_ready or rec_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready")):
+				role = "ready"
+			card.set_aura_role(role)
+		elif card.has_method("set_aura"):
+			card.set_aura((not stoned_n) and (snack_ready or rec_ready or (mag_on and (phase == "fighting" or phase == "ready"))))
 		if card.has_method("set_toss_pick"):
 			card.set_toss_pick(_toss_pick_mode() and can_click)
 		if card.has_method("set_waiting_entry"):
@@ -23023,9 +23087,14 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 		card.set_echo_mark(art.item_tex("echo_bell"))
 	_apply_bag_look(card, it)
 	_apply_item_stone_look(card, it)
-	if card.has_method("set_aura"):
+	var toll_lethal_spawn: bool = str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1
+	var hex_good_spawn: bool = str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1
+	if card.has_method("set_aura_role"):
 		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
-		card.set_aura(rec_ready)
+		card.set_aura_role("ready" if rec_ready else "")
+	elif card.has_method("set_aura"):
+		var rec_ready2: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
+		card.set_aura(rec_ready2)
 	if card.has_method("set_passive_icons"):
 		card.set_passive_icons(null, null, false)
 	card.set_palette(view["fill"], view["rim"], _tier_of(it))
@@ -23040,10 +23109,9 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if card.has_method("set_glyphs"):
 		card.set_glyphs([] if pn > 0 else _face_rows(it, view))
 	if card.has_method("set_danger"):
-		card.set_danger(
-			(str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1)
-			or (str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1)
-		)
+		card.set_danger(toll_lethal_spawn)
+	if card.has_method("set_hex_good"):
+		card.set_hex_good(hex_good_spawn)
 	card.hovered.connect(func() -> void:
 		_on_item_hovered(it, card)
 	)
@@ -23097,6 +23165,7 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 	_tutorial_on_item_hover()
 	_queue_hover_preview(it, card)
 	_set_gaze_use_warn(int(it.get("uid", -1)) if _item_is_gazed(it) and not bool(it.get("basilisk_stone", false)) else -1)
+	_set_decay_partner_warn(int(it.get("uid", -1)) if bool(it.get("decay_marked", false)) and not bool(it.get("decay_solo", false)) else -1)
 
 
 func _set_gaze_use_warn(from_uid: int) -> void:
@@ -23114,6 +23183,24 @@ func _set_gaze_use_warn(from_uid: int) -> void:
 		card.set_gaze_warn(warn)
 
 
+func _set_decay_partner_warn(from_uid: int) -> void:
+	if hotbar_box == null:
+		return
+	var partner_uid: int = -1
+	if from_uid >= 0:
+		var src: Dictionary = _find_item(from_uid)
+		partner_uid = int(src.get("decay_partner", -1))
+	for node in hotbar_box.get_children():
+		if not (node is Control):
+			continue
+		var card: Control = node
+		if not card.has_method("set_decay_warn"):
+			continue
+		var uid_n: int = _control_uid(card)
+		var warn: bool = partner_uid >= 0 and uid_n == partner_uid
+		card.set_decay_warn(warn)
+
+
 func _set_rust_block_hint(on: bool) -> void:
 	if _rust_block_hint == on:
 		return
@@ -23126,21 +23213,24 @@ func _set_rust_block_hint(on: bool) -> void:
 		var card: Control = node
 		if str(card.get("card_id")) != "rust":
 			continue
-		if not card.has_method("set_aura"):
-			continue
 		var uid_n: int = _control_uid(card)
 		var it: Dictionary = _find_item(uid_n)
 		var spent_n: bool = bool(it.get("spent", false))
-		card.set_aura(_rust_block_hint and not spent_n)
+		if card.has_method("set_aura_role"):
+			card.set_aura_role("warn" if (_rust_block_hint and not spent_n) else "")
+		elif card.has_method("set_aura"):
+			card.set_aura(_rust_block_hint and not spent_n)
 
 
 func _on_item_unhovered() -> void:
 	_set_gaze_use_warn(-1)
+	_set_decay_partner_warn(-1)
 	_set_rust_block_hint(false)
 	_fly_card = null
 	_ghost_blk = -1
 	_clear_hover_preview()
 	_apply_preview({})
+	_reapply_hotbar_aura_roles()
 	_sync_hotbar_formulas()
 	if fly_tip:
 		fly_tip.hide_plate()
@@ -23152,6 +23242,42 @@ func _on_item_unhovered() -> void:
 		_fill_inspect_from_slice(int(wheel_view.hover_index))
 	else:
 		_idle_inspect()
+
+
+func _reapply_hotbar_aura_roles() -> void:
+	## After hover WARN clears, restore READY / CHOICE / LINK without rebuilding cards.
+	for c in _hotbar_all_cards():
+		var card = c
+		if not card.has_method("set_aura_role"):
+			continue
+		var it: Dictionary = _find_item(int(card.uid))
+		if it.is_empty():
+			continue
+		var uid_n: int = int(it.get("uid", -1))
+		var spent_n: bool = bool(it.get("spent", false))
+		var stoned_n: bool = _item_stoned(it)
+		var feed_uids: Array = pending_feed.get("uids", []) if not pending_feed.is_empty() else []
+		var is_snack: bool = feed_uids.has(uid_n)
+		var upgrade_choice: bool = is_snack and str(pending_feed.get("kind", "")) == "upgrade"
+		var snack_ready: bool = is_snack and not _toss_pick_mode() and not upgrade_choice
+		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
+		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
+		var in_fight: bool = phase == "fighting"
+		var armed_ready: bool = in_fight and not spent_n and (str(it.get("card_id", "")) == "pacemaker" or str(it.get("card_id", "")) == "healing_potion")
+		var can_click_toss: bool = _toss_pick_mode() and not spent_n and not stoned_n
+		var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
+		var role := ""
+		if stoned_n or spent_n:
+			role = ""
+		elif rust_hint or _beggar_marked(uid_n):
+			role = "warn"
+		elif upgrade_choice or can_click_toss:
+			role = "choice"
+		elif snack_ready or rec_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready")):
+			role = "ready"
+		card.set_aura_role(role)
+		if card.has_method("set_decay_link"):
+			card.set_decay_link(bool(it.get("decay_marked", false)) and not spent_n and not bool(it.get("decay_solo", false)))
 
 
 func _clear_box(box: Node) -> void:
