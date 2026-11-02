@@ -10364,29 +10364,27 @@ func _zombie_decay_on_spin() -> void:
 		var n_pick: int = mini(2, bag.size())
 		for k in n_pick:
 			picked.append(int(bag[k]))
+	if not _qa_instant():
+		await _announce_slice(facing_index, Vector2.INF, false, false)
 	if picked.is_empty():
 		_log("on_spin", "Decay — nothing to link")
 		return
+	picked = _decay_sort_hotbar_uids(picked)
+	if not _qa_instant():
+		for i in picked.size():
+			await _decay_infect_beam(int(picked[i]), i)
+			_decay_mark_progress(picked, i)
+			_sync_hotbar()
+	else:
+		_decay_mark_progress(picked, picked.size() - 1)
 	if picked.size() == 1:
 		var solo: Dictionary = _find_item(int(picked[0]))
-		if solo.is_empty():
-			return
-		solo["decay_marked"] = true
-		solo["decay_solo"] = true
-		solo["decay_partner"] = -1
 		_log("on_spin", "Decay %s" % solo.get("name", "?"))
-		return
-	var a: Dictionary = _find_item(int(picked[0]))
-	var b: Dictionary = _find_item(int(picked[1]))
-	if a.is_empty() or b.is_empty():
-		return
-	a["decay_marked"] = true
-	a["decay_solo"] = false
-	a["decay_partner"] = int(b.get("uid", -1))
-	b["decay_marked"] = true
-	b["decay_solo"] = false
-	b["decay_partner"] = int(a.get("uid", -1))
-	_log("on_spin", "Decay %s + %s" % [a.get("name", "?"), b.get("name", "?")])
+	else:
+		var a: Dictionary = _find_item(int(picked[0]))
+		var b: Dictionary = _find_item(int(picked[1]))
+		_log("on_spin", "Decay %s + %s" % [a.get("name", "?"), b.get("name", "?")])
+	_refresh()
 
 
 func _toss_item(uid: int, keep: bool, slow: bool = false) -> void:
@@ -13160,7 +13158,7 @@ func _announce(text: String, _from: Vector2, _to: Vector2 = Vector2.INF) -> void
 		})
 
 
-func _announce_slice(index: int, to: Vector2 = Vector2.INF, fast: bool = false) -> void:
+func _announce_slice(index: int, to: Vector2 = Vector2.INF, fast: bool = false, release_early: bool = true) -> void:
 	if index < 0 or index >= wheel.size():
 		return
 	var s: Dictionary = wheel[index]
@@ -13189,7 +13187,7 @@ func _announce_slice(index: int, to: Vector2 = Vector2.INF, fast: bool = false) 
 			# Release after portrait punch/frames so HP/ATK tells land during
 			# hold/slash-out (passive → resolve wall-clock). Deck seat cut-ins
 			# call play() directly and still full-wait.
-			"release_early": true,
+			"release_early": release_early,
 		})
 	_log_begin_monster(index)
 

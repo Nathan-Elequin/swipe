@@ -4233,10 +4233,10 @@
 			"call_name": "Body Slam",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "Attack equals HP",
 			"flow": "",
-			"hp_base": 10,
+			"hp_base": 10.0,
 			"hp_formula": "",
 			"id": "slime_boss",
 			"kind": "monster",
@@ -4266,14 +4266,14 @@
 			"name": "Slime Boss",
 			"notes": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer.",
 			"ops": {},
-			"pool": 1,
-			"priority": 2,
+			"pool": 1.0,
+			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. When I spawn, I take over another Monster.",
@@ -5373,24 +5373,20 @@
 		},
 		{
 			"ability": "When I lose HP or Attack, I die. My Neighbors each gain HP equal to my remaining HP.",
-			"atk_base": 0.0,
+			"atk_base": 0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Noble Death",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "On HP loss or Attack: I die. Neighbors gain my remaining HP",
-			"flags": {
-				"art": true,
-				"dev": true,
-				"hide": false
-			},
 			"flow": "SP-24 (2026-10-28). 7 HP / 0 Attack. I die on any HP loss (including poison ticks), when I would be Defeated, or when I Attack (0 Attack still Attacks). On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Attack / Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
-			"hp_base": 7.0,
+			"hp_base": 6,
 			"hp_formula": "",
 			"id": "martyr",
-			"locked_at": "2026-10-28",
+			"kind": "monster",
+			"locked_at": "2026-11-01",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5416,14 +5412,20 @@
 			"name": "Martyr",
 			"notes": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
 			"ops": {},
-			"pool": 4.0,
-			"priority": 3.0,
+			"pending_fields": {
+				"hp_base": {
+					"from": 7.0,
+					"to": 6
+				}
+			},
+			"pool": 4,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "On HP loss or Attack: I die. Neighbors gain my remaining HP.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0
+			"tier": 1
 		},
 		{
 			"ability": "When I would take Attack damage, both of my Neighbors take it instead.",

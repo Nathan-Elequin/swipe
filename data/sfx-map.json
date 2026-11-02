@@ -183,7 +183,9 @@
       },
       "kobold_trapper": {},
       "basilisk": {},
-      "zombie": {},
+      "zombie": {
+        "special": "status.decay"
+      },
       "triclops": {},
       "shambling_mound": {
         "second_swing": "mon.hornet_buzz"
@@ -2399,6 +2401,27 @@
       "cooldown_ms": 0,
       "max_voices": 1,
       "priority": 2
+    },
+    "status.decay": {
+      "files": [
+        "status_poison"
+      ],
+      "bus": "SFX",
+      "db": -6,
+      "pitch": [
+        0.68,
+        0.78
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2,
+      "layers": [
+        {
+          "cue": "status.bleed",
+          "db_offset": -6,
+          "delay_ms": 35
+        }
+      ]
     },
     "status.hypnotize": {
       "files": [
