@@ -1,12 +1,13 @@
 {
-	"updated_at": "2026-11-02T04:55:00Z",
+	"updated_at": "2026-11-02T05:35:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"273": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Wick with one neighbor should lose 2 HP once, not twice",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/273",
-			"note": "New playtest report; not on tip yet."
+			"sha": "07b3ba20",
+			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"190": {
 			"status": "f5",
