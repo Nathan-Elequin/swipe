@@ -3,6 +3,7 @@ id: REQ-20261101-decay-link-elegance
 status: open
 priority: high
 branch: cursor/decay-link-elegance-3c47
+tip_sha: 570fafe5
 base: playtest/latest
 created: 2026-11-02T01:40:00Z
 created_by: cursor-cloud
