@@ -4,7 +4,7 @@ status: open
 priority: high
 branch: cursor/splash-narration-fit-1cb6
 base: playtest/latest
-tip_sha: pending
+tip_sha: 44be39af
 created: 2026-11-02T15:20:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
