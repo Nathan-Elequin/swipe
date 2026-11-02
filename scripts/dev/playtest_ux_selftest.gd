@@ -26,6 +26,8 @@ func _init() -> void:
 	failed = _check("choice_reserve", UX.dialog_choice_reserve_px() > 0.0) or failed
 	failed = _check("arrow_pad", UX.move_arrow_outer_pad() >= 64.0) or failed
 	failed = _check("arrow_off", UX.move_arrow_start_offset() >= 0.5) or failed
+	failed = _check("arrow_b2_pad", UX.move_arrow_b2_pad() >= 32.0 and UX.move_arrow_b2_pad() < UX.move_arrow_outer_pad()) or failed
+	failed = _check("arrow_b2_off", UX.move_arrow_b2_start_offset() > UX.move_arrow_start_offset()) or failed
 	failed = _check("keep_face", UX.keep_face_after_neighbor_hole()) or failed
 	failed = _check("draft_below", UX.draft_tip_prefer_below()) or failed
 	failed = _check("closed_empty", UX.closed_empty_in_tutorial()) or failed

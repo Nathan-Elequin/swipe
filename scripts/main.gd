@@ -629,6 +629,9 @@ var _take_burst: Control
 var _take_style_base: Dictionary = {}
 var _take_style_had: Dictionary = {}
 var _take_style_ready: bool = false
+## Keeps Undo/Redo out from under the Take arc when the mid Take pill is hidden.
+var _btn_mid_slot: HBoxContainer
+var _take_arc_mid_spacer: Control
 var btn_place: Button
 var btn_bribe: Button
 var _fly_card: Control
@@ -1397,6 +1400,13 @@ func _build_ui() -> void:
 	mid_slot.alignment = BoxContainer.ALIGNMENT_CENTER
 	mid_slot.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	mid_slot.add_theme_constant_override("separation", 12)
+	_btn_mid_slot = mid_slot
+	_take_arc_mid_spacer = Control.new()
+	_take_arc_mid_spacer.name = "TakeArcMidSpacer"
+	_take_arc_mid_spacer.visible = false
+	_take_arc_mid_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_take_arc_mid_spacer.custom_minimum_size = Vector2.ZERO
+	mid_slot.add_child(_take_arc_mid_spacer)
 	var right_slot := HBoxContainer.new()
 	right_slot.alignment = BoxContainer.ALIGNMENT_BEGIN
 	right_slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -23423,11 +23433,6 @@ func _show_faced_monster() -> void:
 	_show_fight_portrait()
 
 
-func _hide_take_arc() -> void:
-	if take_arc != null and is_instance_valid(take_arc):
-		take_arc.visible = false
-
-
 func _take_burst_tex_for(hit: int) -> Dictionary:
 	var v := _take_variant()
 	var kind: String = str(v.get("kind", "single"))
@@ -23482,7 +23487,42 @@ func _place_take_arc() -> void:
 	var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
 	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
 	var local_c: Vector2 = take_arc.get_global_transform().affine_inverse() * c
-	take_arc.set_guide(local_c, rad, 4.0)
+	take_arc.set_guide(local_c, rad, TAKE_ARC.RIM_GAP_DEFAULT)
+	_clear_undo_under_take_arc()
+
+
+func _hide_take_arc() -> void:
+	if take_arc != null and is_instance_valid(take_arc):
+		take_arc.visible = false
+	_clear_undo_under_take_arc()
+
+
+func _clear_undo_under_take_arc() -> void:
+	## When the cream arc replaces the mid Take pill, Undo/Redo would otherwise
+	## drift under the arc (mid slot empty + arc overhangs into the button row).
+	## Keep them clear: spacer holds the mid width, row sits below the arc, z above.
+	var arc_on: bool = take_arc != null and is_instance_valid(take_arc) and take_arc.visible
+	if _take_arc_mid_spacer != null:
+		if arc_on and take_arc.has_method("outer_chord_width"):
+			var w: float = maxf(160.0, take_arc.outer_chord_width() * 0.72)
+			_take_arc_mid_spacer.custom_minimum_size = Vector2(w, 1.0)
+			_take_arc_mid_spacer.visible = true
+		else:
+			_take_arc_mid_spacer.custom_minimum_size = Vector2.ZERO
+			_take_arc_mid_spacer.visible = false
+	var top_pad := 0
+	if arc_on and wheel_view != null and play_field != null and btn_wrap != null:
+		var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
+		var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
+		var arc_bottom: float = c.y + rad + TAKE_ARC.RIM_GAP_DEFAULT + TAKE_ARC.BODY_W
+		var field_bottom: float = play_field.global_position.y + play_field.size.y
+		top_pad = maxi(0, int(ceil(arc_bottom - field_bottom + 10.0)))
+	if btn_wrap != null:
+		btn_wrap.add_theme_constant_override("margin_top", top_pad)
+	if btn_undo != null:
+		btn_undo.z_index = 25 if arc_on and btn_undo.visible else 0
+	if btn_redo != null:
+		btn_redo.z_index = 25 if arc_on and btn_redo.visible else 0
 
 
 func _place_move_arrows() -> void:
@@ -23499,12 +23539,12 @@ func _place_move_arrows() -> void:
 	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
 	btn_move_left.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	btn_move_right.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	## H3-B2: pull arrows in so their INNER edge is TOP-aligned with the Take arc top.
-	## Take arc inner = rad + rim_gap (4). Arrow inner = rad + pad - BODY_W/2.
-	## ⇒ pad = rim_gap + BODY_W/2.
-	var pad: float = 4.0 + MOVE_ARROW.BODY_W * 0.5
-	if take_arc == null or not take_arc.visible:
-		pad = PlaytestUx.move_arrow_outer_pad()
+	## H3-B2: tuck arrows in vs pre-B2 (72), but clear the gold rim.
+	## Path center at rad+pad; head flare reaches ~BODY_W*0.78 inward of path.
+	## Prior tip used pad = rim_gap + BODY_W/2 (=19) and overshot into the rim.
+	var arc_on: bool = take_arc != null and take_arc.visible
+	var pad: float = PlaytestUx.move_arrow_b2_pad() if arc_on else PlaytestUx.move_arrow_outer_pad()
+	var start_off: float = PlaytestUx.move_arrow_b2_start_offset() if arc_on else PlaytestUx.move_arrow_start_offset()
 	var sweep: float = PI * 0.28
 	var face_left: float = 1.0e9
 	if face_box != null and face_box.visible:
@@ -23515,24 +23555,24 @@ func _place_move_arrows() -> void:
 		var max_outer: float = face_left - VIEW_FRAME.ARROW_CALLOUT_GAP - c.x
 		var head: float = MOVE_ARROW.BODY_W
 		if rad + pad + head > max_outer:
-			pad = maxf(20.0, max_outer - rad - head)
+			pad = maxf(24.0, max_outer - rad - head)
 		if rad + pad + head > max_outer:
 			var reach: float = maxf(8.0, max_outer - rad)
 			sweep = clampf(sweep * (reach / maxf(reach, pad + head)), 0.12, sweep)
 	var local_c: Vector2 = btn_move_left.get_global_transform().affine_inverse() * c
-	btn_move_left.set_guide(local_c, rad, moves_left, true, pad, sweep)
+	btn_move_left.set_guide(local_c, rad, moves_left, true, pad, sweep, start_off)
 	var local_r: Vector2 = btn_move_right.get_global_transform().affine_inverse() * c
-	btn_move_right.set_guide(local_r, rad, moves_left, false, pad, sweep)
+	btn_move_right.set_guide(local_r, rad, moves_left, false, pad, sweep, start_off)
 	if face_left < 1.0e8:
 		var tries := 0
 		while tries < 8:
 			var hit: Rect2 = btn_move_right.arc_global_rect()
 			if hit.size.x <= 0.0 or hit.end.x <= face_left - VIEW_FRAME.ARROW_CALLOUT_GAP:
 				break
-			pad = maxf(16.0, pad - 8.0)
+			pad = maxf(24.0, pad - 8.0)
 			sweep = maxf(0.12, sweep - 0.03)
-			btn_move_left.set_guide(local_c, rad, moves_left, true, pad, sweep)
-			btn_move_right.set_guide(local_r, rad, moves_left, false, pad, sweep)
+			btn_move_left.set_guide(local_c, rad, moves_left, true, pad, sweep, start_off)
+			btn_move_right.set_guide(local_r, rad, moves_left, false, pad, sweep, start_off)
 			tries += 1
 
 
