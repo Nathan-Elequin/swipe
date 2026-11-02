@@ -2,13 +2,13 @@
 
 importer="oggvorbisstr"
 type="AudioStreamOggVorbis"
-uid="uid://abzo151l2o2w9"
-path="res://.godot/imported/music_between_dungeons.ogg-5e6f4e64758bceafcc0ffae20c8aa2ca.oggvorbisstr"
+uid="uid://b0o151l2o2xa"
+path="res://.godot/imported/music_between_dungeons.ogg-2b6707a55c144adda718031ee85dcdee.oggvorbisstr"
 
 [deps]
 
 source_file="res://assets/audio/music_between_dungeons.ogg"
-dest_files=["res://.godot/imported/music_between_dungeons.ogg-5e6f4e64758bceafcc0ffae20c8aa2ca.oggvorbisstr"]
+dest_files=["res://.godot/imported/music_between_dungeons.ogg-2b6707a55c144adda718031ee85dcdee.oggvorbisstr"]
 
 [params]
 
