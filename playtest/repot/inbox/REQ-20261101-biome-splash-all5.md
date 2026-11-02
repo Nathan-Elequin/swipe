@@ -4,7 +4,7 @@ status: open
 priority: high
 branch: cursor/biome-splash-all5-ambient-aeec
 base: playtest/latest
-tip_sha: pending
+tip_sha: 876100c7
 created: 2026-11-02T02:00:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
