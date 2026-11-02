@@ -2,14 +2,19 @@ extends Control
 class_name ItemFace
 ## Hotbar / offer face glyphs. Paths stay on PNG faces; recipes live in main._face_rows.
 
-const SIZE_HOTBAR := 24
+## Idle hotbar glyphs were 24; +50% layout pass (2026-11-02) → 36. Offer / showcase stays 48.
+const SIZE_HOTBAR := 36
 const SIZE_OFFER := 48
+const FONT_HOTBAR := 18
+const FONT_OFFER := 22
+const FONT_TEXT_HOTBAR := 16
+const FONT_TEXT_OFFER := 18
 const OUTLINE := Color("100e0c")
 const OUTLINE_SIZE := 4
 const TINT_BLUE := Color("6bb3d9")
 const SELF_BORDER := Color("c4a574")
 
-## New 24×24 Crypt Classic faces under assets/ui/icons/face/.
+## Crypt Classic faces under assets/ui/icons/face/ (native 24×24, scaled via TextureRect).
 const FACE_DIR := "res://assets/ui/icons/face/"
 
 ## Shared icons that stay at their existing paths (not redesigned here).
@@ -28,6 +33,8 @@ static func _is_pip_path(path: String) -> bool:
 static var _cache: Dictionary = {}
 
 var _col: VBoxContainer
+## Set by ItemCard.set_showcase — do not guess from host height (idle host expands).
+var _offer_mode: bool = false
 
 
 func _ready() -> void:
@@ -36,12 +43,17 @@ func _ready() -> void:
 		_ensure_col()
 
 
+func set_offer_mode(on: bool) -> void:
+	_offer_mode = on
+
+
 func _ensure_col() -> void:
 	if _col != null:
 		return
 	_col = VBoxContainer.new()
 	_col.name = "Rows"
 	_col.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	## Vertically center the glyph row in the leftover band under the item sprite.
 	_col.alignment = BoxContainer.ALIGNMENT_CENTER
 	_col.add_theme_constant_override("separation", 2)
 	_col.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -99,7 +111,7 @@ static func tex_for(key: String) -> Texture2D:
 	return tex
 
 
-## TextureRect sized for the hotbar (24) or offer card (48), nearest filter.
+## TextureRect sized for the hotbar (36) or offer card (48), nearest filter.
 static func make_icon(key: String, offer: bool = false) -> TextureRect:
 	var tr := TextureRect.new()
 	var px: int = SIZE_OFFER if offer else SIZE_HOTBAR
@@ -123,17 +135,12 @@ static func make_number(text: String, offer: bool = false) -> Label:
 	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	lab.add_theme_color_override("font_outline_color", OUTLINE)
 	lab.add_theme_constant_override("outline_size", OUTLINE_SIZE)
-	lab.add_theme_font_size_override("font_size", 22 if offer else 14)
+	lab.add_theme_font_size_override("font_size", FONT_OFFER if offer else FONT_HOTBAR)
 	return lab
 
 
 func _is_offer() -> bool:
-	if size.y >= 50.0:
-		return true
-	var p := get_parent()
-	if p is Control and (p as Control).custom_minimum_size.y >= 50.0:
-		return true
-	return false
+	return _offer_mode
 
 
 ## rows: Array of row Arrays; each cell is {_fg} dict {k,t,tint,border,sup,id}.
@@ -193,8 +200,8 @@ func _make_cell(g: Dictionary, offer: bool) -> Control:
 		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		lab.add_theme_color_override("font_outline_color", OUTLINE)
 		lab.add_theme_constant_override("outline_size", OUTLINE_SIZE)
-		lab.add_theme_font_size_override("font_size", 18 if offer else 12)
-		lab.custom_minimum_size = Vector2(maxi(px, t.length() * (10 if offer else 7)), px)
+		lab.add_theme_font_size_override("font_size", FONT_TEXT_OFFER if offer else FONT_TEXT_HOTBAR)
+		lab.custom_minimum_size = Vector2(maxi(px, t.length() * (10 if offer else 9)), px)
 		if tint == "blue":
 			lab.add_theme_color_override("font_color", TINT_BLUE)
 		host.custom_minimum_size = lab.custom_minimum_size
