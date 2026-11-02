@@ -2546,16 +2546,16 @@
 					"auto": true
 				}
 			],
-			"expected_text": "Click Pacemaker. The plates or the hand change, or the log names Pacemaker / cannot.",
+			"expected_text": "Click Pacemaker. It is Unplayable, so the click cannot.",
 			"expected": {
-				"outcome": "fired"
+				"outcome": "cannot"
 			},
 			"cards": [
 				{
 					"id": "pacemaker",
 					"kind": "item",
 					"name": "Pacemaker",
-					"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+					"ability": "Unplayable. When you lose exactly 2 HP, Heal 1.",
 					"sprite": "assets/dungeon/items/pacemaker.png"
 				},
 				{
@@ -2593,7 +2593,7 @@
 					"id": "pacemaker",
 					"kind": "item",
 					"name": "Pacemaker",
-					"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+					"ability": "Unplayable. When you lose exactly 2 HP, Heal 1.",
 					"sprite": "assets/dungeon/items/pacemaker.png"
 				},
 				{
