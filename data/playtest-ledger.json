@@ -1,146 +1,166 @@
 {
-	"updated_at": "2026-11-02T17:20:00Z",
+	"updated_at": "2026-11-02T20:25:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"283": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Buff Longbow from 4 damage to 5",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/283",
 			"sha": "37205d1d",
-			"f5_note": "Inspect and the opposite hit are 5. Stop Play, F5."
+			"f5_note": "Inspect and the opposite hit are 5. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"273": {
-			"status": "f5",
+			"status": "closed",
 			"title": "When Wick is on a wheel with just 1 other monster",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/273",
 			"sha": "7f409be0",
-			"f5_note": "Wick \u22122 once per Defeat; two-alive wheels are adjacent. Stop Play, F5."
+			"f5_note": "Wick −2 once per Defeat; two-alive wheels are adjacent. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"190": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Poison icon larger; do not recolor the wheel slice",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/190",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"198": {
-			"status": "f5",
-			"title": "Spider Egg Take 2 \u2192 Take 1",
+			"status": "closed",
+			"title": "Spider Egg Take 2 → Take 1",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/198",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"201": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Damsel neighbor attacks one at a time, full animation",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/201",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"202": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Jar of Grease hotbar movement cue like Shuriken",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/202",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"203": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Sandbag slash on lethal trigger; speed up repeats",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/203",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"204": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Beggar slash when the steal actually happens",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/204",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"219": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Commander: first lethal is a Flee attempt; next lethal kills",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/219",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"220": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Lich HP pip is the defeat skull",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/220",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"221": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Wealth Tax slash then force-use a playable item",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/221",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"222": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Ale Flagon heals you and the current enemy +3",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/222",
 			"sha": "9763c1f4",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"223": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Harpy should hit once on Spin unless Wealth Tax",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/223",
 			"sha": "f1e631c4",
-			"f5_note": "Impatient after-item swing needs a counted hotbar use. Stop Play, F5. Spin-only is one hit; Shield still gets the second."
+			"f5_note": "Impatient after-item swing needs a counted hotbar use. Stop Play, F5. Spin-only is one hit; Shield still gets the second.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"232": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Fairy neighbor +1 HP must show on the plate",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/232",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"233": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Leech League must not fire when remaining HP is already tied",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/233",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"234": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Recycler countdown on every discard",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/234",
 			"sha": "9763c1f4",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"236": {
-			"status": "f5",
-			"title": "Medallion Block is 7 \u2212 HP, not 6 \u2212 HP",
+			"status": "closed",
+			"title": "Medallion Block is 7 − HP, not 6 − HP",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/236",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"237": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Beggar hotbar mark bigger, orange glow",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/237",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"238": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Echo Bell replays a kept item, then discards itself",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/238",
 			"sha": "9763c1f4",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"239": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Beggar steal: slash, pull off hotbar, thank-you line",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/239",
 			"sha": "19f5e038",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"243": {
 			"status": "closed",
@@ -178,18 +198,20 @@
 			"closed_note": "Nathan asked to close after implement."
 		},
 		"254": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Juggernaut/Beggar should move to the actual hotbar seat they add or steal",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/254",
 			"sha": "040e7722",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"255": {
-			"status": "f5",
-			"title": "Pocketwatch Druid \u2192 Prism refract killed both neighbors, then soft-lock",
+			"status": "closed",
+			"title": "Pocketwatch Druid → Prism refract killed both neighbors, then soft-lock",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/255",
 			"sha": "040e7722",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"256": {
 			"status": "closed",
@@ -198,107 +220,122 @@
 			"closed_note": "Imported to D1 as a test Send. Not a bug ticket."
 		},
 		"259": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Echo Bell on Bag of Holding should become the captured bag immediately",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/259",
 			"sha": "040e7722",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"262": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Oligarch Wealth Tax does not use a random item",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/262",
 			"sha": "040e7722",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"266": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Curse items should not show Weak; black jagged border",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/266",
 			"sha": "040e7722",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"267": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Hydra Devour after Napalm HP drop",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/267",
 			"sha": "040e7722",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"268": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Petty King flees a Defeat while any HP remain",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/268",
 			"sha": "040e7722",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"269": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Mimic gift needs slash then gold flying from the head",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/269",
 			"sha": "040e7722",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"270": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Hired Hand Flee + Ball and Chain leaves a stuck portrait",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/270",
 			"sha": "040e7722",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"f5_note": "On playtest/latest. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"292": {
-			"status": "f5",
+			"status": "closed",
 			"title": "after finishing a run, Nib says get five to go deep",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/292",
 			"sha": "7f409be0",
-			"f5_note": "Space/click/single CTA dismiss Nib. Stop Play, F5."
+			"f5_note": "Space/click/single CTA dismiss Nib. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"291": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Merchant forcing a choose between two items to upgrade",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/291",
 			"sha": "7f409be0",
-			"f5_note": "Merchant: any unspent hand item; extra copies allowed. Stop Play, F5."
+			"f5_note": "Merchant: any unspent hand item; extra copies allowed. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"289": {
-			"status": "f5",
-			"title": "spacebar and \"m\" only didnt work on the start menu feedback. now the\u2026",
+			"status": "closed",
+			"title": "spacebar and \"m\" only didnt work on the start menu feedback. now the…",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/289",
 			"sha": "7f409be0",
-			"f5_note": "F2/hub Feedback: shortcuts off except Escape. Stop Play, F5."
+			"f5_note": "F2/hub Feedback: shortcuts off except Escape. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"288": {
-			"status": "f5",
-			"title": "i clicked brand new game and my items are not shiny. they shoudnt be\u2026",
+			"status": "closed",
+			"title": "i clicked brand new game and my items are not shiny. they shoudnt be…",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/288",
 			"sha": "7f409be0",
-			"f5_note": "Uncollected mill/hotbar cards shine until banked. Stop Play, F5."
+			"f5_note": "Uncollected mill/hotbar cards shine until banked. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"287": {
-			"status": "f5",
-			"title": "thespacebarisbrokeninthefeedbackforand-the-letter-that-cones-after-t\u2026",
+			"status": "closed",
+			"title": "thespacebarisbrokeninthefeedbackforand-the-letter-that-cones-after-t…",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/287",
 			"sha": "7f409be0",
-			"f5_note": "Space types a space, M types m in Feedback. Escape closes. Stop Play, F5."
+			"f5_note": "Space types a space, M types m in Feedback. Escape closes. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"286": {
-			"status": "f5",
+			"status": "closed",
 			"title": "nibblinksrepeatedlyanditscreepy",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/286",
 			"sha": "7f409be0",
-			"f5_note": "Nib blink every 6\u201310s, 0.12s, then open eyes. Stop Play, F5."
+			"f5_note": "Nib blink every 6–10s, 0.12s, then open eyes. Stop Play, F5.",
+			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"300": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Martyr lost health from Outbreak poison when spun",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/300",
-			"note": "New playtest report; not on tip yet."
+			"sha": "PENDING",
+			"f5_note": "Spin poison on Martyr Defeats after Noble Death. Stop Play, F5."
 		},
 		"304": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Mouse used Scurry when spun and died; should not have",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/304",
-			"note": "New playtest report; not on tip yet."
+			"sha": "PENDING",
+			"f5_note": "Lethal Scurry Defeats and Spins the next seat. Stop Play, F5."
 		}
 	}
 }

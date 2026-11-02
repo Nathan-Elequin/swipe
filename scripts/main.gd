@@ -8165,6 +8165,7 @@ func _on_spin() -> void:
 			return
 	if await _tick_facing_monster_poison():
 		_undo_arm()
+		await _unlock_if_fighting()
 		return
 	await _apply_plague_doctor_on_spin()
 	var beggar_spin: int = -1
@@ -11707,20 +11708,20 @@ func _tick_facing_monster_poison() -> bool:
 		await poison_pop.burst_slice(i, dose)
 	if i < 0 or i >= wheel.size() or i != facing_index:
 		return false
-	var stopped: bool = await _chip_hp(i, dose)
+	await _chip_hp(i, dose)
 	if i < 0 or i >= wheel.size():
 		return false
 	_clear_monster_poison(i)
-	if int(wheel[i].get("hp", 0)) <= 0 and not _wick_waiting(i):
-		wheel[i]["poison_down"] = true
 	var m: Dictionary = wheel[i]
 	_log("on_spin", "poison  →  %s HP" % m.get("hp", 0))
 	_refresh()
-	if stopped:
-		_store_last_faced_hp()
-		_undo_arm()
-		await _unlock_if_fighting()
+	# Facing poison death (Martyr Noble Death zeros HP here) must Defeat.
+	# Returning "stopped" without slay left a 0 HP seat and skipped the wheel close.
+	if int(wheel[i].get("hp", 0)) <= 0 and not _wick_waiting(i):
+		await _maybe_slay_down(i)
 		return true
+	if i != facing_index and int(wheel[i].get("hp", 0)) <= 0:
+		wheel[i]["poison_down"] = true
 	return false
 
 
@@ -12564,7 +12565,9 @@ func _apply_mouse_scurry() -> bool:
 	if str(wheel[facing_index].get("card_id", "")) != "mouse":
 		return true
 	if int(wheel[facing_index].get("hp", 0)) <= 0:
-		await _begin_slay()
+		# Lethal Scurry is a Defeat: close the wheel and Spin the next seat.
+		# _begin_slay alone could return while Spin was still marked busy.
+		await _maybe_slay_down(facing_index)
 		return true
 	if await _flee_spin():
 		return true
