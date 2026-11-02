@@ -86,6 +86,7 @@ var _hex_good: bool = false
 var _bag_stamp: TextureRect
 var _source_stamp: TextureRect
 var _duration_band: TextureRect
+var _decay_overlay: Control
 var _decay_pip: TextureRect
 var _decay_chain: TextureRect
 var _warn_chip: Label
@@ -636,9 +637,26 @@ func _ensure_duration_band() -> void:
 	_overlay_host().add_child(_duration_band)
 
 
+func _ensure_decay_overlay() -> void:
+	## PanelContainer stretches direct TextureRect children to fill the card.
+	## Host pip/chain on a plain Control so anchors/size stick (tiny TL diamond + edge chain).
+	if _decay_overlay != null:
+		return
+	_decay_overlay = Control.new()
+	_decay_overlay.name = "DecayOverlay"
+	_decay_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_decay_overlay.clip_contents = false
+	_decay_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_decay_overlay.z_index = 8
+	add_child(_decay_overlay)
+	if not resized.is_connected(_place_decay_chain):
+		resized.connect(_place_decay_chain)
+
+
 func _ensure_decay_pip() -> void:
 	if _decay_pip != null:
 		return
+	_ensure_decay_overlay()
 	_decay_pip = TextureRect.new()
 	_decay_pip.name = "DecayPip"
 	_decay_pip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -646,6 +664,8 @@ func _ensure_decay_pip() -> void:
 	_decay_pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_decay_pip.texture_filter = TEXTURE_FILTER_NEAREST
 	_decay_pip.z_index = 9
+	_decay_pip.custom_minimum_size = Vector2(12, 12)
+	_decay_pip.modulate = Color(1, 1, 1, 0.9)
 	_decay_pip.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_decay_pip.offset_left = 2
 	_decay_pip.offset_top = 2
@@ -654,12 +674,13 @@ func _ensure_decay_pip() -> void:
 	if ResourceLoader.exists("res://assets/ui/aura/decay_pip.png"):
 		_decay_pip.texture = load("res://assets/ui/aura/decay_pip.png") as Texture2D
 	_decay_pip.visible = false
-	_overlay_host().add_child(_decay_pip)
+	_decay_overlay.add_child(_decay_pip)
 
 
 func _ensure_decay_chain() -> void:
 	if _decay_chain != null:
 		return
+	_ensure_decay_overlay()
 	_decay_chain = TextureRect.new()
 	_decay_chain.name = "DecayChain"
 	_decay_chain.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -671,7 +692,7 @@ func _ensure_decay_chain() -> void:
 	if ResourceLoader.exists("res://assets/ui/aura/decay_chain.png"):
 		_decay_chain.texture = load("res://assets/ui/aura/decay_chain.png") as Texture2D
 	_decay_chain.visible = false
-	_overlay_host().add_child(_decay_chain)
+	_decay_overlay.add_child(_decay_chain)
 
 
 func _sync_decay_markers() -> void:
