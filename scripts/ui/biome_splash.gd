@@ -13,16 +13,24 @@ const BAR_H := 208.0
 const SPROUT_PATH := "res://assets/dungeon/anim/player/sprout_idle_f0.png"
 const LEAF_PATH := "res://assets/ui/biome_splash/cue_leaf_placeholder.png"
 const LEAF_FINAL := "res://assets/ui/biome_splash/cue_leaf.png"
+## Campaign tip biomes that always get a splash (narration may be blank).
+const CAMPAIGN_BIOME_IDS := ["b1", "b2", "b3", "b4", "b5"]
+## Chrome / narration / cue sit above BiomeAmbient near bands (absolute z 9).
+const CHROME_Z := 50
 
 var _root: Control
 var _art: TextureRect
 var _sprout: TextureRect
+var _ambient_host: Node2D
 var _narration: Label
 var _cue_leaf: TextureRect
 var _cue_label: Label
 var _chrome_biome: Label
 var _chrome_dungeon: Label
 var _chrome_delves: Label
+var _chrome_box: VBoxContainer
+var _narration_bar: Panel
+var _cue_row: HBoxContainer
 var _in_tween: Tween
 var _cue_tween: Tween
 var _skipped: bool = false
@@ -31,6 +39,9 @@ var _play_in_finished: bool = false
 var _built: bool = false
 var _biome_id: String = ""
 var _ctx: Dictionary = {}
+var _hosted_ambient: Node = null
+var _ambient_home: Node = null
+var _ambient_home_index: int = -1
 
 
 func _ready() -> void:
@@ -69,6 +80,9 @@ func play_out() -> void:
 	if _cue_tween != null and is_instance_valid(_cue_tween):
 		_cue_tween.kill()
 		_cue_tween = null
+	## Detach ambient first so the splash fade does not dim particles; the same
+	## kit continues on the play field with no rebuild / preprocess flash.
+	detach_ambient()
 	if _root == null or not is_instance_valid(_root):
 		queue_free()
 		return
@@ -81,6 +95,71 @@ func play_out() -> void:
 	if is_instance_valid(_root) and _root.modulate.a > start_a + 0.001:
 		_root.modulate.a = start_a
 	queue_free()
+
+
+## Host the shared BiomeAmbient over splash art (in front of art, behind chrome).
+## Prefer reparenting the live kit over a second particle system.
+func attach_ambient(ambient: Node) -> void:
+	if ambient == null or not is_instance_valid(ambient):
+		return
+	if not _built:
+		_build()
+	if _ambient_host == null or not is_instance_valid(_ambient_host):
+		return
+	if _hosted_ambient == ambient:
+		return
+	detach_ambient()
+	_hosted_ambient = ambient
+	_ambient_home = ambient.get_parent()
+	_ambient_home_index = ambient.get_index() if _ambient_home != null else -1
+	if _ambient_home != null:
+		_ambient_home.remove_child(ambient)
+	_ambient_host.add_child(ambient)
+	if ambient.has_method("setup"):
+		ambient.call("setup", Vector2(DESIGN.x, ART_H))
+	if ambient.has_method("mouse_filter_ignore_tree"):
+		ambient.call("mouse_filter_ignore_tree")
+
+
+func detach_ambient() -> void:
+	if _hosted_ambient == null:
+		return
+	var ambient: Node = _hosted_ambient
+	_hosted_ambient = null
+	if is_instance_valid(ambient) and ambient.get_parent() == _ambient_host:
+		_ambient_host.remove_child(ambient)
+	if is_instance_valid(ambient) and _ambient_home != null and is_instance_valid(_ambient_home):
+		_ambient_home.add_child(ambient)
+		if _ambient_home_index >= 0:
+			var max_i: int = maxi(0, _ambient_home.get_child_count() - 1)
+			_ambient_home.move_child(ambient, mini(_ambient_home_index, max_i))
+		if ambient.has_method("setup"):
+			ambient.call("setup", Vector2(DESIGN.x, DESIGN.y))
+	_ambient_home = null
+	_ambient_home_index = -1
+
+
+func hosted_ambient() -> Node:
+	return _hosted_ambient
+
+
+func ambient_emitting() -> bool:
+	if _hosted_ambient == null or not is_instance_valid(_hosted_ambient):
+		return false
+	if _hosted_ambient.has_method("total_particle_amount"):
+		if int(_hosted_ambient.call("total_particle_amount")) <= 0:
+			return false
+	if _hosted_ambient.has_method("is_enabled") and not bool(_hosted_ambient.call("is_enabled")):
+		return false
+	## Any kit emitter still on counts as "emitting during splash".
+	for name in ["FarSpores", "HollowFireflies"]:
+		var p: Node = _hosted_ambient.get_node_or_null(name)
+		if p is CPUParticles2D and (p as CPUParticles2D).emitting:
+			return true
+	var near_l: Node = _hosted_ambient.find_child("NearMossL", true, false)
+	if near_l is CPUParticles2D and (near_l as CPUParticles2D).emitting:
+		return true
+	return false
 
 
 func narration_text() -> String:
@@ -122,6 +201,11 @@ static func art_short_for_name(biome_name: String) -> String:
 
 static func has_narration(biome_name: String) -> bool:
 	return PLAYER_COPY.has_key(narration_key_for_name(biome_name))
+
+
+## Campaign map→biome enter for tip biomes b1–b5. Endless / unknown skip splash.
+static func shows_for_biome(biome_id: String) -> bool:
+	return str(biome_id).strip_edges() in CAMPAIGN_BIOME_IDS
 
 
 func _on_play_in_tween_finished() -> void:
@@ -186,6 +270,7 @@ func _build() -> void:
 	_root.modulate.a = 0.0
 	add_child(_root)
 
+	## Art stack sits below BiomeAmbient absolute z (−7…9). Chrome sits above (CHROME_Z).
 	_art = TextureRect.new()
 	_art.name = "Art"
 	_art.position = Vector2(0, 0)
@@ -194,6 +279,8 @@ func _build() -> void:
 	_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	_art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_art.z_as_relative = false
+	_art.z_index = -20
 	_art.texture = _resolve_bg_tex()
 	_root.add_child(_art)
 
@@ -204,6 +291,8 @@ func _build() -> void:
 	vignette.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	vignette.stretch_mode = TextureRect.STRETCH_SCALE
 	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vignette.z_as_relative = false
+	vignette.z_index = -19
 	vignette.texture = _make_vignette()
 	_root.add_child(vignette)
 
@@ -214,6 +303,8 @@ func _build() -> void:
 	fade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	fade.stretch_mode = TextureRect.STRETCH_SCALE
 	fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fade.z_as_relative = false
+	fade.z_index = -18
 	fade.texture = _make_bottom_fade()
 	_root.add_child(fade)
 
@@ -223,6 +314,8 @@ func _build() -> void:
 	shadow.position = Vector2(624, 744)
 	shadow.size = Vector2(144, 16)
 	shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shadow.z_as_relative = false
+	shadow.z_index = -17
 	_root.add_child(shadow)
 
 	_sprout = TextureRect.new()
@@ -233,47 +326,43 @@ func _build() -> void:
 	_sprout.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_sprout.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_sprout.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_sprout.z_as_relative = false
+	_sprout.z_index = -16
 	if ResourceLoader.exists(SPROUT_PATH):
 		_sprout.texture = load(SPROUT_PATH)
 	_root.add_child(_sprout)
 
-	var fireflies := CPUParticles2D.new()
-	fireflies.name = "Fireflies"
-	fireflies.position = Vector2(840, 360)
-	fireflies.amount = 24
-	fireflies.lifetime = 4.0
-	fireflies.preprocess = 2.0
-	fireflies.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
-	fireflies.emission_rect_extents = Vector2(700, 280)
-	fireflies.gravity = Vector2(0, 0)
-	fireflies.direction = Vector2(0, -1)
-	fireflies.spread = 180.0
-	fireflies.initial_velocity_min = 4.0
-	fireflies.initial_velocity_max = 14.0
-	fireflies.scale_amount_min = 2.0
-	fireflies.scale_amount_max = 2.0
-	fireflies.color = Color("E8D36A")
-	_root.add_child(fireflies)
+	## Shared BiomeAmbient reparents here: in front of art/sprout, behind chrome.
+	## No duplicate one-off particle system (old Verdant fireflies removed).
+	_ambient_host = Node2D.new()
+	_ambient_host.name = "AmbientHost"
+	_ambient_host.z_as_relative = false
+	_ambient_host.z_index = 0
+	_root.add_child(_ambient_host)
 
-	var chrome := VBoxContainer.new()
-	chrome.name = "Chrome"
-	chrome.position = Vector2(40, 36)
-	chrome.add_theme_constant_override("separation", 8)
-	chrome.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_root.add_child(chrome)
+	_chrome_box = VBoxContainer.new()
+	_chrome_box.name = "Chrome"
+	_chrome_box.position = Vector2(40, 36)
+	_chrome_box.add_theme_constant_override("separation", 8)
+	_chrome_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_chrome_box.z_as_relative = false
+	_chrome_box.z_index = CHROME_Z
+	_root.add_child(_chrome_box)
 
 	_chrome_biome = _chrome_label(true)
-	chrome.add_child(_wrap_plate(_chrome_biome, true))
+	_chrome_box.add_child(_wrap_plate(_chrome_biome, true))
 	_chrome_dungeon = _chrome_label(false)
-	chrome.add_child(_wrap_plate(_chrome_dungeon, false))
+	_chrome_box.add_child(_wrap_plate(_chrome_dungeon, false))
 	_chrome_delves = _chrome_label(false)
-	chrome.add_child(_wrap_plate(_chrome_delves, false))
+	_chrome_box.add_child(_wrap_plate(_chrome_delves, false))
 
-	var bar := Panel.new()
-	bar.name = "NarrationBar"
-	bar.position = Vector2(0, ART_H)
-	bar.size = Vector2(DESIGN.x, BAR_H)
-	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_narration_bar = Panel.new()
+	_narration_bar.name = "NarrationBar"
+	_narration_bar.position = Vector2(0, ART_H)
+	_narration_bar.size = Vector2(DESIGN.x, BAR_H)
+	_narration_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_narration_bar.z_as_relative = false
+	_narration_bar.z_index = CHROME_Z
 	var bar_style := StyleBoxFlat.new()
 	bar_style.bg_color = Color("1A120E")
 	bar_style.border_color = Color("7A4E2B")
@@ -282,8 +371,8 @@ func _build() -> void:
 	bar_style.content_margin_right = 24
 	bar_style.content_margin_top = 18
 	bar_style.content_margin_bottom = 20
-	bar.add_theme_stylebox_override("panel", bar_style)
-	_root.add_child(bar)
+	_narration_bar.add_theme_stylebox_override("panel", bar_style)
+	_root.add_child(_narration_bar)
 
 	var inner := Panel.new()
 	inner.name = "NarrationInner"
@@ -298,7 +387,7 @@ func _build() -> void:
 	inner_style.border_color = Color("3B2618")
 	inner_style.set_border_width_all(4)
 	inner.add_theme_stylebox_override("panel", inner_style)
-	bar.add_child(inner)
+	_narration_bar.add_child(inner)
 
 	_narration = Label.new()
 	_narration.name = "Narration"
@@ -309,17 +398,21 @@ func _build() -> void:
 	_narration.add_theme_font_size_override("font_size", 36)
 	_narration.add_theme_color_override("font_color", Color("E9D3A1"))
 	_narration.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_narration.z_as_relative = false
+	_narration.z_index = CHROME_Z
 	_root.add_child(_narration)
 
-	var cue_row := HBoxContainer.new()
-	cue_row.name = "Cue"
-	cue_row.alignment = BoxContainer.ALIGNMENT_END
-	cue_row.add_theme_constant_override("separation", 8)
-	cue_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cue_row = HBoxContainer.new()
+	_cue_row.name = "Cue"
+	_cue_row.alignment = BoxContainer.ALIGNMENT_END
+	_cue_row.add_theme_constant_override("separation", 8)
+	_cue_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cue_row.z_as_relative = false
+	_cue_row.z_index = CHROME_Z
 	# right 56, bottom 30 of the bar → absolute
-	cue_row.position = Vector2(DESIGN.x - 56 - 280, ART_H + BAR_H - 30 - 28)
-	cue_row.size = Vector2(280, 28)
-	_root.add_child(cue_row)
+	_cue_row.position = Vector2(DESIGN.x - 56 - 280, ART_H + BAR_H - 30 - 28)
+	_cue_row.size = Vector2(280, 28)
+	_root.add_child(_cue_row)
 
 	_cue_leaf = TextureRect.new()
 	_cue_leaf.name = "CueLeaf"
@@ -332,7 +425,7 @@ func _build() -> void:
 	var leaf_path := LEAF_FINAL if ResourceLoader.exists(LEAF_FINAL) else LEAF_PATH
 	if ResourceLoader.exists(leaf_path):
 		_cue_leaf.texture = load(leaf_path)
-	cue_row.add_child(_cue_leaf)
+	_cue_row.add_child(_cue_leaf)
 
 	_cue_label = Label.new()
 	_cue_label.name = "CueLabel"
@@ -340,7 +433,7 @@ func _build() -> void:
 	_cue_label.add_theme_color_override("font_color", Color("EFE0B6"))
 	_cue_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_cue_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	cue_row.add_child(_cue_label)
+	_cue_row.add_child(_cue_label)
 
 	_apply_copy()
 	_start_leaf_bob()
@@ -359,8 +452,12 @@ func _apply_copy() -> void:
 	if _cue_label:
 		_cue_label.text = PLAYER_COPY.text("splash.chrome.continue", "click anytime")
 	if _narration:
+		## Missing Spin key → blank Label (still show splash). Never invent copy.
 		var key := narration_key_for_name(biome_name)
-		_narration.text = PLAYER_COPY.text(key, "")
+		if PLAYER_COPY.has_key(key):
+			_narration.text = PLAYER_COPY.text(key, "")
+		else:
+			_narration.text = ""
 
 
 func _chrome_label(plate: bool) -> Label:
