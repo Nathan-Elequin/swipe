@@ -1,6 +1,6 @@
 ---
 id: REQ-20261102-hotbar-item-card-layout
-status: open
+status: done
 priority: high
 branch: cursor/hotbar-item-card-layout-888f
 base: playtest/latest
