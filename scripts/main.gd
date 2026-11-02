@@ -475,6 +475,7 @@ var _beggar_hold: bool = false
 var _beggar_intro_running: bool = false
 var _beggar_fill_running: bool = false
 var _spin_inflight: bool = false
+var _auto_spin_lock: bool = false
 var _harpy_did_spin_hit: bool = false
 var _oligarch_forcing: bool = false
 var _sandbag_streak: int = 0
@@ -685,6 +686,7 @@ var _hole_serial: int = 0
 var _hero_swipe_armed: bool = false
 var _sling_aim: int = -1
 var _skip_item_use_count: bool = false
+var _after_item_use_armed: bool = false
 var _flee_random_spin: bool = false
 var _pending_item_flee: bool = false
 var _chakram_halves_busy: bool = false
@@ -1189,6 +1191,7 @@ func _load_runtime() -> void:
 
 func _build_ui() -> void:
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	clip_contents = true
 	dungeon_bg = DUNGEON_BG.new()
 	add_child(dungeon_bg)
 	dungeon_bg.setup(art)
@@ -2371,6 +2374,7 @@ func _reset_run() -> void:
 	last_mob_hp = 3
 	last_mob_atk = 0
 	items_used_this_combat = 0
+	_after_item_use_armed = false
 	last_item_atk = 0
 	last_blk_gain = 0
 	last_hp_lost = 0
@@ -2821,38 +2825,14 @@ func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
 	_splash_busy = true
 	if campaign_map:
 		campaign_map.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var splash = null
 	var biome_id := _campaign_biome_id_for_start(index, endless)
-	var biome_name := ""
-	if _campaign != null:
-		biome_name = CAMPAIGN_SHELL.biome_name(_campaign.rules, biome_id)
 	var dungeon_n: int = 1 if endless else index + 1
-	var delves_n: int = 0
-	if home_cabin != null:
-		delves_n = int(home_cabin.counters.get("delves", 0))
-	var ctx := {
-		"biome_id": biome_id,
-		"biome_name": biome_name,
-		"dungeon_index": dungeon_n,
-		"delves": delves_n,
-	}
-	var BiomeSplash = load("res://scripts/ui/biome_splash.gd")
 	## Tip biomes b1–b5 always splash (placeholder art OK). Missing narration key → blank Label, do not skip.
-	var want_splash: bool = (not endless) and BiomeSplash != null and BiomeSplash.shows_for_biome(biome_id)
+	var splash = null
+	if not endless:
+		splash = await _present_campaign_splash(biome_id, dungeon_n)
 	var used_map_wipe := false
-	if want_splash:
-		splash = BiomeSplash.new()
-		add_child(splash)
-		# Music exactly once at splash appear. Native music_to only. Never re-fire on skip/nest.
-		if sfx and sfx.has_method("music_biome_dungeon"):
-			sfx.music_biome_dungeon(biome_id)
-		## Start the shared BiomeAmbient kit on the splash still (over art, behind chrome).
-		## Same node continues into the delve after detach — no rebuild flash.
-		_sync_biome_ambient(biome_id)
-		if splash.has_method("attach_ambient") and biome_ambient != null:
-			splash.attach_ambient(biome_ambient)
-		await splash.play_in(biome_id, ctx)
-	else:
+	if splash == null:
 		if not endless and sfx and sfx.has_method("music_biome_dungeon"):
 			sfx.music_biome_dungeon(biome_id)
 		# Soft dissolve of the map (no splash). Stay covered until setup + reveal.
@@ -2994,8 +2974,7 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool, splash = n
 	draft_action = "busy"
 	_log("on_click", "Campaign")
 	_log("var", "HP %s" % hp)
-	# music_biome_dungeon moved to splash appear in `_on_campaign_start` (exactly once per map enter).
-	# Leave `_adventure_continue` music alone — push-deeper is not a map enter.
+	# music_biome_dungeon lives in `_present_campaign_splash` (map enter and Push deeper).
 	_refresh()
 	await _reveal_new_buckets()
 	_fill_challenge_pools()
@@ -3410,31 +3389,72 @@ func _on_cabin_item_unhovered() -> void:
 		fly_tip.hide_plate()
 
 
+func _campaign_splash_ctx(biome_id: String, dungeon_n: int) -> Dictionary:
+	var biome_name := ""
+	if _campaign != null:
+		biome_name = CAMPAIGN_SHELL.biome_name(_campaign.rules, biome_id)
+	var delves_n: int = 0
+	if home_cabin != null:
+		delves_n = int(home_cabin.counters.get("delves", 0))
+	return {
+		"biome_id": biome_id,
+		"biome_name": biome_name,
+		"dungeon_index": dungeon_n,
+		"delves": delves_n,
+	}
+
+
+## Map enter and Push deeper. Music once at splash appear. Null if this biome does not splash.
+func _present_campaign_splash(biome_id: String, dungeon_n: int) -> Node:
+	var BiomeSplash = load("res://scripts/ui/biome_splash.gd")
+	if BiomeSplash == null or not BiomeSplash.shows_for_biome(biome_id):
+		return null
+	var splash = BiomeSplash.new()
+	add_child(splash)
+	if sfx and sfx.has_method("music_biome_dungeon"):
+		sfx.music_biome_dungeon(biome_id)
+	_sync_biome_ambient(biome_id)
+	if splash.has_method("attach_ambient") and biome_ambient != null:
+		splash.attach_ambient(biome_ambient)
+	await splash.play_in(biome_id, _campaign_splash_ctx(biome_id, dungeon_n))
+	return splash
+
+
 func _adventure_continue() -> void:
 	if not adventure or phase != "rest" or _adventure_busy:
 		return
 	if _campaign_on and _campaign != null and not CAMPAIGN_SHELL.can_push(_campaign.rules, _campaign.state):
 		return
 	_adventure_busy = true
+	var splash = null
+	var endless_run := false
 	if _campaign_on and _campaign != null:
 		CAMPAIGN_SHELL.push_deeper(_campaign.rules, _campaign.state)
 		CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
 		_campaign.write()
-		var endless_run := bool(_campaign.state.get("run", {}).get("endless", false))
-		if sfx and sfx.has_method("music_biome_dungeon") and not endless_run:
-			sfx.music_biome_dungeon(CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state))
+		endless_run = bool(_campaign.state.get("run", {}).get("endless", false))
 	elif sfx:
 		sfx.set_combat_music(true)
 	_undo_clear()
 	overlay.visible = false
+	if rope_exit:
+		rope_exit.hide_exit()
 	dungeon_index += 1
+	if _campaign_on and _campaign != null and not endless_run:
+		var biome_id := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+		_sync_dungeon_biome(biome_id)
+		splash = await _present_campaign_splash(biome_id, dungeon_index)
+		if splash == null and sfx and sfx.has_method("music_biome_dungeon"):
+			sfx.music_biome_dungeon(biome_id)
 	await _reveal_new_buckets()
 	silenced = {}
 	phase = "draft"
 	draft_action = "busy"
 	_refresh()
 	var seq: int = _mill_seq
-	await _play_hall_wipe()
+	var used_splash: bool = splash != null and is_instance_valid(splash)
+	if not used_splash:
+		await _play_hall_wipe()
 	if seq != _mill_seq or not adventure:
 		_adventure_busy = false
 		return
@@ -3444,6 +3464,11 @@ func _adventure_continue() -> void:
 	_reset_moves()
 	_fill_challenge_pools()
 	_empty_wheel(CHALLENGE_SEATS)
+	if used_splash:
+		await splash.wait_dismissed()
+		await splash.play_out()
+		_forward_ambient_avoids()
+		await _nest_wheel()
 	if _campaign_on:
 		await _campaign_arm_delve()
 	await _run_challenge_setup()
@@ -3497,6 +3522,7 @@ func _prep_next_dungeon() -> void:
 	last_mob_hp = 3
 	last_mob_atk = 0
 	items_used_this_combat = 0
+	_after_item_use_armed = false
 	last_item_atk = 0
 	last_blk_gain = 0
 	last_hp_lost = 0
@@ -7704,9 +7730,8 @@ func _reseat_slots() -> void:
 
 
 func _on_spin() -> void:
-	if _beggar_pending_intro() or _beggar_intro_running:
-		_kick_beggar_intro()
-		return
+	if _beggar_mark_busy():
+		await _await_beggar_marks()
 	_trace_resolve("spin start phase=%s" % phase)
 	_session("spin", "spin")
 	if phase != "ready":
@@ -7829,6 +7854,7 @@ func _on_spin() -> void:
 	else:
 		blk = 0
 	items_used_this_combat = 0
+	_after_item_use_armed = false
 	last_item_atk = 0
 	skip_swing_this_fight = false
 	keep_blocked_this_fight = false
@@ -8583,9 +8609,12 @@ func _maybe_auto_spin() -> void:
 		while ability_slash.visible and guard < 90:
 			await get_tree().process_frame
 			guard += 1
-	if phase == "ready" and not _wheel_busy():
+	await _await_beggar_marks()
+	if phase == "ready" and not _wheel_busy() and not _beggar_mark_busy() and not _auto_spin_lock:
+		_auto_spin_lock = true
 		_trace_resolve("auto-spin go")
 		await _on_spin()
+		_auto_spin_lock = false
 
 
 func _remove_facing() -> void:
@@ -8651,6 +8680,7 @@ func _capture_run() -> Dictionary:
 		"last_mob_hp": last_mob_hp,
 		"last_mob_atk": last_mob_atk,
 		"items_used_this_combat": items_used_this_combat,
+		"after_item_use_armed": _after_item_use_armed,
 		"last_item_atk": last_item_atk,
 		"last_blk_gain": last_blk_gain,
 		"last_hp_lost": last_hp_lost,
@@ -8768,6 +8798,7 @@ func _undo_begin() -> void:
 func _undo_abort() -> void:
 	_sling_aim = -1
 	_skip_item_use_count = false
+	_after_item_use_armed = false
 	_undo_inflight = false
 	_sync_buttons()
 
@@ -8883,6 +8914,7 @@ func _restore_run(snap: Dictionary) -> void:
 	last_mob_hp = int(snap.get("last_mob_hp", last_mob_hp))
 	last_mob_atk = int(snap.get("last_mob_atk", last_mob_atk))
 	items_used_this_combat = int(snap.get("items_used_this_combat", items_used_this_combat))
+	_after_item_use_armed = bool(snap.get("after_item_use_armed", false))
 	last_item_atk = int(snap.get("last_item_atk", last_item_atk))
 	last_blk_gain = int(snap.get("last_blk_gain", last_blk_gain))
 	last_hp_lost = int(snap.get("last_hp_lost", last_hp_lost))
@@ -11374,6 +11406,28 @@ func _beggar_drop_invalid_owners() -> void:
 			wheel[i]["beggar_mark"] = -1
 
 
+func _beggar_mark_busy() -> bool:
+	return _beggar_pending_intro() or _beggar_intro_running or _beggar_fill_running
+
+
+func _await_beggar_marks() -> void:
+	var guard: int = 0
+	while _beggar_mark_busy() and guard < 240:
+		_kick_beggar_intro()
+		_kick_beggar_fill()
+		if get_tree() == null:
+			return
+		await get_tree().process_frame
+		guard += 1
+
+
+func _resume_after_beggar_marks() -> void:
+	_refresh()
+	if phase != "ready" or _await_first_spin:
+		return
+	call_deferred("_maybe_auto_spin")
+
+
 func _beggar_pending_intro() -> bool:
 	if not _beggar_phase_ok():
 		return false
@@ -11586,8 +11640,8 @@ func _run_beggar_intros() -> void:
 			await _beggar_assign(index, true)
 	_beggar_hold = false
 	_beggar_intro_running = false
-	_refresh()
 	_kick_beggar_fill()
+	_resume_after_beggar_marks()
 
 
 func _kick_beggar_fill() -> void:
@@ -11623,7 +11677,7 @@ func _run_beggar_fill() -> void:
 			break
 		await _beggar_assign(index, true)
 	_beggar_fill_running = false
-	_refresh()
+	_resume_after_beggar_marks()
 
 
 func _maybe_death_bell_spawn(index: int) -> void:
@@ -15324,12 +15378,17 @@ func _after_item_resolved(it: Dictionary) -> void:
 	_kick_beggar_fill()
 	if it.is_empty():
 		return
+	# Item body is done. Dual Sais / Shield / Toll / Adaptation wait until now
+	# so Pocketwatch's attack (and Defeat, Signpost, Hook) can finish first.
+	await _commit_after_item_use()
 	if await _flush_vindictive():
 		return
 	if _clicked_item_counts_as_use(it):
 		_remember_item_use(it)
 		await _basilisk_on_gazed_use(it)
-	if not bool(it.get("spent", false)):
+	var spent_use: bool = bool(it.get("spent", false))
+	var magnet_use: bool = str(_ops_of(it).get("kind", "")) == "magnet"
+	if not spent_use and not magnet_use:
 		return
 	if phase != "fighting":
 		return
@@ -16177,6 +16236,17 @@ func _feed_cube(uid: int) -> void:
 func _count_item_use() -> void:
 	if _skip_item_use_count:
 		return
+	# Spend-time marker only. Follow-ons run in `_commit_after_item_use`
+	# after the item body (Pocketwatch attack, Defeat, Signpost, Hook).
+	_after_item_use_armed = true
+
+
+func _commit_after_item_use() -> void:
+	if _skip_item_use_count:
+		return
+	if not _after_item_use_armed:
+		return
+	_after_item_use_armed = false
 	items_used_this_combat += 1
 	beads_step = (beads_step % 4) + 1
 	_log("var", "items this combat %s" % items_used_this_combat)
@@ -16298,7 +16368,7 @@ func _set_magnet_mode(it: Dictionary, oid: String) -> void:
 	_remember_item_use(it)
 	if phase == "fighting":
 		await _count_item_use()
-		await _harpy_poke()
+		await _after_item_resolved(it)
 
 
 func _consume_armed_magnets(mode: String) -> void:
@@ -21037,14 +21107,9 @@ func _sprout_keeps_stage() -> bool:
 
 
 func _fight_sprite_pad() -> int:
-	if combat_stage == null:
-		return 0
-	combat_stage.size = Vector2(280, 240)
-	combat_stage.custom_minimum_size = combat_stage.size
-	if combat_stage.has_method("_place_sprite"):
-		combat_stage._place_sprite()
-	var sh: float = combat_stage.sprite_height() if combat_stage.has_method("sprite_height") else 0.0
-	return int(round(sh / 3.0))
+	# Unused leftover: stage_card no longer pads the plate for the portrait.
+	# Do not resize combat_stage here — _place_fight_art owns that rect.
+	return 0
 
 
 func _wheel_block_circle() -> Dictionary:
@@ -21112,26 +21177,14 @@ func _hold_sprout_on_floor() -> void:
 
 
 func _recenter_hotbar() -> void:
-	if hotbar_wrap == null or hotbar_panel == null or wheel_view == null:
+	if hotbar_wrap == null:
 		return
-	var parent_w: float = hotbar_wrap.size.x
-	if parent_w < 32.0:
-		return
-	var panel_w: float = hotbar_panel.get_combined_minimum_size().x
-	if panel_w < 8.0:
-		panel_w = hotbar_panel.size.x
-	if panel_w < 8.0:
-		return
-	var wheel_cx: float = wheel_view.get_global_rect().get_center().x
-	var local_cx: float = wheel_cx - hotbar_wrap.global_position.x
-	var left_m: float = clampf(local_cx - panel_w * 0.5, 0.0, maxf(0.0, parent_w - panel_w))
-	var right_m: float = maxf(0.0, parent_w - panel_w - left_m)
-	var next_l: int = int(round(left_m))
-	var next_r: int = int(round(right_m))
-	if hotbar_wrap.get_theme_constant("margin_left") == next_l and hotbar_wrap.get_theme_constant("margin_right") == next_r:
-		return
-	hotbar_wrap.add_theme_constant_override("margin_left", next_l)
-	hotbar_wrap.add_theme_constant_override("margin_right", next_r)
+	## Do not use theme margins to slide the hotbar. Those margins add to this
+	## MarginContainer's minimum size, the combat column grows past the
+	## viewport, and the wheel centers in that extra width (sits right of
+	## screen center). The inner HBox already centers the panel.
+	hotbar_wrap.add_theme_constant_override("margin_left", 0)
+	hotbar_wrap.add_theme_constant_override("margin_right", 0)
 
 
 func _sprout_kill() -> void:
@@ -21439,8 +21492,11 @@ func _place_fight_art(force: bool = false) -> void:
 	stack_w = minf(stack_w, maxf(140.0, view_sz.x - wr.end.x - VIEW_FRAME.CALLOUT_RIGHT_MARGIN - 8.0))
 	var sprite_h := 216.0
 	var port_sz := Vector2(stack_w, sprite_h)
-	# The portrait frame sits fully above the inspect plate. The body is scaled to that frame.
+	# Portrait overlaps the inspect plate so the feet sit just above the name.
+	# Hang is the part that sticks up off the top of the brown card.
 	var overlap := 0.0
+	if face_box != null and face_box.visible and face_box.has_method("stage_sprite_foot_inset"):
+		overlap = float(face_box.stage_sprite_foot_inset())
 	var plaque_h := 0.0
 	if face_box != null and face_box.visible:
 		# reset_size / min-size are Control thrash — only remeasure when the
@@ -21513,7 +21569,7 @@ func _place_fight_art(force: bool = false) -> void:
 				if combat_stage.has_method("_place_sprite"):
 					combat_stage._place_sprite()
 			if face_box != null and face_box.visible:
-				face_box.global_position = Vector2(right_x, y + port_sz.y + 12.0)
+				face_box.global_position = Vector2(right_x, y + hang)
 		if player_stage != null:
 			player_stage.hide_stage()
 	if hypno_stage != null and hypno_stage.visible:
@@ -21983,8 +22039,10 @@ func _layout_play_field() -> void:
 	if tray != null and tray.visible:
 		top_need = maxf(top_need, tray.position.y + tray.size.y + 8.0)
 	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - top_need - 8.0))
-	# Dead-center the wheel. Deck still sits to its right; callout uses the far right gutter.
-	var x: float = (sz.x - side) * 0.5
+	# Viewport center, not play-field center. A too-wide column used to shove
+	# the wheel right of the screen; background art is wallpaper only.
+	var view_cx: float = get_viewport_rect().size.x * 0.5
+	var x: float = view_cx - play_field.global_position.x - side * 0.5
 	x = VIEW_FRAME.clamp_x(x, side, sz)
 	# Pin to the top of the play field. Slack stays under the wheel, above Take.
 	var wheel_y: float = top_need
@@ -21996,6 +22054,7 @@ func _layout_play_field() -> void:
 	wheel_view.position = Vector2(x, wheel_y)
 	wheel_view.size = Vector2(side, side)
 	if hotbar_wrap:
+		hotbar_wrap.add_theme_constant_override("margin_left", 0)
 		hotbar_wrap.add_theme_constant_override("margin_right", 0)
 	if btn_wrap:
 		btn_wrap.add_theme_constant_override("margin_left", 0)
@@ -22547,7 +22606,7 @@ func _sync_buttons() -> void:
 	var busy: bool = phase == "spinning" or phase == "slaying" or (phase == "draft" and draft_action == "busy") or _wheel_busy() or _adventure_busy
 	var enemy_up: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size() and (int(wheel[facing_index].get("hp", 0)) > 0 or _wick_waiting(facing_index))
 	btn_spin.disabled = busy or phase != "ready"
-	if _beggar_pending_intro() or _beggar_intro_running:
+	if _beggar_mark_busy():
 		btn_spin.disabled = true
 	if in_tutorial and tut != null and tut.wait != "spin" and tut.wait != "auto_spin":
 		btn_spin.disabled = true
@@ -23186,6 +23245,7 @@ func _sync_hotbar() -> void:
 		else:
 			hotbar_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	if hotbar_wrap:
+		hotbar_wrap.add_theme_constant_override("margin_left", 0)
 		hotbar_wrap.add_theme_constant_override("margin_right", 0)
 	if btn_wrap:
 		btn_wrap.add_theme_constant_override("margin_left", 0)

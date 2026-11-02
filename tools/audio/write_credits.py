@@ -52,5 +52,6 @@ w("music_cinder_forge_a.ogg / music_cinder_forge_b.ogg / music_cinder_forge_c.og
 w("music_crystal_cavern_a.ogg / music_crystal_cavern_b.ogg / music_crystal_cavern_c.ogg — Crystal Cavern Approach F (b2; replaces sunken_mire music keys) — 119 BPM — Nathan (refinedpolonaise473), 2026-10-30")
 w("music_ashen_crypt_a.ogg / music_ashen_crypt_b.ogg / music_ashen_crypt_c.ogg — Ashen Crypt Approach F (b3) — 113 BPM — map gain_db -2 (A+B+C stack ~1.5 dB Music-bus headroom) — Nathan (refinedpolonaise473), 2026-10-30")
 w("music_shadow_abyss_a.ogg / _b / _c — Shadow Abyss Approach F (b5) — 200 BPM — A/B -2 dB, C +6 dB — Nathan (refinedpolonaise473), 2026-10-30")
+w("music_between_dungeons.ogg (~67.447 s, ~142 BPM) — shared between-dungeon hold bed (all biomes) — Suno instrumental by Nathan (refinedpolonaise473), 2026-11-01")
 open(out, "w").write("\n".join(L) + "\n")
 print("wrote", out, len(L), "lines")

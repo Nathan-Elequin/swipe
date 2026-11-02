@@ -422,3 +422,7 @@ Shadow Abyss theme — Approach F hybrid (2026-10-30)
 --------------------------------------------------
 Source: Abyss Stems (200 BPM). Instrumental by Nathan (refinedpolonaise473). b5.
 music_shadow_abyss_a.ogg / _b / _c — Shadow Abyss Approach F (b5) — 200 BPM — A/B -2 dB, C +6 dB — Nathan (refinedpolonaise473), 2026-10-30
+
+Between-dungeons hold (2026-11-01)
+----------------------------------
+music_between_dungeons.ogg (~67.447 s, ~142 BPM, libvorbis 192k) — shared rest / rope_exit bed after dungeon clear (all biomes) — Suno instrumental by Nathan (refinedpolonaise473), 2026-11-01

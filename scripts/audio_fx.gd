@@ -1040,9 +1040,11 @@ func _forge_exit_combat() -> void:
 
 
 func music_after_dungeon_clear() -> void:
-	# Biome victory → rest/transition: fade the dungeon bed out and stay silent
-	# until the next delve starts. Do not keep Forge A, and do not jump to title.
-	# Verdant Hollow: wait for the next bar, then one-shot outro → rest silence.
+	# Biome victory → rest/transition: soft music_to into between_dungeons after the
+	# clear outro. Do not keep Forge A, and do not jump to title.
+	# Verdant Hollow: wait for the next bar, then one-shot outro → between_dungeons
+	# (handoff in _on_music_finished). Other biomes: music_to(between_dungeons) now.
+	# Do not start between_dungeons on rest appear before the clear outro finishes.
 	var was_bed: StringName = _current_bed
 	music_state = &"rest"
 	_between_duck = 0.0
@@ -1068,10 +1070,21 @@ func music_after_dungeon_clear() -> void:
 		)
 		log_audio("start", "verdant_victory_scheduled", {"wait": wait, "pos": pos})
 		return
+	_music_to_between_dungeons("dungeon_clear")
+
+
+func _music_to_between_dungeons(reason: String) -> void:
+	# Soft enter via native music_to crossfade only (~0.8s). No second fade.
+	if not _beds.has("between_dungeons"):
+		var fades_missing: Dictionary = _music_cfg.get("crossfade_s", {})
+		var fade_missing: float = float(fades_missing.get("to_rest", fades_missing.get("to_title", 1.2)))
+		log_audio("stop", "dungeon_clear_fade", {"fade": fade_missing, "reason": reason})
+		_fade_music_out(fade_missing)
+		return
 	var fades: Dictionary = _music_cfg.get("crossfade_s", {})
-	var fade_s: float = float(fades.get("to_rest", fades.get("to_title", 1.2)))
-	log_audio("stop", "dungeon_clear_fade", {"fade": fade_s})
-	_fade_music_out(fade_s)
+	var fade_s: float = float(fades.get("to_rest", fades.get("default", 0.8)))
+	log_audio("start", "between_dungeons", {"fade": fade_s, "reason": reason})
+	music_to(&"between_dungeons", fade_s)
 
 
 func music_victory() -> void:
@@ -1422,10 +1435,13 @@ func _on_music_finished(player: AudioStreamPlayer) -> void:
 	log_audio("stop", "finished", {"player": player.name if player else ""})
 	if _current_bed == &"" or music != player:
 		return
-	# Verdant clear outro: end into rest silence. resume_intended would restart the bed.
+	# Verdant clear outro: soft handoff into shared rest bed (not silence).
 	if _current_bed == &"verdant_hollow_victory":
-		_current_bed = &""
 		log_audio("stop", "verdant_victory_done", {})
+		if music_state == &"rest":
+			_music_to_between_dungeons("verdant_victory_done")
+		else:
+			_current_bed = &""
 		return
 	# One-shot intro beds: crossfade (or hard cut at 0s) into their `next` loop.
 	if _beds.has(String(_current_bed)):

@@ -11,8 +11,8 @@ Sequence storyboard: Doop sequence frame (`f2`): map → dissolve → story spla
 |---|---|---|
 | Player enters a biome **from the campaign map** (`campaign_map.start_asked` → `_on_campaign_start`) | **Yes, on every enter** | Soft dissolve in → splash → skip → fade out → wheel nests |
 | Player leaves a biome (back to cabin or map: win, loss, push-home) | **No** | Soft dissolve out only |
-| Push deeper mid-run (`_adventure_continue`, hall wipe) | No (not a map enter) | Existing hall wipe, unchanged |
-| Endless run | No (Endless has no biome narration and no `music_biome_dungeon` today) | Existing flow |
+| Push deeper mid-run (`_adventure_continue`) into the next tip biome | **Yes** (same splash as map enter) | Splash for the **next** biome → skip → fade out → wheel nests. No hall wipe on this path. |
+| Endless run | No (Endless has no biome narration and no `music_biome_dungeon` today) | Existing hall wipe |
 
 Tip biomes **b1–b5** always show the splash on map enter (placeholder art OK). Slug = snake_case of the campaign biome name: `verdant_hollow`, `crystal_cavern`, `ashen_crypt`, `cinder_forge`, `shadow_abyss`. If `splash.biome.<slug>` is missing from `data/player-copy.json`, still show the splash with chrome + an **empty** narration Label — do not invent words and do not skip. Spin keys light up later with no code change. Biome ambient particles start on the splash still (shared `BiomeAmbient` kit over art, behind chrome) and continue into the delve.
 
@@ -96,4 +96,4 @@ Bar #1A120E · bar border #7A4E2B · inner #211610 / #3B2618 · text #E9D3A1 · 
 - No new player-facing words. No Tier. No "Press any key" or OS-style button.
 - No monster bodies in the art. Eyes only.
 - No auto-advance timer, ever.
-- No splash on leave, push-deeper, or Endless.
+- No splash on leave or Endless. Push deeper into b1–b5 uses the same splash as map enter.

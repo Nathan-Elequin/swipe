@@ -32,7 +32,19 @@ def extract(name: str) -> dict[str, str]:
     return out
 
 
-art = {"items": extract("ITEM_PNG"), "monsters": extract("MONSTER_PNG")}
+def live_monsters(raw: dict[str, str]) -> dict[str, str]:
+    out = dict(raw)
+    for mid in list(out.keys()):
+        face = ROOT / "assets" / "dungeon" / "anim" / "facing" / f"{mid}_facing_idle_f0.png"
+        wheel = ROOT / "assets" / "dungeon" / "anim" / "wheel" / f"{mid}_wheel_base.png"
+        if face.is_file():
+            out[mid] = f"/assets/dungeon/anim/facing/{mid}_facing_idle_f0.png"
+        elif wheel.is_file():
+            out[mid] = f"/assets/dungeon/anim/wheel/{mid}_wheel_base.png"
+    return out
+
+
+art = {"items": extract("ITEM_PNG"), "monsters": live_monsters(extract("MONSTER_PNG"))}
 (ROOT / "design" / "buckets-art.json").write_text(
     json.dumps(art, indent=2) + "\n", encoding="utf-8"
 )

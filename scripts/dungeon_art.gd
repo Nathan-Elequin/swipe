@@ -408,16 +408,35 @@ func monster_stem(card_id: String) -> String:
 	return str(MONSTER_STEM.get(card_id, ""))
 
 
+func _facing_strip(card_id: String) -> Array:
+	var id: String = str(card_id).strip_edges()
+	var out: Array = []
+	if id == "":
+		return out
+	for i in 6:
+		var t: Texture2D = _load_tex("res://assets/dungeon/anim/facing/%s_facing_idle_f%d.png" % [id, i])
+		if t == null:
+			break
+		out.append(t)
+	return out
+
+
+## Current unique art: facing, then wheel, then extra still, then Kenney atlas.
+## Extra PNGs and slash strips are the early Kenney pass and must not win.
 func monster_idle(card_id: String) -> Array:
+	var face: Array = _facing_strip(card_id)
+	if not face.is_empty():
+		return face
+	var wheel: Array = monster_wheel_frames(card_id)
+	if not wheel.is_empty():
+		return wheel
 	if extra_monsters.has(card_id) and extra_monsters[card_id] != null:
 		return [extra_monsters[card_id]]
 	return frames(monster_stem(card_id))
 
 
 func monster_run(card_id: String) -> Array:
-	if extra_monsters.has(card_id) and extra_monsters[card_id] != null:
-		return [extra_monsters[card_id]]
-	return run_frames(monster_stem(card_id))
+	return monster_idle(card_id)
 
 
 func monster_still(card_id: String) -> Texture2D:
@@ -446,18 +465,7 @@ func monster_wheel_frames(card_id: String) -> Array:
 
 
 func monster_facing_idle(card_id: String) -> Array:
-	var id: String = str(card_id).strip_edges()
-	var out: Array = []
-	if id == "":
-		return monster_idle(card_id)
-	for i in 6:
-		var t: Texture2D = _load_tex("res://assets/dungeon/anim/facing/%s_facing_idle_f%d.png" % [id, i])
-		if t == null:
-			break
-		out.append(t)
-	if out.is_empty():
-		return monster_idle(card_id)
-	return out
+	return monster_idle(card_id)
 
 
 func wheel_frames_all() -> Dictionary:
@@ -584,20 +592,13 @@ func _knock_backdrop(img: Image) -> void:
 
 
 func monster_slash_frames(card_id: String) -> Array:
-	## Action frames for the slash cut-in. Empty → caller uses monster_still punch-in.
-	var out: Array = []
-	var id: String = str(card_id).strip_edges()
-	if id == "":
-		return out
-	var base_path := "res://assets/dungeon/anim/slash/%s_slash_base.png" % id
-	var _base: Texture2D = _load_tex(base_path)
-	for i in 12:
-		var path := "res://assets/dungeon/anim/slash/%s_slash_f%d.png" % [id, i]
-		var t: Texture2D = _load_tex(path)
-		if t == null:
-			break
-		out.append(t)
-	return out
+	## Action frames for the slash cut-in. Use the same current facing/wheel
+	## art as the wheel seat. Kenney-era files in anim/slash/ are ignored.
+	## Empty → caller uses monster_still punch-in.
+	var face: Array = _facing_strip(card_id)
+	if not face.is_empty():
+		return face
+	return monster_wheel_frames(card_id)
 
 
 func nib_frames() -> Array:

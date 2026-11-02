@@ -431,7 +431,7 @@
       "from_deadly": 1.2,
       "to_cabin": 1.5,
       "to_title": 1.2,
-      "to_rest": 1.2,
+      "to_rest": 0.8,
       "to_victory_outro": 0.35
     },
     "between_fights_duck_db": -4,
@@ -481,7 +481,14 @@
         "gain_db": -4.0,
         "loop": false,
         "resume_position": false,
-        "note": "Verdant Hollow (b1) dungeon-clear one-shot; finished → rest silence (no next)"
+        "note": "Verdant Hollow (b1) dungeon-clear one-shot; finished → between_dungeons via music_to (no next; soft 0.8s)"
+      },
+      "between_dungeons": {
+        "file": "music_between_dungeons",
+        "gain_db": -4.0,
+        "loop": true,
+        "resume_position": false,
+        "note": "Shared hold bed after dungeon clear / rope_exit rest. Same track all biomes. Starts mid-groove; loop the OGG. Enter only after clear outro via music_to (~0.8s)."
       },
       "cinder_forge": {
         "file": "music_cinder_forge_a",
@@ -612,7 +619,8 @@
       "intro": "intro",
       "ending": "ending",
       "keyring": "cabin(ducked)",
-      "rope_exit": "combat(ducked)",
+      "rope_exit": "between_dungeons",
+      "rest": "between_dungeons (after clear outro)",
       "homecoming": "cabin",
       "verdant_hollow": "verdant_hollow_intro then verdant_hollow",
       "cinder_forge": "cinder_forge A always; B combat; C Tier-3; no between-fight bed duck",
