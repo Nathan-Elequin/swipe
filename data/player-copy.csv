@@ -514,3 +514,12 @@ Cabin,cabin.hall.ordinal_5,Trophy Hall plaque ordinal,5th
 Cabin,cabin.hall.lift_sign,Dumbwaiter header,LIFT
 Cabin,cabin.hall.lift_lever,Dumbwaiter lever hover,Pull
 Cabin,cabin.hall.lore_claimed,Lore panel footer when claimed,Claimed
+Splash,splash.chrome.biome,Biome-enter splash · top-left plate (biome name),{name}
+Splash,splash.chrome.dungeon,Biome-enter splash · top-left stat,Dungeon {n}
+Splash,splash.chrome.delves,Biome-enter splash · top-left stat,Delves: {n}
+Splash,splash.chrome.continue,Biome-enter splash · leaf cue,click anytime
+Splash,splash.biome.verdant_hollow,Biome-enter splash · narration · Verdant Hollow,"The Hollow breathes green under Mount Grumblegut. Moss drinks what little light sneaks in. The path ahead is soft, damp, and already listening."
+Splash,splash.biome.crystal_cavern,Biome-enter splash · narration · Crystal Cavern,"The Cavern breathes cold under Mount Grumblegut. Ice drinks what little sound sneaks in. The path ahead is bright, brittle, and already listening."
+Splash,splash.biome.ashen_crypt,Biome-enter splash · narration · Ashen Crypt,"The Crypt breathes ash under Mount Grumblegut. Dust drinks what little light sneaks in. The path ahead is dry, still, and already listening."
+Splash,splash.biome.cinder_forge,Biome-enter splash · narration · Cinder Forge,"The Forge breathes heat under Mount Grumblegut. Sparks drink what little dark sneaks in. The path ahead is loud, glowing, and already listening."
+Splash,splash.biome.shadow_abyss,Biome-enter splash · narration · Shadow Abyss,"The Abyss breathes black under Mount Grumblegut. Shadow drinks what little light sneaks in. The path ahead is steep, quiet, and already listening."

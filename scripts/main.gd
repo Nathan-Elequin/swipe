@@ -2837,7 +2837,8 @@ func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
 		"delves": delves_n,
 	}
 	var BiomeSplash = load("res://scripts/ui/biome_splash.gd")
-	var want_splash: bool = (not endless) and BiomeSplash != null and BiomeSplash.has_narration(biome_name)
+	## Tip biomes b1–b5 always splash (placeholder art OK). Missing narration key → blank Label, do not skip.
+	var want_splash: bool = (not endless) and BiomeSplash != null and BiomeSplash.shows_for_biome(biome_id)
 	var used_map_wipe := false
 	if want_splash:
 		splash = BiomeSplash.new()
@@ -2845,6 +2846,11 @@ func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
 		# Music exactly once at splash appear. Native music_to only. Never re-fire on skip/nest.
 		if sfx and sfx.has_method("music_biome_dungeon"):
 			sfx.music_biome_dungeon(biome_id)
+		## Start the shared BiomeAmbient kit on the splash still (over art, behind chrome).
+		## Same node continues into the delve after detach — no rebuild flash.
+		_sync_biome_ambient(biome_id)
+		if splash.has_method("attach_ambient") and biome_ambient != null:
+			splash.attach_ambient(biome_ambient)
 		await splash.play_in(biome_id, ctx)
 	else:
 		if not endless and sfx and sfx.has_method("music_biome_dungeon"):
@@ -2977,7 +2983,8 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool, splash = n
 	CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
 	_campaign.write()
 	_sync_dungeon_biome()
-	## Ambient on for b1 campaign delves only (Endless / non-b1 clear themselves).
+	## Ambient for campaign tip biomes b1–b5 (Endless / cabin / map clear themselves).
+	## If splash already started the kit, set_biome short-circuits — no preprocess flash.
 	_sync_biome_ambient()
 	_reset_moves()
 	dungeon_index = 1 if endless else index + 1
@@ -2995,7 +3002,9 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool, splash = n
 	_empty_wheel(CHALLENGE_SEATS)
 	if splash != null and is_instance_valid(splash):
 		await splash.wait_dismissed()
+		## play_out detaches ambient back onto main before fading art/chrome.
 		await splash.play_out()
+		_forward_ambient_avoids()
 	elif used_map_wipe:
 		await _biome_dissolve_reveal(0.20)
 	await _nest_wheel()

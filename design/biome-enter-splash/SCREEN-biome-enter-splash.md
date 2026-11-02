@@ -14,7 +14,7 @@ Sequence storyboard: Doop sequence frame (`f2`): map → dissolve → story spla
 | Push deeper mid-run (`_adventure_continue`, hall wipe) | No (not a map enter) | Existing hall wipe, unchanged |
 | Endless run | No (Endless has no biome narration and no `music_biome_dungeon` today) | Existing flow |
 
-Verdant Hollow (`b1`) ships first. A biome whose narration key `splash.biome.<slug>` is missing from `data/player-copy.json` **skips the splash**: map dissolves out, wheel nests, music still starts. That keeps us from inventing copy. Slug = snake_case of the campaign biome name: `verdant_hollow`, `crystal_cavern`, `ashen_crypt`, `cinder_forge`, `shadow_abyss`.
+Tip biomes **b1–b5** always show the splash on map enter (placeholder art OK). Slug = snake_case of the campaign biome name: `verdant_hollow`, `crystal_cavern`, `ashen_crypt`, `cinder_forge`, `shadow_abyss`. If `splash.biome.<slug>` is missing from `data/player-copy.json`, still show the splash with chrome + an **empty** narration Label — do not invent words and do not skip. Spin keys light up later with no code change. Biome ambient particles start on the splash still (shared `BiomeAmbient` kit over art, behind chrome) and continue into the delve.
 
 ## 2. Frame (1680×1040 design space)
 

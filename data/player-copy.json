@@ -5315,7 +5315,31 @@
 			"key": "splash.biome.verdant_hollow",
 			"where": "Biome-enter splash · narration · Verdant Hollow",
 			"text": "The Hollow breathes green under Mount Grumblegut. Moss drinks what little light sneaks in. The path ahead is soft, damp, and already listening."
+		},
+		{
+			"cat": "Splash",
+			"key": "splash.biome.crystal_cavern",
+			"where": "Biome-enter splash · narration · Crystal Cavern",
+			"text": "The Cavern breathes cold under Mount Grumblegut. Ice drinks what little sound sneaks in. The path ahead is bright, brittle, and already listening."
+		},
+		{
+			"cat": "Splash",
+			"key": "splash.biome.ashen_crypt",
+			"where": "Biome-enter splash · narration · Ashen Crypt",
+			"text": "The Crypt breathes ash under Mount Grumblegut. Dust drinks what little light sneaks in. The path ahead is dry, still, and already listening."
+		},
+		{
+			"cat": "Splash",
+			"key": "splash.biome.cinder_forge",
+			"where": "Biome-enter splash · narration · Cinder Forge",
+			"text": "The Forge breathes heat under Mount Grumblegut. Sparks drink what little dark sneaks in. The path ahead is loud, glowing, and already listening."
+		},
+		{
+			"cat": "Splash",
+			"key": "splash.biome.shadow_abyss",
+			"where": "Biome-enter splash · narration · Shadow Abyss",
+			"text": "The Abyss breathes black under Mount Grumblegut. Shadow drinks what little light sneaks in. The path ahead is steep, quiet, and already listening."
 		}
 	],
-	"updated": "2026-11-01"
+	"updated": "2026-11-02"
 }
