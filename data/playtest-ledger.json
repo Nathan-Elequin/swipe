@@ -1,7 +1,14 @@
 {
-	"updated_at": "2026-11-02T20:25:00Z",
+	"updated_at": "2026-11-02T20:58:00Z",
 	"branch": "playtest/latest",
 	"issues": {
+		"319": {
+			"status": "f5",
+			"title": "Lich should no longer have the adjacency indicator because his ability does not affect neighbors",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/319",
+			"sha": "87609dc2",
+			"f5_note": "Lich no longer draws neighbor threads. Stop Play, F5."
+		},
 		"283": {
 			"status": "closed",
 			"title": "Buff Longbow from 4 damage to 5",
