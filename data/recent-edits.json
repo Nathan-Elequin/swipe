@@ -92,7 +92,7 @@
 		"monster:leech_league": 1793702400.0,
 		"monster:lich": 1793342400.0,
 		"monster:magicat": 1792507200.0,
-		"monster:martyr": 1793212800.0,
+		"monster:martyr": 1793598735,
 		"monster:merchant": 1792272500.0,
 		"monster:mouse": 1792449835.18609,
 		"monster:needleback": 1792502400.0,
@@ -108,7 +108,7 @@
 		"monster:shambling_mound": 1793212800.0,
 		"monster:shark": 1792508400.0,
 		"monster:skeleton": 1791957591.0,
-		"monster:slime_boss": 1793597353,
+		"monster:slime_boss": 1793597353.0,
 		"monster:spider_queen": 1792143600.0,
 		"monster:three_seeker": 1792461402.0,
 		"monster:triclops": 1793244402.0,
@@ -123,5 +123,5 @@
 	"item:sling": 1793416800.0,
 	"monster:mouse": 1792450564.02935,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-11-02T05:29:13"
+	"updated": "2026-11-02T05:52:15"
 }
