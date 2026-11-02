@@ -55,6 +55,15 @@ var _busy: bool = false
 var _chrome: Array = []
 var _loot_host: Control
 var _loot_count: int = 0
+## Cavern-shell plates (ChatGPT pack). Old cozy ladder/hole/torch sprites clash with the
+## painted chamber — keep nodes for hover/anim hooks, but hide the art. Hit areas + planks stay.
+var _legacy_decor_visible: bool = false
+var _gate_frame: TextureRect
+var _gate_chains: TextureRect
+var _gate_open: TextureRect
+var _hatch: TextureRect
+## Imported for a follow-up socket-fill puzzle; not shown in v1.
+var _socket_filled_tex: Texture2D
 
 
 func setup(p_cabin, p_extra: Dictionary) -> void:
@@ -69,33 +78,42 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	_plank_normal = KIT.tex_style("button/btn_plank_normal.png", 16, 16, 16, 20)
 	_plank_hover = KIT.tex_style("button/btn_plank_hover.png", 16, 16, 16, 20)
 	var bg := TextureRect.new()
+	bg.name = "CavernBg"
 	bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	bg.texture = KIT.load_tex("overlays/rope_exit_bg.png")
+	# Prefer cavern plate; fall back to legacy cozy BG if the new plate is missing.
+	bg.texture = KIT.load_tex("overlays/rope_exit_cavern_bg.png")
+	if bg.texture == null:
+		bg.texture = KIT.load_tex("overlays/rope_exit_bg.png")
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	bg.stretch_mode = TextureRect.STRETCH_KEEP
+	# Cavern plate is 1536x1024; cover the 1680x1040 viewport without letterboxing.
+	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
+	_build_cavern_props()
 	var torch := KIT.anim_sprite(
 		["overlays/torch_flame_f0.png", "overlays/torch_flame_f1.png", "overlays/torch_flame_f2.png"],
 		"t", 1000.0 / 120.0, true, Vector2(384, 92)
 	)
+	torch.visible = _legacy_decor_visible
 	add_child(torch)
-	if torch.sprite_frames:
+	if _legacy_decor_visible and torch.sprite_frames:
 		torch.play("t")
 	_ladder = KIT.anim_sprite(
 		["overlays/rope_ladder_f0.png", "overlays/rope_ladder_f1.png", "overlays/rope_ladder_f2.png", "overlays/rope_ladder_f1.png"],
 		"l", 1000.0 / 220.0, true, Vector2(96, 0)
 	)
 	_ladder.z_index = 3
+	_ladder.visible = _legacy_decor_visible
 	add_child(_ladder)
-	if _ladder.sprite_frames:
+	if _legacy_decor_visible and _ladder.sprite_frames:
 		_ladder.play("l")
 	_ladder_hover = KIT.tex_rect("overlays/rope_ladder_hover.png", Vector2(96, 0), Vector2(40, 226), 3)
 	_ladder_hover.visible = false
 	add_child(_ladder_hover)
 	_hole = KIT.tex_rect("overlays/deeper_hole_idle.png", Vector2(250, 214), Vector2(96, 40), 3)
 	_hole.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hole.visible = _legacy_decor_visible
 	add_child(_hole)
 	_hole_glow = KIT.anim_sprite(
 		["overlays/deeper_hole_glow_f0.png", "overlays/deeper_hole_glow_f1.png"],
@@ -104,13 +122,14 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	_hole_glow.z_index = 2
 	_hole_glow.visible = false
 	add_child(_hole_glow)
-	if _hole_glow.sprite_frames and _hole_glow.sprite_frames.get_frame_count("g") > 0:
+	if _legacy_decor_visible and _hole_glow.sprite_frames and _hole_glow.sprite_frames.get_frame_count("g") > 0:
 		_hole_glow.visible = true
 		_hole_glow.play("g")
 	_hero = Sprite2D.new()
 	_hero.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_hero.centered = false
-	_hero.position = KIT.pt(170, 200)
+	# Nudge toward the lit floor center under the shaft (cavern plate).
+	_hero.position = KIT.pt(188, 208)
 	_hero.texture = KIT.load_tex("hero/hero_idle_loot_f0.png")
 	_hero.z_index = 4
 	add_child(_hero)
@@ -135,6 +154,69 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
 	_dialog.z_index = 90
 	add_child(_dialog)
+
+
+## Layer order (bottom → top under chrome): cavern BG, hatch (shaft), gate frame,
+## chains (locked default). Gate open + socket gems are imported for a later puzzle.
+func _build_cavern_props() -> void:
+	# Hatch over the green shaft hole (top-center). Keep below title-band chrome (z 5+).
+	_hatch = _plate_rect(
+		"overlays/rope_exit_hatch.png",
+		Rect2(680, 4, 320, 320),
+		1,
+		"HomeHatch"
+	)
+	add_child(_hatch)
+	# Gate on the right-wall clear zone, above the Delve plank so Climb/Delve stay readable.
+	var gate_rect := Rect2(1160, 168, 372, 520)
+	_gate_frame = _plate_rect(
+		"overlays/rope_exit_gate_frame.png",
+		gate_rect,
+		1,
+		"GateFrame"
+	)
+	add_child(_gate_frame)
+	_gate_open = _plate_rect(
+		"overlays/rope_exit_gate_open.png",
+		gate_rect,
+		1,
+		"GateOpen"
+	)
+	_gate_open.visible = false
+	add_child(_gate_open)
+	_gate_chains = _plate_rect(
+		"overlays/rope_exit_chains.png",
+		Rect2(gate_rect.position.x + 36.0, gate_rect.position.y + 72.0, gate_rect.size.x - 72.0, gate_rect.size.x - 72.0),
+		2,
+		"GateChains"
+	)
+	add_child(_gate_chains)
+	_socket_filled_tex = KIT.load_tex("overlays/rope_exit_socket_filled.png")
+	_apply_gate_locked(true)
+
+
+func _plate_rect(rel: String, r: Rect2, z: int, node_name: String) -> TextureRect:
+	var tr := TextureRect.new()
+	tr.name = node_name
+	tr.texture = KIT.load_tex(rel)
+	tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.position = r.position
+	tr.size = r.size
+	tr.z_index = z
+	return tr
+
+
+## Visual-only for now. No unlock flag / socket gameplay in this PR.
+func _apply_gate_locked(locked: bool) -> void:
+	if _gate_frame:
+		_gate_frame.visible = locked
+	if _gate_chains:
+		_gate_chains.visible = locked
+	if _gate_open:
+		_gate_open.visible = not locked
 
 
 func open_exit(cleared: int, loot: Array = []) -> void:
@@ -541,12 +623,14 @@ func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = fals
 		elif not campaign:
 			_deeper_sub.set_copy("rope.deeper_sub", {"n": _cleared + 1})
 	# Campaign always shows Push (even when can_push is false). Challenge also shows both doors.
-	for raw_n in [_deeper_btn, _deeper_lab, _deeper_sub, _hole, _hole_hit]:
+	for raw_n in [_deeper_btn, _deeper_lab, _deeper_sub, _hole_hit]:
 		var n := raw_n as CanvasItem
 		if n:
 			n.visible = true
+	if _hole:
+		_hole.visible = _legacy_decor_visible
 	if _hole_glow:
-		_hole_glow.visible = _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
+		_hole_glow.visible = _legacy_decor_visible and _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
 	var show_chip := campaign and _chip_biome_name != ""
 	if _chip_biome:
 		_chip_biome.visible = show_chip
@@ -579,9 +663,10 @@ func _on_push_focus() -> void:
 func _set_climb_hot(on: bool) -> void:
 	if _interrupt_open:
 		return
-	_ladder_hover.visible = on
-	if _ladder.sprite_frames:
-		_ladder.sprite_frames.set_animation_speed("l", 1000.0 / (110.0 if on else 220.0))
+	if _legacy_decor_visible:
+		_ladder_hover.visible = on
+		if _ladder and _ladder.sprite_frames:
+			_ladder.sprite_frames.set_animation_speed("l", 1000.0 / (110.0 if on else 220.0))
 	if _climb_btn:
 		_climb_btn.add_theme_stylebox_override("normal", _plank_hover if on else _plank_normal)
 	if on:
@@ -592,11 +677,12 @@ func _set_climb_hot(on: bool) -> void:
 func _set_delve_hot(on: bool) -> void:
 	if _interrupt_open:
 		return
-	_hole.texture = KIT.load_tex("overlays/deeper_hole_hover.png" if on else "overlays/deeper_hole_idle.png")
-	if _hole_glow:
-		_hole_glow.visible = not on and _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
-		if _hole_glow.visible and not _hole_glow.is_playing():
-			_hole_glow.play("g")
+	if _legacy_decor_visible:
+		_hole.texture = KIT.load_tex("overlays/deeper_hole_hover.png" if on else "overlays/deeper_hole_idle.png")
+		if _hole_glow:
+			_hole_glow.visible = not on and _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
+			if _hole_glow.visible and not _hole_glow.is_playing():
+				_hole_glow.play("g")
 	if _deeper_btn:
 		_deeper_btn.add_theme_stylebox_override("normal", _plank_hover if on else _plank_normal)
 	if on:
