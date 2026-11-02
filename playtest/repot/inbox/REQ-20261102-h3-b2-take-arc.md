@@ -2,16 +2,17 @@
 id: REQ-20261102-h3-b2-take-arc
 status: open
 priority: high
-branch: cursor/h3-b2-take-arc-8d35
+branch: playtest/latest
 created: 2026-11-02T08:30:00Z
 created_by: cloud-agent
+superseded_by: REQ-20261102-h3-b2-take-arc-fix
 viewport: 1680x1040
 entry: F5 playtest hub → Middle Progress / Continue into a fight with Moves (Adventure)
 ---
 
-# H3-B2 cream Take arc + bigger hotbar
+# H3-B2 cream Take arc + bigger hotbar (superseded)
 
-Wire the H3-B2 hub combat chrome: cream Take arc under the wheel (Block pip | Take), no hub Block nest, bigger 2×5 hotbar, move arrows tucked in to the arc top. Do not merge to `playtest/latest` tip until Nathan says.
+Original wire for H3-B2. Tip layout was wrong after merge (Safe pill / Block on right / arrows into rim). **Drain `REQ-20261102-h3-b2-take-arc-fix` instead** — that request covers the corrected Doop match.
 
 ## What to verify
 
