@@ -3,6 +3,8 @@ id: REQ-20261102-bear-trap-art
 status: open
 priority: normal
 branch: cursor/bear-trap-art-e022
+pr: 285
+tip_sha: 68dcfe49
 created: 2026-11-02T06:05:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
