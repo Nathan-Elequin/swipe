@@ -1,6 +1,6 @@
 ---
 id: REQ-20261101-hotbar-aura-kit
-status: open
+status: claimed
 priority: high
 branch: cursor/hotbar-aura-kit-9c33
 tip_sha: e0a360b3
