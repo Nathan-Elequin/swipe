@@ -1,6 +1,6 @@
 ---
 id: REQ-20261102-splash-narration-fit
-status: open
+status: done
 priority: high
 branch: cursor/splash-narration-fit-1cb6
 base: playtest/latest
