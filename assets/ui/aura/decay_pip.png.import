@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c9f69832f37834"
-path="res://.godot/imported/decay_pip.png-9f69832f37834.ctex"
+uid="uid://bxlnwm5vfyie8"
+path="res://.godot/imported/decay_pip.png-c8c51d5feee46a4851044954e9be390e.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/aura/decay_pip.png"
-dest_files=["res://.godot/imported/decay_pip.png-9f69832f37834.ctex"]
+dest_files=["res://.godot/imported/decay_pip.png-c8c51d5feee46a4851044954e9be390e.ctex"]
 
 [params]
 
