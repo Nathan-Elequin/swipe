@@ -1424,15 +1424,15 @@
  {
   "file": "sting_defeat.ogg",
   "kind": "sting",
-  "seconds": 0.829,
-  "bytes": 11688,
+  "seconds": 9.44,
+  "bytes": 157263,
   "sources": [
    {
-    "pack": "Kenney \u2014 Music Jingles",
-    "author": "Kenney (kenney.nl)",
-    "licence": "CC0 1.0",
-    "url": "https://kenney.nl/assets/music-jingles",
-    "file": "Audio/Sax jingles/jingles_SAX01.ogg",
+    "pack": "Nathan Suno \u2014 Defeat Stings",
+    "author": "Nathan (Nathan-owned)",
+    "licence": "Nathan-owned",
+    "url": "",
+    "file": "Defeat Stings.wav",
     "gain_db": 0.0,
     "pitch": 1.0
    }

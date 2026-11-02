@@ -100,11 +100,12 @@ All beds loop as whole files (loop points baked by trimming; import with `loop =
 
 | Bed | File | Source / author / licence | Length & loop | Mood · tempo · key (auto-estimated) | Instrumentation | Plays when |
 |---|---|---|---|---|---|---|
-| **title** (also draft mill, tutorial, Challenge setup, between runs) | `music.ogg` (**keep**) | "Dungeon Ambience" — yd — CC0 — https://opengameart.org/content/dungeon-ambience | 206.0 s, whole-file loop | dark drone with crunchy movement; no strong pulse | ambient pads, textures | boot (after first-click unlock), title, draft gate, tutorial, cabin → title, after victory/defeat stings |
+| **title** (also draft mill, tutorial, Challenge setup, between runs) | `music.ogg` (**keep**) | "Dungeon Ambience" — yd — CC0 — https://opengameart.org/content/dungeon-ambience | 206.0 s, whole-file loop | dark drone with crunchy movement; no strong pulse | ambient pads, textures | boot (after first-click unlock), title, draft gate, tutorial, cabin → title, after victory sting (defeat stays silent) |
 | **combat** | `music_combat.ogg` (**new**, finally fills the missing file) | "RPG Battle Loop" — iamoneabe — CC0 — https://opengameart.org/content/rpg-battle-loop | 59.077 s (= 32 bars at ~130 BPM; MP3 padding removed, 4 ms edge fades) | driving, dark-ish RPG battle; ≈130 BPM; ≈ A minor | retro-orchestral / synth RPG | from first Spin of a dungeon until dungeon clear / defeat / leave. Stays through "ready" between fights, ducked −4 dB. |
 | **deadly** | `music_deadly.ogg` (**new**) | "Dungeon Deep" — Eldritch Grim — CC0 — https://opengameart.org/content/dungeon-deep-0 | 25.899 s (loop cut where the intro repeats, corr 0.98; ring-out tail dropped) | ominous, tense maze/dungeon loop | dark synth/ percussion | spin lands on a Deadly monster (after `sting.deadly`, 0.5 s xfade); back to combat bed (resume position, 1.2 s) on that monster's death or fight end |
 | **cabin** | `music_cabin.ogg` (**new**) | "A Small Fire Will Do (Calming Loop)" — Trex0n (Cal McEachern) — CC0 (credit appreciated) — https://opengameart.org/content/a-small-fire-will-do-calming-loop | 64.000 s exactly (16 bars at 120 BPM / 60 felt) | cozy, meditative; ≈ G major | acoustic guitar | Home cabin open (1.5 s xfade from whatever was playing), with fire/purr ambience on top; back to title on close |
-| stings | `sting_victory`, `sting_clear`, `sting_defeat`, `sting_bucket`, `sting_deadly`, `chaos_warble` | Kenney Music Jingles — CC0 — https://kenney.nl/assets/music-jingles (PIZZI10, PIZZI15, SAX01, PIZZI02, HIT06, PIZZI03) | 0.5–1.1 s one-shots on Stings bus | pizzicato = sneaky thief; sax = deflating defeat; low hit = Deadly | — | see cue table |
+| stings | `sting_victory`, `sting_clear`, `sting_bucket`, `sting_deadly`, `chaos_warble` | Kenney Music Jingles — CC0 — https://kenney.nl/assets/music-jingles (PIZZI10, PIZZI15, PIZZI02, HIT06, PIZZI03) | 0.5–1.1 s one-shots on Stings bus | pizzicato = sneaky thief; low hit = Deadly | — | see cue table |
+| defeat sting | `sting_defeat` | Nathan Suno / Defeat Stings.wav (Nathan-owned) | ~9.44 s one-shot (libvorbis, 0.32 s end fade) on Stings bus | defeat sting; beds fade out and stay silent after (no title bed) | — | `sting.defeat` / `run.defeat` |
 
 **Alternates auditioned (CC0, not shipped):** "8-bit – Infinite Darkness" by HydroGene (https://opengameart.org/content/8-bit-infinite-darkness, 165 s, very hot −11 LUFS, 6.6 MB source; good boss bed for a later pass), "Lava Dungeon Battle" by Sorth (8-bit, 64 s), "4 Music Box Tracks" by Aureolus_Omicron (https://opengameart.org/content/4-music-box-tracks; `musicbox2_cute_tune` 137 s is the music-box option for the cabin if Nathan prefers a music box over guitar; ~1.1 MB at 64 kbps).
 
@@ -120,7 +121,7 @@ All beds loop as whole files (loop points baked by trimming; import with `loop =
                        Deadly slain /  │ ▼                                    │
                        fight ends      DEADLY                                 │
  any ──► CABIN (open_cabin) ──close──► TITLE                                  │
- player down 4881-4887 ──► DEFEAT: Duck −30 dB 0.1 s, sting.defeat, after 3 s → TITLE (fresh, fade-in 2 s)
+ player down 4881-4887 ──► DEFEAT: Duck −30 dB 0.1 s, fade beds out, sting.defeat (~9.44 s); stay SILENT (no title after)
  victory 4876-4884     ──► VICTORY: Duck −30 dB, sting.victory, after 2.5 s → TITLE
 ```
 
@@ -324,7 +325,7 @@ Status: **keep** = same sound as today (leave the call site alone); **keep+** = 
 | `sting.bucket` | Bucket reveal opens | bucket_reveal.gd:233–234 | **new** | Rising whole-tone pizzicato run | `sting_bucket` → Kenney — Music Jingles: `Audio/Pizzicato jingles/jingles_PIZZI02.ogg` | Stings | -8 | 1.00 | 0 ms / 1 / 3 | — · duck -6 dB |
 | `sting.victory` | Run victory | main.gd:4876–4884 | **new** | Bright pizzicato run up (sneaky-triumphant) | `sting_victory` → Kenney — Music Jingles: `Audio/Pizzicato jingles/jingles_PIZZI10.ogg` | Stings | -5 | 1.00 | 0 ms / 1 / 3 | — · duck -30 dB |
 | `sting.clear` | Dungeon cleared | main.gd:1677–1679 | **new** | Pizzicato cadence | `sting_clear` → Kenney — Music Jingles: `Audio/Pizzicato jingles/jingles_PIZZI15.ogg` | Stings | -6 | 1.00 | 0 ms / 1 / 3 | — · duck -12 dB |
-| `sting.defeat` | Player dies | main.gd:4886–4887 | **new** | Sad sax descending (the joke) | `sting_defeat` → Kenney — Music Jingles: `Audio/Sax jingles/jingles_SAX01.ogg` | Stings | -5 | 1.00 | 0 ms / 1 / 3 | — · duck -30 dB |
+| `sting.defeat` | Player dies | main.gd:4886–4887 | **new** | Nathan Suno defeat sting (~9.44 s) | `sting_defeat` → Nathan Suno / Defeat Stings.wav (Nathan-owned) | Stings | -5 | 1.00 | 0 ms / 1 / 3 | — · duck -30 dB |
 | `bucket.open` | Bucket overlay opens | bucket_reveal.gd:233–234 | **keep+** | Bong 0.72 + whoosh 0.85 kept; + card-pack tear + bucket sting | (existing calls stay; adds layers) → — | SFX | -8 | 1.00 | 0 ms / 1 / 3 | bucket.pack (+0 dB, +0 ms), sting.bucket (+0 dB, +120 ms) |
 | `bucket.pack` | (layer) card pack tear | — | **new** | Kenney card pack open | `bucket_open` → Kenney — Casino Audio: `Audio/cards-pack-open-1.ogg` | SFX | -8 | 1.00 | 0 ms / 1 / 2 | — |
 | `bucket.card_pop` | Each shadow card pops | bucket_reveal.gd:254 | **replace** | Card placed (replaces drop) | `card_place_1`, `card_place_2`, `card_place_3` → Kenney — Casino Audio: `Audio/card-place-1.ogg`; Kenney — Casino Audio: `Audio/card-place-2.ogg`; Kenney — Casino Audio: `Audio/card-place-3.ogg` | SFX | -10 | 0.90–1.06 | 50 ms / 3 / 1 | — |
@@ -353,7 +354,7 @@ Status: **keep** = same sound as today (leave the call site alone); **keep+** = 
 | `run.knight_off` | Knight walks off | main.gd:1925 | **keep+** | Cloth kept; + 4 light steps | (existing calls stay; adds layers) → — | SFX | -12 | 1.00 | 0 ms / 1 / 1 | cabin.step (+0 dB, +0 ms) |
 | `run.dungeon_clear` | Dungeon cleared | main.gd:1677–1679 | **replace** | confirm_big + sting.clear; music returns to title | `confirm_big` → Kenney Interface Sounds (existing repo file) | UI | -8 | 1.00 | 0 ms / 1 / 3 | sting.clear (+0 dB, +80 ms) · music→title |
 | `run.victory` | Victory (incl. Adventure death after ≥1 clear) | main.gd:4876–4884 | **replace** | confirm_big + victory sting + coins | `confirm_big` → Kenney Interface Sounds (existing repo file) | UI | -8 | 1.00 | 0 ms / 1 / 3 | sting.victory (+0 dB, +60 ms), loot.coins (-4 dB, +400 ms) · music→title_after_sting |
-| `run.defeat` | Player dies | main.gd:4886–4887 | **replace** | error_big + sad sax; music ducks to silence then title returns after 3 s | `error_big` → Kenney Interface Sounds (existing repo file) | UI | -8 | 1.00 | 0 ms / 1 / 3 | sting.defeat (+0 dB, +150 ms) · music→title_after_sting |
+| `run.defeat` | Player dies | main.gd:4886–4887 | **replace** | error_big + defeat sting; beds fade out and stay silent (no title after) | `error_big` → Kenney Interface Sounds (existing repo file) | UI | -8 | 1.00 | 0 ms / 1 / 3 | sting.defeat (+0 dB, +150 ms) · music→silence_after_sting |
 | `run.leave` | Leave run → cabin | main.gd:1711 | **keep** | Whoosh | `whoosh` → Kenney Interface Sounds (existing repo file) | SFX | -10 | 1.00 | 0 ms / 1 / 1 | — |
 | `editor.*` | Roster / Script / Dev Test (editor only) | roster_editor.gd 286–2063, script_editor.gd 145–273, main.gd 1273–1498 | **keep** | Untouched; not in web build | `click` → Kenney Interface Sounds (existing repo file) | UI | -10 | 1.00 | 0 ms / 1 / 0 | — |
 
@@ -469,7 +470,7 @@ Every pack page was fetched and its licence read on the page (OpenGameArt "Licen
 | `sting_bucket.ogg` | sting | 0.95 s | 11.0 KB | Kenney — Music Jingles `Audio/Pizzicato jingles/jingles_PIZZI02.ogg` |
 | `sting_victory.ogg` | sting | 0.80 s | 9.6 KB | Kenney — Music Jingles `Audio/Pizzicato jingles/jingles_PIZZI10.ogg` |
 | `sting_clear.ogg` | sting | 0.80 s | 9.3 KB | Kenney — Music Jingles `Audio/Pizzicato jingles/jingles_PIZZI15.ogg` |
-| `sting_defeat.ogg` | sting | 0.83 s | 11.4 KB | Kenney — Music Jingles `Audio/Sax jingles/jingles_SAX01.ogg` |
+| `sting_defeat.ogg` | sting | 9.44 s | 157.3 KB | Nathan Suno / Defeat Stings.wav (Nathan-owned); drop-in, not rebuilt by build_audio.py |
 | `music_combat.ogg` | music | 59.08 s | 619.1 KB | RPG Battle Loop `rbl_0.mp3` |
 | `music_deadly.ogg` | music | 25.90 s | 231.6 KB | Dungeon Deep `dungeon_deep.mp3` |
 | `music_cabin.ogg` | music | 64.00 s | 498.9 KB | A Small Fire Will Do (Calming Loop) `a_small_fire_will_do.wav` |
@@ -479,7 +480,7 @@ Every pack page was fetched and its licence read on the page (OpenGameArt "Licen
 ## 10. Risks, open questions, next pass
 
 * **Licences:** all sources CC0; no CC-BY obligations. Trex0n asks (not requires) credit "Cal McEachern" — done in CREDITS.txt. Kenney packs are CC0 by their bundled License.txt. No NC/ND/unclear material anywhere.
-* **Not verified by ear:** this pass was produced on a headless box; picks were made from duration, loudness, pitch-contour, key/tempo analysis and loop-seam measurements. Nathan should listen to: `music_combat` (style fit), `music_deadly` (fit for bosses), `sting_defeat` (sax may read as too goofy), the synthesized Nib blips (personality), and `wheel_tick_*` at speed.
+* **Not verified by ear:** this pass was produced on a headless box; picks were made from duration, loudness, pitch-contour, key/tempo analysis and loop-seam measurements. Nathan should listen to: `music_combat` (style fit), `music_deadly` (fit for bosses), `sting_defeat` (Nathan Suno bake, silence after), the synthesized Nib blips (personality), and `wheel_tick_*` at speed.
 * **Card / special ids** in `lookup.card_id` / `lookup.special_id` are best guesses from the audit; Cursor must verify them against `data/catalog.json` and `MONSTER_SPECIAL` (`main.gd:126–160`).
 * **Combat bed wrap:** RBL wasn't built with a sample-exact loop; 4 ms edge fades hide the wrap but listen once. If it bothers, swap to "Infinite Darkness" (HydroGene, CC0, seamless by the author) at ~1.6 MB.
 * **Pass 2 ideas:** per-boss leitmotif stings; a quiet "deadly layer" stem instead of a separate bed; the music-box cabin alternative; proper per-character typewriter in `tutorial_guide.gd` if it doesn't exist.

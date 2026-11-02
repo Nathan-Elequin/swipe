@@ -29,17 +29,17 @@ const TRAIL: Array[Vector2] = [
 	Vector2(1020, 798),
 ]
 ## Per-biome Deadly patrol lanes (offsets from TRAIL[i+1]). Slot k = k-th telegraph id.
-## Feet sit just left of the wax stamp (names live to the right). Short dx so
-## they stay hugging the clickable node instead of wandering the fog.
+## Feet sit left of the wax stamp (names live to the right). Average rest is
+## about twice as far from the seal as the first pass, with a longer patrol.
 const LANES := {
-	"b1": [{"at": Vector2(-52, 16), "dx": 18.0}],
-	"b2": [{"at": Vector2(-54, 8), "dx": 20.0}, {"at": Vector2(-42, 44), "dx": 18.0}],
-	"b3": [{"at": Vector2(-54, 8), "dx": 20.0}, {"at": Vector2(-42, 44), "dx": 18.0}],
-	"b4": [{"at": Vector2(-54, 8), "dx": 20.0}, {"at": Vector2(-42, 44), "dx": 18.0}],
+	"b1": [{"at": Vector2(-104, 32), "dx": 36.0}],
+	"b2": [{"at": Vector2(-108, 16), "dx": 40.0}, {"at": Vector2(-84, 88), "dx": 36.0}],
+	"b3": [{"at": Vector2(-108, 16), "dx": 40.0}, {"at": Vector2(-84, 88), "dx": 36.0}],
+	"b4": [{"at": Vector2(-108, 16), "dx": 40.0}, {"at": Vector2(-84, 88), "dx": 36.0}],
 	"b5": [
-		{"at": Vector2(-54, 4), "dx": 20.0},
-		{"at": Vector2(-68, 38), "dx": 18.0},
-		{"at": Vector2(-24, 50), "dx": 16.0},
+		{"at": Vector2(-108, 8), "dx": 40.0},
+		{"at": Vector2(-136, 76), "dx": 36.0},
+		{"at": Vector2(-48, 100), "dx": 32.0},
 	],
 }
 const ENDLESS_AT := Vector2(410, 856)
@@ -165,6 +165,12 @@ func setup() -> void:
 		_build_cheats()
 
 
+func set_map_monster_stats(on: bool) -> void:
+	MapMonster.include_stats = on
+	if visible:
+		_rebuild()
+
+
 func present(rules: Dictionary, state: Dictionary, monsters_by_id: Dictionary = {}, opts: Dictionary = {}) -> void:
 	_rules = rules
 	_state = state
@@ -218,9 +224,7 @@ func _rebuild() -> void:
 		var pool := str(b.get("id", "b%d" % (i + 1)))
 		var spot: Vector2 = TRAIL[i + 1]
 		var open: bool = SHELL.can_start(_rules, _state, i)
-		if i == 0:
-			_add_start(spot, str(b.get("name", pool)), open)
-		elif open:
+		if open:
 			_add_stamp(spot, str(b.get("name", pool)), pool, WAX.get(pool, KIT.INK), i, false)
 		else:
 			_add_locked(spot, str(b.get("name", pool)), pool)
@@ -420,7 +424,7 @@ func _spawn_pool_monsters(pool: String, spot: Vector2) -> void:
 		if not card.is_empty():
 			display = str(card.get("name", mid))
 		var monster := MapMonster.new()
-		monster.setup(mid, display, spot + (lane.get("at", Vector2.ZERO) as Vector2), float(lane.get("dx", 40.0)), _lane_rng)
+		monster.setup(mid, display, spot + (lane.get("at", Vector2.ZERO) as Vector2), float(lane.get("dx", 40.0)), _lane_rng, card)
 		_monsters.add_child(monster)
 		slot += 1
 
@@ -591,18 +595,84 @@ func _cue(id: StringName) -> void:
 		n = n.get_parent()
 
 
-## Tiny full-color Deadly on the parchment. Hover lifts + name tag; click does nothing.
+## Heart / sword with the number on the icon — same sprites as combat callouts, smaller.
+class MapStatBadge extends Control:
+	var is_heart: bool = true
+	var num_text: String = ""
+	var _tex: Texture2D
+	var _region := Rect2()
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		custom_minimum_size = Vector2(32, 36)
+		size = Vector2(32, 36)
+		var path := "res://assets/ui/hub/heart_full.png" if is_heart else "res://assets/ui/icons/atk_burst.png"
+		if not ResourceLoader.exists(path):
+			path = "res://assets/icons/heart_full.png" if is_heart else "res://assets/icons/sword.svg"
+		if ResourceLoader.exists(path):
+			_tex = load(path) as Texture2D
+		if _tex != null:
+			_region = Rect2(Vector2.ZERO, _tex.get_size())
+			var img := _tex.get_image()
+			if img != null:
+				var used := img.get_used_rect()
+				if used.size.x >= 1.0 and used.size.y >= 1.0:
+					_region = used
+
+
+	func _draw() -> void:
+		var px := 28.0
+		## Icons may sit at different optical centers; the number is always
+		## on this mid-line so 6 and 5 share a row with the monster name.
+		var mid := Vector2(size.x * 0.5, size.y * 0.5)
+		if _tex != null:
+			var icon_mid := mid
+			if is_heart:
+				icon_mid.y -= 1.0
+			else:
+				icon_mid.y += 1.0
+			var rect := Rect2(icon_mid - Vector2(px, px) * 0.5, Vector2(px, px))
+			for k in 8:
+				var o := Vector2.from_angle(float(k) * TAU / 8.0) * 1.6
+				draw_texture_rect_region(_tex, Rect2(rect.position + o, rect.size), _region, Color("100e0c"))
+			draw_texture_rect_region(_tex, rect, _region, Color.WHITE)
+		var font: Font = ThemeDB.fallback_font
+		if font == null or num_text == "":
+			return
+		var fs := 12
+		var tsz := font.get_string_size(num_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+		var p := Vector2(mid.x - tsz.x * 0.5, mid.y + fs * 0.32)
+		var ink := Color("100e0c")
+		for ox in [-1, 0, 1]:
+			for oy in [-1, 0, 1]:
+				if ox == 0 and oy == 0:
+					continue
+				draw_string(font, p + Vector2(ox, oy), num_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
+		draw_string(font, p, num_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("f0e6d8"))
+
+
+## Tiny full-color Deadly on the parchment. Hover lifts + compact callout; click does nothing.
 class MapMonster extends Control:
 	const KIT := preload("res://scripts/cabin/cabin_kit.gd")
-	const PLAYER_COPY := preload("res://scripts/player_copy.gd")
+	const LINES := preload("res://scripts/monster_lines.gd")
 	const UX := preload("res://scripts/ux_style.gd")
 	const FACING := "res://assets/dungeon/anim/facing/%s_facing_idle_f%d.png"
-	const HIT := Vector2(56, 56)
-	const SHADOW_IDLE := Vector2(32, 6)
-	const SHADOW_HOVER := Vector2(40, 6)
+	const HIT := Vector2(36, 36)
+	const SHADOW_IDLE := Vector2(22, 5)
+	const SHADOW_HOVER := Vector2(26, 5)
+	const TAG_W := 152.0
+	const TITLE_RED := Color("6E181E")
+	## Flip for the two hover reads Nathan asked to see. True = name + call + HP/Attack + ability.
+	static var include_stats: bool = true
 
 	var monster_id: String = ""
 	var display_name: String = ""
+	var _call_name: String = ""
+	var _ability: String = ""
+	var _hp_n: int = 0
+	var _atk_n: int = 0
+	var _show_stats: bool = true
 	var _anchor: Vector2 = Vector2.ZERO
 	var _dx: float = 40.0
 	var _body: AnimatedSprite2D
@@ -616,9 +686,16 @@ class MapMonster extends Control:
 	var _body_base_y: float = -32.0
 
 
-	func setup(id: String, name_text: String, foot: Vector2, dx: float, rng: RandomNumberGenerator) -> void:
+	func setup(id: String, name_text: String, foot: Vector2, dx: float, rng: RandomNumberGenerator, card: Dictionary = {}) -> void:
 		monster_id = id
 		display_name = name_text if name_text != "" else id
+		_call_name = LINES.call_of(id, card)
+		_ability = str(card.get("ability", "")).strip_edges()
+		if _ability == "" or _ability == "---":
+			_ability = LINES.reminder_of(id, card)
+		_hp_n = _stat_base(card.get("hp", {}), card.get("hp_base", 0))
+		_atk_n = _stat_base(card.get("atk", {}), card.get("atk_base", 0))
+		_show_stats = include_stats
 		_anchor = foot
 		_dx = dx
 		name = "MapMonster_%s" % id
@@ -679,116 +756,154 @@ class MapMonster extends Control:
 		return sf
 
 
+	func _stat_base(blob: Variant, fallback: Variant = 0) -> int:
+		if typeof(blob) == TYPE_DICTIONARY and (blob as Dictionary).has("base"):
+			return int(float((blob as Dictionary)["base"]))
+		if typeof(fallback) == TYPE_FLOAT or typeof(fallback) == TYPE_INT:
+			return int(float(fallback))
+		return 0
+
+
+	func _title_pill() -> PanelContainer:
+		var chip := PanelContainer.new()
+		chip.name = "Name"
+		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		chip.custom_minimum_size.y = 36
+		var chip_sb := StyleBoxFlat.new()
+		chip_sb.bg_color = TITLE_RED
+		chip_sb.border_color = Color("100E0C")
+		chip_sb.set_border_width_all(2)
+		chip_sb.content_margin_left = 10
+		chip_sb.content_margin_right = 10
+		chip_sb.content_margin_top = 0
+		chip_sb.content_margin_bottom = 0
+		chip_sb.set_corner_radius_all(8)
+		chip.add_theme_stylebox_override("panel", chip_sb)
+		var lab: FitLabelBox = KIT.fit_label(
+			"",
+			Rect2(0, 0, 140, 36),
+			14,
+			10,
+			1,
+			Color("F8F2EA"),
+			HORIZONTAL_ALIGNMENT_CENTER
+		)
+		lab.name = "Label"
+		lab.grow_to_text = true
+		lab.max_width = 160
+		lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		lab.set_plain(display_name)
+		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		lab.custom_minimum_size.y = 36
+		chip.add_child(lab)
+		return chip
+
+
+	func _stat_badge(heart: bool, n: int) -> MapStatBadge:
+		var b := MapStatBadge.new()
+		b.is_heart = heart
+		b.num_text = str(n)
+		b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		return b
+
+
+	func _layout_head() -> void:
+		var head := _tag.get_node_or_null("Col/Head") as Control
+		if head == null:
+			return
+		var pill := head.get_node_or_null("Name") as Control
+		if pill == null:
+			return
+		var name_lab := pill.get_node_or_null("Label") as FitLabelBox
+		if name_lab:
+			name_lab.fit()
+		pill.reset_size()
+
+
 	func _build_tag() -> void:
 		_tag = PanelContainer.new()
 		_tag.name = "Tag"
 		_tag.visible = false
 		_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_tag.z_index = 8
+		_tag.z_index = 20
+		_tag.z_as_relative = true
 		var sb := StyleBoxFlat.new()
-		## Slightly cooler cream than the parchment so the plank reads as a panel,
-		## not another ink blot on Grandpa's map.
+		## Square plaque: cream on parchment. Ability wraps to about three lines.
 		sb.bg_color = Color("FFF6DE")
 		sb.border_color = Color("1A120E")
-		sb.set_border_width_all(3)
-		## Hard drop shadow. shadow_size 0 draws nothing even with an offset, so the
-		## cream plank used to dissolve into the parchment behind it.
-		sb.shadow_size = 4
-		sb.shadow_offset = Vector2(0, 4)
+		sb.set_border_width_all(2)
+		sb.shadow_size = 3
+		sb.shadow_offset = Vector2(0, 3)
 		sb.shadow_color = Color(0.102, 0.071, 0.055, 0.85)
 		sb.content_margin_left = 10
 		sb.content_margin_right = 10
-		sb.content_margin_top = 6
-		sb.content_margin_bottom = 6
+		sb.content_margin_top = 8
+		sb.content_margin_bottom = 10
 		sb.set_corner_radius_all(0)
 		_tag.add_theme_stylebox_override("panel", sb)
-		var row := HBoxContainer.new()
-		row.name = "Row"
-		row.add_theme_constant_override("separation", 8)
-		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		_tag.add_child(row)
-		## FitLabelBox inside PanelContainer/HBox ignores apply_rect size and collapses
-		## to 0×0 unless grow_to_text sets custom_minimum_size from the catalog name.
-		## That is why DEADLY stayed readable (plain Label + gold chip) while the name
-		## vanished into a thin cream sliver on the parchment.
-		var lab: FitLabelBox = KIT.fit_label(
-			"",
-			Rect2(0, 0, 200, 28),
-			18,
-			12,
-			1,
-			Color("1A120E"),
-			HORIZONTAL_ALIGNMENT_CENTER
-		)
-		lab.name = "Name"
-		lab.grow_to_text = true
-		lab.max_width = 240
-		lab.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		lab.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		lab.set_plain(display_name)
-		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(lab)
-		var chip := PanelContainer.new()
-		chip.name = "DeadlyChip"
-		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		var chip_sb := StyleBoxFlat.new()
-		chip_sb.bg_color = UX.metal(3)
-		chip_sb.border_color = Color("1A120E")
-		chip_sb.set_border_width_all(2)
-		chip_sb.content_margin_left = 6
-		chip_sb.content_margin_right = 6
-		chip_sb.content_margin_top = 2
-		chip_sb.content_margin_bottom = 2
-		chip_sb.set_corner_radius_all(0)
-		chip.add_theme_stylebox_override("panel", chip_sb)
-		var chip_lab := Label.new()
-		chip_lab.text = PLAYER_COPY.tier_name(3).to_upper()
-		chip_lab.add_theme_font_size_override("font_size", 12)
-		chip_lab.add_theme_color_override("font_color", Color("1A120E"))
-		chip_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		chip.add_child(chip_lab)
-		row.add_child(chip)
-		## Ink pointer under the plank (Node2D — not a Control, so PanelContainer
-		## ignores it for min-size; we place it after layout in _place_tag).
+		var col := VBoxContainer.new()
+		col.name = "Col"
+		col.add_theme_constant_override("separation", 6)
+		col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.alignment = BoxContainer.ALIGNMENT_CENTER
+		_tag.add_child(col)
+		var head := HBoxContainer.new()
+		head.name = "Head"
+		head.add_theme_constant_override("separation", 10)
+		head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		head.alignment = BoxContainer.ALIGNMENT_CENTER
+		col.add_child(head)
+		if _hp_n > 0 or _atk_n > 0:
+			var hp := _stat_badge(true, _hp_n)
+			hp.name = "Hp"
+			hp.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			head.add_child(hp)
+		head.add_child(_title_pill())
+		if _hp_n > 0 or _atk_n > 0:
+			var atk := _stat_badge(false, _atk_n)
+			atk.name = "Atk"
+			atk.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			head.add_child(atk)
+		if _ability != "":
+			var body := Label.new()
+			body.name = "Ability"
+			body.text = _ability
+			body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			body.max_lines_visible = 4
+			body.custom_minimum_size = Vector2(TAG_W, 0)
+			body.add_theme_font_size_override("font_size", 11)
+			body.add_theme_color_override("font_color", Color("2A1C14"))
+			body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			col.add_child(body)
 		var tip := Polygon2D.new()
 		tip.name = "Pointer"
 		tip.color = Color("1A120E")
 		tip.polygon = PackedVector2Array([
-			Vector2(0, 0), Vector2(12, 0), Vector2(6, 6),
+			Vector2(0, 0), Vector2(10, 0), Vector2(5, 5),
 		])
-		tip.position = Vector2(0, 0)
 		tip.set_meta("is_pointer", true)
 		_tag.add_child(tip)
 		add_child(_tag)
-		## Defer layout so grow_to_text min-size settles before we place the tag.
 		call_deferred("_place_tag")
 
 
 	func _place_tag() -> void:
 		if _tag == null:
 			return
-		## Refit the name in case theme font was unavailable before enter-tree.
-		var name_lab := _tag.get_node_or_null("Row/Name") as FitLabelBox
-		if name_lab:
-			name_lab.fit()
+		_layout_head()
 		_tag.reset_size()
 		var tag_sz: Vector2 = _tag.get_combined_minimum_size()
 		if tag_sz.x < 8.0 or tag_sz.y < 8.0:
 			tag_sz = _tag.size
 		if tag_sz.x < 8.0 or tag_sz.y < 8.0:
-			## Last resort: measure name + chip by hand so we never hover an empty plank.
-			var fallback := Vector2(120, 32)
-			if name_lab:
-				fallback.x = maxf(fallback.x, name_lab.get_combined_minimum_size().x + 80.0)
-				fallback.y = maxf(fallback.y, name_lab.get_combined_minimum_size().y + 16.0)
-			tag_sz = fallback
+			tag_sz = Vector2(TAG_W + 24.0, 52.0)
 			_tag.size = tag_sz
 		else:
 			_tag.size = tag_sz
 		var foot_local := Vector2(HIT.x * 0.5, HIT.y - 8.0)
-		var at := foot_local + Vector2(-tag_sz.x * 0.5, -64.0 - 14.0 - tag_sz.y - 10.0)
+		var at := foot_local + Vector2(-tag_sz.x * 0.5, -tag_sz.y - 48.0)
 		## Clamp to the sheet in parent space.
 		var parent_sz := Vector2(1680, 1040)
 		if get_parent() is Control:
@@ -801,7 +916,7 @@ class MapMonster extends Control:
 		_tag.position = world - position
 		for child in _tag.get_children():
 			if child is Polygon2D and child.has_meta("is_pointer"):
-				(child as Polygon2D).position = Vector2(tag_sz.x * 0.5 - 6.0, tag_sz.y)
+				(child as Polygon2D).position = Vector2(tag_sz.x * 0.5 - 5.0, tag_sz.y)
 
 
 	func _start_patrol(rng: RandomNumberGenerator) -> void:
@@ -854,7 +969,7 @@ class MapMonster extends Control:
 			_bob_on = false
 			_bob_acc = 0.0
 			_lift.tween_property(_body, "position:y", _body_base_y - 14.0, 0.12)
-			_lift.parallel().tween_property(_body, "scale", Vector2.ONE, 0.12)
+			_lift.parallel().tween_property(_body, "scale", Vector2(0.85, 0.85), 0.12)
 			_shadow.size = SHADOW_HOVER
 			_shadow.position = Vector2((HIT.x - SHADOW_HOVER.x) * 0.5, HIT.y - 10.0)
 			_shadow.color.a = 0.45

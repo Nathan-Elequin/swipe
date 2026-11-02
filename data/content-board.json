@@ -4284,10 +4284,10 @@
 			"count": 1.0,
 			"explainer": "Lowest HP Monster +1 until tied with another",
 			"flow": "",
-			"hp_base": 1.0,
+			"hp_base": 2.0,
 			"hp_formula": "",
 			"id": "leech_league",
-			"locked_at": "2026-10-14",
+			"locked_at": "2026-11-01",
 			"locked_fields": [
 				"name",
 				"ability",
