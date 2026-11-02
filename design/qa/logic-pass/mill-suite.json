@@ -1949,11 +1949,11 @@
 				"shield"
 			],
 			"face": "hydra",
-			"expected_text": "When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"expected_text": "If any other Monster has its HP reduced to 3 or less and survives, I Defeat them and Gain +2 ATK After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
 			"clicks": [],
 			"expected": {
 				"log_has": [
-					"even"
+					"Hydra"
 				]
 			}
 		},

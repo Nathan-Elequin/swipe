@@ -233,7 +233,7 @@ const MONSTER_SPECIAL := {
 	"prism": {"id": "refract", "text": "Attack at me hits both neighbors instead."},
 	"plague_doctor": {"id": "time_bomb", "text": "On each Spin, I give all You and all Monsters 1 Poison."},
 	"hired_hand": {"id": "bribe", "text": "Discard an item: I Attack a Neighbor and Flee."},
-	"hydra": {"id": "devour", "text": "If any other Monster has its HP reduced to 3 or less and survives, I Defeat them and Gain their ATK"},
+	"hydra": {"id": "devour", "text": "If any other Monster has its HP reduced to 3 or less and survives, I Defeat them and Gain +2 ATK"},
 	"three_seeker": {"id": "triple_threat", "text": "If you have 3, 6, or 9 Items, you Always Spin me next"},
 	"triclops": {"id": "three_hp", "text": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee."},
 	"phoenix_egg": {"id": "hatch", "text": "When I am Defeated, I Flee and hatch into a Phoenix."},
@@ -16505,12 +16505,11 @@ func _flush_hydra_devour() -> void:
 					continue
 				if int(wheel[v_i].get("hp", 0)) <= 0 or int(wheel[v_i].get("hp", 0)) > 3:
 					continue
-				var plate: int = int(wheel[v_i].get("atk", 0))
-				_log("on_resolve", "Devour %s  Gain %s ATK" % [wheel[v_i].get("name", "?"), plate])
+				_log("on_resolve", "Devour %s  Gain +2" % wheel[v_i].get("name", "?"))
 				await _hydra_defeat_as_item(v_i)
 				h_i = _index_of_seat(h_uid)
 				if h_i >= 0:
-					wheel[h_i]["hydra_bonus"] = int(wheel[h_i].get("hydra_bonus", 0)) + plate
+					wheel[h_i]["hydra_bonus"] = int(wheel[h_i].get("hydra_bonus", 0)) + 2
 					_sync_wheel_stats()
 					if wheel_view != null and wheel_view.has_method("punch_atk"):
 						wheel_view.punch_atk(h_i)
