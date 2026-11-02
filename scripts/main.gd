@@ -1191,6 +1191,7 @@ func _load_runtime() -> void:
 
 func _build_ui() -> void:
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	clip_contents = true
 	dungeon_bg = DUNGEON_BG.new()
 	add_child(dungeon_bg)
 	dungeon_bg.setup(art)
@@ -21176,26 +21177,14 @@ func _hold_sprout_on_floor() -> void:
 
 
 func _recenter_hotbar() -> void:
-	if hotbar_wrap == null or hotbar_panel == null or wheel_view == null:
+	if hotbar_wrap == null:
 		return
-	var parent_w: float = hotbar_wrap.size.x
-	if parent_w < 32.0:
-		return
-	var panel_w: float = hotbar_panel.get_combined_minimum_size().x
-	if panel_w < 8.0:
-		panel_w = hotbar_panel.size.x
-	if panel_w < 8.0:
-		return
-	var wheel_cx: float = wheel_view.get_global_rect().get_center().x
-	var local_cx: float = wheel_cx - hotbar_wrap.global_position.x
-	var left_m: float = clampf(local_cx - panel_w * 0.5, 0.0, maxf(0.0, parent_w - panel_w))
-	var right_m: float = maxf(0.0, parent_w - panel_w - left_m)
-	var next_l: int = int(round(left_m))
-	var next_r: int = int(round(right_m))
-	if hotbar_wrap.get_theme_constant("margin_left") == next_l and hotbar_wrap.get_theme_constant("margin_right") == next_r:
-		return
-	hotbar_wrap.add_theme_constant_override("margin_left", next_l)
-	hotbar_wrap.add_theme_constant_override("margin_right", next_r)
+	## Do not use theme margins to slide the hotbar. Those margins add to this
+	## MarginContainer's minimum size, the combat column grows past the
+	## viewport, and the wheel centers in that extra width (sits right of
+	## screen center). The inner HBox already centers the panel.
+	hotbar_wrap.add_theme_constant_override("margin_left", 0)
+	hotbar_wrap.add_theme_constant_override("margin_right", 0)
 
 
 func _sprout_kill() -> void:
@@ -22050,8 +22039,10 @@ func _layout_play_field() -> void:
 	if tray != null and tray.visible:
 		top_need = maxf(top_need, tray.position.y + tray.size.y + 8.0)
 	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - top_need - 8.0))
-	# Dead-center the wheel. Deck still sits to its right; callout uses the far right gutter.
-	var x: float = (sz.x - side) * 0.5
+	# Viewport center, not play-field center. A too-wide column used to shove
+	# the wheel right of the screen; background art is wallpaper only.
+	var view_cx: float = get_viewport_rect().size.x * 0.5
+	var x: float = view_cx - play_field.global_position.x - side * 0.5
 	x = VIEW_FRAME.clamp_x(x, side, sz)
 	# Pin to the top of the play field. Slack stays under the wheel, above Take.
 	var wheel_y: float = top_need
@@ -22063,6 +22054,7 @@ func _layout_play_field() -> void:
 	wheel_view.position = Vector2(x, wheel_y)
 	wheel_view.size = Vector2(side, side)
 	if hotbar_wrap:
+		hotbar_wrap.add_theme_constant_override("margin_left", 0)
 		hotbar_wrap.add_theme_constant_override("margin_right", 0)
 	if btn_wrap:
 		btn_wrap.add_theme_constant_override("margin_left", 0)
@@ -23253,6 +23245,7 @@ func _sync_hotbar() -> void:
 		else:
 			hotbar_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	if hotbar_wrap:
+		hotbar_wrap.add_theme_constant_override("margin_left", 0)
 		hotbar_wrap.add_theme_constant_override("margin_right", 0)
 	if btn_wrap:
 		btn_wrap.add_theme_constant_override("margin_left", 0)
