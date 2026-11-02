@@ -2906,12 +2906,6 @@ func _collect_bond_pairs() -> Array:
 					if not _living_neighbor(j):
 						continue
 					out.append(_bond_pair(i, j, "commander", Color("d63a2a"), "sword", false, false, silenced, "atk"))
-			"lich":
-				for off2 in [n - 1, 1]:
-					var j2: int = (i + off2) % n
-					if not _living_neighbor(j2):
-						continue
-					out.append(_bond_pair(i, j2, "lich", Color("8dcb8d"), "wisp", false, false, silenced, "hp"))
 			"fairy":
 				for off_f in [n - 1, 1]:
 					var jf: int = (i + off_f) % n

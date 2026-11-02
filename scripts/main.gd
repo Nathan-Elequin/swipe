@@ -252,7 +252,7 @@ const MONSTER_SPECIAL := {
 	"magicat": {"id": "cats_eye", "text": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value"},
 	"scorpion": {"id": "venom_sac", "text": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value"},
 	"poison_frog": {"id": "toxic_skin", "text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison"},
-	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust"},
+	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust."},
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
 	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 1 Attack"},
 	"oligarch": {"id": "wealth_tax", "text": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item"},
@@ -364,7 +364,7 @@ const MONSTER_REMINDER := {
 	"magicat": "On Spin: 2 Atk or Blk Items become Marbles with that number",
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
 	"plague_doctor": "Each Spin: you and every monster Gain 1 Poison",
-	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
+	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust.",
 	"oligarch": "On entry: Gain 2 Items. After each Spin's choices: one playable Item is used",
 }
 
@@ -419,7 +419,7 @@ const MONSTER_SPEECH := {
 	"magicat": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
 	"poison_frog": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
 	"plague_doctor": "On each Spin, I give all You and all Monsters 1 Poison.",
-	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
+	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust.",
 	"oligarch": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
 }
 
@@ -6830,7 +6830,6 @@ func _apply_wraith_pass() -> void:
 
 func _mark_vars() -> void:
 	var n: int = wheel.size()
-	var lich_touch: Dictionary = {}
 	var cmd_touch: Dictionary = {}
 	for i in n:
 		var cid: String = str(wheel[i].get("card_id", ""))
@@ -6846,9 +6845,9 @@ func _mark_vars() -> void:
 			continue
 		var id: String = str(wheel[i].get("card_id", ""))
 		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "vampire" or cmd_touch.has(i)
-		wheel[i]["hp_variable"] = id == "ogre" or id == "skeleton" or id == "leech_league" or id == "wick" or lich_touch.has(i)
+		wheel[i]["hp_variable"] = id == "ogre" or id == "skeleton" or id == "leech_league" or id == "wick"
 		wheel[i]["cmd_buff"] = cmd_touch.has(i)
-		wheel[i]["lich_buff"] = lich_touch.has(i)
+		wheel[i]["lich_buff"] = false
 		wheel[i]["copy_from"] = -1
 
 
@@ -10389,6 +10388,8 @@ func _on_owner_defeated(index: int) -> void:
 	):
 		## SP-24: Defeat while still holding HP gifts remaining HP to neighbors.
 		await _martyr_gift_neighbors(index)
+	elif cid == "rust_bucket" and not quiet:
+		_strip_all_hand_rust()
 
 
 func _lay_phoenix_egg() -> void:
@@ -12192,6 +12193,24 @@ func _maybe_rust_bucket_spawn(index: int) -> void:
 	await _force_gain_rust()
 
 
+func _strip_all_hand_rust() -> void:
+	var uids: Array = []
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) != "rust":
+			continue
+		var uid: int = int(it.get("uid", -1))
+		if uid >= 0:
+			uids.append(uid)
+	if uids.is_empty():
+		return
+	_log("on_resolve", "lose all Rust")
+	for uid in uids:
+		_discard_from_hand(int(uid), false, false)
+	_refresh()
+
+
 func _oligarch_gift_pool() -> Array:
 	var ids: Array = []
 	for idv in item_pool:
@@ -12885,6 +12904,8 @@ func _pay_hired_hand(uid: int) -> void:
 	await _announce_slice(src, _slice_hp_pos(dest))
 	await _watch_attack(src, dest, snap, hits, {})
 	_watch_thorns_seat = -1
+	_hide_hypno()
+	_show_fight_portrait()
 	if hp <= 0:
 		_undo_arm()
 		return
@@ -12905,9 +12926,6 @@ func _pay_hired_hand(uid: int) -> void:
 		return
 	_log("on_resolve", "Hired Hand Flees")
 	if not await _flee_spin():
-		_walker_restore(facing_index)
-		if combat_stage != null and phase == "fighting":
-			combat_stage.visible = true
 		_undo_arm()
 		await _unlock_if_fighting()
 		_refresh()
@@ -13771,11 +13789,14 @@ func _shuffle_dungeon() -> void:
 
 func _resume_facing_fight() -> void:
 	phase = "fighting"
+	_hide_hypno()
 	_walker_busy = false
+	_spin_inflight = false
 	if wheel_view:
 		wheel_view.clear_slay()
 	_show_fight_portrait()
 	_tune_combat_stage()
+	_sync_buttons()
 	_refresh()
 
 
@@ -13834,11 +13855,7 @@ func _try_petty_king_flee(index: int) -> bool:
 	if int(s.get("hp", 0)) <= 0:
 		return false
 	if await _play_chain_cancel():
-		_walker_restore(index)
-		if combat_stage != null and phase == "fighting":
-			combat_stage.visible = true
-		_walker_busy = false
-		_sync_buttons()
+		_resume_after_cancelled_flee()
 		return true
 	s["spin_locked"] = false
 	s["hp_locked"] = false
@@ -17591,15 +17608,28 @@ func _sandbag_after_spin() -> bool:
 	return false
 
 
+func _resume_after_cancelled_flee() -> void:
+	_pending_item_flee = false
+	_hide_hypno()
+	_walker_restore(facing_index)
+	if phase == "slaying":
+		phase = "fighting"
+	_walker_busy = false
+	_spin_inflight = false
+	if wheel_view:
+		wheel_view.clear_slay()
+	if combat_stage != null and phase == "fighting":
+		combat_stage.visible = true
+	_show_fight_portrait()
+	_tune_combat_stage()
+	_sync_buttons()
+	_refresh()
+
+
 func _flee_spin(_shuffle: bool = false) -> bool:
 	_spin_inflight = false
 	if await _play_chain_cancel():
-		_pending_item_flee = false
-		_walker_restore(facing_index)
-		if combat_stage != null and phase == "fighting":
-			combat_stage.visible = true
-		_walker_busy = false
-		_sync_buttons()
+		_resume_after_cancelled_flee()
 		return false
 	phase = "slaying"
 	pending_choice.clear()
