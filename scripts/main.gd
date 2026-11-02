@@ -4279,7 +4279,7 @@ func _item_is_curse(it: Dictionary) -> bool:
 	var card: Dictionary = items_by_id.get(id, {})
 	if bool(card.get("curse", false)):
 		return true
-	return id == "spider_egg" or id == "toll"
+	return id == "spider_egg" or id == "toll" or id == "rust" or id == "cursed_scroll"
 
 
 func _item_blocks_hand_tax(it: Dictionary) -> bool:
@@ -5227,7 +5227,7 @@ func _fill_challenge_hole(i: int) -> void:
 	var token: int = _undo_gen
 	var hole: Dictionary = wheel[i]
 	if bool(hole.get("mimic_gift", false)):
-		await _grant_mimic_gift()
+		await _grant_mimic_gift(i)
 		if _undo_stale(token):
 			return
 	var collapsing: bool = challenge_deck.is_empty()
@@ -5533,11 +5533,13 @@ func _item_look(it: Dictionary) -> Dictionary:
 			unplayable = true
 	if kind == "blk_half_atk" and not bool(view.get("can_use", false)):
 		unplayable = true
+	var cursed: bool = _item_is_curse(it)
 	return {
 		"fill": view.get("fill", Color("5c2626")),
-		"metal": _tier_metal(tier),
+		"metal": Color("100e0c") if cursed else _tier_metal(tier),
 		"tier": tier,
-		"rank": PLAYER_COPY.tier_name(tier),
+		"rank": PLAYER_COPY.text("rank.curse", "Curse") if cursed else PLAYER_COPY.tier_name(tier),
+		"curse": cursed,
 		"unplayable": unplayable,
 	}
 
@@ -8126,6 +8128,9 @@ func _begin_slay(banner: String = "slay") -> void:
 		if facing_index < 0 or facing_index >= wheel.size():
 			_slay_busy = false
 			return
+		if await _try_petty_king_flee(facing_index):
+			_slay_busy = false
+			return
 	await _on_owner_defeated(facing_index)
 	if _undo_stale(token) or hp <= 0:
 		if owned_slay:
@@ -8507,7 +8512,7 @@ func _clear_after_fight(_clockwork_split: bool = false) -> void:
 		await _remove_crossbowed()
 		_trace_resolve("clear after crossbow n=%s" % wheel.size())
 		if left_id == "mimic" and not enemy_attacked:
-			await _grant_mimic_gift()
+			await _grant_mimic_gift(facing_index)
 		if _install_laid_egg(facing_index):
 			facing_index = -1
 		else:
@@ -9032,13 +9037,13 @@ func _use_item(uid: int) -> void:
 		await _feed_cube(uid)
 		_undo_arm()
 		return
-	if _walker_busy:
+	if _walker_busy and not _oligarch_forcing:
 		return
 	var it_pre: Dictionary = _find_item(uid)
 	var magnet_ready: bool = phase == "ready" and _is_magnet(it_pre)
 	if not magnet_ready and (phase != "fighting" or facing_index < 0):
 		return
-	if _wheel_busy():
+	if _wheel_busy() and not _oligarch_forcing:
 		return
 	if not pending_chaos.is_empty():
 		await _chaos_pick(uid)
@@ -10551,6 +10556,13 @@ func _fill_bag(it: Dictionary, m: Dictionary) -> void:
 	it["explainer"] = "(ENEMY HP < %s)" % cap
 	it["spent"] = false
 	it["keep_after"] = true
+	it["card_id"] = "bag_of_holding"
+	var bag_card: Dictionary = items_by_id.get("bag_of_holding", {})
+	if typeof(bag_card.get("ops", null)) == TYPE_DICTIONARY:
+		it["ops"] = (bag_card["ops"] as Dictionary).duplicate(true)
+	it.erase("echo_copy")
+	it.erase("echo_silent")
+	it.erase("echo_frozen_n")
 
 
 func _empty_bag(it: Dictionary) -> Dictionary:
@@ -10569,8 +10581,6 @@ func _empty_bag(it: Dictionary) -> Dictionary:
 
 
 func _bag_is_loaded(it: Dictionary) -> bool:
-	if str(it.get("card_id", "")) != "bag_of_holding":
-		return false
 	if int(it.get("bagged_hp", 0)) <= 0:
 		return false
 	if typeof(it.get("bagged", null)) != TYPE_DICTIONARY:
@@ -10622,7 +10632,7 @@ func _bag_remove_facing() -> void:
 		var m: Dictionary = wheel[facing_index]
 		var left_id: String = str(m.get("card_id", ""))
 		if left_id == "mimic" and not enemy_attacked:
-			await _grant_mimic_gift()
+			await _grant_mimic_gift(facing_index)
 			if _undo_stale(token):
 				return
 		if _install_laid_egg(facing_index):
@@ -11848,10 +11858,13 @@ func _apply_oligarch_on_spin() -> void:
 		var grab: Vector2 = _hotbar_card_global(pick)
 		if grab != Vector2.ZERO:
 			await _monster_walk_to(int(_seat), "oligarch", grab)
+		_walker_busy = false
 		_log("on_spin", "Oligarch uses a random Item")
 		await _use_item(pick)
 		_oligarch_forcing = false
 		if int(_seat) >= 0 and int(_seat) < wheel.size() and str(wheel[int(_seat)].get("card_id", "")) == "oligarch":
+			_walker_restore(int(_seat))
+		else:
 			_walker_restore(int(_seat))
 		if phase != "fighting":
 			return
@@ -12343,6 +12356,9 @@ func _pay_hired_hand(uid: int) -> void:
 		return
 	_log("on_resolve", "Hired Hand Flees")
 	if not await _flee_spin():
+		_walker_restore(facing_index)
+		if combat_stage != null and phase == "fighting":
+			combat_stage.visible = true
 		_undo_arm()
 		await _unlock_if_fighting()
 		_refresh()
@@ -12489,6 +12505,8 @@ func _maybe_slay_down(index: int) -> void:
 	if _wick_waiting(index):
 		return
 	if await _try_commander_flee(index):
+		return
+	if await _try_petty_king_flee(index):
 		return
 	if index == facing_index:
 		await _begin_slay()
@@ -13247,6 +13265,41 @@ func _try_commander_flee(index: int) -> bool:
 		if wheel_view and wheel_view.slay_index == index:
 			wheel_view.clear_slay()
 		_refresh()
+	return true
+
+
+func _try_petty_king_flee(index: int) -> bool:
+	if index < 0 or index >= wheel.size():
+		return false
+	var s: Dictionary = wheel[index]
+	if str(s.get("card_id", "")) != "cowardly_king":
+		return false
+	if _is_silenced(s):
+		return false
+	if int(s.get("hp", 0)) <= 0:
+		return false
+	if await _play_chain_cancel():
+		_walker_restore(index)
+		if combat_stage != null and phase == "fighting":
+			combat_stage.visible = true
+		_walker_busy = false
+		_sync_buttons()
+		return true
+	s["spin_locked"] = false
+	s["hp_locked"] = false
+	wheel[index] = s
+	_log("on_resolve", "%s flees" % s.get("name", "Petty King"))
+	if sfx:
+		sfx.play("door_open", -12.0)
+	if index == facing_index:
+		await _flee_spin()
+	else:
+		if wheel_view and wheel_view.slay_index == index:
+			wheel_view.clear_slay()
+		_refresh()
+		_challenge_vacate(index)
+		if adventure:
+			await _challenge_resolve_holes(index)
 	return true
 
 
@@ -14394,21 +14447,25 @@ func _hotbar_card_global(uid: int) -> Vector2:
 
 
 func _hotbar_empty_slot_global() -> Vector2:
+	if hotbar_box != null:
+		var kids: Array = hotbar_box.get_children()
+		var cap: int = _hand_limit()
+		if kids.size() < cap or not _hotbar_park_overflow():
+			if kids.is_empty():
+				return hotbar_box.global_position + Vector2(48.0, hotbar_box.size.y * 0.5)
+			var last: Control = kids[kids.size() - 1]
+			return last.global_position + Vector2(last.size.x + 8.0 + last.size.x * 0.5, last.size.y * 0.5)
 	if _hotbar_park_overflow() and hotbar_overflow != null:
 		var parked: Array = hotbar_overflow.get_children()
 		if not parked.is_empty():
 			var last_park: Control = parked[parked.size() - 1]
-			return last_park.global_position + last_park.size * 0.5
+			return last_park.global_position + Vector2(last_park.size.x + 8.0 + last_park.size.x * 0.5, last_park.size.y * 0.5)
 		if hotbar_panel != null:
 			var pr: Rect2 = hotbar_panel.get_global_rect()
-			return Vector2(pr.position.x + pr.size.x * 0.5, pr.position.y - 64.0)
+			return Vector2(pr.position.x + pr.size.x * 0.5, pr.position.y + pr.size.y * 0.5)
 	if hotbar_box == null:
 		return Vector2.ZERO
-	var kids: Array = hotbar_box.get_children()
-	if kids.is_empty():
-		return hotbar_box.global_position + hotbar_box.size * 0.5
-	var last: Control = kids[kids.size() - 1]
-	return last.global_position + Vector2(last.size.x + 8.0 + last.size.x * 0.5, last.size.y * 0.5)
+	return hotbar_box.global_position + hotbar_box.size * 0.5
 
 
 func _juggernaut_hand_shield() -> void:
@@ -15140,6 +15197,7 @@ func _napalm_set_monster(index: int) -> int:
 		m["atk"] = 1
 	wheel[index] = m
 	_log("hp", "%s  now 1" % m.get("name", "?"))
+	_note_hydra_survive_loss(index, before, 1)
 	if wheel_view:
 		wheel_view.punch_hp(index)
 	return before - 1
@@ -15724,6 +15782,8 @@ func _hydra_defeat_as_item(index: int) -> void:
 	if await _try_triclops_bail(index):
 		return
 	if await _try_commander_flee(index):
+		return
+	if await _try_petty_king_flee(index):
 		return
 	if index < 0 or index >= wheel.size():
 		return
@@ -16395,6 +16455,9 @@ func _refract_from_prism(index: int, n: int, shares: Array) -> bool:
 			_end_simul()
 			for done in tags:
 				_clear_share_tag(int(done))
+			_walker_restore(facing_index)
+			_walker_busy = false
+			await _unlock_if_fighting()
 			return true
 		j = _index_of_share(tok)
 		if j < 0:
@@ -16406,11 +16469,17 @@ func _refract_from_prism(index: int, n: int, shares: Array) -> bool:
 				for done2 in tags:
 					_clear_share_tag(int(done2))
 				last_atk_index = -1
+				_walker_restore(facing_index)
+				_walker_busy = false
+				await _unlock_if_fighting()
 				return true
 	_end_simul()
 	for tok2 in tags:
 		_clear_share_tag(int(tok2))
 	last_atk_index = -1
+	_walker_restore(facing_index)
+	_walker_busy = false
+	await _unlock_if_fighting()
 	return false
 
 
@@ -16762,6 +16831,11 @@ func _flee_spin(_shuffle: bool = false) -> bool:
 	_spin_inflight = false
 	if await _play_chain_cancel():
 		_pending_item_flee = false
+		_walker_restore(facing_index)
+		if combat_stage != null and phase == "fighting":
+			combat_stage.visible = true
+		_walker_busy = false
+		_sync_buttons()
 		return false
 	phase = "slaying"
 	pending_choice.clear()
@@ -17900,7 +17974,7 @@ func _kill_neighbor(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
 	if str(m.get("card_id", "")) == "mimic" and not adventure:
-		await _grant_mimic_gift()
+		await _grant_mimic_gift(index)
 	_flash_screen(Color("e8c36a"), 0.32)
 	if sfx:
 		var nctx := {"tier": _tier_of(m), "monster_id": str(m.get("card_id", ""))}
@@ -18001,8 +18075,13 @@ func _draw_unseen_item(force_over: bool = false) -> void:
 		sfx.play("open", -10.0)
 
 
-func _grant_mimic_gift() -> void:
-	## Louder tell: banner + coins + card pop so the Mimic payout reads clearly.
+func _grant_mimic_gift(from_index: int = -1) -> void:
+	var dest: Vector2 = _hotbar_empty_slot_global()
+	if from_index >= 0:
+		await _announce_slice(from_index, dest)
+	var from: Vector2 = Vector2.ZERO
+	if wheel_view and from_index >= 0:
+		from = wheel_view.slice_portrait_global(from_index)
 	var before_uids: Dictionary = {}
 	for held in hotbar:
 		if typeof(held) == TYPE_DICTIONARY:
@@ -18018,9 +18097,17 @@ func _grant_mimic_gift() -> void:
 			break
 	if gained.is_empty():
 		return
+	var gid: String = str(gained.get("card_id", ""))
+	var tex: Texture2D = null
+	if art != null:
+		tex = art.item_tex(gid)
+	if tex == null:
+		tex = tex_by_item.get(gid, tex_sword)
+	if tex != null and from != Vector2.ZERO and dest != Vector2.ZERO:
+		await _fly_courier(tex, from, dest, 0.48)
 	_flash_screen(Color("e8c36a"), 0.42)
 	if sfx:
-		sfx.play_event(&"hand.gain", {"card_id": str(gained.get("card_id", ""))})
+		sfx.play_event(&"hand.gain", {"card_id": gid})
 		sfx.play_event(&"loot.coins")
 		sfx.play("open", -6.0)
 		sfx.play("bong", -10.0, 1.15)
@@ -19048,6 +19135,10 @@ func _item_view(it: Dictionary) -> Dictionary:
 	elif not pending_feed.is_empty():
 		var feed_uids: Array = pending_feed.get("uids", [])
 		out["can_use"] = feed_uids.has(int(it.get("uid", -1))) and not bool(it.get("spent", false))
+	if _item_is_curse(it):
+		out["rim"] = Color("100e0c")
+		out["fill"] = Color("241014")
+		out["curse"] = true
 	return out
 
 
@@ -23169,6 +23260,8 @@ func _sync_hotbar() -> void:
 			can_click = (in_fight or magnet_ready) and bool(view["can_use"]) and not spent_n and not _item_stoned(it)
 		card.spent = spent_n
 		card.set_palette(view["fill"], view["rim"], _tier_of(it))
+		if card.has_method("set_curse"):
+			card.set_curse(_item_is_curse(it))
 		var shown_n: String = str(view["number"])
 		var pn: int = int(it.get("petrify_n", 0))
 		if pn > 0:

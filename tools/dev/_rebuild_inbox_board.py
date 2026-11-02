@@ -13,7 +13,7 @@ for k, v in sorted(d["issues"].items(), key=lambda kv: int(kv[0]), reverse=True)
 		todo.append(card)
 	elif st == "f5":
 		f5.append(card)
-	else:
+	elif st == "itch":
 		itch.append(card)
 
 

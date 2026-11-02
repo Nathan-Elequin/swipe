@@ -32,6 +32,7 @@ var _title
 var _rank: Label
 var _fill: Color
 var _rim: Color
+var _curse: bool = false
 var _tier: int = 1
 var _num_col: Color = Color.WHITE
 var _shown: String = ""
@@ -1362,6 +1363,12 @@ func set_palette(fill: Color, metal: Color, tier: int = 1) -> void:
 	_tick_shimmer()
 
 
+func set_curse(on: bool) -> void:
+	_curse = on
+	_apply_style(_hot)
+	queue_redraw()
+
+
 func _tier_shine() -> Color:
 	if _tier >= 3:
 		return Color("ffe6a8")
@@ -1761,6 +1768,9 @@ func _apply_style(hot: bool) -> void:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = _fill.lightened(0.10) if hot else _fill
 	var metal: Color = _rim.lightened(0.18) if hot else _rim
+	if _curse:
+		metal = Color("100e0c")
+		sb.bg_color = Color("241014")
 	var pulse := 0.0
 	if _glow:
 		var period: float = 1.45 if _tier <= 1 else (1.05 if _tier == 2 else 0.72)
@@ -1857,6 +1867,8 @@ func _apply_style(hot: bool) -> void:
 
 
 func _draw() -> void:
+	if _curse:
+		_draw_dashed_ring(Color("100e0c"), 3.0, 0.35)
 	if _beggar_on:
 		# Thin WARNING dashed outline (Direction A) — flash still punches the mark.
 		var flash: float = clampf(_beggar_flash, 0.0, 1.0)

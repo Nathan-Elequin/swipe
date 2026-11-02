@@ -4785,6 +4785,12 @@
 			"where": "Haul / rank chip for internal tier 3. Never say Tier."
 		},
 		{
+			"cat": "Extract",
+			"key": "rank.curse",
+			"text": "Curse",
+			"where": "Inspect rank for curse items. Never say Weak or Tier."
+		},
+		{
 			"cat": "Nib",
 			"key": "nib.piece.squint",
 			"text": "Hold on. What's that stuck to the haul?",
