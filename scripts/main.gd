@@ -40,6 +40,7 @@ const CHALLENGE_DRAFT := preload("res://scripts/challenge_draft.gd")
 const HUB_CUE_CAPSULE := preload("res://scripts/ui/hub_cue_capsule.gd")
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const CAMPAIGN_MAP := preload("res://scripts/campaign_map.gd")
+const DEFEAT_SPOTLIGHT := preload("res://scripts/ui/defeat_spotlight.gd")
 const HOME_CABIN := preload("res://scripts/home_cabin.gd")
 const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 const BUILD_STAMP := preload("res://scripts/build_stamp.gd")
@@ -768,6 +769,7 @@ var _undo_busy: bool = false
 var btn_undo: Button
 var btn_redo: Button
 var overlay_undo: Button
+var defeat_spotlight
 var playtest_hub
 var playtest_feedback
 var playtest_tier
@@ -1824,6 +1826,10 @@ func _build_overlay() -> void:
 	else:
 		overlay_tools_row.visible = false
 	overlay.z_index = 80
+	defeat_spotlight = DEFEAT_SPOTLIGHT.new()
+	add_child(defeat_spotlight)
+	defeat_spotlight.home_pressed.connect(_on_defeat_limp_home)
+	defeat_spotlight.quick_pressed.connect(_on_defeat_quick_start)
 
 
 func _build_copy_stamp() -> void:
@@ -3233,6 +3239,8 @@ func _campaign_draft_decision() -> Dictionary:
 
 func _go_home_loss() -> void:
 	# Tip #247: clear Verdant ambient. Splash: soft dissolve out, no splash.
+	if defeat_spotlight != null and defeat_spotlight.has_method("dismiss"):
+		defeat_spotlight.dismiss()
 	_sync_biome_ambient("", true)
 	await _biome_dissolve_out()
 	_campaign_abort()
@@ -3240,6 +3248,46 @@ func _go_home_loss() -> void:
 	phase = "title"
 	_open_home_cabin(true, "loss", [], [])
 	await _biome_dissolve_reveal()
+
+
+func _kick_defeat_spotlight(skip_pose: bool = false) -> void:
+	if defeat_spotlight == null:
+		return
+	# Fire-and-forget; callers of _player_down do not await.
+	_run_defeat_spotlight(skip_pose)
+
+
+func _run_defeat_spotlight(skip_pose: bool = false) -> void:
+	if defeat_spotlight == null:
+		return
+	if skip_pose and wheel_view != null and wheel_view.has_method("play_hero"):
+		# Toll-rescue path already played death; ensure hold frame for the mirror.
+		if str(wheel_view.hero_anim) != "death":
+			wheel_view.play_hero("death", 1, true)
+	await defeat_spotlight.play_sequence(wheel_view, art)
+
+
+func _on_defeat_limp_home() -> void:
+	if phase != "defeat":
+		return
+	_go_home_loss()
+
+
+func _on_defeat_quick_start() -> void:
+	if phase != "defeat":
+		return
+	if defeat_spotlight != null and defeat_spotlight.has_method("dismiss"):
+		defeat_spotlight.dismiss()
+	# New Verdant Hollow run, skip biome splash, land on dealing the hotbar.
+	if _campaign == null:
+		return
+	_splash_busy = true
+	var biome_id := "b1"
+	if sfx and sfx.has_method("music_biome_dungeon"):
+		sfx.music_biome_dungeon(biome_id)
+	_sync_biome_ambient(biome_id)
+	await _begin_campaign_delve(0, false, false, null, false)
+	_splash_busy = false
 
 
 func _give_up() -> void:
@@ -8656,7 +8704,7 @@ func _player_down(skip_pose: bool = false) -> void:
 		_advance_bucket_counter()
 	phase = "defeat"
 	_log("end", "dead")
-	_flash_screen(Color("c45c5c"), 0.28)
+	# Spotlight sequence owns the blackout — no red flash over it.
 	if sfx:
 		if sfx.has_method("music_hold_for_undo"):
 			sfx.music_hold_for_undo()
@@ -8672,6 +8720,7 @@ func _player_down(skip_pose: bool = false) -> void:
 	_discard_spent_items()
 	facing_index = -1
 	_refresh()
+	_kick_defeat_spotlight(skip_pose)
 
 
 func _clear_after_fight(_clockwork_split: bool = false) -> void:
@@ -8892,7 +8941,10 @@ func _undo_stale(token: int) -> bool:
 func _undo_in_scope() -> bool:
 	if in_tutorial:
 		return false
-	return phase == "fighting" or phase == "ready" or phase == "slaying" or phase == "defeat" or phase == "victory"
+	# No Undo after defeat — spotlight sequence only offers Limp home / Quick start.
+	if phase == "defeat":
+		return false
+	return phase == "fighting" or phase == "ready" or phase == "slaying" or phase == "victory"
 
 
 func _undo_can_undo() -> bool:
@@ -9166,7 +9218,7 @@ func _undo_play_fx(is_redo: bool) -> void:
 
 
 func _on_undo() -> void:
-	if in_tutorial or _undo_busy:
+	if in_tutorial or _undo_busy or phase == "defeat":
 		return
 	_undo_busy = true
 	_session("undo", "Undo")
@@ -23571,7 +23623,8 @@ func _sync_overlay() -> void:
 	if phase == "victory":
 		overlay.visible = false
 		return
-	var show_defeat: bool = phase == "defeat"
+	# Defeat UI is the spotlight sequence (quote + Limp home / Quick start). No Caught sheet, no Undo.
+	var show_defeat: bool = false
 	overlay.visible = show_defeat
 	if overlay_dive:
 		overlay_dive.visible = false
@@ -23592,16 +23645,13 @@ func _sync_overlay() -> void:
 	if overlay_sub:
 		overlay_sub.visible = false
 	if overlay_btn:
-		overlay_btn.visible = show_defeat
+		overlay_btn.visible = false
 	if overlay_undo:
-		overlay_undo.visible = _undo_can_undo() and phase == "defeat"
+		overlay_undo.visible = false
 	if overlay_score:
-		overlay_score.visible = adventure and phase == "defeat"
-		if overlay_score.visible:
-			overlay_score.text = PLAYER_COPY.fill("title.dungeons_cleared", {"n": dungeons_cleared}, "Dungeons cleared: %s" % dungeons_cleared)
-	if phase == "defeat":
-		overlay_title.text = PLAYER_COPY.text("title.lose", "Caught")
-		overlay_btn.text = PLAYER_COPY.text("defeat.home", "Limp home")
+		overlay_score.visible = false
+	if phase != "defeat" and defeat_spotlight != null and defeat_spotlight.has_method("is_active") and defeat_spotlight.is_active():
+		defeat_spotlight.dismiss()
 
 
 func _rebuild_tray() -> void:
