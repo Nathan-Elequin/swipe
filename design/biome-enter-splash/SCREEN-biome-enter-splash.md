@@ -26,10 +26,10 @@ Tip biomes **b1–b5** always show the splash on map enter (placeholder art OK).
 │                                                                       │
 │        New Sprout 64px idle_f0 ×5 Nearest      monster hint:          │
 │        box (500,432) 320×320                   eyes only (1200,430)   │
-│ ──────────── bottom fade 72px ─────────────────────────────── y 832 ──│
-│ NARRATION BAR 1680×236  6px top border #7A4E2B (overlaps fade)        │
+│ ──────────── bottom fade 72px ─────────────── y (1040−BAR_H−44) ──────│
+│ NARRATION BAR 1680×340  6px top border #7A4E2B (overlaps fade)        │
 │   inner panel inset 20 all sides, 4px border #3B2618, fill #211610    │
-│   text box x64 w1552, 36px / ~42px line, ≤3 lines       [leaf] cue    │
+│   text box x64 w1552, 36px / ~42px line, ≤5 lines       [leaf] cue    │
 └───────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -38,13 +38,13 @@ Tip biomes **b1–b5** always show the splash on map enter (placeholder art OK).
 |---|---|---|
 | Art | 0,0,1680,832 | One scene per biome. `TextureRect`, `STRETCH_KEEP_ASPECT_COVERED`, `texture_filter = NEAREST`. |
 | Vignette | 0,0,1680,832 | One gradient `TextureRect` (radial, dark edges). Placeholder: `GradientTexture2D`. |
-| Bottom fade | 0,760,1680,72 | Vertical gradient `rgba(11,7,6,0)` → `rgba(11,7,6,.85)`. |
+| Bottom fade | 0,656,1680,72 | Vertical gradient `rgba(11,7,6,0)` → `rgba(11,7,6,.85)`. Y = `1040 − BAR_H − 44` so the blend meets the taller bar (BAR_H 340 → y 656). |
 | Chrome stack | 40,36 | `VBoxContainer`, separation 8. See §3. |
 | New Sprout | 500,432,320,320 | `TextureRect` of `res://assets/dungeon/anim/player/sprout_idle_f0.png` (64px) at ×5, NEAREST. Ground shadow: 144×16 rect at (624,744), #12261b @ 60%. Sits on the left-third line, faces right toward the path. |
 | Monster hint | ~1200,430,200,220 | **Eyes only.** Glints in the dark, never a body or silhouette. Painted into the art later. Placeholder art has none. |
 | Fireflies | art region | `CPUParticles2D`, ~24 particles, 2×2 px squares #E8D36A, slow drift, low alpha flicker. Optional on placeholder pass. |
-| Narration bar | 0,804,1680,236 | `Panel` with `StyleBoxFlat` (fill #1A120E, top border 6px #7A4E2B). Height sized so 3 lines + cue keep even padding; sits at the bottom of the 1040 frame (overlaps the fade). Inner inset 20px all sides. |
-| Narration text | 64, ~pad,1552,≤126 | `Label`, autowrap, 36px font, ~42px line, color #E9D3A1, max 3 lines. Uses most of the panel width (was 1280) so wrap is less cramped; vertically centered in the text zone above the cue. |
+| Narration bar | 0,700,1680,340 | `Panel` with `StyleBoxFlat` (fill #1A120E, top border 6px #7A4E2B). Height sized so Spin’s first-person paragraphs (≤5 lines) + cue keep even padding; sits at the bottom of the 1040 frame (overlaps the fade). Inner inset 20px all sides. Grew 208 → 236 (#295) → 340 (2026-11-02 Spin lock). |
+| Narration text | 64, ~pad,1552,≤210 | `Label`, autowrap, 36px font, ~42px line, color #E9D3A1, max 5 lines. Uses most of the panel width (was 1280) so wrap is less cramped; vertically centered in the text zone above the cue. |
 | Click cue | right 56, bottom 30 of the bar | Leaf icon 12px ×2 NEAREST that bobs 2px (Tween loop 0.8s, sine). Label uses Spin key `splash.chrome.continue` = `click anytime` (lowercase; leaf kept). **Never** reuse `intro.next` / "Click to continue". Stays clear of narration. |
 
 Scaling: build the screen in 1680×1040 and let the project's existing stretch settings scale it. No per-element DPI math.
@@ -61,12 +61,17 @@ Scaling: build the screen in 1680×1040 and let the project's existing stretch s
 - Stat style: Silkscreen-like caps from the theme, 17px, letter-spacing 2, color #EFE0B6, fill rgba(26,18,14,.9), 3px border #4A2F1F, pad 3/10/2/10.
 - Plate style: larger display font, biome-tinted text (Verdant #9cc45a), 3px border #7A4E2B.
 
-## 4. Narration copy (EXACT, Spin-locked)
+## 4. Narration copy (EXACT, Spin-locked 2026-11-02)
 
-`splash.biome.verdant_hollow` =
-> The Hollow breathes green under Mount Grumblegut. Moss drinks what little light sneaks in. The path ahead is soft, damp, and already listening.
+| Key | Text |
+|---|---|
+| `splash.biome.verdant_hollow` | I stepped into the Verdant Hollow and at once felt the wet through the soles of my boots. Moss covered the walls and much of the floor, and the air smelled of earth after rain. I raised my lantern and went on along the only path that offered itself, deeper under the mountain. |
+| `splash.biome.crystal_cavern` | I entered the Crystal Cavern and had to blink against the glare. Pillars and sheets of ice lined the passage and threw my lantern light about in hard flashes. My boots rang on the frost; the echo died quickly in the cold air. I went forward with short steps, watching where I set my feet. |
+| `splash.biome.ashen_crypt` | I came into the Ashen Crypt with dust already on my tongue. The halls were dry and quiet, and along the walls stood open niches that held nothing but the crumbled remains of old offerings. I walked on at a steady pace and listened, but I heard only my own breathing and the soft scrape of my boots. |
+| `splash.biome.cinder_forge` | Before I saw the Cinder Forge I felt the heat on my face. The stone underfoot was warm, and farther in I heard metal strike and saw sparks drop to the floor. I wiped my brow and kept walking. Grandpa had come this way before me; I meant to do the same, and to come out again. |
+| `splash.biome.shadow_abyss` | The path turned down into the Shadow Abyss, and my lantern lit only a few feet of stone ahead. Beyond that circle I could see nothing at all. I put my left hand on the wall and went down one step at a time, careful of my footing, for a fall here would end the dig in a hurry. |
 
-Show it as written. Autowrap at ~1552px / 36px keeps every tip biome (including Cinder Forge) inside the bar with padding — up to 3 lines, never clipped. Don't add, cut, or retype anything; read it through `PLAYER_COPY.text()`.
+Show each as written. Autowrap at ~1552px / 36px + bar height **340** / max **5** lines keeps every tip biome inside the panel with padding — never clipped, never rewrite Spin. Read through `PLAYER_COPY.text()`.
 
 ## 5. Sequence + timings (locked)
 

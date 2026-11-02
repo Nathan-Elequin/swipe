@@ -1,5 +1,9 @@
 # Copy Log
 
+## 2026-11-02 — Biome-enter splash narration (Spin lock)
+
+Spin locked first-person plain fiction for `splash.biome.verdant_hollow`, `splash.biome.crystal_cavern`, `splash.biome.ashen_crypt`, `splash.biome.cinder_forge`, and `splash.biome.shadow_abyss`. Values pasted exactly into `data/player-copy.csv` and `data/player-copy.json`. Chrome keys (`splash.chrome.biome|dungeon|delves|continue`) unchanged. Layout: narration bar grew to 340px / max 5 lines so the longer paragraphs fit at 1680×1040 without clipping Spin’s words.
+
 ## 2026-10-07 — Draft gate (copy id swipe-player-copy-v3-draftgate)
 
 Approval: Nathan explicitly approved overriding his author-locked draft-gate lines on 2026-10-07 ("Yes, apply the new draft-gate lines."). Backup of the previous file: data/player-copy.backup-2026-10-07.json.
