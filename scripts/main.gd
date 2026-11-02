@@ -133,7 +133,7 @@ const ITEM_OPS := {
 	"victory_flask": {"kind": "heal_kills"},
 	"grappling_hook": {"kind": "hook_swap"},
 	"spiked_shield": {"kind": "shield_alt"},
-	"pacemaker": {"kind": "pacemaker_use"},
+	"pacemaker": {"kind": "passive"},
 	"catapult": {"kind": "eject_draw"},
 	"polymorph": {"kind": "polymorph"},
 	"stone_wall": {"kind": "blk", "n": 10},
@@ -198,7 +198,7 @@ const MONSTER_SPECIAL := {
 	"bandit": {"id": "item_atk", "text": "I Gain +1 Atk for each Item you hold."},
 	"two_headed_serpent": {"id": "two_items", "text": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP."},
 	"slime_boss": {"id": "atk_eq_hp", "text": "ATK always equals current HP."},
-	"leech_league": {"id": "leech_lowest", "text": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster."},
+	"leech_league": {"id": "leech_lowest", "text": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. When I spawn, I take over another Monster."},
 	"wraith": {"id": "lifelink", "text": "When I am Defeated, set your HP to my most recent HP."},
 	"mimic": {"id": "gift", "text": "If I go down before I swing, you gain an item."},
 	"spider_queen": {"id": "queen_hits", "text": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each."},
@@ -320,7 +320,7 @@ const MONSTER_REMINDER := {
 	"bandit": "attack is items",
 	"two_headed_serpent": "Neighbors attack, then Heal 3",
 	"slime_boss": "attack equals HP",
-	"leech_league": "Lowest HP Monster +1 until tied with another",
+	"leech_league": "When I spawn, take over weakest other by tier. Lowest HP Monster +1 until tied with another",
 	"wraith": "Defeated: set your HP to my most recent HP",
 	"mimic": "item if I never swing",
 	"spider_queen": "Egg on Spin. Spinning me eats eggs for +2 HP +2 Attack each.",
@@ -375,7 +375,7 @@ const MONSTER_SPEECH := {
 	"bandit": "I Gain +1 Atk for each Item you hold.",
 	"two_headed_serpent": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.",
 	"slime_boss": "My attack always equals my HP.",
-	"leech_league": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+	"leech_league": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. When I spawn, I take over another Monster.",
 	"wraith": "When I am Defeated, set your HP to my most recent HP.",
 	"mimic": "If I go down before I attack, you gain an item.",
 	"spider_queen": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
@@ -563,6 +563,7 @@ var right_col: VBoxContainer
 var _log_open: bool = false
 var _log_user_hid: bool = false
 var _log_user_show: bool = false
+var _log_proc_cause: String = ""
 var hotbar_box: GridContainer
 var choice_box: HBoxContainer
 var hearts_box: HBoxContainer
@@ -2202,6 +2203,10 @@ func _dev_enter() -> void:
 		dev_panel.visible = false
 	if log_label:
 		log_label.visible = true
+	_walker_busy = true
+	_refresh()
+	await _maybe_leech_takeovers()
+	_walker_busy = false
 	phase = "ready"
 	_log("on_draft", "enter")
 	if sfx:
@@ -4855,6 +4860,10 @@ func _challenge_begin_play() -> void:
 	if challenge_draft_ui:
 		challenge_draft_ui.hide_draft()
 	draft_action = ""
+	_walker_busy = true
+	_refresh()
+	await _maybe_leech_takeovers()
+	_walker_busy = false
 	phase = "ready"
 	_await_first_spin = true
 	challenge_aim = -1
@@ -5341,6 +5350,8 @@ func _challenge_refill_or_collapse(index: int) -> void:
 			sfx.play("drop", -8.0)
 			sfx.play("whoosh", -12.0, 0.9)
 		_refresh()
+		if phase == "ready" or phase == "fighting" or phase == "slaying" or phase == "spinning":
+			await _maybe_leech_takeovers()
 		return
 	if wheel_view:
 		await wheel_view.collapse_slice(index)
@@ -5409,6 +5420,7 @@ func _challenge_after_fight() -> void:
 	if _undo_stale(token):
 		return
 	_sync_wheel_stats()
+	await _maybe_leech_takeovers()
 	phase = "ready"
 	if _monsters_left() == 0:
 		if await _try_release_bag():
@@ -5948,6 +5960,11 @@ func _finish_mill() -> void:
 		speech_box.hide_speech()
 	pending_monster = {}
 	pending_item = {}
+	draft_action = "busy"
+	_walker_busy = true
+	_refresh()
+	await _maybe_leech_takeovers()
+	_walker_busy = false
 	phase = "ready"
 	draft_action = "place"
 	_sort_hotbar()
@@ -6175,6 +6192,8 @@ func _make_monster(id: String) -> Dictionary:
 		"hunger_n": 0,
 		"has_attacked": false,
 		"polymorphed_this_fight": false,
+		"leech_takeover_copy": false,
+		"leech_spawn_done": false,
 	}
 	uid_seq += 1
 	s["seat_uid"] = uid_seq
@@ -6735,7 +6754,7 @@ func _restore_cascade_time_scale() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if phase == "devtest" and event.is_action_pressed("ui_accept"):
-		_dev_enter()
+		await _dev_enter()
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -7951,7 +7970,7 @@ func _on_spin() -> void:
 		m = wheel[facing_index]
 		# Land swing happens before Hex / Rust tick. A countdown is not an item use.
 		if str(m.get("card_id", "")) == "harpy" and not _is_silenced(m):
-			await _harpy_poke()
+			await _harpy_poke("spin")
 			if hp <= 0 or phase != "fighting":
 				await _bleed_end()
 				await _unlock_if_fighting()
@@ -8395,7 +8414,7 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
-		_note_hp_lost(incoming)
+		await _note_hp_lost(incoming)
 	if pierce:
 		_log("on_resolve", "hit %s  ATK %s  (ignores BLK)" % [hit_n, m.get("atk", 0)])
 		if at >= 0:
@@ -8441,7 +8460,7 @@ func _apply_egg_hurt(n: int) -> void:
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
-		_note_hp_lost(incoming)
+		await _note_hp_lost(incoming)
 		_log("hp", "take -%s  now %s" % [incoming, hp])
 		_flash_screen(Color("e07a7a"), 0.16)
 		_refresh_hearts()
@@ -8564,6 +8583,7 @@ func _clear_after_fight(_clockwork_split: bool = false) -> void:
 	_trace_resolve("clear sync")
 	_sync_wheel_stats()
 	await _slay_pending_ogres()
+	await _maybe_leech_takeovers()
 	phase = "ready"
 	if _monsters_left() == 0:
 		_trace_resolve("clear dungeon clear")
@@ -9131,7 +9151,7 @@ func _use_item(uid: int) -> void:
 	pending_mark.clear()
 	var ops: Dictionary = _ops_of(it)
 	var kind: String = str(ops.get("kind", ""))
-	if kind == "passive" or kind == "toll" or kind == "hex" or kind == "recycle_watch":
+	if kind == "passive" or kind == "toll" or kind == "hex" or kind == "recycle_watch" or kind == "pacemaker_use":
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
@@ -9911,12 +9931,8 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("on_item_use", str(it["name"]))
 			await _heal(last_hp_lost)
 		"pacemaker_use":
-			_log("on_item_use", str(it["name"]))
-			if await _bleed(2):
-				it["spent"] = true
-				await _count_item_use()
-				_toss_item(int(it["uid"]), false)
-				return
+			# Kept for old hand snapshots. Pacemaker is Unplayable now.
+			return
 		"eject_draw":
 			if not adventure or facing_index < 0:
 				_log("on_item_use", "cannot")
@@ -10669,6 +10685,7 @@ func _bag_remove_facing() -> void:
 		if _undo_stale(token):
 			return
 		_sync_wheel_stats()
+		await _maybe_leech_takeovers()
 	else:
 		var m: Dictionary = wheel[facing_index]
 		var left_id: String = str(m.get("card_id", ""))
@@ -10950,10 +10967,14 @@ func _wick_on_defeated(index: int) -> void:
 		return
 	var who: String = str(wheel[index].get("name", "Neighbor"))
 	var nbs: Array[int] = _damsel_neighbors(index)
+	var seen: Dictionary = {}
 	_begin_simul()
 	for i in nbs:
 		if i < 0 or i >= wheel.size():
 			continue
+		if seen.has(i):
+			continue
+		seen[i] = true
 		if str(wheel[i].get("card_id", "")) != "wick":
 			continue
 		if _is_silenced(wheel[i]):
@@ -11297,7 +11318,7 @@ func _tick_player_poison() -> bool:
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
-		_note_hp_lost(before - hp)
+		await _note_hp_lost(before - hp)
 	_log("hp", "poison -%s  now %s" % [n, hp])
 	_flash_screen(Color("2e4a32"), 0.28)
 	_refresh_hearts()
@@ -13383,13 +13404,15 @@ func _note_hp_lost(n: int) -> void:
 	_shake_screen()
 	if n != 2:
 		return
-	var has_pace: bool = false
 	for it in hotbar:
-		if str(it.get("card_id", "")) == "pacemaker" and not bool(it.get("spent", false)):
-			has_pace = true
-			break
-	if has_pace:
-		_heal(1)
+		if str(it.get("card_id", "")) != "pacemaker":
+			continue
+		if bool(it.get("spent", false)):
+			continue
+		_log_begin_item(it, false)
+		await _heal(1)
+		_log_end_proc()
+		return
 
 
 func _bank_stone_wall() -> void:
@@ -13961,6 +13984,152 @@ func _leech_hp_tied(index: int) -> bool:
 		if int(wheel[j].get("hp", 0)) == hp_n:
 			return true
 	return false
+
+
+func _qa_instant() -> bool:
+	return wheel_view != null and bool(wheel_view.get_meta("qa_instant", false))
+
+
+func _maybe_leech_takeovers() -> void:
+	var idxs: Array[int] = []
+	for i in range(wheel.size()):
+		if str(wheel[i].get("kind", "")) != "monster":
+			continue
+		if str(wheel[i].get("card_id", "")) != "leech_league":
+			continue
+		if bool(wheel[i].get("leech_takeover_copy", false)):
+			continue
+		if bool(wheel[i].get("leech_spawn_done", false)):
+			continue
+		if int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		idxs.append(i)
+	for i in idxs:
+		if i < 0 or i >= wheel.size():
+			continue
+		if str(wheel[i].get("card_id", "")) != "leech_league":
+			continue
+		if bool(wheel[i].get("leech_spawn_done", false)):
+			continue
+		await _leech_takeover_one(i)
+
+
+func _leech_takeover_victim(index: int) -> int:
+	var skip_face: bool = phase == "fighting" and _live_facing_seat() >= 0
+	var face: int = _live_facing_seat() if skip_face else -1
+	var best: int = 999999
+	var cands: Array[int] = []
+	for j in range(wheel.size()):
+		if j == index:
+			continue
+		if skip_face and j == face:
+			continue
+		if str(wheel[j].get("kind", "")) != "monster":
+			continue
+		if int(wheel[j].get("hp", 0)) <= 0:
+			continue
+		if str(wheel[j].get("card_id", "")) == "leech_league":
+			continue
+		var t: int = _tier_of(wheel[j])
+		if t < best:
+			best = t
+			cands = [j]
+		elif t == best:
+			cands.append(j)
+	if cands.is_empty():
+		return -1
+	return int(cands[rng.randi_range(0, cands.size() - 1)])
+
+
+func _leech_takeover_one(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	if str(wheel[index].get("card_id", "")) != "leech_league":
+		return
+	wheel[index]["leech_spawn_done"] = true
+	if _is_silenced(wheel[index]):
+		_log("on_place", "Leech League silenced; no takeover")
+		return
+	var victim: int = _leech_takeover_victim(index)
+	if victim < 0:
+		_log("on_place", "Leech League takeover failed")
+		return
+	var who: String = str(wheel[victim].get("name", "Monster"))
+	await _announce_slice(index)
+	await _play_leech_takeover_fx(index, victim)
+	if victim < 0 or victim >= wheel.size() or index < 0 or index >= wheel.size():
+		return
+	if str(wheel[index].get("card_id", "")) != "leech_league":
+		return
+	var slot: String = str(wheel[victim].get("slot", SLOT_ORDER[victim] if victim < SLOT_ORDER.size() else str(victim)))
+	var copy: Dictionary = _make_monster("leech_league")
+	copy["slot"] = slot
+	copy["spin_locked"] = false
+	copy["leech_takeover_copy"] = true
+	copy["leech_spawn_done"] = true
+	wheel[victim] = copy
+	_sync_wheel_stats()
+	_log("on_place", "Leech League took over %s" % who)
+	if wheel_view:
+		_stamp_atk_variants()
+		var keep: int = _live_facing_seat()
+		wheel_view.set_slices(wheel, keep if keep >= 0 else -1, "none")
+		wheel_view.pulse_arrive(victim)
+	_refresh()
+
+
+func _spawn_leech_intent_ray(from: Vector2, tip: Vector2) -> void:
+	var host: Node2D = _petrify_fx_host()
+	var ray := Line2D.new()
+	ray.z_index = 18
+	ray.width = 5.0
+	ray.default_color = Color("c43c3c")
+	ray.antialiased = false
+	ray.add_point(from)
+	ray.add_point(from)
+	host.add_child(ray)
+	var rtw := create_tween()
+	rtw.tween_method(
+		func(u: float) -> void:
+			if is_instance_valid(ray):
+				ray.set_point_position(1, from.lerp(tip, u)),
+		0.0,
+		1.0,
+		0.12
+	)
+	rtw.tween_property(ray, "modulate:a", 0.0, 0.1)
+	rtw.finished.connect(ray.queue_free, CONNECT_ONE_SHOT)
+
+
+func _play_leech_takeover_fx(from_i: int, to_i: int) -> void:
+	if _qa_instant():
+		return
+	var from: Vector2 = Vector2.ZERO
+	var to: Vector2 = Vector2.ZERO
+	if wheel_view:
+		from = wheel_view.slice_portrait_global(from_i)
+		to = wheel_view.slice_portrait_global(to_i)
+	if from == Vector2.ZERO:
+		from = _slice_hp_pos(from_i)
+	if to == Vector2.ZERO:
+		to = _slice_hp_pos(to_i)
+	if sfx:
+		sfx.play("whoosh", -6.0, 0.92)
+		sfx.play_event(&"mon.leech_pulse")
+	for k in 4:
+		var ang: float = TAU * float(k) / 4.0 + 0.2
+		_spawn_leech_intent_ray(from, from + Vector2(cos(ang), sin(ang)) * 54.0)
+	await _petrify_beam(to, 0.18, from)
+	if wheel_view:
+		wheel_view.hit_feedback(to_i, 1)
+	var tex: Texture2D = null
+	if art != null:
+		tex = art.monster_still("leech_league")
+	if tex != null:
+		await _fly_courier(tex, to + Vector2(0, -140), to, 0.34)
+	if sfx:
+		sfx.play("drop", -8.0, 1.05)
+		sfx.play("bong", -12.0, 1.15)
 
 
 func _grant_leech_hp(index: int) -> void:
@@ -15197,7 +15366,7 @@ func _bleed(n: int) -> bool:
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
-		_note_hp_lost(before - hp)
+		await _note_hp_lost(before - hp)
 	_log("hp", "bleed -%s  now %s" % [n, hp])
 	_flash_screen(Color("5c1a6a"), 0.38)
 	_refresh_hearts()
@@ -15411,7 +15580,7 @@ func _after_item_resolved(it: Dictionary) -> void:
 		return
 	var hid: String = str(wheel[facing_index].get("card_id", ""))
 	if hid == "harpy" and facing_index >= 0 and facing_index < wheel.size() and not _is_silenced(wheel[facing_index]) and _clicked_item_counts_as_use(it):
-		await _harpy_poke()
+		await _harpy_poke("item")
 	if hid == "bushido" and _clicked_item_counts_as_use(it):
 		await _bushido_dance_swap(facing_index)
 	if _pending_item_flee:
@@ -15421,7 +15590,7 @@ func _after_item_resolved(it: Dictionary) -> void:
 			await _flee_spin()
 
 
-func _harpy_poke() -> void:
+func _harpy_poke(why: String = "spin") -> void:
 	if phase != "fighting" or facing_index < 0:
 		return
 	if not _facing_can_act():
@@ -15437,8 +15606,10 @@ func _harpy_poke() -> void:
 		_harpy_did_spin_hit = true
 	_walker_busy = true
 	_sync_buttons()
-	_trace_resolve("harpy poke")
+	_trace_resolve("harpy poke %s" % why)
+	_log_proc_cause = "Used" if why == "item" else "Spin"
 	await _announce_slice(facing_index, _hub_hp_pos())
+	_log_proc_cause = ""
 	if phase != "fighting" or facing_index < 0:
 		_walker_busy = false
 		_sync_buttons()
@@ -16947,6 +17118,7 @@ func _flee_spin(_shuffle: bool = false) -> bool:
 	_log("var", "BLK 0")
 	facing_index = -1
 	_sync_wheel_stats()
+	await _maybe_leech_takeovers()
 	phase = "ready"
 	_walker_busy = false
 	if _monsters_left() == 0:
@@ -16976,7 +17148,7 @@ func _player_take_atk(n: int) -> bool:
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
-		_note_hp_lost(incoming)
+		await _note_hp_lost(incoming)
 	if incoming == 0:
 		_log("hp", "poke 0")
 		_refresh_blk(false)
@@ -18211,8 +18383,9 @@ func _try_potion() -> bool:
 			continue
 		it["spent"] = true
 		it["keep_after"] = false
-		_log_begin_item(it)
+		_log_begin_item(it, false)
 		_heal(3)
+		_log_end_proc()
 		_toss_item(int(it["uid"]), false)
 		return true
 	return false
@@ -18616,6 +18789,8 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 			return [[_fg("heart", "3"), _fg("icon", "", "", "", "", "bag")]]
 		"healing_potion":
 			return [[_fg("skull"), _fg("icon", "", "", "", "", "east"), _fg("heart", "3")]]
+		"pacemaker":
+			return [[_fg("heart", "+1")]]
 		"cursed_scroll":
 			return [[_fg("heart", "6"), _fg("icon", "", "", "", "", "bar"), _fg("icon", "", "", "", "", "spin"), _fg("heart", "−1")]]
 		"grief_jar":
@@ -18781,11 +18956,10 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["note"] = ""
 			out["can_use"] = fighting and last_hp_lost > 0
 		"pacemaker_use":
-			out["kind"] = "HP"
-			out["n"] = 2
-			out["number"] = "−2"
+			out["kind"] = "PASSIVE"
+			out["number"] = ""
 			out["note"] = ""
-			out["can_use"] = fighting
+			out["can_use"] = false
 		"eject_draw":
 			out["kind"] = "EJECT"
 			out["number"] = "Eject"
@@ -19407,16 +19581,23 @@ func _log_begin_monster(index: int) -> void:
 		"subtitle": str(s.get("name", "")),
 		"hint": hint,
 		"tier": int(s.get("pack_tier", 1)),
+		"cause": _log_proc_cause,
 		"highlight": hl,
 	})
 
 
-func _log_begin_item(it: Dictionary) -> void:
+func _log_end_proc() -> void:
+	if log_label and log_label.has_method("end_proc"):
+		log_label.end_proc()
+
+
+func _log_begin_item(it: Dictionary, used: bool = true) -> void:
 	if log_label == null or not log_label.has_method("begin_proc"):
 		return
 	if it.is_empty():
 		return
-	_log_flush()
+	if used:
+		_log_flush()
 	var id: String = str(it.get("card_id", ""))
 	var cat: Dictionary = items_by_id.get(id, {})
 	var hint: String = _log_hint_of(it)
@@ -19434,6 +19615,8 @@ func _log_begin_item(it: Dictionary) -> void:
 		"hint": hint,
 		"tier": int(it.get("pack_tier", cat.get("tier", 1))),
 		"ink": UxStyle.kind_hex(str(view.get("kind", "ATK"))),
+		"used": used,
+		"icon": _item_icon_tex(it),
 		"highlight": hl,
 	})
 
@@ -20130,7 +20313,7 @@ func _value_bb(word: String, n: String, hex: String) -> String:
 
 
 func _kind_always_unplayable(kind: String) -> bool:
-	return kind == "passive" or kind == "hex" or kind == "toll" or kind == "recycle_watch"
+	return kind == "passive" or kind == "hex" or kind == "toll" or kind == "recycle_watch" or kind == "pacemaker_use"
 
 
 func _strip_unplayable_lead(s: String) -> String:
@@ -20276,8 +20459,8 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			if fighting and last_hp_lost <= 0:
 				out["warn"] = "Can't — you have not lost HP yet."
 		"pacemaker_use":
-			out["value"] = _value_bb("HP", "−2", hp_c)
-			out["body"] = "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP."
+			out["value"] = ""
+			out["body"] = str(it.get("ability", "When you lose exactly 2 HP, Heal 1."))
 		"eject_draw":
 			out["value"] = _value_bb("Eject", "", gold)
 			out["body"] = "Eject your Enemy. Draw an Item."
@@ -23376,7 +23559,7 @@ func _sync_hotbar() -> void:
 		var upgrade_choice: bool = is_snack and str(pending_feed.get("kind", "")) == "upgrade"
 		var snack_ready: bool = is_snack and not _toss_pick_mode() and not upgrade_choice
 		var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
-		var armed_ready: bool = in_fight and not spent_n and (str(it.get("card_id", "")) == "pacemaker" or str(it.get("card_id", "")) == "healing_potion")
+		var armed_ready: bool = in_fight and not spent_n and str(it.get("card_id", "")) == "healing_potion"
 		var decay_on: bool = bool(it.get("decay_marked", false)) and not spent_n
 		var decay_solo_n: bool = bool(it.get("decay_solo", false))
 		if card.has_method("set_decay_solo"):
@@ -23727,7 +23910,7 @@ func _reapply_hotbar_aura_roles() -> void:
 		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
 		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
 		var in_fight: bool = phase == "fighting"
-		var armed_ready: bool = in_fight and not spent_n and (str(it.get("card_id", "")) == "pacemaker" or str(it.get("card_id", "")) == "healing_potion")
+		var armed_ready: bool = in_fight and not spent_n and str(it.get("card_id", "")) == "healing_potion"
 		var can_click_toss: bool = _toss_pick_mode() and not spent_n and not stoned_n
 		var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
 		var role := ""
@@ -24460,7 +24643,7 @@ func _sync_card_pass5(card: Control, it: Dictionary, _can_click: bool, in_fight:
 		var sling_on: bool = cid == "sling" and _sling_pick_open() and int(pending_choice.get("uid", -1)) == int(it.get("uid", -1))
 		var armed: bool = sling_on
 		if in_fight and not bool(it.get("spent", false)):
-			if cid == "pacemaker" or cid == "healing_potion":
+			if cid == "healing_potion":
 				armed = true
 			if cid == "danger_magnet" and _is_magnet(it) and _magnet_mode_of(it) != "off":
 				armed = true
