@@ -1,20 +1,20 @@
 extends Node2D
-## Verdant Hollow (b1) ambient FX preview kit.
-## Two-depth ambience: damp BG haze + spores + fireflies behind the wheel,
-## dark near moss flecks in screen-edge bands only. Optional thin light shaft
-## is its own named child and can be yanked without ripping the rest of the kit.
+## Biome ambient FX kit (b1–b5). Same 4-slot depth as Verdant Hollow:
+## V0 haze (z-7) · V1 far particles (z-5) · V2 accent (z-4) · V3 near edge bands (z9)
+## · optional shaft (z-6, yankable). Data-driven via BIOMES; Verdant (b1) stays
+## pixel-identical to the tip preview. Shaft stays OFF for b2–b5.
 ##
-## Yank the shaft alone:
+## Yank the shaft alone (Verdant only):
 ##   1. const SHAFT_ENABLED := false  (or BIOMES.b1.shaft = false)
 ##   2. or delete the LightShaft child — kit without shaft remains.
-## No player-facing copy. b2–b5 absent from BIOMES → no FX there.
+## No player-facing copy. Absent BIOMES keys → no FX. Endless / cabin / map stay off.
 
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 
 ## Ship-default for playtest. Flip false for one-line revert to today's dry hall.
 const AMBIENT_DEFAULT_ON := true
 ## Dedicated shaft kill-switch. Flipping false (or deleting LightShaft) restores
-## the recommended 4-layer kit without the diagonal beam.
+## the recommended 4-layer kit without the diagonal beam. Only b1 requests shaft.
 const SHAFT_ENABLED := true
 
 ## Absolute canvas z (z_as_relative = false) so values compare with dungeon_bg (-8)
@@ -32,7 +32,7 @@ const BAND_DEFAULT := 140.0
 const BAND_MIN := 96.0
 const FADE_IN_S := 0.6
 
-## Palette from Verdant splash ramp + wax greens + firefly gold. No new colours.
+## Verdant palette locked (pixel-identical). Other biomes carry colours in BIOMES.
 const C_CANOPY := Color("0f2219")
 const C_MIST := Color("1b3a26")
 const C_MOSS_DARK := Color("12261b")
@@ -41,19 +41,264 @@ const C_LEAF_DIM := Color("5f8f3c")
 const C_LEAF_LIT := Color("9cc45a")
 const C_FIREFLY := Color("E8D36A")
 
-## Per-biome params. Only b1 in v1 — absent keys build nothing.
+## Per-biome params. Builders read colours, directions, amounts, haze alphas,
+## breath period, and shaft bool from here. b1 values match the tip Verdant kit.
 const BIOMES := {
 	"b1": {
 		"shaft": true,
-		"spores": 22,
-		"fireflies": 8,
+		"far": 22,
+		"accent": 8,
 		"near_each": 7,
+		"mist": C_MIST,
+		"mist_a": 0.28,
+		"canopy": C_CANOPY,
+		"canopy_a": 0.35,
+		"mist_frac": 0.38,
+		"canopy_frac": 0.22,
+		"breath_s": 7.0,
+		"far_a": C_LEAF_DIM,
+		"far_b": C_LEAF_LIT,
+		"far_alpha": 0.38,
+		"far_dir": Vector2(0.25, -1.0),
+		"far_spread": 35.0,
+		"far_gravity": Vector2(1.5, -0.5),
+		"far_vel_min": 3.0,
+		"far_vel_max": 9.0,
+		"far_scale_min": 2.0,
+		"far_scale_max": 3.0,
+		"far_life": 12.0,
+		"accent_color": C_FIREFLY,
+		"accent_color_b": C_FIREFLY,
+		"accent_style": "twinkle",
+		"accent_peak": 0.90,
+		"accent_dir": Vector2(1.0, 0.0),
+		"accent_spread": 180.0,
+		"accent_gravity": Vector2.ZERO,
+		"accent_vel_min": 4.0,
+		"accent_vel_max": 12.0,
+		"accent_orbit": 0.02,
+		"accent_life": 9.0,
+		"accent_scale_min": 2.0,
+		"accent_scale_max": 2.0,
+		"near_a": C_MOSS_DARK,
+		"near_b": C_MOSS_MID,
+		"near_alpha": 0.6,
+		"near_dir": Vector2(0.15, 1.0),
+		"near_spread": 10.0,
+		"near_gravity": Vector2(0.0, 4.0),
+		"near_vel_min": 30.0,
+		"near_vel_max": 48.0,
+		"near_scale_min": 3.0,
+		"near_scale_max": 4.0,
+		"near_life": 16.0,
+		"near_rise": false,
+	},
+	## Crystal Cavern — cool mist + sharp glints + frost flecks. No shaft.
+	"b2": {
+		"shaft": false,
+		"far": 20,
+		"accent": 12,
+		"near_each": 6,
+		"mist": Color("2a4054"),
+		"mist_a": 0.30,
+		"canopy": Color("1a2a38"),
+		"canopy_a": 0.30,
+		"mist_frac": 0.38,
+		"canopy_frac": 0.22,
+		"breath_s": 7.0,
+		"far_a": Color("5a7a90"),
+		"far_b": Color("7fa9c4"),
+		"far_alpha": 0.40,
+		"far_dir": Vector2(0.15, -1.0),
+		"far_spread": 40.0,
+		"far_gravity": Vector2(0.8, -0.4),
+		"far_vel_min": 2.0,
+		"far_vel_max": 7.0,
+		"far_scale_min": 1.5,
+		"far_scale_max": 2.5,
+		"far_life": 14.0,
+		"accent_color": Color("c8e4f2"),
+		"accent_color_b": Color("7fa9c4"),
+		"accent_style": "glint",
+		"accent_peak": 0.95,
+		"accent_dir": Vector2(1.0, 0.0),
+		"accent_spread": 180.0,
+		"accent_gravity": Vector2.ZERO,
+		"accent_vel_min": 1.0,
+		"accent_vel_max": 4.0,
+		"accent_orbit": 0.01,
+		"accent_life": 8.0,
+		"accent_scale_min": 2.0,
+		"accent_scale_max": 3.0,
+		"near_a": Color("152028"),
+		"near_b": Color("2a4054"),
+		"near_alpha": 0.65,
+		"near_dir": Vector2(0.12, 1.0),
+		"near_spread": 12.0,
+		"near_gravity": Vector2(0.0, 3.5),
+		"near_vel_min": 24.0,
+		"near_vel_max": 42.0,
+		"near_scale_min": 2.5,
+		"near_scale_max": 3.5,
+		"near_life": 16.0,
+		"near_rise": false,
+	},
+	## Ashen Crypt — dusty haze + readable falling ash. Dry, not fire. No shaft.
+	"b3": {
+		"shaft": false,
+		"far": 26,
+		"accent": 6,
+		"near_each": 7,
+		"mist": Color("4a3028"),
+		"mist_a": 0.32,
+		"canopy": Color("2a1c18"),
+		"canopy_a": 0.32,
+		"mist_frac": 0.40,
+		"canopy_frac": 0.20,
+		"breath_s": 7.5,
+		"far_a": Color("8a6a5a"),
+		"far_b": Color("a89078"),
+		"far_alpha": 0.42,
+		"far_dir": Vector2(0.55, 1.0),
+		"far_spread": 18.0,
+		"far_gravity": Vector2(2.0, 3.5),
+		"far_vel_min": 8.0,
+		"far_vel_max": 18.0,
+		"far_scale_min": 2.5,
+		"far_scale_max": 4.0,
+		"far_life": 11.0,
+		"accent_color": Color("c47848"),
+		"accent_color_b": Color("a86838"),
+		"accent_style": "blink",
+		"accent_peak": 0.55,
+		"accent_dir": Vector2(0.2, 1.0),
+		"accent_spread": 25.0,
+		"accent_gravity": Vector2(0.5, 2.5),
+		"accent_vel_min": 6.0,
+		"accent_vel_max": 14.0,
+		"accent_orbit": 0.0,
+		"accent_life": 10.0,
+		"accent_scale_min": 2.0,
+		"accent_scale_max": 2.5,
+		"near_a": Color("1a100e"),
+		"near_b": Color("3a2820"),
+		"near_alpha": 0.68,
+		"near_dir": Vector2(0.18, 1.0),
+		"near_spread": 12.0,
+		"near_gravity": Vector2(0.0, 4.5),
+		"near_vel_min": 28.0,
+		"near_vel_max": 46.0,
+		"near_scale_min": 3.5,
+		"near_scale_max": 5.0,
+		"near_life": 15.0,
+		"near_rise": false,
+	},
+	## Cinder Forge — heat haze + rising embers/soot (directional flip). No shaft.
+	"b4": {
+		"shaft": false,
+		"far": 20,
+		"accent": 12,
+		"near_each": 6,
+		"mist": Color("5a2810"),
+		"mist_a": 0.34,
+		"canopy": Color("2a140c"),
+		"canopy_a": 0.36,
+		"mist_frac": 0.42,
+		"canopy_frac": 0.18,
+		"breath_s": 5.5,
+		"far_a": Color("6a4030"),
+		"far_b": Color("8a5840"),
+		"far_alpha": 0.40,
+		"far_dir": Vector2(0.1, -1.0),
+		"far_spread": 30.0,
+		"far_gravity": Vector2(0.5, -2.5),
+		"far_vel_min": 6.0,
+		"far_vel_max": 14.0,
+		"far_scale_min": 2.0,
+		"far_scale_max": 3.5,
+		"far_life": 12.0,
+		"accent_color": Color("d06828"),
+		"accent_color_b": Color("e8a050"),
+		"accent_style": "pulse",
+		"accent_peak": 0.92,
+		"accent_dir": Vector2(0.05, -1.0),
+		"accent_spread": 28.0,
+		"accent_gravity": Vector2(0.3, -3.0),
+		"accent_vel_min": 10.0,
+		"accent_vel_max": 22.0,
+		"accent_orbit": 0.015,
+		"accent_life": 8.0,
+		"accent_scale_min": 2.0,
+		"accent_scale_max": 3.0,
+		"near_a": Color("1a0c08"),
+		"near_b": Color("3a1c10"),
+		"near_alpha": 0.70,
+		"near_dir": Vector2(0.08, -1.0),
+		"near_spread": 14.0,
+		"near_gravity": Vector2(0.0, -3.5),
+		"near_vel_min": 22.0,
+		"near_vel_max": 40.0,
+		"near_scale_min": 3.0,
+		"near_scale_max": 4.5,
+		"near_life": 14.0,
+		"near_rise": true,
+	},
+	## Shadow Abyss — heavy crush + rare dim violet motes. No shaft.
+	"b5": {
+		"shaft": false,
+		"far": 12,
+		"accent": 6,
+		"near_each": 8,
+		"mist": Color("1a1630"),
+		"mist_a": 0.22,
+		"canopy": Color("0a0814"),
+		"canopy_a": 0.48,
+		"mist_frac": 0.22,
+		"canopy_frac": 0.38,
+		"breath_s": 10.0,
+		"far_a": Color("2a2848"),
+		"far_b": Color("3c3488"),
+		"far_alpha": 0.28,
+		"far_dir": Vector2(0.2, 0.1),
+		"far_spread": 50.0,
+		"far_gravity": Vector2(0.2, 0.15),
+		"far_vel_min": 0.5,
+		"far_vel_max": 2.5,
+		"far_scale_min": 1.5,
+		"far_scale_max": 2.5,
+		"far_life": 18.0,
+		"accent_color": Color("6a64b0"),
+		"accent_color_b": Color("4a4488"),
+		"accent_style": "orbit",
+		"accent_peak": 0.50,
+		"accent_dir": Vector2(1.0, 0.0),
+		"accent_spread": 180.0,
+		"accent_gravity": Vector2.ZERO,
+		"accent_vel_min": 2.0,
+		"accent_vel_max": 5.0,
+		"accent_orbit": 0.04,
+		"accent_life": 16.0,
+		"accent_scale_min": 2.0,
+		"accent_scale_max": 2.5,
+		"near_a": Color("08060e"),
+		"near_b": Color("1a1630"),
+		"near_alpha": 0.75,
+		"near_dir": Vector2(0.1, 1.0),
+		"near_spread": 10.0,
+		"near_gravity": Vector2(0.0, 3.0),
+		"near_vel_min": 20.0,
+		"near_vel_max": 36.0,
+		"near_scale_min": 3.5,
+		"near_scale_max": 5.0,
+		"near_life": 18.0,
+		"near_rise": false,
 	},
 }
 
 var _field_size: Vector2 = Vector2(FIELD_W, FIELD_H)
 var _enabled: bool = AMBIENT_DEFAULT_ON
 var _biome_id: String = ""
+var _cfg: Dictionary = {}
 var _avoid_rects: Array = [] ## Rect2 in ambient/local (viewport) space
 var _band_w: float = BAND_DEFAULT
 var _fade_tw: Tween
@@ -179,6 +424,7 @@ func clear() -> void:
 	_near_r = null
 	_near_root = null
 	_biome_id = ""
+	_cfg = {}
 	visible = false
 	modulate.a = 1.0
 
@@ -241,13 +487,15 @@ func _web_halve(n: int) -> int:
 
 
 func _build_layers(cfg: Dictionary) -> void:
+	_cfg = cfg
 	_recompute_band_w()
-	_build_haze()
-	if SHAFT_ENABLED and bool(cfg.get("shaft", true)):
-		_build_shaft()
-	_build_spores(int(cfg.get("spores", 22)))
-	_build_fireflies(int(cfg.get("fireflies", 8)))
-	_build_near(int(cfg.get("near_each", 7)))
+	_build_haze(cfg)
+	## Shaft only when both the global kill-switch and this biome ask for it.
+	if SHAFT_ENABLED and bool(cfg.get("shaft", false)):
+		_build_shaft(cfg)
+	_build_spores(cfg)
+	_build_fireflies(cfg)
+	_build_near(cfg)
 	_layout_layers()
 	_start_sway()
 	mouse_filter_ignore_tree()
@@ -255,17 +503,22 @@ func _build_layers(cfg: Dictionary) -> void:
 	modulate.a = 1.0
 
 
-func _build_haze() -> void:
+func _build_haze(cfg: Dictionary) -> void:
 	_haze = Node2D.new()
 	_haze.name = "DampHaze"
 	_haze.z_as_relative = false
 	_haze.z_index = Z_HAZE
 	add_child(_haze)
 
+	var mist_c: Color = cfg.get("mist", C_MIST)
+	var mist_a: float = float(cfg.get("mist_a", 0.28))
+	var canopy_c: Color = cfg.get("canopy", C_CANOPY)
+	var canopy_a: float = float(cfg.get("canopy_a", 0.35))
+
 	_mist = TextureRect.new()
 	_mist.name = "Mist"
 	_mist.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_mist.texture = _vertical_gradient(C_MIST, 0.0, 0.28)
+	_mist.texture = _vertical_gradient(mist_c, 0.0, mist_a)
 	_mist.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_mist.stretch_mode = TextureRect.STRETCH_SCALE
 	_haze.add_child(_mist)
@@ -273,137 +526,205 @@ func _build_haze() -> void:
 	_canopy = TextureRect.new()
 	_canopy.name = "Canopy"
 	_canopy.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_canopy.texture = _vertical_gradient(C_CANOPY, 0.35, 0.0)
+	_canopy.texture = _vertical_gradient(canopy_c, canopy_a, 0.0)
 	_canopy.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_canopy.stretch_mode = TextureRect.STRETCH_SCALE
 	_haze.add_child(_canopy)
 
 
-func _build_shaft() -> void:
-	## Soft thin diagonal from top-left. Low alpha Verdant tint.
+func _build_shaft(cfg: Dictionary) -> void:
+	## Soft thin diagonal from top-left. Low alpha tint from far_b (Verdant leaf lit).
 	## Own named child so deleting it / SHAFT_ENABLED false yanks it alone.
 	_shaft = TextureRect.new()
 	_shaft.name = "LightShaft"
 	_shaft.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_shaft.z_as_relative = false
 	_shaft.z_index = Z_SHAFT
-	_shaft.texture = _shaft_gradient()
+	var shaft_c: Color = cfg.get("far_b", C_LEAF_LIT)
+	_shaft.texture = _shaft_gradient(shaft_c)
 	_shaft.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_shaft.stretch_mode = TextureRect.STRETCH_SCALE
 	_shaft.pivot_offset = Vector2(90.0, 0.0)
 	add_child(_shaft)
 
 
-func _build_spores(amount: int) -> void:
+func _build_spores(cfg: Dictionary) -> void:
+	var amount: int = int(cfg.get("far", cfg.get("spores", 22)))
+	var far_a: Color = cfg.get("far_a", C_LEAF_DIM)
+	var far_b: Color = cfg.get("far_b", C_LEAF_LIT)
+	var far_alpha: float = float(cfg.get("far_alpha", 0.38))
+	var life: float = float(cfg.get("far_life", 12.0))
 	_spores = CPUParticles2D.new()
 	_spores.name = "FarSpores"
 	_spores.z_as_relative = false
 	_spores.z_index = Z_SPORES
 	_spores.amount = _web_halve(amount)
-	_spores.lifetime = 12.0
-	_spores.preprocess = 12.0
+	_spores.lifetime = life
+	_spores.preprocess = life
 	_spores.fixed_fps = 30
 	_spores.local_coords = false
 	_spores.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
-	_spores.direction = Vector2(0.25, -1.0)
-	_spores.spread = 35.0
-	_spores.gravity = Vector2(1.5, -0.5)
-	_spores.initial_velocity_min = 3.0
-	_spores.initial_velocity_max = 9.0
-	_spores.scale_amount_min = 2.0
-	_spores.scale_amount_max = 3.0
-	_spores.color = C_LEAF_DIM
+	_spores.direction = cfg.get("far_dir", Vector2(0.25, -1.0))
+	_spores.spread = float(cfg.get("far_spread", 35.0))
+	_spores.gravity = cfg.get("far_gravity", Vector2(1.5, -0.5))
+	_spores.initial_velocity_min = float(cfg.get("far_vel_min", 3.0))
+	_spores.initial_velocity_max = float(cfg.get("far_vel_max", 9.0))
+	_spores.scale_amount_min = float(cfg.get("far_scale_min", 2.0))
+	_spores.scale_amount_max = float(cfg.get("far_scale_max", 3.0))
+	_spores.color = far_a
 	_spores.color_ramp = _alpha_ramp([
-		Vector2(0.0, 0.0), Vector2(0.15, 0.38), Vector2(0.80, 0.38), Vector2(1.0, 0.0)
+		Vector2(0.0, 0.0), Vector2(0.15, far_alpha), Vector2(0.80, far_alpha), Vector2(1.0, 0.0)
 	])
-	_spores.color_initial_ramp = _color_pair_ramp(C_LEAF_DIM, C_LEAF_LIT)
+	_spores.color_initial_ramp = _color_pair_ramp(far_a, far_b)
 	add_child(_spores)
 
 
-func _build_fireflies(amount: int) -> void:
+func _build_fireflies(cfg: Dictionary) -> void:
+	var amount: int = int(cfg.get("accent", cfg.get("fireflies", 8)))
+	var ac: Color = cfg.get("accent_color", C_FIREFLY)
+	var ac_b: Color = cfg.get("accent_color_b", ac)
+	var style: String = str(cfg.get("accent_style", "twinkle"))
+	var peak: float = float(cfg.get("accent_peak", 0.90))
+	var life: float = float(cfg.get("accent_life", 9.0))
+	var orbit: float = float(cfg.get("accent_orbit", 0.02))
 	_fireflies = CPUParticles2D.new()
 	_fireflies.name = "HollowFireflies"
 	_fireflies.z_as_relative = false
 	_fireflies.z_index = Z_FIREFLIES
 	_fireflies.amount = _web_halve(amount)
-	_fireflies.lifetime = 9.0
-	_fireflies.preprocess = 9.0
+	_fireflies.lifetime = life
+	_fireflies.preprocess = life
 	_fireflies.fixed_fps = 30
 	_fireflies.local_coords = false
 	_fireflies.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
-	_fireflies.direction = Vector2(1.0, 0.0)
-	_fireflies.spread = 180.0
-	_fireflies.gravity = Vector2.ZERO
-	_fireflies.initial_velocity_min = 4.0
-	_fireflies.initial_velocity_max = 12.0
+	_fireflies.direction = cfg.get("accent_dir", Vector2(1.0, 0.0))
+	_fireflies.spread = float(cfg.get("accent_spread", 180.0))
+	_fireflies.gravity = cfg.get("accent_gravity", Vector2.ZERO)
+	_fireflies.initial_velocity_min = float(cfg.get("accent_vel_min", 4.0))
+	_fireflies.initial_velocity_max = float(cfg.get("accent_vel_max", 12.0))
 	_fireflies.angular_velocity_min = 0.0
 	_fireflies.angular_velocity_max = 0.0
-	_fireflies.orbit_velocity_min = -0.02
-	_fireflies.orbit_velocity_max = 0.02
-	_fireflies.scale_amount_min = 2.0
-	_fireflies.scale_amount_max = 2.0
-	_fireflies.color = C_FIREFLY
-	## Two soft pulses per life, staggered by emission — twinkle, don't flash.
-	_fireflies.color_ramp = _alpha_ramp([
-		Vector2(0.0, 0.0),
-		Vector2(0.10, 0.90),
-		Vector2(0.30, 0.25),
-		Vector2(0.50, 0.85),
-		Vector2(0.75, 0.20),
-		Vector2(1.0, 0.0),
-	])
+	_fireflies.orbit_velocity_min = -orbit
+	_fireflies.orbit_velocity_max = orbit
+	_fireflies.scale_amount_min = float(cfg.get("accent_scale_min", 2.0))
+	_fireflies.scale_amount_max = float(cfg.get("accent_scale_max", 2.0))
+	_fireflies.color = ac
+	_fireflies.color_ramp = _accent_alpha_ramp(style, peak)
+	if ac != ac_b:
+		_fireflies.color_initial_ramp = _color_pair_ramp(ac, ac_b)
 	add_child(_fireflies)
 
 
-func _build_near(amount_each: int) -> void:
+func _accent_alpha_ramp(style: String, peak: float) -> Gradient:
+	## Style shapes the V2 icon read. Verdant "twinkle" stays bit-identical.
+	match style:
+		"glint":
+			## Crystal: sharp sparse spikes, out of sync via emission.
+			return _alpha_ramp([
+				Vector2(0.0, 0.0),
+				Vector2(0.06, peak),
+				Vector2(0.14, 0.05),
+				Vector2(0.48, 0.0),
+				Vector2(0.55, peak),
+				Vector2(0.64, 0.05),
+				Vector2(1.0, 0.0),
+			])
+		"blink":
+			## Ashen: rare dull ember blink on a mostly-dim fall.
+			return _alpha_ramp([
+				Vector2(0.0, 0.0),
+				Vector2(0.20, 0.22),
+				Vector2(0.45, 0.18),
+				Vector2(0.55, peak),
+				Vector2(0.65, 0.18),
+				Vector2(1.0, 0.0),
+			])
+		"pulse":
+			## Cinder: soft rising ember pulse (most noticeable accent).
+			return _alpha_ramp([
+				Vector2(0.0, 0.0),
+				Vector2(0.15, peak * 0.55),
+				Vector2(0.40, peak),
+				Vector2(0.70, peak * 0.45),
+				Vector2(1.0, 0.0),
+			])
+		"orbit":
+			## Shadow: long dim presence, never white / never flashy.
+			return _alpha_ramp([
+				Vector2(0.0, 0.0),
+				Vector2(0.15, peak * 0.7),
+				Vector2(0.50, peak),
+				Vector2(0.85, peak * 0.6),
+				Vector2(1.0, 0.0),
+			])
+		_:
+			## Verdant twinkle (default): two soft pulses per life — exact tip values.
+			return _alpha_ramp([
+				Vector2(0.0, 0.0),
+				Vector2(0.10, 0.90),
+				Vector2(0.30, 0.25),
+				Vector2(0.50, 0.85),
+				Vector2(0.75, 0.20),
+				Vector2(1.0, 0.0),
+			])
+
+
+func _build_near(cfg: Dictionary) -> void:
+	var amount_each: int = int(cfg.get("near_each", 7))
 	_near_root = Node2D.new()
 	_near_root.name = "NearMossDrift"
 	_near_root.z_as_relative = false
 	_near_root.z_index = Z_NEAR
 	add_child(_near_root)
-	_near_l = _make_near_emitter("NearMossL", _web_halve(amount_each))
-	_near_r = _make_near_emitter("NearMossR", _web_halve(amount_each))
+	_near_l = _make_near_emitter("NearMossL", _web_halve(amount_each), cfg)
+	_near_r = _make_near_emitter("NearMossR", _web_halve(amount_each), cfg)
 	_near_root.add_child(_near_l)
 	_near_root.add_child(_near_r)
 
 
-func _make_near_emitter(nm: String, amount: int) -> CPUParticles2D:
+func _make_near_emitter(nm: String, amount: int, cfg: Dictionary) -> CPUParticles2D:
+	var near_a: Color = cfg.get("near_a", C_MOSS_DARK)
+	var near_b: Color = cfg.get("near_b", C_MOSS_MID)
+	var near_alpha: float = float(cfg.get("near_alpha", 0.6))
+	var life: float = float(cfg.get("near_life", 16.0))
 	var p := CPUParticles2D.new()
 	p.name = nm
 	p.z_as_relative = true
 	p.z_index = 0
 	p.amount = amount
-	p.lifetime = 16.0
-	p.preprocess = 16.0
+	p.lifetime = life
+	p.preprocess = life
 	p.fixed_fps = 30
 	p.local_coords = false
 	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
 	p.emission_rect_extents = Vector2(70.0, 8.0)
-	p.direction = Vector2(0.15, 1.0)
-	p.spread = 10.0
-	p.gravity = Vector2(0.0, 4.0)
-	p.initial_velocity_min = 30.0
-	p.initial_velocity_max = 48.0
+	p.direction = cfg.get("near_dir", Vector2(0.15, 1.0))
+	p.spread = float(cfg.get("near_spread", 10.0))
+	p.gravity = cfg.get("near_gravity", Vector2(0.0, 4.0))
+	p.initial_velocity_min = float(cfg.get("near_vel_min", 30.0))
+	p.initial_velocity_max = float(cfg.get("near_vel_max", 48.0))
 	p.tangential_accel_min = -6.0
 	p.tangential_accel_max = 6.0
-	p.scale_amount_min = 3.0
-	p.scale_amount_max = 4.0
-	p.color = C_MOSS_MID
-	p.color_ramp = _near_color_ramp()
-	p.color_initial_ramp = _color_pair_ramp(C_MOSS_DARK, C_MOSS_MID)
+	p.scale_amount_min = float(cfg.get("near_scale_min", 3.0))
+	p.scale_amount_max = float(cfg.get("near_scale_max", 4.0))
+	p.color = near_b
+	p.color_ramp = _near_color_ramp(near_alpha)
+	p.color_initial_ramp = _color_pair_ramp(near_a, near_b)
 	return p
 
 
 func _layout_layers() -> void:
 	var w: float = _field_size.x
 	var h: float = _field_size.y
-	## V0 mist: bottom 38% (y 645–1040 at 1040). Canopy: top 22% (y 0–230).
+	var mist_frac: float = float(_cfg.get("mist_frac", 0.38))
+	var canopy_frac: float = float(_cfg.get("canopy_frac", 0.22))
+	## V0 mist: bottom mist_frac. Canopy: top canopy_frac.
 	if _mist != null:
-		var mist_top: float = h * (1.0 - 0.38)
+		var mist_top: float = h * (1.0 - mist_frac)
 		_mist.position = Vector2(0.0, mist_top)
 		_mist.size = Vector2(w, h - mist_top)
 	if _canopy != null:
-		var canopy_h: float = h * 0.22
+		var canopy_h: float = h * canopy_frac
 		_canopy.position = Vector2.ZERO
 		_canopy.size = Vector2(w, canopy_h)
 	if _shaft != null:
@@ -426,10 +747,13 @@ func _layout_near_bands() -> void:
 	if _near_l == null or _near_r == null:
 		return
 	var w: float = _field_size.x
-	## Spawn just above the top edge inside each band.
-	_near_l.position = Vector2(_band_w * 0.5, -12.0)
+	var h: float = _field_size.y
+	var rise: bool = bool(_cfg.get("near_rise", false))
+	## Fall: spawn just above the top edge. Rise (Cinder): spawn just below bottom.
+	var y: float = -12.0 if not rise else (h + 12.0)
+	_near_l.position = Vector2(_band_w * 0.5, y)
 	_near_l.emission_rect_extents = Vector2(maxf(8.0, _band_w * 0.5), 8.0)
-	_near_r.position = Vector2(w - _band_w * 0.5, -12.0)
+	_near_r.position = Vector2(w - _band_w * 0.5, y)
 	_near_r.emission_rect_extents = Vector2(maxf(8.0, _band_w * 0.5), 8.0)
 
 
@@ -482,12 +806,13 @@ func _start_sway() -> void:
 	_stop_sway()
 	if _mist == null:
 		return
-	## Breath on mist alpha 0.75↔1.0 over 7 s.
+	## Breath on mist alpha 0.75↔1.0 over breath_s (Verdant = 7 s).
+	var breath: float = float(_cfg.get("breath_s", 7.0))
 	_mist.modulate.a = 0.75
 	_breath_tw = create_tween()
 	_breath_tw.set_loops()
-	_breath_tw.tween_property(_mist, "modulate:a", 1.0, 7.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_breath_tw.tween_property(_mist, "modulate:a", 0.75, 7.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_breath_tw.tween_property(_mist, "modulate:a", 1.0, breath).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_breath_tw.tween_property(_mist, "modulate:a", 0.75, breath).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	## ±2 px x sway on mist over 11 s (parallax stand-in).
 	var base_x: float = _mist.position.x
 	_sway_tw = create_tween()
@@ -542,11 +867,10 @@ func _vertical_gradient(rgb: Color, a_top: float, a_bot: float) -> GradientTextu
 	return tex
 
 
-func _shaft_gradient() -> GradientTexture2D:
-	## Soft core: transparent edges, Verdant leaf tint α ≤ 0.08 in the middle.
+func _shaft_gradient(c: Color = C_LEAF_LIT) -> GradientTexture2D:
+	## Soft core: transparent edges, tint α ≤ 0.08 in the middle.
 	var g := Gradient.new()
 	g.offsets = PackedFloat32Array([0.0, 0.45, 0.55, 1.0])
-	var c := C_LEAF_LIT
 	g.colors = PackedColorArray([
 		Color(c.r, c.g, c.b, 0.0),
 		Color(c.r, c.g, c.b, 0.08),
@@ -576,13 +900,13 @@ func _alpha_ramp(stops: Array) -> Gradient:
 	return g
 
 
-func _near_color_ramp() -> Gradient:
-	## Dark FG, α 0.6 → 0 over the last 15%.
+func _near_color_ramp(alpha: float = 0.6) -> Gradient:
+	## Dark FG, α hold → 0 over the last 15%.
 	var g := Gradient.new()
 	g.offsets = PackedFloat32Array([0.0, 0.85, 1.0])
 	g.colors = PackedColorArray([
-		Color(1.0, 1.0, 1.0, 0.6),
-		Color(1.0, 1.0, 1.0, 0.6),
+		Color(1.0, 1.0, 1.0, alpha),
+		Color(1.0, 1.0, 1.0, alpha),
 		Color(1.0, 1.0, 1.0, 0.0),
 	])
 	return g

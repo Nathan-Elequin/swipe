@@ -1192,7 +1192,7 @@ func _build_ui() -> void:
 	dungeon_bg = DUNGEON_BG.new()
 	add_child(dungeon_bg)
 	dungeon_bg.setup(art)
-	## Verdant Hollow ambient kit (b1 only). Same parent as dungeon_bg so z
+	## Biome ambient kit (BIOMES b1–b5). Same parent as dungeon_bg so z
 	## compares directly with hall (-8) and wheel (0). Off = pixel-identical.
 	biome_ambient = BIOME_AMBIENT.new()
 	add_child(biome_ambient)
@@ -6752,7 +6752,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_open_campaign_map()
 		get_viewport().set_input_as_handled()
 		return
-	## F10: Verdant ambient on/off (dev). Tip-confirmed free vs F2–F9 / F8 metrics.
+	## F10: biome ambient on/off (dev). Tip-confirmed free vs F2–F9 / F8 metrics.
 	if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F10:
 		if biome_ambient != null:
 			biome_ambient.toggle()
