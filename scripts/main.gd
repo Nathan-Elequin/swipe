@@ -475,6 +475,7 @@ var _beggar_hold: bool = false
 var _beggar_intro_running: bool = false
 var _beggar_fill_running: bool = false
 var _spin_inflight: bool = false
+var _auto_spin_lock: bool = false
 var _harpy_did_spin_hit: bool = false
 var _oligarch_forcing: bool = false
 var _sandbag_streak: int = 0
@@ -7704,9 +7705,8 @@ func _reseat_slots() -> void:
 
 
 func _on_spin() -> void:
-	if _beggar_pending_intro() or _beggar_intro_running:
-		_kick_beggar_intro()
-		return
+	if _beggar_mark_busy():
+		await _await_beggar_marks()
 	_trace_resolve("spin start phase=%s" % phase)
 	_session("spin", "spin")
 	if phase != "ready":
@@ -8583,9 +8583,12 @@ func _maybe_auto_spin() -> void:
 		while ability_slash.visible and guard < 90:
 			await get_tree().process_frame
 			guard += 1
-	if phase == "ready" and not _wheel_busy():
+	await _await_beggar_marks()
+	if phase == "ready" and not _wheel_busy() and not _beggar_mark_busy() and not _auto_spin_lock:
+		_auto_spin_lock = true
 		_trace_resolve("auto-spin go")
 		await _on_spin()
+		_auto_spin_lock = false
 
 
 func _remove_facing() -> void:
@@ -11374,6 +11377,28 @@ func _beggar_drop_invalid_owners() -> void:
 			wheel[i]["beggar_mark"] = -1
 
 
+func _beggar_mark_busy() -> bool:
+	return _beggar_pending_intro() or _beggar_intro_running or _beggar_fill_running
+
+
+func _await_beggar_marks() -> void:
+	var guard: int = 0
+	while _beggar_mark_busy() and guard < 240:
+		_kick_beggar_intro()
+		_kick_beggar_fill()
+		if get_tree() == null:
+			return
+		await get_tree().process_frame
+		guard += 1
+
+
+func _resume_after_beggar_marks() -> void:
+	_refresh()
+	if phase != "ready" or _await_first_spin:
+		return
+	call_deferred("_maybe_auto_spin")
+
+
 func _beggar_pending_intro() -> bool:
 	if not _beggar_phase_ok():
 		return false
@@ -11586,8 +11611,8 @@ func _run_beggar_intros() -> void:
 			await _beggar_assign(index, true)
 	_beggar_hold = false
 	_beggar_intro_running = false
-	_refresh()
 	_kick_beggar_fill()
+	_resume_after_beggar_marks()
 
 
 func _kick_beggar_fill() -> void:
@@ -11623,7 +11648,7 @@ func _run_beggar_fill() -> void:
 			break
 		await _beggar_assign(index, true)
 	_beggar_fill_running = false
-	_refresh()
+	_resume_after_beggar_marks()
 
 
 func _maybe_death_bell_spawn(index: int) -> void:
@@ -22547,7 +22572,7 @@ func _sync_buttons() -> void:
 	var busy: bool = phase == "spinning" or phase == "slaying" or (phase == "draft" and draft_action == "busy") or _wheel_busy() or _adventure_busy
 	var enemy_up: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size() and (int(wheel[facing_index].get("hp", 0)) > 0 or _wick_waiting(facing_index))
 	btn_spin.disabled = busy or phase != "ready"
-	if _beggar_pending_intro() or _beggar_intro_running:
+	if _beggar_mark_busy():
 		btn_spin.disabled = true
 	if in_tutorial and tut != null and tut.wait != "spin" and tut.wait != "auto_spin":
 		btn_spin.disabled = true
