@@ -2,6 +2,11 @@
 	"updated_at": "2026-11-02T04:55:00Z",
 	"branch": "playtest/latest",
 	"issues": {
+		"273": {
+			"status": "todo",
+			"title": "Wick with one neighbor should lose 2 HP once, not twice",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/273"
+		},
 		"190": {
 			"status": "f5",
 			"title": "Poison icon larger; do not recolor the wheel slice",
