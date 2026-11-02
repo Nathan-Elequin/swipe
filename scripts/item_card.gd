@@ -16,6 +16,15 @@ const CARD_W := 172.0
 const CARD_H := 148.0
 const SHOW_W := 236.0
 const SHOW_H := 340.0
+## Idle stack (2026-11-02 layout pass). Before → after on the 172×148 plate:
+## content_margin_top 3→1, pad margin_top 3→1, VBox CENTER→BEGIN,
+## title_h 22→16, icon 48→58 (+20%), face host min 32→40 + EXPAND_FILL,
+## ItemFace hotbar glyphs 24→36 (+50%) centered in the leftover band under the sprite.
+const IDLE_CONTENT_MARGIN_TOP := 1
+const IDLE_PAD_TOP := 1
+const IDLE_TITLE_H := 16.0
+const IDLE_ICON := 58.0
+const IDLE_FACE_HOST_MIN_H := 40.0
 
 var uid: int = 0
 var card_id: String = ""
@@ -182,11 +191,12 @@ func setup(
 	var pad := MarginContainer.new()
 	pad.add_theme_constant_override("margin_left", 4)
 	pad.add_theme_constant_override("margin_right", 4)
-	pad.add_theme_constant_override("margin_top", 3)
+	pad.add_theme_constant_override("margin_top", IDLE_PAD_TOP)
 	pad.add_theme_constant_override("margin_bottom", 3)
 	add_child(pad)
 	var col := VBoxContainer.new()
-	col.alignment = BoxContainer.ALIGNMENT_CENTER
+	## Top-align so title sits near the plate edge; face host expands below the sprite.
+	col.alignment = BoxContainer.ALIGNMENT_BEGIN
 	col.add_theme_constant_override("separation", 1)
 	pad.add_child(col)
 	_col = col
@@ -217,7 +227,7 @@ func setup(
 	_title.set_plain(title)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_title.custom_minimum_size = Vector2(CARD_W - 14.0, 22)
+	_title.custom_minimum_size = Vector2(CARD_W - 14.0, IDLE_TITLE_H)
 	_title.font_color = Color("f0e6d8")
 	_title.set_outline(Color("100e0c"), 3)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -226,7 +236,7 @@ func setup(
 
 	_icon = TextureRect.new()
 	_icon.texture = icon
-	_icon.custom_minimum_size = Vector2(48, 48)
+	_icon.custom_minimum_size = Vector2(IDLE_ICON, IDLE_ICON)
 	_icon.texture_filter = TEXTURE_FILTER_NEAREST
 	_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -238,7 +248,8 @@ func setup(
 		_icon.add_child(arc)
 
 	var num_host := Control.new()
-	num_host.custom_minimum_size = Vector2(CARD_W - 14.0, 32)
+	num_host.custom_minimum_size = Vector2(CARD_W - 14.0, IDLE_FACE_HOST_MIN_H)
+	num_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	num_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(num_host)
 	_num_host = num_host
@@ -374,6 +385,9 @@ func setup(
 	_face.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_face.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_face.visible = false
+	## Explicit mode — do not infer offer from host height (idle host now expands).
+	if _face.has_method("set_offer_mode"):
+		_face.set_offer_mode(false)
 	num_host.add_child(_face)
 	set_live(number_text, "", true)
 	_sync_hatch()
@@ -1089,7 +1103,7 @@ func set_showcase(on: bool) -> void:
 	custom_minimum_size = Vector2(SHOW_W, SHOW_H) if on else Vector2(CARD_W, CARD_H)
 	if _title:
 		_title.max_font_size = 22 if on else 14
-		_title.custom_minimum_size = Vector2(196 if on else CARD_W - 14.0, 48 if on else 38)
+		_title.custom_minimum_size = Vector2(196 if on else CARD_W - 14.0, 48 if on else IDLE_TITLE_H)
 		_title.max_lines = 2
 		_title.fit()
 	if _rank:
@@ -1097,9 +1111,17 @@ func set_showcase(on: bool) -> void:
 		_rank.add_theme_font_size_override("font_size", 15 if on else 12)
 		_rank.custom_minimum_size = Vector2(196 if on else CARD_W - 14.0, 0)
 	if _icon:
-		_icon.custom_minimum_size = Vector2(128, 128) if on else Vector2(64, 64)
+		_icon.custom_minimum_size = Vector2(128, 128) if on else Vector2(IDLE_ICON, IDLE_ICON)
 	if _num_host:
-		_num_host.custom_minimum_size = Vector2(196, 58) if on else Vector2(CARD_W - 14.0, 44)
+		_num_host.custom_minimum_size = Vector2(196, 58) if on else Vector2(CARD_W - 14.0, IDLE_FACE_HOST_MIN_H)
+		_num_host.size_flags_vertical = Control.SIZE_SHRINK_CENTER if on else Control.SIZE_EXPAND_FILL
+	if _col != null:
+		_col.alignment = BoxContainer.ALIGNMENT_CENTER if on else BoxContainer.ALIGNMENT_BEGIN
+	if _face != null and _face.has_method("set_offer_mode"):
+		_face.set_offer_mode(on)
+		## Rebuild so hotbar 36px vs offer 48px sticks after a mode flip.
+		if not _glyph_rows.is_empty() and _face.has_method("set_rows"):
+			_face.set_rows(_glyph_rows)
 	if _num:
 		_num.add_theme_font_size_override("font_size", 48 if on else 32)
 	if _ghost:
@@ -1471,7 +1493,7 @@ func _layout_atk_pip() -> void:
 	if host_w < 8.0:
 		host_w = CARD_W - 14.0
 	if host_h < 8.0:
-		host_h = 32.0
+		host_h = IDLE_FACE_HOST_MIN_H
 	var icon := 48.0
 	if _atk_pip.texture != null:
 		icon = float(_atk_pip.texture.get_width())
@@ -1497,16 +1519,18 @@ func _layout_mark(number_text: String) -> void:
 	if _mark == null:
 		return
 	var beside: bool = _mark_sits_beside(number_text)
+	## Idle marks track the +50% face glyph scale when glyphs are off (petrify countdown, etc.).
+	var s: float = 1.5 if not _showcase else 1.0
 	if beside:
-		_mark.offset_left = -40
-		_mark.offset_top = -16
-		_mark.offset_right = -8
-		_mark.offset_bottom = 16
+		_mark.offset_left = -40.0 * s
+		_mark.offset_top = -16.0 * s
+		_mark.offset_right = -8.0 * s
+		_mark.offset_bottom = 16.0 * s
 	else:
-		_mark.offset_left = -18
-		_mark.offset_top = -18
-		_mark.offset_right = 18
-		_mark.offset_bottom = 18
+		_mark.offset_left = -18.0 * s
+		_mark.offset_top = -18.0 * s
+		_mark.offset_right = 18.0 * s
+		_mark.offset_bottom = 18.0 * s
 
 
 func set_rim_glow(on: bool) -> void:
@@ -1916,7 +1940,7 @@ func _apply_style(hot: bool) -> void:
 	else:
 		sb.content_margin_left = 4
 		sb.content_margin_right = 4
-		sb.content_margin_top = 3
+		sb.content_margin_top = IDLE_CONTENT_MARGIN_TOP
 		sb.content_margin_bottom = 3
 	add_theme_stylebox_override("panel", sb)
 	_sync_decay_markers()
