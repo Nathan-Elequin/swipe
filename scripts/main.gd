@@ -10387,6 +10387,133 @@ func _zombie_decay_on_spin() -> void:
 	_refresh()
 
 
+func _decay_sort_hotbar_uids(uids: Array) -> Array:
+	var order: Dictionary = {}
+	for i in hotbar.size():
+		if typeof(hotbar[i]) != TYPE_DICTIONARY:
+			continue
+		order[int(hotbar[i].get("uid", -1))] = i
+	var out: Array = uids.duplicate()
+	out.sort_custom(func(a: Variant, b: Variant) -> bool:
+		return int(order.get(int(a), 999)) < int(order.get(int(b), 999))
+	)
+	return out
+
+
+func _decay_mark_progress(picked: Array, done_i: int) -> void:
+	if picked.is_empty() or done_i < 0:
+		return
+	var last: int = mini(done_i, picked.size() - 1)
+	if last == 0:
+		var it: Dictionary = _find_item(int(picked[0]))
+		if it.is_empty():
+			return
+		it["decay_marked"] = true
+		it["decay_solo"] = true
+		it["decay_partner"] = -1
+		return
+	var a: Dictionary = _find_item(int(picked[0]))
+	var b: Dictionary = _find_item(int(picked[1]))
+	if a.is_empty() or b.is_empty():
+		return
+	a["decay_marked"] = true
+	a["decay_solo"] = false
+	a["decay_partner"] = int(b.get("uid", -1))
+	b["decay_marked"] = true
+	b["decay_solo"] = false
+	b["decay_partner"] = int(a.get("uid", -1))
+
+
+func _decay_infect_beam(uid: int, hit_i: int) -> void:
+	var dest: Vector2 = _item_card_global(uid)
+	if dest == Vector2.ZERO:
+		dest = _hotbar_card_global(uid)
+	var from: Vector2 = _petrify_beam_from()
+	if from == Vector2.ZERO:
+		from = dest + Vector2(0, -120)
+	if sfx:
+		sfx.play("whoosh", -12.0, 0.72)
+	await _decay_draw_beam(from, dest)
+	if sfx:
+		sfx.play_event(&"status.decay", {"pitch_mul": 1.0 + float(hit_i) * 0.08})
+	var card = _hotbar_card_by_uid(uid)
+	if card != null and card.has_method("bounce"):
+		card.bounce()
+
+
+func _decay_draw_beam(from: Vector2, to_card: Vector2) -> void:
+	var host: Node2D = _petrify_fx_host()
+	var span: Vector2 = to_card - from
+	var dist: float = maxf(span.length(), 1.0)
+	var dir: Vector2 = span / dist
+	var tan := Vector2(-dir.y, dir.x)
+	var col_outer := Color("8E72F2")
+	var col_core := Color("E8D9FF")
+	var beam := Line2D.new()
+	beam.name = "DecayBeam"
+	beam.z_index = 18
+	beam.width = 8.0
+	beam.default_color = col_outer
+	beam.antialiased = false
+	beam.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	beam.end_cap_mode = Line2D.LINE_CAP_ROUND
+	beam.add_point(from)
+	beam.add_point(from)
+	host.add_child(beam, true)
+	var core := Line2D.new()
+	core.name = "DecayBeamCore"
+	core.z_index = 19
+	core.width = 3.0
+	core.default_color = col_core
+	core.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	core.end_cap_mode = Line2D.LINE_CAP_ROUND
+	core.add_point(from)
+	core.add_point(from)
+	host.add_child(core, true)
+	var tw := create_tween()
+	tw.tween_method(
+		func(u: float) -> void:
+			var p: Vector2 = from.lerp(to_card, u)
+			p += tan * sin(u * PI * 2.5) * 14.0 * (1.0 - u)
+			beam.set_point_position(1, p)
+			core.set_point_position(1, p),
+		0.0,
+		1.0,
+		0.14
+	)
+	await tw.finished
+	if is_instance_valid(beam):
+		beam.set_point_position(1, to_card)
+	if is_instance_valid(core):
+		core.set_point_position(1, to_card)
+	for _i in 4:
+		var drip := ColorRect.new()
+		drip.color = col_outer if (_i % 2) == 0 else col_core
+		drip.size = Vector2(4, 6)
+		drip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		drip.z_index = 20
+		host.add_child(drip)
+		drip.global_position = to_card + Vector2(randf_range(-10, 10), randf_range(-4, 4))
+		var dt := create_tween()
+		dt.set_parallel(true)
+		dt.tween_property(drip, "position:y", drip.position.y + randf_range(16, 28), 0.18)
+		dt.tween_property(drip, "modulate:a", 0.0, 0.18)
+		dt.finished.connect(drip.queue_free, CONNECT_ONE_SHOT)
+	await get_tree().create_timer(0.06).timeout
+	var fade := create_tween()
+	fade.set_parallel(true)
+	if is_instance_valid(beam):
+		fade.tween_property(beam, "modulate:a", 0.0, 0.12)
+	if is_instance_valid(core):
+		fade.tween_property(core, "modulate:a", 0.0, 0.12)
+	fade.finished.connect(func() -> void:
+		if is_instance_valid(beam):
+			beam.queue_free()
+		if is_instance_valid(core):
+			core.queue_free()
+	, CONNECT_ONE_SHOT)
+
+
 func _toss_item(uid: int, keep: bool, slow: bool = false) -> void:
 	if not _decay_busy and _decay_claim_use(uid):
 		keep = true
