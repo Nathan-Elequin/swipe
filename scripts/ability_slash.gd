@@ -85,8 +85,12 @@ var wheel_center: Vector2 = Vector2(750, 480)
 func setup(p_art) -> void:
 	art = p_art
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	z_index = 14
-	top_level = true
+	# Parent is SlashLayer (CanvasLayer 128 on Main). Do not set top_level —
+	# that jumps the Control onto the default canvas, under callout HP/Attack
+	# and the move / Take controls.
+	z_index = 0
+	top_level = false
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	texture_filter = TEXTURE_FILTER_NEAREST
 	custom_minimum_size = Vector2(252, 200)

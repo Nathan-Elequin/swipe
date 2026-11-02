@@ -1597,8 +1597,13 @@ func _build_ui() -> void:
 	ability_fx = ABILITY_FX.new()
 	add_child(ability_fx)
 	ability_fx.setup()
+	var slash_layer := CanvasLayer.new()
+	slash_layer.name = "SlashLayer"
+	slash_layer.layer = 128
+	slash_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(slash_layer)
 	ability_slash = ABILITY_SLASH.new()
-	add_child(ability_slash)
+	slash_layer.add_child(ability_slash)
 	ability_slash.setup(art)
 	intent_plate = INTENT_PLATE.new()
 	add_child(intent_plate)
