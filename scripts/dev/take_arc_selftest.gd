@@ -52,6 +52,21 @@ func _init() -> void:
 	var miss_above: Vector2 = arc.guide_c + Vector2(0, -arc.guide_r)
 	failed = _check("miss_top", not arc._has_point(miss_above)) or failed
 
+	## Rounded end caps: accept points near the left/right chord tips
+	## (past the old square radial cut, inside the disk).
+	var left_cap: Vector2 = arc._chord_point(0.0)
+	var right_cap: Vector2 = arc._chord_point(1.0)
+	var away_l: Vector2 = (left_cap - arc.guide_c).normalized()
+	var tang_l: Vector2 = Vector2(-away_l.y, away_l.x)
+	## Tangential outward from the left tip (past the square end).
+	var hit_left_cap: Vector2 = left_cap + tang_l * (TAKE.BODY_W * 0.35)
+	failed = _check("hit_left_cap", arc._has_point(hit_left_cap)) or failed
+	var away_r: Vector2 = (right_cap - arc.guide_c).normalized()
+	var tang_r: Vector2 = Vector2(-away_r.y, away_r.x)
+	## Tangential outward from the right tip.
+	var hit_right_cap: Vector2 = right_cap - tang_r * (TAKE.BODY_W * 0.35)
+	failed = _check("hit_right_cap", arc._has_point(hit_right_cap)) or failed
+
 	## Arrow B2 pad keeps head flare outside the gold rim.
 	var arrow: Button = ARROW.new()
 	root.add_child(arrow)
