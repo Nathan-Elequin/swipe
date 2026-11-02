@@ -39,18 +39,23 @@ func _set_down(on: bool) -> void:
 	queue_redraw()
 
 
-func set_guide(c_local: Vector2, radius: float, n: int, show_n: bool, pad: float = -1.0, sweep: float = -1.0) -> void:
+## Angular offset from six-o'clock to the near tip. <0 means use PlaytestUx default.
+var start_offset: float = -1.0
+
+
+func set_guide(c_local: Vector2, radius: float, n: int, show_n: bool, pad: float = -1.0, sweep: float = -1.0, start_off: float = -1.0) -> void:
 	guide_c = c_local
 	guide_r = radius
 	moves_n = n
 	show_count = show_n
 	outer_pad = pad if pad >= 0.0 else PlaytestUx.move_arrow_outer_pad()
 	sweep_rad = sweep if sweep >= 0.0 else PI * 0.28
+	start_offset = start_off
 	queue_redraw()
 
 
 func _arc_span() -> Vector2:
-	var off: float = PlaytestUx.move_arrow_start_offset()
+	var off: float = start_offset if start_offset >= 0.0 else PlaytestUx.move_arrow_start_offset()
 	var a0: float = PI * 0.5 - float(pointing) * off
 	var sweep: float = -float(pointing) * sweep_rad
 	return Vector2(a0, sweep)
@@ -121,7 +126,10 @@ func _draw() -> void:
 	_draw_shaft(pts, live, hot)
 	_draw_head(pts, live, hot)
 	if show_count and pointing < 0:
-		var foot_at: Vector2 = guide_c + Vector2.from_angle(PI * 0.5 + 0.72) * (guide_r + outer_pad + 8.0)
+		## Ride the left arrow mid-span (clear of the Take arc tip at six-o'clock).
+		var span: Vector2 = _arc_span()
+		var mid_ang: float = span.x + span.y * 0.45
+		var foot_at: Vector2 = guide_c + Vector2.from_angle(mid_ang) * (guide_r + outer_pad + 10.0)
 		_draw_foot_count(foot_at, live)
 
 

@@ -36,11 +36,26 @@ static func dialog_choice_reserve_px() -> float:
 
 
 static func move_arrow_outer_pad() -> float:
+	## Pre-B2 / no-Take-arc rest distance from wheel rim to arrow path center.
 	return 72.0
 
 
 static func move_arrow_start_offset() -> float:
+	## Angular gap from six-o'clock to the arrow's near tip (no Take arc).
 	return 0.58
+
+
+static func move_arrow_b2_pad() -> float:
+	## H3-B2: closer than pre-B2, but far enough that the arrow HEAD flare
+	## clears the gold rim. Head flare reaches ~BODY_W*0.78 inward of the path.
+	## BODY_W is 30 → need pad ≳ 30*0.78 + rim clearance.
+	return 40.0
+
+
+static func move_arrow_b2_start_offset() -> float:
+	## H3-B2: start past the Take arc tip so shafts / spins stay readable.
+	## Take arc half-sweep is ~0.71; clear it with a small gap.
+	return 0.88
 
 
 static func loot_opening_total(plan_n: int, seat_n: int) -> int:
