@@ -15860,7 +15860,7 @@ func _remember_item_use(it: Dictionary) -> void:
 
 
 func _clicked_item_counts_as_use(it: Dictionary) -> bool:
-	# Countdown tokens tick on their own. Only a hotbar click is a use.
+	# Hex / Toll / Pacemaker / Recycler tick without a hotbar click.
 	return not _kind_always_unplayable(str(_ops_of(it).get("kind", "")))
 
 
@@ -15873,15 +15873,20 @@ func _after_item_resolved(it: Dictionary) -> void:
 		return
 	# Item body is done. Dual Sais / Shield / Toll / Adaptation wait until now
 	# so Pocketwatch's attack (and Defeat, Signpost, Hook) can finish first.
+	# `_count_item_use` arms this. A spent dict with no count is not a click
+	# (Harpy Impatient was treating those as "Used" and swinging twice on Spin).
+	var counted_use: bool = _after_item_use_armed and not _skip_item_use_count
 	await _commit_after_item_use()
 	if await _flush_vindictive():
 		return
-	if _clicked_item_counts_as_use(it):
+	if counted_use and _clicked_item_counts_as_use(it):
 		_remember_item_use(it)
 		await _basilisk_on_gazed_use(it)
 	var spent_use: bool = bool(it.get("spent", false))
 	var magnet_use: bool = str(_ops_of(it).get("kind", "")) == "magnet"
 	if not spent_use and not magnet_use:
+		return
+	if not counted_use:
 		return
 	if phase != "fighting":
 		return
@@ -15912,6 +15917,11 @@ func _harpy_poke(why: String = "spin") -> void:
 	if not _facing_can_act():
 		return
 	if _spin_inflight and _harpy_did_spin_hit and not _oligarch_forcing:
+		return
+	# USED stamp is only for a counted hotbar use (or Oligarch forcing one).
+	# Impatient's own slash is not an item use.
+	if why == "item" and items_used_this_combat <= 0 and not _oligarch_forcing:
+		_trace_resolve("harpy skip item poke; no counted use")
 		return
 	var m: Dictionary = wheel[facing_index]
 	if str(m.get("card_id", "")) != "harpy" or _is_silenced(m):

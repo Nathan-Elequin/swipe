@@ -1557,6 +1557,46 @@
 			]
 		},
 		{
+			"id": "harpy-spin-once-no-item",
+			"title": "Harpy hits once on Spin with no item click",
+			"family": "collide",
+			"items": [
+				"shield"
+			],
+			"monsters": [
+				"harpy"
+			],
+			"face": "harpy",
+			"challenge": true,
+			"clicks": [],
+			"expected_text": "Spin onto Harpy with no item click. Impatient swings once (2 Attack). Player HP is 4. The log must not show a second Impatient Used.",
+			"expected": {
+				"hp": 4,
+				"log_has": [
+					"Harpy"
+				],
+				"log_missing": [
+					"items this combat 1"
+				]
+			},
+			"cards": [
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "harpy",
+					"kind": "monster",
+					"name": "Harpy",
+					"ability": "I attack you when your Spin lands on me, and after each item you use.",
+					"sprite": "assets/dungeon/extra/harpy.png"
+				}
+			]
+		},
+		{
 			"id": "harpy-hits-after-item",
 			"title": "Harpy attacks after you use Shield",
 			"family": "collide",
