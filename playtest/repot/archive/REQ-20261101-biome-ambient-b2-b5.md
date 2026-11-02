@@ -1,6 +1,6 @@
 ---
 id: REQ-20261101-biome-ambient-b2-b5
-status: done
+status: archived
 priority: high
 branch: cursor/biome-ambient-b2-b5-55d1
 base: playtest/latest
@@ -10,6 +10,9 @@ created_by: cursor-cloud
 viewport: 1680x1040
 entry: F5 playtest hub → Middle Progress / Continue → enter each biome delve (b2 Crystal / b3 Ashen / b4 Cinder / b5 Shadow) → wheel seating
 ---
+
+> Reviewed and accepted — archived 2026-11-02.
+
 
 # Biome ambient FX b2–b5 (Crystal / Ashen / Cinder / Shadow)
 
