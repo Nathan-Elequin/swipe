@@ -167,14 +167,14 @@
 			"status": "f5",
 			"title": "Juggernaut/Beggar should move to the actual hotbar seat they add or steal",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/254",
-			"sha": "pending",
+			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"255": {
 			"status": "f5",
 			"title": "Pocketwatch Druid → Prism refract killed both neighbors, then soft-lock",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/255",
-			"sha": "pending",
+			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"256": {
@@ -186,49 +186,49 @@
 			"status": "f5",
 			"title": "Echo Bell on Bag of Holding should become the captured bag immediately",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/259",
-			"sha": "pending",
+			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"262": {
 			"status": "f5",
 			"title": "Oligarch Wealth Tax does not use a random item",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/262",
-			"sha": "pending",
+			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"266": {
 			"status": "f5",
 			"title": "Curse items should not show Weak; black jagged border",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/266",
-			"sha": "pending",
+			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"267": {
 			"status": "f5",
 			"title": "Hydra Devour after Napalm HP drop",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/267",
-			"sha": "pending",
+			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"268": {
 			"status": "f5",
 			"title": "Petty King flees a Defeat while any HP remain",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/268",
-			"sha": "pending",
+			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"269": {
 			"status": "f5",
 			"title": "Mimic gift needs slash then gold flying from the head",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/269",
-			"sha": "pending",
+			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"270": {
 			"status": "f5",
 			"title": "Hired Hand Flee + Ball and Chain leaves a stuck portrait",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/270",
-			"sha": "pending",
+			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		}
 	}
