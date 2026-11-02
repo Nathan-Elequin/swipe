@@ -1280,8 +1280,14 @@ func _ensure_beggar_label() -> Label:
 		_beggar_icon.texture_filter = TEXTURE_FILTER_NEAREST
 		_beggar_icon.z_index = 9
 		_beggar_icon.custom_minimum_size = Vector2(28, 28)
-		if ResourceLoader.exists("res://assets/dungeon/extra/beggar.png"):
-			_beggar_icon.texture = load("res://assets/dungeon/extra/beggar.png") as Texture2D
+		for path in [
+			"res://assets/dungeon/anim/facing/beggar_facing_idle_f0.png",
+			"res://assets/dungeon/anim/wheel/beggar_wheel_base.png",
+			"res://assets/dungeon/extra/beggar.png",
+		]:
+			if ResourceLoader.exists(path):
+				_beggar_icon.texture = load(path) as Texture2D
+				break
 		add_child(_beggar_icon)
 		if not resized.is_connected(_place_beggar_label):
 			resized.connect(_place_beggar_label)

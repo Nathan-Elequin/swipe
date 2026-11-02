@@ -51,7 +51,18 @@ def live_art_bytes() -> bytes:
             out[mm.group(1)] = "/assets/" + rel
         return out
 
-    body = (json.dumps({"items": extract("ITEM_PNG"), "monsters": extract("MONSTER_PNG")}) + "\n").encode("utf-8")
+    def live_monsters(raw: dict) -> dict:
+        out = dict(raw)
+        for mid in list(out.keys()):
+            face = ROOT / "assets" / "dungeon" / "anim" / "facing" / f"{mid}_facing_idle_f0.png"
+            wheel = ROOT / "assets" / "dungeon" / "anim" / "wheel" / f"{mid}_wheel_base.png"
+            if face.is_file():
+                out[mid] = f"/assets/dungeon/anim/facing/{mid}_facing_idle_f0.png"
+            elif wheel.is_file():
+                out[mid] = f"/assets/dungeon/anim/wheel/{mid}_wheel_base.png"
+        return out
+
+    body = (json.dumps({"items": extract("ITEM_PNG"), "monsters": live_monsters(extract("MONSTER_PNG"))}) + "\n").encode("utf-8")
     _art_cache["mtime"] = mtime
     _art_cache["body"] = body
     return body
