@@ -327,14 +327,14 @@
 			"status": "f5",
 			"title": "Martyr lost health from Outbreak poison when spun",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/300",
-			"sha": "PENDING",
+			"sha": "2d3b0833",
 			"f5_note": "Spin poison on Martyr Defeats after Noble Death. Stop Play, F5."
 		},
 		"304": {
 			"status": "f5",
 			"title": "Mouse used Scurry when spun and died; should not have",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/304",
-			"sha": "PENDING",
+			"sha": "2d3b0833",
 			"f5_note": "Lethal Scurry Defeats and Spins the next seat. Stop Play, F5."
 		}
 	}
