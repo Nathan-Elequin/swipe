@@ -482,6 +482,7 @@ var _beggar_intro_running: bool = false
 var _beggar_fill_running: bool = false
 var _spin_inflight: bool = false
 var _auto_spin_lock: bool = false
+var _auto_spin_again: bool = false
 var _harpy_did_spin_hit: bool = false
 var _oligarch_forcing: bool = false
 var _sandbag_streak: int = 0
@@ -8869,11 +8870,30 @@ func _maybe_auto_spin() -> void:
 			await get_tree().process_frame
 			guard += 1
 	await _await_beggar_marks()
-	if phase == "ready" and not _wheel_busy() and not _beggar_mark_busy() and not _auto_spin_lock:
-		_auto_spin_lock = true
-		_trace_resolve("auto-spin go")
-		await _on_spin()
-		_auto_spin_lock = false
+	# One Spin at a time. Flee / a poison death can finish a fight while this
+	# lock is still held, so the inner auto-spin would skip and leave Ready
+	# with monsters still on the wheel (no Spin button in Adventure).
+	if _auto_spin_lock:
+		_auto_spin_again = true
+		_trace_resolve("auto-spin queued (lock)")
+		return
+	if phase == "ready" and not _wheel_busy() and not _beggar_mark_busy():
+		var spins: int = 0
+		while spins < 8:
+			if phase != "ready" or _monsters_left() <= 0:
+				break
+			if _wheel_busy() or _beggar_mark_busy():
+				break
+			_auto_spin_lock = true
+			_auto_spin_again = false
+			_trace_resolve("auto-spin go")
+			await _on_spin()
+			_auto_spin_lock = false
+			spins += 1
+			if not _auto_spin_again:
+				break
+			_auto_spin_again = false
+			_trace_resolve("auto-spin follow-up")
 
 
 func _remove_facing() -> void:
@@ -9106,6 +9126,8 @@ func _undo_kill_motion() -> void:
 	_adventure_busy = false
 	_move_busy = false
 	_flushing_holes = false
+	_auto_spin_lock = false
+	_auto_spin_again = false
 	if wheel_view != null:
 		if wheel_view.has_method("kill_spin"):
 			wheel_view.kill_spin()
