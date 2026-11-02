@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## Defeat spotlight sequence: hard blackout → soft warm cone → existing Sprout defeat
-## anim (mirrored) → journal quote → Limp home / Quick start. No Undo.
+## anim (mirrored) → journal quote + wax seal (intact→broken by B.S.) → Limp home /
+## Quick start. No Undo.
 ## Copy keys: defeat.journal.01–50 + defeat.journal.attrib + defeat.home / defeat.quick.
 
 signal home_pressed
@@ -14,7 +15,11 @@ const QUOTE_FADE_S := 2.0
 const QUOTE_DRIFT_PX := 12.0
 const BUTTON_FADE_S := 0.45
 const SPOT_DROP_S := 0.30
+const SEAL_BREAK_S := 0.40
+const SEAL_SIZE := Vector2(56.0, 52.0)
 const SPROUT_DRAW := Vector2(140.0, 140.0)
+const WAX_SEAL_INTACT := "res://assets/dungeon/home/overlays/wax_seal.png"
+const WAX_SEAL_BROKEN := "res://assets/dungeon/home/overlays/wax_seal_broken.png"
 
 var _root: Control
 var _black: ColorRect
@@ -24,6 +29,10 @@ var _sprout: TextureRect
 var _quote_box: Control
 var _quote: RichTextLabel
 var _rule: ColorRect
+var _attrib_row: HBoxContainer
+var _seal: Control
+var _seal_intact: TextureRect
+var _seal_broken: TextureRect
 var _attrib: Label
 var _btn_row: HBoxContainer
 var _btn_home: Button
@@ -63,6 +72,7 @@ func dismiss() -> void:
 		_sprout.texture = null
 	if _quote_box:
 		_quote_box.modulate.a = 0.0
+	_reset_seal(false)
 	if _btn_row:
 		_btn_row.modulate.a = 0.0
 		_btn_row.visible = false
@@ -88,6 +98,7 @@ func debug_show_settled(wheel: Node = null, art = null) -> void:
 	_black.modulate.a = 1.0
 	_spot.modulate.a = 1.0
 	_quote_box.modulate.a = 1.0
+	_reset_seal(true)
 	_btn_row.visible = true
 	_btn_row.modulate.a = 1.0
 	_btn_home.disabled = false
@@ -119,6 +130,7 @@ func play_sequence(wheel: Node, art) -> void:
 	_black.modulate.a = 1.0
 	_spot.modulate.a = 0.0
 	_quote_box.modulate.a = 0.0
+	_reset_seal(false)
 	_btn_row.visible = false
 	_btn_row.modulate.a = 0.0
 	_btn_home.disabled = true
@@ -138,9 +150,10 @@ func play_sequence(wheel: Node, art) -> void:
 	if token != _seq:
 		return
 	_sync_sprout_frame()
-	# Quote fades + drifts up ~12px over ~2s.
+	# Quote + intact seal fade in together; quote drifts up ~12px over ~2s.
 	_quote_y = _quote_home_y() + QUOTE_DRIFT_PX
 	_quote_box.modulate.a = 0.0
+	_reset_seal(false)
 	_quote_tweening = true
 	var q_tw := create_tween()
 	q_tw.set_parallel(true)
@@ -153,7 +166,11 @@ func play_sequence(wheel: Node, art) -> void:
 	_quote_y = _quote_home_y()
 	if token != _seq:
 		return
-	# Buttons after quote settles. Input ignored until now.
+	# Intact → broken seal crossfade (~0.4s) with a small scale punch.
+	await _play_seal_break()
+	if token != _seq:
+		return
+	# Buttons after seal settles. Broken seal stays visible. Input ignored until now.
 	_btn_row.visible = true
 	_btn_row.modulate.a = 0.0
 	var b_tw := create_tween()
@@ -256,14 +273,51 @@ func _build() -> void:
 	_rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_quote_box.add_child(_rule)
 
+	_attrib_row = HBoxContainer.new()
+	_attrib_row.name = "AttribRow"
+	_attrib_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_attrib_row.add_theme_constant_override("separation", 10)
+	_attrib_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_quote_box.add_child(_attrib_row)
+
+	_seal = Control.new()
+	_seal.name = "Seal"
+	_seal.custom_minimum_size = SEAL_SIZE
+	_seal.size = SEAL_SIZE
+	_seal.pivot_offset = SEAL_SIZE * 0.5
+	_seal.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_attrib_row.add_child(_seal)
+
+	_seal_intact = TextureRect.new()
+	_seal_intact.name = "SealIntact"
+	_seal_intact.texture = load(WAX_SEAL_INTACT) as Texture2D
+	_seal_intact.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_seal_intact.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_seal_intact.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_seal_intact.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_seal_intact.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_seal.add_child(_seal_intact)
+
+	_seal_broken = TextureRect.new()
+	_seal_broken.name = "SealBroken"
+	_seal_broken.texture = load(WAX_SEAL_BROKEN) as Texture2D
+	_seal_broken.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_seal_broken.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_seal_broken.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_seal_broken.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_seal_broken.modulate.a = 0.0
+	_seal_broken.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_seal.add_child(_seal_broken)
+
 	_attrib = Label.new()
 	_attrib.name = "Attrib"
-	_attrib.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_attrib.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_attrib.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_attrib.add_theme_font_override("font", ThemeDB.fallback_font)
 	_attrib.add_theme_font_size_override("font_size", 18)
 	_attrib.add_theme_color_override("font_color", Color("c9a46a"))
 	_attrib.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_quote_box.add_child(_attrib)
+	_attrib_row.add_child(_attrib)
 
 	_btn_row = HBoxContainer.new()
 	_btn_row.name = "Buttons"
@@ -414,6 +468,39 @@ func _set_quote_y(y: float) -> void:
 		_quote_box.position.y = y
 
 
+## Intact for quote fade-in; broken for the settled / post-break beat.
+func _reset_seal(broken: bool) -> void:
+	if _seal == null:
+		return
+	_seal.scale = Vector2.ONE
+	_seal.pivot_offset = SEAL_SIZE * 0.5
+	if _seal_intact:
+		_seal_intact.modulate.a = 0.0 if broken else 1.0
+	if _seal_broken:
+		_seal_broken.modulate.a = 1.0 if broken else 0.0
+
+
+func _play_seal_break() -> void:
+	if _seal == null or _seal_intact == null or _seal_broken == null:
+		return
+	_seal.pivot_offset = SEAL_SIZE * 0.5
+	_seal.scale = Vector2.ONE
+	_seal_intact.modulate.a = 1.0
+	_seal_broken.modulate.a = 0.0
+	var seal_tw := create_tween()
+	seal_tw.set_parallel(true)
+	seal_tw.set_trans(Tween.TRANS_SINE)
+	seal_tw.set_ease(Tween.EASE_IN_OUT)
+	seal_tw.tween_property(_seal_intact, "modulate:a", 0.0, SEAL_BREAK_S)
+	seal_tw.tween_property(_seal_broken, "modulate:a", 1.0, SEAL_BREAK_S)
+	var punch := create_tween()
+	punch.set_trans(Tween.TRANS_SINE)
+	punch.set_ease(Tween.EASE_OUT)
+	punch.tween_property(_seal, "scale", Vector2(1.08, 1.08), SEAL_BREAK_S * 0.5)
+	punch.tween_property(_seal, "scale", Vector2.ONE, SEAL_BREAK_S * 0.5)
+	await seal_tw.finished
+
+
 func _layout() -> void:
 	if not _built or _root == null:
 		return
@@ -440,8 +527,12 @@ func _layout() -> void:
 	_quote.size = Vector2(q_w, 110.0)
 	_rule.size = Vector2(60, 1)
 	_rule.position = Vector2((q_w - 60.0) * 0.5, 118.0)
-	_attrib.position = Vector2(0, 128.0)
-	_attrib.size = Vector2(q_w, 28.0)
+	# Wax seal left of B.S., centered under the quote.
+	_attrib_row.position = Vector2(0, 124.0)
+	_attrib_row.size = Vector2(q_w, SEAL_SIZE.y)
+	_seal.custom_minimum_size = SEAL_SIZE
+	_seal.size = SEAL_SIZE
+	_seal.pivot_offset = SEAL_SIZE * 0.5
 	# Buttons near floor of the cone.
 	_btn_row.size = Vector2(520, 64)
 	_btn_row.position = Vector2((sz.x - 520.0) * 0.5, sz.y * 0.86)
