@@ -43,6 +43,7 @@ var _narration_bar: Panel
 var _cue_row: HBoxContainer
 var _in_tween: Tween
 var _cue_tween: Tween
+var _page_tween: Tween
 var _skipped: bool = false
 var _dismissed_emitted: bool = false
 var _play_in_finished: bool = false
@@ -52,6 +53,10 @@ var _ctx: Dictionary = {}
 var _hosted_ambient: Node = null
 var _ambient_home: Node = null
 var _ambient_home_index: int = -1
+## Multi-page narration (same BG / chrome). Click advances; last page dismisses.
+var _pages: PackedStringArray = PackedStringArray()
+var _page_index: int = 0
+var _page_swap_busy: bool = false
 
 
 func _ready() -> void:
@@ -66,6 +71,8 @@ func play_in(biome_id: String, ctx: Dictionary) -> void:
 	_skipped = false
 	_dismissed_emitted = false
 	_play_in_finished = false
+	_page_index = 0
+	_page_swap_busy = false
 	_build()
 	_root.modulate.a = 0.0
 	visible = true
@@ -90,6 +97,9 @@ func play_out() -> void:
 	if _cue_tween != null and is_instance_valid(_cue_tween):
 		_cue_tween.kill()
 		_cue_tween = null
+	if _page_tween != null and is_instance_valid(_page_tween):
+		_page_tween.kill()
+		_page_tween = null
 	## Detach ambient first so the splash fade does not dim particles; the same
 	## kit continues on the play field with no rebuild / preprocess flash.
 	detach_ambient()
@@ -178,6 +188,14 @@ func narration_text() -> String:
 	return str(_narration.text)
 
 
+func narration_page_index() -> int:
+	return _page_index
+
+
+func narration_page_count() -> int:
+	return _pages.size()
+
+
 func chrome_texts() -> Dictionary:
 	return {
 		"biome": str(_chrome_biome.text) if _chrome_biome else "",
@@ -197,9 +215,31 @@ func current_alpha() -> float:
 	return _root.modulate.a
 
 
+static func biome_slug(biome_name: String) -> String:
+	return str(biome_name).strip_edges().to_lower().replace(" ", "_")
+
+
+## Legacy single-string key (unused fallback only once .p1/.p2/.p3 exist).
 static func narration_key_for_name(biome_name: String) -> String:
-	var slug := str(biome_name).strip_edges().to_lower().replace(" ", "_")
-	return "splash.biome.%s" % slug
+	return "splash.biome.%s" % biome_slug(biome_name)
+
+
+static func narration_page_key(biome_name: String, page: int) -> String:
+	return "splash.biome.%s.p%d" % [biome_slug(biome_name), page]
+
+
+## Ordered page texts for a biome. Prefers .p1/.p2/.p3; legacy single key is fallback only.
+static func narration_pages_for_name(biome_name: String) -> PackedStringArray:
+	var pages := PackedStringArray()
+	for i in range(1, 4):
+		var key := narration_page_key(biome_name, i)
+		if PLAYER_COPY.has_key(key):
+			pages.append(PLAYER_COPY.text(key, ""))
+	if pages.is_empty():
+		var legacy := narration_key_for_name(biome_name)
+		if PLAYER_COPY.has_key(legacy):
+			pages.append(PLAYER_COPY.text(legacy, ""))
+	return pages
 
 
 static func art_short_for_name(biome_name: String) -> String:
@@ -209,8 +249,12 @@ static func art_short_for_name(biome_name: String) -> String:
 	return str(parts[0])
 
 
+## True when any page key exists (.p1 preferred; any .pN counts). Legacy alone does not.
 static func has_narration(biome_name: String) -> bool:
-	return PLAYER_COPY.has_key(narration_key_for_name(biome_name))
+	for i in range(1, 4):
+		if PLAYER_COPY.has_key(narration_page_key(biome_name, i)):
+			return true
+	return false
 
 
 ## Campaign map→biome enter for tip biomes b1–b5. Endless / unknown skip splash.
@@ -230,17 +274,92 @@ func _finish_play_in() -> void:
 	play_in_done.emit()
 
 
+## Click / skip input: advance page, or dismiss on the last page (same cue stays).
 func _request_skip() -> void:
+	if _dismissed_emitted:
+		return
+	## Click anytime: finish an in-flight soft swap so the next page can start.
+	if _page_tween != null and is_instance_valid(_page_tween):
+		_page_tween.kill()
+		_page_tween = null
+		_page_swap_busy = false
+		if _narration != null and is_instance_valid(_narration):
+			if _page_index >= 0 and _page_index < _pages.size():
+				_narration.text = str(_pages[_page_index])
+			_narration.modulate.a = 1.0
+			_layout_narration_bar()
+	## Still dissolving in: snap to full alpha so page advance stays readable.
+	if _in_tween != null and is_instance_valid(_in_tween):
+		_in_tween.kill()
+		_in_tween = null
+		if _root != null and is_instance_valid(_root):
+			_root.modulate.a = 1.0
+		_finish_play_in()
+	elif not _play_in_finished:
+		if _root != null and is_instance_valid(_root):
+			_root.modulate.a = 1.0
+		_finish_play_in()
+	if _pages.size() > 0 and _page_index < _pages.size() - 1:
+		_advance_page()
+		return
+	_dismiss_from_input()
+
+
+func _dismiss_from_input() -> void:
 	if _dismissed_emitted:
 		return
 	_skipped = true
 	_dismissed_emitted = true
-	if _in_tween != null:
+	if _in_tween != null and is_instance_valid(_in_tween):
 		_in_tween.kill()
 		_in_tween = null
+	if _page_tween != null and is_instance_valid(_page_tween):
+		_page_tween.kill()
+		_page_tween = null
 	# Always unblock play_in (idempotent). Skip may land before, during, or after the dissolve.
 	_finish_play_in()
 	dismissed.emit()
+
+
+func _advance_page() -> void:
+	if _pages.is_empty() or _page_index >= _pages.size() - 1:
+		_dismiss_from_input()
+		return
+	_page_index += 1
+	_apply_page_text(true)
+
+
+func _apply_page_text(soft_swap: bool) -> void:
+	if _narration == null:
+		return
+	var next_text := ""
+	if _page_index >= 0 and _page_index < _pages.size():
+		next_text = str(_pages[_page_index])
+	if not soft_swap or next_text == str(_narration.text):
+		_narration.text = next_text
+		_narration.modulate.a = 1.0
+		_layout_narration_bar()
+		return
+	_page_swap_busy = true
+	if _page_tween != null and is_instance_valid(_page_tween):
+		_page_tween.kill()
+		_page_tween = null
+	## Soft text swap only — whole-splash dissolve stays for enter/exit.
+	_page_tween = create_tween()
+	_page_tween.set_trans(Tween.TRANS_SINE)
+	_page_tween.set_ease(Tween.EASE_IN_OUT)
+	_page_tween.tween_property(_narration, "modulate:a", 0.0, 0.12)
+	_page_tween.tween_callback(func() -> void:
+		if _narration == null or not is_instance_valid(_narration):
+			return
+		_narration.text = next_text
+		_layout_narration_bar()
+	)
+	_page_tween.tween_property(_narration, "modulate:a", 1.0, 0.16)
+	_page_tween.finished.connect(func() -> void:
+		_page_tween = null
+		_page_swap_busy = false
+	, CONNECT_ONE_SHOT)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -459,13 +578,13 @@ func _apply_copy() -> void:
 		_chrome_delves.text = PLAYER_COPY.fill("splash.chrome.delves", {"n": delves_n}, "Delves: %s" % delves_n)
 	if _cue_label:
 		_cue_label.text = PLAYER_COPY.text("splash.chrome.continue", "click anytime")
+	## Page list from .p1/.p2/.p3 (legacy single key = unused fallback only).
+	_pages = narration_pages_for_name(biome_name)
+	if _page_index < 0 or (_pages.size() > 0 and _page_index >= _pages.size()):
+		_page_index = 0
 	if _narration:
-		## Missing Spin key → blank Label (still show splash). Never invent copy.
-		var key := narration_key_for_name(biome_name)
-		if PLAYER_COPY.has_key(key):
-			_narration.text = PLAYER_COPY.text(key, "")
-		else:
-			_narration.text = ""
+		## Missing Spin pages → blank Label (still show splash). Never invent copy.
+		_apply_page_text(false)
 	## attach_ambient may _build() before play_in fills _ctx; re-resolve art here.
 	if _art:
 		_art.texture = _resolve_bg_tex()
