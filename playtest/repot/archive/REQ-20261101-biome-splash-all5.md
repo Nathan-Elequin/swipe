@@ -1,6 +1,6 @@
 ---
 id: REQ-20261101-biome-splash-all5
-status: done
+status: archived
 priority: high
 branch: cursor/biome-splash-all5-ambient-aeec
 base: playtest/latest
@@ -10,6 +10,9 @@ created_by: cursor-cloud
 viewport: 1680x1040
 entry: F5 playtest hub → Middle Progress / Continue → campaign map → enter each tip biome (b1–b5)
 ---
+
+> Reviewed and accepted — archived 2026-11-02.
+
 
 # Biome-enter splash for all 5 tip biomes + ambient on splash
 
