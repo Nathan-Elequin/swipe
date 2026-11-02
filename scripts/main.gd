@@ -4839,6 +4839,9 @@ func _deal_opening_hand(items: Array) -> void:
 		_sort_hotbar()
 		_refresh()
 		return
+	_sync_hotbar()
+	await get_tree().process_frame
+	await get_tree().process_frame
 	_sync_item_deal_deck()
 	item_deal_ui.visible = true
 	item_deal_ui.set_count(items.size())
@@ -4846,7 +4849,7 @@ func _deal_opening_hand(items: Array) -> void:
 	if sfx:
 		sfx.play("cloth", -10.0)
 		sfx.play("whoosh", -14.0, 1.2)
-	await item_deal_ui.play_shuffle(0.32)
+	await item_deal_ui.play_shuffle(0.46)
 	if seq != _mill_seq:
 		item_deal_ui.visible = false
 		return
@@ -4857,13 +4860,20 @@ func _deal_opening_hand(items: Array) -> void:
 		if typeof(it) != TYPE_DICTIONARY or it.is_empty():
 			continue
 		var full: bool = hotbar.size() >= _forced_hand_cap()
-		var dest: Vector2 = _hotbar_wait_slot_global() if full else _hotbar_empty_slot_global()
+		var seat_i: int = hotbar.size()
+		var dest: Vector2 = _hotbar_wait_slot_global() if full else _hotbar_deal_slot_global(seat_i)
+		var dest_sz: Vector2 = _hotbar_deal_slot_size(seat_i)
+		var pad: Control = null if full else _hotbar_deal_slot_control(seat_i)
+		if pad != null:
+			pad.modulate.a = 0.12
 		var iid: String = str(it.get("card_id", ""))
 		var tex: Texture2D = _item_icon_tex(it, iid)
 		_sync_item_deal_deck()
 		item_deal_ui.set_peek(tex, str(it.get("name", "?")), _tier_of(it))
-		await item_deal_ui.play_deal_to(dest, 0.14)
+		await item_deal_ui.play_deal_to(dest, 0.34, dest_sz)
 		item_deal_ui.set_peek(null, "")
+		if pad != null and is_instance_valid(pad):
+			pad.modulate.a = 1.0
 		if seq != _mill_seq:
 			break
 		if full:
@@ -15055,25 +15065,55 @@ func _hotbar_card_global(uid: int) -> Vector2:
 
 
 func _hotbar_empty_slot_global() -> Vector2:
-	if hotbar_box != null:
-		var kids: Array = hotbar_box.get_children()
-		var cap: int = _hand_limit()
-		if kids.size() < cap or not _hotbar_park_overflow():
-			if kids.is_empty():
-				return hotbar_box.global_position + Vector2(48.0, hotbar_box.size.y * 0.5)
-			var last: Control = kids[kids.size() - 1]
-			return last.global_position + Vector2(last.size.x + 8.0 + last.size.x * 0.5, last.size.y * 0.5)
-	if _hotbar_park_overflow() and hotbar_overflow != null:
+	return _hotbar_deal_slot_global(hotbar.size())
+
+
+func _hotbar_deal_slot_control(slot_i: int) -> Control:
+	if hotbar_box == null or slot_i < 0:
+		return null
+	var kids: Array = hotbar_box.get_children()
+	if slot_i < kids.size() and kids[slot_i] is Control:
+		return kids[slot_i]
+	return null
+
+
+## Center of hotbar seat `slot_i` (0 = first seat). Uses the empty pad already
+## in the 2×5 grid when it exists, so a deal never aims past the last placeholder.
+func _hotbar_deal_slot_global(slot_i: int) -> Vector2:
+	var seated: Control = _hotbar_deal_slot_control(slot_i)
+	if seated != null and seated.size.x > 4.0:
+		return seated.global_position + seated.size * 0.5
+	if _hotbar_park_overflow() and hotbar_overflow != null and slot_i >= _forced_hand_cap():
 		var parked: Array = hotbar_overflow.get_children()
 		if not parked.is_empty():
 			var last_park: Control = parked[parked.size() - 1]
-			return last_park.global_position + Vector2(last_park.size.x + 8.0 + last_park.size.x * 0.5, last_park.size.y * 0.5)
+			return last_park.global_position + last_park.size * 0.5
 		if hotbar_panel != null:
 			var pr: Rect2 = hotbar_panel.get_global_rect()
 			return Vector2(pr.position.x + pr.size.x * 0.5, pr.position.y + pr.size.y * 0.5)
 	if hotbar_box == null:
 		return Vector2.ZERO
-	return hotbar_box.global_position + hotbar_box.size * 0.5
+	var cols: int = maxi(1, hotbar_box.columns)
+	var w := 172.0
+	var h := 148.0
+	var kids: Array = hotbar_box.get_children()
+	if not kids.is_empty() and kids[0] is Control:
+		var sample: Control = kids[0]
+		if sample.size.x > 4.0:
+			w = sample.size.x
+			h = sample.size.y
+	var hs: float = float(hotbar_box.get_theme_constant("h_separation"))
+	var vs: float = float(hotbar_box.get_theme_constant("v_separation"))
+	var col: int = slot_i % cols
+	var row: int = int(slot_i / cols)
+	return hotbar_box.global_position + Vector2(float(col) * (w + hs) + w * 0.5, float(row) * (h + vs) + h * 0.5)
+
+
+func _hotbar_deal_slot_size(slot_i: int) -> Vector2:
+	var seated: Control = _hotbar_deal_slot_control(slot_i)
+	if seated != null and seated.size.x > 4.0:
+		return seated.size
+	return Vector2(172.0, 148.0)
 
 
 func _juggernaut_hand_shield() -> void:
