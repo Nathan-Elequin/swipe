@@ -1,7 +1,12 @@
 {
-	"updated_at": "2026-11-02T05:35:00Z",
+	"updated_at": "2026-11-02T05:50:00Z",
 	"branch": "playtest/latest",
 	"issues": {
+		"283": {
+			"status": "todo",
+			"title": "Buff Longbow from 4 damage to 5",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/283"
+		},
 		"273": {
 			"status": "f5",
 			"title": "Wick with one neighbor should lose 2 HP once, not twice",
