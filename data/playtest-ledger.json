@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-02T06:18:43Z",
+	"updated_at": "2026-11-02T06:56:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"283": {
@@ -89,8 +89,8 @@
 			"status": "f5",
 			"title": "Harpy should hit once on Spin unless Wealth Tax",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/223",
-			"sha": "9763c1f4",
-			"f5_note": "Pacemaker Unplayable + log USED/SPIN stamps. Stop Play, F5 after this commit."
+			"sha": "f1e631c4",
+			"f5_note": "Impatient after-item swing needs a counted hotbar use. Stop Play, F5. Spin-only is one hit; Shield still gets the second."
 		},
 		"232": {
 			"status": "f5",
@@ -244,6 +244,16 @@
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/270",
 			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"292": {
+			"status": "todo",
+			"title": "after finishing a run, Nib says get five to go deep",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/292"
+		},
+		"291": {
+			"status": "todo",
+			"title": "Merchant forcing a choose between two items to upgrade",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/291"
 		},
 		"289": {
 			"status": "todo",
