@@ -175,22 +175,28 @@ func _run() -> void:
 	var main_src := FileAccess.get_file_as_string("res://scripts/main.gd")
 	var begin_idx: int = main_src.find("func _begin_campaign_delve")
 	var after_begin: int = main_src.find("\nfunc ", begin_idx + 1)
+	var present_idx: int = main_src.find("func _present_campaign_splash")
 	var adventure_idx: int = main_src.find("func _adventure_continue")
 	var start_idx: int = main_src.find("func _on_campaign_start")
 	failed = _check(failed, "begin_campaign_delve found", begin_idx >= 0) or failed
+	failed = _check(failed, "present_campaign_splash found", present_idx >= 0) or failed
 	if begin_idx >= 0 and after_begin > begin_idx:
 		var begin_body: String = main_src.substr(begin_idx, after_begin - begin_idx)
 		failed = _check(failed, "music removed from begin_delve", begin_body.find("sfx.music_biome_dungeon") < 0) or failed
+	var present_end: int = main_src.find("\nfunc ", present_idx + 1)
+	var present_body: String = main_src.substr(present_idx, maxi(0, present_end - present_idx))
+	failed = _check(failed, "music at present splash", present_body.find("sfx.music_biome_dungeon") >= 0) or failed
+	failed = _check(failed, "shows_for_biome gate", present_body.find("shows_for_biome") >= 0) or failed
+	failed = _check(failed, "attach_ambient on splash", present_body.find("attach_ambient") >= 0) or failed
+	## Gate must not require has_narration (missing key still splashes).
+	failed = _check(failed, "no has_narration gate", present_body.find("has_narration") < 0) or failed
 	var start_end: int = main_src.find("\nfunc ", start_idx + 1)
 	var start_body: String = main_src.substr(start_idx, maxi(0, start_end - start_idx))
-	failed = _check(failed, "music at campaign_start", start_body.find("sfx.music_biome_dungeon") >= 0) or failed
-	failed = _check(failed, "shows_for_biome gate", start_body.find("shows_for_biome") >= 0) or failed
-	failed = _check(failed, "attach_ambient at start", start_body.find("attach_ambient") >= 0) or failed
-	## Gate must not require has_narration (missing key still splashes).
-	failed = _check(failed, "no has_narration gate", start_body.find("has_narration") < 0) or failed
+	failed = _check(failed, "start uses present splash", start_body.find("_present_campaign_splash") >= 0) or failed
 	var adv_end: int = main_src.find("\nfunc ", adventure_idx + 1)
 	var adv_body: String = main_src.substr(adventure_idx, maxi(0, adv_end - adventure_idx))
-	failed = _check(failed, "music still on adventure_continue", adv_body.find("sfx.music_biome_dungeon") >= 0) or failed
+	failed = _check(failed, "push deeper uses present splash", adv_body.find("_present_campaign_splash") >= 0) or failed
+	failed = _check(failed, "push deeper skips splash when endless", adv_body.find("endless_run") >= 0) or failed
 
 	# Leave-biome helper present; no splash on leave paths.
 	failed = _check(failed, "biome_dissolve_out helper", main_src.find("func _biome_dissolve_out") >= 0) or failed

@@ -68,14 +68,14 @@ Change it to:
    - `campaign_map.hide_map()`, then `await _begin_campaign_delve(index, shortcut, endless, splash)`.
    - ctx for chrome: you need `biome_id`, `biome_name`, `dungeon_index` (= `1 if endless else index + 1`, same formula as in `_begin_campaign_delve`), and `delves` (`home_cabin.counters.delves`). Compute them before `play_in`.
 2. `_begin_campaign_delve(...)`:
-   - **Delete** the `music_biome_dungeon` block at ~L2799–2801 (it moved to splash appear). Leave the `_adventure_continue` call (~L3210) alone; push-deeper isn't a map enter.
+   - **Delete** the `music_biome_dungeon` block at ~L2799–2801 (it moved to splash appear). `_adventure_continue` (Push deeper) uses the same `_present_campaign_splash` helper for the next tip biome.
    - Keep all setup up to and including `_empty_wheel(CHALLENGE_SEATS)`. It runs behind the opaque splash.
    - Then, before `_campaign_arm_delve()`: `if splash: await splash.wait_dismissed(); await splash.play_out()`, then `await _nest_wheel()`.
 3. `_nest_wheel()`: input locked the whole time (a full-rect `Control`, `mouse_filter = STOP`, or the existing busy flag). Tween the wheel from about one wheel-height above its rest to rest over **0.45s, `TRANS_BACK`, `EASE_OUT`**. **Don't tween `wheel_view.position` directly**, because `_layout_play_field()` resets it. Add `var _wheel_nest_offset := 0.0` that `_layout_play_field()` adds to `wheel_y`, tween that var (`tween_method` → set + relayout), and set it back to 0 at the end. Unlock input only after the tween finishes.
 4. Leave biome (all paths back to cabin or map: `_push_interrupt_home`, `_go_home_loss`, `_open_home_cabin` from a run): add one helper `_biome_dissolve_out()`, a full-screen `ColorRect` #0B0706 with `modulate:a` 0→1 over 0.35s `TRANS_SINE`, swap the scene behind it, then 1→0. **No splash.** Don't change any music calls on these paths. Victory music stays on the clear path only (`music_after_dungeon_clear`).
 
 ## Music rules (hard)
-- `music_biome_dungeon(biome_id)` is called **exactly once per map enter**, at splash appear. Never on skip, fade out, nest, or arm-delve.
+- `music_biome_dungeon(biome_id)` is called **exactly once per splash appear** (map enter and Push deeper). Never on skip, fade out, nest, or arm-delve.
 - No new fades. Use the native `music_to` crossfade inside `music_biome_dungeon`.
 - Don't touch `audio_fx.gd` or the music config.
 
@@ -88,6 +88,6 @@ Change it to:
 ## Don't
 - Invent or edit any player-facing words, or show Tier.
 - Add an auto-advance timer or a minimum dwell.
-- Show a splash on leaving a biome, on push-deeper, or in Endless.
+- Show a splash on leaving a biome or in Endless. Push deeper into b1–b5 should splash.
 - Restart the music on skip or nest.
 - Use non-Nearest filtering on splash art.

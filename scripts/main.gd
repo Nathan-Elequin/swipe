@@ -2822,38 +2822,14 @@ func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
 	_splash_busy = true
 	if campaign_map:
 		campaign_map.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var splash = null
 	var biome_id := _campaign_biome_id_for_start(index, endless)
-	var biome_name := ""
-	if _campaign != null:
-		biome_name = CAMPAIGN_SHELL.biome_name(_campaign.rules, biome_id)
 	var dungeon_n: int = 1 if endless else index + 1
-	var delves_n: int = 0
-	if home_cabin != null:
-		delves_n = int(home_cabin.counters.get("delves", 0))
-	var ctx := {
-		"biome_id": biome_id,
-		"biome_name": biome_name,
-		"dungeon_index": dungeon_n,
-		"delves": delves_n,
-	}
-	var BiomeSplash = load("res://scripts/ui/biome_splash.gd")
 	## Tip biomes b1–b5 always splash (placeholder art OK). Missing narration key → blank Label, do not skip.
-	var want_splash: bool = (not endless) and BiomeSplash != null and BiomeSplash.shows_for_biome(biome_id)
+	var splash = null
+	if not endless:
+		splash = await _present_campaign_splash(biome_id, dungeon_n)
 	var used_map_wipe := false
-	if want_splash:
-		splash = BiomeSplash.new()
-		add_child(splash)
-		# Music exactly once at splash appear. Native music_to only. Never re-fire on skip/nest.
-		if sfx and sfx.has_method("music_biome_dungeon"):
-			sfx.music_biome_dungeon(biome_id)
-		## Start the shared BiomeAmbient kit on the splash still (over art, behind chrome).
-		## Same node continues into the delve after detach — no rebuild flash.
-		_sync_biome_ambient(biome_id)
-		if splash.has_method("attach_ambient") and biome_ambient != null:
-			splash.attach_ambient(biome_ambient)
-		await splash.play_in(biome_id, ctx)
-	else:
+	if splash == null:
 		if not endless and sfx and sfx.has_method("music_biome_dungeon"):
 			sfx.music_biome_dungeon(biome_id)
 		# Soft dissolve of the map (no splash). Stay covered until setup + reveal.
@@ -2995,8 +2971,7 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool, splash = n
 	draft_action = "busy"
 	_log("on_click", "Campaign")
 	_log("var", "HP %s" % hp)
-	# music_biome_dungeon moved to splash appear in `_on_campaign_start` (exactly once per map enter).
-	# Leave `_adventure_continue` music alone — push-deeper is not a map enter.
+	# music_biome_dungeon lives in `_present_campaign_splash` (map enter and Push deeper).
 	_refresh()
 	await _reveal_new_buckets()
 	_fill_challenge_pools()
@@ -3411,31 +3386,72 @@ func _on_cabin_item_unhovered() -> void:
 		fly_tip.hide_plate()
 
 
+func _campaign_splash_ctx(biome_id: String, dungeon_n: int) -> Dictionary:
+	var biome_name := ""
+	if _campaign != null:
+		biome_name = CAMPAIGN_SHELL.biome_name(_campaign.rules, biome_id)
+	var delves_n: int = 0
+	if home_cabin != null:
+		delves_n = int(home_cabin.counters.get("delves", 0))
+	return {
+		"biome_id": biome_id,
+		"biome_name": biome_name,
+		"dungeon_index": dungeon_n,
+		"delves": delves_n,
+	}
+
+
+## Map enter and Push deeper. Music once at splash appear. Null if this biome does not splash.
+func _present_campaign_splash(biome_id: String, dungeon_n: int) -> Node:
+	var BiomeSplash = load("res://scripts/ui/biome_splash.gd")
+	if BiomeSplash == null or not BiomeSplash.shows_for_biome(biome_id):
+		return null
+	var splash = BiomeSplash.new()
+	add_child(splash)
+	if sfx and sfx.has_method("music_biome_dungeon"):
+		sfx.music_biome_dungeon(biome_id)
+	_sync_biome_ambient(biome_id)
+	if splash.has_method("attach_ambient") and biome_ambient != null:
+		splash.attach_ambient(biome_ambient)
+	await splash.play_in(biome_id, _campaign_splash_ctx(biome_id, dungeon_n))
+	return splash
+
+
 func _adventure_continue() -> void:
 	if not adventure or phase != "rest" or _adventure_busy:
 		return
 	if _campaign_on and _campaign != null and not CAMPAIGN_SHELL.can_push(_campaign.rules, _campaign.state):
 		return
 	_adventure_busy = true
+	var splash = null
+	var endless_run := false
 	if _campaign_on and _campaign != null:
 		CAMPAIGN_SHELL.push_deeper(_campaign.rules, _campaign.state)
 		CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
 		_campaign.write()
-		var endless_run := bool(_campaign.state.get("run", {}).get("endless", false))
-		if sfx and sfx.has_method("music_biome_dungeon") and not endless_run:
-			sfx.music_biome_dungeon(CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state))
+		endless_run = bool(_campaign.state.get("run", {}).get("endless", false))
 	elif sfx:
 		sfx.set_combat_music(true)
 	_undo_clear()
 	overlay.visible = false
+	if rope_exit:
+		rope_exit.hide_exit()
 	dungeon_index += 1
+	if _campaign_on and _campaign != null and not endless_run:
+		var biome_id := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+		_sync_dungeon_biome(biome_id)
+		splash = await _present_campaign_splash(biome_id, dungeon_index)
+		if splash == null and sfx and sfx.has_method("music_biome_dungeon"):
+			sfx.music_biome_dungeon(biome_id)
 	await _reveal_new_buckets()
 	silenced = {}
 	phase = "draft"
 	draft_action = "busy"
 	_refresh()
 	var seq: int = _mill_seq
-	await _play_hall_wipe()
+	var used_splash: bool = splash != null and is_instance_valid(splash)
+	if not used_splash:
+		await _play_hall_wipe()
 	if seq != _mill_seq or not adventure:
 		_adventure_busy = false
 		return
@@ -3445,6 +3461,11 @@ func _adventure_continue() -> void:
 	_reset_moves()
 	_fill_challenge_pools()
 	_empty_wheel(CHALLENGE_SEATS)
+	if used_splash:
+		await splash.wait_dismissed()
+		await splash.play_out()
+		_forward_ambient_avoids()
+		await _nest_wheel()
 	if _campaign_on:
 		await _campaign_arm_delve()
 	await _run_challenge_setup()
@@ -21062,14 +21083,9 @@ func _sprout_keeps_stage() -> bool:
 
 
 func _fight_sprite_pad() -> int:
-	if combat_stage == null:
-		return 0
-	combat_stage.size = Vector2(280, 240)
-	combat_stage.custom_minimum_size = combat_stage.size
-	if combat_stage.has_method("_place_sprite"):
-		combat_stage._place_sprite()
-	var sh: float = combat_stage.sprite_height() if combat_stage.has_method("sprite_height") else 0.0
-	return int(round(sh / 3.0))
+	# Unused leftover: stage_card no longer pads the plate for the portrait.
+	# Do not resize combat_stage here — _place_fight_art owns that rect.
+	return 0
 
 
 func _wheel_block_circle() -> Dictionary:
@@ -21464,8 +21480,11 @@ func _place_fight_art(force: bool = false) -> void:
 	stack_w = minf(stack_w, maxf(140.0, view_sz.x - wr.end.x - VIEW_FRAME.CALLOUT_RIGHT_MARGIN - 8.0))
 	var sprite_h := 216.0
 	var port_sz := Vector2(stack_w, sprite_h)
-	# The portrait frame sits fully above the inspect plate. The body is scaled to that frame.
+	# Portrait overlaps the inspect plate so the feet sit just above the name.
+	# Hang is the part that sticks up off the top of the brown card.
 	var overlap := 0.0
+	if face_box != null and face_box.visible and face_box.has_method("stage_sprite_foot_inset"):
+		overlap = float(face_box.stage_sprite_foot_inset())
 	var plaque_h := 0.0
 	if face_box != null and face_box.visible:
 		# reset_size / min-size are Control thrash — only remeasure when the
@@ -21538,7 +21557,7 @@ func _place_fight_art(force: bool = false) -> void:
 				if combat_stage.has_method("_place_sprite"):
 					combat_stage._place_sprite()
 			if face_box != null and face_box.visible:
-				face_box.global_position = Vector2(right_x, y + port_sz.y + 12.0)
+				face_box.global_position = Vector2(right_x, y + hang)
 		if player_stage != null:
 			player_stage.hide_stage()
 	if hypno_stage != null and hypno_stage.visible:
