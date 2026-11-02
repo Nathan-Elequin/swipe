@@ -40,6 +40,11 @@ func _run() -> void:
 
 	var Defeat = load("res://scripts/ui/defeat_spotlight.gd")
 	failed = _check(failed, "defeat_spotlight script loads", Defeat != null) or failed
+	var intact_tex = load("res://assets/dungeon/home/overlays/wax_seal.png")
+	var broken_tex = load("res://assets/dungeon/home/overlays/wax_seal_broken.png")
+	failed = _check(failed, "wax_seal.png loads", intact_tex != null) or failed
+	failed = _check(failed, "wax_seal_broken.png loads", broken_tex != null) or failed
+
 	if Defeat != null:
 		var ui = Defeat.new()
 		root.add_child(ui)
@@ -47,6 +52,34 @@ func _run() -> void:
 		failed = _check(failed, "settled visible", ui.visible) or failed
 		failed = _check(failed, "buttons live", ui.buttons_ready()) or failed
 		failed = _check(failed, "undo not part of UI", true) or failed
+		var root_n: Node = ui.get_node_or_null("Root")
+		var seal: Node = null
+		var seal_intact: TextureRect = null
+		var seal_broken: TextureRect = null
+		var attrib: Label = null
+		if root_n != null:
+			seal = root_n.find_child("Seal", true, false)
+			seal_intact = root_n.find_child("SealIntact", true, false) as TextureRect
+			seal_broken = root_n.find_child("SealBroken", true, false) as TextureRect
+			attrib = root_n.find_child("Attrib", true, false) as Label
+		failed = _check(failed, "Seal widget present", seal != null) or failed
+		failed = _check(failed, "SealIntact present", seal_intact != null) or failed
+		failed = _check(failed, "SealBroken present", seal_broken != null) or failed
+		failed = _check(
+			failed,
+			"settled shows broken seal",
+			seal_broken != null and seal_broken.modulate.a > 0.9 and seal_intact != null and seal_intact.modulate.a < 0.1
+		) or failed
+		failed = _check(
+			failed,
+			"attrib is B.S.",
+			attrib != null and attrib.text.find("B.S.") >= 0
+		) or failed
+		failed = _check(
+			failed,
+			"seal left of attrib in row",
+			seal != null and attrib != null and seal.get_index() < attrib.get_index()
+		) or failed
 		ui.dismiss()
 		failed = _check(failed, "dismiss hides", not ui.visible) or failed
 		ui.queue_free()
