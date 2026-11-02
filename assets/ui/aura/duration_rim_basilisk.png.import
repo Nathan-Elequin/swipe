@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c930c53b8458c6"
-path="res://.godot/imported/duration_rim_basilisk.png-930c53b8458c6.ctex"
+uid="uid://cmeptmfpgwhnb"
+path="res://.godot/imported/duration_rim_basilisk.png-6a2939130b13b2ce1a2e3d99e426ae3c.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/aura/duration_rim_basilisk.png"
-dest_files=["res://.godot/imported/duration_rim_basilisk.png-930c53b8458c6.ctex"]
+dest_files=["res://.godot/imported/duration_rim_basilisk.png-6a2939130b13b2ce1a2e3d99e426ae3c.ctex"]
 
 [params]
 

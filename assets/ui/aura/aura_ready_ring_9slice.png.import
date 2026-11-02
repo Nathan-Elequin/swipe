@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c1200f8adfdf1a"
-path="res://.godot/imported/aura_ready_ring_9slice.png-1200f8adfdf1a.ctex"
+uid="uid://cb74au7buiftw"
+path="res://.godot/imported/aura_ready_ring_9slice.png-9eeaa27ca707ae6ee53d2300eae0eb28.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/aura/aura_ready_ring_9slice.png"
-dest_files=["res://.godot/imported/aura_ready_ring_9slice.png-1200f8adfdf1a.ctex"]
+dest_files=["res://.godot/imported/aura_ready_ring_9slice.png-9eeaa27ca707ae6ee53d2300eae0eb28.ctex"]
 
 [params]
 

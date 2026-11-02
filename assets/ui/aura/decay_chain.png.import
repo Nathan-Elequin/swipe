@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7904888b5e7ff"
-path="res://.godot/imported/decay_chain.png-7904888b5e7ff.ctex"
+uid="uid://sfiwscrg5gpj"
+path="res://.godot/imported/decay_chain.png-f00e393fd013c5876442b732fbba63f5.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/aura/decay_chain.png"
-dest_files=["res://.godot/imported/decay_chain.png-7904888b5e7ff.ctex"]
+dest_files=["res://.godot/imported/decay_chain.png-f00e393fd013c5876442b732fbba63f5.ctex"]
 
 [params]
 

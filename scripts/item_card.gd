@@ -85,11 +85,15 @@ var _bag_stamp: TextureRect
 var _source_stamp: TextureRect
 var _duration_band: TextureRect
 var _decay_pip: TextureRect
+var _decay_chain: TextureRect
 var _warn_chip: Label
 var _gaze_mark: TextureRect
 var _gaze_warn: bool = false
 var _decay_link: bool = false
 var _decay_warn: bool = false
+var _decay_solo: bool = false
+## -1 = chain on left edge toward partner, +1 = right edge. 0 = hide chain.
+var _decay_chain_side: int = 0
 var _gaze_entry: bool = false
 var _petrify_source: String = "" # "" | "gargoyle" | "basilisk"
 var _aura_pulse_tw: Tween
@@ -505,11 +509,32 @@ func set_gaze_warn(on: bool) -> void:
 	queue_redraw()
 
 
-func set_decay_link(on: bool) -> void:
+func set_decay_link(on: bool, chain_side: int = -1) -> void:
+	## LINK pair idle: thin violet ring + TL pip + chain toward partner.
+	## chain_side: -1 left edge, +1 right edge, 0 no chain glyph.
 	_decay_link = on
+	if on:
+		_decay_solo = false
+		_decay_chain_side = chain_side if chain_side != 0 else -1
+	else:
+		_decay_chain_side = 0
 	_ensure_decay_pip()
-	if _decay_pip != null:
-		_decay_pip.visible = on
+	_ensure_decay_chain()
+	_sync_decay_markers()
+	_apply_style(_hot)
+	queue_redraw()
+
+
+func set_decay_solo(on: bool) -> void:
+	## Solo Decay mark: TL pip + thin violet rim only — never a purple wash.
+	_decay_solo = on
+	if on:
+		_decay_link = false
+		_decay_chain_side = 0
+	_ensure_decay_pip()
+	_ensure_decay_chain()
+	_sync_decay_markers()
+	_apply_style(_hot)
 	queue_redraw()
 
 
@@ -520,6 +545,7 @@ func set_decay_warn(on: bool) -> void:
 		_set_warn_chip("Will be discarded.")
 	else:
 		_clear_warn_chip_if("Will be discarded.")
+	_sync_decay_markers()
 	queue_redraw()
 
 
@@ -634,6 +660,50 @@ func _ensure_decay_pip() -> void:
 		_decay_pip.texture = load("res://assets/ui/aura/decay_pip.png") as Texture2D
 	_decay_pip.visible = false
 	add_child(_decay_pip)
+
+
+func _ensure_decay_chain() -> void:
+	if _decay_chain != null:
+		return
+	_decay_chain = TextureRect.new()
+	_decay_chain.name = "DecayChain"
+	_decay_chain.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_decay_chain.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_decay_chain.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_decay_chain.texture_filter = TEXTURE_FILTER_NEAREST
+	_decay_chain.z_index = 8
+	_decay_chain.custom_minimum_size = Vector2(24, 12)
+	if ResourceLoader.exists("res://assets/ui/aura/decay_chain.png"):
+		_decay_chain.texture = load("res://assets/ui/aura/decay_chain.png") as Texture2D
+	_decay_chain.visible = false
+	add_child(_decay_chain)
+
+
+func _sync_decay_markers() -> void:
+	var show_pip: bool = (_decay_link or _decay_solo or _decay_warn) and not spent
+	if _decay_pip != null:
+		_decay_pip.visible = show_pip
+	var show_chain: bool = (_decay_link or _decay_warn) and not _decay_solo and not spent and _decay_chain_side != 0
+	if _decay_chain != null:
+		_decay_chain.visible = show_chain
+		if show_chain:
+			_place_decay_chain()
+
+
+func _place_decay_chain() -> void:
+	## 24×12 link glyph, mid-edge toward partner — half off the plate, not over icon center.
+	if _decay_chain == null:
+		return
+	var w: float = 24.0
+	var h: float = 12.0
+	var sx: float = size.x if size.x > 1.0 else CARD_W
+	var sy: float = size.y if size.y > 1.0 else CARD_H
+	var cy: float = sy * 0.5
+	_decay_chain.size = Vector2(w, h)
+	if _decay_chain_side >= 1:
+		_decay_chain.position = Vector2(sx - w * 0.5, cy - h * 0.5)
+	else:
+		_decay_chain.position = Vector2(-w * 0.5, cy - h * 0.5)
 
 
 func _set_warn_chip(text: String) -> void:
@@ -824,6 +894,20 @@ func _draw_solid_ring(col: Color, width: float, pulse: float) -> void:
 	ring.shadow_color = Color(col.r, col.g, col.b, 0.35 + pulse * 0.30)
 	ring.shadow_size = 6 + int(pulse * 10.0)
 	ring.shadow_offset = Vector2.ZERO
+	ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
+
+
+func _draw_link_ring(col: Color) -> void:
+	## LINK / Decay — thin violet ring (~2px), CHOICE weight, no READY glow shadow.
+	var pad: float = 3.0
+	var ring := StyleBoxFlat.new()
+	ring.draw_center = false
+	ring.bg_color = Color(0, 0, 0, 0)
+	ring.border_color = Color(col.r, col.g, col.b, 0.92)
+	ring.set_border_width_all(2)
+	ring.set_corner_radius_all(10 if _showcase else 8)
+	ring.shadow_size = 0
+	ring.shadow_color = Color(0, 0, 0, 0)
 	ring.draw(get_canvas_item(), Rect2(Vector2(-pad, -pad), size + Vector2(pad, pad) * 2.0))
 
 
@@ -1519,7 +1603,7 @@ func _process(delta: float) -> void:
 	# does not compete with the banner. Active sai/marble item FX still tick.
 	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy and _beggar_flash <= 0.0 and not _waiting_entry:
 		return
-	if _glow or _aura or _aura_role != AURA_OFF or _log_focus or _danger or _hex_good or _hot or _toss_pick or _gaze_warn or _decay_warn or _decay_link or _gaze_entry:
+	if _glow or _aura or _aura_role != AURA_OFF or _log_focus or _danger or _hex_good or _hot or _toss_pick or _gaze_warn or _decay_warn or _decay_link or _decay_solo or _gaze_entry:
 		_glow_t += delta
 		_style_wait -= delta
 		if _style_wait <= 0.0:
@@ -1713,9 +1797,9 @@ func _apply_style(hot: bool) -> void:
 			_plus.modulate = Color("e07a7a").lerp(Color.WHITE, pulse * 0.55)
 		if _ban != null and _ban.visible:
 			_ban.modulate = Color("e8c36a").lerp(Color.WHITE, pulse * 0.55)
-	elif _decay_link and not spent and _aura_role != AURA_WARN:
-		metal = metal.lerp(COL_LINK, 0.85)
-		sb.bg_color = sb.bg_color.lerp(COL_LINK.darkened(0.55), 0.10)
+	elif (_decay_link or _decay_solo) and not spent and _aura_role != AURA_WARN:
+		# Subtle plate border tint only — icon art must stay readable (Doop LINK).
+		metal = metal.lerp(COL_LINK, 0.28)
 		modulate = Color.WHITE
 	elif _log_focus:
 		pulse = 0.55 + 0.45 * absf(sin(_glow_t * TAU / 0.8))
@@ -1739,8 +1823,6 @@ func _apply_style(hot: bool) -> void:
 		bw += int(pulse * float(_tier))
 	elif _aura_role == AURA_READY or _log_focus or _danger or (_toss_pick and hot) or _hex_good:
 		bw += int(pulse * 2.0)
-	elif _decay_link and _aura_role != AURA_WARN:
-		bw = maxi(bw, 4)
 	sb.set_border_width_all(bw)
 	sb.set_corner_radius_all(8 if _showcase else 6)
 	if _showcase:
@@ -1755,6 +1837,10 @@ func _apply_style(hot: bool) -> void:
 	if not _rim_glow:
 		sb.shadow_size = 0
 		sb.shadow_color = Color(0, 0, 0, 0)
+	elif (_decay_link or _decay_solo) and not spent and _aura_role != AURA_WARN:
+		# LINK stays thin — no purple plate halo (READY keeps its pulse shadow).
+		sb.shadow_size = 0
+		sb.shadow_color = Color(0, 0, 0, 0)
 	if _showcase:
 		sb.content_margin_left = 6
 		sb.content_margin_right = 6
@@ -1766,6 +1852,7 @@ func _apply_style(hot: bool) -> void:
 		sb.content_margin_top = 3
 		sb.content_margin_bottom = 3
 	add_theme_stylebox_override("panel", sb)
+	_sync_decay_markers()
 	queue_redraw()
 
 
@@ -1798,8 +1885,8 @@ func _draw() -> void:
 	elif show_aura and _aura_role == AURA_READY:
 		var pulse_r: float = 0.45 + 0.55 * absf(sin(_glow_t * TAU / 1.6))
 		_draw_solid_ring(COL_READY, 3.0, pulse_r)
-	elif show_aura and _decay_link:
-		_draw_solid_ring(COL_LINK, 3.0, 0.0)
+	elif show_aura and (_decay_link or _decay_solo):
+		_draw_link_ring(COL_LINK)
 	elif show_aura and _gaze_entry:
 		# Phase A: thin Basilisk rim on gazed eligible items.
 		_draw_solid_ring(COL_BASILISK, 2.0, 0.0)

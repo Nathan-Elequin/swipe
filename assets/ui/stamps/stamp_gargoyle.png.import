@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c2aeb2e3d42a7f"
-path="res://.godot/imported/stamp_gargoyle.png-2aeb2e3d42a7f.ctex"
+uid="uid://cilfv11ck7a02"
+path="res://.godot/imported/stamp_gargoyle.png-11a61fac4a75c058eaf2fe2345903857.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/stamps/stamp_gargoyle.png"
-dest_files=["res://.godot/imported/stamp_gargoyle.png-2aeb2e3d42a7f.ctex"]
+dest_files=["res://.godot/imported/stamp_gargoyle.png-11a61fac4a75c058eaf2fe2345903857.ctex"]
 
 [params]
 
