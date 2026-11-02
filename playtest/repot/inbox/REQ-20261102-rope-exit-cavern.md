@@ -3,7 +3,7 @@ id: REQ-20261102-rope-exit-cavern
 status: open
 priority: normal
 branch: cursor/rope-exit-cavern-shell-da39
-tip_sha: pending
+tip_sha: c4eaa3f7
 created: 2026-11-02T21:35:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
