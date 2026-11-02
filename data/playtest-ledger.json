@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-02T05:35:00Z",
+	"updated_at": "2026-11-02T05:50:40Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"273": {
@@ -18,7 +18,7 @@
 		},
 		"198": {
 			"status": "f5",
-			"title": "Spider Egg Take 2 → Take 1",
+			"title": "Spider Egg Take 2 \u2192 Take 1",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/198",
 			"sha": "19f5e038",
 			"f5_note": "On playtest/latest. Stop Play, F5."
@@ -109,7 +109,7 @@
 		},
 		"236": {
 			"status": "f5",
-			"title": "Medallion Block is 7 − HP, not 6 − HP",
+			"title": "Medallion Block is 7 \u2212 HP, not 6 \u2212 HP",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/236",
 			"sha": "19f5e038",
 			"f5_note": "On playtest/latest. Stop Play, F5."
@@ -179,7 +179,7 @@
 		},
 		"255": {
 			"status": "f5",
-			"title": "Pocketwatch Druid → Prism refract killed both neighbors, then soft-lock",
+			"title": "Pocketwatch Druid \u2192 Prism refract killed both neighbors, then soft-lock",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/255",
 			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
@@ -238,6 +238,12 @@
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/270",
 			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"283": {
+			"status": "todo",
+			"title": "Buff Longbow from 4 damage to 5",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/283",
+			"note": "Content / balance \u2014 wait for Nathan before changing numbers."
 		}
 	}
 }
