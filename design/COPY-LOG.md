@@ -1,5 +1,9 @@
 # Copy Log
 
+## 2026-11-02 — Biome-enter splash multi-page narration (Spin lock)
+
+Spin locked a connected sensory chain: three pages per tip biome under `splash.biome.<slug>.p1` / `.p2` / `.p3` for `verdant_hollow`, `crystal_cavern`, `ashen_crypt`, `cinder_forge`, `shadow_abyss`. Exact strings from Nathan 2026-11-02 lock file. Old single keys `splash.biome.<slug>` kept as unused fallback only. Chrome `splash.chrome.continue` = `click anytime` unchanged. Same splash BG across pages; click advances page then dismisses.
+
 ## 2026-11-02 — Biome-enter splash narration (Spin lock)
 
 Spin locked first-person plain fiction for `splash.biome.verdant_hollow`, `splash.biome.crystal_cavern`, `splash.biome.ashen_crypt`, `splash.biome.cinder_forge`, and `splash.biome.shadow_abyss`. Values pasted exactly into `data/player-copy.csv` and `data/player-copy.json`. Chrome keys (`splash.chrome.biome|dungeon|delves|continue`) unchanged. Layout: narration bar grew to 340px / max 5 lines so the longer paragraphs fit at 1680×1040 without clipping Spin’s words.
