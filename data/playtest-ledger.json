@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-02T05:50:00Z",
+	"updated_at": "2026-11-02T06:18:43Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"283": {
@@ -10,11 +10,10 @@
 			"f5_note": "Inspect and the opposite hit are 5. Stop Play, F5."
 		},
 		"273": {
-			"status": "f5",
-			"title": "Wick with one neighbor should lose 2 HP once, not twice",
+			"status": "todo",
+			"title": "When Wick is on a wheel with just 1 other monster",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/273",
-			"sha": "07b3ba20",
-			"f5_note": "On playtest/latest. Stop Play, F5."
+			"note": "New playtest report; not on tip yet."
 		},
 		"190": {
 			"status": "f5",
@@ -25,7 +24,7 @@
 		},
 		"198": {
 			"status": "f5",
-			"title": "Spider Egg Take 2 → Take 1",
+			"title": "Spider Egg Take 2 \u2192 Take 1",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/198",
 			"sha": "19f5e038",
 			"f5_note": "On playtest/latest. Stop Play, F5."
@@ -116,7 +115,7 @@
 		},
 		"236": {
 			"status": "f5",
-			"title": "Medallion Block is 7 − HP, not 6 − HP",
+			"title": "Medallion Block is 7 \u2212 HP, not 6 \u2212 HP",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/236",
 			"sha": "19f5e038",
 			"f5_note": "On playtest/latest. Stop Play, F5."
@@ -186,7 +185,7 @@
 		},
 		"255": {
 			"status": "f5",
-			"title": "Pocketwatch Druid → Prism refract killed both neighbors, then soft-lock",
+			"title": "Pocketwatch Druid \u2192 Prism refract killed both neighbors, then soft-lock",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/255",
 			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
@@ -246,11 +245,25 @@
 			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
-		"273": {
+		"289": {
 			"status": "todo",
-			"title": "When Wick is on a wheel with just 1 other monster",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/273",
-			"note": "New playtest report; not on tip yet."
+			"title": "spacebar and \"m\" only didnt work on the start menu feedback. now the\u2026",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/289"
+		},
+		"288": {
+			"status": "todo",
+			"title": "i clicked brand new game and my items are not shiny. they shoudnt be\u2026",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/288"
+		},
+		"287": {
+			"status": "todo",
+			"title": "thespacebarisbrokeninthefeedbackforand-the-letter-that-cones-after-t\u2026",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/287"
+		},
+		"286": {
+			"status": "todo",
+			"title": "nibblinksrepeatedlyanditscreepy",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/286"
 		}
 	}
 }
