@@ -5283,12 +5283,6 @@
 			"name": "Slime Boss",
 			"notes": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer.",
 			"ops": {},
-			"pending_fields": {
-				"hp_base": {
-					"from": 9.0,
-					"to": 10
-				}
-			},
 			"poc": false,
 			"pool": 1,
 			"priority": 2,

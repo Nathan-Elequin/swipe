@@ -23417,7 +23417,20 @@ func _monster_chip(s: Dictionary) -> PanelContainer:
 	return p
 
 
+func _free_stray_marble_rolls() -> void:
+	var tree := get_tree()
+	if tree == null:
+		return
+	var root: Node = tree.root
+	if root == null:
+		return
+	for c in root.get_children():
+		if c != null and str(c.name) == "MarbleRoll":
+			c.queue_free()
+
+
 func _sync_hotbar() -> void:
+	_free_stray_marble_rolls()
 	if hotbar_box is GridContainer:
 		hotbar_box.columns = 5 if adventure else 12
 	if hotbar_panel:

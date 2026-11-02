@@ -58,6 +58,7 @@ var _playable: bool = false
 var _guarding: bool = false
 var _hatch: Control
 var _lock_shade: Control
+var _chrome: Control
 ## Direction A aura kit (design/visual/SCREEN-hotbar-aura-kit.md).
 ## Priority when painting rings: Petrify/Unplayable > WARN > CHOICE > READY.
 const AURA_OFF := ""
@@ -187,6 +188,12 @@ func setup(
 	col.add_theme_constant_override("separation", 1)
 	pad.add_child(col)
 	_col = col
+	# Overlays live under `pad` so PanelContainer does not stretch them to the
+	# full card (that was the giant G / giant Beggar portrait).
+	_chrome = Control.new()
+	_chrome.name = "Chrome"
+	_chrome.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pad.add_child(_chrome)
 
 	_rank = Label.new()
 	_rank.visible = false
@@ -359,7 +366,7 @@ func setup(
 	_used.add_theme_constant_override("outline_size", 6)
 	_used.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_used.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(_used)
+	_overlay_host().add_child(_used)
 	_face = preload("res://scripts/item_face.gd").new()
 	_face.name = "Face"
 	_face.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -371,6 +378,12 @@ func setup(
 	_sync_lock_shade()
 	_bind_rank_fx()
 	set_process(true)
+
+
+func _overlay_host() -> Control:
+	if _chrome != null:
+		return _chrome
+	return self
 
 
 func _sync_hatch() -> void:
@@ -388,14 +401,13 @@ func _sync_hatch() -> void:
 		return
 	if _hatch == null:
 		_hatch = Control.new()
+		_hatch.name = "UnplayableHatch"
 		_hatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_hatch.clip_contents = true
-		_hatch.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
+		_hatch.z_index = 12
 		_hatch.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		_hatch.draw.connect(_draw_card_hatch)
 		_hatch.resized.connect(_hatch.queue_redraw)
-		add_child(_hatch)
-		move_child(_hatch, 0)
+		_overlay_host().add_child(_hatch)
 	_hatch.visible = true
 	_hatch.queue_redraw()
 
@@ -436,15 +448,14 @@ func _sync_lock_shade() -> void:
 	if _lock_shade == null:
 		_lock_shade = Control.new()
 		_lock_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_lock_shade.clip_contents = true
-		_lock_shade.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
+		_lock_shade.z_index = 11
 		_lock_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		_lock_shade.draw.connect(_draw_lock_shade)
 		_lock_shade.resized.connect(func() -> void:
 			if _lock_shade != null:
 				_lock_shade.queue_redraw()
 		)
-		add_child(_lock_shade)
+		_overlay_host().add_child(_lock_shade)
 	_lock_shade.visible = true
 	if _used != null:
 		move_child(_used, get_child_count() - 1)
@@ -491,7 +502,7 @@ func set_gaze_mark(tex: Texture2D, on: bool) -> void:
 		_gaze_mark.offset_top = -6
 		_gaze_mark.offset_right = 12
 		_gaze_mark.offset_bottom = 18
-		add_child(_gaze_mark)
+		_overlay_host().add_child(_gaze_mark)
 	_gaze_mark.texture = tex
 	_gaze_mark.visible = _gaze_entry
 	queue_redraw()
@@ -569,35 +580,18 @@ func set_bag_stamp(tex: Texture2D) -> void:
 		if _icon:
 			_icon.add_child(_bag_stamp)
 		else:
-			add_child(_bag_stamp)
+			_overlay_host().add_child(_bag_stamp)
 	_bag_stamp.texture = tex
 	_bag_stamp.visible = true
 
 
 func set_source_stamp(source: String) -> void:
-	## BR 34px Gargoyle / Basilisk stamp. Cleared when source is empty.
+	## Keep the source id for rims / shatter. Do not draw the letter G/B stamps —
+	## Petrify reads as Unplayable hatch + stone, not a giant monogram.
 	_petrify_source = source
-	_ensure_source_stamp()
-	_ensure_duration_band()
-	var path := ""
-	if source == "gargoyle":
-		path = "res://assets/ui/stamps/stamp_gargoyle.png"
-	elif source == "basilisk":
-		path = "res://assets/ui/stamps/stamp_basilisk.png"
-	if path == "" or not ResourceLoader.exists(path):
-		if _source_stamp:
-			_source_stamp.visible = false
-		if _duration_band:
-			_duration_band.visible = false
-		queue_redraw()
-		return
-	_source_stamp.texture = load(path) as Texture2D
-	_source_stamp.visible = true
-	if source == "gargoyle" and _duration_band != null:
-		if ResourceLoader.exists("res://assets/ui/aura/duration_band_gargoyle.png"):
-			_duration_band.texture = load("res://assets/ui/aura/duration_band_gargoyle.png") as Texture2D
-		_duration_band.visible = true
-	elif _duration_band != null:
+	if _source_stamp:
+		_source_stamp.visible = false
+	if _duration_band:
 		_duration_band.visible = false
 	if source == "basilisk" and _gaze_mark != null:
 		_gaze_mark.visible = false
@@ -620,7 +614,7 @@ func _ensure_source_stamp() -> void:
 	_source_stamp.offset_top = -36
 	_source_stamp.offset_right = -2
 	_source_stamp.offset_bottom = -2
-	add_child(_source_stamp)
+	_overlay_host().add_child(_source_stamp)
 
 
 func _ensure_duration_band() -> void:
@@ -639,7 +633,7 @@ func _ensure_duration_band() -> void:
 	_duration_band.offset_right = -4
 	_duration_band.offset_bottom = 10
 	_duration_band.visible = false
-	add_child(_duration_band)
+	_overlay_host().add_child(_duration_band)
 
 
 func _ensure_decay_pip() -> void:
@@ -660,7 +654,7 @@ func _ensure_decay_pip() -> void:
 	if ResourceLoader.exists("res://assets/ui/aura/decay_pip.png"):
 		_decay_pip.texture = load("res://assets/ui/aura/decay_pip.png") as Texture2D
 	_decay_pip.visible = false
-	add_child(_decay_pip)
+	_overlay_host().add_child(_decay_pip)
 
 
 func _ensure_decay_chain() -> void:
@@ -677,7 +671,7 @@ func _ensure_decay_chain() -> void:
 	if ResourceLoader.exists("res://assets/ui/aura/decay_chain.png"):
 		_decay_chain.texture = load("res://assets/ui/aura/decay_chain.png") as Texture2D
 	_decay_chain.visible = false
-	add_child(_decay_chain)
+	_overlay_host().add_child(_decay_chain)
 
 
 func _sync_decay_markers() -> void:
@@ -721,7 +715,7 @@ func _set_warn_chip(text: String) -> void:
 		_warn_chip.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 		_warn_chip.offset_top = -18
 		_warn_chip.offset_bottom = -2
-		add_child(_warn_chip)
+		_overlay_host().add_child(_warn_chip)
 	_warn_chip.text = text
 	_warn_chip.visible = text != ""
 
@@ -745,7 +739,7 @@ func set_echo_mark(tex: Texture2D) -> void:
 		_echo_mark.offset_top = 4
 		_echo_mark.offset_right = -4
 		_echo_mark.offset_bottom = 36
-		add_child(_echo_mark)
+		_overlay_host().add_child(_echo_mark)
 	_echo_mark.texture = tex
 	_echo_mark.visible = tex != null
 	_echo_mark.modulate = Color(1, 1, 1, 0.42)
@@ -791,14 +785,14 @@ func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: 
 		_sync_lock_shade()
 		queue_redraw()
 		return
-	# Real petrify: creep + Unplayable hatch + source stamp (Gargoyle / Basilisk).
-	_stone.visible = false
+	# Real petrify: stone grain on the art + Unplayable hatch + grey. No letter stamp.
 	material = null
 	var src: String = source
 	if src == "":
 		src = _petrify_source if _petrify_source != "" else "gargoyle"
 	set_source_stamp(src)
 	set_aura_role(AURA_OFF)
+	_show_stone_overlay(true)
 	if animate:
 		if _icon != null and _petrify_mat != null:
 			_icon.material = _petrify_mat
@@ -813,9 +807,7 @@ func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: 
 		tw.parallel().tween_property(self, "modulate", Color(0.58, 0.56, 0.52, 1.0), 0.36)
 		await tw.finished
 		_petrify_creep = 1.0
-		# Keep stone TextureRect hidden for real petrify — the PNG's dither reads as a
-		# transparency checker when stretched over the icon. Shader holds the final look.
-		_stone.visible = false
+		_show_stone_overlay(true)
 		_sync_lock_shade()
 		queue_redraw()
 	else:
@@ -823,7 +815,7 @@ func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: 
 			_icon.material = _petrify_mat
 		_petrify_creep = 1.0
 		modulate = Color(0.58, 0.56, 0.52, 1.0)
-		_stone.visible = false
+		_show_stone_overlay(true)
 		_sync_lock_shade()
 		queue_redraw()
 
@@ -972,7 +964,7 @@ func _ensure_stone() -> void:
 	# Cover the icon only — full-card stretch read as a checker + white number strip.
 	_stone.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_stone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_stone.stretch_mode = TextureRect.STRETCH_SCALE
+	_stone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	_stone.texture_filter = TEXTURE_FILTER_NEAREST
 	_stone.texture = load("res://assets/dungeon/ui/petrify_stone.png") as Texture2D
 	_stone.visible = false
@@ -980,7 +972,16 @@ func _ensure_stone() -> void:
 	if _icon != null:
 		_icon.add_child(_stone)
 	else:
-		add_child(_stone)
+		_overlay_host().add_child(_stone)
+
+
+func _show_stone_overlay(on: bool) -> void:
+	_ensure_stone()
+	if _stone == null:
+		return
+	_stone.visible = on
+	# Grain over the icon only. Cover-aspect avoids the old dither-as-checker look.
+	_stone.modulate = Color(0.78, 0.74, 0.66, 0.55) if on else Color(0.86, 0.82, 0.74, 0.42)
 
 
 func _ensure_petrify_shader() -> void:
@@ -1120,6 +1121,8 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 			_or.visible = false
 	if _glow or _aura or _log_focus or _danger:
 		pass
+	elif _petrified and not _petrify_dummy:
+		modulate = Color(0.58, 0.56, 0.52, 1.0)
 	elif spent:
 		modulate = Color(0.86, 0.84, 0.80, 1.0)
 	else:
@@ -1206,7 +1209,7 @@ func set_hp_cost(text: String) -> void:
 		lab.add_theme_color_override("font_outline_color", Color("100e0c"))
 		lab.add_theme_constant_override("outline_size", 4)
 		_hp_cost.add_child(lab)
-		add_child(_hp_cost)
+		_overlay_host().add_child(_hp_cost)
 	var cost: Label = _hp_cost.get_node_or_null("Cost") as Label
 	if cost:
 		cost.text = shown
@@ -1278,8 +1281,14 @@ func _ensure_beggar_label() -> Label:
 		_beggar_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		_beggar_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		_beggar_icon.texture_filter = TEXTURE_FILTER_NEAREST
-		_beggar_icon.z_index = 9
-		_beggar_icon.custom_minimum_size = Vector2(28, 28)
+		_beggar_icon.z_index = 16
+		# ~1/8 of the hotbar card, pinned top-right. Never grow to the portrait.
+		_beggar_icon.custom_minimum_size = Vector2(18, 18)
+		_beggar_icon.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		_beggar_icon.offset_left = -20
+		_beggar_icon.offset_top = 2
+		_beggar_icon.offset_right = -2
+		_beggar_icon.offset_bottom = 20
 		for path in [
 			"res://assets/dungeon/anim/facing/beggar_facing_idle_f0.png",
 			"res://assets/dungeon/anim/wheel/beggar_wheel_base.png",
@@ -1288,7 +1297,7 @@ func _ensure_beggar_label() -> Label:
 			if ResourceLoader.exists(path):
 				_beggar_icon.texture = load(path) as Texture2D
 				break
-		add_child(_beggar_icon)
+		_overlay_host().add_child(_beggar_icon)
 		if not resized.is_connected(_place_beggar_label):
 			resized.connect(_place_beggar_label)
 	var lab := Label.new()
@@ -1308,21 +1317,26 @@ func _ensure_beggar_label() -> Label:
 			picked.emit()
 			lab.accept_event()
 	)
-	add_child(lab)
+	_overlay_host().add_child(lab)
 	_beggar_lab = lab
 	_place_beggar_label()
 	return lab
 
 
 func _place_beggar_label() -> void:
-	var face_w: float = size.x if size.x > 8.0 else (SHOW_W if _showcase else CARD_W)
 	if _beggar_icon != null:
-		_beggar_icon.position = Vector2(face_w - 30.0, 2.0)
-		_beggar_icon.size = Vector2(28, 28)
+		_beggar_icon.anchor_left = 1.0
+		_beggar_icon.anchor_top = 0.0
+		_beggar_icon.anchor_right = 1.0
+		_beggar_icon.anchor_bottom = 0.0
+		_beggar_icon.offset_left = -20.0
+		_beggar_icon.offset_top = 2.0
+		_beggar_icon.offset_right = -2.0
+		_beggar_icon.offset_bottom = 20.0
+		_beggar_icon.size = Vector2(18, 18)
 	if _beggar_lab == null:
 		return
 	_beggar_lab.visible = false
-	_beggar_lab.position = Vector2(face_w - 84.0, 32.0)
 
 
 func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
@@ -1353,7 +1367,7 @@ func _ensure_corner_badge(choice: bool) -> Label:
 			picked.emit()
 			lab.accept_event()
 	)
-	add_child(lab)
+	_overlay_host().add_child(lab)
 	if choice:
 		_choice_badge = lab
 	else:
@@ -2108,8 +2122,8 @@ func marble_grow(_n: int) -> void:
 func marble_roll_in(from_global: Vector2, delay: float) -> void:
 	if from_global == Vector2.ZERO:
 		return
-	# Fly a ghost. Pulling this card out of the grid and dropping it back
-	# landed marble art on top of the items that were already in hand.
+	# Fly a ghost owned by this card (top_level). Parenting to the tree root
+	# left marbles stranded over the hotbar when the card was rebuilt.
 	var dest: Vector2 = global_position + size * 0.5
 	var ghost := AnimatedSprite2D.new()
 	ghost.name = "MarbleRoll"
@@ -2117,23 +2131,23 @@ func marble_roll_in(from_global: Vector2, delay: float) -> void:
 	ghost.texture_filter = TEXTURE_FILTER_NEAREST
 	ghost.scale = Vector2(2, 2)
 	ghost.z_index = 40
+	ghost.z_as_relative = false
+	ghost.top_level = true
 	ghost.sprite_frames = _marble_frames()
 	if ghost.sprite_frames.has_animation("idle"):
 		ghost.play("idle")
-	var root := get_tree().root
-	root.add_child(ghost)
+	add_child(ghost)
 	ghost.global_position = from_global
 	ghost.rotation = 0.85
 	ghost.modulate.a = 0.25
-	var tw := create_tween()
+	var tw := ghost.create_tween()
 	if delay > 0.0:
 		tw.tween_interval(delay)
 	tw.tween_property(ghost, "global_position", dest, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tw.parallel().tween_property(ghost, "rotation", 0.0, 0.22)
 	tw.parallel().tween_property(ghost, "modulate:a", 1.0, 0.18)
+	tw.finished.connect(ghost.queue_free, CONNECT_ONE_SHOT)
 	await tw.finished
-	if is_instance_valid(ghost):
-		ghost.queue_free()
 
 
 func set_armed(on: bool, label_key: String = "") -> void:
@@ -2150,7 +2164,7 @@ func set_armed(on: bool, label_key: String = "") -> void:
 		_armed_lab.set_anchors_preset(Control.PRESET_TOP_WIDE)
 		_armed_lab.offset_top = 2
 		_armed_lab.offset_bottom = 18
-		add_child(_armed_lab)
+		_overlay_host().add_child(_armed_lab)
 	if on and label_key != "":
 		_armed_lab.text = COPY.text(label_key, "Loaded" if label_key == "status.sling_loaded" else "")
 		_armed_lab.visible = _armed_lab.text != ""
@@ -2284,6 +2298,7 @@ func _ensure_marble_fx() -> void:
 	_marble_fx.visible = false
 	_marble_fx.sprite_frames = _marble_frames()
 	add_child(_marble_fx)
+	_place_fx()
 
 
 func _ensure_sparkle() -> void:
