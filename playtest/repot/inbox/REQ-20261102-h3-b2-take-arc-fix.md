@@ -2,6 +2,8 @@
 id: REQ-20261102-h3-b2-take-arc-fix
 status: open
 priority: high
+pr: 298
+tip_sha: 7dab8652
 branch: cursor/hub-b2-take-arc-fix-9d33
 created: 2026-11-02T17:40:00Z
 created_by: cloud-agent
