@@ -2638,6 +2638,8 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	_draw_heart_stat(font, sp["hp"], s, pv, big, i, is_hover)
 	_draw_atk_stat(font, sp["atk"], s, pv, big, i, is_hover)
 	var would_die: bool = int(s.get("hp", 0)) + int(pv.get("hp", 0)) <= 0 and int(pv.get("hp", 0)) < 0
+	if bool(pv.get("fairy_save", false)):
+		would_die = false
 	if would_die or bool(pv.get("kill", false)):
 		var xa: float = 0.55 + 0.25 * sin(_glow_t * 12.0)
 		var xc := Color(DOWN_COL.r, DOWN_COL.g, DOWN_COL.b, xa)
@@ -2904,12 +2906,12 @@ func _collect_bond_pairs() -> Array:
 					if not _living_neighbor(j):
 						continue
 					out.append(_bond_pair(i, j, "commander", Color("d63a2a"), "sword", false, false, silenced, "atk"))
-			"lich":
-				for off2 in [n - 1, 1]:
-					var j2: int = (i + off2) % n
-					if not _living_neighbor(j2):
+			"fairy":
+				for off_f in [n - 1, 1]:
+					var jf: int = (i + off_f) % n
+					if not _living_neighbor(jf):
 						continue
-					out.append(_bond_pair(i, j2, "lich", Color("8dcb8d"), "wisp", false, false, silenced, "hp"))
+					out.append(_bond_pair(i, jf, "fairy", Color("FFD84A"), "wisp", false, false, silenced, "hp"))
 			"plague_doctor":
 				for off3 in [n - 1, 1]:
 					var j3: int = (i + off3) % n
@@ -3083,7 +3085,14 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 			u_draw = clampf(at / 0.24, 0.0, 1.0)
 			if at >= 0.24:
 				_bond_anim.erase(key)
-		var hot: bool = i == hover_index or j == hover_index
+		var pv_i: Dictionary = preview.get(i, preview.get(str(i), {}))
+		var pv_j: Dictionary = preview.get(j, preview.get(str(j), {}))
+		if typeof(pv_i) != TYPE_DICTIONARY:
+			pv_i = {}
+		if typeof(pv_j) != TYPE_DICTIONARY:
+			pv_j = {}
+		var fairy_save: bool = str(pair.get("kind", "")) == "fairy" and (bool(pv_i.get("fairy_save", false)) or bool(pv_j.get("fairy_save", false)))
+		var hot: bool = i == hover_index or j == hover_index or fairy_save
 		var col: Color = pair.get("col", Color.WHITE)
 		if bool(pair.get("rainbow", false)):
 			var hue: float = fposmod(_glow_t * 0.35, 1.0)
@@ -3092,6 +3101,8 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 			col = Color(0.55, 0.55, 0.55, 0.25)
 		else:
 			var a: float = (0.82 + 0.18 * pulse) if hot else (0.30 + 0.10 * pulse)
+			if fairy_save:
+				a = 0.92 + 0.08 * pulse
 			col.a = a
 		if i == hover_index:
 			var ring: float = 18.0 + 10.0 * absf(sin(_glow_t * 5.0))
@@ -3107,7 +3118,11 @@ func _draw_bonds(_c: Vector2, _radius: float) -> void:
 		if u_draw < 0.999:
 			b_pt = _quad_bezier(a_pt, bow, b_pt, u_draw)
 			bow = a_pt.lerp(bow, u_draw)
-		_draw_thread(a_pt, bow, b_pt, col, hot, bool(pair.get("dashed", false)), bool(pair.get("dotted", false)))
+		_draw_thread(a_pt, bow, b_pt, col, hot or fairy_save, bool(pair.get("dashed", false)), bool(pair.get("dotted", false)))
+		if fairy_save:
+			var save_pulse: float = 0.55 + 0.45 * absf(sin(_glow_t * 9.0))
+			draw_arc(b_pt, 22.0 + 8.0 * save_pulse, 0.0, TAU, 24, Color("FFD84A", 0.45 + 0.40 * save_pulse), 3.6, true)
+			draw_arc(a_pt, 16.0 + 4.0 * save_pulse, 0.0, TAU, 20, Color("FFD84A", 0.35 + 0.30 * save_pulse), 2.8, true)
 		var glyph: String = str(pair.get("glyph", ""))
 		# Glyphs sit on the thread near the bow (never over either portrait).
 		if glyph != "" and u_draw > 0.85:
@@ -3701,6 +3716,9 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	if bool(s.get("lich_buff", false)):
 		var pulse2: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 		ci.draw_arc(pos, hs * 0.52, 0.0, TAU, 20, Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2), 2.6, true)
+	if bool(pv.get("fairy_save", false)):
+		var dust: float = 0.55 + 0.45 * absf(sin(_glow_t * 8.0))
+		ci.draw_arc(pos, hs * 0.62, 0.0, TAU, 22, Color("FFD84A", 0.55 + 0.45 * dust), 3.2, true)
 	_draw_stat_number(font, pos, hs, str(hp), -0.14 if is_skull_hp else -0.08)
 	_draw_poison_badge(font, pos, s, big, i)
 	if hp_d != 0:

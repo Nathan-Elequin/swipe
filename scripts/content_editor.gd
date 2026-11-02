@@ -83,7 +83,7 @@ const DEFAULT_EXPLAINER := {
 	"recycler": "(Every 5th Discard copies that Item into your Hand.)",
 	"spinning_top": "ATK = 1 + Spins. Discard at 7",
 	"magicat": "On Spin: 2 Atk or Blk Items become Marbles with that number",
-	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust",
+	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust.",
 	"rust": "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust.",
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
 	"mouse": "On Spin: if your HP is higher, I lose 2 HP and Flee",

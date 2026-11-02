@@ -1803,9 +1803,10 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"pool"
+				"pool",
+				"log_hint"
 			],
-			"locked_at": "2026-10-30",
+			"locked_at": "2026-11-02",
 			"name": "Clockwork Knight"
 		},
 		"monster:commander": {
@@ -2022,7 +2023,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-02",
 			"name": "Fairy"
 		},
 		"monster:gargoyle": {
@@ -2648,7 +2649,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-01",
+			"locked_at": "2026-11-02",
 			"name": "Rust Bucket"
 		},
 		"monster:sandbag": {
@@ -2792,7 +2793,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-02",
 			"name": "Spider Queen"
 		},
 		"monster:three_seeker": {
