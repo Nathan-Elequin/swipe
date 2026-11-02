@@ -164,7 +164,7 @@ c("sting.deadly", "Deadly first shown (per-boss pitch via sfx-map)", "main.gd:44
 c("sting.bucket", "Bucket reveal opens", "bucket_reveal.gd:233–234", "new", "Rising whole-tone pizzicato run", ["sting_bucket"], "Stings", -8, N, 0, 1, 3, duck_music=(-6, 0.05, 1.2))
 c("sting.victory", "Run victory", "main.gd:4876–4884", "new", "Bright pizzicato run up (sneaky-triumphant)", ["sting_victory"], "Stings", -5, N, 0, 1, 3, duck_music=(-30, 0.1, "hold"))
 c("sting.clear", "Dungeon cleared", "main.gd:1677–1679", "new", "Pizzicato cadence", ["sting_clear"], "Stings", -6, N, 0, 1, 3, duck_music=(-12, 0.1, 1.5))
-c("sting.defeat", "Player dies", "main.gd:4886–4887", "new", "Sad sax descending (the joke)", ["sting_defeat"], "Stings", -5, N, 0, 1, 3, duck_music=(-30, 0.1, "hold"))
+c("sting.defeat", "Player dies", "main.gd:4886–4887", "new", "Nathan Suno defeat sting (~9.44 s one-shot)", ["sting_defeat"], "Stings", -5, N, 0, 1, 3, duck_music=(-30, 0.1, "hold"))
 # ---------------------------------------------------------------- buckets
 c("bucket.open", "Bucket overlay opens", "bucket_reveal.gd:233–234", "keep+", "Bong 0.72 + whoosh 0.85 kept; + card-pack tear + bucket sting", [], "SFX", -8, N, 0, 1, 3, [("bucket.pack", 0, 0), ("sting.bucket", 0, 120)])
 c("bucket.pack", "(layer) card pack tear", "—", "new", "Kenney card pack open", ["bucket_open"], "SFX", -8, N, 0, 1, 2)
@@ -197,7 +197,7 @@ c("run.hall_wipe", "Hall wipe between fights", "main.gd:1896–1897", "keep", "D
 c("run.knight_off", "Knight walks off", "main.gd:1925", "keep+", "Cloth kept; + 4 light steps", [], "SFX", -12, N, 0, 1, 1, [("cabin.step", 0, 0)], repeat=(4, 260))
 c("run.dungeon_clear", "Dungeon cleared", "main.gd:1677–1679", "replace", "confirm_big + sting.clear; music returns to title", ["confirm_big"], "UI", -8, N, 0, 1, 3, [("sting.clear", 0, 80)], music="title")
 c("run.victory", "Victory (incl. Adventure death after ≥1 clear)", "main.gd:4876–4884", "replace", "confirm_big + victory sting + coins", ["confirm_big"], "UI", -8, N, 0, 1, 3, [("sting.victory", 0, 60), ("loot.coins", -4, 400)], music="title_after_sting")
-c("run.defeat", "Player dies", "main.gd:4886–4887", "replace", "error_big + sad sax; music ducks to silence then title returns after 3 s", ["error_big"], "UI", -8, N, 0, 1, 3, [("sting.defeat", 0, 150)], music="title_after_sting")
+c("run.defeat", "Player dies", "main.gd:4886–4887", "replace", "error_big + defeat sting; beds fade out and stay silent (no title after)", ["error_big"], "UI", -8, N, 0, 1, 3, [("sting.defeat", 0, 150)], music="silence_after_sting")
 c("run.leave", "Leave run → cabin", "main.gd:1711", "keep", "Whoosh", ["whoosh"], "SFX", -10, N, 0, 1, 1)
 c("editor.*", "Roster / Script / Dev Test (editor only)", "roster_editor.gd 286–2063, script_editor.gd 145–273, main.gd 1273–1498", "keep", "Untouched; not in web build", ["click"], "UI", -10, N, 0, 1, 0)
 
@@ -306,7 +306,7 @@ def sfx_map():
                 "shadow_abyss_c": {"file": "music_shadow_abyss_c", "gain_db": 6.0, "loop": True, "resume_position": False}},
        "biome_beds": {"b1": "verdant_hollow", "verdant_hollow": "verdant_hollow", "b2": "crystal_cavern", "sunken_mire": "crystal_cavern", "crystal_cavern": "crystal_cavern", "b3": "ashen_crypt", "ashen_crypt": "ashen_crypt", "b4": "cinder_forge", "cinder_forge": "cinder_forge", "b5": "shadow_abyss", "shadow_abyss": "shadow_abyss"},
        "states": {"title": "title", "draft": "title", "tutorial": "title", "challenge_setup": "title", "combat": "combat", "between_fights": "combat(ducked)",
-                  "deadly": "deadly", "cabin": "cabin", "victory": "sting then title", "defeat": "sting then title",
+                  "deadly": "deadly", "cabin": "cabin", "victory": "sting then title", "defeat": "sting then silence",
                   "verdant_hollow": "verdant_hollow_intro then verdant_hollow",
                   "cinder_forge": "cinder_forge A always; B combat; C Tier-3",
                   "crystal_cavern": "crystal_cavern A always; B combat; C Tier-3",

@@ -1151,19 +1151,21 @@ func _restore_held_layers(want_combat: bool, pos: float) -> void:
 
 
 func music_defeat() -> void:
+	# Sting plays on the Stings bus; beds duck then fade out and stay off.
+	# Do not return to title music — player clicks away almost immediately.
 	if _music_hold.is_empty():
 		music_hold_for_undo()
 	music_state = &"defeat"
-	_cue_duck = -30.0
-	_mix_duck(0.1)
 	_music_seq += 1
 	var token: int = _music_seq
-	_after_ms(3000.0, func() -> void:
+	_cue_duck = -30.0
+	_mix_duck(0.1)
+	_fade_music_out(0.45)
+	_after_ms(500.0, func() -> void:
 		if token != _music_seq:
 			return
 		_cue_duck = 0.0
-		music_title()
-		_mix_duck(2.0)
+		_mix_duck(0.2)
 	)
 
 
@@ -1307,10 +1309,10 @@ func _apply_cue_music(cue_id: String, bed: String) -> void:
 		"title":
 			music_title()
 		"title_after_sting":
-			if cue_id.contains("defeat"):
-				music_defeat()
-			else:
-				music_victory()
+			# Victory only; defeat uses silence_after_sting.
+			music_victory()
+		"silence_after_sting":
+			music_defeat()
 		"intro":
 			music_state = &"intro"
 			music_to(&"intro", float(_music_cfg.get("crossfade_s", {}).get("default", 0.8)))

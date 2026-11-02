@@ -97,7 +97,8 @@ add("sting_deadly", "sting", L("jingles", "Hit jingles/jingles_HIT06.ogg"))
 add("sting_bucket", "sting", L("jingles", "Pizzicato jingles/jingles_PIZZI02.ogg"))
 add("sting_victory", "sting", L("jingles", "Pizzicato jingles/jingles_PIZZI10.ogg"))
 add("sting_clear", "sting", L("jingles", "Pizzicato jingles/jingles_PIZZI15.ogg"))
-add("sting_defeat", "sting", L("jingles", "Sax jingles/jingles_SAX01.ogg"))
+# sting_defeat.ogg is a drop-in (Nathan Suno / Defeat Stings.wav) — not rebuilt here.
+#   ~9.44 s one-shot, libvorbis, 0.32 s end fade. After it plays, music stays silent (no title bed).
 # Music (whole-file loops; trims measured in samples @44.1k)
 add("music_combat", "music", L("oga_rbl", "rbl_0.mp3"), trim=(1011, 2605292), edge_fade_ms=4)  # 32 bars @130 BPM; micro-fade masks the wrap
 add("music_deadly", "music", L("oga_deep", "dungeon_deep.mp3"), trim=(0, 1142158))
@@ -112,6 +113,7 @@ add("music_cabin", "music", L("oga_fire_m", "a_small_fire_will_do.wav"), trim=(0
 #     music_ashen_crypt_c.ogg (heat, map -2 dB so A+B+C leave ~1.5 dB Music-bus headroom).
 #   Shadow Abyss Approach F: music_shadow_abyss_a.ogg (bed), music_shadow_abyss_b.ogg (drums),
 #     music_shadow_abyss_c.ogg (heat, map A/B -2 dB, C +6 dB). 200 BPM full-file loops.
+#   Defeat sting: sting_defeat.ogg (Nathan Suno / Defeat Stings.wav) — drop-in, not rebuilt here.
 #   Credits: write_credits.py trailer + assets/audio/CREDITS.txt.
 
 TARGET_RMS = {"ui": -20.0, "sfx": -16.0, "sting": -16.0, "amb": -22.0}
