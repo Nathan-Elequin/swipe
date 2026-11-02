@@ -4977,14 +4977,14 @@
 		{
 			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Blood Rise",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "Lowest HP Monster +1 until tied with another",
@@ -4995,12 +4995,12 @@
 			},
 			"flow": "",
 			"hp": {
-				"base": 1.0
+				"base": 2
 			},
 			"hp_base": 1.0,
 			"hp_formula": "",
 			"id": "leech_league",
-			"locked_at": "2026-10-14",
+			"locked_at": "2026-11-01",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5027,14 +5027,14 @@
 			"notes": "",
 			"ops": {},
 			"poc": false,
-			"pool": 4.0,
-			"priority": 2.0,
+			"pool": 4,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "Lowest HP Monster = 2nd Lowest HP Monster",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "M",
 			"updated": "2026-10-12",
 			"when_updated": "On Spin"
@@ -7923,14 +7923,14 @@
 		{
 			"ability": "When I enter the Dungeon, Gain 1 Rust",
 			"atk": {
-				"base": 3
+				"base": 3.0
 			},
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Rust",
 			"card_color": "",
-			"count": 1,
+			"count": 1.0,
 			"defined": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test): Gain 1 Rust. Same overlay as Death Bell if the hand is full. Quiet Bell does not skip the Gain. Two Rust Buckets grant two Rusts.",
 			"exceptions": "Bucket 8 T2. D&D rust monster as a bucket. Token Rust is extra. Art missing.",
 			"explainer": "When I enter the Dungeon, Gain 1 Rust",
@@ -7941,7 +7941,7 @@
 			},
 			"flow": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test): Gain 1 Rust. Same overlay as Death Bell if the hand is full. Quiet Bell does not skip the Gain. Two Rust Buckets grant two Rusts.",
 			"hp": {
-				"base": 4
+				"base": 4.0
 			},
 			"hp_base": 4.0,
 			"hp_formula": "",
@@ -7973,14 +7973,14 @@
 			"notes": "Bucket 8 T2. D&D rust monster as a bucket. Token Rust is extra. Art missing.",
 			"ops": {},
 			"poc": false,
-			"pool": 5,
-			"priority": 3,
+			"pool": 5.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "When I enter the Dungeon, Gain 1 Rust",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "M"
 		},
 		{

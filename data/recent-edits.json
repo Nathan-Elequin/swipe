@@ -89,7 +89,7 @@
 		"monster:hydra": 1793400000.0,
 		"monster:juggernaut": 1792507200.0,
 		"monster:kobold_trapper": 1793418000.0,
-		"monster:leech_league": 1792136735.68746,
+		"monster:leech_league": 1793591765,
 		"monster:lich": 1793342400.0,
 		"monster:magicat": 1792507200.0,
 		"monster:martyr": 1793212800.0,
@@ -103,7 +103,7 @@
 		"monster:plague_doctor": 1793382580.0,
 		"monster:poison_frog": 1792507800.0,
 		"monster:prism": 1792690697.16532,
-		"monster:rust_bucket": 1793587825,
+		"monster:rust_bucket": 1793587825.0,
 		"monster:sandbag": 1793210000.0,
 		"monster:shambling_mound": 1793212800.0,
 		"monster:shark": 1792508400.0,
@@ -122,5 +122,5 @@
 	"item:sling": 1793416800.0,
 	"monster:mouse": 1792450564.02935,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-11-02T02:50:25"
+	"updated": "2026-11-02T03:56:05"
 }

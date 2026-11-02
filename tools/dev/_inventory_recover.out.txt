@@ -1,0 +1,120 @@
+=== TIP ===
+9ed7dcca Merge pull request #225 from Nathan-Elequin/cursor/restore-clockwork-synchronize-3301
+
+=== CATALOG vs CONTENT-BOARD ===
+catalog=133 board=133 disagree=3
+  item:blood_chalice
+    ability: catalog='Heal equal to the amount of HP you most recently lost.'
+             board='Heal equal to the amount of HP you most recently lose.'
+  item:poison_flask
+    ability: catalog='Mark a Neighbor with 4 Poison.'
+             board='Mark a Neighbor with 5 Poison.'
+    explainer: catalog='Neighbor gets 4 Poison'
+             board='Neighbor gets 5 Poison'
+  monster:slime_boss
+    atk: catalog='None'
+             board=''
+
+=== UNIQUE COMMITS ON AHEAD BRANCHES (git cherry +) ===
+
+origin/backup/cherry-wip-2026-10-21 ahead=1 UNIQUE=1 already-eq=0
+  + 45a7a649 backup: Cherry uncommitted work 2026-10-21 (unreviewed, do not merge)
+
+origin/backup/cherry-wip-2026-10-22 ahead=1 UNIQUE=1 already-eq=0
+  + 8fb7ebc4 Snapshot of Cherry working tree 2026-10-22 before playtest-folder reset (mcp.json from main)
+
+origin/backup/movement-stash-2026-10-21 ahead=4 UNIQUE=4 already-eq=0
+  + c04fe30a movement(1): hide Long Drop and old Gatehouse behind editor flags
+  + 5aa2bb66 movement(2): draft Move button copy and How to Play line
+  + 8f547df9 movement(3): six-seat Adventure flow, forced spins, and 3 Moves
+  + a73d16ad backup: movement stash@{0} 2026-10-21 (unreviewed, do not merge)
+
+origin/cursor/anim-pass4-local-6be1 ahead=2 UNIQUE=2 already-eq=0
+  + 18f3fc17 anim-pass4(1): poison pop, petrify, hook yank, aura threads
+  + 55c78ef1 anim-pass4(2): Cherry local QA shots
+
+origin/cursor/playtest-repot-bridge-f5be ahead=2 UNIQUE=2 already-eq=0
+  + 618f628f Add playtest/repot cloud→local Godot screenshot bridge
+  + fe48f6c3 Repot: require outbox commit+push; allow shot_harness fallback
+
+origin/cursor/sp-28-plague-doctor-0a9d ahead=1 UNIQUE=1 already-eq=0
+  + 2e6a3e90 SP-28: Plague Doctor time-bomb poison freeze
+
+origin/cursor/trophy-hall-zoom-fix-f92a ahead=2 UNIQUE=2 already-eq=0
+  + cc9bcf36 fix(trophy-hall): zoom stays on-screen; harden bank-flip pool
+  + 0de1d8cd docs(repot): stamp PR 210 on trophy-hall zoom-fix inbox
+
+origin/cursor/wire-hotbar-face-pngs-9d0d ahead=2 UNIQUE=2 already-eq=0
+  + 5533f7b0 Wire item hotbar face PNGs (24×24) and ItemFace paths.
+  + 850fa692 fix: use standard Godot-style uid for item_face.gd
+
+origin/default-moves-for-adventure-mode ahead=1 UNIQUE=1 already-eq=0
+  + e3831804 Default Adventure to six seats with neighbor moves, and hide Long Drop plus old Gatehouse behind editor flags.
+
+origin/feat/crystal-cavern-adaptive-f ahead=1 UNIQUE=1 already-eq=0
+  + 2761ecdb chore: local Godot import + pixel-shown after Crystal wire
+
+origin/monster-item-pools ahead=1 UNIQUE=1 already-eq=0
+  + c0292df3 Add the monster and item pools organizer.
+
+origin/movement ahead=3 UNIQUE=3 already-eq=0
+  + c04fe30a movement(1): hide Long Drop and old Gatehouse behind editor flags
+  + 5aa2bb66 movement(2): draft Move button copy and How to Play line
+  + 8f547df9 movement(3): six-seat Adventure flow, forced spins, and 3 Moves
+
+origin/wip/cherry-pre-177-20261028-2257 ahead=1 UNIQUE=1 already-eq=0
+  + 876e8984 WIP cherry local before #177 tip sync (20261028-2257) — preserve .import/.uid/_save_vp
+
+origin/wip/cherry-pre-itch-20261028-2359 ahead=1 UNIQUE=1 already-eq=0
+  + 4702826f Keep Cherry's local repot grab helper so it is not discarded before the itch export.
+
+origin/wip/cherry-pre-verdant-music ahead=1 UNIQUE=1 already-eq=0
+  + a8a4f7a6 wip: Cherry local before Verdant Hollow music tip sync
+
+=== STASHES ===
+stash@{0}: On playtest/latest: wip-before-main-20261030-151436
+stash@{1}: On playtest/latest: wip-before-ashen-crypt-adaptive-f
+stash@{2}: On playtest/latest: playtest-sync 2026-10-29 Cinder Forge
+stash@{3}: On playtest/latest: cherry-sync pre-PR174 2026-10-28
+stash@{4}: On cursor/clear-torch-parade: pixel-pre-tip-sync
+stash@{5}: On playtest/latest: playtest-sync 2026-10-28 15:42
+stash@{6}: On playtest/latest: playtest-sync 2026-10-28 15:28
+stash@{7}: On playtest/latest: playtest-sync 2026-10-28 15:27
+stash@{8}: On playtest/latest: pixel-pre-repot-sync 2026-10-28 15:14
+stash@{9}: On playtest/latest: pixel-pre-167-cabin-flip
+stash@{10}: On playtest/latest: pixel-pre-tip-bump-70db64a8-imports
+stash@{11}: On playtest/latest: playtest-sync 2026-10-28 13:00
+stash@{12}: On playtest/latest: pixel-pre-face-sync-20261027-002547
+stash@{13}: On playtest/cherry-latest: cherry 2026-10-26 before #119 mixes
+stash@{14}: On playtest/cherry-latest: cherry WIP before #118 held-map load 2026-10-26 14:25
+stash@{15}: On cursor/strip-faceoff-combat-perf-4fe1: wip-before-playtest-cherry-latest-2026-10-26
+stash@{16}: On playtest/slice-b: wip-before-strip-faceoff-settings-slider-20261026
+stash@{17}: On playtest/slice-b: wip-before-strip-faceoff-campaign-shell-20261026
+stash@{18}: On feat/campaign-shell-logan: pixel-pre-slice-b-load-2026-10-26
+stash@{19}: On playtest/denton-f5-stack: spin-temp-player-copy
+stash@{20}: On playtest/weekend-demo: wip-before-main-20261024-103856
+stash@{21}: On fix/demo-title-scrub-seeker: wip-before-playtest-weekend-demo-20261022-import-churn-and-untracked
+stash@{22}: On vampire-attack-wording: wip-before-fix-demo-title-scrub-seeker-20261022-195608
+stash@{23}: On integrate/all-art: wip-before-main-after-88-89-approve
+stash@{24}: On main: nathan-wip-before-pr88-2026-10-22
+stash@{25}: On movement: wip: movement local before checkout main for PM test
+stash@{26}: On main: this-PC editor Saves before pulling dungeon-buckets-and-monsters
+stash@{27}: On main: godot stale edits before face-text merge
+stash@{28}: On main: godot stale edits before barlow merge
+stash@{29}: On main: godot stale edits before fixes-v2 merge
+stash@{30}: On main: godot stale edits before callout merge
+stash@{31}: On main: godot stale edits before draft merge
+stash@{32}: On main: godot stale edits before draft-gate merge
+stash@{33}: On main: godot stale edits before fight-ux merge
+stash@{34}: On cursor/split-main-lanes-0824: godot stale hover_panel.gd during split test
+stash@{35}: On cursor/readable-utility-text-5f45: stale editor revert of hover_panel.gd + nunito imports (kept just in case)
+stash@{36}: On main: godot import churn before readable-utility-text
+
+
+=== LOCAL DIRT ===
+## playtest/latest...origin/playtest/latest
+?? playtest/repot/outbox/REQ-20261030-trophy-hall-zoom-fix/
+?? tools/dev/_closed_unmerged.py
+?? tools/dev/_inventory_recover.py
+?? tools/dev/_prs_closed.json
+

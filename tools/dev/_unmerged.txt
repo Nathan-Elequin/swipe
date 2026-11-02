@@ -1,0 +1,7 @@
+closed-unmerged last 60d among last 155 closed PRs: 6
+#205 main <- playtest/latest | Promote playtest/latest → main (Nathan 2026-10-30) | 2026-10-30T07:27:23Z
+#109 playtest/denton-f5-stack <- cursor/strip-faceoff-combat-perf-4fe1 | perf(combat): hub Sprout + strip left face-off; FX audit | 2026-10-30T07:25:48Z
+#107 feat/campaign-shell-logan <- cursor/biome-cabinets-b3-b269 | Five biome trophy cases in the cabin hall | 2026-10-30T07:25:48Z
+#106 feat/campaign-shell-logan <- cursor/held-map-biome-names-869d | Held map in Sprout's hands, with locked biome names | 2026-10-30T07:25:49Z
+#86 main <- art/wheel-monsters | Pass 6 Task 4: wheel monster PixelLab art | 2026-10-22T20:47:53Z
+#84 main <- cursor/anim-pass4-local-6be1 | anim-pass4: poison pop, petrify, hook yank, aura threads (local redo) | 2026-10-21T20:09:12Z
