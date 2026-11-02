@@ -1,6 +1,6 @@
 ---
 id: REQ-20261101-biome-splash-all5
-status: claimed
+status: done
 priority: high
 branch: cursor/biome-splash-all5-ambient-aeec
 base: playtest/latest

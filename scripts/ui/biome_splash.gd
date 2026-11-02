@@ -458,6 +458,9 @@ func _apply_copy() -> void:
 			_narration.text = PLAYER_COPY.text(key, "")
 		else:
 			_narration.text = ""
+	## attach_ambient may _build() before play_in fills _ctx; re-resolve art here.
+	if _art:
+		_art.texture = _resolve_bg_tex()
 
 
 func _chrome_label(plate: bool) -> Label:
@@ -510,11 +513,17 @@ func _resolve_bg_tex() -> Texture2D:
 	var placeholder := "res://assets/ui/biome_splash/bg_%s_placeholder.png" % short
 	var fallback := "res://assets/ui/biome_full/bg_wheel_%s.png" % _biome_id
 	if ResourceLoader.exists(painted):
-		return load(painted)
+		var painted_tex = load(painted)
+		if painted_tex != null:
+			return painted_tex
 	if ResourceLoader.exists(placeholder):
-		return load(placeholder)
+		var ph_tex = load(placeholder)
+		if ph_tex != null:
+			return ph_tex
 	if ResourceLoader.exists(fallback):
-		return load(fallback)
+		var fb_tex = load(fallback)
+		if fb_tex != null:
+			return fb_tex
 	return null
 
 

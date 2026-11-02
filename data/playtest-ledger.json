@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-02T01:55:00Z",
+	"updated_at": "2026-11-02T02:50:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"190": {
@@ -177,6 +177,11 @@
 			"status": "todo",
 			"title": "Tier list send (Poison Frog / Gargoyle / Ogre ranking)",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/256"
+		},
+		"259": {
+			"status": "todo",
+			"title": "Echo Bell on Bag of Holding should become the captured bag immediately",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/259"
 		}
 	}
 }
