@@ -401,40 +401,52 @@ func _sync_hatch() -> void:
 			_hatch.visible = false
 		return
 	if _hatch == null:
+		# Clipper must be a parent Control: clip_contents clips children, not this node's own draw.
 		_hatch = Control.new()
 		_hatch.name = "UnplayableHatch"
 		_hatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_hatch.z_index = 12
+		_hatch.clip_contents = true
 		_hatch.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		_hatch.draw.connect(_draw_card_hatch)
-		_hatch.resized.connect(_hatch.queue_redraw)
 		_overlay_host().add_child(_hatch)
+		var drawer := Control.new()
+		drawer.name = "HatchDraw"
+		drawer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		drawer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		drawer.draw.connect(_draw_card_hatch)
+		drawer.resized.connect(drawer.queue_redraw)
+		_hatch.add_child(drawer)
 	_hatch.visible = true
-	_hatch.queue_redraw()
+	var drawer_n: Node = _hatch.get_node_or_null("HatchDraw")
+	if drawer_n is Control:
+		(drawer_n as Control).queue_redraw()
 
 
 func _draw_card_hatch() -> void:
 	if _hatch == null:
 		return
-	var w: float = _hatch.size.x
-	var h: float = _hatch.size.y
+	var drawer: Control = _hatch.get_node_or_null("HatchDraw") as Control
+	if drawer == null:
+		drawer = _hatch
+	var w: float = drawer.size.x
+	var h: float = drawer.size.y
 	if w < 2.0 or h < 2.0:
 		return
 	if card_id == "spider_egg" and not (_petrified and not _petrify_dummy) and not spent:
-		_hatch.draw_rect(Rect2(0, 0, w, h * 0.42), Color(1, 1, 1, 0.06))
-		_hatch.draw_rect(Rect2(0, h * 0.58, w, h * 0.42), Color(0, 0, 0, 0.28))
+		drawer.draw_rect(Rect2(0, 0, w, h * 0.42), Color(1, 1, 1, 0.06))
+		drawer.draw_rect(Rect2(0, h * 0.58, w, h * 0.42), Color(0, 0, 0, 0.28))
 		var egg_ink := Color(0.92, 0.78, 0.72, 0.18)
 		var ex: float = -h
 		while ex < w + h:
-			_hatch.draw_line(Vector2(ex, h), Vector2(ex + h * 0.65, 0.0), egg_ink, 1.0)
+			drawer.draw_line(Vector2(ex, h), Vector2(ex + h * 0.65, 0.0), egg_ink, 1.0)
 			ex += 6.0
 		return
 	# Direction A Unplayable / Petrify: grey wash + 8px diagonal hatch.
-	_hatch.draw_rect(Rect2(0, 0, w, h), Color(COL_UNPLAYABLE.r, COL_UNPLAYABLE.g, COL_UNPLAYABLE.b, 0.22))
+	drawer.draw_rect(Rect2(0, 0, w, h), Color(COL_UNPLAYABLE.r, COL_UNPLAYABLE.g, COL_UNPLAYABLE.b, 0.22))
 	var ink := Color(0.10, 0.08, 0.07, 0.36)
 	var x: float = -h
 	while x < w + h:
-		_hatch.draw_line(Vector2(x, h), Vector2(x + h * 0.58, 0.0), ink, 1.5)
+		drawer.draw_line(Vector2(x, h), Vector2(x + h * 0.58, 0.0), ink, 1.5)
 		x += 8.0
 
 
@@ -450,6 +462,7 @@ func _sync_lock_shade() -> void:
 		_lock_shade = Control.new()
 		_lock_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_lock_shade.z_index = 11
+		_lock_shade.clip_contents = true
 		_lock_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		_lock_shade.draw.connect(_draw_lock_shade)
 		_lock_shade.resized.connect(func() -> void:
@@ -459,7 +472,9 @@ func _sync_lock_shade() -> void:
 		_overlay_host().add_child(_lock_shade)
 	_lock_shade.visible = true
 	if _used != null:
-		move_child(_used, get_child_count() - 1)
+		var used_host: Node = _used.get_parent()
+		if used_host != null:
+			used_host.move_child(_used, used_host.get_child_count() - 1)
 	_lock_shade.queue_redraw()
 
 
