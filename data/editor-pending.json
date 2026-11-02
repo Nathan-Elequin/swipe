@@ -1,6 +1,6 @@
 {
+	"cards": {},
 	"id": "boss-rush-editor-pending",
-	"updated": "",
 	"instructions": "F5 card editor Save writes a row here whenever HP, ATK, Ability, or another official field changes. Chat treats these like gold boxes. After applying, clear that card's row.",
-	"cards": {}
+	"updated": "2026-11-02T05:40:00"
 }

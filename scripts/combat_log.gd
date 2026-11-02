@@ -99,6 +99,11 @@ func flush() -> void:
 	_stack.clear()
 
 
+func end_proc() -> void:
+	if not _stack.is_empty():
+		_stack.pop_back()
+
+
 func begin_proc(data: Dictionary) -> void:
 	var cap := _proc_capsule(data)
 	_host().add_child(cap)
@@ -157,10 +162,13 @@ func _proc_capsule(data: Dictionary) -> PanelContainer:
 	p.mouse_filter = Control.MOUSE_FILTER_STOP
 	var tier: int = int(data.get("tier", 1))
 	var is_item: bool = str(data.get("kind", "")) == "item"
+	var item_used: bool = is_item and bool(data.get("used", false))
 	var rim: Color = UX.metal(tier) if is_item else Color("e8c36a")
 	var ink_s: String = str(data.get("ink", "")).strip_edges()
 	if ink_s != "":
 		rim = Color(ink_s)
+	if is_item and not item_used:
+		rim = Color("8a8178")
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color("1a1410f2")
 	sb.border_color = rim
@@ -182,6 +190,19 @@ func _proc_capsule(data: Dictionary) -> PanelContainer:
 	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	wrap.add_child(head)
 	if is_item:
+		var used: bool = bool(data.get("used", false))
+		if used:
+			head.add_child(_used_stamp())
+		var ic: Variant = data.get("icon", null)
+		if ic is Texture2D and (ic as Texture2D) != null:
+			var pic := TextureRect.new()
+			pic.texture = ic as Texture2D
+			pic.custom_minimum_size = Vector2(22, 22)
+			pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			pic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			head.add_child(pic)
 		var chip := _item_chip(str(data.get("title", "")), tier)
 		var hint: String = str(data.get("hint", "")).strip_edges()
 		if hint != "":
@@ -214,6 +235,9 @@ func _proc_capsule(data: Dictionary) -> PanelContainer:
 			call.mouse_entered.connect(_on_hint.bind(call, hint, hl))
 			call.mouse_exited.connect(_hide_hint)
 		titles.add_child(call)
+		var cause: String = str(data.get("cause", "")).strip_edges()
+		if cause != "":
+			head.add_child(_cause_stamp(cause))
 	var kids := VBoxContainer.new()
 	kids.add_theme_constant_override("separation", 3)
 	kids.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -222,6 +246,53 @@ func _proc_capsule(data: Dictionary) -> PanelContainer:
 	wrap.add_child(kids)
 	p.set_meta("kids", kids)
 	return p
+
+
+func _used_stamp() -> PanelContainer:
+	var chip := PanelContainer.new()
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("E07A3D")
+	sb.border_color = Color("100e0c")
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(8)
+	sb.content_margin_left = 8
+	sb.content_margin_right = 8
+	sb.content_margin_top = 3
+	sb.content_margin_bottom = 3
+	chip.add_theme_stylebox_override("panel", sb)
+	var lab := Label.new()
+	lab.text = "USED"
+	lab.add_theme_font_size_override("font_size", 12)
+	lab.add_theme_color_override("font_color", Color("100e0c"))
+	lab.add_theme_color_override("font_outline_color", Color("f0e6d8"))
+	lab.add_theme_constant_override("outline_size", 2)
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.add_child(lab)
+	return chip
+
+
+func _cause_stamp(cause: String) -> PanelContainer:
+	var chip := PanelContainer.new()
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var used: bool = cause.to_lower() == "used"
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("E07A3D") if used else Color("6EC8E8")
+	sb.border_color = Color("100e0c")
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(8)
+	sb.content_margin_left = 8
+	sb.content_margin_right = 8
+	sb.content_margin_top = 3
+	sb.content_margin_bottom = 3
+	chip.add_theme_stylebox_override("panel", sb)
+	var lab := Label.new()
+	lab.text = cause.to_upper()
+	lab.add_theme_font_size_override("font_size", 11)
+	lab.add_theme_color_override("font_color", Color("100e0c"))
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.add_child(lab)
+	return chip
 
 
 func _item_chip(name: String, tier: int) -> PanelContainer:

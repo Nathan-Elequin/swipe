@@ -3705,7 +3705,7 @@
 		},
 		{
 			"id": "pacemaker-on-use",
-			"title": "Pacemaker: on use you lose 2 HP, then Heal 1 because you lost exactly 2",
+			"title": "Pacemaker is Unplayable; click does nothing",
 			"family": "collide",
 			"items": [
 				"pacemaker"
@@ -3722,19 +3722,17 @@
 					"auto": true
 				}
 			],
-			"expected_text": "On Use, Lose 2 HP. When you lose exactly 2 HP, Heal 1. Net −1 HP (6→5).",
+			"expected_text": "Pacemaker is Unplayable. Click does not spend it or change HP.",
 			"expected": {
-				"hp": 5,
-				"log_has": [
-					"Pacemaker"
-				]
+				"hp": 6,
+				"outcome": "cannot"
 			},
 			"cards": [
 				{
 					"id": "pacemaker",
 					"kind": "item",
 					"name": "Pacemaker",
-					"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+					"ability": "Unplayable. When you lose exactly 2 HP, Heal 1.",
 					"sprite": "assets/dungeon/items/pacemaker.png"
 				},
 				{

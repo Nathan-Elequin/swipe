@@ -3339,26 +3339,26 @@
 			"type": "I"
 		},
 		{
-			"ability": "When you lose exactly 2 HP, Heal 1. On Use, Lose 2 HP.",
+			"ability": "Unplayable. When you lose exactly 2 HP, Heal 1.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "heal",
 			"count": 1.0,
-			"defined": "While this is in your hand unspent, each time you lose exactly 2 HP in one event, Heal 1. Click during a fight: Lose 2 HP (that also Heals 1), then this is used up. Fight only.",
+			"defined": "While this is in your hand, each time you lose exactly 2 HP in one event, Heal 1. You cannot click it.",
 			"exceptions": "Needs art.",
-			"explainer": "(HEAL 1 on exact-2 loss) Use: Lose 2",
+			"explainer": "(HEAL 1 on exact-2 loss)",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "While this is in your hand unspent, each time you lose exactly 2 HP in one event, Heal 1. Click during a fight: Lose 2 HP (that also Heals 1), then this is used up. Fight only.",
+			"flow": "While this is in your hand, each time you lose exactly 2 HP in one event, Heal 1. Unplayable. You cannot click it.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "pacemaker",
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-11-01",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3379,12 +3379,12 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Use: Lose 2 HP. Exact-2 loss: Heal 1",
+			"log_hint": "Exact-2 loss: Heal 1",
 			"mode_pool": "all",
 			"name": "Pacemaker",
 			"notes": "Needs art.",
 			"ops": {
-				"kind": "pacemaker_use"
+				"kind": "passive"
 			},
 			"poc": false,
 			"pool": 3.0,
@@ -4975,7 +4975,7 @@
 			]
 		},
 		{
-			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster.",
+			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. When I spawn, I take over another Monster.",
 			"atk": {
 				"base": 4.0
 			},
@@ -4987,13 +4987,13 @@
 			"count": 1.0,
 			"defined": "",
 			"exceptions": "",
-			"explainer": "Lowest HP Monster +1 until tied with another",
+			"explainer": "When I spawn, I take over the weakest other Monster by tier. On Spin, Lowest HP Monster +1 until tied with another",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "",
+			"flow": "When the dungeon is set up (Adventure mill finished, Challenge Begin, Dev Test Play) and before Spin, one real Leech League takes over. Slash, then a line to the weakest other monster by catalog tier (random among ties). Skip other Leech Leagues. Skip the monster you are fighting. Silent replace: no Defeat, Flee, Hatch, gift, Devour, enter gains. Copy is a fresh printed 2 HP / 4 Attack and does not spawn-takeover. Quiet Bell on the spawner blocks takeover. Later deck draws (including Catapult return) are a new spawn and can make a third. Fail if no legal victim.",
 			"hp": {
 				"base": 2.0
 			},
@@ -5021,10 +5021,10 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Raises lowest HP Monster until it equals another Monster",
+			"log_hint": "Raises lowest HP Monster until it equals another Monster. Spawn: take over weakest other by tier.",
 			"mode_pool": "all",
 			"name": "Leech League",
-			"notes": "",
+			"notes": "Paper Fight 2026-11-01: dungeon-ready slash + beam; skip face; skip other Leech; random tier ties; fresh 2/4 copy; Quiet Bell blocks; copy does not retrigger.",
 			"ops": {},
 			"poc": false,
 			"pool": 4.0,
@@ -5036,8 +5036,11 @@
 			"status": "live",
 			"tier": 3.0,
 			"type": "M",
-			"updated": "2026-10-12",
-			"when_updated": "On Spin"
+			"updated": "2026-11-01",
+			"when_updated": [
+				"On Spawn",
+				"On Spin"
+			]
 		},
 		{
 			"ability": "When I am Defeated, set your HP to my most recent HP.",
@@ -5238,7 +5241,7 @@
 			"author_lock": true,
 			"call_name": "Body Slam",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer.",
 			"explainer": "Attack equals HP",
@@ -5249,12 +5252,12 @@
 			},
 			"flow": "",
 			"hp": {
-				"base": 9.0
+				"base": 10
 			},
-			"hp_base": 9.0,
+			"hp_base": 10,
 			"hp_formula": "",
 			"id": "slime_boss",
-			"locked_at": "2026-10-10",
+			"locked_at": "2026-11-01",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5272,7 +5275,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Attack always equals HP",
 			"mode_pool": "all",
@@ -5280,14 +5284,14 @@
 			"notes": "Only unit whose ATK can change mid-combat. Damaging it affects Sai, Fangs, Sledgehammer.",
 			"ops": {},
 			"poc": false,
-			"pool": 1.0,
-			"priority": 2.0,
+			"pool": 1,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "M",
 			"when_updated": "On Enemy HP Change"
 		},
@@ -7923,14 +7927,14 @@
 		{
 			"ability": "When I enter the Dungeon, Gain 1 Rust",
 			"atk": {
-				"base": 3
+				"base": 3.0
 			},
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Rust",
 			"card_color": "",
-			"count": 1,
+			"count": 1.0,
 			"defined": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test): Gain 1 Rust. Same overlay as Death Bell if the hand is full. Quiet Bell does not skip the Gain. Two Rust Buckets grant two Rusts.",
 			"exceptions": "Bucket 8 T2. D&D rust monster as a bucket. Token Rust is extra. Art missing.",
 			"explainer": "When I enter the Dungeon, Gain 1 Rust",
@@ -7941,7 +7945,7 @@
 			},
 			"flow": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test): Gain 1 Rust. Same overlay as Death Bell if the hand is full. Quiet Bell does not skip the Gain. Two Rust Buckets grant two Rusts.",
 			"hp": {
-				"base": 4
+				"base": 4.0
 			},
 			"hp_base": 4.0,
 			"hp_formula": "",
@@ -7973,14 +7977,14 @@
 			"notes": "Bucket 8 T2. D&D rust monster as a bucket. Token Rust is extra. Art missing.",
 			"ops": {},
 			"poc": false,
-			"pool": 5,
-			"priority": 3,
+			"pool": 5.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "When I enter the Dungeon, Gain 1 Rust",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "M"
 		},
 		{
