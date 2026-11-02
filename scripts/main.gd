@@ -239,7 +239,7 @@ const MONSTER_SPECIAL := {
 	"phoenix_egg": {"id": "hatch", "text": "When I am Defeated, I Flee and hatch into a Phoenix."},
 	"phoenix": {"id": "rebirth", "text": "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck."},
 	"amalgam": {"id": "adaptation", "text": "After any Item you Use, double my remaining HP and ATK."},
-	"fairy": {"id": "buff_hp", "text": "I give my Neighbors +1 HP."},
+	"fairy": {"id": "buff_hp", "text": "My Neighbors Always have at least 1 HP"},
 	"eel": {"id": "conductive", "text": "When facing me, I take Attack damage equal to Block you gain."},
 	"druid": {"id": "cultivator", "text": "If I Attack, I Heal you for double the HP I cause you to lose."},
 	"shambling_mound": {"id": "self_deconstruct", "text": "I Attack repeatedly until I die. I lose 1 HP each time I Attack."},
@@ -351,7 +351,7 @@ const MONSTER_REMINDER := {
 	"phoenix_egg": "Defeated: Flee, become Phoenix",
 	"phoenix": "Defeated before I Attack: add a Phoenix Egg to the Dungeon Deck",
 	"amalgam": "Each Use: remaining HP and ATK ×2",
-	"fairy": "Neighbors +1 HP",
+	"fairy": "Neighbors cannot drop below 1 HP from damage or Poison",
 	"eel": "Facing: takes Attack = Block you Gain",
 	"druid": "Attack: Heal you 2× HP lost, after death check",
 	"shambling_mound": "Attacks until it dies; loses 1 HP per Attack",
@@ -406,7 +406,7 @@ const MONSTER_SPEECH := {
 	"phoenix_egg": "When I am Defeated, I Flee and hatch into a Phoenix.",
 	"phoenix": "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck.",
 	"amalgam": "After any Item you Use, double my remaining HP and ATK.",
-	"fairy": "I give my Neighbors +1 HP.",
+	"fairy": "My Neighbors Always have at least 1 HP",
 	"eel": "When facing me, I take Attack damage equal to Block you gain.",
 	"druid": "If I Attack, I Heal you for double the HP I cause you to lose.",
 	"shambling_mound": "I Attack repeatedly until I die. I lose 1 HP each time I Attack.",
@@ -6782,7 +6782,7 @@ func _paint_late_auras() -> void:
 	atk_bonus.fill(0)
 	for i in n:
 		var id: String = str(wheel[i].get("card_id", ""))
-		if id != "fairy" and id != "commander":
+		if id != "commander":
 			continue
 		if _is_silenced(wheel[i]):
 			continue
@@ -6796,10 +6796,7 @@ func _paint_late_auras() -> void:
 				continue
 			if str(wheel[j].get("kind", "")) != "monster":
 				continue
-			if id == "fairy":
-				hp_bonus[j] += 1
-			else:
-				atk_bonus[j] += 2
+			atk_bonus[j] += 2
 	for i in n:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
@@ -6832,14 +6829,7 @@ func _mark_vars() -> void:
 	var cmd_touch: Dictionary = {}
 	for i in n:
 		var cid: String = str(wheel[i].get("card_id", ""))
-		if cid == "fairy":
-			var ll: int = (i - 1 + n) % n
-			var lr: int = (i + 1) % n
-			if ll != i:
-				lich_touch[ll] = true
-			if lr != i:
-				lich_touch[lr] = true
-		elif cid == "commander":
+		if cid == "commander":
 			var cl: int = (i - 1 + n) % n
 			var cr: int = (i + 1) % n
 			if cl != i:
@@ -11441,6 +11431,61 @@ func _lich_chip_defeat(index: int) -> bool:
 	return int(wheel[index].get("hp", 0)) <= 0
 
 
+func _fairy_dust_covers(index: int) -> bool:
+	if index < 0 or index >= wheel.size():
+		return false
+	if str(wheel[index].get("kind", "")) != "monster":
+		return false
+	if str(wheel[index].get("card_id", "")) == "fairy":
+		return false
+	var n: int = wheel.size()
+	for off in [n - 1, 1]:
+		var j: int = (index + off) % n
+		if j == index:
+			continue
+		if _living_id(j, "fairy"):
+			return true
+	return false
+
+
+## Floors a lethal Attack/Poison chip at 1 HP. Not a Defeat. Returns true if it saved them.
+func _fairy_floor_after_loss(index: int, before: int) -> bool:
+	if _lich_chip_open:
+		return false
+	if before <= 0:
+		return false
+	if index < 0 or index >= wheel.size():
+		return false
+	if not _fairy_dust_covers(index):
+		return false
+	var m: Dictionary = wheel[index]
+	if int(m.get("hp", 0)) >= 1:
+		return false
+	m["hp"] = 1
+	if str(m.get("card_id", "")) == "slime_boss":
+		m["atk"] = 1
+	wheel[index] = m
+	_log("on_resolve", "Fairy Dust  →  %s HP 1" % str(m.get("name", "?")))
+	return true
+
+
+func _preview_stamp_fairy_save(index: int, slot: Dictionary) -> Dictionary:
+	if index < 0 or index >= wheel.size():
+		return slot
+	var cur: int = int(wheel[index].get("hp", 0))
+	var would_kill: bool = bool(slot.get("kill", false)) or (cur + int(slot.get("hp", 0)) <= 0 and int(slot.get("hp", 0)) < 0)
+	if not would_kill:
+		return slot
+	if not _fairy_dust_covers(index):
+		return slot
+	slot.erase("kill")
+	slot["hp"] = 1 - cur
+	slot["fairy_save"] = true
+	if str(wheel[index].get("card_id", "")) == "slime_boss":
+		slot["atk"] = 1 - int(wheel[index].get("atk", 0))
+	return slot
+
+
 func _chip_hp(index: int, n: int) -> bool:
 	if index < 0 or index >= wheel.size() or n <= 0:
 		return false
@@ -11456,6 +11501,9 @@ func _chip_hp(index: int, n: int) -> bool:
 			return false
 		drop = 1
 	m["hp"] = maxi(0, before - drop)
+	wheel[index] = m
+	_fairy_floor_after_loss(index, before)
+	m = wheel[index]
 	_note_hydra_survive_loss(index, before, int(m["hp"]))
 	if before > 0 and int(m["hp"]) <= 0:
 		_note_death(m)
@@ -12752,8 +12800,13 @@ func _feed_worm(uid: int) -> void:
 		m["atk"] = maxi(0, before_atk - 3)
 		m["atk_innate"] = maxi(0, before_innate - 3)
 		if not _undying(m):
-			m["hp"] = maxi(0, int(m.get("hp", 0)) - 3)
+			var worm_before: int = int(m.get("hp", 0))
+			m["hp"] = maxi(0, worm_before - 3)
 			m["hp_max"] = maxi(int(m.get("hp_max", 0)) - 3, int(m.get("hp", 0)))
+			wheel[facing_index] = m
+			_fairy_floor_after_loss(facing_index, worm_before)
+			m = wheel[facing_index]
+			m["hp_max"] = maxi(int(m.get("hp_max", 0)), int(m.get("hp", 0)))
 		else:
 			_log("var", "no HP loss")
 		wheel[facing_index] = m
@@ -13347,6 +13400,9 @@ func _hurt_ogres(lost: int) -> void:
 			continue
 		var before: int = int(s.get("hp", 0))
 		s["hp"] = maxi(0, before - lost)
+		wheel[i] = s
+		_fairy_floor_after_loss(i, before)
+		s = wheel[i]
 		_note_hydra_survive_loss(i, before, int(s["hp"]))
 		if before > 0 and int(s["hp"]) <= 0:
 			_note_death(s)
@@ -17293,6 +17349,9 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	var before_atk: int = int(m.get("atk", 0))
 	m["hp_pre_hit"] = before_hp
 	m["hp"] = maxi(0, before_hp - hit_n)
+	wheel[index] = m
+	_fairy_floor_after_loss(index, before_hp)
+	m = wheel[index]
 	_note_hydra_survive_loss(index, before_hp, int(m["hp"]))
 	if before_hp > 0 and int(m["hp"]) <= 0:
 		_note_death(m)
@@ -20141,11 +20200,6 @@ func _preview_bribe(index: int) -> Dictionary:
 	var n: int = wheel.size()
 	if index < 0 or index >= n:
 		return p
-	if str(wheel[index].get("card_id", "")) == "fairy":
-		for off in [n - 1, 1]:
-			var j: int = (index + off) % n
-			if str(wheel[j].get("kind", "")) == "monster":
-				p[j] = {"hp": -1}
 	if str(wheel[index].get("card_id", "")) == "commander":
 		for off_c in [n - 1, 1]:
 			var jc: int = (index + off_c) % n
@@ -20155,10 +20209,6 @@ func _preview_bribe(index: int) -> Dictionary:
 				p[jc] = curc
 	for off2 in [n - 1, 1]:
 		var k: int = (index + off2) % n
-		if str(wheel[k].get("card_id", "")) == "fairy" and str(wheel[index].get("kind", "")) == "monster":
-			var cur: Dictionary = p.get(index, {})
-			cur["hp"] = int(cur.get("hp", 0)) - 1
-			p[index] = cur
 		if str(wheel[k].get("card_id", "")) == "commander" and str(wheel[index].get("kind", "")) == "monster":
 			var cur2: Dictionary = p.get(index, {})
 			cur2["atk"] = int(cur2.get("atk", 0)) - 2
@@ -20196,8 +20246,17 @@ func _preview_mark_aim(kind: String, hover: int) -> Dictionary:
 			slot["hp"] = -dmg
 			if int(wheel[i].get("hp", 0)) - dmg <= 0:
 				slot["kill"] = true
+			slot = _preview_stamp_fairy_save(i, slot)
 		else:
 			slot["mark"] = true
+			if kind == "mark_poison":
+				var dose: int = 4
+				if not it.is_empty():
+					dose = int(_ops_of(it).get("n", dose))
+				dose += _poison_of(wheel[i])
+				if int(wheel[i].get("hp", 0)) > 0 and dose >= int(wheel[i].get("hp", 0)):
+					slot["kill"] = true
+					slot = _preview_stamp_fairy_save(i, slot)
 		if hover == i:
 			slot["aim"] = true
 		p[i] = slot
@@ -20246,6 +20305,7 @@ func _preview_sling_payload(hover: int) -> Dictionary:
 			slot["hp"] = -one
 			if int(wheel[i].get("hp", 0)) - one <= 0:
 				slot["kill"] = true
+			slot = _preview_stamp_fairy_save(i, slot)
 		else:
 			slot["mark"] = true
 		if hover == i:
@@ -20387,6 +20447,17 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 			if bool(view.get("can_use", false)):
 				for si in _mark_targets("defeat_double_hp"):
 					p[si] = {"hp": -int(wheel[si].get("hp", 0)), "kill": true}
+		"mark_poison":
+			if bool(view.get("can_use", false)):
+				var pdose: int = int(view.get("n", 4))
+				for pi in _mark_targets("mark_poison"):
+					var pslot: Dictionary = p.get(pi, {})
+					pslot["mark"] = true
+					var tot_p: int = pdose + _poison_of(wheel[pi])
+					if int(wheel[pi].get("hp", 0)) > 0 and tot_p >= int(wheel[pi].get("hp", 0)):
+						pslot["kill"] = true
+						pslot["hp"] = 1 - int(wheel[pi].get("hp", 0)) if _fairy_dust_covers(pi) else -int(wheel[pi].get("hp", 0))
+					p[pi] = pslot
 		"atk_neighbor", "mark_crossbow":
 			if bool(view.get("can_use", false)):
 				var nd: int = _atk_with_head(int(view.get("n", 4)))
@@ -20445,6 +20516,11 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 			var cur3: Dictionary = p.get(i2, {})
 			cur3["atk"] = int(cur3.get("atk", 0)) - 1
 			p[i2] = cur3
+	if kind != "defeat_hp" and kind != "defeat_atk" and kind != "fangs" and kind != "defeat_only_item" and kind != "bag_hold" and kind != "defeat_double_hp" and kind != "skip_swing":
+		for pk in p.keys():
+			if typeof(p[pk]) != TYPE_DICTIONARY:
+				continue
+			p[pk] = _preview_stamp_fairy_save(int(pk), p[pk])
 	return p
 
 
@@ -25335,7 +25411,12 @@ func _run_hover_preview(it: Dictionary, card: Control) -> void:
 	if bool(view.get("can_use", false)) and (_kind_previews_facing_kill(kind) or shield_atk_face) and fid != "goblin":
 		var dmg: int = _atk_with_head(3) if shield_atk_face else int(view.get("n", 0))
 		if int(face.get("hp", 0)) > 0 and dmg >= int(face.get("hp", 0)):
-			kill = true
+			if _fairy_dust_covers(facing_index):
+				var save_slot: Dictionary = p.get(facing_index, {})
+				save_slot = _preview_stamp_fairy_save(facing_index, save_slot if not save_slot.is_empty() else {"hp": -dmg, "kill": true})
+				p[facing_index] = save_slot
+			else:
+				kill = true
 	if kill:
 		for h in hits:
 			if typeof(h) != TYPE_DICTIONARY:
