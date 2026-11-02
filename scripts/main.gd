@@ -10892,6 +10892,8 @@ func _wick_on_defeated(index: int) -> void:
 	var nbs: Array[int] = _damsel_neighbors(index)
 	_begin_simul()
 	for i in nbs:
+		if i < 0 or i >= wheel.size():
+			continue
 		if str(wheel[i].get("card_id", "")) != "wick":
 			continue
 		if _is_silenced(wheel[i]):
@@ -12370,11 +12372,19 @@ func _collapse_dead_wicks() -> void:
 	if _wick_collapsing:
 		return
 	_wick_collapsing = true
-	var i: int = wheel.size() - 1
-	while i >= 0:
-		if i != facing_index and str(wheel[i].get("card_id", "")) == "wick" and int(wheel[i].get("hp", 0)) <= 0:
-			await _kill_neighbor(i)
-		i -= 1
+	var guard: int = 0
+	while guard < 24:
+		guard += 1
+		var victim: int = -1
+		var i: int = wheel.size() - 1
+		while i >= 0:
+			if i < wheel.size() and i != facing_index and str(wheel[i].get("card_id", "")) == "wick" and int(wheel[i].get("hp", 0)) <= 0:
+				victim = i
+				break
+			i -= 1
+		if victim < 0:
+			break
+		await _kill_neighbor(victim)
 	_wick_collapsing = false
 
 
@@ -17858,18 +17868,28 @@ func _kill_neighbor(index: int) -> void:
 	if index == facing_index:
 		return
 	await _await_slash_idle()
+	if index < 0 or index >= wheel.size() or index == facing_index:
+		return
 	if await _try_phoenix_cycle(index):
+		return
+	if index < 0 or index >= wheel.size() or index == facing_index:
 		return
 	if await _try_triclops_bail(index):
 		return
+	if index < 0 or index >= wheel.size() or index == facing_index:
+		return
 	await _on_owner_defeated(index)
 	if hp <= 0:
+		return
+	if index < 0 or index >= wheel.size() or index == facing_index:
 		return
 	var pin: int = facing_index
 	var m: Dictionary = wheel[index]
 	if str(m.get("card_id", "")) == "death_bell":
 		await _maybe_bell_defeat_tax(index)
 	await _wick_on_defeated(index)
+	if index < 0 or index >= wheel.size():
+		return
 	if str(m.get("card_id", "")) == "mimic" and not adventure:
 		await _grant_mimic_gift()
 	_flash_screen(Color("e8c36a"), 0.32)
@@ -17885,7 +17905,7 @@ func _kill_neighbor(index: int) -> void:
 			await _challenge_resolve_holes(index)
 			if phase == "fighting":
 				await _ensure_face_at_six()
-		if not _flushing_poison_sides and facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
+		if not _wick_collapsing and not _flushing_poison_sides and facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 			if not _wick_waiting(facing_index):
 				await _maybe_slay_down(facing_index)
 		return
@@ -17899,7 +17919,7 @@ func _kill_neighbor(index: int) -> void:
 			wheel_view.set_slices(wheel, facing_index, "none")
 			await wheel_view.recenter_on(facing_index)
 		_refresh()
-		if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
+		if not _wick_collapsing and facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 			if not _wick_waiting(facing_index):
 				await _maybe_slay_down(facing_index)
 		return
@@ -17915,7 +17935,7 @@ func _kill_neighbor(index: int) -> void:
 		wheel_view.set_slices(wheel, facing_index, "none")
 		await wheel_view.recenter_on(facing_index)
 	_refresh()
-	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
+	if not _wick_collapsing and facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 		if not _wick_waiting(facing_index):
 			await _maybe_slay_down(facing_index)
 
