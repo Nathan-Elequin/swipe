@@ -686,6 +686,7 @@ var _hole_serial: int = 0
 var _hero_swipe_armed: bool = false
 var _sling_aim: int = -1
 var _skip_item_use_count: bool = false
+var _after_item_use_armed: bool = false
 var _flee_random_spin: bool = false
 var _pending_item_flee: bool = false
 var _chakram_halves_busy: bool = false
@@ -2372,6 +2373,7 @@ func _reset_run() -> void:
 	last_mob_hp = 3
 	last_mob_atk = 0
 	items_used_this_combat = 0
+	_after_item_use_armed = false
 	last_item_atk = 0
 	last_blk_gain = 0
 	last_hp_lost = 0
@@ -3519,6 +3521,7 @@ func _prep_next_dungeon() -> void:
 	last_mob_hp = 3
 	last_mob_atk = 0
 	items_used_this_combat = 0
+	_after_item_use_armed = false
 	last_item_atk = 0
 	last_blk_gain = 0
 	last_hp_lost = 0
@@ -7850,6 +7853,7 @@ func _on_spin() -> void:
 	else:
 		blk = 0
 	items_used_this_combat = 0
+	_after_item_use_armed = false
 	last_item_atk = 0
 	skip_swing_this_fight = false
 	keep_blocked_this_fight = false
@@ -8675,6 +8679,7 @@ func _capture_run() -> Dictionary:
 		"last_mob_hp": last_mob_hp,
 		"last_mob_atk": last_mob_atk,
 		"items_used_this_combat": items_used_this_combat,
+		"after_item_use_armed": _after_item_use_armed,
 		"last_item_atk": last_item_atk,
 		"last_blk_gain": last_blk_gain,
 		"last_hp_lost": last_hp_lost,
@@ -8792,6 +8797,7 @@ func _undo_begin() -> void:
 func _undo_abort() -> void:
 	_sling_aim = -1
 	_skip_item_use_count = false
+	_after_item_use_armed = false
 	_undo_inflight = false
 	_sync_buttons()
 
@@ -8907,6 +8913,7 @@ func _restore_run(snap: Dictionary) -> void:
 	last_mob_hp = int(snap.get("last_mob_hp", last_mob_hp))
 	last_mob_atk = int(snap.get("last_mob_atk", last_mob_atk))
 	items_used_this_combat = int(snap.get("items_used_this_combat", items_used_this_combat))
+	_after_item_use_armed = bool(snap.get("after_item_use_armed", false))
 	last_item_atk = int(snap.get("last_item_atk", last_item_atk))
 	last_blk_gain = int(snap.get("last_blk_gain", last_blk_gain))
 	last_hp_lost = int(snap.get("last_hp_lost", last_hp_lost))
@@ -15370,12 +15377,17 @@ func _after_item_resolved(it: Dictionary) -> void:
 	_kick_beggar_fill()
 	if it.is_empty():
 		return
+	# Item body is done. Dual Sais / Shield / Toll / Adaptation wait until now
+	# so Pocketwatch's attack (and Defeat, Signpost, Hook) can finish first.
+	await _commit_after_item_use()
 	if await _flush_vindictive():
 		return
 	if _clicked_item_counts_as_use(it):
 		_remember_item_use(it)
 		await _basilisk_on_gazed_use(it)
-	if not bool(it.get("spent", false)):
+	var spent_use: bool = bool(it.get("spent", false))
+	var magnet_use: bool = str(_ops_of(it).get("kind", "")) == "magnet"
+	if not spent_use and not magnet_use:
 		return
 	if phase != "fighting":
 		return
@@ -16223,6 +16235,17 @@ func _feed_cube(uid: int) -> void:
 func _count_item_use() -> void:
 	if _skip_item_use_count:
 		return
+	# Spend-time marker only. Follow-ons run in `_commit_after_item_use`
+	# after the item body (Pocketwatch attack, Defeat, Signpost, Hook).
+	_after_item_use_armed = true
+
+
+func _commit_after_item_use() -> void:
+	if _skip_item_use_count:
+		return
+	if not _after_item_use_armed:
+		return
+	_after_item_use_armed = false
 	items_used_this_combat += 1
 	beads_step = (beads_step % 4) + 1
 	_log("var", "items this combat %s" % items_used_this_combat)
@@ -16344,7 +16367,7 @@ func _set_magnet_mode(it: Dictionary, oid: String) -> void:
 	_remember_item_use(it)
 	if phase == "fighting":
 		await _count_item_use()
-		await _harpy_poke()
+		await _after_item_resolved(it)
 
 
 func _consume_armed_magnets(mode: String) -> void:
