@@ -32,6 +32,7 @@ func setup() -> void:
 	z_index = 130
 	visible = false
 	name = "playtest_feedback"
+	add_to_group("playtest_feedback")
 	_wrap = CenterContainer.new()
 	_wrap.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -200,6 +201,14 @@ func _on_send() -> void:
 	_busy = true
 	_status.text = ""
 	send_wanted.emit(_edit.text, _card_kind, _card_id)
+
+
+func _input(event: InputEvent) -> void:
+	if not visible or _demo:
+		return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
+		close_box()
+		get_viewport().set_input_as_handled()
 
 
 func _btn(text: String, cb: Callable) -> Button:

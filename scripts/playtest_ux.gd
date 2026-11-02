@@ -103,3 +103,13 @@ static func spotlight_dim_alpha() -> float:
 static func space_hint_always_when_waiting() -> bool:
 	## SP-10 blink alone is not enough — show floating Space copy whenever a beat waits on Space.
 	return true
+
+
+## F2 Feedback is open: shortcuts (M, Space, F-keys) must not fire. Escape still closes it.
+static func feedback_open(tree: SceneTree) -> bool:
+	if tree == null:
+		return false
+	for n in tree.get_nodes_in_group("playtest_feedback"):
+		if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+			return true
+	return false

@@ -33,7 +33,9 @@ var _cps: float = 45.0
 var _acc: float = 0.0
 var _bust_t: float = 0.0
 var _bust_i: int = 0
-var _blink_t: float = 4.0
+var _blink_t: float = 8.0
+var _blink_hold: float = 0.0
+var _blinking: bool = false
 var _open: bool = false
 var _picked: int = -1
 var _sfx
@@ -52,7 +54,7 @@ func setup(p_cabin) -> void:
 	_shade = ColorRect.new()
 	_shade.name = "DialogShade"
 	_shade.color = Color("100e0ce8")
-	_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shade.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_shade)
 	_box = KIT.nine("ui/dialog_box_9.png", Vector2(12, 12))
 	_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -137,7 +139,12 @@ func say(keys: Array, choices: Array = [], vars: Dictionary = {}, fallbacks: Dic
 	_open = true
 	visible = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	if _shade:
+		_shade.mouse_filter = Control.MOUSE_FILTER_STOP
 	_choices.visible = false
+	_blinking = false
+	_blink_hold = 0.0
+	_blink_t = randf_range(6.0, 10.0)
 	_refresh_gate()
 	_layout_talk(choices.size() > 0)
 	_box.modulate.a = 0.0
@@ -188,10 +195,22 @@ func say_bubble(key: String, at_native: Vector2 = Vector2(216, 150), vars: Dicti
 		KIT.cue(_sfx, &"speech.nib_psst")
 
 
+func advance_or_pick() -> void:
+	if not _open:
+		return
+	if _choices.visible:
+		if _choices.get_child_count() == 1:
+			pick(0)
+		return
+	advance()
+
+
 func advance() -> void:
 	if not _open:
 		return
 	if _choices.visible:
+		if _choices.get_child_count() == 1:
+			pick(0)
 		return
 	if _typing:
 		_shown = _full.length()
@@ -349,10 +368,20 @@ func _process(delta: float) -> void:
 			_bust_t = 0.0
 			_bust_i = (_bust_i + 1) % 3
 			_bust.texture = KIT.load_tex("nib/nib_bust_f%d.png" % _bust_i)
-	_blink_t -= delta
-	if _blink_t <= 0.0 and _open and not _typing:
-		_bust.texture = KIT.load_tex("nib/nib_bust_blink.png")
-		_blink_t = randf_range(3.0, 5.0)
+		_blink_t = randf_range(6.0, 10.0)
+		_blinking = false
+	elif _blinking:
+		_blink_hold -= delta
+		if _blink_hold <= 0.0:
+			_blinking = false
+			_bust.texture = KIT.load_tex("nib/nib_bust_f0.png")
+	elif _open:
+		_blink_t -= delta
+		if _blink_t <= 0.0:
+			_bust.texture = KIT.load_tex("nib/nib_bust_blink.png")
+			_blinking = true
+			_blink_hold = 0.12
+			_blink_t = randf_range(6.0, 10.0)
 	_space_t += delta
 	if _space_hint != null:
 		var waiting_space: bool = _open and not _typing and _next.visible and not _choices.visible
@@ -370,21 +399,33 @@ func _notification(what: int) -> void:
 		_layout_talk(_choices.visible)
 
 
-func _gui_input(event: InputEvent) -> void:
+func _progress_event(event: InputEvent) -> bool:
 	if not _open:
-		return
+		return false
+	if PlaytestUx.feedback_open(get_tree()):
+		return false
 	var key_ok: bool = event.is_action_pressed("ui_accept")
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_SPACE or event.physical_keycode == KEY_SPACE or event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
 			key_ok = true
-	if key_ok or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
-		if _choices.visible:
-			return
-		advance()
-		accept_event()
+	var click_ok: bool = event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT
+	if key_ok or click_ok:
+		advance_or_pick()
+		return true
 	if event.is_action_pressed("ui_left") and _choices.visible and _choices.get_child_count() > 0:
 		(_choices.get_child(0) as Button).grab_focus()
-		accept_event()
+		return true
 	if event.is_action_pressed("ui_right") and _choices.visible and _choices.get_child_count() > 1:
 		(_choices.get_child(1) as Button).grab_focus()
+		return true
+	return false
+
+
+func _gui_input(event: InputEvent) -> void:
+	if _progress_event(event):
 		accept_event()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _progress_event(event):
+		get_viewport().set_input_as_handled()

@@ -5,6 +5,7 @@ extends Control
 signal finished
 
 const COPY := preload("res://scripts/player_copy.gd")
+const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 const DUNGEON_BG := preload("res://scripts/dungeon_bg.gd")
 
 const STILL_PATH := "res://assets/dungeon/title/title_still.png"
@@ -600,6 +601,8 @@ func _on_gui(ev: InputEvent) -> void:
 
 func _input(ev: InputEvent) -> void:
 	if not visible:
+		return
+	if PlaytestUx.feedback_open(get_tree()):
 		return
 	if is_inside_tree():
 		for n in get_tree().get_nodes_in_group("authoring_overlay"):

@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-02T06:56:00Z",
+	"updated_at": "2026-11-02T17:20:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"283": {
@@ -10,10 +10,11 @@
 			"f5_note": "Inspect and the opposite hit are 5. Stop Play, F5."
 		},
 		"273": {
-			"status": "todo",
+			"status": "f5",
 			"title": "When Wick is on a wheel with just 1 other monster",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/273",
-			"note": "New playtest report; not on tip yet."
+			"sha": "pending",
+			"f5_note": "Wick \u22122 once per Defeat; two-alive wheels are adjacent. Stop Play, F5."
 		},
 		"190": {
 			"status": "f5",
@@ -246,34 +247,58 @@
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"292": {
-			"status": "todo",
+			"status": "f5",
 			"title": "after finishing a run, Nib says get five to go deep",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/292"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/292",
+			"sha": "pending",
+			"f5_note": "Space/click/single CTA dismiss Nib. Stop Play, F5."
 		},
 		"291": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Merchant forcing a choose between two items to upgrade",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/291"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/291",
+			"sha": "pending",
+			"f5_note": "Merchant: any unspent hand item; extra copies allowed. Stop Play, F5."
 		},
 		"289": {
-			"status": "todo",
+			"status": "f5",
 			"title": "spacebar and \"m\" only didnt work on the start menu feedback. now the\u2026",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/289"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/289",
+			"sha": "pending",
+			"f5_note": "F2/hub Feedback: shortcuts off except Escape. Stop Play, F5."
 		},
 		"288": {
-			"status": "todo",
+			"status": "f5",
 			"title": "i clicked brand new game and my items are not shiny. they shoudnt be\u2026",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/288"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/288",
+			"sha": "pending",
+			"f5_note": "Uncollected mill/hotbar cards shine until banked. Stop Play, F5."
 		},
 		"287": {
-			"status": "todo",
+			"status": "f5",
 			"title": "thespacebarisbrokeninthefeedbackforand-the-letter-that-cones-after-t\u2026",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/287"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/287",
+			"sha": "pending",
+			"f5_note": "Space types a space, M types m in Feedback. Escape closes. Stop Play, F5."
 		},
 		"286": {
-			"status": "todo",
+			"status": "f5",
 			"title": "nibblinksrepeatedlyanditscreepy",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/286"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/286",
+			"sha": "pending",
+			"f5_note": "Nib blink every 6\u201310s, 0.12s, then open eyes. Stop Play, F5."
+		},
+		"300": {
+			"status": "todo",
+			"title": "Martyr lost health from Outbreak poison when spun",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/300",
+			"note": "New playtest report; not on tip yet."
+		},
+		"304": {
+			"status": "todo",
+			"title": "Mouse used Scurry when spun and died; should not have",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/304",
+			"note": "New playtest report; not on tip yet."
 		}
 	}
 }
