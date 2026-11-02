@@ -11,8 +11,9 @@ const COPY := preload("res://scripts/player_copy.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const RANK_SHIMMER := preload("res://scripts/rank_shimmer.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
-const CARD_W := 147.5
-const CARD_H := 120.0
+## H3-B2: bigger 2×5 hotbar (reclaims old standalone Take row).
+const CARD_W := 172.0
+const CARD_H := 148.0
 const SHOW_W := 236.0
 const SHOW_H := 340.0
 
