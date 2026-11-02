@@ -3,9 +3,11 @@
 	"branch": "playtest/latest",
 	"issues": {
 		"283": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Buff Longbow from 4 damage to 5",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/283"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/283",
+			"sha": "pending",
+			"f5_note": "Inspect and the opposite hit are 5. Stop Play, F5."
 		},
 		"273": {
 			"status": "f5",

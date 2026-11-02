@@ -1366,8 +1366,8 @@
         0.97,
         1.05
       ],
-      "cooldown_ms": 40,
-      "max_voices": 2,
+      "cooldown_ms": 20,
+      "max_voices": 6,
       "priority": 1
     },
     "hand.gain_blocked": {

@@ -1604,7 +1604,7 @@
 			"type": "I"
 		},
 		{
-			"ability": "Deal 4 Attack to the monster across from you (only works if even # of monsters remaining)",
+			"ability": "Deal 5 Attack to the monster across from you (only works if even # of monsters remaining)",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -1613,13 +1613,13 @@
 			"count": 2.0,
 			"defined": "Usable in a fight only when living slice count is even. Deal 5 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
 			"exceptions": "",
-			"explainer": "(ATK 4) opposite",
+			"explainer": "(ATK 5) opposite",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Usable in a fight only when living slice count is even. Deal 4 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
+			"flow": "Usable in a fight only when living slice count is even. Deal 5 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "longbow",
@@ -1641,13 +1641,13 @@
 				"hp_formula",
 				"card_color"
 			],
-			"log_hint": "4 damage across the wheel",
+			"log_hint": "5 damage across the wheel",
 			"mode_pool": "all",
 			"name": "Longbow",
 			"notes": "",
 			"ops": {
 				"kind": "atk_opposite",
-				"n": 4.0
+				"n": 5.0
 			},
 			"poc": false,
 			"pool": 5.0,
@@ -6586,12 +6586,7 @@
 			"name": "Martyr",
 			"notes": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
 			"ops": {},
-			"pending_fields": {
-				"hp_base": {
-					"from": 7.0,
-					"to": 6
-				}
-			},
+			"pending_fields": {},
 			"poc": false,
 			"pool": 4,
 			"priority": 3,

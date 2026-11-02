@@ -738,6 +738,7 @@ var _splash_busy: bool = false
 var _wheel_nest_offset: float = 0.0
 var _biome_wipe: ColorRect
 var dungeon_deck_ui
+var item_deal_ui
 var challenge_draft_ui
 var btn_challenge_begin: Button
 var hotbar_wrap: MarginContainer
@@ -1306,6 +1307,17 @@ func _build_ui() -> void:
 	dungeon_deck_ui.hovered.connect(_on_deck_hovered)
 	dungeon_deck_ui.unhovered.connect(_on_deck_unhovered)
 	dungeon_deck_ui.edit_wanted.connect(_on_deck_edit)
+	item_deal_ui = DUNGEON_DECK.new()
+	item_deal_ui.setup()
+	item_deal_ui.visible = false
+	item_deal_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	item_deal_ui.show_bags = false
+	item_deal_ui.auto_flip = false
+	item_deal_ui.interactive = false
+	item_deal_ui.z_index = 40
+	if art != null and art.tile("crate") != null:
+		item_deal_ui.art_tex = art.tile("crate")
+	add_child(item_deal_ui)
 	_build_move_ui()
 	challenge_draft_ui = CHALLENGE_DRAFT.new()
 	challenge_draft_ui.setup()
@@ -2329,6 +2341,10 @@ func _reset_run() -> void:
 		if dungeon_deck_ui.has_method("set_peek"):
 			dungeon_deck_ui.set_peek(null, "")
 		dungeon_deck_ui.visible = false
+	if item_deal_ui:
+		item_deal_ui.set_count(0)
+		item_deal_ui.set_peek(null, "")
+		item_deal_ui.visible = false
 	if dungeon_bg:
 		dungeon_bg.reset_hall()
 	refusals_left = REFUSALS_MAX
@@ -4635,7 +4651,7 @@ func _run_challenge_setup() -> void:
 	if seq != _mill_seq:
 		return
 	if _campaign_on:
-		_campaign_grant_starter_six()
+		await _campaign_grant_starter_six()
 		await _enforce_hand_cap()
 		if challenge_draft_ui:
 			challenge_draft_ui.hide_draft()
@@ -4662,10 +4678,9 @@ func _campaign_grant_starter_six() -> void:
 	if _campaign == null:
 		return
 	_challenge_reshuffle_items()
+	var queue: Array = []
 	var tiers: Array = CAMPAIGN_SHELL.starter_tiers(_campaign.rules, rng)
 	for raw_t in tiers:
-		if hotbar.size() >= _hand_limit():
-			break
 		var t: int = int(raw_t)
 		var iid: String = _challenge_take_item(t, "")
 		if iid == "" or iid == "smoke_bomb":
@@ -4677,9 +4692,123 @@ func _campaign_grant_starter_six() -> void:
 			continue
 		var seated: Dictionary = _make_item(iid)
 		_stamp_pack(seated, _pack_tier_for(iid, items_by_id, t), "draft")
-		hotbar.append(seated.duplicate(true))
-		_log("on_draft", "gain %s" % seated.get("name", "?"))
+		queue.append(seated.duplicate(true))
+	if queue.is_empty():
+		return
+	if _qa_busy():
+		for it_qa in queue:
+			if hotbar.size() >= _hand_limit():
+				break
+			hotbar.append(it_qa)
+			_log("on_draft", "gain %s" % it_qa.get("name", "?"))
+		_sort_hotbar()
+		return
+	await _deal_opening_hand(queue)
+
+
+func _sync_item_deal_deck() -> void:
+	if item_deal_ui == null:
+		return
+	item_deal_ui.size = Vector2(148, 168)
+	var gp := Vector2(840.0, 720.0)
+	if hotbar_panel != null:
+		var pr: Rect2 = hotbar_panel.get_global_rect()
+		if pr.size.x > 8.0:
+			gp = Vector2(pr.position.x + pr.size.x * 0.5 - 74.0, pr.position.y - 180.0)
+	item_deal_ui.global_position = gp
+
+
+func _hotbar_wait_slot_global() -> Vector2:
+	if hotbar_overflow != null:
+		var parked: Array = hotbar_overflow.get_children()
+		if not parked.is_empty():
+			var last: Control = parked[parked.size() - 1]
+			return last.global_position + last.size * 0.5
+	if hotbar_panel != null:
+		var pr: Rect2 = hotbar_panel.get_global_rect()
+		return Vector2(pr.position.x + pr.size.x * 0.5, pr.position.y - 80.0)
+	return _hotbar_empty_slot_global()
+
+
+func _bounce_hot_uid(uid: int) -> void:
+	if hotbar_box == null:
+		return
+	for c in hotbar_box.get_children():
+		if _control_uid(c) == uid and c.has_method("bounce"):
+			c.bounce()
+			return
+
+
+func _deal_opening_hand(items: Array) -> void:
+	var seq: int = _mill_seq
+	if item_deal_ui == null:
+		for it_raw in items:
+			if hotbar.size() >= _forced_hand_cap():
+				if not _start_full_hand_replace(it_raw):
+					continue
+				while _challenge_loot_wait and is_instance_valid(self):
+					if seq != _mill_seq:
+						return
+					await get_tree().process_frame
+			else:
+				hotbar.append(it_raw)
+				_log("on_draft", "gain %s" % it_raw.get("name", "?"))
+		_sort_hotbar()
+		_refresh()
+		return
+	_sync_item_deal_deck()
+	item_deal_ui.visible = true
+	item_deal_ui.set_count(items.size())
+	item_deal_ui.set_peek(null, "")
+	if sfx:
+		sfx.play("cloth", -10.0)
+		sfx.play("whoosh", -14.0, 1.2)
+	await item_deal_ui.play_shuffle(0.32)
+	if seq != _mill_seq:
+		item_deal_ui.visible = false
+		return
+	for i in items.size():
+		if seq != _mill_seq:
+			break
+		var it: Dictionary = items[i]
+		if typeof(it) != TYPE_DICTIONARY or it.is_empty():
+			continue
+		var full: bool = hotbar.size() >= _forced_hand_cap()
+		var dest: Vector2 = _hotbar_wait_slot_global() if full else _hotbar_empty_slot_global()
+		var iid: String = str(it.get("card_id", ""))
+		var tex: Texture2D = _item_icon_tex(it, iid)
+		_sync_item_deal_deck()
+		item_deal_ui.set_peek(tex, str(it.get("name", "?")), _tier_of(it))
+		await item_deal_ui.play_deal_to(dest, 0.14)
+		item_deal_ui.set_peek(null, "")
+		if seq != _mill_seq:
+			break
+		if full:
+			if not _start_full_hand_replace(it):
+				continue
+			var epoch: int = _loot_epoch
+			var token: int = _undo_gen
+			while _challenge_loot_wait and is_instance_valid(self):
+				if seq != _mill_seq or epoch != _loot_epoch or _undo_stale(token):
+					_challenge_loot_wait = false
+					_challenge_pending_gain = {}
+					break
+				await get_tree().process_frame
+			if sfx and not _challenge_loot_wait:
+				sfx.play_event(&"hand.gain", {"card_id": iid, "pitch_mul": 1.0 + float(i) * 0.045})
+			continue
+		hotbar.append(it)
+		_log("on_draft", "gain %s" % it.get("name", "?"))
+		if sfx:
+			sfx.play_event(&"hand.gain", {"card_id": iid, "pitch_mul": 1.0 + float(i) * 0.045})
+		_refresh()
+		_bounce_hot_uid(int(it.get("uid", -1)))
+	if item_deal_ui:
+		item_deal_ui.visible = false
+		item_deal_ui.set_count(0)
+		item_deal_ui.set_peek(null, "")
 	_sort_hotbar()
+	_refresh()
 
 
 func _challenge_seat_dungeon(upgrade: bool) -> void:
