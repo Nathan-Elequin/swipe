@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b8h3b2pipblockarc"
-path="res://.godot/imported/pip_block_arc_s24_2x.png-h3b2arc.ctex"
+uid="uid://6dx8nk767pw3"
+path="res://.godot/imported/pip_block_arc_s24_2x.png-0b68db2999f21df44ab0cd2315bba37d.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/icons/pips/pip_block_arc_s24_2x.png"
-dest_files=["res://.godot/imported/pip_block_arc_s24_2x.png-h3b2arc.ctex"]
+dest_files=["res://.godot/imported/pip_block_arc_s24_2x.png-0b68db2999f21df44ab0cd2315bba37d.ctex"]
 
 [params]
 
