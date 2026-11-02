@@ -100,6 +100,23 @@ If Send in the game says it copied to the clipboard instead, the workers.dev URL
 
 ---
 
+## Tier lists (not GitHub)
+
+F2 **Send** on the ranking board posts `kind: "ranks"`. The Worker stores that in Cloudflare D1 (`swipe-tier-lists`). It does **not** open an Issue.
+
+- Editor / F5 Sends are marked test and stay out of averages.
+- Open `playtest/tier-lists.html` in Zen to see histograms and discard a Send.
+- Refresh the local snapshot: `tools\playtest-inbox\pull-tier-lists.ps1`
+
+After `wrangler d1 create swipe-tier-lists`, put the database id in `wrangler.toml`, then:
+
+```
+npx wrangler d1 execute swipe-tier-lists --file=schema.sql --remote
+npx wrangler deploy
+```
+
+---
+
 ## If you get stuck
 
 - **`npx` is not recognized** — install Node LTS from https://nodejs.org then reopen the terminal.

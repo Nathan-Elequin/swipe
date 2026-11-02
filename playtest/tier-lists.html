@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Playtest tier lists</title>
+<style>
+  :root { --bg:#1a1612; --ink:#f3e6c8; --muted:#b9a88a; --card:#241e18; --line:#3a322b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.4 Georgia, "Times New Roman", serif; background: var(--bg); color: var(--ink); }
+  header, .pad { padding: 20px 24px; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  p { margin: 0 0 10px; color: var(--muted); max-width: 54em; }
+  .cfg { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  input { background: #2c251e; color: var(--ink); border: 1px solid var(--line); padding: 6px 8px; min-width: 16em; }
+  button { background: #3a2e22; color: var(--ink); border: 1px solid #c4a574; padding: 6px 12px; cursor: pointer; }
+  .status { color: #8dcb8d; min-height: 1.2em; }
+  table { border-collapse: collapse; width: 100%; margin: 0 0 28px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+  th { color: #e8c36a; font-weight: normal; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  h2 { font-size: 18px; margin: 24px 0 8px; color: #e8c36a; }
+  .hist { font-variant-numeric: tabular-nums; color: var(--muted); }
+  .admin { background: var(--card); padding: 12px; border-radius: 8px; }
+  .flag { color: #f0b4a8; }
+  .ok { color: #8dcb8d; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Playtest tier lists</h1>
+  <p>Live Sends from F2. Averages ignore editor/test Sends and anything you discard. Score: S=5 … F=0. Cards left Unranked are not stored.</p>
+  <div class="cfg">
+    <input id="url" placeholder="https://swipe-playtest-inbox.vaelequin.workers.dev">
+    <input id="token" placeholder="shared Send token" type="password">
+    <button id="load">Load live</button>
+    <button id="snap">Load snapshot.json</button>
+  </div>
+  <p class="status" id="status"></p>
+</header>
+<div class="pad" id="board"></div>
+<script>
+const LETTERS = ["S","A","B","C","D","F"];
+const TIER_NAME = {1:"Weak",2:"Tough",3:"Deadly"};
+let names = {};
+let data = { lists: [], cards: [] };
+
+function $(id) { return document.getElementById(id); }
+function nameOf(id) { return names[id] || id; }
+
+function saveCfg() {
+  localStorage.setItem("tier_url", $("url").value.trim());
+  localStorage.setItem("tier_token", $("token").value);
+}
+
+function headers() {
+  return {
+    "Content-Type": "application/json",
+    "X-Swipe-Playtest": $("token").value.trim(),
+  };
+}
+
+async function loadNames() {
+  try {
+    const r = await fetch("tier-lists/card-names.json");
+    if (r.ok) names = await r.json();
+  } catch (e) {}
+}
+
+function histCell(h) {
+  if (!h) return "";
+  return LETTERS.map((L) => h[L] ? L + h[L] : "").filter(Boolean).join(" ");
+}
+
+function render() {
+  const board = $("board");
+  const cards = data.cards || [];
+  const lists = data.lists || [];
+  const groups = {};
+  for (const c of cards) {
+    const k = (c.kind || "?") + "|" + (c.card_tier || 0);
+    (groups[k] ||= []).push(c);
+  }
+  let html = "";
+  const keys = Object.keys(groups).sort();
+  if (!keys.length) {
+    html += "<p>No counted ranks yet (or only test/discarded Sends).</p>";
+  }
+  for (const k of keys) {
+    const [kind, tier] = k.split("|");
+    html += "<h2>" + (kind === "monster" ? "Monsters" : "Items") + " · " + (TIER_NAME[tier] || tier) + "</h2>";
+    html += "<table><thead><tr><th>Card</th><th class='num'>n</th><th class='num'>Mean</th><th class='num'>Median</th><th>S–F counts</th></tr></thead><tbody>";
+    for (const c of groups[k]) {
+      html += "<tr><td>" + nameOf(c.card_id) + "</td><td class='num'>" + c.n + "</td><td class='num'>" + (c.mean ?? "—") + "</td><td class='num'>" + (c.median ?? "—") + "</td><td class='hist'>" + histCell(c.hist) + "</td></tr>";
+    }
+    html += "</tbody></table>";
+  }
+  html += "<div class='admin'><h2>Sends (discard test or accidents)</h2>";
+  if (!lists.length) html += "<p>None loaded.</p>";
+  else {
+    html += "<table><thead><tr><th>id</th><th>when</th><th>board</th><th>source</th><th>flags</th><th></th></tr></thead><tbody>";
+    for (const L of lists) {
+      const flags = [];
+      if (L.is_test) flags.push("test");
+      if (L.discarded) flags.push("discarded");
+      html += "<tr><td>" + L.id + "</td><td>" + (L.when_client || L.received_at || "") + "</td><td>" + L.kind + " T" + L.card_tier + "</td><td>" + (L.source || "") + "</td><td class='flag'>" + flags.join(", ") + "</td><td>";
+      if (L.discarded) html += "<button data-undiscard='" + L.id + "'>Count again</button>";
+      else html += "<button data-discard='" + L.id + "'>Discard</button>";
+      html += "</td></tr>";
+    }
+    html += "</tbody></table>";
+  }
+  html += "</div>";
+  board.innerHTML = html;
+  board.querySelectorAll("[data-discard]").forEach((b) => b.onclick = () => discard(b.getAttribute("data-discard"), true));
+  board.querySelectorAll("[data-undiscard]").forEach((b) => b.onclick = () => discard(b.getAttribute("data-undiscard"), false));
+}
+
+async function discard(id, on) {
+  saveCfg();
+  $("status").textContent = "Updating…";
+  const r = await fetch($("url").value.trim(), {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({ kind: "tier_discard", list_id: Number(id), discarded: on }),
+  });
+  $("status").textContent = r.ok ? "Updated." : "Discard failed (" + r.status + ").";
+  if (r.ok) await loadLive();
+}
+
+async function loadLive() {
+  saveCfg();
+  const base = $("url").value.trim().replace(/\/$/, "");
+  $("status").textContent = "Loading…";
+  const r = await fetch(base + "/?view=tier", { headers: headers() });
+  if (!r.ok) {
+    $("status").textContent = "Live load failed (" + r.status + "). Try snapshot.json.";
+    return;
+  }
+  data = await r.json();
+  $("status").textContent = "Live. Counted rows: " + (data.cards || []).length + ".";
+  render();
+}
+
+async function loadSnap() {
+  try {
+    const r = await fetch("tier-lists/snapshot.json");
+    if (!r.ok) throw new Error(r.status);
+    data = await r.json();
+    $("status").textContent = "Snapshot. Counted rows: " + (data.cards || []).length + ".";
+    render();
+  } catch (e) {
+    $("status").textContent = "No snapshot.json yet. Use Load live.";
+  }
+}
+
+$("url").value = localStorage.getItem("tier_url") || "https://swipe-playtest-inbox.vaelequin.workers.dev";
+$("token").value = localStorage.getItem("tier_token") || "";
+$("load").onclick = loadLive;
+$("snap").onclick = loadSnap;
+loadNames().then(loadSnap);
+</script>
+</body>
+</html>

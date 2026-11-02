@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-02T03:10:00Z",
+	"updated_at": "2026-11-02T03:15:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"190": {
@@ -178,9 +178,10 @@
 			"f5_note": "On playtest/latest. Stop Play, F5."
 		},
 		"256": {
-			"status": "todo",
+			"status": "closed",
 			"title": "Tier list send (Poison Frog / Gargoyle / Ogre ranking)",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/256"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/256",
+			"closed_note": "Imported to D1 as a test Send. Not a bug ticket."
 		},
 		"259": {
 			"status": "f5",

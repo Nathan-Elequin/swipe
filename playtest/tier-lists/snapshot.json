@@ -1,0 +1,29 @@
+{
+	"score_map": {
+		"S": 5,
+		"A": 4,
+		"B": 3,
+		"C": 2,
+		"D": 1,
+		"F": 0
+	},
+	"counted": "live lists only (not test, not discarded)",
+	"lists": [
+		{
+			"id": 1,
+			"received_at": "2026-11-02T03:08:11.790Z",
+			"kind": "monster",
+			"card_tier": 2,
+			"buckets": "[1,2,3]",
+			"source": "github_issue",
+			"build": "Windows x86_64",
+			"preset": "middle",
+			"when_client": "2026-11-02 01:43:54",
+			"is_test": 1,
+			"discarded": 0,
+			"note": "Imported from GitHub #256 as a test Send",
+			"github_issue": 256
+		}
+	],
+	"cards": []
+}

@@ -1,0 +1,31 @@
+---
+description: Tier list Sends are D1 data, not GitHub playtest tickets. Do not dump them in chat.
+alwaysApply: true
+---
+
+# Playtest tier lists
+
+Friends (and Nathan) can Send an S–F ranking from F2. That JSON is **not** a playtest GitHub Issue.
+
+## Store
+
+Cloudflare Worker `tools/playtest-inbox/worker.js` writes `kind: ranks` into D1 (`swipe-tier-lists`). Written notes still open Issues labeled `playtest`.
+
+- One Send = one `lists` row plus one `ranks` row per placed card.
+- Unranked cards are omitted.
+- Score: S=5 A=4 B=3 C=2 D=1 F=0.
+- Compare inside item vs monster and Weak / Tough / Deadly (`card_tier` 1/2/3).
+- F5 / Godot editor Sends set `source: editor` and `is_test=1`. They stay out of averages.
+- Discard a Send with `kind: tier_discard` (dashboard) so it stays out of averages.
+
+## Chat
+
+Do **not** list tier-list Sends in Still broken / Ready in F5 / On itch.io.
+
+Do **not** paste the JSON in chat.
+
+When Nathan asks for tier lists, open `playtest/tier-lists.html` or GET `?view=tier` and summarize histograms.
+
+## #256
+
+The first dump was GitHub #256. Import it as a **test** list, then close GitHub. Do not treat later rank Sends as tickets.

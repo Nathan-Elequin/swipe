@@ -9,7 +9,9 @@ Friends Send from the itch playtest build. Those notes become GitHub Issues labe
 
 This rule has the same weight as `content-board.mdc` (gold boxes). Do not skip it because the chat is about UI, keys, art, a different card, or process.
 
-Inbox source: Issues created by the playtest build's feedback paths (right-click comment, F2 Feedback, tier list Send). In practice that is label `playtest` on `Nathan-Elequin/swipe`.
+Inbox source: Issues created by the playtest build's **written** feedback (right-click comment, F2 Feedback). In practice that is label `playtest` on `Nathan-Elequin/swipe`.
+
+Tier list Send (`kind: ranks`) is **not** an Issue. It goes to D1. Skip any leftover Issue titled `[playtest] tier list`. See `playtest-tier-lists.mdc`.
 
 This rule fires only in this repo.
 

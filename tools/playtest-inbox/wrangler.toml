@@ -4,3 +4,8 @@ compatibility_date = "2026-10-19"
 
 [vars]
 GITHUB_REPO = "Nathan-Elequin/swipe"
+
+[[d1_databases]]
+binding = "TIER_DB"
+database_name = "swipe-tier-lists"
+database_id = "554ed24a-124a-46a9-8ca4-f6af6e1a811d"

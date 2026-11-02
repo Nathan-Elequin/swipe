@@ -7177,6 +7177,7 @@ func _playtest_payload(extra: Dictionary) -> Dictionary:
 		"preset": _playtest_preset,
 		"when": Time.get_datetime_string_from_system(true, true),
 		"build": "%s %s" % [OS.get_name(), Engine.get_architecture_name()],
+		"source": "editor" if OS.has_feature("editor") else "export",
 	}
 	if session_log:
 		out["session_log"] = session_log.dump()
