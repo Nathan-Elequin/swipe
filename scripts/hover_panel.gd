@@ -578,8 +578,8 @@ func _apply_look(look: Dictionary) -> void:
 	var stage: bool = bool(look.get("stage_card", false))
 	sb.content_margin_left = 16 if stage else 18
 	sb.content_margin_right = 16 if stage else 18
-	# Fight plate sits under the portrait; keep a tight top so HP/ATK sit
-	# directly under the sprite (stage_pad used to shove that row down).
+	# Fight plate: HP/ATK sit at the top corners. The portrait overlaps this
+	# card down to just above the name (see stage_sprite_foot_inset).
 	sb.content_margin_top = 8 if stage else 14
 	sb.content_margin_bottom = 12 if stage else 14
 	add_theme_stylebox_override("panel", sb)
@@ -593,7 +593,16 @@ func _wipe() -> void:
 		c.queue_free()
 
 
-## Fight callout: sprite (combat_stage) → HP left / ATK right → text capsule.
+## Local Y on this plate where the portrait's feet should sit: a few pixels
+## above the name. combat_stage overlaps the card down to this line; HP/ATK
+## chrome draws in front of the sprite.
+func stage_sprite_foot_inset() -> float:
+	# content_margin_top 8 + HP/ATK wrap 96 + vbox separation 8, minus a gap
+	# so the feet clear the name. Matches _fill_stage_card / _stage_badge.
+	return 8.0 + 96.0 + 8.0 - 8.0
+
+
+## Fight callout: HP left / ATK right on the card, portrait overlapping to the name.
 func _fill_stage_card(col: VBoxContainer, title: String, body: String, look: Dictionary) -> void:
 	col.add_theme_constant_override("separation", 8)
 	var slice: Dictionary = look.get("slice", {})
@@ -632,13 +641,17 @@ func _fill_stage_card(col: VBoxContainer, title: String, body: String, look: Dic
 	col.add_child(b)
 
 
-## HP on the left, attack on the right — under the portrait, above the capsule.
+## HP on the left, attack on the right — top of the plate, in front of the portrait.
 func _stage_stat_row(slice: Dictionary) -> Control:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 0)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# Absolute z so these sit in front of combat_stage (z 15) while the brown
+	# panel (face_box z 14) stays behind the monster.
+	row.z_index = 20
+	row.z_as_relative = false
 	row.add_child(_stage_badge(true, slice))
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -654,6 +667,8 @@ func _stage_name_block(title: String, rank: String) -> Control:
 	mid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	mid.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	mid.add_theme_constant_override("separation", 0)
+	mid.z_index = 20
+	mid.z_as_relative = false
 	var name := Label.new()
 	name.text = title
 	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
