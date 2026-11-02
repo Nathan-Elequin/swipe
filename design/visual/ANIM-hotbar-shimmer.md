@@ -6,6 +6,7 @@
 ## Hooks (real code)
 - **Rank colour:** `item_card._tier_shine()` (~L554): copper `#d4894e`, silver `#f4f7fb`, gold `#ffe6a8`. Rank comes from `set_palette(fill, metal, tier)` (~L547).
 - **Today's pulse:** `_apply_style(hot)` (~L727) and `_draw()` (~L801) lerp the rim toward the shine. Replace this with the shader glint and keep the rim lerp for hover.
+- **Brand New / uncollected (2026-11-02 lock):** hotbar cards stay matte — do **not** drive `_glow` / `set_draft_glow` from uncollected. Keep `New!` badge + aura kit. Door-gate THE SHINY may still glow. See `NOTES-item-card-idle-layout.md`.
 - **Playable:** `set_playable(on)` (~L633), `_sync_lock_shade()` (~L301). Drive the lift and sink here.
 - **Armed passives:** `set_passive_icons(plus, ban, on)` (~L622) → add `set_armed(on, label_key)` for:
   - Double-Buckler, Healing Potion, Pacemaker, Danger Magnet

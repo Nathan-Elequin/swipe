@@ -4716,8 +4716,9 @@ func _challenge_draft_card(it: Dictionary) -> Control:
 	var card: Control = _spawn_item_card(it, false)
 	if card.has_method("set_rim_glow"):
 		card.set_rim_glow(false)
+	## Brand New / uncollected stay matte — no draft_glow shine on challenge picks.
 	if card.has_method("set_draft_glow"):
-		card.set_draft_glow(_item_uncollected_in_hand(it))
+		card.set_draft_glow(false)
 	if card.has_method("set_steal_cursor") and art != null:
 		card.set_steal_cursor(art.ui.get("cursor_hand", null))
 	_dress_showcase_card(card, it, false)
@@ -24042,8 +24043,9 @@ func _sync_hotbar() -> void:
 		card.set_live(shown_n, str(view["note"]), can_click)
 		if card.has_method("set_choice_badge"):
 			card.set_choice_badge(_choice_badge_text(it))
+		## Kill Brand New / uncollected shine on hotbar — keep New! badge + aura kit only.
 		if card.has_method("set_draft_glow"):
-			card.set_draft_glow(_item_uncollected_in_hand(it) and not spent_n)
+			card.set_draft_glow(false)
 		if card.has_method("set_cabinet_badge"):
 			var cid: String = str(it.get("card_id", ""))
 			var fresh: bool = home_cabin != null and cid != "" and not home_cabin.is_swiped(cid) and not BucketRules.is_token(items_by_id.get(cid, {}))
@@ -24268,8 +24270,9 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if card.has_method("set_passive_icons"):
 		card.set_passive_icons(null, null, false)
 	card.set_palette(view["fill"], view["rim"], _tier_of(it))
+	## Hotbar Brand New / uncollected: matte (no draft_glow). Door offer still uses phase glow.
 	if card.has_method("set_draft_glow"):
-		card.set_draft_glow(_item_uncollected_in_hand(it))
+		card.set_draft_glow(false)
 	var rule: Dictionary = _item_rule(it)
 	card.set_formula(str(rule.get("equation", "")))
 	card.set_live(shown_n)

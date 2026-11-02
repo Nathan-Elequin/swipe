@@ -16,15 +16,20 @@ const CARD_W := 172.0
 const CARD_H := 148.0
 const SHOW_W := 236.0
 const SHOW_H := 340.0
-## Idle stack (2026-11-02 layout pass). Before → after on the 172×148 plate:
-## content_margin_top 3→1, pad margin_top 3→1, VBox CENTER→BEGIN,
-## title_h 22→16, icon 48→58 (+20%), face host min 32→40 + EXPAND_FILL,
-## ItemFace hotbar glyphs 24→36 (+50%) centered in the leftover band under the sprite.
+## Idle stack retune (2026-11-02 Nathan F5 after #297). On the 172×148 plate:
+## title ~+50% vs post-#297 idle (font 14→21, title_h 16→24), sprite stays 58
+## but nudged lower (IDLE_SPRITE_NUDGE) to close the gap above effect icons,
+## face glyphs ~+20% (36→43) still vertically centered in the leftover band.
+## Brand New / uncollected draft_glow shine is OFF (matte plates; aura kit stays).
 const IDLE_CONTENT_MARGIN_TOP := 1
 const IDLE_PAD_TOP := 1
-const IDLE_TITLE_H := 16.0
+const IDLE_TITLE_H := 24.0
+const IDLE_TITLE_FONT_MAX := 21
+const IDLE_TITLE_FONT_MIN := 15
 const IDLE_ICON := 58.0
-const IDLE_FACE_HOST_MIN_H := 40.0
+## Extra px under the title so the sprite sits closer to the face band.
+const IDLE_SPRITE_NUDGE := 4
+const IDLE_FACE_HOST_MIN_H := 46.0
 
 var uid: int = 0
 var card_id: String = ""
@@ -222,8 +227,8 @@ func setup(
 	_title = FitLabelBox.make()
 	_title.show_frame = false
 	_title.padding = 0
-	_title.max_font_size = 14
-	_title.min_font_size = 10
+	_title.max_font_size = IDLE_TITLE_FONT_MAX
+	_title.min_font_size = IDLE_TITLE_FONT_MIN
 	_title.set_plain(title)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -233,6 +238,14 @@ func setup(
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_title)
 	col.add_child(_rank)
+
+	## Nudge sprite slightly lower without changing sprite size (closes idle gap above face).
+	if IDLE_SPRITE_NUDGE > 0:
+		var sprite_gap := Control.new()
+		sprite_gap.name = "SpriteNudge"
+		sprite_gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		sprite_gap.custom_minimum_size = Vector2(0, IDLE_SPRITE_NUDGE)
+		col.add_child(sprite_gap)
 
 	_icon = TextureRect.new()
 	_icon.texture = icon
@@ -1102,10 +1115,17 @@ func set_showcase(on: bool) -> void:
 	_pass_swipe = on
 	custom_minimum_size = Vector2(SHOW_W, SHOW_H) if on else Vector2(CARD_W, CARD_H)
 	if _title:
-		_title.max_font_size = 22 if on else 14
+		_title.max_font_size = 22 if on else IDLE_TITLE_FONT_MAX
+		_title.min_font_size = 12 if on else IDLE_TITLE_FONT_MIN
 		_title.custom_minimum_size = Vector2(196 if on else CARD_W - 14.0, 48 if on else IDLE_TITLE_H)
 		_title.max_lines = 2
 		_title.fit()
+	## Hide the idle-only sprite nudge in showcase; restore it when back to hotbar.
+	if _col != null:
+		var nudge_n: Node = _col.get_node_or_null("SpriteNudge")
+		if nudge_n != null and nudge_n is Control:
+			(nudge_n as Control).visible = not on
+			(nudge_n as Control).custom_minimum_size = Vector2.ZERO if on else Vector2(0, IDLE_SPRITE_NUDGE)
 	if _rank:
 		_rank.visible = false
 		_rank.add_theme_font_size_override("font_size", 15 if on else 12)
@@ -1119,7 +1139,7 @@ func set_showcase(on: bool) -> void:
 		_col.alignment = BoxContainer.ALIGNMENT_CENTER if on else BoxContainer.ALIGNMENT_BEGIN
 	if _face != null and _face.has_method("set_offer_mode"):
 		_face.set_offer_mode(on)
-		## Rebuild so hotbar 36px vs offer 48px sticks after a mode flip.
+		## Rebuild so hotbar 43px vs offer 48px sticks after a mode flip.
 		if not _glyph_rows.is_empty() and _face.has_method("set_rows"):
 			_face.set_rows(_glyph_rows)
 	if _num:
@@ -1539,6 +1559,8 @@ func set_rim_glow(on: bool) -> void:
 
 
 func set_draft_glow(on: bool) -> void:
+	## Gate / door offer may still pass true (THE SHINY). Hotbar Brand New /
+	## uncollected callers must pass false — matte plates, no pulse/halo.
 	_glow = on
 	set_process(_want_process())
 	if not on and not _playable and not _aura and not _danger:
