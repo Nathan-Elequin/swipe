@@ -2233,7 +2233,7 @@
 				"log_hint",
 				"review"
 			],
-			"locked_at": "2026-10-30",
+			"locked_at": "2026-11-02",
 			"name": "Hydra"
 		},
 		"monster:juggernaut": {
@@ -2330,7 +2330,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-10-30",
+			"locked_at": "2026-11-02",
 			"name": "Lich"
 		},
 		"monster:magicat": {

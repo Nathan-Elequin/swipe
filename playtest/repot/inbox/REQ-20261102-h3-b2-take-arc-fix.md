@@ -1,6 +1,6 @@
 ---
 id: REQ-20261102-h3-b2-take-arc-fix
-status: open
+status: done
 priority: high
 pr: 298
 tip_sha: 7dab8652

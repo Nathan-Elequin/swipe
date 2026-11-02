@@ -4624,7 +4624,7 @@
 					"id": "hydra",
 					"kind": "monster",
 					"name": "Hydra",
-					"ability": "When you Spin me, I Petrify all Items with an Even Atk or Blk value and Gain +2 Atk for each",
+					"ability": "If any other Monster has its HP reduced to 3 or less and survives, I Defeat them and Gain +2 ATK",
 					"sprite": "assets/dungeon/extra/hydra.png"
 				}
 			]

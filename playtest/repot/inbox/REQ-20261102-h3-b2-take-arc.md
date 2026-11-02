@@ -1,6 +1,6 @@
 ---
 id: REQ-20261102-h3-b2-take-arc
-status: open
+status: superseded
 priority: high
 branch: playtest/latest
 created: 2026-11-02T08:30:00Z

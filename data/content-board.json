@@ -3884,7 +3884,7 @@
 		},
 		{
 			"ability": "When you use Defeat Items against me, they fail, reduce my HP by 1, and are Kept. I cannot lose HP in any other way.",
-			"atk_base": 5.0,
+			"atk_base": 6.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Undying",
@@ -3892,12 +3892,12 @@
 			"contradiction_ids": [],
 			"count": 2.0,
 			"explainer": "Legal Defeat items chip 1 HP and stay Kept. Nothing else lowers my HP.",
-			"flow": "Pool 3, tier 2, 2 HP, 5 Attack. A Defeat item must already be legally usable (Paci-Fist still needs no Attack items; Sledgehammer still needs 6 or more Attack). The Boot, Sledgehammer, Fangs, Paci-Fist, Scythe, and Hex are the Defeat items. On use against me the Defeat does not happen: I lose 1 HP and that item is Kept and tapped until the fight ends. Echo Bell's copy is still used up. Fangs still makes me attack, then chips 1, and Heals you for the HP I had before that chip. Two Hexes at 0 each chip 1 and both reset to 6 and stay. I cannot lose HP any other way. Quiet Bell turns this off. If I still have HP, I attack at the end of combat and I am defeated as normal.",
-			"hp_base": 2.0,
+			"flow": "Pool 3, tier 3, 3 HP, 6 Attack. A Defeat item must already be legally usable (Paci-Fist still needs no Attack items; Sledgehammer still needs 6 or more Attack). The Boot, Sledgehammer, Fangs, Paci-Fist, Scythe, and Hex are the Defeat items. On use against me the Defeat does not happen: I lose 1 HP and that item is Kept and tapped until the fight ends. Echo Bell's copy is still used up. Fangs still makes me attack, then chips 1, and Heals you for the HP I had before that chip. Two Hexes at 0 each chip 1 and both reset to 6 and stay. I cannot lose HP any other way. Quiet Bell turns this off. If I still have HP, I attack at the end of combat and I am defeated as normal.",
+			"hp_base": 3.0,
 			"hp_formula": "",
 			"id": "lich",
 			"kind": "monster",
-			"locked_at": "2026-10-30",
+			"locked_at": "2026-11-02",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3931,7 +3931,7 @@
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0
+			"tier": 3.0
 		},
 		{
 			"ability": "When you lose HP, I lose equal HP.",
@@ -5577,20 +5577,20 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "If any other Monster has its HP reduced to 3 or less and survives, I Defeat them and Gain their ATK",
-			"atk_base": 2.0,
+			"ability": "If any other Monster has its HP reduced to 3 or less and survives, I Defeat them and Gain +2 ATK",
+			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Devour",
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "When another monster's HP drops to 3 or less and they survive, I Defeat them and Gain their Attack.",
-			"flow": "While I live unsilenced on the wheel: after the current action finishes (Needleback Spiky, Cowardly King command, the whole item or Spin), look at every other monster whose HP went down during that action and who is still alive at 3 HP or less. Do not fire on a killing blow (they did not survive). Amalgam can leave 3 and walk away. Slash Portrait, then Defeat them like a Defeat item. Off-facing first (clockwise), facing last. All of them, one after another. Gain the Attack on their plate at that moment; it stays on me (hydra_bonus) and stacks. Commander Flee / Triclops bail / Lich chip 1: I still Gain that Attack. Lich Boot 2→1 then I chip again. Quiet Bell: I do not listen; Attack I already Gained stays. I do not Devour myself.",
-			"hp_base": 7.0,
+			"explainer": "When another monster's HP drops to 3 or less and they survive, I Defeat them and Gain +2 Attack.",
+			"flow": "While I live unsilenced on the wheel: after the current action finishes (Needleback Spiky, Cowardly King command, the whole item or Spin), look at every other monster whose HP went down during that action and who is still alive at 3 HP or less. Do not fire on a killing blow (they did not survive). Amalgam can leave 3 and walk away. Slash Portrait, then Defeat them like a Defeat item. Off-facing first (clockwise), facing last. All of them, one after another. Gain +2 Attack each time (hydra_bonus); it stacks. Commander Flee / Triclops bail / Phoenix / Lich chip 1: I still Gain +2. Lich Boot 3→2 then I chip again. Quiet Bell: I do not listen; Attack I already Gained stays. I do not Devour myself.",
+			"hp_base": 5.0,
 			"hp_formula": "",
 			"id": "hydra",
-			"locked_at": "2026-10-30",
+			"locked_at": "2026-11-02",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5612,19 +5612,19 @@
 				"log_hint",
 				"review"
 			],
-			"log_hint": "Defeat at 3 HP, Gain their Attack",
+			"log_hint": "Defeat at 3 HP, Gain +2 Attack",
 			"mode_pool": "all",
 			"name": "Hydra",
-			"notes": "Pool 5, tier 3. Devour 2026-10-30. Survive at 1–3 after the action. Plate Attack. All meals.",
+			"notes": "Pool 5, tier 2. Devour +2 Attack 2026-11-02. Survive at 1–3 after the action. All meals. +2 even if they stay.",
 			"ops": {},
 			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "When another monster's HP drops to 3 or less and they survive, Defeat them and Gain their Attack.",
+			"reminder": "When another monster's HP drops to 3 or less and they survive, Defeat them and Gain +2 Attack.",
 			"review": "change",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0
+			"tier": 2.0
 		},
 		{
 			"ability": "When you Spin me, I Decay two of your Items.",

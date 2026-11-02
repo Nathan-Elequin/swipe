@@ -64,6 +64,7 @@ var _depth_hold: int = -1
 var _slide_t: float = 0.0
 var _out: Dictionary = {}
 var _riffle_t: float = -1.0
+var _deal_dest_size: Vector2 = Vector2.ZERO
 var _shimmer_mat: ShaderMaterial
 var _shimmer_clock: float = 0.0
 
@@ -227,12 +228,13 @@ func play_draw() -> void:
 	draw_finished.emit()
 
 
-## Fast face-up slide all the way to a hotbar slot (opening item deal).
-func play_deal_to(target_global: Vector2, dur: float = 0.14) -> void:
+## Face-up toss into a hotbar seat. `dest_size` lets the flying card shrink to that plate.
+func play_deal_to(target_global: Vector2, dur: float = 0.34, dest_size: Vector2 = Vector2.ZERO) -> void:
 	if count <= 0:
 		return
 	_busy = true
 	_deal_full = true
+	_deal_dest_size = dest_size
 	entry_global = target_global
 	_out = {
 		"face": peek_name != "",
@@ -246,11 +248,12 @@ func play_deal_to(target_global: Vector2, dur: float = 0.14) -> void:
 	_slide_t = 0.0
 	set_process(true)
 	var tw := create_tween()
-	tw.tween_property(self, "_slide_t", 1.0, maxf(0.06, dur)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(self, "_slide_t", 1.0, maxf(0.18, dur)).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	await tw.finished
 	_out = {}
 	_slide_t = 0.0
 	_deal_full = false
+	_deal_dest_size = Vector2.ZERO
 	_busy = false
 	_awaiting_face = count > 0
 	if count <= 0:
@@ -317,8 +320,14 @@ func _draw() -> void:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	if not _out.is_empty():
 		var a: float = 1.0 if _deal_full else (1.0 - _slide_t)
-		var off: Vector2 = (_slide_target() * _slide_t).round()
-		_draw_card(CARD_POS + off, bool(_out.get("face", false)), _out.get("tex"), str(_out.get("name", "")), int(_out.get("tier", 0)), Color(1, 1, 1, a))
+		var off: Vector2 = _slide_offset().round()
+		var sc: float = 1.0
+		if _deal_full and _deal_dest_size.x > 8.0:
+			sc = lerpf(1.0, clampf(_deal_dest_size.x / CARD.x, 0.55, 1.2), _slide_t)
+		var origin := CARD_POS + CARD * 0.5 + off
+		draw_set_transform(origin, 0.0, Vector2(sc, sc))
+		_draw_card(-CARD * 0.5, bool(_out.get("face", false)), _out.get("tex"), str(_out.get("name", "")), int(_out.get("tier", 0)), Color(1, 1, 1, a))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	if show_bags:
 		_draw_loot_bags()
 	if not show_count:
@@ -356,18 +365,30 @@ func _slide_target() -> Vector2:
 	return dir
 
 
+func _slide_offset() -> Vector2:
+	var dest: Vector2 = _slide_target()
+	var along: Vector2 = dest * _slide_t
+	if _deal_full:
+		var lift: float = sin(_slide_t * PI) * minf(40.0, dest.length() * 0.18)
+		along += Vector2(0.0, -lift)
+	return along
+
+
 func _draw_riffle(t: float) -> void:
-	# Two half-stacks split apart, interleave, and square back up into one pile.
-	var spread: float = sin(t * PI) * 20.0
-	var lift: float = sin(t * PI) * 6.0
+	# Two half-stacks ease apart, interleave, and square back up into one pile.
+	var wave: float = sin(t * PI)
+	var spread: float = wave * 14.0
+	var lift: float = wave * 8.0
 	var cards: int = clampi(count, 2, 6)
 	for i in cards:
 		var left: bool = i % 2 == 0
-		var drop: float = clampf((t - float(i) / float(cards) * 0.5) * 2.0, 0.0, 1.0)
-		var dx: float = (-spread if left else spread) * (1.0 - drop * 0.35)
-		var dy: float = -lift * (1.0 - drop) - float(i) * 1.0
-		var c := (CARD_POS + CARD * 0.5 + Vector2(dx, dy)).round()
-		var rot: float = (-0.08 if left else 0.08) * sin(t * PI)
+		var stagger: float = float(i) / float(maxi(cards - 1, 1))
+		var drop: float = clampf((t - stagger * 0.22) / 0.78, 0.0, 1.0)
+		drop = drop * drop * (3.0 - 2.0 * drop)
+		var dx: float = (-spread if left else spread) * (1.0 - drop * 0.55)
+		var dy: float = -lift * (1.0 - drop) - float(i) * 0.6
+		var c := CARD_POS + CARD * 0.5 + Vector2(dx, dy)
+		var rot: float = (-0.05 if left else 0.05) * wave * (1.0 - drop * 0.4)
 		draw_set_transform(c, rot, Vector2.ONE)
 		_draw_card(-CARD * 0.5, false)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

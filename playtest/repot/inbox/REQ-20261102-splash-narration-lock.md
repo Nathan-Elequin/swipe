@@ -1,6 +1,6 @@
 ---
 id: REQ-20261102-splash-narration-lock
-status: open
+status: done
 priority: high
 branch: cursor/splash-narration-spin-lock-d7e5
 base: playtest/latest
