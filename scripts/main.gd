@@ -7398,6 +7398,10 @@ func _merge_catalog_card(kind: String, board_card: Dictionary) -> void:
 		else:
 			hp.erase("formula")
 		dst["hp"] = hp
+		if atk.has("base"):
+			dst["atk_base"] = atk["base"]
+		if hp.has("base"):
+			dst["hp_base"] = hp["base"]
 	else:
 		if typeof(board_card.get("ops", null)) == TYPE_DICTIONARY:
 			dst["ops"] = (board_card["ops"] as Dictionary).duplicate(true)
