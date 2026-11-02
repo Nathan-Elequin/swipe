@@ -1,6 +1,6 @@
 ---
 id: REQ-20261102-splash-narration-fit
-status: done
+status: archived
 priority: high
 branch: cursor/splash-narration-fit-1cb6
 base: playtest/latest
@@ -10,6 +10,9 @@ created_by: cursor-cloud
 viewport: 1680x1040
 entry: F5 playtest hub → Middle Progress / Continue → campaign map → enter each tip biome (b1–b5); capture mid-hold on the biome-enter splash
 ---
+
+> Reviewed and accepted — archived 2026-11-02. Outbox RESULT.md 5/5 pass @ 60c5afe8.
+
 
 # Biome splash narration fits inside the panel (3-line Cinder)
 
