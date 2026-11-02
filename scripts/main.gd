@@ -3947,6 +3947,8 @@ func _dev_fresh_save() -> void:
 		home_cabin.tex_by_item = tex_by_item
 		home_cabin.buckets_open = _buckets_revealed
 		home_cabin.clear_to_fresh_save()
+		if home_cabin.has_method("bind_campaign"):
+			home_cabin.bind_campaign(_campaign)
 		_open_home_cabin(false)
 		home_cabin.play_intro()
 	_refresh()
@@ -4398,6 +4400,17 @@ func _item_is_curse(it: Dictionary) -> bool:
 	return id == "spider_egg" or id == "toll" or id == "rust" or id == "cursed_scroll"
 
 
+func _item_uncollected_in_hand(it: Dictionary) -> bool:
+	if it.is_empty() or bool(it.get("spent", false)):
+		return false
+	var id: String = str(it.get("card_id", ""))
+	if id == "" or BucketRules.is_token(items_by_id.get(id, {})):
+		return false
+	if home_cabin == null:
+		return true
+	return not home_cabin.is_swiped(id)
+
+
 func _item_blocks_hand_tax(it: Dictionary) -> bool:
 	if it.is_empty():
 		return false
@@ -4704,7 +4717,7 @@ func _challenge_draft_card(it: Dictionary) -> Control:
 	if card.has_method("set_rim_glow"):
 		card.set_rim_glow(false)
 	if card.has_method("set_draft_glow"):
-		card.set_draft_glow(false)
+		card.set_draft_glow(_item_uncollected_in_hand(it))
 	if card.has_method("set_steal_cursor") and art != null:
 		card.set_steal_cursor(art.ui.get("cursor_hand", null))
 	_dress_showcase_card(card, it, false)
@@ -6951,6 +6964,14 @@ func _restore_cascade_time_scale() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if PlaytestUx.feedback_open(get_tree()):
+		if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
+			if playtest_feedback != null:
+				playtest_feedback.close_box()
+			get_viewport().set_input_as_handled()
+		elif event is InputEventKey:
+			get_viewport().set_input_as_handled()
+		return
 	if phase == "devtest" and event.is_action_pressed("ui_accept"):
 		await _dev_enter()
 		get_viewport().set_input_as_handled()
@@ -11306,6 +11327,9 @@ func _wick_on_defeated(index: int) -> void:
 		return
 	if str(wheel[index].get("kind", "")) != "monster":
 		return
+	if bool(wheel[index].get("_wick_taxed", false)):
+		return
+	wheel[index]["_wick_taxed"] = true
 	await _clockwork_synchronize(index)
 	if index < 0 or index >= wheel.size():
 		return
@@ -16652,9 +16676,9 @@ func _upgrade_dest_tier(stored: int) -> int:
 
 
 func _upgrade_pool(dest_tier: int) -> Array:
-	var held: Dictionary = _challenge_held_counts()
+	## Merchant may mint extra copies even when the mill has none left to draft.
 	var out: Array = []
-	for id in item_pool:
+	for id in items_by_id.keys():
 		var sid: String = str(id)
 		var card: Dictionary = items_by_id.get(sid, {})
 		if card.is_empty():
@@ -16664,8 +16688,7 @@ func _upgrade_pool(dest_tier: int) -> Array:
 		var status: String = str(card.get("status", "live"))
 		if status == "retired" or status == "hold":
 			continue
-		var cap: int = maxi(0, int(card.get("count", 1)))
-		if int(held.get(sid, 0)) >= cap:
+		if BucketRules.is_token(card):
 			continue
 		out.append(sid)
 	return out
@@ -16714,7 +16737,6 @@ func _upgrade_item(uid: int) -> void:
 		_refresh()
 		return
 	var new_id: String = str(pool[rng.randi() % pool.size()])
-	item_pool.erase(new_id)
 	pending_feed = {}
 	_cube_line = ""
 	var fresh: Dictionary = _make_item(new_id)
@@ -24020,6 +24042,8 @@ func _sync_hotbar() -> void:
 		card.set_live(shown_n, str(view["note"]), can_click)
 		if card.has_method("set_choice_badge"):
 			card.set_choice_badge(_choice_badge_text(it))
+		if card.has_method("set_draft_glow"):
+			card.set_draft_glow(_item_uncollected_in_hand(it) and not spent_n)
 		if card.has_method("set_cabinet_badge"):
 			var cid: String = str(it.get("card_id", ""))
 			var fresh: bool = home_cabin != null and cid != "" and not home_cabin.is_swiped(cid) and not BucketRules.is_token(items_by_id.get(cid, {}))
@@ -24244,6 +24268,8 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if card.has_method("set_passive_icons"):
 		card.set_passive_icons(null, null, false)
 	card.set_palette(view["fill"], view["rim"], _tier_of(it))
+	if card.has_method("set_draft_glow"):
+		card.set_draft_glow(_item_uncollected_in_hand(it))
 	var rule: Dictionary = _item_rule(it)
 	card.set_formula(str(rule.get("equation", "")))
 	card.set_live(shown_n)

@@ -5373,16 +5373,16 @@
 		},
 		{
 			"ability": "When I lose HP or Attack, I die. My Neighbors each gain HP equal to my remaining HP.",
-			"atk_base": 0,
+			"atk_base": 0.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Noble Death",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "On HP loss or Attack: I die. Neighbors gain my remaining HP",
 			"flow": "SP-24 (2026-10-28). 7 HP / 0 Attack. I die on any HP loss (including poison ticks), when I would be Defeated, or when I Attack (0 Attack still Attacks). On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Attack / Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
-			"hp_base": 6,
+			"hp_base": 6.0,
 			"hp_formula": "",
 			"id": "martyr",
 			"kind": "monster",
@@ -5413,14 +5413,14 @@
 			"notes": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
 			"ops": {},
 			"pending_fields": {},
-			"pool": 4,
-			"priority": 3,
+			"pool": 4.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "On HP loss or Attack: I die. Neighbors gain my remaining HP.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "When I would take Attack damage, both of my Neighbors take it instead.",
@@ -6150,24 +6150,20 @@
 		},
 		{
 			"ability": "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck.",
-			"atk_base": 6.0,
+			"atk_base": 5,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Rebirth",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 0.0,
+			"count": 0,
 			"explainer": "Defeated before I Attack: add a Phoenix Egg to the Dungeon Deck",
-			"flags": {
-				"art": false,
-				"dev": true,
-				"hide": true
-			},
 			"flow": "SP-21 (2026-10-25). If Defeated before I Attack (has_attacked is still false: Attack damage or a defeat item, and also a skip that never lets me Attack), add a Phoenix Egg to the top of the Dungeon Deck. Block-then-I-Attack does not lay an egg. The egg goes on top of the Dungeon Deck. Challenge and Adventure seat it with normal hole fill and loot. The mill does not draw that deck, so the egg is installed into the vacated seat. Phoenix Egg still hatches into a Phoenix. Quiet Bell turns this off.",
-			"hp_base": 4.0,
+			"hp_base": 4,
 			"hp_formula": "",
 			"id": "phoenix",
-			"locked_at": "2026-10-18",
+			"kind": "monster",
+			"locked_at": "2026-11-02",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6193,14 +6189,15 @@
 			"name": "Phoenix",
 			"notes": "Token. Not drafted. Phoenix Egg creates it. SP-21: egg goes on the deck, not into this seat.",
 			"ops": {},
-			"pool": -1.0,
-			"priority": 3.0,
+			"pending_fields": {},
+			"pool": -1,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
-			"status": "live",
-			"tier": 3.0
+			"status": "todo",
+			"tier": 3
 		},
 		{
 			"ability": "After any Item you Use while facing me, double my remaining HP and ATK.",
@@ -6740,5 +6737,5 @@
 			"tier": 2.0
 		}
 	],
-	"updated": "2026-11-01"
+	"updated": "2026-11-02"
 }

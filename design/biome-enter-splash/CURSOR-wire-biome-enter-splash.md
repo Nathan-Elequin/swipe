@@ -29,8 +29,9 @@ Read first (they're in this PR's `design/biome-enter-splash/`; create the folder
 {"cat": "Splash", "key": "splash.chrome.dungeon", "where": "Biome-enter splash · top-left stat",               "text": "Dungeon {n}"},
 {"cat": "Splash", "key": "splash.chrome.delves",  "where": "Biome-enter splash · top-left stat",               "text": "Delves: {n}"},
 {"cat": "Splash", "key": "splash.chrome.continue", "where": "Biome-enter splash · leaf cue",                    "text": "click anytime"},
-{"cat": "Splash", "key": "splash.biome.verdant_hollow", "where": "Biome-enter splash · narration · Verdant Hollow", "text": "The Hollow breathes green under Mount Grumblegut. Moss drinks what little light sneaks in. The path ahead is soft, damp, and already listening."}
+{"cat": "Splash", "key": "splash.biome.verdant_hollow", "where": "Biome-enter splash · narration · Verdant Hollow", "text": "I stepped into the Verdant Hollow and at once felt the wet through the soles of my boots. Moss covered the walls and much of the floor, and the air smelled of earth after rain. I raised my lantern and went on along the only path that offered itself, deeper under the mountain."}
 ```
+(Also wire `crystal_cavern`, `ashen_crypt`, `cinder_forge`, `shadow_abyss` with the Spin-locked first-person paragraphs in `data/player-copy.json` / SCREEN §4 — paste exactly.)
 - Fill: `{name}` = `CAMPAIGN_SHELL.biome_name(_campaign.rules, biome_id)`; dungeon `{n}` = `dungeon_index`; delves `{n}` = `home_cabin.counters.delves`.
 - Click cue label: Spin-locked key `splash.chrome.continue` = `click anytime` (leaf kept). **Never** reuse `intro.next`. **Never type other player-facing words.** **Never show Tier.**
 - Narration key = `splash.biome.<slug>`, where slug = biome name lowercased with spaces → `_`. If `PLAYER_COPY.has_key()` is false for that slug → **skip the splash** for that biome (the rest of the sequence still runs: dissolve, music, wheel nest).
@@ -43,7 +44,7 @@ Children (rects in SCREEN §2):
 - Vignette + bottom fade: `GradientTexture2D` TextureRects.
 - Sprout `TextureRect` (500,432) 320×320, texture `res://assets/dungeon/anim/player/sprout_idle_f0.png` (or `art.sprout_anim("idle")[0]` if `art` is handy), NEAREST. Shadow `ColorRect` 144×16 at (624,744), #12261b α .6.
 - Chrome `VBoxContainer` at (40,36), separation 8: plate Label (biome) + 2 stat Labels in `PanelContainer`s with `StyleBoxFlat` (colors in SCREEN §3).
-- Narration `Panel` 0,832,1680,208 (`StyleBoxFlat`); `Label` at (96,870) 1280×132, autowrap, 36px theme font, color #E9D3A1, max 3 lines.
+- Narration `Panel` 0,700,1680,340 (`StyleBoxFlat`); `Label` x64 w1552, autowrap, 36px theme font, color #E9D3A1, max 5 lines.
 - Cue: leaf `TextureRect` ×2 bottom-right of the bar + Label from `splash.chrome.continue` ("click anytime"). Bob 2px, Tween loop 0.8s, `TRANS_SINE`.
 - Optional `CPUParticles2D` fireflies (24, 2×2 px #E8D36A).
 

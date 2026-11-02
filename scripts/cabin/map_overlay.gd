@@ -8,6 +8,7 @@ signal go(route: String)
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const COPY := preload("res://scripts/player_copy.gd")
+const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 const DEV_FLAGS := preload("res://scripts/dev_flags.gd")
 const LAYOUT_PATH := "res://design/visual/layouts/map-routes.layout.json"
 const ROUTES: Array[String] = ["gatehouse", "long_drop"]
@@ -162,6 +163,8 @@ func _authoring_desk_open() -> bool:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
+		return
+	if PlaytestUx.feedback_open(get_tree()):
 		return
 	if _authoring_desk_open():
 		return

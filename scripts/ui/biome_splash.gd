@@ -9,12 +9,12 @@ const PLAYER_COPY := preload("res://scripts/player_copy.gd")
 
 const DESIGN := Vector2(1680.0, 1040.0)
 const ART_H := 832.0
-## Grew from 208 so a 3-line narration + cue keeps even padding inside the bar.
-const BAR_H := 236.0
+## Grew 208 → 236 (#295) → 340 for Spin-locked first-person paragraphs (≤5 lines + cue).
+const BAR_H := 340.0
 const NARR_PAD_X := 64.0
 const NARR_PAD_Y := 28.0
 const NARR_LINE_PX := 42.0
-const NARR_MAX_LINES := 3
+const NARR_MAX_LINES := 5
 const CUE_W := 280.0
 const CUE_H := 28.0
 const CUE_RIGHT := 56.0
@@ -308,7 +308,8 @@ func _build() -> void:
 
 	var fade := TextureRect.new()
 	fade.name = "BottomFade"
-	fade.position = Vector2(0, 760)
+	## Sit just above the narration bar top so the blend still meets the taller panel.
+	fade.position = Vector2(0, DESIGN.y - BAR_H - 44.0)
 	fade.size = Vector2(DESIGN.x, 72)
 	fade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	fade.stretch_mode = TextureRect.STRETCH_SCALE
@@ -375,7 +376,7 @@ func _build() -> void:
 	bar_style.bg_color = Color("1A120E")
 	bar_style.border_color = Color("7A4E2B")
 	bar_style.border_width_top = 6
-	## Even content margins so 2- and 3-line narrations share the same inset.
+	## Even content margins so 2–5 line narrations share the same inset.
 	bar_style.content_margin_left = 20
 	bar_style.content_margin_right = 20
 	bar_style.content_margin_top = 20
@@ -472,7 +473,7 @@ func _apply_copy() -> void:
 		_layout_narration_bar()
 
 
-## Size the narration bar for up to 3 lines with even padding; widen the label
+## Size the narration bar for up to 5 lines with even padding; widen the label
 ## so wrap uses most of the panel. Cue stays bottom-right and clear of text.
 func _layout_narration_bar() -> void:
 	if _narration_bar == null or _narration == null:
@@ -491,7 +492,7 @@ func _layout_narration_bar() -> void:
 	var text_zone_top: float = bar_y + NARR_PAD_Y
 	var text_zone_bot: float = bar_y + BAR_H - cue_band - CUE_GAP
 	var text_zone_h: float = maxf(0.0, text_zone_bot - text_zone_top)
-	## Center 1–3 line blocks in the text zone so every biome gets even padding.
+	## Center 1–5 line blocks in the text zone so every biome gets even padding.
 	var narr_y: float = text_zone_top + maxf(0.0, (text_zone_h - content_h) * 0.5)
 	## Clamp so the last line never crosses into the cue band / bar border.
 	var max_narr_y: float = text_zone_bot - content_h

@@ -7,6 +7,8 @@ signal peek_closed
 signal cheat_asked(action: String)
 signal continued
 
+const PlaytestUx := preload("res://scripts/playtest_ux.gd")
+
 var _body: VBoxContainer
 var _margin: Control
 var _held: Control
@@ -102,6 +104,8 @@ func show_map(
 
 
 func _input(event: InputEvent) -> void:
+	if PlaytestUx.feedback_open(get_tree()):
+		return
 	if _authoring_desk_open():
 		return
 	if not is_picker_open():

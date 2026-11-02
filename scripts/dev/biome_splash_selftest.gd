@@ -5,15 +5,15 @@ extends SceneTree
 
 const BIOMES := [
 	{"id": "b1", "name": "Verdant Hollow", "short": "verdant", "key": "splash.biome.verdant_hollow",
-		"narr": "The Hollow breathes green under Mount Grumblegut. Moss drinks what little light sneaks in. The path ahead is soft, damp, and already listening."},
+		"narr": "I stepped into the Verdant Hollow and at once felt the wet through the soles of my boots. Moss covered the walls and much of the floor, and the air smelled of earth after rain. I raised my lantern and went on along the only path that offered itself, deeper under the mountain."},
 	{"id": "b2", "name": "Crystal Cavern", "short": "crystal", "key": "splash.biome.crystal_cavern",
-		"narr": "The Cavern breathes cold under Mount Grumblegut. Ice drinks what little sound sneaks in. The path ahead is bright, brittle, and already listening."},
+		"narr": "I entered the Crystal Cavern and had to blink against the glare. Pillars and sheets of ice lined the passage and threw my lantern light about in hard flashes. My boots rang on the frost; the echo died quickly in the cold air. I went forward with short steps, watching where I set my feet."},
 	{"id": "b3", "name": "Ashen Crypt", "short": "ashen", "key": "splash.biome.ashen_crypt",
-		"narr": "The Crypt breathes ash under Mount Grumblegut. Dust drinks what little light sneaks in. The path ahead is dry, still, and already listening."},
+		"narr": "I came into the Ashen Crypt with dust already on my tongue. The halls were dry and quiet, and along the walls stood open niches that held nothing but the crumbled remains of old offerings. I walked on at a steady pace and listened, but I heard only my own breathing and the soft scrape of my boots."},
 	{"id": "b4", "name": "Cinder Forge", "short": "cinder", "key": "splash.biome.cinder_forge",
-		"narr": "The Forge breathes heat under Mount Grumblegut. Sparks drink what little dark sneaks in. The path ahead is loud, glowing, and already listening."},
+		"narr": "Before I saw the Cinder Forge I felt the heat on my face. The stone underfoot was warm, and farther in I heard metal strike and saw sparks drop to the floor. I wiped my brow and kept walking. Grandpa had come this way before me; I meant to do the same, and to come out again."},
 	{"id": "b5", "name": "Shadow Abyss", "short": "shadow", "key": "splash.biome.shadow_abyss",
-		"narr": "The Abyss breathes black under Mount Grumblegut. Shadow drinks what little light sneaks in. The path ahead is steep, quiet, and already listening."},
+		"narr": "The path turned down into the Shadow Abyss, and my lantern lit only a few feet of stone ahead. Beyond that circle I could see nothing at all. I put my left hand on the wall and went down one step at a time, careful of my footing, for a fall here would end the dig in a hurry."},
 ]
 
 
@@ -79,12 +79,12 @@ func _run() -> void:
 		failed = _check(failed, "%s no Tier" % bid, blob.find("Tier") < 0 and blob.find("tier") < 0) or failed
 		## No ad-hoc splash fireflies — ambient kit owns particles.
 		failed = _check(failed, "%s no one-off Fireflies" % bid, splash._root.get_node_or_null("Fireflies") == null) or failed
-		## Narration fit: ≤3 lines, content inside label, label inside bar, cue clear.
+		## Narration fit: ≤5 lines, content inside label, label inside bar, cue clear.
 		await process_frame
 		splash._layout_narration_bar()
 		await process_frame
 		var lines: int = splash.narration_line_count()
-		failed = _check(failed, "%s lines <= 3" % bid, lines <= 3) or failed
+		failed = _check(failed, "%s lines <= 5" % bid, lines <= 5) or failed
 		var n_rect: Rect2 = splash.narration_rect()
 		var bar_rect: Rect2 = splash.narration_bar_rect()
 		var cue_r: Rect2 = splash.cue_rect()

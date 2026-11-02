@@ -19,6 +19,7 @@ signal shortcut_scene_wanted(pool_id: String)
 const SAVE_PATH := "user://home_cabin.json"
 const COPY := preload("res://scripts/player_copy.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
+const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const PX := 4.0
 const ARRIVE_WALK_SPEED := 32.0
@@ -3651,6 +3652,8 @@ func debug_pose(beat: String) -> void:
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
+	if PlaytestUx.feedback_open(get_tree()):
+		return
 	if _authoring_desk_open():
 		return
 	if settings_ui and settings_ui.visible:
@@ -3664,6 +3667,11 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 	if _space_key(event):
+		if _dialog != null and _dialog.has_method("is_open") and _dialog.is_open():
+			if _dialog.has_method("advance_or_pick"):
+				_dialog.advance_or_pick()
+			get_viewport().set_input_as_handled()
+			return
 		if _picker_open():
 			_ask_held_map()
 			get_viewport().set_input_as_handled()
