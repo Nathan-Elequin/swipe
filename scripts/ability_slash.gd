@@ -312,10 +312,15 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 	if not use_frames:
 		_tw.tween_property(_portrait, "scale", _portrait_scale_vec(target_scale), _dur(SNAP_MS + 80.0, fast)).set_delay(_dur(PORTRAIT_TRAIL_MS, fast)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await get_tree().create_timer(_dur(SNAP_MS, fast), false).timeout
-	# Action: frames or still shake (band is already in).
+	# Action: snap overlay (Bear Trap), slash frames, or still shake.
 	# Copy the list first. Awaits yield, and a later slash / script reload
 	# can shrink `_frame_texs` while this loop still has the old count.
-	if use_frames:
+	var snap_texs: Array = []
+	if art != null and art.has_method("monster_snap_frames") and card_id != "":
+		snap_texs = art.monster_snap_frames(card_id)
+	if not snap_texs.is_empty():
+		await _play_snap_overlay(snap_texs, fast)
+	elif use_frames:
 		var frames: Array = _frame_texs.duplicate()
 		if _portrait:
 			_portrait.hframes = 1
@@ -371,6 +376,42 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 		_tw.tween_method(func(v: float) -> void: _band_mat.set_shader_parameter("split", v), 0.0, 1.0, _dur(OUT_MS, fast))
 	while _tw != null and _tw.is_valid() and _tw.is_running() and not _aborted:
 		await get_tree().process_frame
+
+
+## One-shot AnimatedSprite2D over the callout portrait (~12 fps). Freed on finish.
+func _play_snap_overlay(texs: Array, fast: bool) -> void:
+	var frames := SpriteFrames.new()
+	frames.add_animation("snap")
+	frames.set_animation_speed("snap", 36.0 if fast else 12.0)
+	frames.set_animation_loop("snap", false)
+	for t in texs:
+		if t is Texture2D and t != null:
+			frames.add_frame("snap", t)
+	if frames.get_frame_count("snap") < 1:
+		return
+	var spr := AnimatedSprite2D.new()
+	spr.name = "SnapFx"
+	spr.centered = true
+	spr.texture_filter = TEXTURE_FILTER_NEAREST
+	spr.z_index = 3
+	spr.sprite_frames = frames
+	var first: Texture2D = texs[0] as Texture2D
+	var s: float = _portrait_scale_for(first)
+	spr.scale = _portrait_scale_vec(s)
+	# Portrait is top-left anchored around this visual center.
+	spr.position = Vector2(750.0, 610.0) + _cutin_shift()
+	if _portrait != null:
+		_portrait.modulate.a = 0.0
+	add_child(spr)
+	spr.play("snap")
+	if spr.sprite_frames != null and spr.sprite_frames.get_frame_count("snap") > 0:
+		await spr.animation_finished
+	else:
+		await get_tree().create_timer(_dur(FRAME_MS * 4.0, fast), false).timeout
+	if is_instance_valid(spr):
+		spr.queue_free()
+	if _portrait != null and not _aborted:
+		_portrait.modulate.a = 1.0
 
 
 func _punch_shake(fast: bool) -> void:

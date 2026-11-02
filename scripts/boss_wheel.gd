@@ -3837,11 +3837,11 @@ func _draw_hub_block(c: Vector2, _radius: float) -> void:
 	var dim: float = 0.35 if hub_death_dim else 1.0
 	_draw_hub_heart_arc(dim)
 	_draw_hub_poison_badge(font, dim)
-	_draw_blk_badge(c, font, dim)
-	if hub_sting > 0.02:
-		var ink: Color = Color("e07a7a") if hub_sting_kind == "hurt" else Color("5aa8e8")
+	## H3-B2: Block nest removed from the wheel hole. Block pip lives on the Take arc.
+	if hub_sting > 0.02 and hub_sting_kind == "hurt":
+		var ink: Color = Color("e07a7a")
 		ink.a = hub_sting * 0.9
-		var origin: Vector2 = c + (Vector2(0, 8) if hub_sting_kind == "hurt" else _badge_xy("blk", "visual_centre_from_c", Vector2(0, 71)))
+		var origin: Vector2 = c + Vector2(0, 8)
 		var burst: float = lerpf(22.0, 10.0, hub_sting)
 		draw_arc(origin, burst * 0.55, 0.0, TAU, 18, Color(ink.r, ink.g, ink.b, hub_sting * 0.45), 2.0, true)
 		for i in 6:

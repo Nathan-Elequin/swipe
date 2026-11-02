@@ -519,18 +519,17 @@ func _shot_caught(filename: String) -> void:
 	if main.home_cabin and main.home_cabin.visible:
 		main.home_cabin.visible = false
 		main._sync_overlay()
-	if main.overlay:
-		main.overlay.z_index = 200
+	# Defeat spotlight replaces the old Caught sheet (no Undo).
+	if main.defeat_spotlight != null and main.defeat_spotlight.has_method("debug_show_settled"):
+		main.defeat_spotlight.debug_show_settled(main.wheel_view, main.art)
 	await _wait(0.2)
-	if main.overlay == null or not main.overlay.visible:
-		_skip(filename, "Caught overlay did not show")
+	if main.defeat_spotlight == null or not main.defeat_spotlight.visible:
+		_skip(filename, "Defeat spotlight did not show")
 		return
-	if main.overlay_undo and not main.overlay_undo.visible:
-		_skip(filename, "Undo was not visible on the Caught sheet")
+	if main.overlay_undo and main.overlay_undo.visible:
+		_skip(filename, "Undo must not show after defeat")
 		return
-	await _capture(filename, "phase=defeat after stowing the cabin, planted one undo snapshot, overlay_btn=defeat.home")
-	if main.overlay:
-		main.overlay.z_index = 80
+	await _capture(filename, "phase=defeat spotlight: quote + Limp home / Quick start, no Undo")
 
 
 func _shot_loss(filename: String) -> void:

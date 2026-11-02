@@ -215,6 +215,7 @@ const MONSTER_FACES := {
 const MONSTER_PNG := {
 	"goblin": "res://assets/dungeon/extra/goblin.png",
 	"kobold_trapper": "res://assets/dungeon/extra/kobold_trapper.png",
+	"bear_trap": "res://assets/dungeon/anim/facing/bear_trap_facing_idle_f0.png",
 	"hornet_swarm": "res://assets/dungeon/extra/hornet_swarm.png",
 	"leech_league": "res://assets/dungeon/extra/leech_league.png",
 	"wick": "res://assets/dungeon/extra/wick.png",
@@ -599,6 +600,20 @@ func monster_slash_frames(card_id: String) -> Array:
 	if not face.is_empty():
 		return face
 	return monster_wheel_frames(card_id)
+
+
+## One-shot Attack callout overlay (Bear Trap jaws). Empty → no-op.
+func monster_snap_frames(card_id: String) -> Array:
+	var id: String = str(card_id).strip_edges()
+	var out: Array = []
+	if id == "":
+		return out
+	for i in 4:
+		var t: Texture2D = _load_tex("res://assets/dungeon/anim/%s_snap_f%d.png" % [id, i])
+		if t == null:
+			break
+		out.append(t)
+	return out
 
 
 func nib_frames() -> Array:

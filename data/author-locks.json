@@ -4818,7 +4818,325 @@
 			"locked_at": "2026-10-28",
 			"text": "Already used until.",
 			"where": "Used item this fight"
+		},
+		"defeat.journal.attrib": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "B.S.",
+			"where": "Defeat spotlight monogram under the journal quote"
+		},
+		"defeat.quick": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Quick start",
+			"where": "Defeat spotlight button: new Verdant Hollow run, skip splash, deal hotbar"
+		},
+		"defeat.journal.01": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "A setback is just a setback with better lighting.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.02": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Get back up. The mountain is terrible at keeping score.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.03": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "If at first you don't succeed, invent a reason you meant to fall.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.04": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Courage is continuing after you've already explained yourself to the floor.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.05": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Pack light regrets. They bruise less than heavy ones.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.06": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Always map the exit before the entrance. I never did. Look how wise I sound.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.07": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "A monster that beats you once has taught you its name. Charge interest later.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.08": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Sleep on it. The bruise will still be there; you'll just be ruder to it.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.09": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Luck prefers the prepared. I preferred lunch. We compromised.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.10": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "When the wheel goes quiet, listen for your own breathing. Then ignore it and try again.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.11": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Never trust a corridor that smiles. Corridors should not have opinions.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.12": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Defeat is temporary. Embarrassment is archival. File yours under \"research.\"",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.13": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Bring biscuits for Nib. Bring stubbornness for yourself. Priorities.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.14": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "The mountain keeps what you drop. So don't drop your nerve.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.15": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "A good plan survives contact. A great plan apologizes and revises.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.16": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "If you can still limp, you can still learn. Limping is underrated scholarship.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.17": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Hold the Block for the thing that laughs. Everything else is practice.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.18": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Counting to four is plenty. Beyond that is showing off.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.19": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Home is where the Cabinet is. The Cabinet is where the proof is.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.20": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Do not open the left-hand drawer. That advice has outlived me. Heed it.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.21": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Falling with style still counts as falling. Falling with notes counts as science.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.22": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "The belly of the mountain has no manners. Reply in kind, then leave.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.23": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Your pockets are finite. Your next attempt is not.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.24": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Whisper a vow, then shout a Spin. Order matters.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.25": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "I met every brick in this place personally. Some of them remember fondly.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.26": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Tips from the deceased: stay curious, stay greedy, stay vaguely upright.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.27": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "A trophy unbanked is a story unfinished. Finish loudly next time.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.28": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "If the lantern goes out, you still have spite. Spite is a renewable resource.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.29": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Never apologize to a boulder. It will take it personally and roll.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.30": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Soft moss is a trap. Hard stone is honesty. Prefer honesty, briefly.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.31": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "The will said everything. It did not say \"easily.\" Fine print of the heart.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.32": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Dust yourself off with dignity, or with a rag. I prefer the rag. It's honest.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.33": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "One more delve. Always one more. That is the whole religion.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.34": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Monsters improve you. You improve the furniture. Fair trade.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.35": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Keep your heels pointed homeward even when your head is pointed elsewhere.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.36": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "A quiet bell helps. A quieter ego helps more. I mastered neither.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.37": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Write the bruise down. Future you will call it foreshadowing.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.38": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "The Spin does not care about your feelings. Charm it anyway.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.39": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Bank early. Brag later. Bragging early is how I met the floor.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.40": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "If you see a shortcut, assume it sees you first.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.41": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Hunger is a strategy. So is soup. I endorse soup.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.42": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Stand where the light is thin and your luck is thick.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.43": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "The engraving says how dare you. Wear that energy into the next room.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.44": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Failure is a footnote. Footnotes are where the truth hides. Congratulations.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.45": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Leave the mountain something to miss. Preferably not your hat.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.46": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "When in doubt, take the shiny thing and apologize to history.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.47": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Bones mend. Pride mends slower. Both mend if you keep moving.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.48": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "I died famous for luck. You will live famous for trying. Better deal.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.49": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "The cabin will wait. It always does. It has excellent manners.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.journal.50": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Close the journal. Open the door. The mountain owes you a rematch.",
+			"where": "Defeat spotlight journal quote (random from .01–.50)"
+		},
+		"defeat.home": {
+			"cat": "Defeat",
+			"locked_at": "2026-11-02",
+			"text": "Limp home",
+			"where": "Caught screen button (replaces 'Again'): starts the loss homecoming"
 		}
 	},
-	"updated": "2026-11-01"
+	"updated": "2026-11-02"
 }

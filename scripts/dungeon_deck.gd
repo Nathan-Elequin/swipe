@@ -41,8 +41,14 @@ var peek_name: String = ""
 var peek_tier: int = 0
 ## Global point the drawn card slides toward (e.g. the wheel slot it lands in). INF = slide left.
 var entry_global: Vector2 = Vector2.INF
+## Item opening-deal stack: no loot bags, no auto face-up after shuffle.
+var show_bags: bool = true
+var show_count: bool = true
+var auto_flip: bool = true
+var interactive: bool = true
 
 var _busy: bool = false
+var _deal_full: bool = false
 var _back: Texture2D
 var _front: Texture2D
 var _slot: Texture2D
@@ -122,9 +128,12 @@ func set_peek(tex: Texture2D, who: String, tier: int = -1) -> void:
 			_depth_hold = -1
 		elif _awaiting_face:
 			_awaiting_face = false
-			_flip_up()
+			if auto_flip:
+				_flip_up()
+			else:
+				_face_up = false
 		elif not _face_up:
-			_face_up = true
+			_face_up = auto_flip
 	if peek_name != "":
 		set_process(true)
 	_tick_shimmer()
@@ -138,7 +147,7 @@ func set_peek_tier(tier: int) -> void:
 
 
 func _sync_mouse() -> void:
-	var on: bool = count > 0 and peek_name != ""
+	var on: bool = interactive and count > 0 and peek_name != ""
 	mouse_filter = Control.MOUSE_FILTER_STOP if on else Control.MOUSE_FILTER_IGNORE
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if on else Control.CURSOR_ARROW
 
@@ -175,17 +184,17 @@ static func depth_for(under: int) -> int:
 
 
 ## Run start: ~0.4s riffle of backs, then the top card flips face up (if the next monster is shown).
-func play_shuffle() -> void:
+func play_shuffle(dur: float = RIFFLE_S) -> void:
 	_busy = true
 	_face_up = false
 	_riffle_t = 0.0
 	set_process(true)
 	var tw := create_tween()
-	tw.tween_property(self, "_riffle_t", 1.0, RIFFLE_S).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(self, "_riffle_t", 1.0, maxf(0.12, dur)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await tw.finished
 	_riffle_t = -1.0
 	_busy = false
-	if count > 0 and peek_name != "":
+	if auto_flip and count > 0 and peek_name != "":
 		await _flip_up()
 	elif count > 0:
 		_awaiting_face = true
@@ -213,6 +222,38 @@ func play_draw() -> void:
 	if count > 0:
 		_awaiting_face = true
 	else:
+		_depth_hold = -1
+	queue_redraw()
+	draw_finished.emit()
+
+
+## Fast face-up slide all the way to a hotbar slot (opening item deal).
+func play_deal_to(target_global: Vector2, dur: float = 0.14) -> void:
+	if count <= 0:
+		return
+	_busy = true
+	_deal_full = true
+	entry_global = target_global
+	_out = {
+		"face": peek_name != "",
+		"tex": peek_tex,
+		"name": peek_name,
+		"tier": peek_tier,
+	}
+	_depth_hold = depth_for(count - 1)
+	count = maxi(0, count - 1)
+	_face_up = false
+	_slide_t = 0.0
+	set_process(true)
+	var tw := create_tween()
+	tw.tween_property(self, "_slide_t", 1.0, maxf(0.06, dur)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await tw.finished
+	_out = {}
+	_slide_t = 0.0
+	_deal_full = false
+	_busy = false
+	_awaiting_face = count > 0
+	if count <= 0:
 		_depth_hold = -1
 	queue_redraw()
 	draw_finished.emit()
@@ -263,7 +304,7 @@ func _draw() -> void:
 	if _riffle_t >= 0.0:
 		_draw_riffle(_riffle_t)
 	elif count <= 0:
-		if _slot != null:
+		if _slot != null and show_bags:
 			draw_texture_rect(_slot, Rect2(CARD_POS, CARD), false, Color(1, 1, 1, 0.38))
 	else:
 		var depth: int = _depth_hold if _depth_hold >= 0 else depth_for(count - 1)
@@ -275,10 +316,13 @@ func _draw() -> void:
 		_draw_card(-CARD * 0.5, show_face, peek_tex, peek_name, peek_tier)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	if not _out.is_empty():
-		var a: float = 1.0 - _slide_t
+		var a: float = 1.0 if _deal_full else (1.0 - _slide_t)
 		var off: Vector2 = (_slide_target() * _slide_t).round()
 		_draw_card(CARD_POS + off, bool(_out.get("face", false)), _out.get("tex"), str(_out.get("name", "")), int(_out.get("tier", 0)), Color(1, 1, 1, a))
-	_draw_loot_bags()
+	if show_bags:
+		_draw_loot_bags()
+	if not show_count:
+		return
 	var font: Font = ThemeDB.fallback_font
 	var lab := str(count)
 	var fs := 22
@@ -304,6 +348,8 @@ func _slide_target() -> Vector2:
 	var dir := Vector2(-150.0, 12.0)
 	if entry_global.is_finite():
 		var to: Vector2 = get_global_transform().affine_inverse() * entry_global - (CARD_POS + CARD * 0.5)
+		if _deal_full:
+			return to
 		dir = to * 0.7
 		if dir.length() > 180.0:
 			dir = dir.normalized() * 180.0

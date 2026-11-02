@@ -25,6 +25,7 @@ const BIOME_AMBIENT := preload("res://scripts/fx/biome_ambient.gd")
 const COMBAT_STAGE := preload("res://scripts/combat_stage.gd")
 const PLAYER_STAGE := preload("res://scripts/player_stage.gd")
 const MOVE_ARROW := preload("res://scripts/ui/move_arrow.gd")
+const TAKE_ARC := preload("res://scripts/ui/take_arc.gd")
 const VIEW_FRAME := preload("res://scripts/ui/view_frame.gd")
 const ARROW_GLYPHS := preload("res://scripts/ui/arrow_glyphs.gd")
 const BUCKET_REVEAL := preload("res://scripts/bucket_reveal.gd")
@@ -40,6 +41,7 @@ const CHALLENGE_DRAFT := preload("res://scripts/challenge_draft.gd")
 const HUB_CUE_CAPSULE := preload("res://scripts/ui/hub_cue_capsule.gd")
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const CAMPAIGN_MAP := preload("res://scripts/campaign_map.gd")
+const DEFEAT_SPOTLIGHT := preload("res://scripts/ui/defeat_spotlight.gd")
 const HOME_CABIN := preload("res://scripts/home_cabin.gd")
 const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 const BUILD_STAMP := preload("res://scripts/build_stamp.gd")
@@ -67,9 +69,13 @@ const MARBLE_FILL := 10
 ## 1.0 = original speed. Wheel spin ignores this.
 ## 0.675 = 35% faster than the previous 0.5 setting.
 const ANIM_TIME_SCALE := 0.675
-## Spin / Take / Safe sit in this row. Keep the height even when those buttons
-## hide mid-spin so the wheel does not grow, then shrink, to make room.
+## Spin sits in this row on ready. H3-B2 moves Take onto the cream arc under the
+## wheel during fights, so fighting no longer reserves this height (hotbar grows).
+## Keep the slot on ready/spin so the wheel does not jump when Spin shows.
 const COMBAT_ACTION_SLOT_H := 64.0
+## Bigger 2×5 hotbar (H3-B2) — reclaim the old standalone Take row.
+const HOTBAR_CARD_W := 172.0
+const HOTBAR_CARD_H := 148.0
 
 const COMBAT_LOG := preload("res://scripts/combat_log.gd")
 const ABILITY_SLASH := preload("res://scripts/ability_slash.gd")
@@ -617,6 +623,8 @@ var dev_latest_btn: Button
 var btn_start: Button
 var btn_spin: Button
 var btn_done: Button
+var take_arc: Button
+var tex_block_arc: Texture2D
 var _take_burst: Control
 var _take_style_base: Dictionary = {}
 var _take_style_had: Dictionary = {}
@@ -738,6 +746,7 @@ var _splash_busy: bool = false
 var _wheel_nest_offset: float = 0.0
 var _biome_wipe: ColorRect
 var dungeon_deck_ui
+var item_deal_ui
 var challenge_draft_ui
 var btn_challenge_begin: Button
 var hotbar_wrap: MarginContainer
@@ -764,9 +773,11 @@ var _undo_live: Dictionary = {}
 var _undo_inflight: bool = false
 var _undo_gen: int = 0
 var _undo_busy: bool = false
+var _undo_no_rewind: bool = false
 var btn_undo: Button
 var btn_redo: Button
 var overlay_undo: Button
+var defeat_spotlight
 var playtest_hub
 var playtest_feedback
 var playtest_tier
@@ -965,6 +976,9 @@ func _load_textures() -> void:
 	tex_sword = _tex("res://assets/icons/sword.svg")
 	tex_atk = _tex("res://assets/ui/icons/atk_burst.png")
 	tex_shield = _tex("res://assets/ui/icons/pips/pip_block_s24_2x.png")
+	tex_block_arc = _tex("res://assets/ui/icons/pips/pip_block_arc_s24_2x.png")
+	if tex_block_arc == null:
+		tex_block_arc = tex_shield
 	tex_rotate = _tex("res://assets/icons/rotate.svg")
 	tex_plus = _tex("res://assets/icons/plus.svg")
 	tex_by_monster = {
@@ -1306,6 +1320,17 @@ func _build_ui() -> void:
 	dungeon_deck_ui.hovered.connect(_on_deck_hovered)
 	dungeon_deck_ui.unhovered.connect(_on_deck_unhovered)
 	dungeon_deck_ui.edit_wanted.connect(_on_deck_edit)
+	item_deal_ui = DUNGEON_DECK.new()
+	item_deal_ui.setup()
+	item_deal_ui.visible = false
+	item_deal_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	item_deal_ui.show_bags = false
+	item_deal_ui.auto_flip = false
+	item_deal_ui.interactive = false
+	item_deal_ui.z_index = 40
+	if art != null and art.tile("crate") != null:
+		item_deal_ui.art_tex = art.tile("crate")
+	add_child(item_deal_ui)
 	_build_move_ui()
 	challenge_draft_ui = CHALLENGE_DRAFT.new()
 	challenge_draft_ui.setup()
@@ -1812,6 +1837,10 @@ func _build_overlay() -> void:
 	else:
 		overlay_tools_row.visible = false
 	overlay.z_index = 80
+	defeat_spotlight = DEFEAT_SPOTLIGHT.new()
+	add_child(defeat_spotlight)
+	defeat_spotlight.home_pressed.connect(_on_defeat_limp_home)
+	defeat_spotlight.quick_pressed.connect(_on_defeat_quick_start)
 
 
 func _build_copy_stamp() -> void:
@@ -2329,6 +2358,10 @@ func _reset_run() -> void:
 		if dungeon_deck_ui.has_method("set_peek"):
 			dungeon_deck_ui.set_peek(null, "")
 		dungeon_deck_ui.visible = false
+	if item_deal_ui:
+		item_deal_ui.set_count(0)
+		item_deal_ui.set_peek(null, "")
+		item_deal_ui.visible = false
 	if dungeon_bg:
 		dungeon_bg.reset_hall()
 	refusals_left = REFUSALS_MAX
@@ -3217,6 +3250,8 @@ func _campaign_draft_decision() -> Dictionary:
 
 func _go_home_loss() -> void:
 	# Tip #247: clear Verdant ambient. Splash: soft dissolve out, no splash.
+	if defeat_spotlight != null and defeat_spotlight.has_method("dismiss"):
+		defeat_spotlight.dismiss()
 	_sync_biome_ambient("", true)
 	await _biome_dissolve_out()
 	_campaign_abort()
@@ -3224,6 +3259,46 @@ func _go_home_loss() -> void:
 	phase = "title"
 	_open_home_cabin(true, "loss", [], [])
 	await _biome_dissolve_reveal()
+
+
+func _kick_defeat_spotlight(skip_pose: bool = false) -> void:
+	if defeat_spotlight == null:
+		return
+	# Fire-and-forget; callers of _player_down do not await.
+	_run_defeat_spotlight(skip_pose)
+
+
+func _run_defeat_spotlight(skip_pose: bool = false) -> void:
+	if defeat_spotlight == null:
+		return
+	if skip_pose and wheel_view != null and wheel_view.has_method("play_hero"):
+		# Toll-rescue path already played death; ensure hold frame for the mirror.
+		if str(wheel_view.hero_anim) != "death":
+			wheel_view.play_hero("death", 1, true)
+	await defeat_spotlight.play_sequence(wheel_view, art)
+
+
+func _on_defeat_limp_home() -> void:
+	if phase != "defeat":
+		return
+	_go_home_loss()
+
+
+func _on_defeat_quick_start() -> void:
+	if phase != "defeat":
+		return
+	if defeat_spotlight != null and defeat_spotlight.has_method("dismiss"):
+		defeat_spotlight.dismiss()
+	# New Verdant Hollow run, skip biome splash, land on dealing the hotbar.
+	if _campaign == null:
+		return
+	_splash_busy = true
+	var biome_id := "b1"
+	if sfx and sfx.has_method("music_biome_dungeon"):
+		sfx.music_biome_dungeon(biome_id)
+	_sync_biome_ambient(biome_id)
+	await _begin_campaign_delve(0, false, false, null, false)
+	_splash_busy = false
 
 
 func _give_up() -> void:
@@ -4635,7 +4710,7 @@ func _run_challenge_setup() -> void:
 	if seq != _mill_seq:
 		return
 	if _campaign_on:
-		_campaign_grant_starter_six()
+		await _campaign_grant_starter_six()
 		await _enforce_hand_cap()
 		if challenge_draft_ui:
 			challenge_draft_ui.hide_draft()
@@ -4662,10 +4737,9 @@ func _campaign_grant_starter_six() -> void:
 	if _campaign == null:
 		return
 	_challenge_reshuffle_items()
+	var queue: Array = []
 	var tiers: Array = CAMPAIGN_SHELL.starter_tiers(_campaign.rules, rng)
 	for raw_t in tiers:
-		if hotbar.size() >= _hand_limit():
-			break
 		var t: int = int(raw_t)
 		var iid: String = _challenge_take_item(t, "")
 		if iid == "" or iid == "smoke_bomb":
@@ -4677,9 +4751,123 @@ func _campaign_grant_starter_six() -> void:
 			continue
 		var seated: Dictionary = _make_item(iid)
 		_stamp_pack(seated, _pack_tier_for(iid, items_by_id, t), "draft")
-		hotbar.append(seated.duplicate(true))
-		_log("on_draft", "gain %s" % seated.get("name", "?"))
+		queue.append(seated.duplicate(true))
+	if queue.is_empty():
+		return
+	if _qa_busy():
+		for it_qa in queue:
+			if hotbar.size() >= _hand_limit():
+				break
+			hotbar.append(it_qa)
+			_log("on_draft", "gain %s" % it_qa.get("name", "?"))
+		_sort_hotbar()
+		return
+	await _deal_opening_hand(queue)
+
+
+func _sync_item_deal_deck() -> void:
+	if item_deal_ui == null:
+		return
+	item_deal_ui.size = Vector2(148, 168)
+	var gp := Vector2(840.0, 720.0)
+	if hotbar_panel != null:
+		var pr: Rect2 = hotbar_panel.get_global_rect()
+		if pr.size.x > 8.0:
+			gp = Vector2(pr.position.x + pr.size.x * 0.5 - 74.0, pr.position.y - 180.0)
+	item_deal_ui.global_position = gp
+
+
+func _hotbar_wait_slot_global() -> Vector2:
+	if hotbar_overflow != null:
+		var parked: Array = hotbar_overflow.get_children()
+		if not parked.is_empty():
+			var last: Control = parked[parked.size() - 1]
+			return last.global_position + last.size * 0.5
+	if hotbar_panel != null:
+		var pr: Rect2 = hotbar_panel.get_global_rect()
+		return Vector2(pr.position.x + pr.size.x * 0.5, pr.position.y - 80.0)
+	return _hotbar_empty_slot_global()
+
+
+func _bounce_hot_uid(uid: int) -> void:
+	if hotbar_box == null:
+		return
+	for c in hotbar_box.get_children():
+		if _control_uid(c) == uid and c.has_method("bounce"):
+			c.bounce()
+			return
+
+
+func _deal_opening_hand(items: Array) -> void:
+	var seq: int = _mill_seq
+	if item_deal_ui == null:
+		for it_raw in items:
+			if hotbar.size() >= _forced_hand_cap():
+				if not _start_full_hand_replace(it_raw):
+					continue
+				while _challenge_loot_wait and is_instance_valid(self):
+					if seq != _mill_seq:
+						return
+					await get_tree().process_frame
+			else:
+				hotbar.append(it_raw)
+				_log("on_draft", "gain %s" % it_raw.get("name", "?"))
+		_sort_hotbar()
+		_refresh()
+		return
+	_sync_item_deal_deck()
+	item_deal_ui.visible = true
+	item_deal_ui.set_count(items.size())
+	item_deal_ui.set_peek(null, "")
+	if sfx:
+		sfx.play("cloth", -10.0)
+		sfx.play("whoosh", -14.0, 1.2)
+	await item_deal_ui.play_shuffle(0.32)
+	if seq != _mill_seq:
+		item_deal_ui.visible = false
+		return
+	for i in items.size():
+		if seq != _mill_seq:
+			break
+		var it: Dictionary = items[i]
+		if typeof(it) != TYPE_DICTIONARY or it.is_empty():
+			continue
+		var full: bool = hotbar.size() >= _forced_hand_cap()
+		var dest: Vector2 = _hotbar_wait_slot_global() if full else _hotbar_empty_slot_global()
+		var iid: String = str(it.get("card_id", ""))
+		var tex: Texture2D = _item_icon_tex(it, iid)
+		_sync_item_deal_deck()
+		item_deal_ui.set_peek(tex, str(it.get("name", "?")), _tier_of(it))
+		await item_deal_ui.play_deal_to(dest, 0.14)
+		item_deal_ui.set_peek(null, "")
+		if seq != _mill_seq:
+			break
+		if full:
+			if not _start_full_hand_replace(it):
+				continue
+			var epoch: int = _loot_epoch
+			var token: int = _undo_gen
+			while _challenge_loot_wait and is_instance_valid(self):
+				if seq != _mill_seq or epoch != _loot_epoch or _undo_stale(token):
+					_challenge_loot_wait = false
+					_challenge_pending_gain = {}
+					break
+				await get_tree().process_frame
+			if sfx and not _challenge_loot_wait:
+				sfx.play_event(&"hand.gain", {"card_id": iid, "pitch_mul": 1.0 + float(i) * 0.045})
+			continue
+		hotbar.append(it)
+		_log("on_draft", "gain %s" % it.get("name", "?"))
+		if sfx:
+			sfx.play_event(&"hand.gain", {"card_id": iid, "pitch_mul": 1.0 + float(i) * 0.045})
+		_refresh()
+		_bounce_hot_uid(int(it.get("uid", -1)))
+	if item_deal_ui:
+		item_deal_ui.visible = false
+		item_deal_ui.set_count(0)
+		item_deal_ui.set_peek(null, "")
 	_sort_hotbar()
+	_refresh()
 
 
 func _challenge_seat_dungeon(upgrade: bool) -> void:
@@ -8527,7 +8715,7 @@ func _player_down(skip_pose: bool = false) -> void:
 		_advance_bucket_counter()
 	phase = "defeat"
 	_log("end", "dead")
-	_flash_screen(Color("c45c5c"), 0.28)
+	# Spotlight sequence owns the blackout — no red flash over it.
 	if sfx:
 		if sfx.has_method("music_hold_for_undo"):
 			sfx.music_hold_for_undo()
@@ -8543,6 +8731,7 @@ func _player_down(skip_pose: bool = false) -> void:
 	_discard_spent_items()
 	facing_index = -1
 	_refresh()
+	_kick_defeat_spotlight(skip_pose)
 
 
 func _clear_after_fight(_clockwork_split: bool = false) -> void:
@@ -8763,7 +8952,10 @@ func _undo_stale(token: int) -> bool:
 func _undo_in_scope() -> bool:
 	if in_tutorial:
 		return false
-	return phase == "fighting" or phase == "ready" or phase == "slaying" or phase == "defeat" or phase == "victory"
+	# No Undo after defeat — spotlight sequence only offers Limp home / Quick start.
+	if phase == "defeat":
+		return false
+	return phase == "fighting" or phase == "ready" or phase == "slaying" or phase == "victory"
 
 
 func _undo_can_undo() -> bool:
@@ -8784,6 +8976,7 @@ func _undo_clear() -> void:
 	_undo_stack.clear()
 	_redo_stack.clear()
 	_undo_inflight = false
+	_undo_no_rewind = false
 	_undo_live = {}
 	_undo_gen += 1
 
@@ -8802,6 +8995,7 @@ func _undo_wall() -> void:
 	_undo_stack.clear()
 	_redo_stack.clear()
 	_undo_inflight = false
+	_undo_no_rewind = false
 	if in_tutorial:
 		_undo_live = {}
 		return
@@ -8849,6 +9043,10 @@ func _undo_commit() -> void:
 func _undo_finish_item() -> void:
 	if in_tutorial:
 		_undo_inflight = false
+		_undo_no_rewind = false
+		return
+	if _oligarch_forcing or _undo_no_rewind:
+		_undo_wall()
 		return
 	if not _undo_inflight:
 		if _undo_live.is_empty():
@@ -9037,7 +9235,7 @@ func _undo_play_fx(is_redo: bool) -> void:
 
 
 func _on_undo() -> void:
-	if in_tutorial or _undo_busy:
+	if in_tutorial or _undo_busy or phase == "defeat":
 		return
 	_undo_busy = true
 	_session("undo", "Undo")
@@ -9611,6 +9809,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if str(ale_face.get("kind", "")) == "monster" and int(ale_face.get("hp", 0)) > 0:
 					_heal_monster(facing_index, both_n, true)
 			_draw_unseen_item()
+			_undo_no_rewind = true
 		"heal_kills":
 			var flask_n: int = 1 + mobs_defeated
 			_log("on_item_use", str(it["name"]))
@@ -9654,6 +9853,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_sync_wheel_stats()
 			phase = "ready"
 			_walker_busy = false
+			_undo_no_rewind = true
 			_challenge_force_spin = true
 			if combat_stage:
 				combat_stage.hide_stage()
@@ -9943,6 +10143,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			await _count_item_use()
 			_log("on_item_use", str(it["name"]))
 			_toss_item(int(it["uid"]), false)
+			_undo_no_rewind = true
 			await _apply_catapult()
 			return
 		"napalm":
@@ -10385,6 +10586,133 @@ func _zombie_decay_on_spin() -> void:
 		var b: Dictionary = _find_item(int(picked[1]))
 		_log("on_spin", "Decay %s + %s" % [a.get("name", "?"), b.get("name", "?")])
 	_refresh()
+
+
+func _decay_sort_hotbar_uids(uids: Array) -> Array:
+	var order: Dictionary = {}
+	for i in hotbar.size():
+		if typeof(hotbar[i]) != TYPE_DICTIONARY:
+			continue
+		order[int(hotbar[i].get("uid", -1))] = i
+	var out: Array = uids.duplicate()
+	out.sort_custom(func(a: Variant, b: Variant) -> bool:
+		return int(order.get(int(a), 999)) < int(order.get(int(b), 999))
+	)
+	return out
+
+
+func _decay_mark_progress(picked: Array, done_i: int) -> void:
+	if picked.is_empty() or done_i < 0:
+		return
+	var last: int = mini(done_i, picked.size() - 1)
+	if last == 0:
+		var it: Dictionary = _find_item(int(picked[0]))
+		if it.is_empty():
+			return
+		it["decay_marked"] = true
+		it["decay_solo"] = true
+		it["decay_partner"] = -1
+		return
+	var a: Dictionary = _find_item(int(picked[0]))
+	var b: Dictionary = _find_item(int(picked[1]))
+	if a.is_empty() or b.is_empty():
+		return
+	a["decay_marked"] = true
+	a["decay_solo"] = false
+	a["decay_partner"] = int(b.get("uid", -1))
+	b["decay_marked"] = true
+	b["decay_solo"] = false
+	b["decay_partner"] = int(a.get("uid", -1))
+
+
+func _decay_infect_beam(uid: int, hit_i: int) -> void:
+	var dest: Vector2 = _item_card_global(uid)
+	if dest == Vector2.ZERO:
+		dest = _hotbar_card_global(uid)
+	var from: Vector2 = _petrify_beam_from()
+	if from == Vector2.ZERO:
+		from = dest + Vector2(0, -120)
+	if sfx:
+		sfx.play("whoosh", -12.0, 0.72)
+	await _decay_draw_beam(from, dest)
+	if sfx:
+		sfx.play_event(&"status.decay", {"pitch_mul": 1.0 + float(hit_i) * 0.08})
+	var card = _hotbar_card_by_uid(uid)
+	if card != null and card.has_method("bounce"):
+		card.bounce()
+
+
+func _decay_draw_beam(from: Vector2, to_card: Vector2) -> void:
+	var host: Node2D = _petrify_fx_host()
+	var span: Vector2 = to_card - from
+	var dist: float = maxf(span.length(), 1.0)
+	var dir: Vector2 = span / dist
+	var tan := Vector2(-dir.y, dir.x)
+	var col_outer := Color("8E72F2")
+	var col_core := Color("E8D9FF")
+	var beam := Line2D.new()
+	beam.name = "DecayBeam"
+	beam.z_index = 18
+	beam.width = 8.0
+	beam.default_color = col_outer
+	beam.antialiased = false
+	beam.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	beam.end_cap_mode = Line2D.LINE_CAP_ROUND
+	beam.add_point(from)
+	beam.add_point(from)
+	host.add_child(beam, true)
+	var core := Line2D.new()
+	core.name = "DecayBeamCore"
+	core.z_index = 19
+	core.width = 3.0
+	core.default_color = col_core
+	core.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	core.end_cap_mode = Line2D.LINE_CAP_ROUND
+	core.add_point(from)
+	core.add_point(from)
+	host.add_child(core, true)
+	var tw := create_tween()
+	tw.tween_method(
+		func(u: float) -> void:
+			var p: Vector2 = from.lerp(to_card, u)
+			p += tan * sin(u * PI * 2.5) * 14.0 * (1.0 - u)
+			beam.set_point_position(1, p)
+			core.set_point_position(1, p),
+		0.0,
+		1.0,
+		0.14
+	)
+	await tw.finished
+	if is_instance_valid(beam):
+		beam.set_point_position(1, to_card)
+	if is_instance_valid(core):
+		core.set_point_position(1, to_card)
+	for _i in 4:
+		var drip := ColorRect.new()
+		drip.color = col_outer if (_i % 2) == 0 else col_core
+		drip.size = Vector2(4, 6)
+		drip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		drip.z_index = 20
+		host.add_child(drip)
+		drip.global_position = to_card + Vector2(randf_range(-10, 10), randf_range(-4, 4))
+		var dt := create_tween()
+		dt.set_parallel(true)
+		dt.tween_property(drip, "position:y", drip.position.y + randf_range(16, 28), 0.18)
+		dt.tween_property(drip, "modulate:a", 0.0, 0.18)
+		dt.finished.connect(drip.queue_free, CONNECT_ONE_SHOT)
+	await get_tree().create_timer(0.06).timeout
+	var fade := create_tween()
+	fade.set_parallel(true)
+	if is_instance_valid(beam):
+		fade.tween_property(beam, "modulate:a", 0.0, 0.12)
+	if is_instance_valid(core):
+		fade.tween_property(core, "modulate:a", 0.0, 0.12)
+	fade.finished.connect(func() -> void:
+		if is_instance_valid(beam):
+			beam.queue_free()
+		if is_instance_valid(core):
+			core.queue_free()
+	, CONNECT_ONE_SHOT)
 
 
 func _toss_item(uid: int, keep: bool, slow: bool = false) -> void:
@@ -11953,6 +12281,7 @@ func _apply_oligarch_on_spin() -> void:
 		_walker_busy = false
 		_log("on_spin", "Oligarch uses a random Item")
 		await _use_item(pick)
+		_undo_wall()
 		_oligarch_forcing = false
 		if int(_seat) >= 0 and int(_seat) < wheel.size() and str(wheel[int(_seat)].get("card_id", "")) == "oligarch":
 			_walker_restore(int(_seat))
@@ -13122,6 +13451,9 @@ func _hub_hp_pos() -> Vector2:
 
 
 func _hub_blk_pos() -> Vector2:
+	## H3-B2: Block pip lives on the Take arc, not in the wheel hole.
+	if take_arc != null and take_arc.visible and take_arc.has_method("block_pip_global"):
+		return take_arc.block_pip_global()
 	if wheel_view:
 		return wheel_view.hub_blk_global()
 	return Vector2.ZERO
@@ -14536,6 +14868,7 @@ func _apply_marble(it: Dictionary) -> bool:
 			await _fly_courier(hold_tex, from, to, 0.4)
 	var call: String = "Attack" if as_atk else "Block"
 	_flash_banner(call, "marble", _item_icon_tex(it))
+	_undo_no_rewind = true
 	_log("on_item_use", str(it.get("name", "Marble")))
 	if as_atk:
 		var hit: int = _atk_with_head(n)
@@ -15488,12 +15821,14 @@ func _echo_flatten_kind(kind: String, shield_face: String) -> String:
 
 func _item_echo_snapshot(it: Dictionary) -> Dictionary:
 	var ops: Dictionary = {}
-	var raw: Variant = it.get("ops", {})
-	if typeof(raw) == TYPE_DICTIONARY and not (raw as Dictionary).is_empty():
-		ops = (raw as Dictionary).duplicate(true)
+	var oid: String = str(it.get("card_id", ""))
+	if oid == "jar_o_grease":
+		ops = {"kind": "move2_keep", "n": 2}
 	else:
-		var oid: String = str(it.get("card_id", ""))
-		if ITEM_OPS.has(oid):
+		var raw: Variant = it.get("ops", {})
+		if typeof(raw) == TYPE_DICTIONARY and not (raw as Dictionary).is_empty():
+			ops = (raw as Dictionary).duplicate(true)
+		elif ITEM_OPS.has(oid):
 			ops = (ITEM_OPS[oid] as Dictionary).duplicate(true)
 	var view: Dictionary = _item_view(it)
 	var frozen_n: int = int(view.get("n", 0))
@@ -15552,7 +15887,7 @@ func _remember_item_use(it: Dictionary) -> void:
 
 
 func _clicked_item_counts_as_use(it: Dictionary) -> bool:
-	# Countdown tokens tick on their own. Only a hotbar click is a use.
+	# Hex / Toll / Pacemaker / Recycler tick without a hotbar click.
 	return not _kind_always_unplayable(str(_ops_of(it).get("kind", "")))
 
 
@@ -15565,15 +15900,20 @@ func _after_item_resolved(it: Dictionary) -> void:
 		return
 	# Item body is done. Dual Sais / Shield / Toll / Adaptation wait until now
 	# so Pocketwatch's attack (and Defeat, Signpost, Hook) can finish first.
+	# `_count_item_use` arms this. A spent dict with no count is not a click
+	# (Harpy Impatient was treating those as "Used" and swinging twice on Spin).
+	var counted_use: bool = _after_item_use_armed and not _skip_item_use_count
 	await _commit_after_item_use()
 	if await _flush_vindictive():
 		return
-	if _clicked_item_counts_as_use(it):
+	if counted_use and _clicked_item_counts_as_use(it):
 		_remember_item_use(it)
 		await _basilisk_on_gazed_use(it)
 	var spent_use: bool = bool(it.get("spent", false))
 	var magnet_use: bool = str(_ops_of(it).get("kind", "")) == "magnet"
 	if not spent_use and not magnet_use:
+		return
+	if not counted_use:
 		return
 	if phase != "fighting":
 		return
@@ -15604,6 +15944,11 @@ func _harpy_poke(why: String = "spin") -> void:
 	if not _facing_can_act():
 		return
 	if _spin_inflight and _harpy_did_spin_hit and not _oligarch_forcing:
+		return
+	# USED stamp is only for a counted hotbar use (or Oligarch forcing one).
+	# Impatient's own slash is not an item use.
+	if why == "item" and items_used_this_combat <= 0 and not _oligarch_forcing:
+		_trace_resolve("harpy skip item poke; no counted use")
 		return
 	var m: Dictionary = wheel[facing_index]
 	if str(m.get("card_id", "")) != "harpy" or _is_silenced(m):
@@ -17142,6 +17487,7 @@ func _flee_spin(_shuffle: bool = false) -> bool:
 		return true
 	_flee_random_spin = true
 	_challenge_force_spin = true
+	_undo_wall()
 	call_deferred("_maybe_auto_spin")
 	return true
 
@@ -17550,6 +17896,7 @@ func _apply_mark_inner(index: int) -> void:
 			combat_stage.show_monster(str(wheel[facing_index].get("card_id", "")), int(wheel[facing_index].get("tier", 1)))
 			_tune_combat_stage()
 		_draw_unseen_item()
+		_undo_no_rewind = true
 		_refresh()
 		if not hotbar.is_empty():
 			var gained = hotbar[hotbar.size() - 1]
@@ -17850,6 +18197,7 @@ func _apply_sling_convert(sling: Dictionary, target_uid: int) -> void:
 		if typeof(held) == TYPE_DICTIONARY:
 			before_uids[int(held.get("uid", -1))] = true
 	_draw_unseen_item()
+	_undo_no_rewind = true
 	_refresh()
 	if _challenge_loot_wait:
 		await _after_item_resolved(sling)
@@ -18007,6 +18355,7 @@ func _apply_sling(aim: int, sling: Dictionary, atk_uid: int) -> void:
 		if typeof(held) == TYPE_DICTIONARY:
 			before_uids[int(held.get("uid", -1))] = true
 	_draw_unseen_item()
+	_undo_no_rewind = true
 	_refresh()
 	for held in hotbar:
 		if typeof(held) != TYPE_DICTIONARY:
@@ -21243,6 +21592,8 @@ func _ability_avoid_rects() -> Array:
 		out.append(dungeon_deck_ui.get_global_rect())
 	if btn_done != null and btn_done.visible:
 		out.append(btn_done.get_global_rect())
+	if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
+		out.append(take_arc.arc_global_rect())
 	if btn_move_left != null and btn_move_left.visible:
 		out.append(btn_move_left.get_global_rect())
 	if btn_move_right != null and btn_move_right.visible:
@@ -21941,8 +22292,16 @@ func _punch_hero(b: Button, on: bool) -> void:
 	tw.tween_property(b, "scale", Vector2(1.14, 1.14) if on else Vector2.ONE, 0.1).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
+func _take_click_target() -> Button:
+	if take_arc != null and take_arc.visible:
+		return take_arc
+	return btn_done
+
+
 func _on_done_hover(on: bool) -> void:
-	_punch_hero(btn_done, on and phase == "fighting")
+	## Take arc paints its own hover; only punch the old pill button.
+	if take_arc == null or not take_arc.visible:
+		_punch_hero(btn_done, on and phase == "fighting")
 	if not on or phase != "fighting":
 		_ghost_hp = -1
 		_refresh_hearts()
@@ -21954,6 +22313,9 @@ func _on_done_hover(on: bool) -> void:
 
 
 func _on_done_press(down: bool) -> void:
+	## Take arc uses its own pressed redraw; don't scale a full-rect overlay.
+	if take_arc != null and take_arc.visible:
+		return
 	if btn_done == null:
 		return
 	btn_done.pivot_offset = btn_done.size * 0.5
@@ -22190,9 +22552,15 @@ func _wheel_side_gutter() -> float:
 
 
 func _combat_holds_action_slot() -> bool:
+	## Fighting / slaying: Take lives on the cream arc under the wheel (H3-B2).
+	## Do not reserve the old standalone Take row — hotbar reclaims that height.
 	match phase:
-		"ready", "spinning", "fighting", "slaying", "draft", "devtest":
+		"ready", "spinning", "draft", "devtest":
 			return true
+		"fighting", "slaying":
+			## Special mid-fight Continue / Decline still use the pill button.
+			var feed_kind: String = str(pending_feed.get("kind", "")) if not pending_feed.is_empty() else ""
+			return feed_kind == "worm_hunger" or feed_kind == "hired_bribe"
 		_:
 			return false
 
@@ -22859,45 +23227,31 @@ func _sync_buttons() -> void:
 	_hide_take_burst()
 	if enemy_up:
 		var hit: int = _incoming_hit()
-		if hit > 0:
-			var tmpl: String = PLAYER_COPY.text("combat.take_hit", "Take {n}")
-			btn_done.text = tmpl.replace("{n}", "").strip_edges()
-			btn_done.icon = null
-			btn_done.custom_minimum_size = Vector2(260, 64)
-			btn_done.add_theme_font_size_override("font_size", 32)
-			btn_done.add_theme_color_override("font_color", Color("6a1212"))
-			btn_done.add_theme_color_override("font_hover_color", Color("8a1818"))
-			btn_done.add_theme_color_override("font_pressed_color", Color("4a0808"))
-			btn_done.remove_theme_color_override("icon_normal_color")
-			btn_done.remove_theme_color_override("icon_hover_color")
-			_show_take_burst(hit)
-		else:
-			btn_done.text = PLAYER_COPY.text("combat.safe", "Safe")
-			btn_done.icon = tex_shield
-			btn_done.custom_minimum_size = Vector2(228, 56)
-			btn_done.add_theme_font_size_override("font_size", 26)
-			btn_done.add_theme_constant_override("icon_max_width", 28)
-			btn_done.add_theme_color_override("font_color", Color("1c120c"))
-			btn_done.add_theme_color_override("font_hover_color", Color("100e0c"))
-			btn_done.remove_theme_color_override("icon_normal_color")
-			btn_done.remove_theme_color_override("icon_hover_color")
-		btn_done.scale = Vector2.ONE
+		## H3-B2: cream Take arc under the wheel. Hide the old standalone pill.
+		btn_done.visible = false
+		_hide_take_burst()
+		_sync_take_arc(hit, busy)
 		_sync_intent_plate()
+	else:
+		_hide_take_arc()
 	if btn_spin:
 		btn_spin.scale = Vector2.ONE
 	if feed_kind == "worm_hunger":
+		_hide_take_arc()
 		btn_done.visible = true
 		btn_done.disabled = busy
 		btn_done.text = PLAYER_COPY.text("title.continue", "Continue")
 		btn_done.icon = null
 		_hide_take_burst()
 	elif feed_kind == "hired_bribe":
+		_hide_take_arc()
 		btn_done.visible = true
 		btn_done.disabled = busy
 		btn_done.text = "Decline"
 		btn_done.icon = null
 		_hide_take_burst()
 	_stamp_atk_variants()
+	_hold_combat_action_slot()
 
 
 func _build_move_ui() -> void:
@@ -22923,6 +23277,16 @@ func _build_move_ui() -> void:
 	btn_move_right.tooltip_text = PLAYER_COPY.text("combat.move_right", "Move ▶")
 	btn_move_right.pressed.connect(_on_move_right)
 	move_box.add_child(btn_move_right)
+	take_arc = TAKE_ARC.new()
+	take_arc.name = "TakeArc"
+	take_arc.visible = false
+	take_arc.z_index = 21
+	take_arc.pressed.connect(_on_done)
+	take_arc.mouse_entered.connect(_on_done_hover.bind(true))
+	take_arc.mouse_exited.connect(_on_done_hover.bind(false))
+	take_arc.button_down.connect(_on_done_press.bind(true))
+	take_arc.button_up.connect(_on_done_press.bind(false))
+	move_box.add_child(take_arc)
 	move_box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
@@ -23017,15 +23381,21 @@ func _can_move(dir: int) -> bool:
 func _sync_move_ui() -> void:
 	if move_box == null:
 		return
-	var show: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready")
-	move_box.visible = show
-	if not show:
+	var show_arrows: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready")
+	## Take arc is a child of move_box — keep the box up during fights even without Moves.
+	var show_take: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size() and (int(wheel[facing_index].get("hp", 0)) > 0 or _wick_waiting(facing_index))
+	move_box.visible = show_arrows or show_take
+	if btn_move_left:
+		btn_move_left.visible = show_arrows
+	if btn_move_right:
+		btn_move_right.visible = show_arrows
+	if not show_arrows and not show_take:
 		return
 	var tut_move: bool = in_tutorial and _tut_moves_on and tut != null and tut.wait == "move"
-	if btn_move_left:
+	if show_arrows and btn_move_left:
 		btn_move_left.disabled = false if tut_move else (true if in_tutorial and _tut_moves_on else not _can_move(-1))
 		btn_move_left.queue_redraw()
-	if btn_move_right:
+	if show_arrows and btn_move_right:
 		btn_move_right.disabled = false if tut_move else (true if in_tutorial and _tut_moves_on else not _can_move(1))
 		btn_move_right.queue_redraw()
 	_place_move_arrows()
@@ -23053,19 +23423,88 @@ func _show_faced_monster() -> void:
 	_show_fight_portrait()
 
 
+func _hide_take_arc() -> void:
+	if take_arc != null and is_instance_valid(take_arc):
+		take_arc.visible = false
+
+
+func _take_burst_tex_for(hit: int) -> Dictionary:
+	var v := _take_variant()
+	var kind: String = str(v.get("kind", "single"))
+	var n: int = int(v.get("n", 1))
+	var tex_kind := kind
+	var pip := ""
+	if kind != "loop" and n >= 3:
+		tex_kind = "double"
+		pip = "×%s" % n
+	elif kind != "loop" and n >= 2:
+		tex_kind = "double"
+	elif kind != "loop":
+		tex_kind = "single"
+	var tex: Texture2D = _tex("res://assets/ui/icons/atk_burst_%s_s24_2x.png" % tex_kind)
+	return {"tex": tex, "pip": pip, "hit": hit}
+
+
+func _sync_take_arc(hit: int, busy: bool) -> void:
+	if take_arc == null:
+		return
+	if move_box != null:
+		move_box.visible = true
+	take_arc.visible = true
+	take_arc.disabled = busy or (btn_done != null and btn_done.disabled)
+	var word: String
+	var burst: Texture2D = null
+	var pip := ""
+	var shown_n: int = hit
+	if hit > 0:
+		var tmpl: String = PLAYER_COPY.text("combat.take_hit", "Take {n}")
+		word = tmpl.replace("{n}", "").strip_edges()
+		var info: Dictionary = _take_burst_tex_for(hit)
+		burst = info.get("tex", null)
+		pip = str(info.get("pip", ""))
+	else:
+		word = PLAYER_COPY.text("combat.safe", "Safe")
+		shown_n = 0
+	var font: Font = btn_done.get_theme_font("font") if btn_done != null else null
+	if font == null:
+		font = ThemeDB.fallback_font
+	take_arc.set_combat(blk, shown_n, word, burst, pip, tex_block_arc, font)
+	_place_take_arc()
+	## Re-place arrows after the arc is visible so pad snaps to the arc top.
+	if btn_move_left != null and btn_move_left.visible:
+		_place_move_arrows()
+
+
+func _place_take_arc() -> void:
+	if take_arc == null or wheel_view == null:
+		return
+	take_arc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
+	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
+	var local_c: Vector2 = take_arc.get_global_transform().affine_inverse() * c
+	take_arc.set_guide(local_c, rad, 4.0)
+
+
 func _place_move_arrows() -> void:
 	if btn_move_left == null or btn_move_right == null or wheel_view == null:
 		return
 	var show: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready")
 	btn_move_left.visible = show
 	btn_move_right.visible = show
+	if take_arc != null and take_arc.visible:
+		_place_take_arc()
 	if not show:
 		return
 	var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
 	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
 	btn_move_left.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	btn_move_right.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var pad: float = PlaytestUx.move_arrow_outer_pad()
+	## H3-B2: pull arrows in so their INNER edge is TOP-aligned with the Take arc top.
+	## Take arc inner = rad + rim_gap (4). Arrow inner = rad + pad - BODY_W/2.
+	## ⇒ pad = rim_gap + BODY_W/2.
+	var pad: float = 4.0 + MOVE_ARROW.BODY_W * 0.5
+	if take_arc == null or not take_arc.visible:
+		pad = PlaytestUx.move_arrow_outer_pad()
 	var sweep: float = PI * 0.28
 	var face_left: float = 1.0e9
 	if face_box != null and face_box.visible:
@@ -23212,6 +23651,7 @@ func _jar_slide_two(it: Dictionary) -> bool:
 	it["keep_after"] = keep_echo
 	await _count_item_use()
 	_toss_item(int(it.get("uid", -1)), keep_echo)
+	_undo_no_rewind = true
 	return true
 
 
@@ -23315,7 +23755,8 @@ func _sync_overlay() -> void:
 	if phase == "victory":
 		overlay.visible = false
 		return
-	var show_defeat: bool = phase == "defeat"
+	# Defeat UI is the spotlight sequence (quote + Limp home / Quick start). No Caught sheet, no Undo.
+	var show_defeat: bool = false
 	overlay.visible = show_defeat
 	if overlay_dive:
 		overlay_dive.visible = false
@@ -23336,16 +23777,13 @@ func _sync_overlay() -> void:
 	if overlay_sub:
 		overlay_sub.visible = false
 	if overlay_btn:
-		overlay_btn.visible = show_defeat
+		overlay_btn.visible = false
 	if overlay_undo:
-		overlay_undo.visible = _undo_can_undo() and phase == "defeat"
+		overlay_undo.visible = false
 	if overlay_score:
-		overlay_score.visible = adventure and phase == "defeat"
-		if overlay_score.visible:
-			overlay_score.text = PLAYER_COPY.fill("title.dungeons_cleared", {"n": dungeons_cleared}, "Dungeons cleared: %s" % dungeons_cleared)
-	if phase == "defeat":
-		overlay_title.text = PLAYER_COPY.text("title.lose", "Caught")
-		overlay_btn.text = PLAYER_COPY.text("defeat.home", "Limp home")
+		overlay_score.visible = false
+	if phase != "defeat" and defeat_spotlight != null and defeat_spotlight.has_method("is_active") and defeat_spotlight.is_active():
+		defeat_spotlight.dismiss()
 
 
 func _rebuild_tray() -> void:
@@ -23654,8 +24092,8 @@ func _place_hotbar_overflow() -> void:
 		hotbar_overflow.queue_redraw()
 		return
 	var gap: float = 8.0
-	var cw: float = 147.5
-	var ch: float = 120.0
+	var cw: float = HOTBAR_CARD_W
+	var ch: float = HOTBAR_CARD_H
 	var first: Control = kids[0] as Control
 	if first != null:
 		var sz: Vector2 = first.get_combined_minimum_size()
@@ -24486,8 +24924,11 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 			if mon.size.x > 4.0:
 				arrows.append([mon.get_center(), hc])
 		return
-	if tag == "block" and wheel_view != null:
-		_tut_add_rect(spots, wheel_view.focus_rect("hub_blk"))
+	if tag == "block":
+		if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
+			_tut_add_rect(spots, take_arc.arc_global_rect())
+		elif wheel_view != null:
+			_tut_add_rect(spots, wheel_view.focus_rect("hub_blk"))
 		return
 	if tag == "empty" and wheel_view != null:
 		_tut_add_rect(spots, wheel_view.focus_rect("empty"))
@@ -24570,7 +25011,11 @@ func _tut_focus() -> Control:
 		return null
 	var tag: String = tut.focus_tag
 	match tag:
-		"wheel", "empty", "atk", "hp", "block":
+		"wheel", "empty", "atk", "hp":
+			return wheel_view
+		"block":
+			if take_arc != null and take_arc.visible:
+				return take_arc
 			return wheel_view
 		"hearts":
 			return wheel_view
@@ -24587,6 +25032,8 @@ func _tut_focus() -> Control:
 		"begin":
 			return btn_challenge_begin
 		"done":
+			if take_arc != null and take_arc.visible:
+				return take_arc
 			return btn_done
 		"trophy":
 			return trophy
