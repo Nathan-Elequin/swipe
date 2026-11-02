@@ -3,16 +3,23 @@ extends Button
 ## One click target for end-combat / Take net damage.
 ## Split ~1/3 | divider | ~2/3. Left = Block pip only (blank when 0).
 ## Right = locked player-copy Take / Safe + damage burst.
+##
+## Sweep is LEFT → RIGHT in screen space. Godot angles grow counterclockwise
+## with +Y down, so the bottom-left is a larger angle than the bottom-right.
+## Parameter t=0 is the visual left tip; t=1 is the visual right tip.
 
 const BODY_W := 48.0
 const SPLIT_T := 0.34
-## Bottom-centered sweep (radians).
-const SWEEP := 1.55
+## Bottom-centered sweep (radians). Slightly under a quarter-turn so move
+## arrows can start clear of the arc tips.
+const SWEEP := 1.42
+## Gap from gold rim to the inner edge of this arc.
+const RIM_GAP_DEFAULT := 4.0
 
 var guide_c: Vector2 = Vector2.ZERO
 var guide_r: float = 180.0
 ## Gap from rim to the inner edge of this arc.
-var rim_gap: float = 4.0
+var rim_gap: float = RIM_GAP_DEFAULT
 var block_n: int = 0
 var take_n: int = 0
 var take_word: String = "Take"
@@ -113,18 +120,26 @@ func _has_point(point: Vector2) -> bool:
 	if d < inn - 2.0 or d > out + 2.0:
 		return false
 	var ang: float = (point - guide_c).angle()
-	# Bottom-centered; angle near PI/2.
-	var a0: float = PI * 0.5 - SWEEP * 0.5
-	var a1: float = PI * 0.5 + SWEEP * 0.5
-	# Normalize into [a0, a1] wrapping not needed for bottom span under PI.
-	if ang < a0 or ang > a1:
+	var span: Vector2 = _arc_span()
+	var a0: float = span.x
+	var a1: float = span.x + span.y
+	var lo: float = minf(a0, a1)
+	var hi: float = maxf(a0, a1)
+	if ang < lo - 0.01 or ang > hi + 0.01:
 		return false
 	return true
 
 
 func _arc_span() -> Vector2:
-	var a0: float = PI * 0.5 - SWEEP * 0.5
-	return Vector2(a0, SWEEP)
+	## Start at visual LEFT (larger angle past six-o'clock), sweep toward
+	## visual RIGHT (decreasing angle). t=0 left, t=1 right.
+	var a0: float = PI * 0.5 + SWEEP * 0.5
+	return Vector2(a0, -SWEEP)
+
+
+## Chord width of the outer rim at the current guide (for layout spacers).
+func outer_chord_width() -> float:
+	return 2.0 * outer_radius() * sin(SWEEP * 0.5)
 
 
 func _chord_point(t: float) -> Vector2:
@@ -244,7 +259,8 @@ func _draw_divider(pal: Dictionary, press: Vector2) -> void:
 
 
 func _draw_block_pip(press: Vector2) -> void:
-	var at: Vector2 = _chord_point(SPLIT_T * 0.52) + press
+	## Center of the left third (t = SPLIT_T * 0.5).
+	var at: Vector2 = _chord_point(SPLIT_T * 0.5) + press
 	var tex: Texture2D = block_tex
 	if tex == null:
 		return
