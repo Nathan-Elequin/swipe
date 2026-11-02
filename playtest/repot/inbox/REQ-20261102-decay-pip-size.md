@@ -2,6 +2,8 @@
 id: REQ-20261102-decay-pip-size
 status: open
 priority: high
+pr: 280
+tip_sha: c4164b56
 branch: cursor/decay-pip-overlay-c341
 base: playtest/latest
 created: 2026-11-02T05:45:00Z
