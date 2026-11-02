@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-01T22:15:00Z",
+	"updated_at": "2026-11-02T01:55:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"190": {
@@ -162,6 +162,21 @@
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/249",
 			"sha": "f5cd9cc1",
 			"closed_note": "Nathan asked to close after implement."
+		},
+		"254": {
+			"status": "todo",
+			"title": "Juggernaut/Beggar should move to the actual hotbar seat they add or steal",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/254"
+		},
+		"255": {
+			"status": "todo",
+			"title": "Pocketwatch Druid \u2192 Prism refract killed both neighbors, then soft-lock",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/255"
+		},
+		"256": {
+			"status": "todo",
+			"title": "Tier list send (Poison Frog / Gargoyle / Ogre ranking)",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/256"
 		}
 	}
 }

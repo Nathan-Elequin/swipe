@@ -2837,7 +2837,8 @@ func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
 		"delves": delves_n,
 	}
 	var BiomeSplash = load("res://scripts/ui/biome_splash.gd")
-	var want_splash: bool = (not endless) and BiomeSplash != null and BiomeSplash.has_narration(biome_name)
+	## Tip biomes b1–b5 always splash (placeholder art OK). Missing narration key → blank Label, do not skip.
+	var want_splash: bool = (not endless) and BiomeSplash != null and BiomeSplash.shows_for_biome(biome_id)
 	var used_map_wipe := false
 	if want_splash:
 		splash = BiomeSplash.new()
@@ -2845,6 +2846,11 @@ func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
 		# Music exactly once at splash appear. Native music_to only. Never re-fire on skip/nest.
 		if sfx and sfx.has_method("music_biome_dungeon"):
 			sfx.music_biome_dungeon(biome_id)
+		## Start the shared BiomeAmbient kit on the splash still (over art, behind chrome).
+		## Same node continues into the delve after detach — no rebuild flash.
+		_sync_biome_ambient(biome_id)
+		if splash.has_method("attach_ambient") and biome_ambient != null:
+			splash.attach_ambient(biome_ambient)
 		await splash.play_in(biome_id, ctx)
 	else:
 		if not endless and sfx and sfx.has_method("music_biome_dungeon"):
@@ -2977,7 +2983,8 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool, splash = n
 	CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
 	_campaign.write()
 	_sync_dungeon_biome()
-	## Ambient on for b1 campaign delves only (Endless / non-b1 clear themselves).
+	## Ambient for campaign tip biomes b1–b5 (Endless / cabin / map clear themselves).
+	## If splash already started the kit, set_biome short-circuits — no preprocess flash.
 	_sync_biome_ambient()
 	_reset_moves()
 	dungeon_index = 1 if endless else index + 1
@@ -2995,7 +3002,9 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool, splash = n
 	_empty_wheel(CHALLENGE_SEATS)
 	if splash != null and is_instance_valid(splash):
 		await splash.wait_dismissed()
+		## play_out detaches ambient back onto main before fading art/chrome.
 		await splash.play_out()
+		_forward_ambient_avoids()
 	elif used_map_wipe:
 		await _biome_dissolve_reveal(0.20)
 	await _nest_wheel()
@@ -10892,6 +10901,8 @@ func _wick_on_defeated(index: int) -> void:
 	var nbs: Array[int] = _damsel_neighbors(index)
 	_begin_simul()
 	for i in nbs:
+		if i < 0 or i >= wheel.size():
+			continue
 		if str(wheel[i].get("card_id", "")) != "wick":
 			continue
 		if _is_silenced(wheel[i]):
@@ -12370,11 +12381,19 @@ func _collapse_dead_wicks() -> void:
 	if _wick_collapsing:
 		return
 	_wick_collapsing = true
-	var i: int = wheel.size() - 1
-	while i >= 0:
-		if i != facing_index and str(wheel[i].get("card_id", "")) == "wick" and int(wheel[i].get("hp", 0)) <= 0:
-			await _kill_neighbor(i)
-		i -= 1
+	var guard: int = 0
+	while guard < 24:
+		guard += 1
+		var victim: int = -1
+		var i: int = wheel.size() - 1
+		while i >= 0:
+			if i < wheel.size() and i != facing_index and str(wheel[i].get("card_id", "")) == "wick" and int(wheel[i].get("hp", 0)) <= 0:
+				victim = i
+				break
+			i -= 1
+		if victim < 0:
+			break
+		await _kill_neighbor(victim)
 	_wick_collapsing = false
 
 
@@ -17858,18 +17877,28 @@ func _kill_neighbor(index: int) -> void:
 	if index == facing_index:
 		return
 	await _await_slash_idle()
+	if index < 0 or index >= wheel.size() or index == facing_index:
+		return
 	if await _try_phoenix_cycle(index):
+		return
+	if index < 0 or index >= wheel.size() or index == facing_index:
 		return
 	if await _try_triclops_bail(index):
 		return
+	if index < 0 or index >= wheel.size() or index == facing_index:
+		return
 	await _on_owner_defeated(index)
 	if hp <= 0:
+		return
+	if index < 0 or index >= wheel.size() or index == facing_index:
 		return
 	var pin: int = facing_index
 	var m: Dictionary = wheel[index]
 	if str(m.get("card_id", "")) == "death_bell":
 		await _maybe_bell_defeat_tax(index)
 	await _wick_on_defeated(index)
+	if index < 0 or index >= wheel.size():
+		return
 	if str(m.get("card_id", "")) == "mimic" and not adventure:
 		await _grant_mimic_gift()
 	_flash_screen(Color("e8c36a"), 0.32)
@@ -17885,7 +17914,7 @@ func _kill_neighbor(index: int) -> void:
 			await _challenge_resolve_holes(index)
 			if phase == "fighting":
 				await _ensure_face_at_six()
-		if not _flushing_poison_sides and facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
+		if not _wick_collapsing and not _flushing_poison_sides and facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 			if not _wick_waiting(facing_index):
 				await _maybe_slay_down(facing_index)
 		return
@@ -17899,7 +17928,7 @@ func _kill_neighbor(index: int) -> void:
 			wheel_view.set_slices(wheel, facing_index, "none")
 			await wheel_view.recenter_on(facing_index)
 		_refresh()
-		if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
+		if not _wick_collapsing and facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 			if not _wick_waiting(facing_index):
 				await _maybe_slay_down(facing_index)
 		return
@@ -17915,7 +17944,7 @@ func _kill_neighbor(index: int) -> void:
 		wheel_view.set_slices(wheel, facing_index, "none")
 		await wheel_view.recenter_on(facing_index)
 	_refresh()
-	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
+	if not _wick_collapsing and facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 		if not _wick_waiting(facing_index):
 			await _maybe_slay_down(facing_index)
 

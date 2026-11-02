@@ -1,5 +1,20 @@
 extends SceneTree
-## Headless checks for the biome-enter splash. Does not boot main.gd.
+## Headless checks for the biome-enter splash (all tip biomes b1–b5 + ambient host).
+## Does not boot main.gd.
+
+
+const BIOMES := [
+	{"id": "b1", "name": "Verdant Hollow", "short": "verdant", "key": "splash.biome.verdant_hollow",
+		"narr": "The Hollow breathes green under Mount Grumblegut. Moss drinks what little light sneaks in. The path ahead is soft, damp, and already listening."},
+	{"id": "b2", "name": "Crystal Cavern", "short": "crystal", "key": "splash.biome.crystal_cavern",
+		"narr": "The Cavern breathes cold under Mount Grumblegut. Ice drinks what little sound sneaks in. The path ahead is bright, brittle, and already listening."},
+	{"id": "b3", "name": "Ashen Crypt", "short": "ashen", "key": "splash.biome.ashen_crypt",
+		"narr": "The Crypt breathes ash under Mount Grumblegut. Dust drinks what little light sneaks in. The path ahead is dry, still, and already listening."},
+	{"id": "b4", "name": "Cinder Forge", "short": "cinder", "key": "splash.biome.cinder_forge",
+		"narr": "The Forge breathes heat under Mount Grumblegut. Sparks drink what little dark sneaks in. The path ahead is loud, glowing, and already listening."},
+	{"id": "b5", "name": "Shadow Abyss", "short": "shadow", "key": "splash.biome.shadow_abyss",
+		"narr": "The Abyss breathes black under Mount Grumblegut. Shadow drinks what little light sneaks in. The path ahead is steep, quiet, and already listening."},
+]
 
 
 func _init() -> void:
@@ -11,21 +26,117 @@ func _run() -> void:
 	var COPY = load("res://scripts/player_copy.gd")
 	COPY.reload()
 	var BiomeSplash = load("res://scripts/ui/biome_splash.gd")
+	var Ambient = load("res://scripts/fx/biome_ambient.gd")
 	failed = _check(failed, "script loads", BiomeSplash != null) or failed
-	failed = _check(failed, "verdant narration key", COPY.has_key("splash.biome.verdant_hollow")) or failed
+	failed = _check(failed, "ambient script loads", Ambient != null) or failed
 	failed = _check(failed, "chrome continue key", COPY.has_key("splash.chrome.continue")) or failed
 	failed = _check(failed, "continue text locked", COPY.text("splash.chrome.continue") == "click anytime") or failed
 	failed = _check(failed, "never intro.next", COPY.text("splash.chrome.continue") != COPY.text("intro.next", "Click to continue")) or failed
-	var want_narr := "The Hollow breathes green under Mount Grumblegut. Moss drinks what little light sneaks in. The path ahead is soft, damp, and already listening."
-	failed = _check(failed, "narration exact", COPY.text("splash.biome.verdant_hollow") == want_narr) or failed
-	failed = _check(failed, "has_narration b1", BiomeSplash.has_narration("Verdant Hollow")) or failed
-	failed = _check(failed, "no narration b2", not BiomeSplash.has_narration("Crystal Cavern")) or failed
-	failed = _check(failed, "slug verdant", BiomeSplash.narration_key_for_name("Verdant Hollow") == "splash.biome.verdant_hollow") or failed
-	failed = _check(failed, "short verdant", BiomeSplash.art_short_for_name("Verdant Hollow") == "verdant") or failed
-	failed = _check(failed, "bg placeholder exists", ResourceLoader.exists("res://assets/ui/biome_splash/bg_verdant_placeholder.png")) or failed
+
+	for b in BIOMES:
+		var bid: String = str(b["id"])
+		var bname: String = str(b["name"])
+		var short: String = str(b["short"])
+		var key: String = str(b["key"])
+		var want_narr: String = str(b["narr"])
+		failed = _check(failed, "%s shows_for_biome" % bid, BiomeSplash.shows_for_biome(bid)) or failed
+		failed = _check(failed, "%s narration key" % bid, COPY.has_key(key)) or failed
+		failed = _check(failed, "%s narration exact" % bid, COPY.text(key) == want_narr) or failed
+		failed = _check(failed, "%s has_narration" % bid, BiomeSplash.has_narration(bname)) or failed
+		failed = _check(failed, "%s slug" % bid, BiomeSplash.narration_key_for_name(bname) == key) or failed
+		failed = _check(failed, "%s art short" % bid, BiomeSplash.art_short_for_name(bname) == short) or failed
+		var ph := "res://assets/ui/biome_splash/bg_%s_placeholder.png" % short
+		failed = _check(failed, "%s placeholder exists" % bid, ResourceLoader.exists(ph)) or failed
+
+	failed = _check(failed, "endless id no splash", not BiomeSplash.shows_for_biome("endless")) or failed
+	failed = _check(failed, "unknown id no splash", not BiomeSplash.shows_for_biome("b9")) or failed
 	failed = _check(failed, "leaf placeholder exists", ResourceLoader.exists("res://assets/ui/biome_splash/cue_leaf_placeholder.png")) or failed
 	failed = _check(failed, "sprout idle exists", ResourceLoader.exists("res://assets/dungeon/anim/player/sprout_idle_f0.png")) or failed
 
+	## Build splash for every tip biome; narration matches Spin byte-for-byte.
+	for b in BIOMES:
+		var bid: String = str(b["id"])
+		var bname: String = str(b["name"])
+		var want_narr: String = str(b["narr"])
+		var splash = BiomeSplash.new()
+		root.add_child(splash)
+		splash._biome_id = bid
+		splash._ctx = {
+			"biome_id": bid,
+			"biome_name": bname,
+			"dungeon_index": int(bid.substr(1)) if bid.length() > 1 else 1,
+			"delves": 4,
+		}
+		splash._build()
+		failed = _check(failed, "%s builds root" % bid, splash._root != null) or failed
+		failed = _check(failed, "%s builds art" % bid, splash._art != null and splash._art.texture != null) or failed
+		failed = _check(failed, "%s builds ambient host" % bid, splash._ambient_host != null) or failed
+		failed = _check(failed, "%s narration on label" % bid, splash.narration_text() == want_narr) or failed
+		var chrome: Dictionary = splash.chrome_texts()
+		failed = _check(failed, "%s chrome biome" % bid, str(chrome.get("biome", "")) == bname) or failed
+		failed = _check(failed, "%s chrome continue" % bid, str(chrome.get("continue", "")) == "click anytime") or failed
+		var blob := "%s %s" % [str(chrome), splash.narration_text()]
+		failed = _check(failed, "%s no Tier" % bid, blob.find("Tier") < 0 and blob.find("tier") < 0) or failed
+		## No ad-hoc splash fireflies — ambient kit owns particles.
+		failed = _check(failed, "%s no one-off Fireflies" % bid, splash._root.get_node_or_null("Fireflies") == null) or failed
+		splash.queue_free()
+		await process_frame
+
+	## Missing narration key → splash still builds, Label blank (do not invent copy).
+	var blank_splash = BiomeSplash.new()
+	root.add_child(blank_splash)
+	blank_splash._biome_id = "b2"
+	blank_splash._ctx = {
+		"biome_id": "b2",
+		"biome_name": "Unknown Biome",
+		"dungeon_index": 2,
+		"delves": 1,
+	}
+	blank_splash._build()
+	failed = _check(failed, "missing key has_narration false", not BiomeSplash.has_narration("Unknown Biome")) or failed
+	failed = _check(failed, "missing key still builds", blank_splash._root != null) or failed
+	failed = _check(failed, "missing key blank narration", blank_splash.narration_text() == "") or failed
+	blank_splash.queue_free()
+	await process_frame
+
+	## Ambient emitting while hosted on splash (shared kit, not a duplicate).
+	var amb_home := Node2D.new()
+	amb_home.name = "AmbientHome"
+	root.add_child(amb_home)
+	var amb = Ambient.new()
+	amb_home.add_child(amb)
+	amb.setup(Vector2(1680, 1040))
+	amb.set_enabled(true)
+	for b in BIOMES:
+		var bid: String = str(b["id"])
+		var bname: String = str(b["name"])
+		amb.set_biome(bid)
+		var splash2 = BiomeSplash.new()
+		root.add_child(splash2)
+		splash2._biome_id = bid
+		splash2._ctx = {
+			"biome_id": bid,
+			"biome_name": bname,
+			"dungeon_index": 1,
+			"delves": 0,
+		}
+		splash2._build()
+		splash2.attach_ambient(amb)
+		failed = _check(failed, "%s ambient hosted" % bid, splash2.hosted_ambient() == amb) or failed
+		failed = _check(failed, "%s ambient under host" % bid, amb.get_parent() == splash2._ambient_host) or failed
+		failed = _check(failed, "%s ambient amount > 0" % bid, amb.total_particle_amount() > 0) or failed
+		failed = _check(failed, "%s ambient emitting on splash" % bid, splash2.ambient_emitting()) or failed
+		## Detach restores home without clear/rebuild of amounts.
+		var amount_before: int = amb.total_particle_amount()
+		var biome_before: String = amb.current_biome()
+		splash2.detach_ambient()
+		failed = _check(failed, "%s ambient detached home" % bid, amb.get_parent() == amb_home) or failed
+		failed = _check(failed, "%s ambient same biome after detach" % bid, amb.current_biome() == biome_before) or failed
+		failed = _check(failed, "%s ambient same amount after detach" % bid, amb.total_particle_amount() == amount_before) or failed
+		splash2.queue_free()
+		await process_frame
+
+	## Skip mid play_in: seed a mid alpha, latch skip, play_out must not jump alpha up.
 	var splash = BiomeSplash.new()
 	root.add_child(splash)
 	var ctx := {
@@ -37,16 +148,6 @@ func _run() -> void:
 	splash._biome_id = "b1"
 	splash._ctx = ctx
 	splash._build()
-	var chrome: Dictionary = splash.chrome_texts()
-	failed = _check(failed, "chrome biome", str(chrome.get("biome", "")) == "Verdant Hollow") or failed
-	failed = _check(failed, "chrome dungeon", str(chrome.get("dungeon", "")) == "Dungeon 1") or failed
-	failed = _check(failed, "chrome delves", str(chrome.get("delves", "")) == "Delves: 4") or failed
-	failed = _check(failed, "chrome continue", str(chrome.get("continue", "")) == "click anytime") or failed
-	failed = _check(failed, "narration on label", splash.narration_text() == want_narr) or failed
-	var blob := "%s %s" % [str(chrome), splash.narration_text()]
-	failed = _check(failed, "no Tier in chrome", blob.find("Tier") < 0 and blob.find("tier") < 0) or failed
-
-	# Skip mid play_in: seed a mid alpha, latch skip, play_out must not jump alpha up.
 	splash._root.modulate.a = 0.42
 	splash._skipped = false
 	splash._dismissed_emitted = false
@@ -55,7 +156,6 @@ func _run() -> void:
 	splash._request_skip()
 	failed = _check(failed, "skipped latched", splash.was_skipped()) or failed
 	failed = _check(failed, "skip keeps mid alpha", absf(splash.current_alpha() - 0.42) < 0.001) or failed
-	# play_out contract: fade from current alpha → 0; never jump up first.
 	var start_a: float = splash.current_alpha()
 	failed = _check(failed, "play_out starts from current", absf(start_a - 0.42) < 0.001) or failed
 	var tw: Tween = splash.create_tween()
@@ -71,9 +171,6 @@ func _run() -> void:
 	splash.queue_free()
 	await process_frame
 
-	# Missing key biomes skip splash (caller responsibility); confirm helper.
-	failed = _check(failed, "b2 skip splash helper", not BiomeSplash.has_narration("Crystal Cavern")) or failed
-
 	# Music call site checks against main.gd source.
 	var main_src := FileAccess.get_file_as_string("res://scripts/main.gd")
 	var begin_idx: int = main_src.find("func _begin_campaign_delve")
@@ -87,6 +184,10 @@ func _run() -> void:
 	var start_end: int = main_src.find("\nfunc ", start_idx + 1)
 	var start_body: String = main_src.substr(start_idx, maxi(0, start_end - start_idx))
 	failed = _check(failed, "music at campaign_start", start_body.find("sfx.music_biome_dungeon") >= 0) or failed
+	failed = _check(failed, "shows_for_biome gate", start_body.find("shows_for_biome") >= 0) or failed
+	failed = _check(failed, "attach_ambient at start", start_body.find("attach_ambient") >= 0) or failed
+	## Gate must not require has_narration (missing key still splashes).
+	failed = _check(failed, "no has_narration gate", start_body.find("has_narration") < 0) or failed
 	var adv_end: int = main_src.find("\nfunc ", adventure_idx + 1)
 	var adv_body: String = main_src.substr(adventure_idx, maxi(0, adv_end - adventure_idx))
 	failed = _check(failed, "music still on adventure_continue", adv_body.find("sfx.music_biome_dungeon") >= 0) or failed
@@ -96,6 +197,9 @@ func _run() -> void:
 	failed = _check(failed, "leave uses dissolve", main_src.find("await _biome_dissolve_out") >= 0) or failed
 	failed = _check(failed, "nest wheel helper", main_src.find("func _nest_wheel") >= 0) or failed
 	failed = _check(failed, "wheel nest offset", main_src.find("_wheel_nest_offset") >= 0) or failed
+
+	amb.free()
+	amb_home.free()
 
 	if failed:
 		push_error("biome_splash self-test failed")

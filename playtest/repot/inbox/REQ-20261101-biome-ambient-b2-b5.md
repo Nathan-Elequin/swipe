@@ -1,6 +1,6 @@
 ---
 id: REQ-20261101-biome-ambient-b2-b5
-status: open
+status: done
 priority: high
 branch: cursor/biome-ambient-b2-b5-55d1
 base: playtest/latest
