@@ -964,14 +964,14 @@ func _load_textures() -> void:
 	tex_heart = _tex("res://assets/icons/heart.svg")
 	tex_sword = _tex("res://assets/icons/sword.svg")
 	tex_atk = _tex("res://assets/ui/icons/atk_burst.png")
-	tex_shield = _tex("res://assets/icons/shield.svg")
+	tex_shield = _tex("res://assets/ui/icons/pips/pip_block_s24_2x.png")
 	tex_rotate = _tex("res://assets/icons/rotate.svg")
 	tex_plus = _tex("res://assets/icons/plus.svg")
 	tex_by_monster = {
 		"wizard": _tex("res://assets/icons/wand.svg"),
 		"golem": _tex("res://assets/icons/mountain.svg"),
 		"goblin": _tex("res://assets/icons/users.svg"),
-		"skeleton": _tex("res://assets/icons/skull.svg"),
+		"skeleton": _tex("res://assets/ui/icons/pips/pip_skull_s24_2x.png"),
 		"hornet_swarm": _tex("res://assets/icons/sparkles.svg"),
 		"lich": _tex("res://assets/icons/droplet.svg"),
 		"ogre": _tex("res://assets/icons/hammer.svg"),
@@ -999,10 +999,10 @@ func _load_textures() -> void:
 		"wick": _tex("res://assets/icons/trending.svg"),
 		"anvil": _tex("res://assets/icons/mountain.svg"),
 		"vampire": _tex("res://assets/icons/heart.svg"),
-		"bodyguard": _tex("res://assets/icons/shield.svg"),
+		"bodyguard": _tex("res://assets/ui/icons/pips/pip_block_s24_2x.png"),
 		"cowardly_king": _tex("res://assets/icons/users.svg"),
 		"merchant": _tex("res://assets/icons/layers.svg"),
-		"juggernaut": _tex("res://assets/icons/shield.svg"),
+		"juggernaut": _tex("res://assets/ui/icons/pips/pip_block_s24_2x.png"),
 		"cleric": _tex("res://assets/icons/heart.svg"),
 		"hydra": _tex("res://assets/icons/users.svg"),
 		"three_seeker": _tex("res://assets/icons/users.svg"),
@@ -1039,7 +1039,7 @@ func _load_textures() -> void:
 		"spiked_flail": _tex("res://assets/icons/trending.svg"),
 		"sledgehammer": _tex("res://assets/icons/mountain.svg"),
 		"grimoire": _tex("res://assets/icons/wand.svg"),
-		"breastplate": _tex("res://assets/icons/shield.svg"),
+		"breastplate": _tex("res://assets/ui/icons/pips/pip_block_s24_2x.png"),
 		"smoke_bomb": _tex("res://assets/icons/sparkles.svg"),
 		"fangs": _tex("res://assets/icons/skull.svg"),
 		"poison_flask": _tex("res://assets/icons/droplet.svg"),
@@ -1117,11 +1117,11 @@ func _load_textures() -> void:
 		"empty_purse": _tex("res://assets/icons/layers.svg"),
 		"wickrise": _tex("res://assets/icons/trending.svg"),
 		"one_chip": _tex("res://assets/icons/mountain.svg"),
-		"take_instead": _tex("res://assets/icons/shield.svg"),
+		"take_instead": _tex("res://assets/ui/icons/pips/pip_block_s24_2x.png"),
 		"pass_right": _tex("res://assets/icons/link.svg"),
 		"coward": _tex("res://assets/icons/footprints.svg"),
 		"fair_trade": _tex("res://assets/icons/layers.svg"),
-		"gift_shield": _tex("res://assets/icons/shield.svg"),
+		"gift_shield": _tex("res://assets/ui/icons/pips/pip_block_s24_2x.png"),
 		"insure": _tex("res://assets/icons/heart.svg"),
 		"even_killer": _tex("res://assets/icons/mountain.svg"),
 		"triple_threat": _tex("res://assets/icons/users.svg"),
