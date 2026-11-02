@@ -10275,6 +10275,16 @@ func _item_has_keep(it: Dictionary) -> bool:
 	return false
 
 
+func _decay_item_eligible(it: Dictionary) -> bool:
+	if bool(it.get("spent", false)):
+		return false
+	if _item_stoned(it) or _item_has_keep(it):
+		return false
+	if bool(_item_look(it).get("unplayable", false)):
+		return false
+	return true
+
+
 func _decay_clear_mark(it: Dictionary) -> void:
 	it["decay_marked"] = false
 	it["decay_partner"] = -1
@@ -10333,7 +10343,7 @@ func _zombie_decay_on_spin() -> void:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
-		if bool(it.get("spent", false)) or _item_stoned(it) or _item_has_keep(it):
+		if not _decay_item_eligible(it):
 			continue
 		eligible.append(int(it.get("uid", -1)))
 	var picked: Array = []
