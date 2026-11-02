@@ -23187,8 +23187,11 @@ func _sync_hotbar() -> void:
 		var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
 		var armed_ready: bool = in_fight and not spent_n and (str(it.get("card_id", "")) == "pacemaker" or str(it.get("card_id", "")) == "healing_potion")
 		var decay_on: bool = bool(it.get("decay_marked", false)) and not spent_n
+		var decay_solo_n: bool = bool(it.get("decay_solo", false))
+		if card.has_method("set_decay_solo"):
+			card.set_decay_solo(decay_on and decay_solo_n)
 		if card.has_method("set_decay_link"):
-			card.set_decay_link(decay_on and not bool(it.get("decay_solo", false)))
+			card.set_decay_link(decay_on and not decay_solo_n, _decay_chain_side_for(it))
 		# Priority: Petrify/Unplayable > WARN > CHOICE > READY (petrify handled in stone look).
 		var stoned_n: bool = _item_stoned(it)
 		if card.has_method("set_aura_role"):
@@ -23546,8 +23549,36 @@ func _reapply_hotbar_aura_roles() -> void:
 		elif snack_ready or rec_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready")):
 			role = "ready"
 		card.set_aura_role(role)
+		var decay_on2: bool = bool(it.get("decay_marked", false)) and not spent_n
+		var decay_solo2: bool = bool(it.get("decay_solo", false))
+		if card.has_method("set_decay_solo"):
+			card.set_decay_solo(decay_on2 and decay_solo2)
 		if card.has_method("set_decay_link"):
-			card.set_decay_link(bool(it.get("decay_marked", false)) and not spent_n and not bool(it.get("decay_solo", false)))
+			card.set_decay_link(decay_on2 and not decay_solo2, _decay_chain_side_for(it))
+
+
+func _decay_chain_side_for(it: Dictionary) -> int:
+	## -1 left / +1 right toward decay partner so the chain glyph bridges the pair.
+	if it.is_empty() or bool(it.get("decay_solo", false)):
+		return 0
+	var partner_uid: int = int(it.get("decay_partner", -1))
+	if partner_uid < 0 or hotbar_box == null:
+		return -1
+	var self_uid: int = int(it.get("uid", -1))
+	var self_x: float = -1.0
+	var partner_x: float = -1.0
+	for node in hotbar_box.get_children():
+		if not (node is Control):
+			continue
+		var card: Control = node
+		var uid_n: int = _control_uid(card)
+		if uid_n == self_uid:
+			self_x = card.global_position.x
+		elif uid_n == partner_uid:
+			partner_x = card.global_position.x
+	if self_x < 0.0 or partner_x < 0.0:
+		return -1
+	return 1 if partner_x > self_x else -1
 
 
 func _clear_box(box: Node) -> void:
