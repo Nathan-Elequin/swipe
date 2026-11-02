@@ -15,11 +15,15 @@ const FACE_DIR := "res://assets/ui/icons/face/"
 ## Shared icons that stay at their existing paths (not redesigned here).
 const HEART := "res://assets/ui/hub/heart_full.png"
 const BURST := "res://assets/ui/icons/atk_burst_single_s24_2x.png"
-const SHIELD := "res://assets/icons/shield.svg"
-const SKULL := "res://assets/icons/skull.svg"
+const SHIELD := "res://assets/ui/icons/pips/pip_block_s24_2x.png"
+const SKULL := "res://assets/ui/icons/pips/pip_skull_s24_2x.png"
 const DROPLET := "res://assets/icons/droplet.svg"
 const BAN := "res://assets/icons/ban.svg"
 const COPY := "res://assets/icons/copy.svg"
+
+
+static func _is_pip_path(path: String) -> bool:
+	return path.find("/pips/pip_") >= 0
 
 static var _cache: Dictionary = {}
 
@@ -221,9 +225,12 @@ func _make_cell(g: Dictionary, offer: bool) -> Control:
 	host.add_child(icon)
 	icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
+	var pip_icon: bool = _is_pip_path(_path_for(tex_key))
+
 	if t != "":
 		var num := make_number(t, offer)
-		if tint == "blue":
+		# Pip art is already colored — skip blue tint on the number sitting on it.
+		if tint == "blue" and not pip_icon:
 			num.add_theme_color_override("font_color", TINT_BLUE)
 		host.add_child(num)
 
@@ -247,7 +254,7 @@ func _make_cell(g: Dictionary, offer: bool) -> Control:
 		drip.modulate = Color("e06c75")
 		host.add_child(drip)
 
-	if tint == "blue" and t == "":
+	if tint == "blue" and t == "" and not pip_icon:
 		icon.modulate = TINT_BLUE
 
 	return host

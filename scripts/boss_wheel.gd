@@ -150,6 +150,7 @@ var tex_plus: Texture2D
 var tex_shield: Texture2D
 var tex_heart_full: Texture2D
 var tex_heart_empty: Texture2D
+var tex_pip_skull_hp: Texture2D
 var tex_by_id: Dictionary = {}
 var tex_special: Dictionary = {}
 var tex_portraits: Dictionary = {}
@@ -3678,16 +3679,19 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		fill = fill.lerp(Color("ffd0a0"), punch * 0.55)
 	var hs: float = 36.0 + punch * 4.0
 	var heart_tex: Texture2D = tex_heart_full if tex_heart_full != null else tex_heart
+	var is_skull_hp := false
 	if str(s.get("card_id", "")) == "lich":
-		if ResourceLoader.exists("res://assets/dungeon/tiles/skull.png"):
-			heart_tex = load("res://assets/dungeon/tiles/skull.png") as Texture2D
-		elif ResourceLoader.exists("res://assets/icons/skull.svg"):
-			heart_tex = load("res://assets/icons/skull.svg") as Texture2D
+		const PIP_SKULL_HP := "res://assets/ui/icons/pips/pip_skull_hp_s24_2x.png"
+		if tex_pip_skull_hp == null and ResourceLoader.exists(PIP_SKULL_HP):
+			tex_pip_skull_hp = load(PIP_SKULL_HP) as Texture2D
+		if tex_pip_skull_hp != null:
+			heart_tex = tex_pip_skull_hp
+			is_skull_hp = true
 	_draw_stat_plate(pos, hs)
 	if is_hover:
 		var glow: float = 0.40 + 0.45 * absf(sin(_glow_t * 8.0))
 		_d().draw_arc(pos, hs * 0.72, 0.0, TAU, 22, Color(1.0, 0.85, 0.29, glow), 3.2, true)
-	_draw_stat_icon(pos, heart_tex, hs, fill, true, true)
+	_draw_stat_icon(pos, heart_tex, hs, fill, true, not is_skull_hp)
 	var ci := _d()
 	if punch > 0.35:
 		var slash := Color("f0e6d8", punch * 0.85)
@@ -3697,7 +3701,7 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 	if bool(s.get("lich_buff", false)):
 		var pulse2: float = 0.55 + 0.45 * sin(_glow_t * 7.0)
 		ci.draw_arc(pos, hs * 0.52, 0.0, TAU, 20, Color(0.95, 0.88, 0.72, 0.4 + 0.5 * pulse2), 2.6, true)
-	_draw_stat_number(font, pos, hs, str(hp), -0.08)
+	_draw_stat_number(font, pos, hs, str(hp), -0.14 if is_skull_hp else -0.08)
 	_draw_poison_badge(font, pos, s, big, i)
 	if hp_d != 0:
 		var blink: float = 0.40 + 0.60 * absf(sin(_glow_t * 10.0))
@@ -4009,11 +4013,18 @@ func _draw_stat_icon(pos: Vector2, tex: Texture2D, px: float, tint: Color, heart
 		var region: Rect2 = _icon_region(tex)
 		var rect := Rect2(pos - Vector2(px, px) * 0.5, Vector2(px, px))
 		var ci := _d()
+		# Runtime 8-copy fringe only when requested. Baked pip outlines pass outline=false
+		# so they don't pick up the white-square halo from tiles/skull + fringe.
 		if outline:
 			for k in 8:
 				var o: Vector2 = Vector2.from_angle(float(k) * TAU / 8.0) * 2.2
 				ci.draw_texture_rect_region(tex, Rect2(rect.position + o, rect.size), region, Color("100e0c"))
-		ci.draw_texture_rect_region(tex, rect, region, Color.WHITE)
+		# Hearts keep Color.WHITE (authored red PNG + fringe). Baked pips flash via a
+		# white→fill lerp so bone/ice don't get muddied by saturated HP_FILL.
+		var mod: Color = Color.WHITE
+		if not outline:
+			mod = Color.WHITE.lerp(tint, 0.55)
+		ci.draw_texture_rect_region(tex, rect, region, mod)
 		return
 	if heart_shape:
 		_draw_heart_shape(pos, px * 0.42, tint, Color("1c120c"))
