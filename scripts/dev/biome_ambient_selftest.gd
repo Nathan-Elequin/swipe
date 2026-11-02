@@ -1,5 +1,5 @@
 extends SceneTree
-## Headless checks for Verdant Hollow ambient FX kit. Does not boot main.tscn.
+## Headless checks for biome ambient FX kit (b1–b5). Does not boot main.tscn.
 ## Run: godot --headless --path . -s res://scripts/dev/biome_ambient_selftest.gd
 
 
@@ -29,28 +29,34 @@ func _init() -> void:
 	amb.setup(Vector2(1680, 1040))
 	amb.set_avoid_rects([wheel.get_global_rect(), hotbar.get_global_rect()])
 
-	## 1. b1 builds kit; b2 / "" build nothing.
+	## 1. Each packed biome builds the 4-slot kit; empty clears; unknown clears.
 	amb.set_enabled(true)
-	amb.set_biome("b1")
-	failed = _check(failed, "b1 builds haze", amb.get_node_or_null("DampHaze") != null) or failed
-	failed = _check(failed, "b1 mist+canopy", _haze_rect_count(amb) == 2) or failed
-	failed = _check(failed, "b1 spores", amb.get_node_or_null("FarSpores") != null) or failed
-	failed = _check(failed, "b1 fireflies", amb.get_node_or_null("HollowFireflies") != null) or failed
-	failed = _check(failed, "b1 near L", amb.find_child("NearMossL", true, false) != null) or failed
-	failed = _check(failed, "b1 near R", amb.find_child("NearMossR", true, false) != null) or failed
-	if Ambient.SHAFT_ENABLED:
-		failed = _check(failed, "shaft child present", amb.shaft_present()) or failed
-		failed = _check(failed, "shaft named LightShaft", amb.get_node_or_null("LightShaft") != null) or failed
-	else:
-		failed = _check(failed, "shaft yanked", not amb.shaft_present()) or failed
+	for bid in ["b1", "b2", "b3", "b4", "b5"]:
+		amb.set_biome(bid)
+		failed = _check(failed, "%s builds haze" % bid, amb.get_node_or_null("DampHaze") != null) or failed
+		failed = _check(failed, "%s mist+canopy" % bid, _haze_rect_count(amb) == 2) or failed
+		failed = _check(failed, "%s far" % bid, amb.get_node_or_null("FarSpores") != null) or failed
+		failed = _check(failed, "%s accent" % bid, amb.get_node_or_null("HollowFireflies") != null) or failed
+		failed = _check(failed, "%s near L" % bid, amb.find_child("NearMossL", true, false) != null) or failed
+		failed = _check(failed, "%s near R" % bid, amb.find_child("NearMossR", true, false) != null) or failed
+		failed = _check(failed, "%s layer_count >= 4" % bid, amb.layer_count() >= 4) or failed
+		var total: int = amb.total_particle_amount()
+		failed = _check(failed, "%s amount <= 50" % bid, total <= 50) or failed
+		var wants_shaft: bool = bool(Ambient.BIOMES[bid].get("shaft", false))
+		if Ambient.SHAFT_ENABLED and wants_shaft:
+			failed = _check(failed, "%s shaft present" % bid, amb.shaft_present()) or failed
+			failed = _check(failed, "%s shaft named LightShaft" % bid,
+				amb.get_node_or_null("LightShaft") != null) or failed
+		else:
+			failed = _check(failed, "%s shaft off" % bid, not amb.shaft_present()) or failed
 
-	amb.set_biome("b2")
-	failed = _check(failed, "b2 builds 0", amb.layer_count() == 0) or failed
+	amb.set_biome("b9")
+	failed = _check(failed, "unknown builds 0", amb.layer_count() == 0) or failed
 	amb.set_biome("")
 	failed = _check(failed, "empty builds 0", amb.layer_count() == 0) or failed
 
+	## 2. BG z < wheel; FG z > wheel and < hotbar (checked on b1).
 	amb.set_biome("b1")
-	## 2. BG z < wheel; FG z > wheel and < hotbar.
 	var spores: CPUParticles2D = amb.get_node_or_null("FarSpores")
 	var flies: CPUParticles2D = amb.get_node_or_null("HollowFireflies")
 	var haze: Node2D = amb.get_node_or_null("DampHaze")
@@ -80,10 +86,9 @@ func _init() -> void:
 		failed = _check(failed, "band misses wheel", not g.intersects(wheel_r)) or failed
 		failed = _check(failed, "band misses hotbar", not g.intersects(hot_r)) or failed
 
-	## 4. Particle budget.
-	var total: int = amb.total_particle_amount()
-	failed = _check(failed, "amount <= 50", total <= 50) or failed
-	failed = _check(failed, "desktop whisper ~44", total <= 44 and total >= 20) or failed
+	## 4. Verdant desktop whisper still in the old band.
+	var b1_total: int = amb.total_particle_amount()
+	failed = _check(failed, "b1 desktop whisper ~44", b1_total <= 44 and b1_total >= 20) or failed
 
 	## 5. Off = invisible + not emitting.
 	amb.set_enabled(false)
@@ -102,12 +107,32 @@ func _init() -> void:
 	## 7. Group membership for text_audit skip.
 	failed = _check(failed, "in ambient_fx group", amb.is_in_group("ambient_fx")) or failed
 
-	## 8. Only b1 in BIOMES.
+	## 8. BIOMES packs b1–b5; Cinder rises; shaft flag only on b1.
 	failed = _check(failed, "BIOMES has b1", Ambient.BIOMES.has("b1")) or failed
-	failed = _check(failed, "BIOMES lacks b2", not Ambient.BIOMES.has("b2")) or failed
-	failed = _check(failed, "BIOMES lacks b5", not Ambient.BIOMES.has("b5")) or failed
+	failed = _check(failed, "BIOMES has b2", Ambient.BIOMES.has("b2")) or failed
+	failed = _check(failed, "BIOMES has b3", Ambient.BIOMES.has("b3")) or failed
+	failed = _check(failed, "BIOMES has b4", Ambient.BIOMES.has("b4")) or failed
+	failed = _check(failed, "BIOMES has b5", Ambient.BIOMES.has("b5")) or failed
+	failed = _check(failed, "b1 shaft true", bool(Ambient.BIOMES["b1"].get("shaft", false))) or failed
+	failed = _check(failed, "b2 shaft false", not bool(Ambient.BIOMES["b2"].get("shaft", true))) or failed
+	failed = _check(failed, "b3 shaft false", not bool(Ambient.BIOMES["b3"].get("shaft", true))) or failed
+	failed = _check(failed, "b4 shaft false", not bool(Ambient.BIOMES["b4"].get("shaft", true))) or failed
+	failed = _check(failed, "b5 shaft false", not bool(Ambient.BIOMES["b5"].get("shaft", true))) or failed
+	failed = _check(failed, "b4 near_rise", bool(Ambient.BIOMES["b4"].get("near_rise", false))) or failed
+	failed = _check(failed, "b1 not near_rise", not bool(Ambient.BIOMES["b1"].get("near_rise", true))) or failed
 	failed = _check(failed, "CPUParticles only",
 		amb.find_children("*", "GPUParticles2D", true, false).is_empty()) or failed
+
+	## 9. Cinder near emitters spawn at bottom (rise); Verdant at top (fall).
+	amb.set_enabled(true)
+	amb.set_biome("b4")
+	var cinder_l: CPUParticles2D = amb.find_child("NearMossL", true, false)
+	failed = _check(failed, "cinder near rises from bottom",
+		cinder_l != null and cinder_l.position.y > 500.0) or failed
+	amb.set_biome("b1")
+	var verdant_l: CPUParticles2D = amb.find_child("NearMossL", true, false)
+	failed = _check(failed, "verdant near falls from top",
+		verdant_l != null and verdant_l.position.y < 0.0) or failed
 
 	amb.free()
 	root_n.free()
