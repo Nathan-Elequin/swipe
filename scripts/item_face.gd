@@ -2,12 +2,12 @@ extends Control
 class_name ItemFace
 ## Hotbar / offer face glyphs. Paths stay on PNG faces; recipes live in main._face_rows.
 
-## Idle hotbar glyphs were 24; +50% layout pass (2026-11-02) → 36. Offer / showcase stays 48.
-const SIZE_HOTBAR := 36
+## Idle hotbar glyphs: 24 → 36 (+50%, #297) → 43 (+20% retune, 2026-11-02). Offer stays 48.
+const SIZE_HOTBAR := 43
 const SIZE_OFFER := 48
-const FONT_HOTBAR := 18
+const FONT_HOTBAR := 22
 const FONT_OFFER := 22
-const FONT_TEXT_HOTBAR := 16
+const FONT_TEXT_HOTBAR := 19
 const FONT_TEXT_OFFER := 18
 const OUTLINE := Color("100e0c")
 const OUTLINE_SIZE := 4
@@ -111,7 +111,7 @@ static func tex_for(key: String) -> Texture2D:
 	return tex
 
 
-## TextureRect sized for the hotbar (36) or offer card (48), nearest filter.
+## TextureRect sized for the hotbar (43) or offer card (48), nearest filter.
 static func make_icon(key: String, offer: bool = false) -> TextureRect:
 	var tr := TextureRect.new()
 	var px: int = SIZE_OFFER if offer else SIZE_HOTBAR
