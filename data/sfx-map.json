@@ -615,7 +615,7 @@
       "deadly": "deadly",
       "cabin": "cabin",
       "victory": "sting then title",
-      "defeat": "sting then title",
+      "defeat": "sting then silence",
       "intro": "intro",
       "ending": "ending",
       "keyring": "cabin(ducked)",
@@ -3538,7 +3538,7 @@
           "delay_ms": 150
         }
       ],
-      "music": "title_after_sting"
+      "music": "silence_after_sting"
     },
     "run.leave": {
       "files": [
