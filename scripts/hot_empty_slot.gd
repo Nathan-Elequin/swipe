@@ -1,8 +1,9 @@
 extends Control
 ## Empty challenge-hand seat. Pixel-art socket (9-slice) with a dim empty-pouch mark so the 5x2 grid still reads.
 
-const CARD_W := 147.5
-const CARD_H := 120.0
+## H3-B2: match item_card hotbar size.
+const CARD_W := 172.0
+const CARD_H := 148.0
 const SOCKET := preload("res://assets/ui/slot/hot_slot_empty_9.png")
 const POUCH := preload("res://assets/ui/slot/hot_slot_pouch.png")
 ## 5 native px at 4x on each side of the 16x16 source.

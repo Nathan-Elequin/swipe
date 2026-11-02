@@ -25,6 +25,7 @@ const BIOME_AMBIENT := preload("res://scripts/fx/biome_ambient.gd")
 const COMBAT_STAGE := preload("res://scripts/combat_stage.gd")
 const PLAYER_STAGE := preload("res://scripts/player_stage.gd")
 const MOVE_ARROW := preload("res://scripts/ui/move_arrow.gd")
+const TAKE_ARC := preload("res://scripts/ui/take_arc.gd")
 const VIEW_FRAME := preload("res://scripts/ui/view_frame.gd")
 const ARROW_GLYPHS := preload("res://scripts/ui/arrow_glyphs.gd")
 const BUCKET_REVEAL := preload("res://scripts/bucket_reveal.gd")
@@ -68,9 +69,13 @@ const MARBLE_FILL := 10
 ## 1.0 = original speed. Wheel spin ignores this.
 ## 0.675 = 35% faster than the previous 0.5 setting.
 const ANIM_TIME_SCALE := 0.675
-## Spin / Take / Safe sit in this row. Keep the height even when those buttons
-## hide mid-spin so the wheel does not grow, then shrink, to make room.
+## Spin sits in this row on ready. H3-B2 moves Take onto the cream arc under the
+## wheel during fights, so fighting no longer reserves this height (hotbar grows).
+## Keep the slot on ready/spin so the wheel does not jump when Spin shows.
 const COMBAT_ACTION_SLOT_H := 64.0
+## Bigger 2×5 hotbar (H3-B2) — reclaim the old standalone Take row.
+const HOTBAR_CARD_W := 172.0
+const HOTBAR_CARD_H := 148.0
 
 const COMBAT_LOG := preload("res://scripts/combat_log.gd")
 const ABILITY_SLASH := preload("res://scripts/ability_slash.gd")
@@ -618,6 +623,8 @@ var dev_latest_btn: Button
 var btn_start: Button
 var btn_spin: Button
 var btn_done: Button
+var take_arc: Button
+var tex_block_arc: Texture2D
 var _take_burst: Control
 var _take_style_base: Dictionary = {}
 var _take_style_had: Dictionary = {}
@@ -969,6 +976,9 @@ func _load_textures() -> void:
 	tex_sword = _tex("res://assets/icons/sword.svg")
 	tex_atk = _tex("res://assets/ui/icons/atk_burst.png")
 	tex_shield = _tex("res://assets/ui/icons/pips/pip_block_s24_2x.png")
+	tex_block_arc = _tex("res://assets/ui/icons/pips/pip_block_arc_s24_2x.png")
+	if tex_block_arc == null:
+		tex_block_arc = tex_shield
 	tex_rotate = _tex("res://assets/icons/rotate.svg")
 	tex_plus = _tex("res://assets/icons/plus.svg")
 	tex_by_monster = {
@@ -13441,6 +13451,9 @@ func _hub_hp_pos() -> Vector2:
 
 
 func _hub_blk_pos() -> Vector2:
+	## H3-B2: Block pip lives on the Take arc, not in the wheel hole.
+	if take_arc != null and take_arc.visible and take_arc.has_method("block_pip_global"):
+		return take_arc.block_pip_global()
 	if wheel_view:
 		return wheel_view.hub_blk_global()
 	return Vector2.ZERO
@@ -21579,6 +21592,8 @@ func _ability_avoid_rects() -> Array:
 		out.append(dungeon_deck_ui.get_global_rect())
 	if btn_done != null and btn_done.visible:
 		out.append(btn_done.get_global_rect())
+	if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
+		out.append(take_arc.arc_global_rect())
 	if btn_move_left != null and btn_move_left.visible:
 		out.append(btn_move_left.get_global_rect())
 	if btn_move_right != null and btn_move_right.visible:
@@ -22277,8 +22292,16 @@ func _punch_hero(b: Button, on: bool) -> void:
 	tw.tween_property(b, "scale", Vector2(1.14, 1.14) if on else Vector2.ONE, 0.1).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
+func _take_click_target() -> Button:
+	if take_arc != null and take_arc.visible:
+		return take_arc
+	return btn_done
+
+
 func _on_done_hover(on: bool) -> void:
-	_punch_hero(btn_done, on and phase == "fighting")
+	## Take arc paints its own hover; only punch the old pill button.
+	if take_arc == null or not take_arc.visible:
+		_punch_hero(btn_done, on and phase == "fighting")
 	if not on or phase != "fighting":
 		_ghost_hp = -1
 		_refresh_hearts()
@@ -22290,6 +22313,9 @@ func _on_done_hover(on: bool) -> void:
 
 
 func _on_done_press(down: bool) -> void:
+	## Take arc uses its own pressed redraw; don't scale a full-rect overlay.
+	if take_arc != null and take_arc.visible:
+		return
 	if btn_done == null:
 		return
 	btn_done.pivot_offset = btn_done.size * 0.5
@@ -22526,9 +22552,15 @@ func _wheel_side_gutter() -> float:
 
 
 func _combat_holds_action_slot() -> bool:
+	## Fighting / slaying: Take lives on the cream arc under the wheel (H3-B2).
+	## Do not reserve the old standalone Take row — hotbar reclaims that height.
 	match phase:
-		"ready", "spinning", "fighting", "slaying", "draft", "devtest":
+		"ready", "spinning", "draft", "devtest":
 			return true
+		"fighting", "slaying":
+			## Special mid-fight Continue / Decline still use the pill button.
+			var feed_kind: String = str(pending_feed.get("kind", "")) if not pending_feed.is_empty() else ""
+			return feed_kind == "worm_hunger" or feed_kind == "hired_bribe"
 		_:
 			return false
 
@@ -23195,45 +23227,31 @@ func _sync_buttons() -> void:
 	_hide_take_burst()
 	if enemy_up:
 		var hit: int = _incoming_hit()
-		if hit > 0:
-			var tmpl: String = PLAYER_COPY.text("combat.take_hit", "Take {n}")
-			btn_done.text = tmpl.replace("{n}", "").strip_edges()
-			btn_done.icon = null
-			btn_done.custom_minimum_size = Vector2(260, 64)
-			btn_done.add_theme_font_size_override("font_size", 32)
-			btn_done.add_theme_color_override("font_color", Color("6a1212"))
-			btn_done.add_theme_color_override("font_hover_color", Color("8a1818"))
-			btn_done.add_theme_color_override("font_pressed_color", Color("4a0808"))
-			btn_done.remove_theme_color_override("icon_normal_color")
-			btn_done.remove_theme_color_override("icon_hover_color")
-			_show_take_burst(hit)
-		else:
-			btn_done.text = PLAYER_COPY.text("combat.safe", "Safe")
-			btn_done.icon = tex_shield
-			btn_done.custom_minimum_size = Vector2(228, 56)
-			btn_done.add_theme_font_size_override("font_size", 26)
-			btn_done.add_theme_constant_override("icon_max_width", 28)
-			btn_done.add_theme_color_override("font_color", Color("1c120c"))
-			btn_done.add_theme_color_override("font_hover_color", Color("100e0c"))
-			btn_done.remove_theme_color_override("icon_normal_color")
-			btn_done.remove_theme_color_override("icon_hover_color")
-		btn_done.scale = Vector2.ONE
+		## H3-B2: cream Take arc under the wheel. Hide the old standalone pill.
+		btn_done.visible = false
+		_hide_take_burst()
+		_sync_take_arc(hit, busy)
 		_sync_intent_plate()
+	else:
+		_hide_take_arc()
 	if btn_spin:
 		btn_spin.scale = Vector2.ONE
 	if feed_kind == "worm_hunger":
+		_hide_take_arc()
 		btn_done.visible = true
 		btn_done.disabled = busy
 		btn_done.text = PLAYER_COPY.text("title.continue", "Continue")
 		btn_done.icon = null
 		_hide_take_burst()
 	elif feed_kind == "hired_bribe":
+		_hide_take_arc()
 		btn_done.visible = true
 		btn_done.disabled = busy
 		btn_done.text = "Decline"
 		btn_done.icon = null
 		_hide_take_burst()
 	_stamp_atk_variants()
+	_hold_combat_action_slot()
 
 
 func _build_move_ui() -> void:
@@ -23259,6 +23277,16 @@ func _build_move_ui() -> void:
 	btn_move_right.tooltip_text = PLAYER_COPY.text("combat.move_right", "Move ▶")
 	btn_move_right.pressed.connect(_on_move_right)
 	move_box.add_child(btn_move_right)
+	take_arc = TAKE_ARC.new()
+	take_arc.name = "TakeArc"
+	take_arc.visible = false
+	take_arc.z_index = 21
+	take_arc.pressed.connect(_on_done)
+	take_arc.mouse_entered.connect(_on_done_hover.bind(true))
+	take_arc.mouse_exited.connect(_on_done_hover.bind(false))
+	take_arc.button_down.connect(_on_done_press.bind(true))
+	take_arc.button_up.connect(_on_done_press.bind(false))
+	move_box.add_child(take_arc)
 	move_box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
@@ -23353,15 +23381,21 @@ func _can_move(dir: int) -> bool:
 func _sync_move_ui() -> void:
 	if move_box == null:
 		return
-	var show: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready")
-	move_box.visible = show
-	if not show:
+	var show_arrows: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready")
+	## Take arc is a child of move_box — keep the box up during fights even without Moves.
+	var show_take: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size() and (int(wheel[facing_index].get("hp", 0)) > 0 or _wick_waiting(facing_index))
+	move_box.visible = show_arrows or show_take
+	if btn_move_left:
+		btn_move_left.visible = show_arrows
+	if btn_move_right:
+		btn_move_right.visible = show_arrows
+	if not show_arrows and not show_take:
 		return
 	var tut_move: bool = in_tutorial and _tut_moves_on and tut != null and tut.wait == "move"
-	if btn_move_left:
+	if show_arrows and btn_move_left:
 		btn_move_left.disabled = false if tut_move else (true if in_tutorial and _tut_moves_on else not _can_move(-1))
 		btn_move_left.queue_redraw()
-	if btn_move_right:
+	if show_arrows and btn_move_right:
 		btn_move_right.disabled = false if tut_move else (true if in_tutorial and _tut_moves_on else not _can_move(1))
 		btn_move_right.queue_redraw()
 	_place_move_arrows()
@@ -23389,19 +23423,88 @@ func _show_faced_monster() -> void:
 	_show_fight_portrait()
 
 
+func _hide_take_arc() -> void:
+	if take_arc != null and is_instance_valid(take_arc):
+		take_arc.visible = false
+
+
+func _take_burst_tex_for(hit: int) -> Dictionary:
+	var v := _take_variant()
+	var kind: String = str(v.get("kind", "single"))
+	var n: int = int(v.get("n", 1))
+	var tex_kind := kind
+	var pip := ""
+	if kind != "loop" and n >= 3:
+		tex_kind = "double"
+		pip = "×%s" % n
+	elif kind != "loop" and n >= 2:
+		tex_kind = "double"
+	elif kind != "loop":
+		tex_kind = "single"
+	var tex: Texture2D = _tex("res://assets/ui/icons/atk_burst_%s_s24_2x.png" % tex_kind)
+	return {"tex": tex, "pip": pip, "hit": hit}
+
+
+func _sync_take_arc(hit: int, busy: bool) -> void:
+	if take_arc == null:
+		return
+	if move_box != null:
+		move_box.visible = true
+	take_arc.visible = true
+	take_arc.disabled = busy or (btn_done != null and btn_done.disabled)
+	var word: String
+	var burst: Texture2D = null
+	var pip := ""
+	var shown_n: int = hit
+	if hit > 0:
+		var tmpl: String = PLAYER_COPY.text("combat.take_hit", "Take {n}")
+		word = tmpl.replace("{n}", "").strip_edges()
+		var info: Dictionary = _take_burst_tex_for(hit)
+		burst = info.get("tex", null)
+		pip = str(info.get("pip", ""))
+	else:
+		word = PLAYER_COPY.text("combat.safe", "Safe")
+		shown_n = 0
+	var font: Font = btn_done.get_theme_font("font") if btn_done != null else null
+	if font == null:
+		font = ThemeDB.fallback_font
+	take_arc.set_combat(blk, shown_n, word, burst, pip, tex_block_arc, font)
+	_place_take_arc()
+	## Re-place arrows after the arc is visible so pad snaps to the arc top.
+	if btn_move_left != null and btn_move_left.visible:
+		_place_move_arrows()
+
+
+func _place_take_arc() -> void:
+	if take_arc == null or wheel_view == null:
+		return
+	take_arc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
+	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
+	var local_c: Vector2 = take_arc.get_global_transform().affine_inverse() * c
+	take_arc.set_guide(local_c, rad, 4.0)
+
+
 func _place_move_arrows() -> void:
 	if btn_move_left == null or btn_move_right == null or wheel_view == null:
 		return
 	var show: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready")
 	btn_move_left.visible = show
 	btn_move_right.visible = show
+	if take_arc != null and take_arc.visible:
+		_place_take_arc()
 	if not show:
 		return
 	var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
 	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
 	btn_move_left.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	btn_move_right.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var pad: float = PlaytestUx.move_arrow_outer_pad()
+	## H3-B2: pull arrows in so their INNER edge is TOP-aligned with the Take arc top.
+	## Take arc inner = rad + rim_gap (4). Arrow inner = rad + pad - BODY_W/2.
+	## ⇒ pad = rim_gap + BODY_W/2.
+	var pad: float = 4.0 + MOVE_ARROW.BODY_W * 0.5
+	if take_arc == null or not take_arc.visible:
+		pad = PlaytestUx.move_arrow_outer_pad()
 	var sweep: float = PI * 0.28
 	var face_left: float = 1.0e9
 	if face_box != null and face_box.visible:
@@ -23989,8 +24092,8 @@ func _place_hotbar_overflow() -> void:
 		hotbar_overflow.queue_redraw()
 		return
 	var gap: float = 8.0
-	var cw: float = 147.5
-	var ch: float = 120.0
+	var cw: float = HOTBAR_CARD_W
+	var ch: float = HOTBAR_CARD_H
 	var first: Control = kids[0] as Control
 	if first != null:
 		var sz: Vector2 = first.get_combined_minimum_size()
@@ -24821,8 +24924,11 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 			if mon.size.x > 4.0:
 				arrows.append([mon.get_center(), hc])
 		return
-	if tag == "block" and wheel_view != null:
-		_tut_add_rect(spots, wheel_view.focus_rect("hub_blk"))
+	if tag == "block":
+		if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
+			_tut_add_rect(spots, take_arc.arc_global_rect())
+		elif wheel_view != null:
+			_tut_add_rect(spots, wheel_view.focus_rect("hub_blk"))
 		return
 	if tag == "empty" and wheel_view != null:
 		_tut_add_rect(spots, wheel_view.focus_rect("empty"))
@@ -24905,7 +25011,11 @@ func _tut_focus() -> Control:
 		return null
 	var tag: String = tut.focus_tag
 	match tag:
-		"wheel", "empty", "atk", "hp", "block":
+		"wheel", "empty", "atk", "hp":
+			return wheel_view
+		"block":
+			if take_arc != null and take_arc.visible:
+				return take_arc
 			return wheel_view
 		"hearts":
 			return wheel_view
@@ -24922,6 +25032,8 @@ func _tut_focus() -> Control:
 		"begin":
 			return btn_challenge_begin
 		"done":
+			if take_arc != null and take_arc.visible:
+				return take_arc
 			return btn_done
 		"trophy":
 			return trophy
