@@ -766,6 +766,7 @@ var _undo_live: Dictionary = {}
 var _undo_inflight: bool = false
 var _undo_gen: int = 0
 var _undo_busy: bool = false
+var _undo_no_rewind: bool = false
 var btn_undo: Button
 var btn_redo: Button
 var overlay_undo: Button
@@ -8965,6 +8966,7 @@ func _undo_clear() -> void:
 	_undo_stack.clear()
 	_redo_stack.clear()
 	_undo_inflight = false
+	_undo_no_rewind = false
 	_undo_live = {}
 	_undo_gen += 1
 
@@ -8983,6 +8985,7 @@ func _undo_wall() -> void:
 	_undo_stack.clear()
 	_redo_stack.clear()
 	_undo_inflight = false
+	_undo_no_rewind = false
 	if in_tutorial:
 		_undo_live = {}
 		return
@@ -9030,6 +9033,10 @@ func _undo_commit() -> void:
 func _undo_finish_item() -> void:
 	if in_tutorial:
 		_undo_inflight = false
+		_undo_no_rewind = false
+		return
+	if _oligarch_forcing or _undo_no_rewind:
+		_undo_wall()
 		return
 	if not _undo_inflight:
 		if _undo_live.is_empty():
@@ -9792,6 +9799,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if str(ale_face.get("kind", "")) == "monster" and int(ale_face.get("hp", 0)) > 0:
 					_heal_monster(facing_index, both_n, true)
 			_draw_unseen_item()
+			_undo_no_rewind = true
 		"heal_kills":
 			var flask_n: int = 1 + mobs_defeated
 			_log("on_item_use", str(it["name"]))
@@ -9835,6 +9843,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_sync_wheel_stats()
 			phase = "ready"
 			_walker_busy = false
+			_undo_no_rewind = true
 			_challenge_force_spin = true
 			if combat_stage:
 				combat_stage.hide_stage()
@@ -10124,6 +10133,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			await _count_item_use()
 			_log("on_item_use", str(it["name"]))
 			_toss_item(int(it["uid"]), false)
+			_undo_no_rewind = true
 			await _apply_catapult()
 			return
 		"napalm":
@@ -12261,6 +12271,7 @@ func _apply_oligarch_on_spin() -> void:
 		_walker_busy = false
 		_log("on_spin", "Oligarch uses a random Item")
 		await _use_item(pick)
+		_undo_wall()
 		_oligarch_forcing = false
 		if int(_seat) >= 0 and int(_seat) < wheel.size() and str(wheel[int(_seat)].get("card_id", "")) == "oligarch":
 			_walker_restore(int(_seat))
@@ -14844,6 +14855,7 @@ func _apply_marble(it: Dictionary) -> bool:
 			await _fly_courier(hold_tex, from, to, 0.4)
 	var call: String = "Attack" if as_atk else "Block"
 	_flash_banner(call, "marble", _item_icon_tex(it))
+	_undo_no_rewind = true
 	_log("on_item_use", str(it.get("name", "Marble")))
 	if as_atk:
 		var hit: int = _atk_with_head(n)
@@ -15796,12 +15808,14 @@ func _echo_flatten_kind(kind: String, shield_face: String) -> String:
 
 func _item_echo_snapshot(it: Dictionary) -> Dictionary:
 	var ops: Dictionary = {}
-	var raw: Variant = it.get("ops", {})
-	if typeof(raw) == TYPE_DICTIONARY and not (raw as Dictionary).is_empty():
-		ops = (raw as Dictionary).duplicate(true)
+	var oid: String = str(it.get("card_id", ""))
+	if oid == "jar_o_grease":
+		ops = {"kind": "move2_keep", "n": 2}
 	else:
-		var oid: String = str(it.get("card_id", ""))
-		if ITEM_OPS.has(oid):
+		var raw: Variant = it.get("ops", {})
+		if typeof(raw) == TYPE_DICTIONARY and not (raw as Dictionary).is_empty():
+			ops = (raw as Dictionary).duplicate(true)
+		elif ITEM_OPS.has(oid):
 			ops = (ITEM_OPS[oid] as Dictionary).duplicate(true)
 	var view: Dictionary = _item_view(it)
 	var frozen_n: int = int(view.get("n", 0))
@@ -17460,6 +17474,7 @@ func _flee_spin(_shuffle: bool = false) -> bool:
 		return true
 	_flee_random_spin = true
 	_challenge_force_spin = true
+	_undo_wall()
 	call_deferred("_maybe_auto_spin")
 	return true
 
@@ -17868,6 +17883,7 @@ func _apply_mark_inner(index: int) -> void:
 			combat_stage.show_monster(str(wheel[facing_index].get("card_id", "")), int(wheel[facing_index].get("tier", 1)))
 			_tune_combat_stage()
 		_draw_unseen_item()
+		_undo_no_rewind = true
 		_refresh()
 		if not hotbar.is_empty():
 			var gained = hotbar[hotbar.size() - 1]
@@ -18168,6 +18184,7 @@ func _apply_sling_convert(sling: Dictionary, target_uid: int) -> void:
 		if typeof(held) == TYPE_DICTIONARY:
 			before_uids[int(held.get("uid", -1))] = true
 	_draw_unseen_item()
+	_undo_no_rewind = true
 	_refresh()
 	if _challenge_loot_wait:
 		await _after_item_resolved(sling)
@@ -18325,6 +18342,7 @@ func _apply_sling(aim: int, sling: Dictionary, atk_uid: int) -> void:
 		if typeof(held) == TYPE_DICTIONARY:
 			before_uids[int(held.get("uid", -1))] = true
 	_draw_unseen_item()
+	_undo_no_rewind = true
 	_refresh()
 	for held in hotbar:
 		if typeof(held) != TYPE_DICTIONARY:
@@ -23530,6 +23548,7 @@ func _jar_slide_two(it: Dictionary) -> bool:
 	it["keep_after"] = keep_echo
 	await _count_item_use()
 	_toss_item(int(it.get("uid", -1)), keep_echo)
+	_undo_no_rewind = true
 	return true
 
 
