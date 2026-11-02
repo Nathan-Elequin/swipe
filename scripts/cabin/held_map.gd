@@ -623,9 +623,16 @@ class MapStatBadge extends Control:
 
 	func _draw() -> void:
 		var px := 28.0
-		var pos := size * 0.5
+		## Icons may sit at different optical centers; the number is always
+		## on this mid-line so 6 and 5 share a row with the monster name.
+		var mid := Vector2(size.x * 0.5, size.y * 0.5)
 		if _tex != null:
-			var rect := Rect2(pos - Vector2(px, px) * 0.5, Vector2(px, px))
+			var icon_mid := mid
+			if is_heart:
+				icon_mid.y -= 1.0
+			else:
+				icon_mid.y += 1.0
+			var rect := Rect2(icon_mid - Vector2(px, px) * 0.5, Vector2(px, px))
 			for k in 8:
 				var o := Vector2.from_angle(float(k) * TAU / 8.0) * 1.6
 				draw_texture_rect_region(_tex, Rect2(rect.position + o, rect.size), _region, Color("100e0c"))
@@ -634,9 +641,8 @@ class MapStatBadge extends Control:
 		if font == null or num_text == "":
 			return
 		var fs := 12
-		var y_k := -0.08 if is_heart else 0.0
 		var tsz := font.get_string_size(num_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-		var p := pos + Vector2(-tsz.x * 0.5, px * y_k + fs * 0.36)
+		var p := Vector2(mid.x - tsz.x * 0.5, mid.y + fs * 0.32)
 		var ink := Color("100e0c")
 		for ox in [-1, 0, 1]:
 			for oy in [-1, 0, 1]:
@@ -655,7 +661,7 @@ class MapMonster extends Control:
 	const HIT := Vector2(36, 36)
 	const SHADOW_IDLE := Vector2(22, 5)
 	const SHADOW_HOVER := Vector2(26, 5)
-	const TAG_W := 210.0
+	const TAG_W := 152.0
 	const TITLE_RED := Color("6E181E")
 	## Flip for the two hover reads Nathan asked to see. True = name + call + HP/Attack + ability.
 	static var include_stats: bool = true
@@ -762,19 +768,21 @@ class MapMonster extends Control:
 		var chip := PanelContainer.new()
 		chip.name = "Name"
 		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		chip.custom_minimum_size.y = 36
 		var chip_sb := StyleBoxFlat.new()
 		chip_sb.bg_color = TITLE_RED
 		chip_sb.border_color = Color("100E0C")
 		chip_sb.set_border_width_all(2)
-		chip_sb.content_margin_left = 8
-		chip_sb.content_margin_right = 8
-		chip_sb.content_margin_top = 2
-		chip_sb.content_margin_bottom = 2
-		chip_sb.set_corner_radius_all(10)
+		chip_sb.content_margin_left = 10
+		chip_sb.content_margin_right = 10
+		chip_sb.content_margin_top = 0
+		chip_sb.content_margin_bottom = 0
+		chip_sb.set_corner_radius_all(8)
 		chip.add_theme_stylebox_override("panel", chip_sb)
 		var lab: FitLabelBox = KIT.fit_label(
 			"",
-			Rect2(0, 0, 140, 18),
+			Rect2(0, 0, 140, 36),
 			14,
 			10,
 			1,
@@ -784,8 +792,10 @@ class MapMonster extends Control:
 		lab.name = "Label"
 		lab.grow_to_text = true
 		lab.max_width = 160
+		lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		lab.set_plain(display_name)
 		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		lab.custom_minimum_size.y = 36
 		chip.add_child(lab)
 		return chip
 
@@ -803,32 +813,12 @@ class MapMonster extends Control:
 		if head == null:
 			return
 		var pill := head.get_node_or_null("Name") as Control
-		var hp := head.get_node_or_null("Hp") as Control
-		var atk := head.get_node_or_null("Atk") as Control
 		if pill == null:
 			return
 		var name_lab := pill.get_node_or_null("Label") as FitLabelBox
 		if name_lab:
 			name_lab.fit()
 		pill.reset_size()
-		var ps: Vector2 = pill.get_combined_minimum_size()
-		if ps.x < 8.0:
-			ps = pill.size
-		var badge := Vector2(32, 36)
-		var w: float = maxf(ps.x + 20.0, 108.0)
-		var h: float = ps.y + 14.0
-		head.custom_minimum_size = Vector2(w, h)
-		head.size = Vector2(w, h)
-		pill.position = Vector2((w - ps.x) * 0.5, 0.0)
-		pill.size = ps
-		if hp:
-			hp.size = badge
-			hp.position = Vector2(pill.position.x - 6.0, ps.y - badge.y * 0.66)
-			hp.z_index = 2
-		if atk:
-			atk.size = badge
-			atk.position = Vector2(pill.position.x + ps.x - badge.x + 6.0, ps.y - badge.y * 0.66)
-			atk.z_index = 2
 
 
 	func _build_tag() -> void:
@@ -839,7 +829,7 @@ class MapMonster extends Control:
 		_tag.z_index = 20
 		_tag.z_as_relative = true
 		var sb := StyleBoxFlat.new()
-		## Small oval plaque: cream on parchment, round ends, compact callout.
+		## Square plaque: cream on parchment. Ability wraps to about three lines.
 		sb.bg_color = Color("FFF6DE")
 		sb.border_color = Color("1A120E")
 		sb.set_border_width_all(2)
@@ -848,27 +838,32 @@ class MapMonster extends Control:
 		sb.shadow_color = Color(0.102, 0.071, 0.055, 0.85)
 		sb.content_margin_left = 10
 		sb.content_margin_right = 10
-		sb.content_margin_top = 6
-		sb.content_margin_bottom = 8
-		sb.set_corner_radius_all(16)
+		sb.content_margin_top = 8
+		sb.content_margin_bottom = 10
+		sb.set_corner_radius_all(0)
 		_tag.add_theme_stylebox_override("panel", sb)
 		var col := VBoxContainer.new()
 		col.name = "Col"
-		col.add_theme_constant_override("separation", 2)
+		col.add_theme_constant_override("separation", 6)
 		col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.alignment = BoxContainer.ALIGNMENT_CENTER
 		_tag.add_child(col)
-		var head := Control.new()
+		var head := HBoxContainer.new()
 		head.name = "Head"
+		head.add_theme_constant_override("separation", 10)
 		head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		head.alignment = BoxContainer.ALIGNMENT_CENTER
 		col.add_child(head)
-		head.add_child(_title_pill())
 		if _hp_n > 0 or _atk_n > 0:
 			var hp := _stat_badge(true, _hp_n)
 			hp.name = "Hp"
+			hp.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			head.add_child(hp)
+		head.add_child(_title_pill())
+		if _hp_n > 0 or _atk_n > 0:
 			var atk := _stat_badge(false, _atk_n)
 			atk.name = "Atk"
+			atk.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			head.add_child(atk)
 		if _ability != "":
 			var body := Label.new()
@@ -876,8 +871,9 @@ class MapMonster extends Control:
 			body.text = _ability
 			body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			body.max_lines_visible = 4
 			body.custom_minimum_size = Vector2(TAG_W, 0)
-			body.add_theme_font_size_override("font_size", 10)
+			body.add_theme_font_size_override("font_size", 11)
 			body.add_theme_color_override("font_color", Color("2A1C14"))
 			body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			col.add_child(body)
