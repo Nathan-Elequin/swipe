@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-02T03:15:00Z",
+	"updated_at": "2026-11-02T04:55:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"190": {
@@ -231,6 +231,12 @@
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/270",
 			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5."
+		},
+		"273": {
+			"status": "todo",
+			"title": "When Wick is on a wheel with just 1 other monster",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/273",
+			"note": "New playtest report; not on tip yet."
 		}
 	}
 }
