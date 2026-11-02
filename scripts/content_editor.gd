@@ -7,6 +7,7 @@ signal closed
 const BOARD_PATH := "res://data/content-board.json"
 const AUTHOR_LOCK := preload("res://scripts/author_lock.gd")
 const RECENT_EDITS := preload("res://scripts/recent_edits.gd")
+const EDITOR_PENDING := preload("res://scripts/editor_pending.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 const LINES := preload("res://scripts/monster_lines.gd")
 const UX := preload("res://scripts/ux_style.gd")
@@ -613,6 +614,7 @@ func _gather() -> Dictionary:
 	if logic_changed and str(card["status"]) == "live":
 		card["status"] = "todo"
 	AUTHOR_LOCK.stamp_card(card, _original, false)
+	EDITOR_PENDING.stamp(_kind, _id, _original, card)
 	return card
 
 

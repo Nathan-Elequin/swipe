@@ -7375,6 +7375,10 @@ func _merge_catalog_card(kind: String, board_card: Dictionary) -> void:
 	dst["locked_at"] = str(board_card.get("locked_at", ""))
 	dst["review"] = REVIEW_STAGE.of_card(board_card)
 	dst["review_note"] = str(board_card.get("review_note", ""))
+	if typeof(board_card.get("pending_fields", null)) == TYPE_DICTIONARY:
+		dst["pending_fields"] = (board_card["pending_fields"] as Dictionary).duplicate(true)
+	else:
+		dst.erase("pending_fields")
 	if kind == "monster":
 		var atk: Dictionary = dst.get("atk", {})
 		if typeof(atk) != TYPE_DICTIONARY:

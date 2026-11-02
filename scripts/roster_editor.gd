@@ -12,6 +12,7 @@ const RUNTIME_PATH := "res://data/runtime.json"
 const CATALOG_PATH := "res://data/catalog.json"
 const AUTHOR_LOCK := preload("res://scripts/author_lock.gd")
 const RECENT_EDITS := preload("res://scripts/recent_edits.gd")
+const EDITOR_PENDING := preload("res://scripts/editor_pending.gd")
 const REVIEW_STAGE := preload("res://scripts/review_stage.gd")
 
 const LEGEND := "Attack and HP sit next to the name (orange / red). Copies and Priority are further right, grey, and are pool size / draw order — not combat stats. Headers stay lined up with the cells; scroll sideways if you need the later columns. Arrows move between boxes. Space types. Enter saves. Esc closes without saving. Ctrl+F filter · Ctrl+D duplicate."
@@ -1259,6 +1260,7 @@ func _gather_row(row: HBoxContainer, strict: bool = true) -> Dictionary:
 	if bool(row.get_meta("row_dirty", false)) or bool(orig.get("_new", false)):
 		AUTHOR_LOCK.stamp_card(card, orig, not bool(orig.get("_new", false)))
 		RECENT_EDITS.touch(kind, id)
+		EDITOR_PENDING.stamp(kind, id, orig, card)
 	return card
 
 

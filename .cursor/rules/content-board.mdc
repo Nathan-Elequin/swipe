@@ -15,26 +15,26 @@ Inspect, the wheel, Shift, and the draft gate read **Ability**, **Call name**, *
 
 ## Every run in this repo
 
-Before the requested work, read `data/content-board.json` (or the HTML board if the JSON is missing). Collect **every** non-empty `review_note` (the gold box) on items and monsters, plus any official field he typed and Saved. The gold box always counts. Do not skip a note because `review` is polish, refined, finished, change, or anything other than rough.
+Before the requested work, read `data/content-board.json` (or the HTML board if the JSON is missing) **and** `data/editor-pending.json`. Collect **every** non-empty `review_note` (the gold box) and **every** card row in `editor-pending.json` (HP, ATK, Ability, and the other official boxes). Those pending rows are the same kind of unread mark as a gold box. Do not skip a note because `review` is polish, refined, finished, change, or anything other than rough.
 
 - **In a handoff task run** (`design/handoff/<task-id>/TASK.md` exists): do only what TASK.md allows. List every pending gold box that is outside the task's "Files you may touch" list in REPORT.md under `## Gold boxes pending` (card id, field, the note text), and leave them for Nathan to schedule.
 - **In a direct chat with Nathan, with no TASK.md**: work the gold boxes in that turn, as below.
 
-1. **Typed official fields** (Ability, Call name, explainer, reminder, name, ATK, HP, tier, and so on) are already on disk **if Save actually wrote**. Use that text verbatim. Do not restyle locked copy, and do not make him re-dictate it.
-   - Every chat: `git diff -- data/content-board.json data/catalog.json data/recent-edits.json`. Uncommitted official-field diffs **are** his Save. Keep them. Commit them onto `playtest/latest`. Do not stash those files away on a pull or branch switch.
-   - A Save that landed bumps `locked_at` and `data/recent-edits.json`. If those still show the old date, the Save did not stick, even if he clicked Save.
-   - If he describes an editor Save in chat (card + field + value) and the files still have the old number, apply the chat value in that turn. Do not wait for a gold box. Number-only Saves never fill `review_note`.
+1. **Typed official fields** (Ability, Call name, explainer, reminder, name, ATK, HP, tier, and so on) and **`data/editor-pending.json`**. An HP/ATK/Ability Save writes a pending row the same way a gold box is a non-empty string. Apply those `from` → `to` values in the board, the catalog, and any hardcoded fallback. Then clear that card's pending row (and `pending_fields` on the card). Do not restyle locked copy, and do not make him re-dictate it.
+   - Every chat: also `git diff -- data/content-board.json data/catalog.json data/recent-edits.json data/editor-pending.json`. Uncommitted official-field diffs **are** his Save. Keep them. Commit them onto `playtest/latest`. Do not stash those files away on a pull or branch switch.
+   - A Save that landed bumps `locked_at`, `data/recent-edits.json`, and `editor-pending.json`. If those still show the old date and pending is empty, the Save did not stick, even if he clicked Save.
+   - If he describes an editor Save in chat (card + field + value) and the files still have the old number, apply the chat value in that turn.
 2. **Your notes for Cursor** (`review_note`), all of them, not only the card he named: if a note states a new Ability, Call name, number, or other official field **in his words**, write those exact words into the official fields in the board, the catalog, and any hardcoded fallback, and delete the old sentence everywhere the player can still read it. The note overrides locked fields it names. Leave locked fields it does not mention alone. If a note asks for new player-facing wording without giving the words, do not write them yourself: ask Jam/Nathan in REPORT.md (or your reply) and leave the field as it is.
 3. **Art in a note** (new sprite, fix picture): do not draw or edit PNGs. File an `## ART-REQUEST` as in `unique-art.mdc` (path, size, frames, what is wrong, screenshot path). For a new card, also run `tools\request_art.cmd <id>`. Pixel supplies and wires the art.
 4. **Behavior Save** (Flow, Notes, Ops JSON, ATK/HP formulas, or a gold-box note that changes a rule): if it does not match live code in `scripts/main.gd` and related scripts, implement it when Flow/Notes/the note settle the edges. If it has two readings, Paper Fight first (`design/paper-fight/RUBRIC.md`). That matches the design loop's "BLOCK, don't guess".
 5. Skip `hold` and `retired` unless he named them.
 6. If Ability, Flow, and Notes disagree and the gold box is empty, Paper Fight. Do not guess.
-7. After shipping code and his copy: set the card `live`, stamp it in `data/recent-edits.json`, and clear that card's gold box (`review_note` to `""`) so it cannot fire again. Keep `author_lock`, `locked_fields`, and `locked_at`. Do not clear a gold box whose art or wording is still waiting on Pixel or Jam.
+7. After shipping code and his copy: set the card `live`, stamp it in `data/recent-edits.json`, clear that card's gold box (`review_note` to `""`), and clear that card's row in `data/editor-pending.json` / `pending_fields`. Keep `author_lock`, `locked_fields`, and `locked_at`. Do not clear a gold box whose art or wording is still waiting on Pixel or Jam.
 
 ## Do not
 
 - Do not skip the gold-box read because the message is about UI, keys, buckets, art, a bug, or a different card.
 - Do not skip a filled gold box because it is old, leftover, from the HTML board, because a different version of the card already shipped, or because Review is not set to rough.
-- Do not skip a named editor Save (HP, ATK, Ability, and so on) because the gold box is empty. Empty gold box only means he did not type a note.
+- Do not skip a named editor Save (HP, ATK, Ability, and so on) because the gold box is empty. Empty gold box only means he did not type a note. Read `editor-pending.json` the same way you read gold boxes.
 - Do not "implement" a rewrite only in `MONSTER_SPECIAL` or hardcoded fallbacks while catalog Ability and Call name still show the old text. Inspect reads the catalog.
 - Do not edit `data/player-copy.json` (Jam), invent card or UI wording, or put "Tier" or "owner" into new UI text.
