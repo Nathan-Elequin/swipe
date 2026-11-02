@@ -79,6 +79,21 @@ func _run() -> void:
 		failed = _check(failed, "%s no Tier" % bid, blob.find("Tier") < 0 and blob.find("tier") < 0) or failed
 		## No ad-hoc splash fireflies — ambient kit owns particles.
 		failed = _check(failed, "%s no one-off Fireflies" % bid, splash._root.get_node_or_null("Fireflies") == null) or failed
+		## Narration fit: ≤3 lines, content inside label, label inside bar, cue clear.
+		await process_frame
+		splash._layout_narration_bar()
+		await process_frame
+		var lines: int = splash.narration_line_count()
+		failed = _check(failed, "%s lines <= 3" % bid, lines <= 3) or failed
+		var n_rect: Rect2 = splash.narration_rect()
+		var bar_rect: Rect2 = splash.narration_bar_rect()
+		var cue_r: Rect2 = splash.cue_rect()
+		var content_h: float = splash.narration_content_height()
+		failed = _check(failed, "%s content fits label" % bid, content_h <= n_rect.size.y + 1.0) or failed
+		failed = _check(failed, "%s label inside bar" % bid, bar_rect.grow(-12.0).encloses(n_rect)) or failed
+		failed = _check(failed, "%s cue clear of narr" % bid, not n_rect.intersects(cue_r.grow(2.0))) or failed
+		failed = _check(failed, "%s bar at bottom" % bid, is_equal_approx(bar_rect.position.y + bar_rect.size.y, 1040.0)) or failed
+		failed = _check(failed, "%s label uses wide wrap" % bid, n_rect.size.x >= 1500.0) or failed
 		splash.queue_free()
 		await process_frame
 

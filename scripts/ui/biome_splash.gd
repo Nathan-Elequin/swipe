@@ -9,7 +9,17 @@ const PLAYER_COPY := preload("res://scripts/player_copy.gd")
 
 const DESIGN := Vector2(1680.0, 1040.0)
 const ART_H := 832.0
-const BAR_H := 208.0
+## Grew from 208 so a 3-line narration + cue keeps even padding inside the bar.
+const BAR_H := 236.0
+const NARR_PAD_X := 64.0
+const NARR_PAD_Y := 28.0
+const NARR_LINE_PX := 42.0
+const NARR_MAX_LINES := 3
+const CUE_W := 280.0
+const CUE_H := 28.0
+const CUE_RIGHT := 56.0
+const CUE_BOTTOM := 30.0
+const CUE_GAP := 10.0
 const SPROUT_PATH := "res://assets/dungeon/anim/player/sprout_idle_f0.png"
 const LEAF_PATH := "res://assets/ui/biome_splash/cue_leaf_placeholder.png"
 const LEAF_FINAL := "res://assets/ui/biome_splash/cue_leaf.png"
@@ -358,8 +368,6 @@ func _build() -> void:
 
 	_narration_bar = Panel.new()
 	_narration_bar.name = "NarrationBar"
-	_narration_bar.position = Vector2(0, ART_H)
-	_narration_bar.size = Vector2(DESIGN.x, BAR_H)
 	_narration_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_narration_bar.z_as_relative = false
 	_narration_bar.z_index = CHROME_Z
@@ -367,9 +375,10 @@ func _build() -> void:
 	bar_style.bg_color = Color("1A120E")
 	bar_style.border_color = Color("7A4E2B")
 	bar_style.border_width_top = 6
-	bar_style.content_margin_left = 24
-	bar_style.content_margin_right = 24
-	bar_style.content_margin_top = 18
+	## Even content margins so 2- and 3-line narrations share the same inset.
+	bar_style.content_margin_left = 20
+	bar_style.content_margin_right = 20
+	bar_style.content_margin_top = 20
 	bar_style.content_margin_bottom = 20
 	_narration_bar.add_theme_stylebox_override("panel", bar_style)
 	_root.add_child(_narration_bar)
@@ -377,9 +386,9 @@ func _build() -> void:
 	var inner := Panel.new()
 	inner.name = "NarrationInner"
 	inner.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	inner.offset_left = 24
-	inner.offset_top = 18
-	inner.offset_right = -24
+	inner.offset_left = 20
+	inner.offset_top = 20
+	inner.offset_right = -20
 	inner.offset_bottom = -20
 	inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var inner_style := StyleBoxFlat.new()
@@ -391,12 +400,12 @@ func _build() -> void:
 
 	_narration = Label.new()
 	_narration.name = "Narration"
-	_narration.position = Vector2(96, 870)
-	_narration.size = Vector2(1280, 132)
 	_narration.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_narration.max_lines_visible = 3
+	_narration.max_lines_visible = NARR_MAX_LINES
 	_narration.add_theme_font_size_override("font_size", 36)
+	_narration.add_theme_constant_override("line_spacing", 6)
 	_narration.add_theme_color_override("font_color", Color("E9D3A1"))
+	_narration.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	_narration.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_narration.z_as_relative = false
 	_narration.z_index = CHROME_Z
@@ -409,9 +418,6 @@ func _build() -> void:
 	_cue_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_cue_row.z_as_relative = false
 	_cue_row.z_index = CHROME_Z
-	# right 56, bottom 30 of the bar → absolute
-	_cue_row.position = Vector2(DESIGN.x - 56 - 280, ART_H + BAR_H - 30 - 28)
-	_cue_row.size = Vector2(280, 28)
 	_root.add_child(_cue_row)
 
 	_cue_leaf = TextureRect.new()
@@ -436,6 +442,7 @@ func _build() -> void:
 	_cue_row.add_child(_cue_label)
 
 	_apply_copy()
+	_layout_narration_bar()
 	_start_leaf_bob()
 
 
@@ -461,6 +468,86 @@ func _apply_copy() -> void:
 	## attach_ambient may _build() before play_in fills _ctx; re-resolve art here.
 	if _art:
 		_art.texture = _resolve_bg_tex()
+	if _built:
+		_layout_narration_bar()
+
+
+## Size the narration bar for up to 3 lines with even padding; widen the label
+## so wrap uses most of the panel. Cue stays bottom-right and clear of text.
+func _layout_narration_bar() -> void:
+	if _narration_bar == null or _narration == null:
+		return
+	var bar_y: float = DESIGN.y - BAR_H
+	_narration_bar.position = Vector2(0, bar_y)
+	_narration_bar.size = Vector2(DESIGN.x, BAR_H)
+
+	var text_w: float = DESIGN.x - NARR_PAD_X * 2.0
+	## Pin wrap width first; Label has no get_content_height — measure via lines.
+	_narration.size = Vector2(text_w, NARR_LINE_PX * float(NARR_MAX_LINES))
+	var content_h: float = _measure_narration_height()
+	_narration.size = Vector2(text_w, content_h)
+
+	var cue_band: float = CUE_H + CUE_BOTTOM
+	var text_zone_top: float = bar_y + NARR_PAD_Y
+	var text_zone_bot: float = bar_y + BAR_H - cue_band - CUE_GAP
+	var text_zone_h: float = maxf(0.0, text_zone_bot - text_zone_top)
+	## Center 1–3 line blocks in the text zone so every biome gets even padding.
+	var narr_y: float = text_zone_top + maxf(0.0, (text_zone_h - content_h) * 0.5)
+	## Clamp so the last line never crosses into the cue band / bar border.
+	var max_narr_y: float = text_zone_bot - content_h
+	if max_narr_y < text_zone_top:
+		narr_y = text_zone_top
+		_narration.size = Vector2(text_w, maxf(NARR_LINE_PX, text_zone_h))
+	else:
+		narr_y = clampf(narr_y, text_zone_top, max_narr_y)
+	_narration.position = Vector2(NARR_PAD_X, narr_y)
+
+	if _cue_row != null:
+		_cue_row.position = Vector2(DESIGN.x - CUE_RIGHT - CUE_W, bar_y + BAR_H - CUE_BOTTOM - CUE_H)
+		_cue_row.size = Vector2(CUE_W, CUE_H)
+
+
+## Label does not expose get_content_height; lines × line_height is the fit measure.
+func _measure_narration_height() -> float:
+	if _narration == null:
+		return NARR_LINE_PX
+	var lines: int = _narration.get_line_count()
+	if lines < 1:
+		lines = 1
+	lines = mini(lines, NARR_MAX_LINES)
+	var line_h: float = float(_narration.get_line_height())
+	if line_h < 1.0:
+		line_h = NARR_LINE_PX
+	var max_h: float = NARR_LINE_PX * float(NARR_MAX_LINES) + 4.0
+	return minf(float(lines) * line_h, max_h)
+
+
+func narration_rect() -> Rect2:
+	if _narration == null:
+		return Rect2()
+	return Rect2(_narration.position, _narration.size)
+
+
+func narration_bar_rect() -> Rect2:
+	if _narration_bar == null:
+		return Rect2()
+	return Rect2(_narration_bar.position, _narration_bar.size)
+
+
+func cue_rect() -> Rect2:
+	if _cue_row == null:
+		return Rect2()
+	return Rect2(_cue_row.position, _cue_row.size)
+
+
+func narration_line_count() -> int:
+	if _narration == null:
+		return 0
+	return _narration.get_line_count()
+
+
+func narration_content_height() -> float:
+	return _measure_narration_height()
 
 
 func _chrome_label(plate: bool) -> Label:

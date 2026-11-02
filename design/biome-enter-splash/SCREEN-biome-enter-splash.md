@@ -27,9 +27,9 @@ Tip biomes **b1–b5** always show the splash on map enter (placeholder art OK).
 │        New Sprout 64px idle_f0 ×5 Nearest      monster hint:          │
 │        box (500,432) 320×320                   eyes only (1200,430)   │
 │ ──────────── bottom fade 72px ─────────────────────────────── y 832 ──│
-│ NARRATION BAR 1680×208 (20%)  6px top border #7A4E2B                  │
-│   inner panel inset 24/18/24/20, 4px border #3B2618, fill #211610     │
-│   text box x96 w1280, 36px / 40px line, ≤3 lines        [leaf] cue    │
+│ NARRATION BAR 1680×236  6px top border #7A4E2B (overlaps fade)        │
+│   inner panel inset 20 all sides, 4px border #3B2618, fill #211610    │
+│   text box x64 w1552, 36px / ~42px line, ≤3 lines       [leaf] cue    │
 └───────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -43,9 +43,9 @@ Tip biomes **b1–b5** always show the splash on map enter (placeholder art OK).
 | New Sprout | 500,432,320,320 | `TextureRect` of `res://assets/dungeon/anim/player/sprout_idle_f0.png` (64px) at ×5, NEAREST. Ground shadow: 144×16 rect at (624,744), #12261b @ 60%. Sits on the left-third line, faces right toward the path. |
 | Monster hint | ~1200,430,200,220 | **Eyes only.** Glints in the dark, never a body or silhouette. Painted into the art later. Placeholder art has none. |
 | Fireflies | art region | `CPUParticles2D`, ~24 particles, 2×2 px squares #E8D36A, slow drift, low alpha flicker. Optional on placeholder pass. |
-| Narration bar | 0,832,1680,208 | `Panel` with `StyleBoxFlat` for now (fill #1A120E, top border 6px #7A4E2B, inner shadow #4A2F1F). Painted 9-slice (24px margins) later. |
-| Narration text | 96,870,1280,132 | `Label`, autowrap, 36px font from the project theme, line height 40, color #E9D3A1, max 3 lines. |
-| Click cue | right 56, bottom 30 of the bar | Leaf icon 12px ×2 NEAREST that bobs 2px (Tween loop 0.8s, sine). Label uses Spin key `splash.chrome.continue` = `click anytime` (lowercase; leaf kept). **Never** reuse `intro.next` / "Click to continue". |
+| Narration bar | 0,804,1680,236 | `Panel` with `StyleBoxFlat` (fill #1A120E, top border 6px #7A4E2B). Height sized so 3 lines + cue keep even padding; sits at the bottom of the 1040 frame (overlaps the fade). Inner inset 20px all sides. |
+| Narration text | 64, ~pad,1552,≤126 | `Label`, autowrap, 36px font, ~42px line, color #E9D3A1, max 3 lines. Uses most of the panel width (was 1280) so wrap is less cramped; vertically centered in the text zone above the cue. |
+| Click cue | right 56, bottom 30 of the bar | Leaf icon 12px ×2 NEAREST that bobs 2px (Tween loop 0.8s, sine). Label uses Spin key `splash.chrome.continue` = `click anytime` (lowercase; leaf kept). **Never** reuse `intro.next` / "Click to continue". Stays clear of narration. |
 
 Scaling: build the screen in 1680×1040 and let the project's existing stretch settings scale it. No per-element DPI math.
 
@@ -66,7 +66,7 @@ Scaling: build the screen in 1680×1040 and let the project's existing stretch s
 `splash.biome.verdant_hollow` =
 > The Hollow breathes green under Mount Grumblegut. Moss drinks what little light sneaks in. The path ahead is soft, damp, and already listening.
 
-Show it as written. The Doop mock breaks it into 3 lines at the sentence ends; with autowrap at 1280px and 36px it fits in 3 lines. Don't add, cut, or retype anything; read it through `PLAYER_COPY.text()`.
+Show it as written. Autowrap at ~1552px / 36px keeps every tip biome (including Cinder Forge) inside the bar with padding — up to 3 lines, never clipped. Don't add, cut, or retype anything; read it through `PLAYER_COPY.text()`.
 
 ## 5. Sequence + timings (locked)
 
