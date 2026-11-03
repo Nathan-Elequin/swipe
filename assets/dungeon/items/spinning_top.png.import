@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b358f95f21215e"
-path="res://.godot/imported/spinning_top.png-358f95f21215e10ac7787d12444c67c0.ctex"
+uid="uid://bcpit8p10t105"
+path="res://.godot/imported/spinning_top.png-d49931611d28d6b06d2a23c4d46d8322.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/items/spinning_top.png"
-dest_files=["res://.godot/imported/spinning_top.png-358f95f21215e10ac7787d12444c67c0.ctex"]
+dest_files=["res://.godot/imported/spinning_top.png-d49931611d28d6b06d2a23c4d46d8322.ctex"]
 
 [params]
 
