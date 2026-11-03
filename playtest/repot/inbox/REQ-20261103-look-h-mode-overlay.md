@@ -1,6 +1,6 @@
 ---
 id: REQ-20261103-look-h-mode-overlay
-status: open
+status: done
 priority: high
 branch: cursor/look-h-mode-overlay-c13e
 base: playtest/latest
