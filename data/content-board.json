@@ -4810,7 +4810,7 @@
 		},
 		{
 			"ability": "When you Spin me or Move onto me, I immediately Attack you and then I am Defeated",
-			"atk_base": 4.0,
+			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Bear Trap",

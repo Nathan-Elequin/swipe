@@ -4259,7 +4259,7 @@
 	"keywords": {
 		"any": "select any Monster on the wheel",
 		"atk_dmg": "HP loss from ATK. Goblin ignores this.",
-		"bear_trap": "a 2 HP 4 ATK monster that Attacks you when you Move or Spin onto it",
+		"bear_trap": "a 2 HP 3 ATK monster that Attacks you when you Move or Spin onto it",
 		"beggar": "Marks a random Item. Spinning this Beggar discards it.",
 		"curse": "A harmful Item forced into your hand.",
 		"decay": "Decayed Items are linked. When you use one, Keep it and discard the other.",
@@ -5818,9 +5818,9 @@
 		{
 			"ability": "When you Spin me or Move onto me, I immediately Attack you and then I am Defeated",
 			"atk": {
-				"base": 4.0
+				"base": 3.0
 			},
-			"atk_base": 4.0,
+			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Bear Trap",

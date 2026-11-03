@@ -373,7 +373,7 @@ static func def_of(id: String) -> String:
 		"across":
 			return "across on the opposite side of the wheel."
 		"bear_trap":
-			return "a 2 HP 4 ATK monster that Attacks you when you Move or Spin onto it"
+			return "a 2 HP 3 ATK monster that Attacks you when you Move or Spin onto it"
 		"move":
 			return "shift to a Neighbor without Spinning"
 		"flee":
