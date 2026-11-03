@@ -11186,13 +11186,9 @@ func _remove_item_now(uid: int) -> void:
 	_hotbar_sig = ""
 
 
-func _defeat_blocked(m: Dictionary) -> bool:
-	if m.is_empty():
-		return false
-	if bool(m.get("polymorphed_this_fight", false)):
-		return false
-	var id: String = str(m.get("card_id", ""))
-	return id == "gargoyle" and not _is_silenced(m)
+func _defeat_blocked(_m: Dictionary) -> bool:
+	# Gargoyle only petrifies; Defeat items (Boot, Orb, …) work like any other monster.
+	return false
 
 
 func _bag_threshold(it: Dictionary) -> int:

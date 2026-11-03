@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-02T20:58:00Z",
+	"updated_at": "2026-11-03T22:20:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"319": {
@@ -345,9 +345,11 @@
 			"f5_note": "Lethal Scurry Defeats and Spins the next seat. Stop Play, F5."
 		},
 		"328": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Gargoyle is triggering defeat items like boot to say Cannot be defeated",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/328"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/328",
+			"sha": "PENDING",
+			"f5_note": "Boot and other Defeat items work on Gargoyle. Stop Play, F5."
 		}
 	}
 }
