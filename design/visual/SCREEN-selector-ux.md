@@ -1,67 +1,49 @@
-# SCREEN: Combat selector UX - Look H overlay (LOCKED 2026-11-03)
+# SCREEN: Combat selector UX ? Look H overlay panel (2026-11-03)
 
-**Look H LOCKED 2026-11-03.** Mode options render in an **overlay panel above the starter item card**, using **item-consistent icons** (same iconography as the items themselves). H1 (Knife) is the favorite. This **supersedes Look C** (in-chrome tags) below.
-
-Source of truth: Doop https://doop.design/c/8a-B18k4cY - frames **H1** `Kb2qpofDn2` (Knife) + **H2** `0KhSoe1IXV` (Net).
-Exports: `mockups/selector-ux-2026-11-03/exports/`
-- `H1-knife-overlay-icons.png`
-- `H2-net-overlay-icons.png`
-- `H1-screenshot-ref.png`
-
-## Look H rules
-
-1. Overlay panel sits above the starter seat; one option per row/plate, each with an icon consistent with the item art. Each option is its own click target (`_choose_option(opt)`).
-2. **Keep:** cancel X on the starter, `set_selector_dim` on non-legal cards, CHOICE aura (hand picks), Take -> Decline / Continue (`_selector_take_word`), wheel aims (Crossbow).
-3. **Kill:** in-chrome tags (Look C) and seat clones (`_place_choice_tiles` / `_make_mode_choice_tile`) for mode choose.
-4. No new player copy; reuse existing labels via PLAYER_COPY.
-
----
-
-## Superseded: Look C notes (kept for code anchors)
-# SCREEN: Combat selector UX — C in-chrome tags (2026-11-03)
-
-Nathan locked **Direction C** on 2026-11-03: mode options become in-chrome tags on the **starter seat** card itself. A (face bands) and B (docked chips) are rejected. Net is the only 3-input case: cram three tags, slight overlap with the item sprite is OK.
+Nathan locked **Look H** on 2026-11-03: mode options leave the starter seat chrome and open as a **cream overlay panel** floating above that seat. Look C in-chrome tags are superseded. Clone tiles over other hotbar seats stay dead.
 
 Source of truth: Doop canvas https://doop.design/c/8a-B18k4cY
-Exports (1680x1040 @2x): `mockups/selector-ux-2026-11-03/`
-`C1-knife-in-chrome-tags.png` (locked look), `A2-net-x3.png` (use for Net *layout density only*; render as C tags, not bands), `D1-hand-pick.png`, `E1-hired-hand-decline.png`, `F1-crossbow-wheel.png`. Older live refs: `_refs/`.
-Tip at spec time: `playtest/latest` @ `beef7d97`.
+- **H1** frame `Kb2qpofDn2` ? Throwing Knife overlay (LOCKED)
+- **H2** frame `0KhSoe1IXV` ? Net overlay ×3 (LOCKED)
+
+Exports / chat refs (1680×1040): `design/visual/mockups/look-h-2026-11-03/`
+`H1-knife-overlay-icons.png`, `H1-screenshot-ref.png`, `H2-net-overlay-icons.png`.
+Older Look C / A?F exports: `mockups/selector-ux-2026-11-03/`.
 
 ## Look lock
 
-1. **Tags live in the starter seat's chrome.** They're stacked label plates inside the card frame (rim/lower band), not separate cards. No tiles over other hotbar seats.
-2. **Knife: 2 tags.** Copy from existing options (main.gd:9625-9626): `PLAYER_COPY combat.knife_throw` ? "ATK 3, discard"; `combat.knife_nick` ? "ATK 1, keep".
-3. **Net: 3 tags, crammed.** Existing labels (main.gd:154-156): "-1 Attack" / "-2 Attack" / "-3 Attack". Tags may overlap the item sprite slightly; keep them readable and inside the card's outer rim.
-4. **Each tag is its own click target.** Click picks `_choose_option(opt)`. Hover = CHOICE aura colour on that tag's border.
-5. **Starter seat keeps cancel X** (`set_cancel_pick`). Other hand cards keep `set_selector_dim` when not legal.
-6. **Hand picks (D1):** CHOICE aura on legal cards (`set_toss_pick` ? `AURA_CHOICE`) + cancel X on the starter. No tags.
-7. **Hired Hand / monster offers (E1):** Take arc word swaps to "Decline" (`_selector_take_word`, `hired_bribe`); Worm hunger ? `title.continue` "Continue". No tags.
-8. **Crossbow / wheel aims (F1):** glow on wheel targets + dim other hand cards + cancel X on starter. No tags.
-9. Never show "Tier", "Swipe" or "boss-rush". Don't add new player copy. Copy changes go to Jam / PLAYER_COPY.
+1. **Overlay panel above the starter seat.** Cream panel ~340?360px wide, caret pointing at the starter. Soft scrim dims the board. Not seat clones. Not in-chrome tags.
+2. **Knife (2 options):** two large side-by-side targets (~158×190). Item icon tile + mode badge (red throw/speed = discard; green return = keep) + Spin labels exactly `ATK 3, discard` / `ATK 1, keep` (split as primary + secondary). Keys 1 / 2 optional.
+3. **Net (3 options):** three stacked rows (~322×62). Net icon tile + strength pips + labels `-1 Attack` / `-2 Attack` / `-3 Attack` (ASCII hyphen OK). Keys 1 / 2 / 3.
+4. **Magnet (same choose path):** three stacked rows using existing option strings (`Highest Attack` / `Lowest Attack` / `Off`). Magnet-consistent icon. Do not invent new player-facing copy.
+5. **Starter keeps CHOICE aura** (`#7CC8F0`) + cancel X (top-right). Other seats stay dimmed.
+6. **Cancel:** starter X, Esc, or click scrim ? dismiss overlay and exit mode choose.
+7. **Hand picks:** CHOICE aura on legal cards + cancel X on the starter. No mode panel.
+8. **Hired Hand / monster offers:** Take arc Decline / Continue. No mode panel.
+9. **Crossbow / wheel aims:** glow on wheel + dim hand + cancel X. No mode panel.
+10. Never show "Tier", "Swipe" or "boss-rush". Don't add new player copy beyond locked mock prompts / existing option labels. Copy changes go to Jam / PLAYER_COPY.
 
-## Code — kill vs keep
+## Code ? kill vs keep
 
-| Anchor | What it does now | Verdict |
+| Anchor | What it does | Verdict |
 |---|---|---|
-| `scripts/main.gd:25016` `_place_choice_tiles` | Builds one ITEM_CARD clone per option and places them **over other hotbar seats** (`hosts`), fallback right of the starter | **KILL**. Replace it with a tag build on the starter card |
-| `scripts/main.gd:25058` `_make_mode_choice_tile` | Full ITEM_CARD clone (icon, fill, ATK number, `set_aura_role("choice")`, `picked ? _choose_option`) | **KILL** the clone. Move its label logic (knife_throw/knife_nick PLAYER_COPY lookups, `opt.label`) to the tag builder |
-| `scripts/main.gd:25003` `_rebuild_choice` | Clears choice_box/overlay, defers `_place_choice_tiles` | KEEP the shape; point the deferred call at the new tag builder |
-| `scripts/main.gd:575/1436` `choice_box` | Hidden HBox (always `visible=false`) | Leave alone; it already stays hidden |
-| `scripts/main.gd:24987` `_selector_take_word` | Decline / Continue | KEEP |
-| `scripts/main.gd:24506-24513`, `24886-24888` | set_cancel_pick / set_selector_dim / set_toss_pick wiring | KEEP |
-| `scripts/item_card.gd:1626` `set_toss_pick` | Turns on playable + `AURA_CHOICE` | KEEP |
-| `scripts/item_card.gd:1711` `set_cancel_pick` | Cancel disc + X overlay (z 24) | KEEP; tags must sit below the X (z < 24) and not cover it |
-| `scripts/item_card.gd:1721` `set_selector_dim` | modulate 0.50/0.48/0.46 + hatch + sink | KEEP |
-| `scripts/main.gd:9625-9626`, `154-156` | Option dicts + labels | KEEP; read-only source of tag text |
+| `scripts/mode_choice_overlay.gd` | Look H panel + scrim + caret + knife/rows targets | **OWN** the mode UI |
+| `scripts/main.gd` `_place_mode_choice_overlay` / `_rebuild_choice` | Builds rows from `pending_choice` options; shows overlay above starter | KEEP / wire here |
+| `scripts/main.gd` `_place_choice_tiles` / `_make_mode_choice_tile` | Old ItemCard clones over seats | **DEAD** ? do not restore |
+| `scripts/item_card.gd` `set_mode_tags` | Look C in-chrome tags | **CLEAR-ONLY** stub; never rebuild tags |
+| `scripts/item_card.gd` `set_cancel_corner` | Top-right X while Look H is open | KEEP |
+| `scripts/main.gd` `choice_overlay` | Legacy host under hotbar | Keep empty (no clones) |
+| `scripts/main.gd` `_selector_take_word` | Decline / Continue | KEEP |
+| Cancel / dim / toss / aura wiring | set_cancel_pick / set_selector_dim / set_toss_pick / CHOICE | KEEP |
+| Option dicts (`combat.knife_throw` / `knife_nick`, Net ?1/?2/?3, Magnet labels) | Read-only source of target text | KEEP |
 
 ## Asset / export notes
 
-- **No new card PNGs.** Build tags from code: `PanelContainer` + `StyleBoxFlat` (parchment/wood fill, 2px ink border, small corner radius consistent with card chrome) + `Label` with the existing UI font and outline.
-- Mount them via `item_card._overlay_host()` or a new `set_mode_tags(opts: Array, on_pick: Callable)` / `clear_mode_tags()` on item_card.gd. z between the face and the cancel mark.
-- Texture filter Nearest for any glyph textures; `_kind_mark("ATK")` glyph may be reused at the tag's left edge. Nothing new to draw.
-- Tag sizing: about `card_w - 12` wide. Knife 2 rows, Net 3 rows sharing the lower ~55% of the card. Minimum label font ~13px at 1680x1040.
-- Use the CHOICE aura colour for hover and focus, rim `7CC8F0` (already used in the clone tile).
+- **No new card PNGs.** Panel from StyleBoxFlat + Labels + TextureRect. Badges / caret / pips are tiny procedural ImageTextures in TextureRects.
+- Mount under the main UI root (`ModeChoiceOverlay`, z 90), full 1680×1040.
+- Texture filter Nearest for item glyphs.
+- Hover rim uses CHOICE `#7CC8F0`.
 
 ## Out of scope
 
-Gameplay/option logic, Take arc art, wheel glow art, new strings.
+Gameplay/option logic, Take arc art, wheel glow art, Feedback mode pills, new Jam strings beyond locked mock prompt fallbacks.

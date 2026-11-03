@@ -6,7 +6,7 @@ signal hovered
 signal unhovered
 signal edit_wanted
 signal passed_swipe
-## Look C: in-chrome mode tag clicked (Knife / Net / Magnet). Payload is the option dict.
+## Legacy Look C tag click (unused by Look H overlay). Kept so old connects stay safe.
 signal mode_option_picked(opt: Dictionary)
 
 const COPY := preload("res://scripts/player_copy.gd")
@@ -139,11 +139,13 @@ var _pending_live: String = ""
 var _armed: bool = false
 var _armed_lab: Label
 var _cancel_pick: bool = false
+## Look H mode choose: park the cancel X at the top-right corner (mock H1/H2).
+var _cancel_corner: bool = false
 var _selector_dim: bool = false
 var _cancel_x: TextureRect
 var _cancel_disc: ColorRect
 var _selector_veil: Control
-## Look C — cream mode tags inside this card's chrome (not clone tiles over seats).
+## Look C in-chrome tags — cleared always under Look H; stubs keep old calls safe.
 var _mode_tag_box: VBoxContainer
 var _mode_tag_rows: Array = []
 var _mode_tags_on: bool = false
@@ -1732,12 +1734,21 @@ func set_playable(on: bool) -> void:
 
 func set_cancel_pick(on: bool) -> void:
 	_cancel_pick = on
+	if not on:
+		_cancel_corner = false
 	_ensure_cancel_mark()
 	_place_cancel_mark()
 	if _cancel_disc != null:
 		_cancel_disc.visible = on
 	if _cancel_x != null:
 		_cancel_x.visible = on
+	queue_redraw()
+
+
+func set_cancel_corner(on: bool) -> void:
+	## Top-right X while Look H mode panel is open (starter seat only).
+	_cancel_corner = on and _cancel_pick
+	_place_cancel_mark()
 	queue_redraw()
 
 
@@ -1794,106 +1805,24 @@ func _draw_selector_veil() -> void:
 	_selector_veil.draw_rect(Rect2(w - band, 0, band, h), Color(0.04, 0.03, 0.02, 0.16))
 
 
-## Look C: cream tags under the sprite, same seat height. `rows` is
-## [{ "label": String, "opt": Dictionary }, ...] — labels already player-facing.
-func set_mode_tags(rows: Array) -> void:
-	_mode_tag_rows = rows.duplicate()
-	_mode_tags_on = not rows.is_empty()
-	_ensure_mode_tag_box()
-	for child in _mode_tag_box.get_children():
-		_mode_tag_box.remove_child(child)
-		child.queue_free()
-	_mode_tag_box.visible = _mode_tags_on
-	var n: int = rows.size()
-	## 2-mode: sprite shrinks a touch. 3-mode: cram OK — tags may kiss the sprite.
-	var icon_px: float = IDLE_ICON
-	if _mode_tags_on and not _showcase:
-		icon_px = 40.0 if n >= 3 else 46.0
-	if _icon != null and not _showcase:
-		_icon.custom_minimum_size = Vector2(icon_px, icon_px)
-	if _num_host != null and not _showcase:
-		_num_host.visible = not _mode_tags_on
-		_num_host.size_flags_vertical = Control.SIZE_SHRINK_BEGIN if _mode_tags_on else Control.SIZE_EXPAND_FILL
-		if _mode_tags_on:
-			_num_host.custom_minimum_size = Vector2(CARD_W - 14.0, 0.0)
-		else:
-			_num_host.custom_minimum_size = Vector2(CARD_W - 14.0, IDLE_FACE_HOST_MIN_H)
-	if _mode_tags_on:
-		_mode_tag_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		var tag_h: float = 18.0 if n <= 2 else 15.0
-		var font_px: int = 12 if n <= 2 else 11
-		for i in n:
-			if typeof(rows[i]) != TYPE_DICTIONARY:
-				continue
-			var row: Dictionary = rows[i]
-			var lab: String = str(row.get("label", "?"))
-			var opt: Dictionary = row.get("opt", {}) if typeof(row.get("opt", {})) == TYPE_DICTIONARY else {}
-			var btn := _make_mode_tag_button(lab, font_px, tag_h)
-			btn.pressed.connect(_on_mode_tag_pressed.bind(opt))
-			_mode_tag_box.add_child(btn)
-	else:
-		_mode_tag_box.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+## Look H superseded in-chrome tags. Always clear; ignore `rows`.
+func set_mode_tags(_rows: Array = []) -> void:
+	_mode_tag_rows.clear()
+	_mode_tags_on = false
+	if _mode_tag_box != null:
+		for child in _mode_tag_box.get_children():
+			_mode_tag_box.remove_child(child)
+			child.queue_free()
+		_mode_tag_box.visible = false
 		_mode_tag_box.custom_minimum_size = Vector2.ZERO
+	if _icon != null and not _showcase:
+		_icon.custom_minimum_size = Vector2(IDLE_ICON, IDLE_ICON)
+	if _num_host != null and not _showcase:
+		_num_host.visible = true
+		_num_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		_num_host.custom_minimum_size = Vector2(CARD_W - 14.0, IDLE_FACE_HOST_MIN_H)
 	_place_cancel_mark()
 	queue_redraw()
-
-
-func _on_mode_tag_pressed(opt: Dictionary) -> void:
-	mode_option_picked.emit(opt)
-
-
-func _ensure_mode_tag_box() -> void:
-	if _mode_tag_box != null:
-		return
-	_mode_tag_box = VBoxContainer.new()
-	_mode_tag_box.name = "ModeTags"
-	_mode_tag_box.visible = false
-	_mode_tag_box.alignment = BoxContainer.ALIGNMENT_END
-	_mode_tag_box.add_theme_constant_override("separation", 2)
-	_mode_tag_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_mode_tag_box.mouse_filter = Control.MOUSE_FILTER_PASS
-	## Sit under the sprite inside the same VBox — no card-height growth.
-	if _col != null and _num_host != null and _num_host.get_parent() == _col:
-		_col.add_child(_mode_tag_box)
-		_col.move_child(_mode_tag_box, _num_host.get_index())
-	elif _col != null:
-		_col.add_child(_mode_tag_box)
-	else:
-		_overlay_host().add_child(_mode_tag_box)
-
-
-func _make_mode_tag_button(lab: String, font_px: int, tag_h: float) -> Button:
-	var btn := Button.new()
-	btn.text = lab
-	btn.focus_mode = Control.FOCUS_NONE
-	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	btn.custom_minimum_size = Vector2(0.0, tag_h)
-	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn.add_theme_font_size_override("font_size", font_px)
-	btn.add_theme_color_override("font_color", Color("100e0c"))
-	btn.add_theme_color_override("font_hover_color", Color("100e0c"))
-	btn.add_theme_color_override("font_pressed_color", Color("100e0c"))
-	btn.add_theme_color_override("font_focus_color", Color("100e0c"))
-	btn.add_theme_stylebox_override("normal", _mode_tag_style(Color("F3E6C8"), Color("100e0c")))
-	btn.add_theme_stylebox_override("hover", _mode_tag_style(Color("FFF1D2"), Color("100e0c")))
-	btn.add_theme_stylebox_override("pressed", _mode_tag_style(Color("E2D2A8"), Color("100e0c")))
-	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	btn.clip_text = true
-	btn.autowrap_mode = TextServer.AUTOWRAP_OFF
-	return btn
-
-
-func _mode_tag_style(fill: Color, rim: Color) -> StyleBoxFlat:
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = fill
-	sb.border_color = rim
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 4.0
-	sb.content_margin_right = 4.0
-	sb.content_margin_top = 1.0
-	sb.content_margin_bottom = 1.0
-	return sb
 
 
 func _ensure_cancel_mark() -> void:
@@ -1927,9 +1856,8 @@ func _ensure_cancel_mark() -> void:
 func _place_cancel_mark() -> void:
 	if _cancel_disc == null or _cancel_x == null:
 		return
-	## Mode tags (Look C): X sits top-right so tags stay readable.
-	## Hand pick / wheel aim: X stays centered over the sprite (cancel affordance).
-	if _mode_tags_on and not _showcase:
+	## Look H mode choose: X top-right on the starter. Hand pick / wheel: centered.
+	if _cancel_corner and not _showcase:
 		_cancel_disc.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 		_cancel_disc.offset_left = -28.0
 		_cancel_disc.offset_top = 4.0
