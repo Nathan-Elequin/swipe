@@ -1455,7 +1455,8 @@ func _build_ui() -> void:
 	hotbar_wrap = MarginContainer.new()
 	hotbar_wrap.add_theme_constant_override("margin_top", 2)
 	hotbar_wrap.add_theme_constant_override("margin_bottom", 2)
-	hotbar_wrap.z_index = 16
+	## Above MoveBox/TakeArc (z 20) so the cream arc cannot eat hotbar clicks.
+	hotbar_wrap.z_index = 24
 	hotbar_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hotbar_wrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	left.add_child(hotbar_wrap)
@@ -8545,7 +8546,9 @@ func _on_done() -> void:
 			sfx.play("error", -12.0, 1.2)
 		return
 	if _wheel_busy() or _walker_busy:
-		return
+		if _spin_inflight:
+			return
+		_clear_fight_input_lock()
 	if in_tutorial and (tut == null or (tut.wait != "done" and tut.wait != "choice")):
 		if tut:
 			tut.nudge(PLAYER_COPY.text("tutorial.nudge_wait", "Not yet — finish what I said."))
@@ -9560,13 +9563,14 @@ func _use_item(uid: int) -> void:
 		await _feed_cube(uid)
 		_undo_arm()
 		return
-	if _walker_busy and not _oligarch_forcing:
-		return
+	if (_walker_busy or _wheel_busy()) and not _oligarch_forcing:
+		if _spin_inflight:
+			return
+		# Spin already finished but a walker/wheel flag stuck on (Wealth Tax).
+		_clear_fight_input_lock()
 	var it_pre: Dictionary = _find_item(uid)
 	var magnet_ready: bool = phase == "ready" and _is_magnet(it_pre)
 	if not magnet_ready and (phase != "fighting" or facing_index < 0):
-		return
-	if _wheel_busy() and not _oligarch_forcing:
 		return
 	if not pending_chaos.is_empty():
 		await _chaos_pick(uid)
@@ -9692,7 +9696,8 @@ func _use_item(uid: int) -> void:
 			_undo_abort()
 		return
 	_bleed_begin()
-	_lock_item_fx()
+	if not _oligarch_forcing:
+		_lock_item_fx()
 	_arm_item_hold()
 	_beggar_hold = true
 	await _apply_ops(it, ops, {})
@@ -9721,8 +9726,6 @@ func _unlock_after_item_body() -> void:
 	# after Oligarch force-uses an item.
 	if _spin_inflight:
 		_release_item_hold()
-		if not _oligarch_forcing:
-			_clear_fight_input_lock()
 		return
 	await _unlock_if_fighting()
 
