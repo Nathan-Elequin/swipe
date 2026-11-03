@@ -64,7 +64,8 @@
 		"bag_of_holding",
 		"ball_and_chain",
 		"recycler",
-		"flying_saucer"
+		"flying_saucer",
+		"spinning_top"
 	],
 	"monsters": [
 		"wizard",

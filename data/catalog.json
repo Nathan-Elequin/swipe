@@ -4227,7 +4227,7 @@
 			"exceptions": "Pool 1 T1 Attack. Dragged Crossbow 1->2, Grimoire 2->3. Counts Flee. Auto-Discard after Oligarch. Petrified still Discards at 7.",
 			"explainer": "ATK = 1 + Spins. Discard at 7",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": false
 			},
