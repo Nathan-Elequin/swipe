@@ -254,7 +254,7 @@ const MONSTER_SPECIAL := {
 	"poison_frog": {"id": "toxic_skin", "text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison"},
 	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust."},
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
-	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 1 Attack"},
+	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 2 Attack"},
 	"oligarch": {"id": "wealth_tax", "text": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item"},
 }
 
@@ -13340,9 +13340,13 @@ func _finish_chaos() -> void:
 		sfx.play("bong", -12.0, 0.7)
 		sfx.play_event(&"chaos.transform")
 	if get_tree():
-		await get_tree().create_timer(0.28).timeout
+		await get_tree().create_timer(0.18).timeout
+	var flipped: Array = []
 	for uid_v in picks:
-		await _swap_item_same_tier(int(uid_v))
+		var pick_uid: int = int(uid_v)
+		if _roll_item_same_tier(pick_uid):
+			flipped.append(pick_uid)
+	await _play_item_transforms_together(flipped)
 	stone["spent"] = true
 	await _count_item_use()
 	_toss_item(int(stone["uid"]), false)
@@ -13413,14 +13417,20 @@ func _item_swap_tier(it: Dictionary) -> int:
 
 
 func _swap_item_same_tier(uid: int) -> void:
+	if not _roll_item_same_tier(uid):
+		return
+	await _play_item_transform(uid)
+
+
+func _roll_item_same_tier(uid: int) -> bool:
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
-		return
+		return false
 	var old_id: String = str(it.get("card_id", ""))
 	var tier: int = _item_swap_tier(it)
 	var pool: Array = _swap_pool_ids(tier)
 	if pool.is_empty():
-		return
+		return false
 	var nid: String = str(pool[rng.randi() % pool.size()])
 	if item_pool.has(nid):
 		item_pool.erase(nid)
@@ -13432,8 +13442,64 @@ func _swap_item_same_tier(uid: int) -> void:
 	for k in fresh.keys():
 		it[k] = fresh[k]
 	it["uid"] = keep_uid
-	_hotbar_sig = ""
-	await _play_item_transform(keep_uid)
+	return true
+
+
+func _play_item_transforms_together(uids: Array) -> void:
+	if uids.is_empty():
+		return
+	var left: Array = [uids.size()]
+	for uid_v in uids:
+		_play_item_transform_then(int(uid_v), left)
+	while int(left[0]) > 0:
+		if get_tree() == null:
+			break
+		await get_tree().process_frame
+
+
+func _play_item_transform_then(uid: int, left: Array) -> void:
+	await _play_item_transform(uid)
+	left[0] = maxi(0, int(left[0]) - 1)
+
+
+func _paint_item_card_identity(card: Control, it: Dictionary) -> void:
+	if card == null or not is_instance_valid(card) or it.is_empty():
+		return
+	var view: Dictionary = _item_view(it)
+	var show_id: String = str(it.get("card_id", ""))
+	var show_name: String = str(it.get("name", "?"))
+	if show_id == "echo_bell":
+		var face: Dictionary = _echo_face(it)
+		if not face.is_empty():
+			show_id = str(face.get("card_id", show_id))
+			show_name = str(face.get("name", show_name))
+	var k: String = str(view.get("kind", "ATK"))
+	if card.has_method("adopt_identity"):
+		card.adopt_identity(str(it.get("card_id", "")), _title_case(show_name), _item_icon_tex(it, show_id), k, _kind_mark(k))
+	if card.has_method("set_echo_mark"):
+		if str(it.get("card_id", "")) == "echo_bell" and art != null:
+			card.set_echo_mark(art.item_tex("echo_bell"))
+		else:
+			card.set_echo_mark(null)
+	var pn: int = int(it.get("petrify_n", 0))
+	var shown_n: String = str(pn) if pn > 0 else str(view["number"])
+	card.set_palette(view["fill"], view["rim"], _tier_of(it))
+	if card.has_method("set_curse"):
+		card.set_curse(_item_is_curse(it))
+	if card.has_method("set_num_color"):
+		card.set_num_color(Color("9a9a9a") if pn > 0 else _num_color(k))
+	var rule: Dictionary = _item_rule(it)
+	if card.has_method("set_formula"):
+		card.set_formula(str(rule.get("equation", "")))
+	card.set_live(shown_n)
+	if card.has_method("set_atk_pip"):
+		card.set_atk_pip(_number_is_atk(view, pn))
+	if card.has_method("set_hp_cost"):
+		card.set_hp_cost(str(view.get("hp_cost", "")))
+	if card.has_method("set_glyphs"):
+		card.set_glyphs([] if pn > 0 else _face_rows(it, view))
+	_apply_bag_look(card, it)
+	_apply_item_stone_look(card, it)
 
 
 func _play_item_transform(uid: int) -> void:
@@ -13442,15 +13508,15 @@ func _play_item_transform(uid: int) -> void:
 		sfx.play("whoosh", -8.0, 0.9)
 		sfx.play("pluck", -6.0, 1.15)
 		sfx.play("confirm", -10.0, 0.85)
-	if hotbar_box:
-		for c in hotbar_box.get_children():
-			if _control_uid(c) != uid:
-				continue
-			if c.has_method("play_transform"):
-				c.play_transform()
-			elif c.has_method("bounce"):
-				c.bounce()
-			break
+	var card: Control = _hotbar_card_by_uid(uid)
+	if card != null and card.has_method("play_flip_transform"):
+		var paint_uid: int = uid
+		await card.play_flip_transform(func() -> void:
+			_paint_item_card_identity(card, _find_item(paint_uid))
+		)
+		return
+	if card != null and card.has_method("bounce"):
+		card.bounce()
 	if get_tree():
 		await get_tree().create_timer(0.36).timeout
 
@@ -17769,13 +17835,13 @@ func _sandbag_lose_atk() -> void:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return
 	var m: Dictionary = wheel[facing_index]
-	m["sandbag_cut"] = int(m.get("sandbag_cut", 0)) + 1
-	var shown: int = maxi(0, int(m.get("atk", 0)) - 1)
+	m["sandbag_cut"] = int(m.get("sandbag_cut", 0)) + 2
+	var shown: int = maxi(0, int(m.get("atk", 0)) - 2)
 	m["atk"] = shown
 	m["atk_innate"] = shown
 	wheel[facing_index] = m
 	_sync_wheel_stats()
-	_log("on_spin", "Sandbag loses 1 Attack  →  %s" % int(wheel[facing_index].get("atk", 0)))
+	_log("on_spin", "Sandbag loses 2 Attack  →  %s" % int(wheel[facing_index].get("atk", 0)))
 	if wheel_view:
 		wheel_view.punch_atk(facing_index)
 
@@ -24365,17 +24431,12 @@ func _sync_hotbar() -> void:
 	var joined: String = ",".join(sig) + "|e%s|d%s|s%s|p%s" % [empties, 1 if _challenge_loot_wait else 0, seated_n, pending_uid]
 	if joined != _hotbar_sig:
 		_hotbar_sig = joined
-		for c in hotbar_box.get_children():
-			hotbar_box.remove_child(c)
-			c.queue_free()
-		_clear_hotbar_overflow()
+		var keep: Dictionary = _take_hotbar_cards_by_uid()
 		for i in range(seated_n):
 			var it_seat: Dictionary = hotbar[i]
 			if typeof(it_seat) != TYPE_DICTIONARY:
 				continue
-			var spawned: Control = _spawn_item_card(it_seat, true)
-			if spawned:
-				hotbar_box.add_child(spawned)
+			hotbar_box.add_child(_reuse_or_spawn_item_card(keep, it_seat))
 		if adventure:
 			for _e in range(maxi(0, empties)):
 				hotbar_box.add_child(_make_hot_empty())
@@ -24384,13 +24445,12 @@ func _sync_hotbar() -> void:
 				var it_wait: Dictionary = hotbar[j]
 				if typeof(it_wait) != TYPE_DICTIONARY:
 					continue
-				var parked: Control = _spawn_item_card(it_wait, true)
-				if parked:
-					hotbar_overflow.add_child(parked)
+				hotbar_overflow.add_child(_reuse_or_spawn_item_card(keep, it_wait))
 			if pending_uid != 0:
-				var pending_card: Control = _spawn_item_card(_challenge_pending_gain, true)
-				if pending_card:
-					hotbar_overflow.add_child(pending_card)
+				hotbar_overflow.add_child(_reuse_or_spawn_item_card(keep, _challenge_pending_gain))
+		for leftover in keep.values():
+			if leftover != null and is_instance_valid(leftover):
+				leftover.queue_free()
 		_place_hotbar_overflow()
 		call_deferred("_place_hotbar_overflow")
 	for c in _hotbar_all_cards():
@@ -24565,6 +24625,40 @@ func _clear_hotbar_overflow() -> void:
 	for c in hotbar_overflow.get_children():
 		hotbar_overflow.remove_child(c)
 		c.queue_free()
+
+
+func _take_hotbar_cards_by_uid() -> Dictionary:
+	var keep: Dictionary = {}
+	var hosts: Array = []
+	if hotbar_box != null:
+		hosts.append(hotbar_box)
+	if hotbar_overflow != null:
+		hosts.append(hotbar_overflow)
+	for host in hosts:
+		for c in host.get_children():
+			host.remove_child(c)
+			if c.has_meta("tossing"):
+				continue
+			var u: int = _control_uid(c)
+			if u < 0 or keep.has(u) or not c.has_method("set_live"):
+				c.queue_free()
+				continue
+			keep[u] = c
+	return keep
+
+
+func _reuse_or_spawn_item_card(keep: Dictionary, it: Dictionary) -> Control:
+	var u: int = int(it.get("uid", -1))
+	if u >= 0 and keep.has(u):
+		var reused: Control = keep[u]
+		keep.erase(u)
+		if reused != null and is_instance_valid(reused):
+			reused.scale = Vector2.ONE
+			reused.modulate = Color.WHITE
+			reused.rotation = 0.0
+			reused.z_index = 0
+			return reused
+	return _spawn_item_card(it, true)
 
 
 func _hotbar_overflow_anchor_global() -> Vector2:

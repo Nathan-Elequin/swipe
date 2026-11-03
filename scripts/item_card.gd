@@ -2057,14 +2057,63 @@ func _spawn_toll_burst() -> void:
 
 
 func play_transform() -> void:
+	await play_flip_transform()
+
+
+## Horizontal card flip. `on_mid` runs while the card is edge-on so the back
+## can already be the new item.
+func play_flip_transform(on_mid: Callable = Callable()) -> void:
+	if has_meta("tossing"):
+		if on_mid.is_valid():
+			on_mid.call()
+		return
 	pivot_offset = size * 0.5
+	z_index = 48
 	var tw := create_tween()
-	tw.tween_property(self, "scale", Vector2(0.12, 1.22), 0.10)
-	tw.parallel().tween_property(self, "modulate", Color(0.72, 0.28, 1.0), 0.10)
-	tw.tween_property(self, "scale", Vector2(1.18, 1.18), 0.12)
-	tw.parallel().tween_property(self, "modulate", Color(1.0, 0.92, 0.55), 0.12)
-	tw.tween_property(self, "scale", Vector2.ONE, 0.10)
-	tw.parallel().tween_property(self, "modulate", Color.WHITE, 0.10)
+	tw.tween_property(self, "scale:x", 0.0, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await tw.finished
+	if on_mid.is_valid():
+		on_mid.call()
+	if not is_instance_valid(self):
+		return
+	pivot_offset = size * 0.5
+	tw = create_tween()
+	tw.tween_property(self, "scale:x", 1.0, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await tw.finished
+	if not is_instance_valid(self):
+		return
+	scale = Vector2.ONE
+	modulate = Color.WHITE
+	z_index = 0
+
+
+func adopt_identity(p_id: String, title: String, icon: Texture2D, p_kind: String, mark: Texture2D) -> void:
+	_sai_busy = false
+	_marble_busy = false
+	_pending_live = ""
+	_shown = ""
+	if _marble_fx != null:
+		_marble_fx.visible = false
+		_marble_fx.stop()
+	if _sai_fx != null:
+		_sai_fx.visible = false
+		_sai_fx.stop()
+	card_id = p_id
+	kind = p_kind
+	if _icon:
+		_icon.modulate.a = 1.0
+		_icon.texture = icon
+		var arc: Node = _icon.get_node_or_null("MoveArc")
+		var want_arc: bool = p_id == "shuriken" or p_id == "jar_o_grease"
+		if want_arc and arc == null:
+			var move_arc := preload("res://scripts/move_arc_icon.gd").new()
+			move_arc.name = "MoveArc"
+			_icon.add_child(move_arc)
+		elif not want_arc and arc != null:
+			arc.queue_free()
+	set_title(title)
+	if _mark != null:
+		_mark.texture = mark
 
 
 func _apply_style(hot: bool) -> void:
