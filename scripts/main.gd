@@ -24442,9 +24442,13 @@ func _sync_overlay() -> void:
 					var projected: int = CAMPAIGN_SHELL.project_cabinet_count(
 						_campaign.state, pool, haul_ids, haul_pools
 					)
+					## Portal spiral always reads the next biome id when one exists
+					## (even if Push is blocked by cabinet quota). Display chip name
+					## still only shows when can_push — same as before.
+					var next_id := CAMPAIGN_SHELL.next_biome_id(_campaign.rules, _campaign.state)
 					var next_name := ""
-					if can_push:
-						next_name = CAMPAIGN_SHELL.next_biome_name(_campaign.rules, _campaign.state)
+					if can_push and next_id != "":
+						next_name = CAMPAIGN_SHELL.biome_name(_campaign.rules, next_id)
 					chip = {
 						"biome": biome,
 						"n": n,
@@ -24452,6 +24456,7 @@ func _sync_overlay() -> void:
 						"projected": projected,
 						"show_proj": n < quota and projected >= quota,
 						"next": next_name,
+						"next_id": next_id,
 						"show_next": can_push and next_name != "",
 					}
 					push_interrupt = CAMPAIGN_SHELL.push_needs_nib(_campaign.rules, _campaign.state)

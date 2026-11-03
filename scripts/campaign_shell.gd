@@ -277,6 +277,15 @@ static func project_cabinet_count(state: Dictionary, pool: String, ids: Array, p
 
 ## Display name of the biome after the active run's current index, or "".
 static func next_biome_name(rules: Dictionary, state: Dictionary) -> String:
+	var id := next_biome_id(rules, state)
+	if id == "":
+		return ""
+	return biome_name(rules, id)
+
+
+## Next campaign biome id (b1–b5) after the active run's current index, or "".
+## Empty for endless / past the last biome. Never returns "endless".
+static func next_biome_id(rules: Dictionary, state: Dictionary) -> String:
 	var run: Dictionary = state.get("run", {})
 	if bool(run.get("endless", false)):
 		return ""
@@ -284,7 +293,7 @@ static func next_biome_name(rules: Dictionary, state: Dictionary) -> String:
 	var i: int = int(run.get("biome_index", 0)) + 1
 	if i < 0 or i >= biomes.size():
 		return ""
-	return str((biomes[i] as Dictionary).get("name", ""))
+	return str((biomes[i] as Dictionary).get("id", ""))
 
 
 static func mix_for(rules: Dictionary, biome_id: String) -> Dictionary:

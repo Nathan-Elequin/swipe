@@ -76,7 +76,11 @@ func _init() -> void:
 	)
 	failed = _check(failed, "project cabinet adds new pool uniques", proj_n == 4) or failed
 	failed = _check(failed, "project skips other pools", proj_n == 4) or failed
+	failed = _check(failed, "next biome id", Shell.next_biome_id(rules, state) == "b2") or failed
 	failed = _check(failed, "next biome named", Shell.next_biome_name(rules, state) == "Crystal Cavern") or failed
+	Shell.begin_run(state, 4, false, false)
+	failed = _check(failed, "no next after b5", Shell.next_biome_id(rules, state) == "") or failed
+	Shell.begin_run(state, 0, false, false)
 	Shell.begin_run(under, 0, false, true)
 	failed = _check(failed, "no nib in endless", Shell.push_needs_nib(rules, under) == false) or failed
 	Shell.begin_run(state, 0, false, false)
