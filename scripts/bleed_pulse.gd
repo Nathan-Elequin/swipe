@@ -60,7 +60,7 @@ func flush_queue() -> void:
 	_flushing = false
 
 
-func _spawn_ring(_n: int) -> void:
+func _spawn_ring(n: int) -> void:
 	var origin := _origin()
 	var ring := {
 		"r": 0.0,
@@ -68,6 +68,7 @@ func _spawn_ring(_n: int) -> void:
 		"origin": origin,
 		"catches": {},
 		"t": 0.0,
+		"n": n,
 	}
 	_rings.append(ring)
 	queue_redraw()
@@ -141,6 +142,9 @@ func _try_catches(ring: Dictionary) -> void:
 				continue
 			var id := _card_id_for_uid(uid)
 			if id not in ["spiked_flail", "breastplate", "pacemaker", "blood_chalice"]:
+				continue
+			# Pacemaker only listens to an exact-2 loss. Other listeners hop on any bleed.
+			if id == "pacemaker" and int(ring.get("n", 0)) != 2:
 				continue
 			var pos2: Vector2 = c.get_global_rect().get_center()
 			if origin.distance_to(pos2) <= r:

@@ -8816,7 +8816,7 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 			sfx.play("glass", -10.0)
 	else:
 		_log("hp", "take 0")
-		await _play_attack_blocked()
+		await _play_attack_blocked(at)
 	if hp <= 0:
 		_try_potion()
 		if incoming > 0:
@@ -8882,7 +8882,7 @@ func _play_attack_connect() -> void:
 	_player_play("hit")
 
 
-func _play_attack_blocked() -> void:
+func _play_attack_blocked(src: int = -1) -> void:
 	_flash_screen(Color("5aa8e8"), 0.4)
 	_refresh_blk(false)
 	if sfx:
@@ -8893,9 +8893,15 @@ func _play_attack_blocked() -> void:
 	if combat_stage:
 		combat_stage.play_block()
 	_player_play("block")
-	if facing_index >= 0 and wheel_view:
-		# Stamp snaps readable (~0.2s); hold/fade overlaps the next resolve beat.
-		await wheel_view.play_block(facing_index, true)
+	if wheel_view == null:
+		return
+	var stamp_i: int = src if src >= 0 else facing_index
+	if stamp_i < 0:
+		return
+	# Off-face swings (Signpost) wait the full stamp so it reads on the neighbor.
+	# Faced Take can overlap resolve; play_block still clears when the tween ends.
+	var wait_full: bool = stamp_i != facing_index
+	await wheel_view.play_block(stamp_i, not wait_full)
 
 
 func _player_down(skip_pose: bool = false) -> void:
