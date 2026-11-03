@@ -343,6 +343,11 @@
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/304",
 			"sha": "2d3b0833",
 			"f5_note": "Lethal Scurry Defeats and Spins the next seat. Stop Play, F5."
+		},
+		"328": {
+			"status": "todo",
+			"title": "Gargoyle is triggering defeat items like boot to say Cannot be defeated",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/328"
 		}
 	}
 }

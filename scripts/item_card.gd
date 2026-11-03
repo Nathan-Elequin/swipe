@@ -434,7 +434,7 @@ func _sync_hatch() -> void:
 	var unplayable_hatch: bool = (not _showcase) and not _selector_dim and (
 		spent
 		or (_petrified and not _petrify_dummy)
-		or ((not _playable) and not _guarding and not _petrify_dummy)
+		or ((not _playable) and not _toss_pick and not _guarding and not _petrify_dummy)
 	)
 	var on: bool = egg or unplayable_hatch
 	if not on:
@@ -2115,8 +2115,8 @@ func _apply_style(hot: bool) -> void:
 		metal = metal.lerp(COL_HEX_GOOD, 0.55 + pulse * 0.35)
 		sb.bg_color = sb.bg_color.lerp(COL_HEX_GOOD.darkened(0.45), pulse * 0.22)
 		modulate = Color.WHITE
-	elif _toss_pick and hot and not spent:
-		# CHOICE language (was gold toss glow).
+	elif _toss_pick and not spent:
+		# CHOICE language (was gold toss glow). Incoming overflow must match seated cards.
 		pulse = 0.0
 		metal = metal.lerp(COL_CHOICE, 0.72)
 		sb.bg_color = sb.bg_color.lerp(COL_CHOICE.darkened(0.45), 0.12)
@@ -2162,7 +2162,7 @@ func _apply_style(hot: bool) -> void:
 		bw += 1
 	if _glow:
 		bw += int(pulse * float(_tier))
-	elif _aura_role == AURA_READY or _log_focus or _danger or (_toss_pick and hot) or _hex_good:
+	elif _aura_role == AURA_READY or _log_focus or _danger or _toss_pick or _hex_good:
 		bw += int(pulse * 2.0)
 	sb.set_border_width_all(bw)
 	sb.set_corner_radius_all(8 if _showcase else 6)
@@ -2225,7 +2225,7 @@ func _draw() -> void:
 	var show_aura: bool = not spent and not (_petrified and not _petrify_dummy)
 	if show_aura and (_gaze_warn or _decay_warn or _aura_role == AURA_WARN):
 		_draw_dashed_ring(COL_WARN, 3.0, 0.0)
-	elif show_aura and (_aura_role == AURA_CHOICE or (_toss_pick and _hot)):
+	elif show_aura and (_aura_role == AURA_CHOICE or _toss_pick):
 		_draw_double_ring(COL_CHOICE)
 	elif show_aura and _aura_role == AURA_READY:
 		var pulse_r: float = 0.45 + 0.55 * absf(sin(_glow_t * TAU / 1.6))
@@ -2507,7 +2507,7 @@ func _tick_shimmer() -> void:
 	if _shimmer_mat == null:
 		return
 	var desat: float = _desat
-	if not _playable and not spent and not _showcase and not _guarding:
+	if not _playable and not _toss_pick and not spent and not _showcase and not _guarding:
 		desat = 0.6
 	RANK_SHIMMER.apply(_shimmer_mat, _tier, uid, desat, 1.0 if _armed else 0.0, _shimmer_clock, size if size.x > 8.0 else Vector2(CARD_W, CARD_H))
 
