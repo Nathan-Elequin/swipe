@@ -2,7 +2,7 @@
 id: REQ-20261103-delve-spiral-portal
 status: open
 priority: high
-tip_sha: pending
+tip_sha: ee2811fa
 branch: playtest/latest
 created: 2026-11-03T23:30:00Z
 created_by: cloud-agent
