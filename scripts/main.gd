@@ -14810,7 +14810,6 @@ func _grant_leech_hp(index: int) -> void:
 func _step_berserkers() -> void:
 	var base_n: int = _card_base_atk("berserker")
 	var any := false
-	var angry: Array[int] = []
 	for i in range(wheel.size()):
 		var s: Dictionary = wheel[i]
 		if str(s.get("card_id", "")) != "berserker":
@@ -14834,6 +14833,10 @@ func _step_berserkers() -> void:
 			elif not hot and combat_stage.has_method("play_rage_down"):
 				combat_stage.play_rage_down()
 		await _announce_slice(i, _slice_atk_pos(i))
+		if delta > 0:
+			_berserk_line = "I'm getting angry!"
+			_berserk_talk_index = i
+			_place_speech()
 		var outburst_now: int = int(s.get("outburst", 0))
 		if delta > 0:
 			for _step in delta:
@@ -14844,7 +14847,6 @@ func _step_berserkers() -> void:
 				wheel[i] = s
 				_sync_wheel_stats()
 				_show_sync_slice(i, false)
-			angry.append(i)
 		elif delta < 0:
 			for _drop in absi(delta):
 				await _fly_stat_courier(_stat_pip_pos(i, false), _slice_outward(i, false), false, true)
@@ -14857,40 +14859,15 @@ func _step_berserkers() -> void:
 		else:
 			s["outburst"] = nxt - base_n
 			wheel[i] = s
+		if _berserk_talk_index == i:
+			_berserk_line = ""
+			_berserk_talk_index = -1
+			if _spoken_key.begins_with("berserker|"):
+				_spoken_key = ""
+			if speech_box:
+				speech_box.hide_speech()
 	if any:
 		_sync_wheel_stats()
-	for ai in angry:
-		if phase != "fighting":
-			break
-		await _berserker_angry_tell(int(ai))
-
-
-func _berserker_angry_tell(index: int) -> void:
-	if index < 0 or index >= wheel.size():
-		return
-	if str(wheel[index].get("card_id", "")) != "berserker":
-		return
-	await _announce_slice(index, _slice_atk_pos(index))
-	if ability_slash != null:
-		var guard := 0
-		while ability_slash.visible and guard < 90:
-			await get_tree().process_frame
-			guard += 1
-	if phase != "fighting":
-		return
-	_berserk_line = "I'm getting angry!"
-	_berserk_talk_index = index
-	_place_speech()
-	if get_tree():
-		await get_tree().create_timer(1.15).timeout
-	if _berserk_talk_index != index:
-		return
-	_berserk_line = ""
-	_berserk_talk_index = -1
-	if _spoken_key.begins_with("berserker|"):
-		_spoken_key = ""
-	if speech_box:
-		speech_box.hide_speech()
 
 
 func _step_hexs() -> bool:
