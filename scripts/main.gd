@@ -7,6 +7,7 @@ const CATALOG_PATH := "res://data/catalog.json"
 const RUNTIME_PATH := "res://data/runtime.json"
 const WHEEL_SCRIPT := preload("res://scripts/boss_wheel.gd")
 const ITEM_CARD := preload("res://scripts/item_card.gd")
+const MODE_CHOICE_OVERLAY := preload("res://scripts/mode_choice_overlay.gd")
 const HOVER_PANEL := preload("res://scripts/hover_panel.gd")
 const AUDIO_FX := preload("res://scripts/audio_fx.gd")
 const SETTINGS_MENU := preload("res://scripts/settings_menu.gd")
@@ -254,7 +255,7 @@ const MONSTER_SPECIAL := {
 	"poison_frog": {"id": "toxic_skin", "text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison"},
 	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust."},
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
-	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 1 Attack"},
+	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 2 Attack"},
 	"oligarch": {"id": "wealth_tax", "text": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item"},
 }
 
@@ -285,7 +286,7 @@ const MONSTER_CALL := {
 	"bear_trap": "Bear Trap",
 	"clockwork_knight": "Synchronize",
 	"basilisk": "Stone Gaze",
-	"zombie": "Decay",
+	"zombie": "Life and Death",
 	"hollow": "Even twice",
 	"beggar": "Finders Keepers",
 	"wick": "Death Toll",
@@ -310,6 +311,7 @@ const MONSTER_CALL := {
 	"poison_frog": "Toxic Skin",
 	"plague_doctor": "Outbreak",
 	"rust_bucket": "Rust",
+	"sandbag": "Sandbag",
 	"oligarch": "Wealth Tax",
 }
 
@@ -758,6 +760,8 @@ var btn_wrap: MarginContainer
 var hotbar_panel: PanelContainer
 var hotbar_overflow: Control
 var choice_overlay: Control
+## Look H cream panel above the starter seat (Knife / Net / Magnet).
+var mode_choice_layer: ModeChoiceOverlay = null
 var challenge_deck: Array = []
 var challenge_aim: int = -1
 var _unspin_armed: bool = false
@@ -1230,6 +1234,15 @@ func _build_ui() -> void:
 	root.add_theme_constant_override("margin_top", 8)
 	root.add_theme_constant_override("margin_bottom", 28)
 	add_child(root)
+
+	mode_choice_layer = MODE_CHOICE_OVERLAY.new()
+	mode_choice_layer.name = "ModeChoiceOverlay"
+	mode_choice_layer.z_index = 90
+	mode_choice_layer.visible = false
+	mode_choice_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mode_choice_layer.option_picked.connect(_choose_option)
+	mode_choice_layer.cancelled.connect(_cancel_item_selector)
+	add_child(mode_choice_layer)
 
 	var mid := HBoxContainer.new()
 	mid.add_theme_constant_override("separation", 16)
@@ -3001,10 +3014,8 @@ func _on_campaign_cheat(action: String) -> void:
 		var need: int = CAMPAIGN_SHELL.quota_of(_campaign.rules) - CAMPAIGN_SHELL.cabinet_count(_campaign.state, "b1")
 		CAMPAIGN_SHELL.debug_bank_matching(_campaign.rules, _campaign.state, _campaign_item_entries(), maxi(0, need), "b1")
 	elif action == "win":
-		for raw in CAMPAIGN_SHELL.biomes_of(_campaign.rules):
-			var pool := str((raw as Dictionary).get("id", ""))
-			var need2: int = CAMPAIGN_SHELL.quota_of(_campaign.rules) - CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool)
-			CAMPAIGN_SHELL.debug_bank_matching(_campaign.rules, _campaign.state, _campaign_item_entries(), maxi(0, need2), pool)
+		CAMPAIGN_SHELL.debug_unlock_all_pools(_campaign.rules, _campaign.state, _campaign_item_entries())
+		_dev_set_buckets(BucketRules.MAX_BUCKET)
 	_campaign_seed_next_run_if_needed(true)
 	_campaign.write()
 	if home_cabin and home_cabin.has_method("sync_swiped_from_banked"):
@@ -3071,7 +3082,12 @@ func _campaign_rows(for_seed: bool = false) -> Array:
 		if typeof(raw) == TYPE_ARRAY:
 			for c in raw:
 				contra.append(str(c))
-		rows.append({"id": str(id), "tier": int(card.get("tier", 1)), "contra": contra})
+		rows.append({
+			"id": str(id),
+			"tier": int(card.get("tier", 1)),
+			"contra": contra,
+			"pool": CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.of_card(card)),
+		})
 	return rows
 
 
@@ -3097,8 +3113,10 @@ func _campaign_seed_next_run_if_needed(force: bool = false) -> void:
 func _campaign_arm_delve() -> void:
 	if _campaign == null:
 		return
-	var rows: Array = _campaign_rows(false)
 	var biome := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	var rows: Array = CAMPAIGN_SHELL.rows_for_biome(
+		_campaign.rules, _campaign.state, _campaign_rows(false), biome
+	)
 	_sync_dungeon_biome(biome)
 	_sync_biome_ambient(biome)
 	CAMPAIGN_SHELL.normalize(_campaign.state)
@@ -3195,6 +3213,9 @@ func _campaign_abort() -> void:
 	if not _campaign_on or _campaign == null:
 		return
 	CAMPAIGN_SHELL.end_run(_campaign.state)
+	## Loss / give-up / map-close: roll a new next-run deck so Quick Start is not
+	## the same 10 monsters as the run you just died on.
+	_campaign_seed_next_run_if_needed(true)
 	_campaign.write()
 
 
@@ -3316,6 +3337,8 @@ func _on_defeat_quick_start() -> void:
 	# New Verdant Hollow run, skip biome splash, land on dealing the hotbar.
 	if _campaign == null:
 		return
+	if _campaign_on:
+		_campaign_abort()
 	_splash_busy = true
 	var biome_id := "b1"
 	if sfx and sfx.has_method("music_biome_dungeon"):
@@ -7201,6 +7224,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if not event.is_action_pressed("ui_cancel"):
 		return
+	## Look H: Esc dismisses the mode panel before opening Settings.
+	if _mode_choice_open():
+		_cancel_item_selector()
+		get_viewport().set_input_as_handled()
+		return
 	if playtest_tier != null and playtest_tier.visible:
 		playtest_tier.close_list()
 		get_viewport().set_input_as_handled()
@@ -9518,7 +9546,7 @@ func _use_item(uid: int) -> void:
 		return
 	if not pending_feed.is_empty():
 		var allowed: Array = pending_feed.get("uids", [])
-		if not allowed.has(uid):
+		if not _uid_in(allowed, uid):
 			if sfx:
 				sfx.play("error", -12.0, 1.2)
 			return
@@ -11168,11 +11196,15 @@ func _use_bag_hold(it: Dictionary) -> void:
 		return
 	_log("on_item_use", str(it["name"]))
 	_log("on_resolve", "bag")
+	var bag_uid: int = int(it.get("uid", -1))
 	_fill_bag(it, m)
 	if sfx:
 		sfx.play_event(&"defeat.use")
-		sfx.play("whoosh", -8.0, 0.9)
-	_flash_screen(Color("6d4c9a"), 0.28)
+	# Fill is a transform (Chaos Stone flip), not a discard. Claim Decay first
+	# so unused-Decay / Recycler cannot throw the filled bag and copy a second
+	# Bag of Holding. Paint the new Bag of {name} at the flip midpoint.
+	await _play_item_transform(bag_uid)
+	_decay_claim_use(bag_uid)
 	_hotbar_sig = ""
 	_refresh()
 	await _bag_remove_facing()
@@ -12669,7 +12701,7 @@ func _feed_bell_overlay(uid: int) -> void:
 	if kind != "bell_spawn" and kind != "bell_defeat" and kind != "rust_spawn" and kind != "oligarch_gift" and kind != "forced_gain":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
-	if not allowed.has(uid):
+	if not _uid_in(allowed, uid):
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -12994,7 +13026,7 @@ func _feed_worm(uid: int) -> void:
 	if pending_feed.is_empty() or str(pending_feed.get("kind", "")) != "worm_hunger":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
-	if not allowed.has(uid):
+	if not _uid_in(allowed, uid):
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -13061,7 +13093,7 @@ func _pay_hired_hand(uid: int) -> void:
 	if pending_feed.is_empty() or str(pending_feed.get("kind", "")) != "hired_bribe":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
-	if not allowed.has(uid):
+	if not _uid_in(allowed, uid):
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -13340,9 +13372,13 @@ func _finish_chaos() -> void:
 		sfx.play("bong", -12.0, 0.7)
 		sfx.play_event(&"chaos.transform")
 	if get_tree():
-		await get_tree().create_timer(0.28).timeout
+		await get_tree().create_timer(0.18).timeout
+	var flipped: Array = []
 	for uid_v in picks:
-		await _swap_item_same_tier(int(uid_v))
+		var pick_uid: int = int(uid_v)
+		if _roll_item_same_tier(pick_uid):
+			flipped.append(pick_uid)
+	await _play_item_transforms_together(flipped)
 	stone["spent"] = true
 	await _count_item_use()
 	_toss_item(int(stone["uid"]), false)
@@ -13413,14 +13449,20 @@ func _item_swap_tier(it: Dictionary) -> int:
 
 
 func _swap_item_same_tier(uid: int) -> void:
+	if not _roll_item_same_tier(uid):
+		return
+	await _play_item_transform(uid)
+
+
+func _roll_item_same_tier(uid: int) -> bool:
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
-		return
+		return false
 	var old_id: String = str(it.get("card_id", ""))
 	var tier: int = _item_swap_tier(it)
 	var pool: Array = _swap_pool_ids(tier)
 	if pool.is_empty():
-		return
+		return false
 	var nid: String = str(pool[rng.randi() % pool.size()])
 	if item_pool.has(nid):
 		item_pool.erase(nid)
@@ -13432,8 +13474,64 @@ func _swap_item_same_tier(uid: int) -> void:
 	for k in fresh.keys():
 		it[k] = fresh[k]
 	it["uid"] = keep_uid
-	_hotbar_sig = ""
-	await _play_item_transform(keep_uid)
+	return true
+
+
+func _play_item_transforms_together(uids: Array) -> void:
+	if uids.is_empty():
+		return
+	var left: Array = [uids.size()]
+	for uid_v in uids:
+		_play_item_transform_then(int(uid_v), left)
+	while int(left[0]) > 0:
+		if get_tree() == null:
+			break
+		await get_tree().process_frame
+
+
+func _play_item_transform_then(uid: int, left: Array) -> void:
+	await _play_item_transform(uid)
+	left[0] = maxi(0, int(left[0]) - 1)
+
+
+func _paint_item_card_identity(card: Control, it: Dictionary) -> void:
+	if card == null or not is_instance_valid(card) or it.is_empty():
+		return
+	var view: Dictionary = _item_view(it)
+	var show_id: String = str(it.get("card_id", ""))
+	var show_name: String = str(it.get("name", "?"))
+	if show_id == "echo_bell":
+		var face: Dictionary = _echo_face(it)
+		if not face.is_empty():
+			show_id = str(face.get("card_id", show_id))
+			show_name = str(face.get("name", show_name))
+	var k: String = str(view.get("kind", "ATK"))
+	if card.has_method("adopt_identity"):
+		card.adopt_identity(str(it.get("card_id", "")), _title_case(show_name), _item_icon_tex(it, show_id), k, _kind_mark(k))
+	if card.has_method("set_echo_mark"):
+		if str(it.get("card_id", "")) == "echo_bell" and art != null:
+			card.set_echo_mark(art.item_tex("echo_bell"))
+		else:
+			card.set_echo_mark(null)
+	var pn: int = int(it.get("petrify_n", 0))
+	var shown_n: String = str(pn) if pn > 0 else str(view["number"])
+	card.set_palette(view["fill"], view["rim"], _tier_of(it))
+	if card.has_method("set_curse"):
+		card.set_curse(_item_is_curse(it))
+	if card.has_method("set_num_color"):
+		card.set_num_color(Color("9a9a9a") if pn > 0 else _num_color(k))
+	var rule: Dictionary = _item_rule(it)
+	if card.has_method("set_formula"):
+		card.set_formula(str(rule.get("equation", "")))
+	card.set_live(shown_n)
+	if card.has_method("set_atk_pip"):
+		card.set_atk_pip(_number_is_atk(view, pn))
+	if card.has_method("set_hp_cost"):
+		card.set_hp_cost(str(view.get("hp_cost", "")))
+	if card.has_method("set_glyphs"):
+		card.set_glyphs([] if pn > 0 else _face_rows(it, view))
+	_apply_bag_look(card, it)
+	_apply_item_stone_look(card, it)
 
 
 func _play_item_transform(uid: int) -> void:
@@ -13442,15 +13540,15 @@ func _play_item_transform(uid: int) -> void:
 		sfx.play("whoosh", -8.0, 0.9)
 		sfx.play("pluck", -6.0, 1.15)
 		sfx.play("confirm", -10.0, 0.85)
-	if hotbar_box:
-		for c in hotbar_box.get_children():
-			if _control_uid(c) != uid:
-				continue
-			if c.has_method("play_transform"):
-				c.play_transform()
-			elif c.has_method("bounce"):
-				c.bounce()
-			break
+	var card: Control = _hotbar_card_by_uid(uid)
+	if card != null and card.has_method("play_flip_transform"):
+		var paint_uid: int = uid
+		await card.play_flip_transform(func() -> void:
+			_paint_item_card_identity(card, _find_item(paint_uid))
+		)
+		return
+	if card != null and card.has_method("bounce"):
+		card.bounce()
 	if get_tree():
 		await get_tree().create_timer(0.36).timeout
 
@@ -17048,7 +17146,7 @@ func _upgrade_item(uid: int) -> void:
 	if pending_feed.is_empty() or str(pending_feed.get("kind", "")) != "upgrade":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
-	if not allowed.has(uid):
+	if not _uid_in(allowed, uid):
 		return
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
@@ -17101,7 +17199,7 @@ func _feed_cube(uid: int) -> void:
 		_feed_bell_overlay(uid)
 		return
 	var allowed: Array = pending_feed.get("uids", [])
-	if not allowed.has(uid):
+	if not _uid_in(allowed, uid):
 		return
 	pending_feed = {}
 	var dest: Vector2 = _item_card_global(uid)
@@ -17769,13 +17867,13 @@ func _sandbag_lose_atk() -> void:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return
 	var m: Dictionary = wheel[facing_index]
-	m["sandbag_cut"] = int(m.get("sandbag_cut", 0)) + 1
-	var shown: int = maxi(0, int(m.get("atk", 0)) - 1)
+	m["sandbag_cut"] = int(m.get("sandbag_cut", 0)) + 2
+	var shown: int = maxi(0, int(m.get("atk", 0)) - 2)
 	m["atk"] = shown
 	m["atk_innate"] = shown
 	wheel[facing_index] = m
 	_sync_wheel_stats()
-	_log("on_spin", "Sandbag loses 1 Attack  →  %s" % int(wheel[facing_index].get("atk", 0)))
+	_log("on_spin", "Sandbag loses 2 Attack  →  %s" % int(wheel[facing_index].get("atk", 0)))
 	if wheel_view:
 		wheel_view.punch_atk(facing_index)
 
@@ -20150,7 +20248,7 @@ func _item_view(it: Dictionary) -> Dictionary:
 		out["can_use"] = not _item_is_curse(it)
 	elif not pending_feed.is_empty():
 		var feed_uids: Array = pending_feed.get("uids", [])
-		out["can_use"] = feed_uids.has(int(it.get("uid", -1))) and not bool(it.get("spent", false))
+		out["can_use"] = _uid_in(feed_uids, int(it.get("uid", -1))) and not bool(it.get("spent", false))
 	if _item_is_curse(it):
 		out["rim"] = Color("100e0c")
 		out["fill"] = Color("241014")
@@ -24365,17 +24463,12 @@ func _sync_hotbar() -> void:
 	var joined: String = ",".join(sig) + "|e%s|d%s|s%s|p%s" % [empties, 1 if _challenge_loot_wait else 0, seated_n, pending_uid]
 	if joined != _hotbar_sig:
 		_hotbar_sig = joined
-		for c in hotbar_box.get_children():
-			hotbar_box.remove_child(c)
-			c.queue_free()
-		_clear_hotbar_overflow()
+		var keep: Dictionary = _take_hotbar_cards_by_uid()
 		for i in range(seated_n):
 			var it_seat: Dictionary = hotbar[i]
 			if typeof(it_seat) != TYPE_DICTIONARY:
 				continue
-			var spawned: Control = _spawn_item_card(it_seat, true)
-			if spawned:
-				hotbar_box.add_child(spawned)
+			hotbar_box.add_child(_reuse_or_spawn_item_card(keep, it_seat))
 		if adventure:
 			for _e in range(maxi(0, empties)):
 				hotbar_box.add_child(_make_hot_empty())
@@ -24384,13 +24477,12 @@ func _sync_hotbar() -> void:
 				var it_wait: Dictionary = hotbar[j]
 				if typeof(it_wait) != TYPE_DICTIONARY:
 					continue
-				var parked: Control = _spawn_item_card(it_wait, true)
-				if parked:
-					hotbar_overflow.add_child(parked)
+				hotbar_overflow.add_child(_reuse_or_spawn_item_card(keep, it_wait))
 			if pending_uid != 0:
-				var pending_card: Control = _spawn_item_card(_challenge_pending_gain, true)
-				if pending_card:
-					hotbar_overflow.add_child(pending_card)
+				hotbar_overflow.add_child(_reuse_or_spawn_item_card(keep, _challenge_pending_gain))
+		for leftover in keep.values():
+			if leftover != null and is_instance_valid(leftover):
+				leftover.queue_free()
 		_place_hotbar_overflow()
 		call_deferred("_place_hotbar_overflow")
 	for c in _hotbar_all_cards():
@@ -24407,7 +24499,7 @@ func _sync_hotbar() -> void:
 		var uid_n: int = int(it.get("uid", -1))
 		var spent_n: bool = bool(it.get("spent", false))
 		var feed_uids: Array = pending_feed.get("uids", []) if not pending_feed.is_empty() else []
-		var is_snack: bool = feed_uids.has(uid_n)
+		var is_snack: bool = _uid_in(feed_uids, uid_n)
 		var in_fight: bool = phase == "fighting"
 		var magnet_ready: bool = phase == "ready" and _is_magnet(it)
 		var starter_uid: int = _selector_starter_uid()
@@ -24422,7 +24514,7 @@ func _sync_hotbar() -> void:
 		elif _sling_pick_open():
 			can_click = (not spent_n) and (uid_n == starter_uid or _sling_option_has(uid_n))
 		elif not pending_chaos.is_empty():
-			can_click = uid_n == starter_uid or legal_uids.has(uid_n)
+			can_click = uid_n == starter_uid or _uid_in(legal_uids, uid_n)
 		elif _mode_choice_open() or not pending_mark.is_empty():
 			can_click = uid_n == starter_uid
 		else:
@@ -24437,7 +24529,7 @@ func _sync_hotbar() -> void:
 			shown_n = str(pn)
 		card.set_live(shown_n, str(view["note"]), can_click)
 		if card.has_method("set_choice_badge"):
-			## Look C tags replace the idle "3 / 1" corner chip on the starter.
+			## Look H overlay covers the starter — hide the idle corner chip while open.
 			var mode_on_starter: bool = _mode_choice_open() and uid_n == _selector_starter_uid()
 			card.set_choice_badge("" if mode_on_starter else _choice_badge_text(it))
 		## Kill Brand New / uncollected shine on hotbar — keep New! badge + aura kit only.
@@ -24493,13 +24585,13 @@ func _sync_hotbar() -> void:
 		var mode_starter: bool = _mode_choice_open() and uid_n == starter_uid and starter_uid >= 0
 		if card.has_method("set_aura_role"):
 			var role := ""
-			var is_legal: bool = legal_uids.has(uid_n)
+			var is_legal: bool = _uid_in(legal_uids, uid_n)
 			if stoned_n or spent_n:
 				role = ""
 			elif rust_hint or _beggar_marked(uid_n):
 				role = "warn"
 			elif mode_starter:
-				## Look C: focused starter keeps CHOICE aura while tags show.
+				## Look H: focused starter keeps CHOICE aura under the overlay panel.
 				role = "choice"
 			elif selector_on and uid_n != starter_uid and is_legal:
 				role = "choice"
@@ -24510,8 +24602,11 @@ func _sync_hotbar() -> void:
 			card.set_aura_role(role)
 		if card.has_method("set_cancel_pick"):
 			card.set_cancel_pick(selector_on and uid_n == starter_uid and starter_uid >= 0)
+		if card.has_method("set_cancel_corner"):
+			## Look H mode choose: X sits top-right on the starter (matches locked mock).
+			card.set_cancel_corner(mode_starter)
 		if card.has_method("set_selector_dim"):
-			var dim_me: bool = selector_on and uid_n != starter_uid and not legal_uids.has(uid_n) and not (_toss_pick_mode() and can_click)
+			var dim_me: bool = selector_on and uid_n != starter_uid and not _uid_in(legal_uids, uid_n)
 			## Mode choice: dim every non-starter seat (no legal hand targets).
 			if _mode_choice_open() and uid_n != starter_uid:
 				dim_me = true
@@ -24521,21 +24616,35 @@ func _sync_hotbar() -> void:
 		if card.has_method("set_toss_pick"):
 			card.set_toss_pick(_toss_pick_mode() and can_click)
 		if card.has_method("set_mode_tags"):
-			if mode_starter:
-				card.set_mode_tags(_mode_choice_tag_rows())
-			else:
-				card.set_mode_tags([])
+			## Look H killed in-chrome tags — always clear leftover Look C chrome.
+			card.set_mode_tags([])
 		if card.has_method("set_waiting_entry"):
 			card.set_waiting_entry(waiting)
 		if card.has_method("set_passive_icons"):
 			card.set_passive_icons(null, null, false)
 		_sync_card_pass5(card, it, can_click, in_fight)
+	_dim_hot_empty_slots()
 	_sync_hotbar_formulas()
 	if hotbar_panel:
 		hotbar_panel.reset_size()
 	_recenter_hotbar()
 	call_deferred("_recenter_hotbar")
 	_clear_choice_overlay()
+
+
+func _dim_hot_empty_slots() -> void:
+	var dim_empties: bool = _selector_is_active()
+	if hotbar_box == null:
+		return
+	for slot in hotbar_box.get_children():
+		if slot == null or not is_instance_valid(slot):
+			continue
+		if slot.has_method("set_live"):
+			continue
+		if slot.has_method("set_selector_dim"):
+			slot.set_selector_dim(dim_empties)
+		else:
+			slot.modulate = Color(0.38, 0.36, 0.34, 1.0) if dim_empties else Color.WHITE
 
 
 func _make_hot_empty() -> Control:
@@ -24565,6 +24674,40 @@ func _clear_hotbar_overflow() -> void:
 	for c in hotbar_overflow.get_children():
 		hotbar_overflow.remove_child(c)
 		c.queue_free()
+
+
+func _take_hotbar_cards_by_uid() -> Dictionary:
+	var keep: Dictionary = {}
+	var hosts: Array = []
+	if hotbar_box != null:
+		hosts.append(hotbar_box)
+	if hotbar_overflow != null:
+		hosts.append(hotbar_overflow)
+	for host in hosts:
+		for c in host.get_children():
+			host.remove_child(c)
+			if c.has_meta("tossing"):
+				continue
+			var u: int = _control_uid(c)
+			if u < 0 or keep.has(u) or not c.has_method("set_live"):
+				c.queue_free()
+				continue
+			keep[u] = c
+	return keep
+
+
+func _reuse_or_spawn_item_card(keep: Dictionary, it: Dictionary) -> Control:
+	var u: int = int(it.get("uid", -1))
+	if u >= 0 and keep.has(u):
+		var reused: Control = keep[u]
+		keep.erase(u)
+		if reused != null and is_instance_valid(reused):
+			reused.scale = Vector2.ONE
+			reused.modulate = Color.WHITE
+			reused.rotation = 0.0
+			reused.z_index = 0
+			return reused
+	return _spawn_item_card(it, true)
 
 
 func _hotbar_overflow_anchor_global() -> Vector2:
@@ -24870,19 +25013,19 @@ func _reapply_hotbar_aura_roles() -> void:
 		var spent_n: bool = bool(it.get("spent", false))
 		var stoned_n: bool = _item_stoned(it)
 		var feed_uids: Array = pending_feed.get("uids", []) if not pending_feed.is_empty() else []
-		var is_snack: bool = feed_uids.has(uid_n)
+		var is_snack: bool = _uid_in(feed_uids, uid_n)
 		var upgrade_choice: bool = is_snack and str(pending_feed.get("kind", "")) == "upgrade"
 		var snack_ready: bool = is_snack and not _toss_pick_mode() and not upgrade_choice
 		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
 		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
 		var in_fight: bool = phase == "fighting"
 		var armed_ready: bool = in_fight and not spent_n and str(it.get("card_id", "")) == "healing_potion"
-		var can_click_toss: bool = _toss_pick_mode() and not spent_n and not stoned_n
 		var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
 		var starter_uid: int = _selector_starter_uid()
 		var legal_uids: Array = _selector_legal_uids()
 		var selector_on: bool = _selector_is_active()
-		var is_legal: bool = legal_uids.has(uid_n)
+		var is_legal: bool = _uid_in(legal_uids, uid_n)
+		var can_click_toss: bool = _toss_pick_mode() and is_legal
 		var role := ""
 		if stoned_n or spent_n:
 			role = ""
@@ -24899,6 +25042,8 @@ func _reapply_hotbar_aura_roles() -> void:
 		card.set_aura_role(role)
 		if card.has_method("set_cancel_pick"):
 			card.set_cancel_pick(selector_on and uid_n == starter_uid and starter_uid >= 0)
+		if card.has_method("set_cancel_corner"):
+			card.set_cancel_corner(_mode_choice_open() and uid_n == starter_uid and starter_uid >= 0)
 		if card.has_method("set_selector_dim"):
 			var dim_re: bool = selector_on and uid_n != starter_uid and not is_legal
 			if _mode_choice_open() and uid_n != starter_uid:
@@ -24910,6 +25055,7 @@ func _reapply_hotbar_aura_roles() -> void:
 			card.set_decay_solo(decay_on2 and decay_solo2)
 		if card.has_method("set_decay_link"):
 			card.set_decay_link(decay_on2 and not decay_solo2, _decay_chain_side_for(it))
+	_dim_hot_empty_slots()
 
 
 func _decay_chain_side_for(it: Dictionary) -> int:
@@ -24969,10 +25115,19 @@ func _selector_starter_uid() -> int:
 	return -1
 
 
+func _uid_in(arr: Array, uid: int) -> bool:
+	for v in arr:
+		if int(v) == uid:
+			return true
+	return false
+
+
 func _selector_legal_uids() -> Array:
 	var out: Array = []
 	if not pending_feed.is_empty():
-		return pending_feed.get("uids", [])
+		for v in pending_feed.get("uids", []):
+			out.append(int(v))
+		return out
 	if _challenge_loot_wait:
 		return _filter_toss_uids(_hand_all_uids())
 	if _sling_pick_open():
@@ -25012,8 +25167,8 @@ func _selector_take_word() -> String:
 
 
 func _clear_choice_overlay() -> void:
-	## Look C killed clone tiles over hotbar seats. Keep the overlay node empty
-	## so old deferred callers / undo snaps cannot leave floating ItemCards.
+	## Look H: never spawn ItemCard clones here. Keep the node empty so old
+	## deferred callers / undo snaps cannot leave floating tiles over seats.
 	if choice_overlay == null:
 		return
 	for c in choice_overlay.get_children():
@@ -25026,10 +25181,52 @@ func _rebuild_choice() -> void:
 	if choice_box:
 		choice_box.visible = false
 	_clear_choice_overlay()
-	## Mode labels live on the starter ItemCard via set_mode_tags (hotbar sync).
+	if mode_choice_layer != null and mode_choice_layer.has_method("clear"):
+		mode_choice_layer.clear()
+	if not _mode_choice_open():
+		return
+	call_deferred("_place_mode_choice_overlay")
 
 
-func _mode_choice_tag_rows() -> Array:
+func _place_mode_choice_overlay() -> void:
+	if mode_choice_layer == null or not _mode_choice_open():
+		return
+	if mode_choice_layer.has_method("clear"):
+		mode_choice_layer.clear()
+	var starter_uid: int = int(pending_choice.get("uid", -1))
+	var it: Dictionary = _find_item(starter_uid)
+	if it.is_empty():
+		return
+	var starter: Control = _hotbar_card_by_uid(starter_uid)
+	var anchor := Rect2(Vector2(840.0, 860.0), Vector2(172.0, 148.0))
+	if starter != null:
+		anchor = starter.get_global_rect()
+	var rows: Array = _mode_choice_overlay_rows(it)
+	if rows.is_empty():
+		return
+	var title: String = _title_case(str(it.get("name", "?")))
+	var prompt: String = _mode_choice_prompt(it)
+	var cid: String = str(it.get("card_id", ""))
+	## Knife = two big side-by-side targets. Net / Magnet = stacked rows.
+	var layout: String = "rows"
+	if cid == "throwing_knife" or (rows.size() == 2 and not _is_magnet(it) and cid != "net"):
+		layout = "knife"
+	var icon: Texture2D = _item_icon_tex(it)
+	mode_choice_layer.show_choice(title, prompt, layout, rows, icon, anchor)
+
+
+func _mode_choice_prompt(it: Dictionary) -> String:
+	## Locked Look H mock prompts. Fallbacks only — Jam owns player-copy keys.
+	var cid: String = str(it.get("card_id", ""))
+	if cid == "throwing_knife":
+		return PLAYER_COPY.text("combat.knife_choose_prompt", "choose a throw")
+	if cid == "net":
+		return PLAYER_COPY.text("combat.net_choose_prompt", "how much Attack to strip?")
+	## Magnet: do not invent a prompt beyond existing option strings.
+	return ""
+
+
+func _mode_choice_overlay_rows(it: Dictionary) -> Array:
 	## Player-facing strings only — reuse option labels / Jam knife keys. No new copy.
 	var rows: Array = []
 	if not _mode_choice_open():
@@ -25044,7 +25241,28 @@ func _mode_choice_tag_rows() -> Array:
 			lab = PLAYER_COPY.text("combat.knife_throw", lab)
 		elif oid == "nick":
 			lab = PLAYER_COPY.text("combat.knife_nick", lab)
-		rows.append({"label": lab, "opt": opt})
+		## ASCII hyphen OK for Net labels in code / display.
+		lab = lab.replace("−", "-").replace("–", "-")
+		var row := {"label": lab, "opt": opt, "badge": "", "pips": 0, "primary": lab, "secondary": ""}
+		if oid == "throw" or (opt.has("keep") and not bool(opt.get("keep", true))):
+			row["badge"] = "throw"
+			var parts_t: PackedStringArray = lab.split(",", true, 1)
+			row["primary"] = (str(parts_t[0]).strip_edges() + ",") if parts_t.size() > 1 else lab
+			row["secondary"] = str(parts_t[1]).strip_edges() if parts_t.size() > 1 else ""
+		elif oid == "nick" or bool(opt.get("keep", false)):
+			row["badge"] = "keep"
+			var parts_k: PackedStringArray = lab.split(",", true, 1)
+			row["primary"] = (str(parts_k[0]).strip_edges() + ",") if parts_k.size() > 1 else lab
+			row["secondary"] = str(parts_k[1]).strip_edges() if parts_k.size() > 1 else ""
+		if opt.has("atk_drop"):
+			row["pips"] = clampi(int(opt.get("atk_drop", 0)), 0, 3)
+		elif oid == "drop1":
+			row["pips"] = 1
+		elif oid == "drop2":
+			row["pips"] = 2
+		elif oid == "drop3":
+			row["pips"] = 3
+		rows.append(row)
 	return rows
 
 

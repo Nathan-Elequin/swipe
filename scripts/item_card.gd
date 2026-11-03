@@ -6,7 +6,7 @@ signal hovered
 signal unhovered
 signal edit_wanted
 signal passed_swipe
-## Look C: in-chrome mode tag clicked (Knife / Net / Magnet). Payload is the option dict.
+## Legacy Look C tag click (unused by Look H overlay). Kept so old connects stay safe.
 signal mode_option_picked(opt: Dictionary)
 
 const COPY := preload("res://scripts/player_copy.gd")
@@ -139,10 +139,13 @@ var _pending_live: String = ""
 var _armed: bool = false
 var _armed_lab: Label
 var _cancel_pick: bool = false
+## Look H mode choose: park the cancel X at the top-right corner (mock H1/H2).
+var _cancel_corner: bool = false
 var _selector_dim: bool = false
 var _cancel_x: TextureRect
 var _cancel_disc: ColorRect
-## Look C — cream mode tags inside this card's chrome (not clone tiles over seats).
+var _selector_veil: Control
+## Look C in-chrome tags — cleared always under Look H; stubs keep old calls safe.
 var _mode_tag_box: VBoxContainer
 var _mode_tag_rows: Array = []
 var _mode_tags_on: bool = false
@@ -490,6 +493,15 @@ func _draw_card_hatch() -> void:
 
 func _sync_lock_shade() -> void:
 	# Hatch covers Unplayable + Petrify now; lock shade stays as a light wash for spent/grey only.
+	# Selector dim uses its own veil — do not stack the 12% unplayable wash.
+	if _selector_dim:
+		if _lock_shade != null:
+			_lock_shade.visible = false
+		_sync_hatch()
+		_sync_selector_veil()
+		return
+	if _selector_veil != null:
+		_selector_veil.visible = false
 	var locked: bool = (not _showcase) and (spent or not _playable) and not _guarding and not (_petrified and not _petrify_dummy)
 	_sync_hatch()
 	if not locked:
@@ -1214,14 +1226,14 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 			_ghost.visible = false
 		if _or:
 			_or.visible = false
-	if _glow or _aura or _log_focus or _danger:
+	if _selector_dim:
+		modulate = Color(0.38, 0.36, 0.34, 1.0)
+	elif _glow or _aura or _log_focus or _danger:
 		pass
 	elif _petrified and not _petrify_dummy:
 		modulate = Color(0.58, 0.56, 0.52, 1.0)
 	elif spent:
 		modulate = Color(0.86, 0.84, 0.80, 1.0)
-	elif _selector_dim:
-		modulate = Color(0.50, 0.48, 0.46, 1.0)
 	else:
 		modulate = Color.WHITE
 	_playable = can_use and not spent
@@ -1617,7 +1629,7 @@ func set_aura_role(role: String) -> void:
 	set_process(_want_process())
 	if next == AURA_OFF and not _glow and not _playable and not _log_focus and not _danger and not _toss_pick:
 		_glow_t = 0.0
-		if not spent and not _petrified:
+		if not spent and not _petrified and not _selector_dim:
 			modulate = Color.WHITE
 	_apply_style(_hot)
 	queue_redraw()
@@ -1722,6 +1734,8 @@ func set_playable(on: bool) -> void:
 
 func set_cancel_pick(on: bool) -> void:
 	_cancel_pick = on
+	if not on:
+		_cancel_corner = false
 	_ensure_cancel_mark()
 	_place_cancel_mark()
 	if _cancel_disc != null:
@@ -1731,118 +1745,84 @@ func set_cancel_pick(on: bool) -> void:
 	queue_redraw()
 
 
+func set_cancel_corner(on: bool) -> void:
+	## Top-right X while Look H mode panel is open (starter seat only).
+	_cancel_corner = on and _cancel_pick
+	_place_cancel_mark()
+	queue_redraw()
+
+
 func set_selector_dim(on: bool) -> void:
 	_selector_dim = on
+	_sync_selector_veil()
 	if on:
-		modulate = Color(0.50, 0.48, 0.46, 1.0)
+		modulate = Color(0.38, 0.36, 0.34, 1.0)
 	elif not spent and not _petrified:
 		modulate = Color.WHITE
 	_sync_hatch()
 	_tween_sink(not _playable and not spent and not _guarding and not _selector_dim)
 	_apply_style(_hot)
+	_sync_selector_veil()
 	queue_redraw()
 
 
-## Look C: cream tags under the sprite, same seat height. `rows` is
-## [{ "label": String, "opt": Dictionary }, ...] — labels already player-facing.
-func set_mode_tags(rows: Array) -> void:
-	_mode_tag_rows = rows.duplicate()
-	_mode_tags_on = not rows.is_empty()
-	_ensure_mode_tag_box()
-	for child in _mode_tag_box.get_children():
-		_mode_tag_box.remove_child(child)
-		child.queue_free()
-	_mode_tag_box.visible = _mode_tags_on
-	var n: int = rows.size()
-	## 2-mode: sprite shrinks a touch. 3-mode: cram OK — tags may kiss the sprite.
-	var icon_px: float = IDLE_ICON
-	if _mode_tags_on and not _showcase:
-		icon_px = 40.0 if n >= 3 else 46.0
-	if _icon != null and not _showcase:
-		_icon.custom_minimum_size = Vector2(icon_px, icon_px)
-	if _num_host != null and not _showcase:
-		_num_host.visible = not _mode_tags_on
-		_num_host.size_flags_vertical = Control.SIZE_SHRINK_BEGIN if _mode_tags_on else Control.SIZE_EXPAND_FILL
-		if _mode_tags_on:
-			_num_host.custom_minimum_size = Vector2(CARD_W - 14.0, 0.0)
-		else:
-			_num_host.custom_minimum_size = Vector2(CARD_W - 14.0, IDLE_FACE_HOST_MIN_H)
-	if _mode_tags_on:
-		_mode_tag_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		var tag_h: float = 18.0 if n <= 2 else 15.0
-		var font_px: int = 12 if n <= 2 else 11
-		for i in n:
-			if typeof(rows[i]) != TYPE_DICTIONARY:
-				continue
-			var row: Dictionary = rows[i]
-			var lab: String = str(row.get("label", "?"))
-			var opt: Dictionary = row.get("opt", {}) if typeof(row.get("opt", {})) == TYPE_DICTIONARY else {}
-			var btn := _make_mode_tag_button(lab, font_px, tag_h)
-			btn.pressed.connect(_on_mode_tag_pressed.bind(opt))
-			_mode_tag_box.add_child(btn)
-	else:
-		_mode_tag_box.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+func _sync_selector_veil() -> void:
+	if not _selector_dim or _showcase:
+		if _selector_veil != null:
+			_selector_veil.visible = false
+		return
+	if _selector_veil == null:
+		_selector_veil = Control.new()
+		_selector_veil.name = "SelectorVeil"
+		_selector_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_selector_veil.z_index = 18
+		_selector_veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_selector_veil.draw.connect(_draw_selector_veil)
+		_selector_veil.resized.connect(func() -> void:
+			if _selector_veil != null:
+				_selector_veil.queue_redraw()
+		)
+		_overlay_host().add_child(_selector_veil)
+	_selector_veil.visible = true
+	_selector_veil.queue_redraw()
+
+
+func _draw_selector_veil() -> void:
+	if _selector_veil == null:
+		return
+	var w: float = _selector_veil.size.x
+	var h: float = _selector_veil.size.y
+	if w < 2.0 or h < 2.0:
+		return
+	## Dark wash + edge vignette so the legal cards are the only full-bright seats.
+	_selector_veil.draw_rect(Rect2(0, 0, w, h), Color(0.05, 0.04, 0.03, 0.58))
+	var inset := Rect2(6.0, 6.0, maxf(w - 12.0, 2.0), maxf(h - 12.0, 2.0))
+	_selector_veil.draw_rect(inset, Color(0.05, 0.04, 0.03, 0.12))
+	var band := 18.0
+	_selector_veil.draw_rect(Rect2(0, 0, w, band), Color(0.04, 0.03, 0.02, 0.22))
+	_selector_veil.draw_rect(Rect2(0, h - band, w, band), Color(0.04, 0.03, 0.02, 0.22))
+	_selector_veil.draw_rect(Rect2(0, 0, band, h), Color(0.04, 0.03, 0.02, 0.16))
+	_selector_veil.draw_rect(Rect2(w - band, 0, band, h), Color(0.04, 0.03, 0.02, 0.16))
+
+
+## Look H superseded in-chrome tags. Always clear; ignore `rows`.
+func set_mode_tags(_rows: Array = []) -> void:
+	_mode_tag_rows.clear()
+	_mode_tags_on = false
+	if _mode_tag_box != null:
+		for child in _mode_tag_box.get_children():
+			_mode_tag_box.remove_child(child)
+			child.queue_free()
+		_mode_tag_box.visible = false
 		_mode_tag_box.custom_minimum_size = Vector2.ZERO
+	if _icon != null and not _showcase:
+		_icon.custom_minimum_size = Vector2(IDLE_ICON, IDLE_ICON)
+	if _num_host != null and not _showcase:
+		_num_host.visible = true
+		_num_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		_num_host.custom_minimum_size = Vector2(CARD_W - 14.0, IDLE_FACE_HOST_MIN_H)
 	_place_cancel_mark()
 	queue_redraw()
-
-
-func _on_mode_tag_pressed(opt: Dictionary) -> void:
-	mode_option_picked.emit(opt)
-
-
-func _ensure_mode_tag_box() -> void:
-	if _mode_tag_box != null:
-		return
-	_mode_tag_box = VBoxContainer.new()
-	_mode_tag_box.name = "ModeTags"
-	_mode_tag_box.visible = false
-	_mode_tag_box.alignment = BoxContainer.ALIGNMENT_END
-	_mode_tag_box.add_theme_constant_override("separation", 2)
-	_mode_tag_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_mode_tag_box.mouse_filter = Control.MOUSE_FILTER_PASS
-	## Sit under the sprite inside the same VBox — no card-height growth.
-	if _col != null and _num_host != null and _num_host.get_parent() == _col:
-		_col.add_child(_mode_tag_box)
-		_col.move_child(_mode_tag_box, _num_host.get_index())
-	elif _col != null:
-		_col.add_child(_mode_tag_box)
-	else:
-		_overlay_host().add_child(_mode_tag_box)
-
-
-func _make_mode_tag_button(lab: String, font_px: int, tag_h: float) -> Button:
-	var btn := Button.new()
-	btn.text = lab
-	btn.focus_mode = Control.FOCUS_NONE
-	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	btn.custom_minimum_size = Vector2(0.0, tag_h)
-	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn.add_theme_font_size_override("font_size", font_px)
-	btn.add_theme_color_override("font_color", Color("100e0c"))
-	btn.add_theme_color_override("font_hover_color", Color("100e0c"))
-	btn.add_theme_color_override("font_pressed_color", Color("100e0c"))
-	btn.add_theme_color_override("font_focus_color", Color("100e0c"))
-	btn.add_theme_stylebox_override("normal", _mode_tag_style(Color("F3E6C8"), Color("100e0c")))
-	btn.add_theme_stylebox_override("hover", _mode_tag_style(Color("FFF1D2"), Color("100e0c")))
-	btn.add_theme_stylebox_override("pressed", _mode_tag_style(Color("E2D2A8"), Color("100e0c")))
-	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	btn.clip_text = true
-	btn.autowrap_mode = TextServer.AUTOWRAP_OFF
-	return btn
-
-
-func _mode_tag_style(fill: Color, rim: Color) -> StyleBoxFlat:
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = fill
-	sb.border_color = rim
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 4.0
-	sb.content_margin_right = 4.0
-	sb.content_margin_top = 1.0
-	sb.content_margin_bottom = 1.0
-	return sb
 
 
 func _ensure_cancel_mark() -> void:
@@ -1876,9 +1856,8 @@ func _ensure_cancel_mark() -> void:
 func _place_cancel_mark() -> void:
 	if _cancel_disc == null or _cancel_x == null:
 		return
-	## Mode tags (Look C): X sits top-right so tags stay readable.
-	## Hand pick / wheel aim: X stays centered over the sprite (cancel affordance).
-	if _mode_tags_on and not _showcase:
+	## Look H mode choose: X top-right on the starter. Hand pick / wheel: centered.
+	if _cancel_corner and not _showcase:
 		_cancel_disc.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 		_cancel_disc.offset_left = -28.0
 		_cancel_disc.offset_top = 4.0
@@ -2057,14 +2036,63 @@ func _spawn_toll_burst() -> void:
 
 
 func play_transform() -> void:
+	await play_flip_transform()
+
+
+## Horizontal card flip. `on_mid` runs while the card is edge-on so the back
+## can already be the new item.
+func play_flip_transform(on_mid: Callable = Callable()) -> void:
+	if has_meta("tossing"):
+		if on_mid.is_valid():
+			on_mid.call()
+		return
 	pivot_offset = size * 0.5
+	z_index = 48
 	var tw := create_tween()
-	tw.tween_property(self, "scale", Vector2(0.12, 1.22), 0.10)
-	tw.parallel().tween_property(self, "modulate", Color(0.72, 0.28, 1.0), 0.10)
-	tw.tween_property(self, "scale", Vector2(1.18, 1.18), 0.12)
-	tw.parallel().tween_property(self, "modulate", Color(1.0, 0.92, 0.55), 0.12)
-	tw.tween_property(self, "scale", Vector2.ONE, 0.10)
-	tw.parallel().tween_property(self, "modulate", Color.WHITE, 0.10)
+	tw.tween_property(self, "scale:x", 0.0, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await tw.finished
+	if on_mid.is_valid():
+		on_mid.call()
+	if not is_instance_valid(self):
+		return
+	pivot_offset = size * 0.5
+	tw = create_tween()
+	tw.tween_property(self, "scale:x", 1.0, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await tw.finished
+	if not is_instance_valid(self):
+		return
+	scale = Vector2.ONE
+	modulate = Color.WHITE
+	z_index = 0
+
+
+func adopt_identity(p_id: String, title: String, icon: Texture2D, p_kind: String, mark: Texture2D) -> void:
+	_sai_busy = false
+	_marble_busy = false
+	_pending_live = ""
+	_shown = ""
+	if _marble_fx != null:
+		_marble_fx.visible = false
+		_marble_fx.stop()
+	if _sai_fx != null:
+		_sai_fx.visible = false
+		_sai_fx.stop()
+	card_id = p_id
+	kind = p_kind
+	if _icon:
+		_icon.modulate.a = 1.0
+		_icon.texture = icon
+		var arc: Node = _icon.get_node_or_null("MoveArc")
+		var want_arc: bool = p_id == "shuriken" or p_id == "jar_o_grease"
+		if want_arc and arc == null:
+			var move_arc := preload("res://scripts/move_arc_icon.gd").new()
+			move_arc.name = "MoveArc"
+			_icon.add_child(move_arc)
+		elif not want_arc and arc != null:
+			arc.queue_free()
+	set_title(title)
+	if _mark != null:
+		_mark.texture = mark
 
 
 func _apply_style(hot: bool) -> void:
@@ -2165,6 +2193,8 @@ func _apply_style(hot: bool) -> void:
 		sb.content_margin_top = IDLE_CONTENT_MARGIN_TOP
 		sb.content_margin_bottom = 3
 	add_theme_stylebox_override("panel", sb)
+	if _selector_dim and not spent and not _petrified:
+		modulate = Color(0.38, 0.36, 0.34, 1.0)
 	_sync_decay_markers()
 	queue_redraw()
 
@@ -2488,6 +2518,8 @@ func _force_glint() -> void:
 
 
 func _tween_sink(sink: bool) -> void:
+	if _selector_dim:
+		return
 	var target: Color = Color(0.70, 0.70, 0.70, 1.0) if sink else Color.WHITE
 	if spent:
 		target = Color(0.86, 0.84, 0.80, 1.0)

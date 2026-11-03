@@ -1943,9 +1943,8 @@ func _call_of_slice(i: int) -> String:
 	var s: Dictionary = slices[i]
 	if bool(s.get("silenced", false)):
 		return ""
-	var name_s: String = str(s.get("name", "")).strip_edges()
 	var call_s: String = str(s.get("call_name", "")).strip_edges()
-	if call_s == "" or call_s.to_lower() == name_s.to_lower():
+	if call_s == "":
 		return ""
 	return call_s
 
@@ -3395,8 +3394,6 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 		call_s = "%s · used" % call_s
 	if name_s == "":
 		return {}
-	if call_s.to_lower() == name_s.to_lower() or (call_s != "" and name_s.to_lower().find(call_s.to_lower()) >= 0):
-		call_s = ""
 	var name_fs: int = 18 if is_face else (15 if is_hover else 13)
 	var call_fs: int = 12 if is_face else 11
 	if crowded:
