@@ -26,14 +26,9 @@ var _headline: FitLabelBox
 var _sub: FitLabelBox
 var _title_band: ColorRect
 var _sign: NinePatchRect
-var _climb_btn: FitButton
-var _deeper_btn: FitButton
 var _peek_btn: FitButton
-var _deeper_sub: FitLabelBox
-var _climb_lab: FitLabelBox
-var _climb_sub: FitLabelBox
-var _deeper_lab: FitLabelBox
-var _hole_hit: Control
+var _hatch_hit: Control
+var _gate_hit: Control
 var _campaign_mode: bool = false
 var _can_push: bool = true
 var _push_interrupt: bool = false
@@ -49,14 +44,12 @@ var _next_name: String = ""
 var _show_next_carry: bool = false
 var _nib: Sprite2D
 var _dialog
-var _plank_normal: StyleBox
-var _plank_hover: StyleBox
 var _busy: bool = false
 var _chrome: Array = []
 var _loot_host: Control
 var _loot_count: int = 0
 ## Crypt Classic cavern plates. Old cozy ladder/hole/torch sprites clash — keep
-## nodes for hover/anim hooks, but hide the art. Hit areas + planks stay.
+## nodes for hover/anim hooks, but hide the art. Diegetic hits are hatch + gate.
 var _legacy_decor_visible: bool = false
 var _gate_frame: TextureRect
 var _gate_chains: TextureRect
@@ -73,6 +66,14 @@ var _tally_debug: int = -1
 const TALLY_ORIGIN := Vector2(368, 328)
 const TALLY_SIZE := Vector2(224, 176)
 const TALLY_MAX := 50
+## Option A (2026-11-03): measured plant from Nathan F5 + Pixel annot.
+## Hatch clips into ceiling (negative y intentional). Gate posts on floor (bottom ≈ 891).
+const HATCH_PLATE := Rect2(693, -40, 256, 256)
+const GATE_PLATE := Rect2(1180, 379, 384, 512)
+const HATCH_HIT := Rect2(693, 0, 287, 320)
+const ROPE_COIL_HIT := Rect2(620, 820, 160, 140)
+const HOT_MOD := Color(1.12, 1.1, 0.95, 1.0)
+const HOT_IDLE := Color(1, 1, 1, 1)
 
 
 func setup(p_cabin, p_extra: Dictionary) -> void:
@@ -84,8 +85,6 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	z_index = 80
 	visible = false
-	_plank_normal = KIT.tex_style("button/btn_plank_normal.png", 16, 16, 16, 20)
-	_plank_hover = KIT.tex_style("button/btn_plank_hover.png", 16, 16, 16, 20)
 	var bg := TextureRect.new()
 	bg.name = "CavernBg"
 	bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
@@ -168,16 +167,17 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 ## Layer order (bottom → top under chrome): cavern BG, hatch (shaft), gate frame,
 ## tallies. Painterly chains / gate_open clash with Crypt Classic — keep files, hide.
 func _build_cavern_props() -> void:
+	var hatch_rect := _layout_rect("Hatch", HATCH_PLATE)
+	var gate_rect := _layout_rect("GateFrame", GATE_PLATE)
 	# Hatch PNG is 256×256 Crypt Classic; sit over the green shaft (top-center).
 	_hatch = _plate_rect(
 		"overlays/rope_exit_hatch.png",
-		Rect2(712, 16, 256, 256),
+		hatch_rect,
 		1,
 		"HomeHatch"
 	)
 	add_child(_hatch)
-	# Gate frame PNG is 384×512; right clear zone, above Delve so Climb/Delve stay readable.
-	var gate_rect := Rect2(1168, 180, 384, 512)
+	# Gate frame PNG is 384×512; posts floor-planted (option A — was mid-air at y 180).
 	_gate_frame = _plate_rect(
 		"overlays/rope_exit_gate_frame.png",
 		gate_rect,
@@ -204,6 +204,14 @@ func _build_cavern_props() -> void:
 	add_child(_gate_chains)
 	_socket_filled_tex = KIT.load_tex("overlays/rope_exit_socket_filled.png")
 	_apply_gate_locked(true)
+
+
+func _layout_rect(el_id: String, fallback: Rect2) -> Rect2:
+	var el: Dictionary = KIT.layout_el(_lay, el_id)
+	var r: Rect2 = KIT.rect_px(el.get("rect", []))
+	if r.size.x <= 0.0 or r.size.y <= 0.0:
+		return fallback
+	return r
 
 
 func _plate_rect(rel: String, r: Rect2, z: int, node_name: String) -> TextureRect:
@@ -329,10 +337,9 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 	_interrupt_fired = false
 	_interrupt_open = false
 	_loot_count = loot.size()
+	_reset_hero_pose()
 	_apply_banner()
 	_apply_sub_line()
-	if not _campaign_mode and _deeper_sub:
-		_deeper_sub.set_copy("rope.deeper_sub", {"n": cleared + 1})
 	set_chrome_visible(true)
 	if _peek_btn:
 		_peek_btn.visible = false
@@ -347,6 +354,18 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 	var tw := create_tween()
 	tw.tween_property(self, "modulate:a", 1.0, 0.3)
 	KIT.cue(cabin.sfx if cabin else null, &"amb.rope_creak")
+
+
+func _reset_hero_pose() -> void:
+	if _hero:
+		_hero.position = KIT.pt(188, 208)
+		_hero.scale = Vector2.ONE
+		_hero.modulate = Color(1, 1, 1, 1)
+		_hero.texture = KIT.load_tex("hero/hero_idle_loot_f0.png")
+	if _hatch:
+		_hatch.modulate = HOT_IDLE
+	if _gate_frame:
+		_gate_frame.modulate = HOT_IDLE
 
 
 func _apply_banner() -> void:
@@ -598,100 +617,59 @@ func _build_chrome() -> void:
 	)
 	add_child(sign_lab)
 	_chrome.append(sign_lab)
-	_climb_btn = _plank_choice("Climb", "rope.climb", "rope.climb_sub", {}, _on_climb)
-	_deeper_btn = _plank_choice("Delve", "rope.deeper", "rope.deeper_sub", {"n": 1}, _on_deeper)
-	if _deeper_btn:
-		_deeper_btn.focus_entered.connect(_on_push_focus)
+	# Option A: Climb/Delve chrome planks removed. Hotspots on hatch + gate drive exits.
 	_peek_btn = null
 
 
-func _plank_choice(el_id: String, label_key: String, sub_key: String, vars: Dictionary, action: Callable) -> FitButton:
-	var el: Dictionary = KIT.layout_el(_lay, el_id)
-	var b: FitButton = KIT.plank(KIT.rect_px(el.get("rect", [])), int(el.get("z", 20)))
-	b.pressed.connect(action)
-	add_child(b)
-	_chrome.append(b)
-	var lab_el: Dictionary = KIT.layout_child(el, el_id + ".Label")
-	var lt: Dictionary = lab_el.get("text", {})
-	var lab: FitLabelBox = KIT.fit_label(
-		label_key,
-		KIT.rect_px(lab_el.get("rect", [])),
-		int(lt.get("font_max", 40)),
-		int(lt.get("font_min", 24)),
-		1,
-		KIT.INK,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		VERTICAL_ALIGNMENT_CENTER,
-		int(lab_el.get("z", 21))
-	)
-	add_child(lab)
-	_chrome.append(lab)
-	var sub_el: Dictionary = KIT.layout_child(el, el_id + ".Consequence")
-	var st: Dictionary = sub_el.get("text", {})
-	var sub: FitLabelBox = KIT.fit_label(
-		sub_key,
-		KIT.rect_px(sub_el.get("rect", [])),
-		int(st.get("font_max", 28)),
-		int(st.get("font_min", 16)),
-		int(st.get("max_lines", 2)),
-		KIT.WOOD,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		VERTICAL_ALIGNMENT_CENTER,
-		int(sub_el.get("z", 21))
-	)
-	if vars.is_empty():
-		sub.set_copy(sub_key)
-	else:
-		sub.set_copy(sub_key, vars)
-	add_child(sub)
-	_chrome.append(sub)
-	if el_id == "Climb":
-		_climb_lab = lab
-		_climb_sub = sub
-	elif el_id == "Delve":
-		_deeper_lab = lab
-		_deeper_sub = sub
-	return b
-
-
 func _build_hotspots() -> void:
-	var lad_el: Dictionary = KIT.layout_el(_lay, "Ladder.Hit")
-	var lad := Control.new()
-	KIT.apply_rect(lad, KIT.rect_px(lad_el.get("rect", [384, 0, 160, 904])), int(lad_el.get("z", 2)))
-	lad.mouse_filter = Control.MOUSE_FILTER_STOP
-	lad.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	lad.mouse_entered.connect(func() -> void:
-		_set_climb_hot(true)
+	# Climb = hatch/shaft + rope coil (same action). Delve = floor-planted gate.
+	_hatch_hit = _make_hit(
+		"HatchHit",
+		_layout_rect("Hatch.Hit", HATCH_HIT),
+		int(KIT.layout_el(_lay, "Hatch.Hit").get("z", 2)),
+		_set_climb_hot,
+		_on_climb
 	)
-	lad.mouse_exited.connect(func() -> void:
-		_set_climb_hot(false)
+	_make_hit(
+		"RopeCoilHit",
+		_layout_rect("RopeCoil.Hit", ROPE_COIL_HIT),
+		int(KIT.layout_el(_lay, "RopeCoil.Hit").get("z", 2)),
+		_set_climb_hot,
+		_on_climb
 	)
-	lad.gui_input.connect(func(ev: InputEvent) -> void:
-		if ev is InputEventMouseButton and ev.pressed and not _busy and not _interrupt_open:
-			_on_climb()
+	_gate_hit = _make_hit(
+		"GateHit",
+		_layout_rect("Gate.Hit", GATE_PLATE),
+		int(KIT.layout_el(_lay, "Gate.Hit").get("z", 2)),
+		_set_delve_hot,
+		_on_deeper
 	)
-	add_child(lad)
-	var hole_el: Dictionary = KIT.layout_el(_lay, "Hole.Hit")
-	var hole_hit := Control.new()
-	KIT.apply_rect(hole_hit, KIT.rect_px(hole_el.get("rect", [1000, 856, 384, 160])), int(hole_el.get("z", 2)))
-	hole_hit.mouse_filter = Control.MOUSE_FILTER_STOP
-	hole_hit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	hole_hit.mouse_entered.connect(func() -> void:
-		_set_delve_hot(true)
-	)
-	hole_hit.mouse_exited.connect(func() -> void:
-		_set_delve_hot(false)
-	)
-	hole_hit.gui_input.connect(func(ev: InputEvent) -> void:
-		if ev is InputEventMouseButton and ev.pressed and not _busy and not _interrupt_open:
-			_on_deeper()
-	)
-	add_child(hole_hit)
-	_hole_hit = hole_hit
 
 
-## campaign: always show Push. push_interrupt: Nib on hover when this cabinet is under quota.
+func _make_hit(node_name: String, r: Rect2, z: int, hover: Callable, action: Callable) -> Control:
+	var hit := Control.new()
+	hit.name = node_name
+	KIT.apply_rect(hit, r, z)
+	hit.mouse_filter = Control.MOUSE_FILTER_STOP
+	hit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	hit.mouse_entered.connect(func() -> void:
+		hover.call(true)
+	)
+	hit.mouse_exited.connect(func() -> void:
+		hover.call(false)
+	)
+	hit.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and not _busy and not _interrupt_open:
+			action.call()
+	)
+	add_child(hit)
+	return hit
+
+
+## campaign chips + banner. push_interrupt: Nib on gate hover when this cabinet is under quota.
 ## chip: {biome, n, quota, projected, show_proj, next, show_next}. can_push: whether deeper is allowed.
+## endless: kept for callers; used to swap Push plank copy (planks removed — option A).
+@warning_ignore("unused_parameter")
 func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = false, chip: Dictionary = {}, endless: bool = false) -> void:
 	_campaign_mode = campaign
 	_can_push = (not campaign) or can_push
@@ -704,34 +682,11 @@ func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = fals
 	_show_next_carry = bool(chip.get("show_next", false)) and _next_name != ""
 	_apply_banner()
 	_apply_sub_line()
-	if _climb_lab:
-		if campaign:
-			_climb_lab.set_copy("rope.campaign.bank")
-		else:
-			_climb_lab.set_copy("rope.climb")
-	if _climb_sub:
-		if campaign:
-			_climb_sub.set_copy("rope.campaign.bank_eyebrow")
-		else:
-			_climb_sub.set_copy("rope.climb_sub")
-	if _deeper_lab:
-		if campaign:
-			_deeper_lab.set_copy("rope.campaign.push")
-		else:
-			_deeper_lab.set_copy("rope.deeper")
-	if _deeper_sub:
-		if campaign:
-			if endless:
-				_deeper_sub.set_plain(preload("res://scripts/player_copy.gd").text("rope.endless.push_sub", "Keep going. The deep does not end."))
-			else:
-				_deeper_sub.set_copy("rope.campaign.push_eyebrow")
-		elif not campaign:
-			_deeper_sub.set_copy("rope.deeper_sub", {"n": _cleared + 1})
-	# Campaign always shows Push (even when can_push is false). Challenge also shows both doors.
-	for raw_n in [_deeper_btn, _deeper_lab, _deeper_sub, _hole_hit]:
-		var n := raw_n as CanvasItem
-		if n:
-			n.visible = true
+	# Climb/Delve planks gone — diegetic hatch + gate hotspots always drive both doors.
+	if _gate_hit:
+		_gate_hit.visible = true
+	if _hatch_hit:
+		_hatch_hit.visible = true
 	if _hole:
 		_hole.visible = _legacy_decor_visible
 	if _hole_glow:
@@ -760,11 +715,6 @@ func _refresh_next_carry() -> void:
 		_next_carry.set_copy("extract.next_carry", {"next": _next_name})
 
 
-func _on_push_focus() -> void:
-	if _push_interrupt:
-		_try_push_interrupt()
-
-
 func _set_climb_hot(on: bool) -> void:
 	if _interrupt_open:
 		return
@@ -772,8 +722,8 @@ func _set_climb_hot(on: bool) -> void:
 		_ladder_hover.visible = on
 		if _ladder and _ladder.sprite_frames:
 			_ladder.sprite_frames.set_animation_speed("l", 1000.0 / (110.0 if on else 220.0))
-	if _climb_btn:
-		_climb_btn.add_theme_stylebox_override("normal", _plank_hover if on else _plank_normal)
+	if _hatch:
+		_hatch.modulate = HOT_MOD if on else HOT_IDLE
 	if on:
 		KIT.cue(cabin.sfx if cabin else null, &"cabin.hover")
 		KIT.cue(cabin.sfx if cabin else null, &"amb.rope_creak")
@@ -788,8 +738,8 @@ func _set_delve_hot(on: bool) -> void:
 			_hole_glow.visible = not on and _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
 			if _hole_glow.visible and not _hole_glow.is_playing():
 				_hole_glow.play("g")
-	if _deeper_btn:
-		_deeper_btn.add_theme_stylebox_override("normal", _plank_hover if on else _plank_normal)
+	if _gate_frame:
+		_gate_frame.modulate = HOT_MOD if on else HOT_IDLE
 	if on:
 		KIT.cue(cabin.sfx if cabin else null, &"cabin.hover")
 		if _push_interrupt:
@@ -847,12 +797,16 @@ func _hide_nib() -> void:
 func _do_climb() -> void:
 	_busy = true
 	KIT.cue(cabin.sfx if cabin else null, &"cabin.click")
+	# Center under the shaft, then climb UP into the hatch (option A).
+	var hatch_r := _layout_rect("Hatch", HATCH_PLATE)
+	var under_x: float = hatch_r.position.x + hatch_r.size.x * 0.5 - 64.0
 	var tw := create_tween()
-	tw.tween_property(_hero, "position:x", 100.0 * PX, 0.5)
+	tw.tween_property(_hero, "position:x", under_x, 0.28)
 	await tw.finished
 	_hero.texture = KIT.load_tex("hero/hero_climb_f0.png")
 	var tw2 := create_tween()
-	tw2.tween_property(_hero, "position:y", -40.0 * PX, 1.6)
+	tw2.tween_property(_hero, "position:y", -160.0, 1.6)
+	tw2.parallel().tween_property(_hero, "modulate:a", 0.0, 1.4)
 	var t := 0.0
 	while t < 1.6:
 		await get_tree().create_timer(0.32).timeout
@@ -867,15 +821,18 @@ func _do_deeper() -> void:
 	if _campaign_mode and not _can_push:
 		return
 	_busy = true
-	KIT.cue(cabin.sfx if cabin else null, &"cabin.hole_rumble")
+	KIT.cue(cabin.sfx if cabin else null, &"cabin.click")
+	# Walk RIGHT into the floor-planted gate. No jump-through-floor / scale-down.
+	var gate_r := _layout_rect("GateFrame", GATE_PLATE)
+	var walk_y: float = _hero.position.y
+	var into_x: float = gate_r.position.x + gate_r.size.x * 0.35
+	var past_x: float = gate_r.position.x + gate_r.size.x * 0.85
 	var tw := create_tween()
-	tw.tween_property(_hero, "position", KIT.pt(282, 198), 0.45)
+	tw.tween_property(_hero, "position", Vector2(into_x, walk_y), 0.5)
 	await tw.finished
 	var tw2 := create_tween()
-	tw2.tween_property(_hero, "position:y", _hero.position.y - 10.0 * PX, 0.15)
-	tw2.tween_property(_hero, "position:y", _hero.position.y + 40.0 * PX, 0.35)
-	tw2.parallel().tween_property(_hero, "scale", Vector2(0.6, 0.6), 0.5)
-	tw2.parallel().tween_property(_hero, "modulate:a", 0.0, 0.5)
+	tw2.tween_property(_hero, "position:x", past_x, 0.45)
+	tw2.parallel().tween_property(_hero, "modulate:a", 0.0, 0.45)
 	await tw2.finished
 	hide_exit()
 	deeper.emit()
