@@ -511,6 +511,19 @@ func _place_over_starter() -> void:
 	_caret.size = Vector2(22.0, CARET_H)
 
 
+## True when the cream panel (throw / nick / net rows) owns this click.
+## Hotbar canvas hit-test must not steal these; the starter seat under the
+## caret is still fair game for cancel.
+func hits_choice_panel(global_pos: Vector2) -> bool:
+	if not visible:
+		return false
+	if _panel != null and _panel.is_inside_tree() and _panel.get_global_rect().has_point(global_pos):
+		return true
+	if _targets_host != null and _targets_host.is_inside_tree() and _targets_host.get_global_rect().has_point(global_pos):
+		return true
+	return false
+
+
 func _pulse_in() -> void:
 	if _panel_host == null:
 		return

@@ -2412,7 +2412,7 @@
 		},
 		{
 			"id": "double_buckler-unplayable",
-			"title": "Double-Buckler stays Unplayable",
+			"title": "Half-Buckler stays Unplayable",
 			"family": "item",
 			"items": [
 				"double_buckler"
@@ -2423,7 +2423,7 @@
 			"face": "golem",
 			"challenge": true,
 			"clicks": [],
-			"expected_text": "Double-Buckler is Unplayable. Do not click it. It stays in hand.",
+			"expected_text": "Half-Buckler is Unplayable. Do not click it. It stays in hand.",
 			"expected": {
 				"in_hand": {
 					"double_buckler": true
@@ -2433,7 +2433,7 @@
 				{
 					"id": "double_buckler",
 					"kind": "item",
-					"name": "Double-Buckler",
+					"name": "Half-Buckler",
 					"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
 					"sprite": "assets/dungeon/items/double_buckler.png"
 				},
