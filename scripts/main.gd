@@ -285,7 +285,7 @@ const MONSTER_CALL := {
 	"bear_trap": "Bear Trap",
 	"clockwork_knight": "Synchronize",
 	"basilisk": "Stone Gaze",
-	"zombie": "Decay",
+	"zombie": "Life and Death",
 	"hollow": "Even twice",
 	"beggar": "Finders Keepers",
 	"wick": "Death Toll",
@@ -11179,11 +11179,15 @@ func _use_bag_hold(it: Dictionary) -> void:
 		return
 	_log("on_item_use", str(it["name"]))
 	_log("on_resolve", "bag")
+	var bag_uid: int = int(it.get("uid", -1))
 	_fill_bag(it, m)
 	if sfx:
 		sfx.play_event(&"defeat.use")
-		sfx.play("whoosh", -8.0, 0.9)
-	_flash_screen(Color("6d4c9a"), 0.28)
+	# Fill is a transform (Chaos Stone flip), not a discard. Claim Decay first
+	# so unused-Decay / Recycler cannot throw the filled bag and copy a second
+	# Bag of Holding. Paint the new Bag of {name} at the flip midpoint.
+	await _play_item_transform(bag_uid)
+	_decay_claim_use(bag_uid)
 	_hotbar_sig = ""
 	_refresh()
 	await _bag_remove_facing()

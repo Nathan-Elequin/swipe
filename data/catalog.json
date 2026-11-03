@@ -6867,7 +6867,7 @@
 			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
-			"call_name": "Decay",
+			"call_name": "Life and Death",
 			"card_color": "",
 			"count": 1.0,
 			"defined": "SP-25 (2026-10-25). When you Spin me, I Decay up to two random Items that do not already have Keep. Decayed Items are linked. When you use one, Keep it and discard the other. The discarded Item counts as a discard (Recycler and the same discard path as Hired Hand). If only one eligible Item, Decay that one: using it Keeps it, and there is no partner. If a Decayed Item is not used this combat, discard it. Other Items work normally. Quiet Bell turns this off.",
