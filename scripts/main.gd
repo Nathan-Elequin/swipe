@@ -1469,7 +1469,9 @@ func _build_ui() -> void:
 	hotbar_wrap.add_child(hot_align)
 	hotbar_overflow = Control.new()
 	hotbar_overflow.name = "HotbarOverflow"
-	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_PASS
+	## IGNORE so this sibling cannot steal hover from seated cards. MarginContainer
+	## sizes every child to the wrap; PASS here covered the hotbar and killed lift/inspect.
+	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hotbar_overflow.clip_contents = false
 	hotbar_overflow.z_index = 48
 	hotbar_overflow.z_as_relative = false
@@ -11186,13 +11188,9 @@ func _remove_item_now(uid: int) -> void:
 	_hotbar_sig = ""
 
 
-func _defeat_blocked(m: Dictionary) -> bool:
-	if m.is_empty():
-		return false
-	if bool(m.get("polymorphed_this_fight", false)):
-		return false
-	var id: String = str(m.get("card_id", ""))
-	return id == "gargoyle" and not _is_silenced(m)
+func _defeat_blocked(_m: Dictionary) -> bool:
+	# Gargoyle only petrifies; Defeat items (Boot, Orb, …) work like any other monster.
+	return false
 
 
 func _bag_threshold(it: Dictionary) -> int:
@@ -16871,13 +16869,13 @@ func _petrify_best_atk() -> void:
 	pick["petrified"] = true
 	_log("on_spin", "petrify %s" % str(pick.get("name", "?")))
 	var dest: Vector2 = _item_card_global(int(pick.get("uid", -1)))
-	# Linger so the harness (and the player) can read the beam before creep.
-	await _petrify_beam(dest, 0.40)
+	# Slash portrait first, then the beam to the item, then the stone creep.
+	if facing_index >= 0 and facing_index < wheel.size():
+		await _announce_slice(facing_index, dest, false, false)
+	await _petrify_beam(dest, 0.28)
 	var card = _hotbar_card_by_uid(int(pick.get("uid", -1)))
 	if card != null and card.has_method("set_petrified"):
 		await card.set_petrified(true, false, 0, true, "gargoyle")
-	if facing_index >= 0 and facing_index < wheel.size():
-		await _announce_slice(facing_index, dest)
 	if sfx:
 		sfx.play_event(&"status.petrify")
 	_refresh()
@@ -24688,11 +24686,11 @@ func _sync_hotbar() -> void:
 			else:
 				card.set_num_color(_num_color(str(view.get("kind", "ATK"))))
 		card.mouse_filter = Control.MOUSE_FILTER_STOP
+		_apply_item_stone_look(card, it)
 		if card.has_method("set_playable"):
 			card.set_playable(can_click)
 		if card.has_method("set_guarding"):
 			card.set_guarding(false)
-		_apply_item_stone_look(card, it)
 		_apply_bag_look(card, it)
 		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
 		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
@@ -24830,7 +24828,9 @@ func _reuse_or_spawn_item_card(keep: Dictionary, it: Dictionary) -> Control:
 		keep.erase(u)
 		if reused != null and is_instance_valid(reused):
 			reused.scale = Vector2.ONE
-			reused.modulate = Color.WHITE
+			var stoned_reuse: bool = bool(it.get("petrified", false)) or int(it.get("petrify_n", 0)) > 0 or bool(it.get("basilisk_stone", false))
+			if not stoned_reuse:
+				reused.modulate = Color.WHITE
 			reused.rotation = 0.0
 			reused.z_index = 0
 			_paint_item_card_identity(reused, it)
@@ -24900,7 +24900,7 @@ func _place_hotbar_overflow() -> void:
 		pr.position.y + (pr.size.y - ch) * 0.5 - wrap_origin.y
 	)
 	hotbar_overflow.size = Vector2(float(n) * (cw + gap) - gap, ch)
-	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_PASS
+	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var tossing: bool = _toss_pick_mode()
 	for i in range(n):
 		var card: Control = kids[i] as Control
