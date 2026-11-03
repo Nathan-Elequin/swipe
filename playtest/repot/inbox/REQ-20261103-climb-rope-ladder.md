@@ -3,7 +3,7 @@ id: REQ-20261103-climb-rope-ladder
 status: open
 priority: high
 branch: cursor/climb-rope-ladder-c6a8
-tip_sha: pending
+tip_sha: 8988c656
 created: 2026-11-03T23:40:00Z
 created_by: cloud-agent
 viewport: 1680x1040
