@@ -3,7 +3,7 @@ id: REQ-20261103-rope-exit-diegetic-a
 status: open
 priority: high
 branch: cursor/rope-exit-diegetic-a-7281
-tip_sha: pending
+tip_sha: 2cefe274
 created: 2026-11-03T22:30:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
