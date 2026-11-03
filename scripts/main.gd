@@ -234,7 +234,7 @@ const MONSTER_SPECIAL := {
 	"prism": {"id": "refract", "text": "Attack at me hits both neighbors instead."},
 	"plague_doctor": {"id": "time_bomb", "text": "On each Spin, I give all You and all Monsters 1 Poison."},
 	"hired_hand": {"id": "bribe", "text": "Discard an item: I Attack a Neighbor and Flee."},
-	"hydra": {"id": "devour", "text": "If any other Monster has its HP reduced to 3 or less and survives, I Defeat them and Gain +2 ATK"},
+	"hydra": {"id": "hungry_heads", "text": "If any other Monster has its HP reduced to 3 or less and survives, I Defeat them, Gain their HP, and gain an additional attack."},
 	"three_seeker": {"id": "triple_threat", "text": "If you have 3, 6, or 9 Items, you Always Spin me next"},
 	"triclops": {"id": "three_hp", "text": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee."},
 	"phoenix_egg": {"id": "hatch", "text": "When I am Defeated, I Flee and hatch into a Phoenix."},
@@ -292,7 +292,7 @@ const MONSTER_CALL := {
 	"wick": "Death Toll",
 	"anvil": "Steady Steel",
 	"cowardly_king": "Vindictive",
-	"hydra": "Devour",
+	"hydra": "Hungry Heads",
 	"three_seeker": "Triple Threat",
 	"phoenix_egg": "Hatch",
 	"phoenix": "Rebirth",
@@ -6504,9 +6504,16 @@ func _echo_skeletons() -> void:
 			continue
 		if str(wheel[idx].get("card_id", "")) != "skeleton":
 			continue
+		if idx == facing_index:
+			continue
+		var look_from: Vector2 = _stat_pip_pos(idx, true)
+		if look_from != Vector2.ZERO and from != Vector2.ZERO:
+			if sfx:
+				sfx.play_event(&"wheel.num_tick_hp")
+			await _petrify_beam(from, 0.18, look_from)
 		var now_hp: int = int(wheel[idx].get("hp", 0))
 		var d: int = now_hp - int(before[i])
-		if d == 0 or idx == facing_index:
+		if d == 0:
 			continue
 		await _play_stat_delta(idx, true, d, from)
 
@@ -6603,6 +6610,7 @@ func _make_monster(id: String) -> Dictionary:
 		"atk_mod": 0,
 		"atk_zeroed": false,
 		"hydra_bonus": 0,
+		"hydra_heads": 0,
 		"gaze_done": false,
 		"gaze_i": 0,
 		"gaze_id": 0,
@@ -13689,7 +13697,7 @@ func _apply_siphon_jars() -> bool:
 			continue
 		if bool(it.get("spent", false)):
 			continue
-		it["siphon_blk"] = int(it.get("siphon_blk", 0)) + 2
+		it["siphon_blk"] = int(it.get("siphon_blk", 0)) + 3
 		_log("var", "Grief Jar BLK %s" % it["siphon_blk"])
 		await _announce_item_use(it, _hub_hp_pos())
 		if await _bleed(1):
@@ -16999,18 +17007,21 @@ func _flush_hydra_devour() -> void:
 					continue
 				if int(wheel[v_i].get("hp", 0)) <= 0 or int(wheel[v_i].get("hp", 0)) > 3:
 					continue
-				_log("on_resolve", "Devour %s  Gain +2" % wheel[v_i].get("name", "?"))
+				var meal_hp: int = int(wheel[v_i].get("hp", 0))
+				_log("on_resolve", "Hungry Heads %s  Gain %s HP +1 attack" % [wheel[v_i].get("name", "?"), meal_hp])
 				var meal_from: Vector2 = _slice_from(v_i)
 				await _hydra_defeat_as_item(v_i)
 				h_i = _index_of_seat(h_uid)
 				if h_i >= 0:
-					for _atk_pip in 2:
+					for _hp_pip in meal_hp:
 						if h_i < 0 or h_i >= wheel.size():
 							break
-						await _fly_stat_courier(meal_from, _stat_pip_pos(h_i, false), false, false)
-						wheel[h_i]["hydra_bonus"] = int(wheel[h_i].get("hydra_bonus", 0)) + 1
+						await _fly_stat_courier(meal_from, _stat_pip_pos(h_i, true), true, false)
+						wheel[h_i]["hp"] = int(wheel[h_i].get("hp", 0)) + 1
 						_sync_wheel_stats()
-						_show_sync_slice(h_i, false)
+						_show_sync_slice(h_i, true)
+					if h_i >= 0 and h_i < wheel.size():
+						wheel[h_i]["hydra_heads"] = int(wheel[h_i].get("hydra_heads", 0)) + 1
 					_refresh()
 				meals += 1
 		if meals == 0:
@@ -17965,7 +17976,7 @@ func _sandbag_would_kill() -> bool:
 		return false
 	if _is_silenced(m) or int(m.get("hp", 0)) <= 0:
 		return false
-	# Same number as Take. Block already gained counts. An unspent Double-Buckler does not. Ignores Healing Potion.
+	# Same number as Take. Block already gained counts. An unspent Half-Buckler does not. Ignores Healing Potion.
 	return _incoming_hit() >= hp
 
 
@@ -17995,6 +18006,10 @@ func _sandbag_after_spin() -> bool:
 	if _sandbag_streak >= 2 and get_tree():
 		var wait: float = 0.28 * pow(0.5, float(_sandbag_streak - 2))
 		await get_tree().create_timer(wait).timeout
+	if sfx:
+		sfx.play_event(&"run.knight_off")
+	if facing_index >= 0:
+		await _play_stat_delta(facing_index, false, -2)
 	_sandbag_lose_atk()
 	_refresh()
 	if await _flee_spin():
@@ -19435,6 +19450,8 @@ func _hit_count(index: int) -> int:
 		return 1
 	if id == "hornet_swarm":
 		return 2
+	if id == "hydra":
+		return 1 + maxi(0, int(wheel[index].get("hydra_heads", 0)))
 	if id == "shambling_mound":
 		return maxi(0, int(wheel[index].get("hp", 0)))
 	return 1

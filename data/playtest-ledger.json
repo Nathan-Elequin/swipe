@@ -352,9 +352,39 @@
 			"f5_note": "Boot and other Defeat items work on Gargoyle. Stop Play, F5."
 		},
 		"336": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Buff Grief Jar to gain +3 block instead of +2 on each spin",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/336"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/336",
+			"sha": "pending",
+			"f5_note": "Grief Jar +3 Block per Spin. Stop Play, F5."
+		},
+		"340": {
+			"status": "f5",
+			"title": "Rename Double-Buckler to Half-Buckler",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/340",
+			"sha": "pending",
+			"f5_note": "The card is named Half-Buckler. Stop Play, F5."
+		},
+		"341": {
+			"status": "f5",
+			"title": "Hydra rework: Hungry Heads — Gain HP and extra attacks like Hornet",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/341",
+			"sha": "pending",
+			"f5_note": "Hungry Heads: Defeat, Gain their HP, extra Take swing. Attack still 3. Stop Play, F5."
+		},
+		"342": {
+			"status": "f5",
+			"title": "Sandbag needs the power down sound and swords leaving Attack",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/342",
+			"sha": "pending",
+			"f5_note": "Lethal Spin: swords fly off Sandbag with the power-down sound. Stop Play, F5."
+		},
+		"344": {
+			"status": "f5",
+			"title": "Skeleton needs a small animation of HP looking at the spun enemy",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/344",
+			"sha": "pending",
+			"f5_note": "On Spin, Skeleton HP looks at the new enemy, then hearts update. Stop Play, F5."
 		}
 	}
 }
