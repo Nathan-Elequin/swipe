@@ -894,6 +894,7 @@ func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: 
 		await tw.finished
 		_petrify_creep = 1.0
 		_show_stone_overlay(true)
+		modulate = Color(0.58, 0.56, 0.52, 1.0)
 		_sync_lock_shade()
 		queue_redraw()
 	else:
@@ -1054,7 +1055,7 @@ func _ensure_stone() -> void:
 	_stone.texture_filter = TEXTURE_FILTER_NEAREST
 	_stone.texture = load("res://assets/dungeon/ui/petrify_stone.png") as Texture2D
 	_stone.visible = false
-	_stone.modulate = Color(0.86, 0.82, 0.74, 0.42)
+	_stone.modulate = Color(0.86, 0.82, 0.74, 0.88)
 	if _icon != null:
 		_icon.add_child(_stone)
 	else:
@@ -1067,7 +1068,7 @@ func _show_stone_overlay(on: bool) -> void:
 		return
 	_stone.visible = on
 	# Grain over the icon only. Cover-aspect avoids the old dither-as-checker look.
-	_stone.modulate = Color(0.78, 0.74, 0.66, 0.55) if on else Color(0.86, 0.82, 0.74, 0.42)
+	_stone.modulate = Color(0.78, 0.74, 0.66, 0.88) if on else Color(0.86, 0.82, 0.74, 0.42)
 
 
 func _ensure_petrify_shader() -> void:
@@ -2148,7 +2149,7 @@ func _apply_style(hot: bool) -> void:
 		metal = metal.lerp(gold, 0.55 + pulse * 0.45)
 		sb.bg_color = sb.bg_color.lerp(gold.darkened(0.45), pulse * 0.28)
 		modulate = Color.WHITE.lerp(Color("ffe6a8"), pulse * 0.42)
-	elif _playable and not spent and _hot:
+	elif _hot and not spent:
 		pulse = 0.35 + 0.35 * absf(sin(_glow_t * TAU / 1.6))
 		metal = metal.lerp(Color("e8c36a"), pulse * 0.45)
 		sb.bg_color = sb.bg_color.lightened(pulse * 0.08)
@@ -2261,6 +2262,7 @@ func _on_in() -> void:
 	_apply_style(true)
 	_force_glint()
 	pivot_offset = size * 0.5
+	hovered.emit()
 	if spent and not _toss_pick:
 		return
 	if _lift != null:
@@ -2269,7 +2271,6 @@ func _on_in() -> void:
 	_lift.tween_property(self, "scale", Vector2(1.10, 1.10) if _showcase else Vector2(1.07, 1.07), 0.1)
 	if _steal_tex != null:
 		Input.set_custom_mouse_cursor(_steal_tex, Input.CURSOR_ARROW, Vector2(6, 4))
-	hovered.emit()
 
 
 func _on_out() -> void:
@@ -2524,6 +2525,8 @@ func _tween_sink(sink: bool) -> void:
 	if spent:
 		target = Color(0.86, 0.84, 0.80, 1.0)
 	if _glow or _aura or _log_focus or _danger or _toss_pick:
+		return
+	if _petrified and not _petrify_dummy:
 		return
 	if _stone != null and _stone.visible:
 		return

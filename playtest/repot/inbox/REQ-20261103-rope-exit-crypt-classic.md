@@ -1,6 +1,6 @@
 ---
 id: REQ-20261103-rope-exit-crypt-classic
-status: open
+status: done
 priority: high
 branch: cursor/rope-exit-crypt-classic-08c4
 tip_sha: e62c9b62

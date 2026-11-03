@@ -1,6 +1,6 @@
 {
  "screen": "rope-exit",
- "title": "Rope exit - climb home or delve deeper",
+ "title": "Rope exit - diegetic hatch climb / gate delve (option A 2026-11-03)",
  "viewport": [
   1680,
   1040
@@ -16,10 +16,10 @@
   "scripts/cabin/rope_exit.gd",
   "scripts/cabin/sack_peek.gd (overlay)"
  ],
- "purpose": "Two equal real plank buttons that name the outcome with a consequence line; sign text inside a defined 9-slice inner rect; dark title band; Peek next to the goblin.",
+ "purpose": "Diegetic exits: Climb = hatch/shaft + rope coil hotspots; Delve = floor-planted gate hotspot. No Climb/Delve chrome plank buttons. Left sign is flavor only. Title band + cleared headline stay. Climb anim UP shaft; Delve anim RIGHT into gate. Plant coords measured from Nathan F5 + Pixel annot.",
  "component": "FitLabelBox: NinePatchRect frame (optional) + Label child. Label rect = text_rect. Fit order: size font_max -> shrink by 2 px to font_min -> autowrap (word) up to max_lines -> ellipsis + full text in HoverTag. Text only via KIT.copy_text(key)/fill_text(key,args).",
  "font": "project default (ThemeDB fallback). Same face, sizes, and colours as ac767cd. Do not load assets/ui/fonts.",
- "z_layers": "0 art | 2 hotspots | 3 sprites | 5 panels | 10 labels | 20 buttons | 50 overlay scrim | 55 overlay sheet | 58 markers | 60 overlay panels/tags | 65 overlay labels | 70 overlay buttons | 80 hover tags | 90 dev tags (dev builds only)",
+ "z_layers": "0 art | 1 cavern props (hatch/gate) | 2 hotspots + tallies | 3 sprites | 5 panels | 10 labels | 50 overlay scrim | 55 overlay sheet | 58 markers | 60 overlay panels/tags | 65 overlay labels | 70 overlay buttons | 80 hover tags | 90 dev tags (dev builds only)",
  "elements": [
   {
    "id": "Background",
@@ -34,42 +34,84 @@
    "asset": "overlays/rope_exit_cavern_bg.png (Crypt Classic 1680×1040; fall back overlays/rope_exit_bg.png)"
   },
   {
-   "id": "Ladder.Hit",
+   "id": "Hatch",
+   "kind": "sprite",
+   "rect": [
+    693,
+    -40,
+    256,
+    256
+   ],
+   "z": 1,
+   "asset": "overlays/rope_exit_hatch.png (256×256 Crypt Classic; clips into ceiling — negative y intentional)",
+   "note": "Measured plant: (693,-40). Tip (712,16) left green ABOVE the hatch.",
+   "mouse_filter": "IGNORE"
+  },
+  {
+   "id": "GateFrame",
+   "kind": "sprite",
+   "rect": [
+    1180,
+    379,
+    384,
+    512
+   ],
+   "z": 1,
+   "asset": "overlays/rope_exit_gate_frame.png (384×512; posts floor-planted — bottom ≈ 891)",
+   "note": "Measured plant: (1180,379). Tip (1168,180) bottoms at 692 and floats.",
+   "mouse_filter": "IGNORE"
+  },
+  {
+   "id": "Hatch.Hit",
    "kind": "hotspot",
    "rect": [
-    384,
+    693,
     0,
-    160,
-    904
+    287,
+    320
    ],
    "z": 2,
-   "action": "= Climb (hover lights Climb button hover state + rope_ladder_hover)",
+   "action": "Climb home (= hatch + shaft top; was Ladder.Hit)",
    "cursor": "POINTING_HAND"
   },
   {
-   "id": "Hole.Hit",
+   "id": "RopeCoil.Hit",
    "kind": "hotspot",
    "rect": [
-    1000,
-    856,
-    384,
-    160
+    620,
+    820,
+    160,
+    140
    ],
    "z": 2,
-   "action": "= Delve (hover lights Delve button hover + deeper_hole_hover)",
+   "action": "Climb home (= rope coil on floor; same Climb handler)",
+   "cursor": "POINTING_HAND"
+  },
+  {
+   "id": "Gate.Hit",
+   "kind": "hotspot",
+   "rect": [
+    1180,
+    379,
+    384,
+    512
+   ],
+   "z": 2,
+   "action": "Delve deeper (= floor-planted gate; was Hole.Hit)",
    "cursor": "POINTING_HAND"
   },
   {
    "id": "Hero",
    "kind": "sprite",
    "rect": [
-    680,
-    800,
+    752,
+    832,
     128,
     128
    ],
    "z": 4,
-   "asset": "hero/hero_idle_loot_f0.png (existing)"
+   "asset": "hero/hero_idle_loot_f0.png (existing)",
+   "note": "KIT.pt(188, 208) under the shaft / rug"
   },
   {
    "id": "TitleBand",
@@ -95,7 +137,7 @@
     152
    ],
    "z": 5,
-   "asset": "assets/ui/rope/rope_sign_9.png (new, replaces rope_sign_notice.png)",
+   "asset": "assets/ui/rope/rope_sign_9.png",
    "nine_slice_4x": {
     "l": 24,
     "t": 24,
@@ -108,7 +150,7 @@
     296,
     92
    ],
-   "note": "covers the baked board in rope_exit_bg (82..304 x 484..602); baked post stays visible below. Sized so the title fits on ONE line at 32 px (FitLabelBox shrinks before it wraps); 2-line fallback fits in the inner rect.",
+   "note": "Flavor only — NOT a button / NOT clickable (option A).",
    "mouse_filter": "IGNORE",
    "children": [
     {
@@ -141,7 +183,8 @@
       "bg": "#f0e6d8",
       "contrast": 11.8,
       "contrast_ok": true
-     }
+     },
+     "mouse_filter": "IGNORE"
     }
    ]
   },
@@ -211,258 +254,6 @@
     "contrast": 11.71,
     "contrast_ok": true
    }
-  },
-  {
-   "id": "Climb",
-   "kind": "button",
-   "rect": [
-    32,
-    712,
-    360,
-    144
-   ],
-   "z": 20,
-   "action": "rope_exit._on_climb() (= ladder)",
-   "states": {
-    "normal": "assets/ui/button/btn_plank_normal.png",
-    "hover": "assets/ui/button/btn_plank_hover.png",
-    "pressed": "assets/ui/button/btn_plank_pressed.png",
-    "disabled": "assets/ui/button/btn_plank_disabled.png"
-   },
-   "nine_slice_4x": {
-    "l": 16,
-    "t": 16,
-    "r": 16,
-    "b": 20
-   },
-   "text_rect": [
-    52,
-    730,
-    320,
-    100
-   ],
-   "cursor": "POINTING_HAND",
-   "children": [
-    {
-     "id": "Climb.Label",
-     "kind": "label",
-     "rect": [
-      52,
-      730,
-      320,
-      44
-     ],
-     "z": 21,
-     "text": {
-      "key": "rope.climb",
-      "sample": "Climb home",
-      "font_max": 40,
-      "font_min": 24,
-      "max_lines": 1,
-      "color": "#3a2414",
-      "align": "center",
-      "valign": "center",
-      "overflow": "shrink->wrap->ellipsis",
-      "rendered": {
-       "px": 40,
-       "lines": [
-        "Climb home"
-       ],
-       "mode": "fit"
-      },
-      "bg": "#f0e6d8",
-      "contrast": 11.8,
-      "contrast_ok": true
-     }
-    },
-    {
-     "id": "Climb.Consequence",
-     "kind": "label",
-     "rect": [
-      52,
-      776,
-      320,
-      56
-     ],
-     "z": 21,
-     "text": {
-      "key": "rope.climb_sub",
-      "sample": "Bring home everything you're holding.",
-      "font_max": 28,
-      "font_min": 12,
-      "max_lines": 2,
-      "color": "#5a3a24",
-      "align": "center",
-      "valign": "center",
-      "overflow": "shrink->wrap->ellipsis",
-      "rendered": {
-       "px": 24,
-       "lines": [
-        "Bring home everything you're holding."
-       ],
-       "mode": "shrink"
-      },
-      "bg": "#f0e6d8",
-      "contrast": 8.24,
-      "contrast_ok": true
-     }
-    }
-   ]
-  },
-  {
-   "id": "Delve",
-   "kind": "button",
-   "rect": [
-    1012,
-    712,
-    360,
-    144
-   ],
-   "z": 20,
-   "action": "rope_exit._on_deeper() (= hole)",
-   "states": {
-    "normal": "assets/ui/button/btn_plank_normal.png",
-    "hover": "assets/ui/button/btn_plank_hover.png",
-    "pressed": "assets/ui/button/btn_plank_pressed.png",
-    "disabled": "assets/ui/button/btn_plank_disabled.png"
-   },
-   "nine_slice_4x": {
-    "l": 16,
-    "t": 16,
-    "r": 16,
-    "b": 20
-   },
-   "text_rect": [
-    1032,
-    730,
-    320,
-    100
-   ],
-   "cursor": "POINTING_HAND",
-   "children": [
-    {
-     "id": "Delve.Label",
-     "kind": "label",
-     "rect": [
-      1032,
-      730,
-      320,
-      44
-     ],
-     "z": 21,
-     "text": {
-      "key": "rope.deeper",
-      "sample": "Delve deeper",
-      "font_max": 40,
-      "font_min": 24,
-      "max_lines": 1,
-      "color": "#3a2414",
-      "align": "center",
-      "valign": "center",
-      "overflow": "shrink->wrap->ellipsis",
-      "rendered": {
-       "px": 40,
-       "lines": [
-        "Delve deeper"
-       ],
-       "mode": "fit"
-      },
-      "bg": "#d9c79c",
-      "contrast": 8.74,
-      "contrast_ok": true
-     }
-    },
-    {
-     "id": "Delve.Consequence",
-     "kind": "label",
-     "rect": [
-      1032,
-      776,
-      320,
-      56
-     ],
-     "z": 21,
-     "text": {
-      "key": "rope.deeper_sub {n}=cleared+1",
-      "sample": "Keep your sack. Belly 2 is waiting.",
-      "font_max": 28,
-      "font_min": 16,
-      "max_lines": 2,
-      "color": "#5a3a24",
-      "align": "center",
-      "valign": "center",
-      "overflow": "shrink->wrap->ellipsis",
-      "rendered": {
-       "px": 26,
-       "lines": [
-        "Keep your sack. Belly 2 is waiting."
-       ],
-       "mode": "shrink"
-      },
-      "bg": "#d9c79c",
-      "contrast": 6.1,
-      "contrast_ok": true
-     }
-    }
-   ]
-  },
-  {
-   "id": "Peek",
-   "kind": "button",
-   "rect": [
-    624,
-    716,
-    240,
-    64
-   ],
-   "z": 20,
-   "action": "open SackPeek overlay",
-   "states": {
-    "normal": "assets/ui/button/btn_plank_normal.png",
-    "hover": "assets/ui/button/btn_plank_hover.png",
-    "pressed": "assets/ui/button/btn_plank_pressed.png"
-   },
-   "nine_slice_4x": {
-    "l": 16,
-    "t": 16,
-    "r": 16,
-    "b": 20
-   },
-   "children": [
-    {
-     "id": "Peek.Label",
-     "kind": "label",
-     "rect": [
-      636,
-      720,
-      216,
-      52
-     ],
-     "z": 21,
-     "text": {
-      "key": "rope.peek",
-      "sample": "Peek in the sack",
-      "font_max": 32,
-      "font_min": 12,
-      "max_lines": 2,
-      "color": "#3a2414",
-      "align": "center",
-      "valign": "center",
-      "overflow": "shrink->wrap->ellipsis",
-      "rendered": {
-       "px": 32,
-       "lines": [
-        "Peek in the sack"
-       ],
-       "mode": "fit"
-      },
-      "bg": "#d9c79c",
-      "contrast": 8.74,
-      "contrast_ok": true
-     }
-    }
-   ],
-   "note": "secondary: smaller plank, directly above the goblin"
   }
  ]
 }
