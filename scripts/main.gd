@@ -8499,23 +8499,30 @@ func _grant_saucer_block() -> bool:
 	return false
 
 
+func _clear_fight_input_lock() -> void:
+	if phase != "fighting" and phase != "ready":
+		return
+	_walker_busy = false
+	if wheel_view != null:
+		wheel_view.busy = false
+	_sync_buttons()
+
+
 func _unlock_if_fighting() -> void:
 	_spin_inflight = false
 	if await _grant_saucer_block():
 		await _flush_rust_from_block()
-		return
-	await _flush_rust_from_block()
+	else:
+		await _flush_rust_from_block()
 	_release_item_hold()
-	if await _flush_vindictive():
-		return
-	await _flush_hydra_devour()
-	await _flush_midfight_holes()
+	var died: bool = await _flush_vindictive()
+	if not died:
+		await _flush_hydra_devour()
+		await _flush_midfight_holes()
 	if cascade_ticker != null and cascade_ticker.has_method("end"):
 		cascade_ticker.end()
 	_restore_cascade_time_scale()
-	if phase == "fighting" or phase == "ready":
-		_walker_busy = false
-		_sync_buttons()
+	_clear_fight_input_lock()
 
 
 func _lock_item_fx() -> void:
@@ -9691,21 +9698,33 @@ func _use_item(uid: int) -> void:
 	await _apply_ops(it, ops, {})
 	if _undo_stale(token):
 		_beggar_hold = false
-		await _unlock_if_fighting()
+		await _unlock_after_item_body()
 		return
 	await _after_item_resolved(it)
 	if _undo_stale(token):
-		await _unlock_if_fighting()
+		await _unlock_after_item_body()
 		return
 	await _bleed_end()
 	if _undo_stale(token):
-		await _unlock_if_fighting()
+		await _unlock_after_item_body()
 		return
 	if in_tutorial:
 		_tutorial_item_used(str(it.get("card_id", "")))
 	_undo_finish_item()
-	await _unlock_if_fighting()
+	await _unlock_after_item_body()
 	call_deferred("_refresh")
+
+
+func _unlock_after_item_body() -> void:
+	# Nested unlock during Spin ends the cascade ticker and can leave
+	# `_walker_busy` / `wheel_view.busy` on, so the hotbar and Take stay dead
+	# after Oligarch force-uses an item.
+	if _spin_inflight:
+		_release_item_hold()
+		if not _oligarch_forcing:
+			_clear_fight_input_lock()
+		return
+	await _unlock_if_fighting()
 
 
 func _choose_option(opt: Dictionary) -> void:
@@ -12609,10 +12628,35 @@ func _oligarch_playable_uids() -> Array:
 	return out
 
 
+func _item_opens_use_pick(it: Dictionary) -> bool:
+	var kind: String = str(_ops_of(it).get("kind", ""))
+	if kind == "sling" or kind == "choose" or kind == "magnet" or kind == "chaos_reroll":
+		return true
+	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor":
+		return true
+	if kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp":
+		return true
+	return kind == "polymorph" or kind == "signpost"
+
+
+func _oligarch_instant_uids() -> Array:
+	var out: Array = []
+	for uid_v in _oligarch_playable_uids():
+		var it: Dictionary = _find_item(int(uid_v))
+		if it.is_empty():
+			continue
+		if _item_opens_use_pick(it):
+			continue
+		out.append(int(uid_v))
+	return out
+
+
 func _apply_oligarch_on_spin() -> void:
 	if phase != "fighting":
 		return
 	if not pending_feed.is_empty() or not pending_chaos.is_empty():
+		return
+	if not pending_choice.is_empty() or not pending_mark.is_empty():
 		return
 	var seats: Array = []
 	for i in range(wheel.size()):
@@ -12627,7 +12671,9 @@ func _apply_oligarch_on_spin() -> void:
 			continue
 		seats.append(i)
 	for _seat in seats:
-		var uids: Array = _oligarch_playable_uids()
+		var uids: Array = _oligarch_instant_uids()
+		if uids.is_empty():
+			uids = _oligarch_playable_uids()
 		if uids.is_empty():
 			continue
 		var pick: int = int(uids[rng.randi_range(0, uids.size() - 1)])
@@ -12636,15 +12682,12 @@ func _apply_oligarch_on_spin() -> void:
 		var grab: Vector2 = _hotbar_card_global(pick)
 		if grab != Vector2.ZERO:
 			await _monster_walk_to(int(_seat), "oligarch", grab)
-		_walker_busy = false
 		_log("on_spin", "Oligarch uses a random Item")
 		await _use_item(pick)
 		_undo_wall()
 		_oligarch_forcing = false
-		if int(_seat) >= 0 and int(_seat) < wheel.size() and str(wheel[int(_seat)].get("card_id", "")) == "oligarch":
-			_walker_restore(int(_seat))
-		else:
-			_walker_restore(int(_seat))
+		_walker_restore(int(_seat))
+		_clear_fight_input_lock()
 		if phase != "fighting":
 			return
 
