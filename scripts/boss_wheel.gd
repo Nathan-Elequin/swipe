@@ -870,9 +870,6 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 			var now_key := "%s:%s" % [now.get("kind", ""), now.get("card_id", "")]
 			if now_key != slay_key:
 				clear_slay()
-			elif slay_kind == "block" and face != slay_index:
-				# Flee leaves the monster in place. Drop BLOCKED once we are no longer facing them.
-				clear_slay()
 	# Old HP/ATK used to be drawn again on top of the new number for a short fade.
 	# That left a second number on the badge and a loose number on the slice.
 	_pt_ghosts.clear()
@@ -981,8 +978,10 @@ func play_escape(index: int) -> void:
 	busy = false
 
 
-## Faced-slice BLOCKED stamp. release_early returns once the word is readable
-## (slay_t > 0.18) so Take/resolve does not wait out the full 0.5s hold.
+## BLOCKED stamp on the attacking slice. Always cleared when the tween ends —
+## it must not linger on the faced monster after Signpost or a blocked Take.
+## release_early returns once the word is readable (slay_t > 0.18) so Take
+## can overlap; the stamp still vanishes at 0.5s.
 func play_block(index: int, release_early: bool = false) -> void:
 	busy = true
 	slay_kind = "block"
@@ -990,12 +989,19 @@ func play_block(index: int, release_early: bool = false) -> void:
 	slay_t = 0.0
 	var tw := create_tween()
 	tw.tween_property(self, "slay_t", 1.0, 0.5)
+	tw.finished.connect(_clear_block_stamp.bind(index), CONNECT_ONE_SHOT)
 	if release_early:
 		await get_tree().create_timer(0.20).timeout
 		busy = false
 		return
 	await _await_bound_tween(tw)
+	_clear_block_stamp(index)
 	busy = false
+
+
+func _clear_block_stamp(index: int) -> void:
+	if slay_kind == "block" and slay_index == index:
+		clear_slay()
 
 
 func collapse_slice(index: int, pin: int = -1) -> void:
