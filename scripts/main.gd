@@ -9529,7 +9529,7 @@ func _use_item(uid: int) -> void:
 		return
 	if not pending_feed.is_empty():
 		var allowed: Array = pending_feed.get("uids", [])
-		if not allowed.has(uid):
+		if not _uid_in(allowed, uid):
 			if sfx:
 				sfx.play("error", -12.0, 1.2)
 			return
@@ -12680,7 +12680,7 @@ func _feed_bell_overlay(uid: int) -> void:
 	if kind != "bell_spawn" and kind != "bell_defeat" and kind != "rust_spawn" and kind != "oligarch_gift" and kind != "forced_gain":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
-	if not allowed.has(uid):
+	if not _uid_in(allowed, uid):
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -13005,7 +13005,7 @@ func _feed_worm(uid: int) -> void:
 	if pending_feed.is_empty() or str(pending_feed.get("kind", "")) != "worm_hunger":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
-	if not allowed.has(uid):
+	if not _uid_in(allowed, uid):
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -13072,7 +13072,7 @@ func _pay_hired_hand(uid: int) -> void:
 	if pending_feed.is_empty() or str(pending_feed.get("kind", "")) != "hired_bribe":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
-	if not allowed.has(uid):
+	if not _uid_in(allowed, uid):
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -17125,7 +17125,7 @@ func _upgrade_item(uid: int) -> void:
 	if pending_feed.is_empty() or str(pending_feed.get("kind", "")) != "upgrade":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
-	if not allowed.has(uid):
+	if not _uid_in(allowed, uid):
 		return
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
@@ -17178,7 +17178,7 @@ func _feed_cube(uid: int) -> void:
 		_feed_bell_overlay(uid)
 		return
 	var allowed: Array = pending_feed.get("uids", [])
-	if not allowed.has(uid):
+	if not _uid_in(allowed, uid):
 		return
 	pending_feed = {}
 	var dest: Vector2 = _item_card_global(uid)
@@ -20227,7 +20227,7 @@ func _item_view(it: Dictionary) -> Dictionary:
 		out["can_use"] = not _item_is_curse(it)
 	elif not pending_feed.is_empty():
 		var feed_uids: Array = pending_feed.get("uids", [])
-		out["can_use"] = feed_uids.has(int(it.get("uid", -1))) and not bool(it.get("spent", false))
+		out["can_use"] = _uid_in(feed_uids, int(it.get("uid", -1))) and not bool(it.get("spent", false))
 	if _item_is_curse(it):
 		out["rim"] = Color("100e0c")
 		out["fill"] = Color("241014")
@@ -24478,7 +24478,7 @@ func _sync_hotbar() -> void:
 		var uid_n: int = int(it.get("uid", -1))
 		var spent_n: bool = bool(it.get("spent", false))
 		var feed_uids: Array = pending_feed.get("uids", []) if not pending_feed.is_empty() else []
-		var is_snack: bool = feed_uids.has(uid_n)
+		var is_snack: bool = _uid_in(feed_uids, uid_n)
 		var in_fight: bool = phase == "fighting"
 		var magnet_ready: bool = phase == "ready" and _is_magnet(it)
 		var starter_uid: int = _selector_starter_uid()
@@ -24493,7 +24493,7 @@ func _sync_hotbar() -> void:
 		elif _sling_pick_open():
 			can_click = (not spent_n) and (uid_n == starter_uid or _sling_option_has(uid_n))
 		elif not pending_chaos.is_empty():
-			can_click = uid_n == starter_uid or legal_uids.has(uid_n)
+			can_click = uid_n == starter_uid or _uid_in(legal_uids, uid_n)
 		elif _mode_choice_open() or not pending_mark.is_empty():
 			can_click = uid_n == starter_uid
 		else:
@@ -24564,7 +24564,7 @@ func _sync_hotbar() -> void:
 		var mode_starter: bool = _mode_choice_open() and uid_n == starter_uid and starter_uid >= 0
 		if card.has_method("set_aura_role"):
 			var role := ""
-			var is_legal: bool = legal_uids.has(uid_n)
+			var is_legal: bool = _uid_in(legal_uids, uid_n)
 			if stoned_n or spent_n:
 				role = ""
 			elif rust_hint or _beggar_marked(uid_n):
@@ -24582,7 +24582,7 @@ func _sync_hotbar() -> void:
 		if card.has_method("set_cancel_pick"):
 			card.set_cancel_pick(selector_on and uid_n == starter_uid and starter_uid >= 0)
 		if card.has_method("set_selector_dim"):
-			var dim_me: bool = selector_on and uid_n != starter_uid and not legal_uids.has(uid_n) and not (_toss_pick_mode() and can_click)
+			var dim_me: bool = selector_on and uid_n != starter_uid and not _uid_in(legal_uids, uid_n)
 			## Mode choice: dim every non-starter seat (no legal hand targets).
 			if _mode_choice_open() and uid_n != starter_uid:
 				dim_me = true
@@ -24601,12 +24601,28 @@ func _sync_hotbar() -> void:
 		if card.has_method("set_passive_icons"):
 			card.set_passive_icons(null, null, false)
 		_sync_card_pass5(card, it, can_click, in_fight)
+	_dim_hot_empty_slots()
 	_sync_hotbar_formulas()
 	if hotbar_panel:
 		hotbar_panel.reset_size()
 	_recenter_hotbar()
 	call_deferred("_recenter_hotbar")
 	_clear_choice_overlay()
+
+
+func _dim_hot_empty_slots() -> void:
+	var dim_empties: bool = _selector_is_active()
+	if hotbar_box == null:
+		return
+	for slot in hotbar_box.get_children():
+		if slot == null or not is_instance_valid(slot):
+			continue
+		if slot.has_method("set_live"):
+			continue
+		if slot.has_method("set_selector_dim"):
+			slot.set_selector_dim(dim_empties)
+		else:
+			slot.modulate = Color(0.38, 0.36, 0.34, 1.0) if dim_empties else Color.WHITE
 
 
 func _make_hot_empty() -> Control:
@@ -24975,19 +24991,19 @@ func _reapply_hotbar_aura_roles() -> void:
 		var spent_n: bool = bool(it.get("spent", false))
 		var stoned_n: bool = _item_stoned(it)
 		var feed_uids: Array = pending_feed.get("uids", []) if not pending_feed.is_empty() else []
-		var is_snack: bool = feed_uids.has(uid_n)
+		var is_snack: bool = _uid_in(feed_uids, uid_n)
 		var upgrade_choice: bool = is_snack and str(pending_feed.get("kind", "")) == "upgrade"
 		var snack_ready: bool = is_snack and not _toss_pick_mode() and not upgrade_choice
 		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
 		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
 		var in_fight: bool = phase == "fighting"
 		var armed_ready: bool = in_fight and not spent_n and str(it.get("card_id", "")) == "healing_potion"
-		var can_click_toss: bool = _toss_pick_mode() and not spent_n and not stoned_n
 		var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
 		var starter_uid: int = _selector_starter_uid()
 		var legal_uids: Array = _selector_legal_uids()
 		var selector_on: bool = _selector_is_active()
-		var is_legal: bool = legal_uids.has(uid_n)
+		var is_legal: bool = _uid_in(legal_uids, uid_n)
+		var can_click_toss: bool = _toss_pick_mode() and is_legal
 		var role := ""
 		if stoned_n or spent_n:
 			role = ""
@@ -25015,6 +25031,7 @@ func _reapply_hotbar_aura_roles() -> void:
 			card.set_decay_solo(decay_on2 and decay_solo2)
 		if card.has_method("set_decay_link"):
 			card.set_decay_link(decay_on2 and not decay_solo2, _decay_chain_side_for(it))
+	_dim_hot_empty_slots()
 
 
 func _decay_chain_side_for(it: Dictionary) -> int:
@@ -25074,10 +25091,19 @@ func _selector_starter_uid() -> int:
 	return -1
 
 
+func _uid_in(arr: Array, uid: int) -> bool:
+	for v in arr:
+		if int(v) == uid:
+			return true
+	return false
+
+
 func _selector_legal_uids() -> Array:
 	var out: Array = []
 	if not pending_feed.is_empty():
-		return pending_feed.get("uids", [])
+		for v in pending_feed.get("uids", []):
+			out.append(int(v))
+		return out
 	if _challenge_loot_wait:
 		return _filter_toss_uids(_hand_all_uids())
 	if _sling_pick_open():

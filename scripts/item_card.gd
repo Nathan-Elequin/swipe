@@ -142,6 +142,7 @@ var _cancel_pick: bool = false
 var _selector_dim: bool = false
 var _cancel_x: TextureRect
 var _cancel_disc: ColorRect
+var _selector_veil: Control
 ## Look C — cream mode tags inside this card's chrome (not clone tiles over seats).
 var _mode_tag_box: VBoxContainer
 var _mode_tag_rows: Array = []
@@ -490,6 +491,15 @@ func _draw_card_hatch() -> void:
 
 func _sync_lock_shade() -> void:
 	# Hatch covers Unplayable + Petrify now; lock shade stays as a light wash for spent/grey only.
+	# Selector dim uses its own veil — do not stack the 12% unplayable wash.
+	if _selector_dim:
+		if _lock_shade != null:
+			_lock_shade.visible = false
+		_sync_hatch()
+		_sync_selector_veil()
+		return
+	if _selector_veil != null:
+		_selector_veil.visible = false
 	var locked: bool = (not _showcase) and (spent or not _playable) and not _guarding and not (_petrified and not _petrify_dummy)
 	_sync_hatch()
 	if not locked:
@@ -1214,14 +1224,14 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 			_ghost.visible = false
 		if _or:
 			_or.visible = false
-	if _glow or _aura or _log_focus or _danger:
+	if _selector_dim:
+		modulate = Color(0.38, 0.36, 0.34, 1.0)
+	elif _glow or _aura or _log_focus or _danger:
 		pass
 	elif _petrified and not _petrify_dummy:
 		modulate = Color(0.58, 0.56, 0.52, 1.0)
 	elif spent:
 		modulate = Color(0.86, 0.84, 0.80, 1.0)
-	elif _selector_dim:
-		modulate = Color(0.50, 0.48, 0.46, 1.0)
 	else:
 		modulate = Color.WHITE
 	_playable = can_use and not spent
@@ -1617,7 +1627,7 @@ func set_aura_role(role: String) -> void:
 	set_process(_want_process())
 	if next == AURA_OFF and not _glow and not _playable and not _log_focus and not _danger and not _toss_pick:
 		_glow_t = 0.0
-		if not spent and not _petrified:
+		if not spent and not _petrified and not _selector_dim:
 			modulate = Color.WHITE
 	_apply_style(_hot)
 	queue_redraw()
@@ -1733,14 +1743,55 @@ func set_cancel_pick(on: bool) -> void:
 
 func set_selector_dim(on: bool) -> void:
 	_selector_dim = on
+	_sync_selector_veil()
 	if on:
-		modulate = Color(0.50, 0.48, 0.46, 1.0)
+		modulate = Color(0.38, 0.36, 0.34, 1.0)
 	elif not spent and not _petrified:
 		modulate = Color.WHITE
 	_sync_hatch()
 	_tween_sink(not _playable and not spent and not _guarding and not _selector_dim)
 	_apply_style(_hot)
+	_sync_selector_veil()
 	queue_redraw()
+
+
+func _sync_selector_veil() -> void:
+	if not _selector_dim or _showcase:
+		if _selector_veil != null:
+			_selector_veil.visible = false
+		return
+	if _selector_veil == null:
+		_selector_veil = Control.new()
+		_selector_veil.name = "SelectorVeil"
+		_selector_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_selector_veil.z_index = 18
+		_selector_veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_selector_veil.draw.connect(_draw_selector_veil)
+		_selector_veil.resized.connect(func() -> void:
+			if _selector_veil != null:
+				_selector_veil.queue_redraw()
+		)
+		_overlay_host().add_child(_selector_veil)
+	_selector_veil.visible = true
+	_selector_veil.queue_redraw()
+
+
+func _draw_selector_veil() -> void:
+	if _selector_veil == null:
+		return
+	var w: float = _selector_veil.size.x
+	var h: float = _selector_veil.size.y
+	if w < 2.0 or h < 2.0:
+		return
+	## Dark wash + edge vignette so the legal cards are the only full-bright seats.
+	_selector_veil.draw_rect(Rect2(0, 0, w, h), Color(0.05, 0.04, 0.03, 0.58))
+	var inset := Rect2(6.0, 6.0, maxf(w - 12.0, 2.0), maxf(h - 12.0, 2.0))
+	_selector_veil.draw_rect(inset, Color(0.05, 0.04, 0.03, 0.12))
+	var band := 18.0
+	_selector_veil.draw_rect(Rect2(0, 0, w, band), Color(0.04, 0.03, 0.02, 0.22))
+	_selector_veil.draw_rect(Rect2(0, h - band, w, band), Color(0.04, 0.03, 0.02, 0.22))
+	_selector_veil.draw_rect(Rect2(0, 0, band, h), Color(0.04, 0.03, 0.02, 0.16))
+	_selector_veil.draw_rect(Rect2(w - band, 0, band, h), Color(0.04, 0.03, 0.02, 0.16))
 
 
 ## Look C: cream tags under the sprite, same seat height. `rows` is
@@ -2214,6 +2265,8 @@ func _apply_style(hot: bool) -> void:
 		sb.content_margin_top = IDLE_CONTENT_MARGIN_TOP
 		sb.content_margin_bottom = 3
 	add_theme_stylebox_override("panel", sb)
+	if _selector_dim and not spent and not _petrified:
+		modulate = Color(0.38, 0.36, 0.34, 1.0)
 	_sync_decay_markers()
 	queue_redraw()
 
@@ -2537,6 +2590,8 @@ func _force_glint() -> void:
 
 
 func _tween_sink(sink: bool) -> void:
+	if _selector_dim:
+		return
 	var target: Color = Color(0.70, 0.70, 0.70, 1.0) if sink else Color.WHITE
 	if spent:
 		target = Color(0.86, 0.84, 0.80, 1.0)

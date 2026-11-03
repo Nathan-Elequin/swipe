@@ -12,6 +12,11 @@ const MARGIN := 20.0
 var _sb: StyleBoxTexture
 
 
+func set_selector_dim(on: bool) -> void:
+	modulate = Color(0.38, 0.36, 0.34, 1.0) if on else Color.WHITE
+	queue_redraw()
+
+
 func _ready() -> void:
 	custom_minimum_size = Vector2(CARD_W, CARD_H)
 	size_flags_horizontal = Control.SIZE_FILL
