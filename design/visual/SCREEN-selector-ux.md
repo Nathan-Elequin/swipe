@@ -1,4 +1,24 @@
-﻿# SCREEN: Combat selector UX — C in-chrome tags (2026-11-03)
+# SCREEN: Combat selector UX - Look H overlay (LOCKED 2026-11-03)
+
+**Look H LOCKED 2026-11-03.** Mode options render in an **overlay panel above the starter item card**, using **item-consistent icons** (same iconography as the items themselves). H1 (Knife) is the favorite. This **supersedes Look C** (in-chrome tags) below.
+
+Source of truth: Doop https://doop.design/c/8a-B18k4cY - frames **H1** `Kb2qpofDn2` (Knife) + **H2** `0KhSoe1IXV` (Net).
+Exports: `mockups/selector-ux-2026-11-03/exports/`
+- `H1-knife-overlay-icons.png`
+- `H2-net-overlay-icons.png`
+- `H1-screenshot-ref.png`
+
+## Look H rules
+
+1. Overlay panel sits above the starter seat; one option per row/plate, each with an icon consistent with the item art. Each option is its own click target (`_choose_option(opt)`).
+2. **Keep:** cancel X on the starter, `set_selector_dim` on non-legal cards, CHOICE aura (hand picks), Take -> Decline / Continue (`_selector_take_word`), wheel aims (Crossbow).
+3. **Kill:** in-chrome tags (Look C) and seat clones (`_place_choice_tiles` / `_make_mode_choice_tile`) for mode choose.
+4. No new player copy; reuse existing labels via PLAYER_COPY.
+
+---
+
+## Superseded: Look C notes (kept for code anchors)
+# SCREEN: Combat selector UX � C in-chrome tags (2026-11-03)
 
 Nathan locked **Direction C** on 2026-11-03: mode options become in-chrome tags on the **starter seat** card itself. A (face bands) and B (docked chips) are rejected. Net is the only 3-input case: cram three tags, slight overlap with the item sprite is OK.
 
@@ -10,21 +30,21 @@ Tip at spec time: `playtest/latest` @ `beef7d97`.
 ## Look lock
 
 1. **Tags live in the starter seat's chrome.** They're stacked label plates inside the card frame (rim/lower band), not separate cards. No tiles over other hotbar seats.
-2. **Knife: 2 tags.** Copy from existing options (main.gd:9625-9626): `PLAYER_COPY combat.knife_throw` → "ATK 3, discard"; `combat.knife_nick` → "ATK 1, keep".
+2. **Knife: 2 tags.** Copy from existing options (main.gd:9625-9626): `PLAYER_COPY combat.knife_throw` ? "ATK 3, discard"; `combat.knife_nick` ? "ATK 1, keep".
 3. **Net: 3 tags, crammed.** Existing labels (main.gd:154-156): "-1 Attack" / "-2 Attack" / "-3 Attack". Tags may overlap the item sprite slightly; keep them readable and inside the card's outer rim.
 4. **Each tag is its own click target.** Click picks `_choose_option(opt)`. Hover = CHOICE aura colour on that tag's border.
 5. **Starter seat keeps cancel X** (`set_cancel_pick`). Other hand cards keep `set_selector_dim` when not legal.
-6. **Hand picks (D1):** CHOICE aura on legal cards (`set_toss_pick` → `AURA_CHOICE`) + cancel X on the starter. No tags.
-7. **Hired Hand / monster offers (E1):** Take arc word swaps to "Decline" (`_selector_take_word`, `hired_bribe`); Worm hunger → `title.continue` "Continue". No tags.
+6. **Hand picks (D1):** CHOICE aura on legal cards (`set_toss_pick` ? `AURA_CHOICE`) + cancel X on the starter. No tags.
+7. **Hired Hand / monster offers (E1):** Take arc word swaps to "Decline" (`_selector_take_word`, `hired_bribe`); Worm hunger ? `title.continue` "Continue". No tags.
 8. **Crossbow / wheel aims (F1):** glow on wheel targets + dim other hand cards + cancel X on starter. No tags.
 9. Never show "Tier", "Swipe" or "boss-rush". Don't add new player copy. Copy changes go to Jam / PLAYER_COPY.
 
-## Code — kill vs keep
+## Code � kill vs keep
 
 | Anchor | What it does now | Verdict |
 |---|---|---|
 | `scripts/main.gd:25016` `_place_choice_tiles` | Builds one ITEM_CARD clone per option and places them **over other hotbar seats** (`hosts`), fallback right of the starter | **KILL**. Replace it with a tag build on the starter card |
-| `scripts/main.gd:25058` `_make_mode_choice_tile` | Full ITEM_CARD clone (icon, fill, ATK number, `set_aura_role("choice")`, `picked → _choose_option`) | **KILL** the clone. Move its label logic (knife_throw/knife_nick PLAYER_COPY lookups, `opt.label`) to the tag builder |
+| `scripts/main.gd:25058` `_make_mode_choice_tile` | Full ITEM_CARD clone (icon, fill, ATK number, `set_aura_role("choice")`, `picked ? _choose_option`) | **KILL** the clone. Move its label logic (knife_throw/knife_nick PLAYER_COPY lookups, `opt.label`) to the tag builder |
 | `scripts/main.gd:25003` `_rebuild_choice` | Clears choice_box/overlay, defers `_place_choice_tiles` | KEEP the shape; point the deferred call at the new tag builder |
 | `scripts/main.gd:575/1436` `choice_box` | Hidden HBox (always `visible=false`) | Leave alone; it already stays hidden |
 | `scripts/main.gd:24987` `_selector_take_word` | Decline / Continue | KEEP |
