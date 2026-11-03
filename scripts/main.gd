@@ -24437,7 +24437,9 @@ func _sync_hotbar() -> void:
 			shown_n = str(pn)
 		card.set_live(shown_n, str(view["note"]), can_click)
 		if card.has_method("set_choice_badge"):
-			card.set_choice_badge(_choice_badge_text(it))
+			## Look C tags replace the idle "3 / 1" corner chip on the starter.
+			var mode_on_starter: bool = _mode_choice_open() and uid_n == _selector_starter_uid()
+			card.set_choice_badge("" if mode_on_starter else _choice_badge_text(it))
 		## Kill Brand New / uncollected shine on hotbar — keep New! badge + aura kit only.
 		if card.has_method("set_draft_glow"):
 			card.set_draft_glow(false)
@@ -24488,6 +24490,7 @@ func _sync_hotbar() -> void:
 			card.set_decay_link(decay_on and not decay_solo_n, _decay_chain_side_for(it))
 		# Priority: Petrify/Unplayable > WARN > CHOICE > READY (petrify handled in stone look).
 		var stoned_n: bool = _item_stoned(it)
+		var mode_starter: bool = _mode_choice_open() and uid_n == starter_uid and starter_uid >= 0
 		if card.has_method("set_aura_role"):
 			var role := ""
 			var is_legal: bool = legal_uids.has(uid_n)
@@ -24495,6 +24498,9 @@ func _sync_hotbar() -> void:
 				role = ""
 			elif rust_hint or _beggar_marked(uid_n):
 				role = "warn"
+			elif mode_starter:
+				## Look C: focused starter keeps CHOICE aura while tags show.
+				role = "choice"
 			elif selector_on and uid_n != starter_uid and is_legal:
 				role = "choice"
 			elif upgrade_choice or (_toss_pick_mode() and can_click):
@@ -24506,11 +24512,19 @@ func _sync_hotbar() -> void:
 			card.set_cancel_pick(selector_on and uid_n == starter_uid and starter_uid >= 0)
 		if card.has_method("set_selector_dim"):
 			var dim_me: bool = selector_on and uid_n != starter_uid and not legal_uids.has(uid_n) and not (_toss_pick_mode() and can_click)
+			## Mode choice: dim every non-starter seat (no legal hand targets).
+			if _mode_choice_open() and uid_n != starter_uid:
+				dim_me = true
 			card.set_selector_dim(dim_me)
 		elif card.has_method("set_aura"):
 			card.set_aura((not stoned_n) and (snack_ready or rec_ready or (mag_on and (phase == "fighting" or phase == "ready"))))
 		if card.has_method("set_toss_pick"):
 			card.set_toss_pick(_toss_pick_mode() and can_click)
+		if card.has_method("set_mode_tags"):
+			if mode_starter:
+				card.set_mode_tags(_mode_choice_tag_rows())
+			else:
+				card.set_mode_tags([])
 		if card.has_method("set_waiting_entry"):
 			card.set_waiting_entry(waiting)
 		if card.has_method("set_passive_icons"):
@@ -24521,10 +24535,7 @@ func _sync_hotbar() -> void:
 		hotbar_panel.reset_size()
 	_recenter_hotbar()
 	call_deferred("_recenter_hotbar")
-	if _mode_choice_open():
-		call_deferred("_place_choice_tiles")
-	else:
-		_clear_choice_overlay()
+	_clear_choice_overlay()
 
 
 func _make_hot_empty() -> Control:
@@ -24720,6 +24731,8 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 		card.edit_wanted.connect(_on_item_right_click.bind(str(it.get("card_id", ""))))
 	if usable:
 		card.picked.connect(_use_item.bind(int(it.get("uid", 0))))
+	if card.has_signal("mode_option_picked"):
+		card.mode_option_picked.connect(_choose_option)
 	return card
 
 
@@ -24875,6 +24888,8 @@ func _reapply_hotbar_aura_roles() -> void:
 			role = ""
 		elif rust_hint or _beggar_marked(uid_n):
 			role = "warn"
+		elif _mode_choice_open() and uid_n == starter_uid and starter_uid >= 0:
+			role = "choice"
 		elif selector_on and uid_n != starter_uid and is_legal:
 			role = "choice"
 		elif upgrade_choice or can_click_toss:
@@ -24885,7 +24900,10 @@ func _reapply_hotbar_aura_roles() -> void:
 		if card.has_method("set_cancel_pick"):
 			card.set_cancel_pick(selector_on and uid_n == starter_uid and starter_uid >= 0)
 		if card.has_method("set_selector_dim"):
-			card.set_selector_dim(selector_on and uid_n != starter_uid and not is_legal)
+			var dim_re: bool = selector_on and uid_n != starter_uid and not is_legal
+			if _mode_choice_open() and uid_n != starter_uid:
+				dim_re = true
+			card.set_selector_dim(dim_re)
 		var decay_on2: bool = bool(it.get("decay_marked", false)) and not spent_n
 		var decay_solo2: bool = bool(it.get("decay_solo", false))
 		if card.has_method("set_decay_solo"):
@@ -24994,6 +25012,8 @@ func _selector_take_word() -> String:
 
 
 func _clear_choice_overlay() -> void:
+	## Look C killed clone tiles over hotbar seats. Keep the overlay node empty
+	## so old deferred callers / undo snaps cannot leave floating ItemCards.
 	if choice_overlay == null:
 		return
 	for c in choice_overlay.get_children():
@@ -25006,97 +25026,26 @@ func _rebuild_choice() -> void:
 	if choice_box:
 		choice_box.visible = false
 	_clear_choice_overlay()
-	if not pending_feed.is_empty():
-		return
+	## Mode labels live on the starter ItemCard via set_mode_tags (hotbar sync).
+
+
+func _mode_choice_tag_rows() -> Array:
+	## Player-facing strings only — reuse option labels / Jam knife keys. No new copy.
+	var rows: Array = []
 	if not _mode_choice_open():
-		return
-	call_deferred("_place_choice_tiles")
-
-
-func _place_choice_tiles() -> void:
-	_clear_choice_overlay()
-	if choice_overlay == null or not _mode_choice_open():
-		return
-	var opts: Array = pending_choice.get("options", [])
-	if opts.is_empty():
-		return
-	var starter_uid: int = int(pending_choice.get("uid", -1))
-	var starter_card: Control = _hotbar_card_by_uid(starter_uid)
-	var hosts: Array = []
-	if hotbar_box != null:
-		for node in hotbar_box.get_children():
-			if not (node is Control):
-				continue
-			if _control_uid(node) == starter_uid:
-				continue
-			hosts.append(node)
-	var wrap_xf: Transform2D = choice_overlay.get_global_transform().affine_inverse()
-	var it: Dictionary = _find_item(starter_uid)
-	for i in opts.size():
-		if typeof(opts[i]) != TYPE_DICTIONARY:
+		return rows
+	for opt_v in pending_choice.get("options", []):
+		if typeof(opt_v) != TYPE_DICTIONARY:
 			continue
-		var opt: Dictionary = opts[i]
-		var tile: Control = _make_mode_choice_tile(it, opt)
-		if tile == null:
-			continue
-		choice_overlay.add_child(tile)
-		var dest := Rect2()
-		if i < hosts.size():
-			var host: Control = hosts[i]
-			dest = host.get_global_rect()
-		elif starter_card != null:
-			var base: Rect2 = starter_card.get_global_rect()
-			dest = Rect2(base.position + Vector2((base.size.x + 8.0) * float(i + 1), 0.0), base.size)
-		else:
-			dest = Rect2(Vector2(8.0 + float(i) * 180.0, 8.0), Vector2(172.0, 148.0))
-		var local_pos: Vector2 = wrap_xf * dest.position
-		tile.position = local_pos
-		tile.size = dest.size
-		tile.custom_minimum_size = dest.size
-
-
-func _make_mode_choice_tile(src: Dictionary, opt: Dictionary) -> Control:
-	var lab: String = str(opt.get("label", "?"))
-	var oid: String = str(opt.get("id", ""))
-	if oid == "throw":
-		lab = PLAYER_COPY.text("combat.knife_throw", lab)
-	elif oid == "nick":
-		lab = PLAYER_COPY.text("combat.knife_nick", lab)
-	var shown := ""
-	if opt.has("atk"):
-		shown = str(int(opt.get("atk", 0)))
-	elif opt.has("atk_drop"):
-		shown = str(int(opt.get("atk_drop", 0)))
-	var tile = ITEM_CARD.new()
-	var icon: Texture2D = tex_sword
-	var fill := Color("3a3220")
-	var rim := Color("7CC8F0")
-	if not src.is_empty():
-		icon = _item_icon_tex(src)
-		var view: Dictionary = _item_view(src)
-		fill = view.get("fill", fill)
-	tile.setup(
-		-1000 - int(opt.get("atk", 0)) - int(opt.get("atk_drop", 0)),
-		str(src.get("card_id", "choice")),
-		shown,
-		icon,
-		fill,
-		rim,
-		lab,
-		_num_color("ATK") if opt.has("atk") or opt.has("atk_drop") else Color("f0e6d8"),
-		"ATK" if opt.has("atk") or opt.has("atk_drop") else "SKIP",
-		_kind_mark("ATK") if opt.has("atk") else null
-	)
-	if tile.has_method("set_aura_role"):
-		tile.set_aura_role("choice")
-	if tile.has_method("set_draft_glow"):
-		tile.set_draft_glow(false)
-	tile.set_live(shown, lab, true)
-	if tile.has_method("set_playable"):
-		tile.set_playable(true)
-	tile.mouse_filter = Control.MOUSE_FILTER_STOP
-	tile.picked.connect(_choose_option.bind(opt))
-	return tile
+		var opt: Dictionary = opt_v
+		var lab: String = str(opt.get("label", "?"))
+		var oid: String = str(opt.get("id", ""))
+		if oid == "throw":
+			lab = PLAYER_COPY.text("combat.knife_throw", lab)
+		elif oid == "nick":
+			lab = PLAYER_COPY.text("combat.knife_nick", lab)
+		rows.append({"label": lab, "opt": opt})
+	return rows
 
 
 func _tutorial_keeps_seat() -> bool:
