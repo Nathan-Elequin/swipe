@@ -3,6 +3,7 @@ id: REQ-20261103-rope-exit-crypt-classic
 status: open
 priority: high
 branch: cursor/rope-exit-crypt-classic-08c4
+tip_sha: 72361545
 created: 2026-11-03T22:10:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
