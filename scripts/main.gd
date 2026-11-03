@@ -310,6 +310,7 @@ const MONSTER_CALL := {
 	"poison_frog": "Toxic Skin",
 	"plague_doctor": "Outbreak",
 	"rust_bucket": "Rust",
+	"sandbag": "Sandbag",
 	"oligarch": "Wealth Tax",
 }
 
