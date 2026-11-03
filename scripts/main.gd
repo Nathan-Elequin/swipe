@@ -7197,6 +7197,13 @@ func _hotbar_click_ok() -> bool:
 		return true
 	if not pending_feed.is_empty():
 		return true
+	if _item_hold or _undo_busy:
+		return false
+	## Two-pick loot / mill draft sits on top of combat. Do not punch through it.
+	if challenge_draft_ui != null and challenge_draft_ui.visible:
+		return false
+	if not pending_item.is_empty():
+		return false
 	if phase == "fighting":
 		return true
 	if phase == "ready":
@@ -7214,7 +7221,12 @@ func _input(event: InputEvent) -> void:
 		return
 	if not _hotbar_click_ok():
 		return
-	var uid: int = _hotbar_uid_at(get_global_mouse_position())
+	var mouse_at: Vector2 = get_global_mouse_position()
+	## Knife / Net / Magnet cream panel is above seats. Let those buttons fire.
+	if mode_choice_layer != null and mode_choice_layer.visible:
+		if mode_choice_layer.has_method("hits_choice_panel") and mode_choice_layer.hits_choice_panel(mouse_at):
+			return
+	var uid: int = _hotbar_uid_at(mouse_at)
 	if uid < 0:
 		return
 	get_viewport().set_input_as_handled()
@@ -9621,6 +9633,12 @@ func _on_redo() -> void:
 func _use_item(uid: int) -> void:
 	if _challenge_loot_wait:
 		_challenge_discard_one(uid)
+		return
+	if _item_hold or _undo_busy:
+		return
+	if challenge_draft_ui != null and challenge_draft_ui.visible and pending_feed.is_empty():
+		return
+	if not pending_item.is_empty():
 		return
 	if not pending_feed.is_empty():
 		var allowed: Array = pending_feed.get("uids", [])
