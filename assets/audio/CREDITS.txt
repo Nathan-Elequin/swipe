@@ -224,8 +224,7 @@ sting_bucket.ogg (0.95 s)
     <- Kenney — Music Jingles / Audio/Pizzicato jingles/jingles_PIZZI02.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
 sting_victory.ogg (0.80 s)
     <- Kenney — Music Jingles / Audio/Pizzicato jingles/jingles_PIZZI10.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
-sting_clear.ogg (0.80 s)
-    <- Kenney — Music Jingles / Audio/Pizzicato jingles/jingles_PIZZI15.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
+sting_clear.ogg — see Accordion clear sting section below (replaced Kenney PIZZI15; no longer built from Music Jingles)
 sting_defeat.ogg — see Defeat sting section below (replaced Kenney SAX01; no longer built from Music Jingles)
 music_combat.ogg (59.08 s)
     <- RPG Battle Loop / rbl_0.mp3 — iamoneabe — CC0 1.0 — https://opengameart.org/content/rpg-battle-loop
@@ -430,3 +429,7 @@ Defeat sting (2026-11-02)
 ------------------------
 sting_defeat.ogg (~9.44 s, libvorbis, 0.32 s end fade) — one-shot; beds fade out and stay silent (no title after) — Suno by Nathan / Defeat Stings.wav (Nathan-owned), 2026-11-02
 Replaces Kenney Music Jingles Sax jingles/jingles_SAX01.ogg as the defeat sting source.
+
+Accordion clear sting (2026-11-03)
+---------------------------------
+sting_clear.ogg (~0.48 s) — dungeon-clear accordion reverse-collapse coalesce (Nathan locked candidate A) — CC0 remix of tip Kenney/Swipe layers already credited above (click2, metal_latch, mon_clockwork, whoosh, heal_sparkle, util_magnet). Replaces Kenney Music Jingles Pizzicato jingles/jingles_PIZZI15.ogg. Cue/bed id stays sting.clear.

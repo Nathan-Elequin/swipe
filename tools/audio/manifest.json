@@ -1407,15 +1407,15 @@
  {
   "file": "sting_clear.ogg",
   "kind": "sting",
-  "seconds": 0.796,
-  "bytes": 9556,
+  "seconds": 0.48,
+  "bytes": 9703,
   "sources": [
    {
-    "pack": "Kenney \u2014 Music Jingles",
-    "author": "Kenney (kenney.nl)",
+    "pack": "Swipe accordion clear (coalesce A, 2026-11-03)",
+    "author": "Nathan (CC0 remix of tip Kenney/Swipe layers)",
     "licence": "CC0 1.0",
-    "url": "https://kenney.nl/assets/music-jingles",
-    "file": "Audio/Pizzicato jingles/jingles_PIZZI15.ogg",
+    "url": "",
+    "file": "sting_clear.ogg (click2 + metal_latch + mon_clockwork + whoosh + heal_sparkle + util_magnet)",
     "gain_db": 0.0,
     "pitch": 1.0
    }
