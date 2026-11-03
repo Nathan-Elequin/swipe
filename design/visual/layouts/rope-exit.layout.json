@@ -19,7 +19,7 @@
  "purpose": "Diegetic exits: Climb = hatch/shaft + rope coil hotspots; Delve = floor-planted gate hotspot. No Climb/Delve chrome plank buttons. Left sign is flavor only. Title band + cleared headline stay. Climb anim UP shaft; Delve anim RIGHT into gate. Plant coords measured from Nathan F5 + Pixel annot.",
  "component": "FitLabelBox: NinePatchRect frame (optional) + Label child. Label rect = text_rect. Fit order: size font_max -> shrink by 2 px to font_min -> autowrap (word) up to max_lines -> ellipsis + full text in HoverTag. Text only via KIT.copy_text(key)/fill_text(key,args).",
  "font": "project default (ThemeDB fallback). Same face, sizes, and colours as ac767cd. Do not load assets/ui/fonts.",
- "z_layers": "0 art | 1 cavern props (hatch/gate) | 2 hotspots + tallies | 3 sprites | 5 panels | 10 labels | 50 overlay scrim | 55 overlay sheet | 58 markers | 60 overlay panels/tags | 65 overlay labels | 70 overlay buttons | 80 hover tags | 90 dev tags (dev builds only)",
+ "z_layers": "0 art + GatePortal (void/spiral/floor shadow) | 1 hatch + GateFrame (posts clip portal) | 2 hotspots + tallies | 3 sprites | 5 panels | 10 labels | 50 overlay scrim | 55 overlay sheet | 58 markers | 60 overlay panels/tags | 65 overlay labels | 70 overlay buttons | 80 hover tags | 90 dev tags (dev builds only)",
  "elements": [
   {
    "id": "Background",
@@ -48,6 +48,32 @@
    "mouse_filter": "IGNORE"
   },
   {
+   "id": "GateAperture",
+   "kind": "portal",
+   "rect": [
+    1244,
+    443,
+    256,
+    448
+   ],
+   "z": 0,
+   "note": "Safe fill inside rope_exit_gate_frame.png posts (opaque hole 64..319 × 64..511 on 384×512). GatePortal void+spiral sit here; GateFrame draws on top.",
+   "mouse_filter": "IGNORE"
+  },
+  {
+   "id": "GateFloorShadow",
+   "kind": "portal",
+   "rect": [
+    1252,
+    868,
+    240,
+    56
+   ],
+   "z": 0,
+   "note": "Soft floor contact under the arch onto the cavern floor (plant bottom ≈ 891).",
+   "mouse_filter": "IGNORE"
+  },
+  {
    "id": "GateFrame",
    "kind": "sprite",
    "rect": [
@@ -58,7 +84,7 @@
    ],
    "z": 1,
    "asset": "overlays/rope_exit_gate_frame.png (384×512; posts floor-planted — bottom ≈ 891)",
-   "note": "Measured plant: (1180,379). Tip (1168,180) bottoms at 692 and floats.",
+   "note": "Measured plant: (1180,379). Draws ABOVE GatePortal so posts+lintel alpha-clip the spiral. Tip (1168,180) bottoms at 692 and floats.",
    "mouse_filter": "IGNORE"
   },
   {

@@ -10,6 +10,7 @@ signal push_blocked
 signal push_home
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
+const GATE_PORTAL_SCR := preload("res://scripts/cabin/gate_portal.gd")
 const PX := 4.0
 const LAYOUT_PATH := "res://design/visual/layouts/rope-exit.layout.json"
 
@@ -57,7 +58,10 @@ var _legacy_decor_visible: bool = false
 var _gate_frame: TextureRect
 var _gate_chains: TextureRect
 var _gate_open: TextureRect
+var _gate_portal ## scripts/cabin/gate_portal.gd — spiral behind GateFrame
 var _hatch: TextureRect
+## Chip next biome id (b1–b5). Empty → sealed portal.
+var _next_biome_id: String = ""
 ## Imported for a follow-up socket-fill puzzle; not shown in v1.
 var _socket_filled_tex: Texture2D
 ## Dynamic wall tallies (TALLY-SPEC.md). Driven by lifetime clears, not per-run.
@@ -73,6 +77,10 @@ const TALLY_MAX := 50
 ## Hatch clips into ceiling (negative y intentional). Gate posts on floor (bottom ≈ 891).
 const HATCH_PLATE := Rect2(693, -40, 256, 256)
 const GATE_PLATE := Rect2(1180, 379, 384, 512)
+## Measured from rope_exit_gate_frame.png (384×512): posts opaque, aperture 64..319 × 64..511.
+const GATE_APERTURE := Rect2(1244, 443, 256, 448)
+## Soft floor contact under the arch onto the cavern floor (below plant bottom ≈ 891).
+const GATE_FLOOR_SHADOW := Rect2(1252, 868, 240, 56)
 const HATCH_HIT := Rect2(693, 0, 287, 320)
 const ROPE_COIL_HIT := Rect2(620, 820, 160, 140)
 const HOT_MOD := Color(1.12, 1.1, 0.95, 1.0)
@@ -168,11 +176,14 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	add_child(_dialog)
 
 
-## Layer order (bottom → top under chrome): cavern BG, hatch (shaft), gate frame,
-## tallies. Painterly chains / gate_open clash with Crypt Classic — keep files, hide.
+## Layer order (bottom → top under chrome): cavern BG, hatch (shaft), portal stack,
+## GateFrame (posts/lintel clip the swirl), tallies. Painterly chains / gate_open
+## clash with Crypt Classic — keep files, hide.
 func _build_cavern_props() -> void:
 	var hatch_rect := _layout_rect("Hatch", HATCH_PLATE)
 	var gate_rect := _layout_rect("GateFrame", GATE_PLATE)
+	var aperture := _layout_rect("GateAperture", GATE_APERTURE)
+	var floor_shadow := _layout_rect("GateFloorShadow", GATE_FLOOR_SHADOW)
 	# Hatch PNG is 256×256 Crypt Classic; sit over the green shaft (top-center).
 	_hatch = _plate_rect(
 		"overlays/rope_exit_hatch.png",
@@ -181,7 +192,15 @@ func _build_cavern_props() -> void:
 		"HomeHatch"
 	)
 	add_child(_hatch)
+	# Portal BEFORE GateFrame so wood posts/lintel draw on top and clip the spiral.
+	_gate_portal = GATE_PORTAL_SCR.new()
+	_gate_portal.name = "GatePortal"
+	_gate_portal.z_index = 0
+	add_child(_gate_portal)
+	_gate_portal.configure(aperture, floor_shadow)
+	_gate_portal.set_next_biome("")
 	# Gate frame PNG is 384×512; posts floor-planted (option A — was mid-air at y 180).
+	# z=1 (above portal z=0) so the arch alpha-masks void + particles.
 	_gate_frame = _plate_rect(
 		"overlays/rope_exit_gate_frame.png",
 		gate_rect,
@@ -335,6 +354,10 @@ func _add_tally_group(g: int, group5: Texture2D, sheet: Texture2D, marks: int) -
 	_tally_host.add_child(tr)
 
 
+## When true, the next open_exit skips the 0.3s alpha tween (dungeon-clear wipe swap).
+var open_instant: bool = false
+
+
 func open_exit(cleared: int, loot: Array = []) -> void:
 	_cleared = cleared
 	_busy = false
@@ -348,7 +371,10 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 	_chip_n = 0
 	_chip_show_proj = false
 	_next_name = ""
+	_next_biome_id = ""
 	_show_next_carry = false
+	if _gate_portal and _gate_portal.has_method("set_next_biome"):
+		_gate_portal.set_next_biome("")
 	_reset_hero_pose()
 	_apply_banner()
 	_apply_sub_line()
@@ -358,13 +384,34 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 	_show_loot(loot)
 	_refresh_tallies()
 	_hide_nib()
+	var instant := open_instant
+	open_instant = false
 	if visible:
+		if instant:
+			modulate.a = 1.0
 		return
 	visible = true
-	modulate.a = 0.0
-	var tw := create_tween()
-	tw.tween_property(self, "modulate:a", 1.0, 0.3)
+	if instant:
+		## Zero-latency swap under the black wipe (dungeon-clear resolve).
+		modulate.a = 1.0
+	else:
+		modulate.a = 0.0
+		var tw := create_tween()
+		tw.tween_property(self, "modulate:a", 1.0, 0.3)
 	KIT.cue(cabin.sfx if cabin else null, &"amb.rope_creak")
+
+
+func set_hero_hidden(hidden: bool) -> void:
+	## Call AFTER open_exit — open_exit/_reset_hero_pose restores texture and pose.
+	if _hero:
+		_hero.visible = not hidden
+
+
+func hero_land_global() -> Vector2:
+	## Top-left of the Rope Exit hero (centered=false). Overlay lands here.
+	if _hero == null:
+		return Vector2.ZERO
+	return _hero.get_global_transform_with_canvas().origin
 
 
 func _reset_hero_pose() -> void:
@@ -373,10 +420,13 @@ func _reset_hero_pose() -> void:
 		_hero.scale = Vector2.ONE
 		_hero.modulate = Color(1, 1, 1, 1)
 		_hero.texture = KIT.load_tex("hero/hero_idle_loot_f0.png")
+		_hero.visible = true
 	if _hatch:
 		_hatch.modulate = HOT_IDLE
 	if _gate_frame:
 		_gate_frame.modulate = HOT_IDLE
+	if _gate_portal and _gate_portal.has_method("set_hot"):
+		_gate_portal.set_hot(false)
 
 
 func _apply_banner() -> void:
@@ -756,7 +806,9 @@ func _make_hit(node_name: String, r: Rect2, z: int, hover: Callable, action: Cal
 
 
 ## campaign chips + banner. push_interrupt: Nib on gate hover when this cabinet is under quota.
-## chip: {biome, n, quota, projected, show_proj, next, show_next}. can_push: whether deeper is allowed.
+## chip: {biome, n, quota, projected, show_proj, next, next_id, show_next}.
+## next_id (b1–b5) drives the GatePortal spiral; empty → dim sealed.
+## can_push: whether deeper is allowed.
 ## endless: kept for callers; used to swap Push plank copy (planks removed — option A).
 @warning_ignore("unused_parameter")
 func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = false, chip: Dictionary = {}, endless: bool = false) -> void:
@@ -768,7 +820,11 @@ func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = fals
 	_chip_n = int(chip.get("n", 0))
 	_chip_show_proj = bool(chip.get("show_proj", false))
 	_next_name = str(chip.get("next", ""))
+	_next_biome_id = str(chip.get("next_id", "")).strip_edges()
 	_show_next_carry = bool(chip.get("show_next", false)) and _next_name != ""
+	if _gate_portal and _gate_portal.has_method("set_next_biome"):
+		# Adventure / non-campaign / end-of-line / endless → sealed (no bright swirl).
+		_gate_portal.set_next_biome(_next_biome_id if campaign else "")
 	_apply_banner()
 	_apply_sub_line()
 	# Climb/Delve planks gone — diegetic hatch + gate hotspots always drive both doors.
@@ -838,6 +894,8 @@ func _set_delve_hot(on: bool, hit: Control = null) -> void:
 				_hole_glow.play("g")
 	if _gate_frame:
 		_gate_frame.modulate = HOT_MOD if on else HOT_IDLE
+	if _gate_portal and _gate_portal.has_method("set_hot"):
+		_gate_portal.set_hot(on)
 	if on:
 		KIT.cue(cabin.sfx if cabin else null, &"cabin.hover")
 		# Spin-locked Delve strings. {n} = next dungeon = cleared + 1.
