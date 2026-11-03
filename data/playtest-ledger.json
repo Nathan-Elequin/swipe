@@ -348,7 +348,7 @@
 			"status": "f5",
 			"title": "Gargoyle is triggering defeat items like boot to say Cannot be defeated",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/328",
-			"sha": "PENDING",
+			"sha": "d2977c84",
 			"f5_note": "Boot and other Defeat items work on Gargoyle. Stop Play, F5."
 		}
 	}
