@@ -7155,6 +7155,60 @@ func _restore_cascade_time_scale() -> void:
 	print("[cascade-ff] restore time_scale=", Engine.time_scale, " busy=", _walker_busy, " phase=", phase)
 
 
+func _hotbar_uid_at(screen_pos: Vector2) -> int:
+	var cards: Array = _hotbar_all_cards()
+	var i: int = cards.size() - 1
+	while i >= 0:
+		var card: Control = cards[i] as Control
+		i -= 1
+		if card == null or not is_instance_valid(card) or not card.visible:
+			continue
+		if card.get_global_rect().has_point(screen_pos):
+			return _control_uid(card)
+	return -1
+
+
+func _hotbar_click_ok() -> bool:
+	if overlay != null and overlay.visible and overlay_btn != null and overlay_btn.visible:
+		return false
+	if roster_ed != null and roster_ed.visible:
+		return false
+	if script_ed != null and script_ed.visible:
+		return false
+	if home_cabin != null and home_cabin.visible:
+		return false
+	if PlaytestUx.feedback_open(get_tree()):
+		return false
+	if _text_input_focused():
+		return false
+	if _challenge_loot_wait:
+		return true
+	if not pending_feed.is_empty():
+		return true
+	if phase == "fighting":
+		return true
+	if phase == "ready":
+		return true
+	return false
+
+
+func _input(event: InputEvent) -> void:
+	## Hit-test the hand in canvas space on press. Release-matching fails when
+	## unplayable sink moves the card out from under the cursor.
+	if not (event is InputEventMouseButton):
+		return
+	var mb := event as InputEventMouseButton
+	if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed:
+		return
+	if not _hotbar_click_ok():
+		return
+	var uid: int = _hotbar_uid_at(get_global_mouse_position())
+	if uid < 0:
+		return
+	get_viewport().set_input_as_handled()
+	_use_item(uid)
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if PlaytestUx.feedback_open(get_tree()):
 		if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
@@ -9558,6 +9612,8 @@ func _use_item(uid: int) -> void:
 		return
 	if not pending_feed.is_empty():
 		var allowed: Array = pending_feed.get("uids", [])
+		if allowed.is_empty():
+			allowed = _hand_discard_uids()
 		if not _uid_in(allowed, uid):
 			if sfx:
 				sfx.play("error", -12.0, 1.2)
@@ -13073,6 +13129,8 @@ func _feed_worm(uid: int) -> void:
 	if pending_feed.is_empty() or str(pending_feed.get("kind", "")) != "worm_hunger":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
+	if allowed.is_empty():
+		allowed = _hand_discard_uids()
 	if not _uid_in(allowed, uid):
 		if sfx:
 			sfx.play("error", -12.0)
@@ -24575,7 +24633,7 @@ func _sync_hotbar() -> void:
 		if _challenge_loot_wait:
 			can_click = not _item_blocks_hand_tax(it)
 		elif not pending_feed.is_empty():
-			can_click = is_snack
+			can_click = is_snack if not feed_uids.is_empty() else not spent_n
 		elif _sling_pick_open():
 			can_click = (not spent_n) and (uid_n == starter_uid or _sling_option_has(uid_n))
 		elif not pending_chaos.is_empty():
@@ -24627,6 +24685,7 @@ func _sync_hotbar() -> void:
 				card.set_num_color(Color("C41E1E"))
 			else:
 				card.set_num_color(_num_color(str(view.get("kind", "ATK"))))
+		card.mouse_filter = Control.MOUSE_FILTER_STOP
 		if card.has_method("set_playable"):
 			card.set_playable(can_click)
 		if card.has_method("set_guarding"):
@@ -24773,8 +24832,21 @@ func _reuse_or_spawn_item_card(keep: Dictionary, it: Dictionary) -> Control:
 			reused.rotation = 0.0
 			reused.z_index = 0
 			_paint_item_card_identity(reused, it)
+			reused.mouse_filter = Control.MOUSE_FILTER_STOP
+			_wire_hotbar_card_click(reused, u)
 			return reused
 	return _spawn_item_card(it, true)
+
+
+func _wire_hotbar_card_click(card: Control, uid: int) -> void:
+	if card == null or uid < 0:
+		return
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
+	if bool(card.get_meta("hotbar_wired", false)):
+		return
+	card.set_meta("hotbar_wired", true)
+	if card.has_signal("picked"):
+		card.picked.connect(_use_item.bind(uid))
 
 
 func _hotbar_overflow_anchor_global() -> Vector2:
@@ -24949,7 +25021,7 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if _authoring() or PLAYTEST_FLAG.on():
 		card.edit_wanted.connect(_on_item_right_click.bind(str(it.get("card_id", ""))))
 	if usable:
-		card.picked.connect(_use_item.bind(int(it.get("uid", 0))))
+		_wire_hotbar_card_click(card, int(it.get("uid", 0)))
 	if card.has_signal("mode_option_picked"):
 		card.mode_option_picked.connect(_choose_option)
 	return card
