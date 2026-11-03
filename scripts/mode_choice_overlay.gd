@@ -273,11 +273,20 @@ func _make_knife_target(index: int, row: Dictionary) -> Control:
 			panel.accept_event()
 	)
 
+	## PanelContainer only lays out one child — content + key chip share this host.
+	var host := Control.new()
+	host.name = "TargetHost"
+	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	host.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_child(host)
+
 	var wrap := VBoxContainer.new()
 	wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	wrap.alignment = BoxContainer.ALIGNMENT_CENTER
 	wrap.add_theme_constant_override("separation", 8)
-	panel.add_child(wrap)
+	wrap.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	host.add_child(wrap)
 
 	var icon_host := Control.new()
 	icon_host.custom_minimum_size = Vector2(ICON_TILE, ICON_TILE)
@@ -344,7 +353,7 @@ func _make_knife_target(index: int, row: Dictionary) -> Control:
 	secondary.visible = secondary.text.strip_edges() != ""
 	wrap.add_child(secondary)
 
-	_add_key_chip(panel, index + 1)
+	_add_key_chip(host, index + 1)
 	return panel
 
 
@@ -368,11 +377,20 @@ func _make_row_target(index: int, row: Dictionary) -> Control:
 			panel.accept_event()
 	)
 
+	## PanelContainer only lays out one child — content + key chip share this host.
+	var host := Control.new()
+	host.name = "TargetHost"
+	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	host.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_child(host)
+
 	var row_box := HBoxContainer.new()
 	row_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row_box.add_theme_constant_override("separation", 10)
 	row_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	panel.add_child(row_box)
+	row_box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	host.add_child(row_box)
 
 	var icon_host := Control.new()
 	icon_host.custom_minimum_size = Vector2(ICON_ROW, ICON_ROW)
@@ -427,33 +445,36 @@ func _make_row_target(index: int, row: Dictionary) -> Control:
 			pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			pips.add_child(pip)
 
-	_add_key_chip(panel, index + 1)
+	_add_key_chip(host, index + 1)
 	return panel
 
 
 func _add_key_chip(host: Control, n: int) -> void:
-	var chip := PanelContainer.new()
+	## Plain Control + Label (not PanelContainer) so a free-positioned chip never
+	## competes with PanelContainer's single-child layout on the target.
+	var chip := Control.new()
 	chip.name = "KeyChip"
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = COL_KEY_BG
-	sb.border_color = COL_INK
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(4)
-	sb.content_margin_left = 5.0
-	sb.content_margin_right = 5.0
-	sb.content_margin_top = 1.0
-	sb.content_margin_bottom = 1.0
-	chip.add_theme_stylebox_override("panel", sb)
+	chip.custom_minimum_size = Vector2(18.0, 16.0)
 	chip.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	chip.anchor_left = 1.0
 	chip.anchor_top = 1.0
 	chip.anchor_right = 1.0
 	chip.anchor_bottom = 1.0
-	chip.offset_left = -28.0
-	chip.offset_top = -24.0
-	chip.offset_right = -6.0
-	chip.offset_bottom = -6.0
+	chip.offset_left = -24.0
+	chip.offset_top = -20.0
+	chip.offset_right = -4.0
+	chip.offset_bottom = -4.0
+	var bg := Panel.new()
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = COL_KEY_BG
+	sb.border_color = COL_INK
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(4)
+	bg.add_theme_stylebox_override("panel", sb)
+	chip.add_child(bg)
 	var lab := Label.new()
 	lab.text = str(n)
 	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -461,6 +482,7 @@ func _add_key_chip(host: Control, n: int) -> void:
 	lab.add_theme_font_size_override("font_size", 12)
 	lab.add_theme_color_override("font_color", COL_INK)
 	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lab.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	chip.add_child(lab)
 	host.add_child(chip)
 
