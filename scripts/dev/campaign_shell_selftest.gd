@@ -279,6 +279,38 @@ func _init() -> void:
 		for tid3 in seeded_tel:
 			failed = _check(failed, "consume marks seen %s" % tid3, (seed_state["seen_deadly"] as Array).has(str(tid3))) or failed
 	failed = _check(failed, "consume saw all ten", (seed_state["seen_deadly"] as Array).size() == 10) or failed
+	var pooled: Array = []
+	for n in 8:
+		pooled.append({"id": "b1w%d" % n, "tier": 1, "pool": "b1", "contra": []})
+		pooled.append({"id": "b2w%d" % n, "tier": 1, "pool": "b2", "contra": []})
+	for n2 in 5:
+		pooled.append({"id": "b1t%d" % n2, "tier": 2, "pool": "b1", "contra": []})
+		pooled.append({"id": "b2t%d" % n2, "tier": 2, "pool": "b2", "contra": []})
+	for n3 in 3:
+		pooled.append({"id": "b1d%d" % n3, "tier": 3, "pool": "b1", "contra": []})
+		pooled.append({"id": "b2d%d" % n3, "tier": 3, "pool": "b2", "contra": []})
+	var locked_state: Dictionary = Shell.fresh_state()
+	Shell.seed_next_run(rules, locked_state, pooled, 21)
+	var b1_ids: Array = ((locked_state.get("next_run", {}) as Dictionary).get("deals", {}) as Dictionary).get("b1", {}).get("ids", [])
+	var leaked := false
+	for raw_b1 in b1_ids:
+		if str(raw_b1).begins_with("b2"):
+			leaked = true
+			break
+	failed = _check(failed, "verdant stays pool 1 until cabinets fill", b1_ids.size() == 10 and not leaked) or failed
+	var item_entries: Array = []
+	for biome_id4 in ["b1", "b2", "b3", "b4", "b5"]:
+		for k in 5:
+			item_entries.append({"id": "%s_i%d" % [biome_id4, k], "pool": biome_id4})
+	var open_state: Dictionary = Shell.fresh_state()
+	Shell.debug_unlock_all_pools(rules, open_state, item_entries)
+	failed = _check(failed, "fill every cabinet completes", Shell.cabinets_complete(rules, open_state)) or failed
+	failed = _check(failed, "fill every cabinet inks later stamps", (open_state["map_pieces"] as Array).has("b5")) or failed
+	failed = _check(failed, "fill every cabinet skips win drawer", bool(open_state.get("drawer_seen", false))) or failed
+	var locked_slice: Array = Shell.rows_for_biome(rules, locked_state, pooled, "b1")
+	var open_slice: Array = Shell.rows_for_biome(rules, open_state, pooled, "b1")
+	failed = _check(failed, "locked verdant slice is pool 1", locked_slice.size() == 16) or failed
+	failed = _check(failed, "full cabinets mix every pool into verdant", open_slice.size() == pooled.size()) or failed
 	if failed:
 		print("CAMPAIGN_SHELL_FAIL")
 		quit(1)

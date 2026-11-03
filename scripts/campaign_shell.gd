@@ -179,6 +179,30 @@ static func pool_open_for_bucket(rules: Dictionary, state: Dictionary, bucket: i
 	return pool != "" and pool_unlocked(rules, state, pool)
 
 
+## When every cabinet is full (DEV "Fill every cabinet", or a real 5/5 sweep),
+## each delve may draw from every mill pool. Until then, a biome's deck is only
+## that biome's pool, so Verdant stays the first-pool tutorial.
+static func rows_for_biome(rules: Dictionary, state: Dictionary, rows: Array, biome_id: String) -> Array:
+	if biome_id == "" or biome_id == str(rules.get("endless", {}).get("id", "endless")):
+		return rows
+	if cabinets_complete(rules, state):
+		return rows
+	var tagged := false
+	var out: Array = []
+	for raw in rows:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var row: Dictionary = raw
+		var p := str(row.get("pool", ""))
+		if p != "":
+			tagged = true
+		if p == "" or p == biome_id:
+			out.append(row)
+	if not tagged:
+		return rows
+	return out
+
+
 static func shortcut_open(rules: Dictionary, state: Dictionary, index: int) -> bool:
 	var biomes := biomes_of(rules)
 	if index < 0 or index >= biomes.size():
@@ -447,6 +471,27 @@ static func debug_bank_matching(rules: Dictionary, state: Dictionary, entries: A
 	return got
 
 
+## DEV: fill every biome cabinet, ink the later stamps, skip the win drawer.
+static func debug_unlock_all_pools(rules: Dictionary, state: Dictionary, entries: Array) -> void:
+	normalize(state)
+	for raw in biomes_of(rules):
+		var pool := str((raw as Dictionary).get("id", ""))
+		if pool == "":
+			continue
+		var need: int = quota_of(rules) - cabinet_count(state, pool)
+		debug_bank_matching(rules, state, entries, maxi(0, need), pool)
+	var pieces: Array = []
+	for raw2 in biomes_of(rules):
+		var pid := str((raw2 as Dictionary).get("id", ""))
+		if pid == "" or pid == "b1":
+			continue
+		pieces.append(pid)
+	state["map_pieces"] = pieces
+	state["won"] = true
+	state["endless_unlocked"] = true
+	state["drawer_seen"] = true
+
+
 static func starter_tiers(rules: Dictionary, rng: RandomNumberGenerator) -> Array:
 	var mix: Variant = rules.get("starter_item_mix", [3, 2, 1])
 	var counts: Array = mix if typeof(mix) == TYPE_ARRAY else [3, 2, 1]
@@ -604,7 +649,8 @@ static func seed_next_run(rules: Dictionary, state: Dictionary, rows: Array, see
 	var deals: Dictionary = {}
 	for n in range(1, 6):
 		var pool := "b%d" % n
-		var deal: Dictionary = compose(rules, rng, rows, pool, used)
+		var slice: Array = rows_for_biome(rules, state, rows, pool)
+		var deal: Dictionary = compose(rules, rng, slice, pool, used)
 		deals[pool] = {
 			"ids": (deal.get("ids", []) as Array).duplicate(),
 			"telegraph": (deal.get("telegraph", []) as Array).duplicate(),

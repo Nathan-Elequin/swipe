@@ -3002,10 +3002,8 @@ func _on_campaign_cheat(action: String) -> void:
 		var need: int = CAMPAIGN_SHELL.quota_of(_campaign.rules) - CAMPAIGN_SHELL.cabinet_count(_campaign.state, "b1")
 		CAMPAIGN_SHELL.debug_bank_matching(_campaign.rules, _campaign.state, _campaign_item_entries(), maxi(0, need), "b1")
 	elif action == "win":
-		for raw in CAMPAIGN_SHELL.biomes_of(_campaign.rules):
-			var pool := str((raw as Dictionary).get("id", ""))
-			var need2: int = CAMPAIGN_SHELL.quota_of(_campaign.rules) - CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool)
-			CAMPAIGN_SHELL.debug_bank_matching(_campaign.rules, _campaign.state, _campaign_item_entries(), maxi(0, need2), pool)
+		CAMPAIGN_SHELL.debug_unlock_all_pools(_campaign.rules, _campaign.state, _campaign_item_entries())
+		_dev_set_buckets(BucketRules.MAX_BUCKET)
 	_campaign_seed_next_run_if_needed(true)
 	_campaign.write()
 	if home_cabin and home_cabin.has_method("sync_swiped_from_banked"):
@@ -3072,7 +3070,12 @@ func _campaign_rows(for_seed: bool = false) -> Array:
 		if typeof(raw) == TYPE_ARRAY:
 			for c in raw:
 				contra.append(str(c))
-		rows.append({"id": str(id), "tier": int(card.get("tier", 1)), "contra": contra})
+		rows.append({
+			"id": str(id),
+			"tier": int(card.get("tier", 1)),
+			"contra": contra,
+			"pool": CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.of_card(card)),
+		})
 	return rows
 
 
@@ -3098,8 +3101,10 @@ func _campaign_seed_next_run_if_needed(force: bool = false) -> void:
 func _campaign_arm_delve() -> void:
 	if _campaign == null:
 		return
-	var rows: Array = _campaign_rows(false)
 	var biome := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	var rows: Array = CAMPAIGN_SHELL.rows_for_biome(
+		_campaign.rules, _campaign.state, _campaign_rows(false), biome
+	)
 	_sync_dungeon_biome(biome)
 	_sync_biome_ambient(biome)
 	CAMPAIGN_SHELL.normalize(_campaign.state)
@@ -3196,6 +3201,9 @@ func _campaign_abort() -> void:
 	if not _campaign_on or _campaign == null:
 		return
 	CAMPAIGN_SHELL.end_run(_campaign.state)
+	## Loss / give-up / map-close: roll a new next-run deck so Quick Start is not
+	## the same 10 monsters as the run you just died on.
+	_campaign_seed_next_run_if_needed(true)
 	_campaign.write()
 
 
@@ -3317,6 +3325,8 @@ func _on_defeat_quick_start() -> void:
 	# New Verdant Hollow run, skip biome splash, land on dealing the hotbar.
 	if _campaign == null:
 		return
+	if _campaign_on:
+		_campaign_abort()
 	_splash_busy = true
 	var biome_id := "b1"
 	if sfx and sfx.has_method("music_biome_dungeon"):
