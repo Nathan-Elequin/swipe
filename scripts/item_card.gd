@@ -136,6 +136,10 @@ var _marble_busy: bool = false
 var _pending_live: String = ""
 var _armed: bool = false
 var _armed_lab: Label
+var _cancel_pick: bool = false
+var _selector_dim: bool = false
+var _cancel_x: TextureRect
+var _cancel_disc: ColorRect
 var _no_effect: bool = false
 var _sparkle_t: float = 0.0
 var _desat: float = 0.0
@@ -418,7 +422,7 @@ func _overlay_host() -> Control:
 func _sync_hatch() -> void:
 	# Spider Egg keeps its soft hatch; Unplayable / Petrify use the shared 8px diagonal.
 	var egg: bool = card_id == "spider_egg"
-	var unplayable_hatch: bool = (not _showcase) and (
+	var unplayable_hatch: bool = (not _showcase) and not _selector_dim and (
 		spent
 		or (_petrified and not _petrify_dummy)
 		or ((not _playable) and not _guarding and not _petrify_dummy)
@@ -1204,6 +1208,8 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 		modulate = Color(0.58, 0.56, 0.52, 1.0)
 	elif spent:
 		modulate = Color(0.86, 0.84, 0.80, 1.0)
+	elif _selector_dim:
+		modulate = Color(0.50, 0.48, 0.46, 1.0)
 	else:
 		modulate = Color.WHITE
 	_playable = can_use and not spent
@@ -1689,7 +1695,7 @@ func set_passive_icons(plus_tex: Texture2D, ban_tex: Texture2D, on: bool) -> voi
 func set_guarding(on: bool) -> void:
 	_guarding = on
 	_sync_lock_shade()
-	_tween_sink(not _playable and not spent and not _guarding)
+	_tween_sink(not _playable and not spent and not _guarding and not _selector_dim)
 	_tick_shimmer()
 
 
@@ -1698,8 +1704,65 @@ func set_playable(on: bool) -> void:
 	set_process(true)
 	_sync_lock_shade()
 	_apply_style(_hot)
-	_tween_sink(not _playable and not spent and not _guarding)
+	_tween_sink(not _playable and not spent and not _guarding and not _selector_dim)
 	_tick_shimmer()
+
+
+func set_cancel_pick(on: bool) -> void:
+	_cancel_pick = on
+	_ensure_cancel_mark()
+	if _cancel_disc != null:
+		_cancel_disc.visible = on
+	if _cancel_x != null:
+		_cancel_x.visible = on
+	queue_redraw()
+
+
+func set_selector_dim(on: bool) -> void:
+	_selector_dim = on
+	if on:
+		modulate = Color(0.50, 0.48, 0.46, 1.0)
+	elif not spent and not _petrified:
+		modulate = Color.WHITE
+	_sync_hatch()
+	_tween_sink(not _playable and not spent and not _guarding and not _selector_dim)
+	_apply_style(_hot)
+	queue_redraw()
+
+
+func _ensure_cancel_mark() -> void:
+	if _cancel_disc != null and _cancel_x != null:
+		return
+	var host: Control = _overlay_host()
+	_cancel_disc = ColorRect.new()
+	_cancel_disc.name = "CancelDisc"
+	_cancel_disc.color = Color("100e0c", 0.72)
+	_cancel_disc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cancel_disc.z_index = 24
+	_cancel_disc.set_anchors_preset(Control.PRESET_CENTER)
+	_cancel_disc.offset_left = -22.0
+	_cancel_disc.offset_top = -22.0
+	_cancel_disc.offset_right = 22.0
+	_cancel_disc.offset_bottom = 22.0
+	_cancel_disc.visible = false
+	host.add_child(_cancel_disc)
+	_cancel_x = TextureRect.new()
+	_cancel_x.name = "CancelX"
+	_cancel_x.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_cancel_x.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_cancel_x.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cancel_x.texture_filter = TEXTURE_FILTER_NEAREST
+	_cancel_x.z_index = 25
+	_cancel_x.set_anchors_preset(Control.PRESET_CENTER)
+	_cancel_x.offset_left = -20.0
+	_cancel_x.offset_top = -20.0
+	_cancel_x.offset_right = 20.0
+	_cancel_x.offset_bottom = 20.0
+	var x_path := "res://assets/ui/map/map_close_x_normal.png"
+	if ResourceLoader.exists(x_path):
+		_cancel_x.texture = load(x_path) as Texture2D
+	_cancel_x.visible = false
+	host.add_child(_cancel_x)
 
 
 func _process(delta: float) -> void:

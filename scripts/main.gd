@@ -757,6 +757,7 @@ var hotbar_wrap: MarginContainer
 var btn_wrap: MarginContainer
 var hotbar_panel: PanelContainer
 var hotbar_overflow: Control
+var choice_overlay: Control
 var challenge_deck: Array = []
 var challenge_aim: int = -1
 var _unspin_armed: bool = false
@@ -1457,6 +1458,13 @@ func _build_ui() -> void:
 	hotbar_overflow.z_index = 48
 	hotbar_overflow.draw.connect(_draw_hotbar_overflow)
 	hotbar_wrap.add_child(hotbar_overflow)
+	choice_overlay = Control.new()
+	choice_overlay.name = "ChoiceOverlay"
+	choice_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	choice_overlay.clip_contents = false
+	choice_overlay.z_index = 60
+	choice_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	hotbar_wrap.add_child(choice_overlay)
 	hotbar_panel = PanelContainer.new()
 	hotbar_panel.visible = true
 	hotbar_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -9528,6 +9536,20 @@ func _use_item(uid: int) -> void:
 	if not pending_chaos.is_empty():
 		await _chaos_pick(uid)
 		return
+	if not pending_choice.is_empty() and not _sling_pick_open():
+		if uid == int(pending_choice.get("uid", -1)):
+			_cancel_item_selector()
+			return
+		if sfx:
+			sfx.play("error", -12.0, 1.2)
+		return
+	if not pending_mark.is_empty():
+		if uid == int(pending_mark.get("uid", -1)):
+			_cancel_item_selector()
+			return
+		if sfx:
+			sfx.play("error", -12.0, 1.2)
+		return
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty() or it["spent"]:
 		if sfx:
@@ -9536,9 +9558,7 @@ func _use_item(uid: int) -> void:
 	if _sling_pick_open():
 		var chooser: Dictionary = _find_item(int(pending_choice.get("uid", -1)))
 		if uid == int(chooser.get("uid", -1)):
-			pending_choice.clear()
-			_undo_abort()
-			call_deferred("_refresh")
+			_cancel_item_selector()
 			return
 		for opt_v in pending_choice.get("options", []):
 			if typeof(opt_v) != TYPE_DICTIONARY:
@@ -22734,6 +22754,10 @@ func _on_done_hover(on: bool) -> void:
 		return
 	if sfx:
 		sfx.hover()
+	if _selector_take_word() != "":
+		_ghost_hp = -1
+		_refresh_hearts()
+		return
 	_ghost_hp = maxi(0, hp - _incoming_hit())
 	_refresh_hearts()
 
@@ -23656,25 +23680,15 @@ func _sync_buttons() -> void:
 		## H3-B2: cream Take arc under the wheel. Hide the old standalone pill.
 		btn_done.visible = false
 		_hide_take_burst()
-		_sync_take_arc(hit, busy)
+		var sel_word: String = _selector_take_word()
+		_sync_take_arc(hit, busy, sel_word)
 		_sync_intent_plate()
 	else:
 		_hide_take_arc()
 	if btn_spin:
 		btn_spin.scale = Vector2.ONE
-	if feed_kind == "worm_hunger":
-		_hide_take_arc()
-		btn_done.visible = true
-		btn_done.disabled = busy
-		btn_done.text = PLAYER_COPY.text("title.continue", "Continue")
-		btn_done.icon = null
-		_hide_take_burst()
-	elif feed_kind == "hired_bribe":
-		_hide_take_arc()
-		btn_done.visible = true
-		btn_done.disabled = busy
-		btn_done.text = "Decline"
-		btn_done.icon = null
+	if feed_kind == "worm_hunger" or feed_kind == "hired_bribe":
+		btn_done.visible = false
 		_hide_take_burst()
 	_stamp_atk_variants()
 	_hold_combat_action_slot()
@@ -23866,7 +23880,7 @@ func _take_burst_tex_for(hit: int) -> Dictionary:
 	return {"tex": tex, "pip": pip, "hit": hit}
 
 
-func _sync_take_arc(hit: int, busy: bool) -> void:
+func _sync_take_arc(hit: int, busy: bool, word_override: String = "") -> void:
 	if take_arc == null:
 		return
 	if move_box != null:
@@ -23877,7 +23891,10 @@ func _sync_take_arc(hit: int, busy: bool) -> void:
 	var burst: Texture2D = null
 	var pip := ""
 	var shown_n: int = hit
-	if hit > 0:
+	if word_override != "":
+		word = word_override
+		shown_n = 0
+	elif hit > 0:
 		var tmpl: String = PLAYER_COPY.text("combat.take_hit", "Take {n}")
 		word = tmpl.replace("{n}", "").strip_edges()
 		var info: Dictionary = _take_burst_tex_for(hit)
@@ -24416,6 +24433,9 @@ func _sync_hotbar() -> void:
 		var is_snack: bool = feed_uids.has(uid_n)
 		var in_fight: bool = phase == "fighting"
 		var magnet_ready: bool = phase == "ready" and _is_magnet(it)
+		var starter_uid: int = _selector_starter_uid()
+		var legal_uids: Array = _selector_legal_uids()
+		var selector_on: bool = _selector_is_active()
 		var can_click: bool = false
 		if _challenge_loot_wait:
 			var is_pending: bool = pending_uid != 0 and uid_n == pending_uid
@@ -24423,7 +24443,11 @@ func _sync_hotbar() -> void:
 		elif not pending_feed.is_empty():
 			can_click = is_snack
 		elif _sling_pick_open():
-			can_click = (not spent_n) and (uid_n == int(pending_choice.get("uid", -1)) or _sling_option_has(uid_n))
+			can_click = (not spent_n) and (uid_n == starter_uid or _sling_option_has(uid_n))
+		elif not pending_chaos.is_empty():
+			can_click = uid_n == starter_uid or legal_uids.has(uid_n)
+		elif _mode_choice_open() or not pending_mark.is_empty():
+			can_click = uid_n == starter_uid
 		else:
 			can_click = (in_fight or magnet_ready) and bool(view["can_use"]) and not spent_n and not _item_stoned(it)
 		card.spent = spent_n
@@ -24489,15 +24513,23 @@ func _sync_hotbar() -> void:
 		var stoned_n: bool = _item_stoned(it)
 		if card.has_method("set_aura_role"):
 			var role := ""
+			var is_legal: bool = legal_uids.has(uid_n)
 			if stoned_n or spent_n:
 				role = ""
 			elif rust_hint or _beggar_marked(uid_n):
 				role = "warn"
+			elif selector_on and uid_n != starter_uid and is_legal:
+				role = "choice"
 			elif upgrade_choice or (_toss_pick_mode() and can_click):
 				role = "choice"
-			elif snack_ready or rec_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready")):
+			elif snack_ready or rec_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready") and not selector_on):
 				role = "ready"
 			card.set_aura_role(role)
+		if card.has_method("set_cancel_pick"):
+			card.set_cancel_pick(selector_on and uid_n == starter_uid and starter_uid >= 0)
+		if card.has_method("set_selector_dim"):
+			var dim_me: bool = selector_on and uid_n != starter_uid and not legal_uids.has(uid_n) and not (_toss_pick_mode() and can_click)
+			card.set_selector_dim(dim_me)
 		elif card.has_method("set_aura"):
 			card.set_aura((not stoned_n) and (snack_ready or rec_ready or (mag_on and (phase == "fighting" or phase == "ready"))))
 		if card.has_method("set_toss_pick"):
@@ -24512,6 +24544,10 @@ func _sync_hotbar() -> void:
 		hotbar_panel.reset_size()
 	_recenter_hotbar()
 	call_deferred("_recenter_hotbar")
+	if _mode_choice_open():
+		call_deferred("_place_choice_tiles")
+	else:
+		_clear_choice_overlay()
 
 
 func _make_hot_empty() -> Control:
@@ -24853,16 +24889,26 @@ func _reapply_hotbar_aura_roles() -> void:
 		var armed_ready: bool = in_fight and not spent_n and str(it.get("card_id", "")) == "healing_potion"
 		var can_click_toss: bool = _toss_pick_mode() and not spent_n and not stoned_n
 		var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
+		var starter_uid: int = _selector_starter_uid()
+		var legal_uids: Array = _selector_legal_uids()
+		var selector_on: bool = _selector_is_active()
+		var is_legal: bool = legal_uids.has(uid_n)
 		var role := ""
 		if stoned_n or spent_n:
 			role = ""
 		elif rust_hint or _beggar_marked(uid_n):
 			role = "warn"
+		elif selector_on and uid_n != starter_uid and is_legal:
+			role = "choice"
 		elif upgrade_choice or can_click_toss:
 			role = "choice"
-		elif snack_ready or rec_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready")):
+		elif snack_ready or rec_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready") and not selector_on):
 			role = "ready"
 		card.set_aura_role(role)
+		if card.has_method("set_cancel_pick"):
+			card.set_cancel_pick(selector_on and uid_n == starter_uid and starter_uid >= 0)
+		if card.has_method("set_selector_dim"):
+			card.set_selector_dim(selector_on and uid_n != starter_uid and not is_legal)
 		var decay_on2: bool = bool(it.get("decay_marked", false)) and not spent_n
 		var decay_solo2: bool = bool(it.get("decay_solo", false))
 		if card.has_method("set_decay_solo"):
@@ -24901,21 +24947,179 @@ func _clear_box(box: Node) -> void:
 		c.queue_free()
 
 
+func _cancel_item_selector() -> void:
+	pending_choice.clear()
+	pending_mark.clear()
+	if not pending_chaos.is_empty():
+		pending_chaos.clear()
+	_undo_abort()
+	if sfx:
+		sfx.play("click", -8.0)
+	call_deferred("_refresh")
+
+
+func _mode_choice_open() -> bool:
+	if pending_choice.is_empty() or _sling_pick_open():
+		return false
+	return true
+
+
+func _selector_starter_uid() -> int:
+	if not pending_choice.is_empty():
+		return int(pending_choice.get("uid", -1))
+	if not pending_mark.is_empty():
+		return int(pending_mark.get("uid", -1))
+	if not pending_chaos.is_empty():
+		return int(pending_chaos.get("uid", -1))
+	return -1
+
+
+func _selector_legal_uids() -> Array:
+	var out: Array = []
+	if not pending_feed.is_empty():
+		return pending_feed.get("uids", [])
+	if _challenge_loot_wait:
+		return _filter_toss_uids(_hand_all_uids())
+	if _sling_pick_open():
+		for opt_v in pending_choice.get("options", []):
+			if typeof(opt_v) != TYPE_DICTIONARY:
+				continue
+			var uid_n: int = int((opt_v as Dictionary).get("target_uid", -1))
+			if uid_n >= 0:
+				out.append(uid_n)
+		return out
+	if not pending_chaos.is_empty():
+		return _chaos_candidates(int(pending_chaos.get("uid", -1)))
+	return out
+
+
+func _selector_is_active() -> bool:
+	if _challenge_loot_wait:
+		return true
+	if not pending_feed.is_empty():
+		return true
+	if not pending_choice.is_empty():
+		return true
+	if not pending_mark.is_empty():
+		return true
+	if not pending_chaos.is_empty():
+		return true
+	return false
+
+
+func _selector_take_word() -> String:
+	var feed_kind: String = str(pending_feed.get("kind", "")) if not pending_feed.is_empty() else ""
+	if feed_kind == "hired_bribe":
+		return "Decline"
+	if feed_kind == "worm_hunger":
+		return PLAYER_COPY.text("title.continue", "Continue")
+	return ""
+
+
+func _clear_choice_overlay() -> void:
+	if choice_overlay == null:
+		return
+	for c in choice_overlay.get_children():
+		choice_overlay.remove_child(c)
+		c.queue_free()
+
+
 func _rebuild_choice() -> void:
 	_clear_box(choice_box)
+	if choice_box:
+		choice_box.visible = false
+	_clear_choice_overlay()
 	if not pending_feed.is_empty():
 		return
-	if pending_choice.is_empty():
+	if not _mode_choice_open():
 		return
-	for opt in pending_choice.get("options", []):
-		var lab: String = str(opt.get("label", "?"))
-		var oid: String = str(opt.get("id", ""))
-		if oid == "throw":
-			lab = PLAYER_COPY.text("combat.knife_throw", lab)
-		elif oid == "nick":
-			lab = PLAYER_COPY.text("combat.knife_nick", lab)
-		var ob: Button = _pill(lab, Color("3a3220"), Color("e8c36a"), _choose_option.bind(opt))
-		choice_box.add_child(ob)
+	call_deferred("_place_choice_tiles")
+
+
+func _place_choice_tiles() -> void:
+	_clear_choice_overlay()
+	if choice_overlay == null or not _mode_choice_open():
+		return
+	var opts: Array = pending_choice.get("options", [])
+	if opts.is_empty():
+		return
+	var starter_uid: int = int(pending_choice.get("uid", -1))
+	var starter_card: Control = _hotbar_card_by_uid(starter_uid)
+	var hosts: Array = []
+	if hotbar_box != null:
+		for node in hotbar_box.get_children():
+			if not (node is Control):
+				continue
+			if _control_uid(node) == starter_uid:
+				continue
+			hosts.append(node)
+	var wrap_xf: Transform2D = choice_overlay.get_global_transform().affine_inverse()
+	var it: Dictionary = _find_item(starter_uid)
+	for i in opts.size():
+		if typeof(opts[i]) != TYPE_DICTIONARY:
+			continue
+		var opt: Dictionary = opts[i]
+		var tile: Control = _make_mode_choice_tile(it, opt)
+		if tile == null:
+			continue
+		choice_overlay.add_child(tile)
+		var dest := Rect2()
+		if i < hosts.size():
+			var host: Control = hosts[i]
+			dest = host.get_global_rect()
+		elif starter_card != null:
+			var base: Rect2 = starter_card.get_global_rect()
+			dest = Rect2(base.position + Vector2((base.size.x + 8.0) * float(i + 1), 0.0), base.size)
+		else:
+			dest = Rect2(Vector2(8.0 + float(i) * 180.0, 8.0), Vector2(172.0, 148.0))
+		var local_pos: Vector2 = wrap_xf * dest.position
+		tile.position = local_pos
+		tile.size = dest.size
+		tile.custom_minimum_size = dest.size
+
+
+func _make_mode_choice_tile(src: Dictionary, opt: Dictionary) -> Control:
+	var lab: String = str(opt.get("label", "?"))
+	var oid: String = str(opt.get("id", ""))
+	if oid == "throw":
+		lab = PLAYER_COPY.text("combat.knife_throw", lab)
+	elif oid == "nick":
+		lab = PLAYER_COPY.text("combat.knife_nick", lab)
+	var shown := ""
+	if opt.has("atk"):
+		shown = str(int(opt.get("atk", 0)))
+	elif opt.has("atk_drop"):
+		shown = str(int(opt.get("atk_drop", 0)))
+	var tile = ITEM_CARD.new()
+	var icon: Texture2D = tex_sword
+	var fill := Color("3a3220")
+	var rim := Color("7CC8F0")
+	if not src.is_empty():
+		icon = _item_icon_tex(src)
+		var view: Dictionary = _item_view(src)
+		fill = view.get("fill", fill)
+	tile.setup(
+		-1000 - int(opt.get("atk", 0)) - int(opt.get("atk_drop", 0)),
+		str(src.get("card_id", "choice")),
+		shown,
+		icon,
+		fill,
+		rim,
+		lab,
+		_num_color("ATK") if opt.has("atk") or opt.has("atk_drop") else Color("f0e6d8"),
+		"ATK" if opt.has("atk") or opt.has("atk_drop") else "SKIP",
+		_kind_mark("ATK") if opt.has("atk") else null
+	)
+	if tile.has_method("set_aura_role"):
+		tile.set_aura_role("choice")
+	if tile.has_method("set_draft_glow"):
+		tile.set_draft_glow(false)
+	tile.set_live(shown, lab, true)
+	if tile.has_method("set_playable"):
+		tile.set_playable(true)
+	tile.mouse_filter = Control.MOUSE_FILTER_STOP
+	tile.picked.connect(_choose_option.bind(opt))
+	return tile
 
 
 func _tutorial_keeps_seat() -> bool:
@@ -25590,8 +25794,9 @@ func _sync_card_pass5(card: Control, it: Dictionary, _can_click: bool, in_fight:
 		card.stop_marble_idle()
 	if card.has_method("set_armed"):
 		var sling_on: bool = cid == "sling" and _sling_pick_open() and int(pending_choice.get("uid", -1)) == int(it.get("uid", -1))
-		var armed: bool = sling_on
-		if in_fight and not bool(it.get("spent", false)):
+		var starter_on: bool = int(it.get("uid", -1)) == _selector_starter_uid() and _selector_starter_uid() >= 0
+		var armed: bool = sling_on or starter_on
+		if in_fight and not bool(it.get("spent", false)) and not _selector_is_active():
 			if cid == "healing_potion":
 				armed = true
 			if cid == "danger_magnet" and _is_magnet(it) and _magnet_mode_of(it) != "off":
