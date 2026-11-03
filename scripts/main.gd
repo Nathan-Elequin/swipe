@@ -1454,7 +1454,7 @@ func _build_ui() -> void:
 	hotbar_overflow.name = "HotbarOverflow"
 	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hotbar_overflow.clip_contents = false
-	hotbar_overflow.z_index = 8
+	hotbar_overflow.z_index = 48
 	hotbar_overflow.draw.connect(_draw_hotbar_overflow)
 	hotbar_wrap.add_child(hotbar_overflow)
 	hotbar_panel = PanelContainer.new()
@@ -4467,7 +4467,9 @@ func _abort_full_hand_gain(it: Dictionary) -> void:
 func _start_full_hand_replace(it: Dictionary) -> bool:
 	if it.is_empty():
 		return false
-	if _filter_toss_uids(_hand_all_uids()).is_empty():
+	var tossable: Array = _filter_toss_uids(_hand_all_uids())
+	# Incoming item itself is a legal throw-away unless it is a curse / tax block.
+	if tossable.is_empty() and _item_blocks_hand_tax(it):
 		_abort_full_hand_gain(it)
 		return false
 	_challenge_pending_gain = it.duplicate(true)
@@ -4813,10 +4815,7 @@ func _hotbar_wait_slot_global() -> Vector2:
 		if not parked.is_empty():
 			var last: Control = parked[parked.size() - 1]
 			return last.global_position + last.size * 0.5
-	if hotbar_panel != null:
-		var pr: Rect2 = hotbar_panel.get_global_rect()
-		return Vector2(pr.position.x + pr.size.x * 0.5, pr.position.y - 80.0)
-	return _hotbar_empty_slot_global()
+	return _hotbar_overflow_anchor_global()
 
 
 func _bounce_hot_uid(uid: int) -> void:
@@ -5218,6 +5217,22 @@ func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
 
 func _challenge_discard_one(uid: int) -> void:
 	if not _challenge_loot_wait:
+		return
+	var pending_uid: int = int(_challenge_pending_gain.get("uid", 0)) if not _challenge_pending_gain.is_empty() else 0
+	if pending_uid != 0 and uid == pending_uid:
+		if _item_blocks_hand_tax(_challenge_pending_gain):
+			if sfx:
+				sfx.play("error", -12.0, 1.2)
+			return
+		var refused: Dictionary = _challenge_pending_gain.duplicate(true)
+		_log("discard", str(refused.get("name", "?")))
+		_challenge_pending_gain = {}
+		_challenge_loot_wait = false
+		_recycle_after_gone(refused)
+		if sfx:
+			sfx.play_event(&"chal.discard")
+		_hotbar_sig = ""
+		_refresh()
 		return
 	var have: Dictionary = _find_item(uid)
 	if have.is_empty():
@@ -15191,9 +15206,7 @@ func _hotbar_deal_slot_global(slot_i: int) -> Vector2:
 		if not parked.is_empty():
 			var last_park: Control = parked[parked.size() - 1]
 			return last_park.global_position + last_park.size * 0.5
-		if hotbar_panel != null:
-			var pr: Rect2 = hotbar_panel.get_global_rect()
-			return Vector2(pr.position.x + pr.size.x * 0.5, pr.position.y + pr.size.y * 0.5)
+		return _hotbar_overflow_anchor_global()
 	if hotbar_box == null:
 		return Vector2.ZERO
 	var cols: int = maxi(1, hotbar_box.columns)
@@ -24176,7 +24189,7 @@ func _sync_hotbar() -> void:
 				if parked:
 					hotbar_overflow.add_child(parked)
 			if pending_uid != 0:
-				var pending_card: Control = _spawn_item_card(_challenge_pending_gain, false)
+				var pending_card: Control = _spawn_item_card(_challenge_pending_gain, true)
 				if pending_card:
 					hotbar_overflow.add_child(pending_card)
 		_place_hotbar_overflow()
@@ -24200,7 +24213,8 @@ func _sync_hotbar() -> void:
 		var magnet_ready: bool = phase == "ready" and _is_magnet(it)
 		var can_click: bool = false
 		if _challenge_loot_wait:
-			can_click = (not waiting) and (not _item_blocks_hand_tax(it))
+			var is_pending: bool = pending_uid != 0 and uid_n == pending_uid
+			can_click = (not _item_blocks_hand_tax(it)) and ((not waiting) or is_pending)
 		elif not pending_feed.is_empty():
 			can_click = is_snack
 		elif _sling_pick_open():
@@ -24324,6 +24338,20 @@ func _clear_hotbar_overflow() -> void:
 		c.queue_free()
 
 
+func _hotbar_overflow_anchor_global() -> Vector2:
+	var gap: float = 8.0
+	var cw: float = HOTBAR_CARD_W
+	var ch: float = HOTBAR_CARD_H
+	var pr: Rect2
+	if hotbar_panel != null:
+		pr = hotbar_panel.get_global_rect()
+	elif hotbar_wrap != null:
+		pr = hotbar_wrap.get_global_rect()
+	else:
+		return Vector2.ZERO
+	return Vector2(pr.position.x + pr.size.x + gap + cw * 0.5, pr.position.y + pr.size.y * 0.5)
+
+
 func _place_hotbar_overflow() -> void:
 	if hotbar_overflow == null:
 		return
@@ -24343,12 +24371,16 @@ func _place_hotbar_overflow() -> void:
 		if sz.y > 8.0:
 			ch = sz.y
 	var n: int = kids.size()
-	var total: float = float(n) * cw + float(maxi(0, n - 1)) * gap
-	var host_w: float = hotbar_overflow.size.x
-	if host_w < 8.0 and hotbar_panel != null:
-		host_w = hotbar_panel.size.x
-	var start_x: float = (host_w - total) * 0.5
-	var y: float = -ch - 16.0
+	var origin: Vector2 = hotbar_overflow.global_position
+	var pr: Rect2
+	if hotbar_panel != null:
+		pr = hotbar_panel.get_global_rect()
+	elif hotbar_wrap != null:
+		pr = hotbar_wrap.get_global_rect()
+	else:
+		pr = Rect2(origin, Vector2(420.0, ch))
+	var start_x: float = pr.position.x + pr.size.x + gap - origin.x
+	var y: float = pr.position.y + (pr.size.y - ch) * 0.5 - origin.y
 	for i in range(n):
 		var card: Control = kids[i] as Control
 		if card == null:
