@@ -803,12 +803,16 @@ func _arm_twinkle(wrap: Control) -> void:
 		await twinkle.animation_finished
 		if is_instance_valid(twinkle):
 			twinkle.visible = false
-		if is_instance_valid(timer):
+		if is_instance_valid(timer) and timer.is_inside_tree():
 			timer.wait_time = randf_range(3.0, 6.0)
 			timer.start()
 	)
 	wrap.add_child(timer)
-	timer.start()
+	## wrap may be built before the case enters the tree
+	if timer.is_inside_tree():
+		timer.start()
+	else:
+		timer.autostart = true
 
 
 func _apply_state(_animate: bool) -> void:
@@ -838,11 +842,11 @@ func _apply_state(_animate: bool) -> void:
 		if locked:
 			pass
 		elif _state == BiomeCabinets.CaseState.IN_PROGRESS:
-			var g: Texture2D = _crest.get_meta("grey", null)
+			var g := _crest_tex("grey")
 			if g:
 				_crest.texture = g
 		else:
-			var idle: Texture2D = _crest.get_meta("idle", null)
+			var idle := _crest_tex("idle")
 			if idle:
 				_crest.texture = idle
 	## Crown hidden under sheet when locked
@@ -874,6 +878,13 @@ func _refresh_pips() -> void:
 		i += 1
 
 
+func _crest_tex(key: String) -> Texture2D:
+	if _crest == null or not _crest.has_meta(key):
+		return null
+	var v: Variant = _crest.get_meta(key)
+	return v as Texture2D if v is Texture2D else null
+
+
 func _set_peg_hits(on: bool) -> void:
 	for p in _pages.values():
 		if not (p is Control):
@@ -881,7 +892,10 @@ func _set_peg_hits(on: bool) -> void:
 		for child in (p as Control).get_children():
 			if not (child is Control):
 				continue
-			var hit_v: Variant = (child as Control).get_meta("hit", null)
+			var wrap := child as Control
+			if not wrap.has_meta("hit"):
+				continue
+			var hit_v: Variant = wrap.get_meta("hit")
 			if hit_v is Control:
 				(hit_v as Control).mouse_filter = Control.MOUSE_FILTER_STOP if on else Control.MOUSE_FILTER_IGNORE
 
@@ -890,11 +904,11 @@ func _on_case_enter() -> void:
 	if not input_enabled:
 		return
 	if _crest and _state != BiomeCabinets.CaseState.LOCKED and _state != BiomeCabinets.CaseState.IN_PROGRESS:
-		var h: Texture2D = _crest.get_meta("hover", null)
+		var h := _crest_tex("hover")
 		if h:
 			_crest.texture = h
 	elif _crest and _state == BiomeCabinets.CaseState.IN_PROGRESS:
-		var h2: Texture2D = _crest.get_meta("hover", null)
+		var h2 := _crest_tex("hover")
 		if h2:
 			_crest.texture = h2
 	case_hovered.emit(pool_id, _state != BiomeCabinets.CaseState.LOCKED)
@@ -903,11 +917,11 @@ func _on_case_enter() -> void:
 func _on_case_exit() -> void:
 	if _crest:
 		if _state == BiomeCabinets.CaseState.IN_PROGRESS:
-			var g: Texture2D = _crest.get_meta("grey", null)
+			var g := _crest_tex("grey")
 			if g:
 				_crest.texture = g
 		else:
-			var idle: Texture2D = _crest.get_meta("idle", null)
+			var idle := _crest_tex("idle")
 			if idle:
 				_crest.texture = idle
 	case_unhovered.emit()

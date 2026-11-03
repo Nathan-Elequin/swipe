@@ -2719,7 +2719,7 @@
 			"call_name": "",
 			"card_color": "heal",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "(HEAL 1 on exact -2 loss)",
 			"flow": "While this is in your hand, each time you lose exactly 2 HP in one event, Heal 1. Unplayable. You cannot click it.",
 			"hp_base": null,
@@ -2755,14 +2755,14 @@
 				"kind": "passive"
 			},
 			"pending_fields": {},
-			"pool": 3,
-			"priority": 3,
+			"pool": 3.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "Eject your Enemy. Draw an Item.",
@@ -4899,19 +4899,20 @@
 		},
 		{
 			"ability": "When I enter the Dungeon, I Gaze at 3 of your Items. As soon as you Use 1, the other 2 are Petrified until I am Defeated.",
-			"atk_base": 5.0,
+			"atk_base": 5,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Stone Gaze",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "Enter: Gaze 3 items. Use 1: the other Gazed items Petrify until Basilisk is Defeated",
 			"flow": "When I enter, Gaze up to 3 random items in the hand (Keep, Smoke, curses, tokens). Prefer unmarked items so two Basilisks can mark six. Short hand: Gaze however many you have. Gaze hover: when one Item with Gaze is used, all others are Petrified until the Basilisk is Defeated. Using one Gazed item (your click or Oligarch) Petrifies every other Gazed item, unique stone with Basilisk icon and tooltip Petrified while the Basilisk remains. Echo Bell that is not Gazed copies the item's effect and does not count as Using the Gazed card. Hovering one Gazed item warns on the others. Freed on Defeat/slay and Polymorph. Flee does not free. Catapult does not free; when that Basilisk comes back off the Dungeon Deck, Defeat or Polymorph it to free its marks. Quiet Bell on enter: no Gaze. 6 HP / 5 Attack.",
-			"hp_base": 6.0,
+			"hp_base": 6,
 			"hp_formula": "",
 			"id": "basilisk",
-			"locked_at": "2026-10-19",
+			"kind": "monster",
+			"locked_at": "2026-11-03",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4937,14 +4938,15 @@
 			"name": "Basilisk",
 			"notes": "Bucket 7. Same sprite. Gaze aura on 3. Warning glow on the other Gazed items while hovering one. Basilisk-icon petrify. Catapult does not free.",
 			"ops": {},
-			"pool": 5.0,
-			"priority": 3.0,
+			"pending_fields": {},
+			"pool": 5,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
-			"status": "live",
-			"tier": 3.0
+			"status": "hold",
+			"tier": 3
 		},
 		{
 			"ability": "Attack or Block values that are Even happen twice against me.",
@@ -6735,5 +6737,5 @@
 			"tier": 2.0
 		}
 	],
-	"updated": "2026-11-02"
+	"updated": "2026-11-03"
 }
