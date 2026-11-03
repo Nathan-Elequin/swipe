@@ -7,6 +7,7 @@ const CATALOG_PATH := "res://data/catalog.json"
 const RUNTIME_PATH := "res://data/runtime.json"
 const WHEEL_SCRIPT := preload("res://scripts/boss_wheel.gd")
 const ITEM_CARD := preload("res://scripts/item_card.gd")
+const MODE_CHOICE_OVERLAY := preload("res://scripts/mode_choice_overlay.gd")
 const HOVER_PANEL := preload("res://scripts/hover_panel.gd")
 const AUDIO_FX := preload("res://scripts/audio_fx.gd")
 const SETTINGS_MENU := preload("res://scripts/settings_menu.gd")
@@ -759,6 +760,8 @@ var btn_wrap: MarginContainer
 var hotbar_panel: PanelContainer
 var hotbar_overflow: Control
 var choice_overlay: Control
+## Look H cream panel above the starter seat (Knife / Net / Magnet).
+var mode_choice_layer: ModeChoiceOverlay = null
 var challenge_deck: Array = []
 var challenge_aim: int = -1
 var _unspin_armed: bool = false
@@ -1231,6 +1234,15 @@ func _build_ui() -> void:
 	root.add_theme_constant_override("margin_top", 8)
 	root.add_theme_constant_override("margin_bottom", 28)
 	add_child(root)
+
+	mode_choice_layer = MODE_CHOICE_OVERLAY.new()
+	mode_choice_layer.name = "ModeChoiceOverlay"
+	mode_choice_layer.z_index = 90
+	mode_choice_layer.visible = false
+	mode_choice_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mode_choice_layer.option_picked.connect(_choose_option)
+	mode_choice_layer.cancelled.connect(_cancel_item_selector)
+	add_child(mode_choice_layer)
 
 	var mid := HBoxContainer.new()
 	mid.add_theme_constant_override("separation", 16)
@@ -7211,6 +7223,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if not event.is_action_pressed("ui_cancel"):
+		return
+	## Look H: Esc dismisses the mode panel before opening Settings.
+	if _mode_choice_open():
+		_cancel_item_selector()
+		get_viewport().set_input_as_handled()
 		return
 	if playtest_tier != null and playtest_tier.visible:
 		playtest_tier.close_list()
@@ -24512,7 +24529,7 @@ func _sync_hotbar() -> void:
 			shown_n = str(pn)
 		card.set_live(shown_n, str(view["note"]), can_click)
 		if card.has_method("set_choice_badge"):
-			## Look C tags replace the idle "3 / 1" corner chip on the starter.
+			## Look H overlay covers the starter — hide the idle corner chip while open.
 			var mode_on_starter: bool = _mode_choice_open() and uid_n == _selector_starter_uid()
 			card.set_choice_badge("" if mode_on_starter else _choice_badge_text(it))
 		## Kill Brand New / uncollected shine on hotbar — keep New! badge + aura kit only.
@@ -24574,7 +24591,7 @@ func _sync_hotbar() -> void:
 			elif rust_hint or _beggar_marked(uid_n):
 				role = "warn"
 			elif mode_starter:
-				## Look C: focused starter keeps CHOICE aura while tags show.
+				## Look H: focused starter keeps CHOICE aura under the overlay panel.
 				role = "choice"
 			elif selector_on and uid_n != starter_uid and is_legal:
 				role = "choice"
@@ -24585,6 +24602,9 @@ func _sync_hotbar() -> void:
 			card.set_aura_role(role)
 		if card.has_method("set_cancel_pick"):
 			card.set_cancel_pick(selector_on and uid_n == starter_uid and starter_uid >= 0)
+		if card.has_method("set_cancel_corner"):
+			## Look H mode choose: X sits top-right on the starter (matches locked mock).
+			card.set_cancel_corner(mode_starter)
 		if card.has_method("set_selector_dim"):
 			var dim_me: bool = selector_on and uid_n != starter_uid and not _uid_in(legal_uids, uid_n)
 			## Mode choice: dim every non-starter seat (no legal hand targets).
@@ -24596,10 +24616,8 @@ func _sync_hotbar() -> void:
 		if card.has_method("set_toss_pick"):
 			card.set_toss_pick(_toss_pick_mode() and can_click)
 		if card.has_method("set_mode_tags"):
-			if mode_starter:
-				card.set_mode_tags(_mode_choice_tag_rows())
-			else:
-				card.set_mode_tags([])
+			## Look H killed in-chrome tags — always clear leftover Look C chrome.
+			card.set_mode_tags([])
 		if card.has_method("set_waiting_entry"):
 			card.set_waiting_entry(waiting)
 		if card.has_method("set_passive_icons"):
@@ -25024,6 +25042,8 @@ func _reapply_hotbar_aura_roles() -> void:
 		card.set_aura_role(role)
 		if card.has_method("set_cancel_pick"):
 			card.set_cancel_pick(selector_on and uid_n == starter_uid and starter_uid >= 0)
+		if card.has_method("set_cancel_corner"):
+			card.set_cancel_corner(_mode_choice_open() and uid_n == starter_uid and starter_uid >= 0)
 		if card.has_method("set_selector_dim"):
 			var dim_re: bool = selector_on and uid_n != starter_uid and not is_legal
 			if _mode_choice_open() and uid_n != starter_uid:
@@ -25147,8 +25167,8 @@ func _selector_take_word() -> String:
 
 
 func _clear_choice_overlay() -> void:
-	## Look C killed clone tiles over hotbar seats. Keep the overlay node empty
-	## so old deferred callers / undo snaps cannot leave floating ItemCards.
+	## Look H: never spawn ItemCard clones here. Keep the node empty so old
+	## deferred callers / undo snaps cannot leave floating tiles over seats.
 	if choice_overlay == null:
 		return
 	for c in choice_overlay.get_children():
@@ -25161,10 +25181,52 @@ func _rebuild_choice() -> void:
 	if choice_box:
 		choice_box.visible = false
 	_clear_choice_overlay()
-	## Mode labels live on the starter ItemCard via set_mode_tags (hotbar sync).
+	if mode_choice_layer != null and mode_choice_layer.has_method("clear"):
+		mode_choice_layer.clear()
+	if not _mode_choice_open():
+		return
+	call_deferred("_place_mode_choice_overlay")
 
 
-func _mode_choice_tag_rows() -> Array:
+func _place_mode_choice_overlay() -> void:
+	if mode_choice_layer == null or not _mode_choice_open():
+		return
+	if mode_choice_layer.has_method("clear"):
+		mode_choice_layer.clear()
+	var starter_uid: int = int(pending_choice.get("uid", -1))
+	var it: Dictionary = _find_item(starter_uid)
+	if it.is_empty():
+		return
+	var starter: Control = _hotbar_card_by_uid(starter_uid)
+	var anchor := Rect2(Vector2(840.0, 860.0), Vector2(172.0, 148.0))
+	if starter != null:
+		anchor = starter.get_global_rect()
+	var rows: Array = _mode_choice_overlay_rows(it)
+	if rows.is_empty():
+		return
+	var title: String = _title_case(str(it.get("name", "?")))
+	var prompt: String = _mode_choice_prompt(it)
+	var cid: String = str(it.get("card_id", ""))
+	## Knife = two big side-by-side targets. Net / Magnet = stacked rows.
+	var layout: String = "rows"
+	if cid == "throwing_knife" or (rows.size() == 2 and not _is_magnet(it) and cid != "net"):
+		layout = "knife"
+	var icon: Texture2D = _item_icon_tex(it)
+	mode_choice_layer.show_choice(title, prompt, layout, rows, icon, anchor)
+
+
+func _mode_choice_prompt(it: Dictionary) -> String:
+	## Locked Look H mock prompts. Fallbacks only — Jam owns player-copy keys.
+	var cid: String = str(it.get("card_id", ""))
+	if cid == "throwing_knife":
+		return PLAYER_COPY.text("combat.knife_choose_prompt", "choose a throw")
+	if cid == "net":
+		return PLAYER_COPY.text("combat.net_choose_prompt", "how much Attack to strip?")
+	## Magnet: do not invent a prompt beyond existing option strings.
+	return ""
+
+
+func _mode_choice_overlay_rows(it: Dictionary) -> Array:
 	## Player-facing strings only — reuse option labels / Jam knife keys. No new copy.
 	var rows: Array = []
 	if not _mode_choice_open():
@@ -25179,7 +25241,28 @@ func _mode_choice_tag_rows() -> Array:
 			lab = PLAYER_COPY.text("combat.knife_throw", lab)
 		elif oid == "nick":
 			lab = PLAYER_COPY.text("combat.knife_nick", lab)
-		rows.append({"label": lab, "opt": opt})
+		## ASCII hyphen OK for Net labels in code / display.
+		lab = lab.replace("−", "-").replace("–", "-")
+		var row := {"label": lab, "opt": opt, "badge": "", "pips": 0, "primary": lab, "secondary": ""}
+		if oid == "throw" or (opt.has("keep") and not bool(opt.get("keep", true))):
+			row["badge"] = "throw"
+			var parts_t: PackedStringArray = lab.split(",", true, 1)
+			row["primary"] = (str(parts_t[0]).strip_edges() + ",") if parts_t.size() > 1 else lab
+			row["secondary"] = str(parts_t[1]).strip_edges() if parts_t.size() > 1 else ""
+		elif oid == "nick" or bool(opt.get("keep", false)):
+			row["badge"] = "keep"
+			var parts_k: PackedStringArray = lab.split(",", true, 1)
+			row["primary"] = (str(parts_k[0]).strip_edges() + ",") if parts_k.size() > 1 else lab
+			row["secondary"] = str(parts_k[1]).strip_edges() if parts_k.size() > 1 else ""
+		if opt.has("atk_drop"):
+			row["pips"] = clampi(int(opt.get("atk_drop", 0)), 0, 3)
+		elif oid == "drop1":
+			row["pips"] = 1
+		elif oid == "drop2":
+			row["pips"] = 2
+		elif oid == "drop3":
+			row["pips"] = 3
+		rows.append(row)
 	return rows
 
 
