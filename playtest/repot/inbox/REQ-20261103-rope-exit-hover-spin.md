@@ -3,7 +3,7 @@ id: REQ-20261103-rope-exit-hover-spin
 status: open
 priority: normal
 branch: cursor/rope-exit-hover-spin-23de
-tip_sha: pending
+tip_sha: cc977e95
 created: 2026-11-03T22:35:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
