@@ -52,14 +52,19 @@ var _busy: bool = false
 var _chrome: Array = []
 var _loot_host: Control
 var _loot_count: int = 0
-## Crypt Classic cavern plates. Old cozy ladder/hole/torch sprites clash — keep
-## nodes for hover/anim hooks, but hide the art. Diegetic hits are hatch + gate.
+## Crypt Classic: cozy hole/torch stay hidden. Rope ladder is the diegetic Climb
+## (Nathan lock 2026-11-03) — centered on the skylight shaft. Hatch plate stays
+## on disk but hidden so the open shaft + ladder read clean.
 var _legacy_decor_visible: bool = false
 var _gate_frame: TextureRect
 var _gate_chains: TextureRect
 var _gate_open: TextureRect
 var _gate_portal ## scripts/cabin/gate_portal.gd — spiral behind GateFrame
 var _hatch: TextureRect
+## Fullscreen ColorRect for Climb leave wipe (moves UP over the cavern).
+var _climb_wipe: ColorRect
+var _ladder_rest: Vector2 = Vector2.ZERO
+var _climb_hot_tw: Tween
 ## Chip next biome id (b1–b5). Empty → sealed portal.
 var _next_biome_id: String = ""
 ## Imported for a follow-up socket-fill puzzle; not shown in v1.
@@ -74,17 +79,25 @@ const TALLY_ORIGIN := Vector2(368, 328)
 const TALLY_SIZE := Vector2(224, 176)
 const TALLY_MAX := 50
 ## Option A (2026-11-03): measured plant from Nathan F5 + Pixel annot.
-## Hatch clips into ceiling (negative y intentional). Gate posts on floor (bottom ≈ 891).
+## Hatch plate coords kept for shaft center math; art hidden when ladder shows.
+## Gate posts on floor (bottom ≈ 891).
 const HATCH_PLATE := Rect2(693, -40, 256, 256)
+## Tip rope_ladder_f* is already 160×904 screen px (rope, not chrome). Center on
+## hatch/skylight x = 693+128 = 821 → left 741. Tuck top into the shaft opening.
+const LADDER_PLATE := Rect2(741, -40, 160, 904)
 const GATE_PLATE := Rect2(1180, 379, 384, 512)
 ## Measured from rope_exit_gate_frame.png (384×512): posts opaque, aperture 64..319 × 64..511.
 const GATE_APERTURE := Rect2(1244, 443, 256, 448)
 ## Soft floor contact under the arch onto the cavern floor (below plant bottom ≈ 891).
 const GATE_FLOOR_SHADOW := Rect2(1252, 868, 240, 56)
-const HATCH_HIT := Rect2(693, 0, 287, 320)
+## Climb hits: full ladder column + floor rope coil (same Climb handler).
+const LADDER_HIT := Rect2(721, 0, 200, 920)
 const ROPE_COIL_HIT := Rect2(620, 820, 160, 140)
 const HOT_MOD := Color(1.12, 1.1, 0.95, 1.0)
 const HOT_IDLE := Color(1, 1, 1, 1)
+const LADDER_IDLE_FPS := 1000.0 / 220.0
+const LADDER_HOT_FPS := 1000.0 / 110.0
+const WIPE_COLOR := Color("080605")
 
 
 func setup(p_cabin, p_extra: Dictionary) -> void:
@@ -118,18 +131,39 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	add_child(torch)
 	if _legacy_decor_visible and torch.sprite_frames:
 		torch.play("t")
-	_ladder = KIT.anim_sprite(
-		["overlays/rope_ladder_f0.png", "overlays/rope_ladder_f1.png", "overlays/rope_ladder_f2.png", "overlays/rope_ladder_f1.png"],
-		"l", 1000.0 / 220.0, true, Vector2(96, 0)
-	)
+	# Tip rope_ladder_f* already reads as rope (160×904). Plant in screen space
+	# centered on the Crypt Classic skylight — do not use cozy native×4 origin.
+	var ladder_r := _layout_rect("Ladder", LADDER_PLATE)
+	_ladder = AnimatedSprite2D.new()
+	_ladder.name = "RopeLadder"
+	_ladder.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_ladder.centered = false
+	_ladder.position = ladder_r.position
 	_ladder.z_index = 3
-	_ladder.visible = _legacy_decor_visible
+	_ladder.sprite_frames = KIT.frames(
+		["overlays/rope_ladder_f0.png", "overlays/rope_ladder_f1.png", "overlays/rope_ladder_f2.png", "overlays/rope_ladder_f1.png"],
+		"l",
+		LADDER_IDLE_FPS,
+		true
+	)
+	_ladder_rest = ladder_r.position
+	_ladder.visible = true
 	add_child(_ladder)
-	if _legacy_decor_visible and _ladder.sprite_frames:
+	if _ladder.sprite_frames and _ladder.sprite_frames.get_frame_count("l") > 0:
 		_ladder.play("l")
-	_ladder_hover = KIT.tex_rect("overlays/rope_ladder_hover.png", Vector2(96, 0), Vector2(40, 226), 3)
+	_ladder_hover = TextureRect.new()
+	_ladder_hover.name = "RopeLadderHover"
+	_ladder_hover.texture = KIT.load_tex("overlays/rope_ladder_hover.png")
+	_ladder_hover.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_ladder_hover.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_ladder_hover.stretch_mode = TextureRect.STRETCH_SCALE
+	_ladder_hover.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ladder_hover.position = ladder_r.position
+	_ladder_hover.size = ladder_r.size
+	_ladder_hover.z_index = 3
 	_ladder_hover.visible = false
 	add_child(_ladder_hover)
+	_build_climb_wipe()
 	_hole = KIT.tex_rect("overlays/deeper_hole_idle.png", Vector2(250, 214), Vector2(96, 40), 3)
 	_hole.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hole.visible = _legacy_decor_visible
@@ -176,21 +210,23 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	add_child(_dialog)
 
 
-## Layer order (bottom → top under chrome): cavern BG, hatch (shaft), portal stack,
-## GateFrame (posts/lintel clip the swirl), tallies. Painterly chains / gate_open
-## clash with Crypt Classic — keep files, hide.
+## Layer order (bottom → top under chrome): cavern BG, hatch (hidden shaft cap),
+## portal stack, GateFrame (posts/lintel clip the swirl), tallies, rope ladder.
+## Painterly chains / gate_open clash with Crypt Classic — keep files, hide.
 func _build_cavern_props() -> void:
 	var hatch_rect := _layout_rect("Hatch", HATCH_PLATE)
 	var gate_rect := _layout_rect("GateFrame", GATE_PLATE)
 	var aperture := _layout_rect("GateAperture", GATE_APERTURE)
 	var floor_shadow := _layout_rect("GateFloorShadow", GATE_FLOOR_SHADOW)
-	# Hatch PNG is 256×256 Crypt Classic; sit over the green shaft (top-center).
+	# Hatch PNG kept for shaft math / later reuse; hidden so the rope ladder
+	# reads as Climb through the open skylight (Climb C lock 2026-11-03).
 	_hatch = _plate_rect(
 		"overlays/rope_exit_hatch.png",
 		hatch_rect,
 		1,
 		"HomeHatch"
 	)
+	_hatch.visible = false
 	add_child(_hatch)
 	# Portal BEFORE GateFrame so wood posts/lintel draw on top and clip the spiral.
 	_gate_portal = GATE_PORTAL_SCR.new()
@@ -249,6 +285,29 @@ func _plate_rect(rel: String, r: Rect2, z: int, node_name: String) -> TextureRec
 	tr.size = r.size
 	tr.z_index = z
 	return tr
+
+
+func _build_climb_wipe() -> void:
+	_climb_wipe = ColorRect.new()
+	_climb_wipe.name = "ClimbWipe"
+	_climb_wipe.color = WIPE_COLOR
+	_climb_wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_climb_wipe.z_index = 100
+	_climb_wipe.visible = false
+	_climb_wipe.process_mode = Node.PROCESS_MODE_ALWAYS
+	_climb_wipe.position = Vector2(0, KIT.ROOM_H)
+	_climb_wipe.size = Vector2(KIT.ROOM_W, KIT.ROOM_H)
+	add_child(_climb_wipe)
+
+
+func _reset_climb_wipe() -> void:
+	if _climb_wipe == null:
+		return
+	_climb_wipe.visible = false
+	_climb_wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_climb_wipe.modulate = Color(1, 1, 1, 1)
+	_climb_wipe.position = Vector2(0, KIT.ROOM_H)
+	_climb_wipe.size = Vector2(KIT.ROOM_W, KIT.ROOM_H)
 
 
 ## Visual-only for now. No unlock flag / socket gameplay in this PR.
@@ -421,8 +480,22 @@ func _reset_hero_pose() -> void:
 		_hero.modulate = Color(1, 1, 1, 1)
 		_hero.texture = KIT.load_tex("hero/hero_idle_loot_f0.png")
 		_hero.visible = true
+	if _ladder:
+		_ladder.position = _ladder_rest
+		_ladder.modulate = HOT_IDLE
+		if _ladder.sprite_frames:
+			_ladder.sprite_frames.set_animation_speed("l", LADDER_IDLE_FPS)
+			if not _ladder.is_playing():
+				_ladder.play("l")
+	if _ladder_hover:
+		_ladder_hover.visible = false
+		_ladder_hover.position = _ladder_rest
+		_ladder_hover.modulate = HOT_IDLE
+	_kill_climb_hot_tw()
+	_reset_climb_wipe()
 	if _hatch:
 		_hatch.modulate = HOT_IDLE
+		_hatch.visible = false
 	if _gate_frame:
 		_gate_frame.modulate = HOT_IDLE
 	if _gate_portal and _gate_portal.has_method("set_hot"):
@@ -470,6 +543,8 @@ func hide_exit() -> void:
 	_hide_exit_tip()
 	_clear_loot()
 	_hide_nib()
+	_kill_climb_hot_tw()
+	_reset_climb_wipe()
 	_interrupt_open = false
 	if _dialog and _dialog.has_method("dismiss"):
 		_dialog.dismiss()
@@ -690,7 +765,7 @@ func _build_chrome() -> void:
 	)
 	add_child(sign_lab)
 	_chrome.append(sign_lab)
-	# Option A: Climb/Delve chrome planks removed. Hotspots on hatch + gate drive exits.
+	# Option A: Climb/Delve chrome planks removed. Hotspots on ladder + gate drive exits.
 	_peek_btn = null
 
 
@@ -760,11 +835,11 @@ func _hide_exit_tip() -> void:
 
 
 func _build_hotspots() -> void:
-	# Climb = hatch/shaft + rope coil (same action). Delve = floor-planted gate.
+	# Climb = rope ladder (skylight shaft) + floor rope coil. Delve = floor gate.
 	_hatch_hit = _make_hit(
-		"HatchHit",
-		_layout_rect("Hatch.Hit", HATCH_HIT),
-		int(KIT.layout_el(_lay, "Hatch.Hit").get("z", 2)),
+		"LadderHit",
+		_layout_rect("Ladder.Hit", LADDER_HIT),
+		int(KIT.layout_el(_lay, "Ladder.Hit").get("z", 2)),
 		_set_climb_hot,
 		_on_climb
 	)
@@ -827,7 +902,7 @@ func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = fals
 		_gate_portal.set_next_biome(_next_biome_id if campaign else "")
 	_apply_banner()
 	_apply_sub_line()
-	# Climb/Delve planks gone — diegetic hatch + gate hotspots always drive both doors.
+	# Climb/Delve planks gone — diegetic ladder + gate hotspots always drive both doors.
 	if _gate_hit:
 		_gate_hit.visible = true
 	if _hatch_hit:
@@ -868,19 +943,50 @@ func _refresh_next_carry() -> void:
 func _set_climb_hot(on: bool, hit: Control = null) -> void:
 	if _interrupt_open:
 		return
-	if _legacy_decor_visible:
+	if _ladder and _ladder.sprite_frames:
+		_ladder.sprite_frames.set_animation_speed("l", LADDER_HOT_FPS if on else LADDER_IDLE_FPS)
+		_ladder.modulate = HOT_MOD if on else HOT_IDLE
+	if _ladder_hover:
 		_ladder_hover.visible = on
-		if _ladder and _ladder.sprite_frames:
-			_ladder.sprite_frames.set_animation_speed("l", 1000.0 / (110.0 if on else 220.0))
-	if _hatch:
-		_hatch.modulate = HOT_MOD if on else HOT_IDLE
+		_ladder_hover.modulate = HOT_MOD if on else HOT_IDLE
+	_set_ladder_sway(on)
 	if on:
 		KIT.cue(cabin.sfx if cabin else null, &"cabin.hover")
 		KIT.cue(cabin.sfx if cabin else null, &"amb.rope_creak")
-		# Spin-locked Climb strings — Hatch.Hit + RopeCoil.Hit share these.
+		# Spin-locked Climb strings — Ladder.Hit + RopeCoil.Hit share these.
 		_show_exit_tip("rope.home", "rope.home.sub", {}, hit)
 	elif hit == null or hit == _hover_tip_hit:
 		_hide_exit_tip()
+
+
+func _kill_climb_hot_tw() -> void:
+	if _climb_hot_tw and _climb_hot_tw.is_valid():
+		_climb_hot_tw.kill()
+	_climb_hot_tw = null
+
+
+func _set_ladder_sway(on: bool) -> void:
+	_kill_climb_hot_tw()
+	if _ladder == null:
+		return
+	_ladder.position = _ladder_rest
+	if _ladder_hover:
+		_ladder_hover.position = _ladder_rest
+	if not on:
+		return
+	# Slight idle sway while hovered — reads as rope, not a rigid prop.
+	_climb_hot_tw = create_tween()
+	_climb_hot_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	_climb_hot_tw.set_loops()
+	_climb_hot_tw.tween_property(_ladder, "position:x", _ladder_rest.x + 3.0, 0.18)
+	if _ladder_hover:
+		_climb_hot_tw.parallel().tween_property(_ladder_hover, "position:x", _ladder_rest.x + 3.0, 0.18)
+	_climb_hot_tw.tween_property(_ladder, "position:x", _ladder_rest.x - 3.0, 0.36)
+	if _ladder_hover:
+		_climb_hot_tw.parallel().tween_property(_ladder_hover, "position:x", _ladder_rest.x - 3.0, 0.36)
+	_climb_hot_tw.tween_property(_ladder, "position:x", _ladder_rest.x, 0.18)
+	if _ladder_hover:
+		_climb_hot_tw.parallel().tween_property(_ladder_hover, "position:x", _ladder_rest.x, 0.18)
 
 
 func _set_delve_hot(on: bool, hit: Control = null) -> void:
@@ -956,25 +1062,52 @@ func _hide_nib() -> void:
 
 
 func _do_climb() -> void:
+	## Climb C lock (2026-11-03): ladder jiggle → Sprout dissolve → wipe UP.
+	## No hero_climb_f0/f1 up-shaft loop.
 	_busy = true
 	_hide_exit_tip()
+	_kill_climb_hot_tw()
 	KIT.cue(cabin.sfx if cabin else null, &"cabin.click")
-	# Center under the shaft, then climb UP into the hatch (option A).
-	var hatch_r := _layout_rect("Hatch", HATCH_PLATE)
-	var under_x: float = hatch_r.position.x + hatch_r.size.x * 0.5 - 64.0
-	var tw := create_tween()
-	tw.tween_property(_hero, "position:x", under_x, 0.28)
-	await tw.finished
-	_hero.texture = KIT.load_tex("hero/hero_climb_f0.png")
-	var tw2 := create_tween()
-	tw2.tween_property(_hero, "position:y", -160.0, 1.6)
-	tw2.parallel().tween_property(_hero, "modulate:a", 0.0, 1.4)
-	var t := 0.0
-	while t < 1.6:
-		await get_tree().create_timer(0.32).timeout
-		t += 0.32
-		KIT.cue(cabin.sfx if cabin else null, &"cabin.rope_climb")
-		_hero.texture = KIT.load_tex("hero/hero_climb_f%d.png" % (int(t / 0.16) % 2))
+	if _ladder_hover:
+		_ladder_hover.visible = false
+	if _ladder:
+		_ladder.modulate = HOT_IDLE
+		_ladder.position = _ladder_rest
+		if _ladder.sprite_frames:
+			_ladder.sprite_frames.set_animation_speed("l", LADDER_IDLE_FPS)
+	# Hero already stands under the shaft (KIT.pt 188,208). Keep idle pose.
+	if _hero:
+		_hero.texture = KIT.load_tex("hero/hero_idle_loot_f0.png")
+	# 1) Short ladder jiggle (rope shake).
+	KIT.cue(cabin.sfx if cabin else null, &"amb.rope_creak")
+	if _ladder:
+		var jig := create_tween()
+		jig.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		var rest_x: float = _ladder_rest.x
+		jig.tween_property(_ladder, "position:x", rest_x + 8.0, 0.05)
+		jig.tween_property(_ladder, "position:x", rest_x - 8.0, 0.05)
+		jig.tween_property(_ladder, "position:x", rest_x + 6.0, 0.05)
+		jig.tween_property(_ladder, "position:x", rest_x - 6.0, 0.05)
+		jig.tween_property(_ladder, "position:x", rest_x, 0.05)
+		await jig.finished
+	# 2) Dissolve Sprout in place (no climb frames).
+	KIT.cue(cabin.sfx if cabin else null, &"cabin.rope_climb")
+	if _hero:
+		var fade := create_tween()
+		fade.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		fade.tween_property(_hero, "modulate:a", 0.0, 0.28)
+		await fade.finished
+	# 3) Quick vertical wipe UP, then leave.
+	if _climb_wipe:
+		_climb_wipe.visible = true
+		_climb_wipe.mouse_filter = Control.MOUSE_FILTER_STOP
+		_climb_wipe.modulate = Color(1, 1, 1, 1)
+		_climb_wipe.size = Vector2(KIT.ROOM_W, KIT.ROOM_H)
+		_climb_wipe.position = Vector2(0, KIT.ROOM_H)
+		var wipe := create_tween()
+		wipe.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		wipe.tween_property(_climb_wipe, "position:y", 0.0, 0.32)
+		await wipe.finished
 	hide_exit()
 	climb.emit()
 
