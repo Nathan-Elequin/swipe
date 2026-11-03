@@ -3,7 +3,7 @@ id: REQ-20261103-spinning-top-art
 status: open
 priority: normal
 branch: cursor/spinning-top-art-wire-ebbe
-tip_sha: pending
+tip_sha: ef9fcf50
 created: 2026-11-03T17:24:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
