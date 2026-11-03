@@ -6,6 +6,8 @@ signal hovered
 signal unhovered
 signal edit_wanted
 signal passed_swipe
+## Look C: in-chrome mode tag clicked (Knife / Net / Magnet). Payload is the option dict.
+signal mode_option_picked(opt: Dictionary)
 
 const COPY := preload("res://scripts/player_copy.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
@@ -140,6 +142,10 @@ var _cancel_pick: bool = false
 var _selector_dim: bool = false
 var _cancel_x: TextureRect
 var _cancel_disc: ColorRect
+## Look C — cream mode tags inside this card's chrome (not clone tiles over seats).
+var _mode_tag_box: VBoxContainer
+var _mode_tag_rows: Array = []
+var _mode_tags_on: bool = false
 var _no_effect: bool = false
 var _sparkle_t: float = 0.0
 var _desat: float = 0.0
@@ -1190,8 +1196,8 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 		if _or:
 			_or.visible = false
 		if _ghost:
-			_ghost.visible = true
-		_num.visible = number_text != ""
+			_ghost.visible = not _mode_tags_on
+		_num.visible = number_text != "" and not _mode_tags_on
 		if number_text != "" and number_text != _shown and _shown != "":
 			_dissolve(_shown, number_text)
 		else:
@@ -1200,6 +1206,12 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 	else:
 		_shown = number_text
 		_num.text = number_text
+		if _or:
+			_or.visible = false
+	if _mode_tags_on:
+		_num.visible = false
+		if _ghost:
+			_ghost.visible = false
 		if _or:
 			_or.visible = false
 	if _glow or _aura or _log_focus or _danger:
@@ -1218,7 +1230,7 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 	_sync_lock_shade()
 	if _mark != null and not _formula_on:
 		var beside: bool = _mark_sits_beside(number_text)
-		_mark.visible = _mark.texture != null and (number_text == "" or beside)
+		_mark.visible = (not _mode_tags_on) and _mark.texture != null and (number_text == "" or beside)
 		_mark.modulate.a = 0.95
 		_layout_mark(number_text)
 	_layout_atk_pip()
@@ -1233,7 +1245,7 @@ func set_glyphs(rows: Array) -> void:
 
 
 func _apply_glyph_vis() -> void:
-	var on := not _glyph_rows.is_empty() and not _formula_on
+	var on := not _glyph_rows.is_empty() and not _formula_on and not _mode_tags_on
 	if _face != null:
 		_face.visible = on
 	if not on:
@@ -1711,6 +1723,7 @@ func set_playable(on: bool) -> void:
 func set_cancel_pick(on: bool) -> void:
 	_cancel_pick = on
 	_ensure_cancel_mark()
+	_place_cancel_mark()
 	if _cancel_disc != null:
 		_cancel_disc.visible = on
 	if _cancel_x != null:
@@ -1730,6 +1743,108 @@ func set_selector_dim(on: bool) -> void:
 	queue_redraw()
 
 
+## Look C: cream tags under the sprite, same seat height. `rows` is
+## [{ "label": String, "opt": Dictionary }, ...] — labels already player-facing.
+func set_mode_tags(rows: Array) -> void:
+	_mode_tag_rows = rows.duplicate()
+	_mode_tags_on = not rows.is_empty()
+	_ensure_mode_tag_box()
+	for child in _mode_tag_box.get_children():
+		_mode_tag_box.remove_child(child)
+		child.queue_free()
+	_mode_tag_box.visible = _mode_tags_on
+	var n: int = rows.size()
+	## 2-mode: sprite shrinks a touch. 3-mode: cram OK — tags may kiss the sprite.
+	var icon_px: float = IDLE_ICON
+	if _mode_tags_on and not _showcase:
+		icon_px = 40.0 if n >= 3 else 46.0
+	if _icon != null and not _showcase:
+		_icon.custom_minimum_size = Vector2(icon_px, icon_px)
+	if _num_host != null and not _showcase:
+		_num_host.visible = not _mode_tags_on
+		_num_host.size_flags_vertical = Control.SIZE_SHRINK_BEGIN if _mode_tags_on else Control.SIZE_EXPAND_FILL
+		if _mode_tags_on:
+			_num_host.custom_minimum_size = Vector2(CARD_W - 14.0, 0.0)
+		else:
+			_num_host.custom_minimum_size = Vector2(CARD_W - 14.0, IDLE_FACE_HOST_MIN_H)
+	if _mode_tags_on:
+		_mode_tag_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		var tag_h: float = 18.0 if n <= 2 else 15.0
+		var font_px: int = 12 if n <= 2 else 11
+		for i in n:
+			if typeof(rows[i]) != TYPE_DICTIONARY:
+				continue
+			var row: Dictionary = rows[i]
+			var lab: String = str(row.get("label", "?"))
+			var opt: Dictionary = row.get("opt", {}) if typeof(row.get("opt", {})) == TYPE_DICTIONARY else {}
+			var btn := _make_mode_tag_button(lab, font_px, tag_h)
+			btn.pressed.connect(_on_mode_tag_pressed.bind(opt))
+			_mode_tag_box.add_child(btn)
+	else:
+		_mode_tag_box.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		_mode_tag_box.custom_minimum_size = Vector2.ZERO
+	_place_cancel_mark()
+	queue_redraw()
+
+
+func _on_mode_tag_pressed(opt: Dictionary) -> void:
+	mode_option_picked.emit(opt)
+
+
+func _ensure_mode_tag_box() -> void:
+	if _mode_tag_box != null:
+		return
+	_mode_tag_box = VBoxContainer.new()
+	_mode_tag_box.name = "ModeTags"
+	_mode_tag_box.visible = false
+	_mode_tag_box.alignment = BoxContainer.ALIGNMENT_END
+	_mode_tag_box.add_theme_constant_override("separation", 2)
+	_mode_tag_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_mode_tag_box.mouse_filter = Control.MOUSE_FILTER_PASS
+	## Sit under the sprite inside the same VBox — no card-height growth.
+	if _col != null and _num_host != null and _num_host.get_parent() == _col:
+		_col.add_child(_mode_tag_box)
+		_col.move_child(_mode_tag_box, _num_host.get_index())
+	elif _col != null:
+		_col.add_child(_mode_tag_box)
+	else:
+		_overlay_host().add_child(_mode_tag_box)
+
+
+func _make_mode_tag_button(lab: String, font_px: int, tag_h: float) -> Button:
+	var btn := Button.new()
+	btn.text = lab
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	btn.custom_minimum_size = Vector2(0.0, tag_h)
+	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn.add_theme_font_size_override("font_size", font_px)
+	btn.add_theme_color_override("font_color", Color("100e0c"))
+	btn.add_theme_color_override("font_hover_color", Color("100e0c"))
+	btn.add_theme_color_override("font_pressed_color", Color("100e0c"))
+	btn.add_theme_color_override("font_focus_color", Color("100e0c"))
+	btn.add_theme_stylebox_override("normal", _mode_tag_style(Color("F3E6C8"), Color("100e0c")))
+	btn.add_theme_stylebox_override("hover", _mode_tag_style(Color("FFF1D2"), Color("100e0c")))
+	btn.add_theme_stylebox_override("pressed", _mode_tag_style(Color("E2D2A8"), Color("100e0c")))
+	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	btn.clip_text = true
+	btn.autowrap_mode = TextServer.AUTOWRAP_OFF
+	return btn
+
+
+func _mode_tag_style(fill: Color, rim: Color) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = fill
+	sb.border_color = rim
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(6)
+	sb.content_margin_left = 4.0
+	sb.content_margin_right = 4.0
+	sb.content_margin_top = 1.0
+	sb.content_margin_bottom = 1.0
+	return sb
+
+
 func _ensure_cancel_mark() -> void:
 	if _cancel_disc != null and _cancel_x != null:
 		return
@@ -1739,11 +1854,6 @@ func _ensure_cancel_mark() -> void:
 	_cancel_disc.color = Color("100e0c", 0.72)
 	_cancel_disc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_cancel_disc.z_index = 24
-	_cancel_disc.set_anchors_preset(Control.PRESET_CENTER)
-	_cancel_disc.offset_left = -22.0
-	_cancel_disc.offset_top = -22.0
-	_cancel_disc.offset_right = 22.0
-	_cancel_disc.offset_bottom = 22.0
 	_cancel_disc.visible = false
 	host.add_child(_cancel_disc)
 	_cancel_x = TextureRect.new()
@@ -1753,16 +1863,43 @@ func _ensure_cancel_mark() -> void:
 	_cancel_x.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_cancel_x.texture_filter = TEXTURE_FILTER_NEAREST
 	_cancel_x.z_index = 25
-	_cancel_x.set_anchors_preset(Control.PRESET_CENTER)
-	_cancel_x.offset_left = -20.0
-	_cancel_x.offset_top = -20.0
-	_cancel_x.offset_right = 20.0
-	_cancel_x.offset_bottom = 20.0
 	var x_path := "res://assets/ui/map/map_close_x_normal.png"
 	if ResourceLoader.exists(x_path):
 		_cancel_x.texture = load(x_path) as Texture2D
 	_cancel_x.visible = false
 	host.add_child(_cancel_x)
+	_place_cancel_mark()
+	if not resized.is_connected(_place_cancel_mark):
+		resized.connect(_place_cancel_mark)
+
+
+func _place_cancel_mark() -> void:
+	if _cancel_disc == null or _cancel_x == null:
+		return
+	## Mode tags (Look C): X sits top-right so tags stay readable.
+	## Hand pick / wheel aim: X stays centered over the sprite (cancel affordance).
+	if _mode_tags_on and not _showcase:
+		_cancel_disc.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		_cancel_disc.offset_left = -28.0
+		_cancel_disc.offset_top = 4.0
+		_cancel_disc.offset_right = -4.0
+		_cancel_disc.offset_bottom = 28.0
+		_cancel_x.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		_cancel_x.offset_left = -26.0
+		_cancel_x.offset_top = 6.0
+		_cancel_x.offset_right = -6.0
+		_cancel_x.offset_bottom = 26.0
+	else:
+		_cancel_disc.set_anchors_preset(Control.PRESET_CENTER)
+		_cancel_disc.offset_left = -22.0
+		_cancel_disc.offset_top = -22.0
+		_cancel_disc.offset_right = 22.0
+		_cancel_disc.offset_bottom = 22.0
+		_cancel_x.set_anchors_preset(Control.PRESET_CENTER)
+		_cancel_x.offset_left = -20.0
+		_cancel_x.offset_top = -20.0
+		_cancel_x.offset_right = 20.0
+		_cancel_x.offset_bottom = 20.0
 
 
 func _process(delta: float) -> void:
