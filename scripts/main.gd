@@ -2613,6 +2613,8 @@ func _enter_dungeon_clear() -> void:
 	# so we must refresh again after rest, or the rope never opens (itch soft-lock).
 	await _play_clear_parade()
 	dungeons_cleared += 1
+	if home_cabin and home_cabin.has_method("note_dungeon_clear"):
+		home_cabin.note_dungeon_clear()
 	_advance_bucket_counter()
 	phase = "rest"
 	_log("end", "dungeon %s" % dungeons_cleared)

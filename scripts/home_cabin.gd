@@ -55,6 +55,9 @@ var key_ring_seen: bool = false
 var invert_scroll: bool = false
 var ending_seen: bool = false
 var deepest_belly: int = 0
+## Lifetime dungeon clears across runs (Nathan lock). Drives Rope Exit wall tallies.
+## Not the same as deepest_belly (best depth) or main.dungeons_cleared (per-run).
+var lifetime_dungeons_cleared: int = 0
 var met_monsters: Dictionary = {}
 var last_route: String = ""
 var radio_station: int = 0
@@ -328,6 +331,12 @@ func note_belly(n: int) -> void:
 	if n > deepest_belly:
 		deepest_belly = n
 		_save()
+
+
+## One lifetime tally mark every time the player clears a dungeon. Survives home / new runs.
+func note_dungeon_clear() -> void:
+	lifetime_dungeons_cleared = maxi(0, lifetime_dungeons_cleared) + 1
+	_save()
 
 
 func is_swiped(id: String) -> bool:
@@ -3289,6 +3298,7 @@ func _apply_defaults() -> void:
 	key_ring_seen = false
 	ending_seen = false
 	deepest_belly = 0
+	lifetime_dungeons_cleared = 0
 	mudroom_loadout = []
 	last_route = ""
 	radio_station = 0
@@ -3347,6 +3357,7 @@ func _read_v2(parsed: Dictionary) -> void:
 	invert_scroll = bool(parsed.get("invert_scroll", false))
 	ending_seen = bool(parsed.get("ending_seen", false))
 	deepest_belly = int(parsed.get("deepest_belly", 0))
+	lifetime_dungeons_cleared = int(parsed.get("lifetime_dungeons_cleared", 0))
 	for m in parsed.get("met_monsters", []):
 		met_monsters[str(m)] = true
 	last_route = str(parsed.get("last_route", ""))
@@ -3398,6 +3409,7 @@ func _save() -> void:
 	data["invert_scroll"] = invert_scroll
 	data["ending_seen"] = ending_seen
 	data["deepest_belly"] = deepest_belly
+	data["lifetime_dungeons_cleared"] = lifetime_dungeons_cleared
 	data["met_monsters"] = met_monsters.keys()
 	data["last_route"] = last_route
 	data["radio_station"] = radio_station
