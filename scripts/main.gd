@@ -9667,6 +9667,8 @@ func _use_item(uid: int) -> void:
 				sfx.play("error", -10.0)
 			_undo_abort()
 			return
+		_log_begin_item(it)
+		_pending_echo_snap = _item_echo_snapshot(it)
 		if kind == "signpost":
 			_gain_blk(7)
 			_log("on_item_use", str(it.get("name", "Signpost")))
@@ -16327,11 +16329,12 @@ func _echo_face(it: Dictionary) -> Dictionary:
 
 func _remember_item_use(it: Dictionary) -> void:
 	var snap: Dictionary = {}
-	if str(it.get("card_id", "")) == "echo_bell":
+	var used_id: String = str(it.get("card_id", ""))
+	if used_id == "echo_bell":
 		var face: Dictionary = _echo_face(it)
 		if not face.is_empty():
 			snap = face.duplicate(true)
-	elif not _pending_echo_snap.is_empty():
+	elif not _pending_echo_snap.is_empty() and str(_pending_echo_snap.get("card_id", "")) == used_id:
 		snap = _pending_echo_snap.duplicate(true)
 	else:
 		snap = _item_echo_snapshot(it)
@@ -16367,11 +16370,11 @@ func _after_item_resolved(it: Dictionary) -> void:
 	# (Harpy Impatient was treating those as "Used" and swinging twice on Spin).
 	var counted_use: bool = _after_item_use_armed and not _skip_item_use_count
 	await _commit_after_item_use()
-	if await _flush_vindictive():
-		return
 	if counted_use and _clicked_item_counts_as_use(it):
 		_remember_item_use(it)
 		await _basilisk_on_gazed_use(it)
+	if await _flush_vindictive():
+		return
 	var spent_use: bool = bool(it.get("spent", false))
 	var magnet_use: bool = str(_ops_of(it).get("kind", "")) == "magnet"
 	if not spent_use and not magnet_use:
@@ -24494,6 +24497,7 @@ func _sync_hotbar() -> void:
 			it = _challenge_pending_gain
 		if it.is_empty():
 			continue
+		_paint_item_card_identity(card, it)
 		var waiting: bool = hotbar_overflow != null and card.get_parent() == hotbar_overflow
 		var view: Dictionary = _item_view(it)
 		var uid_n: int = int(it.get("uid", -1))
@@ -24706,6 +24710,7 @@ func _reuse_or_spawn_item_card(keep: Dictionary, it: Dictionary) -> Control:
 			reused.modulate = Color.WHITE
 			reused.rotation = 0.0
 			reused.z_index = 0
+			_paint_item_card_identity(reused, it)
 			return reused
 	return _spawn_item_card(it, true)
 
@@ -24875,7 +24880,8 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if card.has_method("set_hex_good"):
 		card.set_hex_good(hex_good_spawn)
 	card.hovered.connect(func() -> void:
-		_on_item_hovered(it, card)
+		var live: Dictionary = _find_item(int(card.uid))
+		_on_item_hovered(live if not live.is_empty() else it, card)
 	)
 	card.unhovered.connect(_on_item_unhovered)
 	if _authoring() or PLAYTEST_FLAG.on():
@@ -25936,7 +25942,7 @@ func _sync_card_pass5(card: Control, it: Dictionary, _can_click: bool, in_fight:
 				card.set_sai_static(int(it.get("alt_n", 2)) == 4)
 			else:
 				card.set_icon(_item_icon_tex(it))
-		elif cid == "marble":
+		elif cid == "marble" or cid == "echo_bell":
 			pass
 		else:
 			card.set_icon(_item_icon_tex(it))
