@@ -8062,7 +8062,7 @@
 			"type": "M"
 		},
 		{
-			"ability": "When you Spin me, if my Attack would kill you, I Flee and lose 1 Attack",
+			"ability": "When you Spin me, if my Attack would kill you, I Flee and lose 2 Attack",
 			"atk": {
 				"base": 6.0
 			},
@@ -8072,22 +8072,22 @@
 			"call_name": "Sandbag",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 1, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 1 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost.",
+			"defined": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 2, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 2 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost.",
 			"exceptions": "Pool 4, tier 1. Upright sandbag with eyes, Smash home-run contest. Bodyguard moved to pool 3. Anvil moved to pool 9.",
-			"explainer": "If Take would drop you to 0 HP, I lose 1 Attack and Flee instead of hitting you.",
+			"explainer": "If Take would drop you to 0 HP, I lose 2 Attack and Flee instead of hitting you.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 1, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 1 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost.",
+			"flow": "After every On Spin effect, if you are facing me and I am not silenced, look at the Take button's damage. That includes Block (Stone Wall included), Rust, pierce, and Double Buckler if it would halve an even Attack. Do not spend those items. A Healing Potion does not count as surviving. If that damage would leave you at 0 HP, I do not hit you. My Attack goes down by 2, not below 0, and stays down on this copy. Then Flee: I stay on the wheel, and the wheel spins at random. If that spin lands on me and Take would still drop you to 0, I do it again until a landing would leave you at 1 HP or more. Ball and Chain stops the Flee. I still lose the 2 Attack, and the fight stays open so you can play cards. Take uses the new Attack. Quiet Bell turns the check off. Attack I already lost stays lost.",
 			"hp": {
 				"base": 4.0
 			},
 			"hp_base": 4.0,
 			"hp_formula": "",
 			"id": "sandbag",
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-03",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -8096,7 +8096,7 @@
 				"hp_base",
 				"tier"
 			],
-			"log_hint": "Lethal Take: lose 1 Attack and Flee",
+			"log_hint": "Lethal Take: lose 2 Attack and Flee",
 			"mode_pool": "all",
 			"name": "Sandbag",
 			"notes": "Pool 4, tier 1. Upright sandbag with eyes, Smash home-run contest. Bodyguard moved to pool 3. Anvil moved to pool 9.",
@@ -8105,7 +8105,7 @@
 			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "If Take would drop you to 0 HP, I lose 1 Attack and Flee instead of hitting you.",
+			"reminder": "If Take would drop you to 0 HP, I lose 2 Attack and Flee instead of hitting you.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
