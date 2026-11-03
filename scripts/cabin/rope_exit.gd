@@ -354,6 +354,10 @@ func _add_tally_group(g: int, group5: Texture2D, sheet: Texture2D, marks: int) -
 	_tally_host.add_child(tr)
 
 
+## When true, the next open_exit skips the 0.3s alpha tween (dungeon-clear wipe swap).
+var open_instant: bool = false
+
+
 func open_exit(cleared: int, loot: Array = []) -> void:
 	_cleared = cleared
 	_busy = false
@@ -380,13 +384,34 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 	_show_loot(loot)
 	_refresh_tallies()
 	_hide_nib()
+	var instant := open_instant
+	open_instant = false
 	if visible:
+		if instant:
+			modulate.a = 1.0
 		return
 	visible = true
-	modulate.a = 0.0
-	var tw := create_tween()
-	tw.tween_property(self, "modulate:a", 1.0, 0.3)
+	if instant:
+		## Zero-latency swap under the black wipe (dungeon-clear resolve).
+		modulate.a = 1.0
+	else:
+		modulate.a = 0.0
+		var tw := create_tween()
+		tw.tween_property(self, "modulate:a", 1.0, 0.3)
 	KIT.cue(cabin.sfx if cabin else null, &"amb.rope_creak")
+
+
+func set_hero_hidden(hidden: bool) -> void:
+	## Call AFTER open_exit — open_exit/_reset_hero_pose restores texture and pose.
+	if _hero:
+		_hero.visible = not hidden
+
+
+func hero_land_global() -> Vector2:
+	## Top-left of the Rope Exit hero (centered=false). Overlay lands here.
+	if _hero == null:
+		return Vector2.ZERO
+	return _hero.get_global_transform_with_canvas().origin
 
 
 func _reset_hero_pose() -> void:
@@ -395,6 +420,7 @@ func _reset_hero_pose() -> void:
 		_hero.scale = Vector2.ONE
 		_hero.modulate = Color(1, 1, 1, 1)
 		_hero.texture = KIT.load_tex("hero/hero_idle_loot_f0.png")
+		_hero.visible = true
 	if _hatch:
 		_hatch.modulate = HOT_IDLE
 	if _gate_frame:

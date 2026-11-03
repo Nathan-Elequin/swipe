@@ -193,6 +193,15 @@ var collapse: float = 0.0:
 	set(v):
 		collapse = v
 		queue_redraw()
+## Dungeon-clear resolve: whole-wheel reverse accordion. 0 = open, 1 = folded away.
+## Do NOT reuse collapse/collapse_slice — those are per-kill wedge close.
+var fold: float = 0.0:
+	set(v):
+		fold = clampf(v, 0.0, 1.0)
+		queue_redraw()
+const FOLD_HINGE := PI * 0.5   # bottom (pointer side), screen-down in Godot
+const FOLD_STAGGER := 0.045    # per-wedge delay as a fraction of fold
+const FOLD_GHOST_SEATS := 6    # empty wheel folds challenge-seat ghosts
 var busy: bool = false
 var hub_blk: int = -1
 var hub_ghost: int = -1
@@ -850,6 +859,8 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 	_bond_hold_diff = false
 	var held_close: bool = collapse > 0.001
 	slices = next
+	# Next dungeon must never spawn folded.
+	fold = 0.0
 	if held_close:
 		# Keep the closed layout until the seat is actually gone, then drop
 		# collapse on the new n-1 equal wedges so the wheel does not pop
@@ -2342,6 +2353,10 @@ func _draw() -> void:
 	FRAME_METRICS.note_wheel()
 	var c: Vector2 = _center()
 	var radius: float = _radius()
+	# Dungeon-clear reverse accordion — not per-kill collapse.
+	if fold > 0.001:
+		_draw_fold(c, radius)
+		return
 	if slices.is_empty():
 		draw_arc(c, radius, 0.0, TAU, 72, Color("3a322b"), 2.0, true)
 		_draw_pointer(c, radius)
@@ -2377,6 +2392,97 @@ func _draw() -> void:
 		_draw_floaters(font)
 	if slay_index >= 0 and slay_t > 0.0:
 		_draw_slay(font, c, radius)
+
+
+func _fold_ease_back_in(t: float) -> float:
+	## TRANS_BACK / EASE_IN — tiny overshoot before the wedge clacks shut.
+	t = clampf(t, 0.0, 1.0)
+	const C1 := 1.70158
+	const C3 := C1 + 1.0
+	return C3 * t * t * t - C1 * t * t
+
+
+func _draw_fold(c: Vector2, radius: float) -> void:
+	## Whole-wheel reverse accordion toward the bottom hinge. Draw nothing at 1.0.
+	if fold >= 1.0:
+		return
+	var n: int = slices.size()
+	var ghost := false
+	if n <= 0:
+		n = FOLD_GHOST_SEATS
+		ghost = true
+	var denom: float = 1.0 - float(n) * FOLD_STAGGER
+	if denom < 0.05:
+		denom = 0.05
+	var base_span: float = TAU / float(n)
+	var starts: PackedFloat32Array
+	if not ghost:
+		starts = _starts()
+	## Last 15%: squash the closed blade on the hinge.
+	var blade_squash := 1.0
+	if fold > 0.85:
+		blade_squash = 1.0 - clampf((fold - 0.85) / 0.15, 0.0, 1.0)
+	if blade_squash <= 0.001:
+		return
+	var hinge_pt: Vector2 = c + Vector2.from_angle(FOLD_HINGE) * radius * 0.92
+	if blade_squash < 0.999:
+		draw_set_transform(hinge_pt, 0.0, Vector2(1.0, blade_squash))
+	var xf_origin: Vector2 = hinge_pt if blade_squash < 0.999 else Vector2.ZERO
+	var draw_c: Vector2 = c - xf_origin if blade_squash < 0.999 else c
+	for i in n:
+		var f_i: float = clampf((fold - float(i) * FOLD_STAGGER) / denom, 0.0, 1.0)
+		var eased: float = _fold_ease_back_in(f_i)
+		var span_i: float = base_span * (1.0 - eased)
+		if span_i < 0.002:
+			continue
+		var seat_mid: float
+		if ghost:
+			seat_mid = float(i) * base_span + base_span * 0.5 + rot
+		else:
+			seat_mid = starts[i] + _span(i) * 0.5
+		var mid: float = lerp_angle(seat_mid, FOLD_HINGE, eased)
+		var a0: float = mid - span_i * 0.5
+		var a1: float = mid + span_i * 0.5
+		var R_i: float = radius * lerpf(1.0, 0.55, eased)
+		var fill: Color = EMPTY_FILL
+		if not ghost and i < slices.size():
+			fill = _fill_for(slices[i], false, false)
+			fill = fill.darkened(eased * 0.35)
+		_draw_wedge(draw_c, R_i, a0, a1, fill)
+		## Empty-seat "+" marks while still mostly open.
+		if (ghost or str(slices[i].get("kind", "")) != "monster") and eased < 0.55:
+			var mark_r: float = R_i * 0.62
+			var mp: Vector2 = draw_c + Vector2.from_angle(mid) * mark_r
+			var mk := Color("6a6258")
+			mk.a = 1.0 - eased
+			draw_line(mp + Vector2(-8, 0), mp + Vector2(8, 0), mk, 2.0, true)
+			draw_line(mp + Vector2(0, -8), mp + Vector2(0, 8), mk, 2.0, true)
+		## Rim arc only over this still-open span.
+		var rim_a: float = 1.0 - eased * 0.85
+		draw_arc(draw_c, R_i, a0, a1, maxi(6, int(span_i / 0.08)), Color(RING.r, RING.g, RING.b, rim_a), 3.0, true)
+	## Hub ring / pips scale toward hinge; hide past 0.6. Sprout already hub_parade_hide.
+	## fold <= 0.6 ⇒ blade_squash is still 1.0, so identity space is fine here.
+	if fold <= 0.6:
+		var hub_u: float = ease(fold, 2.0)
+		var hub_sc: float = 1.0 - hub_u
+		if hub_sc > 0.02:
+			var hub_hinge: Vector2 = c + Vector2.from_angle(FOLD_HINGE) * radius * HUB_FRAC
+			draw_set_transform(hub_hinge, 0.0, Vector2(hub_sc, hub_sc))
+			var hc: Vector2 = c - hub_hinge
+			draw_circle(hc, radius * HUB_FRAC, HUB)
+			draw_arc(hc, radius * HUB_FRAC, 0.0, TAU, 48, RING, 2.6, true)
+			## Hearts only — parade owns Sprout.
+			var saved_hide := hub_parade_hide
+			hub_parade_hide = true
+			_draw_hub_block(hc, radius)
+			hub_parade_hide = saved_hide
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	## 1-frame gold flash at ~0.92 along the closed blade.
+	if fold > 0.905 and fold < 0.935:
+		var gold := Color("e8c36a")
+		var tip: Vector2 = c + Vector2.from_angle(FOLD_HINGE) * radius * 0.55
+		var base: Vector2 = c + Vector2.from_angle(FOLD_HINGE) * radius * 0.95
+		draw_line(tip, base, gold, 2.0, true)
 
 
 func _across_aimed(i: int) -> bool:

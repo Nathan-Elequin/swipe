@@ -1,215 +1,441 @@
 extends Node
-## Dungeon-clear parade on the hub. Rope exit opens after this returns.
-## run_victory and run_walkoff face right and are never mirrored. No wax seal.
+## Dungeon-clear resolve v2: wheel fold → victory → jump → wipe → Rope Exit.
+## Burrow mouth/curtain/mound/arrive/dust/burst/embers are not used on this path.
+## sprout_victory faces right and is never mirrored. No wax seal.
 
-const PARADE_SEC := 2.7
+const TOTAL := 2.50
 const HERO_TL := Vector2(-48, -50)
-const CHEER_MARKS := [0.10, 0.24, 0.40, 0.52, 0.62, 0.76, 0.92, 1.04]
-const HOP_START := 1.04
-const HOP_END := 1.60
-const WIPE_END := 2.10
-const ARRIVE_END := 2.58
-## hero_arrive f2 onset ≈ midpoint of arrive span (landing contact).
-const DUST_START := WIPE_END + 0.5 * (ARRIVE_END - WIPE_END)
-const DUST_PLAY := 0.24
+const HERO_SIZE := 96.0
+const SCALE_HUB := 1.5
+const SCALE_ROPE := 2.0
+
+const T_CHROME_END := 0.18
+const T_FOLD_END := 0.42
+const T_AURA_START := 0.34
+const T_AURA_END := 0.52
+const T_VICTORY_START := 0.30
+const T_VICTORY_END := 1.30
+const T_CROUCH_START := 1.30
+const T_CROUCH_END := 1.40
+const T_JUMP_UP_END := 1.54
+const T_FALL_OFF_END := 1.92
+const T_WIPE_START := 1.66
+const T_SWAP := 1.98
+const T_WIPE_END := 2.30
+const T_LAND := 2.38
+const T_DONE := 2.50
+
+## Victory dance: eight marks ≈0.12 s each over two loops of f0–f3.
+const VICTORY_MARKS := [0.42, 0.54, 0.66, 0.78, 0.90, 1.02, 1.14, 1.26]
 
 ## When >= 0, run() advances to that t and holds (deterministic Repot shots).
 var freeze_at: float = -1.0
 
 var _layer: CanvasLayer
+var _lock: Control
 var _hero: Sprite2D
 var _gear: Array = []
+var _wipe: ColorRect
+var _wipe_mat: ShaderMaterial
+var _aura: Sprite2D
+var _wheel
+var _art
+var _on_swap: Callable = Callable()
+var _swapped := false
+var _sfx_fired := false
+var _chrome_nodes: Array = []
+var _feet0 := Vector2.ZERO
+var _hub_x := 0.0
+var _vh := 1040.0
+var _land_tl := Vector2.ZERO
+var _v_exit := 0.0
+var _g_fall := 0.0
+var _victory: Array = []
+var _gear_victory: Array = []
+var _rope_exit = null
 
 
-func run(wheel, art) -> void:
+func run(wheel, art, on_swap: Callable = Callable()) -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_wheel = wheel
+	_art = art
+	_on_swap = on_swap
+	_swapped = false
+	_sfx_fired = false
 	var t0 := Time.get_ticks_msec()
 	_layer = CanvasLayer.new()
 	_layer.layer = 40
+	_layer.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_layer)
+	## Full-rect click blocker (L4). Pattern matches NestInputLock.
+	_lock = Control.new()
+	_lock.name = "ResolveInputLock"
+	_lock.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_lock.mouse_filter = Control.MOUSE_FILTER_STOP
+	_lock.z_index = 2
+	_layer.add_child(_lock)
+	_lock.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var vp := get_viewport()
+	if vp != null:
+		_vh = vp.get_visible_rect().size.y
+		_lock.size = vp.get_visible_rect().size
 	var hub := Vector2(548, 300)
 	if wheel != null and wheel.has_method("rim_global"):
 		hub = wheel.rim_global()
+	## Clear lingering per-kill collapse so fold does not double-draw (L9).
 	if wheel != null:
+		wheel.collapse = 0.0
+		if wheel.has_method("clear_slay"):
+			wheel.clear_slay()
+		wheel.fold = 0.0
 		wheel.hub_flip = false
 		wheel.queue_redraw()
-	var feet := hub + HERO_TL
-	var victory: Array = _run_frames(art, "victory")
-	var walkoff: Array = _run_frames(art, "walkoff")
-	var gear_victory: Array = _gear_sets(art, wheel, "victory")
-	var gear_walk: Array = _gear_sets(art, wheel, "walkoff")
-	var burst: Array = _load_seq("res://assets/dungeon/vfx/clear/clear_burst_f%d.png", 8)
-	var embers: Array = _load_seq("res://assets/dungeon/vfx/clear/clear_embers_f%d.png", 4)
-	var mouth: Array = _load_seq("res://assets/dungeon/vfx/clear/burrow_mouth_f%d.png", 3)
-	var arrive: Array = _load_seq("res://assets/dungeon/home/hero/hero_arrive_f%d.png", 4)
-	var dust: Array = _load_seq("res://assets/dungeon/home/overlays/land_dust_f%d.png", 3)
-	var curtain := _load_one("res://assets/dungeon/vfx/clear/burrow_curtain.png")
-	var mound := _load_one("res://assets/dungeon/home/overlays/burrow_mound.png")
-	var burst_sp := _make(_first(burst), feet + Vector2(-16, -24), 6)
-	var ember_sp := _make(_first(embers), feet + Vector2(8, -8), 5)
-	var mound_sp := _make(mound, feet + Vector2(132, 36), 2)
-	mound_sp.visible = false
-	var mouth_sp := _make(_first(mouth), feet + Vector2(128, 8), 3)
-	mouth_sp.visible = false
-	var curtain_sp := _make(curtain, feet, 8)
-	curtain_sp.visible = false
-	var curtain_w := 0.0
-	if curtain != null:
-		curtain_w = float(curtain.get_width()) * curtain_sp.scale.x
-	# Dust above the hero (z 7 > hero 4); brighten so it reads on the dark wheel.
-	var dust_sp := _make(_first(dust), feet, 7)
-	dust_sp.visible = false
-	dust_sp.modulate = Color(1.15, 1.1, 1.0, 1.0)
-	_hero = _make(_first(victory), feet, 4)
-	_pin_gear(feet, gear_victory)
-	var hop := 140.0
-	var t := 0.0
+	_feet0 = hub + HERO_TL
+	_hub_x = _feet0.x
+	_victory = _sprout_victory(art)
+	_gear_victory = _gear_sets(art, wheel, "victory")
+	_hero = _make_hero(_first(_victory), _feet0, 4)
+	_pin_gear(_feet0, _gear_victory)
+	_build_wipe()
+	_build_aura(hub)
+	_rope_exit = _find_rope()
+	_cache_chrome()
+	## Precompute fall gravity so y hits vh+16 at T_FALL_OFF_END.
+	var fall_dt: float = T_FALL_OFF_END - T_JUMP_UP_END
+	var y_up: float = _feet0.y - 40.0
+	var y_off: float = _vh + 16.0
+	## y = y_up + 0.5*g*t^2  →  g = 2*(y_off - y_up) / t^2
+	if fall_dt > 0.001:
+		_g_fall = 2.0 * (y_off - y_up) / (fall_dt * fall_dt)
+	else:
+		_g_fall = 4000.0
+	_v_exit = _g_fall * fall_dt
 	var hold_at := freeze_at
-	var end_t := PARADE_SEC - 0.001
+	var end_t := TOTAL - 0.001
 	if hold_at >= 0.0:
 		end_t = hold_at
+	var t := 0.0
 	while t < end_t:
 		t = float(Time.get_ticks_msec() - t0) / 1000.0
 		if t >= end_t:
-			break
-		_hero.flip_h = false
-		if t < HOP_START:
-			_frame_at(_hero, victory, CHEER_MARKS, t, gear_victory)
-			_frame_span(burst_sp, burst, 0.0, 0.40, t)
-			burst_sp.visible = t < 0.40 and not burst.is_empty()
-			mound_sp.visible = false
-			dust_sp.visible = false
-		elif t < HOP_END:
-			burst_sp.visible = false
-			var u := (t - HOP_START) / (HOP_END - HOP_START)
-			var x := feet.x + hop * u
-			_hero.position.x = x
-			_frame_span(_hero, walkoff, HOP_START, HOP_END, t)
-			_sync_gear(gear_walk, _walk_index(t), _hero.position, _hero.scale)
-			mouth_sp.visible = not mouth.is_empty()
-			_frame_span(mouth_sp, mouth, HOP_START + 0.28, HOP_END, t)
-			mound_sp.visible = mound != null
-			dust_sp.visible = false
-		elif t < WIPE_END:
-			_hero.visible = false
-			for g in _gear:
-				g.visible = false
-			mouth_sp.visible = false
-			mound_sp.visible = mound != null
-			dust_sp.visible = false
-			if curtain != null and curtain_w > 1.0:
-				var u2 := (t - HOP_END) / (WIPE_END - HOP_END)
-				curtain_sp.visible = true
-				curtain_sp.flip_h = false
-				curtain_sp.position = Vector2(mouth_sp.position.x - curtain_w + (curtain_w * 1.35) * u2, mouth_sp.position.y - 16.0)
-			else:
-				curtain_sp.visible = false
-		else:
-			curtain_sp.visible = false
-			mouth_sp.visible = false
-			mound_sp.visible = false
-			var land := feet + Vector2(hop + 36.0, 0.0)
-			var u3 := clampf((t - WIPE_END) / (ARRIVE_END - WIPE_END), 0.0, 1.0)
-			_hero.visible = not arrive.is_empty()
-			_hero.position = land + Vector2(56.0 * u3, 0.0)
-			_frame_span(_hero, arrive, WIPE_END, ARRIVE_END, t)
-			for g in _gear:
-				g.visible = false
-			_update_land_dust(dust_sp, dust, t)
-		if not embers.is_empty():
-			ember_sp.visible = t < WIPE_END
-			var ei := int(t / 0.09) % embers.size()
-			ember_sp.texture = embers[ei]
-			ember_sp.flip_h = false
+			t = end_t
+		_pose(t)
 		if hold_at >= 0.0 and t + 0.02 >= hold_at:
-			t = hold_at
-			# Exact-beat re-paint, then hold for Repot.
-			_hero.flip_h = false
-			if t < HOP_START:
-				_frame_at(_hero, victory, CHEER_MARKS, t, gear_victory)
-				_frame_span(burst_sp, burst, 0.0, 0.40, t)
-				burst_sp.visible = t < 0.40 and not burst.is_empty()
-				mound_sp.visible = false
-				dust_sp.visible = false
-			elif t < HOP_END:
-				burst_sp.visible = false
-				var uf := (t - HOP_START) / (HOP_END - HOP_START)
-				_hero.position.x = feet.x + hop * uf
-				_frame_span(_hero, walkoff, HOP_START, HOP_END, t)
-				_sync_gear(gear_walk, _walk_index(t), _hero.position, _hero.scale)
-				mouth_sp.visible = not mouth.is_empty()
-				_frame_span(mouth_sp, mouth, HOP_START + 0.28, HOP_END, t)
-				mound_sp.visible = mound != null
-				dust_sp.visible = false
-			elif t < WIPE_END:
-				_hero.visible = false
-				for g in _gear:
-					g.visible = false
-				mouth_sp.visible = false
-				mound_sp.visible = mound != null
-				dust_sp.visible = false
-				if curtain != null and curtain_w > 1.0:
-					var u2f := (t - HOP_END) / (WIPE_END - HOP_END)
-					curtain_sp.visible = true
-					curtain_sp.flip_h = false
-					curtain_sp.position = Vector2(mouth_sp.position.x - curtain_w + (curtain_w * 1.35) * u2f, mouth_sp.position.y - 16.0)
-				else:
-					curtain_sp.visible = false
-			else:
-				curtain_sp.visible = false
-				mouth_sp.visible = false
-				mound_sp.visible = false
-				var land_f := feet + Vector2(hop + 36.0, 0.0)
-				var u3f := clampf((t - WIPE_END) / (ARRIVE_END - WIPE_END), 0.0, 1.0)
-				_hero.visible = not arrive.is_empty()
-				_hero.position = land_f + Vector2(56.0 * u3f, 0.0)
-				_frame_span(_hero, arrive, WIPE_END, ARRIVE_END, t)
-				for g in _gear:
-					g.visible = false
-				_update_land_dust(dust_sp, dust, t)
-			if not embers.is_empty():
-				ember_sp.visible = t < WIPE_END
-				var eif := int(t / 0.09) % embers.size()
-				ember_sp.texture = embers[eif]
-				ember_sp.flip_h = false
+			_pose(hold_at)
 			await _wait(3600.0)
 			break
 		await _wait(0.02)
 	if hold_at < 0.0:
-		var left := PARADE_SEC - float(Time.get_ticks_msec() - t0) / 1000.0
+		## Ensure final pose + swap landed.
+		_pose(TOTAL)
+		var left := TOTAL - float(Time.get_ticks_msec() - t0) / 1000.0
 		if left > 0.02:
 			await _wait(left)
-		if is_instance_valid(_layer):
-			_layer.queue_free()
+		_teardown()
+	## freeze_at holds leave the layer up for Repot shots (same as v1).
 
 
-func _update_land_dust(dust_sp: Sprite2D, dust: Array, t: float) -> void:
-	if dust_sp == null or dust.is_empty() or _hero == null:
+func _pose(t: float) -> void:
+	if not is_instance_valid(_layer):
 		return
-	if t < DUST_START:
-		dust_sp.visible = false
+	## A2 SFX at fold start.
+	if t >= 0.0 and not _sfx_fired:
+		_sfx_fired = true
+		_play_sting_clear()
+	## A2 wheel fold 0→1 over 0.42 s (linear tween; per-wedge ease in wheel).
+	if _wheel != null and is_instance_valid(_wheel):
+		_wheel.fold = clampf(t / T_FOLD_END, 0.0, 1.0) if t < T_FOLD_END else (0.0 if t >= T_SWAP else 1.0)
+		if t >= T_SWAP:
+			_wheel.fold = 0.0
+	## A1 chrome fade.
+	var chrome_a: float = 1.0 - clampf(t / T_CHROME_END, 0.0, 1.0)
+	for n in _chrome_nodes:
+		if n != null and is_instance_valid(n):
+			var m: Color = n.modulate
+			m.a = chrome_a
+			n.modulate = m
+	## Aura bloom 0.34–0.52.
+	if _aura != null and is_instance_valid(_aura):
+		if t < T_AURA_START or t > T_AURA_END:
+			_aura.visible = false
+		else:
+			_aura.visible = true
+			var u: float = (t - T_AURA_START) / (T_AURA_END - T_AURA_START)
+			## OUT_BACK pop then linear fade.
+			var pop: float = clampf(u / 0.35, 0.0, 1.0)
+			var back: float = 1.0 + 0.4 * pop * (1.0 - pop) * 4.0
+			var fade: float = 1.0 - clampf((u - 0.35) / 0.65, 0.0, 1.0)
+			_aura.scale = Vector2.ONE * lerpf(0.4, 1.35, pop) * back
+			_aura.modulate = Color(1, 1, 1, fade)
+	## Wipe progress 0→2 across 1.66→2.30.
+	if _wipe_mat != null:
+		var wp := 0.0
+		if t >= T_WIPE_START:
+			wp = clampf((t - T_WIPE_START) / (T_WIPE_END - T_WIPE_START), 0.0, 1.0) * 2.0
+		_wipe_mat.set_shader_parameter("progress", wp)
+		if _wipe != null:
+			_wipe.visible = t >= T_WIPE_START and wp > 0.001 and wp < 1.999
+	## D2 swap at 1.98 — same frame, once.
+	if t >= T_SWAP:
+		_do_swap(t)
+	## Hero pose.
+	if _hero == null or not is_instance_valid(_hero):
 		return
-	dust_sp.visible = true
-	# Arrive art is 128×128 at scale 1; feet near y≈115–128. Dust is 32×16 ×4 = 128×64.
-	var dust_h := 64.0
-	if dust_sp.texture != null:
-		dust_h = float(dust_sp.texture.get_height()) * dust_sp.scale.y
-	dust_sp.position = _hero.position + Vector2(0.0, 128.0 - dust_h)
-	var play_end := DUST_START + DUST_PLAY
-	if t < play_end:
-		_frame_span(dust_sp, dust, DUST_START, play_end, t)
-		dust_sp.modulate = Color(1.15, 1.1, 1.0, 1.0)
+	_hero.flip_h = false
+	_hero.visible = true
+	var pos := _feet0
+	var sc := Vector2(SCALE_HUB, SCALE_HUB)
+	var frame_i := 0
+	if t < T_VICTORY_START:
+		## A0 handoff — f0 on hub spot.
+		frame_i = 0
+		pos = _feet0
+		sc = Vector2(SCALE_HUB, SCALE_HUB)
+	elif t < T_CROUCH_START:
+		## B victory dance.
+		frame_i = _victory_frame(t)
+		pos = _feet0
+		sc = Vector2(SCALE_HUB, SCALE_HUB)
+	elif t < T_CROUCH_END:
+		## C1 crouch squash on f0.
+		frame_i = 0
+		var u: float = (t - T_CROUCH_START) / (T_CROUCH_END - T_CROUCH_START)
+		u = 1.0 - (1.0 - u) * (1.0 - u)  # OUT_QUAD
+		var sy: float = lerpf(1.0, 0.86, u)
+		var sx: float = lerpf(1.0, 1.08, u)
+		sc = Vector2(SCALE_HUB * sx, SCALE_HUB * sy)
+		pos = _feet_pivot(_feet0, sc)
+	elif t < T_JUMP_UP_END:
+		## C2 jump up −40 px, f2 stretch.
+		frame_i = mini(2, _victory.size() - 1) if not _victory.is_empty() else 0
+		var u: float = (t - T_CROUCH_END) / (T_JUMP_UP_END - T_CROUCH_END)
+		u = 1.0 - (1.0 - u) * (1.0 - u)
+		pos = Vector2(_feet0.x, lerpf(_feet0.y, _feet0.y - 40.0, u))
+		var sy: float = lerpf(1.0, 1.06, u)
+		sc = Vector2(SCALE_HUB, SCALE_HUB * sy)
+	elif t < T_SWAP:
+		## C3 fall off bottom (f2). Under wipe.
+		frame_i = mini(2, _victory.size() - 1) if not _victory.is_empty() else 0
+		var ft: float = t - T_JUMP_UP_END
+		var y: float = (_feet0.y - 40.0) + 0.5 * _g_fall * ft * ft
+		pos = Vector2(_feet0.x, y)
+		sc = Vector2(SCALE_HUB, SCALE_HUB)
+		if _hero != null:
+			_hero.z_index = 4
 	else:
-		dust_sp.texture = dust[dust.size() - 1]
-		var fade_u := 0.0
-		if PARADE_SEC > play_end:
-			fade_u = clampf((t - play_end) / (PARADE_SEC - play_end), 0.0, 1.0)
-		dust_sp.modulate = Color(1.15, 1.1, 1.0, 1.0 - fade_u)
+		## E1 fall-in from top → land. Above wipe. Scale 1.5→2.0.
+		frame_i = mini(2, _victory.size() - 1) if not _victory.is_empty() else 0
+		if _hero != null:
+			_hero.z_index = 12
+		var land := _resolve_land()
+		## Enter above the viewport; 64px × scale 2.0 ≈ 128 drawn height.
+		var y0: float = -64.0 * SCALE_ROPE
+		var fall_in_dt: float = T_LAND - T_SWAP
+		var u: float = 0.0
+		if fall_in_dt > 0.001:
+			u = clampf((t - T_SWAP) / fall_in_dt, 0.0, 1.0)
+		## OUT_QUAD catch from v_exit.
+		var ease_u: float = 1.0 - (1.0 - u) * (1.0 - u)
+		pos = Vector2(lerpf(_hub_x, land.x, ease_u), lerpf(y0, land.y, ease_u))
+		sc = Vector2(lerpf(SCALE_HUB, SCALE_ROPE, ease_u), lerpf(SCALE_HUB, SCALE_ROPE, ease_u))
+		if t >= T_LAND:
+			## E2 land squash 0.06 s then rebound; handoff on squash frame (option A).
+			frame_i = 0
+			var lu: float = clampf((t - T_LAND) / (T_DONE - T_LAND), 0.0, 1.0)
+			var squash: float = 1.0
+			if lu < 0.5:
+				squash = lerpf(1.0, 0.88, lu / 0.5)
+			else:
+				squash = lerpf(0.88, 1.0, (lu - 0.5) / 0.5)
+			sc = Vector2(SCALE_ROPE * lerpf(1.0, 1.06, 1.0 - squash), SCALE_ROPE * squash)
+			pos = _feet_pivot(land, sc)
+			if lu >= 0.85:
+				## Overlay hides; rope hero shows (A: squash hides the art pop).
+				_hero.visible = false
+				for g in _gear:
+					if g != null and is_instance_valid(g):
+						g.visible = false
+				if _rope_exit != null and _rope_exit.has_method("set_hero_hidden"):
+					_rope_exit.set_hero_hidden(false)
+	## Apply frame + transform.
+	if not _victory.is_empty():
+		_hero.texture = _victory[clampi(frame_i, 0, _victory.size() - 1)]
+	_hero.scale = sc
+	_hero.position = pos
+	## Gear is native 96×96 (matches hub 96 rect). Hold frame 2 on jump/fall.
+	var gear_fi := frame_i
+	if t >= T_CROUCH_END and t < T_LAND:
+		gear_fi = 2
+	if _hero.visible:
+		## Scale gear so its drawn size tracks the hero rect (hero 64×1.5 = 96).
+		var gsc := Vector2(sc.x / SCALE_HUB, sc.y / SCALE_HUB)
+		_sync_gear(_gear_victory, gear_fi, pos, gsc)
+	else:
+		for g in _gear:
+			if g != null and is_instance_valid(g):
+				g.visible = false
 
 
-func _run_frames(art, anim: String) -> Array:
-	if art != null and art.has_method("hero_run_anim"):
-		return art.hero_run_anim(anim)
+func _feet_pivot(top_left: Vector2, sc: Vector2) -> Vector2:
+	## Keep feet planted while scale changes. sprout_victory is 64×64; hub scale 1.5 → 96.
+	var native := 64.0
+	var base_drawn := Vector2(native * SCALE_HUB, native * SCALE_HUB)
+	var new_drawn := Vector2(native * sc.x, native * sc.y)
+	var feet: Vector2 = top_left + Vector2(base_drawn.x * 0.5, base_drawn.y)
+	return Vector2(feet.x - new_drawn.x * 0.5, feet.y - new_drawn.y)
+
+
+func _victory_frame(t: float) -> int:
+	if _victory.is_empty():
+		return 0
+	var fi := 0
+	for i in VICTORY_MARKS.size():
+		fi = i % _victory.size()
+		if t < float(VICTORY_MARKS[i]):
+			break
+	## After last mark until crouch, hold f3.
+	if t >= float(VICTORY_MARKS[VICTORY_MARKS.size() - 1]):
+		fi = mini(3, _victory.size() - 1)
+	return fi
+
+
+func _do_swap(t: float) -> void:
+	if _swapped:
+		return
+	_swapped = true
+	print("resolve swap t=%.2f" % t)
+	if _rope_exit != null:
+		_rope_exit.open_instant = true
+		if _rope_exit.has_method("set_hero_hidden"):
+			## Hide after open_exit resets pose — commit → refresh → open_exit first.
+			pass
+	if _on_swap.is_valid():
+		_on_swap.call()
+	## After commit/open_exit, hide rope hero until E2 handoff (L5).
+	_rope_exit = _find_rope()
+	if _rope_exit != null and _rope_exit.has_method("set_hero_hidden"):
+		_rope_exit.set_hero_hidden(true)
+	_land_tl = _resolve_land()
+	if _wheel != null and is_instance_valid(_wheel):
+		_wheel.fold = 0.0
+
+
+func _resolve_land() -> Vector2:
+	if _rope_exit != null and _rope_exit.has_method("hero_land_global"):
+		return _rope_exit.hero_land_global()
+	if _land_tl != Vector2.ZERO:
+		return _land_tl
+	return Vector2(_hub_x, 208.0 * 4.0 / 4.0)
+
+
+func _play_sting_clear() -> void:
+	var host = get_parent()
+	if host == null:
+		return
+	var sfx = host.get("sfx")
+	if sfx != null and sfx.has_method("play_event"):
+		sfx.play_event(&"sting.clear")
+
+
+func _find_rope():
+	var host = get_parent()
+	if host == null:
+		return null
+	return host.get("rope_exit")
+
+
+func _cache_chrome() -> void:
+	_chrome_nodes.clear()
+	var host = get_parent()
+	if host == null:
+		return
+	for key in ["btn_spin", "btn_move_left", "btn_move_right", "move_count", "take_arc", "hub_cue"]:
+		var n = host.get(key)
+		if n != null:
+			_chrome_nodes.append(n)
+
+
+func _build_wipe() -> void:
+	var sh := Shader.new()
+	sh.code = """
+shader_type canvas_item;
+uniform float progress = 0.0;
+uniform float soft = 0.08;
+uniform sampler2D noise_tex : repeat_enable, filter_nearest;
+void fragment() {
+	float n = texture(noise_tex, UV * vec2(6.0, 4.0)).r * 0.18;
+	float h = 1.0 - UV.y + n;
+	float lead = progress;
+	float trail = progress - 1.0;
+	float a = smoothstep(lead + soft, lead - soft, h) * smoothstep(trail - soft, trail + soft, h);
+	COLOR = vec4(0.0, 0.0, 0.0, a);
+}
+"""
+	_wipe_mat = ShaderMaterial.new()
+	_wipe_mat.shader = sh
+	var noise := FastNoiseLite.new()
+	noise.seed = 7
+	noise.frequency = 0.08
+	var ntex := NoiseTexture2D.new()
+	ntex.width = 128
+	ntex.height = 128
+	ntex.seamless = true
+	ntex.noise = noise
+	## Nearest filter for chunky dissolve teeth (pixel art).
+	_wipe_mat.set_shader_parameter("noise_tex", ntex)
+	_wipe_mat.set_shader_parameter("progress", 0.0)
+	_wipe_mat.set_shader_parameter("soft", 0.08)
+	_wipe = ColorRect.new()
+	_wipe.name = "ResolveWipe"
+	_wipe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_wipe.z_index = 10
+	_wipe.material = _wipe_mat
+	_wipe.color = Color(0, 0, 0, 1)
+	_wipe.visible = false
+	_layer.add_child(_wipe)
+	if get_viewport() != null:
+		_wipe.size = get_viewport().get_visible_rect().size
+
+
+func _build_aura(hub: Vector2) -> void:
+	var grad := Gradient.new()
+	grad.colors = PackedColorArray([Color("e8c36a", 0.85), Color("e8c36a", 0.0)])
+	grad.offsets = PackedFloat32Array([0.0, 1.0])
+	var gtex := GradientTexture2D.new()
+	gtex.gradient = grad
+	gtex.width = 64
+	gtex.height = 64
+	gtex.fill = GradientTexture2D.FILL_RADIAL
+	gtex.fill_from = Vector2(0.5, 0.5)
+	gtex.fill_to = Vector2(1.0, 0.5)
+	_aura = Sprite2D.new()
+	_aura.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_aura.centered = true
+	_aura.z_index = 3
+	_aura.texture = gtex
+	## Hinge = bottom of wheel ≈ hub + (0, radius*0.9). Approximate from hub.
+	_aura.position = hub + Vector2(0, 160)
+	_aura.visible = false
+	_aura.modulate = Color(1, 1, 1, 0)
+	_layer.add_child(_aura)
+
+
+func _teardown() -> void:
+	## Restore chrome alpha (rest phase hides them anyway).
+	for n in _chrome_nodes:
+		if n != null and is_instance_valid(n):
+			var m: Color = n.modulate
+			m.a = 1.0
+			n.modulate = m
+	if is_instance_valid(_layer):
+		_layer.queue_free()
+		_layer = null
+
+
+func _sprout_victory(art) -> Array:
+	if art != null and art.has_method("sprout_anim"):
+		return art.sprout_anim("victory")
 	return []
 
 
@@ -237,7 +463,9 @@ func _pin_gear(pos: Vector2, sets: Array) -> void:
 	for frames in sets:
 		if typeof(frames) != TYPE_ARRAY or frames.is_empty():
 			continue
-		_gear.append(_make(frames[0], pos, 5))
+		var sp := _make_raw(frames[0], pos, 5)
+		sp.scale = Vector2.ONE
+		_gear.append(sp)
 
 
 func _sync_gear(sets: Array, frame_i: int, pos: Vector2, sc: Vector2) -> void:
@@ -252,35 +480,7 @@ func _sync_gear(sets: Array, frame_i: int, pos: Vector2, sc: Vector2) -> void:
 		sp.position = pos
 		sp.scale = sc
 		sp.texture = frames[clampi(frame_i, 0, frames.size() - 1)]
-
-
-func _walk_index(t: float) -> int:
-	var steps := int((t - HOP_START) / 0.07)
-	return maxi(0, steps)
-
-
-func _frame_at(sp: Sprite2D, frames: Array, marks: Array, t: float, gear_sets: Array) -> void:
-	if sp == null or frames.is_empty():
-		return
-	sp.visible = true
-	sp.flip_h = false
-	var fi := 0
-	for i in marks.size():
-		fi = i % frames.size()
-		if t < float(marks[i]):
-			break
-	sp.texture = frames[fi]
-	_sync_gear(gear_sets, fi, sp.position, sp.scale)
-
-
-func _frame_span(sp: Sprite2D, frames: Array, t0: float, t1: float, t: float) -> void:
-	if sp == null or frames.is_empty() or t1 <= t0:
-		return
-	sp.visible = true
-	sp.flip_h = false
-	var u := clampf((t - t0) / (t1 - t0), 0.0, 0.999)
-	var fi := mini(int(u * float(frames.size())), frames.size() - 1)
-	sp.texture = frames[fi]
+		sp.z_index = 5 if _hero == null else _hero.z_index + 1
 
 
 func _first(frames: Array) -> Texture2D:
@@ -289,23 +489,14 @@ func _first(frames: Array) -> Texture2D:
 	return frames[0]
 
 
-func _load_seq(pattern: String, n: int) -> Array:
-	var out: Array = []
-	for i in n:
-		var tex := _load_one(pattern % i)
-		if tex == null:
-			break
-		out.append(tex)
-	return out
+func _make_hero(tex: Texture2D, pos: Vector2, z: int) -> Sprite2D:
+	var sp := _make_raw(tex, pos, z)
+	## sprout_victory is 64×64; hub draws at 96 → scale 1.5 (L6).
+	sp.scale = Vector2(SCALE_HUB, SCALE_HUB)
+	return sp
 
 
-func _load_one(path: String) -> Texture2D:
-	if not ResourceLoader.exists(path):
-		return null
-	return load(path) as Texture2D
-
-
-func _make(tex: Texture2D, pos: Vector2, z: int) -> Sprite2D:
+func _make_raw(tex: Texture2D, pos: Vector2, z: int) -> Sprite2D:
 	var sp := Sprite2D.new()
 	sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sp.centered = false
@@ -314,15 +505,8 @@ func _make(tex: Texture2D, pos: Vector2, z: int) -> Sprite2D:
 	sp.position = pos
 	sp.texture = tex
 	sp.visible = tex != null
-	sp.scale = _pixel_scale(tex)
 	_layer.add_child(sp)
 	return sp
-
-
-func _pixel_scale(tex: Texture2D) -> Vector2:
-	if tex != null and tex.get_width() > 0 and tex.get_width() <= 48:
-		return Vector2(4, 4)
-	return Vector2.ONE
 
 
 func _wait(seconds: float) -> void:

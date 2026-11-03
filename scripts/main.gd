@@ -746,6 +746,9 @@ var btn_move_left: Button
 var btn_move_right: Button
 var adventure_seat_tiers: Array = [1, 1, 1, 1, 1, 1]
 var _adventure_busy: bool = false
+## Dungeon-clear resolve: re-entry + soft-lock guards (SCREEN-dungeon-clear-resolve).
+var _clear_resolving: bool = false
+var _clear_committed: bool = false
 ## Biome-enter splash: blocks double map clicks while dissolve / nest runs.
 var _splash_busy: bool = false
 ## Wheel nest drop offset (px). `_layout_play_field` adds this to wheel_y; do not tween position directly.
@@ -2579,11 +2582,17 @@ func _drop_dungeon_tokens() -> void:
 func _enter_dungeon_clear() -> void:
 	if not _find_loaded_bag().is_empty():
 		return
+	## L2: callers do not await; block a second resolve while phase is still ready.
+	if _clear_resolving:
+		return
 	_drop_dungeon_tokens()
 	if sfx:
 		sfx.set_combat_music(false)
 		sfx.play("confirm_big", -6.0)
-		sfx.play_event(&"sting.clear")
+		## Adventure clear: sting.clear fires at fold start inside clear_parade.
+		## Tutorial / Classic still fire it here.
+		if in_tutorial or not adventure:
+			sfx.play_event(&"sting.clear")
 		if sfx.has_method("music_after_dungeon_clear"):
 			sfx.music_after_dungeon_clear()
 		else:
@@ -2610,10 +2619,23 @@ func _enter_dungeon_clear() -> void:
 		_log("end", "cleared")
 		_classic_swipe_home()
 		return
-	# Rope stays shut until the parade finishes (~2.7s). No wax seal.
+	# Rope stays shut until the resolve finishes (~2.5s). No wax seal.
 	# Callers start this without await, then _refresh() while still in ready —
 	# so we must refresh again after rest, or the rope never opens (itch soft-lock).
+	_clear_resolving = true
+	_clear_committed = false
 	await _play_clear_parade()
+	## Soft-lock guard: commit again if the parade was freed/skipped before swap.
+	_commit_dungeon_clear()
+	_clear_resolving = false
+	_refresh()
+
+
+func _commit_dungeon_clear() -> void:
+	## Runs once: from the wipe swap callback, and again after await as a guard.
+	if _clear_committed:
+		return
+	_clear_committed = true
 	dungeons_cleared += 1
 	if home_cabin and home_cabin.has_method("note_dungeon_clear"):
 		home_cabin.note_dungeon_clear()
@@ -2621,6 +2643,9 @@ func _enter_dungeon_clear() -> void:
 	phase = "rest"
 	_log("end", "dungeon %s" % dungeons_cleared)
 	facing_index = -1
+	## Instant Rope Exit under the black wipe (no 0.3s fade).
+	if rope_exit != null:
+		rope_exit.open_instant = true
 	_refresh()
 
 
@@ -2639,10 +2664,11 @@ func _play_clear_parade() -> void:
 	var _parade_exiting := func() -> void:
 		if wheel_view != null and is_instance_valid(wheel_view):
 			wheel_view.hub_parade_hide = false
+			wheel_view.hub_sprout_on = saved
 	if not parade.tree_exiting.is_connected(_parade_exiting):
 		parade.tree_exiting.connect(_parade_exiting)
 	if get_tree() != null:
-		await parade.run(wheel_view, art)
+		await parade.run(wheel_view, art, _commit_dungeon_clear)
 	if is_instance_valid(parade):
 		if parade.tree_exiting.is_connected(_parade_exiting):
 			parade.tree_exiting.disconnect(_parade_exiting)
@@ -2651,6 +2677,7 @@ func _play_clear_parade() -> void:
 		wheel_view.hub_parade_hide = false
 		wheel_view.hub_sprout_on = saved
 		wheel_view.hub_flip = false
+		wheel_view.fold = 0.0
 		wheel_view.queue_redraw()
 
 
