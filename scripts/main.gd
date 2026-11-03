@@ -1455,7 +1455,10 @@ func _build_ui() -> void:
 	hotbar_wrap = MarginContainer.new()
 	hotbar_wrap.add_theme_constant_override("margin_top", 2)
 	hotbar_wrap.add_theme_constant_override("margin_bottom", 2)
-	hotbar_wrap.z_index = 16
+	## Absolute Z so this beats MoveBox/TakeArc (those sit on Main at z 20).
+	## Nested z_index is only vs siblings and does not win against that overlay.
+	hotbar_wrap.z_index = 40
+	hotbar_wrap.z_as_relative = false
 	hotbar_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hotbar_wrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	left.add_child(hotbar_wrap)
@@ -1469,6 +1472,7 @@ func _build_ui() -> void:
 	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_PASS
 	hotbar_overflow.clip_contents = false
 	hotbar_overflow.z_index = 48
+	hotbar_overflow.z_as_relative = false
 	hotbar_overflow.draw.connect(_draw_hotbar_overflow)
 	hotbar_wrap.add_child(hotbar_overflow)
 	choice_overlay = Control.new()
@@ -2609,6 +2613,8 @@ func _enter_dungeon_clear() -> void:
 	# so we must refresh again after rest, or the rope never opens (itch soft-lock).
 	await _play_clear_parade()
 	dungeons_cleared += 1
+	if home_cabin and home_cabin.has_method("note_dungeon_clear"):
+		home_cabin.note_dungeon_clear()
 	_advance_bucket_counter()
 	phase = "rest"
 	_log("end", "dungeon %s" % dungeons_cleared)
@@ -7151,6 +7157,60 @@ func _restore_cascade_time_scale() -> void:
 	print("[cascade-ff] restore time_scale=", Engine.time_scale, " busy=", _walker_busy, " phase=", phase)
 
 
+func _hotbar_uid_at(screen_pos: Vector2) -> int:
+	var cards: Array = _hotbar_all_cards()
+	var i: int = cards.size() - 1
+	while i >= 0:
+		var card: Control = cards[i] as Control
+		i -= 1
+		if card == null or not is_instance_valid(card) or not card.visible:
+			continue
+		if card.get_global_rect().has_point(screen_pos):
+			return _control_uid(card)
+	return -1
+
+
+func _hotbar_click_ok() -> bool:
+	if overlay != null and overlay.visible and overlay_btn != null and overlay_btn.visible:
+		return false
+	if roster_ed != null and roster_ed.visible:
+		return false
+	if script_ed != null and script_ed.visible:
+		return false
+	if home_cabin != null and home_cabin.visible:
+		return false
+	if PlaytestUx.feedback_open(get_tree()):
+		return false
+	if _text_input_focused():
+		return false
+	if _challenge_loot_wait:
+		return true
+	if not pending_feed.is_empty():
+		return true
+	if phase == "fighting":
+		return true
+	if phase == "ready":
+		return true
+	return false
+
+
+func _input(event: InputEvent) -> void:
+	## Hit-test the hand in canvas space on press. Release-matching fails when
+	## unplayable sink moves the card out from under the cursor.
+	if not (event is InputEventMouseButton):
+		return
+	var mb := event as InputEventMouseButton
+	if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed:
+		return
+	if not _hotbar_click_ok():
+		return
+	var uid: int = _hotbar_uid_at(get_global_mouse_position())
+	if uid < 0:
+		return
+	get_viewport().set_input_as_handled()
+	_use_item(uid)
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if PlaytestUx.feedback_open(get_tree()):
 		if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
@@ -8499,23 +8559,30 @@ func _grant_saucer_block() -> bool:
 	return false
 
 
+func _clear_fight_input_lock() -> void:
+	if phase != "fighting" and phase != "ready":
+		return
+	_walker_busy = false
+	if wheel_view != null:
+		wheel_view.busy = false
+	_sync_buttons()
+
+
 func _unlock_if_fighting() -> void:
 	_spin_inflight = false
 	if await _grant_saucer_block():
 		await _flush_rust_from_block()
-		return
-	await _flush_rust_from_block()
+	else:
+		await _flush_rust_from_block()
 	_release_item_hold()
-	if await _flush_vindictive():
-		return
-	await _flush_hydra_devour()
-	await _flush_midfight_holes()
+	var died: bool = await _flush_vindictive()
+	if not died:
+		await _flush_hydra_devour()
+		await _flush_midfight_holes()
 	if cascade_ticker != null and cascade_ticker.has_method("end"):
 		cascade_ticker.end()
 	_restore_cascade_time_scale()
-	if phase == "fighting" or phase == "ready":
-		_walker_busy = false
-		_sync_buttons()
+	_clear_fight_input_lock()
 
 
 func _lock_item_fx() -> void:
@@ -8538,7 +8605,8 @@ func _on_done() -> void:
 			sfx.play("error", -12.0, 1.2)
 		return
 	if _wheel_busy() or _walker_busy:
-		return
+		_spin_inflight = false
+		_clear_fight_input_lock()
 	if in_tutorial and (tut == null or (tut.wait != "done" and tut.wait != "choice")):
 		if tut:
 			tut.nudge(PLAYER_COPY.text("tutorial.nudge_wait", "Not yet — finish what I said."))
@@ -9546,6 +9614,8 @@ func _use_item(uid: int) -> void:
 		return
 	if not pending_feed.is_empty():
 		var allowed: Array = pending_feed.get("uids", [])
+		if allowed.is_empty():
+			allowed = _hand_discard_uids()
 		if not _uid_in(allowed, uid):
 			if sfx:
 				sfx.play("error", -12.0, 1.2)
@@ -9553,17 +9623,15 @@ func _use_item(uid: int) -> void:
 		await _feed_cube(uid)
 		_undo_arm()
 		return
-	if _walker_busy and not _oligarch_forcing:
-		return
 	var it_pre: Dictionary = _find_item(uid)
 	var magnet_ready: bool = phase == "ready" and _is_magnet(it_pre)
 	if not magnet_ready and (phase != "fighting" or facing_index < 0):
 		return
-	if _wheel_busy() and not _oligarch_forcing:
-		return
 	if not pending_chaos.is_empty():
 		await _chaos_pick(uid)
 		return
+	# Fight plate is up: do not swallow hotbar clicks because Spin still
+	# has `_walker_busy` / `_spin_inflight` / beggar intro stuck on.
 	if not pending_choice.is_empty() and not _sling_pick_open():
 		if uid == int(pending_choice.get("uid", -1)):
 			_cancel_item_selector()
@@ -9685,27 +9753,38 @@ func _use_item(uid: int) -> void:
 			_undo_abort()
 		return
 	_bleed_begin()
-	_lock_item_fx()
+	if not _oligarch_forcing:
+		_lock_item_fx()
 	_arm_item_hold()
 	_beggar_hold = true
 	await _apply_ops(it, ops, {})
 	if _undo_stale(token):
 		_beggar_hold = false
-		await _unlock_if_fighting()
+		await _unlock_after_item_body()
 		return
 	await _after_item_resolved(it)
 	if _undo_stale(token):
-		await _unlock_if_fighting()
+		await _unlock_after_item_body()
 		return
 	await _bleed_end()
 	if _undo_stale(token):
-		await _unlock_if_fighting()
+		await _unlock_after_item_body()
 		return
 	if in_tutorial:
 		_tutorial_item_used(str(it.get("card_id", "")))
 	_undo_finish_item()
-	await _unlock_if_fighting()
+	await _unlock_after_item_body()
 	call_deferred("_refresh")
+
+
+func _unlock_after_item_body() -> void:
+	# Nested unlock during Spin ends the cascade ticker and can leave
+	# `_walker_busy` / `wheel_view.busy` on, so the hotbar and Take stay dead
+	# after Oligarch force-uses an item.
+	if _spin_inflight:
+		_release_item_hold()
+		return
+	await _unlock_if_fighting()
 
 
 func _choose_option(opt: Dictionary) -> void:
@@ -12609,10 +12688,35 @@ func _oligarch_playable_uids() -> Array:
 	return out
 
 
+func _item_opens_use_pick(it: Dictionary) -> bool:
+	var kind: String = str(_ops_of(it).get("kind", ""))
+	if kind == "sling" or kind == "choose" or kind == "magnet" or kind == "chaos_reroll":
+		return true
+	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor":
+		return true
+	if kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp":
+		return true
+	return kind == "polymorph" or kind == "signpost"
+
+
+func _oligarch_instant_uids() -> Array:
+	var out: Array = []
+	for uid_v in _oligarch_playable_uids():
+		var it: Dictionary = _find_item(int(uid_v))
+		if it.is_empty():
+			continue
+		if _item_opens_use_pick(it):
+			continue
+		out.append(int(uid_v))
+	return out
+
+
 func _apply_oligarch_on_spin() -> void:
 	if phase != "fighting":
 		return
 	if not pending_feed.is_empty() or not pending_chaos.is_empty():
+		return
+	if not pending_choice.is_empty() or not pending_mark.is_empty():
 		return
 	var seats: Array = []
 	for i in range(wheel.size()):
@@ -12627,7 +12731,9 @@ func _apply_oligarch_on_spin() -> void:
 			continue
 		seats.append(i)
 	for _seat in seats:
-		var uids: Array = _oligarch_playable_uids()
+		var uids: Array = _oligarch_instant_uids()
+		if uids.is_empty():
+			uids = _oligarch_playable_uids()
 		if uids.is_empty():
 			continue
 		var pick: int = int(uids[rng.randi_range(0, uids.size() - 1)])
@@ -12636,15 +12742,12 @@ func _apply_oligarch_on_spin() -> void:
 		var grab: Vector2 = _hotbar_card_global(pick)
 		if grab != Vector2.ZERO:
 			await _monster_walk_to(int(_seat), "oligarch", grab)
-		_walker_busy = false
 		_log("on_spin", "Oligarch uses a random Item")
 		await _use_item(pick)
 		_undo_wall()
 		_oligarch_forcing = false
-		if int(_seat) >= 0 and int(_seat) < wheel.size() and str(wheel[int(_seat)].get("card_id", "")) == "oligarch":
-			_walker_restore(int(_seat))
-		else:
-			_walker_restore(int(_seat))
+		_walker_restore(int(_seat))
+		_clear_fight_input_lock()
 		if phase != "fighting":
 			return
 
@@ -13028,6 +13131,8 @@ func _feed_worm(uid: int) -> void:
 	if pending_feed.is_empty() or str(pending_feed.get("kind", "")) != "worm_hunger":
 		return
 	var allowed: Array = pending_feed.get("uids", [])
+	if allowed.is_empty():
+		allowed = _hand_discard_uids()
 	if not _uid_in(allowed, uid):
 		if sfx:
 			sfx.play("error", -12.0)
@@ -23994,11 +24099,28 @@ func _sync_take_arc(hit: int, busy: bool, word_override: String = "") -> void:
 func _place_take_arc() -> void:
 	if take_arc == null or wheel_view == null:
 		return
-	take_arc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var parent: Control = take_arc.get_parent() as Control
+	if parent == null:
+		return
 	var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
 	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
-	var local_c: Vector2 = take_arc.get_global_transform().affine_inverse() * c
-	take_arc.set_guide(local_c, rad, TAKE_ARC.RIM_GAP_DEFAULT)
+	## Size the Button to the painted arc. A full-window rect eats hotbar clicks
+	## (MoveBox sits on Main above the nested hotbar, and Button hit-tests the rect).
+	take_arc.set_anchors_preset(Control.PRESET_FULL_RECT)
+	take_arc.offset_left = 0.0
+	take_arc.offset_top = 0.0
+	take_arc.offset_right = 0.0
+	take_arc.offset_bottom = 0.0
+	take_arc.set_guide(take_arc.get_global_transform().affine_inverse() * c, rad, TAKE_ARC.RIM_GAP_DEFAULT)
+	var gr: Rect2 = take_arc.arc_global_rect()
+	if gr.size.x >= 8.0 and gr.size.y >= 8.0:
+		var local_pos: Vector2 = parent.get_global_transform().affine_inverse() * gr.position
+		take_arc.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		take_arc.anchor_right = 0.0
+		take_arc.anchor_bottom = 0.0
+		take_arc.position = local_pos
+		take_arc.size = gr.size
+		take_arc.set_guide(take_arc.get_global_transform().affine_inverse() * c, rad, TAKE_ARC.RIM_GAP_DEFAULT)
 	_clear_undo_under_take_arc()
 
 
@@ -24513,7 +24635,7 @@ func _sync_hotbar() -> void:
 		if _challenge_loot_wait:
 			can_click = not _item_blocks_hand_tax(it)
 		elif not pending_feed.is_empty():
-			can_click = is_snack
+			can_click = is_snack if not feed_uids.is_empty() else not spent_n
 		elif _sling_pick_open():
 			can_click = (not spent_n) and (uid_n == starter_uid or _sling_option_has(uid_n))
 		elif not pending_chaos.is_empty():
@@ -24565,6 +24687,7 @@ func _sync_hotbar() -> void:
 				card.set_num_color(Color("C41E1E"))
 			else:
 				card.set_num_color(_num_color(str(view.get("kind", "ATK"))))
+		card.mouse_filter = Control.MOUSE_FILTER_STOP
 		if card.has_method("set_playable"):
 			card.set_playable(can_click)
 		if card.has_method("set_guarding"):
@@ -24711,8 +24834,21 @@ func _reuse_or_spawn_item_card(keep: Dictionary, it: Dictionary) -> Control:
 			reused.rotation = 0.0
 			reused.z_index = 0
 			_paint_item_card_identity(reused, it)
+			reused.mouse_filter = Control.MOUSE_FILTER_STOP
+			_wire_hotbar_card_click(reused, u)
 			return reused
 	return _spawn_item_card(it, true)
+
+
+func _wire_hotbar_card_click(card: Control, uid: int) -> void:
+	if card == null or uid < 0:
+		return
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
+	if bool(card.get_meta("hotbar_wired", false)):
+		return
+	card.set_meta("hotbar_wired", true)
+	if card.has_signal("picked"):
+		card.picked.connect(_use_item.bind(uid))
 
 
 func _hotbar_overflow_anchor_global() -> Vector2:
@@ -24887,7 +25023,7 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if _authoring() or PLAYTEST_FLAG.on():
 		card.edit_wanted.connect(_on_item_right_click.bind(str(it.get("card_id", ""))))
 	if usable:
-		card.picked.connect(_use_item.bind(int(it.get("uid", 0))))
+		_wire_hotbar_card_click(card, int(it.get("uid", 0)))
 	if card.has_signal("mode_option_picked"):
 		card.mode_option_picked.connect(_choose_option)
 	return card

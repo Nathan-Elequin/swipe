@@ -55,8 +55,8 @@ var _busy: bool = false
 var _chrome: Array = []
 var _loot_host: Control
 var _loot_count: int = 0
-## Cavern-shell plates (ChatGPT pack). Old cozy ladder/hole/torch sprites clash with the
-## painted chamber — keep nodes for hover/anim hooks, but hide the art. Hit areas + planks stay.
+## Crypt Classic cavern plates. Old cozy ladder/hole/torch sprites clash — keep
+## nodes for hover/anim hooks, but hide the art. Hit areas + planks stay.
 var _legacy_decor_visible: bool = false
 var _gate_frame: TextureRect
 var _gate_chains: TextureRect
@@ -64,6 +64,15 @@ var _gate_open: TextureRect
 var _hatch: TextureRect
 ## Imported for a follow-up socket-fill puzzle; not shown in v1.
 var _socket_filled_tex: Texture2D
+## Dynamic wall tallies (TALLY-SPEC.md). Driven by lifetime clears, not per-run.
+var _tally_host: Control
+var _tally_bartleby: TextureRect
+## -1 = read cabin.lifetime_dungeons_cleared. >=0 forces a display count (shots / QA).
+var _tally_debug: int = -1
+## Native wall rect (92,82,56,44) → 4× (368,328,224,176).
+const TALLY_ORIGIN := Vector2(368, 328)
+const TALLY_SIZE := Vector2(224, 176)
+const TALLY_MAX := 50
 
 
 func setup(p_cabin, p_extra: Dictionary) -> void:
@@ -80,17 +89,17 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	var bg := TextureRect.new()
 	bg.name = "CavernBg"
 	bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	# Prefer cavern plate; fall back to legacy cozy BG if the new plate is missing.
+	# Crypt Classic cavern plate is exact 1680×1040. Fall back to legacy cozy BG if missing.
 	bg.texture = KIT.load_tex("overlays/rope_exit_cavern_bg.png")
 	if bg.texture == null:
 		bg.texture = KIT.load_tex("overlays/rope_exit_bg.png")
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	# Cavern plate is 1536x1024; cover the 1680x1040 viewport without letterboxing.
-	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	bg.stretch_mode = TextureRect.STRETCH_SCALE
 	bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
 	_build_cavern_props()
+	_build_tally_wall()
 	var torch := KIT.anim_sprite(
 		["overlays/torch_flame_f0.png", "overlays/torch_flame_f1.png", "overlays/torch_flame_f2.png"],
 		"t", 1000.0 / 120.0, true, Vector2(384, 92)
@@ -157,18 +166,18 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 
 
 ## Layer order (bottom → top under chrome): cavern BG, hatch (shaft), gate frame,
-## chains (locked default). Gate open + socket gems are imported for a later puzzle.
+## tallies. Painterly chains / gate_open clash with Crypt Classic — keep files, hide.
 func _build_cavern_props() -> void:
-	# Hatch over the green shaft hole (top-center). Keep below title-band chrome (z 5+).
+	# Hatch PNG is 256×256 Crypt Classic; sit over the green shaft (top-center).
 	_hatch = _plate_rect(
 		"overlays/rope_exit_hatch.png",
-		Rect2(680, 4, 320, 320),
+		Rect2(712, 16, 256, 256),
 		1,
 		"HomeHatch"
 	)
 	add_child(_hatch)
-	# Gate on the right-wall clear zone, above the Delve plank so Climb/Delve stay readable.
-	var gate_rect := Rect2(1160, 168, 372, 520)
+	# Gate frame PNG is 384×512; right clear zone, above Delve so Climb/Delve stay readable.
+	var gate_rect := Rect2(1168, 180, 384, 512)
 	_gate_frame = _plate_rect(
 		"overlays/rope_exit_gate_frame.png",
 		gate_rect,
@@ -190,6 +199,8 @@ func _build_cavern_props() -> void:
 		2,
 		"GateChains"
 	)
+	# Painterly chains stay on disk for a later redraw; hide for Crypt Classic v1.
+	_gate_chains.visible = false
 	add_child(_gate_chains)
 	_socket_filled_tex = KIT.load_tex("overlays/rope_exit_socket_filled.png")
 	_apply_gate_locked(true)
@@ -201,7 +212,7 @@ func _plate_rect(rel: String, r: Rect2, z: int, node_name: String) -> TextureRec
 	tr.texture = KIT.load_tex(rel)
 	tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tr.position = r.position
 	tr.size = r.size
@@ -210,13 +221,106 @@ func _plate_rect(rel: String, r: Rect2, z: int, node_name: String) -> TextureRec
 
 
 ## Visual-only for now. No unlock flag / socket gameplay in this PR.
-func _apply_gate_locked(locked: bool) -> void:
+## Crypt Classic: frame alone; chains / open plate stay hidden even when "locked".
+func _apply_gate_locked(_locked: bool) -> void:
 	if _gate_frame:
-		_gate_frame.visible = locked
+		_gate_frame.visible = true
 	if _gate_chains:
-		_gate_chains.visible = locked
+		_gate_chains.visible = false
 	if _gate_open:
-		_gate_open.visible = not locked
+		_gate_open.visible = false
+
+
+func _build_tally_wall() -> void:
+	_tally_host = Control.new()
+	_tally_host.name = "TallyWall"
+	_tally_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tally_host.position = TALLY_ORIGIN
+	_tally_host.size = TALLY_SIZE
+	_tally_host.z_index = 2
+	add_child(_tally_host)
+	_tally_bartleby = TextureRect.new()
+	_tally_bartleby.name = "BartlebyChalk"
+	_tally_bartleby.texture = KIT.load_tex("overlays/tally/tally_bartleby_chalk_4x.png")
+	if _tally_bartleby.texture == null:
+		_tally_bartleby.texture = KIT.load_tex("overlays/tally/tally_bartleby_chalk.png")
+	_tally_bartleby.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_tally_bartleby.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_tally_bartleby.stretch_mode = TextureRect.STRETCH_SCALE
+	_tally_bartleby.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tally_bartleby.position = Vector2.ZERO
+	_tally_bartleby.size = TALLY_SIZE
+	_tally_bartleby.visible = false
+	_tally_host.add_child(_tally_bartleby)
+	_refresh_tallies()
+
+
+## Lifetime clears drive the wall. Clamp 0..50; at >=50 show Bartleby chalk instead of strokes.
+func _tally_count() -> int:
+	if _tally_debug >= 0:
+		return clampi(_tally_debug, 0, TALLY_MAX)
+	var life := 0
+	if cabin != null:
+		life = int(cabin.lifetime_dungeons_cleared)
+	return clampi(life, 0, TALLY_MAX)
+
+
+## Shot / QA: force a display count without mutating the save. Pass -1 to clear.
+func set_tally_debug(count: int) -> void:
+	_tally_debug = count
+	_refresh_tallies()
+
+
+func _refresh_tallies() -> void:
+	if _tally_host == null:
+		return
+	for c in _tally_host.get_children():
+		if c == _tally_bartleby:
+			continue
+		_tally_host.remove_child(c)
+		c.free()
+	var count: int = _tally_count()
+	if count >= TALLY_MAX:
+		if _tally_bartleby:
+			_tally_bartleby.visible = true
+		return
+	if _tally_bartleby:
+		_tally_bartleby.visible = false
+	if count <= 0:
+		return
+	var full_groups: int = int(count / 5)
+	var rem: int = count % 5
+	var group5: Texture2D = KIT.load_tex("overlays/tally/tally_group5.png")
+	var sheet: Texture2D = KIT.load_tex("overlays/tally/tally_sheet.png")
+	for g in range(full_groups):
+		_add_tally_group(g, group5, null, 5)
+	if rem > 0 and sheet != null:
+		_add_tally_group(full_groups, null, sheet, rem)
+
+
+func _add_tally_group(g: int, group5: Texture2D, sheet: Texture2D, marks: int) -> void:
+	# Spec: ox = 1 + (g % 5) * 11, oy = 4 + (g / 5) * 22 — native px inside the rect.
+	var ox: float = 1.0 + float(g % 5) * 11.0
+	var oy: float = 4.0 + float(int(g / 5)) * 22.0
+	var tr := TextureRect.new()
+	tr.name = "TallyG%d" % g
+	tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.position = Vector2(ox, oy) * PX
+	tr.size = Vector2(10, 12) * PX
+	if marks >= 5 and group5 != null:
+		tr.texture = group5
+	elif sheet != null and marks >= 1 and marks <= 4:
+		var at := AtlasTexture.new()
+		at.atlas = sheet
+		# tally_sheet.png: 5 frames of 10×12 laid out horizontally; frame n-1 for n marks.
+		at.region = Rect2(float(marks - 1) * 10.0, 0.0, 10.0, 12.0)
+		tr.texture = at
+	else:
+		return
+	_tally_host.add_child(tr)
 
 
 func open_exit(cleared: int, loot: Array = []) -> void:
@@ -234,6 +338,7 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 		_peek_btn.visible = false
 	_show_loot(loot)
 	_refresh_next_carry()
+	_refresh_tallies()
 	_hide_nib()
 	if visible:
 		return
