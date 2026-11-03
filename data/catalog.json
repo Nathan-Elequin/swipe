@@ -3345,7 +3345,7 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "heal",
-			"count": 1,
+			"count": 1.0,
 			"defined": "While this is in your hand, each time you lose exactly 2 HP in one event, Heal 1. Unplayable. You cannot click it.",
 			"exceptions": "Needs art.",
 			"explainer": "(HEAL 1 on exact -2 loss)",
@@ -3388,14 +3388,14 @@
 			},
 			"pending_fields": {},
 			"poc": false,
-			"pool": 3,
-			"priority": 3,
+			"pool": 3.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "I"
 		},
 		{
@@ -5933,14 +5933,14 @@
 		{
 			"ability": "When I enter the Dungeon, I Gaze at 3 of your Items. As soon as you Use 1, the other 2 are Petrified until I am Defeated.",
 			"atk": {
-				"base": 5.0
+				"base": 5
 			},
-			"atk_base": 5.0,
+			"atk_base": 5,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Stone Gaze",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When I enter, Gaze up to 3 random items in the hand (Keep, Smoke, curses, tokens). Prefer unmarked items so two Basilisks can mark six. Short hand: Gaze however many you have. Gaze hover: when one Item with Gaze is used, all others are Petrified until the Basilisk is Defeated. Using one Gazed item (your click or Oligarch) Petrifies every other Gazed item, unique stone with Basilisk icon and tooltip Petrified while the Basilisk remains. Echo Bell that is not Gazed copies the item's effect and does not count as Using the Gazed card. Hovering one Gazed item warns on the others. Freed on Defeat/slay and Polymorph. Flee does not free. Catapult does not free; when that Basilisk comes back off the Dungeon Deck, Defeat or Polymorph it to free its marks. Quiet Bell on enter: no Gaze. 6 HP / 5 Attack.",
 			"exceptions": "Bucket 7. Same sprite. Gaze aura on 3. Warning glow on the other Gazed items while hovering one. Basilisk-icon petrify. Catapult does not free.",
 			"explainer": "Enter: Gaze 3 items. Use 1: the other Gazed items Petrify until Basilisk is Defeated",
@@ -5951,12 +5951,12 @@
 			},
 			"flow": "When I enter, Gaze up to 3 random items in the hand (Keep, Smoke, curses, tokens). Prefer unmarked items so two Basilisks can mark six. Short hand: Gaze however many you have. Gaze hover: when one Item with Gaze is used, all others are Petrified until the Basilisk is Defeated. Using one Gazed item (your click or Oligarch) Petrifies every other Gazed item, unique stone with Basilisk icon and tooltip Petrified while the Basilisk remains. Echo Bell that is not Gazed copies the item's effect and does not count as Using the Gazed card. Hovering one Gazed item warns on the others. Freed on Defeat/slay and Polymorph. Flee does not free. Catapult does not free; when that Basilisk comes back off the Dungeon Deck, Defeat or Polymorph it to free its marks. Quiet Bell on enter: no Gaze. 6 HP / 5 Attack.",
 			"hp": {
-				"base": 6.0
+				"base": 6
 			},
-			"hp_base": 6.0,
+			"hp_base": 6,
 			"hp_formula": "",
 			"id": "basilisk",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-03",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5982,15 +5982,16 @@
 			"name": "Basilisk",
 			"notes": "Bucket 7. Same sprite. Gaze aura on 3. Warning glow on the other Gazed items while hovering one. Basilisk-icon petrify. Catapult does not free.",
 			"ops": {},
+			"pending_fields": {},
 			"poc": false,
-			"pool": 5.0,
-			"priority": 3.0,
+			"pool": 5,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
-			"status": "live",
-			"tier": 3.0,
+			"status": "hold",
+			"tier": 3,
 			"type": "M"
 		},
 		{

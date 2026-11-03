@@ -1672,7 +1672,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-03",
 			"name": "Basilisk"
 		},
 		"monster:bear_trap": {
@@ -5133,5 +5133,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-11-02"
+	"updated": "2026-11-03"
 }

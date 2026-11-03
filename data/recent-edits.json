@@ -43,7 +43,7 @@
 		"item:napalm": 1792420000.0,
 		"item:net": 1792230000.0,
 		"item:orb": 1793410000.0,
-		"item:pacemaker": 1793684587,
+		"item:pacemaker": 1793684587.0,
 		"item:pocketwatch": 1792700700.0,
 		"item:poison_flask": 1793347200.0,
 		"item:polymorph": 1792470000.0,
@@ -65,7 +65,7 @@
 		"monster:amalgam": 1792430764.0,
 		"monster:anvil": 1793410000.0,
 		"monster:bandit": 1791981000.0,
-		"monster:basilisk": 1793416800.0,
+		"monster:basilisk": 1793726069,
 		"monster:bear_trap": 1793699160.0,
 		"monster:beggar": 1761681600.0,
 		"monster:berserker": 1793222400.0,
@@ -123,5 +123,5 @@
 	"item:sling": 1793416800.0,
 	"monster:mouse": 1792450564.02935,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-11-03T07:30:00"
+	"updated": "2026-11-03T17:14:29"
 }
