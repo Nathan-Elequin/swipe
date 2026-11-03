@@ -1,6 +1,6 @@
 ---
 id: REQ-20261103-look-c-in-chrome-tags
-status: open
+status: done
 priority: high
 branch: cursor/look-c-in-chrome-tags-a83f
 base: playtest/latest
