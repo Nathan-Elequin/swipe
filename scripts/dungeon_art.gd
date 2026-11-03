@@ -141,6 +141,7 @@ const ITEM_PNG := {
 	"chakram": "res://assets/dungeon/items/chakram.png",
 	"signpost": "res://assets/dungeon/items/signpost.png",
 	"sling": "res://assets/dungeon/items/sling.png",
+	"spinning_top": "res://assets/dungeon/items/spinning_top.png",
 	"rust": "res://assets/dungeon/items/rust.png",
 	"bag_of_holding": "res://assets/dungeon/items/bag_of_holding.png",
 	"bag_of_holding_closed": "res://assets/dungeon/items/bag_of_holding_closed.png",
