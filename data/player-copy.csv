@@ -590,3 +590,7 @@ Defeat,defeat.journal.48,Defeat spotlight journal quote (random from .01–.50),
 Defeat,defeat.journal.49,Defeat spotlight journal quote (random from .01–.50),The cabin will wait. It always does. It has excellent manners.
 Defeat,defeat.journal.50,Defeat spotlight journal quote (random from .01–.50),Close the journal. Open the door. The mountain owes you a rematch.
 Defeat,defeat.quick,"Defeat spotlight button: new Verdant Hollow run, skip splash, deal hotbar",Quick start
+Rope,rope.home,Rope exit Climb hover title (Hatch / RopeCoil),Head home
+Rope,rope.home.sub,Rope exit Climb hover / confirm body,Bring home everything you're holding.
+Rope,rope.next,Rope exit Delve hover title (Gate),Push deeper
+Rope,rope.next.sub,Rope exit Delve hover / confirm body ({n}=cleared+1),Keep your sack. Dungeon {n} is waiting.

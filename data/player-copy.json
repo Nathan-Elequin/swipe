@@ -3850,6 +3850,34 @@
 		{
 			"cat": "Rope",
 			"draft": true,
+			"key": "rope.home",
+			"text": "Head home",
+			"where": "Rope exit Climb hover title (Hatch / RopeCoil)"
+		},
+		{
+			"cat": "Rope",
+			"draft": true,
+			"key": "rope.home.sub",
+			"text": "Bring home everything you're holding.",
+			"where": "Rope exit Climb hover / confirm body"
+		},
+		{
+			"cat": "Rope",
+			"draft": true,
+			"key": "rope.next",
+			"text": "Push deeper",
+			"where": "Rope exit Delve hover title (Gate)"
+		},
+		{
+			"cat": "Rope",
+			"draft": true,
+			"key": "rope.next.sub",
+			"text": "Keep your sack. Dungeon {n} is waiting.",
+			"where": "Rope exit Delve hover / confirm body ({n}=cleared+1)"
+		},
+		{
+			"cat": "Rope",
+			"draft": true,
 			"key": "rope.peek",
 			"text": "Peek in the sack",
 			"where": "Rope exit button: open the sack peek"
@@ -5853,5 +5881,5 @@
 			"text": "I put my left hand on the wall and started down."
 		}
 	],
-	"updated": "2026-11-02"
+	"updated": "2026-11-03"
 }

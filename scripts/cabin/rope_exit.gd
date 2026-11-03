@@ -29,6 +29,9 @@ var _sign: NinePatchRect
 var _peek_btn: FitButton
 var _hatch_hit: Control
 var _gate_hit: Control
+## Diegetic Climb/Delve hover parchment (Spin-locked rope.home* / rope.next*).
+var _hover_tip: FitLabelBox
+var _hover_tip_hit: Control
 var _campaign_mode: bool = false
 var _can_push: bool = true
 var _push_interrupt: bool = false
@@ -156,6 +159,7 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	_loot_host.z_index = 12
 	add_child(_loot_host)
 	_build_chrome()
+	_build_hover_tip()
 	_build_hotspots()
 	_dialog = preload("res://scripts/cabin/cabin_dialog.gd").new()
 	_dialog.setup(cabin)
@@ -337,6 +341,14 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 	_interrupt_fired = false
 	_interrupt_open = false
 	_loot_count = loot.size()
+	# apply_exit_mode always follows from Main. Clear campaign chip state so
+	# set_chrome_visible cannot flash a prior run's chips (or raw templates).
+	_campaign_mode = false
+	_chip_biome_name = ""
+	_chip_n = 0
+	_chip_show_proj = false
+	_next_name = ""
+	_show_next_carry = false
 	_reset_hero_pose()
 	_apply_banner()
 	_apply_sub_line()
@@ -344,7 +356,6 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 	if _peek_btn:
 		_peek_btn.visible = false
 	_show_loot(loot)
-	_refresh_next_carry()
 	_refresh_tallies()
 	_hide_nib()
 	if visible:
@@ -406,6 +417,7 @@ func _rank_color(tier: int) -> Color:
 
 func hide_exit() -> void:
 	visible = false
+	_hide_exit_tip()
 	_clear_loot()
 	_hide_nib()
 	_interrupt_open = false
@@ -491,6 +503,18 @@ func set_chrome_visible(on: bool) -> void:
 	for n in _chrome:
 		if n:
 			n.visible = on
+	# Campaign chips are NOT in _chrome — set_chrome_visible used to force them
+	# on with the raw `{biome}` / `{n}` templates from construction. Only show
+	# after _refresh_chips fills the vars (sack peek close calls this too).
+	if on:
+		_refresh_chips()
+	else:
+		if _chip_biome:
+			_chip_biome.visible = false
+		if _chip_count:
+			_chip_count.visible = false
+		if _next_carry:
+			_next_carry.visible = false
 
 
 func _on_climb() -> void:
@@ -548,8 +572,10 @@ func _build_chrome() -> void:
 	)
 	add_child(_sub)
 	_chrome.append(_sub)
+	# Empty copy key at build — do not bake `{biome}` / `{n}` templates into the
+	# label. Visibility + filled set_copy live only in _refresh_chips (not _chrome).
 	_chip_biome = KIT.fit_label(
-		"rope.campaign.chip_biome",
+		"",
 		Rect2(1200, 40, 420, 32),
 		22,
 		14,
@@ -561,9 +587,8 @@ func _build_chrome() -> void:
 	)
 	_chip_biome.visible = false
 	add_child(_chip_biome)
-	_chrome.append(_chip_biome)
 	_chip_count = KIT.fit_label(
-		"rope.campaign.chip_count",
+		"",
 		Rect2(1200, 72, 420, 36),
 		28,
 		18,
@@ -575,9 +600,8 @@ func _build_chrome() -> void:
 	)
 	_chip_count.visible = false
 	add_child(_chip_count)
-	_chrome.append(_chip_count)
 	_next_carry = KIT.fit_label(
-		"extract.next_carry",
+		"",
 		Rect2(240, 148, 1200, 36),
 		24,
 		14,
@@ -589,7 +613,6 @@ func _build_chrome() -> void:
 	)
 	_next_carry.visible = false
 	add_child(_next_carry)
-	_chrome.append(_next_carry)
 	var sign_el: Dictionary = KIT.layout_el(_lay, "Sign")
 	var ns: Dictionary = sign_el.get("nine_slice_4x", {"l": 24, "t": 24, "r": 24, "b": 28})
 	_sign = KIT.ui_nine(
@@ -619,6 +642,71 @@ func _build_chrome() -> void:
 	_chrome.append(sign_lab)
 	# Option A: Climb/Delve chrome planks removed. Hotspots on hatch + gate drive exits.
 	_peek_btn = null
+
+
+func _build_hover_tip() -> void:
+	# Same parchment look as cabin hover tags / map tip. Title + body as two lines.
+	_hover_tip = KIT.fit_label(
+		"",
+		Rect2(0, 0, 360, 72),
+		24,
+		16,
+		3,
+		KIT.INK,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		VERTICAL_ALIGNMENT_CENTER,
+		40
+	)
+	_hover_tip.show_frame = true
+	_hover_tip.frame_texture = KIT.load_tex("ui/tooltip_parchment_9.png")
+	_hover_tip.patch_margin_left = 32
+	_hover_tip.patch_margin_right = 32
+	_hover_tip.patch_margin_top = 16
+	_hover_tip.patch_margin_bottom = 16
+	_hover_tip.padding = 8
+	_hover_tip.grow_to_text = true
+	_hover_tip.max_width = 420
+	_hover_tip.visible = false
+	_hover_tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_hover_tip)
+
+
+func _show_exit_tip(title_key: String, body_key: String, vars: Dictionary, hit: Control) -> void:
+	if _hover_tip == null or hit == null:
+		return
+	var title: String = KIT.fill_text(title_key, vars) if vars.size() > 0 else KIT.copy_text(title_key)
+	var body: String = KIT.fill_text(body_key, vars) if vars.size() > 0 else KIT.copy_text(body_key)
+	if title == "" and body == "":
+		return
+	var plain: String = title if body == "" else ("%s\n%s" % [title, body] if title != "" else body)
+	_hover_tip.set_plain(plain)
+	_hover_tip_hit = hit
+	_place_hover_tip(hit)
+	_hover_tip.visible = true
+
+
+func _place_hover_tip(hit: Control) -> void:
+	if _hover_tip == null or hit == null:
+		return
+	if _hover_tip.has_method("fit"):
+		_hover_tip.fit()
+	var g: Rect2 = hit.get_global_rect()
+	var tip_sz: Vector2 = _hover_tip.size
+	if tip_sz.x <= 1.0 or tip_sz.y <= 1.0:
+		tip_sz = Vector2(360, 72)
+	var x: float = g.position.x + g.size.x * 0.5 - tip_sz.x * 0.5
+	x = clampf(x, 8.0, 1680.0 - tip_sz.x - 8.0)
+	var above_y: float = g.position.y - tip_sz.y - 8.0
+	var y: float = above_y
+	if above_y < 8.0:
+		y = g.position.y + g.size.y + 8.0
+	_hover_tip.global_position = Vector2(x, y)
+
+
+func _hide_exit_tip() -> void:
+	_hover_tip_hit = null
+	if _hover_tip:
+		_hover_tip.visible = false
 
 
 func _build_hotspots() -> void:
@@ -653,13 +741,14 @@ func _make_hit(node_name: String, r: Rect2, z: int, hover: Callable, action: Cal
 	hit.mouse_filter = Control.MOUSE_FILTER_STOP
 	hit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	hit.mouse_entered.connect(func() -> void:
-		hover.call(true)
+		hover.call(true, hit)
 	)
 	hit.mouse_exited.connect(func() -> void:
-		hover.call(false)
+		hover.call(false, hit)
 	)
 	hit.gui_input.connect(func(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.pressed and not _busy and not _interrupt_open:
+			_hide_exit_tip()
 			action.call()
 	)
 	add_child(hit)
@@ -691,18 +780,23 @@ func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = fals
 		_hole.visible = _legacy_decor_visible
 	if _hole_glow:
 		_hole_glow.visible = _legacy_decor_visible and _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
-	var show_chip := campaign and _chip_biome_name != ""
+	_refresh_chips()
+
+
+## Fill campaign chip / next-carry copy with vars, then show. Never show raw `{biome}` / `{n}`.
+func _refresh_chips() -> void:
+	var show_chip := _campaign_mode and _chip_biome_name != ""
 	if _chip_biome:
-		_chip_biome.visible = show_chip
 		if show_chip:
 			_chip_biome.set_copy("rope.campaign.chip_biome", {"biome": _chip_biome_name})
+		_chip_biome.visible = show_chip
 	if _chip_count:
-		_chip_count.visible = show_chip
 		if show_chip:
 			if _chip_show_proj:
 				_chip_count.set_copy("extract.case_proj", {"n": _chip_n})
 			else:
 				_chip_count.set_copy("rope.campaign.chip_count", {"n": _chip_n})
+		_chip_count.visible = show_chip
 	_refresh_next_carry()
 
 
@@ -710,12 +804,12 @@ func _refresh_next_carry() -> void:
 	if _next_carry == null:
 		return
 	var show := _campaign_mode and _show_next_carry and _next_name != ""
-	_next_carry.visible = show
 	if show:
 		_next_carry.set_copy("extract.next_carry", {"next": _next_name})
+	_next_carry.visible = show
 
 
-func _set_climb_hot(on: bool) -> void:
+func _set_climb_hot(on: bool, hit: Control = null) -> void:
 	if _interrupt_open:
 		return
 	if _legacy_decor_visible:
@@ -727,9 +821,13 @@ func _set_climb_hot(on: bool) -> void:
 	if on:
 		KIT.cue(cabin.sfx if cabin else null, &"cabin.hover")
 		KIT.cue(cabin.sfx if cabin else null, &"amb.rope_creak")
+		# Spin-locked Climb strings — Hatch.Hit + RopeCoil.Hit share these.
+		_show_exit_tip("rope.home", "rope.home.sub", {}, hit)
+	elif hit == null or hit == _hover_tip_hit:
+		_hide_exit_tip()
 
 
-func _set_delve_hot(on: bool) -> void:
+func _set_delve_hot(on: bool, hit: Control = null) -> void:
 	if _interrupt_open:
 		return
 	if _legacy_decor_visible:
@@ -742,8 +840,12 @@ func _set_delve_hot(on: bool) -> void:
 		_gate_frame.modulate = HOT_MOD if on else HOT_IDLE
 	if on:
 		KIT.cue(cabin.sfx if cabin else null, &"cabin.hover")
+		# Spin-locked Delve strings. {n} = next dungeon = cleared + 1.
+		_show_exit_tip("rope.next", "rope.next.sub", {"n": _cleared + 1}, hit)
 		if _push_interrupt:
 			_try_push_interrupt()
+	elif hit == null or hit == _hover_tip_hit:
+		_hide_exit_tip()
 
 
 func _try_push_interrupt() -> void:
@@ -751,6 +853,7 @@ func _try_push_interrupt() -> void:
 		return
 	_interrupt_fired = true
 	_interrupt_open = true
+	_hide_exit_tip()
 	push_blocked.emit()
 	_show_nib_interrupt()
 
@@ -796,6 +899,7 @@ func _hide_nib() -> void:
 
 func _do_climb() -> void:
 	_busy = true
+	_hide_exit_tip()
 	KIT.cue(cabin.sfx if cabin else null, &"cabin.click")
 	# Center under the shaft, then climb UP into the hatch (option A).
 	var hatch_r := _layout_rect("Hatch", HATCH_PLATE)
@@ -821,6 +925,7 @@ func _do_deeper() -> void:
 	if _campaign_mode and not _can_push:
 		return
 	_busy = true
+	_hide_exit_tip()
 	KIT.cue(cabin.sfx if cabin else null, &"cabin.click")
 	# Walk RIGHT into the floor-planted gate. No jump-through-floor / scale-down.
 	var gate_r := _layout_rect("GateFrame", GATE_PLATE)
