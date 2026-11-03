@@ -1455,8 +1455,10 @@ func _build_ui() -> void:
 	hotbar_wrap = MarginContainer.new()
 	hotbar_wrap.add_theme_constant_override("margin_top", 2)
 	hotbar_wrap.add_theme_constant_override("margin_bottom", 2)
-	## Above MoveBox/TakeArc (z 20) so the cream arc cannot eat hotbar clicks.
-	hotbar_wrap.z_index = 24
+	## Absolute Z so this beats MoveBox/TakeArc (those sit on Main at z 20).
+	## Nested z_index is only vs siblings and does not win against that overlay.
+	hotbar_wrap.z_index = 40
+	hotbar_wrap.z_as_relative = false
 	hotbar_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hotbar_wrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	left.add_child(hotbar_wrap)
@@ -1470,6 +1472,7 @@ func _build_ui() -> void:
 	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_PASS
 	hotbar_overflow.clip_contents = false
 	hotbar_overflow.z_index = 48
+	hotbar_overflow.z_as_relative = false
 	hotbar_overflow.draw.connect(_draw_hotbar_overflow)
 	hotbar_wrap.add_child(hotbar_overflow)
 	choice_overlay = Control.new()
@@ -8546,8 +8549,7 @@ func _on_done() -> void:
 			sfx.play("error", -12.0, 1.2)
 		return
 	if _wheel_busy() or _walker_busy:
-		if _spin_inflight:
-			return
+		_spin_inflight = false
 		_clear_fight_input_lock()
 	if in_tutorial and (tut == null or (tut.wait != "done" and tut.wait != "choice")):
 		if tut:
@@ -9563,11 +9565,6 @@ func _use_item(uid: int) -> void:
 		await _feed_cube(uid)
 		_undo_arm()
 		return
-	if (_walker_busy or _wheel_busy()) and not _oligarch_forcing:
-		if _spin_inflight:
-			return
-		# Spin already finished but a walker/wheel flag stuck on (Wealth Tax).
-		_clear_fight_input_lock()
 	var it_pre: Dictionary = _find_item(uid)
 	var magnet_ready: bool = phase == "ready" and _is_magnet(it_pre)
 	if not magnet_ready and (phase != "fighting" or facing_index < 0):
@@ -9575,6 +9572,8 @@ func _use_item(uid: int) -> void:
 	if not pending_chaos.is_empty():
 		await _chaos_pick(uid)
 		return
+	# Fight plate is up: do not swallow hotbar clicks because Spin still
+	# has `_walker_busy` / `_spin_inflight` / beggar intro stuck on.
 	if not pending_choice.is_empty() and not _sling_pick_open():
 		if uid == int(pending_choice.get("uid", -1)):
 			_cancel_item_selector()
@@ -24040,11 +24039,28 @@ func _sync_take_arc(hit: int, busy: bool, word_override: String = "") -> void:
 func _place_take_arc() -> void:
 	if take_arc == null or wheel_view == null:
 		return
-	take_arc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var parent: Control = take_arc.get_parent() as Control
+	if parent == null:
+		return
 	var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
 	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
-	var local_c: Vector2 = take_arc.get_global_transform().affine_inverse() * c
-	take_arc.set_guide(local_c, rad, TAKE_ARC.RIM_GAP_DEFAULT)
+	## Size the Button to the painted arc. A full-window rect eats hotbar clicks
+	## (MoveBox sits on Main above the nested hotbar, and Button hit-tests the rect).
+	take_arc.set_anchors_preset(Control.PRESET_FULL_RECT)
+	take_arc.offset_left = 0.0
+	take_arc.offset_top = 0.0
+	take_arc.offset_right = 0.0
+	take_arc.offset_bottom = 0.0
+	take_arc.set_guide(take_arc.get_global_transform().affine_inverse() * c, rad, TAKE_ARC.RIM_GAP_DEFAULT)
+	var gr: Rect2 = take_arc.arc_global_rect()
+	if gr.size.x >= 8.0 and gr.size.y >= 8.0:
+		var local_pos: Vector2 = parent.get_global_transform().affine_inverse() * gr.position
+		take_arc.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		take_arc.anchor_right = 0.0
+		take_arc.anchor_bottom = 0.0
+		take_arc.position = local_pos
+		take_arc.size = gr.size
+		take_arc.set_guide(take_arc.get_global_transform().affine_inverse() * c, rad, TAKE_ARC.RIM_GAP_DEFAULT)
 	_clear_undo_under_take_arc()
 
 
