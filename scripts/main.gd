@@ -1466,7 +1466,7 @@ func _build_ui() -> void:
 	hotbar_wrap.add_child(hot_align)
 	hotbar_overflow = Control.new()
 	hotbar_overflow.name = "HotbarOverflow"
-	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_PASS
 	hotbar_overflow.clip_contents = false
 	hotbar_overflow.z_index = 48
 	hotbar_overflow.draw.connect(_draw_hotbar_overflow)
@@ -20245,7 +20245,7 @@ func _item_view(it: Dictionary) -> Dictionary:
 		else:
 			out["can_use"] = _chaos_candidates(stone_uid).has(my_uid)
 	if _challenge_loot_wait:
-		out["can_use"] = not _item_is_curse(it)
+		out["can_use"] = not _item_blocks_hand_tax(it)
 	elif not pending_feed.is_empty():
 		var feed_uids: Array = pending_feed.get("uids", [])
 		out["can_use"] = _uid_in(feed_uids, int(it.get("uid", -1))) and not bool(it.get("spent", false))
@@ -24507,8 +24507,7 @@ func _sync_hotbar() -> void:
 		var selector_on: bool = _selector_is_active()
 		var can_click: bool = false
 		if _challenge_loot_wait:
-			var is_pending: bool = pending_uid != 0 and uid_n == pending_uid
-			can_click = (not _item_blocks_hand_tax(it)) and ((not waiting) or is_pending)
+			can_click = not _item_blocks_hand_tax(it)
 		elif not pending_feed.is_empty():
 			can_click = is_snack
 		elif _sling_pick_open():
@@ -24619,7 +24618,8 @@ func _sync_hotbar() -> void:
 			## Look H killed in-chrome tags — always clear leftover Look C chrome.
 			card.set_mode_tags([])
 		if card.has_method("set_waiting_entry"):
-			card.set_waiting_entry(waiting)
+			## Full-hand discard: keep the incoming card lit and clickable like the rest.
+			card.set_waiting_entry(waiting and not can_click)
 		if card.has_method("set_passive_icons"):
 			card.set_passive_icons(null, null, false)
 		_sync_card_pass5(card, it, can_click, in_fight)
@@ -24727,9 +24727,12 @@ func _hotbar_overflow_anchor_global() -> Vector2:
 func _place_hotbar_overflow() -> void:
 	if hotbar_overflow == null:
 		return
-	hotbar_overflow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	hotbar_overflow.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	hotbar_overflow.anchor_right = 0.0
+	hotbar_overflow.anchor_bottom = 0.0
 	var kids: Array = hotbar_overflow.get_children()
 	if kids.is_empty():
+		hotbar_overflow.size = Vector2.ZERO
 		hotbar_overflow.queue_redraw()
 		return
 	var gap: float = 8.0
@@ -24743,24 +24746,29 @@ func _place_hotbar_overflow() -> void:
 		if sz.y > 8.0:
 			ch = sz.y
 	var n: int = kids.size()
-	var origin: Vector2 = hotbar_overflow.global_position
+	var wrap_origin: Vector2 = hotbar_wrap.global_position if hotbar_wrap != null else Vector2.ZERO
 	var pr: Rect2
 	if hotbar_panel != null:
 		pr = hotbar_panel.get_global_rect()
 	elif hotbar_wrap != null:
 		pr = hotbar_wrap.get_global_rect()
 	else:
-		pr = Rect2(origin, Vector2(420.0, ch))
-	var start_x: float = pr.position.x + pr.size.x + gap - origin.x
-	var y: float = pr.position.y + (pr.size.y - ch) * 0.5 - origin.y
+		pr = Rect2(wrap_origin, Vector2(420.0, ch))
+	hotbar_overflow.position = Vector2(
+		pr.position.x + pr.size.x + gap - wrap_origin.x,
+		pr.position.y + (pr.size.y - ch) * 0.5 - wrap_origin.y
+	)
+	hotbar_overflow.size = Vector2(float(n) * (cw + gap) - gap, ch)
+	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_PASS
+	var tossing: bool = _toss_pick_mode()
 	for i in range(n):
 		var card: Control = kids[i] as Control
 		if card == null:
 			continue
-		card.position = Vector2(start_x + float(i) * (cw + gap), y)
+		card.position = Vector2(float(i) * (cw + gap), 0.0)
+		card.size = Vector2(cw, ch)
 		if card.has_method("set_waiting_entry"):
-			card.set_waiting_entry(false)
-			card.set_waiting_entry(true)
+			card.set_waiting_entry(not tossing)
 	hotbar_overflow.queue_redraw()
 
 
