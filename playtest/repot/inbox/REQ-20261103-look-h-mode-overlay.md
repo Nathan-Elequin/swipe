@@ -5,6 +5,7 @@ priority: high
 branch: cursor/look-h-mode-overlay-c13e
 base: playtest/latest
 created: 2026-11-03T07:45:00Z
+tip_sha: 5c410901
 created_by: cursor-cloud
 viewport: 1680x1040
 entry: F5 playtest hub → Middle Progress / Continue → fight with Throwing Knife, Net, Danger Magnet, Sling, Crossbow, and Hired Hand when available
