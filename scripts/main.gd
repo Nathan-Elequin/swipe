@@ -11881,6 +11881,7 @@ func _chip_hp(index: int, n: int) -> bool:
 	var m: Dictionary = wheel[index]
 	var drop: int = _anvil_floor(m, n)
 	var before: int = int(m.get("hp", 0))
+	_stamp_flee_before(m, drop)
 	m["hp_pre_hit"] = before
 	if _undying(m):
 		if not _lich_chip_open:
@@ -11900,6 +11901,8 @@ func _chip_hp(index: int, n: int) -> bool:
 	var slime_atk_before: int = int(m.get("atk", 0))
 	if str(m.get("card_id", "")) == "slime_boss":
 		m["atk"] = int(m["hp"])
+	if int(m.get("hp", 0)) > 0:
+		m.erase("flee_before")
 	wheel[index] = m
 	if wheel_view:
 		wheel_view.punch_hp(index)
@@ -14279,6 +14282,69 @@ func _resume_facing_fight() -> void:
 	_refresh()
 
 
+func _flees_instead_of_defeat(m: Dictionary) -> bool:
+	if _is_silenced(m):
+		return false
+	var id: String = str(m.get("card_id", ""))
+	if id == "commander":
+		return not bool(m.get("fled_once", false))
+	if id == "triclops":
+		return int(m.get("hp", 0)) != 3
+	if id == "fungal_colony":
+		return true
+	return false
+
+
+## The killing chip has not been applied yet. Keep HP, Attack, and Poison from this moment.
+func _stamp_flee_before(m: Dictionary, drop: int) -> void:
+	if drop <= 0 or not _flees_instead_of_defeat(m):
+		return
+	var before_hp: int = int(m.get("hp", 0))
+	if before_hp <= 0 or before_hp - drop > 0:
+		return
+	m["flee_before"] = {
+		"hp": before_hp,
+		"atk": int(m.get("atk", 0)),
+		"poison": _poison_of(m),
+	}
+
+
+## Put the monster back to the stamp, then return the HP they should show.
+## Triclops still loses the printed 2 after that. A defeat that never chipped them keeps current HP.
+func _restore_flee_stats(s: Dictionary, printed_hp_loss: int = 0) -> int:
+	var shown: int = int(s.get("hp", 0))
+	var keep: int = shown
+	if s.has("flee_before") and typeof(s.get("flee_before")) == TYPE_DICTIONARY:
+		var snap: Dictionary = s["flee_before"]
+		keep = int(snap.get("hp", shown))
+		s["atk"] = int(snap.get("atk", s.get("atk", 0)))
+		var pois: int = int(snap.get("poison", 0))
+		s["poison"] = pois
+		s["poisoned"] = pois > 0
+	elif shown <= 0:
+		keep = int(s.get("hp_pre_hit", 0))
+	keep = maxi(0, keep - printed_hp_loss)
+	if keep <= 0 and printed_hp_loss <= 0:
+		keep = 1 if shown <= 0 else shown
+	s["hp"] = keep
+	s.erase("flee_before")
+	s.erase("hp_pre_hit")
+	s.erase("died_seq")
+	s.erase("died_batch")
+	return keep
+
+
+func _show_flee_stat_snap(index: int, from_hp: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var now_hp: int = int(wheel[index].get("hp", 0))
+	if now_hp != from_hp:
+		await _play_stat_delta(index, true, now_hp - from_hp)
+	if int(wheel[index].get("poison", 0)) > 0 and wheel_view != null and wheel_view.has_method("poison_badge_gain"):
+		wheel_view.poison_badge_gain(index)
+	_refresh()
+
+
 func _try_commander_flee(index: int) -> bool:
 	if index < 0 or index >= wheel.size():
 		return false
@@ -14290,26 +14356,24 @@ func _try_commander_flee(index: int) -> bool:
 	if bool(s.get("fled_once", false)):
 		return false
 	if await _play_chain_cancel():
-		var keep: int = int(s.get("hp", 0))
-		if keep <= 0:
-			keep = int(s.get("hp_pre_hit", 0))
-		if keep <= 0:
-			keep = 1
-		s["hp"] = keep
+		var shown_cancel: int = int(s.get("hp", 0))
+		_restore_flee_stats(s, 0)
 		s["hp_locked"] = false
 		s["spin_locked"] = index == facing_index
 		s["fled_once"] = true
-		s.erase("hp_pre_hit")
 		wheel[index] = s
 		facing_index = index
+		await _show_flee_stat_snap(index, shown_cancel)
 		_resume_facing_fight()
 		return true
+	var shown_flee: int = int(s.get("hp", 0))
 	s["fled_once"] = true
 	s["crossbowed"] = false
-	s["hp"] = maxi(1, int(s.get("hp_max", _card_base_hp("commander"))))
+	_restore_flee_stats(s, 0)
 	s["hp_locked"] = false
 	s["spin_locked"] = false
 	wheel[index] = s
+	await _show_flee_stat_snap(index, shown_flee)
 	_log("on_resolve", "%s flees" % s.get("name", "Commander"))
 	if sfx:
 		sfx.play_event(&"mon.commander_flee")
@@ -14490,13 +14554,20 @@ func _try_triclops_bail(index: int) -> bool:
 	var hp_now: int = int(s.get("hp", 0))
 	if hp_now == 3:
 		return false
-	var before: int = int(s.get("triclops_before", hp_now if hp_now > 0 else s.get("hp_max", 7)))
-	s["hp"] = maxi(0, before - 2)
+	if int(s.get("hp_pre_hit", -1)) == 3 or int(s.get("triclops_before", -1)) == 3:
+		return false
+	var shown_tri: int = hp_now
+	if s.has("flee_before"):
+		_restore_flee_stats(s, 2)
+	else:
+		var before: int = int(s.get("triclops_before", hp_now if hp_now > 0 else s.get("hp_max", 7)))
+		s["hp"] = maxi(0, before - 2)
 	s.erase("triclops_before")
 	s["hp_locked"] = true
 	s["spin_locked"] = false
 	s["crossbowed"] = false
 	wheel[index] = s
+	await _show_flee_stat_snap(index, shown_tri)
 	_log("on_resolve", "Triclops −2 HP and Flee  →  %s" % s["hp"])
 	if int(s["hp"]) <= 0:
 		return false
@@ -14608,14 +14679,10 @@ func _fungal_on_damage(seat: int, attacker: Dictionary) -> void:
 	if str(body.get("card_id", "")) != "fungal_colony":
 		return
 	if int(body.get("hp", 0)) <= 0:
-		var keep_hp: int = int(body.get("hp_pre_hit", 0))
-		if keep_hp <= 0:
-			keep_hp = int(body.get("hp_max", _card_base_hp("fungal_colony")))
-		if keep_hp <= 0:
-			keep_hp = 1
-		body["hp"] = keep_hp
-		body.erase("hp_pre_hit")
+		var shown_fungus: int = int(body.get("hp", 0))
+		_restore_flee_stats(body, 0)
 		wheel[seat] = body
+		await _show_flee_stat_snap(seat, shown_fungus)
 		if wheel_view and wheel_view.slay_index == seat:
 			wheel_view.clear_slay()
 		_refresh()
@@ -17860,6 +17927,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 		return false
 	var before_hp: int = int(m.get("hp", 0))
 	var before_atk: int = int(m.get("atk", 0))
+	_stamp_flee_before(m, hit_n)
 	m["hp_pre_hit"] = before_hp
 	m["hp"] = maxi(0, before_hp - hit_n)
 	wheel[index] = m
@@ -17873,6 +17941,8 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 		m["triclops_before"] = before_hp
 	if str(m.get("card_id", "")) == "slime_boss":
 		m["atk"] = int(m["hp"])
+	if int(m.get("hp", 0)) > 0:
+		m.erase("flee_before")
 	wheel[index] = m
 	if str(m.get("card_id", "")) == "slime_boss":
 		await _play_stat_delta(index, false, int(m.get("atk", 0)) - before_atk, _slice_from(index))
