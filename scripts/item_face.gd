@@ -12,6 +12,8 @@ const FONT_TEXT_OFFER := 18
 const OUTLINE := Color("100e0c")
 const OUTLINE_SIZE := 4
 const TINT_BLUE := Color("6bb3d9")
+## Positive / reclaim mint — matches Hex@1 / Recycler armed (item_card COL_HEX_GOOD).
+const TINT_MINT := Color("5FD3A0")
 const SELF_BORDER := Color("c4a574")
 
 ## Crypt Classic faces under assets/ui/icons/face/ (native 24×24, scaled via TextureRect).
@@ -204,6 +206,8 @@ func _make_cell(g: Dictionary, offer: bool) -> Control:
 		lab.custom_minimum_size = Vector2(maxi(px, t.length() * (10 if offer else 9)), px)
 		if tint == "blue":
 			lab.add_theme_color_override("font_color", TINT_BLUE)
+		elif tint == "mint" or tint == "green":
+			lab.add_theme_color_override("font_color", TINT_MINT)
 		host.custom_minimum_size = lab.custom_minimum_size
 		host.add_child(lab)
 		lab.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -233,12 +237,19 @@ func _make_cell(g: Dictionary, offer: bool) -> Control:
 	icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	var pip_icon: bool = _is_pip_path(_path_for(tex_key))
+	var mint_tint: bool = tint == "mint" or tint == "green"
 
 	if t != "":
 		var num := make_number(t, offer)
-		# Pip art is already colored — skip blue tint on the number sitting on it.
+		# Pip art is already colored — skip blue/mint tint on the number sitting on it.
 		if tint == "blue" and not pip_icon:
 			num.add_theme_color_override("font_color", TINT_BLUE)
+		elif mint_tint and not pip_icon:
+			num.add_theme_color_override("font_color", TINT_MINT)
+			## Recycler armed zero — slightly louder than a normal face pip number.
+			if t == "0":
+				num.add_theme_font_size_override("font_size", (FONT_OFFER if offer else FONT_HOTBAR) + 4)
+				num.add_theme_constant_override("outline_size", OUTLINE_SIZE + 1)
 		host.add_child(num)
 
 	if border == "self":
@@ -263,5 +274,8 @@ func _make_cell(g: Dictionary, offer: bool) -> Control:
 
 	if tint == "blue" and t == "" and not pip_icon:
 		icon.modulate = TINT_BLUE
+	elif mint_tint and not pip_icon:
+		## Recycle arrows around the zero read mint with the plate glow.
+		icon.modulate = TINT_MINT
 
 	return host

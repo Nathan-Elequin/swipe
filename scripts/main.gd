@@ -11317,6 +11317,7 @@ func _recycle_after_gone(snap: Dictionary) -> void:
 	var leaving_uid: int = int(snap.get("uid", -1))
 	var fire_uids: Array = []
 	var tick_uids: Array = []
+	var armed_zero_uids: Array = []
 	for r in hotbar:
 		if typeof(r) != TYPE_DICTIONARY:
 			continue
@@ -11336,8 +11337,17 @@ func _recycle_after_gone(snap: Dictionary) -> void:
 		var t: Dictionary = _find_item(int(rid))
 		if t.is_empty():
 			continue
+		## Countdown tick: ui.slider_tick (~−8 dB). Never item.use.recycler here.
 		t["recycle_n"] = maxi(1, int(t.get("recycle_n", 5)) - 1)
 		_log("var", "Recycler %s" % t["recycle_n"])
+		if sfx and sfx.has_method("play_event"):
+			sfx.play_event(&"ui.slider_tick", {"db_offset": 4.0})
+		if int(t.get("recycle_n", 5)) <= 1:
+			armed_zero_uids.append(int(rid))
+	## Green-glow zero / about-to-reclaim oneshot (authored item_use_recycler).
+	## Not on every tick — only when the face lands on 0.
+	if not armed_zero_uids.is_empty() and sfx and sfx.has_method("play_event"):
+		sfx.play_event(&"item.use.recycler")
 	var copies: int = fire_uids.size()
 	if self_fire:
 		copies += 1
@@ -11345,16 +11355,26 @@ func _recycle_after_gone(snap: Dictionary) -> void:
 		var f: Dictionary = _find_item(int(rid2))
 		if not f.is_empty():
 			f["recycle_n"] = 5
+	## Reclaim fire: same authored cue once per fire batch (passive — no
+	## _announce_item_use path, so this is not a double-spam).
+	if copies > 0 and sfx and sfx.has_method("play_event"):
+		sfx.play_event(&"item.use.recycler")
+	_hotbar_sig = ""
+	_refresh()
+	for rid3 in tick_uids:
+		var tick_card: Control = _hotbar_card_by_uid(int(rid3))
+		if tick_card == null:
+			continue
+		if tick_card.has_method("play_recycle_tick"):
+			tick_card.play_recycle_tick()
+		elif tick_card.has_method("bounce"):
+			tick_card.bounce()
+	for rid4 in fire_uids:
+		var fire_card: Control = _hotbar_card_by_uid(int(rid4))
+		if fire_card != null and fire_card.has_method("bounce"):
+			fire_card.bounce()
 	if copies <= 0:
-		_hotbar_sig = ""
-		_refresh()
 		return
-	for it in hotbar:
-		if str(it.get("card_id", "")) == "recycler" and int(it.get("uid", -1)) in fire_uids:
-			if hotbar_box:
-				for c in hotbar_box.get_children():
-					if _control_uid(c) == int(it.get("uid", -1)) and c.has_method("bounce"):
-						c.bounce()
 	for _i in copies:
 		if _hand_full():
 			_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
@@ -20140,9 +20160,12 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 			var mn := str(int(it.get("marble_n", 0)))
 			return [[_fg("impact", mn), _fg("shield", mn)]]
 		"recycler":
+			## About-to-fire: green 0 sitting on the recycle (copy) icon.
+			## Counting 5→2 uses the big live number (empty glyphs) so dissolve
+			## + play_recycle_tick read louder than tiny face text.
 			if int(it.get("recycle_n", 5)) <= 1:
-				return [[_fg("icon", "", "", "", "", "copy")]]
-			return [[_fg("text", n if n != "" else str(int(it.get("recycle_n", 5))))]]
+				return [[_fg("icon", "0", "mint", "", "", "copy")]]
+			return []
 		"pocketwatch":
 			return [[_fg("text", "Across")]]
 		"grappling_hook":
@@ -20607,10 +20630,8 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["kind"] = "SKIP"
 			out["fill"] = Color("2f5a3a")
 			out["n"] = int(it.get("recycle_n", 5))
-			if int(out["n"]) <= 1:
-				out["number"] = "↻"
-			else:
-				out["number"] = str(out["n"])
+			## Armed face shows 0 (green glow + recycle icon via glyphs).
+			out["number"] = "0" if int(out["n"]) <= 1 else str(out["n"])
 			out["note"] = ""
 			out["can_use"] = false
 		"rust_watch":
@@ -22039,7 +22060,8 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = str(it.get("ability", "Unplayable. Defeats the Monster 6 Spins from now."))
 		"recycle_watch":
 			var rec_n: int = int(it.get("recycle_n", 5))
-			out["value"] = _value_bb("Discards", str(rec_n) if rec_n > 1 else "next", gold)
+			var rec_hex: String = "#5FD3A0" if rec_n <= 1 else gold
+			out["value"] = _value_bb("Discards", "0" if rec_n <= 1 else str(rec_n), rec_hex)
 			out["equation"] = "(%s) then copy that Item" % _bb(gold, "5 Discards")
 			out["body"] = str(it.get("ability", "Every 5th Item Discarded is copied into your Hand"))
 		"rust_watch":
@@ -25046,14 +25068,16 @@ func _sync_hotbar() -> void:
 			card.set_glyphs([] if pn > 0 else _face_rows(it, view))
 		var toll_lethal: bool = str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1
 		var hex_good: bool = str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1
+		## Recycler armed (next discard returns): mint/green glow like Hex@1 — not gold READY.
+		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
 		if card.has_method("set_danger"):
 			card.set_danger(toll_lethal)
 		if card.has_method("set_hex_good"):
-			card.set_hex_good(hex_good)
+			card.set_hex_good(hex_good or rec_ready)
 		if card.has_method("set_num_color"):
 			if pn > 0:
 				card.set_num_color(Color("9a9a9a"))
-			elif hex_good:
+			elif hex_good or rec_ready:
 				card.set_num_color(Color("5FD3A0"))
 			elif toll_lethal:
 				card.set_num_color(Color("C41E1E"))
@@ -25067,7 +25091,6 @@ func _sync_hotbar() -> void:
 			card.set_guarding(false)
 		_apply_bag_look(card, it)
 		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
-		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
 		var upgrade_choice: bool = is_snack and str(pending_feed.get("kind", "")) == "upgrade"
 		var snack_ready: bool = is_snack and not _toss_pick_mode() and not upgrade_choice
 		var rust_hint: bool = _rust_block_hint and str(it.get("card_id", "")) == "rust" and not spent_n
@@ -25095,7 +25118,8 @@ func _sync_hotbar() -> void:
 				role = "choice"
 			elif upgrade_choice or (_toss_pick_mode() and can_click):
 				role = "choice"
-			elif snack_ready or rec_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready") and not selector_on):
+			## Recycler armed uses mint hex_good glow, not gold READY ring.
+			elif snack_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready") and not selector_on):
 				role = "ready"
 			card.set_aura_role(role)
 		if card.has_method("set_cancel_pick"):
@@ -25110,7 +25134,7 @@ func _sync_hotbar() -> void:
 				dim_me = true
 			card.set_selector_dim(dim_me)
 		elif card.has_method("set_aura"):
-			card.set_aura((not stoned_n) and (snack_ready or rec_ready or (mag_on and (phase == "fighting" or phase == "ready"))))
+			card.set_aura((not stoned_n) and (snack_ready or (mag_on and (phase == "fighting" or phase == "ready"))))
 		if card.has_method("set_toss_pick"):
 			card.set_toss_pick(_toss_pick_mode() and can_click)
 		if card.has_method("set_mode_tags"):
@@ -25369,12 +25393,12 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	_apply_item_stone_look(card, it)
 	var toll_lethal_spawn: bool = str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1
 	var hex_good_spawn: bool = str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1
+	var rec_ready_spawn: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
+	## Recycler armed = mint glow (hex_good path), not gold READY.
 	if card.has_method("set_aura_role"):
-		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
-		card.set_aura_role("ready" if rec_ready else "")
+		card.set_aura_role("")
 	elif card.has_method("set_aura"):
-		var rec_ready2: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
-		card.set_aura(rec_ready2)
+		card.set_aura(false)
 	if card.has_method("set_passive_icons"):
 		card.set_passive_icons(null, null, false)
 	card.set_palette(view["fill"], view["rim"], _tier_of(it))
@@ -25394,7 +25418,9 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if card.has_method("set_danger"):
 		card.set_danger(toll_lethal_spawn)
 	if card.has_method("set_hex_good"):
-		card.set_hex_good(hex_good_spawn)
+		card.set_hex_good(hex_good_spawn or rec_ready_spawn)
+	if (hex_good_spawn or rec_ready_spawn) and card.has_method("set_num_color"):
+		card.set_num_color(Color("5FD3A0"))
 	card.hovered.connect(func() -> void:
 		var live: Dictionary = _find_item(int(card.uid))
 		_on_item_hovered(live if not live.is_empty() else it, card)
@@ -25556,6 +25582,9 @@ func _reapply_hotbar_aura_roles() -> void:
 		var selector_on: bool = _selector_is_active()
 		var is_legal: bool = _uid_in(legal_uids, uid_n)
 		var can_click_toss: bool = _toss_pick_mode() and is_legal
+		if card.has_method("set_hex_good"):
+			var hex_good_re: bool = str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1
+			card.set_hex_good(hex_good_re or rec_ready)
 		var role := ""
 		if stoned_n or spent_n:
 			role = ""
@@ -25567,7 +25596,8 @@ func _reapply_hotbar_aura_roles() -> void:
 			role = "choice"
 		elif upgrade_choice or can_click_toss:
 			role = "choice"
-		elif snack_ready or rec_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready") and not selector_on):
+		## Recycler armed keeps mint hex_good glow; gold READY is for snacks/magnet/potion.
+		elif snack_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready") and not selector_on):
 			role = "ready"
 		card.set_aura_role(role)
 		if card.has_method("set_cancel_pick"):

@@ -423,7 +423,8 @@
         "use": "item.use.polymorph"
       },
       "recycler": {
-        "use": "item.use.recycler"
+        "use": "item.use.recycler",
+        "tick": "ui.slider_tick"
       },
       "rust": {
         "use": "item.use.rust"
@@ -6420,7 +6421,7 @@
         "item_use_recycler"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
