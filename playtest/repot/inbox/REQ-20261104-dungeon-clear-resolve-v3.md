@@ -2,7 +2,7 @@
 id: REQ-20261104-dungeon-clear-resolve-v3
 status: open
 priority: high
-tip_sha: 7d1bda48
+tip_sha: 9e4ffc61
 branch: playtest/latest
 created: 2026-11-04T07:40:00Z
 created_by: cursor-cloud
