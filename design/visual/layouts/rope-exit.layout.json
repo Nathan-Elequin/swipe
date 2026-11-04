@@ -1,6 +1,6 @@
 {
  "screen": "rope-exit",
- "title": "Rope exit - diegetic hatch climb / gate delve (option A 2026-11-03)",
+ "title": "Rope exit - diegetic rope-ladder climb / gate delve (Climb C lock 2026-11-03)",
  "viewport": [
   1680,
   1040
@@ -16,10 +16,10 @@
   "scripts/cabin/rope_exit.gd",
   "scripts/cabin/sack_peek.gd (overlay)"
  ],
- "purpose": "Diegetic exits: Climb = hatch/shaft + rope coil hotspots; Delve = floor-planted gate hotspot. No Climb/Delve chrome plank buttons. Left sign is flavor only. Title band + cleared headline stay. Climb anim UP shaft; Delve anim RIGHT into gate. Plant coords measured from Nathan F5 + Pixel annot.",
+ "purpose": "Diegetic exits: Climb = rope ladder centered on skylight + rope coil hotspot; Delve = floor-planted gate. No Climb/Delve chrome planks. Left sign flavor only. Title band stays. Climb leave = ladder jiggle → Sprout dissolve → wipe UP (no hero_climb frame loop). Delve walks RIGHT into gate. Plant coords from Nathan F5 + Climb C lock.",
  "component": "FitLabelBox: NinePatchRect frame (optional) + Label child. Label rect = text_rect. Fit order: size font_max -> shrink by 2 px to font_min -> autowrap (word) up to max_lines -> ellipsis + full text in HoverTag. Text only via KIT.copy_text(key)/fill_text(key,args).",
  "font": "project default (ThemeDB fallback). Same face, sizes, and colours as ac767cd. Do not load assets/ui/fonts.",
- "z_layers": "0 art + GatePortal (void/spiral/floor shadow) | 1 hatch + GateFrame (posts clip portal) | 2 hotspots + tallies | 3 sprites | 5 panels | 10 labels | 50 overlay scrim | 55 overlay sheet | 58 markers | 60 overlay panels/tags | 65 overlay labels | 70 overlay buttons | 80 hover tags | 90 dev tags (dev builds only)",
+ "z_layers": "0 art + GatePortal (void/spiral/floor shadow) | 1 GateFrame (posts clip portal); hatch plate hidden | 2 hotspots + tallies | 3 rope ladder + sprites | 5 panels | 10 labels | 50 overlay scrim | 55 overlay sheet | 58 markers | 60 overlay panels/tags | 65 overlay labels | 70 overlay buttons | 80 hover tags | 90 dev tags | 100 climb wipe",
  "elements": [
   {
    "id": "Background",
@@ -44,7 +44,22 @@
    ],
    "z": 1,
    "asset": "overlays/rope_exit_hatch.png (256×256 Crypt Classic; clips into ceiling — negative y intentional)",
-   "note": "Measured plant: (693,-40). Tip (712,16) left green ABOVE the hatch.",
+   "note": "Shaft center reference (693,-40). Art HIDDEN while rope ladder is the Climb affordance (Climb C lock).",
+   "mouse_filter": "IGNORE",
+   "visible": false
+  },
+  {
+   "id": "Ladder",
+   "kind": "sprite",
+   "rect": [
+    741,
+    -40,
+    160,
+    904
+   ],
+   "z": 3,
+   "asset": "overlays/rope_ladder_f0.png (+ f1/f2 idle; hover = rope_ladder_hover.png). Tip 160×904 rope-looking ladder.",
+   "note": "Centered on skylight/hatch x=821 (741 = 821-80). Top tucked into shaft opening. Diegetic Climb.",
    "mouse_filter": "IGNORE"
   },
   {
@@ -88,16 +103,16 @@
    "mouse_filter": "IGNORE"
   },
   {
-   "id": "Hatch.Hit",
+   "id": "Ladder.Hit",
    "kind": "hotspot",
    "rect": [
-    693,
+    721,
     0,
-    287,
-    320
+    200,
+    920
    ],
    "z": 2,
-   "action": "Climb home (= hatch + shaft top; was Ladder.Hit)",
+   "action": "Climb home (= rope ladder column centered on skylight)",
    "cursor": "POINTING_HAND"
   },
   {

@@ -749,6 +749,9 @@ var _adventure_busy: bool = false
 ## Dungeon-clear resolve: re-entry + soft-lock guards (SCREEN-dungeon-clear-resolve).
 var _clear_resolving: bool = false
 var _clear_committed: bool = false
+## Set by clear_parade when freeze_at >= 0 reaches the wipe swap: open Rope Exit
+## for Repot shots without incrementing / logging "end dungeon N" again.
+var _clear_commit_visual_only: bool = false
 ## Biome-enter splash: blocks double map clicks while dissolve / nest runs.
 var _splash_busy: bool = false
 ## Wheel nest drop offset (px). `_layout_play_field` adds this to wheel_y; do not tween position directly.
@@ -2624,10 +2627,13 @@ func _enter_dungeon_clear() -> void:
 	# so we must refresh again after rest, or the rope never opens (itch soft-lock).
 	_clear_resolving = true
 	_clear_committed = false
+	_clear_commit_visual_only = false
 	await _play_clear_parade()
 	## Soft-lock guard: commit again if the parade was freed/skipped before swap.
+	## freeze_at holds set visual_only (or never reached swap) — don't log extras.
 	_commit_dungeon_clear()
 	_clear_resolving = false
+	_clear_commit_visual_only = false
 	_refresh()
 
 
@@ -2636,17 +2642,34 @@ func _commit_dungeon_clear() -> void:
 	if _clear_committed:
 		return
 	_clear_committed = true
-	dungeons_cleared += 1
-	if home_cabin and home_cabin.has_method("note_dungeon_clear"):
-		home_cabin.note_dungeon_clear()
-	_advance_bucket_counter()
+	var visual_only: bool = _clear_commit_visual_only
+	if not visual_only:
+		dungeons_cleared += 1
+		if home_cabin and home_cabin.has_method("note_dungeon_clear"):
+			home_cabin.note_dungeon_clear()
+		_advance_bucket_counter()
+		_log("end", "dungeon %s" % dungeons_cleared)
 	phase = "rest"
-	_log("end", "dungeon %s" % dungeons_cleared)
 	facing_index = -1
 	## Instant Rope Exit under the black wipe (no 0.3s fade).
 	if rope_exit != null:
 		rope_exit.open_instant = true
 	_refresh()
+	## Keep resolve chrome hidden after refresh (phase was ready → spin pulse /
+	## _sync_buttons would otherwise restore Spin mid-wipe on freeze holds).
+	if _clear_resolving:
+		_hide_clear_resolve_chrome()
+
+
+func _hide_clear_resolve_chrome() -> void:
+	## Spin / move arrows / counter / Take arc / cue stay gone for the whole resolve.
+	for n in [btn_spin, btn_move_left, btn_move_right, move_count, take_arc, hub_cue]:
+		if n != null and is_instance_valid(n):
+			n.visible = false
+			if n is CanvasItem:
+				var m: Color = (n as CanvasItem).modulate
+				m.a = 0.0
+				(n as CanvasItem).modulate = m
 
 
 func _play_clear_parade() -> void:
@@ -2670,6 +2693,12 @@ func _play_clear_parade() -> void:
 	if get_tree() != null:
 		await parade.run(wheel_view, art, _commit_dungeon_clear)
 	if is_instance_valid(parade):
+		## freeze_at holds: never log/increment. Early freezes (before swap) also
+		## skip the rest transition so leaving a 0.16 hold doesn't open Rope Exit.
+		if parade.freeze_at >= 0.0:
+			_clear_commit_visual_only = true
+			if not _clear_committed:
+				_clear_committed = true
 		if parade.tree_exiting.is_connected(_parade_exiting):
 			parade.tree_exiting.disconnect(_parade_exiting)
 		parade.queue_free()
@@ -7130,7 +7159,11 @@ func _process(delta: float) -> void:
 		draft_gate.dock(wheel_view)
 	if in_tutorial:
 		_tut_refresh_focus()
-	if btn_spin != null and btn_spin.visible and not btn_spin.disabled:
+	## During dungeon-clear resolve, clear_parade owns Spin alpha. The ready-phase
+	## pulse was restoring modulate.a=1 every frame (shot 05 Spin reappear).
+	if _clear_resolving:
+		_hide_clear_resolve_chrome()
+	elif btn_spin != null and btn_spin.visible and not btn_spin.disabled:
 		var pulse: float = 0.88 + 0.12 * absf(sin(_anim_t * 5.0))
 		btn_spin.modulate = Color(1.0, pulse, pulse * 0.85, 1.0)
 		btn_spin.pivot_offset = btn_spin.size * 0.5
@@ -23891,6 +23924,10 @@ func _sync_buttons() -> void:
 		btn_challenge_begin.visible = _is_long_drop() and phase == "draft" and draft_action == "challenge_begin"
 		btn_challenge_begin.disabled = busy
 	_sync_move_ui()
+	## Callers _refresh() while phase is still ready during the resolve — keep
+	## Spin / arrows / counter / Take arc hidden for the whole clear parade.
+	if _clear_resolving:
+		_hide_clear_resolve_chrome()
 	if btn_undo:
 		var undo_on: bool = _undo_in_scope() and (phase == "fighting" or phase == "ready" or phase == "slaying") and _undo_can_undo()
 		btn_undo.visible = undo_on

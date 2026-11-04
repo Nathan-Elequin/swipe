@@ -121,8 +121,13 @@ func run(wheel, art, on_swap: Callable = Callable()) -> void:
 			t = end_t
 		_pose(t)
 		if hold_at >= 0.0 and t + 0.02 >= hold_at:
-			_pose(hold_at)
-			await _wait(3600.0)
+			## Keep re-posing while held so a caller _refresh / spin pulse cannot
+			## undo fold or restore Spin during a multi-minute Repot freeze.
+			var hold_left := 3600.0
+			while hold_left > 0.0:
+				_pose(hold_at)
+				await _wait(0.05)
+				hold_left -= 0.05
 			break
 		await _wait(0.02)
 	if hold_at < 0.0:
@@ -147,13 +152,9 @@ func _pose(t: float) -> void:
 		_wheel.fold = clampf(t / T_FOLD_END, 0.0, 1.0) if t < T_FOLD_END else (0.0 if t >= T_SWAP else 1.0)
 		if t >= T_SWAP:
 			_wheel.fold = 0.0
-	## A1 chrome fade.
-	var chrome_a: float = 1.0 - clampf(t / T_CHROME_END, 0.0, 1.0)
-	for n in _chrome_nodes:
-		if n != null and is_instance_valid(n):
-			var m: Color = n.modulate
-			m.a = chrome_a
-			n.modulate = m
+	## A1 chrome fade — also force-hide so main's spin pulse / _sync_buttons
+	## cannot restore Spin (phase stays ready until the swap).
+	_apply_chrome_fade(t)
 	## Aura bloom 0.34–0.52.
 	if _aura != null and is_instance_valid(_aura):
 		if t < T_AURA_START or t > T_AURA_END:
@@ -167,11 +168,16 @@ func _pose(t: float) -> void:
 			var fade: float = 1.0 - clampf((u - 0.35) / 0.65, 0.0, 1.0)
 			_aura.scale = Vector2.ONE * lerpf(0.4, 1.35, pop) * back
 			_aura.modulate = Color(1, 1, 1, fade)
-	## Wipe progress 0→2 across 1.66→2.30.
+	## Wipe: cover 1.66→1.98 ease-out (readable by 1.75), uncover 1.98→2.30 linear.
 	if _wipe_mat != null:
 		var wp := 0.0
-		if t >= T_WIPE_START:
-			wp = clampf((t - T_WIPE_START) / (T_WIPE_END - T_WIPE_START), 0.0, 1.0) * 2.0
+		if t >= T_WIPE_START and t < T_SWAP:
+			var cu: float = clampf((t - T_WIPE_START) / (T_SWAP - T_WIPE_START), 0.0, 1.0)
+			## Ease-out quad: at t=1.75 (~0.28 of cover) progress ≈ 0.48 — lower half.
+			wp = 1.0 - (1.0 - cu) * (1.0 - cu)
+		elif t >= T_SWAP:
+			var uu: float = clampf((t - T_SWAP) / (T_WIPE_END - T_SWAP), 0.0, 1.0)
+			wp = 1.0 + uu
 		_wipe_mat.set_shader_parameter("progress", wp)
 		if _wipe != null:
 			_wipe.visible = t >= T_WIPE_START and wp > 0.001 and wp < 1.999
@@ -215,9 +221,17 @@ func _pose(t: float) -> void:
 		sc = Vector2(SCALE_HUB, SCALE_HUB * sy)
 	elif t < T_SWAP:
 		## C3 fall off bottom (f2). Under wipe.
+		## Front-loaded vs pure t² so freeze_at 1.75 lands Sprout in the lower third
+		## while still exiting at vh+16 by 1.92 (shot 05 / 06 continuity).
 		frame_i = mini(2, _victory.size() - 1) if not _victory.is_empty() else 0
-		var ft: float = t - T_JUMP_UP_END
-		var y: float = (_feet0.y - 40.0) + 0.5 * _g_fall * ft * ft
+		var fall_dt: float = T_FALL_OFF_END - T_JUMP_UP_END
+		var ft: float = clampf(t - T_JUMP_UP_END, 0.0, fall_dt)
+		var fu: float = 0.0 if fall_dt <= 0.001 else ft / fall_dt
+		## pow 0.65 ≈ lower-third by t=1.75; still off-screen at fu=1.
+		var dist: float = pow(fu, 0.65)
+		var y_up: float = _feet0.y - 40.0
+		var y_off: float = _vh + 16.0
+		var y: float = lerpf(y_up, y_off, dist)
 		pos = Vector2(_feet0.x, y)
 		sc = Vector2(SCALE_HUB, SCALE_HUB)
 		if _hero != null:
@@ -309,6 +323,12 @@ func _do_swap(t: float) -> void:
 		if _rope_exit.has_method("set_hero_hidden"):
 			## Hide after open_exit resets pose — commit → refresh → open_exit first.
 			pass
+	## freeze_at holds: still open Rope Exit for shots 06/07, but skip the
+	## dungeon-clear save/log so multi-shot Repot sessions don't stack
+	## "end dungeon N" rows (RESULT.md note on 2.06/2.40 holds).
+	var host = get_parent()
+	if host != null and freeze_at >= 0.0:
+		host.set("_clear_commit_visual_only", true)
 	if _on_swap.is_valid():
 		_on_swap.call()
 	## After commit/open_exit, hide rope hero until E2 handoff (L5).
@@ -318,6 +338,21 @@ func _do_swap(t: float) -> void:
 	_land_tl = _resolve_land()
 	if _wheel != null and is_instance_valid(_wheel):
 		_wheel.fold = 0.0
+
+
+func _apply_chrome_fade(t: float) -> void:
+	var chrome_a: float = 1.0 - clampf(t / T_CHROME_END, 0.0, 1.0)
+	var hide := chrome_a <= 0.02
+	for n in _chrome_nodes:
+		if n == null or not is_instance_valid(n):
+			continue
+		var m: Color = n.modulate
+		m.a = chrome_a
+		n.modulate = m
+		## Hard-hide after fade so main's per-frame spin pulse (sets a=1) and
+		## _sync_buttons (phase still ready) cannot bring Spin back mid-resolve.
+		if hide and n is CanvasItem:
+			(n as CanvasItem).visible = false
 
 
 func _resolve_land() -> Vector2:
@@ -422,7 +457,8 @@ func _build_aura(hub: Vector2) -> void:
 
 
 func _teardown() -> void:
-	## Restore chrome alpha (rest phase hides them anyway).
+	## Restore chrome alpha/visibility (rest phase hides them anyway; ready
+	## paths re-show via _sync_buttons).
 	for n in _chrome_nodes:
 		if n != null and is_instance_valid(n):
 			var m: Color = n.modulate
