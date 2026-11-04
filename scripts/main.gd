@@ -15003,16 +15003,27 @@ func _apply_leech_on_spin() -> void:
 		if int(wheel[i].get("hp", 0)) <= 0:
 			continue
 		idxs.append(i)
+	if idxs.is_empty():
+		return
+	# One Blood Rise cut-in for every Leech League on the wheel (the spawn
+	# copy used to slash again). Wait until that portrait has faded, then
+	# play each league's +1 flights one after another.
+	var any_pulse: bool = false
+	for i in idxs:
+		if _leech_can_pulse(i):
+			any_pulse = true
+			break
+	if any_pulse:
+		await _announce_slice(idxs[0], Vector2.INF, false, false)
 	for i in idxs:
 		if i >= wheel.size() or str(wheel[i].get("card_id", "")) != "leech_league":
 			continue
 		await _leech_pulse(i)
-	if not idxs.is_empty():
-		_sync_wheel_stats()
-		_refresh()
+	_sync_wheel_stats()
+	_refresh()
 
 
-func _leech_pulse(index: int) -> void:
+func _leech_living() -> Array[int]:
 	var living: Array[int] = []
 	for j in range(wheel.size()):
 		if str(wheel[j].get("kind", "")) != "monster":
@@ -15020,15 +15031,26 @@ func _leech_pulse(index: int) -> void:
 		if int(wheel[j].get("hp", 0)) <= 0:
 			continue
 		living.append(j)
+	return living
+
+
+func _leech_all_tied(living: Array[int]) -> bool:
 	if living.size() < 2:
-		return
+		return true
 	var hp0: int = int(wheel[living[0]].get("hp", 0))
-	var all_tied: bool = true
 	for j0 in living:
 		if int(wheel[j0].get("hp", 0)) != hp0:
-			all_tied = false
-			break
-	if all_tied:
+			return false
+	return true
+
+
+func _leech_can_pulse(_index: int) -> bool:
+	return not _leech_all_tied(_leech_living())
+
+
+func _leech_pulse(index: int) -> void:
+	var living: Array[int] = _leech_living()
+	if _leech_all_tied(living):
 		return
 	var best: int = 999999
 	var cands: Array[int] = []
@@ -15042,7 +15064,6 @@ func _leech_pulse(index: int) -> void:
 	if cands.is_empty():
 		return
 	var target: int = cands[rng.randi_range(0, cands.size() - 1)]
-	await _announce_slice(index, _slice_hp_pos(target))
 	var steps: int = 0
 	while steps < 48:
 		steps += 1
