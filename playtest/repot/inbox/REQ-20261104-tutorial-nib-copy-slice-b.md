@@ -2,6 +2,8 @@
 id: REQ-20261104-tutorial-nib-copy-slice-b
 status: open
 priority: normal
+pr: 384
+tip_sha: b4d2b85c
 branch: playtest/latest
 created: 2026-11-04T19:15:00Z
 created_by: cloud-agent
