@@ -63,7 +63,10 @@ func setup(p_cabin) -> void:
 	_shade.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_shade)
 	_box = KIT.nine("ui/dialog_box_9.png", Vector2(12, 12))
-	_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	## Clicks on the parchment advance the line. The shade behind it must not eat them.
+	_box.mouse_filter = Control.MOUSE_FILTER_STOP
+	_box.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_box.gui_input.connect(_on_box_gui_input)
 	add_child(_box)
 	_tail = TextureRect.new()
 	_tail.name = "SpeechTail"
@@ -103,6 +106,8 @@ func setup(p_cabin) -> void:
 	_text.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	_box.add_child(_text)
 	_next = KIT.anim_sprite(["ui/dialog_next_f0.png", "ui/dialog_next_f1.png"], "n", 1000.0 / 300.0, true, Vector2(0, 0))
+	## A corner chevron is not an obstacle. text_reserve was cutting the whole line down to 32px and clipping the words.
+	_next.set_meta("text_reserve_skip", true)
 	_box.add_child(_next)
 	_space_hint = Label.new()
 	_space_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -289,7 +294,8 @@ func _layout_talk(with_choices: bool) -> void:
 	_bust.position = NIB_BUST_OFFSET
 	_bust.size = bust_tex
 	var text_x := inner.position.x + well_sz.x + gap
-	var text_w := inner.size.x - well_sz.x - gap
+	var chev := 40.0
+	var text_w := inner.size.x - well_sz.x - gap - chev
 	## Fill parchment; no always-on choice-height reserve (choices float above).
 	var text_h := inner.size.y
 	_text.position = Vector2(text_x, inner.position.y)
@@ -299,7 +305,7 @@ func _layout_talk(with_choices: bool) -> void:
 	_text.min_font_size = int(L["min_font"])
 	_text.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_text.fit()
-	_next.position = Vector2(inner.end.x - 18.0 * PX, inner.end.y - 16.0 * PX)
+	_next.position = Vector2(inner.end.x - 32.0, inner.end.y - 32.0)
 	if _space_hint != null:
 		var view_sz: Vector2 = get_viewport_rect().size if is_inside_tree() else Vector2(KIT.ROOM_W, KIT.ROOM_H)
 		_space_hint.position = Vector2(24.0, maxf(8.0, view_sz.y - 44.0))
@@ -317,6 +323,28 @@ func _layout_talk(with_choices: bool) -> void:
 		_tail.visible = true
 	TEXT_RESERVE.settle(_box)
 	_text.fit()
+	_relax_body()
+
+
+func _relax_body() -> void:
+	## Fit's ellipsis path was keeping the sentence on one line and cutting it,
+	## even when the parchment still had room for a second line.
+	if _text == null:
+		return
+	var lab: Label = _text.get_node_or_null("Label") as Label
+	if lab == null:
+		return
+	lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lab.max_lines_visible = _text.max_lines
+	lab.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	lab.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	var guard := 0
+	while guard < 16 and lab.get_line_count() > 0 and lab.get_line_height() * float(lab.get_line_count()) > lab.size.y - 6.0:
+		var sz := lab.get_theme_font_size("font_size") - 2
+		if sz < 28:
+			break
+		lab.add_theme_font_size_override("font_size", sz)
+		guard += 1
 
 
 func _layout_tutorial_talk(view: Vector2, with_choices: bool) -> void:
@@ -367,6 +395,7 @@ func _layout_tutorial_talk(view: Vector2, with_choices: bool) -> void:
 		_tail.visible = true
 	TEXT_RESERVE.settle(_box)
 	_text.fit()
+	_relax_body()
 
 
 func _show_line() -> void:
@@ -378,8 +407,10 @@ func _show_line() -> void:
 	_acc = 0.0
 	_typing = true
 	_text.text = _full
-	_text.visible_characters = 0
+	_text.visible_characters = -1
 	_text.fit()
+	_relax_body()
+	_text.visible_characters = 0
 	_next.visible = false
 	_bust.texture = KIT.load_tex("nib/nib_bust_f0.png")
 	if _sfx and _sfx.has_method("speak"):
@@ -516,6 +547,16 @@ func _progress_event(event: InputEvent) -> bool:
 		(_choices.get_child(1) as Button).grab_focus()
 		return true
 	return false
+
+
+func _on_box_gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mb := event as InputEventMouseButton
+	if not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if _progress_event(event):
+		_box.accept_event()
 
 
 func _gui_input(event: InputEvent) -> void:

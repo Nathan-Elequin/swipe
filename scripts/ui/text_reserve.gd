@@ -61,6 +61,9 @@ static func _yield(node: Control) -> void:
 
 
 static func _blocks(n: Node) -> bool:
+	## Continue chevrons and tails sit on the line. They are not obstacles.
+	if n is CanvasItem and (n as CanvasItem).has_meta("text_reserve_skip"):
+		return false
 	if n is FitLabelBox or n is Label or n is RichTextLabel or n is Button:
 		if n is Label and n.get_parent() is FitLabelBox:
 			return false

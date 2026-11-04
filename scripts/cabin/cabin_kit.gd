@@ -31,15 +31,15 @@ const DIALOG_PATCH_NATIVE := 12.0
 const BUBBLE_PATCH_NATIVE := 8.0
 const BUBBLE_FONT := 26
 const BUBBLE_MAX_W_NATIVE := 140.0
-## Cabin-only Nib talk (2026-11-04): ~20% larger than option B, grid-snapped to PX.
+## Cabin-only Nib talk. Width locked. Height is ~30% over the 164px bar so two lines clear the wood (2026-11-04).
 const NIB_TALK_W := 1356.0
-const NIB_TALK_H := 164.0
+const NIB_TALK_H := 212.0
 const NIB_TALK_FONT := 51
 const NIB_TALK_MIN_FONT := 34
 const NIB_TALK_GAP := 12.0
-## Portrait well on parchment interior (wood patch is 12 native / 48px). Height fits 164−96 content.
+## Portrait well on parchment interior (wood patch is 12 native / 48px). Height matches the 212px bar's content (212−96).
 const NIB_WELL_W := 104.0
-const NIB_WELL_H := 64.0
+const NIB_WELL_H := 116.0
 const NIB_BUST_TEX := 128.0
 
 
@@ -325,7 +325,7 @@ static func dialog_bar(view: Vector2, extra_h: float = 0.0, safe_bottom: float =
 	}
 
 
-## Cabin-only Nib talk bar: centered 1356×164, wood 9-slice patch inset, masked portrait well.
+## Cabin-only Nib talk bar: centered 1356×212, wood 9-slice patch inset, masked portrait well.
 ## Never reserve choice-row height here — choices float above the box in cabin_dialog.
 static func nib_talk_bar(view: Vector2, safe_bottom: float = -1.0) -> Dictionary:
 	var bot: float = safe_bottom if safe_bottom >= 0.0 else DIALOG_SAFE_CABIN
