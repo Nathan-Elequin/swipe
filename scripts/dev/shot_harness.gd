@@ -878,6 +878,467 @@ func _shot_itch_boss() -> void:
 	await _capture("42_itch_boss.png", "Deadly dragon fight, other monsters on the wheel, hero HP/BLK, cards in hand")
 
 
+## Formal itch reception pack — playtest/itch/RECEPTION-PACK.md §4 (shots 1–10 + optional 11–12).
+func _shot_itch_reception() -> void:
+	status = "itch-reception"
+	var suite: Array = [
+		"still-01-playtest-hub.png",
+		"still-04-cabin-front.png",
+		"still-08-keep-moves.png",
+		"still-10-trophy-hall.png",
+		"still-12-deeper-biome.png",
+		"gif-02-road-ambush.png",
+		"gif-03-tutorial-wheel.png",
+		"gif-05-held-map.png",
+		"gif-06-biome-splash.png",
+		"gif-07-spin-landing.png",
+		"gif-08-keep-moves.png",
+		"gif-09-rope-exit.png",
+		"gif-11-push-blocked.png",
+	]
+	for i in 14:
+		suite.append("gif-02-road-ambush_f%02d.png" % i)
+	for i in 16:
+		suite.append("gif-03-tutorial-wheel_f%02d.png" % i)
+	for i in 12:
+		suite.append("gif-05-held-map_f%02d.png" % i)
+	for i in 14:
+		suite.append("gif-06-biome-splash_f%02d.png" % i)
+	for i in 12:
+		suite.append("gif-07-spin-landing_f%02d.png" % i)
+	for i in 6:
+		suite.append("gif-08-keep-moves_f%02d.png" % i)
+	for i in 16:
+		suite.append("gif-09-rope-exit_f%02d.png" % i)
+	for i in 10:
+		suite.append("gif-11-push-blocked_f%02d.png" % i)
+	_begin_suite(suite)
+	await _rx_01_hub()
+	await _rx_02_ambush()
+	await _rx_03_tutorial()
+	await _rx_04_cabin()
+	await _rx_05_map()
+	await _rx_06_splash()
+	await _rx_07_spin()
+	await _rx_08_keep_moves()
+	await _rx_09_rope()
+	await _rx_10_trophy()
+	await _rx_11_push_blocked()
+	await _rx_12_deeper()
+	_suite_files.clear()
+
+
+func _rx_01_hub() -> void:
+	_reset_between()
+	_stow_cabin()
+	_hide_chrome(true)
+	if main.play_field:
+		main.play_field.visible = false
+	if main.playtest_hub == null:
+		_skip("still-01-playtest-hub.png", "playtest_hub missing")
+		return
+	main.playtest_hub.open_hub(true, false)
+	await _wait(0.35)
+	await _capture("still-01-playtest-hub.png", "#1 playtest hub Brand New / Middle / Continue / Feedback")
+	main.playtest_hub.close_hub()
+
+
+func _rx_02_ambush() -> void:
+	_reset_between()
+	var cabin = main.home_cabin
+	if cabin == null or cabin._road_frame == null:
+		_skip("gif-02-road-ambush.png", "cabin or road_frame missing")
+		for i in 14:
+			_skip("gif-02-road-ambush_f%02d.png" % i, "cabin or road_frame missing")
+		return
+	_hide_chrome(false)
+	_stow_cabin()
+	if main.play_field:
+		main.play_field.visible = false
+	get_tree().paused = false
+	cabin.visible = true
+	var rf = cabin._road_frame
+	rf.visible = true
+	rf.mouse_filter = Control.MOUSE_FILTER_STOP
+	if rf._black:
+		rf._black.modulate.a = 1.0
+	if rf._frame:
+		rf._frame.visible = true
+	if rf._panel:
+		rf._panel.visible = true
+	if rf._bar:
+		rf._bar.visible = true
+	rf._set_overlay_ui(false)
+	rf._show_approach()
+	rf._set_caption("road.caption.A1.1")
+	await _wait(0.15)
+	await _capture("gif-02-road-ambush_f00.png", "#2 approach")
+	## Ambush shake + caption beats, then Yes/Skip overlay.
+	rf._panel.texture = preload("res://scripts/cabin/cabin_kit.gd").load_tex("cutscenes/intro_ambush.png")
+	rf._set_caption("road.caption.A2.1")
+	var base: Vector2 = rf._panel.position
+	for i in range(1, 7):
+		var ox: float = (1.0 if i % 2 == 0 else -1.0) * (6.0 - float(i) * 0.7) * 4.0
+		rf._panel.position = base + Vector2(ox, 0.0)
+		await _wait(0.09)
+		await _capture("gif-02-road-ambush_f%02d.png" % i, "#2 ambush shake")
+	rf._panel.position = base
+	rf._set_caption("road.caption.A2.2")
+	await _wait(0.2)
+	await _capture("gif-02-road-ambush_f07.png", "#2 ambush settle")
+	rf._set_caption("")
+	if rf._bar:
+		rf._bar.visible = false
+	rf._title.text = preload("res://scripts/player_copy.gd").text("road.overlay.title", "Go through the tutorial with Nib?")
+	rf._yes.text = preload("res://scripts/player_copy.gd").text("road.overlay.yes", "Yes")
+	rf._no.text = preload("res://scripts/player_copy.gd").text("road.overlay.no", "Skip")
+	rf._set_overlay_ui(true)
+	rf._layout()
+	await _wait(0.2)
+	for i in range(8, 14):
+		await _capture("gif-02-road-ambush_f%02d.png" % i, "#2 Yes/Skip overlay")
+		await _wait(0.35)
+	await _capture("gif-02-road-ambush.png", "#2 poster Yes/Skip")
+	if rf.has_method("abort"):
+		rf.abort()
+	cabin.visible = false
+
+
+func _rx_03_tutorial() -> void:
+	_prep_play("fighting")
+	main.adventure = true
+	main.in_tutorial = true
+	main.phase = "fighting"
+	_seat_ids(["goblin", "skeleton", "bandit", "hornet_swarm", "wizard", "ogre"], 6)
+	_hand_ids(["throwing_knife", "shield", "net", "lantern"])
+	main.facing_index = 0
+	main.hp = 5
+	main.blk = 2
+	main.moves_left = 3
+	main._refresh()
+	main._layout_play_field()
+	if main.has_method("_sync_move_ui"):
+		main._sync_move_ui()
+	if main.tut:
+		main.tut.visible = true
+		main.tut.open()
+	if main.fly_tip:
+		main.fly_tip.hide_plate()
+	await _wait(0.35)
+	for i in 16:
+		await _capture("gif-03-tutorial-wheel_f%02d.png" % i, "#3 tutorial wheel mid-fight")
+		await _wait(0.4)
+	await _capture("gif-03-tutorial-wheel.png", "#3 poster tutorial wheel")
+	if main.tut:
+		main.tut.close()
+	main.in_tutorial = false
+
+
+func _rx_04_cabin() -> void:
+	_reset_between()
+	var cabin = main.home_cabin
+	if cabin == null:
+		_skip("still-04-cabin-front.png", "home_cabin missing")
+		return
+	_hide_chrome(false)
+	if main.play_field:
+		main.play_field.visible = false
+	cabin.intro_seen = true
+	cabin.nib_first_done = true
+	cabin.tutorial_done = true
+	cabin.key_ring_seen = true
+	cabin.stop_story()
+	cabin.visible = true
+	cabin.show_menu("main")
+	if cabin.has_method("debug_hero_family"):
+		cabin.debug_hero_family("hero_sit", 0, false)
+	await _wait(0.35)
+	await _capture("still-04-cabin-front.png", "#4 cabin Front Room post-arrive")
+	cabin.visible = false
+	cabin.stop_story()
+
+
+func _rx_05_map() -> void:
+	_reset_between()
+	_stow_cabin()
+	_hide_chrome(true)
+	if main.play_field:
+		main.play_field.visible = false
+	if main._campaign == null or main.campaign_map == null:
+		_skip("gif-05-held-map.png", "campaign or campaign_map missing")
+		for i in 12:
+			_skip("gif-05-held-map_f%02d.png" % i, "campaign or campaign_map missing")
+		return
+	if main.has_method("_open_campaign_map"):
+		main._open_campaign_map()
+	await _wait(0.55)
+	if not main.campaign_map.visible:
+		_skip("gif-05-held-map.png", "campaign map did not open")
+		for i in 12:
+			_skip("gif-05-held-map_f%02d.png" % i, "campaign map did not open")
+		return
+	for i in 12:
+		await _capture("gif-05-held-map_f%02d.png" % i, "#5 Grandpa held map living Deadlies")
+		await _wait(0.4)
+	await _capture("gif-05-held-map.png", "#5 poster held map")
+	if main.has_method("_close_campaign_map"):
+		main.campaign_map.hide_map()
+
+
+func _rx_06_splash() -> void:
+	_reset_between()
+	_stow_cabin()
+	_hide_chrome(true)
+	if main.play_field:
+		main.play_field.visible = false
+	if not main.has_method("_present_campaign_splash"):
+		_skip("gif-06-biome-splash.png", "_present_campaign_splash missing")
+		for i in 14:
+			_skip("gif-06-biome-splash_f%02d.png" % i, "_present_campaign_splash missing")
+		return
+	var splash = await main._present_campaign_splash("b1", 1)
+	if splash == null:
+		_skip("gif-06-biome-splash.png", "biome splash null for b1")
+		for i in 14:
+			_skip("gif-06-biome-splash_f%02d.png" % i, "biome splash null for b1")
+		return
+	await _wait(0.35)
+	for i in 8:
+		await _capture("gif-06-biome-splash_f%02d.png" % i, "#6 Verdant splash")
+		await _wait(0.35)
+	if splash.has_method("play_out"):
+		splash.play_out()
+	await _wait(0.15)
+	_prep_play("fighting")
+	main.adventure = true
+	_seat_ids(["goblin", "skeleton", "bandit", "hornet_swarm", "wizard", "ogre"], 6)
+	_hand_ids(["throwing_knife", "shield", "net"])
+	main.facing_index = 0
+	main.hp = 6
+	main.blk = 1
+	main.moves_left = 3
+	main._refresh()
+	main._layout_play_field()
+	if main.has_method("_sync_move_ui"):
+		main._sync_move_ui()
+	await _wait(0.25)
+	for i in range(8, 14):
+		await _capture("gif-06-biome-splash_f%02d.png" % i, "#6 dissolve into delve")
+		await _wait(0.35)
+	await _capture("gif-06-biome-splash.png", "#6 poster splash→delve")
+	if is_instance_valid(splash):
+		splash.queue_free()
+
+
+func _rx_07_spin() -> void:
+	_prep_play("ready")
+	main.adventure = true
+	_seat_ids(["goblin", "skeleton", "bandit", "hornet_swarm", "wizard", "ogre"], 6)
+	_hand_ids(["throwing_knife", "shield", "net"])
+	main.facing_index = -1
+	main.hp = 6
+	main.blk = 1
+	main.moves_left = 3
+	main._refresh()
+	main._layout_play_field()
+	if main.has_method("_sync_move_ui"):
+		main._sync_move_ui()
+	if main.fly_tip:
+		main.fly_tip.hide_plate()
+	await _wait(0.25)
+	await _capture("gif-07-spin-landing_f00.png", "#7 pre-spin")
+	main.set_meta("qa_spin_idx", 0)
+	main._on_spin()
+	for i in range(1, 11):
+		await _wait(0.28)
+		await _capture("gif-07-spin-landing_f%02d.png" % i, "#7 spin / landing")
+	await _wait(0.35)
+	await _capture("gif-07-spin-landing_f11.png", "#7 landed intent")
+	await _capture("gif-07-spin-landing.png", "#7 poster Spin landing (cover candidate)")
+
+
+func _rx_08_keep_moves() -> void:
+	_prep_play("fighting")
+	main.adventure = true
+	_seat_ids(["goblin", "skeleton", "bandit", "hornet_swarm", "wizard", "ogre"], 6)
+	_hand_ids(["shield", "throwing_knife", "net", "lantern"])
+	main.facing_index = 0
+	main.hp = 5
+	main.blk = 2
+	main.moves_left = 2
+	if main.hotbar.size() > 0:
+		main.hotbar[0]["spent"] = true
+		main.hotbar[0]["keep_after"] = true
+	main._hotbar_sig = ""
+	main._refresh()
+	main._layout_play_field()
+	if main.has_method("_sync_move_ui"):
+		main._sync_move_ui()
+	if main.fly_tip:
+		main.fly_tip.hide_plate()
+	await _wait(0.35)
+	await _capture("still-08-keep-moves.png", "#8 Keep-greyed item + Move pips")
+	for i in 6:
+		await _capture("gif-08-keep-moves_f%02d.png" % i, "#8 Keep/Move short")
+		await _wait(0.35)
+	await _capture("gif-08-keep-moves.png", "#8 poster Keep/Move")
+
+
+func _rx_09_rope() -> void:
+	_reset_between()
+	_plant_sack()
+	main.adventure = true
+	main.phase = "rest"
+	main.dungeons_cleared = 1
+	main.in_tutorial = false
+	_stow_cabin()
+	_hide_chrome(false)
+	if main.play_field:
+		main.play_field.visible = false
+	get_tree().paused = false
+	if main.rope_exit == null:
+		_skip("gif-09-rope-exit.png", "rope_exit missing")
+		for i in 16:
+			_skip("gif-09-rope-exit_f%02d.png" % i, "rope_exit missing")
+		return
+	main.rope_exit.z_index = 200
+	if main.has_method("_rope_loot_rows"):
+		main.rope_exit.open_exit(1, main._rope_loot_rows())
+	else:
+		main.rope_exit.open_exit(1)
+	main.rope_exit.apply_exit_mode(true, true, false, {
+		"biome": "Verdant Hollow",
+		"n": 2,
+		"quota": 5,
+		"show_proj": false,
+		"next": "Crystal Cavern",
+		"next_id": "b2",
+		"show_next": true,
+	}, false)
+	await _wait(0.45)
+	main.rope_exit.modulate.a = 1.0
+	if not main.rope_exit.visible:
+		_skip("gif-09-rope-exit.png", "rope_exit not visible")
+		for i in 16:
+			_skip("gif-09-rope-exit_f%02d.png" % i, "rope_exit not visible")
+		return
+	## Idle + Climb hover sway + Delve hover for Bank/Push read.
+	for i in 6:
+		await _capture("gif-09-rope-exit_f%02d.png" % i, "#9 rope exit idle")
+		await _wait(0.35)
+	if main.rope_exit.has_method("_set_climb_hot"):
+		main.rope_exit._set_climb_hot(true, main.rope_exit._hatch_hit)
+	for i in range(6, 11):
+		await _capture("gif-09-rope-exit_f%02d.png" % i, "#9 Climb/Bank hover")
+		await _wait(0.35)
+	if main.rope_exit.has_method("_set_climb_hot"):
+		main.rope_exit._set_climb_hot(false)
+	if main.rope_exit.has_method("_set_delve_hot"):
+		main.rope_exit._set_delve_hot(true, main.rope_exit._gate_hit)
+	for i in range(11, 16):
+		await _capture("gif-09-rope-exit_f%02d.png" % i, "#9 Push/Delve hover")
+		await _wait(0.35)
+	if main.rope_exit.has_method("_set_delve_hot"):
+		main.rope_exit._set_delve_hot(false)
+	await _capture("gif-09-rope-exit.png", "#9 poster Rope Exit (cover alt)")
+	main.rope_exit.z_index = 80
+	if main.play_field:
+		main.play_field.visible = true
+
+
+func _rx_10_trophy() -> void:
+	_reset_between()
+	var cabin = main.home_cabin
+	if cabin == null:
+		_skip("still-10-trophy-hall.png", "home_cabin missing")
+		return
+	_hide_chrome(false)
+	if main.play_field:
+		main.play_field.visible = false
+	cabin.intro_seen = true
+	cabin.nib_first_done = true
+	cabin.tutorial_done = true
+	cabin.key_ring_seen = true
+	cabin.stop_story()
+	for r in ["hall", "study", "workshop", "loft", "mudroom"]:
+		if not cabin.rooms_unlocked.has(r):
+			cabin.rooms_unlocked.append(r)
+	cabin.visible = true
+	cabin.show_menu("hall")
+	await _wait(0.4)
+	await _capture("still-10-trophy-hall.png", "#10 Trophy Hall cabinets / n/5")
+	cabin.visible = false
+	cabin.stop_story()
+
+
+func _rx_11_push_blocked() -> void:
+	_reset_between()
+	_plant_sack()
+	main.adventure = true
+	main.phase = "rest"
+	main.dungeons_cleared = 1
+	_stow_cabin()
+	_hide_chrome(false)
+	if main.play_field:
+		main.play_field.visible = false
+	if main.rope_exit == null:
+		_skip("gif-11-push-blocked.png", "rope_exit missing")
+		for i in 10:
+			_skip("gif-11-push-blocked_f%02d.png" % i, "rope_exit missing")
+		return
+	main.rope_exit.z_index = 200
+	main.rope_exit.open_exit(1, [])
+	## Under quota → Push interrupt (Nib blocks).
+	main.rope_exit.apply_exit_mode(true, false, true, {
+		"biome": "Verdant Hollow",
+		"n": 2,
+		"quota": 5,
+		"show_proj": true,
+		"next": "",
+		"next_id": "",
+		"show_next": false,
+	}, false)
+	await _wait(0.4)
+	main.rope_exit.modulate.a = 1.0
+	for i in 4:
+		await _capture("gif-11-push-blocked_f%02d.png" % i, "#11 before Push block")
+		await _wait(0.3)
+	if main.rope_exit.has_method("_set_delve_hot"):
+		main.rope_exit._set_delve_hot(true, main.rope_exit._gate_hit)
+	for i in range(4, 10):
+		await _capture("gif-11-push-blocked_f%02d.png" % i, "#11 Nib Push blocked")
+		await _wait(0.35)
+	await _capture("gif-11-push-blocked.png", "#11 poster Push blocked")
+	if main.rope_exit.has_method("_set_delve_hot"):
+		main.rope_exit._set_delve_hot(false)
+	main.rope_exit.hide_exit()
+	main.rope_exit.z_index = 80
+
+
+func _rx_12_deeper() -> void:
+	_prep_play("fighting")
+	main.adventure = true
+	## Crystal Cavern / Ashen Crypt look if art + ambient exist; fall back to b2 splash then fight.
+	_seat_ids(["vampire", "lich", "wraith", "skeleton", "bandit", "ogre"], 6)
+	_hand_ids(["throwing_knife", "shield", "longbow"])
+	main.facing_index = 0
+	main.hp = 4
+	main.blk = 1
+	main.moves_left = 3
+	if main.has_method("_sync_biome_ambient"):
+		main._sync_biome_ambient("b2")
+	if main.has_method("_sync_dungeon_biome"):
+		main._sync_dungeon_biome("b2")
+	main._refresh()
+	main._layout_play_field()
+	if main.has_method("_sync_move_ui"):
+		main._sync_move_ui()
+	if main.fly_tip:
+		main.fly_tip.hide_plate()
+	await _wait(0.4)
+	await _capture("still-12-deeper-biome.png", "#12 deeper biome wheel look (b2)")
+
+
 func _shot_item_hand() -> void:
 	status = "text_item_hand.png"
 	_reset_between()
@@ -1391,6 +1852,13 @@ func _ensure_registry() -> void:
 	_shot_fns["40_itch_midfight"] = _shot_itch_midfight
 	_shot_fns["41_itch_draft_gate"] = _shot_itch_draft_gate
 	_shot_fns["42_itch_boss"] = _shot_itch_boss
+	_bind_many([
+		"still-01-playtest-hub", "gif-02-road-ambush", "gif-03-tutorial-wheel",
+		"still-04-cabin-front", "gif-05-held-map", "gif-06-biome-splash",
+		"gif-07-spin-landing", "still-08-keep-moves", "gif-08-keep-moves",
+		"gif-09-rope-exit", "still-10-trophy-hall",
+		"gif-11-push-blocked", "still-12-deeper-biome",
+	], _shot_itch_reception)
 	_shot_fns["14_keyring_midbeat"] = _shot_keyring_mid
 	_shot_fns["24_rope_exit_belly3"] = _shot_rope_belly3
 	_bind_many([
