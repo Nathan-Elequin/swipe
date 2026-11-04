@@ -26635,9 +26635,7 @@ func _road_finish_to_cabin(declined: bool) -> void:
 		if declined:
 			home_cabin.tutorial_declined = true
 			home_cabin._save()
-		## Free cabin after arrive: no full-screen standard Nib dialog covering the room.
-		if home_cabin.has_method("skip_blocking_first_speech"):
-			home_cabin.skip_blocking_first_speech()
+		## Welcome lines play after the walk-in, inside the cabin. Do not spend them on the arrive splash.
 	_refresh()
 	await _tutorial_play_unlock()
 	if sfx and sfx.has_method("music_cabin"):

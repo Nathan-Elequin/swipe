@@ -415,9 +415,31 @@ func dialog_open() -> bool:
 
 
 func skip_blocking_first_speech() -> void:
-	## Post-tutorial / Skip landing: arrive splash already greeted; free cabin must not open full-screen Nib dialog.
+	## Kept for callers that must land in a free cabin with the welcome already spent.
 	nib_first_done = true
 	_save()
+
+
+func _first_speech_ready() -> bool:
+	## Welcome lines belong in the cabin after the opening scenes, not on top of them.
+	if nib_first_done or _dialog == null:
+		return false
+	if not intro_seen:
+		return false
+	if cutscene_playing():
+		return false
+	if _beat == "intro" or _beat == "road" or _beat == "arrive":
+		return false
+	return true
+
+
+func _say_first_speech() -> void:
+	if not _first_speech_ready():
+		return
+	nib_first_done = true
+	_save()
+	_dialog.say(["nib.first.1", "nib.first.2", "nib.first.3"])
+	await _dialog.finished
 
 
 func _sync_playtest_fab() -> void:
@@ -482,11 +504,8 @@ func show_menu(room: String = "main") -> void:
 		_chair_hit.visible = true
 		_chair_hit.mouse_filter = Control.MOUSE_FILTER_STOP
 	_hide_limp_sack()
-	if not nib_first_done and _dialog:
-		nib_first_done = true
-		_save()
-		_dialog.say(["nib.first.1", "nib.first.2", "nib.first.3"])
-		await _dialog.finished
+	if _first_speech_ready():
+		await _say_first_speech()
 	_apply_gate()
 
 
@@ -552,6 +571,9 @@ func play_intro(is_replay: bool = false) -> void:
 	_arriving = false
 	_ext_root.visible = false
 	_beat = "intro"
+	## Brand New opens the cabin menu before this. That menu must not leave Nib's welcome on the panels.
+	if _dialog and _dialog.has_method("dismiss"):
+		_dialog.dismiss()
 	_story_seq += 1
 	var seq: int = _story_seq
 	if is_replay:
@@ -1260,6 +1282,11 @@ func _play_arrive() -> void:
 	else:
 		counters.hauls = int(counters.get("hauls", 0)) + 1
 		_sync_progress_doors()
+		_beat = "idle"
+		if _first_speech_ready():
+			await _say_first_speech()
+			if not _arrive_alive(gen):
+				return
 		var p: Vector2i = cabinet_progress()
 		if p.y > 0:
 			var pct: int = int(round(100.0 * float(p.x) / float(p.y)))
