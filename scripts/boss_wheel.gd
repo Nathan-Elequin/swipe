@@ -859,8 +859,12 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 	_bond_hold_diff = false
 	var held_close: bool = collapse > 0.001
 	slices = next
-	# Next dungeon must never spawn folded.
-	fold = 0.0
+	## Keep an in-flight dungeon-clear fold. set_slices from caller _refresh()
+	## during the resolve (phase still ready) used to snap fold back to 0 and
+	## fight clear_parade's mid-fold pose — especially on freeze_at holds.
+	## Next dungeon: hub_parade_hide is false, so fold resets to 0 as before.
+	if not hub_parade_hide:
+		fold = 0.0
 	if held_close:
 		# Keep the closed layout until the seat is actually gone, then drop
 		# collapse on the new n-1 equal wedges so the wheel does not pop
@@ -2394,16 +2398,22 @@ func _draw() -> void:
 		_draw_slay(font, c, radius)
 
 
-func _fold_ease_back_in(t: float) -> float:
-	## TRANS_BACK / EASE_IN — tiny overshoot before the wedge clacks shut.
+func _fold_ease(t: float) -> float:
+	## Fan-close amount for one wedge. Spec named TRANS_BACK/EASE_IN, but raw
+	## BACK/EASE_IN dips negative for t≲0.7 — that EXPANDS spans and freezes the
+	## mid-fold (freeze_at 0.16 / fold≈0.38) as a solid opaque disc. Linear keeps
+	## gaps readable by that mark; a tiny clamped clack lands only near shut.
 	t = clampf(t, 0.0, 1.0)
-	const C1 := 1.70158
-	const C3 := C1 + 1.0
-	return C3 * t * t * t - C1 * t * t
+	var eased: float = t
+	if t > 0.85:
+		var u: float = (t - 0.85) / 0.15
+		eased = lerpf(eased, 1.06, u * u)
+	return clampf(eased, 0.0, 1.0)
 
 
 func _draw_fold(c: Vector2, radius: float) -> void:
 	## Whole-wheel reverse accordion toward the bottom hinge. Draw nothing at 1.0.
+	## No full-disc backing — only the folding wedges / rim / hub (hub hides past 0.6).
 	if fold >= 1.0:
 		return
 	var n: int = slices.size()
@@ -2431,7 +2441,7 @@ func _draw_fold(c: Vector2, radius: float) -> void:
 	var draw_c: Vector2 = c - xf_origin if blade_squash < 0.999 else c
 	for i in n:
 		var f_i: float = clampf((fold - float(i) * FOLD_STAGGER) / denom, 0.0, 1.0)
-		var eased: float = _fold_ease_back_in(f_i)
+		var eased: float = _fold_ease(f_i)
 		var span_i: float = base_span * (1.0 - eased)
 		if span_i < 0.002:
 			continue
