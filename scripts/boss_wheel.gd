@@ -5,7 +5,7 @@ signal slice_clicked(index: int)
 signal slice_hovered(index: int)
 signal slice_right_clicked(index: int)
 signal segment_passed(index: int, speed01: float)
-signal atk_ticked
+signal atk_ticked(going_up: bool)
 signal hp_ticked
 signal stat_style_changed(style: int)
 
@@ -1701,6 +1701,7 @@ func play_atk_ticks(index: int, from_n: int, to_n: int) -> void:
 		punch_atk(index)
 		return
 	var step: int = -1 if to_n < from_n else 1
+	var going_up: bool = step > 0
 	var n: int = from_n
 	_atk_disp[index] = n
 	punch_atk(index)
@@ -1708,7 +1709,7 @@ func play_atk_ticks(index: int, from_n: int, to_n: int) -> void:
 		n += step
 		_atk_disp[index] = n
 		punch_atk(index)
-		atk_ticked.emit()
+		atk_ticked.emit(going_up)
 		if get_tree():
 			await get_tree().create_timer(0.035).timeout
 	_atk_disp.erase(index)
