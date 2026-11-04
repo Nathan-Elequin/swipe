@@ -3,11 +3,11 @@
 	"branch": "playtest/latest",
 	"issues": {
 		"348": {
-			"status": "f5",
+			"status": "todo",
 			"title": "Recycler needs a sound effect and louder countdown animation",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/348",
-			"sha": "f00fc698",
-			"f5_note": "Discard ticks play ui.slider_tick + louder punch; armed shows mint 0 on recycle icon. Stop Play, F5 after merge to playtest/latest."
+			"pr": 393,
+			"pr_note": "Fix is on PR #393 (cursor/recycler-sfx-countdown-348-4437). Moves to f5 after merge to playtest/latest or load-pr."
 		},
 		"347": {
 			"status": "f5",
