@@ -1682,6 +1682,26 @@ func set_waiting_entry(on: bool) -> void:
 	queue_redraw()
 
 
+## Full-hand offer: sit at `at` and bob until the player throws something away.
+## Repeat calls with the same anchor leave the bob alone.
+func park_waiting(at: Vector2, sz: Vector2) -> void:
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
+	anchor_right = 0.0
+	anchor_bottom = 0.0
+	size = sz
+	pivot_offset = sz * 0.5
+	var same: bool = _waiting_entry and absf(position.x - at.x) < 0.5 and absf(_wait_base_y - at.y) < 0.5
+	if not same:
+		position = at
+		_wait_base_y = at.y
+		rotation = 0.0
+	_waiting_entry = true
+	z_index = 22
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	set_process(_want_process())
+	queue_redraw()
+
+
 func set_danger(on: bool) -> void:
 	## Toll@1 lethal only — Hex@1 uses set_hex_good / mint face instead.
 	_danger = on

@@ -1475,14 +1475,16 @@ func _build_ui() -> void:
 	hotbar_wrap.add_child(hot_align)
 	hotbar_overflow = Control.new()
 	hotbar_overflow.name = "HotbarOverflow"
-	## IGNORE so this sibling cannot steal hover from seated cards. MarginContainer
-	## sizes every child to the wrap; PASS here covered the hotbar and killed lift/inspect.
+	## Not a child of the hotbar MarginContainer. That container forces every
+	## child to fill the wrap, which pinned the offer card to the left edge
+	## and laid a full-width control over the seats.
 	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hotbar_overflow.clip_contents = false
 	hotbar_overflow.z_index = 48
 	hotbar_overflow.z_as_relative = false
+	hotbar_overflow.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	hotbar_overflow.draw.connect(_draw_hotbar_overflow)
-	hotbar_wrap.add_child(hotbar_overflow)
+	add_child(hotbar_overflow)
 	choice_overlay = Control.new()
 	choice_overlay.name = "ChoiceOverlay"
 	choice_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -9696,6 +9698,19 @@ func _use_item(uid: int) -> void:
 	if _challenge_loot_wait:
 		_challenge_discard_one(uid)
 		return
+	## Full-hand throw-away has to win over an in-progress Spin lock.
+	## Spider Egg and other forced gains wait here until the player clicks a seat.
+	if not pending_feed.is_empty() and _is_toss_feed(str(pending_feed.get("kind", ""))):
+		var allowed_now: Array = pending_feed.get("uids", [])
+		if allowed_now.is_empty():
+			allowed_now = _hand_discard_uids()
+		if not _uid_in(allowed_now, uid):
+			if sfx:
+				sfx.play("error", -12.0, 1.2)
+			return
+		await _feed_cube(uid)
+		_undo_arm()
+		return
 	if _item_hold or _undo_busy:
 		return
 	if challenge_draft_ui != null and challenge_draft_ui.visible and pending_feed.is_empty():
@@ -14227,6 +14242,28 @@ func _try_gain_item(id: String) -> void:
 	if id == "":
 		return
 	var it: Dictionary = _make_item(id)
+	if _gain_blocked_now():
+		_abort_full_hand_gain(it)
+		return
+	if _hand_full():
+		if not _start_full_hand_replace(it):
+			return
+		var epoch: int = _loot_epoch
+		var token: int = _undo_gen
+		while _challenge_loot_wait and is_instance_valid(self):
+			if epoch != _loot_epoch or _undo_stale(token):
+				_challenge_loot_wait = false
+				_challenge_pending_gain = {}
+				_refresh()
+				return
+			await get_tree().process_frame
+		if _find_item(int(it.get("uid", -1))).is_empty():
+			return
+		if sfx:
+			sfx.play_event(&"hand.gain", {"card_id": id})
+		await _echo_bandits(_item_card_global(int(it.get("uid", -1))))
+		_bounce_hot_uid(int(it.get("uid", -1)))
+		return
 	if _hand_cannot_admit():
 		_abort_full_hand_gain(it)
 		return
@@ -14235,17 +14272,6 @@ func _try_gain_item(id: String) -> void:
 	_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", id))
 	_refresh()
-	if _gain_blocked_now():
-		_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
-		_log("discard", str(it.get("name", id)))
-		if sfx:
-			sfx.play("error", -10.0)
-			sfx.play("cloth", -12.0)
-		if get_tree():
-			await get_tree().create_timer(0.45).timeout
-		_toss_item(int(it.get("uid", -1)), false)
-		_refresh()
-		return
 	if sfx:
 		sfx.play_event(&"hand.gain", {"card_id": id})
 	await _echo_bandits(_item_card_global(int(it.get("uid", -1))))
@@ -15631,7 +15657,9 @@ func _lay_spider_egg(index: int) -> void:
 	var to: Vector2 = Vector2.ZERO
 	if wheel_view:
 		from = wheel_view.slice_portrait_global(index)
-	if hotbar_box:
+	if _hand_full():
+		to = _hotbar_overflow_anchor_global()
+	elif hotbar_box:
 		to = hotbar_box.global_position + hotbar_box.size * 0.5
 	if sfx:
 		sfx.play_event(&"egg.lay")
@@ -24922,8 +24950,8 @@ func _sync_hotbar() -> void:
 			## Look H killed in-chrome tags — always clear leftover Look C chrome.
 			card.set_mode_tags([])
 		if card.has_method("set_waiting_entry"):
-			## Full-hand discard: keep the incoming card lit and clickable like the rest.
-			card.set_waiting_entry(waiting and not can_click)
+			## Offer card keeps bobbing until the player throws a seat away.
+			card.set_waiting_entry(waiting)
 		if card.has_method("set_passive_icons"):
 			card.set_passive_icons(null, null, false)
 		_sync_card_pass5(card, it, can_click, in_fight)
@@ -24933,6 +24961,8 @@ func _sync_hotbar() -> void:
 		hotbar_panel.reset_size()
 	_recenter_hotbar()
 	call_deferred("_recenter_hotbar")
+	_place_hotbar_overflow()
+	call_deferred("_place_hotbar_overflow")
 	_clear_choice_overlay()
 
 
@@ -25066,29 +25096,33 @@ func _place_hotbar_overflow() -> void:
 		if sz.y > 8.0:
 			ch = sz.y
 	var n: int = kids.size()
-	var wrap_origin: Vector2 = hotbar_wrap.global_position if hotbar_wrap != null else Vector2.ZERO
 	var pr: Rect2
-	if hotbar_panel != null:
+	if hotbar_panel != null and hotbar_panel.size.x > 8.0:
 		pr = hotbar_panel.get_global_rect()
 	elif hotbar_wrap != null:
 		pr = hotbar_wrap.get_global_rect()
 	else:
-		pr = Rect2(wrap_origin, Vector2(420.0, ch))
-	hotbar_overflow.position = Vector2(
-		pr.position.x + pr.size.x + gap - wrap_origin.x,
-		pr.position.y + (pr.size.y - ch) * 0.5 - wrap_origin.y
+		pr = Rect2(Vector2.ZERO, Vector2(420.0, ch))
+	## Right of the seated hand, vertically centered on that panel.
+	var origin := Vector2(
+		pr.position.x + pr.size.x + gap,
+		pr.position.y + (pr.size.y - ch) * 0.5
 	)
+	hotbar_overflow.global_position = origin
 	hotbar_overflow.size = Vector2(float(n) * (cw + gap) - gap, ch)
 	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var tossing: bool = _toss_pick_mode()
 	for i in range(n):
 		var card: Control = kids[i] as Control
 		if card == null:
 			continue
-		card.position = Vector2(float(i) * (cw + gap), 0.0)
-		card.size = Vector2(cw, ch)
-		if card.has_method("set_waiting_entry"):
-			card.set_waiting_entry(not tossing)
+		var at := Vector2(float(i) * (cw + gap), 0.0)
+		if card.has_method("park_waiting"):
+			card.park_waiting(at, Vector2(cw, ch))
+		else:
+			card.position = at
+			card.size = Vector2(cw, ch)
+			if card.has_method("set_waiting_entry"):
+				card.set_waiting_entry(true)
 	hotbar_overflow.queue_redraw()
 
 
