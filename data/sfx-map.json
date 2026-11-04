@@ -4853,7 +4853,7 @@
         "mon_ability_almighty_worm"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -4867,7 +4867,7 @@
         "mon_ability_amalgam"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -4881,7 +4881,7 @@
         "mon_ability_anvil"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -4895,7 +4895,7 @@
         "mon_ability_bandit"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -4909,7 +4909,7 @@
         "mon_ability_basilisk"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -4923,7 +4923,7 @@
         "mon_ability_bear_trap"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -4937,7 +4937,7 @@
         "mon_ability_beggar"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -4951,7 +4951,7 @@
         "mon_ability_berserker"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -4965,7 +4965,7 @@
         "mon_ability_bodyguard"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -4979,7 +4979,7 @@
         "mon_ability_bushido"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -4993,7 +4993,7 @@
         "mon_ability_cleric"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5007,7 +5007,7 @@
         "mon_ability_clockwork_knight"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5021,7 +5021,7 @@
         "mon_ability_commander"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5035,7 +5035,7 @@
         "mon_ability_cowardly_king"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5049,7 +5049,7 @@
         "mon_ability_cultist"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5063,7 +5063,7 @@
         "mon_ability_death_bell"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5077,7 +5077,7 @@
         "mon_ability_dire_wolf"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5091,7 +5091,7 @@
         "mon_ability_dragon"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5105,7 +5105,7 @@
         "mon_ability_druid"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5119,7 +5119,7 @@
         "mon_ability_eel"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5133,7 +5133,7 @@
         "mon_ability_fairy"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5147,7 +5147,7 @@
         "mon_ability_fungal_colony"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5161,7 +5161,7 @@
         "mon_ability_gargoyle"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5175,7 +5175,7 @@
         "mon_ability_gelatinous_cube"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5189,7 +5189,7 @@
         "mon_ability_goblin"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5203,7 +5203,7 @@
         "mon_ability_harpy"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5217,7 +5217,7 @@
         "mon_ability_hired_hand"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5231,7 +5231,7 @@
         "mon_ability_hollow"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5245,7 +5245,7 @@
         "mon_ability_hornet_swarm"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5259,7 +5259,7 @@
         "mon_ability_hydra"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5273,7 +5273,7 @@
         "mon_ability_juggernaut"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5287,7 +5287,7 @@
         "mon_ability_kobold_trapper"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5301,7 +5301,7 @@
         "mon_ability_lich"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5315,7 +5315,7 @@
         "mon_ability_magicat"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5329,7 +5329,7 @@
         "mon_ability_martyr"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5343,7 +5343,7 @@
         "mon_ability_merchant"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5357,7 +5357,7 @@
         "mon_ability_mimic"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5371,7 +5371,7 @@
         "mon_ability_mouse"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5385,7 +5385,7 @@
         "mon_ability_needleback"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5399,7 +5399,7 @@
         "mon_ability_ogre"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5413,7 +5413,7 @@
         "mon_ability_oligarch"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5427,7 +5427,7 @@
         "mon_ability_phoenix"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5441,7 +5441,7 @@
         "mon_ability_phoenix_egg"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5455,7 +5455,7 @@
         "mon_ability_plague_doctor"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5469,7 +5469,7 @@
         "mon_ability_poison_frog"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5483,7 +5483,7 @@
         "mon_ability_prism"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5497,7 +5497,7 @@
         "mon_ability_rust_bucket"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5511,7 +5511,7 @@
         "mon_ability_sandbag"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5525,7 +5525,7 @@
         "mon_ability_scorpion"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5539,7 +5539,7 @@
         "mon_ability_shambling_mound"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5553,7 +5553,7 @@
         "mon_ability_shark"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5567,7 +5567,7 @@
         "mon_ability_skeleton"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5581,7 +5581,7 @@
         "mon_ability_slime_boss"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5595,7 +5595,7 @@
         "mon_ability_spider_queen"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5609,7 +5609,7 @@
         "mon_ability_three_seeker"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5623,7 +5623,7 @@
         "mon_ability_triclops"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5637,7 +5637,7 @@
         "mon_ability_damsel_in_distress"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5651,7 +5651,7 @@
         "mon_ability_vampire"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5665,7 +5665,7 @@
         "mon_ability_wick"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5679,7 +5679,7 @@
         "mon_ability_wraith"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5693,7 +5693,7 @@
         "mon_ability_zombie"
       ],
       "bus": "SFX",
-      "db": -10,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5707,7 +5707,7 @@
         "item_use_ale_flagon"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5721,7 +5721,7 @@
         "item_use_arrow_head"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5735,7 +5735,7 @@
         "item_use_bag_of_holding"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5749,7 +5749,7 @@
         "item_use_bag_of_marbles"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5763,7 +5763,7 @@
         "item_use_ball_and_chain"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5777,7 +5777,7 @@
         "item_use_blood_chalice"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5791,7 +5791,7 @@
         "item_use_blood_pact"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5805,7 +5805,7 @@
         "item_use_bloody_gauntlets"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5819,7 +5819,7 @@
         "item_use_bracers"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5833,7 +5833,7 @@
         "item_use_breastplate"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5847,7 +5847,7 @@
         "item_use_catapult"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5861,7 +5861,7 @@
         "item_use_chakram"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5875,7 +5875,7 @@
         "item_use_counting_beads"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5889,7 +5889,7 @@
         "item_use_crossbow"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5903,7 +5903,7 @@
         "item_use_cursed_scroll"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5917,7 +5917,7 @@
         "item_use_da_boot"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5931,7 +5931,7 @@
         "item_use_danger_magnet"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5945,7 +5945,7 @@
         "item_use_double_axe"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5959,7 +5959,7 @@
         "item_use_double_buckler"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5973,7 +5973,7 @@
         "item_use_echo_bell"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -5987,7 +5987,7 @@
         "item_use_fairy_in_a_bottle"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6001,7 +6001,7 @@
         "item_use_fangs"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6015,7 +6015,7 @@
         "item_use_flying_saucer"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6029,7 +6029,7 @@
         "item_use_grappling_hook"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6043,7 +6043,7 @@
         "item_use_grief_jar"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6057,7 +6057,7 @@
         "item_use_grimoire"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6071,7 +6071,7 @@
         "item_use_healing_potion"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6085,7 +6085,7 @@
         "item_use_helmet"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6099,7 +6099,7 @@
         "item_use_hex"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6113,7 +6113,7 @@
         "item_use_iron_chain"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6127,7 +6127,7 @@
         "item_use_jar_o_grease"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6141,7 +6141,7 @@
         "item_use_knucklers"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6155,7 +6155,7 @@
         "item_use_lantern"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6169,7 +6169,7 @@
         "item_use_last_match"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6183,7 +6183,7 @@
         "item_use_left_bracer"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6197,7 +6197,7 @@
         "item_use_longbow"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6211,7 +6211,7 @@
         "item_use_lucky_nickel"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6225,7 +6225,7 @@
         "item_use_marble"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6239,7 +6239,7 @@
         "item_use_measuring_tape"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6253,7 +6253,7 @@
         "item_use_medallion"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6267,7 +6267,7 @@
         "item_use_miasma"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6281,7 +6281,7 @@
         "item_use_mirror_shard"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6295,7 +6295,7 @@
         "item_use_mute_stone"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6309,7 +6309,7 @@
         "item_use_napalm"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6323,7 +6323,7 @@
         "item_use_net"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6337,7 +6337,7 @@
         "item_use_orb"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6351,7 +6351,7 @@
         "item_use_pacemaker"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6365,7 +6365,7 @@
         "item_use_pocketwatch"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6379,7 +6379,7 @@
         "item_use_poison_flask"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6393,7 +6393,7 @@
         "item_use_polymorph"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6407,7 +6407,7 @@
         "item_use_quiet_bell"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6435,7 +6435,7 @@
         "item_use_rust"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6449,7 +6449,7 @@
         "item_use_sai"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6463,7 +6463,7 @@
         "item_use_shield"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6477,7 +6477,7 @@
         "item_use_shuriken"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6491,7 +6491,7 @@
         "item_use_signpost"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6505,7 +6505,7 @@
         "item_use_sledgehammer"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6519,7 +6519,7 @@
         "item_use_sling"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6533,7 +6533,7 @@
         "item_use_smoke_bomb"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6547,7 +6547,7 @@
         "item_use_spider_egg"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6561,7 +6561,7 @@
         "item_use_spiked_flail"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6575,7 +6575,7 @@
         "item_use_spiked_shield"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6589,7 +6589,7 @@
         "item_use_spinning_top"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6603,7 +6603,7 @@
         "item_use_stone_wall"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6617,7 +6617,7 @@
         "item_use_throwing_knife"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6631,7 +6631,7 @@
         "item_use_toll"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03
@@ -6645,7 +6645,7 @@
         "item_use_victory_flask"
       ],
       "bus": "SFX",
-      "db": -9,
+      "db": 0,
       "pitch": [
         0.97,
         1.03

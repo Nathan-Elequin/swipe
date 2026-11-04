@@ -304,8 +304,11 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 		var punch_start: float = target_scale * (3.6 / PORTRAIT_SCALE)
 		_portrait.scale = _portrait_scale_vec(punch_start)
 	# Ability activate oneshot at snap-in (keyed by card_id). HOLD: leech_league.
-	if sfx != null and card_id != "" and card_id != "leech_league" and sfx.has_method("play_event"):
-		sfx.play_event(StringName("mon.ability.%s" % card_id))
+	if card_id != "" and card_id != "leech_league":
+		if sfx != null and sfx.has_method("play_event"):
+			sfx.play_event(StringName("mon.ability.%s" % card_id))
+		elif OS.is_debug_build() or Engine.is_editor_hint():
+			print("[sfx] miss mon.ability.%s (no_sfx_on_slash)" % card_id)
 	_tw = create_tween()
 	_tw.set_parallel(true)
 	_tw.tween_property(_dim, "modulate:a", 0.47, _dur(SNAP_MS, fast))
