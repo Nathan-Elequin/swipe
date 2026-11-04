@@ -401,7 +401,9 @@
 		"358": {
 			"status": "todo",
 			"title": "'Bear Trap' does not count as a Tier 2 monster, it's just a Token",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/358"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/358",
+			"pr": "https://github.com/Nathan-Elequin/swipe/pull/388",
+			"pr_note": "Fix on cursor/bear-trap-token-skip-draft-fc7d; not on playtest/latest until merge."
 		},
 		"357": {
 			"status": "todo",

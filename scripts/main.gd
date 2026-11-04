@@ -5633,6 +5633,12 @@ func _fill_challenge_hole(i: int) -> void:
 	var arriver: Dictionary = wheel[i]
 	if str(arriver.get("kind", "")) != "monster":
 		return
+	## Tokens (Bear Trap, Phoenix) are not mill monsters. Catalog `pool` / Token
+	## marks them — not `tier` (Bear Trap still has tier 2 for stats/art chrome).
+	## Hole-fill already seated them from the deck; skip the pick-2 loot draft.
+	var arriver_id: String = str(arriver.get("card_id", ""))
+	if BucketRules.is_token(monsters_by_id.get(arriver_id, {})):
+		return
 	var t: int = _tier_of(arriver)
 	var who: String = str(arriver.get("name", "Monster"))
 	if sfx:
