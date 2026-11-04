@@ -230,7 +230,7 @@ const MONSTER_SPECIAL := {
 	"merchant": {"id": "fair_trade", "text": "When you Spin me, choose an Item and I will upgrade it."},
 	"juggernaut": {"id": "gift_shield", "text": "When you face me, Gain a Shield."},
 	"cleric": {"id": "insure", "text": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item"},
-	"martyr": {"id": "noble_death", "text": "When I lose HP or Attack, I die. Neighbors gain my remaining HP."},
+	"martyr": {"id": "noble_death", "text": "When I lose HP, I die. When I am Defeated. My Neighbors gain HP equal to my remaining HP."},
 	"prism": {"id": "refract", "text": "Attack at me hits both neighbors instead."},
 	"plague_doctor": {"id": "time_bomb", "text": "On each Spin, I give all You and all Monsters 1 Poison."},
 	"hired_hand": {"id": "bribe", "text": "Discard an item: I Attack a Neighbor and Flee."},

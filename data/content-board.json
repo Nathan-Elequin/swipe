@@ -1295,7 +1295,7 @@
 			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
-			"count": 2,
+			"count": 2.0,
 			"explainer": "(ATK 5) opposite",
 			"flow": "Usable in a fight only when living slice count is even. Deal 5 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
 			"hp_base": null,
@@ -1332,14 +1332,14 @@
 				"n": 5.0
 			},
 			"pending_fields": {},
-			"pool": 5,
-			"priority": 3,
+			"pool": 5.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "Heal 1, then increase this number by 1. Keep this if you are still missing HP.",
@@ -4183,6 +4183,11 @@
 			"contradiction_ids": [],
 			"count": 1.0,
 			"explainer": "Neighbors attack, then Heal 3",
+			"flags": {
+				"art": true,
+				"dev": false,
+				"hide": false
+			},
 			"flow": "",
 			"hp_base": 9.0,
 			"hp_formula": "",
@@ -4219,12 +4224,7 @@
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"flags": {
-				"art": true,
-				"dev": false,
-				"hide": false
-			}
+			"tier": 3.0
 		},
 		{
 			"ability": "My Attack always equals my HP.",
@@ -4827,6 +4827,11 @@
 			"contradiction_ids": [],
 			"count": 0.0,
 			"explainer": "Spin or Move onto me: I Attack you, then I am Defeated",
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": true
+			},
 			"flow": "When your Spin lands on me, or any Move/slide lands on me, I Attack you once (Block works) and then I am Defeated like any other monster. Shuriken finishes its 3 Attack first; if that Defeats me I do not Attack. Jar: if the first slide lands on me, I snap and the second slide does not happen. I am never on the opening wheel.",
 			"hp_base": 2.0,
 			"hp_formula": "",
@@ -4852,12 +4857,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 0.0,
-			"flags": {
-				"art": true,
-				"dev": true,
-				"hide": true
-			}
+			"tier": 0.0
 		},
 		{
 			"ability": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
@@ -5385,21 +5385,21 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "When I lose HP or Attack, I die. My Neighbors each gain HP equal to my remaining HP.",
-			"atk_base": 0.0,
+			"ability": "When I lose HP, I die. When I am Defeated. My Neighbors gain HP equal to my remaining HP.",
+			"atk_base": 0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Noble Death",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "On HP loss or Attack: I die. Neighbors gain my remaining HP",
 			"flow": "SP-24 (2026-10-28). 7 HP / 0 Attack. I die on any HP loss (including poison ticks), when I would be Defeated, or when I Attack (0 Attack still Attacks). On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Attack / Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
-			"hp_base": 6.0,
+			"hp_base": 6,
 			"hp_formula": "",
 			"id": "martyr",
 			"kind": "monster",
-			"locked_at": "2026-11-01",
+			"locked_at": "2026-11-04",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5426,14 +5426,14 @@
 			"notes": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
 			"ops": {},
 			"pending_fields": {},
-			"pool": 4.0,
-			"priority": 3.0,
+			"pool": 4,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "On HP loss or Attack: I die. Neighbors gain my remaining HP.",
 			"review": "rough",
-			"review_note": "",
-			"status": "live",
-			"tier": 1.0
+			"review_note": "rewrite to, 'When I lose HP, I die. When I am Defeated. My Neighbors gain HP equal to my remaining HP.'",
+			"status": "todo",
+			"tier": 1
 		},
 		{
 			"ability": "When I would take Attack damage, both of my Neighbors take it instead.",
@@ -6574,36 +6574,36 @@
 			"tier": 2.0
 		},
 		{
-			"id": "fungal_colony",
-			"name": "Fungal Colony",
-			"kind": "monster",
 			"ability": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee.",
-			"explainer": "When I deal Attack damage to you: replace the weakest other monster with a Copy of me, then Flee",
-			"call_name": "Cordycepticide",
-			"reminder": "",
-			"log_hint": "On Attack damage: infect weakest host, then Flee",
-			"flow": "After I deal any Attack damage that gets past Block (incoming > 0), while I am not Quiet Bell silenced: pick a living non-fungal host of the lowest tier below Tier 3; replace that seat with a Copy of me (same HP / Attack / Poison as my current body); then Flee from the fight. If no legal host, log Cordycepticide — no host and still Flee. If the same hit would have dropped me to 0, restore pre-hit HP / Attack / Poison before Flee (see flee-keeps-pre-hit-stats). Infect needs this id in catalog so monsters_by_id.has works.",
-			"notes": "Catalog stub 2026-11-04: main.gd Cordycepticide + SFX already wired; never had a catalog row (audit code_id_missing_catalog). status=hold keeps it out of the mill until art + pool lock. HP 6 / ATK 3 are provisional engine-adjacent placeholders, not a balance pass. Call name Cordycepticide from ability_slash fallback. No PNG yet.",
-			"ops": {},
 			"atk_base": 3.0,
 			"atk_formula": "",
-			"hp_base": 6.0,
-			"hp_formula": "",
-			"tier": 2.0,
-			"pool": 0.0,
-			"count": 1.0,
-			"priority": 1.0,
-			"rarity": "uncommon",
-			"status": "hold",
-			"review": "rough",
-			"review_note": "",
 			"author_lock": false,
-			"locked_at": "",
-			"locked_fields": [],
-			"mode_pool": "all",
+			"call_name": "Cordycepticide",
 			"card_color": "",
 			"contradiction_ids": [],
-			"pending_fields": {}
+			"count": 1.0,
+			"explainer": "When I deal Attack damage to you: replace the weakest other monster with a Copy of me, then Flee",
+			"flow": "After I deal any Attack damage that gets past Block (incoming > 0), while I am not Quiet Bell silenced: pick a living non-fungal host of the lowest tier below Tier 3; replace that seat with a Copy of me (same HP / Attack / Poison as my current body); then Flee from the fight. If no legal host, log Cordycepticide — no host and still Flee. If the same hit would have dropped me to 0, restore pre-hit HP / Attack / Poison before Flee (see flee-keeps-pre-hit-stats). Infect needs this id in catalog so monsters_by_id.has works.",
+			"hp_base": 6.0,
+			"hp_formula": "",
+			"id": "fungal_colony",
+			"kind": "monster",
+			"locked_at": "",
+			"locked_fields": [],
+			"log_hint": "On Attack damage: infect weakest host, then Flee",
+			"mode_pool": "all",
+			"name": "Fungal Colony",
+			"notes": "Catalog stub 2026-11-04: main.gd Cordycepticide + SFX already wired; never had a catalog row (audit code_id_missing_catalog). status=hold keeps it out of the mill until art + pool lock. HP 6 / ATK 3 are provisional engine-adjacent placeholders, not a balance pass. Call name Cordycepticide from ability_slash fallback. No PNG yet.",
+			"ops": {},
+			"pending_fields": {},
+			"pool": 0.0,
+			"priority": 1.0,
+			"rarity": "uncommon",
+			"reminder": "",
+			"review": "rough",
+			"review_note": "",
+			"status": "hold",
+			"tier": 2.0
 		},
 		{
 			"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",

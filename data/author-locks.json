@@ -1885,6 +1885,29 @@
 			"locked_at": "2026-10-18",
 			"name": "Cultist"
 		},
+		"monster:damsel_in_distress": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color"
+			],
+			"locked_at": "2026-10-17",
+			"name": "Damsel in Distress"
+		},
 		"monster:death_bell": {
 			"fields": [
 				"name",
@@ -2382,7 +2405,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-01",
+			"locked_at": "2026-11-04",
 			"name": "Martyr"
 		},
 		"monster:merchant": {
@@ -2846,29 +2869,6 @@
 			],
 			"locked_at": "2026-10-28",
 			"name": "Triclops"
-		},
-		"monster:damsel_in_distress": {
-			"fields": [
-				"name",
-				"ability",
-				"explainer",
-				"flow",
-				"notes",
-				"ops",
-				"rarity",
-				"tier",
-				"count",
-				"priority",
-				"atk_base",
-				"hp_base",
-				"atk_formula",
-				"hp_formula",
-				"call_name",
-				"reminder",
-				"card_color"
-			],
-			"locked_at": "2026-10-17",
-			"name": "Damsel in Distress"
 		},
 		"monster:vampire": {
 			"fields": [
@@ -3929,6 +3929,42 @@
 			"text": "{gloria|poss} Lullaby",
 			"where": "Station name under the dial"
 		},
+		"road.caption.A1.1": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "Nib walks you home. The cabin's just up the path.",
+			"where": "Road approach caption (A1)"
+		},
+		"road.caption.A2.1": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "Something moves in the brush.",
+			"where": "Road ambush caption (A2) line 1"
+		},
+		"road.caption.A2.2": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "The path fills with teeth.",
+			"where": "Road ambush caption (A2) line 2"
+		},
+		"road.overlay.no": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "Skip",
+			"where": "Road tutorial overlay Skip (O1)"
+		},
+		"road.overlay.title": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "Go through the tutorial with Nib?",
+			"where": "Road tutorial overlay title (O1)"
+		},
+		"road.overlay.yes": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "Yes",
+			"where": "Road tutorial overlay Yes (O1)"
+		},
 		"rope.campaign.bank_eyebrow": {
 			"cat": "Rope",
 			"locked_at": "2026-10-28",
@@ -4655,125 +4691,11 @@
 			"text": "Now I just need a place to store this stuff.",
 			"where": "Victory subtitle"
 		},
-		"tutorial.nudge_item": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Click the highlighted thing — not that one.",
-			"where": "Wrong item during How to Play"
-		},
-		"tutorial.nudge_wait": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Hey — finish this first.",
-			"where": "Wrong click during How to Play"
-		},
-		"tutorial.skip": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Skip",
-			"where": "How to Play skip button"
-		},
-		"tutorial.speaker": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "{nib}",
-			"where": "Talk box name"
-		},
-		"warn.boot": {
-			"cat": "Warns",
-			"locked_at": "2026-10-28",
-			"text": "Can't — they're as healthy as you, or healthier.",
-			"where": "the Boot cannot fire"
-		},
-		"warn.crossbow": {
-			"cat": "Warns",
-			"locked_at": "2026-10-07",
-			"text": "Can't — no soft neighbor who can take a bolt.",
-			"where": "Crossbow cannot fire"
-		},
-		"warn.neighbor": {
-			"cat": "Warns",
-			"locked_at": "2026-10-28",
-			"text": "Can't — nobody next door.",
-			"where": "Bracers / Pocketwatch no neighbor"
-		},
-		"warn.poison": {
-			"cat": "Warns",
-			"locked_at": "2026-10-28",
-			"text": "Can't — no neighbor to spike.",
-			"where": "Poison Flask cannot fire"
-		},
-		"warn.sledge": {
-			"cat": "Warns",
-			"locked_at": "2026-10-28",
-			"text": "Can't — they don't hit hard enough.",
-			"where": "Sledgehammer cannot fire"
-		},
-		"warn.spent": {
-			"cat": "Warns",
-			"locked_at": "2026-10-28",
-			"text": "Already used until.",
-			"where": "Used item this fight"
-		},
-		"road.caption.A1.1": {
-			"cat": "Road",
-			"locked_at": "2026-11-04",
-			"text": "Nib walks you home. The cabin's just up the path.",
-			"where": "Road approach caption (A1)"
-		},
-		"road.caption.A2.1": {
-			"cat": "Road",
-			"locked_at": "2026-11-04",
-			"text": "Something moves in the brush.",
-			"where": "Road ambush caption (A2) line 1"
-		},
-		"road.caption.A2.2": {
-			"cat": "Road",
-			"locked_at": "2026-11-04",
-			"text": "The path fills with teeth.",
-			"where": "Road ambush caption (A2) line 2"
-		},
-		"road.overlay.title": {
-			"cat": "Road",
-			"locked_at": "2026-11-04",
-			"text": "Go through the tutorial with Nib?",
-			"where": "Road tutorial overlay title (O1)"
-		},
-		"road.overlay.yes": {
-			"cat": "Road",
-			"locked_at": "2026-11-04",
-			"text": "Yes",
-			"where": "Road tutorial overlay Yes (O1)"
-		},
-		"road.overlay.no": {
-			"cat": "Road",
-			"locked_at": "2026-11-04",
-			"text": "Skip",
-			"where": "Road tutorial overlay Skip (O1)"
-		},
 		"tutorial.chrome.skip": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
 			"text": "Skip",
 			"where": "Always-on Skip during tutorial rails"
-		},
-		"tutorial.nudge_shield": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Not the Shield. Trust me.",
-			"where": "Tutorial nudge · Shield"
-		},
-		"tutorial.nudge_flail": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Not yet. Save it.",
-			"where": "Tutorial nudge · Flail"
-		},
-		"tutorial.nudge_end_fight": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Not yet. Use the item.",
-			"where": "Tutorial nudge · End fight"
 		},
 		"tutorial.line.B01.1": {
 			"cat": "Tutorial",
@@ -4895,6 +4817,12 @@
 			"text": "Not the one you just defeated.",
 			"where": "Tutorial · B12 · line 2"
 		},
+		"tutorial.line.B12.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Take the shield.",
+			"where": "Tutorial · B12 · line 3"
+		},
 		"tutorial.line.B13.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
@@ -4912,6 +4840,12 @@
 			"locked_at": "2026-11-04",
 			"text": "However, he only does three attack.",
 			"where": "Tutorial · B14 · line 2"
+		},
+		"tutorial.line.B14.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "We can block that.",
+			"where": "Tutorial · B14 · line 3"
 		},
 		"tutorial.line.B15.1": {
 			"cat": "Tutorial",
@@ -4937,6 +4871,12 @@
 			"text": "Block lasts until the next spin.",
 			"where": "Tutorial · B16 · line 2"
 		},
+		"tutorial.line.B16.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "After which it is lost.",
+			"where": "Tutorial · B16 · line 3"
+		},
 		"tutorial.line.B17.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
@@ -4954,6 +4894,12 @@
 			"locked_at": "2026-11-04",
 			"text": "However, I recommend you save it instead.",
 			"where": "Tutorial · B17 · line 3"
+		},
+		"tutorial.line.B17.4": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Read the breastplate's ability. If you lose HP this fight, you get to Keep it.",
+			"where": "Tutorial · B17 · line 4"
 		},
 		"tutorial.line.B19.1": {
 			"cat": "Tutorial",
@@ -4990,6 +4936,18 @@
 			"locked_at": "2026-11-04",
 			"text": "It will be grayed out like this until the fight ends, when you can use Keep items again.",
 			"where": "Tutorial · B20 · line 5"
+		},
+		"tutorial.line.B20.6": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The Golem attacked you and then left. This still counts as defeating them.",
+			"where": "Tutorial · B20 · line 6"
+		},
+		"tutorial.line.B20.7": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "There are multiple ways you can defeat enemies, including attacking them or defending against them.",
+			"where": "Tutorial · B20 · line 7"
 		},
 		"tutorial.line.B21.1": {
 			"cat": "Tutorial",
@@ -5045,6 +5003,12 @@
 			"text": "Or you could block some of his damage.",
 			"where": "Tutorial · B26 · line 2"
 		},
+		"tutorial.line.B26.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The choice is yours.",
+			"where": "Tutorial · B26 · line 3"
+		},
 		"tutorial.line.B27a.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
@@ -5069,11 +5033,29 @@
 			"text": "Flail liked it, though.",
 			"where": "Tutorial · B27b · line 2"
 		},
+		"tutorial.line.B27c.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Blocked most of it. One still got through.",
+			"where": "Tutorial · B27c · line 1"
+		},
+		"tutorial.line.B27c.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Breastplate Kept. That's the trade for blocking.",
+			"where": "Tutorial · B27c · line 2"
+		},
 		"tutorial.line.B28.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
 			"text": "Okay. Big guy.",
 			"where": "Tutorial · B28 · line 1"
+		},
+		"tutorial.line.B28.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "",
+			"where": "Tutorial · B28 · line 2"
 		},
 		"tutorial.line.B29.1": {
 			"cat": "Tutorial",
@@ -5146,6 +5128,12 @@
 			"locked_at": "2026-11-04",
 			"text": "Wheel shrinks when seats close. Let's go.",
 			"where": "Tutorial · B32c · line 2"
+		},
+		"tutorial.line.B32c.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "",
+			"where": "Tutorial · B32c · line 3"
 		},
 		"tutorial.line.B34.1": {
 			"cat": "Tutorial",
@@ -5225,6 +5213,12 @@
 			"text": "Hope.",
 			"where": "Tutorial · B39 · line 3"
 		},
+		"tutorial.line.B39.4": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "",
+			"where": "Tutorial · B39 · line 4"
+		},
 		"tutorial.line.B40.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
@@ -5296,6 +5290,12 @@
 			"locked_at": "2026-11-04",
 			"text": "The Dragon. 6 HP. 6 Attack, and Block does nothing.",
 			"where": "Tutorial · B47 · line 3"
+		},
+		"tutorial.line.B47.4": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "You've got 2 HP. He'd flatten you. Count the Flail — every bleed made it meaner. Block's useless. Saved Flail.",
+			"where": "Tutorial · B47 · line 4"
 		},
 		"tutorial.line.B49.1": {
 			"cat": "Tutorial",
@@ -5393,84 +5393,84 @@
 			"text": "Okay. That one's on me. Again.",
 			"where": "Tutorial · T5 · line 1"
 		},
-		"tutorial.line.B28.2": {
+		"tutorial.nudge_end_fight": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "",
-			"where": "Tutorial · B28 · line 2"
+			"text": "Not yet. Use the item.",
+			"where": "Blocked end-fight"
 		},
-		"tutorial.line.B32c.3": {
+		"tutorial.nudge_flail": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "",
-			"where": "Tutorial · B32c · line 3"
+			"text": "Not yet. Save it.",
+			"where": "Blocked Flail click"
 		},
-		"tutorial.line.B39.4": {
+		"tutorial.nudge_item": {
 			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "",
-			"where": "Tutorial · B39 · line 4"
+			"locked_at": "2026-10-28",
+			"text": "Click the highlighted thing — not that one.",
+			"where": "Wrong item during How to Play"
 		},
-		"tutorial.line.B47.4": {
+		"tutorial.nudge_shield": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "You've got 2 HP. He'd flatten you. Count the Flail — every bleed made it meaner. Block's useless. Saved Flail.",
-			"where": "Tutorial · B47 · line 4"
+			"text": "Not the Shield. Trust me.",
+			"where": "Blocked Shield click"
 		},
-		"tutorial.line.B12.3": {
+		"tutorial.nudge_wait": {
 			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Take the shield.",
-			"where": "Tutorial · B12 · line 3"
+			"locked_at": "2026-10-28",
+			"text": "Hey — finish this first.",
+			"where": "Wrong click during How to Play"
 		},
-		"tutorial.line.B14.3": {
+		"tutorial.skip": {
 			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "We can block that.",
-			"where": "Tutorial · B14 · line 3"
+			"locked_at": "2026-10-28",
+			"text": "Skip",
+			"where": "How to Play skip button"
 		},
-		"tutorial.line.B16.3": {
+		"tutorial.speaker": {
 			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "After which it is lost.",
-			"where": "Tutorial · B16 · line 3"
+			"locked_at": "2026-10-28",
+			"text": "{nib}",
+			"where": "Talk box name"
 		},
-		"tutorial.line.B17.4": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Read the breastplate's ability. If you lose HP this fight, you get to Keep it.",
-			"where": "Tutorial · B17 · line 4"
+		"warn.boot": {
+			"cat": "Warns",
+			"locked_at": "2026-10-28",
+			"text": "Can't — they're as healthy as you, or healthier.",
+			"where": "the Boot cannot fire"
 		},
-		"tutorial.line.B20.6": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "The Golem attacked you and then left. This still counts as defeating them.",
-			"where": "Tutorial · B20 · line 6"
+		"warn.crossbow": {
+			"cat": "Warns",
+			"locked_at": "2026-10-07",
+			"text": "Can't — no soft neighbor who can take a bolt.",
+			"where": "Crossbow cannot fire"
 		},
-		"tutorial.line.B20.7": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "There are multiple ways you can defeat enemies, including attacking them or defending against them.",
-			"where": "Tutorial · B20 · line 7"
+		"warn.neighbor": {
+			"cat": "Warns",
+			"locked_at": "2026-10-28",
+			"text": "Can't — nobody next door.",
+			"where": "Bracers / Pocketwatch no neighbor"
 		},
-		"tutorial.line.B26.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "The choice is yours.",
-			"where": "Tutorial · B26 · line 3"
+		"warn.poison": {
+			"cat": "Warns",
+			"locked_at": "2026-10-28",
+			"text": "Can't — no neighbor to spike.",
+			"where": "Poison Flask cannot fire"
 		},
-		"tutorial.line.B27c.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Blocked most of it. One still got through.",
-			"where": "Tutorial · B27c · line 1"
+		"warn.sledge": {
+			"cat": "Warns",
+			"locked_at": "2026-10-28",
+			"text": "Can't — they don't hit hard enough.",
+			"where": "Sledgehammer cannot fire"
 		},
-		"tutorial.line.B27c.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Breastplate Kept. That's the trade for blocking.",
-			"where": "Tutorial · B27c · line 2"
+		"warn.spent": {
+			"cat": "Warns",
+			"locked_at": "2026-10-28",
+			"text": "Already used until.",
+			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-11-04T18:30:00Z"
+	"updated": "2026-11-04"
 }

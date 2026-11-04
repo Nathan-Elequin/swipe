@@ -3,11 +3,21 @@
 	"branch": "playtest/latest",
 	"issues": {
 		"348": {
-			"status": "todo",
+			"status": "closed",
 			"title": "Recycler needs a sound effect and louder countdown animation",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/348",
 			"pr": 393,
-			"pr_note": "Fix is on PR #393 (cursor/recycler-sfx-countdown-348-4437). Moves to f5 after merge to playtest/latest or load-pr."
+			"pr_note": "GitHub already closed. Not listed again."
+		},
+		"408": {
+			"status": "todo",
+			"title": "Wealth tax failed to do anything (didn't use an item as expected)",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/408"
+		},
+		"409": {
+			"status": "todo",
+			"title": "Beggar should follow Cleric's requirement of always randomly targeting",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/409"
 		},
 		"347": {
 			"status": "f5",

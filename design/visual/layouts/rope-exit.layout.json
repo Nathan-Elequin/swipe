@@ -151,8 +151,8 @@
     128
    ],
    "z": 4,
-   "asset": "hero/hero_idle_loot_f0.png (existing)",
-   "note": "KIT.pt(188, 208) under the shaft / rug"
+   "asset": "assets/dungeon/anim/player/sprout_idle_f0..f3.png",
+   "note": "New Sprout idle, 64px at scale 2 (128 draw). KIT.pt(188, 208) under the shaft / rug. Loop ~200ms, same breathe as the wheel."
   },
   {
    "id": "TitleBand",

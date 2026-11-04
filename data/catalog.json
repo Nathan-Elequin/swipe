@@ -1610,7 +1610,7 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 2,
+			"count": 2.0,
 			"defined": "Usable in a fight only when living slice count is even. Deal 5 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
 			"exceptions": "",
 			"explainer": "(ATK 5) opposite",
@@ -1654,14 +1654,14 @@
 			},
 			"pending_fields": {},
 			"poc": false,
-			"pool": 5,
-			"priority": 3,
+			"pool": 5.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "I"
 		},
 		{
@@ -6547,16 +6547,16 @@
 			"type": "M"
 		},
 		{
-			"ability": "When I lose HP or Attack, I die. My Neighbors each gain HP equal to my remaining HP.",
+			"ability": "When I lose HP, I die. When I am Defeated. My Neighbors gain HP equal to my remaining HP.",
 			"atk": {
-				"base": 0.0
+				"base": 0
 			},
-			"atk_base": 0.0,
+			"atk_base": 0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Noble Death",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "SP-24 (2026-10-28). 7 HP / 0 Attack. I die on any HP loss (including poison ticks), when I would be Defeated, or when I Attack (0 Attack still Attacks). On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Attack / Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
 			"exceptions": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
 			"explainer": "On HP loss or Attack: I die. Neighbors gain my remaining HP",
@@ -6567,12 +6567,12 @@
 			},
 			"flow": "SP-24 (2026-10-28). 7 HP / 0 Attack. I die on any HP loss (including poison ticks), when I would be Defeated, or when I Attack (0 Attack still Attacks). On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Attack / Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
 			"hp": {
-				"base": 6.0
+				"base": 6
 			},
-			"hp_base": 6.0,
+			"hp_base": 6,
 			"hp_formula": "",
 			"id": "martyr",
-			"locked_at": "2026-11-01",
+			"locked_at": "2026-11-04",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6600,14 +6600,14 @@
 			"ops": {},
 			"pending_fields": {},
 			"poc": false,
-			"pool": 4.0,
-			"priority": 3.0,
+			"pool": 4,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "On HP loss or Attack: I die. Neighbors gain my remaining HP.",
 			"review": "rough",
-			"review_note": "",
-			"status": "live",
-			"tier": 1.0,
+			"review_note": "rewrite to, 'When I lose HP, I die. When I am Defeated. My Neighbors gain HP equal to my remaining HP.'",
+			"status": "todo",
+			"tier": 1,
 			"type": "M"
 		},
 		{

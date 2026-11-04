@@ -13,6 +13,15 @@ const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const GATE_PORTAL_SCR := preload("res://scripts/cabin/gate_portal.gd")
 const PX := 4.0
 const LAYOUT_PATH := "res://design/visual/layouts/rope-exit.layout.json"
+## New Sprout is 64×64. Scale 2 matches the old 128×128 loot hero and the clear-parade land (SCALE_ROPE).
+const SPROUT_SCALE := 2.0
+const SPROUT_IDLE_FPS := 5.0
+const SPROUT_IDLE: Array[String] = [
+	"res://assets/dungeon/anim/player/sprout_idle_f0.png",
+	"res://assets/dungeon/anim/player/sprout_idle_f1.png",
+	"res://assets/dungeon/anim/player/sprout_idle_f2.png",
+	"res://assets/dungeon/anim/player/sprout_idle_f3.png",
+]
 
 var cabin
 var extra: Dictionary = {}
@@ -22,7 +31,7 @@ var _ladder: AnimatedSprite2D
 var _ladder_hover: TextureRect
 var _hole: TextureRect
 var _hole_glow: AnimatedSprite2D
-var _hero: Sprite2D
+var _hero: AnimatedSprite2D
 var _headline: FitLabelBox
 var _sub: FitLabelBox
 var _title_band: ColorRect
@@ -178,13 +187,7 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	if _legacy_decor_visible and _hole_glow.sprite_frames and _hole_glow.sprite_frames.get_frame_count("g") > 0:
 		_hole_glow.visible = true
 		_hole_glow.play("g")
-	_hero = Sprite2D.new()
-	_hero.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_hero.centered = false
-	# Nudge toward the lit floor center under the shaft (cavern plate).
-	_hero.position = KIT.pt(188, 208)
-	_hero.texture = KIT.load_tex("hero/hero_idle_loot_f0.png")
-	_hero.z_index = 4
+	_hero = _make_sprout()
 	add_child(_hero)
 	_nib = Sprite2D.new()
 	_nib.name = "PushNib"
@@ -460,8 +463,42 @@ func open_exit(cleared: int, loot: Array = []) -> void:
 	KIT.cue(cabin.sfx if cabin else null, &"amb.rope_creak")
 
 
+func _make_sprout() -> AnimatedSprite2D:
+	var sp := AnimatedSprite2D.new()
+	sp.name = "Hero"
+	sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sp.centered = false
+	sp.position = KIT.pt(188, 208)
+	sp.scale = Vector2(SPROUT_SCALE, SPROUT_SCALE)
+	sp.z_index = 4
+	var sf := SpriteFrames.new()
+	sf.add_animation("idle")
+	sf.set_animation_loop("idle", true)
+	sf.set_animation_speed("idle", SPROUT_IDLE_FPS)
+	for path in SPROUT_IDLE:
+		if ResourceLoader.exists(path):
+			var tex: Texture2D = load(path)
+			if tex:
+				sf.add_frame("idle", tex)
+	sp.sprite_frames = sf
+	_play_sprout_idle(sp)
+	return sp
+
+
+func _play_sprout_idle(sp: AnimatedSprite2D = null) -> void:
+	var hero: AnimatedSprite2D = sp if sp != null else _hero
+	if hero == null or hero.sprite_frames == null:
+		return
+	if hero.sprite_frames.get_frame_count("idle") <= 0:
+		return
+	if hero.sprite_frames.get_animation_speed("idle") != SPROUT_IDLE_FPS:
+		hero.sprite_frames.set_animation_speed("idle", SPROUT_IDLE_FPS)
+	if not hero.is_playing() or hero.animation != "idle":
+		hero.play("idle")
+
+
 func set_hero_hidden(hidden: bool) -> void:
-	## Call AFTER open_exit — open_exit/_reset_hero_pose restores texture and pose.
+	## Call AFTER open_exit — open_exit/_reset_hero_pose restores the idle loop and pose.
 	if _hero:
 		_hero.visible = not hidden
 
@@ -476,9 +513,9 @@ func hero_land_global() -> Vector2:
 func _reset_hero_pose() -> void:
 	if _hero:
 		_hero.position = KIT.pt(188, 208)
-		_hero.scale = Vector2.ONE
+		_hero.scale = Vector2(SPROUT_SCALE, SPROUT_SCALE)
 		_hero.modulate = Color(1, 1, 1, 1)
-		_hero.texture = KIT.load_tex("hero/hero_idle_loot_f0.png")
+		_play_sprout_idle()
 		_hero.visible = true
 	if _ladder:
 		_ladder.position = _ladder_rest
@@ -1075,9 +1112,9 @@ func _do_climb() -> void:
 		_ladder.position = _ladder_rest
 		if _ladder.sprite_frames:
 			_ladder.sprite_frames.set_animation_speed("l", LADDER_IDLE_FPS)
-	# Hero already stands under the shaft (KIT.pt 188,208). Keep idle pose.
+	# Hero already stands under the shaft (KIT.pt 188,208). Keep the idle loop.
 	if _hero:
-		_hero.texture = KIT.load_tex("hero/hero_idle_loot_f0.png")
+		_play_sprout_idle()
 	# 1) Short ladder jiggle (rope shake).
 	KIT.cue(cabin.sfx if cabin else null, &"amb.rope_creak")
 	if _ladder:
