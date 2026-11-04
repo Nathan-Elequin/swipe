@@ -4219,7 +4219,12 @@
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0
+			"tier": 3.0,
+			"flags": {
+				"art": true,
+				"dev": false,
+				"hide": false
+			}
 		},
 		{
 			"ability": "My Attack always equals my HP.",
@@ -4847,7 +4852,12 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0
+			"tier": 2.0,
+			"flags": {
+				"art": true,
+				"dev": true,
+				"hide": true
+			}
 		},
 		{
 			"ability": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",

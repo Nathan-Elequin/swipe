@@ -5194,7 +5194,7 @@
 			"exceptions": "",
 			"explainer": "Neighbors attack, then Heal 3",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": false,
 				"hide": false
 			},
@@ -5834,7 +5834,7 @@
 			"exceptions": "Token. Trapper creates it. Paper Fight 2026-10-30.",
 			"explainer": "Spin or Move onto me: I Attack you, then I am Defeated",
 			"flags": {
-				"art": false,
+				"art": true,
 				"dev": true,
 				"hide": true
 			},
