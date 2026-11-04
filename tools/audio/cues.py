@@ -163,7 +163,7 @@ c("loot.coins_small", "(layer) coin clink", "—", "new", "Kenney handleCoins2",
 c("sting.deadly", "Deadly first shown (per-boss pitch via sfx-map)", "main.gd:4491 / 4532", "new", "Low orchestral hit, falling", ["sting_deadly"], "Stings", -6, (1.0, 1.0), 2000, 1, 3, duck_music=(-8, 0.05, 0.8))
 c("sting.bucket", "Bucket reveal opens", "bucket_reveal.gd:233–234", "new", "Rising whole-tone pizzicato run", ["sting_bucket"], "Stings", -8, N, 0, 1, 3, duck_music=(-6, 0.05, 1.2))
 c("sting.victory", "Run victory", "main.gd:4876–4884", "new", "Bright pizzicato run up (sneaky-triumphant)", ["sting_victory"], "Stings", -5, N, 0, 1, 3, duck_music=(-30, 0.1, "hold"))
-c("sting.clear", "Dungeon cleared", "main.gd:1677–1679", "new", "Accordion reverse-collapse coalesce (~0.48 s; Nathan locked A 2026-11-03)", ["sting_clear"], "Stings", -6, N, 0, 1, 3, duck_music=(-12, 0.1, 1.5))
+c("sting.clear", "Dungeon cleared", "main.gd:1677–1679", "new", "Accordion reverse-collapse soft settle (~0.45 s; Nathan locked soft A 2026-11-04)", ["sting_clear"], "Stings", -6, N, 0, 1, 3, duck_music=(-12, 0.1, 1.5))
 c("sting.defeat", "Player dies", "main.gd:4886–4887", "new", "Nathan Suno defeat sting (~9.44 s one-shot)", ["sting_defeat"], "Stings", -5, N, 0, 1, 3, duck_music=(-30, 0.1, "hold"))
 # ---------------------------------------------------------------- buckets
 c("bucket.open", "Bucket overlay opens", "bucket_reveal.gd:233–234", "keep+", "Bong 0.72 + whoosh 0.85 kept; + card-pack tear + bucket sting", [], "SFX", -8, N, 0, 1, 3, [("bucket.pack", 0, 0), ("sting.bucket", 0, 120)])

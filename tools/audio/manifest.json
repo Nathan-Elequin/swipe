@@ -1407,15 +1407,15 @@
  {
   "file": "sting_clear.ogg",
   "kind": "sting",
-  "seconds": 0.48,
-  "bytes": 9703,
+  "seconds": 0.45,
+  "bytes": 8739,
   "sources": [
    {
-    "pack": "Swipe accordion clear (coalesce A, 2026-11-03)",
+    "pack": "Swipe accordion clear (soft A, 2026-11-04)",
     "author": "Nathan (CC0 remix of tip Kenney/Swipe layers)",
     "licence": "CC0 1.0",
     "url": "",
-    "file": "sting_clear.ogg (click2 + metal_latch + mon_clockwork + whoosh + heal_sparkle + util_magnet)",
+    "file": "sting_clear.ogg (whoosh + cab_shelf_chime + heal_sparkle; no metal)",
     "gain_db": 0.0,
     "pitch": 1.0
    }
