@@ -10,6 +10,9 @@ const DUNGEON_BG := preload("res://scripts/dungeon_bg.gd")
 
 const STILL_PATH := "res://assets/dungeon/title/title_still.png"
 const ARCHIVED_STILL := "res://assets/dungeon/title/title_gemini.png"
+## H3p-B layered title (diegetic map logo + Bartleby + Sprout Sai). Prefer over flat stills.
+const H3PB_ROOM_PATH := "res://assets/ui/title/title_room_bg.png"
+const TITLE_SCREEN_SCENE := preload("res://scenes/ui/title_screen.tscn")
 ## Flip to false to play the chase again. Art and beats below stay as they are.
 const TEASER_ARCHIVED := true
 const HILL_PATH := "res://assets/dungeon/title/hill_strip.png"
@@ -89,10 +92,11 @@ var _music_lab
 var _hall_strip_in_use: String = ""
 var _rec = null
 var _rec_draw: bool = true
+var _title_screen: Control = null
 
 
 static func still_ready() -> bool:
-	return ResourceLoader.exists(STILL_PATH)
+	return ResourceLoader.exists(H3PB_ROOM_PATH) or ResourceLoader.exists(STILL_PATH)
 
 
 static func archived() -> bool:
@@ -130,18 +134,22 @@ func open_archived_still() -> void:
 	_t = T_STILL
 	_white = 0.0
 	_still_a = 1.0
-	_still_contain = true
+	_still_contain = false
 	_logo = null
-	_still = _opt(ARCHIVED_STILL)
-	if _still == null:
-		_still = _opt(STILL_PATH)
-		_still_contain = false
+	_still = null
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	z_index = 120
 	visible = true
 	if _hall:
 		_hall.visible = false
 	_set_title_visible(false)
+	# Hub opens over this still immediately — hide continue prompt (buttons own the click).
+	if not _show_h3pb_title(false):
+		_still_contain = true
+		_still = _opt(ARCHIVED_STILL)
+		if _still == null:
+			_still = _opt(STILL_PATH)
+			_still_contain = false
 	move_to_front()
 	queue_redraw()
 
@@ -186,6 +194,7 @@ func close_teaser() -> void:
 	z_index = 128
 	if _hall:
 		_hall.visible = false
+	_hide_h3pb_title()
 
 
 func yield_to_hub() -> void:
@@ -195,6 +204,9 @@ func yield_to_hub() -> void:
 	z_index = 120
 	if _hall:
 		_hall.visible = false
+	# Keep H3p-B art under the hub; hide the continue prompt once the hub owns the click.
+	if _title_screen and _title_screen.has_method("set_press_visible"):
+		_title_screen.set_press_visible(false)
 
 
 func debug_capture(t: float) -> Dictionary:
@@ -555,10 +567,16 @@ func _land_still() -> void:
 	_t = T_STILL
 	_white = 0.0
 	_still_a = 1.0
-	_set_title_visible(true)
 	_sync_music_lab()
 	if _hall:
 		_hall.visible = false
+	# H3p-B: diegetic map logo + PressStart label. No floating tagline / overlay title.
+	if _show_h3pb_title(true):
+		_set_title_visible(false)
+		_logo = null
+		_still = null
+	else:
+		_set_title_visible(true)
 	if music_dip:
 		_apply_music_dip(true)
 
@@ -859,6 +877,9 @@ func _logo_draw_rect() -> Array:
 
 
 func _draw_still(sz: Vector2, a: float) -> void:
+	# Layered H3p-B scene owns the pixels when present.
+	if _title_screen != null and _title_screen.visible:
+		return
 	var col := Color(1, 1, 1, a)
 	if _still != null:
 		if _still_contain:
@@ -877,6 +898,30 @@ func _draw_still(sz: Vector2, a: float) -> void:
 	if _logo != null:
 		var lr: Array = _logo_draw_rect()
 		_blit(_logo, Rect2(float(lr[0]), float(lr[1]), float(lr[2]), float(lr[3])), col)
+
+
+func _show_h3pb_title(show_press: bool) -> bool:
+	if not ResourceLoader.exists(H3PB_ROOM_PATH):
+		return false
+	if _title_screen == null:
+		_title_screen = TITLE_SCREEN_SCENE.instantiate() as Control
+		if _title_screen == null:
+			return false
+		_title_screen.name = "TitleScreenH3pB"
+		_title_screen.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+		_title_screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_title_screen.z_index = 0
+		add_child(_title_screen)
+		move_child(_title_screen, 0)
+	_title_screen.visible = true
+	if _title_screen.has_method("set_press_visible"):
+		_title_screen.set_press_visible(show_press)
+	return true
+
+
+func _hide_h3pb_title() -> void:
+	if _title_screen != null:
+		_title_screen.visible = false
 
 
 func _blit_contain(tex: Texture2D, sz: Vector2, col: Color) -> void:

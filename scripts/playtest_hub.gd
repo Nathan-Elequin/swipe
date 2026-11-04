@@ -72,13 +72,13 @@ func setup() -> void:
 func open_hub(can_continue: bool, see_through: bool = false) -> void:
 	if _continue_box:
 		_continue_box.visible = can_continue
-	var on_title: bool = see_through and _logo != null and _logo.texture != null
+	# H3p-B title already prints Spinheritance on the map. No floating logo or tagline over it.
 	if _logo:
-		_logo.visible = on_title
+		_logo.visible = false
 	if _tag:
-		_tag.visible = on_title
+		_tag.visible = false
 	if _hub_title:
-		_hub_title.visible = not on_title
+		_hub_title.visible = not see_through
 	color = Color("100e0c99") if see_through else Color("100e0cf2")
 	visible = true
 	move_to_front()
