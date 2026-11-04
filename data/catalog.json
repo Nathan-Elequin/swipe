@@ -1652,12 +1652,7 @@
 				"kind": "atk_opposite",
 				"n": 5.0
 			},
-			"pending_fields": {
-				"ability": {
-					"from": "Deal 5 Attack to the monster across from you (only works if even # of monsters remaining)",
-					"to": "Deal 5 Attack to the monster directly across from you."
-				}
-			},
+			"pending_fields": {},
 			"poc": false,
 			"pool": 5,
 			"priority": 3,
