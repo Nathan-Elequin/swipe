@@ -60,59 +60,64 @@
       "echo_bell": {
         "use_pre": "chaos.echo_bell",
         "copied_delay_ms": 90,
-        "empty": "chaos.echo_empty"
+        "empty": "chaos.echo_empty",
+        "use": "item.use.echo_bell"
       },
       "smoke_bomb": {
-        "use": "smoke.use"
+        "use": "item.use.smoke_bomb"
       },
       "net": {
-        "use": "util.net"
+        "use": "item.use.net"
       },
       "quiet_bell": {
-        "use": "util.quiet"
+        "use": "item.use.quiet_bell"
       },
       "caltrops": {
         "use": "util.caltrops"
       },
       "bag_of_holding": {
-        "use": "defeat.use",
+        "use": "item.use.bag_of_holding",
         "release": "item.bag_release"
       },
       "pocketwatch": {
-        "use": "status.hypnotize"
+        "use": "item.use.pocketwatch"
       },
       "double_buckler": {
-        "use": "blk.gain"
+        "use": "item.use.double_buckler"
       },
       "almighty_worm": {
-        "ask": "mon.merchant_ask"
+        "ask": "mon.merchant_ask",
+        "ability": "mon.ability.almighty_worm"
       },
       "_note": "Ids are best guesses from the audit; Cursor must verify against data/catalog.json and drop/rename unknown keys.",
       "danger_magnet": {
-        "use": "util.magnet"
+        "use": "item.use.danger_magnet"
       },
       "grappling_hook": {
-        "use": "util.hook"
+        "use": "item.use.grappling_hook"
       },
       "mute_stone": {
-        "use": "chaos.transform"
+        "use": "item.use.mute_stone"
       },
       "jar_o_grease": {
-        "use": "heal.sparkle"
+        "use": "item.use.jar_o_grease"
       },
       "blood_pact": {
-        "use": "egg.hurt"
+        "use": "item.use.blood_pact"
       },
       "death_bell": {
         "spawn": "egg.lay",
         "tick": "chaos.echo_bell",
-        "ring": "chaos.echo_bell"
+        "ring": "chaos.echo_bell",
+        "ability": "mon.ability.death_bell"
       },
       "toll": {
-        "tick": "chaos.echo_bell"
+        "tick": "chaos.echo_bell",
+        "use": "item.use.toll"
       },
       "shark": {
-        "second_swing": "mon.hornet_buzz"
+        "second_swing": "mon.hornet_buzz",
+        "ability": "mon.ability.shark"
       },
       "magnet": {
         "use": "util.magnet"
@@ -122,73 +127,439 @@
       },
       "chaos_stone": {
         "use": "chaos.transform"
+      },
+      "amalgam": {
+        "ability": "mon.ability.amalgam"
+      },
+      "anvil": {
+        "ability": "mon.ability.anvil"
+      },
+      "bandit": {
+        "ability": "mon.ability.bandit"
+      },
+      "basilisk": {
+        "ability": "mon.ability.basilisk"
+      },
+      "bear_trap": {
+        "ability": "mon.ability.bear_trap"
+      },
+      "beggar": {
+        "ability": "mon.ability.beggar"
+      },
+      "berserker": {
+        "ability": "mon.ability.berserker"
+      },
+      "bodyguard": {
+        "ability": "mon.ability.bodyguard"
+      },
+      "bushido": {
+        "ability": "mon.ability.bushido"
+      },
+      "cleric": {
+        "ability": "mon.ability.cleric"
+      },
+      "clockwork_knight": {
+        "ability": "mon.ability.clockwork_knight"
+      },
+      "commander": {
+        "ability": "mon.ability.commander"
+      },
+      "cowardly_king": {
+        "ability": "mon.ability.cowardly_king"
+      },
+      "cultist": {
+        "ability": "mon.ability.cultist"
+      },
+      "dire_wolf": {
+        "ability": "mon.ability.dire_wolf"
+      },
+      "dragon": {
+        "ability": "mon.ability.dragon"
+      },
+      "druid": {
+        "ability": "mon.ability.druid"
+      },
+      "eel": {
+        "ability": "mon.ability.eel"
+      },
+      "fairy": {
+        "ability": "mon.ability.fairy"
+      },
+      "fungal_colony": {
+        "ability": "mon.ability.fungal_colony"
+      },
+      "gargoyle": {
+        "ability": "mon.ability.gargoyle"
+      },
+      "gelatinous_cube": {
+        "ability": "mon.ability.gelatinous_cube"
+      },
+      "goblin": {
+        "ability": "mon.ability.goblin"
+      },
+      "harpy": {
+        "ability": "mon.ability.harpy"
+      },
+      "hired_hand": {
+        "ability": "mon.ability.hired_hand"
+      },
+      "hollow": {
+        "ability": "mon.ability.hollow"
+      },
+      "hornet_swarm": {
+        "ability": "mon.ability.hornet_swarm"
+      },
+      "hydra": {
+        "ability": "mon.ability.hydra"
+      },
+      "juggernaut": {
+        "ability": "mon.ability.juggernaut"
+      },
+      "kobold_trapper": {
+        "ability": "mon.ability.kobold_trapper"
+      },
+      "lich": {
+        "ability": "mon.ability.lich"
+      },
+      "magicat": {
+        "ability": "mon.ability.magicat"
+      },
+      "martyr": {
+        "ability": "mon.ability.martyr"
+      },
+      "merchant": {
+        "ability": "mon.ability.merchant"
+      },
+      "mimic": {
+        "ability": "mon.ability.mimic"
+      },
+      "mouse": {
+        "ability": "mon.ability.mouse"
+      },
+      "needleback": {
+        "ability": "mon.ability.needleback"
+      },
+      "ogre": {
+        "ability": "mon.ability.ogre"
+      },
+      "oligarch": {
+        "ability": "mon.ability.oligarch"
+      },
+      "phoenix": {
+        "ability": "mon.ability.phoenix"
+      },
+      "phoenix_egg": {
+        "ability": "mon.ability.phoenix_egg"
+      },
+      "plague_doctor": {
+        "ability": "mon.ability.plague_doctor"
+      },
+      "poison_frog": {
+        "ability": "mon.ability.poison_frog"
+      },
+      "prism": {
+        "ability": "mon.ability.prism"
+      },
+      "rust_bucket": {
+        "ability": "mon.ability.rust_bucket"
+      },
+      "sandbag": {
+        "ability": "mon.ability.sandbag"
+      },
+      "scorpion": {
+        "ability": "mon.ability.scorpion"
+      },
+      "shambling_mound": {
+        "ability": "mon.ability.shambling_mound"
+      },
+      "skeleton": {
+        "ability": "mon.ability.skeleton"
+      },
+      "slime_boss": {
+        "ability": "mon.ability.slime_boss"
+      },
+      "spider_queen": {
+        "ability": "mon.ability.spider_queen"
+      },
+      "three_seeker": {
+        "ability": "mon.ability.three_seeker"
+      },
+      "triclops": {
+        "ability": "mon.ability.triclops"
+      },
+      "two_headed_serpent": {
+        "ability": "mon.ability.two_headed_serpent"
+      },
+      "vampire": {
+        "ability": "mon.ability.vampire"
+      },
+      "wick": {
+        "ability": "mon.ability.wick"
+      },
+      "wraith": {
+        "ability": "mon.ability.wraith"
+      },
+      "zombie": {
+        "ability": "mon.ability.zombie"
+      },
+      "ale_flagon": {
+        "use": "item.use.ale_flagon"
+      },
+      "arrow_head": {
+        "use": "item.use.arrow_head"
+      },
+      "bag_of_marbles": {
+        "use": "item.use.bag_of_marbles"
+      },
+      "ball_and_chain": {
+        "use": "item.use.ball_and_chain"
+      },
+      "blood_chalice": {
+        "use": "item.use.blood_chalice"
+      },
+      "bloody_gauntlets": {
+        "use": "item.use.bloody_gauntlets"
+      },
+      "bracers": {
+        "use": "item.use.bracers"
+      },
+      "breastplate": {
+        "use": "item.use.breastplate"
+      },
+      "catapult": {
+        "use": "item.use.catapult"
+      },
+      "chakram": {
+        "use": "item.use.chakram"
+      },
+      "counting_beads": {
+        "use": "item.use.counting_beads"
+      },
+      "crossbow": {
+        "use": "item.use.crossbow"
+      },
+      "cursed_scroll": {
+        "use": "item.use.cursed_scroll"
+      },
+      "da_boot": {
+        "use": "item.use.da_boot"
+      },
+      "double_axe": {
+        "use": "item.use.double_axe"
+      },
+      "fairy_in_a_bottle": {
+        "use": "item.use.fairy_in_a_bottle"
+      },
+      "fangs": {
+        "use": "item.use.fangs"
+      },
+      "flying_saucer": {
+        "use": "item.use.flying_saucer"
+      },
+      "grief_jar": {
+        "use": "item.use.grief_jar"
+      },
+      "grimoire": {
+        "use": "item.use.grimoire"
+      },
+      "healing_potion": {
+        "use": "item.use.healing_potion"
+      },
+      "helmet": {
+        "use": "item.use.helmet"
+      },
+      "hex": {
+        "use": "item.use.hex"
+      },
+      "iron_chain": {
+        "use": "item.use.iron_chain"
+      },
+      "knucklers": {
+        "use": "item.use.knucklers"
+      },
+      "lantern": {
+        "use": "item.use.lantern"
+      },
+      "last_match": {
+        "use": "item.use.last_match"
+      },
+      "left_bracer": {
+        "use": "item.use.left_bracer"
+      },
+      "longbow": {
+        "use": "item.use.longbow"
+      },
+      "lucky_nickel": {
+        "use": "item.use.lucky_nickel"
+      },
+      "marble": {
+        "use": "item.use.marble"
+      },
+      "measuring_tape": {
+        "use": "item.use.measuring_tape"
+      },
+      "medallion": {
+        "use": "item.use.medallion"
+      },
+      "miasma": {
+        "use": "item.use.miasma"
+      },
+      "mirror_shard": {
+        "use": "item.use.mirror_shard"
+      },
+      "napalm": {
+        "use": "item.use.napalm"
+      },
+      "orb": {
+        "use": "item.use.orb"
+      },
+      "pacemaker": {
+        "use": "item.use.pacemaker"
+      },
+      "poison_flask": {
+        "use": "item.use.poison_flask"
+      },
+      "polymorph": {
+        "use": "item.use.polymorph"
+      },
+      "recycler": {
+        "use": "item.use.recycler"
+      },
+      "rust": {
+        "use": "item.use.rust"
+      },
+      "sai": {
+        "use": "item.use.sai"
+      },
+      "shield": {
+        "use": "item.use.shield"
+      },
+      "shuriken": {
+        "use": "item.use.shuriken"
+      },
+      "signpost": {
+        "use": "item.use.signpost"
+      },
+      "sledgehammer": {
+        "use": "item.use.sledgehammer"
+      },
+      "sling": {
+        "use": "item.use.sling"
+      },
+      "spider_egg": {
+        "use": "item.use.spider_egg"
+      },
+      "spiked_flail": {
+        "use": "item.use.spiked_flail"
+      },
+      "spiked_shield": {
+        "use": "item.use.spiked_shield"
+      },
+      "spinning_top": {
+        "use": "item.use.spinning_top"
+      },
+      "stone_wall": {
+        "use": "item.use.stone_wall"
+      },
+      "throwing_knife": {
+        "use": "item.use.throwing_knife"
+      },
+      "victory_flask": {
+        "use": "item.use.victory_flask"
       }
     },
     "special_id": {
-      "slime_boss": {},
+      "slime_boss": {
+        "ability": "mon.ability.slime_boss"
+      },
       "spider_queen": {
         "special": "egg.queen_eat",
-        "egg": "egg.lay"
+        "egg": "egg.lay",
+        "ability": "mon.ability.spider_queen"
       },
       "dragon": {
-        "pierce_zero": "player.pierce_zero"
+        "pierce_zero": "player.pierce_zero",
+        "ability": "mon.ability.dragon"
       },
       "commander": {
-        "special": "mon.commander_flee"
+        "special": "mon.ability.commander",
+        "ability": "mon.ability.commander"
       },
       "vampire": {
-        "special": "mon.vampire_grow"
+        "special": "mon.ability.vampire",
+        "ability": "mon.ability.vampire"
       },
       "two_headed_serpent": {
-        "special": "mon.damsel"
+        "special": "mon.damsel",
+        "ability": "mon.ability.two_headed_serpent"
       },
       "leech_league": {
         "special": "mon.leech_pulse"
       },
       "clockwork_knight": {
-        "special": "mon.clockwork_spawn"
+        "special": "mon.ability.clockwork_knight",
+        "ability": "mon.ability.clockwork_knight"
       },
-      "cowardly_king": {},
+      "cowardly_king": {
+        "ability": "mon.ability.cowardly_king"
+      },
       "berserker": {
-        "rage": "mon.berserker_rage",
-        "cool": "mon.berserker_cool"
+        "rage": "mon.ability.berserker",
+        "cool": "mon.ability.berserker",
+        "ability": "mon.ability.berserker"
       },
       "gelatinous_cube": {
-        "ask": "mon.cube_ask",
-        "feed": "mon.cube_feed"
+        "ask": "mon.ability.gelatinous_cube",
+        "feed": "mon.ability.gelatinous_cube",
+        "ability": "mon.ability.gelatinous_cube"
       },
       "merchant": {
-        "ask": "mon.merchant_ask",
-        "fail": "hand.upgrade_fail"
+        "ask": "mon.ability.merchant",
+        "fail": "hand.upgrade_fail",
+        "ability": "mon.ability.merchant"
       },
       "cleric": {
         "tax": "mon.cleric_tax",
         "refuse": "mon.cleric_refuse",
-        "yank": "mon.cleric_yank"
+        "yank": "mon.cleric_yank",
+        "ability": "mon.ability.cleric"
       },
       "gargoyle": {
-        "special": "status.petrify"
+        "special": "status.petrify",
+        "ability": "mon.ability.gargoyle"
       },
       "harpy": {
-        "special": "mon.harpy_poke"
+        "special": "mon.ability.harpy",
+        "ability": "mon.ability.harpy"
       },
       "hornet_swarm": {
-        "second_swing": "mon.hornet_buzz"
+        "second_swing": "mon.ability.hornet_swarm",
+        "ability": "mon.ability.hornet_swarm"
       },
       "bodyguard": {
-        "telegraph": "mon.telegraph"
+        "telegraph": "mon.ability.bodyguard",
+        "ability": "mon.ability.bodyguard"
       },
       "needleback": {
-        "poke": "player.poke"
+        "poke": "player.poke",
+        "ability": "mon.ability.needleback"
       },
-      "kobold_trapper": {},
-      "basilisk": {},
+      "kobold_trapper": {
+        "ability": "mon.ability.kobold_trapper"
+      },
+      "basilisk": {
+        "ability": "mon.ability.basilisk"
+      },
       "zombie": {
-        "special": "status.decay"
+        "special": "status.decay",
+        "ability": "mon.ability.zombie"
       },
-      "triclops": {},
+      "triclops": {
+        "ability": "mon.ability.triclops"
+      },
       "shambling_mound": {
-        "second_swing": "mon.hornet_buzz"
+        "second_swing": "mon.ability.shambling_mound",
+        "ability": "mon.ability.shambling_mound"
       },
       "_note": "Keys = monster ids; confirm against MONSTER_SPECIAL (main.gd:126–160).",
       "no_atk_dmg": {},
@@ -274,7 +645,124 @@
         "yank": "mon.cleric_yank"
       },
       "one_chip": {},
-      "gift_shield": {}
+      "gift_shield": {},
+      "almighty_worm": {
+        "ability": "mon.ability.almighty_worm"
+      },
+      "amalgam": {
+        "ability": "mon.ability.amalgam"
+      },
+      "anvil": {
+        "ability": "mon.ability.anvil"
+      },
+      "bandit": {
+        "ability": "mon.ability.bandit"
+      },
+      "bear_trap": {
+        "ability": "mon.ability.bear_trap"
+      },
+      "beggar": {
+        "ability": "mon.ability.beggar"
+      },
+      "bushido": {
+        "ability": "mon.ability.bushido"
+      },
+      "cultist": {
+        "ability": "mon.ability.cultist"
+      },
+      "death_bell": {
+        "ability": "mon.ability.death_bell"
+      },
+      "dire_wolf": {
+        "ability": "mon.ability.dire_wolf"
+      },
+      "druid": {
+        "ability": "mon.ability.druid"
+      },
+      "eel": {
+        "ability": "mon.ability.eel"
+      },
+      "fairy": {
+        "ability": "mon.ability.fairy"
+      },
+      "fungal_colony": {
+        "ability": "mon.ability.fungal_colony"
+      },
+      "goblin": {
+        "ability": "mon.ability.goblin"
+      },
+      "hired_hand": {
+        "ability": "mon.ability.hired_hand"
+      },
+      "hollow": {
+        "ability": "mon.ability.hollow"
+      },
+      "hydra": {
+        "ability": "mon.ability.hydra"
+      },
+      "juggernaut": {
+        "ability": "mon.ability.juggernaut"
+      },
+      "lich": {
+        "ability": "mon.ability.lich"
+      },
+      "magicat": {
+        "ability": "mon.ability.magicat"
+      },
+      "martyr": {
+        "ability": "mon.ability.martyr"
+      },
+      "mimic": {
+        "ability": "mon.ability.mimic"
+      },
+      "mouse": {
+        "ability": "mon.ability.mouse"
+      },
+      "ogre": {
+        "ability": "mon.ability.ogre"
+      },
+      "oligarch": {
+        "ability": "mon.ability.oligarch"
+      },
+      "phoenix": {
+        "ability": "mon.ability.phoenix"
+      },
+      "phoenix_egg": {
+        "ability": "mon.ability.phoenix_egg"
+      },
+      "plague_doctor": {
+        "ability": "mon.ability.plague_doctor"
+      },
+      "poison_frog": {
+        "ability": "mon.ability.poison_frog"
+      },
+      "prism": {
+        "ability": "mon.ability.prism"
+      },
+      "rust_bucket": {
+        "ability": "mon.ability.rust_bucket"
+      },
+      "sandbag": {
+        "ability": "mon.ability.sandbag"
+      },
+      "scorpion": {
+        "ability": "mon.ability.scorpion"
+      },
+      "shark": {
+        "ability": "mon.ability.shark"
+      },
+      "skeleton": {
+        "ability": "mon.ability.skeleton"
+      },
+      "three_seeker": {
+        "ability": "mon.ability.three_seeker"
+      },
+      "wick": {
+        "ability": "mon.ability.wick"
+      },
+      "wraith": {
+        "ability": "mon.ability.wraith"
+      }
     },
     "ops_kind": {
       "atk*": {
@@ -475,7 +963,7 @@
         "gain_db": -4.0,
         "loop": true,
         "resume_position": true,
-        "bar_period_s": 2.440,
+        "bar_period_s": 2.44,
         "note": "Verdant Hollow dungeon loop after intro; bar_period_s is 4/4 at ~98.4 BPM"
       },
       "verdant_hollow_victory": {
@@ -3010,7 +3498,7 @@
       "bus": "SFX",
       "db": -4,
       "pitch": [
-        0.70,
+        0.7,
         0.76
       ],
       "cooldown_ms": 0,
@@ -3041,7 +3529,7 @@
       "bus": "SFX",
       "db": -5,
       "pitch": [
-        0.80,
+        0.8,
         0.88
       ],
       "cooldown_ms": 0,
@@ -4358,6 +4846,1812 @@
       "max_voices": 1,
       "priority": 1,
       "music": "ending"
+    },
+    "mon.ability.almighty_worm": {
+      "files": [
+        "mon_ability_almighty_worm"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.amalgam": {
+      "files": [
+        "mon_ability_amalgam"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.anvil": {
+      "files": [
+        "mon_ability_anvil"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.bandit": {
+      "files": [
+        "mon_ability_bandit"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.basilisk": {
+      "files": [
+        "mon_ability_basilisk"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.bear_trap": {
+      "files": [
+        "mon_ability_bear_trap"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.beggar": {
+      "files": [
+        "mon_ability_beggar"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.berserker": {
+      "files": [
+        "mon_ability_berserker"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.bodyguard": {
+      "files": [
+        "mon_ability_bodyguard"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.bushido": {
+      "files": [
+        "mon_ability_bushido"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.cleric": {
+      "files": [
+        "mon_ability_cleric"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.clockwork_knight": {
+      "files": [
+        "mon_ability_clockwork_knight"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.commander": {
+      "files": [
+        "mon_ability_commander"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.cowardly_king": {
+      "files": [
+        "mon_ability_cowardly_king"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.cultist": {
+      "files": [
+        "mon_ability_cultist"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.death_bell": {
+      "files": [
+        "mon_ability_death_bell"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.dire_wolf": {
+      "files": [
+        "mon_ability_dire_wolf"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.dragon": {
+      "files": [
+        "mon_ability_dragon"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.druid": {
+      "files": [
+        "mon_ability_druid"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.eel": {
+      "files": [
+        "mon_ability_eel"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.fairy": {
+      "files": [
+        "mon_ability_fairy"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.fungal_colony": {
+      "files": [
+        "mon_ability_fungal_colony"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.gargoyle": {
+      "files": [
+        "mon_ability_gargoyle"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.gelatinous_cube": {
+      "files": [
+        "mon_ability_gelatinous_cube"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.goblin": {
+      "files": [
+        "mon_ability_goblin"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.harpy": {
+      "files": [
+        "mon_ability_harpy"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.hired_hand": {
+      "files": [
+        "mon_ability_hired_hand"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.hollow": {
+      "files": [
+        "mon_ability_hollow"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.hornet_swarm": {
+      "files": [
+        "mon_ability_hornet_swarm"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.hydra": {
+      "files": [
+        "mon_ability_hydra"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.juggernaut": {
+      "files": [
+        "mon_ability_juggernaut"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.kobold_trapper": {
+      "files": [
+        "mon_ability_kobold_trapper"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.lich": {
+      "files": [
+        "mon_ability_lich"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.magicat": {
+      "files": [
+        "mon_ability_magicat"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.martyr": {
+      "files": [
+        "mon_ability_martyr"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.merchant": {
+      "files": [
+        "mon_ability_merchant"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.mimic": {
+      "files": [
+        "mon_ability_mimic"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.mouse": {
+      "files": [
+        "mon_ability_mouse"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.needleback": {
+      "files": [
+        "mon_ability_needleback"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.ogre": {
+      "files": [
+        "mon_ability_ogre"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.oligarch": {
+      "files": [
+        "mon_ability_oligarch"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.phoenix": {
+      "files": [
+        "mon_ability_phoenix"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.phoenix_egg": {
+      "files": [
+        "mon_ability_phoenix_egg"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.plague_doctor": {
+      "files": [
+        "mon_ability_plague_doctor"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.poison_frog": {
+      "files": [
+        "mon_ability_poison_frog"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.prism": {
+      "files": [
+        "mon_ability_prism"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.rust_bucket": {
+      "files": [
+        "mon_ability_rust_bucket"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.sandbag": {
+      "files": [
+        "mon_ability_sandbag"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.scorpion": {
+      "files": [
+        "mon_ability_scorpion"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.shambling_mound": {
+      "files": [
+        "mon_ability_shambling_mound"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.shark": {
+      "files": [
+        "mon_ability_shark"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.skeleton": {
+      "files": [
+        "mon_ability_skeleton"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.slime_boss": {
+      "files": [
+        "mon_ability_slime_boss"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.spider_queen": {
+      "files": [
+        "mon_ability_spider_queen"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.three_seeker": {
+      "files": [
+        "mon_ability_three_seeker"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.triclops": {
+      "files": [
+        "mon_ability_triclops"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.two_headed_serpent": {
+      "files": [
+        "mon_ability_two_headed_serpent"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.vampire": {
+      "files": [
+        "mon_ability_vampire"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.wick": {
+      "files": [
+        "mon_ability_wick"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.wraith": {
+      "files": [
+        "mon_ability_wraith"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.zombie": {
+      "files": [
+        "mon_ability_zombie"
+      ],
+      "bus": "SFX",
+      "db": -10,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.ale_flagon": {
+      "files": [
+        "item_use_ale_flagon"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.arrow_head": {
+      "files": [
+        "item_use_arrow_head"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.bag_of_holding": {
+      "files": [
+        "item_use_bag_of_holding"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.bag_of_marbles": {
+      "files": [
+        "item_use_bag_of_marbles"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.ball_and_chain": {
+      "files": [
+        "item_use_ball_and_chain"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.blood_chalice": {
+      "files": [
+        "item_use_blood_chalice"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.blood_pact": {
+      "files": [
+        "item_use_blood_pact"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.bloody_gauntlets": {
+      "files": [
+        "item_use_bloody_gauntlets"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.bracers": {
+      "files": [
+        "item_use_bracers"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.breastplate": {
+      "files": [
+        "item_use_breastplate"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.catapult": {
+      "files": [
+        "item_use_catapult"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.chakram": {
+      "files": [
+        "item_use_chakram"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.counting_beads": {
+      "files": [
+        "item_use_counting_beads"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.crossbow": {
+      "files": [
+        "item_use_crossbow"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.cursed_scroll": {
+      "files": [
+        "item_use_cursed_scroll"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.da_boot": {
+      "files": [
+        "item_use_da_boot"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.danger_magnet": {
+      "files": [
+        "item_use_danger_magnet"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.double_axe": {
+      "files": [
+        "item_use_double_axe"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.double_buckler": {
+      "files": [
+        "item_use_double_buckler"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.echo_bell": {
+      "files": [
+        "item_use_echo_bell"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.fairy_in_a_bottle": {
+      "files": [
+        "item_use_fairy_in_a_bottle"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.fangs": {
+      "files": [
+        "item_use_fangs"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.flying_saucer": {
+      "files": [
+        "item_use_flying_saucer"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.grappling_hook": {
+      "files": [
+        "item_use_grappling_hook"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.grief_jar": {
+      "files": [
+        "item_use_grief_jar"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.grimoire": {
+      "files": [
+        "item_use_grimoire"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.healing_potion": {
+      "files": [
+        "item_use_healing_potion"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.helmet": {
+      "files": [
+        "item_use_helmet"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.hex": {
+      "files": [
+        "item_use_hex"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.iron_chain": {
+      "files": [
+        "item_use_iron_chain"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.jar_o_grease": {
+      "files": [
+        "item_use_jar_o_grease"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.knucklers": {
+      "files": [
+        "item_use_knucklers"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.lantern": {
+      "files": [
+        "item_use_lantern"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.last_match": {
+      "files": [
+        "item_use_last_match"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.left_bracer": {
+      "files": [
+        "item_use_left_bracer"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.longbow": {
+      "files": [
+        "item_use_longbow"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.lucky_nickel": {
+      "files": [
+        "item_use_lucky_nickel"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.marble": {
+      "files": [
+        "item_use_marble"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.measuring_tape": {
+      "files": [
+        "item_use_measuring_tape"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.medallion": {
+      "files": [
+        "item_use_medallion"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.miasma": {
+      "files": [
+        "item_use_miasma"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.mirror_shard": {
+      "files": [
+        "item_use_mirror_shard"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.mute_stone": {
+      "files": [
+        "item_use_mute_stone"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.napalm": {
+      "files": [
+        "item_use_napalm"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.net": {
+      "files": [
+        "item_use_net"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.orb": {
+      "files": [
+        "item_use_orb"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.pacemaker": {
+      "files": [
+        "item_use_pacemaker"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.pocketwatch": {
+      "files": [
+        "item_use_pocketwatch"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.poison_flask": {
+      "files": [
+        "item_use_poison_flask"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.polymorph": {
+      "files": [
+        "item_use_polymorph"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.quiet_bell": {
+      "files": [
+        "item_use_quiet_bell"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.recycler": {
+      "files": [
+        "item_use_recycler"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.rust": {
+      "files": [
+        "item_use_rust"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.sai": {
+      "files": [
+        "item_use_sai"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.shield": {
+      "files": [
+        "item_use_shield"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.shuriken": {
+      "files": [
+        "item_use_shuriken"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.signpost": {
+      "files": [
+        "item_use_signpost"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.sledgehammer": {
+      "files": [
+        "item_use_sledgehammer"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.sling": {
+      "files": [
+        "item_use_sling"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.smoke_bomb": {
+      "files": [
+        "item_use_smoke_bomb"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.spider_egg": {
+      "files": [
+        "item_use_spider_egg"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.spiked_flail": {
+      "files": [
+        "item_use_spiked_flail"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.spiked_shield": {
+      "files": [
+        "item_use_spiked_shield"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.spinning_top": {
+      "files": [
+        "item_use_spinning_top"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.stone_wall": {
+      "files": [
+        "item_use_stone_wall"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.throwing_knife": {
+      "files": [
+        "item_use_throwing_knife"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.toll": {
+      "files": [
+        "item_use_toll"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.victory_flask": {
+      "files": [
+        "item_use_victory_flask"
+      ],
+      "bus": "SFX",
+      "db": -9,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
     }
   },
   "radio": {

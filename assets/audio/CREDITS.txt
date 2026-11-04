@@ -11,12 +11,16 @@ Pack / source index
 * Dungeon Ambience (OpenGameArt) — yd — CC0 1.0 — https://opengameart.org/content/dungeon-ambience
 * Dungeon Deep — Eldritch Grim — CC0 1.0 — https://opengameart.org/content/dungeon-deep-0
 * Fireplace Sound loop — PagDev — CC0 1.0 — https://opengameart.org/content/fireplace-sound-loop
+* Kenney CC0 beds (ability activate bake 2026-11-04) — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+* Kenney CC0 beds (item use bake 2026-11-04) — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 * Kenney — Casino Audio — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
 * Kenney — Impact Sounds — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
 * Kenney — Interface Sounds — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
 * Kenney — Music Jingles — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
 * Kenney — RPG Audio — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+* Nathan Suno — Defeat Stings — Nathan (Nathan-owned) — Nathan-owned — 
 * RPG Battle Loop — iamoneabe — CC0 1.0 — https://opengameart.org/content/rpg-battle-loop
+* Swipe accordion clear (soft A, 2026-11-04) — Nathan (CC0 remix of tip Kenney/Swipe layers) — CC0 1.0 — 
 * Swipe sfxgen (tools/audio/sfxgen.py) — Swipe / generated — CC0 1.0 (original) — tools/audio/sfxgen.py
 
 Pre-existing files (unchanged by audio pass 1; credit per the original ledger)
@@ -51,7 +55,7 @@ draw.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/a
 hit.ogg — Kenney — RPG Audio — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
 door_slam.ogg — Kenney — RPG Audio (doorClose_4) — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
 metal_latch.ogg — Kenney — RPG Audio extras — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-bleed.wav — original drip made for Swipe — CC0 1.0. Not an Attack tell (Grief Jar).
+bleed.wav — original drip made for Swipe — CC0 1.0
 music.ogg — "Dungeon Ambience" (dungeon002.ogg) — yd — CC0 1.0 — https://opengameart.org/content/dungeon-ambience
 
 Audio pass 1 (2026-10-17) — new files
@@ -224,212 +228,292 @@ sting_bucket.ogg (0.95 s)
     <- Kenney — Music Jingles / Audio/Pizzicato jingles/jingles_PIZZI02.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
 sting_victory.ogg (0.80 s)
     <- Kenney — Music Jingles / Audio/Pizzicato jingles/jingles_PIZZI10.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
-sting_clear.ogg — see Accordion clear sting section below (replaced Kenney PIZZI15; no longer built from Music Jingles)
-sting_defeat.ogg — see Defeat sting section below (replaced Kenney SAX01; no longer built from Music Jingles)
+sting_clear.ogg (0.45 s)
+    <- Swipe accordion clear (soft A, 2026-11-04) / sting_clear.ogg (whoosh + cab_shelf_chime + heal_sparkle; no metal) — Nathan (CC0 remix of tip Kenney/Swipe layers) — CC0 1.0 — 
+sting_defeat.ogg (9.44 s)
+    <- Nathan Suno — Defeat Stings / Defeat Stings.wav — Nathan (Nathan-owned) — Nathan-owned — 
 music_combat.ogg (59.08 s)
     <- RPG Battle Loop / rbl_0.mp3 — iamoneabe — CC0 1.0 — https://opengameart.org/content/rpg-battle-loop
 music_deadly.ogg (25.90 s)
     <- Dungeon Deep / dungeon_deep.mp3 — Eldritch Grim — CC0 1.0 — https://opengameart.org/content/dungeon-deep-0
 music_cabin.ogg (64.00 s)
     <- A Small Fire Will Do (Calming Loop) / a_small_fire_will_do.wav — Trex0n (Cal McEachern) — CC0 1.0 (credit appreciated) — https://opengameart.org/content/a-small-fire-will-do-calming-loop
+mon_ability_almighty_worm.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_almighty_worm.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_amalgam.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_amalgam.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_anvil.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_anvil.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_bandit.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_bandit.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_basilisk.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_basilisk.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_bear_trap.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_bear_trap.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_beggar.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_beggar.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_berserker.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_berserker.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_bodyguard.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_bodyguard.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_bushido.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_bushido.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_cleric.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_cleric.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_clockwork_knight.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_clockwork_knight.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_commander.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_commander.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_cowardly_king.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_cowardly_king.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_cultist.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_cultist.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_death_bell.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_death_bell.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_dire_wolf.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_dire_wolf.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_dragon.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_dragon.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_druid.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_druid.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_eel.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_eel.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_fairy.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_fairy.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_fungal_colony.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_fungal_colony.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_gargoyle.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_gargoyle.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_gelatinous_cube.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_gelatinous_cube.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_goblin.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_goblin.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_harpy.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_harpy.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_hired_hand.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_hired_hand.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_hollow.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_hollow.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_hornet_swarm.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_hornet_swarm.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_hydra.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_hydra.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_juggernaut.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_juggernaut.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_kobold_trapper.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_kobold_trapper.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_lich.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_lich.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_magicat.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_magicat.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_martyr.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_martyr.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_merchant.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_merchant.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_mimic.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_mimic.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_mouse.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_mouse.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_needleback.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_needleback.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_ogre.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_ogre.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_oligarch.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_oligarch.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_phoenix.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_phoenix.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_phoenix_egg.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_phoenix_egg.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_plague_doctor.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_plague_doctor.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_poison_frog.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_poison_frog.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_prism.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_prism.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_rust_bucket.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_rust_bucket.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_sandbag.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_sandbag.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_scorpion.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_scorpion.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_shambling_mound.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_shambling_mound.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_shark.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_shark.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_skeleton.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_skeleton.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_slime_boss.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_slime_boss.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_spider_queen.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_spider_queen.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_three_seeker.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_three_seeker.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_triclops.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_triclops.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_two_headed_serpent.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_two_headed_serpent.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_vampire.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_vampire.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_wick.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_wick.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_wraith.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_wraith.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_zombie.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_zombie.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_ale_flagon.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_ale_flagon.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_arrow_head.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_arrow_head.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_bag_of_holding.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_bag_of_holding.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_bag_of_marbles.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_bag_of_marbles.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_ball_and_chain.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_ball_and_chain.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_blood_chalice.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_blood_chalice.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_blood_pact.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_blood_pact.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_bloody_gauntlets.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_bloody_gauntlets.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_bracers.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_bracers.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_breastplate.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_breastplate.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_catapult.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_catapult.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_chakram.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_chakram.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_counting_beads.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_counting_beads.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_crossbow.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_crossbow.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_cursed_scroll.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_cursed_scroll.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_da_boot.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_da_boot.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_danger_magnet.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_danger_magnet.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_double_axe.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_double_axe.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_double_buckler.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_double_buckler.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_echo_bell.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_echo_bell.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_fairy_in_a_bottle.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_fairy_in_a_bottle.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_fangs.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_fangs.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_flying_saucer.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_flying_saucer.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_grappling_hook.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_grappling_hook.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_grief_jar.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_grief_jar.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_grimoire.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_grimoire.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_healing_potion.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_healing_potion.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_helmet.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_helmet.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_hex.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_hex.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_iron_chain.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_iron_chain.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_jar_o_grease.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_jar_o_grease.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_knucklers.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_knucklers.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_lantern.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_lantern.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_last_match.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_last_match.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_left_bracer.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_left_bracer.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_longbow.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_longbow.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_lucky_nickel.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_lucky_nickel.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_marble.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_marble.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_measuring_tape.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_measuring_tape.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_medallion.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_medallion.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_miasma.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_miasma.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_mirror_shard.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_mirror_shard.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_mute_stone.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_mute_stone.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_napalm.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_napalm.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_net.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_net.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_orb.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_orb.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_pacemaker.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_pacemaker.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_pocketwatch.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_pocketwatch.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_poison_flask.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_poison_flask.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_polymorph.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_polymorph.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_quiet_bell.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_quiet_bell.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_recycler.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_recycler.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_rust.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_rust.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_sai.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_sai.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_shield.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_shield.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_shuriken.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_shuriken.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_signpost.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_signpost.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_sledgehammer.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_sledgehammer.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_sling.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_sling.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_smoke_bomb.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_smoke_bomb.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_spider_egg.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_spider_egg.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_spiked_flail.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_spiked_flail.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_spiked_shield.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_spiked_shield.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_spinning_top.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_spinning_top.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_stone_wall.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_stone_wall.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_throwing_knife.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_throwing_knife.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_toll.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_toll.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+item_use_victory_flask.ogg (0.35 s)
+    <- Kenney CC0 beds (item use bake 2026-11-04) / item_use_victory_flask.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 
-Cabin overhaul (2026-10-17): new files
---------------------------------------
-Same processing as audio pass 1 (trim, pitch where noted, SFX active-RMS targets ui -20 / sfx -16 / sting -16 / amb -22 dBFS,
-peak <= -1 dBFS; music -22/-23 LUFS). Rebuild: tools/audio/cabin_sfxgen.py then tools/audio/build_cabin_audio.py.
-
-cab_hover_a.ogg (0.09 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_hover_wood_a.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_hover_b.ogg (0.09 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_hover_wood_b.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_click.ogg (0.16 s)
-    <- Kenney — Impact Sounds / Audio/impactWood_light_000.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-    <- Kenney — Interface Sounds / Audio/click_002.ogg (-8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
-cab_locked.ogg (0.25 s)
-    <- Kenney — RPG Audio / Audio/metalLatch.ogg (pitch x1.1) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — Impact Sounds / Audio/impactMetal_light_001.ogg (pitch x1.2, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-cab_unlock.ogg (0.72 s)
-    <- Kenney — RPG Audio / Audio/metalLatch.ogg (pitch x0.9) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — Impact Sounds / Audio/impactMetal_light_003.ogg (pitch x1.3, -4 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_unlock_glint.wav (-6 dB layer) — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_chain_drop.ogg (0.35 s)
-    <- Kenney — Impact Sounds / Audio/impactMetal_medium_002.ogg (pitch x1.1) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-    <- Kenney — Impact Sounds / Audio/impactMetal_light_004.ogg (pitch x0.9, -3 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-    <- Kenney — Impact Sounds / Audio/impactMetal_light_002.ogg (pitch x1.2, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-cab_door_creak.ogg (1.41 s)
-    <- Kenney — RPG Audio / Audio/creak2.ogg (pitch x0.85) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — RPG Audio / Audio/doorOpen_2.ogg (-4 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_key_jingle.ogg (0.68 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_key_jingle.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-    <- Kenney — RPG Audio / Audio/metalClick.ogg (pitch x1.2, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-sting_unlock.ogg (1.39 s)
-    <- Kenney — Music Jingles / Audio/Steel jingles/jingles_STEEL02.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
-cab_radio_on.ogg (0.94 s)
-    <- Kenney — RPG Audio / Audio/metalClick.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_radio_on.wav (-2 dB layer) — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_radio_knob.ogg (0.06 s)
-    <- Kenney — Interface Sounds / Audio/tick_004.ogg (pitch x0.8) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
-cab_radio_tune.ogg (0.66 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_radio_tune.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_radio_static_loop.ogg (2.40 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_radio_static_loop.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_page_flip_1.ogg (0.67 s)
-    <- Kenney — RPG Audio / Audio/bookFlip1.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_page_flip_2.ogg (0.39 s)
-    <- Kenney — RPG Audio / Audio/bookFlip2.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_page_flip_3.ogg (0.23 s)
-    <- Kenney — RPG Audio / Audio/bookFlip3.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_book_open.ogg (0.14 s)
-    <- Kenney — RPG Audio / Audio/bookOpen.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_book_close.ogg (0.23 s)
-    <- Kenney — RPG Audio / Audio/bookClose.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_scroll.ogg (0.48 s)
-    <- Kenney — RPG Audio / Audio/bookFlip2.ogg (pitch x0.8) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — RPG Audio / Audio/cloth3.ogg (pitch x1.1, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_map_pin.ogg (0.22 s)
-    <- Kenney — Impact Sounds / Audio/impactTin_medium_000.ogg (pitch x1.5) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-    <- Kenney — Interface Sounds / Audio/select_003.ogg (-8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
-cab_seal_stamp.ogg (0.51 s)
-    <- Kenney — Impact Sounds / Audio/impactPlank_medium_003.ogg (pitch x0.8) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-    <- Kenney — Impact Sounds / Audio/impactSoft_medium_002.ogg (-2 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-cab_sack_shake.ogg (0.73 s)
-    <- Kenney — RPG Audio / Audio/handleSmallLeather.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — RPG Audio / Audio/cloth1.ogg (-3 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — RPG Audio / Audio/handleSmallLeather2.ogg (pitch x1.05, -2 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_sack_empty.ogg (0.65 s)
-    <- Kenney — Impact Sounds / Audio/impactSoft_heavy_001.ogg (pitch x0.8) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-sting_empty.ogg (1.08 s)
-    <- Kenney — Music Jingles / Audio/Sax jingles/jingles_SAX03.ogg (pitch x0.9) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
-cab_moth.ogg (0.60 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_moth.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_item_pop_a.ogg (0.69 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_item_pop_a.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-    <- Kenney — Casino Audio / Audio/card-place-1.ogg (-8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
-cab_item_pop_b.ogg (0.45 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_item_pop_b.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-    <- Kenney — Casino Audio / Audio/card-place-2.ogg (-8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/casino-audio
-cab_item_burst.ogg (0.64 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_item_burst.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-    <- Kenney — Impact Sounds / Audio/impactGlass_light_000.ogg (pitch x1.2, -8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-cab_item_whoosh.ogg (0.43 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_item_whoosh.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_shelf_chime.ogg (0.53 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_shelf_chime.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_hero_yip.ogg (0.22 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_hero_yip.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_hero_sigh.ogg (0.90 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_hero_sigh.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_rope_climb_1.ogg (0.45 s)
-    <- Kenney — RPG Audio / Audio/cloth2.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — RPG Audio / Audio/creak1.ogg (pitch x1.3, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_rope_climb_2.ogg (0.38 s)
-    <- Kenney — RPG Audio / Audio/cloth4.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — RPG Audio / Audio/creak3.ogg (pitch x1.35, -6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_rope_creak.ogg (0.78 s)
-    <- Kenney — RPG Audio / Audio/creak1.ogg (pitch x0.75) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_hole_rumble.ogg (1.40 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_hole_rumble.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_gear_take.ogg (0.71 s)
-    <- Kenney — RPG Audio / Audio/clothBelt.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — RPG Audio / Audio/metalClick.ogg (pitch x1.3, -8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_gear_hang.ogg (0.26 s)
-    <- Kenney — RPG Audio / Audio/beltHandle1.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_dummy.ogg (0.30 s)
-    <- Kenney — Impact Sounds / Audio/impactSoft_medium_000.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-    <- Kenney — RPG Audio / Audio/creak3.ogg (pitch x1.2, -5 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_bed.ogg (0.55 s)
-    <- Kenney — Impact Sounds / Audio/impactSoft_heavy_003.ogg (pitch x0.9) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-cab_telescope.ogg (0.41 s)
-    <- Kenney — RPG Audio / Audio/metalClick.ogg (pitch x0.9) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — Interface Sounds / Audio/maximize_003.ogg (-6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
-cab_trunk.ogg (0.63 s)
-    <- Kenney — RPG Audio / Audio/bookOpen.ogg (pitch x0.7) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — RPG Audio / Audio/creak1.ogg (-4 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-cab_brag_cog.ogg (0.13 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_cog_tick.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_room_sign.ogg (0.20 s)
-    <- Kenney — Impact Sounds / Audio/impactWood_light_002.ogg (pitch x1.2) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-cab_panel_whoosh.ogg (0.33 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_panel_whoosh.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-nib_psst.ogg (0.53 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_nib_psst.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-nib_gasp.ogg (0.18 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_nib_gasp.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-nib_chuckle.ogg (0.33 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_nib_chuckle.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-sting_intro.ogg (1.68 s)
-    <- Kenney — Music Jingles / Audio/Steel jingles/jingles_STEEL07.ogg (pitch x0.85) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
-sting_ending.ogg (1.39 s)
-    <- Kenney — Music Jingles / Audio/Steel jingles/jingles_STEEL03.ogg — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
-    <- Kenney — Music Jingles / Audio/Pizzicato jingles/jingles_PIZZI10.ogg (-6 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/music-jingles
-music_intro.ogg (156.00 s)
-    <- 4 Music Box Tracks / musicbox/musicbox3_sad_tune.ogg — Mjorlaja & Aureolus_Omicron — CC0 1.0 — https://opengameart.org/content/4-music-box-tracks
-music_ending.ogg (171.43 s)
-    <- 4 Music Box Tracks / musicbox/musicbox4_happy_polka.ogg — Mjorlaja & Aureolus_Omicron — CC0 1.0 — https://opengameart.org/content/4-music-box-tracks
-music_station_inn.ogg (49.95 s)
-    <- "Medieval: The Old Tower Inn" (loop version) / Loop_The_Old_Tower_Inn.wav (5.8 ms wrap crossfade; -2.6 dB gain; -20.1 LUFS / -4.7 dBTP) — RandomMind — CC0 1.0 — https://opengameart.org/content/medieval-the-old-tower-inn
-music_station_rag.ogg (111.84 s)
-    <- "Ragtime! Jazz" / ragtime.mp3 (trimmed 50 ms head; 15 ms fade into loop; -2.0 dB gain; -20.0 LUFS / -2.2 dBTP) — Tarush Singhal — CC0 1.0 — https://opengameart.org/content/ragtime-jazz
-music_station_harp.ogg (149.36 s)
-    <- "Meadow Thoughts" / Meadow Thoughts.ogg (trimmed 0.38 s trailing silence; 150 ms fade on final ring-out; -5.3 dB gain; -20.1 LUFS / -5.5 dBTP) — Écrivain — CC0 1.0 — https://opengameart.org/content/meadow-thoughts
-cab_drawer_stuck.ogg (0.61 s)
-    <- Kenney — Impact Sounds / Audio/impactWood_medium_001.ogg (pitch x1.1) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-    <- Kenney — Impact Sounds / Audio/impactWood_light_003.ogg (pitch x1.2, -3 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-    <- Kenney — Impact Sounds / Audio/impactWood_light_001.ogg (pitch x1.25, -5 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-    <- Kenney — Impact Sounds / Audio/impactMining_000.ogg (pitch x1.3, -12 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-cab_drawer_unlatch.ogg (0.76 s)
-    <- Kenney — RPG Audio / Audio/metalLatch.ogg (pitch x1.3) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Kenney — RPG Audio / Audio/metalClick.ogg (pitch x0.9, -4 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_unlock_glint.wav (-12 dB layer) — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-cab_drawer_open.ogg (0.97 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_drawer_slide.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-    <- Kenney — Impact Sounds / Audio/impactMining_002.ogg (pitch x1.1, -4 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-    <- Kenney — Impact Sounds / Audio/impactMining_004.ogg (pitch x1.25, -7 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-cab_geode_chime.ogg (0.59 s)
-    <- Swipe cabin_sfxgen (tools/audio/cabin_sfxgen.py) / cab_geode_chime.wav — Swipe / generated — CC0 1.0 (original) — tools/audio/cabin_sfxgen.py
-    <- Kenney — Impact Sounds / Audio/impactGlass_light_002.ogg (pitch x0.9, -8 dB layer) — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
-
-Verdant Hollow theme (2026-10-29)
----------------------------------
-music_verdant_hollow_intro.ogg (~10.1 s) — Verdant Hollow theme intro (one-shot) — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29
-music_verdant_hollow_loop.ogg (~1:47) — Verdant Hollow theme loop — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29
-music_verdant_hollow_victory.ogg (6.313 s) — Verdant Hollow — Victory outro (cut from Extend @40.247s, 6.3s) — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-30
-
-Cinder Forge theme — Approach F hybrid (2026-10-29)
----------------------------------------------------
-Source: Suno Forge Motif https://suno.com/s/mhvMHyfv72JqOpjX — loop trim 8.169s→73.629s (65.460s, 121 BPM). Instrumental by Nathan (refinedpolonaise473).
-music_cinder_forge_a.ogg (~65.46 s) — layer A bed (Lead+Bass+Keyboard+Synth+Other+Woodwinds, no drums)
-music_cinder_forge_b.ogg (~65.46 s) — layer B drums (combat intensity, synced to A)
-music_cinder_forge_c.ogg (~65.46 s) — layer C heat (Percussion+Brass; Tier-3/boss intensity, synced to A)
-
-Crystal Cavern theme — Approach F hybrid (2026-10-30)
-----------------------------------------------------
-Source: Crystal Cavern Stems (119 BPM). Instrumental by Nathan (refinedpolonaise473). Replaces sunken_mire music keys (b2).
-music_crystal_cavern_a.ogg — layer A bed (always on during the delve)
-music_crystal_cavern_b.ogg — layer B drums (combat intensity, synced to A)
-music_crystal_cavern_c.ogg — layer C heat (Tier-3/boss; quiet stem, map gain_db +10)
-
-Ashen Crypt theme — Approach F hybrid (2026-10-30)
--------------------------------------------------
-Source: Ashen Crypt Stems (113 BPM). Instrumental by Nathan (refinedpolonaise473). b3.
-music_ashen_crypt_a.ogg — layer A bed (always on during the delve)
-music_ashen_crypt_b.ogg — layer B drums (combat intensity, synced to A)
-music_ashen_crypt_c.ogg — layer C heat (percussion+brass; Tier-3/boss). Map gain_db -2 on A/B/C so the stack leaves ~1.5 dB Music-bus headroom.
-
-Shadow Abyss theme — Approach F hybrid (2026-10-30)
---------------------------------------------------
-Source: Abyss Stems (200 BPM). Instrumental by Nathan (refinedpolonaise473). b5.
+Suno biome beds (drop-in OGGs; not rebuilt by build_audio.py)
+------------------------------------------------------------
+music_verdant_hollow_intro.ogg / music_verdant_hollow_loop.ogg — Verdant Hollow — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29
+music_cinder_forge_a.ogg / music_cinder_forge_b.ogg / music_cinder_forge_c.ogg — Cinder Forge Approach F — Suno Forge Motif https://suno.com/s/mhvMHyfv72JqOpjX — loop trim 8.169s→73.629s (65.460s, 121 BPM) — Nathan (refinedpolonaise473), 2026-10-29
+music_crystal_cavern_a.ogg / music_crystal_cavern_b.ogg / music_crystal_cavern_c.ogg — Crystal Cavern Approach F (b2; replaces sunken_mire music keys) — 119 BPM — Nathan (refinedpolonaise473), 2026-10-30
+music_ashen_crypt_a.ogg / music_ashen_crypt_b.ogg / music_ashen_crypt_c.ogg — Ashen Crypt Approach F (b3) — 113 BPM — map gain_db -2 (A+B+C stack ~1.5 dB Music-bus headroom) — Nathan (refinedpolonaise473), 2026-10-30
 music_shadow_abyss_a.ogg / _b / _c — Shadow Abyss Approach F (b5) — 200 BPM — A/B -2 dB, C +6 dB — Nathan (refinedpolonaise473), 2026-10-30
-
-Between-dungeons hold (2026-11-01)
-----------------------------------
-music_between_dungeons.ogg (~67.447 s, ~142 BPM, libvorbis 192k) — shared rest / rope_exit bed after dungeon clear (all biomes) — Suno instrumental by Nathan (refinedpolonaise473), 2026-11-01
+music_between_dungeons.ogg (~67.447 s, ~142 BPM) — shared between-dungeon hold bed (all biomes) — Suno instrumental by Nathan (refinedpolonaise473), 2026-11-01
 
 Defeat sting (2026-11-02)
 ------------------------
 sting_defeat.ogg (~9.44 s, libvorbis, 0.32 s end fade) — one-shot; beds fade out and stay silent (no title after) — Suno by Nathan / Defeat Stings.wav (Nathan-owned), 2026-11-02
-Replaces Kenney Music Jingles Sax jingles/jingles_SAX01.ogg as the defeat sting source.
 
 Accordion clear sting (2026-11-04)
 ---------------------------------
 sting_clear.ogg (~0.45 s) — dungeon-clear accordion reverse-collapse soft settle (Nathan locked soft A) — CC0 remix of tip Kenney/Swipe layers already credited above (whoosh, cab_shelf_chime, heal_sparkle); no metal layers. Peak ~−14 dBFS. Replaces 2026-11-03 coalesce A (and earlier Kenney Music Jingles Pizzicato jingles/jingles_PIZZI15.ogg). Cue/bed id stays sting.clear.
+
+Ability + item activate oneshots (2026-11-04)
+---------------------------------------------
+mon_ability_<card_id>.ogg / item_use_<item_id>.ogg — unique CC0/Kenney oneshots per named ability activate and item use (Nathan locked 2026-11-04). Cue ids mon.ability.<card_id> / item.use.<item_id>. HOLD: leech_league / Blood Rise unwired until playtest #347. Skip golem/wizard (no named ability). Drop-ins; not rebuilt by build_audio.py.
