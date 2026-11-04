@@ -417,12 +417,82 @@ func _apply_beat(b: Dictionary) -> void:
 	var said: String = str(b.get("text", "")).to_lower()
 	if said.find("survived all") >= 0 or said.find("venture deeper") >= 0 or said.find("come back") >= 0:
 		world_open = true
+	if beat_id == "B52" and line_n >= 2:
+		## Last B52 line arms free play after this advance resolves via Main rig.
+		pass
 	_body.add_theme_font_size_override("normal_font_size", 12 if _tiny else 20)
 	_arm = 0.2
 	_talk.reset_size()
 	## Re-pin talk each beat so Next never sits under a stale layout.
 	_pin_key = ""
 	_pin_pos = Vector2.ZERO
+
+
+func enter_free() -> void:
+	free_mode = true
+	world_open = true
+	_on_trigger = false
+	wait = "free"
+	focus_tag = ""
+	force_id = ""
+	allow = []
+	if _talk:
+		_talk.visible = false
+	_go.visible = false
+	_show_chrome_skip(true)
+
+
+func fire_trigger(ev: String) -> bool:
+	if not free_mode or _on_trigger:
+		return false
+	for i in range(_beats.size()):
+		var b: Dictionary = _beats[i]
+		if str(b.get("branch", "")) != "trigger":
+			continue
+		if str(b.get("trigger", "")) != ev:
+			continue
+		## Jump to the first line of this trigger beat.
+		var beat: String = str(b.get("beat", ""))
+		var start_i: int = i
+		while start_i > 0 and str(_beats[start_i - 1].get("beat", "")) == beat:
+			start_i -= 1
+		_saved_step = step
+		_on_trigger = true
+		free_mode = false
+		step = start_i - 1
+		advance()
+		return true
+	return false
+
+
+func end_trigger_resume_free() -> void:
+	_on_trigger = false
+	free_mode = true
+	if _saved_step >= 0:
+		step = _saved_step
+	enter_free()
+
+
+func resume_after_free_at(beat: String) -> void:
+	free_mode = false
+	_on_trigger = false
+	world_open = false
+	for i in range(_beats.size()):
+		if str(_beats[i].get("beat", "")) == beat:
+			step = i - 1
+			advance()
+			return
+	finished.emit()
+
+
+func jump_to_beat(beat: String) -> void:
+	free_mode = false
+	_on_trigger = false
+	for i in range(_beats.size()):
+		if str(_beats[i].get("beat", "")) == beat:
+			step = i - 1
+			advance()
+			return
 
 
 func enter_free() -> void:
