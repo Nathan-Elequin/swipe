@@ -25919,7 +25919,7 @@ func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = 
 		if uid == int(take.get("uid", -1)):
 			hotbar.append(take.duplicate(true))
 			_sort_hotbar()
-			## Same take/commit SFX as core draft (`_challenge_commit_item`).
+			## Same take/commit SFX as core `_challenge_commit_item` (confirm + cloth + chal.commit).
 			if sfx:
 				sfx.play("confirm", -12.0)
 				sfx.play("cloth", -14.0)
@@ -25988,6 +25988,21 @@ func _tut_grant(id: String) -> void:
 	_refresh()
 	if sfx:
 		sfx.play("drop", -8.0)
+
+
+func _tut_ensure_usable(id: String) -> void:
+	## Soft-lock safety for required item beats (e.g. Keep Breastplate missing/spent).
+	## Re-grant or unspend — do not redesign Keep.
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) != id:
+			continue
+		if bool(it.get("spent", false)):
+			it["spent"] = false
+			_refresh()
+		return
+	_tut_grant(id)
 
 
 func _tut_rig_golem2_fangs() -> void:
@@ -26324,7 +26339,8 @@ func _start_tutorial() -> void:
 func _tut_on_continue() -> void:
 	if not in_tutorial or tut == null:
 		return
-	if tut.wait != "continue":
+	## Match TutorialGuide._wait_shows_next — talk-only beats advance via Next/Space.
+	if tut.wait != "continue" and tut.wait != "":
 		return
 	if sfx:
 		sfx.play("click", -12.0)
@@ -26454,6 +26470,9 @@ func _tut_refresh_focus() -> void:
 	elif tut.wait == "free":
 		tut.set_spots([], [])
 		return
+	## Optional safety: required Breastplate beats cannot soft-lock if Keep discarded it.
+	if tut.wait == "item:breastplate":
+		_tut_ensure_usable("breastplate")
 	var spots: Array = []
 	var arrows: Array = []
 	_tut_collect_spots(spots, arrows)
@@ -26530,30 +26549,18 @@ func _tutorial_d2_seat() -> void:
 
 
 func _tut_inspect_focused_item() -> void:
+	## Teach focus uses spotlight/arrow from _tut_collect_spots only.
+	## Do not call _on_item_hovered here — that left formula/fly-tip/SFX pinned with no
+	## matching unhover, so Sai/Breastplate/etc. looked hovered until the player moved.
 	if tut == null or not in_tutorial:
 		return
 	var tag: String = str(tut.focus_tag)
-	if not tag.begins_with("item:"):
-		return
-	var iid: String = tag.substr(5)
-	## Auto-open inspect for teach beats (Breastplate Keep, Flail, Fangs, Arrow Head, Knucklers, Shield, Boot).
-	var teach := {
-		"helmet": true, "knucklers": true, "breastplate": true, "spiked_flail": true,
-		"fangs": true, "arrow_head": true, "shield": true, "da_boot": true, "sai": true,
-	}
-	if not teach.has(iid):
-		return
 	if tag == _tut_inspected_tag:
 		return
+	if _tut_inspected_tag.begins_with("item:") and not tag.begins_with("item:"):
+		## Leaving an item teach focus: clear any leftover hover chrome from a real mouse-over.
+		_on_item_unhovered()
 	_tut_inspected_tag = tag
-	var card: Control = _hotbar_card(iid)
-	for it in hotbar:
-		if typeof(it) != TYPE_DICTIONARY:
-			continue
-		if str(it.get("card_id", "")) != iid:
-			continue
-		_on_item_hovered(it, card)
-		return
 
 
 func _tut_add_control(spots: Array, node: Control) -> void:
@@ -27019,7 +27026,8 @@ func _tutorial_item_used(id: String) -> void:
 			tut.choice = "take"
 			tut.wait = "done"
 			tut.focus_tag = "done"
-			tut.hint = "(click Take)"
+			## TutorialGuide has no `hint` property — use nudge (writes `_hint` Label).
+			tut.nudge("(click Take)")
 			_tut_mark_seen(id)
 			_tut_after_advance()
 			return
@@ -27080,7 +27088,7 @@ func _tut_on_progress_key() -> void:
 	if not in_tutorial or tut == null or not tut.visible or not tut.armed():
 		return
 	var w: String = tut.wait
-	if w == "continue":
+	if w == "continue" or w == "":
 		_tut_on_continue()
 		return
 	if w == "spin" or w == "auto_spin":

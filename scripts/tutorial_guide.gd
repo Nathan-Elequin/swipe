@@ -68,7 +68,9 @@ func setup(art, p_sfx = null) -> void:
 	sfx = p_sfx
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	z_index = 70
+	## Above fly_tip (110–140) / keyword tip (141) so Next/Skip stay clickable on continue
+	## even if a hover plate opens over the talk box.
+	z_index = 160
 	top_level = true
 	visible = false
 	if art != null:
@@ -408,7 +410,9 @@ func _apply_beat(b: Dictionary) -> void:
 	_go.text = COPY.apply_names(go_raw) if go_raw != "" else COPY.text("tutorial.next", "Next")
 	_name.text = COPY.text("tutorial.speaker", "Nib")
 	_show_chrome_skip(not (beat_id == "B54" or beat_id == "B55"))
-	_go.visible = wait == "continue" and not _typing
+	## Nathan lock: Next always clickable on continue (and similar talk-only) beats.
+	## Hide only when the beat requires an item click, Take, choice, draft, spin, move, hover, etc.
+	_go.visible = _wait_shows_next(wait) and not _typing
 	_go.disabled = false
 	_go.mouse_filter = Control.MOUSE_FILTER_STOP
 	_go.z_index = 20
@@ -495,71 +499,12 @@ func jump_to_beat(beat: String) -> void:
 			return
 
 
-func enter_free() -> void:
-	free_mode = true
-	world_open = true
-	_on_trigger = false
-	wait = "free"
-	focus_tag = ""
-	force_id = ""
-	allow = []
-	if _talk:
-		_talk.visible = false
-	_go.visible = false
-	_show_chrome_skip(true)
-
-
-func fire_trigger(ev: String) -> bool:
-	if not free_mode or _on_trigger:
-		return false
-	for i in range(_beats.size()):
-		var b: Dictionary = _beats[i]
-		if str(b.get("branch", "")) != "trigger":
-			continue
-		if str(b.get("trigger", "")) != ev:
-			continue
-		## Jump to the first line of this trigger beat.
-		var beat: String = str(b.get("beat", ""))
-		var start_i: int = i
-		while start_i > 0 and str(_beats[start_i - 1].get("beat", "")) == beat:
-			start_i -= 1
-		_saved_step = step
-		_on_trigger = true
-		free_mode = false
-		step = start_i - 1
-		advance()
+func _wait_shows_next(w: String) -> bool:
+	## Talk-only beats show Next. Action gates hide it so the player must do the thing.
+	if w == "continue" or w == "":
 		return true
+	## item:*, done/Take, choice, draft:*, spin, auto_spin, move, hover* — require the action.
 	return false
-
-
-func end_trigger_resume_free() -> void:
-	_on_trigger = false
-	free_mode = true
-	if _saved_step >= 0:
-		step = _saved_step
-	enter_free()
-
-
-func resume_after_free_at(beat: String) -> void:
-	free_mode = false
-	_on_trigger = false
-	world_open = false
-	for i in range(_beats.size()):
-		if str(_beats[i].get("beat", "")) == beat:
-			step = i - 1
-			advance()
-			return
-	finished.emit()
-
-
-func jump_to_beat(beat: String) -> void:
-	free_mode = false
-	_on_trigger = false
-	for i in range(_beats.size()):
-		if str(_beats[i].get("beat", "")) == beat:
-			step = i - 1
-			advance()
-			return
 
 
 func nudge(msg: String) -> void:
@@ -599,7 +544,7 @@ func _finish_type() -> void:
 	_typing = false
 	_type_shown = _type_full.length()
 	_body.visible_characters = -1
-	if wait == "continue":
+	if _wait_shows_next(wait):
 		_go.visible = true
 
 
@@ -664,7 +609,7 @@ func _process(delta: float) -> void:
 		_body.visible_characters = _type_shown
 		if _type_shown >= _type_full.length():
 			_finish_type()
-	if _go != null and _go.visible and wait == "continue":
+	if _go != null and _go.visible and _wait_shows_next(wait):
 		var pulse: float = 0.62 + 0.38 * absf(sin(_idle * 5.0))
 		_go.modulate = Color(1, 1, 1, pulse)
 	elif _go != null:
@@ -677,7 +622,7 @@ func _process(delta: float) -> void:
 			set_lift(want)
 	if _space_hint != null:
 		## Always show the Space line while waiting on continue (SP-10 blink alone is not enough).
-		var waiting_space: bool = wait == "continue" and not _typing
+		var waiting_space: bool = _wait_shows_next(wait) and not _typing
 		var pulse: float = 0.72 + 0.28 * absf(sin(_idle * 4.5)) if waiting_space else 0.0
 		var step_a: float = delta / 0.28
 		_space_hint.modulate.a = move_toward(_space_hint.modulate.a, pulse, step_a)
