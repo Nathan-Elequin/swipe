@@ -17,7 +17,7 @@ const COVER_COOL_ITEMS: Array = [
 	"blood_chalice", "net", "spiked_flail", "longbow",
 ]
 const COVER_COOL_MONSTERS: Array = [
-	"two_headed_serpent", "dragon", "lich", "vampire", "ogre", "slime_boss",
+	"damsel_in_distress", "dragon", "lich", "vampire", "ogre", "slime_boss",
 ]
 
 var main
@@ -947,11 +947,11 @@ func _shot_cover_damsel_slash() -> void:
 			_skip("cover-damsel-slash_f%02d.png" % i, "ability_slash missing")
 		_suite_files.clear()
 		return
-	## Real Damsel slash frames exist (`two_headed_serpent_slash_f*`). Mark seen so hold is the normal mid band.
+	## Real Damsel slash frames exist (`damsel_in_distress_slash_f*`). Mark seen so hold is the normal mid band.
 	main.ability_slash.reset_slash_seen()
 	if main.ability_slash.has_method("mark_slash_seen"):
-		main.ability_slash.mark_slash_seen("two_headed_serpent")
-	main.ability_slash.play(_slash_payload("two_headed_serpent"))
+		main.ability_slash.mark_slash_seen("damsel_in_distress")
+	main.ability_slash.play(_slash_payload("damsel_in_distress"))
 	var gaps: Array = [0.0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.08, 0.10]
 	for i in 8:
 		if float(gaps[i]) > 0.0:
@@ -962,8 +962,8 @@ func _shot_cover_damsel_slash() -> void:
 	## Poster: restart and hold ~300ms (readable mid slash).
 	main.ability_slash.reset_slash_seen()
 	if main.ability_slash.has_method("mark_slash_seen"):
-		main.ability_slash.mark_slash_seen("two_headed_serpent")
-	main.ability_slash.play(_slash_payload("two_headed_serpent"))
+		main.ability_slash.mark_slash_seen("damsel_in_distress")
+	main.ability_slash.play(_slash_payload("damsel_in_distress"))
 	await _wait(0.30)
 	_store_clean_chrome()
 	await _capture("cover-damsel-slash.png", "Damsel slash portrait ~300ms mid-hold + 8 cool items")
