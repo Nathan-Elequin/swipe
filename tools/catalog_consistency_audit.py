@@ -58,7 +58,6 @@ KNOWN_SFX_ALIAS_IDS = {
     "chaos_stone",
     "magnet",
     "hook",
-    "fungal_colony",  # still referenced in main.gd; catalog entry missing → separate gap
 }
 
 # cues.py HOLD note: skip dedicated ability oneshots for these until issues land.
@@ -355,7 +354,8 @@ def audit(fix: bool = False) -> tuple[list[Gap], dict[str, Any]]:
                     )
                 )
 
-    # Code-referenced monster id missing from catalog
+    # Code-referenced monster id missing from catalog (regression guard).
+    # fungal_colony: combat + SFX live; catalog hold stub added 2026-11-04.
     main_gd = (ROOT / "scripts" / "main.gd").read_text(encoding="utf-8", errors="ignore")
     for hard_id in ("fungal_colony",):
         if hard_id in main_gd and hard_id not in monsters and hard_id not in items:

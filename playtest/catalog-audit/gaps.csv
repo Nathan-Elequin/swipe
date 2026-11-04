@@ -1,5 +1,4 @@
 severity,kind,subject,detail,todo,auto_fixable,fixed
-high,code_id_missing_catalog,monster:fungal_colony,main.gd references this id but catalog.json has no row.,Add catalog row or retire code path.,False,False
 high,live_missing_art_registry,item:fairy_in_a_bottle,Live item 'Fairy In A Bottle' has no ITEM_PNG/MONSTER_PNG entry; flags.art=False.,Pixel: register unique art (do not invent PNG here).,False,False
 low,orphan_png_on_disk,assets/dungeon/extra/damsel_in_distress.png,PNG under items/extra not referenced in dungeon_art.gd.,Pixel: wire or retire file.,False,False
 low,orphan_png_on_disk,assets/dungeon/extra/spider.png,PNG under items/extra not referenced in dungeon_art.gd.,Pixel: wire or retire file.,False,False
@@ -241,6 +240,5 @@ low,sfx_ability_hold,monster:wizard,No ability lookup by design: no named abilit
 info,art_registry_without_catalog,item:bag_of_holding_closed,ITEM_PNG/MONSTER_PNG id not in catalog.json (res://assets/dungeon/items/bag_of_holding_closed.png).,Keep if alias/extra; else remove registry entry in a Pixel pass.,False,False
 info,art_registry_without_catalog,item:cats_eye_marble,ITEM_PNG/MONSTER_PNG id not in catalog.json (res://assets/dungeon/items/cats_eye_marble.png).,Keep if alias/extra; else remove registry entry in a Pixel pass.,False,False
 info,sfx_lookup_alias,lookup:chaos_stone,"card_id lookup key is an alias/ops/legacy id, not a catalog row.",Keep unless code stops using it.,False,False
-info,sfx_lookup_alias,lookup:fungal_colony,"card_id lookup key is an alias/ops/legacy id, not a catalog row.",Keep unless code stops using it.,False,False
 info,sfx_lookup_alias,lookup:hook,"card_id lookup key is an alias/ops/legacy id, not a catalog row.",Keep unless code stops using it.,False,False
 info,sfx_lookup_alias,lookup:magnet,"card_id lookup key is an alias/ops/legacy id, not a catalog row.",Keep unless code stops using it.,False,False
