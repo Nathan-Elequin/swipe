@@ -402,7 +402,7 @@
 			"status": "f5",
 			"title": "'Bear Trap' does not count as a Tier 2 monster, it's just a Token",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/358",
-			"sha": "PENDING",
+			"sha": "1d4da828",
 			"f5_note": "Bear Trap (Token) hole-fill seats from the deck with no pick-2 loot draft. Stop Play, F5."
 		},
 		"357": {
