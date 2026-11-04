@@ -7,7 +7,6 @@ signal choice_made(chose_tutorial: bool)
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const COPY := preload("res://scripts/player_copy.gd")
 const PX := 4.0
-const FADE_S := 0.28
 const SHAKE_S := 0.55
 const CAPTION_HOLD := 1.6
 
@@ -41,6 +40,20 @@ func is_open() -> bool:
 	return visible
 
 
+func arm_cover() -> void:
+	## Solid black only — call the frame after intro p3 so cabin/title never flash.
+	visible = true
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	_black.modulate.a = 1.0
+	_set_overlay_ui(false)
+	_set_caption("")
+	_bar.visible = false
+	if _panel:
+		_panel.visible = false
+	if _frame:
+		_frame.visible = false
+
+
 func play_and_ask() -> bool:
 	## Returns true if Yes (start tutorial), false if Skip.
 	if _busy:
@@ -48,18 +61,26 @@ func play_and_ask() -> bool:
 	_busy = true
 	visible = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	## Keep solid black under the framed art so cabin chrome never shows through
+	## (Nathan: cabin must be fully gone during approach / ambush / overlay).
 	_black.modulate.a = 1.0
+	if _frame:
+		_frame.visible = true
+	if _panel:
+		_panel.visible = true
+	_bar.visible = true
 	_set_overlay_ui(false)
 	_show_approach()
-	await _fade_in()
+	## Silence cabin beds/loops; intro bed may still be playing until ambush combat.
+	if cabin and cabin.has_method("silence_for_road"):
+		cabin.silence_for_road()
 	await _caption_beat("road.caption.A1.1", CAPTION_HOLD)
 	await _play_ambush()
 	await _caption_beat("road.caption.A2.1", 1.2)
 	await _caption_beat("road.caption.A2.2", 1.4)
 	var yes: bool = await _ask_overlay()
 	_busy = false
-	visible = false
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	## Leave solid black up; home_cabin / main hide cabin then abort this cover.
 	choice_made.emit(yes)
 	return yes
 
@@ -239,14 +260,6 @@ func _caption_beat(key: String, hold: float) -> void:
 	while left > 0.0 and visible:
 		await get_tree().process_frame
 		left -= get_process_delta_time()
-
-
-func _fade_in() -> void:
-	_black.modulate.a = 1.0
-	var tw := create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tw.tween_property(_black, "modulate:a", 0.0, FADE_S)
-	await tw.finished
 
 
 func _notification(what: int) -> void:
