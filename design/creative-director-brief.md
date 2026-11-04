@@ -186,7 +186,7 @@ Audio is Kenney interface/RPG + one CC0 dungeon ambience loop. You may keyword m
 - Tutorial items and seats are fixed (see §3)
 
 **Ids (frozen):**  
-Monsters: `wizard` `golem` `goblin` `skeleton` `hornet_swarm` `lich` `ogre` `berserker` `dire_wolf` `bandit` `leech_league` `wraith` `mimic` `two_headed_serpent` `slime_boss` `spider_queen` `commander` `dragon`  
+Monsters: `wizard` `golem` `goblin` `skeleton` `hornet_swarm` `lich` `ogre` `berserker` `dire_wolf` `bandit` `leech_league` `wraith` `mimic` `damsel_in_distress` `slime_boss` `spider_queen` `commander` `dragon`  
 Items: `throwing_knife` `shield` `sai` `medallion` `helmet` `da_boot` `grimoire` `bloody_gauntlets` `breastplate` `bracers` `smoke_bomb` `knucklers` `fangs` `poison_flask` `spiked_flail` `healing_potion` `crossbow` `sledgehammer` `pocketwatch`  
 Retired (do not write unless you pitch reviving them): `cursed_scroll` `dagger` `helmet_hidden` `bandana`
 
@@ -498,7 +498,7 @@ From the live content board. `---` means no line. Engine may fall back to the sp
 - `leech_league` · Leech League · My HP is 1 plus how many of us are still on the wheel. · HP from monsters left
 - `wraith` · Wraith · I copy the higher neighbor's attack. · copies neighbor attack
 - `mimic` · Mimic · If I go down before I attack, you gain an item. · Slay To Win ('win is the bolded keyword in the color of 'Item' keyword)
-- `two_headed_serpent` · Two-Headed Serpent · My attack drops to 0 if you use two items this fight. · two items, no attack
+- `damsel_in_distress` · Damsel in Distress · My attack drops to 0 if you use two items this fight. · two items, no attack
 - `slime_boss` · Slime Boss · My attack always equals my HP. · Attack equals its HP
 - `spider_queen` · Spider Queen · I attack twice if a neighbor has less HP than I do. · double hit if a neighbor is weaker
 - `commander` · Commander · I give my neighbors +2 attack. · neighbors +2 attack
@@ -543,7 +543,7 @@ ogre:                My HP is your HP.
 berserker:           I gain one HP and attack with each monster you defeat.
 dire_wolf:           My attack is your HP.
 bandit:              My attack is how many items you hold.
-two_headed_serpent:  My attack drops to 0 if you use two items this fight.
+damsel_in_distress:  My attack drops to 0 if you use two items this fight.
 slime_boss:          My attack always equals my HP.
 leech_league:        My HP is 1 plus how many of us are still on the wheel.
 wraith:              I copy the higher neighbor's attack.
@@ -564,7 +564,7 @@ ogre: HP is yours
 berserker: attack and HP plus defeat
 dire_wolf: attack is your HP
 bandit: attack is items
-two_headed_serpent: two items, no attack
+damsel_in_distress: two items, no attack
 slime_boss: attack equals HP
 leech_league: HP from monsters left
 wraith: copies neighbor attack

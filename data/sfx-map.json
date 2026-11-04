@@ -287,8 +287,8 @@
       "triclops": {
         "ability": "mon.ability.triclops"
       },
-      "two_headed_serpent": {
-        "ability": "mon.ability.two_headed_serpent"
+      "damsel_in_distress": {
+        "ability": "mon.ability.damsel_in_distress"
       },
       "vampire": {
         "ability": "mon.ability.vampire"
@@ -490,9 +490,9 @@
         "special": "mon.ability.vampire",
         "ability": "mon.ability.vampire"
       },
-      "two_headed_serpent": {
+      "damsel_in_distress": {
         "special": "mon.damsel",
-        "ability": "mon.ability.two_headed_serpent"
+        "ability": "mon.ability.damsel_in_distress"
       },
       "leech_league": {
         "special": "mon.leech_pulse"
@@ -864,7 +864,7 @@
     "dragon": 0.75,
     "commander": 1.0,
     "vampire": 0.94,
-    "two_headed_serpent": 1.19,
+    "damsel_in_distress": 1.19,
     "leech_league": 1.06,
     "clockwork_knight": 0.89,
     "cowardly_king": 1.33
@@ -5632,9 +5632,9 @@
       "max_voices": 2,
       "priority": 2
     },
-    "mon.ability.two_headed_serpent": {
+    "mon.ability.damsel_in_distress": {
       "files": [
-        "mon_ability_two_headed_serpent"
+        "mon_ability_damsel_in_distress"
       ],
       "bus": "SFX",
       "db": -10,

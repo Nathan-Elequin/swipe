@@ -17,7 +17,7 @@ On the title they pick Adventure Mode. Dungeon 1 plays like Begin: four opening 
 **Locked answers:**
 1. New fourth title button; Begin / Dive In / How to Play stay one-dungeon.
 2. Dungeon 1 = mill (Begin).
-3. Tier 1 = starter / opening four. Lich becomes an opener. Ogre, Berserker, Dire Wolf, Two-Headed Serpent leave NESW.
+3. Tier 1 = starter / opening four. Lich becomes an opener. Ogre, Berserker, Dire Wolf, Damsel in Distress leave NESW.
 4. Upgrade = swap that seat to a random different owner of the next tier.
 5. If a picked seat is already T3: pick a different one of the four that can still go up; if none can, skip that extra upgrade.
 6. Refill owner/item lists from the full roster each dungeon.
@@ -28,4 +28,4 @@ On the title they pick Adventure Mode. Dungeon 1 plays like Begin: four opening 
 11. Leave after a clear and die in dungeon 2+: same Victory screen with dungeons cleared.
 12. How to Play stays a single dungeon, unchanged.
 
-**Shipped:** `scripts/main.gd` Adventure Mode, hall wipe, two-seat +1 swap. Catalog/board rarity: Lich starter; Ogre, Berserker, Dire Wolf, Two-Headed Serpent, Slime Boss uncommon.
+**Shipped:** `scripts/main.gd` Adventure Mode, hall wipe, two-seat +1 swap. Catalog/board rarity: Lich starter; Ogre, Berserker, Dire Wolf, Damsel in Distress, Slime Boss uncommon.

@@ -253,8 +253,8 @@ window.CONTENT_BOARD = {
       "contradiction_ids": []
     },
     {
-      "id": "two_headed_serpent",
-      "name": "Two-Headed Serpent",
+      "id": "damsel_in_distress",
+      "name": "Damsel in Distress",
       "kind": "monster",
       "status": "live",
       "rarity": "starter",

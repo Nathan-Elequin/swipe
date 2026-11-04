@@ -85,7 +85,7 @@ monster,bandit,Bandit,live,1.0,1.0,False,True,res://assets/dungeon/extra/bandit.
 monster,leech_league,Leech League,live,3.0,4.0,False,True,res://assets/dungeon/extra/leech_league.png,True,,mon.ability.leech_league,False
 monster,wraith,Wraith,live,2.0,3.0,False,True,res://assets/dungeon/extra/wraith.png,True,mon.ability.wraith,mon.ability.wraith,True
 monster,mimic,Mimic,todo,2.0,1.0,False,True,res://assets/dungeon/extra/mimic.png,True,mon.ability.mimic,mon.ability.mimic,True
-monster,two_headed_serpent,Damsel In Distress,live,3.0,3.0,False,True,res://assets/dungeon/extra/damsel.png,True,mon.ability.two_headed_serpent,mon.ability.two_headed_serpent,True
+monster,damsel_in_distress,Damsel In Distress,live,3.0,3.0,False,True,res://assets/dungeon/extra/damsel.png,True,mon.ability.damsel_in_distress,mon.ability.damsel_in_distress,True
 monster,slime_boss,Slime Boss,live,3.0,1.0,False,True,res://assets/dungeon/extra/slime_boss.png,True,mon.ability.slime_boss,mon.ability.slime_boss,True
 monster,spider_queen,Spider Queen,live,3.0,5.0,False,True,res://assets/dungeon/extra/spider_queen.png,True,mon.ability.spider_queen,mon.ability.spider_queen,True
 monster,commander,Commander,live,3.0,2.0,False,True,res://assets/dungeon/extra/commander.png,True,mon.ability.commander,mon.ability.commander,True

@@ -34,7 +34,7 @@ const MEDAL_OF := {
 	"berserker": "swords",
 	"dire_wolf": "footprints",
 	"bandit": "trending",
-	"two_headed_serpent": "link",
+	"damsel_in_distress": "link",
 	"slime_boss": "copy",
 	"leech_league": "users",
 	"wraith": "sparkles",

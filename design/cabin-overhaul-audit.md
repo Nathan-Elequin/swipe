@@ -916,7 +916,7 @@ Display-name **key** is the CSV snapshot id. Live inspect uses catalog `name`, n
 | leech_league | Leech League | Blood Rise | `card.monster.leech_league.name` | uncommon | live | 3 | `assets/dungeon/extra/leech_league.png` |
 | wraith | Wraith | Neighbor's Wrath | `card.monster.wraith.name` | uncommon | todo | 5 | `assets/dungeon/extra/wraith.png` |
 | mimic | Mimic | Treasure | `card.monster.mimic.name` | uncommon | todo | 4 | `assets/dungeon/extra/mimic.png` |
-| two_headed_serpent | Damsel In Distress | Guarded by Monsters | `card.monster.two_headed_serpent.name` | uncommon | live | 2 | `assets/dungeon/extra/damsel.png` |
+| damsel_in_distress | Damsel In Distress | Guarded by Monsters | `card.monster.damsel_in_distress.name` | uncommon | live | 2 | `assets/dungeon/extra/damsel.png` |
 | slime_boss | Slime Boss | Body Slam | `card.monster.slime_boss.name` | uncommon | live | 0 | `assets/dungeon/extra/slime_boss.png` |
 | spider_queen | Spider Queen | Egg Layer | `card.monster.spider_queen.name` | uncommon | live | 3 | `assets/dungeon/extra/spider.png` |
 | commander | Commander | War Cry | `card.monster.commander.name` | uncommon | live | 8 | `assets/dungeon/extra/commander.png` |

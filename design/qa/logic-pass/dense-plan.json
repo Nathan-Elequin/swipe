@@ -416,8 +416,8 @@
       "expected_text": "When Martyr Attacks, it dies. Neighbors gain HP equal to its current HP."
     },
     {
-      "id": "two-head-neighbors-hit",
-      "title": "Two-Headed Serpent: neighbors attack, then it Heals 3",
+      "id": "damsel-neighbors-hit",
+      "title": "Damsel in Distress: neighbors attack, then it Heals 3",
       "family": "collide",
       "expected_text": "Neighbors attack you (left, then right), then Serpent Heals you for 3."
     },

@@ -2847,7 +2847,7 @@
 			"locked_at": "2026-10-28",
 			"name": "Triclops"
 		},
-		"monster:two_headed_serpent": {
+		"monster:damsel_in_distress": {
 			"fields": [
 				"name",
 				"ability",

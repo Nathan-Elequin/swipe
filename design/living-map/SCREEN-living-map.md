@@ -36,7 +36,7 @@ Magenta callouts in the hover frame are build notes. They never appear in the ga
 - `_campaign_show_telegraph()` (main.gd ~L2734) is already a no-op that just hides the map. `campaign_map.gd::show_bosses()` is the old "N Deadly bosses are in this delve" screen and has **no callers**. Delete both.
 - `_close_campaign_map()` (main.gd ~L2638) **calls `_campaign_abort()` when `_campaign_on`**. M-in-dungeon needs a separate close path that doesn't abort.
 - Nothing binds KEY_M in main.gd. `title_teaser.gd:609` uses M only while the teaser is up, so it doesn't conflict.
-- Monster display name = `monsters_by_id[id]["name"]`. Example: `two_headed_serpent` shows as **"Damsel in Distress"**, so always use the data name and never the id.
+- Monster display name = `monsters_by_id[id]["name"]`. Example: `damsel_in_distress` shows as **"Damsel in Distress"**, so always use the data name and never the id.
 - Sprites: `assets/dungeon/anim/facing/<id>_facing_idle_f0..f3.png`, 64×64 RGBA, 4 frames. All 17 tier-3 monsters have them.
 
 ### TRAIL does not match the plate (bug to fix while you're here)

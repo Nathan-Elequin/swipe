@@ -143,7 +143,7 @@ Do not write in: epic, grimdark, mill/reliquary poetry, gift-shop Pip nostalgia,
 | leech_league | Leech League | My HP is 1 plus how many of us are still on the wheel. | HP from monsters left | `16x16 pixel leech swarm pink` | Crowd that thins as seats empty. |
 | wraith | Wraith | I copy the higher neighbor's attack. | copies neighbor attack | `16x16 pixel wraith ghost blue` | Borrows the strongest neighbor. |
 | mimic | Mimic | If I go down before I attack, you gain an item. | item if I never swing | `16x16 pixel mimic chest teeth cute` | Fake chest; crack it first, get paid. |
-| two_headed_serpent | Two-Headed Serpent | My attack drops to 0 if you use two items this fight. | two items, no attack | `16x16 pixel two headed snake` | Distracted when you’re busy with loot. |
+| damsel_in_distress | Damsel in Distress | My attack drops to 0 if you use two items this fight. | two items, no attack | `16x16 pixel two headed snake` | Distracted when you’re busy with loot. |
 | slime_boss | Slime Boss | My attack always equals my HP. | attack equals HP | `16x16 pixel slime green boss cute` | Soft mass; hurt = hit. |
 | spider_queen | Spider Queen | I attack twice if a neighbor has less HP than I do. | double hit if a neighbor is weaker | `16x16 pixel spider queen crown` | Bullies the weak seat beside her. |
 | commander | Commander | I give my neighbors +2 attack. | neighbors +2 attack | `16x16 pixel undead captain banner` | Drills the other owners. |

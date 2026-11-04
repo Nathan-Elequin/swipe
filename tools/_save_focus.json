@@ -462,8 +462,8 @@
   },
   {
     "kind": "monster",
-    "id": "two_headed_serpent",
-    "name": "Two-Headed Serpent",
+    "id": "damsel_in_distress",
+    "name": "Damsel in Distress",
     "status": "live",
     "review": "polish",
     "tier": 2.0,

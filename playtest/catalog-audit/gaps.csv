@@ -4,7 +4,7 @@ high,code_id_missing_catalog,monster:fungal_colony,main.gd references this id bu
 high,live_missing_art_registry,item:fairy_in_a_bottle,Live item 'Fairy In A Bottle' has no ITEM_PNG/MONSTER_PNG entry; flags.art=False.,Pixel: register unique art (do not invent PNG here).,False,False
 low,orphan_png_on_disk,assets/dungeon/extra/spider.png,PNG under items/extra not referenced in dungeon_art.gd.,Pixel: wire or retire file.,False,False
 low,orphan_png_on_disk,assets/dungeon/extra/triclops.png,PNG under items/extra not referenced in dungeon_art.gd.,Pixel: wire or retire file.,False,False
-low,orphan_png_on_disk,assets/dungeon/extra/two_headed_serpent.png,PNG under items/extra not referenced in dungeon_art.gd.,Pixel: wire or retire file.,False,False
+low,orphan_png_on_disk,assets/dungeon/extra/damsel_in_distress.png,PNG under items/extra not referenced in dungeon_art.gd.,Pixel: wire or retire file.,False,False
 low,orphan_png_on_disk,assets/dungeon/items/gauntlets.png,PNG under items/extra not referenced in dungeon_art.gd.,Pixel: wire or retire file.,False,False
 low,orphan_png_on_disk,assets/dungeon/items/spiked_shield_block.png,PNG under items/extra not referenced in dungeon_art.gd.,Pixel: wire or retire file.,False,False
 low,orphan_png_on_disk,assets/dungeon/items/watch.png,PNG under items/extra not referenced in dungeon_art.gd.,Pixel: wire or retire file.,False,False

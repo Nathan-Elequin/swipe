@@ -1432,19 +1432,19 @@
 			}
 		},
 		{
-			"id": "uniq-two_headed_serpent",
+			"id": "uniq-damsel_in_distress",
 			"title": "Damsel In Distress unique ability",
 			"verbs": [
 				"unique"
 			],
 			"monsters": [
-				"two_headed_serpent",
+				"damsel_in_distress",
 				"wizard"
 			],
 			"items": [
 				"shield"
 			],
-			"face": "two_headed_serpent",
+			"face": "damsel_in_distress",
 			"expected_text": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
 			"clicks": [],
 			"expected": {
@@ -2420,7 +2420,7 @@
 		"commander": "assets/dungeon/extra/commander.png",
 		"bodyguard": "assets/dungeon/extra/bodyguard.png",
 		"juggernaut": "assets/dungeon/extra/juggernaut.png",
-		"two_headed_serpent": "assets/dungeon/extra/damsel.png",
+		"damsel_in_distress": "assets/dungeon/extra/damsel.png",
 		"beggar": "assets/dungeon/extra/beggar.png",
 		"cowardly_king": "assets/dungeon/extra/cowardly_king.png",
 		"merchant": "assets/dungeon/extra/merchant.png",

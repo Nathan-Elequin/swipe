@@ -203,7 +203,7 @@ const MONSTER_SPECIAL := {
 	"berserker": {"id": "kill_scale", "text": "On Spin, 50%: gain +4 Attack. Otherwise: lose 3 Attack."},
 	"dire_wolf": {"id": "atk_spin", "text": "ATK always equals your HP. Updates whenever your HP changes."},
 	"bandit": {"id": "item_atk", "text": "I Gain +1 Atk for each Item you hold."},
-	"two_headed_serpent": {"id": "two_items", "text": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP."},
+	"damsel_in_distress": {"id": "two_items", "text": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP."},
 	"slime_boss": {"id": "atk_eq_hp", "text": "ATK always equals current HP."},
 	"leech_league": {"id": "leech_lowest", "text": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. When I spawn, I take over another Monster."},
 	"wraith": {"id": "lifelink", "text": "When I am Defeated, set your HP to my most recent HP."},
@@ -270,7 +270,7 @@ const MONSTER_CALL := {
 	"berserker": "Hot and Cold",
 	"dire_wolf": "Kill Shot",
 	"bandit": "Cutpurse",
-	"two_headed_serpent": "Guarded by Monsters",
+	"damsel_in_distress": "Guarded by Monsters",
 	"slime_boss": "One Flesh",
 	"leech_league": "Lowest HP",
 	"wraith": "Lifelink",
@@ -326,7 +326,7 @@ const MONSTER_REMINDER := {
 	"berserker": "50% +4 Attack, otherwise lose 3 Attack",
 	"dire_wolf": "Attack always equals your HP",
 	"bandit": "attack is items",
-	"two_headed_serpent": "Neighbors attack, then Heal 3",
+	"damsel_in_distress": "Neighbors attack, then Heal 3",
 	"slime_boss": "attack equals HP",
 	"leech_league": "When I spawn, take over weakest other by tier. Lowest HP Monster +1 until tied with another",
 	"wraith": "Defeated: set your HP to my most recent HP",
@@ -381,7 +381,7 @@ const MONSTER_SPEECH := {
 	"berserker": "On Spin, 50%: gain +4 Attack. Otherwise: lose 3 Attack.",
 	"dire_wolf": "My Attack always equals your HP.",
 	"bandit": "I Gain +1 Atk for each Item you hold.",
-	"two_headed_serpent": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.",
+	"damsel_in_distress": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.",
 	"slime_boss": "My attack always equals my HP.",
 	"leech_league": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. When I spawn, I take over another Monster.",
 	"wraith": "When I am Defeated, set your HP to my most recent HP.",
@@ -1017,7 +1017,7 @@ func _load_textures() -> void:
 		"berserker": _tex("res://assets/icons/swords.svg"),
 		"dire_wolf": _tex("res://assets/icons/footprints.svg"),
 		"bandit": _tex("res://assets/icons/trending.svg"),
-		"two_headed_serpent": _tex("res://assets/icons/link.svg"),
+		"damsel_in_distress": _tex("res://assets/icons/link.svg"),
 		"slime_boss": _tex("res://assets/icons/copy.svg"),
 		"leech_league": _tex("res://assets/icons/users.svg"),
 		"wraith": _tex("res://assets/icons/sparkles.svg"),
@@ -8947,7 +8947,7 @@ func _resolve_then_continue(skip_attack: bool) -> void:
 			await _exit_ended(false)
 		return
 	var face_id: String = str(wheel[facing_index].get("card_id", "")) if facing_index >= 0 else ""
-	if face_id == "two_headed_serpent" and not _is_silenced(wheel[facing_index]):
+	if face_id == "damsel_in_distress" and not _is_silenced(wheel[facing_index]):
 		await _damsel_resolve()
 		return
 	phase = "slaying"
@@ -15090,7 +15090,7 @@ func _damsel_resolve() -> void:
 		return
 	await _bleed_end()
 	if combat_stage:
-		combat_stage.show_monster("two_headed_serpent", int(wheel[facing_index].get("tier", 3)) if facing_index >= 0 and facing_index < wheel.size() else 3)
+		combat_stage.show_monster("damsel_in_distress", int(wheel[facing_index].get("tier", 3)) if facing_index >= 0 and facing_index < wheel.size() else 3)
 	if sfx:
 		sfx.play("pluck", -6.0, 1.35)
 		sfx.play("bong", -10.0, 1.5)
@@ -19231,7 +19231,7 @@ func _neighbor_full_attack(src: int) -> int:
 		combat_stage.show_monster(str(m.get("card_id", "")), int(m.get("tier", 1)))
 		_tune_combat_stage()
 	var total: int = 0
-	if str(m.get("card_id", "")) == "two_headed_serpent" and not _is_silenced(m):
+	if str(m.get("card_id", "")) == "damsel_in_distress" and not _is_silenced(m):
 		for j in _damsel_neighbors(src):
 			var nm: Dictionary = wheel[j]
 			if combat_stage:
@@ -19444,7 +19444,7 @@ func _watch_attack(src: int, dest: int, snap: int, hits: int, used_damsels: Dict
 	if int(wheel[dest].get("hp", 0)) <= 0:
 		return
 	var m: Dictionary = wheel[src]
-	if str(m.get("card_id", "")) == "two_headed_serpent" and not _is_silenced(m):
+	if str(m.get("card_id", "")) == "damsel_in_distress" and not _is_silenced(m):
 		if used_damsels.has(src):
 			return
 		used_damsels[src] = true
@@ -19452,7 +19452,7 @@ func _watch_attack(src: int, dest: int, snap: int, hits: int, used_damsels: Dict
 			if dest < 0 or dest >= wheel.size() or int(wheel[dest].get("hp", 0)) <= 0:
 				break
 			var nb: Dictionary = wheel[j]
-			if str(nb.get("card_id", "")) == "two_headed_serpent" and not _is_silenced(nb):
+			if str(nb.get("card_id", "")) == "damsel_in_distress" and not _is_silenced(nb):
 				await _watch_attack(j, dest, int(nb.get("atk", 0)), _hit_count(j), used_damsels)
 			else:
 				_show_hypno(j)
@@ -19752,7 +19752,7 @@ func _incoming_total() -> int:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return 0
 	var m: Dictionary = wheel[facing_index]
-	if str(m.get("card_id", "")) == "two_headed_serpent" and not _is_silenced(m):
+	if str(m.get("card_id", "")) == "damsel_in_distress" and not _is_silenced(m):
 		return _damsel_incoming()
 	if _blood_threshes(facing_index):
 		return _shark_incoming()
@@ -21325,7 +21325,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				p[facing_index] = {"kill": true}
 	if items_used_this_combat + 1 >= 2:
 		for i in range(wheel.size()):
-			if str(wheel[i].get("card_id", "")) == "two_headed_serpent" and i == facing_index:
+			if str(wheel[i].get("card_id", "")) == "damsel_in_distress" and i == facing_index:
 				var cur2: Dictionary = p.get(i, {})
 				cur2["atk"] = -int(wheel[i].get("atk", 0))
 				p[i] = cur2
@@ -23196,7 +23196,7 @@ func _intent_hits() -> Array[Dictionary]:
 		return out
 	var m: Dictionary = wheel[facing_index]
 	var face_id: String = str(m.get("card_id", ""))
-	if face_id == "two_headed_serpent" and not _is_silenced(m):
+	if face_id == "damsel_in_distress" and not _is_silenced(m):
 		var left_blk: int = blk
 		var buckler_ok: bool = true
 		for j in _damsel_neighbors(facing_index):
@@ -24011,7 +24011,7 @@ func _take_variant() -> Dictionary:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return v
 	var m: Dictionary = wheel[facing_index]
-	if str(m.get("card_id", "")) == "two_headed_serpent" and not _is_silenced(m):
+	if str(m.get("card_id", "")) == "damsel_in_distress" and not _is_silenced(m):
 		var sn: int = _intent_hits().size()
 		v = {"kind": "double" if sn >= 2 else "single", "n": sn}
 	return v

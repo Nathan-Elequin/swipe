@@ -62,7 +62,7 @@ Until frames land, the cut-in uses `monster_still(id)` with a punch-in (scale 3.
 | `slime_boss` | f0–f3 | 64 |
 | `spider_queen` | f0–f4 | 64 |
 | `triclops` | f0–f4 | 48 |
-| `two_headed_serpent` | f0–f4 | 64 |
+| `damsel_in_distress` | f0–f4 | 64 |
 | `vampire` | f0–f4 | 48 |
 | `wick` | f0–f3 | 48 |
 | `wraith` | f0–f3 | 48 |

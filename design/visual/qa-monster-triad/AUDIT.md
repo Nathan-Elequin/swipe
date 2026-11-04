@@ -48,7 +48,7 @@ The stage then crops again to the opaque box and animates every frame when there
 
 **Mill hover plate (small portrait inside the fly tip).** `scripts/main.gd` `_fill_inspect_from_slice` (around line 15992) sets the portrait with `art.monster_still(id)`. During `fighting` and `slaying` that hover plate is hidden (line 15972), so you see the big portrait instead.
 
-`monster_still` path: `res://assets/dungeon/extra/...` from `MONSTER_PNG`, else the atlas stem in `MONSTER_STEM`. Every live id has a still PNG. Two ids do not use a same-name file: `two_headed_serpent` → `assets/dungeon/extra/damsel.png`, `triclops` → `assets/dungeon/extra/triclops_v2.png`.
+`monster_still` path: `res://assets/dungeon/extra/...` from `MONSTER_PNG`, else the atlas stem in `MONSTER_STEM`. Every live id has a still PNG. Two ids do not use a same-name file: `damsel_in_distress` → `assets/dungeon/extra/damsel.png`, `triclops` → `assets/dungeon/extra/triclops_v2.png`.
 
 The callout column below is the fighting portrait (facing frame 0), not the hover still.
 
@@ -94,7 +94,7 @@ Wizard side-by-side of the two crops the loaders actually display: `design/visua
 | dire_wolf | assets/dungeon/anim/facing/dire_wolf_facing_idle_f0.png | assets/dungeon/anim/facing/dire_wolf_facing_idle_f0.png | assets/dungeon/anim/slash/dire_wolf_slash_f0.png (f0-f3) | yes |
 | bandit | assets/dungeon/anim/facing/bandit_facing_idle_f0.png | assets/dungeon/anim/facing/bandit_facing_idle_f0.png | assets/dungeon/anim/slash/bandit_slash_f0.png (f0-f3) | yes |
 | leech_league | assets/dungeon/anim/facing/leech_league_facing_idle_f0.png | assets/dungeon/anim/facing/leech_league_facing_idle_f0.png | assets/dungeon/anim/slash/leech_league_slash_f0.png (f0-f4) | yes |
-| two_headed_serpent | assets/dungeon/anim/facing/two_headed_serpent_facing_idle_f0.png | assets/dungeon/anim/facing/two_headed_serpent_facing_idle_f0.png | assets/dungeon/anim/slash/two_headed_serpent_slash_f0.png (f0-f4) | yes |
+| damsel_in_distress | assets/dungeon/anim/facing/damsel_in_distress_facing_idle_f0.png | assets/dungeon/anim/facing/damsel_in_distress_facing_idle_f0.png | assets/dungeon/anim/slash/damsel_in_distress_slash_f0.png (f0-f4) | yes |
 | slime_boss | assets/dungeon/anim/facing/slime_boss_facing_idle_f0.png | assets/dungeon/anim/facing/slime_boss_facing_idle_f0.png | assets/dungeon/anim/slash/slime_boss_slash_f0.png (f0-f3) | yes |
 | spider_queen | assets/dungeon/anim/facing/spider_queen_facing_idle_f0.png | assets/dungeon/anim/facing/spider_queen_facing_idle_f0.png | assets/dungeon/anim/slash/spider_queen_slash_f0.png (f0-f4) | yes |
 | commander | assets/dungeon/anim/facing/commander_facing_idle_f0.png | assets/dungeon/anim/facing/commander_facing_idle_f0.png | assets/dungeon/anim/slash/commander_slash_f0.png (f0-f4) | yes |

@@ -73,7 +73,7 @@
 		"special function if any",
 		"if defeat-on-use: jump to defeat enemy",
 		"else apply ATK and/or BLK",
-		"increment items_used_this_combat; if >=2 set Two-Headed Serpent ATK to 0"
+		"increment items_used_this_combat; if >=2 set Damsel in Distress ATK to 0"
 	],
 	"items": [
 		{
@@ -5204,7 +5204,7 @@
 			},
 			"hp_base": 9.0,
 			"hp_formula": "",
-			"id": "two_headed_serpent",
+			"id": "damsel_in_distress",
 			"locked_at": "2026-10-17",
 			"locked_fields": [
 				"name",
@@ -8265,7 +8265,7 @@
 			"on_item_use": "+1",
 			"on_spin": "set 0",
 			"used_by": [
-				"Two-Headed Serpent"
+				"Damsel in Distress"
 			]
 		},
 		{

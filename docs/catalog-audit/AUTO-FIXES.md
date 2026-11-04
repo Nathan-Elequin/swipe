@@ -5,6 +5,6 @@
 
 - flags.art=true catalog monster:bear_trap
 - flags.art=true board monster:bear_trap
-- flags.art=true catalog monster:two_headed_serpent
-- flags.art=true board monster:two_headed_serpent
+- flags.art=true catalog monster:damsel_in_distress
+- flags.art=true board monster:damsel_in_distress
 

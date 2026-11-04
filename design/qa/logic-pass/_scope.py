@@ -156,7 +156,7 @@ MONSTER_WHEN = {
     "shark": "on_done",
     "druid": "on_done",
     "clockwork_knight": "on_done",
-    "two_headed_serpent": "on_done",
+    "damsel_in_distress": "on_done",
     "ogre": "on_you_hp",
     "vampire": "on_you_hp",
     "lich": "neighbor",

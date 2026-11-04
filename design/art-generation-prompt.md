@@ -150,7 +150,7 @@ Mapped filenames that are **not** the id:
 | `bloody_gauntlets` | `items/gauntlets.png` |
 | `pocketwatch` | `items/watch.png` |
 | `spider_queen` | `extra/spider.png` |
-| `two_headed_serpent` | `extra/damsel.png` |
+| `damsel_in_distress` | `extra/damsel.png` |
 | `hollow` | `extra/hollow.png` (display name is Twins) |
 
 Hall tiles currently live as named slices on `assets/dungeon/atlas.png` (512×512), plus `atlas_floor.png` (112×112) and `atlas_walls.png` (192×64). Prefer **separate 64×64 PNGs** named after the slice (`floor_1.png`, `wall_mid.png`, …). The producer will re-atlas or load extras. If you must ship one sheet, keep 16×16 cells, 1 px gap none, document the cell map.
@@ -227,7 +227,7 @@ Creatures stand in a stone wheel. Three-quarter or front. Readable face. No atta
 | `berserker` | Berserker | Rage warrior. Not the same as Bandit. | |
 | `dire_wolf` | Dire Wolf | Wolf. Four legs. | |
 | `bandit` | Bandit | Masked thief. | |
-| `two_headed_serpent` | Damsel in Distress | Distressed person (file `damsel.png`). Not a snake unless you add a tiny serpent motif. The **card is this person**. | |
+| `damsel_in_distress` | Damsel in Distress | Distressed person (file `damsel.png`). Not a snake unless you add a tiny serpent motif. The **card is this person**. | |
 | `slime_boss` | Slime Boss | Large slime. | |
 | `leech_league` | Leech League | Leech, or a pack of leeches. | |
 | `wraith` | Wraith | Ghost / wraith. Translucent is OK if pixels stay chunky. | |
@@ -407,4 +407,4 @@ A zip (or folder) whose paths match §4. Plus a one-page manifest:
 filename  author_px  ship_px  id  notes
 ```
 
-Call out anything you skipped. If a display name and an id disagree, **id wins** for the filename; the picture still shows the display-name object (`measuring_tape` → scythe, `two_headed_serpent` → damsel, `last_match` → fist).
+Call out anything you skipped. If a display name and an id disagree, **id wins** for the filename; the picture still shows the display-name object (`measuring_tape` → scythe, `damsel_in_distress` → damsel, `last_match` → fist).

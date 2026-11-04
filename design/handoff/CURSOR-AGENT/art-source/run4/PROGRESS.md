@@ -1,5 +1,5 @@
 # run4 PROGRESS (start 21:52 CDT, balance 1959, budget 220 gens)
-- refs/: repo sprites copied from Cherry (read-only copy via temp zip; all are 16px-native at 4x). Use damsel.png for two_headed_serpent, triclops.png for triclops.
+- refs/: repo sprites copied from Cherry (read-only copy via temp zip; all are 16px-native at 4x). Use damsel.png for damsel_in_distress, triclops.png for triclops.
 - Nathan changes: no intent_chip_unknown (Shark uses existing loop icon); sai: split only, no merge asset.
 - Steering 21:55: every monster gets a full-body hi-fi base facing right -> final/bases/<id>_base.png; slash close-up cropped from it. No idle anims yet.
 - lib4.py (budget 220, logs calls.log), clean4.py (palette = hex + tokens, down(), clean(), fit()), sheet.py.
