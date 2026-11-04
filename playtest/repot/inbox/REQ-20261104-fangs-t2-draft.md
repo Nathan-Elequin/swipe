@@ -3,7 +3,7 @@ id: REQ-20261104-fangs-t2-draft
 status: open
 priority: high
 pr: 382
-tip_sha: b0ba846a
+tip_sha: 3b8d3478
 branch: playtest/latest
 created: 2026-11-04T19:10:00Z
 created_by: cursor-cloud
