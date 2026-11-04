@@ -1,6 +1,19 @@
 {
-	"cards": {},
+	"cards": {
+		"item:longbow": {
+			"fields": {
+				"ability": {
+					"from": "Deal 5 Attack to the monster across from you (only works if even # of monsters remaining)",
+					"to": "Deal 5 Attack to the monster directly across from you."
+				}
+			},
+			"id": "longbow",
+			"kind": "item",
+			"name": "Longbow",
+			"saved_at": "2026-11-04T06:59:13"
+		}
+	},
 	"id": "boss-rush-editor-pending",
 	"instructions": "F5 card editor Save writes a row here whenever HP, ATK, Ability, or another official field changes. Chat treats these like gold boxes. After applying, clear that card's row.",
-	"updated": "2026-11-03T17:20:00"
+	"updated": "2026-11-04T06:59:13"
 }

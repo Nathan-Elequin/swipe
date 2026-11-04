@@ -21665,8 +21665,8 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = "Deal 2 attack to the enemy you face and each neighboring enemy. The same enemy is only hit once."
 		"atk_opposite":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
-			out["equation"] = "(%s) opposite if even count" % _bb(atk_c, "5")
-			out["body"] = "Deal 5 attack to the owner across from you. Needs an even number of owners."
+			out["equation"] = "(%s) opposite" % _bb(atk_c, "5")
+			out["body"] = str(it.get("ability", "Deal 5 Attack to the monster directly across from you."))
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = "Can't — odd number of owners on the wheel."
 		"heal_kills":

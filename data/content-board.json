@@ -1288,21 +1288,21 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "Deal 5 Attack to the monster across from you (only works if even # of monsters remaining)",
+			"ability": "Deal 5 Attack to the monster directly across from you.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "atk",
 			"contradiction_ids": [],
-			"count": 2.0,
+			"count": 2,
 			"explainer": "(ATK 5) opposite",
 			"flow": "Usable in a fight only when living slice count is even. Deal 5 ATK to the opposite slice. Goblin ignores ATK. Odd count: cannot use. Used up.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "longbow",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-04",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1318,7 +1318,10 @@
 				"hp_base",
 				"atk_formula",
 				"hp_formula",
-				"card_color"
+				"card_color",
+				"call_name",
+				"reminder",
+				"log_hint"
 			],
 			"log_hint": "5 damage across the wheel",
 			"mode_pool": "all",
@@ -1328,14 +1331,20 @@
 				"kind": "atk_opposite",
 				"n": 5.0
 			},
-			"pool": 5.0,
-			"priority": 3.0,
+			"pending_fields": {
+				"ability": {
+					"from": "Deal 5 Attack to the monster across from you (only works if even # of monsters remaining)",
+					"to": "Deal 5 Attack to the monster directly across from you."
+				}
+			},
+			"pool": 5,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0
+			"tier": 2
 		},
 		{
 			"ability": "Heal 1, then increase this number by 1. Keep this if you are still missing HP.",
@@ -4899,16 +4908,16 @@
 		},
 		{
 			"ability": "When I enter the Dungeon, I Gaze at 3 of your Items. As soon as you Use 1, the other 2 are Petrified until I am Defeated.",
-			"atk_base": 5,
+			"atk_base": 5.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Stone Gaze",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "Enter: Gaze 3 items. Use 1: the other Gazed items Petrify until Basilisk is Defeated",
 			"flow": "When I enter, Gaze up to 3 random items in the hand (Keep, Smoke, curses, tokens). Prefer unmarked items so two Basilisks can mark six. Short hand: Gaze however many you have. Gaze hover: when one Item with Gaze is used, all others are Petrified until the Basilisk is Defeated. Using one Gazed item (your click or Oligarch) Petrifies every other Gazed item, unique stone with Basilisk icon and tooltip Petrified while the Basilisk remains. Echo Bell that is not Gazed copies the item's effect and does not count as Using the Gazed card. Hovering one Gazed item warns on the others. Freed on Defeat/slay and Polymorph. Flee does not free. Catapult does not free; when that Basilisk comes back off the Dungeon Deck, Defeat or Polymorph it to free its marks. Quiet Bell on enter: no Gaze. 6 HP / 5 Attack.",
-			"hp_base": 6,
+			"hp_base": 6.0,
 			"hp_formula": "",
 			"id": "basilisk",
 			"kind": "monster",
@@ -4939,14 +4948,14 @@
 			"notes": "Bucket 7. Same sprite. Gaze aura on 3. Warning glow on the other Gazed items while hovering one. Basilisk-icon petrify. Catapult does not free.",
 			"ops": {},
 			"pending_fields": {},
-			"pool": 5,
-			"priority": 3,
+			"pool": 5.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "hold",
-			"tier": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "Attack or Block values that are Even happen twice against me.",
@@ -6737,5 +6746,5 @@
 			"tier": 2.0
 		}
 	],
-	"updated": "2026-11-03"
+	"updated": "2026-11-04"
 }
