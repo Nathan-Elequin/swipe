@@ -1475,14 +1475,16 @@ func _build_ui() -> void:
 	hotbar_wrap.add_child(hot_align)
 	hotbar_overflow = Control.new()
 	hotbar_overflow.name = "HotbarOverflow"
-	## IGNORE so this sibling cannot steal hover from seated cards. MarginContainer
-	## sizes every child to the wrap; PASS here covered the hotbar and killed lift/inspect.
+	## Not a child of the hotbar MarginContainer. That container forces every
+	## child to fill the wrap, which pinned the offer card to the left edge
+	## and laid a full-width control over the seats.
 	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hotbar_overflow.clip_contents = false
 	hotbar_overflow.z_index = 48
 	hotbar_overflow.z_as_relative = false
+	hotbar_overflow.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	hotbar_overflow.draw.connect(_draw_hotbar_overflow)
-	hotbar_wrap.add_child(hotbar_overflow)
+	add_child(hotbar_overflow)
 	choice_overlay = Control.new()
 	choice_overlay.name = "ChoiceOverlay"
 	choice_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -8695,7 +8697,9 @@ func _on_done() -> void:
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
-	if not pending_chaos.is_empty() or not pending_mark.is_empty():
+	## Knife / Net / Magnet / Sling still want their extra click. Take must not
+	## resolve the fight underneath that chooser (Scorpion's swing is not Lifelink).
+	if not pending_chaos.is_empty() or not pending_mark.is_empty() or not pending_choice.is_empty():
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
@@ -9694,6 +9698,19 @@ func _use_item(uid: int) -> void:
 	if _challenge_loot_wait:
 		_challenge_discard_one(uid)
 		return
+	## Full-hand throw-away has to win over an in-progress Spin lock.
+	## Spider Egg and other forced gains wait here until the player clicks a seat.
+	if not pending_feed.is_empty() and _is_toss_feed(str(pending_feed.get("kind", ""))):
+		var allowed_now: Array = pending_feed.get("uids", [])
+		if allowed_now.is_empty():
+			allowed_now = _hand_discard_uids()
+		if not _uid_in(allowed_now, uid):
+			if sfx:
+				sfx.play("error", -12.0, 1.2)
+			return
+		await _feed_cube(uid)
+		_undo_arm()
+		return
 	if _item_hold or _undo_busy:
 		return
 	if challenge_draft_ui != null and challenge_draft_ui.visible and pending_feed.is_empty():
@@ -9793,6 +9810,7 @@ func _use_item(uid: int) -> void:
 		_log("on_item_use", "%s — choose" % str(it.get("name", "?")))
 		if sfx:
 			sfx.play("question", -10.0)
+		_sync_buttons()
 		call_deferred("_refresh")
 		return
 	if kind == "choose" or kind == "magnet":
@@ -9814,6 +9832,7 @@ func _use_item(uid: int) -> void:
 		_log("on_item_use", "%s — choose" % str(it.get("name", "?")))
 		if sfx:
 			sfx.play("question", -10.0)
+		_sync_buttons()
 		call_deferred("_refresh")
 		return
 	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "signpost":
@@ -11877,6 +11896,7 @@ func _chip_hp(index: int, n: int) -> bool:
 	var m: Dictionary = wheel[index]
 	var drop: int = _anvil_floor(m, n)
 	var before: int = int(m.get("hp", 0))
+	_stamp_flee_before(m, drop)
 	m["hp_pre_hit"] = before
 	if _undying(m):
 		if not _lich_chip_open:
@@ -11896,6 +11916,8 @@ func _chip_hp(index: int, n: int) -> bool:
 	var slime_atk_before: int = int(m.get("atk", 0))
 	if str(m.get("card_id", "")) == "slime_boss":
 		m["atk"] = int(m["hp"])
+	if int(m.get("hp", 0)) > 0:
+		m.erase("flee_before")
 	wheel[index] = m
 	if wheel_view:
 		wheel_view.punch_hp(index)
@@ -14220,6 +14242,28 @@ func _try_gain_item(id: String) -> void:
 	if id == "":
 		return
 	var it: Dictionary = _make_item(id)
+	if _gain_blocked_now():
+		_abort_full_hand_gain(it)
+		return
+	if _hand_full():
+		if not _start_full_hand_replace(it):
+			return
+		var epoch: int = _loot_epoch
+		var token: int = _undo_gen
+		while _challenge_loot_wait and is_instance_valid(self):
+			if epoch != _loot_epoch or _undo_stale(token):
+				_challenge_loot_wait = false
+				_challenge_pending_gain = {}
+				_refresh()
+				return
+			await get_tree().process_frame
+		if _find_item(int(it.get("uid", -1))).is_empty():
+			return
+		if sfx:
+			sfx.play_event(&"hand.gain", {"card_id": id})
+		await _echo_bandits(_item_card_global(int(it.get("uid", -1))))
+		_bounce_hot_uid(int(it.get("uid", -1)))
+		return
 	if _hand_cannot_admit():
 		_abort_full_hand_gain(it)
 		return
@@ -14228,17 +14272,6 @@ func _try_gain_item(id: String) -> void:
 	_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", id))
 	_refresh()
-	if _gain_blocked_now():
-		_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
-		_log("discard", str(it.get("name", id)))
-		if sfx:
-			sfx.play("error", -10.0)
-			sfx.play("cloth", -12.0)
-		if get_tree():
-			await get_tree().create_timer(0.45).timeout
-		_toss_item(int(it.get("uid", -1)), false)
-		_refresh()
-		return
 	if sfx:
 		sfx.play_event(&"hand.gain", {"card_id": id})
 	await _echo_bandits(_item_card_global(int(it.get("uid", -1))))
@@ -14275,6 +14308,69 @@ func _resume_facing_fight() -> void:
 	_refresh()
 
 
+func _flees_instead_of_defeat(m: Dictionary) -> bool:
+	if _is_silenced(m):
+		return false
+	var id: String = str(m.get("card_id", ""))
+	if id == "commander":
+		return not bool(m.get("fled_once", false))
+	if id == "triclops":
+		return int(m.get("hp", 0)) != 3
+	if id == "fungal_colony":
+		return true
+	return false
+
+
+## The killing chip has not been applied yet. Keep HP, Attack, and Poison from this moment.
+func _stamp_flee_before(m: Dictionary, drop: int) -> void:
+	if drop <= 0 or not _flees_instead_of_defeat(m):
+		return
+	var before_hp: int = int(m.get("hp", 0))
+	if before_hp <= 0 or before_hp - drop > 0:
+		return
+	m["flee_before"] = {
+		"hp": before_hp,
+		"atk": int(m.get("atk", 0)),
+		"poison": _poison_of(m),
+	}
+
+
+## Put the monster back to the stamp, then return the HP they should show.
+## Triclops still loses the printed 2 after that. A defeat that never chipped them keeps current HP.
+func _restore_flee_stats(s: Dictionary, printed_hp_loss: int = 0) -> int:
+	var shown: int = int(s.get("hp", 0))
+	var keep: int = shown
+	if s.has("flee_before") and typeof(s.get("flee_before")) == TYPE_DICTIONARY:
+		var snap: Dictionary = s["flee_before"]
+		keep = int(snap.get("hp", shown))
+		s["atk"] = int(snap.get("atk", s.get("atk", 0)))
+		var pois: int = int(snap.get("poison", 0))
+		s["poison"] = pois
+		s["poisoned"] = pois > 0
+	elif shown <= 0:
+		keep = int(s.get("hp_pre_hit", 0))
+	keep = maxi(0, keep - printed_hp_loss)
+	if keep <= 0 and printed_hp_loss <= 0:
+		keep = 1 if shown <= 0 else shown
+	s["hp"] = keep
+	s.erase("flee_before")
+	s.erase("hp_pre_hit")
+	s.erase("died_seq")
+	s.erase("died_batch")
+	return keep
+
+
+func _show_flee_stat_snap(index: int, from_hp: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var now_hp: int = int(wheel[index].get("hp", 0))
+	if now_hp != from_hp:
+		await _play_stat_delta(index, true, now_hp - from_hp)
+	if int(wheel[index].get("poison", 0)) > 0 and wheel_view != null and wheel_view.has_method("poison_badge_gain"):
+		wheel_view.poison_badge_gain(index)
+	_refresh()
+
+
 func _try_commander_flee(index: int) -> bool:
 	if index < 0 or index >= wheel.size():
 		return false
@@ -14286,26 +14382,24 @@ func _try_commander_flee(index: int) -> bool:
 	if bool(s.get("fled_once", false)):
 		return false
 	if await _play_chain_cancel():
-		var keep: int = int(s.get("hp", 0))
-		if keep <= 0:
-			keep = int(s.get("hp_pre_hit", 0))
-		if keep <= 0:
-			keep = 1
-		s["hp"] = keep
+		var shown_cancel: int = int(s.get("hp", 0))
+		_restore_flee_stats(s, 0)
 		s["hp_locked"] = false
 		s["spin_locked"] = index == facing_index
 		s["fled_once"] = true
-		s.erase("hp_pre_hit")
 		wheel[index] = s
 		facing_index = index
+		await _show_flee_stat_snap(index, shown_cancel)
 		_resume_facing_fight()
 		return true
+	var shown_flee: int = int(s.get("hp", 0))
 	s["fled_once"] = true
 	s["crossbowed"] = false
-	s["hp"] = maxi(1, int(s.get("hp_max", _card_base_hp("commander"))))
+	_restore_flee_stats(s, 0)
 	s["hp_locked"] = false
 	s["spin_locked"] = false
 	wheel[index] = s
+	await _show_flee_stat_snap(index, shown_flee)
 	_log("on_resolve", "%s flees" % s.get("name", "Commander"))
 	if sfx:
 		sfx.play_event(&"mon.commander_flee")
@@ -14486,13 +14580,20 @@ func _try_triclops_bail(index: int) -> bool:
 	var hp_now: int = int(s.get("hp", 0))
 	if hp_now == 3:
 		return false
-	var before: int = int(s.get("triclops_before", hp_now if hp_now > 0 else s.get("hp_max", 7)))
-	s["hp"] = maxi(0, before - 2)
+	if int(s.get("hp_pre_hit", -1)) == 3 or int(s.get("triclops_before", -1)) == 3:
+		return false
+	var shown_tri: int = hp_now
+	if s.has("flee_before"):
+		_restore_flee_stats(s, 2)
+	else:
+		var before: int = int(s.get("triclops_before", hp_now if hp_now > 0 else s.get("hp_max", 7)))
+		s["hp"] = maxi(0, before - 2)
 	s.erase("triclops_before")
 	s["hp_locked"] = true
 	s["spin_locked"] = false
 	s["crossbowed"] = false
 	wheel[index] = s
+	await _show_flee_stat_snap(index, shown_tri)
 	_log("on_resolve", "Triclops −2 HP and Flee  →  %s" % s["hp"])
 	if int(s["hp"]) <= 0:
 		return false
@@ -14604,14 +14705,10 @@ func _fungal_on_damage(seat: int, attacker: Dictionary) -> void:
 	if str(body.get("card_id", "")) != "fungal_colony":
 		return
 	if int(body.get("hp", 0)) <= 0:
-		var keep_hp: int = int(body.get("hp_pre_hit", 0))
-		if keep_hp <= 0:
-			keep_hp = int(body.get("hp_max", _card_base_hp("fungal_colony")))
-		if keep_hp <= 0:
-			keep_hp = 1
-		body["hp"] = keep_hp
-		body.erase("hp_pre_hit")
+		var shown_fungus: int = int(body.get("hp", 0))
+		_restore_flee_stats(body, 0)
 		wheel[seat] = body
+		await _show_flee_stat_snap(seat, shown_fungus)
 		if wheel_view and wheel_view.slay_index == seat:
 			wheel_view.clear_slay()
 		_refresh()
@@ -15560,7 +15657,9 @@ func _lay_spider_egg(index: int) -> void:
 	var to: Vector2 = Vector2.ZERO
 	if wheel_view:
 		from = wheel_view.slice_portrait_global(index)
-	if hotbar_box:
+	if _hand_full():
+		to = _hotbar_overflow_anchor_global()
+	elif hotbar_box:
 		to = hotbar_box.global_position + hotbar_box.size * 0.5
 	if sfx:
 		sfx.play_event(&"egg.lay")
@@ -17856,6 +17955,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 		return false
 	var before_hp: int = int(m.get("hp", 0))
 	var before_atk: int = int(m.get("atk", 0))
+	_stamp_flee_before(m, hit_n)
 	m["hp_pre_hit"] = before_hp
 	m["hp"] = maxi(0, before_hp - hit_n)
 	wheel[index] = m
@@ -17869,6 +17969,8 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 		m["triclops_before"] = before_hp
 	if str(m.get("card_id", "")) == "slime_boss":
 		m["atk"] = int(m["hp"])
+	if int(m.get("hp", 0)) > 0:
+		m.erase("flee_before")
 	wheel[index] = m
 	if str(m.get("card_id", "")) == "slime_boss":
 		await _play_stat_delta(index, false, int(m.get("atk", 0)) - before_atk, _slice_from(index))
@@ -21661,8 +21763,8 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = "Deal 2 attack to the enemy you face and each neighboring enemy. The same enemy is only hit once."
 		"atk_opposite":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
-			out["equation"] = "(%s) opposite if even count" % _bb(atk_c, "5")
-			out["body"] = "Deal 5 attack to the owner across from you. Needs an even number of owners."
+			out["equation"] = "(%s) opposite" % _bb(atk_c, "5")
+			out["body"] = str(it.get("ability", "Deal 5 Attack to the monster directly across from you."))
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = "Can't — odd number of owners on the wheel."
 		"heal_kills":
@@ -23905,7 +24007,8 @@ func _sync_buttons() -> void:
 		btn_spin.disabled = true
 	var feed_kind: String = str(pending_feed.get("kind", "")) if not pending_feed.is_empty() else ""
 	var feed_continue: bool = feed_kind == "worm_hunger" or feed_kind == "hired_bribe"
-	btn_done.disabled = busy or not enemy_up or (not pending_feed.is_empty() and not feed_continue) or not pending_chaos.is_empty()
+	var choice_lock: bool = not pending_choice.is_empty() or not pending_mark.is_empty()
+	btn_done.disabled = busy or not enemy_up or (not pending_feed.is_empty() and not feed_continue) or not pending_chaos.is_empty() or choice_lock
 	btn_start.disabled = busy
 	btn_place.visible = false
 	btn_bribe.visible = false
@@ -23953,7 +24056,7 @@ func _sync_buttons() -> void:
 		btn_spin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
 		btn_spin.icon = null
-		btn_done.disabled = busy or not enemy_up or tut == null or (tut.wait != "done" and tut.wait != "choice")
+		btn_done.disabled = busy or not enemy_up or choice_lock or tut == null or (tut.wait != "done" and tut.wait != "choice")
 	_hide_take_burst()
 	if enemy_up:
 		var hit: int = _incoming_hit()
@@ -24847,8 +24950,8 @@ func _sync_hotbar() -> void:
 			## Look H killed in-chrome tags — always clear leftover Look C chrome.
 			card.set_mode_tags([])
 		if card.has_method("set_waiting_entry"):
-			## Full-hand discard: keep the incoming card lit and clickable like the rest.
-			card.set_waiting_entry(waiting and not can_click)
+			## Offer card keeps bobbing until the player throws a seat away.
+			card.set_waiting_entry(waiting)
 		if card.has_method("set_passive_icons"):
 			card.set_passive_icons(null, null, false)
 		_sync_card_pass5(card, it, can_click, in_fight)
@@ -24858,6 +24961,8 @@ func _sync_hotbar() -> void:
 		hotbar_panel.reset_size()
 	_recenter_hotbar()
 	call_deferred("_recenter_hotbar")
+	_place_hotbar_overflow()
+	call_deferred("_place_hotbar_overflow")
 	_clear_choice_overlay()
 
 
@@ -24991,29 +25096,33 @@ func _place_hotbar_overflow() -> void:
 		if sz.y > 8.0:
 			ch = sz.y
 	var n: int = kids.size()
-	var wrap_origin: Vector2 = hotbar_wrap.global_position if hotbar_wrap != null else Vector2.ZERO
 	var pr: Rect2
-	if hotbar_panel != null:
+	if hotbar_panel != null and hotbar_panel.size.x > 8.0:
 		pr = hotbar_panel.get_global_rect()
 	elif hotbar_wrap != null:
 		pr = hotbar_wrap.get_global_rect()
 	else:
-		pr = Rect2(wrap_origin, Vector2(420.0, ch))
-	hotbar_overflow.position = Vector2(
-		pr.position.x + pr.size.x + gap - wrap_origin.x,
-		pr.position.y + (pr.size.y - ch) * 0.5 - wrap_origin.y
+		pr = Rect2(Vector2.ZERO, Vector2(420.0, ch))
+	## Right of the seated hand, vertically centered on that panel.
+	var origin := Vector2(
+		pr.position.x + pr.size.x + gap,
+		pr.position.y + (pr.size.y - ch) * 0.5
 	)
+	hotbar_overflow.global_position = origin
 	hotbar_overflow.size = Vector2(float(n) * (cw + gap) - gap, ch)
 	hotbar_overflow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var tossing: bool = _toss_pick_mode()
 	for i in range(n):
 		var card: Control = kids[i] as Control
 		if card == null:
 			continue
-		card.position = Vector2(float(i) * (cw + gap), 0.0)
-		card.size = Vector2(cw, ch)
-		if card.has_method("set_waiting_entry"):
-			card.set_waiting_entry(not tossing)
+		var at := Vector2(float(i) * (cw + gap), 0.0)
+		if card.has_method("park_waiting"):
+			card.park_waiting(at, Vector2(cw, ch))
+		else:
+			card.position = at
+			card.size = Vector2(cw, ch)
+			if card.has_method("set_waiting_entry"):
+				card.set_waiting_entry(true)
 	hotbar_overflow.queue_redraw()
 
 

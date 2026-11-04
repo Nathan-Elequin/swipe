@@ -1,6 +1,6 @@
 ---
 id: REQ-20261103-dungeon-clear-resolve-fix
-status: open
+status: done
 priority: high
 tip_sha: afacc323
 branch: playtest/latest

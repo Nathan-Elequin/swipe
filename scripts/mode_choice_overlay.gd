@@ -51,9 +51,14 @@ var _pip_off_tex: Texture2D
 
 
 func _ready() -> void:
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	## Absolute z so this beats TakeArc (MoveBox is z 20 on Main). A relative
+	## z loses that fight, and the click falls through onto Take.
+	z_as_relative = false
+	z_index = 80
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	set_process_unhandled_input(true)
+	gui_input.connect(_on_scrim_input)
 	visible = false
 	_badge_throw = _make_badge_tex(COL_BADGE_THROW, "throw")
 	_badge_keep = _make_badge_tex(COL_BADGE_KEEP, "keep")
@@ -98,9 +103,23 @@ func show_choice(title: String, prompt: String, layout: String, rows: Array, ico
 	_prompt.text = prompt
 	_prompt.visible = prompt.strip_edges() != ""
 	_rebuild_targets()
+	_fill_viewport()
 	_place_over_starter()
 	visible = true
 	_pulse_in()
+
+
+func _fill_viewport() -> void:
+	var vp := get_viewport_rect().size
+	if vp.x < 8.0 or vp.y < 8.0:
+		return
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
+	position = Vector2.ZERO
+	size = vp
+	if _scrim != null:
+		_scrim.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		_scrim.position = Vector2.ZERO
+		_scrim.size = vp
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -269,8 +288,8 @@ func _make_knife_target(index: int, row: Dictionary) -> Control:
 	)
 	panel.gui_input.connect(func(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-			_pick_index(index)
 			panel.accept_event()
+			_pick_index(index)
 	)
 
 	## PanelContainer only lays out one child — content + key chip share this host.
@@ -373,8 +392,8 @@ func _make_row_target(index: int, row: Dictionary) -> Control:
 	)
 	panel.gui_input.connect(func(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-			_pick_index(index)
 			panel.accept_event()
+			_pick_index(index)
 	)
 
 	## PanelContainer only lays out one child — content + key chip share this host.
