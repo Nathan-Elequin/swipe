@@ -7533,12 +7533,13 @@ func _build_playtest() -> void:
 	playtest_voice.add_theme_constant_override("outline_size", 2)
 	playtest_voice.z_index = 120
 	playtest_voice.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	playtest_voice.set_anchors_preset(PRESET_BOTTOM_LEFT)
-	playtest_voice.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	## Top-left so it never sits on the bottom caption / Nib dialog bar.
+	playtest_voice.set_anchors_preset(PRESET_TOP_LEFT)
+	playtest_voice.grow_vertical = Control.GROW_DIRECTION_END
 	playtest_voice.offset_left = 16
-	playtest_voice.offset_top = -72
+	playtest_voice.offset_top = 16
 	playtest_voice.offset_right = 420
-	playtest_voice.offset_bottom = -16
+	playtest_voice.offset_bottom = 56
 	add_child(playtest_voice)
 	playtest_intro = PLAYTEST_INTRO.new()
 	add_child(playtest_intro)
@@ -7864,12 +7865,15 @@ func _sync_playtest_chrome() -> void:
 	var hub_up: bool = playtest_hub != null and playtest_hub.visible
 	var intro_up: bool = playtest_intro != null and playtest_intro.visible
 	var teaser_up: bool = playtest_teaser != null and playtest_teaser.visible
+	var cut_up: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("cutscene_playing") and home_cabin.cutscene_playing()
+	var cabin_talk: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("dialog_open") and home_cabin.dialog_open()
+	var tut_up: bool = in_tutorial and tut != null and tut.visible
 	if playtest_fab:
-		var cut_up: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("cutscene_playing") and home_cabin.cutscene_playing()
 		var show_fab: bool = PLAYTEST_FLAG.on() and not hub_up and not cut_up and not teaser_up and (not intro_up or playtest_intro.showing_fab())
 		playtest_fab.visible = show_fab
 	if playtest_voice:
-		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up
+		## Hide while any caption / Nib talk chrome is up so the tip never overlaps dialog.
+		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up and not cut_up and not cabin_talk and not tut_up
 
 
 func _on_script_saved(items: Array, monsters: Array) -> void:
@@ -26260,6 +26264,7 @@ func _tutorial_finish_async() -> void:
 
 func _road_finish_to_cabin(declined: bool) -> void:
 	## Shared Yes-complete / Skip landing: pool-1 reveal → intro_p5 arrive → free cabin walk-in.
+	## Victory / wrap Nib lines stay on tutorial_guide chrome (small talk block). Do not open cabin_dialog.
 	phase = "title"
 	_reset_run()
 	if home_cabin:
@@ -26268,18 +26273,22 @@ func _road_finish_to_cabin(declined: bool) -> void:
 		if declined:
 			home_cabin.tutorial_declined = true
 			home_cabin._save()
+		## Free cabin after arrive: no full-screen standard Nib dialog covering the room.
+		if home_cabin.has_method("skip_blocking_first_speech"):
+			home_cabin.skip_blocking_first_speech()
 	_refresh()
 	await _tutorial_play_unlock()
 	if sfx and sfx.has_method("music_cabin"):
 		sfx.music_cabin()
 	if home_cabin and home_cabin.has_method("play_arrive_splash"):
-		## Arrive cutscene: assets/dungeon/home/cutscenes/intro_p5.png
+		## Arrive cutscene: assets/dungeon/home/cutscenes/intro_p5.png (fade/dissolve after tutorial wrap).
 		await home_cabin.play_arrive_splash()
 	## Live cabin BG after arrive: cabin_exterior.png via walk-in.
 	_open_home_cabin(true, "win", [], [])
 	if home_cabin:
 		home_cabin._apply_gate()
 	_refresh()
+	_sync_playtest_chrome()
 
 
 func _tut_after_advance() -> void:

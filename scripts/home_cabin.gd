@@ -410,6 +410,16 @@ func cutscene_playing() -> bool:
 	return (_cutscene != null and _cutscene.is_playing()) or (_road_frame != null and _road_frame.is_open())
 
 
+func dialog_open() -> bool:
+	return _dialog != null and _dialog.has_method("is_open") and _dialog.is_open()
+
+
+func skip_blocking_first_speech() -> void:
+	## Post-tutorial / Skip landing: arrive splash already greeted; free cabin must not open full-screen Nib dialog.
+	nib_first_done = true
+	_save()
+
+
 func _sync_playtest_fab() -> void:
 	var main = get_parent()
 	if main != null and main.has_method("_sync_playtest_chrome"):
