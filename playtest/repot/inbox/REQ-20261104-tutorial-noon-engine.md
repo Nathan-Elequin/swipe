@@ -3,7 +3,7 @@ id: REQ-20261104-tutorial-noon-engine
 status: open
 priority: high
 branch: cursor/tutorial-noon-engine-bugs-faa4
-tip_sha: 4e318148
+tip_sha: 56cde3bf
 created: 2026-11-04T19:10:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
