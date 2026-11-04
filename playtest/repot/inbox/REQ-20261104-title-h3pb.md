@@ -2,7 +2,7 @@
 id: REQ-20261104-title-h3pb
 status: open
 priority: high
-tip_sha: facdbf19
+tip_sha: 3c95f5cd
 branch: playtest/latest
 created: 2026-11-04T19:30:00Z
 created_by: cursor-cloud
