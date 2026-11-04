@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-04T18:30:00Z",
+	"updated_at": "2026-11-04T19:15:10Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"348": {
@@ -405,8 +405,9 @@
 		},
 		"357": {
 			"status": "todo",
-			"title": "When shambling mound or threshing shark (or hydra…) loses a head/part, something wrong",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/357"
+			"title": "Multi-hit abilities should slash portrait once, then attack without replaying slash",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/357",
+			"note": "Fix on PR branch cursor/multi-hit-slash-once-d872; move to f5 after merge into playtest/latest."
 		}
 	}
 }

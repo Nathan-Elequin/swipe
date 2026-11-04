@@ -8967,11 +8967,10 @@ func _apply_resolve_hits() -> int:
 	for h in range(hits):
 		if hp <= 0:
 			break
-		if h > 0:
-			await _announce_slice(facing_index, _hub_hp_pos(), hits > 1)
-		elif hits > 1:
-			# First multi-hit swing has no slash; still fire ability activate SFX.
-			_sfx_ability(str(m.get("card_id", "")))
+		if hits > 1 and h == 0:
+			# Multi-hit ability burst: slash portrait once on the first swing.
+			# Later swings in this same burst keep damage/FX without replaying the cut-in (#357).
+			await _announce_slice(facing_index, _hub_hp_pos())
 		var incoming: int = await _owner_attack(m, h + 1, hits)
 		await _after_self_deconstruct(facing_index)
 		if facing_index >= 0 and facing_index < wheel.size():
@@ -19197,10 +19196,9 @@ func _neighbor_full_attack(src: int) -> int:
 			for h in range(hits):
 				if hp <= 0:
 					break
-				if h > 0:
+				if hits > 1 and h == 0:
+					# Same burst rule as _apply_resolve_hits (#357): slash once, then swings only.
 					await _announce_slice(j, _hub_hp_pos())
-				elif hits > 1:
-					_sfx_ability(str(nm.get("card_id", "")))
 				total += await _owner_attack(nm, h + 1, hits, j)
 				await _after_self_deconstruct(j)
 				if j >= 0 and j < wheel.size():
@@ -19223,11 +19221,9 @@ func _neighbor_full_attack(src: int) -> int:
 		for h2 in range(hits2):
 			if hp <= 0:
 				break
-			if h2 > 0:
+			if hits2 > 1 and h2 == 0:
+				# Same burst rule as _apply_resolve_hits (#357): slash once, then swings only.
 				await _announce_slice(src, _hub_hp_pos())
-			elif hits2 > 1:
-				if src >= 0 and src < wheel.size():
-					_sfx_ability(str(wheel[src].get("card_id", "")))
 			if src < 0 or src >= wheel.size():
 				break
 			m = wheel[src]
@@ -19889,10 +19885,9 @@ func _shark_attack_player(index: int) -> int:
 	var zeros: int = 0
 	while hp > 0 and index >= 0 and index < wheel.size() and int(wheel[index].get("hp", 0)) > 0:
 		var m: Dictionary = wheel[index]
-		if zeros > 0:
-			await _announce_slice(index, _hub_hp_pos(), true)
-		else:
-			_sfx_ability("shark")
+		if zeros == 0:
+			# Blood Thresh retries are one ability burst: slash once, then silent swings (#357).
+			await _announce_slice(index, _hub_hp_pos())
 		var incoming: int = await _owner_attack(m, zeros + 1, 0, index)
 		total += incoming
 		if incoming > 0:
