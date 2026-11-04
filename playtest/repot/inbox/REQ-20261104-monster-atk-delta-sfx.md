@@ -2,7 +2,8 @@
 id: REQ-20261104-monster-atk-delta-sfx
 status: open
 priority: normal
-branch: playtest/latest
+tip_sha: a646a023
+branch: cursor/monster-atk-delta-sfx-5b67
 created: 2026-11-04T18:24:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
