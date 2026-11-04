@@ -1,20 +1,20 @@
 # Catalog consistency audit
 
-- Generated: `2026-11-04T21:45:03Z`
-- Git tip: `c11694e6`
+- Generated: `2026-11-04T21:46:52Z`
+- Git tip: `fccf9e8a`
 - Tool: `tools/catalog_consistency_audit.py`
 
 ## Counts
 
 - **items** — 72
-- **monsters** — 63
+- **monsters** — 64
 - **item_png** — 70
 - **monster_png** — 62
 - **sfx_cues** — 360
 - **sfx_card_lookup** — 133
 - **player_copy_keys** — 753
 - **player_copy_maybe_dead** — 227
-- **gaps** — 245
+- **gaps** — 243
 - **fixed** — 0
 
 ## Auto-fixes applied on this branch
@@ -28,28 +28,25 @@
 
 ## Top gaps by severity (open)
 
-1. **[high]** `code_id_missing_catalog` — `monster:fungal_colony`: main.gd references this id but catalog.json has no row. _Add catalog row or retire code path._
-2. **[high]** `live_missing_art_registry` — `item:fairy_in_a_bottle`: Live item 'Fairy In A Bottle' has no ITEM_PNG/MONSTER_PNG entry; flags.art=False. _Pixel: register unique art (do not invent PNG here)._
-3. **[low]** `orphan_png_on_disk` — `assets/dungeon/extra/damsel_in_distress.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
-4. **[low]** `orphan_png_on_disk` — `assets/dungeon/extra/spider.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
-5. **[low]** `orphan_png_on_disk` — `assets/dungeon/extra/triclops.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
-6. **[low]** `orphan_png_on_disk` — `assets/dungeon/items/gauntlets.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
-7. **[low]** `orphan_png_on_disk` — `assets/dungeon/items/spiked_shield_block.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
-8. **[low]** `orphan_png_on_disk` — `assets/dungeon/items/watch.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
-9. **[low]** `player_copy_maybe_dead_summary` — `count:227`: No literal/dynamic reference found for 227 keys. Sample: challenge.click_target, challenge.spin_confirm, pause.ambience, pause.ui, road.caption.A1.1, road.caption.A2.1, road.caption.A2.2, cabin.hot.run_door (+219 more). _Jam review before delete. Full list in gaps.csv (kind=player_copy_maybe_dead). Do not mass-delete._
-10. **[low]** `sfx_ability_hold` — `monster:golem`: No ability lookup by design: no named ability oneshot (cues.py HOLD). _Leave until HOLD clears; do not invent audio._
-11. **[low]** `sfx_ability_hold` — `monster:leech_league`: No ability lookup by design: HOLD until #347 Blood Rise / slash portrait. _Leave until HOLD clears; do not invent audio._
-12. **[low]** `sfx_ability_hold` — `monster:wizard`: No ability lookup by design: no named ability oneshot (cues.py HOLD). _Leave until HOLD clears; do not invent audio._
-13. **[info]** `art_registry_without_catalog` — `item:bag_of_holding_closed`: ITEM_PNG/MONSTER_PNG id not in catalog.json (res://assets/dungeon/items/bag_of_holding_closed.png). _Keep if alias/extra; else remove registry entry in a Pixel pass._
-14. **[info]** `art_registry_without_catalog` — `item:cats_eye_marble`: ITEM_PNG/MONSTER_PNG id not in catalog.json (res://assets/dungeon/items/cats_eye_marble.png). _Keep if alias/extra; else remove registry entry in a Pixel pass._
-15. **[info]** `sfx_lookup_alias` — `lookup:chaos_stone`: card_id lookup key is an alias/ops/legacy id, not a catalog row. _Keep unless code stops using it._
-16. **[info]** `sfx_lookup_alias` — `lookup:fungal_colony`: card_id lookup key is an alias/ops/legacy id, not a catalog row. _Keep unless code stops using it._
-17. **[info]** `sfx_lookup_alias` — `lookup:hook`: card_id lookup key is an alias/ops/legacy id, not a catalog row. _Keep unless code stops using it._
-18. **[info]** `sfx_lookup_alias` — `lookup:magnet`: card_id lookup key is an alias/ops/legacy id, not a catalog row. _Keep unless code stops using it._
+1. **[high]** `live_missing_art_registry` — `item:fairy_in_a_bottle`: Live item 'Fairy In A Bottle' has no ITEM_PNG/MONSTER_PNG entry; flags.art=False. _Pixel: register unique art (do not invent PNG here)._
+2. **[low]** `orphan_png_on_disk` — `assets/dungeon/extra/damsel_in_distress.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
+3. **[low]** `orphan_png_on_disk` — `assets/dungeon/extra/spider.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
+4. **[low]** `orphan_png_on_disk` — `assets/dungeon/extra/triclops.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
+5. **[low]** `orphan_png_on_disk` — `assets/dungeon/items/gauntlets.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
+6. **[low]** `orphan_png_on_disk` — `assets/dungeon/items/spiked_shield_block.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
+7. **[low]** `orphan_png_on_disk` — `assets/dungeon/items/watch.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
+8. **[low]** `player_copy_maybe_dead_summary` — `count:227`: No literal/dynamic reference found for 227 keys. Sample: challenge.click_target, challenge.spin_confirm, pause.ambience, pause.ui, road.caption.A1.1, road.caption.A2.1, road.caption.A2.2, cabin.hot.run_door (+219 more). _Jam review before delete. Full list in gaps.csv (kind=player_copy_maybe_dead). Do not mass-delete._
+9. **[low]** `sfx_ability_hold` — `monster:golem`: No ability lookup by design: no named ability oneshot (cues.py HOLD). _Leave until HOLD clears; do not invent audio._
+10. **[low]** `sfx_ability_hold` — `monster:leech_league`: No ability lookup by design: HOLD until #347 Blood Rise / slash portrait. _Leave until HOLD clears; do not invent audio._
+11. **[low]** `sfx_ability_hold` — `monster:wizard`: No ability lookup by design: no named ability oneshot (cues.py HOLD). _Leave until HOLD clears; do not invent audio._
+12. **[info]** `art_registry_without_catalog` — `item:bag_of_holding_closed`: ITEM_PNG/MONSTER_PNG id not in catalog.json (res://assets/dungeon/items/bag_of_holding_closed.png). _Keep if alias/extra; else remove registry entry in a Pixel pass._
+13. **[info]** `art_registry_without_catalog` — `item:cats_eye_marble`: ITEM_PNG/MONSTER_PNG id not in catalog.json (res://assets/dungeon/items/cats_eye_marble.png). _Keep if alias/extra; else remove registry entry in a Pixel pass._
+14. **[info]** `sfx_lookup_alias` — `lookup:chaos_stone`: card_id lookup key is an alias/ops/legacy id, not a catalog row. _Keep unless code stops using it._
+15. **[info]** `sfx_lookup_alias` — `lookup:hook`: card_id lookup key is an alias/ops/legacy id, not a catalog row. _Keep unless code stops using it._
+16. **[info]** `sfx_lookup_alias` — `lookup:magnet`: card_id lookup key is an alias/ops/legacy id, not a catalog row. _Keep unless code stops using it._
 
 ## TODOs (art / design / Reel — not auto-fixed)
 
-- **monster:fungal_colony** (`code_id_missing_catalog`): Add catalog row or retire code path.
 - **item:fairy_in_a_bottle** (`live_missing_art_registry`): Pixel: register unique art (do not invent PNG here).
 - **assets/dungeon/extra/damsel_in_distress.png** (`orphan_png_on_disk`): Pixel: wire or retire file.
 - **assets/dungeon/extra/spider.png** (`orphan_png_on_disk`): Pixel: wire or retire file.

@@ -8003,6 +8003,51 @@
 			"type": "M"
 		},
 		{
+			"ability": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee.",
+			"atk": {
+				"base": 3.0
+			},
+			"atk_base": 3.0,
+			"atk_formula": "",
+			"author_lock": false,
+			"call_name": "Cordycepticide",
+			"card_color": "",
+			"count": 1.0,
+			"defined": "After I deal any Attack damage that gets past Block (incoming > 0), while I am not Quiet Bell silenced: pick a living non-fungal host of the lowest tier below Tier 3; replace that seat with a Copy of me (same HP / Attack / Poison as my current body); then Flee from the fight. If no legal host, log Cordycepticide — no host and still Flee. If the same hit would have dropped me to 0, restore pre-hit HP / Attack / Poison before Flee (see flee-keeps-pre-hit-stats). Infect needs this id in catalog so monsters_by_id.has works.",
+			"exceptions": "Catalog stub 2026-11-04: main.gd Cordycepticide + SFX already wired; never had a catalog row (audit code_id_missing_catalog). status=hold keeps it out of the mill until art + pool lock. HP 6 / ATK 3 are provisional engine-adjacent placeholders, not a balance pass. Call name Cordycepticide from ability_slash fallback. No PNG yet.",
+			"explainer": "When I deal Attack damage to you: replace the weakest other monster with a Copy of me, then Flee",
+			"flags": {
+				"art": false,
+				"dev": true,
+				"hide": false
+			},
+			"flow": "After I deal any Attack damage that gets past Block (incoming > 0), while I am not Quiet Bell silenced: pick a living non-fungal host of the lowest tier below Tier 3; replace that seat with a Copy of me (same HP / Attack / Poison as my current body); then Flee from the fight. If no legal host, log Cordycepticide — no host and still Flee. If the same hit would have dropped me to 0, restore pre-hit HP / Attack / Poison before Flee (see flee-keeps-pre-hit-stats). Infect needs this id in catalog so monsters_by_id.has works.",
+			"hp": {
+				"base": 6.0
+			},
+			"hp_base": 6.0,
+			"hp_formula": "",
+			"id": "fungal_colony",
+			"locked_at": "",
+			"locked_fields": [],
+			"log_hint": "On Attack damage: infect weakest host, then Flee",
+			"mode_pool": "all",
+			"name": "Fungal Colony",
+			"notes": "Catalog stub 2026-11-04: main.gd Cordycepticide + SFX already wired; never had a catalog row (audit code_id_missing_catalog). status=hold keeps it out of the mill until art + pool lock. HP 6 / ATK 3 are provisional engine-adjacent placeholders, not a balance pass. Call name Cordycepticide from ability_slash fallback. No PNG yet.",
+			"ops": {},
+			"pending_fields": {},
+			"poc": false,
+			"pool": 0.0,
+			"priority": 1.0,
+			"rarity": "uncommon",
+			"reminder": "",
+			"review": "rough",
+			"review_note": "",
+			"status": "hold",
+			"tier": 2.0,
+			"type": "M"
+		},
+		{
 			"ability": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison",
 			"atk": {
 				"base": 2.0
