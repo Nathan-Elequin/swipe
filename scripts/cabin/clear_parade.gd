@@ -28,8 +28,6 @@ const T_DONE := 2.80
 
 ## Most "proud/confident" still among sprout_victory_f0..f3 (arms up).
 const PROUD_FRAME := 2
-## Reel 2026-11-04: −10 dB under victory music on this path only.
-const STING_CLEAR_DB_OFFSET := -10.0
 
 ## When >= 0, run() advances to that t and holds (deterministic Repot shots).
 var freeze_at: float = -1.0
@@ -146,7 +144,7 @@ func run(wheel, art, on_swap: Callable = Callable()) -> void:
 func _pose(t: float) -> void:
 	if not is_instance_valid(_layer):
 		return
-	## A2 SFX at fold start (quiet under victory music — see STING_CLEAR_DB_OFFSET).
+	## A2 SFX at fold start — soft A bed at authored level (Reel 2026-11-04).
 	if t >= 0.0 and not _sfx_fired:
 		_sfx_fired = true
 		_play_sting_clear()
@@ -364,12 +362,10 @@ func _play_sting_clear() -> void:
 		return
 	var sfx = host.get("sfx")
 	if sfx != null and sfx.has_method("play_event"):
-		## Same bed (sting_clear.ogg). Quieter under victory music; skip cue's
-		## duck_music so the bed leads. Reel lock 2026-11-04: −10 dB.
-		sfx.play_event(&"sting.clear", {
-			"db_offset": STING_CLEAR_DB_OFFSET,
-			"skip_duck": true,
-		})
+		## Soft A bed (whoosh + shelf chime, peak ≈ −14 dBFS) at authored cue
+		## gain — no extra duck (old −10 was for coalesce A and would bury soft A).
+		## skip_duck keeps victory music from dipping under the sting.
+		sfx.play_event(&"sting.clear", {"skip_duck": true})
 
 
 func _find_rope():

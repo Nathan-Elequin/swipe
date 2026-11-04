@@ -7,7 +7,7 @@ Player-facing title is **Spinheritance**. This spec adds **no** player-facing co
 v3 locks (Nathan / Reel 2026-11-04):
 1. Kill the `sprout_victory` dance loop — brief proud hold on **one** victory pose (~0.35 s), then crouch→jump.
 2. Accordion fold duration **~1.10 s** (was 0.42).
-3. Keep `sting.clear` but duck **−10 dB** under victory music (`db_offset: -10`, skip cue `duck_music`). Same bed `assets/audio/sting_clear.ogg`. No new sample this PR.
+3. Keep `sting.clear` soft A bed (Reel #359, peak ≈ −14 dBFS). Play at **authored level (0 dB offset)** with `skip_duck` so victory music leads and the sting stays an audible soft underlayer. Do **not** apply the old coalesce-A −10 dB duck (it would bury soft A).
 
 ---
 
@@ -36,7 +36,7 @@ Target total is **≈2.80 s**. Every row is driven by one master clock (§4), so
 |---|------|--------:|------:|------------|--------|-------|
 | A0 | Handoff | 0.00 | 0.00 | Overlay Sprout spawns on the **exact** hub rect, with `hub_parade_hide=true` set the same frame | — | No pop: same 96×96 rect, same top-left `(-48,-50)` from `rim_global()`, same frame (`sprout_victory_f0`) |
 | A1 | Chrome out | 0.00 | 0.20 | Spin arrows, moves counter, prompt label and Take arc fade to 0 | linear | Hotbar stays. Hard-hide after fade for the whole `_clear_resolving` |
-| A2 | **Wheel fold (reverse accordion)** | 0.00 | **1.10** | Wedges fan shut toward the bottom hinge. Rim and hub ring shrink with them. Final blade squash | see §2 | Slower drama (was 0.42). **SFX `sting.clear` at t=0.00 with `db_offset: -10` and `skip_duck: true`** |
+| A2 | **Wheel fold (reverse accordion)** | 0.00 | **1.10** | Wedges fan shut toward the bottom hinge. Rim and hub ring shrink with them. Final blade squash | see §2 | Slower drama (was 0.42). **SFX `sting.clear` soft A at t=0.00, authored gain, `skip_duck: true`** |
 | A3 | Aura bloom | 0.95 | 1.20 | Radial gold glow pops at the hinge, then fades | OUT_BACK, then linear fade | Late fold / early proud |
 | B | **Proud hold** | 1.10 | 1.45 | One `sprout_victory` still (prefer **f2** arms-up). **No loop / no VICTORY_MARKS** | hold | ~0.35 s. Facing right, never mirrored |
 | C1 | Anticipation | 1.45 | 1.58 | Hold `f0`. Squash scale.y 1.0→0.86 and scale.x 1.0→1.08 at the feet pivot | OUT_QUAD | Gear overlays squash with it |
@@ -100,7 +100,7 @@ Keep `run(wheel, art, on_swap)`, `freeze_at`, `PROCESS_MODE_ALWAYS`, idle-frame 
 
 4.4 **Main.** `_commit_dungeon_clear` once; `_clear_resolving` re-entry guard; `hub_parade_hide` set/restore; Spin chrome hard-hidden for the whole resolve. Do **not** touch `_nest_wheel`.
 
-4.5 **SFX.** At fold start: `sfx.play_event(&"sting.clear", {"db_offset": -10.0, "skip_duck": true})`. Bed unchanged (`sting_clear.ogg`). Cue map `db: -6` plus offset → effective −16 dB on the Stings player so victory music leads. `skip_duck` prevents the cue's `duck_music` from pulling the bed down under the sting.
+4.5 **SFX.** At fold start: `sfx.play_event(&"sting.clear", {"skip_duck": true})`. Soft A bed (`sting_clear.ogg`, Reel #359). Authored cue gain only (0 dB offset). `skip_duck` prevents the cue's `duck_music` from pulling victory music down under the sting.
 
 ---
 
@@ -112,7 +112,7 @@ Keep `run(wheel, art, on_swap)`, `freeze_at`, `PROCESS_MODE_ALWAYS`, idle-frame 
 | Victory gear | `assets/dungeon/hero_run/gear/{cap,helm,goggles,rope}/run_victory_f0..f3.png` | 96×96 | Gear over the hold |
 | Rope Exit hero | `assets/dungeon/home/hero/hero_idle_loot_f0.png` | 128×128 | Landing handoff A |
 | Wipe noise / aura | runtime | — | Unchanged |
-| SFX | `sting.clear` → `assets/audio/sting_clear.ogg` | ~0.48 s | Fold start, −10 dB on this path |
+| SFX | `sting.clear` → `assets/audio/sting_clear.ogg` (soft A) | ~0.45 s | Fold start at authored gain; skip_duck |
 
 **Stop using on this path (leave files on disk):** burrow/curtain/mound/arrive/dust/burst/embers, walkoff, and the v2 `VICTORY_MARKS` dance.
 
@@ -121,7 +121,7 @@ Keep `run(wheel, art, on_swap)`, `freeze_at`, `PROCESS_MODE_ALWAYS`, idle-frame 
 ## 6. Code landmines (carry forward from v2)
 
 - **L1–L11** from v2 still apply (Rope soft-lock, re-entry, `hub_parade_hide`, input lock, Rope Exit fade, scale, `_nest_wheel` leave alone, land handoff A, `collapse` vs `fold`, HTML5 idle waits).
-- **L11 Audio (v3):** Adventure path fires `sting.clear` only inside `clear_parade` at fold start, with `db_offset: -10` and `skip_duck: true`. Tutorial/Classic still fire the cue at full mapped gain from `main.gd`. Do not change the bed file this PR (Reel softens metal separately).
+- **L11 Audio (v3):** Adventure path fires `sting.clear` only inside `clear_parade` at fold start, at authored gain with `skip_duck: true`. Soft A is already on tip (#359). Tutorial/Classic still fire the cue from `main.gd`. Do not re-apply the old coalesce-A −10 dB duck.
 - **freeze_at / end-dungeon log:** holds must set visual-only commit so multi-shot Repot sessions do not stack `end dungeon N`.
 
 ---
@@ -160,7 +160,7 @@ Pass criteria:
 Repo: boss-rush (Godot 4). Branch: playtest/latest.
 Spec: design/visual/dungeon-clear-resolve/SCREEN-dungeon-clear-resolve.md (v3 proud hold).
 
-Goal: retime dungeon-clear resolve — fold 1.10s → proud hold (~0.35s, one sprout_victory still, no VICTORY_MARKS dance) → crouch→jump→wipe→Rope Exit handoff A. Duck sting.clear by −10 dB (db_offset) with skip_duck so victory music leads. Same bed. Preserve continuous jump, hub_parade_hide, hard-hide Spin chrome, freeze_at no double end-dungeon log, leave _nest_wheel alone, no burrow path.
+Goal: retime dungeon-clear resolve — fold 1.10s → proud hold (~0.35s, one sprout_victory still, no VICTORY_MARKS dance) → crouch→jump→wipe→Rope Exit handoff A. Play sting.clear soft A at authored gain with skip_duck so victory music leads and the sting stays audible. Preserve continuous jump, hub_parade_hide, hard-hide Spin chrome, freeze_at no double end-dungeon log, leave _nest_wheel alone, no burrow path.
 
 Primary file: scripts/cabin/clear_parade.gd (+ audio_fx skip_duck ctx). Update this SCREEN. Open Repot REQ-20261104-dungeon-clear-resolve-v3 with the §7 freeze_at table.
 ```
