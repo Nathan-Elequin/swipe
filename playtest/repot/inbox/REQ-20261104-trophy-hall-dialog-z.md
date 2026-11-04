@@ -3,7 +3,7 @@ id: REQ-20261104-trophy-hall-dialog-z
 status: open
 priority: high
 pr: TBD
-tip_sha: TBD
+tip_sha: e7c5a302
 branch: playtest/latest
 created: 2026-11-04T18:20:00Z
 created_by: cursor-cloud
