@@ -1,7 +1,7 @@
 # Catalog consistency audit
 
-- Generated: `2026-11-04T19:19:03Z`
-- Git tip: `c61ea2e4`
+- Generated: `2026-11-04T19:19:24Z`
+- Git tip: `6ee56cae`
 - Tool: `tools/catalog_consistency_audit.py`
 
 ## Counts
