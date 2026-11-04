@@ -1,9 +1,12 @@
-# Tip smoke v1 — headless tutorial rail invariants on PRs into playtest/latest.
-# Godot 4.7.2 matches project.godot config/features and Cherry godot-check.ps1.
+# Tip smoke — headless tutorial rail invariants on PRs into playtest/latest
+# and on push to playtest/latest. Godot 4.7.2 matches project.godot + Cherry.
 name: Tip smoke
 
 on:
   pull_request:
+    branches:
+      - playtest/latest
+  push:
     branches:
       - playtest/latest
   workflow_dispatch:

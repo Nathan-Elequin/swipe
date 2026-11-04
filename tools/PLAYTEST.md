@@ -25,9 +25,10 @@ Stashes are left for you — nothing is deleted. List them with `git stash list`
 ## Tip smoke (headless, no F5)
 
 Automated tutorial-rail regression (data + script invariants). Not a full play-agent.
+Covers Brand New / Skip / draft / Goblin choice, Harpy→Dragon spine waits, Continue→auto_spin after kills, Arrow Head from start, and cabin-under-road / pool-1 reveal before arrive.
 
 ```bash
 ./tools/qa/run_tip_smoke.sh
 ```
 
-Details: `tests/README.md`. CI: `.github/workflows/tip-smoke.yml` on PRs to `playtest/latest`.
+Details: `tests/README.md`. CI: `.github/workflows/tip-smoke.yml` on PRs **and push** to `playtest/latest`.

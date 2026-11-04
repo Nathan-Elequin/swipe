@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tip smoke v1 — headless tutorial rail invariants (no F5 / no Autopilot play-agent).
+# Tip smoke — headless tutorial rail invariants (no F5 / no Autopilot play-agent).
 # Usage (repo root):
 #   ./tools/qa/run_tip_smoke.sh
 #   GODOT=/path/to/Godot_v4.7.2-stable_* ./tools/qa/run_tip_smoke.sh
