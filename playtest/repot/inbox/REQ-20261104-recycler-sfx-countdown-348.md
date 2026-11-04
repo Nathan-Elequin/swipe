@@ -3,7 +3,7 @@ id: REQ-20261104-recycler-sfx-countdown-348
 status: open
 priority: high
 pr: 393
-tip_sha: dbe036a7
+tip_sha: d6f31127
 branch: cursor/recycler-sfx-countdown-348-4437
 created: 2026-11-04T19:30:00Z
 created_by: cloud-agent
