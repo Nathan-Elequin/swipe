@@ -1381,9 +1381,10 @@ func _build_ui() -> void:
 		if sfx:
 			sfx.play_tick(speed01)
 	)
-	wheel_view.atk_ticked.connect(func() -> void:
+	wheel_view.atk_ticked.connect(func(going_up: bool = true) -> void:
 		if sfx:
-			sfx.play_event(&"wheel.num_tick_atk")
+			# Distinct from HP ticks (mon.leech_pulse / wheel.num_tick_hp → ui_tick).
+			sfx.play_event(&"wheel.num_tick_atk_up" if going_up else &"wheel.num_tick_atk_down")
 	)
 	wheel_view.hp_ticked.connect(func() -> void:
 		if sfx:
@@ -6488,10 +6489,16 @@ func _slice_outward(index: int, hp_stat: bool, dist: float = 84.0) -> Vector2:
 func _play_stat_pulse(hp_stat: bool, leaving: bool = false) -> void:
 	if sfx == null:
 		return
-	var pitch: float = 1.08 if hp_stat else 0.92
+	# HP courier pulse stays on mon.leech_pulse (unchanged sample + pitches).
+	# Attack uses a different base sample so ATK up/down never match HP ticks.
+	if hp_stat:
+		var pitch: float = 0.88 if leaving else 1.08
+		sfx.play_event(&"mon.leech_pulse", {"pitch_mul": pitch})
+		return
 	if leaving:
-		pitch = 0.88 if hp_stat else 0.78
-	sfx.play_event(&"mon.leech_pulse", {"pitch_mul": pitch})
+		sfx.play_event(&"wheel.num_tick_atk_down")
+	else:
+		sfx.play_event(&"wheel.num_tick_atk_up")
 
 
 func _fly_stat_courier(from: Vector2, to: Vector2, hp_stat: bool, leaving: bool = false) -> void:
