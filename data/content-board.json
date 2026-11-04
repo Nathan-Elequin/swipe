@@ -4852,7 +4852,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 0.0,
 			"flags": {
 				"art": true,
 				"dev": true,
