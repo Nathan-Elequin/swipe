@@ -6557,15 +6557,15 @@
 			"call_name": "Noble Death",
 			"card_color": "",
 			"count": 1,
-			"defined": "SP-24 (2026-10-28). 7 HP / 0 Attack. I die on any HP loss (including poison ticks), when I would be Defeated, or when I Attack (0 Attack still Attacks). On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Attack / Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
+			"defined": "SP-24 (2026-11-04). 6 HP / 0 Attack. I die on any HP loss (including poison ticks) or when I would be Defeated. Attacking does not kill me. On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
 			"exceptions": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
-			"explainer": "On HP loss or Attack: I die. Neighbors gain my remaining HP",
+			"explainer": "On HP loss or Defeat: I die. Neighbors gain my remaining HP",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "SP-24 (2026-10-28). 7 HP / 0 Attack. I die on any HP loss (including poison ticks), when I would be Defeated, or when I Attack (0 Attack still Attacks). On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Attack / Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
+			"flow": "SP-24 (2026-11-04). 6 HP / 0 Attack. I die on any HP loss (including poison ticks) or when I would be Defeated. Attacking does not kill me. On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
 			"hp": {
 				"base": 6
 			},
@@ -6593,7 +6593,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Dies on HP loss or Attack; neighbors gain remaining HP",
+			"log_hint": "Dies on HP loss or Defeat; neighbors gain remaining HP",
 			"mode_pool": "all",
 			"name": "Martyr",
 			"notes": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
@@ -6603,10 +6603,10 @@
 			"pool": 4,
 			"priority": 3,
 			"rarity": "uncommon",
-			"reminder": "On HP loss or Attack: I die. Neighbors gain my remaining HP.",
+			"reminder": "On HP loss or Defeat: I die. Neighbors gain my remaining HP.",
 			"review": "rough",
-			"review_note": "rewrite to, 'When I lose HP, I die. When I am Defeated. My Neighbors gain HP equal to my remaining HP.'",
-			"status": "todo",
+			"review_note": "",
+			"status": "live",
 			"tier": 1,
 			"type": "M"
 		},

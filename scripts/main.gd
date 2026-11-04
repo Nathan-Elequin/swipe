@@ -19891,7 +19891,6 @@ func _self_deconstructs(index: int) -> bool:
 
 func _after_self_deconstruct(index: int) -> void:
 	if not _self_deconstructs(index):
-		await _martyr_noble_death(index)
 		return
 	await _chip_hp(index, 1)
 
@@ -19934,30 +19933,7 @@ func _martyr_gift_neighbors(index: int) -> int:
 	return gift
 
 
-## Attack half: after Martyr Attacks, gift remaining HP and die.
-func _martyr_noble_death(index: int) -> void:
-	if index < 0 or index >= wheel.size():
-		return
-	var s: Dictionary = wheel[index]
-	if str(s.get("card_id", "")) != "martyr":
-		return
-	if _is_silenced(s) or bool(s.get("swing_muted", false)):
-		return
-	if not bool(s.get("has_attacked", false)):
-		return
-	if bool(s.get("noble_death_done", false)):
-		return
-	var gift: int = await _martyr_gift_neighbors(index)
-	var left: int = int(wheel[index].get("hp", 0)) if index < wheel.size() else 0
-	if left > 0:
-		## Skip re-entry into martyr HP-loss while we finish the self-kill.
-		wheel[index]["noble_death_done"] = true
-		await _chip_hp(index, left)
-	elif gift <= 0 and left <= 0:
-		pass
-
-
-## SP-24: any HP loss kills Martyr; neighbors gain HP after that loss.
+## SP-24: any HP loss kills Martyr; neighbors gain HP after that loss. Attacking does not.
 func _martyr_after_hp_loss(index: int, before: int, after: int) -> bool:
 	if index < 0 or index >= wheel.size():
 		return false
