@@ -2401,8 +2401,9 @@ func _draw() -> void:
 func _fold_ease(t: float) -> float:
 	## Fan-close amount for one wedge. Spec named TRANS_BACK/EASE_IN, but raw
 	## BACK/EASE_IN dips negative for t≲0.7 — that EXPANDS spans and freezes the
-	## mid-fold (freeze_at 0.16 / fold≈0.38) as a solid opaque disc. Linear keeps
-	## gaps readable by that mark; a tiny clamped clack lands only near shut.
+	## mid-fold (freeze_at ~0.45 / fold≈0.41 on the 1.10 s fold) as a solid
+	## opaque disc. Linear keeps gaps readable by that mark; a tiny clamped
+	## clack lands only near shut.
 	t = clampf(t, 0.0, 1.0)
 	var eased: float = t
 	if t > 0.85:

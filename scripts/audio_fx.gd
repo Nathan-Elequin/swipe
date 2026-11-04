@@ -436,7 +436,10 @@ func _play_event_inner(cue_id: StringName, ctx: Dictionary, depth: int) -> void:
 			rctx["_from_repeat"] = true
 			_play_event_inner(cue_id, rctx, depth + 1)
 	if not bool(ctx.get("_from_repeat", false)):
-		_apply_cue_duck(cue)
+		## clear_parade passes skip_duck so soft-A sting.clear stays audible under
+		## victory music without the cue's duck_music dipping the bed.
+		if not bool(ctx.get("skip_duck", false)):
+			_apply_cue_duck(cue)
 		_apply_cue_music(id, str(cue.get("music", "")))
 		var loop_id: String = str(cue.get("loop_start", ""))
 		if loop_id != "":
