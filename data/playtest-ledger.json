@@ -11,7 +11,7 @@
 			"status": "f5",
 			"title": "Leech League heal still shows the slash portrait",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/347",
-			"sha": "caef8c29",
+			"sha": "29ad2d12",
 			"f5_note": "Blood Rise slashes once, then the heal flights play one after another. Stop Play, F5."
 		},
 		"319": {
