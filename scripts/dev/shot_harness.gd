@@ -11,6 +11,14 @@ const SACK_OWNED := ["throwing_knife", "shield"]
 const SACK_NEW := ["net", "lantern", "caltrops", "dagger", "longbow"]
 const W := 1680
 const H := 1040
+## Cover lock (itch store) — Damsel slash + cool-item wheel still.
+const COVER_COOL_ITEMS: Array = [
+	"sai", "crossbow", "bag_of_holding", "grimoire",
+	"blood_chalice", "net", "spiked_flail", "longbow",
+]
+const COVER_COOL_MONSTERS: Array = [
+	"two_headed_serpent", "dragon", "lich", "vampire", "ogre", "slime_boss",
+]
 
 var main
 var finished: bool = false
@@ -876,6 +884,104 @@ func _shot_itch_boss() -> void:
 		main.fly_tip.hide_plate()
 	await _wait(0.3)
 	await _capture("42_itch_boss.png", "Deadly dragon fight, other monsters on the wheel, hero HP/BLK, cards in hand")
+
+
+## Cover lock (itch store) — Damsel slash portrait + cool-item wheel still.
+## Not #7 Spin landing / not #9 Rope Exit. Store chrome (tip SHA + Feedback) is hidden.
+func _store_clean_chrome() -> void:
+	_hide_chrome(false)
+	if main.playtest_fab:
+		main.playtest_fab.visible = false
+	if main.playtest_voice:
+		main.playtest_voice.visible = false
+	if main.playtest_feedback:
+		main.playtest_feedback.visible = false
+	if main.playtest_hub and main.playtest_hub.visible:
+		main.playtest_hub.visible = false
+	var stamp: Node = main.get_node_or_null("BuildStamp")
+	if stamp:
+		stamp.visible = false
+	if main.log_label:
+		main.log_label.visible = false
+	if main.log_btn:
+		main.log_btn.visible = false
+	if main._copy_stamp:
+		main._copy_stamp.visible = false
+	if main.fly_tip:
+		main.fly_tip.hide_plate()
+	if main.tut:
+		main.tut.visible = false
+	if main.overlay:
+		main.overlay.visible = false
+
+
+func _cover_pose_fighting() -> void:
+	## Damsel facing (seat 0) + full cool hotbar. Combat log / Feedback / tip stamp off.
+	await _anim_ready_seat(COVER_COOL_MONSTERS, COVER_COOL_ITEMS, 6, 2, 6)
+	main.adventure = true
+	main.facing_index = 0
+	main.phase = "fighting"
+	main.hp = 6
+	main.blk = 2
+	main.moves_left = 3
+	main._refresh()
+	main._layout_play_field()
+	if main.has_method("_sync_move_ui"):
+		main._sync_move_ui()
+	if main.has_method("_sync_intent_plate"):
+		main._sync_intent_plate()
+	_store_clean_chrome()
+	await _wait(0.2)
+
+
+func _shot_cover_damsel_slash() -> void:
+	status = "cover-damsel-slash"
+	var suite: Array = ["cover-damsel-slash.png"]
+	for i in 8:
+		suite.append("cover-damsel-slash_f%02d.png" % i)
+	_begin_suite(suite)
+	await _cover_pose_fighting()
+	if main.ability_slash == null:
+		_skip("cover-damsel-slash.png", "ability_slash missing")
+		for i in 8:
+			_skip("cover-damsel-slash_f%02d.png" % i, "ability_slash missing")
+		_suite_files.clear()
+		return
+	## Real Damsel slash frames exist (`two_headed_serpent_slash_f*`). Mark seen so hold is the normal mid band.
+	main.ability_slash.reset_slash_seen()
+	if main.ability_slash.has_method("mark_slash_seen"):
+		main.ability_slash.mark_slash_seen("two_headed_serpent")
+	main.ability_slash.play(_slash_payload("two_headed_serpent"))
+	var gaps: Array = [0.0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.08, 0.10]
+	for i in 8:
+		if float(gaps[i]) > 0.0:
+			await _wait(float(gaps[i]))
+		_store_clean_chrome()
+		await _capture("cover-damsel-slash_f%02d.png" % i, "Damsel slash cut-in frame + cool hotbar")
+	await _slash_wait_idle()
+	## Poster: restart and hold ~300ms (readable mid slash).
+	main.ability_slash.reset_slash_seen()
+	if main.ability_slash.has_method("mark_slash_seen"):
+		main.ability_slash.mark_slash_seen("two_headed_serpent")
+	main.ability_slash.play(_slash_payload("two_headed_serpent"))
+	await _wait(0.30)
+	_store_clean_chrome()
+	await _capture("cover-damsel-slash.png", "Damsel slash portrait ~300ms mid-hold + 8 cool items")
+	await _slash_wait_idle()
+	_suite_files.clear()
+
+
+func _shot_still_wheel_cool_items() -> void:
+	status = "still-wheel-cool-items"
+	await _cover_pose_fighting()
+	## No slash overlay — clean combat wheel showing toy breadth.
+	if main.ability_slash != null and main.ability_slash.has_method("abort_all"):
+		main.ability_slash.abort_all()
+	elif main.ability_slash != null:
+		main.ability_slash.visible = false
+	_store_clean_chrome()
+	await _wait(0.25)
+	await _capture("still-wheel-cool-items.png", "combat wheel + 8 cool items, Damsel facing, no slash")
 
 
 ## Formal itch reception pack — playtest/itch/RECEPTION-PACK.md §4 (shots 1–10 + optional 11–12).
@@ -1852,6 +1958,13 @@ func _ensure_registry() -> void:
 	_shot_fns["40_itch_midfight"] = _shot_itch_midfight
 	_shot_fns["41_itch_draft_gate"] = _shot_itch_draft_gate
 	_shot_fns["42_itch_boss"] = _shot_itch_boss
+	_bind_many([
+		"cover-damsel-slash",
+		"cover-damsel-slash_f00", "cover-damsel-slash_f01", "cover-damsel-slash_f02",
+		"cover-damsel-slash_f03", "cover-damsel-slash_f04", "cover-damsel-slash_f05",
+		"cover-damsel-slash_f06", "cover-damsel-slash_f07",
+	], _shot_cover_damsel_slash)
+	_shot_fns["still-wheel-cool-items"] = _shot_still_wheel_cool_items
 	_bind_many([
 		"still-01-playtest-hub", "gif-02-road-ambush", "gif-03-tutorial-wheel",
 		"still-04-cabin-front", "gif-05-held-map", "gif-06-biome-splash",
