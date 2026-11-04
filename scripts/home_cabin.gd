@@ -541,20 +541,24 @@ func play_intro(is_replay: bool = false) -> void:
 	_menu_on = true
 	_arriving = false
 	_ext_root.visible = false
-	_int_root.visible = true
 	_beat = "intro"
 	_story_seq += 1
 	var seq: int = _story_seq
 	if is_replay:
+		## Replay shows the cabin under the full p1–p5 cutscene (no road frame).
+		_int_root.visible = true
 		if not is_room_unlocked("study"):
 			_grant_all_rooms()
 		_snap_to("study")
+		_start_interior_loops()
+		if sfx and sfx.has_method("set_combat_music"):
+			sfx.set_combat_music(false)
+		_play_station()
 	else:
+		## CA-A: Brand New keeps cabin chrome + cabin music off until post-tutorial
+		## arrive (intro_p5). Cutscene / road frame paint on solid black only.
+		_hide_cabin_under_road()
 		_snap_to("main")
-	_start_interior_loops()
-	if sfx and sfx.has_method("set_combat_music"):
-		sfx.set_combat_music(false)
-	_play_station()
 	if _cutscene:
 		## First-run: p1–p3 only. Road frame owns approach (p4/A1) → ambush → overlay.
 		## Replay keeps full p1–p5 including arrive.
@@ -570,6 +574,11 @@ func play_intro(is_replay: bool = false) -> void:
 		_snap_to("study")
 		_refresh_rooms()
 		return
+	## Road solid-black cover, then drop the intro cutscene hold-black.
+	if _road_frame != null and _road_frame.has_method("arm_cover"):
+		_road_frame.arm_cover()
+	if _cutscene:
+		_cutscene.visible = false
 	intro_seen = true
 	_save()
 	if not tutorial_done and not tutorial_declined:
@@ -580,30 +589,58 @@ func play_intro(is_replay: bool = false) -> void:
 
 func _play_road_frame(seq: int) -> void:
 	## A1 approach → A2 ambush → O1 Yes/Skip. No Nib portrait/VO before the choice.
+	## Cabin scene stays hidden; combat bed starts on ambush; cabin theme only on arrive.
 	if _road_frame == null:
 		show_menu("main")
 		return
+	_hide_cabin_under_road()
 	_beat = "road"
 	_sync_playtest_fab()
 	var yes: bool = await _road_frame.play_and_ask()
 	_sync_playtest_fab()
 	if seq != _story_seq or not visible:
+		if _road_frame and _road_frame.has_method("abort"):
+			_road_frame.abort()
 		return
 	if yes:
 		_beat = "idle"
+		## Emit first so main._start_tutorial can hide_for_run under the black cover.
 		tutorial_wanted.emit()
+		if _road_frame and _road_frame.has_method("abort"):
+			_road_frame.abort()
 		return
 	## Skip: declined → main runs reveal → arrive splash → free cabin.
 	tutorial_declined = true
 	_save()
 	_beat = "idle"
 	road_skip_wanted.emit()
+	## Skip path immediately hide_for_run; drop cover after that signal returns.
+	if _road_frame and _road_frame.has_method("abort"):
+		_road_frame.abort()
+
+
+func silence_for_road() -> void:
+	## Public hook for road_frame: drop cabin/station ambience without showing rooms.
+	_silence_cabin()
+
+
+func _hide_cabin_under_road() -> void:
+	## Exterior + interior off so approach/ambush/overlay never z-fight cabin art.
+	if _ext_root:
+		_ext_root.visible = false
+	if _int_root:
+		_int_root.visible = false
+	_silence_cabin()
+	## Do not start station / cabin music here — arrive splash owns music_cabin.
 
 
 func play_arrive_splash() -> void:
 	## B55 arrive cutscene (intro_p5). Live cabin BG stays cabin_exterior via walk-in.
+	## Cabin theme may already be started by main._road_finish_to_cabin before this.
 	if _cutscene == null:
 		return
+	## Keep live cabin rooms hidden under the arrive splash (same as road).
+	_hide_cabin_under_road()
 	_beat = "arrive"
 	_cutscene.play("arrive", {})
 	_sync_playtest_fab()

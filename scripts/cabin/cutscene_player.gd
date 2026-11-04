@@ -16,6 +16,8 @@ var replay: bool = false
 var skippable: bool = true
 var kind: String = ""
 var panel_index: int = 0
+## First-run Brand New: leave solid black up so cabin never flashes before road_frame.
+var _hold_black_for_road: bool = false
 
 var _black: ColorRect
 var _frame: TextureRect
@@ -78,9 +80,17 @@ func is_playing() -> bool:
 func play(p_kind: String, opts: Dictionary = {}) -> void:
 	kind = p_kind
 	replay = bool(opts.get("replay", false))
+	## CA-A: first-run intro hands off to road_frame — keep black so cabin stays gone.
+	_hold_black_for_road = p_kind == "intro" and bool(opts.get("road_frame", false))
 	skippable = kind != "keyring" and kind != "arrive"
 	playing = true
 	visible = true
+	if _frame:
+		_frame.visible = true
+	if _panel_a:
+		_panel_a.visible = true
+	if _panel_b:
+		_panel_b.visible = true
 	if _bar:
 		_bar.visible = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -764,7 +774,23 @@ func _finish(skipped: bool) -> void:
 		_bar.visible = false
 	if _autoplay:
 		_autoplay.visible = false
-	visible = false
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _skip:
+		_skip.visible = false
+	_will_title.visible = false
+	_will_sign.visible = false
+	if _panel_a:
+		_panel_a.visible = false
+	if _panel_b:
+		_panel_b.visible = false
+	if _frame:
+		_frame.visible = false
 	_web_wait = false
+	if _hold_black_for_road:
+		## Solid black stays until home_cabin arms road_frame (cabin under road).
+		_black.modulate.a = 1.0
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hold_black_for_road = false
+	else:
+		visible = false
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
 	finished.emit(skipped)
