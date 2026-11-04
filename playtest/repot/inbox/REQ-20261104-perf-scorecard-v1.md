@@ -2,6 +2,8 @@
 id: REQ-20261104-perf-scorecard-v1
 status: open
 priority: normal
+pr: 392
+tip_sha: 3726d60a
 branch: cursor/perf-scorecard-instrumentation-be0a
 created: 2026-11-04T19:20:00Z
 created_by: cursor-cloud
