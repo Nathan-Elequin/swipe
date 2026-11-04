@@ -2,8 +2,8 @@
 id: REQ-20261104-cabin-nib-dialog-mask
 status: open
 priority: high
-pr:
-tip_sha:
+pr: 378
+tip_sha: 88f856df
 branch: playtest/latest
 created: 2026-11-04T18:35:00Z
 created_by: cursor-cloud
