@@ -20,6 +20,13 @@ var then_focus: String = ""
 var choice: String = ""
 var land: String = ""
 var branch_ok: Callable = Callable()
+var beat_id: String = ""
+var line_n: int = 0
+var rig: String = ""
+var allow: Array = []
+var trigger: String = ""
+var free_mode: bool = false
+var vo_enabled: bool = false ## Overnight tip: text-only Nib (no speak blips).
 var nib_close: float = 0.0
 var _arm: float = 0.0
 var _frames: Array = []
@@ -51,7 +58,10 @@ var _type_full: String = ""
 var _type_shown: int = 0
 var _typing: bool = false
 var _type_acc: float = 0.0
+var _saved_step: int = -1
+var _on_trigger: bool = false
 const TYPE_CPS := 48.0
+signal beat_entered(beat: String, rig_id: String)
 
 
 func setup(art, p_sfx = null) -> void:
@@ -272,13 +282,23 @@ func open() -> void:
 	_idle = 0.0
 	force_id = ""
 	then_focus = ""
+	beat_id = ""
+	line_n = 0
+	rig = ""
+	allow = []
+	trigger = ""
+	free_mode = false
 	world_open = false
+	_on_trigger = false
+	_saved_step = -1
 	_spots = []
 	_arrows = []
 	nib_close = 0.0
 	_beats = _load_beats()
 	visible = true
 	_show_chrome_skip(true)
+	if _talk:
+		_talk.visible = true
 	advance()
 
 
@@ -288,7 +308,14 @@ func close() -> void:
 	focus_tag = ""
 	force_id = ""
 	then_focus = ""
+	beat_id = ""
+	line_n = 0
+	rig = ""
+	allow = []
+	trigger = ""
+	free_mode = false
 	world_open = false
+	_on_trigger = false
 	_spots = []
 	_arrows = []
 	_target = null
@@ -315,6 +342,20 @@ func _layout_chrome_skip() -> void:
 
 
 func advance() -> void:
+	if free_mode and not _on_trigger:
+		## Free-play seed: hide Nib until a trigger or dungeon-clear resumes rails.
+		wait = "free"
+		focus_tag = ""
+		force_id = ""
+		then_focus = ""
+		rig = ""
+		allow = []
+		if _talk:
+			_talk.visible = false
+		_go.visible = false
+		world_open = true
+		_show_chrome_skip(true)
+		return
 	step += 1
 	while step < _beats.size():
 		var skip: Dictionary = _beats[step]
@@ -326,37 +367,122 @@ func advance() -> void:
 		wait = ""
 		finished.emit()
 		return
-	var b: Dictionary = _beats[step]
+	_apply_beat(_beats[step])
+
+
+func _apply_beat(b: Dictionary) -> void:
+	var prev_beat: String = beat_id
 	wait = str(b.get("wait", "continue"))
 	focus_tag = str(b.get("focus", ""))
 	force_id = str(b.get("force", ""))
 	then_focus = str(b.get("then_focus", ""))
+	beat_id = str(b.get("beat", ""))
+	line_n = int(b.get("line", 0))
+	rig = str(b.get("rig", ""))
+	var allow_raw: Variant = b.get("allow", [])
+	allow = allow_raw if typeof(allow_raw) == TYPE_ARRAY else []
+	trigger = str(b.get("trigger", ""))
 	nib_close = float(b.get("nib", 0.0))
 	_tiny = bool(b.get("tiny", false))
+	if beat_id != "" and beat_id != prev_beat and rig != "":
+		beat_entered.emit(beat_id, rig)
 	var spoken: String = COPY.apply_names(str(b.get("text", "")))
 	_type_full = spoken
 	_type_shown = 0
 	_type_acc = 0.0
 	_typing = spoken != ""
+	if _talk:
+		_talk.visible = true
 	_body.clear()
 	_body.append_text(_paint_on_paper(spoken))
 	_body.visible_characters = 0 if _typing else -1
 	_idle = 0.0
-	if sfx and sfx.has_method("speak"):
+	## Text-only overnight: suppress tip Nib VO blips on tutorial lines.
+	if vo_enabled and sfx and sfx.has_method("speak") and spoken != "":
 		sfx.speak(&"nib", spoken)
 	_hint.text = COPY.apply_names(str(b.get("hint", "")))
 	var go_raw: String = str(b.get("go", "")).strip_edges()
 	_go.text = COPY.apply_names(go_raw) if go_raw != "" else COPY.text("tutorial.next", "Next")
 	_name.text = COPY.text("tutorial.speaker", "Nib")
-	_show_chrome_skip(true)
+	_show_chrome_skip(not (beat_id == "B54" or beat_id == "B55"))
 	_go.visible = wait == "continue" and not _typing
 	_go.custom_minimum_size = Vector2(210, 58)
 	var said: String = str(b.get("text", "")).to_lower()
 	if said.find("survived all") >= 0 or said.find("venture deeper") >= 0 or said.find("come back") >= 0:
 		world_open = true
+	if beat_id == "B52" and line_n >= 2:
+		## Last B52 line arms free play after this advance resolves via Main rig.
+		pass
 	_body.add_theme_font_size_override("normal_font_size", 12 if _tiny else 20)
 	_arm = 0.35
 	_talk.reset_size()
+
+
+func enter_free() -> void:
+	free_mode = true
+	world_open = true
+	_on_trigger = false
+	wait = "free"
+	focus_tag = ""
+	force_id = ""
+	allow = []
+	if _talk:
+		_talk.visible = false
+	_go.visible = false
+	_show_chrome_skip(true)
+
+
+func fire_trigger(ev: String) -> bool:
+	if not free_mode or _on_trigger:
+		return false
+	for i in range(_beats.size()):
+		var b: Dictionary = _beats[i]
+		if str(b.get("branch", "")) != "trigger":
+			continue
+		if str(b.get("trigger", "")) != ev:
+			continue
+		## Jump to the first line of this trigger beat.
+		var beat: String = str(b.get("beat", ""))
+		var start_i: int = i
+		while start_i > 0 and str(_beats[start_i - 1].get("beat", "")) == beat:
+			start_i -= 1
+		_saved_step = step
+		_on_trigger = true
+		free_mode = false
+		step = start_i - 1
+		advance()
+		return true
+	return false
+
+
+func end_trigger_resume_free() -> void:
+	_on_trigger = false
+	free_mode = true
+	if _saved_step >= 0:
+		step = _saved_step
+	enter_free()
+
+
+func resume_after_free_at(beat: String) -> void:
+	free_mode = false
+	_on_trigger = false
+	world_open = false
+	for i in range(_beats.size()):
+		if str(_beats[i].get("beat", "")) == beat:
+			step = i - 1
+			advance()
+			return
+	finished.emit()
+
+
+func jump_to_beat(beat: String) -> void:
+	free_mode = false
+	_on_trigger = false
+	for i in range(_beats.size()):
+		if str(_beats[i].get("beat", "")) == beat:
+			step = i - 1
+			advance()
+			return
 
 
 func nudge(msg: String) -> void:
@@ -437,6 +563,9 @@ func _paint_on_paper(spoken: String) -> String:
 func _branch_shows(br: String) -> bool:
 	if br == "" or br == "join":
 		return true
+	## Trigger / skip-only rows stay out of the linear Yes path.
+	if br == "trigger" or br == "skip_only":
+		return _on_trigger and (br == "trigger")
 	if br == choice or (land != "" and br == land):
 		return true
 	if branch_ok.is_valid():

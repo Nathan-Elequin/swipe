@@ -4649,432 +4649,6 @@
 			"text": "Now I just need a place to store this stuff.",
 			"where": "Victory subtitle"
 		},
-		"tutorial.line.001": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Hey there, greedy goblin. I'm {nib}. I was just in the middle of enjoying my nap when you had to barge into this dungeon and start swiping loot left n' right!",
-			"where": "Opening · continue / (none) · Nib line"
-		},
-		"tutorial.line.002": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Well, now you've gone and done it — the monsters are coming to claim their stuff, and you're going to have to defend yourself with that loot or else die in this strange catacomb.",
-			"where": "Opening · continue / (none) · Nib line"
-		},
-		"tutorial.line.003": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Welcome to the Merry Go' Round of doom — a series of circular catacombs that rotate around this particular spot. Don't ask me why, the architect of this dungeon doesn't like answering questions.",
-			"where": "Opening · continue / wheel · Nib line"
-		},
-		"tutorial.line.004": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "This is a Corridor — there are 8 in total. Monsters will pop into these slots as they line up to clean your clock and take your junk.",
-			"where": "Opening · continue / empty · Nib line"
-		},
-		"tutorial.line.005": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "This is your loot. Looks like you started off with some basic loot for this tutorial, but you'll find lots of fancy weapons and armor out here.",
-			"where": "Opening · continue / hotbar · Nib line"
-		},
-		"tutorial.line.006": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Your mission...",
-			"where": "Opening · continue / (none) · Nib line"
-		},
-		"tutorial.line.007": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "...is to get out of the dungeon with as much loot as possible.\n...Got it?",
-			"where": "Opening · continue / (none) · Nib line"
-		},
-		"tutorial.line.008": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Okay, let me show you how things work a'ROUND these parts.",
-			"where": "Opening · continue / (none) · Nib line"
-		},
-		"tutorial.line.009": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "(y'know, cause of the round dungeon...)",
-			"where": "Opening · continue / (none) · Nib line"
-		},
-		"tutorial.line.010": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "You have 6 health (HP). You can never have more than 6. If it reaches 0 at any point, you're dead.",
-			"where": "Opening · continue / hearts · Nib line"
-		},
-		"tutorial.line.011": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "When you complete a Dungeon (clear out this wheel), you will heal back to full HP. Spend your HP wisely.",
-			"where": "Opening · continue / (none) · Nib line"
-		},
-		"tutorial.line.012": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Alright, that's enough. Let's learn the rest as we go. Click Spin. The wheel picks a monster at random. You don't choose who stops in front of you. I'll show you Moves in a minute — that's how you walk to someone. Until then, Spin is a roll.",
-			"where": "Opening · spin / spin · Nib line"
-		},
-		"tutorial.line.013": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Ahh, a crotchety ol' wizard, eh?",
-			"where": "If the wheel landed on Wizard · continue / (none) · Nib line"
-		},
-		"tutorial.line.014": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "He looks pretty scary — 5 Attack would nearly kill you in one strike.",
-			"where": "If the wheel landed on Wizard · continue / atk · Nib line"
-		},
-		"tutorial.line.015": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "...but he's also super frail. Most weapons will kill him before he gets to strike.",
-			"where": "If the wheel landed on Wizard · continue / hp · Nib line"
-		},
-		"tutorial.line.016": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Use the Sai. It will kill him and end the fight.",
-			"where": "If the wheel landed on Wizard · item:sai / item:sai · Nib line"
-		},
-		"tutorial.line.017": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "This Golem is much harder to kill, so block him.",
-			"where": "If the wheel landed on Golem · continue / (none) · Nib line"
-		},
-		"tutorial.line.018": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Block is temporary for the current fight. It goes away whenever you Spin the Dungeon. If you Block an enemy, they are also Defeated.",
-			"where": "If the wheel landed on Golem · continue / block · Nib line"
-		},
-		"tutorial.line.019": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Okay, let's use the Helmet and Block this incoming attack.",
-			"where": "If the wheel landed on Golem · item:helmet / item:helmet · Nib line"
-		},
-		"tutorial.line.020": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Since you are safe, you can click 'Safe' to end the fight.",
-			"where": "If the wheel landed on Golem · done / done · Nib line"
-		},
-		"tutorial.line.021": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Aww, look at this little guy! He is so cute...but he also has an ability.",
-			"where": "If the wheel landed on Goblin · continue / (none) · Nib line"
-		},
-		"tutorial.line.022": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Hover any monster to learn their ability, just like items.",
-			"where": "If the wheel landed on Goblin · hover_shift / wheel · Nib line"
-		},
-		"tutorial.line.023": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Aw, Goblins are 'Evasive', so they cannot take Attack damage!",
-			"where": "If the wheel landed on Goblin · continue / (none) · Nib line"
-		},
-		"tutorial.line.024": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "The Boot Defeats him if you have more HP than he does. Or take the hit and keep the Boot.",
-			"where": "If the wheel landed on Goblin · choice / item:da_boot · Nib line"
-		},
-		"tutorial.line.025": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "The dungeon deck had one card left, and it just walked into that seat. Say hello to the Bandit.",
-			"where": "After the fight · continue / deck · Nib line"
-		},
-		"tutorial.line.026": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Loot matches the monster who walked in, not the one you dropped. He was the last card in the deck, so this payout is the last one. The next death pays nothing.",
-			"where": "After the fight · draft:shuriken / draft · Nib line"
-		},
-		"tutorial.line.027": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "The Spin you pressed was random. This next one I turn myself, and I stop it on the Golem so you can see Block.",
-			"where": "If Golem is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.028": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "",
-			"where": "If Golem is still waiting · auto_spin / spin · Nib line"
-		},
-		"tutorial.line.029": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Interesting...this Golem is much harder to kill, so you'd usually want to block this.",
-			"where": "If Golem is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.030": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Block is temporary for the current fight. It goes away whenever you Spin the Dungeon.",
-			"where": "If Golem is still waiting · continue / block · Nib line"
-		},
-		"tutorial.line.031": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "But I've got good news — if you Block an enemy, they are also Defeated.",
-			"where": "If Golem is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.032": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "I guess they just...run out of time to kill you, I guess? Not sure, this Dungeon is kinda weird.",
-			"where": "If Golem is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.033": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Anyway, look at the Helmet, since this item has a unique ability.",
-			"where": "If Golem is still waiting · continue / item:helmet · Nib line"
-		},
-		"tutorial.line.034": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Hover any item to see its details at a glance.",
-			"where": "If Golem is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.035": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Looks like the Helmet's Block is based on whichever HP is lower between you and your Enemy.",
-			"where": "If Golem is still waiting · continue / inspect · Nib line"
-		},
-		"tutorial.line.036": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "In this case, the lower number is your HP.",
-			"where": "If Golem is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.037": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "If your HP were the lower number, this Helmet would pillow less. That's the whole trick.",
-			"where": "If Golem is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.038": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Items change all the time based on circumstances. Your job is to juggle your loot to maximize their effectiveness against the unique enemies in the dungeon.",
-			"where": "If Golem is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.039": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Okay, let's use the Helmet and Block this incoming attack.",
-			"where": "If Golem is still waiting · item:helmet / item:helmet · Nib line"
-		},
-		"tutorial.line.040": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "This button will always show you how much HP you are going to lose if you end the fight now.",
-			"where": "If Golem is still waiting · continue / done · Nib line"
-		},
-		"tutorial.line.041": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Since you are safe, you can click 'Safe' to end the fight.",
-			"where": "If Golem is still waiting · done / done · Nib line"
-		},
-		"tutorial.line.042": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "The deck was already empty, so that seat just closed. No new monster. No loot. You finish a dungeon like that on whatever you are still holding.",
-			"where": "After the fight · continue / deck · Nib line"
-		},
-		"tutorial.line.043": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "You get three Moves for a dungeon. The feet on the wheel. A Move walks you to the next living monster. It does not Spin.",
-			"where": "After the fight · continue / (none) · Nib line"
-		},
-		"tutorial.line.044": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Hold on. I'll turn you to the Bandit so you can try a Move. That turn is not a Spin you pressed.",
-			"where": "After the fight · face / wheel · Nib line"
-		},
-		"tutorial.line.045": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "The Cube is beside him. Spin onto that Cube and it eats one of your items. This arrow walks you there. Your items stay in your hand.",
-			"where": "After the fight · move / move_arrow · Nib line"
-		},
-		"tutorial.line.046": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "It did not eat a thing. That spent one Move. Two are left, and they do not come back this dungeon.",
-			"where": "After the fight · continue / (none) · Nib line"
-		},
-		"tutorial.line.047": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "This Sai is already showing 4. That drops the Cube.",
-			"where": "After the fight · item:sai / item:sai · Nib line"
-		},
-		"tutorial.line.048": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Cube's down. The Shuriken walks you without spending a Move, then it hits.",
-			"where": "After the fight · item:shuriken / item:shuriken · Nib line"
-		},
-		"tutorial.line.049": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "That walk was free. The Bandit had 3 health, so he dropped.",
-			"where": "After the fight · continue / (none) · Nib line"
-		},
-		"tutorial.line.050": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "There's one final type of item. Click Spin. I'll park this one on the Goblin so you can read his ability.",
-			"where": "If Goblin is still waiting · spin / spin · Nib line"
-		},
-		"tutorial.line.051": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Aww, look at this little guy! He is so cute...but he also has an ability.",
-			"where": "If Goblin is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.052": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Hover any monster to learn their ability, just like items.",
-			"where": "If Goblin is still waiting · hover_shift / wheel · Nib line"
-		},
-		"tutorial.line.053": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Aw, Goblins are 'Evasive', so they cannot take Attack damage! Looks like our Knucklers would be wasted here.",
-			"where": "If Goblin is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.054": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "But wait...this item is a Special Item. It doesn't Attack or Block. Take a look.",
-			"where": "If Goblin is still waiting · hover_shift / wheel · Nib line"
-		},
-		"tutorial.line.055": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "This item allows you to instantly Defeat an Enemy if you have more HP than them!",
-			"where": "If Goblin is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.056": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "That's a good item...",
-			"where": "If Goblin is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.057": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "...but are you sure you want to use it?",
-			"where": "If Goblin is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.058": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "So far you've lost zero HP in this dungeon, but remember — each time you clear a Dungeon, you heal back to full.",
-			"where": "If Goblin is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.059": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "AND you get to keep all of the Loot that you didn't use in this dungeon. Pretty sweet, huh?",
-			"where": "If Goblin is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.060": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "So I'll give you a choice. You can use The Boot and get the sweet satisfaction of stomping this Goblin into the dirt...",
-			"where": "If Goblin is still waiting · continue / (none) · Nib line"
-		},
-		"tutorial.line.061": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "...Orrrr you can let him slice you up, and keep it. The choice is yours.",
-			"where": "If Goblin is still waiting · choice / item:da_boot · Nib line"
-		},
-		"tutorial.line.062": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Honestly, I respect it. Those Goblins are super annoying, so here's a tip:",
-			"where": "If they used The Boot · continue / (none) · Nib line"
-		},
-		"tutorial.line.063": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "If you see one in your upcoming Dungeon, you should always hold onto a Block or Defeat item to avoid that damage.",
-			"where": "If they used The Boot · continue / (none) · Nib line"
-		},
-		"tutorial.line.064": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "You won't always have a Boot, after all.",
-			"where": "If they used The Boot · continue / (none) · Nib line"
-		},
-		"tutorial.line.065": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Ouch — hurts, doesn't it?",
-			"where": "If they took the hit · continue / (none) · Nib line"
-		},
-		"tutorial.line.066": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Well the next time that Boot saves you from death in a future Dungeon, you'll be glad you let that little rascal nick you for 3.",
-			"where": "If they took the hit · continue / (none) · Nib line"
-		},
-		"tutorial.line.067": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "I'm sure you can tell, but I'll give you a tip straight from the source:",
-			"where": "If they took the hit · continue / (none) · Nib line"
-		},
-		"tutorial.line.068": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Spend your HP like it was made of gold. Sometimes it will be correct to drop to 1 HP — you'll find Items that reward you for losing HP — we call that Bleeding.",
-			"where": "If they took the hit · continue / (none) · Nib line"
-		},
-		"tutorial.line.069": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "You made it through the practice wheel.",
-			"where": "After the fight · continue / (none) · Nib line"
-		},
-		"tutorial.line.070": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Deeper in, a death pulls the next monster out of the deck, and the loot matches whoever walked in. The monster who uses the last card still pays you. Once the deck is empty, the seat closes and you get no more loot. You live on what you are holding.",
-			"where": "After the fight · continue / (none) · Nib line"
-		},
-		"tutorial.line.071": {
-			"cat": "Tutorial",
-			"locked_at": "2026-10-28",
-			"text": "Come back. Each dungeon you finish, new monsters and new loot join in. The deeper you go, the stranger they get.",
-			"where": "After the fight · continue / (none) · Nib line"
-		},
 		"tutorial.nudge_item": {
 			"cat": "Tutorial",
 			"locked_at": "2026-10-28",
@@ -5176,6 +4750,792 @@
 			"locked_at": "2026-11-04",
 			"text": "Skip",
 			"where": "Always-on Skip during tutorial rails"
+		},
+		"tutorial.line.B01.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Get behind me. Actually, no. You're taking this one.",
+			"where": "Road · Nib steps in · line 1"
+		},
+		"tutorial.line.B01.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Cabin's right there. They're in the way.",
+			"where": "Road · Nib steps in · line 2"
+		},
+		"tutorial.line.B02.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "They've got us in a ring. Out here, that's a dungeon. It's a wheel. Don't ask.",
+			"where": "Wheel · line 1"
+		},
+		"tutorial.line.B03.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Every one of them is right there. No surprises.",
+			"where": "See everyone · line 1"
+		},
+		"tutorial.line.B03.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "See who's coming. Get your loot ready for them.",
+			"where": "See everyone · line 2"
+		},
+		"tutorial.line.B03.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Yes, that's a Dragon. He's last.",
+			"where": "See everyone · line 3"
+		},
+		"tutorial.line.B04.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "This button's the whole game.",
+			"where": "Spin tease · line 1"
+		},
+		"tutorial.line.B04.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Spin, and you fight whoever you land on.",
+			"where": "Spin tease · line 2"
+		},
+		"tutorial.line.B05.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Those arrows are Moves. You get three.",
+			"where": "Moves tease · line 1"
+		},
+		"tutorial.line.B05.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Not yet. I'll tell you when.",
+			"where": "Moves tease · line 2"
+		},
+		"tutorial.line.B06.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Go on. Spin.",
+			"where": "First Spin · line 1"
+		},
+		"tutorial.line.B07.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Wizard. Five Attack.",
+			"where": "Wizard ATK · line 1"
+		},
+		"tutorial.line.B08.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "That's you. Six HP.",
+			"where": "Player HP · line 1"
+		},
+		"tutorial.line.B08.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Five from six. You do the math.",
+			"where": "Player HP · line 2"
+		},
+		"tutorial.line.B09.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "But he's only got two HP.",
+			"where": "Wizard frail · line 1"
+		},
+		"tutorial.line.B09.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Hit him first and he never swings.",
+			"where": "Wizard frail · line 2"
+		},
+		"tutorial.line.B10.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Down here's your loot.",
+			"where": "Sai · line 1"
+		},
+		"tutorial.line.B10.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The Sai hits for two. Click it.",
+			"where": "Sai · line 2"
+		},
+		"tutorial.line.B11.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Dead. Now watch the deck.",
+			"where": "Deck refill · line 1"
+		},
+		"tutorial.line.B11.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Drop one, and the next walks in off the deck.",
+			"where": "Deck refill · line 2"
+		},
+		"tutorial.line.B12.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Everybody gets this part wrong.",
+			"where": "Shield draft · line 1"
+		},
+		"tutorial.line.B12.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Loot comes with whoever walks in. Not whoever you dropped.",
+			"where": "Shield draft · line 2"
+		},
+		"tutorial.line.B12.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The Golem brought something. Take the Shield.",
+			"where": "Shield draft · line 3"
+		},
+		"tutorial.line.B13.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Spin. I'll land you on him.",
+			"where": "Golem #1 Spin · line 1"
+		},
+		"tutorial.line.B14.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Golem. Seven HP. Not today.",
+			"where": "Golem read · line 1"
+		},
+		"tutorial.line.B14.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Three Attack. So we don't kill him. We eat it.",
+			"where": "Golem read · line 2"
+		},
+		"tutorial.line.B15.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "That's a Breastplate. Two Block.",
+			"where": "Breastplate · line 1"
+		},
+		"tutorial.line.B15.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Click it.",
+			"where": "Breastplate · line 2"
+		},
+		"tutorial.line.B16.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "That's Block. It soaks his hit, point for point.",
+			"where": "Block · line 1"
+		},
+		"tutorial.line.B16.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Once it's spent, it's gone. Nothing carries over.",
+			"where": "Block · line 2"
+		},
+		"tutorial.line.B17.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "You've got a Shield, too. Four more Block. You'd take nothing.",
+			"where": "Shield temptation · line 1"
+		},
+		"tutorial.line.B17.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Don't. Save it.",
+			"where": "Shield temptation · line 2"
+		},
+		"tutorial.line.B17.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Read the Breastplate. Lose HP this fight, and it Keeps.",
+			"where": "Shield temptation · line 3"
+		},
+		"tutorial.line.B18.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "See the Spiked Flail? Right now it hits for zero.",
+			"where": "Flail · line 1"
+		},
+		"tutorial.line.B18.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Every time you bleed, it gets two meaner.",
+			"where": "Flail · line 2"
+		},
+		"tutorial.line.B18.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "So one HP buys you the Breastplate back and a meaner Flail.",
+			"where": "Flail · line 3"
+		},
+		"tutorial.line.B19.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "End it. Take the one.",
+			"where": "Take 1 · line 1"
+		},
+		"tutorial.line.B20.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Block's gone. One got through. Five HP.",
+			"where": "Keep payoff · line 1"
+		},
+		"tutorial.line.B20.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Flail felt that. Two Attack.",
+			"where": "Keep payoff · line 2"
+		},
+		"tutorial.line.B20.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Breastplate stayed. That's Keep.",
+			"where": "Keep payoff · line 3"
+		},
+		"tutorial.line.B20.4": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "It's spent this fight. Spin again and it's back.",
+			"where": "Keep payoff · line 4"
+		},
+		"tutorial.line.B20.5": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Golem wandered off. Leaving still counts as Defeated.",
+			"where": "Keep payoff · line 5"
+		},
+		"tutorial.line.B21.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Another one walked in. Deck's empty.",
+			"where": "Golem #2 + Fangs · line 1"
+		},
+		"tutorial.line.B21.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "He brought you Fangs. Hang on to those.",
+			"where": "Golem #2 + Fangs · line 2"
+		},
+		"tutorial.line.B22.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Leave the big guy. Little one first. Spin.",
+			"where": "Goblin Spin · line 1"
+		},
+		"tutorial.line.B23.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Cute. Don't trust it.",
+			"where": "Hover · line 1"
+		},
+		"tutorial.line.B23.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Hover him. Monsters tell you their tricks if you ask.",
+			"where": "Hover · line 2"
+		},
+		"tutorial.line.B24.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Evasive. Attacks do nothing to him. Not even the Flail.",
+			"where": "Evasive · line 1"
+		},
+		"tutorial.line.B25.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The Boot doesn't Attack. It Defeats anyone with less HP than you.",
+			"where": "Boot · line 1"
+		},
+		"tutorial.line.B25.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "You've got five. He's got one.",
+			"where": "Boot · line 2"
+		},
+		"tutorial.line.B26.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Or eat his three. Keep the Boot. Feed the Flail.",
+			"where": "Boot vs Take · line 1"
+		},
+		"tutorial.line.B26.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Your call.",
+			"where": "Boot vs Take · line 2"
+		},
+		"tutorial.line.B27a.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Stomped. Fair.",
+			"where": "Boot path · line 1"
+		},
+		"tutorial.line.B27a.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Next Goblin, save a Block or a Defeat. You won't always have a Boot.",
+			"where": "Boot path · line 2"
+		},
+		"tutorial.line.B27b.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Ow. Two HP. Bold.",
+			"where": "Take path · line 1"
+		},
+		"tutorial.line.B27b.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Flail liked it, though.",
+			"where": "Take path · line 2"
+		},
+		"tutorial.line.B28.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Okay. Big guy. Spin.",
+			"where": "Golem #2 Spin · line 1"
+		},
+		"tutorial.line.B29.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Remember the Fangs? Let him hit you, and he's Defeated. Any size.",
+			"where": "Fangs read · line 1"
+		},
+		"tutorial.line.B29.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Then you heal whatever HP he had. He's got seven.",
+			"where": "Fangs read · line 2"
+		},
+		"tutorial.line.B29.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Big monster, big bite.",
+			"where": "Fangs read · line 3"
+		},
+		"tutorial.line.B30.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Look. You Spun, so the Breastplate's back.",
+			"where": "Breastplate again · line 1"
+		},
+		"tutorial.line.B30.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Same trick. Block two, eat one.",
+			"where": "Breastplate again · line 2"
+		},
+		"tutorial.line.B31.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Now bite him.",
+			"where": "Fangs use · line 1"
+		},
+		"tutorial.line.B32.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "One got through. Then you ate his seven. Full HP.",
+			"where": "Fangs payoff · line 1"
+		},
+		"tutorial.line.B32.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Flail got another bleed.",
+			"where": "Fangs payoff · line 2"
+		},
+		"tutorial.line.B32.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Breastplate Kept again. You bled, so it stays.",
+			"where": "Fangs payoff · line 3"
+		},
+		"tutorial.line.B32.4": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Deck's empty, so his seat just closes.",
+			"where": "Fangs payoff · line 4"
+		},
+		"tutorial.line.B33.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Two Harpies. Spin. Trust me.",
+			"where": "Harpy A Spin · line 1"
+		},
+		"tutorial.line.B34.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Yeah. I lied a little.",
+			"where": "Poke · line 1"
+		},
+		"tutorial.line.B34.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Harpies hit you the second you Spin onto them.",
+			"where": "Poke · line 2"
+		},
+		"tutorial.line.B34.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "And again after every item you use on them.",
+			"where": "Poke · line 3"
+		},
+		"tutorial.line.B35.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Five HP. Anything that doesn't kill her, she answers.",
+			"where": "Save Flail · line 1"
+		},
+		"tutorial.line.B35.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Your Flail could do it. Don't. That's for later.",
+			"where": "Save Flail · line 2"
+		},
+		"tutorial.line.B36.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Here. Arrow Head. Six Attack.",
+			"where": "Arrow Head grant · line 1"
+		},
+		"tutorial.line.B36.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Costs you two HP. Block won't stop that.",
+			"where": "Arrow Head grant · line 2"
+		},
+		"tutorial.line.B36.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "You've got four. Worth it.",
+			"where": "Arrow Head grant · line 3"
+		},
+		"tutorial.line.B37.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Fire it.",
+			"where": "Arrow Head · line 1"
+		},
+		"tutorial.line.B38.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "One shot. She's done, so no poke back.",
+			"where": "Harpy A dead · line 1"
+		},
+		"tutorial.line.B38.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "You still paid the two.",
+			"where": "Harpy A dead · line 2"
+		},
+		"tutorial.line.B38.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "And the Flail still counted it.",
+			"where": "Harpy A dead · line 3"
+		},
+		"tutorial.line.B39.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Her sister's right next door.",
+			"where": "Sister · line 1"
+		},
+		"tutorial.line.B39.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Spin onto her and she pokes. So don't Spin.",
+			"where": "Sister · line 2"
+		},
+		"tutorial.line.B40.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Remember the arrows? Now they matter.",
+			"where": "Move · line 1"
+		},
+		"tutorial.line.B40.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "A Move steps you to the next monster. No Spin, no poke.",
+			"where": "Move · line 2"
+		},
+		"tutorial.line.B41.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "See? Nothing.",
+			"where": "No poke · line 1"
+		},
+		"tutorial.line.B41.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "That cost a Move. Two left, and they don't come back this dungeon.",
+			"where": "No poke · line 2"
+		},
+		"tutorial.line.B42.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Knucklers. Eight, minus every card in your hand.",
+			"where": "Knucklers grant · line 1"
+		},
+		"tutorial.line.B42.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Empty hands hit harder.",
+			"where": "Knucklers grant · line 2"
+		},
+		"tutorial.line.B42.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "She's got five. You're not there yet.",
+			"where": "Knucklers grant · line 3"
+		},
+		"tutorial.line.B43.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Remember the Shield I wouldn't let you touch? Now.",
+			"where": "Shield now · line 1"
+		},
+		"tutorial.line.B44a.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "She poked. Block ate it.",
+			"where": "Boot branch poke · line 1"
+		},
+		"tutorial.line.B44a.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "One less card in hand. Knucklers hits five.",
+			"where": "Boot branch poke · line 2"
+		},
+		"tutorial.line.B44b.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "She poked. Block ate it.",
+			"where": "Take branch poke · line 1"
+		},
+		"tutorial.line.B44b.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Knucklers hits four. She's got five.",
+			"where": "Take branch poke · line 2"
+		},
+		"tutorial.line.B44b.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Close enough. That's what the Boot's for.",
+			"where": "Take branch poke · line 3"
+		},
+		"tutorial.line.B45.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Punch her.",
+			"where": "Punch · line 1"
+		},
+		"tutorial.line.B46a.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Down in one. Not a scratch.",
+			"where": "One-shot · line 1"
+		},
+		"tutorial.line.B46b.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "One HP left on her.",
+			"where": "Nick · line 1"
+		},
+		"tutorial.line.B46b.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "She poked back. Leftover Block took it. Still two HP.",
+			"where": "Nick · line 2"
+		},
+		"tutorial.line.B46c.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Now the Boot. She's got one. You've got two.",
+			"where": "Boot finish · line 1"
+		},
+		"tutorial.line.B46d.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "That's why you kept it.",
+			"where": "Boot payoff · line 1"
+		},
+		"tutorial.line.B46d.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "And the three you spent on the Goblin? The Flail's still counting.",
+			"where": "Boot payoff · line 2"
+		},
+		"tutorial.line.B47.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The Dragon. Six HP. Six Attack, and Block does nothing.",
+			"where": "Dragon · line 1"
+		},
+		"tutorial.line.B47.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "You've got two HP. He'd flatten you.",
+			"where": "Dragon · line 2"
+		},
+		"tutorial.line.B47.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Now count the Flail. Every bleed made it meaner.",
+			"where": "Dragon · line 3"
+		},
+		"tutorial.line.B48.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Spin. Last one.",
+			"where": "Dragon Spin · line 1"
+		},
+		"tutorial.line.B49.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Don't let him breathe. Flail.",
+			"where": "Flail · line 1"
+		},
+		"tutorial.line.B50.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Every hit you took paid for that.",
+			"where": "Clear · line 1"
+		},
+		"tutorial.line.B50.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Wheel's empty. Dungeon cleared. You heal back to full.",
+			"where": "Clear · line 2"
+		},
+		"tutorial.line.B50.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "So spend HP like it comes back. It does.",
+			"where": "Clear · line 3"
+		},
+		"tutorial.line.B51.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "More of them up the path. Fresh loot.",
+			"where": "D2 · line 1"
+		},
+		"tutorial.line.B51.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Bleeds start over every dungeon. So bleed again.",
+			"where": "D2 · line 2"
+		},
+		"tutorial.line.B52.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "That's all I've got. Clear this one your way.",
+			"where": "Free · line 1"
+		},
+		"tutorial.line.B52.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "I'll shout if something weird happens.",
+			"where": "Free · line 2"
+		},
+		"tutorial.line.T1.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Commander. His neighbors hit two harder.",
+			"where": "Commander aura · line 1"
+		},
+		"tutorial.line.T1.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Drop him early, or deal with his friends.",
+			"where": "Commander aura · line 2"
+		},
+		"tutorial.line.T2.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "He ran. Defeat a Commander once, he Flees and spins you somewhere random.",
+			"where": "Commander Flee · line 1"
+		},
+		"tutorial.line.T2.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Not Evasive. You can hit him fine. He just won't stay down the first time.",
+			"where": "Commander Flee · line 2"
+		},
+		"tutorial.line.T3.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "New face. Hover before you swing.",
+			"where": "Deck draw · line 1"
+		},
+		"tutorial.line.T4.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Careful. Low is fine. Zero isn't.",
+			"where": "Low HP · line 1"
+		},
+		"tutorial.line.T5.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Okay. That one's on me. Again.",
+			"where": "Down · line 1"
+		},
+		"tutorial.line.B53.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Path's clear.",
+			"where": "Path clear · line 1"
+		},
+		"tutorial.line.B53.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Out there, the deck's full of things you haven't met.",
+			"where": "Path clear · line 2"
+		},
+		"tutorial.line.B53.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Here's who.",
+			"where": "Path clear · line 3"
+		},
+		"tutorial.line.B54.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Read up. Or don't. They'll introduce themselves.",
+			"where": "Reveal · line 1"
+		},
+		"tutorial.line.B55.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Here we are. Home.",
+			"where": "Arrive · line 1"
+		},
+		"tutorial.line.B55.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Gear up. Run door's there when you're ready.",
+			"where": "Arrive · line 2"
+		},
+		"tutorial.line.S1.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Fine. At least see who's out there.",
+			"where": "Skip · line 1"
+		},
+		"tutorial.nudge_shield": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Not the Shield. Trust me.",
+			"where": "Blocked Shield click"
+		},
+		"tutorial.nudge_flail": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Not yet. Save it.",
+			"where": "Blocked Flail click"
+		},
+		"tutorial.nudge_end_fight": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Not yet. Use the item.",
+			"where": "Blocked end-fight"
 		}
 	},
 	"updated": "2026-11-04"
