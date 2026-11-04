@@ -96,8 +96,8 @@ add("cabin_fire_loop", "amb", L("oga_fire", "fire.wav"), loop="xfade", loop_star
 add("sting_deadly", "sting", L("jingles", "Hit jingles/jingles_HIT06.ogg"))
 add("sting_bucket", "sting", L("jingles", "Pizzicato jingles/jingles_PIZZI02.ogg"))
 add("sting_victory", "sting", L("jingles", "Pizzicato jingles/jingles_PIZZI10.ogg"))
-# sting_clear.ogg is a drop-in (2026-11-03 accordion coalesce A) — not rebuilt here.
-#   ~0.48 s CC0 remix of tip Kenney/Swipe layers (click2, metal_latch, mon_clockwork, whoosh, heal_sparkle, util_magnet).
+# sting_clear.ogg is a drop-in (2026-11-04 accordion soft A) — not rebuilt here.
+#   ~0.45 s CC0 remix of tip Kenney/Swipe layers (whoosh, cab_shelf_chime, heal_sparkle); no metal; peak ~−14 dBFS.
 # sting_defeat.ogg is a drop-in (Nathan Suno / Defeat Stings.wav) — not rebuilt here.
 #   ~9.44 s one-shot, libvorbis, 0.32 s end fade. After it plays, music stays silent (no title bed).
 # Music (whole-file loops; trims measured in samples @44.1k)
@@ -114,7 +114,7 @@ add("music_cabin", "music", L("oga_fire_m", "a_small_fire_will_do.wav"), trim=(0
 #     music_ashen_crypt_c.ogg (heat, map -2 dB so A+B+C leave ~1.5 dB Music-bus headroom).
 #   Shadow Abyss Approach F: music_shadow_abyss_a.ogg (bed), music_shadow_abyss_b.ogg (drums),
 #     music_shadow_abyss_c.ogg (heat, map A/B -2 dB, C +6 dB). 200 BPM full-file loops.
-#   Clear sting: sting_clear.ogg (2026-11-03 accordion coalesce A) — drop-in, not rebuilt here.
+#   Clear sting: sting_clear.ogg (2026-11-04 accordion soft A) — drop-in, not rebuilt here.
 #   Defeat sting: sting_defeat.ogg (Nathan Suno / Defeat Stings.wav) — drop-in, not rebuilt here.
 #   Credits: write_credits.py trailer + assets/audio/CREDITS.txt.
 
