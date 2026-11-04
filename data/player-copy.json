@@ -1422,14 +1422,14 @@
 			"cat": "Intro",
 			"draft": true,
 			"key": "intro.p1",
-			"text": "Over the tannery in {village} lived a small goblin with nobody at all.",
+			"text": "Rain worked the loft window above the tannery in {village}. A small goblin lived there alone.",
 			"where": "Intro panel 1 caption"
 		},
 		{
 			"cat": "Intro",
 			"draft": true,
 			"key": "intro.p2",
-			"text": "Then, one rainy night, somebody knocked.",
+			"text": "Then a knock cut through the wet night.",
 			"where": "Intro panel 2 caption"
 		},
 		{
@@ -1443,14 +1443,14 @@
 			"cat": "Intro",
 			"draft": true,
 			"key": "intro.p3",
-			"text": "Your grandfather, the legendary {lucky_snatchwick}, has died inside {mountain}.",
+			"text": "Your grandfather, {lucky_snatchwick}, has died inside {the_grumble}.",
 			"where": "Intro panel 3 caption"
 		},
 		{
 			"cat": "Intro",
 			"draft": true,
 			"key": "intro.p3_nib",
-			"text": "He left you everything. Unfortunately, everything is still in the mountain.",
+			"text": "He left you everything. Unfortunately, everything is still under the mountain.",
 			"where": "Intro panel 3, Nib speaking"
 		},
 		{
