@@ -32,6 +32,8 @@ const PORTRAIT_MAX_DISPLAY := 256.0
 
 var art
 var cascade_ticker
+## Optional AudioFx from Main — ability activate SFX at cut-in snap-in.
+var sfx
 var _q: Array = []
 var _draining: bool = false
 var _aborted: bool = false
@@ -301,6 +303,9 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 	else:
 		var punch_start: float = target_scale * (3.6 / PORTRAIT_SCALE)
 		_portrait.scale = _portrait_scale_vec(punch_start)
+	# Ability activate oneshot at snap-in (keyed by card_id). HOLD: leech_league.
+	if sfx != null and card_id != "" and card_id != "leech_league" and sfx.has_method("play_event"):
+		sfx.play_event(StringName("mon.ability.%s" % card_id))
 	_tw = create_tween()
 	_tw.set_parallel(true)
 	_tw.tween_property(_dim, "modulate:a", 0.47, _dur(SNAP_MS, fast))
