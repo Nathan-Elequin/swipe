@@ -395,6 +395,16 @@
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/344",
 			"sha": "c400889e",
 			"f5_note": "On Spin, Skeleton HP looks at the new enemy, then hearts update. Stop Play, F5."
+		},
+		"358": {
+			"status": "todo",
+			"title": "'Bear Trap' does not count as a Tier 2 monster, it's just a Token",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/358"
+		},
+		"357": {
+			"status": "todo",
+			"title": "When shambling mound or threshing shark (or hydra…) loses a head/part, something wrong",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/357"
 		}
 	}
 }
