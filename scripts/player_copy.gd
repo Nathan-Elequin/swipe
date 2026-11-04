@@ -254,7 +254,7 @@ static func tutorial_lines() -> Array:
 			continue
 		if str(row.get("key", "")).begins_with("tutorial.line."):
 			found.append(row)
-	## Beat keys sort as B01 < B02 < B27a < B27b < T1 < S1 (not plain string order).
+	## Beat keys sort as B01 < B02 < B27a < B27b < B27c < T1 < S1 (not plain string order).
 	found.sort_custom(func(a, b) -> bool: return _tutorial_line_sort_key(a) < _tutorial_line_sort_key(b))
 	var out: Array = []
 	for row in found:

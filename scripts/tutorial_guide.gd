@@ -508,10 +508,10 @@ func _wait_shows_next(w: String) -> bool:
 
 
 func nudge(msg: String) -> void:
-	var step_hint := ""
-	if step >= 0 and step < _beats.size():
-		step_hint = COPY.apply_names(str(_beats[step].get("hint", "")).strip_edges())
-	_hint.text = step_hint if step_hint != "" else msg
+	## Always show the caller message (e.g. "(click Take)" after Breastplate at Goblin).
+	## Do not fall back to the beat's static hint — that hid mid-beat prompts and
+	## the old `tut.hint = …` assignment crashed (no such property).
+	_hint.text = msg
 
 
 func armed() -> bool:
