@@ -12,6 +12,7 @@ Refs (task attachments): `nathan-take-flat.png` = live tip (flat Take, square en
 4. **Block pip** — Rotates to match the left-third chord angle when Block > 0.
 5. **One click target** — Whole arc still one Button; `_has_point` also accepts the cap discs (`BODY_W*0.5+2` of each chord tip).
 6. **Sweep** — `SWEEP` nudged to `1.32` (was `1.42`) so caps stay clear of move-arrow tails. Selftest allows ~1.0–1.7.
+7. **Rim clearance** — `RIM_GAP_DEFAULT` `10` (was `4`) and Take/burst/Block draw at mid-band + `CONTENT_OUTWARD` (`6`) so the arced label no longer kisses the gold wheel rim.
 
 ## Code
 

@@ -16,8 +16,11 @@ const SPLIT_T := 0.34
 ## Bottom-centered sweep (radians). Nudged under the prior 1.42 so rounded
 ## end caps stay clear of move-arrow tails (selftest allows ~1.0–1.7).
 const SWEEP := 1.32
-## Gap from gold rim to the inner edge of this arc.
-const RIM_GAP_DEFAULT := 4.0
+## Gap from gold rim to the inner edge of this arc. Bumped so arced Take /
+## burst sit clear of the wheel rim (glyphs grow inward from the midline).
+const RIM_GAP_DEFAULT := 10.0
+## Push Take word + burst toward the outer half of the band (away from rim).
+const CONTENT_OUTWARD := 6.0
 
 var guide_c: Vector2 = Vector2.ZERO
 var guide_r: float = 180.0
@@ -91,7 +94,9 @@ func top_y_local() -> float:
 
 
 func block_pip_global() -> Vector2:
-	var mid: Vector2 = _chord_point(SPLIT_T * 0.5)
+	var span: Vector2 = _arc_span()
+	var ang: float = span.x + span.y * (SPLIT_T * 0.5)
+	var mid: Vector2 = guide_c + Vector2.from_angle(ang) * _content_radius()
 	var xf: Transform2D = get_global_transform()
 	return xf * mid
 
@@ -326,12 +331,19 @@ func _draw_arc_text(font: Font, txt: String, fs: int, center_ang: float, r: floa
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
+func _content_radius() -> float:
+	## Mid-band plus a small outward bias so letters/burst clear the rim.
+	return _band_mid_radius() + CONTENT_OUTWARD
+
+
 func _draw_block_pip(press: Vector2) -> void:
 	## Center of the left third (t = SPLIT_T * 0.5), rotated to the arc.
 	var span: Vector2 = _arc_span()
 	var t_mid: float = SPLIT_T * 0.5
 	var ang: float = span.x + span.y * t_mid
-	var at: Vector2 = _chord_point(t_mid) + press
+	## Same outward bias as Take word so Block pip matches the band seat.
+	var rad: float = _content_radius()
+	var at: Vector2 = guide_c + Vector2.from_angle(ang) * rad + press
 	var tex: Texture2D = block_tex
 	if tex == null:
 		return
@@ -361,7 +373,7 @@ func _draw_take_side(press: Vector2) -> void:
 	var mid_t: float = SPLIT_T + (1.0 - SPLIT_T) * 0.5
 	var span: Vector2 = _arc_span()
 	var mid_ang: float = span.x + span.y * mid_t
-	var r: float = _band_mid_radius()
+	var r: float = _content_radius()
 	## Press shifts the guide for content so the arc body and labels stay locked.
 	var saved_c: Vector2 = guide_c
 	guide_c = guide_c + press

@@ -1347,7 +1347,14 @@ func set_choice_badge(text: String) -> void:
 	if font:
 		w = font.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 	var face_w: float = SHOW_W if _showcase else CARD_W
-	lab.position = Vector2(maxf(4.0, face_w - w - 8.0), 2.0)
+	var face_h: float = SHOW_H if _showcase else CARD_H
+	## Net: park the 1/2/3 chip in the bottom-right face corner so it stays
+	## clear of the centered burst (and of New! on the bottom-left). Knife
+	## keeps the short top-right chip above its dual face glyphs.
+	if card_id == "net" and not _showcase:
+		lab.position = Vector2(maxf(4.0, face_w - w - 10.0), face_h - 20.0)
+	else:
+		lab.position = Vector2(maxf(4.0, face_w - w - 8.0), 2.0)
 
 
 func set_beggar_mark(on: bool, tex: Texture2D = null) -> void:

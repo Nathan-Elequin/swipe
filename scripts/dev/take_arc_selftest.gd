@@ -12,7 +12,8 @@ func _init() -> void:
 	failed = _check("sweep_positive", TAKE.SWEEP > 1.0 and TAKE.SWEEP < 1.7) or failed
 	failed = _check("split_left_third", TAKE.SPLIT_T > 0.25 and TAKE.SPLIT_T < 0.4) or failed
 	failed = _check("body_w", TAKE.BODY_W >= 40.0) or failed
-	failed = _check("rim_gap", TAKE.RIM_GAP_DEFAULT >= 2.0) or failed
+	failed = _check("rim_gap", TAKE.RIM_GAP_DEFAULT >= 8.0) or failed
+	failed = _check("content_outward", TAKE.CONTENT_OUTWARD >= 4.0 and TAKE.CONTENT_OUTWARD < TAKE.BODY_W * 0.35) or failed
 	failed = _check("b2_pad_lt_pre", UX.move_arrow_b2_pad() < UX.move_arrow_outer_pad()) or failed
 	failed = _check("b2_pad_clears_flare", UX.move_arrow_b2_pad() >= ARROW.BODY_W * 0.78 + 6.0) or failed
 	failed = _check("b2_start_past_arc", UX.move_arrow_b2_start_offset() > TAKE.SWEEP * 0.5) or failed

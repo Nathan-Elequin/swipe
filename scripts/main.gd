@@ -20173,7 +20173,10 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"flying_saucer":
 			return [[_fg("icon", "", "", "", "", "flee"), _fg("shield", n if n != "" else "5")]]
 		"net":
-			return [[_fg("impact", "−1–3", "blue")]]
+			## Bare burst — range chip is the corner "1 / 2 / 3" badge (see
+			## item_card.set_choice_badge). Putting "−1–3" on the 43px icon
+			## overlapped the counter after the idle glyph retune.
+			return [[_fg("impact", "", "blue")]]
 		"throwing_knife":
 			return [[_fg("impact", "3"), _fg("icon", "", "", "", "", "slash"), _fg("impact", "1"), _fg("icon", "", "", "", "", "hand")]]
 		"arrow_head":

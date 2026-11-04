@@ -15,6 +15,10 @@ Nathan F5 after hotbar layout #297. Locked retune — no extra polish.
 - `scripts/item_face.gd` — SIZE_HOTBAR / fonts
 - `scripts/main.gd` — stop wiring uncollected → `set_draft_glow`
 
+## Net 1/2/3 chip (2026-11-04)
+
+After the idle glyph retune, Net's on-icon `−1–3` text fought the corner `1 / 2 / 3` choice badge. Face is now a bare blue burst; the range chip parks bottom-right (`item_card.set_choice_badge` when `card_id == "net"`). Knife keeps the short top-right chip.
+
 ## Out of scope
 
 Hub Take-arc / Spin button. Player-facing copy. Aura kit art.
