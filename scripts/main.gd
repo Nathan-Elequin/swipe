@@ -26591,13 +26591,13 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 	var tag: String = tut.focus_tag
 	var waiting: String = tut.wait
 	if waiting == "choice":
-		## Goblin: highlight Breastplate + Shield + Boot without covering icons, plus Take bar.
+		## Goblin: Boot | Breastplate | Take only (Shield stays unused for Harpy B).
 		if _tut_goblin_block_item:
 			_tut_add_control(spots, btn_done)
 			if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
 				_tut_add_rect(spots, take_arc.arc_global_rect())
 			return
-		for iid in ["breastplate", "shield", "da_boot"]:
+		for iid in ["da_boot", "breastplate"]:
 			var card: Control = _hotbar_card(iid)
 			_tut_add_control(spots, card)
 			if card != null and card.is_visible_in_tree():
@@ -26606,6 +26606,18 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 		_tut_add_control(spots, btn_done)
 		if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
 			_tut_add_rect(spots, take_arc.arc_global_rect())
+		return
+	## Boot teach line: spotlight + arrow on Boot before the open choice.
+	if tag == "item:da_boot":
+		var boot_card: Control = _hotbar_card("da_boot")
+		_tut_add_control(spots, boot_card)
+		if boot_card != null and boot_card.is_visible_in_tree():
+			var boot_c: Vector2 = boot_card.get_global_rect().get_center()
+			arrows.append([boot_c + Vector2(0.0, -70.0), boot_c])
+		return
+	## Block-some-damage line: Breastplate only (no Shield, no open choice yet).
+	if tag == "item:breastplate" and waiting == "continue":
+		_tut_add_control(spots, _hotbar_card("breastplate"))
 		return
 	if tag == "atk" and wheel_view != null:
 		_tut_add_rect(spots, wheel_view.focus_rect("atk"))
@@ -26986,12 +26998,12 @@ func _tutorial_allows_item(id: String) -> bool:
 		return true
 	var w: String = tut.wait
 	if w == "choice":
-		## Goblin: one of Breastplate / Shield / Boot, then Take — or Take alone.
+		## Goblin: Boot or Breastplate, then Take — or Take alone. Not Shield.
 		if _tut_goblin_block_item:
 			return false
 		if tut.allow is Array and not tut.allow.is_empty():
 			return tut.allow.has(id)
-		return id == "da_boot" or id == "breastplate" or id == "shield"
+		return id == "da_boot" or id == "breastplate"
 	## Explicit allow list on the armed beat (last line).
 	if tut.allow is Array and not tut.allow.is_empty():
 		return tut.allow.has(id)
@@ -27003,7 +27015,8 @@ func _tutorial_allows_item(id: String) -> bool:
 func _tutorial_nudge_for_item(id: String) -> String:
 	if tut != null and tut.wait == "choice" and _tut_goblin_block_item:
 		return PLAYER_COPY.text("tutorial.nudge_end_fight", "Not yet. Use the item.")
-	if id == "shield" and (tut == null or (tut.wait != "item:shield" and tut.wait != "choice")):
+	## Shield stays off-limits at Goblin so Harpy B still teaches the saved Shield.
+	if id == "shield" and (tut == null or tut.wait != "item:shield"):
 		return PLAYER_COPY.text("tutorial.nudge_shield", "Not the Shield. Trust me.")
 	if id == "spiked_flail" and (tut == null or tut.wait != "item:spiked_flail"):
 		return PLAYER_COPY.text("tutorial.nudge_flail", "Not yet. Save it.")
@@ -27020,10 +27033,10 @@ func _tutorial_item_used(id: String) -> void:
 			tut.choice = "boot"
 			_tut_mark_seen(id)
 			return
-		if id == "breastplate" or id == "shield":
-			## One Block item, then force the Take-damage bar.
+		if id == "breastplate":
+			## Block 2 of Goblin's 3 → Take 1. Real breastplate branch (not Take copy).
 			_tut_goblin_block_item = true
-			tut.choice = "take"
+			tut.choice = "breastplate"
 			tut.wait = "done"
 			tut.focus_tag = "done"
 			## TutorialGuide has no `hint` property — use nudge (writes `_hint` Label).
