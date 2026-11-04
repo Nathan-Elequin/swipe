@@ -78,7 +78,7 @@ func is_playing() -> bool:
 func play(p_kind: String, opts: Dictionary = {}) -> void:
 	kind = p_kind
 	replay = bool(opts.get("replay", false))
-	skippable = kind != "keyring"
+	skippable = kind != "keyring" and kind != "arrive"
 	playing = true
 	visible = true
 	if _bar:
@@ -89,7 +89,7 @@ func play(p_kind: String, opts: Dictionary = {}) -> void:
 	# Itch already consumed a click to launch the iframe; waiting again hid
 	# captions and made the first in-game click skip the still instead of reading it.
 	_web_wait = false
-	_panels = _make_panels(kind)
+	_panels = _make_panels(kind, opts)
 	panel_index = 0
 	_skip.visible = skippable
 	_sync_autoplay_btn()
@@ -314,7 +314,7 @@ func _layout_dialog() -> void:
 	_sync_fx_clip()
 
 
-func _make_panels(p_kind: String) -> Array:
+func _make_panels(p_kind: String, opts: Dictionary = {}) -> Array:
 	if p_kind == "ending":
 		return [
 			{"tex": "cutscenes/ending_p1.png", "lines": [{"key": "ending.p1", "nib": false}], "hold": 6.0, "fx": "glint", "motion": "pan_x", "sting": "cabin.ending_start"},
@@ -325,13 +325,21 @@ func _make_panels(p_kind: String) -> Array:
 		return [
 			{"tex": "cutscenes/keyring_p1.png", "lines": [{"key": "keyring.1", "nib": true}, {"key": "keyring.2", "nib": true}], "hold": 8.0, "fx": "", "motion": ""},
 		]
-	return [
+	if p_kind == "arrive":
+		## Post-reveal cabin arrive splash. Live cabin BG after this is cabin_exterior.png.
+		return [
+			{"tex": "cutscenes/intro_p5.png", "lines": [{"key": "intro.p5_nib", "nib": true}], "hold": 6.0, "fx": "", "motion": ""},
+		]
+	var panels: Array = [
 		{"tex": "cutscenes/intro_p1.png", "anim": "cutscenes/intro_p1_candle", "lines": [{"key": "intro.p1", "nib": false}], "hold": 6.0, "fx": "rain_window", "motion": "push_in"},
 		{"tex": "cutscenes/intro_p2.png", "lines": [{"key": "intro.p2", "nib": false}, {"key": "intro.p2_nib", "nib": true}], "hold": 6.0, "fx": "rain_full", "motion": "", "knock": true},
 		{"tex": "cutscenes/intro_p3.png", "anim": "cutscenes/intro_p3_seal", "lines": [{"key": "intro.p3", "nib": false}, {"key": "intro.p3_nib", "nib": true}], "hold": 7.0, "fx": "", "motion": "nudge_up", "sting": "sting.intro", "will_text": true},
-		{"tex": "cutscenes/intro_p4.png", "lines": [{"key": "intro.p4", "nib": false}], "hold": 5.0, "fx": "", "motion": "pan_x"},
-		{"tex": "cutscenes/intro_p5.png", "lines": [{"key": "intro.p5_nib", "nib": true}], "hold": 6.0, "fx": "", "motion": ""},
 	]
+	## First-run road frame owns p4 approach + ambush. Replay keeps full walk-home + arrive.
+	if not bool(opts.get("road_frame", false)):
+		panels.append({"tex": "cutscenes/intro_p4.png", "lines": [{"key": "intro.p4", "nib": false}], "hold": 5.0, "fx": "", "motion": "pan_x"})
+		panels.append({"tex": "cutscenes/intro_p5.png", "lines": [{"key": "intro.p5_nib", "nib": true}], "hold": 6.0, "fx": "", "motion": ""})
+	return panels
 
 
 func _start_audio() -> void:
@@ -464,7 +472,9 @@ func _start_line() -> void:
 	_bust.visible = is_nib
 	if is_nib:
 		_bust.texture = KIT.load_tex("nib/nib_bust_f0.png")
-		if not _web_wait and cabin and cabin.sfx and cabin.sfx.has_method("speak"):
+		## Road-to-cabin lock: Nib text only — no VO on arrive splash either.
+		var allow_vo: bool = kind != "arrive"
+		if allow_vo and not _web_wait and cabin and cabin.sfx and cabin.sfx.has_method("speak"):
 			cabin.sfx.speak(&"nib", _full)
 	_layout_dialog()
 	if _web_wait:

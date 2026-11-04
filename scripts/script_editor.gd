@@ -804,9 +804,16 @@ func _insert_tutorial(after_key: String) -> void:
 
 
 func _renumber_tutorial() -> void:
+	## v5 beat keys (tutorial.line.B01.1 / T1.1 / S1.1) keep their ids.
+	## Legacy numeric rows still renumber 001… as a contiguous block.
 	var n := 1
 	for row in _rows:
 		if not _is_tutorial_line(row):
+			continue
+		var key: String = str(row.get("key", ""))
+		var rest: String = key.trim_prefix("tutorial.line.")
+		var beat: String = str(row.get("beat", ""))
+		if beat != "" or rest.begins_with("B") or rest.begins_with("T") or rest.begins_with("S"):
 			continue
 		row["key"] = "tutorial.line.%03d" % n
 		n += 1
