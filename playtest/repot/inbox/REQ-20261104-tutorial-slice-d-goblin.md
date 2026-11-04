@@ -2,8 +2,8 @@
 id: REQ-20261104-tutorial-slice-d-goblin
 status: open
 priority: high
-pr: 0
-tip_sha: ad0a6fcdb085
+pr: 387
+tip_sha: b9f1e97653a2
 branch: playtest/latest
 created: 2026-11-04T19:15:00Z
 created_by: cursor-cloud
