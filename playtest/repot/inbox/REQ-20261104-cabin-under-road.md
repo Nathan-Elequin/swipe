@@ -3,7 +3,7 @@ id: REQ-20261104-cabin-under-road
 status: open
 priority: high
 branch: cursor/cabin-under-road-ba88
-tip_sha: f268549c
+tip_sha: 8895fc7e
 created: 2026-11-04T18:30:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
