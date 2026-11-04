@@ -25852,7 +25852,7 @@ func _tutorial_offer_shuriken() -> void:
 	await _tutorial_offer_draft("shuriken", "throwing_knife", "Bandit")
 
 
-func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = "") -> void:
+func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = "", tier: int = 1) -> void:
 	if _tut_draft_busy or challenge_draft_ui == null:
 		return
 	_tut_draft_busy = true
@@ -25861,7 +25861,7 @@ func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = 
 	var decoy: Dictionary = _make_item(decoy_id)
 	_tut_mark_seen(take_id)
 	_tut_mark_seen(decoy_id)
-	var sub: String = "%s · %s" % [sub_who if sub_who != "" else "Loot", PLAYER_COPY.tier_name(1)]
+	var sub: String = "%s · %s" % [sub_who if sub_who != "" else "Loot", PLAYER_COPY.tier_name(tier)]
 	while in_tutorial and tut != null and tut.wait == want_wait:
 		challenge_draft_ui.present("Loot", sub, _challenge_draft_card(take), _challenge_draft_card(decoy), take, decoy)
 		_draft_final_item = true
@@ -25874,6 +25874,11 @@ func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = 
 		if uid == int(take.get("uid", -1)):
 			hotbar.append(take.duplicate(true))
 			_sort_hotbar()
+			## Same take/commit SFX as core draft (`_challenge_commit_item`).
+			if sfx:
+				sfx.play("confirm", -12.0)
+				sfx.play("cloth", -14.0)
+				sfx.play_event(&"chal.commit")
 			challenge_draft_ui.hide_draft()
 			_refresh()
 			tut.advance()
@@ -25966,7 +25971,7 @@ func _tut_rig_fangs_t2() -> void:
 	await _tutorial_replace_with_deck(seat, host_id)
 	if seat < wheel.size() and str(wheel[seat].get("card_id", "")) == host_id:
 		wheel[seat]["tut_tag"] = "fangs_t2"
-	_tut_grant("fangs")
+	## Fangs comes from the B21.2 draft:fangs UI (Crossbow decoy) — do not force-grant.
 	_tut_pending_empty_seat = -1
 
 
@@ -26394,6 +26399,9 @@ func _tut_refresh_focus() -> void:
 		return
 	if tut.wait == "draft:shield":
 		_tutorial_offer_draft("shield", "throwing_knife", "Golem")
+	elif tut.wait == "draft:fangs":
+		## Nathan lock 2026-11-04: Tier-2 Fangs vs Crossbow decoy (not on tutorial rails elsewhere).
+		_tutorial_offer_draft("fangs", "crossbow", "Shark", 2)
 	elif tut.wait == "draft:shuriken":
 		_tutorial_offer_shuriken()
 	elif tut.wait == "face":
