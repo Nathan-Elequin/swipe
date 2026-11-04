@@ -80,12 +80,15 @@ func setup(art, p_sfx = null) -> void:
 			_frames = art.frames("dwarf_f")
 	for _i in range(4):
 		var d := ColorRect.new()
-		d.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		d.visible = false
+		## Block world clicks during Nib continue; holes open only for armed waits.
+		d.mouse_filter = Control.MOUSE_FILTER_STOP
+		d.color = Color(0, 0, 0, 0)
+		d.visible = true
 		add_child(d)
 		_dim.append(d)
 	_dimmer = ColorRect.new()
 	_dimmer.set_anchors_preset(PRESET_FULL_RECT)
+	## Visual dim only — click blocking is the four hole rects above.
 	_dimmer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dimmer.color = Color(0, 0, 0, 0)
 	var sh := Shader.new()
@@ -406,16 +409,20 @@ func _apply_beat(b: Dictionary) -> void:
 	_name.text = COPY.text("tutorial.speaker", "Nib")
 	_show_chrome_skip(not (beat_id == "B54" or beat_id == "B55"))
 	_go.visible = wait == "continue" and not _typing
+	_go.disabled = false
+	_go.mouse_filter = Control.MOUSE_FILTER_STOP
+	_go.z_index = 20
+	_talk.z_index = 15
 	_go.custom_minimum_size = Vector2(210, 58)
 	var said: String = str(b.get("text", "")).to_lower()
 	if said.find("survived all") >= 0 or said.find("venture deeper") >= 0 or said.find("come back") >= 0:
 		world_open = true
-	if beat_id == "B52" and line_n >= 2:
-		## Last B52 line arms free play after this advance resolves via Main rig.
-		pass
 	_body.add_theme_font_size_override("normal_font_size", 12 if _tiny else 20)
-	_arm = 0.35
+	_arm = 0.2
 	_talk.reset_size()
+	## Re-pin talk each beat so Next never sits under a stale layout.
+	_pin_key = ""
+	_pin_pos = Vector2.ZERO
 
 
 func enter_free() -> void:
@@ -548,7 +555,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _paint_on_paper(spoken: String) -> String:
-	var bb: String = UxStyle.paint(spoken, true, "#7a2408")
+	## Tutorial prose: keyword highlights only — never Mad-Libs chrome on "this one".
+	var bb: String = UxStyle.paint(spoken, true, "#7a2408", "", false, true)
 	bb = bb.replace("#E07A7A", "#8d1414")
 	bb = bb.replace("#E8A0A0", "#7a1212")
 	bb = bb.replace("#6BB3D9", "#0a456e")
@@ -699,21 +707,46 @@ func _push_dim(_vp: Vector2) -> void:
 
 
 func _place_dims(hole: Rect2, vp: Vector2) -> void:
-	if hole.size.x < 8.0:
+	## Click shield under Nib. Talk/Skip sit later in the tree so they keep their clicks.
+	## Continue/typing: full-board block (no loot behind the dialog).
+	## Armed waits: carve one hole around spotlight spots so the required control works.
+	if world_open:
+		for i in range(4):
+			_dim[i].visible = false
+			_dim[i].mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_dim[i].size = Vector2.ZERO
+		return
+	var block_world: bool = wait == "continue" or _typing or wait == "" or wait == "auto_spin"
+	var primary := Rect2()
+	if not block_world:
+		for s in _spots:
+			if s is Rect2 and (s as Rect2).size.x >= 8.0 and (s as Rect2).size.y >= 8.0:
+				if primary.size.x < 8.0:
+					primary = s
+				else:
+					primary = primary.merge(s)
+	if primary.size.x < 8.0:
 		_dim[0].position = Vector2.ZERO
 		_dim[0].size = vp
-		_dim[1].size = Vector2.ZERO
-		_dim[2].size = Vector2.ZERO
-		_dim[3].size = Vector2.ZERO
+		_dim[0].visible = true
+		_dim[0].mouse_filter = Control.MOUSE_FILTER_STOP
+		for i in range(1, 4):
+			_dim[i].size = Vector2.ZERO
+			_dim[i].visible = false
+			_dim[i].mouse_filter = Control.MOUSE_FILTER_IGNORE
 		return
 	_dim[0].position = Vector2.ZERO
-	_dim[0].size = Vector2(vp.x, hole.position.y)
-	_dim[1].position = Vector2(0.0, hole.end.y)
-	_dim[1].size = Vector2(vp.x, maxf(0.0, vp.y - hole.end.y))
-	_dim[2].position = Vector2(0.0, hole.position.y)
-	_dim[2].size = Vector2(maxf(0.0, hole.position.x), hole.size.y)
-	_dim[3].position = Vector2(hole.end.x, hole.position.y)
-	_dim[3].size = Vector2(maxf(0.0, vp.x - hole.end.x), hole.size.y)
+	_dim[0].size = Vector2(vp.x, maxf(0.0, primary.position.y))
+	_dim[1].position = Vector2(0.0, primary.end.y)
+	_dim[1].size = Vector2(vp.x, maxf(0.0, vp.y - primary.end.y))
+	_dim[2].position = Vector2(0.0, primary.position.y)
+	_dim[2].size = Vector2(maxf(0.0, primary.position.x), primary.size.y)
+	_dim[3].position = Vector2(primary.end.x, primary.position.y)
+	_dim[3].size = Vector2(maxf(0.0, vp.x - primary.end.x), primary.size.y)
+	for i in range(4):
+		var on: bool = _dim[i].size.x >= 1.0 and _dim[i].size.y >= 1.0
+		_dim[i].visible = on
+		_dim[i].mouse_filter = Control.MOUSE_FILTER_STOP if on else Control.MOUSE_FILTER_IGNORE
 
 
 func _load_beats() -> Array:
