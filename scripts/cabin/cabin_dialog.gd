@@ -49,7 +49,7 @@ func setup(p_cabin) -> void:
 	_sfx = p_cabin.sfx if p_cabin else null
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	z_index = 7
+	z_index = 40
 	visible = false
 	_shade = ColorRect.new()
 	_shade.name = "DialogShade"
