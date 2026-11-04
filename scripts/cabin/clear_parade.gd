@@ -1,32 +1,35 @@
 extends Node
-## Dungeon-clear resolve v2: wheel fold → victory → jump → wipe → Rope Exit.
+## Dungeon-clear resolve v3: wheel fold → proud hold → jump → wipe → Rope Exit.
 ## Burrow mouth/curtain/mound/arrive/dust/burst/embers are not used on this path.
 ## sprout_victory faces right and is never mirrored. No wax seal.
+## No VICTORY_MARKS dance loop — one proud still, then crouch→jump.
 
-const TOTAL := 2.50
+const TOTAL := 2.80
 const HERO_TL := Vector2(-48, -50)
 const HERO_SIZE := 96.0
 const SCALE_HUB := 1.5
 const SCALE_ROPE := 2.0
 
-const T_CHROME_END := 0.18
-const T_FOLD_END := 0.42
-const T_AURA_START := 0.34
-const T_AURA_END := 0.52
-const T_VICTORY_START := 0.30
-const T_VICTORY_END := 1.30
-const T_CROUCH_START := 1.30
-const T_CROUCH_END := 1.40
-const T_JUMP_UP_END := 1.54
-const T_FALL_OFF_END := 1.92
-const T_WIPE_START := 1.66
-const T_SWAP := 1.98
-const T_WIPE_END := 2.30
-const T_LAND := 2.38
-const T_DONE := 2.50
+const T_CHROME_END := 0.20
+const T_FOLD_END := 1.10
+const T_AURA_START := 0.95
+const T_AURA_END := 1.20
+## Proud hold: one sprout_victory still (f2 arms-up), no loop.
+const T_PROUD_START := 1.10
+const T_CROUCH_START := 1.45
+const T_CROUCH_END := 1.58
+const T_JUMP_UP_END := 1.72
+const T_FALL_OFF_END := 2.15
+const T_WIPE_START := 1.85
+const T_SWAP := 2.20
+const T_WIPE_END := 2.55
+const T_LAND := 2.65
+const T_DONE := 2.80
 
-## Victory dance: eight marks ≈0.12 s each over two loops of f0–f3.
-const VICTORY_MARKS := [0.42, 0.54, 0.66, 0.78, 0.90, 1.02, 1.14, 1.26]
+## Most "proud/confident" still among sprout_victory_f0..f3 (arms up).
+const PROUD_FRAME := 2
+## Reel 2026-11-04: −10 dB under victory music on this path only.
+const STING_CLEAR_DB_OFFSET := -10.0
 
 ## When >= 0, run() advances to that t and holds (deterministic Repot shots).
 var freeze_at: float = -1.0
@@ -143,11 +146,11 @@ func run(wheel, art, on_swap: Callable = Callable()) -> void:
 func _pose(t: float) -> void:
 	if not is_instance_valid(_layer):
 		return
-	## A2 SFX at fold start.
+	## A2 SFX at fold start (quiet under victory music — see STING_CLEAR_DB_OFFSET).
 	if t >= 0.0 and not _sfx_fired:
 		_sfx_fired = true
 		_play_sting_clear()
-	## A2 wheel fold 0→1 over 0.42 s (linear tween; per-wedge ease in wheel).
+	## A2 wheel fold 0→1 over 1.10 s (linear tween; per-wedge ease in wheel).
 	if _wheel != null and is_instance_valid(_wheel):
 		_wheel.fold = clampf(t / T_FOLD_END, 0.0, 1.0) if t < T_FOLD_END else (0.0 if t >= T_SWAP else 1.0)
 		if t >= T_SWAP:
@@ -155,7 +158,7 @@ func _pose(t: float) -> void:
 	## A1 chrome fade — also force-hide so main's spin pulse / _sync_buttons
 	## cannot restore Spin (phase stays ready until the swap).
 	_apply_chrome_fade(t)
-	## Aura bloom 0.34–0.52.
+	## Aura bloom late fold / early proud (0.95–1.20).
 	if _aura != null and is_instance_valid(_aura):
 		if t < T_AURA_START or t > T_AURA_END:
 			_aura.visible = false
@@ -168,12 +171,12 @@ func _pose(t: float) -> void:
 			var fade: float = 1.0 - clampf((u - 0.35) / 0.65, 0.0, 1.0)
 			_aura.scale = Vector2.ONE * lerpf(0.4, 1.35, pop) * back
 			_aura.modulate = Color(1, 1, 1, fade)
-	## Wipe: cover 1.66→1.98 ease-out (readable by 1.75), uncover 1.98→2.30 linear.
+	## Wipe: cover 1.85→2.20 ease-out, uncover 2.20→2.55 linear.
 	if _wipe_mat != null:
 		var wp := 0.0
 		if t >= T_WIPE_START and t < T_SWAP:
 			var cu: float = clampf((t - T_WIPE_START) / (T_SWAP - T_WIPE_START), 0.0, 1.0)
-			## Ease-out quad: at t=1.75 (~0.28 of cover) progress ≈ 0.48 — lower half.
+			## Ease-out quad: at freeze_at 1.95 (~0.29 of cover) progress ≈ 0.49 — lower half.
 			wp = 1.0 - (1.0 - cu) * (1.0 - cu)
 		elif t >= T_SWAP:
 			var uu: float = clampf((t - T_SWAP) / (T_WIPE_END - T_SWAP), 0.0, 1.0)
@@ -181,7 +184,7 @@ func _pose(t: float) -> void:
 		_wipe_mat.set_shader_parameter("progress", wp)
 		if _wipe != null:
 			_wipe.visible = t >= T_WIPE_START and wp > 0.001 and wp < 1.999
-	## D2 swap at 1.98 — same frame, once.
+	## D2 swap at 2.20 — same frame, once.
 	if t >= T_SWAP:
 		_do_swap(t)
 	## Hero pose.
@@ -192,14 +195,14 @@ func _pose(t: float) -> void:
 	var pos := _feet0
 	var sc := Vector2(SCALE_HUB, SCALE_HUB)
 	var frame_i := 0
-	if t < T_VICTORY_START:
-		## A0 handoff — f0 on hub spot.
+	if t < T_PROUD_START:
+		## A0 handoff — f0 on hub spot through the fold.
 		frame_i = 0
 		pos = _feet0
 		sc = Vector2(SCALE_HUB, SCALE_HUB)
 	elif t < T_CROUCH_START:
-		## B victory dance.
-		frame_i = _victory_frame(t)
+		## B proud hold — one still, no dance loop.
+		frame_i = _proud_frame()
 		pos = _feet0
 		sc = Vector2(SCALE_HUB, SCALE_HUB)
 	elif t < T_CROUCH_END:
@@ -221,13 +224,13 @@ func _pose(t: float) -> void:
 		sc = Vector2(SCALE_HUB, SCALE_HUB * sy)
 	elif t < T_SWAP:
 		## C3 fall off bottom (f2). Under wipe.
-		## Front-loaded vs pure t² so freeze_at 1.75 lands Sprout in the lower third
-		## while still exiting at vh+16 by 1.92 (shot 05 / 06 continuity).
+		## Front-loaded vs pure t² so freeze_at 1.95 lands Sprout in the lower third
+		## while still exiting at vh+16 by T_FALL_OFF_END (shot 05 / 06 continuity).
 		frame_i = mini(2, _victory.size() - 1) if not _victory.is_empty() else 0
 		var fall_dt: float = T_FALL_OFF_END - T_JUMP_UP_END
 		var ft: float = clampf(t - T_JUMP_UP_END, 0.0, fall_dt)
 		var fu: float = 0.0 if fall_dt <= 0.001 else ft / fall_dt
-		## pow 0.65 ≈ lower-third by t=1.75; still off-screen at fu=1.
+		## pow 0.65 ≈ lower-third by t=1.95; still off-screen at fu=1.
 		var dist: float = pow(fu, 0.65)
 		var y_up: float = _feet0.y - 40.0
 		var y_off: float = _vh + 16.0
@@ -253,7 +256,7 @@ func _pose(t: float) -> void:
 		pos = Vector2(lerpf(_hub_x, land.x, ease_u), lerpf(y0, land.y, ease_u))
 		sc = Vector2(lerpf(SCALE_HUB, SCALE_ROPE, ease_u), lerpf(SCALE_HUB, SCALE_ROPE, ease_u))
 		if t >= T_LAND:
-			## E2 land squash 0.06 s then rebound; handoff on squash frame (option A).
+			## E2 land squash then rebound; handoff on squash frame (option A).
 			frame_i = 0
 			var lu: float = clampf((t - T_LAND) / (T_DONE - T_LAND), 0.0, 1.0)
 			var squash: float = 1.0
@@ -299,18 +302,10 @@ func _feet_pivot(top_left: Vector2, sc: Vector2) -> Vector2:
 	return Vector2(feet.x - new_drawn.x * 0.5, feet.y - new_drawn.y)
 
 
-func _victory_frame(t: float) -> int:
+func _proud_frame() -> int:
 	if _victory.is_empty():
 		return 0
-	var fi := 0
-	for i in VICTORY_MARKS.size():
-		fi = i % _victory.size()
-		if t < float(VICTORY_MARKS[i]):
-			break
-	## After last mark until crouch, hold f3.
-	if t >= float(VICTORY_MARKS[VICTORY_MARKS.size() - 1]):
-		fi = mini(3, _victory.size() - 1)
-	return fi
+	return clampi(PROUD_FRAME, 0, _victory.size() - 1)
 
 
 func _do_swap(t: float) -> void:
@@ -369,7 +364,12 @@ func _play_sting_clear() -> void:
 		return
 	var sfx = host.get("sfx")
 	if sfx != null and sfx.has_method("play_event"):
-		sfx.play_event(&"sting.clear")
+		## Same bed (sting_clear.ogg). Quieter under victory music; skip cue's
+		## duck_music so the bed leads. Reel lock 2026-11-04: −10 dB.
+		sfx.play_event(&"sting.clear", {
+			"db_offset": STING_CLEAR_DB_OFFSET,
+			"skip_duck": true,
+		})
 
 
 func _find_rope():
