@@ -449,7 +449,7 @@ There is **no** `kind: "boss"` and no boss-only scene. **Deadly = tier 3.** Ids 
 | `dragon` | Dragon | 3 | 6 | 6 |
 | `commander` | Commander | 3 | 3 | 3 |
 | `vampire` | Vampire | 3 | 5 | 5 |
-| `two_headed_serpent` | Damsel In Distress | 3 | 0 | 9 |
+| `damsel_in_distress` | Damsel In Distress | 3 | 0 | 9 |
 | `leech_league` | Leech League | 3 | 4 | 1 |
 | `clockwork_knight` | Clockwork Knight | 3 | 4 | 7 |
 | `cowardly_king` | Cowardly King | 3 | 2 | 6 |
@@ -464,7 +464,7 @@ Tiers: **Weak = 1 (bronze `#c08050`)**, **Tough = 2 (silver)**, **Deadly = 3 (go
 
 **Deadly:** table in 4.3.
 
-Full roster ids: `wizard`, `golem`, `goblin`, `skeleton`, `hornet_swarm`, `lich`, `ogre`, `vampire`, `berserker`, `dire_wolf`, `bandit`, `leech_league`, `wraith`, `mimic`, `two_headed_serpent`, `slime_boss`, `spider_queen`, `commander`, `dragon`, `needleback`, `gelatinous_cube`, `gargoyle`, `harpy`, `kobold_trapper`, `clockwork_knight`, `basilisk`, `hollow`, `beggar`, `wick`, `anvil`, `bodyguard`, `cowardly_king`, `merchant`, `juggernaut`, `cleric`.
+Full roster ids: `wizard`, `golem`, `goblin`, `skeleton`, `hornet_swarm`, `lich`, `ogre`, `vampire`, `berserker`, `dire_wolf`, `bandit`, `leech_league`, `wraith`, `mimic`, `damsel_in_distress`, `slime_boss`, `spider_queen`, `commander`, `dragon`, `needleback`, `gelatinous_cube`, `gargoyle`, `harpy`, `kobold_trapper`, `clockwork_knight`, `basilisk`, `hollow`, `beggar`, `wick`, `anvil`, `bodyguard`, `cowardly_king`, `merchant`, `juggernaut`, `cleric`.
 
 ### 4.5 Card classes and colours
 

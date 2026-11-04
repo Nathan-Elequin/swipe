@@ -93,7 +93,7 @@
     "commander": "/assets/dungeon/anim/facing/commander_facing_idle_f0.png",
     "bodyguard": "/assets/dungeon/anim/facing/bodyguard_facing_idle_f0.png",
     "juggernaut": "/assets/dungeon/anim/facing/juggernaut_facing_idle_f0.png",
-    "two_headed_serpent": "/assets/dungeon/anim/facing/two_headed_serpent_facing_idle_f0.png",
+    "damsel_in_distress": "/assets/dungeon/anim/facing/damsel_in_distress_facing_idle_f0.png",
     "beggar": "/assets/dungeon/anim/facing/beggar_facing_idle_f0.png",
     "cowardly_king": "/assets/dungeon/anim/facing/cowardly_king_facing_idle_f0.png",
     "merchant": "/assets/dungeon/anim/facing/merchant_facing_idle_f0.png",

@@ -350,8 +350,8 @@ mon_ability_three_seeker.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_three_seeker.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_triclops.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_triclops.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
-mon_ability_two_headed_serpent.ogg (0.50 s)
-    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_two_headed_serpent.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_damsel_in_distress.ogg (0.50 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_damsel_in_distress.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_vampire.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_vampire.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_wick.ogg (0.50 s)

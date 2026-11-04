@@ -22,7 +22,7 @@ The plate still bakes in the mid-campaign state (Verdant 5/5 FULL, Sunken NEW 3/
 | `commander` | Commander | 2 | `assets/dungeon/anim/facing/commander_facing_idle_f0..f3.png` | yes |
 | `almighty_worm` | Almighty Worm | 2 | `assets/dungeon/anim/facing/almighty_worm_facing_idle_f0..f3.png` | yes |
 | `amalgam` | Amalgam | 2 | `assets/dungeon/anim/facing/amalgam_facing_idle_f0..f3.png` | yes |
-| `two_headed_serpent` | Damsel in Distress | 3 | `assets/dungeon/anim/facing/two_headed_serpent_facing_idle_f0..f3.png` | yes |
+| `damsel_in_distress` | Damsel in Distress | 3 | `assets/dungeon/anim/facing/damsel_in_distress_facing_idle_f0..f3.png` | yes |
 | `spider_queen` | Spider Queen | 3 | `assets/dungeon/anim/facing/spider_queen_facing_idle_f0..f3.png` | yes |
 | `phoenix_egg` | Phoenix Egg | 3 | `assets/dungeon/anim/facing/phoenix_egg_facing_idle_f0..f3.png` | yes |
 | `leech_league` | Leech League | 4 | `assets/dungeon/anim/facing/leech_league_facing_idle_f0..f3.png` | yes |
@@ -50,7 +50,7 @@ slime_boss f0 https://doop.design/a/Y0mP2X-Qwz.png · f2 https://doop.design/a/G
 commander f0 https://doop.design/a/QeWIcLgm_V.png · f2 https://doop.design/a/01n_l5cK4U.png
 almighty_worm f0 https://doop.design/a/92UZC5bKz7.png · f2 https://doop.design/a/k5jHi00Bp8.png
 spider_queen f0 https://doop.design/a/3hGNy-5gvn.png · f2 https://doop.design/a/UaoMO7u0d2.png
-two_headed_serpent f0 https://doop.design/a/OjePJ4HpCG.png · f2 https://doop.design/a/iP4hd0FUen.png
+damsel_in_distress f0 https://doop.design/a/OjePJ4HpCG.png · f2 https://doop.design/a/iP4hd0FUen.png
 
 ## 5. Mock exports (on the box)
 `/workspace/living-map/LM_living_map_idle@1x.png` / `@2x.png`

@@ -53,7 +53,7 @@ window.BOSS_RUSH_CATALOG = {
     { "id": "num_mobs", "place_starters": "set to starter_count", "on_add_monster": "+1", "used_by": ["Bracers", "Slime Boss", "Berserker"] },
     { "id": "last_mob_hp", "place_starters": "set 3", "on_spin": "store enemy HP", "used_by": ["Skeleton"] },
     { "id": "last_mob_atk", "place_starters": "set 0", "on_spin": "store enemy ATK", "used_by": ["Grimoire"] },
-    { "id": "items_used_this_combat", "on_spin": "set 0", "on_item_use": "+1", "used_by": ["Two-Headed Serpent"] },
+    { "id": "items_used_this_combat", "on_spin": "set 0", "on_item_use": "+1", "used_by": ["Damsel in Distress"] },
     { "id": "blk", "on_spin": "0", "on_item_use": "add if BLK item" },
     { "id": "mobs_defeated", "on_remove_slice_after_draft": "+1", "used_by": ["Berserker", "Spiked Flail"] }
   ],
@@ -75,7 +75,7 @@ window.BOSS_RUSH_CATALOG = {
     "special function if any",
     "if defeat-on-use: jump to defeat enemy",
     "else apply ATK and/or BLK",
-    "increment items_used_this_combat; if >=2 set Two-Headed Serpent ATK to 0"
+    "increment items_used_this_combat; if >=2 set Damsel in Distress ATK to 0"
   ],
   "tier_count_targets": {
     "monster_starter": { "1": 10, "2": 6, "3": 1 },
@@ -338,8 +338,8 @@ window.BOSS_RUSH_CATALOG = {
       "flags": { "dev": false, "hide": false, "art": false }
     },
     {
-      "id": "two_headed_serpent",
-      "name": "Two-Headed Serpent",
+      "id": "damsel_in_distress",
+      "name": "Damsel in Distress",
       "type": "M",
       "priority": 4,
       "rarity": "starter",

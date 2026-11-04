@@ -51,7 +51,7 @@ Status: only the static frame 0 ships right now, as `assets/dungeon/extra/<file>
 | commander | 16×28 | default breath. Plume flutters (tip pixel moves every frame). Sword tip rises 1 px on f2. Cape hem sways. |
 | bodyguard | 16×28 | stance shift: the tower shield moves 1 px forward (down/out) on f1–f2. Helmet eyes peek over it on f2. Mostly still: the shield is the character. |
 | juggernaut | 16×28 | heavy breath: pauldrons rise 1 px together on f1–f2. Red visor slit pulses between two reds (colour swap, not glow). Fists clench (knuckle pixel) on f2. |
-| two_headed_serpent (damsel.png) | 16×28 | distress: hands pat the cheeks (in/out 1 px). Mouth O grows on f2. Hair sways. The tiny two-headed snake at her hem bobs its two heads alternately (the joke). |
+| damsel_in_distress (damsel.png) | 16×28 | distress: hands pat the cheeks (in/out 1 px). Mouth O grows on f2. Hair sways. The tiny two-headed snake at her hem bobs its two heads alternately (the joke). |
 | beggar | 16×28 | the bowl shakes 1 px left/right (hopeful). Hunched breath. Stick stays planted. Eyes look up on f2. |
 | cowardly_king | 16×28 | trembling: knees knock (legs ±1 px alternating). Sweat drop moves down per frame and resets. Crown slips 1 px on f2. Hands wring. |
 | merchant | 16×28 | the scales tip left (f1), level (f2), right (f3). Moustache wiggles. Satchel bumps. Grin. |

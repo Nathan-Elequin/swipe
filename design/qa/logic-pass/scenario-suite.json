@@ -3045,18 +3045,18 @@
 			]
 		},
 		{
-			"id": "two-head-neighbors-hit",
-			"title": "Two-Headed Serpent: neighbors attack, then it Heals 3",
+			"id": "damsel-neighbors-hit",
+			"title": "Damsel in Distress: neighbors attack, then it Heals 3",
 			"family": "collide",
 			"items": [
 				"shield"
 			],
 			"monsters": [
 				"wizard",
-				"two_headed_serpent",
+				"damsel_in_distress",
 				"golem"
 			],
-			"face": "two_headed_serpent",
+			"face": "damsel_in_distress",
 			"challenge": true,
 			"clicks": [
 				{
@@ -3090,7 +3090,7 @@
 					"sprite": "assets/dungeon/extra/wizard.png"
 				},
 				{
-					"id": "two_headed_serpent",
+					"id": "damsel_in_distress",
 					"kind": "monster",
 					"name": "Damsel In Distress",
 					"ability": "My Neighbors will attack you (Left, then Right), then I will Heal you for 3 HP.",

@@ -46,7 +46,7 @@ CLEAR_NOTES = [
     "item:mute_stone",
     "monster:ogre",
     "monster:berserker",
-    "monster:two_headed_serpent",
+    "monster:damsel_in_distress",
     "monster:leech_league",
     "monster:commander",
     "monster:gelatinous_cube",

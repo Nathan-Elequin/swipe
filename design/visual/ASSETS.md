@@ -55,7 +55,7 @@ Prompt pattern: *"close-up anime cut-in portrait of {monster}, 3/4 view, dramati
 | 10 | Leech League · `leech_league` | 48×48 | 5 | three leeches inch in a chain, the last one swells red | 3 |
 | 11 | Wraith · `wraith` | 48×48 | 4 | flickers, then a ghostly copy of a neighbouring weapon forms in its claw | 2 |
 | 12 | Mimic · `mimic` | 48×48 | 5 | lid snaps open, tongue lolls, gold coins spill out | 3 |
-| 13 | Damsel In Distress · `two_headed_serpent` | 64×64 | 5 | damsel waves a hanky; two monster silhouettes loom behind her, then she blows a heart | 3 |
+| 13 | Damsel In Distress · `damsel_in_distress` | 64×64 | 5 | damsel waves a hanky; two monster silhouettes loom behind her, then she blows a heart | 3 |
 | 14 | Slime Boss · `slime_boss` | 64×64 | 4 | body-slam squash and stretch, numbers ripple in the goo | 2 |
 | 15 | Spider Queen · `spider_queen` | 64×64 | 5 | rears up, abdomen pulses, an egg plops out | 3 |
 | 16 | Commander · `commander` | 64×64 | 5 | raises a horn and blasts; banner snaps in the wind | 3 |

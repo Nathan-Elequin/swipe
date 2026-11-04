@@ -23,8 +23,8 @@
 - Git tip at fix time: `c61ea2e4`
 - flags.art=true catalog monster:bear_trap
 - flags.art=true board monster:bear_trap
-- flags.art=true catalog monster:two_headed_serpent
-- flags.art=true board monster:two_headed_serpent
+- flags.art=true catalog monster:damsel_in_distress
+- flags.art=true board monster:damsel_in_distress
 
 ## Top gaps by severity (open)
 
@@ -33,7 +33,7 @@
 3. **[high]** `live_missing_art_registry` — `item:fairy_in_a_bottle`: Live item 'Fairy In A Bottle' has no ITEM_PNG/MONSTER_PNG entry; flags.art=False. _Pixel: register unique art (do not invent PNG here)._
 4. **[low]** `orphan_png_on_disk` — `assets/dungeon/extra/spider.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
 5. **[low]** `orphan_png_on_disk` — `assets/dungeon/extra/triclops.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
-6. **[low]** `orphan_png_on_disk` — `assets/dungeon/extra/two_headed_serpent.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
+6. **[low]** `orphan_png_on_disk` — `assets/dungeon/extra/damsel_in_distress.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
 7. **[low]** `orphan_png_on_disk` — `assets/dungeon/items/gauntlets.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
 8. **[low]** `orphan_png_on_disk` — `assets/dungeon/items/spiked_shield_block.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
 9. **[low]** `orphan_png_on_disk` — `assets/dungeon/items/watch.png`: PNG under items/extra not referenced in dungeon_art.gd. _Pixel: wire or retire file._
@@ -55,7 +55,7 @@
 - **item:fairy_in_a_bottle** (`live_missing_art_registry`): Pixel: register unique art (do not invent PNG here).
 - **assets/dungeon/extra/spider.png** (`orphan_png_on_disk`): Pixel: wire or retire file.
 - **assets/dungeon/extra/triclops.png** (`orphan_png_on_disk`): Pixel: wire or retire file.
-- **assets/dungeon/extra/two_headed_serpent.png** (`orphan_png_on_disk`): Pixel: wire or retire file.
+- **assets/dungeon/extra/damsel_in_distress.png** (`orphan_png_on_disk`): Pixel: wire or retire file.
 - **assets/dungeon/items/gauntlets.png** (`orphan_png_on_disk`): Pixel: wire or retire file.
 - **assets/dungeon/items/spiked_shield_block.png** (`orphan_png_on_disk`): Pixel: wire or retire file.
 - **assets/dungeon/items/watch.png** (`orphan_png_on_disk`): Pixel: wire or retire file.

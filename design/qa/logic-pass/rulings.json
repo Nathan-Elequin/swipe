@@ -6,7 +6,7 @@
     "grimoire-no-last-monster": "Grimoire may start with 3, but let's nerf it and return it to its original text (it should be unplayable in the first combat)",
     "dragon-ignores-block": "It should name the dragon's abiolity 'Firebreather'",
     "hollow-even-doubles": "Shouldn't it be named 'Doubly Troubled' or reference 'Twins'?",
-    "two-head-neighbors-hit": "This monster is now named Damsel, fix the id/labeling"
+    "damsel-neighbors-hit": "This monster is now named Damsel, fix the id/labeling"
   },
   "answers": {
     "sai-carry": {
@@ -65,7 +65,7 @@
     "hollow-even-doubles": {
       "choice": "missed"
     },
-    "two-head-neighbors-hit": {
+    "damsel-neighbors-hit": {
       "choice": "missed"
     },
     "knucklers-one-in-hand": {

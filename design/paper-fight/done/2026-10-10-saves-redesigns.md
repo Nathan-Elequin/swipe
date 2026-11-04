@@ -4,9 +4,9 @@ Five redesigns from this Save. Ability vs Flow vs Notes disagree on several of t
 
 ---
 
-## 1. Damsel in Distress (still id `two_headed_serpent`)
+## 1. Damsel in Distress (still id `damsel_in_distress`)
 
-**Pitch (Nathan’s words):** Rename Two-Headed Serpent to Damsel in Distress. 9 HP, 0 ATK, Deadly. When this unit would Attack, instead its Neighbors Attack the player, left (clockwise) then right. Each neighbor is treated as clicking Done against that owner, with no chance for the player to act in between. Block carries. Those neighbors are not Defeated. Then Damsel Heals the player 3 HP and is Defeated. New art / sound.
+**Pitch (Nathan’s words):** Rename Damsel in Distress to Damsel in Distress. 9 HP, 0 ATK, Deadly. When this unit would Attack, instead its Neighbors Attack the player, left (clockwise) then right. Each neighbor is treated as clicking Done against that owner, with no chance for the player to act in between. Block carries. Those neighbors are not Defeated. Then Damsel Heals the player 3 HP and is Defeated. New art / sound.
 
 **Restate (what the player does):** You Spin onto Damsel. Damsel’s plate shows 0 Attack and 9 HP. You can still click items (Boot if your HP is above 9, Fangs, heals, Block). When you click Done, you do not take Damsel’s 0. The living owner on Damsel’s left swings at you as if you had clicked Done on them, then the living owner on the right does the same. You cannot click items between those two hits. After that, you Heal 3 (cap 6) and Damsel leaves. The neighbors stay on the wheel.
 
@@ -41,7 +41,7 @@ Five redesigns from this Save. Ability vs Flow vs Notes disagree on several of t
 
 **What the player sees:** Damsel’s plate is 0 Attack, so Done looks free. The tell has to say the neighbors will hit. During the sequence, hotbar should look unusable.
 
-**If we skip this:** Two-Headed Serpent (ATK 0 after two items) already exists. Damsel is a new kind of fight.
+**If we skip this:** Damsel in Distress (ATK 0 after two items) already exists. Damsel is a new kind of fight.
 
 **If we take the strongest reading:** One Done against Damsel can be two full owner swings (Hornet + Dragon) with no items in between, then a Heal. That can kill you from a “0 Attack” plate, or let you farm Heal 3 off empty seats.
 

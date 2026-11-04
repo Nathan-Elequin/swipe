@@ -26,7 +26,7 @@ Live monsters: 58 (catalog minus `three_seeker`).
 - `leech_league`: `wheel/leech_league_wheel_base.png`, `_breathe_f0`, `_breathe_f1`; `facing/leech_league_facing_idle_f0..f3`
 - `wraith`: `wheel/wraith_wheel_base.png`, `_breathe_f0`, `_breathe_f1`; `facing/wraith_facing_idle_f0..f3`
 - `mimic`: `wheel/mimic_wheel_base.png`, `_breathe_f0`, `_breathe_f1`; `facing/mimic_facing_idle_f0..f3`
-- `two_headed_serpent`: `wheel/two_headed_serpent_wheel_base.png`, `_breathe_f0`, `_breathe_f1`; `facing/two_headed_serpent_facing_idle_f0..f3`
+- `damsel_in_distress`: `wheel/damsel_in_distress_wheel_base.png`, `_breathe_f0`, `_breathe_f1`; `facing/damsel_in_distress_facing_idle_f0..f3`
 - `slime_boss`: `wheel/slime_boss_wheel_base.png`, `_breathe_f0`, `_breathe_f1`; `facing/slime_boss_facing_idle_f0..f3`
 - `spider_queen`: `wheel/spider_queen_wheel_base.png`, `_breathe_f0`, `_breathe_f1`; `facing/spider_queen_facing_idle_f0..f3`
 - `commander`: `wheel/commander_wheel_base.png`, `_breathe_f0`, `_breathe_f1`; `facing/commander_facing_idle_f0..f3`

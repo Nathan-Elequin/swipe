@@ -13,11 +13,11 @@ entry: F5 playtest hub → Brand New or Middle Progress → any fight that can f
 
 # Catalog art-flag sync (PR #394)
 
-`flags.art` flipped to true for live monsters that already had registered PNGs: `two_headed_serpent` (Damsel) and `bear_trap`. No PNG bytes changed. Audit tool + reports also land in this PR.
+`flags.art` flipped to true for live monsters that already had registered PNGs: `damsel_in_distress` (Damsel) and `bear_trap`. No PNG bytes changed. Audit tool + reports also land in this PR.
 
 ## What to verify
 
-- Damsel (`two_headed_serpent`) still shows its damsel.png sprite on the wheel / inspect (art flag was false; should still render the existing asset).
+- Damsel (`damsel_in_distress`) still shows its damsel.png sprite on the wheel / inspect (art flag was false; should still render the existing asset).
 - Bear Trap still shows its facing idle frame when present (hide stays true; art flag now true).
 
 ## Screenshots required

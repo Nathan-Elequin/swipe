@@ -1818,8 +1818,8 @@
     },
     {
       "kind": "monster",
-      "id": "two_headed_serpent",
-      "name": "Two-Headed Serpent",
+      "id": "damsel_in_distress",
+      "name": "Damsel in Distress",
       "status": "live",
       "review": "polish",
       "review_note": "",
@@ -3650,7 +3650,7 @@
         "locked_at": "2026-10-07",
         "name": "Spider Queen"
       },
-      "monster:two_headed_serpent": {
+      "monster:damsel_in_distress": {
         "fields": [
           "name",
           "ability",
@@ -3668,7 +3668,7 @@
           "hp_formula"
         ],
         "locked_at": "2026-10-07",
-        "name": "Two-Headed Serpent"
+        "name": "Damsel in Distress"
       },
       "monster:wick": {
         "fields": [

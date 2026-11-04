@@ -82,7 +82,7 @@ Frame files: `assets/dungeon/anim/slash/<id>_slash_f0..fN.png`, plus a base `<id
 | 10 | Leech League · `leech_league` | Blood Rise | three leeches inch in a chain, the last one swells red | 5 | 48×48 |
 | 11 | Wraith · `wraith` | Neighbor's Wrath | flickers, then a ghostly copy of a neighbouring weapon forms in its claw | 4 | 48×48 |
 | 12 | Mimic · `mimic` | Treasure | lid snaps open, tongue lolls, gold coins spill out | 5 | 48×48 |
-| 13 | Damsel In Distress · `two_headed_serpent` | Guarded by Monsters | damsel waves a hanky; two monster silhouettes loom behind her, then she blows a heart | 5 | 64×64 |
+| 13 | Damsel In Distress · `damsel_in_distress` | Guarded by Monsters | damsel waves a hanky; two monster silhouettes loom behind her, then she blows a heart | 5 | 64×64 |
 | 14 | Slime Boss · `slime_boss` | Body Slam | body-slam squash and stretch, numbers ripple in the goo | 4 | 64×64 |
 | 15 | Spider Queen · `spider_queen` | Egg Layer | rears up, abdomen pulses, an egg plops out | 5 | 64×64 |
 | 16 | Commander · `commander` | War Cry | raises a horn and blasts; banner snaps in the wind | 5 | 64×64 |

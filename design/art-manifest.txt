@@ -75,7 +75,7 @@ assets/dungeon/extra/bandit.png  16x28  64x112  bandit  [Warband, standard] hood
 assets/dungeon/extra/commander.png  16x28  64x112  commander  [Warband, standard] war leader: crested helm with crimson plume, gold-trimmed plate, crimson cape, sword raised
 assets/dungeon/extra/bodyguard.png  16x28  64x112  bodyguard  [Warband, standard] helmeted shield-bearer hiding behind a crimson TOWER shield (rectangular, steel boss) - unlike the heater Shield item
 assets/dungeon/extra/juggernaut.png  16x28  64x112  juggernaut  [Warband, standard] squat, massively wide black-iron bruiser: dome pauldrons, sunken helm with a red slit, huge fists, crimson tabard
-assets/dungeon/extra/damsel.png  16x28  64x112  two_headed_serpent  [Court, standard] mapped filename (brief §4); display 'Damsel in Distress'; distressed lady: hands to cheeks, mouth an O, long blonde hair, plum gown; a tiny two-headed snake at her hem is the culprit
+assets/dungeon/extra/damsel.png  16x28  64x112  damsel_in_distress  [Court, standard] mapped filename (brief §4); display 'Damsel in Distress'; distressed lady: hands to cheeks, mouth an O, long blonde hair, plum gown; a tiny two-headed snake at her hem is the culprit
 assets/dungeon/extra/beggar.png  16x28  64x112  beggar  [Court, standard] hunched, hooded, patched plum rags, grey stubble, holding out a wooden bowl, leaning on a stick
 assets/dungeon/extra/cowardly_king.png  16x28  64x112  cowardly_king  [Court, standard] crowned king in plum and ermine, knees knocked together, eyes wide, sweat drop flying, wringing his hands
 assets/dungeon/extra/merchant.png  16x28  64x112  merchant  [Court, standard] plump trader: flat plum cap, bushy moustache, plum waistcoat, satchel on the left, brass scales held up on the right

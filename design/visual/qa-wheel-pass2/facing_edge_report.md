@@ -65,7 +65,7 @@ Flagged: almighty_worm, amalgam, anvil, beggar, berserker, bodyguard, bushido, c
 | slime_boss | 64x64 | 0,3 64x61 | 36 | 37 | 0 | yes |
 | spider_queen | 64x64 | f0 0,3 64x61, f1 0,3 64x61, f2 0,3 64x61, f3 0,1 64x63 | 19 | 49 | 0 | yes |
 | triclops | 48x48 | f0 0,2 48x46, f1 0,3 48x45, f2 0,2 48x46, f3 0,1 48x47 | f0 37, f1 37, f2 37, f3 38 | f0 39, f1 38, f2 39, f3 40 | 0 | yes |
-| two_headed_serpent | 64x64 | f0 2,2 60x62, f1 2,2 60x62, f2 2,2 60x62, f3 2,1 60x63 | 0 | 0 | 0 | no |
+| damsel_in_distress | 64x64 | f0 2,2 60x62, f1 2,2 60x62, f2 2,2 60x62, f3 2,1 60x63 | 0 | 0 | 0 | no |
 | vampire | 64x64 | f0 0,3 64x61, f1 0,4 64x60, f2 0,4 64x60, f3 0,2 64x62 | f0 36, f1 37, f2 39, f3 36 | f0 41, f1 39, f2 41, f3 40 | 0 | yes |
 | wick | 48x48 | f0 1,2 45x46, f1 1,3 45x45, f2 1,3 45x45, f3 1,2 45x46 | 0 | 0 | 0 | no |
 | wizard | 48x48 | f0 2,2 44x46, f1 1,2 45x46, f2 1,3 45x45, f3 1,2 45x46 | 0 | 0 | 0 | no |

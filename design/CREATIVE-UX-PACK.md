@@ -96,7 +96,7 @@ Prefer distinct silhouettes (Smol Dungeon readability principle). Current stem m
 | leech_league | Leech League | **not doc** | High priority |
 | wraith | Wraith | **not angel** — ghost/wraith | High priority |
 | mimic | Mimic | chest_mimic | OK |
-| two_headed_serpent | Two-Headed Serpent | slug only if dual-head readable; else custom | Medium |
+| damsel_in_distress | Damsel in Distress | slug only if dual-head readable; else custom | Medium |
 | slime_boss | Slime Boss | swampy | OK |
 | spider_queen | Spider Queen | extra/spider.png — add crown/mark if possible | Medium |
 | commander | Commander | orc_shaman | OK |

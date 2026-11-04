@@ -21,7 +21,7 @@ Hand-drawn 16×16 (nearest 4×) where packs had no matching object:
   iron_chain, grappling_hook, net, counting_beads, measuring_tape (scythe),
   last_match (palm), grief_jar, spiked_shield, sai, fangs, knucklers, crossbow,
   mute_stone / Chaos Stone, victory_flask (gold goblet), cursed_scroll,
-  wick (candle), anvil, basilisk, two_headed_serpent, hornet_swarm, dire_wolf,
+  wick (candle), anvil, basilisk, damsel_in_distress, hornet_swarm, dire_wolf,
   leech_league, needleback, petrify_stone overlay, bodyguard (shield-bearer),
   cowardly_king (crowned robe), vampire, merchant, damsel, spider_egg,
   danger_magnet, gelatinous_cube, gargoyle, harpy, kobold_trapper,

@@ -273,7 +273,7 @@ c("mon.ability.slime_boss", "Ability activate (slime_boss)", "ability_slash/_sfx
 c("mon.ability.spider_queen", "Ability activate (spider_queen)", "ability_slash/_sfx_ability", "new", "Unique oneshot on named ability activate", ["mon_ability_spider_queen"], "SFX", -10, (0.97, 1.03), 40, 2, 2)
 c("mon.ability.three_seeker", "Ability activate (three_seeker)", "ability_slash/_sfx_ability", "new", "Unique oneshot on named ability activate", ["mon_ability_three_seeker"], "SFX", -10, (0.97, 1.03), 40, 2, 2)
 c("mon.ability.triclops", "Ability activate (triclops)", "ability_slash/_sfx_ability", "new", "Unique oneshot on named ability activate", ["mon_ability_triclops"], "SFX", -10, (0.97, 1.03), 40, 2, 2)
-c("mon.ability.two_headed_serpent", "Ability activate (two_headed_serpent)", "ability_slash/_sfx_ability", "new", "Unique oneshot on named ability activate", ["mon_ability_two_headed_serpent"], "SFX", -10, (0.97, 1.03), 40, 2, 2)
+c("mon.ability.damsel_in_distress", "Ability activate (damsel_in_distress)", "ability_slash/_sfx_ability", "new", "Unique oneshot on named ability activate", ["mon_ability_damsel_in_distress"], "SFX", -10, (0.97, 1.03), 40, 2, 2)
 c("mon.ability.vampire", "Ability activate (vampire)", "ability_slash/_sfx_ability", "new", "Unique oneshot on named ability activate", ["mon_ability_vampire"], "SFX", -10, (0.97, 1.03), 40, 2, 2)
 c("mon.ability.wick", "Ability activate (wick)", "ability_slash/_sfx_ability", "new", "Unique oneshot on named ability activate", ["mon_ability_wick"], "SFX", -10, (0.97, 1.03), 40, 2, 2)
 c("mon.ability.wraith", "Ability activate (wraith)", "ability_slash/_sfx_ability", "new", "Unique oneshot on named ability activate", ["mon_ability_wraith"], "SFX", -10, (0.97, 1.03), 40, 2, 2)
@@ -394,7 +394,7 @@ def sfx_map():
                    "quiet_bell": {"use": "util.quiet"}, "caltrops": {"use": "util.caltrops"}, "pocketwatch": {"use": "status.hypnotize"},
                    "_note": "Ids are best guesses from the audit; Cursor must verify against data/catalog.json and drop/rename unknown keys."},
        "special_id": {"slime_boss": {}, "spider_queen": {"special": "egg.queen_eat", "egg": "egg.lay"}, "dragon": {"pierce_zero": "player.pierce_zero"},
-                      "commander": {"special": "mon.commander_flee"}, "vampire": {"special": "mon.vampire_grow"}, "two_headed_serpent": {"special": "mon.damsel"},
+                      "commander": {"special": "mon.commander_flee"}, "vampire": {"special": "mon.vampire_grow"}, "damsel_in_distress": {"special": "mon.damsel"},
                       "leech_league": {"special": "mon.leech_pulse"}, "clockwork_knight": {"special": "mon.clockwork_spawn"}, "cowardly_king": {},
                       "berserker": {"rage": "mon.berserker_rage", "cool": "mon.berserker_cool"}, "gelatinous_cube": {"ask": "mon.cube_ask", "feed": "mon.cube_feed"},
                       "merchant": {"ask": "mon.merchant_ask", "fail": "hand.upgrade_fail"}, "cleric": {"tax": "mon.cleric_tax", "refuse": "mon.cleric_refuse", "yank": "mon.cleric_yank"},
@@ -412,7 +412,7 @@ def sfx_map():
        "default": {"hit": "atk.legacy", "gain": "blk.legacy", "use": "hand.select", "fail": "ui.illegal", "enter": "wheel.land_weak", "hurt": "mon.hurt_weak", "death": "mon.death_weak"}},
      "deadly_sting_pitch": {"_doc": "pitch multiplier for sting.deadly + wheel.land_deadly per boss id (semitones in comment)",
         "slime_boss": 0.84, "spider_queen": 1.12, "dragon": 0.75, "commander": 1.0, "vampire": 0.94,
-        "two_headed_serpent": 1.19, "leech_league": 1.06, "clockwork_knight": 0.89, "cowardly_king": 1.33},
+        "damsel_in_distress": 1.19, "leech_league": 1.06, "clockwork_knight": 0.89, "cowardly_king": 1.33},
      "wheel_ticks": {"cue": "wheel.tick", "min_interval_ms": 35, "pitch_from_speed": [0.92, 1.12], "db_from_speed": [-18, -12], "final": "wheel.detent"},
      "speech": {"nib": {"cue": "speech.nib", "chars_per_blip": 3, "burst_if_no_typewriter": [3, 6], "burst_interval_ms": [70, 110], "duck_music_db": -3},
                 "monster": {"cue": "speech.monster", "chars_per_blip": 4, "burst_if_no_typewriter": [2, 5], "burst_interval_ms": [90, 140], "duck_music_db": -3,

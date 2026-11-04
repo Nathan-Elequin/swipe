@@ -12,7 +12,7 @@
 
 - **Hornet Swarm** — two swings, Block leftover carries. This is the same movie with swing count = remaining HP, then they die. Hornet’s ×2 badge becomes ∞ here.
 - **Kobold Trapper** — extra swings from items you used. Shambling Mound does not add those. If you are fighting Kobold, Mound is unrelated.
-- **Damsel (Two-Headed Serpent)** — neighbors Attack you using that neighbor’s swing count. If Mound is a neighbor, either they hit once for 1 and live, or they run the full loop and can die on Damsel’s wheel.
+- **Damsel (Damsel in Distress)** — neighbors Attack you using that neighbor’s swing count. If Mound is a neighbor, either they hit once for 1 and live, or they run the full loop and can die on Damsel’s wheel.
 - **Pocketwatch** — hypnotize uses the source’s swing count against the enemy you are facing. If that source is Mound, either one hit of 1, or HP-many hits and Mound can die as the weapon.
 - **Wraith** — copies the higher neighbor ATK number, not extra swings. A Mound neighbor is a 1 (or Commander’s 3). Wraith does not inherit Self Deconstruct.
 - **Commander / Lich** — Commander’s +2 ATK is last. Each remaining swing is 3, not 1. Four swings of 3 is 12 if you never chip them.

@@ -51,7 +51,7 @@ block_wall_shield_breastplate_net_helmet,shark,2,2,full,250,1.0,0.0,0.0,6.0,5.0
 block_wall_shield_breastplate_net_helmet,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,3.0
 block_wall_shield_breastplate_net_helmet,slime_boss,3,1,simplified,250,1.0,0.0,0.0,6.0,5.0
 block_wall_shield_breastplate_net_helmet,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,3.0
-block_wall_shield_breastplate_net_helmet,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
+block_wall_shield_breastplate_net_helmet,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
 block_wall_shield_breastplate_net_helmet,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,3.0
 block_wall_shield_breastplate_net_helmet,wick,2,4,stats_only,250,1.0,0.0,0.0,6.0,4.0
 block_wall_shield_breastplate_net_helmet,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,4.0
@@ -109,7 +109,7 @@ cheese_boot_sledge_fangs_smoke,shark,2,2,full,250,1.0,0.0,0.0,6.0,1.0
 cheese_boot_sledge_fangs_smoke,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 cheese_boot_sledge_fangs_smoke,slime_boss,3,1,simplified,250,1.0,0.0,0.0,6.0,1.0
 cheese_boot_sledge_fangs_smoke,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-cheese_boot_sledge_fangs_smoke,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
+cheese_boot_sledge_fangs_smoke,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
 cheese_boot_sledge_fangs_smoke,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
 cheese_boot_sledge_fangs_smoke,wick,2,4,stats_only,250,1.0,0.0,0.0,6.0,1.0
 cheese_boot_sledge_fangs_smoke,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -167,7 +167,7 @@ rand_t12_00_flying_saucer+victory_flask+net+medallion,shark,2,2,full,250,1.0,0.0
 rand_t12_00_flying_saucer+victory_flask+net+medallion,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,3.0
 rand_t12_00_flying_saucer+victory_flask+net+medallion,slime_boss,3,1,simplified,250,1.0,0.0,0.0,4.0,4.0
 rand_t12_00_flying_saucer+victory_flask+net+medallion,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,3.0
-rand_t12_00_flying_saucer+victory_flask+net+medallion,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
+rand_t12_00_flying_saucer+victory_flask+net+medallion,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
 rand_t12_00_flying_saucer+victory_flask+net+medallion,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,3.0
 rand_t12_00_flying_saucer+victory_flask+net+medallion,wick,2,4,stats_only,250,1.0,0.0,0.0,6.0,3.0
 rand_t12_00_flying_saucer+victory_flask+net+medallion,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,3.0
@@ -225,7 +225,7 @@ rand_t12_01_smoke_bomb+pacemaker+da_boot+shield,shark,2,2,full,250,1.0,0.0,0.0,4
 rand_t12_01_smoke_bomb+pacemaker+da_boot+shield,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 rand_t12_01_smoke_bomb+pacemaker+da_boot+shield,slime_boss,3,1,simplified,250,0.0,0.0,1.0,6.0,2.0
 rand_t12_01_smoke_bomb+pacemaker+da_boot+shield,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-rand_t12_01_smoke_bomb+pacemaker+da_boot+shield,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
+rand_t12_01_smoke_bomb+pacemaker+da_boot+shield,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
 rand_t12_01_smoke_bomb+pacemaker+da_boot+shield,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
 rand_t12_01_smoke_bomb+pacemaker+da_boot+shield,wick,2,4,stats_only,250,1.0,0.0,0.0,4.0,2.0
 rand_t12_01_smoke_bomb+pacemaker+da_boot+shield,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -283,7 +283,7 @@ rand_t12_02_fangs+throwing_knife+arrow_head+net,shark,2,2,full,250,1.0,0.0,0.0,4
 rand_t12_02_fangs+throwing_knife+arrow_head+net,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 rand_t12_02_fangs+throwing_knife+arrow_head+net,slime_boss,3,1,simplified,250,0.0,1.0,0.0,0.0,4.0
 rand_t12_02_fangs+throwing_knife+arrow_head+net,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-rand_t12_02_fangs+throwing_knife+arrow_head+net,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,4.0,2.0
+rand_t12_02_fangs+throwing_knife+arrow_head+net,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,4.0,2.0
 rand_t12_02_fangs+throwing_knife+arrow_head+net,vampire,3,1,stats_only,250,1.0,0.0,0.0,4.0,2.0
 rand_t12_02_fangs+throwing_knife+arrow_head+net,wick,2,4,stats_only,250,1.0,0.0,0.0,6.0,2.0
 rand_t12_02_fangs+throwing_knife+arrow_head+net,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -341,7 +341,7 @@ rand_t12_03_smoke_bomb+pacemaker+shield+bloody_gauntlets,shark,2,2,full,250,1.0,
 rand_t12_03_smoke_bomb+pacemaker+shield+bloody_gauntlets,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,3.0
 rand_t12_03_smoke_bomb+pacemaker+shield+bloody_gauntlets,slime_boss,3,1,simplified,250,0.0,0.0,1.0,6.0,3.0
 rand_t12_03_smoke_bomb+pacemaker+shield+bloody_gauntlets,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,3.0
-rand_t12_03_smoke_bomb+pacemaker+shield+bloody_gauntlets,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
+rand_t12_03_smoke_bomb+pacemaker+shield+bloody_gauntlets,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
 rand_t12_03_smoke_bomb+pacemaker+shield+bloody_gauntlets,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,3.0
 rand_t12_03_smoke_bomb+pacemaker+shield+bloody_gauntlets,wick,2,4,stats_only,250,1.0,0.0,0.0,4.0,3.0
 rand_t12_03_smoke_bomb+pacemaker+shield+bloody_gauntlets,wizard,1,1,stats_only,250,1.0,0.0,0.0,5.0,3.0
@@ -399,7 +399,7 @@ rand_t12_04_fangs+pacemaker+helmet+flying_saucer,shark,2,2,full,250,1.0,0.0,0.0,
 rand_t12_04_fangs+pacemaker+helmet+flying_saucer,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,2.0
 rand_t12_04_fangs+pacemaker+helmet+flying_saucer,slime_boss,3,1,simplified,250,1.0,0.0,0.0,6.0,2.0
 rand_t12_04_fangs+pacemaker+helmet+flying_saucer,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,2.0
-rand_t12_04_fangs+pacemaker+helmet+flying_saucer,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
+rand_t12_04_fangs+pacemaker+helmet+flying_saucer,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
 rand_t12_04_fangs+pacemaker+helmet+flying_saucer,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
 rand_t12_04_fangs+pacemaker+helmet+flying_saucer,wick,2,4,stats_only,250,1.0,0.0,0.0,6.0,2.0
 rand_t12_04_fangs+pacemaker+helmet+flying_saucer,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,3.0
@@ -457,7 +457,7 @@ rand_t12_05_da_boot+victory_flask+arrow_head+medallion,shark,2,2,full,250,1.0,0.
 rand_t12_05_da_boot+victory_flask+arrow_head+medallion,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 rand_t12_05_da_boot+victory_flask+arrow_head+medallion,slime_boss,3,1,simplified,250,1.0,0.0,0.0,5.0,4.0
 rand_t12_05_da_boot+victory_flask+arrow_head+medallion,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-rand_t12_05_da_boot+victory_flask+arrow_head+medallion,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,4.0,2.0
+rand_t12_05_da_boot+victory_flask+arrow_head+medallion,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,4.0,2.0
 rand_t12_05_da_boot+victory_flask+arrow_head+medallion,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
 rand_t12_05_da_boot+victory_flask+arrow_head+medallion,wick,2,4,stats_only,250,1.0,0.0,0.0,5.0,4.0
 rand_t12_05_da_boot+victory_flask+arrow_head+medallion,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -515,7 +515,7 @@ rand_t12_06_shield+throwing_knife+spiked_shield+sai,shark,2,2,full,250,1.0,0.0,0
 rand_t12_06_shield+throwing_knife+spiked_shield+sai,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 rand_t12_06_shield+throwing_knife+spiked_shield+sai,slime_boss,3,1,simplified,250,0.0,1.0,0.0,0.0,5.0
 rand_t12_06_shield+throwing_knife+spiked_shield+sai,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-rand_t12_06_shield+throwing_knife+spiked_shield+sai,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,4.0
+rand_t12_06_shield+throwing_knife+spiked_shield+sai,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,4.0
 rand_t12_06_shield+throwing_knife+spiked_shield+sai,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,2.0
 rand_t12_06_shield+throwing_knife+spiked_shield+sai,wick,2,4,stats_only,250,1.0,0.0,0.0,4.0,5.0
 rand_t12_06_shield+throwing_knife+spiked_shield+sai,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -573,7 +573,7 @@ rand_t12_07_pacemaker+crossbow+double_axe+helmet,shark,2,2,full,250,1.0,0.0,0.0,
 rand_t12_07_pacemaker+crossbow+double_axe+helmet,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 rand_t12_07_pacemaker+crossbow+double_axe+helmet,slime_boss,3,1,simplified,250,1.0,0.0,0.0,2.0,4.0
 rand_t12_07_pacemaker+crossbow+double_axe+helmet,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-rand_t12_07_pacemaker+crossbow+double_axe+helmet,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,3.0
+rand_t12_07_pacemaker+crossbow+double_axe+helmet,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,3.0
 rand_t12_07_pacemaker+crossbow+double_axe+helmet,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
 rand_t12_07_pacemaker+crossbow+double_axe+helmet,wick,2,4,stats_only,250,1.0,0.0,0.0,6.0,4.0
 rand_t12_07_pacemaker+crossbow+double_axe+helmet,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -631,7 +631,7 @@ t1_boot_net_shield_knife,shark,2,2,full,250,1.0,0.0,0.0,6.0,4.0
 t1_boot_net_shield_knife,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t1_boot_net_shield_knife,slime_boss,3,1,simplified,250,1.0,0.0,0.0,3.0,4.0
 t1_boot_net_shield_knife,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-t1_boot_net_shield_knife,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,3.0
+t1_boot_net_shield_knife,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,3.0
 t1_boot_net_shield_knife,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t1_boot_net_shield_knife,wick,2,4,stats_only,250,1.0,0.0,0.0,5.0,4.0
 t1_boot_net_shield_knife,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -689,7 +689,7 @@ t1_bracers_knife_shield_boot,shark,2,2,full,250,1.0,0.0,0.0,6.0,3.0
 t1_bracers_knife_shield_boot,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t1_bracers_knife_shield_boot,slime_boss,3,1,simplified,250,0.0,1.0,0.0,0.0,3.0
 t1_bracers_knife_shield_boot,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-t1_bracers_knife_shield_boot,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
+t1_bracers_knife_shield_boot,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
 t1_bracers_knife_shield_boot,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t1_bracers_knife_shield_boot,wick,2,4,stats_only,250,1.0,0.0,0.0,4.0,3.0
 t1_bracers_knife_shield_boot,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -747,7 +747,7 @@ t1_knife_shield_sai_net,shark,2,2,full,250,1.0,0.0,0.0,4.0,5.0
 t1_knife_shield_sai_net,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t1_knife_shield_sai_net,slime_boss,3,1,simplified,250,1.0,0.0,0.0,3.0,5.0
 t1_knife_shield_sai_net,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-t1_knife_shield_sai_net,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,4.0
+t1_knife_shield_sai_net,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,4.0
 t1_knife_shield_sai_net,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,2.0
 t1_knife_shield_sai_net,wick,2,4,stats_only,250,1.0,0.0,0.0,5.0,5.0
 t1_knife_shield_sai_net,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -805,7 +805,7 @@ t1_teach_knife_shield_net_smoke,shark,2,2,full,250,1.0,0.0,0.0,4.0,4.0
 t1_teach_knife_shield_net_smoke,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t1_teach_knife_shield_net_smoke,slime_boss,3,1,simplified,250,1.0,0.0,0.0,3.0,4.0
 t1_teach_knife_shield_net_smoke,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-t1_teach_knife_shield_net_smoke,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,3.0
+t1_teach_knife_shield_net_smoke,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,3.0
 t1_teach_knife_shield_net_smoke,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,4.0
 t1_teach_knife_shield_net_smoke,wick,2,4,stats_only,250,1.0,0.0,0.0,5.0,4.0
 t1_teach_knife_shield_net_smoke,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -863,7 +863,7 @@ t2_fangs_boot_shield_net,shark,2,2,full,250,1.0,0.0,0.0,6.0,1.0
 t2_fangs_boot_shield_net,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_fangs_boot_shield_net,slime_boss,3,1,simplified,250,1.0,0.0,0.0,6.0,3.0
 t2_fangs_boot_shield_net,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-t2_fangs_boot_shield_net,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
+t2_fangs_boot_shield_net,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_fangs_boot_shield_net,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_fangs_boot_shield_net,wick,2,4,stats_only,250,1.0,0.0,0.0,6.0,2.0
 t2_fangs_boot_shield_net,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -921,7 +921,7 @@ t2_fangs_crossbow_helmet_medallion,shark,2,2,full,250,1.0,0.0,0.0,6.0,1.0
 t2_fangs_crossbow_helmet_medallion,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_fangs_crossbow_helmet_medallion,slime_boss,3,1,simplified,250,1.0,0.0,0.0,6.0,2.0
 t2_fangs_crossbow_helmet_medallion,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-t2_fangs_crossbow_helmet_medallion,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
+t2_fangs_crossbow_helmet_medallion,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_fangs_crossbow_helmet_medallion,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_fangs_crossbow_helmet_medallion,wick,2,4,stats_only,250,1.0,0.0,0.0,6.0,2.0
 t2_fangs_crossbow_helmet_medallion,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -979,7 +979,7 @@ t2_flail_breastplate_knife_shield,shark,2,2,full,250,1.0,0.0,0.0,3.0,4.0
 t2_flail_breastplate_knife_shield,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_flail_breastplate_knife_shield,slime_boss,3,1,simplified,250,1.0,0.0,0.0,2.0,4.0
 t2_flail_breastplate_knife_shield,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-t2_flail_breastplate_knife_shield,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
+t2_flail_breastplate_knife_shield,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
 t2_flail_breastplate_knife_shield,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,4.0
 t2_flail_breastplate_knife_shield,wick,2,4,stats_only,250,1.0,0.0,0.0,6.0,4.0
 t2_flail_breastplate_knife_shield,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -1037,7 +1037,7 @@ t2_gauntlets_helmet_fangs_shield,shark,2,2,full,250,1.0,0.0,0.0,6.0,1.0
 t2_gauntlets_helmet_fangs_shield,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,3.0
 t2_gauntlets_helmet_fangs_shield,slime_boss,3,1,simplified,250,1.0,0.0,0.0,6.0,2.0
 t2_gauntlets_helmet_fangs_shield,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,3.0
-t2_gauntlets_helmet_fangs_shield,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
+t2_gauntlets_helmet_fangs_shield,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_gauntlets_helmet_fangs_shield,vampire,3,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_gauntlets_helmet_fangs_shield,wick,2,4,stats_only,250,1.0,0.0,0.0,6.0,2.0
 t2_gauntlets_helmet_fangs_shield,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,4.0
@@ -1095,7 +1095,7 @@ t2_lantern_flail_breastplate_knife,shark,2,2,full,250,1.0,0.0,0.0,5.0,3.0
 t2_lantern_flail_breastplate_knife,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_lantern_flail_breastplate_knife,slime_boss,3,1,simplified,250,0.0,1.0,0.0,0.0,3.0
 t2_lantern_flail_breastplate_knife,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-t2_lantern_flail_breastplate_knife,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
+t2_lantern_flail_breastplate_knife,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,2.0
 t2_lantern_flail_breastplate_knife,vampire,3,1,stats_only,250,1.0,0.0,0.0,4.0,3.0
 t2_lantern_flail_breastplate_knife,wick,2,4,stats_only,250,1.0,0.0,0.0,2.0,3.0
 t2_lantern_flail_breastplate_knife,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0
@@ -1153,7 +1153,7 @@ t2_sledge_knife_net_potion,shark,2,2,full,250,1.0,0.0,0.0,4.0,3.0
 t2_sledge_knife_net_potion,skeleton,1,2,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_sledge_knife_net_potion,slime_boss,3,1,simplified,250,1.0,0.0,0.0,6.0,1.0
 t2_sledge_knife_net_potion,spider_queen,3,5,stats_only,250,1.0,0.0,0.0,6.0,1.0
-t2_sledge_knife_net_potion,two_headed_serpent,3,3,stats_only,250,1.0,0.0,0.0,6.0,3.0
+t2_sledge_knife_net_potion,damsel_in_distress,3,3,stats_only,250,1.0,0.0,0.0,6.0,3.0
 t2_sledge_knife_net_potion,vampire,3,1,stats_only,250,1.0,0.0,0.0,3.0,3.0
 t2_sledge_knife_net_potion,wick,2,4,stats_only,250,1.0,0.0,0.0,6.0,1.0
 t2_sledge_knife_net_potion,wizard,1,1,stats_only,250,1.0,0.0,0.0,6.0,1.0

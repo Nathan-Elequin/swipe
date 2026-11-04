@@ -447,7 +447,7 @@ SPRITES: dict[str, list[str]] = {
         "...kk.........",
         "..............",
     ],
-    "two_headed_serpent": [
+    "damsel_in_distress": [
         ".kk......kk...",
         "kEEk....kEEk..",
         "kzYk....kzYk..",
@@ -1011,7 +1011,7 @@ def main() -> None:
         "wick": "draw",
         "anvil": "draw",
         "basilisk": "draw",
-        "two_headed_serpent": "draw",
+        "damsel_in_distress": "draw",
         "wraith": "tiny121",
         "hornet_swarm": "draw",
         "dire_wolf": "draw",

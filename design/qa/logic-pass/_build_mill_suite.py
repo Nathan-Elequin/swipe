@@ -105,7 +105,7 @@ SPRITE = {
     "commander": "assets/dungeon/extra/commander.png",
     "bodyguard": "assets/dungeon/extra/bodyguard.png",
     "juggernaut": "assets/dungeon/extra/juggernaut.png",
-    "two_headed_serpent": "assets/dungeon/extra/damsel.png",
+    "damsel_in_distress": "assets/dungeon/extra/damsel.png",
     "beggar": "assets/dungeon/extra/beggar.png",
     "cowardly_king": "assets/dungeon/extra/cowardly_king.png",
     "merchant": "assets/dungeon/extra/merchant.png",

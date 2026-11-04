@@ -2442,7 +2442,7 @@
   ]
  },
  {
-  "file": "mon_ability_two_headed_serpent.ogg",
+  "file": "mon_ability_damsel_in_distress.ogg",
   "kind": "sfx",
   "seconds": 0.5,
   "bytes": 7815,
@@ -2452,7 +2452,7 @@
     "author": "Kenney (kenney.nl) / Swipe bake",
     "licence": "CC0 1.0",
     "url": "https://kenney.nl",
-    "file": "mon_ability_two_headed_serpent.ogg",
+    "file": "mon_ability_damsel_in_distress.ogg",
     "gain_db": 0.0,
     "pitch": 1.0
    }

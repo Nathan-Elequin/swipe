@@ -17,7 +17,7 @@ M={
 'leech_league':(48,5,'three leeches inch along in a chain and the last one swells red','three dark red slimy leeches in a row',R4REFS+'leech_league.png'),
 'wraith':(48,4,'flickers, then a ghostly copy of a weapon forms in its claw','pale grey ghostly wraith with hollow eyes and wispy tattered body',R4REFS+'wraith.png'),
 'mimic':(48,5,'the lid snaps open, the tongue lolls, gold coins spill out','wooden treasure chest mimic with sharp teeth and a long tongue',R4REFS+'mimic.png'),
-'two_headed_serpent':(64,5,'the damsel waves a hanky, two monster silhouettes loom behind her, then she blows a heart','blonde damsel in distress in a pink gown holding a hanky',R4REFS+'damsel.png'),
+'damsel_in_distress':(64,5,'the damsel waves a hanky, two monster silhouettes loom behind her, then she blows a heart','blonde damsel in distress in a pink gown holding a hanky',R4REFS+'damsel.png'),
 'slime_boss':(64,4,'body-slam squash and stretch, ripples run through the goo','huge teal slime king with a gold crown and a big goofy smile',R4REFS+'slime_boss.png'),
 'spider_queen':(64,5,'rears up, the abdomen pulses and an egg plops out','giant dark purple spider queen with red markings and a small gold crown',R3+'mon_spider_queen_base.png'),
 'commander':(64,5,'raises a war horn and blasts it; the banner snaps in the wind','armored knight commander with red cape, plumed helm and a banner',R4REFS+'commander.png'),
