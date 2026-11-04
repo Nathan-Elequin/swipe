@@ -23,10 +23,21 @@ func _init() -> void:
 	# last_tag clears each capture frame — assert on the spike frame only.
 	metrics.note_tag("qa_spike")
 	node._process(0.098)
+	metrics.span_begin("spin_to_callout")
+	OS.delay_usec(12000)
+	metrics.span_end("spin_to_callout")
+	metrics.span_begin("use_item_resolve")
+	OS.delay_usec(8000)
+	metrics.span_end("use_item_resolve")
 	node._stop()
 	var path := "user://perf/last_capture.json"
 	if not FileAccess.file_exists(path):
 		push_error("missing last_capture.json")
+		quit(1)
+		return
+	var csv_path := "user://perf/last_capture.csv"
+	if not FileAccess.file_exists(csv_path):
+		push_error("missing last_capture.csv")
 		quit(1)
 		return
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
@@ -75,6 +86,10 @@ func _init() -> void:
 		push_error("max frame ms %s" % str(frame))
 		quit(1)
 		return
+	if not frame.has("p50"):
+		push_error("frame_ms missing p50")
+		quit(1)
+		return
 	if str(report.get("sha", "")) == "":
 		push_error("sha empty")
 		quit(1)
@@ -90,6 +105,17 @@ func _init() -> void:
 		return
 	if not first.has("place_full_usec"):
 		push_error("spike missing place_full_usec")
+		quit(1)
+		return
+	var feel: Dictionary = report.get("feel_spans", {})
+	var spin_span: Dictionary = feel.get("spin_to_callout", {})
+	if int(spin_span.get("n", 0)) < 1:
+		push_error("spin_to_callout missing from feel_spans")
+		quit(1)
+		return
+	var csv_body := FileAccess.get_file_as_string(csv_path)
+	if csv_body.find("feel_span") < 0 or csv_body.find("spin_to_callout") < 0:
+		push_error("csv missing feel_span rows")
 		quit(1)
 		return
 	print("FRAME_METRICS_RUN_OK")
