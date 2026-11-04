@@ -16,8 +16,13 @@ const COVER_COOL_ITEMS: Array = [
 	"sai", "crossbow", "bag_of_holding", "grimoire",
 	"blood_chalice", "net", "spiked_flail", "longbow",
 ]
+## Cover still PNG cast (unchanged — do not redo cover still).
 const COVER_COOL_MONSTERS: Array = [
 	"damsel_in_distress", "dragon", "lich", "vampire", "ogre", "slime_boss",
+]
+## Static wheel still cast (itch reception 2026-11-04 redo).
+const STILL_WHEEL_MONSTERS: Array = [
+	"damsel_in_distress", "slime_boss", "ogre", "mimic", "goblin", "hollow", "fairy",
 ]
 
 var main
@@ -915,9 +920,9 @@ func _store_clean_chrome() -> void:
 		main.overlay.visible = false
 
 
-func _cover_pose_fighting() -> void:
+func _cover_pose_fighting(monsters: Array = COVER_COOL_MONSTERS, seat_count: int = 6) -> void:
 	## Damsel facing (seat 0) + full cool hotbar. Combat log / Feedback / tip stamp off.
-	await _anim_ready_seat(COVER_COOL_MONSTERS, COVER_COOL_ITEMS, 6, 2, 6)
+	await _anim_ready_seat(monsters, COVER_COOL_ITEMS, 6, 2, seat_count)
 	main.adventure = true
 	main.facing_index = 0
 	main.phase = "fighting"
@@ -973,7 +978,8 @@ func _shot_cover_damsel_slash() -> void:
 
 func _shot_still_wheel_cool_items() -> void:
 	status = "still-wheel-cool-items"
-	await _cover_pose_fighting()
+	## New cast: Damsel / Slime Boss / Ogre / Mimic / Goblin / Twins(hollow) / Fairy.
+	await _cover_pose_fighting(STILL_WHEEL_MONSTERS, 7)
 	## No slash overlay — clean combat wheel showing toy breadth.
 	if main.ability_slash != null and main.ability_slash.has_method("abort_all"):
 		main.ability_slash.abort_all()
@@ -981,7 +987,96 @@ func _shot_still_wheel_cool_items() -> void:
 		main.ability_slash.visible = false
 	_store_clean_chrome()
 	await _wait(0.25)
-	await _capture("still-wheel-cool-items.png", "combat wheel + 8 cool items, Damsel facing, no slash")
+	await _capture(
+		"still-wheel-cool-items.png",
+		"combat wheel + 8 cool items; cast Damsel/Slime/Ogre/Mimic/Goblin/Twins/Fairy"
+	)
+
+
+## Smash-cut montage for cover-damsel-slash.gif (still PNG cover stays untouched).
+## Five hard-cut beats: enemy slash + item uses. Frames assembled offline into the GIF.
+func _shot_cover_damsel_montage() -> void:
+	status = "cover-damsel-montage"
+	var suite: Array = []
+	for b in 5:
+		for i in 4:
+			suite.append("cover-damsel-montage_b%d_f%02d.png" % [b, i])
+	_begin_suite(suite)
+	## Beat 0 — Damsel slash portrait.
+	await _cover_pose_fighting(STILL_WHEEL_MONSTERS, 7)
+	if main.ability_slash == null:
+		for name in suite:
+			_skip(str(name), "ability_slash missing")
+		_suite_files.clear()
+		return
+	main.ability_slash.reset_slash_seen()
+	if main.ability_slash.has_method("mark_slash_seen"):
+		main.ability_slash.mark_slash_seen("damsel_in_distress")
+	main.ability_slash.play(_slash_payload("damsel_in_distress"))
+	var gaps0: Array = [0.08, 0.10, 0.12, 0.14]
+	for i in 4:
+		await _wait(float(gaps0[i]))
+		_store_clean_chrome()
+		await _capture("cover-damsel-montage_b0_f%02d.png" % i, "montage beat0 Damsel slash")
+	await _slash_wait_idle()
+	## Beat 1 — Longbow fire into the wheel.
+	await _cover_pose_fighting(STILL_WHEEL_MONSTERS, 7)
+	if main.ability_slash != null and main.ability_slash.has_method("abort_all"):
+		main.ability_slash.abort_all()
+	var bow_uid: int = _uid_of_item("longbow")
+	if bow_uid >= 0:
+		main._walker_busy = false
+		main._use_item(bow_uid)
+	var gaps1: Array = [0.12, 0.18, 0.22, 0.28]
+	for i in 4:
+		await _wait(float(gaps1[i]))
+		_store_clean_chrome()
+		await _capture("cover-damsel-montage_b1_f%02d.png" % i, "montage beat1 Longbow")
+	await _until(func() -> bool: return not bool(main._walker_busy), 8.0)
+	## Beat 2 — Ogre ability slash (enemy variety).
+	await _cover_pose_fighting(
+		["ogre", "damsel_in_distress", "slime_boss", "mimic", "goblin", "hollow", "fairy"],
+		7
+	)
+	main.ability_slash.reset_slash_seen()
+	if main.ability_slash.has_method("mark_slash_seen"):
+		main.ability_slash.mark_slash_seen("ogre")
+	main.ability_slash.play(_slash_payload("ogre"))
+	var gaps2: Array = [0.08, 0.12, 0.16, 0.20]
+	for i in 4:
+		await _wait(float(gaps2[i]))
+		_store_clean_chrome()
+		await _capture("cover-damsel-montage_b2_f%02d.png" % i, "montage beat2 Ogre slash")
+	await _slash_wait_idle()
+	## Beat 3 — Net cast (crowd-control item).
+	await _cover_pose_fighting(STILL_WHEEL_MONSTERS, 7)
+	var net_uid: int = _uid_of_item("net")
+	if net_uid >= 0:
+		main._walker_busy = false
+		main._use_item(net_uid)
+	var gaps3: Array = [0.10, 0.16, 0.22, 0.28]
+	for i in 4:
+		await _wait(float(gaps3[i]))
+		_store_clean_chrome()
+		await _capture("cover-damsel-montage_b3_f%02d.png" % i, "montage beat3 Net")
+	await _until(func() -> bool: return not bool(main._walker_busy), 8.0)
+	## Beat 4 — Sai twirl (hotbar toy payoff).
+	await _cover_pose_fighting(STILL_WHEEL_MONSTERS, 7)
+	var sai: Control = _hot_card("sai")
+	if sai != null and sai.has_method("play_sai"):
+		for it in main.hotbar:
+			if str(it.get("card_id", "")) == "sai":
+				it["alt_n"] = 2
+		sai.play_sai(2, 4)
+	elif _uid_of_item("spiked_flail") >= 0:
+		main._walker_busy = false
+		main._use_item(_uid_of_item("spiked_flail"))
+	var gaps4: Array = [0.10, 0.14, 0.18, 0.24]
+	for i in 4:
+		await _wait(float(gaps4[i]))
+		_store_clean_chrome()
+		await _capture("cover-damsel-montage_b4_f%02d.png" % i, "montage beat4 Sai/Flail")
+	_suite_files.clear()
 
 
 ## Formal itch reception pack — playtest/itch/RECEPTION-PACK.md §4 (shots 1–10 + optional 11–12).
@@ -1965,6 +2060,11 @@ func _ensure_registry() -> void:
 		"cover-damsel-slash_f06", "cover-damsel-slash_f07",
 	], _shot_cover_damsel_slash)
 	_shot_fns["still-wheel-cool-items"] = _shot_still_wheel_cool_items
+	var montage_stems: Array = []
+	for b in 5:
+		for i in 4:
+			montage_stems.append("cover-damsel-montage_b%d_f%02d" % [b, i])
+	_bind_many(montage_stems, _shot_cover_damsel_montage)
 	_bind_many([
 		"still-01-playtest-hub", "gif-02-road-ambush", "gif-03-tutorial-wheel",
 		"still-04-cabin-front", "gif-05-held-map", "gif-06-biome-splash",
