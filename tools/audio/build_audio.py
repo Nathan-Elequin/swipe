@@ -100,6 +100,8 @@ add("sting_victory", "sting", L("jingles", "Pizzicato jingles/jingles_PIZZI10.og
 #   ~0.45 s CC0 remix of tip Kenney/Swipe layers (whoosh, cab_shelf_chime, heal_sparkle); no metal; peak ~−14 dBFS.
 # sting_defeat.ogg is a drop-in (Nathan Suno / Defeat Stings.wav) — not rebuilt here.
 #   ~9.44 s one-shot, libvorbis, 0.32 s end fade. After it plays, music stays silent (no title bed).
+# mon_ability_*.ogg / item_use_*.ogg are drop-ins (2026-11-04 CC0/Kenney ability+item activate bake) — not rebuilt here.
+#   Cues: mon.ability.<card_id> / item.use.<item_id>. HOLD: leech_league / Blood Rise until #347.
 # Music (whole-file loops; trims measured in samples @44.1k)
 add("music_combat", "music", L("oga_rbl", "rbl_0.mp3"), trim=(1011, 2605292), edge_fade_ms=4)  # 32 bars @130 BPM; micro-fade masks the wrap
 add("music_deadly", "music", L("oga_deep", "dungeon_deep.mp3"), trim=(0, 1142158))
@@ -116,6 +118,7 @@ add("music_cabin", "music", L("oga_fire_m", "a_small_fire_will_do.wav"), trim=(0
 #     music_shadow_abyss_c.ogg (heat, map A/B -2 dB, C +6 dB). 200 BPM full-file loops.
 #   Clear sting: sting_clear.ogg (2026-11-04 accordion soft A) — drop-in, not rebuilt here.
 #   Defeat sting: sting_defeat.ogg (Nathan Suno / Defeat Stings.wav) — drop-in, not rebuilt here.
+#   Ability/item activate: mon_ability_*.ogg, item_use_*.ogg (2026-11-04) — drop-in, not rebuilt here.
 #   Credits: write_credits.py trailer + assets/audio/CREDITS.txt.
 
 TARGET_RMS = {"ui": -20.0, "sfx": -16.0, "sting": -16.0, "amb": -22.0}

@@ -487,3 +487,7 @@ Every pack page was fetched and its licence read on the page (OpenGameArt "Licen
 * **Card / special ids** in `lookup.card_id` / `lookup.special_id` are best guesses from the audit; Cursor must verify them against `data/catalog.json` and `MONSTER_SPECIAL` (`main.gd:126–160`).
 * **Combat bed wrap:** RBL wasn't built with a sample-exact loop; 4 ms edge fades hide the wrap but listen once. If it bothers, swap to "Infinite Darkness" (HydroGene, CC0, seamless by the author) at ~1.6 MB.
 * **Pass 2 ideas:** per-boss leitmotif stings; a quiet "deadly layer" stem instead of a separate bed; the music-box cabin alternative; proper per-character typewriter in `tutorial_guide.gd` if it doesn't exist.
+
+## Ability + item activate oneshots (2026-11-04)
+
+Unique CC0/Kenney drop-ins: `mon_ability_<card_id>.ogg` → cue `mon.ability.<card_id>`; `item_use_<item_id>.ogg` → cue `item.use.<item_id>`. Fired on ability activate (slash cut-in snap-in + silent activate hooks) and once from `_announce_item_use`. Key by card_id / item_id, never call-name. HOLD: `leech_league` / Blood Rise until playtest #347. Skip golem/wizard (no named ability). Not rebuilt by `build_audio.py`.
