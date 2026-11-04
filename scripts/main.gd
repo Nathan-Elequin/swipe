@@ -684,6 +684,15 @@ var _tut_face_busy: bool = false
 var _tut_inspected_tag: String = ""
 var _upgraded_slices: Array = []
 var _tut_boot: bool = false
+## v5 combat spine
+var _tut_first_deck_done: bool = false
+var _tut_hold_deck_refill: bool = false
+var _tut_free: bool = false
+var _tut_seen: Dictionary = {}
+var _tut_fired_triggers: Dictionary = {}
+var _tut_d2_snapshot: Dictionary = {}
+var _tut_pending_empty_seat: int = -1
+var _tut_rig_done: Dictionary = {}
 var draft_gate
 var _courier: TextureRect
 var _courier_gear: Dictionary = {}
@@ -1576,10 +1585,12 @@ func _build_ui() -> void:
 	tut = TUTORIAL_GUIDE.new()
 	add_child(tut)
 	tut.setup(art, sfx)
+	tut.vo_enabled = false
 	tut.continued.connect(_tut_on_continue)
 	tut.progress_key.connect(_tut_on_progress_key)
 	tut.skipped.connect(_tut_skip)
 	tut.finished.connect(_tut_finished)
+	tut.beat_entered.connect(_tut_on_beat_entered)
 	tut.branch_ok = _tut_branch_ok
 
 	combat_stage = COMBAT_STAGE.new()
@@ -2616,6 +2627,9 @@ func _enter_dungeon_clear() -> void:
 		_flash_screen(Color("e8c36a"), 0.28)
 		phase = "victory"
 		_log("end", "cleared")
+		## D1 Dragon clear → keep rails on B50+. D2 free-play clear → B53 wrap.
+		if _tut_free and tut != null:
+			call_deferred("_tut_on_free_dungeon_clear")
 		return
 	if not adventure:
 		if wheel_view and wheel_view.has_method("play_hero"):
@@ -8320,7 +8334,7 @@ func _on_spin() -> void:
 	_session("spin", "spin")
 	if phase != "ready":
 		return
-	if in_tutorial and (tut == null or (tut.wait != "spin" and tut.wait != "auto_spin" and tut.wait != "face")):
+	if in_tutorial and not _tut_free and (tut == null or (tut.wait != "spin" and tut.wait != "auto_spin" and tut.wait != "face")):
 		return
 	if facing_index >= 0:
 		return
@@ -8692,9 +8706,12 @@ func _on_done() -> void:
 	if _wheel_busy() or _walker_busy:
 		_spin_inflight = false
 		_clear_fight_input_lock()
-	if in_tutorial and (tut == null or (tut.wait != "done" and tut.wait != "choice")):
+	if in_tutorial and not _tut_free and (tut == null or (tut.wait != "done" and tut.wait != "choice")):
 		if tut:
-			tut.nudge(PLAYER_COPY.text("tutorial.nudge_wait", "Not yet — finish what I said."))
+			var end_nudge: String = PLAYER_COPY.text("tutorial.nudge_end_fight", "Not yet. Use the item.")
+			if tut.wait == "continue" or tut.wait == "spin" or tut.wait == "move" or tut.wait.begins_with("hover"):
+				end_nudge = PLAYER_COPY.text("tutorial.nudge_wait", "Not yet — finish what I said.")
+			tut.nudge(end_nudge)
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
@@ -9098,6 +9115,10 @@ func _play_attack_blocked(src: int = -1) -> void:
 func _player_down(skip_pose: bool = false) -> void:
 	_spin_inflight = false
 	hp = 0
+	if in_tutorial and _tut_free:
+		## Practice death: T5, no real defeat screen.
+		_tut_try_trigger("player_down")
+		return
 	if not skip_pose:
 		if wheel_view and wheel_view.has_method("play_hero"):
 			wheel_view.play_hero("death")
@@ -9139,8 +9160,19 @@ func _clear_after_fight(_clockwork_split: bool = false) -> void:
 	var left_id: String = str(m.get("card_id", ""))
 	_trace_resolve("clear start left=%s n=%s" % [left_id, wheel.size()])
 	if _tutorial_keeps_seat():
-		await _tutorial_replace_with_deck(facing_index, "bandit")
+		await _tutorial_replace_with_deck(facing_index)
 		facing_index = -1
+	elif in_tutorial and not _tut_free and left_id == "golem" and not challenge_deck.is_empty():
+		## Golem #1 leaves an empty seat; B21 draws Golem #2 into it.
+		_tut_hold_deck_refill = true
+		_tut_pending_empty_seat = facing_index
+		await _wick_on_defeated(facing_index)
+		var slot: String = str(wheel[facing_index].get("slot", ""))
+		wheel[facing_index] = {"kind": "empty", "slot": slot}
+		facing_index = -1
+		_sync_wheel_stats()
+		if wheel_view:
+			wheel_view.set_slices(wheel, -1, "none")
 	else:
 		await _wick_on_defeated(facing_index)
 		await _remove_crossbowed()
@@ -9779,7 +9811,7 @@ func _use_item(uid: int) -> void:
 		return
 	if in_tutorial and not _tutorial_allows_item(str(it.get("card_id", ""))):
 		if tut:
-			tut.nudge(PLAYER_COPY.text("tutorial.nudge_item", "Not that one."))
+			tut.nudge(_tutorial_nudge_for_item(str(it.get("card_id", ""))))
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
@@ -14460,6 +14492,7 @@ func _note_hp_lost(n: int) -> void:
 	last_hp_lost = n
 	bled.emit(n)
 	_shake_screen()
+	_tut_note_hp_change()
 	if n != 2:
 		return
 	for it in hotbar:
@@ -18266,14 +18299,22 @@ func _flee_spin(_shuffle: bool = false) -> bool:
 	elif sfx:
 		sfx.set_combat_music(false)
 	_refresh()
-	if in_tutorial:
+	if in_tutorial and not _tut_free:
 		call_deferred("_tutorial_after_fight")
 		return true
+	## Free-play Commander Flee: leave-and-respin (not Evasive).
+	if in_tutorial and _tut_free:
+		_tut_try_trigger("commander_fled")
 	_flee_random_spin = true
 	_challenge_force_spin = true
 	_undo_wall()
 	call_deferred("_maybe_auto_spin")
 	return true
+
+
+func _tut_note_hp_change() -> void:
+	if in_tutorial and _tut_free and hp <= 2:
+		_tut_try_trigger("hp_low")
 
 
 func _player_take_atk(n: int) -> bool:
@@ -24194,10 +24235,14 @@ func _can_move(dir: int) -> bool:
 	var dest: int = _live_neighbor_seat(facing_index, dir)
 	if dest < 0:
 		return false
-	if in_tutorial:
+	if in_tutorial and not _tut_free:
 		if tut == null or tut.wait != "move":
 			return false
-		if str(wheel[dest].get("card_id", "")) != str(tut.force_id):
+		var fid: String = str(tut.force_id)
+		if fid.begins_with("tag:"):
+			if str(wheel[dest].get("tut_tag", "")) != fid.substr(4):
+				return false
+		elif str(wheel[dest].get("card_id", "")) != fid:
 			return false
 	return true
 
@@ -24216,11 +24261,16 @@ func _sync_move_ui() -> void:
 	if not show_arrows and not show_take:
 		return
 	var tut_move: bool = in_tutorial and _tut_moves_on and tut != null and tut.wait == "move"
+	var tut_free_moves: bool = in_tutorial and _tut_free
 	if show_arrows and btn_move_left:
-		btn_move_left.disabled = false if tut_move else (true if in_tutorial and _tut_moves_on else not _can_move(-1))
+		btn_move_left.disabled = false if (tut_move or tut_free_moves) else (true if in_tutorial and _tut_moves_on and not _tut_free else not _can_move(-1))
+		if tut_free_moves:
+			btn_move_left.disabled = not _can_move(-1)
 		btn_move_left.queue_redraw()
 	if show_arrows and btn_move_right:
-		btn_move_right.disabled = false if tut_move else (true if in_tutorial and _tut_moves_on else not _can_move(1))
+		btn_move_right.disabled = false if (tut_move or tut_free_moves) else (true if in_tutorial and _tut_moves_on and not _tut_free else not _can_move(1))
+		if tut_free_moves:
+			btn_move_right.disabled = not _can_move(1)
 		btn_move_right.queue_redraw()
 	_place_move_arrows()
 	if wheel_view and wheel_view.has_method("set_moves"):
@@ -25631,18 +25681,26 @@ func _mode_choice_overlay_rows(it: Dictionary) -> Array:
 
 
 func _tutorial_keeps_seat() -> bool:
-	if not in_tutorial or _tut_bandit_seated:
+	## Auto deck-refill only for the first draw (Wizard → Golem #1). Golem #2 is B21-manual.
+	if not in_tutorial or _tut_free:
+		return false
+	if _tut_hold_deck_refill or _tut_first_deck_done:
+		return false
+	if challenge_deck.is_empty():
 		return false
 	if facing_index < 0 or facing_index >= wheel.size():
 		return false
 	return str(wheel[facing_index].get("kind", "")) == "monster"
 
 
-func _tutorial_replace_with_deck(index: int, id: String) -> void:
-	_tut_bandit_seated = true
+func _tutorial_replace_with_deck(index: int, id: String = "") -> void:
 	_tut_show_deck = true
-	if challenge_deck.is_empty():
+	if challenge_deck.is_empty() and id != "":
 		challenge_deck.append(id)
+	var draw_id: String = str(challenge_deck[0]) if not challenge_deck.is_empty() else id
+	if draw_id == "":
+		return
+	var tag: String = "golem_1" if not _tut_first_deck_done else "golem_2"
 	if dungeon_deck_ui:
 		dungeon_deck_ui.visible = true
 		_layout_play_field()
@@ -25662,21 +25720,26 @@ func _tutorial_replace_with_deck(index: int, id: String) -> void:
 	if ability_slash:
 		var slash_tex: Texture2D = null
 		if art != null:
-			slash_tex = art.monster_still(id)
+			slash_tex = art.monster_still(draw_id)
 		await ability_slash.play({
-			"title": _title_case(str(monsters_by_id.get(id, {}).get("name", id))),
-			"call": MONSTER_LINES.call_of(id, monsters_by_id.get(id, {})),
+			"title": _title_case(str(monsters_by_id.get(draw_id, {}).get("name", draw_id))),
+			"call": MONSTER_LINES.call_of(draw_id, monsters_by_id.get(draw_id, {})),
 			"tex": slash_tex,
 			"is_item": false,
-			"card_id": id,
+			"card_id": draw_id,
 		})
 	if index < 0 or index >= wheel.size():
 		_refresh()
 		return
 	var slot: String = str(wheel[index].get("slot", ""))
-	var seated: Dictionary = _make_monster(id)
+	var seated: Dictionary = _make_monster(draw_id)
 	seated["slot"] = slot
+	seated["tut_tag"] = tag
 	wheel[index] = seated
+	_tut_mark_seen(draw_id)
+	_tut_first_deck_done = true
+	## Legacy tip flag — still used by some spotlights.
+	_tut_bandit_seated = true
 	_sync_wheel_stats()
 	if wheel_view:
 		if wheel_view.slay_index == index and wheel_view.has_method("clear_slay"):
@@ -25688,6 +25751,8 @@ func _tutorial_replace_with_deck(index: int, id: String) -> void:
 		sfx.play("drop", -8.0)
 		sfx.play("whoosh", -12.0, 0.9)
 	_refresh()
+	if _tut_free:
+		_tut_try_trigger("deck_draw")
 
 
 func _tutorial_seat_cube_beside_bandit() -> void:
@@ -25737,14 +25802,21 @@ func _tutorial_arm_finisher() -> void:
 
 
 func _tutorial_offer_shuriken() -> void:
+	await _tutorial_offer_draft("shuriken", "throwing_knife", "Bandit")
+
+
+func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = "") -> void:
 	if _tut_draft_busy or challenge_draft_ui == null:
 		return
 	_tut_draft_busy = true
-	var shuriken: Dictionary = _make_item("shuriken")
-	var decoy: Dictionary = _make_item("throwing_knife")
-	var sub: String = "Bandit · %s" % PLAYER_COPY.tier_name(1)
-	while in_tutorial and tut != null and tut.wait == "draft:shuriken":
-		challenge_draft_ui.present("Loot", sub, _challenge_draft_card(shuriken), _challenge_draft_card(decoy), shuriken, decoy)
+	var want_wait: String = "draft:%s" % take_id
+	var take: Dictionary = _make_item(take_id)
+	var decoy: Dictionary = _make_item(decoy_id)
+	_tut_mark_seen(take_id)
+	_tut_mark_seen(decoy_id)
+	var sub: String = "%s · %s" % [sub_who if sub_who != "" else "Loot", PLAYER_COPY.tier_name(1)]
+	while in_tutorial and tut != null and tut.wait == want_wait:
+		challenge_draft_ui.present("Loot", sub, _challenge_draft_card(take), _challenge_draft_card(decoy), take, decoy)
 		_draft_final_item = true
 		challenge_draft_ui.set_final_item(false)
 		_sync_hub_cue()
@@ -25752,8 +25824,8 @@ func _tutorial_offer_shuriken() -> void:
 			challenge_draft_ui._sub.visible = true
 			challenge_draft_ui._sub.text = sub
 		var uid: int = await challenge_draft_ui.chosen
-		if uid == int(shuriken.get("uid", -1)):
-			hotbar.append(shuriken.duplicate(true))
+		if uid == int(take.get("uid", -1)):
+			hotbar.append(take.duplicate(true))
 			_sort_hotbar()
 			challenge_draft_ui.hide_draft()
 			_refresh()
@@ -25766,6 +25838,181 @@ func _tutorial_offer_shuriken() -> void:
 			sfx.play("error", -12.0)
 		challenge_draft_ui.hide_draft()
 	_tut_draft_busy = false
+
+
+func _tut_on_beat_entered(beat: String, rig_id: String) -> void:
+	if rig_id == "" or _tut_rig_done.get(rig_id, false):
+		return
+	_tut_rig_done[rig_id] = true
+	match rig_id:
+		"deck_golem_1":
+			## First deck draw already ran on Wizard clear; assert tag if present.
+			pass
+		"after_golem1":
+			_tut_hold_deck_refill = true
+		"deck_golem_2_fangs":
+			await _tut_rig_golem2_fangs()
+		"grant_arrow_head":
+			_tut_grant("arrow_head")
+		"grant_knucklers":
+			_tut_grant("knucklers")
+		"moves_on":
+			_tut_moves_on = true
+			moves_left = ADVENTURE_MOVES
+			_howto_move_shown = true
+			_sync_move_ui()
+		"board_d2":
+			await _tut_rig_board_d2()
+		"free_play":
+			## Armed on B52 enter; actual free starts after last continue.
+			pass
+		"reveal":
+			pass
+		_:
+			pass
+	_tut_after_advance()
+
+
+func _tut_grant(id: String) -> void:
+	if _tut_hotbar_has(id):
+		return
+	var it: Dictionary = _make_item(id)
+	hotbar.append(it)
+	_tut_mark_seen(id)
+	_sort_hotbar()
+	_refresh()
+	if sfx:
+		sfx.play("drop", -8.0)
+
+
+func _tut_rig_golem2_fangs() -> void:
+	_tut_hold_deck_refill = false
+	var seat: int = _tut_pending_empty_seat
+	if seat < 0 or seat >= wheel.size() or str(wheel[seat].get("kind", "")) != "empty":
+		## Find any empty seat after Golem #1 left.
+		seat = -1
+		for i in range(wheel.size()):
+			if str(wheel[i].get("kind", "")) == "empty":
+				seat = i
+				break
+	if seat < 0:
+		## Fallback: append if wheel somehow compacted.
+		seat = wheel.size()
+		wheel.append({"kind": "empty", "slot": str(seat)})
+		_reseat_slots()
+	await _tutorial_replace_with_deck(seat, "golem")
+	## Ensure tag is golem_2 even if first_deck flag already flipped.
+	if seat < wheel.size() and str(wheel[seat].get("card_id", "")) == "golem":
+		wheel[seat]["tut_tag"] = "golem_2"
+	_tut_grant("fangs")
+	_tut_pending_empty_seat = -1
+
+
+func _tut_rig_board_d2() -> void:
+	## Fresh D2: Commander cameo + Keep Breastplate if still held; top-up loot.
+	adventure = false
+	dungeons_cleared = 1
+	dungeon_index = 2
+	_prep_next_dungeon()
+	## _prep_next_dungeon zeroes hp_loss_events / bleeds.
+	var keep_ids: Array = []
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) == "breastplate":
+			keep_ids.append(it.duplicate(true))
+	hotbar.clear()
+	for kept in keep_ids:
+		kept["spent"] = false
+		kept["keep_after"] = false
+		hotbar.append(kept)
+	for iid in ["sai", "helmet", "bracers", "shield"]:
+		hotbar.append(_make_item(iid))
+		_tut_mark_seen(iid)
+	_sort_hotbar()
+	## Seats: Golem · Dire Wolf · Bandit · Commander · Needleback (Commander not next to Golem).
+	for i in range(wheel.size()):
+		wheel[i] = {"kind": "empty", "slot": SLOT_ORDER[i] if i < SLOT_ORDER.size() else str(i)}
+	var seats: Array = [
+		{"id": "golem", "slot": 0, "tag": "d2_golem"},
+		{"id": "dire_wolf", "slot": 1, "tag": "d2_wolf"},
+		{"id": "bandit", "slot": 2, "tag": "d2_bandit"},
+		{"id": "commander", "slot": 4, "tag": "d2_commander"},
+		{"id": "needleback", "slot": 5, "tag": "d2_needle"},
+	]
+	for s in seats:
+		_tut_seat_monster(str(s["id"]), int(s["slot"]), str(s["tag"]))
+	challenge_deck = ["vampire"]
+	_tut_show_deck = true
+	_tut_mark_seen("vampire")
+	phase = "ready"
+	hp = HP_MAX
+	blk = 0
+	moves_left = ADVENTURE_MOVES
+	_tut_moves_on = true
+	_sync_wheel_stats()
+	_refresh()
+	if sfx:
+		sfx.set_combat_music(true)
+
+
+func _tut_enter_free_play() -> void:
+	_tut_free = true
+	_tut_moves_on = true
+	_tut_hold_slay = false
+	_tut_snapshot_d2()
+	if tut:
+		tut.enter_free()
+	phase = "ready"
+	_refresh()
+	_tut_after_advance()
+
+
+func _tut_snapshot_d2() -> void:
+	_tut_d2_snapshot = {
+		"hp": hp,
+		"blk": blk,
+		"moves_left": moves_left,
+		"hotbar": hotbar.duplicate(true),
+		"wheel": wheel.duplicate(true),
+		"challenge_deck": challenge_deck.duplicate(true),
+		"hp_loss_events": hp_loss_events,
+	}
+
+
+func _tut_restore_d2_snapshot() -> void:
+	if _tut_d2_snapshot.is_empty():
+		return
+	hp = int(_tut_d2_snapshot.get("hp", 6))
+	blk = int(_tut_d2_snapshot.get("blk", 0))
+	moves_left = int(_tut_d2_snapshot.get("moves_left", ADVENTURE_MOVES))
+	hotbar = _tut_d2_snapshot.get("hotbar", []).duplicate(true)
+	wheel = _tut_d2_snapshot.get("wheel", []).duplicate(true)
+	challenge_deck = _tut_d2_snapshot.get("challenge_deck", []).duplicate(true)
+	hp_loss_events = int(_tut_d2_snapshot.get("hp_loss_events", 0))
+	facing_index = -1
+	phase = "ready"
+	_sync_wheel_stats()
+	_refresh()
+
+
+func _tut_try_trigger(ev: String) -> void:
+	if not _tut_free or tut == null:
+		return
+	if bool(_tut_fired_triggers.get(ev, false)) and ev != "player_down":
+		return
+	if tut.fire_trigger(ev):
+		if ev != "player_down":
+			_tut_fired_triggers[ev] = true
+		_tut_after_advance()
+
+
+func _tut_on_free_dungeon_clear() -> void:
+	if tut == null:
+		return
+	_tut_free = false
+	tut.resume_after_free_at("B53")
+	_tut_after_advance()
 
 
 func _tutorial_release_hold_slay() -> void:
@@ -25788,18 +26035,9 @@ func _tutorial_play_unlock() -> void:
 
 
 func _tutorial_unlock_entries() -> Array:
-	var skip := {
-		"wizard": true,
-		"golem": true,
-		"goblin": true,
-		"bandit": true,
-		"gelatinous_cube": true,
-		"sai": true,
-		"helmet": true,
-		"da_boot": true,
-		"knucklers": true,
-		"shuriken": true,
-	}
+	## Pool-1 reveal minus whatever the Yes path already seated / granted / drafted.
+	var skip: Dictionary = _tut_seen.duplicate(true)
+	## Always omit Smoke Bomb / forced openers if present in seen.
 	var loot: Array = []
 	var loot_extra: Array = []
 	var foes: Array = []
@@ -25845,6 +26083,38 @@ func _tutorial_unlock_entries() -> Array:
 	return out
 
 
+func _tut_mark_seen(id: String) -> void:
+	if id != "":
+		_tut_seen[id] = true
+
+
+func _tut_hotbar_has(id: String) -> bool:
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) == id:
+			return true
+	return false
+
+
+func _tut_index_of_tag(tag: String) -> int:
+	for i in range(wheel.size()):
+		if str(wheel[i].get("tut_tag", "")) == tag:
+			return i
+	return -1
+
+
+func _tut_seat_monster(id: String, slot_i: int, tag: String = "") -> void:
+	var m: Dictionary = _make_monster(id)
+	m["slot"] = SLOT_ORDER[slot_i] if slot_i < SLOT_ORDER.size() else str(slot_i)
+	m["spin_locked"] = false
+	if tag != "":
+		m["tut_tag"] = tag
+	wheel[slot_i] = m
+	_tut_mark_seen(id)
+	_log("on_place", "%s → %s" % [m.get("name", id), m["slot"]])
+
+
 func _start_tutorial() -> void:
 	_hide_cabin_for_run()
 	_tut_boot = true
@@ -25863,24 +26133,31 @@ func _start_tutorial() -> void:
 	_tut_hold_slay = false
 	_tut_moves_on = false
 	_tut_face_busy = false
+	_tut_first_deck_done = false
+	_tut_hold_deck_refill = false
+	_tut_free = false
+	_tut_seen = {}
+	_tut_fired_triggers = {}
+	_tut_d2_snapshot = {}
+	_tut_pending_empty_seat = -1
+	_tut_rig_done = {}
 	_reset_run()
 	_tut_boot = false
-	var seats: Array[String] = ["wizard", "golem", "goblin"]
-	var slots: Array[int] = [0, 2, 4]
-	for k in range(seats.size()):
-		var m: Dictionary = _make_monster(seats[k])
-		var si: int = slots[k]
-		m["slot"] = SLOT_ORDER[si]
-		m["spin_locked"] = false
-		wheel[si] = m
-		_log("on_place", "%s → %s" % [m["name"], m["slot"]])
-	for iid in ["sai", "helmet", "da_boot", "knucklers"]:
+	## board_d1: Wizard@0 · Dragon@1 · Goblin@3 · Harpy A@5 · Harpy B@6
+	_tut_seat_monster("wizard", 0, "wizard")
+	_tut_seat_monster("dragon", 1, "dragon")
+	_tut_seat_monster("goblin", 3, "goblin")
+	_tut_seat_monster("harpy", 5, "harpy_a")
+	_tut_seat_monster("harpy", 6, "harpy_b")
+	## Hotbar: Sai, Boot, Breastplate, Spiked Flail (no Helmet / Knucklers / Potion).
+	for iid in ["sai", "da_boot", "breastplate", "spiked_flail"]:
 		hotbar.append(_make_item(iid))
+		_tut_mark_seen(iid)
 		_log("on_place", "item  %s" % iid)
 	_sort_hotbar()
 	_sync_wheel_stats()
 	_tut_show_deck = true
-	challenge_deck = ["bandit"]
+	challenge_deck = ["golem", "golem"]
 	phase = "ready"
 	_log("on_click", "Tutorial")
 	_log("var", "HP %s" % hp)
@@ -25902,22 +26179,57 @@ func _tut_on_continue() -> void:
 		return
 	if sfx:
 		sfx.play("click", -12.0)
+	## Trigger bubbles return to free play after their last line.
+	if tut._on_trigger:
+		var cur_beat: String = str(tut.beat_id)
+		var next_i: int = tut.step + 1
+		var more: bool = next_i < tut._beats.size() and str(tut._beats[next_i].get("beat", "")) == cur_beat
+		if not more:
+			if cur_beat == "T5":
+				## Practice death: restore snapshot and stay free (Again). Skip uses chrome Skip.
+				_tut_restore_d2_snapshot()
+				tut.end_trigger_resume_free()
+				_tut_after_advance()
+				return
+			tut.end_trigger_resume_free()
+			_tut_after_advance()
+			return
+	## B52 last continue → free play.
+	if tut.beat_id == "B52" and int(tut.line_n) >= 2:
+		_tut_enter_free_play()
+		return
+	## B53 last line → pool-1 reveal + cabin arrive (B54/B55 owned by road finish).
+	if tut.beat_id == "B53" and int(tut.line_n) >= 3:
+		_tutorial_finish_async()
+		return
+	## B54/B55 if somehow reached: finish the same way.
+	if tut.beat_id == "B54" or tut.beat_id == "B55":
+		_tutorial_finish_async()
+		return
 	tut.advance()
 	_tut_after_advance()
 
 
 func _tut_skip() -> void:
-	## Always-on Skip during rails: same reveal → arrive path as O1 Skip.
+	## Always-on Skip during rails: S1 Nib line → reveal → arrive (same landing as O1 Skip).
 	if sfx:
 		sfx.play_event(&"tut.skip")
-	in_tutorial = false
+	_tut_free = false
 	_tut_moves_on = false
 	_tut_hold_slay = false
-	if tut:
-		tut.close()
 	if home_cabin:
 		home_cabin.tutorial_declined = true
 		home_cabin._save()
+	if tut != null and tut.visible and tut.has_method("jump_to_beat"):
+		## One S1 line, then continue into B54/B55 via linear advance… but S1 is skip_only.
+		## Jump straight to finish path so Skip never stalls.
+		tut.close()
+		in_tutorial = false
+		await _road_finish_to_cabin(true)
+		return
+	in_tutorial = false
+	if tut:
+		tut.close()
 	await _road_finish_to_cabin(true)
 
 
@@ -25980,13 +26292,15 @@ func _tut_after_advance() -> void:
 func _tut_refresh_focus() -> void:
 	if tut == null or not in_tutorial or not tut.visible:
 		return
-	_tutorial_stage_dungeon2()
-	if tut.wait == "draft:shuriken":
+	if tut.wait == "draft:shield":
+		_tutorial_offer_draft("shield", "throwing_knife", "Golem")
+	elif tut.wait == "draft:shuriken":
 		_tutorial_offer_shuriken()
 	elif tut.wait == "face":
 		_tutorial_begin_face()
-	elif tut.wait == "item:sai" and _tut_bandit_seated and tut.spoken().find("showing 4") >= 0:
-		_tutorial_arm_finisher()
+	elif tut.wait == "free":
+		tut.set_spots([], [])
+		return
 	var spots: Array = []
 	var arrows: Array = []
 	_tut_collect_spots(spots, arrows)
@@ -26066,12 +26380,19 @@ func _tut_inspect_focused_item() -> void:
 	if tut == null or not in_tutorial:
 		return
 	var tag: String = str(tut.focus_tag)
-	if tag != "item:helmet" and tag != "item:knucklers":
+	if not tag.begins_with("item:"):
+		return
+	var iid: String = tag.substr(5)
+	## Auto-open inspect for teach beats (Breastplate Keep, Flail, Fangs, Arrow Head, Knucklers, Shield, Boot).
+	var teach := {
+		"helmet": true, "knucklers": true, "breastplate": true, "spiked_flail": true,
+		"fangs": true, "arrow_head": true, "shield": true, "da_boot": true, "sai": true,
+	}
+	if not teach.has(iid):
 		return
 	if tag == _tut_inspected_tag:
 		return
 	_tut_inspected_tag = tag
-	var iid: String = tag.substr(5)
 	var card: Control = _hotbar_card(iid)
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
@@ -26162,21 +26483,38 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 		return
 	if tag == "deck":
 		_tut_add_control(spots, dungeon_deck_ui)
-		var deck_seat: int = _index_of_monster("bandit") if _tut_bandit_seated else facing_index
+		var deck_seat: int = _tut_index_of_tag("golem_1")
+		if deck_seat < 0:
+			deck_seat = _tut_index_of_tag("golem_2")
+		if deck_seat < 0:
+			deck_seat = _index_of_monster("golem")
+		if deck_seat < 0:
+			deck_seat = facing_index
 		if deck_seat >= 0 and wheel_view != null and wheel_view.has_method("slice_rect"):
 			_tut_add_rect(spots, wheel_view.slice_rect(deck_seat))
 		return
 	if tag == "draft":
 		_tut_add_control(spots, challenge_draft_ui)
 		return
+	if tag == "hotbar":
+		_tut_add_control(spots, hotbar_box)
+		return
 	if tag == "move_arrow":
 		if btn_move_left != null and btn_move_left.has_method("arc_global_rect"):
 			_tut_add_rect(spots, btn_move_left.arc_global_rect())
+		if btn_move_right != null and btn_move_right.has_method("arc_global_rect"):
+			_tut_add_rect(spots, btn_move_right.arc_global_rect())
 		if wheel_view != null:
 			_tut_add_rect(spots, wheel_view.focus_rect("moves"))
-			var cube_i: int = _index_of_monster("gelatinous_cube")
-			if cube_i >= 0:
-				_tut_add_rect(spots, wheel_view.slice_rect(cube_i))
+			var move_i: int = -1
+			if tut != null and str(tut.force_id).begins_with("tag:"):
+				move_i = _tut_index_of_tag(str(tut.force_id).substr(4))
+			if move_i < 0:
+				move_i = _tut_index_of_tag("harpy_b")
+			if move_i < 0:
+				move_i = _index_of_monster("gelatinous_cube")
+			if move_i >= 0:
+				_tut_add_rect(spots, wheel_view.slice_rect(move_i))
 		return
 	if _tut_d2_focus == "seat":
 		_tut_add_control(spots, wheel_view)
@@ -26467,26 +26805,45 @@ func _index_of_monster(id: String) -> int:
 
 
 func _tutorial_spin_index() -> int:
-	if tut != null and str(tut.force_id) != "":
-		var forced: int = _index_of_monster(str(tut.force_id))
-		if forced >= 0:
-			return forced
+	if tut == null or str(tut.force_id) == "":
+		return -1
+	var fid: String = str(tut.force_id)
+	if fid.begins_with("tag:"):
+		return _tut_index_of_tag(fid.substr(4))
+	var forced: int = _index_of_monster(fid)
+	if forced >= 0:
+		return forced
 	return -1
 
 
 func _tutorial_allows_item(id: String) -> bool:
 	if tut == null:
 		return false
+	if _tut_free or tut.wait == "free":
+		return true
 	var w: String = tut.wait
 	if w == "choice":
 		return id == "da_boot"
-	if not w.begins_with("item:"):
-		return false
-	return w == "item:%s" % id
+	## Explicit allow list on the armed beat (last line).
+	if tut.allow is Array and not tut.allow.is_empty():
+		return tut.allow.has(id)
+	if w.begins_with("item:"):
+		return w == "item:%s" % id
+	return false
+
+
+func _tutorial_nudge_for_item(id: String) -> String:
+	if id == "shield" and (tut == null or tut.wait != "item:shield"):
+		return PLAYER_COPY.text("tutorial.nudge_shield", "Not the Shield. Trust me.")
+	if id == "spiked_flail" and (tut == null or tut.wait != "item:spiked_flail"):
+		return PLAYER_COPY.text("tutorial.nudge_flail", "Not yet. Save it.")
+	return PLAYER_COPY.text("tutorial.nudge_item", "Not that one.")
 
 
 func _tutorial_item_used(id: String) -> void:
 	if tut == null or not in_tutorial:
+		return
+	if _tut_free or tut.wait == "free":
 		return
 	if tut.wait == "choice" and id == "da_boot":
 		tut.choice = "boot"
@@ -26495,7 +26852,7 @@ func _tutorial_item_used(id: String) -> void:
 		return
 	if id == "da_boot":
 		tut.choice = "boot"
-		return
+	_tut_mark_seen(id)
 	var release_hold: bool = id == "shuriken" and _tut_hold_slay
 	tut.advance()
 	_tut_after_advance()
@@ -26506,6 +26863,14 @@ func _tutorial_item_used(id: String) -> void:
 
 func _tutorial_combat_started() -> void:
 	if not in_tutorial or tut == null:
+		return
+	if _tut_free or tut.wait == "free":
+		if facing_index >= 0 and facing_index < wheel.size():
+			var cid: String = str(wheel[facing_index].get("card_id", ""))
+			if cid == "commander":
+				_tut_try_trigger("commander_seen")
+			elif _tut_neighbor_is_commander(facing_index):
+				_tut_try_trigger("commander_seen")
 		return
 	if tut.wait != "spin" and tut.wait != "auto_spin" and tut.wait != "face":
 		return
@@ -26520,6 +26885,18 @@ func _tut_branch_ok(br: String) -> bool:
 		return _index_of_monster("golem") >= 0
 	if br == "goblin_waiting":
 		return _index_of_monster("goblin") >= 0
+	if br == "has_boot":
+		return _tut_hotbar_has("da_boot")
+	if br == "no_boot":
+		return not _tut_hotbar_has("da_boot")
+	return false
+
+
+func _tut_neighbor_is_commander(index: int) -> bool:
+	for dir in [-1, 1]:
+		var n: int = _live_neighbor_seat(index, dir)
+		if n >= 0 and str(wheel[n].get("card_id", "")) == "commander":
+			return true
 	return false
 
 
@@ -26599,9 +26976,23 @@ func _tutorial_on_item_hover() -> void:
 func _tutorial_on_slice_hover(index: int) -> void:
 	if not in_tutorial or tut == null or not tut.armed():
 		return
+	if _tut_free or tut.wait == "free":
+		if index >= 0 and index < wheel.size() and str(wheel[index].get("card_id", "")) == "commander":
+			_tut_try_trigger("commander_seen")
+		return
 	if tut.wait == "hover_shift" or tut.wait == "hover":
 		if wheel_view != null and index >= 0:
 			wheel_view.hover_index = index
+		## Optional force: only the tagged / named monster counts.
+		if str(tut.force_id) != "":
+			var fid: String = str(tut.force_id)
+			var ok := false
+			if fid.begins_with("tag:"):
+				ok = str(wheel[index].get("tut_tag", "")) == fid.substr(4)
+			else:
+				ok = str(wheel[index].get("card_id", "")) == fid
+			if not ok:
+				return
 		_tutorial_try_shift_inspect()
 		return
 	if tut.wait != "hover_slice:berserker":

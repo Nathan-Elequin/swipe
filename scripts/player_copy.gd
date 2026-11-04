@@ -254,10 +254,16 @@ static func tutorial_lines() -> Array:
 			continue
 		if str(row.get("key", "")).begins_with("tutorial.line."):
 			found.append(row)
-	found.sort_custom(func(a, b) -> bool: return str(a.get("key", "")) < str(b.get("key", "")))
+	## Beat keys sort as B01 < B02 < B27a < B27b < T1 < S1 (not plain string order).
+	found.sort_custom(func(a, b) -> bool: return _tutorial_line_sort_key(a) < _tutorial_line_sort_key(b))
 	var out: Array = []
 	for row in found:
+		var allow_raw: Variant = row.get("allow", [])
+		var allow: Array = allow_raw if typeof(allow_raw) == TYPE_ARRAY else []
 		out.append({
+			"key": str(row.get("key", "")),
+			"beat": str(row.get("beat", "")),
+			"line": int(row.get("line", 0)),
 			"text": str(row.get("text", "")),
 			"hint": str(row.get("hint", "")),
 			"focus": str(row.get("focus", "")),
@@ -268,8 +274,46 @@ static func tutorial_lines() -> Array:
 			"branch": str(row.get("branch", "")),
 			"nib": float(row.get("nib", 0.0)),
 			"tiny": bool(row.get("tiny", false)),
+			"rig": str(row.get("rig", "")),
+			"allow": allow,
+			"trigger": str(row.get("trigger", "")),
 		})
 	return out
+
+
+static func _tutorial_line_sort_key(row: Dictionary) -> String:
+	var key: String = str(row.get("key", ""))
+	var rest: String = key.trim_prefix("tutorial.line.")
+	var parts: PackedStringArray = rest.split(".")
+	if parts.is_empty():
+		return key
+	var beat: String = str(parts[0])
+	var line: String = str(parts[1]) if parts.size() > 1 else "0"
+	var rank: String = "3"
+	var body: String = beat
+	if beat.begins_with("B"):
+		rank = "1"
+		body = beat.substr(1)
+	elif beat.begins_with("T"):
+		rank = "2"
+		body = beat.substr(1)
+	elif beat.begins_with("S"):
+		rank = "4"
+		body = beat.substr(1)
+	## Zero-pad numeric prefix so 9 < 10; keep letter suffix (27a before 27b).
+	var digits := ""
+	var suffix := ""
+	for i in body.length():
+		var ch: String = body.substr(i, 1)
+		if ch >= "0" and ch <= "9" and suffix == "":
+			digits += ch
+		else:
+			suffix += ch
+	while digits.length() < 3:
+		digits = "0" + digits
+	while line.length() < 3:
+		line = "0" + line
+	return "%s-%s%s-%s" % [rank, digits, suffix, line]
 
 
 static func taunts(id: String) -> Array:
