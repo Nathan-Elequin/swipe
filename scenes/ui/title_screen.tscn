@@ -1,0 +1,218 @@
+[gd_scene load_steps=17 format=3 uid="uid://btitleh3pbscrn01"]
+
+[ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://0ca22aok7fal" path="res://assets/ui/title/title_room_bg.png" id="2_tex"]
+[ext_resource type="Texture2D" uid="uid://vwmnubht7akz" path="res://assets/ui/title/title_portrait_bartleby.png" id="3_tex"]
+[ext_resource type="Texture2D" uid="uid://vyfwu8zv6eh1" path="res://assets/ui/title/title_window.png" id="4_tex"]
+[ext_resource type="Texture2D" uid="uid://theh3lf8hvis" path="res://assets/ui/title/title_door_jamb.png" id="5_tex"]
+[ext_resource type="Texture2D" uid="uid://44qa9he34fr6" path="res://assets/ui/title/title_door_glow.png" id="6_tex"]
+[ext_resource type="Texture2D" uid="uid://5q5e94exmt8m" path="res://assets/ui/title/title_sprout_sai_silhouette.png" id="7_tex"]
+[ext_resource type="Texture2D" uid="uid://655z2cxfim6k" path="res://assets/ui/title/title_door_panel.png" id="8_tex"]
+[ext_resource type="Texture2D" uid="uid://2wgvl46mb9nd" path="res://assets/ui/title/title_spill_door_warm.png" id="9_tex"]
+[ext_resource type="Texture2D" uid="uid://jacfkq47ill1" path="res://assets/ui/title/title_spill_window_moon.png" id="10_tex"]
+[ext_resource type="Texture2D" uid="uid://13djol0hizdk" path="res://assets/ui/title/title_table.png" id="11_tex"]
+[ext_resource type="Texture2D" uid="uid://e4yxymwrindi" path="res://assets/ui/title/title_map_title_baked.png" id="12_tex"]
+[ext_resource type="Texture2D" uid="uid://g7x587p5pdtb" path="res://assets/ui/title/title_loot_bag_spill.png" id="13_tex"]
+[ext_resource type="Texture2D" uid="uid://un6xqa0zas6j" path="res://assets/ui/title/title_loot_tray_grouped.png" id="14_tex"]
+[ext_resource type="Texture2D" uid="uid://c490jziqh11a" path="res://assets/ui/title/title_nib_lantern.png" id="15_tex"]
+[ext_resource type="Texture2D" uid="uid://ozggqkxh2zti" path="res://assets/ui/title/title_fx_vignette_lamp.png" id="16_tex"]
+
+[node name="TitleScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+texture_filter = 0
+script = ExtResource("1_script")
+
+[node name="Art" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="RoomBG" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1680.0
+offset_bottom = 1040.0
+mouse_filter = 2
+texture = ExtResource("2_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="PortraitBartleby" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 59.0
+offset_top = 87.0
+offset_right = 229.0
+offset_bottom = 295.0
+mouse_filter = 2
+texture = ExtResource("3_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="Window" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 266.0
+offset_top = 4.0
+offset_right = 1214.0
+offset_bottom = 588.0
+mouse_filter = 2
+texture = ExtResource("4_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="DoorJamb" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 1020.0
+offset_top = 0.0
+offset_right = 1680.0
+offset_bottom = 792.0
+mouse_filter = 2
+texture = ExtResource("5_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="DoorGlow" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 1250.0
+offset_top = 40.0
+offset_right = 1570.0
+offset_bottom = 590.0
+mouse_filter = 2
+texture = ExtResource("6_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="SproutSai" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 1244.0
+offset_top = 115.0
+offset_right = 1535.0
+offset_bottom = 575.0
+mouse_filter = 2
+texture = ExtResource("7_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="DoorPanel" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 1570.0
+offset_top = 2.0
+offset_right = 1680.0
+offset_bottom = 627.0
+mouse_filter = 2
+texture = ExtResource("8_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="SpillDoor" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 1120.0
+offset_top = 590.0
+offset_right = 1680.0
+offset_bottom = 800.0
+mouse_filter = 2
+texture = ExtResource("9_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="SpillMoon" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 590.0
+offset_right = 1260.0
+offset_bottom = 1040.0
+mouse_filter = 2
+texture = ExtResource("10_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="Table" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 588.0
+offset_right = 1680.0
+offset_bottom = 1040.0
+mouse_filter = 2
+texture = ExtResource("11_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="MapTitle" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 367.0
+offset_top = 630.0
+offset_right = 1362.0
+offset_bottom = 1029.0
+mouse_filter = 2
+texture = ExtResource("12_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="LootBag" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 760.0
+offset_right = 409.0
+offset_bottom = 1040.0
+mouse_filter = 2
+texture = ExtResource("13_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="LootTray" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 1297.0
+offset_top = 626.0
+offset_right = 1680.0
+offset_bottom = 1040.0
+mouse_filter = 2
+texture = ExtResource("14_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="Nib" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 186.0
+offset_top = 286.0
+offset_right = 734.0
+offset_bottom = 834.0
+mouse_filter = 2
+texture = ExtResource("15_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="FxVignette" type="TextureRect" parent="Art"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1680.0
+offset_bottom = 1040.0
+mouse_filter = 2
+texture = ExtResource("16_tex")
+expand_mode = 1
+stretch_mode = 2
+
+[node name="PressStart" type="Label" parent="."]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 1008.0
+offset_right = 1680.0
+offset_bottom = 1032.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.9137255, 0.8117647, 0.5960785, 0.65)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "Click to continue"
+
