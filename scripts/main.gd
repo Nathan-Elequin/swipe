@@ -1717,6 +1717,7 @@ func _build_ui() -> void:
 	home_cabin.route_chosen.connect(_start_route)
 	home_cabin.held_map_wanted.connect(_toggle_held_map)
 	home_cabin.tutorial_wanted.connect(_start_tutorial)
+	home_cabin.road_skip_wanted.connect(_road_skip_to_cabin)
 	home_cabin.quit_wanted.connect(_quit_game)
 	home_cabin.comment_wanted.connect(func(id: String) -> void: _open_playtest_comment("item", id))
 	home_cabin.attach_editor(self)
@@ -25884,6 +25885,8 @@ func _start_tutorial() -> void:
 	_log("on_click", "Tutorial")
 	_log("var", "HP %s" % hp)
 	if sfx:
+		## Ambush/tutorial segment: existing dungeon combat bed (verdant / combat).
+		sfx.set_combat_music(true)
 		sfx.play("book", -10.0)
 		sfx.play("door_open", -8.0)
 	if tut:
@@ -25904,20 +25907,27 @@ func _tut_on_continue() -> void:
 
 
 func _tut_skip() -> void:
+	## Always-on Skip during rails: same reveal → arrive path as O1 Skip.
 	if sfx:
 		sfx.play_event(&"tut.skip")
 	in_tutorial = false
+	_tut_moves_on = false
+	_tut_hold_slay = false
 	if tut:
 		tut.close()
 	if home_cabin:
 		home_cabin.tutorial_declined = true
 		home_cabin._save()
-	_reset_run()
-	phase = "title"
-	_open_home_cabin(true, "win", [], [])
+	await _road_finish_to_cabin(true)
+
+
+func _road_skip_to_cabin() -> void:
+	## O1 Skip from the road overlay (never entered the tip tutorial).
 	if home_cabin:
-		home_cabin._arrive_skip = 2
-	_refresh()
+		home_cabin.tutorial_declined = true
+		home_cabin._save()
+	_hide_cabin_for_run()
+	await _road_finish_to_cabin(true)
 
 
 func _tut_finished() -> void:
@@ -25930,12 +25940,33 @@ func _tutorial_finish_async() -> void:
 	_tut_hold_slay = false
 	if tut:
 		tut.close()
-	await _tutorial_play_unlock()
 	if home_cabin:
 		home_cabin.tutorial_done = true
 		home_cabin._save()
-	_reset_run()
+	await _road_finish_to_cabin(false)
+
+
+func _road_finish_to_cabin(declined: bool) -> void:
+	## Shared Yes-complete / Skip landing: pool-1 reveal → intro_p5 arrive → free cabin walk-in.
 	phase = "title"
+	_reset_run()
+	if home_cabin:
+		## Keep cabin marked visible so _sync_overlay does not call show_menu mid-reveal.
+		home_cabin.visible = true
+		if declined:
+			home_cabin.tutorial_declined = true
+			home_cabin._save()
+	_refresh()
+	await _tutorial_play_unlock()
+	if sfx and sfx.has_method("music_cabin"):
+		sfx.music_cabin()
+	if home_cabin and home_cabin.has_method("play_arrive_splash"):
+		## Arrive cutscene: assets/dungeon/home/cutscenes/intro_p5.png
+		await home_cabin.play_arrive_splash()
+	## Live cabin BG after arrive: cabin_exterior.png via walk-in.
+	_open_home_cabin(true, "win", [], [])
+	if home_cabin:
+		home_cabin._apply_gate()
 	_refresh()
 
 

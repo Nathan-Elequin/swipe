@@ -5134,6 +5134,48 @@
 			"locked_at": "2026-10-28",
 			"text": "Already used until.",
 			"where": "Used item this fight"
+		},
+		"road.caption.A1.1": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "Nib walks you home. The cabin's just up the path.",
+			"where": "Road approach caption (A1)"
+		},
+		"road.caption.A2.1": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "Something moves in the brush.",
+			"where": "Road ambush caption (A2) line 1"
+		},
+		"road.caption.A2.2": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "The path fills with teeth.",
+			"where": "Road ambush caption (A2) line 2"
+		},
+		"road.overlay.title": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "Go through the tutorial with Nib?",
+			"where": "Road tutorial overlay title (O1)"
+		},
+		"road.overlay.yes": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "Yes",
+			"where": "Road tutorial overlay Yes (O1)"
+		},
+		"road.overlay.no": {
+			"cat": "Road",
+			"locked_at": "2026-11-04",
+			"text": "Skip",
+			"where": "Road tutorial overlay Skip (O1)"
+		},
+		"tutorial.chrome.skip": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Skip",
+			"where": "Always-on Skip during tutorial rails"
 		}
 	},
 	"updated": "2026-11-04"

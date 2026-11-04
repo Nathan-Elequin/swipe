@@ -2633,6 +2633,62 @@
 			"where": "Door balloon after taking pocketwatch · line 5 of 5"
 		},
 		{
+			"author_lock": true,
+			"cat": "Road",
+			"key": "road.caption.A1.1",
+			"locked_at": "2026-11-04",
+			"text": "Nib walks you home. The cabin's just up the path.",
+			"where": "Road approach caption (A1)"
+		},
+		{
+			"author_lock": true,
+			"cat": "Road",
+			"key": "road.caption.A2.1",
+			"locked_at": "2026-11-04",
+			"text": "Something moves in the brush.",
+			"where": "Road ambush caption (A2) line 1"
+		},
+		{
+			"author_lock": true,
+			"cat": "Road",
+			"key": "road.caption.A2.2",
+			"locked_at": "2026-11-04",
+			"text": "The path fills with teeth.",
+			"where": "Road ambush caption (A2) line 2"
+		},
+		{
+			"author_lock": true,
+			"cat": "Road",
+			"key": "road.overlay.title",
+			"locked_at": "2026-11-04",
+			"text": "Go through the tutorial with Nib?",
+			"where": "Road tutorial overlay title (O1)"
+		},
+		{
+			"author_lock": true,
+			"cat": "Road",
+			"key": "road.overlay.yes",
+			"locked_at": "2026-11-04",
+			"text": "Yes",
+			"where": "Road tutorial overlay Yes (O1)"
+		},
+		{
+			"author_lock": true,
+			"cat": "Road",
+			"key": "road.overlay.no",
+			"locked_at": "2026-11-04",
+			"text": "Skip",
+			"where": "Road tutorial overlay Skip (O1)"
+		},
+		{
+			"author_lock": true,
+			"cat": "Tutorial",
+			"key": "tutorial.chrome.skip",
+			"locked_at": "2026-11-04",
+			"text": "Skip",
+			"where": "Always-on Skip during tutorial rails"
+		},
+		{
 			"cat": "Intro",
 			"draft": true,
 			"key": "intro.p1",
@@ -5881,5 +5937,5 @@
 			"text": "I put my left hand on the wall and started down."
 		}
 	],
-	"updated": "2026-11-03"
+	"updated": "2026-11-04"
 }

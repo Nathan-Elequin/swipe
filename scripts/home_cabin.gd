@@ -8,6 +8,8 @@ signal item_unhovered
 signal route_chosen(route: String)
 signal held_map_wanted
 signal tutorial_wanted
+## Road-frame O1 Skip (or mid-tutorial Skip): declined → pool-1 reveal → arrive.
+signal road_skip_wanted
 signal quit_wanted
 signal comment_wanted(card_id: String)
 ## Fires when a case's shown collection crosses the quota (5) on an extract bank.
@@ -108,6 +110,7 @@ var _hover_tag
 var _overlays: Control
 var _dialog
 var _cutscene
+var _road_frame
 var _map_piece_beat
 var _story_seq: int = 0
 var _map
@@ -404,7 +407,7 @@ func intro_pending() -> bool:
 
 
 func cutscene_playing() -> bool:
-	return _cutscene != null and _cutscene.is_playing()
+	return (_cutscene != null and _cutscene.is_playing()) or (_road_frame != null and _road_frame.is_open())
 
 
 func _sync_playtest_fab() -> void:
@@ -553,7 +556,9 @@ func play_intro(is_replay: bool = false) -> void:
 		sfx.set_combat_music(false)
 	_play_station()
 	if _cutscene:
-		_cutscene.play("intro", {"replay": is_replay})
+		## First-run: p1–p3 only. Road frame owns approach (p4/A1) → ambush → overlay.
+		## Replay keeps full p1–p5 including arrive.
+		_cutscene.play("intro", {"replay": is_replay, "road_frame": not is_replay})
 		_sync_playtest_fab()
 		await _cutscene.finished
 		_sync_playtest_fab()
@@ -567,7 +572,44 @@ func play_intro(is_replay: bool = false) -> void:
 		return
 	intro_seen = true
 	_save()
+	if not tutorial_done and not tutorial_declined:
+		await _play_road_frame(seq)
+		return
 	show_menu("main")
+
+
+func _play_road_frame(seq: int) -> void:
+	## A1 approach → A2 ambush → O1 Yes/Skip. No Nib portrait/VO before the choice.
+	if _road_frame == null:
+		show_menu("main")
+		return
+	_beat = "road"
+	_sync_playtest_fab()
+	var yes: bool = await _road_frame.play_and_ask()
+	_sync_playtest_fab()
+	if seq != _story_seq or not visible:
+		return
+	if yes:
+		_beat = "idle"
+		tutorial_wanted.emit()
+		return
+	## Skip: declined → main runs reveal → arrive splash → free cabin.
+	tutorial_declined = true
+	_save()
+	_beat = "idle"
+	road_skip_wanted.emit()
+
+
+func play_arrive_splash() -> void:
+	## B55 arrive cutscene (intro_p5). Live cabin BG stays cabin_exterior via walk-in.
+	if _cutscene == null:
+		return
+	_beat = "arrive"
+	_cutscene.play("arrive", {})
+	_sync_playtest_fab()
+	await _cutscene.finished
+	_sync_playtest_fab()
+	_beat = "idle"
 
 
 func play_key_ring() -> void:
@@ -3690,11 +3732,6 @@ func _input(event: InputEvent) -> void:
 			return
 		if _busy():
 			return
-		if _gate_on():
-			if _dialog:
-				_dialog.say(["map.first_only"])
-			get_viewport().set_input_as_handled()
-			return
 		_ask_held_map()
 		get_viewport().set_input_as_handled()
 		return
@@ -3779,6 +3816,8 @@ func stop_story() -> void:
 	_story_seq += 1
 	if _cutscene and _cutscene.is_playing():
 		_cutscene.abort()
+	if _road_frame and _road_frame.has_method("abort"):
+		_road_frame.abort()
 	if _dialog and _dialog.has_method("close"):
 		_dialog.visible = false
 	elif _dialog:
@@ -4122,6 +4161,9 @@ func _build_overlays() -> void:
 	_cutscene = preload("res://scripts/cabin/cutscene_player.gd").new()
 	_cutscene.setup(self)
 	add_child(_cutscene)
+	_road_frame = preload("res://scripts/cabin/road_frame.gd").new()
+	_road_frame.setup(self)
+	add_child(_road_frame)
 	_map_piece_beat = preload("res://scripts/cabin/map_piece_beat.gd").new()
 	_map_piece_beat.setup(self)
 	add_child(_map_piece_beat)
@@ -4432,7 +4474,7 @@ func _tidy_blocking() -> void:
 
 func _busy() -> bool:
 	_tidy_blocking()
-	return _pan_busy or _room_busy or _arriving or (_dialog and _dialog.is_open()) or _overlay_name != "" or (_cutscene and _cutscene.is_playing())
+	return _pan_busy or _room_busy or _arriving or (_dialog and _dialog.is_open()) or _overlay_name != "" or (_cutscene and _cutscene.is_playing()) or (_road_frame != null and _road_frame.is_open())
 
 
 func _on_hotspot(node_name: String, room: String = "main") -> void:
@@ -4543,9 +4585,7 @@ func _on_spot_unhover(_n: String) -> void:
 func _on_run_door() -> void:
 	## Main's painted run door starts the rightward path (hall → Outpost → delve).
 	## Delve itself is the Outpost right/out exit — never skip the trophy hall.
-	if _gate_on():
-		_interrupt()
-		return
+	## First-run tutorial gate is the road overlay (O1), not this door.
 	if is_room_unlocked("hall"):
 		pan_to("hall")
 		return
@@ -4580,10 +4620,6 @@ func _play_run_door_open() -> void:
 
 
 func _on_map() -> void:
-	if _gate_on():
-		if _dialog:
-			_dialog.say(["map.first_only"])
-		return
 	_ask_held_map()
 
 
@@ -4723,39 +4759,8 @@ func _leave_for_run(route: String) -> void:
 	route_chosen.emit(route)
 
 
-func _interrupt() -> void:
-	var main_room = _rooms.get("main")
-	if main_room and main_room.nib:
-		KIT.cue(sfx, &"speech.nib_gasp")
-		main_room.nib.play("gasp")
-		var tw := create_tween()
-		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-		tw.tween_property(main_room.nib, "position:x", 232.0 * PX, 0.4)
-	if _dialog == null:
-		tutorial_declined = true
-		_save()
-		_apply_gate()
-		_ask_held_map()
-		return
-	if _dialog.has_method("dismiss"):
-		_dialog.dismiss()
-	_dialog.say(["nib.interrupt.1", "nib.interrupt.2"], ["nib.interrupt.yes", "nib.interrupt.no"])
-	var ch: int = await _dialog.finished
-	if ch == 0:
-		tutorial_wanted.emit()
-	else:
-		tutorial_declined = true
-		_save()
-		_dialog.say(["nib.interrupt.no_reply"])
-		await _dialog.finished
-		_apply_gate()
-		_ask_held_map()
-
-
 func _on_nib() -> void:
-	if _gate_on():
-		_interrupt()
-		return
+	## Road overlay owns the first-run tutorial ask. Dummy still offers tip replay.
 	var keys := ["nib.idle.1", "nib.idle.2", "nib.idle.3", "nib.idle.4", "nib.idle.5", "nib.idle.6"]
 	var k: String = str(keys[nib_idle_index % keys.size()])
 	nib_idle_index = (nib_idle_index + 1) % keys.size()
