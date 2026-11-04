@@ -206,9 +206,6 @@ func _build_talk(art) -> void:
 	btns.alignment = BoxContainer.ALIGNMENT_END
 	btns.add_theme_constant_override("separation", 8)
 	col.add_child(btns)
-	_skip = FitButton.new()
-	_skip.visible = false
-	_skip.pressed.connect(func() -> void: skipped.emit())
 	_go = FitButton.new()
 	_go.max_font_size = 26
 	_go.min_font_size = 16
@@ -222,6 +219,18 @@ func _build_talk(art) -> void:
 	_style_btn(_go, Color("fff3d6"), Color("3a2414"))
 	_go.pressed.connect(func() -> void: continued.emit())
 	btns.add_child(_go)
+	## Always-on corner Skip during rails. No confirm modal → skipped → reveal → arrive.
+	_skip = Button.new()
+	_skip.flat = true
+	_skip.focus_mode = Control.FOCUS_NONE
+	_skip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_skip.text = COPY.text("tutorial.chrome.skip", COPY.text("tutorial.skip", "Skip"))
+	_skip.add_theme_font_size_override("font_size", 20)
+	_skip.add_theme_color_override("font_color", Color("a89888"))
+	_skip.add_theme_color_override("font_hover_color", Color("fff6df"))
+	_skip.z_index = 9
+	_skip.pressed.connect(func() -> void: skipped.emit())
+	add_child(_skip)
 	_space_hint = Label.new()
 	_space_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_space_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -269,6 +278,7 @@ func open() -> void:
 	nib_close = 0.0
 	_beats = _load_beats()
 	visible = true
+	_show_chrome_skip(true)
 	advance()
 
 
@@ -284,6 +294,24 @@ func close() -> void:
 	_target = null
 	step = -1
 	nib_close = 0.0
+	_show_chrome_skip(false)
+
+
+func _show_chrome_skip(on: bool) -> void:
+	if _skip == null:
+		return
+	_skip.visible = on
+	if on:
+		_skip.text = COPY.text("tutorial.chrome.skip", COPY.text("tutorial.skip", "Skip"))
+		_layout_chrome_skip()
+
+
+func _layout_chrome_skip() -> void:
+	if _skip == null:
+		return
+	var view := get_viewport_rect().size if is_inside_tree() else Vector2(1680, 1040)
+	_skip.size = Vector2(96, 36)
+	_skip.position = Vector2(view.x - 32.0 - _skip.size.x, 28.0)
 
 
 func advance() -> void:
@@ -320,7 +348,7 @@ func advance() -> void:
 	var go_raw: String = str(b.get("go", "")).strip_edges()
 	_go.text = COPY.apply_names(go_raw) if go_raw != "" else COPY.text("tutorial.next", "Next")
 	_name.text = COPY.text("tutorial.speaker", "Nib")
-	_skip.visible = false
+	_show_chrome_skip(true)
 	_go.visible = wait == "continue" and not _typing
 	_go.custom_minimum_size = Vector2(210, 58)
 	var said: String = str(b.get("text", "")).to_lower()
@@ -464,6 +492,7 @@ func _layout() -> void:
 	if _ink:
 		_ink.position = Vector2.ZERO
 		_ink.size = vp
+	_layout_chrome_skip()
 	if _space_hint != null:
 		_space_hint.position = Vector2(24.0, vp.y - 46.0)
 		_space_hint.size = Vector2(maxf(120.0, vp.x - 48.0), 36.0)
