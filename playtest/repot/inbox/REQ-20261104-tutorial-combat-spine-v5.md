@@ -3,7 +3,7 @@ id: REQ-20261104-tutorial-combat-spine-v5
 status: open
 priority: high
 pr: 370
-tip_sha: 7bf147a9
+tip_sha: 5d253019
 branch: playtest/latest
 created: 2026-11-04T08:00:00Z
 created_by: cursor-cloud
