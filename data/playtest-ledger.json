@@ -399,11 +399,11 @@
 			"f5_note": "On Spin, Skeleton HP looks at the new enemy, then hearts update. Stop Play, F5."
 		},
 		"358": {
-			"status": "f5",
+			"status": "todo",
 			"title": "'Bear Trap' does not count as a Tier 2 monster, it's just a Token",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/358",
-			"sha": "1d4da828",
-			"f5_note": "Bear Trap (Token) hole-fill seats from the deck with no pick-2 loot draft. Stop Play, F5."
+			"pr": "https://github.com/Nathan-Elequin/swipe/pull/388",
+			"pr_note": "Fix on cursor/bear-trap-token-skip-draft-fc7d; not on playtest/latest until merge."
 		},
 		"357": {
 			"status": "todo",
