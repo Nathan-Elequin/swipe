@@ -246,6 +246,7 @@ Cues,cue.fighting,During a fight,"Spend loot, or eat the hit."
 Cues,cue.mark,Poison / Crossbow neighbor pick,Pick a neighbor.
 Cues,cue.devtest,Developer Test (leave unless you want it player-facing),"Click a monster to seat it, an item to add it to your hand. Play when you have at least one monster."
 Combat,combat.spin,Spin button,Spin
+Combat,combat.death_knell_discard,Hotbar cue when Death Bell is Defeated and you must discard one item,"Death Knell, discard one item."
 Combat,combat.safe,Done button when incoming hit is 0,Safe
 Combat,combat.take_hit,Done button when you will lose hearts. {n} = incoming,Take {n}
 Combat,combat.blocked,Flash on the slice when you pillow it,BLOCKED

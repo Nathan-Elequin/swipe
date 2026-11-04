@@ -513,14 +513,14 @@
      63
     ],
     "hotspot": [
-     2,
-     126,
-     40,
-     69
+     8,
+     114,
+     32,
+     130
     ],
     "hover": "doors/doorway_hover.png",
-    "z": 2,
-    "note": "back to main (left)"
+    "z": 8,
+    "note": "back to main (left). Hit matches the painted doorway on cabinets_wall."
    },
    {
     "node": "SideDoor",
@@ -534,14 +534,14 @@
      63
     ],
     "hotspot": [
-     374,
-     124,
-     40,
-     71
+     368,
+     108,
+     46,
+     90
     ],
     "hover": "doors/side_door_hover.png",
-    "z": 2,
-    "note": "to Outpost (mudroom)"
+    "z": 8,
+    "note": "to Outpost (mudroom). Hit matches the painted right cabinet on cabinets_wall."
    },
    {
     "node": "SignOutpost",

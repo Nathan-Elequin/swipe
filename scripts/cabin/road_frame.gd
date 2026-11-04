@@ -7,9 +7,12 @@ signal choice_made(chose_tutorial: bool)
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const COPY := preload("res://scripts/player_copy.gd")
 const PX := 4.0
-const FADE_S := 0.28
 const SHAKE_S := 0.55
-const CAPTION_HOLD := 1.6
+## Auto-advance holds (~40% slower than the original 1.6 / 1.2 / 1.4). Click / Space still skips immediately.
+const CAPTION_HOLD_SCALE := 1.4
+const CAPTION_HOLD := 1.6 * CAPTION_HOLD_SCALE
+const CAPTION_HOLD_A2_1 := 1.2 * CAPTION_HOLD_SCALE
+const CAPTION_HOLD_A2_2 := 1.4 * CAPTION_HOLD_SCALE
 
 var cabin
 var _black: ColorRect
@@ -25,6 +28,7 @@ var _built: bool = false
 var _shake: Tween
 var _waiting_choice: bool = false
 var _choice: int = -1
+var _caption_skip: bool = false
 
 
 func setup(p_cabin) -> void:
@@ -41,6 +45,20 @@ func is_open() -> bool:
 	return visible
 
 
+func arm_cover() -> void:
+	## Solid black only — call the frame after intro p3 so cabin/title never flash.
+	visible = true
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	_black.modulate.a = 1.0
+	_set_overlay_ui(false)
+	_set_caption("")
+	_bar.visible = false
+	if _panel:
+		_panel.visible = false
+	if _frame:
+		_frame.visible = false
+
+
 func play_and_ask() -> bool:
 	## Returns true if Yes (start tutorial), false if Skip.
 	if _busy:
@@ -48,18 +66,26 @@ func play_and_ask() -> bool:
 	_busy = true
 	visible = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	## Keep solid black under the framed art so cabin chrome never shows through
+	## (Nathan: cabin must be fully gone during approach / ambush / overlay).
 	_black.modulate.a = 1.0
+	if _frame:
+		_frame.visible = true
+	if _panel:
+		_panel.visible = true
+	_bar.visible = true
 	_set_overlay_ui(false)
 	_show_approach()
-	await _fade_in()
+	## Silence cabin beds/loops; intro bed may still be playing until ambush combat.
+	if cabin and cabin.has_method("silence_for_road"):
+		cabin.silence_for_road()
 	await _caption_beat("road.caption.A1.1", CAPTION_HOLD)
 	await _play_ambush()
-	await _caption_beat("road.caption.A2.1", 1.2)
-	await _caption_beat("road.caption.A2.2", 1.4)
+	await _caption_beat("road.caption.A2.1", CAPTION_HOLD_A2_1)
+	await _caption_beat("road.caption.A2.2", CAPTION_HOLD_A2_2)
 	var yes: bool = await _ask_overlay()
 	_busy = false
-	visible = false
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	## Leave solid black up; home_cabin / main hide cabin then abort this cover.
 	choice_made.emit(yes)
 	return yes
 
@@ -235,18 +261,44 @@ func _caption_beat(key: String, hold: float) -> void:
 	_set_caption(key)
 	_bar.visible = true
 	_layout()
+	_caption_skip = false
 	var left: float = hold
-	while left > 0.0 and visible:
+	while left > 0.0 and visible and not _caption_skip:
 		await get_tree().process_frame
 		left -= get_process_delta_time()
+	_caption_skip = false
 
 
-func _fade_in() -> void:
-	_black.modulate.a = 1.0
-	var tw := create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tw.tween_property(_black, "modulate:a", 0.0, FADE_S)
-	await tw.finished
+func _request_caption_skip() -> void:
+	if _waiting_choice or not visible or not _bar.visible:
+		return
+	_caption_skip = true
+
+
+func _gui_input(event: InputEvent) -> void:
+	if _caption_advance_event(event):
+		accept_event()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _caption_advance_event(event):
+		get_viewport().set_input_as_handled()
+
+
+func _caption_advance_event(event: InputEvent) -> bool:
+	if _waiting_choice or not visible or not _busy:
+		return false
+	if not _bar.visible:
+		return false
+	var key_ok: bool = event.is_action_pressed("ui_accept")
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_SPACE or event.physical_keycode == KEY_SPACE or event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+			key_ok = true
+	var click_ok: bool = event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT
+	if key_ok or click_ok:
+		_request_caption_skip()
+		return true
+	return false
 
 
 func _notification(what: int) -> void:

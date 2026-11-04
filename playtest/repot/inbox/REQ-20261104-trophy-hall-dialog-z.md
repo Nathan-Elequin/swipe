@@ -1,6 +1,6 @@
 ---
 id: REQ-20261104-trophy-hall-dialog-z
-status: open
+status: done
 priority: high
 pr: 371
 tip_sha: 03562d44

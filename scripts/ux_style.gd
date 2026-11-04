@@ -665,7 +665,7 @@ static func legend_bb() -> String:
 	return "%s  %s  %s  %s" % [chip("Attack", ATK), chip("Block", BLK), chip("HP", HP), chip("Defeat", VAR)]
 
 
-static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A", output_kind: String = "", formula: bool = false) -> String:
+static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A", output_kind: String = "", formula: bool = false, prose: bool = false) -> String:
 	var t: String = raw.strip_edges()
 	if t == "" or t.find("[color") >= 0 or t.find("[bgcolor") >= 0:
 		return raw
@@ -729,14 +729,19 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"eject",
 		"unplayable",
 		"rust",
+		"evasive",
+		"facing",
+		"immediately",
 		"atk", "blk", "hp",
 	])
-	var nums := "one|two|three|four|five|six|seven|eight|nine|ten|twice|thrice"
+	## Prose (Nib): digits + keywords only. Never paint word-numbers ("this one").
+	var nums := "" if prose else "one|two|three|four|five|six|seven|eight|nine|ten|twice|thrice"
 	var alts: PackedStringArray = PackedStringArray()
 	for p in phrases:
 		alts.append(str(p[0]))
 	alts.append("\\b(?:%s)\\b" % "|".join(stems))
-	alts.append("\\b(?:%s)\\b" % nums)
+	if nums != "":
+		alts.append("\\b(?:%s)\\b" % nums)
 	alts.append("[+\\-−]?\\d+")
 	var rx := RegEx.new()
 	if rx.compile("(?i)(%s)" % "|".join(alts)) != OK:
@@ -765,10 +770,14 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		var a2: int = int(span["a"])
 		var b2: int = int(span["b"])
 		var piece: String = t.substr(a2, b2 - a2)
-		if piece.strip_edges().to_lower() == "any":
+		var plow: String = piece.strip_edges().to_lower()
+		if plow == "any":
 			var after: String = t.substr(b2).strip_edges().to_lower()
 			if not after.begins_with("monster") and not after.begins_with("enemy"):
 				continue
+		## Prose mode: skip word-number tokens; keep digit counts + keyword stems.
+		if prose and _is_word_num(plow):
+			continue
 		var shown: String = _format_keyword(piece)
 		if colored:
 			var hex: String = _paint_hex(piece, t, a2, b2, num_hex, gold, hp_c, atk_c, var_c, blk_c, phrases, out_k)
@@ -862,6 +871,12 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low == "across":
 		return gold
 	if low == "move":
+		return gold
+	if low == "evasive":
+		return gold
+	if low == "facing":
+		return gold
+	if low == "immediately":
 		return gold
 	if low.begins_with("flee"):
 		return gold

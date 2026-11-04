@@ -19,7 +19,7 @@ const HOME := "res://assets/dungeon/home/"
 const UI := "res://assets/ui/"
 ## Left of fireplace: study → workshop → loft. Right: trophy hall → Outpost (mudroom).
 const ROOM_ORDER: Array[String] = ["loft", "workshop", "study", "main", "hall", "mudroom"]
-## Shared talk-bar metrics. Intro captions and cabin Nib lines use the same numbers.
+## Shared talk-bar metrics. Intro captions keep dialog_bar(); cabin Nib talk uses nib_talk_bar().
 const DIALOG_SAFE := 32.0
 ## Cabin talk sits above the playtest Feedback pill (16px margin + ~48px button).
 const DIALOG_SAFE_CABIN := 72.0
@@ -31,6 +31,16 @@ const DIALOG_PATCH_NATIVE := 12.0
 const BUBBLE_PATCH_NATIVE := 8.0
 const BUBBLE_FONT := 26
 const BUBBLE_MAX_W_NATIVE := 140.0
+## Cabin-only Nib talk (2026-11-04): ~20% larger than option B, grid-snapped to PX.
+const NIB_TALK_W := 1356.0
+const NIB_TALK_H := 164.0
+const NIB_TALK_FONT := 51
+const NIB_TALK_MIN_FONT := 34
+const NIB_TALK_GAP := 12.0
+## Portrait well on parchment interior (wood patch is 12 native / 48px). Height fits 164−96 content.
+const NIB_WELL_W := 104.0
+const NIB_WELL_H := 64.0
+const NIB_BUST_TEX := 128.0
 
 
 static func px(n: float) -> float:
@@ -288,7 +298,7 @@ static func named(s: String) -> String:
 	return COPY.apply_names(s)
 
 
-## Full-width caption bar: same geometry for the intro stills and Nib's cabin talk box.
+## Full-width caption bar for intro stills / road frame. Do not mutate for cabin Nib talk.
 static func dialog_bar(view: Vector2, extra_h: float = 0.0, safe_bottom: float = -1.0) -> Dictionary:
 	var bust_sz := Vector2(32, 32) * PX
 	var safe := DIALOG_SAFE
@@ -312,6 +322,34 @@ static func dialog_bar(view: Vector2, extra_h: float = 0.0, safe_bottom: float =
 		"bust_sz": bust_sz,
 		"prompt_h": DIALOG_PROMPT_H,
 		"gap": DIALOG_GAP,
+	}
+
+
+## Cabin-only Nib talk bar: centered 1356×164, wood 9-slice patch inset, masked portrait well.
+## Never reserve choice-row height here — choices float above the box in cabin_dialog.
+static func nib_talk_bar(view: Vector2, safe_bottom: float = -1.0) -> Dictionary:
+	var bot: float = safe_bottom if safe_bottom >= 0.0 else DIALOG_SAFE_CABIN
+	var bar_w: float = minf(NIB_TALK_W, maxf(8.0, view.x - DIALOG_SAFE * 2.0))
+	var bar_h: float = NIB_TALK_H
+	var bar_x: float = snappedf((view.x - bar_w) * 0.5, PX)
+	var bar_y: float = clampf(
+		view.y - bot - bar_h,
+		DIALOG_SAFE,
+		maxf(DIALOG_SAFE, view.y - bot - bar_h)
+	)
+	var bar := Rect2(bar_x, bar_y, bar_w, bar_h)
+	var patch: float = DIALOG_PATCH_NATIVE * PX
+	var inner := Rect2(Vector2(patch, patch), bar.size - Vector2(patch * 2.0, patch * 2.0))
+	var well := Vector2(NIB_WELL_W, minf(NIB_WELL_H, maxf(PX, inner.size.y)))
+	return {
+		"bar": bar,
+		"inner": inner,
+		"well_sz": well,
+		"bust_tex": Vector2(NIB_BUST_TEX, NIB_BUST_TEX),
+		"gap": NIB_TALK_GAP,
+		"patch": patch,
+		"font": NIB_TALK_FONT,
+		"min_font": NIB_TALK_MIN_FONT,
 	}
 
 
