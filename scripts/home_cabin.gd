@@ -4084,7 +4084,9 @@ func _build_rooms() -> void:
 	_hole.position = _pt(bounds.position.x, bounds.position.y)
 	_hole.size = _pt(bounds.size.x, bounds.size.y)
 	_hole.clip_contents = false
-	_hole.mouse_filter = Control.MOUSE_FILTER_STOP
+	## Full-room bounds used to swallow every click, including the hall doors
+	## drawn behind this layer. Cases keep their own hits. Doors must stay reachable.
+	_hole.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hole.z_index = 3
 	hall.add_child(_hole)
 	_ensure_dumbwaiter(hall)
