@@ -4790,7 +4790,7 @@
 		"tutorial.line.B02.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "They've got us in a ring. Out here, that's a dungeon. It's a wheel. Don't ask.",
+			"text": "They're surrounding us in a ring. Out here, that's a dungeon — and it turns like a wheel.",
 			"where": "Tutorial · B02 · line 1"
 		},
 		"tutorial.line.B03.1": {
@@ -4808,32 +4808,20 @@
 		"tutorial.line.B03.3": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "The wheel picks the order. I'm steering this one — real runs are random. Yes, that's a Dragon. He's last.",
+			"text": "The dungeon spins in mysterious ways. Selecting your opponents at random?",
 			"where": "Tutorial · B03 · line 3"
 		},
 		"tutorial.line.B04.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "This button's the whole game.",
+			"text": "It all comes down to this.",
 			"where": "Tutorial · B04 · line 1"
 		},
 		"tutorial.line.B04.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Spin, and you fight whoever you land on.",
+			"text": "Spin and fight whoever you land on.",
 			"where": "Tutorial · B04 · line 2"
-		},
-		"tutorial.line.B05.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Those arrows are Moves. You get 3.",
-			"where": "Tutorial · B05 · line 1"
-		},
-		"tutorial.line.B05.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Not yet. I'll tell you when.",
-			"where": "Tutorial · B05 · line 2"
 		},
 		"tutorial.line.B06.1": {
 			"cat": "Tutorial",
@@ -4856,19 +4844,19 @@
 		"tutorial.line.B08.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "5 from 6. You do the math.",
+			"text": "I'm sure you'd prefer not to nearly die from your first opponent.",
 			"where": "Tutorial · B08 · line 2"
 		},
 		"tutorial.line.B09.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "But he's only got 2 HP.",
+			"text": "But he's only got two HP.",
 			"where": "Tutorial · B09 · line 1"
 		},
 		"tutorial.line.B09.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Hit him first and he never swings. Defeat him and he never attacks.",
+			"text": "Hit him first, and he never swings. Defeat him, and he never attacks.",
 			"where": "Tutorial · B09 · line 2"
 		},
 		"tutorial.line.B10.1": {
@@ -4886,49 +4874,49 @@
 		"tutorial.line.B11.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Dead. Now watch the deck.",
+			"text": "He's gone. Now, watch the [b]dungeon deck[/b].",
 			"where": "Tutorial · B11 · line 1"
 		},
 		"tutorial.line.B11.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "When Defeated, a new card draws into its place.",
+			"text": "When Defeated, a new card is drawn and placed.",
 			"where": "Tutorial · B11 · line 2"
 		},
 		"tutorial.line.B12.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Loot matches the power of whoever walks in — not who you dropped.",
+			"text": "You then gain loot based on the power of the monster that enters.",
 			"where": "Tutorial · B12 · line 1"
 		},
 		"tutorial.line.B12.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "The Golem brought something. Take the Shield.",
+			"text": "Not the one you just defeated.",
 			"where": "Tutorial · B12 · line 2"
 		},
 		"tutorial.line.B13.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Ready for the Golem.",
+			"text": "",
 			"where": "Tutorial · B13 · line 1"
 		},
 		"tutorial.line.B14.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Golem. 7 HP — more than we deal. Not today.",
+			"text": "This golem is 7 HP. We currently can't deal that much damage.",
 			"where": "Tutorial · B14 · line 1"
 		},
 		"tutorial.line.B14.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Only 3 Attack — Blockable. So we don't kill him. We eat it.",
+			"text": "However, he only does three attack.",
 			"where": "Tutorial · B14 · line 2"
 		},
 		"tutorial.line.B15.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "That's a Breastplate. 2 Block.",
+			"text": "Check out this breastplate. It gains two block.",
 			"where": "Tutorial · B15 · line 1"
 		},
 		"tutorial.line.B15.2": {
@@ -4940,50 +4928,32 @@
 		"tutorial.line.B16.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "That's Block. It soaks his hit, point for point.",
+			"text": "This is block. It protects you from incoming attacks.",
 			"where": "Tutorial · B16 · line 1"
 		},
 		"tutorial.line.B16.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Block lasts until the next Spin. Once it's spent this fight, it's gone.",
+			"text": "Block lasts until the next spin.",
 			"where": "Tutorial · B16 · line 2"
 		},
 		"tutorial.line.B17.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "You've got a Shield, too. 4 more Block. You'd take nothing.",
+			"text": "You've got a shield too.",
 			"where": "Tutorial · B17 · line 1"
 		},
 		"tutorial.line.B17.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Don't. Save it.",
+			"text": "You COULD use it and take nothing.",
 			"where": "Tutorial · B17 · line 2"
 		},
 		"tutorial.line.B17.3": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Read the Breastplate. Lose HP this fight, and it Keeps.",
+			"text": "However, I recommend you save it instead.",
 			"where": "Tutorial · B17 · line 3"
-		},
-		"tutorial.line.B18.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "See the Spiked Flail? Right now it hits for 0.",
-			"where": "Tutorial · B18 · line 1"
-		},
-		"tutorial.line.B18.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Every time you bleed, it gets 2 meaner.",
-			"where": "Tutorial · B18 · line 2"
-		},
-		"tutorial.line.B18.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "So 1 HP buys you the Breastplate back and a meaner Flail.",
-			"where": "Tutorial · B18 · line 3"
 		},
 		"tutorial.line.B19.1": {
 			"cat": "Tutorial",
@@ -4994,37 +4964,37 @@
 		"tutorial.line.B20.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Block's gone. 1 got through. 5 HP.",
+			"text": "Your block prevented two damage. But you still lost one HP.",
 			"where": "Tutorial · B20 · line 1"
 		},
 		"tutorial.line.B20.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Flail felt that. 2 Attack.",
+			"text": "However, check this out. Look at the spiked flail's ability.",
 			"where": "Tutorial · B20 · line 2"
 		},
 		"tutorial.line.B20.3": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Breastplate stayed. That's Keep.",
+			"text": "This item gains two attack every time you lose health. We call that bleeding.",
 			"where": "Tutorial · B20 · line 3"
 		},
 		"tutorial.line.B20.4": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "It's spent this fight. Spin again and it's back.",
+			"text": "…You got to Keep your breastplate.",
 			"where": "Tutorial · B20 · line 4"
 		},
 		"tutorial.line.B20.5": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Golem wandered off. Leaving still counts as Defeated.",
+			"text": "It will be grayed out like this until the fight ends, when you can use Keep items again.",
 			"where": "Tutorial · B20 · line 5"
 		},
 		"tutorial.line.B21.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Another one walked in. Deck's empty.",
+			"text": "Another one walked in. Now, the deck is empty.",
 			"where": "Tutorial · B21 · line 1"
 		},
 		"tutorial.line.B21.2": {
@@ -5036,49 +5006,43 @@
 		"tutorial.line.B22.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Leave the big guy. Little one first.",
+			"text": "",
 			"where": "Tutorial · B22 · line 1"
 		},
 		"tutorial.line.B23.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Cute. Don't trust it.",
+			"text": "Cute! Don't trust it!",
 			"where": "Tutorial · B23 · line 1"
 		},
 		"tutorial.line.B23.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Hover him. Monsters tell you their tricks if you ask.",
+			"text": "Hover your mouse over any monster to learn their unique ability.",
 			"where": "Tutorial · B23 · line 2"
 		},
 		"tutorial.line.B24.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Evasive. Attacks do nothing to him. Not even the Flail.",
+			"text": "This monster is evasive. He is immune to all attacks.",
 			"where": "Tutorial · B24 · line 1"
 		},
 		"tutorial.line.B25.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "The Boot doesn't Attack. It Defeats anyone with less HP than you.",
+			"text": "However, the boot doesn't attack. It defeats anyone with less HP than you.",
 			"where": "Tutorial · B25 · line 1"
-		},
-		"tutorial.line.B25.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "You've got 5. He's got 1.",
-			"where": "Tutorial · B25 · line 2"
 		},
 		"tutorial.line.B26.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Or Block some of his 3. Or eat it. Feed the Flail.",
+			"text": "You could use the boot to defeat him immediately.",
 			"where": "Tutorial · B26 · line 1"
 		},
 		"tutorial.line.B26.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "One item only — Breastplate, Shield, or Boot — then Take. Or just Take. Your call.",
+			"text": "Or you could block some of his damage.",
 			"where": "Tutorial · B26 · line 2"
 		},
 		"tutorial.line.B27a.1": {
@@ -5132,7 +5096,7 @@
 		"tutorial.line.B30.1": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
-			"text": "Look. You Spun, so the Breastplate's back.",
+			"text": "Look. The fight ended, so the Breastplate's back.",
 			"where": "Tutorial · B30 · line 1"
 		},
 		"tutorial.line.B30.2": {
@@ -5429,18 +5393,6 @@
 			"text": "Okay. That one's on me. Again.",
 			"where": "Tutorial · T5 · line 1"
 		},
-		"tutorial.line.B13.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "",
-			"where": "Tutorial · B13 · line 2"
-		},
-		"tutorial.line.B22.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "",
-			"where": "Tutorial · B22 · line 2"
-		},
 		"tutorial.line.B28.2": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
@@ -5464,6 +5416,60 @@
 			"locked_at": "2026-11-04",
 			"text": "You've got 2 HP. He'd flatten you. Count the Flail — every bleed made it meaner. Block's useless. Saved Flail.",
 			"where": "Tutorial · B47 · line 4"
+		},
+		"tutorial.line.B12.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Take the shield.",
+			"where": "Tutorial · B12 · line 3"
+		},
+		"tutorial.line.B14.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "We can block that.",
+			"where": "Tutorial · B14 · line 3"
+		},
+		"tutorial.line.B16.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "After which it is lost.",
+			"where": "Tutorial · B16 · line 3"
+		},
+		"tutorial.line.B17.4": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Read the breastplate's ability. If you lose HP this fight, you get to Keep it.",
+			"where": "Tutorial · B17 · line 4"
+		},
+		"tutorial.line.B20.6": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The Golem attacked you and then left. This still counts as defeating them.",
+			"where": "Tutorial · B20 · line 6"
+		},
+		"tutorial.line.B20.7": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "There are multiple ways you can defeat enemies, including attacking them or defending against them.",
+			"where": "Tutorial · B20 · line 7"
+		},
+		"tutorial.line.B26.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The choice is yours.",
+			"where": "Tutorial · B26 · line 3"
+		},
+		"tutorial.line.B27c.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Blocked most of it. One still got through.",
+			"where": "Tutorial · B27c · line 1"
+		},
+		"tutorial.line.B27c.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Breastplate Kept. That's the trade for blocking.",
+			"where": "Tutorial · B27c · line 2"
 		}
 	},
 	"updated": "2026-11-04T18:30:00Z"
