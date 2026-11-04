@@ -1,8 +1,8 @@
 ---
 id: REQ-20261103-dungeon-clear-resolve-fix
-status: pending
+status: open
 priority: high
-tip_sha: PENDING
+tip_sha: afacc323
 branch: playtest/latest
 created: 2026-11-04T00:15:00Z
 created_by: cursor-cloud
