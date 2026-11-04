@@ -1994,6 +1994,29 @@ func bounce() -> void:
 	tw.tween_property(self, "scale", Vector2.ONE, 0.12)
 
 
+func play_recycle_tick() -> void:
+	## Louder countdown punch when Recycler decrements on a discard.
+	## Bigger than bounce(); bumps the live number so 5→4→3→2 reads clearly.
+	pivot_offset = size * 0.5
+	z_index = 42
+	var face: int = 48 if _showcase else 32
+	if _num != null and _num.visible:
+		_num.add_theme_font_size_override("font_size", 56 if _showcase else 52)
+		_num.add_theme_constant_override("outline_size", 8)
+		_num.add_theme_color_override("font_outline_color", Color("100e0c"))
+	var tw := create_tween()
+	tw.tween_property(self, "scale", Vector2(1.28, 1.28), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_callback(func() -> void:
+		if _num != null and _num.visible:
+			_num.add_theme_font_size_override("font_size", face)
+			_num.add_theme_constant_override("outline_size", 4)
+	)
+	tw.tween_property(self, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_callback(func() -> void:
+		z_index = 0
+	)
+
+
 func play_toll_zero() -> void:
 	pivot_offset = size * 0.5
 	z_index = 90

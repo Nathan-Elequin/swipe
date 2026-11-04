@@ -5,7 +5,9 @@
 		"348": {
 			"status": "todo",
 			"title": "Recycler needs a sound effect and louder countdown animation",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/348"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/348",
+			"pr": 393,
+			"pr_note": "Fix is on PR #393 (cursor/recycler-sfx-countdown-348-4437). Moves to f5 after merge to playtest/latest or load-pr."
 		},
 		"347": {
 			"status": "f5",
