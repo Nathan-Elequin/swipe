@@ -922,19 +922,35 @@ func _store_clean_chrome() -> void:
 
 func _cover_pose_fighting(monsters: Array = COVER_COOL_MONSTERS, seat_count: int = 6) -> void:
 	## Damsel facing (seat 0) + full cool hotbar. Combat log / Feedback / tip stamp off.
-	await _anim_ready_seat(monsters, COVER_COOL_ITEMS, 6, 2, seat_count)
+	## Re-seat after adventure/_refresh — those paths can rebuild the wheel from run state.
+	var cast: Array = monsters.duplicate()
+	var seats: int = seat_count if seat_count > 0 else cast.size()
+	await _anim_ready_seat(cast, COVER_COOL_ITEMS, 6, 2, seats)
 	main.adventure = true
 	main.facing_index = 0
 	main.phase = "fighting"
 	main.hp = 6
 	main.blk = 2
 	main.moves_left = 3
+	_seat_ids(cast, seats)
+	_hand_ids(COVER_COOL_ITEMS)
+	main.facing_index = 0
+	main.phase = "fighting"
+	main._sync_wheel_stats()
 	main._refresh()
 	main._layout_play_field()
+	if main.wheel_view:
+		main.wheel_view.set_meta("qa_instant", true)
+		if main.wheel_view.has_method("rebuild") or main.wheel_view.has_method("set_wheel"):
+			pass
 	if main.has_method("_sync_move_ui"):
 		main._sync_move_ui()
 	if main.has_method("_sync_intent_plate"):
 		main._sync_intent_plate()
+	var ids: Array = []
+	for m in main.wheel:
+		ids.append(str(m.get("card_id", m.get("kind", "?"))))
+	_log_progress("cover_pose cast=%s wheel=%s" % [cast, ids])
 	_store_clean_chrome()
 	await _wait(0.2)
 
