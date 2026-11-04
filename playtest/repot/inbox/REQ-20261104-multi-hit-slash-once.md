@@ -2,8 +2,8 @@
 id: REQ-20261104-multi-hit-slash-once
 status: open
 priority: high
-pr: 0
-tip_sha: aa2376b6
+pr: 389
+tip_sha: 4be34b6a
 branch: cursor/multi-hit-slash-once-d872
 created: 2026-11-04T19:20:00Z
 created_by: cloud-agent
