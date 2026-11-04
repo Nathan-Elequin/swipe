@@ -8695,7 +8695,9 @@ func _on_done() -> void:
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
-	if not pending_chaos.is_empty() or not pending_mark.is_empty():
+	## Knife / Net / Magnet / Sling still want their extra click. Take must not
+	## resolve the fight underneath that chooser (Scorpion's swing is not Lifelink).
+	if not pending_chaos.is_empty() or not pending_mark.is_empty() or not pending_choice.is_empty():
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
@@ -9793,6 +9795,7 @@ func _use_item(uid: int) -> void:
 		_log("on_item_use", "%s — choose" % str(it.get("name", "?")))
 		if sfx:
 			sfx.play("question", -10.0)
+		_sync_buttons()
 		call_deferred("_refresh")
 		return
 	if kind == "choose" or kind == "magnet":
@@ -9814,6 +9817,7 @@ func _use_item(uid: int) -> void:
 		_log("on_item_use", "%s — choose" % str(it.get("name", "?")))
 		if sfx:
 			sfx.play("question", -10.0)
+		_sync_buttons()
 		call_deferred("_refresh")
 		return
 	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "signpost":
@@ -23905,7 +23909,8 @@ func _sync_buttons() -> void:
 		btn_spin.disabled = true
 	var feed_kind: String = str(pending_feed.get("kind", "")) if not pending_feed.is_empty() else ""
 	var feed_continue: bool = feed_kind == "worm_hunger" or feed_kind == "hired_bribe"
-	btn_done.disabled = busy or not enemy_up or (not pending_feed.is_empty() and not feed_continue) or not pending_chaos.is_empty()
+	var choice_lock: bool = not pending_choice.is_empty() or not pending_mark.is_empty()
+	btn_done.disabled = busy or not enemy_up or (not pending_feed.is_empty() and not feed_continue) or not pending_chaos.is_empty() or choice_lock
 	btn_start.disabled = busy
 	btn_place.visible = false
 	btn_bribe.visible = false
@@ -23953,7 +23958,7 @@ func _sync_buttons() -> void:
 		btn_spin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
 		btn_spin.icon = null
-		btn_done.disabled = busy or not enemy_up or tut == null or (tut.wait != "done" and tut.wait != "choice")
+		btn_done.disabled = busy or not enemy_up or choice_lock or tut == null or (tut.wait != "done" and tut.wait != "choice")
 	_hide_take_burst()
 	if enemy_up:
 		var hit: int = _incoming_hit()
