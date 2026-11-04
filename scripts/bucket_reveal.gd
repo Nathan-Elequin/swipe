@@ -1,8 +1,11 @@
 extends Control
 ## Own screen after a dungeon ends, before the next one is seated.
 ## The wheel, hand, and inspect panel stay hidden while this is up.
+## Hover opens the same fight callout as the wheel and the hotbar.
 
 signal finished
+signal card_hovered(kind: String, card_id: String, slot: Control)
+signal card_unhovered
 
 const COPY := preload("res://scripts/player_copy.gd")
 
@@ -10,16 +13,13 @@ var sfx = null
 var _go: bool = false
 var _playing: bool = false
 var _t: float = 0.0
+var _fitted: Vector2 = Vector2(-1, -1)
 var _title
 var _sub
 var _loot_head
 var _foe_head
-var _loot_row: HBoxContainer
-var _foe_row: HBoxContainer
-var _kind: Label
-var _dname: Label
-var _stats: Label
-var _body: Label
+var _loot_row: GridContainer
+var _foe_row: GridContainer
 var _next: Button
 
 
@@ -39,6 +39,8 @@ func _process(delta: float) -> void:
 	if global_position != Vector2.ZERO or size != vp:
 		global_position = Vector2.ZERO
 		size = vp
+	if size != _fitted:
+		_fit_cards()
 	queue_redraw()
 
 
@@ -106,43 +108,10 @@ func _build() -> void:
 	_foe_row = _row()
 	col.add_child(_center(_foe_row))
 
-	var plate := PanelContainer.new()
-	plate.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	plate.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	plate.custom_minimum_size = Vector2(0, 168)
-	var psb := StyleBoxFlat.new()
-	psb.bg_color = Color(0.08, 0.06, 0.05, 0.92)
-	psb.border_color = Color("c4a574")
-	psb.set_border_width_all(2)
-	psb.set_corner_radius_all(12)
-	psb.content_margin_left = 28
-	psb.content_margin_right = 28
-	psb.content_margin_top = 18
-	psb.content_margin_bottom = 18
-	plate.add_theme_stylebox_override("panel", psb)
-	col.add_child(plate)
-	var pcol := VBoxContainer.new()
-	pcol.add_theme_constant_override("separation", 6)
-	plate.add_child(pcol)
-	_kind = Label.new()
-	_kind.add_theme_font_size_override("font_size", 16)
-	_kind.add_theme_color_override("font_color", Color("e8c36a"))
-	pcol.add_child(_kind)
-	_dname = Label.new()
-	_dname.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_dname.add_theme_font_size_override("font_size", 32)
-	_dname.add_theme_color_override("font_color", Color("f4ede3"))
-	pcol.add_child(_dname)
-	_stats = Label.new()
-	_stats.add_theme_font_size_override("font_size", 20)
-	_stats.add_theme_color_override("font_color", Color("e7b1a8"))
-	pcol.add_child(_stats)
-	_body = Label.new()
-	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_body.add_theme_font_size_override("font_size", 22)
-	_body.add_theme_color_override("font_color", Color("f0e6d8"))
-	pcol.add_child(_body)
+	var spacer := Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(spacer)
 
 	var bar := CenterContainer.new()
 	col.add_child(bar)
@@ -172,14 +141,16 @@ func _section(text: String) -> Control:
 	return l
 
 
-func _row() -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 22)
+func _row() -> GridContainer:
+	var row := GridContainer.new()
+	row.columns = 1
+	row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	row.add_theme_constant_override("h_separation", 12)
+	row.add_theme_constant_override("v_separation", 8)
 	return row
 
 
-func _center(row: HBoxContainer) -> CenterContainer:
+func _center(row: GridContainer) -> CenterContainer:
 	var c := CenterContainer.new()
 	c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	c.add_child(row)
@@ -224,7 +195,6 @@ func play(bucket_n: int, entries: Array) -> void:
 	_sub.text = COPY.text("bucket.sub", "Hover a shadow to see what it is. From now on, these can show up in every dungeon.")
 	_title.modulate.a = 0.0
 	_sub.modulate.a = 0.0
-	_clear_detail()
 	_next.disabled = true
 	_next.modulate.a = 0.0
 	_clear_row(_loot_row)
@@ -243,6 +213,8 @@ func play(bucket_n: int, entries: Array) -> void:
 		cards.append(_make_card(_loot_row, entry2, bucket_n))
 	for entry3 in foes:
 		cards.append(_make_card(_foe_row, entry3, bucket_n))
+	_fitted = Vector2(-1, -1)
+	_fit_cards()
 	if sfx != null and sfx.has_method("play"):
 		sfx.play("bong", -6.0, 0.72)
 		sfx.play("whoosh", -8.0, 0.85)
@@ -282,6 +254,7 @@ func play(bucket_n: int, entries: Array) -> void:
 	_playing = false
 	set_process(false)
 	visible = false
+	card_unhovered.emit()
 	finished.emit()
 
 
@@ -291,18 +264,17 @@ func _fit() -> void:
 	size = vp
 
 
-func _clear_row(row: HBoxContainer) -> void:
+func _clear_row(row: GridContainer) -> void:
 	for child in row.get_children():
 		row.remove_child(child)
 		child.free()
 
 
-func _make_card(row: HBoxContainer, entry: Dictionary, bucket_n: int) -> Dictionary:
+func _make_card(row: GridContainer, entry: Dictionary, bucket_n: int) -> Dictionary:
 	var extra: bool = bool(entry.get("extra", false))
 	var slot := PanelContainer.new()
-	slot.custom_minimum_size = Vector2(118, 138) if extra else Vector2(168, 196)
-	slot.mouse_filter = Control.MOUSE_FILTER_STOP
-	slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	slot.custom_minimum_size = Vector2(96, 96)
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if extra:
 		slot.modulate = Color(0.78, 0.78, 0.78, 1)
 	var sb := StyleBoxFlat.new()
@@ -310,10 +282,10 @@ func _make_card(row: HBoxContainer, entry: Dictionary, bucket_n: int) -> Diction
 	sb.border_color = BucketRules.color_of(bucket_n).darkened(0.35)
 	sb.set_border_width_all(3)
 	sb.set_corner_radius_all(12)
-	sb.content_margin_left = 10
-	sb.content_margin_right = 10
-	sb.content_margin_top = 10
-	sb.content_margin_bottom = 10
+	sb.content_margin_left = 8
+	sb.content_margin_right = 8
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
 	slot.add_theme_stylebox_override("panel", sb)
 	slot.set_meta("edge", sb)
 	slot.set_meta("open", false)
@@ -322,7 +294,7 @@ func _make_card(row: HBoxContainer, entry: Dictionary, bucket_n: int) -> Diction
 	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	tex_rect.custom_minimum_size = Vector2(96, 96) if extra else Vector2(144, 144)
+	tex_rect.custom_minimum_size = Vector2(72, 72)
 	tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tex_rect.modulate = Color(0, 0, 0, 1)
 	slot.add_child(tex_rect)
@@ -330,25 +302,30 @@ func _make_card(row: HBoxContainer, entry: Dictionary, bucket_n: int) -> Diction
 	name.text = str(entry.get("name", ""))
 	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name.custom_minimum_size = Vector2(96, 28) if extra else Vector2(144, 36)
-	name.add_theme_font_size_override("font_size", 15)
+	name.clip_text = true
+	name.custom_minimum_size = Vector2(72, 28)
+	name.add_theme_font_size_override("font_size", 14)
 	name.add_theme_color_override("font_color", Color("f4ede3"))
 	name.modulate.a = 0.0
 	name.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# Name sits under the art by wrapping the panel in a column.
 	var wrap := VBoxContainer.new()
 	wrap.alignment = BoxContainer.ALIGNMENT_CENTER
-	wrap.add_theme_constant_override("separation", 6)
+	wrap.add_theme_constant_override("separation", 4)
+	wrap.mouse_filter = Control.MOUSE_FILTER_STOP
+	wrap.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	wrap.add_child(slot)
 	wrap.add_child(name)
+	wrap.set_meta("panel", slot)
+	wrap.set_meta("tex", tex_rect)
+	wrap.set_meta("name", name)
+	wrap.set_meta("extra", extra)
 	row.add_child(wrap)
-	slot.mouse_entered.connect(_on_card_enter.bind(slot, tex_rect, name, entry))
-	slot.mouse_exited.connect(_on_card_exit.bind(slot, bucket_n))
+	wrap.mouse_entered.connect(_on_card_enter.bind(slot, tex_rect, name, entry))
+	wrap.mouse_exited.connect(_on_card_exit.bind(slot, bucket_n))
 	return {"slot": wrap, "tex": tex_rect, "name": name}
 
 
 func _on_card_enter(slot: PanelContainer, tex_rect: TextureRect, name: Label, entry: Dictionary) -> void:
-	var first: bool = not bool(slot.get_meta("open", false))
 	slot.set_meta("open", true)
 	var edge: StyleBoxFlat = slot.get_meta("edge")
 	edge.border_color = Color("f0d78a")
@@ -362,39 +339,69 @@ func _on_card_enter(slot: PanelContainer, tex_rect: TextureRect, name: Label, en
 	var pop := create_tween()
 	pop.tween_property(slot, "scale", Vector2(1.06, 1.06), 0.08)
 	pop.tween_property(slot, "scale", Vector2.ONE, 0.1)
-	_show_detail(entry)
+	card_hovered.emit(str(entry.get("kind", "")), str(entry.get("id", "")), slot)
 	if sfx != null and sfx.has_method("play_event"):
 		sfx.play_event(&"bucket.card_hover")
 
 
 func _on_card_exit(slot: PanelContainer, bucket_n: int) -> void:
-	if not bool(slot.get_meta("open", false)):
+	if bool(slot.get_meta("open", false)):
+		var edge: StyleBoxFlat = slot.get_meta("edge")
+		edge.border_color = BucketRules.color_of(bucket_n)
+		slot.add_theme_stylebox_override("panel", edge)
+	card_unhovered.emit()
+
+
+func _fit_cards() -> void:
+	_fitted = size
+	# MarginContainer is 56px each side. Stay inside that so the last tile is not clipped.
+	var inner_w: float = maxf(280.0, size.x - 136.0)
+	var chrome: float = 250.0
+	var band: float = maxf(96.0, (size.y - chrome) * 0.5)
+	_fit_one(_loot_row, inner_w, band)
+	_fit_one(_foe_row, inner_w, band)
+
+
+func _fit_one(row: GridContainer, inner_w: float, band: float) -> void:
+	var n: int = row.get_child_count()
+	if n == 0:
+		row.columns = 1
 		return
-	var edge: StyleBoxFlat = slot.get_meta("edge")
-	edge.border_color = BucketRules.color_of(bucket_n)
-	slot.add_theme_stylebox_override("panel", edge)
-
-
-func _show_detail(entry: Dictionary) -> void:
-	_kind.text = str(entry.get("kind", "")).to_upper()
-	_dname.text = str(entry.get("name", ""))
-	var bits: PackedStringArray = PackedStringArray()
-	var call_s: String = str(entry.get("call", ""))
-	if call_s != "":
-		bits.append(call_s)
-	if str(entry.get("hp", "")) != "":
-		bits.append("HP %s" % entry.get("hp", ""))
-	if str(entry.get("atk", "")) != "":
-		bits.append("Attack %s" % entry.get("atk", ""))
-	_stats.text = "   ·   ".join(bits)
-	_body.text = COPY.apply_names(str(entry.get("ability", "")))
-
-
-func _clear_detail() -> void:
-	_kind.text = ""
-	_dname.text = ""
-	_stats.text = ""
-	_body.text = COPY.text("bucket.hover", "Hover a shadow.")
+	var sep := 12.0
+	var cols: int = n
+	var tile: float = (inner_w - sep * float(cols - 1)) / float(cols)
+	if tile < 108.0 and n > 6:
+		cols = int(ceil(float(n) / 2.0))
+		tile = (inner_w - sep * float(cols - 1)) / float(cols)
+	tile = minf(tile, 148.0)
+	if tile * float(cols) + sep * float(maxi(cols - 1, 0)) > inner_w:
+		tile = (inner_w - sep * float(maxi(cols - 1, 0))) / float(cols)
+	tile = maxf(tile, 68.0)
+	var rows: int = int(ceil(float(n) / float(cols)))
+	var name_h: float = 32.0 if tile >= 110.0 else 26.0
+	var art: float = clampf(tile - 12.0, 52.0, 124.0)
+	var panel: float = art + 16.0
+	var block: float = panel + 4.0 + name_h
+	var stack: float = block * float(rows) + 8.0 * float(maxi(rows - 1, 0))
+	if stack > band:
+		var room: float = (band - 8.0 * float(maxi(rows - 1, 0))) / float(rows)
+		name_h = minf(name_h, 24.0)
+		panel = maxf(56.0, room - 4.0 - name_h)
+		art = maxf(44.0, panel - 16.0)
+		tile = art + 12.0
+	row.columns = cols
+	var font_px: int = 15 if tile >= 120.0 else (13 if tile >= 92.0 else 11)
+	for child in row.get_children():
+		if not (child is VBoxContainer):
+			continue
+		var wrap: VBoxContainer = child
+		var panel_node: PanelContainer = wrap.get_meta("panel")
+		var tex_rect: TextureRect = wrap.get_meta("tex")
+		var name: Label = wrap.get_meta("name")
+		panel_node.custom_minimum_size = Vector2(tile, panel)
+		tex_rect.custom_minimum_size = Vector2(art, art)
+		name.custom_minimum_size = Vector2(tile, name_h)
+		name.add_theme_font_size_override("font_size", font_px)
 
 
 func _on_next() -> void:

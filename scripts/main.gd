@@ -1768,6 +1768,8 @@ func _build_ui() -> void:
 	sack_peek.setup(home_cabin, cabin_layout.get("extra", {}), art, self)
 	_bucket_reveal = BUCKET_REVEAL.new()
 	_bucket_reveal.sfx = sfx
+	_bucket_reveal.card_hovered.connect(_on_unlock_card_hovered)
+	_bucket_reveal.card_unhovered.connect(_on_unlock_card_unhovered)
 	add_child(_bucket_reveal)
 	if _authoring():
 		settings_ui.roster_pressed.connect(_open_roster)
@@ -4187,6 +4189,61 @@ func _dev_bucket_unhovered() -> void:
 		fly_tip.hide_plate()
 
 
+func _on_unlock_card_hovered(kind: String, card_id: String, slot: Control) -> void:
+	if fly_tip == null or card_id == "":
+		return
+	fly_tip.z_index = 420
+	_inspect_pinned = false
+	_fly_card = slot
+	if kind == "Foe":
+		var s: Dictionary = _preview_monster(card_id)
+		if s.is_empty():
+			return
+		var rule: Dictionary = _monster_rule(s)
+		var port: Texture2D = null
+		if art != null:
+			var frames: Array = art.monster_portrait_frames(card_id)
+			if frames.is_empty():
+				port = art.monster_still(card_id)
+			else:
+				port = frames[0]
+		fly_tip.show_rule(
+			str(rule.get("title", "")),
+			str(rule.get("value", "")),
+			str(rule.get("equation", "")),
+			str(rule.get("speech", "")),
+			str(rule.get("warn", "")),
+			port,
+			"monster",
+			card_id,
+			_monster_plate_look(s, rule)
+		)
+	else:
+		var it: Dictionary = _cabin_item_from_id(card_id)
+		if it.is_empty():
+			return
+		var irule: Dictionary = _item_rule(it)
+		fly_tip.show_rule(
+			str(irule.get("title", "")),
+			str(irule.get("value", "")),
+			str(irule.get("equation", "")),
+			str(irule.get("body", "")),
+			str(irule.get("warn", "")),
+			null,
+			"item",
+			card_id,
+			_item_look(it)
+		)
+	_place_fly(slot)
+
+
+func _on_unlock_card_unhovered() -> void:
+	_fly_card = null
+	if fly_tip:
+		fly_tip.hide_plate()
+		fly_tip.z_index = 110
+
+
 func _preview_monster(id: String) -> Dictionary:
 	var card: Dictionary = monsters_by_id.get(id, {})
 	if card.is_empty():
@@ -4285,7 +4342,7 @@ func _bucket_entries(bucket_n: int) -> Array:
 		var loot_tex: Texture2D = tex_by_item.get(id, null)
 		if loot_tex == null and art != null:
 			loot_tex = art.item_tex(id)
-		var entry: Dictionary = _bucket_entry(card, "Loot", loot_tex)
+		var entry: Dictionary = _bucket_entry(card, "Loot", loot_tex, str(id))
 		entry["extra"] = not BucketRules.counts_for_mill(card)
 		if bool(entry["extra"]):
 			loot_extra.append(entry)
@@ -4299,7 +4356,7 @@ func _bucket_entries(bucket_n: int) -> Array:
 			continue
 		if BucketRules.is_token(card2):
 			continue
-		var entry2: Dictionary = _bucket_entry(card2, "Foe", tex_by_monster.get(id2, null))
+		var entry2: Dictionary = _bucket_entry(card2, "Foe", tex_by_monster.get(id2, null), str(id2))
 		entry2["extra"] = not BucketRules.counts_for_mill(card2)
 		if bool(entry2["extra"]):
 			foe_extra.append(entry2)
@@ -4313,10 +4370,11 @@ func _bucket_entries(bucket_n: int) -> Array:
 	return out
 
 
-func _bucket_entry(card: Dictionary, kind: String, tex: Texture2D) -> Dictionary:
+func _bucket_entry(card: Dictionary, kind: String, tex: Texture2D, id: String) -> Dictionary:
 	var atk_n: String = _bucket_stat(card, "atk")
 	var hp_n: String = _bucket_stat(card, "hp")
 	return {
+		"id": id,
 		"kind": kind,
 		"name": _title_case(str(card.get("name", ""))),
 		"tex": tex,
@@ -22451,6 +22509,19 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 		candidates = [under, off_wheel, below, left]
 	var blocks: Array = [anchor]
 	blocks.append_array(_log_block_rects())
+	if _unlock_screen and _bucket_reveal != null and _bucket_reveal.visible:
+		for row in [_bucket_reveal._loot_row, _bucket_reveal._foe_row]:
+			for child in row.get_children():
+				if not (child is Control):
+					continue
+				var tile: Control = child
+				if near != null and (tile == near or tile.is_ancestor_of(near) or near.is_ancestor_of(tile)):
+					continue
+				blocks.append(tile.get_global_rect())
+		if _bucket_reveal._next != null:
+			blocks.append(_bucket_reveal._next.get_global_rect())
+		var dock := Vector2(get_viewport_rect().size.x - sz.x - 48.0, get_viewport_rect().size.y - sz.y - 120.0)
+		candidates.push_front(dock)
 	if challenge_draft_ui != null and challenge_draft_ui.visible and challenge_draft_ui.has_method("draft_cards"):
 		for card in challenge_draft_ui.draft_cards():
 			if card is Control:
@@ -26285,7 +26356,7 @@ func _tutorial_unlock_entries() -> Array:
 		var loot_tex: Texture2D = tex_by_item.get(id, null)
 		if loot_tex == null and art != null:
 			loot_tex = art.item_tex(id)
-		var entry: Dictionary = _bucket_entry(card, "Loot", loot_tex)
+		var entry: Dictionary = _bucket_entry(card, "Loot", loot_tex, str(id))
 		if BucketRules.counts_for_mill(card):
 			loot.append(entry)
 		else:
@@ -26300,7 +26371,7 @@ func _tutorial_unlock_entries() -> Array:
 			continue
 		if BucketRules.is_token(card2):
 			continue
-		var entry2: Dictionary = _bucket_entry(card2, "Foe", tex_by_monster.get(id2, null))
+		var entry2: Dictionary = _bucket_entry(card2, "Foe", tex_by_monster.get(id2, null), str(id2))
 		if BucketRules.counts_for_mill(card2):
 			foes.append(entry2)
 		else:
