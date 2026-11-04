@@ -5295,20 +5295,25 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 		if picked.is_empty() and not pair_snap.is_empty():
 			picked = pair_snap[0]
 		break
+	FRAME_METRICS.span_begin("draft_to_hotbar")
 	await _challenge_commit_item(picked, replace_if_full)
+	FRAME_METRICS.span_end("draft_to_hotbar")
 
 
 func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
 	if it.is_empty():
+		FRAME_METRICS.span_cancel("draft_to_hotbar")
 		return
 	var epoch: int = _loot_epoch
 	var token: int = _undo_gen
 	var uid: int = int(it.get("uid", 0))
 	for held in hotbar:
 		if int(held.get("uid", 0)) == uid:
+			FRAME_METRICS.span_cancel("draft_to_hotbar")
 			return
 	if hotbar.size() < CHALLENGE_HAND:
 		if epoch != _loot_epoch or _undo_stale(token):
+			FRAME_METRICS.span_cancel("draft_to_hotbar")
 			return
 		hotbar.append(it.duplicate(true))
 		_sort_hotbar()
@@ -5320,13 +5325,16 @@ func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
 		_refresh()
 		return
 	if not replace_if_full:
+		FRAME_METRICS.span_cancel("draft_to_hotbar")
 		return
 	if not _start_full_hand_replace(it):
+		FRAME_METRICS.span_cancel("draft_to_hotbar")
 		return
 	while _challenge_loot_wait and is_instance_valid(self):
 		if epoch != _loot_epoch or _undo_stale(token):
 			_challenge_loot_wait = false
 			_challenge_pending_gain = {}
+			FRAME_METRICS.span_cancel("draft_to_hotbar")
 			return
 		await get_tree().process_frame
 
@@ -8284,8 +8292,10 @@ func _commit_place(index: int, open_next: bool = true) -> void:
 		sfx.play("drop", -8.0)
 		sfx.play("confirm", -14.0, 1.08)
 	if not pending_item.is_empty():
+		FRAME_METRICS.span_begin("draft_to_hotbar")
 		hotbar.append(pending_item.duplicate(true))
 		_log("on_place", "item  %s" % pending_item.get("name", "?"))
+		FRAME_METRICS.span_end("draft_to_hotbar")
 	pending_monster = {}
 	pending_item = {}
 	if draft_gate:
@@ -8438,6 +8448,7 @@ func _on_spin() -> void:
 		_unspin_armed = false
 	_await_first_spin = false
 	phase = "spinning"
+	FRAME_METRICS.span_begin("spin_to_callout")
 	# Drop cached gutter layout — next place after land must run full work.
 	_fight_art_sig = ""
 	_sprout_begin_exit()
@@ -8453,6 +8464,7 @@ func _on_spin() -> void:
 		sfx.play("whoosh", -12.0, 0.9)
 	await wheel_view.spin_to(idx)
 	if phase != "spinning":
+		FRAME_METRICS.span_cancel("spin_to_callout")
 		return
 	if sfx:
 		var land_m: Dictionary = wheel[idx] if idx >= 0 and idx < wheel.size() else {}
@@ -8519,6 +8531,7 @@ func _on_spin() -> void:
 	# the gutter sig, so the deferred flush from `_refresh_face` early-outs.
 	if not _spin_holds_fight_art():
 		_place_fight_art(true)
+	FRAME_METRICS.span_end("spin_to_callout")
 	_bleed_begin()
 	if cascade_ticker != null:
 		cascade_ticker.begin()
@@ -8753,19 +8766,23 @@ func _on_done() -> void:
 		str(wheel[facing_index].get("hp", 0)),
 		skip_swing_this_fight,
 	])
+	FRAME_METRICS.span_begin("take_apply")
 	if int(wheel[facing_index].get("hp", 0)) <= 0:
 		await _begin_slay()
+		FRAME_METRICS.span_end("take_apply")
 		return
 	if skip_swing_this_fight:
 		_log("on_click", "Done")
 		if sfx:
 			sfx.play("click", -8.0)
 		await _resolve_then_continue(true)
+		FRAME_METRICS.span_end("take_apply")
 		return
 	_log("on_click", "Done")
 	if sfx:
 		sfx.play("click", -8.0)
 	await _resolve_then_continue(false)
+	FRAME_METRICS.span_end("take_apply")
 
 
 func _begin_slay(banner: String = "slay") -> void:
@@ -9920,12 +9937,15 @@ func _use_item(uid: int) -> void:
 		_lock_item_fx()
 	_arm_item_hold()
 	_beggar_hold = true
+	FRAME_METRICS.span_begin("use_item_resolve")
 	await _apply_ops(it, ops, {})
 	if _undo_stale(token):
+		FRAME_METRICS.span_cancel("use_item_resolve")
 		_beggar_hold = false
 		await _unlock_after_item_body()
 		return
 	await _after_item_resolved(it)
+	FRAME_METRICS.span_end("use_item_resolve")
 	if _undo_stale(token):
 		await _unlock_after_item_body()
 		return
@@ -9974,6 +9994,7 @@ func _choose_option(opt: Dictionary) -> void:
 	_bleed_begin()
 	_lock_item_fx()
 	_arm_item_hold()
+	FRAME_METRICS.span_begin("use_item_resolve")
 	if int(opt.get("atk_drop", 0)) > 0:
 		await _apply_ops(it, {"kind": "atk_drop", "n": int(opt.get("atk_drop", 0))}, opt)
 	elif int(opt.get("blk", 0)) > 0:
@@ -9981,9 +10002,11 @@ func _choose_option(opt: Dictionary) -> void:
 	else:
 		await _apply_ops(it, {"kind": "atk", "n": int(opt.get("atk", 0))}, opt)
 	if _undo_stale(token):
+		FRAME_METRICS.span_cancel("use_item_resolve")
 		await _unlock_if_fighting()
 		return
 	await _after_item_resolved(it)
+	FRAME_METRICS.span_end("use_item_resolve")
 	if _undo_stale(token):
 		await _unlock_if_fighting()
 		return

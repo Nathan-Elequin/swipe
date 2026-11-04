@@ -1,9 +1,11 @@
 extends CanvasLayer
 class_name FrameMetrics
-## Dev frame-time overlay (F8). Hidden until opened. Does not change combat.
+## Dev/playtest frame-time overlay (F8). Hidden until opened. Does not change combat.
 ## Frames over SPIKE_MS leave a cheap breadcrumb in capture JSON
 ## (`spike_markers`) so a shared ~100 ms hitch can be hunted without
 ## speculative rewrites.
+## Feel spans (`span_begin` / `span_end`) time spin→callout, item resolve,
+## Take apply, and draft→hotbar when main hooks them — instrument only.
 
 const STAMP := preload("res://scripts/frame_metrics_stamp.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
@@ -15,12 +17,23 @@ const SCENARIOS: Array[String] = [
 	"spin_x5",
 	"lunge_x5",
 	"transition_x3",
+	"tut_brand_new_yes",
+]
+
+## Named feel spans main.gd (and friends) can bookend. Cheap; no FX change.
+const FEEL_SPANS: Array[String] = [
+	"spin_to_callout",
+	"use_item_resolve",
+	"take_apply",
+	"draft_to_hotbar",
 ]
 
 ## Scorecard shared hitch sits ~98–101 ms; 50 ms catches that band without
 ## flooding every 16.7 ms spike into the JSON.
 const SPIKE_MS := 50.0
 const SPIKE_KEEP := 12
+const ROLL_KEEP := 120
+const SPAN_KEEP := 32
 
 static var wheel_redraws: int = 0
 static var stage_redraws: int = 0
@@ -35,6 +48,11 @@ static var place_full_usec: int = 0
 ## Optional last-known tag from a hot path (`note_tag("spin")`).
 ## Cleared each capture frame after spike recording so a stale tag cannot stick.
 static var last_tag: String = ""
+## True only while a scenario capture is armed (span samples land in capture JSON).
+static var _cap_armed: bool = false
+static var _span_t0: Dictionary = {}
+static var _span_session: Dictionary = {}
+static var _span_capture: Dictionary = {}
 
 var _open: bool = false
 var _capturing: bool = false
@@ -58,6 +76,8 @@ var _heavy_max: int = 0
 var _samples := PackedFloat32Array()
 var _proc := PackedFloat32Array()
 var _draws := PackedFloat32Array()
+var _roll := PackedFloat32Array()
+var _roll_spike_50: int = 0
 var _spike_markers: Array = []
 var _prev_wheel: int = 0
 var _prev_stage: int = 0
@@ -114,6 +134,43 @@ static func note_tag(tag: String) -> void:
 	if tag == "":
 		return
 	last_tag = tag
+
+
+static func span_begin(span: String) -> void:
+	if span == "":
+		return
+	_span_t0[span] = Time.get_ticks_usec()
+	note_tag(span)
+
+
+static func span_end(span: String) -> void:
+	if span == "" or not _span_t0.has(span):
+		return
+	var t0: int = int(_span_t0[span])
+	_span_t0.erase(span)
+	var ms: float = float(Time.get_ticks_usec() - t0) / 1000.0
+	_push_span_sample(_span_session, span, ms, SPAN_KEEP)
+	if _cap_armed:
+		_push_span_sample(_span_capture, span, ms, 0)
+
+
+static func span_cancel(span: String) -> void:
+	if span == "":
+		return
+	_span_t0.erase(span)
+
+
+static func _push_span_sample(bucket: Dictionary, span: String, ms: float, keep: int) -> void:
+	var arr: PackedFloat32Array
+	if bucket.has(span):
+		arr = bucket[span] as PackedFloat32Array
+	else:
+		arr = PackedFloat32Array()
+	arr.push_back(ms)
+	if keep > 0:
+		while arr.size() > keep:
+			arr.remove_at(0)
+	bucket[span] = arr
 
 
 func _ready() -> void:
@@ -203,7 +260,9 @@ func _input(event: InputEvent) -> void:
 			idx = 4
 		KEY_6:
 			idx = 5
-	if idx < 0:
+		KEY_7:
+			idx = 6
+	if idx < 0 or idx >= SCENARIOS.size():
 		return
 	_arm(SCENARIOS[idx])
 	get_viewport().set_input_as_handled()
@@ -220,7 +279,7 @@ func _toggle() -> void:
 	if _open:
 		_ui_wait = 0.0
 		# Warm the stamp cache before any capture. BuildStamp.from_repo()
-		# shells out to `git status`; paying that on key 1–6 was the shared
+		# shells out to `git status`; paying that on key 1–7 was the shared
 		# ~100 ms first-frame hitch on every Scorecard scenario.
 		STAMP.text()
 		_refresh_label()
@@ -235,6 +294,7 @@ func _arm(scenario: String) -> void:
 		_stop()
 	_scenario = scenario
 	_capturing = true
+	_cap_armed = true
 	# Snapshot stamp before _t0 so a cold cache refresh cannot land inside
 	# the first captured frame (Scorecard shared ~100 ms hitch).
 	_cap_sha = STAMP.sha_hex()
@@ -258,6 +318,7 @@ func _arm(scenario: String) -> void:
 	_proc = PackedFloat32Array()
 	_draws = PackedFloat32Array()
 	_spike_markers = []
+	_span_capture = {}
 	_prev_wheel = wheel_redraws
 	_prev_stage = stage_redraws
 	_prev_hall = hall_redraws
@@ -278,6 +339,15 @@ func _stop_pressed() -> void:
 
 func _process(delta: float) -> void:
 	var ms := delta * 1000.0
+	if _open:
+		_roll.push_back(ms)
+		if ms > SPIKE_MS:
+			_roll_spike_50 += 1
+		while _roll.size() > ROLL_KEEP:
+			var dropped: float = float(_roll[0])
+			_roll.remove_at(0)
+			if dropped > SPIKE_MS:
+				_roll_spike_50 = maxi(0, _roll_spike_50 - 1)
 	# While the overlay is open (idle) or a capture is armed, watch for
 	# frames over SPIKE_MS. Only an armed capture appends into the JSON.
 	if _capturing:
@@ -406,8 +476,14 @@ func _refresh_label() -> void:
 	elif STAMP.dirty():
 		dirty = " dirty"
 	var live := ""
-	if not _samples.is_empty():
+	if _capturing and not _samples.is_empty():
 		live = "  %.1f ms" % _samples[_samples.size() - 1]
+	elif not _roll.is_empty():
+		live = "  %.1f ms  roll>%.0f %d" % [
+			_roll[_roll.size() - 1],
+			SPIKE_MS,
+			_roll_spike_50,
+		]
 	elif Engine.get_frames_per_second() > 0:
 		live = "  %d fps" % Engine.get_frames_per_second()
 	var cap := "idle"
@@ -424,13 +500,42 @@ func _refresh_label() -> void:
 	elif _last_summary != "":
 		cap = _last_summary
 	var heavy_now := FX_BUDGET.heavy_count()
-	_label.text = "sha %s%s%s\n%s\nheavy %d\nF8 hide   1-6 capture   same key stops" % [sha, dirty, live, cap, heavy_now]
+	var spans := _span_line()
+	_label.text = "sha %s%s%s\n%s\n%s\nheavy %d\nF8 hide   1-7 capture   same key stops" % [
+		sha,
+		dirty,
+		live,
+		cap,
+		spans,
+		heavy_now,
+	]
+
+
+func _span_line() -> String:
+	var parts: PackedStringArray = PackedStringArray()
+	for span in FEEL_SPANS:
+		var src: Dictionary = _span_capture if _capturing and not _span_capture.is_empty() else _span_session
+		if not src.has(span):
+			continue
+		var arr: PackedFloat32Array = src[span] as PackedFloat32Array
+		if arr.is_empty():
+			continue
+		parts.append("%s last %.0f p50 %.0f n=%d" % [
+			span,
+			float(arr[arr.size() - 1]),
+			_p50(arr),
+			arr.size(),
+		])
+	if parts.is_empty():
+		return "spans — (hooks idle)"
+	return "spans  " + " | ".join(parts)
 
 
 func _stop() -> void:
 	if not _capturing:
 		return
 	_capturing = false
+	_cap_armed = false
 	set_process(_open)
 	var dur := float(Time.get_ticks_usec() - _t0) / 1000000.0
 	if dur < 0.05 or _samples.is_empty():
@@ -489,6 +594,7 @@ func _report(dur: float) -> Dictionary:
 		"fps": float(frames) / dur,
 		"frame_ms": {
 			"avg": _avg(_samples),
+			"p50": _p50(_samples),
 			"p95": _p95(_samples),
 			"max": _max(_samples),
 		},
@@ -497,6 +603,7 @@ func _report(dur: float) -> Dictionary:
 			"over_33_3": _spike_33,
 			"over_50": _spike_50,
 		},
+		"feel_spans": _span_report(_span_capture),
 		"process_ms": {
 			"avg": _avg(_proc),
 			"max": _max(_proc),
@@ -529,12 +636,34 @@ func _report(dur: float) -> Dictionary:
 	}
 
 
+func _span_report(bucket: Dictionary) -> Dictionary:
+	var out := {}
+	for span in FEEL_SPANS:
+		if not bucket.has(span):
+			out[span] = {"n": 0, "last": 0.0, "p50": 0.0, "p95": 0.0, "max": 0.0, "samples_ms": []}
+			continue
+		var arr: PackedFloat32Array = bucket[span] as PackedFloat32Array
+		var listed: Array = []
+		for v in arr:
+			listed.append(float(v))
+		out[span] = {
+			"n": arr.size(),
+			"last": float(arr[arr.size() - 1]) if not arr.is_empty() else 0.0,
+			"p50": _p50(arr),
+			"p95": _p95(arr),
+			"max": _max(arr),
+			"samples_ms": listed,
+		}
+	return out
+
+
 func _summary_line(report: Dictionary, path: String) -> String:
 	var frame: Dictionary = report.get("frame_ms", {})
 	var spikes: Dictionary = report.get("spikes", {})
-	return "%s  avg %.1f  p95 %.1f  max %.1f  >16.7 %s  >33.3 %s\n%s" % [
+	return "%s  avg %.1f  p50 %.1f  p95 %.1f  max %.1f  >16.7 %s  >33.3 %s\n%s" % [
 		str(report.get("scenario", "")),
 		float(frame.get("avg", 0.0)),
+		float(frame.get("p50", 0.0)),
 		float(frame.get("p95", 0.0)),
 		float(frame.get("max", 0.0)),
 		str(spikes.get("over_16_7", 0)),
@@ -548,14 +677,58 @@ func _write(report: Dictionary) -> String:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://perf"))
 	var sha := str(report.get("sha", "nosha"))
 	var plat := _safe(str(report.get("platform", "os")))
-	var named := "user://perf/%s_%s_%s.json" % [_safe(str(report.get("scenario", "cap"))), plat, _safe(sha)]
+	var stem := "%s_%s_%s" % [_safe(str(report.get("scenario", "cap"))), plat, _safe(sha)]
+	var named := "user://perf/%s.json" % stem
 	var last := "user://perf/last_capture.json"
+	var csv_named := "user://perf/%s.csv" % stem
+	var csv_last := "user://perf/last_capture.csv"
+	var csv_text := _csv(report)
 	_store(named, text)
 	_store(last, text)
+	_store(csv_named, csv_text)
+	_store(csv_last, csv_text)
 	if OS.has_feature("web"):
 		var fname := named.get_file()
 		JavaScriptBridge.download_buffer(text.to_utf8_buffer(), fname, "application/json")
+		JavaScriptBridge.download_buffer(csv_text.to_utf8_buffer(), csv_named.get_file(), "text/csv")
 	return ProjectSettings.globalize_path(named)
+
+
+func _csv(report: Dictionary) -> String:
+	var lines: PackedStringArray = PackedStringArray()
+	lines.append("kind,span,n,p50_ms,p95_ms,max_ms,avg_ms,spikes_over_16_7,spikes_over_33_3,spikes_over_50,scenario,sha,notes")
+	var frame: Dictionary = report.get("frame_ms", {})
+	var spikes: Dictionary = report.get("spikes", {})
+	lines.append("%s,%s,%s,%.3f,%.3f,%.3f,%.3f,%s,%s,%s,%s,%s,\"%s\"" % [
+		"frame",
+		"frame",
+		str(report.get("frames", 0)),
+		float(frame.get("p50", 0.0)),
+		float(frame.get("p95", 0.0)),
+		float(frame.get("max", 0.0)),
+		float(frame.get("avg", 0.0)),
+		str(spikes.get("over_16_7", 0)),
+		str(spikes.get("over_33_3", 0)),
+		str(spikes.get("over_50", 0)),
+		_safe(str(report.get("scenario", ""))),
+		_safe(str(report.get("sha", ""))),
+		str(report.get("note", "")).replace("\"", "'"),
+	])
+	var feel: Dictionary = report.get("feel_spans", {})
+	for span in FEEL_SPANS:
+		var row: Dictionary = feel.get(span, {})
+		lines.append("%s,%s,%s,%.3f,%.3f,%.3f,%.3f,,,,%s,%s,\"\"" % [
+			"feel_span",
+			span,
+			str(row.get("n", 0)),
+			float(row.get("p50", 0.0)),
+			float(row.get("p95", 0.0)),
+			float(row.get("max", 0.0)),
+			float(row.get("last", 0.0)),
+			_safe(str(report.get("scenario", ""))),
+			_safe(str(report.get("sha", ""))),
+		])
+	return "\n".join(lines) + "\n"
 
 
 func _store(path: String, text: String) -> void:
@@ -593,10 +766,18 @@ func _max(samples: PackedFloat32Array) -> float:
 
 
 func _p95(samples: PackedFloat32Array) -> float:
+	return _percentile(samples, 0.95)
+
+
+func _p50(samples: PackedFloat32Array) -> float:
+	return _percentile(samples, 0.50)
+
+
+func _percentile(samples: PackedFloat32Array, p: float) -> float:
 	if samples.is_empty():
 		return 0.0
 	var copy := samples.duplicate()
 	copy.sort()
-	var idx := int(floor(float(copy.size() - 1) * 0.95))
+	var idx := int(floor(float(copy.size() - 1) * p))
 	idx = clampi(idx, 0, copy.size() - 1)
 	return float(copy[idx])
