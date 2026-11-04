@@ -3,7 +3,7 @@ id: REQ-20261104-intro-polish-slice-b
 status: open
 priority: high
 pr:
-tip_sha: d791cb8c57ef2d84ba494c7acbb26ac5cf59c9e7
+tip_sha: d7a15ca90785b794078981c2a1886f2fbae242aa
 branch: playtest/latest
 created: 2026-11-04T18:24:30Z
 created_by: cloud-agent
