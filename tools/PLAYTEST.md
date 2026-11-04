@@ -32,3 +32,14 @@ Covers Brand New / Skip / draft / Goblin choice, Harpy→Dragon spine waits, Con
 ```
 
 Details: `tests/README.md`. CI: `.github/workflows/tip-smoke.yml` on PRs **and push** to `playtest/latest`.
+
+## Itch upload (CI butler)
+
+Friends page only: **`nathan-elequin/spinheritance-playtest`** channel **`html5`**. Never the public `nathan-elequin/swipe` page.
+
+Workflow: `.github/workflows/playtest-itch.yml` (Godot **4.7.2**, preset **Web Playtest** → `build/web-playtest/`).
+
+- **Default:** manual **Actions → Playtest itch → Run workflow** (does not run on every tip merge).
+- **Secret (required for push):** repo secret named exactly **`BUTLER_API_KEY`** — create at [itch.io API keys](https://itch.io/user/settings/api-keys), add under GitHub → Settings → Secrets and variables → Actions. Do not commit it.
+- **Optional auto on tip push:** set repo variable `PLAYTEST_ITCH_AUTO_ON_PUSH=true`.
+- Full notes: `playtest/itch/CI.md`.

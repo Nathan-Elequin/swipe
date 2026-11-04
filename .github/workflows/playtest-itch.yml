@@ -1,0 +1,143 @@
+# Export Godot Web Playtest and push with butler to the friends itch page.
+# Default: manual only (workflow_dispatch). Tip push is registered but the job
+# no-ops unless repo variable PLAYTEST_ITCH_AUTO_ON_PUSH=true — so merges do
+# not spam itch unless Nathan opts in. See playtest/itch/CI.md.
+#
+# Target (only): nathan-elequin/spinheritance-playtest:html5
+# Never push nathan-elequin/swipe from this workflow.
+#
+# Engine: Godot 4.7.2 (matches tip-smoke.yml + project.godot).
+# Preset: "Web Playtest" → build/web-playtest/index.html (custom_features=playtest).
+name: Playtest itch
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_butler:
+        description: "Export only — skip butler push even if BUTLER_API_KEY is set"
+        type: boolean
+        default: false
+  # Job still requires PLAYTEST_ITCH_AUTO_ON_PUSH=true (see job if: below).
+  push:
+    branches:
+      - playtest/latest
+
+concurrency:
+  group: playtest-itch-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  export-and-push:
+    name: Web Playtest → itch
+    # Safe default: only manual runs. Opt in to tip-auto with a repo variable.
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      || vars.PLAYTEST_ITCH_AUTO_ON_PUSH == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Optional: create a GitHub Environment named "itch-playtest" with required
+    # reviewers if you want an approval gate before butler runs. Uncomment:
+    # environment: itch-playtest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Godot 4.7.2 + export templates
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.temp }}/godot
+            ${{ runner.temp }}/godot-templates
+          key: godot-4.7.2-stable-linux-x86_64-templates-web
+
+      - name: Download Godot 4.7.2
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "${{ runner.temp }}/godot"
+          curl -fsSL -o /tmp/godot.zip \
+            "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip"
+          unzip -o /tmp/godot.zip -d "${{ runner.temp }}/godot"
+          chmod +x "${{ runner.temp }}/godot"/Godot_v4.7.2-stable_linux.x86_64
+
+      - name: Download export templates 4.7.2
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "${{ runner.temp }}/godot-templates"
+          curl -fsSL -o /tmp/godot-templates.tpz \
+            "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz"
+          # .tpz is a zip; top-level folder is templates/
+          unzip -o /tmp/godot-templates.tpz -d "${{ runner.temp }}/godot-templates-extract"
+          rm -rf "${{ runner.temp }}/godot-templates/4.7.2.stable"
+          mv "${{ runner.temp }}/godot-templates-extract/templates" \
+            "${{ runner.temp }}/godot-templates/4.7.2.stable"
+          test -f "${{ runner.temp }}/godot-templates/4.7.2.stable/web_release.zip" \
+            || test -f "${{ runner.temp }}/godot-templates/4.7.2.stable/web_nothreads_release.zip" \
+            || (echo "Web export template missing under 4.7.2.stable" >&2; ls -la "${{ runner.temp }}/godot-templates/4.7.2.stable" >&2; exit 1)
+
+      - name: Install export templates into Godot path
+        run: |
+          set -euo pipefail
+          chmod +x "${{ runner.temp }}/godot"/Godot_v4.7.2-stable_linux.x86_64
+          DEST="${HOME}/.local/share/godot/export_templates/4.7.2.stable"
+          mkdir -p "$(dirname "$DEST")"
+          rm -rf "$DEST"
+          cp -a "${{ runner.temp }}/godot-templates/4.7.2.stable" "$DEST"
+          echo "Installed templates at $DEST"
+          ls "$DEST" | head -20
+
+      - name: Headless export Web Playtest
+        env:
+          GODOT: ${{ runner.temp }}/godot/Godot_v4.7.2-stable_linux.x86_64
+        run: |
+          set -euo pipefail
+          chmod +x "$GODOT"
+          mkdir -p build/web-playtest
+          # Import once so .godot/ exists, then export the playtest preset.
+          "$GODOT" --headless --path . --import
+          "$GODOT" --headless --path . --export-release "Web Playtest" build/web-playtest/index.html
+          test -f build/web-playtest/index.html
+          test -f build/web-playtest/index.pck
+          test -f build/web-playtest/index.wasm
+          echo "Export OK — $(du -sh build/web-playtest | cut -f1)"
+          ls -la build/web-playtest | head -30
+
+      - name: Upload export artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-playtest-${{ github.sha }}
+          path: build/web-playtest
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Install butler
+        if: >-
+          github.event.inputs.skip_butler != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "${{ runner.temp }}/butler"
+          curl -fsSL -o /tmp/butler.zip \
+            "https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default"
+          unzip -o /tmp/butler.zip -d "${{ runner.temp }}/butler"
+          chmod +x "${{ runner.temp }}/butler/butler"
+          "${{ runner.temp }}/butler/butler" -V
+
+      - name: Push to itch (spinheritance-playtest:html5)
+        if: >-
+          github.event.inputs.skip_butler != 'true'
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+          BUTLER: ${{ runner.temp }}/butler/butler
+        run: |
+          set -euo pipefail
+          if [ -z "${BUTLER_API_KEY:-}" ]; then
+            echo "::error::Repo secret BUTLER_API_KEY is missing. Export succeeded (artifact uploaded). Add the secret, then re-run this workflow. See playtest/itch/CI.md."
+            exit 1
+          fi
+          # Friends playtest only — never nathan-elequin/swipe.
+          "$BUTLER" push build/web-playtest \
+            "nathan-elequin/spinheritance-playtest:html5" \
+            --userversion "${GITHUB_SHA:0:7}"
+          echo "Pushed ${GITHUB_SHA:0:7} → nathan-elequin/spinheritance-playtest:html5"
