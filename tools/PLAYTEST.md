@@ -21,3 +21,13 @@ Then F5 that same Godot project. Do not switch project folders.
 3. Resets local `playtest/latest` to match `origin/playtest/latest`
 
 Stashes are left for you — nothing is deleted. List them with `git stash list`.
+
+## Tip smoke (headless, no F5)
+
+Automated tutorial-rail regression (data + script invariants). Not a full play-agent.
+
+```bash
+./tools/qa/run_tip_smoke.sh
+```
+
+Details: `tests/README.md`. CI: `.github/workflows/tip-smoke.yml` on PRs to `playtest/latest`.
