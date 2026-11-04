@@ -1,0 +1,136 @@
+kind,id,name,status,tier,pool,is_token,flags_art,png_path,png_exists,sfx_lookup_event,sfx_cue_id,sfx_cue_exists
+item,throwing_knife,Throwing Knife,live,1.0,1.0,False,True,res://assets/dungeon/items/throwing_knife.png,True,item.use.throwing_knife,item.use.throwing_knife,True
+item,shield,Shield,live,1.0,1.0,False,True,res://assets/dungeon/items/shield.png,True,item.use.shield,item.use.shield,True
+item,sai,Sai,live,1.0,1.0,False,True,res://assets/dungeon/items/sai.png,True,item.use.sai,item.use.sai,True
+item,medallion,Medallion,live,1.0,2.0,False,True,res://assets/dungeon/items/medallion.png,True,item.use.medallion,item.use.medallion,True
+item,helmet,Helmet,live,1.0,2.0,False,True,res://assets/dungeon/items/helmet.png,True,item.use.helmet,item.use.helmet,True
+item,da_boot,The Boot,live,1.0,5.0,False,True,res://assets/dungeon/items/boot.png,True,item.use.da_boot,item.use.da_boot,True
+item,grimoire,Grimoire,live,2.0,3.0,False,True,res://assets/dungeon/items/grimoire.png,True,item.use.grimoire,item.use.grimoire,True
+item,bloody_gauntlets,Bloody Wraps,live,1.0,2.0,False,True,res://assets/dungeon/items/bloody_gauntlets.png,True,item.use.bloody_gauntlets,item.use.bloody_gauntlets,True
+item,breastplate,Breastplate,live,3.0,2.0,False,True,res://assets/dungeon/items/breastplate.png,True,item.use.breastplate,item.use.breastplate,True
+item,bracers,Right Bracer,live,1.0,1.0,False,True,res://assets/dungeon/items/bracers.png,True,item.use.bracers,item.use.bracers,True
+item,smoke_bomb,Smoke Bomb,todo,2.0,1.0,False,True,res://assets/dungeon/items/smoke_bomb.png,True,item.use.smoke_bomb,item.use.smoke_bomb,True
+item,knucklers,Knucklers,live,1.0,4.0,False,True,res://assets/dungeon/items/knucklers.png,True,item.use.knucklers,item.use.knucklers,True
+item,fangs,Fangs,live,2.0,2.0,False,True,res://assets/dungeon/items/fangs.png,True,item.use.fangs,item.use.fangs,True
+item,poison_flask,Poison Flask,live,2.0,1.0,False,True,res://assets/dungeon/items/poison_flask.png,True,item.use.poison_flask,item.use.poison_flask,True
+item,cursed_scroll,Cursed Scroll,live,1.0,3.0,False,True,res://assets/dungeon/items/cursed_scroll.png,True,item.use.cursed_scroll,item.use.cursed_scroll,True
+item,spider_egg,Spider Egg,live,0.0,-1.0,True,True,res://assets/dungeon/items/spider_egg.png,True,item.use.spider_egg,item.use.spider_egg,True
+item,spiked_flail,Spiked Flail,live,3.0,2.0,False,True,res://assets/dungeon/items/spiked_flail.png,True,item.use.spiked_flail,item.use.spiked_flail,True
+item,healing_potion,Healing Potion,todo,3.0,1.0,False,True,res://assets/dungeon/items/healing_potion.png,True,item.use.healing_potion,item.use.healing_potion,True
+item,crossbow,Crossbow,live,2.0,2.0,False,True,res://assets/dungeon/items/crossbow.png,True,item.use.crossbow,item.use.crossbow,True
+item,sledgehammer,Sledgehammer,live,3.0,1.0,False,True,res://assets/dungeon/items/sledgehammer.png,True,item.use.sledgehammer,item.use.sledgehammer,True
+item,pocketwatch,Pocketwatch,live,3.0,4.0,False,True,res://assets/dungeon/items/pocketwatch.png,True,item.use.pocketwatch,item.use.pocketwatch,True
+item,double_axe,Great Axe,live,2.0,2.0,False,True,res://assets/dungeon/items/double_axe.png,True,item.use.double_axe,item.use.double_axe,True
+item,victory_flask,Victory Flask,live,2.0,1.0,False,True,res://assets/dungeon/items/victory_flask.png,True,item.use.victory_flask,item.use.victory_flask,True
+item,grappling_hook,Grappling Hook,live,1.0,5.0,False,True,res://assets/dungeon/items/grappling_hook.png,True,item.use.grappling_hook,item.use.grappling_hook,True
+item,spiked_shield,Spiked Shield,live,1.0,5.0,False,True,res://assets/dungeon/items/spiked_shield.png,True,item.use.spiked_shield,item.use.spiked_shield,True
+item,grief_jar,Grief Jar,live,2.0,5.0,False,True,res://assets/dungeon/items/grief_jar.png,True,item.use.grief_jar,item.use.grief_jar,True
+item,longbow,Longbow,live,2,5,False,True,res://assets/dungeon/items/longbow.png,True,item.use.longbow,item.use.longbow,True
+item,dagger,Dagger,retired,1.0,0.0,False,False,,False,,item.use.dagger,False
+item,helmet_hidden,Helmet,retired,1.0,0.0,False,False,,False,,item.use.helmet_hidden,False
+item,bandana,Bandana,retired,1.0,0.0,False,False,,False,,item.use.bandana,False
+item,lantern,Lantern,live,3.0,2.0,False,True,res://assets/dungeon/items/lantern.png,True,item.use.lantern,item.use.lantern,True
+item,mirror_shard,Mirror Shard,live,2.0,4.0,False,True,res://assets/dungeon/items/mirror_shard.png,True,item.use.mirror_shard,item.use.mirror_shard,True
+item,caltrops,Caltrops,retired,1.0,0.0,False,True,res://assets/dungeon/items/caltrops.png,True,util.caltrops,item.use.caltrops,False
+item,echo_bell,Echo Bell,live,3.0,3.0,False,True,res://assets/dungeon/items/echo_bell.png,True,item.use.echo_bell,item.use.echo_bell,True
+item,quiet_bell,Quiet Bell,live,2.0,4.0,False,True,res://assets/dungeon/items/quiet_bell.png,True,item.use.quiet_bell,item.use.quiet_bell,True
+item,net,Net,live,1.0,1.0,False,True,res://assets/dungeon/items/net.png,True,item.use.net,item.use.net,True
+item,iron_chain,Chain,live,1.0,4.0,False,True,res://assets/dungeon/items/iron_chain.png,True,item.use.iron_chain,item.use.iron_chain,True
+item,counting_beads,Counting Beads,live,1.0,3.0,False,True,res://assets/dungeon/items/counting_beads.png,True,item.use.counting_beads,item.use.counting_beads,True
+item,last_match,Paci-Fist,live,2.0,3.0,False,True,res://assets/dungeon/items/last_match.png,True,item.use.last_match,item.use.last_match,True
+item,measuring_tape,Scythe,live,3.0,4.0,False,True,res://assets/dungeon/items/measuring_tape.png,True,item.use.measuring_tape,item.use.measuring_tape,True
+item,mute_stone,Chaos Stone,live,2.0,5.0,False,True,res://assets/dungeon/items/mute_stone.png,True,item.use.mute_stone,item.use.mute_stone,True
+item,left_bracer,Left Bracer,live,1.0,4.0,False,True,res://assets/dungeon/items/left_bracer.png,True,item.use.left_bracer,item.use.left_bracer,True
+item,arrow_head,Arrow Head,live,2.0,3.0,False,True,res://assets/dungeon/items/arrow_head.png,True,item.use.arrow_head,item.use.arrow_head,True
+item,danger_magnet,Danger Magnet,hold,2.0,4.0,False,True,res://assets/dungeon/items/danger_magnet.png,True,item.use.danger_magnet,item.use.danger_magnet,True
+item,shuriken,Shuriken,live,1.0,3.0,False,True,res://assets/dungeon/items/shuriken.png,True,item.use.shuriken,item.use.shuriken,True
+item,miasma,Miasma,live,3.0,4.0,False,True,res://assets/dungeon/items/miasma.png,True,item.use.miasma,item.use.miasma,True
+item,bag_of_marbles,Bag Of Marbles,live,3.0,3.0,False,True,res://assets/dungeon/items/bag_of_marbles.png,True,item.use.bag_of_marbles,item.use.bag_of_marbles,True
+item,marble,Marble,live,0.0,-1.0,True,True,res://assets/dungeon/items/marble.png,True,item.use.marble,item.use.marble,True
+item,hex,Hex,live,2.0,2.0,False,True,res://assets/dungeon/items/hex.png,True,item.use.hex,item.use.hex,True
+item,ale_flagon,Ale Flagon,live,1.0,3.0,False,True,res://assets/dungeon/items/ale_flagon.png,True,item.use.ale_flagon,item.use.ale_flagon,True
+item,napalm,Napalm,live,3.0,3.0,False,True,res://assets/dungeon/items/napalm.png,True,item.use.napalm,item.use.napalm,True
+item,lucky_nickel,Lucky Nickel,live,2.0,3.0,False,True,res://assets/dungeon/items/lucky_nickel.png,True,item.use.lucky_nickel,item.use.lucky_nickel,True
+item,double_buckler,Half-Buckler,live,1.0,3.0,False,True,res://assets/dungeon/items/double_buckler.png,True,item.use.double_buckler,item.use.double_buckler,True
+item,blood_pact,Blood Pact,live,0.0,-1.0,True,True,res://assets/dungeon/items/blood_pact.png,True,item.use.blood_pact,item.use.blood_pact,True
+item,jar_o_grease,Jar O' Grease,live,2.0,4.0,False,True,res://assets/dungeon/items/jar_o_grease.png,True,item.use.jar_o_grease,item.use.jar_o_grease,True
+item,toll,Toll,live,0.0,-1.0,True,True,res://assets/dungeon/items/toll.png,True,item.use.toll,item.use.toll,True
+item,pacemaker,Pacemaker,live,2.0,3.0,False,True,res://assets/dungeon/items/pacemaker.png,True,item.use.pacemaker,item.use.pacemaker,True
+item,catapult,Catapult,live,2.0,4.0,False,True,res://assets/dungeon/items/catapult.png,True,item.use.catapult,item.use.catapult,True
+item,polymorph,Polymorph,live,3.0,5.0,False,True,res://assets/dungeon/items/polymorph.png,True,item.use.polymorph,item.use.polymorph,True
+item,stone_wall,Stone Wall,live,3.0,5.0,False,True,res://assets/dungeon/items/stone_wall.png,True,item.use.stone_wall,item.use.stone_wall,True
+item,blood_chalice,Blood Chalice,live,1.0,4.0,False,True,res://assets/dungeon/items/blood_chalice.png,True,item.use.blood_chalice,item.use.blood_chalice,True
+item,chakram,Chakram,live,2.0,3.0,False,True,res://assets/dungeon/items/chakram.png,True,item.use.chakram,item.use.chakram,True
+item,signpost,Signpost,live,1.0,2.0,False,True,res://assets/dungeon/items/signpost.png,True,item.use.signpost,item.use.signpost,True
+item,sling,Sling,live,1.0,4.0,False,True,res://assets/dungeon/items/sling.png,True,item.use.sling,item.use.sling,True
+item,bag_of_holding,Bag Of Holding,live,2.0,4.0,False,True,res://assets/dungeon/items/bag_of_holding.png,True,item.use.bag_of_holding,item.use.bag_of_holding,True
+item,ball_and_chain,Ball & Chain,live,1.0,5.0,False,True,res://assets/dungeon/items/ball_and_chain.png,True,item.use.ball_and_chain,item.use.ball_and_chain,True
+item,recycler,Recycler,live,2.0,5.0,False,True,res://assets/dungeon/items/recycler.png,True,item.use.recycler,item.use.recycler,True
+item,rust,Rust,live,0.0,-1.0,True,True,res://assets/dungeon/items/rust.png,True,item.use.rust,item.use.rust,True
+item,fairy_in_a_bottle,Fairy In A Bottle,live,0.0,-1.0,True,False,,False,item.use.fairy_in_a_bottle,item.use.fairy_in_a_bottle,True
+item,orb,Orb,live,2.0,4.0,False,True,res://assets/dungeon/items/orb.png,True,item.use.orb,item.use.orb,True
+item,flying_saucer,Flying Saucer,live,2.0,1.0,False,True,res://assets/dungeon/items/flying_saucer.png,True,item.use.flying_saucer,item.use.flying_saucer,True
+item,spinning_top,Spinning Top,live,1.0,1.0,False,True,res://assets/dungeon/items/spinning_top.png,True,item.use.spinning_top,item.use.spinning_top,True
+monster,wizard,Wizard,live,1.0,1.0,False,True,res://assets/dungeon/extra/wizard.png,True,,mon.ability.wizard,False
+monster,golem,Golem,live,1.0,1.0,False,True,res://assets/dungeon/extra/golem.png,True,,mon.ability.golem,False
+monster,goblin,Goblin,live,1.0,1.0,False,True,res://assets/dungeon/extra/goblin.png,True,mon.ability.goblin,mon.ability.goblin,True
+monster,skeleton,Skeleton,live,1.0,2.0,False,True,res://assets/dungeon/extra/skeleton.png,True,mon.ability.skeleton,mon.ability.skeleton,True
+monster,hornet_swarm,Hornet Swarm,todo,1.0,1.0,False,True,res://assets/dungeon/extra/hornet_swarm.png,True,mon.ability.hornet_swarm,mon.ability.hornet_swarm,True
+monster,lich,Lich,live,3.0,3.0,False,True,res://assets/dungeon/extra/lich.png,True,mon.ability.lich,mon.ability.lich,True
+monster,ogre,Ogre,live,2.0,1.0,False,True,res://assets/dungeon/extra/ogre.png,True,mon.ability.ogre,mon.ability.ogre,True
+monster,vampire,Vampire,live,3.0,1.0,False,True,res://assets/dungeon/extra/vampire.png,True,mon.ability.vampire,mon.ability.vampire,True
+monster,berserker,Berserker,live,2.0,2.0,False,True,res://assets/dungeon/extra/berserker.png,True,mon.ability.berserker,mon.ability.berserker,True
+monster,dire_wolf,Dire Wolf,live,2.0,1.0,False,True,res://assets/dungeon/extra/dire_wolf.png,True,mon.ability.dire_wolf,mon.ability.dire_wolf,True
+monster,bandit,Bandit,live,1.0,1.0,False,True,res://assets/dungeon/extra/bandit.png,True,mon.ability.bandit,mon.ability.bandit,True
+monster,leech_league,Leech League,live,3.0,4.0,False,True,res://assets/dungeon/extra/leech_league.png,True,,mon.ability.leech_league,False
+monster,wraith,Wraith,live,2.0,3.0,False,True,res://assets/dungeon/extra/wraith.png,True,mon.ability.wraith,mon.ability.wraith,True
+monster,mimic,Mimic,todo,2.0,1.0,False,True,res://assets/dungeon/extra/mimic.png,True,mon.ability.mimic,mon.ability.mimic,True
+monster,two_headed_serpent,Damsel In Distress,live,3.0,3.0,False,True,res://assets/dungeon/extra/damsel.png,True,mon.ability.two_headed_serpent,mon.ability.two_headed_serpent,True
+monster,slime_boss,Slime Boss,live,3.0,1.0,False,True,res://assets/dungeon/extra/slime_boss.png,True,mon.ability.slime_boss,mon.ability.slime_boss,True
+monster,spider_queen,Spider Queen,live,3.0,5.0,False,True,res://assets/dungeon/extra/spider_queen.png,True,mon.ability.spider_queen,mon.ability.spider_queen,True
+monster,commander,Commander,live,3.0,2.0,False,True,res://assets/dungeon/extra/commander.png,True,mon.ability.commander,mon.ability.commander,True
+monster,dragon,Dragon,live,3.0,1.0,False,True,res://assets/dungeon/extra/dragon.png,True,mon.ability.dragon,mon.ability.dragon,True
+monster,needleback,Needleback,live,2.0,1.0,False,True,res://assets/dungeon/extra/needleback.png,True,mon.ability.needleback,mon.ability.needleback,True
+monster,gelatinous_cube,Gelatinous Cube,live,2.0,3.0,False,True,res://assets/dungeon/extra/gelatinous_cube.png,True,mon.ability.gelatinous_cube,mon.ability.gelatinous_cube,True
+monster,gargoyle,Gargoyle,live,2.0,2.0,False,True,res://assets/dungeon/extra/gargoyle.png,True,mon.ability.gargoyle,mon.ability.gargoyle,True
+monster,harpy,Harpy,live,2.0,2.0,False,True,res://assets/dungeon/extra/harpy.png,True,mon.ability.harpy,mon.ability.harpy,True
+monster,kobold_trapper,Trapper,live,2.0,5.0,False,True,res://assets/dungeon/extra/kobold_trapper.png,True,mon.ability.kobold_trapper,mon.ability.kobold_trapper,True
+monster,bear_trap,Bear Trap,live,2.0,-1.0,True,True,res://assets/dungeon/anim/facing/bear_trap_facing_idle_f0.png,True,mon.ability.bear_trap,mon.ability.bear_trap,True
+monster,clockwork_knight,Clockwork Knight,live,3.0,5.0,False,True,res://assets/dungeon/extra/clockwork_knight.png,True,mon.ability.clockwork_knight,mon.ability.clockwork_knight,True
+monster,basilisk,Basilisk,hold,3.0,5.0,False,True,res://assets/dungeon/extra/basilisk.png,True,mon.ability.basilisk,mon.ability.basilisk,True
+monster,hollow,Twins,live,1.0,3.0,False,True,res://assets/dungeon/extra/hollow.png,True,mon.ability.hollow,mon.ability.hollow,True
+monster,beggar,Beggar,live,1.0,3.0,False,True,res://assets/dungeon/extra/beggar.png,True,mon.ability.beggar,mon.ability.beggar,True
+monster,wick,Wick,live,2.0,4.0,False,True,res://assets/dungeon/extra/wick.png,True,mon.ability.wick,mon.ability.wick,True
+monster,anvil,Anvil,live,2.0,5.0,False,True,res://assets/dungeon/extra/anvil.png,True,mon.ability.anvil,mon.ability.anvil,True
+monster,bodyguard,Bodyguard,live,1.0,3.0,False,True,res://assets/dungeon/extra/bodyguard.png,True,mon.ability.bodyguard,mon.ability.bodyguard,True
+monster,cowardly_king,Petty King,live,3.0,4.0,False,True,res://assets/dungeon/extra/cowardly_king.png,True,mon.ability.cowardly_king,mon.ability.cowardly_king,True
+monster,merchant,Merchant,live,1.0,4.0,False,True,res://assets/dungeon/extra/merchant.png,True,mon.ability.merchant,mon.ability.merchant,True
+monster,juggernaut,Juggernaut,live,1.0,2.0,False,True,res://assets/dungeon/extra/juggernaut.png,True,mon.ability.juggernaut,mon.ability.juggernaut,True
+monster,cleric,Cleric,live,2.0,4.0,False,True,res://assets/dungeon/extra/cleric.png,True,mon.ability.cleric,mon.ability.cleric,True
+monster,martyr,Martyr,live,1.0,4.0,False,True,res://assets/dungeon/extra/martyr.png,True,mon.ability.martyr,mon.ability.martyr,True
+monster,prism,Prism,live,3.0,4.0,False,True,res://assets/dungeon/extra/prism.png,True,mon.ability.prism,mon.ability.prism,True
+monster,plague_doctor,Plague Doctor,todo,2.0,4.0,False,True,res://assets/dungeon/extra/plague_doctor.png,True,mon.ability.plague_doctor,mon.ability.plague_doctor,True
+monster,hired_hand,Hired Hand,live,1.0,5.0,False,True,res://assets/dungeon/extra/hired_hand.png,True,mon.ability.hired_hand,mon.ability.hired_hand,True
+monster,hydra,Hydra,live,2.0,5.0,False,True,res://assets/dungeon/extra/hydra.png,True,mon.ability.hydra,mon.ability.hydra,True
+monster,zombie,Zombie,live,2.0,1.0,False,True,res://assets/dungeon/extra/zombie.png,True,mon.ability.zombie,mon.ability.zombie,True
+monster,three_seeker,3-Seeker,retired,1.0,0.0,False,True,,False,mon.ability.three_seeker,mon.ability.three_seeker,True
+monster,triclops,Triclops,retired,2.0,5.0,False,True,res://assets/dungeon/extra/triclops_v2.png,True,mon.ability.triclops,mon.ability.triclops,True
+monster,shambling_mound,Shambling Mound,live,1.0,2.0,False,True,res://assets/dungeon/extra/shambling_mound.png,True,mon.ability.shambling_mound,mon.ability.shambling_mound,True
+monster,almighty_worm,Almighty Worm,live,3.0,2.0,False,True,res://assets/dungeon/extra/almighty_worm.png,True,mon.ability.almighty_worm,mon.ability.almighty_worm,True
+monster,cultist,Cultist,live,1.0,4.0,False,True,res://assets/dungeon/extra/cultist.png,True,mon.ability.cultist,mon.ability.cultist,True
+monster,bushido,Bushido,live,2.0,4.0,False,True,res://assets/dungeon/extra/bushido.png,True,mon.ability.bushido,mon.ability.bushido,True
+monster,shark,Shark,live,2.0,2.0,False,True,res://assets/dungeon/extra/shark.png,True,mon.ability.shark,mon.ability.shark,True
+monster,death_bell,Death Bell,live,3.0,5.0,False,True,res://assets/dungeon/extra/death_bell.png,True,mon.ability.death_bell,mon.ability.death_bell,True
+monster,phoenix_egg,Phoenix Egg,live,3.0,3.0,False,True,res://assets/dungeon/extra/phoenix_egg.png,True,mon.ability.phoenix_egg,mon.ability.phoenix_egg,True
+monster,phoenix,Phoenix,todo,3.0,-1.0,True,True,res://assets/dungeon/extra/phoenix.png,True,mon.ability.phoenix,mon.ability.phoenix,True
+monster,amalgam,Amalgam,live,3.0,2.0,False,True,res://assets/dungeon/extra/amalgam.png,True,mon.ability.amalgam,mon.ability.amalgam,True
+monster,fairy,Fairy,live,1.0,2.0,False,True,res://assets/dungeon/extra/fairy.png,True,mon.ability.fairy,mon.ability.fairy,True
+monster,eel,Eel,live,1.0,2.0,False,True,res://assets/dungeon/extra/eel.png,True,mon.ability.eel,mon.ability.eel,True
+monster,druid,Druid,live,2.0,2.0,False,True,res://assets/dungeon/extra/druid.png,True,mon.ability.druid,mon.ability.druid,True
+monster,mouse,Mouse,live,1.0,5.0,False,True,res://assets/dungeon/extra/mouse.png,True,mon.ability.mouse,mon.ability.mouse,True
+monster,magicat,Magicat,live,1.0,5.0,False,True,res://assets/dungeon/extra/magicat.png,True,mon.ability.magicat,mon.ability.magicat,True
+monster,rust_bucket,Rust Bucket,live,2.0,5.0,False,True,res://assets/dungeon/extra/rust_bucket.png,True,mon.ability.rust_bucket,mon.ability.rust_bucket,True
+monster,poison_frog,Poison Frog,live,2.0,3.0,False,True,res://assets/dungeon/extra/poison_frog.png,True,mon.ability.poison_frog,mon.ability.poison_frog,True
+monster,sandbag,Sandbag,live,1.0,3.0,False,True,res://assets/dungeon/extra/sandbag.png,True,mon.ability.sandbag,mon.ability.sandbag,True
+monster,scorpion,Scorpion,live,1.0,3.0,False,True,res://assets/dungeon/extra/scorpion.png,True,mon.ability.scorpion,mon.ability.scorpion,True
+monster,oligarch,Oligarch,live,2.0,4.0,False,True,res://assets/dungeon/extra/oligarch.png,True,mon.ability.oligarch,mon.ability.oligarch,True
