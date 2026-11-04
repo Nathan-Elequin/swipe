@@ -95,7 +95,7 @@ monster,gelatinous_cube,Gelatinous Cube,live,2.0,3.0,False,True,res://assets/dun
 monster,gargoyle,Gargoyle,live,2.0,2.0,False,True,res://assets/dungeon/extra/gargoyle.png,True,mon.ability.gargoyle,mon.ability.gargoyle,True
 monster,harpy,Harpy,live,2.0,2.0,False,True,res://assets/dungeon/extra/harpy.png,True,mon.ability.harpy,mon.ability.harpy,True
 monster,kobold_trapper,Trapper,live,2.0,5.0,False,True,res://assets/dungeon/extra/kobold_trapper.png,True,mon.ability.kobold_trapper,mon.ability.kobold_trapper,True
-monster,bear_trap,Bear Trap,live,2.0,-1.0,True,True,res://assets/dungeon/anim/facing/bear_trap_facing_idle_f0.png,True,mon.ability.bear_trap,mon.ability.bear_trap,True
+monster,bear_trap,Bear Trap,live,0.0,-1.0,True,True,res://assets/dungeon/anim/facing/bear_trap_facing_idle_f0.png,True,mon.ability.bear_trap,mon.ability.bear_trap,True
 monster,clockwork_knight,Clockwork Knight,live,3.0,5.0,False,True,res://assets/dungeon/extra/clockwork_knight.png,True,mon.ability.clockwork_knight,mon.ability.clockwork_knight,True
 monster,basilisk,Basilisk,hold,3.0,5.0,False,True,res://assets/dungeon/extra/basilisk.png,True,mon.ability.basilisk,mon.ability.basilisk,True
 monster,hollow,Twins,live,1.0,3.0,False,True,res://assets/dungeon/extra/hollow.png,True,mon.ability.hollow,mon.ability.hollow,True

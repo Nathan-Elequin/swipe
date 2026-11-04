@@ -1,5 +1,4 @@
 severity,kind,subject,detail,todo,auto_fixable,fixed
-critical,token_wrong_tier,monster:bear_trap,Token (pool=-1.0) is live with tier=2.0; name='Bear Trap'. Tokens must not count as mill tier for drafts.,Design/code fix — see GitHub #358. Do not auto-change tier here.,False,False
 high,code_id_missing_catalog,monster:fungal_colony,main.gd references this id but catalog.json has no row.,Add catalog row or retire code path.,False,False
 high,live_missing_art_registry,item:fairy_in_a_bottle,Live item 'Fairy In A Bottle' has no ITEM_PNG/MONSTER_PNG entry; flags.art=False.,Pixel: register unique art (do not invent PNG here).,False,False
 low,orphan_png_on_disk,assets/dungeon/extra/damsel_in_distress.png,PNG under items/extra not referenced in dungeon_art.gd.,Pixel: wire or retire file.,False,False
