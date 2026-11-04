@@ -61,4 +61,15 @@ func _refresh_doors() -> void:
 	var back = spots.get("BackDoor", null)
 	if back is CabinHotspot:
 		back.tag_key = "cabin.hot.back_main"
+		back.set_locked(false)
+	## The case layer covers the whole room. Keep travel doors in front of it.
+	for door_name in ["BackDoor", "SideDoor", "SignOutpost"]:
+		var door = spots.get(door_name, null)
+		if door is CanvasItem:
+			(door as CanvasItem).z_index = 8
+		if door is CabinHotspot:
+			(door as CabinHotspot).mouse_filter = Control.MOUSE_FILTER_IGNORE
+			if (door as CabinHotspot)._hit:
+				(door as CabinHotspot)._hit.mouse_filter = Control.MOUSE_FILTER_STOP
+			move_child(door, -1)
 	_hide_retired_chrome()

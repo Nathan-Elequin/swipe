@@ -3089,6 +3089,12 @@
 			"text": "BLOCKED",
 			"where": "Flash on the slice when you pillow it"
 		},
+		"combat.death_knell_discard": {
+			"cat": "Combat",
+			"locked_at": "2026-11-04",
+			"text": "Death Knell, discard one item.",
+			"where": "Hotbar cue when Death Bell is Defeated and you must discard one item"
+		},
 		"combat.knife_nick": {
 			"cat": "Combat",
 			"locked_at": "2026-10-28",
@@ -4751,792 +4757,714 @@
 			"text": "Skip",
 			"where": "Always-on Skip during tutorial rails"
 		},
-		"tutorial.line.B01.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Get behind me. Actually, no. You're taking this one.",
-			"where": "Road · Nib steps in · line 1"
-		},
-		"tutorial.line.B01.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Cabin's right there. They're in the way.",
-			"where": "Road · Nib steps in · line 2"
-		},
-		"tutorial.line.B02.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "They've got us in a ring. Out here, that's a dungeon. It's a wheel. Don't ask.",
-			"where": "Wheel · line 1"
-		},
-		"tutorial.line.B03.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Every one of them is right there. No surprises.",
-			"where": "See everyone · line 1"
-		},
-		"tutorial.line.B03.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "See who's coming. Get your loot ready for them.",
-			"where": "See everyone · line 2"
-		},
-		"tutorial.line.B03.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Yes, that's a Dragon. He's last.",
-			"where": "See everyone · line 3"
-		},
-		"tutorial.line.B04.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "This button's the whole game.",
-			"where": "Spin tease · line 1"
-		},
-		"tutorial.line.B04.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Spin, and you fight whoever you land on.",
-			"where": "Spin tease · line 2"
-		},
-		"tutorial.line.B05.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Those arrows are Moves. You get three.",
-			"where": "Moves tease · line 1"
-		},
-		"tutorial.line.B05.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Not yet. I'll tell you when.",
-			"where": "Moves tease · line 2"
-		},
-		"tutorial.line.B06.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Go on. Spin.",
-			"where": "First Spin · line 1"
-		},
-		"tutorial.line.B07.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Wizard. Five Attack.",
-			"where": "Wizard ATK · line 1"
-		},
-		"tutorial.line.B08.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "That's you. Six HP.",
-			"where": "Player HP · line 1"
-		},
-		"tutorial.line.B08.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Five from six. You do the math.",
-			"where": "Player HP · line 2"
-		},
-		"tutorial.line.B09.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "But he's only got two HP.",
-			"where": "Wizard frail · line 1"
-		},
-		"tutorial.line.B09.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Hit him first and he never swings.",
-			"where": "Wizard frail · line 2"
-		},
-		"tutorial.line.B10.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Down here's your loot.",
-			"where": "Sai · line 1"
-		},
-		"tutorial.line.B10.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "The Sai hits for two. Click it.",
-			"where": "Sai · line 2"
-		},
-		"tutorial.line.B11.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Dead. Now watch the deck.",
-			"where": "Deck refill · line 1"
-		},
-		"tutorial.line.B11.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Drop one, and the next walks in off the deck.",
-			"where": "Deck refill · line 2"
-		},
-		"tutorial.line.B12.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Everybody gets this part wrong.",
-			"where": "Shield draft · line 1"
-		},
-		"tutorial.line.B12.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Loot comes with whoever walks in. Not whoever you dropped.",
-			"where": "Shield draft · line 2"
-		},
-		"tutorial.line.B12.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "The Golem brought something. Take the Shield.",
-			"where": "Shield draft · line 3"
-		},
-		"tutorial.line.B13.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Spin. I'll land you on him.",
-			"where": "Golem #1 Spin · line 1"
-		},
-		"tutorial.line.B14.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Golem. Seven HP. Not today.",
-			"where": "Golem read · line 1"
-		},
-		"tutorial.line.B14.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Three Attack. So we don't kill him. We eat it.",
-			"where": "Golem read · line 2"
-		},
-		"tutorial.line.B15.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "That's a Breastplate. Two Block.",
-			"where": "Breastplate · line 1"
-		},
-		"tutorial.line.B15.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Click it.",
-			"where": "Breastplate · line 2"
-		},
-		"tutorial.line.B16.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "That's Block. It soaks his hit, point for point.",
-			"where": "Block · line 1"
-		},
-		"tutorial.line.B16.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Once it's spent, it's gone. Nothing carries over.",
-			"where": "Block · line 2"
-		},
-		"tutorial.line.B17.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "You've got a Shield, too. Four more Block. You'd take nothing.",
-			"where": "Shield temptation · line 1"
-		},
-		"tutorial.line.B17.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Don't. Save it.",
-			"where": "Shield temptation · line 2"
-		},
-		"tutorial.line.B17.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Read the Breastplate. Lose HP this fight, and it Keeps.",
-			"where": "Shield temptation · line 3"
-		},
-		"tutorial.line.B18.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "See the Spiked Flail? Right now it hits for zero.",
-			"where": "Flail · line 1"
-		},
-		"tutorial.line.B18.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Every time you bleed, it gets two meaner.",
-			"where": "Flail · line 2"
-		},
-		"tutorial.line.B18.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "So one HP buys you the Breastplate back and a meaner Flail.",
-			"where": "Flail · line 3"
-		},
-		"tutorial.line.B19.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "End it. Take the one.",
-			"where": "Take 1 · line 1"
-		},
-		"tutorial.line.B20.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Block's gone. One got through. Five HP.",
-			"where": "Keep payoff · line 1"
-		},
-		"tutorial.line.B20.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Flail felt that. Two Attack.",
-			"where": "Keep payoff · line 2"
-		},
-		"tutorial.line.B20.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Breastplate stayed. That's Keep.",
-			"where": "Keep payoff · line 3"
-		},
-		"tutorial.line.B20.4": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "It's spent this fight. Spin again and it's back.",
-			"where": "Keep payoff · line 4"
-		},
-		"tutorial.line.B20.5": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Golem wandered off. Leaving still counts as Defeated.",
-			"where": "Keep payoff · line 5"
-		},
-		"tutorial.line.B21.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Another one walked in. Deck's empty.",
-			"where": "Golem #2 + Fangs · line 1"
-		},
-		"tutorial.line.B21.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "He brought you Fangs. Hang on to those.",
-			"where": "Golem #2 + Fangs · line 2"
-		},
-		"tutorial.line.B22.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Leave the big guy. Little one first. Spin.",
-			"where": "Goblin Spin · line 1"
-		},
-		"tutorial.line.B23.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Cute. Don't trust it.",
-			"where": "Hover · line 1"
-		},
-		"tutorial.line.B23.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Hover him. Monsters tell you their tricks if you ask.",
-			"where": "Hover · line 2"
-		},
-		"tutorial.line.B24.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Evasive. Attacks do nothing to him. Not even the Flail.",
-			"where": "Evasive · line 1"
-		},
-		"tutorial.line.B25.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "The Boot doesn't Attack. It Defeats anyone with less HP than you.",
-			"where": "Boot · line 1"
-		},
-		"tutorial.line.B25.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "You've got five. He's got one.",
-			"where": "Boot · line 2"
-		},
-		"tutorial.line.B26.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Or eat his three. Keep the Boot. Feed the Flail.",
-			"where": "Boot vs Take · line 1"
-		},
-		"tutorial.line.B26.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Your call.",
-			"where": "Boot vs Take · line 2"
-		},
-		"tutorial.line.B27a.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Stomped. Fair.",
-			"where": "Boot path · line 1"
-		},
-		"tutorial.line.B27a.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Next Goblin, save a Block or a Defeat. You won't always have a Boot.",
-			"where": "Boot path · line 2"
-		},
-		"tutorial.line.B27b.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Ow. Two HP. Bold.",
-			"where": "Take path · line 1"
-		},
-		"tutorial.line.B27b.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Flail liked it, though.",
-			"where": "Take path · line 2"
-		},
-		"tutorial.line.B28.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Okay. Big guy. Spin.",
-			"where": "Golem #2 Spin · line 1"
-		},
-		"tutorial.line.B29.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Remember the Fangs? Let him hit you, and he's Defeated. Any size.",
-			"where": "Fangs read · line 1"
-		},
-		"tutorial.line.B29.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Then you heal whatever HP he had. He's got seven.",
-			"where": "Fangs read · line 2"
-		},
-		"tutorial.line.B29.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Big monster, big bite.",
-			"where": "Fangs read · line 3"
-		},
-		"tutorial.line.B30.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Look. You Spun, so the Breastplate's back.",
-			"where": "Breastplate again · line 1"
-		},
-		"tutorial.line.B30.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Same trick. Block two, eat one.",
-			"where": "Breastplate again · line 2"
-		},
-		"tutorial.line.B31.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Now bite him.",
-			"where": "Fangs use · line 1"
-		},
-		"tutorial.line.B32.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "One got through. Then you ate his seven. Full HP.",
-			"where": "Fangs payoff · line 1"
-		},
-		"tutorial.line.B32.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Flail got another bleed.",
-			"where": "Fangs payoff · line 2"
-		},
-		"tutorial.line.B32.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Breastplate Kept again. You bled, so it stays.",
-			"where": "Fangs payoff · line 3"
-		},
-		"tutorial.line.B32.4": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Deck's empty, so his seat just closes.",
-			"where": "Fangs payoff · line 4"
-		},
-		"tutorial.line.B33.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Two Harpies. Spin. Trust me.",
-			"where": "Harpy A Spin · line 1"
-		},
-		"tutorial.line.B34.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Yeah. I lied a little.",
-			"where": "Poke · line 1"
-		},
-		"tutorial.line.B34.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Harpies hit you the second you Spin onto them.",
-			"where": "Poke · line 2"
-		},
-		"tutorial.line.B34.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "And again after every item you use on them.",
-			"where": "Poke · line 3"
-		},
-		"tutorial.line.B35.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Five HP. Anything that doesn't kill her, she answers.",
-			"where": "Save Flail · line 1"
-		},
-		"tutorial.line.B35.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Your Flail could do it. Don't. That's for later.",
-			"where": "Save Flail · line 2"
-		},
-		"tutorial.line.B36.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Here. Arrow Head. Six Attack.",
-			"where": "Arrow Head grant · line 1"
-		},
-		"tutorial.line.B36.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Costs you two HP. Block won't stop that.",
-			"where": "Arrow Head grant · line 2"
-		},
-		"tutorial.line.B36.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "You've got four. Worth it.",
-			"where": "Arrow Head grant · line 3"
-		},
-		"tutorial.line.B37.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Fire it.",
-			"where": "Arrow Head · line 1"
-		},
-		"tutorial.line.B38.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "One shot. She's done, so no poke back.",
-			"where": "Harpy A dead · line 1"
-		},
-		"tutorial.line.B38.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "You still paid the two.",
-			"where": "Harpy A dead · line 2"
-		},
-		"tutorial.line.B38.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "And the Flail still counted it.",
-			"where": "Harpy A dead · line 3"
-		},
-		"tutorial.line.B39.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Her sister's right next door.",
-			"where": "Sister · line 1"
-		},
-		"tutorial.line.B39.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Spin onto her and she pokes. So don't Spin.",
-			"where": "Sister · line 2"
-		},
-		"tutorial.line.B40.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Remember the arrows? Now they matter.",
-			"where": "Move · line 1"
-		},
-		"tutorial.line.B40.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "A Move steps you to the next monster. No Spin, no poke.",
-			"where": "Move · line 2"
-		},
-		"tutorial.line.B41.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "See? Nothing.",
-			"where": "No poke · line 1"
-		},
-		"tutorial.line.B41.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "That cost a Move. Two left, and they don't come back this dungeon.",
-			"where": "No poke · line 2"
-		},
-		"tutorial.line.B42.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Knucklers. Eight, minus every card in your hand.",
-			"where": "Knucklers grant · line 1"
-		},
-		"tutorial.line.B42.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Empty hands hit harder.",
-			"where": "Knucklers grant · line 2"
-		},
-		"tutorial.line.B42.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "She's got five. You're not there yet.",
-			"where": "Knucklers grant · line 3"
-		},
-		"tutorial.line.B43.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Remember the Shield I wouldn't let you touch? Now.",
-			"where": "Shield now · line 1"
-		},
-		"tutorial.line.B44a.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "She poked. Block ate it.",
-			"where": "Boot branch poke · line 1"
-		},
-		"tutorial.line.B44a.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "One less card in hand. Knucklers hits five.",
-			"where": "Boot branch poke · line 2"
-		},
-		"tutorial.line.B44b.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "She poked. Block ate it.",
-			"where": "Take branch poke · line 1"
-		},
-		"tutorial.line.B44b.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Knucklers hits four. She's got five.",
-			"where": "Take branch poke · line 2"
-		},
-		"tutorial.line.B44b.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Close enough. That's what the Boot's for.",
-			"where": "Take branch poke · line 3"
-		},
-		"tutorial.line.B45.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Punch her.",
-			"where": "Punch · line 1"
-		},
-		"tutorial.line.B46a.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Down in one. Not a scratch.",
-			"where": "One-shot · line 1"
-		},
-		"tutorial.line.B46b.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "One HP left on her.",
-			"where": "Nick · line 1"
-		},
-		"tutorial.line.B46b.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "She poked back. Leftover Block took it. Still two HP.",
-			"where": "Nick · line 2"
-		},
-		"tutorial.line.B46c.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Now the Boot. She's got one. You've got two.",
-			"where": "Boot finish · line 1"
-		},
-		"tutorial.line.B46d.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "That's why you kept it.",
-			"where": "Boot payoff · line 1"
-		},
-		"tutorial.line.B46d.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "And the three you spent on the Goblin? The Flail's still counting.",
-			"where": "Boot payoff · line 2"
-		},
-		"tutorial.line.B47.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "The Dragon. Six HP. Six Attack, and Block does nothing.",
-			"where": "Dragon · line 1"
-		},
-		"tutorial.line.B47.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "You've got two HP. He'd flatten you.",
-			"where": "Dragon · line 2"
-		},
-		"tutorial.line.B47.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Now count the Flail. Every bleed made it meaner.",
-			"where": "Dragon · line 3"
-		},
-		"tutorial.line.B48.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Spin. Last one.",
-			"where": "Dragon Spin · line 1"
-		},
-		"tutorial.line.B49.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Don't let him breathe. Flail.",
-			"where": "Flail · line 1"
-		},
-		"tutorial.line.B50.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Every hit you took paid for that.",
-			"where": "Clear · line 1"
-		},
-		"tutorial.line.B50.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Wheel's empty. Dungeon cleared. You heal back to full.",
-			"where": "Clear · line 2"
-		},
-		"tutorial.line.B50.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "So spend HP like it comes back. It does.",
-			"where": "Clear · line 3"
-		},
-		"tutorial.line.B51.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "More of them up the path. Fresh loot.",
-			"where": "D2 · line 1"
-		},
-		"tutorial.line.B51.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Bleeds start over every dungeon. So bleed again.",
-			"where": "D2 · line 2"
-		},
-		"tutorial.line.B52.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "That's all I've got. Clear this one your way.",
-			"where": "Free · line 1"
-		},
-		"tutorial.line.B52.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "I'll shout if something weird happens.",
-			"where": "Free · line 2"
-		},
-		"tutorial.line.T1.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Commander. His neighbors hit two harder.",
-			"where": "Commander aura · line 1"
-		},
-		"tutorial.line.T1.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Drop him early, or deal with his friends.",
-			"where": "Commander aura · line 2"
-		},
-		"tutorial.line.T2.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "He ran. Defeat a Commander once, he Flees and spins you somewhere random.",
-			"where": "Commander Flee · line 1"
-		},
-		"tutorial.line.T2.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Not Evasive. You can hit him fine. He just won't stay down the first time.",
-			"where": "Commander Flee · line 2"
-		},
-		"tutorial.line.T3.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "New face. Hover before you swing.",
-			"where": "Deck draw · line 1"
-		},
-		"tutorial.line.T4.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Careful. Low is fine. Zero isn't.",
-			"where": "Low HP · line 1"
-		},
-		"tutorial.line.T5.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Okay. That one's on me. Again.",
-			"where": "Down · line 1"
-		},
-		"tutorial.line.B53.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Path's clear.",
-			"where": "Path clear · line 1"
-		},
-		"tutorial.line.B53.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Out there, the deck's full of things you haven't met.",
-			"where": "Path clear · line 2"
-		},
-		"tutorial.line.B53.3": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Here's who.",
-			"where": "Path clear · line 3"
-		},
-		"tutorial.line.B54.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Read up. Or don't. They'll introduce themselves.",
-			"where": "Reveal · line 1"
-		},
-		"tutorial.line.B55.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Here we are. Home.",
-			"where": "Arrive · line 1"
-		},
-		"tutorial.line.B55.2": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Gear up. Run door's there when you're ready.",
-			"where": "Arrive · line 2"
-		},
-		"tutorial.line.S1.1": {
-			"cat": "Tutorial",
-			"locked_at": "2026-11-04",
-			"text": "Fine. At least see who's out there.",
-			"where": "Skip · line 1"
-		},
 		"tutorial.nudge_shield": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
 			"text": "Not the Shield. Trust me.",
-			"where": "Blocked Shield click"
+			"where": "Tutorial nudge · Shield"
 		},
 		"tutorial.nudge_flail": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
 			"text": "Not yet. Save it.",
-			"where": "Blocked Flail click"
+			"where": "Tutorial nudge · Flail"
 		},
 		"tutorial.nudge_end_fight": {
 			"cat": "Tutorial",
 			"locked_at": "2026-11-04",
 			"text": "Not yet. Use the item.",
-			"where": "Blocked end-fight"
+			"where": "Tutorial nudge · End fight"
+		},
+		"tutorial.line.B01.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Get behind me. Actually, no. You're taking this one.",
+			"where": "Tutorial · B01 · line 1"
+		},
+		"tutorial.line.B01.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Cabin's right there. They're in the way.",
+			"where": "Tutorial · B01 · line 2"
+		},
+		"tutorial.line.B02.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "They've got us in a ring. Out here, that's a dungeon. It's a wheel. Don't ask.",
+			"where": "Tutorial · B02 · line 1"
+		},
+		"tutorial.line.B03.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Every one of them is right there. No surprises.",
+			"where": "Tutorial · B03 · line 1"
+		},
+		"tutorial.line.B03.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "See who's coming. Get your loot ready for them.",
+			"where": "Tutorial · B03 · line 2"
+		},
+		"tutorial.line.B03.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The wheel picks the order. I'm steering this one — real runs are random. Yes, that's a Dragon. He's last.",
+			"where": "Tutorial · B03 · line 3"
+		},
+		"tutorial.line.B04.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "This button's the whole game.",
+			"where": "Tutorial · B04 · line 1"
+		},
+		"tutorial.line.B04.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Spin, and you fight whoever you land on.",
+			"where": "Tutorial · B04 · line 2"
+		},
+		"tutorial.line.B05.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Those arrows are Moves. You get 3.",
+			"where": "Tutorial · B05 · line 1"
+		},
+		"tutorial.line.B05.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Not yet. I'll tell you when.",
+			"where": "Tutorial · B05 · line 2"
+		},
+		"tutorial.line.B06.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Go on. Spin.",
+			"where": "Tutorial · B06 · line 1"
+		},
+		"tutorial.line.B07.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "This Wizard has 5 Attack.",
+			"where": "Tutorial · B07 · line 1"
+		},
+		"tutorial.line.B08.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "That's you. 6 HP.",
+			"where": "Tutorial · B08 · line 1"
+		},
+		"tutorial.line.B08.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "5 from 6. You do the math.",
+			"where": "Tutorial · B08 · line 2"
+		},
+		"tutorial.line.B09.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "But he's only got 2 HP.",
+			"where": "Tutorial · B09 · line 1"
+		},
+		"tutorial.line.B09.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Hit him first and he never swings. Defeat him and he never attacks.",
+			"where": "Tutorial · B09 · line 2"
+		},
+		"tutorial.line.B10.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Down here's your loot.",
+			"where": "Tutorial · B10 · line 1"
+		},
+		"tutorial.line.B10.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The Sai hits for 2. Click it.",
+			"where": "Tutorial · B10 · line 2"
+		},
+		"tutorial.line.B11.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Dead. Now watch the deck.",
+			"where": "Tutorial · B11 · line 1"
+		},
+		"tutorial.line.B11.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "When Defeated, a new card draws into its place.",
+			"where": "Tutorial · B11 · line 2"
+		},
+		"tutorial.line.B12.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Loot matches the power of whoever walks in — not who you dropped.",
+			"where": "Tutorial · B12 · line 1"
+		},
+		"tutorial.line.B12.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The Golem brought something. Take the Shield.",
+			"where": "Tutorial · B12 · line 2"
+		},
+		"tutorial.line.B13.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Ready for the Golem.",
+			"where": "Tutorial · B13 · line 1"
+		},
+		"tutorial.line.B14.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Golem. 7 HP — more than we deal. Not today.",
+			"where": "Tutorial · B14 · line 1"
+		},
+		"tutorial.line.B14.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Only 3 Attack — Blockable. So we don't kill him. We eat it.",
+			"where": "Tutorial · B14 · line 2"
+		},
+		"tutorial.line.B15.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "That's a Breastplate. 2 Block.",
+			"where": "Tutorial · B15 · line 1"
+		},
+		"tutorial.line.B15.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Click it.",
+			"where": "Tutorial · B15 · line 2"
+		},
+		"tutorial.line.B16.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "That's Block. It soaks his hit, point for point.",
+			"where": "Tutorial · B16 · line 1"
+		},
+		"tutorial.line.B16.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Block lasts until the next Spin. Once it's spent this fight, it's gone.",
+			"where": "Tutorial · B16 · line 2"
+		},
+		"tutorial.line.B17.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "You've got a Shield, too. 4 more Block. You'd take nothing.",
+			"where": "Tutorial · B17 · line 1"
+		},
+		"tutorial.line.B17.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Don't. Save it.",
+			"where": "Tutorial · B17 · line 2"
+		},
+		"tutorial.line.B17.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Read the Breastplate. Lose HP this fight, and it Keeps.",
+			"where": "Tutorial · B17 · line 3"
+		},
+		"tutorial.line.B18.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "See the Spiked Flail? Right now it hits for 0.",
+			"where": "Tutorial · B18 · line 1"
+		},
+		"tutorial.line.B18.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Every time you bleed, it gets 2 meaner.",
+			"where": "Tutorial · B18 · line 2"
+		},
+		"tutorial.line.B18.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "So 1 HP buys you the Breastplate back and a meaner Flail.",
+			"where": "Tutorial · B18 · line 3"
+		},
+		"tutorial.line.B19.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "End it. Take the 1.",
+			"where": "Tutorial · B19 · line 1"
+		},
+		"tutorial.line.B20.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Block's gone. 1 got through. 5 HP.",
+			"where": "Tutorial · B20 · line 1"
+		},
+		"tutorial.line.B20.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Flail felt that. 2 Attack.",
+			"where": "Tutorial · B20 · line 2"
+		},
+		"tutorial.line.B20.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Breastplate stayed. That's Keep.",
+			"where": "Tutorial · B20 · line 3"
+		},
+		"tutorial.line.B20.4": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "It's spent this fight. Spin again and it's back.",
+			"where": "Tutorial · B20 · line 4"
+		},
+		"tutorial.line.B20.5": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Golem wandered off. Leaving still counts as Defeated.",
+			"where": "Tutorial · B20 · line 5"
+		},
+		"tutorial.line.B21.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Another one walked in. Deck's empty.",
+			"where": "Tutorial · B21 · line 1"
+		},
+		"tutorial.line.B21.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "He brought you Fangs. Hang on to those.",
+			"where": "Tutorial · B21 · line 2"
+		},
+		"tutorial.line.B22.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Leave the big guy. Little one first.",
+			"where": "Tutorial · B22 · line 1"
+		},
+		"tutorial.line.B23.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Cute. Don't trust it.",
+			"where": "Tutorial · B23 · line 1"
+		},
+		"tutorial.line.B23.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Hover him. Monsters tell you their tricks if you ask.",
+			"where": "Tutorial · B23 · line 2"
+		},
+		"tutorial.line.B24.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Evasive. Attacks do nothing to him. Not even the Flail.",
+			"where": "Tutorial · B24 · line 1"
+		},
+		"tutorial.line.B25.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The Boot doesn't Attack. It Defeats anyone with less HP than you.",
+			"where": "Tutorial · B25 · line 1"
+		},
+		"tutorial.line.B25.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "You've got 5. He's got 1.",
+			"where": "Tutorial · B25 · line 2"
+		},
+		"tutorial.line.B26.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Or Block some of his 3. Or eat it. Feed the Flail.",
+			"where": "Tutorial · B26 · line 1"
+		},
+		"tutorial.line.B26.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "One item only — Breastplate, Shield, or Boot — then Take. Or just Take. Your call.",
+			"where": "Tutorial · B26 · line 2"
+		},
+		"tutorial.line.B27a.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Stomped. Fair.",
+			"where": "Tutorial · B27a · line 1"
+		},
+		"tutorial.line.B27a.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Next Goblin, save a Block or a Defeat. You won't always have a Boot.",
+			"where": "Tutorial · B27a · line 2"
+		},
+		"tutorial.line.B27b.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Ow. That hurt. Bold.",
+			"where": "Tutorial · B27b · line 1"
+		},
+		"tutorial.line.B27b.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Flail liked it, though.",
+			"where": "Tutorial · B27b · line 2"
+		},
+		"tutorial.line.B28.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Okay. Big guy.",
+			"where": "Tutorial · B28 · line 1"
+		},
+		"tutorial.line.B29.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Remember the Fangs? Let him hit you, and he's Defeated. Any size.",
+			"where": "Tutorial · B29 · line 1"
+		},
+		"tutorial.line.B29.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Then you heal whatever HP he had. He's got 6.",
+			"where": "Tutorial · B29 · line 2"
+		},
+		"tutorial.line.B29.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Big monster, big bite.",
+			"where": "Tutorial · B29 · line 3"
+		},
+		"tutorial.line.B30.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Look. You Spun, so the Breastplate's back.",
+			"where": "Tutorial · B30 · line 1"
+		},
+		"tutorial.line.B30.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Same trick. Block 2, eat 1.",
+			"where": "Tutorial · B30 · line 2"
+		},
+		"tutorial.line.B31.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Now bite him.",
+			"where": "Tutorial · B31 · line 1"
+		},
+		"tutorial.line.B32.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "1 got through. Then you ate his 6. Full HP.",
+			"where": "Tutorial · B32 · line 1"
+		},
+		"tutorial.line.B32.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Flail got another bleed.",
+			"where": "Tutorial · B32 · line 2"
+		},
+		"tutorial.line.B32.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Breastplate Kept again. You bled, so it stays.",
+			"where": "Tutorial · B32 · line 3"
+		},
+		"tutorial.line.B32.4": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Deck's empty, so his seat just closes.",
+			"where": "Tutorial · B32 · line 4"
+		},
+		"tutorial.line.B32c.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "For the tutorial we kept empty seats open. This is the real look.",
+			"where": "Tutorial · B32c · line 1"
+		},
+		"tutorial.line.B32c.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Wheel shrinks when seats close. Let's go.",
+			"where": "Tutorial · B32c · line 2"
+		},
+		"tutorial.line.B34.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Yeah. I lied a little.",
+			"where": "Tutorial · B34 · line 1"
+		},
+		"tutorial.line.B34.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Harpies hit you the second you Spin onto them.",
+			"where": "Tutorial · B34 · line 2"
+		},
+		"tutorial.line.B34.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "And again after every item you use while Facing them.",
+			"where": "Tutorial · B34 · line 3"
+		},
+		"tutorial.line.B35.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "5 HP. Anything that doesn't kill her, she answers.",
+			"where": "Tutorial · B35 · line 1"
+		},
+		"tutorial.line.B35.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Your Flail could one-shot. Don't. Save it.",
+			"where": "Tutorial · B35 · line 2"
+		},
+		"tutorial.line.B36.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Use Arrow Head instead. 6 Attack.",
+			"where": "Tutorial · B36 · line 1"
+		},
+		"tutorial.line.B36.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "You've got it from the start. Fire it.",
+			"where": "Tutorial · B36 · line 2"
+		},
+		"tutorial.line.B38.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "One shot. She's done, so no poke back.",
+			"where": "Tutorial · B38 · line 1"
+		},
+		"tutorial.line.B38.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "You still paid the 2.",
+			"where": "Tutorial · B38 · line 2"
+		},
+		"tutorial.line.B38.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "And the Flail still counted it.",
+			"where": "Tutorial · B38 · line 3"
+		},
+		"tutorial.line.B39.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Her sister's right next door.",
+			"where": "Tutorial · B39 · line 1"
+		},
+		"tutorial.line.B39.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Spin onto her and she pokes Immediately. Dead seat. Too late to take it back.",
+			"where": "Tutorial · B39 · line 2"
+		},
+		"tutorial.line.B39.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Hope.",
+			"where": "Tutorial · B39 · line 3"
+		},
+		"tutorial.line.B40.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Whoo. Dragon. Rigged that one.",
+			"where": "Tutorial · B40 · line 1"
+		},
+		"tutorial.line.B40.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Flail could kill him — then you'd Spin onto the Harpy. Bad plan.",
+			"where": "Tutorial · B40 · line 2"
+		},
+		"tutorial.line.B40.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Remember the arrows? A Move steps you to the next monster. 3 per dungeon — not Spins. No Spin, no poke.",
+			"where": "Tutorial · B40 · line 3"
+		},
+		"tutorial.line.B41.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "See? Nothing. No ability. That's a Move.",
+			"where": "Tutorial · B41 · line 1"
+		},
+		"tutorial.line.B41.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "That cost a Move. 2 left, and they don't come back this dungeon.",
+			"where": "Tutorial · B41 · line 2"
+		},
+		"tutorial.line.B42.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Remember the Shield I wouldn't let you touch? Now. Shield's enough.",
+			"where": "Tutorial · B42 · line 1"
+		},
+		"tutorial.line.B43.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "She poked. Block ate it. 0 damage.",
+			"where": "Tutorial · B43 · line 1"
+		},
+		"tutorial.line.B43.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "End it. Take 0. She leaves Defeated.",
+			"where": "Tutorial · B43 · line 2"
+		},
+		"tutorial.line.B44.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Down. Not a scratch.",
+			"where": "Tutorial · B44 · line 1"
+		},
+		"tutorial.line.B47.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Back to the Dragon.",
+			"where": "Tutorial · B47 · line 1"
+		},
+		"tutorial.line.B47.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "",
+			"where": "Tutorial · B47 · line 2"
+		},
+		"tutorial.line.B47.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "The Dragon. 6 HP. 6 Attack, and Block does nothing.",
+			"where": "Tutorial · B47 · line 3"
+		},
+		"tutorial.line.B49.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Don't let him breathe. Flail.",
+			"where": "Tutorial · B49 · line 1"
+		},
+		"tutorial.line.B50.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Every hit you took paid for that.",
+			"where": "Tutorial · B50 · line 1"
+		},
+		"tutorial.line.B50.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Plan ahead. Grandpa's loot. Ferocious monsters. You made it through the ambush.",
+			"where": "Tutorial · B50 · line 2"
+		},
+		"tutorial.line.B50.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "I'll take you home. If you secure the will… well. Later.",
+			"where": "Tutorial · B50 · line 3"
+		},
+		"tutorial.line.B54.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Out there, the deck's full of things you haven't met. Here's who.",
+			"where": "Tutorial · B54 · line 1"
+		},
+		"tutorial.line.B54.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Read up. Or don't. They'll introduce themselves.",
+			"where": "Tutorial · B54 · line 2"
+		},
+		"tutorial.line.B55.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Here we are. Home.",
+			"where": "Tutorial · B55 · line 1"
+		},
+		"tutorial.line.B55.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Gear up. Run door's there when you're ready.",
+			"where": "Tutorial · B55 · line 2"
+		},
+		"tutorial.line.S1.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Fine. At least see who's out there.",
+			"where": "Tutorial · S1 · line 1"
+		},
+		"tutorial.line.T1.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Commander. His neighbors hit 2 harder.",
+			"where": "Tutorial · T1 · line 1"
+		},
+		"tutorial.line.T1.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Drop him early, or deal with his friends.",
+			"where": "Tutorial · T1 · line 2"
+		},
+		"tutorial.line.T2.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "He ran. Defeat a Commander once, he Flees and spins you somewhere random.",
+			"where": "Tutorial · T2 · line 1"
+		},
+		"tutorial.line.T2.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Not Evasive. You can hit him fine. He just won't stay down the first time.",
+			"where": "Tutorial · T2 · line 2"
+		},
+		"tutorial.line.T3.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "New face. Hover before you swing.",
+			"where": "Tutorial · T3 · line 1"
+		},
+		"tutorial.line.T4.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Careful. Low is fine. Zero isn't.",
+			"where": "Tutorial · T4 · line 1"
+		},
+		"tutorial.line.T5.1": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "Okay. That one's on me. Again.",
+			"where": "Tutorial · T5 · line 1"
+		},
+		"tutorial.line.B13.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "",
+			"where": "Tutorial · B13 · line 2"
+		},
+		"tutorial.line.B22.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "",
+			"where": "Tutorial · B22 · line 2"
+		},
+		"tutorial.line.B28.2": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "",
+			"where": "Tutorial · B28 · line 2"
+		},
+		"tutorial.line.B32c.3": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "",
+			"where": "Tutorial · B32c · line 3"
+		},
+		"tutorial.line.B39.4": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "",
+			"where": "Tutorial · B39 · line 4"
+		},
+		"tutorial.line.B47.4": {
+			"cat": "Tutorial",
+			"locked_at": "2026-11-04",
+			"text": "You've got 2 HP. He'd flatten you. Count the Flail — every bleed made it meaner. Block's useless. Saved Flail.",
+			"where": "Tutorial · B47 · line 4"
 		}
 	},
-	"updated": "2026-11-04"
+	"updated": "2026-11-04T18:30:00Z"
 }

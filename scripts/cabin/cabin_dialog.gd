@@ -13,6 +13,7 @@ var _box: NinePatchRect
 var _shade: ColorRect
 var _plate: NinePatchRect
 var _plate_lab
+var _bust_clip: Control
 var _bust: TextureRect
 var _text
 var _next: AnimatedSprite2D
@@ -42,6 +43,11 @@ var _sfx
 var _talk_cb: Callable
 var _fallbacks: Dictionary = {}
 var _vars: Dictionary = {}
+## Small talk block (tutorial-sized), not the full-width cabin dialog bar. Used for post-tutorial wrap if routed here.
+var _tutorial_chrome: bool = false
+const TUTORIAL_BOX_W := 420.0
+## Bust offset inside BustClip: head/shoulders in well; torso exits bottom of mask.
+const NIB_BUST_OFFSET := Vector2(-12.0, -36.0)
 
 
 func setup(p_cabin) -> void:
@@ -76,16 +82,23 @@ func setup(p_cabin) -> void:
 	_plate_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_plate_lab.set_anchors_preset(PRESET_FULL_RECT)
 	_plate.add_child(_plate_lab)
+	## Clip only this well — never clip_contents on _box (nameplate hangs above).
+	_bust_clip = Control.new()
+	_bust_clip.name = "BustClip"
+	_bust_clip.clip_contents = true
+	_bust_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_box.add_child(_bust_clip)
 	_bust = TextureRect.new()
+	_bust.name = "NibBust"
 	_bust.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_bust.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_bust.stretch_mode = TextureRect.STRETCH_KEEP
-	_bust.size = Vector2(32, 32) * PX
+	_bust.size = Vector2(KIT.NIB_BUST_TEX, KIT.NIB_BUST_TEX)
 	_bust.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_box.add_child(_bust)
-	_text = KIT.raw_label("", KIT.DIALOG_FONT, KIT.INK, true)
-	_text.max_lines = 3
-	_text.min_font_size = 16
+	_bust_clip.add_child(_bust)
+	_text = KIT.raw_label("", KIT.NIB_TALK_FONT, KIT.INK, true)
+	_text.max_lines = 2
+	_text.min_font_size = KIT.NIB_TALK_MIN_FONT
 	_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_text.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	_box.add_child(_text)
@@ -130,6 +143,17 @@ func has_choices() -> bool:
 
 
 func say(keys: Array, choices: Array = [], vars: Dictionary = {}, fallbacks: Dictionary = {}) -> void:
+	_tutorial_chrome = false
+	_begin_say(keys, choices, vars, fallbacks)
+
+
+func say_tutorial(keys: Array, choices: Array = [], vars: Dictionary = {}, fallbacks: Dictionary = {}) -> void:
+	## Victory / wrap speech hook: same lines as say(), but tutorial-sized chrome (no full-screen cover).
+	_tutorial_chrome = true
+	_begin_say(keys, choices, vars, fallbacks)
+
+
+func _begin_say(keys: Array, choices: Array = [], vars: Dictionary = {}, fallbacks: Dictionary = {}) -> void:
 	_keys = keys.duplicate()
 	_choice_keys = choices.duplicate()
 	_fallbacks = fallbacks.duplicate()
@@ -140,7 +164,9 @@ func say(keys: Array, choices: Array = [], vars: Dictionary = {}, fallbacks: Dic
 	visible = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	if _shade:
-		_shade.mouse_filter = Control.MOUSE_FILTER_STOP
+		## Tutorial chrome: no dimming veil. Standard: stop clicks behind the bar.
+		_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE if _tutorial_chrome else Control.MOUSE_FILTER_STOP
+		_shade.visible = not _tutorial_chrome
 	_choices.visible = false
 	_blinking = false
 	_blink_hold = 0.0
@@ -149,9 +175,10 @@ func say(keys: Array, choices: Array = [], vars: Dictionary = {}, fallbacks: Dic
 	_layout_talk(choices.size() > 0)
 	_box.modulate.a = 0.0
 	_shade.modulate.a = 0.0
-	var shade_tw := create_tween()
-	shade_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	shade_tw.tween_property(_shade, "modulate:a", 1.0, 0.15)
+	if not _tutorial_chrome and _shade:
+		var shade_tw := create_tween()
+		shade_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		shade_tw.tween_property(_shade, "modulate:a", 1.0, 0.15)
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.tween_property(_box, "modulate:a", 1.0, 0.15)
@@ -238,28 +265,38 @@ func _layout_talk(with_choices: bool) -> void:
 	var view := Vector2(KIT.ROOM_W, KIT.ROOM_H)
 	if is_inside_tree():
 		view = get_viewport_rect().size
-	# Always reserve the choice row so the box does not jump when buttons appear (SP-10).
-	var extra: float = PlaytestUx.dialog_choice_reserve_px()
-	var L: Dictionary = KIT.dialog_bar(view, extra, KIT.DIALOG_SAFE_CABIN)
+	if _tutorial_chrome:
+		_layout_tutorial_talk(view, with_choices)
+		return
+	## Cabin Nib path: forked bar (do not touch shared dialog_bar used by intro stills).
+	var L: Dictionary = KIT.nib_talk_bar(view, KIT.DIALOG_SAFE_CABIN)
 	var bar: Rect2 = L["bar"]
 	var inner: Rect2 = L["inner"]
-	var bust_sz: Vector2 = L["bust_sz"]
-	var prompt_h: float = float(L["prompt_h"])
+	var well_sz: Vector2 = L["well_sz"]
+	var bust_tex: Vector2 = L["bust_tex"]
 	var gap: float = float(L["gap"])
 	_box.position = bar.position
 	_box.size = bar.size
+	## Never set clip_contents on _box — nameplate hangs above the wood frame.
+	_box.clip_contents = false
 	_shade.position = Vector2(bar.position.x - 8.0, bar.position.y - 8.0)
 	_shade.size = Vector2(bar.size.x + 16.0, bar.size.y + 16.0)
 	_plate.position = Vector2(8, -8) * PX
-	_bust.position = inner.position
-	_bust.size = bust_sz
-	var text_x := inner.position.x + bust_sz.x + gap
-	var text_w := inner.size.x - bust_sz.x - gap
-	var text_h := inner.size.y - prompt_h - gap
+	if _bust_clip:
+		_bust_clip.position = inner.position
+		_bust_clip.size = well_sz
+		_bust_clip.clip_contents = true
+	_bust.position = NIB_BUST_OFFSET
+	_bust.size = bust_tex
+	var text_x := inner.position.x + well_sz.x + gap
+	var text_w := inner.size.x - well_sz.x - gap
+	## Fill parchment; no always-on choice-height reserve (choices float above).
+	var text_h := inner.size.y
 	_text.position = Vector2(text_x, inner.position.y)
 	_text.size = Vector2(maxf(8.0, text_w), maxf(8.0, text_h))
-	_text.max_lines = 3
-	_text.max_font_size = KIT.DIALOG_FONT
+	_text.max_lines = 2
+	_text.max_font_size = int(L["font"])
+	_text.min_font_size = int(L["min_font"])
 	_text.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_text.fit()
 	_next.position = Vector2(inner.end.x - 18.0 * PX, inner.end.y - 16.0 * PX)
@@ -267,12 +304,64 @@ func _layout_talk(with_choices: bool) -> void:
 		var view_sz: Vector2 = get_viewport_rect().size if is_inside_tree() else Vector2(KIT.ROOM_W, KIT.ROOM_H)
 		_space_hint.position = Vector2(24.0, maxf(8.0, view_sz.y - 44.0))
 		_space_hint.size = Vector2(maxf(120.0, view_sz.x - 48.0), 32.0)
+	## Float choice tags above the shortened bar (keeps tags usable without empty parchment).
+	var choice_h: float = PlaytestUx.dialog_choice_reserve_px() if with_choices else 0.0
+	_choices.position = Vector2(text_x, -choice_h - 8.0)
+	_choices.size = Vector2(maxf(8.0, text_w), maxf(8.0, choice_h))
+	if _tail and _tail.texture and _bust_clip:
+		# Point at BustClip center under the box bottom edge.
+		_tail.position = Vector2(
+			_bust_clip.position.x + well_sz.x * 0.5 - 5.0 * PX,
+			bar.size.y - 1.0 * PX
+		)
+		_tail.visible = true
+	TEXT_RESERVE.settle(_box)
+	_text.fit()
+
+
+func _layout_tutorial_talk(view: Vector2, with_choices: bool) -> void:
+	## Match tutorial_guide's small talk block: bottom-left, ~420 wide, no full-width cover.
+	var pad: float = 16.0
+	var bust_sz := Vector2(64.0, 64.0)
+	var prompt_h: float = 28.0 if with_choices else 0.0
+	var gap: float = 12.0
+	var box_w: float = minf(TUTORIAL_BOX_W, maxf(280.0, view.x * 0.35))
+	var box_h: float = 132.0 + prompt_h
+	var bar := Rect2(pad, maxf(pad, view.y - pad - box_h - 48.0), box_w, box_h)
+	var inner := Rect2(Vector2(12.0, 12.0), bar.size - Vector2(24.0, 24.0))
+	_box.position = bar.position
+	_box.size = bar.size
+	_box.clip_contents = false
+	if _shade:
+		_shade.visible = false
+	_plate.position = Vector2(8, -8) * PX
+	_plate.size = Vector2(36, 12) * PX
+	if _bust_clip:
+		_bust_clip.position = inner.position
+		_bust_clip.size = bust_sz
+		_bust_clip.clip_contents = true
+	_bust.position = Vector2.ZERO
+	_bust.size = bust_sz
+	var text_x := inner.position.x + bust_sz.x + gap
+	var text_w := inner.size.x - bust_sz.x - gap
+	var text_h := inner.size.y - prompt_h - gap
+	_text.position = Vector2(text_x, inner.position.y)
+	_text.size = Vector2(maxf(8.0, text_w), maxf(8.0, text_h))
+	_text.max_lines = 4
+	_text.max_font_size = 20
+	_text.min_font_size = 14
+	_text.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_text.fit()
+	_next.position = Vector2(inner.end.x - 14.0 * PX, inner.end.y - 12.0 * PX)
+	if _space_hint != null:
+		_space_hint.position = Vector2(bar.position.x, minf(view.y - 40.0, bar.end.y + 4.0))
+		_space_hint.size = Vector2(maxf(120.0, bar.size.x), 28.0)
 	_choices.position = Vector2(text_x, inner.end.y - prompt_h)
 	_choices.size = Vector2(text_w, prompt_h)
 	if _tail and _tail.texture:
-		# Point at Nib/bust: under the box bottom edge, overlapping border by 1 native px.
+		var well_x: float = _bust_clip.position.x if _bust_clip else inner.position.x
 		_tail.position = Vector2(
-			inner.position.x + bust_sz.x * 0.5 - 5.0 * PX,
+			well_x + bust_sz.x * 0.5 - 5.0 * PX,
 			bar.size.y - 1.0 * PX
 		)
 		_tail.visible = true
@@ -326,9 +415,13 @@ func dismiss() -> void:
 		return
 	_open = false
 	_typing = false
+	_tutorial_chrome = false
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_choices.visible = false
+	if _shade:
+		_shade.visible = true
+		_shade.mouse_filter = Control.MOUSE_FILTER_STOP
 	_refresh_gate()
 
 
@@ -342,9 +435,13 @@ func _close(choice: int) -> void:
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.tween_property(_box, "modulate:a", 0.0, 0.1)
-	if _shade:
+	if _shade and _shade.visible:
 		tw.parallel().tween_property(_shade, "modulate:a", 0.0, 0.1)
 	tw.tween_callback(func() -> void:
+		_tutorial_chrome = false
+		if _shade:
+			_shade.visible = true
+			_shade.mouse_filter = Control.MOUSE_FILTER_STOP
 		visible = false
 		_choices.visible = false
 		finished.emit(choice)

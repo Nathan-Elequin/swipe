@@ -693,6 +693,7 @@ var _tut_fired_triggers: Dictionary = {}
 var _tut_d2_snapshot: Dictionary = {}
 var _tut_pending_empty_seat: int = -1
 var _tut_rig_done: Dictionary = {}
+var _tut_goblin_block_item: bool = false
 var draft_gate
 var _courier: TextureRect
 var _courier_gear: Dictionary = {}
@@ -1381,9 +1382,10 @@ func _build_ui() -> void:
 		if sfx:
 			sfx.play_tick(speed01)
 	)
-	wheel_view.atk_ticked.connect(func() -> void:
+	wheel_view.atk_ticked.connect(func(going_up: bool = true) -> void:
 		if sfx:
-			sfx.play_event(&"wheel.num_tick_atk")
+			# Distinct from HP ticks (mon.leech_pulse / wheel.num_tick_hp → ui_tick).
+			sfx.play_event(&"wheel.num_tick_atk_up" if going_up else &"wheel.num_tick_atk_down")
 	)
 	wheel_view.hp_ticked.connect(func() -> void:
 		if sfx:
@@ -6488,10 +6490,16 @@ func _slice_outward(index: int, hp_stat: bool, dist: float = 84.0) -> Vector2:
 func _play_stat_pulse(hp_stat: bool, leaving: bool = false) -> void:
 	if sfx == null:
 		return
-	var pitch: float = 1.08 if hp_stat else 0.92
+	# HP courier pulse stays on mon.leech_pulse (unchanged sample + pitches).
+	# Attack uses a different base sample so ATK up/down never match HP ticks.
+	if hp_stat:
+		var pitch: float = 0.88 if leaving else 1.08
+		sfx.play_event(&"mon.leech_pulse", {"pitch_mul": pitch})
+		return
 	if leaving:
-		pitch = 0.88 if hp_stat else 0.78
-	sfx.play_event(&"mon.leech_pulse", {"pitch_mul": pitch})
+		sfx.play_event(&"wheel.num_tick_atk_down")
+	else:
+		sfx.play_event(&"wheel.num_tick_atk_up")
 
 
 func _fly_stat_courier(from: Vector2, to: Vector2, hp_stat: bool, leaving: bool = false) -> void:
@@ -7533,12 +7541,13 @@ func _build_playtest() -> void:
 	playtest_voice.add_theme_constant_override("outline_size", 2)
 	playtest_voice.z_index = 120
 	playtest_voice.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	playtest_voice.set_anchors_preset(PRESET_BOTTOM_LEFT)
-	playtest_voice.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	## Top-left so it never sits on the bottom caption / Nib dialog bar.
+	playtest_voice.set_anchors_preset(PRESET_TOP_LEFT)
+	playtest_voice.grow_vertical = Control.GROW_DIRECTION_END
 	playtest_voice.offset_left = 16
-	playtest_voice.offset_top = -72
+	playtest_voice.offset_top = 16
 	playtest_voice.offset_right = 420
-	playtest_voice.offset_bottom = -16
+	playtest_voice.offset_bottom = 56
 	add_child(playtest_voice)
 	playtest_intro = PLAYTEST_INTRO.new()
 	add_child(playtest_intro)
@@ -7864,12 +7873,15 @@ func _sync_playtest_chrome() -> void:
 	var hub_up: bool = playtest_hub != null and playtest_hub.visible
 	var intro_up: bool = playtest_intro != null and playtest_intro.visible
 	var teaser_up: bool = playtest_teaser != null and playtest_teaser.visible
+	var cut_up: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("cutscene_playing") and home_cabin.cutscene_playing()
+	var cabin_talk: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("dialog_open") and home_cabin.dialog_open()
+	var tut_up: bool = in_tutorial and tut != null and tut.visible
 	if playtest_fab:
-		var cut_up: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("cutscene_playing") and home_cabin.cutscene_playing()
 		var show_fab: bool = PLAYTEST_FLAG.on() and not hub_up and not cut_up and not teaser_up and (not intro_up or playtest_intro.showing_fab())
 		playtest_fab.visible = show_fab
 	if playtest_voice:
-		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up
+		## Hide while any caption / Nib talk chrome is up so the tip never overlaps dialog.
+		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up and not cut_up and not cabin_talk and not tut_up
 
 
 func _on_script_saved(items: Array, monsters: Array) -> void:
@@ -14075,6 +14087,9 @@ func _sync_hub_cue() -> void:
 	if overlay != null and overlay.visible:
 		hub_cue.clear_hold()
 		return
+	if not pending_feed.is_empty() and str(pending_feed.get("kind", "")) == "bell_defeat":
+		hub_cue.show_hold(PLAYER_COPY.text("combat.death_knell_discard", "Death Knell, discard one item."), "bell_defeat")
+		return
 	if _challenge_loot_wait or (not pending_feed.is_empty() and _is_toss_feed(str(pending_feed.get("kind", "")))):
 		hub_cue.show_hold(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."), "full_hand")
 		return
@@ -15003,16 +15018,27 @@ func _apply_leech_on_spin() -> void:
 		if int(wheel[i].get("hp", 0)) <= 0:
 			continue
 		idxs.append(i)
+	if idxs.is_empty():
+		return
+	# One Blood Rise cut-in for every Leech League on the wheel (the spawn
+	# copy used to slash again). Wait until that portrait has faded, then
+	# play each league's +1 flights one after another.
+	var any_pulse: bool = false
+	for i in idxs:
+		if _leech_can_pulse(i):
+			any_pulse = true
+			break
+	if any_pulse:
+		await _announce_slice(idxs[0], Vector2.INF, false, false)
 	for i in idxs:
 		if i >= wheel.size() or str(wheel[i].get("card_id", "")) != "leech_league":
 			continue
 		await _leech_pulse(i)
-	if not idxs.is_empty():
-		_sync_wheel_stats()
-		_refresh()
+	_sync_wheel_stats()
+	_refresh()
 
 
-func _leech_pulse(index: int) -> void:
+func _leech_living() -> Array[int]:
 	var living: Array[int] = []
 	for j in range(wheel.size()):
 		if str(wheel[j].get("kind", "")) != "monster":
@@ -15020,15 +15046,26 @@ func _leech_pulse(index: int) -> void:
 		if int(wheel[j].get("hp", 0)) <= 0:
 			continue
 		living.append(j)
+	return living
+
+
+func _leech_all_tied(living: Array[int]) -> bool:
 	if living.size() < 2:
-		return
+		return true
 	var hp0: int = int(wheel[living[0]].get("hp", 0))
-	var all_tied: bool = true
 	for j0 in living:
 		if int(wheel[j0].get("hp", 0)) != hp0:
-			all_tied = false
-			break
-	if all_tied:
+			return false
+	return true
+
+
+func _leech_can_pulse(_index: int) -> bool:
+	return not _leech_all_tied(_leech_living())
+
+
+func _leech_pulse(index: int) -> void:
+	var living: Array[int] = _leech_living()
+	if _leech_all_tied(living):
 		return
 	var best: int = 999999
 	var cands: Array[int] = []
@@ -15042,7 +15079,6 @@ func _leech_pulse(index: int) -> void:
 	if cands.is_empty():
 		return
 	var target: int = cands[rng.randi_range(0, cands.size() - 1)]
-	await _announce_slice(index, _slice_hp_pos(target))
 	var steps: int = 0
 	while steps < 48:
 		steps += 1
@@ -24263,13 +24299,24 @@ func _sync_move_ui() -> void:
 	var tut_move: bool = in_tutorial and _tut_moves_on and tut != null and tut.wait == "move"
 	var tut_free_moves: bool = in_tutorial and _tut_free
 	if show_arrows and btn_move_left:
-		btn_move_left.disabled = false if (tut_move or tut_free_moves) else (true if in_tutorial and _tut_moves_on and not _tut_free else not _can_move(-1))
 		if tut_free_moves:
+			btn_move_left.disabled = not _can_move(-1)
+		elif tut_move:
+			## Only the arrow that reaches the forced seat is live (fixes Move soft-lock).
+			btn_move_left.disabled = not _can_move(-1)
+		elif in_tutorial and _tut_moves_on and not _tut_free:
+			btn_move_left.disabled = true
+		else:
 			btn_move_left.disabled = not _can_move(-1)
 		btn_move_left.queue_redraw()
 	if show_arrows and btn_move_right:
-		btn_move_right.disabled = false if (tut_move or tut_free_moves) else (true if in_tutorial and _tut_moves_on and not _tut_free else not _can_move(1))
 		if tut_free_moves:
+			btn_move_right.disabled = not _can_move(1)
+		elif tut_move:
+			btn_move_right.disabled = not _can_move(1)
+		elif in_tutorial and _tut_moves_on and not _tut_free:
+			btn_move_right.disabled = true
+		else:
 			btn_move_right.disabled = not _can_move(1)
 		btn_move_right.queue_redraw()
 	_place_move_arrows()
@@ -25700,7 +25747,7 @@ func _tutorial_replace_with_deck(index: int, id: String = "") -> void:
 	var draw_id: String = str(challenge_deck[0]) if not challenge_deck.is_empty() else id
 	if draw_id == "":
 		return
-	var tag: String = "golem_1" if not _tut_first_deck_done else "golem_2"
+	var tag: String = "golem_1" if not _tut_first_deck_done else "fangs_t2"
 	if dungeon_deck_ui:
 		dungeon_deck_ui.visible = true
 		_layout_play_field()
@@ -25850,21 +25897,29 @@ func _tut_on_beat_entered(beat: String, rig_id: String) -> void:
 			pass
 		"after_golem1":
 			_tut_hold_deck_refill = true
-		"deck_golem_2_fangs":
-			await _tut_rig_golem2_fangs()
+		"deck_golem_2_fangs", "deck_fangs_t2":
+			await _tut_rig_fangs_t2()
 		"grant_arrow_head":
-			_tut_grant("arrow_head")
+			## Arrow Head is in the hotbar from combat start (Nathan 2026-11-04).
+			pass
 		"grant_knucklers":
-			_tut_grant("knucklers")
+			## Knucklers removed from Harpy B rails (Shield-only).
+			pass
+		"ensure_shield":
+			if not _tut_hotbar_has("shield"):
+				_tut_grant("shield")
+		"wheel_collapse":
+			await _tut_collapse_empty_seats()
 		"moves_on":
 			_tut_moves_on = true
-			moves_left = ADVENTURE_MOVES
+			if moves_left <= 0:
+				moves_left = ADVENTURE_MOVES
 			_howto_move_shown = true
 			_sync_move_ui()
 		"board_d2":
-			await _tut_rig_board_d2()
+			## D2 free-play cut from Yes path (Slice C closing → arrive).
+			pass
 		"free_play":
-			## Armed on B52 enter; actual free starts after last continue.
 			pass
 		"reveal":
 			pass
@@ -25886,26 +25941,64 @@ func _tut_grant(id: String) -> void:
 
 
 func _tut_rig_golem2_fangs() -> void:
+	## Legacy name — Slice C seats tip Tier-2 Shark for the Fangs teach.
+	await _tut_rig_fangs_t2()
+
+
+func _tut_rig_fangs_t2() -> void:
+	## Prefer Shark (T2 ATK 3 HP 6, art live). Blood Thresh stops once Block lets 1 HP through,
+	## so Breastplate Block 2 → take 1 still teaches; Fangs uses a single _owner_attack swing.
 	_tut_hold_deck_refill = false
 	var seat: int = _tut_pending_empty_seat
 	if seat < 0 or seat >= wheel.size() or str(wheel[seat].get("kind", "")) != "empty":
-		## Find any empty seat after Golem #1 left.
 		seat = -1
 		for i in range(wheel.size()):
 			if str(wheel[i].get("kind", "")) == "empty":
 				seat = i
 				break
 	if seat < 0:
-		## Fallback: append if wheel somehow compacted.
 		seat = wheel.size()
 		wheel.append({"kind": "empty", "slot": str(seat)})
 		_reseat_slots()
-	await _tutorial_replace_with_deck(seat, "golem")
-	## Ensure tag is golem_2 even if first_deck flag already flipped.
-	if seat < wheel.size() and str(wheel[seat].get("card_id", "")) == "golem":
-		wheel[seat]["tut_tag"] = "golem_2"
+	var host_id := "shark"
+	if not monsters_by_id.has(host_id):
+		host_id = "needleback"
+	await _tutorial_replace_with_deck(seat, host_id)
+	if seat < wheel.size() and str(wheel[seat].get("card_id", "")) == host_id:
+		wheel[seat]["tut_tag"] = "fangs_t2"
 	_tut_grant("fangs")
 	_tut_pending_empty_seat = -1
+
+
+func _tut_collapse_empty_seats() -> void:
+	## Demo the real wheel: close empty seats that the rails kept open.
+	if wheel_view == null:
+		return
+	var guard := 0
+	while guard < 12:
+		guard += 1
+		var empty_i := -1
+		for i in range(wheel.size()):
+			if str(wheel[i].get("kind", "")) == "empty":
+				empty_i = i
+				break
+		if empty_i < 0:
+			break
+		await wheel_view.collapse_slice(empty_i)
+		if empty_i < 0 or empty_i >= wheel.size():
+			break
+		wheel.remove_at(empty_i)
+		if facing_index == empty_i:
+			facing_index = -1
+		elif facing_index > empty_i:
+			facing_index -= 1
+		if wheel_view:
+			wheel_view.facing_index = facing_index
+		_reseat_slots()
+		_sync_wheel_stats()
+		_refresh()
+		if get_tree():
+			await get_tree().create_timer(0.12).timeout
 
 
 func _tut_rig_board_d2() -> void:
@@ -26131,7 +26224,8 @@ func _start_tutorial() -> void:
 	_tut_draft_busy = false
 	_tut_finisher_armed = false
 	_tut_hold_slay = false
-	_tut_moves_on = false
+	## Live campaign chrome from the start: Move arrows visible (disabled until Move teach).
+	_tut_moves_on = true
 	_tut_face_busy = false
 	_tut_first_deck_done = false
 	_tut_hold_deck_refill = false
@@ -26141,6 +26235,7 @@ func _start_tutorial() -> void:
 	_tut_d2_snapshot = {}
 	_tut_pending_empty_seat = -1
 	_tut_rig_done = {}
+	_tut_goblin_block_item = false
 	_reset_run()
 	_tut_boot = false
 	## board_d1: Wizard@0 · Dragon@1 · Goblin@3 · Harpy A@5 · Harpy B@6
@@ -26149,16 +26244,20 @@ func _start_tutorial() -> void:
 	_tut_seat_monster("goblin", 3, "goblin")
 	_tut_seat_monster("harpy", 5, "harpy_a")
 	_tut_seat_monster("harpy", 6, "harpy_b")
-	## Hotbar: Sai, Boot, Breastplate, Spiked Flail (no Helmet / Knucklers / Potion).
-	for iid in ["sai", "da_boot", "breastplate", "spiked_flail"]:
+	## Hotbar: Sai, Boot, Breastplate, Spiked Flail, Arrow Head (from combat start).
+	for iid in ["sai", "da_boot", "breastplate", "spiked_flail", "arrow_head"]:
 		hotbar.append(_make_item(iid))
 		_tut_mark_seen(iid)
 		_log("on_place", "item  %s" % iid)
 	_sort_hotbar()
 	_sync_wheel_stats()
 	_tut_show_deck = true
-	challenge_deck = ["golem", "golem"]
+	## Deck: Golem #1 then tip Tier-2 Shark (Fangs host). Not a second Golem.
+	challenge_deck = ["golem", "shark"]
+	moves_left = ADVENTURE_MOVES
+	_howto_move_shown = true
 	phase = "ready"
+	_sync_move_ui()
 	_log("on_click", "Tutorial")
 	_log("var", "HP %s" % hp)
 	if sfx:
@@ -26194,12 +26293,8 @@ func _tut_on_continue() -> void:
 			tut.end_trigger_resume_free()
 			_tut_after_advance()
 			return
-	## B52 last continue → free play.
-	if tut.beat_id == "B52" and int(tut.line_n) >= 2:
-		_tut_enter_free_play()
-		return
-	## B53 last line → pool-1 reveal + cabin arrive (B54/B55 owned by road finish).
-	if tut.beat_id == "B53" and int(tut.line_n) >= 3:
+	## Slice C: Dragon victory closing (B50) → pool-1 reveal → cabin arrive. No D2 free-play.
+	if tut.beat_id == "B50" and int(tut.line_n) >= 3:
 		_tutorial_finish_async()
 		return
 	## B54/B55 if somehow reached: finish the same way.
@@ -26260,6 +26355,7 @@ func _tutorial_finish_async() -> void:
 
 func _road_finish_to_cabin(declined: bool) -> void:
 	## Shared Yes-complete / Skip landing: pool-1 reveal → intro_p5 arrive → free cabin walk-in.
+	## Victory / wrap Nib lines stay on tutorial_guide chrome (small talk block). Do not open cabin_dialog.
 	phase = "title"
 	_reset_run()
 	if home_cabin:
@@ -26268,18 +26364,22 @@ func _road_finish_to_cabin(declined: bool) -> void:
 		if declined:
 			home_cabin.tutorial_declined = true
 			home_cabin._save()
+		## Free cabin after arrive: no full-screen standard Nib dialog covering the room.
+		if home_cabin.has_method("skip_blocking_first_speech"):
+			home_cabin.skip_blocking_first_speech()
 	_refresh()
 	await _tutorial_play_unlock()
 	if sfx and sfx.has_method("music_cabin"):
 		sfx.music_cabin()
 	if home_cabin and home_cabin.has_method("play_arrive_splash"):
-		## Arrive cutscene: assets/dungeon/home/cutscenes/intro_p5.png
+		## Arrive cutscene: assets/dungeon/home/cutscenes/intro_p5.png (fade/dissolve after tutorial wrap).
 		await home_cabin.play_arrive_splash()
 	## Live cabin BG after arrive: cabin_exterior.png via walk-in.
 	_open_home_cabin(true, "win", [], [])
 	if home_cabin:
 		home_cabin._apply_gate()
 	_refresh()
+	_sync_playtest_chrome()
 
 
 func _tut_after_advance() -> void:
@@ -26431,22 +26531,21 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 	var tag: String = tut.focus_tag
 	var waiting: String = tut.wait
 	if waiting == "choice":
-		var boot: Control = _hotbar_card("da_boot")
-		_tut_add_control(spots, boot)
+		## Goblin: highlight Breastplate + Shield + Boot without covering icons, plus Take bar.
+		if _tut_goblin_block_item:
+			_tut_add_control(spots, btn_done)
+			if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
+				_tut_add_rect(spots, take_arc.arc_global_rect())
+			return
+		for iid in ["breastplate", "shield", "da_boot"]:
+			var card: Control = _hotbar_card(iid)
+			_tut_add_control(spots, card)
+			if card != null and card.is_visible_in_tree():
+				var c: Vector2 = card.get_global_rect().get_center()
+				arrows.append([c + Vector2(0.0, -70.0), c])
 		_tut_add_control(spots, btn_done)
-		var a: Vector2 = boot.get_global_rect().get_center() if boot != null and boot.is_visible_in_tree() else Vector2.ZERO
-		var b: Vector2 = btn_done.get_global_rect().get_center() if btn_done != null and btn_done.visible else Vector2.ZERO
-		var origin: Vector2 = Vector2.ZERO
-		if a != Vector2.ZERO and b != Vector2.ZERO:
-			origin = (a + b) * 0.5 + Vector2(0.0, -110.0)
-		elif a != Vector2.ZERO:
-			origin = a + Vector2(0.0, -90.0)
-		elif b != Vector2.ZERO:
-			origin = b + Vector2(0.0, -90.0)
-		if a != Vector2.ZERO:
-			arrows.append([origin, a])
-		if b != Vector2.ZERO:
-			arrows.append([origin, b])
+		if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
+			_tut_add_rect(spots, take_arc.arc_global_rect())
 		return
 	if tag == "atk" and wheel_view != null:
 		_tut_add_rect(spots, wheel_view.focus_rect("atk"))
@@ -26485,9 +26584,13 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 		_tut_add_control(spots, dungeon_deck_ui)
 		var deck_seat: int = _tut_index_of_tag("golem_1")
 		if deck_seat < 0:
+			deck_seat = _tut_index_of_tag("fangs_t2")
+		if deck_seat < 0:
 			deck_seat = _tut_index_of_tag("golem_2")
 		if deck_seat < 0:
 			deck_seat = _index_of_monster("golem")
+		if deck_seat < 0:
+			deck_seat = _index_of_monster("shark")
 		if deck_seat < 0:
 			deck_seat = facing_index
 		if deck_seat >= 0 and wheel_view != null and wheel_view.has_method("slice_rect"):
@@ -26823,7 +26926,12 @@ func _tutorial_allows_item(id: String) -> bool:
 		return true
 	var w: String = tut.wait
 	if w == "choice":
-		return id == "da_boot"
+		## Goblin: one of Breastplate / Shield / Boot, then Take — or Take alone.
+		if _tut_goblin_block_item:
+			return false
+		if tut.allow is Array and not tut.allow.is_empty():
+			return tut.allow.has(id)
+		return id == "da_boot" or id == "breastplate" or id == "shield"
 	## Explicit allow list on the armed beat (last line).
 	if tut.allow is Array and not tut.allow.is_empty():
 		return tut.allow.has(id)
@@ -26833,7 +26941,9 @@ func _tutorial_allows_item(id: String) -> bool:
 
 
 func _tutorial_nudge_for_item(id: String) -> String:
-	if id == "shield" and (tut == null or tut.wait != "item:shield"):
+	if tut != null and tut.wait == "choice" and _tut_goblin_block_item:
+		return PLAYER_COPY.text("tutorial.nudge_end_fight", "Not yet. Use the item.")
+	if id == "shield" and (tut == null or (tut.wait != "item:shield" and tut.wait != "choice")):
 		return PLAYER_COPY.text("tutorial.nudge_shield", "Not the Shield. Trust me.")
 	if id == "spiked_flail" and (tut == null or tut.wait != "item:spiked_flail"):
 		return PLAYER_COPY.text("tutorial.nudge_flail", "Not yet. Save it.")
@@ -26845,8 +26955,21 @@ func _tutorial_item_used(id: String) -> void:
 		return
 	if _tut_free or tut.wait == "free":
 		return
-	if tut.wait == "choice" and id == "da_boot":
-		tut.choice = "boot"
+	if tut.wait == "choice":
+		if id == "da_boot":
+			tut.choice = "boot"
+			_tut_mark_seen(id)
+			return
+		if id == "breastplate" or id == "shield":
+			## One Block item, then force the Take-damage bar.
+			_tut_goblin_block_item = true
+			tut.choice = "take"
+			tut.wait = "done"
+			tut.focus_tag = "done"
+			tut.hint = "(click Take)"
+			_tut_mark_seen(id)
+			_tut_after_advance()
+			return
 		return
 	if tut.wait != "item:%s" % id:
 		return
@@ -26956,10 +27079,12 @@ func _tutorial_after_fight() -> void:
 	if w == "choice" or w == "item:da_boot":
 		if tut.choice == "":
 			tut.choice = "take"
+		_tut_goblin_block_item = false
 		tut.advance()
 		_tut_after_advance()
 		return
 	if w == "done":
+		_tut_goblin_block_item = false
 		tut.advance()
 		_tut_after_advance()
 
