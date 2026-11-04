@@ -411,17 +411,17 @@
 			"f5_note": "On Spin, Skeleton HP looks at the new enemy, then hearts update. Stop Play, F5."
 		},
 		"358": {
-			"status": "todo",
+			"status": "closed",
 			"title": "'Bear Trap' does not count as a Tier 2 monster, it's just a Token",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/358",
 			"pr": "https://github.com/Nathan-Elequin/swipe/pull/388",
-			"pr_note": "Fix on cursor/bear-trap-token-skip-draft-fc7d; not on playtest/latest until merge."
+			"pr_note": "GitHub already closed."
 		},
 		"357": {
-			"status": "todo",
+			"status": "closed",
 			"title": "Multi-hit abilities should slash portrait once, then attack without replaying slash",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/357",
-			"note": "Fix on PR branch cursor/multi-hit-slash-once-d872; move to f5 after merge into playtest/latest."
+			"note": "GitHub already closed."
 		}
 	}
 }
