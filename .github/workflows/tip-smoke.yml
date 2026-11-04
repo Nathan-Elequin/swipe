@@ -1,0 +1,47 @@
+# Tip smoke v1 — headless tutorial rail invariants on PRs into playtest/latest.
+# Godot 4.7.2 matches project.godot config/features and Cherry godot-check.ps1.
+name: Tip smoke
+
+on:
+  pull_request:
+    branches:
+      - playtest/latest
+  workflow_dispatch:
+
+concurrency:
+  group: tip-smoke-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tip-smoke:
+    name: Tip smoke (Godot 4.7.2 headless)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Godot 4.7.2
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/godot
+          key: godot-4.7.2-stable-linux-x86_64
+
+      - name: Download Godot 4.7.2
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "${{ runner.temp }}/godot"
+          curl -fsSL -o /tmp/godot.zip \
+            "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip"
+          unzip -o /tmp/godot.zip -d "${{ runner.temp }}/godot"
+          chmod +x "${{ runner.temp }}/godot"/Godot_v4.7.2-stable_linux.x86_64
+
+      - name: Run tip smoke
+        env:
+          GODOT: ${{ runner.temp }}/godot/Godot_v4.7.2-stable_linux.x86_64
+        run: |
+          set -euo pipefail
+          chmod +x tools/qa/run_tip_smoke.sh
+          ./tools/qa/run_tip_smoke.sh
