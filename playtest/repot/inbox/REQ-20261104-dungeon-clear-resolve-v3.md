@@ -2,7 +2,7 @@
 id: REQ-20261104-dungeon-clear-resolve-v3
 status: open
 priority: high
-tip_sha: pending
+tip_sha: 7d1bda48
 branch: playtest/latest
 created: 2026-11-04T07:40:00Z
 created_by: cursor-cloud
@@ -12,7 +12,7 @@ entry: F5 playtest hub → Middle Progress → campaign delve 0 → clear the wh
 
 # Dungeon-clear resolve v3 — proud hold + slow fold + quiet sting
 
-Nathan lock 2026-11-04: kill victory dance loop; brief proud hold on one pose; fold ~1.10 s; duck `sting.clear` −10 dB under victory music. Spec: `design/visual/dungeon-clear-resolve/SCREEN-dungeon-clear-resolve.md` (v3). Prior fix REQ is done (`REQ-20261103-dungeon-clear-resolve-fix`).
+Nathan lock 2026-11-04: kill victory dance loop; brief proud hold on one pose; fold ~1.10 s; play `sting.clear` soft A at authored gain (`skip_duck`, no −10 dB — that was for old coalesce A). Spec: `design/visual/dungeon-clear-resolve/SCREEN-dungeon-clear-resolve.md` (v3). Prior fix REQ is done (`REQ-20261103-dungeon-clear-resolve-fix`).
 
 `freeze_at` values (v3): **0.45**, **0.95**, **1.25**, **1.50**, **1.95**, **2.30**, **2.65** (01–07). Leave `freeze_at = -1` for normal play and for shot 08. Total ≈ **2.80 s**.
 
@@ -24,7 +24,7 @@ Nathan lock 2026-11-04: kill victory dance loop; brief proud hold on one pose; f
 - Spin / arrows / counter hard-hidden for the whole resolve.
 - Exactly one overlay Sprout (`hub_parade_hide`); no burrow / curtain / mound / arrive / dust / burst / embers.
 - No `_nest_wheel` slide on this path.
-- `sting.clear` plays at fold start but is soft under victory music (−10 dB / not a metal slap).
+- `sting.clear` soft A plays at fold start at authored gain (audible soft underlayer; victory music still leads; not a metal slap).
 - Log contains exactly one `end dungeon N` per clear (`freeze_at` holds must not stack extras).
 - Rope Exit opens at full alpha and is interactive after ~2.80 s.
 - Clicks blocked during the resolve.
