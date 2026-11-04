@@ -694,6 +694,10 @@ var _tut_d2_snapshot: Dictionary = {}
 var _tut_pending_empty_seat: int = -1
 var _tut_rig_done: Dictionary = {}
 var _tut_goblin_block_item: bool = false
+## Goblin Breastplate stays spent through the Keep lesson (B20.5). Fight end
+## normally clears it before Nib can point at the used mark.
+var _tut_breastplate_gray_lesson: bool = true
+var _tut_breastplate_keep_gray: bool = false
 var draft_gate
 var _courier: TextureRect
 var _courier_gear: Dictionary = {}
@@ -4300,6 +4304,7 @@ func _reveal_new_buckets() -> void:
 		return
 	var newest: int = _buckets_revealed
 	_unlock_screen = true
+	_fly_card = null
 	_hide_board_for_unlock()
 	for b in range(_buckets_revealed + 1, _dungeons_ended + 1):
 		if b > BucketRules.MAX_BUCKET:
@@ -4411,8 +4416,10 @@ func _hide_board_for_unlock() -> void:
 		face_box.visible = false
 	if inspect:
 		inspect.visible = false
-	if fly_tip:
-		fly_tip.visible = false
+	# Hover on this page uses fly_tip. Only shut it when no unlock card is under the cursor.
+	# _process calls this every frame, so a blanket hide made the call-out flash and vanish.
+	if fly_tip and _fly_card == null:
+		fly_tip.hide_plate()
 	if speech_box:
 		speech_box.hide_speech()
 
@@ -9408,6 +9415,9 @@ func _discard_spent_items() -> void:
 			if str(it.get("card_id", "")) == "breastplate" and not lost_hp_this_combat:
 				_log("discard", str(it["name"]))
 				recycled.append((it as Dictionary).duplicate(true))
+				continue
+			if _tut_hold_breastplate_gray(it as Dictionary):
+				kept.append(it)
 				continue
 			it["spent"] = false
 			it["keep_after"] = false
@@ -26136,6 +26146,54 @@ func _tut_grant(id: String) -> void:
 		sfx.play("drop", -8.0)
 
 
+func _tut_hold_breastplate_gray(it: Dictionary) -> bool:
+	## One Goblin lesson only. Later fights clear Keep on the normal fight-end path.
+	if not _tut_breastplate_gray_lesson or not in_tutorial or _tut_free or tut == null:
+		return false
+	if tut.choice != "breastplate":
+		return false
+	if str(it.get("card_id", "")) != "breastplate":
+		return false
+	_tut_breastplate_keep_gray = true
+	return true
+
+
+func _tut_past_breastplate_gray_line() -> bool:
+	if tut == null:
+		return false
+	var id: String = str(tut.beat_id)
+	if not id.begins_with("B"):
+		return false
+	var num_s: String = id.substr(1)
+	if not num_s.is_valid_int():
+		return false
+	var n: int = int(num_s)
+	if n > 20:
+		return true
+	return n == 20 and int(tut.line_n) > 5
+
+
+func _tut_release_breastplate_gray_if_past() -> void:
+	if not _tut_past_breastplate_gray_line():
+		return
+	_tut_breastplate_gray_lesson = false
+	if not _tut_breastplate_keep_gray:
+		return
+	_tut_breastplate_keep_gray = false
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) != "breastplate":
+			continue
+		if not bool(it.get("spent", false)):
+			continue
+		it["spent"] = false
+		it["keep_after"] = false
+		_log("keep", str(it.get("name", "Breastplate")))
+	_hotbar_sig = ""
+	_refresh()
+
+
 func _tut_ensure_usable(id: String) -> void:
 	## Soft-lock safety for required item beats (e.g. Keep Breastplate missing/spent).
 	## Re-grant or unspend — do not redesign Keep.
@@ -26329,6 +26387,7 @@ func _tutorial_play_unlock() -> void:
 	if entries.is_empty() or _bucket_reveal == null:
 		return
 	_unlock_screen = true
+	_fly_card = null
 	_hide_board_for_unlock()
 	await _bucket_reveal.play(0, entries)
 	_unlock_screen = false
@@ -26595,6 +26654,7 @@ func _road_finish_to_cabin(declined: bool) -> void:
 
 
 func _tut_after_advance() -> void:
+	_tut_release_breastplate_gray_if_past()
 	_tut_refresh_focus()
 	_sync_buttons()
 	if tut != null and tut.visible and tut.wait == "auto_spin":
