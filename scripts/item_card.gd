@@ -94,6 +94,8 @@ const COL_UNPLAYABLE := Color("8A8F96")
 var _aura: bool = false
 var _aura_role: String = AURA_OFF
 var _toss_pick: bool = false
+## Merchant is offering to replace this item. Hover draws gold rising marks.
+var _upgrade_offer: bool = false
 var _log_focus: bool = false
 var _plus: TextureRect
 var _ban: TextureRect
@@ -1648,6 +1650,14 @@ func _stop_ready_pulse() -> void:
 		_aura_pulse_tw = null
 
 
+func set_upgrade_offer(on: bool) -> void:
+	_upgrade_offer = on
+	set_process(true)
+	if not on and _hot:
+		_apply_style(true)
+	queue_redraw()
+
+
 func set_toss_pick(on: bool) -> void:
 	_toss_pick = on
 	if on:
@@ -1913,7 +1923,7 @@ func _process(delta: float) -> void:
 	# does not compete with the banner. Active sai/marble item FX still tick.
 	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy and _beggar_flash <= 0.0 and not _waiting_entry:
 		return
-	if _glow or _aura or _aura_role != AURA_OFF or _log_focus or _danger or _hex_good or _hot or _toss_pick or _gaze_warn or _decay_warn or _decay_link or _decay_solo or _gaze_entry:
+	if _glow or _aura or _aura_role != AURA_OFF or _log_focus or _danger or _hex_good or _hot or _toss_pick or _upgrade_offer or _gaze_warn or _decay_warn or _decay_link or _decay_solo or _gaze_entry:
 		_glow_t += delta
 		_style_wait -= delta
 		if _style_wait <= 0.0:
@@ -2159,6 +2169,15 @@ func _apply_style(hot: bool) -> void:
 		metal = metal.lerp(COL_HEX_GOOD, 0.55 + pulse * 0.35)
 		sb.bg_color = sb.bg_color.lerp(COL_HEX_GOOD.darkened(0.45), pulse * 0.22)
 		modulate = Color.WHITE
+	elif _upgrade_offer and not spent:
+		## Merchant replace: gold plate, stronger while the pointer is on the card.
+		var gold := Color("FFD84A")
+		pulse = 0.35 + 0.25 * absf(sin(_glow_t * TAU / 1.3))
+		if hot:
+			pulse = 0.55 + 0.45 * absf(sin(_glow_t * TAU / 0.7))
+		metal = metal.lerp(gold, (0.42 if not hot else 0.82) + pulse * 0.12)
+		sb.bg_color = sb.bg_color.lerp(gold.darkened(0.42), (0.10 if not hot else 0.22) + pulse * 0.08)
+		modulate = Color.WHITE.lerp(Color("fff1b0"), pulse * (0.18 if not hot else 0.45))
 	elif _toss_pick and not spent:
 		# CHOICE language (was gold toss glow). Incoming overflow must match seated cards.
 		pulse = 0.0
@@ -2269,6 +2288,11 @@ func _draw() -> void:
 	var show_aura: bool = not spent and not (_petrified and not _petrify_dummy)
 	if show_aura and (_gaze_warn or _decay_warn or _aura_role == AURA_WARN):
 		_draw_dashed_ring(COL_WARN, 3.0, 0.0)
+	elif show_aura and _upgrade_offer:
+		var up_pulse: float = 0.35 + 0.65 * absf(sin(_glow_t * TAU / 1.1))
+		_draw_double_ring(Color("FFD84A"))
+		if _hot:
+			_draw_upgrade_chevrons(up_pulse)
 	elif show_aura and (_aura_role == AURA_CHOICE or _toss_pick):
 		_draw_double_ring(COL_CHOICE)
 	elif show_aura and _aura_role == AURA_READY:
@@ -2300,6 +2324,27 @@ func _draw() -> void:
 		draw_line(foot + Vector2(-3, 2), foot + Vector2(4, 3), Color("f0e6d8"), 1.4, true)
 
 
+func _draw_upgrade_chevrons(pulse: float) -> void:
+	## Gold marks climb over the picture. They stay inside the card so the hover plate cannot hide them.
+	var gold := Color("FFD84A")
+	var ink := Color("100e0c")
+	var cx: float = size.x * 0.5
+	var travel: float = fposmod(_glow_t * 0.85, 1.0)
+	for i in 3:
+		var phase: float = fposmod(travel + float(i) * 0.33, 1.0)
+		var y: float = 78.0 - phase * 40.0
+		var fade: float = sin(phase * PI) * (0.65 + pulse * 0.35)
+		var w: float = 16.0
+		var tip := Vector2(cx, y)
+		var left := Vector2(cx - w, y + 12.0)
+		var right := Vector2(cx + w, y + 12.0)
+		draw_line(left, tip, Color(ink.r, ink.g, ink.b, fade), 5.0, true)
+		draw_line(tip, right, Color(ink.r, ink.g, ink.b, fade), 5.0, true)
+		var col := Color(gold.r, gold.g, gold.b, fade)
+		draw_line(left, tip, col, 2.5, true)
+		draw_line(tip, right, col, 2.5, true)
+
+
 func _on_in() -> void:
 	_hot = true
 	_apply_style(true)
@@ -2311,7 +2356,8 @@ func _on_in() -> void:
 	if _lift != null:
 		_lift.kill()
 	_lift = create_tween()
-	_lift.tween_property(self, "scale", Vector2(1.10, 1.10) if _showcase else Vector2(1.07, 1.07), 0.1)
+	var lift_scale := Vector2(1.12, 1.12) if _upgrade_offer else (Vector2(1.10, 1.10) if _showcase else Vector2(1.07, 1.07))
+	_lift.tween_property(self, "scale", lift_scale, 0.1)
 	if _steal_tex != null:
 		Input.set_custom_mouse_cursor(_steal_tex, Input.CURSOR_ARROW, Vector2(6, 4))
 

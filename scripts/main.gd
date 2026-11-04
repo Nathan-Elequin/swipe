@@ -4568,6 +4568,10 @@ func _toss_pick_mode() -> bool:
 	return str(pending_feed.get("kind", "")) != "upgrade"
 
 
+func _merchant_upgrade_open() -> bool:
+	return not pending_feed.is_empty() and str(pending_feed.get("kind", "")) == "upgrade"
+
+
 func _abort_full_hand_gain(it: Dictionary) -> void:
 	_challenge_loot_wait = false
 	_challenge_pending_gain = {}
@@ -23915,7 +23919,12 @@ func _refresh() -> void:
 		wheel_view.set_slices(wheel, facing_index, mode)
 		wheel_view.draft_glow = phase == "draft"
 		wheel_view.closed_empties = in_tutorial and PlaytestUx.closed_empty_in_tutorial() and mode != "place"
-		wheel_view.modulate = Color(0.42, 0.40, 0.38, 1.0) if _toss_pick_mode() else Color.WHITE
+		if _merchant_upgrade_open():
+			wheel_view.modulate = Color(0.28, 0.26, 0.24, 1.0)
+		elif _toss_pick_mode():
+			wheel_view.modulate = Color(0.42, 0.40, 0.38, 1.0)
+		else:
+			wheel_view.modulate = Color.WHITE
 	_sync_loot_pips()
 	if tut != null and tut.has_method("set_lift"):
 		var slash_up: bool = ability_slash != null and ability_slash.visible
@@ -25127,10 +25136,15 @@ func _sync_hotbar() -> void:
 		if card.has_method("set_cancel_corner"):
 			## Look H mode choose: X sits top-right on the starter (matches locked mock).
 			card.set_cancel_corner(mode_starter)
+		if card.has_method("set_upgrade_offer"):
+			card.set_upgrade_offer(upgrade_choice)
 		if card.has_method("set_selector_dim"):
 			var dim_me: bool = selector_on and uid_n != starter_uid and not _uid_in(legal_uids, uid_n)
 			## Mode choice: dim every non-starter seat (no legal hand targets).
 			if _mode_choice_open() and uid_n != starter_uid:
+				dim_me = true
+			## Merchant upgrade: only the items he can change stay bright.
+			if _merchant_upgrade_open() and not upgrade_choice:
 				dim_me = true
 			card.set_selector_dim(dim_me)
 		elif card.has_method("set_aura"):
@@ -25158,7 +25172,7 @@ func _sync_hotbar() -> void:
 
 
 func _dim_hot_empty_slots() -> void:
-	var dim_empties: bool = _selector_is_active()
+	var dim_empties: bool = _selector_is_active() or _merchant_upgrade_open()
 	if hotbar_box == null:
 		return
 	for slot in hotbar_box.get_children():
@@ -25604,9 +25618,13 @@ func _reapply_hotbar_aura_roles() -> void:
 			card.set_cancel_pick(selector_on and uid_n == starter_uid and starter_uid >= 0)
 		if card.has_method("set_cancel_corner"):
 			card.set_cancel_corner(_mode_choice_open() and uid_n == starter_uid and starter_uid >= 0)
+		if card.has_method("set_upgrade_offer"):
+			card.set_upgrade_offer(upgrade_choice)
 		if card.has_method("set_selector_dim"):
 			var dim_re: bool = selector_on and uid_n != starter_uid and not is_legal
 			if _mode_choice_open() and uid_n != starter_uid:
+				dim_re = true
+			if _merchant_upgrade_open() and not upgrade_choice:
 				dim_re = true
 			card.set_selector_dim(dim_re)
 		var decay_on2: bool = bool(it.get("decay_marked", false)) and not spent_n
