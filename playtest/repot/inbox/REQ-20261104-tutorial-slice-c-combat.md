@@ -3,7 +3,7 @@ id: REQ-20261104-tutorial-slice-c-combat
 status: open
 priority: high
 pr: 377
-tip_sha: 0ec4c19d
+tip_sha: e86e9ca1
 branch: playtest/latest
 created: 2026-11-04T18:40:00Z
 created_by: cursor-cloud
