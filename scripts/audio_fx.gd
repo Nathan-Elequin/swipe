@@ -397,11 +397,29 @@ func play_event(cue_id: StringName, ctx: Dictionary = {}) -> void:
 	_play_event_inner(cue_id, ctx, 0)
 
 
+func _sfx_watch_prefix(id: String) -> bool:
+	return id.begins_with("mon.ability.") or id.begins_with("item.use.")
+
+
+func _sfx_watch_print(id: String, kind: String = "play") -> void:
+	## Editor / debug only — prove ability & item activate oneshots in Output.
+	if not _sfx_watch_prefix(id):
+		return
+	if not (OS.is_debug_build() or Engine.is_editor_hint()):
+		return
+	if kind == "play":
+		print("[sfx] play %s" % id)
+	else:
+		print("[sfx] miss %s (%s)" % [id, kind])
+
+
 func _play_event_inner(cue_id: StringName, ctx: Dictionary, depth: int) -> void:
 	if depth > 4:
 		return
 	var id: String = String(cue_id)
 	if id == "" or not _cues.has(id):
+		if id != "":
+			_sfx_watch_print(id, "no_cue")
 		return
 	var delay_ms: float = float(ctx.get("delay_ms", 0))
 	if delay_ms > 0.0:
@@ -418,6 +436,8 @@ func _play_event_inner(cue_id: StringName, ctx: Dictionary, depth: int) -> void:
 	var files: Array = _cue_streams.get(id, [])
 	if not files.is_empty():
 		_play_cue_voice(id, cue, ctx, files)
+	elif _sfx_watch_prefix(id):
+		_sfx_watch_print(id, "empty_streams")
 	var layers: Array = cue.get("layers", [])
 	for layer in layers:
 		if typeof(layer) != TYPE_DICTIONARY:
@@ -452,6 +472,7 @@ func _play_cue_voice(id: String, cue: Dictionary, ctx: Dictionary, files: Array)
 		return
 	var stream: AudioStream = _pick_stream(id, files)
 	if stream == null:
+		_sfx_watch_print(id, "null_stream")
 		return
 	var bus: String = str(ctx.get("bus", cue.get("bus", _defaults.get("bus", "SFX"))))
 	var db: float = float(cue.get("db", _defaults.get("db", -8))) + float(ctx.get("db_offset", 0.0))
@@ -465,12 +486,14 @@ func _play_cue_voice(id: String, cue: Dictionary, ctx: Dictionary, files: Array)
 	else:
 		player = _acquire_voice(StringName(id), prio, max_v)
 	if player == null:
+		_sfx_watch_print(id, "no_voice")
 		return
 	player.stream = stream
 	player.bus = bus
 	player.volume_db = db
 	player.pitch_scale = pitch
 	player.play()
+	_sfx_watch_print(id, "play")
 
 
 func _pick_stream(id: String, files: Array) -> AudioStream:
