@@ -3089,6 +3089,12 @@
 			"text": "BLOCKED",
 			"where": "Flash on the slice when you pillow it"
 		},
+		"combat.death_knell_discard": {
+			"cat": "Combat",
+			"locked_at": "2026-11-04",
+			"text": "Death Knell, discard one item.",
+			"where": "Hotbar cue when Death Bell is Defeated and you must discard one item"
+		},
 		"combat.knife_nick": {
 			"cat": "Combat",
 			"locked_at": "2026-10-28",

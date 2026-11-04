@@ -14082,6 +14082,9 @@ func _sync_hub_cue() -> void:
 	if overlay != null and overlay.visible:
 		hub_cue.clear_hold()
 		return
+	if not pending_feed.is_empty() and str(pending_feed.get("kind", "")) == "bell_defeat":
+		hub_cue.show_hold(PLAYER_COPY.text("combat.death_knell_discard", "Death Knell, discard one item."), "bell_defeat")
+		return
 	if _challenge_loot_wait or (not pending_feed.is_empty() and _is_toss_feed(str(pending_feed.get("kind", "")))):
 		hub_cue.show_hold(PLAYER_COPY.text("challenge.full_hand", "Hand is full. Click an item to throw away."), "full_hand")
 		return
