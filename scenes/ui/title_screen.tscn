@@ -94,10 +94,10 @@ stretch_mode = 2
 
 [node name="SproutSai" type="TextureRect" parent="Art"]
 layout_mode = 0
-offset_left = 1244.0
-offset_top = 115.0
-offset_right = 1535.0
-offset_bottom = 575.0
+offset_left = 1266.0
+offset_top = 262.0
+offset_right = 1552.0
+offset_bottom = 588.0
 mouse_filter = 2
 texture = ExtResource("7_tex")
 expand_mode = 1

@@ -20,7 +20,7 @@ Files are in `exports/layers/`. Ship path: `res://assets/ui/title/<file>`.
 | 2 | Window | title_window.png | 266,4 | 948×584 | Frame, 4×2 mullions, mountain/cave view, cool glass tint and sill. |
 | 3 | DoorJamb | title_door_jamb.png | 1020,0 | 660×792 | Jamb plus a soft warm halo (alpha). |
 | 4 | DoorGlow | title_door_glow.png | 1250,40 | 320×550 | Backlight: radial #fffbea→#f7ad52→#5a240a, plus a lit threshold strip. |
-| 5 | SproutSai | title_sprout_sai_silhouette.png | 1244,115 | 291×460 | Black Sprout with the Sai raised, warm rim baked in (see §5). |
+| 5 | SproutSai | title_sprout_sai_silhouette.png | 1266,262 | 286×326 | Black silhouette of the real `sprout_idle_f0` holding in-game `sai.png`, warm rim baked in (see §5). |
 | 6 | DoorPanel | title_door_panel.png | 1570,2 | 110×625 | Door swung **inward toward camera**, hinged on the right jamb. Lit edge baked in. |
 | 7 | SpillDoor | title_spill_door_warm.png | 1120,590 | 560×210 | Warm floor and table spill. Blend Mix (alpha already ~18%). |
 | 8 | SpillMoon | title_spill_window_moon.png | 180,590 | 1080×450 | Cool moonlight (#a9c2ff, ~8%). |
@@ -50,20 +50,14 @@ Nothing in the shipped title needs 9-slice. The one optional case is the leather
 - Printed look: the logo is drawn twice, once with **Multiply** blend and once at 60% opacity Normal on top, so the parchment tone shows through.
 - Plane: the map wrapper is centered at (850,815) with `perspective 1500px · rotateX 30° · rotateZ 3°`. Godot has no CSS perspective for Controls, so **ship the baked `title_map_title_baked.png`**. If it ever has to be live, use a `Polygon2D` with the map texture and UVs on 4 corners, or a SubViewport → quad. If you go live, trace the 4 corners off `title_map_title_baked.png` (its bounds are 367,630 → 1362,1029, including the drop shadow).
 
-## 5. Sprout + Sai silhouette
-- Native art: `exports/sprites/title_sprout_sai_sil.png` (128×160, pure black, 1-bit alpha). In the frame it's drawn at **3.2×**, with the feet on the door threshold (local y≈535).
-- `title_sprout_sai_sil_rim.png` (130×162) is the same art with a 1px warm outline (rgba 255,214,150,0.55) baked in, for use with no shader.
-- The shipped layer has the rim from three offset drop-shadows of ±3px at 0.45–0.6 alpha. To recreate it live, use an outline shader (`modulate=black`, outline #ffd696 @ 0.55, 1 texel).
-- How it was built:
-  1. Start from the alpha of `02_sprout_teaser` (newest Sprout, 128×128), thresholded at 40, placed at (0,+40). Remove the coin sparkles.
-  2. Add both **goblin ears** as pixel wedges: the near ear juts back-left out of the hood, and the far ear pokes up behind the hood (kept clear of the prongs).
-  3. Draw a **Sai** on the raised fist, axis x=87:
-     - Long centre tine (monouchi), 4px wide, pointed tip, y 7–73.
-     - Guard bar, ±9px.
-     - Two side prongs (yoku), 3px wide, running up to y=52 with flared tips.
-     - Handle (tsuka) 5px wide, y 74–96, then a pommel.
-     - Fist block over the handle.
-  4. Result: one solid black shape in which the three-prong Sai reads at a glance against the glow. No scythe parts remain.
+## 5. Sprout + Sai silhouette (v2 — sil fix)
+- Source is **real game art only**: `assets/dungeon/anim/player/sprout_idle_f0.png` (64×64) + `assets/dungeon/items/sai.png`. No teaser art, no invented ears or hand-drawn Sai.
+- Native art: `exports/sprites/title_sprout_sai_sil.png` (58×64, pure black, 1-bit alpha). Drawn at **5× Nearest**, feet on the door threshold (abs y≈588).
+- How it was built (`v2/build.py`):
+  1. Alpha of `sprout_idle_f0` thresholded at 40 → #000. The ear stays as it is in the sprite (inside the hood outline, so the silhouette shows the hood point only — that is the real Sprout shape).
+  2. `sai.png` (56×64 = 14×16 icon at 4×) downscaled 2× nearest to 28×32 → ~half Sprout's 64px height, alpha → #000, placed at native (42,25) in front of the body; a 13×4 px black grip bridges the hand to the handle.
+  3. 5× Nearest upscale, then a 3px warm rim rgba(255,214,150,0.59) and a 2px rim where the Sai overlaps the body so the prongs read.
+- To recreate live: TextureRect with `title_sprout_sai_sil.png`, scale 5, filter Nearest, outline shader #ffd696 @ 0.55.
 - The tray's weapon row uses `spiked_flail` instead of `sai`, so the Sai appears only in Sprout's hand.
 
 ## 6. PRESS START
