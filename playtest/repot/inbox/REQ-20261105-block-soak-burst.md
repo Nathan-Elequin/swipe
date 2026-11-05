@@ -2,6 +2,7 @@
 id: REQ-20261105-block-soak-burst
 status: open
 priority: high
+tip_sha: 413c45fb
 branch: playtest/latest
 created: 2026-11-05T23:53:00Z
 created_by: cursor-cloud
