@@ -11,11 +11,12 @@ extends Button
 ## Ends are ovular disk caps (same stack as move_arrow `_draw_tail`).
 ## Take word + burst follow the arc curvature (not flat horizontal).
 
-const BODY_W := 48.0
+const BODY_W := 84.0
 const SPLIT_T := 0.34
-## Bottom-centered sweep (radians). Nudged under the prior 1.42 so rounded
-## end caps stay clear of move-arrow tails (selftest allows ~1.0–1.7).
-const SWEEP := 1.32
+## Bottom-centered sweep (radians). 60% of the prior 1.32 (about 40% narrower)
+## so the band sits tighter under the wheel. Half-sweep stays inside the
+## move-arrow start (0.88). Selftest allows ~0.74–0.86.
+const SWEEP := 0.792
 ## Gap from gold rim to the inner edge of this arc. Bumped so arced Take /
 ## burst sit clear of the wheel rim (glyphs grow inward from the midline).
 const RIM_GAP_DEFAULT := 10.0

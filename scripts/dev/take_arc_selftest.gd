@@ -9,7 +9,7 @@ const ARROW := preload("res://scripts/ui/move_arrow.gd")
 
 func _init() -> void:
 	var failed := false
-	failed = _check("sweep_positive", TAKE.SWEEP > 1.0 and TAKE.SWEEP < 1.7) or failed
+	failed = _check("sweep_positive", TAKE.SWEEP > 0.74 and TAKE.SWEEP < 0.86) or failed
 	failed = _check("split_left_third", TAKE.SPLIT_T > 0.25 and TAKE.SPLIT_T < 0.4) or failed
 	failed = _check("body_w", TAKE.BODY_W >= 40.0) or failed
 	failed = _check("rim_gap", TAKE.RIM_GAP_DEFAULT >= 8.0) or failed
