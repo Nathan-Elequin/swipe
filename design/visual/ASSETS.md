@@ -13,6 +13,7 @@ Assets marked [TW] or shader in the specs need **no** generation and are not lis
 | intent-plate | `ui/anim/intent_claw_idle.png` | 16×16 | 1 | yes | dark-red rounded claw badge, three bone-white claw rakes on top, empty centre for a number, 1px dark outline | 1 |
 | intent-plate | `ui/anim/intent_claw_lit_f0-3.png` | 16×16 | 4 | no | same badge lighting up: rim brightens to cream, inner glow pulses | 1 |
 | intent-plate | `ui/anim/intent_claw_burst_f0-3.png` | 24×24 | 4 | no | badge impact burst, cream and red shards radiating, fading | 1 |
+| intent-plate | `ui/anim/intent_claw_soak_f0-3.png` | 24×24 | 4 | no | Block soak burst, cream and steel shards radiating, fading (not red) | 1 |
 | intent-plate | `ui/anim/intent_claw_flame_idle.png` | 16×16 | 1 | yes | claw badge variant with a fire rim (ignores Block) | 1 |
 | intent-plate | `ui/anim/intent_claw_flame_burst_f0-3.png` | 24×24 | 4 | no | fire-rim badge burst, flames licking outward | 1 |
 | intent-plate + hover | `ui/anim/intent_chip_{shield,drop,flee,plus}.png` | 8×8 ×4 | 1 | yes | sheet of 4 tiny chips: shield, purple drop, footprints, plus sign (the Shark loop reuses the wheel's ↻ tag, no art) | 1 |

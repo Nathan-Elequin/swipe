@@ -45,7 +45,7 @@ Example: Hornet Swarm shows two badges, each with **2**. Badge 1 bursts on hit 1
 | Plate in, after the wheel lands | 0–140 drop from −24px, `TRANS_BACK`; badges stagger 60ms each |
 | Live change (Net, Kobold +1, item kill) | number dissolve 200 (same as `item_card._dissolve`); added badge pops 0→1.15→1 in 160; removed badge shrinks to 0 in 120 |
 | `fire(h)` | lit frames 0–160 (4f @ 40ms), burst 160–320 (4f @ 40ms), then sits *spent* (grey, α0.55). The next badge pulses 1.0→1.08 at 2Hz as "next". |
-| Block soaks the hit (fully or partly) | badge keeps its **raw** number, flashes blue `#6ec8e8` for 120 and shows a shield chip. A full soak has no burst; a partial soak plays a small burst. |
+| Block soaks the hit (fully or partly) | badge keeps its **raw** number, flashes blue `#6ec8e8` for 120 and shows a shield chip. A full soak (`incoming == 0`) plays the cream/steel soak burst (not the red hit burst). A partial soak still flashes blue; the red burst plays only when damage still lands. |
 | Pierce (Dragon) | flame variant; the burst is drawn *over* the hub Block badge |
 | Plate out | fade 160 |
 
@@ -69,7 +69,8 @@ API: `sync(hits:Array)`, `fire(i:int, blocked:bool, pierce:bool)`, `ghost(hits:A
 |---|---|---|---|
 | `intent_claw_idle.png` | 16×16 | 1 | [PL] base: dark-red rounded badge, 3 bone claw rakes, empty centre for the number |
 | `intent_claw_lit_f0-3.png` | 16×16 | 4 | [PL] |
-| `intent_claw_burst_f0-3.png` | 24×24 (overflows the badge) | 4 | [PL] |
+| `intent_claw_burst_f0-3.png` | 24×24 (overflows the badge) | 4 | [PL] red hit burst |
+| `intent_claw_soak_f0-3.png` | 24×24 (overflows the badge) | 4 | [PL] cream/steel soak burst when Block fully soaks (`incoming == 0`) |
 | `intent_claw_flame_idle.png` | 16×16 | 1 | [PL] variant base (fire rim) |
 | `intent_claw_flame_burst_f0-3.png` | 24×24 | 4 | [PL] |
 | `intent_chip_shield.png`, `intent_chip_drop.png`, `intent_chip_flee.png` | 8×8 each | 1 | [PL] (one sheet gen) |
@@ -79,7 +80,7 @@ API: `sync(hits:Array)`, `fire(i:int, blocked:bool, pierce:bool)`, `ghost(hits:A
 ## QA (godot-mcp)
 1. Seat Hornet Swarm, `qa_spin_idx` = its slice, Spin. Shot `01_hornet_plate.png` at 400ms: two badges, each **2**.
 2. Click Take. Shots at +60ms after the first lunge (`02_hit1_lit.png`, badge 1 lit, badge 2 idle) and after the second (`03_hit2.png`).
-3. Give 2 Block (Shield), repeat: badge 1 still reads **2** and flashes blue (soaked); badge 2 bursts.
+3. Give 2 Block (Shield), repeat: badge 1 still reads **2**, flashes blue, and plays the cream/steel soak burst (not the red hit burst); badge 2 still uses the red burst.
 4. Kobold Trapper: use 2 items. Shot shows 3 badges.
 5. Dragon: flame variant shot. Shambling Mound with HP 9: overflow `×N` shot. Shark: one badge plus the `↻` loop chip, matching the wheel tag pixel for pixel (crop and compare).
 6. `text_audit`: no "atk"/"ATK" string in the plate.

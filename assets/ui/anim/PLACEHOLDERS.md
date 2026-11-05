@@ -13,6 +13,7 @@ Overwrite landed at the same paths as the old placeholders. Loaders still use `r
 | `intent_claw_idle.png` | 16×16 | 1 | Dark-red badge + three claw rakes; empty centre for the number |
 | `intent_claw_lit_f0.png` … `intent_claw_lit_f3.png` | 16×16 | 4 | Lit flash |
 | `intent_claw_burst_f0.png` … `intent_claw_burst_f3.png` | 24×24 | 4 | Burst overflows the 64×64 badge |
+| `intent_claw_soak_f0.png` … `intent_claw_soak_f3.png` | 24×24 | 4 | Cream spark soak burst when Block fully soaks. Nathan picked B 2026-11-05. Do not overwrite the red burst. |
 | `intent_claw_flame_idle.png` | 16×16 | 1 | Pierce / Dragon flame rim |
 | `intent_claw_flame_burst_f0.png` … `intent_claw_flame_burst_f3.png` | 24×24 | 4 | Flame burst |
 | `intent_chip_shield.png` | 8×8 | 1 | Block soak chip |

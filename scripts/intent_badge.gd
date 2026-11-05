@@ -166,14 +166,15 @@ func fire(blocked: bool, pierce_hit: bool, release_early: bool = false) -> void:
 func fire_with_shot(blocked: bool, pierce_hit: bool, shot_name: String, capturer: Callable, release_early: bool = false) -> void:
 	set_next(false)
 	spent = true
-	var full_soak: bool = blocked and soaked
 	if blocked or soaked:
 		if shot_name != "" and capturer.is_valid():
 			await _flash_blue_with_shot(shot_name, capturer)
 		else:
 			await _flash_blue()
 		_show_chip("shield")
-		if full_soak and int(n_raw) > 0 and not pierce_hit:
+		# Full soak (incoming == 0): cream/steel spark, never the red hit burst.
+		if blocked and not pierce_hit:
+			await _play_named_burst("soak")
 			_mark_spent()
 			return
 		if release_early:
@@ -241,6 +242,18 @@ func _flash_blue_with_shot(shot_name: String, capturer: Callable) -> void:
 	modulate = was
 
 
+func _play_named_burst(anim: String) -> void:
+	if _burst == null or not is_instance_valid(_burst):
+		return
+	if not _burst.sprite_frames.has_animation(anim):
+		return
+	_burst.visible = true
+	_burst.play(anim)
+	await get_tree().create_timer(FRAME_MS * 4.0).timeout
+	if is_instance_valid(_burst):
+		_burst.visible = false
+
+
 func _play_lit_burst(flame: bool) -> void:
 	if _face == null:
 		return
@@ -249,11 +262,7 @@ func _play_lit_burst(flame: bool) -> void:
 	if _face.sprite_frames.has_animation(lit_anim):
 		_face.play(lit_anim)
 		await get_tree().create_timer(FRAME_MS * 4.0).timeout
-	if _burst and _burst.sprite_frames.has_animation(burst_anim):
-		_burst.visible = true
-		_burst.play(burst_anim)
-		await get_tree().create_timer(FRAME_MS * 4.0).timeout
-		_burst.visible = false
+	await _play_named_burst(burst_anim)
 
 
 ## Lit tell only — used by release_early so Take HP can land during burst.
@@ -418,6 +427,7 @@ func _build_frames() -> SpriteFrames:
 	_add_still(sf, "flame_idle", ANIM + "intent_claw_flame_idle.png")
 	_add_seq(sf, "lit", ANIM + "intent_claw_lit_f%d.png", 4)
 	_add_seq(sf, "burst", ANIM + "intent_claw_burst_f%d.png", 4)
+	_add_seq(sf, "soak", ANIM + "intent_claw_soak_f%d.png", 4)
 	_add_seq(sf, "flame_burst", ANIM + "intent_claw_flame_burst_f%d.png", 4)
 	# flame lit reuses lit frames tinted via modulate at play time if needed
 	_add_seq(sf, "flame_lit", ANIM + "intent_claw_lit_f%d.png", 4)
