@@ -276,6 +276,7 @@ const MONSTER_PNG := {
 	"oligarch": "res://assets/dungeon/extra/oligarch.png",
 	"sandbag": "res://assets/dungeon/extra/sandbag.png",
 	"scorpion": "res://assets/dungeon/extra/scorpion.png",
+	"fungal_colony": "res://assets/dungeon/extra/fungal_colony.png",
 }
 
 var atlas: Texture2D
