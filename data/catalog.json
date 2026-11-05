@@ -24,8 +24,8 @@
 			"id": "healing_potion"
 		},
 		{
-			"ability": "Adds 2 to the ATK of Neighboring monsters.",
-			"function_flow": "Set each neighbor ATK to Base ATK + 1.",
+			"ability": "My Neighbors Always have +2 Attack. The first time I would be Defeated, I Flee and Gain 3 HP.",
+			"function_flow": "Neighbors have +2 Attack while he is alive. The first time he would be Defeated, he Flees and Gains 3 HP.",
 			"id": "commander"
 		},
 		{
@@ -3880,22 +3880,22 @@
 			"type": "I"
 		},
 		{
-			"ability": "2 Atk. Each time you or an Enemy would Flee, cancel it and this gains +2 Atk.",
-			"atk_base": 2.0,
+			"ability": "Select a Neighbor. Flee and Spin that selected monster.",
+			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
-			"card_color": "atk",
+			"card_color": "utility",
 			"count": 1.0,
-			"defined": "Sits at Attack 2. Click during a fight to deal its current Attack to the owner you spun, then it is discarded. Whenever you or an Enemy would Flee, that Flee does not happen, a Can't Flee banner shows this card, and its Attack goes up by 2. That can happen again on a later Flee. A petrified copy does not interrupt. Two copies both gain +2. Commander cancelled Flee: they are not Defeated, they do not go to full HP, they stay at the HP they had before that Attack. Phoenix / Egg still transform in this seat. Triclops still lose 2 HP and stay. Basilisk still Petrifies, then stays if this is not petrified.",
+			"defined": "Click during a fight, then click a living Neighbor of the monster you are facing. The item is used up. The monster you were facing is not Defeated and keeps their current HP. The wheel lands on the Neighbor you clicked. No living Neighbor: cannot use. This does not cancel other Flees and does not deal Attack.",
 			"exceptions": "Shopping-list hole 02. Pixel: prison ball and chain, black iron.",
-			"explainer": "(ATK 2. Whenever you or an Enemy would Flee, cancel it. This gains +2 Attack.)",
+			"explainer": "Pick a Neighbor. Flee. The Spin lands on them.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Sits at Attack 2. Click during a fight to deal its current Attack to the owner you spun, then it is discarded. Whenever you or an Enemy would Flee, that Flee does not happen, a Can't Flee banner shows this card, and its Attack goes up by 2. That can happen again on a later Flee. A petrified copy does not interrupt. Two copies both gain +2. Commander cancelled Flee: they are not Defeated, they do not go to full HP, they stay at the HP they had before that Attack. Phoenix / Egg still transform in this seat. Triclops still lose 2 HP and stay. Basilisk still Petrifies, then stays if this is not petrified.",
+			"flow": "Click during a fight, then click a living Neighbor of the monster you are facing. The item is used up. The monster you were facing is not Defeated and keeps their current HP. The wheel lands on the Neighbor you clicked. No living Neighbor: cannot use. This does not cancel other Flees and does not deal Attack.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "ball_and_chain",
@@ -3920,13 +3920,12 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Cancel Flee. +2 Attack each time.",
+			"log_hint": "Pick a Neighbor. Flee. Spin lands on them.",
 			"mode_pool": "all",
 			"name": "Ball & Chain",
-			"notes": "Shopping-list hole 02. Pixel: prison ball and chain, black iron.",
+			"notes": "Utility. Tier 1. Pool stays 5. Click a living Neighbor during a fight. Used up. The monster you were facing keeps their HP and is not Defeated. The Spin lands on that Neighbor. Does not cancel other Flees. Shopping-list hole 02.",
 			"ops": {
-				"kind": "atk",
-				"n": 2.0
+				"kind": "chain_flee"
 			},
 			"poc": false,
 			"pool": 5.0,
@@ -5370,7 +5369,7 @@
 			"updated": "2022-04-24"
 		},
 		{
-			"ability": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee and the wheel Spins at random.",
+			"ability": "My Neighbors Always have +2 Attack. The first time I would be Defeated, I Flee and Gain 3 HP.",
 			"atk": {
 				"base": 3.0
 			},
@@ -5383,16 +5382,16 @@
 				"commander"
 			],
 			"count": 2.0,
-			"defined": "Set each neighbor ATK to Base ATK + 1.",
+			"defined": "Neighbors have +2 Attack while he is alive. The bonus is passive. The first time he would be Defeated, he Flees and Gains 3 HP. A damage Defeat leaves him at 3 HP. A Defeat that does not change HP adds 3 HP. Poison on that hit stays. If he lost HP and the new HP is 3 or less, Hydra can Defeat him. The second Defeat removes him.",
 			"exceptions": "",
-			"explainer": "Neighbors +2 Attack",
+			"explainer": "Neighbors +2 Attack. First Defeat: Flee and gain 3 HP.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Set each neighbor ATK to Base ATK + 1.",
-			"function_flow": "Set each neighbor ATK to Base ATK + 1.",
+			"flow": "Neighbors have +2 Attack while he is alive. The bonus is passive. The first time he would be Defeated, he Flees and Gains 3 HP. A damage Defeat leaves him at 3 HP. A Defeat that does not change HP adds 3 HP. Poison on that hit stays and ticks on the next Spin. If he lost HP and the new HP is 3 or less, Hydra can Defeat him. The second Defeat removes him.",
+			"function_flow": "Neighbors have +2 Attack while he is alive. The bonus is passive. The first time he would be Defeated, he Flees and Gains 3 HP. A damage Defeat leaves him at 3 HP. A Defeat that does not change HP adds 3 HP.",
 			"hp": {
 				"base": 3.0
 			},
@@ -5420,10 +5419,10 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Neighbors +2 Attack, then flees",
+			"log_hint": "Neighbors +2 Attack. First Defeat: Flee and gain 3 HP.",
 			"mode_pool": "all",
 			"name": "Commander",
-			"notes": "",
+			"notes": "Neighbors have +2 Attack while he is alive. The bonus is passive. The first time he would be Defeated, he Flees and Gains 3 HP. A damage Defeat leaves him at 3 HP. A Defeat that does not change HP adds 3 HP. Poison on that hit stays and ticks on the next Spin. If he lost HP and the new HP is 3 or less, Hydra can Defeat him. The second Defeat removes him.",
 			"ops": {},
 			"poc": false,
 			"pool": 2.0,
@@ -6294,7 +6293,7 @@
 			"type": "M"
 		},
 		{
-			"ability": "Any time I lose HP, I command the monster to my right to Attack you immediately",
+			"ability": "Every time I lose HP, I command my Neighbor to the right to Attack. When I Attack while facing you, I gain +3 HP and Flee.",
 			"atk": {
 				"base": 2.0
 			},
@@ -6304,15 +6303,15 @@
 			"call_name": "Vindictive",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "Whenever I lose HP (Attack, Poison Flask, Napalm, poison ticks), after the current item finishes, the living monster in the one seat counter-clockwise Attacks you the same way a Damsel neighbor Attacks. One loss event is one command, including a killing blow. Empty or dead right seat: nobody. Defeat items do not command. Hornet extra swings, Shambling falling apart, pierce, and current Attack all count. Spiked Flail or Needleback chipping me again commands again. Quiet Bell on me turns this off.",
+			"defined": "Whenever I lose HP (Attack, Poison Flask, Napalm, poison ticks), after the current item finishes, the living monster in the one seat counter-clockwise Attacks you the same way a Damsel neighbor Attacks. One loss event is one command, including a killing blow. Empty or dead right seat: nobody. Defeat items do not command. Hornet extra swings, Shambling falling apart, pierce, and current Attack all count. Spiked Flail or Needleback chipping me again commands again. Quiet Bell on me turns this off. When I Attack while you are facing me, I gain 3 HP and Flee, and I keep that HP. A commanded Attack does not. A Defeat that is not my Attack still Defeats me.",
 			"exceptions": "Bucket 6, tier 3. Id stays cowardly_king. Right is one seat counter-clockwise like Right Bracer. Any is plain English, not the Any-monster keyword.",
-			"explainer": "When I lose HP, the monster on my right Attacks you.",
+			"explainer": "When I lose HP, the monster on my right Attacks. When I Attack while facing you, I gain 3 HP and Flee.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Whenever I lose HP (Attack, Poison Flask, Napalm, poison ticks), after the current item finishes, the living monster in the one seat counter-clockwise Attacks you the same way a Damsel neighbor Attacks. One loss event is one command, including a killing blow. Empty or dead right seat: nobody. Defeat items do not command. Hornet extra swings, Shambling falling apart, pierce, and current Attack all count. Spiked Flail or Needleback chipping me again commands again. Quiet Bell on me turns this off.",
+			"flow": "Whenever I lose HP (Attack, Poison Flask, Napalm, poison ticks), after the current item finishes, the living monster in the one seat counter-clockwise Attacks you the same way a Damsel neighbor Attacks. One loss event is one command, including a killing blow. Empty or dead right seat: nobody. Defeat items do not command. Hornet extra swings, Shambling falling apart, pierce, and current Attack all count. Spiked Flail or Needleback chipping me again commands again. Quiet Bell on me turns this off. When I Attack while you are facing me, I gain 3 HP and Flee, and I keep that HP. A commanded Attack does not. A Defeat that is not my Attack still Defeats me.",
 			"hp": {
 				"base": 8.0
 			},
@@ -6341,7 +6340,7 @@
 				"card_color",
 				"review"
 			],
-			"log_hint": "Right monster Attacks when I lose HP",
+			"log_hint": "Right monster Attacks when I lose HP. Facing Attack: gain 3 HP and Flee.",
 			"mode_pool": "all",
 			"name": "Petty King",
 			"notes": "Bucket 6, tier 3. Id stays cowardly_king. Right is one seat counter-clockwise like Right Bracer. Any is plain English, not the Any-monster keyword.",
@@ -6350,7 +6349,7 @@
 			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "When I lose HP, the monster on my right Attacks you.",
+			"reminder": "When I lose HP, the monster on my right Attacks. When I Attack while facing you, I gain 3 HP and Flee.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
@@ -8462,7 +8461,7 @@
 		{
 			"chat": "2026-10-25",
 			"id": "sp16_card_text",
-			"rule": "SP-16. Gelatinous Cube: When you Spin me, feed me one of two items. The Boot: Defeat an enemy with fewer HP than you (not equal). The comparison stays strict less-than. Commander: the first time they are Defeated they Flee and the wheel Spins at random; Flee does not remove them. Wheel name tags clear the stat icons."
+			"rule": "SP-16. Gelatinous Cube: When you Spin me, feed me one of two items. The Boot: Defeat an enemy with fewer HP than you (not equal). The comparison stays strict less-than. Commander: the first time he would be Defeated he Flees and Gains 3 HP. Damage leaves him at 3. A Defeat that does not change HP adds 3. Flee does not remove him. The second Defeat does. Wheel name tags clear the stat icons."
 		},
 		{
 			"chat": "2026-10-25",

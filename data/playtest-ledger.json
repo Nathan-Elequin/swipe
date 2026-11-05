@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-04T19:15:10Z",
+	"updated_at": "2026-11-05T18:58:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"348": {
@@ -18,6 +18,16 @@
 			"status": "todo",
 			"title": "Beggar should follow Cleric's requirement of always randomly targeting",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/409"
+		},
+		"410": {
+			"status": "todo",
+			"title": "Harpy failed to attack when the combat turn ended",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/410"
+		},
+		"412": {
+			"status": "todo",
+			"title": "Killed a monster with the item Beggar selected",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/412"
 		},
 		"347": {
 			"status": "f5",

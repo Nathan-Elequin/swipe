@@ -187,7 +187,7 @@ const ITEM_OPS := {
 	"chakram": {"kind": "chakram", "blk": 3, "atk": 3},
 	"signpost": {"kind": "signpost", "n": 7},
 	"sling": {"kind": "sling"},
-	"ball_and_chain": {"kind": "atk", "n": 2},
+	"ball_and_chain": {"kind": "chain_flee"},
 	"energy_drink": {"kind": "player_flee_keep"},
 	"recycler": {"kind": "recycle_watch"},
 	"rust": {"kind": "blk", "n": 2},
@@ -209,7 +209,7 @@ const MONSTER_SPECIAL := {
 	"wraith": {"id": "lifelink", "text": "When I am Defeated, set your HP to my most recent HP."},
 	"mimic": {"id": "gift", "text": "If I go down before I swing, you gain an item."},
 	"spider_queen": {"id": "queen_hits", "text": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each."},
-	"commander": {"id": "buff_atk", "text": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee and the wheel Spins at random."},
+	"commander": {"id": "buff_atk", "text": "My Neighbors Always have +2 Attack. The first time I would be Defeated, I Flee and Gain 3 HP."},
 	"dragon": {"id": "pierce", "text": "My attack ignores block."},
 	"needleback": {"id": "thorns", "text": "Whenever I take attack damage, you take 2 attack. Block can stop that 2."},
 	"gelatinous_cube": {"id": "eat_item", "text": "When you Spin me, feed me one of two items."},
@@ -226,7 +226,7 @@ const MONSTER_SPECIAL := {
 	"anvil": {"id": "one_chip", "text": "Whenever I lose HP, I lose a minimum of 3 HP."},
 	"vampire": {"id": "bloodlust", "text": "Every time you lose HP, I gain +1 HP and +1 Attack."},
 	"bodyguard": {"id": "take_instead", "text": "When my Neighbors would take Attack Damage, I take it instead."},
-	"cowardly_king": {"id": "vindictive", "text": "Any time I lose HP, I command the monster to my right to Attack you immediately"},
+	"cowardly_king": {"id": "vindictive", "text": "Every time I lose HP, I command my Neighbor to the right to Attack. When I Attack while facing you, I gain +3 HP and Flee."},
 	"merchant": {"id": "fair_trade", "text": "When you Spin me, choose an Item and I will upgrade it."},
 	"juggernaut": {"id": "gift_shield", "text": "When you face me, Gain a Shield."},
 	"cleric": {"id": "insure", "text": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item"},
@@ -332,7 +332,7 @@ const MONSTER_REMINDER := {
 	"wraith": "Defeated: set your HP to my most recent HP",
 	"mimic": "item if I never swing",
 	"spider_queen": "Egg on Spin. Spinning me eats eggs for +2 HP +2 Attack each.",
-	"commander": "neighbors +2 attack",
+	"commander": "neighbors +2 attack, first defeat flees and gains 3 HP",
 	"dragon": "ignores block",
 	"needleback": "poke 2 when hit by ATK",
 	"gelatinous_cube": "feed me one of two items",
@@ -347,7 +347,7 @@ const MONSTER_REMINDER := {
 	"beggar": "Marks a random item. Spin this Beggar: that item is discarded.",
 	"wick": "-2 HP per Neighbor Defeated.",
 	"anvil": "1 or 2 HP lost becomes 3",
-	"cowardly_king": "when I lose HP, the monster on my right Attacks you",
+	"cowardly_king": "lose HP: right neighbor Attacks. Facing Attack: +3 HP and Flee",
 	"three_seeker": "3, 6, or 9 items: Always Spin me next",
 	"triclops": "3 HP: Defeated. Else Defeat: −2 HP and Flee",
 	"phoenix_egg": "Defeated: Flee, become Phoenix",
@@ -387,7 +387,7 @@ const MONSTER_SPEECH := {
 	"wraith": "When I am Defeated, set your HP to my most recent HP.",
 	"mimic": "If I go down before I attack, you gain an item.",
 	"spider_queen": "Each time you Spin, Gain 1 Spider Egg. Spinning me discards those eggs; I gain +2 HP and +2 Attack for each.",
-	"commander": "I give my Neighbors +2 Attack. The first time I am Defeated, I Flee and the wheel Spins at random.",
+	"commander": "My Neighbors Always have +2 Attack. The first time I would be Defeated, I Flee and Gain 3 HP.",
 	"dragon": "My attack ignores block.",
 	"needleback": "I stick you for 2 attack whenever you cut me. Your block still works.",
 	"gelatinous_cube": "When you Spin me, feed me one of two items.",
@@ -402,7 +402,7 @@ const MONSTER_SPEECH := {
 	"beggar": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me",
 	"wick": "I Lose 2 HP each time a Neighbor is Defeated",
 	"anvil": "Whenever I lose HP, I lose a minimum of 3 HP.",
-	"cowardly_king": "Any time I lose HP, I command the monster to my right to Attack you immediately",
+	"cowardly_king": "Every time I lose HP, I command my Neighbor to the right to Attack. When I Attack while facing you, I gain +3 HP and Flee.",
 	"three_seeker": "If you have 3, 6, or 9 Items, you Always Spin me next",
 	"triclops": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
 	"phoenix_egg": "When I am Defeated, I Flee and hatch into a Phoenix.",
@@ -717,6 +717,7 @@ var _sling_aim: int = -1
 var _skip_item_use_count: bool = false
 var _after_item_use_armed: bool = false
 var _flee_random_spin: bool = false
+var _spin_land_uid: int = -1
 var _pending_item_flee: bool = false
 var _chakram_halves_busy: bool = false
 var _fungal_stop_fight: bool = false
@@ -6011,6 +6012,9 @@ func _item_look(it: Dictionary) -> Dictionary:
 	if kind == "signpost":
 		if phase == "fighting" and _mark_targets("signpost").is_empty():
 			unplayable = true
+	if kind == "chain_flee":
+		if phase == "fighting" and _mark_targets("chain_flee").is_empty():
+			unplayable = true
 	if kind == "blk_half_atk" and not bool(view.get("can_use", false)):
 		unplayable = true
 	var cursed: bool = _item_is_curse(it)
@@ -6991,7 +6995,7 @@ func _apply_formulas_to(s: Dictionary) -> void:
 	s["log_hint"] = str(card.get("log_hint", ""))
 	if hp_locked:
 		s["hp"] = hold_hp
-		if id == "vampire" or id == "amalgam" or id == "bushido":
+		if id == "vampire" or id == "amalgam" or id == "bushido" or id == "commander" or id == "cowardly_king":
 			s["hp_max"] = maxi(hold_max, hold_hp)
 		if id == "slime_boss":
 			s["atk"] = hold_hp
@@ -8342,7 +8346,7 @@ func _on_slice_hovered(index: int) -> void:
 	_fill_inspect_from_slice(index)
 	if not pending_mark.is_empty() and phase == "fighting":
 		var mk: String = str(pending_mark.get("kind", ""))
-		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "hypnotize" or mk == "defeat_double_hp" or mk == "sling_any":
+		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "hypnotize" or mk == "defeat_double_hp" or mk == "sling_any" or mk == "chain_flee":
 			_apply_preview(_preview_mark_aim(mk, index))
 		else:
 			_apply_preview(_preview_bribe(index))
@@ -8506,6 +8510,11 @@ func _on_spin() -> void:
 	if tri.is_empty() and tut_forced < 0 and not adventure and mag_mode != "" and not flee_rand:
 		idx = _magnet_pick(pool, mag_mode == "high")
 		_magnet_pending_consume = mag_mode
+	if _spin_land_uid >= 0:
+		var land_i: int = _index_of_seat(_spin_land_uid)
+		if land_i >= 0 and pool.find(land_i) >= 0:
+			idx = land_i
+	_spin_land_uid = -1
 	challenge_aim = -1
 	if wheel_view:
 		wheel_view.selected_index = -1
@@ -9985,7 +9994,7 @@ func _use_item(uid: int) -> void:
 		_sync_buttons()
 		call_deferred("_refresh")
 		return
-	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "signpost":
+	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "signpost" or kind == "chain_flee":
 		if _mark_targets(kind).is_empty():
 			_log("on_item_use", "cannot")
 			if sfx:
@@ -12986,7 +12995,7 @@ func _item_opens_use_pick(it: Dictionary) -> bool:
 		return true
 	if kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp":
 		return true
-	return kind == "polymorph" or kind == "signpost"
+	return kind == "polymorph" or kind == "signpost" or kind == "chain_flee"
 
 
 func _oligarch_instant_uids() -> Array:
@@ -14582,6 +14591,16 @@ func _show_flee_stat_snap(index: int, from_hp: int) -> void:
 	_refresh()
 
 
+func _commander_flee_hp(s: Dictionary) -> int:
+	## Damage that would drop him to 0: that 0 sticks, then Gain 3, so he leaves at 3.
+	## A Defeat that never changed HP (The Boot): keep that HP and Gain 3, even past printed max.
+	var shown: int = int(s.get("hp", 0))
+	var lethal: bool = shown <= 0 or (s.has("flee_before") and typeof(s.get("flee_before")) == TYPE_DICTIONARY)
+	if lethal:
+		return 3
+	return shown + 3
+
+
 func _try_commander_flee(index: int) -> bool:
 	if index < 0 or index >= wheel.size():
 		return false
@@ -14592,25 +14611,41 @@ func _try_commander_flee(index: int) -> bool:
 		return false
 	if bool(s.get("fled_once", false)):
 		return false
-	if await _play_chain_cancel():
-		var shown_cancel: int = int(s.get("hp", 0))
-		_restore_flee_stats(s, 0)
-		s["hp_locked"] = false
-		s["spin_locked"] = index == facing_index
-		s["fled_once"] = true
-		wheel[index] = s
-		facing_index = index
-		await _show_flee_stat_snap(index, shown_cancel)
-		_resume_facing_fight()
-		return true
 	var shown_flee: int = int(s.get("hp", 0))
+	var pre_hp: int = shown_flee
+	if s.has("flee_before") and typeof(s.get("flee_before")) == TYPE_DICTIONARY:
+		pre_hp = int((s["flee_before"] as Dictionary).get("hp", shown_flee))
+	elif int(s.get("hp_pre_hit", -1)) >= 0:
+		pre_hp = int(s.get("hp_pre_hit", pre_hp))
+	var new_hp: int = _commander_flee_hp(s)
 	s["fled_once"] = true
 	s["crossbowed"] = false
-	_restore_flee_stats(s, 0)
-	s["hp_locked"] = false
+	s.erase("flee_before")
+	s.erase("hp_pre_hit")
+	s.erase("died_seq")
+	s.erase("died_batch")
+	s["hp"] = new_hp
+	if int(s.get("hp_max", 0)) < new_hp:
+		s["hp_max"] = new_hp
+	s["hp_locked"] = true
 	s["spin_locked"] = false
 	wheel[index] = s
 	await _show_flee_stat_snap(index, shown_flee)
+	## Poison on the hit stays. It ticks the next time he is spun.
+	## Hydra looks at the HP after the Gain: lost HP, and that new HP is 3 or less.
+	if pre_hp > new_hp and new_hp > 0 and new_hp <= 3 and not _hydra_listener_uids().is_empty():
+		_note_hydra_survive_loss(index, pre_hp, new_hp)
+		var was_busy: bool = _slay_busy
+		_slay_busy = false
+		await _flush_hydra_devour()
+		_slay_busy = was_busy
+		if index < 0 or index >= wheel.size():
+			return true
+		if str(wheel[index].get("kind", "")) != "monster" or int(wheel[index].get("hp", 0)) <= 0:
+			return true
+		if str(wheel[index].get("card_id", "")) != "commander":
+			return true
+		s = wheel[index]
 	_log("on_resolve", "%s flees" % s.get("name", "Commander"))
 	_sfx_ability("commander")
 	if sfx:
@@ -14634,12 +14669,18 @@ func _try_petty_king_flee(index: int) -> bool:
 		return false
 	if int(s.get("hp", 0)) <= 0:
 		return false
-	if await _play_chain_cancel():
-		_resume_after_cancelled_flee()
-		return true
+	## Only his own Attack while you are facing him. Damsel and other commands do not.
+	if index != facing_index or not bool(s.get("has_attacked", false)):
+		return false
+	var before_hp: int = int(s.get("hp", 0))
+	s["hp"] = before_hp + 3
+	if int(s.get("hp_max", 0)) < int(s["hp"]):
+		s["hp_max"] = int(s["hp"])
 	s["spin_locked"] = false
-	s["hp_locked"] = false
+	s["hp_locked"] = true
 	wheel[index] = s
+	await _show_flee_stat_snap(index, before_hp)
+	s = wheel[index]
 	_log("on_resolve", "%s flees" % s.get("name", "Petty King"))
 	if sfx:
 		sfx.play("door_open", -12.0)
@@ -18320,65 +18361,6 @@ func _commanded_neighbor_attack(j: int) -> bool:
 	return false
 
 
-func _chain_live() -> Array:
-	var out: Array = []
-	for it in hotbar:
-		if typeof(it) != TYPE_DICTIONARY:
-			continue
-		if str(it.get("card_id", "")) != "ball_and_chain":
-			continue
-		if bool(it.get("spent", false)):
-			continue
-		if _item_stoned(it):
-			continue
-		out.append(it)
-	return out
-
-
-func _play_chain_cancel() -> bool:
-	var copies: Array = _chain_live()
-	if copies.is_empty():
-		return false
-	var show: Dictionary = copies[0]
-	_flash_banner("Can't Flee")
-	var tex: Texture2D = null
-	if art != null:
-		tex = art.item_tex("ball_and_chain")
-	if tex == null:
-		tex = tex_by_item.get("ball_and_chain", null)
-	if ability_slash:
-		await ability_slash.play({
-			"title": str(show.get("name", "Ball & Chain")),
-			"call": "Can't Flee",
-			"tex": tex,
-			"is_item": true,
-			"card_id": "ball_and_chain",
-		})
-	for it in copies:
-		var ops: Dictionary = {}
-		var raw: Variant = it.get("ops", {})
-		if typeof(raw) == TYPE_DICTIONARY and not (raw as Dictionary).is_empty():
-			ops = (raw as Dictionary).duplicate(true)
-		else:
-			ops = {"kind": "atk", "n": 2}
-		ops["kind"] = "atk"
-		ops["n"] = int(ops.get("n", 2)) + 2
-		it["ops"] = ops
-	_log("on_resolve", "Can't Flee")
-	if sfx:
-		sfx.play("metal_latch", -8.0)
-	_hotbar_sig = ""
-	_refresh()
-	for it in copies:
-		var uid: int = int(it.get("uid", -1))
-		if hotbar_box:
-			for c in hotbar_box.get_children():
-				if _control_uid(c) == uid and c.has_method("bounce"):
-					c.bounce()
-					break
-	return true
-
-
 func _sandbag_would_kill() -> bool:
 	if hp <= 0 or phase != "fighting":
 		return false
@@ -18453,9 +18435,6 @@ func _resume_after_cancelled_flee() -> void:
 
 func _flee_spin(_shuffle: bool = false) -> bool:
 	_spin_inflight = false
-	if await _play_chain_cancel():
-		_resume_after_cancelled_flee()
-		return false
 	phase = "slaying"
 	pending_choice.clear()
 	pending_mark.clear()
@@ -18781,7 +18760,7 @@ func _can_mark(index: int, kind: String) -> bool:
 		return _across_index(index) >= 0
 	if kind == "sling_any" or kind == "hook_swap":
 		return int(wheel[index].get("hp", 0)) > 0
-	if kind == "signpost":
+	if kind == "signpost" or kind == "chain_flee":
 		if index == facing_index:
 			return false
 		if not _neighbor_indices().has(index):
@@ -18862,7 +18841,7 @@ func _apply_mark_inner(index: int) -> void:
 	var defer_announce: bool = kind == "hook_swap"
 	if not defer_announce:
 		## Signpost / Hypnotize / Scythe then move the wheel. Finish the banner first.
-		var overlap_ok: bool = kind != "signpost" and kind != "hypnotize" and kind != "defeat_double_hp"
+		var overlap_ok: bool = kind != "signpost" and kind != "hypnotize" and kind != "defeat_double_hp" and kind != "chain_flee"
 		await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos(), overlap_ok)
 	var token: int = _undo_gen
 	if kind == "defeat_double_hp":
@@ -18873,6 +18852,9 @@ func _apply_mark_inner(index: int) -> void:
 		return
 	if kind == "signpost":
 		await _apply_signpost(index, it)
+		return
+	if kind == "chain_flee":
+		await _apply_chain_flee(index, it)
 		return
 	if kind == "sling_any":
 		await _apply_sling(index, it, atk_uid)
@@ -19283,6 +19265,23 @@ func _apply_signpost(index: int, it: Dictionary) -> void:
 		return
 	_undo_finish_item()
 	call_deferred("_refresh")
+
+
+func _apply_chain_flee(index: int, it: Dictionary) -> void:
+	if index < 0 or index >= wheel.size():
+		_undo_abort()
+		call_deferred("_refresh")
+		return
+	if facing_index >= 0 and facing_index < wheel.size() and str(wheel[facing_index].get("kind", "")) == "monster":
+		wheel[facing_index]["hp_locked"] = true
+		wheel[facing_index]["spin_locked"] = false
+	_log("on_item_use", "chain %s" % wheel[index].get("name", "?"))
+	it["spent"] = true
+	await _count_item_use()
+	_toss_item(int(it.get("uid", -1)), false)
+	_spin_land_uid = _seat_uid_at(index)
+	_undo_finish_item()
+	await _flee_spin()
 
 
 func _await_slash_idle() -> void:
@@ -20147,7 +20146,7 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"spiked_flail":
 			return [[_fg("impact", n, "", "", "bleed")]]
 		"ball_and_chain":
-			return [[_fg("impact", n), _fg("icon", "", "", "", "", "noflee")]]
+			return [[_fg("text", "Flee")]]
 		"spider_egg":
 			return [[_fg("impact", n, "", "self")]]
 		"left_bracer":
@@ -20721,6 +20720,11 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = "7"
 			out["note"] = ""
 			out["can_use"] = fighting and not _mark_targets("signpost").is_empty()
+		"chain_flee":
+			out["kind"] = "MARK"
+			out["number"] = ""
+			out["note"] = ""
+			out["can_use"] = fighting and not _mark_targets("chain_flee").is_empty()
 		"sling":
 			out["kind"] = "SKIP"
 			out["number"] = ""
@@ -21191,7 +21195,7 @@ func _kind_previews_facing_kill(kind: String) -> bool:
 	## Neighbor / mark / opposite / cleave items must not ghost-kill the facing owner.
 	if kind == "atk_neighbor" or kind == "mark_crossbow" or kind == "mark_poison":
 		return false
-	if kind == "hook_swap" or kind == "hypnotize" or kind == "polymorph" or kind == "signpost":
+	if kind == "hook_swap" or kind == "hypnotize" or kind == "polymorph" or kind == "signpost" or kind == "chain_flee":
 		return false
 	if kind == "atk_opposite" or kind == "atk_cleave" or kind == "defeat_double_hp" or kind == "sling_any":
 		return false
@@ -21760,7 +21764,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 	var num_c: String = blk_c if kind.begins_with("blk") else atk_c
 	if kind == "heal" or kind == "heal_both_draw" or kind == "heal_kills" or kind == "heal_keep" or kind == "heal_swap_keep" or kind == "heal_full" or kind == "heal_poison" or kind == "napalm" or kind == "blood_pact":
 		num_c = hp_c
-	elif kind == "smoke" or kind == "hook_swap":
+	elif kind == "smoke" or kind == "hook_swap" or kind == "chain_flee":
 		num_c = gold
 	var cream := num_c
 	match kind:
@@ -21816,8 +21820,6 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["equation"] = "(%s) then Lose %s" % [_bb(atk_c, "6"), _bb(hp_c, "2 HP")]
 			elif kind == "atk_flee_keep":
 				out["equation"] = "(%s)  Keep + Flee if live" % _bb(atk_c, "ATK 2")
-			elif str(it.get("card_id", "")) == "ball_and_chain":
-				out["equation"] = "(%s) + (%s)" % [_bb(atk_c, "2"), _bb(atk_c, "+2 per cancelled Flee")]
 			else:
 				out["equation"] = "(%s)" % _bb(atk_c, str(live))
 			out["body"] = str(it.get("ability", "Deal Attack."))
@@ -22100,6 +22102,11 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["value"] = _value_bb("Block", "7", blk_c)
 			out["equation"] = "(%s) then a Neighbor Attacks you" % _bb(blk_c, "7")
 			out["body"] = str(it.get("ability", "Block 7, then choose a Neighbor to Attack you"))
+			if fighting and not bool(view.get("can_use", false)):
+				out["warn"] = PLAYER_COPY.text("warn.neighbor", "Can't — no neighboring enemy.")
+		"chain_flee":
+			out["value"] = _value_bb("Flee", "", gold)
+			out["body"] = str(it.get("ability", "Select a Neighbor. Flee and Spin that selected monster."))
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = PLAYER_COPY.text("warn.neighbor", "Can't — no neighboring enemy.")
 		"sling":
@@ -23965,7 +23972,7 @@ func _refresh() -> void:
 			else:
 				wheel[i]["across"] = -1
 		## Keep neighbor aim ghosts on while picking (never the facing kill ghost).
-		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "sling_any":
+		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "sling_any" or mk == "chain_flee":
 			_apply_preview(_preview_mark_aim(mk, _hover_slice))
 	else:
 		for i2 in wheel.size():
