@@ -2244,7 +2244,7 @@ func _anim_capture_hook(filename: String) -> void:
 		"03_hit2.png":
 			how = "real Take: badge 2 after hit 2 lunge"
 		"04_hornet_block_soak.png":
-			how = "real Take + 2 Block: badge 1 blue flash, still 2"
+			how = "real Take + 2 Block: badge 1 still 2, blue flash, cream soak burst not red"
 		"01_hornet_two_rings.png":
 			how = "real Take HP loss: two bleed rings + Flail/Vampire"
 		"02_poison_pacemaker.png":
