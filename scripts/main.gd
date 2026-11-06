@@ -24375,17 +24375,49 @@ func _layout_play_field() -> void:
 		var dmin: Vector2 = challenge_draft_ui.get_combined_minimum_size()
 		var w: float = maxf(508.0, dmin.x)
 		var h: float = dmin.y
+		## Tutorial Nib stays on the right. The pick sits on the left, clear of that box.
+		var nib_right: bool = in_tutorial and tut != null and is_instance_valid(tut) and tut.visible
 		var deck_bottom: float = wheel_y
-		if dungeon_deck_ui != null and dungeon_deck_ui.visible:
+		if not nib_right and dungeon_deck_ui != null and dungeon_deck_ui.visible:
 			deck_bottom = dungeon_deck_ui.position.y + dungeon_deck_ui.size.y + 24.0
 		var room: float = maxf(96.0, sz.y - 8.0 - deck_bottom)
 		var sc: float = 1.0
 		if h > room:
 			sc = clampf(room / h, 0.62, 1.0)
+		var draft_x: float = x + side + 16.0
+		if nib_right:
+			var nib_close: float = float(tut.get("nib_close"))
+			var nib_w: float = clampf(sz.x * 0.26, 420.0, sz.x * 0.32) + 80.0 * nib_close + 16.0
+			var right_limit: float = maxf(160.0, sz.x - nib_w)
+			var gap := 12.0
+			var margin := 8.0
+			var budget: float = maxf(200.0, right_limit - margin)
+			var shown_w: float = w * sc
+			var wheel_side: float = side
+			if shown_w + gap + wheel_side > budget:
+				var wheel_floor: float = minf(side, maxf(280.0, budget * 0.46))
+				shown_w = maxf(220.0, budget - gap - wheel_floor)
+				sc = clampf(shown_w / w, 0.55, sc)
+				shown_w = w * sc
+				wheel_side = minf(side, maxf(160.0, budget - gap - shown_w))
+			var group: float = shown_w + gap + wheel_side
+			var slack: float = maxf(0.0, budget - group)
+			draft_x = margin + slack * 0.5
+			x = draft_x + shown_w + gap
+			side = wheel_side
+			wheel_view.custom_minimum_size = Vector2(side, side)
+			wheel_view.position = Vector2(x, wheel_y)
+			wheel_view.size = Vector2(side, side)
+			if dungeon_deck_ui != null and dungeon_deck_ui.visible:
+				var deck_x: float = x + side + 8.0
+				var deck_cap: float = right_limit - dungeon_deck_ui.size.x - 8.0
+				if deck_x > deck_cap:
+					deck_x = maxf(x, deck_cap)
+				dungeon_deck_ui.position = Vector2(deck_x, wheel_y)
 		challenge_draft_ui.size = Vector2(w, h)
 		challenge_draft_ui.pivot_offset = Vector2.ZERO
 		challenge_draft_ui.scale = Vector2(sc, sc)
-		challenge_draft_ui.position = Vector2(x + side + 16.0, deck_bottom)
+		challenge_draft_ui.position = Vector2(draft_x, deck_bottom)
 	if cue_label:
 		cue_label.position = Vector2(12.0, minf(wheel_y + side + 4.0, sz.y - 36.0))
 		cue_label.size = Vector2(maxf(sz.x - 24.0, 180.0), 36.0)
@@ -26766,6 +26798,9 @@ func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = 
 		if challenge_draft_ui.get("_sub") != null:
 			challenge_draft_ui._sub.visible = true
 			challenge_draft_ui._sub.text = sub
+		if is_inside_tree():
+			await get_tree().process_frame
+		_layout_play_field()
 		var uid: int = await challenge_draft_ui.chosen
 		if uid == int(take.get("uid", -1)):
 			hotbar.append(take.duplicate(true))
@@ -26863,6 +26898,9 @@ func _tut_apply_desk_beat(beat: String) -> void:
 		fly_tip.hide_plate()
 		fly_tip.z_index = 110
 		fly_tip.z_as_relative = true
+	## Hover advance paints spots before this pin exists. Repaint once the card is up.
+	if prev_pin != _tut_pin_item:
+		_tut_refresh_focus()
 
 
 func _tut_hold_item_plate() -> bool:
@@ -27880,8 +27918,10 @@ func _tut_inspect_focused_item() -> void:
 	if tag == _tut_inspected_tag:
 		return
 	if _tut_inspected_tag.begins_with("item:") and not tag.begins_with("item:"):
-		## Leaving an item teach focus: clear any leftover hover chrome from a real mouse-over.
-		_on_item_unhovered()
+		## Leaving an item teach focus: clear leftover hover chrome.
+		## A pinned callout (Breastplate on B17a) has to stay. This line is about that card.
+		if not _tut_hold_item_plate():
+			_on_item_unhovered()
 	_tut_inspected_tag = tag
 
 
@@ -27968,9 +28008,22 @@ func _tut_add_hover_plate_spot(spots: Array) -> void:
 	_tut_add_rect(spots, fly_tip.get_global_rect())
 
 
+func _tut_add_breastplate_plate_spot(spots: Array) -> void:
+	if fly_tip == null or not fly_tip.visible:
+		return
+	if str(fly_tip.edit_kind) != "item" or str(fly_tip.edit_id) != "breastplate":
+		return
+	_tut_add_rect(spots, fly_tip.get_global_rect())
+
+
 func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 	var tag: String = tut.focus_tag
 	var waiting: String = tut.wait
+	## B17a has no focus. Empty focus used to count as the Golem intro and ring
+	## the facing slice plus the monster inspect. The player is reading Breastplate.
+	if str(tut.beat_id) == "B17a":
+		_tut_add_breastplate_plate_spot(spots)
+		return
 	if _tut_line_highlights_plate():
 		_tut_add_hover_plate_spot(spots)
 	if waiting == "choice":
@@ -27990,11 +28043,13 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 			_tut_add_rect(spots, take_arc.arc_global_rect())
 		return
 	if tag == "boot_breastplate":
+		## Both cards stay ringed. The line leaves Nib's box and ends on the Breastplate,
+		## the same way the Boot line leaves Nib's box and ends on the Boot.
 		for pair_id in ["da_boot", "breastplate"]:
 			var pair_card: Control = _hotbar_card(pair_id)
 			_tut_add_control(spots, pair_card)
-			if pair_card != null and pair_card.is_visible_in_tree():
-				arrows.append(_tut_arrow_above_card(pair_card))
+			if pair_id == "breastplate" and pair_card != null and pair_card.is_visible_in_tree():
+				arrows.append(_tut_arrow_from_nib(pair_card))
 		return
 	if tag == "facing" and wheel_view != null and facing_index >= 0 and wheel_view.has_method("slice_rect"):
 		_tut_add_rect(spots, wheel_view.slice_rect(facing_index))
@@ -28605,6 +28660,19 @@ func _poll_tutorial_board_hover() -> void:
 	if not in_tutorial or tut == null or not tut.visible or _cabin_up():
 		return
 	var mouse: Vector2 = get_global_mouse_position()
+	if _tut_hold_item_plate():
+		## This line is about the pinned item. A wheel hover must not swap in the Golem.
+		if not (tut.has_method("pointer_blocks_hover") and tut.pointer_blocks_hover(mouse)):
+			var pinned_hit: Array = _tutorial_item_under_mouse(mouse)
+			if pinned_hit.size() == 2 and str((pinned_hit[0] as Dictionary).get("card_id", "")) == _tut_pin_item:
+				var pinned_card: Control = pinned_hit[1]
+				if _deck_hovering:
+					_deck_hovering = false
+				if _fly_card != pinned_card:
+					_on_item_hovered(pinned_hit[0], pinned_card)
+				return
+		_tut_restore_pinned_item()
+		return
 	if tut.has_method("pointer_blocks_hover") and tut.pointer_blocks_hover(mouse):
 		_tutorial_hover_clear_board()
 		return
