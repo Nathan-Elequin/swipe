@@ -6950,6 +6950,7 @@ func _make_item(id: String) -> Dictionary:
 		"magnet_mode": "off",
 		"magnet_seq": 0,
 		"hex_n": 6 if id == "hex" else 0,
+		"tesla_n": 0,
 		"spinning_top_n": 0,
 		"marble_n": 0,
 		"marble_monster": "",
@@ -8789,6 +8790,10 @@ func _on_spin() -> void:
 		return
 	_spin_inflight = true
 	_harpy_did_spin_hit = false
+	## Tesla Coil: Defeat on the landing, before Harpy's land swing or Hex.
+	if await _tesla_on_spin():
+		await _bleed_end()
+		return
 	if _facing_can_act():
 		m = wheel[facing_index]
 		# Land swing happens before Hex / Rust tick. A countdown is not an item use.
@@ -11001,6 +11006,23 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				return
 			if await _apply_chakram(it):
 				return
+		"tesla_coil":
+			if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
+				_log_begin_item(it)
+				_log("on_item_use", "%s — cannot" % str(it.get("name", "?")))
+				if sfx:
+					sfx.play("error", -10.0)
+				return
+			var coil_n: int = int(it.get("tesla_n", 0)) + 1
+			it["tesla_n"] = coil_n
+			_log("on_item_use", str(it["name"]))
+			_log("var", "Charge %s" % coil_n)
+			it["spent"] = true
+			it["keep_after"] = str(it.get("card_id", "")) != "echo_bell"
+			await _count_item_use()
+			_toss_item(int(it["uid"]), bool(it.get("keep_after", false)))
+			await _flee_spin()
+			return
 		_:
 			return
 	it["spent"] = true
@@ -15867,6 +15889,49 @@ func _step_berserkers() -> void:
 				speech_box.hide_speech()
 	if any:
 		_sync_wheel_stats()
+
+
+func _tesla_charge(it: Dictionary) -> int:
+	if it.is_empty():
+		return 0
+	if str(it.get("card_id", "")) != "tesla_coil" and str(_ops_of(it).get("kind", "")) != "tesla_coil":
+		return 0
+	return maxi(0, int(it.get("tesla_n", 0)))
+
+
+func _best_tesla_charge() -> int:
+	var best := 0
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		best = maxi(best, _tesla_charge(it))
+	return best
+
+
+## True when this landing was Defeated (or a Lich chip finished them).
+## Charge stays on the card. HP equal to Charge does not Defeat.
+func _tesla_on_spin() -> bool:
+	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
+		return false
+	var charge: int = _best_tesla_charge()
+	if charge <= 0:
+		return false
+	var m: Dictionary = wheel[facing_index]
+	if str(m.get("kind", "")) != "monster":
+		return false
+	var hp_now: int = int(m.get("hp", 0))
+	if hp_now <= 0 or hp_now >= charge:
+		return false
+	_log("on_resolve", "defeat")
+	_sfx_item_use("tesla_coil")
+	if _undying(m):
+		_log("on_resolve", "undying")
+		if await _lich_chip_defeat(facing_index):
+			await _begin_slay()
+			return true
+		return false
+	await _begin_slay()
+	return true
 
 
 func _step_hexs() -> bool:
@@ -21695,6 +21760,12 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = str(out["n"])
 			out["note"] = ""
 			out["can_use"] = false
+		"tesla_coil":
+			out["kind"] = "DEFEAT"
+			out["n"] = int(it.get("tesla_n", 0))
+			out["number"] = str(out["n"])
+			out["note"] = ""
+			out["can_use"] = fighting
 		"recycle_watch":
 			out["kind"] = "SKIP"
 			out["fill"] = Color("2f5a3a")
