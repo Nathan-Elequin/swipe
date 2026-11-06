@@ -106,6 +106,9 @@
       "swift_sneaks": {
         "use": "item.use.swift_sneaks"
       },
+      "tesla_coil": {
+        "use": "item.use.tesla_coil"
+      },
       "blood_pact": {
         "use": "item.use.blood_pact"
       },
@@ -6239,6 +6242,20 @@
     "item.use.iron_chain": {
       "files": [
         "item_use_iron_chain"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "item.use.tesla_coil": {
+      "files": [
+        "item_use_hex"
       ],
       "bus": "SFX",
       "db": 0,

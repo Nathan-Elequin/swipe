@@ -16097,31 +16097,43 @@ func _tesla_charge(it: Dictionary) -> int:
 	return maxi(0, int(it.get("tesla_n", 0)))
 
 
-func _best_tesla_charge() -> int:
-	var best := 0
+## Lowest Charge that is still strictly above this HP. One coil. Stone cards stay.
+func _tesla_to_fire(hp_now: int) -> Dictionary:
+	var pick: Dictionary = {}
+	var pick_n := 0
+	if hp_now <= 0:
+		return pick
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
-		best = maxi(best, _tesla_charge(it))
-	return best
+		if _item_stoned(it):
+			continue
+		var n: int = _tesla_charge(it)
+		if n <= 0 or hp_now >= n:
+			continue
+		if pick.is_empty() or n < pick_n:
+			pick = it
+			pick_n = n
+	return pick
 
 
 ## True when this landing was Defeated (or a Lich chip finished them).
-## Charge stays on the card. HP equal to Charge does not Defeat.
+## The coil that fired is discarded as soon as the check hits, before Flee rewrites.
+## HP equal to Charge does not Defeat.
 func _tesla_on_spin() -> bool:
 	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
-		return false
-	var charge: int = _best_tesla_charge()
-	if charge <= 0:
 		return false
 	var m: Dictionary = wheel[facing_index]
 	if str(m.get("kind", "")) != "monster":
 		return false
-	var hp_now: int = int(m.get("hp", 0))
-	if hp_now <= 0 or hp_now >= charge:
+	var coil: Dictionary = _tesla_to_fire(int(m.get("hp", 0)))
+	if coil.is_empty():
 		return false
+	## Name banner, then the card flies off. Same idea as Hex firing on its own.
+	await _announce_item_use(coil, _slice_from(facing_index), false)
+	coil["spent"] = true
+	_toss_item(int(coil.get("uid", -1)), false, true)
 	_log("on_resolve", "defeat")
-	_sfx_item_use("tesla_coil")
 	if _undying(m):
 		_log("on_resolve", "undying")
 		if await _lich_chip_defeat(facing_index):

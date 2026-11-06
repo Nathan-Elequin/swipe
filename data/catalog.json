@@ -4500,22 +4500,22 @@
       "type": "I"
     },
     {
-      "ability": "Flee and Gain 1 Charge. When you Spin an enemy with less HP than this number (Charge), Defeat them.",
+      "ability": "Flee and Gain 1 Charge. When you Spin an enemy with less HP than this number (Charge), Defeat them. Then Discard this.",
       "atk_base": null,
       "atk_formula": "",
       "author_lock": true,
       "call_name": "",
       "card_color": "defeat",
       "count": 1.0,
-      "defined": "Play: Flee and Gain 1 Charge (persists across uses and dungeons; never resets on Spin-Defeat fire or dungeon end). Passive while Charge > 0: Spin onto an enemy with HP < Charge → Defeat them.",
-      "exceptions": "Batch-2. Combat follow-up: persistent Charge bank + Spin Defeat when enemy HP < Charge.",
-      "explainer": "Flee +1 Charge; Spin-Defeat if enemy HP < Charge",
+      "defined": "Play: Flee and Gain 1 Charge (persists across uses and dungeons until this card fires). Passive while Charge > 0: Spin onto an enemy with HP < Charge → Defeat them, then Discard this card. If several coils could, the lowest Charge that still beats them is the one that fires. Discard happens when the check hits, even if that Defeat is then rewritten.",
+      "exceptions": "Batch-2. Charge bank until the auto Defeat. Lowest Charge that still beats them is Discarded when the check hits, even if the Defeat is rewritten.",
+      "explainer": "Flee +1 Charge; Spin-Defeat if enemy HP < Charge, then Discard this.",
       "flags": {
         "art": true,
         "dev": true,
         "hide": false
       },
-      "flow": "Click during a fight: Flee the current fight and Gain 1 Charge on this card. Charge persists across uses and across dungeons (does not reset when Spin-Defeat fires; does not clear on dungeon end). While this is in hand (or banked Charge on the card), when you Spin an enemy whose current HP is strictly less than this Charge number, Defeat them. Used up on the Flee play? Keep as Charge bank — see combat wiring.",
+      "flow": "Click during a fight: Flee the current fight and Gain 1 Charge on this card. The card stays. Charge persists across uses and across dungeons until this card fires. While it is in hand, when you Spin an enemy whose current HP is strictly less than this Charge number, Defeat them, then Discard this. If more than one Tesla Coil could, only the lowest Charge that still beats them fires, and only that card is Discarded. The Discard happens as soon as the check hits, even if Commander, Petty King, Triclops, or Phoenix then rewrites the Defeat. A petrified coil does not fire.",
       "hp_base": null,
       "hp_formula": "",
       "id": "tesla_coil",
@@ -4544,7 +4544,7 @@
       "log_hint": "Flee +Charge; Spin-Defeat vs HP < Charge",
       "mode_pool": "all",
       "name": "Tesla Coil",
-      "notes": "Batch-2 2026-11-06 Pixel lock A. Pool 5 (Defeat peer da_boot). Charge persists forever. flags.dev until Charge bank + Spin-Defeat threshold is wired.",
+      "notes": "Batch-2 2026-11-06 Pixel lock A. Pool 5 (Defeat peer da_boot). Charge stays until the auto Defeat trips, then that one card is Discarded. Lowest Charge that still beats the enemy is the one that fires.",
       "ops": {
         "kind": "tesla_coil"
       },

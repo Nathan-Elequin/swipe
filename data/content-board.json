@@ -3875,7 +3875,7 @@
       "tier": 2.0
     },
     {
-      "ability": "Flee and Gain 1 Charge. When you Spin an enemy with less HP than this number (Charge), Defeat them.",
+      "ability": "Flee and Gain 1 Charge. When you Spin an enemy with less HP than this number (Charge), Defeat them. Then Discard this.",
       "atk_base": null,
       "atk_formula": "",
       "author_lock": true,
@@ -3883,13 +3883,13 @@
       "card_color": "defeat",
       "contradiction_ids": [],
       "count": 1.0,
-      "explainer": "Flee +1 Charge; Spin-Defeat if enemy HP < Charge",
+      "explainer": "Flee +1 Charge; Spin-Defeat if enemy HP < Charge, then Discard this.",
       "flags": {
         "art": true,
         "dev": true,
         "hide": false
       },
-      "flow": "Click during a fight: Flee the current fight and Gain 1 Charge on this card. Charge persists across uses and across dungeons (does not reset when Spin-Defeat fires; does not clear on dungeon end). While this is in hand (or banked Charge on the card), when you Spin an enemy whose current HP is strictly less than this Charge number, Defeat them. Used up on the Flee play? Keep as Charge bank — see combat wiring.",
+      "flow": "Click during a fight: Flee the current fight and Gain 1 Charge on this card. The card stays. Charge persists across uses and across dungeons until this card fires. While it is in hand, when you Spin an enemy whose current HP is strictly less than this Charge number, Defeat them, then Discard this. If more than one Tesla Coil could, only the lowest Charge that still beats them fires, and only that card is Discarded. The Discard happens as soon as the check hits, even if Commander, Petty King, Triclops, or Phoenix then rewrites the Defeat. A petrified coil does not fire.",
       "hp_base": null,
       "hp_formula": "",
       "id": "tesla_coil",
@@ -3919,7 +3919,7 @@
       "log_hint": "Flee +Charge; Spin-Defeat vs HP < Charge",
       "mode_pool": "all",
       "name": "Tesla Coil",
-      "notes": "Batch-2 2026-11-06 Pixel lock A. Pool 5 (Defeat peer da_boot). Charge persists forever. flags.dev until Charge bank + Spin-Defeat threshold is wired.",
+      "notes": "Batch-2 2026-11-06 Pixel lock A. Pool 5 (Defeat peer da_boot). Charge stays until the auto Defeat trips, then that one card is Discarded. Lowest Charge that still beats the enemy is the one that fires.",
       "ops": {
         "kind": "tesla_coil"
       },
