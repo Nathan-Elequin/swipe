@@ -308,7 +308,7 @@ c("item.use.healing_potion", "Item use (healing_potion)", "_announce_item_use/_s
 c("item.use.helmet", "Item use (helmet)", "_announce_item_use/_sfx_item_use", "new", "Unique oneshot on item use", ["item_use_helmet"], "SFX", -9, (0.97, 1.03), 40, 2, 2)
 c("item.use.hex", "Item use (hex)", "_announce_item_use/_sfx_item_use", "new", "Unique oneshot on item use", ["item_use_hex"], "SFX", -9, (0.97, 1.03), 40, 2, 2)
 c("item.use.iron_chain", "Item use (iron_chain)", "_announce_item_use/_sfx_item_use", "new", "Unique oneshot on item use", ["item_use_iron_chain"], "SFX", -9, (0.97, 1.03), 40, 2, 2)
-c("item.use.jar_o_grease", "Item use (jar_o_grease)", "_announce_item_use/_sfx_item_use", "new", "Unique oneshot on item use", ["item_use_jar_o_grease"], "SFX", -9, (0.97, 1.03), 40, 2, 2)
+c("item.use.swift_sneaks", "Item use (swift_sneaks)", "_announce_item_use/_sfx_item_use", "new", "Unique oneshot on item use", ["item_use_jar_o_grease"], "SFX", -9, (0.97, 1.03), 40, 2, 2)
 c("item.use.knucklers", "Item use (knucklers)", "_announce_item_use/_sfx_item_use", "new", "Unique oneshot on item use", ["item_use_knucklers"], "SFX", -9, (0.97, 1.03), 40, 2, 2)
 c("item.use.lantern", "Item use (lantern)", "_announce_item_use/_sfx_item_use", "new", "Unique oneshot on item use", ["item_use_lantern"], "SFX", -9, (0.97, 1.03), 40, 2, 2)
 c("item.use.last_match", "Item use (last_match)", "_announce_item_use/_sfx_item_use", "new", "Unique oneshot on item use", ["item_use_last_match"], "SFX", -9, (0.97, 1.03), 40, 2, 2)

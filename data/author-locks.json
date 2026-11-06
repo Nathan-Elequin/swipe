@@ -1121,30 +1121,6 @@
 			],
 			"locked_at": "2026-10-18"
 		},
-		"item:jar_o_grease": {
-			"name": "Jar O' Grease",
-			"fields": [
-				"name",
-				"ability",
-				"explainer",
-				"flow",
-				"notes",
-				"ops",
-				"rarity",
-				"tier",
-				"count",
-				"priority",
-				"atk_base",
-				"hp_base",
-				"atk_formula",
-				"hp_formula",
-				"call_name",
-				"reminder",
-				"card_color",
-				"log_hint"
-			],
-			"locked_at": "2026-10-30"
-		},
 		"item:toll": {
 			"name": "Toll",
 			"fields": [
@@ -2277,9 +2253,10 @@
 				"atk_formula",
 				"hp_formula",
 				"card_color",
-				"pool"
+				"pool",
+				"log_hint"
 			],
-			"locked_at": "2026-10-30"
+			"locked_at": "2026-11-06"
 		},
 		"monster:cowardly_king": {
 			"name": "Petty King",
@@ -3090,6 +3067,106 @@
 				"pool"
 			],
 			"locked_at": "2026-11-05"
+		},
+		"item:swift_sneaks": {
+			"name": "Swift Sneaks",
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint",
+				"pool"
+			],
+			"locked_at": "2026-11-06"
+		},
+		"item:shardplate": {
+			"name": "Shardplate",
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint",
+				"pool"
+			],
+			"locked_at": "2026-11-06"
+		},
+		"item:love_potion": {
+			"name": "Love Potion",
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint",
+				"pool"
+			],
+			"locked_at": "2026-11-06"
+		},
+		"item:tesla_coil": {
+			"name": "Tesla Coil",
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint",
+				"pool"
+			],
+			"locked_at": "2026-11-06"
 		}
 	},
 	"script": {

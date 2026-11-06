@@ -99,8 +99,8 @@
       "mute_stone": {
         "use": "item.use.mute_stone"
       },
-      "jar_o_grease": {
-        "use": "item.use.jar_o_grease"
+      "swift_sneaks": {
+        "use": "item.use.swift_sneaks"
       },
       "blood_pact": {
         "use": "item.use.blood_pact"
@@ -6122,7 +6122,7 @@
       "max_voices": 2,
       "priority": 2
     },
-    "item.use.jar_o_grease": {
+    "item.use.swift_sneaks": {
       "files": [
         "item_use_jar_o_grease"
       ],
