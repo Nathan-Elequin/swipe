@@ -1,6 +1,6 @@
 ---
 id: REQ-20261106-item-fidelity-redo
-status: done
+status: archived
 priority: normal
 pr: 434
 tip_sha: ae30539e10bb93c2a7df80e5a9149b96c202c4cf
@@ -9,6 +9,8 @@ created: 2026-11-06T16:40:00-06:00
 created_by: cloud-agent
 viewport: 1680x1040
 entry: F5 playtest hub → Roster (and a fight/hotbar with these six items via dev deck or seeded pool)
+archived_by: pixel
+archived_at: 2026-11-06T17:40:00-06:00
 ---
 
 # Item fidelity redo — revision 2 (approved redos installed)

@@ -1,12 +1,14 @@
 ---
 id: REQ-20261106-wheel-new-monster-idles
-status: done
+status: archived
 priority: high
 branch: cursor/wheel-new-monster-idles-9f05
 created: 2026-11-06T22:45:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
 entry: F5 playtest hub → Brand New / Middle Progress → dungeon wheel that seats Imp and/or Quicksand Crab next to an established monster (Skeleton, Twins/hollow, or Leech League)
+archived_by: pixel
+archived_at: 2026-11-06T17:40:00-06:00
 ---
 
 # REQ-20261106-wheel-new-monster-idles
