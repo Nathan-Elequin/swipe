@@ -26942,9 +26942,31 @@ func _tut_on_continue() -> void:
 	## Next on this line is the lucky spin onto the Dragon. The spin row is this click.
 	if tut.beat_id == "B38aaa" and int(tut.line_n) == 1:
 		tut.visible = false
+		var prev_force: String = str(tut.force_id)
 		tut.force_id = "dragon"
 		tut.wait = "auto_spin"
+		## Spin only starts from Ready with nobody faced. A dead seat still counts as faced.
+		if facing_index >= 0 and facing_index < wheel.size():
+			var faced: Dictionary = wheel[facing_index]
+			if str(faced.get("kind", "")) != "monster" or int(faced.get("hp", 0)) <= 0:
+				facing_index = -1
+				if wheel_view:
+					wheel_view.facing_index = -1
+		if phase != "ready" and facing_index < 0:
+			phase = "ready"
+			_walker_busy = false
+			_spin_inflight = false
 		await _on_spin()
+		if tut == null:
+			return
+		tut.force_id = prev_force
+		## The landing line is easy to miss: spin used to leave the guide hidden.
+		if tut.beat_id == "B38aaa":
+			if facing_index >= 0 and facing_index < wheel.size():
+				tut.land = str(wheel[facing_index].get("card_id", ""))
+			tut.advance()
+			_tut_after_advance()
+		tut.visible = true
 		return
 	tut.advance()
 	if show_talk_after and tut != null:

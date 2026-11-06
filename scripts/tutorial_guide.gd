@@ -418,6 +418,9 @@ func _apply_beat(b: Dictionary) -> void:
 	if _talk:
 		## A deleted line that only exists to spin should not flash an empty bubble.
 		_talk.visible = spoken != ""
+	## A spin can hide the whole guide. The next spoken line has to show it again.
+	if spoken != "":
+		visible = true
 	_body.clear()
 	_body.append_text(_paint_on_paper(spoken))
 	_body.visible_characters = 0 if _typing else -1
