@@ -2428,84 +2428,13 @@ func _poll_tutorial_hover() -> void:
 	queue_redraw()
 
 
-func _raise_ability_cards_for_tutorial() -> void:
-	var main: Node = _board_main()
-	var above: bool = main != null and main.in_tutorial == true
-	for card in _ability_cards:
-		if not (card is CanvasItem):
-			continue
-		var ci: CanvasItem = card
-		ci.z_as_relative = not above
-		ci.z_index = 170 if above else 48
-
-
 func _sync_ability_cards() -> void:
+	## Hover and facing capsules ("Evasive / Immune to Attacks", Headstrong, and
+	## the rest) stay hidden in every mode, including the tutorial and Shift.
 	_ensure_ability_cards()
-	_raise_ability_cards_for_tutorial()
 	for card in _ability_cards:
 		card.visible = false
 		card.bound_slice = -1
-	## Tutorial hover uses the large inspect plate. The wide ability capsule stays off.
-	var main: Node = _board_main()
-	if main != null and main.in_tutorial == true:
-		return
-	# `_item_held` walks the scene tree — skip entirely mid-spin.
-	if spinning or busy or _item_held():
-		return
-	var want: Array[int] = []
-	## Same as a campaign fight: the monster under the cursor gets the callout.
-	## A tutorial lesson pin only fills in when the cursor is not on a monster.
-	if hover_index >= 0 and hover_index < slices.size() and str(slices[hover_index].get("kind", "")) == "monster":
-		want.append(hover_index)
-	elif tutorial_pin_slice >= 0 and tutorial_pin_slice < slices.size() and str(slices[tutorial_pin_slice].get("kind", "")) == "monster":
-		want.append(tutorial_pin_slice)
-	elif facing_index >= 0 and facing_index < slices.size() and str(slices[facing_index].get("kind", "")) == "monster":
-		want.append(facing_index)
-	if show_shift:
-		var all_i: Array[int] = []
-		for i in slices.size():
-			if str(slices[i].get("kind", "")) == "monster":
-				all_i.append(i)
-		if _ability_rects_fit(all_i):
-			want = all_i
-	var hub_g: Vector2 = get_global_transform() * _center()
-	var used := 0
-	for i in want:
-		if used >= _ability_cards.size():
-			break
-		if i < 0 or i >= slices.size() or str(slices[i].get("kind", "")) != "monster":
-			continue
-		var s: Dictionary = slices[i]
-		# Headstrong's shift line must not appear as a wheel callout in a fight or the tutorial.
-		if str(s.get("card_id", "")) == "anvil" or str(s.get("special_id", "")) == "headstrong":
-			continue
-		var sp: Dictionary = _spoke(i)
-		var card = _ability_cards[used]
-		var body: String = str(s.get("reminder", "")).strip_edges()
-		if body == "" or body == "---":
-			body = str(s.get("explainer", "")).strip_edges()
-		if body == "":
-			body = str(s.get("ability", "")).strip_edges()
-		var call_s: String = str(s.get("call_name", "")).strip_edges()
-		if bool(s.get("fled_once", false)) and str(s.get("card_id", "")) == "commander" and call_s != "":
-			call_s = "%s · used" % call_s
-		card.set_content(call_s, body, _medal_tex(str(s.get("card_id", ""))), _ability_icon_color(str(s.get("special_id", ""))), bool(s.get("silenced", false)))
-		var tag_g: Rect2 = _xform_rect(sp["tag_rect"])
-		if card.place_from_tag(tag_g, sp["dir"], hub_g, _ability_avoids):
-			card.bound_slice = i
-			used += 1
-
-
-func _ability_rects_fit(idxs: Array[int]) -> bool:
-	var rects: Array[Rect2] = []
-	for i in idxs:
-		var sp: Dictionary = _spoke(i)
-		var guess := Rect2(_xform_rect(sp["tag_rect"]).position + Vector2(12, 0), Vector2(340, 72))
-		for other in rects:
-			if guess.intersects(other):
-				return false
-		rects.append(guess)
-	return true
 
 
 func _slay_push(i: int) -> Vector2:
