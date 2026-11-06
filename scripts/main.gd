@@ -7300,6 +7300,7 @@ func _process(delta: float) -> void:
 			_tutorial_try_shift_inspect()
 	if in_tutorial:
 		_tutorial_try_shift_inspect()
+		_poll_tutorial_board_hover()
 	_sync_cascade_ff()
 	_place_speech()
 	if draft_gate != null and draft_gate.visible and wheel_view != null:
@@ -22785,10 +22786,15 @@ func _ability_avoid_rects() -> Array:
 		out.append(btn_done.get_global_rect())
 	if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
 		out.append(take_arc.arc_global_rect())
-	if btn_move_left != null and btn_move_left.visible:
-		out.append(btn_move_left.get_global_rect())
-	if btn_move_right != null and btn_move_right.visible:
-		out.append(btn_move_right.get_global_rect())
+	## Move arrows are full-screen click targets. Only the drawn arc should push a callout aside.
+	if btn_move_left != null and btn_move_left.visible and btn_move_left.has_method("arc_global_rect"):
+		var left_arc: Rect2 = btn_move_left.arc_global_rect()
+		if left_arc.size.x >= 8.0 and left_arc.size.y >= 8.0:
+			out.append(left_arc)
+	if btn_move_right != null and btn_move_right.visible and btn_move_right.has_method("arc_global_rect"):
+		var right_arc: Rect2 = btn_move_right.arc_global_rect()
+		if right_arc.size.x >= 8.0 and right_arc.size.y >= 8.0:
+			out.append(right_arc)
 	if intent_plate != null and intent_plate.visible:
 		out.append(intent_plate.get_global_rect())
 	if wheel_view != null and wheel_view.has_method("_heart_arc_global_rect"):
@@ -27866,6 +27872,123 @@ func _tut_item_callout_showing(id: String) -> bool:
 	if id == "" or fly_tip == null or not fly_tip.visible:
 		return false
 	return str(fly_tip.edit_kind) == "item" and str(fly_tip.edit_id) == id
+
+
+## The tutorial click shield swallows mouse-enter on the hotbar, draft cards, and
+## the dungeon deck. Campaign hover still has to run: item ability, monster plate,
+## deck-top ability. A lesson-pinned item stays up only while the cursor is idle.
+func _poll_tutorial_board_hover() -> void:
+	if not in_tutorial or tut == null or not tut.visible or _cabin_up():
+		return
+	var mouse: Vector2 = get_global_mouse_position()
+	if tut.has_method("pointer_blocks_hover") and tut.pointer_blocks_hover(mouse):
+		_tutorial_hover_clear_board()
+		return
+	var hit: Array = _tutorial_item_under_mouse(mouse)
+	if hit.size() == 2:
+		var card: Control = hit[1]
+		var it: Dictionary = hit[0]
+		if _deck_hovering:
+			_deck_hovering = false
+		if _fly_card != card:
+			_on_item_hovered(it, card)
+		return
+	## The deck sits on top of the wheel's outer band, so it wins the hover the way a campaign click does.
+	if _tutorial_mouse_on_deck(mouse):
+		_tutorial_release_pinned_fly()
+		if not _deck_hovering:
+			_on_deck_hovered()
+		return
+	var slice: int = _tutorial_slice_under_mouse()
+	if slice >= 0:
+		var stale: bool = _deck_hovering or _fly_card != null or not _tutorial_slice_plate_current(slice)
+		_tutorial_release_pinned_fly()
+		if _deck_hovering:
+			_deck_hovering = false
+		if stale:
+			_on_slice_hovered(slice)
+		return
+	if _deck_hovering:
+		_on_deck_unhovered()
+	if _fly_card != null and not _tut_pin_fly_current():
+		_on_item_unhovered()
+	elif _fly_card == null and _tut_hold_item_plate():
+		_tut_restore_pinned_item()
+
+
+func _tutorial_slice_plate_current(slice: int) -> bool:
+	if fly_tip == null or not fly_tip.visible or _deck_hovering or _fly_card != null:
+		return false
+	if str(fly_tip.edit_kind) != "monster" or _hover_slice != slice:
+		return false
+	if slice < 0 or slice >= wheel.size():
+		return false
+	return str(fly_tip.edit_id) == str(wheel[slice].get("card_id", ""))
+
+
+func _tutorial_slice_under_mouse() -> int:
+	if wheel_view == null or not wheel_view.visible:
+		return -1
+	if wheel_view.spinning or wheel_view.busy:
+		return -1
+	return wheel_view.slice_at(wheel_view.get_local_mouse_position())
+
+
+func _tutorial_release_pinned_fly() -> void:
+	## Deck and monster hover must not bounce off a lesson plate that set _fly_card.
+	if _fly_card != null:
+		_fly_card = null
+
+
+func _tut_pin_fly_current() -> bool:
+	if not _tut_hold_item_plate() or _fly_card == null:
+		return false
+	return str(_fly_card.get("card_id")) == _tut_pin_item
+
+
+func _tutorial_hover_clear_board() -> void:
+	if _fly_card != null and not _tut_pin_fly_current():
+		_on_item_unhovered()
+	elif _deck_hovering:
+		_on_deck_unhovered()
+
+
+func _tutorial_mouse_on_deck(mouse: Vector2) -> bool:
+	if dungeon_deck_ui == null or not dungeon_deck_ui.visible or not dungeon_deck_ui.is_visible_in_tree():
+		return false
+	return dungeon_deck_ui.get_global_rect().has_point(mouse)
+
+
+func _tutorial_item_under_mouse(mouse: Vector2) -> Array:
+	for c in _hotbar_all_cards():
+		if not (c is Control):
+			continue
+		var card: Control = c
+		if not card.visible or not card.is_visible_in_tree():
+			continue
+		if not card.get_global_rect().has_point(mouse):
+			continue
+		var it: Dictionary = _find_item(_control_uid(card))
+		if it.is_empty():
+			continue
+		return [it, card]
+	if challenge_draft_ui != null and challenge_draft_ui.visible and challenge_draft_ui.has_method("draft_cards"):
+		var left: Dictionary = challenge_draft_ui.get("left_it") if challenge_draft_ui.get("left_it") is Dictionary else {}
+		var right: Dictionary = challenge_draft_ui.get("right_it") if challenge_draft_ui.get("right_it") is Dictionary else {}
+		for c2 in challenge_draft_ui.draft_cards():
+			if not (c2 is Control):
+				continue
+			var draft_card: Control = c2
+			if not draft_card.visible or not draft_card.is_visible_in_tree():
+				continue
+			if not draft_card.get_global_rect().has_point(mouse):
+				continue
+			var uid_n: int = _control_uid(draft_card)
+			if uid_n >= 0 and int(left.get("uid", -2)) == uid_n:
+				return [left, draft_card]
+			if uid_n >= 0 and int(right.get("uid", -2)) == uid_n:
+				return [right, draft_card]
+	return []
 
 
 func _tutorial_on_item_hover(card_id: String = "") -> void:

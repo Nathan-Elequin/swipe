@@ -1464,6 +1464,12 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _on_mouse_out() -> void:
+	## The tutorial click shield sits over the wheel, so Godot reports a leave
+	## even while the cursor is still on a monster. The tutorial poll owns hover.
+	var main: Node = _board_main()
+	if main != null and main.in_tutorial == true:
+		_set_mark_hover(false)
+		return
 	if hover_index != -1:
 		hover_index = -1
 		slice_hovered.emit(-1)
@@ -2412,7 +2418,9 @@ func _poll_tutorial_hover() -> void:
 		blocked = tut.pointer_blocks_hover(get_viewport().get_mouse_position()) == true
 	var i := -1
 	if not blocked:
-		i = slice_at(get_local_mouse_position())
+		var on_deck: bool = main.has_method("_tutorial_mouse_on_deck") and main._tutorial_mouse_on_deck(get_global_mouse_position())
+		if not on_deck:
+			i = slice_at(get_local_mouse_position())
 	if i == hover_index:
 		return
 	hover_index = i
@@ -2441,10 +2449,12 @@ func _sync_ability_cards() -> void:
 	if spinning or busy or _item_held():
 		return
 	var want: Array[int] = []
-	if tutorial_pin_slice >= 0 and tutorial_pin_slice < slices.size() and str(slices[tutorial_pin_slice].get("kind", "")) == "monster":
-		want.append(tutorial_pin_slice)
-	elif hover_index >= 0 and hover_index < slices.size() and str(slices[hover_index].get("kind", "")) == "monster":
+	## Same as a campaign fight: the monster under the cursor gets the callout.
+	## A tutorial lesson pin only fills in when the cursor is not on a monster.
+	if hover_index >= 0 and hover_index < slices.size() and str(slices[hover_index].get("kind", "")) == "monster":
 		want.append(hover_index)
+	elif tutorial_pin_slice >= 0 and tutorial_pin_slice < slices.size() and str(slices[tutorial_pin_slice].get("kind", "")) == "monster":
+		want.append(tutorial_pin_slice)
 	elif facing_index >= 0 and facing_index < slices.size() and str(slices[facing_index].get("kind", "")) == "monster":
 		want.append(facing_index)
 	if show_shift:
