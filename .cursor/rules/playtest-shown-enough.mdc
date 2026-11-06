@@ -1,0 +1,27 @@
+---
+description: Playtest issues leave Cursor chat after two appearances
+alwaysApply: true
+---
+
+# Playtest issues leave chat after two shows
+
+Locked **2026-11-05**. Boss Rush / Swipe only. This covers issue numbers in **Still broken in F5**, **Ready in F5**, and **On itch.io**. It overrides the older line that says keep listing an issue in every reply until it is on itch.
+
+Tracker: `.cursor/playtest-shown.json`.
+
+## Do
+
+1. Read `.cursor/playtest-shown.json` before writing those three sections.
+2. Each time an issue number is included in one of those sections, add 1 to its `shown` count in that file before the reply goes out.
+3. When `shown` reaches 2, set `retired` to true in that same turn. That reply is the last time the issue appears.
+4. After `retired` is true, do not mention that issue in any later Cursor chat message. Do not say you are dropping it. Do not add a retired list.
+5. A reply that does not mention the issue does not add to `shown`.
+6. If Nathan names that issue number, or clearly asks about that ticket, you may mention it in that chat. Then set `retired` to true again.
+7. If he says that ticket is closed, done, or not to list it, set `retired` to true in that same turn even if `shown` is under 2, and leave it out.
+
+## Do not
+
+- Do not close the GitHub Issue, or change the ledger, only because the two-show cap was reached. Closing still follows `playtest-inbox.mdc`.
+- Do not keep listing a retired issue because GitHub is still open, or because it is not on itch yet.
+- Do not announce the cap.
+- Do not apply this cap to Pixel pull requests (`pixel-shown-enough.mdc`).

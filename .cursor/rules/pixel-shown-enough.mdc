@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Pixel items leave the chat after three shows
 
-Locked **2026-10-23**. This covers the `### 🎨 Ready to test from Pixel` section only. Playtest inbox issues stay in **Still broken in F5** or **Ready in F5** until they are on itch or Nathan says that ticket is closed (`playtest-inbox.mdc`).
+Locked **2026-10-23**. This covers the `### 🎨 Ready to test from Pixel` section only. Playtest issues use the two-show cap in `playtest-shown-enough.mdc`.
 
 ## Do
 
@@ -20,4 +20,4 @@ Locked **2026-10-23**. This covers the `### 🎨 Ready to test from Pixel` secti
 
 - Do not merge, close, or comment on the GitHub pull request just because it left the chat.
 - Do not list a retired number again "so he remembers."
-- Do not apply this cap to playtest inbox issues.
+- Do not apply this three-show cap to playtest inbox issues. Those use `playtest-shown-enough.mdc`.

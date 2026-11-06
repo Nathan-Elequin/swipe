@@ -39,7 +39,7 @@ Before the requested work, do **all** of:
 2. Issues with label `playtest` (`gh issue list --label playtest`, open and recently closed).
 3. Read `data/playtest-ledger.json`. Reconcile: any open Issue missing from the ledger starts as `todo`. Any ledger `f5` whose SHA is not in this checkout goes back to `todo`. Any ledger `itch` whose GitHub Issue is still open: close GitHub.
 
-Keep tracking **every still-open Issue** in every reply until it is in **On itch.io** or Nathan **verbally describes that ticket as closed**. Then close it on GitHub in that same turn. Do not hide, table, or drop an open Issue because he replied about something else.
+Keep tracking each still-open Issue until it has appeared in **two** chat messages (`playtest-shown-enough.mdc`), it is in **On itch.io**, or Nathan **verbally describes that ticket as closed**. Then, if he described it as closed, close it on GitHub in that same turn. Do not hide a not-yet-shown Issue because he replied about something else. After two appearances, leave it out with no announcement.
 
 Linear bugs (one reading, no new rule, no number change): start the fix in that same turn, commit onto `playtest/latest`, push that branch, set ledger `status` to `f5` with the SHA, and list it under **Ready in F5**. Do not wait for him to say ship. Do **not** butler-push unless he asked (`playtest-ship` wait: uploads are on request). Crashes / cannot-play: same auto-fix.
 
@@ -91,7 +91,7 @@ Each item:
 
 Example: `1. 🟩 [#22](url) — Hotbar unplayable overlay. Stop Play, F5. \`abc1234\`.`
 
-Keep listing these every reply until they move to **On itch.io**.
+List an item until it has appeared in two chat messages (`playtest-shown-enough.mdc`), or it moves to **On itch.io**, whichever comes first. Do not announce that the second show was the last.
 
 ### ✅ On itch.io
 
@@ -108,7 +108,7 @@ Example: `1. ✅ **Unplayable hatch** — Hotbar cards you cannot use get a stri
 
 When that itch bar is met in a chat, close the GitHub Issue in that same turn if it is still open, set ledger `status` to `itch`, and put it here instead of the other two columns. **On itch.io in the reply and closing GitHub are the same action.** If it is in this section, GitHub must already be closed, or you close it before you send the reply.
 
-List an On-itch item **once**. After it has appeared under **On itch.io** (or the old **Closed issues** heading) in a chat message Nathan saw, do not list it again. **Still broken in F5** and **Ready in F5** stay every reply until that ticket qualifies here. Worked example: [#22](https://github.com/Nathan-Elequin/swipe/issues/22) was shown as closed; do not bring it up again.
+List an On-itch item **once**. After it has appeared under **On itch.io** (or the old **Closed issues** heading) in a chat message Nathan saw, do not list it again. **Still broken in F5** and **Ready in F5** stay until the two-show cap, until he says to close the ticket, or until it qualifies here. Worked example: [#22](https://github.com/Nathan-Elequin/swipe/issues/22) was shown as closed; do not bring it up again.
 
 ## Close
 
@@ -133,7 +133,7 @@ After a local fix lands on `playtest/latest`, rewrite `playtest/inbox-board.html
 
 - Do not skip this read because the chat is about something else.
 - Do not ask Nathan to paste playtest notes.
-- Do not stop listing an open Issue until it is live on the itch playtest, or he says to close it.
+- Do not stop listing an open Issue before its second chat appearance, unless it is live on the itch playtest, he says to close it, or `.cursor/playtest-shown.json` already has it `retired`.
 - Do not mix “fixed in F5” into **Still broken in F5** or into **On itch.io**.
 - Do not move an Issue into **On itch.io** because the code exists locally, or because F5 works on this PC.
 - Do not list an Issue under **On itch.io** while it is still open on GitHub.

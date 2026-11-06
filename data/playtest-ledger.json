@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-06T01:20:00Z",
+	"updated_at": "2026-11-06T02:45:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"348": {
@@ -10,46 +10,52 @@
 			"pr_note": "GitHub already closed. Not listed again."
 		},
 		"408": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Wealth tax failed to do anything (didn't use an item as expected)",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/408",
 			"sha": "3d0e9d64",
-			"f5_note": "A kill no longer leaves the item lock on, so the next Spin's Wealth Tax can use an item. Stop Play, F5."
+			"f5_note": "A kill no longer leaves the item lock on, so the next Spin's Wealth Tax can use an item. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"409": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Beggar should follow Cleric's requirement of always randomly targeting",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/409",
 			"sha": "3d0e9d64",
-			"f5_note": "Beggar marks your lowest-tier item, then discards it when you Spin him. Stop Play, F5."
+			"f5_note": "Beggar marks your lowest-tier item, then discards it when you Spin him. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"410": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Harpy failed to attack when the combat turn ended",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/410",
 			"sha": "3d0e9d64",
-			"f5_note": "Take still hits. Harpy swings, then leaves. Stop Play, F5."
+			"f5_note": "Take still hits. Harpy swings, then leaves. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"412": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Killed a monster with the item Beggar selected",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/412",
 			"sha": "3d0e9d64",
-			"f5_note": "Killing with the marked item releases the lock so the next Spin can start. Stop Play, F5."
+			"f5_note": "Killing with the marked item releases the lock so the next Spin can start. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"347": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Leech League heal still shows the slash portrait",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/347",
 			"sha": "29ad2d12",
-			"f5_note": "Blood Rise slashes once, then the heal flights play one after another. Stop Play, F5."
+			"f5_note": "Blood Rise slashes once, then the heal flights play one after another. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"319": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Lich should no longer have the adjacency indicator because his ability does not affect neighbors",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/319",
 			"sha": "87609dc2",
-			"f5_note": "Lich no longer draws neighbor threads. Stop Play, F5."
+			"f5_note": "Lich no longer draws neighbor threads. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"283": {
 			"status": "closed",
@@ -373,60 +379,68 @@
 			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"300": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Martyr lost health from Outbreak poison when spun",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/300",
 			"sha": "2d3b0833",
-			"f5_note": "Spin poison on Martyr Defeats after Noble Death. Stop Play, F5."
+			"f5_note": "Spin poison on Martyr Defeats after Noble Death. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"304": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Mouse used Scurry when spun and died; should not have",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/304",
 			"sha": "2d3b0833",
-			"f5_note": "Lethal Scurry Defeats and Spins the next seat. Stop Play, F5."
+			"f5_note": "Lethal Scurry Defeats and Spins the next seat. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"328": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Gargoyle is triggering defeat items like boot to say Cannot be defeated",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/328",
 			"sha": "d2977c84",
-			"f5_note": "Boot and other Defeat items work on Gargoyle. Stop Play, F5."
+			"f5_note": "Boot and other Defeat items work on Gargoyle. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"336": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Buff Grief Jar to gain +3 block instead of +2 on each spin",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/336",
 			"sha": "c400889e",
-			"f5_note": "Grief Jar +3 Block per Spin. Stop Play, F5."
+			"f5_note": "Grief Jar +3 Block per Spin. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"340": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Rename Double-Buckler to Half-Buckler",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/340",
 			"sha": "c400889e",
-			"f5_note": "The card is named Half-Buckler. Stop Play, F5."
+			"f5_note": "The card is named Half-Buckler. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"341": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Hydra rework: Hungry Heads — Gain HP and extra attacks like Hornet",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/341",
 			"sha": "c400889e",
-			"f5_note": "Hungry Heads: Defeat, Gain their HP, extra Take swing. Attack still 3. Stop Play, F5."
+			"f5_note": "Hungry Heads: Defeat, Gain their HP, extra Take swing. Attack still 3. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"342": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Sandbag needs the power down sound and swords leaving Attack",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/342",
 			"sha": "c400889e",
-			"f5_note": "Lethal Spin: swords fly off Sandbag with the power-down sound. Stop Play, F5."
+			"f5_note": "Lethal Spin: swords fly off Sandbag with the power-down sound. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"344": {
-			"status": "f5",
+			"status": "closed",
 			"title": "Skeleton needs a small animation of HP looking at the spun enemy",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/344",
 			"sha": "c400889e",
-			"f5_note": "On Spin, Skeleton HP looks at the new enemy, then hearts update. Stop Play, F5."
+			"f5_note": "On Spin, Skeleton HP looks at the new enemy, then hearts update. Stop Play, F5.",
+			"closed_note": "Nathan closed the Ready in F5 list on 2026-11-05. Do not list in chat."
 		},
 		"358": {
 			"status": "closed",
