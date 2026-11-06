@@ -11,6 +11,8 @@ var guide_c: Vector2 = Vector2.ZERO
 var guide_r: float = 180.0
 var moves_n: int = 0
 var show_count: bool = false
+## 1 = rest. Crabwalk punches this above 1, then it eases back.
+var count_pop: float = 1.0
 var outer_pad: float = 72.0
 var sweep_rad: float = PI * 0.28
 var _down: bool = false
@@ -41,6 +43,20 @@ func _set_down(on: bool) -> void:
 
 ## Angular offset from six-o'clock to the near tip. <0 means use PlaytestUx default.
 var start_offset: float = -1.0
+
+
+func set_count_pop(v: float) -> void:
+	count_pop = v
+	queue_redraw()
+
+
+func count_global_pos() -> Vector2:
+	if guide_r < 8.0:
+		return get_global_rect().get_center()
+	var span: Vector2 = _arc_span()
+	var mid_ang: float = span.x + span.y * 0.45
+	var foot_at: Vector2 = guide_c + Vector2.from_angle(mid_ang) * (guide_r + outer_pad + 10.0)
+	return get_global_transform() * foot_at
 
 
 func set_guide(c_local: Vector2, radius: float, n: int, show_n: bool, pad: float = -1.0, sweep: float = -1.0, start_off: float = -1.0) -> void:
@@ -301,7 +317,7 @@ func _tri(a: Vector2, b: Vector2, c: Vector2, col: Color, grow: float) -> void:
 
 
 func _draw_foot_count(pos: Vector2, live: bool) -> void:
-	var r := 36.0
+	var r := 36.0 * count_pop
 	var shadow := Color(0.04, 0.03, 0.02, 0.62 if live else 0.35)
 	draw_circle(pos + Vector2(5, 7), r, shadow)
 	draw_circle(pos + Vector2(5, 7), r * 0.72, shadow)

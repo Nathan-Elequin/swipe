@@ -259,7 +259,7 @@ const MONSTER_SPECIAL := {
 	"scorpion": {"id": "venom_sac", "text": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value"},
 	"poison_frog": {"id": "toxic_skin", "text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison"},
 	"glass_asp": {"id": "bitter_blood", "text": "On Spin, I gain 1 Poison. When I Attack, you gain Poison equal to mine."},
-	"imp": {"id": "imp_move", "text": "When you Spin me, I force you to Move to the highest live/buffed Attack enemy."},
+	"imp": {"id": "imp_move", "text": "When you Spin me, I force you to Move to the highest Attack enemy."},
 	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust."},
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
 	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 2 Attack"},
@@ -326,7 +326,8 @@ const MONSTER_CALL := {
 	"sandbag": "Sandbag",
 	"oligarch": "Wealth Tax",
 	"huntsman": "Straight Shot",
-	"quicksand_crab": "",
+	"imp": "Execution Escort",
+	"quicksand_crab": "Crabwalk",
 	"phantom": "Dark Matter",
 	"collector": "New Specimen",
 }
@@ -8790,7 +8791,7 @@ func _on_spin() -> void:
 		await _unlock_if_fighting()
 		return
 	await _headstrong_on_face(facing_index)
-	_quicksand_crab_on_spin()
+	await _quicksand_crab_on_spin()
 	await _apply_plague_doctor_on_spin()
 	var beggar_spin: int = -1
 	if facing_index >= 0 and facing_index < wheel.size():
@@ -19379,12 +19380,165 @@ func _quicksand_crab_on_spin() -> void:
 		return
 	if _is_silenced(m) or int(m.get("hp", 0)) <= 0:
 		return
+	## Show the old move count, then the portrait, then the sound, then the line.
+	## The number ticks up only when the line reaches the badge.
+	_sync_move_ui()
+	var seat: int = facing_index
+	await _crab_slash(m)
+	if phase != "fighting":
+		return
+	if seat < 0 or seat >= wheel.size() or str(wheel[seat].get("card_id", "")) != "quicksand_crab":
+		return
+	if _is_silenced(wheel[seat]) or int(wheel[seat].get("hp", 0)) <= 0:
+		return
+	_sfx_ability("quicksand_crab")
+	await get_tree().create_timer(0.12).timeout
+	var from: Vector2 = Vector2.ZERO
+	if wheel_view != null and wheel_view.has_method("slice_portrait_global"):
+		from = wheel_view.slice_portrait_global(seat)
+	var to: Vector2 = Vector2.ZERO
+	if btn_move_left != null and btn_move_left.visible and btn_move_left.has_method("count_global_pos"):
+		to = btn_move_left.count_global_pos()
+	if from != Vector2.ZERO and to != Vector2.ZERO:
+		await _crab_move_rays(from, to)
 	## Peer: adventure Moves bank (`moves_left`), not Tesla Coil item Charge.
 	moves_left += 1
 	_log("on_spin", "Quicksand Crab — Gain 1 Move  →  %s" % moves_left)
 	_sync_move_ui()
 	if wheel_view and wheel_view.has_method("set_moves"):
 		wheel_view.set_moves(moves_left, ADVENTURE_MOVES if _is_adventure_mode() else 0)
+	await _crab_pop_move_count()
+
+
+func _crab_slash(m: Dictionary) -> void:
+	if ability_slash == null:
+		return
+	var tex: Texture2D = null
+	if art != null and art.has_method("monster_still"):
+		tex = art.monster_still("quicksand_crab")
+	var call_n: String = str(m.get("call_name", "")).strip_edges()
+	if call_n == "":
+		call_n = "Crabwalk"
+	await ability_slash.play({
+		"title": str(m.get("name", "Quicksand Crab")),
+		"call": call_n,
+		"tex": tex,
+		"is_item": false,
+		"card_id": "quicksand_crab",
+		"mute_snap_sfx": true,
+		"release_early": false,
+	})
+
+
+func _crab_fx_host() -> Node2D:
+	var host := get_node_or_null("CrabMoveFxHost") as Node2D
+	if host != null:
+		return host
+	host = Node2D.new()
+	host.name = "CrabMoveFxHost"
+	host.top_level = true
+	host.z_index = 55
+	host.z_as_relative = false
+	add_child(host)
+	return host
+
+
+func _crab_move_rays(from: Vector2, to: Vector2) -> void:
+	var host: Node2D = _crab_fx_host()
+	var span: Vector2 = to - from
+	var dist: float = maxf(span.length(), 1.0)
+	var dir: Vector2 = span / dist
+	var tan := Vector2(-dir.y, dir.x)
+	var offsets: Array = [0.0, -26.0, 26.0, -48.0, 48.0]
+	var widths: Array = [8.0, 4.0, 4.0, 2.5, 2.5]
+	var lines: Array = []
+	for i in offsets.size():
+		var beam := Line2D.new()
+		beam.width = float(widths[i])
+		beam.default_color = Color("FFD84A")
+		beam.antialiased = false
+		beam.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		beam.end_cap_mode = Line2D.LINE_CAP_ROUND
+		beam.z_index = 2
+		var start: Vector2 = from + tan * float(offsets[i])
+		beam.add_point(start)
+		beam.add_point(start)
+		host.add_child(beam)
+		lines.append({"line": beam, "start": start, "off": float(offsets[i])})
+	var core := Line2D.new()
+	core.width = 2.5
+	core.default_color = Color("fff8e8")
+	core.antialiased = false
+	core.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	core.end_cap_mode = Line2D.LINE_CAP_ROUND
+	core.z_index = 3
+	core.add_point(from)
+	core.add_point(from)
+	host.add_child(core)
+	var tw := create_tween()
+	tw.tween_method(func(u: float) -> void:
+		var tip_on_path: Vector2 = from.lerp(to, u)
+		for rec in lines:
+			var line: Line2D = rec["line"]
+			if not is_instance_valid(line):
+				continue
+			var off: float = float(rec["off"])
+			var start: Vector2 = rec["start"]
+			line.set_point_position(0, start.lerp(from, u))
+			line.set_point_position(1, tip_on_path + tan * off * (1.0 - u))
+		if is_instance_valid(core):
+			core.set_point_position(1, tip_on_path)
+	, 0.0, 1.0, 0.36)
+	await tw.finished
+	var burst: Array = []
+	for k in 8:
+		var ray := Line2D.new()
+		ray.width = 3.0
+		ray.default_color = Color("FFD84A")
+		ray.antialiased = false
+		ray.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		ray.end_cap_mode = Line2D.LINE_CAP_ROUND
+		ray.add_point(to)
+		ray.add_point(to)
+		host.add_child(ray)
+		burst.append({"line": ray, "dir": Vector2.from_angle(TAU * float(k) / 8.0)})
+	var fade := create_tween()
+	fade.tween_method(func(u: float) -> void:
+		for rec2 in burst:
+			var ray_line: Line2D = rec2["line"]
+			if is_instance_valid(ray_line):
+				ray_line.set_point_position(1, to + (rec2["dir"] as Vector2) * (16.0 + 36.0 * u))
+				ray_line.modulate.a = 1.0 - u
+		for rec3 in lines:
+			var stay: Line2D = rec3["line"]
+			if is_instance_valid(stay):
+				stay.modulate.a = 1.0 - u
+		if is_instance_valid(core):
+			core.modulate.a = 1.0 - u
+	, 0.0, 1.0, 0.16)
+	await fade.finished
+	for rec4 in lines:
+		var done_line: Line2D = rec4["line"]
+		if is_instance_valid(done_line):
+			done_line.queue_free()
+	for rec5 in burst:
+		var done_ray: Line2D = rec5["line"]
+		if is_instance_valid(done_ray):
+			done_ray.queue_free()
+	if is_instance_valid(core):
+		core.queue_free()
+
+
+func _crab_pop_move_count() -> void:
+	if btn_move_left == null or not btn_move_left.visible or not btn_move_left.has_method("set_count_pop"):
+		return
+	btn_move_left.set_count_pop(1.38)
+	var tw := create_tween()
+	tw.tween_method(func(v: float) -> void:
+		if btn_move_left != null and is_instance_valid(btn_move_left):
+			btn_move_left.set_count_pop(v)
+	, 1.38, 1.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await tw.finished
 
 
 func _phantom_alive() -> bool:

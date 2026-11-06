@@ -64,6 +64,8 @@ var _shake: Vector2 = Vector2.ZERO
 var _ff_holds: bool = false
 var _slash_dirty: bool = false
 var _slash_wait: float = 0.0
+## Crabwalk plays its cue after the portrait, not at snap-in.
+var _mute_snap_sfx: bool = false
 
 var _dim: ColorRect
 var _band_host: Node2D
@@ -205,6 +207,7 @@ func _show(payload: Dictionary, ticket: Dictionary = {}) -> void:
 	# time_scale already speeds the cascade; do not also divide holds by 3 while FF.
 	var fast: bool = bool(payload.get("fast", false)) and not _ff_holds
 	var release_early: bool = bool(payload.get("release_early", false))
+	_mute_snap_sfx = bool(payload.get("mute_snap_sfx", false))
 	if _is_item:
 		await _show_item(fast, release_early, ticket)
 	else:
@@ -304,7 +307,7 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 		var punch_start: float = target_scale * (3.6 / PORTRAIT_SCALE)
 		_portrait.scale = _portrait_scale_vec(punch_start)
 	# Ability activate oneshot at snap-in (keyed by card_id). HOLD: leech_league.
-	if card_id != "" and card_id != "leech_league":
+	if card_id != "" and card_id != "leech_league" and not _mute_snap_sfx:
 		if sfx != null and sfx.has_method("play_event"):
 			sfx.play_event(StringName("mon.ability.%s" % card_id))
 		elif OS.is_debug_build() or Engine.is_editor_hint():
