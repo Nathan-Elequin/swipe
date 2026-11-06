@@ -22505,6 +22505,17 @@ func _fill_inspect_from_slice(index: int) -> void:
 	_place_fly(null, wheel_view.slice_portrait_global(index) if wheel_view else Vector2.INF)
 
 
+func _raise_tutorial_hover_plate() -> void:
+	if fly_tip == null:
+		return
+	if in_tutorial and tut != null and tut.visible:
+		fly_tip.z_as_relative = false
+		fly_tip.z_index = 172
+	elif not fly_tip.z_as_relative and int(fly_tip.z_index) == 172:
+		fly_tip.z_as_relative = true
+		fly_tip.z_index = 110
+
+
 func _refresh_monster_plates() -> void:
 	if _cabin_up():
 		return
@@ -22543,6 +22554,7 @@ func _log_block_rects() -> Array:
 func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 	if fly_tip == null or not fly_tip.visible:
 		return
+	_raise_tutorial_hover_plate()
 	fly_tip.reset_size()
 	var sz: Vector2 = fly_tip.get_combined_minimum_size()
 	sz.x = maxf(sz.x, 280.0)
@@ -22759,6 +22771,10 @@ func _ability_avoid_rects() -> Array:
 		out.append(intent_plate.get_global_rect())
 	if wheel_view != null and wheel_view.has_method("_heart_arc_global_rect"):
 		out.append(wheel_view._heart_arc_global_rect())
+	if in_tutorial and tut != null and tut.visible and tut.get("_talk") is Control:
+		var talk: Control = tut.get("_talk")
+		if talk.visible:
+			out.append(talk.get_global_rect())
 	return out
 
 

@@ -1355,6 +1355,7 @@ func _process(delta: float) -> void:
 	_atk_punch = atk_punch_keep
 	_hero_tick(delta)
 	if not spinning:
+		_poll_tutorial_hover()
 		_sync_chrome_hover()
 		_sync_mark_hover()
 		_sync_ability_cards()
@@ -2345,19 +2346,73 @@ func _ensure_ability_cards() -> void:
 		_ability_cards.append(card)
 
 
+func _board_main() -> Node:
+	var n: Node = self
+	while n != null:
+		if n.has_method("_fill_inspect_from_slice"):
+			return n
+		n = n.get_parent()
+	return null
+
+
+func _poll_tutorial_hover() -> void:
+	## Nib's continue shield eats wheel gui input. Hover still has to reach the slice.
+	var main: Node = _board_main()
+	if main == null or main.in_tutorial != true:
+		return
+	if spinning or busy or not is_visible_in_tree():
+		return
+	var blocked := false
+	var tut: Node = main.tut
+	if tut != null and tut.has_method("pointer_blocks_hover"):
+		blocked = tut.pointer_blocks_hover(get_viewport().get_mouse_position()) == true
+	var i := -1
+	if not blocked:
+		i = slice_at(get_local_mouse_position())
+	if i == hover_index:
+		return
+	hover_index = i
+	slice_hovered.emit(i)
+	queue_redraw()
+
+
+func _raise_ability_cards_for_tutorial() -> void:
+	var main: Node = _board_main()
+	var above: bool = main != null and main.in_tutorial == true
+	for card in _ability_cards:
+		if not (card is CanvasItem):
+			continue
+		var ci: CanvasItem = card
+		ci.z_as_relative = not above
+		ci.z_index = 170 if above else 48
+
+
 func _sync_ability_cards() -> void:
 	_ensure_ability_cards()
+	_raise_ability_cards_for_tutorial()
 	for card in _ability_cards:
 		card.visible = false
 	# `_item_held` walks the scene tree — skip entirely mid-spin.
-	if spinning or busy or _item_held() or not show_shift:
+	if spinning or busy or _item_held():
 		return
+	var want: Array[int] = []
+	if hover_index >= 0 and hover_index < slices.size() and str(slices[hover_index].get("kind", "")) == "monster":
+		want.append(hover_index)
+	elif facing_index >= 0 and facing_index < slices.size() and str(slices[facing_index].get("kind", "")) == "monster":
+		want.append(facing_index)
+	if show_shift:
+		var all_i: Array[int] = []
+		for i in slices.size():
+			if str(slices[i].get("kind", "")) == "monster":
+				all_i.append(i)
+		if _ability_rects_fit(all_i):
+			want = all_i
 	var hub_g: Vector2 = get_global_transform() * _center()
 	var used := 0
-	for i in slices.size():
+	for i in want:
 		if used >= _ability_cards.size():
 			break
-		if str(slices[i].get("kind", "")) != "monster":
+		if i < 0 or i >= slices.size() or str(slices[i].get("kind", "")) != "monster":
 			continue
 		var s: Dictionary = slices[i]
 		var sp: Dictionary = _spoke(i)
