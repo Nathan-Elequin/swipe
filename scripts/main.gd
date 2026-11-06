@@ -9192,6 +9192,12 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 	if at >= 0 and at < wheel.size():
 		wheel[at]["has_attacked"] = true
 	_trace_resolve("swing %s n=%s" % [str(m.get("card_id", "")), hit_n])
+	## Monster4 optional attack oneshots (Scale kick A).
+	var swing_id: String = str(m.get("card_id", ""))
+	if swing_id == "quicksand_crab":
+		_sfx_ability("quicksand_crab_claw")
+	elif swing_id == "phantom":
+		_sfx_ability("phantom_sting")
 	if combat_stage:
 		if sfx:
 			sfx.play_event(&"mon.lunge", {"monster_id": str(m.get("card_id", "")), "tier": _tier_of(m)})
@@ -18968,6 +18974,7 @@ func _flush_crab_move_tax() -> void:
 	if steps <= 0:
 		return
 	var loss: int = steps * 2
+	_sfx_ability("quicksand_crab")
 	for i in range(wheel.size()):
 		if str(wheel[i].get("card_id", "")) != "quicksand_crab":
 			continue
@@ -19034,6 +19041,7 @@ func _phantom_dark_matter_on_use(it: Dictionary) -> void:
 		if target.is_empty():
 			continue
 		target["shrouded"] = true
+	_sfx_ability("phantom")
 	_log("on_resolve", "Dark Matter — Shroud %s" % pick_n)
 	_sort_hotbar()
 	_hotbar_sig = ""
@@ -19099,6 +19107,7 @@ func _collector_spawn_bag(m: Dictionary, pre_hp: int) -> void:
 	_fill_bag(it, snap)
 	it["bagged_hp"] = pre_hp
 	_log("on_resolve", "New Specimen — Bag of %s (%s HP)" % [str(m.get("name", "?")), pre_hp])
+	_sfx_ability("collector")
 	if _hand_full():
 		if not _start_full_hand_replace(it):
 			return
@@ -19120,6 +19129,7 @@ func _collector_discard_tax() -> void:
 	var collectors: Array[int] = _collector_alive_indices()
 	if collectors.is_empty():
 		return
+	_sfx_ability("collector_tax")
 	for ci in collectors:
 		if ci < 0 or ci >= wheel.size():
 			continue

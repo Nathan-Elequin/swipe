@@ -491,3 +491,5 @@ Every pack page was fetched and its licence read on the page (OpenGameArt "Licen
 ## Ability + item activate oneshots (2026-11-04)
 
 Unique CC0/Kenney drop-ins: `mon_ability_<card_id>.ogg` → cue `mon.ability.<card_id>`; `item_use_<item_id>.ogg` → cue `item.use.<item_id>`. Fired on ability activate (slash cut-in snap-in + silent activate hooks) and once from `_announce_item_use`. Key by card_id / item_id, never call-name. HOLD: `leech_league` / Blood Rise until playtest #347. Skip golem/wizard (no named ability). Not rebuilt by `build_audio.py`.
+
+Scale kick A (2026-11-06): tip-live `huntsman`, `quicksand_crab` (+ `_claw`), `phantom` (+ `_sting`), `collector` (+ `_tax`) — locked all-A beds; cue `db` 0.
