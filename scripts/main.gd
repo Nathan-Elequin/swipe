@@ -4683,6 +4683,12 @@ func _hand_full() -> bool:
 	return hotbar.size() >= _hand_limit()
 
 
+## Over-cap toss is still open. Recycler may put the copy back on and
+## leave the hand over ten; the toss stays up until the player is at the cap.
+func _cap_discard_open() -> bool:
+	return not pending_feed.is_empty() and str(pending_feed.get("kind", "")) == "forced_gain"
+
+
 func _item_is_curse(it: Dictionary) -> bool:
 	if bool(it.get("shrouded", false)):
 		return true
@@ -8562,6 +8568,10 @@ func _reseat_slots() -> void:
 
 
 func _on_spin() -> void:
+	if _cap_discard_open():
+		if sfx:
+			sfx.play("error", -12.0, 1.2)
+		return
 	if _beggar_mark_busy():
 		await _await_beggar_marks()
 	_trace_resolve("spin start phase=%s" % phase)
@@ -9252,6 +9262,8 @@ func _apply_resolve_hits() -> int:
 func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int = -1) -> int:
 	enemy_attacked = true
 	var at: int = src if src >= 0 else facing_index
+	# Bitter Blood's dose is the stack at the swing, before Block, death, or the potion.
+	var bitter_dose: int = _glass_asp_dose(at)
 	if at >= 0 and at < wheel.size():
 		wheel[at]["has_attacked"] = true
 	_trace_resolve("swing %s n=%s" % [str(m.get("card_id", "")), hit_n])
@@ -9314,10 +9326,11 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 		_log("hp", "take 0")
 		await _play_attack_blocked(at)
 	if hp <= 0:
-		_try_potion()
+		# Revive before on-hit Poison. A lethal swing must not drop Bitter Blood.
+		await _try_potion()
 		if incoming > 0:
 			await _cleric_maybe_flush()
-	_glass_asp_on_attack(at)
+	_glass_asp_on_attack(at, bitter_dose)
 	if hp > 0 and incoming > 0 and str(m.get("card_id", "")) == "druid" and not _is_silenced(m):
 		_sfx_ability("druid")
 		await _heal(incoming * 2)
@@ -9366,7 +9379,7 @@ func _apply_egg_hurt(n: int) -> void:
 			await wheel_view.play_hub_sting("block", 0, true)
 		_player_play("block")
 	if hp <= 0:
-		_try_potion()
+		await _try_potion()
 	if incoming > 0:
 		await _cleric_maybe_flush()
 
@@ -9579,7 +9592,7 @@ func _maybe_auto_spin() -> void:
 		while spins < 8:
 			if phase != "ready" or _monsters_left() <= 0:
 				break
-			if _wheel_busy() or _beggar_mark_busy():
+			if _wheel_busy() or _beggar_mark_busy() or _cap_discard_open():
 				break
 			_auto_spin_lock = true
 			_auto_spin_again = false
@@ -11699,7 +11712,11 @@ func _recycle_after_gone(snap: Dictionary) -> void:
 	var returned_uids: Array = []
 	if copies > 0:
 		for _i in copies:
-			if _hand_full():
+			## A capacity toss just freed a seat and the hand is exactly full.
+			## The copy has to land anyway (11 again) so the toss stays open
+			## until the player throws one more and is back at the cap.
+			## Any other full hand still loses the extra copy.
+			if _hand_full() and not _cap_discard_open():
 				_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
 				_log("discard", "can't copy %s" % snap.get("name", "?"))
 				if sfx:
@@ -12720,7 +12737,7 @@ func _tick_player_poison() -> bool:
 	if hp < before:
 		await _hurt_ogres(before - hp)
 		await _grow_vampires()
-	if hp <= 0 and not _try_potion():
+	if hp <= 0 and not await _try_potion():
 		_player_down()
 		return true
 	if hp != before and hp > 0:
@@ -16693,21 +16710,30 @@ func _apply_glass_asp_on_spin() -> void:
 		await _announce_slice(i, _slice_hp_pos(i))
 
 
-func _glass_asp_on_attack(index: int) -> void:
+func _glass_asp_dose(index: int) -> int:
 	if index < 0 or index >= wheel.size():
-		return
+		return 0
 	var s: Dictionary = wheel[index]
 	if str(s.get("card_id", "")) != "glass_asp":
-		return
+		return 0
 	if int(s.get("hp", 0)) <= 0 or _is_silenced(s):
-		return
-	var dose: int = _poison_of(s)
+		return 0
+	return _poison_of(s)
+
+
+func _glass_asp_on_attack(index: int, dose: int = -1) -> void:
+	# dose < 0: read the live stack. A passed dose is the stack from the start of
+	# this swing, so a lethal hit and Healing Potion cannot drop it.
+	if dose < 0:
+		dose = _glass_asp_dose(index)
 	if dose <= 0:
 		return
 	_sfx_ability("glass_asp")
-	_log_begin_monster(index)
+	if index >= 0 and index < wheel.size():
+		_log_begin_monster(index)
 	_gain_player_poison(dose)
 	_log("on_resolve", "Bitter Blood  →  you Poison %s" % player_poison)
+	_refresh_hearts()
 
 
 func _apply_poison_frog_on_spin() -> void:
@@ -17194,7 +17220,7 @@ func _bleed(n: int) -> bool:
 	if hp < before:
 		await _hurt_ogres(before - hp)
 		await _grow_vampires()
-	if hp <= 0 and not _try_potion():
+	if hp <= 0 and not await _try_potion():
 		_player_down()
 		return true
 	if hp != before and hp > 0:
@@ -18981,7 +19007,7 @@ func _player_take_atk(n: int) -> bool:
 		await _grow_vampires()
 		if hp > 0:
 			await _sync_dire_wolves()
-	if hp <= 0 and not _try_potion():
+	if hp <= 0 and not await _try_potion():
 		_player_down()
 		return true
 	if incoming > 0:
@@ -25457,7 +25483,7 @@ func _sync_buttons() -> void:
 	_hold_combat_action_slot()
 	var busy: bool = phase == "spinning" or phase == "slaying" or (phase == "draft" and draft_action == "busy") or _wheel_busy() or _adventure_busy
 	var enemy_up: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size() and (int(wheel[facing_index].get("hp", 0)) > 0 or _wick_waiting(facing_index))
-	btn_spin.disabled = busy or phase != "ready"
+	btn_spin.disabled = busy or phase != "ready" or _cap_discard_open()
 	if _beggar_mark_busy():
 		btn_spin.disabled = true
 	if in_tutorial and tut != null and tut.wait != "spin" and tut.wait != "auto_spin":
@@ -25736,6 +25762,8 @@ func _live_neighbor_seat(from: int, dir: int) -> int:
 
 
 func _can_move(dir: int) -> bool:
+	if _cap_discard_open():
+		return false
 	if not _moves_window_open() or moves_left <= 0:
 		return false
 	var dest: int = _live_neighbor_seat(facing_index, dir)
