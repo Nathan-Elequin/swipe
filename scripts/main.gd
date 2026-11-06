@@ -20879,7 +20879,10 @@ func _try_potion() -> bool:
 		it["spent"] = true
 		it["keep_after"] = false
 		_log_begin_item(it, false)
-		_heal(3)
+		# Finish the Heal before the caller adds on-hit Poison or checks death.
+		# A thrown-away _heal() can resume after the lethal check and look like
+		# the revive erased the Poison from this same swing.
+		await _heal(3)
 		_log_end_proc()
 		_toss_item(int(it["uid"]), false)
 		return true
