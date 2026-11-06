@@ -1,12 +1,14 @@
 ---
 id: REQ-20261106-batch2-art
-status: done
+status: archived
 priority: normal
 branch: cursor/batch2-tip-catalog-ab5f
 created: 2026-11-06T00:00:00-06:00
 created_by: cloud-agent
 viewport: 1680x1040
 entry: F5 playtest hub → Roster / dungeon so Shardplate, Love Potion, Tesla Coil, Swift Sneaks, Anvil appear (dev deck or seeded pool)
+archived_by: pixel
+archived_at: 2026-11-06T09:10:00-06:00
 ---
 
 # Batch-2 art + catalog (shardplate, love_potion, tesla_coil, swift_sneaks, anvil)
