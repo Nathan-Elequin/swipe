@@ -22460,7 +22460,10 @@ func _refresh_gate_owner() -> void:
 func _idle_inspect() -> void:
 	if inspect:
 		inspect.visible = false
-	if _fly_card != null:
+	if _fly_card != null and is_instance_valid(_fly_card):
+		return
+	if _tut_hold_item_plate():
+		_tut_restore_pinned_item()
 		return
 	if fly_tip:
 		fly_tip.hide_plate()
@@ -25603,7 +25606,7 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 		var live: Dictionary = _find_item(int(card.uid))
 		_on_item_hovered(live if not live.is_empty() else it, card)
 	)
-	card.unhovered.connect(_on_item_unhovered.bind(card))
+	card.unhovered.connect(_on_item_unhovered)
 	if _authoring() or PLAYTEST_FLAG.on():
 		card.edit_wanted.connect(_on_item_right_click.bind(str(it.get("card_id", ""))))
 	if usable:
@@ -25640,14 +25643,7 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 	_fly_card = card
 	if sfx:
 		sfx.hover()
-	var rule: Dictionary = _item_rule(it)
-	if card != null and card.has_method("set_formula") and card.has_method("show_formula"):
-		card.set_formula(str(rule.get("equation", "")))
-		card.show_formula(true)
-	if fly_tip:
-		if in_tutorial:
-			fly_tip.z_index = 420
-		fly_tip.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule["body"]), str(rule["warn"]), null, "item", str(it.get("card_id", "")), _item_look(it))
+	_present_item_plate(it, card)
 	var fighting_now: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size()
 	var hint: bool = fighting_now and _item_grants_block(it) and bool(_item_view(it).get("can_use", false))
 	_set_rust_block_hint(hint)
@@ -25714,10 +25710,7 @@ func _set_rust_block_hint(on: bool) -> void:
 			card.set_aura(_rust_block_hint and not spent_n)
 
 
-func _on_item_unhovered(source: Control = null) -> void:
-	## A newer hover already replaced this card. Do not clear it or pull the pinned plate back.
-	if source != null and _fly_card != null and is_instance_valid(_fly_card) and source != _fly_card:
-		return
+func _on_item_unhovered() -> void:
 	_set_gaze_use_warn(-1)
 	_set_decay_partner_warn(-1)
 	_set_rust_block_hint(false)
@@ -25738,11 +25731,15 @@ func _on_item_unhovered(source: Control = null) -> void:
 		_apply_preview({})
 	_reapply_hotbar_aura_roles()
 	_sync_hotbar_formulas()
-	if fly_tip and not (in_tutorial and _tut_pin_item != ""):
+	if fly_tip and not _tut_hold_item_plate():
 		fly_tip.hide_plate()
 		if in_tutorial:
 			fly_tip.z_index = 110
+			fly_tip.z_as_relative = true
 	if _cabin_up():
+		return
+	if _tut_hold_item_plate():
+		_tut_restore_pinned_item()
 		return
 	if _deck_hovering:
 		_fill_inspect_from_deck()
@@ -26257,6 +26254,7 @@ func _tut_apply_desk_beat(beat: String) -> void:
 	if prev_pin != "" and _tut_pin_item == "" and fly_tip:
 		fly_tip.hide_plate()
 		fly_tip.z_index = 110
+		fly_tip.z_as_relative = true
 
 
 func _tut_show_pinned_item(id: String) -> void:
@@ -26267,6 +26265,77 @@ func _tut_show_pinned_item(id: String) -> void:
 		if str(it.get("card_id", "")) != id:
 			continue
 		_on_item_hovered(it, card)
+		return
+
+
+func _tut_hold_item_plate() -> bool:
+	return in_tutorial and _tut_pin_item != "" and not _tut_free
+
+
+func _tut_lift_item_plate() -> void:
+	## Above TutorialGuide (z 160) so the dim and the gold ring cannot cover the card.
+	if fly_tip == null:
+		return
+	fly_tip.z_as_relative = false
+	fly_tip.z_index = 500
+
+
+func _present_item_plate(it: Dictionary, card: Control) -> void:
+	var rule: Dictionary = _item_rule(it)
+	if card != null and is_instance_valid(card) and card.has_method("set_formula") and card.has_method("show_formula"):
+		card.set_formula(str(rule.get("equation", "")))
+		card.show_formula(true)
+	if fly_tip:
+		if in_tutorial:
+			_tut_lift_item_plate()
+		fly_tip.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule["body"]), str(rule["warn"]), null, "item", str(it.get("card_id", "")), _item_look(it))
+	_place_fly(card)
+
+
+func tutorial_item_plate_rects() -> Array:
+	var out: Array = []
+	if not in_tutorial or fly_tip == null or not fly_tip.visible:
+		return out
+	if str(fly_tip.edit_kind) != "item":
+		return out
+	var r: Rect2 = fly_tip.get_global_rect()
+	if r.size.x < 8.0 or r.size.y < 8.0:
+		return out
+	out.append(r.grow(10.0))
+	return out
+
+
+func tutorial_hotbar_rect() -> Rect2:
+	if hotbar_box == null or not is_instance_valid(hotbar_box) or not hotbar_box.is_visible_in_tree():
+		return Rect2()
+	return hotbar_box.get_global_rect().grow(8.0)
+
+
+func _tut_restore_pinned_item() -> void:
+	if not _tut_hold_item_plate() or fly_tip == null:
+		return
+	if fly_tip.visible and str(fly_tip.edit_kind) == "item" and str(fly_tip.edit_id) == _tut_pin_item:
+		_tut_lift_item_plate()
+		return
+	call_deferred("_tut_show_pinned_item_quiet", _tut_pin_item)
+
+
+func _tut_show_pinned_item_quiet(id: String) -> void:
+	if not _tut_hold_item_plate() or id != _tut_pin_item:
+		return
+	if fly_tip != null and fly_tip.visible and str(fly_tip.edit_kind) == "item" and str(fly_tip.edit_id) == id:
+		_tut_lift_item_plate()
+		return
+	var card: Control = _hotbar_card(id)
+	if card == null:
+		return
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) != id:
+			continue
+		_fly_card = card
+		_present_item_plate(it, card)
 		return
 
 
@@ -26763,14 +26832,15 @@ func _tut_on_continue() -> void:
 	if sfx:
 		sfx.play("click", -12.0)
 	## Golem leaves the deck before "there's just one more" (B11a).
+	var show_talk_after := false
 	if tut.beat_id == "B11" and int(tut.line_n) >= 2 and not _tut_first_deck_done:
 		_tut_arrive_busy = true
+		show_talk_after = true
 		tut.visible = false
 		await _tut_seat_pending_draw()
 		_tut_arrive_busy = false
 		if tut == null:
 			return
-		tut.visible = true
 	## Trigger bubbles return to free play after their last line.
 	if tut._on_trigger:
 		var cur_beat: String = str(tut.beat_id)
@@ -26795,6 +26865,8 @@ func _tut_on_continue() -> void:
 		_tutorial_finish_async()
 		return
 	tut.advance()
+	if show_talk_after and tut != null:
+		tut.visible = true
 	_tut_after_advance()
 
 
@@ -26884,6 +26956,7 @@ func _tut_after_advance() -> void:
 func _tut_refresh_focus() -> void:
 	if tut == null or not in_tutorial or not tut.visible:
 		return
+	tut.item_hover_open = tut.wait == "hover_item" or _tut_pin_item != ""
 	if tut.wait == "draft:shield":
 		_tutorial_offer_draft("shield", "throwing_knife", "Golem")
 	elif tut.wait == "draft:fangs":

@@ -778,6 +778,9 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		## Prose mode: skip word-number tokens; keep digit counts + keyword stems.
 		if prose and _is_word_num(plow):
 			continue
+		## Nib's lines: "lose" / "lost" stay plain. Keyword color is for the card, not this sentence.
+		if prose and (plow == "lose" or plow == "loses" or plow == "lost" or plow == "losing"):
+			continue
 		var shown: String = _format_keyword(piece)
 		if colored:
 			var hex: String = _paint_hex(piece, t, a2, b2, num_hex, gold, hp_c, atk_c, var_c, blk_c, phrases, out_k)

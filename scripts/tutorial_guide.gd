@@ -54,6 +54,8 @@ var _idle: float = 0.0
 var _space_hint: Label
 var sfx
 var lift_dim: bool = false
+## Item-teach beats: the hotbar still receives hover while Nib is talking.
+var item_hover_open: bool = false
 var _type_full: String = ""
 var _type_shown: int = 0
 var _typing: bool = false
@@ -751,21 +753,43 @@ func _hits_spot(box: Rect2) -> bool:
 	return false
 
 
+func _plate_rects() -> Array:
+	var host: Node = get_tree().root.get_node_or_null("Main")
+	if host == null or not host.has_method("tutorial_item_plate_rects"):
+		return []
+	var got: Variant = host.tutorial_item_plate_rects()
+	return got if typeof(got) == TYPE_ARRAY else []
+
+
+func _visual_holes() -> Array:
+	## The item hover card is a hole of its own, so the dim never grays it.
+	var holes: Array = []
+	for r in _plate_rects():
+		if r is Rect2 and holes.size() < 8:
+			holes.append(r)
+	for s in _spots:
+		if holes.size() >= 8:
+			break
+		holes.append(s)
+	return holes
+
+
 func _push_dim(_vp: Vector2) -> void:
 	if _dimmer == null or _dimmer.material == null:
 		return
 	var mat: ShaderMaterial = _dimmer.material as ShaderMaterial
 	var origin: Vector2 = _dimmer.global_position
+	var holes: Array = _visual_holes()
 	var packed: Array[Vector4] = []
 	for i in 8:
-		if i < _spots.size() and _spots[i] is Rect2:
-			var r: Rect2 = _spots[i]
+		if i < holes.size() and holes[i] is Rect2:
+			var r: Rect2 = holes[i]
 			packed.append(Vector4(r.position.x - origin.x, r.position.y - origin.y, r.size.x, r.size.y))
 		else:
 			packed.append(Vector4.ZERO)
 	for i in 8:
 		mat.set_shader_parameter("h%d" % i, packed[i])
-	mat.set_shader_parameter("hole_n", mini(_spots.size(), 8))
+	mat.set_shader_parameter("hole_n", mini(holes.size(), 8))
 	mat.set_shader_parameter("view_size", _dimmer.size)
 	var dim_a: float = PlaytestUx.spotlight_dim_alpha()
 	if world_open:
@@ -785,7 +809,8 @@ func _place_dims(hole: Rect2, vp: Vector2) -> void:
 			_dim[i].mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_dim[i].size = Vector2.ZERO
 		return
-	var block_world: bool = wait == "continue" or _typing or wait == "" or wait == "auto_spin"
+	## Continue normally blocks the board. Item-teach lines leave the hotbar hoverable.
+	var block_world: bool = (wait == "continue" or _typing or wait == "" or wait == "auto_spin") and not item_hover_open
 	var primary := Rect2()
 	if not block_world:
 		for s in _spots:
@@ -794,6 +819,12 @@ func _place_dims(hole: Rect2, vp: Vector2) -> void:
 					primary = s
 				else:
 					primary = primary.merge(s)
+		if item_hover_open:
+			var host: Node = get_tree().root.get_node_or_null("Main")
+			if host != null and host.has_method("tutorial_hotbar_rect"):
+				var hb: Variant = host.tutorial_hotbar_rect()
+				if hb is Rect2 and (hb as Rect2).size.x >= 8.0 and (hb as Rect2).size.y >= 8.0:
+					primary = hb if primary.size.x < 8.0 else primary.merge(hb)
 	if primary.size.x < 8.0:
 		_dim[0].position = Vector2.ZERO
 		_dim[0].size = vp
@@ -1228,7 +1259,8 @@ class SpotInk extends Control:
 			return
 		var origin: Vector2 = global_position
 		var gold := Color("e8c36a")
-		for s in host._spots:
+		var holes: Array = host._visual_holes() if host.has_method("_visual_holes") else host._spots
+		for s in holes:
 			if not (s is Rect2):
 				continue
 			var r: Rect2 = s
