@@ -266,7 +266,7 @@ const MONSTER_SPECIAL := {
 	"oligarch": {"id": "wealth_tax", "text": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item"},
 	"huntsman": {"id": "straight_shot", "text": "When the monster Across from me Attacks you, I also Attack once after that multiattack ends."},
 	"quicksand_crab": {"id": "sink_charge", "text": "When you Move, I lose 2 HP per step after resolve. When you Spin me, Gain 1 Move."},
-	"phantom": {"id": "dark_matter", "text": "When you Use a non-Shrouded item, I Shroud and shuffle 2 of your items until I am Defeated."},
+	"phantom": {"id": "dark_matter", "text": "When you use a non-Shrouded Item, I Shroud one of your Items"},
 	"collector": {"id": "new_specimen", "text": "When you Defeat any other enemy, I Bag it. When you Discard an item without Using it, I lose 2 HP."},
 }
 
@@ -387,7 +387,7 @@ const MONSTER_REMINDER := {
 	"oligarch": "On entry: Gain 2 Items. After each Spin's choices: one playable Item is used",
 	"huntsman": "Across Attacks you: I also Attack once after multiattacks",
 	"quicksand_crab": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move.",
-	"phantom": "Non-Shrouded Use: Shroud and shuffle 2 items until Defeated",
+	"phantom": "Non-Shrouded Use: Shroud one other item and move it to the end. It stays Shrouded until you use it.",
 	"collector": "Defeat other: Bag at pre-lethal HP. Discard without Use: −2 HP",
 }
 
@@ -446,7 +446,7 @@ const MONSTER_SPEECH := {
 	"oligarch": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
 	"huntsman": "When the monster Across from me Attacks you, I also Attack.",
 	"quicksand_crab": "When you Move, I lose 2 HP. When you Spin me, you Gain 1 Move.",
-	"phantom": "When you Use a non-Shrouded item, I Shroud and shuffle 2 of your items until I am Defeated.",
+	"phantom": "When you use a non-Shrouded Item, I Shroud one of your Items",
 	"collector": "When you Defeat any other enemy, I Bag it for you. When you Discard an item without Using it, I lose 2 HP.",
 }
 
@@ -765,6 +765,8 @@ var _fungal_stop_fight: bool = false
 var _crab_pending_steps: int = 0
 ## Phantom Dark Matter: reveal-then-use must not re-trigger Shroud.
 var _phantom_skip_dark_matter: bool = false
+## Set when this click peeled a Shroud. The reveal is random, so Undo cannot put the veil back.
+var _shroud_blocks_undo: bool = false
 var _shroud_seq: int = 0
 var _drink_hp_due: bool = false
 var _gate_line: String = ""
@@ -5622,6 +5624,14 @@ func _release_item_hold() -> void:
 	_hold_holes = maxi(0, _hold_holes - 1)
 
 
+## True while an item is still resolving. Empty seats wait until that finishes,
+## then the dungeon deck fills them. A stale `_hold_holes` count must not block
+## the fill after the item is already done (Phantom used to clear the flag
+## without releasing the count).
+func _item_blocks_hole_fill() -> bool:
+	return _item_resolve_depth > 0 or _item_hold
+
+
 func _has_challenge_holes() -> bool:
 	for s in wheel:
 		if typeof(s) != TYPE_DICTIONARY:
@@ -5731,8 +5741,12 @@ func _ensure_face_at_six() -> void:
 
 
 func _flush_midfight_holes() -> void:
-	if _hold_holes > 0 or _flushing_holes:
+	if _flushing_holes:
 		return
+	if _item_blocks_hole_fill():
+		return
+	## Item is done. Drop a leaked hold so Great Axe / Bodyguard deaths still deal.
+	_hold_holes = 0
 	_flushing_holes = true
 	var token: int = _undo_gen
 	var spin_after: bool = _spin_after_holes
@@ -9824,6 +9838,11 @@ func _undo_finish_item() -> void:
 	if in_tutorial:
 		_undo_inflight = false
 		_undo_no_rewind = false
+		_shroud_blocks_undo = false
+		return
+	if _shroud_blocks_undo:
+		_shroud_blocks_undo = false
+		_undo_wall()
 		return
 	if _oligarch_forcing or _undo_no_rewind:
 		_undo_wall()
@@ -10148,12 +10167,18 @@ func _use_item(uid: int) -> void:
 			sfx.play_event(&"hand.petrified")
 		return
 	## Phantom Shroud: lift, peel, then Use. Unplayable discards. Reveal-use does not re-trigger Dark Matter.
+	## The peel is random, like a Spin, so Undo cannot put the veil back.
 	if bool(it.get("shrouded", false)):
 		var play_revealed: bool = await _phantom_reveal_for_use(uid)
+		_shroud_blocks_undo = true
+		_undo_wall()
+		_shroud_blocks_undo = true
 		if not play_revealed:
+			_shroud_blocks_undo = false
 			return
 		it = _find_item(uid)
 		if it.is_empty() or bool(it.get("spent", false)):
+			_shroud_blocks_undo = false
 			return
 		_phantom_skip_dark_matter = true
 	if in_tutorial and not _tutorial_allows_item(str(it.get("card_id", ""))):
@@ -11193,8 +11218,6 @@ func _on_owner_defeated(index: int, from_bag: bool = false) -> void:
 	## Defeat for everyone else. Collector does not hand over a second bag.
 	if not from_bag:
 		await _collector_bag_defeated(index)
-	if cid == "phantom" and not quiet:
-		_phantom_unshroud_all()
 	if cid == "phoenix" and P1.phoenix_lays_egg(bool(m.get("has_attacked", false)), quiet):
 		if not bool(m.get("egg_laid", false)):
 			m["egg_laid"] = true
@@ -19384,10 +19407,10 @@ func _phantom_dark_matter_on_use(it: Dictionary) -> void:
 		cands.append(uid)
 	if cands.is_empty():
 		return
-	## Pick up to 2, then shroud them. Order at the right end is chosen only after they match.
+	## Pick 1 other item, then shroud it and slide it to the right end.
 	cands.shuffle()
 	var picked: Array = []
-	var pick_n: int = mini(2, cands.size())
+	var pick_n: int = mini(1, cands.size())
 	for i in range(pick_n):
 		var uid_pick: int = int(cands[i])
 		if _find_item(uid_pick).is_empty():
@@ -19407,7 +19430,12 @@ func _phantom_dark_matter_on_use(it: Dictionary) -> void:
 		_hotbar_sig = ""
 		_refresh()
 		return
-	_item_hold = true
+	## Do not write `_item_hold` by itself. That flag is the hole-fill lock.
+	## Clearing it here used to leave `_hold_holes` stuck, so defeated seats
+	## never drew from the dungeon deck.
+	var phantom_hold: bool = not _item_hold
+	if phantom_hold:
+		_arm_item_hold()
 	var seat: int = _phantom_seat()
 	if seat >= 0:
 		await _announce_slice(seat, Vector2.INF, false, false)
@@ -19423,7 +19451,8 @@ func _phantom_dark_matter_on_use(it: Dictionary) -> void:
 			target["shrouded"] = true
 	_log("on_resolve", "Dark Matter — Shroud %s" % picked.size())
 	await _phantom_converge_and_park(picked)
-	_item_hold = false
+	if phantom_hold:
+		_release_item_hold()
 
 
 ## Click a shrouded card: lift it, peel the veil, then Use or discard.
@@ -19697,24 +19726,6 @@ func _phantom_park_shrouded_end(uids: Array) -> void:
 		_shroud_seq += 1
 		held3["shroud_ord"] = _shroud_seq
 		hotbar.append(held3)
-
-
-func _phantom_unshroud_all() -> void:
-	var any := false
-	for held in hotbar:
-		if typeof(held) != TYPE_DICTIONARY:
-			continue
-		if not bool(held.get("shrouded", false)):
-			continue
-		held["shrouded"] = false
-		held.erase("shroud_ord")
-		any = true
-	if not any:
-		return
-	_log("on_resolve", "Dark Matter — unshroud")
-	_sort_hotbar()
-	_hotbar_sig = ""
-	_refresh()
 
 
 func _collector_alive_indices(except: int = -1) -> Array[int]:
@@ -20886,10 +20897,10 @@ func _kill_neighbor(index: int) -> void:
 		sfx.play_event(sfx.resolve(&"death", nctx), nctx)
 	if wheel_view:
 		await wheel_view.play_slay(index, true)
-	if adventure:
+		if adventure:
 		_challenge_vacate(index)
 		_refresh()
-		if not (phase == "fighting" and _hold_holes > 0):
+		if not (phase == "fighting" and _item_blocks_hole_fill()):
 			await _challenge_resolve_holes(index)
 			if phase == "fighting":
 				await _ensure_face_at_six()

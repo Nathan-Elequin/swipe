@@ -29,9 +29,10 @@ Art stills: Pixel A/B/B/C. Facing: all A. Idle: huntsman + quicksand_crab real f
 - **Stats (locked):** 4 HP / 5 ATK (under vs T3 vanilla 20.5)
 - **Pool (locked):** **4**
 - **Ability name:** Dark Matter
-- **Ability (locked):** When you Use a non-Shrouded item, I Shroud and shuffle 2 of your items until I am Defeated.
-- **Rulings (locked):** Trigger is **non-Shrouded** Use only (shrouded reveal-then-use does not re-trigger). Shroud = full black curse veil (completely unidentifiable; ? mark + void wisps); shrouded items shoved to end of hotbar and treated as curses; READY aura while clickable. Click reveals then uses immediately if playable; Unplayable → reveal and discard with no effect. On Phantom Defeat, all shrouded items unshroud and resort into their sections.
-- **Combat:** Live 2026-11-06 — Dark Matter Shroud/shuffle 2; full-black curse shroud hotbar; unshroud on Defeat.
+- **Ability (locked, 2026-11-06 rework):** When you use a non-Shrouded Item, I Shroud one of your Items
+- **Stats:** 5 HP / 5 ATK.
+- **Rulings:** Trigger is non-Shrouded Use only (shrouded reveal-then-use does not re-trigger, so a Keep that was Shrouded stays clean). Shroud 1 other item at random and slide it to the end of the hotbar. Full black curse veil. Click reveals then uses if playable; Unplayable reveals and discards. Shroud stays after Phantom is Defeated, and into later fights, until that item is used. Quiet Bell turns the trigger off and does not clear existing Shrouds.
+- **Combat:** Live 2026-11-06 — Dark Matter shrouds 1 and parks it at the end. Veil lasts until that item is used.
 - **Art:** still `phantom/LOCKED.png`; facing `phantom/facing_LOCKED.png` (64×64); idle = facing plate duplicated to f0–f3 (deferred gens — note in PR)
 
 ### 4. `collector` — NEW monster, Tier 3

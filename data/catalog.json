@@ -8816,7 +8816,7 @@
       "type": "M"
     },
     {
-      "ability": "When you Use a non-Shrouded item, I Shroud and shuffle 2 of your items until I am Defeated.",
+      "ability": "When you use a non-Shrouded Item, I Shroud one of your Items",
       "atk": {
         "base": 5.0
       },
@@ -8826,19 +8826,19 @@
       "call_name": "Dark Matter",
       "card_color": "",
       "count": 1.0,
-      "defined": "Trigger is non-Shrouded Use only (shrouded reveal-then-use does not re-trigger). Shroud = thick black haze obscures art/bg/effects; shrouded items shoved to end of hotbar and treated as curses. Click reveals then uses immediately if playable; Unplayable → reveal and discard with no effect. On Phantom Defeat, all shrouded items unshroud and resort into their sections. Quiet Bell turns this off.",
-      "exceptions": "Monster4 2026-11-06. 4 HP / 5 ATK. Pool 4. Combat wiring follow-up: Shroud VFX + hotbar haze; non-Shrouded Use trigger.",
-      "explainer": "Use non-Shrouded: Shroud and shuffle 2 items until Defeated",
+      "defined": "Trigger is non-Shrouded Use only (shrouded reveal-then-use does not re-trigger, so a Keep that was Shrouded stays clean after that use). Shroud 1 other unspent non-Shrouded hand item at random, then slide it to the end of the hotbar. Click reveals then uses immediately if playable; Unplayable reveals and discards. Shroud stays after Phantom is Defeated, and into later fights, until that item is used. Quiet Bell turns the trigger off and does not clear existing Shrouds.",
+      "exceptions": "2026-11-06 rework. 5 HP / 5 ATK. Pool 4. Shroud 1, slide to end, veil lasts until that item is used.",
+      "explainer": "Non-Shrouded Use: Shroud one other item and move it to the end. It stays Shrouded until you use it.",
       "flags": {
         "art": true,
         "dev": false,
         "hide": false
       },
-      "flow": "Trigger is non-Shrouded Use only (shrouded reveal-then-use does not re-trigger). Shroud = thick black haze obscures art/bg/effects; shrouded items shoved to end of hotbar and treated as curses. Click reveals then uses immediately if playable; Unplayable → reveal and discard with no effect. On Phantom Defeat, all shrouded items unshroud and resort into their sections. Quiet Bell turns this off.",
+      "flow": "Trigger is non-Shrouded Use only (shrouded reveal-then-use does not re-trigger, so a Keep that was Shrouded stays clean after that use). Shroud 1 other unspent non-Shrouded hand item at random, then slide it to the end of the hotbar. Click reveals then uses immediately if playable; Unplayable reveals and discards. Shroud stays after Phantom is Defeated, and into later fights, until that item is used. Quiet Bell turns the trigger off and does not clear existing Shrouds.",
       "hp": {
-        "base": 4.0
+        "base": 5.0
       },
-      "hp_base": 4.0,
+      "hp_base": 5.0,
       "hp_formula": "",
       "id": "phantom",
       "locked_at": "2026-11-06",
@@ -8863,10 +8863,10 @@
         "log_hint",
         "pool"
       ],
-      "log_hint": "Use: Shroud+shuffle 2 until Defeat",
+      "log_hint": "Use: Shroud 1 other item until it is used",
       "mode_pool": "all",
       "name": "Phantom",
-      "notes": "Monster4 2026-11-06 Pixel art (still B + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Combat live 2026-11-06 — Dark Matter Shroud/shuffle 2; haze+curse hotbar; unshroud on Defeat.",
+      "notes": "Monster4 2026-11-06 Pixel art (still B + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Rework 2026-11-06 — 5 HP / 5 ATK. Dark Matter shrouds 1 other item and slides it to the end. Veil stays after Defeat until that item is used. Keep use clears Shroud and does not re-Shroud on that same use.",
       "ops": {},
       "poc": false,
       "pool": 4.0,

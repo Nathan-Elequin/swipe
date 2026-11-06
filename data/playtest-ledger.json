@@ -466,6 +466,11 @@
 			"status": "todo",
 			"title": "Marble should be yellow with a this-or-that slash; Lucky Nickel hotbar should show both sides",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/429"
+		},
+		"433": {
+			"status": "todo",
+			"title": "Using a Shrouded item should remove Undo, because the reveal is random",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/433"
 		}
 	}
 }
