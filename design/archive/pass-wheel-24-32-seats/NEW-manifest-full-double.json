@@ -1,0 +1,502 @@
+{
+  "rule": "seat_px = 64 if catalog tier>=3 (Deadly) else 48",
+  "archive_old_to": "design/archive/pass-wheel-24-32-seats/",
+  "monsters": [
+    {
+      "id": "wizard",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "golem",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "goblin",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "skeleton",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "hornet_swarm",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "lich",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "ogre",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "nearest_64to48"
+    },
+    {
+      "id": "vampire",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "berserker",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "dire_wolf",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "bandit",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "leech_league",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "wraith",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "mimic",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "damsel_in_distress",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "slime_boss",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "spider_queen",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "commander",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "dragon",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "needleback",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "gelatinous_cube",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "nearest_64to48"
+    },
+    {
+      "id": "gargoyle",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "harpy",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "kobold_trapper",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "bear_trap",
+      "tier": 0,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 1,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "clockwork_knight",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "basilisk",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "hollow",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "beggar",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "wick",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "anvil",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "bodyguard",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "cowardly_king",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "merchant",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "juggernaut",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "nearest_64to48"
+    },
+    {
+      "id": "cleric",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "martyr",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "prism",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "plague_doctor",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "hired_hand",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "hydra",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "nearest_64to48"
+    },
+    {
+      "id": "zombie",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "triclops",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "shambling_mound",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "almighty_worm",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "cultist",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "bushido",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "shark",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "nearest_64to48"
+    },
+    {
+      "id": "death_bell",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "phoenix_egg",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "nearest_48to64"
+    },
+    {
+      "id": "phoenix",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "amalgam",
+      "tier": 3,
+      "seat_px": 64,
+      "facing": "64x64",
+      "frames": 4,
+      "method": "copy_facing_64"
+    },
+    {
+      "id": "fairy",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "eel",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "druid",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "mouse",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "magicat",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "rust_bucket",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "poison_frog",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "sandbag",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "scorpion",
+      "tier": 1,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    },
+    {
+      "id": "oligarch",
+      "tier": 2,
+      "seat_px": 48,
+      "facing": "48x48",
+      "frames": 4,
+      "method": "copy_facing_48"
+    }
+  ]
+}

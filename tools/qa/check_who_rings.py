@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Who-ring overlay: 32×32 on Weak/Tough, 40×40 on Deadly. Hard alpha. No Godot."""
+"""Who-ring overlay: 64×64 on Weak/Tough, 80×80 on Deadly. Hard alpha. No Godot."""
 from __future__ import annotations
 
 import struct
@@ -21,7 +21,7 @@ def png_size(path: Path) -> tuple[int, int]:
 
 
 def who_ring_native_px_for_tier(tier: int) -> int:
-    return 40 if int(tier) >= 3 else 32
+    return 80 if int(tier) >= 3 else 64
 
 
 def check_file(path: Path, want: int) -> list[str]:
@@ -49,13 +49,13 @@ def check_file(path: Path, want: int) -> list[str]:
 
 def main() -> int:
     failed = 0
-    if who_ring_native_px_for_tier(3) != 40 or who_ring_native_px_for_tier(1) != 32:
+    if who_ring_native_px_for_tier(3) != 80 or who_ring_native_px_for_tier(1) != 64:
         print("FAIL helper")
         failed += 1
-    files = [(ANIM / f"seat_target_ghost_f{i}.png", 32) for i in range(4)]
-    files.append((ANIM / "seat_target_locked.png", 32))
-    files.extend((ANIM / f"seat_target_ghost_deadly_f{i}.png", 40) for i in range(4))
-    files.append((ANIM / "seat_target_locked_deadly.png", 40))
+    files = [(ANIM / f"seat_target_ghost_f{i}.png", 64) for i in range(4)]
+    files.append((ANIM / "seat_target_locked.png", 64))
+    files.extend((ANIM / f"seat_target_ghost_deadly_f{i}.png", 80) for i in range(4))
+    files.append((ANIM / "seat_target_locked_deadly.png", 80))
     for path, want in files:
         fails = check_file(path, want)
         if fails:

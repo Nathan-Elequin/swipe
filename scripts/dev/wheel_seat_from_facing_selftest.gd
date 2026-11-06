@@ -1,6 +1,6 @@
 extends SceneTree
 ## Headless proof: every live wheel seat PNG matches difficulty sizing.
-## Deadly (catalog tier 3) → 32×32 native; all other monsters → 24×24.
+## Deadly (catalog tier 3) → 64×64 native; all other monsters → 48×48.
 ## Also checks boss_wheel.seat_native_px_for_tier and that idle strips exist.
 ## Run: godot --headless --path . --script res://scripts/dev/wheel_seat_from_facing_selftest.gd
 ## Does not boot main.gd.
@@ -42,7 +42,7 @@ func _init() -> void:
 		var want: int = WHEEL.seat_native_px_for_tier(tier)
 		failed = _check(
 			"tier_helper_%s" % id,
-			want == (32 if tier >= 3 else 24)
+			want == (64 if tier >= 3 else 48)
 		) or failed
 		var img: Image = Image.new()
 		var err: Error = img.load(base_path)
@@ -63,10 +63,10 @@ func _init() -> void:
 		checked += 1
 
 	failed = _check("checked_at_least_62", checked >= 62) or failed
-	failed = _check("helper_deadly", WHEEL.seat_native_px_for_tier(3) == 32) or failed
-	failed = _check("helper_tough", WHEEL.seat_native_px_for_tier(2) == 24) or failed
-	failed = _check("helper_weak", WHEEL.seat_native_px_for_tier(1) == 24) or failed
-	failed = _check("helper_zero", WHEEL.seat_native_px_for_tier(0) == 24) or failed
+	failed = _check("helper_deadly", WHEEL.seat_native_px_for_tier(3) == 64) or failed
+	failed = _check("helper_tough", WHEEL.seat_native_px_for_tier(2) == 48) or failed
+	failed = _check("helper_weak", WHEEL.seat_native_px_for_tier(1) == 48) or failed
+	failed = _check("helper_zero", WHEEL.seat_native_px_for_tier(0) == 48) or failed
 
 	print("wheel_seat_from_facing_selftest checked=%s skipped=%s failed=%s" % [checked, skipped, failed])
 	quit(1 if failed else 0)

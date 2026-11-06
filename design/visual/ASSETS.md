@@ -1,16 +1,17 @@
-# Wheel seats from facing (2026-11-05)
+# Wheel seats from facing (full-double 2026-11-06)
 
 **Spec:** `design/visual/SCREEN-wheel-seat-from-facing.md`  
-**Archive of previous seats:** `design/archive/pass-wheel-pre-facing/`  
+**Archive of 24/32 seats:** `design/archive/pass-wheel-24-32-seats/`  
+**Archive of pre-facing seats:** `design/archive/pass-wheel-pre-facing/`  
 **Mock:** `design/visual/mockups/CONTACT-wheel-mock-v2.png`
 
 | Path | Native | Notes |
 |---|---|---|
-| `dungeon/anim/wheel/<id>_wheel_base.png` | 24×24 Weak/Tough, 32×32 Deadly | Exact-half / refit of facing idle f0. Nearest. |
+| `dungeon/anim/wheel/<id>_wheel_base.png` | 48×48 Weak/Tough, 64×64 Deadly | 1:1 facing copy, or nearest 64→48 / 48→64. Nearest. |
 | `dungeon/anim/wheel/<id>_wheel_idle_fN.png` | same as base | Full facing idle strip (usually 4; `bear_trap` has 1). Wired by `dungeon_art.monster_wheel_frames`. |
 | `dungeon/anim/wheel/<id>_wheel_breathe_f0/f1.png` | same as base | Facing f0/f1 sized for seats; idle strip preferred at runtime. |
 
-Seat display: `WHEEL_SPRITE_SCALE` (2×) → 48px or 64px on-screen. Catalog `tier` 3 = Deadly = 32 native; every other live monster = 24 native (including 64-facing Tough art such as ogre).
+Seat display: `WHEEL_SPRITE_SCALE` (2×) → 96px or 128px on-screen. Catalog `tier` 3 = Deadly = 64 native; every other live monster = 48 native (including 64-facing Weak/Tough art such as ogre). Prior 24/32 seats: `design/archive/pass-wheel-24-32-seats/`.
 
 ---
 
@@ -30,10 +31,10 @@ Assets marked [TW] or shader in the specs need **no** generation and are not lis
 | intent-plate | `ui/anim/intent_claw_lit_f0-3.png` | 16×16 | 4 | no | same badge lighting up: rim brightens to cream, inner glow pulses | 1 |
 | intent-plate | `ui/anim/intent_claw_burst_f0-3.png` | 24×24 | 4 | no | badge impact burst, cream and red shards radiating, fading | 1 |
 | intent-plate | `ui/anim/intent_claw_soak_f0-3.png` | 24×24 | 4 | no | Block soak burst, cream and steel shards radiating, fading (not red) | 1 |
-| neighbor-who-rings | `ui/anim/seat_target_ghost_f0-3.png` | 32×32 | 4 | yes | thin gold hoop, 1px ink outline, breathe on Weak/Tough 24n seats | 1 |
-| neighbor-who-rings | `ui/anim/seat_target_locked.png` | 32×32 | 1 | no | same hoop, still, after click-to-pick on a Weak/Tough seat | 0 |
-| neighbor-who-rings | `ui/anim/seat_target_ghost_deadly_f0-3.png` | 40×40 | 4 | no | same hoop, nearest 40n, on Deadly 32n seats | 0 |
-| neighbor-who-rings | `ui/anim/seat_target_locked_deadly.png` | 40×40 | 1 | no | still hoop at 40n on a Deadly seat | 0 |
+| neighbor-who-rings | `ui/anim/seat_target_ghost_f0-3.png` | 64×64 | 4 | yes | thin gold hoop, nearest 2× of A, on Weak/Tough 48n seats | 1 |
+| neighbor-who-rings | `ui/anim/seat_target_locked.png` | 64×64 | 1 | no | same hoop, still, after click-to-pick on a Weak/Tough seat | 0 |
+| neighbor-who-rings | `ui/anim/seat_target_ghost_deadly_f0-3.png` | 80×80 | 4 | no | same hoop, nearest 2× of A 40n, on Deadly 64n seats | 0 |
+| neighbor-who-rings | `ui/anim/seat_target_locked_deadly.png` | 80×80 | 1 | no | still hoop at 80n on a Deadly seat | 0 |
 | intent-plate | `ui/anim/intent_claw_flame_idle.png` | 16×16 | 1 | yes | claw badge variant with a fire rim (ignores Block) | 1 |
 | intent-plate | `ui/anim/intent_claw_flame_burst_f0-3.png` | 24×24 | 4 | no | fire-rim badge burst, flames licking outward | 1 |
 | intent-plate + hover | `ui/anim/intent_chip_{shield,drop,flee,plus}.png` | 8×8 ×4 | 1 | yes | sheet of 4 tiny chips: shield, purple drop, footprints, plus sign (the Shark loop reuses the wheel's ↻ tag, no art) | 1 |

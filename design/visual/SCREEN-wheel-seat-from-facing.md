@@ -1,6 +1,6 @@
 # SCREEN: wheel seat from facing
 
-Status: preview approved path (Nathan 2026-11-05). Seat size follows difficulty — Deadly 32px native, Weak and Tough 24px native. Art is exact-half (or refit) of fight facing frame 0, with idle frames produced for animation.
+Status: full-double (Nathan 2026-11-06). Seat size follows difficulty — Deadly 64px native, Weak and Tough 48px native. Art is a 1:1 copy of fight facing when the canvas already matches, otherwise a nearest refit of that facing (64→48 Tough/Weak, 48→64 phoenix_egg). Drawn at `WHEEL_SPRITE_SCALE` 2 → 128 / 96 on screen.
 
 ## Art files
 
@@ -13,9 +13,8 @@ Status: preview approved path (Nathan 2026-11-05). Seat size follows difficulty 
 
 ## Archive (do not delete)
 
-Move the previous wheel PNGs (base + breathe) to:
-
-`design/archive/pass-wheel-pre-facing/`
+- Pre-facing seats: `design/archive/pass-wheel-pre-facing/`
+- Facing-derived 24/32 seats (before full-double): `design/archive/pass-wheel-24-32-seats/`
 
 Keep paths mirrored (`<id>_wheel_base.png`, etc.) so a revert is a copy back. Do not delete in place.
 
@@ -23,8 +22,8 @@ Keep paths mirrored (`<id>_wheel_base.png`, etc.) so a revert is a copy back. Do
 
 ### `scripts/boss_wheel.gd`
 
-- Seat display size is **per seat by difficulty**: native 24 (Weak/Tough) or 32 (Deadly), drawn at `WHEEL_SPRITE_SCALE` (today 2.0 → 48px or 64px on-screen).
-- Update constants / `_seat_sprite_size()` so a 32 native Deadly seat is first-class (not an accidental fit of a larger texture).
+- Seat display size is **per seat by difficulty**: native 48 (Weak/Tough) or 64 (Deadly), drawn at `WHEEL_SPRITE_SCALE` (today 2.0 → 96px or 128px on-screen).
+- Update constants / `_seat_sprite_size()` so a 64 native Deadly seat is first-class (not an accidental fit of a larger texture).
 - Re-check together:
   - `_radius()`
   - seat spacing / wedge chord (`_sprite_slot`)
@@ -45,8 +44,8 @@ Keep paths mirrored (`<id>_wheel_base.png`, etc.) so a revert is a copy back. Do
 
 ## Acceptance
 
-1. Every live monster id has `assets/dungeon/anim/wheel/<id>_wheel_base.png` at 24×24 (Weak/Tough) or 32×32 (Deadly), Nearest, hard alpha 0/255.
-2. Old wheel art lives under `design/archive/pass-wheel-pre-facing/` (not deleted).
+1. Every live monster id has `assets/dungeon/anim/wheel/<id>_wheel_base.png` at 48×48 (Weak/Tough) or 64×64 (Deadly), Nearest, hard alpha 0/255.
+2. Old 24/32 wheel art lives under `design/archive/pass-wheel-24-32-seats/` (not deleted). Pre-facing seats stay under `design/archive/pass-wheel-pre-facing/`.
 3. Wheel seats match fight facing silhouette (same pose/palette family); Deadly seats read larger than Weak/Tough on the ring.
 4. Screenshot check: one fight / wheel with a **mixed** set — at least one Weak, one Tough, one Deadly on the ring together — confirm spacing, chrome (name/HP/ATK), and taps still work; no overlap crashes or clearance warnings in log.
 5. If idle frames wired: seats idle-animate while not spinning / not held; freeze mid-spin unchanged.

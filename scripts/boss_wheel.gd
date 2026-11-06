@@ -1,5 +1,5 @@
 extends Control
-## Stone wheel. Frameless sprites: Weak/Tough 24 native, Deadly 32 native, both at WHEEL_SPRITE_SCALE (2x → 48 / 64px). B4 name tag + medallion. HP left, ATK right.
+## Stone wheel. Frameless sprites: Weak/Tough 48 native, Deadly 64 native, both at WHEEL_SPRITE_SCALE (2x → 96 / 128px). B4 name tag + medallion. HP left, ATK right.
 
 signal slice_clicked(index: int)
 signal slice_hovered(index: int)
@@ -95,17 +95,17 @@ const HUB_FRAC := 0.34
 const HUB_HERO_EDGE := 56.0
 ## 64px Sprout frames draw at 1.5 (96px). 48px frames draw at 2.0, also 96px.
 const HUB_SPROUT_SCALE := 1.5
-## Display scale of wheel seat art. Deadly seats are 32 native → 64px; Weak/Tough are 24 native → 48px.
+## Display scale of wheel seat art. Deadly seats are 64 native → 128px; Weak/Tough are 48 native → 96px.
 ## Opaque pixels fill that box (empty canvas padding is ignored by _tex_used when cropping).
 const WHEEL_SPRITE_SCALE := 2.0
-const WHEEL_SPRITE_MAX := 64.0
-const WHEEL_SEAT_NATIVE_WEAK := 24.0
-const WHEEL_SEAT_NATIVE_DEADLY := 32.0
-## Gold who-ring overlay. Weak/Tough 24n seats use 32n hoop; Deadly 32n seats use 40n hoop.
-const WHO_RING_NATIVE_WEAK := 32
-const WHO_RING_NATIVE_DEADLY := 40
-const WHEEL_FIT_H := 96.0
-const WHEEL_FIT_W := 100.0
+const WHEEL_SPRITE_MAX := 128.0
+const WHEEL_SEAT_NATIVE_WEAK := 48.0
+const WHEEL_SEAT_NATIVE_DEADLY := 64.0
+## Gold who-ring overlay. Weak/Tough 48n seats use 64n hoop; Deadly 64n seats use 80n hoop.
+const WHO_RING_NATIVE_WEAK := 64
+const WHO_RING_NATIVE_DEADLY := 80
+const WHEEL_FIT_H := 128.0
+const WHEEL_FIT_W := 132.0
 const WHEEL_SCALE_STEP := 0.25
 const MEDAL_PX := 28.0
 const BADGE_ICON_PX := 24.0
@@ -1265,8 +1265,8 @@ func _play_threat() -> void:
 
 
 func _radius() -> float:
-	# Slightly larger than the old 0.48 so 32-native Deadly seats (64px on-screen)
-	# keep wedge clearance next to 24-native (48px) neighbors on dense rings.
+	# 0.50 of the 640 wheel (R=320) so 64-native Deadly seats (128px on-screen)
+	# keep wedge clearance next to 48-native (96px) neighbors on dense rings.
 	return minf(size.x, size.y) * 0.50
 
 
@@ -1425,8 +1425,8 @@ func slice_at(local: Vector2) -> int:
 	var v: Vector2 = local - c
 	var radius: float = _radius()
 	var d: float = v.length()
-	# Outer band reaches past Deadly 64px seats sitting near the rim.
-	if d < radius * 0.20 or d > radius * 1.30:
+	# Outer band reaches past Deadly 128px seats + 160px who-rings near the rim.
+	if d < radius * 0.14 or d > radius * 1.42:
 		return -1
 	var a: float = fposmod(v.angle() - rot, TAU)
 	var starts: PackedFloat32Array = _starts()
@@ -1561,8 +1561,8 @@ func _spoke_rest(i: int) -> Dictionary:
 		var odd: int = int(_glow_t / 0.6 + float(i) * 0.37) % 2
 		feet += Vector2(0, -4.0 if odd == 1 else 0.0)
 	var port: Vector2 = feet - Vector2(0, h * 0.5)
-	# Deadly seats are 64px wide; keep HP/ATK just outside the sprite edge.
-	var dx: float = clampf(w * 0.5 + 4.0, 30.0, 48.0)
+	# Deadly seats are 128px wide; keep HP/ATK just outside the sprite edge.
+	var dx: float = clampf(w * 0.5 + 4.0, 30.0, 72.0)
 	var hp: Vector2 = feet + Vector2(-dx, -8.0)
 	var atk: Vector2 = feet + Vector2(dx, -8.0)
 	var tag_w: float = _tag_width_px(i)
@@ -1585,8 +1585,8 @@ func _spoke_rest(i: int) -> Dictionary:
 		"tan": tan,
 		"origin": origin,
 		"r": r,
-		"win": h if h > 1.0 else 48.0,
-		"plate_r": 48.0,
+		"win": h if h > 1.0 else WHEEL_SPRITE_MAX,
+		"plate_r": maxf(w, h) * 0.5 if h > 1.0 else 48.0,
 		"port": port,
 		"feet": feet,
 		"name": Vector2(feet.x, feet.y + 60.0),
@@ -1943,11 +1943,11 @@ func _tex_used(tex: Texture2D) -> Rect2:
 func _sprite_slot(i: int) -> float:
 	var span: float = _span(i) if i >= 0 else 1.0
 	var chord: float = _radius() * maxf(span, 0.2) * 0.72
-	# Allow Deadly 64px seats; keep a soft floor for Weak/Tough 48px.
-	return clampf(minf(chord, _radius() * 0.42), 48.0, 128.0)
+	# Allow Deadly 128px seats; keep a soft floor for Weak/Tough 96px.
+	return clampf(minf(chord, _radius() * 0.42), 96.0, 160.0)
 
 
-## Native seat canvas by difficulty. Deadly (tier 3) → 32; everything else → 24.
+## Native seat canvas by difficulty. Deadly (tier 3) → 64; everything else → 48.
 ## Catalog `tier` only — never shown as the word "Tier" on screen.
 static func seat_native_px_for_tier(tier: int) -> int:
 	return int(WHEEL_SEAT_NATIVE_DEADLY) if tier >= 3 else int(WHEEL_SEAT_NATIVE_WEAK)
@@ -1982,7 +1982,7 @@ func _seat_sprite_size(i: int) -> Vector2:
 	if tex != null:
 		var tw: float = maxf(1.0, float(tex.get_width()))
 		var th: float = maxf(1.0, float(tex.get_height()))
-		# Prefer the shipped seat canvas (24 or 32). Warn if art disagrees with difficulty.
+		# Prefer the shipped seat canvas (48 or 64). Warn if art disagrees with difficulty.
 		if not is_equal_approx(tw, native) or not is_equal_approx(th, native):
 			if pid != "" and not _scale_note.has(pid):
 				_scale_note[pid] = true
@@ -2133,7 +2133,7 @@ func _spin_spoke(sp: Dictionary, ang: float) -> Dictionary:
 	var tag_w: float = tag.size.x
 	var tag_h: float = tag.size.y
 	var extra_y: float = tag.position.y - (rest_feet.y + 10.0)
-	var dx: float = clampf(w * 0.5 - 4.0, 30.0, 40.0)
+	var dx: float = clampf(w * 0.5 + 4.0, 30.0, 72.0)
 	var tag_rect := Rect2(Vector2(feet.x - tag_w * 0.5, feet.y + 10.0 + extra_y), Vector2(tag_w, tag_h))
 	sp["origin"] = origin
 	sp["dir"] = dir
@@ -2154,10 +2154,10 @@ func _search_feet(c: Vector2, R: float, hub_r: float, dir: Vector2, a0: float, a
 	var best_cl: float = -1.0e9
 	var best_r: float = R * 0.60
 	var best_dy: float = 0.0
-	# Deadly 64px seats need a slightly wider radial + vertical search than 48px seats.
-	var r: float = R * 0.38
-	var r_hi: float = R * 0.90
-	var dy_span: float = 28.0 if sz.y >= 60.0 else 24.0
+	# Deadly 128px seats need a wider radial + vertical search than 96px seats.
+	var r: float = R * 0.42
+	var r_hi: float = R * 0.96
+	var dy_span: float = 36.0 if sz.y >= 110.0 else 28.0
 	while r <= r_hi + 0.01:
 		var dy: float = -dy_span
 		while dy <= dy_span + 0.01:
@@ -2753,8 +2753,10 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		pv = {}
 	var pid: String = str(s.get("card_id", ""))
 	var port_pos: Vector2 = sp["port"]
-	var sprite_rect: Rect2 = sp.get("sprite_rect", Rect2(port_pos - Vector2(48, 48), Vector2(96, 96)))
-	var plate_r: float = 48.0
+	var sprite_rect: Rect2 = sp.get("sprite_rect", Rect2(port_pos - Vector2(64, 64), Vector2(128, 128)))
+	var plate_r: float = float(sp.get("plate_r", maxf(sprite_rect.size.x, sprite_rect.size.y) * 0.5))
+	if plate_r < 8.0:
+		plate_r = 48.0
 	if i == aura_index or threat_indices.has(i):
 		var glow := Color("e8c36a")
 		glow.a = 0.50 + 0.28 * absf(sin(_glow_t * 9.0))
@@ -3397,7 +3399,7 @@ func _draw_bold_name(font: Font, pos: Vector2, text: String, fs: int, col: Color
 func _draw_wheel_sprite(_i: int, sp: Dictionary, s: Dictionary, dim: float) -> void:
 	var tex: Texture2D = _wheel_tex(_i)
 	var sprite_rect: Rect2 = sp.get("sprite_rect", Rect2())
-	var feet: Vector2 = sp.get("feet", sp["port"] + Vector2(0, 48))
+	var feet: Vector2 = sp.get("feet", sp["port"] + Vector2(0, WHEEL_SPRITE_MAX * 0.5))
 	var w: float = sprite_rect.size.x if sprite_rect.size.x > 1.0 else WHEEL_SPRITE_MAX
 	var h: float = sprite_rect.size.y if sprite_rect.size.y > 1.0 else WHEEL_SPRITE_MAX
 	var dest := sprite_rect
