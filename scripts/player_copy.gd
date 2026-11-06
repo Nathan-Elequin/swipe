@@ -253,6 +253,12 @@ static func tutorial_lines() -> Array:
 		if typeof(row) != TYPE_DICTIONARY:
 			continue
 		if str(row.get("key", "")).begins_with("tutorial.line."):
+			## Blank "delete this line" rows stay in the desk file. They are not beats.
+			## An empty auto_spin row is kept: it is the spin, with no bubble.
+			var blank: String = str(row.get("text", "")).strip_edges()
+			var blank_wait: String = str(row.get("wait", "continue"))
+			if blank == "" and blank_wait != "auto_spin":
+				continue
 			found.append(row)
 	## Beat keys sort as B01 < B02 < B27a < B27b < B27c < T1 < S1 (not plain string order).
 	found.sort_custom(func(a, b) -> bool: return _tutorial_line_sort_key(a) < _tutorial_line_sort_key(b))

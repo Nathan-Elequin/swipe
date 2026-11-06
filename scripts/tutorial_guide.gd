@@ -416,7 +416,8 @@ func _apply_beat(b: Dictionary) -> void:
 	_type_acc = 0.0
 	_typing = spoken != ""
 	if _talk:
-		_talk.visible = true
+		## A deleted line that only exists to spin should not flash an empty bubble.
+		_talk.visible = spoken != ""
 	_body.clear()
 	_body.append_text(_paint_on_paper(spoken))
 	_body.visible_characters = 0 if _typing else -1

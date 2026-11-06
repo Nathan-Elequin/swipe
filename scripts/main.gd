@@ -695,6 +695,10 @@ var _tut_pending_empty_seat: int = -1
 var _tut_pending_hole: int = -1
 var _tut_arrive_busy: bool = false
 var _tut_golem_exit_released: bool = false
+## Tutorial rails keep a dead seat as an open gap until the line that closes it.
+var _tut_defer_slice_close: bool = false
+var _tut_shark_hole: int = -1
+var _tut_last_hole: int = -1
 var _tut_pin_item: String = ""
 var _tut_rig_done: Dictionary = {}
 var _tut_goblin_block_item: bool = false
@@ -9014,7 +9018,7 @@ func _play_ended_visuals(banner: String = "slay") -> void:
 			await wheel_view.play_escape(facing_index)
 	if combat_stage:
 		await combat_stage.vanish()
-	if wheel_view and facing_index >= 0 and not adventure and not _tutorial_keeps_seat() and not _tut_hold_deck_refill:
+	if wheel_view and facing_index >= 0 and not adventure and not _tutorial_keeps_seat() and not _tut_hold_deck_refill and not _tut_defer_slice_close:
 		await wheel_view.collapse_slice(facing_index)
 
 
@@ -9334,6 +9338,20 @@ func _clear_after_fight(_clockwork_split: bool = false) -> void:
 			await _grant_mimic_gift(facing_index)
 		if _install_laid_egg(facing_index):
 			facing_index = -1
+		elif in_tutorial and _tut_defer_slice_close and not _tut_free and facing_index >= 0:
+			## Leave a gap. The Shark gap closes on B32.4. Older gaps close on B32c.
+			## Later kills close on the line that talks about the wheel closing.
+			var hole_i: int = facing_index
+			var slot_name: String = str(wheel[hole_i].get("slot", ""))
+			var died_tag: String = str(wheel[hole_i].get("tut_tag", ""))
+			wheel[hole_i] = {"kind": "empty", "slot": slot_name}
+			if died_tag == "fangs_t2":
+				_tut_shark_hole = hole_i
+			_tut_last_hole = hole_i
+			facing_index = -1
+			if wheel_view:
+				wheel_view.facing_index = -1
+				wheel_view.set_slices(wheel, -1, "none")
 		else:
 			_remove_facing()
 	_trace_resolve("clear after remove n=%s" % wheel.size())
@@ -26194,12 +26212,12 @@ func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = 
 				sfx.play_event(&"chal.commit")
 			challenge_draft_ui.hide_draft()
 			_refresh()
-			if (take_id == "shield" or take_id == "fangs") and tut != null:
+			if take_id == "shield" and tut != null:
 				var prev_force: String = str(tut.force_id)
 				tut.visible = false
-				## Shield draft lands Golem #1. Fangs draft is the Goblin lesson (B23).
-				## Shark stays tagged fangs_t2 for the later B28 spin.
-				tut.force_id = "tag:golem_1" if take_id == "shield" else "goblin"
+				## Shield draft lands Golem #1. Fangs does not spin here:
+				## the next row is the blank Goblin auto_spin.
+				tut.force_id = "tag:golem_1"
 				tut.wait = "auto_spin"
 				await _on_spin()
 				if tut:
@@ -26255,16 +26273,27 @@ func _tut_apply_desk_beat(beat: String) -> void:
 	## now plays when Next leaves B11, so the counter is already true.
 	if beat.begins_with("B12.") and not _tut_first_deck_done:
 		await _tut_seat_pending_draw()
-	elif beat.begins_with("B17a") and _tut_item_callout_showing("breastplate"):
-		## Player already hovered. Hold that plate so the dim cannot cover it.
-		## Do not open it for them — the hover is the lesson.
+	elif beat.begins_with("B17a"):
+		## Hover already happened. Keep Breastplate's card above the dim.
 		_tut_pin_item = "breastplate"
-		_tut_lift_item_plate()
-	elif beat == "B20.3" and _tut_item_callout_showing("spiked_flail"):
+		_tut_show_pinned_item_quiet("breastplate")
+	elif beat == "B20.3":
 		_tut_pin_item = "spiked_flail"
-		_tut_lift_item_plate()
+		_tut_show_pinned_item_quiet("spiked_flail")
+	elif beat == "B29.2":
+		_tut_pin_item = "fangs"
+		_tut_show_pinned_item_quiet("fangs")
 	elif beat == "B20.6":
 		await _tut_release_golem_exit()
+	elif beat == "B32.4":
+		await _tut_wait_named_hole("shark")
+		await _tut_collapse_one(_tut_shark_hole)
+	elif beat == "B38.3":
+		await _tut_wait_named_hole("last")
+		await _tut_collapse_one(_tut_last_hole)
+	elif beat == "B47.1":
+		await _tut_wait_named_hole("last")
+		await _tut_collapse_one(_tut_last_hole)
 	if prev_pin != "" and _tut_pin_item == "" and fly_tip:
 		fly_tip.hide_plate()
 		fly_tip.z_index = 110
@@ -26518,6 +26547,46 @@ func _tut_rig_fangs_t2() -> void:
 		wheel[seat]["tut_tag"] = "fangs_t2"
 	## Fangs comes from the B21.2 draft:fangs UI (Crossbow decoy) — do not force-grant.
 	_tut_pending_empty_seat = -1
+
+
+func _tut_wait_named_hole(which: String) -> void:
+	var guard := 0
+	while guard < 90:
+		var idx: int = _tut_shark_hole if which == "shark" else _tut_last_hole
+		if idx >= 0:
+			return
+		if get_tree():
+			await get_tree().process_frame
+		guard += 1
+
+
+func _tut_collapse_one(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	if str(wheel[index].get("kind", "")) != "empty":
+		return
+	if wheel_view:
+		await wheel_view.collapse_slice(index)
+	if index < 0 or index >= wheel.size():
+		return
+	wheel.remove_at(index)
+	if facing_index == index:
+		facing_index = -1
+	elif facing_index > index:
+		facing_index -= 1
+	if wheel_view:
+		wheel_view.facing_index = facing_index
+	if _tut_shark_hole == index:
+		_tut_shark_hole = -1
+	elif _tut_shark_hole > index:
+		_tut_shark_hole -= 1
+	if _tut_last_hole == index:
+		_tut_last_hole = -1
+	elif _tut_last_hole > index:
+		_tut_last_hole -= 1
+	_reseat_slots()
+	_sync_wheel_stats()
+	_refresh()
 
 
 func _tut_collapse_empty_seats() -> void:
@@ -26788,6 +26857,9 @@ func _start_tutorial() -> void:
 	_tut_pending_hole = -1
 	_tut_arrive_busy = false
 	_tut_golem_exit_released = false
+	_tut_defer_slice_close = true
+	_tut_shark_hole = -1
+	_tut_last_hole = -1
 	_tut_pin_item = ""
 	_tut_rig_done = {}
 	_tut_goblin_block_item = false
@@ -26866,6 +26938,13 @@ func _tut_on_continue() -> void:
 	## B54/B55 if somehow reached: finish the same way.
 	if tut.beat_id == "B54" or tut.beat_id == "B55":
 		_tutorial_finish_async()
+		return
+	## Next on this line is the lucky spin onto the Dragon. The spin row is this click.
+	if tut.beat_id == "B38aaa" and int(tut.line_n) == 1:
+		tut.visible = false
+		tut.force_id = "dragon"
+		tut.wait = "auto_spin"
+		await _on_spin()
 		return
 	tut.advance()
 	if show_talk_after and tut != null:
@@ -27146,6 +27225,35 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 		_tut_add_control(spots, btn_done)
 		if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
 			_tut_add_rect(spots, take_arc.arc_global_rect())
+		return
+	if tag == "boot_breastplate":
+		for pair_id in ["da_boot", "breastplate"]:
+			var pair_card: Control = _hotbar_card(pair_id)
+			_tut_add_control(spots, pair_card)
+			if pair_card != null and pair_card.is_visible_in_tree():
+				arrows.append(_tut_arrow_above_card(pair_card))
+		return
+	if tag == "facing" and wheel_view != null and facing_index >= 0 and wheel_view.has_method("slice_rect"):
+		_tut_add_rect(spots, wheel_view.slice_rect(facing_index))
+		return
+	if tag == "goblin_read":
+		var gob_i: int = _index_of_monster("goblin")
+		if gob_i < 0:
+			gob_i = facing_index
+		if gob_i >= 0 and wheel_view != null:
+			if wheel_view.has_method("callout_ability_rect"):
+				var ability_r: Rect2 = wheel_view.callout_ability_rect(gob_i)
+				if ability_r.size.x >= 8.0:
+					_tut_add_rect(spots, ability_r)
+			if wheel_view.has_method("slice_rect"):
+				_tut_add_rect(spots, wheel_view.slice_rect(gob_i))
+		_tut_add_control(spots, inspect)
+		_tut_add_control(spots, speech_box)
+		return
+	if tag.begins_with("tag_slice:"):
+		var slice_i: int = _tut_index_of_tag(tag.substr("tag_slice:".length()))
+		if slice_i >= 0 and wheel_view != null and wheel_view.has_method("slice_rect"):
+			_tut_add_rect(spots, wheel_view.slice_rect(slice_i))
 		return
 	## Boot teach line: arrow from Nib's box to the top of the Boot card.
 	if tag == "item:da_boot":

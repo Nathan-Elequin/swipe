@@ -144,16 +144,14 @@ func _init() -> void:
 	failed = _check(failed, "load_beats_has_draft_fangs", _beats_have_wait(beats, "draft:fangs")) or failed
 	failed = _check(failed, "load_beats_has_choice", _beats_have_wait(beats, "choice")) or failed
 
-	## 9) Skip path still names pool-1 reveal before cabin arrive (data keys/beats).
-	## S1 skip_only + B54 rig=reveal + B55 home lines, with B54 before B55 in tip order.
-	failed = _check(failed, "skip_only_row", skip_only_rows.size() >= 1) or failed
-	var reveal_rig := 0
-	for rr in reveal_rows:
-		if str(rr.get("rig", "")) == "reveal":
-			reveal_rig += 1
-	failed = _check(failed, "b54_reveal_rig", reveal_rig >= 1) or failed
-	failed = _check(failed, "b55_arrive_rows", b55_rows.size() >= 1) or failed
-	failed = _check(failed, "reveal_before_arrive", b54_idx >= 0 and b55_idx > b54_idx) or failed
+	## 9) Yes ending is B50. Pool unlock and the cabin splash are code, not extra beats.
+	## Skip still uses the same cabin landing.
+	var b50_end := false
+	for row50 in lines:
+		if str(row50.get("key", "")) == "tutorial.line.B50.3":
+			b50_end = str(row50.get("text", "")).find("home") >= 0
+	failed = _check(failed, "b50_ends_tutorial", b50_end) or failed
+	failed = _check(failed, "road_finish_to_cabin_hook", _source_has_func("res://scripts/main.gd", "_road_finish_to_cabin")) or failed
 
 	## 10) Harpy→Dragon spine waits present (verify against tip player-copy, don't invent).
 	failed = _check(failed, "spine_auto_spin_harpy_a", spine_harpy_a >= 1) or failed
@@ -187,7 +185,7 @@ func _init() -> void:
 		var ah_allow: Array = ah.get("allow", [])
 		var ah_text: String = str(ah.get("text", "")).to_lower()
 		failed = _check(failed, "arrow_head_allow", ah_allow.has("arrow_head")) or failed
-		failed = _check(failed, "arrow_head_from_start_copy", ah_text.find("from the start") >= 0) or failed
+		failed = _check(failed, "arrow_head_teach_copy", ah_text.find("arrow head") >= 0) or failed
 	var start_hotbar_ok := _main_starts_with_arrow_head()
 	failed = _check(failed, "arrow_head_in_start_hotbar", start_hotbar_ok) or failed
 

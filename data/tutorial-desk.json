@@ -1,0 +1,17 @@
+{
+	"id": "tutorial-desk-visuals",
+	"instructions": "Per-beat screen description from the Script desk Tutorial walk. For Cursor. The player never sees this.",
+	"beats": {
+		"B01-a": "[Nib Dialogue]\n\n*Player Facing:*",
+		"B06a": "[Nib Dialogue]\n[Highlight] on: Wizard (on wheel), and also the Wizard monster callout card\n[Click] Next\n\n*Player Facing:*",
+		"B11a": "[Nib Dialogue]\n[Highlight] on: the small counter number by the dungeon deck (as it goes from 4 to 3)\n\n*Player Facing:*",
+		"B11aa": "[Nib Dialogue]\n[Highlight] on: the top card of the dungeon deck\n\n*Player Facing:*",
+		"B17a": "[Nib Dialogue]\n[Highlight] on: Shield (hotbar)\n\n[Nib Dialogue]\n[Highlight] on: Breastplate (hotbar)\n\n*Player Facing:*",
+		"B28a": "[Nib Dialogue]\n[Highlight] on: Spin\n\n[Nib Dialogue]\n[Highlight] on: Spin\n[Spin] on its own\n\n*Player Facing:*",
+		"B34a": "[Nib Dialogue]\n[Highlight] on: the wheel\n\n*Player Facing:*",
+		"B35": "[Nib Dialogue]\n[Highlight] on: Harpy 5 hp\n\n*Player Facing:*",
+		"B38a": "[Nib Dialogue]\n[Highlight] on: hearts\n\n[Nib Dialogue]\n[Highlight] on: \n\n*Player Facing:*",
+		"B38aa": "[Nib Dialogue]\n[Highlight] on: hearts\n\n[Nib Dialogue]\n[Highlight] on: remaining Harpy\n\n*Player Facing:*",
+		"B38aaa": "[Nib Dialogue]\n[Highlight] on: hearts\n\n[Nib Dialogue]\n[Highlight] on: \n\n*Player Facing:*"
+	}
+}
