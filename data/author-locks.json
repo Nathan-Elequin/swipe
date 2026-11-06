@@ -5709,8 +5709,8 @@
 		"tutorial.line.B50.1": {
 			"cat": "Tutorial",
 			"where": "Tutorial · B50 · line 1",
-			"text": "Every choice you make can make or break you in these dungeons, so let me give you one last piece of advice:",
-			"locked_at": "2026-11-05"
+			"text": "Every choice can make or break you in these dungeons, so let me give you one last piece of advice:",
+			"locked_at": "2026-11-06"
 		},
 		"tutorial.line.B50.2": {
 			"cat": "Tutorial",
