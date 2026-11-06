@@ -5359,9 +5359,11 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 					item_pool.append(back)
 			challenge_draft_ui.hide_draft()
 			continue
+		var uid: int = int(decision.get("uid", 0))
+		if not _qa_busy() and challenge_draft_ui.has_method("play_pick_stamps"):
+			await challenge_draft_ui.play_pick_stamps(uid)
 		challenge_draft_ui.hide_draft()
 		_layout_play_field()
-		var uid: int = int(decision.get("uid", 0))
 		for it2 in pair_snap:
 			if int(it2.get("uid", 0)) == uid:
 				picked = it2
@@ -11478,6 +11480,7 @@ func _recycle_after_gone(snap: Dictionary) -> void:
 			fire_card.bounce()
 	if copies <= 0:
 		return
+	var returned_uids: Array = []
 	for _i in copies:
 		if _hand_full():
 			_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
@@ -11486,8 +11489,15 @@ func _recycle_after_gone(snap: Dictionary) -> void:
 				sfx.play("error", -10.0)
 			continue
 		_recycle_insert_copy(snap)
+		returned_uids.append(uid_seq)
 	_hotbar_sig = ""
 	_refresh()
+	if _qa_busy():
+		return
+	for rid5 in returned_uids:
+		var back_card: Control = _hotbar_card_by_uid(int(rid5))
+		if back_card != null and back_card.has_method("play_recycle_return"):
+			back_card.play_recycle_return()
 
 
 func _remove_item_now(uid: int) -> void:
@@ -26138,6 +26148,8 @@ func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = 
 				sfx.play("confirm", -12.0)
 				sfx.play("cloth", -14.0)
 				sfx.play_event(&"chal.commit")
+			if not _qa_busy() and challenge_draft_ui.has_method("play_pick_stamps"):
+				await challenge_draft_ui.play_pick_stamps(uid)
 			challenge_draft_ui.hide_draft()
 			_refresh()
 			tut.advance()

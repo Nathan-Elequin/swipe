@@ -1,0 +1,15 @@
+{
+  "notes": "Cabin wax draft stamps. Overlay only on draft cards and Recycler return. 16×16 native, nearest, no mipmaps. Nathan picked A (cabin wax) 2026-11-06. Does not change wheel seats.",
+  "assets": [
+    {"path": "assets/ui/draft/pick_seal.png", "native": [16, 16], "shipped": [16, 16]},
+    {"path": "assets/ui/draft/pick_seal_press_f0.png", "native": [16, 16], "shipped": [16, 16]},
+    {"path": "assets/ui/draft/pick_seal_press_f1.png", "native": [16, 16], "shipped": [16, 16]},
+    {"path": "assets/ui/draft/pick_seal_press_f2.png", "native": [16, 16], "shipped": [16, 16]},
+    {"path": "assets/ui/draft/pick_seal_press_f3.png", "native": [16, 16], "shipped": [16, 16]},
+    {"path": "assets/ui/draft/draft_leftbehind.png", "native": [16, 16], "shipped": [16, 16]},
+    {"path": "assets/ui/draft/recycle_return_f0.png", "native": [16, 16], "shipped": [16, 16]},
+    {"path": "assets/ui/draft/recycle_return_f1.png", "native": [16, 16], "shipped": [16, 16]},
+    {"path": "assets/ui/draft/recycle_return_f2.png", "native": [16, 16], "shipped": [16, 16]},
+    {"path": "assets/ui/draft/recycle_return_f3.png", "native": [16, 16], "shipped": [16, 16]}
+  ]
+}
