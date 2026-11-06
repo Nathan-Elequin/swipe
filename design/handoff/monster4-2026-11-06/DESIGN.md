@@ -30,8 +30,8 @@ Art stills: Pixel A/B/B/C. Facing: all A. Idle: huntsman + quicksand_crab real f
 - **Pool (locked):** **4**
 - **Ability name:** Dark Matter
 - **Ability (locked):** When you Use a non-Shrouded item, I Shroud and shuffle 2 of your items until I am Defeated.
-- **Rulings (locked):** Trigger is **non-Shrouded** Use only (shrouded reveal-then-use does not re-trigger). Shroud = thick black haze obscures art/bg/effects; shrouded items shoved to end of hotbar and treated as curses. Click reveals then uses immediately if playable; Unplayable → reveal and discard with no effect. On Phantom Defeat, all shrouded items unshroud and resort into their sections.
-- **Combat:** Live 2026-11-06 — Dark Matter Shroud/shuffle 2; haze+curse hotbar; unshroud on Defeat.
+- **Rulings (locked):** Trigger is **non-Shrouded** Use only (shrouded reveal-then-use does not re-trigger). Shroud = full black curse veil (completely unidentifiable; ? mark + void wisps); shrouded items shoved to end of hotbar and treated as curses; READY aura while clickable. Click reveals then uses immediately if playable; Unplayable → reveal and discard with no effect. On Phantom Defeat, all shrouded items unshroud and resort into their sections.
+- **Combat:** Live 2026-11-06 — Dark Matter Shroud/shuffle 2; full-black curse shroud hotbar; unshroud on Defeat.
 - **Art:** still `phantom/LOCKED.png`; facing `phantom/facing_LOCKED.png` (64×64); idle = facing plate duplicated to f0–f3 (deferred gens — note in PR)
 
 ### 4. `collector` — NEW monster, Tier 3

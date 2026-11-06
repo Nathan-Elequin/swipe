@@ -50,9 +50,10 @@ var _rank: Label
 var _fill: Color
 var _rim: Color
 var _curse: bool = false
-## Phantom Dark Matter: thick black haze over art / bg / effects.
+## Phantom Dark Matter: full black curse veil — identity hidden, still clickable.
 var _shrouded: bool = false
-var _shroud_haze: ColorRect
+var _shroud_haze: Control
+var _shroud_mark: Label
 var _tier: int = 1
 var _num_col: Color = Color.WHITE
 var _shown: String = ""
@@ -1256,6 +1257,8 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 		_layout_mark(number_text)
 	_layout_atk_pip()
 	_apply_glyph_vis()
+	if _shrouded:
+		_sync_shroud_vis()
 
 
 func set_glyphs(rows: Array) -> void:
@@ -1263,10 +1266,12 @@ func set_glyphs(rows: Array) -> void:
 	if _face != null and _face.has_method("set_rows"):
 		_face.set_rows(rows)
 	_apply_glyph_vis()
+	if _shrouded:
+		_sync_shroud_vis()
 
 
 func _apply_glyph_vis() -> void:
-	var on := not _glyph_rows.is_empty() and not _formula_on and not _mode_tags_on
+	var on := not _glyph_rows.is_empty() and not _formula_on and not _mode_tags_on and not _shrouded
 	if _face != null:
 		_face.visible = on
 	if not on:
@@ -1519,25 +1524,125 @@ func set_shroud(on: bool) -> void:
 	_ensure_shroud_haze()
 	if _shroud_haze != null:
 		_shroud_haze.visible = on
-	## Thick haze over art; curse rim already paints the plate dark.
-	if _icon != null:
-		_icon.modulate = Color(0.12, 0.10, 0.14, 0.35) if on else Color.WHITE
-	if _face != null:
-		_face.modulate = Color(1, 1, 1, 0.08) if on else Color.WHITE
+	if _shroud_mark != null:
+		_shroud_mark.visible = on
+	_sync_shroud_vis()
 	queue_redraw()
+
+
+func is_shrouded() -> bool:
+	return _shrouded
 
 
 func _ensure_shroud_haze() -> void:
 	if _shroud_haze != null and is_instance_valid(_shroud_haze):
 		return
-	_shroud_haze = ColorRect.new()
+	## Solid black veil + drawn wisps so the card is fully unidentifiable as a curse.
+	_shroud_haze = Control.new()
 	_shroud_haze.name = "ShroudHaze"
 	_shroud_haze.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_shroud_haze.color = Color(0.04, 0.03, 0.06, 0.82)
 	_shroud_haze.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_shroud_haze.visible = false
-	_shroud_haze.z_index = 8
+	_shroud_haze.z_index = 14
+	_shroud_haze.clip_contents = true
+	_shroud_haze.draw.connect(_draw_shroud_veil)
+	_shroud_haze.resized.connect(func() -> void:
+		if _shroud_haze != null:
+			_shroud_haze.queue_redraw()
+	)
 	_overlay_host().add_child(_shroud_haze)
+	_shroud_mark = Label.new()
+	_shroud_mark.name = "ShroudMark"
+	_shroud_mark.text = "?"
+	_shroud_mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_shroud_mark.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_shroud_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shroud_mark.add_theme_font_size_override("font_size", 42)
+	_shroud_mark.add_theme_color_override("font_color", Color(0.55, 0.48, 0.58, 0.92))
+	_shroud_mark.add_theme_color_override("font_outline_color", Color(0.04, 0.02, 0.06, 1.0))
+	_shroud_mark.add_theme_constant_override("outline_size", 6)
+	_shroud_mark.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_shroud_mark.visible = false
+	_shroud_mark.z_index = 15
+	_overlay_host().add_child(_shroud_mark)
+
+
+func _draw_shroud_veil() -> void:
+	if _shroud_haze == null:
+		return
+	var w: float = _shroud_haze.size.x
+	var h: float = _shroud_haze.size.y
+	if w < 2.0 or h < 2.0:
+		return
+	## Full cover — no art / title / numbers peek through.
+	_shroud_haze.draw_rect(Rect2(0, 0, w, h), Color(0.02, 0.01, 0.04, 1.0))
+	## Soft void wisps so it reads as Shrouded, not a blank plate.
+	var ink := Color(0.18, 0.12, 0.22, 0.55)
+	var cx: float = w * 0.5
+	var cy: float = h * 0.52
+	for i in 5:
+		var r: float = 10.0 + float(i) * 9.0
+		var a0: float = 0.35 + float(i) * 0.55
+		_shroud_haze.draw_arc(Vector2(cx, cy), r, a0, a0 + PI * 1.15, 18, ink, 2.2, true)
+	var rim := Color(0.08, 0.05, 0.12, 0.85)
+	_shroud_haze.draw_rect(Rect2(1.0, 1.0, w - 2.0, h - 2.0), rim, false, 2.0)
+
+
+func _sync_shroud_vis() -> void:
+	## Hide every identity cue while shrouded; restore on clear via next paint/set_live.
+	if not _shrouded:
+		if _title != null:
+			_title.modulate = Color.WHITE
+		if _icon != null and not _petrified:
+			_icon.modulate = Color.WHITE
+		if _face != null:
+			_face.modulate = Color.WHITE
+		return
+	if _title != null:
+		_title.modulate = Color(1, 1, 1, 0)
+	if _rank != null:
+		_rank.visible = false
+	if _icon != null:
+		_icon.modulate = Color(0, 0, 0, 0)
+	if _face != null:
+		_face.modulate = Color(1, 1, 1, 0)
+		_face.visible = false
+	if _num != null:
+		_num.visible = false
+	if _ghost != null:
+		_ghost.visible = false
+	if _or != null:
+		_or.visible = false
+	if _eq != null:
+		_eq.visible = false
+	if _mark != null:
+		_mark.visible = false
+	if _atk_pip != null:
+		_atk_pip.visible = false
+	if _plus != null:
+		_plus.visible = false
+	if _ban != null:
+		_ban.visible = false
+	if _ability != null:
+		_ability.visible = false
+	if _hp_cost != null:
+		_hp_cost.visible = false
+	if _echo_mark != null:
+		_echo_mark.visible = false
+	if _cabinet_badge != null:
+		_cabinet_badge.visible = false
+	if _choice_badge != null:
+		_choice_badge.visible = false
+	if _beggar_icon != null:
+		_beggar_icon.visible = false
+	if _warn_chip != null:
+		_warn_chip.visible = false
+	if _bag_stamp != null:
+		_bag_stamp.visible = false
+	if _source_stamp != null:
+		_source_stamp.visible = false
+	if _formula_on:
+		_formula_on = false
 
 
 func _tier_shine() -> Color:
@@ -1979,6 +2084,13 @@ func set_formula(bb: String) -> void:
 
 
 func show_formula(on: bool) -> void:
+	## Shrouded cards never show Shift equation — that would identify them.
+	if _shrouded:
+		_formula_on = false
+		if _eq != null:
+			_eq.visible = false
+		_sync_shroud_vis()
+		return
 	_formula_on = on and _formula != ""
 	if _eq == null:
 		return
@@ -2412,6 +2524,9 @@ func _apply_style(hot: bool) -> void:
 func _draw() -> void:
 	if _curse:
 		_draw_dashed_ring(Color("100e0c"), 3.0, 0.35)
+	## Shroud emphasis sits on top of the curse rim — void rim so it is not "just a dark card".
+	if _shrouded:
+		_draw_dashed_ring(Color(0.22, 0.14, 0.30, 0.95), 2.5, 0.55)
 	if _beggar_on:
 		# Thin WARNING dashed outline (Direction A) — flash still punches the mark.
 		var flash: float = clampf(_beggar_flash, 0.0, 1.0)
