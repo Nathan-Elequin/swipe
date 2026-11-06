@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Wheel seats from facing: PNG native size matches catalog difficulty.
 
-Deadly (tier 3) → 32×32; every other monster with a wheel base in the v2
-pack → 24×24. Idle f0 must match. No Godot needed.
+Deadly (tier 3) → 64×64; every other monster with a wheel base in the v2
+pack → 48×48. Idle f0 must match. No Godot needed.
 
 Also see scripts/dev/wheel_seat_from_facing_selftest.gd for the headless
 Godot twin.
@@ -29,7 +29,7 @@ def png_size(path: Path) -> tuple[int, int]:
 
 
 def seat_native_px_for_tier(tier: int) -> int:
-    return 32 if int(tier) >= 3 else 24
+    return 64 if int(tier) >= 3 else 48
 
 
 def main() -> int:

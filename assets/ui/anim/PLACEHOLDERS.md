@@ -22,14 +22,14 @@ Overwrite landed at the same paths as the old placeholders. Loaders still use `r
 
 ### Neighbor who-rings (overlay on wheel seats)
 
-Same thin gold hoop for Boot, Net, Damsel, Throwing Knife. Overlay only — seat PNGs and seat sizes stay as they are. Size follows catalog difficulty the same way seats do (`BossWheel.who_ring_native_px_for_tier`). Nathan picked A 2026-11-05. Do not overwrite.
+Same thin gold hoop for Boot, Net, Damsel, Throwing Knife. Size follows catalog difficulty the same way seats do (`BossWheel.who_ring_native_px_for_tier`). Nathan picked A 2026-11-05. Full-double 2026-11-06: nearest 2× of that A hoop (32→64 Weak, 40→80 Deadly).
 
 | File | Native | Frames | Notes |
 |---|---|---|---|
-| `seat_target_ghost_f0.png` … `seat_target_ghost_f3.png` | 32×32 | 4 | Breathe hoop on Weak/Tough 24n seats (64px on screen at 2×) |
-| `seat_target_locked.png` | 32×32 | 1 | Still hoop after click-to-pick on a Weak/Tough seat |
-| `seat_target_ghost_deadly_f0.png` … `seat_target_ghost_deadly_f3.png` | 40×40 | 4 | Same hoop, nearest 40n, on Deadly 32n seats (80px on screen at 2×) |
-| `seat_target_locked_deadly.png` | 40×40 | 1 | Still hoop at 40n on a Deadly seat |
+| `seat_target_ghost_f0.png` … `seat_target_ghost_f3.png` | 64×64 | 4 | Breathe hoop on Weak/Tough 48n seats (128px on screen at 2×) |
+| `seat_target_locked.png` | 64×64 | 1 | Still hoop after click-to-pick on a Weak/Tough seat |
+| `seat_target_ghost_deadly_f0.png` … `seat_target_ghost_deadly_f3.png` | 80×80 | 4 | Same hoop, nearest 80n, on Deadly 64n seats (160px on screen at 2×) |
+| `seat_target_locked_deadly.png` | 80×80 | 1 | Still hoop at 80n on a Deadly seat |
 
 ### Hotbar shimmer / hover chips
 

@@ -481,8 +481,8 @@ func monster_facing_idle(card_id: String) -> Array:
 
 
 func wheel_frames_all() -> Dictionary:
-	# Seat art is the difficulty-sized facing crop: 24 native (Weak/Tough) or
-	# 32 native (Deadly), drawn at WHEEL_SPRITE_SCALE. Prefer the full idle
+	# Seat art is the difficulty-sized facing crop: 48 native (Weak/Tough) or
+	# 64 native (Deadly), drawn at WHEEL_SPRITE_SCALE. Prefer the full idle
 	# strip so boss_wheel._wheel_tex can loop it at 200ms/frame. A wheel base
 	# that is a byte copy of an earlier monster is skipped (Phoenix once
 	# shipped the egg's wheel file). Fight callout still uses
