@@ -173,6 +173,9 @@ func _build_talk(art) -> void:
 	_talk_layer.layer = TALK_LAYER
 	add_child(_talk_layer)
 	_talk = PanelContainer.new()
+	## CanvasLayer children stay drawn when this Control is hidden. The box
+	## used to sit empty at (0, 0) through the playtest note.
+	_talk.visible = false
 	_talk.mouse_filter = Control.MOUSE_FILTER_STOP
 	_talk.gui_input.connect(_on_talk_gui)
 	## Above the wheel ability callout (170) and the tutorial hover plate (172).
@@ -282,6 +285,7 @@ func _build_talk(art) -> void:
 	_skip.add_theme_font_size_override("font_size", 20)
 	_skip.add_theme_color_override("font_color", Color("a89888"))
 	_skip.add_theme_color_override("font_hover_color", Color("fff6df"))
+	_skip.visible = false
 	_skip.z_as_relative = false
 	_skip.z_index = 191
 	_skip.pressed.connect(func() -> void: skipped.emit())
@@ -299,6 +303,7 @@ func _build_talk(art) -> void:
 	_space_hint.z_as_relative = false
 	_space_hint.z_index = 188
 	add_child(_space_hint)
+	_apply_chrome_visibility()
 
 
 func _style_btn(b: Button, fill: Color, rim: Color) -> void:
@@ -382,6 +387,8 @@ func _show_chrome_skip(on: bool) -> void:
 func _set_talk_on(on: bool) -> void:
 	_talk_on = on
 	_apply_chrome_visibility()
+	if on and is_inside_tree() and visible:
+		_layout()
 
 
 func _apply_chrome_visibility() -> void:
