@@ -11,8 +11,9 @@ func _init() -> void:
 	var failed := false
 	failed = _check("sweep_positive", TAKE.SWEEP > 0.74 and TAKE.SWEEP < 0.86) or failed
 	failed = _check("split_left_third", TAKE.SPLIT_T > 0.25 and TAKE.SPLIT_T < 0.4) or failed
-	failed = _check("body_w", TAKE.BODY_W >= 40.0 and TAKE.BODY_W <= 56.0) or failed
-	failed = _check("icon_fits", TAKE.ICON_MAX > 0.0 and TAKE.ICON_MAX <= TAKE.BODY_W - 6.0) or failed
+	failed = _check("body_w", TAKE.BODY_W >= 50.0 and TAKE.BODY_W <= 56.0) or failed
+	failed = _check("icon_fits", TAKE.ICON_MAX > 0.0 and TAKE.ICON_MAX <= TAKE.BODY_W - 10.0) or failed
+	failed = _check("bevel_ink", TAKE.BEVEL_INK >= 2.0 and TAKE.BEVEL_HI >= 1.0) or failed
 	failed = _check("rim_gap", TAKE.RIM_GAP_DEFAULT >= 8.0) or failed
 	failed = _check("content_outward", TAKE.CONTENT_OUTWARD >= 0.0 and TAKE.CONTENT_OUTWARD <= 2.0) or failed
 	failed = _check("b2_pad_lt_pre", UX.move_arrow_b2_pad() < UX.move_arrow_outer_pad()) or failed
@@ -56,6 +57,8 @@ func _init() -> void:
 
 	## Square radial cuts: the end-face still hits; a point past the cut misses.
 	failed = _check("no_end_caps", not arc.has_method("_draw_end_caps")) or failed
+	failed = _check("has_bevel", arc.has_method("_draw_bevel")) or failed
+	failed = _check("has_corner_ticks", arc.has_method("_draw_corner_ticks")) or failed
 	var left_cap: Vector2 = arc._chord_point(0.0)
 	var right_cap: Vector2 = arc._chord_point(1.0)
 	failed = _check("hit_left_end", arc._has_point(left_cap)) or failed

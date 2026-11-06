@@ -11,12 +11,16 @@ extends Button
 ## Ends are square radial cuts (no oval disk caps).
 ## Take word + burst follow the arc curvature (not flat horizontal).
 ## Band hugs the Block pip and take-damage burst; icons scale to ICON_MAX.
+## Outer ink + inner highlight bevel; short engraved ticks at the square corners.
 
-const BODY_W := 48.0
+const BODY_W := 53.0
 ## Max native draw size for Block pip and take-damage burst (fits inside BODY_W).
 const ICON_MAX := 40.0
 ## Extra outer radius on hover so the rim reads as a thicker / slightly larger band.
 const HOVER_GROW := 3.0
+## Bevel stroke widths (px). Outer ink sits on the rim; highlight sits just inside.
+const BEVEL_INK := 2.5
+const BEVEL_HI := 1.6
 const SPLIT_T := 0.34
 ## Bottom-centered sweep (radians). 60% of the prior 1.32 (about 40% narrower)
 ## so the band sits tighter under the wheel. Half-sweep stays inside the
@@ -250,6 +254,8 @@ func _draw() -> void:
 	elif live and _down:
 		rim_extra = 0.04
 	_draw_band(pal, press, grow, rim_extra)
+	_draw_bevel(pal, press, grow)
+	_draw_corner_ticks(pal, press, grow)
 	_draw_divider(pal, press, grow)
 	if block_n > 0:
 		_draw_block_pip(press)
@@ -260,21 +266,18 @@ func _draw_band(pal: Dictionary, press: Vector2, grow: float = 0.0, rim_extra: f
 	var span: Vector2 = _arc_span()
 	var inn: float = inner_radius() - grow * 0.35
 	var out: float = outer_radius() + grow
-	var ink_in: float = 0.08 + rim_extra
-	var wood_in: float = 0.16 + rim_extra
-	var hi_in: float = 0.24 + rim_extra
-	var trim_in: float = 0.32 + rim_extra
-	var face_out: float = 0.78 - rim_extra
+	var ink_in: float = 0.05 + rim_extra
+	var wood_in: float = 0.10 + rim_extra
+	var hi_in: float = 0.16 + rim_extra
+	var face_out: float = 0.84 - rim_extra
 	var bands: Array = [
 		[0.00, pal["ink"]],
 		[ink_in, pal["wood"]],
 		[wood_in, pal["hi"]],
-		[hi_in, pal["trim"]],
-		[trim_in, pal["face"]],
+		[hi_in, pal["face"]],
 		[face_out, pal["face"]],
-		[0.86, pal["shade"]],
-		[0.93, pal["lip"]],
-		[0.97, pal["deep"]],
+		[0.90, pal["shade"]],
+		[0.95, pal["lip"]],
 		[1.00, pal["ink"]],
 	]
 	var n := 28
@@ -298,16 +301,92 @@ func _draw_band(pal: Dictionary, press: Vector2, grow: float = 0.0, rim_extra: f
 			draw_colored_polygon(PackedVector2Array([a0, a1, b1, b0]), col)
 
 
+func _rim_pts(rad: float, press: Vector2) -> PackedVector2Array:
+	var span: Vector2 = _arc_span()
+	var pts := PackedVector2Array()
+	var n := 28
+	for i in n + 1:
+		var t: float = float(i) / float(n)
+		var ang: float = span.x + span.y * t
+		pts.append(guide_c + Vector2.from_angle(ang) * rad + press)
+	return pts
+
+
+func _end_inward_tang(t_end: float) -> Vector2:
+	var span: Vector2 = _arc_span()
+	var ang: float = span.x + span.y * t_end
+	var dir: Vector2 = Vector2.from_angle(ang)
+	## +t follows span.y. Interior from t=0 is +t; from t=1 is −t.
+	var side: float = 1.0 if t_end < 0.5 else -1.0
+	var ccw := Vector2(-dir.y, dir.x)
+	var tang: Vector2 = ccw * span.y * side
+	if tang.length_squared() < 0.0001:
+		return Vector2.RIGHT
+	return tang.normalized()
+
+
+func _draw_bevel(pal: Dictionary, press: Vector2, grow: float = 0.0) -> void:
+	## 2-tone metal rim: outer ink, gold just inside, inner cream highlight.
+	var aa: bool = not OS.has_feature("web")
+	var inn: float = inner_radius() - grow * 0.35
+	var out: float = outer_radius() + grow
+	var outer_pts: PackedVector2Array = _rim_pts(out, press)
+	var gold_pts: PackedVector2Array = _rim_pts(out - BEVEL_INK - 0.4, press)
+	var inner_pts: PackedVector2Array = _rim_pts(inn, press)
+	var inner_hi: PackedVector2Array = _rim_pts(inn + BEVEL_HI + 0.4, press)
+	draw_polyline(outer_pts, pal["ink"], BEVEL_INK, aa)
+	draw_polyline(gold_pts, pal["trim"], 1.5, aa)
+	draw_polyline(inner_pts, pal["hi"], BEVEL_HI, aa)
+	draw_polyline(inner_hi, pal["wood"], 1.1, aa)
+	var span: Vector2 = _arc_span()
+	for t_end in [0.0, 1.0]:
+		var ang: float = span.x + span.y * t_end
+		var dir: Vector2 = Vector2.from_angle(ang)
+		var a: Vector2 = guide_c + dir * inn + press
+		var b: Vector2 = guide_c + dir * out + press
+		draw_line(a, b, pal["ink"], BEVEL_INK, aa)
+		var tang: Vector2 = _end_inward_tang(t_end)
+		draw_line(a + tang * 2.0, b + tang * 2.0, pal["hi"], 1.4, aa)
+		draw_line(a + tang * 3.2, b + tang * 3.2, pal["trim"], 1.0, aa)
+
+
+func _draw_corner_ticks(pal: Dictionary, press: Vector2, grow: float = 0.0) -> void:
+	## Short engraved L at each square corner. Stays on the rim, off the pip / Take word.
+	var aa: bool = not OS.has_feature("web")
+	var inn: float = inner_radius() - grow * 0.35
+	var out: float = outer_radius() + grow
+	var span: Vector2 = _arc_span()
+	var tick := 4.5
+	for t_end in [0.0, 1.0]:
+		var ang: float = span.x + span.y * t_end
+		var dir: Vector2 = Vector2.from_angle(ang)
+		var tang: Vector2 = _end_inward_tang(t_end)
+		for rad in [inn + 1.2, out - 1.2]:
+			var p: Vector2 = guide_c + dir * rad + press
+			## Along the square cut toward the cream (not off the band).
+			var along_end: Vector2 = dir * (-2.8 if rad > (inn + out) * 0.5 else 2.8)
+			draw_line(p, p + tang * tick, pal["ink"], 1.6, aa)
+			draw_line(p, p + along_end, pal["ink"], 1.6, aa)
+			draw_line(p + tang * 0.8 + along_end.normalized() * 0.8, p + tang * (tick - 0.6), pal["hi"], 1.0, aa)
+
+
 func _draw_divider(pal: Dictionary, press: Vector2, grow: float = 0.0) -> void:
 	var span: Vector2 = _arc_span()
 	var ang: float = span.x + span.y * SPLIT_T
 	var dir: Vector2 = Vector2.from_angle(ang)
 	var inn: float = inner_radius() - grow * 0.35
 	var out: float = outer_radius() + grow
-	var a: Vector2 = guide_c + dir * (inn + 3.0) + press
-	var b: Vector2 = guide_c + dir * (out - 3.0) + press
-	draw_line(a, b, pal["ink"], 2.0, not OS.has_feature("web"))
-	draw_line(a, b, Color("3a2a1c", 0.85), 1.0, not OS.has_feature("web"))
+	var a: Vector2 = guide_c + dir * (inn + 5.0) + press
+	var b: Vector2 = guide_c + dir * (out - 5.0) + press
+	var aa: bool = not OS.has_feature("web")
+	## Engraved split: ink groove with a cream highlight on the Take side.
+	## Take is to the right of the split (t > SPLIT_T), same +t as from the left end.
+	var toward_take: Vector2 = Vector2(-dir.y, dir.x) * signf(span.y)
+	if toward_take.length_squared() > 0.0001:
+		toward_take = toward_take.normalized()
+	draw_line(a, b, pal["ink"], 2.2, aa)
+	draw_line(a + toward_take * 1.6, b + toward_take * 1.6, pal["hi"], 1.2, aa)
+	draw_line(a - toward_take * 1.2, b - toward_take * 1.2, pal["lip"], 1.0, aa)
 
 
 func _draw_arc_text(font: Font, txt: String, fs: int, center_ang: float, r: float, fill: Color, outline: Color) -> void:

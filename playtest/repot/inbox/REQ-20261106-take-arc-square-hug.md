@@ -1,16 +1,19 @@
 ---
 id: REQ-20261106-take-arc-square-hug
-status: open
+status: superseded
 priority: high
 pr: 417
 branch: playtest/latest
 created: 2026-11-06T02:50:00Z
 created_by: cursor-cloud
+superseded_by: REQ-20261106-take-arc-bevel
 viewport: 1680x1040
 entry: F5 playtest hub → Middle Progress / Continue into a fight. Prefer Slime Boss with incoming Take ~10 so the right third shows Take + a large burst. For shot 03, gain Block > 0 (Shield / Breastplate) so the left third shows the Block pip.
 ---
 
-# Take arc square ends, stronger hover, hugging band
+# Take arc square ends, stronger hover, hugging band (superseded)
+
+Nathan F5 follow-up after #417 asked for a taller band + bevel. **Drain `REQ-20261106-take-arc-bevel` instead.**
 
 Nathan greenlit via Cabin Nib: drop the rounded oval disk end-caps, make hover obviously brighter, and shrink the cream band so the Block pip and take-damage burst sit fully inside it with zero overflow onto the dungeon background. `BODY_W` 84 → 48. Icons scale to `ICON_MAX` 40. Ends are square radial cuts. Take / Safe copy unchanged. No Tier. Wheel seat art untouched.
 
