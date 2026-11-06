@@ -490,7 +490,12 @@ func show_menu(room: String = "main") -> void:
 	items_by_id = items_by_id
 	visible = true
 	_menu_on = true
+	## Idle cabin entry. Clear sticky interaction locks left by aborted arrive /
+	## key-ring / pan (e.g. hide_for_run mid-await, then title show_menu).
 	_arriving = false
+	_room_busy = false
+	_pan_busy = false
+	_door_busy = false
 	_ext_root.visible = false
 	_int_root.visible = true
 	_current_room = room if is_room_unlocked(room) else "main"
@@ -521,6 +526,9 @@ func hide_for_run() -> void:
 	visible = false
 	_menu_on = false
 	_beat = ""
+	## Abort in-flight cabin motion so early-returns that watch `visible` cannot
+	## leave _busy() stuck for the next homecoming / show_menu.
+	_abort_cabin_interaction()
 
 
 func play_homecoming(kind: String, new_ids: Array, held_ids: Array) -> void:
@@ -704,6 +712,7 @@ func play_key_ring() -> void:
 	KIT.cue(sfx, &"speech.nib_gasp")
 	await _wait(0.5)
 	if not visible:
+		_abort_cabin_interaction()
 		return
 	if nib and nib.sprite_frames:
 		nib.play("walk")
@@ -715,6 +724,7 @@ func play_key_ring() -> void:
 		_cutscene.play("keyring")
 		await _cutscene.finished
 	if not visible:
+		_abort_cabin_interaction()
 		return
 	var ring: AnimatedSprite2D = KIT.anim_sprite(
 		["props/key_ring_f0.png", "props/key_ring_f1.png", "props/key_ring_f2.png"],
@@ -1145,6 +1155,14 @@ func _arrive_alive(gen: int) -> bool:
 	return visible and gen == _arrive_gen
 
 
+## True when arrive must stop. Clears sticky _arriving so doors are not locked.
+func _arrive_aborted(gen: int) -> bool:
+	if _arrive_alive(gen):
+		return false
+	_abort_cabin_interaction()
+	return true
+
+
 func _play_arrive() -> void:
 	if not visible:
 		return
@@ -1175,12 +1193,12 @@ func _play_arrive() -> void:
 		if sfx:
 			sfx.play("whoosh", -14.0, 0.9)
 		await _await_arrive_tween(pan)
-		if not _arrive_alive(gen):
+		if _arrive_aborted(gen):
 			return
 	if _arrive_skip == 0:
 		_beat = "walk"
 		await _walk_path()
-		if not _arrive_alive(gen):
+		if _arrive_aborted(gen):
 			return
 	if _arrive_skip == 0:
 		_place_hero(Vector2(242, 175))
@@ -1200,12 +1218,12 @@ func _play_arrive() -> void:
 		_hero.z_index = 2
 		if _arrive_skip == 0:
 			await _walk_hero(Vector2(242, 175), Vector2(248, 148), true, false)
-			if not _arrive_alive(gen):
+			if _arrive_aborted(gen):
 				return
 	if _arrive_skip != 0 or _ext_root.visible:
 		_beat = "fade"
 		await _cut_arrive_to_interior()
-		if not _arrive_alive(gen):
+		if _arrive_aborted(gen):
 			return
 		if _arrive_skip == 1:
 			_arrive_skip = 0
@@ -1223,7 +1241,7 @@ func _play_arrive() -> void:
 		_set_hero_frame(_walk_family(true), 0)
 		_beat = "int_walk"
 		await _walk_hero(start_in, Vector2(70, 205), true, true, -1.0, int_spd)
-		if not _arrive_alive(gen):
+		if _arrive_aborted(gen):
 			return
 		if _arrive_skip >= 2:
 			await _sit_into_chair(true)
@@ -1238,7 +1256,7 @@ func _play_arrive() -> void:
 				await _wait(0.5)
 				await _play_sack_dump()
 				await _play_cheer()
-			if not _arrive_alive(gen):
+			if _arrive_aborted(gen):
 				return
 			if _homecoming_kind != "loss":
 				_sack.visible = true
@@ -1251,16 +1269,16 @@ func _play_arrive() -> void:
 			else:
 				_beat = "to_chair"
 				await _walk_hero(Vector2(70, 205), Vector2(10, 205), false, true, -1.0, ARRIVE_INT_SPEED)
-				if not _arrive_alive(gen):
+				if _arrive_aborted(gen):
 					return
 				_hero.flip_h = false
 				_place_hero(Vector2(10, 205))
 				_beat = "sit"
 				await _play_sit()
-				if not _arrive_alive(gen):
+				if _arrive_aborted(gen):
 					return
 				_settle_arrive_chair()
-	if not _arrive_alive(gen):
+	if _arrive_aborted(gen):
 		return
 	_arriving = false
 	_door_busy = false
@@ -1292,7 +1310,7 @@ func _play_arrive() -> void:
 		_beat = "idle"
 		if _first_speech_ready():
 			await _say_first_speech()
-			if not _arrive_alive(gen):
+			if _arrive_aborted(gen):
 				return
 		var p: Vector2i = cabinet_progress()
 		if p.y > 0:
@@ -4345,6 +4363,7 @@ func pan_to(room: String) -> void:
 	tw.tween_property(_rooms_host, "position:x", -float(i) * ROOM_W, 0.45)
 	await tw.finished
 	if not is_inside_tree():
+		_pan_busy = false
 		return
 	_current_room = room
 	_pan_busy = false
@@ -4380,6 +4399,7 @@ func _pan_unlocked(room: String) -> void:
 	tw.tween_property(_rooms_host, "position:x", -float(i) * ROOM_W, 0.45)
 	await tw.finished
 	if not is_inside_tree():
+		_pan_busy = false
 		return
 	_current_room = room
 	_pan_busy = false
@@ -4568,6 +4588,17 @@ func _tidy_blocking() -> void:
 		_overlay_name = ""
 	elif _overlay_name == "drawer" and (_drawer == null or not _drawer.visible):
 		_overlay_name = ""
+
+
+## Clears only in-flight interaction locks. Does not touch key_ring_seen,
+## rooms_unlocked, hauls, bank ledger, or dialog content.
+func _abort_cabin_interaction() -> void:
+	_room_busy = false
+	_pan_busy = false
+	_door_busy = false
+	_arriving = false
+	if _beat == "keyring" or _beat == "arrive" or _beat == "pan" or _beat == "to_chair" or _beat == "sit":
+		_beat = "idle"
 
 
 func _busy() -> bool:
