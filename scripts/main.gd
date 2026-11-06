@@ -693,7 +693,7 @@ var _tut_fired_triggers: Dictionary = {}
 var _tut_d2_snapshot: Dictionary = {}
 var _tut_pending_empty_seat: int = -1
 var _tut_pending_hole: int = -1
-var _tut_count_preview: bool = false
+var _tut_arrive_busy: bool = false
 var _tut_golem_exit_released: bool = false
 var _tut_pin_item: String = ""
 var _tut_rig_done: Dictionary = {}
@@ -8529,7 +8529,8 @@ func _on_spin() -> void:
 	if tri.is_empty() and tut_forced < 0 and not adventure and mag_mode != "" and not flee_rand:
 		idx = _magnet_pick(pool, mag_mode == "high")
 		_magnet_pending_consume = mag_mode
-	if _spin_land_uid >= 0:
+	## Scripted tutorial land wins. Chain and similar "spin that seat" items must not steal it.
+	if tut_forced < 0 and _spin_land_uid >= 0:
 		var land_i: int = _index_of_seat(_spin_land_uid)
 		if land_i >= 0 and pool.find(land_i) >= 0:
 			idx = land_i
@@ -26182,7 +26183,9 @@ func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = 
 			if (take_id == "shield" or take_id == "fangs") and tut != null:
 				var prev_force: String = str(tut.force_id)
 				tut.visible = false
-				tut.force_id = "tag:golem_1" if take_id == "shield" else "tag:fangs_t2"
+				## Shield draft lands Golem #1. Fangs draft is the Goblin lesson (B23).
+				## Shark stays tagged fangs_t2 for the later B28 spin.
+				tut.force_id = "tag:golem_1" if take_id == "shield" else "goblin"
 				tut.wait = "auto_spin"
 				await _on_spin()
 				if tut:
@@ -26209,7 +26212,8 @@ func _tut_should_hold_golem_exit() -> bool:
 
 
 func _tut_open_wizard_window(index: int) -> void:
-	## Wizard leaves an open seat. The deck card sits in that hole until B12 seats the Golem.
+	## Wizard leaves an open seat. The Golem stays on the deck through B11, then
+	## the normal deck-draw plays before the "one left" line.
 	if index < 0 or index >= wheel.size():
 		return
 	wheel[index]["challenge_hole"] = false
@@ -26233,10 +26237,9 @@ func _tut_open_wizard_window(index: int) -> void:
 func _tut_apply_desk_beat(beat: String) -> void:
 	var prev_pin: String = _tut_pin_item
 	_tut_pin_item = ""
-	if beat.begins_with("B11a") and not beat.begins_with("B11aa") and dungeon_deck_ui != null and not _tut_count_preview:
-		_tut_count_preview = true
-		dungeon_deck_ui.set_count(maxi(0, challenge_deck.size() - 1))
-	elif beat.begins_with("B12."):
+	## B11a used to preview "one left" before the Golem left the deck. The draw
+	## now plays when Next leaves B11, so the counter is already true.
+	if beat.begins_with("B12.") and not _tut_first_deck_done:
 		await _tut_seat_pending_draw()
 	elif beat.begins_with("B17a"):
 		_tut_pin_item = "breastplate"
@@ -26263,6 +26266,7 @@ func _tut_show_pinned_item(id: String) -> void:
 
 
 func _tut_seat_pending_draw() -> void:
+	## Same slide, wheel turn, arrival slash, and sounds as a normal dungeon draw.
 	var i: int = _tut_pending_hole
 	if i < 0 or i >= wheel.size() or challenge_deck.is_empty():
 		return
@@ -26270,29 +26274,8 @@ func _tut_seat_pending_draw() -> void:
 		_tut_pending_hole = -1
 		_tut_first_deck_done = true
 		return
-	var raw: Variant = challenge_deck.pop_front()
-	var nid: String = _deck_card_id(raw)
-	if nid == "":
-		return
-	if dungeon_deck_ui and not dungeon_deck_ui.is_busy():
-		dungeon_deck_ui.set_count(challenge_deck.size())
-		_sync_challenge_peek()
-	var slot: String = str(wheel[i].get("slot", ""))
-	var seated: Dictionary = _make_monster(nid)
-	seated["slot"] = slot
-	seated["tut_tag"] = "golem_1"
-	wheel[i] = seated
-	_tut_mark_seen(nid)
-	_tut_first_deck_done = true
+	await _tutorial_replace_with_deck(i, "golem")
 	_tut_pending_hole = -1
-	_sync_wheel_stats()
-	if wheel_view:
-		_stamp_atk_variants()
-		wheel_view.set_slices(wheel, -1, "none")
-		wheel_view.pulse_arrive(i)
-	if sfx:
-		sfx.play("drop", -8.0)
-	_refresh()
 
 
 func _tut_release_golem_exit() -> void:
@@ -26726,7 +26709,7 @@ func _start_tutorial() -> void:
 	_tut_d2_snapshot = {}
 	_tut_pending_empty_seat = -1
 	_tut_pending_hole = -1
-	_tut_count_preview = false
+	_tut_arrive_busy = false
 	_tut_golem_exit_released = false
 	_tut_pin_item = ""
 	_tut_rig_done = {}
@@ -26767,13 +26750,22 @@ func _start_tutorial() -> void:
 
 
 func _tut_on_continue() -> void:
-	if not in_tutorial or tut == null:
+	if not in_tutorial or tut == null or _tut_arrive_busy:
 		return
 	## Match TutorialGuide._wait_shows_next — talk-only beats advance via Next/Space.
 	if tut.wait != "continue" and tut.wait != "":
 		return
 	if sfx:
 		sfx.play("click", -12.0)
+	## Golem leaves the deck before "there's just one more" (B11a).
+	if tut.beat_id == "B11" and int(tut.line_n) >= 2 and not _tut_first_deck_done:
+		_tut_arrive_busy = true
+		tut.visible = false
+		await _tut_seat_pending_draw()
+		_tut_arrive_busy = false
+		if tut == null:
+			return
+		tut.visible = true
 	## Trigger bubbles return to free play after their last line.
 	if tut._on_trigger:
 		var cur_beat: String = str(tut.beat_id)
