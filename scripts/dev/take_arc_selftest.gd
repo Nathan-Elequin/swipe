@@ -11,9 +11,10 @@ func _init() -> void:
 	var failed := false
 	failed = _check("sweep_positive", TAKE.SWEEP > 0.74 and TAKE.SWEEP < 0.86) or failed
 	failed = _check("split_left_third", TAKE.SPLIT_T > 0.25 and TAKE.SPLIT_T < 0.4) or failed
-	failed = _check("body_w", TAKE.BODY_W >= 40.0) or failed
+	failed = _check("body_w", TAKE.BODY_W >= 40.0 and TAKE.BODY_W <= 56.0) or failed
+	failed = _check("icon_fits", TAKE.ICON_MAX > 0.0 and TAKE.ICON_MAX <= TAKE.BODY_W - 6.0) or failed
 	failed = _check("rim_gap", TAKE.RIM_GAP_DEFAULT >= 8.0) or failed
-	failed = _check("content_outward", TAKE.CONTENT_OUTWARD >= 4.0 and TAKE.CONTENT_OUTWARD < TAKE.BODY_W * 0.35) or failed
+	failed = _check("content_outward", TAKE.CONTENT_OUTWARD >= 0.0 and TAKE.CONTENT_OUTWARD <= 2.0) or failed
 	failed = _check("b2_pad_lt_pre", UX.move_arrow_b2_pad() < UX.move_arrow_outer_pad()) or failed
 	failed = _check("b2_pad_clears_flare", UX.move_arrow_b2_pad() >= ARROW.BODY_W * 0.78 + 6.0) or failed
 	failed = _check("b2_start_past_arc", UX.move_arrow_b2_start_offset() > TAKE.SWEEP * 0.5) or failed
@@ -53,20 +54,22 @@ func _init() -> void:
 	var miss_above: Vector2 = arc.guide_c + Vector2(0, -arc.guide_r)
 	failed = _check("miss_top", not arc._has_point(miss_above)) or failed
 
-	## Rounded end caps: accept points near the left/right chord tips
-	## (past the old square radial cut, inside the disk).
+	## Square radial cuts: the end-face still hits; a point past the cut misses.
+	failed = _check("no_end_caps", not arc.has_method("_draw_end_caps")) or failed
 	var left_cap: Vector2 = arc._chord_point(0.0)
 	var right_cap: Vector2 = arc._chord_point(1.0)
+	failed = _check("hit_left_end", arc._has_point(left_cap)) or failed
+	failed = _check("hit_right_end", arc._has_point(right_cap)) or failed
 	var away_l: Vector2 = (left_cap - arc.guide_c).normalized()
 	var tang_l: Vector2 = Vector2(-away_l.y, away_l.x)
 	## Tangential outward from the left tip (past the square end).
 	var hit_left_cap: Vector2 = left_cap + tang_l * (TAKE.BODY_W * 0.35)
-	failed = _check("hit_left_cap", arc._has_point(hit_left_cap)) or failed
+	failed = _check("miss_past_left_end", not arc._has_point(hit_left_cap)) or failed
 	var away_r: Vector2 = (right_cap - arc.guide_c).normalized()
 	var tang_r: Vector2 = Vector2(-away_r.y, away_r.x)
 	## Tangential outward from the right tip.
 	var hit_right_cap: Vector2 = right_cap - tang_r * (TAKE.BODY_W * 0.35)
-	failed = _check("hit_right_cap", arc._has_point(hit_right_cap)) or failed
+	failed = _check("miss_past_right_end", not arc._has_point(hit_right_cap)) or failed
 
 	## Arrow B2 pad keeps head flare outside the gold rim.
 	var arrow: Button = ARROW.new()
