@@ -8015,13 +8015,17 @@ func _sync_playtest_chrome() -> void:
 	var teaser_up: bool = playtest_teaser != null and playtest_teaser.visible
 	var cut_up: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("cutscene_playing") and home_cabin.cutscene_playing()
 	var cabin_talk: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("dialog_open") and home_cabin.dialog_open()
+	var dev_strip: bool = false
+	if home_cabin != null and home_cabin.visible and home_cabin.get("_editor_strip") != null:
+		dev_strip = home_cabin._editor_strip.visible
 	var tut_up: bool = in_tutorial and tut != null and tut.visible
 	if playtest_fab:
 		var show_fab: bool = PLAYTEST_FLAG.on() and not hub_up and not cut_up and not teaser_up and (not intro_up or playtest_intro.showing_fab())
 		playtest_fab.visible = show_fab
 	if playtest_voice:
 		## Hide while any caption / Nib talk chrome is up so the tip never overlaps dialog.
-		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up and not cut_up and not cabin_talk and not tut_up
+		## The hint sits on Play Latest. Hide it while those dev buttons are up.
+		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up and not cut_up and not cabin_talk and not tut_up and not dev_strip
 
 
 func _on_script_saved(items: Array, monsters: Array) -> void:

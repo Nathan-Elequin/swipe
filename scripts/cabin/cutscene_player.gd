@@ -115,7 +115,7 @@ func request_advance() -> void:
 
 
 func skip() -> void:
-	if not playing:
+	if not playing or _busy_fade:
 		return
 	if not skippable:
 		_advance()
@@ -264,6 +264,7 @@ func _build() -> void:
 	_skip.add_theme_color_override("font_color", KIT.MUTED)
 	_skip.add_theme_color_override("font_hover_color", KIT.CREAM)
 	_skip.z_index = 7
+	_skip.mouse_filter = Control.MOUSE_FILTER_STOP
 	_skip.pressed.connect(skip)
 	add_child(_skip)
 	_autoplay = Button.new()
@@ -274,6 +275,7 @@ func _build() -> void:
 	_autoplay.add_theme_color_override("font_color", KIT.MUTED)
 	_autoplay.add_theme_color_override("font_hover_color", KIT.CREAM)
 	_autoplay.z_index = 7
+	_autoplay.mouse_filter = Control.MOUSE_FILTER_STOP
 	_autoplay.pressed.connect(_toggle_autoplay)
 	add_child(_autoplay)
 	_sync_autoplay_btn()
@@ -519,7 +521,28 @@ func _advance() -> void:
 	_show_panel(panel_index + 1, false)
 
 
+func _has_point(point: Vector2) -> bool:
+	## Godot 4.7 picks by tree order, not z-index. This full-screen control is
+	## added after the dev buttons, so it used to take their clicks.
+	if cabin != null and cabin.get("_editor_strip") != null:
+		var strip: Control = cabin._editor_strip
+		if strip.visible and strip.is_visible_in_tree():
+			var inv := get_global_transform().affine_inverse()
+			var gr := strip.get_global_rect()
+			var a := inv * gr.position
+			var b := inv * gr.end
+			var lo := Vector2(minf(a.x, b.x), minf(a.y, b.y))
+			var hi := Vector2(maxf(a.x, b.x), maxf(a.y, b.y))
+			if Rect2(lo, hi - lo).has_point(point):
+				return false
+	return true
+
+
 func _process(delta: float) -> void:
+	if playing:
+		_raise_corner_buttons()
+		if cabin != null and cabin.has_method("raise_editor_strip"):
+			cabin.raise_editor_strip()
 	if not playing or _held:
 		return
 	_tick_typing(delta)
@@ -740,6 +763,16 @@ func _tick_next_cue(delta: float) -> void:
 	_next.modulate = Color(1, 1, 1, pulse)
 
 
+func _raise_corner_buttons() -> void:
+	var n := get_child_count()
+	if n < 2 or _skip == null or _autoplay == null:
+		return
+	if _skip.get_index() == n - 1 and _autoplay.get_index() == n - 2:
+		return
+	move_child(_autoplay, n - 1)
+	move_child(_skip, get_child_count() - 1)
+
+
 func _on_gui(event: InputEvent) -> void:
 	if not playing or _busy_fade:
 		return
@@ -748,6 +781,15 @@ func _on_gui(event: InputEvent) -> void:
 		if event.keycode == KEY_SPACE or event.physical_keycode == KEY_SPACE or event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
 			key_ok = true
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		var gp := (event as InputEventMouseButton).global_position
+		if _autoplay != null and _autoplay.visible and _autoplay.get_global_rect().has_point(gp):
+			_toggle_autoplay()
+			accept_event()
+			return
+		if _skip != null and _skip.visible and _skip.get_global_rect().has_point(gp):
+			skip()
+			accept_event()
+			return
 		_advance()
 		accept_event()
 	elif key_ok:

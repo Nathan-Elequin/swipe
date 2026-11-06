@@ -204,6 +204,11 @@ var _beat: String = ""
 var _rng := RandomNumberGenerator.new()
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED:
+		_sync_playtest_fab()
+
+
 func setup(p_art = null, p_sfx = null, p_lore: Dictionary = {}, p_layout: Dictionary = {}, p_catalog: Dictionary = {}) -> void:
 	art = p_art
 	sfx = p_sfx
@@ -777,7 +782,9 @@ func play_ending() -> void:
 	_start_interior_loops()
 	if _cutscene:
 		_cutscene.play("ending")
+		_sync_playtest_fab()
 		await _cutscene.finished
+		_sync_playtest_fab()
 	if seq != _story_seq or not visible:
 		return
 	ending_seen = true
@@ -3299,9 +3306,22 @@ func _set_glint(id: String, hovered: bool) -> void:
 			node.play("glint")
 
 
+func raise_editor_strip() -> void:
+	## Picking ignores z-index. Keep this corner above the full-screen cutscene.
+	if _editor_strip == null or not is_instance_valid(_editor_strip):
+		return
+	if _editor_strip.get_parent() != self:
+		return
+	var last := get_child_count() - 1
+	if last >= 0 and _editor_strip.get_index() != last:
+		move_child(_editor_strip, last)
+
+
 func _process(delta: float) -> void:
 	if not visible:
 		return
+	if _editor_strip != null and _editor_strip.visible:
+		raise_editor_strip()
 	_tick_glows(delta)
 	if _ext_root.visible:
 		_tick_cat(delta)
@@ -4178,6 +4198,7 @@ func _build_chrome() -> void:
 	_editor_strip = VBoxContainer.new()
 	_editor_strip.position = Vector2(16, 16)
 	_editor_strip.z_index = 9
+	_editor_strip.mouse_filter = Control.MOUSE_FILTER_STOP
 	_editor_strip.visible = false
 	add_child(_editor_strip)
 
@@ -4257,6 +4278,7 @@ func attach_editor(main) -> void:
 				main.settings_ui.mode_picked.emit(str(pair[1]))
 		)
 		_editor_strip.add_child(b)
+	_sync_playtest_fab()
 
 
 func _play_station() -> void:
