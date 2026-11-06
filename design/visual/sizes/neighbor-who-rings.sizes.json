@@ -1,0 +1,15 @@
+{
+  "notes": "Gold who-ring overlay on wheel seats. Weak/Tough 24n seats use 32n hoop; Deadly 32n seats use 40n hoop. Overlay only; seat art is unchanged. Nathan picked A (thin hoop) 2026-11-05.",
+  "assets": [
+    {"path": "assets/ui/anim/seat_target_ghost_f0.png", "native": [32, 32], "shipped": [32, 32]},
+    {"path": "assets/ui/anim/seat_target_ghost_f1.png", "native": [32, 32], "shipped": [32, 32]},
+    {"path": "assets/ui/anim/seat_target_ghost_f2.png", "native": [32, 32], "shipped": [32, 32]},
+    {"path": "assets/ui/anim/seat_target_ghost_f3.png", "native": [32, 32], "shipped": [32, 32]},
+    {"path": "assets/ui/anim/seat_target_locked.png", "native": [32, 32], "shipped": [32, 32]},
+    {"path": "assets/ui/anim/seat_target_ghost_deadly_f0.png", "native": [40, 40], "shipped": [40, 40]},
+    {"path": "assets/ui/anim/seat_target_ghost_deadly_f1.png", "native": [40, 40], "shipped": [40, 40]},
+    {"path": "assets/ui/anim/seat_target_ghost_deadly_f2.png", "native": [40, 40], "shipped": [40, 40]},
+    {"path": "assets/ui/anim/seat_target_ghost_deadly_f3.png", "native": [40, 40], "shipped": [40, 40]},
+    {"path": "assets/ui/anim/seat_target_locked_deadly.png", "native": [40, 40], "shipped": [40, 40]}
+  ]
+}
