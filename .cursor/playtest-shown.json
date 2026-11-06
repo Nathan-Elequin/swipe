@@ -75,7 +75,8 @@
     "why": "Nathan asked about Bitter Blood on 2026-11-06. Listed once in Ready in F5 after the Spin fix, then retired again."
   },
   "429": {
-    "shown": 1,
-    "retired": false
+    "shown": 2,
+    "retired": true,
+    "why": "Second show in Still broken in F5 on 2026-11-06, shroud-discard chat."
   }
 }
