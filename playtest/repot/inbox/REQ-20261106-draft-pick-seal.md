@@ -2,8 +2,8 @@
 id: REQ-20261106-draft-pick-seal
 status: open
 priority: high
-pr:
-tip_sha:
+pr: 416
+tip_sha: b313459e
 branch: playtest/latest
 created: 2026-11-06T01:10:00Z
 created_by: cursor-cloud
