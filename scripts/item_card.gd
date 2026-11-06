@@ -50,6 +50,9 @@ var _rank: Label
 var _fill: Color
 var _rim: Color
 var _curse: bool = false
+## Phantom Dark Matter: thick black haze over art / bg / effects.
+var _shrouded: bool = false
+var _shroud_haze: ColorRect
 var _tier: int = 1
 var _num_col: Color = Color.WHITE
 var _shown: String = ""
@@ -1509,6 +1512,32 @@ func set_curse(on: bool) -> void:
 	_curse = on
 	_apply_style(_hot)
 	queue_redraw()
+
+
+func set_shroud(on: bool) -> void:
+	_shrouded = on
+	_ensure_shroud_haze()
+	if _shroud_haze != null:
+		_shroud_haze.visible = on
+	## Thick haze over art; curse rim already paints the plate dark.
+	if _icon != null:
+		_icon.modulate = Color(0.12, 0.10, 0.14, 0.35) if on else Color.WHITE
+	if _face != null:
+		_face.modulate = Color(1, 1, 1, 0.08) if on else Color.WHITE
+	queue_redraw()
+
+
+func _ensure_shroud_haze() -> void:
+	if _shroud_haze != null and is_instance_valid(_shroud_haze):
+		return
+	_shroud_haze = ColorRect.new()
+	_shroud_haze.name = "ShroudHaze"
+	_shroud_haze.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shroud_haze.color = Color(0.04, 0.03, 0.06, 0.82)
+	_shroud_haze.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_shroud_haze.visible = false
+	_shroud_haze.z_index = 8
+	_overlay_host().add_child(_shroud_haze)
 
 
 func _tier_shine() -> Color:

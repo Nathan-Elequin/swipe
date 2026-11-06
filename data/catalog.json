@@ -8703,7 +8703,7 @@
       "explainer": "Across Attacks you: I also Attack (once after multiattacks)",
       "flags": {
         "art": true,
-        "dev": true,
+        "dev": false,
         "hide": false
       },
       "flow": "When the monster Across from me Attacks you (including King/Damsel command Attacks), I also Attack. Wait until multiattacks finish (Shambling), then fire once. Quiet Bell turns this off. Loud telegraph (Take-X + radiating line) is later VFX — catalog text only this PR.",
@@ -8738,7 +8738,7 @@
       "log_hint": "Across Attack: I also Attack once",
       "mode_pool": "all",
       "name": "Huntsman",
-      "notes": "Monster4 2026-11-06 Pixel art (still A + facing A 48×48 + idle). Pool 4 chosen (thin T1). Combat follow-up: Across Attack including King/Damsel command; wait for Shambling multiattacks then fire once. flags.dev until combat wired.",
+      "notes": "Monster4 2026-11-06 Pixel art (still A + facing A 48×48 + idle). Pool 4 chosen (thin T1). Combat live 2026-11-06 — Straight Shot (Across Attack → once after multiattack; Take-X intent; radiating-line VFX later).",
       "ops": {},
       "poc": false,
       "pool": 4.0,
@@ -8767,7 +8767,7 @@
       "explainer": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move charge",
       "flags": {
         "art": true,
-        "dev": true,
+        "dev": false,
         "hide": false
       },
       "flow": "Each Move step counts (Swift Sneaks Move2 = −4 HP; Grappling Hook can be multiple steps). All Crab HP loss AFTER the movement and the current item/effect fully resolves (e.g. Shuriken: move → attack → then Crab loses HP). Spinning me Grants 1 Move charge. Quiet Bell turns this off.",
@@ -8802,7 +8802,7 @@
       "log_hint": "Move: −2 HP/step; Spin: +1 Move charge",
       "mode_pool": "all",
       "name": "Quicksand Crab",
-      "notes": "Monster4 2026-11-06 Pixel art (still B + facing A 64×64 + idle). Combat follow-up: −2 HP per Move step after item/effect resolve; Spin grants Move charge. flags.dev until combat wired.",
+      "notes": "Monster4 2026-11-06 Pixel art (still B + facing A 64×64 + idle). Combat live 2026-11-06 — Move −2 HP/step after resolve; Spin → +1 adventure Move charge.",
       "ops": {},
       "poc": false,
       "pool": 2.0,
@@ -8831,7 +8831,7 @@
       "explainer": "Use non-Shrouded: Shroud and shuffle 2 items until Defeated",
       "flags": {
         "art": true,
-        "dev": true,
+        "dev": false,
         "hide": false
       },
       "flow": "Trigger is non-Shrouded Use only (shrouded reveal-then-use does not re-trigger). Shroud = thick black haze obscures art/bg/effects; shrouded items shoved to end of hotbar and treated as curses. Click reveals then uses immediately if playable; Unplayable → reveal and discard with no effect. On Phantom Defeat, all shrouded items unshroud and resort into their sections. Quiet Bell turns this off.",
@@ -8866,7 +8866,7 @@
       "log_hint": "Use: Shroud+shuffle 2 until Defeat",
       "mode_pool": "all",
       "name": "Phantom",
-      "notes": "Monster4 2026-11-06 Pixel art (still B + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Combat follow-up: Shroud/shuffle 2 on non-Shrouded Use; unshroud on Defeat. flags.dev until combat wired.",
+      "notes": "Monster4 2026-11-06 Pixel art (still B + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Combat live 2026-11-06 — Dark Matter Shroud/shuffle 2; haze+curse hotbar; unshroud on Defeat.",
       "ops": {},
       "poc": false,
       "pool": 4.0,
@@ -8895,7 +8895,7 @@
       "explainer": "Defeat other: Bag at pre-lethal HP. Discard without Use: I lose 2 HP",
       "flags": {
         "art": true,
-        "dev": true,
+        "dev": false,
         "hide": false
       },
       "flow": "Bag any other defeated enemy at pre-lethal HP (Bag of Holding–style into hotbar); Defeat still resolves; never Bags self. Discard without Use (Decay, Spider Queen eggs, over-capacity, etc.) → Collector −2 HP each. Using an item is not a harming Discard. Quiet Bell turns this off.",
@@ -8930,7 +8930,7 @@
       "log_hint": "Defeat other→Bag; Discard no-Use: −2 HP",
       "mode_pool": "all",
       "name": "Collector",
-      "notes": "Monster4 2026-11-06 Pixel art (still C + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Combat follow-up: Bag other defeated at pre-lethal HP; Discard without Use −2 HP. flags.dev until combat wired.",
+      "notes": "Monster4 2026-11-06 Pixel art (still C + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Combat live 2026-11-06 — New Specimen Bag-on-Defeat (pre-lethal); Discard-without-Use −2 HP.",
       "ops": {},
       "poc": false,
       "pool": 5.0,
