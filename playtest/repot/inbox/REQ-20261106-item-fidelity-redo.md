@@ -2,6 +2,8 @@
 id: REQ-20261106-item-fidelity-redo
 status: open
 priority: normal
+pr: 434
+tip_sha: ae30539e10bb93c2a7df80e5a9149b96c202c4cf
 branch: cursor/item-fidelity-redo-7b7d
 created: 2026-11-06T16:40:00-06:00
 created_by: cloud-agent
