@@ -435,6 +435,20 @@ func _facing_strip(card_id: String) -> Array:
 	return out
 
 
+## PixelLab slash plates under anim/slash/{id}_slash_f*.png (f0..). Empty if f0 missing.
+func _slash_strip(card_id: String) -> Array:
+	var id: String = str(card_id).strip_edges()
+	var out: Array = []
+	if id == "":
+		return out
+	for i in 12:
+		var t: Texture2D = _load_tex("res://assets/dungeon/anim/slash/%s_slash_f%d.png" % [id, i])
+		if t == null:
+			break
+		out.append(t)
+	return out
+
+
 ## Current unique art: facing, then wheel, then extra still, then Kenney atlas.
 ## Extra PNGs and slash strips are the early Kenney pass and must not win.
 func monster_idle(card_id: String) -> Array:
@@ -618,13 +632,19 @@ func _knock_backdrop(img: Image) -> void:
 
 
 func monster_slash_frames(card_id: String) -> Array:
-	## Action frames for the slash cut-in. Use the same current facing/wheel
-	## art as the wheel seat. Kenney-era files in anim/slash/ are ignored.
+	## Action frames for the slash cut-in. Prefer PixelLab slash strips only for
+	## the monster4 polish allowlist when f0 loads; otherwise keep facing/wheel
+	## (Nathan 2026-11-01: ignore Kenney-era anim/slash/ for everyone else).
 	## Empty → caller uses monster_still punch-in.
-	var face: Array = _facing_strip(card_id)
+	var id: String = str(card_id).strip_edges()
+	if id in ["huntsman", "quicksand_crab", "phantom", "collector"]:
+		var slash: Array = _slash_strip(id)
+		if not slash.is_empty():
+			return slash
+	var face: Array = _facing_strip(id)
 	if not face.is_empty():
 		return face
-	return monster_wheel_frames(card_id)
+	return monster_wheel_frames(id)
 
 
 ## One-shot Attack callout overlay (Bear Trap jaws). Empty → no-op.
