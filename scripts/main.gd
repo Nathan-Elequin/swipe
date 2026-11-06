@@ -21271,7 +21271,10 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 							drop_prev = true
 							break
 			if drop_prev:
-				pass
+				if bool(view.get("can_use", false)):
+					var net_slot: Dictionary = p.get(facing_index, {})
+					net_slot["who"] = true
+					p[facing_index] = net_slot
 			elif bool(view.get("can_use", false)) and str(wheel[facing_index].get("card_id", "")) != "goblin":
 				var dmg: int = n if kind != "choose" else int(view.get("n", 3))
 				if _kind_deals_atk(kind):
@@ -23980,6 +23983,13 @@ func _refresh() -> void:
 			wheel[i2]["across"] = -1
 		if (phase == "draft" and draft_action == "seat") or phase == "devtest":
 			mode = "place"
+		if not pending_choice.is_empty() and phase == "fighting" and facing_index >= 0:
+			var chooser: Dictionary = _find_item(int(pending_choice.get("uid", -1)))
+			if str(_ops_of(chooser).get("kind", "")) == "choose":
+				var who_p: Dictionary = {}
+				var who_slot: Dictionary = {"who": true}
+				who_p[facing_index] = who_slot
+				_apply_preview(who_p)
 	_trapper_mark_newcomers()
 	if wheel_view:
 		_stamp_atk_variants()
@@ -25622,7 +25632,18 @@ func _on_item_unhovered() -> void:
 	_fly_card = null
 	_ghost_blk = -1
 	_clear_hover_preview()
-	_apply_preview({})
+	if not pending_mark.is_empty() and phase == "fighting":
+		_apply_preview(_preview_mark_aim(str(pending_mark.get("kind", "")), _hover_slice))
+	elif not pending_choice.is_empty() and phase == "fighting" and facing_index >= 0:
+		var chooser_u: Dictionary = _find_item(int(pending_choice.get("uid", -1)))
+		if str(_ops_of(chooser_u).get("kind", "")) == "choose":
+			var who_keep: Dictionary = {}
+			who_keep[facing_index] = {"who": true}
+			_apply_preview(who_keep)
+		else:
+			_apply_preview({})
+	else:
+		_apply_preview({})
 	_reapply_hotbar_aura_roles()
 	_sync_hotbar_formulas()
 	if fly_tip:
