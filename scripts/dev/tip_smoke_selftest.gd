@@ -199,6 +199,17 @@ func _init() -> void:
 	## Hide-under-road must silence cabin (no music/chrome during approach/ambush/overlay).
 	failed = _check(failed, "hide_under_road_silences", _source_func_calls("res://scripts/home_cabin.gd", "_hide_cabin_under_road", "_silence_cabin")) or failed
 
+	## 14) Kiss of Death / Venom Veins mill membership + combat hooks (runtime, not flags.dev).
+	failed = _check(failed, "runtime_has_kiss_of_death", _runtime_has_item("kiss_of_death")) or failed
+	failed = _check(failed, "runtime_has_venom_veins", _runtime_has_item("venom_veins")) or failed
+	failed = _check(failed, "kiss_flags_dev_clear", not _catalog_item_flag("kiss_of_death", "dev")) or failed
+	failed = _check(failed, "venom_flags_dev_clear", not _catalog_item_flag("venom_veins", "dev")) or failed
+	failed = _check(failed, "kiss_ops_wired", _source_contains("res://scripts/main.gd", "\"kiss_of_death\":")) or failed
+	failed = _check(failed, "kiss_apply_hook", _source_has_func("res://scripts/main.gd", "_apply_kiss_of_death")) or failed
+	failed = _check(failed, "venom_hp_loss_hook", _source_has_func("res://scripts/main.gd", "_venom_veins_on_hp_lost")) or failed
+	failed = _check(failed, "runtime_pruned_danger_magnet", not _runtime_has_item("danger_magnet")) or failed
+	failed = _check(failed, "runtime_pruned_basilisk", not _runtime_has_monster("basilisk")) or failed
+
 	if guide != null and is_instance_valid(guide):
 		guide.free()
 
@@ -375,6 +386,51 @@ func _road_finish_unlock_before_cabin_music() -> bool:
 		return false
 	## At least one of music / arrive should follow unlock (arrive splash owns cabin return).
 	return music_i > unlock_i or arrive_i > unlock_i
+
+
+func _load_json(res_path: String) -> Dictionary:
+	var path := ProjectSettings.globalize_path(res_path)
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return {}
+	var parsed: Variant = JSON.parse_string(f.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return {}
+	return parsed as Dictionary
+
+
+func _runtime_has_item(id: String) -> bool:
+	var rt: Dictionary = _load_json("res://data/runtime.json")
+	var items: Variant = rt.get("items", [])
+	if typeof(items) != TYPE_ARRAY:
+		return false
+	return (items as Array).has(id)
+
+
+func _runtime_has_monster(id: String) -> bool:
+	var rt: Dictionary = _load_json("res://data/runtime.json")
+	var mons: Variant = rt.get("monsters", [])
+	if typeof(mons) != TYPE_ARRAY:
+		return false
+	return (mons as Array).has(id)
+
+
+func _catalog_item_flag(id: String, flag: String) -> bool:
+	var cat: Dictionary = _load_json("res://data/catalog.json")
+	var items: Variant = cat.get("items", [])
+	if typeof(items) != TYPE_ARRAY:
+		return false
+	for raw in items as Array:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var card: Dictionary = raw
+		if str(card.get("id", "")) != id:
+			continue
+		var flags: Variant = card.get("flags", {})
+		if typeof(flags) != TYPE_DICTIONARY:
+			return false
+		return bool((flags as Dictionary).get(flag, false))
+	return false
 
 
 func _check(failed: bool, label: String, ok: bool) -> bool:
