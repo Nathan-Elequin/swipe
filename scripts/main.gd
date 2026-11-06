@@ -711,6 +711,9 @@ var _tut_goblin_block_item: bool = false
 ## normally clears it before Nib can point at the used mark.
 var _tut_breastplate_gray_lesson: bool = true
 var _tut_breastplate_keep_gray: bool = false
+## Dialog lines the player can still Back to. Cleared when a wheel turn starts.
+var _tut_back_hist: Array = []
+var _tut_back_at: int = -1
 var draft_gate
 var _courier: TextureRect
 var _courier_gear: Dictionary = {}
@@ -1617,6 +1620,7 @@ func _build_ui() -> void:
 	tut.setup(art, sfx)
 	tut.vo_enabled = false
 	tut.continued.connect(_tut_on_continue)
+	tut.backed.connect(_tut_on_back)
 	tut.progress_key.connect(_tut_on_progress_key)
 	tut.skipped.connect(_tut_skip)
 	tut.finished.connect(_tut_finished)
@@ -8483,6 +8487,9 @@ func _on_spin() -> void:
 		return
 	if facing_index >= 0:
 		return
+	## A wheel turn is a wall. Facing a monster without spinning is not.
+	if in_tutorial and not _tut_free and tut != null and (tut.wait == "spin" or tut.wait == "auto_spin"):
+		_tut_back_wall()
 	for i in range(wheel.size()):
 		if typeof(wheel[i]) == TYPE_DICTIONARY:
 			wheel[i]["spin_locked"] = false
@@ -26417,6 +26424,9 @@ func _tut_release_golem_exit() -> void:
 
 
 func _tut_on_beat_entered(beat: String, rig_id: String) -> void:
+	if tut != null and tut.rewinding:
+		_tut_back_refresh_chrome()
+		return
 	await _tut_apply_desk_beat(beat)
 	if rig_id == "" or _tut_rig_done.get(rig_id, false):
 		return
@@ -26683,6 +26693,7 @@ func _tut_rig_board_d2() -> void:
 
 
 func _tut_enter_free_play() -> void:
+	_tut_back_wall()
 	_tut_free = true
 	_tut_moves_on = true
 	_tut_hold_slay = false
@@ -26876,6 +26887,7 @@ func _start_tutorial() -> void:
 	_tut_last_hole = -1
 	_tut_pin_item = ""
 	_tut_rig_done = {}
+	_tut_back_wall()
 	_tut_goblin_block_item = false
 	_reset_run()
 	_tut_boot = false
@@ -26912,6 +26924,134 @@ func _start_tutorial() -> void:
 	_tut_refresh_focus()
 
 
+func _tut_on_back() -> void:
+	if not in_tutorial or tut == null or _tut_arrive_busy or _spin_inflight:
+		return
+	if tut.wait != "continue" and tut.wait != "":
+		return
+	if _tut_back_at <= 0:
+		return
+	if sfx:
+		sfx.play("click", -12.0)
+	_tut_back_step(-1)
+
+
+func _tut_back_wall() -> void:
+	_tut_back_hist.clear()
+	_tut_back_at = -1
+	if tut != null:
+		tut.set_back_on(false)
+
+
+func _tut_capture_line() -> Dictionary:
+	return {
+		"run": _capture_run(),
+		"pin": _tut_pin_item,
+		"seen": _tut_seen.duplicate(true),
+		"rig_done": _tut_rig_done.duplicate(true),
+		"first_deck": _tut_first_deck_done,
+		"hold_deck": _tut_hold_deck_refill,
+		"pending_empty": _tut_pending_empty_seat,
+		"pending_hole": _tut_pending_hole,
+		"golem_exit": _tut_golem_exit_released,
+		"defer_slice": _tut_defer_slice_close,
+		"shark_hole": _tut_shark_hole,
+		"last_hole": _tut_last_hole,
+		"show_deck": _tut_show_deck,
+		"goblin_block": _tut_goblin_block_item,
+		"bp_gray": _tut_breastplate_gray_lesson,
+		"bp_keep": _tut_breastplate_keep_gray,
+		"hold_slay": _tut_hold_slay,
+		"moves_on": _tut_moves_on,
+		"choice": tut.choice if tut != null else "",
+		"land": tut.land if tut != null else "",
+	}
+
+
+func _tut_back_note_line() -> void:
+	if tut == null or tut.rewinding or not in_tutorial or _tut_free:
+		return
+	if not tut._wait_shows_next(tut.wait):
+		return
+	var snap: Dictionary = _tut_capture_line()
+	if _tut_back_at >= 0 and _tut_back_at == _tut_back_hist.size() - 1:
+		var top: Dictionary = _tut_back_hist[_tut_back_at]
+		if int(top.get("step", -2)) == tut.step:
+			top["snap"] = snap
+			_tut_back_sync_btn()
+			return
+	if _tut_back_at >= 0 and _tut_back_at < _tut_back_hist.size() - 1:
+		_tut_back_hist.resize(_tut_back_at + 1)
+	_tut_back_hist.append({"step": tut.step, "snap": snap})
+	_tut_back_at = _tut_back_hist.size() - 1
+	_tut_back_sync_btn()
+
+
+func _tut_back_sync_btn() -> void:
+	if tut == null:
+		return
+	tut.set_back_on(_tut_back_at > 0)
+
+
+func _tut_back_step(dir: int) -> void:
+	var nxt: int = _tut_back_at + dir
+	if nxt < 0 or nxt >= _tut_back_hist.size() or tut == null:
+		return
+	_tut_back_at = nxt
+	var entry: Dictionary = _tut_back_hist[nxt]
+	_tut_restore_line(entry.get("snap", {}))
+	tut.present_step(int(entry.get("step", tut.step)))
+	_tut_back_sync_btn()
+
+
+func _tut_restore_line(snap: Dictionary) -> void:
+	if typeof(snap) != TYPE_DICTIONARY or snap.is_empty():
+		return
+	var run: Variant = snap.get("run", {})
+	if typeof(run) == TYPE_DICTIONARY and not (run as Dictionary).is_empty():
+		_restore_run(run)
+	_tut_pin_item = str(snap.get("pin", ""))
+	_tut_seen = _undo_dup(snap.get("seen", {}))
+	_tut_rig_done = _undo_dup(snap.get("rig_done", {}))
+	_tut_first_deck_done = bool(snap.get("first_deck", false))
+	_tut_hold_deck_refill = bool(snap.get("hold_deck", false))
+	_tut_pending_empty_seat = int(snap.get("pending_empty", -1))
+	_tut_pending_hole = int(snap.get("pending_hole", -1))
+	_tut_golem_exit_released = bool(snap.get("golem_exit", false))
+	_tut_defer_slice_close = bool(snap.get("defer_slice", false))
+	_tut_shark_hole = int(snap.get("shark_hole", -1))
+	_tut_last_hole = int(snap.get("last_hole", -1))
+	_tut_show_deck = bool(snap.get("show_deck", false))
+	_tut_goblin_block_item = bool(snap.get("goblin_block", false))
+	_tut_breastplate_gray_lesson = bool(snap.get("bp_gray", true))
+	_tut_breastplate_keep_gray = bool(snap.get("bp_keep", false))
+	_tut_hold_slay = bool(snap.get("hold_slay", false))
+	_tut_moves_on = bool(snap.get("moves_on", true))
+	_tut_draft_busy = false
+	if tut != null:
+		tut.choice = str(snap.get("choice", ""))
+		tut.land = str(snap.get("land", ""))
+	if challenge_draft_ui != null and challenge_draft_ui.has_method("hide_draft"):
+		challenge_draft_ui.hide_draft()
+	if dungeon_deck_ui:
+		dungeon_deck_ui.visible = _tut_show_deck
+	if sfx and in_tutorial:
+		sfx.set_combat_music(true)
+	_sync_move_ui()
+
+
+func _tut_back_refresh_chrome() -> void:
+	_tut_refresh_focus()
+	_sync_buttons()
+	if _tut_pin_item != "":
+		_tut_show_pinned_item_quiet(_tut_pin_item)
+	elif fly_tip:
+		fly_tip.hide_plate()
+		fly_tip.z_index = 110
+		fly_tip.z_as_relative = true
+	_tut_back_sync_btn()
+
+
 func _tut_on_continue() -> void:
 	if not in_tutorial or tut == null or _tut_arrive_busy:
 		return
@@ -26920,6 +27060,10 @@ func _tut_on_continue() -> void:
 		return
 	if sfx:
 		sfx.play("click", -12.0)
+	## Already passed this line once. Next pages forward through the stored board.
+	if _tut_back_at >= 0 and _tut_back_at < _tut_back_hist.size() - 1:
+		_tut_back_step(1)
+		return
 	## Golem leaves the deck before "there's just one more" (B11a).
 	var show_talk_after := false
 	if tut.beat_id == "B11" and int(tut.line_n) >= 2 and not _tut_first_deck_done:
@@ -27067,6 +27211,7 @@ func _tut_after_advance() -> void:
 	_tut_release_breastplate_gray_if_past()
 	_tut_refresh_focus()
 	_sync_buttons()
+	_tut_back_note_line()
 	if tut != null and tut.visible and tut.wait == "auto_spin":
 		call_deferred("_on_spin")
 

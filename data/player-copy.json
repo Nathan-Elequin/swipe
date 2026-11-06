@@ -3435,6 +3435,14 @@
 		},
 		{
 			"cat": "Tutorial",
+			"key": "tutorial.back",
+			"text": "Back",
+			"where": "How to Play button that returns to the previous line",
+			"author_lock": true,
+			"locked_at": "2026-11-06"
+		},
+		{
+			"cat": "Tutorial",
 			"key": "tutorial.space_hint",
 			"text": "Press Space to continue.",
 			"where": "Floating white Space hint whenever a talk beat waits on Space"

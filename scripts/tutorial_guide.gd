@@ -5,6 +5,7 @@ const COPY := preload("res://scripts/player_copy.gd")
 const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 
 signal continued
+signal backed
 signal progress_key
 signal skipped
 signal finished
@@ -46,6 +47,10 @@ var _name
 var _body
 var _hint
 var _go: Button
+var _back: Button
+var _back_on: bool = false
+## True while Back or a stored Next is replaying a line. Main skips side effects.
+var rewinding: bool = false
 var _skip: Button
 var _target: Control
 var _beats: Array = []
@@ -263,6 +268,20 @@ func _build_talk(art) -> void:
 	btns.gui_input.connect(_on_talk_gui)
 	btns.add_theme_constant_override("separation", 8)
 	col.add_child(btns)
+	_back = FitButton.new()
+	_back.max_font_size = 26
+	_back.min_font_size = 16
+	_back.text = COPY.text("tutorial.back", "Back")
+	_back.custom_minimum_size = Vector2(132, 58)
+	_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_back.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_back.focus_mode = Control.FOCUS_ALL
+	_back.z_index = 5
+	_back.visible = false
+	_back.add_theme_font_size_override("font_size", 26)
+	_style_btn(_back, Color("efe6d4"), Color("3a2414"))
+	_back.pressed.connect(func() -> void: backed.emit())
+	btns.add_child(_back)
 	_go = FitButton.new()
 	_go.max_font_size = 26
 	_go.min_font_size = 16
@@ -347,6 +366,8 @@ func open() -> void:
 	nib_close = 0.0
 	_beats = _load_beats()
 	visible = true
+	_back_on = false
+	rewinding = false
 	_show_chrome_skip(true)
 	_set_talk_on(true)
 	advance()
@@ -476,6 +497,9 @@ func advance() -> void:
 		allow = []
 		_set_talk_on(false)
 		_go.visible = false
+		_back_on = false
+		if _back:
+			_back.visible = false
 		world_open = true
 		_show_chrome_skip(true)
 		return
@@ -522,7 +546,7 @@ func _apply_beat(b: Dictionary) -> void:
 	_body.visible_characters = 0 if _typing else -1
 	_idle = 0.0
 	## Text-only overnight: suppress tip Nib VO blips on tutorial lines.
-	if vo_enabled and sfx and sfx.has_method("speak") and spoken != "":
+	if vo_enabled and not rewinding and sfx and sfx.has_method("speak") and spoken != "":
 		sfx.speak(&"nib", spoken)
 	_hint.text = COPY.apply_names(str(b.get("hint", "")))
 	var go_raw: String = str(b.get("go", "")).strip_edges()
@@ -535,7 +559,6 @@ func _apply_beat(b: Dictionary) -> void:
 	_sync_next_slot()
 	_go.z_index = 20
 	_talk.z_index = 190
-	_go.custom_minimum_size = Vector2(210, 58)
 	var said: String = str(b.get("text", "")).to_lower()
 	if said.find("survived all") >= 0 or said.find("venture deeper") >= 0 or said.find("come back") >= 0:
 		world_open = true
@@ -564,6 +587,9 @@ func enter_free() -> void:
 	allow = []
 	_set_talk_on(false)
 	_go.visible = false
+	_back_on = false
+	if _back:
+		_back.visible = false
 	_show_chrome_skip(true)
 
 
@@ -668,6 +694,21 @@ func _finish_type() -> void:
 	_sync_next_slot()
 
 
+func set_back_on(on: bool) -> void:
+	_back_on = on
+	_sync_next_slot()
+
+
+func present_step(i: int) -> void:
+	## Show a line the player already passed. Does not run the forward side effects.
+	if i < 0 or i >= _beats.size():
+		return
+	rewinding = true
+	step = i
+	_apply_beat(_beats[step])
+	rewinding = false
+
+
 func _sync_next_slot() -> void:
 	## Keep Next in the layout the whole time it will be used, so the box
 	## does not grow and shove Nib down when the letters finish.
@@ -679,12 +720,23 @@ func _sync_next_slot() -> void:
 	## Never disable the button. A disabled button still swallows the click.
 	_go.disabled = false
 	_go.mouse_filter = Control.MOUSE_FILTER_STOP if show else Control.MOUSE_FILTER_IGNORE
+	_go.custom_minimum_size = Vector2(168, 58) if _back_on and slot else Vector2(210, 58)
 	if show:
 		var pulse: float = 0.62 + 0.38 * absf(sin(_idle * 5.0))
 		_go.modulate = Color(1, 1, 1, pulse)
 	else:
 		_go.modulate = Color(1, 1, 1, 0)
 	_go.z_index = 20
+	if _back == null:
+		return
+	## Keep Back in the row while the line types, same as Next, so the box does not jump.
+	var back_slot: bool = slot and _back_on
+	var back_show: bool = show and _back_on
+	_back.visible = back_slot
+	_back.disabled = false
+	_back.mouse_filter = Control.MOUSE_FILTER_STOP if back_show else Control.MOUSE_FILTER_IGNORE
+	_back.modulate = Color(1, 1, 1, 1) if back_show else Color(1, 1, 1, 0)
+	_back.z_index = 20
 
 
 func _input(event: InputEvent) -> void:
