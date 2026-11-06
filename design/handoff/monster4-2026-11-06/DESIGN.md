@@ -31,7 +31,7 @@ Art stills: Pixel A/B/B/C. Facing: all A. Idle: huntsman + quicksand_crab real f
 - **Ability name:** Dark Matter
 - **Ability (locked):** When you Use a non-Shrouded item, I Shroud and shuffle 2 of your items until I am Defeated.
 - **Rulings (locked):** Trigger is **non-Shrouded** Use only (shrouded reveal-then-use does not re-trigger). Shroud = thick black haze obscures art/bg/effects; shrouded items shoved to end of hotbar and treated as curses. Click reveals then uses immediately if playable; Unplayable → reveal and discard with no effect. On Phantom Defeat, all shrouded items unshroud and resort into their sections.
-- **Combat:** Stub `flags.dev` — Shroud VFX + hotbar haze is UI/combat later. Document gap.
+- **Combat:** Live 2026-11-06 — Dark Matter Shroud/shuffle 2; haze+curse hotbar; unshroud on Defeat.
 - **Art:** still `phantom/LOCKED.png`; facing `phantom/facing_LOCKED.png` (64×64); idle = facing plate duplicated to f0–f3 (deferred gens — note in PR)
 
 ### 4. `collector` — NEW monster, Tier 3
@@ -41,7 +41,7 @@ Art stills: Pixel A/B/B/C. Facing: all A. Idle: huntsman + quicksand_crab real f
 - **Ability name:** New Specimen
 - **Ability (locked):** When you Defeat any other enemy, I Bag it for you. When you Discard an item without Using it, I lose 2 HP.
 - **Rulings (locked):** Bag any **other** defeated enemy at **pre-lethal HP** (Bag of Holding–style into hotbar); Defeat still resolves; **never Bags self**. Discard without Use (Decay, Spider Queen eggs, over-capacity, etc.) → Collector −2 HP each. Using an item is not a harming Discard.
-- **Combat:** Stub `flags.dev` if Bag-on-Defeat compose is unsafe; peer Bag of Holding pattern. Document gap.
+- **Combat:** Live 2026-11-06 — Bag other defeated at pre-lethal HP (Bag of Holding peer); Discard-without-Use −2 HP.
 - **Art:** still `collector/LOCKED.png`; facing `collector/facing_LOCKED.png` (64×64); idle = facing plate duplicated to f0–f3 (deferred gens — note in PR)
 
 ## Art wiring

@@ -262,6 +262,10 @@ const MONSTER_SPECIAL := {
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
 	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 2 Attack"},
 	"oligarch": {"id": "wealth_tax", "text": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item"},
+	"huntsman": {"id": "straight_shot", "text": "When the monster Across from me Attacks you, I also Attack once after that multiattack ends."},
+	"quicksand_crab": {"id": "sink_charge", "text": "When you Move, I lose 2 HP per step after resolve. When you Spin me, Gain 1 Move charge."},
+	"phantom": {"id": "dark_matter", "text": "When you Use a non-Shrouded item, I Shroud and shuffle 2 of your items until I am Defeated."},
+	"collector": {"id": "new_specimen", "text": "When you Defeat any other enemy, I Bag it. When you Discard an item without Using it, I lose 2 HP."},
 }
 
 const MONSTER_CALL := {
@@ -318,6 +322,10 @@ const MONSTER_CALL := {
 	"rust_bucket": "Rust",
 	"sandbag": "Sandbag",
 	"oligarch": "Wealth Tax",
+	"huntsman": "Straight Shot",
+	"quicksand_crab": "",
+	"phantom": "Dark Matter",
+	"collector": "New Specimen",
 }
 
 const MONSTER_REMINDER := {
@@ -373,6 +381,10 @@ const MONSTER_REMINDER := {
 	"plague_doctor": "Each Spin: you and every monster Gain 1 Poison",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust.",
 	"oligarch": "On entry: Gain 2 Items. After each Spin's choices: one playable Item is used",
+	"huntsman": "Across Attacks you: I also Attack once after multiattacks",
+	"quicksand_crab": "Move: −2 HP per step after resolve. Spin me: Gain 1 Move charge",
+	"phantom": "Non-Shrouded Use: Shroud and shuffle 2 items until Defeated",
+	"collector": "Defeat other: Bag at pre-lethal HP. Discard without Use: −2 HP",
 }
 
 const MONSTER_SPEECH := {
@@ -428,6 +440,10 @@ const MONSTER_SPEECH := {
 	"plague_doctor": "On each Spin, I give all You and all Monsters 1 Poison.",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust.",
 	"oligarch": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
+	"huntsman": "When the monster Across from me Attacks you, I also Attack.",
+	"quicksand_crab": "When you Move, I lose 2 HP. When you Spin me, you Gain 1 Move charge.",
+	"phantom": "When you Use a non-Shrouded item, I Shroud and shuffle 2 of your items until I am Defeated.",
+	"collector": "When you Defeat any other enemy, I Bag it for you. When you Discard an item without Using it, I lose 2 HP.",
 }
 
 var catalog: Dictionary = {}
@@ -737,6 +753,10 @@ var _spin_land_uid: int = -1
 var _pending_item_flee: bool = false
 var _chakram_halves_busy: bool = false
 var _fungal_stop_fight: bool = false
+## Quicksand Crab: Move steps banked until the move / item / effect fully resolves.
+var _crab_pending_steps: int = 0
+## Phantom Dark Matter: reveal-then-use must not re-trigger Shroud.
+var _phantom_skip_dark_matter: bool = false
 var _drink_hp_due: bool = false
 var _gate_line: String = ""
 var _cube_line: String = ""
@@ -1204,6 +1224,10 @@ func _load_textures() -> void:
 		"blood_pact": _tex("res://assets/icons/droplet.svg"),
 		"dance_swap": _tex("res://assets/icons/rotate.svg"),
 		"blood_thresh": _tex("res://assets/icons/swords.svg"),
+		"straight_shot": _tex("res://assets/icons/swords.svg"),
+		"sink_charge": _tex("res://assets/icons/footprints.svg"),
+		"dark_matter": _tex("res://assets/icons/sparkles.svg"),
+		"new_specimen": _tex("res://assets/icons/layers.svg"),
 		"toll_dead": _tex("res://assets/icons/skull.svg"),
 		"no_defeat": _tex("res://assets/icons/ban.svg"),
 		"atk_eq_blk": _tex("res://assets/icons/link.svg"),
@@ -4613,6 +4637,8 @@ func _hand_full() -> bool:
 
 
 func _item_is_curse(it: Dictionary) -> bool:
+	if bool(it.get("shrouded", false)):
+		return true
 	var id: String = str(it.get("card_id", ""))
 	var card: Dictionary = items_by_id.get(id, {})
 	if bool(card.get("curse", false)):
@@ -8625,6 +8651,8 @@ func _on_spin() -> void:
 	last_item_atk = 0
 	skip_swing_this_fight = false
 	keep_blocked_this_fight = false
+	_crab_pending_steps = 0
+	_phantom_skip_dark_matter = false
 	pending_feed = {}
 	_bell_wait = false
 	_cube_line = ""
@@ -8683,6 +8711,7 @@ func _on_spin() -> void:
 		await _unlock_if_fighting()
 		return
 	await _headstrong_on_face(facing_index)
+	_quicksand_crab_on_spin()
 	await _apply_plague_doctor_on_spin()
 	var beggar_spin: int = -1
 	if facing_index >= 0 and facing_index < wheel.size():
@@ -9121,8 +9150,12 @@ func _resolve_then_continue(skip_attack: bool) -> void:
 func _apply_resolve_hits() -> int:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return 0
+	var attacker: int = facing_index
 	if _blood_threshes(facing_index):
-		return await _shark_attack_player(facing_index)
+		var shark_total: int = await _shark_attack_player(facing_index)
+		if hp > 0:
+			await _straight_shot_after(attacker)
+		return shark_total
 	var m: Dictionary = wheel[facing_index]
 	# Done still takes the normal hit. Spin and items are extra swings.
 	var hits: int = _hit_count(facing_index)
@@ -9146,6 +9179,8 @@ func _apply_resolve_hits() -> int:
 		if hits > 1 and h < hits - 1:
 			# Ability oneshot replaces mon.hornet_buzz between swings.
 			await get_tree().create_timer(0.04).timeout
+	if hp > 0 and not _fungal_stop_fight:
+		await _straight_shot_after(attacker)
 	return total
 
 
@@ -10022,6 +10057,23 @@ func _use_item(uid: int) -> void:
 		if sfx:
 			sfx.play_event(&"hand.petrified")
 		return
+	## Phantom Shroud: click reveals, then uses if playable; Unplayable → reveal + discard.
+	## Reveal-use does not re-trigger Dark Matter.
+	if bool(it.get("shrouded", false)):
+		it["shrouded"] = false
+		_sort_hotbar()
+		_hotbar_sig = ""
+		_refresh()
+		var shroud_view: Dictionary = _item_view(it)
+		var can_play: bool = bool(shroud_view.get("can_use", false)) and not bool(it.get("spent", false))
+		if not can_play:
+			_log("on_item_use", "Shroud reveal — unplayable, discard")
+			_discard_from_hand(uid)
+			_undo_arm()
+			call_deferred("_refresh")
+			return
+		_phantom_skip_dark_matter = true
+		## Fall through into the normal Use path with the revealed item.
 	if in_tutorial and not _tutorial_allows_item(str(it.get("card_id", ""))):
 		if tut:
 			tut.nudge(_tutorial_nudge_for_item(str(it.get("card_id", ""))))
@@ -11027,6 +11079,10 @@ func _on_owner_defeated(index: int) -> void:
 	m = wheel[index]
 	var cid: String = str(m.get("card_id", ""))
 	var quiet: bool = _is_silenced(m)
+	## Collector bags OTHER defeated enemies at pre-lethal HP; Defeat still resolves.
+	await _collector_bag_defeated(index)
+	if cid == "phantom" and not quiet:
+		_phantom_unshroud_all()
 	if cid == "phoenix" and P1.phoenix_lays_egg(bool(m.get("has_attacked", false)), quiet):
 		if not bool(m.get("egg_laid", false)):
 			m["egg_laid"] = true
@@ -11127,7 +11183,10 @@ func _bear_trap_snap() -> bool:
 		_sync_buttons()
 		return true
 	var m: Dictionary = wheel[facing_index]
+	var trap_i: int = facing_index
 	await _owner_attack(m)
+	if hp > 0:
+		await _straight_shot_after(trap_i)
 	_walker_busy = false
 	_sync_buttons()
 	if hp <= 0:
@@ -11438,6 +11497,8 @@ func _toss_item(uid: int, keep: bool, slow: bool = false, formula_fx: bool = tru
 		keep = false
 	var snap: Dictionary = _find_item(uid).duplicate(true) if not keep else {}
 	var card_from: Vector2 = _item_card_global(uid)
+	## Collector: Discard without Using taxes −2 HP each. Using is not a tax.
+	var tax_discard: bool = (not keep) and (not played)
 	for c in _hotbar_all_cards():
 		if not c.has_method("toss"):
 			continue
@@ -11463,6 +11524,8 @@ func _toss_item(uid: int, keep: bool, slow: bool = false, formula_fx: bool = tru
 		if not snap.is_empty():
 			_recycle_after_gone(snap)
 		_sync_wheel_stats()
+	if tax_discard:
+		await _collector_discard_tax()
 	if formula_fx:
 		await _echo_bandits(card_from)
 
@@ -11471,7 +11534,7 @@ func _discard_from_hand(uid: int, slow: bool = false, _recycle: bool = true) -> 
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
 		return
-	_toss_item(uid, false, slow, true, false)
+	await _toss_item(uid, false, slow, true, false)
 	if not _beggar_hold and not _decay_busy:
 		_kick_beggar_fill()
 
@@ -14122,6 +14185,8 @@ func _paint_item_card_identity(card: Control, it: Dictionary) -> void:
 	card.set_palette(view["fill"], view["rim"], _tier_of(it))
 	if card.has_method("set_curse"):
 		card.set_curse(_item_is_curse(it))
+	if card.has_method("set_shroud"):
+		card.set_shroud(bool(it.get("shrouded", false)))
 	if card.has_method("set_num_color"):
 		card.set_num_color(Color("9a9a9a") if pn > 0 else _num_color(k))
 	var rule: Dictionary = _item_rule(it)
@@ -15349,6 +15414,10 @@ func _damsel_incoming() -> int:
 			left_blk = int(swing["blk"])
 			if bool(swing.get("used_buckler", false)):
 				buckler_ok = false
+		var hs: Dictionary = _huntsman_incoming_extra(j, left_blk, buckler_ok)
+		total += int(hs.get("dmg", 0))
+		left_blk = int(hs.get("blk", left_blk))
+		buckler_ok = bool(hs.get("buckler_ok", buckler_ok))
 	return total
 
 
@@ -15372,6 +15441,8 @@ func _damsel_resolve() -> void:
 			await get_tree().create_timer(0.35).timeout
 		if _blood_threshes(j):
 			await _shark_attack_player(j)
+			if hp > 0:
+				await _straight_shot_after(j)
 			if hp <= 0:
 				await _bleed_end()
 				_player_down()
@@ -15391,6 +15462,8 @@ func _damsel_resolve() -> void:
 				break
 			if hits > 1 and h < hits - 1:
 				await get_tree().create_timer(0.08).timeout
+		if hp > 0:
+			await _straight_shot_after(j)
 		if hp <= 0:
 			await _bleed_end()
 			_player_down()
@@ -16082,7 +16155,8 @@ func _apply_queen_eggs_on_spin() -> void:
 			egg_from.append(_item_card_global(int(uid)))
 		for uid in egg_uids:
 			_log("discard", "Spider Egg")
-			await _toss_item(int(uid), false, false, false)
+			## Discard without Using — Collector tax applies (played=false).
+			await _toss_item(int(uid), false, false, false, false)
 		if bonus > 0:
 			await _announce_slice(facing_index, _slice_hp_pos(facing_index))
 			if sfx:
@@ -17124,7 +17198,10 @@ func _after_item_resolved(it: Dictionary) -> void:
 		_beggar_note_use(int(it.get("uid", -1)))
 	_beggar_hold = false
 	_kick_beggar_fill()
+	## Quicksand Crab: Move steps from Hook / Swift Sneaks land after the item resolves.
+	await _flush_crab_move_tax()
 	if it.is_empty():
+		_phantom_skip_dark_matter = false
 		return
 	# Item body is done. Dual Sais / Shield / Toll / Adaptation wait until now
 	# so Pocketwatch's attack (and Defeat, Signpost, Hook) can finish first.
@@ -17135,6 +17212,10 @@ func _after_item_resolved(it: Dictionary) -> void:
 	if counted_use and _clicked_item_counts_as_use(it):
 		_remember_item_use(it)
 		await _basilisk_on_gazed_use(it)
+		## Phantom Dark Matter: non-Shrouded Use only (reveal-use skips).
+		if not _phantom_skip_dark_matter and not bool(it.get("shrouded", false)):
+			_phantom_dark_matter_on_use(it)
+	_phantom_skip_dark_matter = false
 	if await _flush_vindictive():
 		return
 	var spent_use: bool = bool(it.get("spent", false))
@@ -17196,7 +17277,10 @@ func _harpy_poke(why: String = "spin") -> void:
 		_sync_buttons()
 		return
 	m = wheel[facing_index]
+	var harpy_i: int = facing_index
 	await _owner_attack(m)
+	if hp > 0:
+		await _straight_shot_after(harpy_i)
 	_walker_busy = false
 	_sync_buttons()
 	if hp <= 0:
@@ -18554,6 +18638,9 @@ func _commanded_neighbor_attack(j: int) -> bool:
 			break
 		if hits > 1 and h < hits - 1:
 			await get_tree().create_timer(0.08).timeout
+	if hp > 0:
+		if await _straight_shot_after(j):
+			return true
 	if hp <= 0:
 		_player_down()
 		return true
@@ -18760,6 +18847,289 @@ func _across_index(from: int) -> int:
 	if pos < 0:
 		return -1
 	return int(living[(pos + (n >> 1)) % n])
+
+
+## --- Monster4 combat (huntsman / quicksand_crab / phantom / collector) ---
+
+
+func _huntsman_watchers(attacker: int) -> Array[int]:
+	var out: Array[int] = []
+	if attacker < 0 or attacker >= wheel.size():
+		return out
+	for i in range(wheel.size()):
+		if str(wheel[i].get("card_id", "")) != "huntsman":
+			continue
+		if _is_silenced(wheel[i]) or int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		if _across_index(i) != attacker:
+			continue
+		out.append(i)
+	return out
+
+
+## After Across finishes its full multiattack (Shambling waits), each watching
+## Huntsman Attacks once. Returns true if the player died.
+func _straight_shot_after(attacker: int) -> bool:
+	if hp <= 0:
+		return true
+	var watchers: Array[int] = _huntsman_watchers(attacker)
+	if watchers.is_empty():
+		return false
+	var pin_id: String = str(wheel[facing_index].get("card_id", "")) if facing_index >= 0 and facing_index < wheel.size() else ""
+	var pin_tier: int = int(wheel[facing_index].get("tier", 1)) if facing_index >= 0 and facing_index < wheel.size() else 1
+	for hi in watchers:
+		if hp <= 0:
+			break
+		if hi < 0 or hi >= wheel.size():
+			continue
+		if str(wheel[hi].get("card_id", "")) != "huntsman":
+			continue
+		if _is_silenced(wheel[hi]) or int(wheel[hi].get("hp", 0)) <= 0:
+			continue
+		var hm: Dictionary = wheel[hi]
+		await _announce_slice(hi, _hub_hp_pos())
+		if combat_stage:
+			combat_stage.show_monster(str(hm.get("card_id", "")), int(hm.get("tier", 1)))
+		_log("on_resolve", "Straight Shot")
+		## One Attack only — never the Huntsman's multiattack loop.
+		await _owner_attack(hm, 1, 1, hi)
+		if hp <= 0:
+			break
+	if combat_stage and facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) > 0:
+		combat_stage.show_monster(pin_id if pin_id != "" else str(wheel[facing_index].get("card_id", "")), pin_tier)
+		_tune_combat_stage()
+	if hp <= 0:
+		_player_down()
+		return true
+	return false
+
+
+func _append_huntsman_intent(out: Array[Dictionary], attacker: int, left_blk: int, buckler_ok: bool) -> Dictionary:
+	## Adds one intent badge per watching Huntsman. Returns updated blk/buckler.
+	var state := {"blk": left_blk, "buckler_ok": buckler_ok}
+	for hi in _huntsman_watchers(attacker):
+		var hm: Dictionary = wheel[hi]
+		var swing: Dictionary = _preview_swing(hm, int(state["blk"]), bool(state["buckler_ok"]))
+		var n_raw: int = int(hm.get("atk", 0))
+		if bool(swing.get("used_buckler", false)):
+			n_raw = int(n_raw / 2)
+			state["buckler_ok"] = false
+		var dmg: int = int(swing["dmg"])
+		var pierce: bool = bool(swing.get("pierce", false))
+		out.append({
+			"n_raw": n_raw,
+			"soaked": (not pierce) and dmg < n_raw,
+			"pierce": pierce,
+			"src_index": hi,
+			"poison": false,
+			"loop": false,
+			"chip": "",
+		})
+		state["blk"] = int(swing["blk"])
+	return state
+
+
+func _huntsman_incoming_extra(attacker: int, left_blk: int, buckler_ok: bool) -> Dictionary:
+	## Extra Take damage from Straight Shot watchers. Returns {dmg, blk, buckler_ok}.
+	var dmg_total: int = 0
+	var blk_left: int = left_blk
+	var buck: bool = buckler_ok
+	for hi in _huntsman_watchers(attacker):
+		var hm: Dictionary = wheel[hi]
+		var swing: Dictionary = _preview_swing(hm, blk_left, buck)
+		dmg_total += int(swing["dmg"])
+		blk_left = int(swing["blk"])
+		if bool(swing.get("used_buckler", false)):
+			buck = false
+	return {"dmg": dmg_total, "blk": blk_left, "buckler_ok": buck}
+
+
+func _note_crab_move_step() -> void:
+	if _living_quicksand_crab_count() <= 0:
+		return
+	_crab_pending_steps += 1
+
+
+func _living_quicksand_crab_count() -> int:
+	var n: int = 0
+	for i in range(wheel.size()):
+		if str(wheel[i].get("card_id", "")) != "quicksand_crab":
+			continue
+		if _is_silenced(wheel[i]) or int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		n += 1
+	return n
+
+
+## −2 HP per banked Move step on every living Crab, after the move/item resolves.
+func _flush_crab_move_tax() -> void:
+	var steps: int = _crab_pending_steps
+	_crab_pending_steps = 0
+	if steps <= 0:
+		return
+	var loss: int = steps * 2
+	for i in range(wheel.size()):
+		if str(wheel[i].get("card_id", "")) != "quicksand_crab":
+			continue
+		if _is_silenced(wheel[i]) or int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		_log("on_resolve", "Quicksand Crab −%s HP (%s steps)" % [loss, steps])
+		await _chip_hp(i, loss)
+	await _run_dead_sweep()
+
+
+func _quicksand_crab_on_spin() -> void:
+	if facing_index < 0 or facing_index >= wheel.size():
+		return
+	var m: Dictionary = wheel[facing_index]
+	if str(m.get("card_id", "")) != "quicksand_crab":
+		return
+	if _is_silenced(m) or int(m.get("hp", 0)) <= 0:
+		return
+	## Peer: adventure Moves bank (`moves_left`), not Tesla Coil item Charge.
+	moves_left += 1
+	_log("on_spin", "Quicksand Crab — Gain 1 Move charge  →  %s" % moves_left)
+	_sync_move_ui()
+	if wheel_view and wheel_view.has_method("set_moves"):
+		wheel_view.set_moves(moves_left, ADVENTURE_MOVES if _is_adventure_mode() else 0)
+
+
+func _phantom_alive() -> bool:
+	for i in range(wheel.size()):
+		if str(wheel[i].get("card_id", "")) != "phantom":
+			continue
+		if _is_silenced(wheel[i]) or int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		return true
+	return false
+
+
+func _phantom_dark_matter_on_use(it: Dictionary) -> void:
+	if _phantom_skip_dark_matter:
+		return
+	if it.is_empty() or bool(it.get("shrouded", false)):
+		return
+	if not _phantom_alive():
+		return
+	var cands: Array = []
+	var used_uid: int = int(it.get("uid", -1))
+	for held in hotbar:
+		if typeof(held) != TYPE_DICTIONARY:
+			continue
+		if bool(held.get("spent", false)):
+			continue
+		if bool(held.get("shrouded", false)):
+			continue
+		var uid: int = int(held.get("uid", -1))
+		if uid == used_uid:
+			continue
+		cands.append(uid)
+	if cands.is_empty():
+		return
+	## Shuffle pick of up to 2 items, then shroud them (curse treatment + end of bar).
+	cands.shuffle()
+	var pick_n: int = mini(2, cands.size())
+	for i in range(pick_n):
+		var target: Dictionary = _find_item(int(cands[i]))
+		if target.is_empty():
+			continue
+		target["shrouded"] = true
+	_log("on_resolve", "Dark Matter — Shroud %s" % pick_n)
+	_sort_hotbar()
+	_hotbar_sig = ""
+	_refresh()
+
+
+func _phantom_unshroud_all() -> void:
+	var any := false
+	for held in hotbar:
+		if typeof(held) != TYPE_DICTIONARY:
+			continue
+		if not bool(held.get("shrouded", false)):
+			continue
+		held["shrouded"] = false
+		any = true
+	if not any:
+		return
+	_log("on_resolve", "Dark Matter — unshroud")
+	_sort_hotbar()
+	_hotbar_sig = ""
+	_refresh()
+
+
+func _collector_alive_indices(except: int = -1) -> Array[int]:
+	var out: Array[int] = []
+	for i in range(wheel.size()):
+		if i == except:
+			continue
+		if str(wheel[i].get("card_id", "")) != "collector":
+			continue
+		if _is_silenced(wheel[i]) or int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		out.append(i)
+	return out
+
+
+## Bag a defeated OTHER enemy at pre-lethal HP (Bag of Holding peer into hotbar).
+func _collector_bag_defeated(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var m: Dictionary = wheel[index]
+	if str(m.get("kind", "")) != "monster":
+		return
+	## Never Bags self.
+	if str(m.get("card_id", "")) == "collector":
+		return
+	var collectors: Array[int] = _collector_alive_indices(index)
+	if collectors.is_empty():
+		return
+	var pre: int = int(m.get("hp_pre_hit", 0))
+	if pre <= 0:
+		pre = maxi(1, int(m.get("hp_max", 1)))
+	for _ci in collectors:
+		await _collector_spawn_bag(m, pre)
+
+
+func _collector_spawn_bag(m: Dictionary, pre_hp: int) -> void:
+	if not items_by_id.has("bag_of_holding"):
+		return
+	var it: Dictionary = _make_item("bag_of_holding")
+	var snap: Dictionary = m.duplicate(true)
+	snap["hp"] = pre_hp
+	_fill_bag(it, snap)
+	it["bagged_hp"] = pre_hp
+	_log("on_resolve", "New Specimen — Bag of %s (%s HP)" % [str(m.get("name", "?")), pre_hp])
+	if _hand_full():
+		if not _start_full_hand_replace(it):
+			return
+		return
+	if _hand_cannot_admit():
+		_abort_full_hand_gain(it)
+		return
+	hotbar.append(it)
+	_note_incoming_gain(it)
+	_sort_hotbar()
+	_hotbar_sig = ""
+	_refresh()
+	if sfx:
+		sfx.play_event(&"hand.gain", {"card_id": "bag_of_holding"})
+
+
+## Discard without Using → each living Collector loses 2 HP.
+func _collector_discard_tax() -> void:
+	var collectors: Array[int] = _collector_alive_indices()
+	if collectors.is_empty():
+		return
+	for ci in collectors:
+		if ci < 0 or ci >= wheel.size():
+			continue
+		if str(wheel[ci].get("card_id", "")) != "collector":
+			continue
+		if _is_silenced(wheel[ci]) or int(wheel[ci].get("hp", 0)) <= 0:
+			continue
+		_log("on_resolve", "Collector −2 HP (discard without Use)")
+		await _chip_hp(ci, 2)
+	await _run_dead_sweep()
 
 
 func _fight_portrait_index() -> int:
@@ -19508,6 +19878,8 @@ func _neighbor_full_attack(src: int) -> int:
 				combat_stage.show_monster(str(nm.get("card_id", "")), int(nm.get("tier", 1)))
 			if _blood_threshes(j):
 				total += await _shark_attack_player(j)
+				if hp > 0:
+					await _straight_shot_after(j)
 				if hp <= 0:
 					break
 				continue
@@ -19528,6 +19900,8 @@ func _neighbor_full_attack(src: int) -> int:
 					break
 				if hits > 1 and h < hits - 1:
 					await get_tree().create_timer(0.08).timeout
+			if hp > 0:
+				await _straight_shot_after(j)
 			if hp <= 0:
 				break
 		if hp > 0:
@@ -19535,6 +19909,8 @@ func _neighbor_full_attack(src: int) -> int:
 		await _slay_dead_after_watch()
 	elif _blood_threshes(src):
 		total = await _shark_attack_player(src)
+		if hp > 0:
+			await _straight_shot_after(src)
 	else:
 		var hits2: int = _hit_count(src)
 		for h2 in range(hits2):
@@ -19556,6 +19932,8 @@ func _neighbor_full_attack(src: int) -> int:
 				break
 			if hits2 > 1 and h2 < hits2 - 1:
 				await get_tree().create_timer(0.08).timeout
+		if hp > 0:
+			await _straight_shot_after(src)
 	if src >= 0 and src < wheel.size() and int(wheel[src].get("hp", 0)) <= 0 and src != facing_index:
 		await _maybe_slay_down(src)
 	if combat_stage and facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) > 0:
@@ -20025,7 +20403,21 @@ func _incoming_total() -> int:
 	if str(m.get("card_id", "")) == "damsel_in_distress" and not _is_silenced(m):
 		return _damsel_incoming()
 	if _blood_threshes(facing_index):
-		return _shark_incoming()
+		## Shark Take uses first connecting hit only; Straight Shot still adds once after.
+		var shark: int = _shark_incoming()
+		var probe_left: int = blk
+		var probe_buck: bool = true
+		var zeros: int = 0
+		while zeros < 5:
+			var sw: Dictionary = _preview_swing(m, probe_left, probe_buck)
+			probe_left = int(sw["blk"])
+			if bool(sw.get("used_buckler", false)):
+				probe_buck = false
+			if int(sw["dmg"]) > 0:
+				break
+			zeros += 1
+		var hs_s: Dictionary = _huntsman_incoming_extra(facing_index, probe_left, probe_buck)
+		return shark + int(hs_s.get("dmg", 0))
 	var left: int = blk
 	var total: int = 0
 	var buckler_ok: bool = true
@@ -20035,6 +20427,8 @@ func _incoming_total() -> int:
 		left = int(swing["blk"])
 		if bool(swing.get("used_buckler", false)):
 			buckler_ok = false
+	var hs: Dictionary = _huntsman_incoming_extra(facing_index, left, buckler_ok)
+	total += int(hs.get("dmg", 0))
 	return total
 
 
@@ -20978,6 +21372,9 @@ func _item_view(it: Dictionary) -> Dictionary:
 		out["rim"] = Color("100e0c")
 		out["fill"] = Color("241014")
 		out["curse"] = true
+	## Shrouded cards stay clickable so reveal-then-use / reveal-discard can fire.
+	if bool(it.get("shrouded", false)) and fighting and not bool(it.get("spent", false)):
+		out["can_use"] = true
 	return out
 
 
@@ -21218,6 +21615,9 @@ func _sort_hotbar() -> void:
 
 
 func _item_rank(it: Dictionary) -> int:
+	## Shrouded items sit at the end of the hotbar (curse treatment).
+	if bool(it.get("shrouded", false)):
+		return 90
 	var view: Dictionary = _item_view(it)
 	var k: String = str(view.get("kind", ""))
 	var fill: Color = view.get("fill", Color.BLACK)
@@ -23529,6 +23929,9 @@ func _intent_hits() -> Array[Dictionary]:
 					"chip": "",
 				})
 				left_blk = int(swing["blk"])
+			var st: Dictionary = _append_huntsman_intent(out, j, left_blk, buckler_ok)
+			left_blk = int(st.get("blk", left_blk))
+			buckler_ok = bool(st.get("buckler_ok", buckler_ok))
 		return out
 	if _blood_threshes(facing_index):
 		# Shark: first swing's raw hit, then a loop chip (↻).
@@ -23563,6 +23966,7 @@ func _intent_hits() -> Array[Dictionary]:
 			"chip": "",
 		})
 		out.append({"n_raw": 0, "soaked": false, "pierce": false, "src_index": facing_index, "poison": false, "loop": true, "chip": ""})
+		_append_huntsman_intent(out, facing_index, int(chosen.get("blk", blk)), true)
 		return out
 	var left3: int = blk
 	var buckler_ok3: bool = true
@@ -23584,6 +23988,7 @@ func _intent_hits() -> Array[Dictionary]:
 			"chip": "",
 		})
 		left3 = int(swing3["blk"])
+	_append_huntsman_intent(out, facing_index, left3, buckler_ok3)
 	return out
 
 
@@ -24336,6 +24741,10 @@ func _take_variant() -> Dictionary:
 	if str(m.get("card_id", "")) == "damsel_in_distress" and not _is_silenced(m):
 		var sn: int = _intent_hits().size()
 		v = {"kind": "double" if sn >= 2 else "single", "n": sn}
+	elif not _huntsman_watchers(facing_index).is_empty():
+		## Facing Across + Straight Shot: Take arc shows multi-source count.
+		var sn2: int = _intent_hits().size()
+		v = {"kind": "double" if sn2 >= 2 else "single", "n": sn2}
 	return v
 
 
@@ -24947,9 +25356,11 @@ func _try_move(dir: int) -> void:
 	if await _shift_facing(dir, true):
 		if _undo_stale(token):
 			_move_busy = false
+			_crab_pending_steps = 0
 			return
 		if _facing_live_bear_trap():
 			await _bear_trap_snap()
+		await _flush_crab_move_tax()
 		_undo_commit()
 		if in_tutorial and tut != null and tut.wait == "move":
 			tut.advance()
@@ -24957,6 +25368,7 @@ func _try_move(dir: int) -> void:
 	else:
 		if _undo_stale(token):
 			_move_busy = false
+			_crab_pending_steps = 0
 			return
 		_undo_commit()
 	_move_busy = false
@@ -25049,6 +25461,7 @@ func _shift_facing(dir: int, spend_move: bool) -> bool:
 	_apply_face_lock(leave, dest)
 	if spend_move:
 		moves_left = maxi(0, moves_left - 1)
+	_note_crab_move_step()
 	_log("on_item_use", "Move %s" % str(wheel[dest].get("name", "?")))
 	_show_faced_monster()
 	if sfx:
@@ -25297,7 +25710,7 @@ func _sync_hotbar() -> void:
 			echo_id = str((it["echo_copy"] as Dictionary).get("card_id", ""))
 		var chain_n: int = int(_ops_of(it).get("n", 0)) if str(it.get("card_id", "")) == "ball_and_chain" else 0
 		# marble_n is omitted so grow / swirl can play on the live card.
-		sig.append("%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s" % [it.get("uid", 0), it.get("card_id", ""), echo_id, it.get("petrified", false), it.get("toll_n", 0), it.get("bagged_hp", 0), it.get("bagged_name", ""), chain_n, it.get("recycle_n", 0), it.get("cats_eye", false), 0, it.get("rust_n", 0), it.get("hex_n", 0)])
+		sig.append("%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s" % [it.get("uid", 0), it.get("card_id", ""), echo_id, it.get("petrified", false), it.get("toll_n", 0), it.get("bagged_hp", 0), it.get("bagged_name", ""), chain_n, it.get("recycle_n", 0), it.get("cats_eye", false), 0, it.get("rust_n", 0), it.get("hex_n", 0), it.get("shrouded", false)])
 	var cap_n: int = CHALLENGE_HAND if adventure else 9999
 	var seated_n: int = mini(hotbar.size(), cap_n)
 	var empties: int = (cap_n - seated_n) if adventure else 0
@@ -25365,6 +25778,8 @@ func _sync_hotbar() -> void:
 		card.set_palette(view["fill"], view["rim"], _tier_of(it))
 		if card.has_method("set_curse"):
 			card.set_curse(_item_is_curse(it))
+		if card.has_method("set_shroud"):
+			card.set_shroud(bool(it.get("shrouded", false)))
 		var shown_n: String = str(view["number"])
 		var pn: int = int(it.get("petrify_n", 0))
 		if pn > 0:
