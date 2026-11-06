@@ -354,6 +354,8 @@ static func def_id_of(piece: String) -> String:
 		return "petrify"
 	if low == "curse" or low.begins_with("cursed"):
 		return "curse"
+	if low == "shroud" or low.begins_with("shrouded"):
+		return "shroud"
 	if low == "toll":
 		return "toll"
 	if low == "hex":
@@ -404,6 +406,8 @@ static func def_of(id: String) -> String:
 			return "Makes an Item Unplayable until its source ends."
 		"curse":
 			return "A harmful Item forced into your hand."
+		"shroud":
+			return "Fully covers an Item. Click to reveal and Use; Unplayable reveals and discards."
 		"toll":
 			return "Unplayable. −1 on each Item Use. At 0, you Die."
 		"hex":
@@ -723,6 +727,7 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"gaze", "gazed",
 		"decayed", "decay",
 		"hex", "toll", "curse", "beggar",
+		"shrouded", "shroud",
 		"spinning", "spins", "spun", "spin",
 		"losing", "loses", "lost", "lose",
 		"always",
@@ -910,6 +915,8 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low.begins_with("petrif"):
 		return gold
 	if low == "hex" or low == "toll" or low == "curse" or low.begins_with("beggar"):
+		return gold
+	if low == "shroud" or low.begins_with("shrouded"):
 		return gold
 	return ""
 
