@@ -9815,6 +9815,7 @@ func _undo_abort() -> void:
 	_sling_aim = -1
 	_skip_item_use_count = false
 	_after_item_use_armed = false
+	_shroud_blocks_undo = false
 	_undo_inflight = false
 	_sync_buttons()
 
@@ -10168,19 +10169,17 @@ func _use_item(uid: int) -> void:
 		return
 	## Phantom Shroud: lift, peel, then Use. Unplayable discards. Reveal-use does not re-trigger Dark Matter.
 	## The peel is random, like a Spin, so Undo cannot put the veil back.
+	var revealed_shroud: bool = false
 	if bool(it.get("shrouded", false)):
 		var play_revealed: bool = await _phantom_reveal_for_use(uid)
-		_shroud_blocks_undo = true
 		_undo_wall()
-		_shroud_blocks_undo = true
 		if not play_revealed:
-			_shroud_blocks_undo = false
 			return
 		it = _find_item(uid)
 		if it.is_empty() or bool(it.get("spent", false)):
-			_shroud_blocks_undo = false
 			return
 		_phantom_skip_dark_matter = true
+		revealed_shroud = true
 	if in_tutorial and not _tutorial_allows_item(str(it.get("card_id", ""))):
 		if tut:
 			tut.nudge(_tutorial_nudge_for_item(str(it.get("card_id", ""))))
@@ -10201,6 +10200,8 @@ func _use_item(uid: int) -> void:
 			sfx.play("error", -12.0, 1.2)
 		return
 	_undo_begin()
+	if revealed_shroud:
+		_shroud_blocks_undo = true
 	var token: int = _undo_gen
 	if kind == "sling":
 		var sling_opts: Array = _sling_convert_options(uid)
@@ -20897,7 +20898,7 @@ func _kill_neighbor(index: int) -> void:
 		sfx.play_event(sfx.resolve(&"death", nctx), nctx)
 	if wheel_view:
 		await wheel_view.play_slay(index, true)
-		if adventure:
+	if adventure:
 		_challenge_vacate(index)
 		_refresh()
 		if not (phase == "fighting" and _item_blocks_hole_fill()):
