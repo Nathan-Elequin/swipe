@@ -1,0 +1,139 @@
+{
+  "review_status": "recommendation_not_installed",
+  "pixel_lab_incremental_credits": 14,
+  "remaining_credits": 717.9,
+  "items": [
+    {
+      "item": "kiss_of_death",
+      "native": "recommended/kiss_of_death_16.png",
+      "export64": "recommended/kiss_of_death_64.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "export_size": [
+        64,
+        64
+      ],
+      "exact_nearest_4x": true,
+      "bbox": [
+        0,
+        2,
+        16,
+        13
+      ],
+      "opaque_colors": 6,
+      "sha256_native": "17102e2d69123fac0c04ad4caa274139687165dccbfa2a5c35dc750b1dc98856"
+    },
+    {
+      "item": "love_potion",
+      "native": "recommended/love_potion_16.png",
+      "export64": "recommended/love_potion_64.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "export_size": [
+        64,
+        64
+      ],
+      "exact_nearest_4x": true,
+      "bbox": [
+        2,
+        0,
+        14,
+        16
+      ],
+      "opaque_colors": 12,
+      "sha256_native": "09996f482d320113a5c9b3e121bc07981ba919339110ac6669b24878c071532f"
+    },
+    {
+      "item": "shardplate",
+      "native": "recommended/shardplate_16.png",
+      "export64": "recommended/shardplate_64.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "export_size": [
+        64,
+        64
+      ],
+      "exact_nearest_4x": true,
+      "bbox": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "opaque_colors": 8,
+      "sha256_native": "5c96efdd0af6bc491ba9726a8b2881390118084c1b7af3df908eaa3d81ad47f9"
+    },
+    {
+      "item": "swift_sneaks",
+      "native": "recommended/swift_sneaks_16.png",
+      "export64": "recommended/swift_sneaks_64.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "export_size": [
+        64,
+        64
+      ],
+      "exact_nearest_4x": true,
+      "bbox": [
+        0,
+        1,
+        16,
+        14
+      ],
+      "opaque_colors": 10,
+      "sha256_native": "fe03d9be3573a72cec9b958b8a6b2f77603e45fb2d7050d3fbaaffa282c87ecb"
+    },
+    {
+      "item": "tesla_coil",
+      "native": "recommended/tesla_coil_16.png",
+      "export64": "recommended/tesla_coil_64.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "export_size": [
+        64,
+        64
+      ],
+      "exact_nearest_4x": true,
+      "bbox": [
+        3,
+        0,
+        14,
+        16
+      ],
+      "opaque_colors": 9,
+      "sha256_native": "1f42f0f817f5d60d6b83cb08fab2f7dd86a13c395885e3be877be798e4bac05a"
+    },
+    {
+      "item": "venom_veins",
+      "native": "recommended/venom_veins_16.png",
+      "export64": "recommended/venom_veins_64.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "export_size": [
+        64,
+        64
+      ],
+      "exact_nearest_4x": true,
+      "bbox": [
+        3,
+        0,
+        13,
+        15
+      ],
+      "opaque_colors": 8,
+      "sha256_native": "1c973176b4d38f7bd98068f5f09158e6f3f0137e5def8b3ae3aa06c4345f32b9"
+    }
+  ]
+}
