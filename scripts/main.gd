@@ -27200,21 +27200,11 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 		_tut_add_control(spots, hotbar_box)
 		return
 	if tag == "move_arrow":
+		## Arrows only. The destination slice's box was a shifting rectangle over that half of the wheel.
 		if btn_move_left != null and btn_move_left.has_method("arc_global_rect"):
 			_tut_add_rect(spots, btn_move_left.arc_global_rect())
 		if btn_move_right != null and btn_move_right.has_method("arc_global_rect"):
 			_tut_add_rect(spots, btn_move_right.arc_global_rect())
-		if wheel_view != null:
-			_tut_add_rect(spots, wheel_view.focus_rect("moves"))
-			var move_i: int = -1
-			if tut != null and str(tut.force_id).begins_with("tag:"):
-				move_i = _tut_index_of_tag(str(tut.force_id).substr(4))
-			if move_i < 0:
-				move_i = _tut_index_of_tag("harpy_b")
-			if move_i < 0:
-				move_i = _index_of_monster("gelatinous_cube")
-			if move_i >= 0:
-				_tut_add_rect(spots, wheel_view.slice_rect(move_i))
 		return
 	if _tut_d2_focus == "seat":
 		_tut_add_control(spots, wheel_view)
