@@ -1,0 +1,35 @@
+{
+  "notes": "Item fidelity redo revision 2 (Nathan approved 2026-11-06). Native 16x16, stored exact nearest 4x. Live paths only.",
+  "assets": [
+    {
+      "path": "assets/dungeon/items/venom_veins.png",
+      "native": [16, 16],
+      "shipped": [64, 64]
+    },
+    {
+      "path": "assets/dungeon/items/kiss_of_death.png",
+      "native": [16, 16],
+      "shipped": [64, 64]
+    },
+    {
+      "path": "assets/dungeon/items/shardplate.png",
+      "native": [16, 16],
+      "shipped": [64, 64]
+    },
+    {
+      "path": "assets/dungeon/items/swift_sneaks.png",
+      "native": [16, 16],
+      "shipped": [64, 64]
+    },
+    {
+      "path": "assets/dungeon/items/love_potion.png",
+      "native": [16, 16],
+      "shipped": [64, 64]
+    },
+    {
+      "path": "assets/dungeon/items/tesla_coil.png",
+      "native": [16, 16],
+      "shipped": [64, 64]
+    }
+  ]
+}
