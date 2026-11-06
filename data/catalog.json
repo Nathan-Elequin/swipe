@@ -4272,7 +4272,7 @@
       "explainer": "On HP loss: Gain 1 Poison and a Mark-3 Poison Flask",
       "flags": {
         "art": true,
-        "dev": true,
+        "dev": false,
         "hide": false
       },
       "flow": "While this is in your hand: every time you lose HP (any amount, every event, no cap), Gain 1 player Poison and add one Poison Flask to your hand that is already Mark-3 (same live poison_flask card — same art/anim; clicking it marks a Neighbor with 3 Poison). Unplayable. You cannot click Venom Veins.",
@@ -4332,7 +4332,7 @@
       "explainer": "Random enemy: 4 Poison + Lifelink",
       "flags": {
         "art": true,
-        "dev": true,
+        "dev": false,
         "hide": false
       },
       "flow": "Click during a fight. Pick a random living enemy. They gain 4 Poison (amounts add; same Spin-pay rules as Poison Flask). Replace their ability with Lifelink — exact Wraith: when they are Defeated, set your HP to their HP just before Defeat (cap 6; Quiet Bell turns Lifelink off). Used up.",

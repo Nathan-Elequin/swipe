@@ -7108,6 +7108,9 @@ func _apply_formulas_to(s: Dictionary) -> void:
 	s["call_name"] = MONSTER_LINES.call_of(id, card)
 	s["reminder"] = MONSTER_LINES.reminder_of(id, card)
 	s["log_hint"] = str(card.get("log_hint", ""))
+	## Kiss of Death keeps Wraith Lifelink text after formula refresh.
+	if str(s.get("special_id", "")) == "lifelink" and id != "wraith":
+		_paint_kiss_lifelink(s)
 	if hp_locked:
 		s["hp"] = hold_hp
 		if id == "vampire" or id == "amalgam" or id == "bushido" or id == "commander" or id == "cowardly_king":
@@ -11030,6 +11033,9 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_toss_item(int(it["uid"]), bool(it.get("keep_after", false)))
 			await _flee_spin()
 			return
+		"kiss_of_death":
+			await _apply_kiss_of_death(it)
+			return
 		_:
 			return
 	it["spent"] = true
@@ -11179,7 +11185,7 @@ func _on_owner_defeated(index: int, from_bag: bool = false) -> void:
 			m["egg_laid"] = true
 			wheel[index] = m
 			_lay_phoenix_egg()
-	elif cid == "wraith" and not quiet:
+	elif _special_id_of(m) == "lifelink" and not quiet:
 		await _apply_lifelink(m)
 		if hp <= 0:
 			return
@@ -11306,6 +11312,91 @@ func _apply_lifelink(m: Dictionary) -> void:
 		await _heal(int(change.get("n", 0)))
 	elif kind == "bleed":
 		await _bleed(int(change.get("n", 0)))
+
+
+func _paint_kiss_lifelink(s: Dictionary) -> void:
+	var spec: Dictionary = MONSTER_SPECIAL.get("wraith", {})
+	var text: String = str(spec.get("text", "When I am Defeated, set your HP to my most recent HP."))
+	s["special_id"] = "lifelink"
+	s["special_text"] = text
+	s["ability"] = text
+	s["call_name"] = MONSTER_LINES.call_of("wraith", monsters_by_id.get("wraith", {}))
+	s["reminder"] = MONSTER_LINES.reminder_of("wraith", monsters_by_id.get("wraith", {}))
+	if str(s.get("reminder", "")).strip_edges() == "":
+		s["reminder"] = text
+	s["kiss_lifelink"] = true
+
+
+func _apply_kiss_of_death(it: Dictionary) -> void:
+	var living: Array[int] = _living_monster_indices()
+	if living.is_empty():
+		_log_begin_item(it)
+		_log("on_item_use", "%s — cannot" % str(it.get("name", "?")))
+		if sfx:
+			sfx.play("error", -10.0)
+		return
+	var pick: int = int(living[rng.randi() % living.size()])
+	_add_monster_poison(pick, 4)
+	var m: Dictionary = wheel[pick]
+	_paint_kiss_lifelink(m)
+	wheel[pick] = m
+	_log("on_item_use", str(it.get("name", "Kiss of Death")))
+	_log(
+		"on_resolve",
+		"poisoned %s (+4 → %s) + Lifelink" % [m.get("name", "?"), _poison_of(m)]
+	)
+	if sfx:
+		sfx.play_event(&"status.poison")
+	it["spent"] = true
+	await _count_item_use()
+	_toss_item(int(it["uid"]), false)
+	_sync_wheel_stats()
+	_refresh()
+
+
+func _venom_veins_on_hp_lost() -> void:
+	for it in hotbar:
+		if str(it.get("card_id", "")) != "venom_veins":
+			continue
+		if bool(it.get("spent", false)):
+			continue
+		_log_begin_item(it, false)
+		_gain_player_poison(1)
+		_log("on_resolve", "Venom Veins → Poison %s" % player_poison)
+		await _gain_marked_poison_flask(3)
+		_log_end_proc()
+
+
+func _gain_marked_poison_flask(dose: int) -> void:
+	if not items_by_id.has("poison_flask"):
+		return
+	var n: int = maxi(0, dose)
+	var it: Dictionary = _make_item("poison_flask")
+	it["poison_n"] = n
+	var ops: Dictionary = it.get("ops", {})
+	if typeof(ops) != TYPE_DICTIONARY:
+		ops = {}
+	else:
+		ops = (ops as Dictionary).duplicate(true)
+	ops["kind"] = "mark_poison"
+	ops["n"] = n
+	it["ops"] = ops
+	it["ability"] = "Mark a Neighbor with %d Poison." % n
+	it["explainer"] = "Neighbor gets %d Poison" % n
+	if adventure and _hand_full():
+		_start_full_hand_replace(it)
+		return
+	if _hand_cannot_admit():
+		_abort_full_hand_gain(it)
+		return
+	hotbar.append(it)
+	_note_incoming_gain(it)
+	_sort_hotbar()
+	_log("on_draft", "gain %s (Mark %s)" % [it.get("name", "poison_flask"), n])
+	if sfx:
+		sfx.play("open", -10.0)
+	_hotbar_sig = ""
+	_refresh()
 
 
 func _gain_token_item(id: String) -> void:
@@ -15071,6 +15162,7 @@ func _note_hp_lost(n: int) -> void:
 	bled.emit(n)
 	_shake_screen()
 	_tut_note_hp_change()
+	await _venom_veins_on_hp_lost()
 	if n != 2:
 		return
 	for it in hotbar:
@@ -21738,6 +21830,12 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = ""
 			out["note"] = ""
 			out["can_use"] = false
+		"kiss_of_death":
+			out["kind"] = "MARK"
+			out["n"] = 4
+			out["number"] = "4"
+			out["note"] = ""
+			out["can_use"] = fighting and not _living_monster_indices().is_empty()
 		"toll":
 			out["kind"] = "HP"
 			out["n"] = int(it.get("toll_n", 6))
@@ -23303,6 +23401,12 @@ func _item_rule(it: Dictionary) -> Dictionary:
 		"passive":
 			out["value"] = ""
 			out["body"] = str(it.get("ability", ""))
+		"kiss_of_death":
+			out["value"] = _value_bb("Poison", "4", gold)
+			out["equation"] = "random enemy + Lifelink"
+			out["body"] = str(it.get("ability", "Mark a random enemy with 4 Poison and change their ability to Lifelink."))
+			if fighting and not bool(view.get("can_use", false)):
+				out["warn"] = "Can't — no living enemy."
 		_:
 			out["value"] = str(view.get("kind", ""))
 			out["body"] = str(it.get("ability", ""))

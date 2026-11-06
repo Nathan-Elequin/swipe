@@ -37,7 +37,6 @@
 		"measuring_tape",
 		"mute_stone",
 		"cursed_scroll",
-		"danger_magnet",
 		"spider_egg",
 		"arrow_head",
 		"shuriken",
@@ -65,7 +64,12 @@
 		"ball_and_chain",
 		"recycler",
 		"flying_saucer",
-		"spinning_top"
+		"spinning_top",
+		"venom_veins",
+		"kiss_of_death",
+		"shardplate",
+		"love_potion",
+		"tesla_coil"
 	],
 	"monsters": [
 		"wizard",
@@ -93,7 +97,6 @@
 		"harpy",
 		"kobold_trapper",
 		"clockwork_knight",
-		"basilisk",
 		"hollow",
 		"beggar",
 		"wick",
@@ -109,7 +112,6 @@
 		"hired_hand",
 		"hydra",
 		"zombie",
-		"triclops",
 		"shambling_mound",
 		"almighty_worm",
 		"cultist",
@@ -128,7 +130,13 @@
 		"poison_frog",
 		"sandbag",
 		"scorpion",
-		"oligarch"
+		"oligarch",
+		"glass_asp",
+		"imp",
+		"huntsman",
+		"quicksand_crab",
+		"phantom",
+		"collector"
 	],
 	"notes": "Full roster minus retired/hidden rows (Dagger, Bandana, old Helmet, 3-Seeker) and Cursed Scroll. Commander + Lich apply last. 3-Seeker stays out until it has its own wheel breathe and facing art."
 }
