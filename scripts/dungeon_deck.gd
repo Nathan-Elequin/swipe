@@ -105,6 +105,15 @@ func _at_3x(path: String) -> Texture2D:
 	return ImageTexture.create_from_image(img)
 
 
+func count_global_rect() -> Rect2:
+	var local := Rect2(Vector2(16.0, size.y - 30.0), Vector2(78.0, 28.0))
+	return Rect2(global_position + local.position, local.size)
+
+
+func face_global_rect() -> Rect2:
+	return Rect2(global_position + CARD_POS, CARD)
+
+
 func set_count(n: int) -> void:
 	count = maxi(0, n)
 	if count <= 0:

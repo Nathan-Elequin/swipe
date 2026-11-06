@@ -389,8 +389,6 @@ func _apply_beat(b: Dictionary) -> void:
 	trigger = str(b.get("trigger", ""))
 	nib_close = float(b.get("nib", 0.0))
 	_tiny = bool(b.get("tiny", false))
-	if beat_id != "" and beat_id != prev_beat and rig != "":
-		beat_entered.emit(beat_id, rig)
 	var spoken: String = COPY.apply_names(str(b.get("text", "")))
 	_type_full = spoken
 	_type_shown = 0
@@ -430,6 +428,10 @@ func _apply_beat(b: Dictionary) -> void:
 	## Re-pin talk each beat so Next never sits under a stale layout.
 	_pin_key = ""
 	_pin_pos = Vector2.ZERO
+	if beat_id != "":
+		var line_key: String = beat_id if line_n <= 0 else "%s.%s" % [beat_id, line_n]
+		var rig_now: String = rig if beat_id != prev_beat else ""
+		beat_entered.emit(line_key, rig_now)
 
 
 func enter_free() -> void:
@@ -677,6 +679,10 @@ func _layout() -> void:
 		_talk.global_position = _pin_pos
 		return
 	var pos := Vector2(vp.x - ts.x - 16.0, clampf((vp.y - ts.y) * 0.28, 16.0, vp.y - ts.y - 16.0))
+	## nib_close: Nib steps toward the middle of the screen, larger, for a direct aside.
+	if nib_close > 0.0:
+		pos.x -= 160.0 * nib_close
+		pos.y += 36.0 * nib_close
 	var box := Rect2(pos, ts)
 	if _hits_spot(box):
 		pos = Vector2(vp.x - ts.x - 16.0, 16.0)

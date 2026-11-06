@@ -692,6 +692,10 @@ var _tut_seen: Dictionary = {}
 var _tut_fired_triggers: Dictionary = {}
 var _tut_d2_snapshot: Dictionary = {}
 var _tut_pending_empty_seat: int = -1
+var _tut_pending_hole: int = -1
+var _tut_count_preview: bool = false
+var _tut_golem_exit_released: bool = false
+var _tut_pin_item: String = ""
 var _tut_rig_done: Dictionary = {}
 var _tut_goblin_block_item: bool = false
 ## Goblin Breastplate stays spent through the Keep lesson (B20.5). Fight end
@@ -5708,6 +5712,13 @@ func _fill_challenge_hole(i: int) -> void:
 		await _grant_mimic_gift(i)
 		if _undo_stale(token):
 			return
+	if in_tutorial and not _tut_free and not _tut_first_deck_done and not _tut_hold_deck_refill:
+		await _tut_open_wizard_window(i)
+		return
+	if in_tutorial and _tut_hold_deck_refill:
+		wheel[i]["challenge_hole"] = false
+		_tut_pending_empty_seat = i
+		return
 	var collapsing: bool = challenge_deck.is_empty()
 	await _challenge_refill_or_collapse(i)
 	if _undo_stale(token) or collapsing:
@@ -8945,6 +8956,15 @@ func _begin_slay(banner: String = "slay") -> void:
 
 
 func _exit_ended(clockwork_split: bool = false, banner: String = "slay") -> void:
+	if _tut_should_hold_golem_exit():
+		## Golem #1 stays on the wheel until B20.6. The hit already landed.
+		_tut_golem_exit_released = false
+		phase = "ready"
+		_walker_busy = false
+		_refresh()
+		if in_tutorial:
+			call_deferred("_tutorial_after_fight")
+		return
 	if phase != "fighting" and phase != "slaying":
 		return
 	if facing_index < 0:
@@ -8993,7 +9013,7 @@ func _play_ended_visuals(banner: String = "slay") -> void:
 			await wheel_view.play_escape(facing_index)
 	if combat_stage:
 		await combat_stage.vanish()
-	if wheel_view and facing_index >= 0 and not adventure and not _tutorial_keeps_seat():
+	if wheel_view and facing_index >= 0 and not adventure and not _tutorial_keeps_seat() and not _tut_hold_deck_refill:
 		await wheel_view.collapse_slice(facing_index)
 
 
@@ -25622,6 +25642,8 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 		card.set_formula(str(rule.get("equation", "")))
 		card.show_formula(true)
 	if fly_tip:
+		if in_tutorial:
+			fly_tip.z_index = 420
 		fly_tip.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule["body"]), str(rule["warn"]), null, "item", str(it.get("card_id", "")), _item_look(it))
 	var fighting_now: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size()
 	var hint: bool = fighting_now and _item_grants_block(it) and bool(_item_view(it).get("can_use", false))
@@ -25629,7 +25651,7 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 	_place_fly(card)
 	_apply_preview(_preview_from_item(it))
 	_refresh_blk(false)
-	_tutorial_on_item_hover()
+	_tutorial_on_item_hover(str(it.get("card_id", "")))
 	_queue_hover_preview(it, card)
 	_set_gaze_use_warn(int(it.get("uid", -1)) if _item_is_gazed(it) and not bool(it.get("basilisk_stone", false)) else -1)
 	_set_decay_partner_warn(int(it.get("uid", -1)) if bool(it.get("decay_marked", false)) and not bool(it.get("decay_solo", false)) else -1)
@@ -25710,8 +25732,10 @@ func _on_item_unhovered() -> void:
 		_apply_preview({})
 	_reapply_hotbar_aura_roles()
 	_sync_hotbar_formulas()
-	if fly_tip:
+	if fly_tip and not (in_tutorial and _tut_pin_item != ""):
 		fly_tip.hide_plate()
+		if in_tutorial:
+			fly_tip.z_index = 110
 	if _cabin_up():
 		return
 	if _deck_hovering:
@@ -26010,6 +26034,9 @@ func _tutorial_keeps_seat() -> bool:
 
 
 func _tutorial_replace_with_deck(index: int, id: String = "") -> void:
+	if id == "" and not _tut_first_deck_done:
+		await _tut_open_wizard_window(index)
+		return
 	_tut_show_deck = true
 	if challenge_deck.is_empty() and id != "":
 		challenge_deck.append(id)
@@ -26152,8 +26179,18 @@ func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = 
 				await challenge_draft_ui.play_pick_stamps(uid)
 			challenge_draft_ui.hide_draft()
 			_refresh()
-			tut.advance()
-			_tut_after_advance()
+			if (take_id == "shield" or take_id == "fangs") and tut != null:
+				var prev_force: String = str(tut.force_id)
+				tut.visible = false
+				tut.force_id = "tag:golem_1" if take_id == "shield" else "tag:fangs_t2"
+				tut.wait = "auto_spin"
+				await _on_spin()
+				if tut:
+					tut.force_id = prev_force
+					tut.visible = true
+			if tut:
+				tut.advance()
+				_tut_after_advance()
 			break
 		if tut:
 			tut.nudge(PLAYER_COPY.text("tutorial.nudge_item", "Click the highlighted thing — not that one."))
@@ -26163,7 +26200,121 @@ func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = 
 	_tut_draft_busy = false
 
 
+func _tut_should_hold_golem_exit() -> bool:
+	if not in_tutorial or _tut_free or _tut_golem_exit_released:
+		return false
+	if facing_index < 0 or facing_index >= wheel.size():
+		return false
+	return str(wheel[facing_index].get("tut_tag", "")) == "golem_1"
+
+
+func _tut_open_wizard_window(index: int) -> void:
+	## Wizard leaves an open seat. The deck card sits in that hole until B12 seats the Golem.
+	if index < 0 or index >= wheel.size():
+		return
+	wheel[index]["challenge_hole"] = false
+	wheel[index]["kind"] = "empty"
+	_tut_pending_hole = index
+	_tut_show_deck = true
+	if dungeon_deck_ui:
+		dungeon_deck_ui.visible = true
+		_layout_play_field()
+		if not dungeon_deck_ui.is_busy():
+			dungeon_deck_ui.set_count(challenge_deck.size())
+		_sync_challenge_peek()
+	if wheel_view and wheel_view.has_method("rotate_index_to_top"):
+		await wheel_view.rotate_index_to_top(index, 0.42)
+	if wheel_view:
+		wheel_view.set_slices(wheel, -1, "none")
+	_sync_wheel_stats()
+	_refresh()
+
+
+func _tut_apply_desk_beat(beat: String) -> void:
+	var prev_pin: String = _tut_pin_item
+	_tut_pin_item = ""
+	if beat.begins_with("B11a") and not beat.begins_with("B11aa") and dungeon_deck_ui != null and not _tut_count_preview:
+		_tut_count_preview = true
+		dungeon_deck_ui.set_count(maxi(0, challenge_deck.size() - 1))
+	elif beat.begins_with("B12."):
+		await _tut_seat_pending_draw()
+	elif beat.begins_with("B17a"):
+		_tut_pin_item = "breastplate"
+		_tut_show_pinned_item("breastplate")
+	elif beat == "B20.3":
+		_tut_pin_item = "spiked_flail"
+		_tut_show_pinned_item("spiked_flail")
+	elif beat == "B20.6":
+		await _tut_release_golem_exit()
+	if prev_pin != "" and _tut_pin_item == "" and fly_tip:
+		fly_tip.hide_plate()
+		fly_tip.z_index = 110
+
+
+func _tut_show_pinned_item(id: String) -> void:
+	var card: Control = _hotbar_card(id)
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) != id:
+			continue
+		_on_item_hovered(it, card)
+		return
+
+
+func _tut_seat_pending_draw() -> void:
+	var i: int = _tut_pending_hole
+	if i < 0 or i >= wheel.size() or challenge_deck.is_empty():
+		return
+	if str(wheel[i].get("kind", "")) == "monster":
+		_tut_pending_hole = -1
+		_tut_first_deck_done = true
+		return
+	var raw: Variant = challenge_deck.pop_front()
+	var nid: String = _deck_card_id(raw)
+	if nid == "":
+		return
+	if dungeon_deck_ui and not dungeon_deck_ui.is_busy():
+		dungeon_deck_ui.set_count(challenge_deck.size())
+		_sync_challenge_peek()
+	var slot: String = str(wheel[i].get("slot", ""))
+	var seated: Dictionary = _make_monster(nid)
+	seated["slot"] = slot
+	seated["tut_tag"] = "golem_1"
+	wheel[i] = seated
+	_tut_mark_seen(nid)
+	_tut_first_deck_done = true
+	_tut_pending_hole = -1
+	_sync_wheel_stats()
+	if wheel_view:
+		_stamp_atk_variants()
+		wheel_view.set_slices(wheel, -1, "none")
+		wheel_view.pulse_arrive(i)
+	if sfx:
+		sfx.play("drop", -8.0)
+	_refresh()
+
+
+func _tut_release_golem_exit() -> void:
+	if _tut_golem_exit_released:
+		return
+	var i: int = -1
+	for n in range(wheel.size()):
+		if str(wheel[n].get("tut_tag", "")) == "golem_1":
+			i = n
+			break
+	if i < 0:
+		_tut_golem_exit_released = true
+		return
+	facing_index = i
+	_tut_golem_exit_released = true
+	_tut_hold_deck_refill = true
+	phase = "fighting"
+	await _exit_ended(false, "escape")
+
+
 func _tut_on_beat_entered(beat: String, rig_id: String) -> void:
+	await _tut_apply_desk_beat(beat)
 	if rig_id == "" or _tut_rig_done.get(rig_id, false):
 		return
 	_tut_rig_done[rig_id] = true
@@ -26574,6 +26725,10 @@ func _start_tutorial() -> void:
 	_tut_fired_triggers = {}
 	_tut_d2_snapshot = {}
 	_tut_pending_empty_seat = -1
+	_tut_pending_hole = -1
+	_tut_count_preview = false
+	_tut_golem_exit_released = false
+	_tut_pin_item = ""
 	_tut_rig_done = {}
 	_tut_goblin_block_item = false
 	_reset_run()
@@ -26925,6 +27080,32 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 	if tag == "hearts":
 		if wheel_view != null:
 			_tut_add_rect(spots, wheel_view.focus_rect("hub_hp"))
+		return
+	if tag == "wizard_callout":
+		var wiz_i: int = _index_of_monster("wizard")
+		if wiz_i < 0:
+			wiz_i = facing_index
+		if wiz_i >= 0 and wheel_view != null:
+			_tut_add_rect(spots, wheel_view.slice_rect(wiz_i))
+		_tut_add_control(spots, face_box)
+		return
+	if tag == "wheel_deck":
+		_tut_add_control(spots, wheel_view)
+		_tut_add_control(spots, dungeon_deck_ui)
+		return
+	if tag == "deck_count" and dungeon_deck_ui != null and dungeon_deck_ui.has_method("count_global_rect"):
+		_tut_add_rect(spots, dungeon_deck_ui.count_global_rect())
+		return
+	if tag == "deck_top" and dungeon_deck_ui != null and dungeon_deck_ui.has_method("face_global_rect"):
+		_tut_add_rect(spots, dungeon_deck_ui.face_global_rect())
+		return
+	if tag == "block_done":
+		if wheel_view != null:
+			_tut_add_rect(spots, wheel_view.focus_rect("hub_blk"))
+		if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
+			_tut_add_rect(spots, take_arc.arc_global_rect())
+		elif btn_done != null:
+			_tut_add_control(spots, btn_done)
 		return
 	if tag == "deck":
 		_tut_add_control(spots, dungeon_deck_ui)
@@ -27414,7 +27595,10 @@ func _tut_on_progress_key() -> void:
 				_tutorial_try_shift_inspect()
 		return
 	if w == "hover_item":
-		_tutorial_on_item_hover()
+		var hover_id: String = ""
+		if tut != null and str(tut.focus_tag).begins_with("item:"):
+			hover_id = str(tut.focus_tag).substr(5)
+		_tutorial_on_item_hover(hover_id)
 		return
 	if w.begins_with("draft:") and challenge_draft_ui != null and challenge_draft_ui.has_method("pick_card_id"):
 		challenge_draft_ui.pick_card_id(w.substr(6))
@@ -27437,10 +27621,15 @@ func _tutorial_after_fight() -> void:
 		_tut_after_advance()
 
 
-func _tutorial_on_item_hover() -> void:
+func _tutorial_on_item_hover(card_id: String = "") -> void:
 	if not in_tutorial or tut == null or not tut.armed():
 		return
 	if tut.wait != "hover_item":
+		return
+	var need: String = ""
+	if str(tut.focus_tag).begins_with("item:"):
+		need = str(tut.focus_tag).substr(5)
+	if need != "" and card_id != "" and card_id != need:
 		return
 	tut.advance()
 	_tut_after_advance()
