@@ -2,8 +2,8 @@
 id: REQ-20261106-neighbor-who-rings
 status: open
 priority: high
-pr:
-tip_sha: 62e917b4
+pr: 415
+tip_sha: 2d533cc4
 branch: playtest/latest
 created: 2026-11-06T00:30:00Z
 created_by: cursor-cloud
