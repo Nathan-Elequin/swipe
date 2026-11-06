@@ -259,6 +259,7 @@ const MONSTER_SPECIAL := {
 	"scorpion": {"id": "venom_sac", "text": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value"},
 	"poison_frog": {"id": "toxic_skin", "text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison"},
 	"glass_asp": {"id": "bitter_blood", "text": "On Spin, I gain 1 Poison. When I Attack, you gain Poison equal to mine."},
+	"imp": {"id": "imp_move", "text": "When you Spin me, I force you to Move to the highest live/buffed Attack enemy."},
 	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust."},
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
 	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 2 Attack"},
@@ -8880,6 +8881,12 @@ func _on_spin() -> void:
 		return
 	_store_last_faced_hp()
 	await _echo_skeletons()
+	## Imp relocates after this Spin's own effects. The destination is a Move, not a new Spin.
+	if await _apply_imp_on_spin():
+		_undo_arm()
+		_spin_inflight = false
+		await _unlock_if_fighting()
+		return
 	_undo_arm()
 	_spin_inflight = false
 	await _unlock_if_fighting()
@@ -25616,6 +25623,97 @@ func _hook_walk_dir(target: int) -> int:
 	if right_steps <= left_steps:
 		return -1
 	return 1
+
+
+## Clockwise on a tie. dir +1 is clockwise; dir -1 is counter-clockwise.
+func _imp_walk_dir(target: int) -> int:
+	if target == facing_index:
+		return 0
+	var cw: int = _hook_live_steps(target, 1)
+	var ccw: int = _hook_live_steps(target, -1)
+	if cw < 0 and ccw < 0:
+		return 0
+	if ccw < 0:
+		return 1
+	if cw < 0:
+		return -1
+	if cw <= ccw:
+		return 1
+	return -1
+
+
+func _imp_highest_targets() -> Array[int]:
+	var best: int = -1
+	var ties: Array[int] = []
+	for i in wheel.size():
+		if str(wheel[i].get("kind", "")) != "monster":
+			continue
+		if int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		var atk: int = int(wheel[i].get("atk", 0))
+		if ties.is_empty() or atk > best:
+			best = atk
+			ties.clear()
+			ties.append(i)
+		elif atk == best:
+			ties.append(i)
+	return ties
+
+
+## Real Spin only. Grappling Hook and a Damsel neighbor attack do not call this.
+## Quiet Bell (silence) turns it off. Does not spend a Move.
+## Returns true when the walk ended the fight (Bear Trap, death, or a corpse).
+func _apply_imp_on_spin() -> bool:
+	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
+		return false
+	var imp_i: int = facing_index
+	var m: Dictionary = wheel[imp_i]
+	if str(m.get("card_id", "")) != "imp":
+		return false
+	if int(m.get("hp", 0)) <= 0 or _is_silenced(m):
+		return false
+	_sync_wheel_stats()
+	if imp_i >= wheel.size() or str(wheel[imp_i].get("card_id", "")) != "imp":
+		return false
+	if _is_silenced(wheel[imp_i]) or int(wheel[imp_i].get("hp", 0)) <= 0:
+		return false
+	var ties: Array[int] = _imp_highest_targets()
+	if ties.is_empty():
+		return false
+	var target: int = ties[0]
+	if ties.size() > 1:
+		target = ties[rng.randi_range(0, ties.size() - 1)]
+	if target == imp_i:
+		return false
+	var dir: int = _imp_walk_dir(target)
+	if dir == 0:
+		return false
+	_log_begin_monster(imp_i)
+	_move_busy = true
+	_sync_move_ui()
+	var ended := false
+	var guard: int = 0
+	while facing_index != target and guard < wheel.size():
+		guard += 1
+		if not await _shift_facing(dir, false):
+			break
+		if hp <= 0 or phase != "fighting":
+			ended = true
+			break
+		if _facing_live_bear_trap():
+			await _bear_trap_snap()
+			ended = true
+			break
+	if not ended:
+		await _flush_crab_move_tax()
+		if hp <= 0 or phase != "fighting":
+			ended = true
+		elif facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0 and not _wick_waiting(facing_index):
+			await _begin_slay()
+			ended = true
+	_move_busy = false
+	_refresh()
+	return ended
 
 
 func _live_neighbor_seat(from: int, dir: int) -> int:

@@ -8639,7 +8639,7 @@
       "explainer": "Spin me: Move to the highest Attack enemy",
       "flags": {
         "art": true,
-        "dev": true,
+        "dev": false,
         "hide": false
       },
       "flow": "On a real Spin onto me, if I am not silenced: force a player Move to the living enemy with the highest current (buffed) Attack. Ties pick at random. Path is shortest; if two paths tie, go clockwise. Forced Move triggers Bear Trap and other arrival effects. Grappling Hook and Damsel neighbors do not pay this Spin trigger. Quiet Bell turns this off.",
