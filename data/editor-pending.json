@@ -1,23 +1,6 @@
 {
-	"cards": {
-		"monster:glass_asp": {
-			"fields": {
-				"ability": {
-					"from": "On every dungeon Spin while alive, I gain 1 Poison. Poison ticks each Spin and clears all Poison on tick (can restack). When I Attack, you gain Poison equal to mine.",
-					"to": "On Spin, I gain 1 Poison. When I Attack, you gain Poison equal to mine."
-				},
-				"call_name": {
-					"from": "",
-					"to": "Bitter Blood"
-				}
-			},
-			"id": "glass_asp",
-			"kind": "monster",
-			"name": "Glass Asp",
-			"saved_at": "2026-11-06T07:12:16"
-		}
-	},
+	"cards": {},
 	"id": "boss-rush-editor-pending",
 	"instructions": "F5 card editor Save writes a row here whenever HP, ATK, Ability, or another official field changes. Chat treats these like gold boxes. After applying, clear that card's row.",
-	"updated": "2026-11-06T07:12:16"
+	"updated": "2026-11-06T18:56:00"
 }

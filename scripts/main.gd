@@ -28045,10 +28045,9 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 				arrows.append([mon.get_center(), hc])
 		return
 	if tag == "block":
+		## Block pip lives on the Take arc. The old hub badge slot under Sprout is empty.
 		if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
 			_tut_add_rect(spots, take_arc.arc_global_rect())
-		elif wheel_view != null:
-			_tut_add_rect(spots, wheel_view.focus_rect("hub_blk"))
 		return
 	if tag == "empty" and wheel_view != null:
 		_tut_add_rect(spots, wheel_view.focus_rect("empty"))
@@ -28076,8 +28075,7 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 		_tut_add_rect(spots, dungeon_deck_ui.face_global_rect())
 		return
 	if tag == "block_done":
-		if wheel_view != null:
-			_tut_add_rect(spots, wheel_view.focus_rect("hub_blk"))
+		## Take only. The square under Sprout was the old Block badge, and that badge is gone.
 		if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
 			_tut_add_rect(spots, take_arc.arc_global_rect())
 		elif btn_done != null:
