@@ -8,20 +8,24 @@ extends Button
 ## with +Y down, so the bottom-left is a larger angle than the bottom-right.
 ## Parameter t=0 is the visual left tip; t=1 is the visual right tip.
 ##
-## Ends are ovular disk caps (same stack as move_arrow `_draw_tail`).
+## Ends are square radial cuts (no oval disk caps).
 ## Take word + burst follow the arc curvature (not flat horizontal).
+## Band hugs the Block pip and take-damage burst; icons scale to ICON_MAX.
 
-const BODY_W := 84.0
+const BODY_W := 48.0
+## Max native draw size for Block pip and take-damage burst (fits inside BODY_W).
+const ICON_MAX := 40.0
+## Extra outer radius on hover so the rim reads as a thicker / slightly larger band.
+const HOVER_GROW := 3.0
 const SPLIT_T := 0.34
 ## Bottom-centered sweep (radians). 60% of the prior 1.32 (about 40% narrower)
 ## so the band sits tighter under the wheel. Half-sweep stays inside the
 ## move-arrow start (0.88). Selftest allows ~0.74–0.86.
 const SWEEP := 0.792
-## Gap from gold rim to the inner edge of this arc. Bumped so arced Take /
-## burst sit clear of the wheel rim (glyphs grow inward from the midline).
+## Gap from gold rim to the inner edge of this arc.
 const RIM_GAP_DEFAULT := 10.0
-## Push Take word + burst toward the outer half of the band (away from rim).
-const CONTENT_OUTWARD := 6.0
+## Content sits on the band midline. Keep at 0 so scaled icons do not spill.
+const CONTENT_OUTWARD := 0.0
 
 var guide_c: Vector2 = Vector2.ZERO
 var guide_r: float = 180.0
@@ -43,6 +47,8 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	clip_contents = false
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var empty := StyleBoxEmpty.new()
 	add_theme_stylebox_override("normal", empty)
@@ -117,22 +123,17 @@ func arc_global_rect() -> Rect2:
 		mx.y = maxf(mx.y, g.y)
 	if mx.x < mn.x:
 		return Rect2()
-	## Cap discs stick past the square radial cuts by ~BODY_W/2.
-	return Rect2(mn, mx - mn).grow(BODY_W * 0.5)
+	## Hover grow + press offset. Square ends — no cap-disc padding.
+	return Rect2(mn, mx - mn).grow(HOVER_GROW + 4.0)
 
 
 func _has_point(point: Vector2) -> bool:
 	if guide_r < 8.0:
 		return false
-	var cap_r: float = BODY_W * 0.5 + 2.0
-	if point.distance_to(_chord_point(0.0)) <= cap_r:
-		return true
-	if point.distance_to(_chord_point(1.0)) <= cap_r:
-		return true
 	var d: float = point.distance_to(guide_c)
 	var inn: float = inner_radius()
 	var out: float = outer_radius()
-	if d < inn - 2.0 or d > out + 2.0:
+	if d < inn - 2.0 or d > out + HOVER_GROW + 2.0:
 		return false
 	var ang: float = (point - guide_c).angle()
 	var span: Vector2 = _arc_span()
@@ -180,15 +181,18 @@ func _band_outline() -> PackedVector2Array:
 	for i in n + 1:
 		var t: float = 1.0 - float(i) / float(n)
 		pts.append(guide_c + Vector2.from_angle(span.x + span.y * t) * inn)
-	## Cap discs: sample extremities so hit/layout rects cover the rounded ends.
-	var cap_r: float = BODY_W * 0.5
-	for t_end in [0.0, 1.0]:
-		var c: Vector2 = _chord_point(t_end)
-		pts.append(c + Vector2(cap_r, 0.0))
-		pts.append(c + Vector2(-cap_r, 0.0))
-		pts.append(c + Vector2(0.0, cap_r))
-		pts.append(c + Vector2(0.0, -cap_r))
 	return pts
+
+
+func _fitted_icon_size(tex: Texture2D) -> Vector2:
+	if tex == null:
+		return Vector2.ZERO
+	var sz := Vector2(float(tex.get_width()), float(tex.get_height()))
+	var longest: float = maxf(sz.x, sz.y)
+	if longest <= 0.001:
+		return sz
+	var s: float = minf(1.0, ICON_MAX / longest)
+	return sz * s
 
 
 func _palette(live: bool, hot: bool) -> Dictionary:
@@ -206,17 +210,24 @@ func _palette(live: bool, hot: bool) -> Dictionary:
 	var face := Color("d9c79c")
 	var hi := Color("f0e6d0")
 	var shade := Color("b8a47a")
+	var trim := Color("b08a3c")
+	var wood := Color("7a5232")
 	if hot and not _down:
-		face = Color(minf(face.r * 1.12, 1.0), minf(face.g * 1.10, 1.0), minf(face.b * 1.06, 1.0))
-		hi = Color(minf(hi.r * 1.06, 1.0), minf(hi.g * 1.05, 1.0), minf(hi.b * 1.02, 1.0))
+		face = Color("f8f0d0")
+		hi = Color("fffaf0")
+		shade = Color("e2d09a")
+		trim = Color("f0cc5c")
+		wood = Color("d49a4c")
 	if _down:
-		face = face.darkened(0.06)
+		face = face.darkened(0.10)
 		hi = face
+		trim = trim.darkened(0.08)
+		wood = wood.darkened(0.08)
 	return {
 		"ink": Color("100e0c"),
-		"wood": Color("7a5232"),
+		"wood": wood,
 		"hi": hi,
-		"trim": Color("b08a3c"),
+		"trim": trim,
 		"face": face,
 		"shade": shade,
 		"lip": Color("5a3a22"),
@@ -231,25 +242,36 @@ func _draw() -> void:
 	var hot: bool = live and is_hovered()
 	var press := Vector2(0, 2) if live and _down else Vector2.ZERO
 	var pal: Dictionary = _palette(live, hot)
-	_draw_band(pal, press)
-	_draw_end_caps(pal, press)
-	_draw_divider(pal, press)
+	var grow := 0.0
+	var rim_extra := 0.0
+	if live and hot and not _down:
+		grow = HOVER_GROW
+		rim_extra = 0.05
+	elif live and _down:
+		rim_extra = 0.04
+	_draw_band(pal, press, grow, rim_extra)
+	_draw_divider(pal, press, grow)
 	if block_n > 0:
 		_draw_block_pip(press)
 	_draw_take_side(press)
 
 
-func _draw_band(pal: Dictionary, press: Vector2) -> void:
+func _draw_band(pal: Dictionary, press: Vector2, grow: float = 0.0, rim_extra: float = 0.0) -> void:
 	var span: Vector2 = _arc_span()
-	var inn: float = inner_radius()
-	var out: float = outer_radius()
+	var inn: float = inner_radius() - grow * 0.35
+	var out: float = outer_radius() + grow
+	var ink_in: float = 0.08 + rim_extra
+	var wood_in: float = 0.16 + rim_extra
+	var hi_in: float = 0.24 + rim_extra
+	var trim_in: float = 0.32 + rim_extra
+	var face_out: float = 0.78 - rim_extra
 	var bands: Array = [
 		[0.00, pal["ink"]],
-		[0.08, pal["wood"]],
-		[0.16, pal["hi"]],
-		[0.24, pal["trim"]],
-		[0.32, pal["face"]],
-		[0.78, pal["face"]],
+		[ink_in, pal["wood"]],
+		[wood_in, pal["hi"]],
+		[hi_in, pal["trim"]],
+		[trim_in, pal["face"]],
+		[face_out, pal["face"]],
 		[0.86, pal["shade"]],
 		[0.93, pal["lip"]],
 		[0.97, pal["deep"]],
@@ -276,28 +298,14 @@ func _draw_band(pal: Dictionary, press: Vector2) -> void:
 			draw_colored_polygon(PackedVector2Array([a0, a1, b1, b0]), col)
 
 
-func _draw_end_caps(pal: Dictionary, press: Vector2) -> void:
-	## Ovular tips matching move_arrow `_draw_tail` disk caps (no trim bead).
-	var half: float = BODY_W * 0.5
-	for t_end in [0.0, 1.0]:
-		var c: Vector2 = _chord_point(t_end) + press
-		var away: Vector2 = c - guide_c
-		if away.length_squared() < 0.001:
-			away = Vector2.DOWN
-		else:
-			away = away.normalized()
-		draw_circle(c, half + 2.0, pal["ink"])
-		draw_circle(c, half - 1.0, pal["wood"])
-		draw_circle(c, half - 4.0, pal["face"])
-		draw_arc(c, half - 2.0, away.angle() - 0.7, away.angle() + 0.7, 10, pal["hi"], 2.0, not OS.has_feature("web"))
-
-
-func _draw_divider(pal: Dictionary, press: Vector2) -> void:
+func _draw_divider(pal: Dictionary, press: Vector2, grow: float = 0.0) -> void:
 	var span: Vector2 = _arc_span()
 	var ang: float = span.x + span.y * SPLIT_T
 	var dir: Vector2 = Vector2.from_angle(ang)
-	var a: Vector2 = guide_c + dir * (inner_radius() + 3.0) + press
-	var b: Vector2 = guide_c + dir * (outer_radius() - 3.0) + press
+	var inn: float = inner_radius() - grow * 0.35
+	var out: float = outer_radius() + grow
+	var a: Vector2 = guide_c + dir * (inn + 3.0) + press
+	var b: Vector2 = guide_c + dir * (out - 3.0) + press
 	draw_line(a, b, pal["ink"], 2.0, not OS.has_feature("web"))
 	draw_line(a, b, Color("3a2a1c", 0.85), 1.0, not OS.has_feature("web"))
 
@@ -342,21 +350,20 @@ func _draw_block_pip(press: Vector2) -> void:
 	var span: Vector2 = _arc_span()
 	var t_mid: float = SPLIT_T * 0.5
 	var ang: float = span.x + span.y * t_mid
-	## Same outward bias as Take word so Block pip matches the band seat.
 	var rad: float = _content_radius()
 	var at: Vector2 = guide_c + Vector2.from_angle(ang) * rad + press
 	var tex: Texture2D = block_tex
 	if tex == null:
 		return
-	var sz := Vector2(tex.get_width(), tex.get_height())
+	var sz: Vector2 = _fitted_icon_size(tex)
 	draw_set_transform(at, ang - PI * 0.5, Vector2.ONE)
-	draw_texture(tex, -sz * 0.5)
+	draw_texture_rect(tex, Rect2(-sz * 0.5, sz), false)
 	var font: Font = word_font if word_font != null else ThemeDB.fallback_font
 	if font == null:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		return
 	var txt: String = str(block_n)
-	var fs := 22
+	var fs := 18
 	var tsz: Vector2 = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
 	var p: Vector2 = Vector2(-tsz.x * 0.5, fs * 0.36)
 	var ink := Color("100e0c")
@@ -381,7 +388,7 @@ func _draw_take_side(press: Vector2) -> void:
 	var font: Font = word_font if word_font != null else ThemeDB.fallback_font
 	if font == null:
 		font = ThemeDB.fallback_font
-	var fs := 32
+	var fs := 24
 	var word: String = take_word
 	var text_w := 0.0
 	if font != null and word != "":
@@ -389,9 +396,10 @@ func _draw_take_side(press: Vector2) -> void:
 	var icon_w := 0.0
 	var icon_h := 0.0
 	if show_burst and burst_tex != null:
-		icon_w = float(burst_tex.get_width())
-		icon_h = float(burst_tex.get_height())
-	var gap := 8.0
+		var isz: Vector2 = _fitted_icon_size(burst_tex)
+		icon_w = isz.x
+		icon_h = isz.y
+	var gap := 6.0
 	var total: float = text_w + (gap + icon_w if icon_w > 0.0 else 0.0)
 	## Arc-length offsets from the Take-third mid (left→right). Angle = mid - s/r.
 	var word_off: float = -total * 0.5 + text_w * 0.5
@@ -404,13 +412,13 @@ func _draw_take_side(press: Vector2) -> void:
 		var burst_ang: float = mid_ang - burst_off / r
 		var bp: Vector2 = guide_c + Vector2.from_angle(burst_ang) * r
 		draw_set_transform(bp, burst_ang - PI * 0.5, Vector2.ONE)
-		draw_texture(burst_tex, Vector2(-icon_w * 0.5, -icon_h * 0.5))
+		draw_texture_rect(burst_tex, Rect2(Vector2(-icon_w * 0.5, -icon_h * 0.5), Vector2(icon_w, icon_h)), false)
 		_draw_hit_num(font, Vector2.ZERO, str(take_n))
 		if burst_pip != "" and font != null:
-			var pip_fs := 16
+			var pip_fs := 13
 			var origin := Vector2(-icon_w * 0.5, -icon_h * 0.5)
-			draw_string(font, origin + Vector2(icon_w - 2.0, 14.0), burst_pip, HORIZONTAL_ALIGNMENT_LEFT, -1, pip_fs, Color("100e0c"))
-			draw_string(font, origin + Vector2(icon_w, 12.0), burst_pip, HORIZONTAL_ALIGNMENT_LEFT, -1, pip_fs, Color("f0e6d8"))
+			draw_string(font, origin + Vector2(icon_w - 2.0, 12.0), burst_pip, HORIZONTAL_ALIGNMENT_LEFT, -1, pip_fs, Color("100e0c"))
+			draw_string(font, origin + Vector2(icon_w, 10.0), burst_pip, HORIZONTAL_ALIGNMENT_LEFT, -1, pip_fs, Color("f0e6d8"))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	guide_c = saved_c
 
@@ -418,7 +426,7 @@ func _draw_take_side(press: Vector2) -> void:
 func _draw_hit_num(font: Font, pos: Vector2, txt: String) -> void:
 	if font == null or txt == "":
 		return
-	var fs := 22
+	var fs := 18
 	var tsz := font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
 	var p := pos + Vector2(-tsz.x * 0.5, fs * 0.36)
 	var ink := Color("100e0c")

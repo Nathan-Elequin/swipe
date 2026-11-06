@@ -1,16 +1,19 @@
 ---
 id: REQ-20261102-take-arc-caps
-status: open
+status: superseded
 priority: high
 branch: cursor/take-arc-rounded-caps-e224
 base: playtest/latest
 created: 2026-11-02T19:50:00Z
 created_by: cursor-cloud
+superseded_by: REQ-20261106-take-arc-square-hug
 viewport: 1680x1040
 entry: F5 playtest hub → Middle Progress / Continue into a fight with Moves (Adventure). Prefer Block > 0 (Shield / Breastplate) and incoming Take > 0 so the right third shows Take + burst.
 ---
 
-# Take arc rounded caps + arced Take/burst
+# Take arc rounded caps + arced Take/burst (superseded)
+
+Nathan dropped the oval disk caps (Cabin Nib: they don't serve a purpose). **Drain `REQ-20261106-take-arc-square-hug` instead.**
 
 Cloud polish on the cream Take arc under the wheel. Ends are ovular disk caps (move-arrow tail style). "Take" / "Safe" word and the damage burst rotate along the arc midline instead of sitting flat horizontal. Block pip rotates when present. One click target unchanged. No player-facing copy edits.
 
