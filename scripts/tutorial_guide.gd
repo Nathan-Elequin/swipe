@@ -143,6 +143,9 @@ void fragment() {
 	_ink.host = self
 	_ink.set_anchors_preset(PRESET_FULL_RECT)
 	_ink.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	## Above the wheel ability plate (170) and under Nib (190), so the gold box sits on the ability text.
+	_ink.z_as_relative = false
+	_ink.z_index = 175
 	add_child(_ink)
 	_ring = Panel.new()
 	_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE

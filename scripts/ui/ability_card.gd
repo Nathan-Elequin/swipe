@@ -14,6 +14,7 @@ var call_txt: String = ""
 var body_txt: String = ""
 var icon: Texture2D
 var ink: Color = INK
+var bound_slice: int = -1
 var _inner_w: float = 160.0
 
 
@@ -87,6 +88,20 @@ func place_from_tag(tag_global: Rect2, dir: Vector2, hub_global: Vector2, avoids
 		return true
 	visible = false
 	return false
+
+
+## Call name plus the ability sentence. The tutorial box uses this, not the whole plate.
+func ability_text_global_rect() -> Rect2:
+	var font: Font = _font()
+	var top := 8.0
+	var left := 12.0
+	var text_w: float = maxf(24.0, _inner_w)
+	var bottom := 34.0
+	if body_txt != "" and font != null:
+		var bh: float = font.get_multiline_string_size(body_txt, HORIZONTAL_ALIGNMENT_LEFT, BODY_W, 13, 2).y
+		bottom = 40.0 + bh + 6.0
+	var local := Rect2(Vector2(left, top), Vector2(text_w + 8.0, maxf(20.0, bottom - top)))
+	return Rect2(global_position + local.position, local.size)
 
 
 func _hits_avoid(r: Rect2, avoids: Array) -> bool:

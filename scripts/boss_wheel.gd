@@ -169,6 +169,8 @@ var _fit_sig: String = ""
 var _fit_clearance: Array = []
 var _tag_fs: Dictionary = {}
 var _ability_cards: Array = []
+## Tutorial line about one monster's ability. -1 means hover / facing picks the plate.
+var tutorial_pin_slice: int = -1
 var _chrome_hover: int = -1
 var _mark_hover: bool = false
 var _mark_tip: PanelContainer = null
@@ -1805,6 +1807,48 @@ func slice_rect(i: int) -> Rect2:
 	return _slice_global_rect(i)
 
 
+## Ability sentence on the hover plate for this seat, or the call name on the name tag.
+func callout_ability_rect(i: int) -> Rect2:
+	for card in _ability_cards:
+		if not card.visible or int(card.bound_slice) != i:
+			continue
+		if card.has_method("ability_text_global_rect"):
+			var plate: Rect2 = card.ability_text_global_rect()
+			if plate.size.x >= 8.0 and plate.size.y >= 8.0:
+				return plate
+	return call_name_global_rect(i)
+
+
+func call_name_global_rect(i: int) -> Rect2:
+	if i < 0 or i >= slices.size():
+		return Rect2()
+	var call_s: String = _call_of_slice(i)
+	if call_s == "":
+		return Rect2()
+	var font: Font = get_theme_default_font()
+	if font == null:
+		font = ThemeDB.fallback_font
+	if font == null:
+		return Rect2()
+	var sp: Dictionary = _spoke(i)
+	var tag: Rect2 = sp.get("tag_rect", Rect2())
+	if tag.size.x < 4.0:
+		return Rect2()
+	var fs: int = int(_tag_fs.get(i, 15))
+	var text_x: float = tag.position.x + 10.0
+	var text_w: float = maxf(24.0, tag.size.x - 10.0)
+	var name_y: float = tag.position.y + 6.0 + font.get_ascent(fs)
+	var call_y: float = name_y + (font.get_height(fs) - font.get_ascent(fs)) + 1.0 + font.get_ascent(11)
+	var csz: Vector2 = font.get_string_size(call_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
+	var cx: float = text_x + (text_w - csz.x) * 0.5
+	var top: float = call_y - font.get_ascent(11)
+	var local := Rect2(Vector2(cx, top), Vector2(csz.x, font.get_height(11))).grow(6.0)
+	var xf: Transform2D = get_global_transform()
+	var p0: Vector2 = xf * local.position
+	var p1: Vector2 = xf * local.end
+	return Rect2(p0, p1 - p0)
+
+
 func _slice_annulus_rect(i: int) -> Rect2:
 	if i < 0 or i >= slices.size():
 		return Rect2()
@@ -2392,11 +2436,14 @@ func _sync_ability_cards() -> void:
 	_raise_ability_cards_for_tutorial()
 	for card in _ability_cards:
 		card.visible = false
+		card.bound_slice = -1
 	# `_item_held` walks the scene tree — skip entirely mid-spin.
 	if spinning or busy or _item_held():
 		return
 	var want: Array[int] = []
-	if hover_index >= 0 and hover_index < slices.size() and str(slices[hover_index].get("kind", "")) == "monster":
+	if tutorial_pin_slice >= 0 and tutorial_pin_slice < slices.size() and str(slices[tutorial_pin_slice].get("kind", "")) == "monster":
+		want.append(tutorial_pin_slice)
+	elif hover_index >= 0 and hover_index < slices.size() and str(slices[hover_index].get("kind", "")) == "monster":
 		want.append(hover_index)
 	elif facing_index >= 0 and facing_index < slices.size() and str(slices[facing_index].get("kind", "")) == "monster":
 		want.append(facing_index)
@@ -2428,6 +2475,7 @@ func _sync_ability_cards() -> void:
 		card.set_content(call_s, body, _medal_tex(str(s.get("card_id", ""))), _ability_icon_color(str(s.get("special_id", ""))), bool(s.get("silenced", false)))
 		var tag_g: Rect2 = _xform_rect(sp["tag_rect"])
 		if card.place_from_tag(tag_g, sp["dir"], hub_g, _ability_avoids):
+			card.bound_slice = i
 			used += 1
 
 

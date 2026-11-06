@@ -7298,6 +7298,8 @@ func _process(delta: float) -> void:
 		draft_gate.dock(wheel_view)
 	if in_tutorial:
 		_tut_refresh_focus()
+	elif wheel_view != null and int(wheel_view.tutorial_pin_slice) >= 0:
+		wheel_view.tutorial_pin_slice = -1
 	## During dungeon-clear resolve, clear_parade owns Spin alpha. The ready-phase
 	## pulse was restoring modulate.a=1 every frame (shot 05 Spin reappear).
 	if _clear_resolving:
@@ -26259,29 +26261,20 @@ func _tut_apply_desk_beat(beat: String) -> void:
 	## now plays when Next leaves B11, so the counter is already true.
 	if beat.begins_with("B12.") and not _tut_first_deck_done:
 		await _tut_seat_pending_draw()
-	elif beat.begins_with("B17a"):
+	elif beat.begins_with("B17a") and _tut_item_callout_showing("breastplate"):
+		## Player already hovered. Hold that plate so the dim cannot cover it.
+		## Do not open it for them — the hover is the lesson.
 		_tut_pin_item = "breastplate"
-		_tut_show_pinned_item("breastplate")
-	elif beat == "B20.3":
+		_tut_lift_item_plate()
+	elif beat == "B20.3" and _tut_item_callout_showing("spiked_flail"):
 		_tut_pin_item = "spiked_flail"
-		_tut_show_pinned_item("spiked_flail")
+		_tut_lift_item_plate()
 	elif beat == "B20.6":
 		await _tut_release_golem_exit()
 	if prev_pin != "" and _tut_pin_item == "" and fly_tip:
 		fly_tip.hide_plate()
 		fly_tip.z_index = 110
 		fly_tip.z_as_relative = true
-
-
-func _tut_show_pinned_item(id: String) -> void:
-	var card: Control = _hotbar_card(id)
-	for it in hotbar:
-		if typeof(it) != TYPE_DICTIONARY:
-			continue
-		if str(it.get("card_id", "")) != id:
-			continue
-		_on_item_hovered(it, card)
-		return
 
 
 func _tut_hold_item_plate() -> bool:
@@ -26990,6 +26983,15 @@ func _tut_refresh_focus() -> void:
 		_tut_ensure_usable("breastplate")
 	var spots: Array = []
 	var arrows: Array = []
+	if wheel_view != null:
+		var pin := -1
+		if str(tut.focus_tag) == "callout_ability":
+			pin = _index_of_monster("goblin")
+			if pin < 0:
+				pin = facing_index
+		wheel_view.tutorial_pin_slice = pin
+		if pin >= 0:
+			wheel_view._sync_ability_cards()
 	_tut_collect_spots(spots, arrows)
 	tut.set_spots(spots, arrows)
 	_tut_inspect_focused_item()
@@ -27214,6 +27216,16 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 		return
 	if tag == "hotbar":
 		_tut_add_control(spots, hotbar_box)
+		return
+	if tag == "callout_ability" and wheel_view != null:
+		var call_i: int = int(wheel_view.tutorial_pin_slice)
+		if call_i < 0:
+			call_i = _index_of_monster("goblin")
+		if call_i < 0:
+			call_i = facing_index
+		var ability_r: Rect2 = wheel_view.callout_ability_rect(call_i)
+		if ability_r.size.x >= 8.0 and ability_r.size.y >= 8.0:
+			_tut_add_rect(spots, ability_r)
 		return
 	if tag == "move_arrow":
 		## Arrows only. The destination slice's box was a shifting rectangle over that half of the wheel.
@@ -27670,12 +27682,7 @@ func _tut_on_progress_key() -> void:
 				_tutorial_on_slice_hover(hi)
 				_tutorial_try_shift_inspect()
 		return
-	if w == "hover_item":
-		var hover_id: String = ""
-		if tut != null and str(tut.focus_tag).begins_with("item:"):
-			hover_id = str(tut.focus_tag).substr(5)
-		_tutorial_on_item_hover(hover_id)
-		return
+	## hover_item stays on the mouse. Space must not open the card or skip the line.
 	if w.begins_with("draft:") and challenge_draft_ui != null and challenge_draft_ui.has_method("pick_card_id"):
 		challenge_draft_ui.pick_card_id(w.substr(6))
 
@@ -27697,6 +27704,12 @@ func _tutorial_after_fight() -> void:
 		_tut_after_advance()
 
 
+func _tut_item_callout_showing(id: String) -> bool:
+	if id == "" or fly_tip == null or not fly_tip.visible:
+		return false
+	return str(fly_tip.edit_kind) == "item" and str(fly_tip.edit_id) == id
+
+
 func _tutorial_on_item_hover(card_id: String = "") -> void:
 	if not in_tutorial or tut == null or not tut.armed():
 		return
@@ -27706,6 +27719,9 @@ func _tutorial_on_item_hover(card_id: String = "") -> void:
 	if str(tut.focus_tag).begins_with("item:"):
 		need = str(tut.focus_tag).substr(5)
 	if need != "" and card_id != "" and card_id != need:
+		return
+	var shown: String = need if need != "" else card_id
+	if not _tut_item_callout_showing(shown):
 		return
 	tut.advance()
 	_tut_after_advance()
@@ -27721,16 +27737,8 @@ func _tutorial_on_slice_hover(index: int) -> void:
 	if tut.wait == "hover_shift" or tut.wait == "hover":
 		if wheel_view != null and index >= 0:
 			wheel_view.hover_index = index
-		## Optional force: only the tagged / named monster counts.
-		if str(tut.force_id) != "":
-			var fid: String = str(tut.force_id)
-			var ok := false
-			if fid.begins_with("tag:"):
-				ok = str(wheel[index].get("tut_tag", "")) == fid.substr(4)
-			else:
-				ok = str(wheel[index].get("card_id", "")) == fid
-			if not ok:
-				return
+		if not _tutorial_hover_matches(index):
+			return
 		_tutorial_try_shift_inspect()
 		return
 	if tut.wait != "hover_slice:berserker":
@@ -27743,6 +27751,22 @@ func _tutorial_on_slice_hover(index: int) -> void:
 	_tut_after_advance()
 
 
+## Hover-to-continue only counts the monster this line named. An empty force still accepts any monster.
+func _tutorial_hover_matches(index: int) -> bool:
+	if tut == null:
+		return false
+	if index < 0 or index >= wheel.size():
+		return false
+	if str(wheel[index].get("kind", "")) != "monster":
+		return false
+	var fid: String = str(tut.force_id)
+	if fid == "":
+		return true
+	if fid.begins_with("tag:"):
+		return str(wheel[index].get("tut_tag", "")) == fid.substr(4)
+	return str(wheel[index].get("card_id", "")) == fid
+
+
 func _tutorial_try_shift_inspect() -> void:
 	if not in_tutorial or tut == null or not tut.armed():
 		return
@@ -27751,9 +27775,7 @@ func _tutorial_try_shift_inspect() -> void:
 	if wheel_view == null:
 		return
 	var hi: int = int(wheel_view.hover_index)
-	if hi < 0 or hi >= wheel.size():
-		return
-	if str(wheel[hi].get("kind", "")) != "monster":
+	if not _tutorial_hover_matches(hi):
 		return
 	var reveal: String = tut.then_focus
 	if reveal == "inspect" and facing_index >= 0 and facing_index < wheel.size():
