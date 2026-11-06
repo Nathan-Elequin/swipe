@@ -33,24 +33,20 @@ Do **not** touch huntsman/quicksand_crab facing_idle.
 Godot will regenerate `.import` — commit them if tip smoke expects them (match peer monster4 catalog PR style).
 
 ## Code — `scripts/dungeon_art.gd` `monster_slash_frames`
-Current tip (Nathan 2026-11-01): ignores `anim/slash/` (Kenney flash) and returns facing strip.
+**Pixel CRITICAL 2026-11-06:** tip previously returned `_facing_strip` and ignored `anim/slash/`, so PNG-only ships left cut-ins on frozen facing. Restore slash-strip load for **any** id when plates exist (not allowlist-only) — restores all catalog slash sets that already have plates.
 
-For this PR: prefer PixelLab slash strip **only for these four ids** when `…_slash_f0.png` loads; else keep current facing/wheel fallback. Do **not** globally re-enable all Kenney/legacy slash plates.
-
-Example shape:
 ```
 func monster_slash_frames(card_id: String) -> Array:
 	var id := str(card_id).strip_edges()
-	if id in ["huntsman", "quicksand_crab", "phantom", "collector"]:
-		var slash := _slash_strip(id)  # load f0..fN from anim/slash/{id}_slash_f%d.png
-		if not slash.is_empty():
-			return slash
+	var slash := _slash_strip(id)  # anim/slash/{id}_slash_f0..fN until first gap
+	if not slash.is_empty():
+		return slash
 	var face := _facing_strip(id)
 	if not face.is_empty():
 		return face
 	return monster_wheel_frames(id)
 ```
-Add `_slash_strip` peer to `_facing_strip` (f0.. up to 12, break on null). `slash_base` may sit unused (portrait uses f0..f3) — still commit the base PNG for peers.
+Add `_slash_strip` peer to `_facing_strip` (f0.. up to 12, break on null). `ability_slash.gd` already calls `monster_slash_frames` — no change once loader works. `slash_base` may sit unused (portrait uses f0..f3) — still commit the base PNG for peers.
 
 ## Do NOT
 - Change catalog numbers / combat / SFX / player-copy

@@ -16,9 +16,9 @@ Nathan-locked PixelLab slash strips for huntsman A, quicksand_crab B, phantom B,
 ## What to verify
 
 - Slash cut-in for Huntsman / Quicksand Crab / Phantom / Collector uses new `anim/slash/{id}_slash_f0..f3` (48×48, Nearest), not facing dupes.
+- Any other monster that already has `anim/slash/{id}_slash_f0..` also uses those plates in cut-in (global loader restore).
 - Phantom and Collector idle/facing loop uses new distinct idle frames (not facing-plate duplicates).
 - Huntsman and Quicksand Crab facing idle unchanged from tip.
-- Other monsters still ignore Kenney `anim/slash/` (facing/wheel fallback).
 - No SFX / catalog number / combat-logic regressions.
 
 ## Screenshots required

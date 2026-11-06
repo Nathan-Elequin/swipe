@@ -632,15 +632,14 @@ func _knock_backdrop(img: Image) -> void:
 
 
 func monster_slash_frames(card_id: String) -> Array:
-	## Action frames for the slash cut-in. Prefer PixelLab slash strips only for
-	## the monster4 polish allowlist when f0 loads; otherwise keep facing/wheel
-	## (Nathan 2026-11-01: ignore Kenney-era anim/slash/ for everyone else).
+	## Action frames for the slash cut-in. Prefer anim/slash/{id}_slash_f0..fN
+	## whenever those plates exist (Pixel 2026-11-06: restoring catalog slash sets;
+	## PNG-only ships left cut-ins on frozen facing). Else facing, then wheel.
 	## Empty → caller uses monster_still punch-in.
 	var id: String = str(card_id).strip_edges()
-	if id in ["huntsman", "quicksand_crab", "phantom", "collector"]:
-		var slash: Array = _slash_strip(id)
-		if not slash.is_empty():
-			return slash
+	var slash: Array = _slash_strip(id)
+	if not slash.is_empty():
+		return slash
 	var face: Array = _facing_strip(id)
 	if not face.is_empty():
 		return face
