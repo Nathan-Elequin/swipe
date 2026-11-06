@@ -733,6 +733,10 @@ var _tut_breastplate_keep_gray: bool = false
 ## Dialog lines the player can still Back to. Cleared when a wheel turn starts.
 var _tut_back_hist: Array = []
 var _tut_back_at: int = -1
+## Bumps on every Back / fresh Next so an in-flight draw cannot finish into the restored board.
+var _tut_nav_gen: int = 0
+## The line that is allowed to commit a snapshot. A stale draw must not overwrite it.
+var _tut_line_gen: int = -1
 var draft_gate
 var _courier: TextureRect
 var _courier_gear: Dictionary = {}
@@ -760,6 +764,7 @@ var _fungal_stop_fight: bool = false
 var _crab_pending_steps: int = 0
 ## Phantom Dark Matter: reveal-then-use must not re-trigger Shroud.
 var _phantom_skip_dark_matter: bool = false
+var _shroud_seq: int = 0
 var _drink_hp_due: bool = false
 var _gate_line: String = ""
 var _cube_line: String = ""
@@ -10074,23 +10079,15 @@ func _use_item(uid: int) -> void:
 		if sfx:
 			sfx.play_event(&"hand.petrified")
 		return
-	## Phantom Shroud: click reveals, then uses if playable; Unplayable → reveal + discard.
-	## Reveal-use does not re-trigger Dark Matter.
+	## Phantom Shroud: lift, peel, then Use. Unplayable discards. Reveal-use does not re-trigger Dark Matter.
 	if bool(it.get("shrouded", false)):
-		it["shrouded"] = false
-		_sort_hotbar()
-		_hotbar_sig = ""
-		_refresh()
-		var shroud_view: Dictionary = _item_view(it)
-		var can_play: bool = bool(shroud_view.get("can_use", false)) and not bool(it.get("spent", false))
-		if not can_play:
-			_log("on_item_use", "Shroud reveal — unplayable, discard")
-			_discard_from_hand(uid)
-			_undo_arm()
-			call_deferred("_refresh")
+		var play_revealed: bool = await _phantom_reveal_for_use(uid)
+		if not play_revealed:
+			return
+		it = _find_item(uid)
+		if it.is_empty() or bool(it.get("spent", false)):
 			return
 		_phantom_skip_dark_matter = true
-		## Fall through into the normal Use path with the revealed item.
 	if in_tutorial and not _tutorial_allows_item(str(it.get("card_id", ""))):
 		if tut:
 			tut.nudge(_tutorial_nudge_for_item(str(it.get("card_id", ""))))
@@ -17270,7 +17267,7 @@ func _after_item_resolved(it: Dictionary) -> void:
 		await _basilisk_on_gazed_use(it)
 		## Phantom Dark Matter: non-Shrouded Use only (reveal-use skips).
 		if not _phantom_skip_dark_matter and not bool(it.get("shrouded", false)):
-			_phantom_dark_matter_on_use(it)
+			await _phantom_dark_matter_on_use(it)
 	_phantom_skip_dark_matter = false
 	if await _flush_vindictive():
 		return
@@ -19061,6 +19058,16 @@ func _phantom_alive() -> bool:
 	return false
 
 
+func _phantom_seat() -> int:
+	for i in range(wheel.size()):
+		if str(wheel[i].get("card_id", "")) != "phantom":
+			continue
+		if _is_silenced(wheel[i]) or int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		return i
+	return -1
+
+
 func _phantom_dark_matter_on_use(it: Dictionary) -> void:
 	if _phantom_skip_dark_matter:
 		return
@@ -19083,19 +19090,310 @@ func _phantom_dark_matter_on_use(it: Dictionary) -> void:
 		cands.append(uid)
 	if cands.is_empty():
 		return
-	## Shuffle pick of up to 2 items, then shroud them (curse treatment + end of bar).
+	## Pick up to 2, then shroud them. Order at the right end is chosen only after they match.
 	cands.shuffle()
+	var picked: Array = []
 	var pick_n: int = mini(2, cands.size())
 	for i in range(pick_n):
-		var target: Dictionary = _find_item(int(cands[i]))
-		if target.is_empty():
+		var uid_pick: int = int(cands[i])
+		if _find_item(uid_pick).is_empty():
 			continue
-		target["shrouded"] = true
-	_sfx_ability("phantom")
-	_log("on_resolve", "Dark Matter — Shroud %s" % pick_n)
-	_sort_hotbar()
+		picked.append(uid_pick)
+	if picked.is_empty():
+		return
+	if _qa_instant():
+		for uid_now in picked:
+			var instant: Dictionary = _find_item(int(uid_now))
+			if not instant.is_empty():
+				instant["shrouded"] = true
+		_sfx_ability("phantom")
+		_log("on_resolve", "Dark Matter — Shroud %s" % picked.size())
+		_phantom_park_shrouded_end(picked)
+		_sort_hotbar()
+		_hotbar_sig = ""
+		_refresh()
+		return
+	_item_hold = true
+	var seat: int = _phantom_seat()
+	if seat >= 0:
+		await _announce_slice(seat, Vector2.INF, false, false)
+	var from: Vector2 = Vector2.ZERO
+	if wheel_view != null and seat >= 0:
+		from = wheel_view.slice_portrait_global(seat)
+	for hit_i in picked.size():
+		await _phantom_shroud_beam(int(picked[hit_i]), from)
+	await _phantom_haze_cards(picked)
+	for uid_now2 in picked:
+		var target: Dictionary = _find_item(int(uid_now2))
+		if not target.is_empty():
+			target["shrouded"] = true
+	_log("on_resolve", "Dark Matter — Shroud %s" % picked.size())
+	await _phantom_converge_and_park(picked)
+	_item_hold = false
+
+
+## Click a shrouded card: lift it, peel the veil, then Use or discard.
+## Returns true when the revealed item should continue into the normal Use path.
+func _phantom_reveal_for_use(uid: int) -> bool:
+	var it: Dictionary = _find_item(uid)
+	if it.is_empty():
+		return false
+	var card: Control = _hotbar_card_by_uid(uid)
+	if card != null and is_instance_valid(card) and not _qa_instant():
+		var parent: Node = card.get_parent()
+		var idx: int = card.get_index()
+		var start: Vector2 = card.global_position
+		card.reparent(get_tree().root, true)
+		card.global_position = start
+		card.z_index = 90
+		card.pivot_offset = card.size * 0.5
+		var lift := create_tween()
+		lift.set_parallel(true)
+		lift.tween_property(card, "global_position", start + Vector2(0, -48), 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		lift.tween_property(card, "scale", Vector2(1.14, 1.14), 0.16)
+		await lift.finished
+		if not is_instance_valid(card):
+			return false
+		## Paint the real face under the veil, then peel. Same frame, so it does not flash.
+		it["shrouded"] = false
+		_paint_item_card_identity(card, it)
+		if card.has_method("set_shroud"):
+			card.set_shroud(true)
+		if card.has_method("set_shroud_peel"):
+			var peel := create_tween()
+			peel.tween_method(
+				func(u: float) -> void:
+					if is_instance_valid(card):
+						card.set_shroud_peel(u),
+				0.0,
+				1.0,
+				0.32
+			)
+			await peel.finished
+		it = _find_item(uid)
+		if it.is_empty() or not is_instance_valid(card):
+			return false
+		it["shrouded"] = false
+		var can_play_now: bool = bool(_item_view(it).get("can_use", false)) and not bool(it.get("spent", false))
+		card.scale = Vector2.ONE
+		card.pivot_offset = Vector2.ZERO
+		card.z_index = 1
+		if not can_play_now:
+			_log("on_item_use", "Shroud reveal — unplayable, discard")
+			if sfx:
+				sfx.play("error", -4.0, 0.62)
+			if card.has_method("toss"):
+				card.toss()
+			await _discard_from_hand(uid)
+			_undo_arm()
+			call_deferred("_refresh")
+			return false
+		if parent != null and is_instance_valid(parent):
+			parent.add_child(card)
+			parent.move_child(card, mini(idx, parent.get_child_count() - 1))
+		_hotbar_sig = ""
+		_refresh()
+		return true
+	it["shrouded"] = false
+	it = _find_item(uid)
+	if it.is_empty():
+		return false
+	var can_play: bool = bool(_item_view(it).get("can_use", false)) and not bool(it.get("spent", false))
+	if can_play:
+		_hotbar_sig = ""
+		_refresh()
+		return true
+	_log("on_item_use", "Shroud reveal — unplayable, discard")
+	if sfx:
+		sfx.play("error", -4.0, 0.62)
+	await _discard_from_hand(uid)
+	_undo_arm()
+	call_deferred("_refresh")
+	return false
+
+
+func _phantom_haze_cards(uids: Array) -> void:
+	var tw := create_tween()
+	tw.tween_method(
+		func(u: float) -> void:
+			for raw in uids:
+				var card: Control = _hotbar_card_by_uid(int(raw))
+				if card != null and is_instance_valid(card) and card.has_method("set_shroud_cover"):
+					card.set_shroud_cover(u),
+		0.0,
+		1.0,
+		0.42
+	)
+	await tw.finished
+	for raw2 in uids:
+		var done: Control = _hotbar_card_by_uid(int(raw2))
+		if done != null and is_instance_valid(done) and done.has_method("set_shroud"):
+			done.set_shroud(true)
+
+
+func _phantom_shroud_beam(uid: int, from: Vector2) -> void:
+	var dest: Vector2 = _item_card_global(uid)
+	if dest == Vector2.ZERO:
+		dest = _hotbar_card_global(uid)
+	if from == Vector2.ZERO:
+		from = dest + Vector2(0, -140)
+	if sfx:
+		sfx.play("whoosh", -14.0, 0.64)
+	await _phantom_draw_beam(from, dest)
+	var card := _hotbar_card_by_uid(uid)
+	if card != null and card.has_method("bounce"):
+		card.bounce()
+
+
+func _phantom_draw_beam(from: Vector2, to_card: Vector2) -> void:
+	var host: Node2D = _petrify_fx_host()
+	var span: Vector2 = to_card - from
+	var dist: float = maxf(span.length(), 1.0)
+	var dir: Vector2 = span / dist
+	var tan := Vector2(-dir.y, dir.x)
+	var col_outer := Color("5C4A86")
+	var col_core := Color("C8B6E8")
+	var beam := Line2D.new()
+	beam.name = "PhantomBeam"
+	beam.z_index = 18
+	beam.width = 8.0
+	beam.default_color = col_outer
+	beam.antialiased = false
+	beam.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	beam.end_cap_mode = Line2D.LINE_CAP_ROUND
+	beam.add_point(from)
+	beam.add_point(from)
+	host.add_child(beam, true)
+	var core := Line2D.new()
+	core.name = "PhantomBeamCore"
+	core.z_index = 19
+	core.width = 3.0
+	core.default_color = col_core
+	core.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	core.end_cap_mode = Line2D.LINE_CAP_ROUND
+	core.add_point(from)
+	core.add_point(from)
+	host.add_child(core, true)
+	var tw := create_tween()
+	tw.tween_method(
+		func(u: float) -> void:
+			var p: Vector2 = from.lerp(to_card, u)
+			p += tan * sin(u * PI * 2.5) * 14.0 * (1.0 - u)
+			if is_instance_valid(beam):
+				beam.set_point_position(1, p)
+			if is_instance_valid(core):
+				core.set_point_position(1, p),
+		0.0,
+		1.0,
+		0.14
+	)
+	await tw.finished
+	if is_instance_valid(beam):
+		beam.set_point_position(1, to_card)
+	if is_instance_valid(core):
+		core.set_point_position(1, to_card)
+	await get_tree().create_timer(0.06).timeout
+	var fade := create_tween()
+	fade.set_parallel(true)
+	if is_instance_valid(beam):
+		fade.tween_property(beam, "modulate:a", 0.0, 0.12)
+	if is_instance_valid(core):
+		fade.tween_property(core, "modulate:a", 0.0, 0.12)
+	fade.finished.connect(func() -> void:
+		if is_instance_valid(beam):
+			beam.queue_free()
+		if is_instance_valid(core):
+			core.queue_free()
+	, CONNECT_ONE_SHOT)
+
+
+func _hotbar_fog_point() -> Vector2:
+	if hotbar_panel != null:
+		var r: Rect2 = hotbar_panel.get_global_rect()
+		return r.position + Vector2(r.size.x - 28.0, r.size.y * 0.55)
+	return Vector2(1200, 900)
+
+
+## Identical shrouds meet at one point, then new cards appear at the right in a random order.
+## The landing cards are not the nodes that flew, so the path cannot be followed.
+func _phantom_converge_and_park(uids: Array) -> void:
+	var flying: Array = []
+	for raw in uids:
+		var card: Control = _hotbar_card_by_uid(int(raw))
+		if card == null or not is_instance_valid(card):
+			continue
+		var start: Vector2 = card.global_position
+		card.reparent(get_tree().root, true)
+		card.global_position = start
+		card.z_index = 70
+		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		flying.append(card)
+	var fog: Vector2 = _hotbar_fog_point()
+	if not flying.is_empty():
+		if sfx:
+			sfx.play("whoosh", -10.0, 0.55)
+		var tw := create_tween()
+		tw.set_parallel(true)
+		for c in flying:
+			tw.tween_property(c, "global_position", fog, 0.28).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+			tw.tween_property(c, "modulate:a", 0.0, 0.26)
+		await tw.finished
+	for c2 in flying:
+		if c2 != null and is_instance_valid(c2):
+			c2.queue_free()
+	_phantom_park_shrouded_end(uids)
 	_hotbar_sig = ""
 	_refresh()
+	var landed: Array = []
+	for raw3 in uids:
+		var seat_card: Control = _hotbar_card_by_uid(int(raw3))
+		if seat_card == null or not is_instance_valid(seat_card):
+			continue
+		seat_card.modulate.a = 0.0
+		seat_card.pivot_offset = Vector2(seat_card.size.x, seat_card.size.y)
+		seat_card.scale = Vector2(0.18, 0.72)
+		landed.append(seat_card)
+	if landed.is_empty():
+		return
+	var slam := create_tween()
+	slam.set_parallel(true)
+	for seat_card2 in landed:
+		slam.tween_property(seat_card2, "modulate:a", 1.0, 0.16)
+		slam.tween_property(seat_card2, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await slam.finished
+	for seat_card3 in landed:
+		if is_instance_valid(seat_card3):
+			seat_card3.scale = Vector2.ONE
+			seat_card3.pivot_offset = Vector2.ZERO
+			seat_card3.modulate = Color.WHITE
+
+
+func _phantom_park_shrouded_end(uids: Array) -> void:
+	var moving: Array = []
+	var stay: Array = []
+	var want: Dictionary = {}
+	for raw in uids:
+		want[int(raw)] = true
+	for held in hotbar:
+		if typeof(held) != TYPE_DICTIONARY:
+			stay.append(held)
+			continue
+		if want.has(int(held.get("uid", -1))):
+			moving.append(held)
+		else:
+			stay.append(held)
+	for i in range(moving.size() - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var tmp: Variant = moving[i]
+		moving[i] = moving[j]
+		moving[j] = tmp
+	hotbar.clear()
+	for held2 in stay:
+		hotbar.append(held2)
+	for held3 in moving:
+		_shroud_seq += 1
+		held3["shroud_ord"] = _shroud_seq
+		hotbar.append(held3)
 
 
 func _phantom_unshroud_all() -> void:
@@ -19106,6 +19404,7 @@ func _phantom_unshroud_all() -> void:
 		if not bool(held.get("shrouded", false)):
 			continue
 		held["shrouded"] = false
+		held.erase("shroud_ord")
 		any = true
 	if not any:
 		return
@@ -21698,7 +21997,7 @@ func _sort_hotbar() -> void:
 func _item_rank(it: Dictionary) -> int:
 	## Shrouded items sit at the end of the hotbar (curse treatment).
 	if bool(it.get("shrouded", false)):
-		return 90
+		return 90 + int(it.get("shroud_ord", 0))
 	var view: Dictionary = _item_view(it)
 	var k: String = str(view.get("kind", ""))
 	var fill: Color = view.get("fill", Color.BLACK)

@@ -52,6 +52,7 @@ var _rim: Color
 var _curse: bool = false
 ## Phantom Dark Matter: full black curse veil — identity hidden, still clickable.
 var _shrouded: bool = false
+var _shroud_anim: bool = false
 var _shroud_haze: Control
 var _shroud_mark: Label
 var _tier: int = 1
@@ -1521,13 +1522,73 @@ func set_curse(on: bool) -> void:
 
 func set_shroud(on: bool) -> void:
 	_shrouded = on
+	_shroud_anim = false
 	_ensure_shroud_haze()
 	if _shroud_haze != null:
 		_shroud_haze.visible = on
+		_shroud_haze.modulate = Color.WHITE
 	if _shroud_mark != null:
 		_shroud_mark.visible = on
+		_shroud_mark.modulate = Color.WHITE
 	_sync_shroud_vis()
 	queue_redraw()
+
+
+## 0 = the real card, 1 = the full curse veil. Used while Dark Matter closes over a card.
+func set_shroud_cover(amount: float) -> void:
+	var t := clampf(amount, 0.0, 1.0)
+	if t >= 0.98:
+		set_shroud(true)
+		return
+	_shroud_anim = true
+	_ensure_shroud_haze()
+	if _shroud_haze != null:
+		_shroud_haze.visible = true
+		_shroud_haze.modulate = Color(1, 1, 1, t)
+	if _shroud_mark != null:
+		var mark_a := clampf((t - 0.45) / 0.55, 0.0, 1.0)
+		_shroud_mark.visible = mark_a > 0.05
+		_shroud_mark.modulate = Color(1, 1, 1, mark_a)
+	var hide := 1.0 - t
+	if _title != null:
+		_title.modulate = Color(1, 1, 1, hide)
+	if _icon != null and not _petrified:
+		_icon.modulate = Color(hide, hide, hide, hide)
+	if _face != null:
+		_face.modulate = Color(1, 1, 1, hide)
+
+
+## 0 = still veiled, 1 = the item underneath is showing. Dark Matter click peel.
+func set_shroud_peel(open_amount: float) -> void:
+	var t := clampf(open_amount, 0.0, 1.0)
+	if t <= 0.02:
+		set_shroud(true)
+		return
+	if t >= 0.98:
+		_shroud_anim = false
+		set_shroud(false)
+		return
+	_shroud_anim = true
+	_shrouded = true
+	_ensure_shroud_haze()
+	if _shroud_haze != null:
+		_shroud_haze.visible = true
+		_shroud_haze.modulate = Color(1, 1, 1, 1.0 - t)
+	if _shroud_mark != null:
+		_shroud_mark.visible = true
+		_shroud_mark.modulate = Color(1, 1, 1, 1.0 - t)
+	if _title != null:
+		_title.visible = true
+		_title.modulate = Color(1, 1, 1, t)
+	if _icon != null and not _petrified:
+		_icon.visible = true
+		_icon.modulate = Color(1, 1, 1, t)
+	if _face != null:
+		_face.visible = true
+		_face.modulate = Color(1, 1, 1, t)
+	if _num != null:
+		_num.visible = true
+		_num.modulate = Color(1, 1, 1, t)
 
 
 func is_shrouded() -> bool:
@@ -1590,6 +1651,8 @@ func _draw_shroud_veil() -> void:
 
 func _sync_shroud_vis() -> void:
 	## Hide every identity cue while shrouded; restore on clear via next paint/set_live.
+	if _shroud_anim:
+		return
 	if not _shrouded:
 		if _title != null:
 			_title.modulate = Color.WHITE
