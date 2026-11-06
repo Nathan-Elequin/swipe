@@ -1,3 +1,19 @@
+# Wheel seats from facing (2026-11-05)
+
+**Spec:** `design/visual/SCREEN-wheel-seat-from-facing.md`  
+**Archive of previous seats:** `design/archive/pass-wheel-pre-facing/`  
+**Mock:** `design/visual/mockups/CONTACT-wheel-mock-v2.png`
+
+| Path | Native | Notes |
+|---|---|---|
+| `dungeon/anim/wheel/<id>_wheel_base.png` | 24×24 Weak/Tough, 32×32 Deadly | Exact-half / refit of facing idle f0. Nearest. |
+| `dungeon/anim/wheel/<id>_wheel_idle_fN.png` | same as base | Full facing idle strip (usually 4; `bear_trap` has 1). Wired by `dungeon_art.monster_wheel_frames`. |
+| `dungeon/anim/wheel/<id>_wheel_breathe_f0/f1.png` | same as base | Facing f0/f1 sized for seats; idle strip preferred at runtime. |
+
+Seat display: `WHEEL_SPRITE_SCALE` (2×) → 48px or 64px on-screen. Catalog `tier` 3 = Deadly = 32 native; every other live monster = 24 native (including 64-facing Tough art such as ogre).
+
+---
+
 # PixelLab asset list: all ANIM specs
 
 **Estimate rule:** about 1 gen per 4-frame animation (8f = 2, 5–6f = 2), plus about 1 gen per new base. Single icons batched into one sheet count as 1 gen.

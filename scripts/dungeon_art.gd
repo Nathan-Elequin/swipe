@@ -454,6 +454,15 @@ func monster_wheel_frames(card_id: String) -> Array:
 	var out: Array = []
 	if id == "":
 		return out
+	# Prefer the facing-derived idle strip (usually 4 frames; bear_trap has 1).
+	for i in range(0, 8):
+		var t: Texture2D = _load_tex("res://assets/dungeon/anim/wheel/%s_wheel_idle_f%d.png" % [id, i])
+		if t == null:
+			break
+		out.append(t)
+	if not out.is_empty():
+		return out
+	# Fall back to breathe pair, then the still base.
 	var f0: Texture2D = _load_tex("res://assets/dungeon/anim/wheel/%s_wheel_breathe_f0.png" % id)
 	var f1: Texture2D = _load_tex("res://assets/dungeon/anim/wheel/%s_wheel_breathe_f1.png" % id)
 	if f0 != null:
@@ -472,28 +481,31 @@ func monster_facing_idle(card_id: String) -> Array:
 
 
 func wheel_frames_all() -> Dictionary:
-	# Seat art is the 24px full-body wheel base, one frame. The breathe pair is a
-	# different crop of the same canvas, so it does not play here. The fight
-	# callout still uses monster_portrait_frames (the closer facing idle).
-	# A wheel base that is a byte copy of an earlier monster is skipped. Phoenix
-	# shipped the egg's wheel file, so the seat uses the phoenix facing frame.
+	# Seat art is the difficulty-sized facing crop: 24 native (Weak/Tough) or
+	# 32 native (Deadly), drawn at WHEEL_SPRITE_SCALE. Prefer the full idle
+	# strip so boss_wheel._wheel_tex can loop it at 200ms/frame. A wheel base
+	# that is a byte copy of an earlier monster is skipped (Phoenix once
+	# shipped the egg's wheel file). Fight callout still uses
+	# monster_portrait_frames (the closer facing idle).
 	var d := {}
 	var seen := {}
 	for id in MONSTER_PNG.keys():
 		var path := "res://assets/dungeon/anim/wheel/%s_wheel_base.png" % str(id)
 		var sig := _file_sig(path)
-		var base: Texture2D = _load_tex(path) if sig != "" else null
-		if base != null and sig != "" and not seen.has(sig):
+		var frames: Array = monster_wheel_frames(str(id))
+		if not frames.is_empty() and sig != "" and not seen.has(sig):
 			seen[sig] = str(id)
-			d[str(id)] = [base]
+			d[str(id)] = frames
+			continue
+		if not frames.is_empty() and sig == "":
+			d[str(id)] = frames
 			continue
 		var face: Texture2D = _load_tex("res://assets/dungeon/anim/facing/%s_facing_idle_f0.png" % str(id))
 		if face != null:
 			d[str(id)] = [face]
 			continue
-		var frames: Array = monster_wheel_frames(str(id))
 		if not frames.is_empty():
-			d[str(id)] = [frames[0]]
+			d[str(id)] = frames
 	return d
 
 
