@@ -5479,11 +5479,13 @@ func _challenge_discard_one(uid: int) -> void:
 		var refused: Dictionary = _challenge_pending_gain.duplicate(true)
 		_log("discard", str(refused.get("name", "?")))
 		_challenge_pending_gain = {}
-		_challenge_loot_wait = false
 		_recycle_after_gone(refused)
 		if sfx:
 			sfx.play_event(&"chal.discard")
 		_hotbar_sig = ""
+		if bool(refused.get("collector_specimen", false)):
+			await _collector_discard_tax()
+		_challenge_loot_wait = false
 		_refresh()
 		return
 	var have: Dictionary = _find_item(uid)
@@ -5493,7 +5495,7 @@ func _challenge_discard_one(uid: int) -> void:
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
-	_discard_from_hand(uid, true, false)
+	await _discard_from_hand(uid, true, false)
 	if not _challenge_pending_gain.is_empty():
 		hotbar.append(_challenge_pending_gain.duplicate(true))
 		_sort_hotbar()
@@ -9396,6 +9398,8 @@ func _clear_after_fight(_clockwork_split: bool = false) -> void:
 		_tut_pending_empty_seat = facing_index
 		await _wick_on_defeated(facing_index)
 		var slot: String = str(wheel[facing_index].get("slot", ""))
+		if wheel_view and wheel_view.has_method("clear_slay"):
+			wheel_view.clear_slay()
 		wheel[facing_index] = {"kind": "empty", "slot": slot}
 		facing_index = -1
 		_sync_wheel_stats()
@@ -11071,7 +11075,7 @@ func _trapper_pay_marked(index: int) -> void:
 		_grant_trapper_growth(i)
 
 
-func _on_owner_defeated(index: int) -> void:
+func _on_owner_defeated(index: int, from_bag: bool = false) -> void:
 	if index < 0 or index >= wheel.size():
 		return
 	var m: Dictionary = wheel[index]
@@ -11085,8 +11089,10 @@ func _on_owner_defeated(index: int) -> void:
 	m = wheel[index]
 	var cid: String = str(m.get("card_id", ""))
 	var quiet: bool = _is_silenced(m)
-	## Collector bags OTHER defeated enemies at pre-lethal HP; Defeat still resolves.
-	await _collector_bag_defeated(index)
+	## A bag you already used rewrites that same card. That removal is still a
+	## Defeat for everyone else. Collector does not hand over a second bag.
+	if not from_bag:
+		await _collector_bag_defeated(index)
 	if cid == "phantom" and not quiet:
 		_phantom_unshroud_all()
 	if cid == "phoenix" and P1.phoenix_lays_egg(bool(m.get("has_attacked", false)), quiet):
@@ -11824,7 +11830,7 @@ func _bag_remove_facing() -> void:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return
 	var token: int = _undo_gen
-	await _on_owner_defeated(facing_index)
+	await _on_owner_defeated(facing_index, true)
 	if _undo_stale(token) or hp <= 0:
 		return
 	if adventure:
@@ -13885,6 +13891,10 @@ func _run_dead_sweep() -> void:
 			if int(wheel[i].get("hp", 0)) > 0:
 				continue
 			if _wick_waiting(i):
+				continue
+			## The faced corpse is already inside this slay. Sweeping it
+			## would start the ending again before the hand throw finishes.
+			if _slay_busy and i == facing_index:
 				continue
 			victim = i
 			break
@@ -19106,11 +19116,21 @@ func _collector_spawn_bag(m: Dictionary, pre_hp: int) -> void:
 	snap["hp"] = pre_hp
 	_fill_bag(it, snap)
 	it["bagged_hp"] = pre_hp
+	it["collector_specimen"] = true
 	_log("on_resolve", "New Specimen — Bag of %s (%s HP)" % [str(m.get("name", "?")), pre_hp])
 	_sfx_ability("collector")
 	if _hand_full():
 		if not _start_full_hand_replace(it):
 			return
+		## The throw finishes, including his 2 HP slash, before the seat,
+		## the draft, or a spin.
+		var token: int = _undo_gen
+		while _challenge_loot_wait and is_instance_valid(self):
+			if _undo_stale(token) or hp <= 0:
+				_challenge_loot_wait = false
+				_challenge_pending_gain = {}
+				return
+			await get_tree().process_frame
 		return
 	if _hand_cannot_admit():
 		_abort_full_hand_gain(it)
@@ -19137,8 +19157,19 @@ func _collector_discard_tax() -> void:
 			continue
 		if _is_silenced(wheel[ci]) or int(wheel[ci].get("hp", 0)) <= 0:
 			continue
+		var before_hp: int = int(wheel[ci].get("hp", 0))
 		_log("on_resolve", "Collector −2 HP (discard without Use)")
+		await _announce_slice(ci, _slice_hp_pos(ci))
+		if ci < 0 or ci >= wheel.size():
+			continue
+		if str(wheel[ci].get("card_id", "")) != "collector":
+			continue
 		await _chip_hp(ci, 2)
+		if ci < 0 or ci >= wheel.size():
+			continue
+		var delta: int = int(wheel[ci].get("hp", 0)) - before_hp
+		if delta != 0:
+			await _play_stat_delta(ci, true, delta)
 	await _run_dead_sweep()
 
 
@@ -24450,6 +24481,7 @@ func _refresh_face() -> void:
 	if face_box == null:
 		return
 	var show_plate: bool = (phase == "fighting" or phase == "slaying") and facing_index >= 0 and facing_index < wheel.size() and not _choice_covering()
+	var pin_golem: bool = _tut_should_hold_golem_exit()
 	if not show_plate:
 		if face_box.visible:
 			_face_plate_rev += 1
@@ -24458,7 +24490,14 @@ func _refresh_face() -> void:
 			_fight_art_plaque_h = 0.0
 		face_box.hide_plate()
 		var keep_anim: bool = combat_stage != null and combat_stage.busy and not _choice_covering()
-		if combat_stage and not keep_anim and (phase != "slaying" and phase != "fighting" or facing_index < 0 or _choice_covering()):
+		if pin_golem:
+			## Fight already ended, but B20.6 has not started the leave yet.
+			## hide_stage() here was the pop. Keep him up for the real exit.
+			if wheel_view:
+				wheel_view.portrait_away = -1
+			if combat_stage and not combat_stage.visible and not keep_anim:
+				_show_fight_portrait()
+		elif combat_stage and not keep_anim and (phase != "slaying" and phase != "fighting" or facing_index < 0 or _choice_covering()):
 			combat_stage.hide_stage()
 			if player_stage:
 				player_stage.hide_stage()
@@ -26994,22 +27033,45 @@ func _tut_seat_pending_draw() -> void:
 	_tut_pending_hole = -1
 
 
+func _tut_wait_line_begun() -> void:
+	## Beat text is assigned before this runs, with zero characters showing.
+	## The leave starts once the sentence has actually begun.
+	if tut == null or get_tree() == null:
+		return
+	var guard: int = 0
+	while guard < 45:
+		await get_tree().process_frame
+		guard += 1
+		if not tut._typing or int(tut._type_shown) >= 12:
+			return
+
+
 func _tut_release_golem_exit() -> void:
 	if _tut_golem_exit_released:
 		return
-	var i: int = -1
-	for n in range(wheel.size()):
-		if str(wheel[n].get("tut_tag", "")) == "golem_1":
-			i = n
-			break
+	var i: int = _tut_index_of_tag("golem_1")
 	if i < 0:
 		_tut_golem_exit_released = true
 		return
+	_tut_arrive_busy = true
+	await _tut_wait_line_begun()
+	i = _tut_index_of_tag("golem_1")
+	if i < 0 or i >= wheel.size() or str(wheel[i].get("kind", "")) != "monster":
+		_tut_golem_exit_released = true
+		_tut_arrive_busy = false
+		return
 	facing_index = i
+	if wheel_view:
+		wheel_view.portrait_away = -1
+		wheel_view.facing_index = i
+		wheel_view.fade_escape_sprite = true
 	_tut_golem_exit_released = true
 	_tut_hold_deck_refill = true
 	phase = "fighting"
+	if combat_stage and not combat_stage.visible:
+		_show_fight_portrait()
 	await _exit_ended(false, "escape")
+	_tut_arrive_busy = false
 
 
 func _tut_on_beat_entered(beat: String, rig_id: String) -> void:
