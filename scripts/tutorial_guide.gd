@@ -58,6 +58,8 @@ var _type_full: String = ""
 var _type_shown: int = 0
 var _typing: bool = false
 var _type_acc: float = 0.0
+var _body_lock_h: float = 48.0
+var _body_lock_key: String = ""
 var _saved_step: int = -1
 var _on_trigger: bool = false
 const TYPE_CPS := 48.0
@@ -410,9 +412,8 @@ func _apply_beat(b: Dictionary) -> void:
 	_show_chrome_skip(not (beat_id == "B54" or beat_id == "B55"))
 	## Nathan lock: Next always clickable on continue (and similar talk-only) beats.
 	## Hide only when the beat requires an item click, Take, choice, draft, spin, move, hover, etc.
-	_go.visible = _wait_shows_next(wait) and not _typing
-	_go.disabled = false
-	_go.mouse_filter = Control.MOUSE_FILTER_STOP
+	_body_lock_key = ""
+	_sync_next_slot()
 	_go.z_index = 20
 	_talk.z_index = 15
 	_go.custom_minimum_size = Vector2(210, 58)
@@ -546,8 +547,25 @@ func _finish_type() -> void:
 	_typing = false
 	_type_shown = _type_full.length()
 	_body.visible_characters = -1
-	if _wait_shows_next(wait):
-		_go.visible = true
+	_sync_next_slot()
+
+
+func _sync_next_slot() -> void:
+	## Keep Next in the layout the whole time it will be used, so the box
+	## does not grow and shove Nib down when the letters finish.
+	if _go == null:
+		return
+	var slot: bool = _wait_shows_next(wait)
+	_go.visible = slot
+	var show: bool = slot and not _typing
+	_go.disabled = not show
+	_go.mouse_filter = Control.MOUSE_FILTER_STOP if show else Control.MOUSE_FILTER_IGNORE
+	if show:
+		var pulse: float = 0.62 + 0.38 * absf(sin(_idle * 5.0))
+		_go.modulate = Color(1, 1, 1, pulse)
+	else:
+		_go.modulate = Color(1, 1, 1, 0)
+	_go.z_index = 20
 
 
 func _input(event: InputEvent) -> void:
@@ -611,11 +629,7 @@ func _process(delta: float) -> void:
 		_body.visible_characters = _type_shown
 		if _type_shown >= _type_full.length():
 			_finish_type()
-	if _go != null and _go.visible and _wait_shows_next(wait):
-		var pulse: float = 0.62 + 0.38 * absf(sin(_idle * 5.0))
-		_go.modulate = Color(1, 1, 1, pulse)
-	elif _go != null:
-		_go.modulate = Color.WHITE
+	_sync_next_slot()
 	var host: Node = get_tree().root.get_node_or_null("Main")
 	if host != null:
 		var slash: Variant = host.get("ability_slash")
@@ -650,16 +664,7 @@ func _layout() -> void:
 	if _space_hint != null:
 		_space_hint.position = Vector2(24.0, vp.y - 46.0)
 		_space_hint.size = Vector2(maxf(120.0, vp.x - 48.0), 36.0)
-	if _talk != null:
-		var cap: float = maxf(160.0, vp.y - 28.0)
-		if _body != null and _talk.get_combined_minimum_size().y > cap:
-			_body.fit_content = false
-			_body.scroll_active = true
-			_body.custom_minimum_size.y = maxf(48.0, cap - 150.0)
-		elif _body != null:
-			_body.fit_content = true
-			_body.scroll_active = false
-			_body.custom_minimum_size.y = 48.0
+	_lock_talk_body(vp)
 	_push_dim(vp)
 	_ring.visible = false
 	_place_dims(Rect2(), vp)
@@ -694,6 +699,49 @@ func _layout() -> void:
 	_pin_key = key
 	_pin_pos = pos
 	_talk.global_position = pos
+
+
+func _lock_talk_body(vp: Vector2) -> void:
+	## Size the parchment for the finished line, Nib, and Next before any
+	## letter is shown. visible_characters must not change that height.
+	if _talk == null or _body == null:
+		return
+	var face_s: float = 1.0 + 1.125 * nib_close
+	var face_w: float = 64.0 * face_s
+	var frac: float = 0.18 if not _spots.is_empty() else 0.26
+	var outer: float = clampf(vp.x * frac, 320.0, vp.x * 0.32) + 80.0 * nib_close
+	var inner: float = maxf(230.0, outer - 32.0 - 12.0 - face_w)
+	var font_px: int = 12 if _tiny else 20
+	var key: String = "%s|%d|%d|%s" % [_type_full, int(inner), font_px, str(_wait_shows_next(wait))]
+	if key != _body_lock_key:
+		var shown: int = _body.visible_characters
+		_body.fit_content = true
+		_body.scroll_active = false
+		_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_body.custom_minimum_size = Vector2(inner, 0)
+		_body.size = Vector2(inner, 32)
+		_body.visible_characters = -1
+		var full_h: float = _body.get_content_height()
+		if _type_full != "":
+			var font: Font = ThemeDB.fallback_font
+			var font_h: float = font.get_multiline_string_size(_type_full, HORIZONTAL_ALIGNMENT_LEFT, inner, font_px).y
+			full_h = maxf(full_h, font_h)
+		var cap: float = maxf(160.0, vp.y - 28.0)
+		var chrome: float = 24.0 + 24.0 + 20.0 + 18.0
+		if _wait_shows_next(wait):
+			chrome += 64.0
+		var room: float = maxf(48.0, cap - chrome)
+		if full_h > room:
+			_body.scroll_active = true
+			full_h = room
+		else:
+			_body.scroll_active = false
+		_body_lock_h = full_h
+		_body_lock_key = key
+		_body.visible_characters = shown
+	## fit_content would shrink the label down to the letters typed so far.
+	_body.fit_content = false
+	_body.custom_minimum_size = Vector2(inner, _body_lock_h)
 
 
 func _hits_spot(box: Rect2) -> bool:
