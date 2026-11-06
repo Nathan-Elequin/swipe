@@ -11696,17 +11696,27 @@ func _toss_item(uid: int, keep: bool, slow: bool = false, formula_fx: bool = tru
 	var card_from: Vector2 = _item_card_global(uid)
 	## Collector: Discard without Using taxes −2 HP each. Using is not a tax.
 	var tax_discard: bool = (not keep) and (not played)
+	var bar_card: Control = null
 	for c in _hotbar_all_cards():
 		if not c.has_method("toss"):
 			continue
-		if int(c.uid) != uid:
+		if _control_uid(c) != uid:
 			continue
+		bar_card = c
+		break
+	## Reveal lifts the plate onto the window root. If that node never made it
+	## back into the bar, it is the one the player is looking at.
+	var lifted: Control = _root_item_card(uid, bar_card)
+	var flyer: Control = lifted if lifted != null and not keep else bar_card
+	if flyer == null:
+		flyer = lifted
+	if flyer != null:
 		if keep:
-			c.bounce()
+			flyer.bounce()
 			if sfx:
 				sfx.play("pluck", -10.0)
 		else:
-			c.toss(slow)
+			flyer.toss(slow)
 			## Played cards already played item.use in _announce_item_use, then
 			## this shove. A forced discard never played the card, so it gets
 			## the discard cue only.
@@ -11715,7 +11725,9 @@ func _toss_item(uid: int, keep: bool, slow: bool = false, formula_fx: bool = tru
 					sfx.play_event(&"hand.toss")
 				else:
 					sfx.play_event(&"chal.discard")
-		break
+	_drop_extra_item_card(lifted, flyer)
+	if not keep:
+		_drop_extra_item_card(bar_card, flyer)
 	if not keep:
 		_remove_item_now(uid)
 		if not snap.is_empty():
@@ -11725,6 +11737,50 @@ func _toss_item(uid: int, keep: bool, slow: bool = false, formula_fx: bool = tru
 		await _collector_discard_tax()
 	if formula_fx:
 		await _echo_bandits(card_from)
+
+
+func _root_item_card(uid: int, except: Control = null) -> Control:
+	if uid < 0 or get_tree() == null:
+		return null
+	for c in get_tree().root.get_children():
+		if c == except:
+			continue
+		if not c.has_method("toss"):
+			continue
+		if _control_uid(c) != uid:
+			continue
+		if bool(c.get_meta("tossing", false)):
+			continue
+		return c
+	return null
+
+
+func _drop_extra_item_card(extra: Control, keep: Control) -> void:
+	if extra == null or extra == keep or not is_instance_valid(extra):
+		return
+	if bool(extra.get_meta("tossing", false)):
+		return
+	var host: Node = extra.get_parent()
+	if host != null:
+		host.remove_child(extra)
+	extra.queue_free()
+
+
+## A refresh during the peel can spawn a second plate while the revealed one is on the root.
+func _free_duplicate_item_cards(uid: int, keep: Control) -> void:
+	if uid < 0:
+		return
+	var drop: Array = []
+	for c in _hotbar_all_cards():
+		if c == keep:
+			continue
+		if _control_uid(c) == uid:
+			drop.append(c)
+	var lifted: Control = _root_item_card(uid, keep)
+	if lifted != null:
+		drop.append(lifted)
+	for extra in drop:
+		_drop_extra_item_card(extra as Control, keep)
 
 
 func _discard_from_hand(uid: int, slow: bool = false, _recycle: bool = true) -> void:
@@ -19412,23 +19468,32 @@ func _phantom_reveal_for_use(uid: int) -> bool:
 		if it.is_empty() or not is_instance_valid(card):
 			return false
 		it["shrouded"] = false
+		it.erase("shroud_ord")
 		var can_play_now: bool = bool(_item_view(it).get("can_use", false)) and not bool(it.get("spent", false))
 		card.scale = Vector2.ONE
 		card.pivot_offset = Vector2.ZERO
-		card.z_index = 1
+		card.z_index = 0
+		card.mouse_filter = Control.MOUSE_FILTER_STOP
 		if not can_play_now:
 			_log("on_item_use", "Shroud reveal — unplayable, discard")
 			if sfx:
 				sfx.play("error", -4.0, 0.62)
+			_free_duplicate_item_cards(uid, card)
 			if card.has_method("toss"):
 				card.toss()
 			await _discard_from_hand(uid)
 			_undo_arm()
 			call_deferred("_refresh")
 			return false
+		## Godot 4 rejects add_child while this plate is still parented to the root.
+		## That left the revealed card at the right edge, behind the hotbar, after Use.
 		if parent != null and is_instance_valid(parent):
-			parent.add_child(card)
+			if card.get_parent() != parent:
+				card.reparent(parent, true)
 			parent.move_child(card, mini(idx, parent.get_child_count() - 1))
+		else:
+			card.queue_free()
+		_free_duplicate_item_cards(uid, card)
 		_hotbar_sig = ""
 		_refresh()
 		return true
