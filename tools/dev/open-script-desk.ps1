@@ -2,11 +2,12 @@
 $ErrorActionPreference = "Stop"
 $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 Set-Location $repo
-$url = "http://127.0.0.1:8765/"
+$url = "http://127.0.0.1:8765/#tutorial"
+$task = "Swipe Script Desk"
 
 function Test-Desk {
     try {
-        Invoke-WebRequest -Uri ($url + "api/pack") -UseBasicParsing -TimeoutSec 2 | Out-Null
+        Invoke-WebRequest -Uri "http://127.0.0.1:8765/api/pack" -UseBasicParsing -TimeoutSec 2 | Out-Null
         return $true
     } catch {
         return $false
@@ -14,15 +15,14 @@ function Test-Desk {
 }
 
 if (-not (Test-Desk)) {
-    $py = Get-Command py -ErrorAction SilentlyContinue
-    if ($py) {
-        $python = $py.Source
-        $arg = @("-3", "tools\script-desk-server.py")
-    } else {
-        $python = (Get-Command python).Source
-        $arg = @("tools\script-desk-server.py")
+    # The logon task owns the process, so a chat or a closed window does not take the server with it.
+    schtasks /Run /TN $task 2>$null | Out-Null
+    Start-Sleep -Milliseconds 400
+    if (-not (Test-Desk)) {
+        $ps = (Get-Command powershell.exe).Source
+        $arg = @("-NoProfile", "-WindowStyle", "Hidden", "-ExecutionPolicy", "Bypass", "-File", (Join-Path $PSScriptRoot "script-desk-serve.ps1"))
+        Start-Process -FilePath $ps -ArgumentList $arg -WorkingDirectory $repo -WindowStyle Hidden
     }
-    Start-Process -FilePath $python -ArgumentList $arg -WorkingDirectory $repo -WindowStyle Minimized
     $ok = $false
     for ($i = 0; $i -lt 20; $i++) {
         Start-Sleep -Milliseconds 250

@@ -49,6 +49,9 @@
     }
     .chips a:hover, .chips a:focus { background: var(--gold); }
     main { max-width: 980px; margin: 0 auto; padding: 16px 18px 80px; }
+    h2.beat-head { display: flex; align-items: center; gap: 8px; }
+    h2.beat-head .beat-btn { font-size: 13px; padding: 3px 10px; }
+    h2.beat-head .beat-btn.danger { border-color: #8b1e1e; }
     h2 {
       margin: 28px 0 10px;
       padding: 8px 12px;
@@ -78,6 +81,31 @@
     .names-grid { display: grid; grid-template-columns: 140px 1fr 1fr; gap: 6px; align-items: center; }
     .names-grid .lab { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
     #errbox { background: #3a1010; color: #f0c0c0; padding: 16px; border-radius: 8px; display: none; }
+    body.walk main { max-width: 1440px; }
+    .legend { font-size: 13px; color: #3a2820; background: var(--cream); border: 1px solid var(--gold); border-radius: 10px; padding: 8px 12px; margin: 0 0 12px; }
+    .fmt { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; position: sticky; top: 108px; z-index: 15; background: #14110f; color: var(--cream); border: 2px solid var(--gold); border-radius: 10px; padding: 8px 10px; margin: 0 0 12px; }
+    .fmt button { padding: 4px 10px; font-size: 13px; }
+    .swatch { width: 12px; height: 12px; display: inline-block; border-radius: 2px; margin-right: 4px; vertical-align: -1px; border: 1px solid #100e0c; }
+    .step { background: var(--cream); border: 1px solid var(--gold); border-radius: 10px; padding: 8px 12px 4px; margin: 0 0 10px; }
+    .step h3 { margin: 0 0 4px; font-size: 15px; }
+    .step .key { font-family: Consolas, "Courier New", monospace; font-size: 12px; color: #6b4a10; font-weight: 400; }
+    .moment { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 12px; padding: 8px 0; border-top: 1px solid #e4d3b8; }
+    .beat { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); gap: 12px; align-items: start; margin: 0 0 16px; }
+    .moment-k { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #6b4a10; }
+    .moment-d { font-weight: 700; margin: 0 0 4px; }
+    .preview { background: #fffaf2; color: #1c120c; border: 1px solid #e4d3b8; border-radius: 8px; padding: 8px 10px; min-height: 28px; font-size: 18px; }
+    .preview b { font-weight: 700; }
+    .note-col textarea { min-height: 72px; background: #fffdf8; }
+    .note-col .lab { font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: #6b4a10; display: block; margin: 0 0 4px; }
+    .path { display: inline-block; background: #efe4d4; border-radius: 999px; padding: 1px 8px; font-size: 12px; margin-left: 6px; }
+    .visuals { position: sticky; top: 168px; margin: 0; max-height: calc(100vh - 184px); display: flex; flex-direction: column; }
+    .visuals textarea { flex: 1 1 auto; min-height: 280px; height: calc(100vh - 300px); resize: vertical; }
+    .vis-hint { margin: 6px 0 0; font-size: 12px; color: #6b4a10; }
+    .visuals textarea { font-family: Consolas, "Courier New", monospace; font-size: 13px; background: #1c120c; color: #f3e6d0; }
+    .stage-view { font: 13px/1.45 Consolas, "Courier New", monospace; background: #241910; color: #f3e6d0; border-radius: 8px; padding: 8px 10px; margin: 0 0 6px; max-height: 140px; overflow: auto; }
+    .stage-view em { color: #e8c36a; font-style: italic; }
+    .stage-view .stage-tag { color: #c4a574; }
+    button:disabled { opacity: 0.45; cursor: default; }
   </style>
 </head>
 <body>
@@ -85,16 +113,20 @@
     <div class="row">
       <h1>Script desk</h1>
       <span id="status">Loading…</span>
+      <button class="gold" id="btnWalk" type="button">Tutorial walk</button>
+      <button id="btnAll" type="button">All lines</button>
+      <button id="btnUndo" type="button" disabled>Undo</button>
       <button class="gold" id="btnSave" type="button">Save</button>
       <button id="btnReload" type="button">Reload from disk</button>
     </div>
-    <p>Every line the player can read. Sections are jump links only — nothing is hidden, so Ctrl+F finds any phrase. Save writes the game JSON on this PC. Then stop Play and press F5. You do not need to tell chat; later chats read those files.</p>
+    <p>Tutorial walk is one row per line, highlight, and click, with a note beside each. Each beat has a Visuals box for what is on screen. Notes and Visuals are for Cursor. They do not show in the game. Undo is Ctrl+Z, or the Undo button. Select words in a line, then use the color buttons. Save, then stop Play and press F5 to hear new lines.</p>
     <nav class="chips" id="chips"></nav>
   </header>
   <main>
     <div id="errbox"></div>
     <div id="desk"></div>
   </main>
+  <script src="walk.js"></script>
   <script>
     const SECTION_ORDER = [
       ["names", "Names"],
@@ -185,6 +217,12 @@
     }
 
     function render() {
+      if (window.clearDeskUndo) clearDeskUndo();
+      if (location.hash === "#tutorial") {
+        renderWalk();
+        return;
+      }
+      document.body.classList.remove("walk");
       const desk = $("desk");
       const chips = $("chips");
       desk.innerHTML = "";
@@ -274,10 +312,22 @@
         extras[el.dataset.key] = extras[el.dataset.key] || {};
         extras[el.dataset.key][el.dataset.extra] = el.value;
       });
+      const notes = {};
+      document.querySelectorAll("textarea[data-note-for]").forEach((el) => {
+        notes[el.dataset.noteFor] = notes[el.dataset.noteFor] || {};
+        notes[el.dataset.noteFor][el.dataset.note] = el.value;
+      });
       const rows = pack.rows.map((row) => {
         const next = { ...row };
         if (Object.prototype.hasOwnProperty.call(texts, row.key)) next.text = texts[row.key];
         if (extras[row.key]) Object.assign(next, extras[row.key]);
+        if (notes[row.key]) {
+          const clean = {};
+          Object.entries(notes[row.key]).forEach(([k, v]) => {
+            if (String(v).trim()) clean[k] = v;
+          });
+          next.desk_notes = clean;
+        }
         delete next.shown;
         return next;
       });
@@ -288,7 +338,18 @@
         });
         return next;
       });
-      return { rows, names };
+      const out = { rows, names };
+      const visuals = {};
+      let anyVisual = false;
+      document.querySelectorAll("textarea[data-visual-beat]").forEach((el) => {
+        anyVisual = true;
+        const beat = el.dataset.visualBeat;
+        const starter = el.dataset.starter || "";
+        const had = pack.visuals && pack.visuals[beat];
+        if ((el.value !== starter || had) && el.value.trim()) visuals[beat] = el.value;
+      });
+      if (anyVisual) out.visuals = visuals;
+      return out;
     }
 
     async function load() {
@@ -322,13 +383,27 @@
       }
     }
 
+    $("btnUndo").onclick = () => { if (window.undoDesk) undoDesk(); };
     $("btnSave").onclick = save;
     $("btnReload").onclick = load;
+    $("btnWalk").onclick = () => {
+      if (location.hash !== "#tutorial") location.hash = "tutorial";
+      else render();
+    };
+    $("btnAll").onclick = () => {
+      if (location.hash) location.hash = "";
+      else render();
+    };
+    window.addEventListener("hashchange", () => {
+      if (pack && pack.rows) render();
+    });
     document.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
         save();
+        return;
       }
+      if (window.deskUndoKey) deskUndoKey(e);
     });
     window.addEventListener("beforeunload", (e) => {
       if (!dirty) return;

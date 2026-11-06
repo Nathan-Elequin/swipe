@@ -7585,7 +7585,7 @@ func _open_script() -> void:
 		"-File", ps1,
 	]))
 	if err == -1:
-		OS.shell_open("http://127.0.0.1:8765/")
+		OS.shell_open("http://127.0.0.1:8765/#tutorial")
 	_log("on_click", "Script desk")
 
 

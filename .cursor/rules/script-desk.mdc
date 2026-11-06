@@ -16,6 +16,7 @@ Nathan edits every player-facing line in the Script desk web page (`design/scrip
 - `data/player-copy.csv` — export twin
 - `data/content-board.json` and `data/catalog.json` — only when a card name / Ability / Shift / Call name / log hover changed
 - `data/script-desk-last-save.json` — timestamp of the last desk Save
+- `data/tutorial-desk.json` — per-beat Visuals text from the Tutorial walk (`beats.B01` and the rest). For Cursor. The player never sees it.
 
 ## Every chat in this repo (with gold boxes and playtest issues)
 
@@ -23,6 +24,7 @@ Nathan edits every player-facing line in the Script desk web page (`design/scrip
 2. Treat current `data/player-copy.json`, `data/lore.json`, and `data/script-names.json` as live. Inspect and UI read these (and the catalog for card Ability).
 3. Honor `author_lock` on rows, names, and cards. Do not restyle locked copy unless he overrides or a gold box replaces that field.
 4. After a desk Save, the running F5 session still has old strings until he **stops Play and presses F5**. Do not ask him to paste the JSON or to “check for copy updates.”
+5. Tutorial walk notes live on each `tutorial.line.*` row as `desk_notes` (say, highlight, click, `click:<id>`, branch). Per-beat screen description lives in `data/tutorial-desk.json` under `beats`. Both are for Cursor, not the player. If `script-desk-last-save.json` is new, read those notes and the beat visuals and implement the ones that say what should change. Do not copy a note or a visuals paragraph into the line the player reads.
 
 ## Do not
 

@@ -26,6 +26,7 @@ CATALOG_PATH = DATA / "catalog.json"
 LEDGER_PATH = DATA / "author-locks.json"
 CSV_PATH = DATA / "player-copy.csv"
 STAMP_PATH = DATA / "script-desk-last-save.json"
+VISUALS_PATH = DATA / "tutorial-desk.json"
 
 CARD_FIELDS = [
     "name",
@@ -455,6 +456,11 @@ def save_pack(payload: dict) -> dict:
             "then_focus",
             "nib",
             "tiny",
+            "beat",
+            "line",
+            "rig",
+            "allow",
+            "trigger",
         ):
             if extra not in row:
                 continue
@@ -469,8 +475,30 @@ def save_pack(payload: dict) -> dict:
                     entry[extra] = float(val)
                 except (TypeError, ValueError):
                     entry[extra] = val
+            elif extra == "line":
+                try:
+                    entry[extra] = int(val)
+                except (TypeError, ValueError):
+                    entry[extra] = 1
+            elif extra == "allow":
+                if isinstance(val, list):
+                    entry[extra] = [str(x) for x in val]
+                else:
+                    entry[extra] = []
             else:
                 entry[extra] = val
+        notes = row.get("desk_notes")
+        if isinstance(notes, dict):
+            clean_notes = {}
+            for nk, nv in notes.items():
+                key_n = str(nk).strip()
+                text_n = str(nv).replace("\r\n", "\n")
+                if key_n and text_n.strip():
+                    clean_notes[key_n] = text_n
+            if clean_notes:
+                entry["desk_notes"] = clean_notes
+            else:
+                entry.pop("desk_notes", None)
         if bool(row.get("draft", False)) or bool(previous.get("draft", False)):
             entry["draft"] = True
         if bool(row.get("author_lock", False)):
@@ -659,6 +687,7 @@ def save_pack(payload: dict) -> dict:
         write_json(CATALOG_PATH, catalog)
     write_json(LEDGER_PATH, ledger)
     write_csv(kept_copy + card_snapshot(board))
+    saved_visuals = save_visuals(payload)
     stamp = {
         "saved_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "files": [
@@ -668,8 +697,10 @@ def save_pack(payload: dict) -> dict:
             "data/author-locks.json",
             "data/player-copy.csv",
         ],
-        "cards_touched": touched_cards,
     }
+    if saved_visuals:
+        stamp["files"].append("data/tutorial-desk.json")
+    stamp["cards_touched"] = touched_cards
     if touched_cards:
         stamp["files"].extend(["data/content-board.json", "data/catalog.json"])
     write_json(STAMP_PATH, stamp)
@@ -681,6 +712,29 @@ def save_pack(payload: dict) -> dict:
         "cards_touched": touched_cards,
         "path": str(COPY_PATH),
     }
+
+
+def save_visuals(payload: dict) -> bool:
+    if "visuals" not in payload:
+        return False
+    incoming = payload.get("visuals")
+    if not isinstance(incoming, dict):
+        return False
+    clean = {}
+    for key, val in incoming.items():
+        beat = str(key).strip()
+        text = str(val).replace("\r\n", "\n")
+        if beat and text.strip():
+            clean[beat] = text
+    write_json(
+        VISUALS_PATH,
+        {
+            "id": "tutorial-desk-visuals",
+            "instructions": "Per-beat screen description from the Script desk Tutorial walk. For Cursor. The player never sees this.",
+            "beats": clean,
+        },
+    )
+    return True
 
 
 def pack_payload() -> dict:
@@ -695,11 +749,14 @@ def pack_payload() -> dict:
         item = dict(row)
         item["shown"] = apply_names(str(item.get("text", "")), names)
         shown.append(item)
+    vis = read_json(VISUALS_PATH)
+    beats = vis.get("beats", {}) if isinstance(vis.get("beats", {}), dict) else {}
     return {
         "copy_id": str(copy.get("id", "")),
         "updated": str(copy.get("updated", "")),
         "names": names,
         "rows": shown,
+        "visuals": beats,
     }
 
 
