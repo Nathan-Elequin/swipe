@@ -27095,6 +27095,36 @@ func _tut_add_rect(spots: Array, r: Rect2) -> void:
 	spots.append(r.grow(6.0))
 
 
+## Tip sits on the top rim of the card. The shaft stays above the art and the name.
+func _tut_arrow_above_card(card: Control) -> Array:
+	var r: Rect2 = card.get_global_rect()
+	var tip := Vector2(r.get_center().x, r.position.y - 4.0)
+	var tail := tip + Vector2(0.0, -36.0)
+	if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
+		var arc_r: Rect2 = take_arc.arc_global_rect()
+		if arc_r.size.x > 8.0 and arc_r.grow(6.0).has_point(tail):
+			## Straight up would cross Take. Slide the tail to this card's outer top corner.
+			var outward: float = r.position.x + 10.0 if tip.x < arc_r.get_center().x else r.end.x - 10.0
+			tail = Vector2(outward, tip.y - 28.0)
+	return [tail, tip]
+
+
+## Boot lesson: the line leaves the bottom of Nib's box and ends on the top rim.
+func _tut_arrow_from_nib(card: Control) -> Array:
+	var above: Array = _tut_arrow_above_card(card)
+	var tip: Vector2 = above[1]
+	var tail: Vector2 = above[0]
+	var talk: Control = null
+	if tut != null:
+		talk = tut.get("_talk") as Control
+	if talk != null and is_instance_valid(talk) and talk.visible:
+		var tr: Rect2 = talk.get_global_rect()
+		if tr.size.y > 8.0 and tr.end.y < tip.y - 24.0:
+			var x: float = clampf(tip.x, tr.position.x + 20.0, tr.end.x - 20.0)
+			tail = Vector2(x, tr.end.y)
+	return [tail, tip]
+
+
 func _tut_fight_open(spots: Array) -> void:
 	if wheel_view != null:
 		_tut_add_rect(spots, wheel_view.focus_rect("face"))
@@ -27118,19 +27148,17 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 			var card: Control = _hotbar_card(iid)
 			_tut_add_control(spots, card)
 			if card != null and card.is_visible_in_tree():
-				var c: Vector2 = card.get_global_rect().get_center()
-				arrows.append([c + Vector2(0.0, -70.0), c])
+				arrows.append(_tut_arrow_above_card(card))
 		_tut_add_control(spots, btn_done)
 		if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
 			_tut_add_rect(spots, take_arc.arc_global_rect())
 		return
-	## Boot teach line: spotlight + arrow on Boot before the open choice.
+	## Boot teach line: arrow from Nib's box to the top of the Boot card.
 	if tag == "item:da_boot":
 		var boot_card: Control = _hotbar_card("da_boot")
 		_tut_add_control(spots, boot_card)
 		if boot_card != null and boot_card.is_visible_in_tree():
-			var boot_c: Vector2 = boot_card.get_global_rect().get_center()
-			arrows.append([boot_c + Vector2(0.0, -70.0), boot_c])
+			arrows.append(_tut_arrow_from_nib(boot_card))
 		return
 	## Block-some-damage line: Breastplate only (no Shield, no open choice yet).
 	if tag == "item:breastplate" and waiting == "continue":
