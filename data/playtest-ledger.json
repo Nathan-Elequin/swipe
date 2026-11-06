@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-05T18:58:00Z",
+	"updated_at": "2026-11-06T01:20:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"348": {
@@ -10,24 +10,32 @@
 			"pr_note": "GitHub already closed. Not listed again."
 		},
 		"408": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Wealth tax failed to do anything (didn't use an item as expected)",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/408"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/408",
+			"sha": "3d0e9d64",
+			"f5_note": "A kill no longer leaves the item lock on, so the next Spin's Wealth Tax can use an item. Stop Play, F5."
 		},
 		"409": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Beggar should follow Cleric's requirement of always randomly targeting",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/409"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/409",
+			"sha": "3d0e9d64",
+			"f5_note": "Beggar marks your lowest-tier item, then discards it when you Spin him. Stop Play, F5."
 		},
 		"410": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Harpy failed to attack when the combat turn ended",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/410"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/410",
+			"sha": "3d0e9d64",
+			"f5_note": "Take still hits. Harpy swings, then leaves. Stop Play, F5."
 		},
 		"412": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Killed a monster with the item Beggar selected",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/412"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/412",
+			"sha": "3d0e9d64",
+			"f5_note": "Killing with the marked item releases the lock so the next Spin can start. Stop Play, F5."
 		},
 		"347": {
 			"status": "f5",
