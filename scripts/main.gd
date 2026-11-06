@@ -26340,7 +26340,8 @@ func tutorial_item_plate_rects() -> Array:
 	var out: Array = []
 	if not in_tutorial or fly_tip == null or not fly_tip.visible:
 		return out
-	if str(fly_tip.edit_kind) != "item":
+	var kind: String = str(fly_tip.edit_kind)
+	if kind != "item" and kind != "monster":
 		return out
 	var r: Rect2 = fly_tip.get_global_rect()
 	if r.size.x < 8.0 or r.size.y < 8.0:
@@ -27241,9 +27242,40 @@ func _tut_fight_open(spots: Array) -> void:
 	_tut_add_control(spots, speech_box)
 
 
+func _tut_line_key() -> String:
+	if tut == null:
+		return ""
+	var id: String = str(tut.beat_id)
+	if id == "":
+		return ""
+	var n: int = int(tut.line_n)
+	return id if n <= 0 else "%s.%s" % [id, n]
+
+
+## Gold around the large inspect plate only when this line says to highlight that callout.
+func _tut_line_highlights_plate() -> bool:
+	if tut == null:
+		return false
+	if str(tut.focus_tag) == "goblin_read":
+		return true
+	var key: String = _tut_line_key()
+	return key == "B20.3" or key == "B29.1" or key == "B29.2"
+
+
+func _tut_add_hover_plate_spot(spots: Array) -> void:
+	if fly_tip == null or not fly_tip.visible:
+		return
+	var kind: String = str(fly_tip.edit_kind)
+	if kind != "item" and kind != "monster":
+		return
+	_tut_add_rect(spots, fly_tip.get_global_rect())
+
+
 func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 	var tag: String = tut.focus_tag
 	var waiting: String = tut.wait
+	if _tut_line_highlights_plate():
+		_tut_add_hover_plate_spot(spots)
 	if waiting == "choice":
 		## Goblin: Boot | Breastplate | Take only (Shield stays unused for Harpy B).
 		if _tut_goblin_block_item:
@@ -27275,14 +27307,9 @@ func _tut_collect_spots(spots: Array, arrows: Array) -> void:
 		if gob_i < 0:
 			gob_i = facing_index
 		if gob_i >= 0 and wheel_view != null:
-			if wheel_view.has_method("callout_ability_rect"):
-				var ability_r: Rect2 = wheel_view.callout_ability_rect(gob_i)
-				if ability_r.size.x >= 8.0:
-					_tut_add_rect(spots, ability_r)
 			if wheel_view.has_method("slice_rect"):
 				_tut_add_rect(spots, wheel_view.slice_rect(gob_i))
 		_tut_add_control(spots, inspect)
-		_tut_add_control(spots, speech_box)
 		return
 	if tag.begins_with("tag_slice:"):
 		var slice_i: int = _tut_index_of_tag(tag.substr("tag_slice:".length()))

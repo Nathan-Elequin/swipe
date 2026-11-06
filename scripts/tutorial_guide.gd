@@ -1408,7 +1408,8 @@ class SpotInk extends Control:
 			return
 		var origin: Vector2 = global_position
 		var gold := Color("e8c36a")
-		var holes: Array = host._visual_holes() if host.has_method("_visual_holes") else host._spots
+		## Gold only around the line's spotlight. Hover plates punch the dim, they do not get a ring.
+		var holes: Array = host._spots
 		for s in holes:
 			if not (s is Rect2):
 				continue

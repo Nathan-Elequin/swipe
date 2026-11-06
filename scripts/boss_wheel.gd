@@ -2445,6 +2445,10 @@ func _sync_ability_cards() -> void:
 	for card in _ability_cards:
 		card.visible = false
 		card.bound_slice = -1
+	## Tutorial hover uses the large inspect plate. The wide ability capsule stays off.
+	var main: Node = _board_main()
+	if main != null and main.in_tutorial == true:
+		return
 	# `_item_held` walks the scene tree — skip entirely mid-spin.
 	if spinning or busy or _item_held():
 		return
