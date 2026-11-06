@@ -133,6 +133,9 @@ var _glyph_rows: Array = []
 var _sai_fx: AnimatedSprite2D
 var _marble_fx: AnimatedSprite2D
 var _sparkle: AnimatedSprite2D
+## Draft pick stamps (assets/ui/draft/). Overlay only — not the gate door.
+var _draft_stamp_fx: AnimatedSprite2D
+var _recycle_return_fx: AnimatedSprite2D
 var _shimmer_mat: ShaderMaterial
 var _shimmer_clock: float = 0.0
 var _sai_busy: bool = false
@@ -2009,6 +2012,114 @@ func bounce() -> void:
 	var tw := create_tween()
 	tw.tween_property(self, "scale", Vector2(1.12, 1.12), 0.08)
 	tw.tween_property(self, "scale", Vector2.ONE, 0.12)
+
+
+func play_draft_pick_seal() -> void:
+	## Wax press on a chosen draft card, then hold the still seal.
+	_ensure_draft_stamp_fx()
+	_draft_stamp_fx.visible = true
+	_draft_stamp_fx.play("press")
+	_place_draft_fx()
+	if not _draft_stamp_fx.animation_finished.is_connected(_on_draft_press_done):
+		_draft_stamp_fx.animation_finished.connect(_on_draft_press_done, CONNECT_ONE_SHOT)
+
+
+func show_draft_leftbehind() -> void:
+	## Grey X on a leftover draft card (the ones not taken).
+	_ensure_draft_stamp_fx()
+	_draft_stamp_fx.visible = true
+	_draft_stamp_fx.play("left")
+	_place_draft_fx()
+
+
+func play_recycle_return() -> void:
+	## Tiny card sliding left — Recycler copy coming back onto the hotbar.
+	_ensure_recycle_return_fx()
+	_recycle_return_fx.visible = true
+	_recycle_return_fx.play("return")
+	_place_draft_fx()
+	if not _recycle_return_fx.animation_finished.is_connected(_on_recycle_return_done):
+		_recycle_return_fx.animation_finished.connect(_on_recycle_return_done, CONNECT_ONE_SHOT)
+
+
+func clear_draft_stamp() -> void:
+	if _draft_stamp_fx:
+		_draft_stamp_fx.visible = false
+		_draft_stamp_fx.stop()
+	if _recycle_return_fx:
+		_recycle_return_fx.visible = false
+		_recycle_return_fx.stop()
+
+
+func _on_draft_press_done() -> void:
+	if _draft_stamp_fx == null or not is_instance_valid(_draft_stamp_fx):
+		return
+	_draft_stamp_fx.play("seal")
+
+
+func _on_recycle_return_done() -> void:
+	if _recycle_return_fx == null or not is_instance_valid(_recycle_return_fx):
+		return
+	_recycle_return_fx.visible = false
+
+
+func _ensure_draft_stamp_fx() -> void:
+	if _draft_stamp_fx != null:
+		return
+	_draft_stamp_fx = AnimatedSprite2D.new()
+	_draft_stamp_fx.name = "DraftStampFx"
+	_draft_stamp_fx.centered = true
+	_draft_stamp_fx.texture_filter = TEXTURE_FILTER_NEAREST
+	_draft_stamp_fx.z_index = 12
+	_draft_stamp_fx.visible = false
+	_draft_stamp_fx.sprite_frames = _draft_stamp_frames()
+	add_child(_draft_stamp_fx)
+	if not resized.is_connected(_place_draft_fx):
+		resized.connect(_place_draft_fx)
+
+
+func _ensure_recycle_return_fx() -> void:
+	if _recycle_return_fx != null:
+		return
+	_recycle_return_fx = AnimatedSprite2D.new()
+	_recycle_return_fx.name = "RecycleReturnFx"
+	_recycle_return_fx.centered = true
+	_recycle_return_fx.texture_filter = TEXTURE_FILTER_NEAREST
+	_recycle_return_fx.z_index = 13
+	_recycle_return_fx.visible = false
+	_recycle_return_fx.sprite_frames = _recycle_return_frames()
+	add_child(_recycle_return_fx)
+	if not resized.is_connected(_place_draft_fx):
+		resized.connect(_place_draft_fx)
+
+
+func _place_draft_fx() -> void:
+	var sc: float = 4.0 if _showcase else 2.0
+	var half: float = 8.0 * sc
+	if _draft_stamp_fx != null:
+		_draft_stamp_fx.scale = Vector2(sc, sc)
+		var anim: String = _draft_stamp_fx.animation
+		if anim == "left":
+			_draft_stamp_fx.position = size * 0.5
+		else:
+			_draft_stamp_fx.position = Vector2(size.x - half - 6.0, size.y - half - 6.0)
+	if _recycle_return_fx != null:
+		_recycle_return_fx.scale = Vector2(sc, sc)
+		_recycle_return_fx.position = size * 0.5
+
+
+func _draft_stamp_frames() -> SpriteFrames:
+	var sf := SpriteFrames.new()
+	_add_once(sf, "press", "res://assets/ui/draft/pick_seal_press_f%d.png", 4, 1.0 / 0.08)
+	_add_still(sf, "seal", "res://assets/ui/draft/pick_seal.png")
+	_add_still(sf, "left", "res://assets/ui/draft/draft_leftbehind.png")
+	return sf
+
+
+func _recycle_return_frames() -> SpriteFrames:
+	var sf := SpriteFrames.new()
+	_add_once(sf, "return", "res://assets/ui/draft/recycle_return_f%d.png", 4, 1.0 / 0.08)
+	return sf
 
 
 func play_recycle_tick() -> void:
