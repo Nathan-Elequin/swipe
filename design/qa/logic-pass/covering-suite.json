@@ -2447,11 +2447,11 @@
 			]
 		},
 		{
-			"id": "jar_o_grease-heal-at-3",
-			"title": "Jar O' Grease Heals from 3 HP",
+			"id": "swift_sneaks-heal-at-3",
+			"title": "Swift Sneaks Heals from 3 HP",
 			"family": "item",
 			"items": [
-				"jar_o_grease"
+				"swift_sneaks"
 			],
 			"monsters": [
 				"golem"
@@ -2461,21 +2461,21 @@
 			"clicks": [
 				{
 					"op": "use",
-					"item": "jar_o_grease",
+					"item": "swift_sneaks",
 					"auto": true
 				}
 			],
-			"expected_text": "Start at 3 HP. Click Jar O' Grease. Your HP plate goes up (capped at 6).",
+			"expected_text": "Start at 3 HP. Click Swift Sneaks. Your HP plate goes up (capped at 6).",
 			"expected": {
 				"hp_min": 4
 			},
 			"cards": [
 				{
-					"id": "jar_o_grease",
+					"id": "swift_sneaks",
 					"kind": "item",
-					"name": "Jar O' Grease",
+					"name": "Swift Sneaks",
 					"ability": "Heal 1, randomly Swap an Item, and Keep this.",
-					"sprite": "assets/dungeon/items/jar_o_grease.png"
+					"sprite": "assets/dungeon/items/swift_sneaks.png"
 				},
 				{
 					"id": "golem",
@@ -2488,11 +2488,11 @@
 			"hp_before": 3
 		},
 		{
-			"id": "jar_o_grease-heal-at-full",
-			"title": "Jar O' Grease at full HP",
+			"id": "swift_sneaks-heal-at-full",
+			"title": "Swift Sneaks at full HP",
 			"family": "item",
 			"items": [
-				"jar_o_grease"
+				"swift_sneaks"
 			],
 			"monsters": [
 				"golem"
@@ -2502,7 +2502,7 @@
 			"clicks": [
 				{
 					"op": "use",
-					"item": "jar_o_grease",
+					"item": "swift_sneaks",
 					"auto": true
 				}
 			],
@@ -2512,11 +2512,11 @@
 			},
 			"cards": [
 				{
-					"id": "jar_o_grease",
+					"id": "swift_sneaks",
 					"kind": "item",
-					"name": "Jar O' Grease",
+					"name": "Swift Sneaks",
 					"ability": "Heal 1, randomly Swap an Item, and Keep this.",
-					"sprite": "assets/dungeon/items/jar_o_grease.png"
+					"sprite": "assets/dungeon/items/swift_sneaks.png"
 				},
 				{
 					"id": "golem",

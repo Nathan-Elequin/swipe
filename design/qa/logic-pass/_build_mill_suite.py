@@ -73,7 +73,7 @@ SPRITE = {
     "napalm": "assets/dungeon/items/napalm.png",
     "lucky_nickel": "assets/dungeon/items/lucky_nickel.png",
     "double_buckler": "assets/dungeon/items/double_buckler.png",
-    "jar_o_grease": "assets/dungeon/items/jar_o_grease.png",
+    "swift_sneaks": "assets/dungeon/items/swift_sneaks.png",
     "pacemaker": "assets/dungeon/items/pacemaker.png",
     "catapult": "assets/dungeon/items/catapult.png",
     "polymorph": "assets/dungeon/items/polymorph.png",
