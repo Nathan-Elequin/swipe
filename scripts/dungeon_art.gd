@@ -479,7 +479,8 @@ func monster_wheel_frames(card_id: String) -> Array:
 	var out: Array = []
 	if id == "":
 		return out
-	# Prefer the facing-derived idle strip (usually 4 frames; bear_trap has 1).
+	# Prefer the facing-derived idle strip under anim/wheel (usually 4 frames;
+	# bear_trap has 1). Older packs installed these as copies of facing idle.
 	for i in range(0, 8):
 		var t: Texture2D = _load_tex("res://assets/dungeon/anim/wheel/%s_wheel_idle_f%d.png" % [id, i])
 		if t == null:
@@ -498,6 +499,12 @@ func monster_wheel_frames(card_id: String) -> Array:
 		var base: Texture2D = _load_tex("res://assets/dungeon/anim/wheel/%s_wheel_base.png" % id)
 		if base != null:
 			out.append(base)
+	# New monsters often ship facing idle f0–f3 before a wheel pack exists.
+	# Use the full facing strip so seats animate; never collapse to f0 alone.
+	if out.is_empty() or out.size() == 1:
+		var face: Array = _facing_strip(id)
+		if face.size() > out.size():
+			return face
 	return out
 
 
@@ -525,9 +532,10 @@ func wheel_frames_all() -> Dictionary:
 		if not frames.is_empty() and sig == "":
 			d[str(id)] = frames
 			continue
-		var face: Texture2D = _load_tex("res://assets/dungeon/anim/facing/%s_facing_idle_f0.png" % str(id))
-		if face != null:
-			d[str(id)] = [face]
+		# Last resort: full facing idle strip (not f0 alone — that freezes seats).
+		var face: Array = _facing_strip(str(id))
+		if not face.is_empty():
+			d[str(id)] = face
 			continue
 		if not frames.is_empty():
 			d[str(id)] = frames
