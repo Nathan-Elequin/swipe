@@ -20,6 +20,17 @@ Overwrite landed at the same paths as the old placeholders. Loaders still use `r
 | `intent_chip_drop.png` | 8×8 | 1 | Drop / poison chip |
 | `intent_chip_flee.png` | 8×8 | 1 | Flee footprints chip |
 
+### Neighbor who-rings (overlay on wheel seats)
+
+Same thin gold hoop for Boot, Net, Damsel, Throwing Knife. Overlay only — seat PNGs and seat sizes stay as they are. Size follows catalog difficulty the same way seats do (`BossWheel.who_ring_native_px_for_tier`). Nathan picked A 2026-11-05. Do not overwrite.
+
+| File | Native | Frames | Notes |
+|---|---|---|---|
+| `seat_target_ghost_f0.png` … `seat_target_ghost_f3.png` | 32×32 | 4 | Breathe hoop on Weak/Tough 24n seats (64px on screen at 2×) |
+| `seat_target_locked.png` | 32×32 | 1 | Still hoop after click-to-pick on a Weak/Tough seat |
+| `seat_target_ghost_deadly_f0.png` … `seat_target_ghost_deadly_f3.png` | 40×40 | 4 | Same hoop, nearest 40n, on Deadly 32n seats (80px on screen at 2×) |
+| `seat_target_locked_deadly.png` | 40×40 | 1 | Still hoop at 40n on a Deadly seat |
+
 ### Hotbar shimmer / hover chips
 
 | File | Native | Frames | Notes |

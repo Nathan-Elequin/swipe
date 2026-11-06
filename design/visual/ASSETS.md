@@ -30,6 +30,10 @@ Assets marked [TW] or shader in the specs need **no** generation and are not lis
 | intent-plate | `ui/anim/intent_claw_lit_f0-3.png` | 16×16 | 4 | no | same badge lighting up: rim brightens to cream, inner glow pulses | 1 |
 | intent-plate | `ui/anim/intent_claw_burst_f0-3.png` | 24×24 | 4 | no | badge impact burst, cream and red shards radiating, fading | 1 |
 | intent-plate | `ui/anim/intent_claw_soak_f0-3.png` | 24×24 | 4 | no | Block soak burst, cream and steel shards radiating, fading (not red) | 1 |
+| neighbor-who-rings | `ui/anim/seat_target_ghost_f0-3.png` | 32×32 | 4 | yes | thin gold hoop, 1px ink outline, breathe on Weak/Tough 24n seats | 1 |
+| neighbor-who-rings | `ui/anim/seat_target_locked.png` | 32×32 | 1 | no | same hoop, still, after click-to-pick on a Weak/Tough seat | 0 |
+| neighbor-who-rings | `ui/anim/seat_target_ghost_deadly_f0-3.png` | 40×40 | 4 | no | same hoop, nearest 40n, on Deadly 32n seats | 0 |
+| neighbor-who-rings | `ui/anim/seat_target_locked_deadly.png` | 40×40 | 1 | no | still hoop at 40n on a Deadly seat | 0 |
 | intent-plate | `ui/anim/intent_claw_flame_idle.png` | 16×16 | 1 | yes | claw badge variant with a fire rim (ignores Block) | 1 |
 | intent-plate | `ui/anim/intent_claw_flame_burst_f0-3.png` | 24×24 | 4 | no | fire-rim badge burst, flames licking outward | 1 |
 | intent-plate + hover | `ui/anim/intent_chip_{shield,drop,flee,plus}.png` | 8×8 ×4 | 1 | yes | sheet of 4 tiny chips: shield, purple drop, footprints, plus sign (the Shark loop reuses the wheel's ↻ tag, no art) | 1 |
@@ -52,7 +56,7 @@ Assets marked [TW] or shader in the specs need **no** generation and are not lis
 | grappling-hook | `dungeon/anim/rope_tile.png` | 4×8 | 1 | yes | tileable braided rope segment | 1 |
 | petrify | `ui/anim/petrify_shatter_f0-4.png` | 30×30 | 5 | no | card-sized stone shell cracking and shattering into chunks | 2 |
 | hotbar-shimmer | `ui/anim/deadly_sparkle_f0-3.png` | 8×8 | 4 | no | gold four-point sparkle twinkle | 1 |
-| | **Subtotal** | | **76** | | | **30** |
+| | **Subtotal** | | **86** | | | **31** |
 
 ## Slash portraits (`dungeon/anim/slash/<id>_slash_base.png` + `<id>_slash_f0..fN.png`)
 

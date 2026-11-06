@@ -101,6 +101,9 @@ const WHEEL_SPRITE_SCALE := 2.0
 const WHEEL_SPRITE_MAX := 64.0
 const WHEEL_SEAT_NATIVE_WEAK := 24.0
 const WHEEL_SEAT_NATIVE_DEADLY := 32.0
+## Gold who-ring overlay. Weak/Tough 24n seats use 32n hoop; Deadly 32n seats use 40n hoop.
+const WHO_RING_NATIVE_WEAK := 32
+const WHO_RING_NATIVE_DEADLY := 40
 const WHEEL_FIT_H := 96.0
 const WHEEL_FIT_W := 100.0
 const WHEEL_SCALE_STEP := 0.25
@@ -275,6 +278,10 @@ var hub_poison: int = 0
 var hub_poison_locked: bool = false
 var _poison_drip: Array = []
 var _poison_lock_tex: Texture2D
+var _who_ghost: Array = []
+var _who_ghost_deadly: Array = []
+var _who_locked: Texture2D
+var _who_locked_deadly: Texture2D
 var _poison_badge_scale: Dictionary = {}
 var _poison_clear_t: Dictionary = {}
 var _aura_glyphs: Dictionary = {}
@@ -1391,6 +1398,8 @@ func _wheel_wants_live_draw() -> bool:
 	for s in slices:
 		if bool(s.get("rage_fire", false)):
 			return true
+	if _who_ring_any():
+		return true
 	return false
 
 
@@ -1845,6 +1854,7 @@ func _clamp_to_rim(pos: Vector2, icon_r: float) -> Vector2:
 
 
 func _load_wheel_ui() -> void:
+	_ensure_who_rings()
 	if ResourceLoader.exists("res://assets/ui/wheel/name_tag.png"):
 		tex_name_tag = load("res://assets/ui/wheel/name_tag.png") as Texture2D
 	for key in MEDAL_OF.values():
@@ -1941,6 +1951,11 @@ func _sprite_slot(i: int) -> float:
 ## Catalog `tier` only — never shown as the word "Tier" on screen.
 static func seat_native_px_for_tier(tier: int) -> int:
 	return int(WHEEL_SEAT_NATIVE_DEADLY) if tier >= 3 else int(WHEEL_SEAT_NATIVE_WEAK)
+
+
+## Overlay hoop native size. Same catalog-tier split as seat art; hoop is larger than the seat.
+static func who_ring_native_px_for_tier(tier: int) -> int:
+	return WHO_RING_NATIVE_DEADLY if seat_native_px_for_tier(tier) >= int(WHEEL_SEAT_NATIVE_DEADLY) else WHO_RING_NATIVE_WEAK
 
 
 func _seat_tier(i: int) -> int:
@@ -2756,6 +2771,7 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 			dim *= maxf(0.0, 1.0 - collapse)
 		if dim > 0.04:
 			_draw_wheel_sprite(i, sp, s, dim)
+	_draw_who_ring(i, sp)
 	if bool(s.get("hunter_mark", false)):
 		_draw_hunter_mark(sprite_rect.grow(8.0), dim)
 	var burn: float = float(_burn.get(i, 0.0))
@@ -3406,6 +3422,110 @@ func _draw_wheel_sprite(_i: int, sp: Dictionary, s: Dictionary, dim: float) -> v
 	draw_texture_rect_region(tex, dest, src, mod)
 	if flip:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+func _ensure_who_rings() -> void:
+	if not _who_ghost.is_empty():
+		return
+	for i in 4:
+		var p := "res://assets/ui/anim/seat_target_ghost_f%s.png" % i
+		if ResourceLoader.exists(p):
+			_who_ghost.append(load(p) as Texture2D)
+		var pd := "res://assets/ui/anim/seat_target_ghost_deadly_f%s.png" % i
+		if ResourceLoader.exists(pd):
+			_who_ghost_deadly.append(load(pd) as Texture2D)
+	if _who_locked == null and ResourceLoader.exists("res://assets/ui/anim/seat_target_locked.png"):
+		_who_locked = load("res://assets/ui/anim/seat_target_locked.png") as Texture2D
+	if _who_locked_deadly == null and ResourceLoader.exists("res://assets/ui/anim/seat_target_locked_deadly.png"):
+		_who_locked_deadly = load("res://assets/ui/anim/seat_target_locked_deadly.png") as Texture2D
+
+
+func _preview_slot(i: int) -> Dictionary:
+	var pv: Variant = preview.get(i, preview.get(str(i), {}))
+	return pv if typeof(pv) == TYPE_DICTIONARY else {}
+
+
+func _who_ring_from_preview(i: int) -> bool:
+	var pv: Dictionary = _preview_slot(i)
+	if pv.is_empty():
+		return false
+	var mark: String = str(pv.get("mark", ""))
+	if mark == "spin" or mark == "log":
+		return false
+	if bool(pv.get("who", false)) or bool(pv.get("kill", false)) or bool(pv.get("aim", false)):
+		return true
+	return int(pv.get("hp", 0)) != 0
+
+
+func _who_ring_damsel_neighbor(i: int) -> bool:
+	if facing_index < 0 or facing_index >= slices.size() or i < 0 or i >= slices.size():
+		return false
+	if i == facing_index:
+		return false
+	var face: Dictionary = slices[facing_index]
+	if str(face.get("card_id", "")) != "damsel_in_distress":
+		return false
+	if bool(face.get("silenced", false)):
+		return false
+	if str(slices[i].get("kind", "")) != "monster":
+		return false
+	var n: int = slices.size()
+	if n < 2:
+		return false
+	return i == (facing_index - 1 + n) % n or i == (facing_index + 1) % n
+
+
+func _who_ring_locked(i: int) -> bool:
+	if highlight != "mark":
+		return false
+	if i != hover_index or i < 0 or i >= slices.size():
+		return false
+	return bool(slices[i].get("markable", false))
+
+
+func _who_ring_ghost(i: int) -> bool:
+	if _who_ring_locked(i):
+		return false
+	if highlight == "mark" and i >= 0 and i < slices.size() and bool(slices[i].get("markable", false)):
+		return true
+	if _who_ring_from_preview(i):
+		return true
+	return _who_ring_damsel_neighbor(i)
+
+
+func _who_ring_any() -> bool:
+	for i in slices.size():
+		if _who_ring_locked(i) or _who_ring_ghost(i):
+			return true
+	return false
+
+
+func _draw_who_ring(i: int, sp: Dictionary) -> void:
+	if spinning:
+		return
+	var locked: bool = _who_ring_locked(i)
+	var ghost: bool = _who_ring_ghost(i)
+	if not locked and not ghost:
+		return
+	_ensure_who_rings()
+	var deadly: bool = seat_native_px_for_tier(_seat_tier(i)) >= int(WHEEL_SEAT_NATIVE_DEADLY)
+	var tex: Texture2D = null
+	if locked:
+		tex = _who_locked_deadly if deadly else _who_locked
+	else:
+		var frames: Array = _who_ghost_deadly if deadly else _who_ghost
+		if frames.is_empty():
+			return
+		var fi: int = int(_glow_t / 0.15) % frames.size()
+		tex = frames[fi]
+	if tex == null:
+		return
+	var on: float = float(tex.get_width()) * WHEEL_SPRITE_SCALE
+	var sprite_rect: Rect2 = sp.get("sprite_rect", Rect2())
+	var center: Vector2 = sp.get("port", Vector2.ZERO)
+	if sprite_rect.size.x > 1.0:
+		center = sprite_rect.get_center()
+	draw_texture_rect(tex, Rect2(center - Vector2(on, on) * 0.5, Vector2(on, on)), false)
 
 
 func _shadow_pts(feet: Vector2, width: float, height: float) -> PackedVector2Array:
