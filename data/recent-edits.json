@@ -119,7 +119,11 @@
     "item:swift_sneaks": 1793946825.7308867,
     "item:shardplate": 1793946825.7308867,
     "item:love_potion": 1793946825.7308867,
-    "item:tesla_coil": 1793946825.7308867
+    "item:tesla_coil": 1793946825.7308867,
+    "monster:huntsman": 1793940000.0,
+    "monster:quicksand_crab": 1793940000.0,
+    "monster:phantom": 1793940000.0,
+    "monster:collector": 1793940000.0
   },
   "id": "boss-rush-recent-edits",
   "item:signpost": 1792450564.02935,

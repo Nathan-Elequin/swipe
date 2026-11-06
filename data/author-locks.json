@@ -3167,6 +3167,106 @@
 				"pool"
 			],
 			"locked_at": "2026-11-06"
+		},
+		"monster:huntsman": {
+			"name": "Huntsman",
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint",
+				"pool"
+			],
+			"locked_at": "2026-11-06"
+		},
+		"monster:quicksand_crab": {
+			"name": "Quicksand Crab",
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint",
+				"pool"
+			],
+			"locked_at": "2026-11-06"
+		},
+		"monster:phantom": {
+			"name": "Phantom",
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint",
+				"pool"
+			],
+			"locked_at": "2026-11-06"
+		},
+		"monster:collector": {
+			"name": "Collector",
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"call_name",
+				"reminder",
+				"card_color",
+				"log_hint",
+				"pool"
+			],
+			"locked_at": "2026-11-06"
 		}
 	},
 	"script": {

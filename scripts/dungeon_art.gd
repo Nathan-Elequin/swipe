@@ -284,6 +284,10 @@ const MONSTER_PNG := {
 	"fungal_colony": "res://assets/dungeon/extra/fungal_colony.png",
 	"glass_asp": "res://assets/dungeon/extra/glass_asp.png",
 	"imp": "res://assets/dungeon/extra/imp.png",
+	"huntsman": "res://assets/dungeon/extra/huntsman.png",
+	"quicksand_crab": "res://assets/dungeon/extra/quicksand_crab.png",
+	"phantom": "res://assets/dungeon/extra/phantom.png",
+	"collector": "res://assets/dungeon/extra/collector.png",
 }
 
 var atlas: Texture2D
