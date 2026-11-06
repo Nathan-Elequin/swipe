@@ -192,6 +192,8 @@ const ITEM_OPS := {
 	"recycler": {"kind": "recycle_watch"},
 	"rust": {"kind": "blk", "n": 2},
 	"spinning_top": {"kind": "atk_spins"},
+	"venom_veins": {"kind": "passive"},
+	"kiss_of_death": {"kind": "kiss_of_death"},
 }
 
 const MONSTER_SPECIAL := {
@@ -1076,6 +1078,8 @@ func _load_textures() -> void:
 		"mouse": _tex("res://assets/icons/footprints.svg"),
 		"magicat": _tex("res://assets/icons/sparkles.svg"),
 		"poison_frog": _tex("res://assets/icons/droplet.svg"),
+		"glass_asp": _tex("res://assets/icons/droplet.svg"),
+		"imp": _tex("res://assets/icons/footprints.svg"),
 		"rust_bucket": _tex("res://assets/icons/ban.svg"),
 		"sandbag": _tex("res://assets/icons/footprints.svg"),
 		"oligarch": _tex("res://assets/icons/layers.svg"),
@@ -1135,6 +1139,8 @@ func _load_textures() -> void:
 		"signpost": tex_shield,
 		"sling": _tex("res://assets/icons/swords.svg"),
 		"spinning_top": _tex("res://assets/icons/rotate.svg"),
+		"venom_veins": _tex("res://assets/icons/droplet.svg"),
+		"kiss_of_death": _tex("res://assets/icons/skull.svg"),
 	}
 	tex_special = {
 		"no_atk_dmg": _tex("res://assets/icons/ban.svg"),

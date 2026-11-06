@@ -149,6 +149,8 @@ const ITEM_PNG := {
 	"recycler": "res://assets/dungeon/items/recycler.png",
 	"orb": "res://assets/dungeon/items/orb.png",
 	"flying_saucer": "res://assets/dungeon/items/flying_saucer.png",
+	"venom_veins": "res://assets/dungeon/items/venom_veins.png",
+	"kiss_of_death": "res://assets/dungeon/items/kiss_of_death.png",
 }
 
 ## Art facing before any mirror. R = drawn looking right, L = drawn looking left.
@@ -277,6 +279,8 @@ const MONSTER_PNG := {
 	"sandbag": "res://assets/dungeon/extra/sandbag.png",
 	"scorpion": "res://assets/dungeon/extra/scorpion.png",
 	"fungal_colony": "res://assets/dungeon/extra/fungal_colony.png",
+	"glass_asp": "res://assets/dungeon/extra/glass_asp.png",
+	"imp": "res://assets/dungeon/extra/imp.png",
 }
 
 var atlas: Texture2D
