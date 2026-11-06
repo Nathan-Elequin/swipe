@@ -440,7 +440,8 @@ function stageHtml(src) {
 function appendVisuals(beat, beatRows) {
   var card = document.createElement("div");
   card.className = "step visuals";
-  var saved = pack.visuals && pack.visuals[beat] ? String(pack.visuals[beat]) : "";
+  var hasVisual = pack.visuals && Object.prototype.hasOwnProperty.call(pack.visuals, beat);
+  var saved = hasVisual ? String(pack.visuals[beat]) : "";
   var k = document.createElement("div");
   k.className = "moment-k";
   k.textContent = "Visuals";
@@ -453,7 +454,7 @@ function appendVisuals(beat, beatRows) {
   ta.className = "tall";
   ta.dataset.visualBeat = beat;
   ta.dataset.starter = describeBeat(beatRows);
-  ta.value = saved || ta.dataset.starter;
+  ta.value = hasVisual ? saved : ta.dataset.starter;
   var paint = () => { view.innerHTML = stageHtml(ta.value); };
   ta.addEventListener("input", () => { markDirty(); paint(); });
   paint();
@@ -751,11 +752,13 @@ function addBeatAfter(beat) {
     if (b === beat) { seen = true; continue; }
     if (seen) { next = b; break; }
   }
+  if (window.keepEdits) keepEdits();
   var id = beatIdAfter(beat, next);
-  var prevBox = document.querySelector('textarea[data-visual-beat="' + beat + '"]');
-  var copied = prevBox ? prevBox.value : ((pack.visuals && pack.visuals[beat]) || "");
   pack.visuals = pack.visuals || {};
+  pack.holdVisuals = pack.holdVisuals || {};
+  var copied = Object.prototype.hasOwnProperty.call(pack.visuals, beat) ? pack.visuals[beat] : "";
   pack.visuals[id] = copied;
+  pack.holdVisuals[id] = true;
   var insertAt = pack.rows.length;
   for (var j = pack.rows.length - 1; j >= 0; j--) {
     if (String(pack.rows[j].beat || "") === beat && String(pack.rows[j].key || "").indexOf("tutorial.line.") === 0) {
@@ -765,7 +768,7 @@ function addBeatAfter(beat) {
   }
   pack.rows.splice(insertAt, 0, newNibLine(id));
   markDirty();
-  render();
+  render({ fresh: true });
   var head = document.getElementById("beat-" + id);
   if (head) head.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -773,10 +776,12 @@ function addBeatAfter(beat) {
 function deleteBeat(beat) {
   var ok = window.confirm("Delete " + beat + " and every line in it? Save to keep the deletion.");
   if (!ok) return;
+  if (window.keepEdits) keepEdits();
   pack.rows = pack.rows.filter((r) => !(String(r.beat || "") === beat && String(r.key || "").indexOf("tutorial.line.") === 0));
   if (pack.visuals && Object.prototype.hasOwnProperty.call(pack.visuals, beat)) delete pack.visuals[beat];
+  if (pack.holdVisuals) delete pack.holdVisuals[beat];
   markDirty();
-  render();
+  render({ fresh: true });
 }
 
 window.clearDeskUndo = clearDeskUndo;

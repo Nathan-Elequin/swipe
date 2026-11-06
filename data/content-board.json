@@ -5010,7 +5010,7 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me",
+			"ability": "I mark your worst Item, then Discard that Item when you Spin me.",
 			"atk_base": 2.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -5018,8 +5018,8 @@
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "Marks a random item. Spin this Beggar: that item is discarded.",
-			"flow": "While I am alive in the dungeon I mark one random item, including curses, petrified cards, and Keep items. The slash and the mark happen when the fight can be played, before the first Spin, and again when I enter later. Using the marked item moves the mark. A Spin that lands on me discards that item even if it has Keep, then I mark another if I am still alive. If I leave without that Spin, the mark goes away and nothing is discarded. Quiet Bell clears the mark until the silence ends.",
+			"explainer": "Marks your lowest-tier Item. Spinning this Beggar discards it.",
+			"flow": "While I am alive in the dungeon I mark your worst Item (lowest tier, Spider Egg counts as the worst, random among ties), including curses, petrified cards, and Keep items. The slash and the mark happen when the fight can be played, before the first Spin, and again when I enter later. Using the marked item moves the mark to the new worst. A Spin that lands on me discards that item even if it has Keep, then I mark the worst remaining item if I am still alive. If I leave without that Spin, the mark goes away and nothing is discarded. Quiet Bell clears the mark until the silence ends.",
 			"hp_base": 2.0,
 			"hp_formula": "",
 			"id": "beggar",

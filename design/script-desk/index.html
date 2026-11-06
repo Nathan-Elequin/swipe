@@ -216,7 +216,21 @@
       box.textContent = msg;
     }
 
-    function render() {
+    function keepEdits() {
+      if (!pack || !pack.rows) return;
+      if (!document.querySelector("textarea[data-key], textarea[data-note-for], textarea[data-visual-beat]")) return;
+      const body = collect();
+      pack.rows = body.rows;
+      pack.names = body.names;
+      pack.visuals = pack.visuals || {};
+      document.querySelectorAll("textarea[data-visual-beat]").forEach((el) => {
+        pack.visuals[el.dataset.visualBeat] = el.value;
+      });
+    }
+
+    function render(opts) {
+      opts = opts || {};
+      if (!opts.fresh) keepEdits();
       if (window.clearDeskUndo) clearDeskUndo();
       if (location.hash === "#tutorial") {
         renderWalk();
@@ -345,8 +359,9 @@
         anyVisual = true;
         const beat = el.dataset.visualBeat;
         const starter = el.dataset.starter || "";
-        const had = pack.visuals && pack.visuals[beat];
-        if ((el.value !== starter || had) && el.value.trim()) visuals[beat] = el.value;
+        const saved = pack.savedVisuals && pack.savedVisuals[beat];
+        const hold = pack.holdVisuals && pack.holdVisuals[beat];
+        if ((el.value !== starter || saved || hold) && el.value.trim()) visuals[beat] = el.value;
       });
       if (anyVisual) out.visuals = visuals;
       return out;
@@ -358,7 +373,10 @@
         const r = await fetch("/api/pack", { cache: "no-store" });
         if (!r.ok) throw new Error("Could not load /api/pack (" + r.status + ")");
         pack = await r.json();
-        render();
+        pack.savedVisuals = Object.assign({}, pack.visuals || {});
+        pack.visuals = Object.assign({}, pack.visuals || {});
+        pack.holdVisuals = {};
+        render({ fresh: true });
         markClean((pack.rows || []).length + " lines · " + (pack.updated || ""));
       } catch (e) {
         fail("Open this page from the Script desk server (tools/dev/open-script-desk.ps1), not as a file. " + e.message);
@@ -385,7 +403,11 @@
 
     $("btnUndo").onclick = () => { if (window.undoDesk) undoDesk(); };
     $("btnSave").onclick = save;
-    $("btnReload").onclick = load;
+    $("btnReload").onclick = () => {
+      if (dirty && !window.confirm("Reload from disk and drop the edits that are not saved?")) return;
+      load();
+    };
+    window.keepEdits = keepEdits;
     $("btnWalk").onclick = () => {
       if (location.hash !== "#tutorial") location.hash = "tutorial";
       else render();

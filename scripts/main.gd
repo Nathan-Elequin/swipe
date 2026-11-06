@@ -221,7 +221,7 @@ const MONSTER_SPECIAL := {
 	"basilisk": {"id": "petrify_gaze", "text": "When I enter the Dungeon, I Gaze at 3 of your Items. As soon as you Use 1, the other 2 are Petrified until I am Defeated."},
 	"zombie": {"id": "decay", "text": "When you Spin me, I Decay two of your Items."},
 	"hollow": {"id": "even_twice", "text": "Even Attack and even Block happen twice against me."},
-	"beggar": {"id": "finders_keepers", "text": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me"},
+	"beggar": {"id": "finders_keepers", "text": "I mark your worst Item, then Discard that Item when you Spin me."},
 	"wick": {"id": "last_hp", "text": "I Lose 2 HP each time a Neighbor is Defeated"},
 	"anvil": {"id": "one_chip", "text": "Whenever I lose HP, I lose a minimum of 3 HP."},
 	"vampire": {"id": "bloodlust", "text": "Every time you lose HP, I gain +1 HP and +1 Attack."},
@@ -344,7 +344,7 @@ const MONSTER_REMINDER := {
 	"basilisk": "Enter: Gaze 3 items. Use 1: the other Gazed items Petrify until Basilisk is Defeated",
 	"zombie": "Decayed Items are linked. When you use one, Keep it and discard the other.",
 	"hollow": "even Attack or Block twice",
-	"beggar": "Marks a random item. Spin this Beggar: that item is discarded.",
+	"beggar": "Marks your lowest-tier Item. Spinning this Beggar discards it.",
 	"wick": "-2 HP per Neighbor Defeated.",
 	"anvil": "1 or 2 HP lost becomes 3",
 	"cowardly_king": "lose HP: right neighbor Attacks. Facing Attack: +3 HP and Flee",
@@ -399,7 +399,7 @@ const MONSTER_SPEECH := {
 	"basilisk": "When I enter the Dungeon, I Gaze at 3 of your Items. As soon as you Use 1, the other 2 are Petrified until I am Defeated.",
 	"zombie": "When you Spin me, I Decay two of your Items.",
 	"hollow": "Even Attack and even Block happen twice against me.",
-	"beggar": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me",
+	"beggar": "I mark your worst Item, then Discard that Item when you Spin me.",
 	"wick": "I Lose 2 HP each time a Neighbor is Defeated",
 	"anvil": "Whenever I lose HP, I lose a minimum of 3 HP.",
 	"cowardly_king": "Every time I lose HP, I command my Neighbor to the right to Attack. When I Attack while facing you, I gain +3 HP and Flee.",
@@ -802,6 +802,9 @@ var _redo_stack: Array = []
 var _undo_live: Dictionary = {}
 var _undo_inflight: bool = false
 var _undo_gen: int = 0
+## Bumps when a fight actually ends. A killing item must not keep running
+## after the next Spin has started (that left Wealth Tax and the hotbar stuck).
+var _fight_epoch: int = 0
 var _undo_busy: bool = false
 var _undo_no_rewind: bool = false
 var btn_undo: Button
@@ -9064,8 +9067,7 @@ func _apply_resolve_hits() -> int:
 	if _blood_threshes(facing_index):
 		return await _shark_attack_player(facing_index)
 	var m: Dictionary = wheel[facing_index]
-	if str(m.get("card_id", "")) == "harpy" and not _is_silenced(m):
-		return 0
+	# Done still takes the normal hit. Spin and items are extra swings.
 	var hits: int = _hit_count(facing_index)
 	var total: int = 0
 	for h in range(hits):
@@ -9240,6 +9242,8 @@ func _play_attack_blocked(src: int = -1) -> void:
 
 func _player_down(skip_pose: bool = false) -> void:
 	_spin_inflight = false
+	if not in_tutorial:
+		_close_fight_item_use()
 	hp = 0
 	if in_tutorial and _tut_free:
 		## Practice death: T5, no real defeat screen.
@@ -9344,9 +9348,18 @@ func _clear_after_fight(_clockwork_split: bool = false) -> void:
 		call_deferred("_tutorial_after_fight")
 
 
+func _close_fight_item_use() -> void:
+	_fight_epoch += 1
+	_beggar_hold = false
+	_release_item_hold()
+
+
 func _maybe_auto_spin() -> void:
 	if in_tutorial:
 		return
+	# The killing item is still on the stack. Drop its lock before this Spin
+	# so Oligarch can force a use, and so Spin is not waiting on that click.
+	_close_fight_item_use()
 	if phase == "devtest":
 		return
 	if _qa_busy() and not _is_adventure_mode():
@@ -10027,7 +10040,13 @@ func _use_item(uid: int) -> void:
 	_arm_item_hold()
 	_beggar_hold = true
 	FRAME_METRICS.span_begin("use_item_resolve")
+	var epoch: int = _fight_epoch
 	await _apply_ops(it, ops, {})
+	if epoch != _fight_epoch:
+		# Fight already ended inside the item (Defeat, lethal Attack) and the
+		# next Spin may already be up. Do not run the rest of this click on it.
+		_undo_finish_item()
+		return
 	if _undo_stale(token):
 		FRAME_METRICS.span_cancel("use_item_resolve")
 		_beggar_hold = false
@@ -11472,6 +11491,7 @@ func _recycle_after_gone(snap: Dictionary) -> void:
 
 
 func _remove_item_now(uid: int) -> void:
+	_beggar_note_use(uid)
 	var kept: Array = []
 	for it in hotbar:
 		if int(it.get("uid", -1)) != uid:
@@ -12591,15 +12611,33 @@ func _beggar_pick_uid(owner: int) -> int:
 		any.append(uid)
 		if not taken.has(uid):
 			preferred.append(uid)
-	var bag: Array = preferred if not preferred.is_empty() else any
-	if bag.is_empty():
+	# Same worst as Cleric: lowest tier, Spider Egg counts as 0, random among ties.
+	# Another Beggar's mark is skipped when something else is still free.
+	var best: int = 999
+	var cands: Array = []
+	var pool: Array = preferred if not preferred.is_empty() else any
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		var uid: int = int(it.get("uid", -1))
+		if uid < 0 or not pool.has(uid):
+			continue
+		var t: int = int(it.get("pack_tier", 1))
+		if str(it.get("card_id", "")) == "spider_egg":
+			t = 0
+		if t < best:
+			best = t
+			cands = [uid]
+		elif t == best:
+			cands.append(uid)
+	if cands.is_empty():
 		return -1
 	if OS.has_feature("editor") and has_meta("qa_beggar_uid"):
 		var forced: int = int(get_meta("qa_beggar_uid"))
 		remove_meta("qa_beggar_uid")
-		if bag.has(forced):
+		if cands.has(forced):
 			return forced
-	return int(bag[rng.randi_range(0, bag.size() - 1)])
+	return int(cands[rng.randi_range(0, cands.size() - 1)])
 
 
 func _beggar_assign(index: int, anim: bool) -> void:
