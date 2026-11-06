@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-06T02:45:00Z",
+	"updated_at": "2026-11-06T20:40:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"348": {
@@ -461,6 +461,11 @@
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/422",
 			"sha": "9073c4bf",
 			"f5_note": "Every Spin, each living Glass Asp gains 1 Poison. When it Attacks, you gain Poison equal to its stack. Stop Play, F5."
+		},
+		"429": {
+			"status": "todo",
+			"title": "Marble should be yellow with a this-or-that slash; Lucky Nickel hotbar should show both sides",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/429"
 		}
 	}
 }

@@ -7315,8 +7315,7 @@ func _paint_late_auras() -> void:
 			else:
 				wheel[i]["atk"] = maxi(0, int(wheel[i].get("atk", 0)) - old_a + new_a)
 				wheel[i]["aura_atk"] = new_a
-				# War Cry neighbor aura changed — fire once per affected seat.
-				_sfx_ability("commander")
+				# Aura bookkeeping only. War Cry's sound plays when this monster Attacks.
 		elif _atk_is_always(wheel[i]) and old_a != 0:
 			wheel[i]["atk"] = maxi(0, int(wheel[i].get("atk", 0)) - old_a)
 			wheel[i]["aura_atk"] = 0
@@ -9270,6 +9269,9 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 	if at >= 0 and at < wheel.size():
 		wheel[at]["has_attacked"] = true
 	_trace_resolve("swing %s n=%s" % [str(m.get("card_id", "")), hit_n])
+	## War Cry is the neighbor +2. Play it only on the first swing of a monster who has that bonus right now.
+	if hit_n <= 1 and at >= 0 and at < wheel.size() and int(wheel[at].get("aura_atk", 0)) > 0:
+		_sfx_ability("commander")
 	## Monster4 optional attack oneshots (Scale kick A).
 	var swing_id: String = str(m.get("card_id", ""))
 	if swing_id == "quicksand_crab":

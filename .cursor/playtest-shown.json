@@ -73,5 +73,9 @@
     "shown": 3,
     "retired": true,
     "why": "Nathan asked about Bitter Blood on 2026-11-06. Listed once in Ready in F5 after the Spin fix, then retired again."
+  },
+  "429": {
+    "shown": 1,
+    "retired": false
   }
 }
