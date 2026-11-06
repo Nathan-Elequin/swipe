@@ -2,7 +2,7 @@
 id: REQ-20261106-full-double-wheel-seats
 status: open
 priority: high
-pr: 0
+pr: 418
 tip_sha: pending
 branch: playtest/latest
 created: 2026-11-06T03:00:00Z
