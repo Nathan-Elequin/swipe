@@ -192,6 +192,8 @@ var _atk_disp: Dictionary = {}
 var _atk_punch: Dictionary = {}
 var slay_index: int = -1
 var slay_kind: String = "slay"
+## Tutorial Golem exit only. Core fights keep the sprite until the seat actually clears.
+var fade_escape_sprite: bool = false
 var slay_t: float = 0.0:
 	set(v):
 		slay_t = v
@@ -858,6 +860,7 @@ func clear_slay() -> void:
 	slay_index = -1
 	slay_t = 0.0
 	slay_kind = "slay"
+	fade_escape_sprite = false
 	queue_redraw()
 
 
@@ -894,7 +897,10 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 		else:
 			var now: Dictionary = slices[slay_index]
 			var now_key := "%s:%s" % [now.get("kind", ""), now.get("card_id", "")]
-			if now_key != slay_key:
+			## The wheel array is the same one the fight mutates. Replacing the
+			## monster in place made both keys "empty" and left "Escaped" stuck
+			## on a blank wedge.
+			if now_key != slay_key or str(now.get("kind", "")) != "monster":
 				clear_slay()
 	# Old HP/ATK used to be drawn again on top of the new number for a short fade.
 	# That left a second number on the badge and a loose number on the slice.
@@ -2820,6 +2826,8 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	if i != portrait_away and not hide_portraits.has(i):
 		if i == slay_index and collapse > 0.0:
 			dim *= maxf(0.0, 1.0 - collapse)
+		if fade_escape_sprite and i == slay_index and slay_kind == "escape":
+			dim *= maxf(0.0, 1.0 - clampf(slay_t * 1.15, 0.0, 1.0))
 		if dim > 0.04:
 			_draw_wheel_sprite(i, sp, s, dim)
 	_draw_who_ring(i, sp)
