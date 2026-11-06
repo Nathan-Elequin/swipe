@@ -11,6 +11,10 @@ signal finished
 
 const PAD := 10.0
 const TALK_W := 420.0
+## Above the fight portrait and the monster callout (both sit later in the tree
+## on the default layer, so they used to take the click even though Nib is drawn
+## on top). Stays under defeat spotlight (95), slash (128), and the dev stamp.
+const TALK_LAYER := 20
 
 var step: int = -1
 var wait: String = ""
@@ -33,7 +37,10 @@ var _frames: Array = []
 var _fi: float = 0.0
 var _dim: Array = []
 var _ring: Panel
+var _talk_layer: CanvasLayer
 var _talk: PanelContainer
+var _talk_on: bool = false
+var _skip_on: bool = false
 var _face: TextureRect
 var _name
 var _body
@@ -161,8 +168,13 @@ void fragment() {
 
 
 func _build_talk(art) -> void:
+	_talk_layer = CanvasLayer.new()
+	_talk_layer.name = "TutorialTalkLayer"
+	_talk_layer.layer = TALK_LAYER
+	add_child(_talk_layer)
 	_talk = PanelContainer.new()
 	_talk.mouse_filter = Control.MOUSE_FILTER_STOP
+	_talk.gui_input.connect(_on_talk_gui)
 	## Above the wheel ability callout (170) and the tutorial hover plate (172).
 	_talk.z_as_relative = false
 	_talk.z_index = 190
@@ -191,8 +203,10 @@ func _build_talk(art) -> void:
 		sb.content_margin_top = 12
 		sb.content_margin_bottom = 12
 		_talk.add_theme_stylebox_override("panel", sb)
-	add_child(_talk)
+	_talk_layer.add_child(_talk)
 	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_PASS
+	row.gui_input.connect(_on_talk_gui)
 	row.add_theme_constant_override("separation", 12)
 	_talk.add_child(row)
 	_face = TextureRect.new()
@@ -206,6 +220,8 @@ func _build_talk(art) -> void:
 	row.add_child(_face)
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.mouse_filter = Control.MOUSE_FILTER_PASS
+	col.gui_input.connect(_on_talk_gui)
 	col.add_theme_constant_override("separation", 6)
 	row.add_child(col)
 	_name = FitLabelBox.make()
@@ -216,6 +232,7 @@ func _build_talk(art) -> void:
 	_name.set_copy("tutorial.speaker")
 	_name.font_color = Color("6b4a10")
 	_name.custom_minimum_size = Vector2(230, 24)
+	_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_name)
 	_body = RichTextLabel.new()
 	_body.bbcode_enabled = true
@@ -235,9 +252,12 @@ func _build_talk(art) -> void:
 	_hint.min_font_size = 12
 	_hint.font_color = Color("6b4a10")
 	_hint.custom_minimum_size = Vector2(230, 20)
+	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_hint)
 	var btns := HBoxContainer.new()
 	btns.alignment = BoxContainer.ALIGNMENT_END
+	btns.mouse_filter = Control.MOUSE_FILTER_PASS
+	btns.gui_input.connect(_on_talk_gui)
 	btns.add_theme_constant_override("separation", 8)
 	col.add_child(btns)
 	_go = FitButton.new()
@@ -265,7 +285,7 @@ func _build_talk(art) -> void:
 	_skip.z_as_relative = false
 	_skip.z_index = 191
 	_skip.pressed.connect(func() -> void: skipped.emit())
-	add_child(_skip)
+	_talk_layer.add_child(_skip)
 	_space_hint = Label.new()
 	_space_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_space_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -323,8 +343,7 @@ func open() -> void:
 	_beats = _load_beats()
 	visible = true
 	_show_chrome_skip(true)
-	if _talk:
-		_talk.visible = true
+	_set_talk_on(true)
 	advance()
 
 
@@ -351,12 +370,84 @@ func close() -> void:
 
 
 func _show_chrome_skip(on: bool) -> void:
+	_skip_on = on
 	if _skip == null:
 		return
-	_skip.visible = on
 	if on:
 		_skip.text = COPY.text("tutorial.chrome.skip", COPY.text("tutorial.skip", "Skip"))
 		_layout_chrome_skip()
+	_apply_chrome_visibility()
+
+
+func _set_talk_on(on: bool) -> void:
+	_talk_on = on
+	_apply_chrome_visibility()
+
+
+func _apply_chrome_visibility() -> void:
+	## The talk layer is not hidden with this Control, so gate its children here.
+	var up := is_inside_tree() and is_visible_in_tree()
+	if _talk:
+		_talk.visible = up and _talk_on
+	if _skip:
+		_skip.visible = up and _skip_on
+	_sync_talk_layer()
+
+
+func _modal_covering() -> bool:
+	if not is_inside_tree():
+		return false
+	var tree := get_tree()
+	for group_name in ["authoring_overlay", "playtest_feedback"]:
+		for n in tree.get_nodes_in_group(group_name):
+			if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+				return true
+	var main: Node = tree.root.get_node_or_null("Main")
+	if main == null:
+		return false
+	var settings: Variant = main.get("settings_ui")
+	if settings is CanvasItem and (settings as CanvasItem).is_visible_in_tree():
+		return true
+	return false
+
+
+func _sync_talk_layer() -> void:
+	if _talk_layer == null:
+		return
+	var modal := _modal_covering()
+	_talk_layer.layer = 0 if modal else TALK_LAYER
+	var z := 12 if modal else 190
+	if _talk:
+		_talk.z_as_relative = false
+		_talk.z_index = z
+		_talk.mouse_filter = Control.MOUSE_FILTER_IGNORE if modal else Control.MOUSE_FILTER_STOP
+	if _skip:
+		_skip.z_as_relative = false
+		_skip.z_index = z + 1
+		if modal:
+			_skip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		elif _skip_on:
+			_skip.mouse_filter = Control.MOUSE_FILTER_STOP
+
+
+func _on_talk_gui(event: InputEvent) -> void:
+	## Click anywhere on the parchment while letters are still appearing:
+	## finish the line and show Next. That click does not advance.
+	if not (event is InputEventMouseButton):
+		return
+	var mb := event as InputEventMouseButton
+	if not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if not _typing:
+		return
+	_finish_type()
+	if _talk:
+		_talk.accept_event()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED:
+		_apply_chrome_visibility()
 
 
 func _layout_chrome_skip() -> void:
@@ -376,8 +467,7 @@ func advance() -> void:
 		then_focus = ""
 		rig = ""
 		allow = []
-		if _talk:
-			_talk.visible = false
+		_set_talk_on(false)
 		_go.visible = false
 		world_open = true
 		_show_chrome_skip(true)
@@ -415,9 +505,8 @@ func _apply_beat(b: Dictionary) -> void:
 	_type_shown = 0
 	_type_acc = 0.0
 	_typing = spoken != ""
-	if _talk:
-		## A deleted line that only exists to spin should not flash an empty bubble.
-		_talk.visible = spoken != ""
+	## A deleted line that only exists to spin should not flash an empty bubble.
+	_set_talk_on(spoken != "")
 	## A spin can hide the whole guide. The next spoken line has to show it again.
 	if spoken != "":
 		visible = true
@@ -466,8 +555,7 @@ func enter_free() -> void:
 	focus_tag = ""
 	force_id = ""
 	allow = []
-	if _talk:
-		_talk.visible = false
+	_set_talk_on(false)
 	_go.visible = false
 	_show_chrome_skip(true)
 
@@ -581,7 +669,8 @@ func _sync_next_slot() -> void:
 	var slot: bool = _wait_shows_next(wait)
 	_go.visible = slot
 	var show: bool = slot and not _typing
-	_go.disabled = not show
+	## Never disable the button. A disabled button still swallows the click.
+	_go.disabled = false
 	_go.mouse_filter = Control.MOUSE_FILTER_STOP if show else Control.MOUSE_FILTER_IGNORE
 	if show:
 		var pulse: float = 0.62 + 0.38 * absf(sin(_idle * 5.0))
@@ -640,6 +729,7 @@ func _branch_shows(br: String) -> bool:
 
 
 func _process(delta: float) -> void:
+	_sync_talk_layer()
 	if not visible:
 		return
 	_arm = maxf(0.0, _arm - delta)
