@@ -91,7 +91,7 @@ const DEFAULT_EXPLAINER := {
 	"glass_asp": "Each Spin: I gain 1 Poison (ticks and clears). Attack: you gain Poison equal to mine",
 	"imp": "Spin me: Move to the highest Attack enemy",
 	"huntsman": "Across Attacks you: I also Attack (once after multiattacks)",
-	"quicksand_crab": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move charge",
+	"quicksand_crab": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move.",
 	"phantom": "Use non-Shrouded: Shroud and shuffle 2 items until Defeated",
 	"collector": "Defeat other: Bag at pre-lethal HP. Discard without Use: I lose 2 HP",
 	"mouse": "On Spin: if your HP is higher, I lose 2 HP and Flee",

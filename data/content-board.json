@@ -2619,6 +2619,7 @@
       "card_color": "heal",
       "contradiction_ids": [],
       "count": 1.0,
+      "exceptions": "Renamed id jar_o_grease → swift_sneaks 2026-11-06. Ability unchanged (move2_keep).",
       "explainer": "Move 2 and Keep",
       "flow": "Click during a fight. Move 2 seats in a random direction. Keep this. If the second seat has no living monster, you only slide one.",
       "hp_base": null,
@@ -2662,8 +2663,7 @@
       "review": "rough",
       "review_note": "",
       "status": "live",
-      "tier": 2.0,
-      "exceptions": "Renamed id jar_o_grease → swift_sneaks 2026-11-06. Ability unchanged (move2_keep)."
+      "tier": 2.0
     },
     {
       "ability": "Unplayable. On Item Use, decrease this by 1. When this reaches 0, Die.",
@@ -3763,6 +3763,7 @@
       "author_lock": true,
       "call_name": "",
       "card_color": "blk",
+      "contradiction_ids": [],
       "count": 1.0,
       "explainer": "Counter Block: +2 on Attack Damage dealt, −2 on Spin; cash on play",
       "flags": {
@@ -3774,6 +3775,7 @@
       "hp_base": null,
       "hp_formula": "",
       "id": "shardplate",
+      "kind": "item",
       "locked_at": "2026-11-06",
       "locked_fields": [
         "name",
@@ -3803,6 +3805,7 @@
       "ops": {
         "kind": "shardplate"
       },
+      "pending_fields": {},
       "pool": 2.0,
       "priority": 3.0,
       "rarity": "uncommon",
@@ -3810,10 +3813,7 @@
       "review": "rough",
       "review_note": "",
       "status": "live",
-      "tier": 1.0,
-      "kind": "item",
-      "contradiction_ids": [],
-      "pending_fields": {}
+      "tier": 1.0
     },
     {
       "ability": "Select any 2 living monsters with equal HP. Find the lowest number among their Attack and HP; set all four values (both HP and both ATK) to that number.",
@@ -3822,6 +3822,7 @@
       "author_lock": true,
       "call_name": "",
       "card_color": "utility",
+      "contradiction_ids": [],
       "count": 1.0,
       "explainer": "Equal-HP pair: set all four numbers to the lowest",
       "flags": {
@@ -3833,6 +3834,7 @@
       "hp_base": null,
       "hp_formula": "",
       "id": "love_potion",
+      "kind": "item",
       "locked_at": "2026-11-06",
       "locked_fields": [
         "name",
@@ -3862,6 +3864,7 @@
       "ops": {
         "kind": "love_potion"
       },
+      "pending_fields": {},
       "pool": 5.0,
       "priority": 3.0,
       "rarity": "uncommon",
@@ -3869,10 +3872,7 @@
       "review": "rough",
       "review_note": "",
       "status": "live",
-      "tier": 2.0,
-      "kind": "item",
-      "contradiction_ids": [],
-      "pending_fields": {}
+      "tier": 2.0
     },
     {
       "ability": "Flee and Gain 1 Charge. When you Spin an enemy with less HP than this number (Charge), Defeat them.",
@@ -3881,6 +3881,7 @@
       "author_lock": true,
       "call_name": "",
       "card_color": "defeat",
+      "contradiction_ids": [],
       "count": 1.0,
       "explainer": "Flee +1 Charge; Spin-Defeat if enemy HP < Charge",
       "flags": {
@@ -3892,6 +3893,7 @@
       "hp_base": null,
       "hp_formula": "",
       "id": "tesla_coil",
+      "kind": "item",
       "locked_at": "2026-11-06",
       "locked_fields": [
         "name",
@@ -3921,6 +3923,7 @@
       "ops": {
         "kind": "tesla_coil"
       },
+      "pending_fields": {},
       "pool": 5.0,
       "priority": 3.0,
       "rarity": "uncommon",
@@ -3928,10 +3931,7 @@
       "review": "rough",
       "review_note": "",
       "status": "live",
-      "tier": 1.0,
-      "kind": "item",
-      "contradiction_ids": [],
-      "pending_fields": {}
+      "tier": 1.0
     }
   ],
   "monsters": [
@@ -5414,10 +5414,16 @@
       "contradiction_ids": [],
       "count": 1.0,
       "explainer": "Always +4/+4 while Facing (no carry after Move)",
+      "flags": {
+        "art": true,
+        "dev": false,
+        "hide": false
+      },
       "flow": "While I am Facing you, my HP and Attack are each 4 higher than my base (base 3/3 → 7/7 facing). When I Move away or you Move away so I am no longer Facing, the +4/+4 ends immediately (Fairy-style no-carry: HP/ATK snap back to base; damage taken while facing does not leave a residual after Move). Ranged Attack can kill me. Poison that resolves before Facing fires can kill me before the buff applies. Quiet Bell strips this. Defeat still works.",
       "hp_base": 3.0,
       "hp_formula": "",
       "id": "anvil",
+      "kind": "monster",
       "locked_at": "2026-11-06",
       "locked_fields": [
         "tier",
@@ -5451,13 +5457,7 @@
       "review": "rough",
       "review_note": "",
       "status": "live",
-      "tier": 2.0,
-      "flags": {
-        "art": true,
-        "dev": false,
-        "hide": false
-      },
-      "kind": "monster"
+      "tier": 2.0
     },
     {
       "ability": "When my Neighbors would take Attack Damage, I take it instead",
@@ -5688,16 +5688,16 @@
     },
     {
       "ability": "When I lose HP, I die. When I am Defeated. My Neighbors gain HP equal to my remaining HP.",
-      "atk_base": 0,
+      "atk_base": 0.0,
       "atk_formula": "",
       "author_lock": true,
       "call_name": "Noble Death",
       "card_color": "",
       "contradiction_ids": [],
-      "count": 1,
+      "count": 1.0,
       "explainer": "On HP loss or Defeat: I die. Neighbors gain my remaining HP",
       "flow": "SP-24 (2026-11-04). 6 HP / 0 Attack. I die on any HP loss (including poison ticks) or when I would be Defeated. Attacking does not kill me. On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
-      "hp_base": 6,
+      "hp_base": 6.0,
       "hp_formula": "",
       "id": "martyr",
       "kind": "monster",
@@ -5728,14 +5728,14 @@
       "notes": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
       "ops": {},
       "pending_fields": {},
-      "pool": 4,
-      "priority": 3,
+      "pool": 4.0,
+      "priority": 3.0,
       "rarity": "uncommon",
       "reminder": "On HP loss or Defeat: I die. Neighbors gain my remaining HP.",
       "review": "rough",
       "review_note": "",
       "status": "live",
-      "tier": 1
+      "tier": 1.0
     },
     {
       "ability": "When I would take Attack damage, both of my Neighbors take it instead.",
@@ -7101,7 +7101,7 @@
       "explainer": "Each Spin: I gain 1 Poison (ticks and clears). Attack: you gain Poison equal to mine",
       "flags": {
         "art": true,
-        "dev": true,
+        "dev": false,
         "hide": false
       },
       "flow": "While I am alive and not silenced: on every dungeon Spin I gain 1 Poison on myself. Each Spin, my Poison ticks (I lose that much HP — lose HP, not Attack) and then all my Poison clears; I can restack from later Spins. When I Attack you, you Gain player Poison equal to my Poison stack at that moment. Quiet Bell turns this off.",
@@ -7255,24 +7255,25 @@
       "tier": 1.0
     },
     {
-      "ability": "When you Move, I lose 2 HP. When you Spin me, you Gain 1 Move charge.",
-      "atk_base": 5.0,
+      "ability": "When you Move, I lose 2 HP. When you Spin me, you Gain 1 Move.",
+      "atk_base": 5,
       "atk_formula": "",
       "author_lock": true,
       "call_name": "",
       "card_color": "",
       "contradiction_ids": [],
-      "count": 1.0,
-      "explainer": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move charge",
+      "count": 1,
+      "explainer": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move.",
       "flags": {
         "art": true,
         "dev": false,
         "hide": false
       },
       "flow": "Each Move step counts (Swift Sneaks Move2 = −4 HP; Grappling Hook can be multiple steps). All Crab HP loss AFTER the movement and the current item/effect fully resolves (e.g. Shuriken: move → attack → then Crab loses HP). Spinning me Grants 1 Move charge. Quiet Bell turns this off.",
-      "hp_base": 10.0,
+      "hp_base": 10,
       "hp_formula": "",
       "id": "quicksand_crab",
+      "kind": "monster",
       "locked_at": "2026-11-06",
       "locked_fields": [
         "name",
@@ -7300,14 +7301,14 @@
       "name": "Quicksand Crab",
       "notes": "Monster4 2026-11-06 Pixel art (still B + facing A 64×64 + idle). Combat live 2026-11-06 — Move −2 HP/step after resolve; Spin → +1 adventure Move charge.",
       "ops": {},
-      "pool": 2.0,
-      "priority": 3.0,
+      "pool": 2,
+      "priority": 3,
       "rarity": "uncommon",
       "reminder": "",
       "review": "rough",
       "review_note": "",
       "status": "live",
-      "tier": 2.0
+      "tier": 2
     },
     {
       "ability": "When you Use a non-Shrouded item, I Shroud and shuffle 2 of your items until I am Defeated.",
@@ -7420,5 +7421,5 @@
       "tier": 3.0
     }
   ],
-  "updated": "2026-11-05"
+  "updated": "2026-11-06"
 }

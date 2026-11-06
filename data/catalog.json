@@ -6849,14 +6849,14 @@
     {
       "ability": "When I lose HP, I die. When I am Defeated. My Neighbors gain HP equal to my remaining HP.",
       "atk": {
-        "base": 0
+        "base": 0.0
       },
-      "atk_base": 0,
+      "atk_base": 0.0,
       "atk_formula": "",
       "author_lock": true,
       "call_name": "Noble Death",
       "card_color": "",
-      "count": 1,
+      "count": 1.0,
       "defined": "SP-24 (2026-11-04). 6 HP / 0 Attack. I die on any HP loss (including poison ticks) or when I would be Defeated. Attacking does not kill me. On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
       "exceptions": "SP-24. Bucket 6. Wick, Berserker, Victory Flask, Mimic count this Defeat. Mimic does not gift because I already Attacked.",
       "explainer": "On HP loss or Defeat: I die. Neighbors gain my remaining HP",
@@ -6867,9 +6867,9 @@
       },
       "flow": "SP-24 (2026-11-04). 6 HP / 0 Attack. I die on any HP loss (including poison ticks) or when I would be Defeated. Attacking does not kill me. On death: each living Neighbor gains HP equal to my remaining HP measured after the loss that killed me (Defeat with HP still up uses the HP I still have). Gain grows max HP like Vampire. Empty seats skipped. Quiet Bell turns this off.",
       "hp": {
-        "base": 6
+        "base": 6.0
       },
-      "hp_base": 6,
+      "hp_base": 6.0,
       "hp_formula": "",
       "id": "martyr",
       "locked_at": "2026-11-04",
@@ -6900,14 +6900,14 @@
       "ops": {},
       "pending_fields": {},
       "poc": false,
-      "pool": 4,
-      "priority": 3,
+      "pool": 4.0,
+      "priority": 3.0,
       "rarity": "uncommon",
       "reminder": "On HP loss or Defeat: I die. Neighbors gain my remaining HP.",
       "review": "rough",
       "review_note": "",
       "status": "live",
-      "tier": 1,
+      "tier": 1.0,
       "type": "M"
     },
     {
@@ -8575,7 +8575,7 @@
       "explainer": "Each Spin: I gain 1 Poison (ticks and clears). Attack: you gain Poison equal to mine",
       "flags": {
         "art": true,
-        "dev": true,
+        "dev": false,
         "hide": false
       },
       "flow": "While I am alive and not silenced: on every dungeon Spin I gain 1 Poison on myself. Each Spin, my Poison ticks (I lose that much HP — lose HP, not Attack) and then all my Poison clears; I can restack from later Spins. When I Attack you, you Gain player Poison equal to my Poison stack at that moment. Quiet Bell turns this off.",
@@ -8752,19 +8752,19 @@
       "type": "M"
     },
     {
-      "ability": "When you Move, I lose 2 HP. When you Spin me, you Gain 1 Move charge.",
+      "ability": "When you Move, I lose 2 HP. When you Spin me, you Gain 1 Move.",
       "atk": {
-        "base": 5.0
+        "base": 5
       },
-      "atk_base": 5.0,
+      "atk_base": 5,
       "atk_formula": "",
       "author_lock": true,
       "call_name": "",
       "card_color": "",
-      "count": 1.0,
+      "count": 1,
       "defined": "Each Move step counts (Swift Sneaks Move2 = −4 HP; Grappling Hook can be multiple steps). All Crab HP loss AFTER the movement and the current item/effect fully resolves (e.g. Shuriken: move → attack → then Crab loses HP). Spinning me Grants 1 Move charge. Quiet Bell turns this off.",
-      "exceptions": "Monster4 2026-11-06. 10 HP / 5 ATK. Pool 2. Combat wiring follow-up: −2 HP per Move step after full resolve; Spin → Gain 1 Move charge.",
-      "explainer": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move charge",
+      "exceptions": "Monster4 2026-11-06 Pixel art (still B + facing A 64×64 + idle). Combat live 2026-11-06 — Move −2 HP/step after resolve; Spin → +1 adventure Move charge.",
+      "explainer": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move.",
       "flags": {
         "art": true,
         "dev": false,
@@ -8772,9 +8772,9 @@
       },
       "flow": "Each Move step counts (Swift Sneaks Move2 = −4 HP; Grappling Hook can be multiple steps). All Crab HP loss AFTER the movement and the current item/effect fully resolves (e.g. Shuriken: move → attack → then Crab loses HP). Spinning me Grants 1 Move charge. Quiet Bell turns this off.",
       "hp": {
-        "base": 10.0
+        "base": 10
       },
-      "hp_base": 10.0,
+      "hp_base": 10,
       "hp_formula": "",
       "id": "quicksand_crab",
       "locked_at": "2026-11-06",
@@ -8805,14 +8805,14 @@
       "notes": "Monster4 2026-11-06 Pixel art (still B + facing A 64×64 + idle). Combat live 2026-11-06 — Move −2 HP/step after resolve; Spin → +1 adventure Move charge.",
       "ops": {},
       "poc": false,
-      "pool": 2.0,
-      "priority": 3.0,
+      "pool": 2,
+      "priority": 3,
       "rarity": "uncommon",
       "reminder": "",
       "review": "rough",
       "review_note": "",
       "status": "live",
-      "tier": 2.0,
+      "tier": 2,
       "type": "M"
     },
     {

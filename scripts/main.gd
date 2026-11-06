@@ -258,12 +258,13 @@ const MONSTER_SPECIAL := {
 	"magicat": {"id": "cats_eye", "text": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value"},
 	"scorpion": {"id": "venom_sac", "text": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value"},
 	"poison_frog": {"id": "toxic_skin", "text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison"},
+	"glass_asp": {"id": "bitter_blood", "text": "On Spin, I gain 1 Poison. When I Attack, you gain Poison equal to mine."},
 	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust."},
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
 	"sandbag": {"id": "sandbag", "text": "When you Spin me, if my Attack would kill you, I Flee and lose 2 Attack"},
 	"oligarch": {"id": "wealth_tax", "text": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item"},
 	"huntsman": {"id": "straight_shot", "text": "When the monster Across from me Attacks you, I also Attack once after that multiattack ends."},
-	"quicksand_crab": {"id": "sink_charge", "text": "When you Move, I lose 2 HP per step after resolve. When you Spin me, Gain 1 Move charge."},
+	"quicksand_crab": {"id": "sink_charge", "text": "When you Move, I lose 2 HP per step after resolve. When you Spin me, Gain 1 Move."},
 	"phantom": {"id": "dark_matter", "text": "When you Use a non-Shrouded item, I Shroud and shuffle 2 of your items until I am Defeated."},
 	"collector": {"id": "new_specimen", "text": "When you Defeat any other enemy, I Bag it. When you Discard an item without Using it, I lose 2 HP."},
 }
@@ -318,6 +319,7 @@ const MONSTER_CALL := {
 	"mouse": "Scurry",
 	"magicat": "Cat's Eye",
 	"poison_frog": "Toxic Skin",
+	"glass_asp": "Bitter Blood",
 	"plague_doctor": "Outbreak",
 	"rust_bucket": "Rust",
 	"sandbag": "Sandbag",
@@ -378,11 +380,12 @@ const MONSTER_REMINDER := {
 	"mouse": "On Spin: if your HP is higher, I lose 2 HP and Flee",
 	"magicat": "On Spin: 2 Atk or Blk Items become Marbles with that number",
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
+	"glass_asp": "Each Spin: I gain 1 Poison (ticks and clears). Attack: you gain Poison equal to mine",
 	"plague_doctor": "Each Spin: you and every monster Gain 1 Poison",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust.",
 	"oligarch": "On entry: Gain 2 Items. After each Spin's choices: one playable Item is used",
 	"huntsman": "Across Attacks you: I also Attack once after multiattacks",
-	"quicksand_crab": "Move: −2 HP per step after resolve. Spin me: Gain 1 Move charge",
+	"quicksand_crab": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move.",
 	"phantom": "Non-Shrouded Use: Shroud and shuffle 2 items until Defeated",
 	"collector": "Defeat other: Bag at pre-lethal HP. Discard without Use: −2 HP",
 }
@@ -441,7 +444,7 @@ const MONSTER_SPEECH := {
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust.",
 	"oligarch": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
 	"huntsman": "When the monster Across from me Attacks you, I also Attack.",
-	"quicksand_crab": "When you Move, I lose 2 HP. When you Spin me, you Gain 1 Move charge.",
+	"quicksand_crab": "When you Move, I lose 2 HP. When you Spin me, you Gain 1 Move.",
 	"phantom": "When you Use a non-Shrouded item, I Shroud and shuffle 2 of your items until I am Defeated.",
 	"collector": "When you Defeat any other enemy, I Bag it for you. When you Discard an item without Using it, I lose 2 HP.",
 }
@@ -8708,7 +8711,10 @@ func _on_spin() -> void:
 		if await _tick_player_poison():
 			_undo_arm()
 			return
-	if await _tick_facing_monster_poison():
+	var facing_poison_ended: bool = await _tick_facing_monster_poison()
+	# Bitter Blood adds after the tick, so the new Poison stays until a later Spin.
+	await _apply_glass_asp_on_spin()
+	if facing_poison_ended:
 		_undo_arm()
 		await _unlock_if_fighting()
 		return
@@ -9256,6 +9262,7 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 		_try_potion()
 		if incoming > 0:
 			await _cleric_maybe_flush()
+	_glass_asp_on_attack(at)
 	if hp > 0 and incoming > 0 and str(m.get("card_id", "")) == "druid" and not _is_silenced(m):
 		_sfx_ability("druid")
 		await _heal(incoming * 2)
@@ -16555,6 +16562,39 @@ func _apply_magicat_on_spin() -> void:
 	_refresh()
 
 
+func _apply_glass_asp_on_spin() -> void:
+	for i in wheel.size():
+		if i >= wheel.size():
+			break
+		var s: Dictionary = wheel[i]
+		if str(s.get("card_id", "")) != "glass_asp":
+			continue
+		if int(s.get("hp", 0)) <= 0 or _is_silenced(s):
+			continue
+		_add_monster_poison(i, 1)
+		_sfx_ability("glass_asp")
+		_log_begin_monster(i)
+		_log("on_spin", "Bitter Blood  →  Poison %s" % _poison_of(wheel[i]))
+		await _announce_slice(i, _slice_hp_pos(i))
+
+
+func _glass_asp_on_attack(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var s: Dictionary = wheel[index]
+	if str(s.get("card_id", "")) != "glass_asp":
+		return
+	if int(s.get("hp", 0)) <= 0 or _is_silenced(s):
+		return
+	var dose: int = _poison_of(s)
+	if dose <= 0:
+		return
+	_sfx_ability("glass_asp")
+	_log_begin_monster(index)
+	_gain_player_poison(dose)
+	_log("on_resolve", "Bitter Blood  →  you Poison %s" % player_poison)
+
+
 func _apply_poison_frog_on_spin() -> void:
 	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
 		return
@@ -19005,7 +19045,7 @@ func _quicksand_crab_on_spin() -> void:
 		return
 	## Peer: adventure Moves bank (`moves_left`), not Tesla Coil item Charge.
 	moves_left += 1
-	_log("on_spin", "Quicksand Crab — Gain 1 Move charge  →  %s" % moves_left)
+	_log("on_spin", "Quicksand Crab — Gain 1 Move  →  %s" % moves_left)
 	_sync_move_ui()
 	if wheel_view and wheel_view.has_method("set_moves"):
 		wheel_view.set_moves(moves_left, ADVENTURE_MOVES if _is_adventure_mode() else 0)
