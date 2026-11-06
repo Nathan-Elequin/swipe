@@ -1,6 +1,6 @@
 ---
 id: REQ-20261106-batch2-art
-status: open
+status: done
 priority: normal
 branch: cursor/batch2-tip-catalog-ab5f
 created: 2026-11-06T00:00:00-06:00
