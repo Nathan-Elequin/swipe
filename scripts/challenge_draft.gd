@@ -249,6 +249,25 @@ func pick_card_id(id: String) -> bool:
 	return false
 
 
+func play_pick_stamps(chosen_uid: int) -> void:
+	## Chosen card gets the wax press. Leftovers get the grey X.
+	## Does not change pick rules. Overlay only — not the gate door.
+	if not visible or _row == null:
+		return
+	for c in _row.get_children():
+		if c == null or not is_instance_valid(c):
+			continue
+		if not c.has_method("play_draft_pick_seal"):
+			continue
+		var card_uid: int = int(c.uid)
+		if card_uid == chosen_uid:
+			c.play_draft_pick_seal()
+		elif c.has_method("show_draft_leftbehind"):
+			c.show_draft_leftbehind()
+	if get_tree() != null:
+		await get_tree().create_timer(0.40).timeout
+
+
 func hide_draft() -> void:
 	visible = false
 	scale = Vector2.ONE
