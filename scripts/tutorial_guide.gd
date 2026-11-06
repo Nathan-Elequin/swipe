@@ -68,6 +68,14 @@ const TYPE_CPS := 48.0
 signal beat_entered(beat: String, rig_id: String)
 
 
+func pointer_blocks_hover(at: Vector2) -> bool:
+	if _talk != null and _talk.visible and _talk.get_global_rect().has_point(at):
+		return true
+	if _skip != null and _skip.visible and _skip.get_global_rect().has_point(at):
+		return true
+	return false
+
+
 func setup(art, p_sfx = null) -> void:
 	sfx = p_sfx
 	set_anchors_preset(PRESET_FULL_RECT)
@@ -152,6 +160,9 @@ void fragment() {
 func _build_talk(art) -> void:
 	_talk = PanelContainer.new()
 	_talk.mouse_filter = Control.MOUSE_FILTER_STOP
+	## Above the wheel ability callout (170) and the tutorial hover plate (172).
+	_talk.z_as_relative = false
+	_talk.z_index = 190
 	_talk.custom_minimum_size = Vector2(TALK_W, 0)
 	var skin: Texture2D = art.ui.get("panel_beige", null) if art else null
 	if skin != null:
@@ -209,6 +220,7 @@ func _build_talk(art) -> void:
 	_body.scroll_active = false
 	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_body.clip_contents = false
 	_body.add_theme_color_override("default_color", Color("1c120c"))
 	_body.add_theme_font_size_override("normal_font_size", 20)
 	_body.custom_minimum_size = Vector2(230, 48)
@@ -247,7 +259,8 @@ func _build_talk(art) -> void:
 	_skip.add_theme_font_size_override("font_size", 20)
 	_skip.add_theme_color_override("font_color", Color("a89888"))
 	_skip.add_theme_color_override("font_hover_color", Color("fff6df"))
-	_skip.z_index = 9
+	_skip.z_as_relative = false
+	_skip.z_index = 191
 	_skip.pressed.connect(func() -> void: skipped.emit())
 	add_child(_skip)
 	_space_hint = Label.new()
@@ -260,7 +273,8 @@ func _build_talk(art) -> void:
 	_space_hint.add_theme_color_override("font_outline_color", Color("100e0c"))
 	_space_hint.add_theme_constant_override("outline_size", 8)
 	_space_hint.modulate = Color(1, 1, 1, 0)
-	_space_hint.z_index = 8
+	_space_hint.z_as_relative = false
+	_space_hint.z_index = 188
 	add_child(_space_hint)
 
 
@@ -417,7 +431,7 @@ func _apply_beat(b: Dictionary) -> void:
 	_body_lock_key = ""
 	_sync_next_slot()
 	_go.z_index = 20
-	_talk.z_index = 15
+	_talk.z_index = 190
 	_go.custom_minimum_size = Vector2(210, 58)
 	var said: String = str(b.get("text", "")).to_lower()
 	if said.find("survived all") >= 0 or said.find("venture deeper") >= 0 or said.find("come back") >= 0:
@@ -675,27 +689,20 @@ func _layout() -> void:
 		_face.custom_minimum_size = Vector2(64.0 * face_s, 112.0 * face_s)
 	_talk.reset_size()
 	var ts: Vector2 = _talk.get_combined_minimum_size()
-	var frac: float = 0.18 if not _spots.is_empty() else 0.26
-	var want: float = clampf(vp.x * frac, 320.0, vp.x * 0.32) + 80.0 * nib_close
-	ts.x = maxf(ts.x, want)
+	var outer: float = _talk_outer_width(vp)
+	ts.x = maxf(ts.x, outer)
 	_talk.size = ts
 	if ts.y < 8.0:
 		return
-	var key: String = "%s|%s|%s" % [step, wait, focus_tag]
-	if key == _pin_key and _pin_pos != Vector2.ZERO:
-		_talk.global_position = _pin_pos
-		return
+	## Stay on the right. A spotlight on the wheel used to shove this box to the left.
 	var pos := Vector2(vp.x - ts.x - 16.0, clampf((vp.y - ts.y) * 0.28, 16.0, vp.y - ts.y - 16.0))
 	## nib_close: Nib steps toward the middle of the screen, larger, for a direct aside.
 	if nib_close > 0.0:
 		pos.x -= 160.0 * nib_close
 		pos.y += 36.0 * nib_close
-	var box := Rect2(pos, ts)
-	if _hits_spot(box):
-		pos = Vector2(vp.x - ts.x - 16.0, 16.0)
-		box = Rect2(pos, ts)
-	if _hits_spot(box):
-		pos = Vector2(16.0, 16.0)
+	var key: String = "%s|%s|%s" % [step, wait, focus_tag]
+	if key == _pin_key and _pin_pos != Vector2.ZERO:
+		pos.y = _pin_pos.y
 	pos.x = clampf(pos.x, 12.0, maxf(12.0, vp.x - ts.x - 12.0))
 	pos.y = clampf(pos.y, 12.0, maxf(12.0, vp.y - ts.y - 12.0))
 	_pin_key = key
@@ -703,31 +710,76 @@ func _layout() -> void:
 	_talk.global_position = pos
 
 
+func _talk_outer_width(vp: Vector2) -> float:
+	var want: float = clampf(vp.x * 0.26, TALK_W, vp.x * 0.32) + 80.0 * nib_close
+	return maxf(TALK_W, want)
+
+
+func _talk_text_width(vp: Vector2) -> float:
+	## Same width the parchment will give the line. The old formula shrank
+	## this whenever a spotlight was up, then the panel stayed 420 wide,
+	## so the height was measured for a different wrap than the one drawn.
+	var face_s: float = 1.0 + 1.125 * nib_close
+	var face_w: float = 64.0 * face_s
+	var margin_x: float = 32.0
+	if _talk != null:
+		var sb: StyleBox = _talk.get_theme_stylebox("panel")
+		if sb != null:
+			margin_x = sb.get_margin(SIDE_LEFT) + sb.get_margin(SIDE_RIGHT)
+	return maxf(200.0, _talk_outer_width(vp) - margin_x - 12.0 - face_w)
+
+
+func _bbcode_plain(bb: String) -> String:
+	var out := ""
+	var i := 0
+	while i < bb.length():
+		if bb.substr(i, 1) == "[":
+			var end := bb.find("]", i)
+			if end < 0:
+				out += bb.substr(i)
+				break
+			var tag := bb.substr(i + 1, end - i - 1).to_lower().strip_edges()
+			if tag == "br" or tag == "p" or tag == "/p":
+				out += "\n"
+			i = end + 1
+			continue
+		out += bb.substr(i, 1)
+		i += 1
+	return out
+
+
+func _bbcode_wrap_height(bb: String, width: float, font_px: int) -> float:
+	## Painted keywords are color tags. Measuring the raw string counted
+	## those tags as letters and made the box too tall. The visible words,
+	## at the column width the parchment actually uses, match the label.
+	var font: Font = _body.get_theme_default_font() if _body != null else null
+	if font == null:
+		font = ThemeDB.fallback_font
+	var plain := _bbcode_plain(bb)
+	var h: float = font.get_multiline_string_size(plain, HORIZONTAL_ALIGNMENT_LEFT, maxf(40.0, width), font_px).y
+	## Outline on keywords draws outside the line. Keep the last line intact.
+	return h + 18.0
+
+
 func _lock_talk_body(vp: Vector2) -> void:
 	## Size the parchment for the finished line, Nib, and Next before any
 	## letter is shown. visible_characters must not change that height.
 	if _talk == null or _body == null:
 		return
-	var face_s: float = 1.0 + 1.125 * nib_close
-	var face_w: float = 64.0 * face_s
-	var frac: float = 0.18 if not _spots.is_empty() else 0.26
-	var outer: float = clampf(vp.x * frac, 320.0, vp.x * 0.32) + 80.0 * nib_close
-	var inner: float = maxf(230.0, outer - 32.0 - 12.0 - face_w)
 	var font_px: int = 12 if _tiny else 20
-	var key: String = "%s|%d|%d|%s" % [_type_full, int(inner), font_px, str(_wait_shows_next(wait))]
-	if key != _body_lock_key:
+	var col_w: float = _talk_text_width(vp)
+	var painted: String = _paint_on_paper(_type_full)
+	var est: float = _bbcode_wrap_height(painted, col_w, font_px) if _type_full != "" else 0.0
+	var key: String = "%s|%d|%d|%s" % [_type_full, int(col_w), font_px, str(_wait_shows_next(wait))]
+	if key != _body_lock_key or _body_lock_h + 1.0 < est:
 		var shown: int = _body.visible_characters
 		_body.fit_content = true
 		_body.scroll_active = false
 		_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		_body.custom_minimum_size = Vector2(inner, 0)
-		_body.size = Vector2(inner, 32)
+		_body.custom_minimum_size = Vector2(col_w, 0)
+		_body.size = Vector2(col_w, 32)
 		_body.visible_characters = -1
-		var full_h: float = _body.get_content_height()
-		if _type_full != "":
-			var font: Font = ThemeDB.fallback_font
-			var font_h: float = font.get_multiline_string_size(_type_full, HORIZONTAL_ALIGNMENT_LEFT, inner, font_px).y
-			full_h = maxf(full_h, font_h)
+		var full_h: float = maxf(_body.get_content_height() + 18.0, est)
 		var cap: float = maxf(160.0, vp.y - 28.0)
 		var chrome: float = 24.0 + 24.0 + 20.0 + 18.0
 		if _wait_shows_next(wait):
@@ -743,7 +795,7 @@ func _lock_talk_body(vp: Vector2) -> void:
 		_body.visible_characters = shown
 	## fit_content would shrink the label down to the letters typed so far.
 	_body.fit_content = false
-	_body.custom_minimum_size = Vector2(inner, _body_lock_h)
+	_body.custom_minimum_size = Vector2(col_w, _body_lock_h)
 
 
 func _hits_spot(box: Rect2) -> bool:

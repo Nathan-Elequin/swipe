@@ -451,11 +451,14 @@ function appendVisuals(beat, beatRows) {
   var view = document.createElement("div");
   view.className = "stage-view";
   var ta = document.createElement("textarea");
-  ta.className = "tall";
   ta.dataset.visualBeat = beat;
   ta.dataset.starter = describeBeat(beatRows);
   ta.value = hasVisual ? saved : ta.dataset.starter;
-  var paint = () => { view.innerHTML = stageHtml(ta.value); };
+  var fit = () => {
+    var n = String(ta.value || "").split("\n").length;
+    ta.rows = Math.max(4, Math.min(14, n + 1));
+  };
+  var paint = () => { view.innerHTML = stageHtml(ta.value); fit(); };
   ta.addEventListener("input", () => { markDirty(); paint(); });
   paint();
   var hint = document.createElement("p");
