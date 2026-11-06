@@ -1,108 +1,78 @@
 # ARC2 — Banking contract tests (evidence)
 
-**Status:** EXECUTED (tests-only PR)  
+**Status:** EXECUTED (tests-only correction)  
 **Package:** ARC2 only — no production edits to `home_cabin.gd` / `main.gd` / `campaign_shell.gd`  
+**PR:** https://github.com/Nathan-Elequin/swipe/pull/437  
 **Base tip at branch creation:** `playtest/latest` @ `1a3fc7f478440c59798a367573f9bea537845c88`  
-**PR:** https://github.com/Nathan-Elequin/swipe/pull/437 · head `f7e7f8be8d3036a427c0f66cbb0e4348691bec86` (tests land at `b8e6965e`; report link commit follows)  
 **Audit baseline (stale for tip):** `d21da5d56753a3f6589f2e73c8232f7dd6939c95` — not assumed current  
 **Engine:** Godot `4.7.2.stable.official.ed1daf0bf`  
 **Model setting:** grok-4.5 effort low, fast false  
 
-## Commands run
+**SHAs:** Do not stamp follow-up “report only” commits into this file. Record **tested-code SHA** (commit that contains the suite) and **branch head at evidence capture** in the run artifact / chat return. They may differ if later commits are docs-only.
+
+## Row kinds (honest counting)
+
+| Kind | Counts as PASS? | Fails suite? |
+|---|---|---|
+| **ASSERT** | Yes if evaluated predicate true | Yes on FAIL |
+| **STATIC** | Yes if source-shape predicate true | Yes on FAIL |
+| **NOTE** | Never | No |
+| **UNCOVERED** | Never | No |
+
+NOTE/UNCOVERED are printed separately. They are not assertions.
+
+## Commands
 
 ```bash
 export GODOT="$HOME/godot/Godot_v4.7.2-stable_linux.x86_64"
-./tools/qa/run_banking_contract.sh
-# contextual historical (not new ARC2 proof):
-godot --headless --path . --script res://scripts/dev/campaign_shell_selftest.gd   # CAMPAIGN_SHELL_OK exit 0
-godot --headless --path . --script res://scripts/dev/biome_cabinets_selftest.gd  # BIOME_CABINETS_OK exit 0
+BANKING_CONTRACT_LOG=/path/to/artifact.log ./tools/qa/run_banking_contract.sh
 ```
 
-| Suite | Mark | Exit |
-|---|---|---|
-| `banking_contract_selftest.gd` | `BANKING_CONTRACT_OK` | **0** |
-| `campaign_shell_selftest.gd` (historical) | `CAMPAIGN_SHELL_OK` | 0 |
-| `biome_cabinets_selftest.gd` (historical) | `BIOME_CABINETS_OK` | 0 |
+Runner uses `mktemp` per-run workdirs (`trap` cleanup of that dir only).
 
-Historical `TIP_SMOKE_OK` / `CAMPAIGN_SHELL_OK` / `BIOME_CABINETS_OK` are **not** new proof of ARC2 acceptance cases.
+## Totals (from suite `TOTALS` line)
 
-## Files in this PR
+Last local green run before the correction commit (working tree matched these counts; re-confirm at tested-code SHA in artifacts):
 
-| Path | Role |
+| Metric | Count |
 |---|---|
-| `scripts/dev/banking_contract_selftest.gd` | Deterministic shell + catalog + source-trace cases |
-| `tools/qa/run_banking_contract.sh` | Headless runner |
-| `tools/qa/ARC2_banking_contract_report.md` | This evidence report |
-| `tests/README.md` | Pointer to ARC2 runner/report |
+| ASSERT PASS | 26 |
+| ASSERT FAIL | 0 |
+| STATIC PASS | 3 |
+| STATIC FAIL | 0 |
+| NOTE | 2 |
+| UNCOVERED | 3 |
 
-No production source edits.
+Genuine evaluated rows = ASSERT + STATIC = **29**. NOTE+UNCOVERED = **5** (not PASS).
 
-## Attribution verified at tip (catalog → cabinet)
+Historical `TIP_SMOKE_OK` / `CAMPAIGN_SHELL_OK` / `BIOME_CABINETS_OK` are **not** new ARC2 proof.
 
-| Id | Catalog `pool` | Cabinet via `BucketRules.of_card` + `pool_for_bucket` |
+## Scope claims (corrected)
+
+| ID | Kind | What it actually proves |
 |---|---|---|
-| net, sai, shield, spinning_top, throwing_knife, flying_saucer | 1 | b1 |
-| smoke_bomb, bracers | 1 | b1 (current; mill-skip ≠ bank skip) |
-| breastplate | 2 | **b2** (item origin, not delve location) |
+| META.multiset_* | ASSERT | Helper rejects `[net,sai]` vs `[net,net]`; accepts permutations |
+| ATTR.* / B0–B3 / B5 / B6.smoke… / U* / L1 / P1.roundtrip|load|rebank | ASSERT | CampaignShell + catalog behavior with explicit id lists |
+| B4.shell_explicit_filtered_list | ASSERT | Shell credits only ids present in the **caller-supplied** list |
+| B4.live_consume_drop_carry_in | UNCOVERED | Not an in-game consume/drop/carry-in path |
+| B6.mill_skip_vs_bank | NOTE | Mill-skip vs bank orthogonality is commentary; B6 credit ASSERT is the evaluated proof |
+| P1.suite_avoids_live_save_io | NOTE | Suite design avoids `CampaignShell.write`; not a non-write runtime proof |
+| T.src_* / N.src_* | STATIC | Current `main.gd` source shape only — not three-route execution or general proof |
+| BOUNDARY.* | UNCOVERED | Named gaps |
 
-Quota: `cabinet_quota` = **5**. Filling every Pool 1 peg is **not** the dungeon-2 gate (`cabinets_complete` stays false after b1≥5 alone).
+## Coverage boundaries
 
-## Case results (expected → actual)
+1. Mocked empty / filtered lists ≠ proof tutorial/death callers never bank.  
+2. No cabin UI / Trophy Room / live hotbar / exported-web save.  
+3. No live `_campaign_bank_from_hand` under a real hotbar.  
+4. P1 is in-memory JSON + `_copy_state` only.  
+5. STATIC checks reflect immutable tip source at run time, not future-proof guarantees.  
+6. ARC1 cabin lifecycle is out of scope.
 
-All rows **PASS** at tip `1a3fc7f4…` unless noted. Fixture A = `net,sai,shield,spinning_top,throwing_knife`; F = `flying_saucer`; four = A − knife.
+## Production failures
 
-| ID | Expected | Actual |
-|---|---|---|
-| ATTR.catalog_b1_openers | A+F → b1 | pools all b1 |
-| ATTR.breastplate_is_b2 | breastplate → b2 | pool=b2 |
-| ATTR.smoke_bomb_catalog_b1 | smoke_bomb → b1 | pool=b1 |
-| ATTR.bracers_catalog_b1 | bracers → b1 | pool=b1 |
-| ATTR.quota_five | quota 5 | quota=5 |
-| B0.empty_hand | bank [] → +0, b1=0, dungeon2 locked | added=[] b1=0 can_start1=false |
-| B1.one_held | [net] → +1, locked | added=[net] b1=1 |
-| B2.two_held | [net,sai] → +2, locked | added=[net,sai] b1=2 |
-| B3.six_held_A_plus_F | A+F → +6, unlock (INTENDED 0→6) | added_n=6 b1=6 unlock1=true complete_all=false |
-| B3.bank_alone_no_stamp | bank alone → no map piece | pieces=0 |
-| B4.carry_in_held_only | only held net credits; consumed/dropped absent | banked=net |
-| B5.duplicate_same_haul_then_repeat | [net,net]→+1; repeat→+0 | first=[net] second=[] b1=1 |
-| B6.smoke_and_bracers_bank_b1 | both credit b1 (current) | added=[smoke_bomb,bracers] b1=2 |
-| B6.mill_skip_does_not_block_bank_api | shell has no mill filter | documented |
-| U1.four_baseline_locked | four → b1=4 locked | b1=4 unlock1=false |
-| U1.four_to_five_unlocks | 4→5 opens dungeon2; pool-complete false | b1=5 can_start1=true complete=false |
-| U2.zero_to_five_first_return | first return A unlocks (INTENDED) | b1=5 can_start1=true |
-| U2.zero_to_six_first_return | first return A+F unlocks (INTENDED) | b1=6 |
-| U3.stamp_first_after_threshold | stamp after 5 → first b2 piece | id=b2 first=true pieces=1 |
-| U3.later_bank_no_repeated_unlock_stamp | dup +0, new +1, stamp not first | dup=[] new=[flying_saucer] stamp2_first=false |
-| P1.roundtrip_parse | isolated JSON parse | typeof=Dictionary |
-| P1.load_keeps_ledger_and_count | ledger+count+piece preserved | b1=5 pieces=1 |
-| P1.rebank_and_restamp_idempotent | re-bank +0; re-stamp not first | added=[] first=false |
-| P1.no_user_save_write | in-memory roundtrip only | roundtrip ok; no live save I/O |
-| L1.breastplate_credits_b2_not_location | breastplate → b2; b1 retained | b1=5 b2=1 attr=b2 |
-| L1.per_origin_counters | b1=2, b2=1 independent | b1=2 b2=1 |
-| T.src_tutorial_finish_no_bank_call | `_road_finish_to_cabin` no bank/swipe; empty open | has_empty_open=true has_bank=false |
-| T.src_yes_skip_midskip_share_finish | Yes/Skip paths call finish helper | finish_hooks_present |
-| N.src_death_loss_no_bank | loss → abort; abort no bank | loss_calls_abort=true abort_has_bank=false |
-| BOUNDARY.mocked_empty_hand_not_caller_proof | named coverage gap | documented |
-| BOUNDARY.ui_cabin_hotbar_save_uncovered | named UI/save gaps | documented |
+None observed on the covered ASSERT/STATIC surface in the last green run. Do not rewrite assertions to bless defects.
 
-## Coverage boundaries (not proven by this PR)
+## Next action
 
-1. **Mocked empty hand ≠ caller proof.** `bank([])` emptiness does not prove tutorial/death never bank. Source traces (`T.src_*`, `N.src_*`) are STATIC shape checks only. Human matrix T1–T3 / N3 still required for save-file / live-hotbar proof.
-2. **No interactive cabin / Trophy Room / hotbar driver.** Cabin clicks, bank FX, ceremony, required pre-run Trophy Room route: ARC1/3/4.
-3. **No live `_campaign_bank_from_hand` integration under a real `hotbar`.** Shell receives an explicit id list; main builds that list from held cards — not executed here.
-4. **No exported-web / same-origin save persistence.** P1 is in-memory JSON roundtrip only; does not mutate `user://campaign_save.json`.
-5. **Push-block vs Bank-home ceremony differences** (stamp suppression) not re-proven beyond existing shell invariant bank≠stamp.
-6. **Mudroom seating path** still unused by campaign arm (audit STATIC) — out of weekend trophy scope.
-
-## Production failures found
-
-**None** in the ARC2 machine matrix. Shell ledger/unlock/attribution at tip matches the locked player contract for the covered helper surface. Do not rewrite assertions to bless defects — none observed here.
-
-If ARC1 finds cabin navigation bugs, those stay on the cabin PR — not this tests-only surface.
-
-## Next action (coordinator)
-
-1. Review this PR evidence at exact head SHA after merge-ready push.  
-2. Merge to `playtest/latest` when satisfied (Spin owns merge).  
-3. Keep ARC1 cabin diagnosis independent; do not treat `BANKING_CONTRACT_OK` as cabin-nav proof.  
-4. Human/F5 matrix rows T/N/B4/U remain scheduled for later arcs.  
+Spin reviews exact tested-code SHA + artifact TOTALS / CI tip-smoke status, then merges when satisfied. No deploy from this package.

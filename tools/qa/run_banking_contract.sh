@@ -28,19 +28,29 @@ if [[ -z "${GODOT_BIN}" ]] || { ! command -v "$GODOT_BIN" >/dev/null 2>&1 && [[ 
   exit 2
 fi
 
+WORKDIR="$(mktemp -d "${TMPDIR:-/tmp}/banking-contract.XXXXXX")"
+cleanup() {
+  # Only remove this run's workdir. Never touch sibling temp names.
+  rm -rf "$WORKDIR"
+}
+trap cleanup EXIT
+
+IMPORT_OUT="$WORKDIR/import.out"
+OUT="$WORKDIR/selftest.out"
+
 echo "Using Godot: $GODOT_BIN"
 "$GODOT_BIN" --version || true
 echo "Repo tip: $(git rev-parse HEAD 2>/dev/null || echo unknown)"
+echo "Workdir: $WORKDIR"
 
 set +e
-"$GODOT_BIN" --headless --path "$ROOT" --import >/tmp/banking-contract-import.out 2>&1
+"$GODOT_BIN" --headless --path "$ROOT" --import >"$IMPORT_OUT" 2>&1
 IMP=$?
 set -e
 if [[ "$IMP" -ne 0 ]]; then
-  echo "Note: --import exited $IMP (continuing; see /tmp/banking-contract-import.out)"
+  echo "Note: --import exited $IMP (continuing; see $IMPORT_OUT)"
 fi
 
-OUT=/tmp/banking-contract-selftest.out
 set +e
 "$GODOT_BIN" --headless --path "$ROOT" --script res://scripts/dev/banking_contract_selftest.gd >"$OUT" 2>&1
 CODE=$?
@@ -48,6 +58,11 @@ set -e
 echo "----- banking_contract_selftest.gd (exit $CODE) -----"
 cat "$OUT"
 echo "----- end -----"
+# Persist a copy for the caller before trap removes the workdir.
+if [[ -n "${BANKING_CONTRACT_LOG:-}" ]]; then
+  cp "$OUT" "$BANKING_CONTRACT_LOG"
+  echo "Log copied to $BANKING_CONTRACT_LOG"
+fi
 if [[ "$CODE" -ne 0 ]]; then
   echo "BANKING_CONTRACT failed (exit $CODE)" >&2
   exit "$CODE"
