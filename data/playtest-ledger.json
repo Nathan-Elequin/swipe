@@ -468,9 +468,11 @@
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/429"
 		},
 		"433": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Using a Shrouded item should remove Undo, because the reveal is random",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/433"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/433",
+			"sha": "46fb1cf7",
+			"f5_note": "Click a shrouded item. Undo goes away for that reveal, the same way it does after a Spin. Stop Play, F5."
 		}
 	}
 }
