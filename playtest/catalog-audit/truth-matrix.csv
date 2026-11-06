@@ -53,7 +53,7 @@ item,napalm,Napalm,live,3.0,3.0,False,True,res://assets/dungeon/items/napalm.png
 item,lucky_nickel,Lucky Nickel,live,2.0,3.0,False,True,res://assets/dungeon/items/lucky_nickel.png,True,item.use.lucky_nickel,item.use.lucky_nickel,True
 item,double_buckler,Half-Buckler,live,1.0,3.0,False,True,res://assets/dungeon/items/double_buckler.png,True,item.use.double_buckler,item.use.double_buckler,True
 item,blood_pact,Blood Pact,live,0.0,-1.0,True,True,res://assets/dungeon/items/blood_pact.png,True,item.use.blood_pact,item.use.blood_pact,True
-item,jar_o_grease,Jar O' Grease,live,2.0,4.0,False,True,res://assets/dungeon/items/jar_o_grease.png,True,item.use.jar_o_grease,item.use.jar_o_grease,True
+item,swift_sneaks,Swift Sneaks,live,2.0,4.0,False,True,res://assets/dungeon/items/swift_sneaks.png,True,item.use.swift_sneaks,item.use.swift_sneaks,True
 item,toll,Toll,live,0.0,-1.0,True,True,res://assets/dungeon/items/toll.png,True,item.use.toll,item.use.toll,True
 item,pacemaker,Pacemaker,live,2.0,3.0,False,True,res://assets/dungeon/items/pacemaker.png,True,item.use.pacemaker,item.use.pacemaker,True
 item,catapult,Catapult,live,2.0,4.0,False,True,res://assets/dungeon/items/catapult.png,True,item.use.catapult,item.use.catapult,True

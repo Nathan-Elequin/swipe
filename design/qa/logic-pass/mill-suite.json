@@ -962,8 +962,8 @@
 			}
 		},
 		{
-			"id": "uniq-jar_o_grease",
-			"title": "Jar O' Grease unique ability",
+			"id": "uniq-swift_sneaks",
+			"title": "Swift Sneaks unique ability",
 			"verbs": [
 				"unique"
 			],
@@ -971,14 +971,14 @@
 				"golem"
 			],
 			"items": [
-				"jar_o_grease"
+				"swift_sneaks"
 			],
 			"face": "golem",
 			"expected_text": "Heal 1, randomly Swap an Item, and Keep this. You start at 3 HP. After the click you must be at 4 or more.",
 			"clicks": [
 				{
 					"op": "use",
-					"item": "jar_o_grease",
+					"item": "swift_sneaks",
 					"auto": true
 				}
 			],
@@ -2388,7 +2388,7 @@
 		"napalm": "assets/dungeon/items/napalm.png",
 		"lucky_nickel": "assets/dungeon/items/lucky_nickel.png",
 		"double_buckler": "assets/dungeon/items/double_buckler.png",
-		"jar_o_grease": "assets/dungeon/items/jar_o_grease.png",
+		"swift_sneaks": "assets/dungeon/items/swift_sneaks.png",
 		"pacemaker": "assets/dungeon/items/pacemaker.png",
 		"catapult": "assets/dungeon/items/catapult.png",
 		"polymorph": "assets/dungeon/items/polymorph.png",

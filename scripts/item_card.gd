@@ -273,7 +273,7 @@ func setup(
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_icon)
-	if p_id == "shuriken" or p_id == "jar_o_grease":
+	if p_id == "shuriken" or p_id == "swift_sneaks":
 		var arc := preload("res://scripts/move_arc_icon.gd").new()
 		arc.name = "MoveArc"
 		_icon.add_child(arc)
@@ -2255,7 +2255,7 @@ func adopt_identity(p_id: String, title: String, icon: Texture2D, p_kind: String
 		_icon.modulate.a = 1.0
 		_icon.texture = icon
 		var arc: Node = _icon.get_node_or_null("MoveArc")
-		var want_arc: bool = p_id == "shuriken" or p_id == "jar_o_grease"
+		var want_arc: bool = p_id == "shuriken" or p_id == "swift_sneaks"
 		if want_arc and arc == null:
 			var move_arc := preload("res://scripts/move_arc_icon.gd").new()
 			move_arc.name = "MoveArc"
@@ -2435,7 +2435,7 @@ func _draw() -> void:
 				col = col.lerp(Color.WHITE, _pip_flash)
 			draw_circle(p, 6.0, Color("100e0c", 0.85))
 			draw_circle(p, 4.5 if on else 3.0, col)
-	if card_id == "jar_o_grease" and not spent:
+	if card_id == "swift_sneaks" and not spent:
 		var foot := Vector2(16.0, 16.0)
 		draw_circle(foot, 7.0, Color("100e0c", 0.9))
 		draw_arc(foot, 5.0, 0.4, PI - 0.2, 10, Color("f0e6d8"), 1.6, true)

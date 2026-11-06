@@ -92,7 +92,7 @@ const DEFAULT_EXPLAINER := {
 	"imp": "Spin me: Move to the highest Attack enemy",
 	"mouse": "On Spin: if your HP is higher, I lose 2 HP and Flee",
 	"blood_pact": "−2 HP you and Enemy",
-	"jar_o_grease": "Move 2 in a random direction, and Keep this.",
+	"swift_sneaks": "Move 2 in a random direction, and Keep this.",
 	"toll": "−1 / Item Use  Die at 0",
 	"cleric": "Spin: if −3 HP, Heal 3 + worst Item",
 }

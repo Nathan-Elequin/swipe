@@ -131,7 +131,7 @@ const ITEM_PNG := {
 	"lucky_nickel": "res://assets/dungeon/items/lucky_nickel.png",
 	"double_buckler": "res://assets/dungeon/items/double_buckler.png",
 	"blood_pact": "res://assets/dungeon/items/blood_pact.png",
-	"jar_o_grease": "res://assets/dungeon/items/jar_o_grease.png",
+	"swift_sneaks": "res://assets/dungeon/items/swift_sneaks.png",
 	"toll": "res://assets/dungeon/items/toll.png",
 	"pacemaker": "res://assets/dungeon/items/pacemaker.png",
 	"catapult": "res://assets/dungeon/items/catapult.png",
@@ -151,6 +151,9 @@ const ITEM_PNG := {
 	"flying_saucer": "res://assets/dungeon/items/flying_saucer.png",
 	"venom_veins": "res://assets/dungeon/items/venom_veins.png",
 	"kiss_of_death": "res://assets/dungeon/items/kiss_of_death.png",
+	"shardplate": "res://assets/dungeon/items/shardplate.png",
+	"love_potion": "res://assets/dungeon/items/love_potion.png",
+	"tesla_coil": "res://assets/dungeon/items/tesla_coil.png",
 }
 
 ## Art facing before any mirror. R = drawn looking right, L = drawn looking left.

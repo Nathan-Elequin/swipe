@@ -182,7 +182,10 @@ const ITEM_OPS := {
 	"lucky_nickel": {"kind": "blk_coin_keep", "lo": 2, "hi": 6, "hp": 2},
 	"double_buckler": {"kind": "blk_half_atk"},
 	"blood_pact": {"kind": "blood_pact", "n": 2},
-	"jar_o_grease": {"kind": "move2_keep", "n": 2},
+	"swift_sneaks": {"kind": "move2_keep", "n": 2},
+	"shardplate": {"kind": "shardplate"},
+	"love_potion": {"kind": "love_potion"},
+	"tesla_coil": {"kind": "tesla_coil"},
 	"toll": {"kind": "toll"},
 	"chakram": {"kind": "chakram", "blk": 3, "atk": 3},
 	"signpost": {"kind": "signpost", "n": 7},
@@ -225,7 +228,7 @@ const MONSTER_SPECIAL := {
 	"hollow": {"id": "even_twice", "text": "Even Attack and even Block happen twice against me."},
 	"beggar": {"id": "finders_keepers", "text": "I mark your worst Item, then Discard that Item when you Spin me."},
 	"wick": {"id": "last_hp", "text": "I Lose 2 HP each time a Neighbor is Defeated"},
-	"anvil": {"id": "one_chip", "text": "Whenever I lose HP, I lose a minimum of 3 HP."},
+	"anvil": {"id": "headstrong", "text": "I Always have +4 HP and +4 ATK when I am Facing you."},
 	"vampire": {"id": "bloodlust", "text": "Every time you lose HP, I gain +1 HP and +1 Attack."},
 	"bodyguard": {"id": "take_instead", "text": "When my Neighbors would take Attack Damage, I take it instead."},
 	"cowardly_king": {"id": "vindictive", "text": "Every time I lose HP, I command my Neighbor to the right to Attack. When I Attack while facing you, I gain +3 HP and Flee."},
@@ -292,7 +295,7 @@ const MONSTER_CALL := {
 	"hollow": "Even twice",
 	"beggar": "Finders Keepers",
 	"wick": "Death Toll",
-	"anvil": "Steady Steel",
+	"anvil": "Headstrong",
 	"cowardly_king": "Vindictive",
 	"hydra": "Hungry Heads",
 	"three_seeker": "Triple Threat",
@@ -348,7 +351,7 @@ const MONSTER_REMINDER := {
 	"hollow": "even Attack or Block twice",
 	"beggar": "Marks your lowest-tier Item. Spinning this Beggar discards it.",
 	"wick": "-2 HP per Neighbor Defeated.",
-	"anvil": "1 or 2 HP lost becomes 3",
+	"anvil": "Facing: Always +4/+4",
 	"cowardly_king": "lose HP: right neighbor Attacks. Facing Attack: +3 HP and Flee",
 	"three_seeker": "3, 6, or 9 items: Always Spin me next",
 	"triclops": "3 HP: Defeated. Else Defeat: −2 HP and Flee",
@@ -403,7 +406,7 @@ const MONSTER_SPEECH := {
 	"hollow": "Even Attack and even Block happen twice against me.",
 	"beggar": "I mark your worst Item, then Discard that Item when you Spin me.",
 	"wick": "I Lose 2 HP each time a Neighbor is Defeated",
-	"anvil": "Whenever I lose HP, I lose a minimum of 3 HP.",
+	"anvil": "I Always have +4 HP and +4 ATK when I am Facing you.",
 	"cowardly_king": "Every time I lose HP, I command my Neighbor to the right to Attack. When I Attack while facing you, I gain +3 HP and Flee.",
 	"three_seeker": "If you have 3, 6, or 9 Items, you Always Spin me next",
 	"triclops": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
@@ -1128,7 +1131,10 @@ func _load_textures() -> void:
 		"lucky_nickel": _tex("res://assets/icons/sparkles.svg"),
 		"double_buckler": tex_shield,
 		"blood_pact": _tex("res://assets/icons/droplet.svg"),
-		"jar_o_grease": _tex("res://assets/icons/sparkles.svg"),
+		"swift_sneaks": _tex("res://assets/icons/sparkles.svg"),
+		"shardplate": _tex("res://assets/icons/shield.svg"),
+		"love_potion": _tex("res://assets/icons/heart.svg"),
+		"tesla_coil": _tex("res://assets/icons/trending.svg"),
 		"toll": _tex("res://assets/icons/skull.svg"),
 		"pacemaker": _tex("res://assets/icons/heart.svg"),
 		"catapult": _tex("res://assets/icons/footprints.svg"),
@@ -10186,7 +10192,7 @@ func _ops_of(it: Dictionary) -> Dictionary:
 				return (cops as Dictionary).duplicate(true)
 	var ops: Dictionary = it.get("ops", {})
 	var id: String = str(it.get("card_id", ""))
-	if id == "jar_o_grease":
+	if id == "swift_sneaks":
 		return {"kind": "move2_keep", "n": 2}
 	if ops.is_empty() or str(ops.get("kind", "")).strip_edges() == "":
 		if ITEM_OPS.has(id):
@@ -12207,13 +12213,8 @@ func _chip_hp(index: int, n: int) -> bool:
 
 
 func _anvil_floor(m: Dictionary, n: int) -> int:
-	if n <= 0:
-		return n
-	if str(m.get("card_id", "")) != "anvil" or _is_silenced(m):
-		return n
-	if n < 3:
-		_sfx_ability("anvil")
-		return 3
+	# Batch-2 2026-11-06: Anvil Headstrong replaced Steady Steel (min-3).
+	# Keep the call sites; floor is a no-op until facing +4/+4 is wired (flags.dev).
 	return n
 
 
@@ -16947,7 +16948,7 @@ func _echo_flatten_kind(kind: String, shield_face: String) -> String:
 func _item_echo_snapshot(it: Dictionary) -> Dictionary:
 	var ops: Dictionary = {}
 	var oid: String = str(it.get("card_id", ""))
-	if oid == "jar_o_grease":
+	if oid == "swift_sneaks":
 		ops = {"kind": "move2_keep", "n": 2}
 	else:
 		var raw: Variant = it.get("ops", {})
