@@ -16246,6 +16246,15 @@ func _spinning_top_atk(it: Dictionary) -> int:
 	return 1 + mini(6, int(it.get("spinning_top_n", 0)))
 
 
+func _spinning_top_about_to_discard(it: Dictionary) -> bool:
+	## Next Spin raises this to 7 and Discards it. Same hotbar pulse as Toll at 1.
+	if str(it.get("card_id", "")) != "spinning_top":
+		return false
+	if bool(it.get("spent", false)):
+		return false
+	return _spinning_top_atk(it) >= 6
+
+
 func _step_spinning_tops() -> void:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
@@ -26679,11 +26688,12 @@ func _sync_hotbar() -> void:
 		if card.has_method("set_glyphs"):
 			card.set_glyphs([] if pn > 0 else _face_rows(it, view))
 		var toll_lethal: bool = str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1
+		var top_discard: bool = _spinning_top_about_to_discard(it)
 		var hex_good: bool = str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1
 		## Recycler armed (next discard returns): mint/green glow like Hex@1 — not gold READY.
 		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
 		if card.has_method("set_danger"):
-			card.set_danger(toll_lethal)
+			card.set_danger(toll_lethal or top_discard)
 		if card.has_method("set_hex_good"):
 			card.set_hex_good(hex_good or rec_ready)
 		if card.has_method("set_num_color"):
@@ -26691,7 +26701,7 @@ func _sync_hotbar() -> void:
 				card.set_num_color(Color("9a9a9a"))
 			elif hex_good or rec_ready:
 				card.set_num_color(Color("5FD3A0"))
-			elif toll_lethal:
+			elif toll_lethal or top_discard:
 				card.set_num_color(Color("C41E1E"))
 			else:
 				card.set_num_color(_num_color(str(view.get("kind", "ATK"))))
@@ -27015,6 +27025,7 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	_apply_bag_look(card, it)
 	_apply_item_stone_look(card, it)
 	var toll_lethal_spawn: bool = str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1
+	var top_discard_spawn: bool = _spinning_top_about_to_discard(it)
 	var hex_good_spawn: bool = str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1
 	var rec_ready_spawn: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
 	## Recycler armed = mint glow (hex_good path), not gold READY.
@@ -27039,11 +27050,13 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if card.has_method("set_glyphs"):
 		card.set_glyphs([] if pn > 0 else _face_rows(it, view))
 	if card.has_method("set_danger"):
-		card.set_danger(toll_lethal_spawn)
+		card.set_danger(toll_lethal_spawn or top_discard_spawn)
 	if card.has_method("set_hex_good"):
 		card.set_hex_good(hex_good_spawn or rec_ready_spawn)
 	if (hex_good_spawn or rec_ready_spawn) and card.has_method("set_num_color"):
 		card.set_num_color(Color("5FD3A0"))
+	elif (toll_lethal_spawn or top_discard_spawn) and card.has_method("set_num_color"):
+		card.set_num_color(Color("C41E1E"))
 	card.hovered.connect(func() -> void:
 		var live: Dictionary = _find_item(int(card.uid))
 		_on_item_hovered(live if not live.is_empty() else it, card)
@@ -27214,6 +27227,7 @@ func _reapply_hotbar_aura_roles() -> void:
 		var upgrade_choice: bool = is_snack and str(pending_feed.get("kind", "")) == "upgrade"
 		var snack_ready: bool = is_snack and not _toss_pick_mode() and not upgrade_choice
 		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
+		var top_discard: bool = _spinning_top_about_to_discard(it)
 		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
 		var in_fight: bool = phase == "fighting"
 		var armed_ready: bool = in_fight and not spent_n and str(it.get("card_id", "")) == "healing_potion"
@@ -27223,9 +27237,24 @@ func _reapply_hotbar_aura_roles() -> void:
 		var selector_on: bool = _selector_is_active()
 		var is_legal: bool = _uid_in(legal_uids, uid_n)
 		var can_click_toss: bool = _toss_pick_mode() and is_legal
+		if card.has_method("set_danger"):
+			var toll_lethal_re: bool = str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1
+			card.set_danger(toll_lethal_re or top_discard)
 		if card.has_method("set_hex_good"):
 			var hex_good_re: bool = str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1
 			card.set_hex_good(hex_good_re or rec_ready)
+		if card.has_method("set_num_color"):
+			var cid_re: String = str(it.get("card_id", ""))
+			if top_discard or (cid_re == "toll" and int(it.get("toll_n", 0)) == 1):
+				card.set_num_color(Color("C41E1E"))
+			elif (cid_re == "hex" and int(it.get("hex_n", 0)) == 1) or rec_ready:
+				card.set_num_color(Color("5FD3A0"))
+			elif cid_re == "spinning_top" or cid_re == "toll" or cid_re == "hex" or cid_re == "recycler":
+				var pn_re: int = int(it.get("petrify_n", 0))
+				if pn_re > 0:
+					card.set_num_color(Color("9a9a9a"))
+				else:
+					card.set_num_color(_num_color(str(_item_view(it).get("kind", "ATK"))))
 		var role := ""
 		if stoned_n or spent_n:
 			role = ""

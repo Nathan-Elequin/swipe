@@ -1920,7 +1920,7 @@ func park_waiting(at: Vector2, sz: Vector2) -> void:
 
 
 func set_danger(on: bool) -> void:
-	## Toll@1 lethal only — Hex@1 uses set_hex_good / mint face instead.
+	## Toll at 1, and Spinning Top at 6 (next Spin Discards it). Hex uses mint instead.
 	_danger = on
 	if on:
 		_hex_good = false
@@ -2507,7 +2507,7 @@ func _apply_style(hot: bool) -> void:
 		sb.bg_color = sb.bg_color.lerp(COL_CHOICE.darkened(0.45), 0.12)
 		modulate = Color.WHITE
 	elif _danger and not spent:
-		# Toll@1 lethal crimson only.
+		# Toll at 1, and Spinning Top the Spin before it is Discarded.
 		pulse = 0.40 + 0.60 * absf(sin(_glow_t * TAU / 0.45))
 		var blood := COL_TOLL_LETHAL
 		metal = metal.lerp(blood, 0.55 + pulse * 0.45)
