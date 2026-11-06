@@ -3,7 +3,7 @@
 **Status:** EXECUTED (tests-only PR)  
 **Package:** ARC2 only — no production edits to `home_cabin.gd` / `main.gd` / `campaign_shell.gd`  
 **Base tip at branch creation:** `playtest/latest` @ `1a3fc7f478440c59798a367573f9bea537845c88`  
-**PR:** https://github.com/Nathan-Elequin/swipe/pull/437 · head `b8e6965e944f06e897e44ebf05ab7d1da945a977`  
+**PR:** https://github.com/Nathan-Elequin/swipe/pull/437 · head `f7e7f8be8d3036a427c0f66cbb0e4348691bec86` (tests land at `b8e6965e`; report link commit follows)  
 **Audit baseline (stale for tip):** `d21da5d56753a3f6589f2e73c8232f7dd6939c95` — not assumed current  
 **Engine:** Godot `4.7.2.stable.official.ed1daf0bf`  
 **Model setting:** grok-4.5 effort low, fast false  
