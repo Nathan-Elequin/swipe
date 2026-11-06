@@ -2,6 +2,7 @@
 id: REQ-20261106-take-arc-bevel
 status: open
 priority: high
+pr: 419
 branch: playtest/latest
 created: 2026-11-06T03:10:00Z
 created_by: cursor-cloud
