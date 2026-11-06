@@ -2,6 +2,7 @@
 id: REQ-20261105-wheel-seat-from-facing
 status: open
 priority: high
+tip_sha: 1ffa607f
 branch: playtest/latest
 created: 2026-11-05T23:59:00Z
 created_by: cursor-cloud
