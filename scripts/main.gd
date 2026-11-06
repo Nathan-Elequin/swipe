@@ -22028,7 +22028,8 @@ func _inspect_item(it: Dictionary, force: bool = false) -> void:
 	if _inspect_pinned and not force:
 		return
 	var rule: Dictionary = _item_rule(it)
-	fly_tip.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule["body"]), str(rule["warn"]), null, "item", str(it.get("card_id", "")), _item_look(it))
+	var tip_id: String = "" if bool(it.get("shrouded", false)) else str(it.get("card_id", ""))
+	fly_tip.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule["body"]), str(rule["warn"]), null, "item", tip_id, _item_look(it))
 	_place_fly(_fly_card)
 
 
@@ -22097,6 +22098,7 @@ func _rewrite_keywords(raw: String, colored: bool, num_hex: String) -> String:
 		"gaze", "gazed",
 		"decayed", "decay",
 		"hex", "toll", "curse", "beggar",
+		"shrouded", "shroud",
 		"spinning", "spins", "spun", "spin",
 		"random",
 		"always",
@@ -22236,6 +22238,8 @@ func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, var_c: St
 		return gold
 	if low == "hex" or low == "toll" or low == "curse" or low.begins_with("beggar"):
 		return gold
+	if low == "shroud" or low.begins_with("shrouded"):
+		return gold
 	return ""
 
 
@@ -22339,6 +22343,15 @@ func _value_is_unplayable_title(bb: String) -> bool:
 
 
 func _item_rule(it: Dictionary) -> Dictionary:
+	## Phantom Shroud: inspect must not identify the card — curse plate + shroud tip only.
+	if bool(it.get("shrouded", false)):
+		return {
+			"title": "???",
+			"value": "",
+			"equation": "",
+			"body": PLAYER_COPY.text("combat.shroud_tip", "Shrouded. Click to reveal and Use."),
+			"warn": "",
+		}
 	var view: Dictionary = _item_view(it)
 	var ops: Dictionary = _ops_of(it)
 	var kind: String = str(ops.get("kind", ""))
@@ -25859,6 +25872,9 @@ func _sync_hotbar() -> void:
 			## Recycler armed uses mint hex_good glow, not gold READY ring.
 			elif snack_ready or armed_ready or (mag_on and (phase == "fighting" or phase == "ready") and not selector_on):
 				role = "ready"
+			## Shrouded playables keep READY so a full-black curse plate still reads as clickable.
+			elif bool(it.get("shrouded", false)) and can_click and not selector_on:
+				role = "ready"
 			card.set_aura_role(role)
 		if card.has_method("set_cancel_pick"):
 			card.set_cancel_pick(selector_on and uid_n == starter_uid and starter_uid >= 0)
@@ -25889,6 +25905,9 @@ func _sync_hotbar() -> void:
 		if card.has_method("set_passive_icons"):
 			card.set_passive_icons(null, null, false)
 		_sync_card_pass5(card, it, can_click, in_fight)
+		## Re-apply last so New!/glyphs/icon/beggar stamps cannot peek through the veil.
+		if card.has_method("set_shroud"):
+			card.set_shroud(bool(it.get("shrouded", false)))
 	_dim_hot_empty_slots()
 	_sync_hotbar_formulas()
 	if hotbar_panel:
@@ -26207,15 +26226,21 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 		sfx.hover()
 	_present_item_plate(it, card)
 	var fighting_now: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size()
-	var hint: bool = fighting_now and _item_grants_block(it) and bool(_item_view(it).get("can_use", false))
+	var shrouded: bool = bool(it.get("shrouded", false))
+	## Shrouded: no Block hint / damage preview / hover ghost — those identify the card.
+	var hint: bool = (not shrouded) and fighting_now and _item_grants_block(it) and bool(_item_view(it).get("can_use", false))
 	_set_rust_block_hint(hint)
 	_place_fly(card)
-	_apply_preview(_preview_from_item(it))
+	if shrouded:
+		_apply_preview({})
+	else:
+		_apply_preview(_preview_from_item(it))
 	_refresh_blk(false)
-	_tutorial_on_item_hover(str(it.get("card_id", "")))
-	_queue_hover_preview(it, card)
-	_set_gaze_use_warn(int(it.get("uid", -1)) if _item_is_gazed(it) and not bool(it.get("basilisk_stone", false)) else -1)
-	_set_decay_partner_warn(int(it.get("uid", -1)) if bool(it.get("decay_marked", false)) and not bool(it.get("decay_solo", false)) else -1)
+	if not shrouded:
+		_tutorial_on_item_hover(str(it.get("card_id", "")))
+		_queue_hover_preview(it, card)
+	_set_gaze_use_warn(int(it.get("uid", -1)) if (not shrouded) and _item_is_gazed(it) and not bool(it.get("basilisk_stone", false)) else -1)
+	_set_decay_partner_warn(int(it.get("uid", -1)) if (not shrouded) and bool(it.get("decay_marked", false)) and not bool(it.get("decay_solo", false)) else -1)
 
 
 func _set_gaze_use_warn(from_uid: int) -> void:
@@ -26844,13 +26869,19 @@ func _tut_lift_item_plate() -> void:
 
 func _present_item_plate(it: Dictionary, card: Control) -> void:
 	var rule: Dictionary = _item_rule(it)
+	var shrouded: bool = bool(it.get("shrouded", false))
 	if card != null and is_instance_valid(card) and card.has_method("set_formula") and card.has_method("show_formula"):
-		card.set_formula(str(rule.get("equation", "")))
-		card.show_formula(true)
+		if shrouded:
+			card.show_formula(false)
+		else:
+			card.set_formula(str(rule.get("equation", "")))
+			card.show_formula(true)
 	if fly_tip:
 		if in_tutorial:
 			_tut_lift_item_plate()
-		fly_tip.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule["body"]), str(rule["warn"]), null, "item", str(it.get("card_id", "")), _item_look(it))
+		## Shrouded inspect uses a blank id so keyword/portrait panes cannot leak the real card.
+		var tip_id: String = "" if shrouded else str(it.get("card_id", ""))
+		fly_tip.show_rule(str(rule["title"]), str(rule["value"]), str(rule["equation"]), str(rule["body"]), str(rule["warn"]), null, "item", tip_id, _item_look(it))
 	_place_fly(card)
 
 
@@ -28275,6 +28306,8 @@ func _clear_hover_preview() -> void:
 
 func _run_hover_preview(it: Dictionary, card: Control) -> void:
 	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
+		return
+	if bool(it.get("shrouded", false)):
 		return
 	if card != null and not bool(_item_view(it).get("can_use", false)):
 		return

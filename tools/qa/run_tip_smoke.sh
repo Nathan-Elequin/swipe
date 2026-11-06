@@ -48,5 +48,15 @@ if [[ "$CODE" -ne 0 ]]; then
   echo "TIP_SMOKE failed (exit $CODE)" >&2
   exit "$CODE"
 fi
+
+# Phantom Shroud presentation (full-black curse veil) — headless card check.
+set +e
+"$GODOT_BIN" --headless --path "$ROOT" --script res://scripts/dev/phantom_shroud_selftest.gd
+SHROUD=$?
+set -e
+if [[ "$SHROUD" -ne 0 ]]; then
+  echo "PHANTOM_SHROUD_SMOKE failed (exit $SHROUD)" >&2
+  exit "$SHROUD"
+fi
 echo "TIP_SMOKE local run OK"
 exit 0
