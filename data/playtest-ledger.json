@@ -456,9 +456,11 @@
 			"note": "GitHub already closed."
 		},
 		"422": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Glass Asp should gain Poison on every Spin",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/422"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/422",
+			"sha": "9073c4bf",
+			"f5_note": "Every Spin, each living Glass Asp gains 1 Poison. When it Attacks, you gain Poison equal to its stack. Stop Play, F5."
 		}
 	}
 }
