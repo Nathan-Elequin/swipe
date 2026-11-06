@@ -811,6 +811,15 @@ var _clear_committed: bool = false
 ## Set by clear_parade when freeze_at >= 0 reaches the wipe swap: open Rope Exit
 ## for Repot shots without incrementing / logging "end dungeon N" again.
 var _clear_commit_visual_only: bool = false
+## Item use is still on the stack (including the slay it caused). Dungeon clear
+## waits so Recycler can copy the card that was just discarded before the parade.
+var _item_resolve_depth: int = 0
+var _dungeon_clear_pending: bool = false
+## On the stack while _enter_dungeon_clear is in its sync prefix (discard + token drop).
+var _clear_enter_depth: int = 0
+## Uids Recycler just put back. Survive this clear's token drop and the next
+## dungeon's prep drop, then behave like any other token.
+var _recycle_keep_uids: Dictionary = {}
 ## Biome-enter splash: blocks double map clicks while dissolve / nest runs.
 var _splash_busy: bool = false
 ## Wheel nest drop offset (px). `_layout_play_field` adds this to wheel_y; do not tween position directly.
@@ -2534,6 +2543,10 @@ func _reset_run() -> void:
 	pending_monster.clear()
 	pending_item.clear()
 	uid_seq = 0
+	_recycle_keep_uids.clear()
+	_dungeon_clear_pending = false
+	_item_resolve_depth = 0
+	_clear_enter_depth = 0
 	hotbar.clear()
 	_hotbar_sig = ""
 	_blk_shown = 0
@@ -2656,6 +2669,10 @@ func _drop_dungeon_tokens() -> void:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
+		var uid_keep: int = int(it.get("uid", -1))
+		if _recycle_keep_uids.has(uid_keep):
+			kept.append(it)
+			continue
 		var card: Dictionary = items_by_id.get(str(it.get("card_id", "")), {})
 		if BucketRules.is_token(card):
 			n += 1
@@ -2670,12 +2687,28 @@ func _drop_dungeon_tokens() -> void:
 		_sync_hotbar()
 
 
+func _end_item_resolve() -> void:
+	_item_resolve_depth = maxi(0, _item_resolve_depth - 1)
+	if _item_resolve_depth > 0 or not _dungeon_clear_pending:
+		return
+	_dungeon_clear_pending = false
+	await _enter_dungeon_clear()
+
+
 func _enter_dungeon_clear() -> void:
 	if not _find_loaded_bag().is_empty():
 		return
-	## L2: callers do not await; block a second resolve while phase is still ready.
-	if _clear_resolving:
+	## The killing item is still resolving. Recycler copies on that discard;
+	## folding the wheel first drops the card (and tokens) before the copy lands.
+	if _item_resolve_depth > 0:
+		_dungeon_clear_pending = true
 		return
+	## L2: callers do not await; block a second resolve while phase is still ready.
+	if _clear_resolving or _clear_enter_depth > 0:
+		return
+	_clear_enter_depth += 1
+	## Spent finisher still in hand: copy it now, before tokens drop and the parade.
+	_discard_spent_items()
 	_drop_dungeon_tokens()
 	if sfx:
 		sfx.set_combat_music(false)
@@ -2704,6 +2737,7 @@ func _enter_dungeon_clear() -> void:
 		## D1 Dragon clear → keep rails on B50+. D2 free-play clear → B53 wrap.
 		if _tut_free and tut != null:
 			call_deferred("_tut_on_free_dungeon_clear")
+		_clear_enter_depth = maxi(0, _clear_enter_depth - 1)
 		return
 	if not adventure:
 		if wheel_view and wheel_view.has_method("play_hero"):
@@ -2712,6 +2746,7 @@ func _enter_dungeon_clear() -> void:
 		_flash_screen(Color("e8c36a"), 0.28)
 		_log("end", "cleared")
 		_classic_swipe_home()
+		_clear_enter_depth = maxi(0, _clear_enter_depth - 1)
 		return
 	# Rope stays shut until the resolve finishes (~2.5s). No wax seal.
 	# Callers start this without await, then _refresh() while still in ready —
@@ -2725,6 +2760,7 @@ func _enter_dungeon_clear() -> void:
 	_commit_dungeon_clear()
 	_clear_resolving = false
 	_clear_commit_visual_only = false
+	_clear_enter_depth = maxi(0, _clear_enter_depth - 1)
 	_refresh()
 
 
@@ -3857,6 +3893,8 @@ func _prep_next_dungeon() -> void:
 		if str(it.get("card_id", "")) == "spinning_top":
 			it["spinning_top_n"] = 0
 	_drop_dungeon_tokens()
+	## The returned card has now survived both drops. Later clears may drop it.
+	_recycle_keep_uids.clear()
 	if combat_stage:
 		combat_stage.hide_stage()
 	if player_stage:
@@ -7362,7 +7400,7 @@ func _process(delta: float) -> void:
 		wheel_view.tutorial_pin_slice = -1
 	## During dungeon-clear resolve, clear_parade owns Spin alpha. The ready-phase
 	## pulse was restoring modulate.a=1 every frame (shot 05 Spin reappear).
-	if _clear_resolving:
+	if _clear_resolving or _dungeon_clear_pending:
 		_hide_clear_resolve_chrome()
 	elif btn_spin != null and btn_spin.visible and not btn_spin.disabled:
 		var pulse: float = 0.88 + 0.12 * absf(sin(_anim_t * 5.0))
@@ -10178,7 +10216,9 @@ func _use_item(uid: int) -> void:
 	_beggar_hold = true
 	FRAME_METRICS.span_begin("use_item_resolve")
 	var epoch: int = _fight_epoch
+	_item_resolve_depth += 1
 	await _apply_ops(it, ops, {})
+	await _end_item_resolve()
 	if epoch != _fight_epoch:
 		# Fight already ended inside the item (Defeat, lethal Attack) and the
 		# next Spin may already be up. Do not run the rest of this click on it.
@@ -10240,12 +10280,18 @@ func _choose_option(opt: Dictionary) -> void:
 	_lock_item_fx()
 	_arm_item_hold()
 	FRAME_METRICS.span_begin("use_item_resolve")
+	_item_resolve_depth += 1
 	if int(opt.get("atk_drop", 0)) > 0:
 		await _apply_ops(it, {"kind": "atk_drop", "n": int(opt.get("atk_drop", 0))}, opt)
 	elif int(opt.get("blk", 0)) > 0:
 		await _apply_ops(it, {"kind": "blk", "n": int(opt.get("blk", 0))}, opt)
 	else:
 		await _apply_ops(it, {"kind": "atk", "n": int(opt.get("atk", 0))}, opt)
+	await _end_item_resolve()
+	if phase == "rest" or phase == "victory" or phase == "defeat" or hp <= 0:
+		FRAME_METRICS.span_cancel("use_item_resolve")
+		_undo_finish_item()
+		return
 	if _undo_stale(token):
 		FRAME_METRICS.span_cancel("use_item_resolve")
 		await _unlock_if_fighting()
@@ -11561,6 +11607,7 @@ func _recycle_insert_copy(snap: Dictionary) -> void:
 	copy["uid"] = uid_seq
 	copy["spent"] = false
 	copy["keep_after"] = false
+	_recycle_keep_uids[uid_seq] = true
 	if str(copy.get("card_id", "")) == "recycler":
 		copy["recycle_n"] = 5
 	hotbar.append(copy)
@@ -11618,6 +11665,19 @@ func _recycle_after_gone(snap: Dictionary) -> void:
 	## _announce_item_use path, so this is not a double-spam).
 	if copies > 0 and sfx and sfx.has_method("play_event"):
 		sfx.play_event(&"item.use.recycler")
+	## Copy before the refresh. A refresh here can fill the freed seat (Beggar)
+	## or start a dungeon clear, and the copy then has nowhere to land.
+	var returned_uids: Array = []
+	if copies > 0:
+		for _i in copies:
+			if _hand_full():
+				_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
+				_log("discard", "can't copy %s" % snap.get("name", "?"))
+				if sfx:
+					sfx.play("error", -10.0)
+				continue
+			_recycle_insert_copy(snap)
+			returned_uids.append(uid_seq)
 	_hotbar_sig = ""
 	_refresh()
 	for rid3 in tick_uids:
@@ -11632,21 +11692,7 @@ func _recycle_after_gone(snap: Dictionary) -> void:
 		var fire_card: Control = _hotbar_card_by_uid(int(rid4))
 		if fire_card != null and fire_card.has_method("bounce"):
 			fire_card.bounce()
-	if copies <= 0:
-		return
-	var returned_uids: Array = []
-	for _i in copies:
-		if _hand_full():
-			_flash_banner(PLAYER_COPY.text("combat.cant_gain", "Can't Gain Item"))
-			_log("discard", "can't copy %s" % snap.get("name", "?"))
-			if sfx:
-				sfx.play("error", -10.0)
-			continue
-		_recycle_insert_copy(snap)
-		returned_uids.append(uid_seq)
-	_hotbar_sig = ""
-	_refresh()
-	if _qa_busy():
+	if returned_uids.is_empty() or _qa_busy():
 		return
 	for rid5 in returned_uids:
 		var back_card: Control = _hotbar_card_by_uid(int(rid5))
@@ -25362,7 +25408,7 @@ func _sync_buttons() -> void:
 	_sync_move_ui()
 	## Callers _refresh() while phase is still ready during the resolve — keep
 	## Spin / arrows / counter / Take arc hidden for the whole clear parade.
-	if _clear_resolving:
+	if _clear_resolving or _dungeon_clear_pending:
 		_hide_clear_resolve_chrome()
 	if btn_undo:
 		var undo_on: bool = _undo_in_scope() and (phase == "fighting" or phase == "ready" or phase == "slaying") and _undo_can_undo()
