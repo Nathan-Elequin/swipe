@@ -292,7 +292,7 @@ func _build_talk(art) -> void:
 	_go.focus_mode = Control.FOCUS_ALL
 	_go.z_index = 5
 	_go.add_theme_font_size_override("font_size", 26)
-	_style_btn(_go, Color("fff3d6"), Color("3a2414"))
+	_style_btn(_go, Color("efe6d4"), Color("3a2414"))
 	_go.pressed.connect(func() -> void: continued.emit())
 	btns.add_child(_go)
 	## Always-on corner Skip during rails. No confirm modal → skipped → reveal → arrive.
@@ -721,11 +721,8 @@ func _sync_next_slot() -> void:
 	_go.disabled = false
 	_go.mouse_filter = Control.MOUSE_FILTER_STOP if show else Control.MOUSE_FILTER_IGNORE
 	_go.custom_minimum_size = Vector2(168, 58) if _back_on and slot else Vector2(210, 58)
-	if show:
-		var pulse: float = 0.62 + 0.38 * absf(sin(_idle * 5.0))
-		_go.modulate = Color(1, 1, 1, pulse)
-	else:
-		_go.modulate = Color(1, 1, 1, 0)
+	## Same parchment as Back. A pulse only made Next look dimmer.
+	_go.modulate = Color(1, 1, 1, 1) if show else Color(1, 1, 1, 0)
 	_go.z_index = 20
 	if _back == null:
 		return
