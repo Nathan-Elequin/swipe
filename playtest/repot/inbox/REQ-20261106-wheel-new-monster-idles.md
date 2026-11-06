@@ -1,6 +1,6 @@
 ---
 id: REQ-20261106-wheel-new-monster-idles
-status: open
+status: done
 priority: high
 branch: cursor/wheel-new-monster-idles-9f05
 created: 2026-11-06T22:45:00Z

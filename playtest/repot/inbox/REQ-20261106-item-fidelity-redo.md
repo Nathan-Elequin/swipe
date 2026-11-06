@@ -1,6 +1,6 @@
 ---
 id: REQ-20261106-item-fidelity-redo
-status: open
+status: done
 priority: normal
 pr: 434
 tip_sha: ae30539e10bb93c2a7df80e5a9149b96c202c4cf
