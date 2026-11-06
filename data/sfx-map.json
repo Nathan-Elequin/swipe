@@ -69,6 +69,10 @@
       "net": {
         "use": "item.use.net"
       },
+      "quicksand_crab": {
+        "ability": "mon.ability.quicksand_crab",
+        "claw": "mon.ability.quicksand_crab_claw"
+      },
       "quiet_bell": {
         "use": "item.use.quiet_bell"
       },
@@ -161,6 +165,10 @@
       "clockwork_knight": {
         "ability": "mon.ability.clockwork_knight"
       },
+      "collector": {
+        "ability": "mon.ability.collector",
+        "tax": "mon.ability.collector_tax"
+      },
       "commander": {
         "ability": "mon.ability.commander"
       },
@@ -209,6 +217,9 @@
       "hornet_swarm": {
         "ability": "mon.ability.hornet_swarm"
       },
+      "huntsman": {
+        "ability": "mon.ability.huntsman"
+      },
       "hydra": {
         "ability": "mon.ability.hydra"
       },
@@ -244,6 +255,10 @@
       },
       "oligarch": {
         "ability": "mon.ability.oligarch"
+      },
+      "phantom": {
+        "ability": "mon.ability.phantom",
+        "sting": "mon.ability.phantom_sting"
       },
       "phoenix": {
         "ability": "mon.ability.phoenix"
@@ -482,6 +497,10 @@
         "pierce_zero": "player.pierce_zero",
         "ability": "mon.ability.dragon"
       },
+      "collector": {
+        "ability": "mon.ability.collector",
+        "tax": "mon.ability.collector_tax"
+      },
       "commander": {
         "special": "mon.ability.commander",
         "ability": "mon.ability.commander"
@@ -698,6 +717,9 @@
       "hollow": {
         "ability": "mon.ability.hollow"
       },
+      "huntsman": {
+        "ability": "mon.ability.huntsman"
+      },
       "hydra": {
         "ability": "mon.ability.hydra"
       },
@@ -725,6 +747,10 @@
       "oligarch": {
         "ability": "mon.ability.oligarch"
       },
+      "phantom": {
+        "ability": "mon.ability.phantom",
+        "sting": "mon.ability.phantom_sting"
+      },
       "phoenix": {
         "ability": "mon.ability.phoenix"
       },
@@ -739,6 +765,10 @@
       },
       "prism": {
         "ability": "mon.ability.prism"
+      },
+      "quicksand_crab": {
+        "ability": "mon.ability.quicksand_crab",
+        "claw": "mon.ability.quicksand_crab_claw"
       },
       "rust_bucket": {
         "ability": "mon.ability.rust_bucket"
@@ -5016,6 +5046,34 @@
       "max_voices": 2,
       "priority": 2
     },
+    "mon.ability.collector": {
+      "files": [
+        "mon_ability_collector"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.collector_tax": {
+      "files": [
+        "mon_ability_collector_tax"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
     "mon.ability.commander": {
       "files": [
         "mon_ability_commander"
@@ -5254,6 +5312,20 @@
       "max_voices": 2,
       "priority": 2
     },
+    "mon.ability.huntsman": {
+      "files": [
+        "mon_ability_huntsman"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
     "mon.ability.hydra": {
       "files": [
         "mon_ability_hydra"
@@ -5422,6 +5494,34 @@
       "max_voices": 2,
       "priority": 2
     },
+    "mon.ability.phantom": {
+      "files": [
+        "mon_ability_phantom"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.phantom_sting": {
+      "files": [
+        "mon_ability_phantom_sting"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
     "mon.ability.phoenix": {
       "files": [
         "mon_ability_phoenix"
@@ -5481,6 +5581,34 @@
     "mon.ability.prism": {
       "files": [
         "mon_ability_prism"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.quicksand_crab": {
+      "files": [
+        "mon_ability_quicksand_crab"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.quicksand_crab_claw": {
+      "files": [
+        "mon_ability_quicksand_crab_claw"
       ],
       "bus": "SFX",
       "db": 0,

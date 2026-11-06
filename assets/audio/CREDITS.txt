@@ -262,6 +262,10 @@ mon_ability_cleric.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_cleric.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_clockwork_knight.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_clockwork_knight.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_collector.ogg (0.42 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-06 Scale kick A) / mon_ability_collector.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_collector_tax.ogg (0.42 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-06 Scale kick A) / mon_ability_collector_tax.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_commander.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_commander.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_cowardly_king.ogg (0.50 s)
@@ -296,6 +300,8 @@ mon_ability_hollow.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_hollow.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_hornet_swarm.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_hornet_swarm.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_huntsman.ogg (0.42 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-06 Scale kick A) / mon_ability_huntsman.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_hydra.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_hydra.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_juggernaut.ogg (0.50 s)
@@ -320,6 +326,10 @@ mon_ability_ogre.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_ogre.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_oligarch.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_oligarch.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_phantom.ogg (0.42 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-06 Scale kick A) / mon_ability_phantom.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_phantom_sting.ogg (0.42 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-06 Scale kick A) / mon_ability_phantom_sting.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_phoenix.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_phoenix.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_phoenix_egg.ogg (0.50 s)
@@ -330,6 +340,10 @@ mon_ability_poison_frog.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_poison_frog.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_prism.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_prism.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_quicksand_crab.ogg (0.42 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-06 Scale kick A) / mon_ability_quicksand_crab.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
+mon_ability_quicksand_crab_claw.ogg (0.42 s)
+    <- Kenney CC0 beds (ability activate bake 2026-11-06 Scale kick A) / mon_ability_quicksand_crab_claw.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_rust_bucket.ogg (0.50 s)
     <- Kenney CC0 beds (ability activate bake 2026-11-04) / mon_ability_rust_bucket.ogg — Kenney (kenney.nl) / Swipe bake — CC0 1.0 — https://kenney.nl
 mon_ability_sandbag.ogg (0.50 s)
@@ -517,3 +531,4 @@ sting_clear.ogg (~0.45 s) — dungeon-clear accordion reverse-collapse soft sett
 Ability + item activate oneshots (2026-11-04)
 ---------------------------------------------
 mon_ability_<card_id>.ogg / item_use_<item_id>.ogg — unique CC0/Kenney oneshots per named ability activate and item use (Nathan locked 2026-11-04). Cue ids mon.ability.<card_id> / item.use.<item_id>. HOLD: leech_league / Blood Rise unwired until playtest #347. Skip golem/wizard (no named ability). Drop-ins; not rebuilt by build_audio.py.
+Scale kick A (2026-11-06): mon_ability_huntsman / quicksand_crab(+_claw) / phantom(+_sting) / collector(+_tax).ogg — Nathan locked all-A combat oneshots; cues mon.ability.* (db 0).
