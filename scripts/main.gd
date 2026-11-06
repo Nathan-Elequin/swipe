@@ -9163,7 +9163,7 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 	if incoming > 0:
 		_log("hp", "take -%s  now %s" % [incoming, hp])
 		await _play_attack_connect()
-		await _hurt_ogres(incoming)
+		await _hurt_ogres(lost)
 		await _grow_vampires()
 		if hp > 0:
 			await _sync_dire_wolves()
@@ -9211,7 +9211,7 @@ func _apply_egg_hurt(n: int) -> void:
 		if wheel_view:
 			await wheel_view.play_hub_sting("hurt", incoming, true)
 		_player_play("hit")
-		await _hurt_ogres(incoming)
+		await _hurt_ogres(lost)
 		await _grow_vampires()
 		if hp > 0:
 			await _sync_dire_wolves()
@@ -14172,6 +14172,8 @@ func _sync_dire_wolves() -> void:
 	_refresh()
 
 
+## lost is hearts the player actually dropped (capped at the HP they had).
+## A 10 Attack into 6 HP is 6, not 10.
 func _hurt_ogres(lost: int) -> void:
 	if lost <= 0:
 		return
@@ -18592,7 +18594,7 @@ func _player_take_atk(n: int) -> bool:
 		_refresh_blk(false)
 		if sfx:
 			sfx.play_event(&"player.poke")
-		await _hurt_ogres(incoming)
+		await _hurt_ogres(lost)
 		await _grow_vampires()
 		if hp > 0:
 			await _sync_dire_wolves()
@@ -25601,7 +25603,7 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 		var live: Dictionary = _find_item(int(card.uid))
 		_on_item_hovered(live if not live.is_empty() else it, card)
 	)
-	card.unhovered.connect(_on_item_unhovered)
+	card.unhovered.connect(_on_item_unhovered.bind(card))
 	if _authoring() or PLAYTEST_FLAG.on():
 		card.edit_wanted.connect(_on_item_right_click.bind(str(it.get("card_id", ""))))
 	if usable:
@@ -25712,7 +25714,10 @@ func _set_rust_block_hint(on: bool) -> void:
 			card.set_aura(_rust_block_hint and not spent_n)
 
 
-func _on_item_unhovered() -> void:
+func _on_item_unhovered(source: Control = null) -> void:
+	## A newer hover already replaced this card. Do not clear it or pull the pinned plate back.
+	if source != null and _fly_card != null and is_instance_valid(_fly_card) and source != _fly_card:
+		return
 	_set_gaze_use_warn(-1)
 	_set_decay_partner_warn(-1)
 	_set_rust_block_hint(false)
