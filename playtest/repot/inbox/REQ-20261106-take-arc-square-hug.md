@@ -2,6 +2,7 @@
 id: REQ-20261106-take-arc-square-hug
 status: open
 priority: high
+pr: 417
 branch: playtest/latest
 created: 2026-11-06T02:50:00Z
 created_by: cursor-cloud
