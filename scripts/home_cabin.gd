@@ -490,8 +490,9 @@ func show_menu(room: String = "main") -> void:
 	items_by_id = items_by_id
 	visible = true
 	_menu_on = true
-	## Idle cabin entry. Clear sticky interaction locks left by aborted arrive /
-	## key-ring / pan (e.g. hide_for_run mid-await, then title show_menu).
+	## Take ownership of the cabin idle surface. Bump arrive gen so any in-flight
+	## _play_arrive coroutine becomes stale and must not clear these locks later.
+	_arrive_gen += 1
 	_arriving = false
 	_room_busy = false
 	_pan_busy = false
@@ -526,8 +527,9 @@ func hide_for_run() -> void:
 	visible = false
 	_menu_on = false
 	_beat = ""
-	## Abort in-flight cabin motion so early-returns that watch `visible` cannot
-	## leave _busy() stuck for the next homecoming / show_menu.
+	## Invalidate in-flight arrive coroutines, then drop interaction locks this
+	## hide is aborting. Stale resumes must not clear a later homecoming.
+	_arrive_gen += 1
 	_abort_cabin_interaction()
 
 
@@ -712,7 +714,10 @@ func play_key_ring() -> void:
 	KIT.cue(sfx, &"speech.nib_gasp")
 	await _wait(0.5)
 	if not visible:
-		_abort_cabin_interaction()
+		## Only release the lock this sequence set. Do not touch a newer arrive.
+		if _beat == "keyring":
+			_room_busy = false
+			_beat = "idle"
 		return
 	if nib and nib.sprite_frames:
 		nib.play("walk")
@@ -724,7 +729,9 @@ func play_key_ring() -> void:
 		_cutscene.play("keyring")
 		await _cutscene.finished
 	if not visible:
-		_abort_cabin_interaction()
+		if _beat == "keyring":
+			_room_busy = false
+			_beat = "idle"
 		return
 	var ring: AnimatedSprite2D = KIT.anim_sprite(
 		["props/key_ring_f0.png", "props/key_ring_f1.png", "props/key_ring_f2.png"],
@@ -1155,10 +1162,15 @@ func _arrive_alive(gen: int) -> bool:
 	return visible and gen == _arrive_gen
 
 
-## True when arrive must stop. Clears sticky _arriving so doors are not locked.
+## True when this arrive coroutine must stop.
+## Gen mismatch = stale resume after a newer open_cabin / show_menu / hide_for_run.
+## Stale coroutines must NOT clear locks owned by the newer generation.
 func _arrive_aborted(gen: int) -> bool:
-	if _arrive_alive(gen):
+	if gen != _arrive_gen:
+		return true
+	if visible:
 		return false
+	## This generation still owns the cabin but was hidden mid-await.
 	_abort_cabin_interaction()
 	return true
 
