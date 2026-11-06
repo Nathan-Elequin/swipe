@@ -4876,31 +4876,6 @@
 			"trigger": ""
 		},
 		{
-			"cat": "Tutorial",
-			"key": "tutorial.line.B04.2",
-			"where": "Tutorial · B04 · line 2",
-			"text": "",
-			"wait": "continue",
-			"focus": "spin",
-			"hint": "",
-			"go": "Next",
-			"branch": "",
-			"force": "",
-			"then_focus": "",
-			"nib": 0.0,
-			"tiny": false,
-			"beat": "B04",
-			"line": 2,
-			"rig": "",
-			"allow": [],
-			"trigger": "",
-			"desk_notes": {
-				"say": "delete this line"
-			},
-			"author_lock": true,
-			"locked_at": "2026-11-05"
-		},
-		{
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.line.B06.1",
@@ -5221,31 +5196,6 @@
 			"trigger": ""
 		},
 		{
-			"cat": "Tutorial",
-			"key": "tutorial.line.B12.2",
-			"where": "Tutorial · B12 · line 2",
-			"text": "",
-			"wait": "continue",
-			"focus": "draft",
-			"hint": "",
-			"go": "Next",
-			"branch": "",
-			"force": "",
-			"then_focus": "",
-			"nib": 0.0,
-			"tiny": false,
-			"beat": "B12",
-			"line": 2,
-			"rig": "",
-			"allow": [],
-			"trigger": "",
-			"desk_notes": {
-				"say": "delete this line"
-			},
-			"author_lock": true,
-			"locked_at": "2026-11-05"
-		},
-		{
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.line.B12.3",
@@ -5335,31 +5285,6 @@
 			"rig": "",
 			"allow": [],
 			"trigger": ""
-		},
-		{
-			"cat": "Tutorial",
-			"key": "tutorial.line.B15.1",
-			"where": "Tutorial · B15 · line 1",
-			"text": "",
-			"wait": "continue",
-			"focus": "item:breastplate",
-			"hint": "",
-			"go": "Next",
-			"branch": "",
-			"force": "",
-			"then_focus": "",
-			"nib": 0.0,
-			"tiny": false,
-			"beat": "B15",
-			"line": 1,
-			"rig": "",
-			"allow": [],
-			"trigger": "",
-			"desk_notes": {
-				"say": "delete this line"
-			},
-			"author_lock": true,
-			"locked_at": "2026-11-05"
 		},
 		{
 			"author_lock": true,

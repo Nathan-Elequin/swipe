@@ -756,6 +756,10 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		var a: int = int(spans[i]["a"])
 		var b: int = int(spans[i]["b"])
 		while i + 1 < spans.size():
+			var left: String = t.substr(a, b - a).strip_edges().to_lower()
+			## "lose HP" must not glue into one chip. Nib's "lose" stays plain.
+			if prose and (left == "lose" or left == "loses" or left == "lost" or left == "losing"):
+				break
 			var nxt_a: int = int(spans[i + 1]["a"])
 			var gap: String = t.substr(b, nxt_a - b)
 			if gap.strip_edges() != "":
