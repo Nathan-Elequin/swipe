@@ -2476,6 +2476,9 @@ func _sync_ability_cards() -> void:
 		if i < 0 or i >= slices.size() or str(slices[i].get("kind", "")) != "monster":
 			continue
 		var s: Dictionary = slices[i]
+		# Headstrong's shift line must not appear as a wheel callout in a fight or the tutorial.
+		if str(s.get("card_id", "")) == "anvil" or str(s.get("special_id", "")) == "headstrong":
+			continue
 		var sp: Dictionary = _spoke(i)
 		var card = _ability_cards[used]
 		var body: String = str(s.get("reminder", "")).strip_edges()

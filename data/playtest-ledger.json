@@ -454,6 +454,11 @@
 			"title": "Multi-hit abilities should slash portrait once, then attack without replaying slash",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/357",
 			"note": "GitHub already closed."
+		},
+		"422": {
+			"status": "todo",
+			"title": "Glass Asp should gain Poison on every Spin",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/422"
 		}
 	}
 }

@@ -6502,7 +6502,7 @@
       "explainer": "Always +4/+4 while Facing (no carry after Move)",
       "flags": {
         "art": true,
-        "dev": true,
+        "dev": false,
         "hide": false
       },
       "flow": "While I am Facing you, my HP and Attack are each 4 higher than my base (base 3/3 → 7/7 facing). When I Move away or you Move away so I am no longer Facing, the +4/+4 ends immediately (Fairy-style no-carry: HP/ATK snap back to base; damage taken while facing does not leave a residual after Move). Ranged Attack can kill me. Poison that resolves before Facing fires can kill me before the buff applies. Quiet Bell strips this. Defeat still works.",
@@ -8560,14 +8560,14 @@
       "type": "M"
     },
     {
-      "ability": "On every dungeon Spin while alive, I gain 1 Poison. Poison ticks each Spin and clears all Poison on tick (can restack). When I Attack, you gain Poison equal to mine.",
+      "ability": "On Spin, I gain 1 Poison. When I Attack, you gain Poison equal to mine.",
       "atk": {
         "base": 2.0
       },
       "atk_base": 2.0,
       "atk_formula": "",
       "author_lock": true,
-      "call_name": "",
+      "call_name": "Bitter Blood",
       "card_color": "",
       "count": 1.0,
       "defined": "While I am alive and not silenced: on every dungeon Spin I gain 1 Poison on myself. Each Spin, my Poison ticks (I lose that much HP — lose HP, not Attack) and then all my Poison clears; I can restack from later Spins. When I Attack you, you Gain player Poison equal to my Poison stack at that moment (before or after tick — follow combat wiring when implemented). Quiet Bell turns this off.",

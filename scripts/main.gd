@@ -7141,6 +7141,7 @@ func _apply_atk_mods() -> void:
 
 
 func _sync_wheel_stats() -> void:
+	_headstrong_clear_unfaced()
 	var n: int = wheel.size()
 	for i in n:
 		var s: Dictionary = wheel[i]
@@ -7253,8 +7254,8 @@ func _mark_vars() -> void:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
 		var id: String = str(wheel[i].get("card_id", ""))
-		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "vampire" or cmd_touch.has(i)
-		wheel[i]["hp_variable"] = id == "ogre" or id == "skeleton" or id == "leech_league" or id == "wick"
+		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "vampire" or cmd_touch.has(i) or bool(wheel[i].get("headstrong_up", false))
+		wheel[i]["hp_variable"] = id == "ogre" or id == "skeleton" or id == "leech_league" or id == "wick" or bool(wheel[i].get("headstrong_up", false))
 		wheel[i]["cmd_buff"] = cmd_touch.has(i)
 		wheel[i]["lich_buff"] = false
 		wheel[i]["copy_from"] = -1
@@ -8673,6 +8674,7 @@ func _on_spin() -> void:
 		_undo_arm()
 		await _unlock_if_fighting()
 		return
+	await _headstrong_on_face(facing_index)
 	await _apply_plague_doctor_on_spin()
 	var beggar_spin: int = -1
 	if facing_index >= 0 and facing_index < wheel.size():
@@ -12220,9 +12222,93 @@ func _chip_hp(index: int, n: int) -> bool:
 
 
 func _anvil_floor(m: Dictionary, n: int) -> int:
-	# Batch-2 2026-11-06: Anvil Headstrong replaced Steady Steel (min-3).
-	# Keep the call sites; floor is a no-op until facing +4/+4 is wired (flags.dev).
+	# Headstrong is a facing buff, not a damage floor. Steady Steel's min-3 is gone.
 	return n
+
+
+## Facing Anvil: +4 HP and +4 Attack. Leaving the face snaps back to the HP and Attack
+## from before the buff, so damage landed while facing does not stay.
+func _headstrong_clear_unfaced() -> void:
+	for i in wheel.size():
+		if typeof(wheel[i]) != TYPE_DICTIONARY:
+			continue
+		if str(wheel[i].get("card_id", "")) != "anvil":
+			continue
+		if not bool(wheel[i].get("headstrong_up", false)):
+			continue
+		if i == facing_index and not _is_silenced(wheel[i]) and int(wheel[i].get("hp", 0)) > 0:
+			continue
+		_headstrong_drop(i)
+
+
+func _headstrong_drop(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var s: Dictionary = wheel[index]
+	if not bool(s.get("headstrong_up", false)):
+		return
+	if int(s.get("hp", 0)) <= 0:
+		s["headstrong_up"] = false
+		_headstrong_erase_saved(s)
+		wheel[index] = s
+		return
+	var saved_hp: int = int(s.get("hs_saved_hp", _card_base_hp("anvil")))
+	var saved_max: int = int(s.get("hs_saved_max", saved_hp))
+	var saved_atk: int = int(s.get("hs_saved_atk", _card_base_atk("anvil")))
+	s["hp"] = saved_hp
+	s["hp_max"] = maxi(saved_max, saved_hp)
+	s["atk"] = saved_atk
+	s["atk_innate"] = saved_atk
+	s["hp_locked"] = bool(s.get("hs_saved_hp_locked", false))
+	s["atk_locked"] = bool(s.get("hs_saved_atk_locked", false))
+	s["headstrong_up"] = false
+	_headstrong_erase_saved(s)
+	wheel[index] = s
+
+
+func _headstrong_erase_saved(s: Dictionary) -> void:
+	s.erase("hs_saved_hp")
+	s.erase("hs_saved_max")
+	s.erase("hs_saved_atk")
+	s.erase("hs_saved_hp_locked")
+	s.erase("hs_saved_atk_locked")
+
+
+func _headstrong_raise(index: int) -> bool:
+	if index < 0 or index >= wheel.size() or index != facing_index:
+		return false
+	var s: Dictionary = wheel[index]
+	if str(s.get("card_id", "")) != "anvil":
+		return false
+	if bool(s.get("headstrong_up", false)):
+		return false
+	if _is_silenced(s) or int(s.get("hp", 0)) <= 0:
+		return false
+	s["hs_saved_hp"] = int(s.get("hp", 0))
+	s["hs_saved_max"] = int(s.get("hp_max", s["hs_saved_hp"]))
+	s["hs_saved_atk"] = int(s.get("atk", 0))
+	s["hs_saved_hp_locked"] = bool(s.get("hp_locked", false))
+	s["hs_saved_atk_locked"] = bool(s.get("atk_locked", false))
+	s["hp"] = int(s["hs_saved_hp"]) + 4
+	s["hp_max"] = int(s["hs_saved_max"]) + 4
+	s["atk"] = int(s["hs_saved_atk"]) + 4
+	s["atk_innate"] = int(s["atk"])
+	s["hp_locked"] = true
+	s["headstrong_up"] = true
+	wheel[index] = s
+	return true
+
+
+func _headstrong_on_face(index: int) -> void:
+	if phase != "fighting" and phase != "spinning":
+		return
+	if not _headstrong_raise(index):
+		return
+	_refresh()
+	if wheel_view:
+		wheel_view.punch_hp(index)
+		wheel_view.punch_atk(index)
+	await _announce_slice(index, _slice_atk_pos(index))
 
 
 func _poison_of(m: Dictionary) -> int:
@@ -24962,6 +25048,7 @@ func _shift_facing(dir: int, spend_move: bool) -> bool:
 	if wheel_view:
 		wheel_view.facing_index = dest
 		await wheel_view.recenter_on(dest, 0.28)
+	await _headstrong_on_face(dest)
 	return true
 
 

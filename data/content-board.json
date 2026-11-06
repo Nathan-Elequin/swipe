@@ -5454,7 +5454,7 @@
       "tier": 2.0,
       "flags": {
         "art": true,
-        "dev": true,
+        "dev": false,
         "hide": false
       },
       "kind": "monster"
@@ -7090,11 +7090,11 @@
       "tier": 2.0
     },
     {
-      "ability": "On every dungeon Spin while alive, I gain 1 Poison. Poison ticks each Spin and clears all Poison on tick (can restack). When I Attack, you gain Poison equal to mine.",
+      "ability": "On Spin, I gain 1 Poison. When I Attack, you gain Poison equal to mine.",
       "atk_base": 2.0,
       "atk_formula": "",
       "author_lock": true,
-      "call_name": "",
+      "call_name": "Bitter Blood",
       "card_color": "",
       "contradiction_ids": [],
       "count": 1.0,
