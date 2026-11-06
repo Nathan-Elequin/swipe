@@ -18,8 +18,8 @@ var _title
 var _sub
 var _loot_head
 var _foe_head
-var _loot_row: GridContainer
-var _foe_row: GridContainer
+var _loot_grids: Array = []
+var _foe_grids: Array = []
 var _next: Button
 
 
@@ -99,19 +99,27 @@ func _build() -> void:
 	_sub.font_color = Color("e6d7c4")
 	col.add_child(_sub)
 
-	_loot_head = _section(COPY.text("bucket.loot", "Loot"))
-	col.add_child(_loot_head)
-	_loot_row = _row()
-	col.add_child(_center(_loot_row))
-	_foe_head = _section(COPY.text("bucket.foes", "Foes"))
-	col.add_child(_foe_head)
-	_foe_row = _row()
-	col.add_child(_center(_foe_row))
-
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(spacer)
+	var halves := HBoxContainer.new()
+	halves.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	halves.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	halves.add_theme_constant_override("separation", 28)
+	col.add_child(halves)
+	var loot_side := _half()
+	halves.add_child(loot_side["side"])
+	_loot_head = loot_side["head"]
+	_loot_head.set_plain(COPY.text("bucket.loot", "Loot"))
+	_loot_grids = loot_side["grids"]
+	var split := ColorRect.new()
+	split.custom_minimum_size = Vector2(2, 0)
+	split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	split.color = Color(0.91, 0.72, 0.32, 0.22)
+	split.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	halves.add_child(split)
+	var foe_side := _half()
+	halves.add_child(foe_side["side"])
+	_foe_head = foe_side["head"]
+	_foe_head.set_plain(COPY.text("bucket.foes", "Foes"))
+	_foe_grids = foe_side["grids"]
 
 	var bar := CenterContainer.new()
 	col.add_child(bar)
@@ -139,6 +147,35 @@ func _section(text: String) -> Control:
 	l.font_color = Color("c4a574")
 	l.custom_minimum_size = Vector2(240, 24)
 	return l
+
+
+func _half() -> Dictionary:
+	var side := VBoxContainer.new()
+	side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	side.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	side.add_theme_constant_override("separation", 8)
+	side.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var head := _section("")
+	head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	side.add_child(head)
+	var stack := VBoxContainer.new()
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	stack.alignment = BoxContainer.ALIGNMENT_BEGIN
+	stack.add_theme_constant_override("separation", 16)
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	side.add_child(stack)
+	var grids: Array = []
+	for _t in range(3):
+		var band := VBoxContainer.new()
+		band.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		band.add_theme_constant_override("separation", 0)
+		band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var grid := _row()
+		band.add_child(_center(grid))
+		stack.add_child(band)
+		grids.append(grid)
+	return {"side": side, "head": head, "grids": grids}
 
 
 func _row() -> GridContainer:
@@ -197,8 +234,6 @@ func play(bucket_n: int, entries: Array) -> void:
 	_sub.modulate.a = 0.0
 	_next.disabled = true
 	_next.modulate.a = 0.0
-	_clear_row(_loot_row)
-	_clear_row(_foe_row)
 	var loot: Array = []
 	var foes: Array = []
 	for entry in entries:
@@ -209,10 +244,8 @@ func play(bucket_n: int, entries: Array) -> void:
 	_loot_head.visible = not loot.is_empty()
 	_foe_head.visible = not foes.is_empty()
 	var cards: Array = []
-	for entry2 in loot:
-		cards.append(_make_card(_loot_row, entry2, bucket_n))
-	for entry3 in foes:
-		cards.append(_make_card(_foe_row, entry3, bucket_n))
+	cards.append_array(_fill_tiers(_loot_grids, loot, bucket_n))
+	cards.append_array(_fill_tiers(_foe_grids, foes, bucket_n))
 	_fitted = Vector2(-1, -1)
 	_fit_cards()
 	if sfx != null and sfx.has_method("play"):
@@ -262,6 +295,36 @@ func _fit() -> void:
 	var vp: Vector2 = get_viewport_rect().size
 	global_position = Vector2.ZERO
 	size = vp
+
+
+func card_controls() -> Array:
+	var out: Array = []
+	for grids in [_loot_grids, _foe_grids]:
+		for grid in grids:
+			if not (grid is GridContainer):
+				continue
+			for child in (grid as GridContainer).get_children():
+				if child is Control:
+					out.append(child)
+	return out
+
+
+func _fill_tiers(grids: Array, entries: Array, bucket_n: int) -> Array:
+	var by_tier := {1: [], 2: [], 3: []}
+	for entry in entries:
+		var tier_n: int = clampi(int(entry.get("tier", 1)), 1, 3)
+		(by_tier[tier_n] as Array).append(entry)
+	var cards: Array = []
+	for tier_n in [1, 2, 3]:
+		var grid: GridContainer = grids[tier_n - 1]
+		_clear_row(grid)
+		var list: Array = by_tier[tier_n]
+		var band: Node = grid.get_parent().get_parent()
+		if band is CanvasItem:
+			(band as CanvasItem).visible = not list.is_empty()
+		for entry2 in list:
+			cards.append(_make_card(grid, entry2, bucket_n))
+	return cards
 
 
 func _clear_row(row: GridContainer) -> void:
@@ -354,54 +417,87 @@ func _on_card_exit(slot: PanelContainer, bucket_n: int) -> void:
 
 func _fit_cards() -> void:
 	_fitted = size
-	# MarginContainer is 56px each side. Stay inside that so the last tile is not clipped.
-	var inner_w: float = maxf(280.0, size.x - 136.0)
-	var chrome: float = 250.0
-	var band: float = maxf(96.0, (size.y - chrome) * 0.5)
-	_fit_one(_loot_row, inner_w, band)
-	_fit_one(_foe_row, inner_w, band)
+	# 56px margins, a 2px divider, and the 28px gap between the halves.
+	var half_w: float = maxf(220.0, (size.x - 142.0) * 0.5)
+	var stack_h: float = maxf(220.0, size.y - 300.0)
+	var widest: int = 1
+	var row_n: int = 1
+	for grids in [_loot_grids, _foe_grids]:
+		var active: int = 0
+		for grid in grids:
+			if not (grid is GridContainer):
+				continue
+			var n: int = (grid as GridContainer).get_child_count()
+			if n > 0:
+				active += 1
+				widest = maxi(widest, n)
+		row_n = maxi(row_n, active)
+	var tile: float = _tile_for(half_w, stack_h, widest, row_n)
+	var spread: int = _row_spread(stack_h, row_n, tile)
+	for grids2 in [_loot_grids, _foe_grids]:
+		_apply_tile(grids2, tile)
+		_spread_rows(grids2, spread)
 
 
-func _fit_one(row: GridContainer, inner_w: float, band: float) -> void:
-	var n: int = row.get_child_count()
-	if n == 0:
-		row.columns = 1
-		return
-	var sep := 12.0
-	var cols: int = n
-	var tile: float = (inner_w - sep * float(cols - 1)) / float(cols)
-	if tile < 108.0 and n > 6:
-		cols = int(ceil(float(n) / 2.0))
-		tile = (inner_w - sep * float(cols - 1)) / float(cols)
-	tile = minf(tile, 148.0)
-	if tile * float(cols) + sep * float(maxi(cols - 1, 0)) > inner_w:
-		tile = (inner_w - sep * float(maxi(cols - 1, 0))) / float(cols)
-	tile = maxf(tile, 68.0)
-	var rows: int = int(ceil(float(n) / float(cols)))
-	var name_h: float = 32.0 if tile >= 110.0 else 26.0
-	var art: float = clampf(tile - 12.0, 52.0, 124.0)
-	var panel: float = art + 16.0
-	var block: float = panel + 4.0 + name_h
-	var stack: float = block * float(rows) + 8.0 * float(maxi(rows - 1, 0))
-	if stack > band:
-		var room: float = (band - 8.0 * float(maxi(rows - 1, 0))) / float(rows)
-		name_h = minf(name_h, 24.0)
-		panel = maxf(56.0, room - 4.0 - name_h)
-		art = maxf(44.0, panel - 16.0)
-		tile = art + 12.0
-	row.columns = cols
-	var font_px: int = 15 if tile >= 120.0 else (13 if tile >= 92.0 else 11)
-	for child in row.get_children():
-		if not (child is VBoxContainer):
+func _tile_for(half_w: float, stack_h: float, widest: int, row_n: int) -> float:
+	var sep := 14.0
+	var vsep := 16.0
+	var name_h := 30.0
+	var cols: int = maxi(widest, 1)
+	var rows: int = maxi(row_n, 1)
+	var from_w: float = (half_w - sep * float(cols - 1)) / float(cols)
+	var row_room: float = (stack_h - vsep * float(rows - 1)) / float(rows)
+	var from_h: float = row_room - 4.0 - name_h
+	return clampf(minf(from_w, from_h), 72.0, 176.0)
+
+
+func _row_spread(stack_h: float, row_n: int, tile: float) -> int:
+	var rows: int = maxi(row_n, 1)
+	if rows < 2:
+		return 18
+	var name_h: float = 32.0 if tile >= 120.0 else 26.0
+	var art: float = clampf(tile - 16.0, 52.0, 148.0)
+	var block: float = art + 16.0 + 4.0 + name_h
+	var slack: float = stack_h - block * float(rows)
+	return int(clampf(slack / float(rows - 1), 18.0, 84.0))
+
+
+func _spread_rows(grids: Array, spread: int) -> void:
+	for grid in grids:
+		if not (grid is GridContainer):
 			continue
-		var wrap: VBoxContainer = child
-		var panel_node: PanelContainer = wrap.get_meta("panel")
-		var tex_rect: TextureRect = wrap.get_meta("tex")
-		var name: Label = wrap.get_meta("name")
-		panel_node.custom_minimum_size = Vector2(tile, panel)
-		tex_rect.custom_minimum_size = Vector2(art, art)
-		name.custom_minimum_size = Vector2(tile, name_h)
-		name.add_theme_font_size_override("font_size", font_px)
+		var band: Node = (grid as GridContainer).get_parent().get_parent()
+		if band == null:
+			continue
+		var stack: Node = band.get_parent()
+		if stack is BoxContainer:
+			(stack as BoxContainer).add_theme_constant_override("separation", spread)
+		return
+
+
+func _apply_tile(grids: Array, tile: float) -> void:
+	var name_h: float = 32.0 if tile >= 120.0 else 26.0
+	var art: float = clampf(tile - 16.0, 52.0, 148.0)
+	var panel: float = art + 16.0
+	var font_px: int = 16 if tile >= 130.0 else (14 if tile >= 100.0 else 12)
+	for grid in grids:
+		if not (grid is GridContainer):
+			continue
+		var row: GridContainer = grid
+		var n: int = row.get_child_count()
+		row.columns = maxi(n, 1)
+		for child in row.get_children():
+			if not (child is VBoxContainer):
+				continue
+			var wrap: VBoxContainer = child
+			var panel_node: PanelContainer = wrap.get_meta("panel")
+			var tex_rect: TextureRect = wrap.get_meta("tex")
+			var name: Label = wrap.get_meta("name")
+			panel_node.custom_minimum_size = Vector2(tile, panel)
+			tex_rect.custom_minimum_size = Vector2(art, art)
+			name.custom_minimum_size = Vector2(tile, name_h)
+			name.add_theme_font_size_override("font_size", font_px)
+			wrap.custom_minimum_size = Vector2(tile, panel + 4.0 + name_h)
 
 
 func _on_next() -> void:

@@ -4389,6 +4389,7 @@ func _bucket_entry(card: Dictionary, kind: String, tex: Texture2D, id: String) -
 		"call": str(card.get("call_name", "")).strip_edges(),
 		"atk": atk_n,
 		"hp": hp_n,
+		"tier": BucketRules.tier_of(card),
 	}
 
 
@@ -7249,6 +7250,8 @@ func _process(delta: float) -> void:
 		_place_hub_cue()
 	if _unlock_screen:
 		_hide_board_for_unlock()
+		if fly_tip != null and fly_tip.visible and _fly_card != null and is_instance_valid(_fly_card):
+			_place_fly(_fly_card)
 		return
 	if _cabin_up():
 		if fly_tip != null and fly_tip.visible:
@@ -22501,6 +22504,23 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 	var candidates: Array = [right, left, above, below] if prefer_right else [left, right, above, below]
 	if fly_tip.edit_kind == "monster":
 		candidates = [above, below, right, left]
+	var unlock_tip: bool = _unlock_screen and _bucket_reveal != null and _bucket_reveal.visible
+	if unlock_tip:
+		var cursor: Vector2 = get_global_mouse_position()
+		var host: Control = near if near != null and is_instance_valid(near) else null
+		if host != null and host.get_parent() is VBoxContainer:
+			host = host.get_parent()
+		if host != null:
+			anchor = host.get_global_rect()
+		else:
+			anchor = Rect2(cursor - Vector2(8, 8), Vector2(16, 16))
+		var toward_right: bool = cursor.x < get_viewport_rect().size.x * 0.5
+		var gap_u := 14.0
+		right = Vector2(anchor.end.x + gap_u, cursor.y - sz.y * 0.5)
+		left = Vector2(anchor.position.x - sz.x - gap_u, cursor.y - sz.y * 0.5)
+		above = Vector2(cursor.x - sz.x * 0.5, anchor.position.y - sz.y - gap_u)
+		below = Vector2(cursor.x - sz.x * 0.5, anchor.end.y + gap_u)
+		candidates = [right, left, above, below] if toward_right else [left, right, above, below]
 	if PlaytestUx.draft_tip_prefer_below() and challenge_draft_ui != null and challenge_draft_ui.visible and near != null and is_instance_valid(near) and challenge_draft_ui.is_ancestor_of(near):
 		var box: Rect2 = challenge_draft_ui.get_global_rect()
 		var under := Vector2(box.position.x + (box.size.x - sz.x) * 0.5, box.end.y + 10.0)
@@ -22508,19 +22528,15 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 		candidates = [under, off_wheel, below, left]
 	var blocks: Array = [anchor]
 	blocks.append_array(_log_block_rects())
-	if _unlock_screen and _bucket_reveal != null and _bucket_reveal.visible:
-		for row in [_bucket_reveal._loot_row, _bucket_reveal._foe_row]:
-			for child in row.get_children():
-				if not (child is Control):
-					continue
-				var tile: Control = child
-				if near != null and (tile == near or tile.is_ancestor_of(near) or near.is_ancestor_of(tile)):
-					continue
-				blocks.append(tile.get_global_rect())
+	if unlock_tip:
+		if near != null and is_instance_valid(near):
+			var host_r: Control = near
+			if near.get_parent() is VBoxContainer:
+				host_r = near.get_parent()
+			blocks.append(host_r.get_global_rect())
+		blocks.append(Rect2(get_global_mouse_position() - Vector2(4, 4), Vector2(8, 8)))
 		if _bucket_reveal._next != null:
 			blocks.append(_bucket_reveal._next.get_global_rect())
-		var dock := Vector2(get_viewport_rect().size.x - sz.x - 48.0, get_viewport_rect().size.y - sz.y - 120.0)
-		candidates.push_front(dock)
 	if challenge_draft_ui != null and challenge_draft_ui.visible and challenge_draft_ui.has_method("draft_cards"):
 		for card in challenge_draft_ui.draft_cards():
 			if card is Control:
