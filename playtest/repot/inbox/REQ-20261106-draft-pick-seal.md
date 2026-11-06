@@ -1,6 +1,6 @@
 ---
 id: REQ-20261106-draft-pick-seal
-status: open
+status: superseded
 priority: high
 pr: 416
 tip_sha: b313459e
@@ -12,6 +12,8 @@ entry: F5 playtest hub → Middle Progress / Continue → fight until loot draft
 ---
 
 # Cabin wax on the chosen draft card
+
+Superseded 2026-11-05: Nathan pulled the wax seal and the grey X. A draft click adds the item immediately. Do not shoot this.
 
 Nathan picked A (cabin wax). Overlay only — draft is still pick-1-of-2. Chosen card gets a wax press then a still seal. The leftover card gets a grey X. Recycler copies that come back get the slide-left mini-card. No new words, no “Tier”, no gate-door art, no wheel-seat changes.
 

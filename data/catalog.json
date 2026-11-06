@@ -2788,7 +2788,7 @@
 			],
 			"log_hint": "Fill to 10 Marbles",
 			"mode_pool": "all",
-			"name": "Bag Of Marbles",
+			"name": "Bag of Marbles",
 			"notes": "Bucket 3. Marble is a Token, not drafted.",
 			"ops": {
 				"kind": "bag_marbles"
@@ -3061,7 +3061,7 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "lucky_nickel",
-			"locked_at": "2026-10-30",
+			"locked_at": "2026-11-05",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3084,7 +3084,7 @@
 			],
 			"log_hint": "Block 1, Keep if Block is even",
 			"mode_pool": "all",
-			"name": "Lucky Nickel",
+			"name": "{lucky} Nickel",
 			"notes": "Bucket 7. Coin with Grandpa goblin's face. Not Attack.",
 			"ops": {
 				"hi": 6.0,
@@ -3863,7 +3863,7 @@
 			],
 			"log_hint": "Bag if less HP; they come back at the end",
 			"mode_pool": "all",
-			"name": "Bag Of Holding",
+			"name": "Bag of Holding",
 			"notes": "Shopping-list hole 01. Pixel: open burlap sack with purple portal; closed sack with room for a monster stamp.",
 			"ops": {
 				"kind": "bag_hold"
@@ -4082,7 +4082,7 @@
 			"locked_fields": [],
 			"log_hint": "Heal 2",
 			"mode_pool": "all",
-			"name": "Fairy In A Bottle",
+			"name": "Fairy in a Bottle",
 			"notes": "Token. Not drafted. Fairy creates it. Needs art.",
 			"ops": {
 				"kind": "heal",
@@ -5226,7 +5226,7 @@
 			],
 			"log_hint": "Neighbors hit, then it heals",
 			"mode_pool": "all",
-			"name": "Damsel In Distress",
+			"name": "Damsel in Distress",
 			"notes": "",
 			"ops": {},
 			"poc": false,
@@ -6060,7 +6060,7 @@
 			"type": "M"
 		},
 		{
-			"ability": "I mark your worst Item, then Discard that Item when you Spin me.",
+			"ability": "While I am in the Dungeon I will Always select a random Item. That Item is Discarded when you Spin me",
 			"atk": {
 				"base": 2.0
 			},
@@ -6072,7 +6072,7 @@
 			"count": 1.0,
 			"defined": "While I am alive in the dungeon I mark your worst Item (lowest tier, Spider Egg counts as the worst, random among ties), including curses, petrified cards, and Keep items. The slash and the mark happen when the fight can be played, before the first Spin, and again when I enter later. Using the marked item moves the mark to the new worst. A Spin that lands on me discards that item even if it has Keep, then I mark the worst remaining item if I am still alive. If I leave without that Spin, the mark goes away and nothing is discarded. Quiet Bell clears the mark until the silence ends.",
 			"exceptions": "Keep does not save the item. Curses and unplayable items can be marked. A Decay link on the discarded item does not also discard the partner.",
-			"explainer": "Marks your lowest-tier Item. Spinning this Beggar discards it.",
+			"explainer": "Marks a random item. Spin this Beggar: that item is discarded.",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -6085,7 +6085,7 @@
 			"hp_base": 2.0,
 			"hp_formula": "",
 			"id": "beggar",
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-05",
 			"locked_fields": [
 				"tier",
 				"count",

@@ -5364,8 +5364,6 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 			challenge_draft_ui.hide_draft()
 			continue
 		var uid: int = int(decision.get("uid", 0))
-		if not _qa_busy() and challenge_draft_ui.has_method("play_pick_stamps"):
-			await challenge_draft_ui.play_pick_stamps(uid)
 		challenge_draft_ui.hide_draft()
 		_layout_play_field()
 		for it2 in pair_snap:
@@ -11385,7 +11383,7 @@ func _decay_draw_beam(from: Vector2, to_card: Vector2) -> void:
 	, CONNECT_ONE_SHOT)
 
 
-func _toss_item(uid: int, keep: bool, slow: bool = false, formula_fx: bool = true) -> void:
+func _toss_item(uid: int, keep: bool, slow: bool = false, formula_fx: bool = true, played: bool = true) -> void:
 	if not _decay_busy and _decay_claim_use(uid):
 		keep = true
 	if keep and _keep_blocked_now():
@@ -11403,8 +11401,14 @@ func _toss_item(uid: int, keep: bool, slow: bool = false, formula_fx: bool = tru
 				sfx.play("pluck", -10.0)
 		else:
 			c.toss(slow)
+			## Played cards already played item.use in _announce_item_use, then
+			## this shove. A forced discard never played the card, so it gets
+			## the discard cue only.
 			if sfx:
-				sfx.play_event(&"hand.toss")
+				if played:
+					sfx.play_event(&"hand.toss")
+				else:
+					sfx.play_event(&"chal.discard")
 		break
 	if not keep:
 		_remove_item_now(uid)
@@ -11419,7 +11423,7 @@ func _discard_from_hand(uid: int, slow: bool = false, _recycle: bool = true) -> 
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
 		return
-	_toss_item(uid, false, slow)
+	_toss_item(uid, false, slow, true, false)
 	if not _beggar_hold and not _decay_busy:
 		_kick_beggar_fill()
 
@@ -13201,8 +13205,6 @@ func _feed_bell_overlay(uid: int) -> void:
 			_sort_hotbar()
 		else:
 			pending_feed = {"uids": next_uids, "kind": "forced_gain"}
-			if sfx:
-				sfx.play_event(&"hand.toss")
 			_refresh()
 			_sync_hub_cue()
 			return
@@ -13213,8 +13215,6 @@ func _feed_bell_overlay(uid: int) -> void:
 		_sort_hotbar()
 	if speech_box:
 		speech_box.hide_speech()
-	if sfx:
-		sfx.play_event(&"hand.toss")
 	_refresh()
 
 
@@ -13538,8 +13538,6 @@ func _feed_worm(uid: int) -> void:
 	if wheel_view and facing_index >= 0:
 		wheel_view.punch_hp(facing_index)
 		wheel_view.punch_atk(facing_index)
-	if sfx:
-		sfx.play_event(&"hand.toss")
 	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 		pending_feed = {}
 		_cube_line = ""
@@ -13591,8 +13589,6 @@ func _pay_hired_hand(uid: int) -> void:
 	_log("on_spin", "bribe %s" % str(it.get("name", "?")))
 	_discard_from_hand(uid)
 	_refresh()
-	if sfx:
-		sfx.play_event(&"hand.toss")
 	var dest: int = nbs[rng.randi() % nbs.size()]
 	var src: int = facing_index
 	var snap: int = int(wheel[src].get("atk", 0)) if src >= 0 and src < wheel.size() else 3
@@ -16555,7 +16551,7 @@ func _cleric_play(index: int) -> void:
 	if dest == Vector2.ZERO:
 		dest = hearts
 	var home: Vector2 = await _monster_walk_to(index, "cleric", dest)
-	_toss_item(uid, false)
+	_discard_from_hand(uid)
 	_log("on_spin", "Cleric took worst item")
 	_refresh()
 	await _monster_walk_back(index, "cleric", home)
@@ -26196,8 +26192,6 @@ func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = 
 				sfx.play("confirm", -12.0)
 				sfx.play("cloth", -14.0)
 				sfx.play_event(&"chal.commit")
-			if not _qa_busy() and challenge_draft_ui.has_method("play_pick_stamps"):
-				await challenge_draft_ui.play_pick_stamps(uid)
 			challenge_draft_ui.hide_draft()
 			_refresh()
 			if (take_id == "shield" or take_id == "fangs") and tut != null:
