@@ -27047,6 +27047,8 @@ func _tutorial_replace_with_deck(index: int, id: String = "") -> void:
 	if id == "" and not _tut_first_deck_done:
 		await _tut_open_wizard_window(index)
 		return
+	var token: int = _undo_gen
+	var nav: int = _tut_nav_gen
 	_tut_show_deck = true
 	if challenge_deck.is_empty() and id != "":
 		challenge_deck.append(id)
@@ -27063,6 +27065,8 @@ func _tutorial_replace_with_deck(index: int, id: String = "") -> void:
 		if wheel_view and wheel_view.has_method("slice_portrait_global"):
 			dungeon_deck_ui.entry_global = wheel_view.slice_portrait_global(index)
 		await dungeon_deck_ui.play_draw()
+	if _undo_stale(token) or _tut_nav_stale(nav):
+		return
 	if not challenge_deck.is_empty():
 		challenge_deck.pop_front()
 	if dungeon_deck_ui and not dungeon_deck_ui.is_busy():
@@ -27070,6 +27074,8 @@ func _tutorial_replace_with_deck(index: int, id: String = "") -> void:
 		_sync_challenge_peek()
 	if wheel_view and wheel_view.has_method("rotate_index_to_top"):
 		await wheel_view.rotate_index_to_top(index, 0.42)
+	if _undo_stale(token) or _tut_nav_stale(nav):
+		return
 	if ability_slash:
 		var slash_tex: Texture2D = null
 		if art != null:
@@ -27081,6 +27087,8 @@ func _tutorial_replace_with_deck(index: int, id: String = "") -> void:
 			"is_item": false,
 			"card_id": draw_id,
 		})
+	if _undo_stale(token) or _tut_nav_stale(nav):
+		return
 	if index < 0 or index >= wheel.size():
 		_refresh()
 		return
@@ -27388,16 +27396,17 @@ func _tut_wait_line_begun() -> void:
 func _tut_release_golem_exit() -> void:
 	if _tut_golem_exit_released:
 		return
+	var nav: int = _tut_nav_gen
 	var i: int = _tut_index_of_tag("golem_1")
 	if i < 0:
 		_tut_golem_exit_released = true
 		return
-	_tut_arrive_busy = true
 	await _tut_wait_line_begun()
+	if _tut_nav_stale(nav):
+		return
 	i = _tut_index_of_tag("golem_1")
 	if i < 0 or i >= wheel.size() or str(wheel[i].get("kind", "")) != "monster":
 		_tut_golem_exit_released = true
-		_tut_arrive_busy = false
 		return
 	facing_index = i
 	if wheel_view:
@@ -27410,51 +27419,64 @@ func _tut_release_golem_exit() -> void:
 	if combat_stage and not combat_stage.visible:
 		_show_fight_portrait()
 	await _exit_ended(false, "escape")
-	_tut_arrive_busy = false
 
 
 func _tut_on_beat_entered(beat: String, rig_id: String) -> void:
 	if tut != null and tut.rewinding:
 		_tut_back_refresh_chrome()
 		return
+	var gen: int = _tut_nav_gen
+	_tut_line_gen = gen
+	## Hold Back and Next until this line's draw, exit, or collapse has finished
+	## and the snapshot below is the board the player actually saw.
+	_tut_arrive_busy = true
 	await _tut_apply_desk_beat(beat)
-	if rig_id == "" or _tut_rig_done.get(rig_id, false):
+	if _tut_nav_stale(gen) or tut == null or tut.rewinding:
+		if _tut_nav_gen == gen:
+			_tut_arrive_busy = false
 		return
-	_tut_rig_done[rig_id] = true
-	match rig_id:
-		"deck_golem_1":
-			## First deck draw already ran on Wizard clear; assert tag if present.
-			pass
-		"after_golem1":
-			_tut_hold_deck_refill = true
-		"deck_golem_2_fangs", "deck_fangs_t2":
-			await _tut_rig_fangs_t2()
-		"grant_arrow_head":
-			## Arrow Head is in the hotbar from combat start (Nathan 2026-11-04).
-			pass
-		"grant_knucklers":
-			## Knucklers removed from Harpy B rails (Shield-only).
-			pass
-		"ensure_shield":
-			if not _tut_hotbar_has("shield"):
-				_tut_grant("shield")
-		"wheel_collapse":
-			await _tut_collapse_empty_seats()
-		"moves_on":
-			_tut_moves_on = true
-			if moves_left <= 0:
-				moves_left = ADVENTURE_MOVES
-			_howto_move_shown = true
-			_sync_move_ui()
-		"board_d2":
-			## D2 free-play cut from Yes path (Slice C closing → arrive).
-			pass
-		"free_play":
-			pass
-		"reveal":
-			pass
-		_:
-			pass
+	if rig_id != "" and not bool(_tut_rig_done.get(rig_id, false)):
+		match rig_id:
+			"deck_golem_1":
+				## First deck draw already ran on Wizard clear; assert tag if present.
+				pass
+			"after_golem1":
+				_tut_hold_deck_refill = true
+			"deck_golem_2_fangs", "deck_fangs_t2":
+				await _tut_rig_fangs_t2()
+			"grant_arrow_head":
+				## Arrow Head is in the hotbar from combat start (Nathan 2026-11-04).
+				pass
+			"grant_knucklers":
+				## Knucklers removed from Harpy B rails (Shield-only).
+				pass
+			"ensure_shield":
+				if not _tut_hotbar_has("shield"):
+					_tut_grant("shield")
+			"wheel_collapse":
+				await _tut_collapse_empty_seats()
+			"moves_on":
+				_tut_moves_on = true
+				if moves_left <= 0:
+					moves_left = ADVENTURE_MOVES
+				_howto_move_shown = true
+				_sync_move_ui()
+			"board_d2":
+				## D2 free-play cut from Yes path (Slice C closing → arrive).
+				pass
+			"free_play":
+				pass
+			"reveal":
+				pass
+			_:
+				pass
+		if not _tut_nav_stale(gen):
+			_tut_rig_done[rig_id] = true
+	if _tut_nav_stale(gen) or tut == null or tut.rewinding:
+		if _tut_nav_gen == gen:
+			_tut_arrive_busy = false
+		return
+	_tut_arrive_busy = false
 	_tut_after_advance()
 
 
@@ -27541,22 +27563,20 @@ func _tut_rig_golem2_fangs() -> void:
 func _tut_rig_fangs_t2() -> void:
 	## Prefer Shark (T2 ATK 3 HP 6, art live). Blood Thresh stops once Block lets 1 HP through,
 	## so Breastplate Block 2 → take 1 still teaches; Fangs uses a single _owner_attack swing.
+	## The draw belongs in the Golem's seat. Never scan for some other open wedge.
 	_tut_hold_deck_refill = false
 	var seat: int = _tut_pending_empty_seat
 	if seat < 0 or seat >= wheel.size() or str(wheel[seat].get("kind", "")) != "empty":
-		seat = -1
-		for i in range(wheel.size()):
-			if str(wheel[i].get("kind", "")) == "empty":
-				seat = i
-				break
-	if seat < 0:
-		seat = wheel.size()
-		wheel.append({"kind": "empty", "slot": str(seat)})
-		_reseat_slots()
+		seat = _tut_index_of_tag("golem_1")
+	if seat < 0 or seat >= wheel.size():
+		return
 	var host_id := "shark"
 	if not monsters_by_id.has(host_id):
 		host_id = "needleback"
+	var nav: int = _tut_nav_gen
 	await _tutorial_replace_with_deck(seat, host_id)
+	if _tut_nav_stale(nav):
+		return
 	if seat < wheel.size() and str(wheel[seat].get("card_id", "")) == host_id:
 		wheel[seat]["tut_tag"] = "fangs_t2"
 	## Fangs comes from the B21.2 draft:fangs UI (Crossbow decoy) — do not force-grant.
@@ -27579,8 +27599,11 @@ func _tut_collapse_one(index: int) -> void:
 		return
 	if str(wheel[index].get("kind", "")) != "empty":
 		return
+	var nav: int = _tut_nav_gen
 	if wheel_view:
 		await wheel_view.collapse_slice(index)
+	if _tut_nav_stale(nav):
+		return
 	if index < 0 or index >= wheel.size():
 		return
 	wheel.remove_at(index)
@@ -27607,9 +27630,12 @@ func _tut_collapse_empty_seats() -> void:
 	## Demo the real wheel: close empty seats that the rails kept open.
 	if wheel_view == null:
 		return
+	var nav: int = _tut_nav_gen
 	var guard := 0
 	while guard < 12:
 		guard += 1
+		if _tut_nav_stale(nav):
+			return
 		var empty_i := -1
 		for i in range(wheel.size()):
 			if str(wheel[i].get("kind", "")) == "empty":
@@ -27618,6 +27644,8 @@ func _tut_collapse_empty_seats() -> void:
 		if empty_i < 0:
 			break
 		await wheel_view.collapse_slice(empty_i)
+		if _tut_nav_stale(nav):
+			return
 		if empty_i < 0 or empty_i >= wheel.size():
 			break
 		wheel.remove_at(empty_i)
@@ -27958,21 +27986,31 @@ func _tut_capture_line() -> Dictionary:
 	}
 
 
+func _tut_nav_bump() -> void:
+	_tut_nav_gen += 1
+
+
+func _tut_nav_stale(gen: int) -> bool:
+	return gen != _tut_nav_gen
+
+
 func _tut_back_note_line() -> void:
 	if tut == null or tut.rewinding or not in_tutorial or _tut_free:
 		return
+	if _tut_arrive_busy or _tut_nav_gen != _tut_line_gen:
+		return
 	if not tut._wait_shows_next(tut.wait):
 		return
-	var snap: Dictionary = _tut_capture_line()
-	if _tut_back_at >= 0 and _tut_back_at == _tut_back_hist.size() - 1:
-		var top: Dictionary = _tut_back_hist[_tut_back_at]
-		if int(top.get("step", -2)) == tut.step:
-			top["snap"] = snap
+	## This line is already staged. Back and Next replay that board; they do not
+	## write over it when a late draw or a second refresh lands on the same step.
+	if _tut_back_at >= 0 and _tut_back_at < _tut_back_hist.size():
+		var cur: Dictionary = _tut_back_hist[_tut_back_at]
+		if int(cur.get("step", -2)) == tut.step:
 			_tut_back_sync_btn()
 			return
 	if _tut_back_at >= 0 and _tut_back_at < _tut_back_hist.size() - 1:
 		_tut_back_hist.resize(_tut_back_at + 1)
-	_tut_back_hist.append({"step": tut.step, "snap": snap})
+	_tut_back_hist.append({"step": tut.step, "snap": _tut_capture_line()})
 	_tut_back_at = _tut_back_hist.size() - 1
 	_tut_back_sync_btn()
 
@@ -27987,6 +28025,9 @@ func _tut_back_step(dir: int) -> void:
 	var nxt: int = _tut_back_at + dir
 	if nxt < 0 or nxt >= _tut_back_hist.size() or tut == null:
 		return
+	## Cancel a draw or exit that has not finished, then put the staged board back.
+	_tut_nav_bump()
+	_tut_arrive_busy = false
 	_tut_back_at = nxt
 	var entry: Dictionary = _tut_back_hist[nxt]
 	_tut_restore_line(entry.get("snap", {}))
@@ -28023,7 +28064,13 @@ func _tut_restore_line(snap: Dictionary) -> void:
 		tut.land = str(snap.get("land", ""))
 	if challenge_draft_ui != null and challenge_draft_ui.has_method("hide_draft"):
 		challenge_draft_ui.hide_draft()
+	if wheel_view:
+		wheel_view.fade_escape_sprite = false
+		wheel_view.portrait_away = -1
 	if dungeon_deck_ui:
+		if dungeon_deck_ui.has_method("halt"):
+			dungeon_deck_ui.halt()
+		dungeon_deck_ui.set_count(challenge_deck.size() if typeof(challenge_deck) == TYPE_ARRAY else 0)
 		dungeon_deck_ui.visible = _tut_show_deck
 	if sfx and in_tutorial:
 		sfx.set_combat_music(true)
@@ -28054,6 +28101,8 @@ func _tut_on_continue() -> void:
 	if _tut_back_at >= 0 and _tut_back_at < _tut_back_hist.size() - 1:
 		_tut_back_step(1)
 		return
+	## First visit. Later Back / Next calls replay the snapshot from this arrival.
+	_tut_nav_bump()
 	## Golem leaves the deck before "there's just one more" (B11a).
 	var show_talk_after := false
 	if tut.beat_id == "B11" and int(tut.line_n) >= 2 and not _tut_first_deck_done:

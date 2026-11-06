@@ -65,6 +65,7 @@ var _slide_t: float = 0.0
 var _out: Dictionary = {}
 var _riffle_t: float = -1.0
 var _deal_dest_size: Vector2 = Vector2.ZERO
+var _motion: Tween
 var _shimmer_mat: ShaderMaterial
 var _shimmer_clock: float = 0.0
 
@@ -199,7 +200,7 @@ func play_shuffle(dur: float = RIFFLE_S) -> void:
 	_face_up = false
 	_riffle_t = 0.0
 	set_process(true)
-	var tw := create_tween()
+	var tw := _begin_motion()
 	tw.tween_property(self, "_riffle_t", 1.0, maxf(0.12, dur)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await tw.finished
 	_riffle_t = -1.0
@@ -223,7 +224,7 @@ func play_draw() -> void:
 	_face_up = false
 	_slide_t = 0.0
 	set_process(true)
-	var tw := create_tween()
+	var tw := _begin_motion()
 	tw.tween_property(self, "_slide_t", 1.0, SLIDE_S).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await tw.finished
 	_out = {}
@@ -235,6 +236,32 @@ func play_draw() -> void:
 		_depth_hold = -1
 	queue_redraw()
 	draw_finished.emit()
+
+
+## Tutorial Back/Next restores a staged board. Drop a slide that is still in the air.
+func _begin_motion() -> Tween:
+	if _motion != null and is_instance_valid(_motion):
+		_motion.kill()
+	_motion = create_tween()
+	return _motion
+
+
+func halt() -> void:
+	if _motion != null and is_instance_valid(_motion):
+		_motion.kill()
+	_motion = null
+	_busy = false
+	_deal_full = false
+	_deal_dest_size = Vector2.ZERO
+	_flipping = false
+	_flip_sx = 1.0
+	_flip_sy = 1.0
+	_depth_hold = -1
+	_slide_t = 0.0
+	_riffle_t = -1.0
+	_out = {}
+	_awaiting_face = false
+	queue_redraw()
 
 
 ## Face-up toss into a hotbar seat. `dest_size` lets the flying card shrink to that plate.
@@ -256,7 +283,7 @@ func play_deal_to(target_global: Vector2, dur: float = 0.34, dest_size: Vector2 
 	_face_up = false
 	_slide_t = 0.0
 	set_process(true)
-	var tw := create_tween()
+	var tw := _begin_motion()
 	tw.tween_property(self, "_slide_t", 1.0, maxf(0.18, dur)).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	await tw.finished
 	_out = {}
@@ -276,7 +303,7 @@ func _flip_up() -> void:
 	_flip_sx = 1.0
 	_flip_sy = 1.0
 	set_process(true)
-	var tw := create_tween()
+	var tw := _begin_motion()
 	tw.tween_property(self, "_flip_sx", 0.0, FLIP_HALF_S).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tw.tween_callback(_flip_swap)
 	tw.tween_property(self, "_flip_sx", 1.0, FLIP_HALF_S).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
