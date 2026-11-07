@@ -4100,6 +4100,11 @@ func _escape() -> void:
 	if _close_top_overlay():
 		return
 	if _current_room != "main":
+		## Same busy policy as arrows/hotspots. Escape→pan_to("main") mid-keyring
+		## (dialog closed, room_busy) must not steal cabin_session / orphan room_busy.
+		## Dialog advance, overlay close, arrive-skip, and post-tour Escape preserved above/below.
+		if _busy():
+			return
 		pan_to("main")
 		return
 	if settings_ui and settings_ui.visible:

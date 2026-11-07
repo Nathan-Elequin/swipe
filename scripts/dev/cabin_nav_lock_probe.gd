@@ -76,6 +76,9 @@ func _initialize() -> void:
 	## --- Case R: keyboard arrows during live keyring dialog (handler proof) ---
 	failed = await _case_keyring_arrows_blocked_during_dialog(cabin) or failed
 
+	## --- Case E: Escape/ui_cancel during nested study→workshop unlock ---
+	failed = await _case_escape_blocked_during_keyring_unlock(cabin) or failed
+
 	## --- Case U: interrupt mid _unlock_spot await; stale A must not unlock ---
 	failed = await _case_unlock_spot_mid_await_stale(cabin) or failed
 
@@ -401,9 +404,12 @@ func _case_pan_to_overlapping_ab(cabin) -> bool:
 			late_session_a = int(cabin._cabin_session)
 			break
 	failed = _check(failed, "pan_late_a_hit_await", late_session_a > 0) or failed
-	## Let A run most of the 0.45s pan (~20 frames) so done can race with B.
+	## Near-end attempt: ~20 frames of a 0.45s pan. Does NOT guarantee the exact
+	## done-before-B boundary — only an executed mid/late steal while A still awaits.
+	## Legacy `_legacy_pan_done_then_b_finalizes` remains SIMULATED, not pre-fix runtime.
+	print("INFO pan_late_note=near_end_not_guaranteed_done_before_B_boundary")
 	await _wait_frames(cabin, 20)
-	## Steal session while A may be at/near finished — do not wait for A reject.
+	## Steal session while A may be mid/near finished — do not wait for A reject.
 	cabin.hide_for_run()
 	cabin.visible = true
 	cabin.show_menu("main")
@@ -593,6 +599,151 @@ func _legacy_arrow_while_busy_steals_session() -> bool:
 	if true:
 		session += 1
 	return busy and session == 6
+
+
+## EXECUTED: production ui_cancel/_escape at nested study→workshop unlock_spot await.
+## Dialog closed, room_busy=true, pan_busy=false — Escape must not pan_to(main).
+## Tour completes once; locks release; ordinary nav works after.
+func _case_escape_blocked_during_keyring_unlock(cabin) -> bool:
+	var failed := false
+	failed = _check(
+		failed,
+		"legacy_escape_while_busy_would_steal_session",
+		_legacy_escape_while_busy_steals_session()
+	) or failed
+	cabin.stop_story()
+	await _wait_frames(cabin, 8)
+	cabin.key_ring_seen = false
+	cabin.rooms_unlocked = ["main"]
+	cabin.counters.hauls = 0
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._room_busy = false
+	cabin.play_key_ring()
+	## Drive to study→workshop unlock checkpoint (nested unlock_spot await).
+	var at_unlock := false
+	for _i in range(1500):
+		await process_frame
+		if cabin._cutscene != null and cabin._cutscene.is_playing():
+			if cabin._cutscene.has_method("abort"):
+				cabin._cutscene.abort()
+			continue
+		if cabin._dialog != null and cabin._dialog.is_open():
+			cabin._dialog.advance()
+			continue
+		## Nested unlock of workshop from study: study unlocked, workshop not yet,
+		## dialog closed, room_busy, unlock_spot awaiting.
+		if (
+			str(cabin._nested_phase) == "unlock_spot_await"
+			and cabin._beat == "keyring"
+			and cabin._room_busy
+			and not cabin._pan_busy
+			and cabin.rooms_unlocked.has("study")
+			and not cabin.rooms_unlocked.has("workshop")
+			and (cabin._dialog == null or not cabin._dialog.is_open())
+		):
+			at_unlock = true
+			break
+		if cabin.key_ring_seen:
+			break
+	failed = _check(failed, "escape_unlock_checkpoint_reached", at_unlock) or failed
+	if not at_unlock:
+		print(
+			"INFO escape_unlock_miss beat=%s phase=%s rooms=%s"
+			% [cabin._beat, cabin._nested_phase, str(cabin.rooms_unlocked)]
+		)
+		cabin.stop_story()
+		await _wait_frames(cabin, 12)
+		_seed_post_tutorial_cabin(cabin)
+		return failed
+	var session_before: int = int(cabin._cabin_session)
+	var gen_before: int = int(cabin._key_ring_gen)
+	var room_before: String = str(cabin._current_room)
+	failed = _check(
+		failed,
+		"escape_unlock_preconditions",
+		cabin._room_busy and not cabin._pan_busy and room_before == "study"
+	) or failed
+	## Production ui_cancel → _escape (handler proof, not physical Escape key HID).
+	_dispatch_cabin_action(cabin, "ui_cancel")
+	await _wait_frames(cabin, 6)
+	failed = _check(
+		failed,
+		"escape_session_unchanged_at_unlock",
+		int(cabin._cabin_session) == session_before
+	) or failed
+	failed = _check(
+		failed,
+		"escape_gen_unchanged_at_unlock",
+		int(cabin._key_ring_gen) == gen_before
+	) or failed
+	failed = _check(
+		failed,
+		"escape_did_not_pan_to_main",
+		str(cabin._current_room) == room_before and str(cabin._current_room) != "main"
+	) or failed
+	failed = _check(
+		failed,
+		"escape_room_busy_still_held",
+		cabin._room_busy == true and cabin._beat == "keyring"
+	) or failed
+	print("INFO escape_unlock_proof=production_ui_cancel_handler not_physical_keyboard")
+	## Tour must complete once (unlock continues; no orphaned busy).
+	var tour_done := false
+	for _j in range(1500):
+		await process_frame
+		if cabin._cutscene != null and cabin._cutscene.is_playing():
+			if cabin._cutscene.has_method("abort"):
+				cabin._cutscene.abort()
+		if cabin._dialog != null and cabin._dialog.is_open():
+			cabin._dialog.advance()
+		if cabin.key_ring_seen and cabin._room_busy == false:
+			tour_done = true
+			break
+	failed = _check(failed, "escape_keyring_tour_finished_once", tour_done) or failed
+	failed = _check(
+		failed,
+		"escape_keyring_locks_released",
+		cabin._room_busy == false and cabin._pan_busy == false and cabin.key_ring_seen
+	) or failed
+	failed = _check(
+		failed,
+		"escape_workshop_unlocked_after_tour",
+		cabin.rooms_unlocked.has("workshop")
+	) or failed
+	## Post-tour Escape / arrow nav works (not busy).
+	cabin.show_menu("main")
+	await _wait_frames(cabin, 4)
+	failed = _check(failed, "after_escape_case_not_busy", cabin._busy() == false) or failed
+	cabin._snap_to("study")
+	cabin._current_room = "study"
+	_dispatch_cabin_action(cabin, "ui_cancel")
+	var escaped_home := false
+	for _k in range(120):
+		await process_frame
+		if str(cabin._current_room) == "main" and not cabin._pan_busy:
+			escaped_home = true
+			break
+	failed = _check(failed, "after_tour_escape_pans_to_main", escaped_home) or failed
+	cabin.stop_story()
+	await _wait_frames(cabin, 12)
+	_seed_post_tutorial_cabin(cabin)
+	return failed
+
+
+## SIMULATED: pre-fix Escape pan_to(main) while room_busy stole session.
+func _legacy_escape_while_busy_steals_session() -> bool:
+	var room_busy := true
+	var pan_busy := false
+	var dialog_open := false
+	var busy: bool = room_busy or pan_busy or dialog_open
+	var session := 7
+	var current_room := "study"
+	## Buggy: skipped busy, called pan_to("main") → session += 1:
+	if current_room != "main" and true:
+		session += 1
+		current_room = "main"
+	return busy and session == 8 and current_room == "main"
 
 
 func _dispatch_cabin_action(cabin, action: String) -> void:
