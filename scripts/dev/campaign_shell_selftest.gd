@@ -39,6 +39,13 @@ func _init() -> void:
 	var state: Dictionary = Shell.fresh_state()
 	failed = _check(failed, "map open on first visit", Shell.map_unlocked(rules, state)) or failed
 	failed = _check(failed, "only verdant hollow starts", Shell.can_start(rules, state, 0) and not Shell.can_start(rules, state, 1)) or failed
+	failed = _check(failed, "fresh: invalid negative start", Shell.can_start(rules, state, -1) == false) or failed
+	failed = _check(failed, "fresh: out-of-range start", Shell.can_start(rules, state, 5) == false and Shell.can_start(rules, state, 99) == false) or failed
+	# Fresh / 4 / 5 / 6 held counts: destination unlock at 5+, start floor stays D1.
+	var fresh4: Dictionary = Shell.fresh_state()
+	Shell.bank(rules, fresh4, ["f0", "f1", "f2", "f3"], {"f0": "b1", "f1": "b1", "f2": "b1", "f3": "b1"})
+	failed = _check(failed, "four held: dungeon2 locked", Shell.cabinet_count(fresh4, "b1") == 4 and not Shell.biome_unlocked(rules, fresh4, 1)) or failed
+	failed = _check(failed, "four held: only D1 starts", Shell.can_start(rules, fresh4, 0) and not Shell.can_start(rules, fresh4, 1)) or failed
 	var pools := {"a": "b1", "b": "b1", "c": "b1", "d": "b1", "e": "b1"}
 	Shell.bank(rules, state, ["a", "b", "c"], pools)
 	failed = _check(failed, "map still open after 3", Shell.map_unlocked(rules, state)) or failed
@@ -48,10 +55,18 @@ func _init() -> void:
 	Shell.bank(rules, state, ["d", "e"], pools)
 	failed = _check(failed, "verdant hollow full", Shell.cabinet_count(state, "b1") == 5) or failed
 	failed = _check(failed, "crystal cavern opens", Shell.biome_unlocked(rules, state, 1)) or failed
-	failed = _check(failed, "stamp starts crystal cavern", Shell.can_start(rules, state, 1)) or failed
+	# Destination access ≠ fresh-start: D2 unlocked, but start remains D1 until D3.
+	failed = _check(failed, "d2 unlocked does not start d2", Shell.can_start(rules, state, 1) == false) or failed
+	failed = _check(failed, "d1 still startable after d2 unlock", Shell.can_start(rules, state, 0)) or failed
 	failed = _check(failed, "ashen crypt stays shut", Shell.can_start(rules, state, 2) == false) or failed
 	failed = _check(failed, "shortcut to verdant hollow", Shell.shortcut_open(rules, state, 0)) or failed
 	failed = _check(failed, "no shortcut to crystal cavern yet", Shell.shortcut_open(rules, state, 1) == false) or failed
+	var six: Dictionary = Shell.fresh_state()
+	Shell.bank(rules, six, ["s0", "s1", "s2", "s3", "s4", "s5"], {
+		"s0": "b1", "s1": "b1", "s2": "b1", "s3": "b1", "s4": "b1", "s5": "b1"
+	})
+	failed = _check(failed, "six held: dungeon2 destination open", Shell.cabinet_count(six, "b1") == 6 and Shell.biome_unlocked(rules, six, 1)) or failed
+	failed = _check(failed, "six held: still cannot fresh-start d2", Shell.can_start(rules, six, 1) == false) or failed
 	# S3: map piece + pencil only via stamp_map_piece (ceremony), never bank() alone.
 	failed = _check(failed, "bank alone grants no piece", Shell.map_piece_count(state) == 0) or failed
 	var stamped: Dictionary = Shell.stamp_map_piece(rules, state, "b1")
@@ -61,11 +76,38 @@ func _init() -> void:
 	failed = _check(failed, "pencil_fresh has b2", (state["pencil_fresh"] as Array).has("b2")) or failed
 	var again: Dictionary = Shell.stamp_map_piece(rules, state, "b1")
 	failed = _check(failed, "stamp idempotent", Shell.map_piece_count(state) == 1 and not bool(again.get("first", true))) or failed
+	# Stamp does not change start eligibility (still destination-only for D2).
+	failed = _check(failed, "stamp does not grant d2 start", Shell.can_start(rules, state, 1) == false) or failed
 	Shell.clear_pencil_fresh(state)
 	failed = _check(failed, "pencil clears after map open", (state["pencil_fresh"] as Array).is_empty()) or failed
 	Shell.begin_run(state, 0, false, false)
 	failed = _check(failed, "can push into crystal cavern", Shell.can_push(rules, state)) or failed
+	failed = _check(failed, "push stays distinct from can_start d2", Shell.can_push(rules, state) and not Shell.can_start(rules, state, 1)) or failed
 	failed = _check(failed, "no nib at 5/5", Shell.push_needs_nib(rules, state) == false) or failed
+	# D3–D5 unlocks earn previous-dungeon fresh starts; earlier starts preserved; no D5 shortcut.
+	var ladder: Dictionary = Shell.fresh_state()
+	_fill_pool(Shell, rules, ladder, "b1", 5)
+	_fill_pool(Shell, rules, ladder, "b2", 5)
+	failed = _check(failed, "d3 unlock: destination d3 open", Shell.biome_unlocked(rules, ladder, 2)) or failed
+	failed = _check(failed, "d3 unlock: d2 destination still open", Shell.biome_unlocked(rules, ladder, 1)) or failed
+	failed = _check(failed, "d3 unlock: earns d2 fresh start", Shell.can_start(rules, ladder, 1)) or failed
+	failed = _check(failed, "d3 unlock: d1 start preserved", Shell.can_start(rules, ladder, 0)) or failed
+	failed = _check(failed, "d3 unlock: cannot fresh-start d3", Shell.can_start(rules, ladder, 2) == false) or failed
+	failed = _check(failed, "d3 unlock: shortcut_open matches d2 start", Shell.shortcut_open(rules, ladder, 1) == Shell.can_start(rules, ladder, 1)) or failed
+	_fill_pool(Shell, rules, ladder, "b3", 5)
+	failed = _check(failed, "d4 unlock: earns d3 fresh start", Shell.can_start(rules, ladder, 2)) or failed
+	failed = _check(failed, "d4 unlock: prior d2 start preserved", Shell.can_start(rules, ladder, 1)) or failed
+	failed = _check(failed, "d4 unlock: cannot fresh-start d4", Shell.can_start(rules, ladder, 3) == false) or failed
+	_fill_pool(Shell, rules, ladder, "b4", 5)
+	failed = _check(failed, "d5 unlock: earns d4 fresh start", Shell.can_start(rules, ladder, 3)) or failed
+	failed = _check(failed, "d5 unlock: prior starts preserved", Shell.can_start(rules, ladder, 0) and Shell.can_start(rules, ladder, 1) and Shell.can_start(rules, ladder, 2)) or failed
+	failed = _check(failed, "d5 unlock: cannot fresh-start d5", Shell.can_start(rules, ladder, 4) == false) or failed
+	failed = _check(failed, "no invented d5 shortcut_open", Shell.shortcut_open(rules, ladder, 4) == false) or failed
+	failed = _check(failed, "ladder out-of-range still false", Shell.can_start(rules, ladder, -3) == false and Shell.can_start(rules, ladder, 5) == false) or failed
+	# Independent Push after deeper unlock: active D1 run can still push into unlocked D2.
+	Shell.begin_run(ladder, 0, false, false)
+	failed = _check(failed, "push independent after d5 unlock", Shell.can_push(rules, ladder)) or failed
+	Shell.end_run(ladder)
 	var under: Dictionary = Shell.fresh_state()
 	Shell.bank(rules, under, ["u1", "u2"], {"u1": "b1", "u2": "b1"})
 	Shell.begin_run(under, 0, false, false)
@@ -321,6 +363,16 @@ func _init() -> void:
 		return
 	print("CAMPAIGN_SHELL_OK")
 	quit(0)
+
+
+func _fill_pool(Shell, rules: Dictionary, state: Dictionary, pool: String, n: int) -> void:
+	var ids: Array = []
+	var pools: Dictionary = {}
+	for i in n:
+		var id := "%s_fill_%s" % [pool, i]
+		ids.append(id)
+		pools[id] = pool
+	Shell.bank(rules, state, ids, pools)
 
 
 func _roster(weak_n: int, tough_n: int, deadly_n: int, contra: bool) -> Array:

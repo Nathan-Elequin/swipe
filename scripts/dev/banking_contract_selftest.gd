@@ -115,15 +115,17 @@ func _init() -> void:
 	var r6: Dictionary = Shell.bank(rules, s6, haul6, pools_by_id)
 	failed = _assert(
 		case_rows, failed, "B3.six_held_A_plus_F",
-		"bank A+F → +6 b1, Crystal Cavern startable (INTENDED 0→6)",
+		"bank A+F → +6 b1, Crystal Cavern destination open; fresh-start stays D1 (INTENDED 0→6)",
 		_same_id_multiset(r6.get("added", []), haul6)
 		and Shell.cabinet_count(s6, "b1") == 6
 		and Shell.biome_unlocked(rules, s6, 1)
-		and Shell.can_start(rules, s6, 1)
+		and not Shell.can_start(rules, s6, 1)
+		and Shell.can_start(rules, s6, 0)
 		and not Shell.cabinets_complete(rules, s6),
-		"added_n=%s b1=%s unlock1=%s complete_all=%s" % [
+		"added_n=%s b1=%s dest1=%s can_start1=%s complete_all=%s" % [
 			(r6.get("added", []) as Array).size(),
 			Shell.cabinet_count(s6, "b1"),
+			Shell.biome_unlocked(rules, s6, 1),
 			Shell.can_start(rules, s6, 1),
 			Shell.cabinets_complete(rules, s6),
 		]
@@ -199,13 +201,16 @@ func _init() -> void:
 	var ru1: Dictionary = Shell.bank(rules, su1, [KNIFE], pools_by_id)
 	failed = _assert(
 		case_rows, failed, "U1.four_to_five_unlocks",
-		"4→5 via throwing_knife opens Crystal Cavern; Pool1 complete still false",
+		"4→5 via throwing_knife unlocks Crystal Cavern destination; fresh-start stays D1; Pool1 complete still false",
 		(ru1.get("added", []) as Array) == [KNIFE]
 		and Shell.cabinet_count(su1, "b1") == 5
-		and Shell.can_start(rules, su1, 1)
+		and Shell.biome_unlocked(rules, su1, 1)
+		and not Shell.can_start(rules, su1, 1)
+		and Shell.can_start(rules, su1, 0)
 		and not Shell.cabinets_complete(rules, su1),
-		"b1=%s can_start1=%s complete=%s" % [
+		"b1=%s dest1=%s can_start1=%s complete=%s" % [
 			Shell.cabinet_count(su1, "b1"),
+			Shell.biome_unlocked(rules, su1, 1),
 			Shell.can_start(rules, su1, 1),
 			Shell.cabinets_complete(rules, su1),
 		]
@@ -215,17 +220,31 @@ func _init() -> void:
 	Shell.bank(rules, su2a, A, pools_by_id)
 	failed = _assert(
 		case_rows, failed, "U2.zero_to_five_first_return",
-		"first successful return with A (5) unlocks dungeon2 (INTENDED)",
-		Shell.cabinet_count(su2a, "b1") == 5 and Shell.can_start(rules, su2a, 1),
-		"b1=%s can_start1=%s" % [Shell.cabinet_count(su2a, "b1"), Shell.can_start(rules, su2a, 1)]
+		"first successful return with A (5) unlocks dungeon2 destination; start stays D1 (INTENDED)",
+		Shell.cabinet_count(su2a, "b1") == 5
+		and Shell.biome_unlocked(rules, su2a, 1)
+		and not Shell.can_start(rules, su2a, 1)
+		and Shell.can_start(rules, su2a, 0),
+		"b1=%s dest1=%s can_start1=%s" % [
+			Shell.cabinet_count(su2a, "b1"),
+			Shell.biome_unlocked(rules, su2a, 1),
+			Shell.can_start(rules, su2a, 1),
+		]
 	) or failed
 	var su2b: Dictionary = Shell.fresh_state()
 	Shell.bank(rules, su2b, A + [F], pools_by_id)
 	failed = _assert(
 		case_rows, failed, "U2.zero_to_six_first_return",
-		"first successful return with A+F (6) unlocks; six openers vs quota five INTENDED",
-		Shell.cabinet_count(su2b, "b1") == 6 and Shell.can_start(rules, su2b, 1),
-		"b1=%s" % Shell.cabinet_count(su2b, "b1")
+		"first successful return with A+F (6) unlocks destination; start stays D1; six openers vs quota five INTENDED",
+		Shell.cabinet_count(su2b, "b1") == 6
+		and Shell.biome_unlocked(rules, su2b, 1)
+		and not Shell.can_start(rules, su2b, 1)
+		and Shell.can_start(rules, su2b, 0),
+		"b1=%s dest1=%s can_start1=%s" % [
+			Shell.cabinet_count(su2b, "b1"),
+			Shell.biome_unlocked(rules, su2b, 1),
+			Shell.can_start(rules, su2b, 1),
+		]
 	) or failed
 
 	var su3: Dictionary = Shell.fresh_state()
@@ -243,17 +262,21 @@ func _init() -> void:
 	var stamp2: Dictionary = Shell.stamp_map_piece(rules, su3, "b1")
 	failed = _assert(
 		case_rows, failed, "U3.later_bank_no_repeated_unlock_stamp",
-		"repeat A → +0; new F → +1; stamp again not first; unlock stays",
+		"repeat A → +0; new F → +1; stamp again not first; destination unlock stays; start stays D1",
 		(ru3_dup.get("added", []) as Array).is_empty()
 		and (ru3_new.get("added", []) as Array) == [F]
 		and Shell.cabinet_count(su3, "b1") == 6
-		and Shell.can_start(rules, su3, 1)
+		and Shell.biome_unlocked(rules, su3, 1)
+		and not Shell.can_start(rules, su3, 1)
+		and Shell.can_start(rules, su3, 0)
 		and not bool(stamp2.get("first", true))
 		and Shell.map_piece_count(su3) == 1,
-		"dup=%s new=%s b1=%s stamp2_first=%s pieces=%s" % [
+		"dup=%s new=%s b1=%s dest1=%s can_start1=%s stamp2_first=%s pieces=%s" % [
 			ru3_dup.get("added", []),
 			ru3_new.get("added", []),
 			Shell.cabinet_count(su3, "b1"),
+			Shell.biome_unlocked(rules, su3, 1),
+			Shell.can_start(rules, su3, 1),
 			stamp2.get("first", null),
 			Shell.map_piece_count(su3),
 		]

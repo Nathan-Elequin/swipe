@@ -210,11 +210,18 @@ static func shortcut_open(rules: Dictionary, state: Dictionary, index: int) -> b
 	return biome_unlocked(rules, state, index + 1)
 
 
-## Index 0 is the normal run from the first biome. A later index can start once
-## that biome is unlocked (the previous cabinet hit the quota and the path is
-## penciled). The held map treats that click as a stamp shortcut: empty carry-in.
+## Fresh-start floor eligibility (distinct from destination access).
+## Index 0 (Dungeon 1) is always startable. A later index is startable only as a
+## one-behind shortcut: unlock D3 → start D2, D4 → D3, D5 → D4. Unlocking D2
+## alone never licenses a D2 fresh start — reach D2 via same-run Push instead.
+## Earlier earned starts stay available. Endless is not Dungeon 6 here; there is
+## no invented D5 fresh-start shortcut. biome_unlocked / can_push stay separate.
 static func can_start(rules: Dictionary, state: Dictionary, index: int) -> bool:
-	return biome_unlocked(rules, state, index)
+	if index < 0:
+		return false
+	if index == 0:
+		return true
+	return shortcut_open(rules, state, index)
 
 
 static func can_push(rules: Dictionary, state: Dictionary) -> bool:
