@@ -2,7 +2,9 @@
 id: REQ-20261106-title-framed-B
 status: open
 priority: high
-branch: playtest/latest
+pr: 440
+tip_sha: 050c9cf8
+branch: cursor/title-framed-b-9249
 created: 2026-11-07T00:10:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
