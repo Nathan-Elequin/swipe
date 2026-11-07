@@ -191,6 +191,8 @@ var _hover_id: String = ""
 var _arriving: bool = false
 var _arrive_skip: int = 0
 var _arrive_gen: int = 0
+## Owns in-flight play_key_ring across awaits/finalizer (separate from arrive).
+var _key_ring_gen: int = 0
 var _arrive_motion: Tween
 var _door_busy: bool = false
 var _glints: Array = []
@@ -471,6 +473,8 @@ func open_cabin(p_items: Dictionary, p_tex: Dictionary, p_buckets: int, walk_in:
 	_room = _start_room()
 	if walk_in:
 		_arrive_gen += 1
+		## Capture at schedule time. Timer must not read a newer gen when it fires.
+		var scheduled_gen: int = _arrive_gen
 		_arrive_skip = 0
 		_arrive_pending_name = ""
 		_arrive_pending_room = ""
@@ -481,7 +485,7 @@ func open_cabin(p_items: Dictionary, p_tex: Dictionary, p_buckets: int, walk_in:
 		_rebuild_shelves()
 		_beat = "pan"
 		var t := get_tree().create_timer(0.02, true, true, true)
-		t.timeout.connect(_play_arrive, CONNECT_ONE_SHOT)
+		t.timeout.connect(_play_arrive.bind(scheduled_gen), CONNECT_ONE_SHOT)
 	else:
 		show_menu("main")
 
@@ -490,9 +494,10 @@ func show_menu(room: String = "main") -> void:
 	items_by_id = items_by_id
 	visible = true
 	_menu_on = true
-	## Take ownership of the cabin idle surface. Bump arrive gen so any in-flight
-	## _play_arrive coroutine becomes stale and must not clear these locks later.
+	## Take ownership of the cabin idle surface. Bump arrive/key-ring gens so
+	## in-flight coroutines become stale and must not clear these locks later.
 	_arrive_gen += 1
+	_key_ring_gen += 1
 	_arriving = false
 	_room_busy = false
 	_pan_busy = false
@@ -527,9 +532,10 @@ func hide_for_run() -> void:
 	visible = false
 	_menu_on = false
 	_beat = ""
-	## Invalidate in-flight arrive coroutines, then drop interaction locks this
-	## hide is aborting. Stale resumes must not clear a later homecoming.
+	## Invalidate in-flight arrive/key-ring coroutines, then drop interaction
+	## locks this hide is aborting. Stale resumes must not clear a later owner.
 	_arrive_gen += 1
+	_key_ring_gen += 1
 	_abort_cabin_interaction()
 
 
@@ -699,6 +705,8 @@ func play_arrive_splash() -> void:
 func play_key_ring() -> void:
 	if key_ring_seen:
 		return
+	_key_ring_gen += 1
+	var gen: int = _key_ring_gen
 	visible = true
 	_menu_on = true
 	_ext_root.visible = false
@@ -713,25 +721,22 @@ func play_key_ring() -> void:
 		nib.play("gasp")
 	KIT.cue(sfx, &"speech.nib_gasp")
 	await _wait(0.5)
-	if not visible:
-		## Only release the lock this sequence set. Do not touch a newer arrive.
-		if _beat == "keyring":
-			_room_busy = false
-			_beat = "idle"
+	if _key_ring_aborted(gen):
 		return
 	if nib and nib.sprite_frames:
 		nib.play("walk")
 	await _move_nib_x(120.0, 0.6)
+	if _key_ring_aborted(gen):
+		return
 	await _move_nib_x(216.0, 0.6)
+	if _key_ring_aborted(gen):
+		return
 	if nib and nib.sprite_frames:
 		nib.play("idle")
 	if _cutscene:
 		_cutscene.play("keyring")
 		await _cutscene.finished
-	if not visible:
-		if _beat == "keyring":
-			_room_busy = false
-			_beat = "idle"
+	if _key_ring_aborted(gen):
 		return
 	var ring: AnimatedSprite2D = KIT.anim_sprite(
 		["props/key_ring_f0.png", "props/key_ring_f1.png", "props/key_ring_f2.png"],
@@ -746,26 +751,90 @@ func play_key_ring() -> void:
 	if nib and nib.sprite_frames:
 		nib.play("walk")
 	await _move_nib_x(352.0, 1.0)
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	if nib and nib.sprite_frames:
 		nib.play("idle")
 	## Right path first: hall (+ Outpost), then left study chain.
 	await _unlock_spot("main", "SideDoor", "hall", "", false)
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	if not rooms_unlocked.has("mudroom"):
 		rooms_unlocked.append("mudroom")
 	await _pan_unlocked("hall")
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _say_key("keyring.door.hall")
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _pan_unlocked("main")
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _unlock_spot("main", "LeftDoor", "study", "", false)
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _pan_unlocked("study")
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _say_key("keyring.door.study")
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _unlock_spot("study", "SideDoor", "workshop", "", false)
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _pan_unlocked("workshop")
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _say_key("keyring.door.workshop")
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _unlock_spot("workshop", "Ladder", "loft", "", true)
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _pan_unlocked("loft")
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _say_key("keyring.door.loft")
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _pan_unlocked("main")
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	await _move_nib_x(216.0, 0.6)
+	if _key_ring_aborted(gen):
+		if is_instance_valid(ring):
+			ring.queue_free()
+		return
 	if is_instance_valid(ring):
 		ring.queue_free()
 	if nib and nib.sprite_frames:
@@ -773,6 +842,9 @@ func play_key_ring() -> void:
 	if _dialog:
 		_dialog.say(["keyring.done"])
 		await _dialog.finished
+	## Finalizer: stale generation must not clear B's lock or stamp key_ring_seen.
+	if gen != _key_ring_gen:
+		return
 	key_ring_seen = true
 	_room_busy = false
 	_beat = "idle"
@@ -783,6 +855,20 @@ func play_key_ring() -> void:
 			r.ensure_bg()
 	_refresh_rooms()
 	_apply_gate()
+
+
+## True when this key-ring coroutine must stop.
+## Gen mismatch = stale resume after hide/show_menu/newer play_key_ring — no lock clears.
+## Matching gen + hidden = release only this sequence's room_busy.
+func _key_ring_aborted(gen: int) -> bool:
+	if gen != _key_ring_gen:
+		return true
+	if visible:
+		return false
+	_room_busy = false
+	if _beat == "keyring":
+		_beat = "idle"
+	return true
 
 
 func play_ending() -> void:
@@ -1175,10 +1261,14 @@ func _arrive_aborted(gen: int) -> bool:
 	return true
 
 
-func _play_arrive() -> void:
+## scheduled_gen is captured when open_cabin arms the 0.02s timer. Reject stale
+## callbacks before any mutation so A→hide→B within that window cannot run as B.
+func _play_arrive(scheduled_gen: int = -1) -> void:
+	var gen: int = scheduled_gen if scheduled_gen >= 0 else _arrive_gen
+	if gen != _arrive_gen:
+		return
 	if not visible:
 		return
-	var gen: int = _arrive_gen
 	_arriving = true
 	_door_busy = false
 	_door_hit.disabled = false
@@ -3938,6 +4028,8 @@ func on_pause_closed() -> void:
 
 func stop_story() -> void:
 	_story_seq += 1
+	_arrive_gen += 1
+	_key_ring_gen += 1
 	if _cutscene and _cutscene.is_playing():
 		_cutscene.abort()
 	if _road_frame and _road_frame.has_method("abort"):

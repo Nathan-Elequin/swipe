@@ -23,6 +23,7 @@ const MAIN_SCENE := "res://scenes/main.tscn"
 func _initialize() -> void:
 	var failed := false
 	if not _sandbox_ok():
+		print("REFUSED_UNSAFE_DIRECT_USERDATA path=%s" % OS.get_user_data_dir())
 		push_error(
 			"CABIN_NAV_LOCK_PROBE_FAIL refuse: user data '%s' is not an ARC1 sandbox. "
 			% OS.get_user_data_dir()
@@ -31,6 +32,7 @@ func _initialize() -> void:
 		quit(1)
 		return
 	print("PROBE_USER_DATA=", OS.get_user_data_dir())
+	print("SANDBOX_GUARD_OK")
 
 	var err: Error = change_scene_to_file(MAIN_SCENE)
 	if err != OK:
@@ -62,8 +64,11 @@ func _initialize() -> void:
 		_legacy_arrive_aborted_clears_on_gen_mismatch()
 	) or failed
 
-	## --- Case G: interleaved A hide B then stale A resume ---
+	## --- Case G: helper-level stale arrive abort ---
 	failed = await _case_stale_arrive_cannot_clear_newer(cabin) or failed
+
+	## --- Case S: real scheduler A→hide/reopen B within timer window ---
+	failed = await _case_scheduled_arrive_stale_timer(main, cabin) or failed
 
 	## --- Case N: forced Nib / push-block home after keys already done ---
 	failed = await _case_push_block_home_then_nav(main, cabin) or failed
@@ -71,18 +76,22 @@ func _initialize() -> void:
 	## --- Case W: walk-in win homecoming after keys already done ---
 	failed = await _case_walk_in_win_then_nav(main, cabin) or failed
 
-	## --- Case K: key-ring mid-hide abort (keys NOT yet done) ---
-	## Secondary class — reported first-return symptom often has keys done.
-	failed = await _case_key_ring_hide_abort(cabin) or failed
+	## --- Case K: key-ring A suspended → hide/reopen B → A resumes ---
+	failed = await _case_key_ring_stale_resume(cabin) or failed
 
 	## --- Case D: dialog open still gates; after dismiss nav free ---
 	failed = await _case_dialog_gates_then_releases(cabin) or failed
+
+	## Bounded teardown: free cabin/Main before quit to cut harness RID noise.
+	await _teardown_main(main)
 
 	if failed:
 		push_error("CABIN_NAV_LOCK_PROBE_FAIL")
 		quit(1)
 		return
 	print("CABIN_NAV_LOCK_PROBE_OK")
+	print("INFO full_unskipped_walk_in_cinematic=GAP headless")
+	print("INFO physical_click_proof=NOT_CLAIMED handler_nav_only")
 	quit(0)
 
 
@@ -182,6 +191,108 @@ func _case_stale_arrive_cannot_clear_newer(cabin) -> bool:
 	return failed
 
 
+## Actual open_cabin timer schedule: A arms 0.02s callback → hide/reopen B before
+## fire → stale A must not mutate as B.
+func _case_scheduled_arrive_stale_timer(main: Node, cabin) -> bool:
+	var failed := false
+	paused = false
+	_seed_post_tutorial_cabin(cabin)
+	var items: Dictionary = main.items_by_id if ("items_by_id" in main) else {}
+	var tex: Dictionary = main.tex_by_item if ("tex_by_item" in main) else {}
+	cabin.open_cabin(items, tex, 1, true, "win", [], ["boot"])
+	var gen_a: int = int(cabin._arrive_gen)
+	## Within the 20ms schedule window: invalidate A and open B.
+	cabin.hide_for_run()
+	cabin.open_cabin(items, tex, 1, true, "win", [], ["net"])
+	var gen_b: int = int(cabin._arrive_gen)
+	failed = _check(failed, "scheduler_b_gen_after_a", gen_b > gen_a) or failed
+	## Wait past both timers.
+	await _wait_frames(cabin, 12)
+	## Stale bound callback with gen_a must no-op (no claim on B's gen).
+	cabin._play_arrive(gen_a)
+	await _wait_frames(cabin, 4)
+	failed = _check(
+		failed,
+		"scheduler_stale_a_callback_rejected",
+		int(cabin._arrive_gen) == gen_b
+	) or failed
+	## B may be arriving or still waiting its timer; either way gen stays B's.
+	failed = _check(
+		failed,
+		"scheduler_b_still_owns_gen",
+		int(cabin._arrive_gen) == gen_b
+	) or failed
+	cabin.stop_story()
+	cabin.hide_for_run()
+	return failed
+
+
+## Key-ring A mid-await → hide/reopen B with intentional locks → A resumes must
+## not clear B. Does not treat hide's immediate clear as the proof.
+func _case_key_ring_stale_resume(cabin) -> bool:
+	var failed := false
+	cabin.stop_story()
+	cabin.key_ring_seen = false
+	cabin.rooms_unlocked = ["main"]
+	cabin.counters.hauls = 0
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._room_busy = false
+	var gen_before: int = int(cabin._key_ring_gen)
+	cabin.play_key_ring()
+	## Let A pass the first await checkpoint.
+	await _wait_frames(cabin, 20)
+	var gen_a: int = gen_before + 1
+	## Suspend A ownership via hide (bumps gen). Do not use that clear as proof.
+	cabin.hide_for_run()
+	## B takes the cabin with intentional busy + locked rooms snapshot.
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin.key_ring_seen = false
+	cabin.rooms_unlocked = ["main"]
+	cabin._room_busy = true
+	cabin._beat = "idle"
+	var gen_b: int = int(cabin._key_ring_gen)
+	var rooms_b: Array = cabin.rooms_unlocked.duplicate()
+	failed = _check(failed, "keyring_b_gen_newer_than_a", gen_b > gen_a) or failed
+	## Force stale A abort/finalizer paths without waiting the full tour.
+	var aborted: bool = cabin._key_ring_aborted(gen_a)
+	failed = _check(failed, "keyring_stale_a_aborted", aborted) or failed
+	failed = _check(
+		failed,
+		"keyring_stale_a_does_not_clear_b_room_busy",
+		cabin._room_busy == true
+	) or failed
+	failed = _check(
+		failed,
+		"keyring_stale_a_rooms_unchanged",
+		cabin.rooms_unlocked.hash() == rooms_b.hash()
+	) or failed
+	failed = _check(
+		failed,
+		"keyring_stale_a_did_not_stamp_seen",
+		cabin.key_ring_seen == false
+	) or failed
+	## Give any suspended awaits a chance to resume and hit gen checks.
+	for _i in range(90):
+		await process_frame
+		if cabin._dialog != null and cabin._dialog.is_open():
+			cabin._dialog.dismiss()
+	failed = _check(
+		failed,
+		"keyring_after_resume_window_b_lock_held",
+		cabin._room_busy == true and cabin.key_ring_seen == false
+	) or failed
+	failed = _check(
+		failed,
+		"keyring_after_resume_rooms_still_b",
+		cabin.rooms_unlocked.hash() == rooms_b.hash()
+	) or failed
+	cabin.stop_story()
+	_seed_post_tutorial_cabin(cabin)
+	return failed
+
+
 func _case_push_block_home_then_nav(main: Node, cabin) -> bool:
 	var failed := false
 	_seed_post_tutorial_cabin(cabin)
@@ -225,9 +336,14 @@ func _case_push_block_home_then_nav(main: Node, cabin) -> bool:
 		cabin._room_busy == false and cabin._arriving == false and cabin._pan_busy == false
 	) or failed
 	failed = _check(failed, "push_block_hotspot_changed_room", moved) or failed
-	## Best-effort InputEvent into Hit control (not Autopilot; may no-op headless).
-	var clicked: bool = await _try_input_click_hotspot(cabin, "LeftDoor", str(cabin._current_room))
-	print("INFO input_click_leftdoor_attempted=%s" % clicked)
+	## Optional InputEvent after room change (mudroom), not on hall LeftDoor.
+	## Handler nav above is the proof; this is pointer attempt only — not click PASS.
+	var after_room: String = str(cabin._current_room)
+	var clicked: bool = await _try_input_click_hotspot(cabin, "OutDoor", after_room)
+	print(
+		"INFO input_click_after_room_change room=%s node=OutDoor attempted=%s (not physical click proof)"
+		% [after_room, clicked]
+	)
 	await _wait_until_idle(cabin, 90)
 	failed = await _dismiss_cabin_dialog(cabin) or failed
 	failed = _check(
@@ -293,40 +409,6 @@ func _case_walk_in_win_then_nav(main: Node, cabin) -> bool:
 		cabin._room_busy == false and cabin._arriving == false and cabin._pan_busy == false
 	) or failed
 	failed = _check(failed, "walk_in_side_door_changed_room", walked) or failed
-	return failed
-
-
-func _case_key_ring_hide_abort(cabin) -> bool:
-	var failed := false
-	## Secondary abort class (not the primary first-return-with-keys-done claim).
-	cabin.stop_story()
-	cabin.key_ring_seen = false
-	cabin.rooms_unlocked = ["main"]
-	cabin.counters.hauls = 0
-	cabin.visible = true
-	cabin.show_menu("main")
-	cabin._room_busy = false
-	cabin.play_key_ring()
-	await _wait_frames(cabin, 4)
-	cabin.hide_for_run()
-	for _i in range(120):
-		await process_frame
-		if cabin._room_busy == false:
-			break
-	failed = _check(
-		failed,
-		"key_ring_hide_abort_room_idle",
-		cabin._room_busy == false
-	) or failed
-	cabin.visible = true
-	cabin.show_menu("main")
-	failed = _check(
-		failed,
-		"after_key_ring_abort_show_menu_free",
-		cabin._busy() == false
-	) or failed
-	## Restore post-tutorial seed for later cases.
-	_seed_post_tutorial_cabin(cabin)
 	return failed
 
 
@@ -418,6 +500,22 @@ func _try_input_click_hotspot(cabin, node_name: String, room_id: String) -> bool
 	ev_up.global_position = ev.position
 	hit.gui_input.emit(ev_up)
 	return true
+
+
+func _teardown_main(main: Node) -> void:
+	if main == null:
+		return
+	if ("home_cabin" in main) and main.home_cabin != null:
+		var cabin = main.home_cabin
+		cabin.stop_story()
+		cabin.hide_for_run()
+	## Free Main subtree so ScriptTree quit does not leave cabin ObjectDB noise.
+	if main.get_parent() != null:
+		main.get_parent().remove_child(main)
+	main.queue_free()
+	await process_frame
+	await process_frame
+	print("INFO harness_teardown_main_freed")
 
 
 func _check(failed: bool, label: String, ok: bool) -> bool:
