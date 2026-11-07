@@ -4069,12 +4069,16 @@ func _input(event: InputEvent) -> void:
 			tc.flip_to_page(int(tc.current_page()) + dir)
 		get_viewport().set_input_as_handled()
 		return
+	## Same busy/story locks as hotspot nav: do not pan during keyring/dialog/arrive.
+	## Stealing cabin_session mid-tour orphans _room_busy when the tour aborts.
 	if event.is_action_pressed("ui_left") and _int_root.visible:
-		_arrow(-1)
+		if not _busy():
+			_arrow(-1)
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_right") and _int_root.visible:
-		_arrow(1)
+		if not _busy():
+			_arrow(1)
 		get_viewport().set_input_as_handled()
 		return
 
@@ -4277,6 +4281,10 @@ func fill_complete_save() -> void:
 
 
 func _arrow(delta: int) -> void:
+	## Align with hotspot `_busy()` gate. Internal keyring pans use `_pan_unlocked`,
+	## not this path — ordinary left/right must not cancel an in-flight tour.
+	if _busy():
+		return
 	var i: int = ROOM_ORDER.find(_current_room)
 	var nxt: int = i + delta
 	if nxt < 0 or nxt >= ROOM_ORDER.size():

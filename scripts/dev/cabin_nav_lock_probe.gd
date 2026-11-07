@@ -70,8 +70,11 @@ func _initialize() -> void:
 	## --- Case S: natural scheduled timer reject + explicit mutation markers ---
 	failed = await _case_scheduled_arrive_stale_timer(main, cabin) or failed
 
-	## --- Case T: ordinary pan_to A → stop/hide/reopen B (killed + done-before-B) ---
-	failed = await _case_pan_to_cancel_reopen(cabin) or failed
+	## --- Case T: ordinary pan_to A overlapping B (not wait-A-then-B) ---
+	failed = await _case_pan_to_overlapping_ab(cabin) or failed
+
+	## --- Case R: keyboard arrows during live keyring dialog (handler proof) ---
+	failed = await _case_keyring_arrows_blocked_during_dialog(cabin) or failed
 
 	## --- Case U: interrupt mid _unlock_spot await; stale A must not unlock ---
 	failed = await _case_unlock_spot_mid_await_stale(cabin) or failed
@@ -288,9 +291,10 @@ func _legacy_play_arrive_ignores_scheduled_gen(scheduled_gen: int, live_gen: int
 	return scheduled_gen != live_gen
 
 
-## Ordinary pan_to A awaiting → stop_story/hide/reopen B.
-## Covers killed RefCounted tween hang + done-before-B-next-frame finalization.
-func _case_pan_to_cancel_reopen(cabin) -> bool:
+## Overlapping pan_to A/B: invalidate A and start B in the same window WITHOUT
+## waiting for A reject first. Observes A termination + B room/motion/locks.
+## Also stages late-completion: let A tween run near end, then steal session.
+func _case_pan_to_overlapping_ab(cabin) -> bool:
 	var failed := false
 	failed = _check(
 		failed,
@@ -311,7 +315,7 @@ func _case_pan_to_cancel_reopen(cabin) -> bool:
 	cabin._pan_last_outcome = ""
 	cabin._nested_phase = ""
 	cabin._nested_last_outcome = ""
-	## Start ordinary pan_to A (captures cabin session).
+	## --- Overlap 1: kill mid-await, start B immediately (no wait for A reject) ---
 	cabin.pan_to("hall")
 	var hit_await := false
 	var session_a: int = -1
@@ -321,65 +325,123 @@ func _case_pan_to_cancel_reopen(cabin) -> bool:
 			hit_await = true
 			session_a = int(cabin._cabin_session)
 			break
-	failed = _check(failed, "pan_to_hit_await_checkpoint", hit_await and session_a > 0) or failed
-	## Capture A's tween ref (may become killed RefCounted still is_instance_valid).
+	failed = _check(failed, "pan_overlap_a_hit_await", hit_await and session_a > 0) or failed
 	var tw_a = cabin._cabin_motion
-	## Invalidate via stop_story (settles pan_busy) — observe A termination BEFORE B starts
-	## so B's apply cannot overwrite the reject receipt.
+	## Invalidate + reopen B in one probe step — A still winding down.
 	cabin.stop_story()
-	failed = _check(failed, "pan_to_stop_story_clears_pan_busy", cabin._pan_busy == false) or failed
-	var saw_a_reject := false
-	for _j in range(120):
-		await process_frame
-		if (
-			str(cabin._nested_last_helper) == "pan_to"
-			and str(cabin._nested_last_outcome) == "reject"
-			and int(cabin._nested_last_owner_gen) == session_a
-		):
-			saw_a_reject = true
-			break
-		if str(cabin._pan_last_outcome) == "reject" and int(cabin._pan_last_session) == session_a:
-			saw_a_reject = true
-			break
-	failed = _check(failed, "pan_to_stale_a_termination_observed", saw_a_reject) or failed
-	## Killed A tween: RefCounted may remain instance-valid but must not be active/valid owner.
-	if tw_a != null and is_instance_valid(tw_a):
-		failed = _check(
-			failed,
-			"pan_to_killed_a_tween_not_valid_or_not_owner",
-			(not tw_a.is_valid()) or cabin._cabin_motion != tw_a
-		) or failed
-	## Reopen B with replacement pan; A must not finalize into B's room/locks.
 	cabin.visible = true
 	cabin.show_menu("main")
 	cabin._snap_to("main")
 	cabin._current_room = "main"
 	cabin._pan_busy = false
+	cabin._pan_last_outcome = ""
 	cabin.pan_to("study")
-	var room_b_target := "study"
 	var session_b: int = int(cabin._cabin_session)
 	var tw_b = cabin._cabin_motion
-	await _wait_until_idle(cabin, 180)
-	failed = await _dismiss_cabin_dialog(cabin) or failed
+	failed = _check(failed, "pan_overlap_b_started_while_a_live", session_b > session_a) or failed
+	## Observe both: A reject and B settle — overlapping cleanup window.
+	var saw_a_reject := false
+	var b_settled := false
+	for _j in range(240):
+		await process_frame
+		if cabin._dialog != null and cabin._dialog.is_open():
+			cabin._dialog.advance()
+		if (
+			not saw_a_reject
+			and (
+				(
+					str(cabin._nested_last_helper) == "pan_to"
+					and str(cabin._nested_last_outcome) == "reject"
+					and int(cabin._nested_last_owner_gen) == session_a
+				)
+				or (
+					str(cabin._pan_last_outcome) == "reject"
+					and int(cabin._pan_last_session) == session_a
+				)
+			)
+		):
+			saw_a_reject = true
+		if str(cabin._current_room) == "study" and cabin._pan_busy == false:
+			b_settled = true
+		if saw_a_reject and b_settled:
+			break
+	failed = _check(failed, "pan_overlap_a_termination_observed", saw_a_reject) or failed
+	failed = _check(failed, "pan_overlap_b_settled_study", b_settled) or failed
 	failed = _check(
 		failed,
-		"pan_to_b_session_newer",
-		session_b > session_a and int(cabin._cabin_session) >= session_b
+		"pan_overlap_b_locks_free",
+		cabin._pan_busy == false and cabin._room_busy == false
+	) or failed
+	if tw_a != null and is_instance_valid(tw_a):
+		failed = _check(
+			failed,
+			"pan_overlap_killed_a_not_owner",
+			(not tw_a.is_valid()) or cabin._cabin_motion != tw_a
+		) or failed
+	failed = _check(
+		failed,
+		"pan_overlap_a_did_not_steal_b_motion",
+		cabin._cabin_motion == null or cabin._cabin_motion != tw_a
+	) or failed
+
+	## --- Overlap 2: late-completion — A near end of tween, then B steals session ---
+	cabin.stop_story()
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._snap_to("main")
+	cabin._current_room = "main"
+	cabin._pan_busy = false
+	cabin._pan_last_outcome = ""
+	cabin._nested_phase = ""
+	cabin.pan_to("hall")
+	var late_session_a: int = -1
+	for _k in range(120):
+		await process_frame
+		if str(cabin._nested_phase) == "pan_to_await":
+			late_session_a = int(cabin._cabin_session)
+			break
+	failed = _check(failed, "pan_late_a_hit_await", late_session_a > 0) or failed
+	## Let A run most of the 0.45s pan (~20 frames) so done can race with B.
+	await _wait_frames(cabin, 20)
+	## Steal session while A may be at/near finished — do not wait for A reject.
+	cabin.hide_for_run()
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._snap_to("main")
+	cabin._current_room = "main"
+	cabin._pan_busy = false
+	cabin.pan_to("mudroom")
+	var late_session_b: int = int(cabin._cabin_session)
+	var late_a_reject := false
+	var late_b_ok := false
+	for _m in range(240):
+		await process_frame
+		if cabin._dialog != null and cabin._dialog.is_open():
+			cabin._dialog.advance()
+		if (
+			str(cabin._pan_last_outcome) == "reject"
+			and int(cabin._pan_last_session) == late_session_a
+		) or (
+			str(cabin._nested_last_helper) == "pan_to"
+			and str(cabin._nested_last_outcome) == "reject"
+			and int(cabin._nested_last_owner_gen) == late_session_a
+		):
+			late_a_reject = true
+		if str(cabin._current_room) == "mudroom" and not cabin._pan_busy:
+			late_b_ok = true
+		if late_a_reject and late_b_ok:
+			break
+	failed = _check(failed, "pan_late_a_reject_observed", late_a_reject) or failed
+	failed = _check(failed, "pan_late_b_mudroom_intact", late_b_ok) or failed
+	failed = _check(
+		failed,
+		"pan_late_b_session_newer",
+		late_session_b > late_session_a
 	) or failed
 	failed = _check(
 		failed,
-		"pan_to_b_room_is_study_not_stale_hall",
-		str(cabin._current_room) == room_b_target
-	) or failed
-	failed = _check(
-		failed,
-		"pan_to_b_pan_busy_settled_free",
-		cabin._pan_busy == false
-	) or failed
-	failed = _check(
-		failed,
-		"pan_to_a_did_not_clear_b_motion_pointer_wrongly",
-		cabin._cabin_motion == null or cabin._cabin_motion == tw_b or cabin._cabin_motion != tw_a
+		"pan_late_b_not_hall_from_stale_a",
+		str(cabin._current_room) != "hall"
 	) or failed
 	cabin.stop_story()
 	_seed_post_tutorial_cabin(cabin)
@@ -387,30 +449,162 @@ func _case_pan_to_cancel_reopen(cabin) -> bool:
 
 
 ## Pre-fix: loop on is_instance_valid only → killed tween never finishes → hang.
+## SIMULATED negative (not a runtime hang exercise).
 func _legacy_await_hangs_on_killed_refcounted_tween() -> bool:
-	## Model: killed Tween stays is_instance_valid==true, is_valid==false, done==false.
 	var instance_valid := true
 	var tween_valid := false
 	var done := false
-	## Buggy loop condition:
 	var would_spin: bool = instance_valid and not done and not tween_valid
-	## Fixed loop uses is_valid and exits when not tween_valid.
 	var fixed_exits: bool = not tween_valid
 	return would_spin and fixed_exits
 
 
 ## Pre-fix: A done=true then B show_menu before A's next tick → A finalizes as B.
+## SIMULATED negative; runtime late-completion is pan_late_* above.
 func _legacy_pan_done_then_b_finalizes() -> bool:
 	var session_a := 1
 	var session_live := 2
 	var current_room := "main"
 	var pan_busy := true
 	var done := true
-	## Buggy: only checked pan_ok/visible, not session:
 	if done:
 		current_room = "hall"
 		pan_busy = false
 	return session_a != session_live and current_room == "hall" and pan_busy == false
+
+
+## EXECUTED: production `_input` ui_left/ui_right during live keyring dialog.
+## Handler proof (not physical keyboard hardware). Both arrows must not steal
+## session / orphan room_busy; tour finishes; ordinary nav works after.
+func _case_keyring_arrows_blocked_during_dialog(cabin) -> bool:
+	var failed := false
+	## SIMULATED negative: pre-fix keyboard path called _arrow while busy.
+	failed = _check(
+		failed,
+		"legacy_arrow_while_busy_would_steal_session",
+		_legacy_arrow_while_busy_steals_session()
+	) or failed
+	cabin.stop_story()
+	await _wait_frames(cabin, 8)
+	cabin.key_ring_seen = false
+	cabin.rooms_unlocked = ["main"]
+	cabin.counters.hauls = 0
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._room_busy = false
+	cabin.play_key_ring()
+	## Drive to live keyring dialog. Abort cutscene under headless (still real tour).
+	var dialog_live := false
+	for _i in range(1200):
+		await process_frame
+		if cabin._cutscene != null and cabin._cutscene.is_playing():
+			if cabin._cutscene.has_method("abort"):
+				cabin._cutscene.abort()
+			elif cabin._cutscene.has_method("request_advance"):
+				cabin._cutscene.request_advance()
+			continue
+		if cabin._beat == "keyring" and cabin._room_busy and cabin._dialog != null and cabin._dialog.is_open():
+			dialog_live = true
+			break
+		## If tour aborted early, stop waiting.
+		if not cabin.key_ring_seen and cabin._beat != "keyring" and not cabin._room_busy and _i > 60:
+			break
+	failed = _check(failed, "keyring_dialog_live_reached", dialog_live) or failed
+	if not dialog_live:
+		print("INFO keyring_dialog_miss beat=%s busy=%s" % [cabin._beat, cabin._room_busy])
+		cabin.stop_story()
+		await _wait_frames(cabin, 12)
+		_seed_post_tutorial_cabin(cabin)
+		return failed
+	var session_before: int = int(cabin._cabin_session)
+	var gen_before: int = int(cabin._key_ring_gen)
+	var room_before: String = str(cabin._current_room)
+	failed = _check(failed, "keyring_room_busy_during_dialog", cabin._room_busy == true) or failed
+	## Production `_input` handler — both arrows (handler proof, not physical HID).
+	_dispatch_cabin_action(cabin, "ui_left")
+	await _wait_frames(cabin, 4)
+	_dispatch_cabin_action(cabin, "ui_right")
+	await _wait_frames(cabin, 4)
+	failed = _check(
+		failed,
+		"keyring_arrows_session_unchanged",
+		int(cabin._cabin_session) == session_before
+	) or failed
+	failed = _check(
+		failed,
+		"keyring_arrows_gen_unchanged",
+		int(cabin._key_ring_gen) == gen_before
+	) or failed
+	failed = _check(
+		failed,
+		"keyring_arrows_room_busy_held",
+		cabin._room_busy == true and cabin._beat == "keyring"
+	) or failed
+	failed = _check(
+		failed,
+		"keyring_arrows_did_not_change_room",
+		str(cabin._current_room) == room_before
+	) or failed
+	print("INFO keyring_arrow_proof=production_input_handler not_physical_keyboard")
+	## Let tour finish: advance dialogs; abort any later cutscenes.
+	var tour_done := false
+	for _j in range(1500):
+		await process_frame
+		if cabin._cutscene != null and cabin._cutscene.is_playing():
+			if cabin._cutscene.has_method("abort"):
+				cabin._cutscene.abort()
+		if cabin._dialog != null and cabin._dialog.is_open():
+			cabin._dialog.advance()
+		if cabin.key_ring_seen and cabin._room_busy == false:
+			tour_done = true
+			break
+	failed = _check(failed, "keyring_tour_finished_once", tour_done) or failed
+	failed = _check(
+		failed,
+		"keyring_room_busy_released_after_tour",
+		cabin._room_busy == false and cabin.key_ring_seen == true
+	) or failed
+	## Ordinary room nav works afterward (handler + pan_to path).
+	cabin.show_menu("main")
+	await _wait_frames(cabin, 4)
+	failed = _check(failed, "after_keyring_not_busy", cabin._busy() == false) or failed
+	var nav_room_before: String = str(cabin._current_room)
+	_dispatch_cabin_action(cabin, "ui_right")
+	var nav_moved := false
+	for _k in range(120):
+		await process_frame
+		if str(cabin._current_room) != nav_room_before and not cabin._pan_busy:
+			nav_moved = true
+			break
+	failed = _check(failed, "after_keyring_arrow_nav_works", nav_moved) or failed
+	cabin.stop_story()
+	await _wait_frames(cabin, 12)
+	_seed_post_tutorial_cabin(cabin)
+	return failed
+
+
+## SIMULATED: pre-fix ui_right during busy called pan_to and bumped session.
+func _legacy_arrow_while_busy_steals_session() -> bool:
+	var room_busy := true
+	var dialog_open := true
+	var busy: bool = room_busy or dialog_open
+	var session := 5
+	## Buggy keyboard path ignored busy and called pan_to → session += 1:
+	if true:
+		session += 1
+	return busy and session == 6
+
+
+func _dispatch_cabin_action(cabin, action: String) -> void:
+	var ev := InputEventAction.new()
+	ev.action = action
+	ev.pressed = true
+	## Production handler path (not Autopilot / not physical HID).
+	if cabin.has_method("_input"):
+		cabin._input(ev)
+	ev.pressed = false
+	if cabin.has_method("_input"):
+		cabin._input(ev)
 
 
 ## Interrupt precisely while _unlock_spot awaits; reopen B; prove A resumed and
@@ -424,6 +618,7 @@ func _case_unlock_spot_mid_await_stale(cabin) -> bool:
 		_legacy_unlock_spot_applies_after_await()
 	) or failed
 	cabin.stop_story()
+	await _wait_frames(cabin, 12)
 	cabin.key_ring_seen = false
 	cabin.rooms_unlocked = ["main"]
 	cabin.visible = true
