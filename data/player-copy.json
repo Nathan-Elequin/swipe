@@ -2524,6 +2524,48 @@
 		{
 			"cat": "Nib",
 			"draft": true,
+			"key": "nib.home.give_home",
+			"text": "Let's give these a home.",
+			"where": "Campaign win homecoming: before S7 bank flight into trophy slots"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.lesson.new_mark",
+			"text": "See that 'New!' mark? We haven't brought one of those home yet. Make it back with it, and we'll add it to the collection.",
+			"where": "First campaign ready beat with a real hotbar New! badge visible (not tutorial, not peg twinkle)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.lesson.extract_haul",
+			"text": "These are the new finds you can bring home. Five different finds from Verdant Hollow will open the way deeper. They don't all have to come home together.",
+			"where": "First campaign extract with NEW UNIQUE preview; Verdant/b1 only"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.lesson.five_finds",
+			"text": "Five different finds from Verdant Hollow will open the way deeper. They don't all have to come home together.",
+			"where": "Post-return under-quota teaching if extract lesson not yet said; Verdant/b1 only"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.lesson.five_threshold",
+			"text": "Five different finds! There's a way beyond Verdant Hollow now. Head through the Hollow to reach it.",
+			"where": "After S7 celebration when b1 cabinet first crosses 5/5"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.lesson.tutorial_return",
+			"text": "Back in one piece. Next time, let's bring something home for these shelves.",
+			"where": "Tutorial clear cabin arrival; zero bank credit"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
 			"key": "nib.home.nothing_new",
 			"text": "Nothing new, but a good haul's a good haul. His things like being held.",
 			"where": "Win homecoming with no new items"

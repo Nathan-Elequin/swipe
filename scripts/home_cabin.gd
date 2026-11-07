@@ -75,6 +75,16 @@ var milestones_said: Array = []
 var nib_idle_index: int = 0
 var rug_secret_found: bool = false
 var counters: Dictionary = {"delves": 0, "homecomings": 0, "hauls": 0, "losses": 0}
+## Presentation-only reveal queue. Bank ledger (swiped/banked) is authoritative credit;
+## this list only tracks which newly banked IDs still need the S7 hall ceremony.
+## Backwards-compatible default: missing save key → []. Never reconstructed from historic banked.
+var bank_pending: Array = []
+## One-shot Spin lessons (cabin save). Do not invent alternate wording.
+var lesson_new_mark_said: bool = false
+var lesson_extract_haul_said: bool = false
+var lesson_five_finds_said: bool = false
+var lesson_five_threshold_said: bool = false
+var lesson_tutorial_return_said: bool = false
 var _raw_save: Dictionary = {}
 var lore: Dictionary = {}
 var layout: Dictionary = {}
@@ -163,10 +173,13 @@ var _campaign_rules: Dictionary = {}
 var _campaign_shell = null
 var _bank_hold: Dictionary = {}
 ## Skip map-piece ceremony for this homecoming (Push interrupt under 5/5).
+## Push-block also suppresses S7 FX + "give these a home" handoff (intentional).
 var _bank_from_push_block: bool = false
 var _bank_fresh: String = ""
 var _bank_busy: bool = false
 var _bank_played: bool = false
+## True while auto-staging pan→hall→ceremony so Escape/doors cannot divert mid-await.
+var _homecoming_bank_staging: bool = false
 var _case_scroll: Dictionary = {}
 var _case_columns: Dictionary = {}
 var _case_clips: Dictionary = {}
@@ -336,6 +349,9 @@ func swipe_ids(ids: Array) -> Array:
 			swiped[sid] = true
 			_just_mounted.append(sid)
 			_bank_hold[sid] = true
+			## Queue presentation without re-crediting. Duplicates never enter this branch.
+			if not bank_pending.has(sid):
+				bank_pending.append(sid)
 			new_unseen[sid] = true
 			news.append(sid)
 			changed = true
@@ -343,8 +359,86 @@ func swipe_ids(ids: Array) -> Array:
 		_bank_played = false
 		_save()
 		mirror_swiped_into_banked()
+		## Do not start mid-arrive / mid-keyring. Staging runs after settle.
 		call_deferred("_offer_bank_sequence")
 	return news
+
+
+## Drop one ID from the reveal queue after its mount presentation finishes.
+## Never touches swiped/banked credit.
+func _ack_bank_presented(step_id: String) -> void:
+	var sid := str(step_id)
+	if sid == "":
+		return
+	_bank_hold.erase(sid)
+	var idx := bank_pending.find(sid)
+	if idx >= 0:
+		bank_pending.remove_at(idx)
+		_save()
+
+
+## Rebuild session hold from persisted pending only (never all historic banked).
+func _restore_bank_hold_from_pending() -> void:
+	_bank_hold.clear()
+	var kept: Array = []
+	for raw in bank_pending:
+		var sid := str(raw)
+		if sid == "":
+			continue
+		## Stale pending with no ledger credit → drop (cannot re-bank).
+		if not bool(swiped.get(sid, false)):
+			continue
+		_bank_hold[sid] = true
+		kept.append(sid)
+	if kept.size() != bank_pending.size():
+		bank_pending = kept
+		_save()
+	if not _bank_hold.is_empty():
+		_bank_played = false
+
+
+func mark_lesson_said(flag: String) -> void:
+	match flag:
+		"new_mark":
+			if lesson_new_mark_said:
+				return
+			lesson_new_mark_said = true
+		"extract_haul":
+			if lesson_extract_haul_said:
+				return
+			lesson_extract_haul_said = true
+			## Same Spin five-finds teaching line as post-return under-quota lesson.
+			lesson_five_finds_said = true
+		"five_finds":
+			if lesson_five_finds_said:
+				return
+			lesson_five_finds_said = true
+		"five_threshold":
+			if lesson_five_threshold_said:
+				return
+			lesson_five_threshold_said = true
+		"tutorial_return":
+			if lesson_tutorial_return_said:
+				return
+			lesson_tutorial_return_said = true
+		_:
+			return
+	_save()
+
+
+func needs_lesson(flag: String) -> bool:
+	match flag:
+		"new_mark":
+			return not lesson_new_mark_said
+		"extract_haul":
+			return not lesson_extract_haul_said
+		"five_finds":
+			return not lesson_five_finds_said
+		"five_threshold":
+			return not lesson_five_threshold_said
+		"tutorial_return":
+			return not lesson_tutorial_return_said
+	return false
 
 
 func note_met(monster_id: String) -> void:
@@ -543,6 +637,22 @@ func show_menu(room: String = "main") -> void:
 	if _first_speech_ready():
 		await _say_first_speech()
 	_apply_gate()
+	## Reload / free cabin entry: resume unfinished reveal without re-banking.
+	## Skip while Push-block owns the hall handoff (that path mounts after its dialog).
+	if not bank_pending.is_empty() and is_room_unlocked("hall") and not _bank_from_push_block:
+		call_deferred("_resume_pending_bank_if_idle")
+
+
+func _resume_pending_bank_if_idle() -> void:
+	if _bank_busy or _arriving or _beat == "keyring" or not visible:
+		return
+	if _bank_from_push_block:
+		return
+	if _dialog != null and _dialog.has_method("is_open") and _dialog.is_open():
+		return
+	if bank_pending.is_empty():
+		return
+	_stage_homecoming_bank()
 
 
 func hide_for_run() -> void:
@@ -595,6 +705,11 @@ func open_hall_after_push_block(pool_id: String, biome_name: String, new_ids: Ar
 			_dialog.dismiss()
 		_dialog.say(["nib.homecoming"], [], {"biome": biome_name})
 		await _dialog.finished
+	## Push-block: mount pending without S7 FX / map-piece (flag still set).
+	_restore_bank_hold_from_pending()
+	if not _bank_hold.is_empty() and _current_room == "hall" and not _bank_busy:
+		_bank_busy = true
+		await _play_bank_sequence()
 
 
 func focus_biome_case(pool_id: String) -> void:
@@ -861,6 +976,9 @@ func play_key_ring() -> void:
 			r.ensure_bg()
 	_refresh_rooms()
 	_apply_gate()
+	## First haul unlocks the hall — stage any pending S7 ceremony now.
+	if gen == _key_ring_gen and visible and not bank_pending.is_empty():
+		await _stage_homecoming_bank()
 
 
 func _key_ring_owns(gen: int) -> bool:
@@ -1505,6 +1623,14 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 			await _say_first_speech()
 			if _arrive_aborted(gen):
 				return
+		## Tutorial clear → cabin with zero bank credit. Teach shelves once; never fake a haul.
+		if _held_ids.is_empty() and _new_ids.is_empty() and tutorial_done and not tutorial_declined \
+				and needs_lesson("tutorial_return") and _dialog != null:
+			mark_lesson_said("tutorial_return")
+			_dialog.say(["nib.lesson.tutorial_return"])
+			await _dialog.finished
+			if _arrive_aborted(gen):
+				return
 		var p: Vector2i = cabinet_progress()
 		if p.y > 0:
 			var pct: int = int(round(100.0 * float(p.x) / float(p.y)))
@@ -1520,7 +1646,19 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 		if int(counters.hauls) >= 1 and not key_ring_seen:
 			_save()
 			await play_key_ring()
+			## Key ring finalizer stages pending bank when present.
+			if _arrive_aborted(gen):
+				return
+			_save()
+			_beat = "idle"
+			_play_station()
+			_apply_gate()
 			return
+		## Campaign win with new uniques: auto-focus hall + existing S7 ceremony.
+		if not bank_pending.is_empty():
+			await _stage_homecoming_bank()
+			if _arrive_aborted(gen):
+				return
 	_save()
 	_beat = "idle"
 	_play_station()
@@ -2906,10 +3044,61 @@ func _on_case_hover(pool_id: String, hit: Control, unlocked: bool = true) -> voi
 func _offer_bank_sequence() -> void:
 	if _bank_busy or _bank_hold.is_empty():
 		return
+	## Never start mid-arrive / mid-keyring / mid-staging (would softlock or divert).
+	if _arriving or _beat == "keyring" or _beat == "arrive" or _homecoming_bank_staging:
+		return
+	if _dialog != null and _dialog.has_method("is_open") and _dialog.is_open():
+		return
 	if _current_room != "hall" or _int_root == null or not _int_root.visible:
 		return
 	_bank_busy = true
 	_play_bank_sequence()
+
+
+## After a win settle (and key ring if due): focus the haul's case and run S7.
+func stage_homecoming_bank() -> void:
+	await _stage_homecoming_bank()
+
+
+func _stage_homecoming_bank() -> void:
+	_restore_bank_hold_from_pending()
+	if _bank_hold.is_empty() or _bank_busy:
+		return
+	if _homecoming_kind == "loss":
+		return
+	if not is_room_unlocked("hall"):
+		return
+	if _int_root == null or not visible:
+		return
+	_homecoming_bank_staging = true
+	var session: int = _begin_cabin_session()
+	## Focus the primary pool of the first pending id before FX.
+	var focus_pool := ""
+	for raw in bank_pending:
+		var sid := str(raw)
+		var pool := _live_pool(items_by_id.get(sid, {}))
+		if pool != "":
+			focus_pool = pool
+			break
+	if _current_room != "hall":
+		_pan_busy = false
+		await pan_to("hall")
+		if not _owns_cabin_session(session) or not visible:
+			_homecoming_bank_staging = false
+			return
+	_int_root.visible = true
+	if focus_pool != "":
+		focus_biome_case(focus_pool)
+	if _bank_hold.is_empty() or _current_room != "hall":
+		_homecoming_bank_staging = false
+		return
+	## Claim busy before releasing staging so a deferred hall offer cannot double-start.
+	if _bank_busy:
+		_homecoming_bank_staging = false
+		return
+	_bank_busy = true
+	_homecoming_bank_staging = false
+	await _play_bank_sequence()
 
 
 func _play_bank_sequence() -> void:
@@ -2928,6 +3117,13 @@ func _play_bank_sequence() -> void:
 	var play_fx := (not from_push_block) and (not seq.is_empty())
 	var pool_adds: Dictionary = {}
 	var crossed: Array = []
+	## Spin handoff before flight — extract path only (Push-block keeps intentional silence).
+	if play_fx and _dialog != null and not seq.is_empty():
+		_dialog.say(["nib.home.give_home"])
+		await _dialog.finished
+		if not is_inside_tree():
+			_bank_busy = false
+			return
 	if play_fx:
 		await _bank_fx_bag_smoke()
 		if not is_inside_tree():
@@ -2952,7 +3148,7 @@ func _play_bank_sequence() -> void:
 			if not is_inside_tree():
 				_bank_busy = false
 				return
-		_bank_hold.erase(step_id)
+		_ack_bank_presented(step_id)
 		_bank_fresh = step_id
 		_rebuild_shelves()
 		pool_adds[pool] = int(pool_adds.get(pool, 0)) + 1
@@ -2968,11 +3164,24 @@ func _play_bank_sequence() -> void:
 		_rebuild_shelves()
 	if play_fx and is_inside_tree():
 		await _bank_fx_loud_count(pool_adds, quota)
+	## Under-quota five-find teaching once (skip if extract already taught or gate met).
+	if play_fx and is_inside_tree() and _dialog != null and _campaign_shell != null:
+		var b1_shown := _shown_count("b1")
+		var gate_met := BiomeCabinets.past_gate(b1_shown, quota) or crossed.has("b1")
+		if needs_lesson("five_finds") and not gate_met:
+			mark_lesson_said("five_finds")
+			_dialog.say(["nib.lesson.five_finds"])
+			await _dialog.finished
 	# Unlock beat then S3 map-piece ceremony when a cabinet crosses 5/5.
 	if not from_push_block and not crossed.is_empty() and _campaign_shell != null:
 		if play_fx:
 			for pool_id in crossed:
 				await _case_opened_beat(str(pool_id))
+		## Spin Verdant threshold line only for b1 — never bake onto other biomes.
+		if play_fx and crossed.has("b1") and _dialog != null and needs_lesson("five_threshold"):
+			mark_lesson_said("five_threshold")
+			_dialog.say(["nib.lesson.five_threshold"])
+			await _dialog.finished
 		for pool_id2 in crossed:
 			cabinet_gate_crossed.emit(str(pool_id2))
 			if _map_piece_beat:
@@ -2984,6 +3193,7 @@ func _play_bank_sequence() -> void:
 				shortcut_scene_wanted.emit("b%d" % (unlocked_i + 1))
 		_show_toast("extract.delving_improves")
 	_bank_busy = false
+	_homecoming_bank_staging = false
 
 
 func _bank_is_push_block() -> bool:
@@ -3240,11 +3450,13 @@ func _bank_fx_loud_count(pool_adds: Dictionary, quota: int) -> void:
 
 
 func _clear_bank_anim() -> void:
+	## Session FX flags only. bank_pending stays on disk until acknowledged.
 	_bank_hold.clear()
 	_bank_fresh = ""
 	_bank_busy = false
 	_bank_played = false
 	_bank_from_push_block = false
+	_homecoming_bank_staging = false
 	_case_scroll.clear()
 
 
@@ -3661,6 +3873,12 @@ func _apply_defaults() -> void:
 	nib_idle_index = 0
 	rug_secret_found = false
 	counters = {"delves": 0, "homecomings": 0, "hauls": 0, "losses": 0}
+	bank_pending = []
+	lesson_new_mark_said = false
+	lesson_extract_haul_said = false
+	lesson_five_finds_said = false
+	lesson_five_threshold_said = false
+	lesson_tutorial_return_said = false
 
 
 func _migrate_v1() -> void:
@@ -3736,6 +3954,18 @@ func _read_v2(parsed: Dictionary) -> void:
 			"hauls": int(c.get("hauls", 0)),
 			"losses": int(c.get("losses", 0)),
 		}
+	## Backwards-compatible: absent keys → empty / false. Never treat historic swiped as pending.
+	bank_pending = []
+	for raw_bp in parsed.get("bank_pending", []):
+		var bpid := str(raw_bp)
+		if bpid != "" and not bank_pending.has(bpid):
+			bank_pending.append(bpid)
+	lesson_new_mark_said = bool(parsed.get("lesson_new_mark_said", false))
+	lesson_extract_haul_said = bool(parsed.get("lesson_extract_haul_said", false))
+	lesson_five_finds_said = bool(parsed.get("lesson_five_finds_said", false))
+	lesson_five_threshold_said = bool(parsed.get("lesson_five_threshold_said", false))
+	lesson_tutorial_return_said = bool(parsed.get("lesson_tutorial_return_said", false))
+	_restore_bank_hold_from_pending()
 	_sync_progress_doors()
 
 
@@ -3772,6 +4002,12 @@ func _save() -> void:
 	data["nib_idle_index"] = nib_idle_index
 	data["rug_secret_found"] = rug_secret_found
 	data["counters"] = counters
+	data["bank_pending"] = bank_pending.duplicate()
+	data["lesson_new_mark_said"] = lesson_new_mark_said
+	data["lesson_extract_haul_said"] = lesson_extract_haul_said
+	data["lesson_five_finds_said"] = lesson_five_finds_said
+	data["lesson_five_threshold_said"] = lesson_five_threshold_said
+	data["lesson_tutorial_return_said"] = lesson_tutorial_return_said
 	_raw_save = data
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f != null:
@@ -4888,19 +5124,24 @@ func _tidy_blocking() -> void:
 
 
 ## Clears only in-flight interaction locks. Does not touch key_ring_seen,
-## rooms_unlocked, hauls, bank ledger, or dialog content.
+## rooms_unlocked, hauls, bank ledger, bank_pending, or dialog content.
 func _abort_cabin_interaction() -> void:
 	_room_busy = false
 	_pan_busy = false
 	_door_busy = false
 	_arriving = false
+	## Release ceremony busy so a cancelled scene cannot softlock input; pending remains.
+	_bank_busy = false
+	_homecoming_bank_staging = false
 	if _beat == "keyring" or _beat == "arrive" or _beat == "pan" or _beat == "to_chair" or _beat == "sit":
 		_beat = "idle"
 
 
 func _busy() -> bool:
 	_tidy_blocking()
-	return _pan_busy or _room_busy or _arriving or (_dialog and _dialog.is_open()) or _overlay_name != "" or (_cutscene and _cutscene.is_playing()) or (_road_frame != null and _road_frame.is_open())
+	return _pan_busy or _room_busy or _arriving or _bank_busy or _homecoming_bank_staging \
+		or (_dialog and _dialog.is_open()) or _overlay_name != "" \
+		or (_cutscene and _cutscene.is_playing()) or (_road_frame != null and _road_frame.is_open())
 
 
 func _on_hotspot(node_name: String, room: String = "main") -> void:
