@@ -70,6 +70,12 @@ func _initialize() -> void:
 	## --- Case S: real scheduler A→hide/reopen B within timer window ---
 	failed = await _case_scheduled_arrive_stale_timer(main, cabin) or failed
 
+	## --- Case U: interrupt mid _unlock_spot await; stale A must not unlock ---
+	failed = await _case_unlock_spot_mid_await_stale(cabin) or failed
+
+	## --- Case P: interrupt mid _pan_unlocked await; B room/pan untouched ---
+	failed = await _case_pan_unlocked_mid_await_stale(cabin) or failed
+
 	## --- Case N: forced Nib / push-block home after keys already done ---
 	failed = await _case_push_block_home_then_nav(main, cabin) or failed
 
@@ -192,13 +198,20 @@ func _case_stale_arrive_cannot_clear_newer(cabin) -> bool:
 
 
 ## Actual open_cabin timer schedule: A arms 0.02s callback → hide/reopen B before
-## fire → stale A must not mutate as B.
+## fire → stale A must not mutate as B. Asserts observable reject + state markers
+## (gen equality alone is insufficient — reject also leaves gen unchanged).
 func _case_scheduled_arrive_stale_timer(main: Node, cabin) -> bool:
 	var failed := false
 	paused = false
 	_seed_post_tutorial_cabin(cabin)
 	var items: Dictionary = main.items_by_id if ("items_by_id" in main) else {}
 	var tex: Dictionary = main.tex_by_item if ("tex_by_item" in main) else {}
+	## Negative: buggy body that ignores scheduled_gen WOULD apply as B.
+	failed = _check(
+		failed,
+		"legacy_scheduler_mismatch_would_apply",
+		_legacy_play_arrive_ignores_scheduled_gen(10, 11)
+	) or failed
 	cabin.open_cabin(items, tex, 1, true, "win", [], ["boot"])
 	var gen_a: int = int(cabin._arrive_gen)
 	## Within the 20ms schedule window: invalidate A and open B.
@@ -206,17 +219,39 @@ func _case_scheduled_arrive_stale_timer(main: Node, cabin) -> bool:
 	cabin.open_cabin(items, tex, 1, true, "win", [], ["net"])
 	var gen_b: int = int(cabin._arrive_gen)
 	failed = _check(failed, "scheduler_b_gen_after_a", gen_b > gen_a) or failed
-	## Wait past both timers.
-	await _wait_frames(cabin, 12)
-	## Stale bound callback with gen_a must no-op (no claim on B's gen).
+	## Settle B with player skip so B markers are known before probing stale A.
+	cabin._arrive_skip = 2
+	if cabin.has_method("_kill_arrive_motion"):
+		cabin._kill_arrive_motion()
+	await _wait_until_idle(cabin, 180)
+	var beat_b: String = str(cabin._beat)
+	var arriving_b: bool = bool(cabin._arriving)
+	var hero_vis_b: bool = cabin._hero != null and bool(cabin._hero.visible)
+	cabin._arrive_last_outcome = ""
+	cabin._arrive_last_gen = -1
+	## Stale bound callback must reject BEFORE mutation (observable outcome).
 	cabin._play_arrive(gen_a)
 	await _wait_frames(cabin, 4)
 	failed = _check(
 		failed,
-		"scheduler_stale_a_callback_rejected",
-		int(cabin._arrive_gen) == gen_b
+		"scheduler_stale_a_outcome_reject",
+		str(cabin._arrive_last_outcome) == "reject" and int(cabin._arrive_last_gen) == gen_a
 	) or failed
-	## B may be arriving or still waiting its timer; either way gen stays B's.
+	failed = _check(
+		failed,
+		"scheduler_stale_a_does_not_mutate_b_beat",
+		str(cabin._beat) == beat_b
+	) or failed
+	failed = _check(
+		failed,
+		"scheduler_stale_a_does_not_mutate_b_arriving",
+		bool(cabin._arriving) == arriving_b
+	) or failed
+	failed = _check(
+		failed,
+		"scheduler_stale_a_does_not_mutate_b_hero",
+		(cabin._hero != null and bool(cabin._hero.visible)) == hero_vis_b
+	) or failed
 	failed = _check(
 		failed,
 		"scheduler_b_still_owns_gen",
@@ -225,6 +260,208 @@ func _case_scheduled_arrive_stale_timer(main: Node, cabin) -> bool:
 	cabin.stop_story()
 	cabin.hide_for_run()
 	return failed
+
+
+## Buggy scheduler body: reads current gen only / ignores scheduled capture →
+## would mutate when scheduled_gen != live gen. Returns true when that race exists.
+func _legacy_play_arrive_ignores_scheduled_gen(scheduled_gen: int, live_gen: int) -> bool:
+	## Pre-fix body effectively: var gen = live_gen; then mutate.
+	## Stale scheduled callback would therefore apply under B's generation.
+	return scheduled_gen != live_gen
+
+
+## Interrupt precisely while _unlock_spot awaits; reopen B; prove A resumed and
+## rejected — no unlock/hotspot persist. Observes nested phase + outcome.
+func _case_unlock_spot_mid_await_stale(cabin) -> bool:
+	var failed := false
+	## Negative: buggy post-await unlock without gen guard WOULD persist hall.
+	failed = _check(
+		failed,
+		"legacy_unlock_after_await_would_persist",
+		_legacy_unlock_spot_applies_after_await()
+	) or failed
+	cabin.stop_story()
+	cabin.key_ring_seen = false
+	cabin.rooms_unlocked = ["main"]
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._key_ring_gen += 1
+	var gen_a: int = int(cabin._key_ring_gen)
+	cabin._nested_phase = ""
+	cabin._nested_last_outcome = ""
+	cabin._nested_last_helper = ""
+	cabin._nested_last_owner_gen = -1
+	## Fire the real helper (not a synthetic stand-in).
+	cabin._unlock_spot("main", "SideDoor", "hall", "", false, gen_a)
+	var hit_await := false
+	for _i in range(120):
+		await process_frame
+		if str(cabin._nested_phase) == "unlock_spot_await":
+			hit_await = true
+			break
+	failed = _check(failed, "unlock_spot_hit_await_checkpoint", hit_await) or failed
+	## Invalidate A and reopen B with intentional locked rooms + busy.
+	cabin.hide_for_run()
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin.key_ring_seen = false
+	cabin.rooms_unlocked = ["main"]
+	cabin._room_busy = true
+	cabin._pan_busy = true
+	cabin._beat = "idle"
+	cabin._current_room = "main"
+	var rooms_b: Array = cabin.rooms_unlocked.duplicate()
+	var room_b: String = str(cabin._current_room)
+	var gen_b: int = int(cabin._key_ring_gen)
+	## Wait until A resumes past await and records nested outcome.
+	var saw_reject := false
+	for _j in range(180):
+		await process_frame
+		if (
+			str(cabin._nested_last_helper) == "unlock_spot"
+			and str(cabin._nested_last_outcome) == "reject"
+			and int(cabin._nested_last_owner_gen) == gen_a
+		):
+			saw_reject = true
+			break
+	failed = _check(
+		failed,
+		"unlock_spot_stale_a_ran_reject_after_invalidate",
+		saw_reject
+	) or failed
+	failed = _check(
+		failed,
+		"unlock_spot_stale_a_did_not_persist_hall",
+		not cabin.rooms_unlocked.has("hall") and not cabin.rooms_unlocked.has("mudroom")
+	) or failed
+	failed = _check(
+		failed,
+		"unlock_spot_b_rooms_unchanged",
+		cabin.rooms_unlocked.hash() == rooms_b.hash()
+	) or failed
+	failed = _check(
+		failed,
+		"unlock_spot_b_locks_untouched",
+		cabin._room_busy == true and cabin._pan_busy == true and str(cabin._current_room) == room_b
+	) or failed
+	failed = _check(failed, "unlock_spot_b_gen_newer", gen_b > gen_a) or failed
+	## Hotspot SideDoor should be visible again (cleanup) without unlock.
+	var main_room = cabin._rooms.get("main", null)
+	var hs = main_room.spots.get("SideDoor", null) if main_room else null
+	if hs != null:
+		failed = _check(failed, "unlock_spot_hotspot_restored_visible", bool(hs.visible)) or failed
+	cabin.stop_story()
+	_seed_post_tutorial_cabin(cabin)
+	return failed
+
+
+## Buggy unlock_spot: after await, always append unlock_room (no gen guard).
+func _legacy_unlock_spot_applies_after_await() -> bool:
+	var rooms: Array = ["main"]
+	var unlock_room := "hall"
+	## await finished; stale owner ignored:
+	if not rooms.has(unlock_room):
+		rooms.append(unlock_room)
+	if unlock_room == "hall" and not rooms.has("mudroom"):
+		rooms.append("mudroom")
+	return rooms.has("hall") and rooms.has("mudroom")
+
+
+## Interrupt precisely while _pan_unlocked awaits; B room/pan/presentation stay.
+func _case_pan_unlocked_mid_await_stale(cabin) -> bool:
+	var failed := false
+	failed = _check(
+		failed,
+		"legacy_pan_after_await_would_mutate",
+		_legacy_pan_unlocked_applies_after_await()
+	) or failed
+	cabin.stop_story()
+	cabin.key_ring_seen = false
+	## Hall already unlocked so pan path does not early-append before await.
+	cabin.rooms_unlocked = ["main", "hall", "mudroom"]
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._snap_to("main")
+	cabin._key_ring_gen += 1
+	var gen_a: int = int(cabin._key_ring_gen)
+	cabin._nested_phase = ""
+	cabin._nested_last_outcome = ""
+	cabin._nested_last_helper = ""
+	cabin._nested_last_owner_gen = -1
+	cabin._pan_unlocked("hall", gen_a)
+	var hit_await := false
+	for _i in range(120):
+		await process_frame
+		if str(cabin._nested_phase) == "pan_unlocked_await":
+			hit_await = true
+			break
+	failed = _check(failed, "pan_unlocked_hit_await_checkpoint", hit_await) or failed
+	cabin.hide_for_run()
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._snap_to("main")
+	cabin._current_room = "main"
+	cabin._room_busy = true
+	cabin._pan_busy = true
+	cabin._beat = "idle"
+	var room_b: String = str(cabin._current_room)
+	var host_x_b: float = float(cabin._rooms_host.position.x) if cabin._rooms_host else 0.0
+	var gen_b: int = int(cabin._key_ring_gen)
+	var saw_reject := false
+	for _j in range(180):
+		await process_frame
+		if (
+			str(cabin._nested_last_helper) == "pan_unlocked"
+			and str(cabin._nested_last_outcome) == "reject"
+			and int(cabin._nested_last_owner_gen) == gen_a
+		):
+			saw_reject = true
+			break
+	failed = _check(
+		failed,
+		"pan_unlocked_stale_a_ran_reject_after_invalidate",
+		saw_reject
+	) or failed
+	failed = _check(
+		failed,
+		"pan_unlocked_b_room_unchanged",
+		str(cabin._current_room) == room_b
+	) or failed
+	failed = _check(
+		failed,
+		"pan_unlocked_b_pan_busy_held",
+		cabin._pan_busy == true and cabin._room_busy == true
+	) or failed
+	## Owning tween killed on invalidate; host should remain at B snap, not A's target.
+	if cabin._rooms_host:
+		failed = _check(
+			failed,
+			"pan_unlocked_b_host_not_left_at_hall",
+			is_equal_approx(float(cabin._rooms_host.position.x), host_x_b)
+			or absf(float(cabin._rooms_host.position.x) - host_x_b) < 1.0
+		) or failed
+	failed = _check(failed, "pan_unlocked_b_gen_newer", gen_b > gen_a) or failed
+	## No live owning tween left from stale A.
+	failed = _check(
+		failed,
+		"pan_unlocked_no_stale_cabin_motion",
+		cabin._cabin_motion == null or not is_instance_valid(cabin._cabin_motion)
+	) or failed
+	cabin.stop_story()
+	_seed_post_tutorial_cabin(cabin)
+	return failed
+
+
+## Buggy pan_unlocked: after await, always sets current_room and clears pan_busy.
+func _legacy_pan_unlocked_applies_after_await() -> bool:
+	var owner_stale := true
+	var current_room := "main"
+	var pan_busy := true
+	## await finished; no gen guard:
+	if true:
+		current_room = "hall"
+		pan_busy = false
+	return owner_stale and current_room == "hall" and pan_busy == false
 
 
 ## Key-ring A mid-await → hide/reopen B with intentional locks → A resumes must
