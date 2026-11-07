@@ -19,6 +19,11 @@ signal cabinet_gate_crossed(pool_id: String)
 signal shortcut_scene_wanted(pool_id: String)
 
 const SAVE_PATH := "user://home_cabin.json"
+## When false, `_save` is a no-op (selftests / dry runs). Default true for play.
+## Direct script invoke must set this false before any ack — do not rely on runner alone.
+var _persist_writes: bool = true
+## Optional override for isolated QA. Empty → SAVE_PATH. Never set this to the live profile path from tests.
+var _save_path_override: String = ""
 const COPY := preload("res://scripts/player_copy.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const PlaytestUx := preload("res://scripts/playtest_ux.gd")
@@ -183,6 +188,10 @@ var _homecoming_bank_staging: bool = false
 ## Per-ceremony ownership. Bumped on begin / abort / release so a cancelled
 ## coroutine cannot ack pending or clear a newer ceremony's locks after await.
 var _bank_ceremony_gen: int = 0
+## Staging claim token for pan→hall. Stale pan continuation must not clear a newer claim.
+var _homecoming_staging_gen: int = 0
+## Tweens owned by the active bank ceremony; killed on invalidate so callbacks cannot late-fire.
+var _bank_ceremony_tweens: Array = []
 var _case_scroll: Dictionary = {}
 var _case_columns: Dictionary = {}
 var _case_clips: Dictionary = {}
@@ -385,6 +394,8 @@ func _ack_bank_presented(step_id: String, ceremony_gen: int = -1) -> void:
 func _begin_bank_ceremony() -> int:
 	_bank_ceremony_gen += 1
 	_bank_busy = true
+	## Retire staging claim — ceremony now owns the flow; stale pan must not clear flags.
+	_homecoming_staging_gen += 1
 	_homecoming_bank_staging = false
 	return _bank_ceremony_gen
 
@@ -397,6 +408,7 @@ func _owns_bank_ceremony(ceremony_gen: int) -> bool:
 func _release_bank_ceremony(ceremony_gen: int) -> void:
 	if ceremony_gen != _bank_ceremony_gen:
 		return
+	_kill_bank_ceremony_tweens()
 	_bank_busy = false
 	_homecoming_bank_staging = false
 	_bank_ceremony_gen += 1
@@ -404,9 +416,48 @@ func _release_bank_ceremony(ceremony_gen: int) -> void:
 
 ## Cancel / hide / reentry: invalidate in-flight ceremony without touching bank_pending ledger.
 func _invalidate_bank_ceremony() -> void:
+	_kill_bank_ceremony_tweens()
 	_bank_ceremony_gen += 1
+	_homecoming_staging_gen += 1
 	_bank_busy = false
 	_homecoming_bank_staging = false
+
+
+func _claim_homecoming_staging() -> int:
+	_homecoming_staging_gen += 1
+	_homecoming_bank_staging = true
+	return _homecoming_staging_gen
+
+
+func _owns_homecoming_staging(token: int) -> bool:
+	return token == _homecoming_staging_gen and _homecoming_bank_staging
+
+
+## Only the staging claimant may clear the flag — stale pan must not clear a newer owner.
+func _clear_homecoming_staging(token: int) -> void:
+	if token != _homecoming_staging_gen:
+		return
+	_homecoming_bank_staging = false
+
+
+func _track_bank_ceremony_tween(tw: Tween) -> void:
+	if tw == null:
+		return
+	_bank_ceremony_tweens.append(tw)
+
+
+func _kill_bank_ceremony_tweens() -> void:
+	for raw in _bank_ceremony_tweens:
+		var tw: Tween = raw as Tween
+		if tw != null and is_instance_valid(tw) and tw.is_valid():
+			tw.kill()
+	_bank_ceremony_tweens.clear()
+
+
+func _effective_save_path() -> String:
+	if _save_path_override != "":
+		return _save_path_override
+	return SAVE_PATH
 
 
 ## Rebuild session hold from persisted pending only (never all historic banked).
@@ -2614,9 +2665,12 @@ func _on_dumbwaiter_stop(pool: String) -> void:
 	_dumbwaiter.set_tray_tex(tex, true)
 
 
-func _hall_flip_to_item(pool: String, item_id: String) -> void:
+func _hall_flip_to_item(pool: String, item_id: String, ceremony_gen: int = -1) -> void:
 	## Always resolve the cabinet from the card's pool tag so a page-2 Crystal
 	## item never flips Verdant (or a stale session page) by mistake.
+	## ceremony_gen < 0: non-ceremony callers (unchanged). >=0: owner-only after awaits.
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		return
 	var card: Dictionary = items_by_id.get(item_id, {})
 	var resolved := _live_pool(card)
 	if resolved == "":
@@ -2644,15 +2698,24 @@ func _hall_flip_to_item(pool: String, item_id: String) -> void:
 	if idx < 0:
 		return
 	var page := BiomeCabinets.slot_page(idx)
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		return
 	_case_page[resolved] = page
 	if tc.has_method("flip_to_page"):
 		await tc.flip_to_page(page, true)
+		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+			return
 
 
-func _case_opened_beat(pool_id: String) -> void:
+func _case_opened_beat(pool_id: String, ceremony_gen: int = -1) -> void:
+	## ceremony_gen < 0 preserves non-ceremony callers. Owned path: no lamp/crest/sheet/
+	## dumbwaiter/rebuild/ride mutations after a cancelled await.
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		return
 	var tc = _trophy_cases.get(pool_id, null)
 	if tc == null:
-		_rebuild_shelves()
+		if ceremony_gen < 0 or _owns_bank_ceremony(ceremony_gen):
+			_rebuild_shelves()
 		return
 	## Door swing + lamp on, crest stays grey briefly.
 	if tc.has_method("play_open_door"):
@@ -2665,16 +2728,26 @@ func _case_opened_beat(pool_id: String) -> void:
 		## flicker
 		tc._lamp.modulate = Color(1.4, 1.4, 1.4)
 		await _wait(0.06, true)
+		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+			return
 		tc._lamp.modulate = Color(0.4, 0.4, 0.4)
 		await _wait(0.06, true)
+		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+			return
 		tc._lamp.modulate = Color.WHITE
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		return
 	if tc._lamp_glow:
 		tc._lamp_glow.visible = true
 		tc._lamp_glow.modulate.a = 0.0
 		var gtw := create_tween()
 		gtw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		if ceremony_gen >= 0:
+			_track_bank_ceremony_tween(gtw)
 		gtw.tween_property(tc._lamp_glow, "modulate:a", 0.5, 0.15)
 	await _wait(0.15, true)
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		return
 	## Crest colour + glint
 	if tc.has_method("set_crest_grey"):
 		tc.set_crest_grey(false)
@@ -2690,9 +2763,13 @@ func _case_opened_beat(pool_id: String) -> void:
 		_dumbwaiter.light_stop(bi + 2, true)
 		_dumbwaiter._park = bi + 2
 	await _wait(0.35, true)
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		return
 	_rebuild_shelves()
 	if _dumbwaiter != null:
 		await _dumbwaiter.ride_to(bi + 2)
+		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+			return
 
 
 func _on_zoom_dim_input(event: InputEvent) -> void:
@@ -3102,7 +3179,7 @@ func _stage_homecoming_bank() -> void:
 		return
 	if _int_root == null or not visible:
 		return
-	_homecoming_bank_staging = true
+	var staging_token: int = _claim_homecoming_staging()
 	var session: int = _begin_cabin_session()
 	## Focus the primary pool of the first pending id before FX.
 	var focus_pool := ""
@@ -3115,20 +3192,26 @@ func _stage_homecoming_bank() -> void:
 	if _current_room != "hall":
 		_pan_busy = false
 		await pan_to("hall")
-		if not _owns_cabin_session(session) or not visible:
-			_homecoming_bank_staging = false
+		## Stale pan: do NOT clear staging — a newer claimant may own it.
+		if not _owns_homecoming_staging(staging_token):
 			return
+		if not _owns_cabin_session(session) or not visible:
+			_clear_homecoming_staging(staging_token)
+			return
+	if not _owns_homecoming_staging(staging_token):
+		return
 	_int_root.visible = true
 	if focus_pool != "":
 		focus_biome_case(focus_pool)
 	if _bank_hold.is_empty() or _current_room != "hall":
-		_homecoming_bank_staging = false
+		_clear_homecoming_staging(staging_token)
 		return
 	## Claim ceremony gen before releasing staging so a deferred hall offer cannot double-start.
 	if _bank_busy:
-		_homecoming_bank_staging = false
+		_clear_homecoming_staging(staging_token)
 		return
 	var stage_gen: int = _begin_bank_ceremony()
+	## begin retires staging_token; no further clear from this coroutine.
 	await _play_bank_sequence(stage_gen)
 
 
@@ -3171,11 +3254,11 @@ func _play_bank_sequence(ceremony_gen: int = -1) -> void:
 			_release_bank_ceremony(ceremony_gen)
 			return
 	if play_fx:
-		await _bank_fx_bag_smoke()
+		await _bank_fx_bag_smoke(ceremony_gen)
 		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
 			_release_bank_ceremony(ceremony_gen)
 			return
-		await _bank_fx_rays()
+		await _bank_fx_rays(ceremony_gen)
 		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
 			_release_bank_ceremony(ceremony_gen)
 			return
@@ -3189,11 +3272,11 @@ func _play_bank_sequence(ceremony_gen: int = -1) -> void:
 		var pool := str(step.get("pool", ""))
 		var before := _shown_count(pool)
 		if play_fx:
-			await _hall_flip_to_item(pool, step_id)
+			await _hall_flip_to_item(pool, step_id, ceremony_gen)
 			if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
 				_release_bank_ceremony(ceremony_gen)
 				return
-			await _bank_fx_arc_to_mount(step_id, pool)
+			await _bank_fx_arc_to_mount(step_id, pool, ceremony_gen)
 			if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
 				_release_bank_ceremony(ceremony_gen)
 				return
@@ -3220,7 +3303,7 @@ func _play_bank_sequence(ceremony_gen: int = -1) -> void:
 	if is_inside_tree():
 		_rebuild_shelves()
 	if play_fx and is_inside_tree() and _owns_bank_ceremony(ceremony_gen):
-		await _bank_fx_loud_count(pool_adds, quota)
+		await _bank_fx_loud_count(pool_adds, quota, ceremony_gen)
 		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
 			_release_bank_ceremony(ceremony_gen)
 			return
@@ -3245,7 +3328,7 @@ func _play_bank_sequence(ceremony_gen: int = -1) -> void:
 				if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
 					_release_bank_ceremony(ceremony_gen)
 					return
-				await _case_opened_beat(str(pool_id))
+				await _case_opened_beat(str(pool_id), ceremony_gen)
 				if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
 					_release_bank_ceremony(ceremony_gen)
 					return
@@ -3303,7 +3386,9 @@ func _bank_bag_origin_local(host: Control) -> Vector2:
 	return Vector2(host.size.x * 0.5, host.size.y * 0.78)
 
 
-func _bank_fx_bag_smoke() -> void:
+func _bank_fx_bag_smoke(ceremony_gen: int = -1) -> void:
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		return
 	var host: Control = _bank_fx_host()
 	var origin: Vector2 = _bank_bag_origin_local(host)
 	KIT.cue(sfx, &"cabin.sack")
@@ -3324,6 +3409,10 @@ func _bank_fx_bag_smoke() -> void:
 			if puff.sprite_frames and puff.sprite_frames.get_frame_count("dust") > 0:
 				puff.play("dust")
 				await puff.animation_finished
+			if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+				if is_instance_valid(puff):
+					puff.queue_free()
+				return
 			if is_instance_valid(puff):
 				puff.queue_free()
 			return
@@ -3338,10 +3427,16 @@ func _bank_fx_bag_smoke() -> void:
 		host.add_child(blob)
 		var tw := create_tween()
 		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		if ceremony_gen >= 0:
+			_track_bank_ceremony_tween(tw)
 		tw.set_parallel(true)
 		tw.tween_property(blob, "scale", Vector2(1.6, 1.6), 0.28)
 		tw.tween_property(blob, "modulate:a", 0.0, 0.28)
 		await tw.finished
+		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+			if is_instance_valid(blob):
+				blob.queue_free()
+			return
 		if is_instance_valid(blob):
 			blob.queue_free()
 		return
@@ -3355,11 +3450,17 @@ func _bank_fx_bag_smoke() -> void:
 	host.add_child(smoke)
 	smoke.play("bag_smoke")
 	await smoke.animation_finished
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		if is_instance_valid(smoke):
+			smoke.queue_free()
+		return
 	if is_instance_valid(smoke):
 		smoke.queue_free()
 
 
-func _bank_fx_rays() -> void:
+func _bank_fx_rays(ceremony_gen: int = -1) -> void:
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		return
 	var host: Control = _bank_fx_host()
 	var origin: Vector2 = _bank_bag_origin_local(host)
 	KIT.cue(sfx, &"cabin.item_burst")
@@ -3381,6 +3482,8 @@ func _bank_fx_rays() -> void:
 		rays.append(ray)
 		var tw := create_tween()
 		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		if ceremony_gen >= 0:
+			_track_bank_ceremony_tween(tw)
 		tw.set_parallel(true)
 		tw.tween_property(ray, "size:y", 220.0, 0.22)
 		tw.tween_property(ray, "modulate:a", 0.0, 0.32).set_delay(0.08)
@@ -3395,10 +3498,19 @@ func _bank_fx_rays() -> void:
 	host.add_child(flash)
 	var ftw := create_tween()
 	ftw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	if ceremony_gen >= 0:
+		_track_bank_ceremony_tween(ftw)
 	ftw.set_parallel(true)
 	ftw.tween_property(flash, "scale", Vector2(1.8, 1.8), 0.3)
 	ftw.tween_property(flash, "modulate:a", 0.0, 0.3)
 	await _wait(0.34, true)
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		for r0 in rays:
+			if is_instance_valid(r0):
+				(r0 as Node).queue_free()
+		if is_instance_valid(flash):
+			flash.queue_free()
+		return
 	for r in rays:
 		if is_instance_valid(r):
 			(r as Node).queue_free()
@@ -3431,7 +3543,11 @@ func _bank_mount_global_center(item_id: String, pool_id: String) -> Vector2:
 	return hr.position + hr.size * 0.5
 
 
-func _bank_fx_arc_to_mount(item_id: String, pool_id: String) -> void:
+func _bank_fx_arc_to_mount(item_id: String, pool_id: String, ceremony_gen: int = -1) -> void:
+	## ceremony_gen < 0: debug/non-ceremony path (no ownership). Owned path: kill tween on
+	## invalidate; never play item_pop or leave callbacks mutating after cancel.
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		return
 	var host: Control = _bank_fx_host()
 	var from_local: Vector2 = _bank_bag_origin_local(host)
 	var to_global: Vector2 = _bank_mount_global_center(item_id, pool_id)
@@ -3465,19 +3581,30 @@ func _bank_fx_arc_to_mount(item_id: String, pool_id: String) -> void:
 	var start_scale: Vector2 = spr.scale
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	if ceremony_gen >= 0:
+		_track_bank_ceremony_tween(tw)
 	tw.tween_method(func(t: float) -> void:
+		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+			return
 		if is_instance_valid(spr):
 			spr.position = _quad_bez(from_local, peak, to_local, t)
 	, 0.0, 1.0, 0.38)
 	tw.parallel().tween_property(spr, "scale", start_scale * 1.2, 0.2)
 	tw.parallel().tween_property(spr, "scale", start_scale * 0.95, 0.18).set_delay(0.2)
 	await tw.finished
+	## Stale / killed tween: no late pop cue.
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		if is_instance_valid(spr):
+			spr.queue_free()
+		return
 	KIT.cue(sfx, &"cabin.item_pop")
 	if is_instance_valid(spr):
 		spr.queue_free()
 
 
-func _bank_fx_loud_count(pool_adds: Dictionary, quota: int) -> void:
+func _bank_fx_loud_count(pool_adds: Dictionary, quota: int, ceremony_gen: int = -1) -> void:
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		return
 	if pool_adds.is_empty() or _shelf_host == null:
 		return
 	var best_pool := ""
@@ -3518,6 +3645,8 @@ func _bank_fx_loud_count(pool_adds: Dictionary, quota: int) -> void:
 	KIT.cue(sfx, &"cabin.shelf_chime")
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	if ceremony_gen >= 0:
+		_track_bank_ceremony_tween(tw)
 	tw.set_trans(Tween.TRANS_BACK)
 	tw.set_ease(Tween.EASE_OUT)
 	tw.tween_property(lab, "scale", Vector2(1.15, 1.15), 0.22)
@@ -3525,6 +3654,10 @@ func _bank_fx_loud_count(pool_adds: Dictionary, quota: int) -> void:
 	tw.tween_interval(0.55)
 	tw.tween_property(lab, "modulate:a", 0.0, 0.2)
 	await tw.finished
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		if is_instance_valid(lab):
+			lab.queue_free()
+		return
 	if is_instance_valid(lab):
 		lab.queue_free()
 
@@ -3906,7 +4039,8 @@ func _load_save() -> void:
 	met_monsters.clear()
 	_clear_bank_anim()
 	_raw_save.clear()
-	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	## Respect override so isolated QA never reads the live profile path by accident.
+	var f := FileAccess.open(_effective_save_path(), FileAccess.READ)
 	if f == null:
 		_apply_defaults()
 		return
@@ -4049,6 +4183,9 @@ func _read_v2(parsed: Dictionary) -> void:
 
 
 func _save() -> void:
+	## Selftests / dry runs: never touch disk (guards user://home_cabin.json).
+	if not _persist_writes:
+		return
 	var data: Dictionary = _raw_save.duplicate(true)
 	data["version"] = 2
 	data["seen"] = seen.keys()
@@ -4088,7 +4225,7 @@ func _save() -> void:
 	data["lesson_five_threshold_said"] = lesson_five_threshold_said
 	data["lesson_tutorial_return_said"] = lesson_tutorial_return_said
 	_raw_save = data
-	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	var f := FileAccess.open(_effective_save_path(), FileAccess.WRITE)
 	if f != null:
 		f.store_string(JSON.stringify(data, "\t"))
 

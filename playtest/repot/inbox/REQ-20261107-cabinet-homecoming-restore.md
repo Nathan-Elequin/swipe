@@ -24,18 +24,25 @@ python3 tools/qa/check_cabinet_homecoming.py
 
 ## Engine checks (Nathan local Cursor — Godot required)
 
-Godot is **unavailable** in the cloud agent image. Source PASS ≠ runtime verified.
+Godot is **unavailable** in the cloud agent image. Source PASS ≠ runtime verified. Do **not** run the selftest against Nathan’s live play profile until isolation is confirmed.
+
+### Runner precautions (`./tools/qa/run_homecoming_ceremony.sh`)
+
+1. **Application seam:** selftest sets `cabin._persist_writes=false` before any `_ack_bank_presented` / `_save` (direct `godot --script` must still be safe).
+2. **User-data isolation:** runner redirects `XDG_DATA_HOME` / `XDG_CONFIG_HOME` / `XDG_CACHE_HOME` / `HOME` into `mktemp` — logs-only isolation is not enough.
+3. **Probe hash:** suite compares `user://home_cabin.json` meta (exists/mtime/size/md5) before vs after; runner refuses pass without `PASS ASSERT SAFE.ack_save_noop_same_meta`.
+4. **Labels:** suite must print `UNCOVERED.live_dialog_fx_cancel` (bare instance ≠ live H11).
+5. No Godot → exit `2` `RUNTIME_UNAVAILABLE` (not a fake green).
 
 ```bash
 export GODOT="$HOME/godot/Godot_v4.7.2-stable_linux.x86_64"  # or mac/windows build
-./tools/qa/run_homecoming_ceremony.sh   # ceremony gen + non-b1 haul gate; expect HOMECOMING_CEREMONY_OK
+./tools/qa/run_homecoming_ceremony.sh   # expect HOMECOMING_CEREMONY_OK + SAFE.ack_save_noop_same_meta
 ./tools/qa/run_banking_contract.sh      # existing ledger contract still green
 # Optional headless cabin nav probe if your tree has it:
 # ./tools/qa/run_cabin_nav_lock_probe.sh
 ```
 
-`run_homecoming_ceremony.sh` covers bare-instance gen invalidation + stale-ack preservation + `_haul_includes_pool` non-b1 false. It does **not** drive a live give-home dialog under the full cabin tree (still UNCOVERED — do H11 manually).
-
+Bare-instance protocol covers: gen invalidate, stale ack, staging-token clear, tween kill, arc mid-invalidate ownership, persist noop, haul gate. It does **not** drive live give-home + full FX cancel under CabinRoot (H11 still UNCOVERED — do manually).
 ## Screenshot / audio / input matrix
 
 | id | setup | expect | evidence |

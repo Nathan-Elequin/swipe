@@ -140,19 +140,48 @@ def main() -> int:
     )
     ok(
         "cabin.ack_takes_ceremony_gen",
-        "func _ack_bank_presented(step_id: String, ceremony_gen: int" in cabin
-        or "func _ack_bank_presented(step_id: String, ceremony_gen: int = -1)" in cabin,
+        "func _ack_bank_presented(step_id: String, ceremony_gen: int = -1)" in cabin,
     )
     ok("cabin.offer_skips_keyring", '_beat == "keyring"' in cabin and "_offer_bank_sequence" in cabin)
+    ok("cabin.persist_writes_seam", "var _persist_writes: bool = true" in cabin)
+    ok("cabin.save_guard_persist", "if not _persist_writes:" in cabin)
+    ok("cabin.effective_save_path", "func _effective_save_path" in cabin)
+    ok("cabin.staging_token_api", "func _claim_homecoming_staging" in cabin and "func _clear_homecoming_staging" in cabin)
+    ok("cabin.track_kill_tweens", "func _track_bank_ceremony_tween" in cabin and "func _kill_bank_ceremony_tweens" in cabin)
+    ok(
+        "cabin.case_opened_takes_gen",
+        "func _case_opened_beat(pool_id: String, ceremony_gen: int = -1)" in cabin,
+    )
+    ok(
+        "cabin.arc_takes_gen",
+        "func _bank_fx_arc_to_mount(item_id: String, pool_id: String, ceremony_gen: int = -1)" in cabin,
+    )
+    arc_m = re.search(
+        r"func _bank_fx_arc_to_mount\([\s\S]*?(?=\nfunc )",
+        cabin,
+    )
+    ok(
+        "cabin.arc_owns_before_pop",
+        arc_m is not None
+        and "not _owns_bank_ceremony(ceremony_gen)" in arc_m.group(0)
+        and arc_m.group(0).rfind("not _owns_bank_ceremony(ceremony_gen)")
+        < arc_m.group(0).find("cabin.item_pop"),
+    )
     note(
         "runtime.cancellation_reentry",
-        "SOURCE PATTERN ONLY here. Engine cancel→reentry: ./tools/qa/run_homecoming_ceremony.sh (Godot). "
-        "Full give-home dialog cancel under live cabin tree remains UNCOVERED in that suite too.",
+        "SOURCE PATTERN ONLY here. Engine protocol (isolated user-data): "
+        "./tools/qa/run_homecoming_ceremony.sh when Godot present. "
+        "Live give-home+FX cancel under full cabin tree = REQ H11 UNCOVERED — not papered by statics.",
     )
     selftest = ROOT / "scripts/dev/homecoming_ceremony_selftest.gd"
     runner = ROOT / "tools/qa/run_homecoming_ceremony.sh"
     ok("qa.ceremony_selftest_present", selftest.is_file())
     ok("qa.ceremony_runner_present", runner.is_file())
+    st = selftest.read_text(encoding="utf-8")
+    ok("qa.selftest_disables_persist", '_persist_writes", false' in st or "_persist_writes\", false" in st or 'set("_persist_writes", false)' in st)
+    rn = runner.read_text(encoding="utf-8")
+    ok("qa.runner_isolates_xdg", "XDG_DATA_HOME" in rn and "mktemp" in rn)
+    ok("qa.runner_requires_safe_assert", "SAFE.ack_save_noop_same_meta" in rn)
 
     # --- Tutorial zero credit ---
     road = re.search(r"func _road_finish_to_cabin\([\s\S]*?(?=\nfunc )", main_gd)

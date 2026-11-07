@@ -45,16 +45,22 @@ Non-b1 new returns must not teach Verdant five-finds merely because the b1 cabin
 
 ## Ceremony cancellation ownership
 
-`_bank_ceremony_gen` is begun on start, invalidated on `_abort_cabin_interaction` / `_clear_bank_anim`, and retired on owner `_release_bank_ceremony`.
+`_bank_ceremony_gen` is begun on start, invalidated on `_abort_cabin_interaction` / `_clear_bank_anim`, and retired on owner `_release_bank_ceremony`. Owned tweens are tracked (`_track_bank_ceremony_tween`) and killed on invalidate/release.
 
-Every await in `_play_bank_sequence` (give-home, FX, per-item flip/arc, waits, loud count, lessons, map-piece) re-checks `_owns_bank_ceremony(gen)` before ack or lock release. Stale coroutines must not:
+Ownership propagates through the nested await/tween graph:
 
-- `_ack_bank_presented` (pending preserved)
-- clear a newer ceremony's `_bank_busy`
-- mutate shelves / crossed unlock side effects after invalidation
+- `_play_bank_sequence` (give-home, FX, per-item flip/arc, waits, loud count, lessons, map-piece)
+- `_case_opened_beat` — gen check after every await before lamp/crest/sheet/dumbwaiter/rebuild/ride
+- `_bank_fx_arc_to_mount` — owns before/after tween; no late `cabin.item_pop`; tween callbacks bail when stale
+- `_stage_homecoming_bank` — staging token; stale pan must not `_clear_homecoming_staging` for a newer owner
 
-Earned `swiped` / campaign `banked` credit is never rolled back by cancel.
+`ceremony_gen < 0` keeps non-ceremony helper callers. Stale coroutines must not ack pending, clear newer locks, or play late cues.
 
+## Persistence safety (selftest)
+
+- `_persist_writes` (default true): `_save` no-ops when false — application seam, not runner-only.
+- `_effective_save_path` / optional `_save_path_override` for isolated QA paths.
+- Runner isolates `XDG_DATA_HOME` (+ HOME) into mktemp and requires before/after save-meta equality.
 ## Push-block
 
 Intentional suppression retained: no S7 FX, no map piece, no give-home line. Items still mount after push dialog. Documented uncovered path: players on push-block miss the theatrical flight (by design).
@@ -69,5 +75,7 @@ Intentional suppression retained: no S7 FX, no map piece, no give-home line. Ite
 | Layer | Command | Proves |
 |-------|---------|--------|
 | Source QA | `python3 tools/qa/check_cabinet_homecoming.py` | String/keys/wiring shape only |
-| Engine protocol | `./tools/qa/run_homecoming_ceremony.sh` | Gen ownership + haul gate on bare instance |
+| Engine protocol | `./tools/qa/run_homecoming_ceremony.sh` | Bare-instance nested ownership + persist noop + haul gate (isolated XDG). Not live H11 |
 | Local play | REQ H1–H12 | Real cancel/reentry, audio, non-b1 return |
+
+Cloud without Godot → runner exits `2` `RUNTIME_UNAVAILABLE`. Never treat source PASS as shipped.
