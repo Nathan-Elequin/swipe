@@ -71,6 +71,25 @@ func is_read_only() -> bool:
 	return _read_only
 
 
+## Held parchment Control (scripts/cabin/held_map.gd). Used by map launch tests.
+func held_map() -> Control:
+	return _held as Control
+
+
+## Destination visibility on the held plate (unlocked stamp), not launch eligibility.
+func destination_visible(pool: String) -> bool:
+	if _held == null or not _held.has_method("destination_visible"):
+		return false
+	return bool(_held.call("destination_visible", pool))
+
+
+## Fresh-start launch affordance on the held plate (can_start / Endless).
+func destination_launchable(pool: String) -> bool:
+	if _held == null or not _held.has_method("destination_launchable"):
+		return false
+	return bool(_held.call("destination_launchable", pool))
+
+
 func hide_map() -> void:
 	var was_map := _kind == "map"
 	visible = false
