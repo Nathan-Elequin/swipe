@@ -1,3 +1,16 @@
+# ASSET LIST — Title framed B (boot hub) · 2026-11-07
+
+Approved study B owns the playtest hub boot. Ship path:
+
+| File | Size | Display | Notes |
+|---|---|---|---|
+| `assets/ui/title/cabin-vignette-native.png` | 340×220 | 680×440 nearest 2× | Exact composite from cabin / Nib / portrait / fire_f0. No new pixels. |
+| `design/visual/mockups/study-B-1680x1040.png` | 1680×1040 | reference | Nathan-approved target. Not a runtime screenshot. |
+
+Fonts: `assets/ui/fonts/eb_garamond/`, `assets/ui/fonts/open_sans/` (OFL). See `SCREEN-title-framed.md`.
+
+---
+
 # ASSET LIST — Title H3p-B final (Spinheritance)
 
 Everything is in `hybrid-h3-ship/exports/` and ready to copy to `res://assets/ui/title/`. Import with Nearest filter, no mipmaps, Lossless.

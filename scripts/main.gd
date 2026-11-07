@@ -7853,11 +7853,12 @@ func _maybe_open_teaser() -> void:
 	if playtest_intro:
 		playtest_intro.close_intro()
 	if TITLE_TEASER.archived():
+		## Framed title hub (study B) owns the boot still — no full-bleed H3p under the menu.
 		if playtest_teaser:
-			playtest_teaser.open_archived_still()
+			playtest_teaser.close_teaser()
 		if sfx and sfx.has_method("music_title"):
 			sfx.music_title()
-		_show_playtest_hub(true)
+		_show_playtest_hub(false)
 		return
 	if playtest_teaser == null or not _teaser_should_play():
 		_show_playtest_hub()
@@ -7871,8 +7872,10 @@ func _maybe_open_teaser() -> void:
 func _playtest_teaser_done() -> void:
 	_mark_playtest_teaser_seen()
 	if playtest_teaser:
-		playtest_teaser.yield_to_hub()
-	_show_playtest_hub(true)
+		playtest_teaser.close_teaser()
+	if sfx and sfx.has_method("music_title"):
+		sfx.music_title()
+	_show_playtest_hub(false)
 
 
 func _playtest_teaser_seen() -> bool:
