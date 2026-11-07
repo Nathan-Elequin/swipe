@@ -3089,8 +3089,30 @@ func _on_map_peek_closed() -> void:
 	get_tree().paused = false
 
 
+## Revalidate every map→delve launch against CampaignShell.can_start (one-behind).
+## Rejects bypass / ineligible / stale index / in-run peek before splash or reset.
+## Push deeper stays on `_adventure_continue` and must never route through here.
+func _campaign_launch_allowed(index: int, _shortcut: bool, endless: bool) -> bool:
+	if _campaign == null:
+		return false
+	if campaign_map != null and campaign_map.has_method("is_read_only") and campaign_map.is_read_only():
+		return false
+	## New-run launch only. Same-run Push uses `_adventure_continue` / push_deeper.
+	if _campaign_on:
+		return false
+	var run: Variant = _campaign.state.get("run", {})
+	if typeof(run) == TYPE_DICTIONARY and bool((run as Dictionary).get("active", false)):
+		return false
+	if endless:
+		return bool(_campaign.state.get("endless_unlocked", false))
+	return CAMPAIGN_SHELL.can_start(_campaign.rules, _campaign.state, index)
+
+
 func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
 	if _splash_busy:
+		return
+	## Gate before splash / map wipe / `_begin_campaign_delve` (which resets).
+	if not _campaign_launch_allowed(index, shortcut, endless):
 		return
 	_splash_busy = true
 	if campaign_map:
