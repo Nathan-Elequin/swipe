@@ -171,6 +171,39 @@ func set_map_monster_stats(on: bool) -> void:
 		_rebuild()
 
 
+## Destination stamp is on the parchment (unlocked), even when not a start floor.
+func destination_visible(pool: String) -> bool:
+	return _pin_with_meta(pool, "destination_visible") != null
+
+
+## Fresh-start launch hit exists for this pool (can_start / Endless open).
+func destination_launchable(pool: String) -> bool:
+	return _launch_hit(pool) != null
+
+
+func _pin_with_meta(pool: String, flag: String) -> Control:
+	if _pins == null or pool == "":
+		return null
+	for child in _pins.get_children():
+		if not (child is Control):
+			continue
+		if str(child.get_meta("pool_id", "")) != pool:
+			continue
+		if bool(child.get_meta(flag, false)):
+			return child as Control
+	return null
+
+
+func _launch_hit(pool: String) -> Button:
+	if _pins == null or pool == "":
+		return null
+	var want := "LaunchHit_%s" % pool
+	for child in _pins.get_children():
+		if child is Button and child.name == want:
+			return child as Button
+	return null
+
+
 func present(rules: Dictionary, state: Dictionary, monsters_by_id: Dictionary = {}, opts: Dictionary = {}) -> void:
 	_rules = rules
 	_state = state
@@ -223,16 +256,19 @@ func _rebuild() -> void:
 		var b: Dictionary = biomes[i]
 		var pool := str(b.get("id", "b%d" % (i + 1)))
 		var spot: Vector2 = TRAIL[i + 1]
-		var open: bool = SHELL.can_start(_rules, _state, i)
-		if open:
-			_add_stamp(spot, str(b.get("name", pool)), pool, WAX.get(pool, KIT.INK), i, false)
+		## Destination visibility (biome_unlocked) is separate from fresh-start
+		## launch (can_start / one-behind). Unlocked D2 stays on the map with
+		## pool monsters even when it is not yet a start floor.
+		var unlocked: bool = SHELL.biome_unlocked(_rules, _state, i)
+		var launchable: bool = SHELL.can_start(_rules, _state, i)
+		if unlocked:
+			_add_stamp(spot, str(b.get("name", pool)), pool, WAX.get(pool, KIT.INK), i, false, launchable)
+			_spawn_pool_monsters(pool, spot)
 		else:
 			_add_locked(spot, str(b.get("name", pool)), pool)
-		if open:
-			_spawn_pool_monsters(pool, spot)
 	var endless_name := str(_rules.get("endless", {}).get("name", "Endless"))
 	if bool(_state.get("endless_unlocked", false)):
-		_add_stamp(ENDLESS_AT, endless_name, "endless", WAX["endless"], 0, true)
+		_add_stamp(ENDLESS_AT, endless_name, "endless", WAX["endless"], 0, true, true)
 		var best: int = int(_state.get("endless_best", 0))
 		if best > 0:
 			var best_txt: String = KIT.fill_text("endless.best", {"n": best})
@@ -307,8 +343,17 @@ func _pulse_focus_stamp(pool: String) -> void:
 		return
 
 
-func _add_stamp(spot: Vector2, biome_name: String, pool: String, wax: Color, index: int, endless: bool) -> void:
+func _add_stamp(
+	spot: Vector2,
+	biome_name: String,
+	pool: String,
+	wax: Color,
+	index: int,
+	endless: bool,
+	launchable: bool = true
+) -> void:
 	var seal := WaxStamp.new()
+	seal.name = "Stamp_%s" % pool
 	seal.wax = wax
 	seal.pool_slug = str(POOL_SLUG.get(pool, pool))
 	seal.set_stamp_state("idle")
@@ -317,15 +362,21 @@ func _add_stamp(spot: Vector2, biome_name: String, pool: String, wax: Color, ind
 	seal.pivot_offset = Vector2(28, 56)
 	seal.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	seal.set_meta("pool_id", pool)
+	seal.set_meta("destination_visible", true)
+	seal.set_meta("launchable", launchable and not _read_only)
 	_pins.add_child(seal)
 	var name_at := spot + Vector2(36, 8)
 	if endless:
 		name_at = spot + Vector2(-90, 36)
 	_add_name(name_at, biome_name, true)
-	if _read_only:
+	## Visible destination without a fresh-start floor: keep the stamp, skip launch hit.
+	if _read_only or not launchable:
 		return
 	var hit_rect := Rect2(spot + Vector2(-100, -40), Vector2(220, 130)) if endless else Rect2(spot + Vector2(-40, -40), Vector2(280, 110))
 	var hit := _hit_button(hit_rect)
+	hit.name = "LaunchHit_%s" % pool
+	hit.set_meta("pool_id", pool)
+	hit.set_meta("map_launch", true)
 	hit.mouse_entered.connect(func() -> void:
 		_peel(seal, true)
 		seal.set_stamp_state("hover")
@@ -337,8 +388,9 @@ func _add_stamp(spot: Vector2, biome_name: String, pool: String, wax: Color, ind
 			seal.set_stamp_state("idle")
 		_hide_tip()
 	)
+	## Await the flatten tween so start_asked still fires after press.
 	hit.pressed.connect(func() -> void:
-		_start_from_stamp(seal, index, endless)
+		await _start_from_stamp(seal, index, endless)
 	)
 	_pins.add_child(hit)
 
@@ -346,10 +398,14 @@ func _add_stamp(spot: Vector2, biome_name: String, pool: String, wax: Color, ind
 func _add_locked(spot: Vector2, biome_name: String, pool: String) -> void:
 	var endless := pool == "endless"
 	var blob := ColorRect.new()
+	blob.name = "Locked_%s" % pool
 	blob.color = Color("2a2218")
 	blob.size = Vector2(36, 28)
 	blob.position = spot + Vector2(-18, -14)
 	blob.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	blob.set_meta("pool_id", pool)
+	blob.set_meta("destination_visible", false)
+	blob.set_meta("launchable", false)
 	_pins.add_child(blob)
 	var label := biome_name
 	if endless:
