@@ -411,23 +411,24 @@ func _owns_bank_ceremony(ceremony_gen: int) -> bool:
 	return ceremony_gen == _bank_ceremony_gen
 
 
-## Live owner only. Retires this gen so late resumes after a finished await are stale.
+## Live owner only. Retire gen / clear locks BEFORE kill+abort so sync resume is already stale.
 func _release_bank_ceremony(ceremony_gen: int) -> void:
 	if ceremony_gen != _bank_ceremony_gen:
 		return
-	_kill_bank_ceremony_tweens()
 	_bank_busy = false
 	_homecoming_bank_staging = false
 	_bank_ceremony_gen += 1
+	_abort_bank_ceremony_fx()
 
 
-## Cancel / hide / reentry: invalidate in-flight ceremony without touching bank_pending ledger.
+## Cancel / hide / reentry: retire ownership FIRST, then kill FX / pulse abort.
+## Never emit abort while the cancelled gen still owns — sync resume must see stale.
 func _invalidate_bank_ceremony() -> void:
-	_kill_bank_ceremony_tweens()
 	_bank_ceremony_gen += 1
 	_homecoming_staging_gen += 1
 	_bank_busy = false
 	_homecoming_bank_staging = false
+	_abort_bank_ceremony_fx()
 
 
 func _claim_homecoming_staging() -> int:
@@ -465,21 +466,30 @@ func _untrack_bank_ceremony_fx(node: Node) -> void:
 	_bank_ceremony_fx_nodes.erase(node)
 
 
-## One-shot race gate: tween/anim completion OR ceremony FX abort. No frame-polling loop.
+## One-shot race gate: tween/anim completion OR ceremony FX abort.
+## Never `await settled` after settle_once already fired (signal would hang).
 class _BankFxGate extends RefCounted:
 	signal settled
-	var _fired: bool = false
+	var fired: bool = false
 
 	func settle_once(_a: Variant = null, _b: Variant = null, _c: Variant = null, _d: Variant = null) -> void:
-		if _fired:
+		if fired:
 			return
-		_fired = true
+		fired = true
 		settled.emit()
 
 
-## Kill owned tweens, free tracked temp FX, then pulse abort so awaiters cannot hang.
+## Reentry guard: abort pulse may resume code that invalidates again.
+var _bank_ceremony_fx_aborting: bool = false
+
+
+## Kill owned tweens, free tracked temp FX, then pulse abort.
+## Caller MUST retire ceremony gen / clear ownership BEFORE this (see invalidate/release).
 ## Godot: killed Tween does not emit `finished`.
-func _kill_bank_ceremony_tweens() -> void:
+func _abort_bank_ceremony_fx() -> void:
+	if _bank_ceremony_fx_aborting:
+		return
+	_bank_ceremony_fx_aborting = true
 	for raw in _bank_ceremony_tweens:
 		var tw: Tween = raw as Tween
 		if tw != null and is_instance_valid(tw) and tw.is_valid():
@@ -492,10 +502,16 @@ func _kill_bank_ceremony_tweens() -> void:
 	_bank_ceremony_fx_nodes.clear()
 	_bank_ceremony_fx_abort_gen += 1
 	bank_ceremony_fx_aborted.emit()
+	_bank_ceremony_fx_aborting = false
+
+
+## Back-compat name used by older call sites / source QA — same as abort.
+func _kill_bank_ceremony_tweens() -> void:
+	_abort_bank_ceremony_fx()
 
 
 ## Cancellation-safe tween wait. `ceremony_gen < 0` = non-ceremony plain `finished`.
-## Races `finished` vs abort pulse (signal + gen) — no indefinite finished poll.
+## Races `finished` vs abort pulse (signal + gen). Never awaits an already-settled gate.
 func _await_bank_ceremony_tween(tw: Tween, ceremony_gen: int = -1) -> void:
 	if tw == null:
 		return
@@ -516,9 +532,19 @@ func _await_bank_ceremony_tween(tw: Tween, ceremony_gen: int = -1) -> void:
 	## Abort may have fired between validity check and connect.
 	if not tw.is_valid() or _bank_ceremony_fx_abort_gen != abort_at:
 		gate.settle_once()
+	## Never await an already-emitted settled (would hang forever).
+	if gate.fired:
+		if bank_ceremony_fx_aborted.is_connected(on_abort):
+			bank_ceremony_fx_aborted.disconnect(on_abort)
+		if is_instance_valid(tw) and tw.finished.is_connected(on_finish):
+			tw.finished.disconnect(on_finish)
+		return
 	await gate.settled
+	## Drop surviving completion emitters so late finished cannot re-enter.
 	if bank_ceremony_fx_aborted.is_connected(on_abort):
 		bank_ceremony_fx_aborted.disconnect(on_abort)
+	if is_instance_valid(tw) and tw.finished.is_connected(on_finish):
+		tw.finished.disconnect(on_finish)
 
 
 ## Cancellation-safe node signal wait (e.g. animation_finished) under ceremony ownership.
@@ -536,9 +562,17 @@ func _await_bank_ceremony_node_signal(sig: Signal, ceremony_gen: int = -1) -> vo
 	bank_ceremony_fx_aborted.connect(on_abort, CONNECT_ONE_SHOT)
 	if _bank_ceremony_fx_abort_gen != abort_at:
 		gate.settle_once()
+	if gate.fired:
+		if bank_ceremony_fx_aborted.is_connected(on_abort):
+			bank_ceremony_fx_aborted.disconnect(on_abort)
+		if sig.is_connected(on_sig):
+			sig.disconnect(on_sig)
+		return
 	await gate.settled
 	if bank_ceremony_fx_aborted.is_connected(on_abort):
 		bank_ceremony_fx_aborted.disconnect(on_abort)
+	if sig.is_connected(on_sig):
+		sig.disconnect(on_sig)
 
 
 func _effective_save_path() -> String:
@@ -4075,7 +4109,8 @@ func _process(delta: float) -> void:
 	if _editor_strip != null and _editor_strip.visible:
 		raise_editor_strip()
 	_tick_glows(delta)
-	if _ext_root.visible:
+	## Unbuilt / bare selftest instances have no exterior root yet.
+	if _ext_root != null and _ext_root.visible:
 		_tick_cat(delta)
 
 

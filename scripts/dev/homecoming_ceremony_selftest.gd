@@ -50,6 +50,9 @@ func _run() -> void:
 	) or failed
 
 	## Mount in tree so create_tween works for nested kill checks.
+	## Bare cabin has no built UI — disable process to avoid nil _process noise.
+	cabin.set_process(false)
+	cabin.set_physics_process(false)
 	root.add_child(cabin)
 
 	## --- Ceremony gen ownership ---
@@ -152,6 +155,86 @@ func _run() -> void:
 		await_done, 90
 	) or failed
 
+	## --- SYNC reentrancy: inside abort callback, gen already retired; ack must no-op ---
+	cabin.set("bank_pending", ["net"])
+	cabin.set("_bank_hold", {"net": true})
+	cabin.set("_persist_writes", false)
+	var gen_sync: int = cabin.call("_begin_bank_ceremony")
+	var sync_tw: Tween = cabin.create_tween()
+	sync_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	sync_tw.tween_interval(5.0)
+	cabin.call("_track_bank_ceremony_tween", sync_tw)
+	var sync_mid: Dictionary = {}
+	var sync_on_abort := func() -> void:
+		## Captured AT emit time — not after invalidate returns.
+		sync_mid["owns"] = bool(cabin.call("_owns_bank_ceremony", gen_sync))
+		sync_mid["pending_before"] = (cabin.get("bank_pending") as Array).duplicate()
+		cabin.call("_ack_bank_presented", "net", gen_sync)
+		sync_mid["pending_after_ack"] = (cabin.get("bank_pending") as Array).duplicate()
+		## Late cue path: owning false is the pop/ack gate; record for assert.
+		sync_mid["would_own_for_late_cue"] = bool(cabin.call("_owns_bank_ceremony", gen_sync))
+	cabin.bank_ceremony_fx_aborted.connect(sync_on_abort, CONNECT_ONE_SHOT)
+	var sync_done: Array = [false]
+	var sync_late_ack_kept: Array = [true]
+	var run_sync := func() -> void:
+		await cabin._await_bank_ceremony_tween(sync_tw, gen_sync)
+		## After resume: still must not ack.
+		cabin.call("_ack_bank_presented", "net", gen_sync)
+		sync_late_ack_kept[0] = (cabin.get("bank_pending") as Array).has("net")
+		sync_done[0] = true
+	run_sync.call()
+	await process_frame
+	cabin.call("_invalidate_bank_ceremony")
+	failed = await _assert_completes(
+		rows, failed, "SYNC.abort_resumes_helper",
+		"sync abort resumes awaiter without hang",
+		sync_done, 90
+	) or failed
+	failed = _assert(
+		rows, failed, "SYNC.abort_mid_gen_retired",
+		"inside abort callback: cancelled gen already does not own",
+		sync_mid.has("owns") and sync_mid["owns"] == false,
+		"mid=%s" % str(sync_mid)
+	) or failed
+	failed = _assert(
+		rows, failed, "SYNC.abort_mid_ack_noop",
+		"inside abort callback: stale ack leaves bank_pending unchanged",
+		sync_mid.has("pending_after_ack")
+		and (sync_mid["pending_after_ack"] as Array).has("net")
+		and (sync_mid["pending_before"] as Array).has("net"),
+		"mid=%s" % str(sync_mid)
+	) or failed
+	failed = _assert(
+		rows, failed, "SYNC.abort_mid_no_late_cue_own",
+		"inside abort callback: no ownership for late pop/cue",
+		sync_mid.get("would_own_for_late_cue", true) == false,
+		"mid=%s" % str(sync_mid)
+	) or failed
+	failed = _assert(
+		rows, failed, "SYNC.after_resume_pending_kept",
+		"after sync resume, pending still has cancelled item (no late ack/save)",
+		bool(sync_late_ack_kept[0]) and (cabin.get("bank_pending") as Array).has("net"),
+		"kept=%s pending=%s" % [sync_late_ack_kept[0], cabin.get("bank_pending")]
+	) or failed
+
+	## --- Cancelled-before-await must not hang (killed tween → early return) ---
+	var gen_gate: int = cabin.call("_begin_bank_ceremony")
+	var gate_tw: Tween = cabin.create_tween()
+	gate_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	gate_tw.tween_interval(5.0)
+	cabin.call("_track_bank_ceremony_tween", gate_tw)
+	cabin.call("_invalidate_bank_ceremony")
+	var gate_done: Array = [false]
+	var run_gate := func() -> void:
+		await cabin._await_bank_ceremony_tween(gate_tw, gen_gate)
+		gate_done[0] = true
+	run_gate.call()
+	failed = await _assert_completes(
+		rows, failed, "LIFE.settled_gate_no_hang",
+		"post-abort await on killed tween returns immediately (no settled hang)",
+		gate_done, 30
+	) or failed
+
 	## --- Nested: case_opened_beat with null tc must not rebuild when stale ---
 	var gen_c: int = cabin.call("_begin_bank_ceremony")
 	cabin.call("_invalidate_bank_ceremony")
@@ -239,6 +322,20 @@ func _run() -> void:
 		"arc awaits cancel-safe helper, not bare tw.finished",
 		"await _await_bank_ceremony_tween(tw, ceremony_gen)" in arc_block
 		and "await tw.finished" not in arc_block
+	) or failed
+	var inv_start := src.find("func _invalidate_bank_ceremony")
+	var inv_end := src.find("\nfunc ", inv_start + 1)
+	var inv_block := src.substr(inv_start, maxi(0, inv_end - inv_start)) if inv_start >= 0 else ""
+	failed = _static(
+		rows, failed, "STATIC.invalidate_retires_before_abort",
+		"invalidate bumps gen before abort/kill emit",
+		inv_block.find("_bank_ceremony_gen += 1") >= 0
+		and inv_block.find("_bank_ceremony_gen += 1") < inv_block.find("_abort_bank_ceremony_fx")
+	) or failed
+	failed = _static(
+		rows, failed, "STATIC.await_skips_settled_gate",
+		"await helpers return when gate already fired (never await settled)",
+		"if gate.fired:" in src and "await gate.settled" in src
 	) or failed
 	failed = _static(
 		rows, failed, "STATIC.save_persist_guard",
@@ -417,5 +514,6 @@ func _finish(failed: bool, rows: Array) -> void:
 	if failed or af > 0 or sf > 0:
 		print(FAIL_MARK)
 		quit(1)
+		return
 	print(OK_MARK)
 	quit(0)

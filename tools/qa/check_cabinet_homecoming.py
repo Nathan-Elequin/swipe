@@ -192,20 +192,37 @@ def main() -> int:
         and "await _await_bank_ceremony_tween(tw, ceremony_gen)" in count_m.group(0)
         and "await tw.finished" not in count_m.group(0),
     )
-    kill_m = re.search(r"func _kill_bank_ceremony_tweens\(\) -> void:([\s\S]*?)(?=\nfunc |\Z)", cabin)
+    abort_fx = re.search(
+        r"func _abort_bank_ceremony_fx\(\) -> void:([\s\S]*?)(?=\nfunc |\Z)",
+        cabin,
+    )
     ok(
         "cabin.kill_frees_fx_and_aborts",
-        kill_m is not None
-        and "queue_free" in kill_m.group(1)
-        and "bank_ceremony_fx_aborted.emit" in kill_m.group(1),
+        abort_fx is not None
+        and "queue_free" in abort_fx.group(1)
+        and "bank_ceremony_fx_aborted.emit" in abort_fx.group(1)
+        and "func _kill_bank_ceremony_tweens" in cabin,
     )
+    inv_m = re.search(r"func _invalidate_bank_ceremony\(\) -> void:([\s\S]*?)(?=\nfunc )", cabin)
+    ok(
+        "cabin.invalidate_retires_before_abort",
+        inv_m is not None
+        and inv_m.group(1).find("_bank_ceremony_gen += 1")
+        < inv_m.group(1).find("_abort_bank_ceremony_fx"),
+    )
+    rel_m = re.search(r"func _release_bank_ceremony\([\s\S]*?(?=\nfunc )", cabin)
+    ok(
+        "cabin.release_retires_before_abort",
+        rel_m is not None
+        and rel_m.group(0).find("_bank_ceremony_gen += 1")
+        < rel_m.group(0).find("_abort_bank_ceremony_fx"),
+    )
+    ok("cabin.await_skips_settled_gate", "if gate.fired:" in cabin and "await gate.settled" in cabin)
     note(
         "runtime.cancellation_reentry",
-        "SOURCE PATTERN ONLY here. Engine protocol (isolated user-data): "
-        "./tools/qa/run_homecoming_ceremony.sh when Godot present. "
-        "Expect LIFE.* helper_completes + fx_nodes_gone. "
-        "Live give-home+FX cancel under full cabin tree = REQ H11 UNCOVERED. "
-        "Linux XDG isolation does NOT verify Windows — Cherry needs a separate test profile.",
+        "SOURCE PATTERN ONLY here — engine results require Godot run. "
+        "Expect SYNC.abort_mid_* + LIFE.* + SAFE.*. "
+        "Live H11 UNCOVERED. Windows XDG unverified.",
     )
     selftest = ROOT / "scripts/dev/homecoming_ceremony_selftest.gd"
     runner = ROOT / "tools/qa/run_homecoming_ceremony.sh"

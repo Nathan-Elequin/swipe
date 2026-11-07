@@ -102,9 +102,14 @@ if ! grep -q 'SAFE.ack_save_noop_same_meta' "$OUT" || ! grep -q 'PASS ASSERT SAF
 fi
 for life in \
   LIFE.await_tween_completes_on_kill \
+  LIFE.settled_gate_no_hang \
   LIFE.arc_helper_completes LIFE.arc_fx_nodes_gone \
   LIFE.smoke_helper_completes LIFE.smoke_fx_nodes_gone \
-  LIFE.count_helper_completes LIFE.count_fx_nodes_gone
+  LIFE.count_helper_completes LIFE.count_fx_nodes_gone \
+  SYNC.abort_mid_gen_retired \
+  SYNC.abort_mid_ack_noop \
+  SYNC.abort_mid_no_late_cue_own \
+  SYNC.after_resume_pending_kept
 do
   if ! grep -q "PASS ASSERT $life" "$OUT"; then
     echo "HOMECOMING_CEREMONY missing/failed lifecycle assert $life — refusing fake pass" >&2
