@@ -1,3 +1,5 @@
+> **Boot hub supersession (2026-11-07):** Playtest hub boot uses approved framed title **B** — see `SCREEN-title-framed.md`. This H3p-B layered still doc remains for teaser/tooling art only.
+
 # SCREEN — Title (H3p-B final) · Spinheritance · Godot 4.7
 
 Status: **locked by Nathan** (H3p-B + Sai + Grandpa Bartleby portrait). Reference PNG: `H3p-B-final.png` (1680×1040).

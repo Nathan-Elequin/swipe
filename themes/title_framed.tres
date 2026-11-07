@@ -1,0 +1,18 @@
+[gd_resource type="Theme" load_steps=4 format=3 uid="uid://ctitleframedthm01"]
+
+[ext_resource type="FontFile" uid="uid://ggik2pw831cxw" path="res://assets/ui/fonts/eb_garamond/EBGaramond-SemiBold.ttf" id="1_title"]
+[ext_resource type="FontFile" uid="uid://8t93whcrdjlmu" path="res://assets/ui/fonts/open_sans/OpenSans-SemiBold.ttf" id="2_action"]
+[ext_resource type="FontFile" uid="uid://7anaag3xf3ze9" path="res://assets/ui/fonts/open_sans/OpenSans-Regular.ttf" id="3_helper"]
+
+[resource]
+default_font_size = 18
+default_font = ExtResource("3_helper")
+Button/colors/font_color = Color(0.88235295, 0.83137256, 0.7411765, 1)
+Button/colors/font_focus_color = Color(1, 0.8901961, 0.64705884, 1)
+Button/colors/font_hover_color = Color(1, 0.8901961, 0.64705884, 1)
+Button/colors/font_pressed_color = Color(0.81960785, 0.72156864, 0.5529412, 1)
+Button/fonts/font = ExtResource("2_action")
+Button/font_sizes/font_size = 28
+Label/colors/font_color = Color(0.9411765, 0.8862745, 0.7764706, 1)
+Label/fonts/font = ExtResource("1_title")
+Label/font_sizes/font_size = 80

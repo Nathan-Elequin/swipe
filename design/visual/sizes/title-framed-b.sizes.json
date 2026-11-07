@@ -1,0 +1,10 @@
+{
+  "_notes": "Approved framed title B (2026-11-07). Cabin composite ships at native 340×220 and displays at exact 2× (680×440) via TextureRect nearest — PNG IHDR stays 340×220.",
+  "assets": [
+    {
+      "path": "assets/ui/title/cabin-vignette-native.png",
+      "native": [340, 220],
+      "shipped": [340, 220]
+    }
+  ]
+}
