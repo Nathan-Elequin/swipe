@@ -2803,6 +2803,22 @@ func _hide_clear_resolve_chrome() -> void:
 				(n as CanvasItem).modulate = m
 
 
+func _restore_clear_resolve_chrome() -> void:
+	## The clear parade fades those controls to alpha 0. The next fight turns
+	## visible back on and never touched alpha, so the arrows and Take arc
+	## stayed invisible for the rest of the Play session.
+	if _clear_resolving or _dungeon_clear_pending:
+		return
+	for n in [btn_spin, btn_move_left, btn_move_right, move_count, take_arc, hub_cue]:
+		if n == null or not is_instance_valid(n) or not (n is CanvasItem):
+			continue
+		var m: Color = (n as CanvasItem).modulate
+		if m.a >= 1.0:
+			continue
+		m.a = 1.0
+		(n as CanvasItem).modulate = m
+
+
 func _play_clear_parade() -> void:
 	var saved := true
 	if wheel_view:
@@ -7449,12 +7465,14 @@ func _process(delta: float) -> void:
 	## pulse was restoring modulate.a=1 every frame (shot 05 Spin reappear).
 	if _clear_resolving or _dungeon_clear_pending:
 		_hide_clear_resolve_chrome()
-	elif btn_spin != null and btn_spin.visible and not btn_spin.disabled:
-		var pulse: float = 0.88 + 0.12 * absf(sin(_anim_t * 5.0))
-		btn_spin.modulate = Color(1.0, pulse, pulse * 0.85, 1.0)
-		btn_spin.pivot_offset = btn_spin.size * 0.5
-	elif btn_spin != null:
-		btn_spin.modulate = Color.WHITE
+	else:
+		_restore_clear_resolve_chrome()
+		if btn_spin != null and btn_spin.visible and not btn_spin.disabled:
+			var pulse: float = 0.88 + 0.12 * absf(sin(_anim_t * 5.0))
+			btn_spin.modulate = Color(1.0, pulse, pulse * 0.85, 1.0)
+			btn_spin.pivot_offset = btn_spin.size * 0.5
+		elif btn_spin != null:
+			btn_spin.modulate = Color.WHITE
 
 
 func _notification(what: int) -> void:
@@ -25942,6 +25960,12 @@ func _sync_buttons() -> void:
 	if feed_kind == "worm_hunger" or feed_kind == "hired_bribe":
 		btn_done.visible = false
 		_hide_take_burst()
+	## Take-arc sync runs after the clear hide and would turn the arc back on
+	## at alpha 0. Re-hide for the parade, or put alpha back for the next fight.
+	if _clear_resolving or _dungeon_clear_pending:
+		_hide_clear_resolve_chrome()
+	else:
+		_restore_clear_resolve_chrome()
 	_stamp_atk_variants()
 	_hold_combat_action_slot()
 
