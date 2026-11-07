@@ -193,12 +193,20 @@ var _arrive_skip: int = 0
 var _arrive_gen: int = 0
 ## Owns in-flight play_key_ring across awaits/finalizer (separate from arrive).
 var _key_ring_gen: int = 0
+## Owns ordinary pan_to / cabin motion / dialog waits (bumped at every async entry
+## and on hide/show_menu/stop_story invalidate).
+var _cabin_session: int = 0
 var _arrive_motion: Tween
 ## Owning pan/nib tween for cabin motion; kill only this on invalidate.
 var _cabin_motion: Tween
 ## Probe/observability: last arrive callback gate outcome (reject|apply).
 var _arrive_last_outcome: String = ""
 var _arrive_last_gen: int = -1
+var _arrive_reject_count: int = 0
+var _arrive_apply_count: int = 0
+## Probe/observability: ordinary pan_to gate outcome.
+var _pan_last_outcome: String = ""
+var _pan_last_session: int = -1
 ## Probe/observability: nested keyring helper mid-await phase + post-await outcome.
 var _nested_phase: String = ""
 var _nested_last_helper: String = ""
@@ -504,10 +512,11 @@ func show_menu(room: String = "main") -> void:
 	items_by_id = items_by_id
 	visible = true
 	_menu_on = true
-	## Take ownership of the cabin idle surface. Bump arrive/key-ring gens so
-	## in-flight coroutines become stale and must not clear these locks later.
+	## Take ownership of the cabin idle surface. Bump arrive/key-ring/session gens
+	## so in-flight coroutines become stale and must not clear these locks later.
 	_arrive_gen += 1
 	_key_ring_gen += 1
+	_cabin_session += 1
 	_kill_cabin_motion()
 	_arriving = false
 	_room_busy = false
@@ -543,10 +552,11 @@ func hide_for_run() -> void:
 	visible = false
 	_menu_on = false
 	_beat = ""
-	## Invalidate in-flight arrive/key-ring coroutines, then drop interaction
-	## locks this hide is aborting. Stale resumes must not clear a later owner.
+	## Invalidate in-flight arrive/key-ring/session coroutines, then drop
+	## interaction locks this hide is aborting. Stale resumes must not clear a later owner.
 	_arrive_gen += 1
 	_key_ring_gen += 1
+	_cabin_session += 1
 	_kill_cabin_motion()
 	_kill_arrive_motion()
 	_abort_cabin_interaction()
@@ -720,6 +730,8 @@ func play_key_ring() -> void:
 		return
 	_key_ring_gen += 1
 	var gen: int = _key_ring_gen
+	## Bind cabin session for nested motion/dialog waits in this keyring run.
+	_begin_cabin_session()
 	visible = true
 	_menu_on = true
 	_ext_root.visible = false
@@ -869,8 +881,18 @@ func _key_ring_aborted(gen: int) -> bool:
 	return true
 
 
+func _begin_cabin_session() -> int:
+	_cabin_session += 1
+	return _cabin_session
+
+
+func _owns_cabin_session(session: int) -> bool:
+	return session == _cabin_session
+
+
 func _kill_cabin_motion() -> void:
-	if _cabin_motion != null and is_instance_valid(_cabin_motion):
+	## Killed Tweens stay alive as RefCounted; use is_valid(), not only is_instance_valid.
+	if _cabin_motion != null and is_instance_valid(_cabin_motion) and _cabin_motion.is_valid():
 		_cabin_motion.kill()
 	_cabin_motion = null
 
@@ -882,30 +904,53 @@ func _nested_mark(helper: String, outcome: String, owner_gen: int) -> void:
 	_nested_phase = ""
 
 
-## Await cabin motion without hanging when the owning tween is killed on invalidate.
-## Returns false if ownership was lost or the tween was cancelled before completion.
-func _await_cabin_tween(tw: Tween, owner_gen: int = -1) -> bool:
+func _tween_still_active(tw: Tween) -> bool:
+	return tw != null and is_instance_valid(tw) and tw.is_valid()
+
+
+## Await cabin motion with required session ownership.
+## Uses Tween.is_valid() so a killed RefCounted tween cannot poll forever.
+## Never clears _cabin_motion / locks belonging to a newer session.
+func _await_cabin_tween(tw: Tween, session: int) -> bool:
 	if tw == null:
 		return false
 	var done: Array = [false]
-	if is_instance_valid(tw):
+	if _tween_still_active(tw):
 		tw.finished.connect(func() -> void:
 			done[0] = true
 		, CONNECT_ONE_SHOT)
-	while is_instance_valid(tw) and not bool(done[0]):
-		if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+	while _tween_still_active(tw) and not bool(done[0]):
+		if not _owns_cabin_session(session):
+			## Lost ownership: kill only if this tween is still the tracked owner.
 			if _cabin_motion == tw:
-				_cabin_motion.kill()
+				if _tween_still_active(tw):
+					tw.kill()
 				_cabin_motion = null
-			elif is_instance_valid(tw):
-				tw.kill()
 			return false
 		await get_tree().create_timer(0.02, true, true, true).timeout
+	## Tween finished or became invalid (killed). Clear pointer only if we still own it.
 	if _cabin_motion == tw:
 		_cabin_motion = null
-	if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+	if not _owns_cabin_session(session):
 		return false
-	return is_inside_tree() and bool(done[0])
+	if not bool(done[0]):
+		## Killed / cancelled without finished — do not treat as success.
+		return false
+	return is_inside_tree()
+
+
+## Bounded dialog wait: exits when session/keyring ownership is lost so a canceled
+## say cannot hang forever on dialog.finished.
+func _await_dialog_owned(session: int, owner_gen: int = -1) -> bool:
+	if _dialog == null:
+		return _owns_cabin_session(session) and (owner_gen < 0 or _key_ring_owns(owner_gen))
+	while _dialog.is_open():
+		if not _owns_cabin_session(session):
+			return false
+		if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+			return false
+		await get_tree().create_timer(0.02, true, true, true).timeout
+	return _owns_cabin_session(session) and (owner_gen < 0 or _key_ring_owns(owner_gen))
 
 
 func play_ending() -> void:
@@ -1305,13 +1350,16 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 	if gen != _arrive_gen:
 		_arrive_last_outcome = "reject"
 		_arrive_last_gen = gen
+		_arrive_reject_count += 1
 		return
 	if not visible:
 		_arrive_last_outcome = "reject"
 		_arrive_last_gen = gen
+		_arrive_reject_count += 1
 		return
 	_arrive_last_outcome = "apply"
 	_arrive_last_gen = gen
+	_arrive_apply_count += 1
 	_arriving = true
 	_door_busy = false
 	_door_hit.disabled = false
@@ -4073,6 +4121,7 @@ func stop_story() -> void:
 	_story_seq += 1
 	_arrive_gen += 1
 	_key_ring_gen += 1
+	_cabin_session += 1
 	_kill_cabin_motion()
 	_kill_arrive_motion()
 	if _cutscene and _cutscene.is_playing():
@@ -4086,6 +4135,8 @@ func stop_story() -> void:
 	_close_top_overlay()
 	_arriving = false
 	_room_busy = false
+	_pan_busy = false
+	_door_busy = false
 	_beat = "idle"
 
 
@@ -4498,6 +4549,8 @@ func pan_to(room: String) -> void:
 	var i: int = ROOM_ORDER.find(room)
 	if i < 0:
 		return
+	## Capture session at async entry — required; no default-owner await.
+	var session: int = _begin_cabin_session()
 	_pan_busy = true
 	_rooms_host.mouse_filter = Control.MOUSE_FILTER_STOP
 	KIT.cue(sfx, &"cabin.pan")
@@ -4511,10 +4564,17 @@ func pan_to(room: String) -> void:
 	tw.set_trans(Tween.TRANS_SINE)
 	tw.set_ease(Tween.EASE_IN_OUT)
 	tw.tween_property(_rooms_host, "position:x", -float(i) * ROOM_W, 0.45)
-	var pan_ok: bool = await _await_cabin_tween(tw)
-	## Hide/invalidate may have killed this tween and cleared locks for a newer owner.
-	if not pan_ok or not visible:
+	_nested_phase = "pan_to_await"
+	var pan_ok: bool = await _await_cabin_tween(tw, session)
+	## Stale A must not clear B's pan_busy / room / presentation / motion pointer.
+	if not pan_ok or not _owns_cabin_session(session) or not visible:
+		_pan_last_outcome = "reject"
+		_pan_last_session = session
+		_nested_mark("pan_to", "reject", session)
 		return
+	_pan_last_outcome = "apply"
+	_pan_last_session = session
+	_nested_mark("pan_to", "apply", session)
 	_current_room = room
 	_pan_busy = false
 	_rooms_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -4527,9 +4587,10 @@ func pan_to(room: String) -> void:
 		call_deferred("_offer_bank_sequence")
 
 
-## Returns false when owner_gen is stale — no room/pan/bank side effects after await.
-func _pan_unlocked(room: String, owner_gen: int = -1) -> bool:
-	if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+## Returns false when owner_gen/session is stale — no room/pan/bank side effects after await.
+func _pan_unlocked(room: String, owner_gen: int) -> bool:
+	var session: int = _cabin_session
+	if not _key_ring_owns(owner_gen) or not _owns_cabin_session(session):
 		_nested_mark("pan_unlocked", "reject", owner_gen)
 		return false
 	if not is_room_unlocked(room):
@@ -4539,7 +4600,7 @@ func _pan_unlocked(room: String, owner_gen: int = -1) -> bool:
 			_refresh_rooms()
 	var i: int = ROOM_ORDER.find(room)
 	if i < 0:
-		return owner_gen < 0 or _key_ring_owns(owner_gen)
+		return _key_ring_owns(owner_gen) and _owns_cabin_session(session)
 	_pan_busy = true
 	KIT.cue(sfx, &"cabin.pan")
 	var r = _rooms.get(room)
@@ -4553,9 +4614,9 @@ func _pan_unlocked(room: String, owner_gen: int = -1) -> bool:
 	tw.set_ease(Tween.EASE_IN_OUT)
 	tw.tween_property(_rooms_host, "position:x", -float(i) * ROOM_W, 0.45)
 	_nested_phase = "pan_unlocked_await"
-	var ok: bool = await _await_cabin_tween(tw, owner_gen)
+	var ok: bool = await _await_cabin_tween(tw, session)
 	## Ownership check BEFORE room change / pan_busy clear / bank defer.
-	if not ok or (owner_gen >= 0 and not _key_ring_owns(owner_gen)) or not visible:
+	if not ok or not _key_ring_owns(owner_gen) or not _owns_cabin_session(session) or not visible:
 		_nested_mark("pan_unlocked", "reject", owner_gen)
 		return false
 	_nested_mark("pan_unlocked", "apply", owner_gen)
@@ -4571,14 +4632,15 @@ func _pan_unlocked(room: String, owner_gen: int = -1) -> bool:
 	return true
 
 
-## Returns false when owner_gen is stale after the nib tween.
-func _move_nib_x(x_native: float, dur: float, owner_gen: int = -1) -> bool:
-	if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+## Returns false when owner_gen/session is stale after the nib tween.
+func _move_nib_x(x_native: float, dur: float, owner_gen: int) -> bool:
+	var session: int = _cabin_session
+	if not _key_ring_owns(owner_gen) or not _owns_cabin_session(session):
 		_nested_mark("move_nib_x", "reject", owner_gen)
 		return false
 	var main_room = _rooms.get("main")
 	if main_room == null:
-		return owner_gen < 0 or _key_ring_owns(owner_gen)
+		return _key_ring_owns(owner_gen) and _owns_cabin_session(session)
 	var nib = main_room.nib
 	var hs = main_room.spots.get("Nib", null)
 	var tw := create_tween()
@@ -4590,8 +4652,8 @@ func _move_nib_x(x_native: float, dur: float, owner_gen: int = -1) -> bool:
 	if hs is Control:
 		tw.tween_property(hs, "position:x", x_native * PX, dur)
 	_nested_phase = "move_nib_x_await"
-	var ok: bool = await _await_cabin_tween(tw, owner_gen)
-	if not ok or (owner_gen >= 0 and not _key_ring_owns(owner_gen)):
+	var ok: bool = await _await_cabin_tween(tw, session)
+	if not ok or not _key_ring_owns(owner_gen) or not _owns_cabin_session(session):
 		_nested_mark("move_nib_x", "reject", owner_gen)
 		return false
 	_nested_mark("move_nib_x", "apply", owner_gen)
@@ -4605,9 +4667,10 @@ func _unlock_spot(
 	unlock_room: String,
 	line_key: String,
 	ladder: bool,
-	owner_gen: int = -1
+	owner_gen: int
 ) -> bool:
-	if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+	var session: int = _cabin_session
+	if not _key_ring_owns(owner_gen) or not _owns_cabin_session(session):
 		_nested_mark("unlock_spot", "reject", owner_gen)
 		return false
 	var room = _rooms.get(room_id)
@@ -4644,13 +4707,13 @@ func _unlock_spot(
 			KIT.cue(sfx, &"cabin.chain_drop")
 		, CONNECT_ONE_SHOT)
 	_nested_phase = "unlock_spot_await"
-	await _wait_owned(0.44, owner_gen)
+	await _wait_owned(0.44, owner_gen, session)
 	if is_instance_valid(anim):
 		anim.queue_free()
 	if is_instance_valid(spark):
 		spark.queue_free()
 	## Ownership check BEFORE unlock append / save / refresh / hotspot restore path.
-	if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+	if not _key_ring_owns(owner_gen) or not _owns_cabin_session(session):
 		_nested_mark("unlock_spot", "reject", owner_gen)
 		## Restore hotspot visibility we hid; do not unlock rooms.
 		if hs:
@@ -4666,42 +4729,45 @@ func _unlock_spot(
 	_refresh_rooms()
 	if hs:
 		hs.visible = true
-	if not await _say_key(line_key, owner_gen):
+	if not await _say_key(line_key, owner_gen, session):
 		return false
 	return true
 
 
-## Returns false when owner_gen is stale (before or after dialog).
-func _say_key(key: String, owner_gen: int = -1) -> bool:
-	if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+## Returns false when owner_gen/session is stale (before or after dialog).
+func _say_key(key: String, owner_gen: int, session: int = -1) -> bool:
+	if session < 0:
+		session = _cabin_session
+	if not _key_ring_owns(owner_gen) or not _owns_cabin_session(session):
 		_nested_mark("say_key", "reject", owner_gen)
 		return false
 	if key == "" or _dialog == null:
-		return owner_gen < 0 or _key_ring_owns(owner_gen)
+		return _key_ring_owns(owner_gen) and _owns_cabin_session(session)
 	_dialog.say([key])
 	_nested_phase = "say_key_await"
-	await _dialog.finished
-	if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+	if not await _await_dialog_owned(session, owner_gen):
 		_nested_mark("say_key", "reject", owner_gen)
 		return false
 	_nested_mark("say_key", "apply", owner_gen)
 	return true
 
 
-## Like _wait, but exits early when keyring ownership is lost mid-timer.
-func _wait_owned(sec: float, owner_gen: int) -> bool:
+## Like _wait, but exits early when keyring/session ownership is lost mid-timer.
+func _wait_owned(sec: float, owner_gen: int, session: int = -1) -> bool:
+	if session < 0:
+		session = _cabin_session
 	if sec <= 0.0:
-		return owner_gen < 0 or _key_ring_owns(owner_gen)
+		return _key_ring_owns(owner_gen) and _owns_cabin_session(session)
 	var left: float = sec
 	while left > 0.0:
-		if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+		if not _key_ring_owns(owner_gen) or not _owns_cabin_session(session):
 			return false
 		if _arriving and _arrive_skip != 0:
-			return owner_gen < 0 or _key_ring_owns(owner_gen)
+			return _key_ring_owns(owner_gen) and _owns_cabin_session(session)
 		var step: float = minf(left, 0.04)
 		await get_tree().create_timer(step, true, true, true).timeout
 		left -= step
-	return owner_gen < 0 or _key_ring_owns(owner_gen)
+	return _key_ring_owns(owner_gen) and _owns_cabin_session(session)
 
 
 func _play_cheer() -> void:

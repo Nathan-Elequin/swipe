@@ -67,14 +67,20 @@ func _initialize() -> void:
 	## --- Case G: helper-level stale arrive abort ---
 	failed = await _case_stale_arrive_cannot_clear_newer(cabin) or failed
 
-	## --- Case S: real scheduler A→hide/reopen B within timer window ---
+	## --- Case S: natural scheduled timer reject + explicit mutation markers ---
 	failed = await _case_scheduled_arrive_stale_timer(main, cabin) or failed
+
+	## --- Case T: ordinary pan_to A → stop/hide/reopen B (killed + done-before-B) ---
+	failed = await _case_pan_to_cancel_reopen(cabin) or failed
 
 	## --- Case U: interrupt mid _unlock_spot await; stale A must not unlock ---
 	failed = await _case_unlock_spot_mid_await_stale(cabin) or failed
 
 	## --- Case P: interrupt mid _pan_unlocked await; B room/pan untouched ---
 	failed = await _case_pan_unlocked_mid_await_stale(cabin) or failed
+
+	## --- Case Y: say_key dialog wait cancels with session (no hang) ---
+	failed = await _case_say_key_session_cancel(cabin) or failed
 
 	## --- Case N: forced Nib / push-block home after keys already done ---
 	failed = await _case_push_block_home_then_nav(main, cabin) or failed
@@ -197,29 +203,47 @@ func _case_stale_arrive_cannot_clear_newer(cabin) -> bool:
 	return failed
 
 
-## Actual open_cabin timer schedule: A arms 0.02s callback → hide/reopen B before
-## fire → stale A must not mutate as B. Asserts observable reject + state markers
-## (gen equality alone is insufficient — reject also leaves gen unchanged).
+## Natural timer: A arms 0.02s → hide/reopen B before fire → A's bound timer
+## must reject (reject_count++). Does NOT call _play_arrive explicitly for that claim.
+## Separate explicit call only for mutation-marker proof (labeled as such).
 func _case_scheduled_arrive_stale_timer(main: Node, cabin) -> bool:
 	var failed := false
 	paused = false
 	_seed_post_tutorial_cabin(cabin)
 	var items: Dictionary = main.items_by_id if ("items_by_id" in main) else {}
 	var tex: Dictionary = main.tex_by_item if ("tex_by_item" in main) else {}
-	## Negative: buggy body that ignores scheduled_gen WOULD apply as B.
 	failed = _check(
 		failed,
 		"legacy_scheduler_mismatch_would_apply",
 		_legacy_play_arrive_ignores_scheduled_gen(10, 11)
 	) or failed
+	## --- Natural scheduled timer rejection (no explicit _play_arrive) ---
+	var reject_before: int = int(cabin._arrive_reject_count)
+	var apply_before: int = int(cabin._arrive_apply_count)
 	cabin.open_cabin(items, tex, 1, true, "win", [], ["boot"])
 	var gen_a: int = int(cabin._arrive_gen)
-	## Within the 20ms schedule window: invalidate A and open B.
 	cabin.hide_for_run()
 	cabin.open_cabin(items, tex, 1, true, "win", [], ["net"])
 	var gen_b: int = int(cabin._arrive_gen)
 	failed = _check(failed, "scheduler_b_gen_after_a", gen_b > gen_a) or failed
-	## Settle B with player skip so B markers are known before probing stale A.
+	## Wait past both 0.02s timers; do not invoke _play_arrive.
+	await _wait_frames(cabin, 18)
+	failed = _check(
+		failed,
+		"scheduler_natural_stale_a_timer_rejected",
+		int(cabin._arrive_reject_count) > reject_before
+	) or failed
+	failed = _check(
+		failed,
+		"scheduler_natural_b_applied_or_arriving",
+		int(cabin._arrive_apply_count) > apply_before or bool(cabin._arriving)
+	) or failed
+	failed = _check(
+		failed,
+		"scheduler_b_still_owns_gen_natural",
+		int(cabin._arrive_gen) == gen_b
+	) or failed
+	## Settle B then explicit stale callback — mutation markers only (not natural proof).
 	cabin._arrive_skip = 2
 	if cabin.has_method("_kill_arrive_motion"):
 		cabin._kill_arrive_motion()
@@ -229,33 +253,27 @@ func _case_scheduled_arrive_stale_timer(main: Node, cabin) -> bool:
 	var hero_vis_b: bool = cabin._hero != null and bool(cabin._hero.visible)
 	cabin._arrive_last_outcome = ""
 	cabin._arrive_last_gen = -1
-	## Stale bound callback must reject BEFORE mutation (observable outcome).
 	cabin._play_arrive(gen_a)
 	await _wait_frames(cabin, 4)
 	failed = _check(
 		failed,
-		"scheduler_stale_a_outcome_reject",
+		"scheduler_explicit_stale_callback_reject_markers",
 		str(cabin._arrive_last_outcome) == "reject" and int(cabin._arrive_last_gen) == gen_a
 	) or failed
 	failed = _check(
 		failed,
-		"scheduler_stale_a_does_not_mutate_b_beat",
+		"scheduler_explicit_stale_does_not_mutate_b_beat",
 		str(cabin._beat) == beat_b
 	) or failed
 	failed = _check(
 		failed,
-		"scheduler_stale_a_does_not_mutate_b_arriving",
+		"scheduler_explicit_stale_does_not_mutate_b_arriving",
 		bool(cabin._arriving) == arriving_b
 	) or failed
 	failed = _check(
 		failed,
-		"scheduler_stale_a_does_not_mutate_b_hero",
+		"scheduler_explicit_stale_does_not_mutate_b_hero",
 		(cabin._hero != null and bool(cabin._hero.visible)) == hero_vis_b
-	) or failed
-	failed = _check(
-		failed,
-		"scheduler_b_still_owns_gen",
-		int(cabin._arrive_gen) == gen_b
 	) or failed
 	cabin.stop_story()
 	cabin.hide_for_run()
@@ -268,6 +286,131 @@ func _legacy_play_arrive_ignores_scheduled_gen(scheduled_gen: int, live_gen: int
 	## Pre-fix body effectively: var gen = live_gen; then mutate.
 	## Stale scheduled callback would therefore apply under B's generation.
 	return scheduled_gen != live_gen
+
+
+## Ordinary pan_to A awaiting → stop_story/hide/reopen B.
+## Covers killed RefCounted tween hang + done-before-B-next-frame finalization.
+func _case_pan_to_cancel_reopen(cabin) -> bool:
+	var failed := false
+	failed = _check(
+		failed,
+		"legacy_unowned_pan_await_would_hang_on_killed_refcounted",
+		_legacy_await_hangs_on_killed_refcounted_tween()
+	) or failed
+	failed = _check(
+		failed,
+		"legacy_done_then_b_would_finalize_as_a",
+		_legacy_pan_done_then_b_finalizes()
+	) or failed
+	_seed_post_tutorial_cabin(cabin)
+	cabin.rooms_unlocked = ["main", "hall", "mudroom", "study"]
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._snap_to("main")
+	cabin._pan_busy = false
+	cabin._pan_last_outcome = ""
+	cabin._nested_phase = ""
+	cabin._nested_last_outcome = ""
+	## Start ordinary pan_to A (captures cabin session).
+	cabin.pan_to("hall")
+	var hit_await := false
+	var session_a: int = -1
+	for _i in range(120):
+		await process_frame
+		if str(cabin._nested_phase) == "pan_to_await":
+			hit_await = true
+			session_a = int(cabin._cabin_session)
+			break
+	failed = _check(failed, "pan_to_hit_await_checkpoint", hit_await and session_a > 0) or failed
+	## Capture A's tween ref (may become killed RefCounted still is_instance_valid).
+	var tw_a = cabin._cabin_motion
+	## Invalidate via stop_story (settles pan_busy) — observe A termination BEFORE B starts
+	## so B's apply cannot overwrite the reject receipt.
+	cabin.stop_story()
+	failed = _check(failed, "pan_to_stop_story_clears_pan_busy", cabin._pan_busy == false) or failed
+	var saw_a_reject := false
+	for _j in range(120):
+		await process_frame
+		if (
+			str(cabin._nested_last_helper) == "pan_to"
+			and str(cabin._nested_last_outcome) == "reject"
+			and int(cabin._nested_last_owner_gen) == session_a
+		):
+			saw_a_reject = true
+			break
+		if str(cabin._pan_last_outcome) == "reject" and int(cabin._pan_last_session) == session_a:
+			saw_a_reject = true
+			break
+	failed = _check(failed, "pan_to_stale_a_termination_observed", saw_a_reject) or failed
+	## Killed A tween: RefCounted may remain instance-valid but must not be active/valid owner.
+	if tw_a != null and is_instance_valid(tw_a):
+		failed = _check(
+			failed,
+			"pan_to_killed_a_tween_not_valid_or_not_owner",
+			(not tw_a.is_valid()) or cabin._cabin_motion != tw_a
+		) or failed
+	## Reopen B with replacement pan; A must not finalize into B's room/locks.
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._snap_to("main")
+	cabin._current_room = "main"
+	cabin._pan_busy = false
+	cabin.pan_to("study")
+	var room_b_target := "study"
+	var session_b: int = int(cabin._cabin_session)
+	var tw_b = cabin._cabin_motion
+	await _wait_until_idle(cabin, 180)
+	failed = await _dismiss_cabin_dialog(cabin) or failed
+	failed = _check(
+		failed,
+		"pan_to_b_session_newer",
+		session_b > session_a and int(cabin._cabin_session) >= session_b
+	) or failed
+	failed = _check(
+		failed,
+		"pan_to_b_room_is_study_not_stale_hall",
+		str(cabin._current_room) == room_b_target
+	) or failed
+	failed = _check(
+		failed,
+		"pan_to_b_pan_busy_settled_free",
+		cabin._pan_busy == false
+	) or failed
+	failed = _check(
+		failed,
+		"pan_to_a_did_not_clear_b_motion_pointer_wrongly",
+		cabin._cabin_motion == null or cabin._cabin_motion == tw_b or cabin._cabin_motion != tw_a
+	) or failed
+	cabin.stop_story()
+	_seed_post_tutorial_cabin(cabin)
+	return failed
+
+
+## Pre-fix: loop on is_instance_valid only → killed tween never finishes → hang.
+func _legacy_await_hangs_on_killed_refcounted_tween() -> bool:
+	## Model: killed Tween stays is_instance_valid==true, is_valid==false, done==false.
+	var instance_valid := true
+	var tween_valid := false
+	var done := false
+	## Buggy loop condition:
+	var would_spin: bool = instance_valid and not done and not tween_valid
+	## Fixed loop uses is_valid and exits when not tween_valid.
+	var fixed_exits: bool = not tween_valid
+	return would_spin and fixed_exits
+
+
+## Pre-fix: A done=true then B show_menu before A's next tick → A finalizes as B.
+func _legacy_pan_done_then_b_finalizes() -> bool:
+	var session_a := 1
+	var session_live := 2
+	var current_room := "main"
+	var pan_busy := true
+	var done := true
+	## Buggy: only checked pan_ok/visible, not session:
+	if done:
+		current_room = "hall"
+		pan_busy = false
+	return session_a != session_live and current_room == "hall" and pan_busy == false
 
 
 ## Interrupt precisely while _unlock_spot awaits; reopen B; prove A resumed and
@@ -287,6 +430,7 @@ func _case_unlock_spot_mid_await_stale(cabin) -> bool:
 	cabin.show_menu("main")
 	cabin._key_ring_gen += 1
 	var gen_a: int = int(cabin._key_ring_gen)
+	cabin._begin_cabin_session()
 	cabin._nested_phase = ""
 	cabin._nested_last_outcome = ""
 	cabin._nested_last_helper = ""
@@ -384,6 +528,7 @@ func _case_pan_unlocked_mid_await_stale(cabin) -> bool:
 	cabin._snap_to("main")
 	cabin._key_ring_gen += 1
 	var gen_a: int = int(cabin._key_ring_gen)
+	cabin._begin_cabin_session()
 	cabin._nested_phase = ""
 	cabin._nested_last_outcome = ""
 	cabin._nested_last_helper = ""
@@ -462,6 +607,58 @@ func _legacy_pan_unlocked_applies_after_await() -> bool:
 		current_room = "hall"
 		pan_busy = false
 	return owner_stale and current_room == "hall" and pan_busy == false
+
+
+## _say_key must not hang forever on dialog.finished after session invalidate.
+func _case_say_key_session_cancel(cabin) -> bool:
+	var failed := false
+	cabin.stop_story()
+	cabin.key_ring_seen = false
+	cabin.visible = true
+	cabin.show_menu("main")
+	if cabin._dialog == null:
+		print("INFO say_key_skip_no_dialog")
+		return failed
+	cabin._key_ring_gen += 1
+	var gen_a: int = int(cabin._key_ring_gen)
+	var session_a: int = cabin._begin_cabin_session()
+	cabin._nested_phase = ""
+	cabin._nested_last_outcome = ""
+	cabin._say_key("keyring.door.hall", gen_a, session_a)
+	var hit_await := false
+	for _i in range(60):
+		await process_frame
+		if str(cabin._nested_phase) == "say_key_await" or (cabin._dialog != null and cabin._dialog.is_open()):
+			hit_await = true
+			break
+	failed = _check(failed, "say_key_hit_dialog_await", hit_await) or failed
+	## Invalidate session while dialog still open — waiter must exit, not hang.
+	cabin.hide_for_run()
+	cabin.visible = true
+	cabin.show_menu("main")
+	cabin._room_busy = true
+	var terminated := false
+	for _j in range(120):
+		await process_frame
+		if (
+			str(cabin._nested_last_helper) == "say_key"
+			and str(cabin._nested_last_outcome) == "reject"
+			and int(cabin._nested_last_owner_gen) == gen_a
+		):
+			terminated = true
+			break
+	failed = _check(failed, "say_key_stale_a_dialog_wait_terminated", terminated) or failed
+	failed = _check(
+		failed,
+		"say_key_b_room_busy_untouched",
+		cabin._room_busy == true
+	) or failed
+	## Dismiss any leftover dialog so later cases are clean.
+	if cabin._dialog != null and cabin._dialog.is_open():
+		cabin._dialog.dismiss()
+	cabin.stop_story()
+	_seed_post_tutorial_cabin(cabin)
+	return failed
 
 
 ## Key-ring A mid-await → hide/reopen B with intentional locks → A resumes must
