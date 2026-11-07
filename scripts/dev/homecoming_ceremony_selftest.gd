@@ -133,11 +133,28 @@ func _run() -> void:
 		]
 	) or failed
 
+	## --- Lifecycle: await_bank_ceremony_tween completes after kill (no finished hang) ---
+	var gen_await: int = cabin.call("_begin_bank_ceremony")
+	var hang_tw: Tween = cabin.create_tween()
+	hang_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	hang_tw.tween_interval(5.0)
+	cabin.call("_track_bank_ceremony_tween", hang_tw)
+	var await_done: Array = [false]
+	var run_await := func() -> void:
+		await cabin._await_bank_ceremony_tween(hang_tw, gen_await)
+		await_done[0] = true
+	run_await.call()
+	await process_frame
+	cabin.call("_invalidate_bank_ceremony")
+	failed = await _assert_completes(
+		rows, failed, "LIFE.await_tween_completes_on_kill",
+		"cancel-safe tween await resumes after kill (finished is NOT emitted)",
+		await_done, 90
+	) or failed
+
 	## --- Nested: case_opened_beat with null tc must not rebuild when stale ---
 	var gen_c: int = cabin.call("_begin_bank_ceremony")
 	cabin.call("_invalidate_bank_ceremony")
-	## Stale call: trophy case missing → must NOT rebuild (ownership gate).
-	## We detect via shelves host absence + no crash; ownership return is the contract.
 	cabin.call("_case_opened_beat", "b1", gen_c)
 	failed = _assert(
 		rows, failed, "NEST.case_opened_stale_returns",
@@ -146,18 +163,34 @@ func _run() -> void:
 		"owns=%s" % cabin.call("_owns_bank_ceremony", gen_c)
 	) or failed
 
-	## --- Nested: arc late pop blocked when invalidated mid-tween ---
-	var gen_arc: int = cabin.call("_begin_bank_ceremony")
-	cabin.call("_bank_fx_arc_to_mount", "net", "b1", gen_arc)
-	## Invalidate on next frame while arc awaits (~0.38s).
-	await create_timer(0.05).timeout
-	cabin.call("_invalidate_bank_ceremony")
-	await create_timer(0.5).timeout
-	failed = _assert(
-		rows, failed, "NEST.arc_stale_after_invalidate",
-		"after mid-arc invalidate, gen_arc no longer owns (no late owner cues)",
-		not bool(cabin.call("_owns_bank_ceremony", gen_arc)),
-		"owns=%s" % cabin.call("_owns_bank_ceremony", gen_arc)
+	## --- Lifecycle: mid-arc invalidate → helper completes + temp FX freed ---
+	failed = await _lifecycle_mid_cancel_helper(
+		rows, failed, cabin, "arc",
+		func(gen: int) -> void:
+			await cabin._bank_fx_arc_to_mount("net", "b1", gen)
+	) or failed
+
+	## --- Lifecycle: mid-smoke invalidate → helper completes + temp FX freed ---
+	failed = await _lifecycle_mid_cancel_helper(
+		rows, failed, cabin, "smoke",
+		func(gen: int) -> void:
+			await cabin._bank_fx_bag_smoke(gen)
+	) or failed
+
+	## --- Lifecycle: mid-loud-count invalidate → helper completes + label freed ---
+	var shelf := Control.new()
+	shelf.name = "SelftestShelf"
+	shelf.size = Vector2(400, 400)
+	cabin.add_child(shelf)
+	cabin.set("_shelf_host", shelf)
+	var case_b1 := Control.new()
+	case_b1.name = "Case_b1"
+	case_b1.size = Vector2(200, 200)
+	shelf.add_child(case_b1)
+	failed = await _lifecycle_mid_cancel_helper(
+		rows, failed, cabin, "count",
+		func(gen: int) -> void:
+			await cabin._bank_fx_loud_count({"b1": 1}, 5, gen)
 	) or failed
 
 	## --- Verdant haul gate (accepted fix) ---
@@ -197,6 +230,17 @@ func _run() -> void:
 		owns_in_arc >= 0 and pop_in_arc > owns_in_arc
 	) or failed
 	failed = _static(
+		rows, failed, "STATIC.await_ceremony_tween_helper",
+		"cancel-safe _await_bank_ceremony_tween exists (kill ≠ finished)",
+		"func _await_bank_ceremony_tween" in src and "bank_ceremony_fx_aborted" in src
+	) or failed
+	failed = _static(
+		rows, failed, "STATIC.arc_uses_cancel_safe_await",
+		"arc awaits cancel-safe helper, not bare tw.finished",
+		"await _await_bank_ceremony_tween(tw, ceremony_gen)" in arc_block
+		and "await tw.finished" not in arc_block
+	) or failed
+	failed = _static(
 		rows, failed, "STATIC.save_persist_guard",
 		"_save returns early when not _persist_writes",
 		"if not _persist_writes:" in src and "func _save()" in src
@@ -222,12 +266,78 @@ func _run() -> void:
 
 	_note(rows, "NOTE.not_live_H11", "Bare-instance / helper checks ≠ live cabin give-home dialog + full FX cancel reentry (REQ H11).")
 	_uncovered(rows, "UNCOVERED.live_dialog_fx_cancel", "Full give-home dialogue + case_opened lamp/crest/dumbwaiter cancel under real CabinRoot tree not executed.")
-	_uncovered(rows, "UNCOVERED.item_pop_cue_assert", "Cannot assert KIT.cue(item_pop) absence without cue spy; ownership + tween kill are the evaluated nested proof.")
+	_uncovered(rows, "UNCOVERED.item_pop_cue_assert", "Cannot assert KIT.cue(item_pop) absence without cue spy; ownership + cancel-safe await + FX free are the evaluated nested proof.")
+	_note(rows, "NOTE.windows_xdg_unverified", "Linux XDG/HOME mktemp isolation is NOT claimed to protect Windows. Use a separate isolated Godot test profile on Cherry for Windows QA.")
 
 	if is_instance_valid(cabin):
 		cabin.queue_free()
 		await process_frame
 	_finish(failed, rows)
+
+
+## Mid-invalidate one FX helper: assert coroutine completes in bounded frames AND tracked FX gone.
+func _lifecycle_mid_cancel_helper(
+	rows: Array, failed: bool, cabin: Node, tag: String, starter: Callable
+) -> bool:
+	var gen: int = cabin.call("_begin_bank_ceremony")
+	var done: Array = [false]
+	var run := func() -> void:
+		await starter.call(gen)
+		done[0] = true
+	run.call()
+	## Let helper create tween + track FX node(s) — prefer frames over long timer.
+	var wait_i := 0
+	while (cabin.get("_bank_ceremony_fx_nodes") as Array).is_empty() and wait_i < 12:
+		await process_frame
+		wait_i += 1
+	var tracked: Array = cabin.get("_bank_ceremony_fx_nodes") as Array
+	var snap: Array = []
+	for raw in tracked:
+		if raw is Node and is_instance_valid(raw):
+			snap.append(raw)
+	failed = _assert(
+		rows, failed, "LIFE.%s_tracked_fx_before_kill" % tag,
+		"mid-%s: at least one temp FX node tracked before invalidate" % tag,
+		snap.size() >= 1,
+		"tracked=%d wait_frames=%d" % [snap.size(), wait_i]
+	) or failed
+	cabin.call("_invalidate_bank_ceremony")
+	failed = await _assert_completes(
+		rows, failed, "LIFE.%s_helper_completes" % tag,
+		"mid-%s invalidate: helper/coroutine completes within bounded frames" % tag,
+		done, 90
+	) or failed
+	## queue_free settles by end of frame — give a couple frames.
+	await process_frame
+	await process_frame
+	var survivors := 0
+	for n in snap:
+		if n != null and is_instance_valid(n) and not n.is_queued_for_deletion():
+			survivors += 1
+	var left: Array = cabin.get("_bank_ceremony_fx_nodes") as Array
+	failed = _assert(
+		rows, failed, "LIFE.%s_fx_nodes_gone" % tag,
+		"mid-%s invalidate: temporary FX nodes freed (not stranded)" % tag,
+		survivors == 0 and left.is_empty(),
+		"survivors=%d left=%d" % [survivors, left.size()]
+	) or failed
+	return failed
+
+
+## Bound frame wait for a [done] flag set by a cancel-safe coroutine. Not a tween.finished poll.
+func _assert_completes(
+	rows: Array, failed: bool, id: String, expected: String, done: Array, max_frames: int
+) -> bool:
+	var frames := 0
+	while not bool(done[0]) and frames < max_frames:
+		await process_frame
+		frames += 1
+	var ok := bool(done[0])
+	failed = _assert(
+		rows, failed, id, expected, ok,
+		"done=%s frames=%d max=%d" % [done[0], frames, max_frames]
+	) or failed
+	return failed
 
 
 func _file_meta(path: String) -> Dictionary:

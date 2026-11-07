@@ -191,7 +191,14 @@ var _bank_ceremony_gen: int = 0
 ## Staging claim token for pan→hall. Stale pan continuation must not clear a newer claim.
 var _homecoming_staging_gen: int = 0
 ## Tweens owned by the active bank ceremony; killed on invalidate so callbacks cannot late-fire.
+## NOTE: Tween.kill() does NOT emit finished — awaiters must use `_await_bank_ceremony_tween`.
 var _bank_ceremony_tweens: Array = []
+## Transient FX nodes (arc spr, smoke blob, rays, loud-count label). Freed on invalidate.
+var _bank_ceremony_fx_nodes: Array = []
+## Fired after ceremony FX kill+free so helpers waiting on tween.finished / anim signals resume.
+signal bank_ceremony_fx_aborted
+## Bumped with each abort pulse so awaiters that connect after kill still settle (no hang).
+var _bank_ceremony_fx_abort_gen: int = 0
 var _case_scroll: Dictionary = {}
 var _case_columns: Dictionary = {}
 var _case_clips: Dictionary = {}
@@ -446,12 +453,92 @@ func _track_bank_ceremony_tween(tw: Tween) -> void:
 	_bank_ceremony_tweens.append(tw)
 
 
+func _track_bank_ceremony_fx(node: Node) -> void:
+	if node == null:
+		return
+	_bank_ceremony_fx_nodes.append(node)
+
+
+func _untrack_bank_ceremony_fx(node: Node) -> void:
+	if node == null:
+		return
+	_bank_ceremony_fx_nodes.erase(node)
+
+
+## One-shot race gate: tween/anim completion OR ceremony FX abort. No frame-polling loop.
+class _BankFxGate extends RefCounted:
+	signal settled
+	var _fired: bool = false
+
+	func settle_once(_a: Variant = null, _b: Variant = null, _c: Variant = null, _d: Variant = null) -> void:
+		if _fired:
+			return
+		_fired = true
+		settled.emit()
+
+
+## Kill owned tweens, free tracked temp FX, then pulse abort so awaiters cannot hang.
+## Godot: killed Tween does not emit `finished`.
 func _kill_bank_ceremony_tweens() -> void:
 	for raw in _bank_ceremony_tweens:
 		var tw: Tween = raw as Tween
 		if tw != null and is_instance_valid(tw) and tw.is_valid():
 			tw.kill()
 	_bank_ceremony_tweens.clear()
+	for raw in _bank_ceremony_fx_nodes:
+		var n: Node = raw as Node
+		if n != null and is_instance_valid(n):
+			n.queue_free()
+	_bank_ceremony_fx_nodes.clear()
+	_bank_ceremony_fx_abort_gen += 1
+	bank_ceremony_fx_aborted.emit()
+
+
+## Cancellation-safe tween wait. `ceremony_gen < 0` = non-ceremony plain `finished`.
+## Races `finished` vs abort pulse (signal + gen) — no indefinite finished poll.
+func _await_bank_ceremony_tween(tw: Tween, ceremony_gen: int = -1) -> void:
+	if tw == null:
+		return
+	if ceremony_gen < 0:
+		if is_instance_valid(tw) and tw.is_valid():
+			await tw.finished
+		return
+	if not is_instance_valid(tw) or not tw.is_valid():
+		return
+	var abort_at: int = _bank_ceremony_fx_abort_gen
+	var gate := _BankFxGate.new()
+	var on_finish := func() -> void:
+		gate.settle_once()
+	var on_abort := func() -> void:
+		gate.settle_once()
+	tw.finished.connect(on_finish, CONNECT_ONE_SHOT)
+	bank_ceremony_fx_aborted.connect(on_abort, CONNECT_ONE_SHOT)
+	## Abort may have fired between validity check and connect.
+	if not tw.is_valid() or _bank_ceremony_fx_abort_gen != abort_at:
+		gate.settle_once()
+	await gate.settled
+	if bank_ceremony_fx_aborted.is_connected(on_abort):
+		bank_ceremony_fx_aborted.disconnect(on_abort)
+
+
+## Cancellation-safe node signal wait (e.g. animation_finished) under ceremony ownership.
+func _await_bank_ceremony_node_signal(sig: Signal, ceremony_gen: int = -1) -> void:
+	if ceremony_gen < 0:
+		await sig
+		return
+	var abort_at: int = _bank_ceremony_fx_abort_gen
+	var gate := _BankFxGate.new()
+	var on_sig := func() -> void:
+		gate.settle_once()
+	var on_abort := func() -> void:
+		gate.settle_once()
+	sig.connect(on_sig, CONNECT_ONE_SHOT)
+	bank_ceremony_fx_aborted.connect(on_abort, CONNECT_ONE_SHOT)
+	if _bank_ceremony_fx_abort_gen != abort_at:
+		gate.settle_once()
+	await gate.settled
+	if bank_ceremony_fx_aborted.is_connected(on_abort):
+		bank_ceremony_fx_aborted.disconnect(on_abort)
 
 
 func _effective_save_path() -> String:
@@ -3406,13 +3493,17 @@ func _bank_fx_bag_smoke(ceremony_gen: int = -1) -> void:
 			puff.position = origin
 			puff.z_index = 12
 			host.add_child(puff)
+			if ceremony_gen >= 0:
+				_track_bank_ceremony_fx(puff)
 			if puff.sprite_frames and puff.sprite_frames.get_frame_count("dust") > 0:
 				puff.play("dust")
-				await puff.animation_finished
+				await _await_bank_ceremony_node_signal(puff.animation_finished, ceremony_gen)
 			if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+				_untrack_bank_ceremony_fx(puff)
 				if is_instance_valid(puff):
 					puff.queue_free()
 				return
+			_untrack_bank_ceremony_fx(puff)
 			if is_instance_valid(puff):
 				puff.queue_free()
 			return
@@ -3425,6 +3516,8 @@ func _bank_fx_bag_smoke(ceremony_gen: int = -1) -> void:
 		blob.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		blob.z_index = 12
 		host.add_child(blob)
+		if ceremony_gen >= 0:
+			_track_bank_ceremony_fx(blob)
 		var tw := create_tween()
 		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 		if ceremony_gen >= 0:
@@ -3432,11 +3525,13 @@ func _bank_fx_bag_smoke(ceremony_gen: int = -1) -> void:
 		tw.set_parallel(true)
 		tw.tween_property(blob, "scale", Vector2(1.6, 1.6), 0.28)
 		tw.tween_property(blob, "modulate:a", 0.0, 0.28)
-		await tw.finished
+		await _await_bank_ceremony_tween(tw, ceremony_gen)
 		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+			_untrack_bank_ceremony_fx(blob)
 			if is_instance_valid(blob):
 				blob.queue_free()
 			return
+		_untrack_bank_ceremony_fx(blob)
 		if is_instance_valid(blob):
 			blob.queue_free()
 		return
@@ -3448,12 +3543,16 @@ func _bank_fx_bag_smoke(ceremony_gen: int = -1) -> void:
 	smoke.sprite_frames = smoke_sf
 	smoke.z_index = 12
 	host.add_child(smoke)
+	if ceremony_gen >= 0:
+		_track_bank_ceremony_fx(smoke)
 	smoke.play("bag_smoke")
-	await smoke.animation_finished
+	await _await_bank_ceremony_node_signal(smoke.animation_finished, ceremony_gen)
 	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		_untrack_bank_ceremony_fx(smoke)
 		if is_instance_valid(smoke):
 			smoke.queue_free()
 		return
+	_untrack_bank_ceremony_fx(smoke)
 	if is_instance_valid(smoke):
 		smoke.queue_free()
 
@@ -3480,10 +3579,13 @@ func _bank_fx_rays(ceremony_gen: int = -1) -> void:
 		ray.material = mat
 		host.add_child(ray)
 		rays.append(ray)
+		if ceremony_gen >= 0:
+			_track_bank_ceremony_fx(ray)
 		var tw := create_tween()
 		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 		if ceremony_gen >= 0:
 			_track_bank_ceremony_tween(tw)
+		## Rays do not await these tweens (bounded `_wait` below); track so kill frees them.
 		tw.set_parallel(true)
 		tw.tween_property(ray, "size:y", 220.0, 0.22)
 		tw.tween_property(ray, "modulate:a", 0.0, 0.32).set_delay(0.08)
@@ -3496,6 +3598,8 @@ func _bank_fx_rays(ceremony_gen: int = -1) -> void:
 	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	flash.z_index = 10
 	host.add_child(flash)
+	if ceremony_gen >= 0:
+		_track_bank_ceremony_fx(flash)
 	var ftw := create_tween()
 	ftw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	if ceremony_gen >= 0:
@@ -3506,14 +3610,18 @@ func _bank_fx_rays(ceremony_gen: int = -1) -> void:
 	await _wait(0.34, true)
 	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
 		for r0 in rays:
+			_untrack_bank_ceremony_fx(r0 as Node)
 			if is_instance_valid(r0):
 				(r0 as Node).queue_free()
+		_untrack_bank_ceremony_fx(flash)
 		if is_instance_valid(flash):
 			flash.queue_free()
 		return
 	for r in rays:
+		_untrack_bank_ceremony_fx(r as Node)
 		if is_instance_valid(r):
 			(r as Node).queue_free()
+	_untrack_bank_ceremony_fx(flash)
 	if is_instance_valid(flash):
 		flash.queue_free()
 
@@ -3572,6 +3680,8 @@ func _bank_fx_arc_to_mount(item_id: String, pool_id: String, ceremony_gen: int =
 		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		spr.add_child(chip)
 	host.add_child(spr)
+	if ceremony_gen >= 0:
+		_track_bank_ceremony_fx(spr)
 	_attach_fly_fx(spr)
 	KIT.cue(sfx, &"cabin.item_whoosh")
 	var peak: Vector2 = Vector2(
@@ -3591,13 +3701,16 @@ func _bank_fx_arc_to_mount(item_id: String, pool_id: String, ceremony_gen: int =
 	, 0.0, 1.0, 0.38)
 	tw.parallel().tween_property(spr, "scale", start_scale * 1.2, 0.2)
 	tw.parallel().tween_property(spr, "scale", start_scale * 0.95, 0.18).set_delay(0.2)
-	await tw.finished
-	## Stale / killed tween: no late pop cue.
+	## Cancel-safe: kill() does not emit finished — race abort pulse.
+	await _await_bank_ceremony_tween(tw, ceremony_gen)
+	## Stale / killed tween: no late pop cue (spr already freed on invalidate).
 	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		_untrack_bank_ceremony_fx(spr)
 		if is_instance_valid(spr):
 			spr.queue_free()
 		return
 	KIT.cue(sfx, &"cabin.item_pop")
+	_untrack_bank_ceremony_fx(spr)
 	if is_instance_valid(spr):
 		spr.queue_free()
 
@@ -3642,6 +3755,8 @@ func _bank_fx_loud_count(pool_adds: Dictionary, quota: int, ceremony_gen: int = 
 	lab.z_index = 16
 	lab.scale = Vector2(0.4, 0.4)
 	case_c.add_child(lab)
+	if ceremony_gen >= 0:
+		_track_bank_ceremony_fx(lab)
 	KIT.cue(sfx, &"cabin.shelf_chime")
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
@@ -3653,11 +3768,13 @@ func _bank_fx_loud_count(pool_adds: Dictionary, quota: int, ceremony_gen: int = 
 	tw.tween_property(lab, "scale", Vector2.ONE, 0.12)
 	tw.tween_interval(0.55)
 	tw.tween_property(lab, "modulate:a", 0.0, 0.2)
-	await tw.finished
+	await _await_bank_ceremony_tween(tw, ceremony_gen)
 	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		_untrack_bank_ceremony_fx(lab)
 		if is_instance_valid(lab):
 			lab.queue_free()
 		return
+	_untrack_bank_ceremony_fx(lab)
 	if is_instance_valid(lab):
 		lab.queue_free()
 

@@ -51,8 +51,10 @@ Ownership propagates through the nested await/tween graph:
 
 - `_play_bank_sequence` (give-home, FX, per-item flip/arc, waits, loud count, lessons, map-piece)
 - `_case_opened_beat` — gen check after every await before lamp/crest/sheet/dumbwaiter/rebuild/ride
-- `_bank_fx_arc_to_mount` — owns before/after tween; no late `cabin.item_pop`; tween callbacks bail when stale
+- `_bank_fx_arc_to_mount` / bag smoke / loud count — owns before/after; no late `cabin.item_pop`; tween callbacks bail when stale
 - `_stage_homecoming_bank` — staging token; stale pan must not `_clear_homecoming_staging` for a newer owner
+
+**Cancel lifecycle (Tween.kill does not emit `finished`):** helpers await `_await_bank_ceremony_tween` / `_await_bank_ceremony_node_signal` (race `finished` vs `bank_ceremony_fx_aborted` + abort gen). `_kill_bank_ceremony_tweens` also frees `_bank_ceremony_fx_nodes` then pulses abort so awaiters resume and temp FX cannot leak.
 
 `ceremony_gen < 0` keeps non-ceremony helper callers. Stale coroutines must not ack pending, clear newer locks, or play late cues.
 

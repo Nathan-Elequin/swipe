@@ -148,6 +148,11 @@ def main() -> int:
     ok("cabin.effective_save_path", "func _effective_save_path" in cabin)
     ok("cabin.staging_token_api", "func _claim_homecoming_staging" in cabin and "func _clear_homecoming_staging" in cabin)
     ok("cabin.track_kill_tweens", "func _track_bank_ceremony_tween" in cabin and "func _kill_bank_ceremony_tweens" in cabin)
+    ok("cabin.track_fx_nodes", "func _track_bank_ceremony_fx" in cabin and "_bank_ceremony_fx_nodes" in cabin)
+    ok(
+        "cabin.await_ceremony_tween",
+        "func _await_bank_ceremony_tween" in cabin and "bank_ceremony_fx_aborted" in cabin,
+    )
     ok(
         "cabin.case_opened_takes_gen",
         "func _case_opened_beat(pool_id: String, ceremony_gen: int = -1)" in cabin,
@@ -167,11 +172,40 @@ def main() -> int:
         and arc_m.group(0).rfind("not _owns_bank_ceremony(ceremony_gen)")
         < arc_m.group(0).find("cabin.item_pop"),
     )
+    ok(
+        "cabin.arc_cancel_safe_await",
+        arc_m is not None
+        and "await _await_bank_ceremony_tween(tw, ceremony_gen)" in arc_m.group(0)
+        and "await tw.finished" not in arc_m.group(0),
+    )
+    smoke_m = re.search(r"func _bank_fx_bag_smoke\([\s\S]*?(?=\nfunc )", cabin)
+    ok(
+        "cabin.smoke_cancel_safe_await",
+        smoke_m is not None
+        and "await _await_bank_ceremony_tween(tw, ceremony_gen)" in smoke_m.group(0)
+        and "await tw.finished" not in smoke_m.group(0),
+    )
+    count_m = re.search(r"func _bank_fx_loud_count\([\s\S]*?(?=\nfunc )", cabin)
+    ok(
+        "cabin.count_cancel_safe_await",
+        count_m is not None
+        and "await _await_bank_ceremony_tween(tw, ceremony_gen)" in count_m.group(0)
+        and "await tw.finished" not in count_m.group(0),
+    )
+    kill_m = re.search(r"func _kill_bank_ceremony_tweens\(\) -> void:([\s\S]*?)(?=\nfunc |\Z)", cabin)
+    ok(
+        "cabin.kill_frees_fx_and_aborts",
+        kill_m is not None
+        and "queue_free" in kill_m.group(1)
+        and "bank_ceremony_fx_aborted.emit" in kill_m.group(1),
+    )
     note(
         "runtime.cancellation_reentry",
         "SOURCE PATTERN ONLY here. Engine protocol (isolated user-data): "
         "./tools/qa/run_homecoming_ceremony.sh when Godot present. "
-        "Live give-home+FX cancel under full cabin tree = REQ H11 UNCOVERED — not papered by statics.",
+        "Expect LIFE.* helper_completes + fx_nodes_gone. "
+        "Live give-home+FX cancel under full cabin tree = REQ H11 UNCOVERED. "
+        "Linux XDG isolation does NOT verify Windows — Cherry needs a separate test profile.",
     )
     selftest = ROOT / "scripts/dev/homecoming_ceremony_selftest.gd"
     runner = ROOT / "tools/qa/run_homecoming_ceremony.sh"
@@ -182,6 +216,11 @@ def main() -> int:
     rn = runner.read_text(encoding="utf-8")
     ok("qa.runner_isolates_xdg", "XDG_DATA_HOME" in rn and "mktemp" in rn)
     ok("qa.runner_requires_safe_assert", "SAFE.ack_save_noop_same_meta" in rn)
+    ok(
+        "qa.runner_requires_life_asserts",
+        "LIFE.arc_helper_completes" in rn and "LIFE.arc_fx_nodes_gone" in rn,
+    )
+    ok("qa.runner_windows_unverified_note", "NOT verified on Windows" in rn or "Windows/Cherry" in rn)
 
     # --- Tutorial zero credit ---
     road = re.search(r"func _road_finish_to_cabin\([\s\S]*?(?=\nfunc )", main_gd)

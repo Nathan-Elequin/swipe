@@ -29,10 +29,12 @@ Godot is **unavailable** in the cloud agent image. Source PASS ≠ runtime verif
 ### Runner precautions (`./tools/qa/run_homecoming_ceremony.sh`)
 
 1. **Application seam:** selftest sets `cabin._persist_writes=false` before any `_ack_bank_presented` / `_save` (direct `godot --script` must still be safe).
-2. **User-data isolation:** runner redirects `XDG_DATA_HOME` / `XDG_CONFIG_HOME` / `XDG_CACHE_HOME` / `HOME` into `mktemp` — logs-only isolation is not enough.
-3. **Probe hash:** suite compares `user://home_cabin.json` meta (exists/mtime/size/md5) before vs after; runner refuses pass without `PASS ASSERT SAFE.ack_save_noop_same_meta`.
-4. **Labels:** suite must print `UNCOVERED.live_dialog_fx_cancel` (bare instance ≠ live H11).
-5. No Godot → exit `2` `RUNTIME_UNAVAILABLE` (not a fake green).
+2. **User-data isolation (Linux runner):** redirects `XDG_DATA_HOME` / `XDG_CONFIG_HOME` / `XDG_CACHE_HOME` / `HOME` into `mktemp` — logs-only isolation is not enough.
+3. **Windows / Cherry:** Linux XDG+HOME mktemp is **NOT verified** on Windows and must **not** be claimed as protection there. On Cherry, use a **separate isolated Godot test profile** (dedicated `--user-data-dir` / project userdata path), never Nathan’s live play profile.
+4. **Probe hash:** suite compares `user://home_cabin.json` meta (exists/mtime/size/md5) before vs after; runner refuses pass without `PASS ASSERT SAFE.ack_save_noop_same_meta`.
+5. **Lifecycle:** expect `LIFE.*_helper_completes` + `LIFE.*_fx_nodes_gone` for arc/smoke/count mid-invalidate (owner-false alone is insufficient).
+6. **Labels:** suite must print `UNCOVERED.live_dialog_fx_cancel` (bare instance ≠ live H11).
+7. No Godot → exit `2` `RUNTIME_UNAVAILABLE` (not a fake green).
 
 ```bash
 export GODOT="$HOME/godot/Godot_v4.7.2-stable_linux.x86_64"  # or mac/windows build

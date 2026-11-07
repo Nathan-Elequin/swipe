@@ -3,9 +3,12 @@
 #
 # CRITICAL PRECAUTIONS (do NOT run against Nathan's live profile casually):
 #   1) Application seam: selftest sets cabin._persist_writes=false before any ack/_save.
-#   2) Runner isolation: XDG_DATA_HOME (and HOME fallbacks) redirected into mktemp workdir
+#   2) Runner isolation (Linux): XDG_DATA_HOME (and HOME fallbacks) redirected into mktemp
 #      so Godot user:// cannot resolve to ~/.local/share/godot/app_userdata/Spinheritance.
-#   3) Probe hash: suite compares user://home_cabin.json meta before/after; must be unchanged.
+#   3) Windows/Cherry: this XDG/HOME mktemp path is NOT verified on Windows. On Cherry use a
+#      separate isolated Godot test profile (--user-data-dir / dedicated userdata), never live.
+#   4) Probe hash: suite compares user://home_cabin.json meta before/after; must be unchanged.
+#   5) Lifecycle: require LIFE.* helper_completes + fx_nodes_gone (not owner-false alone).
 #
 # Usage (repo root):
 #   ./tools/qa/run_homecoming_ceremony.sh
@@ -97,9 +100,20 @@ if ! grep -q 'SAFE.ack_save_noop_same_meta' "$OUT" || ! grep -q 'PASS ASSERT SAF
   echo "HOMECOMING_CEREMONY missing/failed persistence-safety assert — refusing fake pass" >&2
   exit 1
 fi
+for life in \
+  LIFE.await_tween_completes_on_kill \
+  LIFE.arc_helper_completes LIFE.arc_fx_nodes_gone \
+  LIFE.smoke_helper_completes LIFE.smoke_fx_nodes_gone \
+  LIFE.count_helper_completes LIFE.count_fx_nodes_gone
+do
+  if ! grep -q "PASS ASSERT $life" "$OUT"; then
+    echo "HOMECOMING_CEREMONY missing/failed lifecycle assert $life — refusing fake pass" >&2
+    exit 1
+  fi
+done
 if ! grep -q 'UNCOVERED.live_dialog_fx_cancel' "$OUT"; then
   echo "HOMECOMING_CEREMONY must label live H11 uncovered" >&2
   exit 1
 fi
-echo "HOMECOMING_CEREMONY local run OK (isolated user-data; live H11 still UNCOVERED)"
+echo "HOMECOMING_CEREMONY local run OK (isolated user-data; live H11 still UNCOVERED; Windows XDG unverified)"
 exit 0
