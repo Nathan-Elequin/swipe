@@ -2934,11 +2934,17 @@ func _push_interrupt_home() -> void:
 		await home_cabin.open_hall_after_push_block(pool, biome_name, news, ids)
 		if overlay:
 			overlay.visible = false
-		get_tree().paused = true
+		# Cabin is already drawn above the wipe (z 95 vs 85). Input order follows
+		# tree order, not z, so a later full-rect wipe still eats door and map
+		# clicks. Drop that catch before the fade. Pause after the fade: a
+		# pause-bound tween never finishes, and the wipe would stay up forever.
+		var wipe := _ensure_biome_wipe()
+		wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_hide_fight_hover()
 	else:
 		_open_home_cabin(true, "win", news, ids)
 	await _biome_dissolve_reveal()
+	get_tree().paused = true
 	_adventure_busy = false
 
 
@@ -3198,6 +3204,9 @@ func _biome_dissolve_reveal(seconds: float = 0.35) -> void:
 	if not wipe.visible:
 		return
 	var tw := create_tween()
+	# Push-home pauses the tree around this fade. A bound tween does not
+	# advance while paused, so the wipe never hid and kept stealing clicks.
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.set_trans(Tween.TRANS_SINE)
 	tw.set_ease(Tween.EASE_IN_OUT)
 	tw.tween_property(wipe, "modulate:a", 0.0, seconds)
