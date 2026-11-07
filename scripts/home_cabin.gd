@@ -180,6 +180,9 @@ var _bank_busy: bool = false
 var _bank_played: bool = false
 ## True while auto-staging pan→hall→ceremony so Escape/doors cannot divert mid-await.
 var _homecoming_bank_staging: bool = false
+## Per-ceremony ownership. Bumped on begin / abort / release so a cancelled
+## coroutine cannot ack pending or clear a newer ceremony's locks after await.
+var _bank_ceremony_gen: int = 0
 var _case_scroll: Dictionary = {}
 var _case_columns: Dictionary = {}
 var _case_clips: Dictionary = {}
@@ -365,8 +368,10 @@ func swipe_ids(ids: Array) -> Array:
 
 
 ## Drop one ID from the reveal queue after its mount presentation finishes.
-## Never touches swiped/banked credit.
-func _ack_bank_presented(step_id: String) -> void:
+## Never touches swiped/banked credit. Stale ceremony_gen must not ack.
+func _ack_bank_presented(step_id: String, ceremony_gen: int = -1) -> void:
+	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
+		return
 	var sid := str(step_id)
 	if sid == "":
 		return
@@ -375,6 +380,33 @@ func _ack_bank_presented(step_id: String) -> void:
 	if idx >= 0:
 		bank_pending.remove_at(idx)
 		_save()
+
+
+func _begin_bank_ceremony() -> int:
+	_bank_ceremony_gen += 1
+	_bank_busy = true
+	_homecoming_bank_staging = false
+	return _bank_ceremony_gen
+
+
+func _owns_bank_ceremony(ceremony_gen: int) -> bool:
+	return ceremony_gen == _bank_ceremony_gen
+
+
+## Live owner only. Retires this gen so late resumes after a finished await are stale.
+func _release_bank_ceremony(ceremony_gen: int) -> void:
+	if ceremony_gen != _bank_ceremony_gen:
+		return
+	_bank_busy = false
+	_homecoming_bank_staging = false
+	_bank_ceremony_gen += 1
+
+
+## Cancel / hide / reentry: invalidate in-flight ceremony without touching bank_pending ledger.
+func _invalidate_bank_ceremony() -> void:
+	_bank_ceremony_gen += 1
+	_bank_busy = false
+	_homecoming_bank_staging = false
 
 
 ## Rebuild session hold from persisted pending only (never all historic banked).
@@ -708,8 +740,8 @@ func open_hall_after_push_block(pool_id: String, biome_name: String, new_ids: Ar
 	## Push-block: mount pending without S7 FX / map-piece (flag still set).
 	_restore_bank_hold_from_pending()
 	if not _bank_hold.is_empty() and _current_room == "hall" and not _bank_busy:
-		_bank_busy = true
-		await _play_bank_sequence()
+		var push_gen: int = _begin_bank_ceremony()
+		await _play_bank_sequence(push_gen)
 
 
 func focus_biome_case(pool_id: String) -> void:
@@ -3051,8 +3083,8 @@ func _offer_bank_sequence() -> void:
 		return
 	if _current_room != "hall" or _int_root == null or not _int_root.visible:
 		return
-	_bank_busy = true
-	_play_bank_sequence()
+	var offer_gen: int = _begin_bank_ceremony()
+	_play_bank_sequence(offer_gen)
 
 
 ## After a win settle (and key ring if due): focus the haul's case and run S7.
@@ -3092,18 +3124,30 @@ func _stage_homecoming_bank() -> void:
 	if _bank_hold.is_empty() or _current_room != "hall":
 		_homecoming_bank_staging = false
 		return
-	## Claim busy before releasing staging so a deferred hall offer cannot double-start.
+	## Claim ceremony gen before releasing staging so a deferred hall offer cannot double-start.
 	if _bank_busy:
 		_homecoming_bank_staging = false
 		return
-	_bank_busy = true
-	_homecoming_bank_staging = false
-	await _play_bank_sequence()
+	var stage_gen: int = _begin_bank_ceremony()
+	await _play_bank_sequence(stage_gen)
 
 
-func _play_bank_sequence() -> void:
+## True only when this ceremony's haul actually includes b1 items.
+## Prevents Verdant five-finds copy on a non-b1 return while b1 is still under quota.
+func _haul_includes_pool(seq: Array, pool_id: String) -> bool:
+	for raw in seq:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		if str((raw as Dictionary).get("pool", "")) == pool_id:
+			return true
+	return false
+
+
+func _play_bank_sequence(ceremony_gen: int = -1) -> void:
 	# S7 / C4: bag smoke -> rays -> per-item arcs -> loud count, then S3 map-piece handoff.
 	# FX only on the extract bank path — never Push/Nib interrupt, cheats, or death.
+	if ceremony_gen < 0:
+		ceremony_gen = _begin_bank_ceremony()
 	var quota := BiomeCabinets.quota_of(_biome_rules())
 	var pending: Array = []
 	var pools := {}
@@ -3117,26 +3161,28 @@ func _play_bank_sequence() -> void:
 	var play_fx := (not from_push_block) and (not seq.is_empty())
 	var pool_adds: Dictionary = {}
 	var crossed: Array = []
+	var haul_has_b1: bool = _haul_includes_pool(seq, "b1")
 	## Spin handoff before flight — extract path only (Push-block keeps intentional silence).
 	if play_fx and _dialog != null and not seq.is_empty():
 		_dialog.say(["nib.home.give_home"])
 		await _dialog.finished
-		if not is_inside_tree():
-			_bank_busy = false
+		## Cancellation / reentry: gen ownership, not merely still-in-tree.
+		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+			_release_bank_ceremony(ceremony_gen)
 			return
 	if play_fx:
 		await _bank_fx_bag_smoke()
-		if not is_inside_tree():
-			_bank_busy = false
+		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+			_release_bank_ceremony(ceremony_gen)
 			return
 		await _bank_fx_rays()
-		if not is_inside_tree():
-			_bank_busy = false
+		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+			_release_bank_ceremony(ceremony_gen)
 			return
 	for raw_step in seq:
-		if not is_inside_tree():
-			_bank_busy = false
-			_bank_from_push_block = false
+		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+			## Do not clear a newer ceremony's locks; only retire if we still own.
+			_release_bank_ceremony(ceremony_gen)
 			return
 		var step: Dictionary = raw_step
 		var step_id := str(step.get("id", ""))
@@ -3144,11 +3190,17 @@ func _play_bank_sequence() -> void:
 		var before := _shown_count(pool)
 		if play_fx:
 			await _hall_flip_to_item(pool, step_id)
-			await _bank_fx_arc_to_mount(step_id, pool)
-			if not is_inside_tree():
-				_bank_busy = false
+			if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+				_release_bank_ceremony(ceremony_gen)
 				return
-		_ack_bank_presented(step_id)
+			await _bank_fx_arc_to_mount(step_id, pool)
+			if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+				_release_bank_ceremony(ceremony_gen)
+				return
+		## Ack only while this ceremony still owns the slot (preserves pending on cancel).
+		_ack_bank_presented(step_id, ceremony_gen)
+		if not _owns_bank_ceremony(ceremony_gen):
+			return
 		_bank_fresh = step_id
 		_rebuild_shelves()
 		pool_adds[pool] = int(pool_adds.get(pool, 0)) + 1
@@ -3158,42 +3210,70 @@ func _play_bank_sequence() -> void:
 				and not crossed.has(pool):
 			crossed.append(pool)
 		await _wait(0.25 if play_fx else 0.34, true)
+		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+			_release_bank_ceremony(ceremony_gen)
+			return
+	if not _owns_bank_ceremony(ceremony_gen):
+		return
 	_bank_fresh = ""
 	_bank_from_push_block = false
 	if is_inside_tree():
 		_rebuild_shelves()
-	if play_fx and is_inside_tree():
+	if play_fx and is_inside_tree() and _owns_bank_ceremony(ceremony_gen):
 		await _bank_fx_loud_count(pool_adds, quota)
-	## Under-quota five-find teaching once (skip if extract already taught or gate met).
-	if play_fx and is_inside_tree() and _dialog != null and _campaign_shell != null:
+		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+			_release_bank_ceremony(ceremony_gen)
+			return
+	## Under-quota Verdant five-find teaching: only when THIS haul includes b1.
+	## Non-b1 returns must not teach Verdant just because b1 is still under quota.
+	if play_fx and is_inside_tree() and _owns_bank_ceremony(ceremony_gen) \
+			and _dialog != null and _campaign_shell != null and haul_has_b1:
 		var b1_shown := _shown_count("b1")
 		var gate_met := BiomeCabinets.past_gate(b1_shown, quota) or crossed.has("b1")
 		if needs_lesson("five_finds") and not gate_met:
 			mark_lesson_said("five_finds")
 			_dialog.say(["nib.lesson.five_finds"])
 			await _dialog.finished
+			if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+				_release_bank_ceremony(ceremony_gen)
+				return
 	# Unlock beat then S3 map-piece ceremony when a cabinet crosses 5/5.
-	if not from_push_block and not crossed.is_empty() and _campaign_shell != null:
+	if not from_push_block and not crossed.is_empty() and _campaign_shell != null \
+			and _owns_bank_ceremony(ceremony_gen):
 		if play_fx:
 			for pool_id in crossed:
+				if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+					_release_bank_ceremony(ceremony_gen)
+					return
 				await _case_opened_beat(str(pool_id))
+				if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+					_release_bank_ceremony(ceremony_gen)
+					return
 		## Spin Verdant threshold line only for b1 — never bake onto other biomes.
 		if play_fx and crossed.has("b1") and _dialog != null and needs_lesson("five_threshold"):
 			mark_lesson_said("five_threshold")
 			_dialog.say(["nib.lesson.five_threshold"])
 			await _dialog.finished
+			if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+				_release_bank_ceremony(ceremony_gen)
+				return
 		for pool_id2 in crossed:
+			if not _owns_bank_ceremony(ceremony_gen):
+				return
 			cabinet_gate_crossed.emit(str(pool_id2))
 			if _map_piece_beat:
 				await _map_piece_beat.play(str(pool_id2))
+				if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
+					_release_bank_ceremony(ceremony_gen)
+					return
 			var bi := BiomeCabinets.case_index(str(pool_id2))
 			## Newly unlocked biome index is bi+1; emit for 2..4 (3rd–5th dungeon).
 			var unlocked_i := bi + 1
 			if unlocked_i >= 2 and unlocked_i <= 4:
 				shortcut_scene_wanted.emit("b%d" % (unlocked_i + 1))
-		_show_toast("extract.delving_improves")
-	_bank_busy = false
-	_homecoming_bank_staging = false
+		if _owns_bank_ceremony(ceremony_gen):
+			_show_toast("extract.delving_improves")
+	_release_bank_ceremony(ceremony_gen)
 
 
 func _bank_is_push_block() -> bool:
@@ -3453,10 +3533,9 @@ func _clear_bank_anim() -> void:
 	## Session FX flags only. bank_pending stays on disk until acknowledged.
 	_bank_hold.clear()
 	_bank_fresh = ""
-	_bank_busy = false
 	_bank_played = false
 	_bank_from_push_block = false
-	_homecoming_bank_staging = false
+	_invalidate_bank_ceremony()
 	_case_scroll.clear()
 
 
@@ -5130,9 +5209,9 @@ func _abort_cabin_interaction() -> void:
 	_pan_busy = false
 	_door_busy = false
 	_arriving = false
-	## Release ceremony busy so a cancelled scene cannot softlock input; pending remains.
-	_bank_busy = false
-	_homecoming_bank_staging = false
+	## Invalidate ceremony gen so cancelled give-home/FX awaits cannot ack or clear a newer run.
+	## bank_pending / swiped / banked ledgers are preserved.
+	_invalidate_bank_ceremony()
 	if _beat == "keyring" or _beat == "arrive" or _beat == "pan" or _beat == "to_chair" or _beat == "sit":
 		_beat = "idle"
 

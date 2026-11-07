@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Source/unit checks for cabinet homecoming restoration (no Godot required).
+"""SOURCE-ONLY checks for cabinet homecoming restoration (no Godot required).
 
-Covers: pending serialize defaults, Spin copy keys, push-block FX suppression,
-tutorial zero-credit open, S7 preference, lesson gating hooks.
+Does NOT prove runtime cancellation reentry or live cabin FX.
+For engine protocol tests when Godot is present:
+  ./tools/qa/run_homecoming_ceremony.sh
+
 Exit 0 on pass. Prints HOMECOMING_RESTORE_OK / FAIL.
 """
 from __future__ import annotations
@@ -15,6 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 FAILS: list[str] = []
 PASSES: list[str] = []
+NOTES: list[str] = []
 
 
 def ok(name: str, cond: bool, detail: str = "") -> None:
@@ -26,18 +29,25 @@ def ok(name: str, cond: bool, detail: str = "") -> None:
         print(f"FAIL  {name}" + (f"  ({detail})" if detail else ""))
 
 
+def note(name: str, text: str) -> None:
+    NOTES.append(name)
+    print(f"NOTE  {name}  ({text})")
+
+
 def read(rel: str) -> str:
     return (ROOT / rel).read_text(encoding="utf-8")
 
 
 def main() -> int:
+    print("KIND source-only (Godot runtime not invoked by this script)")
     cabin = read("scripts/home_cabin.gd")
     main_gd = read("scripts/main.gd")
     rope = read("scripts/cabin/rope_exit.gd")
     copy = json.loads(read("data/player-copy.json"))
     keys = {row["key"]: row.get("text", "") for row in copy.get("rows", []) if "key" in row}
 
-    # --- Spin exact copy (preserve words) ---
+    # --- Spin exact copy (preserve words; no agent edits to strings) ---
+    # Compared to Spin-owned drafts from the implementation prompt.
     expected = {
         "nib.home.give_home": "Let's give these a home.",
         "nib.lesson.new_mark": (
@@ -89,6 +99,17 @@ def main() -> int:
     ok("cabin.give_home_before_fx", '["nib.home.give_home"]' in cabin)
     ok("cabin.threshold_after_cross", '["nib.lesson.five_threshold"]' in cabin)
     ok("cabin.verdant_threshold_b1_only", 'crossed.has("b1")' in cabin and "five_threshold" in cabin)
+    # Regression: under-quota five_finds must require THIS haul to include b1.
+    five_block = re.search(
+        r"Under-quota Verdant five-find teaching[\s\S]*?nib\.lesson\.five_finds[\s\S]*?await _dialog\.finished",
+        cabin,
+    )
+    ok(
+        "cabin.five_finds_requires_haul_b1",
+        five_block is not None and "haul_has_b1" in five_block.group(0),
+        "non-b1 return must not teach Verdant",
+    )
+    ok("cabin.haul_includes_pool_helper", "func _haul_includes_pool" in cabin)
 
     # --- Push-block suppression preserved ---
     ok(
@@ -98,12 +119,40 @@ def main() -> int:
     ok("cabin.push_block_flag", "begin_push_block_bank" in cabin and "_bank_from_push_block" in cabin)
     ok("cabin.push_mounts_after_dialog", "open_hall_after_push_block" in cabin and "await _play_bank_sequence" in cabin)
 
-    # --- Busy / cancel safety ---
-    ok("cabin.busy_includes_bank", "_bank_busy or _homecoming_bank_staging" in cabin or "_bank_busy or _homecoming_bank_staging" in cabin.replace("\n", " "))
+    # --- Busy / cancel / ceremony ownership (source pattern; not runtime proof) ---
+    ok("cabin.ceremony_gen_var", "var _bank_ceremony_gen" in cabin)
+    ok("cabin.begin_bank_ceremony", "func _begin_bank_ceremony" in cabin)
+    ok("cabin.owns_bank_ceremony", "func _owns_bank_ceremony" in cabin)
+    ok("cabin.release_bank_ceremony", "func _release_bank_ceremony" in cabin)
+    ok("cabin.invalidate_bank_ceremony", "func _invalidate_bank_ceremony" in cabin)
+    ok("cabin.busy_includes_bank", "_bank_busy or _homecoming_bank_staging" in cabin.replace("\n", " "))
     busy_fn = re.search(r"func _busy\(\) -> bool:([\s\S]*?)(?=\nfunc |\Z)", cabin)
     ok("cabin.busy_fn_has_bank", busy_fn is not None and "_bank_busy" in busy_fn.group(1))
-    ok("cabin.abort_releases_busy", "_abort_cabin_interaction" in cabin and "_bank_busy = false" in cabin)
+    abort_fn = re.search(r"func _abort_cabin_interaction\(\) -> void:([\s\S]*?)(?=\nfunc |\Z)", cabin)
+    ok(
+        "cabin.abort_invalidates_ceremony",
+        abort_fn is not None and "_invalidate_bank_ceremony()" in abort_fn.group(0),
+    )
+    ok(
+        "cabin.give_home_await_checks_owns",
+        '["nib.home.give_home"]' in cabin
+        and "_owns_bank_ceremony(ceremony_gen)" in cabin,
+    )
+    ok(
+        "cabin.ack_takes_ceremony_gen",
+        "func _ack_bank_presented(step_id: String, ceremony_gen: int" in cabin
+        or "func _ack_bank_presented(step_id: String, ceremony_gen: int = -1)" in cabin,
+    )
     ok("cabin.offer_skips_keyring", '_beat == "keyring"' in cabin and "_offer_bank_sequence" in cabin)
+    note(
+        "runtime.cancellation_reentry",
+        "SOURCE PATTERN ONLY here. Engine cancel→reentry: ./tools/qa/run_homecoming_ceremony.sh (Godot). "
+        "Full give-home dialog cancel under live cabin tree remains UNCOVERED in that suite too.",
+    )
+    selftest = ROOT / "scripts/dev/homecoming_ceremony_selftest.gd"
+    runner = ROOT / "tools/qa/run_homecoming_ceremony.sh"
+    ok("qa.ceremony_selftest_present", selftest.is_file())
+    ok("qa.ceremony_runner_present", runner.is_file())
 
     # --- Tutorial zero credit ---
     road = re.search(r"func _road_finish_to_cabin\([\s\S]*?(?=\nfunc )", main_gd)
@@ -140,6 +189,8 @@ def main() -> int:
     print("---")
     print(f"PASS_COUNT {len(PASSES)}")
     print(f"FAIL_COUNT {len(FAILS)}")
+    print(f"NOTE_COUNT {len(NOTES)}")
+    print("DISTINCTION source-qa-ok-does-not-equal-runtime-verified")
     if FAILS:
         print("HOMECOMING_RESTORE_FAIL")
         for f in FAILS:
