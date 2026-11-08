@@ -198,7 +198,7 @@ const ITEM_OPS := {
 	"energy_drink": {"kind": "player_flee_keep"},
 	"recycler": {"kind": "recycle_watch"},
 	"rust": {"kind": "blk", "n": 2},
-	"spinning_top": {"kind": "atk_spins"},
+	"spinning_top": {"kind": "defeat_spins"},
 	"venom_veins": {"kind": "passive"},
 	"kiss_of_death": {"kind": "kiss_of_death"},
 }
@@ -9157,7 +9157,6 @@ func _on_spin() -> void:
 		return
 	if phase == "fighting":
 		await _apply_oligarch_on_spin()
-	await _discard_maxed_spinning_tops()
 	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0 and not _wick_waiting(facing_index):
 		_undo_stack.append(_capture_run())
 		_redo_stack.clear()
@@ -10867,7 +10866,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				_drink_hp_due = true
 			_refresh()
 			return
-		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "atk_wheel", "atk_echo", "atk_spins":
+		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "atk_wheel", "atk_echo":
 			var n2: int = int(ops["n"]) if ops.has("n") else int(view.get("n", 0))
 			if kind == "atk_echo" and n2 <= 0:
 				_log_begin_item(it)
@@ -11243,6 +11242,34 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("on_item_use", str(it["name"]))
 			_log("on_resolve", "defeat")
 			# item.use.* already fired in _announce_item_use (replaces defeat.use).
+			_toss_item(int(it["uid"]), false)
+			await _begin_slay()
+			return
+		"defeat_spins":
+			## Spinning Top: Defeat when facing HP equals the Spin counter (starts 0).
+			var top_n: int = int(it.get("spinning_top_n", 0))
+			if _defeat_blocked(m):
+				_log("on_item_use", "cannot")
+				if sfx:
+					sfx.play("error", -10.0)
+					sfx.play("metal_latch", -14.0)
+				return
+			if int(m.get("hp", -1)) != top_n:
+				_log("on_item_use", "cannot")
+				if sfx:
+					sfx.play("error", -10.0)
+				return
+			if _undying(m):
+				_log("on_item_use", str(it["name"]))
+				_log("on_resolve", "undying")
+				await _lich_keep_defeat_item(it)
+				if await _lich_chip_defeat(facing_index):
+					await _begin_slay()
+				return
+			it["spent"] = true
+			await _count_item_use()
+			_log("on_item_use", str(it["name"]))
+			_log("on_resolve", "defeat")
 			_toss_item(int(it["uid"]), false)
 			await _begin_slay()
 			return
@@ -16521,17 +16548,9 @@ func _flush_rust_from_block() -> void:
 	_rust_listen_lock = false
 
 
-func _spinning_top_atk(it: Dictionary) -> int:
-	return 1 + mini(6, int(it.get("spinning_top_n", 0)))
-
-
-func _spinning_top_about_to_discard(it: Dictionary) -> bool:
-	## Next Spin raises this to 7 and Discards it. Same hotbar pulse as Toll at 1.
-	if str(it.get("card_id", "")) != "spinning_top":
-		return false
-	if bool(it.get("spent", false)):
-		return false
-	return _spinning_top_atk(it) >= 6
+func _spinning_top_n(it: Dictionary) -> int:
+	## Defeat threshold. Starts 0; +1 each Spin while held. No retroactive Spins.
+	return maxi(0, int(it.get("spinning_top_n", 0)))
 
 
 func _step_spinning_tops() -> void:
@@ -16542,31 +16561,13 @@ func _step_spinning_tops() -> void:
 			continue
 		if bool(it.get("spent", false)):
 			continue
-		it["spinning_top_n"] = mini(6, int(it.get("spinning_top_n", 0)) + 1)
+		it["spinning_top_n"] = _spinning_top_n(it) + 1
 		if cascade_ticker != null and cascade_ticker.active:
 			var tex: Texture2D = _item_icon_tex(it)
 			var ticket_i: int = cascade_ticker.push("spinning_top", tex)
 			if ticket_i >= 0:
 				cascade_ticker.light(ticket_i)
 				cascade_ticker.stamp(ticket_i)
-
-
-func _discard_maxed_spinning_tops() -> void:
-	var gone: Array = []
-	for it in hotbar:
-		if typeof(it) != TYPE_DICTIONARY:
-			continue
-		if str(it.get("card_id", "")) != "spinning_top":
-			continue
-		if bool(it.get("spent", false)):
-			continue
-		if _spinning_top_atk(it) < 7:
-			continue
-		gone.append(int(it.get("uid", -1)))
-	for uid in gone:
-		if uid < 0:
-			continue
-		_discard_from_hand(uid, true, true)
 
 
 func _step_marbles() -> void:
@@ -17787,7 +17788,7 @@ func _item_snapshot(it: Dictionary) -> Dictionary:
 
 func _echo_flatten_kind(kind: String, shield_face: String) -> String:
 	match kind:
-		"atk_hp_loss", "atk_spins", "atk_alt_24", "atk_echo":
+		"atk_hp_loss", "atk_alt_24", "atk_echo":
 			return "atk"
 		"blk_siphon", "blk_from_hp", "blk_from_highest_atk", "blk_last_atk", "blk_from_atk", "blk_keep", "blk_even_keep", "blk_min_hp", "blk_neighbor":
 			return "blk"
@@ -21929,7 +21930,7 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"grief_jar":
 			return [[_fg("shield", n, "", "", "bleed")]]
 		"spinning_top":
-			return [[_fg("impact", n), _fg("icon", "", "", "", "", "spin")]]
+			return [[_fg("skull", n), _fg("icon", "", "", "", "", "spin")]]
 		"signpost":
 			return [[_fg("shield", "7"), _fg("icon", "", "", "", "", "nw"), _fg("icon", "", "", "", "", "ne"), _fg("impact", "", "", "self")]]
 		"poison_flask":
@@ -22034,11 +22035,12 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = str(out["n"])
 			out["note"] = ""
 			out["can_use"] = fighting
-		"atk_spins":
-			out["n"] = _spinning_top_atk(it)
+		"defeat_spins":
+			out["kind"] = "DEFEAT"
+			out["n"] = _spinning_top_n(it)
 			out["number"] = str(out["n"])
 			out["note"] = ""
-			out["can_use"] = fighting
+			out["can_use"] = fighting and (not _defeat_blocked(m)) and int(m.get("hp", -1)) == int(out["n"])
 		"choose":
 			out["kind"] = "ATK"
 			var drop_v := false
@@ -23054,7 +23056,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				if int(wheel[facing_index].get("hp", 0)) - stotal <= 0:
 					if str(wheel[facing_index].get("card_id", "")) != "wick" or _is_silenced(wheel[facing_index]):
 						p[facing_index]["kill"] = true
-		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "choose", "atk_wheel", "atk_echo", "atk_spend_blk", "atk_empty", "atk_spins":
+		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "choose", "atk_wheel", "atk_echo", "atk_spend_blk", "atk_empty":
 			var drop_prev := false
 			var blk_only_prev := false
 			if kind == "choose":
@@ -23129,7 +23131,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 					p[oi]["kill"] = true
 				if str(wheel[oi].get("card_id", "")) == "slime_boss":
 					p[oi]["atk"] = -od
-		"defeat_hp", "defeat_atk", "fangs", "defeat_only_item", "bag_hold":
+		"defeat_hp", "defeat_atk", "defeat_spins", "fangs", "defeat_only_item", "bag_hold":
 			if bool(view.get("can_use", false)):
 				p[facing_index] = {"hp": -int(wheel[facing_index].get("hp", 0)), "kill": true}
 		"defeat_double_hp":
@@ -23205,7 +23207,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 			var cur3: Dictionary = p.get(i2, {})
 			cur3["atk"] = int(cur3.get("atk", 0)) - 1
 			p[i2] = cur3
-	if kind != "defeat_hp" and kind != "defeat_atk" and kind != "fangs" and kind != "defeat_only_item" and kind != "bag_hold" and kind != "defeat_double_hp" and kind != "skip_swing":
+	if kind != "defeat_hp" and kind != "defeat_atk" and kind != "defeat_spins" and kind != "fangs" and kind != "defeat_only_item" and kind != "bag_hold" and kind != "defeat_double_hp" and kind != "skip_swing":
 		for pk in p.keys():
 			if typeof(p[pk]) != TYPE_DICTIONARY:
 				continue
@@ -23661,10 +23663,14 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			else:
 				out["equation"] = "(%s)" % _bb(atk_c, str(live))
 			out["body"] = str(it.get("ability", "Deal Attack."))
-		"atk_spins":
-			out["value"] = _value_bb("Attack", str(live), atk_c)
-			out["equation"] = "(%s) +1 per Spin. Discard at 7" % _bb(atk_c, "1")
-			out["body"] = str(it.get("ability", "+1 ATK for each Spin. When this reaches 7 ATK, Discard this."))
+		"defeat_spins":
+			out["value"] = _value_bb("Defeat", str(live), var_c)
+			out["equation"] = "(%s = %s) +1 / Spin from 0" % [_bb(hp_c, "Enemy HP"), _bb(var_c, str(live))]
+			out["body"] = str(it.get("ability", "Defeat an enemy with HP equal to this number. Starts at 0. +1 each Spin while held."))
+			if fighting and _defeat_blocked(m if fighting else {}):
+				out["warn"] = "Can't — this enemy cannot be Defeated."
+			elif fighting and not bool(view.get("can_use", false)):
+				out["warn"] = "Can't — their HP is not equal to this number."
 		"atk_if_enemy_atk_even":
 			out["value"] = _value_bb("Attack", str(live if fighting else 4), atk_c)
 			out["equation"] = "(%s) or (%s if %s)" % [_bb(cream, "2"), _bb(atk_c, "4"), _bb(gold, "Even ATK")]
@@ -27191,12 +27197,11 @@ func _sync_hotbar() -> void:
 		if card.has_method("set_glyphs"):
 			card.set_glyphs([] if pn > 0 else _face_rows(it, view))
 		var toll_lethal: bool = str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1
-		var top_discard: bool = _spinning_top_about_to_discard(it)
 		var hex_good: bool = str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1
 		## Recycler armed (next discard returns): mint/green glow like Hex@1 — not gold READY.
 		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
 		if card.has_method("set_danger"):
-			card.set_danger(toll_lethal or top_discard)
+			card.set_danger(toll_lethal)
 		if card.has_method("set_hex_good"):
 			card.set_hex_good(hex_good or rec_ready)
 		if card.has_method("set_num_color"):
@@ -27204,7 +27209,7 @@ func _sync_hotbar() -> void:
 				card.set_num_color(Color("9a9a9a"))
 			elif hex_good or rec_ready:
 				card.set_num_color(Color("5FD3A0"))
-			elif toll_lethal or top_discard:
+			elif toll_lethal:
 				card.set_num_color(Color("C41E1E"))
 			else:
 				card.set_num_color(_num_color(str(view.get("kind", "ATK"))))
@@ -27530,7 +27535,6 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	_apply_bag_look(card, it)
 	_apply_item_stone_look(card, it)
 	var toll_lethal_spawn: bool = str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1
-	var top_discard_spawn: bool = _spinning_top_about_to_discard(it)
 	var hex_good_spawn: bool = str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1
 	var rec_ready_spawn: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
 	## Recycler armed = mint glow (hex_good path), not gold READY.
@@ -27555,12 +27559,12 @@ func _spawn_item_card(it: Dictionary, usable: bool) -> PanelContainer:
 	if card.has_method("set_glyphs"):
 		card.set_glyphs([] if pn > 0 else _face_rows(it, view))
 	if card.has_method("set_danger"):
-		card.set_danger(toll_lethal_spawn or top_discard_spawn)
+		card.set_danger(toll_lethal_spawn)
 	if card.has_method("set_hex_good"):
 		card.set_hex_good(hex_good_spawn or rec_ready_spawn)
 	if (hex_good_spawn or rec_ready_spawn) and card.has_method("set_num_color"):
 		card.set_num_color(Color("5FD3A0"))
-	elif (toll_lethal_spawn or top_discard_spawn) and card.has_method("set_num_color"):
+	elif toll_lethal_spawn and card.has_method("set_num_color"):
 		card.set_num_color(Color("C41E1E"))
 	card.hovered.connect(func() -> void:
 		var live: Dictionary = _find_item(int(card.uid))
@@ -27734,7 +27738,6 @@ func _reapply_hotbar_aura_roles() -> void:
 		var upgrade_choice: bool = is_snack and str(pending_feed.get("kind", "")) == "upgrade"
 		var snack_ready: bool = is_snack and not _toss_pick_mode() and not upgrade_choice
 		var rec_ready: bool = str(it.get("card_id", "")) == "recycler" and int(it.get("recycle_n", 5)) <= 1
-		var top_discard: bool = _spinning_top_about_to_discard(it)
 		var mag_on: bool = _is_magnet(it) and _magnet_mode_of(it) != "off"
 		var in_fight: bool = phase == "fighting"
 		var armed_ready: bool = in_fight and not spent_n and str(it.get("card_id", "")) == "healing_potion"
@@ -27746,13 +27749,13 @@ func _reapply_hotbar_aura_roles() -> void:
 		var can_click_toss: bool = _toss_pick_mode() and is_legal
 		if card.has_method("set_danger"):
 			var toll_lethal_re: bool = str(it.get("card_id", "")) == "toll" and int(it.get("toll_n", 0)) == 1
-			card.set_danger(toll_lethal_re or top_discard)
+			card.set_danger(toll_lethal_re)
 		if card.has_method("set_hex_good"):
 			var hex_good_re: bool = str(it.get("card_id", "")) == "hex" and int(it.get("hex_n", 0)) == 1
 			card.set_hex_good(hex_good_re or rec_ready)
 		if card.has_method("set_num_color"):
 			var cid_re: String = str(it.get("card_id", ""))
-			if top_discard or (cid_re == "toll" and int(it.get("toll_n", 0)) == 1):
+			if cid_re == "toll" and int(it.get("toll_n", 0)) == 1:
 				card.set_num_color(Color("C41E1E"))
 			elif (cid_re == "hex" and int(it.get("hex_n", 0)) == 1) or rec_ready:
 				card.set_num_color(Color("5FD3A0"))
