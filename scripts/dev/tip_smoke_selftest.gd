@@ -277,6 +277,36 @@ func _init() -> void:
 		and _source_contains("res://scripts/main.gd", '"sling":')
 	) or failed
 
+	## 17) Collector Bags other on Defeat for −3 HP; discard tax gone.
+	failed = _check(failed, "runtime_has_collector", _runtime_has_monster("collector")) or failed
+	failed = _check(
+		failed,
+		"collector_ability_bag_lose_3",
+		_catalog_monster_ability_contains("collector", "lose 3 HP")
+		and _catalog_monster_ability_contains("collector", "Bag")
+	) or failed
+	failed = _check(
+		failed,
+		"collector_ability_no_discard_tax",
+		not _catalog_monster_ability_contains("collector", "Discard")
+	) or failed
+	failed = _check(
+		failed,
+		"collector_bag_self_cost_hook",
+		_source_has_func("res://scripts/main.gd", "_collector_bag_self_cost")
+		and _source_func_calls("res://scripts/main.gd", "_collector_bag_defeated", "_collector_bag_self_cost")
+	) or failed
+	failed = _check(
+		failed,
+		"collector_no_discard_tax_func",
+		not _source_has_func("res://scripts/main.gd", "_collector_discard_tax")
+	) or failed
+	failed = _check(
+		failed,
+		"collector_toss_no_discard_tax",
+		not _source_func_calls("res://scripts/main.gd", "_toss_item", "_collector_discard_tax")
+	) or failed
+
 	if guide != null and is_instance_valid(guide):
 		guide.free()
 
@@ -537,6 +567,21 @@ func _catalog_item_ability_contains(id: String, needle: String) -> bool:
 	if typeof(items) != TYPE_ARRAY:
 		return false
 	for raw in items as Array:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var card: Dictionary = raw
+		if str(card.get("id", "")) != id:
+			continue
+		return str(card.get("ability", "")).find(needle) >= 0
+	return false
+
+
+func _catalog_monster_ability_contains(id: String, needle: String) -> bool:
+	var cat: Dictionary = _load_json("res://data/catalog.json")
+	var mons: Variant = cat.get("monsters", [])
+	if typeof(mons) != TYPE_ARRAY:
+		return false
+	for raw in mons as Array:
 		if typeof(raw) != TYPE_DICTIONARY:
 			continue
 		var card: Dictionary = raw

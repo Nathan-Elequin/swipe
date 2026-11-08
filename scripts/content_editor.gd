@@ -93,7 +93,7 @@ const DEFAULT_EXPLAINER := {
 	"huntsman": "Across Attacks you: I also Attack (once after multiattacks)",
 	"quicksand_crab": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move.",
 	"phantom": "Non-Shrouded Use: Shroud one other item and move it to the end. It stays Shrouded until you use it.",
-	"collector": "Defeat other: Bag at pre-lethal HP. Discard without Use: I lose 2 HP",
+	"collector": "Defeat other: Bag at pre-lethal HP; I lose 3 HP",
 	"mouse": "On Spin: if your HP is higher, I lose 2 HP and Flee",
 	"blood_pact": "−2 HP you and Enemy",
 	"swift_sneaks": "Move 2 in a random direction, and Keep this.",
