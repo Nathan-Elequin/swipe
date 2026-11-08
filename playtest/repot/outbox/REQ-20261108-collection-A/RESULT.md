@@ -7,6 +7,8 @@ machine: Cherry
 tip_sha: 0c94a2c06409369590d8b1f7a79eef8f28be2fa9
 godot: windowed isolated process (not MCP 6550), Godot 4.7.2-stable, viewport 1680x1040
 branch_fixes: cursor/collection-a-notrun-cases-e524
+pixel_correction_commit: 8b0c320b779856ce5ce3d4143a0c1a938faf15d9
+tip_smoke: TIP_SMOKE_OK @ 8b0c320b
 pixel_corrections: 2026-11-08-pixel-corrections
 dirty_watermark: 0c94a2c0*
 ---
