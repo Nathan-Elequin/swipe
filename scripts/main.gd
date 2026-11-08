@@ -27761,7 +27761,7 @@ func _apply_collection_item_badge(card: Control, it: Dictionary) -> void:
 func _sync_collection_quiet() -> void:
 	if collection_quiet == null:
 		return
-	var show := (
+	var show: bool = (
 		_campaign_on
 		and _campaign != null
 		and not in_tutorial
