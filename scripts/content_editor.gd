@@ -74,7 +74,7 @@ const DEFAULT_EXPLAINER := {
 	"hex": "Defeat at Spin 0",
 	"ale_flagon": "Heal 3, heal the Enemy 3, draw an Item",
 	"napalm": "HP → 1 (you + Enemy + Neighbors)",
-	"lucky_nickel": "Choose: +2 Block, or +6 Block −2 HP. Keep.",
+	"lucky_nickel": "50% each. Always Keep.",
 	"double_buckler": "Block half of an even Attack.",
 	"chakram": "(BLK 3 if no Block Items)  (ATK 3 if no Attack Items)",
 	"signpost": "(BLK 7) then a Neighbor Attacks you",
