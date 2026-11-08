@@ -40,6 +40,8 @@ const DRAFT_LINES := preload("res://scripts/draft_lines.gd")
 const DUNGEON_DECK := preload("res://scripts/dungeon_deck.gd")
 const CHALLENGE_DRAFT := preload("res://scripts/challenge_draft.gd")
 const HUB_CUE_CAPSULE := preload("res://scripts/ui/hub_cue_capsule.gd")
+const COLLECTION_QUIET_STRIP := preload("res://scripts/ui/collection_quiet_strip.gd")
+const COLLECTION_JOURNEY := preload("res://scripts/collection_journey.gd")
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const CAMPAIGN_MAP := preload("res://scripts/campaign_map.gd")
 const DEFEAT_SPOTLIGHT := preload("res://scripts/ui/defeat_spotlight.gd")
@@ -610,6 +612,8 @@ var blk_hud: PanelContainer
 var blk_value: Label
 var cue_label
 var hub_cue
+## Journey A quiet banked/provisional strip (not a persistent ledger).
+var collection_quiet
 var _draft_final_item: bool = false
 var tray: HBoxContainer
 var overlay: ColorRect
@@ -1620,6 +1624,10 @@ func _build_ui() -> void:
 	btn_wrap.add_child(hub_cue)
 	if hub_cue.has_signal("finished"):
 		hub_cue.finished.connect(_sync_hub_cue)
+	collection_quiet = COLLECTION_QUIET_STRIP.new()
+	collection_quiet.name = "CollectionQuietStrip"
+	collection_quiet.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_wrap.add_child(collection_quiet)
 
 	var right := VBoxContainer.new()
 	right.custom_minimum_size = Vector2(0, 0)
@@ -27538,9 +27546,7 @@ func _sync_hotbar() -> void:
 		if card.has_method("set_draft_glow"):
 			card.set_draft_glow(false)
 		if card.has_method("set_cabinet_badge"):
-			var cid: String = str(it.get("card_id", ""))
-			var fresh: bool = home_cabin != null and cid != "" and not home_cabin.is_swiped(cid) and not BucketRules.is_token(items_by_id.get(cid, {}))
-			card.set_cabinet_badge(fresh, PLAYER_COPY.text("cabin.tip.new", "New!"), PLAYER_COPY.text("cabin.tip.seen", "Seen in {the_grumble}. Not home yet."))
+			_apply_collection_item_badge(card, it)
 		if card.has_method("set_beggar_mark"):
 			card.set_beggar_mark(_beggar_marked(uid_n), _beggar_stamp_tex())
 		if card.has_method("set_atk_pip"):
@@ -27651,6 +27657,75 @@ func _sync_hotbar() -> void:
 	_clear_choice_overlay()
 	## New! badge lesson: only between fights (ready), never mid-combat freeze.
 	_maybe_queue_new_mark_lesson()
+	_sync_collection_quiet()
+
+
+## Journey A — local New! / banked-repeat badge from shared projection (no new spend modal).
+func _apply_collection_item_badge(card: Control, it: Dictionary) -> void:
+	var cid: String = str(it.get("card_id", ""))
+	if cid == "" or BucketRules.is_token(items_by_id.get(cid, {})):
+		card.set_cabinet_badge(false, "", "")
+		return
+	var banked: Dictionary = {}
+	var seen_map: Dictionary = {}
+	if _campaign != null:
+		## Duplicate — never mutate live campaign banked from badge projection.
+		banked = (_campaign.state.get("banked", {}) as Dictionary).duplicate()
+	if home_cabin != null:
+		seen_map = home_cabin.seen
+		for sid in home_cabin.swiped.keys():
+			var s := str(sid)
+			if not banked.has(s):
+				banked[s] = _campaign_pool_of_item(s)
+	var held: Array = []
+	for raw in hotbar:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var hid := str(raw.get("card_id", ""))
+		if hid != "":
+			held.append(hid)
+	var st: String = COLLECTION_JOURNEY.item_status(cid, seen_map, banked, held)
+	## Only unbanked held (or draft) gets New! — banked repeats stay ordinary.
+	var fresh: bool = st == COLLECTION_JOURNEY.STATUS_CARRIED
+	card.set_cabinet_badge(
+		fresh,
+		PLAYER_COPY.text("cabin.tip.new", "New!"),
+		PLAYER_COPY.text("cabin.tip.seen", "Seen in {the_grumble}. Not home yet.")
+	)
+
+
+## Quiet provisional/banked strip during campaign runs. Hidden in tutorial / title / cabin.
+func _sync_collection_quiet() -> void:
+	if collection_quiet == null:
+		return
+	var show := (
+		_campaign_on
+		and _campaign != null
+		and not in_tutorial
+		and phase != "title"
+		and not (home_cabin != null and home_cabin.visible)
+		and not (_playtest_boot or (playtest_hub != null and playtest_hub.visible))
+	)
+	if not show:
+		collection_quiet.apply_summary({}, false)
+		return
+	var held: Array = []
+	for raw in hotbar:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var hid := str(raw.get("card_id", ""))
+		if hid != "":
+			held.append(hid)
+	var pools := {}
+	for hid2 in held:
+		pools[str(hid2)] = _campaign_pool_of_item(str(hid2))
+	## Include focus pool name for Spin placeholder; biome display name preferred.
+	var pool_id := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	var summary: Dictionary = COLLECTION_JOURNEY.quiet_run_summary(
+		_campaign.rules, _campaign.state, held, pools, pool_id
+	)
+	summary["focus_pool"] = CAMPAIGN_SHELL.biome_name(_campaign.rules, pool_id)
+	collection_quiet.apply_summary(summary, true)
 
 
 func _dim_hot_empty_slots() -> void:

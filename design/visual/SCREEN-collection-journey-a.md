@@ -22,7 +22,7 @@ Make **seen / carried / banked** legible across in-run cues and the focused safe
 |-------|--------|
 | State projection + selftest | This PR — `CollectionJourney` + `run_collection_journey.sh` |
 | Progress catalogue known-not-banked | This PR — `seen` payload + cell kind |
-| Quiet in-run provisional summary | Follow-up PR |
+| Quiet in-run provisional summary | PR2 — `collection_quiet_strip.gd` + hotbar badge via projection |
 | Milestone queue ordering | Follow-up PR |
 | Cabin optional nav polish | Follow-up PR |
 
