@@ -3851,14 +3851,16 @@ func _finalize_progress_menu_result(result: Dictionary, pause_if_idle: bool = fa
 	if action == "cabin":
 		## Preserve run kind (win/loss/tutorial) — haul credit must not invent win on death.
 		var kind := str(result.get("kind", "win"))
+		var focus_pool := str(result.get("focus_pool", ""))
 		## Live Pixel path: progress-menu → cabin never walk-in-arrives, so credit haul here.
 		if home_cabin != null and home_cabin.has_method("open_cabin_after_progress_menu"):
 			_hide_fight_hover()
 			_sync_biome_ambient("", true)
 			if _campaign != null:
 				_sync_dungeon_biome()
+			## No bank ceremony replay — progress menu already handled the return.
 			await home_cabin.open_cabin_after_progress_menu(
-				items_by_id, tex_by_item, _buckets_revealed, kind, [], []
+				items_by_id, tex_by_item, _buckets_revealed, kind, [], [], focus_pool
 			)
 			if overlay:
 				overlay.visible = false
@@ -27759,7 +27761,7 @@ func _apply_collection_item_badge(card: Control, it: Dictionary) -> void:
 func _sync_collection_quiet() -> void:
 	if collection_quiet == null:
 		return
-	var show := (
+	var show: bool = (
 		_campaign_on
 		and _campaign != null
 		and not in_tutorial
