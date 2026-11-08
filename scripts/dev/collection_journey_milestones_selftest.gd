@@ -88,7 +88,7 @@ func _init() -> void:
 			has_complete_id = true
 	failed = _check(failed, "idempotent_no_replay_complete", not has_complete_id) or failed
 
-	## Final-dungeon clear: independent of cabinets_complete / inheritance.
+	## Final-dungeon clear: requires tip clear eligibility — not mere Leave from b5.
 	var fc_state: Dictionary = SHELL.fresh_state()
 	## Incomplete cabinets + incomplete roster.
 	for pool2 in ["b1", "b2", "b3", "b4", "b5"]:
@@ -96,14 +96,38 @@ func _init() -> void:
 	failed = _check(failed, "fc_not_cabinets", not SHELL.cabinets_complete(rules, fc_state)) or failed
 	failed = _check(failed, "fc_not_roster", not JOURNEY.roster_complete(fc_state, rules, roster)) or failed
 	failed = _check(failed, "fc_last_id", SHELL.last_tip_biome_id(rules) == "b5") or failed
+	## Negative: Leave/bank from b5 without clear-eligible → no recognition.
+	SHELL.begin_run(fc_state, 4, false, false)
+	var fc_early: Dictionary = SHELL.recognize_final_dungeon_clear(rules, fc_state, "b5")
+	failed = _check(
+		failed,
+		"fc_early_leave_no_mark",
+		fc_early.is_empty() and not bool(fc_state.get("final_dungeon_cleared", false))
+	) or failed
+	## Positive: real tip clear marks eligible, then Leave recognizes once.
+	SHELL.note_tip_dungeon_cleared(rules, fc_state)
+	failed = _check(
+		failed,
+		"fc_eligible_after_clear",
+		bool(fc_state.get("run", {}).get("final_clear_eligible", false))
+	) or failed
 	var fc1: Dictionary = SHELL.recognize_final_dungeon_clear(rules, fc_state, "b5")
 	failed = _check(failed, "fc_emits_once", str(fc1.get("kind", "")) == "final_clear") or failed
 	failed = _check(failed, "fc_flag_set", bool(fc_state.get("final_dungeon_cleared", false))) or failed
 	failed = _check(failed, "fc_no_won", not bool(fc_state.get("won", false))) or failed
 	failed = _check(failed, "fc_no_endless", not bool(fc_state.get("endless_unlocked", false))) or failed
+	## Re-arm eligible after durable flag: still idempotent (already cleared).
+	fc_state["run"]["final_clear_eligible"] = true
 	var fc2: Dictionary = SHELL.recognize_final_dungeon_clear(rules, fc_state, "b5")
 	failed = _check(failed, "fc_idempotent", fc2.is_empty()) or failed
 	var fc_b1_state: Dictionary = SHELL.fresh_state()
+	SHELL.begin_run(fc_b1_state, 0, false, false)
+	SHELL.note_tip_dungeon_cleared(rules, fc_b1_state)
+	failed = _check(
+		failed,
+		"fc_note_ignores_non_tip",
+		not bool(fc_b1_state.get("run", {}).get("final_clear_eligible", false))
+	) or failed
 	var fc_b1: Dictionary = SHELL.recognize_final_dungeon_clear(rules, fc_b1_state, "b1")
 	failed = _check(failed, "fc_not_on_b1", fc_b1.is_empty() and not bool(fc_b1_state.get("final_dungeon_cleared", false))) or failed
 	## Inheritance still independent: incomplete roster after final clear → no collection_complete.

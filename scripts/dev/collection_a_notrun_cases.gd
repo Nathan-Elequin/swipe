@@ -422,15 +422,70 @@ func _case_02_nest_verdant_start() -> void:
 	await _soft_reset("after nest")
 
 
-## --- A05 honesty: offer-decline is unit helper, not live journey ---
+## --- A05 live offer-decline: production note_seen on offer create, decline without bank ---
 func _case_05_offer_decline_honesty() -> void:
-	## No live mill offer-decline is exercised here. Record honesty only.
-	_row(
-		"05",
-		"PASS",
-		"unit",
-		"offer-decline / seen retention covered by unit helper only — live mill offer-decline NOT exercised this drain"
+	await _soft_reset("before offer-decline")
+	## Production path: `_make_item` always calls home_cabin.note_seen. Declining the
+	## offer (clear pending without swipe/bank) must keep seen and never bank credit.
+	## Full interactive mill UI click-path is not automated here (synthetic_input cap).
+	var b1: Array = _b1_ids()
+	if b1.is_empty() or main.home_cabin == null:
+		_row("05", "NOTRUN", "integration", "no b1 ids / cabin for offer-decline")
+		return
+	var offer_id := str(b1[b1.size() - 1])
+	main._campaign.state = CAMPAIGN_SHELL.fresh_state()
+	main._campaign.write()
+	main._campaign_on = true
+	main.adventure = true
+	main.home_cabin.swiped.clear()
+	main.home_cabin.seen.clear()
+	main.home_cabin.sync_swiped_from_banked()
+	## Ensure target is not already banked/seen.
+	main._campaign.state["banked"].erase(offer_id)
+	main.home_cabin.seen.erase(offer_id)
+	main.home_cabin.swiped.erase(offer_id)
+	main.home_cabin._save()
+	var made: Dictionary = main._make_item(offer_id)
+	main.pending_item = made.duplicate(true)
+	var seen_after_offer: bool = bool(main.home_cabin.seen.get(offer_id, false))
+	## Decline: discard pending without banking (matches bribe/skip leave-behind).
+	main.pending_item = {}
+	main.hotbar.clear()
+	var banked_after: bool = (main._campaign.state.get("banked", {}) as Dictionary).has(offer_id)
+	var swiped_after: bool = bool(main.home_cabin.swiped.get(offer_id, false))
+	var seen_after_decline: bool = bool(main.home_cabin.seen.get(offer_id, false))
+	print(
+		"OFFER_DECLINE id=%s seen_offer=%s seen_decline=%s banked=%s swiped=%s" % [
+			offer_id, seen_after_offer, seen_after_decline, banked_after, swiped_after
+		]
 	)
+	await _present_settled(_payload_win([], [], "b1"))
+	var menu = main.progress_menu
+	if menu != null:
+		menu.call("_show_panel", 1)
+		menu.call("_rebuild_grid")
+		await process_frame
+	await _shot("N05-offer-decline-seen.png")
+	if menu != null and menu.visible:
+		menu.dismiss()
+	var ok: bool = seen_after_offer and seen_after_decline and (not banked_after) and (not swiped_after)
+	if ok:
+		_row(
+			"05",
+			"PASS",
+			"integration",
+			"live `_make_item` notes seen; decline clears pending without bank/swipe. Full mill click UI still unautomated."
+		)
+	else:
+		_row(
+			"05",
+			"FAIL",
+			"integration",
+			"offer-decline fail seen=%s/%s banked=%s swiped=%s" % [
+				seen_after_offer, seen_after_decline, banked_after, swiped_after
+			]
+		)
+	await _soft_reset("after offer-decline")
 
 
 ## --- A11 Checkpoint Climb with carried missing haul ---
@@ -734,24 +789,104 @@ func _case_21_last_biome_bank_ceremony() -> void:
 	await _soft_reset("after cabinet_full")
 
 
-## --- A22 Final clear distinct event ---
+## --- A22 Final clear = tip CLEAR event, not mere b5 Leave ---
 func _case_22_final_clear_event() -> void:
 	await _soft_reset("before final victory")
-	## Actual final-clear path: successful Leave bank from last tip biome (b5) with
-	## incomplete collection. Distinct from cabinets_complete won/endless and inheritance.
-	var state: Dictionary = CAMPAIGN_SHELL.fresh_state()
-	for pool in ["b1", "b2", "b3", "b4", "b5"]:
-		var ids: Array = _pool_ids(pool)
-		for i in mini(2, ids.size()):
-			state["banked"][str(ids[i])] = pool
-	CAMPAIGN_SHELL.normalize(state)
-	var roster := _roster_totals()
-	var cabinets_done: bool = CAMPAIGN_SHELL.cabinets_complete(main._campaign.rules, state)
-	var roster_done: bool = JOURNEY.roster_complete(state, main._campaign.rules, roster)
-	## Active run on last tip biome — production Leave reads this before end_run.
 	var biomes: Array = CAMPAIGN_SHELL.biomes_of(main._campaign.rules)
 	var b5_index := biomes.size() - 1
+	var roster := _roster_totals()
+	## --- Negative: ordinary early Leave/bank from b5 without tip-clear eligible ---
+	var early: Dictionary = CAMPAIGN_SHELL.fresh_state()
+	for pool_e in ["b1", "b2", "b3", "b4", "b5"]:
+		var ids_e: Array = _pool_ids(pool_e)
+		var n_e := 5 if pool_e == "b4" else 2
+		for i_e in mini(n_e, ids_e.size()):
+			early["banked"][str(ids_e[i_e])] = pool_e
+	CAMPAIGN_SHELL.normalize(early)
+	CAMPAIGN_SHELL.begin_run(early, b5_index, false, false)
+	## Intentionally do NOT call note_tip_dungeon_cleared — simulates extract without clear.
+	main._campaign.state = early
+	main._campaign.write()
+	main._campaign_on = true
+	main.adventure = true
+	main.phase = "rest"
+	main.hotbar.clear()
+	if main.home_cabin != null:
+		main.home_cabin.swiped.clear()
+		main.home_cabin.seen.clear()
+		for sid_e in early["banked"].keys():
+			main.home_cabin.swiped[str(sid_e)] = true
+			main.home_cabin.seen[str(sid_e)] = true
+	var ms_early: Array = await main._campaign_bank_from_hand_with_milestones(true)
+	var early_has_final := false
+	for raw_e in ms_early:
+		if str((raw_e as Dictionary).get("kind", "")) == "final_clear":
+			early_has_final = true
+	var early_flag: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
+	## Push-block stamp_crosses=false also must not mark (re-arm early run).
+	var push_state: Dictionary = CAMPAIGN_SHELL.fresh_state()
+	for pool_p in ["b1", "b2", "b3", "b4", "b5"]:
+		var ids_p: Array = _pool_ids(pool_p)
+		for i_p in mini(2, ids_p.size()):
+			push_state["banked"][str(ids_p[i_p])] = pool_p
+	CAMPAIGN_SHELL.begin_run(push_state, b5_index, false, false)
+	CAMPAIGN_SHELL.note_tip_dungeon_cleared(main._campaign.rules, push_state)
+	main._campaign.state = push_state
+	main._campaign.write()
+	main.hotbar.clear()
+	var ms_push: Array = await main._campaign_bank_from_hand_with_milestones(false)
+	var push_has_final := false
+	for raw_p in ms_push:
+		if str((raw_p as Dictionary).get("kind", "")) == "final_clear":
+			push_has_final = true
+	var push_flag: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
+	## Give-up / abort from b5: end_run without bank — must not mark.
+	var abort_state: Dictionary = CAMPAIGN_SHELL.fresh_state()
+	CAMPAIGN_SHELL.begin_run(abort_state, b5_index, false, false)
+	main._campaign.state = abort_state
+	main._campaign_abort()
+	var abort_flag: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
+	print(
+		"N07_NEG early_leave_final=%s flag=%s push_block_final=%s flag=%s abort_flag=%s" % [
+			early_has_final, early_flag, push_has_final, push_flag, abort_flag
+		]
+	)
+	await _present_settled(_payload_win([], ms_early, "b5"))
+	var menu_neg = main.progress_menu
+	menu_neg.call("_show_panel", 0)
+	menu_neg.call("_rebuild_overview")
+	await process_frame
+	var blob_neg: String = _collect_labels(menu_neg.get("_overview_box"))
+	var neg_final_line := blob_neg.find("Final dungeon cleared") >= 0
+	await _shot("N07-early-return-no-final.png")
+	if menu_neg.visible:
+		menu_neg.dismiss()
+	var neg_ok: bool = (
+		(not early_has_final)
+		and (not early_flag)
+		and (not push_has_final)
+		and (not push_flag)
+		and (not abort_flag)
+		and (not neg_final_line)
+	)
+
+	## --- Positive: tip clear eligible THEN Leave from b5 ---
+	await _soft_reset("before final clear positive")
+	var state: Dictionary = CAMPAIGN_SHELL.fresh_state()
+	## Seed b4 to quota so Abyss is unlocked in overview (Locked ≠ contradict CLEAR).
+	## Keep other cabinets under quota so cabinets_complete stays false.
+	for pool in ["b1", "b2", "b3", "b4", "b5"]:
+		var ids: Array = _pool_ids(pool)
+		var n := 5 if pool == "b4" else 2
+		for i in mini(n, ids.size()):
+			state["banked"][str(ids[i])] = pool
+	CAMPAIGN_SHELL.normalize(state)
+	var cabinets_done: bool = CAMPAIGN_SHELL.cabinets_complete(main._campaign.rules, state)
+	var roster_done: bool = JOURNEY.roster_complete(state, main._campaign.rules, roster)
+	var abyss_unlocked: bool = CAMPAIGN_SHELL.pool_unlocked(main._campaign.rules, state, "b5")
 	CAMPAIGN_SHELL.begin_run(state, b5_index, false, false)
+	## Production clear commit path sets eligibility (not Leave alone).
+	CAMPAIGN_SHELL.note_tip_dungeon_cleared(main._campaign.rules, state)
 	main._campaign.state = state
 	main._campaign.write()
 	main._campaign_on = true
@@ -794,11 +929,16 @@ func _case_22_final_clear_event() -> void:
 	var blob: String = _collect_labels(menu.get("_overview_box"))
 	var final_line := blob.find("Final dungeon cleared") >= 0
 	var full_line := blob.find("Full collection") >= 0
+	## Unlocked Abyss must show collection count, not the Locked badge line.
+	var abyss_locked_line := (
+		blob.find("Shadow Abyss — Locked") >= 0
+		or (abyss_unlocked and blob.find("Shadow Abyss collection:") < 0)
+	)
 	var summary_key_gap := not PLAYER_COPY.has_key("postrun.summary.final_clear")
 	print(
-		"N07_FINAL_CLEAR cabinets=%s roster=%s has_final=%s inherit=%s flag=%s/%s won=%s endless=%s sum=%s final_line=%s full=%s COPY_GAP_summary=%s" % [
-			cabinets_done, roster_done, has_final, has_inherit, flag_now, flag_reload,
-			won_now, endless_now, sum, final_line, full_line, summary_key_gap
+		"N07_POS cabinets=%s roster=%s abyss_unlocked=%s has_final=%s inherit=%s flag=%s/%s won=%s endless=%s sum=%s final_line=%s full=%s abyss_locked=%s COPY_GAP_summary=%s" % [
+			cabinets_done, roster_done, abyss_unlocked, has_final, has_inherit, flag_now, flag_reload,
+			won_now, endless_now, sum, final_line, full_line, abyss_locked_line, summary_key_gap
 		]
 	)
 	await _shot("N07-final-dungeon-victory.png")
@@ -819,9 +959,11 @@ func _case_22_final_clear_event() -> void:
 	var rep_full := blob_rep.find("Full collection") >= 0
 	if menu.visible:
 		menu.dismiss()
-	var ok: bool = (
-		(not cabinets_done)
+	var pos_ok: bool = (
+		neg_ok
+		and (not cabinets_done)
 		and (not roster_done)
+		and abyss_unlocked
 		and has_final
 		and (not has_inherit)
 		and flag_now
@@ -831,26 +973,36 @@ func _case_22_final_clear_event() -> void:
 		and sum == ordinary
 		and final_line
 		and (not full_line)
+		and (not abyss_locked_line)
 		and fc_rep.is_empty()
 		and (not rep_final)
 		and (not rep_full)
 	)
-	if ok and summary_key_gap:
+	if pos_ok and summary_key_gap:
 		_row(
 			"22",
 			"PASS",
 			"integration",
-			"b5 Leave→final_dungeon_cleared + milestone; incomplete collection; no won/endless; no inheritance; save/reload keeps flag, no replay. Summary stays approved Made-it-home; COPY_GAP postrun.summary.final_clear (milestone uses Spin placeholder)."
+			"NEG early b5 Leave/push-block/abort do not mark; POS tip-clear eligible→Leave sets final_dungeon_cleared + milestone; Abyss unlocked in overview; incomplete collection; no won/endless/inheritance; COPY_GAP postrun.summary.final_clear."
 		)
-	elif ok:
-		_row("22", "PASS", "integration", "final-clear recognition durable + independent of inheritance/won")
+	elif pos_ok:
+		_row("22", "PASS", "integration", "final-clear gated on tip clear; early return proven clean")
+	elif neg_ok:
+		_row(
+			"22",
+			"FAIL",
+			"integration",
+			"NEG ok; POS fail final=%s inherit=%s flag=%s/%s unlocked=%s locked_ui=%s line=%s full=%s" % [
+				has_final, has_inherit, flag_now, flag_reload, abyss_unlocked, abyss_locked_line, final_line, full_line
+			]
+		)
 	else:
 		_row(
 			"22",
 			"FAIL",
 			"integration",
-			"final-clear fail final=%s inherit=%s flag=%s/%s won=%s endless=%s line=%s full=%s rep=%s/%s" % [
-				has_final, has_inherit, flag_now, flag_reload, won_now, endless_now, final_line, full_line, rep_final, rep_full
+			"NEG fail early=%s/%s push=%s/%s abort=%s ui_line=%s; POS final=%s flag=%s" % [
+				early_has_final, early_flag, push_has_final, push_flag, abort_flag, neg_final_line, has_final, flag_now
 			]
 		)
 	await _soft_reset("after final victory")
