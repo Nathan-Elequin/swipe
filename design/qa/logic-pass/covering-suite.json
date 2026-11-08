@@ -3077,7 +3077,7 @@
 		},
 		{
 			"id": "ball_and_chain-atk",
-			"title": "Ball & Chain Attack fires",
+			"title": "Ball & Chain draws a card",
 			"family": "item",
 			"items": [
 				"ball_and_chain"
@@ -3090,11 +3090,10 @@
 			"clicks": [
 				{
 					"op": "use",
-					"item": "ball_and_chain",
-					"auto": true
+					"item": "ball_and_chain"
 				}
 			],
-			"expected_text": "Click Ball & Chain. An Attack, Defeat, or Flee happens on the plates.",
+			"expected_text": "Click Ball & Chain. It is used up and you Draw a Card (gain an Item).",
 			"expected": {
 				"outcome": "fired"
 			},
@@ -3103,7 +3102,7 @@
 					"id": "ball_and_chain",
 					"kind": "item",
 					"name": "Ball & Chain",
-					"ability": "2 Atk. The next time you or an Enemy would Flee, cancel it and this gains +2 Atk.",
+					"ability": "Draw a Card",
 					"sprite": "assets/dungeon/items/ball_and_chain.png"
 				},
 				{

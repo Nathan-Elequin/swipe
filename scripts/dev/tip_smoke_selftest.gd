@@ -242,6 +242,41 @@ func _init() -> void:
 		not _source_contains("res://scripts/main.gd", '"lucky_nickel": {"kind": "blk_coin_keep"')
 	) or failed
 
+	## 16) Ball & Chain is Draw a Card; draw items share the draw face glyph.
+	failed = _check(failed, "runtime_has_ball_and_chain", _runtime_has_item("ball_and_chain")) or failed
+	failed = _check(failed, "ball_and_chain_ops_draw", _catalog_item_ops_kind("ball_and_chain", "draw")) or failed
+	failed = _check(
+		failed,
+		"ball_and_chain_item_ops_draw",
+		_source_contains("res://scripts/main.gd", '"ball_and_chain": {"kind": "draw"')
+	) or failed
+	failed = _check(
+		failed,
+		"ball_and_chain_no_chain_flee_fallback",
+		not _source_contains("res://scripts/main.gd", '"ball_and_chain": {"kind": "chain_flee"')
+	) or failed
+	failed = _check(
+		failed,
+		"ball_and_chain_ability_draw_a_card",
+		_catalog_item_ability_contains("ball_and_chain", "Draw a Card")
+	) or failed
+	failed = _check(
+		failed,
+		"shared_draw_face_alias",
+		_source_contains("res://scripts/item_face.gd", '"draw", "draw_card", "bag"')
+		or _source_contains("res://scripts/item_face.gd", "\"draw\", \"draw_card\", \"bag\"")
+	) or failed
+	failed = _check(
+		failed,
+		"draw_items_use_draw_face_glyph",
+		_source_contains("res://scripts/main.gd", '", "", "", "", "draw")')
+		and _source_contains("res://scripts/main.gd", '"smoke_bomb":')
+		and _source_contains("res://scripts/main.gd", '"ale_flagon":')
+		and _source_contains("res://scripts/main.gd", '"grappling_hook":')
+		and _source_contains("res://scripts/main.gd", '"catapult":')
+		and _source_contains("res://scripts/main.gd", '"sling":')
+	) or failed
+
 	if guide != null and is_instance_valid(guide):
 		guide.free()
 
@@ -493,6 +528,21 @@ func _catalog_item_ops_kind(id: String, kind: String) -> bool:
 		if typeof(ops) != TYPE_DICTIONARY:
 			return false
 		return str((ops as Dictionary).get("kind", "")) == kind
+	return false
+
+
+func _catalog_item_ability_contains(id: String, needle: String) -> bool:
+	var cat: Dictionary = _load_json("res://data/catalog.json")
+	var items: Variant = cat.get("items", [])
+	if typeof(items) != TYPE_ARRAY:
+		return false
+	for raw in items as Array:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var card: Dictionary = raw
+		if str(card.get("id", "")) != id:
+			continue
+		return str(card.get("ability", "")).find(needle) >= 0
 	return false
 
 

@@ -820,7 +820,7 @@
 					"id": "ball_and_chain",
 					"kind": "item",
 					"name": "Ball & Chain",
-					"ability": "2 Atk. The next time you or an Enemy would Flee, cancel it and this gains +2 Atk.",
+					"ability": "Draw a Card",
 					"sprite": "assets/dungeon/items/ball_and_chain.png"
 				},
 				{
