@@ -2,7 +2,7 @@
 id: REQ-20261108-collection-A
 status: open
 priority: high
-tip_sha: 6f2c760835f51bd3d6e090cdeba34703e86c9e99
+tip_sha: a89a8693b9995fe0172875a27771edf3d276775b
 branch: cursor/collection-a-state-9a87
 created: 2026-11-08T04:30:00-06:00
 created_by: collection-a-cloud
