@@ -2898,14 +2898,15 @@ func _adventure_leave() -> void:
 		sfx.play("whoosh", -10.0, 0.9)
 	# Soft dissolve out matching enter. No splash. Music calls unchanged.
 	await _biome_dissolve_out()
+	var leave_milestones: Array = []
 	if _campaign_on:
 		## Leave awards deferred map scrap (idempotent) — Push may have crossed without stamp.
-		await _campaign_bank_from_hand(true)
+		leave_milestones = await _campaign_bank_from_hand_with_milestones(true)
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
 	## Dedicated progress menu replaces automatic S7 cabin homecoming.
-	var leave_result: Dictionary = await _open_progress_menu("win", news, ids, false)
+	var leave_result: Dictionary = await _open_progress_menu("win", news, ids, false, "", "", leave_milestones)
 	await _finalize_progress_menu_result(leave_result)
 	_adventure_busy = false
 
@@ -2941,16 +2942,29 @@ func _push_interrupt_home() -> void:
 		sfx.play("whoosh", -10.0, 0.9)
 	# Soft dissolve out matching enter (0.35s #0B0706). No splash.
 	await _biome_dissolve_out()
+	var push_milestones: Array = []
 	if _campaign_on:
 		## Push-block: bank credit yes, map-piece stamp never (deferred to later Leave).
-		await _campaign_bank_from_hand(false)
+		## Gate milestones suppressed in payload (push_block) — credit still banks.
+		push_milestones = await _campaign_bank_from_hand_with_milestones(false)
+		## Do not celebrate route unlock on Push-block interrupt (stamp deferred).
+		var filtered: Array = []
+		for raw_m in push_milestones:
+			if typeof(raw_m) != TYPE_DICTIONARY:
+				continue
+			if str((raw_m as Dictionary).get("kind", "")) == "gate":
+				continue
+			filtered.append(raw_m)
+		push_milestones = filtered
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
 	if pool != "":
 		_sync_dungeon_biome(pool)
 	## Progress menu always; Push-block suppresses unlock/map celebration (payload flag).
-	var push_result: Dictionary = await _open_progress_menu("win", news, ids, true, pool, biome_name)
+	var push_result: Dictionary = await _open_progress_menu(
+		"win", news, ids, true, pool, biome_name, push_milestones
+	)
 	await _finalize_progress_menu_result(push_result, true)
 	_adventure_busy = false
 
@@ -3475,8 +3489,13 @@ func _campaign_abort() -> void:
 ## stamp_crosses=false (Push-block): bank credit only — never stamp here.
 ## stamp_map_piece is idempotent per next id — old saves / re-Leave do not double-award.
 func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
+	await _campaign_bank_from_hand_with_milestones(stamp_crosses)
+
+
+## Same as `_campaign_bank_from_hand`, returning Journey A milestone facts for the receipt.
+func _campaign_bank_from_hand_with_milestones(stamp_crosses: bool = true) -> Array:
 	if _campaign == null:
-		return
+		return []
 	var ids: Array = []
 	var pools := {}
 	for it in hotbar:
@@ -3487,6 +3506,7 @@ func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
 			continue
 		ids.append(id)
 		pools[id] = _campaign_pool_of_item(id)
+	var before: Dictionary = _campaign.state.duplicate(true)
 	var quota: int = CAMPAIGN_SHELL.quota_of(_campaign.rules)
 	var result: Dictionary = CAMPAIGN_SHELL.bank(_campaign.rules, _campaign.state, ids, pools)
 	if stamp_crosses:
@@ -3497,6 +3517,31 @@ func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
 			## Deferred award: stamp whenever cabinet is at/over quota (not only this-return cross).
 			if CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool_id) >= quota:
 				CAMPAIGN_SHELL.stamp_map_piece(_campaign.rules, _campaign.state, pool_id)
+	## Roster totals for cabinet_full (catalog live non-token) — not Doop page fixtures.
+	var roster_totals := {}
+	var touched: Array = []
+	for pid in pools.values():
+		var p := str(pid)
+		if p == "" or touched.has(p):
+			continue
+		touched.append(p)
+	for raw_b2 in CAMPAIGN_SHELL.biomes_of(_campaign.rules):
+		var bid := str((raw_b2 as Dictionary).get("id", ""))
+		if bid == "" or roster_totals.has(bid):
+			continue
+		var n := 0
+		for cid in items_by_id.keys():
+			var card: Dictionary = items_by_id.get(cid, {})
+			if BucketRules.is_token(card):
+				continue
+			if str(card.get("status", "live")) in ["retired", "hold"]:
+				continue
+			if _campaign_pool_of_item(str(cid)) == bid:
+				n += 1
+		roster_totals[bid] = n
+	var milestones: Array = COLLECTION_JOURNEY.milestones_from_bank(
+		_campaign.rules, before, _campaign.state, touched, roster_totals
+	)
 	CAMPAIGN_SHELL.end_run(_campaign.state)
 	## Next run's Deadlies are seeded as soon as the haul banks home.
 	_campaign_seed_next_run_if_needed(true)
@@ -3509,6 +3554,8 @@ func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
 		CAMPAIGN_SHELL.mark_drawer_seen(_campaign.state)
 		_campaign.write()
 		campaign_map.hide_map()
+	return milestones
+
 
 
 func _campaign_draw_pair(tier: int) -> Array:
@@ -3718,7 +3765,8 @@ func _open_progress_menu(
 	held_ids: Array,
 	push_block: bool = false,
 	played_pool: String = "",
-	played_name: String = ""
+	played_name: String = "",
+	milestones: Array = []
 ) -> Dictionary:
 	if progress_menu == null:
 		_open_home_cabin(false, kind, new_ids, held_ids)
@@ -3769,6 +3817,8 @@ func _open_progress_menu(
 		"state": state,
 		"push_block": push_block,
 		"tutorial": kind == "tutorial",
+		## Ordered durable milestones (gate / cabinet_full / collection_complete).
+		"milestones": milestones.duplicate(),
 	}
 	var ack := func(id: String) -> void:
 		if home_cabin != null and home_cabin.has_method("_ack_bank_presented"):
