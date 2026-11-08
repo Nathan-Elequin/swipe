@@ -33,4 +33,5 @@
 ## Hold
 
 No merge. Pixel first-pass sent to Nathan; source re-review ongoing.
-VALIDATION_HEAD=3ae9e34140a7a970e1297271ef4e6fa5a59243dd
+VALIDATION_HEAD=b4bfbd25d9d7c9ad197c1524ba524db5a575b613
+(feature commit 3ae9e341; receipt stamp b4bfbd25)
