@@ -1,0 +1,277 @@
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+   GDScript backtrace (most recent call first):
+       [0] _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:531)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _present_async (res://scripts/dev/collection_a_shots.gd:486)
+       [4] _kick_present (res://scripts/dev/collection_a_shots.gd:482)
+       [5] _input_smoke (res://scripts/dev/collection_a_shots.gd:408)
+       [6] _run (res://scripts/dev/collection_a_shots.gd:42)
+       [7] _main_quiet_and_cabin (res://scripts/dev/collection_a_shots.gd:375)
+       [8] _capture (res://scripts/dev/collection_a_shots.gd:537)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _present_async (res://scripts/dev/collection_a_shots.gd:486)
+       [4] _kick_present (res://scripts/dev/collection_a_shots.gd:482)
+       [5] _input_smoke (res://scripts/dev/collection_a_shots.gd:408)
+       [6] _run (res://scripts/dev/collection_a_shots.gd:42)
+       [7] _main_quiet_and_cabin (res://scripts/dev/collection_a_shots.gd:375)
+       [8] _capture (res://scripts/dev/collection_a_shots.gd:537)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _present_async (res://scripts/dev/collection_a_shots.gd:486)
+       [4] _kick_present (res://scripts/dev/collection_a_shots.gd:482)
+       [5] _input_smoke (res://scripts/dev/collection_a_shots.gd:408)
+       [6] _run (res://scripts/dev/collection_a_shots.gd:42)
+       [7] _main_quiet_and_cabin (res://scripts/dev/collection_a_shots.gd:375)
+       [8] _capture (res://scripts/dev/collection_a_shots.gd:537)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _update_area_count_lab (res://scripts/ui/progress_menu.gd:626)
+       [2] _rebuild_grid (res://scripts/ui/progress_menu.gd:650)
+       [3] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [4] present (res://scripts/ui/progress_menu.gd:312)
+       [5] _present_async (res://scripts/dev/collection_a_shots.gd:486)
+       [6] _kick_present (res://scripts/dev/collection_a_shots.gd:482)
+       [7] _input_smoke (res://scripts/dev/collection_a_shots.gd:408)
+       [8] _run (res://scripts/dev/collection_a_shots.gd:42)
+       [9] _main_quiet_and_cabin (res://scripts/dev/collection_a_shots.gd:375)
+       [10] _capture (res://scripts/dev/collection_a_shots.gd:537)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:742)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:722)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:653)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _present_async (res://scripts/dev/collection_a_shots.gd:486)
+       [7] _kick_present (res://scripts/dev/collection_a_shots.gd:482)
+       [8] _input_smoke (res://scripts/dev/collection_a_shots.gd:408)
+       [9] _run (res://scripts/dev/collection_a_shots.gd:42)
+       [10] _main_quiet_and_cabin (res://scripts/dev/collection_a_shots.gd:375)
+       [11] _capture (res://scripts/dev/collection_a_shots.gd:537)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:742)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:722)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:653)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _present_async (res://scripts/dev/collection_a_shots.gd:486)
+       [7] _kick_present (res://scripts/dev/collection_a_shots.gd:482)
+       [8] _input_smoke (res://scripts/dev/collection_a_shots.gd:408)
+       [9] _run (res://scripts/dev/collection_a_shots.gd:42)
+       [10] _main_quiet_and_cabin (res://scripts/dev/collection_a_shots.gd:375)
+       [11] _capture (res://scripts/dev/collection_a_shots.gd:537)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:742)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:722)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:653)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _present_async (res://scripts/dev/collection_a_shots.gd:486)
+       [7] _kick_present (res://scripts/dev/collection_a_shots.gd:482)
+       [8] _input_smoke (res://scripts/dev/collection_a_shots.gd:408)
+       [9] _run (res://scripts/dev/collection_a_shots.gd:42)
+       [10] _main_quiet_and_cabin (res://scripts/dev/collection_a_shots.gd:375)
+       [11] _capture (res://scripts/dev/collection_a_shots.gd:537)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _update_area_count_lab (res://scripts/ui/progress_menu.gd:626)
+       [2] _rebuild_grid (res://scripts/ui/progress_menu.gd:650)
+       [3] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [4] _on_next_step (res://scripts/ui/progress_menu.gd:1143)
+       [5] _unhandled_input (res://scripts/ui/progress_menu.gd:1273)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:742)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:722)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:653)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] _on_next_step (res://scripts/ui/progress_menu.gd:1143)
+       [6] _unhandled_input (res://scripts/ui/progress_menu.gd:1273)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:742)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:722)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:653)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] _on_next_step (res://scripts/ui/progress_menu.gd:1143)
+       [6] _unhandled_input (res://scripts/ui/progress_menu.gd:1273)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:742)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:722)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:653)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] _on_next_step (res://scripts/ui/progress_menu.gd:1143)
+       [6] _unhandled_input (res://scripts/ui/progress_menu.gd:1273)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _update_area_count_lab (res://scripts/ui/progress_menu.gd:626)
+       [2] _land_all_news_in_filter (res://scripts/ui/progress_menu.gd:1075)
+       [3] _on_next_step (res://scripts/ui/progress_menu.gd:1144)
+       [4] _unhandled_input (res://scripts/ui/progress_menu.gd:1273)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+   GDScript backtrace (most recent call first):
+       [0] _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:531)
+       [2] _land_all_news_in_filter (res://scripts/ui/progress_menu.gd:1076)
+       [3] _on_next_step (res://scripts/ui/progress_menu.gd:1144)
+       [4] _unhandled_input (res://scripts/ui/progress_menu.gd:1273)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] _land_all_news_in_filter (res://scripts/ui/progress_menu.gd:1076)
+       [3] _on_next_step (res://scripts/ui/progress_menu.gd:1144)
+       [4] _unhandled_input (res://scripts/ui/progress_menu.gd:1273)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] _land_all_news_in_filter (res://scripts/ui/progress_menu.gd:1076)
+       [3] _on_next_step (res://scripts/ui/progress_menu.gd:1144)
+       [4] _unhandled_input (res://scripts/ui/progress_menu.gd:1273)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _update_area_count_lab (res://scripts/ui/progress_menu.gd:626)
+       [2] _rebuild_grid (res://scripts/ui/progress_menu.gd:650)
+       [3] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [4] _on_tab (res://scripts/ui/progress_menu.gd:1059)
+       [5] _input_smoke (res://scripts/dev/collection_a_shots.gd:416)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:742)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:722)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:653)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] _on_tab (res://scripts/ui/progress_menu.gd:1059)
+       [6] _input_smoke (res://scripts/dev/collection_a_shots.gd:416)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:742)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:722)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:653)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] _on_tab (res://scripts/ui/progress_menu.gd:1059)
+       [6] _input_smoke (res://scripts/dev/collection_a_shots.gd:416)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:742)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:722)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:653)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] _on_tab (res://scripts/ui/progress_menu.gd:1059)
+       [6] _input_smoke (res://scripts/dev/collection_a_shots.gd:416)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _update_area_count_lab (res://scripts/ui/progress_menu.gd:626)
+       [2] _land_all_news_in_filter (res://scripts/ui/progress_menu.gd:1075)
+       [3] _on_tab (res://scripts/ui/progress_menu.gd:1060)
+       [4] _input_smoke (res://scripts/dev/collection_a_shots.gd:416)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+   GDScript backtrace (most recent call first):
+       [0] _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:531)
+       [2] _land_all_news_in_filter (res://scripts/ui/progress_menu.gd:1076)
+       [3] _on_tab (res://scripts/ui/progress_menu.gd:1060)
+       [4] _input_smoke (res://scripts/dev/collection_a_shots.gd:416)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] _land_all_news_in_filter (res://scripts/ui/progress_menu.gd:1076)
+       [3] _on_tab (res://scripts/ui/progress_menu.gd:1060)
+       [4] _input_smoke (res://scripts/dev/collection_a_shots.gd:416)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] _land_all_news_in_filter (res://scripts/ui/progress_menu.gd:1076)
+       [3] _on_tab (res://scripts/ui/progress_menu.gd:1060)
+       [4] _input_smoke (res://scripts/dev/collection_a_shots.gd:416)
+WARNING: 11 RIDs of type "CanvasItem" were leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2735)
+ERROR: Texture with GL ID of 19: leaked 20 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 190: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 191: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 192: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 193: leaked 524288 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 195: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 196: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 198: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 680: leaked 2296 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 931: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 932: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 939: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 943: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 944: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 945: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 994: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 995: leaked 699050 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 996: leaked 174762 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+WARNING: 192 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)

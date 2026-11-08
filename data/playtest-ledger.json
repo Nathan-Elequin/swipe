@@ -485,6 +485,18 @@
 			"title": "Poison-kill spin should still tick Spin items (Grief Jar, Marble, Spinning Top)",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/452",
 			"column_note": "Opened from playtest Send; not on tip yet as a verified fix."
+		},
+		"482": {
+			"status": "todo",
+			"title": "Death Bell Toll does not seem to work",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/482",
+			"column_note": "Opened from playtest Send; not on tip yet as a verified fix."
+		},
+		"483": {
+			"status": "todo",
+			"title": "Spinning Top should allow targeting any monster",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/483",
+			"column_note": "Opened from playtest Send; not on tip yet as a verified fix."
 		}
 	}
 }

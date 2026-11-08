@@ -1,0 +1,33 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.88 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 5070 Ti
+
+USER_DATA=C:/Users/Natha/AppData/Local/Temp/collection-a-shots-8de2a463/AppData/Roaming/Godot/app_userdata/Spinheritance
+COLLECTION_A_SHOTS_SHA 59e8ca511259155995eef52b98b21850fbae027e
+WROTE res://playtest/repot/outbox/REQ-20261108-collection-A/shots/01-catalogue-seen-vs-banked.png abs=C:/Users/Natha/Documents/boss-rush/playtest/repot/outbox/REQ-20261108-collection-A/shots/01-catalogue-seen-vs-banked.png source_sha=59e8ca511259155995eef52b98b21850fbae027e size=1680x1040 evidence={ "seen": "[Spin copy: Recognized — not banked yet]", "banked": "Collected" }
+WROTE res://playtest/repot/outbox/REQ-20261108-collection-A/shots/02-return-receipt-overview.png abs=C:/Users/Natha/Documents/boss-rush/playtest/repot/outbox/REQ-20261108-collection-A/shots/02-return-receipt-overview.png source_sha=59e8ca511259155995eef52b98b21850fbae027e size=1680x1040 evidence={ "summary": "New item types added: 1." }
+WROTE res://playtest/repot/outbox/REQ-20261108-collection-A/shots/03-area-locked.png abs=C:/Users/Natha/Documents/boss-rush/playtest/repot/outbox/REQ-20261108-collection-A/shots/03-area-locked.png source_sha=59e8ca511259155995eef52b98b21850fbae027e size=1680x1040 evidence={ "locked_tab": true }
+WROTE res://playtest/repot/outbox/REQ-20261108-collection-A/shots/05-milestone-gate.png abs=C:/Users/Natha/Documents/boss-rush/playtest/repot/outbox/REQ-20261108-collection-A/shots/05-milestone-gate.png source_sha=59e8ca511259155995eef52b98b21850fbae027e size=1680x1040 evidence={ "overview": "[Spin copy: This return] | [Spin copy: Route open — 0→0/5 banked. Next: Crystal Cavern] | Item types collected: 5/67 | Verdant Hollow collection: 4/15 | Crystal Cavern collection: 0/14 | Ashen Crypt — Locked | Bring home 5 different item types from Crystal Cavern to unlock Ashen Crypt. | Cinder Forge — Locked | Bring home 5 different item types from Ashen Crypt to unlock Cinder Forge. | Shadow Abyss — Locked | Bring home 5 different item types from Cinder Forge to unlock Shadow Abyss." }
+WROTE res://playtest/repot/outbox/REQ-20261108-collection-A/shots/07-reload-idempotent.png abs=C:/Users/Natha/Documents/boss-rush/playtest/repot/outbox/REQ-20261108-collection-A/shots/07-reload-idempotent.png source_sha=59e8ca511259155995eef52b98b21850fbae027e size=1680x1040 evidence={ "banked_b1": 5 }
+WROTE res://playtest/repot/outbox/REQ-20261108-collection-A/shots/08-loss-seen-retained.png abs=C:/Users/Natha/Documents/boss-rush/playtest/repot/outbox/REQ-20261108-collection-A/shots/08-loss-seen-retained.png source_sha=59e8ca511259155995eef52b98b21850fbae027e size=1680x1040 evidence={ "seen": { "id": "breastplate", "modulate_a": 1.0, "state": "[Spin copy: Recognized — not banked yet]", "name": "Breastplate" }, "knife": { "id": "throwing_knife", "modulate_a": 1.0, "state": "[Spin copy: Recognized — not banked yet]", "name": "Throwing Knife" } }
+[audio] setup reason=boot bed=title playing=false
+[audio] start reason=music_to bed=title playing=false
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+WROTE res://playtest/repot/outbox/REQ-20261108-collection-A/shots/04-inrun-quiet-strip.png abs=C:/Users/Natha/Documents/boss-rush/playtest/repot/outbox/REQ-20261108-collection-A/shots/04-inrun-quiet-strip.png source_sha=59e8ca511259155995eef52b98b21850fbae027e size=1680x1040 evidence={ "visible": true, "text": "[Spin copy: Verdant Hollow banked 4/5 · held new 1] · [Spin copy: banks home to open route]" }
+[audio] start reason=music_to bed=title playing=true
+WROTE res://playtest/repot/outbox/REQ-20261108-collection-A/shots/06-cabin-optional-focus.png abs=C:/Users/Natha/Documents/boss-rush/playtest/repot/outbox/REQ-20261108-collection-A/shots/06-cabin-optional-focus.png source_sha=59e8ca511259155995eef52b98b21850fbae027e size=1680x1040 evidence={ "opened_menu": true, "cabin_visible": true, "room": "main" }
+INPUT_SMOKE { "focus_cells": 15, "focus_ok": true, "menu_visible_after_cancel": true }
+COPY_AUDIT_BEGIN
+COPY postrun.collection.item_seen authored=false sample=[missing]
+COPY run.collection.quiet_summary authored=false sample=[missing]
+COPY run.collection.quiet_summary_threshold authored=false sample=[missing]
+COPY postrun.collection.item_new authored=true sample=New!
+COPY postrun.collection.item_collected authored=true sample=Collected
+COPY postrun.collection.item_missing authored=true sample=Not yet collected
+COPY postrun.collection.area_locked authored=true sample=Locked
+COPY postrun.cabin authored=true sample=Visit Cabin
+COPY postrun.skip authored=true sample=Skip Recap
+COPY_AUDIT_END
+COLLECTION_A_SHOTS_OK sha=59e8ca511259155995eef52b98b21850fbae027e shots={ "01-catalogue-seen-vs-banked.png": true, "02-return-receipt-overview.png": true, "03-area-locked.png": true, "05-milestone-gate.png": true, "07-reload-idempotent.png": true, "08-loss-seen-retained.png": true, "04-inrun-quiet-strip.png": true, "06-cabin-optional-focus.png": true }
+ERROR: 18 RID allocations of type 'N5GLES37TextureE' were leaked at exit.
+ERROR: 156 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.

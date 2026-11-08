@@ -93,5 +93,15 @@
     "shown": 2,
     "retired": true,
     "why": "Second show in Still broken in F5 on 2026-11-08, Buckler chat."
+  },
+  "482": {
+    "shown": 1,
+    "retired": false,
+    "why": "First show in Still broken in F5 on 2026-11-08, Collection A repot."
+  },
+  "483": {
+    "shown": 1,
+    "retired": false,
+    "why": "First show in Still broken in F5 on 2026-11-08, Collection A repot."
   }
 }
