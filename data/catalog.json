@@ -6683,7 +6683,7 @@
 			"type": "M"
 		},
 		{
-			"ability": "When you Spin me, choose an Item and I will upgrade it",
+			"ability": "When you Spin me, choose an Item and I will swap it for one from a higher rarity",
 			"atk": {
 				"base": 4.0
 			},
@@ -6695,7 +6695,7 @@
 			"count": 1.0,
 			"defined": "After Spin, and after Spider Queen lays an egg, every item in hand that still has a remaining copy in this dungeon’s item pile of the next tier gets a button. That copy is used up. Tier 0 becomes Tier 1, Tier 1 becomes Tier 2, Tier 2 becomes Tier 3, Tier 3 stays Tier 3. You cannot go over a card’s copy count. You must pick one of those buttons before using items or Done. Clicking an item with nothing legal left leaves it as it is; you still pick a different item. If no item has a legal upgrade, nothing. Quiet Bell turns this off.",
 			"exceptions": "Bucket 4. Remaining dungeon pile, that copy is used up. Two Sais is legal. A third is not. A new Spider Egg laid on this spin can be picked if a Tier 1 copy is still in the pile.",
-			"explainer": "Choose an item. I upgrade it.",
+			"explainer": "Choose an item. I swap it for one from a higher rarity.",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -6708,7 +6708,7 @@
 			"hp_base": 4.0,
 			"hp_formula": "",
 			"id": "merchant",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6729,7 +6729,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"log_hint": "Upgrades a chosen item",
+			"log_hint": "Swaps a chosen item for higher rarity",
 			"mode_pool": "all",
 			"name": "Merchant",
 			"notes": "Bucket 4. Remaining dungeon pile, that copy is used up. Two Sais is legal. A third is not. A new Spider Egg laid on this spin can be picked if a Tier 1 copy is still in the pile.",
@@ -6738,7 +6738,7 @@
 			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "Choose an item. I upgrade it.",
+			"reminder": "Choose an item. I swap it for one from a higher rarity.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
