@@ -49,6 +49,7 @@ func _run() -> void:
 	_quiet_chrome()
 	PLAYER_COPY.reload()
 	_log_scale("boot")
+	_log_tip_and_roster_filter()
 
 	await _case_01_tutorial_handoff()
 	await _case_02_nest_verdant_start()
@@ -117,6 +118,48 @@ func _log_scale(tag: String) -> void:
 	var vp: Vector2 = root.get_viewport().get_visible_rect().size
 	var win: Vector2i = DisplayServer.window_get_size()
 	print("SCALE %s viewport=%sx%s window=%sx%s" % [tag, vp.x, vp.y, win.x, win.y])
+
+
+func _log_tip_and_roster_filter() -> void:
+	## SHA reconcile + 67→66 exclusion evidence (Danger Magnet hold in Cinder / pool 4).
+	var tip := ""
+	var out: Array = []
+	if OS.execute("git", PackedStringArray(["rev-parse", "--short", "HEAD"]), out, true) == 0 and not out.is_empty():
+		tip = str(out[0]).strip_edges()
+	print("TIP_SHA ", tip, " full=", _git_full_sha())
+	var hold_cinder: Array = []
+	var live_b4 := 0
+	var raw_b4 := 0
+	for id in main.items_by_id.keys():
+		var card: Dictionary = main.items_by_id[id]
+		if BucketRules.is_token(card):
+			continue
+		if main._campaign_pool_of_item(str(id)) != "b4":
+			continue
+		raw_b4 += 1
+		var st := str(card.get("status", "live"))
+		if st in ["retired", "hold"]:
+			hold_cinder.append("%s|%s|%s|pool=%s" % [id, card.get("name", id), st, card.get("pool", "")])
+			continue
+		live_b4 += 1
+	print("ROSTER_FILTER source=progress_menu._pool_roster + harness._pool_ids status not in hold/retired")
+	print("CINDER_RAW_INCLUDING_HOLD_RETIRED ", raw_b4, " LIVE_BANKABLE ", live_b4)
+	for line in hold_cinder:
+		print("EXCLUDED_CINDER ", line)
+	if hold_cinder.is_empty():
+		print("EXCLUDED_CINDER none")
+	var roster := _roster_totals()
+	var sum := 0
+	for k in roster.keys():
+		sum += int(roster[k])
+	print("LIVE_BANKABLE_ROSTER ", roster, " sum=", sum)
+
+
+func _git_full_sha() -> String:
+	var out: Array = []
+	if OS.execute("git", PackedStringArray(["rev-parse", "HEAD"]), out, true) == 0 and not out.is_empty():
+		return str(out[0]).strip_edges()
+	return ""
 
 
 func _soft_reset(reason: String) -> void:
@@ -238,6 +281,12 @@ func _fill_bank_except(except_id: String = "") -> Dictionary:
 ## --- A01 Tutorial handoff + seen persistence ---
 func _case_01_tutorial_handoff() -> void:
 	await _soft_reset("before tutorial")
+	## Fresh campaign + cabin recognition so N01 overview is not polluted by prior sandbox banks.
+	main._campaign.state = CAMPAIGN_SHELL.fresh_state()
+	main._campaign.write()
+	if main.home_cabin != null:
+		main.home_cabin.swiped.clear()
+		main.home_cabin.seen.clear()
 	main.in_tutorial = false
 	for id in main.items_by_id.keys():
 		main._tut_seen[str(id)] = true
@@ -266,7 +315,7 @@ func _case_01_tutorial_handoff() -> void:
 		"Tutorial complete. Tutorial items don't count toward collection progress."
 	)
 	await _shot("N01-tutorial-handoff.png")
-	## Persist / non-replay: dismiss then call again must not open a second tutorial ceremony.
+	## Adverse probe: second direct _road_finish_to_cabin call (not claimed as soft non-replay).
 	var second := false
 	if opened:
 		main.progress_menu.dismiss()
@@ -281,14 +330,48 @@ func _case_01_tutorial_handoff() -> void:
 				break
 		if second:
 			main.progress_menu.dismiss()
+			await create_timer(0.15).timeout
+	## Subsequent-run behavior: after tutorial_done, an ordinary win present must not be tutorial.
+	var later_kind := ""
+	var later_sum := ""
+	if main.home_cabin != null:
+		main.home_cabin.tutorial_done = true
+	await _present_settled(_payload_win([], [], "b1"))
+	if main.progress_menu != null and main.progress_menu.visible:
+		later_kind = str(main.progress_menu.get("_kind"))
+		later_sum = str(main.progress_menu.get("_summary").text) if main.progress_menu.get("_summary") else ""
+		main.progress_menu.dismiss()
+	var later_ok: bool = later_kind == "win" and later_kind != "tutorial"
+	print(
+		"TUTORIAL_ADVERSE second_direct_replay=%s subsequent_ordinary_kind=%s subsequent_ok=%s" % [
+			second, later_kind, later_ok
+		]
+	)
 	if main.get("_bucket_reveal") == null:
 		main.set("_bucket_reveal", saved_reveal)
 	if main.home_cabin != null and saved_cut != null:
 		main.home_cabin.set("_cutscene", saved_cut)
-	if opened and sum == want and kind == "tutorial" and not second:
-		_row("01", "PASS", "integration", "tutorial handoff kind=tutorial + non-replay after dismiss (synthetic call _road_finish_to_cabin)")
+	if opened and sum == want and kind == "tutorial" and second and later_ok:
+		_row(
+			"01",
+			"PARTIAL",
+			"integration",
+			"ADVERSE: second direct _road_finish_to_cabin reopens tutorial; subsequent ordinary win kind=win (not tutorial). Full in-dungeon tutorial still unautomated."
+		)
+	elif opened and sum == want and kind == "tutorial" and not second and later_ok:
+		_row(
+			"01",
+			"PASS",
+			"integration",
+			"tutorial handoff OK; second direct call did not replay; subsequent ordinary win kind=win"
+		)
 	elif opened and sum == want and kind == "tutorial":
-		_row("01", "PARTIAL", "integration", "handoff OK but replayed tutorial menu on second call")
+		_row(
+			"01",
+			"PARTIAL",
+			"integration",
+			"handoff OK; adverse second_replay=%s subsequent_kind=%s; full in-dungeon tutorial unautomated" % [second, later_kind]
+		)
 	elif opened:
 		_row("01", "PARTIAL", "fixture", "menu opened kind=%s sum mismatch; full in-dungeon tutorial still unautomated" % kind)
 	else:
@@ -401,9 +484,9 @@ func _case_11_checkpoint_with_haul() -> void:
 			left -= 0.05
 			paused = false
 	if leave_menu and (banked_a or banked_b or news_ok):
-		_row("11", "PASS", "integration", "Climb leave with haul %s/%s → menu; banked_a=%s banked_b=%s" % [haul_a, haul_b, banked_a, banked_b])
+		_row("11", "PASS", "integration", "Climb leave with haul %s/%s → menu; banked_a=%s banked_b=%s (integration route, not physical-input journey)" % [haul_a, haul_b, banked_a, banked_b])
 	elif leave_menu:
-		_row("11", "PARTIAL", "integration", "Head home menu opened but haul not banked/shown yet (timing); haul=%s,%s" % [haul_a, haul_b])
+		_row("11", "PARTIAL", "integration", "Head home menu opened but haul not banked/shown yet (timing); haul=%s,%s (integration, not physical-input)" % [haul_a, haul_b])
 	else:
 		_row("11", "NOTRUN", "integration", "Head home menu failed with haul")
 	await _soft_reset("after checkpoint")
@@ -476,7 +559,7 @@ func _case_12_push_with_haul() -> void:
 		settle_left -= 0.05
 		paused = false
 	if can_push and via == "rope_deeper" and pool_now == "b2" and still_held:
-		_row("12", "PASS", "integration", "Push/_rope_deeper → Crystal; haul %s still carried (risk preserved, not banked on Push)" % haul)
+		_row("12", "PASS", "integration", "Push/_rope_deeper → Crystal; haul %s still carried (risk preserved, not banked on Push; integration route, not physical-input journey)" % haul)
 	elif can_push and pool_now == "b2":
 		_row("12", "PARTIAL", "integration", "Push reached b2 but haul held=%s splash=%s" % [still_held, splash != null])
 	else:
@@ -638,25 +721,32 @@ func _case_21_last_biome_bank_ceremony() -> void:
 ## --- A22 Final clear distinct event ---
 func _case_22_final_clear_event() -> void:
 	await _soft_reset("before final victory")
-	## Authoritative: bank to unlock endless via cabinets_complete while playing b5.
+	## Independence probe: b5 win return WITHOUT cabinets_complete and WITHOUT full roster.
+	## Production durable won/endless currently comes only from cabinets_complete inside bank().
 	var state: Dictionary = CAMPAIGN_SHELL.fresh_state()
 	for pool in ["b1", "b2", "b3", "b4", "b5"]:
 		var ids: Array = _pool_ids(pool)
-		for i in mini(5, ids.size()):
+		## Keep short of quota 5 so cabinets_complete is false.
+		for i in mini(2, ids.size()):
 			state["banked"][str(ids[i])] = pool
 	CAMPAIGN_SHELL.normalize(state)
-	var before_end: bool = bool(state.get("endless_unlocked", false))
-	## Force bank evaluation — cabinets_complete should set endless_unlocked.
+	var cabinets_done: bool = CAMPAIGN_SHELL.cabinets_complete(main._campaign.rules, state)
+	var roster := _roster_totals()
+	var roster_done: bool = JOURNEY.roster_complete(state, main._campaign.rules, roster)
+	var before_end: bool = bool(state.get("endless_unlocked", false)) or bool(state.get("won", false))
+	## Empty bank eval must not invent win while cabinets incomplete.
 	var chk: Dictionary = CAMPAIGN_SHELL.bank(main._campaign.rules, state, [], {})
-	var endless_now: bool = bool(state.get("endless_unlocked", false)) or bool(chk.get("win", false))
-	if not endless_now and CAMPAIGN_SHELL.cabinets_complete(main._campaign.rules, state):
-		state["endless_unlocked"] = true
-		state["won"] = true
-		endless_now = true
+	var endless_after_bank: bool = bool(state.get("endless_unlocked", false)) or bool(chk.get("win", false))
 	main._campaign.state = state
 	main._campaign.write()
+	if main.home_cabin != null:
+		main.home_cabin.swiped.clear()
+		main.home_cabin.seen.clear()
+		for sid in state["banked"].keys():
+			main.home_cabin.swiped[str(sid)] = true
+			main.home_cabin.seen[str(sid)] = true
 	var payload := _payload_win([], [], "b5")
-	payload["played_name"] = "Shadow Abyss"
+	payload["played_name"] = CAMPAIGN_SHELL.biome_name(main._campaign.rules, "b5")
 	payload["state"] = state
 	await _present_settled(payload)
 	var menu = main.progress_menu
@@ -665,18 +755,41 @@ func _case_22_final_clear_event() -> void:
 	await process_frame
 	var sum: String = str(menu.get("_summary").text) if menu.get("_summary") else ""
 	var blob: String = _collect_labels(menu.get("_overview_box"))
-	## No approved distinct final-clear summary key — record COPY_GAP, assert flag.
+	var ordinary := PLAYER_COPY.text(
+		"postrun.summary.success_none",
+		"Made it home. No new item types added."
+	)
 	var has_distinct_copy := false
 	for key in ["postrun.summary.final_clear", "postrun.summary.shadow_clear", "postrun.milestone.final_clear"]:
 		if PLAYER_COPY.has_key(key):
 			has_distinct_copy = true
+	var full_line := blob.find("Full collection") >= 0
+	print(
+		"N07_INDEPENDENCE cabinets_complete=%s roster_complete=%s endless=%s won=%s sum=%s full_line=%s distinct_copy=%s" % [
+			cabinets_done, roster_done, endless_after_bank, state.get("won", false), sum, full_line, has_distinct_copy
+		]
+	)
 	await _shot("N07-final-dungeon-victory.png")
-	if endless_now and not before_end and sum != "" and not has_distinct_copy:
-		_row("22", "PARTIAL", "integration", "final-clear flag endless_unlocked/won via cabinets_complete; UI still ordinary Made-it-home — COPY_GAP no approved distinct final-clear summary")
-	elif endless_now and has_distinct_copy:
-		_row("22", "PASS", "integration", "final-clear flag + distinct approved copy present sum=%s" % sum)
+	## Honest ceiling: visible return is ordinary Made-it-home; no distinct approved final-clear copy;
+	## durable win flag is NOT independent of cabinets_complete in current production code.
+	if (not cabinets_done) and (not roster_done) and (not before_end) and (not endless_after_bank) and sum == ordinary and (not full_line) and (not has_distinct_copy):
+		_row(
+			"22",
+			"PARTIAL",
+			"integration",
+			"N07 ordinary Made-it-home on b5 with cabinets_complete=false and roster incomplete; no Full collection. Durable won/endless only via cabinets_complete in bank() — no independent final-dungeon-clear trigger. COPY_GAP: no approved distinct final-clear summary."
+		)
+	elif has_distinct_copy and endless_after_bank and not cabinets_done:
+		_row("22", "PASS", "integration", "independent final-clear flag + distinct approved copy sum=%s" % sum)
 	else:
-		_row("22", "NOTRUN", "integration", "final-clear flag missing endless=%s blob=%s" % [endless_now, blob.substr(0, 80)])
+		_row(
+			"22",
+			"PARTIAL",
+			"integration",
+			"final-clear independence probe cabinets=%s roster=%s endless=%s sum=%s full=%s COPY_GAP=%s" % [
+				cabinets_done, roster_done, endless_after_bank, sum, full_line, not has_distinct_copy
+			]
+		)
 	await _soft_reset("after final victory")
 
 
@@ -762,13 +875,16 @@ func _case_23_full_collection_boundary() -> void:
 	menu.dismiss()
 	await process_frame
 
-	## --- Positive: bank the last missing → full roster ---
+	## --- Positive: authoritative final-item bank → save → reload → boundary once ---
+	## Must NOT inject collection_complete; milestone must come from milestones_from_bank.
 	var before_pos: Dictionary = after_neg.duplicate(true)
 	var after_pos: Dictionary = before_pos.duplicate(true)
 	var pool_miss: String = str(main._campaign_pool_of_item(missing))
 	if pool_miss == "":
 		pool_miss = "b4"
-	CAMPAIGN_SHELL.bank(main._campaign.rules, after_pos, [missing], {missing: pool_miss})
+	var bank_pos: Dictionary = CAMPAIGN_SHELL.bank(
+		main._campaign.rules, after_pos, [missing], {missing: pool_miss}
+	)
 	var ms_pos: Array = JOURNEY.milestones_from_bank(
 		main._campaign.rules, before_pos, after_pos, [pool_miss], roster
 	)
@@ -778,15 +894,25 @@ func _case_23_full_collection_boundary() -> void:
 			pos_ms = true
 	main._campaign.state = after_pos
 	main._campaign.write()
+	## Save/reload: wipe in-memory state, then load_all from user://campaign_save.json.
+	main._campaign.state = CAMPAIGN_SHELL.fresh_state()
+	main._campaign.load_all()
+	var reloaded: Dictionary = main._campaign.state
+	var reload_has_last: bool = reloaded.get("banked", {}).has(missing)
+	var reload_n: int = (reloaded.get("banked", {}) as Dictionary).size()
+	print(
+		"N08_BANK_RELOAD added=%s has_last=%s banked_n=%s pos_ms_native=%s" % [
+			bank_pos.get("added", []), reload_has_last, reload_n, pos_ms
+		]
+	)
 	if main.home_cabin != null:
 		main.home_cabin.swiped.clear()
 		main.home_cabin.seen.clear()
-		for sid in after_pos["banked"].keys():
+		for sid in reloaded.get("banked", {}).keys():
 			main.home_cabin.swiped[str(sid)] = true
 			main.home_cabin.seen[str(sid)] = true
-	## Critical: do NOT put the last id in new_ids unrevealed — that undercounts overview
-	## and previously painted Full collection at 65/67. Settled complete state only.
-	await _present_settled(_payload_win([], ms_pos, "b5"))
+	## Settled complete state only (no unrevealed new_ids). Milestones = bank-event native list.
+	await _present_settled(_payload_win([], ms_pos, pool_miss))
 	menu = main.progress_menu
 	menu.call("_show_panel", 0)
 	menu.call("_rebuild_overview")
@@ -794,7 +920,7 @@ func _case_23_full_collection_boundary() -> void:
 	var blob_pos := _collect_labels(menu.get("_overview_box"))
 	var tot_pos: Vector2i = _parse_overall_total(blob_pos)
 	var pos_ui := blob_pos.find("Full collection") >= 0
-	print("N08 UI totals=", tot_pos, " full_line=", pos_ui, " ms=", pos_ms, " banked=", after_pos["banked"].size())
+	print("N08 UI totals=", tot_pos, " full_line=", pos_ui, " ms=", pos_ms, " banked=", reload_n)
 	## Hard stop: never keep an N08 that shows Full collection while totals are short.
 	var pos_totals_ok: bool = tot_pos.x > 0 and tot_pos.x == tot_pos.y and tot_pos.y == total
 	if pos_ui and not pos_totals_ok:
@@ -809,20 +935,43 @@ func _case_23_full_collection_boundary() -> void:
 		await _soft_reset("after inheritance")
 		return
 	await _shot("N08-inheritance-handoff.png")
-	var ms_rep: Array = JOURNEY.milestones_from_bank(main._campaign.rules, after_pos, after_pos, [], roster)
+	menu.dismiss()
+	await process_frame
+	## Neutral once: same saved state must not re-emit collection_complete.
+	var ms_rep: Array = JOURNEY.milestones_from_bank(
+		main._campaign.rules, reloaded, reloaded, [], roster
+	)
 	var replay := false
 	for raw3 in ms_rep:
 		if str((raw3 as Dictionary).get("kind", "")) == "collection_complete":
 			replay = true
+	await _present_settled(_payload_win([], ms_rep, pool_miss))
+	menu = main.progress_menu
+	menu.call("_show_panel", 0)
+	menu.call("_rebuild_overview")
+	await process_frame
+	var blob_rep := _collect_labels(menu.get("_overview_box"))
+	var rep_ui := blob_rep.find("Full collection") >= 0
+	print("N08_REPLAY ms_replay=%s ui_full=%s" % [replay, rep_ui])
+	if menu.visible:
+		menu.dismiss()
 
 	var neg_ok: bool = (not neg_ms_native) and (not neg_ui_complete) and tot_neg.x >= 0 and tot_neg.x < tot_neg.y
-	var pos_ok: bool = pos_ms and pos_ui and pos_totals_ok and not replay
+	var pos_ok: bool = (
+		pos_ms
+		and pos_ui
+		and pos_totals_ok
+		and reload_has_last
+		and reload_n == total
+		and not replay
+		and not rep_ui
+	)
 	if neg_ok and pos_ok:
 		_row(
 			"23",
 			"PASS",
 			"integration",
-			"neg UI %s/%s no Full collection (injected suppressed); pos UI %s/%s Full collection once; no replay" % [
+			"neg UI %s/%s no Full collection (injected suppressed); pos bank→save→reload→UI %s/%s Full collection once (native ms); no replay" % [
 				tot_neg.x, tot_neg.y, tot_pos.x, tot_pos.y
 			]
 		)
@@ -833,8 +982,9 @@ func _case_23_full_collection_boundary() -> void:
 			"23",
 			"FAIL",
 			"integration",
-			"boundary fail neg_ui=%s/%s full=%s native=%s | pos_ui=%s/%s full=%s ms=%s replay=%s" % [
-				tot_neg.x, tot_neg.y, neg_ui_complete, neg_ms_native, tot_pos.x, tot_pos.y, pos_ui, pos_ms, replay
+			"boundary fail neg_ui=%s/%s full=%s native=%s | pos_ui=%s/%s full=%s ms=%s reload=%s/%s replay_ms=%s replay_ui=%s" % [
+				tot_neg.x, tot_neg.y, neg_ui_complete, neg_ms_native,
+				tot_pos.x, tot_pos.y, pos_ui, pos_ms, reload_has_last, reload_n, replay, rep_ui
 			]
 		)
 	await _soft_reset("after inheritance")
