@@ -7396,7 +7396,7 @@
 			}
 		},
 		{
-			"ability": "When you Defeat any other enemy, I Bag it for you. When you Discard an item without Using it, I lose 2 HP.",
+			"ability": "When you Defeat any other enemy, I Bag it for you and lose 3 HP.",
 			"atk_base": 7.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -7404,13 +7404,13 @@
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "Defeat other: Bag at pre-lethal HP. Discard without Use: I lose 2 HP",
+			"explainer": "Defeat other: Bag at pre-lethal HP; I lose 3 HP",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "Bag any other defeated enemy at pre-lethal HP (Bag of Holding–style into hotbar); Defeat still resolves; never Bags self. Discard without Use (Decay, Spider Queen eggs, over-capacity, etc.) → Collector −2 HP each. Using an item is not a harming Discard. Quiet Bell turns this off.",
+			"flow": "Bag any other defeated enemy at pre-lethal HP (Bag of Holding–style into hotbar); Defeat still resolves; never Bags self. After Bagging, I lose 3 HP. Quiet Bell turns this off. Discard without Use no longer harms me.",
 			"hp_base": 15.0,
 			"hp_formula": "",
 			"id": "collector",
@@ -7436,10 +7436,10 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Defeat other→Bag; Discard no-Use: −2 HP",
+			"log_hint": "Defeat other→Bag; Collector −3 HP",
 			"mode_pool": "all",
 			"name": "Collector",
-			"notes": "Monster4 2026-11-06 Pixel art (still C + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Combat live 2026-11-06 — New Specimen Bag-on-Defeat (pre-lethal); Discard-without-Use −2 HP.",
+			"notes": "Monster4 2026-11-06 Pixel art (still C + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Combat live 2026-11-06 — New Specimen Bag-on-Defeat (pre-lethal). Balance Nov8 — Bag costs Collector −3 HP; discard tax removed.",
 			"ops": {},
 			"pool": 5.0,
 			"priority": 3.0,
@@ -7457,5 +7457,5 @@
 			}
 		}
 	],
-	"updated": "2026-11-08T08:34:47Z"
+	"updated": "2026-11-08T09:09:42Z"
 }

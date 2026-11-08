@@ -271,7 +271,7 @@ const MONSTER_SPECIAL := {
 	"huntsman": {"id": "straight_shot", "text": "When the monster Across from me Attacks you, I also Attack once after that multiattack ends."},
 	"quicksand_crab": {"id": "sink_charge", "text": "When you Move, I lose 2 HP per step after resolve. When you Spin me, Gain 1 Move."},
 	"phantom": {"id": "dark_matter", "text": "When you use a non-Shrouded Item, I Shroud one of your Items"},
-	"collector": {"id": "new_specimen", "text": "When you Defeat any other enemy, I Bag it. When you Discard an item without Using it, I lose 2 HP."},
+	"collector": {"id": "new_specimen", "text": "When you Defeat any other enemy, I Bag it for you and lose 3 HP."},
 }
 
 const MONSTER_CALL := {
@@ -393,7 +393,7 @@ const MONSTER_REMINDER := {
 	"huntsman": "Across Attacks you: I also Attack once after multiattacks",
 	"quicksand_crab": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move.",
 	"phantom": "Non-Shrouded Use: Shroud one other item and move it to the end. It stays Shrouded until you use it.",
-	"collector": "Defeat other: Bag at pre-lethal HP. Discard without Use: −2 HP",
+	"collector": "Defeat other: Bag at pre-lethal HP; I lose 3 HP",
 }
 
 const MONSTER_SPEECH := {
@@ -452,7 +452,7 @@ const MONSTER_SPEECH := {
 	"huntsman": "When the monster Across from me Attacks you, I also Attack.",
 	"quicksand_crab": "When you Move, I lose 2 HP. When you Spin me, you Gain 1 Move.",
 	"phantom": "When you use a non-Shrouded Item, I Shroud one of your Items",
-	"collector": "When you Defeat any other enemy, I Bag it for you. When you Discard an item without Using it, I lose 2 HP.",
+	"collector": "When you Defeat any other enemy, I Bag it for you and lose 3 HP.",
 }
 
 var catalog: Dictionary = {}
@@ -5803,8 +5803,6 @@ func _challenge_discard_one(uid: int) -> void:
 		if sfx:
 			sfx.play_event(&"chal.discard")
 		_hotbar_sig = ""
-		if bool(refused.get("collector_specimen", false)):
-			await _collector_discard_tax()
 		_challenge_loot_wait = false
 		_refresh()
 		return
@@ -11999,8 +11997,6 @@ func _toss_item(uid: int, keep: bool, slow: bool = false, formula_fx: bool = tru
 		keep = false
 	var snap: Dictionary = _find_item(uid).duplicate(true) if not keep else {}
 	var card_from: Vector2 = _item_card_global(uid)
-	## Collector: Discard without Using taxes −2 HP each. Using is not a tax.
-	var tax_discard: bool = (not keep) and (not played)
 	var bar_card: Control = null
 	for c in _hotbar_all_cards():
 		if not c.has_method("toss"):
@@ -12038,8 +12034,6 @@ func _toss_item(uid: int, keep: bool, slow: bool = false, formula_fx: bool = tru
 		if not snap.is_empty():
 			_recycle_after_gone(snap)
 		_sync_wheel_stats()
-	if tax_discard:
-		await _collector_discard_tax()
 	if formula_fx:
 		await _echo_bandits(card_from)
 
@@ -20209,6 +20203,7 @@ func _collector_alive_indices(except: int = -1) -> Array[int]:
 
 
 ## Bag a defeated OTHER enemy at pre-lethal HP (Bag of Holding peer into hotbar).
+## Each living Collector then loses 3 HP. No discard-without-Use tax.
 func _collector_bag_defeated(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
@@ -20226,6 +20221,7 @@ func _collector_bag_defeated(index: int) -> void:
 		pre = maxi(1, int(m.get("hp_max", 1)))
 	for _ci in collectors:
 		await _collector_spawn_bag(m, pre)
+	await _collector_bag_self_cost(collectors)
 
 
 func _collector_spawn_bag(m: Dictionary, pre_hp: int) -> void:
@@ -20242,8 +20238,8 @@ func _collector_spawn_bag(m: Dictionary, pre_hp: int) -> void:
 	if _hand_full():
 		if not _start_full_hand_replace(it):
 			return
-		## The throw finishes, including his 2 HP slash, before the seat,
-		## the draft, or a spin.
+		## The throw finishes before the seat, the draft, or a spin.
+		## Collector no longer taxes Discard-without-Use on that throw.
 		var token: int = _undo_gen
 		while _challenge_loot_wait and is_instance_valid(self):
 			if _undo_stale(token) or hp <= 0:
@@ -20264,9 +20260,8 @@ func _collector_spawn_bag(m: Dictionary, pre_hp: int) -> void:
 		sfx.play_event(&"hand.gain", {"card_id": "bag_of_holding"})
 
 
-## Discard without Using → each living Collector loses 2 HP.
-func _collector_discard_tax() -> void:
-	var collectors: Array[int] = _collector_alive_indices()
+## After Bagging another Defeat, each living Collector loses 3 HP.
+func _collector_bag_self_cost(collectors: Array[int]) -> void:
 	if collectors.is_empty():
 		return
 	_sfx_ability("collector_tax")
@@ -20278,13 +20273,13 @@ func _collector_discard_tax() -> void:
 		if _is_silenced(wheel[ci]) or int(wheel[ci].get("hp", 0)) <= 0:
 			continue
 		var before_hp: int = int(wheel[ci].get("hp", 0))
-		_log("on_resolve", "Collector −2 HP (discard without Use)")
+		_log("on_resolve", "Collector −3 HP (New Specimen)")
 		await _announce_slice(ci, _slice_hp_pos(ci))
 		if ci < 0 or ci >= wheel.size():
 			continue
 		if str(wheel[ci].get("card_id", "")) != "collector":
 			continue
-		await _chip_hp(ci, 2)
+		await _chip_hp(ci, 3)
 		if ci < 0 or ci >= wheel.size():
 			continue
 		var delta: int = int(wheel[ci].get("hp", 0)) - before_hp
