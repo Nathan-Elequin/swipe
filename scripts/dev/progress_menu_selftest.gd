@@ -113,6 +113,14 @@ func _run() -> void:
 		(not bool(stamped2.get("first", true))) and (state.get("map_pieces", []) as Array).size() == 1,
 		"stamp2=%s pieces=%s" % [stamped2, state.get("map_pieces", [])]
 	) or _failed
+	CAMPAIGN_SHELL.clear_pencil_fresh(state)
+	var stamped3: Dictionary = CAMPAIGN_SHELL.stamp_map_piece(rules, state, "b1")
+	_failed = _assert(
+		"SCRAP.no_remark_after_clear",
+		"owned piece re-stamp after clear_pencil does not re-mark fresh",
+		(state.get("pencil_fresh", []) as Array).is_empty() and not bool(stamped3.get("first", true)),
+		"fresh=%s stamp3=%s" % [state.get("pencil_fresh", []), stamped3]
+	) or _failed
 
 	## --- Present returns result; early start acks all ---
 	_acked.clear()
@@ -145,8 +153,8 @@ func _run() -> void:
 	await _wait_present_done(3.0)
 	_failed = _assert(
 		"UI.early_start_acks",
-		"early Start New Run acks all new ids",
-		_acked.has("net") and _acked.has("sai"),
+		"early Start New Run acks all new ids once (raw count)",
+		_acked.count("net") == 1 and _acked.count("sai") == 1 and _acked.size() == 2,
 		"acked=%s" % str(_acked)
 	) or _failed
 	_failed = _assert(
@@ -156,7 +164,7 @@ func _run() -> void:
 		"result=%s" % _last_result
 	) or _failed
 
-	## Tutorial kind only when tutorial; declined uses win/none path in main (static).
+	## Tutorial complete vs skipped copy.
 	_present_done = false
 	_kick_present({
 		"kind": "tutorial",
@@ -181,6 +189,34 @@ func _run() -> void:
 		"got=%s" % (summary.text if summary else "")
 	) or _failed
 	_menu.call("_on_cabin")
+	await _wait_present_done(2.0)
+
+	_present_done = false
+	_kick_present({
+		"kind": "tutorial_skipped",
+		"new_ids": [],
+		"held_ids": [],
+		"played_pool": "b1",
+		"played_name": "Verdant Hollow",
+		"items_by_id": items,
+		"tex_by_item": {},
+		"swiped": {},
+		"rules": rules,
+		"state": CAMPAIGN_SHELL.fresh_state(),
+		"push_block": false,
+		"tutorial": false,
+	})
+	await create_timer(0.25).timeout
+	summary = _menu.get("_summary")
+	_failed = _assert(
+		"UI.tutorial_skipped_copy",
+		"tutorial_skipped uses Spin key — not success_none",
+		summary != null
+		and str(summary.text) == PLAYER_COPY.text("postrun.summary.tutorial_skipped", "Tutorial skipped.")
+		and str(summary.text) != PLAYER_COPY.text("postrun.summary.success_none", ""),
+		"got=%s" % (summary.text if summary else "")
+	) or _failed
+	_menu.dismiss()
 	await _wait_present_done(2.0)
 
 	## Loss still walks Overview→Collection→Next (played area shown).
@@ -262,7 +298,7 @@ func _run() -> void:
 	_failed = _static(
 		"STATIC.tutorial_declined_not_complete_copy",
 		"declined tutorial does not open kind=tutorial",
-		main_src.find('var tut_kind := "win" if declined else "tutorial"') >= 0,
+		main_src.find('var tut_kind := "tutorial_skipped" if declined else "tutorial"') >= 0,
 		""
 	) or _failed
 	_failed = _static(
@@ -273,15 +309,15 @@ func _run() -> void:
 		""
 	) or _failed
 
-	var flag_note := "Missing Spin key postrun.collection.item_collected; tutorial-skip summary flagged in main."
+	var flag_note := "Missing Spin overallCollection/postrun.collection.overall aggregate key — flagged, not invented."
 	_rows.append({"kind": "NOTE", "id": "NOTE.flag_collected_copy", "ok": true, "detail": flag_note})
 	print("NOTE NOTE.flag_collected_copy — %s" % flag_note)
 	_finish()
 
 
 func _on_ack(id: String) -> void:
-	if not _acked.has(id):
-		_acked.append(id)
+	## Raw invocation list — do not dedupe (tests double-ack).
+	_acked.append(id)
 
 
 func _kick_present(payload: Dictionary) -> void:

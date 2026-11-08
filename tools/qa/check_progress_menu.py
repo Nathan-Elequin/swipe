@@ -97,8 +97,8 @@ def main() -> int:
     }
     for k, text in EXPECTED.items():
         ok(f"csv.{k}", csv_keys.get(k) == text, f"got={csv_keys.get(k)!r}")
-    ok("copy.postrun_count_27", len([k for k in keys if k.startswith("postrun.")]) == 27)
-    ok("csv.postrun_count_27", len(csv_keys) == 27)
+    ok("copy.postrun_count_29", len([k for k in keys if k.startswith("postrun.")]) == 29)
+    ok("csv.postrun_count_29", len(csv_keys) == 29)
 
     menu = read("scripts/ui/progress_menu.gd")
     main_gd = read("scripts/main.gd")
@@ -126,8 +126,22 @@ def main() -> int:
     ok("main.routes_loss", '_open_progress_menu("loss"' in main_gd)
     ok(
         "main.routes_tutorial",
-        'tut_kind := "win" if declined else "tutorial"' in main_gd
+        'tut_kind := "tutorial_skipped" if declined else "tutorial"' in main_gd
         and "_open_progress_menu(tut_kind" in main_gd,
+    )
+    ok(
+        "copy.tutorial_skipped",
+        "postrun.summary.tutorial_skipped" in json.dumps(copy)
+        and "Tutorial skipped." in json.dumps(copy),
+    )
+    ok(
+        "copy.item_collected",
+        "postrun.collection.item_collected" in json.dumps(copy)
+        and "Collected" in json.dumps(copy),
+    )
+    ok(
+        "main.start_wipe_reveal",
+        "await _begin_campaign_delve(idx, idx > 0, false, null, true)" in main_gd,
     )
     ok(
         "main.push_block_flag",
@@ -158,7 +172,7 @@ def main() -> int:
     )
     ok(
         "main.tutorial_declined_kind",
-        'tut_kind := "win" if declined else "tutorial"' in main_gd,
+        'tut_kind := "tutorial_skipped" if declined else "tutorial"' in main_gd,
     )
 
     ok("cabin.progress_menu_meta_gate", "progress_menu_handled_return" in cabin)

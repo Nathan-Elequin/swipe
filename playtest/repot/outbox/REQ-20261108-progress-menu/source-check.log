@@ -1,0 +1,96 @@
+KIND source-only (Godot runtime not invoked by this script)
+PASS  copy.postrun.title  (got='Run Results')
+PASS  copy.postrun.tab.overview  (got='Overview')
+PASS  copy.postrun.tab.collection  (got='Collection')
+PASS  copy.postrun.tab.next_target  (got='Next Goal')
+PASS  copy.postrun.skip  (got='Skip Recap')
+PASS  copy.postrun.next  (got='Next')
+PASS  copy.postrun.cabin  (got='Visit Cabin')
+PASS  copy.postrun.new_run  (got='New Run')
+PASS  copy.postrun.summary.success_new  (got='New item types added: {count}.')
+PASS  copy.postrun.summary.success_none  (got='Made it home. No new item types added.')
+PASS  copy.postrun.summary.death  (got='Run ended in {area}. No collection progress from this return.')
+PASS  copy.postrun.summary.tutorial  (got="Tutorial complete. Tutorial items don't count toward collection progress.")
+PASS  copy.postrun.collection.area_count  (got='{area} collection: {count}/{total}')
+PASS  copy.postrun.collection.item_missing  (got='Not yet collected')
+PASS  copy.postrun.collection.item_new  (got='New!')
+PASS  copy.postrun.collection.area_locked  (got='Locked')
+PASS  copy.postrun.requirement.bring_home  (got='Bring home {required} different item types from {area} to unlock {destination}.')
+PASS  copy.postrun.requirement.verdant  (got="Bring home 5 different item types from successful Verdant Hollow runs to open the way deeper. They don't all have to come home together.")
+PASS  copy.postrun.requirement.met  (got='{destination} unlocked')
+PASS  copy.postrun.next_target.prompt  (got='Next goal: {destination}')
+PASS  copy.postrun.next_target.progress  (got='Progress: {count}/{required} different item types')
+PASS  copy.postrun.destination.route  (got='Reach {destination} by starting in {start_area} and continuing during the same run.')
+PASS  copy.postrun.shortcut.requirement  (got='Unlock {required_area} to start new runs in {start_area}.')
+PASS  copy.postrun.shortcut.unlocked  (got='New starting point: {start_area}')
+PASS  copy.postrun.button.start_at  (got='Start New Run in {start_area}')
+PASS  copy.postrun.button.start_default  (got='Start New Run')
+PASS  copy.postrun.hand_note  (got='Each new run starts with 6 random items from unlocked pools.')
+PASS  csv.postrun.title  (got='Run Results')
+PASS  csv.postrun.tab.overview  (got='Overview')
+PASS  csv.postrun.tab.collection  (got='Collection')
+PASS  csv.postrun.tab.next_target  (got='Next Goal')
+PASS  csv.postrun.skip  (got='Skip Recap')
+PASS  csv.postrun.next  (got='Next')
+PASS  csv.postrun.cabin  (got='Visit Cabin')
+PASS  csv.postrun.new_run  (got='New Run')
+PASS  csv.postrun.summary.success_new  (got='New item types added: {count}.')
+PASS  csv.postrun.summary.success_none  (got='Made it home. No new item types added.')
+PASS  csv.postrun.summary.death  (got='Run ended in {area}. No collection progress from this return.')
+PASS  csv.postrun.summary.tutorial  (got="Tutorial complete. Tutorial items don't count toward collection progress.")
+PASS  csv.postrun.collection.area_count  (got='{area} collection: {count}/{total}')
+PASS  csv.postrun.collection.item_missing  (got='Not yet collected')
+PASS  csv.postrun.collection.item_new  (got='New!')
+PASS  csv.postrun.collection.area_locked  (got='Locked')
+PASS  csv.postrun.requirement.bring_home  (got='Bring home {required} different item types from {area} to unlock {destination}.')
+PASS  csv.postrun.requirement.verdant  (got="Bring home 5 different item types from successful Verdant Hollow runs to open the way deeper. They don't all have to come home together.")
+PASS  csv.postrun.requirement.met  (got='{destination} unlocked')
+PASS  csv.postrun.next_target.prompt  (got='Next goal: {destination}')
+PASS  csv.postrun.next_target.progress  (got='Progress: {count}/{required} different item types')
+PASS  csv.postrun.destination.route  (got='Reach {destination} by starting in {start_area} and continuing during the same run.')
+PASS  csv.postrun.shortcut.requirement  (got='Unlock {required_area} to start new runs in {start_area}.')
+PASS  csv.postrun.shortcut.unlocked  (got='New starting point: {start_area}')
+PASS  csv.postrun.button.start_at  (got='Start New Run in {start_area}')
+PASS  csv.postrun.button.start_default  (got='Start New Run')
+PASS  csv.postrun.hand_note  (got='Each new run starts with 6 random items from unlocked pools.')
+PASS  copy.postrun_count_29
+PASS  csv.postrun_count_29
+PASS  menu.script_exists
+PASS  menu.uses_player_copy
+PASS  menu.can_start_gate
+PASS  menu.no_continue_run_button
+PASS  menu.route_not_button
+PASS  menu.hand_note_gated
+PASS  menu.no_all_goals_complete_invent
+PASS  menu.await_closed
+PASS  menu.skip_acks
+PASS  menu.stagger
+PASS  menu.attribution
+PASS  menu.result_handoff
+PASS  menu.no_redundant_new_run_footer
+PASS  menu.keyboard_focus
+PASS  main.progress_menu_const
+PASS  main.open_helper
+PASS  main.routes_win
+PASS  main.routes_loss
+PASS  main.routes_tutorial
+PASS  copy.tutorial_skipped
+PASS  copy.item_collected
+PASS  main.start_wipe_reveal
+PASS  main.push_block_flag
+PASS  main.tutorial_zero_credit
+PASS  main.no_auto_s7_on_leave
+PASS  main.quiet_stamp_on_leave  (leave stamps past-quota (deferred); push-block does not)
+PASS  main.finalize_handoff
+PASS  main.tutorial_declined_kind
+PASS  cabin.progress_menu_meta_gate
+PASS  cabin.resume_respects_meta
+PASS  shell.starter_mix_default
+PASS  shell.can_start_exists
+PASS  shell.shortcut_open_exists
+PASS  docs.screen
+PASS  docs.req
+PASS  docs.old_superseded
+
+92 passed, 0 failed
+PROGRESS_MENU_OK

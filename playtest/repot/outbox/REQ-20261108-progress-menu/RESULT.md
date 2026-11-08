@@ -1,28 +1,35 @@
-# REQ-20261108 progress menu — shot labels
+# REQ-20261108 progress menu — acceptance receipt
 
-**Head at capture:** see branch tip after push.
+**Capture / validation head:** filled at push time (see `SHA=` lines in logs below).
 
-## Labels (do not confuse)
+## Shot labels
 
 | Prefix | Meaning |
 |--------|---------|
-| `FIXTURE-*` | Synthetic/example roster (small set). **Not** catalog acceptance. |
-| `CATALOG-*` | Full catalog-driven acceptance stills (real `data/catalog.json` + `dungeon_art` Nearest icons). |
+| `FIXTURE-*` | Synthetic/example roster only — **not** catalog acceptance |
+| `CATALOG-*` | Full catalog + `dungeon_art` Nearest icons — Pixel first-pass candidate (not installed/accepted) |
 
-## Acceptance shots (CATALOG)
+### CATALOG paths
 
-- `shots/CATALOG-01-collection-b1.png` — Collection tab, Verdant Hollow full roster + icons, area `collection: count/total`
-- `shots/CATALOG-02-next-goal.png` — Next Goal with requirement + primary Start New Run (no redundant New Run)
-- `shots/CATALOG-03-overview.png` — Overview with locked-area requirement lines
-- `shots/CATALOG-04-death.png` — Death return still walks Collection
-- `shots/CATALOG-05-tutorial.png` — Completed-tutorial summary only
+- `playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-01-collection-b1.png`
+- `playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-02-next-goal.png`
+- `playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-03-overview.png`
+- `playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-04-death.png`
+- `playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-05-tutorial.png`
 
-## Fixture shots (example only)
+## Logs (raw)
 
-- `shots/FIXTURE-01-win-collection.png`
-- `shots/FIXTURE-02-next-goal.png`
+- `source-check.log` — `PROGRESS_MENU_OK`
+- `selftest.log` / `selftest.runner.log` — `PROGRESS_MENU_CEREMONY_OK`
+- `main-routes.log` / `main-routes.receipt.log` — `PROGRESS_MENU_MAIN_ROUTES_OK` (bounded main.tscn)
+- `banking-head.log` — head banking totals (not green; ATTR/L1 catalog-vs-suite)
+- `banking-base-3a4be900.log` — base comparison (worse assert fail count)
 
-## Flags for Spin
+## Flags
 
-- Missing `postrun.collection.item_collected` (collected non-new detail left blank)
-- Missing dedicated tutorial-Skip/decline summary (uses `success_none` + warning)
+- Missing Spin overallCollection / `postrun.collection.overall` — Overview flags; no invented aggregate
+- UNCOVERED: full nest/arm delve settle after Start; live Leave hotbar bank; mid-menu disk reload
+
+## Hold
+
+No merge. Pixel first-pass sent to Nathan; source re-review ongoing.

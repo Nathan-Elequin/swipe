@@ -1,0 +1,194 @@
+===== progress_menu_main_routes SHA=c877a17f444f8ce04fa14530f638927a64f2f0c7 exit=0 =====
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:372)
+OpenGL API 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 20.1.2, 256 bits)
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5731:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+ERROR: Condition "status < 0" is true. Returning: ERR_CANT_OPEN
+   at: init_output_device (drivers/alsa/audio_driver_alsa.cpp:97)
+WARNING: All audio drivers failed, falling back to the dummy driver.
+     at: initialize (servers/audio/audio_server.cpp:258)
+
+USER_DATA=/tmp/progress-menu-main.pAlvPy/progress-menu-main/xdg-data/godot/app_userdata/Spinheritance
+PROGRESS_MENU_MAIN_ROUTES_SHA see-runner
+[audio] setup reason=boot bed=title playing=false
+[audio] start reason=music_to bed=title playing=false
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+PASS ASSERT BOOT.main — Main + progress_menu + campaign ready
+PASS ASSERT R1.wipe_out — dissolve_out leaves opaque wipe
+WARNING: postrun.collection.overall / overallCollection missing — no invented aggregate
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _rebuild_overview (res://scripts/ui/progress_menu.gd:468)
+         [1] present (res://scripts/ui/progress_menu.gd:302)
+         [2] _open_progress_menu (res://scripts/main.gd:3759)
+         [3] <anonymous lambda> (res://scripts/dev/progress_menu_main_routes.gd:118)
+         [4] _case_win_start_wipe_clear (res://scripts/dev/progress_menu_main_routes.gd:120)
+         [5] _biome_dissolve_out (res://scripts/main.gd:3195)
+PASS ASSERT R1.menu_open — progress menu open after win open
+PASS ASSERT R1.start_result — menu returns start action before delve (done=true result={ "action": "start", "biome_index": 0 })
+[pass6-fit] n=6 clearances=[66.2503588867187, 74.1599658203125, 66.2503741455078, 66.5717242431641, 71.7270355224609, 66.5717242431641]
+[pass6-fit] n=6 clearances=[14.1351776123047, 19.0, 14.1351928710937, 10.4307861328125, 17.7971801757812, 10.4307556152344]
+PASS ASSERT R1.wipe_cleared — after Start handoff, BiomeWipe not opaque (wipe_a=0.26021093130112 fin=false)
+PASS ASSERT R1.unpaused — tree unpaused after Start
+PASS ASSERT R1.adventure — campaign adventure active after start dispatch (adv=true camp=true phase=draft)
+[pass6-fit] n=6 clearances=[10.0080947875976, 19.0, 14.1351928710937, 10.4307861328125, 17.7971801757812, 10.4307556152344]
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 14.1351928710937, 10.4307861328125, 17.7971801757812, 10.4307556152344]
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 6.84230041503906, 10.4307861328125, 17.7971801757812, 10.4307556152344]
+WARNING: pass6 fit: seat 3 clearance -12.9256057739258 still < 0 (r=189.0 dy=24.0)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+         [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+         [2] _spoke (res://scripts/boss_wheel.gd:1541)
+         [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+         [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 6.84230041503906, -12.9256057739258, 17.7971801757812, 10.4307556152344]
+WARNING: pass6 fit: seat 3 clearance -12.9256057739258 still < 0 (r=189.0 dy=24.0)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+         [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+         [2] _spoke (res://scripts/boss_wheel.gd:1541)
+         [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+         [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 6.84230041503906, -12.9256057739258, 10.9010925292969, 10.4307556152344]
+PASS ASSERT R2.loss_flow — loss auto Overview→Collection→Target ({ "overview": true, "collection": true, "target": true })
+WARNING: pass6 fit: seat 3 clearance -12.9256057739258 still < 0 (r=189.0 dy=24.0)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+         [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+         [2] _spoke (res://scripts/boss_wheel.gd:1541)
+         [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+         [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 6.84230041503906, -12.9256057739258, 10.9010925292969, 7.24619293212889]
+PASS ASSERT R3.tutorial_complete_copy — tutorial kind uses tutorial summary (Tutorial complete. Tutorial items don't count toward collection progress.)
+PASS ASSERT R3.tutorial_dismiss — tutorial present ends
+WARNING: pass6 fit: seat 3 clearance -12.9256057739258 still < 0 (r=189.0 dy=24.0)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+         [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+         [2] _spoke (res://scripts/boss_wheel.gd:1541)
+         [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+         [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 6.84230041503906, -12.9256057739258, 10.9010925292969, 7.24619293212889]
+PASS ASSERT R3.tutorial_skipped_copy — skip uses tutorial_skipped — not success_none (Tutorial skipped.)
+PASS ASSERT R3.skip_dismiss — skipped present ends
+[pass6-fit] n=6 clearances=[14.1351776123047, 19.0, 14.1351928710937, 10.4307861328125, 17.7971801757812, 10.4307556152344]
+PASS ASSERT R4.push_start_unpaused — Push→Start does not leave tree paused / opaque wipe (paused=false wipe=false fin=false)
+[pass6-fit] n=6 clearances=[14.1351776123047, 19.0, 14.1351928710937, 10.4307861328125, 17.7971801757812, 10.4307556152344]
+[pass6-fit] n=6 clearances=[14.1101779174805, 18.9599780273437, 14.1101779174805, 10.3257904052734, 17.5039978027344, 10.3257446289062]
+PASS ASSERT R5.early_dismiss — early start present ends
+PASS ASSERT R5.early_start_acks_raw — early start acks each new id once (raw invocation count) (acks=["net", "sai", "shield"])
+PASS ASSERT R5.no_double_ack — no duplicate ack invocations (n=3)
+[pass6-fit] n=6 clearances=[11.8756713867188, 18.9599780273437, 14.1101779174805, 10.3257904052734, 17.5039978027344, 10.3257446289062]
+[pass6-fit] n=6 clearances=[10.0080947875976, 19.0, 14.1351928710937, 10.4307861328125, 17.7971801757812, 10.4307556152344]
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 14.1351928710937, 10.4307861328125, 17.7971801757812, 10.4307556152344]
+PASS ASSERT R6.manual_next_lands_new — intro Next lands New! visual on cell (a=1.0 state=New!)
+PASS ASSERT R6.count_updates — area count includes landed news (Verdant Hollow collection: 4/15)
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 6.84230041503906, 10.4307861328125, 17.7971801757812, 10.4307556152344]
+WARNING: pass6 fit: seat 3 clearance -12.9256057739258 still < 0 (r=189.0 dy=24.0)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+         [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+         [2] _spoke (res://scripts/boss_wheel.gd:1541)
+         [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+         [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 6.84230041503906, -12.9256057739258, 17.7971801757812, 10.4307556152344]
+PASS ASSERT R7.push_no_piece — push bank no map piece
+PASS ASSERT R7.leave_awards_once — Leave after push awards piece+fresh once (["b2"] ["b2"])
+PASS ASSERT R7.ordinary_leave_no_remark — clear_pencil then Leave does not re-mark owned piece ([])
+WARNING: pass6 fit: seat 3 clearance -12.9256057739258 still < 0 (r=189.0 dy=24.0)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+         [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+         [2] _spoke (res://scripts/boss_wheel.gd:1541)
+         [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+         [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 6.84230041503906, -12.9256057739258, 10.9010925292969, 10.4307556152344]
+WARNING: pass6 fit: seat 3 clearance -12.9256057739258 still < 0 (r=189.0 dy=24.0)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+         [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+         [2] _spoke (res://scripts/boss_wheel.gd:1541)
+         [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+         [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 6.84230041503906, -12.9256057739258, 10.9010925292969, 7.24619293212889]
+WARNING: pass6 fit: seat 3 clearance -12.9256057739258 still < 0 (r=189.0 dy=24.0)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+         [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+         [2] _spoke (res://scripts/boss_wheel.gd:1541)
+         [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+         [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[10.0080947875976, 10.2166442871094, 6.84230041503906, -12.9256057739258, 10.9010925292969, 7.24619293212889]
+PASS ASSERT R8.overlap_no_cross_ack — overlapping present does not cross-ack sessions (a=["net"] b=["sai"])
+PASS ASSERT R9.focusable_cells — collection cells are FOCUS_ALL (n=15)
+PASS ASSERT R9.inspect_detail — inspect fills detail strip (Net — New!)
+UNCOVERED UNCOVERED.full_delve_nest_settle — Start wipe/unpause asserted; full nest/arm delve settle not awaited (known hang risk in headless).
+UNCOVERED UNCOVERED.live_leave_hotbar_bank — Does not drive full adventure Leave from live hotbar; uses _open_progress_menu + bank handler stubs.
+UNCOVERED UNCOVERED.reload_mid_ceremony_disk — Reload mid-menu disk resume not exercised in this bounded harness.
+NOTE NOTE.overall_aggregate — No Spin overallCollection key — overview flags missing aggregate.
+---
+rows=28 fail=0
+PROGRESS_MENU_MAIN_ROUTES_OK
+WARNING: 11 RIDs of type "CanvasItem" were leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2735)
+ERROR: Texture with GL ID of 19: leaked 20 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 670: leaked 2296 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 922: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 923: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 930: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 931: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 935: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 936: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 937: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 938: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 939: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 940: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 941: leaked 699050 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 946: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 947: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 948: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 951: leaked 174762 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 952: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 953: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 954: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+WARNING: 196 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 20 RID allocations of type 'N5GLES37TextureE' were leaked at exit.
+ERROR: 156 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+ERROR: 3 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.

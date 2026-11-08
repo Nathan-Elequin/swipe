@@ -1,0 +1,82 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: ASSERT ATTR.catalog_b1_openers :: net/sai/shield/spinning_top/throwing_knife/flying_saucer → b1 :: actual=pools={ "net": "b1", "sai": "b1", "shield": "b1", "spinning_top": "b1", "throwing_knife": "b1", "flying_saucer": "b2" }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:46)
+ERROR: ASSERT ATTR.breastplate_is_b2 :: breastplate catalog pool → b2 (item origin, not delve location) :: actual=pool=b1
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:52)
+ERROR: ASSERT B3.six_held_A_plus_F :: bank A+F → +6 b1, Crystal Cavern destination open; fresh-start stays D1 (INTENDED 0→6) :: actual=added_n=6 b1=5 dest1=true can_start1=false complete_all=false
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:116)
+ERROR: ASSERT U2.zero_to_six_first_return :: first successful return with A+F (6) unlocks destination; start stays D1; six openers vs quota five INTENDED :: actual=b1=5 dest1=true can_start1=false
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:236)
+ERROR: ASSERT U3.later_bank_no_repeated_unlock_stamp :: repeat A → +0; new F → +1; stamp again not first; destination unlock stays; start stays D1 :: actual=dup=[] new=["flying_saucer"] b1=5 dest1=true can_start1=false stamp2_first=false pieces=1
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:263)
+ERROR: ASSERT L1.breastplate_credits_b2_not_location :: breastplate with catalog pool credits b2; b1 retained :: actual=b1=6 b2=0 attr=b1
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:338)
+ERROR: ASSERT L1.per_origin_counters :: per-origin cabinet_count: b1=2, b2=1 independently :: actual=b1=3 b2=0
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:353)
+--- BANKING_CONTRACT_CASES ---
+PASS	ASSERT	META.multiset_rejects_dup_mismatch	expected=_same_id_multiset([net,sai],[net,net]) is false (length+membership alone is insufficient)	actual=helper_ok
+PASS	ASSERT	META.multiset_accepts_permutation	expected=_same_id_multiset accepts same counts regardless of order	actual=helper_ok
+FAIL	ASSERT	ATTR.catalog_b1_openers	expected=net/sai/shield/spinning_top/throwing_knife/flying_saucer → b1	actual=pools={ "net": "b1", "sai": "b1", "shield": "b1", "spinning_top": "b1", "throwing_knife": "b1", "flying_saucer": "b2" }
+FAIL	ASSERT	ATTR.breastplate_is_b2	expected=breastplate catalog pool → b2 (item origin, not delve location)	actual=pool=b1
+PASS	ASSERT	ATTR.smoke_bomb_catalog_b1	expected=smoke_bomb catalog pool → b1 (current; mill-skip ≠ bank skip)	actual=pool=b1
+PASS	ASSERT	ATTR.bracers_catalog_b1	expected=bracers catalog pool → b1 (current; pair-extra ≠ bank skip)	actual=pool=b1
+PASS	ASSERT	ATTR.quota_five	expected=cabinet_quota == 5	actual=quota=5
+PASS	ASSERT	B0.empty_hand	expected=bank [] → added 0, b1=0, dungeon2 locked	actual=added=[] b1=0 can_start1=false
+PASS	ASSERT	B1.one_held	expected=bank [net] → +1 b1, dungeon2 locked	actual=added=["net"] b1=1
+PASS	ASSERT	B2.two_held	expected=bank [net,sai] → +2 b1, dungeon2 locked (distinct fixtures)	actual=added=["net", "sai"] b1=2
+FAIL	ASSERT	B3.six_held_A_plus_F	expected=bank A+F → +6 b1, Crystal Cavern destination open; fresh-start stays D1 (INTENDED 0→6)	actual=added_n=6 b1=5 dest1=true can_start1=false complete_all=false
+PASS	ASSERT	B3.bank_alone_no_stamp	expected=bank alone grants no map piece (ceremony separate)	actual=pieces=0
+PASS	ASSERT	B4.shell_explicit_filtered_list	expected=bank([net]) credits only net; ids absent from the list get 0 (shell input filter, not consume/drop path)	actual=banked=net
+UNCOVERED	UNCOVERED	B4.live_consume_drop_carry_in	expected=In-run consume / drop / starter carry-in → hotbar → bank is not exercised; B4 only feeds an explicit filtered id list into CampaignShell.bank	actual=uncovered
+PASS	ASSERT	B5.duplicate_same_haul_then_repeat	expected=[net,net] → +1; bank net again → +0; b1 stays 1	actual=first=["net"] second=[] b1=1
+PASS	ASSERT	B6.smoke_and_bracers_bank_b1	expected=smoke_bomb+bracers with catalog pools → both credit b1 (current behavior)	actual=added=["smoke_bomb", "bracers"] b1=2
+NOTE	NOTE	B6.mill_skip_vs_bank	expected=Mill-skip (BucketRules) is orthogonal to CampaignShell.bank; eligibility here is caller pools_by_id. Covered by B6 credit ASSERT above — not a separate evaluated proof that production never filters.	actual=note
+PASS	ASSERT	U1.four_baseline_locked	expected=four baseline → b1=4, dungeon2 locked	actual=b1=4 unlock1=false
+PASS	ASSERT	U1.four_to_five_unlocks	expected=4→5 via throwing_knife unlocks Crystal Cavern destination; fresh-start stays D1; Pool1 complete still false	actual=b1=5 dest1=true can_start1=false complete=false
+PASS	ASSERT	U2.zero_to_five_first_return	expected=first successful return with A (5) unlocks dungeon2 destination; start stays D1 (INTENDED)	actual=b1=5 dest1=true can_start1=false
+FAIL	ASSERT	U2.zero_to_six_first_return	expected=first successful return with A+F (6) unlocks destination; start stays D1; six openers vs quota five INTENDED	actual=b1=5 dest1=true can_start1=false
+PASS	ASSERT	U3.stamp_first_after_threshold	expected=stamp after 5 → first Crystal Cavern piece	actual=stamp={ "id": "b2", "name": "Crystal Cavern", "index": 1, "endless": false, "first": true, "filled": "b1" } pieces=1
+FAIL	ASSERT	U3.later_bank_no_repeated_unlock_stamp	expected=repeat A → +0; new F → +1; stamp again not first; destination unlock stays; start stays D1	actual=dup=[] new=["flying_saucer"] b1=5 dest1=true can_start1=false stamp2_first=false pieces=1
+PASS	ASSERT	P1.roundtrip_parse	expected=JSON.stringify → parse_string yields Dictionary (in-memory fixture)	actual=typeof=27
+PASS	ASSERT	P1.load_keeps_ledger_and_count	expected=after _copy_state+normalize: b1=5, net present, map piece count 1	actual=b1=5 pieces=1 keys=["net", "sai", "shield", "spinning_top", "throwing_knife"]
+PASS	ASSERT	P1.rebank_and_restamp_idempotent	expected=re-bank A → +0; re-stamp → not first; piece count stays 1	actual=added=[] first=false pieces=1 b1=5
+NOTE	NOTE	P1.suite_avoids_live_save_io	expected=Suite design uses fresh_state / JSON.stringify / _copy_state only. That is not a runtime proof production never writes user://campaign_save.json.	actual=note
+FAIL	ASSERT	L1.breastplate_credits_b2_not_location	expected=breastplate with catalog pool credits b2; b1 retained	actual=b1=6 b2=0 attr=b1
+FAIL	ASSERT	L1.per_origin_counters	expected=per-origin cabinet_count: b1=2, b2=1 independently	actual=b1=3 b2=0
+PASS	STATIC	T.src_tutorial_finish_no_bank_call	expected=STATIC: _road_finish_to_cabin body has no CampaignShell.bank / _campaign_bank_from_hand / swipe_ids; opens progress menu (tutorial zero credit)	actual=has_progress_menu=true has_bank=false
+PASS	STATIC	T.src_yes_skip_finish_call_strings	expected=STATIC: main.gd source contains _road_finish_to_cabin(true) and (...false) strings — not Yes/Skip/midSkip three-route execution	actual=true_call=true false_call=true
+PASS	STATIC	N.src_death_loss_no_bank	expected=STATIC: _go_home_loss body references _campaign_abort; _campaign_abort body has no .bank( call	actual=loss_calls_abort=true abort_has_bank=false
+UNCOVERED	UNCOVERED	BOUNDARY.mocked_empty_hand_not_caller_proof	expected=bank([]) / empty-list helper pass is not proof tutorial or death callers never bank; STATIC rows only reflect current source shape	actual=uncovered
+UNCOVERED	UNCOVERED	BOUNDARY.ui_cabin_hotbar_save	expected=Cabin clicks, live hotbar, Trophy Room UI, exported-web save, and real _campaign_bank_from_hand under hotbar are not covered (ARC1/3/4/6 + human matrix)	actual=uncovered
+--- BANKING_CONTRACT_CASES_END ---
+TOTALS	assert_pass=19	assert_fail=7	static_pass=3	static_fail=0	note=2	uncovered=3
+BANKING_CONTRACT_FAIL

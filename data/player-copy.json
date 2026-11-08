@@ -7362,6 +7362,13 @@
 		{
 			"cat": "PostRun",
 			"draft": true,
+			"key": "postrun.summary.tutorial_skipped",
+			"text": "Tutorial skipped.",
+			"where": "Tutorial Skip/decline return; zero bank; not Yes-complete"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
 			"key": "postrun.collection.area_count",
 			"text": "{area} collection: {count}/{total}",
 			"where": "Area tab: collected distinct / full roster total (not unlock threshold)"
@@ -7379,6 +7386,13 @@
 			"key": "postrun.collection.item_new",
 			"text": "New!",
 			"where": "Just-banked this return"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.collection.item_collected",
+			"text": "Collected",
+			"where": "Already-owned non-new item state label"
 		},
 		{
 			"cat": "PostRun",

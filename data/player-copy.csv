@@ -768,9 +768,11 @@ PostRun,postrun.summary.success_new,Win return: count of newly committed distinc
 PostRun,postrun.summary.success_none,Win return with zero new banked types (duplicates-only / empty haul),Made it home. No new item types added.
 PostRun,postrun.summary.death,Death/loss return; no fake credit,Run ended in {area}. No collection progress from this return.
 PostRun,postrun.summary.tutorial,Completed tutorial return only (not Skip); zero bank,Tutorial complete. Tutorial items don't count toward collection progress.
+PostRun,postrun.summary.tutorial_skipped,Tutorial Skip/decline return; zero bank; not Yes-complete,Tutorial skipped.
 PostRun,postrun.collection.area_count,Area tab: collected distinct / full roster total (not unlock threshold),{area} collection: {count}/{total}
 PostRun,postrun.collection.item_missing,Missing-item state label (icon+name still shown),Not yet collected
 PostRun,postrun.collection.item_new,Just-banked this return,New!
+PostRun,postrun.collection.item_collected,Already-owned non-new item state label,Collected
 PostRun,postrun.collection.area_locked,Locked-area badge,Locked
 PostRun,postrun.requirement.bring_home,Generic threshold requirement where rule is collection quota,Bring home {required} different item types from {area} to unlock {destination}.
 PostRun,postrun.requirement.verdant,Verdant/b1 unlock teaching; matches existing five-distinct rule,Bring home 5 different item types from successful Verdant Hollow runs to open the way deeper. They don't all have to come home together.

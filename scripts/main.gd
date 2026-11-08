@@ -3763,6 +3763,7 @@ func _open_progress_menu(
 
 
 ## Transactional handoff after menu dismiss — never pause/dissolve a new run.
+## Return routes dissolve_out before the menu; start must reveal the wipe via used_map_wipe.
 func _finalize_progress_menu_result(result: Dictionary, pause_if_idle: bool = false) -> void:
 	var action := str(result.get("action", "dismiss"))
 	if action == "start":
@@ -3772,7 +3773,8 @@ func _finalize_progress_menu_result(result: Dictionary, pause_if_idle: bool = fa
 		if not CAMPAIGN_SHELL.can_start(_campaign.rules, _campaign.state, idx):
 			idx = 0
 		_splash_busy = true
-		await _begin_campaign_delve(idx, idx > 0, false, null, false)
+		## used_map_wipe=true → _begin_campaign_delve calls _biome_dissolve_reveal.
+		await _begin_campaign_delve(idx, idx > 0, false, null, true)
 		_splash_busy = false
 		return
 	await _biome_dissolve_reveal()
@@ -29113,11 +29115,8 @@ func _road_finish_to_cabin(declined: bool) -> void:
 		await home_cabin.play_arrive_splash()
 	## Progress menu is the between-run surface; cabin optional from there.
 	## Tutorial items do not credit collection (empty new_ids).
-	## Tutorial-complete copy ONLY when Yes-complete (declined=false). Skip uses win/none —
-	## FLAG: no dedicated Spin postrun.summary for tutorial-skip/decline.
-	if declined:
-		push_warning("FLAG missing copy: postrun.summary for tutorial Skip/decline — using success_none")
-	var tut_kind := "win" if declined else "tutorial"
+	## Yes-complete → tutorial; Skip/decline → tutorial_skipped (never success_none).
+	var tut_kind := "tutorial_skipped" if declined else "tutorial"
 	var tut_result: Dictionary = await _open_progress_menu(tut_kind, [], [], false)
 	await _finalize_progress_menu_result(tut_result)
 	_refresh()

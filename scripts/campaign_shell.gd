@@ -365,6 +365,8 @@ static func next_after_pool(rules: Dictionary, filled_pool: String) -> Dictionar
 
 ## Persist a map piece + fresh pencil toward the next biome. Idempotent per next id.
 ## Only call from the extract bank 5/5 ceremony — never cheats, death, or Push interrupt.
+## pencil_fresh only when the piece is newly owned (first) — already-owned pieces stay
+## unowned-fresh after clear_pencil_fresh so ordinary Leave does not re-mark the map.
 static func stamp_map_piece(rules: Dictionary, state: Dictionary, filled_pool: String) -> Dictionary:
 	normalize(state)
 	var nxt := next_after_pool(rules, filled_pool)
@@ -376,8 +378,9 @@ static func stamp_map_piece(rules: Dictionary, state: Dictionary, filled_pool: S
 	var first := not pieces.has(next_id)
 	if first:
 		pieces.append(next_id)
-	if not fresh.has(next_id):
-		fresh.append(next_id)
+		## Fresh pencil only for a newly awarded piece — not on re-stamp of owned id.
+		if not fresh.has(next_id):
+			fresh.append(next_id)
 	nxt["first"] = first
 	nxt["filled"] = filled_pool
 	return nxt

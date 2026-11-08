@@ -12,8 +12,8 @@ const BIOME := preload("res://scripts/biome_cabinets.gd")
 const DESIGN := Vector2(1680.0, 1040.0)
 const STAGGER_S := 0.07
 const STEP_HOLD_S := 0.45
-## FLAG: no Spin key for already-collected non-new state in detail strip.
-const FLAG_MISSING_COLLECTED_COPY := "postrun.collection.item_collected (missing — blank state for collected non-new)"
+## FLAG: no Spin overall-collection aggregate key (postrun.collection.overall / overallCollection).
+const FLAG_MISSING_OVERALL_COPY := "postrun.collection.overall / overallCollection missing — no invented aggregate"
 
 enum Tab { OVERVIEW, COLLECTION, NEXT_TARGET }
 enum Phase { INTRO, AREA, TARGET, IDLE }
@@ -27,6 +27,7 @@ var _body: Control
 var _overview_box: VBoxContainer
 var _collection_box: VBoxContainer
 var _area_count_lab: Label
+var _area_req_lab: Label
 var _grid_scroll: ScrollContainer
 var _grid: GridContainer
 var _area_tabs: HBoxContainer
@@ -67,6 +68,9 @@ var _acked: Dictionary = {}
 var _result: Dictionary = {}
 var _active_tweens: Array = []
 var _focus_cells: Array = []
+var _present_busy: bool = false
+var _session_id: int = 0
+var _flagged_overall_missing: bool = false
 
 
 func _ready() -> void:
@@ -170,6 +174,12 @@ func _build() -> void:
 	_area_count_lab.add_theme_font_size_override("font_size", 20)
 	_area_count_lab.add_theme_color_override("font_color", Color("e8c36a"))
 	_collection_box.add_child(_area_count_lab)
+	_area_req_lab = Label.new()
+	_area_req_lab.add_theme_font_size_override("font_size", 16)
+	_area_req_lab.add_theme_color_override("font_color", Color("8a8070"))
+	_area_req_lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_area_req_lab.visible = false
+	_collection_box.add_child(_area_req_lab)
 	_grid_scroll = ScrollContainer.new()
 	_grid_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_grid_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -259,8 +269,16 @@ func _card_biome_pool(card: Dictionary) -> String:
 
 
 ## Present return results. Returns {action: "cabin"|"start"|"dismiss", biome_index: int}.
+## Overlapping present() dismisses+awaits the prior session before initializing.
 func present(payload: Dictionary, ack_cb: Callable = Callable()) -> Dictionary:
 	_build()
+	if _present_busy:
+		dismiss()
+		while _present_busy:
+			await get_tree().process_frame
+	_present_busy = true
+	_session_id += 1
+	var session: int = _session_id
 	_ack_cb = ack_cb
 	_items_by_id = payload.get("items_by_id", {})
 	_tex_by_item = payload.get("tex_by_item", {})
@@ -289,14 +307,16 @@ func present(payload: Dictionary, ack_cb: Callable = Callable()) -> Dictionary:
 	_btn_skip.disabled = false
 	_btn_next.disabled = false
 	_phase = Phase.INTRO
-	## Default keyboard focus on Skip Recap.
 	_btn_skip.grab_focus()
 	await _run_presentation(gen)
-	if visible:
+	if visible and session == _session_id:
 		await closed
-	## Guarantee every presentation id is acked once on every exit path.
-	_ack_all_new()
-	return _result.duplicate()
+	if session == _session_id:
+		_ack_all_new()
+	var out: Dictionary = _result.duplicate()
+	if session == _session_id:
+		_present_busy = false
+	return out
 
 
 func dismiss() -> void:
@@ -325,7 +345,10 @@ func _kill_arrival_tweens() -> void:
 
 
 func _apply_summary() -> void:
-	if _tutorial:
+	if _kind == "tutorial_skipped":
+		_summary.text = PLAYER_COPY.text("postrun.summary.tutorial_skipped", "Tutorial skipped.")
+		return
+	if _tutorial or _kind == "tutorial":
 		_summary.text = PLAYER_COPY.text(
 			"postrun.summary.tutorial",
 			"Tutorial complete. Tutorial items don't count toward collection progress."
@@ -382,11 +405,67 @@ func _visible_collected_in_pool(pool: String) -> int:
 	return n
 
 
+func _requirement_text_for_pool(pid: String) -> String:
+	## Locked destination requirement using existing Spin bring_home / verdant keys only.
+	if _rules.is_empty() or pid == "":
+		return ""
+	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_rules)
+	var q: int = CAMPAIGN_SHELL.quota_of(_rules)
+	var bi := -1
+	for i in biomes.size():
+		if str((biomes[i] as Dictionary).get("id", "")) == pid:
+			bi = i
+			break
+	if bi <= 0:
+		return ""
+	var dest: Dictionary = biomes[bi]
+	var prev: Dictionary = biomes[bi - 1]
+	var prev_id := str(prev.get("id", ""))
+	var dest_name := str(dest.get("name", pid))
+	var prev_name := str(prev.get("name", prev_id))
+	if prev_id == "b1":
+		return PLAYER_COPY.text(
+			"postrun.requirement.verdant",
+			"Bring home 5 different item types from successful Verdant Hollow runs to open the way deeper. They don't all have to come home together."
+		)
+	return PLAYER_COPY.fill(
+		"postrun.requirement.bring_home",
+		{"required": str(q), "area": prev_name, "destination": dest_name},
+		"Bring home {required} different item types from {area} to unlock {destination}."
+	)
+
+
 func _rebuild_overview() -> void:
 	for c in _overview_box.get_children():
 		c.queue_free()
 	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_rules) if not _rules.is_empty() else BIOME.CASES
-	var q: int = CAMPAIGN_SHELL.quota_of(_rules) if not _rules.is_empty() else 5
+	## Overall aggregate only with an approved Spin overall label key — never invent.
+	var overall_label := ""
+	if PLAYER_COPY.has_key("postrun.collection.overall"):
+		overall_label = PLAYER_COPY.text("postrun.collection.overall", "")
+	elif PLAYER_COPY.has_key("postrun.collection.overallCollection"):
+		overall_label = PLAYER_COPY.text("postrun.collection.overallCollection", "")
+	if overall_label != "":
+		var oc := 0
+		var ot := 0
+		for raw0 in biomes:
+			var pid0 := str((raw0 as Dictionary).get("id", ""))
+			if pid0 == "":
+				continue
+			oc += _visible_collected_in_pool(pid0)
+			ot += _pool_roster(pid0).size()
+		var oline := Label.new()
+		oline.add_theme_font_size_override("font_size", 22)
+		oline.add_theme_color_override("font_color", Color("e8c36a"))
+		oline.text = PLAYER_COPY.fill(
+			"postrun.collection.area_count",
+			{"area": overall_label, "count": str(oc), "total": str(ot)},
+			"{area} collection: {count}/{total}"
+		)
+		_overview_box.add_child(oline)
+	elif not _flagged_overall_missing:
+		_flagged_overall_missing = true
+		push_warning(FLAG_MISSING_OVERALL_COPY)
 	for raw in biomes:
 		var b: Dictionary = raw if typeof(raw) == TYPE_DICTIONARY else {}
 		var pid := str(b.get("id", ""))
@@ -408,33 +487,15 @@ func _rebuild_overview() -> void:
 				"{area} collection: {count}/{total}"
 			)
 			line.add_theme_color_override("font_color", Color("f0e6d8"))
+			_overview_box.add_child(line)
 		else:
-			## Locked: badge + requirement (quota is unlock threshold, distinct from roster total).
-			var req := ""
-			var bi := 0
-			for i in biomes.size():
-				if str((biomes[i] as Dictionary).get("id", "")) == pid:
-					bi = i
-					break
-			var prev: Dictionary = biomes[bi - 1] if bi > 0 else {}
-			var prev_name := str(prev.get("name", ""))
-			if str(prev.get("id", "")) == "b1":
-				req = PLAYER_COPY.text(
-					"postrun.requirement.verdant",
-					"Bring home 5 different item types from successful Verdant Hollow runs to open the way deeper. They don't all have to come home together."
-				)
-			elif prev_name != "":
-				req = PLAYER_COPY.fill(
-					"postrun.requirement.bring_home",
-					{"required": str(q), "area": prev_name, "destination": name},
-					"Bring home {required} different item types from {area} to unlock {destination}."
-				)
 			line.text = "%s — %s" % [
 				name,
 				PLAYER_COPY.text("postrun.collection.area_locked", "Locked"),
 			]
 			line.add_theme_color_override("font_color", Color("7a7060"))
 			_overview_box.add_child(line)
+			var req := _requirement_text_for_pool(pid)
 			if req != "":
 				var req_l := Label.new()
 				req_l.text = req
@@ -442,8 +503,6 @@ func _rebuild_overview() -> void:
 				req_l.add_theme_font_size_override("font_size", 16)
 				req_l.add_theme_color_override("font_color", Color("8a8070"))
 				_overview_box.add_child(req_l)
-			continue
-		_overview_box.add_child(line)
 
 
 func _rebuild_area_tabs() -> void:
@@ -478,16 +537,19 @@ func _on_area_tab(pool: String) -> void:
 	_conclude_auto_for_manual()
 	_area_filter = pool
 	_rebuild_area_tabs()
-	_reveal_all_new_in_view()
+	_land_all_news_in_filter(true)
 
 
 func _update_area_count_lab() -> void:
 	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_rules) if not _rules.is_empty() else BIOME.CASES
 	var name := _area_filter
+	var unlocked := true
 	for raw in biomes:
 		if str((raw as Dictionary).get("id", "")) == _area_filter:
 			name = str((raw as Dictionary).get("name", _area_filter))
 			break
+	if not _rules.is_empty():
+		unlocked = CAMPAIGN_SHELL.pool_unlocked(_rules, _state, _area_filter)
 	var count: int = _visible_collected_in_pool(_area_filter)
 	var total: int = _pool_roster(_area_filter).size()
 	_area_count_lab.text = PLAYER_COPY.fill(
@@ -495,6 +557,15 @@ func _update_area_count_lab() -> void:
 		{"area": name, "count": str(count), "total": str(total)},
 		"{area} collection: {count}/{total}"
 	)
+	## Locked area Collection page: show requirement near the grid (existing Spin keys).
+	if _area_req_lab != null:
+		if unlocked:
+			_area_req_lab.visible = false
+			_area_req_lab.text = ""
+		else:
+			var req := _requirement_text_for_pool(_area_filter)
+			_area_req_lab.text = req
+			_area_req_lab.visible = req != ""
 
 
 func _rebuild_grid() -> void:
@@ -529,40 +600,18 @@ func _wire_cell_focus_neighbors() -> void:
 
 func _make_item_cell(id: String) -> Control:
 	var card: Dictionary = _items_by_id.get(id, {})
-	var collected: bool = bool(_swiped.get(id, false))
-	var is_new: bool = _new_ids.has(id)
-	var revealed: bool = (not is_new) or bool(_revealed_new.get(id, false)) or _phase == Phase.IDLE
 	var box := PanelContainer.new()
+	box.name = "Cell_%s" % id
+	box.set_meta("item_id", id)
 	box.custom_minimum_size = Vector2(360, 88)
 	box.focus_mode = Control.FOCUS_ALL
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("241e18") if collected and revealed else Color("161310")
-	## Non-color states: New! / missing text + border weight/pattern (dashed via thicker border).
-	if is_new and revealed:
-		sb.border_color = Color("e8c36a")
-		sb.set_border_width_all(3)
-	elif not collected:
-		sb.border_color = Color("4a4034")
-		sb.set_border_width_all(2)
-		sb.border_color = Color("4a4034")
-	else:
-		sb.border_color = Color("5a4e40")
-		sb.set_border_width_all(1)
-	sb.set_corner_radius_all(4)
-	sb.content_margin_left = 10
-	sb.content_margin_right = 10
-	sb.content_margin_top = 8
-	sb.content_margin_bottom = 8
-	box.add_theme_stylebox_override("panel", sb)
-	var focus_sb := sb.duplicate()
-	focus_sb.border_color = Color("f0e6d8")
-	focus_sb.set_border_width_all(3)
-	box.add_theme_stylebox_override("focus", focus_sb)
 	var row := HBoxContainer.new()
+	row.name = "Row"
 	row.add_theme_constant_override("separation", 10)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(row)
 	var icon := TextureRect.new()
+	icon.name = "Icon"
 	icon.custom_minimum_size = Vector2(64, 64)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -571,54 +620,119 @@ func _make_item_cell(id: String) -> Control:
 	var tex: Texture2D = _tex_by_item.get(id, null)
 	if tex != null:
 		icon.texture = tex
-	else:
-		icon.modulate = Color(0.35, 0.35, 0.35, 1)
-	if not collected or (is_new and not revealed):
-		icon.modulate = Color(0.55, 0.55, 0.55, 1)
 	row.add_child(icon)
 	var text_col := VBoxContainer.new()
+	text_col.name = "Text"
 	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(text_col)
 	var name_l := Label.new()
+	name_l.name = "Name"
 	name_l.text = str(card.get("name", id))
 	name_l.add_theme_font_size_override("font_size", 18)
-	name_l.add_theme_color_override("font_color", Color("f0e6d8") if collected and revealed else Color("9a9080"))
 	name_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text_col.add_child(name_l)
 	var state_l := Label.new()
-	if is_new and revealed:
-		state_l.text = PLAYER_COPY.text("postrun.collection.item_new", "New!")
-		state_l.add_theme_color_override("font_color", Color("e8c36a"))
-	elif not collected:
-		state_l.text = PLAYER_COPY.text("postrun.collection.item_missing", "Not yet collected")
-		state_l.add_theme_color_override("font_color", Color("7a7060"))
-	else:
-		## Collected non-new: no Spin key — leave blank (FLAG_MISSING_COLLECTED_COPY).
-		state_l.text = ""
+	state_l.name = "State"
 	state_l.add_theme_font_size_override("font_size", 14)
 	state_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text_col.add_child(state_l)
-	var inspect := func() -> void:
-		var state_txt := state_l.text
-		if state_txt == "" and collected:
-			## FLAG: no postrun.collection.item_collected — show name only.
-			_detail.text = name_l.text
-			push_warning(FLAG_MISSING_COLLECTED_COPY)
-		else:
-			_detail.text = "%s — %s" % [name_l.text, state_txt]
 	box.gui_input.connect(func(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-			inspect.call()
+			_inspect_cell(id)
 			box.grab_focus()
 		elif ev.is_action_pressed("ui_accept"):
-			inspect.call()
+			_inspect_cell(id)
 			get_viewport().set_input_as_handled()
 	)
-	if is_new and not revealed and _phase != Phase.IDLE:
-		box.modulate.a = 0.0
+	_refresh_cell_visual(box, id, false)
 	return box
+
+
+func _inspect_cell(id: String) -> void:
+	var cell: Control = _cell_by_id.get(id, null)
+	if cell == null:
+		return
+	var name_l: Label = cell.find_child("Name", true, false) as Label
+	var state_l: Label = cell.find_child("State", true, false) as Label
+	var nm := name_l.text if name_l else id
+	var st := state_l.text if state_l else ""
+	_detail.text = "%s — %s" % [nm, st] if st != "" else nm
+
+
+## Unified collected/new/missing visual state. Call on build, land, skip, and manual reveal.
+func _refresh_cell_visual(box: Control, id: String, animate_in: bool) -> void:
+	if box == null or not is_instance_valid(box):
+		return
+	var collected: bool = bool(_swiped.get(id, false))
+	var is_new: bool = _new_ids.has(id)
+	var revealed: bool = (not is_new) or bool(_revealed_new.get(id, false))
+	var icon: TextureRect = box.find_child("Icon", true, false) as TextureRect
+	var name_l: Label = box.find_child("Name", true, false) as Label
+	var state_l: Label = box.find_child("State", true, false) as Label
+	var sb := StyleBoxFlat.new()
+	sb.set_corner_radius_all(4)
+	sb.content_margin_left = 10
+	sb.content_margin_right = 10
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+	if is_new and revealed:
+		sb.bg_color = Color("241e18")
+		sb.border_color = Color("e8c36a")
+		sb.set_border_width_all(3)
+	elif collected and revealed:
+		sb.bg_color = Color("241e18")
+		sb.border_color = Color("5a4e40")
+		sb.set_border_width_all(1)
+	elif not collected:
+		sb.bg_color = Color("161310")
+		sb.border_color = Color("4a4034")
+		sb.set_border_width_all(2)
+	else:
+		## New but not yet revealed — build hidden; style as missing until land.
+		sb.bg_color = Color("161310")
+		sb.border_color = Color("4a4034")
+		sb.set_border_width_all(2)
+	box.add_theme_stylebox_override("panel", sb)
+	var focus_sb := sb.duplicate()
+	focus_sb.border_color = Color("f0e6d8")
+	focus_sb.set_border_width_all(3)
+	box.add_theme_stylebox_override("focus", focus_sb)
+	if icon != null:
+		if not collected or (is_new and not revealed):
+			icon.modulate = Color(0.55, 0.55, 0.55, 1)
+		elif icon.texture == null:
+			icon.modulate = Color(0.35, 0.35, 0.35, 1)
+		else:
+			icon.modulate = Color(1, 1, 1, 1)
+	if name_l != null:
+		name_l.add_theme_color_override(
+			"font_color",
+			Color("f0e6d8") if collected and revealed else Color("9a9080")
+		)
+	if state_l != null:
+		if is_new and revealed:
+			state_l.text = PLAYER_COPY.text("postrun.collection.item_new", "New!")
+			state_l.add_theme_color_override("font_color", Color("e8c36a"))
+		elif not collected:
+			state_l.text = PLAYER_COPY.text("postrun.collection.item_missing", "Not yet collected")
+			state_l.add_theme_color_override("font_color", Color("7a7060"))
+		elif collected and revealed:
+			state_l.text = PLAYER_COPY.text("postrun.collection.item_collected", "Collected")
+			state_l.add_theme_color_override("font_color", Color("a89f90"))
+		else:
+			state_l.text = ""
+	if is_new and not revealed:
+		box.modulate.a = 0.0
+	elif animate_in:
+		box.modulate.a = 0.0
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.tween_property(box, "modulate:a", 1.0, 0.12)
+		_active_tweens.append(tw)
+	else:
+		box.modulate.a = 1.0
 
 
 func _next_goal() -> Dictionary:
@@ -823,22 +937,23 @@ func _show_panel(tab: int) -> void:
 
 
 func _conclude_auto_for_manual() -> void:
-	## Manual tab/Next/area cancels auto timers; reveal news already on this view; do not free mid-tween.
+	## Manual tab/Next/area cancels auto timers without freeing mid-tween late overrides.
 	if _phase == Phase.IDLE:
 		return
 	_cancel_presentation()
-	_reveal_all_new_in_view()
 
 
 func _on_tab(tab: int) -> void:
 	_conclude_auto_for_manual()
 	_show_panel(tab)
 	if tab == Tab.COLLECTION:
-		_rebuild_grid()
-		_reveal_all_new_in_view()
+		_area_filter = _area_filter if _area_filter != "" else _played_pool
+		_rebuild_area_tabs()
+		_land_all_news_in_filter(true)
 		if not _focus_cells.is_empty():
 			(_focus_cells[0] as Control).grab_focus()
 	elif tab == Tab.NEXT_TARGET:
+		_land_all_remaining_news(false)
 		_rebuild_target()
 		if _target_actions.get_child_count() > 0:
 			var first = _target_actions.get_child(0)
@@ -846,12 +961,16 @@ func _on_tab(tab: int) -> void:
 				(first as Control).grab_focus()
 
 
-func _reveal_all_new_in_view() -> void:
+func _land_all_news_in_filter(animate: bool) -> void:
+	for id in _new_ids_for_pool(_area_filter):
+		_land_new(str(id), animate)
+	_update_area_count_lab()
+	_rebuild_overview()
+
+
+func _land_all_remaining_news(animate: bool) -> void:
 	for id in _new_ids:
-		_revealed_new[str(id)] = true
-		var cell: Control = _cell_by_id.get(str(id), null)
-		if cell != null:
-			cell.modulate.a = 1.0
+		_land_new(str(id), animate)
 	_update_area_count_lab()
 	_rebuild_overview()
 
@@ -870,15 +989,13 @@ func _ack_all_new() -> void:
 		_ack_id(str(id))
 
 
-func _land_new(id: String) -> void:
+func _land_new(id: String, animate: bool = true) -> void:
+	## Full visual state before ack — New! border/text/icon, not alpha-only fade.
 	var sid := str(id)
 	_revealed_new[sid] = true
 	var cell: Control = _cell_by_id.get(sid, null)
 	if cell != null:
-		var tw := create_tween()
-		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-		tw.tween_property(cell, "modulate:a", 1.0, 0.12)
-		_active_tweens.append(tw)
+		_refresh_cell_visual(cell, sid, animate)
 	_ack_id(sid)
 	_update_area_count_lab()
 	_rebuild_overview()
@@ -886,30 +1003,30 @@ func _land_new(id: String) -> void:
 
 func _on_skip() -> void:
 	_cancel_presentation()
-	## Fast-forward: reveal all news across pools, then pause on Next Goal.
-	for id in _new_ids:
-		_revealed_new[str(id)] = true
-	_ack_all_new()
 	_show_panel(Tab.NEXT_TARGET if not _next_goal().is_empty() else Tab.COLLECTION)
 	_area_filter = _played_pool if _played_pool != "" else _area_filter
 	_rebuild_area_tabs()
+	_land_all_remaining_news(false)
 	_rebuild_target()
-	_reveal_all_new_in_view()
+	_ack_all_new()
 
 
 func _on_next_step() -> void:
-	## Manual Next concludes current auto step and advances; cancels later timers.
+	## Manual Next cancels auto, then actually presents/lands news for the visited step.
 	var from_tab: int = _tab
 	_cancel_presentation()
 	_skip_pres = false
 	if from_tab == Tab.OVERVIEW:
 		_phase = Phase.AREA
 		_show_panel(Tab.COLLECTION)
-		_area_filter = _played_pool
+		_area_filter = _played_pool if _played_pool != "" else _area_filter
 		_rebuild_area_tabs()
+		_land_all_news_in_filter(true)
 		_btn_next.disabled = false
 		_btn_skip.disabled = false
 	elif from_tab == Tab.COLLECTION:
+		## Mid-stagger Next: finish remaining news for current+other pools before Target.
+		_land_all_remaining_news(false)
 		_phase = Phase.IDLE
 		_show_panel(Tab.NEXT_TARGET)
 		_rebuild_target()
@@ -974,7 +1091,7 @@ func _run_presentation(gen: int) -> void:
 		for id in news:
 			if _skip_pres or gen != _pres_gen:
 				return
-			_land_new(str(id))
+			_land_new(str(id), true)
 			await _wait_pres(STAGGER_S, gen)
 		await _wait_pres(STEP_HOLD_S * 0.4, gen)
 	if _skip_pres or gen != _pres_gen:
