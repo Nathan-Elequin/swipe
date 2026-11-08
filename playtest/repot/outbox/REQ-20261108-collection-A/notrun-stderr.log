@@ -1,0 +1,501 @@
+WARNING: pass6 fit: seat 4 clearance -4.93142700195313 still < 0 (r=180.0 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -4.93142700195313 still < 0 (r=180.0 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -4.93142700195313 still < 0 (r=180.0 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -4.93142700195313 still < 0 (r=180.0 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -4.93142700195313 still < 0 (r=180.0 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -4.93142700195313 still < 0 (r=180.0 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -4.93142700195313 still < 0 (r=180.0 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -4.93142700195313 still < 0 (r=180.0 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -4.93142700195313 still < 0 (r=180.0 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -5.22628784179688 still < 0 (r=179.79 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+   GDScript backtrace (most recent call first):
+       [0] _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:531)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _case_final_dungeon_victory (res://scripts/dev/collection_a_notrun_cases.gd:511)
+       [4] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _case_final_dungeon_victory (res://scripts/dev/collection_a_notrun_cases.gd:511)
+       [4] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _case_final_dungeon_victory (res://scripts/dev/collection_a_notrun_cases.gd:511)
+       [4] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _update_area_count_lab (res://scripts/ui/progress_menu.gd:626)
+       [2] _rebuild_grid (res://scripts/ui/progress_menu.gd:650)
+       [3] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [4] present (res://scripts/ui/progress_menu.gd:312)
+       [5] _case_final_dungeon_victory (res://scripts/dev/collection_a_notrun_cases.gd:511)
+       [6] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_final_dungeon_victory (res://scripts/dev/collection_a_notrun_cases.gd:511)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_final_dungeon_victory (res://scripts/dev/collection_a_notrun_cases.gd:511)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_final_dungeon_victory (res://scripts/dev/collection_a_notrun_cases.gd:511)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_final_dungeon_victory (res://scripts/dev/collection_a_notrun_cases.gd:511)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+   GDScript backtrace (most recent call first):
+       [0] _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:531)
+       [2] _case_final_dungeon_victory (res://scripts/dev/collection_a_notrun_cases.gd:518)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] _case_final_dungeon_victory (res://scripts/dev/collection_a_notrun_cases.gd:518)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] _case_final_dungeon_victory (res://scripts/dev/collection_a_notrun_cases.gd:518)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+   GDScript backtrace (most recent call first):
+       [0] _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:531)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [4] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [4] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [4] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [4] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [4] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] present (res://scripts/ui/progress_menu.gd:311)
+       [3] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [4] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _update_area_count_lab (res://scripts/ui/progress_menu.gd:626)
+       [2] _rebuild_grid (res://scripts/ui/progress_menu.gd:650)
+       [3] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [4] present (res://scripts/ui/progress_menu.gd:312)
+       [5] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [6] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] catalogue_cell_kind (res://scripts/collection_journey.gd:95)
+       [1] _refresh_cell_visual (res://scripts/ui/progress_menu.gd:808)
+       [2] _make_item_cell (res://scripts/ui/progress_menu.gd:788)
+       [3] _rebuild_grid (res://scripts/ui/progress_menu.gd:667)
+       [4] _rebuild_area_tabs (res://scripts/ui/progress_menu.gd:606)
+       [5] present (res://scripts/ui/progress_menu.gd:312)
+       [6] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:586)
+       [7] _soft_reset (res://scripts/dev/collection_a_notrun_cases.gd:122)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+   GDScript backtrace (most recent call first):
+       [0] _overall_unique_counts (res://scripts/ui/progress_menu.gd:461)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:531)
+       [2] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:593)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:593)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:593)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:593)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:593)
+SCRIPT ERROR: Invalid call. Nonexistent 'bool' constructor.
+   at: _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] _visible_collected_in_pool (res://scripts/ui/progress_menu.gd:411)
+       [1] _rebuild_overview (res://scripts/ui/progress_menu.gd:549)
+       [2] _case_inheritance_handoff (res://scripts/dev/collection_a_notrun_cases.gd:593)
+WARNING: 11 RIDs of type "CanvasItem" were leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2735)
+ERROR: Texture with GL ID of 19: leaked 20 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 671: leaked 2296 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 922: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 923: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 930: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 931: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 935: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 936: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 937: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 938: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 939: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 940: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 941: leaked 524288 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 990: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 991: leaked 699050 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 992: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 997: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 998: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1005: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1006: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1007: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1008: leaked 174762 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1009: leaked 174762 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1017: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1018: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 733: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1021: leaked 699050 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1020: leaked 699050 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1022: leaked 174762 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1023: leaked 174762 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1028: leaked 174762 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+WARNING: 216 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)

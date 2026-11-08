@@ -852,24 +852,39 @@ func _refresh_cell_visual(box: Control, id: String, animate_in: bool) -> void:
 		if old_tw != null and is_instance_valid(old_tw):
 			old_tw.kill()
 		_cell_tweens.erase(id)
+	## Unseen (missing) cells stay anonymous — no catalog name/art until offer/reveal marks seen.
+	var is_unseen_missing: bool = kind == "missing"
 	if icon != null:
-		if is_new and revealed:
-			icon.modulate = Color(1, 1, 1, 1)
-		elif is_seen_only:
-			## Readable icon + hatch via border; slightly dim, not missing-gray.
-			icon.modulate = Color(0.78, 0.74, 0.62, 1)
-		elif not collected or (is_new and not revealed):
-			icon.modulate = Color(0.55, 0.55, 0.55, 1)
-		elif icon.texture == null:
+		if is_unseen_missing:
+			icon.texture = null
 			icon.modulate = Color(0.35, 0.35, 0.35, 1)
 		else:
-			icon.modulate = Color(1, 1, 1, 1)
+			var tex: Texture2D = _tex_by_item.get(id, null)
+			icon.texture = tex
+			if is_new and revealed:
+				icon.modulate = Color(1, 1, 1, 1)
+			elif is_seen_only:
+				## Readable icon + hatch via border; slightly dim, not missing-gray.
+				icon.modulate = Color(0.78, 0.74, 0.62, 1)
+			elif not collected or (is_new and not revealed):
+				icon.modulate = Color(0.55, 0.55, 0.55, 1)
+			elif tex == null:
+				icon.modulate = Color(0.35, 0.35, 0.35, 1)
+			else:
+				icon.modulate = Color(1, 1, 1, 1)
 	if name_l != null:
-		var bright := (collected and revealed) or (is_new and revealed) or is_seen_only
-		name_l.add_theme_color_override(
-			"font_color",
-			Color("f0e6d8") if bright else Color("9a9080")
-		)
+		if is_unseen_missing:
+			name_l.text = "?"
+			name_l.add_theme_color_override("font_color", Color("9a9080"))
+		else:
+			## Restore authored name when seen/banked (cell may have been "?" earlier).
+			var card: Dictionary = _items_by_id.get(id, {})
+			name_l.text = str(card.get("name", id))
+			var bright := (collected and revealed) or (is_new and revealed) or is_seen_only
+			name_l.add_theme_color_override(
+				"font_color",
+				Color("f0e6d8") if bright else Color("9a9080")
+			)
 	if state_l != null:
 		if is_new and revealed:
 			state_l.text = PLAYER_COPY.text("postrun.collection.item_new", "New!")

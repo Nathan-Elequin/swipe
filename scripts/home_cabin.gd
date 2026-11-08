@@ -995,13 +995,23 @@ func open_hall_after_push_block(pool_id: String, biome_name: String, new_ids: Ar
 func focus_biome_case(pool_id: String) -> void:
 	if _shelf_host == null:
 		return
+	## Strong dim on siblings (Crystal art is otherwise brighter than Verdant wood).
+	for child in _shelf_host.get_children():
+		if child is CanvasItem:
+			var ci := child as CanvasItem
+			var is_focus := child.name == ("Case_%s" % pool_id)
+			if is_focus:
+				ci.modulate = Color(1.0, 1.0, 1.0, 1.0)
+			else:
+				ci.modulate = Color(0.42, 0.4, 0.38, 1.0)
 	var root := _shelf_host.get_node_or_null("Case_%s" % pool_id) as Control
 	if root == null:
 		return
-	root.modulate = Color(1.35, 1.2, 0.75, 1.0)
+	## Warm lift on the played pool — settle holds above sibling dim.
+	root.modulate = Color(1.45, 1.28, 0.85, 1.0)
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tw.tween_property(root, "modulate", Color.WHITE, 0.55)
+	tw.tween_property(root, "modulate", Color(1.22, 1.14, 0.98, 1.0), 0.55)
 
 
 func play_intro(is_replay: bool = false) -> void:

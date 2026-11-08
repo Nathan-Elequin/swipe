@@ -205,35 +205,162 @@ func _show_collection(pool: String) -> void:
 
 
 func _shot_quiet(banked_ids: Array, held_new: String) -> void:
+	## Occupied wheel + actual combat + New! badges — not empty ready-only wheel.
 	main.home_cabin.visible = false
 	main.progress_menu.visible = false
-	main.phase = "ready"
 	main._campaign_on = true
+	main.adventure = true
+	main.in_tutorial = false
+	## Hotbar: held New! + banked-repeat neighbors so New! badges are on-screen.
+	var hb: Array = [{"card_id": held_new}]
+	for i in mini(3, banked_ids.size()):
+		hb.append({"card_id": str(banked_ids[i])})
+	main.hotbar = hb
+	## Fill wheel seats with live monsters so combat is visibly occupied.
+	main.call("_empty_wheel")
+	var mon_ids: Array = []
+	for mid in main.monsters_by_id.keys():
+		mon_ids.append(str(mid))
+		if mon_ids.size() >= 4:
+			break
+	for mi in mon_ids.size():
+		var m: Dictionary = main.call("_make_monster", str(mon_ids[mi]))
+		m["slot"] = str(main.wheel[mi].get("slot", ""))
+		m["spin_locked"] = false
+		main.wheel[mi] = m
+	main.phase = "combat"
+	main._hotbar_sig = ""
+	main.call("_sync_hotbar")
+	main.call("_refresh")
 	main.call("_sync_collection_quiet")
+	await process_frame
+	await process_frame
+	## Force visible New! badges on carried seats so collision evidence is real (not empty ready wheel).
+	var new_label := PLAYER_COPY.text("cabin.tip.new", "New!")
+	if main.hotbar_box != null:
+		for child2 in main.hotbar_box.get_children():
+			if child2 == null or not child2.has_method("set_cabinet_badge"):
+				continue
+			var cid := ""
+			if "card_id" in child2:
+				cid = str(child2.get("card_id"))
+			## Stamp New! on held-new + any non-banked seat for collision proof vs quiet strip.
+			if cid == held_new or (cid != "" and not main._campaign.state["banked"].has(cid)):
+				child2.call("set_cabinet_badge", true, new_label, "")
+			elif cid == "":
+				## Empty slots lack card_id — skip.
+				pass
 	await process_frame
 	await process_frame
 	var strip = main.collection_quiet
 	var text := ""
 	var vis := false
+	var strip_rect := Rect2()
 	if strip != null:
 		text = str(strip.text)
 		vis = strip.visible and strip.is_visible_in_tree()
+		strip_rect = strip.get_global_rect()
+	## Collect New! badge rects from hotbar cards; quiet must sit above them (no overlap).
+	var badge_overlap := false
+	var badge_n := 0
+	if main.hotbar_box != null:
+		for child in main.hotbar_box.get_children():
+			if child == null or not is_instance_valid(child):
+				continue
+			for lab in child.find_children("*", "Label", true, false):
+				if lab is Label and str((lab as Label).text).find("New!") >= 0 and (lab as Label).visible:
+					badge_n += 1
+					var lr: Rect2 = (lab as Control).get_global_rect()
+					if strip_rect.size != Vector2.ZERO and strip_rect.intersects(lr):
+						badge_overlap = true
+	## Structural guard: quiet strip Y must be strictly above the hotbar panel top.
+	var above_hotbar := true
+	if main.hotbar_panel != null and strip != null and vis:
+		var hot_top: float = main.hotbar_panel.get_global_rect().position.y
+		var strip_bottom: float = strip_rect.position.y + strip_rect.size.y
+		above_hotbar = strip_bottom <= hot_top + 2.0
 	var banked_n: int = banked_ids.size()
-	var ok := vis and text.find(held_new) < 0 and text.find(str(banked_n)) >= 0 and text.find("New!") < 0
-	_row("04", ok, "quiet visible=%s text=%s" % [vis, text])
+	var mons_left: int = int(main.call("_monsters_left"))
+	var ok := (
+		vis
+		and text.find(held_new) < 0
+		and text.find(str(banked_n)) >= 0
+		and text.find("New!") < 0
+		and badge_n >= 1
+		and not badge_overlap
+		and above_hotbar
+		and mons_left >= 1
+		and str(main.phase) == "combat"
+	)
+	_row(
+		"04",
+		ok,
+		"quiet vis=%s text=%s phase=%s mons=%s badges=%s overlap=%s above_hotbar=%s strip=%s" % [
+			vis, text, main.phase, mons_left, badge_n, badge_overlap, above_hotbar, strip_rect
+		]
+	)
 	await _shot("04-inrun-quiet-strip.png")
 
 
-func _shot_catalogue(banked_ids: Array, seen_only: String, _held_new: String) -> void:
+func _shot_catalogue(banked_ids: Array, seen_only: String, held_new: String) -> void:
 	await _present_settled(_payload("win", []))
 	await _show_collection("b1")
+	var menu = main.progress_menu
 	var seen_txt := _cell_state(seen_only)
 	var bank_txt := _cell_state(str(banked_ids[0]))
 	var seen_copy := PLAYER_COPY.text("postrun.collection.item_seen", "[Spin copy: Recognized — not banked yet]")
 	var col_copy := PLAYER_COPY.text("postrun.collection.item_collected", "Collected")
 	var miss_copy := PLAYER_COPY.text("postrun.collection.item_missing", "Not yet collected")
-	var ok := seen_txt == seen_copy and seen_txt != miss_copy and bank_txt == col_copy
-	_row("01", ok, "seen %s=%s banked %s=%s" % [seen_only, seen_txt, banked_ids[0], bank_txt])
+	## Unseen = never offered/recognized — must stay anonymous ("?") even on unlocked Verdant.
+	var unseen_id := ""
+	var seen_map: Dictionary = main.home_cabin.seen
+	var banked_map: Dictionary = main._campaign.state.get("banked", {})
+	for cid in menu._cell_by_id.keys():
+		var sid := str(cid)
+		if banked_map.has(sid):
+			continue
+		if bool(seen_map.get(sid, false)):
+			continue
+		if sid == held_new or sid == seen_only:
+			continue
+		unseen_id = sid
+		break
+	var unseen_name := ""
+	var unseen_state := ""
+	if unseen_id != "":
+		var ucell: Control = menu._cell_by_id.get(unseen_id, null)
+		if ucell != null:
+			var nm: Label = ucell.find_child("Name", true, false) as Label
+			var st: Label = ucell.find_child("State", true, false) as Label
+			unseen_name = nm.text if nm != null else ""
+			unseen_state = st.text if st != null else ""
+	var unseen_ok := unseen_id != "" and unseen_name == "?" and unseen_state == miss_copy
+	## Bind roster totals to live source (_pool_roster / cabinet), not stale 14/64 fixture.
+	var roster: Array = menu.call("_pool_roster", "b1")
+	var roster_total: int = roster.size()
+	var cabinet_n: int = int(CAMPAIGN_SHELL.cabinet_count(main._campaign.state, "b1"))
+	var seen_name_ok := false
+	var seen_cell: Control = menu._cell_by_id.get(seen_only, null)
+	if seen_cell != null:
+		var sn: Label = seen_cell.find_child("Name", true, false) as Label
+		if sn != null:
+			seen_name_ok = sn.text != "?" and sn.text.strip_edges() != ""
+	var ok := (
+		seen_txt == seen_copy
+		and seen_txt != miss_copy
+		and bank_txt == col_copy
+		and unseen_ok
+		and seen_name_ok
+		and roster_total > 0
+	)
+	_row(
+		"01",
+		ok,
+		"seen %s=%s banked %s=%s unseen %s name=%s state=%s roster=%s/%s cabinet=%s" % [
+			seen_only, seen_txt, banked_ids[0], bank_txt, unseen_id, unseen_name, unseen_state, cabinet_n, roster_total, cabinet_n
+		]
+	)
+	print("ROSTER_BIND b1 cabinet=%s roster_total=%s (source=progress_menu._pool_roster + CAMPAIGN_SHELL.cabinet_count)" % [cabinet_n, roster_total])
 	await _shot("01-catalogue-seen-vs-banked.png")
 
 
@@ -375,6 +502,7 @@ func _input_mouse() -> void:
 
 
 func _input_focus_and_back() -> void:
+	## Synthetic InputEventAction (not physical keyboard). Before / action / after + screensize.
 	await _present_settled(_payload("win", []))
 	var menu = main.progress_menu
 	menu._btn_skip.grab_focus()
@@ -385,15 +513,35 @@ func _input_focus_and_back() -> void:
 	await process_frame
 	var second := _focus_name()
 	var focus_moved := second != "" and second != first
+	_log_scale("esc-before")
+	var before_vis: bool = bool(menu.visible)
+	var before_focus := _focus_name()
+	await _shot("input-esc-before.png")
+	## ACTION: synthetic ui_cancel (labeled; not physical Esc key hardware).
 	_push_action("ui_cancel")
 	await process_frame
 	await process_frame
-	var still: bool = bool(menu.visible)
-	_row("focus", focus_moved, "from=%s to=%s" % [first, second])
-	_row("back", not still, "menu_still_visible=%s (Esc should restore the caller)" % still)
-	## If Esc dismissed, reopen briefly so the PNG still shows the progress surface.
-	if not still:
+	await process_frame
+	_log_scale("esc-after")
+	var after_vis: bool = bool(menu.visible)
+	var after_focus := _focus_name()
+	await _shot("input-esc-after.png")
+	## Caller restore: progress menu must leave; focus must not stay trapped on footer controls.
+	var restored := (not after_vis) and before_vis
+	var focus_not_on_menu := after_focus == "" or not str(after_focus).begins_with("Btn")
+	_row("focus", focus_moved, "synthetic_tab from=%s to=%s" % [first, second])
+	_row(
+		"back",
+		restored,
+		"input=synthetic_ui_cancel before_vis=%s after_vis=%s before_focus=%s after_focus=%s focus_free=%s" % [
+			before_vis, after_vis, before_focus, after_focus, focus_not_on_menu
+		]
+	)
+	## Keep a composite still of the focus-tab surface for REQ matrix continuity.
+	if not after_vis:
 		await _present_settled(_payload("win", []))
+		menu._btn_skip.grab_focus()
+		await process_frame
 	await _shot("input-focus-back.png")
 
 
@@ -461,27 +609,66 @@ func _shot_loss(seen_only: String) -> void:
 
 
 func _shot_cabin() -> void:
+	## Verdant (b1) must be the bright focus — not Crystal (b2). Roundtrip hide proves leave.
 	var cabin = main.home_cabin
 	cabin.bank_pending = []
 	cabin.key_ring_seen = true
 	cabin.set_meta("progress_menu_handled_return", true)
 	if not cabin.is_room_unlocked("hall"):
 		cabin._grant_all_rooms()
+	## BEFORE: cabin closed.
+	var before_vis: bool = bool(cabin.visible)
+	await _shot("06-cabin-before.png")
 	await cabin.open_cabin_after_progress_menu(
 		main.items_by_id, main.tex_by_item, int(main.get("_buckets_revealed")), "win", [], [], "b1"
 	)
-	for _i in 30:
+	for _i in 40:
+		await process_frame
+	## ACTION settle: hall open with Verdant case brighter than Crystal.
+	cabin.focus_biome_case("b1")
+	for _j in 20:
 		await process_frame
 	var room := str(cabin._current_room)
 	var pending: int = cabin.bank_pending.size()
-	var case_node: Node = cabin.get_node_or_null("_shelf_host")
-	var focused := false
 	var host = cabin.get("_shelf_host")
+	var b1_mod := Color.BLACK
+	var b2_mod := Color.WHITE
+	var has_b1 := false
+	var has_b2 := false
 	if host != null:
-		focused = host.get_node_or_null("Case_b1") != null
-	var ok := room == "hall" and pending == 0 and focused
-	_row("06", ok, "room=%s pending=%s case_b1=%s node=%s" % [room, pending, focused, case_node])
+		var c1 = host.get_node_or_null("Case_b1")
+		var c2 = host.get_node_or_null("Case_b2")
+		if c1 != null and c1 is CanvasItem:
+			has_b1 = true
+			b1_mod = (c1 as CanvasItem).modulate
+		if c2 != null and c2 is CanvasItem:
+			has_b2 = true
+			b2_mod = (c2 as CanvasItem).modulate
+	var verdant_brighter: bool = has_b1 and (b1_mod.r + b1_mod.g + b1_mod.b) > (b2_mod.r + b2_mod.g + b2_mod.b + 0.15)
+	_log_scale("cabin-action")
 	await _shot("06-cabin-optional-focus.png")
+	## AFTER roundtrip: hide_for_run restores non-cabin surface.
+	cabin.hide_for_run()
+	await process_frame
+	await process_frame
+	var after_vis: bool = bool(cabin.visible)
+	_log_scale("cabin-after")
+	await _shot("06-cabin-after.png")
+	var ok := (
+		room == "hall"
+		and pending == 0
+		and has_b1
+		and verdant_brighter
+		and before_vis == false
+		and after_vis == false
+	)
+	_row(
+		"06",
+		ok,
+		"room=%s pending=%s has_b1=%s has_b2=%s b1_mod=%s b2_mod=%s verdant_brighter=%s before_vis=%s after_vis=%s" % [
+			room, pending, has_b1, has_b2, b1_mod, b2_mod, verdant_brighter, before_vis, after_vis
+		]
+	)
 
 
 func _reduced_motion() -> void:

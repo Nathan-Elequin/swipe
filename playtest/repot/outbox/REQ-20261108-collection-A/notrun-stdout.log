@@ -1,0 +1,76 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.88 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 5070 Ti
+
+USER_DATA=C:/Users/Natha/AppData/Local/Temp/collection-a-sandbox/Godot/app_userdata/Spinheritance
+[audio] setup reason=boot bed=title playing=false
+[audio] start reason=music_to bed=title playing=false
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+HARNESS_RESET before tutorial
+[audio] start reason=music_to bed=title playing=true
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+SHOT N01-tutorial-handoff.png 1680x1040 err=0
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+[audio] start reason=music_to bed=cabin playing=true
+[audio] start reason=music_to bed=title playing=true
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+ROW 01_tutorial_handoff PASS opened=true sum=Tutorial complete. Tutorial items don't count toward collection progress. second=Tutorial complete. Tutorial items don't count toward collection progress.
+HARNESS_RESET after tutorial
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+HARNESS_RESET before nest
+[audio] start reason=music_to bed=cabin playing=true
+[pass6-fit] n=6 clearances=[66.2503588867187, 74.1599658203125, 66.2503741455078, 66.5717242431641, 71.7270355224609, 66.5717242431641]
+[pass6-fit] n=6 clearances=[14.1351776123047, 19.0, 14.1351928710937, 10.4307861328125, 17.7971801757813, 10.4307556152344]
+[pass6-fit] n=6 clearances=[6.84231567382813, 19.0, 14.1351928710937, 10.4307861328125, 17.7971801757813, 10.4307556152344]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, 17.7971801757813, 10.4307556152344]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, 17.7971801757813, 10.4307556152344]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, 17.7971801757813, 10.4307556152344]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, -4.93142700195313, 10.4307556152344]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, -4.93142700195313, 10.7873229980469]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, -4.93142700195313, 10.7873229980469]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, -4.93142700195313, 10.7873229980469]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, -4.93142700195313, 10.7873229980469]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, -4.93142700195313, 10.7873229980469]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, -4.93142700195313, 10.7873229980469]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, -4.93142700195313, 10.7873229980469]
+[pass6-fit] n=6 clearances=[6.84231567382813, 10.803955078125, 14.1351928710937, 10.4307861328125, -4.93142700195313, 10.7873229980469]
+[pass6-fit] n=6 clearances=[6.73732757568359, 10.5101318359375, 14.1101779174805, 10.3257904052734, -5.22628784179688, 10.4946594238281]
+SHOT N02-nest-verdant-start.png 1680x1040 err=0
+ROW 02_nest_verdant_start PASS phase=ready busy=false adventure=true
+HARNESS_RESET after nest
+HARNESS_RESET before checkpoint
+SHOT N03-checkpoint-extract.png 1680x1040 err=0
+ROW 03_checkpoint_extract PARTIAL rope_visible=true labels=Dungeon {n} cleared! | A knotted rope ladder, tagged with his name. Daylight, far above. | Grandpa's Emergency Exit | Nib | Press Space to continue.
+HARNESS_RESET after checkpoint
+HARNESS_RESET before splash
+[audio] start reason=music_to bed=title playing=true
+SHOT N04-biome-entry-splash.png 1680x1040 err=0
+ROW 04_biome_entry_splash PASS Crystal splash node present=BiomeSplash:<CanvasLayer#1254029794627>
+HARNESS_RESET after splash
+HARNESS_RESET before late-pool
+SHOT N05-late-pool-scrape.png 1680x1040 err=0
+ROW 05_late_pool_scrape PASS late_id=victory_flask status=carried quiet=[Spin copy: Verdant Hollow banked 12/5 · held new 1] banked=12
+HARNESS_RESET after late-pool
+HARNESS_RESET before cabinet_full
+SHOT N06-full-cabinet-ui.png 1680x1040 err=0
+ROW 06_full_cabinet_ui PASS has_full=true roster=15 blob=[Spin copy: This return] | [Spin copy: Cabinet complete 15/15 — display only] | Item types collected: 15/67 | Verdant Hollow collection: 15/15 | Crystal Cavern collection: 0/14 | Ashen Crypt — Locked | Bring home 5 different item types from
+HARNESS_RESET after cabinet_full
+HARNESS_RESET before final victory
+SHOT N07-final-dungeon-victory.png 1680x1040 err=0
+ROW 07_final_dungeon_victory PASS summary=Made it home. No new item types added. inheritance_text=false won=false — dedicated final-clear ceremony copy may still be Spin-owned
+HARNESS_RESET after final victory
+HARNESS_RESET before inheritance
+SHOT N08-inheritance-handoff.png 1680x1040 err=0
+ROW 08_inheritance_handoff PASS has_complete=true shown=true banked=66 — Spin owns final handoff prose; no authored story implemented
+HARNESS_RESET after inheritance
+NOTRUN_PASS_DONE
+CASE 01_tutorial_handoff PASS opened=true sum=Tutorial complete. Tutorial items don't count toward collection progress. second=Tutorial complete. Tutorial items don't count toward collection progress.
+CASE 02_nest_verdant_start PASS phase=ready busy=false adventure=true
+CASE 03_checkpoint_extract PARTIAL rope_visible=true labels=Dungeon {n} cleared! | A knotted rope ladder, tagged with his name. Daylight, far above. | Grandpa's Emergency Exit | Nib | Press Space to continue.
+CASE 04_biome_entry_splash PASS Crystal splash node present=BiomeSplash:<CanvasLayer#1254029794627>
+CASE 05_late_pool_scrape PASS late_id=victory_flask status=carried quiet=[Spin copy: Verdant Hollow banked 12/5 · held new 1] banked=12
+CASE 06_full_cabinet_ui PASS has_full=true roster=15 blob=[Spin copy: This return] | [Spin copy: Cabinet complete 15/15 — display only] | Item types collected: 15/67 | Verdant Hollow collection: 15/15 | Crystal Cavern collection: 0/14 | Ashen Crypt — Locked | Bring home 5 different item types from
+CASE 07_final_dungeon_victory PASS summary=Made it home. No new item types added. inheritance_text=false won=false — dedicated final-clear ceremony copy may still be Spin-owned
+CASE 08_inheritance_handoff PASS has_complete=true shown=true banked=66 — Spin owns final handoff prose; no authored story implemented
+ERROR: 31 RID allocations of type 'N5GLES37TextureE' were leaked at exit.
+ERROR: 145 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+ERROR: 3 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.
