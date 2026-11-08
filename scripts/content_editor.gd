@@ -56,6 +56,7 @@ const DEFAULT_EXPLAINER := {
 	"spiked_shield": "(Attack 3) or (Block 3), then the other after each Item",
 	"grief_jar": "+2 Block each Lose HP",
 	"shardplate": "+1 Block per enemy Attack Damage; cash on play",
+	"love_potion": "Select 2; lower HP then ATK until equal",
 	"longbow": "(ATK 5) opposite",
 	"lantern": "(HEAL 1 → 2) Keep if still missing HP",
 	"mirror_shard": "(Last BLK)",

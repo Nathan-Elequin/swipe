@@ -8760,7 +8760,7 @@ func _on_slice_hovered(index: int) -> void:
 	_fill_inspect_from_slice(index)
 	if not pending_mark.is_empty() and phase == "fighting":
 		var mk: String = str(pending_mark.get("kind", ""))
-		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "hypnotize" or mk == "defeat_double_hp" or mk == "sling_any" or mk == "chain_flee":
+		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "hypnotize" or mk == "defeat_double_hp" or mk == "sling_any" or mk == "chain_flee" or mk == "love_potion":
 			_apply_preview(_preview_mark_aim(mk, index))
 		else:
 			_apply_preview(_preview_bribe(index))
@@ -10505,8 +10505,15 @@ func _use_item(uid: int) -> void:
 		_sync_buttons()
 		call_deferred("_refresh")
 		return
-	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "signpost" or kind == "chain_flee":
-		if _mark_targets(kind).is_empty():
+	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "signpost" or kind == "chain_flee" or kind == "love_potion":
+		if kind == "love_potion":
+			if _living_monster_indices().size() < 2:
+				_log("on_item_use", "cannot")
+				if sfx:
+					sfx.play("error", -10.0)
+				_undo_abort()
+				return
+		elif _mark_targets(kind).is_empty():
 			_log("on_item_use", "cannot")
 			if sfx:
 				sfx.play("error", -10.0)
@@ -10520,7 +10527,10 @@ func _use_item(uid: int) -> void:
 			_log("blk", "+%s  →  %s" % [7, blk])
 			await _flush_rust_from_block()
 		pending_mark = {"uid": uid, "kind": kind}
-		_log("on_item_use", "pick who attacks across" if kind == "hypnotize" else ("pick a monster" if kind == "defeat_double_hp" or kind == "sling_any" or kind == "hook_swap" else "pick a neighbor"))
+		if kind == "love_potion":
+			_log("on_item_use", "pick two monsters")
+		else:
+			_log("on_item_use", "pick who attacks across" if kind == "hypnotize" else ("pick a monster" if kind == "defeat_double_hp" or kind == "sling_any" or kind == "hook_swap" else "pick a neighbor"))
 		_loud_mark_prompt(kind)
 		call_deferred("_refresh")
 		return
@@ -12697,6 +12707,176 @@ func _flash_reset_line(index: int) -> void:
 	tw.finished.connect(lab.queue_free)
 
 
+func _apply_love_potion_mark(index: int) -> void:
+	## Select any 2 living enemies; lower HP until equal, then ATK until equal.
+	## HP chips use `_chip_hp` (HP-loss reactions, not Attack → no Shardplate).
+	if not _can_mark(index, "love_potion"):
+		if sfx:
+			sfx.play("error", -10.0)
+		return
+	var it: Dictionary = _find_item(int(pending_mark.get("uid", -1)))
+	if it.is_empty() or bool(it.get("spent", false)):
+		pending_mark.clear()
+		_undo_abort()
+		call_deferred("_refresh")
+		return
+	var first_uid: int = int(pending_mark.get("first_uid", -1))
+	if first_uid < 0:
+		pending_mark["first_uid"] = _seat_uid_at(index)
+		pending_mark["first_i"] = index
+		_log("on_item_use", "pick the second monster")
+		_loud_mark_prompt("love_potion")
+		call_deferred("_refresh")
+		return
+	var a: int = -1
+	for i in range(wheel.size()):
+		if _seat_uid_at(i) == first_uid:
+			a = i
+			break
+	var b: int = index
+	if a < 0 or a == b or not _can_mark(b, "love_potion"):
+		if sfx:
+			sfx.play("error", -10.0)
+		return
+	pending_mark.clear()
+	await _announce_item_use(it, _slice_from(b) if b >= 0 else _hub_hp_pos(), true)
+	var token: int = _undo_gen
+	_bleed_begin()
+	_log("on_item_use", str(it.get("name", "Love Potion")))
+	await _love_potion_equalize(a, b)
+	if _undo_stale(token):
+		await _bleed_end()
+		return
+	it["spent"] = true
+	await _count_item_use()
+	_toss_item(int(it["uid"]), false)
+	_sync_wheel_stats()
+	await _after_item_resolved(it)
+	await _bleed_end()
+	if _undo_stale(token):
+		return
+	_undo_finish_item()
+	call_deferred("_refresh")
+
+
+func _love_potion_equalize(a: int, b: int) -> void:
+	## Inverse Clockwork Synchronize: lower the higher until equal (HP, then ATK).
+	if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
+		return
+	await _love_sync_pair_stat(a, b, true)
+	if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
+		return
+	if int(wheel[a].get("hp", 0)) <= 0 or int(wheel[b].get("hp", 0)) <= 0:
+		await _run_dead_sweep()
+		return
+	var before: Dictionary = {}
+	for j in [a, b]:
+		if j < 0 or j >= wheel.size():
+			continue
+		if _atk_is_always(wheel[j]):
+			before[j] = int(wheel[j].get("atk", 0))
+	await _love_sync_pair_stat(a, b, false)
+	_sync_wheel_stats()
+	if wheel_view:
+		wheel_view.set_slices(wheel, facing_index, "none")
+	for j3 in before.keys():
+		var ji: int = int(j3)
+		if ji < 0 or ji >= wheel.size():
+			continue
+		if not _atk_is_always(wheel[ji]):
+			continue
+		var now_atk: int = int(wheel[ji].get("atk", 0))
+		if now_atk == int(before[j3]):
+			continue
+		_log("on_resolve", "Reset due to ability")
+		_flash_reset_line(ji)
+		if wheel_view:
+			wheel_view.punch_atk(ji)
+		if get_tree():
+			await get_tree().create_timer(0.45).timeout
+	await _run_dead_sweep()
+
+
+func _love_sync_pair_stat(a: int, b: int, hp_stat: bool) -> void:
+	var key: String = "hp" if hp_stat else "atk"
+	var guard: int = 0
+	while guard < 48:
+		guard += 1
+		if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
+			return
+		if int(wheel[a].get("hp", 0)) <= 0 or int(wheel[b].get("hp", 0)) <= 0:
+			return
+		var av: int = int(wheel[a].get(key, 0))
+		var bv: int = int(wheel[b].get(key, 0))
+		if av == bv:
+			return
+		var high: int = a if av > bv else b
+		## Always ATK snaps back — cannot permanently lower (Clockwork Reset peer).
+		if not hp_stat and _atk_is_always(wheel[high]):
+			return
+		await _love_drain_one(high, hp_stat)
+	if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
+		return
+	if int(wheel[a].get("hp", 0)) <= 0 or int(wheel[b].get("hp", 0)) <= 0:
+		return
+	var av2: int = int(wheel[a].get(key, 0))
+	var bv2: int = int(wheel[b].get(key, 0))
+	if av2 == bv2:
+		return
+	var high2: int = a if av2 > bv2 else b
+	if not hp_stat and _atk_is_always(wheel[high2]):
+		return
+	var goal: int = bv2 if av2 > bv2 else av2
+	var cur: int = av2 if av2 > bv2 else bv2
+	while cur > goal:
+		if hp_stat:
+			var stopped: bool = await _chip_hp(high2, 1)
+			if stopped:
+				return
+		else:
+			_love_drain_atk_instant(high2)
+		cur -= 1
+	_show_sync_slice(high2, hp_stat)
+
+
+func _love_drain_one(high: int, hp_stat: bool) -> void:
+	if high < 0 or high >= wheel.size():
+		return
+	var from: Vector2 = _stat_pip_pos(high, hp_stat)
+	var to: Vector2 = from + Vector2(0, -36)
+	await _fly_stat_courier(from, to, hp_stat, true)
+	if hp_stat:
+		## HP-loss reactions yes; Attack/Shardplate no.
+		await _chip_hp(high, 1)
+	else:
+		_love_drain_atk_instant(high)
+	_show_sync_slice(high, hp_stat)
+	var stat_name: String = "HP" if hp_stat else "Attack"
+	if high >= 0 and high < wheel.size():
+		_log("on_resolve", "Love Potion −1 %s → %s" % [stat_name, str(wheel[high].get("name", "?"))])
+
+
+func _love_drain_atk_instant(high: int) -> void:
+	if high < 0 or high >= wheel.size():
+		return
+	var s: Dictionary = wheel[high]
+	if _atk_is_always(s):
+		## Always ATK snaps back on sync — still show the drain attempt like Clockwork Reset.
+		s["atk"] = maxi(0, int(s.get("atk", 0)) - 1)
+		wheel[high] = s
+		return
+	var sync_extra: int = int(s.get("sync_atk", 0))
+	if sync_extra > 0:
+		s["sync_atk"] = sync_extra - 1
+		s["atk"] = maxi(0, int(s.get("atk", 0)) - 1)
+	else:
+		s["atk_mod"] = int(s.get("atk_mod", 0)) - 1
+		s["atk"] = maxi(0, int(s.get("atk", 0)) - 1)
+		if s.has("atk_innate"):
+			s["atk_innate"] = maxi(0, int(s.get("atk_innate", 0)) - 1)
+	wheel[high] = s
+
+
 func _wick_waiting(_index: int) -> bool:
 	return false
 
@@ -13863,7 +14043,7 @@ func _item_opens_use_pick(it: Dictionary) -> bool:
 		return true
 	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor":
 		return true
-	if kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp":
+	if kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "love_potion":
 		return true
 	return kind == "polymorph" or kind == "signpost" or kind == "chain_flee"
 
@@ -15139,6 +15319,11 @@ func _sync_hub_cue() -> void:
 		var line: String = PLAYER_COPY.text("cue.mark", "Pick a neighbor.")
 		if mk == "hypnotize" or mk == "defeat_double_hp" or mk == "sling_any":
 			line = "Click any monster."
+		elif mk == "love_potion":
+			if int(pending_mark.get("first_uid", -1)) >= 0:
+				line = "Click the second monster."
+			else:
+				line = "Click two monsters."
 		hub_cue.show_hold(line, "mark")
 		return
 	if challenge_draft_ui != null and challenge_draft_ui.visible and _draft_final_item:
@@ -20512,7 +20697,7 @@ func _neighbor_indices() -> Array[int]:
 
 func _mark_targets(kind: String) -> Array[int]:
 	var out: Array[int] = []
-	if kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "sling_any" or kind == "hook_swap":
+	if kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "sling_any" or kind == "hook_swap" or kind == "love_potion":
 		for i in range(wheel.size()):
 			if _can_mark(i, kind):
 				out.append(i)
@@ -20534,6 +20719,13 @@ func _can_mark(index: int, kind: String) -> bool:
 		return _across_index(index) >= 0
 	if kind == "sling_any" or kind == "hook_swap":
 		return int(wheel[index].get("hp", 0)) > 0
+	if kind == "love_potion":
+		if int(wheel[index].get("hp", 0)) <= 0:
+			return false
+		var first_uid: int = int(pending_mark.get("first_uid", -1))
+		if first_uid >= 0 and _seat_uid_at(index) == first_uid:
+			return false
+		return true
 	if kind == "signpost" or kind == "chain_flee":
 		if index == facing_index:
 			return false
@@ -20601,6 +20793,9 @@ func _apply_mark(index: int) -> void:
 func _apply_mark_inner(index: int) -> void:
 	var kind: String = str(pending_mark.get("kind", ""))
 	var atk_uid: int = int(pending_mark.get("atk_uid", -1))
+	if kind == "love_potion":
+		await _apply_love_potion_mark(index)
+		return
 	if not _can_mark(index, kind):
 		if sfx:
 			sfx.play("error", -10.0)
@@ -21979,6 +22174,8 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 			return [[_fg("shield", n, "", "", "bleed")]]
 		"shardplate":
 			return [[_fg("shield", n)]]
+		"love_potion":
+			return [[_fg("heart"), _fg("heart")]]
 		"spinning_top":
 			return [[_fg("skull", n), _fg("icon", "", "", "", "", "spin")]]
 		"signpost":
@@ -22486,6 +22683,11 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = "4"
 			out["note"] = ""
 			out["can_use"] = fighting and not _living_monster_indices().is_empty()
+		"love_potion":
+			out["kind"] = "MARK"
+			out["number"] = ""
+			out["note"] = ""
+			out["can_use"] = fighting and _living_monster_indices().size() >= 2
 		"toll":
 			out["kind"] = "HP"
 			out["n"] = int(it.get("toll_n", 6))
@@ -22988,6 +23190,17 @@ func _preview_mark_aim(kind: String, hover: int) -> Dictionary:
 		if hover == i:
 			slot["aim"] = true
 		p[i] = slot
+	if kind == "love_potion":
+		var first_uid: int = int(pending_mark.get("first_uid", -1))
+		if first_uid >= 0:
+			for i2 in range(wheel.size()):
+				if _seat_uid_at(i2) != first_uid:
+					continue
+				var held: Dictionary = p.get(i2, {})
+				held["mark"] = true
+				held["aim"] = true
+				p[i2] = held
+				break
 	return p
 
 
@@ -23930,6 +24143,12 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = str(it.get("ability", "Gain 0 Block. When an enemy takes Attack Damage, this Gains +1 Block."))
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = "Can't — no block stored yet."
+		"love_potion":
+			out["value"] = _value_bb("Equalize", "2", gold)
+			out["equation"] = "lower %s then %s until equal" % [_bb(hp_c, "HP"), _bb(atk_c, "Attack")]
+			out["body"] = str(it.get("ability", "Select any 2 enemies. Lower their HP until equal, then lower their Attack until equal."))
+			if fighting and not bool(view.get("can_use", false)):
+				out["warn"] = "Can't — need two living monsters."
 		"atk_wheel":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
 			out["equation"] = "(%s)" % _bb(var_c, "Owners left")
@@ -25969,7 +26188,7 @@ func _refresh() -> void:
 			else:
 				wheel[i]["across"] = -1
 		## Keep neighbor aim ghosts on while picking (never the facing kill ghost).
-		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "sling_any" or mk == "chain_flee":
+		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "sling_any" or mk == "chain_flee" or mk == "love_potion":
 			_apply_preview(_preview_mark_aim(mk, _hover_slice))
 	else:
 		for i2 in wheel.size():
@@ -26065,6 +26284,10 @@ func _cue_text() -> String:
 			if not pending_mark.is_empty():
 				if str(pending_mark.get("kind", "")) == "hypnotize" or str(pending_mark.get("kind", "")) == "defeat_double_hp" or str(pending_mark.get("kind", "")) == "sling_any":
 					return "Click any monster."
+				if str(pending_mark.get("kind", "")) == "love_potion":
+					if int(pending_mark.get("first_uid", -1)) >= 0:
+						return "Click the second monster."
+					return "Click two monsters."
 				return PLAYER_COPY.text("cue.mark", "Click a neighboring enemy")
 			if facing_index >= 0 and _wick_waiting(facing_index):
 				return "They are at 0 HP. Click Done."
