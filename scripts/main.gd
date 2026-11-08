@@ -144,7 +144,7 @@ const ITEM_OPS := {
 	"pacemaker": {"kind": "passive"},
 	"catapult": {"kind": "eject_draw"},
 	"polymorph": {"kind": "polymorph"},
-	"stone_wall": {"kind": "blk", "n": 10},
+	"stone_wall": {"kind": "blk", "n": 9},
 	"flying_saucer": {"kind": "flee_then_blk", "n": 5},
 	"blood_chalice": {"kind": "heal_last_loss"},
 	"grief_jar": {"kind": "blk_siphon"},

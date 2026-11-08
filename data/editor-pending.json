@@ -12,18 +12,6 @@
 			"name": "The Boot",
 			"saved_at": "2026-11-06T23:10:12"
 		},
-		"item:stone_wall": {
-			"fields": {
-				"status": {
-					"from": "live",
-					"to": "todo"
-				}
-			},
-			"id": "stone_wall",
-			"kind": "item",
-			"name": "Stone Wall",
-			"saved_at": "2026-11-06T23:07:12"
-		},
 		"item:tesla_coil": {
 			"fields": {
 				"ability": {
