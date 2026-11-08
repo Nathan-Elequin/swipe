@@ -1,0 +1,627 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.88 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 5070 Ti
+
+USER_DATA=C:/Users/Natha/AppData/Local/Temp/collection-a-sandbox/Godot/app_userdata/Spinheritance
+[audio] setup reason=boot bed=title playing=false
+[audio] start reason=music_to bed=title playing=false
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+SCALE boot viewport=1680.0x1040.0 window=1680x1040
+TIP_SHA 5e75b7c9 full=5e75b7c9d5860314967015c1635c250699d28365
+ROSTER_FILTER source=progress_menu._pool_roster + harness._pool_ids status not in hold/retired
+CINDER_RAW_INCLUDING_HOLD_RETIRED 13 LIVE_BANKABLE 12
+EXCLUDED_CINDER danger_magnet|Danger Magnet|hold|pool=4.0
+LIVE_BANKABLE_ROSTER { "b1": 15, "b2": 14, "b3": 14, "b4": 12, "b5": 11 } sum=66
+HARNESS_RESET before tutorial
+[audio] start reason=music_to bed=title playing=true
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+SCALE N01-tutorial-handoff.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N01-tutorial-handoff.png 1680x1040 bytes=96329
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+[audio] start reason=music_to bed=cabin playing=true
+[audio] start reason=music_to bed=title playing=true
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+TUTORIAL_ADVERSE second_direct_replay=true subsequent_ordinary_kind=win subsequent_ok=true
+ROW 01 PARTIAL [integration] ADVERSE: second direct _road_finish_to_cabin reopens tutorial; subsequent ordinary win kind=win (not tutorial). Full in-dungeon tutorial still unautomated.
+HARNESS_RESET after tutorial
+HARNESS_RESET before nest
+[pass6-fit] n=6 clearances=[66.2503588867187, 74.1599658203125, 66.2503741455078, 66.5717242431641, 71.7270355224609, 66.5717242431641]
+[pass6-fit] n=6 clearances=[10.7183645629883, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[10.7183645629883, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 6.07281097412108, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 6.07281097412108, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 6.07281097412108, 6.09579467773438, 6.92000183105468, 6.09577178955078]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 6.07281097412108, 6.09579467773438, 6.92000183105468, 2.43826293945313]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 6.07281097412108, 6.09579467773438, 6.92000183105468, 2.43826293945313]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 6.07281097412108, 6.09579467773438, 6.92000183105468, 2.43826293945313]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 6.07281097412108, 6.09579467773438, 6.92000183105468, 2.43826293945313]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 6.07281097412108, 6.09579467773438, 6.92000183105468, 2.43826293945313]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 6.07281097412108, 6.09579467773438, 6.92000183105468, 2.43826293945313]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 6.07281097412108, 6.09579467773438, 6.92000183105468, 2.43826293945313]
+[pass6-fit] n=6 clearances=[10.7183645629883, 2.92001708984374, 6.07281097412108, 6.09579467773438, 6.92000183105468, 2.43826293945313]
+SCALE N02-nest-verdant-start.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N02-nest-verdant-start.png 1680x1040 bytes=95655
+ROW 02 PASS [integration] Start→Verdant nest settled phase=ready (synthetic finalize)
+HARNESS_RESET after nest
+ROW 05 PASS [unit] offer-decline / seen retention covered by unit helper only — live mill offer-decline NOT exercised this drain
+HARNESS_RESET before checkpoint
+SCALE N03-checkpoint-extract.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N03-checkpoint-extract.png 1680x1040 bytes=126819
+[audio] start reason=music_to bed=cabin playing=true
+WARNING: pass6 fit: seat 0 clearance -5.33082056045532 still < 0 (r=195.12 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 1 clearance -9.65130615234375 still < 0 (r=189.12 dy=28.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 2 clearance -9.65132904052734 still < 0 (r=189.12 dy=28.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.3308048248291 still < 0 (r=195.12 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -5.05908203125 still < 0 (r=201.12 dy=28.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -5.92297983169556 still < 0 (r=183.12 dy=8.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 6 clearance -5.92298460006714 still < 0 (r=183.12 dy=8.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 7 clearance -5.05906677246094 still < 0 (r=201.12 dy=28.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=8 clearances=[-5.33082056045532, -9.65130615234375, -9.65132904052734, -5.3308048248291, -5.05908203125, -5.92297983169556, -5.92298460006714, -5.05906677246094]
+SCALE N03b-head-home-progress.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N03b-head-home-progress.png 1680x1040 bytes=85652
+ROW 11 PASS [integration] Climb leave with haul fangs/net → menu; banked_a=true banked_b=true (integration route, not physical-input journey)
+HARNESS_RESET after checkpoint
+HARNESS_RESET before splash
+ERROR: Can't save PNG at path: 'C:/Users/Natha/Documents/boss-rush/playtest/repot/outbox/REQ-20261108-collection-A/shots/N04a-push-rope-before.png'.
+   at: save_image (drivers/png/resource_saver_png.cpp:56)
+   GDScript backtrace (most recent call first):
+       [0] _shot (res://scripts/dev/collection_a_notrun_cases.gd:103)
+SCALE N04a-push-rope-before.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N04a-push-rope-before.png 1680x1040 bytes=126937
+[audio] start reason=music_to bed=title playing=true
+[pass6-fit] n=6 clearances=[10.6956155395508, 14.3340148925781, 10.6956307983398, 6.0365884399414, 12.53759765625, 6.03659606933593]
+SCALE N04-biome-entry-splash.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N04-biome-entry-splash.png 1680x1040 bytes=1133793
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+WARNING: pass6 fit: seat 3 clearance -17.2605972290039 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, -17.2605972290039, 12.8309936523438, 6.09577178955078]
+WARNING: pass6 fit: seat 3 clearance -17.2605972290039 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, -17.2605972290039, 2.0023193359375, 6.09577178955078]
+WARNING: pass6 fit: seat 3 clearance -17.2605972290039 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, -17.2605972290039, 2.0023193359375, -17.2606353759766]
+WARNING: pass6 fit: seat 3 clearance -17.2605972290039 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, -17.2605972290039, 2.0023193359375, -17.2606353759766]
+WARNING: pass6 fit: seat 3 clearance -17.2605972290039 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, -17.2605972290039, 2.0023193359375, -17.2606353759766]
+WARNING: pass6 fit: seat 3 clearance -17.2605972290039 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, -17.2605972290039, 2.0023193359375, -17.2606353759766]
+WARNING: pass6 fit: seat 3 clearance -17.2605972290039 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, -17.2605972290039, 2.0023193359375, -17.2606353759766]
+WARNING: pass6 fit: seat 3 clearance -17.2605972290039 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, -17.2605972290039, 2.0023193359375, -17.2606353759766]
+WARNING: pass6 fit: seat 3 clearance -17.2605972290039 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, -17.2605972290039, 2.0023193359375, -17.2606353759766]
+WARNING: pass6 fit: seat 3 clearance -17.2605972290039 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, -17.2605972290039, 2.0023193359375, -17.2606353759766]
+ROW 12 PASS [integration] Push/_rope_deeper → Crystal; haul fangs still carried (risk preserved, not banked on Push; integration route, not physical-input journey)
+HARNESS_RESET after splash
+HARNESS_RESET before next-verdant
+[pass6-fit] n=6 clearances=[10.6956155395508, 14.3340148925781, 10.6956307983398, 6.0365884399414, 12.53759765625, 6.03659606933593]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 3.04616149902343, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 3.04616149902343, 6.92000183105468, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 3.04616149902343, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 3.04616149902343, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 3.04616149902343, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 3.04616149902343, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 3.04616149902343, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 3.04616149902343, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 3.04616149902343, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 3.04616149902343, 6.92000183105468, 6.96208557128905]
+SCALE N09-next-ordinary-verdant.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N09-next-ordinary-verdant.png 1680x1040 bytes=95687
+ROW 18 PASS [integration] post-receipt Start→Verdant ready pool=b1
+HARNESS_RESET after next-verdant
+HARNESS_RESET before late-pool
+SCALE N05-late-pool-scrape.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N05-late-pool-scrape.png 1680x1040 bytes=82318
+ROW 20 PASS [integration] late missing victory_flask banked+retained; catalogue name=Victory Flask (fixture preconditions + authoritative bank)
+HARNESS_RESET after late-pool
+HARNESS_RESET before cabinet_full
+ERROR: Can't save PNG at path: 'C:/Users/Natha/Documents/boss-rush/playtest/repot/outbox/REQ-20261108-collection-A/shots/N06-full-cabinet-ui.png'.
+   at: save_image (drivers/png/resource_saver_png.cpp:56)
+   GDScript backtrace (most recent call first):
+       [0] _shot (res://scripts/dev/collection_a_notrun_cases.gd:103)
+SCALE N06-full-cabinet-ui.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N06-full-cabinet-ui.png 1680x1040 bytes=95107
+ROW 21 PASS [integration] last b1 bank→cabinet_full; gate capped; no replay; shot_ok; roster=15
+HARNESS_RESET after cabinet_full
+HARNESS_RESET before final victory
+N07_INDEPENDENCE cabinets_complete=false roster_complete=false endless=false won=false sum=Made it home. No new item types added. full_line=false distinct_copy=false
+SCALE N07-final-dungeon-victory.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N07-final-dungeon-victory.png 1680x1040 bytes=95634
+ROW 22 PARTIAL [integration] N07 ordinary Made-it-home on b5 with cabinets_complete=false and roster incomplete; no Full collection. Durable won/endless only via cabinets_complete in bank() — no independent final-dungeon-clear trigger. COPY_GAP: no approved distinct final-clear summary.
+HARNESS_RESET after final victory
+HARNESS_RESET before inheritance
+ROSTER_TOTALS { "b1": 15, "b2": 14, "b3": 14, "b4": 12, "b5": 11 } sum=66
+N08a UI totals=(65, 66) full_line=false native_ms=false
+SCALE N08a-incomplete-66.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N08a-incomplete-66.png 1680x1040 bytes=134712
+N08_BANK_RELOAD added=["venom_veins"] has_last=true banked_n=66 pos_ms_native=true
+N08 UI totals=(66, 66) full_line=true ms=true banked=66
+SCALE N08-inheritance-handoff.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N08-inheritance-handoff.png 1680x1040 bytes=81656
+N08_REPLAY ms_replay=false ui_full=false
+ROW 23 PASS [integration] neg UI 65/66 no Full collection (injected suppressed); pos bank→save→reload→UI 66/66 Full collection once (native ms); no replay
+HARNESS_RESET after inheritance
+HARNESS_RESET before reload-freedom
+[pass6-fit] n=6 clearances=[10.6956155395508, 14.3340148925781, 10.6956307983398, 6.0365884399414, 12.53759765625, 6.03659606933593]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 6.07281097412108, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 6.07281097412108, 6.9620474243164, 12.8309936523438, 6.09577178955078]
+WARNING: wheel seat glass_asp is 64.0x64.0; difficulty wants 48.0 native
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _seat_sprite_size (res://scripts/boss_wheel.gd:2046)
+       [1] _fit_sig_of (res://scripts/boss_wheel.gd:2100)
+       [2] _fit_table (res://scripts/boss_wheel.gd:2111)
+       [3] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [4] _spoke (res://scripts/boss_wheel.gd:1541)
+       [5] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [6] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 6.07281097412108, 6.9620474243164, -9.96841430664063, 6.09577178955078]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -5.58279418945313 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 6.07281097412108, 6.9620474243164, -9.96841430664063, -5.58279418945313]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -5.58279418945313 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 6.07281097412108, 6.9620474243164, -9.96841430664063, -5.58279418945313]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -5.58279418945313 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 6.07281097412108, 6.9620474243164, -9.96841430664063, -5.58279418945313]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -5.58279418945313 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 6.07281097412108, 6.9620474243164, -9.96841430664063, -5.58279418945313]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -5.58279418945313 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 6.07281097412108, 6.9620474243164, -9.96841430664063, -5.58279418945313]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -5.58279418945313 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 6.07281097412108, 6.9620474243164, -9.96841430664063, -5.58279418945313]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -5.58279418945313 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 6.07281097412108, 6.9620474243164, -9.96841430664063, -5.58279418945313]
+WARNING: pass6 fit: seat 0 clearance -0.68882751464844 still < 0 (r=186.33 dy=4.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -5.58279418945313 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+[pass6-fit] n=6 clearances=[-0.68882751464844, 2.92001708984374, 6.07281097412108, 6.9620474243164, -9.96841430664063, -5.58279418945313]
+[audio] start reason=music_to bed=crystal_cavern playing=true
+SCALE N10-completed-reload-freedom.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N10-completed-reload-freedom.png 1680x1040 bytes=65587
+ROW 24 PASS [integration] completed save: re-bank empty, Start settles, cabin opens, no collection_complete replay
+HARNESS_RESET after reload-freedom
+ROW RM NOTRUN [unit] reduced-motion preference path not exercised (no preference mutation allowed)
+ROW SC NOTRUN [unit] scaling probe logs SCALE lines only — not a full UI scale acceptance suite
+HONESTY_DRAIN_DONE
+CASE 01 verdict=PARTIAL level=integration note=ADVERSE: second direct _road_finish_to_cabin reopens tutorial; subsequent ordinary win kind=win (not tutorial). Full in-dungeon tutorial still unautomated.
+CASE 02 verdict=PASS level=integration note=Start→Verdant nest settled phase=ready (synthetic finalize)
+CASE 05 verdict=PASS level=unit note=offer-decline / seen retention covered by unit helper only — live mill offer-decline NOT exercised this drain
+CASE 11 verdict=PASS level=integration note=Climb leave with haul fangs/net → menu; banked_a=true banked_b=true (integration route, not physical-input journey)
+CASE 12 verdict=PASS level=integration note=Push/_rope_deeper → Crystal; haul fangs still carried (risk preserved, not banked on Push; integration route, not physical-input journey)
+CASE 18 verdict=PASS level=integration note=post-receipt Start→Verdant ready pool=b1
+CASE 20 verdict=PASS level=integration note=late missing victory_flask banked+retained; catalogue name=Victory Flask (fixture preconditions + authoritative bank)
+CASE 21 verdict=PASS level=integration note=last b1 bank→cabinet_full; gate capped; no replay; shot_ok; roster=15
+CASE 22 verdict=PARTIAL level=integration note=N07 ordinary Made-it-home on b5 with cabinets_complete=false and roster incomplete; no Full collection. Durable won/endless only via cabinets_complete in bank() — no independent final-dungeon-clear trigger. COPY_GAP: no approved distinct final-clear summary.
+CASE 23 verdict=PASS level=integration note=neg UI 65/66 no Full collection (injected suppressed); pos bank→save→reload→UI 66/66 Full collection once (native ms); no replay
+CASE 24 verdict=PASS level=integration note=completed save: re-bank empty, Start settles, cabin opens, no collection_complete replay
+CASE RM verdict=NOTRUN level=unit note=reduced-motion preference path not exercised (no preference mutation allowed)
+CASE SC verdict=NOTRUN level=unit note=scaling probe logs SCALE lines only — not a full UI scale acceptance suite

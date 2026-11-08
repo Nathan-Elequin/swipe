@@ -2,61 +2,76 @@
 id: REQ-20261108-collection-A
 status: done
 fulfilled_by: local-cursor
-fulfilled_at: 2026-11-08T08:35:00-06:00
+fulfilled_at: 2026-11-08T08:48:00-06:00
 machine: Cherry
-tip_sha: 4844853d5ec0a8c18bba2d4c5c0f8cbdda1a884a
-base_tip: 4a103c42fae3ce2a1abcd1036aae70ae30a49f75
+tip_sha: 5e75b7c9d5860314967015c1635c250699d28365
+base_tip: 5e75b7c9d5860314967015c1635c250699d28365
+prior_pr_head: f7f73e68165ce88a7102f9c33d89b65c22457f58
+prior_base: 4a103c42fae3ce2a1abcd1036aae70ae30a49f75
 godot: windowed isolated process (not MCP 6550), Godot 4.7.2-stable, viewport 1680x1040
-branch_fixes: cursor/collection-a-honesty-drain-e524
-n08_blocker: fixed
-local_tip_smoke: TIP_SMOKE_OK
+branch_fixes: cursor/collection-a-acceptance-qa-e524
+watermark: 5e75b7c9*
+n08_path: bank-save-reload-native-ms
+local_tip_smoke: pending
 ---
 
-# Result â€” honesty drain + N08 premature-complete fix
+# Result — post-merge acceptance QA on tip `5e75b7c9`
 
-**Hard stop honored:** tip-smoke on `0a37d7e1` alone did **not** merge. N08 showed Full collection while totals were incomplete â€” fixture/eligibility fixed and re-shot before merge.
+No all-24 / end-to-end acceptance claim. No owner F5. No new mechanics/story/preferences/copy.
 
-## Root cause (N08)
+## SHA reconcile
 
-1. **Fixture** â€” positive present passed `new_ids: [last]` then cancelled presentation before reveal â†’ overview undercounted (e.g. 65/67) while milestone payload still listed `collection_complete`.
-2. **Roster mismatch** â€” progress-menu `_pool_roster` counted hold/retired cards; banking/milestones did not â†’ UI total inflated vs bankable roster.
-3. **Production** â€” `collection_complete` already full-roster-only in `milestones_from_bank`; gate capped 5/5 kept. Added UI guard: suppress Full collection line unless overview totals are complete.
+| Ref | SHA |
+|-----|-----|
+| Merged playtest/latest | `5e75b7c9` (#488 merge of `f7f73e68`) |
+| Prior PR base | `4a103c42` |
+| Older shot watermark | `0a37d7e1*` (pre-N08-fix tip + dirty `*`) |
+| This runtime retest | watermark **`5e75b7c9*`** on `cursor/collection-a-acceptance-qa-e524` |
 
-## Fixes
+Seat 6550 / PID 41644 untouched. Disposable APPDATA `collection-a-sandbox`. Local WIP (`.import` etc.) preserved — watermark `*` expected.
 
-- `progress_menu._pool_roster` skips hold/retired (matches banking).
-- Overview suppresses `collection_complete` when `_overall_unique_counts` is short.
-- Case 23 harness: settled state (no unrevealed new_ids); injects complete on negative to prove suppression; rejects N08 if Full collection with incomplete totals.
-- Live bankable roster on this tip = **66** (15+14+14+12+11). Prior â€œ67â€ was the inflated UI total.
+## 67→66 exclusion
 
-## N08 evidence (visually verified)
+- **Identity:** `danger_magnet` / **Danger Magnet**
+- **Source:** content-board/catalog `status=hold`, `pool=4.0` (Cinder Forge)
+- **Filter:** `_pool_roster` / `_pool_ids` skip `hold`/`retired` (matches banking)
+- **Counts:** Cinder raw 13 → live 12; roster **66** = 15+14+14+12+11
+- Log: `EXCLUDED_CINDER danger_magnet|Danger Magnet|hold|pool=4.0`
 
-| shot | totals | Full collection line |
-|------|--------|----------------------|
-| `N08a-incomplete-66.png` | **65/66** (Cinder 11/12) | **absent** |
-| `N08-inheritance-handoff.png` | **66/66** (all biomes full) | **present** (Spin placeholder) |
+## N08 positive = bank → save → reload → native once
 
-## Honesty levels (unchanged)
+Last missing banked: `venom_veins`. `campaign.write()` then `load_all()`. Milestone from `milestones_from_bank` (not injected). Replay present: no `collection_complete`.
 
-- **05** unit only â€” live mill offer-decline not exercised.
-- **03/06â€“08/10/17** unit-only.
-- **01** PARTIAL â€” soft non-replay.
-- **22** PARTIAL â€” COPY_GAP distinct final-clear summary.
-- **RM/SC** NOTRUN.
-- Gate lines remain capped **5/5**.
+| shot | totals | Full collection |
+|------|--------|-----------------|
+| `N08a-incomplete-66.png` | **65/66** (Cinder 11/12) | absent |
+| `N08-inheritance-handoff.png` | **66/66** | present once |
 
-## Spin gaps (listed)
+## N07 independence
 
-Known 7 placeholders + case 22 final-clear summary gap. No invented prose.
+b5 return with `cabinets_complete=false`, roster incomplete, `endless/won=false`. Summary = approved **"Made it home. No new item types added."** No Full collection.
+
+**Precise blocker:** durable `won`/`endless_unlocked` only via `cabinets_complete` in `CampaignShell.bank()` — no independent final-dungeon-clear trigger. **COPY_GAP:** no approved distinct final-clear summary.
+
+## Tutorial (01) adverse
+
+Second direct `_road_finish_to_cabin` **reopens** tutorial (adverse, not soft non-replay). Subsequent ordinary win present is `kind=win`. Full in-dungeon tutorial still unautomated. N01 shows tutorial summary at **0/66**.
+
+## Honesty labels
+
+- **05** unit-only — live mill offer-decline not exercised
+- **11/12** Climb/Push haul = **integration**, not physical-input journeys
+- **RM/SC** NOTRUN (no preference mutation)
+- Gate display remains capped **5/5**
 
 ## Remaining precise limits
 
-1. 01 soft tutorial non-replay / full playthrough.
-2. 05 live mill offer-decline.
-3. 22 COPY_GAP.
-4. RM/SC NOTRUN.
-5. Authoritative complete = **live bankable roster (66)**, not the old inflated 67.
+1. 01 adverse second direct-call replay + unautomated full tutorial
+2. 05 live mill offer-decline
+3. 22 no independent final-dungeon-clear trigger + COPY_GAP
+4. RM/SC NOTRUN
+5. Spin placeholders (listed, not invented)
 
 ## Artifacts
 
-Harness `HONESTY_DRAIN_DONE` Â· `MILESTONE_SELFTEST_OK` Â· local `TIP_SMOKE_OK` Â· log `honesty-drain-stdout.log` Â· store media `2026-11-08-honesty-drain/`.
+`HONESTY_DRAIN_DONE` · `acceptance-qa-stdout.log` · store media `2026-11-08-acceptance-qa/`
