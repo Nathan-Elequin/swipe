@@ -31,6 +31,7 @@ Shared `CollectionJourney` projection + progress-menu **seen-not-banked** cells 
 | 03 | progress Collection | Locked later area tab | Locked badge; no spoiler item names if already the rule | 03-area-locked.png |
 | 04 | dungeon ready | Campaign run with 1+ unbanked held | Quiet strip shows banked X/5 + held new count; New! only on unbanked | 04-inrun-quiet-strip.png |
 | 05 | progress Overview | Return that crosses 4→5 banked | Milestone gate line visible; Skip still durable | 05-milestone-gate.png |
+| 06 | cabin hall | Progress → Visit Cabin after hall unlocked | Lands hall (not forced fireplace); focuses played biome case; no S7 bank replay | 06-cabin-optional-focus.png |
 
 ## Pass criteria
 

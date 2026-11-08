@@ -24,7 +24,7 @@ Make **seen / carried / banked** legible across in-run cues and the focused safe
 | Progress catalogue known-not-banked | This PR — `seen` payload + cell kind |
 | Quiet in-run provisional summary | PR2 — `collection_quiet_strip.gd` + hotbar badge via projection |
 | Milestone queue ordering | PR3 — overview + post-news hold; Skip shows all |
-| Cabin optional nav polish | Follow-up PR |
+| Cabin optional nav polish | PR4 — Visit Cabin → hall + focus played pool case |
 
 ## Catalogue cell states (pattern + text)
 
