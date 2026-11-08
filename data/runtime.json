@@ -69,7 +69,9 @@
 		"kiss_of_death",
 		"shardplate",
 		"love_potion",
-		"tesla_coil"
+		"tesla_coil",
+		"rust",
+		"fairy_in_a_bottle"
 	],
 	"monsters": [
 		"wizard",

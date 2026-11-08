@@ -1,6 +1,95 @@
 {
-	"cards": {},
+	"cards": {
+		"item:da_boot": {
+			"fields": {
+				"explainer": {
+					"from": "Defeat Enemy if HP < Your HP",
+					"to": "Defeat Enemy if they have less HP"
+				}
+			},
+			"id": "da_boot",
+			"kind": "item",
+			"name": "The Boot",
+			"saved_at": "2026-11-06T23:10:12"
+		},
+		"item:stone_wall": {
+			"fields": {
+				"status": {
+					"from": "live",
+					"to": "todo"
+				}
+			},
+			"id": "stone_wall",
+			"kind": "item",
+			"name": "Stone Wall",
+			"saved_at": "2026-11-06T23:07:12"
+		},
+		"item:tesla_coil": {
+			"fields": {
+				"ability": {
+					"from": "Flee and Gain 1 Charge. When you Spin an enemy with less HP than this number (Charge), Defeat them. Then Discard this.",
+					"to": "Flee and Gain 1 Charge. When you Spin an enemy with less HP than this number, Defeat them."
+				},
+				"explainer": {
+					"from": "Flee +1 Charge; Spin-Defeat if enemy HP < Charge, then Discard this.",
+					"to": "Flee: +1 Charge. Defeat Enemy on Spin if less than this"
+				}
+			},
+			"id": "tesla_coil",
+			"kind": "item",
+			"name": "Tesla Coil",
+			"saved_at": "2026-11-06T23:09:29"
+		},
+		"item:venom_veins": {
+			"fields": {
+				"ability": {
+					"from": "Unplayable. When you lose HP, Gain 1 Poison and a Mark-3 Poison Flask in hand.",
+					"to": "Unplayable. When you lose HP, Gain 1 Poison and a Poison Flask (3)."
+				},
+				"explainer": {
+					"from": "On HP loss: Gain 1 Poison and a Mark-3 Poison Flask",
+					"to": "On Bleed: Gain 1 Poison and 1 Poison Flask (3)"
+				}
+			},
+			"id": "venom_veins",
+			"kind": "item",
+			"name": "Venom Veins",
+			"saved_at": "2026-11-06T23:06:53"
+		},
+		"monster:almighty_worm": {
+			"fields": {
+				"atk_base": {
+					"from": 9.0,
+					"to": 12.0
+				},
+				"hp_base": {
+					"from": 9.0,
+					"to": 12.0
+				}
+			},
+			"id": "almighty_worm",
+			"kind": "monster",
+			"name": "Almighty Worm",
+			"saved_at": "2026-11-06T23:03:47"
+		},
+		"monster:vampire": {
+			"fields": {
+				"atk_base": {
+					"from": 4.0,
+					"to": 5.0
+				},
+				"hp_base": {
+					"from": 4.0,
+					"to": 5.0
+				}
+			},
+			"id": "vampire",
+			"kind": "monster",
+			"name": "Vampire",
+			"saved_at": "2026-11-06T23:04:08"
+		}
+	},
 	"id": "boss-rush-editor-pending",
 	"instructions": "F5 card editor Save writes a row here whenever HP, ATK, Ability, or another official field changes. Chat treats these like gold boxes. After applying, clear that card's row.",
-	"updated": "2026-11-06T19:30:00"
+	"updated": "2026-11-06T23:10:12"
 }

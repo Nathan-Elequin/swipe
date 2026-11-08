@@ -45,7 +45,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-06",
 			"name": "Arrow Head"
 		},
 		"item:bag_of_holding": {
@@ -93,7 +93,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-06",
 			"name": "Bag of Marbles"
 		},
 		"item:ball_and_chain": {
@@ -253,7 +253,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-22",
+			"locked_at": "2026-11-06",
 			"name": "Breastplate"
 		},
 		"item:caltrops": {
@@ -297,7 +297,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-25",
+			"locked_at": "2026-11-06",
 			"name": "Catapult"
 		},
 		"item:chakram": {
@@ -368,7 +368,7 @@
 				"reminder",
 				"card_color"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-06",
 			"name": "Crossbow"
 		},
 		"item:cursed_scroll": {
@@ -415,7 +415,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-06",
 			"name": "The Boot"
 		},
 		"item:dagger": {
@@ -549,7 +549,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-06",
 			"name": "Fangs"
 		},
 		"item:flying_saucer": {
@@ -573,7 +573,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-10-30",
+			"locked_at": "2026-11-06",
 			"name": "Flying Saucer"
 		},
 		"item:grappling_hook": {
@@ -641,7 +641,7 @@
 				"reminder",
 				"log_hint"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-06",
 			"name": "Grimoire"
 		},
 		"item:healing_potion": {
@@ -662,7 +662,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-06",
 			"name": "Healing Potion"
 		},
 		"item:helmet": {
@@ -810,7 +810,7 @@
 				"reminder",
 				"log_hint"
 			],
-			"locked_at": "2026-10-22",
+			"locked_at": "2026-11-06",
 			"name": "Lantern"
 		},
 		"item:last_match": {
@@ -965,7 +965,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-30",
+			"locked_at": "2026-11-06",
 			"name": "Scythe"
 		},
 		"item:medallion": {
@@ -1113,7 +1113,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-10-30",
+			"locked_at": "2026-11-06",
 			"name": "Orb"
 		},
 		"item:pacemaker": {
@@ -1373,7 +1373,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-22",
+			"locked_at": "2026-11-06",
 			"name": "Shuriken"
 		},
 		"item:signpost": {
@@ -1493,7 +1493,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-06",
 			"name": "Spiked Flail"
 		},
 		"item:spiked_shield": {
@@ -1541,7 +1541,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-11-06",
 			"name": "Stone Wall"
 		},
 		"item:swift_sneaks": {
@@ -1661,7 +1661,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-05",
+			"locked_at": "2026-11-06",
 			"name": "Venom Veins"
 		},
 		"item:victory_flask": {
@@ -1706,7 +1706,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-11-06",
 			"name": "Almighty Worm"
 		},
 		"monster:amalgam": {
@@ -1777,7 +1777,7 @@
 				"reminder",
 				"card_color"
 			],
-			"locked_at": "2026-10-12",
+			"locked_at": "2026-11-06",
 			"name": "Bandit"
 		},
 		"monster:basilisk": {
@@ -1862,7 +1862,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-06",
 			"name": "Berserker"
 		},
 		"monster:bushido": {
@@ -2080,7 +2080,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-20",
+			"locked_at": "2026-11-06",
 			"name": "Death Bell"
 		},
 		"monster:dire_wolf": {
@@ -2151,7 +2151,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-06",
 			"name": "Druid"
 		},
 		"monster:eel": {
@@ -2176,7 +2176,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-06",
 			"name": "Eel"
 		},
 		"monster:fairy": {
@@ -2200,7 +2200,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-02",
+			"locked_at": "2026-11-06",
 			"name": "Fairy"
 		},
 		"monster:gargoyle": {
@@ -2388,7 +2388,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-06",
 			"name": "Twins"
 		},
 		"monster:hornet_swarm": {
@@ -2558,7 +2558,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-01",
+			"locked_at": "2026-11-06",
 			"name": "Leech League"
 		},
 		"monster:lich": {
@@ -2583,7 +2583,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-02",
+			"locked_at": "2026-11-06",
 			"name": "Lich"
 		},
 		"monster:magicat": {
@@ -2828,7 +2828,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-06",
 			"name": "Phoenix Egg"
 		},
 		"monster:plague_doctor": {
@@ -2877,7 +2877,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-06",
 			"name": "Poison Frog"
 		},
 		"monster:prism": {
@@ -3095,7 +3095,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-02",
+			"locked_at": "2026-11-06",
 			"name": "Spider Queen"
 		},
 		"monster:three_seeker": {
@@ -3165,9 +3165,10 @@
 				"atk_formula",
 				"hp_formula",
 				"card_color",
-				"pool"
+				"pool",
+				"log_hint"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-06",
 			"name": "Vampire"
 		},
 		"monster:wick": {
@@ -3261,7 +3262,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-11-06",
 			"name": "Zombie"
 		}
 	},
