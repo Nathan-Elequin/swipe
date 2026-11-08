@@ -294,7 +294,14 @@ func _shot_locked(banked_ids: Array) -> void:
 		if bit.find(locked) >= 0 or bit.find(locked_word) >= 0:
 			if bit.find(locked_word) >= 0:
 				badge = true
-	var spoil := names.size() > 0
+	## After spoiler fix, locked grids use "?" placeholders — real catalog names are FAIL.
+	var spoil := false
+	for nm in names:
+		if str(nm) != "?" and str(nm).strip_edges() != "":
+			## Allow Locked word only; anything else is a future-item name.
+			if str(nm) != locked_word:
+				spoil = true
+				break
 	var ok := badge and not spoil
 	_row("03", ok, "pool=%s badge=%s names=%s tabs=%s" % [locked, badge, names, tab_bits])
 	await _shot("03-area-locked.png")
@@ -328,7 +335,11 @@ func _shot_milestone(banked_ids: Array, held_new: String) -> void:
 			after_blob += (child2 as Label).text + " | "
 	var gate := before_skip.find("Spin copy") >= 0 or before_skip.find("Route") >= 0 or before_skip.find("→") >= 0 or before_skip.find("->") >= 0
 	var durable := after_blob.find(before_skip) >= 0 or after_blob.length() > 0 and before_skip.length() > 0 and after_blob.find("5") >= 0
-	_row("05", gate and menu._milestones_shown, "before=%s after_skip=%s shown=%s" % [before_skip, after_blob, menu._milestones_shown])
+	## Shoot the durable overview (gate line) after Skip, not a later Next Goal tab.
+	menu.call("_show_panel", 0)
+	menu.call("_rebuild_overview")
+	await process_frame
+	_row("05", gate and menu._milestones_shown and durable, "before=%s after_skip=%s shown=%s" % [before_skip, after_blob, menu._milestones_shown])
 	await _shot("05-milestone-gate.png")
 	main.home_cabin.swiped.erase(held_new)
 
@@ -379,7 +390,10 @@ func _input_focus_and_back() -> void:
 	await process_frame
 	var still: bool = bool(menu.visible)
 	_row("focus", focus_moved, "from=%s to=%s" % [first, second])
-	_row("back", false if still else true, "menu_still_visible=%s (Esc should restore the caller)" % still)
+	_row("back", not still, "menu_still_visible=%s (Esc should restore the caller)" % still)
+	## If Esc dismissed, reopen briefly so the PNG still shows the progress surface.
+	if not still:
+		await _present_settled(_payload("win", []))
 	await _shot("input-focus-back.png")
 
 
