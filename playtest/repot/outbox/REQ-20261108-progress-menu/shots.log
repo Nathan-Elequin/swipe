@@ -15,21 +15,16 @@ ERROR: Condition "status < 0" is true. Returning: ERR_CANT_OPEN
 WARNING: All audio drivers failed, falling back to the dummy driver.
      at: initialize (servers/audio/audio_server.cpp:258)
 
-WARNING: postrun.collection.overall / overallCollection missing — no invented aggregate
-     at: push_warning (core/variant/variant_utility.cpp:1033)
-     GDScript backtrace (most recent call first):
-         [0] _rebuild_overview (res://scripts/ui/progress_menu.gd:468)
-         [1] present (res://scripts/ui/progress_menu.gd:302)
-         [2] _present_async (res://scripts/dev/progress_menu_shots.gd:242)
-         [3] _kick_present (res://scripts/dev/progress_menu_shots.gd:238)
-         [4] _shot (res://scripts/dev/progress_menu_shots.gd:209)
-         [5] _run (res://scripts/dev/progress_menu_shots.gd:73)
-WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/FIXTURE-01-win-collection.png label=FIXTURE size=1680x1040 icons=6 roster_hint=catalog
-WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/FIXTURE-02-next-goal.png label=FIXTURE size=1680x1040 icons=6 roster_hint=catalog
-WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-01-collection-b1.png label=CATALOG size=1680x1040 icons=73 roster_hint=catalog
-WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-02-next-goal.png label=CATALOG size=1680x1040 icons=73 roster_hint=catalog
-WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-03-overview.png label=CATALOG size=1680x1040 icons=73 roster_hint=catalog
-WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-04-death.png label=CATALOG size=1680x1040 icons=73 roster_hint=catalog
-WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-05-tutorial.png label=CATALOG size=1680x1040 icons=73 roster_hint=catalog
-SHOTS_OK progress_menu FIXTURE+CATALOG
-RESULT_LABELS: FIXTURE-* = synthetic/example; CATALOG-* = full catalog acceptance
+SHOT_SOURCE_BODY_SHA=03821635e7bd42284d24e3b1c83338e8d67b9708
+EVIDENCE BEFORE net={ "id": "net", "modulate_a": 0.0, "modulate": "(1.0, 1.0, 1.0, 0.0)", "state": "", "icon_modulate": "(0.55, 0.55, 0.55, 1.0)", "count_lab": "Verdant Hollow collection: 2/15" }
+WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-BEFORE-new-hidden.png source_sha=03821635e7bd42284d24e3b1c83338e8d67b9708 size=1680x1040 evidence={ "id": "net", "modulate_a": 0.0, "modulate": "(1.0, 1.0, 1.0, 0.0)", "state": "", "icon_modulate": "(0.55, 0.55, 0.55, 1.0)", "count_lab": "Verdant Hollow collection: 2/15" }
+EVIDENCE MID net={ "id": "net", "modulate_a": 0.0, "modulate": "(1.0, 1.0, 1.0, 0.0)", "state": "New!", "icon_modulate": "(1.0, 1.0, 1.0, 1.0)", "count_lab": "Verdant Hollow collection: 4/15" }
+WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-MID-new-fading.png source_sha=03821635e7bd42284d24e3b1c83338e8d67b9708 size=1680x1040 evidence={ "id": "net", "modulate_a": 0.0, "modulate": "(1.0, 1.0, 1.0, 0.0)", "state": "New!", "icon_modulate": "(1.0, 1.0, 1.0, 1.0)", "count_lab": "Verdant Hollow collection: 4/15" }
+EVIDENCE AFTER net={ "id": "net", "modulate_a": 1.0, "modulate": "(1.0, 1.0, 1.0, 1.0)", "state": "New!", "icon_modulate": "(1.0, 1.0, 1.0, 1.0)", "count_lab": "Verdant Hollow collection: 4/15" }
+WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-AFTER-new-settled.png source_sha=03821635e7bd42284d24e3b1c83338e8d67b9708 size=1680x1040 evidence={ "id": "net", "modulate_a": 1.0, "modulate": "(1.0, 1.0, 1.0, 1.0)", "state": "New!", "icon_modulate": "(1.0, 1.0, 1.0, 1.0)", "count_lab": "Verdant Hollow collection: 4/15" }
+WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-03-overview.png source_sha=03821635e7bd42284d24e3b1c83338e8d67b9708 size=1680x1040 evidence={ "tab": "overview" }
+WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-01-collection-b1.png source_sha=03821635e7bd42284d24e3b1c83338e8d67b9708 size=1680x1040 evidence={ "tab": 1 }
+WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-02-next-goal.png source_sha=03821635e7bd42284d24e3b1c83338e8d67b9708 size=1680x1040 evidence={ "tab": 2 }
+WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-04-death.png source_sha=03821635e7bd42284d24e3b1c83338e8d67b9708 size=1680x1040 evidence={ "tab": 1 }
+WROTE res://playtest/repot/outbox/REQ-20261108-progress-menu/shots/CATALOG-05-tutorial.png source_sha=03821635e7bd42284d24e3b1c83338e8d67b9708 size=1680x1040 evidence={ "tab": 0 }
+SHOTS_OK progress_menu BEFORE/MID/AFTER+CATALOG source_sha=03821635e7bd42284d24e3b1c83338e8d67b9708 icons=73

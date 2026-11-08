@@ -53,8 +53,9 @@ PASS  csv.postrun.shortcut.unlocked  (got='New starting point: {start_area}')
 PASS  csv.postrun.button.start_at  (got='Start New Run in {start_area}')
 PASS  csv.postrun.button.start_default  (got='Start New Run')
 PASS  csv.postrun.hand_note  (got='Each new run starts with 6 random items from unlocked pools.')
-PASS  copy.postrun_count_29
-PASS  csv.postrun_count_29
+PASS  copy.postrun_count_30
+PASS  csv.postrun_count_30
+PASS  copy.collection_total
 PASS  menu.script_exists
 PASS  menu.uses_player_copy
 PASS  menu.can_start_gate
@@ -92,5 +93,5 @@ PASS  docs.screen
 PASS  docs.req
 PASS  docs.old_superseded
 
-92 passed, 0 failed
+93 passed, 0 failed
 PROGRESS_MENU_OK
