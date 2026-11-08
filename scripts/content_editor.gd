@@ -88,7 +88,7 @@ const DEFAULT_EXPLAINER := {
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
 	"venom_veins": "On Lose HP: Gain a 3-Poison Flask",
 	"kiss_of_death": "Random enemy: 4 Poison + Lifelink",
-	"glass_asp": "Each Spin: I gain 1 Poison (ticks and clears). Attack: you gain Poison equal to mine",
+	"glass_asp": "On Spin +1 Poison. Spin me: set your HP to mine after Poison",
 	"imp": "Spin me: Move to the highest Attack enemy",
 	"huntsman": "Across Attacks you: I also Attack (once after multiattacks)",
 	"quicksand_crab": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move.",

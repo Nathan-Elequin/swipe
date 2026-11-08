@@ -7097,7 +7097,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "On Spin, I gain 1 Poison. When I Attack, you gain Poison equal to mine.",
+			"ability": "On Spin, I gain 1 Poison. When you Spin me, set your HP equal to mine.",
 			"atk_base": 2,
 			"atk_formula": "",
 			"author_lock": true,
@@ -7105,13 +7105,13 @@
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1,
-			"explainer": "Each Spin: I gain 1 Poison (ticks and clears). Attack: you gain Poison equal to mine",
-			"flow": "While I am alive and not silenced: on every dungeon Spin I gain 1 Poison on myself. Each Spin, my Poison ticks (I lose that much HP — lose HP, not Attack) and then all my Poison clears; I can restack from later Spins. When I Attack you, you Gain player Poison equal to my Poison stack at that moment. Quiet Bell turns this off.",
+			"explainer": "On Spin +1 Poison. Spin me: set your HP to mine after Poison",
+			"flow": "While I am alive and not silenced: on every dungeon Spin I gain 1 Poison on myself. Each Spin, my Poison ticks (I lose that much HP — lose HP, not Attack) and then all my Poison clears; I can restack from later Spins. When you Spin me, after all other on-spin effects including that Poison tick and my +1 Poison, set your HP equal to my current HP (Quiet Bell turns this off; clamps to your max like Wraith Lifelink). If that Poison tick Defeats me, set your HP to my HP from before the lethal chip (hp_pre_hit / Lifelink snapshot).",
 			"hp_base": 9,
 			"hp_formula": "",
 			"id": "glass_asp",
 			"kind": "monster",
-			"locked_at": "2026-11-07",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -7133,24 +7133,19 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Spin: self-Poison tick/clear; Attack: pass Poison",
+			"log_hint": "Spin: +1 Poison; Spin me: set your HP to mine after on-spin",
 			"mode_pool": "all",
 			"name": "Glass Asp",
-			"notes": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). Combat follow-up: self-Poison gain/tick/clear on Spin; on Attack transfer equal Poison to player. flags.dev until combat wired.",
+			"notes": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). Balance Slice J: Bitter Blood Spin-me HP-set after on-spin; poison-kill uses Lifelink hp_pre_hit; Attack Poison transfer removed; 9/2 kept.",
 			"ops": {},
-			"pending_fields": {
-				"status": {
-					"from": "live",
-					"to": "todo"
-				}
-			},
+			"pending_fields": {},
 			"pool": 4,
 			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "Rework: 'On Spin, I gain 1 Poison. When you Spin me, set your HP equal to mine.' This would trigger AFTER poison does, so eg if it has 9 hp and 6 poison, when the player spins it, it would (1) lose 6 hp and gain 1 poison, then (2) player would have their  hp set to 3.",
-			"status": "todo",
+			"review_note": "",
+			"status": "live",
 			"tier": 2
 		},
 		{
