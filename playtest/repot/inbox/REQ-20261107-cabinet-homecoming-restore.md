@@ -1,6 +1,7 @@
 ---
 id: REQ-20261107-cabinet-homecoming-restore
-status: open
+status: superseded
+superseded_by: REQ-20261108-progress-menu
 priority: high
 branch: cursor/cabinet-homecoming-restore-9880
 base: playtest/latest
@@ -12,7 +13,9 @@ entry: F5 playtest hub → campaign Verdant Hollow → extract Leave with new un
 
 # Cabinet homecoming restoration — local runtime checklist
 
-Scope: **one system only** (S7 bank ceremony + Spin lessons + pending reveal queue). No room flips, door matrix, Outpost consolidation, ROOM_ORDER, map launch, or unlock-math changes.
+**SUPERSEDED** for between-run presentation by `REQ-20261108-progress-menu` (dedicated progress menu). Cabin remains; automatic S7 cabinet homecoming is no longer the required return UX. Keep this file for historical ceremony ownership / ledger notes only.
+
+Scope was: **one system only** (S7 bank ceremony + Spin lessons + pending reveal queue). No room flips, door matrix, Outpost consolidation, ROOM_ORDER, map launch, or unlock-math changes.
 
 ## Source checks (CI / cloud OK) — not runtime proof
 

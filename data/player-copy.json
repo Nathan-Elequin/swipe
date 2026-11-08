@@ -7274,7 +7274,196 @@
 			"desk_notes": {
 				"click": "continue ends tutorial shows the 'Pool 1 unlock' screen, afgter which it skips to splash screen outside of home cabin."
 			}
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.title",
+			"text": "Run Results",
+			"where": "Post-run progress menu title"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.tab.overview",
+			"text": "Overview",
+			"where": "Post-run progress menu tab"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.tab.collection",
+			"text": "Collection",
+			"where": "Post-run progress menu tab"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.tab.next_target",
+			"text": "Next Goal",
+			"where": "Post-run progress menu tab"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.skip",
+			"text": "Skip Recap",
+			"where": "Skip presentation fast-forward; never skips ledger/ack"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.next",
+			"text": "Next",
+			"where": "Advance automatic presentation step; never auto-launches a run"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.cabin",
+			"text": "Visit Cabin",
+			"where": "Optional cabin entry from progress menu"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.new_run",
+			"text": "New Run",
+			"where": "Open destination picker / start flow"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.summary.success_new",
+			"text": "New item types added: {count}.",
+			"where": "Win return: count of newly committed distinct banked IDs this return (not visible cards)"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.summary.success_none",
+			"text": "Made it home. No new item types added.",
+			"where": "Win return with zero new banked types (duplicates-only / empty haul)"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.summary.death",
+			"text": "Run ended in {area}. No collection progress from this return.",
+			"where": "Death/loss return; no fake credit"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.summary.tutorial",
+			"text": "Tutorial complete. Tutorial items don't count toward collection progress.",
+			"where": "Completed tutorial return only (not Skip); zero bank"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.collection.area_count",
+			"text": "{area} collection: {count}/{total}",
+			"where": "Area tab: collected distinct / full roster total (not unlock threshold)"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.collection.item_missing",
+			"text": "Not yet collected",
+			"where": "Missing-item state label (icon+name still shown)"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.collection.item_new",
+			"text": "New!",
+			"where": "Just-banked this return"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.collection.area_locked",
+			"text": "Locked",
+			"where": "Locked-area badge"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.requirement.bring_home",
+			"text": "Bring home {required} different item types from {area} to unlock {destination}.",
+			"where": "Generic threshold requirement where rule is collection quota"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.requirement.verdant",
+			"text": "Bring home 5 different item types from successful Verdant Hollow runs to open the way deeper. They don't all have to come home together.",
+			"where": "Verdant/b1 unlock teaching; matches existing five-distinct rule"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.requirement.met",
+			"text": "{destination} unlocked",
+			"where": "Threshold crossed / destination unlocked this return or already"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.next_target.prompt",
+			"text": "Next goal: {destination}",
+			"where": "Next progression target headline"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.next_target.progress",
+			"text": "Progress: {count}/{required} different item types",
+			"where": "Progress toward next unlock quota"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.destination.route",
+			"text": "Reach {destination} by starting in {start_area} and continuing during the same run.",
+			"where": "Informational route text only — not a continue-run button; D2 same-run ≠ fresh start"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.shortcut.requirement",
+			"text": "Unlock {required_area} to start new runs in {start_area}.",
+			"where": "Fresh-start shortcut lock copy"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.shortcut.unlocked",
+			"text": "New starting point: {start_area}",
+			"where": "Fresh-start shortcut just unlocked"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.button.start_at",
+			"text": "Start New Run in {start_area}",
+			"where": "Start button only when can_start for that area"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.button.start_default",
+			"text": "Start New Run",
+			"where": "Default start when only default destination available"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
+			"key": "postrun.hand_note",
+			"text": "Each new run starts with 6 random items from unlocked pools.",
+			"where": "Verified: campaign starter_item_mix [3,2,1]=6 from unlocked pools"
 		}
 	],
-	"updated": "2026-11-05"
+	"updated": "2026-11-08"
 }

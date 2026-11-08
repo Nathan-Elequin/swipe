@@ -361,14 +361,14 @@ func _init() -> void:
 	var road_body := _func_body("res://scripts/main.gd", "_road_finish_to_cabin")
 	failed = _static(
 		case_rows, failed, "T.src_tutorial_finish_no_bank_call",
-		"STATIC: _road_finish_to_cabin body has no CampaignShell.bank / _campaign_bank_from_hand / swipe_ids; contains empty-open cabin call",
+		"STATIC: _road_finish_to_cabin body has no CampaignShell.bank / _campaign_bank_from_hand / swipe_ids; opens progress menu (tutorial zero credit)",
 		road_body != ""
 		and road_body.find("CampaignShell.bank") < 0
 		and road_body.find("_campaign_bank_from_hand") < 0
 		and road_body.find("swipe_ids") < 0
-		and road_body.find('_open_home_cabin(true, "win", [], [])') >= 0,
-		"has_empty_open=%s has_bank=%s" % [
-			road_body.find('_open_home_cabin(true, "win", [], [])') >= 0,
+		and road_body.find('_open_progress_menu("tutorial"') >= 0,
+		"has_progress_menu=%s has_bank=%s" % [
+			road_body.find('_open_progress_menu("tutorial"') >= 0,
 			road_body.find("_campaign_bank_from_hand") >= 0,
 		]
 	) or failed

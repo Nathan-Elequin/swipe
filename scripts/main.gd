@@ -43,6 +43,7 @@ const HUB_CUE_CAPSULE := preload("res://scripts/ui/hub_cue_capsule.gd")
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const CAMPAIGN_MAP := preload("res://scripts/campaign_map.gd")
 const DEFEAT_SPOTLIGHT := preload("res://scripts/ui/defeat_spotlight.gd")
+const PROGRESS_MENU := preload("res://scripts/ui/progress_menu.gd")
 const HOME_CABIN := preload("res://scripts/home_cabin.gd")
 const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 const BUILD_STAMP := preload("res://scripts/build_stamp.gd")
@@ -872,6 +873,7 @@ var btn_undo: Button
 var btn_redo: Button
 var overlay_undo: Button
 var defeat_spotlight
+var progress_menu
 var playtest_hub
 var playtest_feedback
 var playtest_tier
@@ -1995,6 +1997,10 @@ func _build_overlay() -> void:
 	add_child(defeat_spotlight)
 	defeat_spotlight.home_pressed.connect(_on_defeat_limp_home)
 	defeat_spotlight.quick_pressed.connect(_on_defeat_quick_start)
+	progress_menu = PROGRESS_MENU.new()
+	add_child(progress_menu)
+	progress_menu.cabin_wanted.connect(_on_progress_menu_cabin)
+	progress_menu.start_run_wanted.connect(_on_progress_menu_start_run)
 
 
 func _build_copy_stamp() -> void:
@@ -2753,7 +2759,7 @@ func _enter_dungeon_clear() -> void:
 		_player_play("victory", 2)
 		_flash_screen(Color("e8c36a"), 0.28)
 		_log("end", "cleared")
-		_classic_swipe_home()
+		await _classic_swipe_home()
 		_clear_enter_depth = maxi(0, _clear_enter_depth - 1)
 		return
 	# Rope stays shut until the resolve finishes (~2.5s). No wax seal.
@@ -2887,12 +2893,13 @@ func _adventure_leave() -> void:
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
-	_open_home_cabin(true, "win", news, ids)
+	## Dedicated progress menu replaces automatic S7 cabin homecoming.
+	await _open_progress_menu("win", news, ids, false)
 	await _biome_dissolve_reveal()
 	_adventure_busy = false
 
 
-## Nib blocked Push under 5/5: bank the haul, dissolve home to that biome's case. No map piece.
+## Nib blocked Push under 5/5: bank the haul, dissolve home. Progress menu always; no map piece.
 func _push_interrupt_home() -> void:
 	if not adventure or phase != "rest" or _adventure_busy:
 		return
@@ -2930,23 +2937,8 @@ func _push_interrupt_home() -> void:
 	phase = "title"
 	if pool != "":
 		_sync_dungeon_biome(pool)
-	if home_cabin and home_cabin.has_method("open_hall_after_push_block"):
-		_hide_fight_hover()
-		home_cabin.items_by_id = items_by_id
-		home_cabin.tex_by_item = tex_by_item
-		home_cabin.buckets_open = _buckets_revealed
-		await home_cabin.open_hall_after_push_block(pool, biome_name, news, ids)
-		if overlay:
-			overlay.visible = false
-		# Cabin is already drawn above the wipe (z 95 vs 85). Input order follows
-		# tree order, not z, so a later full-rect wipe still eats door and map
-		# clicks. Drop that catch before the fade. Pause after the fade: a
-		# pause-bound tween never finishes, and the wipe would stay up forever.
-		var wipe := _ensure_biome_wipe()
-		wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_hide_fight_hover()
-	else:
-		_open_home_cabin(true, "win", news, ids)
+	## Progress menu always; Push-block suppresses unlock/map celebration (payload flag).
+	await _open_progress_menu("win", news, ids, true, pool, biome_name)
 	await _biome_dissolve_reveal()
 	get_tree().paused = true
 	_adventure_busy = false
@@ -2985,7 +2977,7 @@ func _classic_swipe_home() -> void:
 		news = home_cabin.swipe_ids(ids)
 	_reset_run()
 	phase = "title"
-	_open_home_cabin(true, "win", news, ids)
+	await _open_progress_menu("win", news, ids, false)
 
 
 func _hide_cabin_for_run() -> void:
@@ -3548,7 +3540,7 @@ func _go_home_loss() -> void:
 	_campaign_abort()
 	_reset_run()
 	phase = "title"
-	_open_home_cabin(true, "loss", [], [])
+	await _open_progress_menu("loss", [], [], false)
 	await _biome_dissolve_reveal()
 
 
@@ -3600,9 +3592,7 @@ func _give_up() -> void:
 	_campaign_abort()
 	_reset_run()
 	phase = "title"
-	_open_home_cabin(true, "loss", [], [])
-	if home_cabin:
-		home_cabin._arrive_skip = 2
+	await _open_progress_menu("loss", [], [], false)
 	await _biome_dissolve_reveal()
 
 
@@ -3691,6 +3681,88 @@ func _open_home_cabin(walk_in: bool, kind: String = "win", new_ids: Array = [], 
 		rope_exit.hide_exit()
 	get_tree().paused = true
 	_hide_fight_hover()
+
+
+## Post-run dedicated progress menu. Ack bank_pending via cabin helper when IDs land / skip.
+func _open_progress_menu(
+	kind: String,
+	new_ids: Array,
+	held_ids: Array,
+	push_block: bool = false,
+	played_pool: String = "",
+	played_name: String = ""
+) -> void:
+	if progress_menu == null:
+		_open_home_cabin(false, kind, new_ids, held_ids)
+		return
+	_hide_fight_hover()
+	_sync_biome_ambient("", true)
+	if overlay:
+		overlay.visible = false
+	if rope_exit:
+		rope_exit.hide_exit()
+	if home_cabin != null and home_cabin.visible:
+		home_cabin.hide_for_run()
+	get_tree().paused = false
+	var pool := played_pool
+	var pname := played_name
+	if pool == "" and _campaign != null:
+		pool = CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+		pname = CAMPAIGN_SHELL.biome_name(_campaign.rules, pool)
+	if pname == "" and pool != "":
+		pname = pool
+	var swiped: Dictionary = {}
+	if home_cabin != null:
+		swiped = home_cabin.swiped.duplicate()
+	elif _campaign != null:
+		## Prefer campaign banked pools mirrored into a presence map.
+		var banked: Dictionary = _campaign.state.get("banked", {})
+		for id in banked.keys():
+			swiped[str(id)] = true
+	var rules: Dictionary = {}
+	var state: Dictionary = {}
+	if _campaign != null:
+		rules = _campaign.rules
+		state = _campaign.state
+	var payload := {
+		"kind": kind,
+		"new_ids": new_ids.duplicate(),
+		"held_ids": held_ids.duplicate(),
+		"played_pool": pool,
+		"played_name": pname,
+		"items_by_id": items_by_id,
+		"tex_by_item": tex_by_item,
+		"swiped": swiped,
+		"rules": rules,
+		"state": state,
+		"push_block": push_block,
+		"tutorial": kind == "tutorial",
+	}
+	var ack := func(id: String) -> void:
+		if home_cabin != null and home_cabin.has_method("_ack_bank_presented"):
+			home_cabin.call("_ack_bank_presented", id, -1)
+	await progress_menu.present(payload, ack)
+	## Suppress automatic S7 resume if any pending remains after dismiss without ack.
+	if home_cabin != null:
+		home_cabin.set_meta("progress_menu_handled_return", true)
+
+
+func _on_progress_menu_cabin() -> void:
+	## Optional cabin — no walk-in ceremony replay.
+	if home_cabin != null:
+		home_cabin.set_meta("progress_menu_handled_return", true)
+	_open_home_cabin(false, "win", [], [])
+
+
+func _on_progress_menu_start_run(biome_index: int) -> void:
+	if _campaign == null:
+		return
+	var idx: int = maxi(0, biome_index)
+	if not CAMPAIGN_SHELL.can_start(_campaign.rules, _campaign.state, idx):
+		idx = 0
+	_splash_busy = true
+	await _begin_campaign_delve(idx, idx > 0, false, null, false)
+	_splash_busy = false
 
 
 ## Spin lesson 1: first campaign ready beat with a real hotbar New! badge.
@@ -29022,10 +29094,9 @@ func _road_finish_to_cabin(declined: bool) -> void:
 	if home_cabin and home_cabin.has_method("play_arrive_splash"):
 		## Arrive cutscene: assets/dungeon/home/cutscenes/intro_p5.png (fade/dissolve after tutorial wrap).
 		await home_cabin.play_arrive_splash()
-	## Live cabin BG after arrive: cabin_exterior.png via walk-in.
-	_open_home_cabin(true, "win", [], [])
-	if home_cabin:
-		home_cabin._apply_gate()
+	## Progress menu is the between-run surface; cabin optional from there.
+	## Tutorial items do not credit collection (empty new_ids).
+	await _open_progress_menu("tutorial", [], [], false)
 	_refresh()
 	_sync_playtest_chrome()
 
