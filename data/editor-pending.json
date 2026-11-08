@@ -28,22 +28,6 @@
 			"name": "Tesla Coil",
 			"saved_at": "2026-11-06T23:09:29"
 		},
-		"item:venom_veins": {
-			"fields": {
-				"ability": {
-					"from": "Unplayable. When you lose HP, Gain 1 Poison and a Mark-3 Poison Flask in hand.",
-					"to": "Unplayable. When you lose HP, Gain 1 Poison and a Poison Flask (3)."
-				},
-				"explainer": {
-					"from": "On HP loss: Gain 1 Poison and a Mark-3 Poison Flask",
-					"to": "On Bleed: Gain 1 Poison and 1 Poison Flask (3)"
-				}
-			},
-			"id": "venom_veins",
-			"kind": "item",
-			"name": "Venom Veins",
-			"saved_at": "2026-11-06T23:06:53"
-		},
 		"monster:almighty_worm": {
 			"fields": {
 				"atk_base": {
@@ -91,5 +75,5 @@
 	},
 	"id": "boss-rush-editor-pending",
 	"instructions": "F5 card editor Save writes a row here whenever HP, ATK, Ability, or another official field changes. Chat treats these like gold boxes. After applying, clear that card's row.",
-	"updated": "2026-11-08T01:04:13"
+	"updated": "2026-11-08T08:46:51"
 }

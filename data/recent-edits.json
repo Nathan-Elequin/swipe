@@ -64,7 +64,7 @@
 		"item:swift_sneaks": 1793946825.73089,
 		"item:tesla_coil": 1794006569.0,
 		"item:toll": 1792332114.0,
-		"item:venom_veins": 1794006413.0,
+		"item:venom_veins": 1794127611.942301,
 		"monster:almighty_worm": 1794006227.0,
 		"monster:amalgam": 1792430764.0,
 		"monster:anvil": 1793946825.73089,
@@ -134,5 +134,5 @@
 	"item:sling": 1793416800.0,
 	"monster:mouse": 1794125579.3456936,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-11-08T08:34:34Z"
+	"updated": "2026-11-08T08:46:51Z"
 }
