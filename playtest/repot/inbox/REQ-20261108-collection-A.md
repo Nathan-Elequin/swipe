@@ -29,6 +29,7 @@ Shared `CollectionJourney` projection + progress-menu **seen-not-banked** cells 
 | 01 | progress Collection | Fixture or save with at least one seen-unbanked + one banked in b1 | Seen cell badge ≠ missing; banked = Collected | 01-catalogue-seen-vs-banked.png |
 | 02 | progress Overview | Same return with ≥1 new banked | Summary + New! path truthful | 02-return-receipt-overview.png |
 | 03 | progress Collection | Locked later area tab | Locked badge; no spoiler item names if already the rule | 03-area-locked.png |
+| 04 | dungeon ready | Campaign run with 1+ unbanked held | Quiet strip shows banked X/5 + held new count; New! only on unbanked | 04-inrun-quiet-strip.png |
 
 ## Pass criteria
 
