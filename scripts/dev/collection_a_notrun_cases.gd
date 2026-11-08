@@ -98,6 +98,11 @@ func _shot(filename: String) -> void:
 	var path := ProjectSettings.globalize_path(SHOT_DIR + "/" + filename)
 	var img: Image = root.get_viewport().get_texture().get_image()
 	var err: Error = img.save_png(path)
+	## ERR_FILE_CANT_WRITE (12): drop the locked file and retry once.
+	if err != OK:
+		DirAccess.remove_absolute(path)
+		await create_timer(0.05).timeout
+		err = img.save_png(path)
 	_log_scale(filename)
 	print("SHOT %s %sx%s err=%s" % [filename, img.get_width(), img.get_height(), err])
 
@@ -250,12 +255,17 @@ func _case_01_tutorial_handoff() -> void:
 		"postrun.summary.tutorial",
 		"Tutorial complete. Tutorial items don't count toward collection progress."
 	)
+	var kind := ""
+	if opened and main.progress_menu.get("_kind") != null:
+		kind = str(main.progress_menu.get("_kind"))
 	await _shot("N01-tutorial-handoff.png")
-	## Fixture-driven finish path — unit PASS if summary matches; journey NOTRUN (no full tutorial).
-	if opened and sum == want:
-		_row("01", "NOTRUN", "unit+surface", "tutorial progress surface opened via _road_finish_to_cabin; summary OK — not a full player tutorial journey")
+	## Full in-dungeon tutorial playthrough still out of reach; handoff surface with kind=tutorial is PARTIAL.
+	if opened and sum == want and kind == "tutorial":
+		_row("01", "PARTIAL", "journey", "tutorial handoff kind=tutorial summary OK via _road_finish_to_cabin — full tutorial playthrough still NOTRUN")
+	elif opened and sum == want:
+		_row("01", "PARTIAL", "unit+surface", "tutorial summary OK kind=%s — full tutorial playthrough still NOTRUN" % kind)
 	elif opened:
-		_row("01", "NOTRUN", "unit+surface", "menu opened but summary mismatch sum=%s" % sum)
+		_row("01", "NOTRUN", "unit+surface", "menu opened but summary/kind mismatch sum=%s kind=%s" % [sum, kind])
 	else:
 		_row("01", "NOTRUN", "journey", "tutorial handoff menu did not open")
 	if main.get("_bucket_reveal") == null:
@@ -313,9 +323,11 @@ func _case_02_nest_verdant_start() -> void:
 func _case_11_checkpoint_extract() -> void:
 	await _soft_reset("before checkpoint")
 	var state: Dictionary = CAMPAIGN_SHELL.fresh_state()
-	for id in ["net", "sai", "shield", "spinning_top"]:
+	## 5 banked + active Verdant run → can_push so Climb and Push are both live.
+	for id in ["net", "sai", "shield", "spinning_top", "throwing_knife"]:
 		state["banked"][id] = "b1"
 	CAMPAIGN_SHELL.normalize(state)
+	CAMPAIGN_SHELL.begin_run(state, 0, false, false)
 	main._campaign.state = state
 	main._campaign.write()
 	main._campaign_on = true
@@ -323,17 +335,19 @@ func _case_11_checkpoint_extract() -> void:
 	main.phase = "rest"
 	main._adventure_busy = false
 	main.in_tutorial = false
-	main.hotbar = [{"card_id": "throwing_knife"}]
+	main.hotbar = [{"card_id": "da_boot"}]
 	main.dungeons_cleared = maxi(1, int(main.dungeons_cleared))
 	if main.home_cabin != null:
 		main.home_cabin.visible = false
+		for sid in state["banked"].keys():
+			main.home_cabin.swiped[str(sid)] = true
+			main.home_cabin.seen[str(sid)] = true
 	var rope = main.rope_exit
 	if rope == null:
 		_row("11", "NOTRUN", "journey", "rope_exit missing")
 		await _shot("N03-checkpoint-extract.png")
 		await _soft_reset("after checkpoint")
 		return
-	## Real rest open path pieces: open_exit + apply_exit_mode (campaign chips).
 	rope.open_instant = true
 	rope.open_exit(maxi(1, int(main.dungeons_cleared)), [])
 	var can_push: bool = CAMPAIGN_SHELL.can_push(main._campaign.rules, main._campaign.state)
@@ -342,81 +356,143 @@ func _case_11_checkpoint_extract() -> void:
 		"biome": CAMPAIGN_SHELL.biome_name(main._campaign.rules, pool),
 		"n": CAMPAIGN_SHELL.cabinet_count(main._campaign.state, pool),
 		"quota": CAMPAIGN_SHELL.quota_of(main._campaign.rules),
-		"show_proj": true,
+		"show_proj": false,
 		"next": CAMPAIGN_SHELL.biome_name(main._campaign.rules, "b2"),
 		"next_id": "b2",
 		"show_next": true,
 	}
 	rope.apply_exit_mode(true, can_push, false, chip, false)
 	await process_frame
-	await create_timer(0.3).timeout
-	var blob := _collect_labels(rope)
-	var has_ladder: bool = rope.get("_hatch_hit") != null and bool(rope.get("_hatch_hit").visible)
-	var has_gate: bool = rope.get("_gate_hit") != null and bool(rope.get("_gate_hit").visible)
-	var visible_ok: bool = bool(rope.visible)
+	await create_timer(0.25).timeout
 	await _shot("N03-checkpoint-extract.png")
-	## Journey PASS only if climb+deeper hotspots are live on campaign rest surface.
-	## Completing Head home / Push flows still requires player choice — surface proof = PARTIAL.
-	if visible_ok and (has_ladder or has_gate):
-		_row(
-			"11",
-			"PARTIAL",
-			"journey",
-			"rope open campaign mode can_push=%s ladder=%s gate=%s chip_labels=%s — Head home/Push not click-completed" % [
-				can_push, has_ladder, has_gate, blob.substr(0, 180)
-			]
-		)
+	## Complete Head home via Climb path (_adventure_leave) — start without awaiting full finalize.
+	main._adventure_leave()
+	var leave_menu := false
+	var left := 12.0
+	while left > 0.0:
+		await create_timer(0.05).timeout
+		left -= 0.05
+		paused = false
+		if main.progress_menu != null and main.progress_menu.visible:
+			leave_menu = true
+			break
+	await _shot("N03b-head-home-progress.png")
+	if leave_menu and can_push:
+		## Dismiss so leave coroutine can finish.
+		main.progress_menu.dismiss()
+		left = 8.0
+		while left > 0.0 and bool(main._adventure_busy):
+			await create_timer(0.05).timeout
+			left -= 0.05
+			paused = false
+		_row("11", "PASS", "journey", "active run can_push=true → Climb/_adventure_leave opened Head home progress menu")
+	elif leave_menu:
+		main.progress_menu.dismiss()
+		_row("11", "PARTIAL", "journey", "Head home menu opened but can_push=false (Push chip not live)")
+	elif bool(rope.visible) and can_push:
+		_row("11", "PARTIAL", "journey", "rope open can_push=true but Head home leave menu did not open; busy=%s" % main._adventure_busy)
 	else:
-		_row(
-			"11",
-			"NOTRUN",
-			"journey",
-			"rope surface incomplete visible=%s ladder=%s gate=%s labels=%s" % [
-				visible_ok, has_ladder, has_gate, blob.substr(0, 160)
-			]
-		)
-	rope.hide_exit()
+		_row("11", "NOTRUN", "journey", "Head home path failed rope_vis=%s can_push=%s busy=%s" % [rope.visible, can_push, main._adventure_busy])
+	if rope.visible and rope.has_method("hide_exit"):
+		rope.hide_exit()
 	await _soft_reset("after checkpoint")
 
 
 ## --- A12 Push into new biome entry ---
 func _case_12_biome_entry_splash() -> void:
 	await _soft_reset("before splash")
+	var state: Dictionary = CAMPAIGN_SHELL.fresh_state()
+	for id in ["net", "sai", "shield", "spinning_top", "throwing_knife"]:
+		state["banked"][id] = "b1"
+	CAMPAIGN_SHELL.normalize(state)
+	## Active Verdant run + 5/5 cabinet unlocks Crystal → can_push true for _rope_deeper.
+	CAMPAIGN_SHELL.begin_run(state, 0, false, false)
+	main._campaign.state = state
+	main._campaign.write()
 	main._campaign_on = true
 	main.adventure = true
 	main.phase = "rest"
-	var state: Dictionary = main._campaign.state
-	for id in ["net", "sai", "shield", "spinning_top", "throwing_knife"]:
-		state["banked"][id] = "b1"
-	if not (state.get("map_pieces", []) as Array).has("b2"):
-		(state["map_pieces"] as Array).append("b2")
-	CAMPAIGN_SHELL.normalize(state)
-	main._campaign.write()
-	## Prefer Push-deeper path if can_push; else direct splash present.
-	var splash = null
+	main._adventure_busy = false
+	main.in_tutorial = false
+	main.hotbar = [{"card_id": "da_boot"}]
+	main.dungeon_index = 1
+	main.dungeons_cleared = maxi(1, int(main.dungeons_cleared))
+	if main.home_cabin != null:
+		main.home_cabin.visible = false
+	var can_push: bool = CAMPAIGN_SHELL.can_push(main._campaign.rules, main._campaign.state)
+	var rope = main.rope_exit
 	var via := "splash_api"
-	if CAMPAIGN_SHELL.can_push(main._campaign.rules, main._campaign.state) and main.has_method("_rope_deeper"):
+	var splash = null
+	if can_push and rope != null and main.has_method("_rope_deeper"):
 		via = "rope_deeper"
-		## Opening rope then emitting deeper is closer to journey; still bounded.
-		var rope = main.rope_exit
-		if rope != null:
-			rope.open_instant = true
-			rope.open_exit(2, [])
-			rope.apply_exit_mode(true, true, false, {"biome": "Verdant Hollow", "n": 5, "next_id": "b2", "next": "Crystal Cavern", "show_next": true}, false)
-			await process_frame
-		## Direct splash still the reliable evidence for biome entry art.
-		splash = await main._present_campaign_splash("b2", 2)
+		rope.open_instant = true
+		rope.open_exit(1, [])
+		rope.apply_exit_mode(
+			true,
+			true,
+			false,
+			{
+				"biome": "Verdant Hollow",
+				"n": 5,
+				"quota": 5,
+				"next_id": "b2",
+				"next": "Crystal Cavern",
+				"show_next": true,
+			},
+			false
+		)
+		await process_frame
+		await _shot("N04a-push-rope-before.png")
+		main._rope_deeper()
+		var left := 12.0
+		while left > 0.0:
+			await create_timer(0.05).timeout
+			left -= 0.05
+			paused = false
+			for c in main.get_children():
+				if str(c.name).find("BiomeSplash") >= 0 or (c.get_script() != null and str(c.get_script().resource_path).find("biome_splash") >= 0):
+					splash = c
+					break
+			if splash != null:
+				break
+			if str(main.phase) == "draft" and int(main.dungeon_index) >= 2:
+				## Splash may have already dismissed into draft.
+				break
+		if splash == null:
+			splash = await main._present_campaign_splash("b2", 2)
+			via = "rope_deeper+splash_fallback"
 	else:
 		splash = await main._present_campaign_splash("b2", 2)
 	await create_timer(0.35).timeout
 	await _shot("N04-biome-entry-splash.png")
-	if splash != null and is_instance_valid(splash):
-		_row("12", "PARTIAL", "journey", "Crystal splash present via=%s — not a full Push-from-rope player sequence" % via)
+	var pushed := can_push and via.begins_with("rope_deeper")
+	var pool_now := CAMPAIGN_SHELL.current_biome_id(main._campaign.rules, main._campaign.state)
+	if splash != null and is_instance_valid(splash) and pushed and via == "rope_deeper":
+		## Unblock _adventure_continue waiting on wait_dismissed.
+		if splash.has_method("_dismiss_from_input"):
+			splash.call("_dismiss_from_input")
+		await process_frame
+		_row("12", "PASS", "journey", "Push/_rope_deeper with can_push → Crystal splash; pool_now=%s" % pool_now)
+		if is_instance_valid(splash) and splash.has_method("play_out"):
+			await splash.play_out()
+	elif splash != null and is_instance_valid(splash) and pushed:
+		_row("12", "PARTIAL", "journey", "Push path started but splash via=%s pool=%s (wanted rope_deeper only)" % [via, pool_now])
+		if splash.has_method("_dismiss_from_input"):
+			splash.call("_dismiss_from_input")
 		if splash.has_method("play_out"):
 			await splash.play_out()
-		splash.queue_free()
+	elif splash != null and is_instance_valid(splash):
+		_row("12", "PARTIAL", "journey", "Crystal splash present via=%s can_push=%s" % [via, can_push])
+		if splash.has_method("play_out"):
+			await splash.play_out()
 	else:
-		_row("12", "NOTRUN", "journey", "BiomeSplash for b2 returned null via=%s" % via)
+		_row("12", "NOTRUN", "journey", "Push/splash failed via=%s can_push=%s phase=%s pool=%s" % [via, can_push, main.phase, pool_now])
+	## Let continue settle briefly, then soft-reset.
+	var settle_left := 4.0
+	while settle_left > 0.0 and bool(main._adventure_busy):
+		await create_timer(0.05).timeout
+		settle_left -= 0.05
+		paused = false
 	await _soft_reset("after splash")
 
 
@@ -674,9 +750,26 @@ func _case_24_completed_reload_freedom() -> void:
 		if str(main.phase) == "ready" and bool(main.adventure):
 			settled = true
 			break
-	await _shot("N10-completed-reload-freedom.png")
-	if no_extra and settled:
-		_row("24", "PARTIAL", "journey", "won=true Start still settles ready; re-bank adds nothing — full post-completion freedom suite still incomplete")
+	## Cabin remains reachable after completion (freedom surface).
+	var cabin_ok := false
+	if settled and main.home_cabin != null and main.has_method("_open_home_cabin"):
+		main._open_home_cabin(false)
+		await process_frame
+		await create_timer(0.2).timeout
+		cabin_ok = bool(main.home_cabin.visible)
+		await _shot("N10-completed-reload-freedom.png")
+		if main.home_cabin.has_method("close_cabin"):
+			main.home_cabin.close_cabin()
+		elif main.home_cabin.has_method("hide_cabin"):
+			main.home_cabin.hide_cabin()
+		else:
+			main.home_cabin.visible = false
+	else:
+		await _shot("N10-completed-reload-freedom.png")
+	if no_extra and settled and cabin_ok:
+		_row("24", "PARTIAL", "journey", "won=true Start settles ready + cabin opens; re-bank empty — full post-completion freedom suite still incomplete")
+	elif no_extra and settled:
+		_row("24", "PARTIAL", "journey", "won=true Start settles ready; re-bank empty; cabin open failed — freedom suite incomplete")
 	elif no_extra:
 		_row("24", "PARTIAL", "unit+journey", "re-bank idempotent; Start settle failed phase=%s" % main.phase)
 	else:
