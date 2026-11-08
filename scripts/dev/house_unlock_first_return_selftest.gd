@@ -190,7 +190,7 @@ func _run() -> void:
 		"rooms=%s" % str(cabin.get("rooms_unlocked"))
 	) or failed
 
-	## --- Source contracts: arrive/push-block use the shared credit helper ---
+	## --- Source contracts: arrive/push-block/progress-menu use the shared credit helper ---
 	var src := _read_source("res://scripts/home_cabin.gd")
 	failed = _assert(
 		rows, failed, "STATIC.has_gate_helper",
@@ -217,10 +217,94 @@ func _run() -> void:
 		""
 	) or failed
 	failed = _assert(
+		rows, failed, "STATIC.progress_menu_api_credits",
+		"open_cabin_after_progress_menu credits haul for house unlock",
+		_func_body_contains(src, "func open_cabin_after_progress_menu", "_credit_homecoming_counters"),
+		""
+	) or failed
+	failed = _assert(
 		rows, failed, "STATIC.gate_uses_lifetime",
 		"house gate keys off lifetime_dungeons_cleared (not unique count)",
 		_func_body_contains(src, "func counts_as_successful_dungeon_return", "lifetime_dungeons_cleared"),
 		""
+	) or failed
+
+	## Live Pixel path: finalize must open cabin via credit API (not bare walk_in=false).
+	var main_src := _read_source("res://scripts/main.gd")
+	failed = _assert(
+		rows, failed, "STATIC.finalize_uses_progress_credit",
+		"finalize cabin path calls open_cabin_after_progress_menu (credits haul on win)",
+		_func_body_contains(
+			main_src,
+			"func _finalize_progress_menu_result",
+			"open_cabin_after_progress_menu"
+		),
+		""
+	) or failed
+	failed = _assert(
+		rows, failed, "STATIC.finalize_passes_kind",
+		"finalize preserves progress-menu kind (no hardcoded win-only cabin open)",
+		_func_body_contains(
+			main_src,
+			"func _finalize_progress_menu_result",
+			'result.get("kind"'
+		),
+		""
+	) or failed
+	## Regression: win finalize must not open cabin without credit helper.
+	failed = _assert(
+		rows, failed, "STATIC.finalize_no_bare_win_cabin",
+		"finalize must not call _open_home_cabin(false, \"win\") as the only cabin path",
+		not _func_body_contains(
+			main_src,
+			"func _finalize_progress_menu_result",
+			'_open_home_cabin(false, "win"'
+		),
+		""
+	) or failed
+
+	var menu_src := _read_source("res://scripts/ui/progress_menu.gd")
+	failed = _assert(
+		rows, failed, "STATIC.menu_returns_kind",
+		"progress_menu present() stamps kind onto result for finalize",
+		menu_src.find('out["kind"]') >= 0 or menu_src.find("out[\"kind\"]") >= 0,
+		""
+	) or failed
+
+	## Runtime: progress-menu API credits haul on win + lifetime>=1 (0 new uniques).
+	cabin.call("_apply_defaults")
+	cabin.set("lifetime_dungeons_cleared", 1)
+	cabin.set("key_ring_seen", true) ## skip key-ring await in headless
+	cabin.set("_persist_writes", false)
+	## Simulate open_cabin_after_progress_menu credit body without awaiting UI.
+	cabin.set("_homecoming_kind", "win")
+	cabin.set("_new_ids", [])
+	cabin.set("_held_ids", [])
+	var want_pm: bool = cabin.call("_credit_homecoming_counters")
+	failed = _assert(
+		rows, failed, "PMENU.win_credits_haul",
+		"progress-menu win path credits haul when lifetime>=1",
+		want_pm == false ## key_ring_seen true → want_key false, but haul still bumps
+			and int(cabin.get("counters").get("hauls", -1)) == 1,
+		"want=%s hauls=%s" % [want_pm, cabin.get("counters").get("hauls", -1)]
+	) or failed
+	cabin.call("_sync_progress_doors")
+	failed = _assert(
+		rows, failed, "PMENU.win_unlocks_rooms",
+		"progress-menu win haul unlocks house rooms",
+		cabin.get("rooms_unlocked").has("hall"),
+		"rooms=%s" % str(cabin.get("rooms_unlocked"))
+	) or failed
+	## Tutorial kind must not unlock even with lifetime>=1 (edge: prior clear then tutorial replay).
+	cabin.call("_apply_defaults")
+	cabin.set("lifetime_dungeons_cleared", 1)
+	cabin.set("_homecoming_kind", "tutorial")
+	var want_pm_tut: bool = cabin.call("_credit_homecoming_counters")
+	failed = _assert(
+		rows, failed, "PMENU.tutorial_no_haul",
+		"progress-menu tutorial kind does not credit haul",
+		want_pm_tut == false and int(cabin.get("counters").get("hauls", -1)) == 0,
+		"want=%s hauls=%s" % [want_pm_tut, cabin.get("counters").get("hauls", -1)]
 	) or failed
 
 	cabin.call("_save")
@@ -232,13 +316,13 @@ func _run() -> void:
 		"before=%s after=%s" % [before_meta, after_meta]
 	) or failed
 
-	## Honest gap: helper tests ≠ integrated fresh-save GUI acceptance.
+	## Honest gap: helper/static finalize wiring ≠ headed GUI Pixel progress-menu click path.
 	rows.append({
 		"kind": "UNCOVERED",
-		"id": "UNCOVERED.fresh_save_gui_arrive",
-		"msg": "Does not prove headed F5 Brand New → tutorial → first delve → arrive keyring tour",
+		"id": "UNCOVERED.fresh_save_gui_progress_menu",
+		"msg": "Does not prove headed F5 Brand New → tutorial → first delve → progress-menu Cabin → doors open",
 	})
-	print("NOTE UNCOVERED.fresh_save_gui_arrive — helper tests ≠ integrated fresh-save GUI acceptance")
+	print("NOTE UNCOVERED.fresh_save_gui_progress_menu — static+helper ≠ headed Pixel progress-menu GUI")
 
 	cabin.queue_free()
 	_finish(failed, rows)

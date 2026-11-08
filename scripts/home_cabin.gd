@@ -915,6 +915,38 @@ func begin_push_block_bank() -> void:
 	_bank_from_push_block = true
 
 
+## Pixel progress-menu → Cabin: no exterior walk-in, but still credit a successful
+## dungeon return so house rooms unlock (win + lifetime clears ≥1). Tutorial/loss do not.
+## Mirrors open_hall_after_push_block credit order: credit → optional key ring → show_menu.
+func open_cabin_after_progress_menu(
+	p_items: Dictionary,
+	p_tex: Dictionary,
+	p_buckets: int,
+	kind: String = "win",
+	new_ids: Array = [],
+	held_ids: Array = []
+) -> void:
+	items_by_id = p_items
+	tex_by_item = p_tex
+	buckets_open = p_buckets
+	_homecoming_kind = kind
+	_new_ids = new_ids.duplicate()
+	_held_ids = held_ids.duplicate()
+	visible = true
+	_arriving = false
+	_door_busy = false
+	_room_busy = false
+	_door_glow_open = false
+	_menu_on = true
+	_just_mounted.clear()
+	_room = _start_room()
+	var want_key: bool = _credit_homecoming_counters()
+	_save()
+	if want_key:
+		await play_key_ring()
+	await show_menu("main")
+
+
 ## Push-block interrupt: dissolve already played; land in the hall at that biome's case.
 ## No map piece on this path (S3 ceremony suppressed via _bank_from_push_block).
 func open_hall_after_push_block(pool_id: String, biome_name: String, new_ids: Array = [], held_ids: Array = []) -> void:
