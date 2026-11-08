@@ -633,6 +633,10 @@ var _homecoming_kind: String = "win"
 var _homecoming_new: Array = []
 var _homecoming_held: Array = []
 var _spoken_key: String = ""
+## One-shot guard so hotbar refresh cannot re-queue the New! lesson every frame.
+var _lesson_new_mark_queued: bool = false
+var _lesson_extract_queued: bool = false
+var _run_lesson_dialog = null
 var overlay_continue: Button
 var overlay_leave: Button
 var overlay_score
@@ -3687,6 +3691,100 @@ func _open_home_cabin(walk_in: bool, kind: String = "win", new_ids: Array = [], 
 		rope_exit.hide_exit()
 	get_tree().paused = true
 	_hide_fight_hover()
+
+
+## Spin lesson 1: first campaign ready beat with a real hotbar New! badge.
+## Never fires in tutorial, fighting, or from cabinet peg twinkle.
+func _maybe_queue_new_mark_lesson() -> void:
+	if _lesson_new_mark_queued or in_tutorial or not _campaign_on or not adventure:
+		return
+	if phase != "ready":
+		return
+	if home_cabin == null or not home_cabin.needs_lesson("new_mark"):
+		return
+	var has_fresh := false
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		var cid := str(it.get("card_id", ""))
+		if cid == "" or BucketRules.is_token(items_by_id.get(cid, {})):
+			continue
+		if not home_cabin.is_swiped(cid):
+			has_fresh = true
+			break
+	if not has_fresh:
+		return
+	_lesson_new_mark_queued = true
+	call_deferred("_play_new_mark_lesson")
+
+
+func _play_new_mark_lesson() -> void:
+	if in_tutorial or phase == "fighting" or not _campaign_on:
+		_lesson_new_mark_queued = false
+		return
+	if home_cabin == null or not home_cabin.needs_lesson("new_mark"):
+		return
+	if phase != "ready" and phase != "rest":
+		_lesson_new_mark_queued = false
+		return
+	home_cabin.mark_lesson_said("new_mark")
+	await _say_run_lesson(["nib.lesson.new_mark"])
+
+
+## Spin lesson 2: first extract with NEW UNIQUE rows. Verdant copy only on b1.
+@warning_ignore("unused_parameter")
+func _maybe_queue_extract_haul_lesson(chip: Dictionary) -> void:
+	if _lesson_extract_queued or in_tutorial or not _campaign_on:
+		return
+	if home_cabin == null or not home_cabin.needs_lesson("extract_haul"):
+		return
+	if _campaign == null:
+		return
+	var pool := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	## Exact Spin Verdant wording — do not invent other-biome variants.
+	if pool != "b1":
+		return
+	var has_new := false
+	for row in _rope_loot_rows():
+		if typeof(row) == TYPE_DICTIONARY and bool(row.get("is_new", false)):
+			has_new = true
+			break
+	if not has_new:
+		return
+	_lesson_extract_queued = true
+	call_deferred("_play_extract_haul_lesson")
+
+
+func _play_extract_haul_lesson() -> void:
+	if in_tutorial or not _campaign_on or phase != "rest":
+		_lesson_extract_queued = false
+		return
+	if home_cabin == null or not home_cabin.needs_lesson("extract_haul"):
+		return
+	if rope_exit == null or not rope_exit.visible:
+		_lesson_extract_queued = false
+		return
+	home_cabin.mark_lesson_said("extract_haul")
+	## Prefer rope_exit dialog so Leave stays blocked until the line advances.
+	if rope_exit.has_method("say_lesson"):
+		await rope_exit.say_lesson(["nib.lesson.extract_haul"])
+	else:
+		await _say_run_lesson(["nib.lesson.extract_haul"])
+
+
+func _say_run_lesson(keys: Array) -> void:
+	## Lightweight aside for ready-phase lessons. Does not pause the SceneTree.
+	if keys.is_empty():
+		return
+	if _run_lesson_dialog == null:
+		_run_lesson_dialog = preload("res://scripts/cabin/cabin_dialog.gd").new()
+		if home_cabin != null:
+			_run_lesson_dialog.setup(home_cabin)
+		_run_lesson_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+		_run_lesson_dialog.z_index = 200
+		add_child(_run_lesson_dialog)
+	_run_lesson_dialog.say(keys)
+	await _run_lesson_dialog.finished
 
 
 func _on_home_cabin_closed() -> void:
@@ -26649,6 +26747,8 @@ func _sync_overlay() -> void:
 					push_interrupt = CAMPAIGN_SHELL.push_needs_nib(_campaign.rules, _campaign.state)
 				var endless_run := _campaign_on and _campaign != null and bool(_campaign.state.get("run", {}).get("endless", false))
 				rope_exit.apply_exit_mode(_campaign_on, can_push, push_interrupt, chip, endless_run)
+				## First extract with NEW UNIQUE preview — Verdant/b1 wording only.
+				_maybe_queue_extract_haul_lesson(chip)
 		return
 	if phase == "victory":
 		overlay.visible = false
@@ -27000,6 +27100,8 @@ func _sync_hotbar() -> void:
 	_place_hotbar_overflow()
 	call_deferred("_place_hotbar_overflow")
 	_clear_choice_overlay()
+	## New! badge lesson: only between fights (ready), never mid-combat freeze.
+	_maybe_queue_new_mark_lesson()
 
 
 func _dim_hot_empty_slots() -> void:

@@ -923,6 +923,14 @@ func _make_hit(node_name: String, r: Rect2, z: int, hover: Callable, action: Cal
 ## can_push: whether deeper is allowed.
 ## endless: kept for callers; used to swap Push plank copy (planks removed — option A).
 @warning_ignore("unused_parameter")
+## In-run extract lesson (Spin). Blocks Leave advance until dismissed.
+func say_lesson(keys: Array) -> void:
+	if _dialog == null or keys.is_empty():
+		return
+	_dialog.say(keys)
+	await _dialog.finished
+
+
 func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = false, chip: Dictionary = {}, endless: bool = false) -> void:
 	_campaign_mode = campaign
 	_can_push = (not campaign) or can_push
