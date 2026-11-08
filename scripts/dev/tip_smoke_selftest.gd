@@ -307,6 +307,45 @@ func _init() -> void:
 		not _source_func_calls("res://scripts/main.gd", "_toss_item", "_collector_discard_tax")
 	) or failed
 
+	## 18) Spinning Top — Defeat equal-HP counter from 0; no ATK / Discard-at-7.
+	failed = _check(failed, "runtime_has_spinning_top", _runtime_has_item("spinning_top")) or failed
+	failed = _check(
+		failed,
+		"spinning_top_ops_defeat_spins",
+		_catalog_item_ops_kind("spinning_top", "defeat_spins")
+	) or failed
+	failed = _check(
+		failed,
+		"spinning_top_item_ops_defeat_spins",
+		_source_contains("res://scripts/main.gd", '"spinning_top": {"kind": "defeat_spins"}')
+		or _source_contains("res://scripts/main.gd", "\"spinning_top\": {\"kind\": \"defeat_spins\"}")
+	) or failed
+	failed = _check(
+		failed,
+		"spinning_top_ability_defeat_equal",
+		_catalog_item_ability_contains("spinning_top", "Defeat")
+		and _catalog_item_ability_contains("spinning_top", "Starts at 0")
+	) or failed
+	failed = _check(
+		failed,
+		"spinning_top_ability_no_discard_cap",
+		not _catalog_item_ability_contains("spinning_top", "Discard")
+		and not _catalog_item_ability_contains("spinning_top", "ATK")
+	) or failed
+	failed = _check(
+		failed,
+		"spinning_top_step_no_discard_max",
+		_source_has_func("res://scripts/main.gd", "_step_spinning_tops")
+		and _source_has_func("res://scripts/main.gd", "_spinning_top_n")
+		and not _source_has_func("res://scripts/main.gd", "_discard_maxed_spinning_tops")
+		and not _source_has_func("res://scripts/main.gd", "_spinning_top_atk")
+	) or failed
+	failed = _check(
+		failed,
+		"spinning_top_recycle_preserves_snap",
+		_source_func_calls("res://scripts/main.gd", "_recycle_insert_copy", "duplicate(true)")
+	) or failed
+
 	if guide != null and is_instance_valid(guide):
 		guide.free()
 

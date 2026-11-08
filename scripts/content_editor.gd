@@ -81,7 +81,7 @@ const DEFAULT_EXPLAINER := {
 	"sling": "Next Attack this fight can target Any",
 	"ball_and_chain": "Draw a Card.",
 	"recycler": "(Every 5th Discard copies that Item into your Hand.)",
-	"spinning_top": "ATK = 1 + Spins. Discard at 7",
+	"spinning_top": "Defeat equal HP. +1 / Spin from 0",
 	"magicat": "On Spin: 2 Atk or Blk Items become Marbles with that number",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust.",
 	"rust": "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust.",
