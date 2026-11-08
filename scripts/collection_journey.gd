@@ -127,6 +127,10 @@ static func gate_projection(
 ## Ordered durable milestones from a bank commit (facts only — presentation is UI).
 ## before/after are campaign state snapshots; never invent room unlocks here (cabin owns those).
 ## Order: gate unlock(s) → cabinet_full (if roster_totals provided) → collection_complete.
+## Gate counters are capped at unlock quota (approved 5/5 display). Catalogue roster
+## totals stay separate on overview area lines.
+## collection_complete is full-roster only (every biome count ≥ roster_total). Quota
+## `won` / cabinets_complete alone must NOT emit it — 66/67 is still incomplete.
 static func milestones_from_bank(
 	rules: Dictionary,
 	before: Dictionary,
@@ -151,9 +155,13 @@ static func milestones_from_bank(
 			out.append({
 				"kind": "gate",
 				"pool": pid,
-				"from": b0,
-				"to": b1,
+				## Capped unlock display — never show 15/5 as the gate counter.
+				"from": mini(b0, quota),
+				"to": mini(b1, quota),
 				"quota": quota,
+				## Raw cabinet counts retained for audits (not player gate copy).
+				"raw_from": b0,
+				"raw_to": b1,
 				"next_id": str(nxt.get("id", "")),
 				"next_name": str(nxt.get("name", "")),
 			})
@@ -163,11 +171,30 @@ static func milestones_from_bank(
 			)
 			if not full.is_empty():
 				out.append(full)
-	var won0 := bool(before.get("won", false))
-	var won1 := bool(after.get("won", false))
-	if not won0 and won1:
+	if roster_complete(before, rules, roster_totals):
+		return out
+	if roster_complete(after, rules, roster_totals):
 		out.append({"kind": "collection_complete"})
 	return out
+
+
+## True when every tip biome with a known roster_total (>0) is fully banked.
+## Empty / incomplete roster_totals → false (do not invent completion).
+static func roster_complete(state: Dictionary, rules: Dictionary, roster_totals: Dictionary) -> bool:
+	if roster_totals.is_empty():
+		return false
+	var any := false
+	for raw in CAMPAIGN_SHELL.biomes_of(rules):
+		var pid := str((raw as Dictionary).get("id", ""))
+		if pid == "" or not roster_totals.has(pid):
+			continue
+		var need: int = int(roster_totals.get(pid, 0))
+		if need <= 0:
+			continue
+		any = true
+		if CAMPAIGN_SHELL.cabinet_count(state, pid) < need:
+			return false
+	return any
 
 
 ## Full-cabinet recognition when banked count for pool equals roster_total (>0).
