@@ -2,15 +2,15 @@
 id: REQ-20261108-collection-A
 status: open
 priority: high
-tip_sha: f644a44ae0079e16adccc9de0e593ef3caf17a0b
+tip_sha: 4a1696778624cdf2d78007294c63cf83683df8c7
 branch: playtest/latest
 created: 2026-11-08T04:30:00-06:00
 created_by: collection-a-cloud
 viewport: 1680x1040
 entry: F5 playtest hub → Brand New or Middle Progress → Verdant campaign loop; Progress menu + optional Cabin. Use isolated disposable userdata only.
 note: >
-  Merged code PRs #474/#475/#476 are tip-smoke CI only — NOT runtime acceptance.
-  When #477 cabin merges, bump tip_sha to that merge commit on playtest/latest before shooting.
+  Merged code PRs #474/#475/#476/#477 are tip-smoke CI only — NOT runtime acceptance.
+  Shoot the full matrix on tip 4a169677 (includes cabin nav). Do not claim F5-ready from CI.
 ---
 
 # Collection Journey A — runtime acceptance matrix (Cherry)
@@ -25,8 +25,8 @@ note: >
 |-------|--------|
 | Repo | `Nathan-Elequin/swipe` |
 | Branch | `playtest/latest` |
-| Exact tip SHA | `f644a44ae0079e16adccc9de0e593ef3caf17a0b` (#476 merge; includes #474+#475+#476) |
-| After #477 merges | Re-`git rev-parse origin/playtest/latest`, update this `tip_sha`, re-run matrix on that SHA |
+| Exact tip SHA | `4a1696778624cdf2d78007294c63cf83683df8c7` (#477 merge; includes #474+#475+#476+#477) |
+| Note | Tip-smoke ≠ runtime acceptance. Cherry drains this SHA before any slice is accepted. |
 
 ## Required evidence (all required)
 
