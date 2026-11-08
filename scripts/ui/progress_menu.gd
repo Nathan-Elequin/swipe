@@ -396,6 +396,10 @@ func _pool_roster(pool: String) -> Array:
 		## Tokens / aside never enter collection cabinets.
 		if BucketRules.is_token(card):
 			continue
+		## Match production banking roster (main milestones_from_bank) — hold/retired
+		## must not inflate totals or allow Full collection while live cabinets are short.
+		if str(card.get("status", "live")) in ["retired", "hold"]:
+			continue
 		if _card_biome_pool(card) != pool:
 			continue
 		out.append(str(id))
@@ -503,6 +507,10 @@ func _rebuild_overview() -> void:
 	for c in _overview_box.get_children():
 		c.queue_free()
 	## Milestone queue (A17) — durable facts; skip reveals all at once.
+	## Never paint collection_complete while overview totals are still short
+	## (guards bad fixtures / unrevealed new_ids undercount).
+	var overview_totals: Vector2i = _overall_unique_counts()
+	var roster_full_now: bool = overview_totals.y > 0 and overview_totals.x >= overview_totals.y
 	if not _milestones.is_empty():
 		var head := Label.new()
 		head.name = "MilestoneHead"
@@ -516,6 +524,9 @@ func _rebuild_overview() -> void:
 		_overview_box.add_child(head)
 		for raw_m in _milestones:
 			if typeof(raw_m) != TYPE_DICTIONARY:
+				continue
+			var mk := str((raw_m as Dictionary).get("kind", ""))
+			if mk == "collection_complete" and not roster_full_now:
 				continue
 			var ml := Label.new()
 			ml.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
