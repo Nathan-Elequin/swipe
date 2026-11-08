@@ -2,7 +2,7 @@
 id: REQ-20261108-huntsman-slash-crops
 status: open
 priority: high
-pr:
+pr: 473
 tip_sha: 4684bbf7
 branch: playtest/latest
 created: 2026-11-08T10:20:00Z
