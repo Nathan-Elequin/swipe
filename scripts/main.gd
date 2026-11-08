@@ -2812,6 +2812,11 @@ func _commit_dungeon_clear() -> void:
 			home_cabin.note_dungeon_clear()
 		_advance_bucket_counter()
 		_log("end", "dungeon %s" % dungeons_cleared)
+		## Tip final-clear eligibility: real clear commit on last tip biome only.
+		## Leave/bank alone must not recognize final_dungeon_cleared.
+		if _campaign_on and _campaign != null:
+			CAMPAIGN_SHELL.note_tip_dungeon_cleared(_campaign.rules, _campaign.state)
+			_campaign.write()
 	phase = "rest"
 	facing_index = -1
 	## Instant Rope Exit under the black wipe (no 0.3s fade).
@@ -3554,9 +3559,10 @@ func _campaign_bank_from_hand_with_milestones(stamp_crosses: bool = true) -> Arr
 	var milestones: Array = COLLECTION_JOURNEY.milestones_from_bank(
 		_campaign.rules, before, _campaign.state, touched, roster_totals
 	)
-	## Final-dungeon clear is Leave from the last tip biome — distinct from
-	## cabinets_complete won/endless and from full-collection inheritance.
-	## Capture played pool before end_run clears the active run.
+	## Final-dungeon clear: Leave AFTER a real tip clear commit (run.final_clear_eligible).
+	## Mere Leave / early return from b5 without clear does not recognize.
+	## Distinct from cabinets_complete won/endless and from full-collection inheritance.
+	## Capture played pool before end_run clears the active run (and eligible flag).
 	if stamp_crosses:
 		var played_pool := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, before)
 		if played_pool == "":

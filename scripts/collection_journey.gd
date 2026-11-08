@@ -127,7 +127,7 @@ static func gate_projection(
 ## Ordered durable milestones from a bank commit (facts only — presentation is UI).
 ## before/after are campaign state snapshots; never invent room unlocks here (cabin owns those).
 ## Order: gate unlock(s) → cabinet_full (if roster_totals provided) → final_clear
-## (Leave path appends) → collection_complete.
+## (Leave after tip-clear eligible appends) → collection_complete.
 ## Gate counters are capped at unlock quota (approved 5/5 display). Catalogue roster
 ## totals stay separate on overview area lines.
 ## collection_complete is full-roster only (every biome count ≥ roster_total). Quota

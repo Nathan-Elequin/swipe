@@ -48,8 +48,8 @@ static func fresh_state() -> Dictionary:
 		"endless_best": 0,
 		"won": false,
 		"drawer_seen": false,
-		## First successful Leave from the last tip biome (Shadow Abyss). Distinct from
-		## cabinets_complete won/endless and from full-collection inheritance.
+		## Durable after Leave that follows a real tip-dungeon clear (not mere return).
+		## Distinct from cabinets_complete won/endless and from full-collection inheritance.
 		"final_dungeon_cleared": false,
 		"pencil_fresh": [],
 		"mudroom_loadout": [],
@@ -110,6 +110,7 @@ static func normalize(state: Dictionary) -> void:
 	run["shortcut"] = bool(run.get("shortcut", false))
 	run["rerolls"] = maxi(0, int(run.get("rerolls", 0)))
 	run["delve_granted"] = bool(run.get("delve_granted", false))
+	run["final_clear_eligible"] = bool(run.get("final_clear_eligible", false))
 	state["run"] = run
 	if bool(run.get("endless", false)) and bool(run.get("active", false)):
 		var depth: int = maxi(1, int(run.get("biome_index", 0)) + 1)
@@ -330,6 +331,8 @@ static func begin_run(state: Dictionary, biome_index: int, shortcut: bool, endle
 		"shortcut": shortcut,
 		"rerolls": 0,
 		"delve_granted": false,
+		## Set only by note_tip_dungeon_cleared after a real clear commit on last tip.
+		"final_clear_eligible": false,
 	}
 	## Deadlies unique inside this run only, not across the save.
 	state["seen_deadly"] = []
@@ -480,7 +483,29 @@ static func last_tip_biome_id(rules: Dictionary) -> String:
 	return str((biomes[biomes.size() - 1] as Dictionary).get("id", ""))
 
 
-## First successful Leave from the last tip biome → durable final-clear recognition.
+## Mark this active run eligible for final-clear recognition after a real tip clear.
+## Called from dungeon-clear commit only — never from Leave/bank alone.
+static func note_tip_dungeon_cleared(rules: Dictionary, state: Dictionary) -> void:
+	normalize(state)
+	var run: Dictionary = state.get("run", {})
+	if typeof(run) != TYPE_DICTIONARY or not bool(run.get("active", false)):
+		return
+	if bool(run.get("endless", false)):
+		return
+	var pool := current_biome_id(rules, state)
+	var last_id := last_tip_biome_id(rules)
+	if pool == "" or last_id == "" or pool != last_id:
+		return
+	var endless_id := str(rules.get("endless", {}).get("id", "endless"))
+	if pool == endless_id:
+		return
+	run["final_clear_eligible"] = true
+	state["run"] = run
+
+
+## Leave after a real tip-dungeon clear → durable final-clear recognition.
+## Requires run.final_clear_eligible (set by note_tip_dungeon_cleared). Mere Leave /
+## early return from the last tip biome without a clear commit does NOT recognize.
 ## Does NOT set won / endless_unlocked (cabinets_complete owns those) and does NOT
 ## imply full-collection inheritance. Returns milestone dict once, else {}.
 static func recognize_final_dungeon_clear(
@@ -490,6 +515,9 @@ static func recognize_final_dungeon_clear(
 ) -> Dictionary:
 	normalize(state)
 	if bool(state.get("final_dungeon_cleared", false)):
+		return {}
+	var run: Dictionary = state.get("run", {})
+	if typeof(run) != TYPE_DICTIONARY or not bool(run.get("final_clear_eligible", false)):
 		return {}
 	var last_id := last_tip_biome_id(rules)
 	if last_id == "" or played_pool == "" or played_pool != last_id:
@@ -832,6 +860,7 @@ static func _idle_run() -> Dictionary:
 		"shortcut": false,
 		"rerolls": 0,
 		"delve_granted": false,
+		"final_clear_eligible": false,
 	}
 
 
