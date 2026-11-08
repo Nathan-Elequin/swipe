@@ -1,6 +1,6 @@
 ---
 id: REQ-20261107-cabinet-homecoming-restore
-status: open
+status: done
 priority: high
 branch: cursor/cabinet-homecoming-restore-9880
 base: playtest/latest
