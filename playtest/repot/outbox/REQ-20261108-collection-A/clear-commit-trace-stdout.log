@@ -1,0 +1,190 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.88 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 5070 Ti
+
+USER_DATA=C:/Users/Natha/AppData/Local/Temp/collection-a-sandbox/Godot/app_userdata/Spinheritance
+[audio] setup reason=boot bed=title playing=false
+[audio] start reason=music_to bed=title playing=false
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+SCALE boot viewport=1680.0x1040.0 window=1680x1040
+TIP_SHA 1a13e353 full=1a13e353574e3a2f6d4d8e03ca4f28e1f0cd1f94 dirty=true watermark_expect=1a13e353*
+ROSTER_FILTER source=progress_menu._pool_roster + harness._pool_ids status not in hold/retired
+CINDER_RAW_INCLUDING_HOLD_RETIRED 13 LIVE_BANKABLE 12
+EXCLUDED_CINDER danger_magnet|Danger Magnet|hold|pool=4.0
+LIVE_BANKABLE_ROSTER { "b1": 15, "b2": 14, "b3": 14, "b4": 12, "b5": 11 } sum=66
+HARNESS_RESET before tutorial
+[audio] start reason=music_to bed=title playing=true
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+SCALE N01-tutorial-handoff.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N01-tutorial-handoff.png 1680x1040 bytes=96142
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+[audio] start reason=music_to bed=cabin playing=true
+[audio] start reason=music_to bed=title playing=true
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+TUTORIAL_PATH done_before=true done_reload=true later_kind=win helper_second_direct=true (helper probe ≠ player regression)
+ROW 01 PASS [integration] reachable finish stamps tutorial_done; reload keeps it; ordinary win kind=win. Helper second _road_finish still opens tutorial (API non-idempotent; not claimed as player regression). Full in-dungeon rails still unautomated.
+HARNESS_RESET after tutorial
+[pass6-fit] n=8 clearances=[43.1475067138672, 38.5553359985352, 38.5553131103516, 43.1474914550781, 46.5916900634766, 42.2792053222656, 42.2792358398438, 46.5917358398438]
+HARNESS_RESET before nest
+[pass6-fit] n=6 clearances=[66.2503588867187, 74.1599658203125, 66.2503741455078, 66.5717242431641, 71.7270355224609, 66.5717242431641]
+[pass6-fit] n=6 clearances=[10.7183645629883, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, -8.33498764038086, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, -8.33498764038086, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, -8.33498764038086, 6.09579467773438, 2.0023193359375, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, -8.33498764038086, 6.09579467773438, 2.0023193359375, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, -8.33498764038086, 6.09579467773438, 2.0023193359375, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, -8.33498764038086, 6.09579467773438, 2.0023193359375, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, -8.33498764038086, 6.09579467773438, 2.0023193359375, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, -8.33498764038086, 6.09579467773438, 2.0023193359375, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, -8.33498764038086, 6.09579467773438, 2.0023193359375, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, -8.33498764038086, 6.09579467773438, 2.0023193359375, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, -8.33498764038086, 6.09579467773438, 2.0023193359375, 6.96208557128905]
+SCALE N02-nest-verdant-start.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N02-nest-verdant-start.png 1680x1040 bytes=95457
+ROW 02 PASS [integration] Start→Verdant nest settled phase=ready (synthetic finalize)
+HARNESS_RESET after nest
+HARNESS_RESET before offer-decline
+OFFER_DECLINE id=victory_flask seen_offer=true seen_decline=true banked=false swiped=false
+SCALE N05-offer-decline-seen.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N05-offer-decline-seen.png 1680x1040 bytes=75495
+ROW 05 PASS [integration] live `_make_item` notes seen; decline clears pending without bank/swipe. Full mill click UI still unautomated.
+HARNESS_RESET after offer-decline
+HARNESS_RESET before checkpoint
+SCALE N03-checkpoint-extract.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N03-checkpoint-extract.png 1680x1040 bytes=138614
+[audio] start reason=music_to bed=cabin playing=true
+[pass6-fit] n=8 clearances=[-5.33082056045532, -9.65130615234375, -9.65132904052734, -5.3308048248291, -5.05908203125, -5.92297983169556, -5.92298460006714, -5.05906677246094]
+SCALE N03b-head-home-progress.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N03b-head-home-progress.png 1680x1040 bytes=85463
+ROW 11 PASS [integration] Climb leave with haul fangs/net → menu; banked_a=true banked_b=true (integration route, not physical-input journey)
+HARNESS_RESET after checkpoint
+HARNESS_RESET before splash
+SCALE N04a-push-rope-before.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N04a-push-rope-before.png 1680x1040 bytes=147960
+[audio] start reason=music_to bed=title playing=true
+[pass6-fit] n=6 clearances=[10.6956155395508, 14.3340148925781, 10.6956307983398, 6.0365884399414, 12.53759765625, 6.03659606933593]
+SCALE N04-biome-entry-splash.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N04-biome-entry-splash.png 1680x1040 bytes=1133741
+[pass6-fit] n=6 clearances=[-13.8350009918213, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, -8.33498764038086, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, -8.33498764038086, 6.9620474243164, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, -8.33498764038086, 6.9620474243164, 2.20346450805664, 6.09577178955078]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, -8.33498764038086, 6.9620474243164, 2.20346450805664, 7.5798452758789]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, -8.33498764038086, 6.9620474243164, 2.20346450805664, 7.5798452758789]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, -8.33498764038086, 6.9620474243164, 2.20346450805664, 7.5798452758789]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, -8.33498764038086, 6.9620474243164, 2.20346450805664, 7.5798452758789]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, -8.33498764038086, 6.9620474243164, 2.20346450805664, 7.5798452758789]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, -8.33498764038086, 6.9620474243164, 2.20346450805664, 7.5798452758789]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, -8.33498764038086, 6.9620474243164, 2.20346450805664, 7.5798452758789]
+[pass6-fit] n=6 clearances=[-13.8350009918213, 2.92001708984374, -8.33498764038086, 6.9620474243164, 2.20346450805664, 7.5798452758789]
+ROW 12 PASS [integration] Push/_rope_deeper → Crystal; haul fangs still carried (risk preserved, not banked on Push; integration route, not physical-input journey)
+HARNESS_RESET after splash
+HARNESS_RESET before next-verdant
+[pass6-fit] n=6 clearances=[10.6956155395508, 14.3340148925781, 10.6956307983398, 6.0365884399414, 12.53759765625, 6.03659606933593]
+[pass6-fit] n=6 clearances=[3.12831481933593, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 2.38427734375, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 2.38427734375, 6.9620474243164, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 2.38427734375, 6.9620474243164, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 2.38427734375, 6.9620474243164, 12.8309936523438, 6.96208557128905]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 2.38427734375, 6.9620474243164, 12.8309936523438, 6.96208557128905]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 2.38427734375, 6.9620474243164, 12.8309936523438, 6.96208557128905]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 2.38427734375, 6.9620474243164, 12.8309936523438, 6.96208557128905]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 2.38427734375, 6.9620474243164, 12.8309936523438, 6.96208557128905]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 2.38427734375, 6.9620474243164, 12.8309936523438, 6.96208557128905]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 2.38427734375, 6.9620474243164, 12.8309936523438, 6.96208557128905]
+[pass6-fit] n=6 clearances=[3.12831481933593, 2.92001708984374, 2.38427734375, 6.9620474243164, 12.8309936523438, 6.96208557128905]
+SCALE N09-next-ordinary-verdant.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N09-next-ordinary-verdant.png 1680x1040 bytes=95499
+ROW 18 PASS [integration] post-receipt Start→Verdant ready pool=b1
+HARNESS_RESET after next-verdant
+HARNESS_RESET before late-pool
+SCALE N05-late-pool-scrape.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N05-late-pool-scrape.png 1680x1040 bytes=82147
+ROW 20 PASS [integration] late missing victory_flask banked+retained; catalogue name=Victory Flask (fixture preconditions + authoritative bank)
+HARNESS_RESET after late-pool
+HARNESS_RESET before cabinet_full
+SCALE N06-full-cabinet-ui.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N06-full-cabinet-ui.png 1680x1040 bytes=94919
+ROW 21 PASS [integration] last b1 bank→cabinet_full; gate capped; no replay; shot_ok; roster=15
+HARNESS_RESET after cabinet_full
+HARNESS_RESET before final victory
+CLEAR_COMMIT_TRACE before_elig=false after_elig=true before_flag=false after_flag=false phase=rest committed=true
+N07_NEG early_leave_final=false flag=false push_block_final=false flag=false push_after_elig=true abort_flag=false
+[pass6-fit] n=6 clearances=[3.09232116699218, 2.87999511718749, 2.09341430664063, 6.92368865966796, 12.53759765625, 6.92371154785155]
+[pass6-fit] n=6 clearances=[14.3353051757812, 14.48001953125, 6.8850154876709, 15.8704766845703, 23.5670471191406, 15.8704766845703]
+SCALE N07-early-return-no-final.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N07-early-return-no-final.png 1680x1040 bytes=95443
+HARNESS_RESET before final clear positive
+CLEAR_COMMIT_TRACE before_elig=false after_elig=true before_flag=false after_flag=false phase=rest committed=true
+N07_POS_TRACE clear→elig=true flag_before_leave=false (must not assign eligible directly)
+[pass6-fit] n=6 clearances=[14.3353051757812, 14.48001953125, 6.8850154876709, 15.8704766845703, 23.5670471191406, 15.8704766845703]
+N07_POS cabinets=false roster=false abyss_unlocked=true has_final=true inherit=false flag=true/true won=false endless=false sum=Made it home. No new item types added. final_line=true full=false abyss_locked=false COPY_GAP_summary=true
+SCALE N07-final-dungeon-victory.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N07-final-dungeon-victory.png 1680x1040 bytes=99173
+CLEAR_COMMIT_TRACE before_elig=false after_elig=true before_flag=true after_flag=true phase=rest committed=true
+N07_ONCE reload_clear_elig=true leave_final=false flag=true
+[pass6-fit] n=6 clearances=[14.3353051757812, 14.48001953125, 6.8850154876709, 15.8704766845703, 23.5670471191406, 15.8704766845703]
+SCALE N07-once-only-reload.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N07-once-only-reload.png 1680x1040 bytes=89288
+N07_ONCE_UI blob_once_has_final=false rep_final=false once_ok=true
+ROW 22 PASS [integration] NEG early Leave/push-block/abort clean; POS production _commit_dungeon_clear→elig→Leave; once-only after reload; Abyss unlocked; COPY_GAP postrun.summary.final_clear.
+HARNESS_RESET after final victory
+HARNESS_RESET before inheritance
+ROSTER_TOTALS { "b1": 15, "b2": 14, "b3": 14, "b4": 12, "b5": 11 } sum=66
+N08a UI totals=(65, 66) full_line=false native_ms=false
+SCALE N08a-incomplete-66.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N08a-incomplete-66.png 1680x1040 bytes=134525
+N08_BANK_RELOAD added=["venom_veins"] has_last=true banked_n=66 pos_ms_native=true
+N08_RECEIPT sum=New item types added: 1. want=New item types added: 1. totals=(66, 66) full_line=true
+SCALE N08-bank-receipt.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N08-bank-receipt.png 1680x1040 bytes=80117
+N08 UI totals=(66, 66) full_line=true ms=true banked=66
+SCALE N08-inheritance-handoff.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N08-inheritance-handoff.png 1680x1040 bytes=81455
+N08_REPLAY ms_replay=false ui_full=false
+ROW 23 PASS [integration] neg UI 65/66 no Full collection; immediate receipt 'New item types added: 1.' + Full collection; settled reload UI 66/66 once; no replay (fixture bank path, not physical acquisition)
+HARNESS_RESET after inheritance
+HARNESS_RESET before reload-freedom
+[pass6-fit] n=6 clearances=[18.6587609863281, 23.48001953125, 18.6587762451172, 18.1748657226563, 23.5670471191406, 18.1748352050781]
+[pass6-fit] n=6 clearances=[10.7183645629883, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 14.6283874511719, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 10.7183645629883, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 6.09579467773438, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 2.3980596923828, 12.8309936523438, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 2.3980596923828, 6.92000183105468, 6.09577178955078]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 2.3980596923828, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 2.3980596923828, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 2.3980596923828, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 2.3980596923828, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 2.3980596923828, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 2.3980596923828, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 2.3980596923828, 6.92000183105468, 6.96208557128905]
+[pass6-fit] n=6 clearances=[6.07281097412108, 2.92001708984374, 6.07281097412108, 2.3980596923828, 6.92000183105468, 6.96208557128905]
+[audio] start reason=music_to bed=crystal_cavern playing=true
+SCALE N10-completed-reload-freedom.png viewport=1680.0x1040.0 window=1680x1040
+SHOT_OK N10-completed-reload-freedom.png 1680x1040 bytes=65396
+ROW 24 PASS [integration] completed save: re-bank empty, Start settles, cabin opens, no collection_complete replay
+HARNESS_RESET after reload-freedom
+SCALE rm-sc-probe viewport=1680.0x1040.0 window=1680x1040
+ROW RM NOTRUN [unit] unsupported route: no reduce_motion ProjectSettings key (probed accessibility/gui/display); preference mutation banned — cannot toggle OS/editor a11y from harness
+ROW SC PARTIAL [unit] SCALE probe exercised (viewport/window log only at 1680x1040); no DisplayServer size mutation / full UI scale acceptance suite
+HONESTY_DRAIN_DONE
+CASE 01 verdict=PASS level=integration note=reachable finish stamps tutorial_done; reload keeps it; ordinary win kind=win. Helper second _road_finish still opens tutorial (API non-idempotent; not claimed as player regression). Full in-dungeon rails still unautomated.
+CASE 02 verdict=PASS level=integration note=Start→Verdant nest settled phase=ready (synthetic finalize)
+CASE 05 verdict=PASS level=integration note=live `_make_item` notes seen; decline clears pending without bank/swipe. Full mill click UI still unautomated.
+CASE 11 verdict=PASS level=integration note=Climb leave with haul fangs/net → menu; banked_a=true banked_b=true (integration route, not physical-input journey)
+CASE 12 verdict=PASS level=integration note=Push/_rope_deeper → Crystal; haul fangs still carried (risk preserved, not banked on Push; integration route, not physical-input journey)
+CASE 18 verdict=PASS level=integration note=post-receipt Start→Verdant ready pool=b1
+CASE 20 verdict=PASS level=integration note=late missing victory_flask banked+retained; catalogue name=Victory Flask (fixture preconditions + authoritative bank)
+CASE 21 verdict=PASS level=integration note=last b1 bank→cabinet_full; gate capped; no replay; shot_ok; roster=15
+CASE 22 verdict=PASS level=integration note=NEG early Leave/push-block/abort clean; POS production _commit_dungeon_clear→elig→Leave; once-only after reload; Abyss unlocked; COPY_GAP postrun.summary.final_clear.
+CASE 23 verdict=PASS level=integration note=neg UI 65/66 no Full collection; immediate receipt 'New item types added: 1.' + Full collection; settled reload UI 66/66 once; no replay (fixture bank path, not physical acquisition)
+CASE 24 verdict=PASS level=integration note=completed save: re-bank empty, Start settles, cabin opens, no collection_complete replay
+CASE RM verdict=NOTRUN level=unit note=unsupported route: no reduce_motion ProjectSettings key (probed accessibility/gui/display); preference mutation banned — cannot toggle OS/editor a11y from harness
+CASE SC verdict=PARTIAL level=unit note=SCALE probe exercised (viewport/window log only at 1680x1040); no DisplayServer size mutation / full UI scale acceptance suite
+ERROR: 32 RID allocations of type 'N5GLES37TextureE' were leaked at exit.
+ERROR: 145 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+ERROR: 3 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.

@@ -789,66 +789,99 @@ func _case_21_last_biome_bank_ceremony() -> void:
 	await _soft_reset("after cabinet_full")
 
 
-## --- A22 Final clear = tip CLEAR event, not mere b5 Leave ---
-func _case_22_final_clear_event() -> void:
-	await _soft_reset("before final victory")
-	var biomes: Array = CAMPAIGN_SHELL.biomes_of(main._campaign.rules)
-	var b5_index := biomes.size() - 1
-	var roster := _roster_totals()
-	## --- Negative: ordinary early Leave/bank from b5 without tip-clear eligible ---
-	var early: Dictionary = CAMPAIGN_SHELL.fresh_state()
-	for pool_e in ["b1", "b2", "b3", "b4", "b5"]:
-		var ids_e: Array = _pool_ids(pool_e)
-		var n_e := 5 if pool_e == "b4" else 2
-		for i_e in mini(n_e, ids_e.size()):
-			early["banked"][str(ids_e[i_e])] = pool_e
-	CAMPAIGN_SHELL.normalize(early)
-	CAMPAIGN_SHELL.begin_run(early, b5_index, false, false)
-	## Intentionally do NOT call note_tip_dungeon_cleared — simulates extract without clear.
-	main._campaign.state = early
+## Fixture bank seeds only — never assigns final_clear_eligible directly.
+func _seed_incomplete_cabinets(b4_quota: bool) -> Dictionary:
+	var state: Dictionary = CAMPAIGN_SHELL.fresh_state()
+	for pool in ["b1", "b2", "b3", "b4", "b5"]:
+		var ids: Array = _pool_ids(pool)
+		var n := 5 if (b4_quota and pool == "b4") else 2
+		for i in mini(n, ids.size()):
+			state["banked"][str(ids[i])] = pool
+	CAMPAIGN_SHELL.normalize(state)
+	return state
+
+
+## Arm campaign Leave surface; cabin swipe mirrors banked fixture.
+func _arm_campaign_leave_surface(state: Dictionary) -> void:
+	main._campaign.state = state
 	main._campaign.write()
 	main._campaign_on = true
 	main.adventure = true
 	main.phase = "rest"
 	main.hotbar.clear()
-	if main.home_cabin != null:
-		main.home_cabin.swiped.clear()
-		main.home_cabin.seen.clear()
-		for sid_e in early["banked"].keys():
-			main.home_cabin.swiped[str(sid_e)] = true
-			main.home_cabin.seen[str(sid_e)] = true
+	if main.home_cabin == null:
+		return
+	main.home_cabin.swiped.clear()
+	main.home_cabin.seen.clear()
+	for sid in state["banked"].keys():
+		main.home_cabin.swiped[str(sid)] = true
+		main.home_cabin.seen[str(sid)] = true
+
+
+## Production clear-commit path only — no direct note_tip / eligible assignment.
+func _invoke_production_clear_commit() -> Dictionary:
+	var before_elig: bool = bool(main._campaign.state.get("run", {}).get("final_clear_eligible", false))
+	var before_flag: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
+	main._clear_committed = false
+	main._clear_commit_visual_only = false
+	main._clear_resolving = false
+	main._commit_dungeon_clear()
+	var after_elig: bool = bool(main._campaign.state.get("run", {}).get("final_clear_eligible", false))
+	var after_flag: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
+	var phase_rest: bool = str(main.phase) == "rest"
+	print(
+		"CLEAR_COMMIT_TRACE before_elig=%s after_elig=%s before_flag=%s after_flag=%s phase=%s committed=%s" % [
+			before_elig, after_elig, before_flag, after_flag, main.phase, main._clear_committed
+		]
+	)
+	return {
+		"before_elig": before_elig,
+		"after_elig": after_elig,
+		"before_flag": before_flag,
+		"after_flag": after_flag,
+		"phase_rest": phase_rest,
+	}
+
+
+func _ms_has_kind(ms: Array, kind: String) -> bool:
+	for raw in ms:
+		if typeof(raw) == TYPE_DICTIONARY and str((raw as Dictionary).get("kind", "")) == kind:
+			return true
+	return false
+
+
+## --- A22 Final clear = production tip CLEAR commit → Leave (not mere b5 Leave) ---
+func _case_22_final_clear_event() -> void:
+	await _soft_reset("before final victory")
+	var biomes: Array = CAMPAIGN_SHELL.biomes_of(main._campaign.rules)
+	var b5_index := biomes.size() - 1
+	var roster := _roster_totals()
+	## --- Negative: ordinary early Leave/bank from b5 without clear-commit ---
+	var early: Dictionary = _seed_incomplete_cabinets(true)
+	CAMPAIGN_SHELL.begin_run(early, b5_index, false, false)
+	## Intentionally skip _commit_dungeon_clear — extract without clear.
+	_arm_campaign_leave_surface(early)
 	var ms_early: Array = await main._campaign_bank_from_hand_with_milestones(true)
-	var early_has_final := false
-	for raw_e in ms_early:
-		if str((raw_e as Dictionary).get("kind", "")) == "final_clear":
-			early_has_final = true
+	var early_has_final: bool = _ms_has_kind(ms_early, "final_clear")
 	var early_flag: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
-	## Push-block stamp_crosses=false also must not mark (re-arm early run).
-	var push_state: Dictionary = CAMPAIGN_SHELL.fresh_state()
-	for pool_p in ["b1", "b2", "b3", "b4", "b5"]:
-		var ids_p: Array = _pool_ids(pool_p)
-		for i_p in mini(2, ids_p.size()):
-			push_state["banked"][str(ids_p[i_p])] = pool_p
+	## Push-block: production clear-commit sets eligible, but stamp_crosses=false must not mark.
+	var push_state: Dictionary = _seed_incomplete_cabinets(false)
 	CAMPAIGN_SHELL.begin_run(push_state, b5_index, false, false)
-	CAMPAIGN_SHELL.note_tip_dungeon_cleared(main._campaign.rules, push_state)
-	main._campaign.state = push_state
-	main._campaign.write()
-	main.hotbar.clear()
+	_arm_campaign_leave_surface(push_state)
+	var push_trace: Dictionary = _invoke_production_clear_commit()
 	var ms_push: Array = await main._campaign_bank_from_hand_with_milestones(false)
-	var push_has_final := false
-	for raw_p in ms_push:
-		if str((raw_p as Dictionary).get("kind", "")) == "final_clear":
-			push_has_final = true
+	var push_has_final: bool = _ms_has_kind(ms_push, "final_clear")
 	var push_flag: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
 	## Give-up / abort from b5: end_run without bank — must not mark.
 	var abort_state: Dictionary = CAMPAIGN_SHELL.fresh_state()
 	CAMPAIGN_SHELL.begin_run(abort_state, b5_index, false, false)
 	main._campaign.state = abort_state
+	main._campaign_on = true
 	main._campaign_abort()
 	var abort_flag: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
 	print(
-		"N07_NEG early_leave_final=%s flag=%s push_block_final=%s flag=%s abort_flag=%s" % [
-			early_has_final, early_flag, push_has_final, push_flag, abort_flag
+		"N07_NEG early_leave_final=%s flag=%s push_block_final=%s flag=%s push_after_elig=%s abort_flag=%s" % [
+			early_has_final, early_flag, push_has_final, push_flag, push_trace.get("after_elig", false), abort_flag
 		]
 	)
 	await _present_settled(_payload_win([], ms_early, "b5"))
@@ -866,53 +899,35 @@ func _case_22_final_clear_event() -> void:
 		and (not early_flag)
 		and (not push_has_final)
 		and (not push_flag)
+		and bool(push_trace.get("after_elig", false))
 		and (not abort_flag)
 		and (not neg_final_line)
 	)
 
-	## --- Positive: tip clear eligible THEN Leave from b5 ---
+	## --- Positive: production _commit_dungeon_clear → eligible → Leave ---
 	await _soft_reset("before final clear positive")
-	var state: Dictionary = CAMPAIGN_SHELL.fresh_state()
-	## Seed b4 to quota so Abyss is unlocked in overview (Locked ≠ contradict CLEAR).
-	## Keep other cabinets under quota so cabinets_complete stays false.
-	for pool in ["b1", "b2", "b3", "b4", "b5"]:
-		var ids: Array = _pool_ids(pool)
-		var n := 5 if pool == "b4" else 2
-		for i in mini(n, ids.size()):
-			state["banked"][str(ids[i])] = pool
-	CAMPAIGN_SHELL.normalize(state)
+	var state: Dictionary = _seed_incomplete_cabinets(true)
 	var cabinets_done: bool = CAMPAIGN_SHELL.cabinets_complete(main._campaign.rules, state)
 	var roster_done: bool = JOURNEY.roster_complete(state, main._campaign.rules, roster)
 	var abyss_unlocked: bool = CAMPAIGN_SHELL.pool_unlocked(main._campaign.rules, state, "b5")
 	CAMPAIGN_SHELL.begin_run(state, b5_index, false, false)
-	## Production clear commit path sets eligibility (not Leave alone).
-	CAMPAIGN_SHELL.note_tip_dungeon_cleared(main._campaign.rules, state)
-	main._campaign.state = state
-	main._campaign.write()
-	main._campaign_on = true
-	main.adventure = true
-	main.phase = "rest"
-	main.hotbar.clear()
-	if main.home_cabin != null:
-		main.home_cabin.swiped.clear()
-		main.home_cabin.seen.clear()
-		for sid in state["banked"].keys():
-			main.home_cabin.swiped[str(sid)] = true
-			main.home_cabin.seen[str(sid)] = true
+	_arm_campaign_leave_surface(state)
+	var clear_trace: Dictionary = _invoke_production_clear_commit()
+	var elig_after_clear: bool = bool(clear_trace.get("after_elig", false))
+	var flag_before_leave: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
+	print(
+		"N07_POS_TRACE clear→elig=%s flag_before_leave=%s (must not assign eligible directly)" % [
+			elig_after_clear, flag_before_leave
+		]
+	)
 	var ms: Array = await main._campaign_bank_from_hand_with_milestones(true)
-	var has_final := false
-	var has_inherit := false
-	for raw in ms:
-		var k := str((raw as Dictionary).get("kind", ""))
-		if k == "final_clear":
-			has_final = true
-		if k == "collection_complete":
-			has_inherit = true
+	var has_final: bool = _ms_has_kind(ms, "final_clear")
+	var has_inherit: bool = _ms_has_kind(ms, "collection_complete")
 	var flag_now: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
 	var won_now: bool = bool(main._campaign.state.get("won", false))
 	var endless_now: bool = bool(main._campaign.state.get("endless_unlocked", false))
 	main._campaign.write()
-	## Save / reload — flag durable; recognition must not invent inheritance.
+	## Save / reload — flag durable.
 	main._campaign.state = CAMPAIGN_SHELL.fresh_state()
 	main._campaign.load_all()
 	var flag_reload: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
@@ -929,7 +944,6 @@ func _case_22_final_clear_event() -> void:
 	var blob: String = _collect_labels(menu.get("_overview_box"))
 	var final_line := blob.find("Final dungeon cleared") >= 0
 	var full_line := blob.find("Full collection") >= 0
-	## Unlocked Abyss must show collection count, not the Locked badge line.
 	var abyss_locked_line := (
 		blob.find("Shadow Abyss — Locked") >= 0
 		or (abyss_unlocked and blob.find("Shadow Abyss collection:") < 0)
@@ -944,11 +958,31 @@ func _case_22_final_clear_event() -> void:
 	await _shot("N07-final-dungeon-victory.png")
 	menu.dismiss()
 	await process_frame
-	## Reload present without re-emitting final_clear / inheritance.
+	## Once-only after save/reload: clear-commit + Leave must not re-emit milestone.
+	CAMPAIGN_SHELL.begin_run(main._campaign.state, b5_index, false, false)
+	_arm_campaign_leave_surface(main._campaign.state)
+	var once_trace: Dictionary = _invoke_production_clear_commit()
+	var ms_once: Array = await main._campaign_bank_from_hand_with_milestones(true)
+	var once_has_final: bool = _ms_has_kind(ms_once, "final_clear")
+	var once_flag: bool = bool(main._campaign.state.get("final_dungeon_cleared", false))
+	print(
+		"N07_ONCE reload_clear_elig=%s leave_final=%s flag=%s" % [
+			once_trace.get("after_elig", false), once_has_final, once_flag
+		]
+	)
+	await _present_settled(_payload_win([], ms_once, "b5"))
+	menu = main.progress_menu
+	menu.call("_show_panel", 0)
+	menu.call("_rebuild_overview")
+	await process_frame
+	var blob_once := _collect_labels(menu.get("_overview_box"))
+	## Settled reload presentation uses empty news milestones — no second Final line from recognize.
 	var ms_rep: Array = []
 	var fc_rep: Dictionary = CAMPAIGN_SHELL.recognize_final_dungeon_clear(
 		main._campaign.rules, main._campaign.state, "b5"
 	)
+	if menu.visible:
+		menu.dismiss()
 	await _present_settled(_payload_win([], ms_rep, "b5"))
 	menu = main.progress_menu
 	menu.call("_show_panel", 0)
@@ -957,10 +991,27 @@ func _case_22_final_clear_event() -> void:
 	var blob_rep := _collect_labels(menu.get("_overview_box"))
 	var rep_final := blob_rep.find("Final dungeon cleared") >= 0
 	var rep_full := blob_rep.find("Full collection") >= 0
+	await _shot("N07-once-only-reload.png")
 	if menu.visible:
 		menu.dismiss()
+	var once_ok: bool = (
+		flag_reload
+		and bool(once_trace.get("after_elig", false))
+		and (not once_has_final)
+		and once_flag
+		and fc_rep.is_empty()
+		and (not rep_final)
+		and (not rep_full)
+	)
+	print(
+		"N07_ONCE_UI blob_once_has_final=%s rep_final=%s once_ok=%s" % [
+			blob_once.find("Final dungeon cleared") >= 0, rep_final, once_ok
+		]
+	)
 	var pos_ok: bool = (
 		neg_ok
+		and elig_after_clear
+		and (not flag_before_leave)
 		and (not cabinets_done)
 		and (not roster_done)
 		and abyss_unlocked
@@ -974,26 +1025,24 @@ func _case_22_final_clear_event() -> void:
 		and final_line
 		and (not full_line)
 		and (not abyss_locked_line)
-		and fc_rep.is_empty()
-		and (not rep_final)
-		and (not rep_full)
+		and once_ok
 	)
 	if pos_ok and summary_key_gap:
 		_row(
 			"22",
 			"PASS",
 			"integration",
-			"NEG early b5 Leave/push-block/abort do not mark; POS tip-clear eligible→Leave sets final_dungeon_cleared + milestone; Abyss unlocked in overview; incomplete collection; no won/endless/inheritance; COPY_GAP postrun.summary.final_clear."
+			"NEG early Leave/push-block/abort clean; POS production _commit_dungeon_clear→elig→Leave; once-only after reload; Abyss unlocked; COPY_GAP postrun.summary.final_clear."
 		)
 	elif pos_ok:
-		_row("22", "PASS", "integration", "final-clear gated on tip clear; early return proven clean")
+		_row("22", "PASS", "integration", "production clear-commit→Leave gated; once-only reload proven")
 	elif neg_ok:
 		_row(
 			"22",
 			"FAIL",
 			"integration",
-			"NEG ok; POS fail final=%s inherit=%s flag=%s/%s unlocked=%s locked_ui=%s line=%s full=%s" % [
-				has_final, has_inherit, flag_now, flag_reload, abyss_unlocked, abyss_locked_line, final_line, full_line
+			"NEG ok; POS fail elig=%s final=%s flag=%s/%s once=%s unlocked=%s line=%s" % [
+				elig_after_clear, has_final, flag_now, flag_reload, once_ok, abyss_unlocked, final_line
 			]
 		)
 	else:
@@ -1001,8 +1050,8 @@ func _case_22_final_clear_event() -> void:
 			"22",
 			"FAIL",
 			"integration",
-			"NEG fail early=%s/%s push=%s/%s abort=%s ui_line=%s; POS final=%s flag=%s" % [
-				early_has_final, early_flag, push_has_final, push_flag, abort_flag, neg_final_line, has_final, flag_now
+			"NEG fail early=%s/%s push=%s/%s abort=%s; POS final=%s" % [
+				early_has_final, early_flag, push_has_final, push_flag, abort_flag, has_final
 			]
 		)
 	await _soft_reset("after final victory")
@@ -1289,5 +1338,36 @@ func _case_24_completed_freedom() -> void:
 
 
 func _case_reduced_motion_scaling() -> void:
-	_row("RM", "NOTRUN", "unit", "reduced-motion preference path not exercised (no preference mutation allowed)")
-	_row("SC", "NOTRUN", "unit", "scaling probe logs SCALE lines only — not a full UI scale acceptance suite")
+	## Probe supported routes only — never mutate ProjectSettings / user prefs.
+	var rm_keys := [
+		"accessibility/general/reduce_motion",
+		"gui/common/reduce_motion",
+		"display/window/reduce_motion",
+	]
+	var rm_found := ""
+	for key in rm_keys:
+		if ProjectSettings.has_setting(key):
+			rm_found = key
+			break
+	_log_scale("rm-sc-probe")
+	if rm_found == "":
+		_row(
+			"RM",
+			"NOTRUN",
+			"unit",
+			"unsupported route: no reduce_motion ProjectSettings key (probed accessibility/gui/display); preference mutation banned — cannot toggle OS/editor a11y from harness"
+		)
+	else:
+		_row(
+			"RM",
+			"PARTIAL",
+			"unit",
+			"setting %s exists; stagger/compare not exercised (preference mutation banned)" % rm_found
+		)
+	## Scaling: viewport/window logged via SCALE lines at boot + shots — not a mutation suite.
+	_row(
+		"SC",
+		"PARTIAL",
+		"unit",
+		"SCALE probe exercised (viewport/window log only at 1680x1040); no DisplayServer size mutation / full UI scale acceptance suite"
+	)
