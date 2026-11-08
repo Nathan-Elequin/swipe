@@ -9079,10 +9079,6 @@ func _on_spin() -> void:
 		return
 	_spin_inflight = true
 	_harpy_did_spin_hit = false
-	## Tesla Coil: Defeat on the landing, before Harpy's land swing or Hex.
-	if await _tesla_on_spin():
-		await _bleed_end()
-		return
 	if _facing_can_act():
 		m = wheel[facing_index]
 		# Land swing happens before Hex / Rust tick. A countdown is not an item use.
@@ -11390,21 +11386,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			if await _apply_chakram(it):
 				return
 		"tesla_coil":
-			if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
-				_log_begin_item(it)
-				_log("on_item_use", "%s — cannot" % str(it.get("name", "?")))
-				if sfx:
-					sfx.play("error", -10.0)
-				return
-			var coil_n: int = int(it.get("tesla_n", 0)) + 1
-			it["tesla_n"] = coil_n
-			_log("on_item_use", str(it["name"]))
-			_log("var", "Charge %s" % coil_n)
-			it["spent"] = true
-			it["keep_after"] = str(it.get("card_id", "")) != "echo_bell"
-			await _count_item_use()
-			_toss_item(int(it["uid"]), bool(it.get("keep_after", false)))
-			await _flee_spin()
+			await _use_tesla_coil(it)
 			return
 		"kiss_of_death":
 			## Mark-target Neighbor path owns resolve — never instant-random.
@@ -16238,10 +16220,17 @@ func _damsel_neighbors(index: int) -> Array[int]:
 
 
 func _damsel_incoming() -> int:
+	return _damsel_incoming_at(facing_index)
+
+
+## Silent Damsel neighbor TakeX as if `seat` were facing. No HP/Block/poison mutation.
+func _damsel_incoming_at(seat: int) -> int:
+	if seat < 0 or seat >= wheel.size():
+		return 0
 	var left_blk: int = blk
 	var total: int = 0
 	var buckler_ok: bool = true
-	for j in _damsel_neighbors(facing_index):
+	for j in _damsel_neighbors(seat):
 		var nm: Dictionary = wheel[j]
 		for _h in range(_hit_count(j)):
 			var swing: Dictionary = _preview_swing(nm, left_blk, buckler_ok)
@@ -16638,59 +16627,64 @@ func _step_berserkers() -> void:
 		_sync_wheel_stats()
 
 
-func _tesla_charge(it: Dictionary) -> int:
-	if it.is_empty():
-		return 0
-	if str(it.get("card_id", "")) != "tesla_coil" and str(_ops_of(it).get("kind", "")) != "tesla_coil":
-		return 0
-	return maxi(0, int(it.get("tesla_n", 0)))
+## Across seat for Tesla Coil — existing living-opposite geometry (no click).
+func _tesla_across_index() -> int:
+	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
+		return -1
+	return _across_index(facing_index)
 
 
-## Lowest Charge that is still strictly above this HP. One coil. Stone cards stay.
-func _tesla_to_fire(hp_now: int) -> Dictionary:
-	var pick: Dictionary = {}
-	var pick_n := 0
-	if hp_now <= 0:
-		return pick
-	for it in hotbar:
-		if typeof(it) != TYPE_DICTIONARY:
-			continue
-		if _item_stoned(it):
-			continue
-		var n: int = _tesla_charge(it)
-		if n <= 0 or hp_now >= n:
-			continue
-		if pick.is_empty() or n < pick_n:
-			pick = it
-			pick_n = n
-	return pick
+## Silent pure TakeX as if facing the Across seat (Damsel neighbors included).
+## Preview only — never mutates HP / Block / poison.
+func _tesla_across_takex() -> int:
+	var across: int = _tesla_across_index()
+	if across < 0:
+		return -1
+	return _incoming_total_at(across)
 
 
-## True when this landing was Defeated (or a Lich chip finished them).
-## The coil that fired is discarded as soon as the check hits, before Flee rewrites.
-## HP equal to Charge does not Defeat.
-func _tesla_on_spin() -> bool:
+## Fully Blocking Across = silent TakeX is 0 (Orb Safe peer, Across seat).
+func _tesla_can_play() -> bool:
 	if phase != "fighting" or facing_index < 0 or facing_index >= wheel.size():
 		return false
-	var m: Dictionary = wheel[facing_index]
-	if str(m.get("kind", "")) != "monster":
+	var across: int = _tesla_across_index()
+	if across < 0 or across >= wheel.size():
 		return false
-	var coil: Dictionary = _tesla_to_fire(int(m.get("hp", 0)))
-	if coil.is_empty():
+	var m: Dictionary = wheel[across]
+	if str(m.get("kind", "")) != "monster" or int(m.get("hp", 0)) <= 0:
 		return false
-	## Name banner, then the card flies off. Same idea as Hex firing on its own.
-	await _announce_item_use(coil, _slice_from(facing_index), false)
-	coil["spent"] = true
-	_toss_item(int(coil.get("uid", -1)), false, true)
-	_log("on_resolve", "defeat")
+	if _defeat_blocked(m):
+		return false
+	return _tesla_across_takex() == 0
+
+
+## Defeat Across when fully Blocking them. Consume only on successful Defeat.
+func _use_tesla_coil(it: Dictionary) -> void:
+	if not _tesla_can_play():
+		_log("on_item_use", "cannot")
+		if sfx:
+			sfx.play("error", -10.0)
+		return
+	var across: int = _tesla_across_index()
+	if across < 0 or across >= wheel.size():
+		_log("on_item_use", "cannot")
+		if sfx:
+			sfx.play("error", -10.0)
+		return
+	var m: Dictionary = wheel[across]
 	if _undying(m):
+		_log("on_item_use", str(it["name"]))
 		_log("on_resolve", "undying")
-		if await _lich_chip_defeat(facing_index):
-			await _begin_slay()
-			return true
-		return false
-	await _begin_slay()
-	return true
+		await _lich_keep_defeat_item(it)
+		if await _lich_chip_defeat(across):
+			await _maybe_slay_down(across)
+		return
+	it["spent"] = true
+	await _count_item_use()
+	_log("on_item_use", str(it["name"]))
+	_log("on_resolve", "defeat")
+	_toss_item(int(it["uid"]), false)
+	await _hydra_defeat_as_item(across)
 
 
 func _step_hexs() -> bool:
@@ -21822,16 +21816,22 @@ func _swing(m: Dictionary, block_left: int) -> Dictionary:
 
 
 func _incoming_total() -> int:
+	return _incoming_total_at(facing_index)
+
+
+## Silent pure TakeX as if facing `seat` (Damsel / Shark / multi-hit / Huntsman extras).
+## Preview math only — never mutates HP, Block, or poison.
+func _incoming_total_at(seat: int) -> int:
 	if skip_swing_this_fight:
 		return 0
-	if facing_index < 0 or facing_index >= wheel.size():
+	if seat < 0 or seat >= wheel.size():
 		return 0
-	var m: Dictionary = wheel[facing_index]
+	var m: Dictionary = wheel[seat]
 	if str(m.get("card_id", "")) == "damsel_in_distress" and not _is_silenced(m):
-		return _damsel_incoming()
-	if _blood_threshes(facing_index):
+		return _damsel_incoming_at(seat)
+	if _blood_threshes(seat):
 		## Shark Take uses first connecting hit only; Straight Shot still adds once after.
-		var shark: int = _shark_incoming()
+		var shark: int = _shark_incoming_at(seat)
 		var probe_left: int = blk
 		var probe_buck: bool = true
 		var zeros: int = 0
@@ -21843,26 +21843,30 @@ func _incoming_total() -> int:
 			if int(sw["dmg"]) > 0:
 				break
 			zeros += 1
-		var hs_s: Dictionary = _huntsman_incoming_extra(facing_index, probe_left, probe_buck)
+		var hs_s: Dictionary = _huntsman_incoming_extra(seat, probe_left, probe_buck)
 		return shark + int(hs_s.get("dmg", 0))
 	var left: int = blk
 	var total: int = 0
 	var buckler_ok: bool = true
-	for _h in range(_hit_count(facing_index)):
+	for _h in range(_hit_count(seat)):
 		var swing: Dictionary = _preview_swing(m, left, buckler_ok)
 		total += int(swing["dmg"])
 		left = int(swing["blk"])
 		if bool(swing.get("used_buckler", false)):
 			buckler_ok = false
-	var hs: Dictionary = _huntsman_incoming_extra(facing_index, left, buckler_ok)
+	var hs: Dictionary = _huntsman_incoming_extra(seat, left, buckler_ok)
 	total += int(hs.get("dmg", 0))
 	return total
 
 
 func _shark_incoming() -> int:
-	if facing_index < 0 or facing_index >= wheel.size():
+	return _shark_incoming_at(facing_index)
+
+
+func _shark_incoming_at(seat: int) -> int:
+	if seat < 0 or seat >= wheel.size():
 		return 0
-	var m: Dictionary = wheel[facing_index]
+	var m: Dictionary = wheel[seat]
 	var left: int = blk
 	var buckler_ok: bool = true
 	var zeros: int = 0
@@ -22203,6 +22207,8 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 			return [[_fg("heart"), _fg("heart")]]
 		"kiss_of_death":
 			return [[_fg("drop", "4"), _fg("heart")]]
+		"tesla_coil":
+			return [[_fg("skull"), _fg("text", "Across")]]
 		"spinning_top":
 			return [[_fg("skull", n), _fg("icon", "", "", "", "", "spin")]]
 		"signpost":
@@ -22746,10 +22752,9 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["can_use"] = false
 		"tesla_coil":
 			out["kind"] = "DEFEAT"
-			out["n"] = int(it.get("tesla_n", 0))
-			out["number"] = str(out["n"])
+			out["number"] = "Defeat"
 			out["note"] = ""
-			out["can_use"] = fighting
+			out["can_use"] = _tesla_can_play()
 		"recycle_watch":
 			out["kind"] = "SKIP"
 			out["fill"] = Color("2f5a3a")
@@ -24031,6 +24036,11 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = str(it.get("ability", ""))
 			if fighting and _defeat_blocked(m if fighting else {}):
 				out["warn"] = "Can't — this enemy cannot be Defeated."
+		"tesla_coil":
+			out["value"] = _value_bb("Defeat", "Across", var_c)
+			out["body"] = str(it.get("ability", "Defeat the monster Across from you if you are fully Blocking them."))
+			if fighting and not bool(view.get("can_use", false)):
+				out["warn"] = "Can't — not fully Blocking Across."
 		"bag_hold":
 			out["title"] = _title_case(str(it.get("name", "Bag of Holding")))
 			out["body"] = str(it.get("ability", "Bag an enemy with less HP than you."))

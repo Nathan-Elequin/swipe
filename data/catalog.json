@@ -4504,26 +4504,26 @@
 			"type": "I"
 		},
 		{
-			"ability": "Flee and Gain 1 Charge. When you Spin an enemy with less HP than this number, Defeat them.",
+			"ability": "Defeat the monster Across from you if you are fully Blocking them.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 1.0,
-			"defined": "Click during a fight: Flee the current fight and Gain 1 Charge on this card. The card stays. Charge persists across uses and across dungeons until this card fires. While it is in hand, when you Spin an enemy whose current HP is strictly less than this Charge number, Defeat them, then Discard this. If more than one Tesla Coil could, only the lowest Charge that still beats them fires, and only that card is Discarded. The Discard happens as soon as the check hits, even if Commander, Petty King, Triclops, or Phoenix then rewrites the Defeat. A petrified coil does not fire.",
-			"exceptions": "Batch-2 2026-11-06 Pixel lock A. Pool 5 (Defeat peer da_boot). Charge stays until the auto Defeat trips, then that one card is Discarded. Lowest Charge that still beats the enemy is the one that fires.",
-			"explainer": "Flee: +1 Charge. Defeat Enemy on Spin if less than this",
+			"defined": "Click during a fight when you fully Block Across (silent TakeX as if facing Across, including Damsel neighbors, is 0). Defeat that Across monster. Discard this only if the Defeat succeeds. Across uses existing living-opposite geometry — no click target. Grey (unplayable) unless Across exists and TakeX is 0. Check does not mutate HP, Block, or poison. No new preview UX.",
+			"exceptions": "Balance Nov8 Slice N. Across full-block Defeat peer Orb Safe. Pool 5. Consume only on successful Defeat.",
+			"explainer": "Defeat Across if fully Blocking them.",
 			"flags": {
 				"art": true,
-				"dev": true,
+				"dev": false,
 				"hide": false
 			},
-			"flow": "Click during a fight: Flee the current fight and Gain 1 Charge on this card. The card stays. Charge persists across uses and across dungeons until this card fires. While it is in hand, when you Spin an enemy whose current HP is strictly less than this Charge number, Defeat them, then Discard this. If more than one Tesla Coil could, only the lowest Charge that still beats them fires, and only that card is Discarded. The Discard happens as soon as the check hits, even if Commander, Petty King, Triclops, or Phoenix then rewrites the Defeat. A petrified coil does not fire.",
+			"flow": "Click during a fight when you fully Block Across (silent TakeX as if facing Across, including Damsel neighbors, is 0). Defeat that Across monster. Discard this only if the Defeat succeeds. Across uses existing living-opposite geometry — no click target. Grey (unplayable) unless Across exists and TakeX is 0. Check does not mutate HP, Block, or poison. No new preview UX.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "tesla_coil",
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4545,23 +4545,14 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Flee +Charge; Spin-Defeat vs HP < Charge",
+			"log_hint": "Across: Defeat if fully Blocking",
 			"mode_pool": "all",
 			"name": "Tesla Coil",
-			"notes": "Batch-2 2026-11-06 Pixel lock A. Pool 5 (Defeat peer da_boot). Charge stays until the auto Defeat trips, then that one card is Discarded. Lowest Charge that still beats the enemy is the one that fires.",
+			"notes": "Balance Nov8 Slice N. Across full-block Defeat peer Orb Safe. Pool 5. Consume only on successful Defeat.",
 			"ops": {
 				"kind": "tesla_coil"
 			},
-			"pending_fields": {
-				"ability": {
-					"from": "Flee and Gain 1 Charge. When you Spin an enemy with less HP than this number (Charge), Defeat them. Then Discard this.",
-					"to": "Flee and Gain 1 Charge. When you Spin an enemy with less HP than this number, Defeat them."
-				},
-				"explainer": {
-					"from": "Flee +1 Charge; Spin-Defeat if enemy HP < Charge, then Discard this.",
-					"to": "Flee: +1 Charge. Defeat Enemy on Spin if less than this"
-				}
-			},
+			"pending_fields": {},
 			"poc": false,
 			"pool": 5.0,
 			"priority": 3.0,
