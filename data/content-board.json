@@ -2398,13 +2398,13 @@
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "+2 BLK OR +6 BLK -2 HP",
-			"flow": "Click during a fight. Gain 1 Block. Then if your Block total is even, Keep (spent this fight, still in your hand for later fights, same as Lantern). If odd, used up. Twins only doubles even Block gains, so this 1 is not doubled. Basilisk still blocks Keep. Block resets to 0 each fight, so a first click at 0 becomes 1 (odd) and is used up unless you already held odd Block. Fight only. Not Attack.",
+			"explainer": "Choose: +2 Block, or +6 Block −2 HP. Keep.",
+			"flow": "Click during a fight. Choose: Gain 2 Block, or Gain 6 Block and Lose 2 HP. Always Keep (spent this fight, still in your hand for later fights, same as Lantern). Fight only. Not Attack. Not a coin flip.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "lucky_nickel",
 			"kind": "item",
-			"locked_at": "2026-11-05",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2425,15 +2425,27 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Block 1, Keep if Block is even",
+			"log_hint": "Choose 2 Block, or 6 Block and Lose 2 HP. Keep.",
 			"mode_pool": "all",
 			"name": "{lucky} Nickel",
 			"notes": "Bucket 7. Coin with Grandpa goblin's face. Not Attack.",
 			"ops": {
-				"hi": 6.0,
-				"hp": 2.0,
-				"kind": "blk_coin_keep",
-				"lo": 2.0
+				"kind": "choose",
+				"options": [
+					{
+						"id": "safe",
+						"label": "Block 2",
+						"blk": 2.0,
+						"keep": true
+					},
+					{
+						"id": "risky",
+						"label": "Block 6, -2 HP",
+						"blk": 6.0,
+						"hp": 2.0,
+						"keep": true
+					}
+				]
 			},
 			"pool": 3.0,
 			"priority": 3.0,

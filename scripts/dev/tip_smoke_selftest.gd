@@ -227,6 +227,21 @@ func _init() -> void:
 	failed = _check(failed, "runtime_pruned_danger_magnet", not _runtime_has_item("danger_magnet")) or failed
 	failed = _check(failed, "runtime_pruned_basilisk", not _runtime_has_monster("basilisk")) or failed
 
+	## 15) Lucky Nickel is a real knife-style choose (not random coin).
+	failed = _check(failed, "runtime_has_lucky_nickel", _runtime_has_item("lucky_nickel")) or failed
+	failed = _check(failed, "lucky_nickel_ops_choose", _catalog_item_ops_kind("lucky_nickel", "choose")) or failed
+	failed = _check(
+		failed,
+		"lucky_nickel_item_ops_choose",
+		_source_contains("res://scripts/main.gd", "\"lucky_nickel\": {\"kind\": \"choose\"")
+		or _source_contains("res://scripts/main.gd", '"lucky_nickel": {"kind": "choose"')
+	) or failed
+	failed = _check(
+		failed,
+		"lucky_nickel_no_coin_kind_fallback",
+		not _source_contains("res://scripts/main.gd", '"lucky_nickel": {"kind": "blk_coin_keep"')
+	) or failed
+
 	if guide != null and is_instance_valid(guide):
 		guide.free()
 
@@ -460,6 +475,24 @@ func _catalog_item_flag(id: String, flag: String) -> bool:
 		if typeof(flags) != TYPE_DICTIONARY:
 			return false
 		return bool((flags as Dictionary).get(flag, false))
+	return false
+
+
+func _catalog_item_ops_kind(id: String, kind: String) -> bool:
+	var cat: Dictionary = _load_json("res://data/catalog.json")
+	var items: Variant = cat.get("items", [])
+	if typeof(items) != TYPE_ARRAY:
+		return false
+	for raw in items as Array:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var card: Dictionary = raw
+		if str(card.get("id", "")) != id:
+			continue
+		var ops: Variant = card.get("ops", {})
+		if typeof(ops) != TYPE_DICTIONARY:
+			return false
+		return str((ops as Dictionary).get("kind", "")) == kind
 	return false
 
 
