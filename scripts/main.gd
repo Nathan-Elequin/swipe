@@ -4143,6 +4143,7 @@ func _prep_next_dungeon() -> void:
 		it["spent"] = false
 		it["keep_after"] = false
 		it["siphon_blk"] = 0
+		it["shard_blk"] = 0
 		if str(it.get("card_id", "")) == "lantern":
 			_lantern_set_n(it, 1)
 		if str(it.get("card_id", "")) == "echo_bell":
@@ -7219,6 +7220,7 @@ func _make_item(id: String) -> Dictionary:
 		"spent": false,
 		"keep_after": false,
 		"siphon_blk": 0,
+		"shard_blk": 0,
 		"pack_tier": int(card.get("tier", 0)),
 		"pack_kind": "starter" if str(card.get("rarity", "starter")) == "starter" else "draft",
 		"petrified": false,
@@ -10998,6 +11000,17 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_gain_blk(n)
 			_log("on_item_use", str(it["name"]))
 			_log("blk", "+%s  →  %s" % [n, blk])
+		"shardplate":
+			## Cash stored Block on play; discarded after (no Keep).
+			var sn: int = int(it.get("shard_blk", 0))
+			if sn <= 0:
+				_log("on_item_use", "cannot")
+				if sfx:
+					sfx.play("error", -10.0)
+				return
+			_gain_blk(sn)
+			_log("on_item_use", str(it["name"]))
+			_log("blk", "+%s  →  %s" % [sn, blk])
 		"smoke":
 			# item.use.smoke_bomb already fired in _announce_item_use.
 			it["spent"] = true
@@ -14858,6 +14871,25 @@ func _grief_jar_on_hp_lost() -> void:
 		_refresh()
 
 
+func _shardplate_on_enemy_atk_damage() -> void:
+	## +1 Block on the card per enemy Attack-damage event (HP drop from `_deal_atk_at`).
+	## Poison/Bleed/`_chip_hp` and player HP loss never call this.
+	var grew := false
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) != "shardplate":
+			continue
+		if bool(it.get("spent", false)):
+			continue
+		it["shard_blk"] = int(it.get("shard_blk", 0)) + 1
+		_log("var", "Shardplate BLK %s" % it["shard_blk"])
+		grew = true
+	if grew:
+		_hotbar_sig = ""
+		_refresh()
+
+
 func _flip_alt_sais() -> void:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
@@ -16654,6 +16686,8 @@ func _item_grants_block(it: Dictionary) -> bool:
 		return _shield_face(it) == "blk"
 	if kind == "marble" or kind == "signpost":
 		return true
+	if kind == "shardplate":
+		return true
 	if kind == "choose":
 		var opts: Variant = _ops_of(it).get("options", [])
 		if typeof(opts) == TYPE_ARRAY:
@@ -17800,7 +17834,7 @@ func _echo_flatten_kind(kind: String, shield_face: String) -> String:
 	match kind:
 		"atk_hp_loss", "atk_alt_24", "atk_echo":
 			return "atk"
-		"blk_siphon", "blk_from_hp", "blk_from_highest_atk", "blk_last_atk", "blk_from_atk", "blk_keep", "blk_even_keep", "blk_min_hp", "blk_neighbor":
+		"blk_siphon", "blk_from_hp", "blk_from_highest_atk", "blk_last_atk", "blk_from_atk", "blk_keep", "blk_even_keep", "blk_min_hp", "blk_neighbor", "shardplate":
 			return "blk"
 		"heal_keep", "heal_kills", "heal_swap_keep":
 			return "heal"
@@ -17836,6 +17870,7 @@ func _item_echo_snapshot(it: Dictionary) -> Dictionary:
 		"ops": ops,
 		"shield_face": str(it.get("shield_face", "")),
 		"siphon_blk": frozen_n if kind == "blk_siphon" else int(it.get("siphon_blk", 0)),
+		"shard_blk": frozen_n if kind == "shardplate" else int(it.get("shard_blk", 0)),
 		"echo_silent": true,
 		"echo_frozen_n": frozen_n,
 	}
@@ -19205,6 +19240,9 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	m["hp_pre_hit"] = before_hp
 	m["hp"] = maxi(0, before_hp - hit_n)
 	wheel[index] = m
+	## Attack HP drop only — not Poison/`_chip_hp`, not player bleed.
+	if before_hp > int(m["hp"]):
+		_shardplate_on_enemy_atk_damage()
 	_fairy_floor_after_loss(index, before_hp)
 	m = wheel[index]
 	_note_hydra_survive_loss(index, before_hp, int(m["hp"]))
@@ -21939,6 +21977,8 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 			return [[_fg("heart", "6"), _fg("icon", "", "", "", "", "bar"), _fg("icon", "", "", "", "", "spin"), _fg("heart", "−1")]]
 		"grief_jar":
 			return [[_fg("shield", n, "", "", "bleed")]]
+		"shardplate":
+			return [[_fg("shield", n)]]
 		"spinning_top":
 			return [[_fg("skull", n), _fg("icon", "", "", "", "", "spin")]]
 		"signpost":
@@ -22429,6 +22469,12 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = str(out["n"])
 			out["note"] = ""
 			out["can_use"] = fighting and int(it.get("siphon_blk", 0)) > 0
+		"shardplate":
+			out["kind"] = "BLK"
+			out["n"] = int(it.get("shard_blk", 0))
+			out["number"] = str(out["n"])
+			out["note"] = ""
+			out["can_use"] = fighting and int(it.get("shard_blk", 0)) > 0
 		"passive":
 			out["kind"] = "PASSIVE"
 			out["number"] = ""
@@ -23019,7 +23065,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 	var view: Dictionary = _item_view(it)
 	var n: int = int(view.get("n", 0))
 	match kind:
-		"blk", "blk_from_hp", "blk_min_hp", "blk_neighbor", "blk_keep", "blk_siphon", "blk_from_atk", "blk_even_keep", "blk_from_highest_atk", "blk_last_atk":
+		"blk", "blk_from_hp", "blk_min_hp", "blk_neighbor", "blk_keep", "blk_siphon", "blk_from_atk", "blk_even_keep", "blk_from_highest_atk", "blk_last_atk", "shardplate":
 			if bool(view.get("can_use", false)):
 				var gain_n: int = maxi(0, n)
 				if _twins_double_blk(gain_n):
@@ -23876,6 +23922,12 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["value"] = _value_bb("Block", str(live), blk_c)
 			out["equation"] = "(%s) +2 per Lose HP" % _bb(blk_c, "BLK")
 			out["body"] = "Each time you Lose HP, this card gains +2 Block. Click it to spend that Block."
+			if fighting and not bool(view.get("can_use", false)):
+				out["warn"] = "Can't — no block stored yet."
+		"shardplate":
+			out["value"] = _value_bb("Block", str(live), blk_c)
+			out["equation"] = "(%s) +1 per enemy Attack Damage" % _bb(blk_c, "BLK")
+			out["body"] = str(it.get("ability", "Gain 0 Block. When an enemy takes Attack Damage, this Gains +1 Block."))
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = "Can't — no block stored yet."
 		"atk_wheel":
