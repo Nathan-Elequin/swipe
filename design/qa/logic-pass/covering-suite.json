@@ -2385,19 +2385,11 @@
 			"clicks": [
 				{
 					"op": "use",
-					"item": "lucky_nickel"
-				},
-				{
-					"op": "choose",
-					"id": "safe",
-					"blk": 2,
-					"keep": true
-				},
-				{
-					"op": "done"
+					"item": "lucky_nickel",
+					"auto": true
 				}
 			],
-			"expected_text": "Click Lucky Nickel, choose Block 2. The plates or the hand change, or the log names Lucky Nickel / cannot.",
+			"expected_text": "Click Lucky Nickel. The plates or the hand change, or the log names Lucky Nickel / cannot.",
 			"expected": {
 				"outcome": "fired"
 			},

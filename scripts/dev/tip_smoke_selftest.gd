@@ -227,19 +227,34 @@ func _init() -> void:
 	failed = _check(failed, "runtime_pruned_danger_magnet", not _runtime_has_item("danger_magnet")) or failed
 	failed = _check(failed, "runtime_pruned_basilisk", not _runtime_has_monster("basilisk")) or failed
 
-	## 15) Lucky Nickel is a real knife-style choose (not random coin).
+	## 15) Lucky Nickel is a random coin (not a knife-style choose picker).
 	failed = _check(failed, "runtime_has_lucky_nickel", _runtime_has_item("lucky_nickel")) or failed
-	failed = _check(failed, "lucky_nickel_ops_choose", _catalog_item_ops_kind("lucky_nickel", "choose")) or failed
+	failed = _check(failed, "lucky_nickel_ops_coin", _catalog_item_ops_kind("lucky_nickel", "blk_coin_keep")) or failed
 	failed = _check(
 		failed,
-		"lucky_nickel_item_ops_choose",
-		_source_contains("res://scripts/main.gd", "\"lucky_nickel\": {\"kind\": \"choose\"")
-		or _source_contains("res://scripts/main.gd", '"lucky_nickel": {"kind": "choose"')
+		"lucky_nickel_item_ops_coin",
+		_source_contains("res://scripts/main.gd", '"lucky_nickel": {"kind": "blk_coin_keep"')
+		or _source_contains("res://scripts/main.gd", "\"lucky_nickel\": {\"kind\": \"blk_coin_keep\"")
 	) or failed
 	failed = _check(
 		failed,
-		"lucky_nickel_no_coin_kind_fallback",
-		not _source_contains("res://scripts/main.gd", '"lucky_nickel": {"kind": "blk_coin_keep"')
+		"lucky_nickel_no_choose_kind",
+		not _source_contains("res://scripts/main.gd", '"lucky_nickel": {"kind": "choose"')
+		and not _source_contains("res://scripts/main.gd", "\"lucky_nickel\": {\"kind\": \"choose\"")
+	) or failed
+	failed = _check(
+		failed,
+		"lucky_nickel_no_choose_prompt",
+		not _source_contains("res://scripts/main.gd", "combat.nickel_choose_prompt")
+	) or failed
+	failed = _check(
+		failed,
+		"lucky_nickel_face_slash_chance_icons",
+		_source_contains("res://scripts/main.gd", '"lucky_nickel":')
+		and _source_contains("res://scripts/main.gd", '", "", "", "", "slash")')
+		and _source_contains("res://scripts/main.gd", '_fg("shield", "2")')
+		and _source_contains("res://scripts/main.gd", '_fg("shield", "6")')
+		and _source_contains("res://scripts/main.gd", '_fg("heart", "−2")')
 	) or failed
 
 	## 16) Ball & Chain is Draw a Card; draw items share the draw face glyph.

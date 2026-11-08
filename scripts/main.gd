@@ -180,10 +180,7 @@ const ITEM_OPS := {
 	"ale_flagon": {"kind": "heal_both_draw", "heal": 3},
 	"fairy_in_a_bottle": {"kind": "heal", "n": 2},
 	"napalm": {"kind": "napalm"},
-	"lucky_nickel": {"kind": "choose", "options": [
-		{"id": "safe", "label": "Block 2", "blk": 2, "keep": true},
-		{"id": "risky", "label": "Block 6, -2 HP", "blk": 6, "hp": 2, "keep": true},
-	]},
+	"lucky_nickel": {"kind": "blk_coin_keep", "lo": 2, "hi": 6, "hp": 2},
 	"double_buckler": {"kind": "blk_last_atk"},
 	"blood_pact": {"kind": "blood_pact", "n": 2},
 	"swift_sneaks": {"kind": "move2_keep", "n": 2},
@@ -10716,7 +10713,14 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 		"blk", "blk_from_hp", "blk_min_hp", "blk_neighbor", "blk_keep", "blk_from_atk", "blk_even_keep", "blk_from_highest_atk", "blk_last_atk", "blk_coin_keep":
 			var n: int = int(view.get("n", ops.get("n", 0)))
 			if kind == "blk_coin_keep":
-				if randi_range(0, 1) == 0:
+				## Pre-#462 odds: 50/50 lo(2) vs hi(6)+bleed. Optional it["_force_coin"]
+				## (0|1) is a test-only override; production never sets it.
+				var coin: int = int(it.get("_force_coin", -1))
+				if coin == 0 or coin == 1:
+					it.erase("_force_coin")
+				else:
+					coin = randi_range(0, 1)
+				if coin == 0:
 					n = int(ops.get("lo", 2))
 					it["_coin_bleed"] = 0
 				else:
@@ -21956,8 +21960,8 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"rust":
 			return [[_fg("shield", n if n != "" else "2"), _fg("heart", "−1")]]
 		"lucky_nickel":
-			## Knife-style both sides on the face: 2 Block / 6 Block + −2 HP heart.
-			return [[_fg("shield", "2"), _fg("shield", "6"), _fg("heart", "−2")]]
+			## Chance face (not a picker): 2 Block / 6 Block + −2 HP heart.
+			return [[_fg("shield", "2"), _fg("icon", "", "", "", "", "slash"), _fg("shield", "6"), _fg("heart", "−2")]]
 		"quiet_bell":
 			return [[_fg("icon", "", "", "", "", "ban")]]
 		"hex", "toll":
@@ -27964,8 +27968,6 @@ func _mode_choice_prompt(it: Dictionary) -> String:
 	var cid: String = str(it.get("card_id", ""))
 	if cid == "throwing_knife":
 		return PLAYER_COPY.text("combat.knife_choose_prompt", "choose a throw")
-	if cid == "lucky_nickel":
-		return PLAYER_COPY.text("combat.nickel_choose_prompt", "choose a side")
 	if cid == "net":
 		return PLAYER_COPY.text("combat.net_choose_prompt", "how much Attack to strip?")
 	## Magnet: do not invent a prompt beyond existing option strings.
@@ -27987,10 +27989,6 @@ func _mode_choice_overlay_rows(it: Dictionary) -> Array:
 			lab = PLAYER_COPY.text("combat.knife_throw", lab)
 		elif oid == "nick":
 			lab = PLAYER_COPY.text("combat.knife_nick", lab)
-		elif oid == "safe":
-			lab = PLAYER_COPY.text("combat.nickel_safe", lab)
-		elif oid == "risky":
-			lab = PLAYER_COPY.text("combat.nickel_risky", lab)
 		## ASCII hyphen OK for Net labels in code / display.
 		lab = lab.replace("−", "-").replace("–", "-")
 		var row := {"label": lab, "opt": opt, "badge": "", "pips": 0, "primary": lab, "secondary": ""}
@@ -27999,7 +27997,7 @@ func _mode_choice_overlay_rows(it: Dictionary) -> Array:
 			var parts_t: PackedStringArray = lab.split(",", true, 1)
 			row["primary"] = (str(parts_t[0]).strip_edges() + ",") if parts_t.size() > 1 else lab
 			row["secondary"] = str(parts_t[1]).strip_edges() if parts_t.size() > 1 else ""
-		elif oid == "nick" or oid == "safe" or oid == "risky" or bool(opt.get("keep", false)):
+		elif oid == "nick" or bool(opt.get("keep", false)):
 			row["badge"] = "keep"
 			var parts_k: PackedStringArray = lab.split(",", true, 1)
 			row["primary"] = (str(parts_k[0]).strip_edges() + ",") if parts_k.size() > 1 else lab

@@ -33,7 +33,7 @@
 		"item:left_bracer": 1792136735.68746,
 		"item:longbow": 1793775553.0,
 		"item:love_potion": 1793946825.73089,
-		"item:lucky_nickel": 1794128152.783803,
+		"item:lucky_nickel": 1794129975.909059,
 		"item:marble": 1792479900.0,
 		"item:measuring_tape": 1793400000.0,
 		"item:medallion": 1792694227.0,
@@ -134,5 +134,5 @@
 	"item:sling": 1793416800.0,
 	"monster:mouse": 1794125579.3456936,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": 1794128152.783803
+	"updated": 1794129975.909059
 }

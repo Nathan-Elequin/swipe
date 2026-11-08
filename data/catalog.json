@@ -3054,15 +3054,15 @@
 			"call_name": "",
 			"card_color": "blk",
 			"count": 1.0,
-			"defined": "Click during a fight. Choose: Gain 2 Block, or Gain 6 Block and Lose 2 HP. Always Keep (spent this fight, still in your hand for later fights, same as Lantern). Fight only. Not Attack. Not a coin flip.",
+			"defined": "Click during a fight. 50% Gain 2 Block, or 50% Gain 6 Block and Lose 2 HP. Always Keep (spent this fight, still in your hand for later fights, same as Lantern). Fight only. Not Attack. Coin flip — not a player choice.",
 			"exceptions": "Bucket 7. Coin with Grandpa goblin's face. Not Attack.",
-			"explainer": "Choose: +2 Block, or +6 Block −2 HP. Keep.",
+			"explainer": "+2 BLK OR +6 BLK -2 HP",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Click during a fight. Choose: Gain 2 Block, or Gain 6 Block and Lose 2 HP. Always Keep (spent this fight, still in your hand for later fights, same as Lantern). Fight only. Not Attack. Not a coin flip.",
+			"flow": "Click during a fight. 50% Gain 2 Block, or 50% Gain 6 Block and Lose 2 HP. Always Keep (spent this fight, still in your hand for later fights, same as Lantern). Fight only. Not Attack. Coin flip — not a player choice.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "lucky_nickel",
@@ -3087,27 +3087,15 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Choose 2 Block, or 6 Block and Lose 2 HP. Keep.",
+			"log_hint": "50% 2 Block, or 6 Block and Lose 2 HP. Keep.",
 			"mode_pool": "all",
 			"name": "{lucky} Nickel",
 			"notes": "Bucket 7. Coin with Grandpa goblin's face. Not Attack.",
 			"ops": {
-				"kind": "choose",
-				"options": [
-					{
-						"id": "safe",
-						"label": "Block 2",
-						"blk": 2.0,
-						"keep": true
-					},
-					{
-						"id": "risky",
-						"label": "Block 6, -2 HP",
-						"blk": 6.0,
-						"hp": 2.0,
-						"keep": true
-					}
-				]
+				"hi": 6.0,
+				"hp": 2.0,
+				"kind": "blk_coin_keep",
+				"lo": 2.0
 			},
 			"poc": false,
 			"pool": 3.0,
