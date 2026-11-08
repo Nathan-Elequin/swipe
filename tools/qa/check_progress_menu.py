@@ -97,8 +97,13 @@ def main() -> int:
     }
     for k, text in EXPECTED.items():
         ok(f"csv.{k}", csv_keys.get(k) == text, f"got={csv_keys.get(k)!r}")
-    ok("copy.postrun_count_29", len([k for k in keys if k.startswith("postrun.")]) == 29)
-    ok("csv.postrun_count_29", len(csv_keys) == 29)
+    ok("copy.postrun_count_30", len([k for k in keys if k.startswith("postrun.")]) == 30)
+    ok("csv.postrun_count_30", len(csv_keys) == 30)
+    ok(
+        "copy.collection_total",
+        "postrun.collection.total" in json.dumps(copy)
+        and "Item types collected:" in json.dumps(copy),
+    )
 
     menu = read("scripts/ui/progress_menu.gd")
     main_gd = read("scripts/main.gd")

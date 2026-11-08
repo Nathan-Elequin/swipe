@@ -39,8 +39,10 @@ OUT_DIR="${PROGRESS_MENU_OUT:-$ROOT/playtest/repot/outbox/REQ-20261108-progress-
 mkdir -p "$OUT_DIR"
 OUT="$OUT_DIR/main-routes.log"
 SHA="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || echo unknown)"
+export PROGRESS_SOURCE_SHA="${PROGRESS_SOURCE_SHA:-$SHA}"
 echo "Using Godot: $GODOT_BIN"
 echo "SHA=$SHA"
+echo "PROGRESS_SOURCE_SHA=$PROGRESS_SOURCE_SHA"
 echo "Isolated XDG_DATA_HOME=$XDG_DATA_HOME"
 
 RUNNER=("$GODOT_BIN" --path "$ROOT" --script res://scripts/dev/progress_menu_main_routes.gd)
@@ -62,9 +64,13 @@ fi
 } | tee "$OUT_DIR/main-routes.receipt.log"
 cp "$OUT" "$OUT_DIR/main-routes.raw.log" 2>/dev/null || true
 
+if grep -q 'PROGRESS_MENU_MAIN_ROUTES_FAIL' "$OUT"; then
+  echo "PROGRESS_MENU_MAIN_ROUTES failed (FAIL mark; exit $CODE)" >&2
+  exit 1
+fi
 if [[ "$CODE" -ne 0 ]] || ! grep -q 'PROGRESS_MENU_MAIN_ROUTES_OK' "$OUT"; then
   echo "PROGRESS_MENU_MAIN_ROUTES failed (exit $CODE)" >&2
-  exit "$CODE"
+  exit "${CODE:-1}"
 fi
 echo "PROGRESS_MENU_MAIN_ROUTES_OK SHA=$SHA"
 exit 0

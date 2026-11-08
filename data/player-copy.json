@@ -7376,6 +7376,13 @@
 		{
 			"cat": "PostRun",
 			"draft": true,
+			"key": "postrun.collection.total",
+			"text": "Item types collected: {count}/{total}",
+			"where": "Overview overall unique item-type aggregate across authoritative pools (not unlock quota)"
+		},
+		{
+			"cat": "PostRun",
+			"draft": true,
 			"key": "postrun.collection.item_missing",
 			"text": "Not yet collected",
 			"where": "Missing-item state label (icon+name still shown)"

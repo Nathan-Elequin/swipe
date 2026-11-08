@@ -12,9 +12,6 @@ const BIOME := preload("res://scripts/biome_cabinets.gd")
 const DESIGN := Vector2(1680.0, 1040.0)
 const STAGGER_S := 0.07
 const STEP_HOLD_S := 0.45
-## FLAG: no Spin overall-collection aggregate key (postrun.collection.overall / overallCollection).
-const FLAG_MISSING_OVERALL_COPY := "postrun.collection.overall / overallCollection missing — no invented aggregate"
-
 enum Tab { OVERVIEW, COLLECTION, NEXT_TARGET }
 enum Phase { INTRO, AREA, TARGET, IDLE }
 
@@ -70,7 +67,7 @@ var _active_tweens: Array = []
 var _focus_cells: Array = []
 var _present_busy: bool = false
 var _session_id: int = 0
-var _flagged_overall_missing: bool = false
+var _cell_tweens: Dictionary = {} ## id -> Tween
 
 
 func _ready() -> void:
@@ -435,37 +432,42 @@ func _requirement_text_for_pool(pid: String) -> String:
 	)
 
 
+func _overall_unique_counts() -> Vector2i:
+	## Distinct item types across authoritative biome pools (roster uniques), not unlock quota.
+	var seen_collected: Dictionary = {}
+	var seen_total: Dictionary = {}
+	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_rules) if not _rules.is_empty() else BIOME.CASES
+	for raw0 in biomes:
+		var pid0 := str((raw0 as Dictionary).get("id", ""))
+		if pid0 == "":
+			continue
+		for id in _pool_roster(pid0):
+			var sid := str(id)
+			seen_total[sid] = true
+			if bool(_swiped.get(sid, false)):
+				if _new_ids.has(sid) and not bool(_revealed_new.get(sid, false)):
+					continue
+				seen_collected[sid] = true
+	return Vector2i(seen_collected.size(), seen_total.size())
+
+
 func _rebuild_overview() -> void:
 	for c in _overview_box.get_children():
 		c.queue_free()
 	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_rules) if not _rules.is_empty() else BIOME.CASES
-	## Overall aggregate only with an approved Spin overall label key — never invent.
-	var overall_label := ""
-	if PLAYER_COPY.has_key("postrun.collection.overall"):
-		overall_label = PLAYER_COPY.text("postrun.collection.overall", "")
-	elif PLAYER_COPY.has_key("postrun.collection.overallCollection"):
-		overall_label = PLAYER_COPY.text("postrun.collection.overallCollection", "")
-	if overall_label != "":
-		var oc := 0
-		var ot := 0
-		for raw0 in biomes:
-			var pid0 := str((raw0 as Dictionary).get("id", ""))
-			if pid0 == "":
-				continue
-			oc += _visible_collected_in_pool(pid0)
-			ot += _pool_roster(pid0).size()
+	## Spin postrun.collection.total — overall unique item-type aggregate.
+	if PLAYER_COPY.has_key("postrun.collection.total"):
+		var totals: Vector2i = _overall_unique_counts()
 		var oline := Label.new()
+		oline.name = "OverallTotal"
 		oline.add_theme_font_size_override("font_size", 22)
 		oline.add_theme_color_override("font_color", Color("e8c36a"))
 		oline.text = PLAYER_COPY.fill(
-			"postrun.collection.area_count",
-			{"area": overall_label, "count": str(oc), "total": str(ot)},
-			"{area} collection: {count}/{total}"
+			"postrun.collection.total",
+			{"count": str(totals.x), "total": str(totals.y)},
+			"Item types collected: {count}/{total}"
 		)
 		_overview_box.add_child(oline)
-	elif not _flagged_overall_missing:
-		_flagged_overall_missing = true
-		push_warning(FLAG_MISSING_OVERALL_COPY)
 	for raw in biomes:
 		var b: Dictionary = raw if typeof(raw) == TYPE_DICTIONARY else {}
 		var pid := str(b.get("id", ""))
@@ -699,17 +701,26 @@ func _refresh_cell_visual(box: Control, id: String, animate_in: bool) -> void:
 	focus_sb.border_color = Color("f0e6d8")
 	focus_sb.set_border_width_all(3)
 	box.add_theme_stylebox_override("focus", focus_sb)
+	## Kill any in-flight arrival tween for this cell so settle never inherits mid-fade dim.
+	if _cell_tweens.has(id):
+		var old_tw: Tween = _cell_tweens[id]
+		if old_tw != null and is_instance_valid(old_tw):
+			old_tw.kill()
+		_cell_tweens.erase(id)
 	if icon != null:
-		if not collected or (is_new and not revealed):
+		if is_new and revealed:
+			icon.modulate = Color(1, 1, 1, 1)
+		elif not collected or (is_new and not revealed):
 			icon.modulate = Color(0.55, 0.55, 0.55, 1)
 		elif icon.texture == null:
 			icon.modulate = Color(0.35, 0.35, 0.35, 1)
 		else:
 			icon.modulate = Color(1, 1, 1, 1)
 	if name_l != null:
+		var bright := (collected and revealed) or (is_new and revealed)
 		name_l.add_theme_color_override(
 			"font_color",
-			Color("f0e6d8") if collected and revealed else Color("9a9080")
+			Color("f0e6d8") if bright else Color("9a9080")
 		)
 	if state_l != null:
 		if is_new and revealed:
@@ -724,15 +735,23 @@ func _refresh_cell_visual(box: Control, id: String, animate_in: bool) -> void:
 		else:
 			state_l.text = ""
 	if is_new and not revealed:
-		box.modulate.a = 0.0
+		## Hidden until land — full white RGB, alpha 0 (not gray RGB that sticks after fade).
+		box.modulate = Color(1, 1, 1, 0)
 	elif animate_in:
-		box.modulate.a = 0.0
+		box.modulate = Color(1, 1, 1, 0)
 		var tw := create_tween()
 		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 		tw.tween_property(box, "modulate:a", 1.0, 0.12)
+		tw.finished.connect(func() -> void:
+			if is_instance_valid(box):
+				box.modulate = Color(1, 1, 1, 1)
+			_cell_tweens.erase(id)
+		)
+		_cell_tweens[id] = tw
 		_active_tweens.append(tw)
 	else:
-		box.modulate.a = 1.0
+		## Settled end-state: never leave partial alpha / gray row modulate.
+		box.modulate = Color(1, 1, 1, 1)
 
 
 func _next_goal() -> Dictionary:
@@ -1001,12 +1020,24 @@ func _land_new(id: String, animate: bool = true) -> void:
 	_rebuild_overview()
 
 
+## Snap every revealed new cell to full bright settle (for shots / skip / manual conclude).
+func settle_landed_visuals() -> void:
+	for id in _new_ids:
+		var sid := str(id)
+		if not bool(_revealed_new.get(sid, false)):
+			continue
+		var cell: Control = _cell_by_id.get(sid, null)
+		if cell != null:
+			_refresh_cell_visual(cell, sid, false)
+
+
 func _on_skip() -> void:
 	_cancel_presentation()
 	_show_panel(Tab.NEXT_TARGET if not _next_goal().is_empty() else Tab.COLLECTION)
 	_area_filter = _played_pool if _played_pool != "" else _area_filter
 	_rebuild_area_tabs()
 	_land_all_remaining_news(false)
+	settle_landed_visuals()
 	_rebuild_target()
 	_ack_all_new()
 

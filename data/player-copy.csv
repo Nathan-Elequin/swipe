@@ -770,6 +770,7 @@ PostRun,postrun.summary.death,Death/loss return; no fake credit,Run ended in {ar
 PostRun,postrun.summary.tutorial,Completed tutorial return only (not Skip); zero bank,Tutorial complete. Tutorial items don't count toward collection progress.
 PostRun,postrun.summary.tutorial_skipped,Tutorial Skip/decline return; zero bank; not Yes-complete,Tutorial skipped.
 PostRun,postrun.collection.area_count,Area tab: collected distinct / full roster total (not unlock threshold),{area} collection: {count}/{total}
+PostRun,postrun.collection.total,Overview overall unique item-type aggregate across authoritative pools (not unlock quota),Item types collected: {count}/{total}
 PostRun,postrun.collection.item_missing,Missing-item state label (icon+name still shown),Not yet collected
 PostRun,postrun.collection.item_new,Just-banked this return,New!
 PostRun,postrun.collection.item_collected,Already-owned non-new item state label,Collected
