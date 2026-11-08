@@ -54,7 +54,7 @@ const DEFAULT_EXPLAINER := {
 	"victory_flask": "(1 + Defeats)",
 	"grappling_hook": "Walk the short way. Draw 1 Item. Does not spend a Move.",
 	"spiked_shield": "(Attack 3) or (Block 3), then the other after each Item",
-	"grief_jar": "Spin: −1 HP, +3 BLK",
+	"grief_jar": "+2 Block each Lose HP",
 	"longbow": "(ATK 5) opposite",
 	"lantern": "(HEAL 1 → 2) Keep if still missing HP",
 	"mirror_shard": "(Last BLK)",

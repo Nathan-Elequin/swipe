@@ -6,7 +6,7 @@
 
 **Cascade order** (`main.gd::_on_spin`, ~L5861–6101, after `phase = "fighting"`):
 1. `_apply_basilisk_gaze`
-2. `_apply_siphon_jars` (Grief Jar)
+2. Grief Jar HP-loss Block gain (no Spin tax; see `_grief_jar_on_hp_lost`)
 3. `_apply_cursed_scrolls`
 4. `_petrify_best_atk` / `_hydra_even_killer`
 5. `_apply_death_bell_on_spin`

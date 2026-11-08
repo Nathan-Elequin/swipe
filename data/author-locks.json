@@ -617,7 +617,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-11-08",
 			"name": "Grief Jar"
 		},
 		"item:grimoire": {
@@ -5731,5 +5731,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-11-07"
+	"updated": "2026-11-08T08:34:47Z"
 }

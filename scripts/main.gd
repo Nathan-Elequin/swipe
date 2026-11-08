@@ -9065,12 +9065,6 @@ func _on_spin() -> void:
 	if beggar_spin >= 0 and beggar_spin < wheel.size() and str(wheel[beggar_spin].get("card_id", "")) == "beggar" and int(wheel[beggar_spin].get("hp", 0)) > 0 and not _is_silenced(wheel[beggar_spin]):
 		await _beggar_assign(beggar_spin, true)
 	_sync_plague_poison()
-	if await _apply_siphon_jars():
-		await _bleed_end()
-		_store_last_faced_hp()
-		_undo_arm()
-		await _unlock_if_fighting()
-		return
 	if await _apply_cursed_scrolls():
 		await _bleed_end()
 		_store_last_faced_hp()
@@ -14794,19 +14788,22 @@ func _apply_cursed_scrolls() -> bool:
 	return false
 
 
-func _apply_siphon_jars() -> bool:
+func _grief_jar_on_hp_lost() -> void:
+	## Once per HP-loss event (same cadence as Spiked Flail / hp_loss_events), not per point.
+	var grew := false
 	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
 		if str(it.get("card_id", "")) != "grief_jar":
 			continue
 		if bool(it.get("spent", false)):
 			continue
-		it["siphon_blk"] = int(it.get("siphon_blk", 0)) + 3
+		it["siphon_blk"] = int(it.get("siphon_blk", 0)) + 2
 		_log("var", "Grief Jar BLK %s" % it["siphon_blk"])
-		await _announce_item_use(it, _hub_hp_pos())
-		if await _bleed(1):
-			return true
-	return false
-
+		grew = true
+	if grew:
+		_hotbar_sig = ""
+		_refresh()
 
 
 func _flip_alt_sais() -> void:
@@ -15523,6 +15520,7 @@ func _note_hp_lost(n: int) -> void:
 	bled.emit(n)
 	_shake_screen()
 	_tut_note_hp_change()
+	_grief_jar_on_hp_lost()
 	await _venom_veins_on_hp_lost()
 	if n != 2:
 		return
@@ -21902,7 +21900,7 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"cursed_scroll":
 			return [[_fg("heart", "6"), _fg("icon", "", "", "", "", "bar"), _fg("icon", "", "", "", "", "spin"), _fg("heart", "−1")]]
 		"grief_jar":
-			return [[_fg("shield", n), _fg("icon", "", "", "", "", "bar"), _fg("icon", "", "", "", "", "spin"), _fg("heart", "−1")]]
+			return [[_fg("shield", n, "", "", "bleed")]]
 		"spinning_top":
 			return [[_fg("impact", n), _fg("icon", "", "", "", "", "spin")]]
 		"signpost":
@@ -23781,8 +23779,8 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["warn"] = "Can't — no living monster."
 		"blk_siphon":
 			out["value"] = _value_bb("Block", str(live), blk_c)
-			out["equation"] = "(%s) +2 per Spin" % _bb(blk_c, "BLK")
-			out["body"] = "Each Spin: lose 1 HP. This card gains 2 Block. Click it to spend that Block."
+			out["equation"] = "(%s) +2 per Lose HP" % _bb(blk_c, "BLK")
+			out["body"] = "Each time you Lose HP, this card gains +2 Block. Click it to spend that Block."
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = "Can't — no block stored yet."
 		"atk_wheel":
