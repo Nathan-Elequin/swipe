@@ -216,7 +216,7 @@ func _init() -> void:
 	failed = _check(failed, "kiss_flags_dev_clear", not _catalog_item_flag("kiss_of_death", "dev")) or failed
 	failed = _check(failed, "venom_flags_dev_clear", not _catalog_item_flag("venom_veins", "dev")) or failed
 	failed = _check(failed, "kiss_ops_wired", _source_contains("res://scripts/main.gd", "\"kiss_of_death\":")) or failed
-	failed = _check(failed, "kiss_apply_hook", _source_has_func("res://scripts/main.gd", "_apply_kiss_of_death")) or failed
+	failed = _check(failed, "kiss_apply_hook", _source_has_func("res://scripts/main.gd", "_apply_kiss_of_death_mark")) or failed
 	failed = _check(failed, "venom_hp_loss_hook", _source_has_func("res://scripts/main.gd", "_venom_veins_on_hp_lost")) or failed
 	failed = _check(
 		failed,
@@ -472,6 +472,42 @@ func _init() -> void:
 		"love_potion_mark_wired",
 		_source_contains("res://scripts/main.gd", 'kind == "love_potion"')
 		and _source_contains("res://scripts/main.gd", '"love_potion"')
+	) or failed
+
+	## 22) KissOfDeath — Neighbor mark only; 4 Poison + Wraith Lifelink; louder apply FX.
+	failed = _check(failed, "runtime_has_kiss_of_death_m", _runtime_has_item("kiss_of_death")) or failed
+	failed = _check(
+		failed,
+		"kiss_ops_kind_m",
+		_catalog_item_ops_kind("kiss_of_death", "kiss_of_death")
+	) or failed
+	failed = _check(
+		failed,
+		"kiss_ability_neighbor_poison",
+		_catalog_item_ability_contains("kiss_of_death", "Mark a Neighbor with 4 Poison")
+		and _catalog_item_ability_contains("kiss_of_death", "Lifelink")
+	) or failed
+	failed = _check(
+		failed,
+		"kiss_mark_neighbor_wired",
+		_source_has_func("res://scripts/main.gd", "_apply_kiss_of_death_mark")
+		and _source_contains("res://scripts/main.gd", 'kind == "kiss_of_death"')
+		and _source_contains("res://scripts/main.gd", '_can_mark(index, "kiss_of_death")')
+		and not _source_contains("res://scripts/main.gd", "living[rng.randi() % living.size()]")
+	) or failed
+	failed = _check(
+		failed,
+		"kiss_paint_wraith_lifelink",
+		_source_has_func("res://scripts/main.gd", "_paint_kiss_lifelink")
+		and _source_func_calls("res://scripts/main.gd", "_apply_kiss_of_death_mark", "_paint_kiss_lifelink")
+		and _source_contains("res://scripts/main.gd", "When I am Defeated, set your HP to my most recent HP.")
+	) or failed
+	failed = _check(
+		failed,
+		"kiss_louder_apply_fx",
+		_source_func_calls("res://scripts/main.gd", "_apply_kiss_of_death_mark", "mark_slice")
+		and _source_contains("res://scripts/poison_pop.gd", "func mark_slice")
+		and _source_contains("res://scripts/boss_wheel.gd", "loud: bool = false")
 	) or failed
 
 	if guide != null and is_instance_valid(guide):

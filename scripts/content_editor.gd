@@ -89,7 +89,7 @@ const DEFAULT_EXPLAINER := {
 	"rust": "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust.",
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
 	"venom_veins": "On Lose HP: Gain a 3-Poison Flask",
-	"kiss_of_death": "Random enemy: 4 Poison + Lifelink",
+	"kiss_of_death": "Neighbor: 4 Poison + Lifelink",
 	"glass_asp": "On Spin +1 Poison. Spin me: set your HP to mine after Poison",
 	"imp": "Spin me: Move to the highest Attack enemy",
 	"huntsman": "Across Attacks you: I also Attack (once after multiattacks)",

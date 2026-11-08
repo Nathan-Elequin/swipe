@@ -8760,7 +8760,7 @@ func _on_slice_hovered(index: int) -> void:
 	_fill_inspect_from_slice(index)
 	if not pending_mark.is_empty() and phase == "fighting":
 		var mk: String = str(pending_mark.get("kind", ""))
-		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "hypnotize" or mk == "defeat_double_hp" or mk == "sling_any" or mk == "chain_flee" or mk == "love_potion":
+		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "hypnotize" or mk == "defeat_double_hp" or mk == "sling_any" or mk == "chain_flee" or mk == "love_potion" or mk == "kiss_of_death":
 			_apply_preview(_preview_mark_aim(mk, index))
 		else:
 			_apply_preview(_preview_bribe(index))
@@ -10505,7 +10505,7 @@ func _use_item(uid: int) -> void:
 		_sync_buttons()
 		call_deferred("_refresh")
 		return
-	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "signpost" or kind == "chain_flee" or kind == "love_potion":
+	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "signpost" or kind == "chain_flee" or kind == "love_potion" or kind == "kiss_of_death":
 		if kind == "love_potion":
 			if _living_monster_indices().size() < 2:
 				_log("on_item_use", "cannot")
@@ -11407,7 +11407,10 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			await _flee_spin()
 			return
 		"kiss_of_death":
-			await _apply_kiss_of_death(it)
+			## Mark-target Neighbor path owns resolve — never instant-random.
+			_log("on_item_use", "%s — cannot" % str(it.get("name", "?")))
+			if sfx:
+				sfx.play("error", -10.0)
 			return
 		_:
 			return
@@ -11698,19 +11701,30 @@ func _paint_kiss_lifelink(s: Dictionary) -> void:
 	s["kiss_lifelink"] = true
 
 
-func _apply_kiss_of_death(it: Dictionary) -> void:
-	var living: Array[int] = _living_monster_indices()
-	if living.is_empty():
-		_log_begin_item(it)
-		_log("on_item_use", "%s — cannot" % str(it.get("name", "?")))
+func _apply_kiss_of_death_mark(index: int) -> void:
+	## Choose a Neighbor: +4 Poison, replace ability with Wraith Lifelink, louder apply FX.
+	if not _can_mark(index, "kiss_of_death"):
 		if sfx:
 			sfx.play("error", -10.0)
 		return
-	var pick: int = int(living[rng.randi() % living.size()])
-	_add_monster_poison(pick, 4)
-	var m: Dictionary = wheel[pick]
+	var it: Dictionary = _find_item(int(pending_mark.get("uid", -1)))
+	pending_mark.clear()
+	if it.is_empty() or bool(it.get("spent", false)):
+		_undo_abort()
+		call_deferred("_refresh")
+		return
+	await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos(), true)
+	var token: int = _undo_gen
+	_bleed_begin()
+	## Quiet badge first; loud mark FX plays after paint so the +4 reads clearly.
+	_add_monster_poison(index, 4, true)
+	var m: Dictionary = wheel[index]
 	_paint_kiss_lifelink(m)
-	wheel[pick] = m
+	wheel[index] = m
+	if wheel_view != null and wheel_view.has_method("poison_badge_gain"):
+		wheel_view.poison_badge_gain(index, true)
+	if poison_pop != null and poison_pop.has_method("mark_slice"):
+		await poison_pop.mark_slice(index, 4)
 	_log("on_item_use", str(it.get("name", "Kiss of Death")))
 	_log(
 		"on_resolve",
@@ -11718,11 +11732,17 @@ func _apply_kiss_of_death(it: Dictionary) -> void:
 	)
 	if sfx:
 		sfx.play_event(&"status.poison")
+		sfx.play("confirm", -4.0, 0.88)
 	it["spent"] = true
 	await _count_item_use()
 	_toss_item(int(it["uid"]), false)
 	_sync_wheel_stats()
-	_refresh()
+	await _after_item_resolved(it)
+	await _bleed_end()
+	if _undo_stale(token):
+		return
+	_undo_finish_item()
+	call_deferred("_refresh")
 
 
 func _venom_veins_on_hp_lost() -> void:
@@ -13167,7 +13187,7 @@ func _poison_of(m: Dictionary) -> int:
 	return 5 if bool(m.get("poisoned", false)) else 0
 
 
-func _add_monster_poison(index: int, n: int) -> void:
+func _add_monster_poison(index: int, n: int, quiet_fx: bool = false) -> void:
 	if index < 0 or index >= wheel.size() or n <= 0:
 		return
 	var m: Dictionary = wheel[index]
@@ -13175,7 +13195,7 @@ func _add_monster_poison(index: int, n: int) -> void:
 	m["poison"] = amt
 	m["poisoned"] = amt > 0
 	wheel[index] = m
-	if wheel_view != null and wheel_view.has_method("poison_badge_gain"):
+	if not quiet_fx and wheel_view != null and wheel_view.has_method("poison_badge_gain"):
 		wheel_view.poison_badge_gain(index)
 	_sync_plague_poison()
 
@@ -14041,7 +14061,7 @@ func _item_opens_use_pick(it: Dictionary) -> bool:
 	var kind: String = str(_ops_of(it).get("kind", ""))
 	if kind == "sling" or kind == "choose" or kind == "magnet" or kind == "chaos_reroll":
 		return true
-	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor":
+	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "kiss_of_death":
 		return true
 	if kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "love_potion":
 		return true
@@ -20750,6 +20770,8 @@ func _can_mark(index: int, kind: String) -> bool:
 		return false
 	if kind == "mark_poison":
 		return not bool(wheel[index].get("crossbowed", false))
+	if kind == "kiss_of_death":
+		return int(wheel[index].get("hp", 0)) > 0
 	if kind == "mark_crossbow" or kind == "atk_neighbor":
 		if str(wheel[index].get("card_id", "")) == "goblin":
 			return false
@@ -20795,6 +20817,9 @@ func _apply_mark_inner(index: int) -> void:
 	var atk_uid: int = int(pending_mark.get("atk_uid", -1))
 	if kind == "love_potion":
 		await _apply_love_potion_mark(index)
+		return
+	if kind == "kiss_of_death":
+		await _apply_kiss_of_death_mark(index)
 		return
 	if not _can_mark(index, kind):
 		if sfx:
@@ -22176,6 +22201,8 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 			return [[_fg("shield", n)]]
 		"love_potion":
 			return [[_fg("heart"), _fg("heart")]]
+		"kiss_of_death":
+			return [[_fg("drop", "4"), _fg("heart")]]
 		"spinning_top":
 			return [[_fg("skull", n), _fg("icon", "", "", "", "", "spin")]]
 		"signpost":
@@ -22682,7 +22709,7 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["n"] = 4
 			out["number"] = "4"
 			out["note"] = ""
-			out["can_use"] = fighting and not _living_monster_indices().is_empty()
+			out["can_use"] = fighting and not _mark_targets("kiss_of_death").is_empty()
 		"love_potion":
 			out["kind"] = "MARK"
 			out["number"] = ""
@@ -23179,9 +23206,9 @@ func _preview_mark_aim(kind: String, hover: int) -> Dictionary:
 			slot = _preview_stamp_fairy_save(i, slot)
 		else:
 			slot["mark"] = true
-			if kind == "mark_poison":
+			if kind == "mark_poison" or kind == "kiss_of_death":
 				var dose: int = 4
-				if not it.is_empty():
+				if not it.is_empty() and kind == "mark_poison":
 					dose = int(_ops_of(it).get("n", dose))
 				dose += _poison_of(wheel[i])
 				if int(wheel[i].get("hp", 0)) > 0 and dose >= int(wheel[i].get("hp", 0)):
@@ -23407,10 +23434,11 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 			if bool(view.get("can_use", false)):
 				for si in _mark_targets("defeat_double_hp"):
 					p[si] = {"hp": -int(wheel[si].get("hp", 0)), "kill": true}
-		"mark_poison":
+		"mark_poison", "kiss_of_death":
 			if bool(view.get("can_use", false)):
 				var pdose: int = int(view.get("n", 4))
-				for pi in _mark_targets("mark_poison"):
+				var pkind: String = kind
+				for pi in _mark_targets(pkind):
 					var pslot: Dictionary = p.get(pi, {})
 					pslot["mark"] = true
 					var tot_p: int = pdose + _poison_of(wheel[pi])
@@ -24314,10 +24342,10 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = str(it.get("ability", ""))
 		"kiss_of_death":
 			out["value"] = _value_bb("Poison", "4", gold)
-			out["equation"] = "random enemy + Lifelink"
-			out["body"] = str(it.get("ability", "Mark a random enemy with 4 Poison and change their ability to Lifelink."))
+			out["equation"] = "Neighbor + Lifelink"
+			out["body"] = str(it.get("ability", "Mark a Neighbor with 4 Poison and change their ability to Lifelink."))
 			if fighting and not bool(view.get("can_use", false)):
-				out["warn"] = "Can't — no living enemy."
+				out["warn"] = "Can't — no Neighbor you can mark."
 		_:
 			out["value"] = str(view.get("kind", ""))
 			out["body"] = str(it.get("ability", ""))
@@ -26188,7 +26216,7 @@ func _refresh() -> void:
 			else:
 				wheel[i]["across"] = -1
 		## Keep neighbor aim ghosts on while picking (never the facing kill ghost).
-		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "sling_any" or mk == "chain_flee" or mk == "love_potion":
+		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "sling_any" or mk == "chain_flee" or mk == "love_potion" or mk == "kiss_of_death":
 			_apply_preview(_preview_mark_aim(mk, _hover_slice))
 	else:
 		for i2 in wheel.size():
