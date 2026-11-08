@@ -194,7 +194,7 @@ const ITEM_OPS := {
 	"chakram": {"kind": "chakram", "blk": 3, "atk": 3},
 	"signpost": {"kind": "signpost", "n": 7},
 	"sling": {"kind": "sling"},
-	"ball_and_chain": {"kind": "chain_flee"},
+	"ball_and_chain": {"kind": "draw"},
 	"energy_drink": {"kind": "player_flee_keep"},
 	"recycler": {"kind": "recycle_watch"},
 	"rust": {"kind": "blk", "n": 2},
@@ -6376,7 +6376,7 @@ func _utility_fill(ops_kind: String, family: String) -> Color:
 			return Color("3a2450")
 		"PASSIVE":
 			return Color("243a22")
-		"SMOKE", "SKIP":
+		"SMOKE", "SKIP", "DRAW":
 			return Color("3a2a38")
 		"MARK":
 			if ops_kind == "mark_poison":
@@ -10964,6 +10964,15 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 					await _heal_monster(facing_index, both_n, true, _item_card_global(int(it.get("uid", -1))))
 			_draw_unseen_item()
 			_undo_no_rewind = true
+		"draw":
+			## Pure Draw a Card (Ball & Chain). Same loot-pool draw as Smoke / Ale / Catapult.
+			_log("on_item_use", str(it["name"]))
+			it["spent"] = true
+			await _count_item_use()
+			_draw_unseen_item()
+			_toss_item(int(it["uid"]), false)
+			_undo_no_rewind = true
+			return
 		"heal_kills":
 			var flask_n: int = 1 + mobs_defeated
 			_log("on_item_use", str(it["name"]))
@@ -21893,7 +21902,8 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"spiked_flail":
 			return [[_fg("impact", n, "", "", "bleed")]]
 		"ball_and_chain":
-			return [[_fg("text", "Flee")]]
+			## Shared Draw-a-Card glyph (bag.png via "draw" alias).
+			return [[_fg("icon", "", "", "", "", "draw")]]
 		"spider_egg":
 			return [[_fg("impact", n, "", "self")]]
 		"left_bracer":
@@ -21914,7 +21924,7 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"arrow_head":
 			return [[_fg("impact", "6"), _fg("heart", "−2")]]
 		"ale_flagon":
-			return [[_fg("heart", "3"), _fg("icon", "", "", "", "", "bag")]]
+			return [[_fg("heart", "3"), _fg("icon", "", "", "", "", "draw")]]
 		"healing_potion":
 			return [[_fg("skull"), _fg("icon", "", "", "", "", "east"), _fg("heart", "3")]]
 		"pacemaker":
@@ -21938,7 +21948,7 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 				ehp = int(wheel[facing_index].get("hp", 0))
 			return [[_fg("impact", str(hit), "", "self"), _fg("skull"), _fg("heart", str(ehp))]]
 		"smoke_bomb":
-			return [[_fg("icon", "", "", "", "", "spin"), _fg("icon", "", "", "", "", "bag")]]
+			return [[_fg("icon", "", "", "", "", "spin"), _fg("icon", "", "", "", "", "draw")]]
 		"mute_stone":
 			return [[_fg("icon", "", "", "", "", "swap")]]
 		"polymorph":
@@ -21969,17 +21979,17 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"pocketwatch":
 			return [[_fg("text", "Across")]]
 		"grappling_hook":
-			return [[_fg("text", "Move")]]
+			return [[_fg("text", "Move"), _fg("icon", "", "", "", "", "draw")]]
 		"bag_of_marbles":
 			return [[_fg("text", "Fill")]]
 		"catapult":
-			return [[_fg("text", "Eject")]]
+			return [[_fg("text", "Eject"), _fg("icon", "", "", "", "", "draw")]]
 		"bag_of_holding":
 			if n != "" and n != "Bag" and n != "—":
 				return [[_fg("text", n)]]
 			return [[_fg("text", "Bag")]]
 		"sling":
-			return [[_fg("text", n)]]
+			return [[_fg("text", "0"), _fg("icon", "", "", "", "", "draw")]]
 	if n == "—" or n == "-":
 		return [[_fg("text", "—")]]
 	var kind := str(view.get("kind", ""))
@@ -22114,6 +22124,11 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = "Eject"
 			out["note"] = ""
 			out["can_use"] = fighting and adventure and facing_index >= 0
+		"draw":
+			out["kind"] = "DRAW"
+			out["number"] = ""
+			out["note"] = ""
+			out["can_use"] = fighting
 		"polymorph":
 			out["kind"] = "COPY"
 			out["number"] = "Copy"
@@ -23579,7 +23594,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 	var num_c: String = blk_c if kind.begins_with("blk") else atk_c
 	if kind == "heal" or kind == "heal_both_draw" or kind == "heal_kills" or kind == "heal_keep" or kind == "heal_swap_keep" or kind == "heal_full" or kind == "heal_poison" or kind == "napalm" or kind == "blood_pact":
 		num_c = hp_c
-	elif kind == "smoke" or kind == "hook_swap" or kind == "chain_flee":
+	elif kind == "smoke" or kind == "hook_swap" or kind == "chain_flee" or kind == "draw":
 		num_c = gold
 	var cream := num_c
 	match kind:
@@ -23937,6 +23952,9 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = str(it.get("ability", "Select a Neighbor. Flee and Spin that selected monster."))
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = PLAYER_COPY.text("warn.neighbor", "Can't — no neighboring enemy.")
+		"draw":
+			out["value"] = _value_bb("Draw", "", gold)
+			out["body"] = str(it.get("ability", "Draw a Card"))
 		"sling":
 			out["value"] = _value_bb("Marble", "0", gold)
 			out["body"] = str(it.get("ability", "Turn any Item in your hand into a Marble, then Draw 1 Item"))

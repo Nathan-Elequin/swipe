@@ -87,7 +87,10 @@ static func _path_for(key: String) -> String:
 			return FACE_DIR + "question.png"
 		"noflee":
 			return FACE_DIR + "flee.png"
-		"nw", "ne", "east", "far", "cleave", "spin", "retain", "hand", "bag", "flee", "slash", "swap":
+		## "draw" / "draw_card" = shared Draw-a-Card glyph (bag.png card+plus).
+		"draw", "draw_card", "bag":
+			return FACE_DIR + "bag.png"
+		"nw", "ne", "east", "far", "cleave", "spin", "retain", "hand", "flee", "slash", "swap":
 			return FACE_DIR + k + ".png"
 		_:
 			if k.ends_with(".png") or k.ends_with(".svg"):
