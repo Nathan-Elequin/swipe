@@ -1251,11 +1251,12 @@
 				"ball_and_chain"
 			],
 			"face": "golem",
-			"expected_text": "Draw a Card. Ball & Chain is used up and you gain an Item.",
+			"expected_text": "Select a Neighbor. Flee and Spin that selected monster. Draw a Card. Ball & Chain is used up; Spin lands on the Neighbor; you gain an Item.",
 			"clicks": [
 				{
 					"op": "use",
-					"item": "ball_and_chain"
+					"item": "ball_and_chain",
+					"auto": true
 				}
 			],
 			"expected": {

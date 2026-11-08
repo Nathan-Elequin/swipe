@@ -69,6 +69,16 @@ if [[ "$NICKEL" -ne 0 ]]; then
   exit "$NICKEL"
 fi
 
+# Ball & Chain Flee → Spin land → Draw once; cancel/invalid = no consume.
+set +e
+"$GODOT_BIN" --headless --path "$ROOT" --script res://scripts/dev/ballchain_flee_spin_draw_selftest.gd
+BALLCHAIN=$?
+set -e
+if [[ "$BALLCHAIN" -ne 0 ]]; then
+  echo "BALLCHAIN_FLEE_SPIN_DRAW_SMOKE failed (exit $BALLCHAIN)" >&2
+  exit "$BALLCHAIN"
+fi
+
 # House rooms unlock after first successful full dungeon return (cabin doors only).
 chmod +x "$ROOT/tools/qa/run_house_unlock_first_return.sh"
 set +e

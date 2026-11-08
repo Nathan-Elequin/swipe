@@ -820,7 +820,7 @@
 					"id": "ball_and_chain",
 					"kind": "item",
 					"name": "Ball & Chain",
-					"ability": "Draw a Card",
+					"ability": "Select a Neighbor. Flee and Spin that selected monster. Draw a Card.",
 					"sprite": "assets/dungeon/items/ball_and_chain.png"
 				},
 				{

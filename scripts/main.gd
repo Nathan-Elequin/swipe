@@ -191,7 +191,7 @@ const ITEM_OPS := {
 	"chakram": {"kind": "chakram", "blk": 3, "atk": 3},
 	"signpost": {"kind": "signpost", "n": 7},
 	"sling": {"kind": "sling"},
-	"ball_and_chain": {"kind": "draw"},
+	"ball_and_chain": {"kind": "chain_flee"},
 	"energy_drink": {"kind": "player_flee_keep"},
 	"recycler": {"kind": "recycle_watch"},
 	"rust": {"kind": "blk", "n": 2},
@@ -767,6 +767,8 @@ var _skip_item_use_count: bool = false
 var _after_item_use_armed: bool = false
 var _flee_random_spin: bool = false
 var _spin_land_uid: int = -1
+## Ball & Chain: after Flee+Spin lands on the selected Neighbor, Draw one Item once.
+var _chain_flee_draw_pending: bool = false
 var _pending_item_flee: bool = false
 var _chakram_halves_busy: bool = false
 var _fungal_stop_fight: bool = false
@@ -2603,6 +2605,7 @@ func _reset_run() -> void:
 	pending_chaos.clear()
 	_pending_item_flee = false
 	_drink_hp_due = false
+	_chain_flee_draw_pending = false
 	_magnet_seq = 0
 	_magnet_pending_consume = ""
 	beads_step = 1
@@ -9037,6 +9040,10 @@ func _on_spin() -> void:
 	_log("var", "enemy ATK %s   HP %s" % [m["atk"], m["hp"]])
 	_log("var", "BLK 0")
 	_log("var", "items this combat 0")
+	## Ball & Chain: Select Neighbor → Flee → Spin lands here → Draw one Item (once).
+	if _chain_flee_draw_pending:
+		_chain_flee_draw_pending = false
+		_draw_unseen_item()
 	if combat_stage:
 		combat_stage.show_monster(str(m.get("card_id", "")), int(m.get("tier", 1)))
 		_tune_combat_stage()
@@ -10081,6 +10088,7 @@ func _undo_abort() -> void:
 	_skip_item_use_count = false
 	_after_item_use_armed = false
 	_shroud_blocks_undo = false
+	_chain_flee_draw_pending = false
 	_undo_inflight = false
 	_sync_buttons()
 
@@ -21287,6 +21295,7 @@ func _apply_signpost(index: int, it: Dictionary) -> void:
 
 func _apply_chain_flee(index: int, it: Dictionary) -> void:
 	if index < 0 or index >= wheel.size():
+		_chain_flee_draw_pending = false
 		_undo_abort()
 		call_deferred("_refresh")
 		return
@@ -21298,6 +21307,8 @@ func _apply_chain_flee(index: int, it: Dictionary) -> void:
 	await _count_item_use()
 	_toss_item(int(it.get("uid", -1)), false)
 	_spin_land_uid = _seat_uid_at(index)
+	## Draw fires once after the forced Spin lands on this Neighbor (not on cancel).
+	_chain_flee_draw_pending = true
 	_undo_finish_item()
 	await _flee_spin()
 
@@ -24299,7 +24310,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["warn"] = PLAYER_COPY.text("warn.neighbor", "Can't — no neighboring enemy.")
 		"chain_flee":
 			out["value"] = _value_bb("Flee", "", gold)
-			out["body"] = str(it.get("ability", "Select a Neighbor. Flee and Spin that selected monster."))
+			out["body"] = str(it.get("ability", "Select a Neighbor. Flee and Spin that selected monster. Draw a Card."))
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = PLAYER_COPY.text("warn.neighbor", "Can't — no neighboring enemy.")
 		"draw":

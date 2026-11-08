@@ -3069,7 +3069,7 @@
 		},
 		{
 			"id": "ball_and_chain-atk",
-			"title": "Ball & Chain draws a card",
+			"title": "Ball & Chain Flee Neighbor then Draw",
 			"family": "item",
 			"items": [
 				"ball_and_chain"
@@ -3082,10 +3082,11 @@
 			"clicks": [
 				{
 					"op": "use",
-					"item": "ball_and_chain"
+					"item": "ball_and_chain",
+					"auto": true
 				}
 			],
-			"expected_text": "Click Ball & Chain. It is used up and you Draw a Card (gain an Item).",
+			"expected_text": "Click Ball & Chain, then a living Neighbor. That Neighbor is Fled to; the Spin lands on them; Ball & Chain is used up and you Draw a Card (gain an Item).",
 			"expected": {
 				"outcome": "fired"
 			},
@@ -3094,7 +3095,7 @@
 					"id": "ball_and_chain",
 					"kind": "item",
 					"name": "Ball & Chain",
-					"ability": "Draw a Card",
+					"ability": "Select a Neighbor. Flee and Spin that selected monster. Draw a Card.",
 					"sprite": "assets/dungeon/items/ball_and_chain.png"
 				},
 				{
