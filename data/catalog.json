@@ -4384,26 +4384,26 @@
 			"type": "I"
 		},
 		{
-			"ability": "Gain 0 Block. When you deal Attack Damage, this Gains +2 Block. On Spin, this Loses 2 Block (cannot go below 0).",
+			"ability": "Gain 0 Block. When an enemy takes Attack Damage, this Gains +1 Block.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "blk",
 			"count": 1.0,
-			"defined": "Starts at 0 Block on this card. Whenever you deal Attack Damage (self-damage from Eggs etc. counts; AOE grows +2 per target that actually takes damage; does not grow when attacking a Goblin that takes no damage), this Gains +2 Block. On Spin, this Loses 2 Block (floor 0). Play spends the card for its current Block (used up). Keep until cashed.",
-			"exceptions": "Batch-2 2026-11-06 Pixel lock B. Pool 2 (non-fat T1). flags.dev until counter-on-item + cash-on-play Block is wired.",
-			"explainer": "Counter Block: +2 on Attack Damage dealt, −2 on Spin; cash on play",
+			"defined": "Starts at 0 Block on this card. Whenever an enemy takes Attack Damage (AOE / multi-target: +1 per enemy that actually loses HP; Goblin that takes no damage does not grow; Poison and Bleed do not count), this Gains +1 Block. Play spends the card for its current Block (used up). Keep until cashed. No On Spin Block loss.",
+			"exceptions": "Batch-2 2026-11-06 Pixel lock B. Pool 3 T1. Wired Nov8 Slice K.",
+			"explainer": "Counter Block: +1 when an enemy takes Attack Damage; cash on play",
 			"flags": {
 				"art": true,
-				"dev": true,
+				"dev": false,
 				"hide": false
 			},
-			"flow": "Starts at 0 Block on this card. Whenever you deal Attack Damage (self-damage from Eggs etc. counts; AOE grows +2 per target that actually takes damage; does not grow when attacking a Goblin that takes no damage), this Gains +2 Block. On Spin, this Loses 2 Block (floor 0). Play spends the card for its current Block (used up). Keep until cashed.",
+			"flow": "Starts at 0 Block on this card. Whenever an enemy takes Attack Damage (AOE / multi-target: +1 per enemy that actually loses HP; Goblin that takes no damage does not grow; Poison and Bleed do not count), this Gains +1 Block. Play spends the card for its current Block (used up). Keep until cashed. No On Spin Block loss.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "shardplate",
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4425,10 +4425,10 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Block counter; cash on play",
+			"log_hint": "Enemy Attack dmg → +1 Block; cash on play",
 			"mode_pool": "all",
 			"name": "Shardplate",
-			"notes": "Batch-2 2026-11-06 Pixel lock B. Pool 2 (non-fat T1). flags.dev until counter-on-item + cash-on-play Block is wired.",
+			"notes": "Batch-2 2026-11-06 Pixel lock B. Pool 3 T1. Balance Nov8 Slice K: +1 Block per enemy Attack-damage event; remove Spin −2; cash-on-play discard remains.",
 			"ops": {
 				"kind": "shardplate"
 			},

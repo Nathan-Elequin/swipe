@@ -403,6 +403,41 @@ func _init() -> void:
 		and not _source_func_calls("res://scripts/main.gd", "_owner_attack", "_glass_asp_on_attack")
 	) or failed
 
+	## 20) Shardplate — +1 Block per enemy Attack-damage event; no Spin −2; cash on play.
+	failed = _check(failed, "runtime_has_shardplate", _runtime_has_item("shardplate")) or failed
+	failed = _check(
+		failed,
+		"shardplate_ops_kind",
+		_catalog_item_ops_kind("shardplate", "shardplate")
+	) or failed
+	failed = _check(
+		failed,
+		"shardplate_ability_enemy_attack",
+		_catalog_item_ability_contains("shardplate", "enemy takes Attack Damage")
+		and _catalog_item_ability_contains("shardplate", "+1 Block")
+	) or failed
+	failed = _check(
+		failed,
+		"shardplate_ability_no_spin_loss",
+		not _catalog_item_ability_contains("shardplate", "On Spin")
+		and not _catalog_item_ability_contains("shardplate", "Loses 2 Block")
+	) or failed
+	failed = _check(
+		failed,
+		"shardplate_deal_atk_hook",
+		_source_has_func("res://scripts/main.gd", "_shardplate_on_enemy_atk_damage")
+		and _source_func_calls("res://scripts/main.gd", "_deal_atk_at", "_shardplate_on_enemy_atk_damage")
+		and not _source_func_calls("res://scripts/main.gd", "_chip_hp", "_shardplate_on_enemy_atk_damage")
+		and not _source_func_calls("res://scripts/main.gd", "_note_hp_lost", "_shardplate_on_enemy_atk_damage")
+	) or failed
+	failed = _check(
+		failed,
+		"shardplate_cash_on_play",
+		_source_contains("res://scripts/main.gd", '"shardplate":')
+		and _source_contains("res://scripts/main.gd", "shard_blk")
+		and _source_contains("res://scripts/main.gd", 'it["shard_blk"]')
+	) or failed
+
 	if guide != null and is_instance_valid(guide):
 		guide.free()
 
