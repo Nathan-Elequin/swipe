@@ -648,6 +648,20 @@ func _rebuild_grid() -> void:
 	_cell_by_id.clear()
 	_focus_cells.clear()
 	_update_area_count_lab()
+	## Journey A: locked future cabinets reveal no item names/icons (no spoilers).
+	var area_unlocked := true
+	if not _rules.is_empty() and _area_filter != "":
+		area_unlocked = CAMPAIGN_SHELL.pool_unlocked(_rules, _state, _area_filter)
+	if not area_unlocked:
+		var locked_word := PLAYER_COPY.text("postrun.collection.area_locked", "Locked")
+		var total: int = _pool_roster(_area_filter).size()
+		var show_n: int = mini(total, maxi(1, _grid.columns * 2))
+		for i in show_n:
+			var cell := _make_locked_placeholder_cell(i, locked_word)
+			_grid.add_child(cell)
+			_focus_cells.append(cell)
+		_wire_cell_focus_neighbors()
+		return
 	var roster: Array = _pool_roster(_area_filter)
 	for id in roster:
 		var cell := _make_item_cell(str(id))
@@ -669,6 +683,58 @@ func _wire_cell_focus_neighbors() -> void:
 		cell.focus_neighbor_right = right.get_path() if right else NodePath()
 		cell.focus_neighbor_top = up.get_path() if up else NodePath()
 		cell.focus_neighbor_bottom = down.get_path() if down else NodePath()
+
+
+func _make_locked_placeholder_cell(index: int, locked_word: String) -> Control:
+	## Anonymous locked slot — no catalog id, name, or art (Journey A spoiler ban).
+	var box := PanelContainer.new()
+	box.name = "Cell_locked_%s" % index
+	box.custom_minimum_size = Vector2(360, 88)
+	box.focus_mode = Control.FOCUS_ALL
+	var sb := StyleBoxFlat.new()
+	sb.set_corner_radius_all(4)
+	sb.content_margin_left = 10
+	sb.content_margin_right = 10
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+	sb.bg_color = Color("161310")
+	sb.border_color = Color("4a4034")
+	sb.set_border_width_all(2)
+	box.add_theme_stylebox_override("panel", sb)
+	var row := HBoxContainer.new()
+	row.name = "Row"
+	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(row)
+	var icon := TextureRect.new()
+	icon.name = "Icon"
+	icon.custom_minimum_size = Vector2(64, 64)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.modulate = Color(0.35, 0.35, 0.35, 1)
+	row.add_child(icon)
+	var text_col := VBoxContainer.new()
+	text_col.name = "Text"
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(text_col)
+	var name_l := Label.new()
+	name_l.name = "Name"
+	name_l.text = "?"
+	name_l.add_theme_font_size_override("font_size", 18)
+	name_l.add_theme_color_override("font_color", Color("9a9080"))
+	name_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	text_col.add_child(name_l)
+	var state_l := Label.new()
+	state_l.name = "State"
+	state_l.text = locked_word
+	state_l.add_theme_font_size_override("font_size", 14)
+	state_l.add_theme_color_override("font_color", Color("7a7060"))
+	state_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	text_col.add_child(state_l)
+	return box
 
 
 func _make_item_cell(id: String) -> Control:
@@ -1267,6 +1333,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
 	if event.is_action_pressed("ui_cancel"):
+		## Journey A: Esc/Back restores the caller (dismiss without choosing Start/Cabin).
+		_result = {"action": "dismiss", "biome_index": 0, "kind": _kind}
+		dismiss()
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_accept") and not _btn_next.disabled:

@@ -164,10 +164,19 @@ def main() -> int:
     )
     ok(
         "main.quiet_stamp_on_leave",
-        '_campaign_bank_from_hand(true)' in main_gd
+        (
+            '_campaign_bank_from_hand(true)' in main_gd
+            or '_campaign_bank_from_hand_with_milestones(true)' in main_gd
+        )
         and "stamp_map_piece" in main_gd
-        and '_campaign_bank_from_hand(false)' in main_gd
-        and "cabinet_count(_campaign.state, pool_id) >= quota" in main_gd,
+        and (
+            '_campaign_bank_from_hand(false)' in main_gd
+            or '_campaign_bank_from_hand_with_milestones(false)' in main_gd
+        )
+        and (
+            "cabinet_count(_campaign.state, pool_id) >= quota" in main_gd
+            or "CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool_id) >= quota" in main_gd
+        ),
         "leave stamps past-quota (deferred); push-block does not",
     )
     ok(

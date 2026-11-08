@@ -1,8 +1,8 @@
 ---
 id: REQ-20261108-collection-A
-status: open
+status: done
 priority: high
-tip_sha: 4a1696778624cdf2d78007294c63cf83683df8c7
+tip_sha: 59e8ca511259155995eef52b98b21850fbae027e
 branch: playtest/latest
 created: 2026-11-08T04:30:00-06:00
 created_by: collection-a-cloud
@@ -10,7 +10,7 @@ viewport: 1680x1040
 entry: F5 playtest hub → Brand New or Middle Progress → Verdant campaign loop; Progress menu + optional Cabin. Use isolated disposable userdata only.
 note: >
   Merged code PRs #474/#475/#476/#477 are tip-smoke CI only — NOT runtime acceptance.
-  Shoot the full matrix on tip 4a169677 (includes cabin nav). Do not claim F5-ready from CI.
+  Drained on tip 59e8ca51 (includes Collection A + buckler). Outbox RESULT.md + shots committed.
 ---
 
 # Collection Journey A — runtime acceptance matrix (Cherry)

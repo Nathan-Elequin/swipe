@@ -1629,6 +1629,9 @@ func _build_ui() -> void:
 	collection_quiet = COLLECTION_QUIET_STRIP.new()
 	collection_quiet.name = "CollectionQuietStrip"
 	collection_quiet.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	## Keep above hotbar New! badges so the quiet banked/held line stays readable.
+	collection_quiet.z_as_relative = false
+	collection_quiet.z_index = 20
 	btn_wrap.add_child(collection_quiet)
 
 	var right := VBoxContainer.new()
